@@ -9,6 +9,10 @@
 # - Assert there are no under-/overflows in the created histograms.
 # - Clean up output (debug vs. verbose).
 # - Write and check-in some config files.
+# - Turn the Matplotlib imports into normal imports, protected by
+#   catching an ImportError.
+# - Check week totals.
+# - Sort out the fontproperties business.
 # TODO TODO TODO end
 
 import sys
@@ -39,6 +43,15 @@ DATE_FMT_STR_OUT = "%Y-%m-%d %H:%M"
 DATE_FMT_STR_AXES = "%-d %b"
 DATE_FMT_STR_CFG = "%Y-%m-%d"
 NUM_SEC_IN_LS = 2**18 / 11246.
+
+# BUG BUG BUG
+# Working on fonts...
+from matplotlib.font_manager import FontProperties
+font_props_suptitle = FontProperties(size="x-large", weight="bold")
+font_props_title = FontProperties(size="medium", weight="bold")
+font_props_ax_title = FontProperties(size="large", weight="bold")
+font_props_tick_label = FontProperties(size="medium", weight="bold")
+# BUG BUG BUG end
 
 ######################################################################
 
@@ -248,7 +261,7 @@ def AddLogo(logo_name, ax):
     """Read logo from PNG file and add it to axes."""
 
     logo_data = read_png(logo_name)
-    logo_box = OffsetImage(logo_data, zoom=1.)
+    logo_box = OffsetImage(logo_data, zoom=1.2)
     ann_box = AnnotationBbox(logo_box, [0., 1.],
                              xybox=(2., -2.),
                              xycoords="axes fraction",
@@ -260,7 +273,8 @@ def AddLogo(logo_name, ax):
 
 ######################################################################
 
-def TweakPlot(fig, ax):
+def TweakPlot(fig, ax, (time_begin, time_end),
+              add_extra_head_room=False):
 
     # Add the logo.
     AddLogo(logo_name, ax)
@@ -272,15 +286,60 @@ def TweakPlot(fig, ax):
         label.set_ha("right")
         label.set_rotation(30.)
 
+    # Bit of magic here: increase vertical scale by one tick to make
+    # room for the legend.
+    if add_extra_head_room:
+        y_ticks = ax.get_yticks()
+        tmp = y_ticks[1] - y_ticks[0]
+        (y_min, y_max) = ax.get_ylim()
+        ax.set_ylim(y_min, y_max + tmp)
+
     # Add a second vertical axis on the right-hand side.
     ax_sec = ax.twinx()
     ax_sec.set_ylim(ax.get_ylim())
 
-    locator = matplotlib.dates.MonthLocator(range(1, 13))
+    for ax_tmp in fig.axes:
+        for sub_ax in [ax_tmp.xaxis, ax_tmp.yaxis]:
+            for label in sub_ax.get_ticklabels():
+                label.set_font_properties(font_props_tick_label)
+
+    time_lo = datetime.datetime.combine(time_begin.date(), datetime.time()) - \
+              datetime.timedelta(days=.5)
+    time_hi = datetime.datetime.combine(time_end.date(), datetime.time()) + \
+              datetime.timedelta(days=.5)
+    ax.set_xlim(time_lo, time_hi)
+
+    def GetXLocator(ax):
+        """Pick a DateLocator based on the range of the x-axis."""
+        (x_lo, x_hi) = ax.get_xlim()
+        num_days = x_hi - x_lo
+        print "DEBUG num_days = %d" % num_days
+        if num_days < 32:
+            # Less than two weeks: label days.
+            locator = matplotlib.dates.DayLocator()
+        if num_days < 32:
+            # Less than about one month: label every second day.
+            locator = matplotlib.dates.DayLocator(range(1, 32, 2))
+        elif num_days < 63:
+            # Less than about two months: label weeks.
+            locator = matplotlib.dates.DayLocator(range(1, 32, 7))
+        else:
+            # More than about two months: label months.
+            locator = matplotlib.dates.MonthLocator()
+        # BUG BUG BUG
+        min_num_ticks = min(num_days, 5)
+        locator = matplotlib.dates.AutoDateLocator(minticks=min_num_ticks,
+                                                   maxticks=None)
+        # BUG BUG BUG end
+        # End of GetLocator().
+        return locator
+
+    locator = GetXLocator(ax)
     ax.xaxis.set_major_locator(locator)
     formatter = matplotlib.dates.DateFormatter(DATE_FMT_STR_AXES)
     ax.xaxis.set_major_formatter(formatter)
-    fig.subplots_adjust(bottom=.125, left=.1, right=.925)
+
+    fig.subplots_adjust(top=.89, bottom=.125, left=.1, right=.925)
     # End of TweakPlot().
 
 ######################################################################
@@ -297,10 +356,8 @@ def LoadMatplotlib():
         from matplotlib._png import read_png
         from matplotlib.offsetbox import OffsetImage
         from matplotlib.offsetbox import AnnotationBbox
-        matplotlib.rcParams["legend.numpoints"] = 1
-        matplotlib.rcParams["legend.fontsize"] = "medium"
         matplotlib.rcParams["text.usetex"] = False
-        matplotlib.rcParams["text.latex.preamble"] = "\usepackage{amsmath}"
+        matplotlib.rcParams["legend.numpoints"] = 1
         matplotlib.rcParams["savefig.dpi"] = 600
         matplotlib_loaded = True
         # The following makes the (now local) imports global.
@@ -647,38 +704,29 @@ if __name__ == "__main__":
                 ax.hist(bin_centers, bin_edges, weights=weights_del,
                         histtype="stepfilled",
                         facecolor=color_fill_del, edgecolor=color_line_del,
-                        label="LHC Delivered, max: $%.1f$ $%s$/day" % \
+                        label="LHC Delivered, max: $%.1f$ $\mathrm{%s}$/day" % \
                         (max_del, units))
                 ax.hist(bin_centers, bin_edges, weights=weights_rec,
                         histtype="stepfilled",
                         facecolor=color_fill_rec, edgecolor=color_line_rec,
-                    label="CMS Recorded, max: $%.1f$ $%s$/day" % \
+                    label="CMS Recorded, max: $%.1f$ $\mathrm{%s}$/day" % \
                         (max_rec, units))
-                ax.legend(loc="upper left", bbox_to_anchor=(0.1, 0., 1., 1.),
+                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.),
                           frameon=False)
 
                 # Set titles and labels.
                 fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
                              "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
                              (particle_type_str, year, 1.e-3 * cms_energy),
-                             fontsize=14, fontweight="bold")
+                             fontproperties=font_props_suptitle)
                 ax.set_title("Data included from %s to %s UTC" % \
                              (str_begin, str_end),
-                             fontsize=10)
-                ax.set_xlabel(r"Date", fontweight="bold")
-                ax.set_ylabel(r"Integrated Luminosity ($%s$/day)" % units,
-                              fontweight="bold")
+                             fontproperties=font_props_title)
+                ax.set_xlabel(r"Date (UTC)", fontproperties=font_props_ax_title)
+                ax.set_ylabel(r"Integrated Luminosity ($\mathrm{%s}$/day)" % units,
+                              fontproperties=font_props_ax_title)
 
-                TweakPlot(fig, ax)
-
-                # Bit of magic here: increase vertical scale by one tick
-                # to make room for the legend.
-                y_ticks = ax.get_yticks()
-                tmp = y_ticks[1] - y_ticks[0]
-                (y_min, y_max) = ax.get_ylim()
-                ax.set_ylim(y_min, y_max + tmp)
-
-                ax.set_xlim(time_begin, time_end)
+                TweakPlot(fig, ax, (time_begin, time_end), True)
 
             fig.savefig("int_lumi_per_day_%s_%d%s.png" % \
                         (particle_type_str, year, file_suffix))
@@ -702,30 +750,29 @@ if __name__ == "__main__":
                 ax.hist(bin_centers, bin_edges, weights=weights_del,
                         histtype="stepfilled", cumulative=True,
                         facecolor=color_fill_del, edgecolor=color_line_del,
-                        label="LHC Delivered: $%.2f$ $%s$" % \
+                        label="LHC Delivered: $%.2f$ $\mathrm{%s}$" % \
                         (tot_del, units))
                 ax.hist(bin_centers, bin_edges, weights=weights_rec,
                         histtype="stepfilled", cumulative=True,
                         facecolor=color_fill_rec, edgecolor=color_line_rec,
-                        label="CMS Recorded: $%.2f$ $%s$" % \
+                        label="CMS Recorded: $%.2f$ $\mathrm{%s}$" % \
                         (tot_rec, units))
-                ax.legend(loc="upper left", bbox_to_anchor=(0.1, 0., 1., 1.),
+                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.),
                           frameon=False)
 
                 # Set titles and labels.
                 fig.suptitle(r"CMS Integrated Luminosity, " \
-                             "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
+                             r"%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
                              (particle_type_str, year, 1.e-3 * cms_energy),
-                             fontsize=14, fontweight="bold")
+                             fontproperties=font_props_suptitle)
                 ax.set_title("Data included from %s to %s UTC" % \
                              (str_begin, str_end),
-                             fontsize=10)
-                ax.set_xlabel(r"Date", fontweight="bold")
-                ax.set_ylabel(r"Total Integrated Luminosity ($%s$)" % units,
-                              fontweight="bold")
+                             fontproperties=font_props_title)
+                ax.set_xlabel(r"Date (UTC)", fontproperties=font_props_ax_title)
+                ax.set_ylabel(r"Total Integrated Luminosity ($\mathbf{\mathrm{%s}}$)" % units,
+                              fontproperties=font_props_ax_title)
 
-                TweakPlot(fig, ax)
-                ax.set_xlim(time_begin, time_end)
+                TweakPlot(fig, ax, (time_begin, time_end))
 
             fig.savefig("int_lumi_cumulative_%s_%d%s.png" % \
                         (particle_type_str, year, file_suffix))
