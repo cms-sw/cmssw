@@ -1,4 +1,4 @@
-// $Id: DiskWriter.cc,v 1.31 2011/06/20 16:38:51 mommsen Exp $
+// $Id: DiskWriter.cc,v 1.32 2011/11/08 10:48:40 mommsen Exp $
 /// @file: DiskWriter.cc
 
 #include <algorithm>
@@ -315,7 +315,8 @@ namespace stor {
   void DiskWriter::processEndOfLumiSection(const I2OChain& msg)
   {
     if ( msg.faulty() || msg.runNumber() != runNumber_ ) return;
-    
+    if ( streamHandlers_.empty() ) return; //Don't care about EoLS signal if we have no streams
+
     const uint32_t lumiSection = msg.lumiSection();
     
     std::string fileCountStr;
