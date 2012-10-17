@@ -1,3 +1,15 @@
+2009-10-17 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V08-11-00
+	* Adapt HTTP sources to changes in StreamerInputSource base class
+
+2012-10-17 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-10-02
+	* Fix accounting of files in case that the file cannot be open
+	* Discard EoLS signals when there are no streams, i.e. if not
+	  processing events
+
 2012-10-04 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-10-01
