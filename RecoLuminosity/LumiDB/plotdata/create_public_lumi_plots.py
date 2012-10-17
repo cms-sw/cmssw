@@ -239,9 +239,11 @@ class ColorScheme(object):
 
 ######################################################################
 
-def CacheFilePath(day, cache_file_dir):
-    cache_file_name = "lumicalc_cache_%s.csv" % day.isoformat()
-    cache_file_path = os.path.join(cache_file_dir, cache_file_name)
+def CacheFilePath(cache_file_dir, day=None):
+    cache_file_path = os.path.abspath(cache_file_dir)
+    if day:
+        cache_file_name = "lumicalc_cache_%s.csv" % day.isoformat()
+        cache_file_path = os.path.join(cache_file_dir, cache_file_name)
     return cache_file_path
 
 ######################################################################
@@ -360,7 +362,8 @@ if __name__ == "__main__":
     cfg_defaults = {
         "lumicalc_flags" : "",
         "date_end" : None,
-        "color_schemes" : "Joe, Greg"
+        "color_schemes" : "Joe, Greg",
+        "verbose" : False
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     cfg_parser.read(config_file_name)
@@ -371,7 +374,7 @@ if __name__ == "__main__":
     # Where to store cache files containing the lumiCalc output.
     cache_file_dir = cfg_parser.get("general", "cache_dir")
     # Flag to turn on verbose output.
-    verbose = cfg_parser.get("general", "verbose")
+    verbose = cfg_parser.getboolean("general", "verbose")
 
     # Some details on how to invoke lumiCalc.
     lumicalc_script = cfg_parser.get("general", "lumicalc_script")
@@ -433,7 +436,8 @@ if __name__ == "__main__":
     if ignore_cache:
         print "Ignoring all cached lumiCalc results (and rebuilding the cache)"
     else:
-        print "Using cached lumiCalc results from %s" % cache_file_dir
+        print "Using cached lumiCalc results from %s" % \
+              CacheFilePath(cache_file_dir)
     print "Using color schemes '%s'" % ", ".join(color_scheme_names)
     print "Using lumiCalc script '%s'" % lumicalc_script
     print "Using additional lumiCalc flags from configuration: '%s'" % \
@@ -442,6 +446,20 @@ if __name__ == "__main__":
           lumicalc_flags
     print "Selecting data for beam energy %.0f GeV" % beam_energy
     print "Selecting data for accelerator mode '%s'" % accel_mode
+
+    ##########
+
+    # See if the cache file dir exists, otherwise try to create it.
+    path_name = CacheFilePath(cache_file_dir)
+    if not os.path.exists(path_name):
+        if verbose:
+            print "Cache file path does not exist: creating it"
+        try:
+            os.makedirs(path_name)
+        except Exception, err:
+            print >> sys.stderr, \
+                  "ERROR Could not create cache dir: %s" % path_name
+            sys.exit(1)
 
     ##########
 
@@ -488,7 +506,7 @@ if __name__ == "__main__":
     for day in days:
         print "  %s" % day.isoformat()
         use_cache = (not ignore_cache) and (day <= last_day_from_cache)
-        cache_file_path = CacheFilePath(day, cache_file_dir)
+        cache_file_path = CacheFilePath(cache_file_dir, day)
         if (not os.path.exists(cache_file_path)) or (not use_cache):
             date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
             date_end_str = (day + datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
@@ -525,7 +543,7 @@ if __name__ == "__main__":
     lumi_data_by_day = {}
     for day in days:
         print "  %s" % day.isoformat()
-        cache_file_path = CacheFilePath(day, cache_file_dir)
+        cache_file_path = CacheFilePath(cache_file_dir, day)
         lumi_data_day = LumiDataBlock()
         try:
             in_file = open(cache_file_path)
