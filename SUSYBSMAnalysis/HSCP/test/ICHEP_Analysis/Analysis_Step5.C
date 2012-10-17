@@ -337,16 +337,6 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    TH1D* CtrlIm_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIm_S3_TOF"); CtrlIm_S3_TOF->Rebin(1);
    TH1D* CtrlIm_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIm_S4_TOF"); CtrlIm_S4_TOF->Rebin(1);
 
-   TH1D* CtrlCen_Pt_S1_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlCen_Pt_S1_TOF"); CtrlCen_Pt_S1_TOF->Rebin(1);
-   TH1D* CtrlCen_Pt_S2_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlCen_Pt_S2_TOF"); CtrlCen_Pt_S2_TOF->Rebin(1);
-   TH1D* CtrlCen_Pt_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlCen_Pt_S3_TOF"); CtrlCen_Pt_S3_TOF->Rebin(1);
-   TH1D* CtrlCen_Pt_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlCen_Pt_S4_TOF"); CtrlCen_Pt_S4_TOF->Rebin(1);
-
-   TH1D* CtrlFor_Pt_S1_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S1_TOF"); CtrlFor_Pt_S1_TOF->Rebin(1);
-   TH1D* CtrlFor_Pt_S2_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S2_TOF"); CtrlFor_Pt_S2_TOF->Rebin(1);
-   TH1D* CtrlFor_Pt_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S3_TOF"); CtrlFor_Pt_S3_TOF->Rebin(1);
-   TH1D* CtrlFor_Pt_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlFor_Pt_S4_TOF"); CtrlFor_Pt_S4_TOF->Rebin(1);
-
    std::vector<std::string> PtLimitsNames;
    if(TypeMode!=3) {
      PtLimitsNames.push_back(" 50<p_{T}< 60 GeV");
@@ -411,42 +401,6 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum");
    c1->SetLogy(false);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrumNoLog");
-   delete c1;
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlCen_Pt_S1_TOF->Integral()>0)CtrlCen_Pt_S1_TOF->Scale(1/CtrlCen_Pt_S1_TOF->Integral());
-   if(CtrlCen_Pt_S2_TOF->Integral()>0)CtrlCen_Pt_S2_TOF->Scale(1/CtrlCen_Pt_S2_TOF->Integral());
-   if(CtrlCen_Pt_S3_TOF->Integral()>0)CtrlCen_Pt_S3_TOF->Scale(1/CtrlCen_Pt_S3_TOF->Integral());
-   if(CtrlCen_Pt_S4_TOF->Integral()>0)CtrlCen_Pt_S4_TOF->Scale(1/CtrlCen_Pt_S4_TOF->Integral());
-   Histos[0] = CtrlCen_Pt_S1_TOF;                    legend.push_back(PtLimitsNames[0]);
-   Histos[1] = CtrlCen_Pt_S2_TOF;                    legend.push_back(PtLimitsNames[1]);
-   Histos[2] = CtrlCen_Pt_S3_TOF;                    legend.push_back(PtLimitsNames[2]);
-   Histos[3] = CtrlCen_Pt_S4_TOF;                    legend.push_back(PtLimitsNames[3]);
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   c1->SetLogy(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
-   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_Cen_TOFSpectrum");
-   c1->SetLogy(false);
-   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_Cen_TOFSpectrumNoLog");
-   delete c1;
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   if(CtrlFor_Pt_S1_TOF->Integral()>0)CtrlFor_Pt_S1_TOF->Scale(1/CtrlFor_Pt_S1_TOF->Integral());
-   if(CtrlFor_Pt_S2_TOF->Integral()>0)CtrlFor_Pt_S2_TOF->Scale(1/CtrlFor_Pt_S2_TOF->Integral());
-   if(CtrlFor_Pt_S3_TOF->Integral()>0)CtrlFor_Pt_S3_TOF->Scale(1/CtrlFor_Pt_S3_TOF->Integral());
-   if(CtrlFor_Pt_S4_TOF->Integral()>0)CtrlFor_Pt_S4_TOF->Scale(1/CtrlFor_Pt_S4_TOF->Integral());
-   Histos[0] = CtrlFor_Pt_S1_TOF;                    legend.push_back(PtLimitsNames[0]);
-   Histos[1] = CtrlFor_Pt_S2_TOF;                    legend.push_back(PtLimitsNames[1]);
-   Histos[2] = CtrlFor_Pt_S3_TOF;                    legend.push_back(PtLimitsNames[2]);
-   Histos[3] = CtrlFor_Pt_S4_TOF;                    legend.push_back(PtLimitsNames[3]);
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   c1->SetLogy(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
-   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_For_TOFSpectrum");
-   c1->SetLogy(false);
-   if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_For_TOFSpectrumNoLog");
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -666,9 +620,14 @@ void CutFlow(string InputPattern, unsigned int CutIndex){
        stPlots_Clear(&plots); 
     }
 
-    if(stPlots_InitFromFile(InputFile, plots,"MCTr")){
+    if(stPlots_InitFromFile(InputFile, plots,"MCTr_7TeV")){
        stPlots_Dump(plots, pFile, CutIndex);
        stPlots_Clear(&plots);
+    }
+
+    if(stPlots_InitFromFile(InputFile, plots,"MCTr_8TeV")){
+      stPlots_Dump(plots, pFile, CutIndex);
+      stPlots_Clear(&plots);
     }
 
     for(unsigned int s=0;s<samples.size();s++){
@@ -678,6 +637,7 @@ void CutFlow(string InputPattern, unsigned int CutIndex){
           stPlots_Clear(&plots);
        }
     }
+
     fclose(pFile);
     InputFile->Close();
 }
@@ -687,43 +647,48 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     string LegendTitle = LegendFromType(InputPattern);;
 
     TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
-    stPlots Data8TeVPlots, Data7TeVPlots, MCTrPlots, Cosmic11Plots, Cosmic12Plots, SignPlots[samples.size()];
+    stPlots Data8TeVPlots, Data7TeVPlots, MCTr8TeVPlots, MCTr7TeVPlots, Cosmic7TeVPlots, Cosmic8TeVPlots, SignPlots[samples.size()];
 
     TypeMode = TypeFromPattern(InputPattern);
     stPlots_InitFromFile(InputFile, Data8TeVPlots,"Data8TeV");
     stPlots_InitFromFile(InputFile, Data7TeVPlots,"Data7TeV");
-    stPlots_InitFromFile(InputFile, MCTrPlots  ,"MCTr");   
+    stPlots_InitFromFile(InputFile, MCTr8TeVPlots  ,"MCTr_8TeV");   
+    stPlots_InitFromFile(InputFile, MCTr7TeVPlots  ,"MCTr_7TeV");
     if(TypeMode==3) {
-      stPlots_InitFromFile(InputFile, Cosmic12Plots,"Cosmic12");
-      stPlots_InitFromFile(InputFile, Cosmic11Plots,"Cosmic11");
+      stPlots_InitFromFile(InputFile, Cosmic8TeVPlots,"Cosmic7TeV");
+      //stPlots_InitFromFile(InputFile, Cosmic7TeVPlots,"Cosmic8TeV");
     }
 
     for(unsigned int s=0;s<samples.size();s++){
        if (samples[s].Name!="Gluino_7TeV_M300_f10" && samples[s].Name!="Gluino_7TeV_M600_f10" && samples[s].Name!="Gluino_7TeV_M800_f10" && samples[s].Name!="GMStau_7TeV_M247" && samples[s].Name!="GMStau_7TeV_M370" && samples[s].Name!="GMStau_7TeV_M494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M400_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M400_Q2o3") continue;
-       stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name);
+       if(!stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name)) continue;
        stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
     }
 
     stPlots_Draw(Data8TeVPlots, InputPattern + "/Selection_Data8TeV", LegendTitle, CutIndex);
     stPlots_Draw(Data7TeVPlots, InputPattern + "/Selection_Data7TeV", LegendTitle, CutIndex);
-    stPlots_Draw(MCTrPlots  , InputPattern + "/Selection_MCTr"  , LegendTitle, CutIndex);
+    stPlots_Draw(MCTr8TeVPlots  , InputPattern + "/Selection_MCTr_8TeV"  , LegendTitle, CutIndex);
+    stPlots_Draw(MCTr7TeVPlots  , InputPattern + "/Selection_MCTr_7TeV"  , LegendTitle, CutIndex);
 
     if(TypeMode==3) {
-      stPlots_Draw(Cosmic12Plots, InputPattern + "/Selection_Cosmic12", LegendTitle, CutIndex);
+      stPlots_Draw(Cosmic8TeVPlots, InputPattern + "/Selection_Cosmic8TeV", LegendTitle, CutIndex);
       //stPlots_Draw(Cosmic11Plots, InputPattern + "/Selection_Cosmic11", LegendTitle, CutIndex);
     }
 
-    stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &MCTrPlots);
-    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTrPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
-    if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic12Plots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
+    stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &MCTr8TeVPlots, &MCTr7TeVPlots);
+
+    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
+    if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
     if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_DY"    , LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M400_Q2o3",samples)]);
 
     stPlots_Clear(&Data8TeVPlots);
     stPlots_Clear(&Data7TeVPlots);
-    stPlots_Clear(&MCTrPlots);
+    stPlots_Clear(&MCTr8TeVPlots);
+    stPlots_Clear(&MCTr7TeVPlots);
 
     for(unsigned int s=0;s<samples.size();s++){
        if (samples[s].Name!="Gluino_7TeV_300_f10" && samples[s].Name!="Gluino_7TeV_600_f10" && samples[s].Name!="Gluino_7TeV_800_f10" && samples[s].Name!="GMStau_7TeV_247" && samples[s].Name!="GMStau_7TeV_370" && samples[s].Name!="GMStau_7TeV_494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M400_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M400_Q2o3") continue;
+       if(!stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name)) continue;
        stPlots_Clear(&SignPlots[s]);
     }
     InputFile->Close();
@@ -1663,8 +1628,8 @@ void CosmicBackgroundSystematic(string InputPattern){
   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
 
   TH2D* H_D_DzSidebands = ((TH2D*)GetObjectFromPath(InputFile, "Data8TeV/H_D_DzSidebands"));
-  TH2D* H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, "Cosmic12/H_D_DzSidebands");
-  TH1D* H_D_Cosmic           = (TH1D*)GetObjectFromPath(InputFile, "Cosmic12/H_D");
+  TH2D* H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, "Cosmic8TeV/H_D_DzSidebands");
+  TH1D* H_D_Cosmic           = (TH1D*)GetObjectFromPath(InputFile, "Cosmic8TeV/H_D");
   //TH1D* H_D_Data             = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_D");
 
   std::vector<int> Index;   std::vector<int> Plot;
