@@ -112,6 +112,10 @@ class LumiDataBlock(object):
         # End of copy().
         return copy.deepcopy(self)
 
+    def is_empty(self):
+        # End of is_empty().
+        return not len(self.data_points)
+
     def lum_del_tot(self, units="b^{-1}"):
         res = sum([i.lum_del for i in self.data_points])
         res *= LumiDataBlock.scale_factors[units]
@@ -600,22 +604,34 @@ if __name__ == "__main__":
     print "Delivered lumi day-by-day (%s):" % units
     print sep_line
     for day in days:
-        print "  %s: %5.1f" % \
-              (day.isoformat(), lumi_data_by_day[day].lum_del_tot(units))
+        tmp = lumi_data_by_day[day].lum_del_tot(units)
+        helper_str = ""
+        if (tmp < .1) and (tmp > 0.):
+            helper_str = " (non-zero but very small)"
+        print "  %s: %5.1f%s" % \
+              (day.isoformat(), tmp, helper_str)
     print sep_line
     units = "pb^{-1}"
     print "Delivered lumi week-by-week (%s):" % units
     print sep_line
     for (year, week) in weeks:
-        print "  %d-%2d: %6.1f" % \
-              (year, week, lumi_data_by_week[year][week].lum_del_tot(units))
+        tmp = lumi_data_by_week[year][week].lum_del_tot(units)
+        helper_str = ""
+        if (tmp < .1) and (tmp > 0.):
+            helper_str = " (non-zero but very small)"
+        print "  %d-%2d: %6.1f%s" % \
+              (year, week, tmp, helper_str)
     print sep_line
     units = "fb^{-1}"
     print "Delivered lumi year-by-year (%s):" % units
     print sep_line
     for year in years:
-        print "  %4d: %5.2f" % \
-              (year, lumi_data_by_year[year].lum_del_tot(units))
+        tmp = lumi_data_by_year[year].lum_del_tot(units)
+        helper_str = ""
+        if (tmp < .1) and (tmp > 0.):
+            helper_str = " (non-zero but very small)"
+        print "  %4d: %5.2f%s" % \
+              (year, tmp, helper_str)
     print sep_line
 
     ##########
@@ -631,6 +647,8 @@ if __name__ == "__main__":
 
     for year in years:
 
+        print "  %d" % year
+
         tmp_this_year = [(i, j) for (i, j) in lumi_data_by_day.iteritems() \
                          if (i.isocalendar()[0] == year)]
         # TODO TODO TODO
@@ -645,13 +663,6 @@ if __name__ == "__main__":
         day_hi = datetime.datetime.combine(max(tmp_dates), datetime.time()) + \
                  datetime.timedelta(seconds=12*60*60)
 
-        # Figure out the time window of the data included for the plot
-        # subtitles.
-        time_begin = min([i[1].time_begin() for i in tmp_this_year])
-        time_end = max([i[1].time_end() for i in tmp_this_year])
-        str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
-        str_end = time_end.strftime(DATE_FMT_STR_OUT)
-
         #----------
 
         # Build the histograms.
@@ -664,16 +675,29 @@ if __name__ == "__main__":
         units = "pb^{-1}"
         weights_del = [i[1].lum_del_tot(units) for i in tmp_this_year]
         weights_rec = [i[1].lum_rec_tot(units) for i in tmp_this_year]
+        # Cumulative versions of the above.
+        weights_del_fbinv = [1.e-3 * i for i in weights_del]
+        weights_rec_fbinv = [1.e-3 * i for i in weights_rec]
         # Maximum instantaneous delivered luminosity per day.
         units = "Hz/nb"
         weights_del_inst = [i[1].max_inst_lum(units) for i in tmp_this_year]
+
+        # Figure out the time window of the data included for the plot
+        # subtitles.
+        time_begin = min([i[1].time_begin() for i in tmp_this_year])
+        time_end = max([i[1].time_end() for i in tmp_this_year])
+        str_begin = None
+        str_end = None
+        if sum(weights_del) > 0.:
+            str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
+            str_end = time_end.strftime(DATE_FMT_STR_OUT)
 
         #----------
 
         # Loop over all color schemes.
         for color_scheme_name in color_scheme_names:
 
-            print "  color scheme '%s'" % color_scheme_name
+            print "    color scheme '%s'" % color_scheme_name
 
             color_scheme = ColorScheme(color_scheme_name)
             color_fill_del = color_scheme.color_fill_del
@@ -775,24 +799,22 @@ if __name__ == "__main__":
 
             # Now for the cumulative plot.
             units = "fb^{-1}"
-            weights_del = [1.e-3 * i for i in weights_del]
-            weights_rec = [1.e-3 * i for i in weights_rec]
 
             # Figure out the totals.
-            tot_del = sum(weights_del)
-            tot_rec = sum(weights_rec)
+            tot_del = sum(weights_del_fbinv)
+            tot_rec = sum(weights_rec_fbinv)
 
             fig.clear()
             ax = fig.add_subplot(111)
 
             if sum(weights_del) > 0:
 
-                ax.hist(bin_centers, bin_edges, weights=weights_del,
+                ax.hist(bin_centers, bin_edges, weights=weights_del_fbinv,
                         histtype="stepfilled", cumulative=True,
                         facecolor=color_fill_del, edgecolor=color_line_del,
                         label="LHC Delivered: $%.2f$ $\mathrm{%s}$" % \
                         (tot_del, units))
-                ax.hist(bin_centers, bin_edges, weights=weights_rec,
+                ax.hist(bin_centers, bin_edges, weights=weights_rec_fbinv,
                         histtype="stepfilled", cumulative=True,
                         facecolor=color_fill_rec, edgecolor=color_line_rec,
                         label="CMS Recorded: $%.2f$ $\mathrm{%s}$" % \
