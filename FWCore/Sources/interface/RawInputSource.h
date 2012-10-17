@@ -19,10 +19,11 @@ namespace edm {
   public:
     explicit RawInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~RawInputSource();
+    static void fillDescription(ParameterSetDescription& description);
 
   protected:
-    std::auto_ptr<Event> makeEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, Timestamp const& tstamp);
-    virtual std::auto_ptr<Event> readOneEvent() = 0;
+    virtual EventPrincipal* read() = 0;
+    void setInputFileTransitionsEachEvent() {inputFileTransitionsEachEvent_ = true;}
 
   private:
     virtual EventPrincipal* readEvent_();
@@ -31,12 +32,7 @@ namespace edm {
     virtual EventPrincipal* readIt(EventID const& eventID);
     virtual void skip(int offset);
     virtual ItemType getNextItemType();
-    
-    RunNumber_t runNumber_;
-    LuminosityBlockNumber_t luminosityBlockNumber_;
-    bool newRun_;
-    bool newLumi_;
-    bool eventCached_;
+    bool inputFileTransitionsEachEvent_;
   };
 }
 #endif

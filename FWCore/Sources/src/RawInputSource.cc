@@ -9,15 +9,15 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
+
   RawInputSource::RawInputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     InputSource(pset, desc),
-    runNumber_(RunNumber_t()),
-    luminosityBlockNumber_(),
-    newRun_(false),
-    newLumi_(false),
-    eventCached_(false) {
+    // The default value for the following parameter get defined in at least one derived class
+    // where it has a different default value.
+    inputFileTransitionsEachEvent_(pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)) {
       setTimestamp(Timestamp::beginOfTime());
   }
 
@@ -26,41 +26,29 @@ namespace edm {
 
   boost::shared_ptr<RunAuxiliary>
   RawInputSource::readRunAuxiliary_() {
-    newRun_ = false;
-    return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(runNumber_, timestamp(), Timestamp::invalidTimestamp()));
+    assert(newRun());
+    assert(runAuxiliary());
+    resetNewRun();
+    return runAuxiliary();
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>
   RawInputSource::readLuminosityBlockAuxiliary_() {
-    newLumi_ = false;
-    return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(
-        runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
+    assert(!newRun());
+    assert(newLumi());
+    assert(luminosityBlockAuxiliary());
+    resetNewLumi();
+    return luminosityBlockAuxiliary();
   }
 
   EventPrincipal*
   RawInputSource::readEvent_() {
-    assert(eventCached_);
-    eventCached_ = false;
+    assert(!newRun());
+    assert(!newLumi());
+    assert(eventCached());
+    resetEventCached();
     eventPrincipalCache()->setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     return eventPrincipalCache();
-  }
-
-  std::auto_ptr<Event>
-  RawInputSource::makeEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, Timestamp const& tstamp) {
-    if(!runAuxiliary()) {
-      newRun_ = newLumi_ = true;
-      setRunAuxiliary(new RunAuxiliary(run, tstamp, Timestamp::invalidTimestamp()));
-    }
-    if(!luminosityBlockAuxiliary()) {
-      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(run, lumi, tstamp, Timestamp::invalidTimestamp()));
-      newLumi_ = true;
-    }
-    EventSourceSentry sentry(*this);
-    EventAuxiliary aux(EventID(run, lumi, event), processGUID(), tstamp, true, EventAuxiliary::PhysicsTrigger);
-    eventPrincipalCache()->fillEventPrincipal(aux, boost::shared_ptr<LuminosityBlockPrincipal>());
-    eventCached_ = true;
-    std::auto_ptr<Event> e(new Event(*eventPrincipalCache(), moduleDescription()));
-    return e;
   }
 
   InputSource::ItemType
@@ -68,29 +56,28 @@ namespace edm {
     if(state() == IsInvalid) {
       return IsFile;
     }
-    if(newRun_) {
+    if(newRun() && runAuxiliary()) {
       return IsRun;
     }
-    if(newLumi_) {
+    if(newLumi() && luminosityBlockAuxiliary()) {
       return IsLumi;
     }
-    if(eventCached_) {
+    if(eventCached()) {
       return IsEvent;
     }
-    std::auto_ptr<Event> e(readOneEvent());
-    if(e.get() == 0) {
-      return IsStop;
-    } else {
-      e->commit_();
+    if (inputFileTransitionsEachEvent_) {
+      resetRunAuxiliary(newRun());
+      resetLuminosityBlockAuxiliary(newLumi());
     }
-    if(e->run() != runNumber_) {
-      newRun_ = newLumi_ = true;
-      runNumber_ = e->run();
-      luminosityBlockNumber_ = e->luminosityBlock();
+    EventPrincipal *ep = read();
+    if(ep == nullptr || !eventCached()) {
+      return IsStop;
+    } else if(inputFileTransitionsEachEvent_) {
+      return IsFile;
+    }
+    if(newRun()) {
       return IsRun;
-    } else if(e->luminosityBlock() != luminosityBlockNumber_) {
-      luminosityBlockNumber_ = e->luminosityBlock();
-      newLumi_ = true;
+    } else if(newLumi()) {
       return IsLumi;
     }
     return IsEvent;
@@ -109,5 +96,13 @@ namespace edm {
       throw Exception(errors::LogicError, "RawInputSource::skip(int offset)")
         << "Random access skip cannot be used for RawInputSource\n"
         << "Contact a Framework developer.\n";
+  }
+
+
+  void
+  RawInputSource:: fillDescription(ParameterSetDescription& description) {
+    // The default value for "inputFileTransitionsEachEvent" gets defined in the derived class
+    // as it depends on the derived class. So, we cannot redefine it here.
+    InputSource::fillDescription(description);
   }
 }
