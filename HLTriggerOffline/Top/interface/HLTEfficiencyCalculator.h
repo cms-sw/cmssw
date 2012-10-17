@@ -57,13 +57,12 @@
 #include "TFile.h"
 #include "TH1.h"
 
-using namespace std;
 class EfficiencyHandler{
 public:
 	EfficiencyHandler(std::string Name, std::vector<std::string> pathnames, int verb = 0):name(Name),verbosity(verb){
 		int nPaths = (int)pathnames.size();
 		efficiencies= new TH1D(name.c_str(),"efficiencies per path",nPaths,-0.5,(double)nPaths-0.5);
-		stringstream s;
+		std::stringstream s;
 		for(int i = 0; i < nPaths; i++){
 			pathNames.push_back(pathnames.at(i));
 			efficiencies->GetXaxis()->SetBinLabel(i+1,pathnames.at(i).c_str());
@@ -78,7 +77,7 @@ public:
 		for(unsigned int i = 0; i< pathNames.size(); i++){
 			denominator.at(i)->Fill(0);
 			if(verbosity > 0)
-				cout<<pathNames.at(i)<<endl;				
+				std::cout<<pathNames.at(i)<<std::endl;				
 			if(acceptHLT(event, triggerTable,pathNames.at(i)))
 				numerator.at(i)->Fill(0);
 		}
@@ -97,7 +96,7 @@ public:
 			eff= eff/(double)denominator.at(s)->GetEntries();
 			efficiencies->SetBinContent(s+1, eff);
 		}
-		(d->mkdir(string(name+"_BareNumberHists").c_str()))->cd();
+		(d->mkdir(std::string(name+"_BareNumberHists").c_str()))->cd();
                 for(unsigned int s = 0; s < pathNames.size(); s++){
 			numerator.at(s)->Write();
 			denominator.at(s)->Write();
