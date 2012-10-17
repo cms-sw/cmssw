@@ -5,11 +5,9 @@
 ######################################################################
 
 # TODO TODO TODO
-# - Fix end of caching.
 # - Implement sorting of LumiDataBlocks.
 # - Assert there are no under-/overflows in the created histograms.
 # - Clean up output (debug vs. verbose).
-# - Implement option to plot all color schemes at once.
 # - Write and check-in some config files.
 # TODO TODO TODO end
 
@@ -26,15 +24,6 @@ import ConfigParser
 
 import numpy as np
 from colorsys import hls_to_rgb, rgb_to_hls
-
-# Make sure ROOT does not eat the command line parameters. Has to be
-# before any other ROOT imports.
-from ROOT import PyConfig
-PyConfig.IgnoreCommandLineOptions = True
-
-from ROOT import gSystem
-from ROOT import gROOT
-from ROOT import TH1F
 
 try:
     import debug_hook
@@ -159,16 +148,6 @@ class LumiDataBlock(object):
 
 class ColorScheme(object):
     """A bit of a cludge, but a simple way to store color choices."""
-
-    kCMSBlue = 1756
-    kCMSOrange = 1757
-    kCMSBlueD = 1759
-    kCMSOrangeD = 1760
-    kCMSRed = 1700
-    kCMSYellow = 1701
-    kCMSPurple = 1702
-    kCMSGreen = 1703
-    kCMSOrange2 = 1704
 
     @classmethod
     def InitColors(cls):
@@ -351,13 +330,15 @@ if __name__ == "__main__":
 
     cfg_defaults = {
         "lumicalc_flags" : "",
-        "date_end" : None
+        "date_end" : None,
+        "color_schemes" : "Joe, Greg"
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
     cfg_parser.read(config_file_name)
 
     # Which color scheme to use for drawing the plots.
-    color_scheme_name = cfg_parser.get("general", "color_scheme")
+    color_scheme_names_tmp = cfg_parser.get("general", "color_schemes")
+    color_scheme_names = [i.strip() for i in color_scheme_names_tmp.split(",")]
     # Where to store cache files containing the lumiCalc output.
     cache_file_dir = cfg_parser.get("general", "cache_dir")
     # Flag to turn on verbose output.
@@ -424,7 +405,7 @@ if __name__ == "__main__":
         print "Ignoring all cached lumiCalc results (and rebuilding the cache)"
     else:
         print "Using cached lumiCalc results from %s" % cache_file_dir
-    print "Using color scheme '%s'" % color_scheme_name
+    print "Using color schemes '%s'" % ", ".join(color_scheme_names)
     print "Using lumiCalc script '%s'" % lumicalc_script
     print "Using additional lumiCalc flags from configuration: '%s'" % \
           lumicalc_flags_from_cfg
@@ -474,6 +455,7 @@ if __name__ == "__main__":
     # plots.
     print "Running lumiCalc for all requested days"
     for day in days:
+        print "  %s" % day.isoformat()
         use_cache = (not ignore_cache) and (day <= last_day_from_cache)
         cache_file_path = CacheFilePath(day, cache_file_dir)
         if (not os.path.exists(cache_file_path)) or (not use_cache):
@@ -482,7 +464,7 @@ if __name__ == "__main__":
             cmd = "%s --begin '%s' --end '%s' -o %s" % \
                   (lumicalc_cmd, date_begin_str, date_end_str, cache_file_path)
             if debug:
-                print "DEBUG running lumicalc as '%s'" % cmd
+                print "    running lumicalc as '%s'" % cmd
             (status, output) = commands.getstatusoutput(cmd)
             if status != 0:
                 # This means 'no qualified data found'.
@@ -494,7 +476,7 @@ if __name__ == "__main__":
                     # cache file for such days.
                     if output.find("[INFO] No qualified data found, do nothing") > -1:
                         if debug:
-                            print "DEBUG No lumi data for %s, " \
+                            print "No lumi data for %s, " \
                                   "writing dummy cache file to avoid re-querying the DB" % \
                                   day.isoformat()
                         dummy_file = open(cache_file_path, "w")
@@ -505,25 +487,22 @@ if __name__ == "__main__":
                     sys.exit(1)
         else:
             if debug:
-                print "DEBUG Cache file for %s exists" % day.isoformat()
+                print "    cache file for %s exists" % day.isoformat()
 
     # Now read back all lumiCalc results.
     print "Reading back lumiCalc results"
     lumi_data_by_day = {}
     for day in days:
-        print "DEBUG JGH %s" % day.isoformat()
+        print "  %s" % day.isoformat()
         cache_file_path = CacheFilePath(day, cache_file_dir)
         lumi_data_day = LumiDataBlock()
         try:
             in_file = open(cache_file_path)
             lines = in_file.readlines()
-            # TODO TODO TODO
-            # Need to handle this a little nicer.
             if not len(lines):
                 if debug:
-                    print "DEBUG JGH Skipping empty file for %s" % day.isoformat()
+                    print "    skipping empty file for %s" % day.isoformat()
             else:
-                # TODO TODO TODO end
                 # DEBUG DEBUG DEBUG
                 assert lines[0] == "Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n"
                 # DEBUG DEBUG DEBUG end
@@ -594,20 +573,11 @@ if __name__ == "__main__":
 
     # And this is where the plotting starts.
     print "Drawing things..."
-
     ColorScheme.InitColors()
-    color_scheme = ColorScheme(color_scheme_name)
-    color_fill_del = color_scheme.color_fill_del
-    color_fill_rec = color_scheme.color_fill_rec
-    color_fill_peak = color_scheme.color_fill_peak
-    color_line_del = color_scheme.color_line_del
-    color_line_rec = color_scheme.color_line_rec
-    color_line_peak = color_scheme.color_line_peak
-    logo_name = color_scheme.logo_name
-    file_suffix = color_scheme.file_suffix
 
     #------------------------------
-    # Create the delivered-lumi-per-day plots, one for each year.
+    # Create the delivered-lumi plots, one version of everything for
+    # each year.
     #------------------------------
 
     for year in years:
@@ -625,35 +595,18 @@ if __name__ == "__main__":
                  datetime.timedelta(seconds=12*60*60)
         day_hi = datetime.datetime.combine(max(tmp_dates), datetime.time()) + \
                  datetime.timedelta(seconds=12*60*60)
-        bin_edge_lo = calendar.timegm(day_lo.utctimetuple())
-        bin_edge_hi = calendar.timegm(day_hi.utctimetuple())
-        h_lum_del = TH1F("h_lum_del", "h_lum_del", len(tmp_dates), bin_edge_lo, bin_edge_hi)
-        h_lum_rec = TH1F("h_lum_rec", "h_lum_rec", len(tmp_dates), bin_edge_lo, bin_edge_hi)
+
+        # Figure out the time window of the data included for the plot
+        # subtitles.
+        time_begin = min([i[1].time_begin() for i in tmp_this_year])
+        time_end = max([i[1].time_end() for i in tmp_this_year])
+        str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
+        str_end = time_end.strftime(DATE_FMT_STR_OUT)
+
         #----------
 
-        # First the lumi-by-day plot.
+        # Build the histograms.
         units = "pb^{-1}"
-        for (bin_num, (day, lumi)) in enumerate(tmp_this_year):
-            h_lum_del.SetBinContent(bin_num + 1, lumi.lum_del_tot(units))
-            h_lum_rec.SetBinContent(bin_num + 1, lumi.lum_rec_tot(units))
-
-        # Figure out the maximum delivered and recorded luminosities.
-        max_del = 0.
-        max_rec = 0.
-        for bin_num in xrange(1, h_lum_del.GetNbinsX() + 1):
-            tmp = h_lum_del.GetBinContent(bin_num)
-            if tmp > max_del:
-                max_del = tmp
-            tmp = h_lum_rec.GetBinContent(bin_num)
-            if tmp > max_rec:
-                max_rec = tmp
-
-        ##########
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        units = "pb^{-1}"
-
         bin_edges = np.linspace(matplotlib.dates.date2num(day_lo),
                                 matplotlib.dates.date2num(day_hi),
                                 len(tmp_dates) + 1)
@@ -662,121 +615,124 @@ if __name__ == "__main__":
         weights_del = [i[1].lum_del_tot(units) for i in tmp_this_year]
         weights_rec = [i[1].lum_rec_tot(units) for i in tmp_this_year]
 
-        # Figure out the totals.
-        # BUG BUG BUG
-        # Hmm... ad hoc scaling = not nice.
-        tot_del = sum(weights_del) * 1.e-3
-        tot_rec = sum(weights_rec) * 1.e-3
-        # BUG BUG BUG end
+        # Figure out the maximum delivered and recorded luminosities.
+        max_del = max(weights_del)
+        max_rec = max(weights_rec)
 
         #----------
 
-        # BUG BUG BUG
-        # Should handle this with a bit more grace.
-        if sum(weights_del) > 0:
-            ax.hist(bin_centers, bin_edges, weights=weights_del,
-                    histtype="stepfilled",
-                    facecolor=color_fill_del, edgecolor=color_line_del,
-                    label="LHC Delivered, max: $%.1f$ $%s$/day" % \
-                    (max_del, units))
-            ax.hist(bin_centers, bin_edges, weights=weights_rec,
-                    histtype="stepfilled",
-                    facecolor=color_fill_rec, edgecolor=color_line_rec,
-                label="CMS Recorded, max: $%.1f$ $%s$/day" % \
-                    (max_rec, units))
-            ax.legend(loc="upper left", bbox_to_anchor=(0.1, 0., 1., 1.),
-                      frameon=False)
+        # Loop over all color schemes.
+        for color_scheme_name in color_scheme_names:
 
-            # Set titles and labels.
-            fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
-                         "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
-                         (particle_type_str, year, 1.e-3 * cms_energy),
-                         fontsize=14, fontweight="bold")
-            time_begin = min([i[1].time_begin() for i in tmp_this_year])
-            time_end = max([i[1].time_end() for i in tmp_this_year])
-            str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
-            str_end = time_end.strftime(DATE_FMT_STR_OUT)
-            ax.set_title("Data included from %s to %s UTC" % \
-                         (str_begin, str_end),
-                         fontsize=10)
-            ax.set_xlabel(r"Date", fontweight="bold")
-            ax.set_ylabel(r"Integrated Luminosity ($%s$/day)" % units,
-                          fontweight="bold")
+            print "  color scheme '%s'" % color_scheme_name
 
-            TweakPlot(fig, ax)
-            # BUG BUG BUG
-            # Bit of magic here.
-            y_ticks = ax.get_yticks()
-            tmp = y_ticks[1] - y_ticks[0]
-            (y_min, y_max) = ax.get_ylim()
-            ax.set_ylim(y_min, y_max + tmp)
-            # BUG BUG BUG end
-            ax.set_xlim(time_begin, time_end)
-        # BUG BUG BUG end
+            color_scheme = ColorScheme(color_scheme_name)
+            color_fill_del = color_scheme.color_fill_del
+            color_fill_rec = color_scheme.color_fill_rec
+            color_fill_peak = color_scheme.color_fill_peak
+            color_line_del = color_scheme.color_line_del
+            color_line_rec = color_scheme.color_line_rec
+            color_line_peak = color_scheme.color_line_peak
+            logo_name = color_scheme.logo_name
+            file_suffix = color_scheme.file_suffix
 
-        fig.savefig("int_lumi_per_day_%s_%d%s.png" % \
-                    (particle_type_str, year, file_suffix))
+            #----------
 
-        #----------
+            # First the lumi-by-day plot.
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
 
-        # Now for the cumulative plot.
-        units = "fb^{-1}"
-        weights_del = [1.e-3 * i for i in weights_del]
-        weights_rec = [1.e-3 * i for i in weights_rec]
+            if sum(weights_del) > 0:
 
-        fig.clear()
-        ax = fig.add_subplot(111)
+                ax.hist(bin_centers, bin_edges, weights=weights_del,
+                        histtype="stepfilled",
+                        facecolor=color_fill_del, edgecolor=color_line_del,
+                        label="LHC Delivered, max: $%.1f$ $%s$/day" % \
+                        (max_del, units))
+                ax.hist(bin_centers, bin_edges, weights=weights_rec,
+                        histtype="stepfilled",
+                        facecolor=color_fill_rec, edgecolor=color_line_rec,
+                    label="CMS Recorded, max: $%.1f$ $%s$/day" % \
+                        (max_rec, units))
+                ax.legend(loc="upper left", bbox_to_anchor=(0.1, 0., 1., 1.),
+                          frameon=False)
 
-        # BUG BUG BUG
-        # Should handle this with a bit more grace.
-        if sum(weights_del) > 0:
-            ax.hist(bin_centers, bin_edges, weights=weights_del,
-                    histtype="stepfilled", cumulative=True,
-                    facecolor=color_fill_del, edgecolor=color_line_del,
-                    label="LHC Delivered: $%.2f$ $%s$" % \
-                    (tot_del, units))
-            ax.hist(bin_centers, bin_edges, weights=weights_rec,
-                    histtype="stepfilled", cumulative=True,
-                    facecolor=color_fill_rec, edgecolor=color_line_rec,
-                    label="CMS Recorded: $%.2f$ $%s$" % \
-                    (tot_rec, units))
-            ax.legend(loc="upper left", bbox_to_anchor=(0.1, 0., 1., 1.),
-                      frameon=False)
+                # Set titles and labels.
+                fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
+                             "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
+                             (particle_type_str, year, 1.e-3 * cms_energy),
+                             fontsize=14, fontweight="bold")
+                ax.set_title("Data included from %s to %s UTC" % \
+                             (str_begin, str_end),
+                             fontsize=10)
+                ax.set_xlabel(r"Date", fontweight="bold")
+                ax.set_ylabel(r"Integrated Luminosity ($%s$/day)" % units,
+                              fontweight="bold")
 
-            # Set titles and labels.
-            fig.suptitle(r"CMS Integrated Luminosity, " \
-                         "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
-                         (particle_type_str, year, 1.e-3 * cms_energy),
-                         fontsize=14, fontweight="bold")
-            time_begin = min([i[1].time_begin() for i in tmp_this_year])
-            time_end = max([i[1].time_end() for i in tmp_this_year])
-            str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
-            str_end = time_end.strftime(DATE_FMT_STR_OUT)
-            ax.set_title("Data included from %s to %s UTC" % \
-                         (str_begin, str_end),
-                         fontsize=10)
-            ax.set_xlabel(r"Date", fontweight="bold")
-            ax.set_ylabel(r"Total Integrated Luminosity ($%s$)" % units,
-                          fontweight="bold")
+                TweakPlot(fig, ax)
 
-            TweakPlot(fig, ax)
-            ax.set_xlim(time_begin, time_end)
-        # BUG BUG BUG end
+                # Bit of magic here: increase vertical scale by one tick
+                # to make room for the legend.
+                y_ticks = ax.get_yticks()
+                tmp = y_ticks[1] - y_ticks[0]
+                (y_min, y_max) = ax.get_ylim()
+                ax.set_ylim(y_min, y_max + tmp)
 
-        fig.savefig("int_lumi_cumulative_%s_%d%s.png" % \
-                    (particle_type_str, year, file_suffix))
+                ax.set_xlim(time_begin, time_end)
+
+            fig.savefig("int_lumi_per_day_%s_%d%s.png" % \
+                        (particle_type_str, year, file_suffix))
+
+            #----------
+
+            # Now for the cumulative plot.
+            units = "fb^{-1}"
+            weights_del = [1.e-3 * i for i in weights_del]
+            weights_rec = [1.e-3 * i for i in weights_rec]
+
+            # Figure out the totals.
+            tot_del = sum(weights_del)
+            tot_rec = sum(weights_rec)
+
+            fig.clear()
+            ax = fig.add_subplot(111)
+
+            if sum(weights_del) > 0:
+
+                ax.hist(bin_centers, bin_edges, weights=weights_del,
+                        histtype="stepfilled", cumulative=True,
+                        facecolor=color_fill_del, edgecolor=color_line_del,
+                        label="LHC Delivered: $%.2f$ $%s$" % \
+                        (tot_del, units))
+                ax.hist(bin_centers, bin_edges, weights=weights_rec,
+                        histtype="stepfilled", cumulative=True,
+                        facecolor=color_fill_rec, edgecolor=color_line_rec,
+                        label="CMS Recorded: $%.2f$ $%s$" % \
+                        (tot_rec, units))
+                ax.legend(loc="upper left", bbox_to_anchor=(0.1, 0., 1., 1.),
+                          frameon=False)
+
+                # Set titles and labels.
+                fig.suptitle(r"CMS Integrated Luminosity, " \
+                             "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
+                             (particle_type_str, year, 1.e-3 * cms_energy),
+                             fontsize=14, fontweight="bold")
+                ax.set_title("Data included from %s to %s UTC" % \
+                             (str_begin, str_end),
+                             fontsize=10)
+                ax.set_xlabel(r"Date", fontweight="bold")
+                ax.set_ylabel(r"Total Integrated Luminosity ($%s$)" % units,
+                              fontweight="bold")
+
+                TweakPlot(fig, ax)
+                ax.set_xlim(time_begin, time_end)
+
+            fig.savefig("int_lumi_cumulative_%s_%d%s.png" % \
+                        (particle_type_str, year, file_suffix))
 
         #----------
 
         plt.close()
-        # TODO TODO TODO end
-
-        ##########
-
-        # Elaborate cleanup to avoid trouble with ROOT...
-        for i in [h_lum_del, h_lum_rec]:
-            i.IsA().Destructor(i)
-            del i
 
     ##########
 
