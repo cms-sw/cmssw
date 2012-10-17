@@ -29,6 +29,12 @@ import ConfigParser
 import numpy as np
 from colorsys import hls_to_rgb, rgb_to_hls
 
+import matplotlib
+from matplotlib import pyplot as plt
+from matplotlib._png import read_png
+from matplotlib.offsetbox import OffsetImage
+from matplotlib.offsetbox import AnnotationBbox
+
 try:
     import debug_hook
     import pdb
@@ -155,7 +161,7 @@ class LumiDataBlock(object):
         return res
     # BUG BUG BUG end
 
-    # End of LumiDataBlock.
+    # End of class LumiDataBlock.
 
 ######################################################################
 
@@ -235,12 +241,23 @@ class ColorScheme(object):
 
         # End of __init__().
 
+    # End of class ColorScheme.
+
 ######################################################################
 
 def CacheFilePath(day, cache_file_dir):
     cache_file_name = "lumicalc_cache_%s.csv" % day.isoformat()
     cache_file_path = os.path.join(cache_file_dir, cache_file_name)
     return cache_file_path
+
+######################################################################
+
+def InitMatplotlib():
+    """Just some Matplotlib settings."""
+    matplotlib.rcParams["text.usetex"] = False
+    matplotlib.rcParams["legend.numpoints"] = 1
+    matplotlib.rcParams["savefig.dpi"] = 600
+    # End of InitMatplotlib().
 
 ######################################################################
 
@@ -270,6 +287,19 @@ def AddLogo(logo_name, ax):
                              pad=0., frameon=False)
     ax.add_artist(ann_box)
     # End of AddLogo().
+
+######################################################################
+
+def GetXLocator(ax):
+    """Pick a DateLocator based on the range of the x-axis."""
+    (x_lo, x_hi) = ax.get_xlim()
+    num_days = x_hi - x_lo
+    print "DEBUG num_days = %d" % num_days
+    min_num_ticks = min(num_days, 5)
+    locator = matplotlib.dates.AutoDateLocator(minticks=min_num_ticks,
+                                               maxticks=None)
+    # End of GetLocator().
+    return locator
 
 ######################################################################
 
@@ -309,31 +339,6 @@ def TweakPlot(fig, ax, (time_begin, time_end),
               datetime.timedelta(days=.5)
     ax.set_xlim(time_lo, time_hi)
 
-    def GetXLocator(ax):
-        """Pick a DateLocator based on the range of the x-axis."""
-        (x_lo, x_hi) = ax.get_xlim()
-        num_days = x_hi - x_lo
-        print "DEBUG num_days = %d" % num_days
-        if num_days < 32:
-            # Less than two weeks: label days.
-            locator = matplotlib.dates.DayLocator()
-        if num_days < 32:
-            # Less than about one month: label every second day.
-            locator = matplotlib.dates.DayLocator(range(1, 32, 2))
-        elif num_days < 63:
-            # Less than about two months: label weeks.
-            locator = matplotlib.dates.DayLocator(range(1, 32, 7))
-        else:
-            # More than about two months: label months.
-            locator = matplotlib.dates.MonthLocator()
-        # BUG BUG BUG
-        min_num_ticks = min(num_days, 5)
-        locator = matplotlib.dates.AutoDateLocator(minticks=min_num_ticks,
-                                                   maxticks=None)
-        # BUG BUG BUG end
-        # End of GetLocator().
-        return locator
-
     locator = GetXLocator(ax)
     ax.xaxis.set_major_locator(locator)
     formatter = matplotlib.dates.DateFormatter(DATE_FMT_STR_AXES)
@@ -341,32 +346,6 @@ def TweakPlot(fig, ax, (time_begin, time_end),
 
     fig.subplots_adjust(top=.89, bottom=.125, left=.1, right=.925)
     # End of TweakPlot().
-
-######################################################################
-
-def LoadMatplotlib():
-    """See if we can find and import matplotlib."""
-
-    print "Loading matplotlib"
-
-    matplotlib_loaded = False
-    try:
-        import matplotlib
-        from matplotlib import pyplot as plt
-        from matplotlib._png import read_png
-        from matplotlib.offsetbox import OffsetImage
-        from matplotlib.offsetbox import AnnotationBbox
-        matplotlib.rcParams["text.usetex"] = False
-        matplotlib.rcParams["legend.numpoints"] = 1
-        matplotlib.rcParams["savefig.dpi"] = 600
-        matplotlib_loaded = True
-        # The following makes the (now local) imports global.
-        # (I know, ugly, and probably only works in CPython.)
-        sys._getframe(1).f_globals.update(locals())
-    except ImportError:
-        print "Could not find matplotib"
-
-    return matplotlib_loaded
 
 ######################################################################
 
@@ -473,9 +452,7 @@ if __name__ == "__main__":
 
     ##########
 
-    if not LoadMatplotlib():
-        print >> sys.stderr, "ERROR Could not load Matplotlib"
-        sys.exit(1)
+    InitMatplotlib()
 
     ##########
 
