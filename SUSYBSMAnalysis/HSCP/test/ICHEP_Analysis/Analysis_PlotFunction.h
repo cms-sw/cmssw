@@ -55,7 +55,7 @@ void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=fa
 }
 
 // function that add the TPaveText on the current canvas with the "CMS Preliminary...." on top of the Histograms
-void DrawPreliminary(double SQRTS_, double Lumi, double X=0.40, double Y=0.995, double W=0.82, double H=0.945){
+void DrawPreliminary(string Text, double SQRTS_, double Lumi, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetFillColor(0);
    T->SetTextAlign(22);
@@ -68,18 +68,28 @@ void DrawPreliminary(double SQRTS_, double Lumi, double X=0.40, double Y=0.995, 
       sprintf(energy, "#sqrt{s} = %1.0f TeV",SQRTS_);
    }
    
-
+   char LumiText[1024];
    if(Lumi<=0 ){
-      sprintf(tmp,"CMS Preliminary   %s",energy);
-      T->AddText(tmp);
+      sprintf(LumiText,"CMS Preliminary   %s",energy);
    }
    if(Lumi>0 ){
-     sprintf(tmp,"CMS Preliminary   %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
+     sprintf(LumiText,"CMS Preliminary   %s   %1.1f fb ^{-1}",energy, Lumi*0.001);
      //   sprintf(tmp,"CMS Preliminary  "); 
-      T->AddText(tmp);
    }
+
+   if(Text!=""){
+     sprintf(tmp,"%s   -   %s",Text.c_str(), LumiText);      
+   }else{
+     sprintf(tmp,"%s",LumiText);
+   }
+
+   T->AddText(tmp);
    T->Draw("same");
 }
+void DrawPreliminary(double SQRTS_, double Lumi, double X=0.40, double Y=0.995, double W=0.82, double H=0.945){
+   DrawPreliminary("",SQRTS_, Lumi, X,Y,W,H);
+}
+
 
 // handfull function to draw the legend associated to a vector of histogram
 void DrawLegend (TObject** Histos, std::vector<std::string> legend, std::string Title, std::string Style_, double X=0.79, double Y=0.92, double W=0.20, double H=0.05)
