@@ -1193,8 +1193,8 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      for(unsigned int s=0;s<samples.size();s++){
         if(samples[s].Name==st[i]->Name){Index=s;break;}
      }
-     if(st[i]->Name.find("MCTr")!=string::npos()){lg.push_back("MC (SM)");}
-     else if(st[i]->Name.find("Data")!=string::npos()){lg.push_back("Observed");}
+     if(st[i]->Name.find("MCTr")!=string::npos){lg.push_back("MC (SM)");}
+     else if(st[i]->Name.find("Data")!=string::npos){lg.push_back("Observed");}
      else if(Index==-1){lg.push_back(st[i]->Name);}else{lg.push_back(samples[Index].Legend);}
   }
    
