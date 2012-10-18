@@ -65,7 +65,7 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
   fHEModel(pset.getParameter<int>("model")),
   fParamFileName(pset.getParameter<string>("paramFileName")),
   fNEvent(0),
-  fImpactParameter(0)
+  fImpactParameter(0.)
 {
   // Default constructor
 
@@ -80,9 +80,9 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
         "in the configuration file or remove the modules that require it.";
     }
 
-  gFlatDistribution_.reset(new CLHEP::RandFlat(rng->getEngine(),  0., 1.));
+  gFlatDistribution_.reset(new CLHEP::RandFlat(rng->getEngine(), 0., 1.));
 
-  int nevet = 0;
+  int nevet = 1;
   int noTables = 0; //don't calculate tables
   int LHEoutput = 0; //no lhe
   int dummySeed = 123;
@@ -109,6 +109,7 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   crmc_f_(iout,ievent,fNParticles,fImpactParameter,
          fPartID[0],fPartPx[0],fPartPy[0],fPartPz[0],
           fPartEnergy[0],fPartMass[0],fPartStatus[0]);
+  LogDebug("ReggeGribovPartonMCInterface") << "event generated" << endl;
 
   HepMC::GenEvent* evt = new HepMC::GenEvent();
 
@@ -145,8 +146,8 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
                           hadr5_.sigineaa);            // nucleon-nucleon inelastic
       evt->set_heavy_ion(ion);
     }
-  cout << "event generated" << endl;
-  evt->print();
+  LogDebug("ReggeGribovPartonMCInterface") << "HepEvt and vertex constructed" << endl;
+  //evt->print();
   event().reset(evt);
   return true;
 }
