@@ -35,27 +35,27 @@
    <Parameter name="level" value="[level]"/>
    <Parameter name="super" value="[super]"/>
    <Parameter name="base" value="[base]"/>
-   <Parameter name="mb_region" value="1*[level]"/>
-   <Parameter name="mb_wheel" value="2*[level]"/>
-   <Parameter name="mb_station" value="3*[level]"/>
-   <Parameter name="mb_superlayer" value="4*[level]"/>
-   <Parameter name="mb_layer" value="5*[level]"/>
-   <Parameter name="mb_wire" value="6*[level]"/>
-   <Parameter name="me_region" value="[mb_region]"/>
-   <Parameter name="me_station" value="2*[level]"/>
-   <Parameter name="me_subring" value="3*[level]"/>
-   <Parameter name="me_sector" value="4*[level]"/>
-   <Parameter name="me_ring" value="5*[level]"/>
-   <Parameter name="me_layer" value="6*[level]"/>
-   <Parameter name="mr_region" value="[mb_region]"/>
-   <Parameter name="mr_bwheel" value="[mb_wheel]"/>
-   <Parameter name="mr_bstation" value="[mb_station]"/>
-   <Parameter name="mr_bplane" value="4*[level]"/>
-   <Parameter name="mr_bchamber" value="5*[level]"/>
-   <Parameter name="mr_estation" value="[me_station]"/>
-   <Parameter name="mr_eplane" value="3*[level]"/>
-   <Parameter name="mr_esector" value="4*[level]"/>
-   <Parameter name="mr_eroll" value="5*[level]"/>
+   <Parameter name="mb_region" value="[mb_region]"/>
+   <Parameter name="mb_wheel"      value="[mb_wheel]"/>
+   <Parameter name="mb_station"    value="[mb_station]"/>
+   <Parameter name="mb_superlayer" value="[mb_superlayer]"/>
+   <Parameter name="mb_layer"      value="[mb_layer]"/>
+   <Parameter name="mb_wire"       value="[mb_wire]"/>
+   <Parameter name="me_region"     value="[me_region]"/>
+   <Parameter name="me_station"    value="[me_station]"/>
+   <Parameter name="me_subring"    value="[me_subring]"/>
+   <Parameter name="me_sector"     value="[me_sector]"/>
+   <Parameter name="me_ring"       value="[me_ring]"/>
+   <Parameter name="me_layer"      value="[me_layer]"/>
+   <Parameter name="mr_region"     value="[mr_region]"/>
+   <Parameter name="mr_bwheel"     value="[mr_bwheel]"/>
+   <Parameter name="mr_bstation"   value="[mr_bstation]"/>
+   <Parameter name="mr_bplane"     value="[mr_bplane]"/>
+   <Parameter name="mr_bchamber"   value="[mr_bchamber]"/>
+   <Parameter name="mr_estation"   value="[mr_estation]"/>
+   <Parameter name="mr_eplane"     value="[mr_eplane]"/>
+   <Parameter name="mr_esector"    value="[mr_esector]"/>
+   <Parameter name="mr_eroll"      value="[mr_eroll]"/>
   </SpecPar>
   <SpecPar name="MuonBarrel">
    <PartSelector path="//MB"/>
