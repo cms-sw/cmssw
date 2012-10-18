@@ -3,6 +3,7 @@
 
 <ConstantsSection label="gemf.xml" eval="true">
   <Constant name="dzTot" value="50.820*cm"/>
+  <Constant name="rPos"  value="(1338*mm+[dzTot])"/>
   <Constant name="dzS1"  value="6.8804*cm"/>
   <Constant name="dzS2"  value="8.4832*cm"/>
   <Constant name="dzS3"  value="5.3262*cm"/>
@@ -642,12 +643,12 @@
     <String name="ChildName" value="GB11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="1"/>
-    <Numeric name="incrCopyNo"  value="4"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="0*deg"/>
-    <Numeric name="rPosition"   value="+1828.5*mm"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="+34.80*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
@@ -655,12 +656,12 @@
     <String name="ChildName" value="GA11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="1"/>
-    <Numeric name="incrCopyNo"  value="4"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="0*deg"/>
-    <Numeric name="rPosition"   value="+1828.5*mm"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="+22.70*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
@@ -668,12 +669,12 @@
     <String name="ChildName" value="GB11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="2"/>
-    <Numeric name="incrCopyNo"  value="4"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="0*deg"/>
-    <Numeric name="rPosition"   value="+1828.5*mm"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value=" -8.60*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
@@ -681,12 +682,12 @@
     <String name="ChildName" value="GA11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="2"/>
-    <Numeric name="incrCopyNo"  value="4"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="0*deg"/>
-    <Numeric name="rPosition"   value="+1828.5*mm"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="-20.70*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
@@ -694,12 +695,12 @@
     <String name="ChildName" value="GB11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="3"/>
-    <Numeric name="incrCopyNo"  value="4"/>
+    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="10*deg"/>
-    <Numeric name="rPosition"   value="+1828.5*mm"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value=" +8.60*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
@@ -707,12 +708,12 @@
     <String name="ChildName" value="GA11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="3"/>
-    <Numeric name="incrCopyNo"  value="4"/>
+    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="10*deg"/>
-    <Numeric name="rPosition"   value="+1828.5*mm"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="+20.70*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
@@ -720,12 +721,12 @@
     <String name="ChildName" value="GB11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="4"/>
-    <Numeric name="incrCopyNo"  value="4"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="10*deg"/>
-    <Numeric name="rPosition"   value="+1828.5*mm"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="-34.80*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
@@ -733,12 +734,12 @@
     <String name="ChildName" value="GA11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="4"/>
-    <Numeric name="incrCopyNo"  value="4"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="10*deg"/>
-    <Numeric name="rPosition"   value="+1828.5*mm"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="-22.70*mm"/>
 </Algorithm>
 
