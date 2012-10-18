@@ -12,11 +12,14 @@ eval `scram runtime -sh`
 	echo $paths | tr " " "\n"  >/tmp/paths2.txt
 	pathtmp=""
 	for class in $classes;do
-		tmps=`cmsglimpse -F '.h$' -y -l -w -i $class `
+		tmps=`cmsglimpse -F '.h$' -y -l -w -i " $class " ` 
 		for tmp in $tmps;do 
-			(grep -q $tmp /tmp/paths2.txt) && pathtmp=$tmp" "$pathtmp
+			tmps2=`ctags -f - ${CMSSW_RELEASE_BASE}/src/$tmp | grep  -e c$ | cut -f 2`
+			for tmp2 in $tmps2;do
+				tmp3=`echo $tmp2 | sed 's/\/.*src\///'`
+				test "$tmp3" != "" && (grep -q $tmp3 /tmp/paths2.txt) && pathtmp=$tmp3" "$pathtmp
+			done
 		done
 	done
 	echo  -e $pathtmp | tr " " "\n" | sort -u >/tmp/headers2.txt
-
 	
