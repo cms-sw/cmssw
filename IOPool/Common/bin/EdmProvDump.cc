@@ -106,6 +106,9 @@ typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
                                   ModuleToIdBranches const&,
                                   std::string const& iFindMatch,
                                   std::ostream& oErrorLog) const;
+    void printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
+                                   std::string const& iFindMatch,
+                                   std::ostream& oErrorLog) const;
 
     edm::ProcessConfigurationID
     configurationID() const {
@@ -271,6 +274,73 @@ void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
   }
 }
 
+static void appendToSet(std::set<std::string>&iSet, std::vector<std::string> const& iFrom){
+  for( auto const& n: iFrom){
+    iSet.insert(n);
+  }
+}
+
+static std::string topLevelPSet(std::string const& iName,
+                                edm::ParameterSet const& iProcessConfig,
+                                std::string const& iProcessName) {
+  std::ostringstream result;
+  edm::ParameterSet const& pset = iProcessConfig.getParameterSet(iName);
+  
+  result << "PSet: " << iName << " " << iProcessName << "\n" << " parameters: ";
+  prettyPrint(result, pset, " ", " ");
+  return result.str();
+}
+
+
+void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
+                                            std::string const& iFindMatch,
+                                            std::ostream& oErrorLog) const {
+  for(const_iterator itH = begin(), e = end();
+      itH != e;
+      ++itH) {
+    //Get ParameterSet for process
+    ParameterSetMap::const_iterator itFind = iPSM.find(itH->parameterSetID());
+    if(itFind == iPSM.end()){
+      oErrorLog << "No ParameterSetID for " << itH->parameterSetID() << std::endl;
+    } else {
+      edm::ParameterSet processConfig(itFind->second.pset());
+      //Need to get the names of PSets which are used by the framework (e.g. names of modules)
+      std::set<std::string> namesToExclude;
+      appendToSet(namesToExclude,processConfig.getParameter<std::vector<std::string> >("@all_modules"));
+      appendToSet(namesToExclude,processConfig.getParameter<std::vector<std::string> >("@all_sources"));
+      appendToSet(namesToExclude,processConfig.getParameter<std::vector<std::string> >("@all_loopers"));
+      //appendToSet(namesToExclude,processConfig.getParameter<std::vector<std::string> >("@all_subprocesses"));//untracked
+      appendToSet(namesToExclude,processConfig.getParameter<std::vector<std::string> >("@all_esmodules"));
+      appendToSet(namesToExclude,processConfig.getParameter<std::vector<std::string> >("@all_essources"));
+      appendToSet(namesToExclude,processConfig.getParameter<std::vector<std::string> >("@all_esprefers"));
+      if (processConfig.existsAs<std::vector<std::string>>("all_aliases")) {
+        appendToSet(namesToExclude,processConfig.getParameter<std::vector<std::string> >("@all_aliases"));
+      }
+
+      std::vector<std::string> allNames{};
+      processConfig.getParameterSetNames(allNames);
+
+      std::vector<std::string> results;
+      for(auto const& name: allNames){
+        if (name.size() == 0 || '@' == name[0] || namesToExclude.find(name)!=namesToExclude.end()) {
+          continue;
+        }
+        std::string retValue = topLevelPSet(name,processConfig,itH->processName());
+        if(iFindMatch.empty() or retValue.find(iFindMatch) != std::string::npos) {
+          results.push_back(std::move(retValue));
+        }
+      }
+      if(sort_) {
+        std::sort(results.begin(), results.end());
+      }
+      std::copy(results.begin(), results.end(),
+                std::ostream_iterator<std::string>(std::cout, "\n"));
+    }
+    itH->printTopLevelPSetsHistory(iPSM, iFindMatch, oErrorLog);
+  }
+}
+
+
 namespace {
   std::unique_ptr<TFile>
   makeTFileWithLookup(std::string const& filename) {
@@ -377,6 +447,7 @@ public:
                    bool showDependencies,
                    bool excludeESModules,
                    bool showAllModules,
+                   bool showTopLevelPSets,
                    std::string const& findMatch);
 
   ProvenanceDumper(ProvenanceDumper const&) = delete; // Disallow copying and moving
@@ -401,6 +472,7 @@ private:
   bool                     showDependencies_;
   bool                     excludeESModules_;
   bool                     showOtherModules_;
+  bool                     showTopLevelPSets_;
   std::string              findMatch_;
 
   void work_();
@@ -414,6 +486,7 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
                                    bool showDependencies,
                                    bool excludeESModules,
                                    bool showOtherModules,
+                                   bool showTopLevelPSets,
                                    std::string const& findMatch) :
   filename_(filename),
   inputFile_(makeTFile(filename)),
@@ -423,6 +496,7 @@ ProvenanceDumper::ProvenanceDumper(std::string const& filename,
   showDependencies_(showDependencies),
   excludeESModules_(excludeESModules),
   showOtherModules_(showOtherModules),
+  showTopLevelPSets_(showTopLevelPSets),
   findMatch_(findMatch) {
 }
 
@@ -818,6 +892,11 @@ ProvenanceDumper::work_() {
     std::cout << "---------EventSetup---------" << std::endl;
     historyGraph_.printEventSetupHistory(psm_, findMatch_, errorLog_);
   }
+  
+  if(showTopLevelPSets_) {
+    std::cout << "---------Top Level PSets---------" << std::endl;
+    historyGraph_.printTopLevelPSetsHistory(psm_, findMatch_, errorLog_);
+  }
   if(errorCount_ != 0) {
     exitCode_ = 1;
   }
@@ -833,6 +912,8 @@ static char const* const kShowAllModulesOpt = "showAllModules";
 static char const* const kShowAllModulesCommandOpt = "showAllModules,a";
 static char const* const kFindMatchOpt = "findMatch";
 static char const* const kFindMatchCommandOpt = "findMatch,f";
+static char const* const kShowTopLevelPSetsOpt = "showTopLevelPSets";
+static char const* const kShowTopLevelPSetsCommandOpt ="showTopLevelPSets,t";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kFileNameOpt = "input-file";
@@ -855,6 +936,7 @@ int main(int argc, char* argv[]) {
    , "do not print ES module information")
   (kShowAllModulesCommandOpt
    , "show all modules (not just those that created data in the file)")
+  (kShowTopLevelPSetsCommandOpt,"show all top level PSets")
   (kFindMatchCommandOpt, boost::program_options::value<std::string>(),
     "show only modules whose information contains the matching string")
   ;
@@ -902,6 +984,11 @@ int main(int argc, char* argv[]) {
   if(vm.count(kShowAllModulesOpt)) {
     showAllModules = true;
   }
+  
+  bool showTopLevelPSets = false;
+  if(vm.count(kShowTopLevelPSetsOpt)) {
+    showTopLevelPSets=true;
+  }
 
   std::string fileName;
   if(vm.count(kFileNameOpt)) {
@@ -933,7 +1020,7 @@ int main(int argc, char* argv[]) {
   //make sure dictionaries can be used for reading
   ROOT::Cintex::Cintex::Enable();
 
-  ProvenanceDumper dumper(fileName, showDependencies, excludeESModules, showAllModules, findMatch);
+  ProvenanceDumper dumper(fileName, showDependencies, excludeESModules, showAllModules, showTopLevelPSets, findMatch);
   int exitCode(0);
   try {
     dumper.dump();
