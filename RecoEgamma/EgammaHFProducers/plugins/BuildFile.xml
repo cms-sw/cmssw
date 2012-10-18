@@ -1,4 +1,12 @@
-<use   name="RecoEgamma/EgammaHFProducers"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="root"/>
 <library   file="*.cc" name="RecoEgammaEgammaHFProducersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

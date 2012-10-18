@@ -18,8 +18,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoEgamma/EgammaHFProducers/interface/HFRecoEcalCandidateAlgo.h"
-#include "RecoEgamma/EgammaHFProducers/interface/HFValueStruct.h"
+#include "HFRecoEcalCandidateAlgo.h"
+#include "HFValueStruct.h"
 
 class HFRecoEcalCandidateProducer : public edm::EDProducer {
  public:

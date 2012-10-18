@@ -6,7 +6,7 @@
 //        
 // $Id: HFClusterProducer.h,v 1.2 2007/09/19 Kevin Klapoetke
 //
-#include "RecoEgamma/EgammaHFProducers/interface/HFClusterAlgo.h"
+#include "HFClusterAlgo.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
