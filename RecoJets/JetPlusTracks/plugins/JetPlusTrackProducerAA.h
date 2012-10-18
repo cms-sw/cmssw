@@ -3,7 +3,7 @@
 // Package:    JetPlusTracks
 // Class:      JetPlusTrackProducerAA
 // 
-/**\class JetPlusTrackProducerAA JetPlusTrackProducerAA.cc RecoJets/JetPlusTracks/src/JetPlusTrackProducerAA.cc
+/**\class JetPlusTrackProducerAA JetPlusTrackProducerAA.cc JetPlusTrackProducerAA.cc
 
  Description: [one line class summary]
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducerAA.h,v 1.1 2010/03/04 13:12:37 kodolova Exp $
+// $Id: JetPlusTrackProducerAA.h,v 1.2 2011/02/20 10:06:25 kodolova Exp $
 //
 //
 
@@ -27,8 +27,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoJets/JetPlusTracks/interface/JetPlusTrackCorrector.h"
-#include "RecoJets/JetPlusTracks/interface/ZSPJPTJetCorrector.h"
+#include "JetPlusTrackCorrector.h"
+#include "ZSPJPTJetCorrector.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/JPTJet.h"
 

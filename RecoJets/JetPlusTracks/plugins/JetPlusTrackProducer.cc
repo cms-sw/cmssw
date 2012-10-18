@@ -3,7 +3,7 @@
 // Package:    JetPlusTracks
 // Class:      JetPlusTrackProducer
 // 
-/**\class JetPlusTrackProducer JetPlusTrackProducer.cc RecoJets/JetPlusTracks/src/JetPlusTrackProducer.cc
+/**\class JetPlusTrackProducer JetPlusTrackProducer.cc JetPlusTrackProducer.cc
 
  Description: [one line class summary]
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova,40 R-A12,+41227671273,
 //         Created:  Fri Feb 19 10:14:02 CET 2010
-// $Id: JetPlusTrackProducer.cc,v 1.6 2011/07/01 08:15:52 kodolova Exp $
+// $Id: JetPlusTrackProducer.cc,v 1.7 2011/12/12 19:52:42 dlange Exp $
 //
 //
 
