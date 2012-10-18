@@ -1,6 +1,7 @@
 #include "SimG4CMS/Muon/interface/MuonSensitiveDetector.h"
 #include "SimG4CMS/Muon/interface/MuonSlaveSD.h"
 #include "SimG4CMS/Muon//interface/MuonEndcapFrameRotation.h"
+#include "SimG4CMS/Muon/interface/MuonGemFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonRpcFrameRotation.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
@@ -24,7 +25,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-
 
 MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
 					     const DDCompactView & cpv,
@@ -55,6 +55,9 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   } else if (detector->isRpc()) {
     //    cout << "MuonFrameRotation create MuonRpcFrameRotation"<<endl;
     theRotation=new MuonRpcFrameRotation( cpv );
+  } else if (detector->isGem()) {
+    //    cout << "MuonFrameRotation create MuonGemFrameRotation"<<endl;
+    theRotation=new MuonGemFrameRotation( cpv );
   }  else {
     theRotation = 0;
   }
@@ -170,8 +173,7 @@ Global3DPoint MuonSensitiveDetector::toOrcaUnits(Global3DPoint in){
   return Global3DPoint(in.x()/cm,in.y()/cm,in.z()/cm);
 }
 
-void MuonSensitiveDetector::storeVolumeAndTrack(G4Step * aStep)
-{
+void MuonSensitiveDetector::storeVolumeAndTrack(G4Step * aStep) {
   G4VPhysicalVolume* pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
   G4Track * t  = aStep->GetTrack();
   thePV=pv;
