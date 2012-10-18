@@ -52,6 +52,7 @@ else:
    process.load('Configuration.Skimming.PDWG_EXOHSCP_cff')
    process.HSCPTrigger.HLTPaths = ["*"] #not apply any trigger filter for MC
    process.HSCParticleProducer.useBetaFromEcal = cms.bool(False)
+   process.HSCPEventFilter.filter = cms.bool(False)
 
    #skim the jet collection to keep only 15GeV jets
    process.ak5PFJetsPt15 = cms.EDFilter( "EtMinPFJetSelector",
@@ -59,6 +60,7 @@ else:
         filter = cms.bool( False ),
         etMin = cms.double( 15.0 )
    )
+
 
 ########################################################################  SPECIAL CASE FOR MC
 
