@@ -1034,7 +1034,8 @@ void Analysis_Step3(char* SavePath)
             //load all event collection that will be used later on (HSCP COll, dEdx and TOF)
             fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
             hscpCollHandle.getByLabel(ev,"HSCParticleProducer");
-            if(!hscpCollHandle.isValid()){printf("HSCP Collection NotFound\n");continue;}
+            //if(!hscpCollHandle.isValid()){printf("HSCP Collection NotFound\n");continue;}
+            if(!hscpCollHandle.isValid())continue;
             const susybsm::HSCParticleCollection& hscpColl = *hscpCollHandle;
 
             fwlite::Handle<DeDxDataValueMap> dEdxSCollH;
