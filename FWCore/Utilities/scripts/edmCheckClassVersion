@@ -70,11 +70,55 @@ class XmlParser(object):
         n_name = n_name.replace(' ','')
         return n_name
 
+# recursively check the base classes for a class pointer
+# as building the streamer will crash if base classes are
+# incomplete
+def verifyBaseClasses(c) :
+    missingBase = 0
+
+    # check that all bases are loaded
+    bases = c.GetListOfBases()
+    if not bases :
+        print "Incomplete class ", c.GetName()
+        return 1
+
+    for b in bases :
+        bc = b.GetClassPointer()
+        if bc :
+            missingBase += verifyBaseClasses(bc)
+        else :
+            print "Incomplete base class for ", c.GetName(), ": ", b.GetName()
+            missingBase += 1
+
+    return missingBase
+
+def checkDictionaries(name):
+    c = ROOT.TClass.GetClass(name)
+    if not c:
+        raise RuntimeError("failed to load dictionary for class '"+name+"'")
+
+    missingDict = verifyBaseClasses(c)
+    if missingDict == 0 :
+        si = c.GetStreamerInfo()
+        if si :
+            ts = si.GetElements()
+            for telem in ts :
+                clm = telem.GetClassPointer()
+                if clm and not clm.IsLoaded() :
+                    print "Missing dictionary for ", telem.GetName(), " type ", clm.GetName();
+                    missingDict += 1
+        else :
+            print "No streamer info for ", c.GetName()
+            missingDict += 1
+
+    return missingDict
+
 #The following are error codes returned from checkClass
 noError = 0
 errorRootDoesNotMatchClassDef =1
 errorMustUpdateClassVersion=2
 errorMustAddChecksum=3
+
 def checkClass(name,version,versionsToChecksums):
     c = ROOT.TClass.GetClass(name)
     if not c:
@@ -85,7 +129,6 @@ def checkClass(name,version,versionsToChecksums):
     #does this version match what is in the file?
     if version != classVersion:
         return (errorRootDoesNotMatchClassDef,classVersion,classChecksum)
-
 
     #is the version already in our list?
     found = False
@@ -103,6 +146,8 @@ def checkClass(name,version,versionsToChecksums):
 #Setup the options
 from optparse import OptionParser
 oparser = OptionParser()
+oparser.add_option("-d","--check_dictionaries", dest="checkdict",action="store_true",default=False,
+                   help="check that all required dictionaries are loaded")
 oparser.add_option("-l","--lib", dest="library",
                    help="specify the library to load. If not set classes are found using the PluginManager")
 oparser.add_option("-x","--xml_file", dest="xmlfile",default="./classes_def.xml",
@@ -115,10 +160,13 @@ oparser.add_option("-g","--generate_new",dest="generate", action="store_true",de
 import ROOT
 #Keep ROOT from trying to use X11
 ROOT.gROOT.SetBatch(True)
+ROOT.gROOT.ProcessLine(".autodict")
 if options.library is None:
     if 0 != ROOT.gSystem.Load("libFWCoreFWLite"):
         raise RuntimeError("failed to load libFWCoreFWLite")
     ROOT.AutoLibraryLoader.enable()
+    if options.checkdict :
+        print "Dictionary checks require a specific library"
 else:
     if 0 != ROOT.gSystem.Load("libCintex"):
         raise RuntimeError("failed to load libCintex")
@@ -126,15 +174,16 @@ else:
     if 0 != ROOT.gSystem.Load(options.library):
         raise RuntimeError("failed to load library '"+options.library+"'")
 
+missingDict = 0
 
 p = XmlParser(options.xmlfile)
-#print p.classes
 foundErrors = dict()
 for name,info in p.classes.iteritems():
-#    print name
     errorCode,rootClassVersion,classChecksum = checkClass(name,info[XmlParser.classVersionIndex],info[XmlParser.versionsToChecksumIndex])
     if errorCode != noError:
         foundErrors[name]=(errorCode,classChecksum,rootClassVersion)
+    if options.checkdict :
+        missingDict += checkDictionaries(name)
 
 foundRootDoesNotMatchError = False
 originalToNormalizedNames = dict()
@@ -155,7 +204,7 @@ for name,retValues in foundErrors.iteritems():
         print '   <version ClassVersion="'+str(classVersion)+'" checksum="'+str(classChecksum)+'"/>'
 
 
-if options.generate and not foundRootDoesNotMatchError:
+if options.generate and not foundRootDoesNotMatchError and not missingDict:
     f = open(options.xmlfile)
     outFile = open('classes_def.xml.generated','w')
     out = ''
@@ -193,7 +242,7 @@ if options.generate and not foundRootDoesNotMatchError:
 
     outFile.writelines(out)
 
-if (len(foundErrors)>0 and not options.generate) or (options.generate and foundRootDoesNotMatchError):
+if (len(foundErrors)>0 and not options.generate) or (options.generate and foundRootDoesNotMatchError) or missingDict:
    import sys
    sys.exit(1)
 
