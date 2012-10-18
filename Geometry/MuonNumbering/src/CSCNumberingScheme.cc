@@ -27,6 +27,7 @@ void CSCNumberingScheme::initMe (  const MuonDDDConstants& muonConstants ) {
   theRingLevel=muonConstants.getValue("me_ring")/theLevelPart;
   theLayerLevel=muonConstants.getValue("me_layer")/theLevelPart;
 #ifdef LOCAL_DEBUG
+  std::cout << "Initialize CSCNumberingScheme" << std::endl;
   std::cout << "theRegionLevel " << theRegionLevel <<std::endl;
   std::cout << "theStationLevel " << theStationLevel <<std::endl;
   std::cout << "theSubringLevel " << theSubringLevel <<std::endl;

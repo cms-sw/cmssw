@@ -12,14 +12,16 @@ void MuonBaseNumber::addBase(LevelBaseNumber num){
 
   while (cur!=end) {
     if (num.level()==(*cur).level()) {
-      LogDebug("MuonBaseNumber") << "MuonBaseNumber::addBase was asked to add "
-	   <<num.level()<<" "
-	   <<num.super()<<" "
-	   <<num.base()
-	   <<" to existing level "
-	   <<(*cur).level()<<" "
-	   <<(*cur).super()<<" "
-	   <<(*cur).base() << " but refused.";
+#ifdef LOCAL_DEBUG
+      std::cout << "MuonBaseNumber::addBase was asked to add "
+		<<num.level()<<" "
+		<<num.super()<<" "
+		<<num.base()
+		<<" to existing level "
+		<<(*cur).level()<<" "
+		<<(*cur).super()<<" "
+		<<(*cur).base() << " but refused.";
+#endif
       return; // don't overwrite current volume stored
     }
     cur++;

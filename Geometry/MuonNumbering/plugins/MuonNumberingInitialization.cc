@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Thu Sep 28 16:40:29 PDT 2006
-// $Id: MuonNumberingInitialization.cc,v 1.2 2007/12/04 00:06:55 case Exp $
+// $Id: MuonNumberingInitialization.cc,v 1.3 2010/03/25 22:08:44 case Exp $
 //
 //
 
@@ -34,6 +34,7 @@
 #include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
 #include <Geometry/Records/interface/MuonNumberingRecord.h>
 
+#define LOCAL_DEBUG
 
 class MuonNumberingInitialization : public edm::ESProducer {
    public:
@@ -66,7 +67,9 @@ MuonNumberingInitialization::~MuonNumberingInitialization()
 MuonNumberingInitialization::ReturnType
 MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord)
 {
-  //   std::cout << "in MuonNumberingInitialization::produce" << std::endl;
+#ifdef LOCAL_DEBUG
+  std::cout << "in MuonNumberingInitialization::produce" << std::endl;
+#endif
    using namespace edm::es;
    if ( muonDDDConst_ == 0 ) {
      std::cerr << "MuonNumberingInitialization::produceMuonDDDConstants has NOT been initialized!" << std::endl;
@@ -79,11 +82,15 @@ void MuonNumberingInitialization::initializeMuonDDDConstants( const IdealGeometr
 
    edm::ESTransientHandle<DDCompactView> pDD;
    igr.get(label_, pDD );
-   //   std::cout << "in MuonNumberingInitialization::initializeMuonDDDConstants" << std::endl;
+#ifdef LOCAL_DEBUG
+   std::cout << "in MuonNumberingInitialization::initializeMuonDDDConstants" << std::endl;
+#endif
    if ( muonDDDConst_ != 0 ) {
      delete muonDDDConst_;
    }
-   //    std::cout << "about to make my new muonDDDConst_" << std::endl;
+#ifdef LOCAL_DEBUG
+   std::cout << "about to make my new muonDDDConst_" << std::endl;
+#endif
    muonDDDConst_ = new MuonDDDConstants( *pDD );
 }
 

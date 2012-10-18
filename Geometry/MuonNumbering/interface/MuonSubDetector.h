@@ -10,8 +10,8 @@
  * the function suIdName() returns the detector SuId
  * for the ROU factory
  *  
- *  $Date: 2005/10/26 17:45:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/15 13:21:24 $
+ *  $Revision: 1.1 $
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
  */
@@ -23,7 +23,7 @@ class MuonSubDetector {
 
   /*  
    * possible arguments for constructor:
-   * "MuonDTHits", "MuonCSCHits", "MuonRPCHits"
+   * "MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits"
    */
 
   MuonSubDetector(std::string name);
@@ -32,11 +32,12 @@ class MuonSubDetector {
   bool isBarrel();
   bool isEndcap();
   bool isRpc();
+  bool isGem();
   std::string name();
   std::string suIdName();
       
  private:
-  enum subDetector {barrel,endcap,rpc,nodef};
+  enum subDetector {barrel,endcap,rpc,gem,nodef};
   subDetector detector;
   std::string detectorName;
 };
