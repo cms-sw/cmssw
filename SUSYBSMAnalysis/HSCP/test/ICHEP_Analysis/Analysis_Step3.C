@@ -139,6 +139,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    }else if(TypeMode==2) { //GlobalMaxTIsol *= 2;
                           // GlobalMaxEIsol *= 2;
    }else if(TypeMode==3){
+     GlobalMaxV3D     =  999999;
      GlobalMinIs      =   -1;
      IPbound=150;
      PredBins=6;
@@ -405,7 +406,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    for(unsigned int i=0;i<vertexColl.size();i++){
      if(st) st->BS_dzAll->Fill( track->dz (vertexColl[i].position()),Event_Weight);
      if(st) st->BS_dxyAll->Fill(track->dxy(vertexColl[i].position()),Event_Weight);
-     if(fabs(vertexColl[i].z())<15 && sqrt(vertexColl[i].x()*vertexColl[i].x()+vertexColl[i].y()*vertexColl[i].y())<2 && vertexColl[i].ndof()>3) goodVerts++;
+     if(fabs(vertexColl[i].z())<15 && sqrt(vertexColl[i].x()*vertexColl[i].x()+vertexColl[i].y()*vertexColl[i].y())<2 && vertexColl[i].ndof()>3){ goodVerts++;}else{continue;} //only consider good vertex
      if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
        dz  = track->dz (vertexColl[i].position());
        dxy = track->dxy(vertexColl[i].position());
@@ -451,11 +452,11 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    double v3d = sqrt(dz*dz+dxy*dxy);
 
    if(st){st->BS_V3D->Fill(v3d,Event_Weight);}
-   if(TypeMode!=3 && v3d>GlobalMaxV3D )return false;
+   if(v3d>GlobalMaxV3D )return false;
 
    if(st)st->BS_Dxy->Fill(dxy, Event_Weight);
 
-   if(TypeMode==3 && fabs(dxy)>GlobalMaxDXY) return false;
+   if(fabs(dxy)>GlobalMaxDXY) return false;
 
    if(st){st->V3D  ->Fill(0.0,Event_Weight);}
 
@@ -558,9 +559,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
        }
      }
    }
-   //Cut on dz for TOF only analysis
+
+   if(fabs(dz)>GlobalMaxDZ) return false;
    if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
-   if(TypeMode==3 && fabs(dz)>GlobalMaxDZ) return false;
 
    if(st){if(dedxSObj) st->BS_EtaIs->Fill(track->eta(),dedxSObj->dEdx(),Event_Weight);
           if(dedxMObj) st->BS_EtaIm->Fill(track->eta(),dedxMObj->dEdx(),Event_Weight);

@@ -295,7 +295,7 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    const reco::MuonTimeExtra* tof = NULL;
    if(!hscp.muonRef().isNull()){ tof  = &TOFCombCollH->get(hscp.muonRef().key()); }
 
-   if(TypeMode!=3 && (track->pt()<=CutPt || dedxSObj->dEdx()>=CutI))return;
+   if(TypeMode!=3 && (track->pt()<=CutPt))return;// || dedxSObj->dEdx()<=CutI))return;
    if(TypeMode==3 && SAtrack->pt()<CutPt) return;
 //   if(track->pt()<=CutPt || dedxSObj->dEdx()<=CutI)return;
    if(CutTOF>-1 && tof && tof->inverseBeta()<=CutTOF)return;
@@ -307,10 +307,12 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    double v3d=0;
    double dxy=0;
    double dz=0;
+   int goodVerts=0;
    if(!track.isNull()) {
    dz  = track->dz (vertex.position());
    dxy = track->dxy(vertex.position());
    for(unsigned int i=1;i<vertexColl.size();i++){
+      if(fabs(vertexColl[i].z())<15 && sqrt(vertexColl[i].x()*vertexColl[i].x()+vertexColl[i].y()*vertexColl[i].y())<2 && vertexColl[i].ndof()>3){goodVerts++;}else{continue;}
       if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
          dz  = track->dz (vertexColl[i].position());
          dxy = track->dxy(vertexColl[i].position());
@@ -330,7 +332,7 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    if(!track.isNull()) {
 
    fprintf(pFile,"------------------------------------------ INNER TRACKER ------------------------------------------\n");
-   fprintf(pFile,"Quality = %i Chi2/NDF=%6.2f dz=+%6.2f dxy=%+6.2f V3D=%+6.2f charge:%+i\n",track->qualityMask(), track->chi2()/track->ndof(), dz, dxy, v3d, track->charge());
+   fprintf(pFile,"Quality = %i Chi2/NDF=%6.2f dz=+%6.2f dxy=%+6.2f V3D=%+6.2f (nGoodVert=%i) charge:%+i\n",track->qualityMask(), track->chi2()/track->ndof(), dz, dxy, v3d, goodVerts, track->charge());
    fprintf(pFile,"P=%7.2f  Pt=%7.2f+-%6.2f (Cut=%6.2f) Eta=%+6.2f  Phi=%+6.2f  NOH=%2i\n",track->p(),track->pt(), track->ptError(), CutPt, track->eta(), track->phi(), track->found() );
 
    fprintf(pFile,"------------------------------------------ DEDX INFO ----------------------------------------------\n");
@@ -342,8 +344,8 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    for(unsigned int h=0;h<track->recHitsSize();h++){
         TrackingRecHit* recHit = (track->recHit(h))->clone();
         if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
-	  fprintf(pFile,"Mono  Hit "); printCluster(pFile,(matchedHit->monoHit()->cluster()).get());
-          fprintf(pFile,"StereoHit ");printCluster(pFile,(matchedHit->stereoHit()->cluster()).get());
+//	  fprintf(pFile,"Mono  Hit "); printCluster(pFile,(matchedHit->monoHit()->cluster()).get());
+//          fprintf(pFile,"StereoHit ");printCluster(pFile,(matchedHit->stereoHit()->cluster()).get());
        }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
            fprintf(pFile,"2D    Hit ");printCluster(pFile,(singleHit->cluster()).get());
        }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
@@ -448,27 +450,27 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
    TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
-   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_A");
-   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_B");
-   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_C");
-   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_D");
-   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_E");
-   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_F");
-   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_G");
-   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_H");
-   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data12/H_P");
+   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_A");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_C");
+   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_D");
+   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_E");
+   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_F");
+   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_G");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_H");
+   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_P");
    CutPt  = HCuts_Pt ->GetBinContent(CutIndex+1);
    CutI   = HCuts_I  ->GetBinContent(CutIndex+1);
    CutTOF = HCuts_TOF->GetBinContent(CutIndex+1);
 
 
 
-   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, "Data12/HscpCandidates");
+   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, "Data8TeV/HscpCandidates");
    printf("Tree Entries=%lli\n",tree->GetEntries());
 
 
    std::vector<string> FileName;
-   for(int s=0;s<samples.size();s++){if(samples[s].Name == "Data12")GetInputFiles(samples[s], BaseDirectory, FileName);}
+   for(int s=0;s<samples.size();s++){if(samples[s].Name == "Data8TeV")GetInputFiles(samples[s], BaseDirectory, FileName);}
    fwlite::ChainEvent ev(FileName);
 
 
