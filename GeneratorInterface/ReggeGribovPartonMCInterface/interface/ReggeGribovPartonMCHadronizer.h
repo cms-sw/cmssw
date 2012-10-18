@@ -25,13 +25,15 @@ namespace HepMC {
 
 extern "C"
 {
+  //iout,ievent,noutpart,impactpar,outpart,outpx,outpy,outpz,oute,outm,outstat
   void crmc_f_( int&, int&, int&, double&, int&, double&, double&, double&,
-                double&, double&);
+                double&, double&, int&);
 }
 
 extern "C"
 {
-  void crmc_init_f_( int&, int&, double&, double&, int&, int&, int&, int&, const char*);
+  //iEvent,iSeed,pproj,ptarg,ipart,itarg,imodel,itab,iout,output,param
+  void crmc_init_f_( int&, int&, double&, double&, int&, int&, int&, int&, int&, const char*, const char*);
 }
 
 extern "C"
@@ -148,6 +150,7 @@ namespace gen
     double  fPartPz[99990];
     double  fPartEnergy[99990];
     double  fPartMass[99990];
+    int     fPartStatus[99990];
   };
 
 } /*end namespace*/

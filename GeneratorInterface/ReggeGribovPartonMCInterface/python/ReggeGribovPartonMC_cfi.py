@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("EmptySource")
 
-process.generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
+generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
                     beammomentum = cms.double(4000),
                     targetmomentum = cms.double(-4000),
                     beamid = cms.int32(1),

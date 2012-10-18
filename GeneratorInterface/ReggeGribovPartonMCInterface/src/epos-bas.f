@@ -4940,13 +4940,13 @@ c-----------------------------------------------------------------------
       call ranfgt(seedf)
       if(iwseed.eq.1)then
         if(nrevt.eq.0)then
-          write(ifmt,'(a,i10,d27.16)')'seedj:',nint(seedj),seedf
+c          write(ifmt,'(a,i10,d27.16)')'seedj:',nint(seedj),seedf
         elseif(mod(nrevt,modsho).eq.0)then
           if(modus.eq.1)
      *   write(ifmt,'(a,i10,5x,a,i10,a,d27.16)')
      *              'nrevt:',nrevt,'seedj:',nint(seedj),' seedf:',seedf
-c          if(modus.eq.2)
-c     *   write(ifmt,'(a,i10,d27.16)')'seed:',nint(seedj),seedf
+          if(modus.eq.2)
+     *   write(ifmt,'(a,i10,d27.16)')'seed:',nint(seedj),seedf
         endif
         if(jwseed.eq.1)then
          open(unit=1,file=fnch(1:nfnch-5)//'see',status='unknown')

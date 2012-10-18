@@ -83,9 +83,13 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
   gFlatDistribution_.reset(new CLHEP::RandFlat(rng->getEngine(),  0., 1.));
 
   int nevet = 0;
+  int noTables = 0; //don't calculate tables
+  int LHEoutput = 0; //no lhe
   int dummySeed = 123;
+  char dummyName[] = "dummy";
   crmc_init_f_(nevet,dummySeed,fBeamMomentum,fTargetMomentum,fBeamID,
-               fTargetID,fHEModel,nevet,fParamFileName.fullPath().c_str());
+               fTargetID,fHEModel,noTables,LHEoutput,dummyName,
+               fParamFileName.fullPath().c_str());
 
   //produces<HepMCProduct>();
 }
@@ -104,7 +108,7 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   int iout=0,ievent=0;
   crmc_f_(iout,ievent,fNParticles,fImpactParameter,
          fPartID[0],fPartPx[0],fPartPy[0],fPartPz[0],
-         fPartEnergy[0],fPartMass[0]);
+          fPartEnergy[0],fPartMass[0],fPartStatus[0]);
 
   HepMC::GenEvent* evt = new HepMC::GenEvent();
 
@@ -116,23 +120,16 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   evt->add_vertex(theVertex);
 
   //number of beam particles
-  int nBeam = fTargetID + fBeamID;
-  if (fTargetID == 207) // fix for lead wrong ID
-    ++nBeam;
-  if (fBeamID == 207)
-    ++nBeam;
 
   for(int i = 0; i < fNParticles; i++)
     {
-     if (fPartEnergy[i]*fPartEnergy[i] + 1e-9 < fPartPy[i]*fPartPy[i] + fPartPx[i]*fPartPx[i] + fPartPz[i]*fPartPz[i])
-       edm::LogInfo("ReggeGribovPartonMCInterface") << "momentum off  Id:" << fPartID[i] << "(" << i << ") " << sqrt(fabs(fPartEnergy[i]*fPartEnergy[i] - (fPartPy[i]*fPartPy[i] + fPartPx[i]*fPartPx[i] + fPartPz[i]*fPartPz[i]))) << endl;
-       //status 1 means final particle
-      theVertex->add_particle_out( new HepMC::GenParticle( HepMC::FourVector(fPartPx[i], fPartPy[i], fPartPz[i], fPartEnergy[i]), fPartID[i], (i < nBeam)?4:1)); //beam particles status = 4, final status =1;
-    }
+      if (fPartEnergy[i]*fPartEnergy[i] + 1e-9 < fPartPy[i]*fPartPy[i] + fPartPx[i]*fPartPx[i] + fPartPz[i]*fPartPz[i])
+        edm::LogInfo("ReggeGribovPartonMCInterface") << "momentum off  Id:" << fPartID[i] << "(" << i << ") " << sqrt(fabs(fPartEnergy[i]*fPartEnergy[i] - (fPartPy[i]*fPartPy[i] + fPartPx[i]*fPartPx[i] + fPartPz[i]*fPartPz[i]))) << endl;
+      theVertex->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(fPartPx[i], fPartPy[i], fPartPz[i], fPartEnergy[i]), fPartID[i], fPartStatus[i]));
+                                   }
 
-  if (nBeam > 2)
+  if (fTargetID + fBeamID > 2)
     {
-
       HepMC::HeavyIon ion(-1, //cevt_.koievt, // FIXME // Number of hard scatterings
                           cevt_.npjevt,                // Number of projectile participants
                           cevt_.ntgevt,                // Number of target participants
@@ -148,7 +145,8 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
                           hadr5_.sigineaa);            // nucleon-nucleon inelastic
       evt->set_heavy_ion(ion);
     }
-  //evt->print();
+  cout << "event generated" << endl;
+  evt->print();
   event().reset(evt);
   return true;
 }
