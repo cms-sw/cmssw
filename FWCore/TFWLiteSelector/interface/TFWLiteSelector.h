@@ -72,9 +72,6 @@ class TFWLiteSelector : public TFWLiteSelectorBasic
       const TFWLiteSelector& operator=(const TFWLiteSelector&); // stop default
 
       virtual void preProcessing(const TList*in, TList& out) {
-        //need to remove all output so that when we delete the worker
-        // we are not left with a stale pointer
-        out.Clear();
         worker_.reset(new TWorker(in,out));
       }
       virtual void process(const edm::Event& iEvent) {
