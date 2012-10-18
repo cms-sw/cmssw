@@ -2,7 +2,7 @@
 
 
 Calculate::Calculate(int maxNJets, double wMass): 
-  failed_(false), maxNJets_(maxNJets), wMass_(wMass), massWBoson_(-1.), massTopQuark_(-1.), massBTopQuark_(-1.)
+  failed_(false), maxNJets_(maxNJets), wMass_(wMass), massWBoson_(-1.), massTopQuark_(-1.), massBTopQuark_(-1.), tmassWBoson_(-1),tmassTopQuark_(-1)
 {
 }
 
@@ -24,6 +24,31 @@ Calculate::massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<double>
 { 
   if(!failed_&& massBTopQuark_<0) operator2(jets, VbtagWP, btagWP_); return massBTopQuark_; 
 }
+
+double 
+Calculate::tmassWBoson(reco::RecoCandidate* mu, const reco::MET& met, const reco::Jet& b)
+{
+  if( tmassWBoson_<0) operator()(b,mu,met); return tmassWBoson_;
+}
+
+
+double
+Calculate::tmassTopQuark(reco::RecoCandidate* lepton, const reco::MET& met, const reco::Jet& b)
+{
+  if( tmassTopQuark_<0) operator()(b,lepton,met); return tmassTopQuark_;
+}
+
+
+void Calculate::operator()( const reco::Jet& bJet, reco::RecoCandidate* lepton, const reco::MET& met){
+  double metT = sqrt(pow(met.px(),2) + pow(met.py(),2));
+  double lepT = sqrt(pow(lepton->px(),2) + pow(lepton->py(),2));
+  double bT   = sqrt(pow(bJet.px(),2) + pow(bJet.py(),2));
+  reco::Particle::LorentzVector WT = lepton->p4() + met.p4();
+  tmassWBoson_ = sqrt(pow(metT+lepT,2) - (WT.px()*WT.px()) - (WT.py()*WT.py()));
+  reco::Particle::LorentzVector topT = WT + bJet.p4();
+  tmassTopQuark_ = sqrt(pow((metT+lepT+bT),2) - (topT.px()*topT.px()) - (topT.py()*topT.py()));
+}
+
 
 
 void
