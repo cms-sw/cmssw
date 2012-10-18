@@ -231,69 +231,66 @@ printf("SQRTS = %f\n",SQRTS);
 
    fprintf(pFile   , "\\documentclass{article}\n");
    fprintf(pFile   , "\\begin{document}\n\n");
-   fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
-
    fprintf(talkFile, "\\documentclass{article}\n");
    fprintf(talkFile, "\\usepackage{rotating}\n");
    fprintf(talkFile, "\\begin{document}\n\n");
    fprintf(talkFile, "\\begin{tiny}\n\n");
+
+   fprintf(pFile   , "%% %50s\n", "TkOnly");
+   fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
    fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccccc|}\n      \\hline\n");
    fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & TOF & Mass Cut (GeV) & N pred & N observed & Eff & Signif \\\\\n");
    fprintf(talkFile, "\\hline\n");
-
    TGraph** TkGraphs  = new TGraph*[modelVector.size()];
    for(unsigned int k=0; k<modelVector.size(); k++){
       TkGraphs[k] = MakePlot(pFile,talkFile,TkPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
-   fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
-
    fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
+
+   fprintf(pFile   , "%% %50s\n", "TkMuon");
+   fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
    fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
    fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & $#beta^{-1]$ & Mass Cut (GeV) & N pred & N observed & Eff \\\\\n");
    fprintf(talkFile, "\\hline\n");
-
    TGraph** MuGraphs = new TGraph*[modelVector.size()];
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
       if(isNeutral) continue;//skip charged suppressed models
       MuGraphs[k] = MakePlot(pFile,talkFile,MuPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
-
-   TGraph** LQGraphs = new TGraph*[modelVector.size()];
-   for(unsigned int k=0; k<modelVector.size(); k++){
-      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
-      if(!isFractional) continue;//skip q>=1 charged suppressed models
-      LQGraphs[k] = MakePlot(pFile,talkFile,LQPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
-   }
-
-
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
-   fprintf(pFile   ,"\\end{document}\n\n");
-
    fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
-   fprintf(talkFile,"\\end{document}\n\n");
 
-
-   fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
+   fprintf(pFile   , "%% %50s\n", "MuOnly");
    fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
-
-   fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
    fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
    fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & $#beta^{-1]$ & Mass Cut (GeV) & N pred & N observed & Eff \\\\\n");
    fprintf(talkFile, "\\hline\n");
-
    TGraph** MuOnlyGraphs = new TGraph*[modelVector.size()];
    for(unsigned int k=0; k<modelVector.size(); k++){
      bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
      if(isNeutral) continue;//skip charged suppressed models                                                                                                                      
      MuOnlyGraphs[k] = MakePlot(pFile,talkFile,MOPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
-
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
-   fprintf(pFile   ,"\\end{document}\n\n");
-
    fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
+
+   fprintf(pFile   , "%% %50s\n", "fractionnally charge");
+   fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
+   fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
+   fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & $#beta^{-1]$ & Mass Cut (GeV) & N pred & N observed & Eff \\\\\n");
+   fprintf(talkFile, "\\hline\n");
+   TGraph** LQGraphs = new TGraph*[modelVector.size()];
+   for(unsigned int k=0; k<modelVector.size(); k++){
+      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
+      if(!isFractional) continue;//skip q>=1 charged suppressed models
+      LQGraphs[k] = MakePlot(pFile,talkFile,LQPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
+   }
+   fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
+   fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
+
+   fprintf(pFile   ,"\\end{document}\n\n");
    fprintf(talkFile,"\\end{document}\n\n");
 
    //print a table with all uncertainty on signal efficiency
