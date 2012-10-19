@@ -21,7 +21,7 @@ void SelectionPlot (string InputPattern, unsigned int CutIndex);
 
 void Make2DPlot_Core(string ResultPattern, unsigned int CutIndex);
 void SignalMassPlot(string InputPattern, unsigned int CutIndex);
-void GetSystematicOnPrediction(string InputPattern);
+void GetSystematicOnPrediction(string InputPattern, string DataName="Data8TeV");
 void MakeExpLimitpLot(string Input, string Output);
 void CosmicBackgroundSystematic(string InputPattern, string DataType="8TeV");
 void CheckPrediction(string InputPattern, string HistoSuffix="_Flip", string DataType="Data8TeV");
@@ -71,7 +71,8 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
-   GetSystematicOnPrediction(InputPattern);
+   GetSystematicOnPrediction(InputPattern, "Data7TeV");
+   GetSystematicOnPrediction(InputPattern, "Data8TeV");
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
 
@@ -91,6 +92,8 @@ void Analysis_Step5()
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
 
    InputPattern = "Results/Type5/";   CutIndex = 67; CutIndex_Flip=2;
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    SelectionPlot(InputPattern, CutIndex);
    CutFlow(InputPattern);
 
@@ -105,6 +108,7 @@ void Analysis_Step5()
 
 // Make the plot of the mass distibution: Observed, data-driven prediciton and signal expectation
 void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix, string DataName){
+   if(DataName.find("7TeV")!=string::npos){SQRTS=7.0;}else{SQRTS=8.0;}
    bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
    double SystError     = 0.05;
 
@@ -302,7 +306,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    //Fill the legend
    if(IsTkOnly) leg = new TLegend(0.82,0.93,0.25,0.66);
    else         leg = new TLegend(0.79,0.93,0.25,0.66);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillStyle(0);
    leg->SetBorderSize(0);
    if(Data8TeV){leg->AddEntry(Data8TeV, "Observed"        ,"P");}
@@ -327,7 +331,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    leg->Draw();
 
    //add CMS label and save
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(LegendFromType(InputPattern), SQRTS, IntegratedLuminosityFromE(SQRTS));
    c1->SetLogy(true);
    SaveCanvas(c1, InputPattern, string("Rescale_") + HistoSuffix + "_" + DataName);
 
@@ -338,6 +342,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
 // make some control plots to show that ABCD method can be used
 void PredictionAndControlPlot(string InputPattern, string Data, unsigned int CutIndex, unsigned int CutIndex_Flip){
+   if(Data.find("7TeV")!=string::npos){SQRTS=7.0;}else{SQRTS=8.0;}
+
    TCanvas* c1;
    TObject** Histos = new TObject*[10];
    std::vector<string> legend;
@@ -392,9 +398,9 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[2] = CtrlPt_S3_Is;                     legend.push_back(PtLimitsNames[2]);
    Histos[3] = CtrlPt_S4_Is;                     legend.push_back(PtLimitsNames[3]);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0.5, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
+   DrawLegend(Histos,legend,"", "P");
    c1->SetLogy(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_IsSpectrum");
    delete c1;
 
@@ -409,9 +415,9 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[2] = CtrlPt_S3_Im;                     legend.push_back(PtLimitsNames[2]);
    Histos[3] = CtrlPt_S4_Im;                     legend.push_back(PtLimitsNames[3]);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 3.0,5, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_ImSpectrum");
    delete c1;
 
@@ -426,9 +432,9 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[2] = CtrlPt_S3_TOF;                    legend.push_back(PtLimitsNames[2]);
    Histos[3] = CtrlPt_S4_TOF;                    legend.push_back(PtLimitsNames[3]);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0); 
-   DrawLegend(Histos,legend,LegendTitle,"P");
+   DrawLegend(Histos,legend, "" ,"P");
    c1->SetLogy(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum");
    c1->SetLogy(false);
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrumNoLog");
@@ -444,13 +450,13 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[2] = CtrlIs_S3_TOF;                     legend.push_back("0.1<I_{as}<0.2");
    Histos[3] = CtrlIs_S4_TOF;                     legend.push_back("0.2<I_{as}");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.7, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
+   DrawLegend(Histos,legend, "","P");
    c1->SetLogy(false);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Is_TOFSpectrum");
 
    c1->SetLogy(true);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Is_TOFSpectrumLog");
    delete c1;
 
@@ -463,9 +469,9 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[1] = CtrlIm_S2_TOF;                     legend.push_back("3.8<I_{as}<4.1");
    Histos[2] = CtrlIm_S3_TOF;                     legend.push_back("4.1<I_{as}<4.4");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.7, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
+   DrawLegend(Histos,legend,"","P");
    c1->SetLogy(false);
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Im_TOFSpectrum");
    delete c1;
 
@@ -487,8 +493,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    ((TH1D*)Histos[0])->Rebin(10);
    ((TH1D*)Histos[1])->Rebin(10);  
    DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "p (Gev/c)", "u.a.", 0,1500, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawLegend(Histos,legend,"","P");
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_PSpectrum");
    delete Histos[0]; delete Histos[1];
    delete c1;
@@ -502,8 +508,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    ((TH1D*)Histos[0])->Rebin(2); 
    ((TH1D*)Histos[1])->Rebin(2);
    DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  dEdxM_Legend, "u.a.", 0,6, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawLegend(Histos,legend,"", "P");
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_ISpectrum");
    delete Histos[0]; delete Histos[1];
    delete c1;
@@ -517,8 +523,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    ((TH1D*)Histos[0])->Rebin(2); 
    ((TH1D*)Histos[1])->Rebin(2);
    DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "1/#beta", "u.a.", 0,0, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawLegend(Histos,legend,"", "P");
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_TOFSpectrum");
    delete Histos[0]; delete Histos[1];
    delete c1;
@@ -540,8 +546,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    ((TH1D*)Histos[0])->Rebin(10);
    ((TH1D*)Histos[1])->Rebin(10);  
    DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "p (Gev/c)", "u.a.", 0,1500, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawLegend(Histos,legend,"","P");
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_PSpectrum_Flip");
    delete Histos[0]; delete Histos[1];
    delete c1;
@@ -555,8 +561,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    ((TH1D*)Histos[0])->Rebin(2); 
    ((TH1D*)Histos[1])->Rebin(2);
    DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  dEdxM_Legend, "u.a.", 0,6, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawLegend(Histos,legend,"","P");
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_ISpectrum_Flip");
    delete Histos[0]; delete Histos[1];
    delete c1;
@@ -570,8 +576,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    ((TH1D*)Histos[0])->Rebin(2); 
    ((TH1D*)Histos[1])->Rebin(2);
    DrawSuperposedHistos((TH1**)Histos, legend, "Hist E1",  "1/#beta", "u.a.", 0,0, 0,0);
-   DrawLegend(Histos,legend,LegendTitle,"P");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawLegend(Histos,legend, "" ,"P");
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_TOFSpectrum_Flip");
    delete Histos[0]; delete Histos[1];
    delete c1;
@@ -601,7 +607,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    //DataVsPred->SetMaximum(3);
    //Histos[0] = DataVsPred;   legend.push_back("Observed");
    //DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "PtCut", "ICut", 0,0, 0,0);
-   //DrawPreliminary(SQRTS, IntegratedLuminosity);
+   //DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    //SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_PredVsObs");
    //delete c1;
 
@@ -613,7 +619,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    //c1->SetLogz(true);
    //Histos[0] = PredMap;   legend.push_back("Observed");
    //DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "PtCut", "ICut", 0,0, 0,0);
-   //DrawPreliminary(SQRTS, IntegratedLuminosity);
+   //DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    //SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_Pred");
    //delete c1;
 
@@ -621,7 +627,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    //c1->SetLogz(true);
    //Histos[0] = DataMap;   legend.push_back("Observed");
    //DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "PtCut", "ICut", 0,0, 0,0);
-   //DrawPreliminary(SQRTS, IntegratedLuminosity);
+   //DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    //SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_Data");
    //delete c1;
    }
@@ -696,10 +702,10 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
        stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
     }
 
-    stPlots_Draw(Data8TeVPlots, InputPattern + "/Selection_Data8TeV", LegendTitle, CutIndex);
-    stPlots_Draw(Data7TeVPlots, InputPattern + "/Selection_Data7TeV", LegendTitle, CutIndex);
-    stPlots_Draw(MCTr8TeVPlots  , InputPattern + "/Selection_MCTr_8TeV"  , LegendTitle, CutIndex);
-    stPlots_Draw(MCTr7TeVPlots  , InputPattern + "/Selection_MCTr_7TeV"  , LegendTitle, CutIndex);
+    SQRTS=8; stPlots_Draw(Data8TeVPlots, InputPattern + "/Selection_Data8TeV", LegendTitle, CutIndex);
+    SQRTS=7; stPlots_Draw(Data7TeVPlots, InputPattern + "/Selection_Data7TeV", LegendTitle, CutIndex);
+    SQRTS=8; stPlots_Draw(MCTr8TeVPlots  , InputPattern + "/Selection_MCTr_8TeV"  , LegendTitle, CutIndex);
+    SQRTS=7; stPlots_Draw(MCTr7TeVPlots  , InputPattern + "/Selection_MCTr_7TeV"  , LegendTitle, CutIndex);
 
     if(TypeMode==3) {
       stPlots_Draw(Cosmic8TeVPlots, InputPattern + "/Selection_Cosmic8TeV", LegendTitle, CutIndex);
@@ -708,11 +714,11 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 
     stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &MCTr8TeVPlots, &MCTr7TeVPlots);
 
-    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_Gluino", LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
-    if(TypeMode<=2) stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
-    if(TypeMode==3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
-    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M600_Q2o3",samples)]);
-    if(TypeMode==5) stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M600_Q2o3",samples)]);
+    if(TypeMode<=2){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_Gluino", LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);}
+    if(TypeMode<=2){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);}
+    if(TypeMode==3){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);}
+    if(TypeMode==5){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M600_Q2o3",samples)]);}
+    if(TypeMode==5){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M600_Q2o3",samples)]);}
 
     stPlots_Clear(&Data8TeVPlots);
     stPlots_Clear(&Data7TeVPlots);
@@ -729,7 +735,9 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 
 
 // Determine the systematic uncertainty by computing datadriven prediction from different paths (only works with 3D ABCD method)
-void GetSystematicOnPrediction(string InputPattern){
+void GetSystematicOnPrediction(string InputPattern, string DataName){
+   if(DataName.find("7TeV")!=string::npos){SQRTS=7.0;}else{SQRTS=8.0;}
+
    TypeMode = TypeFromPattern(InputPattern); 
    if(TypeMode!=2)return;
 
@@ -737,15 +745,15 @@ void GetSystematicOnPrediction(string InputPattern){
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
    TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
-   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_A");
-   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_B");
-   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_C");
- //TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_D");
-   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_E");
-   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_F");
-   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_G");
-   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_H");
- //TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_P");
+   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_A");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_C");
+ //TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_D");
+   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_E");
+   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_F");
+   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_G");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_H");
+ //TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_P");
 
    int    ArrN[6];  ArrN[0] = 0; ArrN[1] = 0; ArrN[2] = 0;  ArrN[3] = 0;  ArrN[4] = 0; ArrN[5] = 0;
    double ArrPred[5][6][20];  double ArrErr[5][6][20];  int ArrPredN[5][6];  for(unsigned int i=0;i<5;i++){for(unsigned int j=0;j<6;j++){ArrPredN[i][j]=0;}}
@@ -940,8 +948,8 @@ void GetSystematicOnPrediction(string InputPattern){
    MGTOF->GetYaxis()->SetTitleOffset(1.70);
    MGTOF->GetYaxis()->SetRangeUser(10,1E6);
    LEG->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,InputPattern,"Systematics_TOF_Value");
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1,InputPattern,string("Systematics_")+DataName+"_TOF_Value");
    delete c1;
 
    c1 = new TCanvas("c1", "c1",600,600);
@@ -958,8 +966,8 @@ void GetSystematicOnPrediction(string InputPattern){
    MGI->GetYaxis()->SetTitleOffset(1.70);
    MGI->GetYaxis()->SetRangeUser(10,1E6);
    LEG->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,InputPattern,"Systematics_I_Value");
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1,InputPattern,string("Systematics_")+DataName+"_I_Value");
    delete c1;
 
    c1 = new TCanvas("c1", "c1",600,600);
@@ -976,8 +984,8 @@ void GetSystematicOnPrediction(string InputPattern){
    MGP->GetYaxis()->SetTitleOffset(1.70);
    MGP->GetYaxis()->SetRangeUser(10,1E6);
    LEG->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,InputPattern,"Systematics_P_Value");
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1,InputPattern,string("Systematics_")+DataName+"_P_Value");
    delete c1;
 
    for(unsigned int p=0;p<3;p++){
@@ -996,7 +1004,7 @@ void GetSystematicOnPrediction(string InputPattern){
       graph_s->GetYaxis()->SetTitleOffset(1.70);
       graph_s->GetXaxis()->SetTitle(Title.c_str());
       graph_s->Draw("AC*");
-      SaveCanvas(c1,InputPattern,string("Systematics_")+Name+"Sigma");
+      SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"Sigma");
       delete c1;
 
       c1 = new TCanvas("c1","c1", 600, 600);
@@ -1009,7 +1017,7 @@ void GetSystematicOnPrediction(string InputPattern){
       graph_d->GetYaxis()->SetTitleOffset(1.70);
       graph_d->GetXaxis()->SetTitle(Title.c_str());
       graph_d->Draw("AC*");
-      SaveCanvas(c1,InputPattern,string("Systematics_")+Name+"Dist");
+      SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"Dist");
       delete c1;
 
       c1 = new TCanvas("c1","c1", 600, 600);
@@ -1048,7 +1056,7 @@ void GetSystematicOnPrediction(string InputPattern){
          LEG->AddEntry(graph_sum3, "I_{as}>0.10 & 1/#beta>1.10", "L");
          LEG->Draw();
       }
-      SaveCanvas(c1,InputPattern,string("Systematics_")+Name+"Sum");
+      SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"Sum");
       delete c1;
 
       c1 = new TCanvas("c1","c1", 600, 600);
@@ -1087,7 +1095,7 @@ void GetSystematicOnPrediction(string InputPattern){
          LEG->AddEntry(graph_stat3, "I_{as}>0.10 & 1/#beta>1.10", "L");
          LEG->Draw();
       }
-      SaveCanvas(c1,InputPattern,string("Systematics_")+Name+"Stat");
+      SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"Stat");
       delete c1;
 
       c1 = new TCanvas("c1","c1", 600, 600);
@@ -1127,7 +1135,7 @@ void GetSystematicOnPrediction(string InputPattern){
          LEG->AddEntry(graph_statB3, "I_{as}>0.10 & 1/#beta>1.10", "L");
          LEG->Draw();
       }
-      SaveCanvas(c1,InputPattern,string("Systematics_")+Name+"StatB");
+      SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"StatB");
       delete c1;
 
       c1 = new TCanvas("c1","c1", 600, 600);
@@ -1167,7 +1175,7 @@ void GetSystematicOnPrediction(string InputPattern){
          LEG->AddEntry(graph_syst3, "I_{as}>0.10 & 1/#beta>1.10", "L");
          LEG->Draw();
       }
-      SaveCanvas(c1,InputPattern,string("Systematics_")+Name+"Syst");
+      SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"Syst");
       delete c1;
     }
     InputFile->Close();
@@ -1323,7 +1331,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_Mass, "Gluino500"   ,"P");
    leg->AddEntry(Gluino800_Mass, "Gluino800"   ,"P");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Gluino_Mass");
    delete c1;
 
@@ -1339,7 +1347,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_PIs->SetMarkerColor(Color[4]);
    Data_PIs->SetFillColor(Color[4]);
    Data_PIs->Draw("COLZ");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Data_PIs", true);
    delete c1;
 
@@ -1355,7 +1363,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_PIm->SetMarkerColor(Color[4]);
    Data_PIm->SetFillColor(Color[4]);
    Data_PIm->Draw("COLZ");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Data_PIm", true);
    delete c1;
 
@@ -1371,7 +1379,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_TOFIs->SetMarkerColor(Color[4]);
    Data_TOFIs->SetFillColor(Color[4]);
    Data_TOFIs->Draw("COLZ");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Data_TOFIs", true);
    delete c1;
 
@@ -1387,7 +1395,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_TOFIm->SetMarkerColor(Color[4]);
    Data_TOFIm->SetFillColor(Color[4]);
    Data_TOFIm->Draw("COLZ");
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Data_TOFIm", true);
    delete c1;
 
@@ -1421,7 +1429,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_PIs, "Gluino500"   ,"F");
    leg->AddEntry(Gluino800_PIs, "Gluino800"   ,"F");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Gluino_PIs", true);
    delete c1;
 
@@ -1469,7 +1477,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_PIm, "Gluino500"   ,"F");
    leg->AddEntry(Gluino800_PIm, "Gluino800"   ,"F");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Gluino_PIm", true);
    delete c1;
 
@@ -1503,7 +1511,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_TOFIs, "Gluino500"   ,"F");
    leg->AddEntry(Gluino800_TOFIs, "Gluino800"   ,"F");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Gluino_TOFIs", true);
    delete c1;
 
@@ -1538,7 +1546,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Gluino500_TOFIm, "Gluino500"   ,"F");
    leg->AddEntry(Gluino800_TOFIm, "Gluino800"   ,"F");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Gluino_TOFIm", true);
    delete c1;
 
@@ -1593,7 +1601,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Data_PIm_450, "300 < M < 400 GeV","P");
    leg->AddEntry(Data_PIm_All, "400 < M GeV"      ,"P");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosity);
+   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, "Data_PIm_Colored", true);
    delete c1;
 }
@@ -1646,6 +1654,7 @@ void MakeExpLimitpLot(string Input, string Output){
 
 
 void CosmicBackgroundSystematic(string InputPattern, string DataType){
+   if(DataType.find("7TeV")!=string::npos){SQRTS=7.0;}else{SQRTS=8.0;}
 
   string SavePath  = InputPattern;
   MakeDirectories(SavePath);
@@ -1751,7 +1760,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
     DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Predicted", 0,0, 0,0);
     DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     c1->SetLogy(false);
-    DrawPreliminary(SQRTS, IntegratedLuminosity);
+    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,(DataType + "CosmicPrediction_TOF" + Preds[i]).c_str());
     delete c1;
   }  
@@ -1763,7 +1772,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Stat+Syst Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
+  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType +"CosmicStatSyst");
   delete c1;
 
@@ -1774,7 +1783,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Stat Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
+  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType +"CosmicStat");
   delete c1;
 
@@ -1785,7 +1794,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Syst Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
+  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType +"CosmicSyst");
   delete c1;
 }  
@@ -1881,7 +1890,7 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
     DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 0,0);
     DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.3);
     c1->SetLogy(true);
-    DrawPreliminary(SQRTS, IntegratedLuminosity);
+    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
 
     char Title[1024];
     if(ICut>-1 && PtCut>-1) sprintf(Title,"Pred%s_I%0.2f_Pt%3.0f_",HistoSuffix.c_str(), ICut, PtCut);
@@ -1911,13 +1920,14 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Data/MC", 0, 0, 0,0);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
+  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,"Pred_Ratio_" + DataType + HistoSuffix);
   delete c1;
 }
 
 
 void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType){
+   if(DataType.find("7TeV")!=string::npos){SQRTS=7.0;}else{SQRTS=8.0;}
   TypeMode = TypeFromPattern(InputPattern);
 
   string SavePath  = InputPattern;
@@ -2140,7 +2150,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Predicted", 0,0, 0,0);
     DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     c1->SetLogy(true);
-    DrawPreliminary(SQRTS, IntegratedLuminosity);
+    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,(DataType + "CollisionPrediction_TOF" + Preds[i]).c_str());
     delete c1;
   }
@@ -2152,7 +2162,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Stat+Syst Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
+  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType + "CollisionStatSyst");
   delete c1;
 
@@ -2163,7 +2173,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Stat Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
+  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType + "CollisionStat");
   delete c1;
 
@@ -2174,7 +2184,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Syst Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosity);
+  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType +"CollisionSyst");
   delete c1;
   }  

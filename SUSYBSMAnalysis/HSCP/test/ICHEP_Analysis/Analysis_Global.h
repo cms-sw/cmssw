@@ -33,18 +33,28 @@
 //This code is there to enable/disable year dependent code
 //#define ANALYSIS2011
 
+double IntegratedLuminosity7TeV = 5003;
+double IntegratedLuminosity8TeV = 11564;
+
 #ifdef ANALYSIS2011
 double               SQRTS          = 7;
 int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 5003; 
+double               IntegratedLuminosity = IntegratedLuminosity7TeV; 
 double               IntegratedLuminosityBeforeTriggerChange = 409.91; 
 #else
 double               SQRTS          = 8;
 int                  RunningPeriods = 1;
-double               IntegratedLuminosity = 11564;
+double               IntegratedLuminosity = IntegratedLuminosity8TeV;
 double               IntegratedLuminosityBeforeTriggerChange = 0;
 double               IntegratedLuminosityHigherMETThreshold = 698.991;
 #endif
+
+double IntegratedLuminosityFromE(double SQRTS_){
+   if(SQRTS_==7){return IntegratedLuminosity7TeV;}
+   else if(SQRTS_==8){return IntegratedLuminosity8TeV;}
+   else if(SQRTS_==78 || SQRTS_==87){return IntegratedLuminosity7TeV+IntegratedLuminosity8TeV;}
+   else{return -1;}
+}
 
 
 // Type of the analysis
