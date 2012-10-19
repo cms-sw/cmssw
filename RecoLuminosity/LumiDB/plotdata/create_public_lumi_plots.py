@@ -321,6 +321,10 @@ class ColorScheme(object):
                   "ERROR Unknown color scheme '%s'" % self.name
             sys.exit(1)
 
+        # NOTE: This is a little fragile, I think.
+        logo_path = os.path.realpath(__file__)
+        self.logo_name = os.path.join(logo_path, logo_name)
+
         # End of __init__().
 
     # End of class ColorScheme.
