@@ -23,6 +23,7 @@ import numpy as np
 from colorsys import hls_to_rgb, rgb_to_hls
 
 import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from matplotlib._png import read_png
 from matplotlib.offsetbox import OffsetImage
