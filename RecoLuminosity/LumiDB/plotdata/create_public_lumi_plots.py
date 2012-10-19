@@ -322,8 +322,8 @@ class ColorScheme(object):
             sys.exit(1)
 
         # NOTE: This is a little fragile, I think.
-        logo_path = os.path.realpath(__file__)
-        self.logo_name = os.path.join(logo_path, logo_name)
+        logo_path = os.path.realpath(os.path.dirname(__file__))
+        self.logo_name = os.path.join(logo_path, self.logo_name)
 
         # End of __init__().
 
@@ -591,7 +591,7 @@ if __name__ == "__main__":
         beam_energy_from_cfg = False
     else:
         beam_energy_from_cfg = True
-        beam_energy = float(beam_energy_from_cfg)
+        beam_energy = float(beam_energy_tmp)
 
     # Overall begin and end dates of all data to include.
     tmp = cfg_parser.get("general", "date_begin")
@@ -880,6 +880,12 @@ if __name__ == "__main__":
         print "  %4d: %s" % \
               (year, tmp_str)
     print sep_line
+
+    ##########
+
+    if not len(lumi_data_by_day_per_year):
+        print >> sys.stderr, "ERROR No lumi found?"
+        sys.exit(1)
 
     ##########
 
