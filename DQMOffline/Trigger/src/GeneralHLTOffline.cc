@@ -12,7 +12,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.7 2012/08/09 13:05:30 muell149 Exp $
+// $Id: GeneralHLTOffline.cc,v 1.8 2012/09/20 12:25:35 bjk Exp $
 //
 //
 
@@ -573,8 +573,12 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
  std::string dnamez = "cppath_"+label;
  std::string dtitlez = "cppath_"+label;
  int sizez = PDsVectorPathsVector[iPD].size();
- TH1F * hist_mini_cppath = new TH1F(dnamez.c_str(),dtitlez.c_str(),sizez,0,sizez);//or iPath
- dbe->book1D(dnamez.c_str(),hist_mini_cppath);
+<<<<<<< GeneralHLTOffline.cc
+ TH1F * hist_mini_cppath;
+ 
+ hist_mini_cppath = dbe->book1D(dnamez.c_str(),dtitlez.c_str(),sizez,0,sizez)->getTH1F();//or iPath
+ // dbe->book1D(dnamez.c_str(),hist_mini_cppath);
+ 
  unsigned int jPath;
   for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { 
     pathName = removeVersions(PDsVectorPathsVector[iPD][iPath]);
