@@ -2,12 +2,14 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.25 2010/03/05 15:53:15 sunanda Exp $
+ * \version $Id: RPCDetId.cc,v 1.26 2011/10/28 17:34:24 mmaggi Exp $
  * \date 02 Aug 2005
  */
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DataFormats/MuonDetId/interface/MuonSubdetId.h> 
+
+#include<iostream>
 
 RPCDetId::RPCDetId():DetId(DetId::Muon, MuonSubdetId::RPC),trind(0){}
 
