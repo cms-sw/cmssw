@@ -157,6 +157,19 @@ class BetterConfigParser(ConfigParser.ConfigParser):
 class Alignment:
     def __init__(self, name, config, runGeomComp = "1"):
         section = "alignment:%s"%name
+
+        # Check for typos or wrong parameters
+        knownSimpleParameters = [ 'globaltag', 'style', 'color' ]
+        knownKeywords = [ 'condition' ]
+        for option in config.options( section ):
+            if option in knownSimpleParameters:
+                continue
+            elif option.split()[0] in knownKeywords:
+                continue
+            else:
+                raise StandardError, ("Invalid or unknown parameter '%s' in "
+                                      "section '%s'!")%( option, section )
+
         self.name = name
         self.runGeomComp = runGeomComp
         if not config.has_section( section ):
@@ -177,6 +190,7 @@ class Alignment:
                                         "connectString": conditionParameters[0].strip(),
                                         "tagName": conditionParameters[1].strip(),
                                         "labelName": conditionParameters[2].strip()})
+
         # removed backward compatibility
         self.dbpath = ""
         self.tag = ""
