@@ -202,8 +202,8 @@ void MaterialBudget_Maps() {
 //	can_x0.Range(0,0,25,25);
 	
 	// Draw
-	hist_x0_Tracker_XY->GetXaxis()->SetLimits(xmin,xmax);
-	hist_x0_Tracker_XY->GetYaxis()->SetLimits(ymin,ymax);
+	hist_x0_Tracker_XY->GetXaxis()->SetRangeUser(xmin,xmax);
+	hist_x0_Tracker_XY->GetYaxis()->SetRangeUser(ymin,ymax);
 	hist_x0_Tracker_XY->Rebin2D(rebin_x0_x,rebin_x0_y);
 	hist_x0_Tracker_XY->Scale(1/norm_x0);
 
@@ -247,8 +247,8 @@ void MaterialBudget_Maps() {
 //	can_lambdaI.Range(0,0,25,25);
 	
 	// Draw
-	hist_lambdaI_Tracker_XY->GetXaxis()->SetLimits(xmin,xmax);
-	hist_lambdaI_Tracker_XY->GetYaxis()->SetLimits(ymin,ymax);
+	hist_lambdaI_Tracker_XY->GetXaxis()->SetRangeUser(xmin,xmax);
+	hist_lambdaI_Tracker_XY->GetYaxis()->SetRangeUser(ymin,ymax);
 	hist_lambdaI_Tracker_XY->Rebin2D(rebin_lambdaI_x,rebin_lambdaI_y);
 	hist_lambdaI_Tracker_XY->Scale(1/norm_lambdaI);
 
