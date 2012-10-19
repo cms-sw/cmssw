@@ -344,7 +344,9 @@ def InitMatplotlib():
     """Just some Matplotlib settings."""
     matplotlib.rcParams["text.usetex"] = False
     matplotlib.rcParams["legend.numpoints"] = 1
-    matplotlib.rcParams["savefig.dpi"] = 600
+    matplotlib.rcParams["figure.figsize"] = (8., 6.)
+    matplotlib.rcParams["figure.dpi"] = 200
+    matplotlib.rcParams["savefig.dpi"] = matplotlib.rcParams["figure.dpi"]
     # End of InitMatplotlib().
 
 ######################################################################
@@ -465,7 +467,12 @@ def AddLogo(logo_name, ax, zoom=1.2):
     """Read logo from PNG file and add it to axes."""
 
     logo_data = read_png(logo_name)
-    logo_box = OffsetImage(logo_data, zoom=zoom)
+    fig_dpi = ax.get_figure().dpi
+    fig_size = ax.get_figure().get_size_inches()
+    # NOTE: This scaling is kinda ad hoc...
+    zoom_factor = .1 / 1.2 * fig_dpi * fig_size[0] / np.shape(logo_data)[0]
+    zoom_factor *= zoom
+    logo_box = OffsetImage(logo_data, zoom=zoom_factor)
     ann_box = AnnotationBbox(logo_box, [0., 1.],
                              xybox=(2., -2.),
                              xycoords="axes fraction",
