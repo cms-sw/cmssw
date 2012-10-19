@@ -24,6 +24,7 @@ process.source = cms.Source("PoolSource",
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/EC8BE038-9DA2-E111-AEEC-00215AEDFD98.root',
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/E865F95C-B7A2-E111-9FFF-003048D2BC5C.root',
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/E63A7608-99A2-E111-BAD9-001D09F290BF.root'
+                                     #'file:outputPhysicsDST.root'
                                      )
 )
 
