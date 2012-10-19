@@ -68,11 +68,17 @@ public:
   typedef std::pair<PixelDigiIter,PixelDigiIter>   PixelDigiRange;
   
   
+#ifndef CMS_NOCXX11
+  static constexpr unsigned int POSBITS=10;
+  static constexpr unsigned int SPANBITS=6;
+  static constexpr unsigned short MAXSPAN=63;
+  static constexpr unsigned short MAXPOS=1023;
+#else
   static const unsigned int POSBITS=10;
   static const unsigned int SPANBITS=6;
   static const unsigned short MAXSPAN=63;
   static const unsigned short MAXPOS=1023;
-  
+#endif  
   
   /** Construct from a range of digis that form a cluster and from 
    *  a DetID. The range is assumed to be non-empty.
