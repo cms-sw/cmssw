@@ -357,6 +357,7 @@ steps['LM9p']=genS('LM9p_8TeV_cff',K250by100)
 steps['QCD_Pt_20_30']=genS('QCD_Pt_20_30_8TeV_cfi',K250by100)
 steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_cfi',K250by100)
 
+
 ## upgrade dedicated wf
 step1Upgpixphase1Defaults = {'-s' : 'GEN,SIM',
                              '-n' : 10,
@@ -370,6 +371,10 @@ step1Upgpixphase1Defaults = {'-s' : 'GEN,SIM',
 steps['FourMuPt1_200_UPGphase1']=merge([{'cfg':'FourMuPt_1_200_cfi','--relval':'10000,100'},step1Upgpixphase1Defaults])
 steps['MinBias_UPGphase1_14']=merge([{'cfg':'MinBias_TuneZ2star_14TeV_pythia6_cff','--relval':'15000,250'},step1Upgpixphase1Defaults])
 steps['TTbar_Tauola_UPGphase1_14']=merge([{'cfg':'TTbar_Tauola_14TeV_cfi','--relval':'10000,100'},step1Upgpixphase1Defaults])
+
+## pPb tests
+step1PPbDefaults={'--beamspot':'Realistic8TeVCollisionPPbBoost'}
+steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_cfi',K9by100)])
 
 ## heavy ions tests
 U500by5={'--relval': '500,5'}

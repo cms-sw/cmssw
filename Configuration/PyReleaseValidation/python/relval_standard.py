@@ -144,6 +144,7 @@ workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 workflows[41] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI']]
 workflows[42] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI']]
 
-
+### pPb test ###
+workflows[80]= ['',['AMPT_PPb_5020GeV_MinimumBias','DIGI','RECO']]
 
 #  LocalWords:  workflows
