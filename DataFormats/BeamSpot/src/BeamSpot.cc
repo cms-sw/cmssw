@@ -7,7 +7,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpot.cc,v 1.11 2009/03/26 19:54:21 yumiceva Exp $
+ version $Id: BeamSpot.cc,v 1.12 2011/04/06 20:31:35 venturia Exp $
 
  ________________________________________________________________**/
 
@@ -82,8 +82,7 @@ namespace reco {
       AlgebraicVector3 globalZ(0.,0.,1.);
       AlgebraicVector3 rotationAxis = ROOT::Math::Cross(globalZ.Unit(), newZ.Unit());
       float rotationAngle = -acos( ROOT::Math::Dot(globalZ.Unit(),newZ.Unit()));
-      AlgebraicVector a = asHepVector(rotationAxis);
-      Basic3DVector<float> aa(a[0], a[1], a[2]);
+      Basic3DVector<float> aa(rotationAxis[0],rotationAxis[1],rotationAxis[2]);
       TkRotation<float> rotation(aa ,rotationAngle);
       AlgebraicMatrix33 rotationMatrix;
       rotationMatrix(0,0) = rotation.xx();
