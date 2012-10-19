@@ -42,6 +42,10 @@
 #include "../interface/ProfileLikelihood.h"
 #include "../interface/ProfilingTools.h"
 
+
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 using namespace RooStats;
 using namespace std;
 
@@ -72,6 +76,7 @@ bool  HybridNew::fullGrid_ = false;
 bool  HybridNew::saveGrid_ = false; 
 bool  HybridNew::noUpdateGrid_ = false; 
 std::string HybridNew::gridFile_ = "";
+std::string HybridNew::scaleAndConfidenceSelection_ ="0.68,0.95";
 bool HybridNew::importanceSamplingNull_ = false;
 bool HybridNew::importanceSamplingAlt_  = false;
 std::string HybridNew::algo_ = "logSecant";
@@ -83,8 +88,10 @@ bool HybridNew::rMaxSet_                = false;
 std::string HybridNew::plot_;
 std::string HybridNew::minimizerAlgo_ = "Minuit2";
 float       HybridNew::minimizerTolerance_ = 1e-2;
+float       HybridNew::adaptiveToys_ = -1;
 bool        HybridNew::reportPVal_ = false;
-
+float HybridNew::confidenceToleranceForToyScaling_ = 0.2;
+float HybridNew::maxProbability_ = 0.999;
 #define EPS 1e-9
  
 HybridNew::HybridNew() : 
@@ -130,6 +137,11 @@ LimitAlgo("HybridNew specific options") {
         ("noUpdateGrid", "Do not update test statistics at grid points")
         ("fullBToys", "Run as many B toys as S ones (default is to run 1/4 of b-only toys)")
         ("pvalue", "Report p-value instead of significance (when running with --significance)")
+        ("adaptiveToys",boost::program_options::value<float>(&adaptiveToys_)->default_value(adaptiveToys_), "Throw less toys far from interesting contours , --toysH scaled by scale when prob is far from any of CL_i = {importanceContours} ")
+        ("importantContours",boost::program_options::value<std::string>(&scaleAndConfidenceSelection_)->default_value(scaleAndConfidenceSelection_), "Throw less toys far from interesting contours , format : CL_1,CL_2,..CL_N (--toysH scaled down when prob is far from any of CL_i) ")
+        ("maxProbability", boost::program_options::value<float>(&maxProbability_)->default_value(maxProbability_),  "when point is >  maxProbability countour, don't bother throwing toys")
+        ("confidenceTolerance", boost::program_options::value<float>(&confidenceToleranceForToyScaling_)->default_value(confidenceToleranceForToyScaling_),  "Determine what 'far' means for adatptiveToys. (relative in terms of (1-cl))")
+	
     ;
 }
 
@@ -141,6 +153,8 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
         expectedFromGrid_ = true;
         g_quantileExpected_ = quantileForExpectedFromGrid_;
     }
+
+
     if (vm.count("frequentist")) {
         genNuisances_ = 0; genGlobalObs_ = withSystematics; fitNuisances_ = withSystematics;
         if (vm["testStat"].defaulted()) testStat_ = "LHC";
@@ -892,12 +906,44 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
         hc->SetToys(nToys_, nToys_);
       }      
   } else if (!CLs_) {
-      // we need only S+B toys to compute CLs+b
-      hc->SetToys(fullBToys_ ? nToys_ : int(0.01*nToys_)+1, nToys_);
-      //for two sigma bands need an equal number of B
-      if (expectedFromGrid_ && (fabs(0.5-quantileForExpectedFromGrid_)>=0.4) ) {
-        hc->SetToys(nToys_, nToys_);
-      }      
+
+      if (adaptiveToys_>0.){
+      	double qN = setup.toymcsampler->EvaluateTestStatistic(data,poi);
+      	double prob = ROOT::Math::chisquared_cdf_c(qN,poi.getSize());
+	std::vector<float>scaleAndConfidences;
+  	std::vector<std::string> scaleAndConfidencesList;  
+    	boost::split(scaleAndConfidencesList,scaleAndConfidenceSelection_ , boost::is_any_of(","));
+
+  	for (UInt_t p = 0; p < scaleAndConfidencesList.size(); ++p) {
+		
+		scaleAndConfidences.push_back(atof(scaleAndConfidencesList[p].c_str()));
+	}
+	
+    	int nCL_ = scaleAndConfidences.size();
+        float scaleNumberOfToys = adaptiveToys_;
+	int nToyssc = nToys_;
+
+	if ((1.-prob) > maxProbability_) nToyssc=1.;
+	else {
+	    for (int CL_i=0;CL_i<nCL_;CL_i++){
+		bool isClose = fabs(prob-(1-scaleAndConfidences[CL_i])) < confidenceToleranceForToyScaling_*(1-scaleAndConfidences[CL_i]); 
+		if (isClose) scaleNumberOfToys = 1.;
+	    }
+	}
+
+	nToyssc = (int) nToyssc*scaleNumberOfToys; nToyssc = nToyssc>0 ? nToyssc:1;
+
+        hc->SetToys(fullBToys_ ? nToyssc : 1, nToyssc);
+      }
+      else {
+        // we need only S+B toys to compute CLs+b
+        hc->SetToys(fullBToys_ ? nToys_ : int(0.01*nToys_)+1, nToys_);
+        //for two sigma bands need an equal number of B
+        if (expectedFromGrid_ && (fabs(0.5-quantileForExpectedFromGrid_)>=0.4) ) {
+          hc->SetToys(nToys_, nToys_);
+        }      
+      }	
+    
   } else {
       // need both, but more S+B than B 
       hc->SetToys(fullBToys_ ? nToys_ : int(0.25*nToys_), nToys_);

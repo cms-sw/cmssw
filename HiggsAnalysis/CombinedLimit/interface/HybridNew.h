@@ -68,7 +68,11 @@ private:
   static bool rMinSet_;
   static bool rMaxSet_;
   float mass_;
- 
+  static std::string	scaleAndConfidenceSelection_; 
+  static float maxProbability_;
+  static float confidenceToleranceForToyScaling_;
+  static float adaptiveToys_;
+
   // graph, used to compute the limit, not just for plotting!
   std::auto_ptr<TGraphErrors> limitPlot_;
  
