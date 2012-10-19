@@ -2,7 +2,7 @@
 <use   name="rootrflx"/>
 <use   name="clhepheader"/>
 <use   name="DataFormats/CaloRecHit"/>
-
+<use   name="DataFormats/TrackingRecHit"/>
 <export>
   <lib   name="1"/>
 </export>

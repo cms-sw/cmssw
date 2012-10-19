@@ -11,7 +11,7 @@
 <use name="rootcintex"/>
 <use name="root"/>
 <use name="CommonTools/UtilAlgos"/>
-
+<use name="Geometry/TrackerGeometryBuilder"/>
 <export>
  <lib   name="1"/>
 </export>

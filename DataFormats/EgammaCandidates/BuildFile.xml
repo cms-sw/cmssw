@@ -10,7 +10,7 @@
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/GeometryCommonDetAlgo"/>
-<use   name="DataFormats/ParticleFlowCandidate"/>
+# <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="rootrflx"/>
 <export>

@@ -4,7 +4,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "TVector3.h"
 
 #include <vector>
 #include <string>
