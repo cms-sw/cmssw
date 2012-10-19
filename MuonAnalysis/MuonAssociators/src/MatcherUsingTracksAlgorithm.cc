@@ -16,17 +16,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// a few template-related workarounds
-namespace reco {
-template<>
-inline double deltaR<GlobalVector>(const GlobalVector &v1, const GlobalVector &v2) {
-    return deltaR<float>(v1.eta(),v1.phi(),v2.eta(),v2.phi());
-}
-template<>
-inline double deltaR2<GlobalVector>(const GlobalVector &v1, const GlobalVector &v2) {
-    return deltaR2<float>(v1.eta(),v1.phi(),v2.eta(),v2.phi());
-}
-}
 
 MatcherUsingTracksAlgorithm::MatcherUsingTracksAlgorithm(const edm::ParameterSet & iConfig) :
     whichTrack1_(None),     whichTrack2_(None), 
