@@ -16,7 +16,7 @@ import datetime
 import calendar
 import copy
 import math
-import argparse
+import optparse
 import ConfigParser
 
 import numpy as np
@@ -531,16 +531,18 @@ if __name__ == "__main__":
 
     desc_str = "This script creates the official CMS luminosity plots " \
                "based on the output from the lumiCalc family of scripts."
-    arg_parser = argparse.ArgumentParser(description=desc_str)
-    arg_parser.add_argument("configfile", metavar="CONFIGFILE",
-                            help="Configuration file name")
-    arg_parser.add_argument("--ignore-cache", action="store_true",
-                            help="Ignore all cached lumiCalc results " \
-                            "and re-query lumiCalc. " \
-                            "(Rebuilds the cache as well.)")
-    args = arg_parser.parse_args()
-    config_file_name = args.configfile
-    ignore_cache = args.ignore_cache
+    arg_parser = optparse.OptionParser(description=desc_str)
+    arg_parser.add_option("--ignore-cache", action="store_true",
+                          help="Ignore all cached lumiCalc results " \
+                          "and re-query lumiCalc. " \
+                          "(Rebuilds the cache as well.)")
+    (options, args) = arg_parser.parse_args()
+    if len(args) != 1:
+        print >> sys.stderr, \
+              "ERROR Need exactly one argument: a config file name"
+        sys.exit(1)
+    config_file_name = args[0]
+    ignore_cache = options.ignore_cache
 
     cfg_defaults = {
         "lumicalc_flags" : "",
@@ -550,6 +552,10 @@ if __name__ == "__main__":
         "verbose" : False
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
+    if not os.path.exists(config_file_name):
+        print >> sys.stderr, \
+              "ERROR Config file '%s' does not exist" % config_file_name
+        sys.exit(1)
     cfg_parser.read(config_file_name)
 
     # Which color scheme to use for drawing the plots.
