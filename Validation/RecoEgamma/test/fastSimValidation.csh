@@ -19,7 +19,7 @@
 setenv TYPE Photons
 setenv CMSSWver1 6_1_0
 setenv RELEASE 6_1_0
-setenv PRERELEASE pre3
+setenv PRERELEASE pre4
 
 setenv FULLGLOBALTAG START61_V1-v1
 setenv FASTGLOBALTAG START61_V1_FastSim-v1
