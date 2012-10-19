@@ -1,6 +1,6 @@
 #include <Geometry/CommonTopologies/interface/RadialStripTopology.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <Utilities/General/interface/CMSexception.h>
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <cmath>
@@ -198,7 +198,9 @@ MeasurementError RadialStripTopology::measurementError(const LocalPoint& p,  con
   return MeasurementError(uu, uv, vv);
 }
  
-float RadialStripTopology::pitch() const {  throw Genexception("RadialStripTopology::pitch() called - makes no sense, use localPitch(.) instead."); return 0.;}
+float RadialStripTopology::pitch() const {  
+	throw cms::Exception("RadialStripTopology") << "pitch() called - makes no sense, use localPitch(.) instead."; 
+        return  0.;}
 
  // The local pitch is the local x width of the strip at the local (x,y)
 float RadialStripTopology::localPitch(const LocalPoint& lp) const { 

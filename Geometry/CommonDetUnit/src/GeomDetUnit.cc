@@ -1,7 +1,6 @@
-#include "Utilities/General/interface/CMSexception.h"
-
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 GeomDetUnit::GeomDetUnit( BoundPlane* sp) : GeomDet(sp)
 {}
