@@ -142,6 +142,7 @@ c     Print out (same as the one defined in input.optns)
         print *,'          increase nmxhep : ',nhep,' > ',nmxhep
 c        stop
       endif
+      ycm2det=0d0
       noutpart=nhep
       impactpar=dble(bimevt)
 c     define vec to boost from cm. to cms frame

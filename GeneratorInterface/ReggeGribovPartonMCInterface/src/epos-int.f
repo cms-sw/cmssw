@@ -2000,7 +2000,7 @@ c           print*,n,ityptl(n),idptl(iorptl(n)),istptl(iorptl(n)),nnn
             iaaptl(n)=0    
           endif
           dezptl(n)=strap       !space-time-rapidity
-c           if(strap.gt.1e9)write(ifch,*)'dez ???',n
+c          write(ifch,*)'dez ???',n,nnn,taurem,ityptl(n)
 c     & ,pptl(4,n),pptl(3,n),idptl(n),xptl(n),yptl(n),zptl(n),sptl(n)
         else
           iaaptl(n)=0    
@@ -2159,12 +2159,12 @@ c      if(istptl(i).eq.0.or.istptl(i).eq.3)esu=esu+pptl(4,i)
 c      enddo
 c      write(ifmt,'(a,41x,f15.1)')' +++++Eajint+++++',esu
 
-      delen=0.
       if(ish.ge.6)write(ifch,*)'check high pt segments'
       if(fploss.gt.0.0)then
       ein=0
       elo=0
       do n=1,nptla
+        delen=0.
         if(iaaptl(n).eq.-1)then
           i=1+(xptl(n)+xgrid+shiftx)/delxgr
           j=1+(yptl(n)+xgrid+shiftx)/delxgr
@@ -3953,6 +3953,7 @@ c             this part is EXTREMELY important for the pseudorapidity shape at v
 c             if nothing special a broad peak appear at eta=0
 c             to avoid that, scal has to be reduced when p3 or pt reach 0
               if(scal.lt.1.)then
+                scal0=scal
                 pt=sqrt(pptl(1,j)**2+pptl(2,j)**2)
                 if(fplmin.le.0.)then
                   pt=abs(fplmin)/sqrt(pptl(5,j))*pt
@@ -3964,12 +3965,23 @@ c                  pt=abs(fplmin)*pt
      *                           +pptl(3,j)**2))
                 pow=(1.-(1./sqrt(pptl(5,j))+pptl(5,j))
      *                 /(1./sqrt(pptl(5,j))+pow))
+                pow=rangen()*pow
               else
-                pow=1.-pptl(4,j)/engy  !to avoid particle with energy larger than beam energy
+                pow=1.-2.*pptl(4,j)/engy  !to avoid particle with energy larger than beam energy
+                if(pow.lt.0.)then
+                  scal0=1./((1.-pow)
+     *                     *exp(-0.25*max(-4.,log(rangen()))))
+                  pow=1.
+c                  print *,j,pptl(4,j),pow,scal0,scal
+c     *                              ,pptl(3,j)*scal0**pow
+                else
+                  scal0=scal
+                  pow=rangen()*pow
+                endif
               endif
 
               do k=1,3
-                pptl(k,j)=pptl(k,j)*scal**(rangen()*pow) !to smooth distributions   
+                pptl(k,j)=pptl(k,j)*scal0**pow !to smooth distributions   
               enddo
               pptl(4,j)=sqrt(pptl(1,j)**2+pptl(2,j)**2
      *             +pptl(3,j)**2+pptl(5,j)**2)

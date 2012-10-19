@@ -5288,7 +5288,7 @@ c define masses
       amasmin=dble(fremnux(jcf))**2.d0
       if(ept(5).le.0.d0)then
         ept(5)=dble(fremnux(jcf)*(1.+rangen()))
-        if(ish.ge.1)then
+        if(ish.ge.2)then
           call utmsg('ProReF')
           write(ifch,*)'zero remnant mass -> amasmin'
           call utmsgf

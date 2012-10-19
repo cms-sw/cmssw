@@ -2783,10 +2783,10 @@ c update file names
         if(model.eq.4)iversn=611 !'PYTHIA  '
         if(model.eq.5)iversn=138 !'HIJING   '
         if(model.eq.6)iversn=210 !'SIBYLL  '
-        if(model.eq.7)iversn=400 !'QGSJETII04'
+        if(model.eq.7)iversn=400 !'QGSJETII-04'
         if(model.eq.8)iversn=112 !'PHOJET  '
         if(model.eq.9)iversn=201125 !'FLUKA   '
-        if(model.eq.11)iversn=300 !'QGSJETII03   '
+        if(model.eq.11)iversn=300 !'QGSJETII-03'
         if(model.ne.1)iverso=iversn
         call IniModel(model)
       endif
@@ -4940,7 +4940,7 @@ c-----------------------------------------------------------------------
       call ranfgt(seedf)
       if(iwseed.eq.1)then
         if(nrevt.eq.0)then
-c          write(ifmt,'(a,i10,d27.16)')'seedj:',nint(seedj),seedf
+          write(ifmt,'(a,i10,d27.16)')'seedj:',nint(seedj),seedf
         elseif(mod(nrevt,modsho).eq.0)then
           if(modus.eq.1)
      *   write(ifmt,'(a,i10,5x,a,i10,a,d27.16)')
