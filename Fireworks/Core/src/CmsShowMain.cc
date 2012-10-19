@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.201 2012/05/08 03:16:09 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.202 2012/07/06 23:33:29 amraktad Exp $
 //
 
 // system include files
@@ -143,36 +143,53 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 
    
    std::string descString(argv[0]);
-   descString += " [options] <data file>\nAllowed options";
+   descString += " [options] <data file>\nGeneral";
 
    namespace po = boost::program_options;
    po::options_description desc(descString);
    desc.add_options()
       (kInputFilesCommandOpt, po::value< std::vector<std::string> >(),   "Input root files")
       (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
+      (kNoConfigFileCommandOpt,                           "Empty configuration")
+      (kNoVersionCheck,                                   "No file version check")
       (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
-      (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
+      (kSimGeomFileCommandOpt,po::value<std::string>(),   "Set simulation geometry file to browser")
+      (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
+      (kHelpCommandOpt,                                   "Display help message");
+
+ po::options_description livedesc("Live Event Display");
+ livedesc.add_options()
       (kPlayCommandOpt, po::value<float>(),               "Start in play mode with given interval between events in seconds")
       (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
-      (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
       (kLoopCommandOpt,                                   "Loop events in play mode")
-      (kPlainRootCommandOpt,                              "Plain ROOT without event display")
-      (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
-      (kEnableFPE,                                        "Enable detection of floating-point exceptions")
-      (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
-      (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
-      (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
       (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain")
-      (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
-      (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
+   (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
+ (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)");
+
+ po::options_description debugdesc("Debug");
+ debugdesc.add_options()
+   (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
+      (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+   (kEnableFPE,                                        "Enable detection of floating-point exceptions")
+ (kEveCommandOpt,                                    "Show TEveBrowser to help debug problems");
+
+
+ po::options_description rnrdesc("Appearance");
+ rnrdesc.add_options()
       (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
-      (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
-      (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets.")
-      (kNoVersionCheck,                                   "No file version check.")
-      (kSimGeomFileCommandOpt,po::value<std::string>(),   "Set simulation geometry file to browse")
-      (kHelpCommandOpt,                                   "Display help message");
+   (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets")
+   (kAdvancedRenderCommandOpt,                         "Enable line anti-aliasing");
    po::positional_options_description p;
    p.add(kInputFilesOpt, -1);
+
+
+ po::options_description hiddendesc("hidden");
+hiddendesc.add_options()
+  (kRootInteractiveCommandOpt,                        "Enable root interactive prompt");
+
+   po::options_description all("");
+ all.add(desc).add(rnrdesc).add(livedesc).add(debugdesc);
+
 
    int newArgc = argc;
    char **newArgv = argv;
@@ -190,12 +207,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       // Return with exit status 0 to avoid generating crash reports
 
       fwLog(fwlog::kError) <<  e.what() << std::endl;
-      std::cout << desc <<std::endl;
+      std::cout << all <<std::endl;
       exit(0); 
    }
 
    if(vm.count(kHelpOpt)) {
-      std::cout << desc <<std::endl;
+      std::cout << all <<std::endl;
       exit(0);
    }
       
