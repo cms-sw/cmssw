@@ -465,7 +465,7 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
 
 
 
-   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, "Data8TeV/HscpCandidates");
+   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, "Data7TeV/HscpCandidates");
    printf("Tree Entries=%lli\n",tree->GetEntries());
 
 

@@ -108,6 +108,7 @@ elif sys.argv[1]=='4':
            if(int(vals[1])!=2):continue
            for Type in AnalysesToRun:
               if(int(vals[1])==2 and skipSamples(Type, vals[2])==True):continue
+              if(vals[2].find("8TeV")>=0):continue
               Path = "Results/Type"+str(Type)+"/"
               LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"COMBINE"', '"'+Path+'"', vals[2] ]) #compute 2011, 2012 and 2011+2012 in the same job
         f.close()

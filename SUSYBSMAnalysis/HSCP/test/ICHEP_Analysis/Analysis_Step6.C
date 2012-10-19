@@ -212,7 +212,7 @@ printf("SQRTS = %f\n",SQRTS);
 
    //based on the modelMap
    DrawRatioBands(TkPattern); 
-//   DrawRatioBands(MuPattern);
+   DrawRatioBands(MuPattern);
    DrawRatioBands(MOPattern); 
    DrawRatioBands(LQPattern);
 
@@ -970,7 +970,7 @@ void DrawRatioBands(string InputPattern)
          string headerstr;
          headerstr = LegendFromType(InputPattern);
          LEG->SetHeader(headerstr.c_str());
-         LEG->SetFillColor(0); 
+         LEG->SetFillStyle(0); 
          LEG->SetBorderSize(0);
          LEG->AddEntry(ExpAErr[0], "Expected #pm 1#sigma","F");
          LEG->SetMargin(0.1);
@@ -981,7 +981,7 @@ void DrawRatioBands(string InputPattern)
          TLegend* LEG;
          LEG = new TLegend(0.13,0.01,0.32,0.99);
 	 string headerstr;
-	 LEG->SetFillColor(0);
+	 LEG->SetFillStyle(0);
 	 LEG->SetBorderSize(0);
 	 LEG->AddEntry(Exp2SigmaAErr[0], "Expected #pm 2#sigma","F");
 	 LEG->AddEntry(graphAobs[0],"Observed" ,"LP");
@@ -1011,7 +1011,7 @@ void DrawRatioBands(string InputPattern)
 
       pt->SetBorderSize(0);
       pt->SetLineWidth(0);
-      pt->SetFillColor(kWhite);
+      pt->SetFillStyle(kWhite);
       TText *text = pt->AddText(modelMap[modelVector[k]][0].ModelLegend().c_str()); 
       text ->SetTextAlign(12);
       text ->SetTextSize(0.3);
@@ -1056,7 +1056,13 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    GetSampleDefinition(samples);
    CurrentSampleIndex        = JobIdToIndex(signal,samples); 
    if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
-   
+  
+
+   if(Data.find("7TeV")!=string::npos){SQRTS=7.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS); }
+   if(Data.find("8TeV")!=string::npos){SQRTS=8.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);  }
+
+
+ 
    //For muon only don't run on neutral samples as near zero efficiency can make jobs take very long time
    if((signal.find("Gluino")!=string::npos || signal.find("Stop")!=string::npos) && signal.find("N")!=string::npos && TypeMode==3) return;
 
