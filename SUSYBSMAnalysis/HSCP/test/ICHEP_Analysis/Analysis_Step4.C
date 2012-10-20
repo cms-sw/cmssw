@@ -203,7 +203,7 @@ void Analysis_Step4(std::string InputPattern)
            }
            Perr_Coll = sqrt(Perr_Coll);
 
-	   //Predict the number of cosmics passing all cuts as number passing in dz sideband times the ratio of tracks in the sideeband
+	   //Predict the number of cosmics passing all cuts as number passing in dz sideband times the ratio of tracks in the sideband
 	   //vs number in central region as determined by pure cosmic sample
 	   //Multile sidebands are made to check for background consistency, the fifth one is used for the actual prediction
 	   if(DirName.find("Data")!=string::npos) {
@@ -218,6 +218,9 @@ void Analysis_Step4(std::string InputPattern)
 
 	   P    = P_Coll + P_Cosmic;
 	   Perr = sqrt(Perr_Coll*Perr_Coll + Perr_Cosmic*Perr_Cosmic);
+
+	   //Add in systematic contribution
+	   Perr = sqrt(Perr*Perr + P_Coll*P_Coll*0.15*0.15 + P_Cosmic*P_Cosmic*1.25*1.25);
 	 }else if(G>0){
 	   //Prediction in Ias-TOF plane
 	   P    = ((C*H)/G);

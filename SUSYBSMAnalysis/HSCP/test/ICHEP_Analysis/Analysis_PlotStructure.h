@@ -599,10 +599,10 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    for(int i=0; i<PredBins; i++) {
      char Suffix[1024];
      sprintf(Suffix,"_%i",i);
-     Name = "CtrlPt_S1_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S1_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.CtrlPt_S1_TOF_Binned[i]->Sumw2();
-     Name = "CtrlPt_S2_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S2_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.CtrlPt_S2_TOF_Binned[i]->Sumw2();
-     Name = "CtrlPt_S3_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S3_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.CtrlPt_S3_TOF_Binned[i]->Sumw2();
-     Name = "CtrlPt_S4_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S4_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts); st.CtrlPt_S4_TOF_Binned[i]->Sumw2();
+     Name = "CtrlPt_S1_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S1_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,200,-2,7); st.CtrlPt_S1_TOF_Binned[i]->Sumw2();
+     Name = "CtrlPt_S2_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S2_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,200,-2,7); st.CtrlPt_S2_TOF_Binned[i]->Sumw2();
+     Name = "CtrlPt_S3_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S3_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,200,-2,7); st.CtrlPt_S3_TOF_Binned[i]->Sumw2();
+     Name = "CtrlPt_S4_TOF_Binned"; Name.append(Suffix); st.CtrlPt_S4_TOF_Binned[i] = new TH1D(Name.c_str(), Name.c_str() ,200,-2,7); st.CtrlPt_S4_TOF_Binned[i]->Sumw2();
    }
    }
 
@@ -788,6 +788,21 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.AS_Eta_RegionF  = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_Eta_RegionF");
    st.AS_Eta_RegionG  = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_Eta_RegionG");
    st.AS_Eta_RegionH  = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_Eta_RegionH");
+
+   st.BS_Pt_Binned[0] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_Binned_0");
+   st.BS_Pt_Binned[1] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_Binned_1");
+   st.BS_Pt_Binned[2] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_Binned_2");
+   st.BS_Pt_Binned[3] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_Binned_3");
+   st.BS_Pt_Binned[4] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_Binned_4");
+   st.BS_Pt_Binned[5] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_Binned_5");
+
+   st.BS_TOF_Binned[0] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_Binned_0");
+   st.BS_TOF_Binned[1] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_Binned_1");
+   st.BS_TOF_Binned[2] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_Binned_2");
+   st.BS_TOF_Binned[3] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_Binned_3");
+   st.BS_TOF_Binned[4] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_Binned_4");
+   st.BS_TOF_Binned[5] = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_Binned_5");
+
    HistoFile->cd();
    return true;
 }
@@ -850,6 +865,8 @@ void stPlots_Dump(stPlots& st, FILE* pFile, int CutIndex){
 // draw all plots that are not meant for comparison with other samples (mostly 2D plots that can't be superimposed)
 void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, unsigned int CutIndex)
 {
+   TypeMode = TypeFromPattern(SavePath);
+
    TObject** Histos = new TObject*[10];
    std::vector<std::string> legend;
    TCanvas* c1;
@@ -1166,6 +1183,38 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
      SaveCanvas(c1,SavePath,"_TOF_Dz_DT_Comp", true);
      delete c1;
    }
+
+   if(TypeMode==3 && st.Name.find("Data")!=string::npos) {
+     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+     Histos1D[0] = (TH1*)st.BS_Pt_Binned[0]->Clone();         legend.push_back("Bar - 2 Sta"); Histos1D[0]->Rebin(2); if(Histos1D[0]->Integral()>0) Histos1D[0]->Scale(1./Histos1D[0]->Integral());
+     Histos1D[1] = (TH1*)st.BS_Pt_Binned[1]->Clone();         legend.push_back("Bar - 3 Sta"); Histos1D[1]->Rebin(2); if(Histos1D[1]->Integral()>0) Histos1D[1]->Scale(1./Histos1D[1]->Integral());
+     Histos1D[2] = (TH1*)st.BS_Pt_Binned[2]->Clone();         legend.push_back("Bar - 4 Sta"); Histos1D[2]->Rebin(2); if(Histos1D[2]->Integral()>0) Histos1D[2]->Scale(1./Histos1D[2]->Integral());
+     Histos1D[3] = (TH1*)st.BS_Pt_Binned[3]->Clone();         legend.push_back("For - 2 Sta"); Histos1D[3]->Rebin(2); if(Histos1D[3]->Integral()>0) Histos1D[3]->Scale(1./Histos1D[3]->Integral());
+     Histos1D[4] = (TH1*)st.BS_Pt_Binned[4]->Clone();         legend.push_back("For - 3 Sta"); Histos1D[4]->Rebin(2); if(Histos1D[4]->Integral()>0) Histos1D[4]->Scale(1./Histos1D[4]->Integral());
+     Histos1D[5] = (TH1*)st.BS_Pt_Binned[5]->Clone();         legend.push_back("For - 4 Sta"); Histos1D[5]->Rebin(2); if(Histos1D[5]->Integral()>0) Histos1D[5]->Scale(1./Histos1D[5]->Integral());
+     DrawSuperposedHistos((TH1**)Histos1D, legend, "COLZ", "p_T", dEdxS_Legend.c_str(), 0,0, 0,0, false);
+     //DrawLegend((TObject**)Histos1D,legend,"","P", 0.79, 0.92, 0.2, 0.1);
+     DrawLegend((TObject**)Histos1D,legend,"","P");
+     c1->SetLogy(true);
+     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+     SaveCanvas(c1,SavePath,"Pt_Binned_BS", false);
+     delete c1;
+
+     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+     Histos1D[0] = (TH1*)st.BS_TOF_Binned[0]->Clone();        legend.push_back("Bar - 2 Sta"); Histos1D[0]->Rebin(2); if(Histos1D[0]->Integral()>0) Histos1D[0]->Scale(1./Histos1D[0]->Integral());
+     Histos1D[1] = (TH1*)st.BS_TOF_Binned[1]->Clone();        legend.push_back("Bar - 3 Sta"); Histos1D[1]->Rebin(2); if(Histos1D[1]->Integral()>0) Histos1D[1]->Scale(1./Histos1D[1]->Integral());
+     Histos1D[2] = (TH1*)st.BS_TOF_Binned[2]->Clone();        legend.push_back("Bar - 4 Sta"); Histos1D[2]->Rebin(2); if(Histos1D[2]->Integral()>0) Histos1D[2]->Scale(1./Histos1D[2]->Integral());
+     Histos1D[3] = (TH1*)st.BS_TOF_Binned[3]->Clone();        legend.push_back("For - 2 Sta"); Histos1D[3]->Rebin(2); if(Histos1D[3]->Integral()>0) Histos1D[3]->Scale(1./Histos1D[3]->Integral());
+     Histos1D[4] = (TH1*)st.BS_TOF_Binned[4]->Clone();        legend.push_back("For - 3 Sta"); Histos1D[4]->Rebin(2); if(Histos1D[4]->Integral()>0) Histos1D[4]->Scale(1./Histos1D[4]->Integral());
+     Histos1D[5] = (TH1*)st.BS_TOF_Binned[5]->Clone();        legend.push_back("For - 4 Sta"); Histos1D[5]->Rebin(2); if(Histos1D[5]->Integral()>0) Histos1D[5]->Scale(1./Histos1D[5]->Integral());
+     DrawSuperposedHistos((TH1**)Histos1D, legend, "COLZ", "1/#beta", dEdxS_Legend.c_str(), 0,2, 0,0, false);
+     DrawLegend((TObject**)Histos1D,legend,"","P");
+     //DrawLegend((TObject**)Histos1D,legend,"","P", 0.79, 0.92, 0.2, 0.1);
+     c1->SetLogy(true);
+     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+     SaveCanvas(c1,SavePath,"TOF_Binned_BS", false);
+     delete c1;
+   }
 }
 
 // draw all plots that meant for comparison with other samples (mostly 1D plots that can be superimposed)
@@ -1194,7 +1243,8 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
         if(samples[s].Name==st[i]->Name){Index=s;break;}
      }
      if(st[i]->Name.find("MCTr")!=string::npos){lg.push_back("MC (SM)");}
-     else if(st[i]->Name.find("Data")!=string::npos){lg.push_back("Observed");}
+     else if(st[i]->Name.find("Data7TeV")!=string::npos){lg.push_back("Data #sqrt{s} = 7.0 TeV");}
+     else if(st[i]->Name.find("Data8TeV")!=string::npos){lg.push_back("Data #sqrt{s} = 8.0 TeV");}
      else if(Index==-1){lg.push_back(st[i]->Name);}else{lg.push_back(samples[Index].Legend);}
   }
    
@@ -1337,7 +1387,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"nDof_BS", true);
+   SaveCanvas(c1,SavePath,"nDof_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
@@ -1348,7 +1398,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"TOFError_BS", true);
+   SaveCanvas(c1,SavePath,"TOFError_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
@@ -1473,7 +1523,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"SegMinEtaSep_BS", true);
+   SaveCanvas(c1,SavePath,"SegMinEtaSep_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
@@ -1493,11 +1543,11 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_SegMinEtaSep_PassDz->Clone();  legend.push_back(lg[i]);  Histos[i]->Rebin(1);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1));}
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dEta to opp side segment", "Fraction of tracks", -0.5,0.5, 1E-3,2, false, false, true, false);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "dEta to opp side segment", "Fraction of tracks", -1.5,1.5, 1E-3,2, false, false, true, false);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.31);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"SegMinEtaSep_PassDz_BS", true);
+   SaveCanvas(c1,SavePath,"SegMinEtaSep_PassDz_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
@@ -1509,7 +1559,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"MatchedStations_BS", true);
+   SaveCanvas(c1,SavePath,"MatchedStations_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 

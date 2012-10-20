@@ -412,13 +412,14 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
        dxy = track->dxy(vertexColl[i].position());
      }
    }
+
    if(st) st->BS_dzMinv3d->Fill(dz,Event_Weight);
    if(st) st->BS_dxyMinv3d->Fill(dxy,Event_Weight);
    if(st) st->BS_PV->Fill(goodVerts,Event_Weight);
    if(st) st->BS_PV_NoEventWeight->Fill(goodVerts);
 
    //Require at least one good vertex except if cosmic event
-   if(TypeMode==3 && goodVerts<1 && st && st->Name.find("Cosmic")==string::npos) return false;
+   if(TypeMode==3 && goodVerts<1 && (!st || st->Name.find("Cosmic")==string::npos)) return false;
 
    //For TOF only analysis match to a SA track without vertex constraint for IP cuts
    if(TypeMode==3) {
@@ -1071,6 +1072,9 @@ void Analysis_Step3(char* SavePath)
             for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){  MaxMass_SystT [CutIndex] = -1; }
             for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){  MaxMass_SystM [CutIndex] = -1; }
             for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){  MaxMass_SystPU[CutIndex] = -1; }
+
+	    //Apply MC scale factor for muon only analysis to account for differences in preselection efficiency seen in Tag and Probe studies
+	    if(TypeMode==3 && !isData) Event_Weight=Event_Weight*0.95;
 
             //loop on HSCP candidates
             for(unsigned int c=0;c<hscpColl.size();c++){
