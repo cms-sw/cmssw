@@ -18,8 +18,9 @@
   <class name="edm::RefProd<std::vector<reco::BaseTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo> >"/>
   
-  <class name="reco::CaloTauTagInfo" ClassVersion="10">
+  <class name="reco::CaloTauTagInfo" ClassVersion="11">
    <version ClassVersion="10" checksum="3077166108"/>
+   <version ClassVersion="11" checksum="442155907"/>
   </class>
   <class name="std::vector<reco::CaloTauTagInfo>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloTauTagInfo> >"/>
