@@ -3,16 +3,6 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h" 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-// Temporary hack workaround for algoByName string "above array bounds"
-// error reported by gcc from Conversion::algoByName below. This could
-// should probably be demangled a bit in any case, but for now just
-// turn off the warning/error in this file. 
-// Do not copy this into other files without checking with the release
-// coordinators!   PE 20091231
-#if defined(__GNUC__) && __GNUC__ == 4 && __GNUC_MINOR__ == 4
-# pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-
 using namespace reco;
 
 
@@ -162,7 +152,7 @@ Conversion::Conversion() {
 Conversion::~Conversion() { }
 
 
-std::string const Conversion::algoNames[] = { "undefined","ecalSeeded","trackerOnly","mixed"};  
+std::string const Conversion::algoNames[] = { "undefined","ecalSeeded","trackerOnly","mixed","pflow"};  
 
 Conversion::ConversionAlgorithm Conversion::algoByName(const std::string &name){
   ConversionAlgorithm size = algoSize;
