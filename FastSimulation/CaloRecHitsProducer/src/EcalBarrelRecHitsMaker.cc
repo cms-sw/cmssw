@@ -329,6 +329,7 @@ void EcalBarrelRecHitsMaker::randomNoisifier()
 
  // if hot fraction is high (for example, no ZS, inject everywhere)
   bool fullInjection=(noise_==-1. && !doCustomHighNoise_);
+
   if(fullInjection)
     ncells = EBDetId::kSizeForDenseIndexing;
   // for debugging
@@ -337,7 +338,9 @@ void EcalBarrelRecHitsMaker::randomNoisifier()
   unsigned icell=0;
   while(icell < ncells)
     {
-      unsigned cellindex= (unsigned)(floor(random_->flatShoot()*EBDetId::kSizeForDenseIndexing));
+      unsigned cellindex= (!fullInjection) ? 
+	(unsigned)(floor(random_->flatShoot()*EBDetId::kSizeForDenseIndexing)): icell ;
+
       if(theCalorimeterHits_[cellindex]==0.)
 	{
 	  float energy=0.;
@@ -381,8 +384,11 @@ void EcalBarrelRecHitsMaker::randomNoisifier()
 //		    std::cout << EBDetId::unhashIndex(xtals[ic]) << " " << theCalorimeterHits_[xtals[ic]] << std::endl;
 //		}
 //	    }
-	  ++icell;
+	  if(noise_>0.)
+	    ++icell;
 	}
+      if(noise_==-1.)
+	++icell;
     }
   //  std::cout << " Injected random noise in " << ncells << " cells " << std::endl;
 }
