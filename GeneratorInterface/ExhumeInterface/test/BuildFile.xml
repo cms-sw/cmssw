@@ -1,9 +1,8 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="clhep"/>
+<use   name="DataFormats/Math"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="ExhumeAnalyzer.cc" name="ExhumeAnalyzer">
   <use   name="CommonTools/UtilAlgos"/>
-  <use   name="SimDataFormats/GeneratorProducts"/>
-  <use   name="root"/>
+  <use   name="roothistmatrix"/>
 </library>
