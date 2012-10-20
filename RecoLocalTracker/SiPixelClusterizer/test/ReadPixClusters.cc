@@ -421,7 +421,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
   int numOfPixPerLink12=0;  
   int numOfPixPerLink21=0;  
   int numOfPixPerLink22=0;  
-  int numOfPixPerLink3=0;  
+  //SK:unused  int numOfPixPerLink3=0;  
 
   int maxClusPerDet=0;
   int maxPixPerDet=0;
@@ -615,8 +615,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
       // Look at pixels in this cluster. ADC is calibrated, in electrons
       bool edgeInX = false; // edge method moved 
       bool edgeInY = false; // to topologu class
-      bool cluBigInX = false; // does this clu include a big pixel
-      bool cluBigInY = false; // does this clu include a big pixel
+      //SK:unused      bool cluBigInX = false; // does this clu include a big pixel
+      //SK:unused      bool cluBigInY = false; // does this clu include a big pixel
       //int noisy = 0;
 
       if(pixelsVec.size()>maxPixPerClu) maxPixPerClu = pixelsVec.size();
@@ -713,8 +713,8 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	
 	if(edgeInX) edgeHitX2=true;
 	if(edgeInY) edgeHitY2=true; 
-	if(bigInX) cluBigInX=true;
-	if(bigInY) cluBigInY=true;
+	//SK:unused	if(bigInX) cluBigInX=true;
+	//SK:unused	if(bigInY) cluBigInY=true;
 
       } // pixel loop
       
@@ -864,7 +864,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 	if(numOfPixPerDet3>maxPixPerDet) maxPixPerDet = numOfPixPerDet3;  
 	numOfClustersPerDet3=0;
 	numOfPixPerDet3=0;        
-	numOfPixPerLink3=0;        
+	//SK:unused	numOfPixPerLink3=0;        
 
       } // layer
       
