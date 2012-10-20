@@ -297,7 +297,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
     corrMC = gaussDistribution.fire();
     if (debug_) std::cout << "[ElectronEnergyCalibrator] unsmeared energy " << newEnergy_ << std::endl;
     if (debug_) std::cout << "[ElectronEnergyCalibrator] smearing value " << dsigMC << std::endl;
-    if (debug_) {newEnergy_ = newEnergy_*(1+dsigMC);} else {newEnergy_ = newEnergy_*corrMC; } 
+    newEnergy_ = newEnergy_*corrMC;  
     if (debug_) std::cout << "[ElectronEnergyCalibrator] smeared energy " << newEnergy_ << std::endl;
   }  
   // correct energy error for MC and for data as error is obtained from (ideal) MC parametrisation
@@ -824,7 +824,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
     corrMC = gaussDistribution.fire();
     if (debug_) std::cout << "[ElectronEnergyCalibrator] unsmeared energy " << scEnergy << std::endl;
     if (debug_) std::cout << "[ElectronEnergyCalibrator] smearing value " << dsigMC << std::endl;
-    if (debug_) {newEnergy_ = scEnergy*(1+dsigMC);} else {newEnergy_ = scEnergy*corrMC; } 
+    newEnergy_ = scEnergy*corrMC;  
     if (debug_) std::cout << "[ElectronEnergyCalibrator] smeared energy " << newEnergy_ << std::endl;
   }  
   // correct energy error for MC and for data as error is obtained from (ideal) MC parametrisation
