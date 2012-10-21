@@ -8,6 +8,8 @@
   <use   name="DataFormats/RecoCandidate"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/TrajectorySeed"/>
+  <use   name="DataFormats/DTRecHit"/>
+  <use   name="DataFormats/CSCRecHit"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/Utilities"/>
