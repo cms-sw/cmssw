@@ -9,6 +9,8 @@ class NeutralEvent {
     reset();
   }
 
+  virtual ~NeutralEvent() {};
+
   virtual void reset() {
     eECAL = -1;
     eHCAL = -1;
@@ -39,6 +41,8 @@ class TauEvent : public NeutralEvent {
     NeutralEvent() {
     reset();
   }
+
+  virtual ~TauEvent() {};
 
   void reset() {
     NeutralEvent::reset();

@@ -29,7 +29,6 @@
 
 class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
-//class HcalBarrelGeometry;
 class DetId;
 
 class PFRecHitProducerHO : public PFRecHitProducer {

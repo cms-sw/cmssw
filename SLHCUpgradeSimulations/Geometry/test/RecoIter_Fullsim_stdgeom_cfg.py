@@ -23,12 +23,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.17 $'),
+    version = cms.untracked.string('$Revision: 1.16 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(1)
 )
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True)
@@ -160,45 +160,18 @@ process.load('Configuration.StandardSequences.Validation_cff')
 
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 
-process.cutsRecoTracksHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksHpUpg.quality=cms.vstring("highPurity")
-process.cutsRecoTracksHpUpg.ptMin = cms.double(0.9)
-
-process.cutsRecoTracksZeroHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksZeroHpUpg.algorithm=cms.vstring("iter0")
-process.cutsRecoTracksZeroHpUpg.quality=cms.vstring("highPurity")
-process.cutsRecoTracksZeroHpUpg.ptMin = cms.double(0.9)
-
-process.cutsRecoTracksFirstHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksFirstHpUpg.algorithm=cms.vstring("iter1")
-process.cutsRecoTracksFirstHpUpg.quality=cms.vstring("highPurity")
-process.cutsRecoTracksFirstHpUpg.ptMin = cms.double(0.9)
-
-process.cutsRecoTracksSecondHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksSecondHpUpg.algorithm=cms.vstring("iter2")
-process.cutsRecoTracksSecondHpUpg.quality=cms.vstring("highPurity")
-process.cutsRecoTracksSecondHpUpg.ptMin = cms.double(0.9)
-
-process.cutsRecoTracksFourthHpUpg = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-process.cutsRecoTracksFourthHpUpg.algorithm=cms.vstring("iter4")
-process.cutsRecoTracksFourthHpUpg.quality=cms.vstring("highPurity")
-process.cutsRecoTracksFourthHpUpg.ptMin = cms.double(0.9)
-
 process.cutsRecoTracksHpwbtagc = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
 process.cutsRecoTracksHpwbtagc.quality=cms.vstring("highPurity")
 process.cutsRecoTracksHpwbtagc.minHit=cms.int32(8)
 process.cutsRecoTracksHpwbtagc.ptMin = cms.double(1.0)
-#process.cutsRecoTracksHpwbtagc.tip = cms.double(2000.0)
-#process.cutsRecoTracksHpwbtagc.maxChi2 = cms.double(5.0)
 
 process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                            cms.InputTag("cutsRecoTracksHp"),
                                            cms.InputTag("cutsRecoTracksHpwbtagc"),
-                                           cms.InputTag("cutsRecoTracksHpUpg"),
-                                           cms.InputTag("cutsRecoTracksZeroHpUpg"),
-                                           cms.InputTag("cutsRecoTracksFirstHpUpg"),
-                                           cms.InputTag("cutsRecoTracksSecondHpUpg"),
-                                           cms.InputTag("cutsRecoTracksFourthHpUpg")
+                                           cms.InputTag("cutsRecoTracksZeroHp"),
+                                           cms.InputTag("cutsRecoTracksFirstHp"),
+                                           cms.InputTag("cutsRecoTracksSecondHp"),
+                                           cms.InputTag("cutsRecoTracksFourthHp")
                                            )
 #process.trackValidator.associators = ['TrackAssociatorByHits']
 process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
@@ -233,11 +206,10 @@ process.trackValidator.ptMinTP = cms.double(0.9)
 
 process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
                                  process.cutsRecoTracksHpwbtagc*
-                                 process.cutsRecoTracksHpUpg*
-                                 process.cutsRecoTracksZeroHpUpg*
-                                 process.cutsRecoTracksFirstHpUpg*
-                                 process.cutsRecoTracksSecondHpUpg*
-                                 process.cutsRecoTracksFourthHpUpg*
+                                 process.cutsRecoTracksZeroHp*
+                                 process.cutsRecoTracksFirstHp*
+                                 process.cutsRecoTracksSecondHp*
+                                 process.cutsRecoTracksFourthHp*
                                  process.trackValidator)
 
 process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",

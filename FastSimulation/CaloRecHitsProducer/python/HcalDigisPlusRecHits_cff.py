@@ -3,11 +3,11 @@ import FWCore.ParameterSet.Config as cms
 ####Hcal Digis
 #from FWCore.Modules.printContent_cfi import *
 
-import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi 
-hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
-hcalSimBlockFastSim.hitsProducer = cms.string('famosSimHits')
-simHcalUnsuppressedDigis = cms.EDProducer("HcalDigiProducer",
-                                           hcalSimBlockFastSim)
+## import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi 
+## hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
+## hcalSimBlockFastSim.hitsProducer = cms.string('famosSimHits')
+## simHcalUnsuppressedDigis = cms.EDProducer("HcalDigiProducer",
+##                                            hcalSimBlockFastSim)
 from SimCalorimetry.HcalZeroSuppressionProducers.hcalDigisRealistic_cfi import *
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import * 
 from SimCalorimetry.HcalTrigPrimProducers.hcalTTPDigis_cfi import *
@@ -25,7 +25,7 @@ import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
 hcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()  
 hcalDigis.InputLabel = 'rawDataCollector'
 
-hcalDigiSequence = cms.Sequence(simHcalUnsuppressedDigis*simHcalTriggerPrimitiveDigis*simHcalDigis*simHcalTTPDigis
+hcalDigisSequence = cms.Sequence(simHcalTriggerPrimitiveDigis*simHcalDigis*simHcalTTPDigis
                                 *simRctDigisHCAL
                                 *hcalRawData*rawDataCollector*hcalDigis)
 
@@ -36,5 +36,7 @@ from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi import *
 from RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi import *
 from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
 
-hcalDigisPlusRecHitsSequence = cms.Sequence(hcalDigiSequence*(hbheprereco+hfreco+horeco)*hbhereco)
+hcalRecHitSequence = cms.Sequence((hbheprereco+hfreco+horeco)*hbhereco)
+
+hcalDigisPlusRecHitsSequence = cms.Sequence(hcalDigisSequence*hcalRecHitSequence)
 

@@ -38,10 +38,7 @@ public:
   virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
   virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
-
-  HcalGeometry();
-
-  HcalGeometry(const HcalTopology * topology);
+  explicit HcalGeometry(const HcalTopology * topology);
 
   /// The HcalGeometry will delete all its cell geometries at destruction time
   virtual ~HcalGeometry();

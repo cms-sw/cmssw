@@ -21,6 +21,8 @@ class GlobalDetLayerGeometry: public DetLayerGeometry {
  GlobalDetLayerGeometry(const GeometricSearchTracker* tracker,
 			const MuonDetLayerGeometry* muon):
   tracker_(tracker),muon_(muon){};
+	
+	virtual ~GlobalDetLayerGeometry() {}
   
   /*
   const std::vector<DetLayer*>& allLayers() const =0;

@@ -406,7 +406,7 @@ bool HFClusterAlgo::isPMTHit(const HFRecHit& hfr){
   return pmthit;
 }
 void HFClusterAlgo::resetForRun() {
-  printf("Resetting for Run!\n");
+  edm::LogInfo("HFClusterAlgo")<<"Resetting for Run!";
   for(int ii=0;ii<13;ii++){
     m_cutByEta.push_back(-1);
     m_seedmnEta.push_back(99);

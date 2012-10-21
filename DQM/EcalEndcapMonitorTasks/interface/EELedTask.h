@@ -4,8 +4,8 @@
 /*
  * \file EELedTask.h
  *
- * $Date: 2012/04/27 13:46:13 $
- * $Revision: 1.14 $
+ * $Date: 2009/10/26 17:33:50 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -90,8 +90,6 @@ MonitorElement* mePnAmplMapG16L2_[18];
 MonitorElement* mePnPedMapG16L2_[18];
 
 bool init_;
-
- int nEmpty_;
 
 };
 

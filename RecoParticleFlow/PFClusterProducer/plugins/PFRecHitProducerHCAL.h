@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/PFRecHitProducer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 
@@ -137,6 +138,9 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
   double EM_Depth_;
   double HAD_Depth_;
 
+  HcalTopologyMode::Mode m_mode;
+  int m_maxDepthHB;
+  int m_maxDepthHE;
 };
 
 #endif

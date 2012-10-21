@@ -364,9 +364,10 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
   }
 }
 
-void HcalDigitizer::accumulateCaloHits(std::vector<PCaloHit> const& hcalHits, std::vector<PCaloHit> const& zdcHits, int bunchCrossing) {
+void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, edm::Handle<std::vector<PCaloHit> > const& zdcHandle, int bunchCrossing) {
   // Step A: pass in inputs, and accumulate digirs
   if(isHCAL) {
+    std::vector<PCaloHit> const& hcalHits = *hcalHandle.product();
     if(theHitCorrection != 0) {
       theHitCorrection->fillChargeSums(hcalHits);
     }
@@ -390,7 +391,7 @@ void HcalDigitizer::accumulateCaloHits(std::vector<PCaloHit> const& hcalHits, st
 
   if(isZDC) {
     if(zdcgeo) {
-      theZDCDigitizer->add(zdcHits, bunchCrossing);
+      theZDCDigitizer->add(*zdcHandle.product(), bunchCrossing);
     } 
   } else {
     edm::LogInfo("HcalDigitizer") << "We don't have ZDC hit collection available ";
@@ -409,7 +410,7 @@ void HcalDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& event
   e.getByLabel(hcalTag, hcalHandle);
   isHCAL = hcalHandle.isValid();
 
-  accumulateCaloHits(*hcalHandle.product(), *zdcHandle.product(), 0);
+  accumulateCaloHits(hcalHandle, zdcHandle, 0);
 }
 
 void HcalDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup) {
@@ -424,7 +425,7 @@ void HcalDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup co
   e.getByLabel(hcalTag, hcalHandle);
   isHCAL = hcalHandle.isValid();
 
-  accumulateCaloHits(*hcalHandle.product(), *zdcHandle.product(), e.bunchCrossing());
+  accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing());
 }
 
 void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {

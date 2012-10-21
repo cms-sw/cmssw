@@ -137,7 +137,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     es.get<SiPixelQualityRcd>().get( qualityInfo );
     badPixelInfo_ = qualityInfo.product();
     if (!badPixelInfo_) {
-      edm::LogError("**SiPixelRawToDigi**")<<" Configured to use SiPixelQuality, but SiPixelQuality not present"<<endl;
+      edm::LogError("SiPixelQualityNotPresent")<<" Configured to use SiPixelQuality, but SiPixelQuality not present"<<endl;
     }
   }
 

@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 #To include the ECAL RecHit containment corrections (the famous 0.97 factor)
-from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
+#from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
 
-from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
-from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
+#from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
+#from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
 
 # This includes is needed for the ECAL digis
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
@@ -21,16 +21,19 @@ from SimCalorimetry.EcalSelectiveReadoutProducers.ecalDigis_cfi import *
 
 # RCT (Regional Calorimeter Trigger) emulator import 
 import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
-simRctDigisECAL = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()  
-simRctDigisECAL.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) ) 
-simRctDigisECAL.useHcal = cms.bool(False)
+## simRctDigisECAL = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()  
+## simRctDigisECAL.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) ) 
+## simRctDigisECAL.useHcal = cms.bool(False)
+simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()  
+simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) ) 
+simRctDigis.useHcal = cms.bool(False)
 
 #ECAL reconstruction
 from RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
-simEcalUnsuppressedDigis.hitsProducer = cms.string('famosSimHits')
-ecal_digi_parameters.hitsProducer = cms.string('famosSimHits')
+#simEcalUnsuppressedDigis.hitsProducer = cms.string('famosSimHits')
+#ecal_digi_parameters.hitsProducer = cms.string('famosSimHits')
 
 import EventFilter.EcalDigiToRaw.ecalDigiToRaw_cfi
 ecalPacker = EventFilter.EcalDigiToRaw.ecalDigiToRaw_cfi.ecaldigitorawzerosup.clone()
@@ -62,8 +65,16 @@ ecalPreshowerRecHit =  cms.EDProducer("CaloRecHitsProducer",
 #####
 
 
-ecalDigisPlusRecHitSequence = cms.Sequence(simEcalUnsuppressedDigis*simEcalTriggerPrimitiveDigis*simEcalDigis* # Digi
-			  simRctDigisECAL*							           # L1Simulation
-                          ecalPacker*rawDataCollector*ecalDigis*                                   #Digi2raw raw2digi
-			  ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit)	           # Reconstruction	
+## ecalDigisPlusRecHitSequence = cms.Sequence(simEcalTriggerPrimitiveDigis*simEcalDigis* # Digi
+## 			  simRctDigis*							           # L1Simulation
+##                           ecalPacker*rawDataCollector*ecalDigis*                                   #Digi2raw raw2digi
+## 			  ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit)	           # Reconstruction	
+			  
+ecalDigisSequence = cms.Sequence(simEcalTriggerPrimitiveDigis*simEcalDigis* # Digi
+			  simRctDigis*							           # L1Simulation
+                          ecalPacker*rawDataCollector*ecalDigis)	
+
+ecalRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit)	   # Reconstruction	
+
+ecalDigisPlusRecHitSequence = cms.Sequence(ecalDigisSequence*ecalRecHitSequence)	           # Reconstruction	
 			  

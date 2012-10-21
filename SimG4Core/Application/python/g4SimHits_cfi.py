@@ -14,6 +14,10 @@ common_maximum_time = cms.PSet(
     MaxTrackTimes = cms.vdouble(2000.0,0.,0.)
 )
 
+common_UsePMT = cms.PSet(
+    UseR7600UPMT  = cms.bool(False)
+)
+
 g4SimHits = cms.EDProducer("OscarProducer",
     NonBeamEvent = cms.bool(False),
     G4EventManagerVerbosity = cms.untracked.int32(0),
@@ -29,6 +33,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     CheckOverlap = cms.untracked.bool(False),
     G4Commands = cms.vstring(),
     Watchers = cms.VPSet(),
+    theLHCTlinkTag = cms.InputTag("LHCTransport"),
     MagneticField = cms.PSet(
         UseLocalMagFieldManager = cms.bool(False),
         Verbosity = cms.untracked.bool(False),
@@ -84,12 +89,17 @@ g4SimHits = cms.EDProducer("OscarProducer",
         FlagFTF     = cms.untracked.bool(False),
         FlagGlauber = cms.untracked.bool(False),
         FlagHP      = cms.untracked.bool(False),
-        GFlash = cms.PSet(
-            GflashHistogram = cms.bool(False),
-            GflashEMShowerModel = cms.bool(False),
-            GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
-            GflashHadronShowerModel = cms.bool(False)
-        )
+        GflashEcal  = cms.bool(False),
+        bField      = cms.double(3.8),
+        energyScaleEB = cms.double(1.032),
+        energyScaleEE = cms.double(1.024),
+        GflashHcal  = cms.bool(False)
+        #GFlash = cms.PSet(
+        #    GflashHistogram = cms.bool(True),
+        #    GflashEMShowerModel = cms.bool(True),
+        #    GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
+        #    GflashHadronShowerModel = cms.bool(False)
+        #)
     ),
     Generator = cms.PSet(
         HectorEtaCut,
@@ -219,6 +229,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         PutHistory = cms.bool(False)
     ),
     HFShower = cms.PSet(
+        common_UsePMT,
         ProbMax         = cms.double(1.0),
         CFibre          = cms.double(0.5),
         PEPerGeV        = cms.double(0.31),
@@ -244,11 +255,13 @@ g4SimHits = cms.EDProducer("OscarProducer",
         TreeEMID        = cms.string('emParticles'),
         TreeHadID       = cms.string('hadParticles'),
         Verbosity       = cms.untracked.bool(False),
+        ApplyFiducialCut= cms.bool(True),
         BranchPost      = cms.untracked.string('_R.obj'),
         BranchEvt       = cms.untracked.string('HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo'),
         BranchPre       = cms.untracked.string('HFShowerPhotons_hfshowerlib_')
     ),
     HFShowerPMT = cms.PSet(
+        common_UsePMT,
         PEPerGeVPMT     = cms.double(1.0),
         RefIndex        = cms.double(1.52),
         Lambda1         = cms.double(280.0),
@@ -259,6 +272,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         CheckSurvive    = cms.bool(False)
     ),
     HFShowerStraightBundle = cms.PSet(
+        common_UsePMT,
         FactorBundle    = cms.double(1.0),
         RefIndex        = cms.double(1.459),
         Lambda1         = cms.double(280.0),
@@ -269,6 +283,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         CheckSurvive    = cms.bool(False)
     ),
     HFShowerConicalBundle = cms.PSet(
+        common_UsePMT,
         FactorBundle    = cms.double(1.0),
         RefIndex        = cms.double(1.459),
         Lambda1         = cms.double(280.0),

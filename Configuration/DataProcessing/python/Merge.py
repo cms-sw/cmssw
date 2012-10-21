@@ -61,7 +61,10 @@ def mergeProcess(*inputFiles, **options):
     #  //
     # // output module
     #//
-    outMod = OutputModule("DQMRootOutputModule")
+    if newDQMIO:
+        outMod = OutputModule("DQMRootOutputModule")
+    else:
+        outMod = OutputModule("PoolOutputModule")
     outMod.fileName = CfgTypes.untracked.string(outputFilename)
     if outputLFN != None:
         outMod.logicalFileName = CfgTypes.untracked.string(outputLFN)

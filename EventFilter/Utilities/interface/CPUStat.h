@@ -25,9 +25,6 @@ namespace evf{
     void setCPUStat(int busyPer1k) {
       mstat_[nstates_+3]=busyPer1k;
     }
-    void setElapsed(int mseconds) {
-      mstat_[nstates_+4]=mseconds;
-    }
     void reset()
     {
       for(int i = 0; i < nstates_; i++)

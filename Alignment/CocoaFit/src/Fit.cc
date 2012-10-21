@@ -40,15 +40,15 @@
  
 Fit* Fit::instance = 0;
 
-ALIMatrix Fit::AMatrix;
-ALIMatrix Fit::AtMatrix;
-ALIMatrix Fit::WMatrix;
-ALIMatrix Fit::AtWAMatrix;
+ALIMatrix* Fit::AMatrix;
+ALIMatrix* Fit::AtMatrix;
+ALIMatrix* Fit::WMatrix;
+ALIMatrix* Fit::AtWAMatrix;
 //op ALIMatrix* Fit::VaMatrix;
-ALIMatrix Fit::DaMatrix;
+ALIMatrix* Fit::DaMatrix;
 //op ALIMatrix* Fit::PDMatrix;
 //-ALIMatrix* Fit::VyMatrix;
-ALIMatrix Fit::yfMatrix;
+ALIMatrix* Fit::yfMatrix;
 //ALIMatrix* Fit::fMatrix;
 
 ALIint Fit::_NoLinesA;
@@ -324,7 +324,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 
   } else {
     lastEvent = 1;
-    if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : ´no more data sets' " << nEvent << std::endl;
+    if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : ??no more data sets' " << nEvent << std::endl;
     return !lastEvent;
   }
 
@@ -479,19 +479,19 @@ void Fit::PropagateErrors()
   //----- Put by hand some correlations if known previously
   setCorrelationsInWMatrix();
 
-  if(ALIUtils::debug >= 3) WMatrix.Dump("WMatrix before inverse");
+  if(ALIUtils::debug >= 3) WMatrix->Dump("WMatrix before inverse");
 
   //----- Check first that matrix can be inverted
-  if( m_norm1( WMatrix.MatNonConst() ) == 0 ) {
+  if( m_norm1( WMatrix->MatNonConst() ) == 0 ) {
     //    Model::setCocoaStatus( COCOA_FitMatrixNonInversable );
     return; //  Model::getCocoaStatus();
   } else {
-    WMatrix.inverse();
+    WMatrix->inverse();
   }
   
-  if(ALIUtils::debug >= 3) AMatrix.Dump("AMatrix");
-  if(ALIUtils::debug >= 3) WMatrix.Dump("WMatrix");
-  if(ALIUtils::debug >= 3) yfMatrix.Dump("yfMatrix");
+  if(ALIUtils::debug >= 3) AMatrix->Dump("AMatrix");
+  if(ALIUtils::debug >= 3) WMatrix->Dump("WMatrix");
+  if(ALIUtils::debug >= 3) yfMatrix->Dump("yfMatrix");
 
   if(gomgr->GlobalOptions()["onlyDeriv"] >= 1) {
     std::cout << "ENDING after derivatives are calculated ('onlyDeriv' option set)" << std::endl;
@@ -537,18 +537,18 @@ void Fit::calculateSimulatedMeasurementsWithOriginalValues()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::deleteMatrices()
 {
-/* //delete matrices created in previous iteration
+ //delete matrices created in previous iteration
   delete DaMatrix;
   delete AMatrix;
   delete WMatrix;
-  //  delete yfMatrix;
+  delete yfMatrix;
   //op  delete fMatrix;
   delete AtMatrix;
   delete AtWAMatrix;
   //op  delete VaMatrix;
   //-  delete VyMatrix;
   //op  delete PDMatrix;
-  */
+
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -601,26 +601,20 @@ void Fit::CreateMatrices()
   //---------- Create Matrices
   ALIint NoLinesA = NoMeas + nEnt_cal;
   ALIint NoColumnsA = NoParamFit;
-  AMatrix = ALIMatrix( NoLinesA, NoColumnsA );
+  AMatrix = new ALIMatrix( NoLinesA, NoColumnsA );
 
   ALIint NoLinesW = NoLinesA;
   ALIint NoColumnsW = NoLinesA;
-  WMatrix = ALIMatrix( NoLinesW, NoColumnsW );
+  WMatrix = new ALIMatrix( NoLinesW, NoColumnsW );
 
   ALIint NoLinesY = NoLinesA;
   //op  yMatrix = new ALIMatrix( NoLinesY, 1 );
-  yfMatrix = ALIMatrix( NoLinesY, 1 );
+  yfMatrix = new ALIMatrix( NoLinesY, 1 );
 
   //op  fMatrix = new ALIMatrix( NoLinesY, 1 );
 
   if ( ALIUtils::debug >= 4 ) std::cout << "CreateMatrices: NoLinesA = " << NoLinesA <<
   " NoColumnsA = " << NoColumnsA << std::endl;
-
-  DaMatrix = ALIMatrix(0, 0);   
-  AtMatrix = ALIMatrix(0, 0);   
-  AtWAMatrix = ALIMatrix(0, 0);   
-
-
 }
 
 
@@ -661,7 +655,7 @@ void Fit::FillMatricesWithMeasurements()
 	derivRE = (*vmcite)->DerivativeRespectEntry(*vecite);
 	//---------- Fill matrix A with derivatives
 	for ( ALIuint jj = 0; jj < ALIuint(measdim); jj++) {
-	  AMatrix.AddData( Aline+jj, (*vecite)->fitPos(), derivRE[jj] );
+	  AMatrix->AddData( Aline+jj, (*vecite)->fitPos(), derivRE[jj] );
 	  if( ALIUtils::debug >= 5) std::cout << "FillMatricesWithMeasurements: AMATRIX (" << Aline+jj << "," << (*vecite)->fitPos() << " = " << derivRE[jj] << std::endl;
 	  //---------- Reset Measurement simulated_value
 	  (*vmcite)->setValueSimulated( jj, (*vmcite)->valueSimulated_orig(jj) );	  
@@ -683,14 +677,14 @@ void Fit::FillMatricesWithMeasurements()
 	// multiply error by cameraScaleFactor
 	ALIdouble sigmanew = sigma * Measurement::cameraScaleFactor;
 	//	std::cout << Aline+jj << " WMATRIX FILLING " << sigmanew << " * " << Measurement::cameraScaleFactor << std::endl;
-	WMatrix.AddData( Aline+jj, Aline+jj, (sigmanew*sigmanew) );
+	WMatrix->AddData( Aline+jj, Aline+jj, (sigmanew*sigmanew) );
       }
       //op //----- Fill Matrices y with measurement value 
-      //op yMatrix.AddData( Aline+jj, 0, (*vmcite)->value()[jj] );
+      //op yMatrix->AddData( Aline+jj, 0, (*vmcite)->value()[jj] );
       //op //----- Fill f Matrix with simulated_value
-      //op fMatrix.AddData( Aline+jj, 0, (*vmcite)->valueSimulated_orig(jj) );
+      //op fMatrix->AddData( Aline+jj, 0, (*vmcite)->valueSimulated_orig(jj) );
       //----- Fill Matrix y - f with measurement value - simulated value
-      yfMatrix.AddData( Aline+jj, 0, (*vmcite)->value()[jj] - (*vmcite)->valueSimulated_orig(jj) );
+      yfMatrix->AddData( Aline+jj, 0, (*vmcite)->value()[jj] - (*vmcite)->valueSimulated_orig(jj) );
       //      std::cout << " yfMatrix FILLING " << Aline+jj << " + " << (*vmcite)->value()[jj] - (*vmcite)->valueSimulated_orig(jj) << " meas " << (*vmcite)->name() << " val " << (*vmcite)->value()[jj] << " simu val " << (*vmcite)->valueSimulated_orig(jj) << std::endl;
     }
     if ( ALIUtils::debug >= 99) std::cout << "change line" << Aline << std::endl;
@@ -699,9 +693,9 @@ void Fit::FillMatricesWithMeasurements()
     
   }
 
-  if ( ALIUtils::debug >= 4) AMatrix.Dump("Matrix A with meas");
-  if ( ALIUtils::debug >= 4) WMatrix.Dump("Matrix W with meas");
-  if ( ALIUtils::debug >= 4) yfMatrix.Dump("Matrix y with meas");
+  if ( ALIUtils::debug >= 4) AMatrix->Dump("Matrix A with meas");
+  if ( ALIUtils::debug >= 4) WMatrix->Dump("Matrix W with meas");
+  if ( ALIUtils::debug >= 4) yfMatrix->Dump("Matrix y with meas");
 
 }
 
@@ -737,32 +731,32 @@ void Fit::FillMatricesWithCalibratedParameters()
       //--- Matrix A: fill diagonals with 1. (derivatives of entry w.r.t itself)
       ALIint lineNo = NolinMes + nEntcal;  
       ALIint columnNo = (*vecite)->fitPos();  //=? nEntcal
-      AMatrix.AddData( lineNo, columnNo, 1. );
+      AMatrix->AddData( lineNo, columnNo, 1. );
       if(ALIUtils::debug >= 4) std::cout << "Fit::FillMatricesWithCalibratedParameters:  AMatrix ( " << lineNo << " , " << columnNo  << ") = " << 1. << std::endl;
 
       //--- Matrix W: sigma*sigma
       ALIdouble entsig = (*vecite)->sigma();
       if(ALIUtils::debug >= 4) std::cout << "Fit::FillMatricesWithCalibratedParameters:  WMatrix ( " << lineNo << " , " << columnNo  << ") = " << entsig*entsig << std::endl;
-      WMatrix.AddData( lineNo, lineNo, entsig*entsig );
+      WMatrix->AddData( lineNo, lineNo, entsig*entsig );
 
       //--- Matrix y & f: fill it with 0. 
-      //op      yMatrix.AddData( lineNo, 0, (*vecite)->value());
-      //op      yfMatrix.AddData( lineNo, 0, (*vecite)->value());
+      //op      yMatrix->AddData( lineNo, 0, (*vecite)->value());
+      //op      yfMatrix->AddData( lineNo, 0, (*vecite)->value());
       ALIdouble calFit;
       GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
       gomgr->getGlobalOptionValue("calParamInyfMatrix", calFit );
       if( calFit ) {
-       	yfMatrix.AddData( lineNo, 0, -(*vecite)->valueDisplacementByFitting() );
-	//-	yfMatrix.AddData( lineNo, 0, (*vecite)->value() );
-	//-       	yfMatrix.AddData( lineNo, 0, (*vecite)->lastAdditionToValueDisplacementByFitting() );
+       	yfMatrix->AddData( lineNo, 0, -(*vecite)->valueDisplacementByFitting() );
+	//-	yfMatrix->AddData( lineNo, 0, (*vecite)->value() );
+	//-       	yfMatrix->AddData( lineNo, 0, (*vecite)->lastAdditionToValueDisplacementByFitting() );
 	//-	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
 	//	fileout << "cal to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << endl;
 	//	std::cout << "call to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << std::endl;
 
       } else {
-        yfMatrix.AddData( lineNo, 0, 0. );
+        yfMatrix->AddData( lineNo, 0, 0. );
       }
-      //t      if(ALIUtils::debug >= 5) std::cout << "Fit::FillMatricesWithCalibratedParameters:  yfMatrix ( " << lineNo << " , " << columnNo  << ") = " << (yfMatrix)(lineNo)(0) << std::endl;
+      //t      if(ALIUtils::debug >= 5) std::cout << "Fit::FillMatricesWithCalibratedParameters:  yfMatrix ( " << lineNo << " , " << columnNo  << ") = " << (*yfMatrix)(lineNo)(0) << std::endl;
       nEntcal++;
     }
   }
@@ -800,7 +794,7 @@ void Fit::setCorrelationFromParamFitted( const pss& entry1, const pss& entry2,
  ALIdouble correl ) 
 {
 
-  ALIint pmsize = WMatrix.NoLines();
+  ALIint pmsize = WMatrix->NoLines();
   ALIint fit_pos1 = Model::getEntryByName(entry1.first, entry1.second)->fitPos();
   ALIint fit_pos2 = Model::getEntryByName(entry2.first, entry2.second)->fitPos();
   std::cout << "CHECKsetCorrelatiFPF " << fit_pos1 << " " << fit_pos2 << std::endl;
@@ -814,9 +808,9 @@ void Fit::setCorrelationFromParamFitted( const pss& entry1, const pss& entry2,
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::setCorrelationFromParamFitted( const ALIint fit_pos1, const ALIint fit_pos2, ALIdouble correl ) 
 {
-  //  ALIdouble error1 = sqrt( (WMatrix)(fit_pos1, fit_pos1) );
-  // ALIdouble error2 = sqrt( (WMatrix)(fit_pos2, fit_pos2) );
-  WMatrix.SetCorrelation( fit_pos1, fit_pos2, correl );
+  //  ALIdouble error1 = sqrt( (*WMatrix)(fit_pos1, fit_pos1) );
+  // ALIdouble error2 = sqrt( (*WMatrix)(fit_pos2, fit_pos2) );
+  WMatrix->SetCorrelation( fit_pos1, fit_pos2, correl );
   std::cout << "setCorrelatiFPF " << fit_pos1 << " " << fit_pos2 << " " << correl << std::endl;
 }
 
@@ -828,41 +822,42 @@ void Fit::multiplyMatrices()
 {
   if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::multiplyMatrices " << std::endl;
   //---------- Calculate transpose of A
-  AtMatrix = AMatrix;
-  if(ALIUtils::debug >= 5) AtMatrix.Dump("AtMatrix=A");
+  AtMatrix = new ALIMatrix( *AMatrix );
+  if(ALIUtils::debug >= 5) AtMatrix->Dump("AtMatrix=A");
   //-  std::cout << "call transpose";
-  AtMatrix.transpose();
-  if(ALIUtils::debug >= 4) AtMatrix.Dump("AtMatrix");
+  AtMatrix->transpose();
+  if(ALIUtils::debug >= 4) AtMatrix->Dump("AtMatrix");
 
   //---------- Calculate At * W * A
-  //  if(ALIUtils::debug >= 5) AtWAMatrix.Dump("AtWAMatrix=0");
-  AtWAMatrix = AtMatrix * WMatrix * AMatrix;   
-  if(ALIUtils::debug >= 5) AtWAMatrix.Dump("AtWAMatrix");
+  AtWAMatrix = new ALIMatrix(0, 0);   
+  //  if(ALIUtils::debug >= 5) AtWAMatrix->Dump("AtWAMatrix=0");
+  *AtWAMatrix = *AtMatrix * *WMatrix * *AMatrix;   
+  if(ALIUtils::debug >= 5) AtWAMatrix->Dump("AtWAMatrix");
 
   CheckIfFitPossible();
 
-  //t  AtWAMatrix.EliminateLines(0,48);
-  //t AtWAMatrix.EliminateColumns(0,48);
+  //t  AtWAMatrix->EliminateLines(0,48);
+  //t AtWAMatrix->EliminateColumns(0,48);
   time_t now;
   now = clock();
   if(ALIUtils::debug >= 0) std::cout << "TIME:BEFORE_INVERSE : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
 
-  /*  std::cout << " DETERMINANT W " <<  m_norm1( AtWAMatrix.MatNonConst() ) << std::endl;
-  if( m_norm1( AtWAMatrix.MatNonConst() ) == 0 ) {
-    std::cout << " DETERMINANT W " <<  m_norm1( AtWAMatrix.MatNonConst() ) << std::endl;
+  /*  std::cout << " DETERMINANT W " <<  m_norm1( AtWAMatrix->MatNonConst() ) << std::endl;
+  if( m_norm1( AtWAMatrix->MatNonConst() ) == 0 ) {
+    std::cout << " DETERMINANT W " <<  m_norm1( AtWAMatrix->MatNonConst() ) << std::endl;
     std::exception();
     } */
 
-  AtWAMatrix.inverse();
-  if(ALIUtils::debug >= 4) AtWAMatrix.Dump("inverse AtWAmatrix");
+  AtWAMatrix->inverse();
+  if(ALIUtils::debug >= 4) AtWAMatrix->Dump("inverse AtWAmatrix");
   now = clock();
   if(ALIUtils::debug >= 0) std::cout << "TIME:AFTER_INVERSE  : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
 
   //op  thePropagationMatrix = AtWAMatrix;
 
-  //op  VaMatrix = new ALIMatrix( AtWAMatrix );
+  //op  VaMatrix = new ALIMatrix( *AtWAMatrix );
   
   //----- Print out propagated errors of parameters (=AtWA diagonal elements)
   std::vector< Entry* >::const_iterator vecite;
@@ -884,7 +879,7 @@ void Fit::multiplyMatrices()
 	     << (*vecite)->OptOCurrent()->name().c_str() 
 	     << std::setw(8) << " " << (*vecite)->name().c_str() << " " 
 	     << std::setw(8) << " " << (*vecite)->value() << " " 
-	     << std::setw(8) << sqrt(AtWAMatrix.Mat()->me[nEnt][nEnt]) / 
+	     << std::setw(8) << sqrt(AtWAMatrix->Mat()->me[nEnt][nEnt]) / 
                 (*vecite)->OutputSigmaDimensionFactor() 
 	     << " " << (*vecite)->sigma() / (*vecite)->OutputSigmaDimensionFactor() 
              << " Q" << (*vecite)->quality() << std::endl;
@@ -894,7 +889,7 @@ void Fit::multiplyMatrices()
     if ( (*vecite)->quality() == 2 ) nEntUnk++;
   }
 
-  if(ALIUtils::debug >= 5) yfMatrix.Dump("PD(y-f)Matrix final");  
+  if(ALIUtils::debug >= 5) yfMatrix->Dump("PD(y-f)Matrix final");  
 
 }
 
@@ -909,36 +904,36 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
   double fit_quality = GetSChi2(1);
 
   //---------- Calculate DS = Variable to recognize convergence (distance to minimum)
-  ALIMatrix DatMatrix = DaMatrix;
+  ALIMatrix* DatMatrix = new ALIMatrix( *DaMatrix );
   //  delete DaMatrix; //op
-  DatMatrix.transpose();
-  if(ALIUtils::debug >= 5) DatMatrix.Dump("DatMatrix");
-  //op  ALIMatrix* DSMat = new ALIMatrix(DatMatrix * AtMatrix * *WMatrix * *PDMatrix);
-  ALIMatrix DSMat = (DatMatrix * AtMatrix * WMatrix * yfMatrix);
+  DatMatrix->transpose();
+  if(ALIUtils::debug >= 5) DatMatrix->Dump("DatMatrix");
+  //op  ALIMatrix* DSMat = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix * *PDMatrix);
+  ALIMatrix* DSMat = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix * *yfMatrix);
   if(ALIUtils::debug >= 5) {
-    ALIMatrix DSMattemp = (DatMatrix * AtMatrix * WMatrix);
-    DSMattemp.Dump("DSMattempMatrix=Dat*At*W");
-    ALIMatrix DSMattemp2 = (AtMatrix * WMatrix * yfMatrix);
-    DSMattemp2.Dump("DSMattempMatrix2=At*W*yf");
-    ALIMatrix DSMattemp3 = (AtMatrix * WMatrix);
-    DSMattemp3.Dump("DSMattempMatrix3=At*W");
-    AtMatrix.Dump("AtMatrix");
-  }
+    ALIMatrix* DSMattemp = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix);
+    DSMattemp->Dump("DSMattempMatrix=Dat*At*W");
+    ALIMatrix* DSMattemp2 = new ALIMatrix(*AtMatrix * *WMatrix * *yfMatrix);
+    DSMattemp2->Dump("DSMattempMatrix2=At*W*yf");
+    ALIMatrix* DSMattemp3 = new ALIMatrix(*AtMatrix * *WMatrix);
+    DSMattemp3->Dump("DSMattempMatrix3=At*W");
+    AtMatrix->Dump("AtMatrix");
+    }
 
-  /*  for( int ii = 0; ii < DatMatrix.NoColumns(); ii++ ){
-    std::cout << ii << " DS term " << DatMatrix(0,ii) * (*DSMattemp2)(ii,0) << std::endl;
+  /*  for( int ii = 0; ii < DatMatrix->NoColumns(); ii++ ){
+    std::cout << ii << " DS term " << (*DatMatrix)(0,ii) * (*DSMattemp2)(ii,0) << std::endl;
     }*/
   //  delete AtMatrix; //op
   //  delete WMatrix; //op
 
-  //op  if(ALIUtils::debug >= 5) (PDMatrix).Dump("PDMatrix");
-  if(ALIUtils::debug >= 5) (yfMatrix).Dump("yfMatrix");
-  if(ALIUtils::debug >= 5) DSMat.Dump("DSMatrix final");
+  //op  if(ALIUtils::debug >= 5) (*PDMatrix).Dump("PDMatrix");
+  if(ALIUtils::debug >= 5) (*yfMatrix).Dump("yfMatrix");
+  if(ALIUtils::debug >= 5) DSMat->Dump("DSMatrix final");
   //  delete yfMatrix; //op
 
-  ALIdouble fit_quality_cut = (DSMat)(0,0);  
-  //-  ALIdouble fit_quality_cut =fabs( (DSMat)(0,0) );  
-
+  ALIdouble fit_quality_cut = (*DSMat)(0,0);  
+  //-  ALIdouble fit_quality_cut =fabs( (*DSMat)(0,0) );  
+  delete DSMat;
   if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Fit quality predicted improvement in distance to minimum is = " << fit_quality_cut << std::endl;
   if( ALIUtils::report >= 2 ) {
     ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
@@ -1006,53 +1001,55 @@ ALIdouble Fit::GetSChi2( ALIbool useDa )
 {
   if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::GetSChi2  useDa= " << useDa << std::endl;
 
-  ALIMatrix SMat;
+  ALIMatrix* SMat = 0;
   if( useDa ){
     //----- Calculate variables to check quality of this set of parameters
     
     //----- Calculate Da = (At * W * A)-1 * At * W * (y-f)
-    /*t  DaMatrix = new ALIMatrix( AtWAMatrix );
-     *DaMatrix *= AtMatrix * *WMatrix;
-     if(ALIUtils::debug >= 5) DaMatrix.Dump("DaMatrix before yf ");
-     *DaMatrix *= yfMatrix;
-     if(ALIUtils::debug >= 5) DaMatrix.Dump("DaMatrix");
+    /*t  DaMatrix = new ALIMatrix( *AtWAMatrix );
+     *DaMatrix *= *AtMatrix * *WMatrix;
+     if(ALIUtils::debug >= 5) DaMatrix->Dump("DaMatrix before yf ");
+     *DaMatrix *= *yfMatrix;
+     if(ALIUtils::debug >= 5) DaMatrix->Dump("DaMatrix");
     */
     
-    //  if(ALIUtils::debug >= 5) AtWAMatrix.Dump("AtWAMatrix=0");
-    DaMatrix = ( AtWAMatrix * AtMatrix * WMatrix * yfMatrix);
-    if(ALIUtils::debug >= 5) DaMatrix.Dump("DaMatrix");
+    DaMatrix = new ALIMatrix(0, 0);   
+    //  if(ALIUtils::debug >= 5) AtWAMatrix->Dump("AtWAMatrix=0");
+    *DaMatrix = ( *AtWAMatrix * *AtMatrix * *WMatrix * *yfMatrix);
+    if(ALIUtils::debug >= 5) DaMatrix->Dump("DaMatrix");
     
     //----- Calculate S = chi2 = Fit quality = r^T W r (r = residual = f + A*Da - y )
-    //op  ALIMatrix* tmpM = new ALIMatrix( AMatrix * *DaMatrix + *PDMatrix );
-    //  ALIMatrix* tmpM = new ALIMatrix( AMatrix * *DaMatrix + yfMatrix );
+    //op  ALIMatrix* tmpM = new ALIMatrix( *AMatrix * *DaMatrix + *PDMatrix );
+    //  ALIMatrix* tmpM = new ALIMatrix( *AMatrix * *DaMatrix + *yfMatrix );
     
-    ALIMatrix tmpM = AMatrix * DaMatrix - yfMatrix;    
-    if(ALIUtils::debug >= 5) tmpM.Dump("A*Da + f - y Matrix ");
+    ALIMatrix* tmpM = new ALIMatrix( 0,0 );
+    *tmpM  = *AMatrix * *DaMatrix - *yfMatrix;    
+    if(ALIUtils::debug >= 5) tmpM->Dump("A*Da + f - y Matrix ");
 
-    ALIMatrix tmptM = tmpM;
-    tmptM.transpose();
-    if(ALIUtils::debug >= 5) tmptM.Dump("tmptM after transpose");
-    if(ALIUtils::debug >= 5) WMatrix.Dump("WMatrix");
+    ALIMatrix* tmptM = new ALIMatrix( *tmpM );
+    tmptM->transpose();
+    if(ALIUtils::debug >= 5) tmptM->Dump("tmptM after transpose");
+    if(ALIUtils::debug >= 5) WMatrix->Dump("WMatrix");
 
     //  std::cout << "smat " << std::endl;
-    //o  ALIMatrix* SMat = new ALIMatrix(tmptM * *WMatrix * tmpM);
-    //    ALIMatrix SMat1 = MatrixByMatrix(tmptM,WMatrix);
-    ALIMatrix SMat1 = tmptM * WMatrix;
-    //  ALIMatrix* SMat1 = MatrixByMatrix(AMatrix,*WMatrix);
-    if(ALIUtils::debug >= 5) SMat1.Dump("(A*Da + f - y)^T * W  Matrix");
-    //    SMat = MatrixByMatrix(SMat1,tmpM);
-    SMat = SMat1 * tmpM;
+    //o  ALIMatrix* SMat = new ALIMatrix(*tmptM * *WMatrix * *tmpM);
+    ALIMatrix* SMat1 = MatrixByMatrix(*tmptM,*WMatrix);
+    //  ALIMatrix* SMat1 = MatrixByMatrix(*AMatrix,*WMatrix);
+    if(ALIUtils::debug >= 5) SMat1->Dump("(A*Da + f - y)^T * W  Matrix");
+    SMat = MatrixByMatrix(*SMat1,*tmpM);
     //  std::cout << "smatc " << std::endl;
-
-    if(ALIUtils::debug >= 5) SMat.Dump("SMatrix with Da");
+    delete tmpM;
+    delete tmptM;
+    if(ALIUtils::debug >= 5) SMat->Dump("SMatrix with Da");
   } else {
-    ALIMatrix yftMat = ALIMatrix(yfMatrix);
-    yftMat.transpose();
-    SMat = yftMat *  WMatrix * yfMatrix;
-    if(ALIUtils::debug >= 5) SMat.Dump("SMatrix no Da");
+    ALIMatrix* yftMat = new ALIMatrix(*yfMatrix);
+    yftMat->transpose();
+    SMat = new ALIMatrix(*yftMat *  *WMatrix * *yfMatrix);
+    delete yftMat;
+    if(ALIUtils::debug >= 5) SMat->Dump("SMatrix no Da");
   }
-  ALIdouble fit_quality = (SMat)(0,0);
-
+  ALIdouble fit_quality = (*SMat)(0,0);
+  delete SMat;
   if(ALIUtils::debug >= 5) std::cout << " GetSChi2 = " << fit_quality << std::endl;
 
   PrintChi2( fit_quality, !useDa );
@@ -1070,7 +1067,7 @@ void Fit::addDaMatrixToEntries()
 
   if(ALIUtils::debug >= 4) {
     std::cout << "@@ Adding correction (DaMatrix) to Entries " << std::endl;
-    DaMatrix.Dump("DaMatrix =");
+    DaMatrix->Dump("DaMatrix =");
   }
 
   /*-  Now there are other places where entries are changed
@@ -1091,7 +1088,7 @@ void Fit::addDaMatrixToEntries()
       if ( ALIUtils::debug >= 5) {
         std::cout << std::endl << " @@@ PENTRY change " 
 		  << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " 
-		  << " change= " << (DaMatrix)(nEnt,0)
+		  << " change= " << (*DaMatrix)(nEnt,0)
 		  << " value= " << (*vecite)->valueDisplacementByFitting()
 		  << std::endl;
       }
@@ -1099,7 +1096,7 @@ void Fit::addDaMatrixToEntries()
         ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
         fileout << "dd" << std::setw(30) << (*vecite)->OptOCurrent()->name() 
                 << std::setw(8) << " " << (*vecite)->name() << " " 
-                << std::setw(8) << " " << (DaMatrix)(nEnt,0) / (*vecite)->OutputValueDimensionFactor()
+                << std::setw(8) << " " << (*DaMatrix)(nEnt,0) / (*vecite)->OutputValueDimensionFactor()
 	        << " " << (*vecite)->valueDisplacementByFitting() / (*vecite)->OutputValueDimensionFactor() << " fitpos " << (*vecite)->fitPos()
                 << std::endl;
 		}*/
@@ -1107,9 +1104,9 @@ void Fit::addDaMatrixToEntries()
       //----- Store this displacement 
       if(ALIUtils::debug >= 4) std::cout << " old valueDisplacementByFitting " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << " original value " <<  (*vecite)->value() <<std::endl; 
 
-      (*vecite)->addFittedDisplacementToValue( (DaMatrix)(nEnt,0) );
+      (*vecite)->addFittedDisplacementToValue( (*DaMatrix)(nEnt,0) );
 
-      if(ALIUtils::debug >= 4) std::cout << nEnt << " new valueDisplacementByFitting " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " = " << (*vecite)->valueDisplacementByFitting() << " " << (DaMatrix)(nEnt,0) << std::endl ; 
+      if(ALIUtils::debug >= 4) std::cout << nEnt << " new valueDisplacementByFitting " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " = " << (*vecite)->valueDisplacementByFitting() << " " << (*DaMatrix)(nEnt,0) << std::endl ; 
       nEnt++;
     }
   }
@@ -1341,7 +1338,7 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, double ent
 	  << std::setw(8) << " " << entry->name() << " " 
 	  << std::setw(8) << std::setprecision(8) << entryvalue;
   if ( entry->quality() >= theMinimumEntryQuality ) {
-    if( printErrors ) fileout << " +- " << std::setw(8) << sqrt(AtWAMatrix.Mat()->me[entry->fitPos()][entry->fitPos()]) / dims;
+    if( printErrors ) fileout << " +- " << std::setw(8) << sqrt(AtWAMatrix->Mat()->me[entry->fitPos()][entry->fitPos()]) / dims;
   } else { 
     if( printErrors ) fileout << " +- " << std::setw(8) << 0.;
   }
@@ -1396,9 +1393,9 @@ void Fit::dumpEntryCorrelations( ALIFileOut& fileout )
       } else if( (*veite2)->quality() == 2 ) {
 	E2 = "U";
       }
-      ALIdouble corr = AtWAMatrix.Mat()->me[i1][i2];
-      ALIdouble corrf = corr / sqrt(AtWAMatrix.Mat()->me[i1][i1])
-	  / sqrt(AtWAMatrix.Mat()->me[i2][i2]);
+      ALIdouble corr = AtWAMatrix->Mat()->me[i1][i2];
+      ALIdouble corrf = corr / sqrt(AtWAMatrix->Mat()->me[i1][i1])
+	  / sqrt(AtWAMatrix->Mat()->me[i2][i2]);
       if (fabs(corrf) >= minCorrel ) {
         if(ALIUtils::debug >= 0) {
 	  std::cout  << "CORR:" << E1 << "" << E2 << " (" << i1 << ")" <<  " (" << i2 << ")" << " " << corrf << std::endl;
@@ -1422,15 +1419,15 @@ void Fit::dumpMatrices()
   ALIFileOut& matout = ALIFileOut::getInstance( Model::MatricesFName() );
   //  ofstream matout("matrices.out");
   matout << std::endl << " @@@@@@@@@@@@@@@  Iteration No : " << theNoFitIterations << std::endl;
-  AMatrix.ostrDump( matout, "Matrix A" );
-  AtMatrix.ostrDump( matout, "Matrix At" );
-  WMatrix.ostrDump( matout, "Matrix W" );
-  AtWAMatrix.ostrDump( matout, "Matrix AtWA" );
-  //op  VaMatrix.ostrDump( matout, "Matrix Va" );
-  DaMatrix.ostrDump( matout, "Matrix Da" );
-  yfMatrix.ostrDump( matout, "Matrix y" );
-  //op  fMatrix.ostrDump( matout, "Matrix f" );
-  //op  thePropagationMatrix.ostrDump( matout, "propagation Matrix " );
+  AMatrix->ostrDump( matout, "Matrix A" );
+  AtMatrix->ostrDump( matout, "Matrix At" );
+  WMatrix->ostrDump( matout, "Matrix W" );
+  AtWAMatrix->ostrDump( matout, "Matrix AtWA" );
+  //op  VaMatrix->ostrDump( matout, "Matrix Va" );
+  DaMatrix->ostrDump( matout, "Matrix Da" );
+  yfMatrix->ostrDump( matout, "Matrix y" );
+  //op  fMatrix->ostrDump( matout, "Matrix f" );
+  //op  thePropagationMatrix->ostrDump( matout, "propagation Matrix " );
   matout.close();
 
 }
@@ -1560,10 +1557,10 @@ void Fit::CheckIfFitPossible()
       ALIbool noDepend = TRUE;
       if( ALIUtils::debug >= 4 ) std::cout << "Fit::CheckIfFitPossible looping for entry " << nCol << std::endl;
       for( ALIint ii = 0; ii < NolinMes; ii++ ) {
-        if( ALIUtils::debug >= 5 ) std::cout << " Derivative= (" << ii << "," << nCol << ") = " << (AMatrix)(ii,nCol)  << std::endl;
+        if( ALIUtils::debug >= 5 ) std::cout << " Derivative= (" << ii << "," << nCol << ") = " << (*AMatrix)(ii,nCol)  << std::endl;
 
-        if( fabs((AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
-          if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << nCol << " " << ii << " = " << (AMatrix)(ii,nCol) << std::endl;
+        if( fabs((*AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
+          if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << nCol << " " << ii << " = " << (*AMatrix)(ii,nCol) << std::endl;
           noDepend = FALSE;
           break;
         }
@@ -1578,7 +1575,7 @@ void Fit::CheckIfFitPossible()
   //------ Check if there are two unknown entries that have the derivatives of all measurements w.r.t. then equal (or 100% proportional). In this case any value of the first entry can be fully compensated by another value in the second entry without change in any measurement ---> the two entries cannot be fitted!
 
   std::vector< Entry* >::const_iterator vecite1,vecite2;
-  ALIint nLin = AMatrix.NoLines();
+  ALIint nLin = AMatrix->NoLines();
   ALIdouble derivPrec = ALI_DBL_MIN;
   //---------- Loop entries 
   for ( vecite1 = Model::EntryList().begin();
@@ -1593,14 +1590,14 @@ void Fit::CheckIfFitPossible()
           ALIdouble prop = DBL_MAX;
           ALIbool isProp = TRUE;
 	  for( ALIint ii = 0; ii < nLin; ii++ ) {
-	    if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << ii << " : " << (AMatrix)(ii,fitpos1) << " ?= " << (AMatrix)(ii,fitpos2) << std::endl;
-            if( fabs((AMatrix)(ii,fitpos1)) < derivPrec ) {
-	      if( fabs((AMatrix)(ii,fitpos2)) > derivPrec ) {
+	    if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << ii << " : " << (*AMatrix)(ii,fitpos1) << " ?= " << (*AMatrix)(ii,fitpos2) << std::endl;
+            if( fabs((*AMatrix)(ii,fitpos1)) < derivPrec ) {
+	      if( fabs((*AMatrix)(ii,fitpos2)) > derivPrec ) {
 		isProp = FALSE;
 		break;
 	      }
 	    } else {
-	      ALIdouble propn = (AMatrix)(ii,fitpos2) / (AMatrix)(ii,fitpos1);
+	      ALIdouble propn = (*AMatrix)(ii,fitpos2) / (*AMatrix)(ii,fitpos1);
 	      if( prop != DBL_MAX && prop != propn ) {
 		isProp = FALSE;
 		break;
@@ -1628,9 +1625,9 @@ int Fit::CheckIfMeasIsProportionalToAnother( ALIuint measNo )
   std::set<ALIuint> columnsEqualSave;
   ALIuint biggestColumn = 0;
   ALIdouble biggest = 0.;
-  for (int ii = 0; ii < AMatrix.NoColumns(); ii++ ){
-    if( fabs((AMatrix)(measNo,ii)) > biggest ) {
-      biggest = fabs((AMatrix)(measNo,ii));
+  for (int ii = 0; ii < AMatrix->NoColumns(); ii++ ){
+    if( fabs((*AMatrix)(measNo,ii)) > biggest ) {
+      biggest = fabs((*AMatrix)(measNo,ii));
       biggestColumn = ii;
     }
     columnsEqualSave.insert(ii); 
@@ -1638,13 +1635,13 @@ int Fit::CheckIfMeasIsProportionalToAnother( ALIuint measNo )
   
   ALIdouble div;
 
-  for( int jj = 0; jj < AMatrix.NoLines(); jj++ ){
+  for( int jj = 0; jj < AMatrix->NoLines(); jj++ ){
     if( jj == int(measNo) ) continue;
     columnsEqual = columnsEqualSave;
     // check if ratio of each column to 'biggestColumn' is the same as for the N measurement
-    for (int ii = 0; ii < AMatrix.NoColumns(); ii++ ){
-      div = (AMatrix)(measNo,ii)/(AMatrix)(measNo,biggestColumn);
-      if( fabs((AMatrix)(jj,ii))  > ALI_DBL_MIN && fabs(div - (AMatrix)(jj,ii)/(AMatrix)(jj,biggestColumn) ) > ALI_DBL_MIN ) {
+    for (int ii = 0; ii < AMatrix->NoColumns(); ii++ ){
+      div = (*AMatrix)(measNo,ii)/(*AMatrix)(measNo,biggestColumn);
+      if( fabs((*AMatrix)(jj,ii))  > ALI_DBL_MIN && fabs(div - (*AMatrix)(jj,ii)/(*AMatrix)(jj,biggestColumn) ) > ALI_DBL_MIN ) {
 	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns = " << ii << " in " << measNo << " & " << jj << std::endl;
       } else {
 	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns != " << ii << " in " << measNo << " & " << jj << std::endl;

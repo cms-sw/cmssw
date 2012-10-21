@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-HcalTopologyIdealEP = cms.ESProducer("HcalTopologyIdealEP",
-                                     Exclude  = cms.untracked.string(''),
-                                     H2Mode   = cms.untracked.bool(False),
-                                     SLHCMode = cms.untracked.bool(False),
-                                     H2HEMode = cms.untracked.bool(False),
-)
+import Geometry.HcalEventSetup.hcalTopologyIdeal_cfi
+
+hcalTopologyIdeal = Geometry.HcalEventSetup.hcalTopologyIdeal_cfi.hcalTopologyIdeal.clone()
+
+import Geometry.HcalEventSetup.hcalTopologyConstants_cfi as hcalTopologyConstants_cfi
+hcalTopologyIdeal.hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)

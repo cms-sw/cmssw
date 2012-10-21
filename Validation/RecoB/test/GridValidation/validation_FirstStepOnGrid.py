@@ -69,9 +69,8 @@ process.load("Validation.RecoB.bTagAnalysis_firststep_cfi")
 if runOnMC:
     process.bTagValidationFirstStep.jetMCSrc = 'AK5byValAlgo'
     process.bTagValidationFirstStep.allHistograms = True
-    #process.bTagValidationFirstStep.fastMC = True
     process.bTagValidationFirstStep.applyPtHatWeight = False
-    process.bTagValidationFirstStep.mcPlots = 1 #0=no flavour histogram; 1=b, c, udsg and ni; 2=all flavour histograms
+    process.bTagValidationFirstStep.flavPlots = "allbcl" #if contains "noall" plots for all jets not booked, if contains "dusg" all histograms booked, default : all, b, c, udsg, ni
                                   
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)

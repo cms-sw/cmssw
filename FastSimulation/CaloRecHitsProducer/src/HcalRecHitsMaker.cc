@@ -53,7 +53,6 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
   doDigis_(false),
   noiseFromDb_(false),
   random_(myrandom)
-  //,myHcalSimParameterMap_(0)
 {
   edm::ParameterSet RecHitsParameters=p.getParameter<edm::ParameterSet>("HCAL");
   noise_ = RecHitsParameters.getParameter<std::vector<double> >("Noise");
@@ -163,7 +162,10 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       // Read from file ( a la HcalRecHitsRecalib.cc)
       // here read them from xml (particular to HCAL)
       CaloMiscalibMapHcal mapHcal;
-      mapHcal.prefillMap();
+
+      edm::ESHandle<HcalTopology> topo;
+      es.get<IdealGeometryRecord>().get( topo );
+      mapHcal.prefillMap(*topo);
       
 
       edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+hcalfileinpath_);      

@@ -9,6 +9,7 @@
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
 #include "G4PhotoElectricEffect.hh"
+#include "G4PairProductionRelModel.hh"
 
 #include "G4hMultipleScattering.hh"
 #include "G4eMultipleScattering.hh"
@@ -136,7 +137,11 @@ void CMSEmStandardPhysics95msc92::ConstructProcess()
 
       pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
       pmanager->AddDiscreteProcess(new G4ComptonScattering);
-      pmanager->AddDiscreteProcess(new G4GammaConversion);
+      G4GammaConversion* conv = new G4GammaConversion();
+      G4PairProductionRelModel* mod = new G4PairProductionRelModel();
+      mod->SetLowEnergyLimit(100*GeV);
+      conv->AddEmModel(0, mod);
+      pmanager->AddDiscreteProcess(conv);
 
     } else if (particleName == "e-") {
 

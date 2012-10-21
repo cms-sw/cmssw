@@ -43,7 +43,7 @@ namespace edm {
 
     TObject* Get(char const* name) {return file_->Get(name);}
     TFileCacheRead* GetCacheRead() const {return file_->GetCacheRead();}
-    void SetCacheRead(TFileCacheRead* tfcr) {file_->SetCacheRead(tfcr);}
+    void SetCacheRead(TFileCacheRead* tfcr) {file_->SetCacheRead(tfcr, NULL, TFile::kDoNotDisconnect);}
     void logFileAction(char const* msg, char const* fileName) const;
   private:
     std::unique_ptr<TFile> file_;

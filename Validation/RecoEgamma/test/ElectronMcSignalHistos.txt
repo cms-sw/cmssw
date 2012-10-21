@@ -20,7 +20,7 @@ ElectronMcSignalValidator/h_ele_vertexTIP                   1 1 1 0
 ElectronMcSignalValidator/h_ele_Et                          1 1 1 0
 ElectronMcSignalValidator/h_ele_outerP_mode                 1 1 1 0
 ElectronMcSignalValidator/h_ele_outerPt_mode                1 1 1 0
-ElectronMcSignalValidator/h_ele_vertexPtVsEta_pfx           0 1 1 0
+ElectronMcSignalValidator/h_ele_vertexPtVsEta_pfx           1 1 1 0
 ElectronMcSignalValidator/h_ele_ecalEnergyError		    1 1 0 0
 ElectronMcSignalValidator/h_ele_ecalEnergyError_barrel      1 1 0 0
 ElectronMcSignalValidator/h_ele_ecalEnergyError_endcaps     1 1 1 0
