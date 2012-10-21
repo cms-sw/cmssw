@@ -15,6 +15,7 @@
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="TrackingTools/KalmanUpdators"/>
+<use   name="TrackingTools/MaterialEffects"/>
 <use   name="TrackingTools/Records"/>
 <use   name="CommonTools/Utils"/>
 <use   name="rootrflx"/>
