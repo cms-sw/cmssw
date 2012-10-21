@@ -10,8 +10,8 @@
  *  using the static build() methods. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2010/12/22 10:46:28 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/12/22 11:06:42 $
+ *  $Revision: 1.6 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
@@ -33,6 +33,8 @@ public:
     return CylinderPointer(new Cylinder(pos, rot, radius, mp));
   }
 
+
+  ~Cylinder(){}
 
   // -- DEPRECATED CONSTRUCTORS
 

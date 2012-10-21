@@ -42,6 +42,8 @@ public:
   Plane( const PositionType& pos, const RotationType& rot, MediumProperties* mp) : 
     Surface( pos, rot, mp) {}
 
+  ~Plane(){}
+
 // extension of Surface interface for planes
 
   GlobalVector normalVector() const {
