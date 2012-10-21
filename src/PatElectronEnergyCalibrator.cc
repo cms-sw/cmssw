@@ -280,7 +280,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
       }
 	  }
   }
-  if (dataset_=="Summer12_DR53X_HCP2012") { 
+  if (dataset_=="Summer12_DR53X_HCP2012"||dataset_=="2012Jul13ReReco") { 
       if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) dsigMC = 0.0103;
       if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) dsigMC = 0.0090;
       if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) dsigMC = 0.0190;
