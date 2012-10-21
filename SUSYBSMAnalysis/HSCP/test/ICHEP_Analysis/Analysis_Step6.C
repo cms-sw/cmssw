@@ -206,9 +206,17 @@ printf("SQRTS = %f\n",SQRTS);
     if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
    }
 
-
-
-
+   //unti we have all the samples at both 7 and 8TeV, add the 7TeV models
+   if(SQRTS== 8.0){
+      for(unsigned int s=0;s<samples.size();s++){
+       if(samples[s].Type!=2)continue;
+ 
+        if(modelMap.find(samples[s].ModelName())==modelMap.end()){
+          modelMap[samples[s].ModelName()].push_back(samples[s]);
+          if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
+        }
+      }      
+   } 
 
    //based on the modelMap
    DrawRatioBands(TkPattern); 
@@ -221,7 +229,7 @@ printf("SQRTS = %f\n",SQRTS);
 //   DrawModelLimitWithBand(MuPattern);
    DrawModelLimitWithBand(MOPattern);
    DrawModelLimitWithBand(LQPattern);
-   
+
 
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
@@ -371,6 +379,7 @@ printf("SQRTS = %f\n",SQRTS);
 
    fclose(pFile);
 
+
    //Make the final plot with all curves in it
    // I don't like much this part because it is dependent of what is in Analysis_Samples.h in an hardcoded way   
    std::map<string, TGraph*> TkGraphMap;
@@ -418,7 +427,6 @@ printf("SQRTS = %f\n",SQRTS);
    ThGraphMap["DY_Q2o3"      ]->SetLineColor(43); ThGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  ThGraphMap["DY_Q2o3"      ]->SetLineWidth(1);   ThGraphMap["DY_Q2o3"      ]->SetLineStyle(10); ThGraphMap["DY_Q2o3"      ]->SetMarkerStyle(1);
    TkGraphMap["DY_Q2o3"      ]->SetLineColor(43); TkGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  TkGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   TkGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  TkGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
    LQGraphMap["DY_Q2o3"      ]->SetLineColor(43); LQGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  LQGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
-
 
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGMu = new TMultiGraph();
@@ -494,6 +502,8 @@ printf("SQRTS = %f\n",SQRTS);
    MGTk->Add(TkGraphMap["StopN"      ]     ,"LP");
    MGTk->Add(TkGraphMap["GMStau"     ]     ,"LP");
    MGTk->Add(TkGraphMap["PPStau"     ]     ,"LP");
+   MGTk->Add(TkGraphMap["DY_Q2o3"    ]     ,"LP");
+
    MGTk->Draw("A");
    ThErrorMap["Gluino_f10"]->Draw("f");
    ThErrorMap["Stop"      ]->Draw("f");
@@ -521,6 +531,7 @@ printf("SQRTS = %f\n",SQRTS);
    LEGTk->AddEntry(TkGraphMap["StopN"      ], "stop; ch. suppr."                  ,"LP");
    LEGTk->AddEntry(TkGraphMap["PPStau"     ], "Pair Prod. stau"                   ,"LP");
    LEGTk->AddEntry(TkGraphMap["GMStau"     ], "GMSB stau"                         ,"LP");
+   LEGTk->AddEntry(TkGraphMap["DY_Q2o3"    ], "frac. Q=2o3"                       ,"LP");
    LEGTh->Draw();
    LEGTk->Draw();
    c1->SetLogy(true);
@@ -608,11 +619,6 @@ printf("SQRTS = %f\n",SQRTS);
    delete c1;
 
 
-
-
-
-
-
    /////////////////////////////// LQ Analysis
 
    TLegend* LQLEGTh = new TLegend(0.15,0.7,0.48,0.9);
@@ -661,21 +667,6 @@ printf("SQRTS = %f\n",SQRTS);
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("LQExclusionLog"));
    delete c1;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
    return; 
 }
@@ -1434,15 +1425,10 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       NSignPU     = MassSignPU->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
    }
 
-std::cout << "TESTA\n";
    //skip pathological selection point
    if(isnan((float)NPred))return false;
-std::cout << "TESTB\n";
    if(NPred<=0){return false;} //Is <=0 only when prediction failed or is not meaningful (i.e. WP=(0,0,0) )
-std::cout << "TESTC\n";
-
    if(!Shape && NPred>1000){return false;}  //When NPred is too big, expected limits just take an infinite time! 
-std::cout << "TESTD\n";
 
    //compute all efficiencies (not really needed anymore, but it's nice to look at these numbers afterward)
    double Eff         = NSign   / (result.XSec_Th*result.LInt);
@@ -1453,7 +1439,6 @@ std::cout << "TESTD\n";
    double EffPU       = NSignPU / (result.XSec_Th*result.LInt);
    if(Eff==0)return false;
 //   if(Eff<=1E-5)return false; // if Eff<0.001% -> limit will hardly converge and we are probably not interested by this point anyway
-std::cout << "TESTE\n";
 
    //no way that this point is optimal
    bool pointMayBeOptimal = (fastOptimization && !getXsection && getSignificance && ((NPred-3*NPredErr)<=result.NPred || Eff>=result.Eff));
