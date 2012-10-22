@@ -103,8 +103,7 @@ DQMService::~DQMService(void)
 // Flush updates to the network layer at the end of each event.  This
 // is the only point at which the main application and the network
 // layer interact outside initialisation and exit.
-void
-DQMService::flush(const edm::Event &, const edm::EventSetup &)
+void DQMService::flushStandalone()
 {
   // Avoid sending updates excessively often.
   uint64_t version = lat::Time::current().ns();
@@ -199,6 +198,14 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
 
   store_->reset();
   lastFlush_ = lat::Time::current().ns() * 1e-9;
+
+
+}
+void
+DQMService::flush(const edm::Event &, const edm::EventSetup &)
+{
+  // Call a function independent to the framework
+  flushStandalone();
 }
 
 // Disengage the network service.

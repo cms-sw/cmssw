@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.17 2011/03/11 12:21:17 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.15 2009/05/19 12:42:00 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -28,10 +28,8 @@
 #include <ThePEG/EventRecord/Collision.h>
 #include <ThePEG/EventRecord/TmpTransform.h>
 #include <ThePEG/Config/ThePEG.h>
-#include <ThePEG/Config/Pointers.h>
 #include <ThePEG/PDF/PartonExtractor.h>
 #include <ThePEG/PDF/PDFBase.h>
-#include <ThePEG/PDT/ParticleData.h>
 #include <ThePEG/Utilities/UtilityBase.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -146,7 +144,7 @@ void ThePEGInterface::initRepository(const edm::ParameterSet &pset) const
 	for(; iter != collector.end(); ++iter) {
 		string out = ThePEG::Repository::exec(*iter, logstream);
 		if (!out.empty()) {
-			edm::LogWarning("ThePEGInterface") << *iter << " => " << out;
+			edm::LogInfo("ThePEGInterface") << *iter << " => " << out;
 			cerr << "Error in ThePEG configuration!\n"
 			        "\tLine: " << *iter << "\n" << out << endl;
 		}
@@ -187,12 +185,6 @@ void ThePEGInterface::initGenerator()
 	} else
 		throw cms::Exception("ThePEGInterface")
 			<< "EventGenerator could not be initialized!" << endl;
-
-	// Give warning in case of non-pp collisions:
-	ThePEG::tPDPtr proton = ThePEG::Repository::findParticle("p+");
-	ThePEG::cPDPair beams = eg_->currentEventHandler()->incoming();
-	if ((beams.first->id() != proton->id()) || (beams.second->id() != proton->id()))
-		edm::LogWarning("ThePEGInterface") << "The EventGenerator object was initialized without a p-p inital state!";
 
 	// Skip events
 	for (unsigned int i = 0; i < skipEvents_; i++) {
@@ -325,10 +317,12 @@ double ThePEGInterface::pthat(const ThePEG::EventPtr &event)
 		return -1.0;
 
 	tSubProPtr sub = event->primaryCollision()->primarySubProcess();
-	TmpTransform<tSubProPtr> tmp(sub, Utilities::getBoostToCM(sub->incoming()));
+	TmpTransform<tSubProPtr> tmp(sub, Utilities::getBoostToCM(
+							sub->incoming()));
 
 	double pthat = (*sub->outgoing().begin())->momentum().perp();
-	for (PVector::const_iterator it = sub->outgoing().begin(); it != sub->outgoing().end(); ++it)
+	for(PVector::const_iterator it = sub->outgoing().begin();
+	    it != sub->outgoing().end(); ++it)
 		pthat = std::min(pthat, (*it)->momentum().perp());
 
 	return pthat / ThePEG::GeV;

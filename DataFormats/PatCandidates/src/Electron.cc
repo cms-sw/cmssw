@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.29 2012/04/14 02:06:06 tjkim Exp $
+// $Id: Electron.cc,v 1.28 2012/01/30 22:25:48 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -198,7 +198,7 @@ void Electron::embedTrack() {
 /// https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
 /// https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCategoryBasedElectronID
 /// Note: an exception is thrown if the specified ID is not available
-float Electron::electronID(const std::string& name) const {
+float Electron::electronID(const std::string & name) const {
     for (std::vector<IdPair>::const_iterator it = electronIDs_.begin(), ed = electronIDs_.end(); it != ed; ++it) {
         if (it->first == name) return it->second;
     }
@@ -213,7 +213,7 @@ float Electron::electronID(const std::string& name) const {
 }
 
 /// Checks if a specific electron ID is associated to the pat::Electron.
-bool Electron::isElectronIDAvailable(const std::string& name) const {
+bool Electron::isElectronIDAvailable(const std::string & name) const {
     for (std::vector<IdPair>::const_iterator it = electronIDs_.begin(), ed = electronIDs_.end(); it != ed; ++it) {
         if (it->first == name) return true;
     }

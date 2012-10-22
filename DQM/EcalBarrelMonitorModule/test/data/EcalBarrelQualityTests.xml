@@ -1144,4 +1144,17 @@
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
+<QTEST name="EB_Global_Errors">
+        <TYPE>ContentsYRange</TYPE>
+        <PARAM name="ymin">0</PARAM>
+        <PARAM name="ymax">0.01</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">1.00</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBSummaryClient/EB global summary errors">
+        <TestName activate="true">EB_Global_Errors</TestName>
+</LINK>
+
 </TESTSCONFIGURATION>

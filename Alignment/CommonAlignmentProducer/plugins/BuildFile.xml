@@ -54,7 +54,4 @@
   <use   name="DataFormats/DetId"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="RecoMuon/TransientTrackingRecHit"/>
-  <use   name="DataFormats/CSCRecHit"/>
-  <use   name="DataFormats/DTRecHit"/>
-  <use   name="DataFormats/RPCRecHit"/>
 </library>

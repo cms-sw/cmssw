@@ -36,7 +36,7 @@ draw( const TString & resolName, TDirectory * resolDir,
   legend->SetTextSize(0.02);
   legend->SetFillColor(0); // Have a white background
   if( resolDirAfter == 0 ) legend->AddEntry(resolVSpt, resolVSptName);
-  // else legend->AddEntry(resolVSpt, resolVSptName+" before");
+  else legend->AddEntry(resolVSpt, resolVSptName+" before");
   resolVSpt->SetTitle(title);
   resolVSpt->Draw();
   resolVSpt->GetXaxis()->SetTitle(xAxisTitle);

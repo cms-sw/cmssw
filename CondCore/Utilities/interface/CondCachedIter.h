@@ -9,6 +9,7 @@ template <class T>
 class CondCachedIter : public CondIter<T> {
 public:
   CondCachedIter() : CondIter<T>(true){}
+  virtual ~CondCachedIter(){}
   
 };
 

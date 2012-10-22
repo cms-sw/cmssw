@@ -98,26 +98,6 @@ if [ -z $run ]
     exit
 fi
 
-# Check for valid run number
-if [ ! -z `echo ${run} | tr -d "[:digit:]"` ]
-    then
-    echo "`date` : validate-o2o-wbm.sh" >> ${logFile}
-    echo "last runnum = ${lastRun}" >> ${logFile}
-    echo "next runnum bad = ${run}" >> ${logFile}
-    echo "${lastRun} stopped" > ${lastFile}
-
-    # if we're already stopped, don't keep writing to the summary file
-    if[ ${lastStatus} -ne "stopped" ]
-	then
-	echo "`date` : validate-o2o-wbm.sh" >> ${summaryFile}
-	echo "last runnum = ${lastRun}" >> ${summaryFile}
-	echo "next runnum bad = ${run}" >> ${summaryFile}
-	echo "STOPPING VALIDATION" >> ${summaryFile}
-    fi
-
-    exit 127
-fi
-
 #==============================================================================
 # Up to this point, last run number was validated as successful, and there
 # is a new run number to be validated.

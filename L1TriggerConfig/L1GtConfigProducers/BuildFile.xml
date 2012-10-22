@@ -5,4 +5,5 @@
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondTools/L1Trigger"/>
+<use   name="HLTrigger/HLTcore"/>
 <use   name="xerces-c"/>
