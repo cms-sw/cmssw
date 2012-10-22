@@ -19,12 +19,19 @@ options.register('run',
                  VarParsing.VarParsing.varType.int,
                  "run number")
 options.register('cfi',
-                 '0',
+                 '', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
+                 VarParsing.VarParsing.varType.string,
                  "CMSSW cfi file")
                  
 options.parseArguments()
+
+
+print "Global Tag      : ", options.globalTag
+print "SQLite          : ", options.sqlite
+print "Fake Conditions : ", options.cfi
+print "Run             : ", options.run
+
 
 # the job
 process = cms.Process("L1GctConfigDump")
@@ -52,7 +59,7 @@ if (options.sqlite != "") :
     process.load("CondTools.L1Trigger.L1CondDBSource_cff")
     print "Can't read SQLite files yet"
 
-if (options.cfi > 0) :
+if (options.cfi != "") :
     process.load("L1Trigger.Configuration.L1Trigger_FakeConditions_cff")
 
 #from CondCore.DBCommon.CondDBSetup_cfi import *
