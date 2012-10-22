@@ -1237,7 +1237,7 @@ if __name__ == "__main__":
                               fontproperties=FONT_PROPS_AX_TITLE)
 
                 # Add the logo.
-                AddLogo(logo_name, ax, zoom=1.7)
+                AddLogo(logo_name, ax, zoom=.95)
                 TweakPlot(fig, ax, (time_begin, time_end))
 
                 fig.savefig("int_lumi_cumulative_%s_%d%s.png" % \
