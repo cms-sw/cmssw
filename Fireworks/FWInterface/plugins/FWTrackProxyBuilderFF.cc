@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov 25 14:42:13 EST 2008
-// $Id: FWTrackProxyBuilderFF.cc,v 1.2 2012/09/12 06:30:42 amraktad Exp $
+// $Id: FWTrackProxyBuilderFF.cc,v 1.3 2012/09/12 06:31:37 amraktad Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -115,7 +116,7 @@ FWTrackProxyBuilderFF::build(const FWEventItem* iItem, TEveElementList* product,
          buildTrack(it, comp);
    }
    
-  // gEve->GetBrowser()->MapWindow();
+  gEve->GetBrowser()->MapWindow();
 }
 
 void FWTrackProxyBuilderFF::buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp)
@@ -132,16 +133,19 @@ void FWTrackProxyBuilderFF::buildTrack(TrajTrackAssociationCollection::const_ite
    
    // path-marks from a trajectory
    std::vector<TrajectoryMeasurement> measurements = traj.measurements();
-   for(std::vector<TrajectoryMeasurement>::const_reverse_iterator measurement_it = measurements.rbegin(); measurement_it!=measurements.rend(); measurement_it++)
+   std::vector<TrajectoryMeasurement>::iterator measurements_it = measurements.begin();
+   std::vector<TrajectoryMeasurement>::reverse_iterator measurements_rit = measurements.rbegin();
+   for (size_t t=0; t != measurements.size(); ++t, ++measurements_it, ++measurements_rit)
    {
-      TrajectoryStateOnSurface trajState = measurement_it->updatedState();
+      TrajectoryStateOnSurface trajState = (traj.direction() == alongMomentum) ? measurements_it->updatedState() : measurements_rit->updatedState() ;
+
       if( !trajState.isValid() ) continue;
-      
+
       eveTrack->AddPathMark( TEvePathMark( TEvePathMark::kReference,
-                                          TEveVector(trajState.globalPosition().x(),trajState.globalPosition().y(), trajState.globalPosition().z()),
-                                          TEveVector(trajState.globalMomentum().x(),trajState.globalMomentum().y(), trajState.globalMomentum().z())));
+                                           TEveVector(trajState.globalPosition().x(),trajState.globalPosition().y(), trajState.globalPosition().z()),
+                                           TEveVector(trajState.globalMomentum().x(),trajState.globalMomentum().y(), trajState.globalMomentum().z())));
    }
-   
+
    eveTrack->MakeTrack();         
    setupAddElement(eveTrack, comp);      
 }
