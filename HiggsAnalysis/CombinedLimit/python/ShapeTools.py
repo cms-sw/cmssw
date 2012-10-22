@@ -45,7 +45,10 @@ class ShapeBuilder(ModelBuilder):
                 (pdf,coeff) = (self.getPdf(b,p), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
-                    self.doObj("n_exp_final_bin%s_proc_%s" % (b,p), "prod", "n_exp_bin%s_proc_%s, %s" % (b,p, extranorm))
+                    prodset = ROOT.RooArgSet(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
+                    for X in extranorm: prodset.add(self.out.function(X))
+                    prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
+                    self.out._import(prodfunc)
                     coeff = self.out.function("n_exp_final_bin%s_proc_%s" % (b,p))                    
                 pdfs.add(pdf); coeffs.add(coeff)
                 if not self.DC.isSignal[p]:
@@ -380,7 +383,7 @@ class ShapeBuilder(ModelBuilder):
         if shapeNominal.InheritsFrom("RooAbsPdf"): 
             # return nominal multiplicative normalization constant
             normname = "shape%s_%s_%s%s_norm" % (postFix,process,channel, "_")
-            if self.out.arg(normname): return normname
+            if self.out.arg(normname): return [ normname ]
             else: return None
         normNominal = 0
         if shapeNominal.InheritsFrom("TH1"): normNominal = shapeNominal.Integral()
@@ -407,8 +410,9 @@ class ShapeBuilder(ModelBuilder):
                 # if errline[channel][process] == <x> it means the gaussian should be scaled by <x> before doing pow
                 # for convenience, we scale the kappas
                 kappasScaled = [ pow(x, errline[channel][process]) for x in kappaDown,kappaUp ]
-                terms.append("AsymPow(%f,%f,%s)" % (kappasScaled[0], kappasScaled[1], syst))
-        return ",".join(terms) if terms else None;
+                self.doObj( "systeff_%s_%s_%s" % (channel,process,syst), "AsymPow", "%f,%f,%s" % (kappasScaled[0], kappasScaled[1], syst) ) 
+                terms.append( "systeff_%s_%s_%s" % (channel,process,syst) )
+        return terms if terms else None;
     def shape2Data(self,shape,channel,process,_cache={}):
         postFix="Sig" if (process in self.DC.isSignal and self.DC.isSignal[process]) else "Bkg"
         if shape == None:
