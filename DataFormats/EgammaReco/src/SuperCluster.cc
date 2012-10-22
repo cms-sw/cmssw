@@ -1,10 +1,10 @@
-// $Id: SuperCluster.cc,v 1.16 2009/10/13 10:10:14 ferriff Exp $
+// $Id: SuperCluster.cc,v 1.17 2011/02/17 22:42:03 argiro Exp $
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 using namespace reco;
 
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
-  CaloCluster( energy, position ), preshowerEnergy_(0), rawEnergy_(0), phiWidth_(0), etaWidth_(0) {
+  CaloCluster( energy, position ), preshowerEnergy_(0), rawEnergy_(0), phiWidth_(0), etaWidth_(0), preshowerEnergy1_(0), preshowerEnergy2_(0) {
 }
 
 
@@ -12,13 +12,15 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position ) :
 SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
                             const CaloClusterPtr & seed,
                             const CaloClusterPtrVector& clusters,
-			    double Epreshower, double phiWidth, double etaWidth) :
+			    double Epreshower, double phiWidth, double etaWidth, double Epreshower1, double Epreshower2) :
   CaloCluster(energy,position), rawEnergy_(0)
 {
   phiWidth_ = phiWidth;
   etaWidth_ = etaWidth;
   seed_ = seed;
   preshowerEnergy_ = Epreshower;
+  preshowerEnergy1_ = Epreshower1;
+  preshowerEnergy2_ = Epreshower2;
 
   // set references to constituent basic clusters and update list of rechits
   for(CaloClusterPtrVector::const_iterator bcit  = clusters.begin();
@@ -44,13 +46,15 @@ SuperCluster::SuperCluster( double energy, const math::XYZPoint& position,
                             const CaloClusterPtr & seed,
                             const CaloClusterPtrVector& clusters,
                             const CaloClusterPtrVector& preshowerClusters,
-			    double Epreshower, double phiWidth, double etaWidth) :
+			    double Epreshower, double phiWidth, double etaWidth, double Epreshower1, double Epreshower2) :
   CaloCluster(energy,position), rawEnergy_(-1.)
 {
   phiWidth_ = phiWidth;
   etaWidth_ = etaWidth;
   seed_ = seed;
   preshowerEnergy_ = Epreshower;
+  preshowerEnergy1_ = Epreshower1;
+  preshowerEnergy2_ = Epreshower2;
 
   // set references to constituent basic clusters and update list of rechits
   for(CaloClusterPtrVector::const_iterator bcit  = clusters.begin();

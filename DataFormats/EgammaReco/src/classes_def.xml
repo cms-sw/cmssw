@@ -39,8 +39,8 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
 
-  <class name="reco::SuperCluster" ClassVersion="10">
-   <version ClassVersion="10" checksum="3131732439"/>
+  <class name="reco::SuperCluster" ClassVersion="11">
+   <version ClassVersion="11" checksum="83023066"/>
     <field name="rawEnergy_" iotype="Double32_t"/>
     <field name="phiWidth_" iotype="Double32_t"/>
     <field name="etaWidth_" iotype="Double32_t"/>

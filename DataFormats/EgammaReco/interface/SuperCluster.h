@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: SuperCluster.h,v 1.23 2011/02/17 22:42:03 argiro Exp $
+ * \version $Id: SuperCluster.h,v 1.24 2011/02/18 09:47:04 argiro Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
@@ -23,7 +23,7 @@ namespace reco {
     typedef math::XYZPoint Point;
 
     /// default constructor
-    SuperCluster() : CaloCluster(0., Point(0.,0.,0.)), preshowerEnergy_(0), rawEnergy_(-1.), phiWidth_(0), etaWidth_(0) {}
+    SuperCluster() : CaloCluster(0., Point(0.,0.,0.)), preshowerEnergy_(0), rawEnergy_(-1.), phiWidth_(0), etaWidth_(0), preshowerEnergy1_(0), preshowerEnergy2_(0) {}
 
     /// constructor defined by CaloCluster - will have to use setSeed and add() separately
     SuperCluster( double energy, const Point& position );
@@ -32,7 +32,8 @@ namespace reco {
                   const CaloClusterPtr & seed,
                   const CaloClusterPtrVector& clusters,
 		  double Epreshower=0.,
-		  double phiWidth=0., double etaWidth=0. );
+		  double phiWidth=0., double etaWidth=0.,
+		  double Epreshower1=0., double Epreshower2=0.);
 
     // to be merged in the previous one? -- FIXME
     SuperCluster( double energy, const Point& position,
@@ -40,7 +41,8 @@ namespace reco {
                   const CaloClusterPtrVector& clusters,
                   const CaloClusterPtrVector& preshowerClusters,
 		  double Epreshower=0.,
-		  double phiWidth=0., double etaWidth=0. );
+		  double phiWidth=0., double etaWidth=0.,
+		  double Epreshower1=0., double Epreshower2=0.);
 
 
     /// raw uncorrected energy (sum of energies of component BasicClusters)
@@ -48,6 +50,8 @@ namespace reco {
 
     /// energy deposited in preshower 
     double preshowerEnergy() const { return preshowerEnergy_; }
+    double preshowerEnergyPlane1() const {return preshowerEnergy1_; }
+    double preshowerEnergyPlane2() const {return preshowerEnergy2_; }
 
     /// obtain phi and eta width of the Super Cluster
     double phiWidth() const { return phiWidth_; }
@@ -55,6 +59,8 @@ namespace reco {
 
     //Assign new variables to supercluster
     void setPreshowerEnergy( double preshowerEnergy ) { preshowerEnergy_ = preshowerEnergy; };
+    void serPreshowerEnergyPlane1( double preshowerEnergy1 ) { preshowerEnergy1_ = preshowerEnergy1; }; 
+    void serPreshowerEnergyPlane2( double preshowerEnergy2 ) { preshowerEnergy2_ = preshowerEnergy2; }; 
     void setPhiWidth( double pw ) { phiWidth_ = pw; }
     void setEtaWidth( double ew ) { etaWidth_ = ew; }
 
@@ -134,6 +140,8 @@ namespace reco {
     double phiWidth_;
     double etaWidth_;
 
+    double preshowerEnergy1_;
+    double preshowerEnergy2_;
   };
 
 }
