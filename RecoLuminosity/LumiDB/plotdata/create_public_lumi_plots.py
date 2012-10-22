@@ -46,8 +46,9 @@ DATE_FMT_STR_CFG = "%Y-%m-%d"
 NUM_SEC_IN_LS = 2**18 / 11246.
 
 KNOWN_ACCEL_MODES = ["PROTPHYS", "IONPHYS"]
+LEAD_SCALE_FACTOR = 82. / 208.
 
-FONT_PROPS_SUPTITLE = FontProperties(size="x-large", weight="bold")
+FONT_PROPS_SUPTITLE = FontProperties(size="large", weight="bold", stretch="condensed")
 FONT_PROPS_TITLE = FontProperties(size="medium", weight="bold")
 FONT_PROPS_AX_TITLE = FontProperties(size="large", weight="bold")
 FONT_PROPS_TICK_LABEL = FontProperties(size="medium", weight="bold")
@@ -653,10 +654,6 @@ if __name__ == "__main__":
     print "Using lumiCalc script '%s'" % lumicalc_script
     print "Using additional lumiCalc flags from configuration: '%s'" % \
           lumicalc_flags_from_cfg
-    # OBSOLETE OBSOLETE OBSOLETE
-#     print "Using overall combination of lumicalc_flags: '%s'" % \
-#           lumicalc_flags
-    # OBSOLETE OBSOLETE OBSOLETE end
     print "Selecting data for accelerator mode '%s'" % accel_mode
     if beam_energy_from_cfg:
         print "Selecting data for beam energy %.0f GeV" % beam_energy
@@ -912,7 +909,12 @@ if __name__ == "__main__":
         if not beam_energy_from_cfg:
             beam_energy = beam_energy_defaults[accel_mode][year]
         cms_energy = 2. * beam_energy
-        cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+        cms_energy_str = "???"
+        if accel_mode == "IONPHYS":
+            cms_energy_str = "%.2f TeV/nucleon" % \
+                             (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
+        elif accel_mode == "PROTPHYS":
+            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
 
         lumi_data = lumi_data_by_day_per_year[year]
         lumi_data.sort()
@@ -998,8 +1000,8 @@ if __name__ == "__main__":
 
                 # Set titles and labels.
                 fig.suptitle(r"CMS Peak Luminosity Per Day, " \
-                             "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
-                             (particle_type_str, year, 1.e-3 * cms_energy),
+                             "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                             (particle_type_str, year, cms_energy_str),
                              fontproperties=FONT_PROPS_SUPTITLE)
                 ax.set_title("Data included from %s to %s UTC" % \
                              (str_begin, str_end),
@@ -1044,8 +1046,8 @@ if __name__ == "__main__":
 
                 # Set titles and labels.
                 fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
-                             "%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
-                             (particle_type_str, year, 1.e-3 * cms_energy),
+                             "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                             (particle_type_str, year, cms_energy_str),
                              fontproperties=FONT_PROPS_SUPTITLE)
                 ax.set_title("Data included from %s to %s UTC" % \
                              (str_begin, str_end),
@@ -1091,8 +1093,8 @@ if __name__ == "__main__":
 
                 # Set titles and labels.
                 fig.suptitle(r"CMS Integrated Luminosity, " \
-                             r"%s, %d, $\mathbf{\sqrt{s} = %.0f}$ TeV" % \
-                             (particle_type_str, year, 1.e-3 * cms_energy),
+                             r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                             (particle_type_str, year, cms_energy_str),
                              fontproperties=FONT_PROPS_SUPTITLE)
                 ax.set_title("Data included from %s to %s UTC" % \
                              (str_begin, str_end),
@@ -1169,7 +1171,12 @@ if __name__ == "__main__":
                     if not beam_energy_from_cfg:
                         beam_energy = beam_energy_defaults[accel_mode][year]
                     cms_energy = 2. * beam_energy
-                    cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+                    cms_energy_str = "???"
+                    if accel_mode == "IONPHYS":
+                        cms_energy_str = "%.2f TeV/nucleon" % \
+                                         (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
+                    elif accel_mode == "PROTPHYS":
+                        cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
                     # NOTE: Special case for 2010.
                     label = None
                     if year == 2010:
