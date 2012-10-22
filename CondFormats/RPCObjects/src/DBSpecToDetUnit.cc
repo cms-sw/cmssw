@@ -3,6 +3,7 @@
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 #include "CondFormats/RPCObjects/interface/FebLocationSpec.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <string>
 
@@ -35,10 +36,11 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
 		   subsec, nroll, " ");
     return dn.rawId();
   } 
-  catch(...) {
+  catch(cms::Exception & e) {
     if (debug) LogDebug ("CondFormas/DBSpecToDetInit") 
       <<" Problem with RPCDetId, got exception!! " 
-      <<"DB Chamber "<<ch.chamberLocationName()<<" roll "<<nroll;
+      <<"DB Chamber "<<ch.chamberLocationName()<<" roll "<<nroll
+      <<e;
     return 0;
   }
 }
