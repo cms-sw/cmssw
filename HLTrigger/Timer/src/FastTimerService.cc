@@ -232,21 +232,15 @@ void FastTimerService::postBeginJob() {
 
     for (uint32_t i = 0; i < size_p; ++i) {
       std::string const & label = tns.getTrigPath(i);
-      if (m_enable_dqm_bypath_active)
-        m_dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-      if (m_enable_dqm_bypath_total)
-        m_dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-      if (m_enable_dqm_bypath_exclusive)
-        m_dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      m_dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      m_dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      m_dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
     }
     for (uint32_t i = 0; i < size_e; ++i) {
       std::string const & label = tns.getEndPath(i);
-      if (m_enable_dqm_bypath_active)
-        m_dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
-      if (m_enable_dqm_bypath_total)
-        m_dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
-      if (m_enable_dqm_bypath_exclusive)
-        m_dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      m_dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      m_dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      m_dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
     }
 
     // per-lumisection plots
