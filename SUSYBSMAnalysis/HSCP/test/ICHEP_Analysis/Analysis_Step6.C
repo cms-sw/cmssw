@@ -345,7 +345,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_PPStau_Mass)/sizeof(double),THXSEC8TeV_PPStau_Mass,THXSEC8TeV_PPStau_Low,THXSEC8TeV_PPStau_High, PlotMinScale, PlotMaxScale);
          }
       }else{
-         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         if(modelVector[k].find("o3")){
+            ThXSec   [k] = MakePlot(NULL, NULL, LQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         }else{
+            ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         }
          double* XSecErrLow  = new double[ThXSec[k]->GetN()];
          double* XSecErrHigh = new double[ThXSec[k]->GetN()];
          //assume 15% error on xsection
@@ -1176,9 +1180,9 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       if(HCuts_Pt ->GetBinContent(CutIndex+1) < 50 ){printf("Skip cut=%i because of too lose pT cut\n", CutIndex); continue;}
 
       //make sure we have a reliable prediction of the number of events      
-      if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<25 || H_F->GetBinContent(CutIndex+1)<25 || H_G->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (AFG/EE) is not reliable
-      if(H_E->GetBinContent(CutIndex+1)==0 && H_A->GetBinContent(CutIndex+1)>0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CB/A) is not reliable
-      if(H_F->GetBinContent(CutIndex+1)>0 && H_A->GetBinContent(CutIndex+1)==0 && (H_B->GetBinContent(CutIndex+1)<25 || H_H->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CB/A) is not reliable
+      if(OptimCutIndex<0 && H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<25 || H_F->GetBinContent(CutIndex+1)<25 || H_G->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (AFG/EE) is not reliable
+      if(OptimCutIndex<0 && H_E->GetBinContent(CutIndex+1)==0 && H_A->GetBinContent(CutIndex+1)>0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CB/A) is not reliable
+      if(OptimCutIndex<0 && H_F->GetBinContent(CutIndex+1)>0 && H_A->GetBinContent(CutIndex+1)==0 && (H_B->GetBinContent(CutIndex+1)<25 || H_H->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CB/A) is not reliable
    
 
       //make sure we have a reliable prediction of the shape 

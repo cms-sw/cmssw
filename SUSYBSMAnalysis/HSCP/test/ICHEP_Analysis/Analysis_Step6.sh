@@ -5,8 +5,8 @@ root -l -b << EOF
    cout << "Compilling with the following arguments: " << makeshared << endl;
    gSystem->SetMakeSharedLib(makeshared);
    gSystem->SetIncludePath( "-I$ROOFITSYS/include" );
-//  .x Analysis_Step6.C++("Final7TeV", "", "");
+  .x Analysis_Step6.C++("Final7TeV", "", "");
   .x Analysis_Step6.C++("Final8TeV", "", "");
-//  .x Analysis_Step6.C++("FinalCOMB", "", "");
+  .x Analysis_Step6.C++("FinalCOMB", "", "");
 EOF
 
