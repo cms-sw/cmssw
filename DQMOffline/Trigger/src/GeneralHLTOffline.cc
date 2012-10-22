@@ -12,7 +12,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: GeneralHLTOffline.cc,v 1.8 2012/09/20 12:25:35 bjk Exp $
+// $Id: GeneralHLTOffline.cc,v 1.9 2012/10/19 20:02:11 bjk Exp $
 //
 //
 
@@ -573,33 +573,37 @@ Double_t PhiMaxFine = 33.0*TMath::Pi()/32.0;
  std::string dnamez = "cppath_"+label;
  std::string dtitlez = "cppath_"+label;
  int sizez = PDsVectorPathsVector[iPD].size();
-<<<<<<< GeneralHLTOffline.cc
- TH1F * hist_mini_cppath;
- 
- hist_mini_cppath = dbe->book1D(dnamez.c_str(),dtitlez.c_str(),sizez,0,sizez)->getTH1F();//or iPath
- // dbe->book1D(dnamez.c_str(),hist_mini_cppath);
+ TH1F * hist_mini_cppath = NULL;
+ MonitorElement * hist_mini_cppath_me = dbe->book1D(dnamez.c_str(),
+                                                    dtitlez.c_str(),
+                                                    sizez,
+                                                    0,
+                                                    sizez);
+ if (hist_mini_cppath_me)
+   hist_mini_cppath = hist_mini_cppath_me->getTH1F();
  
  unsigned int jPath;
   for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { 
     pathName = removeVersions(PDsVectorPathsVector[iPD][iPath]);
-
     h_name_1dEtaPath = "HLT_"+pathName+"_1dEta";
     h_name_1dPhiPath = "HLT_"+pathName+"_1dPhi";
     h_title_1dEtaPath = pathName+" Occupancy Vs Eta";
     h_title_1dPhiPath = pathName+"Occupancy Vs Phi";
-
     jPath=iPath+1;
-    TAxis * axis = hist_mini_cppath->GetXaxis();
-    axis->SetBinLabel(jPath,pathName.c_str());
+
+    if (hist_mini_cppath) {
+      TAxis * axis = hist_mini_cppath->GetXaxis();
+      axis->SetBinLabel(jPath, pathName.c_str());
+    }
 
     Path_Folder = TString("HLT/GeneralHLTOffline/"+label+"/Paths");
     dbe->setCurrentFolder(Path_Folder.c_str());
 
     // Do not comment out these pointers since it is the booking that is the work here. 
     //     MonitorElement * ME_1dEta = dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
-    dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
+    dbe->book1D(h_name_1dEtaPath.c_str(), h_title_1dEtaPath.c_str(), numBinsEtaFine, -EtaMax, EtaMax);
      //     MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
-    dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-PhiMaxFine,PhiMaxFine);
+    dbe->book1D(h_name_1dPhiPath.c_str(), h_title_1dPhiPath.c_str(), numBinsPhiFine, -PhiMaxFine, PhiMaxFine);
 
     if (debugPrint) std::cout << "book1D for " << pathName << std::endl;
   }
@@ -619,9 +623,7 @@ string GeneralHLTOffline::removeVersions(std::string histVersion) {
     size_t pos = histVersion.find(version);
     if (pos != std::string::npos)
       histVersion.erase(pos,version.size());
-    
   }
-  
   return histVersion;
 }
 
