@@ -5,14 +5,8 @@ root -l -b << EOF
    cout << "Compilling with the following arguments: " << makeshared << endl;
    gSystem->SetMakeSharedLib(makeshared);
    gSystem->SetIncludePath( "-I$ROOFITSYS/include" );
-//  .x Analysis_Step6.C++("ANALYSE", "Results/dedxASmi/combined/Eta15/PtMin50/Type0/" ,"Gluino500_f10");
-//  .x Analysis_Step6.C++("COMPILE", "Results/dedxASmi/combined/Eta15/PtMin50/Type0/" ,"Gluino500_f10");
-  .x Analysis_Step6.C++("Final7TeV", "", "");
+//  .x Analysis_Step6.C++("Final7TeV", "", "");
   .x Analysis_Step6.C++("Final8TeV", "", "");
-  .x Analysis_Step6.C++("FinalCOMB", "", "");
-//  .x Analysis_Step6.C+ ("Final", "", "", -1, -1, -1, "_SystP");
-//  .x Analysis_Step6.C+ ("Final", "", "", -1, -1, -1, "_SystI");
-//  .x Analysis_Step6.C+ ("Final", "", "", -1, -1, -1, "_SystM");
-//  .x Analysis_Step6.C+ ("Final", "", "", -1, -1, -1, "_SystT");
+//  .x Analysis_Step6.C++("FinalCOMB", "", "");
 EOF
 

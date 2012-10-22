@@ -161,21 +161,22 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       return;
    }else if(MODE.find("COMBINE")!=string::npos){
       printf("COMBINE!!!\n");
-      if(signal.find("8TeV")!=string::npos)return;
+
+      string signal7TeV = signal; if(signal7TeV.find("_8TeV")!=string::npos) signal7TeV = signal7TeV.replace(signal7TeV.find("_8TeV"),5, "_7TeV");
+      string signal8TeV = signal; if(signal8TeV.find("_7TeV")!=string::npos) signal8TeV = signal8TeV.replace(signal8TeV.find("_7TeV"),5, "_8TeV");
 
       string EXCLUSIONDIR_SAVE = EXCLUSIONDIR;
       //2011 Limits
       Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"7TeV";
-      Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
+      Optimize(InputPattern, Data, signal7TeV, SHAPESTRING!="", true);
 
       //2012 Limits
       Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"8TeV";
-      string signal8TeV = signal; signal8TeV = signal8TeV.replace(signal8TeV.find("_7TeV"),5, "_8TeV");
       Optimize(InputPattern, Data, signal8TeV, SHAPESTRING!="", true);
 
       //Combined Limits
       EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
-      Combine(InputPattern, signal, signal8TeV);
+      Combine(InputPattern, signal7TeV, signal8TeV);
       return;
    }
    
@@ -190,33 +191,34 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    string outpath = string("Results/"+SHAPESTRING+EXCLUSIONDIR+"/");
    MakeDirectories(outpath);
 
-printf("SQRTS = %f\n",SQRTS);
-
    //determine the list of models that are considered
    GetSampleDefinition(samples);
+   if(SQRTS!=78.0)keepOnlySamplesAt7and8TeVX(samples, SQRTS);
+
    for(unsigned int s=0;s<samples.size();s++){
     if(samples[s].Type!=2)continue;
     //printf("Name-->Model >>  %30s --> %s\n",samples[s].Name.c_str(), samples[s].ModelName().c_str());
 
     if(SQRTS== 7.0  && samples[s].Name.find("_7TeV")==string::npos){continue;}
     if(SQRTS== 8.0  && samples[s].Name.find("_8TeV")==string::npos){continue;}
-    if(SQRTS==78.0){if(samples[s].Name.find("_7TeV")==string::npos){continue;}else{samples[s].Name.replace(samples[s].Name.find("_7TeV"),5, ""); } }
+//    if(SQRTS==78.0){if(samples[s].Name.find("_7TeV")==string::npos){continue;}else{samples[s].Name.replace(samples[s].Name.find("_7TeV"),5, ""); } }
+    if(SQRTS==78.0){if(samples[s].Name.find("_8TeV")==string::npos){continue;}else{samples[s].Name.replace(samples[s].Name.find("_8TeV"),5, ""); } }
 
     modelMap[samples[s].ModelName()].push_back(samples[s]);   
     if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
    }
 
    //unti we have all the samples at both 7 and 8TeV, add the 7TeV models
-   if(SQRTS== 8.0){
-      for(unsigned int s=0;s<samples.size();s++){
-       if(samples[s].Type!=2)continue;
- 
-        if(modelMap.find(samples[s].ModelName())==modelMap.end()){
-          modelMap[samples[s].ModelName()].push_back(samples[s]);
-          if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
-        }
-      }      
-   } 
+//   if(SQRTS== 8.0){
+//      for(unsigned int s=0;s<samples.size();s++){
+//       if(samples[s].Type!=2)continue;
+// 
+//        if(modelMap.find(samples[s].ModelName())==modelMap.end()){
+//          modelMap[samples[s].ModelName()].push_back(samples[s]);
+//          if(modelMap[samples[s].ModelName()].size()==1)modelVector.push_back(samples[s].ModelName());
+//        }
+//      }      
+//   } 
 
    //based on the modelMap
    DrawRatioBands(TkPattern); 
@@ -343,7 +345,7 @@ printf("SQRTS = %f\n",SQRTS);
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_PPStau_Mass)/sizeof(double),THXSEC8TeV_PPStau_Mass,THXSEC8TeV_PPStau_Low,THXSEC8TeV_PPStau_High, PlotMinScale, PlotMaxScale);
          }
       }else{
-         ThXSec   [k] = MakePlot(NULL, NULL, LQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
          double* XSecErrLow  = new double[ThXSec[k]->GetN()];
          double* XSecErrHigh = new double[ThXSec[k]->GetN()];
          //assume 15% error on xsection
@@ -407,17 +409,17 @@ printf("SQRTS = %f\n",SQRTS);
    TkGraphMap["StopN"        ]->SetLineColor(2);  TkGraphMap["StopN"        ]->SetMarkerColor(2);   TkGraphMap["StopN"        ]->SetLineWidth(2);   TkGraphMap["StopN"        ]->SetLineStyle(1);  TkGraphMap["StopN"        ]->SetMarkerStyle(25);
    ThGraphMap["GMStau"       ]->SetLineColor(1);  ThGraphMap["GMStau"       ]->SetMarkerColor(1);   ThGraphMap["GMStau"       ]->SetLineWidth(1);   ThGraphMap["GMStau"       ]->SetLineStyle(3);  ThGraphMap["GMStau"       ]->SetMarkerStyle(1);
    ThGraphMap["PPStau"       ]->SetLineColor(6);  ThGraphMap["PPStau"       ]->SetMarkerColor(6);   ThGraphMap["PPStau"       ]->SetLineWidth(1);   ThGraphMap["PPStau"       ]->SetLineStyle(4);  ThGraphMap["PPStau"       ]->SetMarkerStyle(1);
-   ThGraphMap["DCRho08HyperK"]->SetLineColor(4);  ThGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   ThGraphMap["DCRho08HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho08HyperK"]->SetLineStyle(3);  ThGraphMap["DCRho08HyperK"]->SetMarkerStyle(1);
+//   ThGraphMap["DCRho08HyperK"]->SetLineColor(4);  ThGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   ThGraphMap["DCRho08HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho08HyperK"]->SetLineStyle(3);  ThGraphMap["DCRho08HyperK"]->SetMarkerStyle(1);
    ThGraphMap["DCRho12HyperK"]->SetLineColor(2);  ThGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   ThGraphMap["DCRho12HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho12HyperK"]->SetLineStyle(2);  ThGraphMap["DCRho12HyperK"]->SetMarkerStyle(1);
    ThGraphMap["DCRho16HyperK"]->SetLineColor(1);  ThGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   ThGraphMap["DCRho16HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho16HyperK"]->SetLineStyle(1);  ThGraphMap["DCRho16HyperK"]->SetMarkerStyle(1);
    MuGraphMap["GMStau"       ]->SetLineColor(1);  MuGraphMap["GMStau"       ]->SetMarkerColor(1);   MuGraphMap["GMStau"       ]->SetLineWidth(2);   MuGraphMap["GMStau"       ]->SetLineStyle(1);  MuGraphMap["GMStau"       ]->SetMarkerStyle(23);
    MuGraphMap["PPStau"       ]->SetLineColor(6);  MuGraphMap["PPStau"       ]->SetMarkerColor(6);   MuGraphMap["PPStau"       ]->SetLineWidth(2);   MuGraphMap["PPStau"       ]->SetLineStyle(1);  MuGraphMap["PPStau"       ]->SetMarkerStyle(23);
-   MuGraphMap["DCRho08HyperK"]->SetLineColor(4);  MuGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   MuGraphMap["DCRho08HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho08HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho08HyperK"]->SetMarkerStyle(22);
+//   MuGraphMap["DCRho08HyperK"]->SetLineColor(4);  MuGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   MuGraphMap["DCRho08HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho08HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho08HyperK"]->SetMarkerStyle(22);
    MuGraphMap["DCRho12HyperK"]->SetLineColor(2);  MuGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   MuGraphMap["DCRho12HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho12HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho12HyperK"]->SetMarkerStyle(23);
    MuGraphMap["DCRho16HyperK"]->SetLineColor(1);  MuGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   MuGraphMap["DCRho16HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho16HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho16HyperK"]->SetMarkerStyle(26);
    TkGraphMap["GMStau"       ]->SetLineColor(1);  TkGraphMap["GMStau"       ]->SetMarkerColor(1);   TkGraphMap["GMStau"       ]->SetLineWidth(2);   TkGraphMap["GMStau"       ]->SetLineStyle(1);  TkGraphMap["GMStau"       ]->SetMarkerStyle(20);
    TkGraphMap["PPStau"       ]->SetLineColor(6);  TkGraphMap["PPStau"       ]->SetMarkerColor(6);   TkGraphMap["PPStau"       ]->SetLineWidth(2);   TkGraphMap["PPStau"       ]->SetLineStyle(1);  TkGraphMap["PPStau"       ]->SetMarkerStyle(20);
-   TkGraphMap["DCRho08HyperK"]->SetLineColor(4);  TkGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   TkGraphMap["DCRho08HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho08HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho08HyperK"]->SetMarkerStyle(22);
+//   TkGraphMap["DCRho08HyperK"]->SetLineColor(4);  TkGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   TkGraphMap["DCRho08HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho08HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho08HyperK"]->SetMarkerStyle(22);
    TkGraphMap["DCRho12HyperK"]->SetLineColor(2);  TkGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   TkGraphMap["DCRho12HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho12HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho12HyperK"]->SetMarkerStyle(23);
    TkGraphMap["DCRho16HyperK"]->SetLineColor(1);  TkGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   TkGraphMap["DCRho16HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho16HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho16HyperK"]->SetMarkerStyle(26);
 
@@ -450,11 +452,10 @@ printf("SQRTS = %f\n",SQRTS);
    MGMu->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGMu->GetYaxis()->SetTitleOffset(1.70);
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   MGMu->GetXaxis()->SetRangeUser(50,1250);
+   MGMu->GetXaxis()->SetRangeUser(50,1550);
    
-   DrawPreliminary(SQRTS, LInt);
+   DrawPreliminary("Tracker + TOF", SQRTS, LInt);
    TLegend* LEGMu = new TLegend(0.45,0.65,0.65,0.90);   
-   LEGMu->SetHeader("Tracker + TOF");
    LEGMu->SetFillColor(0); 
    LEGMu->SetFillStyle(0);
    LEGMu->SetBorderSize(0);
@@ -515,12 +516,11 @@ printf("SQRTS = %f\n",SQRTS);
    MGTk->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGTk->GetYaxis()->SetTitleOffset(1.70);
    MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   MGTk->GetXaxis()->SetRangeUser(50,1250);
+   MGTk->GetXaxis()->SetRangeUser(50,1550);
    
-   DrawPreliminary(SQRTS, LInt);
+   DrawPreliminary("Tracker - Only", SQRTS, LInt);
    
    TLegend* LEGTk = new TLegend(0.45,0.58,0.795,0.9);
-   LEGTk->SetHeader("Tracker - Only");
    LEGTk->SetFillColor(0); 
    LEGTk->SetFillStyle(0);
    LEGTk->SetBorderSize(0);
@@ -540,8 +540,8 @@ printf("SQRTS = %f\n",SQRTS);
 
     c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGDCMu = new TMultiGraph();
-   MGDCMu->Add(ThGraphMap["DCRho08HyperK"]      ,"L");
-   MGDCMu->Add(MuGraphMap["DCRho08HyperK"]      ,"LP");
+//   MGDCMu->Add(ThGraphMap["DCRho08HyperK"]      ,"L");
+//   MGDCMu->Add(MuGraphMap["DCRho08HyperK"]      ,"LP");
    MGDCMu->Add(ThGraphMap["DCRho12HyperK"]      ,"L");
    MGDCMu->Add(MuGraphMap["DCRho12HyperK"]      ,"LP");
    MGDCMu->Add(ThGraphMap["DCRho16HyperK"]      ,"L");
@@ -553,15 +553,15 @@ printf("SQRTS = %f\n",SQRTS);
    MGDCMu->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGDCMu->GetYaxis()->SetTitleOffset(1.70);
    MGDCMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   MGDCMu->GetXaxis()->SetRangeUser(50,1250);
-   DrawPreliminary(SQRTS, LInt);
+   MGDCMu->GetXaxis()->SetRangeUser(50,1550);
+   DrawPreliminary("Tracker + TOF", SQRTS, LInt);
    
    TLegend* LEGDCMu = new TLegend(0.50,0.65,0.80,0.9);
-   LEGDCMu->SetHeader("Tracker + TOF");
+//   LEGDCMu->SetHeader("Tracker + TOF");
    LEGDCMu->SetFillColor(0); 
    LEGDCMu->SetFillStyle(0);
    LEGDCMu->SetBorderSize(0);
-   LEGDCMu->AddEntry(MuGraphMap["DCRho08HyperK"]   , "Hyper-K, #tilde{#rho} = 0.8 TeV"       ,"LP");
+//   LEGDCMu->AddEntry(MuGraphMap["DCRho08HyperK"]   , "Hyper-K, #tilde{#rho} = 0.8 TeV"       ,"LP");
    LEGDCMu->AddEntry(MuGraphMap["DCRho12HyperK"]   , "Hyper-K, #tilde{#rho} = 1.2 TeV"       ,"LP");
    LEGDCMu->AddEntry(MuGraphMap["DCRho16HyperK"]   , "Hyper-K, #tilde{#rho} = 1.6 TeV"       ,"LP");
 
@@ -570,9 +570,9 @@ printf("SQRTS = %f\n",SQRTS);
    LEGDCTh->SetFillColor(0);
    LEGDCTh->SetFillStyle(0);
    LEGDCTh->SetBorderSize(0);
-   TGraph* DCRho08HyperKThLeg = (TGraph*) ThGraphMap["DCRho08HyperK"]->Clone("DCRho08HyperKThLeg");
-   DCRho08HyperKThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
-   LEGDCTh->AddEntry(DCRho08HyperKThLeg   ,"Hyper-K, #tilde{#rho} = 0.8 TeV   (LO)" ,"L");
+//   TGraph* DCRho08HyperKThLeg = (TGraph*) ThGraphMap["DCRho08HyperK"]->Clone("DCRho08HyperKThLeg");
+//   DCRho08HyperKThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
+//   LEGDCTh->AddEntry(DCRho08HyperKThLeg   ,"Hyper-K, #tilde{#rho} = 0.8 TeV   (LO)" ,"L");
    TGraph* DCRho12HyperKThLeg = (TGraph*) ThGraphMap["DCRho12HyperK"]->Clone("DCRho12HyperKThLeg");
    DCRho12HyperKThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
    LEGDCTh->AddEntry(DCRho12HyperKThLeg   ,"Hyper-K, #tilde{#rho} = 1.2 TeV   (LO)" ,"L");
@@ -587,8 +587,8 @@ printf("SQRTS = %f\n",SQRTS);
 
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGDCTk = new TMultiGraph();
-   MGDCTk->Add(ThGraphMap["DCRho08HyperK"]      ,"L");
-   MGDCTk->Add(TkGraphMap["DCRho08HyperK"]      ,"LP");
+//   MGDCTk->Add(ThGraphMap["DCRho08HyperK"]      ,"L");
+//   MGDCTk->Add(TkGraphMap["DCRho08HyperK"]      ,"LP");
    MGDCTk->Add(ThGraphMap["DCRho12HyperK"]      ,"L");
    MGDCTk->Add(TkGraphMap["DCRho12HyperK"]      ,"LP");
    MGDCTk->Add(ThGraphMap["DCRho16HyperK"]      ,"L");
@@ -600,16 +600,16 @@ printf("SQRTS = %f\n",SQRTS);
    MGDCTk->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGDCTk->GetYaxis()->SetTitleOffset(1.70);
    MGDCTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   MGDCTk->GetXaxis()->SetRangeUser(50,1250);
-   DrawPreliminary(SQRTS, LInt);
+   MGDCTk->GetXaxis()->SetRangeUser(50,1550);
+   DrawPreliminary("Tracker - Only", SQRTS, LInt);
 
    TLegend* LEGDCTk = new TLegend(0.50,0.65,0.80,0.90);
-   LEGDCTk->SetHeader("Tracker - Only");
+//   LEGDCTk->SetHeader("Tracker - Only");
    LEGDCTk->SetFillColor(0); 
    LEGDCTk->SetFillStyle(0);
    LEGDCTk->SetBorderSize(0);
    LEGDCTk->AddEntry(TkGraphMap["DCRho08HyperK"]   , "Hyper-K, #tilde{#rho} = 0.8 TeV"       ,"LP");
-   LEGDCTk->AddEntry(TkGraphMap["DCRho12HyperK"]   , "Hyper-K, #tilde{#rho} = 1.2 TeV"       ,"LP");
+//   LEGDCTk->AddEntry(TkGraphMap["DCRho12HyperK"]   , "Hyper-K, #tilde{#rho} = 1.2 TeV"       ,"LP");
    LEGDCTk->AddEntry(TkGraphMap["DCRho16HyperK"]   , "Hyper-K, #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCTk->Draw();
    LEGDCTh->Draw();
@@ -651,12 +651,12 @@ printf("SQRTS = %f\n",SQRTS);
    MGLQ->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGLQ->GetYaxis()->SetTitleOffset(1.70);
    MGLQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   MGLQ->GetXaxis()->SetRangeUser(50,1250);
+   MGLQ->GetXaxis()->SetRangeUser(50,1550);
    
-   DrawPreliminary(SQRTS, LInt);
+   DrawPreliminary("frac. charge", SQRTS, LInt);
    
    TLegend* LEGLQ = new TLegend(0.45,0.58,0.795,0.9);
-   LEGLQ->SetHeader("Q<1");
+//   LEGLQ->SetHeader("Q<1");
    LEGLQ->SetFillColor(0); 
    LEGLQ->SetFillStyle(0);
    LEGLQ->SetBorderSize(0);
@@ -1538,15 +1538,12 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       }
    }
 
-cout<< "start limit\n";
-
    if(getXsection){
       //prepare and run the script that will run the external "combine" tool from the Higgs group
       //If very low background range too small, set limit at 0.001.  Only affects scanning range not final limit
       if(NPred<0.001) NPred=0.001;
       char rangeStr[255];sprintf(rangeStr," --rMin %f --rMax %f ", 0.0f, 2*(3*sqrt(NPred)/NSign) );
       printf("%f/%f --> %s\n",NSign,NPred,rangeStr);
-cout << rangeStr << endl;
       string CodeToExecute = "cd /tmp/;";
       CodeToExecute += "combine -M Asymptotic        -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";   
       CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
@@ -1608,8 +1605,6 @@ cout << rangeStr << endl;
       }
       file->Close();
    }
-
-cout << "end limit\n";
 
    if(!Temporary && getSignificance){
        result.Significance = computeSignificance(datacardPath, false, signal, massStr, 1.0);
@@ -1752,10 +1747,20 @@ bool Combine(string InputPattern, string signal7, string signal8){
    string signal = signal7;
    if(signal.find("_7TeV")!=string::npos){signal.replace(signal.find("_7TeV"),5, "");}
 
+   FILE* pFileTmp = NULL;
+
+   bool is7TeVPresent = true;
+   pFileTmp = fopen((InputPattern+"/EXCLUSION7TeV/shape_"+signal7+".dat").c_str(), "r");
+   if(!pFileTmp){is7TeVPresent=false;}else{fclose(pFileTmp);}
+
+   bool is8TeVPresent = true;
+   pFileTmp = fopen((InputPattern+"/EXCLUSION8TeV/shape_"+signal8+".dat").c_str(), "r");
+   if(!pFileTmp){is8TeVPresent=false;}else{fclose(pFileTmp);}
+
 
    string CodeToExecute = "combineCards.py ";
-   CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+signal7+".dat ";
-   CodeToExecute+="   " + InputPattern+"/EXCLUSION8TeV/shape_"+signal8+".dat ";
+   if(is7TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+signal7+".dat ";
+   if(is8TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION8TeV/shape_"+signal8+".dat ";
    CodeToExecute+=" > " + outpath+"shape_"+signal+".dat ";
    system(CodeToExecute.c_str());   
    printf("%s \n",CodeToExecute.c_str());

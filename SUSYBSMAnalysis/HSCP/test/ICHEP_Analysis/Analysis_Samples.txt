@@ -239,7 +239,7 @@
 "CMSSW_4_4", 2, "DCRho08HyperK_7TeV_M121"            , "DCRho08HyperK_7TeV_M121"               , "MC - #tilde{K} 121 GeV/#font[12]{c}^{2}"                   , "S4"    ,   121, +9.7900000000E-01, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho08HyperK_7TeV_M182"            , "DCRho08HyperK_7TeV_M182"               , "MC - #tilde{K} 182 GeV/#font[12]{c}^{2}"                   , "S4"    ,   182, +5.6000000000E-01, 0, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho08HyperK_7TeV_M242"            , "DCRho08HyperK_7TeV_M242"               , "MC - #tilde{K} 242 GeV/#font[12]{c}^{2}"                   , "S4"    ,   242, +4.8900000000E-01, 0, 1.000, 1.000, 1.000
-"CMSSW_4_4", 2, "DCRho08HyperK_7TeV_M302"            , "DCRho08HyperK_7TeV_M302"               , "MC - #tilde{K} 302 GeV/#font[12]{c}^{2}"                   , "S4"    ,   302, +4.6300000000E-01, 1, 1.000, 1.000, 1.000
+"CMSSW_4_4", 2, "DCRho08HyperK_7TeV_M300"            , "DCRho08HyperK_7TeV_M302"               , "MC - #tilde{K} 300 GeV/#font[12]{c}^{2}"                   , "S4"    ,   300, +4.6300000000E-01, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho08HyperK_7TeV_M350"            , "DCRho08HyperK_7TeV_M350"               , "MC - #tilde{K} 350 GeV/#font[12]{c}^{2}"                   , "S4"    ,   350, +4.7300000000E-01, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho08HyperK_7TeV_M370"            , "DCRho08HyperK_7TeV_M370"               , "MC - #tilde{K} 370 GeV/#font[12]{c}^{2}"                   , "S4"    ,   370, +4.8288105000E-01, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho08HyperK_7TeV_M390"            , "DCRho08HyperK_7TeV_M390"               , "MC - #tilde{K} 390 GeV/#font[12]{c}^{2}"                   , "S4"    ,   390, +4.7132496000E-01, 1, 1.000, 1.000, 1.000
@@ -250,7 +250,7 @@
 "CMSSW_4_4", 2, "DCRho08HyperK_7TeV_M500"            , "DCRho08HyperK_7TeV_M500"               , "MC - #tilde{K} 500 GeV/#font[12]{c}^{2}"                   , "S4"    ,   500, +2.8490000000E-04, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho12HyperK_7TeV_M100"            , "DCRho12HyperK_7TeV_M100"               , "MC - #tilde{K} 100 GeV/#font[12]{c}^{2}"                   , "S4"    ,   100, +8.3394159920E-01, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho12HyperK_7TeV_M182"            , "DCRho12HyperK_7TeV_M182"               , "MC - #tilde{K} 182 GeV/#font[12]{c}^{2}"                   , "S4"    ,   182, +1.6809695214E-01, 1, 1.000, 1.000, 1.000
-"CMSSW_4_4", 2, "DCRho12HyperK_7TeV_M302"            , "DCRho12HyperK_7TeV_M302"               , "MC - #tilde{K} 302 GeV/#font[12]{c}^{2}"                   , "S4"    ,   302, +7.9554948387E-02, 1, 1.000, 1.000, 1.000
+"CMSSW_4_4", 2, "DCRho12HyperK_7TeV_M300"            , "DCRho12HyperK_7TeV_M302"               , "MC - #tilde{K} 300 GeV/#font[12]{c}^{2}"                   , "S4"    ,   300, +7.9554948387E-02, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho12HyperK_7TeV_M500"            , "DCRho12HyperK_7TeV_M500"               , "MC - #tilde{K} 500 GeV/#font[12]{c}^{2}"                   , "S4"    ,   500, +6.3996737000E-02, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho12HyperK_7TeV_M530"            , "DCRho12HyperK_7TeV_M530"               , "MC - #tilde{K} 530 GeV/#font[12]{c}^{2}"                   , "S4"    ,   530, +6.4943882000E-02, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho12HyperK_7TeV_M570"            , "DCRho12HyperK_7TeV_M570"               , "MC - #tilde{K} 570 GeV/#font[12]{c}^{2}"                   , "S4"    ,   570, +6.6292053000E-02, 1, 1.000, 1.000, 1.000
@@ -262,7 +262,7 @@
 "CMSSW_4_4", 2, "DCRho12HyperK_7TeV_M700"            , "DCRho12HyperK_7TeV_M700"               , "MC - #tilde{K} 700 GeV/#font[12]{c}^{2}"                   , "S4"    ,   700, +6.1228862110E-05, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho16HyperK_7TeV_M100"            , "DCRho16HyperK_7TeV_M100"               , "MC - #tilde{K} 100 GeV/#font[12]{c}^{2}"                   , "S4"    ,   100, +7.1151868680E-01, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho16HyperK_7TeV_M182"            , "DCRho16HyperK_7TeV_M182"               , "MC - #tilde{K} 182 GeV/#font[12]{c}^{2}"                   , "S4"    ,   182, +8.9726059780E-02, 1, 1.000, 1.000, 1.000
-"CMSSW_4_4", 2, "DCRho16HyperK_7TeV_M302"            , "DCRho16HyperK_7TeV_M302"               , "MC - #tilde{K} 302 GeV/#font[12]{c}^{2}"                   , "S4"    ,   302, +1.9769637301E-02, 1, 1.000, 1.000, 1.000
+"CMSSW_4_4", 2, "DCRho16HyperK_7TeV_M300"            , "DCRho16HyperK_7TeV_M302"               , "MC - #tilde{K} 300 GeV/#font[12]{c}^{2}"                   , "S4"    ,   300, +1.9769637301E-02, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho16HyperK_7TeV_M500"            , "DCRho16HyperK_7TeV_M500"               , "MC - #tilde{K} 500 GeV/#font[12]{c}^{2}"                   , "S4"    ,   500, +6.3302286576E-03, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho16HyperK_7TeV_M700"            , "DCRho16HyperK_7TeV_M700"               , "MC - #tilde{K} 700 GeV/#font[12]{c}^{2}"                   , "S4"    ,   700, +2.5367798500E-03, 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 2, "DCRho16HyperK_7TeV_M730"            , "DCRho16HyperK_7TeV_M730"               , "MC - #tilde{K} 730 GeV/#font[12]{c}^{2}"                   , "S4"    ,   730, +2.1345492100E-03, 1, 1.000, 1.000, 1.000

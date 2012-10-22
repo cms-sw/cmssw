@@ -153,7 +153,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    //compute integral for few mass window
    if(Data8TeV && Pred8TeV){
       for(double M=0;M<=1000;M+=100){
-         if(M>400 && M%200!=0)continue;
+         if(M>400 && (int(M)%200!=0))continue;
          double D = Data8TeV->Integral( Data8TeV->GetXaxis()->FindBin(M),  Data8TeV->GetXaxis()->FindBin(2000.0));
          double P = Pred8TeV->Integral( Pred8TeV->GetXaxis()->FindBin(M),  Pred8TeV->GetXaxis()->FindBin(2000.0));
          double Perr = 0; for(int i=Pred8TeV->GetXaxis()->FindBin(M);i<Pred8TeV->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred8TeV->GetBinError(i),2); }  Perr = sqrt(Perr);

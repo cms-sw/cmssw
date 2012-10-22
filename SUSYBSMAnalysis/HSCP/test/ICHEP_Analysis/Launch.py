@@ -17,7 +17,6 @@ def skipSamples(type, name):
       if(name.find("DY")==-1 or (name.find("1o3")==-1 and name.find("2o3")==-1)):return True;
    
    return False
-   
 
 
 #the vector below contains the "TypeMode" of the analyses that should be run
@@ -102,13 +101,26 @@ elif sys.argv[1]=='4':
         LaunchOnCondor.Jobs_RunHere = 1
         LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
 
-        f= open('Analysis_Samples.txt','r')
+        f = open('Analysis_Samples.txt','r')
         for line in f :
            vals=line.split(',')
            if(int(vals[1])!=2):continue
-           for Type in AnalysesToRun:
-              if(int(vals[1])==2 and skipSamples(Type, vals[2])==True):continue
-              if(vals[2].find("8TeV")>=0):continue
+           for Type in AnalysesToRun:            
+              if(int(vals[1])==2 and skipSamples(Type, vals[2])==True):continue     
+              skip = False
+
+              #skip 8TeV samples that have already been processed together with the  7TeV (since for each sample we do 7TeV+8TeV+Comb)
+              if(vals[2].find("8TeV")>=0):
+                  key = vals[2]
+                  key = key.replace("8TeV","7TeV")
+                  f2= open('Analysis_Samples.txt','r')
+                  for line2 in f2 :                     
+                     vals2=line2.split(',')
+                     if(vals2[1]==vals[1] and vals2[2] == key): skip = True;
+                  if(skip==True): continue;
+                  f2.close()
+              #print vals[2] + "   " + str(skip)
+
               Path = "Results/Type"+str(Type)+"/"
               LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"COMBINE"', '"'+Path+'"', vals[2] ]) #compute 2011, 2012 and 2011+2012 in the same job
         f.close()
