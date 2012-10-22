@@ -1177,15 +1177,17 @@ if __name__ == "__main__":
                                          (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
                     elif accel_mode == "PROTPHYS":
                         cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+
                     # NOTE: Special case for 2010.
                     label = None
                     if year == 2010:
-                        label = r"%d ($\times$ %.0f), %s, %.1f $\mathrm{pb^{-1}}$" % \
-                                (year, scale_factor_2010, cms_energy_str, 1.e3 * tot_del)
+                        label = r"%d, %s, %.1f $\mathrm{pb^{-1}}$" % \
+                                (year, cms_energy_str, 1.e3 * tot_del)
                     else:
                         label = r"%d, %s, %.1f %s" % \
                                 (year, cms_energy_str, tot_del,
                                  LatexifyUnits(units))
+
                     # NOTE: Special case for 2010
                     weights_tmp = None
                     if year == 2010:
@@ -1198,6 +1200,13 @@ if __name__ == "__main__":
                             marker="none", linestyle="solid",
                             linewidth=3,
                             label=label)
+
+                    # NOTE: Special case for 2010.
+                    if year == 2010:
+                        ax.annotate(r"$\times$ %.0f" % scale_factor_2010,
+                                    xy=(times[-1], weights_tmp[-1]),
+                                    xytext=(5., -2.),
+                                    xycoords="data", textcoords="offset points")
 
                 # BUG BUG BUG
                 # Needs work...
