@@ -6,6 +6,7 @@
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSCCorrectionMaker.h"
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterProducer.h"
+#include "RecoEcal/EgammaClusterProducers/interface/PreshowerPhiClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/RecHitFilter.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterShapeProducer.h"
@@ -26,6 +27,7 @@ DEFINE_FWK_MODULE(SuperClusterProducer);
 DEFINE_FWK_MODULE(EgammaSCCorrectionMaker);
 DEFINE_FWK_MODULE(EgammaSimpleAnalyzer);
 DEFINE_FWK_MODULE(PreshowerClusterProducer);
+DEFINE_FWK_MODULE(PreshowerPhiClusterProducer);
 DEFINE_FWK_MODULE(PreshowerAnalyzer);
 DEFINE_FWK_MODULE(RecHitFilter);
 DEFINE_FWK_MODULE(PreshowerClusterShapeProducer);
