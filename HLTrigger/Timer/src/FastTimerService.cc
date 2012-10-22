@@ -522,9 +522,12 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
         if (module->is_exclusive)
           exclusive += module->time_active;
       }
+      //edm::LogImportant("FastTimerService") << m_dqm_paths_exclusive_time->GetName() << "->Fill(" << pathinfo.index << ", " <<  exclusive * 1000. << ")";
       m_dqm_paths_exclusive_time->Fill(pathinfo.index, exclusive * 1000.);
-      if (m_enable_dqm_bypath_exclusive)
+      if (m_enable_dqm_bypath_exclusive) {
+        //edm::LogImportant("FastTimerService") << pathinfo.dqm_exclusive->GetName() << "->Fill(" << exclusive * 1000. << ")";
         pathinfo.dqm_exclusive->Fill(exclusive * 1000.);      // convert to ms
+      }
     }
   }
 
@@ -533,13 +536,18 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
   m_event = delta(m_timer_event);
   m_summary_event += m_event;
   if (m_dqms) {
+    //edm::LogImportant("FastTimerService") << m_dqm_event->GetName() << "->Fill(" << m_event * 1000. << ")";
     m_dqm_event->Fill(m_event * 1000.);                     // convert to ms
 
     if (m_enable_dqm_bylumi) {
       unsigned int lumi = event.getLuminosityBlock().luminosityBlock();
+      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_event->GetName() << "->Fill(" << lumi << ", " <<  m_event        * 1000. << ")";
       m_dqm_bylumi_event        ->Fill(lumi, m_event        * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_source->GetName() << "->Fill(" << lumi << ", " <<  m_source       * 1000. << ")";
       m_dqm_bylumi_source       ->Fill(lumi, m_source       * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_all_paths->GetName() << "->Fill(" << lumi << ", " <<  m_all_paths    * 1000. << ")";
       m_dqm_bylumi_all_paths    ->Fill(lumi, m_all_paths    * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_all_endpaths->GetName() << "->Fill(" << lumi << ", " <<  m_all_endpaths * 1000. << ")";
       m_dqm_bylumi_all_endpaths ->Fill(lumi, m_all_endpaths * 1000.);       // convert to ms
     }
   }
@@ -563,8 +571,10 @@ void FastTimerService::postSource() {
   stop(m_timer_source);
   m_source = delta(m_timer_source);
   m_summary_source += m_source;
-  if (m_dqms)
+  if (m_dqms) {
+    //edm::LogImportant("FastTimerService") << m_dqm_source->GetName() << "->Fill(" << m_source * 1000. << ")";
     m_dqm_source->Fill(m_source * 1000.);                       // convert to ms
+  }
 }
 
 void FastTimerService::prePathBeginRun(std::string const & path ) {
@@ -642,9 +652,12 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
     pathinfo.summary_active += active;
 
     if (m_dqms) {
+      //edm::LogImportant("FastTimerService") << m_dqm_paths_active_time->GetName() << "->Fill(" << pathinfo.index << ", " <<  active * 1000. << ")";
       m_dqm_paths_active_time->Fill(pathinfo.index, active * 1000.);     // convert to ms
-      if (m_enable_dqm_bypath_active)
+      if (m_enable_dqm_bypath_active) {
+        //edm::LogImportant("FastTimerService") << pathinfo.dqm_active->GetName() << "->Fill(" << active * 1000. << ")";
         pathinfo.dqm_active->Fill(active * 1000.);                      // convert to ms
+      }
     }
 
     // measure the time spent between the execution of the last module and the end of the path
@@ -667,8 +680,10 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
         ModuleInfo * module = pathinfo.modules[i];
 
         // fill counter histograms - also for duplicate modules, to properly extract rejection information
-        if (m_enable_dqm_bypath_counters)
+        if (m_enable_dqm_bypath_counters) {
+          //edm::LogImportant("FastTimerService") << pathinfo.dqm_module_counter->GetName() << "->Fill(" << i << ")";
           pathinfo.dqm_module_counter->Fill(i);
+        }
         
         if (module == 0)
           // this is a module occurring more than once in the same path, skip it after the first occurrence
@@ -685,17 +700,22 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
         // fill detailed timing histograms
         if (m_enable_dqm_bypath_details) {
           // fill the total time for all non-duplicate modules
+          //edm::LogImportant("FastTimerService") << pathinfo.dqm_module_total->GetName() << "->Fill(" << i << ", " <<  module->time_active * 1000. << ")";
           pathinfo.dqm_module_total->Fill(i, module->time_active * 1000.);      // convert to ms
-          if (module->has_just_run)
+          if (module->has_just_run) {
             // fill the active time only for module actually running in this path
+            //edm::LogImportant("FastTimerService") << pathinfo.dqm_module_active->GetName() << "->Fill(" << i << ", " <<  module->time_active * 1000. << ")";
             pathinfo.dqm_module_active->Fill(i, module->time_active * 1000.);   // convert to ms
+          }
         }
 
       }
 
       if (status.accept())
-        if (m_enable_dqm_bypath_counters)
+        if (m_enable_dqm_bypath_counters) {
+          //edm::LogImportant("FastTimerService") << pathinfo.dqm_module_counter->GetName() << "->Fill(" << pathinfo.modules.size() << ")";
           pathinfo.dqm_module_counter->Fill(pathinfo.modules.size());
+        }
 
       if (m_is_first_module) {
         // no modules were active during this path, account all the time as overhead
@@ -730,13 +750,16 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       pathinfo.last_run              = last_run;
       if (m_dqms) {
         if (m_enable_dqm_bypath_overhead) {
+          //edm::LogImportant("FastTimerService") << pathinfo.dqm_overhead->GetName() << "->Fill(" << overhead * 1000. << ")";
           pathinfo.dqm_premodules  ->Fill(pre      * 1000.);      // convert to ms
           pathinfo.dqm_intermodules->Fill(inter    * 1000.);      // convert to ms
           pathinfo.dqm_postmodules ->Fill(post     * 1000.);      // convert to ms
           pathinfo.dqm_overhead    ->Fill(overhead * 1000.);      // convert to ms
         }
+        //edm::LogImportant("FastTimerService") << m_dqm_paths_total_time->GetName() << "->Fill(" << pathinfo.index << ", " <<  total * 1000. << ")";
         m_dqm_paths_total_time->Fill(pathinfo.index, total * 1000.);
         if (m_enable_dqm_bypath_total) {
+          //edm::LogImportant("FastTimerService") << pathinfo.dqm_total->GetName() << "->Fill(" << total    * 1000. << ")";
           pathinfo.dqm_total       ->Fill(total    * 1000.);      // convert to ms
         }
       }
@@ -748,15 +771,19 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
     m_timer_paths.second = m_timer_path.second;
     m_all_paths = delta(m_timer_paths);
     m_summary_all_paths += m_all_paths;
-    if (m_dqms)
+    if (m_dqms) {
+      //edm::LogImportant("FastTimerService") << m_dqm_all_paths->GetName() << "->Fill(" << m_all_paths * 1000. << ")";
       m_dqm_all_paths->Fill(m_all_paths * 1000.);               // convert to ms
+    }
   } else if (& path == m_last_endpath) {
     // this is the last endpath, stop and account the "all endpaths" counter
     m_timer_endpaths.second = m_timer_path.second;
     m_all_endpaths = delta(m_timer_endpaths);
     m_summary_all_endpaths += m_all_endpaths;
-    if (m_dqms)
+    if (m_dqms) {
+      //edm::LogImportant("FastTimerService") << m_dqm_all_endpaths->GetName() << "->Fill(" << m_all_endpaths * 1000. << ")";
       m_dqm_all_endpaths->Fill(m_all_endpaths * 1000.);         // convert to ms
+    }
   }
 
 }
@@ -795,8 +822,10 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
     module.time_active     = time;
     module.summary_active += time;
 
-    if (m_dqms and m_enable_dqm_bymodule)
+    if (m_dqms and m_enable_dqm_bymodule) {
+      //edm::LogImportant("FastTimerService") << module.dqm_active->GetName() << "->Fill(" << time * 1000. << ")";
       module.dqm_active->Fill(time * 1000.);                    // convert to ms
+    }
   } else {
     // should never get here
     edm::LogError("FastTimerService") << "FastTimerService::postModule: unexpected module " << module.moduleLabel();
