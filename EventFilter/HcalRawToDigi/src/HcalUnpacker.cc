@@ -1,5 +1,6 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalDTCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
@@ -135,33 +136,62 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 
   // get the DCC header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
-  int dccid=dccHeader->getSourceId()-sourceIdOffset_;
+  const HcalDTCHeader* dtcHeader=(const HcalDTCHeader*)(raw.data());
+  bool is_VME_DCC=(dccHeader->getDCCDataFormatVersion()<0x10);
+  
+  int dccid=(is_VME_DCC)?(dccHeader->getSourceId()-sourceIdOffset_):(dtcHeader->getSourceId()-sourceIdOffset_);
 
   // check the summary status
   
-  // walk through the HTR data...
+  // walk through the HTR data.  For the uTCA, use spigot=slot+1
   HcalHTRData htr;
   const unsigned short* daq_first, *daq_last, *tp_first, *tp_last;
   const HcalQIESample* qie_begin, *qie_end, *qie_work;
   const HcalTriggerPrimitiveSample *tp_begin, *tp_end, *tp_work; 
   for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
-    if (!dccHeader->getSpigotPresent(spigot)) continue;
+    
+    if (is_VME_DCC) {
+      if (!dccHeader->getSpigotPresent(spigot)) continue;
 
-    int retval=dccHeader->getSpigotData(spigot,htr,raw.size());
-    if (retval!=0) {
-      if (retval==-1) {
-	if (!silent) edm::LogWarning("Invalid Data") << "Invalid HTR data (data beyond payload size) observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
-	report.countSpigotFormatError();
+      int retval=dccHeader->getSpigotData(spigot,htr,raw.size());
+      if (retval!=0) {
+	if (retval==-1) {
+	  if (!silent) edm::LogWarning("Invalid Data") << "Invalid HTR data (data beyond payload size) observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+	  report.countSpigotFormatError();
+	}
+	continue;
       }
-      continue;
+      // check
+      if (dccHeader->getSpigotCRCError(spigot)) {
+	if (!silent) 
+	  edm::LogWarning("Invalid Data") << "CRC Error on HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
+	report.countSpigotFormatError();
+	continue;
+      } 
+    } else { // is_uTCA (!is_VME_DCC)
+      int slot=spigot+1;
+      if (slot>HcalDTCHeader::MAXIMUM_SLOT) continue;
+
+      if (!dtcHeader->getSlotPresent(slot)) continue;
+
+      int retval=dtcHeader->getSlotData(slot,htr,raw.size());
+      if (retval!=0) {
+	if (retval==-1) {
+	  if (!silent) edm::LogWarning("Invalid Data") << "Invalid uHTR data (data beyond payload size) observed on slot " << slot << " of DTC with source id " << dtcHeader->getSourceId();
+	  report.countSpigotFormatError();
+	}
+	continue;
+      }
+      // check
+      if (dtcHeader->getSlotCRCError(slot)) {
+	if (!silent) 
+	  edm::LogWarning("Invalid Data") << "CRC Error on uHTR data observed on slot " << slot << " of DTC with source id " << dtcHeader->getSourceId();
+	report.countSpigotFormatError();
+	continue;
+      } 
     }
-    // check
-    if (dccHeader->getSpigotCRCError(spigot)) {
-      if (!silent) 
-	edm::LogWarning("Invalid Data") << "CRC Error on HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
-      report.countSpigotFormatError();
-      continue;
-    } 
+
+
     // check for EE
     if (htr.isEmptyEvent()) {
       report.countEmptyEventSpigot();
