@@ -1,5 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
+#--------------------------------------
+
+def lumiList( json ):
+   import FWCore.PythonUtilities.LumiList as LumiList
+   myLumis = LumiList.LumiList(filename = json ).getCMSSWString().split(',')
+   return myLumis
+
+def applyJSON( process, json ):
+
+   myLumis = lumiList( json )
+
+   import FWCore.ParameterSet.Types as CfgTypes
+   process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
+   process.source.lumisToProcess.extend(myLumis)
+
+#--------------------------------------
+
 process = cms.Process("DataScouting")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
@@ -24,6 +41,7 @@ process.source = cms.Source("PoolSource",
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/EC8BE038-9DA2-E111-AEEC-00215AEDFD98.root',
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/E865F95C-B7A2-E111-9FFF-003048D2BC5C.root',
                                       '/store/data/Run2012B/DataScouting/RAW/v1/000/194/533/E63A7608-99A2-E111-BAD9-001D09F290BF.root'
+                                     #'/store/cmst3/user/wreece/CMG/SingleMu/Run2012B-v1/RAW/V00-01-05/outputPhysicsDST_130.root'
                                      #'file:outputPhysicsDST.root'
                                      )
 )
@@ -31,6 +49,9 @@ process.source = cms.Source("PoolSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
 )
+
+# Un-comment to apply JSON file selection
+#applyJSON(process, "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Prompt/Cert_190456-204601_8TeV_PromptReco_Collisions12_JSON.txt")
 
 process.DQMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
