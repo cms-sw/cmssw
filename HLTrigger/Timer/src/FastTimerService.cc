@@ -15,6 +15,7 @@ typedef int clockid_t;
 
 // C++ headers
 #include <cmath>
+#include <limits>
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -222,13 +223,13 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_endpaths  ->SetXTitle("processing time [ms]");
 
     // summary plots
-    m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range, " ")->getTProfile();
+    m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
     m_dqm_paths_active_time     ->StatOverflows(true);
     m_dqm_paths_active_time     ->SetYTitle("processing time [ms]");
-    m_dqm_paths_total_time      = m_dqms->bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range, " ")->getTProfile();
+    m_dqm_paths_total_time      = m_dqms->bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
     m_dqm_paths_total_time      ->StatOverflows(true);
     m_dqm_paths_total_time      ->SetYTitle("processing time [ms]");
-    m_dqm_paths_exclusive_time  = m_dqms->bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., m_dqm_pathtime_range, " ")->getTProfile();
+    m_dqm_paths_exclusive_time  = m_dqms->bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
     m_dqm_paths_exclusive_time  ->StatOverflows(true);
     m_dqm_paths_exclusive_time  ->SetYTitle("processing time [ms]");
 
@@ -253,16 +254,16 @@ void FastTimerService::postBeginJob() {
 
     // per-lumisection plots
     if (m_enable_dqm_bylumi) {
-      m_dqm_bylumi_event        = m_dqms->bookProfile("event_bylumi",        "Event processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
+      m_dqm_bylumi_event        = m_dqms->bookProfile("event_bylumi",        "Event processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_bylumi_event        ->StatOverflows(true);
       m_dqm_bylumi_event        ->SetYTitle("processing time [ms]");
-      m_dqm_bylumi_source       = m_dqms->bookProfile("source_bylumi",       "Source processing time, by Lumisection",   m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
+      m_dqm_bylumi_source       = m_dqms->bookProfile("source_bylumi",       "Source processing time, by Lumisection",   m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_bylumi_source       ->StatOverflows(true);
       m_dqm_bylumi_source       ->SetYTitle("processing time [ms]");
-      m_dqm_bylumi_all_paths    = m_dqms->bookProfile("all_paths_bylumi",    "Paths processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., m_dqm_eventtime_range, " ")->getTProfile();
+      m_dqm_bylumi_all_paths    = m_dqms->bookProfile("all_paths_bylumi",    "Paths processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_bylumi_all_paths    ->StatOverflows(true);
       m_dqm_bylumi_all_paths    ->SetYTitle("processing time [ms]");
-      m_dqm_bylumi_all_endpaths = m_dqms->bookProfile("all_endpaths_bylumi", "EndPaths processing time, by Lumisection", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., m_dqm_pathtime_range,  " ")->getTProfile();
+      m_dqm_bylumi_all_endpaths = m_dqms->bookProfile("all_endpaths_bylumi", "EndPaths processing time, by Lumisection", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_bylumi_all_endpaths ->StatOverflows(true);
       m_dqm_bylumi_all_endpaths ->SetYTitle("processing time [ms]");
     }
