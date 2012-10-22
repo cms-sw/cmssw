@@ -20,7 +20,7 @@ class ShapeBuilder(ModelBuilder):
     def doObservables(self):
         if (self.options.verbose > 1): stderr.write("Using shapes: qui si parra' la tua nobilitate\n")
         self.prepareAllShapes();
-        if len(self.DC.bins) > 1 or self.options.forceSimPdf:
+        if len(self.DC.bins) > 1 or not self.options.forceNonSimPdf:
             ## start with just a few channels
             strexpr="CMS_channel[" + ",".join(["%s=%d" % (l,i) for i,l in enumerate(self.DC.bins[:5])]) + "]";
             self.doVar(strexpr);
@@ -77,7 +77,7 @@ class ShapeBuilder(ModelBuilder):
     def doCombination(self):
         ## Contrary to Number-counting models, here each channel PDF already contains the nuisances
         ## So we just have to build the combined pdf
-        if len(self.DC.bins) > 1 or self.options.forceSimPdf:
+        if len(self.DC.bins) > 1 or not self.options.forceNonSimPdf:
             for (postfixIn,postfixOut) in [ ("","_s"), ("_bonly","_b") ]:
                 simPdf = ROOT.RooSimultaneous("model"+postfixOut, "model"+postfixOut, self.out.binCat)
                 for b in self.DC.bins:
@@ -196,7 +196,7 @@ class ShapeBuilder(ModelBuilder):
             self.out.binVars = shapeObs.values()[0]
             self.out._import(self.out.binVars)
     def doCombinedDataset(self):
-        if len(self.DC.bins) == 1 and not self.options.forceSimPdf:
+        if len(self.DC.bins) == 1 and self.options.forceNonSimPdf:
             data = self.getData(self.DC.bins[0],self.options.dataname).Clone(self.options.dataname)
             self.out._import(data)
             return

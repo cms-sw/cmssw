@@ -18,7 +18,7 @@ def addDatacardParserOptions(parser):
     parser.add_option("--default-morphing",  dest="defMorph", type="string", default="shape2N", help="Default template morphing algorithm (to be used when the datacard has just 'shape')")
     parser.add_option("--X-exclude-nuisance", dest="nuisancesToExclude", type="string", action="append", default=[], help="Exclude nuisances that match these regular expressions.")
     parser.add_option("--X-rescale-nuisance", dest="nuisancesToRescale", type="string", action="append", nargs=2, default=[], help="Rescale by this factor the nuisances that match these regular expressions (the rescaling is applied to the sigma of the gaussian constraint term).")
-    parser.add_option("--X-force-simpdf",  dest="forceSimPdf", default=False, action="store_true", help="FOR DEBUG ONLY: Always produce a RooSimultaneous, even for single channels.")
+    parser.add_option("--X-force-no-simpdf",  dest="forceNonSimPdf", default=False, action="store_true", help="FOR DEBUG ONLY: Do not produce a RooSimultaneous if there is just one channel (note: can affect performance)")
     parser.add_option("--X-no-check-norm",  dest="noCheckNorm", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between datacard norms and shape norms. Will give you nonsensical results if you have shape uncertainties.")
     parser.add_option("--X-no-jmax",  dest="noJMax", default=False, action="store_true", help="FOR DEBUG ONLY: Turn off the consistency check between jmax and number of processes.")
 
