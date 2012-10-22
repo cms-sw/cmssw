@@ -4,7 +4,9 @@ from SimGeneral.MixingModule.aliases_cfi import simEcalUnsuppressedDigis, simHca
 
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
+simEcalUnsuppressedDigis.hitsProducer = cms.string('famosSimHits')
 ecal_digi_parameters.hitsProducer = cms.string('famosSimHits')
+ecalDigitizer.hitsProducer = cms.string('famosSimHits')
 
 import SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi 
 hcalSimBlockFastSim = SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi.hcalSimBlock.clone()
