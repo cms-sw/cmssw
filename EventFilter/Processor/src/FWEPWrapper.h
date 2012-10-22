@@ -241,6 +241,7 @@ namespace evf{
     int                              notstarted_state_code_;
     ModuleWebRegistry                *mwrRef_;
     ShmOutputModuleRegistry          *sorRef_;
+    bool                              countDatasets_;
     friend class FUEventProcessor;
 
   };

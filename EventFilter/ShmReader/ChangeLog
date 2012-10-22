@@ -1,3 +1,37 @@
+2012-07-03 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-14
+	* check cell state when sending error event in destructor
+
+2012-06-29 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-13
+	* not sending error event for lumi cells from destructor
+	* more error logs
+
+2012-05-27 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-12
+	* reverting changes introduced with V01-05-09 and V01-05-10
+	  which were not necessary and caused RB stopping problems
+
+2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-11
+	* fix Buildfile.xml compile warning
+
+2012-05-23 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-10
+	* revert latest changes to lumi handling, current is also safe
+	* pid for currently used raw cell written into shared memory
+	  (currently unused on the RB side)
+
+2012-05-22 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V01-05-09
+	* keeping raw cell occupied during processing of Lumi message
+
 2011-06-27  Emilio Meschi <Emilio.Meschi@cern.ch>
 
 	* tag V01-05-08

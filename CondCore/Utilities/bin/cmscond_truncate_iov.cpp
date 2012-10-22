@@ -29,7 +29,7 @@ cond::TruncateIOVUtilities::~TruncateIOVUtilities() {}
 int cond::TruncateIOVUtilities::execute() {
   bool withPayload = hasOptionValue("withPayload");
   std::string tag = getOptionValue<std::string>("tag");
-  cond::DbSession rdbms = openDbSession( "connect", Auth::COND_WRITER_ROLE );
+  cond::DbSession rdbms = openDbSession( "connect", Auth::COND_ADMIN_ROLE );
   cond::DbScopedTransaction transaction( rdbms );
   cond::MetaData metadata_svc( rdbms );
   transaction.start(false);

@@ -6,8 +6,8 @@
  *  The single EDProduct to be saved for each event (AOD case)
  *  describing the (HLT) trigger table
  *
- *  $Date: 2009/06/20 16:56:37 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/02/15 17:40:49 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -100,8 +100,15 @@ namespace trigger
     const TriggerObjectCollection& getObjects() const {return triggerObjects_;}
 
     const edm::InputTag collectionTag(trigger::size_type index) const {return edm::InputTag(collectionTags_.at(index));}
+    const std::string & collectionTagEncoded(trigger::size_type index) const {return collectionTags_.at(index);}
     trigger::size_type collectionKey(trigger::size_type index) const {return collectionKeys_.at(index);}
     const edm::InputTag filterTag(trigger::size_type index) const {return edm::InputTag(triggerFilters_.at(index).filterTag_);}
+    const std::string & filterTagEncoded(trigger::size_type index) const {return triggerFilters_.at(index).filterTag_;}
+    std::string filterLabel(trigger::size_type index) const {
+        const std::string & tag = triggerFilters_.at(index).filterTag_;
+        std::string::size_type idx = tag.find(':');
+        return (idx == std::string::npos ? tag : tag.substr(0,idx));
+    }
     const Vids& filterIds(trigger::size_type index) const {return triggerFilters_.at(index).filterIds_;}
     const Keys& filterKeys(trigger::size_type index) const {return triggerFilters_.at(index).filterKeys_;}
 

@@ -8,7 +8,7 @@ process = cms.Process("PROD")
 #      untracked vstring fileNames = {"SherpaWriteHepMC.dat"}
 #      untracked int32 maxEvents = 10
 #   }
-process.load("IOMC.RandomEngine.IOMC_cff")
+process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Famos sequences (Frontier conditions)
 process.load("FastSimulation.Configuration.CommonInputsFake_cff")

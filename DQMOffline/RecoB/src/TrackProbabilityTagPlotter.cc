@@ -74,8 +74,7 @@ TrackProbabilityTagPlotter::~TrackProbabilityTagPlotter ()
 
 
 void TrackProbabilityTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
-					     const int & jetFlavour,
-					     const float & w)
+	const int & jetFlavour)
 {
   const reco::TrackProbabilityTagInfo * tagInfo = 
 	dynamic_cast<const reco::TrackProbabilityTagInfo *>(baseTagInfo);
@@ -86,21 +85,16 @@ void TrackProbabilityTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagIn
   }
 
   for(int n=0; n != tagInfo->selectedTracks(1) && n != 4; ++n)
-    tkcntHistosSig2D[n]->fill(jetFlavour, tagInfo->probability(n,1),w);
+    tkcntHistosSig2D[n]->fill(jetFlavour, tagInfo->probability(n,1));
   for(int n=0; n != tagInfo->selectedTracks(0) && n != 4; ++n)
-    tkcntHistosSig3D[n]->fill(jetFlavour, tagInfo->probability(n,0),w);
+    tkcntHistosSig3D[n]->fill(jetFlavour, tagInfo->probability(n,0));
 
   for(int n=0; n != tagInfo->selectedTracks(1); ++n)
-    tkcntHistosSig2D[4]->fill(jetFlavour, tagInfo->probability(n,1),w);
+    tkcntHistosSig2D[4]->fill(jetFlavour, tagInfo->probability(n,1));
   for(int n=0; n != tagInfo->selectedTracks(0); ++n)
-    tkcntHistosSig3D[4]->fill(jetFlavour, tagInfo->probability(n,0),w);
+    tkcntHistosSig3D[4]->fill(jetFlavour, tagInfo->probability(n,0));
 }
 
-void TrackProbabilityTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
-					     const int & jetFlavour)
-{
-  analyzeTag(baseTagInfo,jetFlavour,1.);
-}
 
 
 void TrackProbabilityTagPlotter::createPlotsForFinalize(){

@@ -166,7 +166,10 @@ checkRemoteConnection
 parseOptions $@
 
 if [ "X$softflag" = "Xon" ] ; then
+  export LIBGL_ALWAYS_INDIRECT=1 
   export LIBGL_DRIVERS_PATH=/tmp/
+  export LIBGL_DEBUG=verbose
+  export MESA_DEBUG=1
 fi
 
 
@@ -175,7 +178,11 @@ if [ "X$debuginteractiveflag" = Xon ] ; then
   gdb --args "$SHELLDIR/cmsShow.exe" $originalOptions
   exit;
 elif [ "X$valgrindflag" = Xon ] ; then
-  valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 "$SHELLDIR/cmsShow.exe" $@
+  # MT: This should supposedly get rid of ROOT dicitonary reports etc. but it
+  # didn't seem to work very well when I tried it (so I disabled error limit).
+  # --suppressions=$ROOTSYS/etc/valgrind-root.supp
+  valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 \
+    --error-limit=no  "$SHELLDIR/cmsShow.exe" $originalOptions
   exit;
 fi
 

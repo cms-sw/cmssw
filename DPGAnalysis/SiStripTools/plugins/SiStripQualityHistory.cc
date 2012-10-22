@@ -49,7 +49,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
-#include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 //
 // class decleration
 //
@@ -70,15 +69,11 @@ class SiStripQualityHistory : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-  RunHistogramManager m_rhm;
   const std::vector<edm::ParameterSet> _monitoredssq;
   const unsigned int _mode;
-  const bool m_event;
-  const unsigned int m_maxLS;
-  const unsigned int m_LSfrac;
   //  std::map<std::string,TGraph*> _history;
   std::map<std::string,TH1F*> _history;
-  std::map<std::string,TProfile**> m_badmodrun;
+
 
 };
 
@@ -94,13 +89,9 @@ class SiStripQualityHistory : public edm::EDAnalyzer {
 // constructors and destructor
 //
 SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig):
-  m_rhm(),
   _monitoredssq(iConfig.getParameter<std::vector<edm::ParameterSet> >("monitoredSiStripQuality")),
   _mode(iConfig.getUntrackedParameter<unsigned int>("granularityMode",Module)),
-  m_event(iConfig.getParameter<bool>("eventProcess")),
-  m_maxLS(iConfig.getUntrackedParameter<unsigned int>("maxLSBeforeRebin",100)),
-  m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
-  _history(),m_badmodrun()
+  _history()
 {
    //now do what ever initialization is needed
 
@@ -114,13 +105,6 @@ SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig):
 
     _history[name] = tfserv->make<TH1F>(name.c_str(),name.c_str(),10,0,10);
 
-    if(m_event) {
-      char hrunname[400];
-      sprintf(hrunname,"badmodrun_%s",name.c_str());
-      char hruntitle[400];
-      sprintf(hruntitle,"Number of bad modules %s",name.c_str());
-      m_badmodrun[name] = m_rhm.makeTProfile(hrunname,hruntitle,m_LSfrac*m_maxLS,0,m_maxLS*262144);
-    }
   }
 
 }
@@ -143,57 +127,12 @@ SiStripQualityHistory::~SiStripQualityHistory()
 void
 SiStripQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //  edm::LogInfo("EventProcessing") << "event being processed";
-
-  if(m_event) {
-    for(std::vector<edm::ParameterSet>::const_iterator ps=_monitoredssq.begin();ps!=_monitoredssq.end();++ps) {
-      
-      std::string name = ps->getParameter<std::string>("name");
-      std::string label = ps->getParameter<std::string>("ssqLabel");
-      
-      
-      
-      edm::ESHandle<SiStripQuality> ssq;
-      iSetup.get<SiStripQualityRcd>().get(label,ssq);
-      
-      std::vector<SiStripQuality::BadComponent> bads = ssq->getBadComponentList();
-      
-      LogDebug("BadComponents") << bads.size() << " bad components found";
-      
-      int nbad=0;
-      
-      for(std::vector<SiStripQuality::BadComponent>::const_iterator bc=bads.begin();bc!=bads.end();++bc) {
-	
-	if(_mode==Module) {
-	  if(bc->BadModule) ++nbad;
-	}
-	else if(_mode == Fiber) {
-	  for(int fiber=1;fiber<5;fiber*=2) {
-	    if((bc->BadFibers & fiber)>0) ++nbad;
-	  }
-	}
-	else if(_mode ==APV) {
-	  for(int apv=1;apv<33;apv*=2) {
-	    if((bc->BadApvs & apv)>0) ++nbad;
-	  }
-	}
-      }
-
-      if(m_badmodrun.find(name)!=m_badmodrun.end() && m_badmodrun[name] && *m_badmodrun[name]) {
-	(*m_badmodrun[name])->Fill(iEvent.orbitNumber(),nbad);
-      }
-      
-    }
-  }
+  edm::LogInfo("EventProcessing") << "event being processed";
 }
 
 void 
 SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-
-  if(m_event) {
-    m_rhm.beginRun(iRun);
-  }
 
   // loop on all the SiStripQuality objects to be monitored
 
@@ -201,50 +140,45 @@ SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
     
     std::string name = ps->getParameter<std::string>("name");
     std::string label = ps->getParameter<std::string>("ssqLabel");
-    
-    if(m_event && m_badmodrun.find(name)!=m_badmodrun.end()) {
-      if(m_badmodrun[name] && *m_badmodrun[name]) {
-	(*m_badmodrun[name])->SetBit(TH1::kCanRebin);
-	(*m_badmodrun[name])->GetXaxis()->SetTitle("time [Orb#]"); (*m_badmodrun[name])->GetYaxis()->SetTitle("bad components"); 
-      }
-    }
-    
+
     
     edm::ESHandle<SiStripQuality> ssq;
     iSetup.get<SiStripQualityRcd>().get(label,ssq);
-    
+
     std::vector<SiStripQuality::BadComponent> bads = ssq->getBadComponentList();
-    
-    LogDebug("BadComponents") << bads.size() << " bad components found";
-    
+
+    edm::LogInfo("Debug") << bads.size() << " bad components found";
+
     int nbad=0;
-    
+
     for(std::vector<SiStripQuality::BadComponent>::const_iterator bc=bads.begin();bc!=bads.end();++bc) {
-      
+
       if(_mode==Module) {
-	if(bc->BadModule) ++nbad;
+       if(bc->BadModule) ++nbad;
       }
       else if(_mode == Fiber) {
-	for(int fiber=1;fiber<5;fiber*=2) {
-	  if((bc->BadFibers & fiber)>0) ++nbad;
-	}
-      }
-      else if(_mode ==APV) {
-	for(int apv=1;apv<33;apv*=2) {
-	  if((bc->BadApvs & apv)>0) ++nbad;
-	}
+      for(int fiber=1;fiber<5;fiber*=2) {
+	if((bc->BadFibers & fiber)>0) ++nbad;
       }
     }
-    
-    
+    else if(_mode ==APV) {
+      for(int apv=1;apv<33;apv*=2) {
+	if((bc->BadApvs & apv)>0) ++nbad;
+      }
+    }
+  }
+
+
     //    _history[name]->SetPoint(_history[name]->GetN(),iRun.run(),nbad);
     char runname[100];
     sprintf(runname,"%d",iRun.run());
-    LogDebug("AnalyzedRun") << name << " " << runname << " " << nbad;
+    edm::LogInfo("Debug") << name << " " << runname << " " << nbad;
     _history[name]->Fill(runname,nbad);
-    
+
   }
+
   
+
 }
 
 void 

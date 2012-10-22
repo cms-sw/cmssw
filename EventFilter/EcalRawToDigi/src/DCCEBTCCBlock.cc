@@ -52,7 +52,7 @@ void DCCEBTCCBlock::addTriggerPrimitivesToCollection(){
 
   unsigned int towersInPhi = EcalElectronicsMapper::kTowersInPhi;
   
-  uint16_t * tccP_= reinterpret_cast< uint16_t * >(data_);
+  const uint16_t * tccP_= reinterpret_cast<const uint16_t * >(data_);
  
 
   for( unsigned int i = 1; i <= expNumbTTs_; i++){

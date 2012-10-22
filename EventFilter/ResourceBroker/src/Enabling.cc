@@ -74,9 +74,9 @@ void Enabling::do_stateAction() const {
 		res->nbTimeoutsWithoutEvent_ = 0;
 		res->dataErrorFlag_ = 0;
 
-		// make sure access is granted to the resource structure
-		// (re-enable access after an emergency stop)
-		res->allowAccessToResourceStructure_ = true;
+		// make sure I2O discards are allowed
+		// (re-enable discards after stop)
+		res->allowI2ODiscards_ = true;
 
 		LOG4CPLUS_INFO(res->log_, "Finished enabling!");
 		EventPtr enableDone(new EnableDone());

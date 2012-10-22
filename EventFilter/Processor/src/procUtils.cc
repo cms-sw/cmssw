@@ -153,7 +153,26 @@ namespace evf{
       strftime(buf, sizeof(buf), "%m.%d %H:%M", localtime(&rt));
       sprintf(obuf,"%20s: %s (%lu.%lus)\n", name, buf, running / tickspersec, running % tickspersec);
     }
-    
+   
+    void procCpuStat(unsigned long long &idleJiffies,unsigned long long &allJiffies) {
+      //read one
+      if (input==NULL)
+        input = fopen("/proc/stat", "r");
+      if (input==NULL) return;
+      char cpu[10];
+      readstr(cpu);
+      int count=0;
+      long long last=0;
+      do {
+        readone(&last);
+        if (count==3) idleJiffies+=last;
+        allJiffies+=last;
+      }
+      while (last && count++<20);
+      fclose(input);
+      input=NULL;
+    }
+
     void procStat(std::ostringstream *out) {
       tickspersec = sysconf(_SC_CLK_TCK);
       input = NULL;

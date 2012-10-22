@@ -1,7 +1,7 @@
 #include "EventFilter/Utilities/interface/TriggerReportDef.h"
 
 namespace evf{
-  TriggerReportStatic::TriggerReportStatic() : trigPathsInMenu(0), endPathsInMenu(0){}
+  TriggerReportStatic::TriggerReportStatic() : trigPathsInMenu(0), endPathsInMenu(0), datasetsInMenu(0){}
   void funcs::reset(TriggerReportStatic *trs){
     trs->lumiSection = 0;
     trs->prescaleIndex = 0;
@@ -31,12 +31,14 @@ namespace evf{
 	trs->endPathSummaries[i].timesFailed = 0;
 	trs->endPathSummaries[i].timesExcept = 0;
       }
+    for (unsigned int i=0;i<max_datasets;i++) trs->datasetSummaries[i].timesPassed=0;
     //    trigPathsInMenu = 0;
     //    endPathsInMenu  = 0;
   }
   void funcs::addToReport(TriggerReportStatic *trs, TriggerReportStatic *trp, unsigned int lumisection){
     if(trs->trigPathsInMenu==0) trs->trigPathsInMenu = trp->trigPathsInMenu;
     if(trs->endPathsInMenu==0) trs->endPathsInMenu = trp->endPathsInMenu;
+    if(trs->datasetsInMenu==0) trs->datasetsInMenu = trp->datasetsInMenu;
     // set LS and PS
     trs->lumiSection = lumisection;
     if(trp->eventSummary.totalEvents!=0) //do not update PS if no events seen
@@ -69,6 +71,10 @@ namespace evf{
 	trs->endPathSummaries[i].timesPassedL1 += trp->endPathSummaries[i].timesPassedL1;
 	trs->endPathSummaries[i].timesFailed += trp->endPathSummaries[i].timesFailed;
 	trs->endPathSummaries[i].timesExcept += trp->endPathSummaries[i].timesExcept;
+      }
+    for(int i = 0; i < trp->datasetsInMenu; i++)
+      {
+        trs->datasetSummaries[i].timesPassed += trp->datasetSummaries[i].timesPassed;
       }
   }
 }

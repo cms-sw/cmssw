@@ -12,7 +12,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSearchDetWithGroups {
+class PixelForwardLayer : public ForwardDetLayer, public GeometricSearchDetWithGroups {
  public:
   PixelForwardLayer(std::vector<const PixelBlade*>& blades);
   ~PixelForwardLayer();

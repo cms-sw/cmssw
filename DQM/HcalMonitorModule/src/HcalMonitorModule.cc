@@ -41,8 +41,8 @@
 /*
  * \file HcalMonitorModule.cc
  *
- * $Date: 2010/03/25 11:17:15 $
- * $Revision: 1.164 $
+ * $Date: 2010/07/20 02:58:25 $
+ * $Revision: 1.165 $
  * \author J Temple
  *
  * New version of HcalMonitorModule stores only a few necessary variables that other tasks need to grab
@@ -356,10 +356,17 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c)
       
       if ( fedData.size() < 24 ) numEmptyFEDs++ ;
       if ( fedData.size() < 24 ) continue;
+
       int value = (int)((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
+      if(value>7) 
+	{
+	  edm::LogWarning("HcalMonitorModule::CalibTypeFilter") << "Unexpected Calibration type: "<< value << " in FED: "<<i<<" (should be 0-7). I am bailing out...";
+	  return;
+	}
+
       calibTypeCounter.at(value)++ ; // increment the counter for this calib type
     } // for (int i = FEDNumbering::MINHCALFEDID; ...)
-  
+
   int maxCount = 0;
   int numberOfFEDIds = FEDNumbering::MAXHCALFEDID  - FEDNumbering::MINHCALFEDID + 1 ;
   for (unsigned int i=0; i<calibTypeCounter.size(); i++) {

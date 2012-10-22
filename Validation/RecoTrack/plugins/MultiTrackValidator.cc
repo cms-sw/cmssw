@@ -32,8 +32,6 @@
 #include "TMath.h"
 #include <TF1.h>
 
-//#include <iostream>
-
 using namespace std;
 using namespace edm;
 
@@ -387,8 +385,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	
 	bool isSigSimMatched(false);
 	bool isSimMatched(false);
-    bool isChargeMatched(true);
-    int numAssocRecoTracks = 0;
         int tpbx = 0;
 	int nSimHits = 0;
 	double sharedFraction = 0.;
@@ -400,9 +396,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             nSimHits = simhits.end()-simhits.begin();
             sharedFraction = tp[0].second;
 	    isSimMatched = true;
-        if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
-        if(simRecColl.find(tp[0].first) != simRecColl.end()) numAssocRecoTracks = simRecColl[tp[0].first].size();
-        //std::cout << numAssocRecoTracks << std::endl;
 	    tpbx = tp[0].first->eventId().bunchCrossing();
 	    at++;
 	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){ 
@@ -422,7 +415,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 	
 
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction);
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction);
 
 	// dE/dx
 	//	reco::TrackRef track2  = reco::TrackRef( trackCollection, i );

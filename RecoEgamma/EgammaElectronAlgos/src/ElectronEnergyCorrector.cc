@@ -1,6 +1,5 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/EnergyUncertaintyElectronSpecific.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -15,51 +14,65 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronEnergyCorrector.cc,v 1.16 2012/02/22 17:36:44 chamont Exp $
+ * \version $Id: ElectronEnergyCorrector.cc,v 1.15 2011/11/12 11:01:25 chamont Exp $
  *
  ****************************************************************************/
-
-void ElectronEnergyCorrector::classBasedParameterizationUncertainty( reco::GsfElectron & electron )
- {
-  EnergyUncertaintyElectronSpecific uncertainty ;
-  double energyError = 999. ;
-  double ecalEnergy = electron.correctedEcalEnergy() ;
-  double eleEta = electron.superCluster()->eta() ;
-  double brem = electron.superCluster()->etaWidth()/electron.superCluster()->phiWidth() ;
-  energyError =  uncertainty.computeElectronEnergyUncertainty(electron.classification(),eleEta,brem,ecalEnergy) ;
-  electron.setCorrectedEcalEnergyError(energyError) ;
- }
 
 float energyError( float E, float * par )
  { return sqrt( pow(par[0]/sqrt(E),2) + pow(par[1]/E,2) + pow(par[2],2) ) ; }
 
-void ElectronEnergyCorrector::simpleParameterizationUncertainty( reco::GsfElectron & electron )
+float barrelEnergyError( float E, int elClass )
  {
-  double error = 999. ;
-  double ecalEnergy = electron.correctedEcalEnergy() ;
-
-  if (electron.isEB())
+  // steph third sigma
+  float parEB[5][3] =
    {
-    float parEB[3] = { 5.24e-02,  2.01e-01, 1.00e-02} ;
-    error =  ecalEnergy*energyError(ecalEnergy,parEB) ;
-   }
-  else if (electron.isEE())
-   {
-    float parEE[3] = { 1.46e-01, 9.21e-01, 1.94e-03} ;
-    error =  ecalEnergy*energyError(ecalEnergy,parEE) ;
-   }
-  else
-   { edm::LogWarning("ElectronEnergyCorrector::simpleParameterizationUncertainty")<<"nor barrel neither endcap electron !" ; }
+     { 2.46e-02,  1.97e-01, 5.23e-03},          // golden
+     { 9.99e-07,  2.80e-01, 5.69e-03},          // big brem
+     { 9.37e-07,  2.32e-01, 5.82e-03},          // narrow
+     { 7.30e-02,  1.95e-01, 1.30e-02},          // showering
+     { 9.25e-06,  2.84e-01, 8.77e-03}           // nominal --> gap
+   } ;
 
-  electron.setCorrectedEcalEnergyError(error) ;
+  return energyError(E,parEB[elClass]) ;
  }
 
-void ElectronEnergyCorrector::classBasedParameterizationEnergy
- ( reco::GsfElectron & electron, const reco::BeamSpot & bs )
+float endcapEnergyError( float E, int elClass )
+ {
+  // steph third sigma
+  float parEE[5][3] =
+   {
+     { 1.25841e-01, 7.01145e-01, 2.81884e-11},  // golden
+     { 1.25841e-01, 7.01145e-01, 2.81884e-11},  // big brem = golden
+     { 1.25841e-01, 7.01145e-01, 2.81884e-11},  // narrow = golden
+     { 1.63634e-01, 1.11307e+00, 3.64770e-03},  // showering
+     {         .02,         .15,        .005}   // nominal --> gap
+   } ;
+  return energyError(E,parEE[elClass]) ;
+ }
+
+// this parametrisation is used in case no function is given for the SC errors or in case of pure
+// tracker driven electron
+void ElectronEnergyCorrector::correctEcalEnergyError( reco::GsfElectron & electron )
+ {
+  double energyError = 999. ;
+  double scEnergy = electron.superCluster()->energy() ;
+  int eleClass = electron.classification() ;
+  if (electron.isEB())
+   { energyError =  scEnergy*barrelEnergyError(scEnergy,eleClass) ; }
+  else if (electron.isEE())
+   { energyError =  scEnergy*endcapEnergyError(scEnergy,eleClass) ; }
+  else
+   { edm::LogWarning("ElectronEnergyCorrector::setEnergyError")<<"nor barrel neither endcap electron !" ; }
+  energyError *= (electron.correctedEcalEnergy()/scEnergy) ;
+  electron.setCorrectedEcalEnergyError(energyError) ;
+ }
+
+void ElectronEnergyCorrector::correctEcalEnergy
+ ( reco::GsfElectron & electron, const reco::BeamSpot & bs/*, bool applyEcalEnergyCorrection*/ )
  {
   if (electron.isEcalEnergyCorrected())
    {
-	  edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy")<<"already done" ;
+	  edm::LogWarning("ElectronEnergyCorrector::correctEcalEnergy")<<"already done" ;
 	  return ;
    }
 
@@ -67,9 +80,39 @@ void ElectronEnergyCorrector::classBasedParameterizationEnergy
   if ( (elClass <= reco::GsfElectron::UNKNOWN) ||
 	     (elClass>reco::GsfElectron::GAP) )
    {
-	  edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy")<<"unexpected classification" ;
+	  edm::LogWarning("ElectronEnergyCorrector::correctEcalEnergy")<<"unexpected classification" ;
 	  return ;
    }
+
+// old corrections, not used anymore
+/*
+  // If not gap, f(eta) correction ;
+  if ( electron.isGap() )
+   { return ; }
+
+  double scEnergy = electron.superCluster()->energy() ;
+  float newEnergy = scEnergy ;
+  double scEta = EleRelPoint(electron.caloPosition(),bs.position()).eta() ;
+  if (electron.isEB()) // barrel
+   {
+    if ( (elClass==reco::GsfElectron::GOLDEN) ||
+         (elClass==reco::GsfElectron::BIGBREM) )
+     { newEnergy = scEnergy/fEtaBarrelGood(scEta) ; }
+    else if (elClass==reco::GsfElectron::SHOWERING)
+     { newEnergy = scEnergy/fEtaBarrelBad(scEta) ; }
+   }
+  else if (electron.isEE()) // endcap
+   {
+    double ePreshower = electron.superCluster()->preshowerEnergy() ;
+    if ( (elClass==reco::GsfElectron::GOLDEN) ||
+         (elClass==reco::GsfElectron::BIGBREM) )
+     { newEnergy = (scEnergy-ePreshower)/fEtaEndcapGood(scEta)+ePreshower ; }
+    else if (elClass==reco::GsfElectron::SHOWERING)
+     { newEnergy = (scEnergy-ePreshower)/fEtaEndcapBad(scEta)+ePreshower ; }
+   }
+  else
+   { edm::LogWarning("ElectronEnergyCorrector::computeNewEnergy")<<"nor barrel neither endcap electron !" ; }
+*/
 
   // new corrections from N. Chanon et al., taken from EcalClusterCorrectionObjectSpecific.cc
   float corr = 1.;
@@ -90,7 +133,7 @@ void ElectronEnergyCorrector::classBasedParameterizationEnergy
     energy = electron.superCluster()->rawEnergy()+electron.superCluster()->preshowerEnergy();
    }
   else
-   { edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy")<<"nor barrel neither endcap electron !" ; }
+   { edm::LogWarning("ElectronEnergyCorrector::correctEcalEnergy")<<"nor barrel neither endcap electron !" ; }
 
   corr = fBremEta(electron.superCluster()->phiWidth()/electron.superCluster()->etaWidth(), electron.superCluster()->eta(), 0,elClass);
 
@@ -98,7 +141,7 @@ void ElectronEnergyCorrector::classBasedParameterizationEnergy
 
   if (electron.isEB()) { corr2 = corr * fEt(et, 0,elClass) ; }
   else if (electron.isEE()) { corr2 = corr * fEnergy(energy/corr, 1,elClass) ; }
-  else { edm::LogWarning("ElectronEnergyCorrector::classBasedParameterizationEnergy")<<"nor barrel neither endcap electron !" ; }
+  else { edm::LogWarning("ElectronEnergyCorrector::correctEcalEnergy")<<"nor barrel neither endcap electron !" ; }
 
   newEnergy = energy/corr2;
 

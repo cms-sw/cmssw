@@ -35,7 +35,7 @@ class testit(Thread):
                 os.makedirs(self.dirName)
 
             commandbase = command.replace(' ','_').replace('/','_')
-            logfile='%s.log' % commandbase[:150].replace("'",'').replace('../','')
+            logfile='%s.log' % commandbase[:150].replace("'",'').replace('"','').replace('../','')
             
             executable = 'cd '+self.dirName+'; '+command+' > '+logfile+' 2>&1'
 
@@ -93,13 +93,13 @@ class StandardTester(object):
                   'pat1'      : ['cmsRun '+self.file2Path('PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py')],
                 }
 
-        hltTests = { 'hlt1' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:startup --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_Raw_GRun_STARTUP.root',
+        hltTests = { 'hlt1' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=pp -n 10 --conditions auto:startup --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_Raw_GRun_STARTUP.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_GRun.py')], 
-                     'hlt2' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW -n 10 --conditions auto:starthi --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_Raw_HIon_STARTUP.root',
+                     'hlt2' : ['cmsDriver.py TTbar_Tauola.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW --mc --scenario=HeavyIons -n 10 --conditions auto:starthi --relval 9000,50 --datatier "GEN-SIM-RAW" --eventcontent RAW --fileout file:RelVal_Raw_HIon_STARTUP.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnLine_HLT_HIon.py')],
-                     'hlt3' : ['cmsDriver.py RelVal -s L1REPACK -n 10 --conditions auto:startup --relval 9000,50 --datatier "RAW" --eventcontent RAW --fileout file:RelVal_Raw_GRun_DATA.root --filein /store/data/Run2011B/MinimumBias/RAW/v1/000/178/479/3E364D71-F4F5-E011-ABD2-001D09F29146.root',
+                     'hlt3' : ['cmsDriver.py RelVal -s L1REPACK --data --scenario=pp -n 10 --conditions auto:startup --relval 9000,50 --datatier "RAW" --eventcontent RAW --fileout file:RelVal_Raw_GRun_DATA.root --filein /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnData_HLT_GRun.py')],
-                     'hlt4' : ['cmsDriver.py RelVal -s L1REPACK -n 10 --conditions auto:starthi --relval 9000,50 --datatier "RAW" --eventcontent RAW --fileout file:RelVal_Raw_HIon_DATA.root --filein /store/data/Run2011B/MinimumBias/RAW/v1/000/178/479/3E364D71-F4F5-E011-ABD2-001D09F29146.root',
+                     'hlt4' : ['cmsDriver.py RelVal -s L1REPACK --data --scenario=HeavyIons -n 10 --conditions auto:starthi --relval 9000,50 --datatier "RAW" --eventcontent RAW --fileout file:RelVal_Raw_HIon_DATA.root --filein /store/hidata/HIRun2011/HIHighPt/RAW/v1/000/182/838/F20AAF66-F71C-E111-9704-BCAEC532971D.root',
                                'cmsRun '+self.file2Path('HLTrigger/Configuration/test/OnData_HLT_HIon.py')],
                      }
 

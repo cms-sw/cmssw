@@ -133,9 +133,7 @@ else
     cp $CMSSW_RELEASE_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/createChi2ndfplot.C .
 fi
 mps_parse_pedechi2hist.pl $RUNDIR/../../mps.db millepede.his the.cfg
-if [ -f chi2pedehis.txt ]; then
-    root -l -x -b -q 'createChi2ndfplot.C+("chi2pedehis.txt")'
-fi
+root -l -x -b -q 'createChi2ndfplot.C+("chi2pedehis.txt")'
 
 # Macro creating millepede.his.ps with pede information hists:
 if [ -e $CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/readPedeHists.C ] ; then
@@ -168,13 +166,5 @@ ls -lh
 cp -p *.root $RUNDIR
 cp -p *.gz $RUNDIR
 cp -p *.db $RUNDIR
-
-if [ -f chi2ndfperbinary.eps ]; then
-    gzip -f chi2ndfperbinary.eps
-    cp -p chi2ndfperbinary.eps.gz $RUNDIR
-fi
-
-if [ -f chi2ndfperbinary.C ]; then
-    gzip -f chi2ndfperbinary.C
-    cp -p chi2ndfperbinary.C.gz $RUNDIR
-fi
+cp -p *.eps $RUNDIR
+cp -p chi2ndfperbinary.C $RUNDIR

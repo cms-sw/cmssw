@@ -34,17 +34,16 @@ CLHEP::HepRandomEngine* _amptRandomEngine;
 
 extern "C"
 {
-  float gen::ranart_(int *idummy)
+  double gen::ranart_(int *idummy)
   {
     if(0) idummy = idummy; 
-    float rannum = _amptRandomEngine->flat();
-    return rannum;
+    return _amptRandomEngine->flat();
   }
 }
 
 extern "C"
 {
-  float gen::ran1_(int *idummy)
+  double gen::ran1_(int *idummy)
   {
     if(0) idummy = idummy;
     return _amptRandomEngine->flat();
@@ -170,7 +169,7 @@ HepMC::GenVertex* AMPTHadronizer::build_ampt_vertex(int i,int id)
    HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),id);
    return vertex;
 }
-//_____________________________________________________________________  
+
 bool AMPTHadronizer::generatePartonsAndHadronize()
 {
    // generate single event
@@ -205,6 +204,7 @@ bool AMPTHadronizer::get_particles(HepMC::GenEvent *evt )
       if(!evt->signal_process_vertex()) evt->set_signal_process_vertex(vertice);
 
       const unsigned int knumpart = hbt.nlast;
+//      cout<<"# of particles "<<knumpart<<" "<<hbt.nlast<<endl;
       for (unsigned int ipart = 0; ipart<knumpart; ipart++) {
          int mid = 0;
          particles.push_back(build_ampt(ipart,ipart+1));
@@ -213,7 +213,8 @@ bool AMPTHadronizer::get_particles(HepMC::GenEvent *evt )
          LogDebug("DecayChain")<<"Mother index : "<<mid;
       }
       
-      LogDebug("AMPT")<<"Number of particles in vector "<<particles.size();
+//      LogDebug("AMPT")<<"Number of particles in vector "<<particles.size();
+//      cout<<"Number of particles in vector "<<particles.size();
 
       for (unsigned int ipart = 0; ipart<particles.size(); ipart++) {
 	 HepMC::GenParticle* part = particles[ipart];
@@ -257,9 +258,9 @@ bool AMPTHadronizer::call_amptset(double efrm, std::string frame, std::string pr
 {
   // initialize hydjet  
    AMPTSET(efrm,frame.data(),proj.data(),targ.data(),iap,izp,iat,izt,strlen(frame.data()),strlen(proj.data()),strlen(targ.data()));
-	return true;
+   return true;
 }
-//______________________________________________________________________
+
 bool AMPTHadronizer::ampt_init(const ParameterSet &pset)
 {
     anim.isoft=amptmode_;
@@ -317,9 +318,7 @@ bool AMPTHadronizer::declareStableParticles( std::vector<int> pdg )
 
 //________________________________________________________________                                                                    
 void AMPTHadronizer::rotateEvtPlane(){
-   int zero = 0;
-   double test = (double)gen::ranart_(&zero);
-   phi0_ = 2.*pi*test - pi;
+   phi0_ = 2.*pi*gen::ranart_(0) - pi;
    sinphi0_ = sin(phi0_);
    cosphi0_ = cos(phi0_);
 }

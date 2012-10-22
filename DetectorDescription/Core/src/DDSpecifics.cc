@@ -1,6 +1,7 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "Specific.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 #include <utility>
 
@@ -41,7 +42,7 @@ DDSpecifics::DDSpecifics(const DDName & name,
     else {
       std::string serr("Definition of LogicalPart missing! name=");
       serr+= it->first.ddname().fullname();
-      throw cms::Exception("DDException") << serr;
+      throw DDException(serr);
     }
   }
 } 

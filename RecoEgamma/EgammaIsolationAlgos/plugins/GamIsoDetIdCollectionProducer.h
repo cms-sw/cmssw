@@ -53,11 +53,12 @@ class GamIsoDetIdCollectionProducer : public edm::EDProducer {
       double outerRadius_;
       double innerRadius_;
       std::string interestingDetIdCollection_;
-
-      std::vector<int> severitiesexclEB_;
-      std::vector<int> severitiesexclEE_;
-      std::vector<int> flagsexclEB_;
-      std::vector<int> flagsexclEE_;
+      int severityLevelCut_;
+      //float severityRecHitThreshold_;
+      //std::string spIdString_;
+      //float spIdThreshold_;
+      //EcalSeverityLevelAlgo::SpikeId spId_;
+      std::vector<int> v_chstatus_;
 };
 
 #endif
