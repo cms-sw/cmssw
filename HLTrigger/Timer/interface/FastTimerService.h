@@ -301,6 +301,7 @@ private:
   double                                        m_source;
   double                                        m_all_paths;
   double                                        m_all_endpaths;
+  double                                        m_interpaths;
 
   // per-job summary
   unsigned int                                  m_summary_events;       // number of events
@@ -308,6 +309,7 @@ private:
   double                                        m_summary_source;
   double                                        m_summary_all_paths;
   double                                        m_summary_all_endpaths;
+  double                                        m_summary_interpaths;
 
   // DQM
   DQMStore *                                    m_dqms;
@@ -315,15 +317,18 @@ private:
   TH1F *                                        m_dqm_source;
   TH1F *                                        m_dqm_all_paths;
   TH1F *                                        m_dqm_all_endpaths;
+  TH1F *                                        m_dqm_interpaths;
   TProfile *                                    m_dqm_paths_active_time;
   TProfile *                                    m_dqm_paths_total_time;
   TProfile *                                    m_dqm_paths_exclusive_time;
+  TProfile *                                    m_dqm_paths_interpaths;
 
   // per-lumisection plots
   TProfile *                                    m_dqm_bylumi_event;
   TProfile *                                    m_dqm_bylumi_source;
   TProfile *                                    m_dqm_bylumi_all_paths;
   TProfile *                                    m_dqm_bylumi_all_endpaths;
+  TProfile *                                    m_dqm_bylumi_interpaths;
 
   // per-path and per-module accounting
   PathInfo *                                    m_current_path;

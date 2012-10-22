@@ -93,26 +93,31 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_source(0.),
   m_all_paths(0.),
   m_all_endpaths(0.),
+  m_interpaths(0.),
   // per-job summary
   m_summary_events(0),
   m_summary_event(0.),
   m_summary_source(0.),
   m_summary_all_paths(0.),
   m_summary_all_endpaths(0.),
+  m_summary_interpaths(0.),
   // DQM
   m_dqms(0),                // these are initialized at postBeginJob(),
   m_dqm_event(0),           // to make sure the DQM service has been loaded
   m_dqm_source(0),
   m_dqm_all_paths(0),
   m_dqm_all_endpaths(0),
+  m_dqm_interpaths(0),
   m_dqm_paths_active_time(0),
   m_dqm_paths_total_time(0),
   m_dqm_paths_exclusive_time(0),
+  m_dqm_paths_interpaths(0),
   // per-lumisection plots
   m_dqm_bylumi_event(0),
   m_dqm_bylumi_source(0),
   m_dqm_bylumi_all_paths(0),
   m_dqm_bylumi_all_endpaths(0),
+  m_dqm_bylumi_interpaths(0),
   // per-path and per-module accounting
   m_current_path(0),
   m_paths(),
@@ -218,6 +223,9 @@ void FastTimerService::postBeginJob() {
     m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths processing time", pathbins,  0., m_dqm_pathtime_range)->getTH1F();
     m_dqm_all_endpaths  ->StatOverflows(true);
     m_dqm_all_endpaths  ->SetXTitle("processing time [ms]");
+    m_dqm_interpaths    = m_dqms->book1D("interpaths",   "Time spent between paths", pathbins,  0., m_dqm_eventtime_range)->getTH1F();
+    m_dqm_interpaths    ->StatOverflows(true);
+    m_dqm_interpaths    ->SetXTitle("processing time [ms]");
 
     // summary plots
     m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
@@ -229,18 +237,23 @@ void FastTimerService::postBeginJob() {
     m_dqm_paths_exclusive_time  = m_dqms->bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
     m_dqm_paths_exclusive_time  ->StatOverflows(true);
     m_dqm_paths_exclusive_time  ->SetYTitle("processing time [ms]");
+    m_dqm_paths_interpaths      = m_dqms->bookProfile("paths_interpaths",     "Time spent between each path",       size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+    m_dqm_paths_interpaths      ->StatOverflows(true);
+    m_dqm_paths_interpaths      ->SetYTitle("processing time [ms]");
 
     for (uint32_t i = 0; i < size_p; ++i) {
       std::string const & label = tns.getTrigPath(i);
       m_dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
       m_dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
       m_dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      m_dqm_paths_interpaths     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
     }
     for (uint32_t i = 0; i < size_e; ++i) {
       std::string const & label = tns.getEndPath(i);
       m_dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
       m_dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
       m_dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      m_dqm_paths_interpaths     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
     }
 
     // per-lumisection plots
@@ -257,6 +270,9 @@ void FastTimerService::postBeginJob() {
       m_dqm_bylumi_all_endpaths = m_dqms->bookProfile("all_endpaths_bylumi", "EndPaths processing time, by Lumisection", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_bylumi_all_endpaths ->StatOverflows(true);
       m_dqm_bylumi_all_endpaths ->SetYTitle("processing time [ms]");
+      m_dqm_bylumi_interpaths   = m_dqms->bookProfile("interpaths_bylumi",   "Time spent between paths, by Lumisection", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_bylumi_interpaths   ->StatOverflows(true);
+      m_dqm_bylumi_interpaths   ->SetYTitle("processing time [ms]");
     }
 
     // per-path and per-module accounting
@@ -370,6 +386,7 @@ void FastTimerService::postEndJob() {
     out << "FastReport              " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << "  Event"         << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << "  all Paths"     << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << "  all EndPaths"  << '\n';
+    out << "FastReport              " << std::right << std::setw(10) << m_summary_interpaths   / (double) m_summary_events << "  between paths" << '\n';
     if (m_enable_timing_modules) {
       double modules_total = 0.;
       for (auto & keyval: m_modules)
@@ -483,6 +500,7 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
   m_event        = 0;
   m_all_paths    = 0;
   m_all_endpaths = 0;
+  m_interpaths   = 0;
   for (PathInfo * path: m_cache_paths) {
     path->time_active       = 0.;
     path->time_premodules   = 0.;
@@ -495,6 +513,10 @@ void FastTimerService::preProcessEvent(edm::EventID const & id, edm::Timestamp c
     module->has_just_run    = false;
     module->is_exclusive    = false;
   }
+
+  // copy the start event timestamp as the end of the previous path
+  // used by the inter-path overhead measurement
+  m_timer_path.second = m_timer_event.first;
 }
 
 void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetup const & setup) {
@@ -526,20 +548,31 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
   stop(m_timer_event);
   m_event = delta(m_timer_event);
   m_summary_event += m_event;
+  // the last part of inter-path overhead is the time between the end of the last (end)path and the end of the event processing
+  double interpaths = delta(m_timer_path.second, m_timer_event.second);
+  m_interpaths += interpaths;
+  m_summary_interpaths += m_interpaths;
   if (m_dqms) {
     //edm::LogImportant("FastTimerService") << m_dqm_event->GetName() << "->Fill(" << m_event * 1000. << ")";
-    m_dqm_event->Fill(m_event * 1000.);                     // convert to ms
+    m_dqm_event->Fill(m_event * 1000.);                                     // convert to ms
+
+    //edm::LogImportant("FastTimerService") << m_dqm_paths_interpaths->GetName() << "->Fill(" << m_paths.size()<< ", " <<  interpaths * 1000. << ")";
+    m_dqm_paths_interpaths->Fill(m_paths.size(), interpaths * 1000.);       // convert to ms
+    //edm::LogImportant("FastTimerService") << m_dqm_interpaths->GetName() << "->Fill(" << m_interpaths * 1000. << ")";
+    m_dqm_interpaths->Fill(m_interpaths * 1000.);                           // convert to ms
 
     if (m_enable_dqm_bylumi) {
       unsigned int lumi = event.getLuminosityBlock().luminosityBlock();
-      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_event->GetName() << "->Fill(" << lumi << ", " <<  m_event        * 1000. << ")";
+      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_event->GetName() << "->Fill(" << lumi << ", " <<  m_event * 1000. << ")";
       m_dqm_bylumi_event        ->Fill(lumi, m_event        * 1000.);       // convert to ms
-      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_source->GetName() << "->Fill(" << lumi << ", " <<  m_source       * 1000. << ")";
+      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_source->GetName() << "->Fill(" << lumi << ", " <<  m_source * 1000. << ")";
       m_dqm_bylumi_source       ->Fill(lumi, m_source       * 1000.);       // convert to ms
-      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_all_paths->GetName() << "->Fill(" << lumi << ", " <<  m_all_paths    * 1000. << ")";
+      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_all_paths->GetName() << "->Fill(" << lumi << ", " <<  m_all_paths * 1000. << ")";
       m_dqm_bylumi_all_paths    ->Fill(lumi, m_all_paths    * 1000.);       // convert to ms
       //edm::LogImportant("FastTimerService") << m_dqm_bylumi_all_endpaths->GetName() << "->Fill(" << lumi << ", " <<  m_all_endpaths * 1000. << ")";
       m_dqm_bylumi_all_endpaths ->Fill(lumi, m_all_endpaths * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_interpaths->GetName() << "->Fill(" << lumi << ", " <<  m_interpaths * 1000. << ")";
+      m_dqm_bylumi_interpaths   ->Fill(lumi, m_interpaths   * 1000.);       // convert to ms
     }
   }
 }
@@ -625,6 +658,15 @@ void FastTimerService::preProcessPath(std::string const & path ) {
     // this is the first endpath, start the "all paths" counter
     m_timer_endpaths.first = m_timer_path.first;
   }
+
+  // measure the inter-path overhead as the time elapsed since the end of preiovus path
+  // (or the beginning of the event, if this is the first path - see preProcessEvent)
+  double interpaths = delta(m_timer_path.second,  m_timer_path.first);
+  m_interpaths += interpaths;
+  if (m_dqms) {
+    //edm::LogImportant("FastTimerService") << m_dqm_paths_interpaths->GetName() << "->Fill(" << m_current_path->index << ", " <<  interpaths * 1000. << ")";
+    m_dqm_paths_interpaths->Fill(m_current_path->index, interpaths * 1000.);    // convert to ms
+  }
 }
 
 void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathStatus const & status) {
@@ -644,10 +686,10 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
 
     if (m_dqms) {
       //edm::LogImportant("FastTimerService") << m_dqm_paths_active_time->GetName() << "->Fill(" << pathinfo.index << ", " <<  active * 1000. << ")";
-      m_dqm_paths_active_time->Fill(pathinfo.index, active * 1000.);     // convert to ms
+      m_dqm_paths_active_time->Fill(pathinfo.index, active * 1000.);        // convert to ms
       if (m_enable_dqm_bypath_active) {
         //edm::LogImportant("FastTimerService") << pathinfo.dqm_active->GetName() << "->Fill(" << active * 1000. << ")";
-        pathinfo.dqm_active->Fill(active * 1000.);                      // convert to ms
+        pathinfo.dqm_active->Fill(active * 1000.);                          // convert to ms
       }
     }
 
