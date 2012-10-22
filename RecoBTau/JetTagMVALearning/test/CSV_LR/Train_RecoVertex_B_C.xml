@@ -66,18 +66,6 @@
 			<var name="category"/>
 		</output>
 	</processor>
-	<processor id="count" name="ProcCount">
-		<input>
-			<var source="input" name="trackSip2dSig"/>
-		</input>
-		<config>
-			
-		</config>
-		<output>
-			<var name="nTracks"/>
-		</output>
-	</processor>
-
 	<processor id="norm2" name="ProcNormalize">
 		<input>
 			<var source="input" name="jetPt"/>
@@ -170,7 +158,7 @@
 			<var source="split2" name="vartrackSip3dSig_rest"/>
 		</input>
 		<config>
-                        <general/>
+                        <general strict="true"/>
                         <category count="15"/>
                         <sigbkg smooth="3"/> <!-- trackEtaRel -->
                         <sigbkg smooth="3"/> <!-- vertexMass -->
@@ -193,7 +181,7 @@
 			<var source="lkh2" name="discr2"/>
 		</input>
 		<config>
-			<pdf lower="0" upper="1" />
+			<pdf smooth="3"/>
 		</config>
 		<output>
 			<var name="normdiscr2"/>
@@ -205,35 +193,49 @@
 			<var source="normlkh2" name="normdiscr2"/>
 		</input>
 		<config>
-			<general strict="false"/>
+			 <general strict="true"/>
+       <category count="15"/>
+	     <sigbkg smooth="3"/>
        <bias_table><!--B_C-->
-<bias>4.14228</bias>
-<bias>4.60684</bias>
-<bias>4.62942</bias>
-<bias>3.2694</bias>
-<bias>3.58343</bias>
-<bias>3.86204</bias>
-<bias>3.00886</bias>
-<bias>3.25509</bias>
-<bias>3.49604</bias>
-<bias>2.81767</bias>
-<bias>2.86255</bias>
-<bias>3.14994</bias>
-<bias>2.56136</bias>
-<bias>2.5106</bias>
-<bias>2.54221</bias>
+<bias>4.1973</bias>
+<bias>4.66459</bias>
+<bias>4.68545</bias>
+<bias>3.29556</bias>
+<bias>3.58796</bias>
+<bias>4.01026</bias>
+<bias>3.0835</bias>
+<bias>3.31211</bias>
+<bias>3.62215</bias>
+<bias>2.87272</bias>
+<bias>2.93904</bias>
+<bias>3.18516</bias>
+<bias>2.64672</bias>
+<bias>2.57673</bias>
+<bias>2.47583</bias>
        </bias_table><!--B_C-->
-			<category count="15"/>
-			<sigbkg smooth="3"/>
 		</config>
 		<output>
 			<var name="biasdiscr2"/>
 		</output>
 	</processor>
+	<processor id="opt2" name="ProcOptional">
+					<input>
+						<var source="biaslkh2" name="biasdiscr2"/>
+					</input>
+					<config>
+						<neutral pos="-1"/>
+					</config>
+					<output>
+						<var name="optdiscr2"/>
+					</output>
+  </processor>
 	<output>
-		<var source="biaslkh2" name="biasdiscr2"/>
+		<var source="opt2" name="optdiscr2"/>
 	</output>
 </MVATrainer>
+
+
+
 
 
 

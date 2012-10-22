@@ -68,17 +68,6 @@
                         <var name="category"/>
                 </output>
         </processor>
-        <processor id="count" name="ProcCount">
-                <input>
-                        <var source="input" name="trackSip2dSig"/>
-                </input>
-                <config>
-                        
-                </config>
-                <output>
-                        <var name="nTracks"/>
-                </output>
-        </processor>
         <processor id="norm1" name="ProcNormalize">
                 <input>
                         <var source="input" name="jetPt"/>
@@ -141,7 +130,7 @@
                         <var source="split1" name="vartrackSip3dSig_rest"/>
                 </input>
                 <config>
-                        <general/>
+                        <general strict="true"/>
                         <category count="15"/>
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_1 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_2 -->
@@ -157,7 +146,7 @@
                         <var source="lkh1" name="discr1"/>
                 </input>
                 <config>
-                        <pdf lower="-0.5" upper="1.5" size="200" smooth="1"/>
+                        <pdf smooth="3"/>
                 </config>
                 <output>
                         <var name="normdiscr1"/>
@@ -169,35 +158,49 @@
                         <var source="normlkh1" name="normdiscr1"/>
                 </input>
                 <config>
+								        <general strict="true"/>
+        	              <category count="15"/>
+	                      <sigbkg smooth="3"/>
                         <bias_table><!--B_DUSG-->
-<bias>0.653559</bias>
-<bias>0.748455</bias>
-<bias>0.838282</bias>
-<bias>0.369245</bias>
-<bias>0.459395</bias>
-<bias>0.620604</bias>
-<bias>0.270212</bias>
-<bias>0.352985</bias>
-<bias>0.510169</bias>
-<bias>0.230563</bias>
-<bias>0.307688</bias>
-<bias>0.452958</bias>
-<bias>0.282718</bias>
-<bias>0.34265</bias>
-<bias>0.492585</bias>
+<bias>0.671719</bias>
+<bias>0.761058</bias>
+<bias>0.842832</bias>
+<bias>0.375269</bias>
+<bias>0.470248</bias>
+<bias>0.620866</bias>
+<bias>0.263517</bias>
+<bias>0.347034</bias>
+<bias>0.508594</bias>
+<bias>0.214863</bias>
+<bias>0.289992</bias>
+<bias>0.448799</bias>
+<bias>0.248117</bias>
+<bias>0.31979</bias>
+<bias>0.480846</bias>
                         </bias_table><!--B_DUSG-->
-        	        <category count="15"/>
-	                <sigbkg lower="0" upper="1" size="100" smooth="3"/>
                 </config>
                 <output>
                         <var name="biasdiscr1"/>
                 </output>
         </processor>
-
+        <processor id="opt1" name="ProcOptional">
+					<input>
+						<var source="biaslkh1" name="biasdiscr1"/>
+					</input>
+					<config>
+						<neutral pos="-1"/>
+					</config>
+					<output>
+						<var name="optdiscr1"/>
+					</output>
+        </processor>
 	<output>
-		<var source="biaslkh1" name="biasdiscr1"/>
+		<var source="opt1" name="optdiscr1"/>
 	</output>
 </MVATrainer>
+
+
+
 
 
 
