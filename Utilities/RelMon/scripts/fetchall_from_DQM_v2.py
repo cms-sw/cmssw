@@ -7,6 +7,7 @@ e-mail:  albertasgim@gmail.com
 '''
 ################################################################################
 # Change logs:
+# 2012-10-22 11:31 - Checking to Download also files <1MB (like GEN samples)
 # 2012-07-09 16:10 - BugFix: RELEASE has to be in selected file names.
 # 2012-07-09 16:10 - Added How-To examples and command line option
 # explanations for -h option.
@@ -42,8 +43,13 @@ def auth_wget(url, chunk_size=1048576):
     url_file = opener.open(Request(url))
     size = int(url_file.headers["Content-Length"])
 
-    if size < 1048576:
-        return url_file.read()
+    if size < 1048576:   # if File size < 1MB
+        filename = basename(url)    #still download
+        readed = url_file.read()    ## and then check if its not an empty dir (parent directory)
+        if filename != '':
+            outfile = open(filename, 'wb')  #then write File to local system
+            outfile.write(readed)
+        return readed
 
     filename = basename(url)
     file_id = selected_files.index(filename)

@@ -3,9 +3,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: agimbuta $
-# $Date: 2012/07/17 14:56:58 $
-# $Revision: 1.5 $
+# $Author: dpiparo $
+# $Date: 2012/07/24 12:31:47 $
+# $Revision: 1.6 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -288,6 +288,9 @@ def call_compare_using_files(args):
   # Inspect the HLT directories
   if options.hlt:
     command+=" -d HLT "
+  
+  if options.hash_name:
+    command += " --hash_name "  
 
   if len(blacklists[sample]) >0:
     command+= '-B %s ' %blacklists[sample]
@@ -405,7 +408,7 @@ def do_reports(indir):
   os.chdir("..")
   
 #-------------------------------------------------------------------------------
-def do_html(options):
+def do_html(options, hashing_flag):
 
   if options.reports:
     print "Preparing reports for the single files..."
@@ -421,7 +424,7 @@ def do_html(options):
   else:
     aggregation_rules=definitions.aggr_pairs_dict['reco']
     aggregation_rules_twiki=definitions.aggr_pairs_twiki_dict['reco']
-  table_html = make_summary_table(options.input_dir,aggregation_rules,aggregation_rules_twiki)
+  table_html = make_summary_table(options.input_dir,aggregation_rules,aggregation_rules_twiki, hashing_flag)
 
   # create summary html file
   ofile = open("RelMonSummary.html","w")
@@ -520,6 +523,12 @@ if __name__ == "__main__":
                     dest="reports",
                     default=False,
                     help="Do the reports for the pickles \n(default is %s)" %in_dir)
+##---HASHING---##
+  parser.add_option("--hash_name",
+                    action="store_true",
+                    dest="hash_name",
+                    default=False,
+                    help="Set if you want to minimize & hash the output HTML files.")                    
 
   (options, args) = parser.parse_args()
 
@@ -531,7 +540,7 @@ if __name__ == "__main__":
   if len(options.all_samples)>0 or (len(options.ref_samples)*len(options.test_samples)>0):
     do_comparisons_threaded(options)
   if len(options.input_dir)>0:
-    do_html(options)
+    do_html(options, options.hash_name)
 
 
 

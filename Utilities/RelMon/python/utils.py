@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: agimbuta $
-# $Date: 2012/07/25 16:33:52 $
-# $Revision: 1.10 $
+# $Author: anorkus $
+# $Date: 2012/10/17 09:23:53 $
+# $Revision: 1.11 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -263,16 +263,35 @@ class Chi2(StatisticalTest):
           #print "Histo ",h.GetName()," Bin:",i,"-Content:",h.GetBinContent(i)," had zero error"
           h.SetBinContent(i,0)
 
+  def check_histograms(self, histogram):
+      if histogram.InheritsFrom("TProfile") or  (histogram.GetEntries()!=histogram.GetSumOfWeights()):
+          return 'W'
+      else:
+          return 'U'
 
   def do_test(self):
     self.absval()
     if self.check_filled_bins(3):
-      if self.h1.InheritsFrom("TProfile") or  (self.h1.GetEntries()!=self.h1.GetSumOfWeights()):
-        chi2=self.h1.Chi2Test(self.h2,'WW')
-        #if chi2==0: print "DEBUG",self.h1.GetName(),"Chi2 is:", chi2
-        return chi2
-      else:
-        return self.h1.Chi2Test(self.h2,'UU')
+      #if self.h1.InheritsFrom("TProfile") or  (self.h1.GetEntries()!=self.h1.GetSumOfWeights()):
+      #  chi2=self.h1.Chi2Test(self.h2,'WW')
+      #  #if chi2==0: print "DEBUG",self.h1.GetName(),"Chi2 is:", chi2
+      #  return chi2
+      #else:
+      #  return self.h1.Chi2Test(self.h2,'UU')
+      hist1 = self.check_histograms(self.h1)
+      hist2 = self.check_histograms(self.h2)
+      if hist1 =='W' and hist2 =='W': ##in case 
+          chi2 = self.h1.Chi2Test(self.h2,'WW')     ## the both histograms are weighted
+          return chi2
+      elif hist1 == 'U' and hist2 == 'U':
+          chi2 = self.h1.Chi2Test(self.h2,'UU')    ##the both histograms are unweighted
+          return chi2
+      elif hist1 == 'U' and hist2 == 'W':
+          chi2 = self.h1.Chi2Test(self.h2,'UW')   ## 1st histogram is unweighted, 2nd weighted
+          return chi2
+      elif hist1 == 'W' and hist2 == 'U':
+          chi2 = self.h2.Chi2Test(self.h1,'UW')   ## 1 is wieghted, 2nd unweigthed. so flip order to make a UW comparison
+          return chi2
     else:
       return 1
       #return test_codes["FEW_BINS"]

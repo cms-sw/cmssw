@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2012/06/12 13:19:32 $
-# $Revision: 1.2 $
+# $Author: agimbuta $
+# $Date: 2012/07/13 15:34:15 $
+# $Revision: 1.3 $
 
 #
 #                                                                              
@@ -32,6 +32,7 @@ else:
   from Utilities.RelMon.definitions import *
   from Utilities.RelMon.utils import unpickler
   
+  import hashlib
 #-------------------------------------------------------------------------------
 
 def encode_obj_url(url):
@@ -115,20 +116,29 @@ def get_page_footer():
 
 #-------------------------------------------------------------------------------
 
-def get_title_section(directory,depth=2):
+def get_title_section(directory, hashing_flag, depth=2):
   mother_name=basename(directory.mother_dir)
   mother_file_name=""
   if depth==1:
     mother_file_name="../RelMonSummary.html"
     if mother_name!="":
-      mother_file_name="%s.html" %(mother_name)
+      mother_file_name="%s.html" %(hash_name(mother_name, hashing_flag))
   elif depth==2:
-    mother_file_name="RelMonSummary.html"
+    #mother_file_name="RelMonSummary.html"
+    mother_file_name="%s.html" %(hash_name("RelMonSummary", hashing_flag))
     if mother_name!="":
-      mother_file_name="%s.html" %(mother_name)    
+      mother_file_name="%s.html" %(hash_name(mother_name, hashing_flag))
   else:
-      mother_file_name="%s.html" %directory.mother_dir.replace("/","_")
-      mother_file_name=mother_file_name.strip("_")
+      if hashing_flag:
+          files = directory.mother_dir.split("/")
+          if len(files) != 1:
+              dir_name = files[-2] ##return the mother directory name only as the html file name by it
+          else:
+              dir_name = files[-1]
+          mother_file_name="%s.html" %(hash_name(dir_name, hashing_flag))
+      else:
+          mother_file_name="%s.html" %directory.mother_dir.replace("/","_")
+          mother_file_name=mother_file_name.strip("_")
       
   link_to_mother='<a href="%s">..</a>' %mother_file_name
   html= '<div class="span-20">'+\
@@ -161,7 +171,7 @@ def get_dir_stats(directory):
 
 #-------------------------------------------------------------------------------
 
-def get_subdirs_section(directory): 
+def get_subdirs_section(directory, hashing_flag): 
   if len(directory.subdirs)==0:
     return ""
   html= '<div class="span-20 colborder">'
@@ -173,8 +183,11 @@ def get_subdirs_section(directory):
   sorted_subdirs= sorted(sorted_subdirs, key= lambda subdir: subdir.n_fails, reverse=True)
   for subdir in sorted_subdirs:
     name=subdir.name
-    link="%s_%s_%s.html" %(directory.mother_dir.replace("/","_"),directory.name.replace("/","_"),name)
-    link=link.strip("_")
+    if hashing_flag:
+        link = "%s.html" %(hash_name(name, hashing_flag))
+    else:
+        link="%s_%s_%s.html" %(directory.mother_dir.replace("/","_"),directory.name.replace("/","_"),name)
+        link=link.strip("_")
     html+='<div class="span-4 prepend-2 colborder">'
     html+='<h3>%s</h3>'%name
     html+='</div>'
@@ -385,7 +398,7 @@ def get_rank_section(directory):
     
 #-------------------------------------------------------------------------------
 
-def directory2html(directory, depth=0):
+def directory2html(directory, hashing, depth=0):
   """Converts a directory tree into html pages, very nice ones.
   """
   #print "d2html: depth", str(depth)," dir ",directory.name
@@ -398,12 +411,12 @@ def directory2html(directory, depth=0):
     #chdir(directory.name)
   
   for subdir in directory.subdirs:
-    directory2html(subdir,depth)
+    directory2html(subdir,hashing, depth)
   
   page_html=get_page_header(directory)+\
-            get_title_section(directory,depth)+\
+            get_title_section(directory,hashing, depth)+\
             get_summary_section(directory)+\
-            get_subdirs_section(directory)
+            get_subdirs_section(directory, hashing)
 
   for do_cat,cat in ((directory.n_comp_fails >0,FAIL ),
                      (directory.n_comp_nulls >0,NULL ),
@@ -423,8 +436,11 @@ def directory2html(directory, depth=0):
 
   if len(page_name)==0:
     page_name="RelMonSummary"
-  ofilename="%s_%s.html" %(directory.mother_dir.replace("/","_"),page_name)
-  ofilename=ofilename.strip("_")
+  if hashing:
+      ofilename = "%s.html" %(hash_name(page_name, hashing))
+  else:
+      ofilename="%s_%s.html" %(directory.mother_dir.replace("/","_"),page_name)
+      ofilename=ofilename.strip("_")
   #print "Writing on %s" %ofilename
   ofile=open(ofilename,"w")
   ofile.write(page_html)
@@ -638,7 +654,7 @@ def make_barchart_summary(dir_dict,name="the_chart",title="DQM directory",the_ag
 
 #-------------------------------------------------------------------------------
 
-def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki):
+def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_flag):
   """Create a table, with as rows the directories and as columns the samples.
   Each box in the table will contain a pie chart linking to the directory.
   """  
@@ -646,7 +662,10 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki):
   #aggregation_rules_twiki={}
 
   chdir(indir)
-  title=indir
+  if os.path.isabs(indir):
+      title = basename(indir)
+  else:
+      title=indir
   title=title.strip(".")
   title=title.strip("/")
   
@@ -723,7 +742,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki):
               '<li><a href="#summary_barchart">Summary Barchart</a></li>'+\
               '<li><a href="#categories">Categories</a></li>'+\
               '<li><a href="#detailed_barchart">Detailed Barchart</a></li>'+\
-	      '<li><a href="#summary_table">Summary Table</a></li>'+\
+          '<li><a href="#summary_table">Summary Table</a></li>'+\
               '<li><a href="#rank_summary">Ranks Summary</a></li>'+\
               '<li><a href="#twiki_table">Twiki Table</a></li>'+\
               '</ul>'+\
@@ -769,7 +788,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki):
     #if "_" in sample:
       #run_number=sample.split("_")[-1]      
       #if (not run_number.isalpha()) and len(run_number)>=6:
-	#sample_nick=run_number
+    #sample_nick=run_number
       
       
     page_html+="""
@@ -789,7 +808,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki):
     # check if the directory was a top one or not
     summary_page_name="RelMonSummary.html"
     if col.name!="":
-      summary_page_name=col.name+".html"
+      summary_page_name=hash_name(col.name, hashing_flag)+".html"
     img_link=col.get_summary_chart_ajax(55,55)
     page_html+='<td  style="background-color:white;"><div class="span-1">'
     page_html+='<a href="%s/%s"><img src="%s" title="%s"></a></div></td>' %(sample,summary_page_name,img_link,get_pie_tooltip(col))
@@ -825,10 +844,10 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki):
       subdirs_dict=directory.get_subdirs_dict()
 
       # Check if the directory is the top one
-      summary_page=join(sample,"%s.html"%(subdir_name))
+      summary_page=join(sample,"%s.html"%(hash_name(subdir_name, hashing_flag)))
       if directory.name!="":
         # We did not run on the topdir     
-        summary_page=join(sample,"%s_%s.html"%(directory.name,subdir_name))
+        summary_page=join(sample,"%s_%s.html"%(directory.name,hash_name(subdir_name,hashing_flag)))
       dir_is_there=subdirs_dict.has_key(subdir_name)
 
       img_link="https://chart.googleapis.com/chart?cht=p3&chco=C0C0C0&chs=50x50&chd=t:1"
@@ -858,3 +877,11 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki):
 
   page_html+=get_page_footer()
   return page_html  
+
+
+#-----------UPDATES------
+def hash_name(file_name, flag):
+    if flag: #if hashing flag is ON then return
+        return hashlib.md5(file_name).hexdigest()[:10] #md5 hashed file name with length 10
+    else:
+        return file_name #return standart name

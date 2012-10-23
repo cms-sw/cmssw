@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/12 14:37:05 $
-# $Revision: 1.3 $
+# $Date: 2012/07/19 07:27:26 $
+# $Revision: 1.4 $
 #
 #
 # Danilo Piparo CERN - danilo.piparo@cern.ch
@@ -129,6 +129,13 @@ parser.add_option("-B","--black_list",
                   dest="black_list",
                   default=black_list_str,
                   help="Blacklist elements. form is name@hierarchy_level (i.e. HLT@1) \n(default is %s)" %black_list_str)
+                  
+##---HASHING---##
+parser.add_option("--hash_name",
+                  action="store_true",
+                  dest="hash_name",
+                  default=False,
+                  help="Set if you want to minimize & hash the output HTML files.")
 
 (options, args) = parser.parse_args()
 
@@ -183,7 +190,7 @@ if options.compare:
   # check if the run is the same
   if run1!=run2:
     print "I am puzzled. Did you choose two different runs?"
-    exit(1)  
+#    exit(1)  
   run=run1
 
   fulldirname=options.outdir_name
@@ -241,8 +248,8 @@ if options.compare:
 
   # Set some meta for the page generation
   directory.meta.sample=sample
-  directory.meta.run1=run
-  directory.meta.run2=run
+  directory.meta.run1=run1
+  directory.meta.run2=run2
   directory.meta.release1=cmssw_release1
   directory.meta.release2=cmssw_release2
   directory.meta.tier1=tier1
@@ -297,7 +304,7 @@ if options.report:
   directory.calcStats()
   
   print "Producing html..."
-  directory2html(directory)
+  directory2html(directory, options.hash_name)
 
 if not (options.report or options.compare):
   print "Neither comparison nor report to be executed. A typo?"
