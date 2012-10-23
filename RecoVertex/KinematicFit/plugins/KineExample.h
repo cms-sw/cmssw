@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: KineExample.h,v 1.2 2009/12/14 22:24:18 wmtan Exp $
+// $Id: KineExample.h,v 1.3 2012/10/23 02:20:37 slava77 Exp $
 //
 //
 
@@ -50,7 +50,7 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void beginRun(const edm::EventSetup&);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
   virtual void endJob();
 
 private:
