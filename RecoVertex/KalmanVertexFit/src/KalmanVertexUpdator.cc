@@ -176,7 +176,7 @@ std::pair <bool, double>  KalmanVertexUpdator<N>::chi2Increment(const VertexStat
 
 //   AlgebraicVectorN rtp = ( theResidual +  a * newVertexPositionV + b * newTrackMomentumP);
 
-  AlgebraicVectorN parameterResiduals = vv  + b * newTrackMomentumP;
+  AlgebraicVectorN parameterResiduals = vv  - b * newTrackMomentumP;
   linearizedTrack->checkParameters(parameterResiduals);
 
   double chi2 = weight * ROOT::Math::Similarity(parameterResiduals, trackParametersWeight);
