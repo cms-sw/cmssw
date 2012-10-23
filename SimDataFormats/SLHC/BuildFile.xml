@@ -1,13 +1,21 @@
-<flags GENREFLEX_ARGS="--"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/PluginManager"/>
-<use name="FWCore/ParameterSet"/>
-<use name="DataFormats/Math"/>
-<use name="boost"/>
-<use name="rootrflx"/>
-<use name="clhep"/>
+<flags   GENREFLEX_ARGS="--"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Math"/>
+<use   name="boost"/>
+<use   name="rootrflx"/>
+<use   name="hepmc"/>
+<use   name="L1Trigger/DTBti"/>
+<use   name="L1Trigger/DTTrackFinder"/>
+<use   name="L1Trigger/DTTraco"/>
+<use   name="L1Trigger/DTTriggerServerPhi"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="SLHCUpgradeSimulations/Utilities"/>
+<use   name="RecoTracker/TkSeedGenerator"/>
+<use   name="clhep"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
 <export>
-	<lib   name="1"/>
+  <lib   name="1"/>
 </export>
-
 
