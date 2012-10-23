@@ -7,7 +7,7 @@ import optparse
 from FWCore.ParameterSet.VarParsing import VarParsing
 
 
-ROOT.gSystem.Load("libFWCoreFWLite.so")
+ROOT.gSystem.Load("libFWCoreFWLite")
 ROOT.AutoLibraryLoader.enable()
 
 # Whether warn() should print anythingg
