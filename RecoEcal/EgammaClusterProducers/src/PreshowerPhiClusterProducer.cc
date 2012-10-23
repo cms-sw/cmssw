@@ -33,6 +33,7 @@
 #include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/ESMissingEnergyCalibrationRcd.h"
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include <fstream>
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerPhiClusterProducer.h"
@@ -141,6 +142,8 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
     ++isc;
     LogTrace("EcalClusters")<< " superE = " << it_super->energy() << " superETA = " << it_super->eta() << " superPHI = " << it_super->phi() ;
     
+    //cout<<"superE = "<<it_super->energy()<<" superETA = "<<it_super->eta()<<" superPHI = "<<it_super->phi()<<endl;
+
     int nBC = 0;
     int condP1 = 1; // 0: dead channel; 1: active channel
     int condP2 = 1;
@@ -155,14 +158,20 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
       } else {
 	if (((*bc_iter)->phi() - refPhi) > 0 && ((*bc_iter)->phi() - refPhi) > maxDeltaPhi) maxDeltaPhi = (*bc_iter)->phi() - refPhi;
 	if (((*bc_iter)->phi() - refPhi) < 0 && ((*bc_iter)->phi() - refPhi) < minDeltaPhi) minDeltaPhi = (*bc_iter)->phi() - refPhi;
+	//if (reco::deltaPhi((*bc_iter)->phi(), refPhi) > 0 && reco::deltaPhi((*bc_iter)->phi(), refPhi) > maxDeltaPhi)
+	//maxDeltaPhi = refPhi + reco::deltaPhi((*bc_iter)->phi(), refPhi);
+	//if (reco::deltaPhi((*bc_iter)->phi(), refPhi) < 0 && reco::deltaPhi((*bc_iter)->phi(), refPhi) < minDeltaPhi)
+	//minDeltaPhi = refPhi - reco::deltaPhi((*bc_iter)->phi(), refPhi);
+	//cout<<"delta phi : "<<reco::deltaPhi((*bc_iter)->phi(), refPhi)<<endl;
       }
+      //cout<<"BC : "<<nBC<<" "<<(*bc_iter)->energy()<<" "<<(*bc_iter)->eta()<<" "<<(*bc_iter)->phi()<<endl; 
       nBC++;
     }
     maxDeltaPhi += esPhiClusterDeltaPhi_;
     minDeltaPhi -= esPhiClusterDeltaPhi_;
 
     nBC = 0;
-    for ( ; bc_iter !=it_super->clustersEnd(); ++bc_iter) {  
+    for (bc_iter = it_super->clustersBegin() ; bc_iter !=it_super->clustersEnd(); ++bc_iter) {  
       if (geometry) {
 	
 	// Get strip position at intersection point of the line EE - Vertex:
@@ -175,35 +184,39 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
 	DetId tmp2 = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, 2);
 	ESDetId strip1 = (tmp1 == DetId(0)) ? ESDetId(0) : ESDetId(tmp1);
 	ESDetId strip2 = (tmp2 == DetId(0)) ? ESDetId(0) : ESDetId(tmp2);     
-	
+
 	if (nBC == 0) {
 	  if (strip1 != ESDetId(0) && strip2 != ESDetId(0)) {
 	    ESChannelStatusMap::const_iterator status_p1 = channelStatus->getMap().find(strip1);
 	    ESChannelStatusMap::const_iterator status_p2 = channelStatus->getMap().find(strip2);
 	    if (status_p1->getStatusCode() == 1) condP1 = 0;
 	    if (status_p2->getStatusCode() == 1) condP2 = 0;
-	  } else if (strip1 == ESDetId(0))
+	  } else if (strip1 == ESDetId(0)) {
 	    condP1 = 0;
-	  else if (strip2 == ESDetId(0))
+	  } else if (strip2 == ESDetId(0)) {
 	    condP2 = 0;
+	  }
+	  
+	  //cout<<"starting cluster : "<<maxDeltaPhi<<" "<<minDeltaPhi<<" "<<esPhiClusterDeltaEta_<<endl;
+	  //cout<<"do plane 1 === "<<strip1.zside()<<" "<<strip1.plane()<<" "<<strip1.six()<<" "<<strip1.siy()<<" "<<strip1.strip()<<endl;
+	  // Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.           
+	  reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,topology_p,esPhiClusterDeltaEta_,minDeltaPhi,maxDeltaPhi);   
+	  cl1.setBCRef(*bc_iter);
+	  clusters1.push_back(cl1);
+	  e1 += cl1.energy();       
+	  
+	  //cout<<"do plane 2 === "<<strip2.zside()<<" "<<strip2.plane()<<" "<<strip2.six()<<" "<<strip2.siy()<<" "<<strip2.strip()<<endl;
+	  reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p,esPhiClusterDeltaEta_,minDeltaPhi,maxDeltaPhi); 
+	  cl2.setBCRef(*bc_iter);
+	  clusters2.push_back(cl2);
+	  e2 += cl2.energy();
 	}
-	
-	// Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.           
-	reco::PreshowerCluster cl1 = presh_algo->makeOneCluster(strip1,&used_strips,&rechits_map,geometry_p,topology_p,esPhiClusterDeltaEta_,minDeltaPhi,maxDeltaPhi);   
-	cl1.setBCRef(*bc_iter);
-	clusters1.push_back(cl1);
-	e1 += cl1.energy();       
-
-	reco::PreshowerCluster cl2 = presh_algo->makeOneCluster(strip2,&used_strips,&rechits_map,geometry_p,topology_p,esPhiClusterDeltaEta_,minDeltaPhi,maxDeltaPhi); 
-	cl2.setBCRef(*bc_iter);
-	clusters2.push_back(cl2);
-	e2 += cl2.energy();
       }
-      
+
       new_BC.push_back(*bc_iter);
       nBC++;
     }  // end of cycle over BCs
-    
+
     LogTrace("EcalClusters") << " For SC #" << isc-1 << ", containing " 
 			     << it_super->clustersSize() 			      
 			     << " basic clusters, PreshowerPhiClusterAlgo made " 
@@ -237,14 +250,15 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
     LogTrace("EcalClusters") << " Creating corrected SC ";
     
     reco::SuperCluster sc(E, it_super->position(), it_super->seed(), new_BC, deltaE);
+    sc.serPreshowerEnergyPlane1(e1*mip_);
+    sc.serPreshowerEnergyPlane2(e2*mip_);
     if (condP1 == 1 && condP2 == 1) sc.setPreshowerPlanesStatus(0);
     else if (condP1 == 1 && condP2 == 0) sc.setPreshowerPlanesStatus(1);
     else if (condP1 == 0 && condP2 == 1) sc.setPreshowerPlanesStatus(2);
     else if (condP1 == 0 && condP2 == 0) sc.setPreshowerPlanesStatus(3);
-    
+
     new_SC.push_back(sc);
-    LogTrace("EcalClusters") << " SuperClusters energies: new E = " << sc.energy() << " vs. old E =" << it_super->energy();
-    
+    //cout<<"result : "<<sc.energy()<<" "<<it_super->energy()<<" "<<deltaE<<" "<<e1*mip_<<" "<<e2*mip_<<endl;    
   } // end of cycle over SCs
   
   // copy the preshower clusters into collections and put in the Event:
