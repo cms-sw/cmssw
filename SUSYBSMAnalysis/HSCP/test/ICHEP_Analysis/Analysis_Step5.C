@@ -60,7 +60,6 @@ void Analysis_Step5()
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
 
-
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
    MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
@@ -669,6 +668,7 @@ void CutFlow(string InputPattern, unsigned int CutIndex){
 
     for(unsigned int s=0;s<samples.size();s++){
        if(samples[s].Type!=2 || !samples[s].MakePlot)continue;
+
        if(stPlots_InitFromFile(InputFile, plots, samples[s].Name)){
           stPlots_Dump(plots, pFile, CutIndex);       
           stPlots_Clear(&plots);
@@ -697,8 +697,9 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     }
 
     for(unsigned int s=0;s<samples.size();s++){
-       if (samples[s].Name!="Gluino_7TeV_M300_f10" && samples[s].Name!="Gluino_7TeV_M600_f10" && samples[s].Name!="Gluino_7TeV_M800_f10" && samples[s].Name!="GMStau_7TeV_M247" && samples[s].Name!="GMStau_7TeV_M370" && samples[s].Name!="GMStau_7TeV_M494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M400_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M400_Q2o3") continue;
-       if(!stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name)) continue;
+       if (samples[s].Name!="Gluino_7TeV_M300_f10" && samples[s].Name!="Gluino_7TeV_M600_f10" && samples[s].Name!="Gluino_7TeV_M800_f10" && samples[s].Name!="Gluino_8TeV_M300_f10" && samples[s].Name!="Gluino_8TeV_M600_f10" && samples[s].Name!="Gluino_8TeV_M800_f10" && samples[s].Name!="GMStau_7TeV_M247" && samples[s].Name!="GMStau_7TeV_M370" && samples[s].Name!="GMStau_7TeV_M494" && samples[s].Name!="GMStau_8TeV_M247" && samples[s].Name!="GMStau_8TeV_M370" && samples[s].Name!="GMStau_8TeV_M494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M300_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M300_Q2o3") continue;
+
+       if(!stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name)){printf("Missing sample %s\n",samples[s].Name.c_str());return; continue;}
        stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
     }
 
@@ -715,7 +716,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &MCTr8TeVPlots, &MCTr7TeVPlots);
 
     if(TypeMode<=2){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_Gluino", LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);}
-    if(TypeMode<=2){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);}
+    if(TypeMode<=2){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_8TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);}
     if(TypeMode==3){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);}
     if(TypeMode==5){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M600_Q2o3",samples)]);}
     if(TypeMode==5){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M600_Q2o3",samples)]);}
@@ -726,7 +727,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     stPlots_Clear(&MCTr7TeVPlots);
 
     for(unsigned int s=0;s<samples.size();s++){
-       if (samples[s].Name!="Gluino_7TeV_300_f10" && samples[s].Name!="Gluino_7TeV_600_f10" && samples[s].Name!="Gluino_7TeV_800_f10" && samples[s].Name!="GMStau_7TeV_247" && samples[s].Name!="GMStau_7TeV_370" && samples[s].Name!="GMStau_7TeV_494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M400_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M400_Q2o3") continue;
+       if (samples[s].Name!="Gluino_7TeV_M300_f10" && samples[s].Name!="Gluino_7TeV_M600_f10" && samples[s].Name!="Gluino_7TeV_M800_f10" && "Gluino_8TeV_M300_f10" && samples[s].Name!="Gluino_8TeV_M600_f10" && samples[s].Name!="Gluino_8TeV_M800_f10" && samples[s].Name!="GMStau_7TeV_M247" && samples[s].Name!="GMStau_7TeV_M370" && samples[s].Name!="GMStau_7TeV_M494" && samples[s].Name!="GMStau_8TeV_M247" && samples[s].Name!="GMStau_8TeV_M370" && samples[s].Name!="GMStau_8TeV_M494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M300_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M300_Q2o3") continue;
        if(!stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name)) continue;
        stPlots_Clear(&SignPlots[s]);
     }

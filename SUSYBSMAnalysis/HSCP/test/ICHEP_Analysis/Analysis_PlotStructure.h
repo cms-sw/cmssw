@@ -1083,7 +1083,6 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    delete Histos[0];
    delete c1;
 
-
    TH1** Histos1D = new TH1*[10];
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos1D[0] = (TH1*)st.AS_Eta_RegionA->ProjectionY((st.Name+"A").c_str(),CutIndex+1,CutIndex+1); legend.push_back("A");  
@@ -1102,12 +1101,46 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    if(Histos1D[6]->Integral()>0) Histos1D[6]->Scale(1.0/Histos1D[6]->Integral());
    Histos1D[7] = (TH1*)st.AS_Eta_RegionH->ProjectionY((st.Name+"H").c_str(),CutIndex+1,CutIndex+1); legend.push_back("H");
    if(Histos1D[7]->Integral()>0) Histos1D[7]->Scale(1.0/Histos1D[7]->Integral());
-   DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  "p_{T} (GeV/c)", "arbitrary units", 0, 0, 0, 0);
-   DrawLegend((TObject**)Histos1D,legend,"","P");
+   DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  "#eta", "arbitrary units", 0, 0, 0, 0.1);
+   DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(false);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,std::string("EtaRegions_AS")+CutIndexStr);
    for(unsigned int i=0;i<8;i++){delete Histos1D[i];}
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos1D[0] = (TH1*)st.AS_Eta_RegionA->ProjectionY((st.Name+"A").c_str(),CutIndex+1,CutIndex+1); legend.push_back("pT<Cut & dE/dx<Cut");
+   if(Histos1D[0]->Integral()>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral());
+   Histos1D[1] = (TH1*)st.AS_Eta_RegionB->ProjectionY((st.Name+"B").c_str(),CutIndex+1,CutIndex+1); legend.push_back("pT<Cut & dE/dx>Cut");
+   if(Histos1D[1]->Integral()>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral());
+   Histos1D[2] = (TH1*)st.AS_Eta_RegionC->ProjectionY((st.Name+"C").c_str(),CutIndex+1,CutIndex+1); legend.push_back("pT>Cut & dE/dx<Cut");
+   if(Histos1D[2]->Integral()>0) Histos1D[2]->Scale(1.0/Histos1D[2]->Integral());
+   Histos1D[3] = (TH1*)st.AS_Eta_RegionD->ProjectionY((st.Name+"D").c_str(),CutIndex+1,CutIndex+1); legend.push_back("pT>Cut & dE/dx>Cut");
+   if(Histos1D[3]->Integral()>0) Histos1D[3]->Scale(1.0/Histos1D[3]->Integral());
+   DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  "#eta", "arbitrary units", 0, 0, 0, 0.1);
+   DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+   c1->SetLogy(false);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,std::string("EtaRegions_ABCD_AS")+CutIndexStr);
+   for(unsigned int i=0;i<4;i++){delete Histos1D[i];}
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos1D[0] = (TH1*)st.AS_Eta_RegionA->ProjectionY((st.Name+"A").c_str(),CutIndex+1,CutIndex+1); legend.push_back("pT<Cut & 1/#beta<Cut");
+   if(Histos1D[0]->Integral()>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral());
+   Histos1D[1] = (TH1*)st.AS_Eta_RegionB->ProjectionY((st.Name+"E").c_str(),CutIndex+1,CutIndex+1); legend.push_back("pT<Cut & 1/#beta>Cut");
+   if(Histos1D[1]->Integral()>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral());
+   Histos1D[2] = (TH1*)st.AS_Eta_RegionC->ProjectionY((st.Name+"C").c_str(),CutIndex+1,CutIndex+1); legend.push_back("pT>Cut & 1/#beta<Cut");
+   if(Histos1D[2]->Integral()>0) Histos1D[2]->Scale(1.0/Histos1D[2]->Integral());
+   Histos1D[3] = (TH1*)st.AS_Eta_RegionD->ProjectionY((st.Name+"G").c_str(),CutIndex+1,CutIndex+1); legend.push_back("pT>Cut & 1/#beta>Cut");
+   if(Histos1D[3]->Integral()>0) Histos1D[3]->Scale(1.0/Histos1D[3]->Integral());
+   DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  "#eta", "arbitrary units", 0, 0, 0, 0.1);
+   DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+   c1->SetLogy(false);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,std::string("EtaRegions_ACEG_AS")+CutIndexStr);
+   for(unsigned int i=0;i<4;i++){delete Histos1D[i];}
    delete c1;
 
    if(st.Name.find("Cosmic")!=string::npos) {
@@ -1284,8 +1317,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
       c1->SetLogy(true);
       DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
       SaveCanvas(c1,SavePath,st[i]->Name + "_Beta");
-      delete Histos[3]; delete Histos[4]; 
-      if(!IsTkOnly)delete Histos[5];
+      //for(int l=0;l<legend.size();l++){delete Histos[l];}
       delete c1;
    }
 
