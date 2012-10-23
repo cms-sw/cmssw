@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ExREG")
 process.load("Configuration.StandardSequences.Services_cff")
-process.load('Configuration.Geometry.GeometryIdeal_cff')
+process.load('Configuration.Geometry.GeometryDB_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -21,19 +21,19 @@ process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
 process.calibratedPatElectrons.isMC = cms.bool(True)
 process.calibratedPatElectrons.inputDataset = cms.string("Summer12_DR53X_HCP2012")
 process.calibratedPatElectrons.updateEnergyError = cms.bool(True)
-process.calibratedPatElectrons.applyCorrections = cms.int32(999)
+process.calibratedPatElectrons.applyCorrections = cms.int32(10)
 process.calibratedPatElectrons.debug = cms.bool(True)
 
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(-1)
     )
 
 
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('file:../../../PhysicsTools/PatAlgos/test/patTuple_standard.root')
-    fileNames = cms.untracked.vstring('file:patTuple_standard.root')
+    fileNames = cms.untracked.vstring('file:../../../PhysicsTools/PatAlgos/test/patTuple_standard.root')
+#fileNames = cms.untracked.vstring('file:patTuple_standard.root')
     )
 
 
