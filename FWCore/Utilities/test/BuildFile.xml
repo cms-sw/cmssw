@@ -24,8 +24,7 @@
 <bin   file="HRTime_t.cpp">
   <use   name="cppunit"/>
 </bin>
-<bin   file="Math_t.cpp">
-  <use   name="cppunit"/>
+<bin   file="isFinite_t.cpp">
 </bin>
 <bin   file="MallocOpts_t.cpp">
   <use   name="cppunit"/>
