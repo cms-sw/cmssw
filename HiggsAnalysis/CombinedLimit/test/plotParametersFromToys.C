@@ -133,7 +133,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 
 		bool plotLH=false;
 
-		TGraph *gr=0;
+		TGraph *gr=NULL;
 		double p_mean =0;
 		double p_err  =0;
 
@@ -144,6 +144,9 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 			
 			p_mean = bfvals_[name].first;	// toy constrainits thrown about best fit to data
 			p_err  = prevals_[name].second; // uncertainties taken from card
+			std::cout << "******* "<< name << " *******"<<std::endl;
+			std::cout << p_mean <<  " " << p_err << std::endl;
+			std::cout << "******************************" <<std::endl;
 
 			const char* drawInput = Form("(%s-%f)/%f",name,p_mean,p_err);
 			tree_->Draw(Form("%s>>%s",drawInput,name),"");
@@ -152,7 +155,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 			fitPullf = true;
 			if (doLH) {
 			  gr = graphLH(name,p_err,whichfit);
-			  plotLH=true;
+			  if (gr) plotLH=true;
 			}
 			
 		}
@@ -214,12 +217,6 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 
 		TLatex *titletext = new TLatex();titletext->SetNDC();
 		titletext->SetTextSize(0.03);titletext->SetTextAlign(21); titletext->DrawLatex(0.49,0.95,name);
-		c->cd(1);
-		TLegend *legend = new TLegend(0.6,0.8,0.9,0.89);
-		legend->SetFillColor(0);
-		legend->AddEntry(bH,"All Toys","L");
-		legend->AddEntry(bHf,selectString.c_str(),"L");
-		legend->Draw();
 
 		if ( isFitted ){
 			c->cd(4); 
@@ -239,6 +236,11 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 
 		
 		c->cd(1); bH->Draw(); bHf->Draw("same");
+		TLegend *legend = new TLegend(0.6,0.8,0.9,0.89);
+		legend->SetFillColor(0);
+		legend->AddEntry(bH,"All Toys","L");
+		legend->AddEntry(bHf,selectString.c_str(),"L");
+		legend->Draw();
 
 		if (doPull && plotLH) {
 			c->cd(2); gr->Draw("ALP");
