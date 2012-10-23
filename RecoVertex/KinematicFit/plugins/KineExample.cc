@@ -48,7 +48,7 @@ KineExample::~KineExample() {
 //   delete rootFile_;
 }
 
-void KineExample::beginJob(){
+void KineExample::beginRun(const edm::EventSetup& setup){
   edm::ESHandle<TrackAssociatorBase> theAssociatorForParamAtPca;
   setup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociatorForParamAtPca);
   associatorForParamAtPca = (TrackAssociatorByChi2 *) theAssociatorForParamAtPca.product();
@@ -239,10 +239,10 @@ void KineExample::printout(const RefCountedKinematicParticle& myParticle) const
 {
   cout << "Particle: \n";
 //accessing the reconstructed Bs meson parameters:
-  AlgebraicVector7 bs_par = myParticle->currentState().kinematicParameters().vector();
+//SK: uncomment if needed  AlgebraicVector7 bs_par = myParticle->currentState().kinematicParameters().vector();
 
 //and their joint covariance matrix:
-  AlgebraicSymMatrix77 bs_er = myParticle->currentState().kinematicParametersError().matrix();
+//SK:uncomment if needed  AlgebraicSymMatrix77 bs_er = myParticle->currentState().kinematicParametersError().matrix();
   cout << "Momentum at vertex: " << myParticle->currentState().globalMomentum ()<<endl;
   cout << "Parameters at vertex: " << myParticle->currentState().kinematicParameters().vector()<<endl;
 }
