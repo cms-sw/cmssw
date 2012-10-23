@@ -18,7 +18,7 @@ from the configuration file, the DB is not implemented yet)
 //                   David Dagenhart
 //                   Zhen Xie
 //         Created:  Tue Jun 12 00:47:28 CEST 2007
-// $Id: LumiProducer.cc,v 1.28 2012/09/21 18:21:46 xiezhen Exp $
+// $Id: LumiProducer.cc,v 1.29 2012/09/22 00:22:10 slava77 Exp $
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -786,7 +786,14 @@ LumiProducer::fillLSCache(unsigned int luminum){
 	const coral::Blob& hltacceptblob=row["HLTACCEPTBLOB"].data<coral::Blob>();
 	const void* hltacceptblob_StartAddress=hltacceptblob.startingAddress();
 	unsigned int* hltaccepts=(unsigned int*)::malloc(hltacceptblob.size());
-	std::memmove(hltaccepts,hltacceptblob_StartAddress,hltacceptblob.size());
+	std::memmove(hltaccepts,hltacceptblob_StartAddress,hltacceptblob.size()); 	
+	unsigned int nhltaccepts = sizeof(hltaccepts)/sizeof(unsigned int);
+        if(nhltaccepts > 0 && m_runcache.HLTPathNames.size() == 0){
+          edm::LogWarning("CorruptOrMissingHLTData")<<"Got "<<nhltaccepts
+<<" hltaccepts, but the run chache is empty. hltdata will  not be written";
+            break;
+        }
+
 	for(unsigned int i=0;i<sizeof(hltaccepts)/sizeof(unsigned int);++i){
 	  HLTData hlttmp;
 	  hlttmp.pathname=m_runcache.HLTPathNames[i];
