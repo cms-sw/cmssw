@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:patTuple_standard.root')
+    fileNames = cms.untracked.vstring('file:../../../PhysicsTools/PatAlgos/test/patTuple_standard.root')
     )
 
 

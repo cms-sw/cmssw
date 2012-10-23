@@ -6,12 +6,20 @@ import FWCore.ParameterSet.Config as cms
 # corrected pat electrons
 #==============================================================================
 
-calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
+calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
 
     # input collections
-    inputPatElectronsTag = cms.InputTag("eleRegressionEnergy"),
-    #inputPatElectronsTag = cms.InputTag("cleanPatElectrons"),
+    inputElectronsTag = cms.InputTag('gsfElectrons'),
+    nameEnergyReg = cms.InputTag('eleRegressionEnergy:eneRegForGsfEle'),
+    nameEnergyErrorReg = cms.InputTag('eleRegressionEnergy:eneErrorRegForGsfEle'),
+    recHitCollectionEB = cms.InputTag('reducedEcalRecHitsEB'),
+    recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
 
+    outputGsfElectronCollectionLabel = cms.string('calibratedGsfElectrons'),
+# For conveniency                                     
+    nameNewEnergyReg = cms.string('eneRegForGsfEle'),
+    nameNewEnergyErrorReg  = cms.string('eneErrorRegForGsfEle'),                                     
+                                         
     # data or MC corrections
     # if isMC is false, data corrections are applied
     isMC = cms.bool(False),
@@ -36,7 +44,7 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
     # Jan16ReReco means Jan16 for 2011
     # Summer11 means summer11 MC..
     #inputDataset = cms.string("ReReco"),
-    inputDataset = cms.string("Prompt"),
+    inputDataset = cms.string("Prompt")
     
 )
 

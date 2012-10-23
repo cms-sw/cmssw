@@ -97,7 +97,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
    {     
       // energy calibration for ecalDriven electrons
       if (ele->core()->ecalDrivenSeed()) {        
-        theEnCorrector.correct(*ele, event, setup);
+        theEnCorrector.correct(*ele, ele->r9(),event, setup, ele->ecalRegressionEnergy(), ele->ecalRegressionError());
       }
       else {
         //std::cout << "[CalibratedPatElectronProducer] is tracker driven only!!" << std::endl;
