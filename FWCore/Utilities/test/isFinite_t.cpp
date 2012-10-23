@@ -36,7 +36,7 @@ int main(int n, const char**) {
   assert(isNotFinite(-1.f/float(zero)) );
 
   assert(!isNotFinite(LD(3.14)) );
-  assert(isNotFinite(-1.f/float(zero)) );
+  assert(isNotFinite(-1/LD(zero)) );
   assert(isNotFinite(std::sqrt(-LD(n))) );
 
   return 0;
