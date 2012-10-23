@@ -848,6 +848,10 @@ VertexTrackQuality
 PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, PFDisplacedVertex displVtx, ESHandle<MagneticField> bFieldH, const EventSetup& iSetup, Handle<BeamSpot> bsH, Handle<VertexCollection> vtxcollH, double tWeight)
 {
 
+	TransientTrack transtrk(trackref, &(*bFieldH) );
+    	transtrk.setBeamSpot(*bsH);
+    	transtrk.setES(iSetup);
+
 	TrackCollection refittedTracks = displVtx.refittedTracks();
 
 	if((displVtx.isTherePrimaryTracks()) || (displVtx.isThereMergedTracks())){
@@ -860,18 +864,16 @@ PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, PFDisplacedVertex disp
 
               VertexTrackQuality VOAssociation = PF_PU_AssoMapAlgos::TrackWeightAssociation(retrackbaseref.castTo<TrackRef>(), vtxcollH);
 
-	      if(VOAssociation.second.second>1.e-5) 
-                return make_pair(VOAssociation.first, make_pair(trackref, 2.));
+	      if(VOAssociation.second.second == 0.){
+                pair<bool,Measurement1D> IpPair = IPTools::absoluteImpactParameter3D(transtrk, *VOAssociation.first);
+                return make_pair(VOAssociation.first, make_pair(trackref, -1.*IpPair.second.value()));
+	      }
 
     	      TransientTrack transIncom(*retrackbaseref, &(*bFieldH) );
     	      transIncom.setBeamSpot(*bsH);
     	      transIncom.setES(iSetup);
 
 	      VertexRef foundVertexRef = FindClosest3D(transIncom, vtxcollH, tWeight); 
-
-	      TransientTrack transtrk(trackref, &(*bFieldH) );
-    	      transtrk.setBeamSpot(*bsH);
-    	      transtrk.setES(iSetup);
 
               pair<bool,Measurement1D> IpPair = IPTools::absoluteImpactParameter3D(transtrk, *foundVertexRef);	
 
@@ -896,10 +898,6 @@ PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref, PFDisplacedVertex disp
     	transIncom.setES(iSetup);
 
 	VertexRef foundVertexRef = FindClosest3D(transIncom, vtxcollH, tWeight); 
-
-	TransientTrack transtrk(trackref, &(*bFieldH) );
-    	transtrk.setBeamSpot(*bsH);
-    	transtrk.setES(iSetup);
 
         pair<bool,Measurement1D> IpPair = IPTools::absoluteImpactParameter3D(transtrk, *foundVertexRef);	
 
