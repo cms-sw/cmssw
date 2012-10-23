@@ -1,5 +1,4 @@
-#ifdef SLHC_DT_TRK_DFENABLE
-#include "SimDataFormats/SLHC/interface/DTStubMatchPtAlgorithms.h"
+#include "SimDataFormats/SLHC/interface/DTMatchPtAlgorithms.h" 
 
 /*
 
@@ -21,16 +20,16 @@
 
 */
 
-const float DTStubMatchPtAlgorithms::_chi2[] =
+const float DTMatchPtAlgorithms::_chi2[] = 
   {
-    NAN,
-    14.0236, 14.3372,
+    NAN, 
+    14.0236, 14.3372, 
     27.9615, 32.9746, NAN,
     947.799, 705.204, 664.357, 280.836,
     761.801, 945.329, 1013.12, 434.828, NAN
   };
 
-const float DTStubMatchPtAlgorithms::_p0[] =
+const float DTMatchPtAlgorithms::_p0[] = 
   {
     NAN,
     3.41E-05, 2.39E-05,
@@ -39,7 +38,7 @@ const float DTStubMatchPtAlgorithms::_p0[] =
     -6.05E-05, -7.92E-05, -4.56E-05, -0.54E-05, NAN
   };
 
-const float DTStubMatchPtAlgorithms::_e0[] =
+const float DTMatchPtAlgorithms::_e0[] = 
   {
     NAN,
     1.25E-05, 0.90E-05,
@@ -47,7 +46,7 @@ const float DTStubMatchPtAlgorithms::_e0[] =
     0.70E-05, 0.59E-05, 0.43E-05, 0.62E-05,
     0.67E-05, 0.57E-05, 0.44E-05, 0.58E-05, NAN};
 
-const float DTStubMatchPtAlgorithms::_p1[] =
+const float DTMatchPtAlgorithms::_p1[] = 
   {
     NAN,
     0.091614, 0.068779,
@@ -56,7 +55,7 @@ const float DTStubMatchPtAlgorithms::_p1[] =
     0.401449, 0.379040, 0.311536, 0.287998, NAN
   };
 
-const float DTStubMatchPtAlgorithms::_e1[] =
+const float DTMatchPtAlgorithms::_e1[] = 
   {
     NAN,
     0.000399, 0.000251,
@@ -66,8 +65,8 @@ const float DTStubMatchPtAlgorithms::_e1[] =
   };
 
 
-float DTStubMatchPtAlgorithms::chi2_linearfit(int L1, int L2) {
-  // chi2 of dephi vs invPt linear fit
+float DTMatchPtAlgorithms::chi2_linearfit(int L1, int L2) {
+  // chi2 of dephi vs invPt linear fit 
   L1 = tracker_lay_Id_to_our(L1);
   L2 = tracker_lay_Id_to_our(L2);
   if(L1 > L2) {
@@ -77,18 +76,18 @@ float DTStubMatchPtAlgorithms::chi2_linearfit(int L1, int L2) {
   else if(L2 > L1) {
     int idx = (L2*(L2-1))/2 + L1;
     return _chi2[idx];
-  }
+  } 
   else return NAN;
 }
 
-float DTStubMatchPtAlgorithms::slope_linearfit(int L1, int L2) {
+float DTMatchPtAlgorithms::slope_linearfit(int L1, int L2) {
   // angular coefficient for dephi vs invPt linear fit
   L1 = tracker_lay_Id_to_our(L1);
   L2 = tracker_lay_Id_to_our(L2);
   if(L1 > L2) {
     int idx = (L1*(L1-1))/2 + L2;
     /*
-    cout << "(" << L1 << ", " << L2 << ") --> idx = " << idx << ": slope = "
+    cout << "(" << L1 << ", " << L2 << ") --> idx = " << idx << ": slope = " 
 	 <<  _p1[idx] << endl;
     */
     return _p1[idx];
@@ -96,15 +95,15 @@ float DTStubMatchPtAlgorithms::slope_linearfit(int L1, int L2) {
   else if(L2 > L1) {
     int idx = (L2*(L2-1))/2 + L1;
     /*
-    cout << "(" << L1 << ", " << L2 << ") --> idx = " << idx << ": slope = "
+    cout << "(" << L1 << ", " << L2 << ") --> idx = " << idx << ": slope = " 
 	 <<  _p1[idx] << endl;
     */
     return _p1[idx];
-  }
+  } 
   else return NAN;
 }
 
-float DTStubMatchPtAlgorithms::sigma_slope_linearfit(int L1, int L2) {
+float DTMatchPtAlgorithms::sigma_slope_linearfit(int L1, int L2) {
   // sigma of angular coefficient for dephi vs invPt linear fit
   L1 = tracker_lay_Id_to_our(L1);
   L2 = tracker_lay_Id_to_our(L2);
@@ -115,11 +114,11 @@ float DTStubMatchPtAlgorithms::sigma_slope_linearfit(int L1, int L2) {
   else if(L2 > L1) {
     int idx = (L2*(L2-1))/2 + L1;
     return _e1[idx];
-  }
+  } 
   else return NAN;
 }
 
-float DTStubMatchPtAlgorithms::y_intercept_linearfit(int L1, int L2) {
+float DTMatchPtAlgorithms::y_intercept_linearfit(int L1, int L2) {
   // dephi @ invPt=0
   L1 = tracker_lay_Id_to_our(L1);
   L2 = tracker_lay_Id_to_our(L2);
@@ -130,11 +129,11 @@ float DTStubMatchPtAlgorithms::y_intercept_linearfit(int L1, int L2) {
   else if(L2 > L1) {
     int idx = (L2*(L2-1))/2 + L1;
     return _p0[idx];
-  }
+  } 
   else return NAN;
 }
 
-float DTStubMatchPtAlgorithms::sigma_y_intercept_linearfit(int L1, int L2) {
+float DTMatchPtAlgorithms::sigma_y_intercept_linearfit(int L1, int L2) {
   // sigma of dephi @ invPt=0
   L1 = tracker_lay_Id_to_our(L1);
   L2 = tracker_lay_Id_to_our(L2);
@@ -145,10 +144,9 @@ float DTStubMatchPtAlgorithms::sigma_y_intercept_linearfit(int L1, int L2) {
   else if(L2 > L1) {
     int idx = (L2*(L2-1))/2 + L1;
     return _e0[idx];
-  }
+  } 
   else return NAN;
 }
 
 
 
-#endif

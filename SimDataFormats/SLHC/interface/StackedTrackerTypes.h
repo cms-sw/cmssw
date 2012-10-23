@@ -7,24 +7,25 @@
 /// Changed by:                          ///
 /// Nicola Pozzobon                      ///
 /// UNIPD                                ///
-/// 2010, Oct; 2011 July                 ///
+/// 2010, Oct; 2011 July, Sep            ///
 ///                                      ///
 /// Added feature:                       ///
-/// Included L1Tracks                    ///
 /// Removed (NOT commented) TTHits       ///
 /// (Maybe in the future they will be    ///
 /// reintroduced in the framework...)    ///
 /// Adapted to the new approach          ///
+/// Completed with Tracks                ///
 /// ////////////////////////////////////////
 
 #ifndef STACKED_TRACKER_TYPES_H
 #define STACKED_TRACKER_TYPES_H
 
 /// Specific Data Formats for Tracking Trigger
+#include "SimDataFormats/SLHC/interface/L1TkBeam.h"
 #include "SimDataFormats/SLHC/interface/L1TkCluster.h"
 #include "SimDataFormats/SLHC/interface/L1TkStub.h"
 #include "SimDataFormats/SLHC/interface/L1TkTracklet.h"
-#include "SimDataFormats/SLHC/interface/L1Track.h"
+#include "SimDataFormats/SLHC/interface/L1TkTrack.h"
 
 /// Standard CMS Formats
 #include "DataFormats/Common/interface/Ref.h"
@@ -34,6 +35,9 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 namespace cmsUpgrades{
+
+  typedef L1TkBeam             Beam_;
+  typedef std::vector< Beam_ > Beam_Collection;
 
   /// The reference types
   typedef edm::Ref< edm::PSimHitContainer >                      Ref_PSimHit_;
@@ -69,12 +73,13 @@ namespace cmsUpgrades{
   typedef std::vector< L1TkTracklet_PSimHit_ >    L1TkTracklet_PSimHit_Collection;
   typedef std::vector< L1TkTracklet_PixelDigi_ >  L1TkTracklet_PixelDigi_Collection;
 
-  /// L1Track data types
-  typedef L1Track< Ref_PSimHit_ >            L1Track_PSimHit_;
-  typedef L1Track< Ref_PixelDigi_ >          L1Track_PixelDigi_;
-
-  typedef std::vector< L1Track_PSimHit_ >    L1Track_PSimHit_Collection;
-  typedef std::vector< L1Track_PixelDigi_ >  L1Track_PixelDigi_Collection;
+  /// Track data types
+  typedef L1TkTrack< Ref_PSimHit_ >            L1TkTrack_PSimHit_;
+  typedef L1TkTrack< Ref_PixelDigi_ >          L1TkTrack_PixelDigi_;
+  
+  typedef std::vector< L1TkTrack_PSimHit_ >    L1TkTrack_PSimHit_Collection;
+  typedef std::vector< L1TkTrack_PixelDigi_ >  L1TkTrack_PixelDigi_Collection;
+  
 
 }
 #endif

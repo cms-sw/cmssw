@@ -2,7 +2,7 @@
 //
 //   \class DTStubCollection
 /**
- *   Description:  collection to store DTStubMatch  triggers and Tracker Stubs 
+ *   Description:  collection to store DTMatch  triggers and Tracker Stubs 
 */
 //   090320 
 //   Sara Vanini - Padua University
@@ -19,8 +19,10 @@
 #include <algorithm>
 #include <vector>
 
-#include "SimDataFormats/SLHC/interface/DTStubMatch.h"
+#include "SimDataFormats/SLHC/interface/DTMatch.h"
 #include "SimDataFormats/SLHC/interface/DTTrackerStub.h"
+#include "SimDataFormats/SLHC/interface/DTTrackerTracklet.h"
+#include "SimDataFormats/SLHC/interface/DTTrackerTrack.h"
 #include "SimDataFormats/SLHC/interface/DTBtiTrigger.h"
 #include "SimDataFormats/SLHC/interface/DTTSPhiTrigger.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
@@ -37,21 +39,34 @@ typedef int DTmatchIdx;
 
 
 
-class DTStubMatchesCollection {
-
+class DTMatchesCollection {
+  /*
+    The main data member are:
+    vector<DTMatch*> _dtmatches, that is the set of those DT triggers
+    satisfying internal criteria of quality and correlation;
+    vector<TrackerStub*> _stubs, the set of all stubs;
+    vector<TrackerTracklet*> _tracklets, the set of all tracklets.
+    Once this data is collected by the DTL1SimOperations methods
+    getDTSimTrigger, getTrackerGlobalStubs and getTrackerTracklets,
+    the other DTL1SimOperations method getDTPrimitivesToTrackerObjectsMatches
+    assigns to each DTMatch object the appropriately best matching 
+    TrackerStub and TrackerTracklet objects.
+   */
  public:
   // default constructor
-  DTStubMatchesCollection() 	
+  DTMatchesCollection() 	
     { 
       _dtmatches.reserve(10); 
       _stubs.reserve(10); 
-      _dtmatches_st1=0; // to be save!
-      _dtmatches_st2=0; // to be save!
+      _tracklets.reserve(10); 
+      _tracks.reserve(10); 
+      _dtmatches_st1=0; // to be safe!
+      _dtmatches_st2=0; // to be safe!
       return; 
     }
 
   // destructor
-  ~DTStubMatchesCollection() 	
+  ~DTMatchesCollection() 	
     { 
       clear(); 
       return; 
@@ -65,13 +80,20 @@ class DTStubMatchesCollection {
     return 0;
   }
 
-  inline DTStubMatch* dtmatch(int i) const { return _dtmatches[i]; }
+  inline DTMatch* dtmatch(int i) const { return _dtmatches[i]; }
 
   inline TrackerStub* stub(int i)    const { return _stubs[i]; }
   inline size_t numStubs()	     const { return _stubs.size(); }
+  
+  inline TrackerTracklet* tracklet(int i)    const { return _tracklets[i]; }
+  inline size_t numTracklets()	     const { return _tracklets.size(); }
+  
+  inline TrackerTrack* track(int i)    const { return _tracks[i]; }
+  inline size_t numTracks()	     const { return _tracks.size(); }
+
 
   // utility functions
-  inline void addDT(DTStubMatch* dtmatch) { 
+  inline void addDT(DTMatch* dtmatch) { 
     _dtmatches.push_back(dtmatch); 
     if(dtmatch->station()==1) _dtmatches_st1++; 
     if(dtmatch->station()==2) _dtmatches_st2++;
@@ -96,36 +118,54 @@ class DTStubMatchesCollection {
 
 
   inline void addStub(TrackerStub* stub) { _stubs.push_back(stub); return; }
-
+  inline void addTracklet(TrackerTracklet* tracklet) { 
+    _tracklets.push_back(tracklet); return; 
+  }
+  inline void addTrack(TrackerTrack* track) { 
+    _tracks.push_back(track); return; 
+  }
 
   inline void clear() { 
     _dtmatches_st1=0; 
     _dtmatches_st2=0; 
     _dtmatches.clear(); 
     _stubs.clear(); 
+    _tracklets.clear(); 
+    _tracks.clear(); 
     return; 
   }
 
-  int nstubsInWindow(int phi, int theta, int sdtphi, int sdttheta, int lay) const; 
+  int nstubsInWindow(int phi, int theta, int sdtphi, int sdttheta, int lay) const;   
+  int ntrackletsInWindow(int phi, int theta, int sdtphi, int sdttheta, int lay) const;   
+  int ntracksInWindow(int phi, int theta, int sdtphi, int sdttheta) const; 
   void getAllStubsInWindow(int phi, int theta, int sdtphi, int sdttheta, int lay) const; 
-  TrackerStub* getClosestStub(int phi, int theta, int sdtphi, int sdttheta, int lay) const; 
+  TrackerStub* 
+    getClosestStub(int phi, int theta, int sdtphi, int sdttheta, int lay) const; 
   TrackerStub* getClosestPhiStub(int phi, int lay) const;
   TrackerStub* getClosestThetaStub(int theta, int lay) const;
   TrackerStub* getStub(int lay) const;
-  int  countStubs(int lay) const;
+  int countStubs(int lay) const;  
+  TrackerTracklet* 
+    getClosestTracklet(int phi, int theta, int sdtphi, int sdttheta, int superlay) const;
+  void getAllTracksInWindow(int phi, int theta, int sdtphi, int sdttheta, vector<TrackerTrack*>& Tracks_in_window, int ntracks) const; 
   void orderDTTriggers();
   void extrapolateDTToTracker();
-  void removeRedundantDTStubMatch();
-  void eraseDTStubMatch(int dm);
+  void removeRedundantDTMatch();
+  void eraseDTMatch(int dm);
 
  private:
   // DT Phi-Theta Match then completed with TrackerStub matches
-  vector<DTStubMatch*> _dtmatches;
+  // TrackerTracklet matches added (PLZ: 110608)
+  vector<DTMatch*> _dtmatches;
 
   // Tracker Stub vector
   vector<TrackerStub*> _stubs;
+  // Tracker Tracklet vector
+  vector<TrackerTracklet*> _tracklets;
+  // Tracker Track vector
+  vector<TrackerTrack*> _tracks;
  
-  // record number of DTStubMatch per station
+  // record number of DTMatch per station
   int _dtmatches_st1;
   int _dtmatches_st2;
 

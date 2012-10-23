@@ -1,51 +1,191 @@
+<!-- *********************************** -->
+<!--Stacked Tracker Simulations          -->
+<!--Written by:                          -->
+<!--Unknown                              -->
+<!--                                     -->
+<!--Changed by:                          -->
+<!--Emmanuele Salvati                    -->
+<!--Cornell                              -->
+<!--2010, June                           -->
+<!--Removed TrackTriggerHits             -->
+<!--Nicola Pozzobon                      -->
+<!--UNIPD                                -->
+<!--2011, July                           -->
+<!--Adapted to new package guidelines    -->
+<!--Nicola Pozzobon, Pierluigi Zotto     -->
+<!--UNIPD                                -->
+<!--2012, Oct                            -->
+<!--Added L1 DT and L1 Calo data formats -->
+<!--(Calo: agreement with Evan Friis)    -->
+<!-- *********************************** -->
+
 <lcgdict>
 
-<!-- ========================================================================================= -->
-<!-- ==================================== CALO TRIGGER INCLUDES ==================================== -->
-<!-- ========================================================================================= -->
-<class name="L1CaloTriggerSetup"/>
+  <!-- ********************** -->
+  <!-- Begin L1 Track Trigger -->
+  <!-- ********************** -->
 
- <class name="l1slhc::L1CaloTower"/>
- <class name="std::vector<l1slhc::L1CaloTower>"/>
- <class name="l1slhc::L1CaloTowerCollection"/>
- <class name="edm::Wrapper<l1slhc::L1CaloTowerCollection>"/>
+  <class pattern="std::set<*>" />
+  <class pattern="edm::Ref<*>" />
+  <class pattern="edm::Ptr<*>" />
+  <class pattern="edm::Wrapper<edm::Ref<*>>" />
 
- <class name="l1slhc::L1CaloTowerRef"/>
- <class name="l1slhc::L1CaloTowerRefVector"/>
- <class name="edm::Wrapper<l1slhc::L1CaloTowerRefVector>"/>
+  <!-- L1TkBeam -->
+  <class pattern="cmsUpgrades::L1TkBeam*" />
+  <class pattern="edm::Wrapper<cmsUpgrades::L1TkBeam*>" />
+  <class pattern="std::vector<cmsUpgrades::L1TkBeam*>" />
+  <class pattern="edm::Wrapper<std::vector<cmsUpgrades::L1TkBeam*>>" /> 
+
+  <!-- L1TkStub -->
+  <class pattern="cmsUpgrades::L1TkStub*" />
+  <class pattern="std::vector<cmsUpgrades::L1TkStub*>" />
+  <class pattern="edm::Wrapper<std::vector<cmsUpgrades::L1TkStub*>>" />
+
+  <!-- L1TkTracklet -->
+  <class pattern="cmsUpgrades::L1TkTracklet*" />
+  <class pattern="std::vector<cmsUpgrades::L1TkTracklet*>" />
+  <class pattern="edm::Wrapper<std::vector<cmsUpgrades::L1TkTracklet*>>" />
+
+  <!-- L1TkTrack -->
+  <class pattern="cmsUpgrades::L1TkTrack*" />
+  <class pattern="std::vector<cmsUpgrades::L1TkTrack*>" />
+  <class pattern="edm::Wrapper<std::vector<cmsUpgrades::L1TkTrack*>>" />
+
+  <!-- Cluster Types -->
+  <!-- Emmanuele: changing clusters
+  <class pattern="cmsUpgrades::L1TkCluster*" />
+  <class name="std::pair<cmsUpgrades::StackedTrackerDetId,int>" />
+  <class pattern="edm::Wrapper<cmsUpgrades::L1TkCluster*>" />
+  <class pattern="std::pair<unsigned int,*>" />
+  -->
+  <class pattern="std::vector<std::vector<cmsUpgrades::Ref_PixelDigi_>>" />
+  <!-- L1TkCluster -->
+  <class pattern="cmsUpgrades::L1TkCluster*" />
+  <class pattern="edm::Wrapper<cmsUpgrades::L1TkCluster*>" />
+  <!-- Pointers to Cluster -->
+  <class pattern="edm::Ptr<cmsUpgrades::L1TkCluster*>" />
+  <class pattern="edm::Wrapper<edm::Ptr<cmsUpgrades::L1TkCluster*>>" />
+  <!-- Vector of Clusters -->
+  <class pattern="std::vector<cmsUpgrades::L1TkCluster*>" />
+  <class pattern="edm::Wrapper<std::vector<cmsUpgrades::L1TkCluster*>>" />
+  <!-- Vector of pointers to Clusters -->
+  <class pattern="std::vector<edm::Ptr<L1TkCluster*>>" />
+  <class pattern="edm::Wrapper<std::vector<edm::Ptr<L1TkCluster*>>>" />
+  <!-- Key for the Map of Vectors of Clusters -->
+  <class pattern="std::pair<cmsUpgrades::StackedTrackerDetId,int>" />
+  <class pattern="edm::Wrapper<std::pair<cmsUpgrades::StackedTrackerDetId,int>>" />
+  <!-- Map of Vectors of Clusters -->
+  <class pattern="std::map<std::pair<cmsUpgrades::StackedTrackerDetId,int>,*>" />
+  <class pattern="edm::Wrapper<std::map<std::pair<cmsUpgrades::StackedTrackerDetId,int>,*>>" />
+
+  <class pattern="std::pair<unsigned int,*>" />
 
 
- <class name="l1slhc::L1CaloRegion"/>
- <class name="std::vector<l1slhc::L1CaloRegion>"/>
- <class name="l1slhc::L1CaloRegionRef"/>
- <class name="l1slhc::L1CaloRegionRefVector"/>
- <class name="l1slhc::L1CaloRegionCollection"/>
- <class name="edm::Wrapper<l1slhc::L1CaloRegionRefVector>"/>
- <class name="edm::Wrapper<l1slhc::L1CaloRegionCollection>"/>
 
- <class name="l1slhc::L1CaloCluster"/>
- <class name="std::vector<l1slhc::L1CaloCluster>"/>
- <class name="l1slhc::L1CaloClusterCollection"/>
- <class name="edm::Wrapper<l1slhc::L1CaloClusterCollection>"/>
+  <!-- ************************ -->
+  <!-- Begin L1 Muon DT Trigger -->
+  <!-- ************************ -->
+
+  <class name="DTTrigData" />
+
+  <class name="DTBtiTrigData" />
+  <class name="DTBtiTrigger" />
+  <class name="edm::Wrapper<DTBtiTrigger>" />
+  <class name="std::vector<DTBtiTrigger>" />
+  <class name="edm::Wrapper<std::vector<DTBtiTrigger> >" />
+
+  <class name="DTChambPhSegm" />
+  <class name="DTTSPhiTrigger" />
+  <class name="edm::Wrapper<DTTSPhiTrigger>" />
+  <class name="std::vector<DTTSPhiTrigger>" />
+  <class name="edm::Wrapper<std::vector<DTTSPhiTrigger> >" />
+
+  <class name="DTTracoTrigData" />
+
+  <class name="DTMatchPt" />
+  <class name="edm::Wrapper<DTMatchPt>" />
+  <class name="std::vector<DTMatchPt>" />
+  <class name="edm::Wrapper<std::vector<DTMatchPt> >" />
+  <class name="DTMatchPtVariety" />
+  <class name="DTMatchPtAlgorithms" />
+
+  <class name="DTMatch" />
+  <class name="edm::Wrapper<DTMatch>" />
+  <class name="std::vector<DTMatch*>" />
+  <class name="edm::Wrapper<std::vector<DTMatch*> >" />
+
+  <class name="std::vector<DTMatchPt*>" />
+  <class name="edm::Wrapper<std::vector<DTMatchPt*> >" />
+
+  <class name="DTMatchesCollection" />
+  <class name="edm::Wrapper<DTMatchesCollection>" />
+  <class name="TrackerStub" />
+  <class name="TrackerTracklet" />
+  <class name="TrackerTrack" />
+  <class name="lt_stub" />
+  <class name="edm::Wrapper<TrackerStub>" />
+  <class name="edm::Wrapper<TrackerTracklet>" />
+  <class name="edm::Wrapper<TrackerTrack>" />
+  <class name="edm::Wrapper<lt_stub>" />
+  
+  <class name="std::vector<TrackerStub*>" />
+  <class name="std::vector<TrackerTracklet*>" />
+  <class name="std::vector<TrackerTrack*>" />
+  <class name="edm::Wrapper<std::vector<TrackerStub*> >" />
+  <class name="edm::Wrapper<std::vector<TrackerTracklet*> >" />
+  <class name="edm::Wrapper<std::vector<TrackerTrack*> >" />
+  
+  <!--
+  <class name="std::set<TrackerStub*, lt_stub>" />
+  <class name="edm::Wrapper<std::set<TrackerStub*, lt_stub> >" />
+  -->
+
+  <class name="DTSeededStubTrack" />
+  <class name="edm::Wrapper<DTSeededStubTrack>" />
+  <class name="std::vector<DTSeededStubTrack*>" />
+  <class name="edm::Wrapper<std::vector<DTSeededStubTrack*> >" />
+  <class name="DTSeededStubTracksCollection" />
+  <class name="edm::Wrapper<DTSeededStubTracksCollection>" />
 
 
- <class name="l1slhc::L1CaloJet"/>
- <class name="std::vector<l1slhc::L1CaloJet>"/>
- <class name="l1slhc::L1CaloJetCollection"/>
- <class name="edm::Wrapper<l1slhc::L1CaloJetCollection>"/>
 
- <class name="l1slhc::L1TowerJet"/>
- <class name="std::vector<l1slhc::L1TowerJet>"/>
- <class name="l1slhc::L1TowerJetCollection"/>
- <class name="edm::Wrapper<l1slhc::L1TowerJetCollection>"/>
+  <!-- ********************* -->
+  <!-- Begin L1 Calo Trigger -->
+  <!-- ********************* -->
 
-<!-- ========================================================================================= -->
-<!-- ========================================================================================= -->
-<!-- ========================================================================================= -->
+  <class name="L1CaloTriggerSetup" />
 
+  <class name="l1slhc::L1CaloTower" />
+  <class name="std::vector<l1slhc::L1CaloTower>" />
+  <class name="l1slhc::L1CaloTowerCollection" />
+  <class name="edm::Wrapper<l1slhc::L1CaloTowerCollection>" />
 
+  <class name="l1slhc::L1CaloTowerRef" />
+  <class name="l1slhc::L1CaloTowerRefVector" />
+  <class name="edm::Wrapper<l1slhc::L1CaloTowerRefVector>" />
 
+  <class name="l1slhc::L1CaloRegion" />
+  <class name="std::vector<l1slhc::L1CaloRegion>" />
+  <class name="l1slhc::L1CaloRegionRef" />
+  <class name="l1slhc::L1CaloRegionRefVector" />
+  <class name="l1slhc::L1CaloRegionCollection" />
+  <class name="edm::Wrapper<l1slhc::L1CaloRegionRefVector>" />
+  <class name="edm::Wrapper<l1slhc::L1CaloRegionCollection>" />
 
+  <class name="l1slhc::L1CaloCluster" />
+  <class name="std::vector<l1slhc::L1CaloCluster>" />
+  <class name="l1slhc::L1CaloClusterCollection" />
+  <class name="edm::Wrapper<l1slhc::L1CaloClusterCollection>" />
+
+  <class name="l1slhc::L1CaloJet" />
+  <class name="std::vector<l1slhc::L1CaloJet>" />
+  <class name="l1slhc::L1CaloJetCollection" />
+  <class name="edm::Wrapper<l1slhc::L1CaloJetCollection>" />
+
+  <class name="l1slhc::L1TowerJet" />
+  <class name="std::vector<l1slhc::L1TowerJet>" />
+  <class name="l1slhc::L1TowerJetCollection" />
+  <class name="edm::Wrapper<l1slhc::L1TowerJetCollection>" />
 
 </lcgdict>
 

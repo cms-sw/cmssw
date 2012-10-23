@@ -1,20 +1,20 @@
 //
-//   \class DTStubMatchPtAlgorithms 
+//   \class DTMatchPtAlgorithms 
 //          
 /**
 
-    Description: abstract base class for DTStubMatch (and DTSeededTracklet).
+    Description: abstract base class for DTMatch (and DTSeededTracklet).
     Various ways of obtaining  muon Pt are defined for DT triggers having
     matched stacked tracker stubs, which indeed are all available only
-    in DTStubMatch (and DTSeededTracklet) objects.
+    in DTMatch (and DTSeededTracklet) objects.
 
 **/
 //   April 5, 2010             
 //   I. Lazzizzera - Trento University
 //
 //-------------------------------------------------------------------------
-#ifndef DTStubMatchPtAlgorithms_H
-#define DTStubMatchPtAlgorithms_H
+#ifndef DTMatchPtAlgorithms_H
+#define DTMatchPtAlgorithms_H
 
 //---------------
 // C++ Headers --
@@ -30,8 +30,10 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"      
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"     
 
-#include "SimDataFormats/SLHC/interface/DTStubMatchPtVariety.h"
-#include "SimDataFormats/SLHC/interface/DTStubMatchPt.h"     
+#include "SimDataFormats/SLHC/interface/DTMatchPtVariety.h"
+#include "SimDataFormats/SLHC/interface/DTTrackerStub.h"
+#include "SimDataFormats/SLHC/interface/DTTrackerTracklet.h"
+#include "SimDataFormats/SLHC/interface/DTMatchPt.h"     
 
 #include <boost/numeric/ublas/triangular.hpp>
 #include <boost/numeric/ublas/io.hpp>
@@ -41,33 +43,39 @@ using namespace std;
 
 
 //--------------------------------------------------------
-const int StackedLayersInUseTotal = 6;
-
-const int StackedLayersInUse[] = {0, 1, 2, 3, 8, 9};
-
+int const StackedLayersInUseTotal = 6;
+int const StackedLayersInUse[] = {0, 1, 2, 3, 8, 9};
 int const our_to_tracker_lay_Id(int const l);
-
 int const tracker_lay_Id_to_our(int const l);
-
-static int const LENGTH = StackedLayersInUseTotal;
 
 static int const STUBSTUBCOUPLES = 
   (StackedLayersInUseTotal*(StackedLayersInUseTotal-1))/2;
+
+size_t const TkSLinUseTotal = 3; // Tracker Super-Layers 0, 1 and 4
+const int TkSLinUse[] = {0, 1, 4};
+int const our_to_tracker_superlay_Id(int const l);
+int const tracker_superlay_Id_to_our(int const l);
 //--------------------------------------------------------
 
 
 
-class DTStubMatchPtAlgorithms: public DTStubMatchPtVariety {
-
+class DTMatchPtAlgorithms: public DTMatchPtVariety {
+  /*
+    This is abstract base class for DTMatch class. 
+    It is derived from the DTMatchPtVariety, a container of muon Pt's as 
+    obtained by a variety of approaches, combining stub hits to which a DT 
+    muon was extrapolated.
+    The class main method is setPt.
+   */
  public:
   // constructor
-  DTStubMatchPtAlgorithms();
+  DTMatchPtAlgorithms();
   // copy constructor
-  DTStubMatchPtAlgorithms(const DTStubMatchPtAlgorithms& pts);
+  DTMatchPtAlgorithms(const DTMatchPtAlgorithms& pts);
   // assignment operator
-  DTStubMatchPtAlgorithms& operator =(const DTStubMatchPtAlgorithms& pts);
+  DTMatchPtAlgorithms& operator =(const DTMatchPtAlgorithms& pts);
   // destructor
-  virtual ~DTStubMatchPtAlgorithms() {};
+  virtual ~DTMatchPtAlgorithms() {};
 
   virtual void to_get_pt() = 0;         // make abstract this class!
 
@@ -97,76 +105,18 @@ class DTStubMatchPtAlgorithms: public DTStubMatchPtVariety {
   inline float  vstub_rho()                const { return _vstub_rho; }
   inline float  vstub_phiCMS()             const { return _vstub_phiCMS; }
 
-  float phiCMS(const GlobalVector& P) const
-    { 
-      float phiCMS = P.phi();
-      if(phiCMS < 0.)
-	phiCMS += 2. * TMath::Pi();
-      if(phiCMS > 2*TMath::Pi())
-	phiCMS -= 2 * TMath::Pi();
-      return phiCMS;
-    }
-
-  float stub_phiCMS(size_t lay) const
-    { 
-      float phiCMS = static_cast<float>(_stub_phi[lay])/4096.;
-      if(phiCMS < 0.)
-	phiCMS += 2. * TMath::Pi();
-      if(phiCMS > 2*TMath::Pi())
-	phiCMS -= 2 * TMath::Pi();
-      return phiCMS;
-    }
-
-  inline void set_stub_dephi(int lay, float dephi) { 	
-    _stub_dephi[lay] = dephi; 
-    return; 
-  } 
-
-  void set_stubstub_dephi(int L1, int L2, float dephi) { 
-    // call tracker_lay_Id_to_our to be safe
-    L1 = tracker_lay_Id_to_our(L1);
-    L2 = tracker_lay_Id_to_our(L2);	
-    if(L1 > L2) {
-      int idx = (L1*(L1-1))/2 + L2;
-      _stubstub_dephi[idx] = dephi;
-    }
-    else if(L2 > L1) {
-      int idx = (L2*(L2-1))/2 + L1;
-      _stubstub_dephi[idx] = -dephi;
-    } 
-    return; 
-  } 
-
-  float stubstub_dephi(int L1, int L2) const {
-    /*
-    cout << "giving stubstub_dephi: " << flush;
-    */
-    // call tracker_lay_Id_to_our to be safe
-    L1 = tracker_lay_Id_to_our(L1);
-    L2 = tracker_lay_Id_to_our(L2);
-    if(L1 > L2) {
-      int idx = (L1*(L1-1))/2 + L2;
-      /*
-      cout << "(" << L1 << ", " << L2 << ") --> idx = " << idx << ": _stubstub_dephi = " 
-	   <<  _stubstub_dephi[idx] << endl;
-      */
-      return _stubstub_dephi[idx];
-    }
-    else if(L2 > L1) {
-      int idx = (L2*(L2-1))/2 + L1;
-      /*
-      cout << "(" << L1 << ", " << L2 << ") --> idx = " << idx << ": _stubstub_dephi = " 
-	   <<  _stubstub_dephi[idx] << endl;
-      */
-      return (- _stubstub_dephi[idx]);
-    } 
-    else return 0.;
-  }
-
+  float phiCMS(const GlobalVector& P) const;
+  float stub_phiCMS(size_t lay) const;
+  void set_stub_dephi(int lay, float dephi); 
+  void set_stubstub_dephi(int L1, int L2, float dephi);
+  float stubstub_dephi(int L1, int L2) const;
 
   virtual void setPt(const edm::ParameterSet& pSet);
 
   size_t matching_stubs_No() const { return _matching_stubs_No; }
+
+  inline vector<TrackerTracklet*>& MatchingTkTracklets() 
+    { return _MatchingTkTracklets; }
 
   /*----------------------------------------------------------------*/
   /*   Using linear fit of dephi versus invPt                       */
@@ -186,61 +136,72 @@ class DTStubMatchPtAlgorithms: public DTStubMatchPtVariety {
   
   float sigma_y_intercept_linearfit(int L1, int L2);
   // sigma of dephi @ invPt=0
-  /*----------------------------------------------------------------*/
+  /*----------------------------------------------------------------------------*/
 
  protected:
 
-  // The DT trigger Id.
-  // (that will effectively set in DTStubMatch class.)
+  // The original DT trigger Id (effectively set by DTMatch class methods).
   int   _wheel, _station, _sector, _bx, _code;
   GlobalPoint  _position;      
   GlobalVector _direction;
  
-  // Derived DT trigger Id.
-  // (that will effectively set by DTStubMatch class constructors.)
+  // Derived from above DT trigger Id (effectively set by DTMatch class methods).
   float _rho, _phiCMS, _bendingDT;
   float _thetaCMS, _eta;
 
-  // Matched stacked tracker stub phi and theta. 
-  // (that will effectively set by DTStubMatch class constructors.)
-  int _stub_phi[LENGTH];
-  int _stub_theta[LENGTH];
+  /* Matching stacked tracker stubs ***********************************************
+     (that will effectively set by DTMatch class constructors.)              */
+  int _stub_phi[StackedLayersInUseTotal];
+  int _stub_theta[StackedLayersInUseTotal];
+  float 
+    _stub_x[StackedLayersInUseTotal], 
+    _stub_y[StackedLayersInUseTotal], 
+    _stub_z[StackedLayersInUseTotal];                     
+  float 
+    _stub_rho[StackedLayersInUseTotal], 
+    _stub_phiCMS[StackedLayersInUseTotal],  
+    _stub_thetaCMS[StackedLayersInUseTotal];  
+  float _stub_dephi[StackedLayersInUseTotal]; // that is fabs(_stub_phiCMS - phiCMS)
+  float _stubstub_dephi[STUBSTUBCOUPLES];     // phi[lay1] - phi[lay2] 
+  GlobalVector _stub_position[StackedLayersInUseTotal];                              
+  GlobalVector _stub_direction[StackedLayersInUseTotal]; 
+  bool _flagMatch[StackedLayersInUseTotal];  /* We have a match with tracker stub.
+						(It is be effectively set by 
+						DTMatch class constructors.)*/
+  size_t _matching_stubs_No; /* that is No of layers with at least one valid 
+				matching stubs                                  */
 
-  // Matched stacked tracker stubs
-  // (that will effectively by DTStubMatch class constructors.)
-  float _stub_x[LENGTH], _stub_y[LENGTH], _stub_z[LENGTH];                     
-  float _stub_rho[LENGTH], _stub_phiCMS[LENGTH],  _stub_thetaCMS[LENGTH];  
-  float _stub_dephi[LENGTH];       // that is fabs(_stub_phiCMS - phiCMS)
-  //  triangular_matrix<float, upper> _stubstub_dephi(LENGTH, LENGTH);
-  float _stubstub_dephi[STUBSTUBCOUPLES]; // phi[lay1] - phi[lay2] 
-  GlobalVector _stub_position[LENGTH];                                         
-  GlobalVector _stub_direction[LENGTH]; 
+  /* Stubs *************************************************************************
+     the closest for each layer, if any:                                          */ 
+  vector<TrackerStub*> _MatchingTkStubs;
 
-  // We have a match with tracker stub.
-  // (It will be effectively set by DTStubMatch class constructors.)
-  bool _flagMatch[LENGTH];
+  /* Tracklets *********************************************************************
+     the closest for each super-layer, if any:                                    */
+  vector<TrackerTracklet*> _MatchingTkTracklets;
 
-  size_t _matching_stubs_No;
 
+  // Concerning the virtual tracker layer ******************************************
   static const double _RiCoil, _RoCoil, _rtilde; 
 
-  float  _alphaDT;  // tan(_alpha) is the angular coefficient of the muon trajectory 
-                    // outside the inner surface of the CMS superconducting coil,  
-                    // assuming that trajectory to be linear.
-  // Say double delta = _phiCMS - _alphaDT; then:
-  float _sqrtDscrm;    // sqrt(1. - rho*rho*sin(delta)*sin(delta)/(_rtilde*_rtilde)).
-  // On the tranverse plane of CMS, we define coordinates of the intercept of the 
-  // assumed straight line muon trajectory in the DT chambers volume with the 
-  // cylindrical boundary surface of the CMS magnetic field.
-  float _phiR;             // Polar coordinates of above; 
-  float _deltaPhiR;        // _deltaPhiR = _phiR - _phiCMS; 
-  // Next _sqrtDscrm set to 1. 
+  float  _alphaDT;  /* tan(_alphaDT) is the angular coefficient of the muon  
+		       trajectory outside the inner surface of the CMS 
+		       superconducting coil, assuming that trajectory to be linear.
+		       Say double delta = _phiCMS - _alphaDT; then:               */
+  float _sqrtDscrm; /* sqrt(1. - rho*rho*sin(delta)*sin(delta)/(_rtilde*_rtilde)).
+		       On the tranverse plane of CMS, we define coordinates of 
+		       the intercept of the assumed straight line muon trajectory 
+		       in the DT chambers volume with the  cylindrical boundary 
+		       surface of the CMS magnetic field.                      */
+  float _phiR;         // Polar coordinates of above; 
+  float _deltaPhiR;    // _deltaPhiR = _phiR - _phiCMS; 
+  // Next is for _sqrtDscrm set to 1. 
   float _PhiR;
-  // Next using deltaPhiR_over_bending  = 1. - _rho/_rtilde;           
+  // Next is for use of deltaPhiR_over_bending  = 1. - _rho/_rtilde;           
   float _PhiRI;
   //
   float _vstub_rho, _vstub_phiCMS;          
 
+  //*******************************************************************************
   /*--------------------------------------------------------------------*/
   /*   Using linear fit of dephi versus invPt                           */
   /*--------------------------------------------------------------------*/

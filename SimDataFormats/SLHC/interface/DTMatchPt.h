@@ -9,6 +9,7 @@
 #include <map>
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"  
+#include "SimDataFormats/SLHC/interface/DTTrackerTracklet.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 
@@ -16,18 +17,18 @@
 using namespace std;
 
 
-class DTStubMatch;
-class DTStubMatchPtAlgorithms;
+class DTMatch;
+class DTMatchPtAlgorithms;
 
 
-class DTStubMatchPt {
+class DTMatchPt {
   
-  friend class DTStubMatch;
-  friend class DTStubMatchPtAlgorithms; 
+  friend class DTMatch;
+  friend class DTMatchPtAlgorithms; 
  
  public:
   
-  DTStubMatchPt() {
+  DTMatchPt() {
     _label = string();
     _Rb = NAN;
     _invRb = NAN;
@@ -36,7 +37,7 @@ class DTStubMatchPt {
     _alpha0 = _d = NAN;
   }
   
-  DTStubMatchPt(std::string const s) {
+  DTMatchPt(std::string const s) {
     _label = s;
     _Rb = NAN;
     _invRb = NAN;
@@ -45,38 +46,50 @@ class DTStubMatchPt {
     _alpha0 = _d = NAN;
   }
 
-  DTStubMatchPt(std::string const s, int station, 
-		const edm::ParameterSet& pSet,
-		const GlobalVector stub_position[],
-		bool const flagMatch[]); 
-  
-  DTStubMatchPt(string const s, int station,
-		const GlobalVector stub_position[],
-		bool const flagMatch[],
-		const edm::ParameterSet& pSet);
-  
-  DTStubMatchPt(std::string const s, int station, 
-		const edm::ParameterSet& pSet,
-		const float vstub_rho, const float vstub_phi,
-		const GlobalVector stub_position[],
-		bool const flagMatch[]); 
-  
-  DTStubMatchPt(std::string const s, int station,
-		const edm::ParameterSet& pSet,
-		float const DTmu_x, float const DTmu_y,
-		float const stub_x[], float const stub_y[], 
-		bool const flagMatch[]); 
 
+  DTMatchPt(std::string const s, int station, 
+	    const edm::ParameterSet& pSet,
+	    const vector<TrackerTracklet*> TkTracklets);
+
+  DTMatchPt(string const s, int station,
+	    const edm::ParameterSet& pSet,
+	    float const DTmu_x, float const DTmu_y,
+	    const vector<TrackerTracklet*> TkTracklets,
+	    float const stub_x[], float const stub_y[],
+	    bool const flagMatch[]);
+  
+  DTMatchPt(std::string const s, int station, 
+	    const edm::ParameterSet& pSet,
+	    const GlobalVector stub_position[],
+	    bool const flagMatch[]); 
+  
+  DTMatchPt(std::string const s, int station,
+	    const GlobalVector stub_position[],
+	    bool const flagMatch[],
+	    const edm::ParameterSet& pSet);
+  
+  DTMatchPt(std::string const s, int station, 
+	    const edm::ParameterSet& pSet,
+	    const float vstub_rho, const float vstub_phi,
+	    const GlobalVector stub_position[],
+	    bool const flagMatch[]); 
+  
+  DTMatchPt(std::string const s, int station,
+	    const edm::ParameterSet& pSet,
+	    float const DTmu_x, float const DTmu_y,
+	    float const stub_x[], float const stub_y[], 
+	    bool const flagMatch[]); 
+  
   // using linear fit of stub dephi vs invPt
-  DTStubMatchPt(std::string const s, 
-		const float slope, const float dephi_zero,
-		const int I, const int J, const float dephi, 
-		const edm::ParameterSet& pSet, 
-		bool const flagMatch[]); 
-
-
+  DTMatchPt(std::string const s, 
+	    const float slope, const float dephi_zero,
+	    const int I, const int J, const float dephi, 
+	    const edm::ParameterSet& pSet, 
+	    bool const flagMatch[]); 
+  
+  
   // copy constructor  
-  DTStubMatchPt(const DTStubMatchPt& aPt) {
+  DTMatchPt(const DTMatchPt& aPt) {
     _label = aPt._label;
     _Rb = aPt._Rb;
     _invRb = aPt._invRb; 
@@ -87,12 +100,12 @@ class DTStubMatchPt {
   }
 
   // assignment operator
-  DTStubMatchPt& operator =(const DTStubMatchPt& aPt) {
+  DTMatchPt& operator =(const DTMatchPt& aPt) {
   if (this == &aPt)      // Same object?
     return *this;        // Yes, so skip assignment, and just return *this.
     /*
     if(!isnan(aPt._Pt))
-      cout << "DTStubMatchPt " << _label << " assignment operator called " << flush;
+      cout << "DTMatchPt " << _label << " assignment operator called " << flush;
     */
     _label = aPt._label;
     _Rb = aPt._Rb;
@@ -109,7 +122,7 @@ class DTStubMatchPt {
   }
 
   // destructor
-  ~DTStubMatchPt() {
+  ~DTMatchPt() {
     _label.clear();
   }
   
@@ -120,10 +133,12 @@ class DTStubMatchPt {
   float const invPt() const             { return _invPt; }
   float const alpha0() const            { return _alpha0; }
   float const d() const                 { return _d; }
+
+
  private:
   
   std::string _label;
-  float _Rb, _invRb;
+  float _Rb, _invRb;  // radious of curvature due to the magnetic field
   float _Pt, _invPt;
   float _alpha0, _d;
 
@@ -138,24 +153,24 @@ class DTStubMatchPt {
     }
 
   void computePt(const edm::ParameterSet& pSet, 
-	     float const X[], float const Y[], float const corr = 0.0); 
+		 float const X[], float const Y[], float const corr = 0.0); 
   void radius_of_curvature(const edm::ParameterSet& pSet, 
 			   float const x[], float const y[]);
-
+  
   void computePt(const edm::ParameterSet& pSet, 
-	     const GlobalVector P[], 
-	     float const corr = 0.0); 
+		 const GlobalVector P[], 
+		 float const corr = 0.0); 
   void radius_of_curvature(const edm::ParameterSet& pSet, 
 			   const GlobalVector P[]);
-
+  
   void computePt(const edm::ParameterSet& pSet, 
-	     const float vstub_rho, const float vstub_phi, 
-	     const GlobalVector P[], 
-	     float const corr = 0.0); 
+		 const float vstub_rho, const float vstub_phi, 
+		 const GlobalVector P[], 
+		 float const corr = 0.0); 
   void radius_of_curvature(const edm::ParameterSet& pSet,
 			   const float vstub_rho, const float vstub_phi,
 			   const GlobalVector P[]);
-
+  
   void computePt_etc(const edm::ParameterSet& pSet, 
 		     const GlobalVector P[], 
 		     float const corr = 0.0); 

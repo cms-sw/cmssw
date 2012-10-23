@@ -1,4 +1,3 @@
-#ifdef SLHC_DT_TRK_DFENABLE
 #include <sstream>
 #include <iomanip> // for setiosflags(...)
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
@@ -11,15 +10,15 @@ using namespace std;
 
 
 
-DTTSPhiTrigger::DTTSPhiTrigger():
-  DTChambPhSegm(DTChamberId(), 0)
+DTTSPhiTrigger::DTTSPhiTrigger(): 
+  DTChambPhSegm(DTChamberId(), 0) 
 {}
 
 
 
-DTTSPhiTrigger::DTTSPhiTrigger(const DTChambPhSegm& ChPhisegm,
+DTTSPhiTrigger::DTTSPhiTrigger(const DTChambPhSegm& ChPhisegm, 
 			       Global3DPoint position,
-			       Global3DVector direction):
+			       Global3DVector direction): 
   DTChambPhSegm(ChPhisegm),_position(position),_direction(direction)
 {
   _wheel      = this->wheel();
@@ -40,14 +39,14 @@ DTTSPhiTrigger::DTTSPhiTrigger(const DTChambPhSegm& ChPhisegm,
 std::string DTTSPhiTrigger::sprint() const
 {
   std::ostringstream outString;
-  outString << "  wheel "     << this->wheel()
-	    << "  station "   << this->station()
-	    << "  sector "    << this->sector()
-	    << "  traco Nr "  << this->tracoNumber()
-	    << " at step "    << this->step()
+  outString << "  wheel "     << this->wheel() 
+	    << "  station "   << this->station() 
+	    << "  sector "    << this->sector() 
+	    << "  traco Nr "  << this->tracoNumber() 
+	    << " at step "    << this->step() 
 	    << "  code "      << this->code() << endl;
-  outString << "  K "         << this->K()
-	    << "  X "         << this->X()
+  outString << "  K "         << this->K() 
+	    << "  X "         << this->X() 
 	    << "  psi "       << this->psi()
 	    << "  psiR "      << this->psiR()
 	    << "  DeltaPsiR " << this->DeltaPsiR()
@@ -56,6 +55,5 @@ std::string DTTSPhiTrigger::sprint() const
   outString << "  direction"  << this->cmsDirection() << endl;
   return outString.str();
 }
+ 
 
-
-#endif

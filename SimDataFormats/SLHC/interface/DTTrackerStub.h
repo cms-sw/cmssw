@@ -45,12 +45,14 @@ class TrackerStub {
       _theta = NAN;
       _direction = GlobalVector();
       _valid = false;  //Ignazio
-      _PTflag = false; //PLZ      
+      _PTflag = false; //PLZ  
+      _MCid = 0; //PLZ      
     }
   // default constructor (with "direction" added by Ignazio)
   TrackerStub(StackedTrackerDetId const id, 
               float const x, float const y, float const z, 
-	      GlobalVector const direction, float const phi, float const theta, bool PTflag ) 
+	      GlobalVector const direction, float const phi, 
+	      float const theta, bool PTflag,int const MCid) 
     {
       _id = id;      
       _x = x;
@@ -62,6 +64,7 @@ class TrackerStub {
       _theta = theta;
       _valid = true;  //Ignazio   
      _PTflag = PTflag;   
+     _MCid = MCid;
     }
 
   // copy constructor (Ignazio)
@@ -75,7 +78,8 @@ class TrackerStub {
     _rho = TrSt.rho();
     _valid = true;     
     _direction = TrSt.direction(); 
-    _PTflag = TrSt.PTflag();     
+    _PTflag = TrSt.PTflag();  
+    _MCid = TrSt.MCid();   
   }
   
   // destructor
@@ -94,6 +98,7 @@ class TrackerStub {
   inline int    layer()		  const	{ return _id.layer(); } 
   inline bool   valid()           const { return _valid; }                 //Ignazio
   inline bool PTflag()            const { return _PTflag;}
+  inline int MCid()               const { return _MCid;}
 
  private:
   StackedTrackerDetId _id;
@@ -102,6 +107,7 @@ class TrackerStub {
   bool _valid;
   GlobalVector _direction;                                                 // Ignazio  
   bool _PTflag;
+  int _MCid;
 };
 
 
@@ -113,7 +119,7 @@ struct lt_stub
 };
 
 
-typedef std::set<TrackerStub*, lt_stub> StubTracklet;
+typedef std::set<TrackerStub*, lt_stub> DTMatchingStubSet; //  StubTracklet;
 
 #endif
 
