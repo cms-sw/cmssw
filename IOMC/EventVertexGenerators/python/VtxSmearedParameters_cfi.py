@@ -181,6 +181,32 @@ Realistic2p76TeV2011CollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.3929),
     Z0 = cms.double(0.4145)
 )
+# 2.76 TeV estimated collisions for 2013, 11m beta*
+# sigmaZ set to 8 cm
+Realistic2p76TeV2013CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(1100.0),
+    Emittance = cms.double(1.70e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(8.0),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
+)
+# HI realistic pPb collisions, updated for 2013
+# 
+RealisticHIpPb2013CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(80.0),
+    Emittance = cms.double(6.25e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(8.0),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.2440),
+    Y0 = cms.double(0.3929),
+    Z0 = cms.double(0.4145)
+)
 # 7 TeV centered collisions with parameters for 2011
 # normalized emittance 2.5 microns, transverse beam size is 32 microns
 Centered7TeV2011CollisionVtxSmearingParameters = cms.PSet(
