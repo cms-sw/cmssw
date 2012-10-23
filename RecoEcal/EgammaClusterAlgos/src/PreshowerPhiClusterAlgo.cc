@@ -19,26 +19,22 @@ reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
 							       CaloSubdetectorTopology*& topology_p,
 							       double deltaEta, double minDeltaPhi, double maxDeltaPhi)
 {
-  rechits_map = the_rechitsMap_p;
 
-  used_s = used_strips;
+  rechits_map = the_rechitsMap_p;
+  used_s      = used_strips;
 
   int plane = strip.plane();
-  const CaloCellGeometry *refCell = geometry_p->getGeometry(strip);
-  GlobalPoint refpos = refCell->getPosition();
-  double refEta = refpos.eta();
-  double refPhi = refpos.phi();  
-
-  LogTrace("PreShowerClusterAlgo") << "Preshower Seeded Algorithm - looking for clusters";
-  LogTrace("PreShowerClusterAlgo")<< "Preshower is intersected at strip" << strip.strip() << ",at plane" << plane ;
 
   // create null-cluster
   std::vector< std::pair<DetId,float> > dummy;
   Point posi(0,0,0); 
-  LogTrace("PreShowerClusterAlgo") <<  " Creating a null-cluster" ;
+  reco::PreshowerCluster nullcluster = reco::PreshowerCluster(0., posi, dummy, plane);
+  if (strip == ESDetId(0)) return nullcluster;   // works in case of no intersected strip found (e.g. in the Barrel)
 
-  reco::PreshowerCluster nullcluster=reco::PreshowerCluster(0., posi, dummy, plane);
-  if ( strip == ESDetId(0) ) return nullcluster;   // works in case of no intersected strip found (e.g. in the Barrel)
+  const CaloCellGeometry *refCell = geometry_p->getGeometry(strip);
+  GlobalPoint refpos = refCell->getPosition();
+  double refEta = refpos.eta();
+  double refPhi = refpos.phi();  
 
   // Collection of cluster strips
   EcalRecHitCollection clusterRecHits;
@@ -50,17 +46,22 @@ reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
   RecHitsMap::iterator strip_it;
   for (strip_it = rechits_map->begin(); strip_it != rechits_map->end(); ++strip_it) {
 
-    if(!goodStrip(strip_it)) continue; 
+    if (!goodStrip(strip_it)) continue; 
+
+    ESDetId mystrip = (strip_it->first == DetId(0)) ? ESDetId(0) : ESDetId(strip_it->first);
+    if (mystrip.plane() != plane) continue;
 
     const CaloCellGeometry *thisCell = geometry_p->getGeometry(strip_it->first);
     GlobalPoint position = thisCell->getPosition();
 
-    //std::cout<<position.eta()<<" "<<position.phi()<<" "<<strip_it->second.energy()<<" "<<strip_it->second.recoFlag()<<std::endl;
     if (fabs(position.eta() - refEta) < deltaEta) {
 
       if (reco::deltaPhi(position.phi(), refPhi) > 0 && reco::deltaPhi(position.phi(), refPhi) > maxDeltaPhi) continue;
       if (reco::deltaPhi(position.phi(), refPhi) < 0 && reco::deltaPhi(position.phi(), refPhi) < minDeltaPhi) continue;
-      
+
+      ESDetId mystrip = (strip_it->first == DetId(0)) ? ESDetId(0) : ESDetId(strip_it->first);
+      //std::cout<<mystrip.zside()<<" "<<mystrip.plane()<<" "<<mystrip.six()<<" "<<mystrip.siy()<<" "<<mystrip.strip()<<" "<<position.eta()<<" "<<position.phi()<<" "<<strip_it->second.energy()<<" "<<strip_it->second.recoFlag()<<" "<<refEta<<" "<<refPhi<<std::endl;
+
       clusterRecHits.push_back(strip_it->second);
       used_s->insert(strip_it->first);
       
@@ -70,7 +71,7 @@ reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
     }
     
   }
-  
+
   EcalRecHitCollection::iterator it;
   double Eclust = 0;
 
@@ -87,7 +88,7 @@ reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
   }
   Point pos(x_pos,y_pos,z_pos);
 
-  reco::PreshowerCluster cluster=reco::PreshowerCluster(Eclust, pos, usedHits, plane);
+  reco::PreshowerCluster cluster = reco::PreshowerCluster(Eclust, pos, usedHits, plane);
   used_strips = used_s;
 
   return cluster; 
