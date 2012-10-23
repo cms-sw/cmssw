@@ -1,3 +1,6 @@
+#ifndef FWCORE_Utilities_isFinite_H
+#define FWCORE_Utilities_isFinite_H
+
 namespace edm {
   template <typename T>
   bool isFinite(T x);
@@ -26,3 +29,6 @@ namespace edm {
     return (v.l&mask)!=mask;
   }
 }
+
+#endif // FWCORE_Utilities_isFinite_H
+
