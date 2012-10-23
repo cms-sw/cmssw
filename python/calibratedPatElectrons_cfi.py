@@ -28,7 +28,7 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
     #set to 1 to apply regression_1 corrections
     #set to 2 to apply regression_2 corrections
     #set to 999 to apply default corrections
-    applyCorrections = cms.int32(10),
+    applyCorrections = cms.int32(999),
     
     # input datasets
     # Prompt means May10+Promptv4+Aug05+Promptv6 for 2011
