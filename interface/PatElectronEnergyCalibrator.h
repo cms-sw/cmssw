@@ -19,13 +19,14 @@ class ElectronEnergyCalibrator
   ElectronEnergyCalibrator(std::string dataset, bool isAOD, bool isMC, bool updateEnergyError, int applyCorrections, bool debug) : dataset_(dataset),
    isAOD_(isAOD), isMC_(isMC), updateEnergyError_(updateEnergyError), applyCorrections_(applyCorrections), debug_(debug) {}
 
-  void correct(pat::Electron &, const edm::Event&, const edm::EventSetup&);
+    //  void correct(pat::Electron &, const edm::Event&, const edm::EventSetup&);
+  void correct(reco::GsfElectron &, double r9,  const edm::Event&, const edm::EventSetup&, double newRegEnergy = -9999. , double newRegEnergyError = -9999. );
 
  private:
 
-  void computeNewEnergy( const pat::Electron &, float r9, int run) ;
-  void computeNewRegEnergy( const pat::Electron &, float r9, int run) ;
-  void computeEpCombination( pat::Electron & electron ) ;
+  void computeNewEnergy( const reco::GsfElectron &, float r9, int run) ;
+  void computeNewRegEnergy( const reco::GsfElectron &, float r9, int run ) ;
+  void computeEpCombination( const reco::GsfElectron & electron )  ;
 
   float newEnergy_ ;
   float newEnergyError_ ;

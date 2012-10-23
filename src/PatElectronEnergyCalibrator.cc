@@ -21,15 +21,21 @@
  ****************************************************************************/
 
 using namespace edm;
-
+/*
 void ElectronEnergyCalibrator::correct
- ( pat::Electron & electron, const edm::Event& event, const edm::EventSetup& eventSetup)
+(pat::Electron & electron, const edm::Event& event , const edm::EventSetup& eventSetup ) 
+  {
+    correct(electron, electron.r9(), event , eventSetup, electron.ecalRegressionEnergy(), electron.ecalRegressionError());
+  }
+*/
+void ElectronEnergyCalibrator::correct
+( reco::GsfElectron & electron, double r9,  const edm::Event& event, const edm::EventSetup& eventSetup,double newEnergy, double newEnergyError) 
 
  {
-		  float r9 = electron.r9();
-
-  switch (applyCorrections_){
-
+   newEnergy_ = newEnergy;
+   newEnergyError_ = newEnergyError; 
+   switch (applyCorrections_){
+     
 	 case 0:
 		//====================================================================================================
 		//Do not apply the corrections
@@ -49,10 +55,10 @@ void ElectronEnergyCalibrator::correct
 		//====================================================================================================
 		//TAKE THE SCALE CORRECTIONS FROM SHERVIN
 		//====================================================================================================
-                         computeNewRegEnergy(electron, r9, event.run()) ;
-                         // apply E-p combination
-                         computeEpCombination(electron) ;
-                         electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError_);
+		  computeNewRegEnergy(electron, r9, event.run()) ;
+		  // apply E-p combination
+		  computeEpCombination(electron) ;
+		  electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError_);
                   if (debug_) std::cout << "[ElectronEnergCorrector] AFTER Regression Energy, new comb momentum " << newEnergy_ << " " << electron.p4(reco::GsfElectron::P4_COMBINATION).t() << std::endl;
 	  break;
 	 case 10:
@@ -68,11 +74,9 @@ void ElectronEnergyCalibrator::correct
 		//====================================================================================================
 		//TAKE THE SCALE CORRECTIONS FROM SHERVIN
 		//====================================================================================================
-                         // apply E-p combination
-			 newEnergy_ = electron.ecalRegressionEnergy();
-			 newEnergyError_ = electron.ecalRegressionError();
-                         computeEpCombination(electron) ;
-                         electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError_);
+		  // apply E-p combination
+		  computeEpCombination(electron) ;
+		  electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError_);
                   if (debug_) std::cout << "[ElectronEnergCorrector] AFTER Regression Energy, new comb momentum " << newEnergy_ << " " << electron.p4(reco::GsfElectron::P4_COMBINATION).t() << std::endl;
 	  break;
 	 case 2:
@@ -94,15 +98,19 @@ void ElectronEnergyCalibrator::correct
                           electron.classification() << std::endl;
                   if (debug_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum error " << electron.p4Error(reco::GsfElectron::P4_COMBINATION) << std::endl;
 		//====================================================================================================
-		
-                         // apply ECAL calibration scale and smearing factors depending on period and categories
-                         computeNewEnergy(electron, r9, event.run()) ;
-                         //electron.correctEcalEnergy(newEnergy_,newEnergyError_) ;
-                         
-                         // apply E-p combination
-                         computeEpCombination(electron) ;
-                         electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError_);
-                         
+		  
+		  // newEnery will be overwritten in computeNewEnergy
+		  newEnergy_ = electron.ecalEnergy() ;
+		  newEnergyError_ = electron.ecalEnergyError(); 
+		  
+		  // apply ECAL calibration scale and smearing factors depending on period and categories
+		  computeNewEnergy(electron, r9, event.run()) ;
+		  //electron.correctEcalEnergy(newEnergy_,newEnergyError_) ;
+                  
+		  // apply E-p combination
+		  computeEpCombination(electron) ;
+		  electron.correctMomentum(newMomentum_,errorTrackMomentum_,finalMomentumError_);
+                  
 		//====================================================================================================
 		//DEBUG BLOCK
 		//====================================================================================================
@@ -121,13 +129,12 @@ void ElectronEnergyCalibrator::correct
  }
 
 void ElectronEnergyCalibrator::computeNewRegEnergy
- ( const pat::Electron & electron, float r9, int run)
+ ( const reco::GsfElectron & electron, float r9, int run)
 {
-
-		  newEnergy_ = electron.ecalRegressionEnergy();
-		  newEnergyError_ = electron.ecalRegressionError();
-		  float scale = 1.0;
-                  float dsigMC=0., corrMC=0.;
+  
+  
+  float scale = 1.0;
+  float dsigMC=0., corrMC=0.;
 
    edm::Service<edm::RandomNumberGenerator> rng;
    if ( ! rng.isAvailable()) {
@@ -310,13 +317,13 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
 }
 
 void ElectronEnergyCalibrator::computeNewEnergy
- ( const pat::Electron & electron, float r9, int run)
+ ( const reco::GsfElectron & electron, float r9, int run)
  {
   //double scEnergy = electron.superCluster()->energy() ;
   double scEnergy = electron.ecalEnergy() ;
   float corr=0., scale=1.;
   float dsigMC=0., corrMC=0.;
-  newEnergyError_ = electron.ecalEnergyError() ;
+  //  newEnergyError_ = electron.ecalEnergyError() ;
 
   // Compute correction depending on run, categories and dataset
   // Corrections for the PromptReco from R. Paramattti et al.
@@ -837,8 +844,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
  }
 
 
-void ElectronEnergyCalibrator::computeEpCombination
- ( pat::Electron & electron )
+void ElectronEnergyCalibrator::computeEpCombination ( const reco::GsfElectron & electron ) 
  {
 
   //float scEnergy = electron.ecalEnergy() ;
