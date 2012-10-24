@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: muzaffar $
-// $Date: 2012/05/29 08:23:56 $
-// $Revision: 1.76 $
+// $Author: eulisse $
+// $Date: 2012/10/18 09:04:57 $
+// $Revision: 1.1 $
 //
 
 #include <vector>
@@ -61,7 +61,6 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastLine.h"
-#include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchSeedFinderAlgorithm.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
