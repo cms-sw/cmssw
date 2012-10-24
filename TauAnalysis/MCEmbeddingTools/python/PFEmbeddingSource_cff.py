@@ -30,17 +30,9 @@ removedInputMuons = cms.EDProducer('ZmumuPFEmbedder',
   pfCands = cms.InputTag("particleFlow"),				   
   selectedMuons = cms.InputTag("") # CV: replaced in embeddingCustomizeAll.py
 )
-
-from TrackingTools.TrackAssociator.default_cfi import *
-anaDeposits = cms.EDProducer('MuonCaloCleaner',
-  TrackAssociatorParameterBlock,
-  selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
-  useCombinedCandidate = cms.untracked.bool(True)
-)
  
 ProductionFilterSequence = cms.Sequence(
   removedInputMuons
  * generator
  * filterEmptyEv
- * anaDeposits
 )

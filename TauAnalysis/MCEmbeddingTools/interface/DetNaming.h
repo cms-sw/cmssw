@@ -10,21 +10,20 @@
 
 #include <boost/foreach.hpp>
 
+class DetNaming 
+{
+ public:
+  DetNaming();
+  ~DetNaming() {}
 
-class DetNaming {
-  public:
-      DetNaming();
+  std::string getKey(const DetId&);
+  std::vector<std::string> getAllKeys();
 
-
-      std::string getKey(const DetId & det);
-      std::vector< std::string > getAllKeys();
-
-  private:
-      typedef std::map<int, std::string > TMyMainMap;
-      typedef std::map<int, std::map<int, std::string> > TMySubMap;
-      TMyMainMap detMap_;
-      TMySubMap  subDetMap_;
-
+ private:
+  typedef std::map<int, std::string > TMyMainMap;
+  typedef std::map<int, std::map<int, std::string> > TMySubMap;
+  TMyMainMap detMap_;
+  TMySubMap  subDetMap_;
 };
 
 

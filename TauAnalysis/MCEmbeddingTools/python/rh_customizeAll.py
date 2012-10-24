@@ -37,12 +37,7 @@ def customise(process):
                                  "keep *_generator_*_*",
                                  "keep *_tmfTracks_*_EmbeddedRECO",
                                  "keep *_offlinePrimaryVertices_*_EmbeddedRECO",
-                                 "keep *_offlinePrimaryVerticesWithBS_*_EmbeddedRECO",
-                                 "keep *_PhotonIDProd_*_*",
-                                 "keep *_photons_*_*",
-                                 "keep *_photonCore_*_*",
-                                 "keep *_genParticles_*_*",
-                                 "keep *_particleFlow_*_*",
+                                 "keep *_offlinePrimaryVerticesWithBS_*_EmbeddedRECO"
   )
   outputModule.outputCommands.extend(keepMC)
 
@@ -54,7 +49,6 @@ def customise(process):
       del outputModule.outputCommands[index]
       index -= 1
     index += 1  
-
 
   hltProcessName = "HLT"	#"REDIGI38X"
   # the following block can be used for more efficient processing by replacing the HLT variable below automatically
@@ -120,8 +114,6 @@ def customise(process):
 #                     VarParsing.VarParsing.varType.string,
 #                     "original processName")
 
-
-
   setFromCL = False
   if not hasattr(process,"doNotParse"):
     import sys
@@ -148,11 +140,9 @@ def customise(process):
     process.generator.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
     process.newSource.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
 
-
   changeBSfromPS=False
   if hasattr(process,"changeBSfromPS"):
     changeBSfromPS = True
-
 
   if  setFromCL and options.overrideBeamSpot != 0  or changeBSfromPS  :
     print "options.overrideBeamSpot", options.overrideBeamSpot
@@ -181,9 +171,6 @@ def customise(process):
     process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
     process.source.lumisToProcess.extend(myLumis)
 
-
-
-  
   process.generalTracksORG = process.generalTracks.clone()
 
   process.generalTracks = cms.EDProducer("RecoTracksMixer",
@@ -214,7 +201,6 @@ def customise(process):
     pth = getattr(process,p)
     if "trackerDrivenElectronSeeds" in pth.moduleNames():
         pth.replace(process.trackerDrivenElectronSeeds, process.trackerDrivenElectronSeedsORG*process.trackerDrivenElectronSeeds)
-
 
   # hack photonCore:
 
@@ -263,10 +249,6 @@ def customise(process):
     if "electronGsfTracks" in pth.moduleNames():
         pth.replace(process.electronGsfTracks, process.electronGsfTracksORG*process.electronGsfTracks)
 
-
-
-
-
   '''
   process.electronMergedSeedsORG = process.electronMergedSeeds.clone()
   process.electronMergedSeeds = cms.EDProducer("ElectronSeedsMixer",
@@ -295,9 +277,6 @@ def customise(process):
     if "gsfElectrons" in pth.moduleNames():
       pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
 
-
-
-
   for p in process.paths:
     pth = getattr(process,p)
     #print dir(pth)
@@ -307,7 +286,6 @@ def customise(process):
         print "Removing", mod
         module=getattr(process,mod)
         pth.remove(module)
-
 
   # note - we should probably check this
   clConfig = cms.PSet (
@@ -457,10 +435,45 @@ def customise(process):
     if "horeco" in pth.moduleNames():
       pth.replace(process.horeco, process.horecoORG*process.horeco)
 
-
-
-   
-
+  # CV: mix L1Extra collections
+  l1ExtraCollections = [
+      [ "L1EmParticle",     "Isolated"    ],
+      [ "L1EmParticle",     "NonIsolated" ],
+      [ "L1EtMissParticle", "MET"         ],
+      [ "L1EtMissParticle", "MHT"         ],
+      [ "L1JetParticle",    "Central"     ],
+      [ "L1JetParticle",    "Forward"     ],
+      [ "L1JetParticle",    "Tau"         ],
+      [ "L1MuonParticle",   ""            ]
+  ]
+  l1extraParticleCollections = []
+  for l1ExtraCollection in l1ExtraCollections:
+      inputType = l1ExtraCollection[0]
+      pluginType = None
+      if inputType == "L1EmParticle":
+          pluginType = "L1ExtraEmParticleMixerPlugin"
+      elif inputType == "L1EtMissParticle":
+          pluginType = "L1ExtraMEtMixerPlugin"
+      elif inputType == "L1JetParticle":
+          pluginType = "L1ExtraJetParticleMixerPlugin"
+      elif inputType == "L1MuonParticle":
+          pluginType = "L1ExtraMuonParticleMixerPlugin"
+      else:
+          raise ValueError("Invalid L1Extra type = %s !!" % inputType)
+      instanceLabel = l1ExtraCollection[1]
+      l1extraParticleCollections.append(cms.PSet(
+          pluginType = cms.string(pluginType),
+          instanceLabel = cms.string(instanceLabel)))
+  process.l1extraParticlesORG = process.l1extraParticles.clone()
+  process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
+      src1 = cms.InputTag('l1extraParticles::HLT'),
+      src2 = cms.InputTag('l1extraParticlesORG'),
+      collections = cms.VPSet(l1extraParticleCollections)
+  )
+  for p in process.paths:
+      pth = getattr(process,p)
+      if "l1extraParticles" in pth.moduleNames():
+          pth.replace(process.l1extraParticles, process.l1extraParticlesORG*process.l1extraParticles)
 
   # it should be the best solution to take the original beam spot for the
   # reconstruction of the new primary vertex
@@ -469,29 +482,26 @@ def customise(process):
      seq =  getattr(process,s)
      seq.remove(process.offlineBeamSpot) 
 
-
   try:
-  	process.metreco.remove(process.BeamHaloId)
+    process.metreco.remove(process.BeamHaloId)
   except:
-  	pass
+    pass
 
   try:
-	  outputModule = process.output
+    outputModule = process.output
   except:
     pass
   try:
-	  outputModule = getattr(process,str(getattr(process,list(process.endpaths)[-1])))
+    outputModule = getattr(process,str(getattr(process,list(process.endpaths)[-1])))
   except:
     pass
 
   process.filterEmptyEv.src = cms.untracked.InputTag("generator","","EmbeddedRECO")
 
-
   try:
     process.schedule.remove(process.DQM_FEDIntegrity_v3)
   except:
     pass
-
 
   process.RECOSIMoutput.outputCommands.extend(['keep *_goldenZmumuCandidatesGe0IsoMuons_*_*'])
   process.RECOSIMoutput.outputCommands.extend(['keep *_goldenZmumuCandidatesGe1IsoMuons_*_*'])
@@ -507,13 +517,11 @@ def customise(process):
   #                             cms.InputTag("globalMuons"), 
   #                             cms.InputTag("standAloneMuons","UpdatedAtVtx"))
 
-
   skimEnabled = False
   if hasattr(process,"doZmumuSkim"):
       print "Enabling Zmumu skim"
       skimEnabled = True
       #process.load("TauAnalysis/Skimming/goldenZmmSelectionVBTFrelPFIsolation_cfi")
-
       
       cmssw_ver = os.environ["CMSSW_VERSION"]
       if cmssw_ver.find("CMSSW_4_2") != -1:
@@ -539,12 +547,8 @@ def customise(process):
         wantSummary = cms.untracked.bool(True)
       )
 
-
-
-
   if not skimEnabled:
       print "Zmumu skim not enabled"
-
 
   print "# ######################################################################################"
   print "  Following parameters can be added before customize function "
@@ -554,7 +558,6 @@ def customise(process):
   print "process.doZmumuSkim = cms.PSet() # adds Zmumu skimming before embedding is run"
   print "process.changeBSfromPS = cms.PSet() # overide bs"
   print "# ######################################################################################"
-
 
   #print "Cleaning is off!"
   '''

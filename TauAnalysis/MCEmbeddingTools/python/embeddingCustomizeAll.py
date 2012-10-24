@@ -23,7 +23,6 @@ def customise(process):
   if not hasattr(process, "removedInputMuons"):
     process.load("TauAnalysis.MCEmbeddingTools.PFEmbeddingSource_cff")
   process.removedInputMuons.selectedMuons = process.customization_options.ZmumuCollection
-  process.anaDeposits.selectedMuons = process.customization_options.ZmumuCollection
   process.generator.src = process.customization_options.ZmumuCollection
 
   try:
@@ -84,7 +83,7 @@ def customise(process):
   process.generator.Ztautau.transformationMode = process.customization_options.transformationMode
 
   if process.customization_options.overrideBeamSpot.value():
-    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data PR gt
+    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") 
     process.GlobalTag.toGet = cms.VPSet(
       cms.PSet(
         record = cms.string("BeamSpotObjectsRcd"),
