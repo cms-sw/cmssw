@@ -56,11 +56,12 @@ reco::PreshowerCluster PreshowerPhiClusterAlgo::makeOneCluster(ESDetId strip,
 
     if (fabs(position.eta() - refEta) < deltaEta) {
 
+      //std::cout<<"all strips : "<<mystrip.plane()<<" "<<position.phi()<<" "<<reco::deltaPhi(position.phi(), refPhi)<<std::endl;
+
       if (reco::deltaPhi(position.phi(), refPhi) > 0 && reco::deltaPhi(position.phi(), refPhi) > maxDeltaPhi) continue;
       if (reco::deltaPhi(position.phi(), refPhi) < 0 && reco::deltaPhi(position.phi(), refPhi) < minDeltaPhi) continue;
 
-      ESDetId mystrip = (strip_it->first == DetId(0)) ? ESDetId(0) : ESDetId(strip_it->first);
-      //std::cout<<mystrip.zside()<<" "<<mystrip.plane()<<" "<<mystrip.six()<<" "<<mystrip.siy()<<" "<<mystrip.strip()<<" "<<position.eta()<<" "<<position.phi()<<" "<<strip_it->second.energy()<<" "<<strip_it->second.recoFlag()<<" "<<refEta<<" "<<refPhi<<std::endl;
+      //std::cout<<mystrip.zside()<<" "<<mystrip.plane()<<" "<<mystrip.six()<<" "<<mystrip.siy()<<" "<<mystrip.strip()<<" "<<position.eta()<<" "<<position.phi()<<" "<<strip_it->second.energy()<<" "<<strip_it->second.recoFlag()<<" "<<refEta<<" "<<refPhi<<" "<<reco::deltaPhi(position.phi(), refPhi)<<std::endl;
 
       clusterRecHits.push_back(strip_it->second);
       used_s->insert(strip_it->first);
