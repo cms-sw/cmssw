@@ -109,14 +109,30 @@ void Analysis_Step4(std::string InputPattern)
 
 
           TH2D*  H_D_DzSidebands= (TH2D*)GetObjectFromPath(directory, "H_D_DzSidebands");
-          TH1D*  H_D_Cosmic=NULL;
+	  TH1D*  H_D_Cosmic=NULL;
           TH2D*  H_D_DzSidebands_Cosmic=NULL;
+
+	  TH1D*  H_B_Cosmic_Binned[MaxPredBins];
+	  TH1D*  H_F_Cosmic_Binned[MaxPredBins];
+	  TH1D*  H_H_Cosmic_Binned[MaxPredBins];
+
 	  if(TypeMode==3 && DirName.find("Data")!=string::npos) {
 	    //Only 2012 sample has pure cosmic sample, as only ratio used can use 2012 sample to make 2011 cosmic prediction
             string CosmicDir = "Cosmic8TeV";
 	    //string CosmicDir = DirName.replace(0, 4, "Cosmic");
 	    H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D_DzSidebands").c_str());
 	    H_D_Cosmic             = (TH1D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D" + Suffix).c_str());
+
+	    for(int i=0; i<PredBins; i++) {
+	      string Version=Suffix;
+	      char Bin[1024];
+	      sprintf(Bin,"_%i", i);
+	      Version.append(Bin);
+
+	      H_B_Cosmic_Binned[i]            = (TH1D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_B_Binned" + Version).c_str());
+	      H_F_Cosmic_Binned[i]            = (TH1D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_F_Binned" + Version).c_str());
+	      H_H_Cosmic_Binned[i]            = (TH1D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_H_Binned" + Version).c_str());
+	    }
 	  }
 
       //erase histogram created at previous iteration
@@ -165,12 +181,20 @@ void Analysis_Step4(std::string InputPattern)
          //double P_Binned[MaxPredBins];
          //double Perr_Binned[MaxPredBins];
 
+         double B_Cosmic_Binned[MaxPredBins];
+         double F_Cosmic_Binned[MaxPredBins];
+         double H_Cosmic_Binned[MaxPredBins];
+
          for(int i=0; i<PredBins; i++) {
            B_Binned[i]=H_B_Binned[i]->GetBinContent(CutIndex+1);
            F_Binned[i]=H_F_Binned[i]->GetBinContent(CutIndex+1);
            H_Binned[i]=H_H_Binned[i]->GetBinContent(CutIndex+1);
            //P_Binned[i]=0;
            //Perr_Binned[i]=0;
+
+           B_Cosmic_Binned[i]=H_B_Cosmic_Binned[i]->GetBinContent(CutIndex+1);
+           F_Cosmic_Binned[i]=H_F_Cosmic_Binned[i]->GetBinContent(CutIndex+1);
+           H_Cosmic_Binned[i]=H_H_Cosmic_Binned[i]->GetBinContent(CutIndex+1);
          }
 
          double P=0;
@@ -191,10 +215,36 @@ void Analysis_Step4(std::string InputPattern)
             P    = ((C*B)/A);
             Perr = sqrt( (pow(B/A,2)*C) + (pow(C/A,2)*B) + (pow((B*(C)/(A*A)),2)*A) );
 	 }else if(F>0){
+	   //Predict the number of cosmics passing all cuts as number passing in dz sideband times the ratio of tracks in the sideband
+	   //vs number in central region as determined by pure cosmic sample
+	   //Multile sidebands are made to check for background consistency, the fifth one is used for the actual prediction
+           double D_Sideband = 0;
+           double D_Sideband_Cosmic = 0;
+	   if(DirName.find("Data")!=string::npos) {
+	   D_Sideband = H_D_DzSidebands->GetBinContent(CutIndex+1, 5);
+	   double D_Cosmic = H_D_Cosmic->GetBinContent(CutIndex+1);
+           D_Sideband_Cosmic = H_D_DzSidebands_Cosmic->GetBinContent(CutIndex+1, 5);
+	   if(D_Sideband_Cosmic>0) {
+	     P_Cosmic = D_Sideband * D_Cosmic / D_Sideband_Cosmic;
+	     Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+	   }
+	   }
+
+
 	   //Prediction in Pt-TOF plane
            for(int i=0; i<PredBins; i++) {
-             double P_Binned = ((H_Binned[i]*B_Binned[i])/F_Binned[i]);
-	     double Perr_Binned = (pow(B_Binned[i]/F_Binned[i],2)*H_Binned[i]) + (pow(H_Binned[i]/F_Binned[i],2)*B_Binned[i]) + (pow((B_Binned[i]*(H_Binned[i])/(F_Binned[i]*F_Binned[i])),2)*F_Binned[i]);
+	     //Subtract the expected cosmic tracks from each region
+	     double B_Bin = B_Binned[i] - B_Cosmic_Binned[i]*D_Sideband/D_Sideband_Cosmic;
+             double F_Bin = F_Binned[i] - F_Cosmic_Binned[i]*D_Sideband/D_Sideband_Cosmic;
+             double H_Bin = H_Binned[i] - H_Cosmic_Binned[i]*D_Sideband/D_Sideband_Cosmic;
+
+	     double Berr = sqrt(B_Binned[i] + (pow(B_Cosmic_Binned[i]/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*B_Cosmic_Binned[i]) + (pow((B_Cosmic_Binned[i]*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+	     double Ferr = sqrt(F_Binned[i] + (pow(F_Cosmic_Binned[i]/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*F_Cosmic_Binned[i]) + (pow((F_Cosmic_Binned[i]*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+	     double Herr = sqrt(H_Binned[i] + (pow(H_Cosmic_Binned[i]/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*H_Cosmic_Binned[i]) + (pow((H_Cosmic_Binned[i]*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+
+
+             double P_Binned = ((H_Bin*B_Bin)/F_Bin);
+	     double Perr_Binned = (pow(Berr/Ferr,2)*Herr) + (pow(Herr/Ferr,2)*Berr) + (pow((Berr*(Herr)/(Ferr*Ferr)),2)*Ferr);
 
 	     H_P_Binned[i]->SetBinContent(CutIndex+1, P_Binned);
              H_P_Binned[i]->SetBinError(CutIndex+1, sqrt(Perr_Binned));
@@ -203,24 +253,12 @@ void Analysis_Step4(std::string InputPattern)
            }
            Perr_Coll = sqrt(Perr_Coll);
 
-	   //Predict the number of cosmics passing all cuts as number passing in dz sideband times the ratio of tracks in the sideband
-	   //vs number in central region as determined by pure cosmic sample
-	   //Multile sidebands are made to check for background consistency, the fifth one is used for the actual prediction
-	   if(DirName.find("Data")!=string::npos) {
-	   double D_Sideband = H_D_DzSidebands->GetBinContent(CutIndex+1, 5);
-	   double D_Cosmic = H_D_Cosmic->GetBinContent(CutIndex+1);
-           double D_Sideband_Cosmic = H_D_DzSidebands_Cosmic->GetBinContent(CutIndex+1, 5);
-	   if(D_Sideband_Cosmic>0) {
-	     P_Cosmic = D_Sideband * D_Cosmic / D_Sideband_Cosmic;
-	     Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
-	   }
-	   }
-
 	   P    = P_Coll + P_Cosmic;
 	   Perr = sqrt(Perr_Coll*Perr_Coll + Perr_Cosmic*Perr_Cosmic);
 
 	   //Add in systematic contribution
 	   Perr = sqrt(Perr*Perr + P_Coll*P_Coll*0.15*0.15 + P_Cosmic*P_Cosmic*1.25*1.25);
+	   //cout<< endl << endl << "P Coll " << P_Coll << " +- " << Perr_Coll << " P Cosmic " << P_Cosmic << " +- " << Perr_Cosmic << " P " << P << " +- " << Perr << endl << endl;
 	 }else if(G>0){
 	   //Prediction in Ias-TOF plane
 	   P    = ((C*H)/G);
