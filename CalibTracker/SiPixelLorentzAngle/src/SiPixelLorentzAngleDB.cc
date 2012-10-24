@@ -102,8 +102,6 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 			edm::LogError("SiPixelLorentzAngleDB")<<er.what()<<std::endl;
 		}catch(const std::exception& er){
 			edm::LogError("SiPixelLorentzAngleDB")<<"caught std::exception "<<er.what()<<std::endl;
-		}catch(...){
-			edm::LogError("SiPixelLorentzAngleDB")<<"Funny error"<<std::endl;
 		}
 	}else{
 		edm::LogError("SiPixelLorentzAngleDB")<<"Service is unavailable"<<std::endl;
