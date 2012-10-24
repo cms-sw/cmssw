@@ -1,5 +1,19 @@
+<use   name="DataFormats/Common"/>
 <use   name="DataFormats/RoadSearchCloud"/>
-<use   name="RecoTracker/RoadSearchCloudMaker"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/SiStripDetId"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/CommonTopologies"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="RecoLocalTracker/SiStripRecHitConverter"/>
+<use   name="RecoTracker/RingRecord"/>
+<use   name="RecoTracker/RoadMapRecord"/>
+<use   name="TrackingTools/RoadSearchHitAccess"/>
 <library   name="RecoTrackerRoadSearchCloudMakerPlugin" file="*.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
