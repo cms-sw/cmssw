@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:/uscms/home/rappocc/nobackup/analysis/GED/CMSSW_6_1_0_pre2/src/401.0_TTbar+TTbarFSPU2/step1.root'
+    'file:/uscms/home/rappocc/nobackup/analysis/GED/CMSSW_6_1_0_pre3/src/401.0_TTbar+TTbarFSPU2/step1.root'
     
     ))
     
@@ -45,7 +45,7 @@ process.p = cms.Path(
 process.load("Configuration.EventContent.EventContent_cff")
 process.pf2pat = cms.OutputModule("PoolOutputModule",
                                   #    process.AODSIMEventContent,
-                                  outputCommands = cms.untracked.vstring('drop *'),
+                                  outputCommands = cms.untracked.vstring('keep *'),
                                   fileName = cms.untracked.string('PF2PAT.root')
 )
 process.aod = cms.OutputModule("PoolOutputModule",

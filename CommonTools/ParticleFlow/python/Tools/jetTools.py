@@ -17,5 +17,5 @@ def jetAlgo( algo ):
         jetAlgo.rParam = cms.double(0.7)
         jetAlgo.doAreaFastjet = cms.bool(False)
         
-    jetAlgo.src = 'pfNoElectron'
+    jetAlgo.src = 'pfNoElectronJME'
     return jetAlgo    

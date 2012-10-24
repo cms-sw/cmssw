@@ -42,7 +42,7 @@ PF2PATEventContent = cms.PSet(
     # taus 
     'keep *_pfTaus_*_*',
     'keep recoPFTauDiscriminator_*_*_*',
-    'keep *_offlinePrimaryVertice_*_*',
+    'keep *_*fflinePrimaryVertice_*_*',
     # MET
     'keep *_pfMET_*_*',
     # Trigger
@@ -138,4 +138,23 @@ prunedAODForPF2PATEventContent = cms.PSet(
         'keep *_hltTriggerSummaryAOD_*_*',
         'keep *_lumiProducer_*_*'
         )
+)
+
+
+
+EITopPAGEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+    # isolated electrons and muons
+    'keep *_pfIsolatedElectrons_*_*',
+    'keep *_pfIsolatedMuons_*_*',
+    'keep recoIsoDepositedmValueMap_*_*_*',
+    # jets
+    'keep recoPFJets_pfNoTau_*_*',
+    # taus 
+    'keep *_pfTaus_*_*',
+    'keep recoPFTauDiscriminator_*_*_*',
+    'keep *_*fflinePrimaryVertice_*_*',
+    # MET
+    'keep *_pfMET_*_*'
+    )
 )

@@ -6,5 +6,5 @@ pfNoJet = cms.EDProducer(
     verbose = cms.untracked.bool( False ),
     name = cms.untracked.string("noJet"),
     topCollection = cms.InputTag("pfJetsPtrs"),
-    bottomCollection = cms.InputTag("pfNoElectron"),
+    bottomCollection = cms.InputTag("pfNoElectronJME"),
 )

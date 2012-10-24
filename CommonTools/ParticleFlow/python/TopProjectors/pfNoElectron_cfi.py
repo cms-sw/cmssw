@@ -9,6 +9,16 @@ pfNoElectron = cms.EDProducer(
     bottomCollection = cms.InputTag("pfNoMuon"),
 )
 
-pfNoElectronClones = cms.EDProducer("PFCandidateFromFwdPtrProducer",
-                                    src=cms.InputTag('pfNoElectron')
-                                    )
+
+pfNoElectronJME = cms.EDProducer(
+    "TPPFCandidatesOnPFCandidates",
+    enable =  cms.bool( True ),
+    verbose = cms.untracked.bool( False ),
+    name = cms.untracked.string("noElectron"),
+    topCollection = cms.InputTag("pfIsolatedElectrons"),
+    bottomCollection = cms.InputTag("pfNoMuonJME"),
+)
+
+pfNoElectronJMEClones = cms.EDProducer("PFCandidateFromFwdPtrProducer",
+                                       src=cms.InputTag('pfNoElectronJME')
+                                       )
