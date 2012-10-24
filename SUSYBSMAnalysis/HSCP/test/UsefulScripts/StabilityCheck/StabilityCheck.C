@@ -251,9 +251,9 @@ void StabilityCheck(string MODE="COMPILE")
    GetSampleDefinition(samples, "../../ICHEP_Analysis/Analysis_Samples.txt");
 
 #ifdef ANALYSIS2011
-   keepOnlySamplesOfNameX(samples,"Data11");
+   keepOnlySamplesOfNameX(samples,"Data7TeV");
 #else
-   keepOnlySamplesOfNameX(samples,"Data12");
+   keepOnlySamplesOfNameX(samples,"Data8TeV");
 #endif
 
    printf("----------------------------------------------------------------------------------------------------------------------------------------------------\n");
