@@ -132,6 +132,7 @@ l1tMonitorOnline.remove(bxTiming)
 #l1tMonitorOnline.remove(l1ExtraDqmSeq)
 #
 l1tMonitorOnline.remove(l1tRate)
+l1tMonitorOnline.remove(l1tBPTX)
 #l1tMonitorOnline.remove(l1tRctSeq)
 #l1tMonitorOnline.remove(l1tGctSeq)
 
