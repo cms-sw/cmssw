@@ -17,11 +17,14 @@ key rather than a proxy, it will prompt for the key password.
 
 from DQMServices.Components.HTTP import RequestManager
 from DQMServices.Components.X509 import SSLOptions
-import sys, re, pycurl, urllib
+import os, sys, re, pycurl, urllib
 from optparse import OptionParser
-from time import time, strptime
+from time import time, strptime, strftime, gmtime
 from calendar import timegm
+from datetime import datetime
 from urlparse import urlparse
+from tempfile import mkstemp
+from traceback import print_exc
 
 # Object types.
 DIR = 0
@@ -42,16 +45,68 @@ nfetched = 0
 # Found objects.
 found = []
 
-def request_init(c, options, path):
+def logme(msg, *args):
+  """Generate agent log message."""
+  procid = "[%s/%d]" % (__file__.rsplit("/", 1)[-1], os.getpid())
+  print datetime.now(), procid, msg % args
+
+def myumask():
+  """Get the current process umask."""
+  val = os.umask(0)
+  os.umask(val)
+  return val
+
+def handle_init(c):
+  """Prepare custom properties on download handles."""
+  c.temp_file = None
+  c.temp_path = None
+  c.local_path = None
+
+def request_init(c, options, path, kind):
   """`RequestManager` callback to initialise directory contents request."""
+
   c.setopt(pycurl.URL, options.server + urllib.quote(path) + ((path != "/" and "/") or ""))
+  assert c.temp_file == None
+  assert c.temp_path == None
+  assert c.local_path == None
+
+  # If this is file, prepare temporary destination file in the target
+  # directory for possible download. parse_dir_and_files() will finish this off.
+  if kind == FILE and options.download:
+    try:
+      (fd, tmp) = mkstemp()
+      fp = os.fdopen(fd, 'wb')
+      c.setopt(pycurl.WRITEFUNCTION, fp.write)
+      c.temp_file = fp
+      c.temp_path = tmp
+      c.local_path = path.strip('/')
+      c.buffer = None
+    except Exception, e:
+      logme("ERROR: %s: %s", path, str(e))
+      print_exc()
+
+def cleanup(c):
+  """Clean up file copy operation, usually after any failures."""
+  if c.temp_file:
+    try: c.temp_file.close()
+    except: pass
+  if c.temp_path:
+    try: os.remove(c.temp_path)
+    except: pass
+  if c.local_path:
+    try: os.remove(c.local_path)
+    except: pass
+  c.temp_file = None
+  c.temp_path = None
+  c.local_path = None
+  c.buffer = None
 
 def report_error(c, task, errmsg, errno):
   """`RequestManager` callback to report directory contents request errors."""
   print >> sys.stderr, "FAILED to retrieve %s: %s (%d)" % (task, errmsg, errno)
   global nfetched; nfetched += 1
 
-def parse_dir(c):
+def parse_dir_and_files(c):
   """`RequestManager` callback to handle directory content response.
 
 This gets called once per every directory which has been successfully
@@ -60,43 +115,95 @@ into object listing with all the file meta information.
 
 If verbosity has been requested, also shows simple progress bar on the
 search progress, one dot for every ten directories retrieved."""
-  options, path = c.task
+  options, path, kind = c.task
   root_url = urlparse(options.server).path.rstrip('/')
 
-  items = re.findall(r"<tr><td><a href='(.*?)'>(.*?)</a></td><td>(\d+|&nbsp;|-)</td>"
-                     r"<td>(&nbsp;|\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d UTC)</td>",
-                     c.buffer.getvalue())
+  if kind == FILE and options.download:
+    assert c.local_path, "Expected local path property to be set"
+    assert c.temp_file, "Exepected temporary file property to be set"
+    try:
+      c.setopt(pycurl.WRITEFUNCTION, lambda *args: None)
+      c.temp_file.close()
+      c.temp_file = None
 
-  for path, name, size, date in items:
-    assert path.startswith(root_url)
-    path = path[len(root_url):]
+      os.chmod(c.temp_path, 0666 & ~UMASK)
+      os.system('mv %s %s'  % (c.temp_path, c.local_path))
 
-    if date == "&nbsp;":
-      date = -1
-    else:
-      date = timegm(strptime(date, "%Y-%m-%d %H:%M:%S %Z"))
+      c.local_path = None
+      logme("INFO: downloaded %s", path)
+    except Exception, e:
+      logme("ERROR: downloading %s into %s failed: %s",
+            path, c.local_path, str(e))
+      print_exc()
+    finally:
+      cleanup(c)
 
-    if size == "&nbsp;" or size == "-":
-      size = -1
-    else:
-      size = int(size)
+  elif kind == DIR:
+    items = re.findall(r"<tr><td><a href='(.*?)'>(.*?)</a></td><td>(\d+|&nbsp;|-)</td>"
+                       r"<td>(&nbsp;|\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d UTC)</td>",
+                       c.buffer.getvalue())
 
-    if path.endswith("/"):
-      assert size == -1
-      path = path[:-1]
-      found.append((c.task, DIR, name, size, date, path))
-      reqman.put((options, path))
-    else:
-      assert size >= 0
-      found.append((c.task, FILE, name, size, date, path))
+    for path, name, size, date in items:
+      assert path.startswith(root_url)
+      path = path[len(root_url):]
 
-  global nfetched
-  nfetched += 1
-  if options.verbose and nfetched % 10 == 0:
-    sys.stdout.write(".")
-    sys.stdout.flush()
-    if nfetched % 750 == 0:
-      print
+      if date == "&nbsp;":
+        date = -1
+      else:
+        date = timegm(strptime(date, "%Y-%m-%d %H:%M:%S %Z"))
+
+      if size == "&nbsp;" or size == "-":
+        size = -1
+      else:
+        size = int(size)
+
+      if path.endswith("/"):
+        assert size == -1
+        path = path[:-1]
+        obj = {'task': c.task,
+               'kind': DIR,
+               'name': name,
+               'size': size,
+               'date': date,
+               'path': path}
+        found.append(obj)
+        if options.recursive:
+          reqman.put((options, path, DIR))
+      else:
+        assert size >= 0
+        obj = {'task': c.task,
+               'kind': FILE,
+               'name': name,
+               'size': size,
+               'date': date,
+               'path': path}
+        if options.match_file:
+          if name == options.match_file:
+            found.append(obj)
+            if options.download:
+              reqman.put((options, path, FILE))
+        else:
+          found.append(obj)
+          if options.download:
+            reqman.put((options, path, FILE))
+
+      global nfetched
+      nfetched += 1
+      if options.verbose and nfetched % 10 == 0:
+        sys.stdout.write(".")
+        sys.stdout.flush()
+        if nfetched % 750 == 0:
+          print
+
+def objcmp(a, b):
+  diff = 0
+  diff = a['date'] - b['date']
+  if diff:
+    return diff
+  diff = a['size'] - b['size']
+  if diff:
+    return diff
+  return diff
 
 # Parse command line options.
 op = OptionParser(usage = __doc__)
@@ -110,6 +217,15 @@ op.add_option("-n", "--connections", dest = "connections",
 op.add_option("-v", "--verbose", dest = "verbose",
               action = "store_true", default = False,
               help = "Show verbose scan information")
+op.add_option("-r", "--recursive", dest = "recursive",
+              action = "store_true", default = False,
+              help = "Perform a recursive scan starting from the root directory.")
+op.add_option("-d", "--download", dest = "download",
+              action = "store_true", default = False,
+              help = "Download all touched ROOT files locally. To be used with extreme care.")
+op.add_option("-m", "--match_file", dest = "match_file",
+              type= "string", action = "store", default = "",
+              help = "Filter results based on exact file name matching.")
 options, args = op.parse_args()
 if args:
   print >> sys.stderr, "Too many arguments"
@@ -117,6 +233,15 @@ if args:
 if not options.server:
   print >> sys.stderr, "Server contact string required"
   sys.exit(1)
+
+UMASK = myumask()
+
+# In case a user specifies a root file as address, remove it from the
+# address and return results that match only that name.
+gr = re.match("(.*)/(DQM_V.*\.root)$", options.server)
+if gr:
+  options.server = gr.group(1)
+  options.match_file = gr.group(2)
 
 # Get SSL X509 parametres.
 ssl_opts = SSLOptions()
@@ -130,17 +255,20 @@ reqman = RequestManager(num_connections = options.connections,
                         ssl_opts = ssl_opts,
                         user_agent = ident,
                         request_init = request_init,
-                        request_respond = parse_dir,
-                        request_error = report_error)
+                        request_respond = parse_dir_and_files,
+                        request_error = report_error,
+                        handle_init = handle_init)
 
 # Process from root directory.
 start = time()
-reqman.put((options, "/"))
+reqman.put((options, "/", DIR))
 reqman.process()
 end = time()
 
+for x in sorted(found, cmp=objcmp):
+  print "%20s\t%s\t%s" % (x['size'],
+                          strftime("%Y-%m-%d %H:%M:%S %Z", gmtime(x['date'])),
+                          ((options.recursive and x['path']) or x['name']))
+
 if options.verbose:
   print "\nFound %d directories, %d objects in %.3f seconds" % (nfetched, len(found), end - start)
-  # for x in sorted(found):
-  # print repr(x)
-
