@@ -109,7 +109,7 @@ echo ""
 
 #retrieve
 rfmkdir -p .oO[logdir]Oo.
-gzip LOGFILE_*_.oO[name]Oo..log
+gzip -f LOGFILE_*_.oO[name]Oo..log
 find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
 rfmkdir -p .oO[datadir]Oo.
 find .oO[workdir]Oo. -maxdepth 1 -name "*.oO[alignmentName]Oo.*.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
@@ -188,9 +188,9 @@ find ./ -maxdepth 1 -name "*_result.root" -print | xargs -I {} bash -c "rfcp {} 
 .oO[RunExtendedOfflineValidation]Oo.
 
 #zip stdout and stderr from the farm jobs
-gzip .oO[logdir]Oo./*.stderr
-gzip .oO[logdir]Oo./*.stdout
-
+cd .oO[logdir]Oo.
+find . -name "*.stderr" -exec gzip -f {} \;
+find . -name "*.stdout" -exec gzip -f {} \;
 """
 
 
