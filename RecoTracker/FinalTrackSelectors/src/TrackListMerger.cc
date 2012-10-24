@@ -331,7 +331,7 @@ namespace cms
     }
     
     //DL here
-    if likely(ngood>2 && collsSize>1)
+    if likely(ngood>1 && collsSize>1)
     for ( unsigned int ltm=0; ltm<listsToMerge_.size(); ltm++) {
       int saveSelected[rSize];
       bool notActive[collsSize];
@@ -349,7 +349,7 @@ namespace cms
 	if (notActive[collNum]) continue;
 
 	int k1 = indexG[i];
-	unsigned nh1=rh1[k1].size();
+	unsigned int nh1=rh1[k1].size();
 	int qualityMaskT1 = trackQuals[i];
 	
 	int nhit1 = nh1; // validHits[k1];
