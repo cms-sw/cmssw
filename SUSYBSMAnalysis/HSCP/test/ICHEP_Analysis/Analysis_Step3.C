@@ -563,6 +563,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(fabs(dz)>GlobalMaxDZ) return false;
    if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
+   if(st)st->BS_Phi->Fill(track->phi(),Event_Weight);
+   if(TypeMode==3 && fabs(track->phi())>1.2 && fabs(track->phi())<1.9) return false;
+   
 
    if(st){if(dedxSObj) st->BS_EtaIs->Fill(track->eta(),dedxSObj->dEdx(),Event_Weight);
           if(dedxMObj) st->BS_EtaIm->Fill(track->eta(),dedxMObj->dEdx(),Event_Weight);
@@ -1448,3 +1451,4 @@ int  muonStations(reco::HitPattern hitPattern) {
 
   return stations[0]+stations[1]+stations[2]+stations[3];
 }
+

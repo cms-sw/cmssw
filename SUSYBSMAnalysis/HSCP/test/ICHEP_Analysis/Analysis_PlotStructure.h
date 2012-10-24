@@ -134,7 +134,7 @@ struct stPlots {
    TH1F*  BS_SegMinEtaSep_PassDz;
    TH1F*  BS_Dz_FailSep;
    TH1F*  BS_InnerInvPtDiff;
-
+   TH1F*  BS_Phi;
 
    TH1F*  BS_Pt_FailDz;
    TH1F*  BS_Pt_FailDz_DT;
@@ -411,6 +411,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_dR_NVTrack"  ; st.BS_dR_NVTrack = new TH1F(Name.c_str(), Name.c_str(), 40, 0, 1); st.BS_dR_NVTrack->Sumw2();
    Name = "BS_MatchedStations"  ; st.BS_MatchedStations= new TH1F(Name.c_str(), Name.c_str(),                   8, -0.5, 7.5); st.BS_MatchedStations->Sumw2();
    Name = "BS_InnerInvPtDiff"  ; st.BS_InnerInvPtDiff = new TH1F(Name.c_str(), Name.c_str(),                   120, -4, 4); st.BS_InnerInvPtDiff->Sumw2();
+   Name = "BS_Phi"  ; st.BS_Phi = new TH1F(Name.c_str(), Name.c_str(),                   50, -3.14, 3.14); st.BS_Phi->Sumw2();
 
    Name = "BS_NVertex";  st.BS_NVertex = new TH1F(Name.c_str(), Name.c_str(), 60, 0,  60);  st.BS_NVertex    ->Sumw2();
    Name = "BS_NVertex_NoEventWeight";    st.BS_NVertex_NoEventWeight = new TH1F(Name.c_str(), Name.c_str(), 60, 0, 60);     st.BS_NVertex_NoEventWeight    ->Sumw2();
@@ -730,6 +731,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_SegMinEtaSep_PassDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SegMinEtaSep_PassDz");
    st.BS_Dz_FailSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_FailSep");
    st.BS_InnerInvPtDiff  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_InnerInvPtDiff");
+   st.BS_Phi  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Phi");
 
    st.BS_Pt_FailDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz");
    st.BS_Pt_FailDz_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz_DT");
@@ -1616,6 +1618,18 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"InnerInvPtDiff_BS", false);
+   for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->BS_Phi->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);
+     if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Inner Inverse Pt Diff", "Fraction of tracks", -3.14,3.14, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+   c1->SetLogy(false);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"Phi_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
