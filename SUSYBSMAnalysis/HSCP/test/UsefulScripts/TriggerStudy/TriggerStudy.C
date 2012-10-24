@@ -257,7 +257,7 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Looping on %10s        :", SignalName.c_str());
    int TreeStep = ev.size()/50;if(TreeStep==0)TreeStep=1;
-   int MaxEvent = 100; 
+   int MaxEvent = 10000; 
    if(MaxEvent<0 || MaxEvent>ev.size())MaxEvent = ev.size();
    for(Long64_t e=0;e<MaxEvent;e++){
       if(e%TreeStep==0){printf(".");fflush(stdout);}
