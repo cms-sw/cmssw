@@ -95,7 +95,7 @@ Combine::Combine() :
       ("unbinned,U", "Generate unbinned datasets instead of binned ones (works only for extended pdfs)")
       ("generateBinnedWorkaround", "Make binned datasets generating unbinned ones and then binnning them. Workaround for a bug in RooFit.")
       ("setPhysicsModelParameters", po::value<string>(&setPhysicsModelParameterExpression_)->default_value(""), "Set the values of relevant physics model parameters. Give a comma separated list of parameter value assignments. Example: CV=1.0,CF=1.0")      
-      ("setPhysicsModelParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a semi-colon separated list of parameter ranges. Example: CV=0.0,2.0;CF=0.0,5.0")      
+      ("setPhysicsModelParameterRanges", po::value<string>(&setPhysicsModelParameterRangeExpression_)->default_value(""), "Set the range of relevant physics model parameters. Give a colon separated list of parameter ranges. Example: CV=0.0,2.0:CF=0.0,5.0")      
       ;
     ioOptions_.add_options()
       ("saveWorkspace", "Save workspace to output root file")
@@ -478,13 +478,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     if (saveToys_) {
 	writeToysHere->WriteTObject(dobs, TString::Format("toy_asimov%g", expectSignal_));
-      }
+    }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (MH) MH->setVal(mass_);    
     if (verbose > (isExtended ? 3 : 2)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();
   }
-  
   
   std::vector<double> limitHistory;
   std::auto_ptr<RooAbsPdf> nuisancePdf;
@@ -514,6 +513,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     }
     std::auto_ptr<RooArgSet> vars(genPdf->getVariables());
     algo->setNToys(nToys);
+
     for (iToy = 1; iToy <= nToys; ++iToy) {
       algo->setToyNumber(iToy-1);
       RooAbsData *absdata_toy = 0;
@@ -531,7 +531,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (isExtended) {
           if (newGen_) {
-              absdata_toy = newToyMC.generate(weightVar_); // as simple as that
+            absdata_toy = newToyMC.generate(weightVar_); // as simple as that
           } else if (unbinned_) {
     	      absdata_toy = genPdf->generate(*observables,RooFit::Extended());
           } else if (generateBinnedWorkaround_) {
