@@ -73,12 +73,14 @@ class LambdaWZHiggs(SMLikeHiggsModel):
         if self.modelBuilder.out.function(name) == None:
             XSscal = "Scaling_qqH_"+energy
             if production in ["ggH","ttH"]: XSscal = "kf"
-            if production == "WZ": XSscal = "kW"
+            if production == "WH": XSscal = "kW"
             if production == "ZH": XSscal = "kZ"
             BRscal = "hgg"
             if decay in ["hbb", "htt"]: BRscal = "hf"
             if decay in ["hww", "hzz"]: BRscal = decay
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdaWZ_BRscal_%s)' % (name, XSscal, BRscal))
+            # hack to avoid "VH"
+            if production == "VH": self.modelBuilder.factory_('expr::%s("1.0*@0", lambdaWZ_BRscal_%s)' % (name, BRscal))
+            else: self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdaWZ_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
 
