@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.34.4.2 2012/09/11 22:21:47 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.37 2012/09/11 22:45:29 vadler Exp $
 //
 
 
@@ -498,7 +498,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           // check, if current object is excluded
           if ( newObjectKeys.find( keys.at( iK ) ) != newObjectKeys.end() ) {
             if ( newObjectKeys[ keys.at( iK ) ] == sizeObjects ) continue;
-            triggerFilter.addObjectKey( keys.at( iK ) );
+            triggerFilter.addObjectKey( newObjectKeys[ keys.at( iK ) ] );
             triggerFilter.addTriggerObjectType( types.at( iK ) );
           } else {
             LogWarning( "triggerObjectKey" ) << "TriggerFilter '" << nameFilter << "' requests non-existing TriggerObject key " << keys.at( iK ) << "\n"
