@@ -14,7 +14,7 @@
 // Original Author:  Michele Pioppi-INFN perugia
 //   Modifications: Freya Blekman - Cornell University
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.6.8.3 2012/05/22 19:19:42 wmtan Exp $
+// $Id: SiPixelDigitizer.cc,v 1.7 2012/06/07 18:12:51 wmtan Exp $
 //
 //
 
@@ -24,8 +24,8 @@
 #include <set>
 
 // user include files
-#include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizer.h"
-#include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizerAlgorithm.h"
+#include "SiPixelDigitizer.h"
+#include "SiPixelDigitizerAlgorithm.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/Common/interface/Handle.h"

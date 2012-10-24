@@ -1,7 +1,19 @@
-<use   name="SimTracker/SiPixelDigitizer"/>
 <use   name="SimGeneral/MixingModule"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/SiPixelDigi"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="SimDataFormats/TrackerDigiSimLink"/>
+<use   name="CondFormats/SiPixelObjects"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="SimGeneral/NoiseGenerators"/>
+<use   name="SimTracker/Common"/>
+<use   name="CalibTracker/SiPixelESProducers"/>
+<use   name="gsl"/>
+<use   name="clhep"/>
 <library   file="*.cc" name="SimTrackerSiPixelDigitizerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
