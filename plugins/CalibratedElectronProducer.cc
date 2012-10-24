@@ -26,13 +26,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
 #include "EgammaAnalysis/ElectronTools/interface/PatElectronEnergyCalibrator.h"
 #include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
 
@@ -135,7 +133,6 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
 
   ElectronEnergyCalibrator theEnCorrector(dataset, isAOD, isMC, updateEnergyError, applyCorrections, debug);
 
-
   std::vector<double> regressionValues;
   std::vector<double> regressionErrorValues;
   regressionValues.reserve(nElectrons);
@@ -151,13 +148,12 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
     regressionValues.push_back(regressionEnergy);
     regressionErrorValues.push_back(regressionEnergyError);
 
-    // r9
+    //    r9 
     const EcalRecHitCollection * recHits=0;
     if(ele.isEB()) {
       recHits = pEBRecHits.product();
     } else
       recHits = pEERecHits.product();
-
 
     SuperClusterHelper mySCHelper(&(ele),recHits,ecalTopology_,caloGeometry_);
 
@@ -169,6 +165,8 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
         //std::cout << "[CalibratedElectronProducer] is tracker driven only!!" << std::endl;
       }
    }
+
+
   // Save the electrons
   const edm::OrphanHandle<reco::GsfElectronCollection> gsfNewElectronHandle = event.put(electrons, newElectronName_) ;
   energyFiller.insert(gsfNewElectronHandle,regressionValues.begin(),regressionValues.end());
