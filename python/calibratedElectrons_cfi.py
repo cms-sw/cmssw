@@ -10,13 +10,15 @@ calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
 
     # input collections
     inputElectronsTag = cms.InputTag('gsfElectrons'),
+    # name of the ValueMaps containing the regression outputs                               
     nameEnergyReg = cms.InputTag('eleRegressionEnergy:eneRegForGsfEle'),
     nameEnergyErrorReg = cms.InputTag('eleRegressionEnergy:eneErrorRegForGsfEle'),
+    # The rechits are needed to compute r9                                     
     recHitCollectionEB = cms.InputTag('reducedEcalRecHitsEB'),
     recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
 
     outputGsfElectronCollectionLabel = cms.string('calibratedGsfElectrons'),
-# For conveniency                                     
+    # For conveniency  the ValueMaps are re-created with the new collection as key. The label of the ValueMap are defined below
     nameNewEnergyReg = cms.string('eneRegForGsfEle'),
     nameNewEnergyErrorReg  = cms.string('eneErrorRegForGsfEle'),                                     
                                          
