@@ -439,7 +439,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     iToy = nToys;
     if (iToy == -1) {	
      if (readToysFromHere != 0){
-	dobs = dynamic_cast<RooAbsData *>(readToysFromHere->Get(TString::Format("toys/toy_asimov%g",expectSignal_)));
+	dobs = dynamic_cast<RooAbsData *>(readToysFromHere->Get("toys/toy_asimov"));
 	if (dobs == 0) {
 	  std::cerr << "Toy toy_asimov not found in " << readToysFromHere->GetName() << ". List follows:\n";
 	  readToysFromHere->ls();
@@ -477,7 +477,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       return;
     }
     if (saveToys_) {
-	writeToysHere->WriteTObject(dobs, TString::Format("toy_asimov%g", expectSignal_));
+	writeToysHere->WriteTObject(dobs, "toy_asimov");
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
     if (MH) MH->setVal(mass_);    
