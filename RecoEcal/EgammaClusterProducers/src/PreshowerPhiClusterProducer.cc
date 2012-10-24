@@ -142,6 +142,7 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
     ++isc;
     LogTrace("EcalClusters")<< " superE = " << it_super->energy() << " superETA = " << it_super->eta() << " superPHI = " << it_super->phi() ;
     
+    //cout<<"=== new SC ==="<<endl;
     //cout<<"superE = "<<it_super->energy()<<" superETA = "<<it_super->eta()<<" superPHI = "<<it_super->phi()<<endl;
 
     int nBC = 0;
@@ -156,12 +157,10 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
       if (nBC == 0) {
 	refPhi = (*bc_iter)->phi();
       } else {
-	if (((*bc_iter)->phi() - refPhi) > 0 && ((*bc_iter)->phi() - refPhi) > maxDeltaPhi) maxDeltaPhi = (*bc_iter)->phi() - refPhi;
-	if (((*bc_iter)->phi() - refPhi) < 0 && ((*bc_iter)->phi() - refPhi) < minDeltaPhi) minDeltaPhi = (*bc_iter)->phi() - refPhi;
-	//if (reco::deltaPhi((*bc_iter)->phi(), refPhi) > 0 && reco::deltaPhi((*bc_iter)->phi(), refPhi) > maxDeltaPhi)
-	//maxDeltaPhi = refPhi + reco::deltaPhi((*bc_iter)->phi(), refPhi);
-	//if (reco::deltaPhi((*bc_iter)->phi(), refPhi) < 0 && reco::deltaPhi((*bc_iter)->phi(), refPhi) < minDeltaPhi)
-	//minDeltaPhi = refPhi - reco::deltaPhi((*bc_iter)->phi(), refPhi);
+	if (reco::deltaPhi((*bc_iter)->phi(), refPhi) > 0 && reco::deltaPhi((*bc_iter)->phi(), refPhi) > maxDeltaPhi)
+	  maxDeltaPhi = reco::deltaPhi((*bc_iter)->phi(), refPhi);
+	if (reco::deltaPhi((*bc_iter)->phi(), refPhi) < 0 && reco::deltaPhi((*bc_iter)->phi(), refPhi) < minDeltaPhi)
+	  minDeltaPhi = reco::deltaPhi((*bc_iter)->phi(), refPhi);
 	//cout<<"delta phi : "<<reco::deltaPhi((*bc_iter)->phi(), refPhi)<<endl;
       }
       //cout<<"BC : "<<nBC<<" "<<(*bc_iter)->energy()<<" "<<(*bc_iter)->eta()<<" "<<(*bc_iter)->phi()<<endl; 
