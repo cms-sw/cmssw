@@ -6,9 +6,13 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 # This will read all the little XML files and from
 # that fill the DDCompactView. The modules that fill
 # the reco part of the database need the DDCompactView.
-process.load("SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi")
+###process.load("SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi")
+process.load('Configuration.Geometry.GeometryExtendedPostLS2_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load('Geometry.CaloEventSetup.CaloGeometryDBWriter_cfi')
+
+import Geometry.HcalEventSetup.hcalSLHCTopologyConstants_cfi as hcalTopologyConstants_cfi
+process.hcalTopologyIdeal.hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -30,11 +34,9 @@ process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetE
                                                            fromDDD = cms.bool( True ),
                                                            )
 
-process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-                                                      fromDDD = cms.bool( True ),
-                                                      layerNumberPXB = cms.uint32(18),
-                                                      totalBlade = cms.uint32(56)
-                                                      )
+process.trackerNumberingGeometry.fromDDD = cms.bool( True )
+process.trackerNumberingGeometry.layerNumberPXB = cms.uint32(18)
+process.trackerNumberingGeometry.totalBlade = cms.uint32(56)
 
 process.TrackerGeometryWriter = cms.EDAnalyzer("PGeometricDetBuilder")
 process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")

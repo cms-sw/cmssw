@@ -2,13 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryXMLWriter")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.load("SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cfi")
-
-process.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
-                                                      fromDDD = cms.bool( True ),
-                                                      layerNumberPXB = cms.uint32(18),
-                                                      totalBlade = cms.uint32(56)
-                                                      )
+process.load('Configuration.Geometry.GeometryExtendedPostLS2_cff')
+process.trackerNumberingGeometry.fromDDD = cms.bool( True )
+process.trackerNumberingGeometry.layerNumberPXB = cms.uint32(18)
+process.trackerNumberingGeometry.totalBlade = cms.uint32(56)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
