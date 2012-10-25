@@ -193,6 +193,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    //determine the list of models that are considered
    GetSampleDefinition(samples);
+
    if(SQRTS!=78.0) keepOnlySamplesAt7and8TeVX(samples, SQRTS);
 
    for(unsigned int s=0;s<samples.size();s++){
@@ -228,10 +229,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    //draw the cross section limit for all model
    DrawModelLimitWithBand(TkPattern);
-//   DrawModelLimitWithBand(MuPattern);
+   DrawModelLimitWithBand(MuPattern);
    DrawModelLimitWithBand(MOPattern);
    DrawModelLimitWithBand(LQPattern);
-
 
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
@@ -378,7 +378,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
          double* XSecErrLow  = new double[ThXSec[k]->GetN()];
          double* XSecErrHigh = new double[ThXSec[k]->GetN()];
          //assume 15% error on xsection
-         for(int i=0;i<ThXSec[k]->GetN();i++){ XSecErrLow[i] = ThXSec[k]->GetY()[i]*0.85; XSecErrHigh[i] = ThXSec[k]->GetY()[i]*1.15; }
+       for(int i=0;i<ThXSec[k]->GetN();i++){ XSecErrLow[i] = ThXSec[k]->GetY()[i]*0.85; XSecErrHigh[i] = ThXSec[k]->GetY()[i]*1.15; }
          ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", ThXSec[k]->GetN(),ThXSec[k]->GetX(),XSecErrLow,XSecErrHigh, PlotMinScale, PlotMaxScale); 
       }
    }
@@ -387,24 +387,33 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    fprintf(pFile,"\n\n\n-----------------------\n Mass range excluded   \n-------------------------\n");
    fprintf(pFile,"-----------------------\n0%% TK-ONLY       \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
+      if(TkGraphs[k]->GetN()==0) continue;
+      if(TkGraphs[k]->GetX()[TkGraphs[k]->GetN()-1]<0) continue;
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(TkGraphs[k],  ThXSec[k], TkGraphs[k]->GetX()[0], TkGraphs[k]->GetX()[TkGraphs[k]->GetN()-1], 1, 0.00));
    }
+
    fprintf(pFile,"-----------------------\n0%% MU+TOF        \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
       if(isNeutral) continue;//skip charged suppressed models
+      if(TkGraphs[k]->GetN()==0) continue;
+      if(MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1]<0) continue;
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MuGraphs[k],  ThXSec[k], MuGraphs[k]->GetX()[0], MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1], 1, 0.00));
    }   
    fprintf(pFile,"-----------------------\n0%% MU+Only        \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
       if(isNeutral) continue;//skip charged suppressed models
+      if(MOGraphs[k]->GetN()==0) continue;
+      if(MOGraphs[k]->GetX()[MOGraphs[k]->GetN()-1]<0) continue;
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MOGraphs[k],  ThXSec[k], MOGraphs[k]->GetX()[0], MOGraphs[k]->GetX()[MOGraphs[k]->GetN()-1], 1, 0.00));
    }
    fprintf(pFile,"-----------------------\n0%% Q<1+Only        \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
       if(!isFractional) continue;//skip non fractional charge models
+      if(LQGraphs[k]->GetN()==0) continue;
+      if(LQGraphs[k]->GetX()[LQGraphs[k]->GetN()-1]<0) continue;
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(LQGraphs[k],  ThXSec[k], LQGraphs[k]->GetX()[0], LQGraphs[k]->GetX()[LQGraphs[k]->GetN()-1], 1, 0.00));
    }
 
@@ -478,6 +487,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->Add(MuGraphMap["GMStau"     ]      ,"LP");
    MGMu->Add(MuGraphMap["PPStau"     ]      ,"LP");
    MGMu->Draw("A");
+
    if(!Combine) {
    ThErrorMap["Gluino_f10"]->Draw("f");
    ThErrorMap["Stop"      ]->Draw("f");
@@ -515,7 +525,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TGraph* StThLeg = (TGraph*) ThGraphMap["Stop"      ]->Clone("StopThLeg");
    StThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
    LEGTh->AddEntry(StThLeg   ,"stop   (NLO+NLL)" ,"LF");
-
    TGraph* PPStauThLeg = (TGraph*) ThGraphMap["PPStau"        ]->Clone("PPStauThLeg");
    PPStauThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
    LEGTh->AddEntry(PPStauThLeg   ,"Pair Prod. stau   (NLO)" ,"LF");
@@ -537,6 +546,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->Add(ThGraphMap["GMStau"     ]     ,"L");
    MGTk->Add(ThGraphMap["PPStau"     ]     ,"L");
    }
+
    MGTk->Add(TkGraphMap["Gluino_f10" ]     ,"LP");
    MGTk->Add(TkGraphMap["Gluino_f50" ]     ,"LP");
    MGTk->Add(TkGraphMap["GluinoN_f10"]     ,"LP");
@@ -670,9 +680,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    SaveCanvas(c1, outpath, string("TkDCExclusionLog"));
    delete c1;
 
-
    /////////////////////////////// LQ Analysis
    TLegend* LQLEGTh = new TLegend(0.15,0.7,0.48,0.9);
+   c1 = new TCanvas("c1", "c1",600,600);
    if(!Combine) {
    LQLEGTh->SetHeader("Theoretical Prediction");
    LQLEGTh->SetFillColor(0);
@@ -688,16 +698,18 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQLEGTh->Draw();
    }
 
-   LEGMu->Draw();
 
-   c1 = new TCanvas("c1", "c1",600,600);
+   LEGMu->Draw();
+   bool found=false;
    TMultiGraph* MGLQ = new TMultiGraph();
    if(!Combine) {
    MGLQ->Add(ThGraphMap["DY_Q1o3"    ]     ,"L");
    MGLQ->Add(ThGraphMap["DY_Q2o3"    ]     ,"L");
    }
+
    MGLQ->Add(LQGraphMap["DY_Q1o3"    ]     ,"LP");
    MGLQ->Add(LQGraphMap["DY_Q2o3"    ]     ,"LP");
+
    MGLQ->Draw("A");
    if(!Combine) {
    ThErrorMap["DY_Q1o3"   ]->Draw("f");
@@ -710,9 +722,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGLQ->GetYaxis()->SetTitleOffset(1.70);
    MGLQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGLQ->GetXaxis()->SetRangeUser(50,1550);
-   
+
    DrawPreliminary("frac. charge", SQRTS, LInt);
-   
+
    TLegend* LEGLQ = new TLegend(0.45,0.58,0.795,0.9);
 //   LEGLQ->SetHeader("Q<1");
    LEGLQ->SetFillColor(0); 
@@ -721,6 +733,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGLQ->AddEntry(TkGraphMap["DY_Q1o3"    ], "Q=1/3"            ,"LP");
    LEGLQ->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2/3"            ,"LP");
    if(!Combine) LQLEGTh->Draw();
+
    LEGLQ->Draw();
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("LQExclusionLog"));
@@ -732,6 +745,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMO->Add(ThGraphMap["Gluino_f10" ]     ,"L");
    MGMO->Add(ThGraphMap["Stop"       ]     ,"L");
    }
+
    MGMO->Add(MOGraphMap["Gluino_f10" ]     ,"LP");
    MGMO->Add(MOGraphMap["Gluino_f50" ]     ,"LP");
    MGMO->Add(MOGraphMap["Gluino_f100"]     ,"LP");
@@ -771,8 +785,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
 
 void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){   
-   bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
-   if(IsTkOnly){
+   int TypeMode = TypeFromPattern(InputPattern);
+
+   fprintf(pFile   ,"\n\n %20s \n\n", LegendFromType(InputPattern).c_str());
+   if(TypeMode==0){
       fprintf(pFile   ,          "%20s    Eff   --> PScale |  DeDxScale | PUScale | TotalUncertainty     \n","Model");
       fprintf(talkFile, "\\hline\n%20s &  Eff     & PScale &  DeDxScale & PUScale & TotalUncertainty \\\\\n","Model");
    }else {
@@ -783,43 +799,53 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    for(unsigned int s=0;s<samples.size();s++){
       if(samples[s].Type!=2)continue;
       bool IsNeutral = (samples[s].ModelName().find("N")!=std::string::npos);
-      if(!IsTkOnly && IsNeutral)continue;
+      if(TypeMode!=0 && IsNeutral)continue;
       stAllInfo tmp(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR + "/"+samples[s].Name+".txt");
-
+      if(tmp.Eff==0) continue;
       double P       = tmp.Eff - tmp.Eff_SYSTP;
       double I       = tmp.Eff - tmp.Eff_SYSTI;
       double PU      = tmp.Eff - tmp.Eff_SYSTPU;
       double T       = tmp.Eff - tmp.Eff_SYSTT;
       double Ptemp=max(P, 0.0), Itemp=max(I, 0.0), PUtemp=max(PU, 0.0), Ttemp=max(T, 0.0);
-      if  (IsTkOnly)fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f\n"        ,samples[s].Name.c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff           , sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);        
+      if(TypeMode==0)fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f\n"        ,samples[s].Name.c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff           , sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);        
       else          fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f\n",samples[s].Name.c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff, T/tmp.Eff, sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
 
-      if(IsTkOnly)fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%%             \\\\\n",samples[s].Name.c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);	
+      if(TypeMode==0)fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%%             \\\\\n",samples[s].Name.c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);	
       else        fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%% & %7.1f\\%% \\\\\n",samples[s].Name.c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*T/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
    }
 }
 
 
 TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples, double& LInt){
-   unsigned int N   = modelSamples.size();
-   double* Mass     = new double   [modelSamples.size()];
-   double* XSecTh   = new double   [modelSamples.size()];
-   double* XSecObs  = new double   [modelSamples.size()];
-   double* XSecExp  = new double   [modelSamples.size()];
-   stAllInfo* Infos = new stAllInfo[modelSamples.size()];
-   for(unsigned int i=0;i<modelSamples.size();i++){
-      Infos       [i]=stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[i].Name +".txt");
-      Mass        [i]=Infos[i].Mass;
-      XSecTh      [i]=Infos[i].XSec_Th;
-      XSecObs     [i]=Infos[i].XSec_Obs;
-      XSecExp     [i]=Infos[i].XSec_Exp;
-      LInt           =std::max(LInt, Infos[i].LInt);
+   std::vector<int> signalPoints;
+   for(unsigned int i=0;i<modelSamples.size();i++) if(stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[i].Name +".txt").Mass!=0) {
+     signalPoints.push_back(i);
    }
-   
-   if(XSectionType>0){
+   unsigned int N   = signalPoints.size();
+
+   double* Mass     = new double   [signalPoints.size()];
+   double* XSecTh   = new double   [signalPoints.size()];
+   double* XSecObs  = new double   [signalPoints.size()];
+   double* XSecExp  = new double   [signalPoints.size()];
+   stAllInfo* Infos = new stAllInfo[signalPoints.size()];
+
+   bool FileFound=false;
+
+   for(unsigned int i=0;i<signalPoints.size();i++){
+     Infos     [i] = stAllInfo(InputPattern+""+SHAPESTRING+EXCLUSIONDIR+"/" + modelSamples[signalPoints[i]].Name +".txt");
+     if(Infos[i].Mass!=0) FileFound=true;
+     Mass      [i] = Infos[i].Mass;
+     XSecTh    [i] = Infos[i].XSec_Th;
+     XSecObs   [i] = Infos[i].XSec_Obs;
+     XSecExp   [i] = Infos[i].XSec_Exp;
+     LInt          = std::max(LInt, Infos[i].LInt);
+   }
+
+   if(XSectionType>0 && FileFound){
       //for(unsigned int i=0;i<N;i++)printf("%-18s %5.0f --> Pt>%+6.1f & I>%+5.3f & TOF>%+4.3f & M>%3.0f--> NData=%2.0f  NPred=%6.1E+-%6.1E  NSign=%6.1E (Eff=%3.2f) Local Significance %3.2f\n",ModelName.c_str(),Infos[i].Mass,Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NData, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NSign, Infos[i].Eff, Infos[i].Significance);
 
-      for(unsigned int i=0;i<N;i++){
+     for(unsigned int i=0;i<signalPoints.size();i++){
+       //for(unsigned int i=0;i<N;i++){
         if(Infos[i].WP_TOF==-1){fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E & %3.2f \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs, Infos[i].Significance);
         }else{                  fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & %4.3f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E & %3.2f \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs, Infos[i].Significance);
         }
@@ -834,7 +860,7 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
         }
       }
    }
-   
+
    TGraph* graph = NULL;
    if(XSectionType==0)graph = new TGraph(N,Mass,XSecTh);
    if(XSectionType==1)graph = new TGraph(N,Mass,XSecExp);
@@ -1310,7 +1336,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       //if(OptimCutIndex<0){
          //best significance --> is actually best reach
          if(TypeMode<=2){if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
-         }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S)){printf("runCombine did not converge\n"); continue;}
+         }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
          }
 	 //}else{
          //result.XSec_5Sigma=0.0001;//Dummy number --> will be recomputed later on... but it must be >0
@@ -1333,7 +1359,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
  
    //recompute the limit for the final point and save the output in the final directory (also save some plots for the shape based analysis)
    if(TypeMode<=2){runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
-   }else          {runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, H_D, H_P, H_S, H_S, H_S, H_S, H_S, H_S);
+   }else          {runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
    }
   
    //all done, save the result to file
@@ -1516,11 +1542,18 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       NPredErr    = MassPred  ->GetBinError  (CutIndex+1);
       NPred       = MassPred  ->GetBinContent(CutIndex+1);
       NSign       = MassSign  ->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
-      NSignP      = MassSignP ->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
-      NSignI      = MassSignI ->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
-      NSignM      = MassSignM ->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
-      NSignT      = MassSignT ->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
-      NSignPU     = MassSignPU->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
+
+      MassSignProjP      = ((TH2D*)MassSignP )->ProjectionY("MassSignProP"  ,CutIndex+1,CutIndex+1);
+      MassSignProjI      = ((TH2D*)MassSignI )->ProjectionY("MassSignProI"  ,CutIndex+1,CutIndex+1);
+      MassSignProjM      = ((TH2D*)MassSignM )->ProjectionY("MassSignProM"  ,CutIndex+1,CutIndex+1);
+      MassSignProjT      = ((TH2D*)MassSignT )->ProjectionY("MassSignProT"  ,CutIndex+1,CutIndex+1);
+      MassSignProjPU     = ((TH2D*)MassSignPU)->ProjectionY("MassSignProPU" ,CutIndex+1,CutIndex+1);
+
+      NSignP      = MassSignProjP ->Integral(0, MassSignProjP ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
+      NSignI      = MassSignProjI ->Integral(0, MassSignProjI ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
+      NSignM      = MassSignProjM ->Integral(0, MassSignProjM ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
+      NSignT      = MassSignProjT ->Integral(0, MassSignProjT ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
+      NSignPU     = MassSignProjPU->Integral(0, MassSignProjPU->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
    }
 
    //skip pathological selection point
