@@ -28,7 +28,7 @@ DTMeantimerPatternReco4DAlgo_LinearDriftFromDB = cms.PSet(
         # event must contain the 2D segments!
         AllDTRecHits = cms.bool(True),
         # Parameters for  T0 fit segment in the Updator 
-        performT0SegCorrection = cms.bool(False),
+        performT0SegCorrection = cms.bool(True),
         hit_afterT0_resolution = cms.double(0.03),
         performT0_vdriftSegCorrection = cms.bool(False),
         perform_delta_rejecting = cms.bool(True)
