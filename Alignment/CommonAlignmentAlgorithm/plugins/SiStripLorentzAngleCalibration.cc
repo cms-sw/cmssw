@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : August 2012
-///  $Revision: 1.4 $
-///  $Date: 2012/09/19 14:11:49 $
+///  $Revision: 1.5 $
+///  $Date: 2012/09/20 13:17:24 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
@@ -17,6 +17,7 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -37,6 +38,7 @@
 
 // #include <iostream>
 #include <vector>
+#include <map>
 #include <sstream>
 #include <cstdio>
 
@@ -101,6 +103,10 @@ private:
   /// - either from EventSetup of first call to derivatives(..)
   /// - or created from files of passed by configuration (i.e. from parallel processing)
   const SiStripLorentzAngle* getLorentzAnglesInput();
+  /// in non-peak mode the effective thickness is reduced...
+  double effectiveThickness(const GeomDet *det, int16_t mode, const edm::EventSetup &setup) const;
+  /// take care that map of back plane fractions is properly filled
+  void checkBackPlaneFractionMap(const edm::EventSetup &setup);
 
   /// Determined parameter value for this detId (detId not treated => 0.)
   /// and the given run.
@@ -124,9 +130,12 @@ private:
   const std::vector<std::string> mergeFileNames_;
 
   edm::ESWatcher<SiStripLorentzAngleRcd> watchLorentzAngleRcd_;
+  edm::ESWatcher<SiStripConfObjectRcd>   watchBackPlaneRcd_;
 
   // const AlignableTracker *alignableTracker_;
   SiStripLorentzAngle *siStripLorentzAngleInput_;
+  std::map<SiStripDetId::ModuleGeometry, double> backPlaneFractionMap_;
+
   std::vector<double> parameters_;
   std::vector<double> paramUncertainties_;
 };
@@ -214,7 +223,8 @@ SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
         setup.get<IdealMagneticFieldRecord>().get(magneticField);
         const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
         const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
-        const double dZ = hit.det()->surface().bounds().thickness(); // it is a float only...
+        //std::cout << "SiStripLorentzAngleCalibration derivatives " << readoutModeName_ << std::endl;
+        const double dZ = this->effectiveThickness(hit.det(), mode, setup);
         // shift due to LA: dx = tan(LA) * dz/2 = mobility * B_y * dz/2,
         // '-' since we have derivative of the residual r = trk -hit
         const double xDerivative = bFieldLocal.y() * dZ * -0.5; // parameter is mobility!
@@ -369,6 +379,77 @@ bool SiStripLorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetu
   }
   
   return true;
+}
+
+//======================================================================
+double SiStripLorentzAngleCalibration::effectiveThickness(const GeomDet *det,
+							  int16_t mode,
+							  const edm::EventSetup &setup) const
+{
+  if (!det) return 0.;
+  double dZ = det->surface().bounds().thickness(); // it is a float only...
+
+  // readoutMode_ == 1: "peak", == 0: "deconvolution"
+  // FIXME: SiStripConfObject also stores values for peak?
+  if (mode != 1) { // local reco always applies except for peak
+    // cons_cast since method may initialise values
+    const_cast<SiStripLorentzAngleCalibration*>(this)->checkBackPlaneFractionMap(setup);
+    const SiStripDetId id(det->geographicalId());
+    auto iter = backPlaneFractionMap_.find(id.moduleGeometry());
+    if (iter != backPlaneFractionMap_.end()) {
+      //std::cout << "apply " << iter->second << " for subdet " << id.subDetector() 
+      //          << " with thickness " << dZ << std::endl;
+      dZ *= (1. - iter->second);
+    } else {
+      edm::LogError("Alignment") << "@SUB=SiStripLorentzAngleCalibration::effectiveThickness"
+                                 << "Unknown SiStrip module type " << id.moduleGeometry();
+    }
+  }
+
+  return dZ;
+} 
+
+//======================================================================
+void SiStripLorentzAngleCalibration::checkBackPlaneFractionMap(const edm::EventSetup &setup)
+{
+  // Filled and valid? => Just return!
+  // FIXME: Why called twice?? Should we better do
+  // if (!(backPlaneFractionMap_.empty() || watchBackPlaneRcd_.check(setup))) return;
+  if (!backPlaneFractionMap_.empty() && !watchBackPlaneRcd_.check(setup)) return;
+
+  // All module types, see StripCPE constructor:
+  std::vector<std::pair<std::string, SiStripDetId::ModuleGeometry> > nameTypes;
+  nameTypes.push_back(std::make_pair("IB1",SiStripDetId::IB1));
+  nameTypes.push_back(std::make_pair("IB2",SiStripDetId::IB2));
+  nameTypes.push_back(std::make_pair("OB1",SiStripDetId::OB1));
+  nameTypes.push_back(std::make_pair("OB2",SiStripDetId::OB2));
+  nameTypes.push_back(std::make_pair("W1A",SiStripDetId::W1A));
+  nameTypes.push_back(std::make_pair("W2A",SiStripDetId::W2A));
+  nameTypes.push_back(std::make_pair("W3A",SiStripDetId::W3A));
+  nameTypes.push_back(std::make_pair("W1B",SiStripDetId::W1B));
+  nameTypes.push_back(std::make_pair("W2B",SiStripDetId::W2B));
+  nameTypes.push_back(std::make_pair("W3B",SiStripDetId::W3B));
+  nameTypes.push_back(std::make_pair("W4" ,SiStripDetId::W4 ));
+  nameTypes.push_back(std::make_pair("W5" ,SiStripDetId::W5 ));
+  nameTypes.push_back(std::make_pair("W6" ,SiStripDetId::W6 ));
+  nameTypes.push_back(std::make_pair("W7" ,SiStripDetId::W7 ));
+
+  edm::ESHandle<SiStripConfObject> stripConfObj;
+  setup.get<SiStripConfObjectRcd>().get(stripConfObj);
+
+  backPlaneFractionMap_.clear(); // Just to be sure!
+  for (auto nameTypeIt = nameTypes.begin(); nameTypeIt != nameTypes.end(); ++nameTypeIt) {
+    // See StripCPE constructor:
+    const std::string modeS(readoutModeName_ == "peak" ? "Peak" : "Deco");
+    const std::string shiftS("shift_" + nameTypeIt->first + modeS);
+    if (stripConfObj->isParameter(shiftS)) {
+      backPlaneFractionMap_[nameTypeIt->second] = stripConfObj->get<double>(shiftS);
+      std::cout << "backPlaneFraction for " << nameTypeIt->first << ": " 
+                << backPlaneFractionMap_[nameTypeIt->second] << std::endl;
+    } else {
+      std::cout << "No " << shiftS << " in SiStripConfObject!?!";
+    }
+  }
 }
 
 //======================================================================
