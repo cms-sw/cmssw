@@ -947,7 +947,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    MGTOF->GetXaxis()->SetTitle("1/#beta cut");
    MGTOF->GetYaxis()->SetTitle("Number of expected backgrounds");
    MGTOF->GetYaxis()->SetTitleOffset(1.70);
-   MGTOF->GetYaxis()->SetRangeUser(10,1E6);
+   MGTOF->GetYaxis()->SetRangeUser(500,1E6);
    LEG->Draw();
    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Systematics_")+DataName+"_TOF_Value");
@@ -965,7 +965,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    MGI->GetXaxis()->SetTitle("I_{as} cut");
    MGI->GetYaxis()->SetTitle("Number of expected backgrounds");
    MGI->GetYaxis()->SetTitleOffset(1.70);
-   MGI->GetYaxis()->SetRangeUser(10,1E6);
+   MGI->GetYaxis()->SetRangeUser(500,1E6);
    LEG->Draw();
    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Systematics_")+DataName+"_I_Value");
@@ -983,7 +983,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    MGP->GetXaxis()->SetTitle("p_{T} cut");
    MGP->GetYaxis()->SetTitle("Number of expected backgrounds");
    MGP->GetYaxis()->SetTitleOffset(1.70);
-   MGP->GetYaxis()->SetRangeUser(10,1E6);
+   MGP->GetYaxis()->SetRangeUser(500,1E6);
    LEG->Draw();
    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Systematics_")+DataName+"_P_Value");
@@ -1070,7 +1070,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       graph_stat->GetYaxis()->SetTitleOffset(1.70);
       graph_stat->GetXaxis()->SetTitle(Title.c_str());
       graph_stat->Draw("AC*");
-      graph_stat->GetYaxis()->SetRangeUser(0,0.25);
+      graph_stat->GetYaxis()->SetRangeUser(0,0.15);
 
       if(p==2){
          TGraph* graph_stat2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrStat[p+1]);
@@ -1110,7 +1110,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       graph_statB->GetXaxis()->SetTitle(Title.c_str());
       
       graph_statB->Draw("AC*");
-      graph_statB->GetYaxis()->SetRangeUser(0,0.25);
+      graph_statB->GetYaxis()->SetRangeUser(0,0.15);
 
       if(p==2){
          TGraph* graph_statB2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrStatB[p+1]);
@@ -1150,7 +1150,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       graph_syst->GetXaxis()->SetTitle(Title.c_str());
       graph_syst->Draw("AC*");
       graph_syst->GetXaxis()->SetRangeUser(40,100);
-      graph_syst->GetYaxis()->SetRangeUser(0,0.25);
+      graph_syst->GetYaxis()->SetRangeUser(0,0.15);
 
       if(p==2){
          TGraph* graph_syst2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrSyst[p+1]);

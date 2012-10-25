@@ -149,8 +149,8 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
      IntegratedLuminosity = 4100;
 #endif
    }else if(TypeMode==4){GlobalMaxTIsol = -1;
-         GlobalMaxTIsol   =  999999;      // cut on tracker isolation (SumPt)
-         GlobalMaxRelTIsol   =  0.10; // cut on relative tracker isolation (SumPt/Pt)
+//         GlobalMaxTIsol   =  999999;      // cut on tracker isolation (SumPt)
+//         GlobalMaxRelTIsol   =  0.10; // cut on relative tracker isolation (SumPt/Pt)
          GlobalMaxEIsol   =  999999;   // cut on calorimeter isolation (E/P)
    } else if(TypeMode==5){
      GlobalMinIm   = 2.8; //is actually dEdx max at skim level (reverse logic for type5)

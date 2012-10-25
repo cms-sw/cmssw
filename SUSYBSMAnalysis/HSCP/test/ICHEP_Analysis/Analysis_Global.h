@@ -74,7 +74,7 @@ std::string BaseDirectory = "undefined... Did you call InitBaseDirectory() ? -->
 double             PtHistoUpperBound   = 1200;
 double             MassHistoUpperBound = 2000;
 int		   MassNBins           = 200;
-double             IPbound             = 5;
+double             IPbound             = 1.0;
 
 // Thresholds for candidate preselection --> note that some of the followings can be replaced by Analysis_Step3 function arguments
 double             GlobalMaxEta     =   1.5;    // cut on inner tracker track eta
