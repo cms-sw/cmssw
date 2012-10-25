@@ -76,7 +76,7 @@ const reco::Muon* getTheMuMinus(const std::vector<const reco::Muon*>& selMuons)
 
   for ( std::vector<const reco::Muon*>::const_iterator selMuon = selMuons.begin();
 	selMuon != selMuons.end(); ++selMuon ) {
-    if ( (*selMuon)->charge() > +0.5 ) return (*selMuon);
+    if ( (*selMuon)->charge() < -0.5 ) return (*selMuon);
   }
 
   // no muon of negative charge found
