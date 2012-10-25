@@ -7,5 +7,3 @@ import FWCore.ParameterSet.Config as cms
 from Geometry.CMSCommonData.cmsExtendedGeometryFlat20Services30PercentXML_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 
-# Reconstruction geometry services
-from Configuration.Geometry.GeometryReco_cff import *
