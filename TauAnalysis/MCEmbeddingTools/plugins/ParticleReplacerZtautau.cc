@@ -29,6 +29,7 @@ extern "C" {
 #endif
 
 #include <Math/VectorUtil.h>
+#include <Math/RotationZ.h>
 
 #include <stack>
 #include <queue>
@@ -585,8 +586,18 @@ void ParticleReplacerZtautau::transformMuMu2LepLep(reco::Particle* muon1, reco::
   reco::Particle::LorentzVector lep2P4_rf = reco::Particle::LorentzVector(
     scaleFactor2*muon2P4_rf.px(), scaleFactor2*muon2P4_rf.py(), scaleFactor2*muon2P4_rf.pz(), lep2En_rf);
 
+  // Rotate by 90 degrees around phi in CM frame
+  const reco::Particle::LorentzVector lep1P4_rf_rotated = ROOT::Math::RotationZ(ROOT::Math::Pi()/2.0) * lep1P4_rf;
+  const reco::Particle::LorentzVector lep2P4_rf_rotated = ROOT::Math::RotationZ(ROOT::Math::Pi()/2.0) * lep2P4_rf;
+
   reco::Particle::LorentzVector lep1P4_lab = boost_to_lab(lep1P4_rf);
   reco::Particle::LorentzVector lep2P4_lab = boost_to_lab(lep2P4_rf);
+
+  reco::Particle::LorentzVector lep1P4_lab_rotated = boost_to_lab(lep1P4_rf_rotated);
+  reco::Particle::LorentzVector lep2P4_lab_rotated = boost_to_lab(lep2P4_rf_rotated);
+
+  //std::cout << "Tau1: pt=" << lep1P4_lab.Pt() << "/" << lep1P4_lab_rotated.Pt() << ", eta=" << lep1P4_lab.Eta() << "/" << lep1P4_lab_rotated.Eta() << ", phi=" << lep1P4_lab.Phi() << "/" << lep1P4_lab_rotated.Phi() << std::endl;
+  //std::cout << "Tau2: pt=" << lep2P4_lab.Pt() << "/" << lep2P4_lab_rotated.Pt() << ", eta=" << lep2P4_lab.Eta() << "/" << lep2P4_lab_rotated.Eta() << ", phi=" << lep2P4_lab.Phi() << "/" << lep2P4_lab_rotated.Phi() << std::endl;
 
   // perform additional checks:
   // the following tests guarantee a deviation of less than 0.1% 
