@@ -3,9 +3,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2012/07/24 12:31:47 $
-# $Revision: 1.6 $
+# $Author: anorkus $
+# $Date: 2012/10/23 15:10:14 $
+# $Revision: 1.7 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -290,7 +290,10 @@ def call_compare_using_files(args):
     command+=" -d HLT "
   
   if options.hash_name:
-    command += " --hash_name "  
+    command += " --hash_name "
+
+  if options.blacklist_file:
+    command += " --use_black_file "
 
   if len(blacklists[sample]) >0:
     command+= '-B %s ' %blacklists[sample]
@@ -528,7 +531,13 @@ if __name__ == "__main__":
                     action="store_true",
                     dest="hash_name",
                     default=False,
-                    help="Set if you want to minimize & hash the output HTML files.")                    
+                    help="Set if you want to minimize & hash the output HTML files.")
+##--Blacklist File --##                  
+  parser.add_option("--use_black_file",
+                    action="store_true",
+                    dest="blacklist_file",
+                    default=False,
+                    help="Use a black list file of histograms located @ /RelMon/data")
 
   (options, args) = parser.parse_args()
 

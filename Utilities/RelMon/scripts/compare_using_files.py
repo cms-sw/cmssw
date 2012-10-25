@@ -2,9 +2,9 @@
 ################################################################################
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: dpiparo $
-# $Date: 2012/07/19 07:27:26 $
-# $Revision: 1.4 $
+# $Author: anorkus $
+# $Date: 2012/10/23 15:10:14 $
+# $Revision: 1.5 $
 #
 #
 # Danilo Piparo CERN - danilo.piparo@cern.ch
@@ -136,7 +136,33 @@ parser.add_option("--hash_name",
                   dest="hash_name",
                   default=False,
                   help="Set if you want to minimize & hash the output HTML files.")
+##--Blacklist File --##                  
+parser.add_option("--use_black_file",
+                  action="store_true",
+                  dest="blacklist_file",
+                  default=False,
+                  help="Use a black list file of histograms located @ /RelMon/data")
 
+def blackListedHistos():
+        ##GET a black-list file of histograms##
+    if os.environ.has_key("RELMON_SA"):
+        black_list_file="../data/blacklist.txt"
+    else:
+        black_list_file="%s/src/Utilities/RelMon/data/blacklist.txt"%(os.environ["CMSSW_BASE"])
+    bListFile = open(black_list_file,'r')
+    black_listed_histograms = bListFile.read()
+    bListFile.close()
+
+    histogramArray = black_listed_histograms.split("\n")
+    histogramArray.remove("")  #remove the last element which is empty line
+    newarray = []
+    for elem in histogramArray:
+        tmp = elem.split("/")  #screw windows as it is being run on lxbuild machines with Linux
+        tmp.insert(1,"Run summary")  #insert "Run summary" dir in path as in ROOT files they exists but user haven't defined them
+        newarray.append(("/").join(tmp))
+    return newarray
+    ##------##
+    
 (options, args) = parser.parse_args()
 
 if len(args)!=2 and options.compare:
@@ -201,6 +227,11 @@ if options.compare:
 
 
   black_list=string2blacklist(options.black_list)
+  
+  if options.blacklist_file:
+    black_listed = blackListedHistos()
+  else:
+    black_listed = []
       
 #-------------------------------------------------------------------------------
 
@@ -224,7 +255,9 @@ if options.compare:
                           options.stat_test,
                           options.test_threshold,
                           not options.no_successes,
-                          options.do_pngs)
+                          options.do_pngs,
+                          set(black_listed)
+                          )
                           
   # Start the walker
   outdir_name=options.outdir_name

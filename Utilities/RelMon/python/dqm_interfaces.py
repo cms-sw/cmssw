@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/13 07:25:01 $
-# $Revision: 1.2 $
+# $Date: 2012/07/03 05:38:00 $
+# $Revision: 1.3 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -541,7 +541,7 @@ class DQMRootFile(object):
 #-------------------------------------------------------------------------------
 
 class DirWalkerFile(object):
-  def __init__(self, name, topdirname,rootfilename1, rootfilename2, run=-1, black_list=[], stat_test="KS", test_threshold=.5,draw_success=True,do_pngs=False):
+  def __init__(self, name, topdirname,rootfilename1, rootfilename2, run=-1, black_list=[], stat_test="KS", test_threshold=.5,draw_success=True,do_pngs=False, black_list_histos=[]):
     self.name=name
     self.dqmrootfile1=DQMRootFile(abspath(rootfilename1))
     self.dqmrootfile2=DQMRootFile(abspath(rootfilename2))
@@ -553,6 +553,7 @@ class DirWalkerFile(object):
     #print "DIRWALKERFILE %s %s" %(draw_success,do_pngs)
     self.directory.draw_success=draw_success
     self.directory.do_pngs=do_pngs
+    self.black_list_histos = black_list_histos
 
   def __del__(self):
     chdir(self.workdir)
@@ -634,7 +635,10 @@ class DirWalkerFile(object):
           continue
         h1,h2=self.getObjs(name)
         #print "COMPARISON : +%s+%s+" %(mother_name,dir_name)
-        
+        path = join(mother_name,dir_name,name)
+        if path in self.black_list_histos:
+          print "  Skipping %s" %(path)
+          continue
         directory.comparisons.append(Comparison(name,
                               join(mother_name,dir_name),
                               h1,h2,
