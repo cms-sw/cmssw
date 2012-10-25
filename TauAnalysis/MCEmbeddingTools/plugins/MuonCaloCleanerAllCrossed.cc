@@ -2,10 +2,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <DataFormats/Candidate/interface/CompositeCandidate.h>
-#include <DataFormats/Candidate/interface/CompositeCandidateFwd.h>
-#include <DataFormats/MuonReco/interface/Muon.h>
-#include <DataFormats/MuonReco/interface/MuonFwd.h>
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -27,8 +24,8 @@ MuonCaloCleanerAllCrossed::MuonCaloCleanerAllCrossed(const edm::ParameterSet& cf
   trackAssociator_.useDefaultPropagator();
 
   // maps of detId to energy deposit attributed to muon
-  produces<detIdToFloatMap>("muPlus");
-  produces<detIdToFloatMap>("muMinus");
+  produces<detIdToFloatMap>("energyDepositsMuPlus");
+  produces<detIdToFloatMap>("energyDepositsMuMinus");
 }
 
 MuonCaloCleanerAllCrossed::~MuonCaloCleanerAllCrossed()
@@ -38,18 +35,18 @@ MuonCaloCleanerAllCrossed::~MuonCaloCleanerAllCrossed()
 
 void MuonCaloCleanerAllCrossed::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  std::auto_ptr<detIdToFloatMap> energyDepositMuPlus(new detIdToFloatMap());
-  std::auto_ptr<detIdToFloatMap> energyDepositMuMinus(new detIdToFloatMap());
+  std::auto_ptr<detIdToFloatMap> energyDepositsMuPlus(new detIdToFloatMap());
+  std::auto_ptr<detIdToFloatMap> energyDepositsMuMinus(new detIdToFloatMap());
   
   std::vector<const reco::Muon*> selMuons = getSelMuons(evt, srcSelectedMuons_);
   const reco::Muon* muPlus  = getTheMuPlus(selMuons);
   const reco::Muon* muMinus = getTheMuMinus(selMuons);
 
-  fillEnergyDepositMap(evt, es, muPlus, *energyDepositMuPlus);
-  fillEnergyDepositMap(evt, es, muMinus, *energyDepositMuMinus);
+  fillEnergyDepositMap(evt, es, muPlus, *energyDepositsMuPlus);
+  fillEnergyDepositMap(evt, es, muMinus, *energyDepositsMuMinus);
 
-  evt.put(energyDepositMuPlus, "muPlus");
-  evt.put(energyDepositMuMinus, "muMinus");
+  evt.put(energyDepositsMuPlus, "energyDepositsMuPlus");
+  evt.put(energyDepositsMuMinus, "energyDepositsMuMinus");
 }
 
 void MuonCaloCleanerAllCrossed::fillEnergyDepositMap(edm::Event& evt, const edm::EventSetup& es, const reco::Muon* muon, detIdToFloatMap& energyDepositMap)

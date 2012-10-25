@@ -23,8 +23,8 @@ MuonCaloDistanceProducer::MuonCaloDistanceProducer(const edm::ParameterSet& cfg)
   : srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons"))
 {
   // maps of detId to distance traversed by muon through detector volume
-  produces<detIdToFloatMap>("distanceMuPlus");
-  produces<detIdToFloatMap>("distanceMuMinus");
+  produces<detIdToFloatMap>("distancesMuPlus");
+  produces<detIdToFloatMap>("distancesMuMinus");
   
   edm::ParameterSet cfgTrackAssociator = cfg.getParameter<edm::ParameterSet>("trackAssociator");
   trackAssociatorParameters_.loadParameters(cfgTrackAssociator);
@@ -49,8 +49,8 @@ void MuonCaloDistanceProducer::produce(edm::Event& evt, const edm::EventSetup& e
   fillDistanceMap(evt, es, muMinus, *distanceMuMinus);
 
   // maps of detId to distance traversed by muon through calorimeter cell
-  evt.put(distanceMuPlus, "distanceMuPlus");
-  evt.put(distanceMuMinus, "distanceMuMinus");
+  evt.put(distanceMuPlus, "distancesMuPlus");
+  evt.put(distanceMuMinus, "distancesMuMinus");
 }
 
 void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::EventSetup& es, const reco::Muon* muon, detIdToFloatMap& distanceMap)
@@ -75,17 +75,17 @@ void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::Event
 	caloToDetIdEntry != caloToDetIdMap.end(); ++caloToDetIdEntry ) {
     std::vector<SteppingHelixStateInfo>::const_iterator itHelixState_first, itHelixState_last;
     if ( caloToDetIdEntry->first == "ecal" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getEcalTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getEcalTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getEcalTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getEcalTrajectory().end();
     } else if ( caloToDetIdEntry->first == "hcal" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getHcalTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getHcalTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getHcalTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getHcalTrajectory().end();
     } else if ( caloToDetIdEntry->first == "ho" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getHOTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getHOTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getHOTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getHOTrajectory().end();
     } else if ( caloToDetIdEntry->first == "es" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getPreshowerTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getPreshowerTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getPreshowerTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getPreshowerTrajectory().end();
     } else assert(0);
     
     // copy trajectory points

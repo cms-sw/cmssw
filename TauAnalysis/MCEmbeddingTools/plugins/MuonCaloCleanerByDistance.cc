@@ -20,8 +20,8 @@ MuonCaloCleanerByDistance::MuonCaloCleanerByDistance(const edm::ParameterSet& cf
   }
 
   // maps of detId to expected energy deposits of muon
-  produces<detIdToFloatMap>("energyDepositMuPlus");
-  produces<detIdToFloatMap>("energyDepositMuMinus");
+  produces<detIdToFloatMap>("energyDepositsMuPlus");
+  produces<detIdToFloatMap>("energyDepositsMuMinus");
 }
 
 MuonCaloCleanerByDistance::~MuonCaloCleanerByDistance()
@@ -31,19 +31,19 @@ MuonCaloCleanerByDistance::~MuonCaloCleanerByDistance()
 
 void MuonCaloCleanerByDistance::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  std::auto_ptr<detIdToFloatMap> energyDepositMuPlus(new detIdToFloatMap());
-  std::auto_ptr<detIdToFloatMap> energyDepositMuMinus(new detIdToFloatMap());
+  std::auto_ptr<detIdToFloatMap> energyDepositsMuPlus(new detIdToFloatMap());
+  std::auto_ptr<detIdToFloatMap> energyDepositsMuMinus(new detIdToFloatMap());
   
   edm::Handle<detIdToFloatMap> distanceMapMuPlus;
   evt.getByLabel(srcDistanceMapMuPlus_, distanceMapMuPlus);
   edm::Handle<detIdToFloatMap> distanceMapMuMinus;
   evt.getByLabel(srcDistanceMapMuMinus_, distanceMapMuMinus);
 
-  fillEnergyDepositMap(*distanceMapMuPlus, *energyDepositMuPlus);
-  fillEnergyDepositMap(*distanceMapMuMinus, *energyDepositMuMinus);
+  fillEnergyDepositMap(*distanceMapMuPlus, *energyDepositsMuPlus);
+  fillEnergyDepositMap(*distanceMapMuMinus, *energyDepositsMuMinus);
 
-  evt.put(energyDepositMuPlus, "energyDepositMuPlus");
-  evt.put(energyDepositMuMinus, "energyDepositMuMinus");
+  evt.put(energyDepositsMuPlus, "energyDepositsMuPlus");
+  evt.put(energyDepositsMuMinus, "energyDepositsMuMinus");
 }
 
 void MuonCaloCleanerByDistance::fillEnergyDepositMap(const detIdToFloatMap& distanceMap, detIdToFloatMap& energyDepositMap)
