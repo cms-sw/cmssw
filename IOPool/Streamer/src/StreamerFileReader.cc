@@ -10,28 +10,34 @@
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 
 namespace edm {
+
   StreamerFileReader::StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc) :
       StreamerInputSource(pset, desc),
       streamerNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
       streamReader_(),
       eventSkipperByID_(EventSkipperByID::create(pset).release()),
-      numberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")) {
+      initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")) {
     InputFileCatalog catalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"), pset.getUntrackedParameter<std::string>("overrideCatalog"));
     streamerNames_ = catalog.fileNames();
+    reset_();
 
+  }
+
+  StreamerFileReader::~StreamerFileReader() {
+  }
+
+  void
+  StreamerFileReader::reset_() {
     if (streamerNames_.size() > 1) {
-      streamReader_ = std::auto_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_, &numberOfEventsToSkip_, eventSkipperByID_));
+      streamReader_ = std::auto_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_, &initialNumberOfEventsToSkip_, eventSkipperByID_));
     } else if (streamerNames_.size() == 1) {
-      streamReader_ = std::auto_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_.at(0), &numberOfEventsToSkip_, eventSkipperByID_));
+      streamReader_ = std::auto_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_.at(0), &initialNumberOfEventsToSkip_, eventSkipperByID_));
     } else {
       throw Exception(errors::FileReadError, "StreamerFileReader::StreamerFileReader")
          << "No fileNames were specified\n";
     }
     InitMsgView const* header = getHeader();
     deserializeAndMergeWithRegistry(*header, false);
-  }
-
-  StreamerFileReader::~StreamerFileReader() {
   }
 
   EventPrincipal*
@@ -50,6 +56,20 @@ namespace edm {
       return  0;
     }
     return(deserializeEvent(*eview));
+  }
+
+  void
+  StreamerFileReader::skip(int toSkip) {
+    for(int i = 0; i != toSkip; ++i) {
+      if(!streamReader_->next()) {
+        break;
+      }
+    }
+  }
+
+  void
+  StreamerFileReader::closeFile_() {
+    if(streamReader_.get() != nullptr) streamReader_->closeStreamerFile();
   }
 
   bool

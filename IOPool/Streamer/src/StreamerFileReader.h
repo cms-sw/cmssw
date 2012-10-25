@@ -24,6 +24,8 @@ namespace edm {
     StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~StreamerFileReader();
     virtual EventPrincipal* read();
+    virtual void skip(int toSkip);
+    virtual void closeFile_();
 
     InitMsgView const* getHeader();
     EventMsgView const* getNextEvent();
@@ -31,10 +33,12 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
+    virtual void reset_();
+
     std::vector<std::string> streamerNames_; // names of Streamer files
     std::auto_ptr<StreamerInputFile> streamReader_;
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
-    int numberOfEventsToSkip_;
+    int initialNumberOfEventsToSkip_;
   };
 } //end-of-namespace-def
 

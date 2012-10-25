@@ -16,14 +16,11 @@
 namespace edm {
 
   StreamerInputFile::~StreamerInputFile() {
-    if(storage_) {
-      storage_->close();
-      if(currentFileOpen_) logFileAction("  Closed file ");
-    }
+    closeStreamerFile();
   }
 
   StreamerInputFile::StreamerInputFile(std::string const& name,
-                                       int* numberOfEventsToSkip,
+                                       int* initialNumberOfEventsToSkip,
                                        boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
     startMsg_(),
     currentEvMsg_(),
@@ -35,7 +32,7 @@ namespace edm {
     currentFileName_(),
     currentFileOpen_(false),
     eventSkipperByID_(eventSkipperByID),
-    numberOfEventsToSkip_(numberOfEventsToSkip),
+    initialNumberOfEventsToSkip_(initialNumberOfEventsToSkip),
     currRun_(0),
     currProto_(0),
     newHeader_(false),
@@ -46,7 +43,7 @@ namespace edm {
   }
 
   StreamerInputFile::StreamerInputFile(std::vector<std::string> const& names,
-                                       int* numberOfEventsToSkip,
+                                       int* initialNumberOfEventsToSkip,
                                        boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
     startMsg_(),
     currentEvMsg_(),
@@ -58,7 +55,7 @@ namespace edm {
     currentFileName_(),
     currentFileOpen_(false),
     eventSkipperByID_(eventSkipperByID),
-    numberOfEventsToSkip_(numberOfEventsToSkip),
+    initialNumberOfEventsToSkip_(initialNumberOfEventsToSkip),
     currRun_(0),
     currProto_(0),
     newHeader_(false),
@@ -73,13 +70,9 @@ namespace edm {
   void
   StreamerInputFile::openStreamerFile(std::string const& name) {
 
-    if(storage_) {
-      storage_->close();
-      if(currentFileOpen_) logFileAction("  Closed file ");
-    }
+    closeStreamerFile();
 
     currentFileName_ = name;
-    currentFileOpen_ = false;
     logFileAction("  Initiating request to open file ");
 
     IOOffset size = -1;
@@ -102,6 +95,15 @@ namespace edm {
     }
     currentFileOpen_ = true;
     logFileAction("  Successfully opened file ");
+  }
+
+  void
+  StreamerInputFile::closeStreamerFile() {
+    if(currentFileOpen_ && storage_) {
+      storage_->close();
+      logFileAction("  Closed file ");
+    }
+    currentFileOpen_ = false;
   }
 
   IOSize StreamerInputFile::readBytes(char *buf, IOSize nBytes) {
@@ -263,9 +265,9 @@ namespace edm {
           eventRead = false;
         }
       }
-      if(eventRead && numberOfEventsToSkip_ && *numberOfEventsToSkip_ > 0) {
+      if(eventRead && initialNumberOfEventsToSkip_ && *initialNumberOfEventsToSkip_ > 0) {
         eventRead = false;
-        --(*numberOfEventsToSkip_);
+        --(*initialNumberOfEventsToSkip_);
       }
       nWant = eventSize - sizeof(EventHeader);
       if(eventRead) {
