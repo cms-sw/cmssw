@@ -28,6 +28,9 @@ namespace edm
                  InputSourceDescription const& desc);
     virtual ~StreamerInputModule();
     virtual EventPrincipal* read();
+    virtual void closeFile_() {
+      if(pr_.get() != nullptr) pr_->closeFile();
+    }
 
   private:
     //ProductRegistry const* prod_reg_;
