@@ -8,6 +8,7 @@
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
@@ -16,7 +17,9 @@ namespace edm {
     InputSource(pset, desc),
     // The default value for the following parameter get defined in at least one derived class
     // where it has a different default value.
-    inputFileTransitionsEachEvent_(pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)) {
+    inputFileTransitionsEachEvent_(pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)),
+    receiver_(),
+    numberOfEventsBeforeBigSkip_(0) {
       setTimestamp(Timestamp::beginOfTime());
   }
 
@@ -45,6 +48,9 @@ namespace edm {
     assert(!newRun());
     assert(!newLumi());
     assert(eventCached());
+    if(receiver_) {
+      --numberOfEventsBeforeBigSkip_;
+    }
     resetEventCached();
     eventPrincipalCache()->setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     return eventPrincipalCache();
@@ -65,8 +71,33 @@ namespace edm {
     return eventPrincipalCache();
   }
 
+  void
+  RawInputSource::preForkReleaseResources() {
+    closeFile(boost::shared_ptr<FileBlock>(), false);
+  }
+
+  void
+  RawInputSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource> iReceiver) {
+    receiver_ = iReceiver;
+    receiver_->receive();
+    rewind();
+  }
+
   InputSource::ItemType
   RawInputSource::getNextItemType() {
+    if(receiver_ && 0 == numberOfEventsBeforeBigSkip_) {
+      receiver_->receive();
+      unsigned long toSkip = receiver_->numberToSkip();
+      if(0 != toSkip) {
+        skip(toSkip);
+        decreaseRemainingEventsBy(toSkip);
+        resetEventCached();
+      }
+      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
+      if(0 == numberOfEventsBeforeBigSkip_ or 0 == remainingEvents() or 0 == remainingLuminosityBlocks()) {
+        return IsStop;
+      }
+    }
     if(state() == IsInvalid) {
       return IsFile;
     }
@@ -97,21 +128,28 @@ namespace edm {
     return IsEvent;
   }
 
-  EventPrincipal*
-  RawInputSource::readIt(EventID const&) {
-      throw Exception(errors::LogicError, "RawInputSource::readEvent_(EventID const& eventID)")
-        << "Random access read cannot be used for RawInputSource.\n"
-        << "Contact a Framework developer.\n";
-  }
-
-  // Not yet implemented
   void
-  RawInputSource::skip(int) {
-      throw Exception(errors::LogicError, "RawInputSource::skip(int offset)")
-        << "Random access skip cannot be used for RawInputSource\n"
-        << "Contact a Framework developer.\n";
+  RawInputSource::reset_() {
+    throw Exception(errors::LogicError)
+      << "RawInputSource::reset()\n"
+      << "Forking is not implemented for this type of RawInputSource\n"
+      << "Contact a Framework Developer\n";
   }
 
+  void
+  RawInputSource::rewind_() {
+    setNewRun();
+    setNewLumi();
+    resetEventCached();
+    reset_();
+    if(receiver_) {
+      unsigned int numberToSkip = receiver_->numberToSkip();
+      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
+      skip(numberToSkip);
+      decreaseRemainingEventsBy(numberToSkip);
+    }
+    resetEventCached();
+  }
 
   void
   RawInputSource:: fillDescription(ParameterSetDescription& description) {
