@@ -8,7 +8,7 @@
 //
 // Author:      Marcello Maggi
 // Created:     Wed Nov  2 12:09:10 CET 2011
-// $Id: RPCCompDetId.cc,v 1.2 2011/11/24 16:35:08 mmaggi Exp $
+// $Id: RPCCompDetId.cc,v 1.5 2012/02/04 23:29:48 eulisse Exp $
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -139,11 +139,9 @@ RPCCompDetId::init(int region,
 		   int layer,
 		   int subsector)
 {
-  int minRing=0;
   int maxRing=maxRingForwardId;
   if (!region)
     {
-      minRing=minRingBarrelId;
       maxRing=maxRingBarrelId;
     }
   
