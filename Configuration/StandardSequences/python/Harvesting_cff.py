@@ -10,17 +10,18 @@ from FastSimulation.Configuration.Harvesting_cff import *
 
 from Validation.RecoHI.HarvestingHI_cff import *
 
+
 dqmHarvesting = cms.Path(DQMOffline_SecondStep*DQMOffline_Certification)
 dqmHarvestingPOG = cms.Path(DQMOffline_SecondStep_PrePOG)
 
 dqmHarvestingPOGMC = cms.Path( DQMOffline_SecondStep_PrePOGMC )
 
-validationHarvesting = cms.Path(postValidation*hltpostvalidation)
+validationHarvesting = cms.Path(postValidation*hltpostvalidation*postValidation_gen)
 
-validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_preprod)
+validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_preprod*postValidation_gen)
 
 # empty (non-hlt) postvalidation sequence here yet
-validationprodHarvesting = cms.Path(hltpostvalidation_prod)
+validationprodHarvesting = cms.Path(hltpostvalidation_prod*postValidation_gen)
 
 validationHarvestingFS = cms.Path(HarvestingFastSim)
 

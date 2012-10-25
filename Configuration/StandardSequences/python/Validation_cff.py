@@ -29,7 +29,7 @@ from Validation.EventGenerator.BasicGenValidation_cff import *
 prevalidation = cms.Sequence( globalPrevalidation * hltassociation )
 
 validation = cms.Sequence(cms.SequencePlaceholder("mix")
-                         +basicGenTest_seq
+                         +genvalid_all
                          *globaldigisanalyze
                          *globalhitsanalyze
                          *globalrechitsanalyze
@@ -39,7 +39,7 @@ validation = cms.Sequence(cms.SequencePlaceholder("mix")
 prevalidation_preprod = cms.Sequence( preprodPrevalidation )
 
 validation_preprod = cms.Sequence(
-                          basicGenTest_seq
+                          genvalid_all
                           +trackingTruthValid
                           +tracksValidation
                           +METRelValSequence
@@ -51,7 +51,7 @@ validation_preprod = cms.Sequence(
 
 validation.remove(condDataValidation)
 validation_prod = cms.Sequence(
-             basicGenTest_seq
+             genvalid_all
             +hltvalidation_prod
             )
 
