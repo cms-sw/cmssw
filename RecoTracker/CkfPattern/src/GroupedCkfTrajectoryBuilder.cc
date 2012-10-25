@@ -559,7 +559,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	for(const TempTrajectory::DataContainer::const_iterator newTrajMeasIt = traj.measurements().rbegin(); 
 	    newTrajMeasIt != traj.measurements().rend(); --newTrajMeasIt){
 	  //if(tmpCounter==2) break;
-	  if(revIt->recHitR().geographicalId()==newTrajMeasIt->recHitR().geographicalId()){
+	  if(revIt->recHitR().geographicalId()==newTrajMeasIt->recHitR().geographicalId() 
+	     && (revIt->recHitR().geographicalId() != DetId(0)) ){
 	    toBeRejected=true;
 	    goto rejected; //break;  // see http://stackoverflow.com/questions/1257744/can-i-use-break-to-exit-multiple-nested-for-loops
 	  }
