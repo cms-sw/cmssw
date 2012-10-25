@@ -653,6 +653,10 @@ namespace edm {
     FDEBUG(2) << parameterSet << std::endl;
     connectSigs(this);
 
+    // Reusable event principal
+    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get()));
+    principalCache_.insert(ep);
+      
     // initialize the subprocess, if there is one
     if(subProcessParameterSet) {
       subProcess_.reset(new SubProcess(*subProcessParameterSet, *parameterSet, preg_, branchIDListHelper_, *espController_, *actReg_, token, serviceregistry::kConfigurationOverrides));
@@ -1641,11 +1645,6 @@ namespace edm {
     StatusCode returnCode=epSuccess;
     std::auto_ptr<statemachine::Machine> machine;
     {
-      
-      // Reusable event principal
-      boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get()));
-      principalCache_.insert(ep);
-      
       beginJob(); //make sure this was called
       
       if(!onlineStateTransitions) changeState(mRunCount);
