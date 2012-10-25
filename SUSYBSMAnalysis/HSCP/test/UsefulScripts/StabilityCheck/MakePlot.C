@@ -21,6 +21,7 @@
 #include "tdrstyle.C"
 #include "TProfile.h"
 
+#include "../../ICHEP_Analysis/Analysis_Global.h"
 #include "../../ICHEP_Analysis/Analysis_PlotFunction.h"
 #include "../../ICHEP_Analysis/Analysis_Samples.h"
 
@@ -93,17 +94,17 @@ void MakedEdxPlot()
 
    TFile* InputFile = new TFile("pictures/Histos.root");
 
-   TProfile* SingleMu_PtProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuPtProf");      
-   TProfile* SingleMu_dEdxProf         = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxProf");   
-   TProfile* SingleMu_dEdxMProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMProf");
-   TProfile* SingleMu_dEdxMSProf       = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMSProf");
-   TProfile* SingleMu_dEdxMPProf       = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMPProf");
-   TProfile* SingleMu_dEdxMSCProf      = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMSCProf");
-   TProfile* SingleMu_dEdxMPCProf      = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMPCProf");
-   TProfile* SingleMu_dEdxMSFProf      = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMSFProf");
-   TProfile* SingleMu_dEdxMPFProf      = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxMPFProf");
+   TProfile* SingleMu_PtProf           = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterPtProf");      
+   TProfile* SingleMu_dEdxProf         = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxProf");   
+   TProfile* SingleMu_dEdxMProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMProf");
+   TProfile* SingleMu_dEdxMSProf       = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMSProf");
+   TProfile* SingleMu_dEdxMPProf       = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMPProf");
+   TProfile* SingleMu_dEdxMSCProf      = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMSCProf");
+   TProfile* SingleMu_dEdxMPCProf      = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMPCProf");
+   TProfile* SingleMu_dEdxMSFProf      = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMSFProf");
+   TProfile* SingleMu_dEdxMPFProf      = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterdEdxMPFProf");
 
-   TProfile* SingleMu_NVertProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuNVertProf");
+   TProfile* SingleMu_NVertProf        = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMuFilterNVertProf");
 
    SingleMu_NVertProf->LabelsDeflate("X");
    SingleMu_NVertProf->LabelsOption("av","X");
@@ -114,10 +115,10 @@ void MakedEdxPlot()
    TFile* InputFileLumi167807 = new TFile("pictures/HistosLumi167807.root");
    TFile* InputFileLumi167898 = new TFile("pictures/HistosLumi167898.root");
 
-   TProfile* SingleMu_dEdxMProfLumi166380         = (TProfile*)GetObjectFromPath(InputFileLumi166380, "HscpPathSingleMudEdxMProf");
-   TProfile* SingleMu_dEdxMProfLumi166512         = (TProfile*)GetObjectFromPath(InputFileLumi166512, "HscpPathSingleMudEdxMProf");
-   TProfile* SingleMu_dEdxMProfLumi167807         = (TProfile*)GetObjectFromPath(InputFileLumi167807, "HscpPathSingleMudEdxMProf");
-   TProfile* SingleMu_dEdxMProfLumi167898         = (TProfile*)GetObjectFromPath(InputFileLumi167898, "HscpPathSingleMudEdxMProf");
+   TProfile* SingleMu_dEdxMProfLumi166380         = (TProfile*)GetObjectFromPath(InputFileLumi166380, "HSCPHLTTriggerMuFilterdEdxMProf");
+   TProfile* SingleMu_dEdxMProfLumi166512         = (TProfile*)GetObjectFromPath(InputFileLumi166512, "HSCPHLTTriggerMuFilterdEdxMProf");
+   TProfile* SingleMu_dEdxMProfLumi167807         = (TProfile*)GetObjectFromPath(InputFileLumi167807, "HSCPHLTTriggerMuFilterdEdxMProf");
+   TProfile* SingleMu_dEdxMProfLumi167898         = (TProfile*)GetObjectFromPath(InputFileLumi167898, "HSCPHLTTriggerMuFilterdEdxMProf");
 */
 
    if(LoadLumiToRun()){
@@ -197,7 +198,7 @@ void MakedEdxPlot()
 
 
    for(unsigned int i=0;i<SingleMu_PtProf->GetXaxis()->GetNbins();i++){
-      if((i+3)%4==0)continue;
+      if((i+11)%12==0)continue;
       SingleMu_PtProf->GetXaxis()->SetBinLabel(i,"");
       SingleMu_dEdxProf->GetXaxis()->SetBinLabel(i,"");
       SingleMu_dEdxMProf->GetXaxis()->SetBinLabel(i,"");
@@ -210,7 +211,7 @@ void MakedEdxPlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "<#Reco Vertices>", 0,0, 0,0);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","dEdx_Profile_NVert");
    delete c1;
 
@@ -221,7 +222,7 @@ void MakedEdxPlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "p_{T} (GeV/c)", 0,0, 0,0);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","dEdx_Profile_Pt");
    delete c1;
 
@@ -231,7 +232,7 @@ void MakedEdxPlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{as}", 0,0, 0.02,0.06);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","dEdx_Profile_dEdx");
    delete c1;
 
@@ -240,7 +241,7 @@ void MakedEdxPlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h}", 0,0, 3.2,3.4);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","dEdx_Profile_dEdxM");
    delete c1;
 
@@ -253,7 +254,7 @@ void MakedEdxPlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Lumi", "I_{h}", 0,0, 3.2,3.4);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","dEdx_Profile_dEdxMRun");
    delete c1;
 */
@@ -357,7 +358,7 @@ void MakePlot()
    TProfile* PFMet_HTOF             = (TProfile*)GetObjectFromPath(InputFile, "HSCPHLTTriggerMetDeDxFilterHTOF");
 
    for(unsigned int i=0;i<SingleMu_PtProf->GetXaxis()->GetNbins();i++){
-      if((i+3)%12==0)continue;
+      if((i+11)%12==0)continue;
       Any_PtProf         ->GetXaxis()->SetBinLabel(i,"");
       SingleMu_PtProf    ->GetXaxis()->SetBinLabel(i,"");
       PFMet_PtProf       ->GetXaxis()->SetBinLabel(i,"");
@@ -441,7 +442,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "p_{T} (GeV/c)", 0,0, 0,150);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_Pt");
    delete c1;
 
@@ -453,7 +454,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{as}", 0,0, 0.02,0.05);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_dEdx");
    delete c1;
 
@@ -466,7 +467,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h}", 0,0, 3.1,3.6);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_dEdxM");
    delete c1;
 
@@ -478,7 +479,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h} S", 0,0, 3.1,3.6);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_dEdxMS");
    delete c1;
 
@@ -490,7 +491,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h} P", 0,0, 3.1,3.6);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_dEdxMP");
    delete c1;
 
@@ -502,7 +503,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h} SC", 0,0, 3.1,3.6);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_dEdxMSC");
    delete c1;
 
@@ -514,7 +515,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h} PC", 0,0, 3.1,3.6);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_dEdxMPC");
    delete c1;
 
@@ -526,7 +527,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h} SF", 0,0, 3.1,3.6);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_dEdxMSF");
    delete c1;
 
@@ -538,7 +539,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h} PF", 0,0, 3.1,3.6);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_dEdxMPF");
    delete c1;
 
@@ -550,7 +551,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF}", 0,0, 0.85,1.15);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_TOF");
    delete c1;
 
@@ -562,7 +563,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF_DT}", 0,0, 0.85,1.15);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_TOFDT");
    delete c1;
 
@@ -574,7 +575,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF_CSC}", 0,0, 0.85,1.15);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_TOFCSC");
    delete c1;
 
@@ -586,7 +587,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex time [ns]", 0,0, -4,4);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_Vertex");
    delete c1;
 
@@ -598,7 +599,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex Time DT [ns]", 0,0, -4,4);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_VertexDT");
    delete c1;
 
@@ -610,7 +611,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex Time CSC [ns]", 0,0, -4,4);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_VertexCSC");
    delete c1;
 
@@ -623,7 +624,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h} ROT", 0,0, 0,0.05);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_ROT_dEdx");
    delete c1;
 
@@ -636,7 +637,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Pt ROT", 0,0, 0.15,0.5);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_ROT_Pt");
    delete c1;
 
@@ -649,7 +650,7 @@ void MakePlot()
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF} ROT", 0,0, 0,0.2);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    //DrawLegend(Histos,legend,"","P");
-   DrawPreliminary(IntegratedLuminosity);
+   DrawPreliminary(SQRTS,IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_ROT_TOF");
    delete c1;
 
