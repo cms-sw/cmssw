@@ -63,6 +63,7 @@ namespace edm {
     secondaryLumiPrincipal_(),
     secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), secondaryFileSequence_->fileBranchIDListHelper(), processConfiguration()) : 0),
     branchIDsToReplace_(),
+    receiver_(),
     numberOfEventsBeforeBigSkip_(0) {
     if(secondaryFileSequence_) {
       assert(primary());
@@ -212,8 +213,7 @@ namespace edm {
 
   InputSource::ItemType
   PoolSource::getNextItemType() {
-    if(receiver_ &&
-       0 == numberOfEventsBeforeBigSkip_) {
+    if(receiver_ && 0 == numberOfEventsBeforeBigSkip_) {
       receiver_->receive();
       unsigned long toSkip = receiver_->numberToSkip();
       if(0 != toSkip) {
@@ -221,7 +221,7 @@ namespace edm {
         decreaseRemainingEventsBy(toSkip);
       }
       numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
-      if(0 == numberOfEventsBeforeBigSkip_ or 0==remainingEvents()) {
+      if(0 == numberOfEventsBeforeBigSkip_ or 0 == remainingEvents() or 0 == remainingLuminosityBlocks()) {
         return IsStop;
       }
     }
@@ -239,7 +239,6 @@ namespace edm {
     receiver_->receive();
     primaryFileSequence_->reset(principalCache());
     rewind();
-    decreaseRemainingEventsBy(receiver_->numberToSkip());
   }
 
   // Rewind to before the first event that was read.
@@ -250,10 +249,10 @@ namespace edm {
       unsigned int numberToSkip = receiver_->numberToSkip();
       if(0 != numberToSkip) {
         primaryFileSequence_->skipEvents(numberToSkip, principalCache());
+        decreaseRemainingEventsBy(receiver_->numberToSkip());
       }
       numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
     }
-
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
