@@ -261,7 +261,7 @@ namespace edm {
 
   void
   InputSource::closeFile(boost::shared_ptr<FileBlock> fb, bool cleaningUpAfterException) {
-    fb->close();
+    if(fb) fb->close();
     callWithTryCatchAndPrint<void>( [this](){ closeFile_(); },
                                     "Calling InputSource::closeFile_",
                                     cleaningUpAfterException );
@@ -461,7 +461,7 @@ namespace edm {
   InputSource::skip(int) {
     throw Exception(errors::LogicError)
       << "InputSource::skip()\n"
-      << "Random access is not implemented for this type of Input Source\n"
+      << "Forking and random access are not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
   }
 
@@ -478,7 +478,7 @@ namespace edm {
   InputSource::rewind_() {
     throw Exception(errors::LogicError)
       << "InputSource::rewind()\n"
-      << "Rewind is not implemented for this type of Input Source\n"
+      << "Forking and random access are not implemented for this type of Input Source\n"
       << "Contact a Framework Developer\n";
   }
 
