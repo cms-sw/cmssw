@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/12/03 12:52:22 $
- * $Revision: 1.3 $
+ * $Date: 2011/12/20 19:51:59 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -36,6 +36,10 @@ DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset):
 
     // debug parameter
     debug = pset.getUntrackedParameter<bool>("debug");
+
+    //do you want the T0 correction?
+    applyT0corr = pset.getParameter<bool>("performT0SegCorrection");
+    computeT0corr = pset.getUntrackedParameter<bool>("computeT0Seg",true);
 
     // the updator
     theUpdator = new DTSegmentUpdator(pset);
@@ -195,6 +199,11 @@ DTMeantimerPatternReco4D::reconstruct(){
           /// 4d segment: I have the pos along the wire => further update!
           theUpdator->update(newSeg);
           if (debug) cout << "Created a 4D seg " << *newSeg << endl;
+
+          //update the segment with the t0 and possibly vdrift correction
+          if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
+          if(applyT0corr) theUpdator->update(newSeg,true);
+
           result.push_back(newSeg);
         }
       } else {
@@ -203,6 +212,10 @@ DTMeantimerPatternReco4D::reconstruct(){
 
         if (debug) cout << "Created a 4D segment using only the 2D Phi segment" << endl;
         result.push_back(newSeg);
+
+       //update the segment with the t0 and possibly vdrift correction
+        if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
+        if(applyT0corr) theUpdator->update(newSeg,true);
       }
     }
   } else { 
@@ -221,6 +234,10 @@ DTMeantimerPatternReco4D::reconstruct(){
         // <<
 
         if (debug) cout << "Created a 4D segment using only the 2D Theta segment" << endl;
+
+        if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
+        if(applyT0corr) theUpdator->update(newSeg,true);
+
         result.push_back(newSeg);
       }
     }
