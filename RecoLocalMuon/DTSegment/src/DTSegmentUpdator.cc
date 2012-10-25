@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2012/08/06 08:35:23 $
- * $Revision: 1.49 $
+ * $Date: 2012/10/25 12:45:37 $
+ * $Revision: 1.50 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -85,6 +85,8 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) const {
 
   int step = (hasPhi && hasZed) ? 3 : 2;
   if(calcT0) step = 4;
+
+  if(debug) cout << "Step of update is " << step << endl;
 
   GlobalPoint  pos = theGeom->idToDet(seg->geographicalId())->toGlobal(seg->localPosition());
   GlobalVector dir = theGeom->idToDet(seg->geographicalId())->toGlobal(seg->localDirection());

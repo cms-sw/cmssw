@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2011/12/20 19:51:59 $
- * $Revision: 1.4 $
+ * $Date: 2012/10/25 12:45:36 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -54,6 +54,7 @@ DTMeantimerPatternReco4D::DTMeantimerPatternReco4D(const ParameterSet& pset):
     // Get the concrete 2D-segments reconstruction algo from the factory
     // For the 2D reco I use this reconstructor!
     the2DAlgo = new DTMeantimerPatternReco(pset.getParameter<ParameterSet>("Reco2DAlgoConfig"));
+
   }
 
 
@@ -211,11 +212,12 @@ DTMeantimerPatternReco4D::reconstruct(){
         DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi);
 
         if (debug) cout << "Created a 4D segment using only the 2D Phi segment" << endl;
-        result.push_back(newSeg);
 
-       //update the segment with the t0 and possibly vdrift correction
+        //update the segment with the t0 and possibly vdrift correction
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
         if(applyT0corr) theUpdator->update(newSeg,true);
+
+        result.push_back(newSeg);
       }
     }
   } else { 
