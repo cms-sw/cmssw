@@ -145,16 +145,15 @@ prunedAODForPF2PATEventContent = cms.PSet(
 EITopPAGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(
     # isolated electrons and muons
-    'keep *_pfIsolatedElectrons_*_*',
-    'keep *_pfIsolatedMuons_*_*',
-    'keep recoIsoDepositedmValueMap_*_*_*',
+    'keep *_pfIsolatedElectronsEI*_*_*',
+    'keep *_pfIsolatedMuonsEI*_*_*',
     # jets
-    'keep recoPFJets_pfNoTau_*_*',
+    'keep recoPFJets_pfJets_*_*',
     # taus 
-    'keep *_pfTaus_*_*',
+    'keep recoPFTaus_pfTaus_*_*',
     'keep recoPFTauDiscriminator_*_*_*',
-    'keep *_*fflinePrimaryVertice_*_*',
+    'keep *_*fflinePrimaryVertices*_*_*',
     # MET
-    'keep *_pfMET_*_*'
+    'keep *_pfMET*_*_*'
     )
 )
