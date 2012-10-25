@@ -14,7 +14,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: MuonCaloCleanerByDistance.h,v 1.1 2012/10/14 12:22:24 veelken Exp $
+ * $Id: MuonCaloCleanerByDistance.h,v 1.1 2012/10/24 09:37:14 veelken Exp $
  *
  */
 
@@ -26,7 +26,12 @@
 
 #include "TauAnalysis/MCEmbeddingTools/interface/DetNaming.h"
 
+#include <DataFormats/Candidate/interface/Candidate.h>
+#include <DataFormats/Candidate/interface/CandidateFwd.h>
+
 #include <boost/foreach.hpp>
+
+#include <TGraph.h>
 
 class MuonCaloCleanerByDistance : public edm::EDProducer 
 {
@@ -38,14 +43,16 @@ class MuonCaloCleanerByDistance : public edm::EDProducer
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   typedef std::map<uint32_t, float> detIdToFloatMap;
-  void fillEnergyDepositMap(const detIdToFloatMap&, detIdToFloatMap&);
+  void fillEnergyDepositMap(const reco::Candidate& muon, const detIdToFloatMap&, detIdToFloatMap&);
       
+  edm::InputTag srcMuons_;
   edm::InputTag srcDistanceMapMuPlus_;
   edm::InputTag srcDistanceMapMuMinus_;
 
   DetNaming detNaming_;
 
-  std::map<std::string, double> energyDepositPerDistance_;
+  std::map<std::string, double> energyDepositCorrection_;
+  TGraph* dedxGraphPbwo4_;
 };
 
 #endif

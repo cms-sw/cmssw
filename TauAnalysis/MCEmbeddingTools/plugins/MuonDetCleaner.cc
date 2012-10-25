@@ -31,12 +31,12 @@ void MuonDetCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
   std::auto_ptr<detIdToIntMap> hitsMuPlus(new detIdToIntMap());
   std::auto_ptr<detIdToIntMap> hitsMuMinus(new detIdToIntMap());
   
-  std::vector<const reco::Muon*> selMuons = getSelMuons(evt, srcSelectedMuons_);
-  const reco::Muon* muPlus  = getTheMuPlus(selMuons);
-  const reco::Muon* muMinus = getTheMuMinus(selMuons);
+  std::vector<reco::CandidateBaseRef > selMuons = getSelMuons(evt, srcSelectedMuons_);
+  const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
+  const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
 
-  fillHitMap(muPlus, *hitsMuPlus);
-  fillHitMap(muMinus, *hitsMuMinus);
+  fillHitMap(dynamic_cast<const reco::Muon*>(&*muPlus), *hitsMuPlus);
+  fillHitMap(dynamic_cast<const reco::Muon*>(&*muMinus), *hitsMuMinus);
 
   evt.put(hitsMuPlus, "hitsMuPlus");
   evt.put(hitsMuMinus, "hitsMuMinus");

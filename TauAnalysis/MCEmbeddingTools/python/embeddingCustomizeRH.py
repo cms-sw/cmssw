@@ -32,14 +32,15 @@ def customise(process, inputProcess):
   process.ProductionFilterSequence += process.muonCaloDistances
 
   process.muonCaloEnergyDepositsByDistance = cms.EDProducer('MuonCaloCleanerByDistance',
+    muons = cms.InputTag("muonCaloDistances", "muons"),
     distanceMapMuPlus = cms.InputTag("muonCaloDistances", "distancesMuPlus"),
     distanceMapMuMinus = cms.InputTag("muonCaloDistances", "distancesMuMinus"),
-    energyDepositPerDistance = cms.PSet(
-      H_Ecal_EcalBarrel  = cms.double(0.020), # GeV per cm (assuming density of all calorimeters to be ~10g/cm^3)
-      H_Ecal_EcalEndcap  = cms.double(0.020),   
-      H_Hcal_HcalBarrel  = cms.double(0.020),   
-      H_Hcal_HcalOuter   = cms.double(0.020),
-      H_Hcal_HcalEndcap  = cms.double(0.020),
+    energyDepositCorrection = cms.PSet(
+      H_Ecal_EcalBarrel  = cms.double(0.9), # use barrel value for now
+      H_Ecal_EcalEndcap  = cms.double(0.9), # use barrel value for now
+      H_Hcal_HcalBarrel  = cms.double(0.9), # TODO: This is ECAL value... need to determine HCAL value separately
+      H_Hcal_HcalOuter   = cms.double(0.9), # TODO: This is ECAL value... need to determine HCAL value separately
+      H_Hcal_HcalEndcap  = cms.double(0.9), # TODO: This is ECAL value... need to determine HCAL value separately
       H_Hcal_HcalForward = cms.double(0.000), # CV: simulated tau decay products are not expected to deposit eny energy in HF calorimeter
       H_Hcal_HcalOther   = cms.double(0.000)
     )                                                  

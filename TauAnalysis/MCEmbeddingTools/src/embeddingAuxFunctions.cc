@@ -2,20 +2,21 @@
 
 #include <DataFormats/Candidate/interface/CompositeCandidate.h>
 #include <DataFormats/Candidate/interface/CompositeCandidateFwd.h>
+#include <DataFormats/Common/interface/RefToPtr.h>
 #include <DataFormats/MuonReco/interface/MuonFwd.h>
 #include "DataFormats/Common/interface/Handle.h"
 
 namespace
 {
-  bool higherPt(const reco::Muon* muon1, const reco::Muon* muon2)
+  bool higherPt(const reco::CandidateBaseRef& muon1, const reco::CandidateBaseRef& muon2)
   {
     return (muon1->pt() > muon2->pt());
   }
 }
 
-std::vector<const reco::Muon*> getSelMuons(edm::Event& evt, const edm::InputTag& srcSelMuons)
+std::vector<reco::CandidateBaseRef> getSelMuons(edm::Event& evt, const edm::InputTag& srcSelMuons)
 {
-  std::vector<const reco::Muon*> selMuons;
+  std::vector<reco::CandidateBaseRef> selMuons;
 
   edm::Handle<reco::CompositeCandidateCollection> combCandidatesHandle;
   if ( evt.getByLabel(srcSelMuons, combCandidatesHandle) ) {
@@ -23,11 +24,11 @@ std::vector<const reco::Muon*> getSelMuons(edm::Event& evt, const edm::InputTag&
       const reco::CompositeCandidate& combCandidate = combCandidatesHandle->at(0); // TF: use only the first combined candidate
       for ( size_t idx = 0; idx < combCandidate.numberOfDaughters(); ++idx ) { 
 	const reco::Candidate* daughter = combCandidate.daughter(idx);
-	const reco::Muon* selMuon = 0;
+	reco::CandidateBaseRef selMuon;
 	if ( daughter->hasMasterClone() ) {
-	  selMuon = dynamic_cast<const reco::Muon*>(daughter->masterClone().get());
+	  selMuon = daughter->masterClone();
 	} 
-	if ( !selMuon ) 
+	if (selMuon.isNull()) 
 	  throw cms::Exception("Configuration") 
 	    << "Collection 'selectedMuons' = " << srcSelMuons.label() << " of CompositeCandidates does not refer to daughters of type reco::Muon !!\n";
 	selMuons.push_back(selMuon);
@@ -37,7 +38,7 @@ std::vector<const reco::Muon*> getSelMuons(edm::Event& evt, const edm::InputTag&
     edm::Handle<reco::MuonCollection> selMuonsHandle;
     if ( evt.getByLabel(srcSelMuons, selMuonsHandle) ) {
       for ( size_t idx = 0; idx < selMuonsHandle->size(); ++idx ) {
-	selMuons.push_back(&selMuonsHandle->at(idx));
+	selMuons.push_back(reco::CandidateBaseRef(reco::MuonRef(selMuonsHandle, idx)));
       }
     } else {
       throw cms::Exception("Configuration") 
@@ -51,34 +52,34 @@ std::vector<const reco::Muon*> getSelMuons(edm::Event& evt, const edm::InputTag&
   return selMuons;
 }
 
-const reco::Muon* getTheMuPlus(const std::vector<const reco::Muon*>& selMuons)
+reco::CandidateBaseRef getTheMuPlus(const std::vector<reco::CandidateBaseRef >& selMuons)
 {
 //--- return highest Pt muon of positive charge
 //
 //    NOTE: function assumes that collection of muons passed as function argument is sorted by decreasing Pt
 //         (= as returned by 'getSelMuons' function)
   
-  for ( std::vector<const reco::Muon*>::const_iterator selMuon = selMuons.begin();
+  for ( std::vector<reco::CandidateBaseRef>::const_iterator selMuon = selMuons.begin();
 	selMuon != selMuons.end(); ++selMuon ) {
     if ( (*selMuon)->charge() > +0.5 ) return (*selMuon);
   }
 
   // no muon of positive charge found
-  return 0;
+  return reco::CandidateBaseRef();
 }
 
-const reco::Muon* getTheMuMinus(const std::vector<const reco::Muon*>& selMuons)
+reco::CandidateBaseRef getTheMuMinus(const std::vector<reco::CandidateBaseRef >& selMuons)
 {
 //--- return highest Pt muon of negative charge
 //
 //    NOTE: function assumes that collection of muons passed as function argument is sorted by decreasing Pt
 //         (= as returned by 'getSelMuons' function)
 
-  for ( std::vector<const reco::Muon*>::const_iterator selMuon = selMuons.begin();
+  for ( std::vector<reco::CandidateBaseRef>::const_iterator selMuon = selMuons.begin();
 	selMuon != selMuons.end(); ++selMuon ) {
     if ( (*selMuon)->charge() < -0.5 ) return (*selMuon);
   }
 
   // no muon of negative charge found
-  return 0;
+  return reco::CandidateBaseRef();
 }

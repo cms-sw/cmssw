@@ -35,16 +35,16 @@ void PFMuonCaloCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
   std::auto_ptr<detIdToFloatMap> energyDepositMuPlus(new detIdToFloatMap());
   std::auto_ptr<detIdToFloatMap> energyDepositMuMinus(new detIdToFloatMap());
 
-  std::vector<const reco::Muon*> selMuons = getSelMuons(evt, srcSelectedMuons_);
-  const reco::Muon* muPlus  = getTheMuPlus(selMuons);
-  const reco::Muon* muMinus = getTheMuMinus(selMuons);
+  std::vector<reco::CandidateBaseRef > selMuons = getSelMuons(evt, srcSelectedMuons_);
+  const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
+  const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
 
   typedef edm::View<reco::PFCandidate> PFCandidateView;
   edm::Handle<PFCandidateView> pfCandidates;
   evt.getByLabel(srcPFCandidates_, pfCandidates);
 
-  fillEnergyDepositMap(muPlus, *pfCandidates, *energyDepositMuPlus);
-  fillEnergyDepositMap(muMinus, *pfCandidates, *energyDepositMuMinus);
+  fillEnergyDepositMap(dynamic_cast<const reco::Muon*>(&*muPlus), *pfCandidates, *energyDepositMuPlus);
+  fillEnergyDepositMap(dynamic_cast<const reco::Muon*>(&*muMinus), *pfCandidates, *energyDepositMuMinus);
 
   evt.put(energyDepositMuPlus, "muPlus");
   evt.put(energyDepositMuMinus, "muMinus");

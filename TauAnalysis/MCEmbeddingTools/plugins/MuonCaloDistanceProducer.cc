@@ -13,6 +13,7 @@
 
 #include <DataFormats/MuonReco/interface/Muon.h>
 #include <DataFormats/MuonReco/interface/MuonFwd.h>
+#include <DataFormats/Candidate/interface/ShallowCloneCandidate.h>
 
 #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
 
@@ -23,6 +24,7 @@ MuonCaloDistanceProducer::MuonCaloDistanceProducer(const edm::ParameterSet& cfg)
   : srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons"))
 {
   // maps of detId to distance traversed by muon through detector volume
+  produces<reco::CandidateCollection>("muons");
   produces<detIdToFloatMap>("distancesMuPlus");
   produces<detIdToFloatMap>("distancesMuMinus");
   
@@ -41,12 +43,19 @@ void MuonCaloDistanceProducer::produce(edm::Event& evt, const edm::EventSetup& e
   std::auto_ptr<detIdToFloatMap> distanceMuPlus(new detIdToFloatMap());
   std::auto_ptr<detIdToFloatMap> distanceMuMinus(new detIdToFloatMap());
 
-  std::vector<const reco::Muon*> selMuons = getSelMuons(evt, srcSelectedMuons_);
-  const reco::Muon* muPlus  = getTheMuPlus(selMuons);
-  const reco::Muon* muMinus = getTheMuMinus(selMuons);
+  std::vector<reco::CandidateBaseRef > selMuons = getSelMuons(evt, srcSelectedMuons_);
+  const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
+  const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
   
-  fillDistanceMap(evt, es, muPlus, *distanceMuPlus);
-  fillDistanceMap(evt, es, muMinus, *distanceMuMinus);
+  fillDistanceMap(evt, es, dynamic_cast<const reco::Muon*>(&*muPlus), *distanceMuPlus);
+  fillDistanceMap(evt, es, dynamic_cast<const reco::Muon*>(&*muMinus), *distanceMuMinus);
+
+  std::auto_ptr<reco::CandidateCollection> muons(new reco::CandidateCollection);
+  muons->push_back(new reco::ShallowCloneCandidate(muPlus));
+  muons->push_back(new reco::ShallowCloneCandidate(muMinus));
+
+  // References to the muons themselves
+  evt.put(muons, "muons");
 
   // maps of detId to distance traversed by muon through calorimeter cell
   evt.put(distanceMuPlus, "distancesMuPlus");
@@ -75,17 +84,17 @@ void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::Event
 	caloToDetIdEntry != caloToDetIdMap.end(); ++caloToDetIdEntry ) {
     std::vector<SteppingHelixStateInfo>::const_iterator itHelixState_first, itHelixState_last;
     if ( caloToDetIdEntry->first == "ecal" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajector().getEcalTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajector().getEcalTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajectory().getEcalTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajectory().getEcalTrajectory().end();
     } else if ( caloToDetIdEntry->first == "hcal" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajector().getHcalTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajector().getHcalTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajectory().getHcalTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajectory().getHcalTrajectory().end();
     } else if ( caloToDetIdEntry->first == "ho" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajector().getHOTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajector().getHOTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajectory().getHOTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajectory().getHOTrajectory().end();
     } else if ( caloToDetIdEntry->first == "es" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajector().getPreshowerTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajector().getPreshowerTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajectory().getPreshowerTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajectory().getPreshowerTrajectory().end();
     } else assert(0);
     
     // copy trajectory points

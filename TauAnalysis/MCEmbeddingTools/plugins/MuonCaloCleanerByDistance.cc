@@ -8,16 +8,28 @@
 #include <vector>
 
 MuonCaloCleanerByDistance::MuonCaloCleanerByDistance(const edm::ParameterSet& cfg)
-  : srcDistanceMapMuPlus_(cfg.getParameter<edm::InputTag>("distanceMapMuPlus")),
+  : srcMuons_(cfg.getParameter<edm::InputTag>("muons")),
+    srcDistanceMapMuPlus_(cfg.getParameter<edm::InputTag>("distanceMapMuPlus")),
     srcDistanceMapMuMinus_(cfg.getParameter<edm::InputTag>("distanceMapMuMinus"))
 {
-  edm::ParameterSet cfgEnergyDepositPerDistance = cfg.getParameter<edm::ParameterSet>("energyDepositPerDistance");
+  edm::ParameterSet cfgEnergyDepositCorrection = cfg.getParameter<edm::ParameterSet>("energyDepositCorrection");
   typedef std::vector<std::string> vstring;
-  vstring detNames = cfgEnergyDepositPerDistance.getParameterNamesForType<double>();
+  vstring detNames = cfgEnergyDepositCorrection.getParameterNamesForType<double>();
   for ( vstring::const_iterator detName = detNames.begin();
 	detName != detNames.end(); ++detName ) {
-    energyDepositPerDistance_[*detName] = cfgEnergyDepositPerDistance.getParameter<double>(*detName);
+    energyDepositCorrection_[*detName] = cfgEnergyDepositCorrection.getParameter<double>(*detName);
   }
+
+  static const double E[] = { 1.0, 1.40, 2.0, 3.0, 4.0, 8.0, 10.0,
+                            14.0, 20.0, 30.0, 40.0, 80.0, 100.0,
+                            140.0, 169.0, 200.0, 300.0, 400.0, 800.0, 1000.0,
+                            1400.0, 2000.0, 3000.0, 4000.0, 8000.0 };
+  static const double DEDX[] = { 1.385, 1.440, 1.500, 1.569, 1.618, 1.743, 1.788,
+                               1.862, 1.957, 2.101, 2.239, 2.778, 3.052,
+                               3.603, 4.018, 4.456, 5.876, 7.333, 13.283, 16.320,
+                               22.382, 31.625, 47.007, 62.559, 125.149 };
+  static const unsigned int N_ENTRIES = sizeof(E)/sizeof(E[0]);
+  dedxGraphPbwo4_ = new TGraph(N_ENTRIES, E, DEDX);
 
   // maps of detId to expected energy deposits of muon
   produces<detIdToFloatMap>("energyDepositsMuPlus");
@@ -33,20 +45,28 @@ void MuonCaloCleanerByDistance::produce(edm::Event& evt, const edm::EventSetup& 
 {
   std::auto_ptr<detIdToFloatMap> energyDepositsMuPlus(new detIdToFloatMap());
   std::auto_ptr<detIdToFloatMap> energyDepositsMuMinus(new detIdToFloatMap());
-  
+
+  edm::Handle<reco::CandidateCollection> muons;
+  evt.getByLabel(srcMuons_, muons);
   edm::Handle<detIdToFloatMap> distanceMapMuPlus;
   evt.getByLabel(srcDistanceMapMuPlus_, distanceMapMuPlus);
   edm::Handle<detIdToFloatMap> distanceMapMuMinus;
   evt.getByLabel(srcDistanceMapMuMinus_, distanceMapMuMinus);
 
-  fillEnergyDepositMap(*distanceMapMuPlus, *energyDepositsMuPlus);
-  fillEnergyDepositMap(*distanceMapMuMinus, *energyDepositsMuMinus);
+  if(muons->size() != 2 || (*muons)[0].charge() * (*muons)[1].charge() > 0)
+    throw cms::Exception("MuonCaloCleanerByDistance") << "There must be exactly two oppositely charged input muons !!";
+
+  const reco::Candidate& muPlus = (*muons)[0].charge() > 0 ? (*muons)[0] : (*muons)[1];
+  const reco::Candidate& muMinus = (*muons)[0].charge() < 0 ? (*muons)[0] : (*muons)[1];
+
+  fillEnergyDepositMap(muPlus, *distanceMapMuPlus, *energyDepositsMuPlus);
+  fillEnergyDepositMap(muMinus, *distanceMapMuMinus, *energyDepositsMuMinus);
 
   evt.put(energyDepositsMuPlus, "energyDepositsMuPlus");
   evt.put(energyDepositsMuMinus, "energyDepositsMuMinus");
 }
 
-void MuonCaloCleanerByDistance::fillEnergyDepositMap(const detIdToFloatMap& distanceMap, detIdToFloatMap& energyDepositMap)
+void MuonCaloCleanerByDistance::fillEnergyDepositMap(const reco::Candidate& muon, const detIdToFloatMap& distanceMap, detIdToFloatMap& energyDepositMap)
 {
   for ( detIdToFloatMap::const_iterator rawDetId_and_distance = distanceMap.begin();
 	rawDetId_and_distance != distanceMap.end(); ++rawDetId_and_distance ) {
@@ -54,20 +74,21 @@ void MuonCaloCleanerByDistance::fillEnergyDepositMap(const detIdToFloatMap& dist
 
     std::string key = detNaming_.getKey(detId);
 
-    if ( energyDepositPerDistance_.find(key) == energyDepositPerDistance_.end() )
+    if ( energyDepositCorrection_.find(key) == energyDepositCorrection_.end() )
       throw cms::Exception("MuonCaloCleanerByDistance") 
-	<< "No mean energy deposit defined for detId = " << detId.rawId() << " (key = " << key << ") !!\n";
+	<< "No energy deposit correction defined for detId = " << detId.rawId() << " (key = " << key << ") !!\n";
     
-    double energyDepositPerDistance_value = energyDepositPerDistance_[key];
+    const double distance = rawDetId_and_distance->second;
+    const double dedx = dedxGraphPbwo4_->Eval(muon.p()); // TODO: Adapt for HCAL
+    const double rho = 8.28; // TODO: Adapt for HCAL
+    const double energyDepositCorrection_value = energyDepositCorrection_[key];
 
-    energyDepositMap[rawDetId_and_distance->first] += rawDetId_and_distance->second*energyDepositPerDistance_value;
+    energyDepositMap[rawDetId_and_distance->first] += distance * dedx * rho * energyDepositCorrection_value;
   }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(MuonCaloCleanerByDistance);
-
-
 
 

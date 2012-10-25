@@ -38,12 +38,12 @@ void MuonCaloCleanerAllCrossed::produce(edm::Event& evt, const edm::EventSetup& 
   std::auto_ptr<detIdToFloatMap> energyDepositsMuPlus(new detIdToFloatMap());
   std::auto_ptr<detIdToFloatMap> energyDepositsMuMinus(new detIdToFloatMap());
   
-  std::vector<const reco::Muon*> selMuons = getSelMuons(evt, srcSelectedMuons_);
-  const reco::Muon* muPlus  = getTheMuPlus(selMuons);
-  const reco::Muon* muMinus = getTheMuMinus(selMuons);
+  std::vector<reco::CandidateBaseRef > selMuons = getSelMuons(evt, srcSelectedMuons_);
+  const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
+  const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
 
-  fillEnergyDepositMap(evt, es, muPlus, *energyDepositsMuPlus);
-  fillEnergyDepositMap(evt, es, muMinus, *energyDepositsMuMinus);
+  fillEnergyDepositMap(evt, es, dynamic_cast<const reco::Muon*>(&*muPlus), *energyDepositsMuPlus);
+  fillEnergyDepositMap(evt, es, dynamic_cast<const reco::Muon*>(&*muMinus), *energyDepositsMuMinus);
 
   evt.put(energyDepositsMuPlus, "energyDepositsMuPlus");
   evt.put(energyDepositsMuMinus, "energyDepositsMuMinus");

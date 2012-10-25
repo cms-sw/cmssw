@@ -10,7 +10,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: embeddingAuxFunctions.h,v 1.1 2012/10/14 12:22:24 veelken Exp $
+ * $Id: embeddingAuxFunctions.h,v 1.1 2012/10/24 09:37:12 veelken Exp $
  *
  */
 
@@ -18,10 +18,11 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <DataFormats/MuonReco/interface/Muon.h>
+#include <DataFormats/MuonReco/interface/MuonFwd.h>
 
-std::vector<const reco::Muon*> getSelMuons(edm::Event&, const edm::InputTag&);
+std::vector<reco::CandidateBaseRef > getSelMuons(edm::Event&, const edm::InputTag&);
 
-const reco::Muon* getTheMuPlus(const std::vector<const reco::Muon*>&);
-const reco::Muon* getTheMuMinus(const std::vector<const reco::Muon*>&);
+reco::CandidateBaseRef getTheMuPlus(const std::vector<reco::CandidateBaseRef >&);
+reco::CandidateBaseRef getTheMuMinus(const std::vector<reco::CandidateBaseRef >&);
 
 #endif
