@@ -35,8 +35,8 @@ namespace edm {
     eventSet_(false),
     isRealData_(realData),
     eType_(EventAuxiliary::Undefined),
-    numberOfEventsBeforeBigSkip_(0),
-    numberOfSequentialEvents_(0)
+    receiver_(),
+    numberOfEventsBeforeBigSkip_(0)
   { 
 
     setTimestamp(Timestamp(presentTime_));
@@ -145,7 +145,6 @@ namespace edm {
     receiver_ = iReceiver;
     receiver_->receive();
     numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices() + 1;
-    numberOfSequentialEvents_ = receiver_->numberOfConsecutiveIndices();
     repeat();
     rewind();
   }

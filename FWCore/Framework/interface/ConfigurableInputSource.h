@@ -84,7 +84,6 @@ namespace edm {
     //used when process has been forked
     boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
     unsigned int numberOfEventsBeforeBigSkip_;
-    unsigned int numberOfSequentialEvents_;
   };
 }
 #endif
