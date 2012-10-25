@@ -1,6 +1,9 @@
 <environment>
   <use   name="boost"/>
   <use   name="FWCore/Framework"/>
+  <bin   file="RunThat_t.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test TestMultiprocess.sh"/>
+  </bin>
   <bin   file="EventMessageTest.cpp">
     <use   name="IOPool/Streamer"/>
   </bin>
