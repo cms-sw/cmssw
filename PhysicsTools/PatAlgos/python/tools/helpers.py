@@ -128,9 +128,10 @@ class GatherAllModulesVisitor(object):
 class CloneSequenceVisitor(object):
     """Visitor that travels within a cms.Sequence, and returns a cloned version of the Sequence.
     All modules and sequences are cloned and a postfix is added"""
-    def __init__(self, process, label, postfix):
+    def __init__(self, process, label, postfix, removePostfix=""):
         self._process = process
         self._postfix = postfix
+        self._removePostfix = removePostfix
         self._sequenceStack = [label]
         self._moduleLabels = []
         self._sequenceLabels = []
@@ -143,18 +144,18 @@ class CloneSequenceVisitor(object):
             label = visitee.label()
             newModule = None
             if label in self._moduleLabels:
-                newModule = getattr(self._process, label+self._postfix)
+                newModule = getattr(self._process, self._newLabel(label))
             else:
                 self._moduleLabels.append(label)
                 
                 newModule = visitee.clone()
-                setattr(self._process, label+self._postfix, newModule)
+                setattr(self._process, self._newLabel(label), newModule)
             self.__appendToTopSequence(newModule)
 
         if isinstance(visitee,cms.Sequence):
             if visitee.label() in self._sequenceLabels: # is the sequence allready cloned?
                 self._waitForSequenceToClose = visitee.label()
-                self._sequenceStack.append(  getattr(self._process, visitee.label()+self._postfix) )
+                self._sequenceStack.append(  getattr(self._process, self._newLabel(visitee.label())) )
             else:
                 self._sequenceStack.append(visitee.label())#save desired label as placeholder until we have a module to create the sequence
 
@@ -170,14 +171,22 @@ class CloneSequenceVisitor(object):
         if not len(self._sequenceStack) == 1:
             raise StandardError, "someting went wrong, the sequence stack looks like: %s"%self._sequenceStack
         for label in self._moduleLabels:
-            massSearchReplaceAnyInputTag(self._sequenceStack[-1], label, label+self._postfix, moduleLabelOnly=True, verbose=False)
+            massSearchReplaceAnyInputTag(self._sequenceStack[-1], label, self._newLabel(label), moduleLabelOnly=True, verbose=False)
         self._moduleLabels = [] #prevent the InputTag replacement next time this is called.
         return self._sequenceStack[-1]
+
+    def _newLabel(self, label):
+        if self._removePostfix != "":
+            if label[-len(self._removePostfix):] == self._removePostfix:
+                label = label[0:-len(self._removePostfix)]
+            else:
+                raise StandardError("Tried to remove postfix %s from label %s, but it wasn't there" % (self._removePostfix, label))
+        return label + self._postfix
 
     def __appendToTopSequence(self, visitee):#this is darn ugly because empty cms.Sequences are not supported
         if isinstance(self._sequenceStack[-1], basestring):#we have the name of an empty sequence on the stack. create it!
             oldSequenceLabel = self._sequenceStack.pop()
-            newSequenceLabel = oldSequenceLabel + self._postfix
+            newSequenceLabel = self._newLabel(oldSequenceLabel)
             self._sequenceStack.append(cms.Sequence(visitee))
             if hasattr(self._process, newSequenceLabel):
                 raise StandardError("Cloning the sequence "+self._sequenceStack[-1].label()+" would overwrite existing object." )
@@ -259,7 +268,7 @@ def contains(sequence, moduleName):
 
 
 
-def cloneProcessingSnippet(process, sequence, postfix):
+def cloneProcessingSnippet(process, sequence, postfix, removePostfix=""):
    """
    ------------------------------------------------------------------
    copy a sequence plus the modules and sequences therein 
@@ -269,7 +278,7 @@ def cloneProcessingSnippet(process, sequence, postfix):
    """
    result = sequence
    if not postfix == "":
-       visitor = CloneSequenceVisitor(process,sequence.label(),postfix)
+       visitor = CloneSequenceVisitor(process,sequence.label(),postfix, removePostfix)
        sequence.visit(visitor)
        result = visitor.clonedSequence()    
    return result
