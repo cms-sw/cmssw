@@ -293,6 +293,8 @@ namespace edm {
     };
 
   protected:
+    virtual void skip(int offset);
+
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
@@ -354,7 +356,6 @@ namespace edm {
     virtual EventPrincipal* readIt(EventID const&);
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
-    virtual void skip(int);
     virtual bool goToEvent_(EventID const& eventID);
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
