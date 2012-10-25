@@ -53,7 +53,7 @@ namespace edm {
     // yet, so the ParameterSet does not get validated yet.  As soon as all the modules with a SecSource
     // have defined descriptions, the defaults in the getUntrackedParameterSet function calls can
     // and should be deleted from the code.
-    numberOfEventsToSkip_(inputType == InputType::Primary ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
+    initialNumberOfEventsToSkip_(inputType == InputType::Primary ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
     noEventSort_(inputType == InputType::Primary ? pset.getUntrackedParameter<bool>("noEventSort", true) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
     treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize) : 0U),
@@ -97,8 +97,8 @@ namespace edm {
       }
       if(rootFile_) {
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
-        if(numberOfEventsToSkip_ != 0) {
-          skipEvents(numberOfEventsToSkip_, cache);
+        if(initialNumberOfEventsToSkip_ != 0) {
+          skipEvents(initialNumberOfEventsToSkip_, cache);
         }
       }
     }
@@ -239,7 +239,7 @@ namespace edm {
       std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile = fileIter_ - fileIterBegin_;
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(),
           processConfiguration(), fileIter_->logicalFileName(), filePtr,
-          eventSkipperByID_, numberOfEventsToSkip_ != 0,
+          eventSkipperByID_, initialNumberOfEventsToSkip_ != 0,
           remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
           input_.processingMode(),
           setRun_,
@@ -445,8 +445,8 @@ namespace edm {
         if(rootFile_) break;
       }
       if(rootFile_) {
-        if(numberOfEventsToSkip_ != 0) {
-          skipEvents(numberOfEventsToSkip_, cache);
+        if(initialNumberOfEventsToSkip_ != 0) {
+          skipEvents(initialNumberOfEventsToSkip_, cache);
         }
       }
     }
@@ -455,16 +455,16 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   bool
   RootInputFileSequence::skipEvents(int offset, PrincipalCache& cache) {
-    assert (numberOfEventsToSkip_ == 0 || numberOfEventsToSkip_ == offset);
-    numberOfEventsToSkip_ = offset;
-    while(numberOfEventsToSkip_ != 0) {
-      bool atEnd = rootFile_->skipEvents(numberOfEventsToSkip_);
-      if((numberOfEventsToSkip_ > 0 || atEnd) && !nextFile(cache)) {
-        numberOfEventsToSkip_ = 0;
+    assert (initialNumberOfEventsToSkip_ == 0 || initialNumberOfEventsToSkip_ == offset);
+    initialNumberOfEventsToSkip_ = offset;
+    while(initialNumberOfEventsToSkip_ != 0) {
+      bool atEnd = rootFile_->skipEvents(initialNumberOfEventsToSkip_);
+      if((initialNumberOfEventsToSkip_ > 0 || atEnd) && !nextFile(cache)) {
+        initialNumberOfEventsToSkip_ = 0;
         return false;
       }
-      if(numberOfEventsToSkip_ < 0 && !previousFile(cache)) {
-        numberOfEventsToSkip_ = 0;
+      if(initialNumberOfEventsToSkip_ < 0 && !previousFile(cache)) {
+        initialNumberOfEventsToSkip_ = 0;
         fileIter_ = fileIterEnd_;
         return false;
       }

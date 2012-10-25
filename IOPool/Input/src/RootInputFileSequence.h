@@ -102,7 +102,7 @@ namespace edm {
 
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
     int eventsRemainingInFile_;
-    int numberOfEventsToSkip_;
+    int initialNumberOfEventsToSkip_;
     bool noEventSort_;
     bool skipBadFiles_;
     unsigned int treeCacheSize_;
