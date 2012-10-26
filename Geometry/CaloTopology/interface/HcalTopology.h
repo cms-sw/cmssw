@@ -19,15 +19,14 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2012/08/15 14:56:18 $
-   $Revision: 1.10 $
+   $Date: 2012/08/27 15:11:40 $
+   $Revision: 1.11 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
 public:
-  //HcalTopology(bool h2_mode=false);
-  //enum Mode { md_LHC=0, md_H2=1, md_SLHC=2, md_H2HE=3 };
-    HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE);
+
+    HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE );
 	
   HcalTopologyMode::Mode mode() const {return mode_;}
   /** Add a cell to exclusion list */
@@ -93,7 +92,9 @@ public:
   /// result is the first segment, and the second result is the first one
   /// of the next segment.  Used for calculating physical bounds.
   std::pair<int, int> segmentBoundaries(unsigned ring, unsigned depth) const;
-
+  int getHBSize() const {return HBSize_;}
+  int getHESize() const {return HESize_;}
+    
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */
   int incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
@@ -106,7 +107,6 @@ private:
   std::vector<HcalDetId> exclusionList_;
   bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
 
-  //bool h2mode_;
   HcalTopologyMode::Mode mode_;
   bool isExcluded(const HcalDetId& id) const;
 
@@ -126,7 +126,9 @@ private:
   const int doublePhiBins_;
   const int maxDepthHB_;
   const int maxDepthHE_;
-    
+  const int HBSize_;
+  const int HESize_;
+   
   // index is ring;
   typedef std::map<unsigned, std::vector<int> > SegmentationMap;
   SegmentationMap depthSegmentation_;

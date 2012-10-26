@@ -28,8 +28,39 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   singlePhiBins_(72),
   doublePhiBins_(36),
   maxDepthHB_(maxDepthHB),
-  maxDepthHE_(maxDepthHE)
+  maxDepthHE_(maxDepthHE),
+  HBSize_(HcalDetId::kHBSize +(( mode==HcalTopologyMode::SLHC ) ? ( 2*72*(maxDepthHB*15-16 )) : 0 )),
+  HESize_(HcalDetId::kHESize +(( mode==HcalTopologyMode::SLHC ) ? ( 2*36*(maxDepthHE*19-40 )) : 0 ))
 {
+    // SLHC
+    //
+    // kHBSizePreLS1 = 2*kHBhalf
+    // kHESizePreLS1 = 2*kHEhalf
+    // kHBHalfExtra  = 72*(maxDepthHB*15-16)
+    // kHEHalfExtra  = 36*(maxDepthHE*19-40)
+    // kHBSizeExtra  = 2*kHBHalfExtra
+    // kHESizeExtra  = 2*kHEHalfExtra
+    // kHBSize = kHBSizePreLS1+kHBSizeExtra
+    // kHESize = kHESizePreLS1+kHESizeExtra
+
+    // Current
+    //
+    // kHBSize = 2*kHBhalf
+    // kHESize = 2*kHEhalf
+    
+    std::cout << "HcalTopology::HcalTopology "
+	      << "HcalDetId::kHBSize " << HcalDetId::kHBSize
+	      << ", HcalDetId::kHESize " << HcalDetId::kHESize
+	      << ", HcalDetId::kHOSize " << HcalDetId::kHOSize
+	      << ", HcalDetId::kHFSize " << HcalDetId::kHFSize << std::endl;
+
+    int kHBHalfExtra  = 72*(maxDepthHB*15-16);    
+    int kHEHalfExtra  = 36*(maxDepthHE*19-40);
+    int kHBSizeExtra  = ( mode==HcalTopologyMode::SLHC) ? ( 2*kHBHalfExtra ) : 0;
+    int kHESizeExtra  = ( mode==HcalTopologyMode::SLHC) ? ( 2*kHEHalfExtra ) : 0;
+    
+    std::cout << "Actual kHBSize = " << HcalDetId::kHBSize+kHBSizeExtra << " ( " << HBSize_ << " )" 
+	      << ", actual kHESize = " << HcalDetId::kHESize+kHESizeExtra  << " ( " << HESize_ << " )" << std::endl;
 }
 
 
