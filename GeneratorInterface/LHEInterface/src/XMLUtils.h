@@ -13,6 +13,7 @@
 #include <xercesc/sax/InputSource.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
+#include <lzma.h>
 
 class Storage;
 
@@ -179,6 +180,8 @@ class StorageInputStream :
     private:
 	StorageWrap	&in;
 	unsigned int	pos;
+        lzma_stream     lstr;
+        bool            compression_;
 };
 
 typedef XMLInputSourceWrapper<CBInputStream> CBInputSource;

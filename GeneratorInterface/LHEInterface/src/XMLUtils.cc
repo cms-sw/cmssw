@@ -17,6 +17,7 @@
 #include "XMLUtils.h"
 
 XERCES_CPP_NAMESPACE_USE
+#define BUF_SIZE 8192 
 
 namespace lhef {
 
@@ -203,28 +204,91 @@ unsigned int STLInputStream::readBytes(XMLByte* const buf,
 }
 
 StorageInputStream::StorageInputStream(StorageWrap &in) :
-	in(in)
+	in(in),
+        lstr(LZMA_STREAM_INIT),
+        compression_(false)
 {
+  // Check the kind of file.
+  char header[6];
+  unsigned int s = in->read(header, 6);
+  in->position(0, Storage::SET);
+  // Let's use lzma to start with.
+  if (header[1] == '7'
+      && header[2] == 'z'
+      && header[3] == 'X'
+      && header[4] == 'Z')
+  {
+    compression_ = true;
+    lstr = LZMA_STREAM_INIT;
+    // We store the beginning of the outBuffer to make sure
+    // we can always update previous results.
+
+#if LZMA_VERSION <= UINT32_C(49990030)
+    int ret = lzma_auto_decoder(&lstr, NULL, NULL);
+#else
+    int ret = lzma_auto_decoder(&lstr, -1, 0);
+#endif
+
+    if (ret != LZMA_OK)
+    {
+      lzma_end(&lstr);
+      throw cms::Exception("IO") << "Error while reading compressed LHE file";
+    }
+  }
 }
 
 StorageInputStream::~StorageInputStream()
 {
+  lzma_end(&(lstr));
 }
 
 unsigned int StorageInputStream::readBytes(XMLByte* const buf,
                                            const unsigned int size)
 {
-	void *rawBuf = reinterpret_cast<void*>(buf);
-	unsigned int bytes = size * sizeof(XMLByte);
-	unsigned int readBytes = in->read(rawBuf, bytes);
+  // Simple read-in write-out in case
+  if (!compression_)
+  {
+    void *rawBuf = reinterpret_cast<void*>(buf);
+    unsigned int bytes = size * sizeof(XMLByte);
+    unsigned int readBytes = in->read(rawBuf, bytes);
 
-	unsigned int read = (unsigned int)(readBytes / sizeof(XMLByte));
-	unsigned int rest = (unsigned int)(readBytes % sizeof(XMLByte));
-	if (rest)
-		in->position(-(IOOffset)rest, Storage::CURRENT);
+    unsigned int read = (unsigned int)(readBytes / sizeof(XMLByte));
+    unsigned int rest = (unsigned int)(readBytes % sizeof(XMLByte));
+    if (rest)
+      in->position(-(IOOffset)rest, Storage::CURRENT);
 
-	pos += read;
-	return read;
+    pos += read;
+    return read;
+  }
+  // Compressed case. 
+  // We simply read as many bytes as we can and we 
+  // uncompress them in the output buffer.
+  // We never decompress more bytes we were asked by
+  // xerces. 
+  // In case we read from file more bytes than needed 
+  // we simply rollback by the (hopefully) correct amount.
+  // If we don't read enough bytes, we simply return
+  // the amount of bytes read and we wait for being called
+  // again by xerces.
+  unsigned int bytes = size * sizeof(XMLByte);
+  uint8_t inBuf[BUF_SIZE];
+  unsigned int rd = in->read((void*)inBuf, BUF_SIZE);
+  lstr.next_in = inBuf;
+  lstr.avail_in = rd;
+  lstr.next_out = buf;
+  lstr.avail_out = bytes;
+
+  int ret = lzma_code(&lstr, LZMA_RUN);
+  if(ret != LZMA_OK && ret != LZMA_STREAM_END) {  /* decompression error */
+    lzma_end(&lstr);
+    throw cms::Exception("IO") << "Error while reading compressed LHE file";
+  }
+
+  // If we did not consume everything we put it back.
+  if (lstr.avail_in)
+    in->position(-(IOOffset)lstr.avail_in - lstr.total_in, Storage::CURRENT);    
+  pos += lstr.total_out;
+  return lstr.total_out;
 }
 
 } // namespace lhef

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id: ExternalLHEProducer.cc,v 1.5 2011/11/14 12:50:28 fabiocos Exp $
+// $Id: ExternalLHEProducer.cc,v 1.6 2012/04/01 13:30:08 davidlt Exp $
 //
 //
 
@@ -46,6 +46,7 @@ Implementation:
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEXMLStringProduct.h"
 
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
@@ -88,6 +89,7 @@ private:
   std::string scriptName_;
   std::string outputFile_;
   std::vector<std::string> args_;
+  uint32_t npars_;
   uint32_t nEvents_;
   std::string outputContents_;
 
@@ -127,9 +129,12 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
   scriptName_((iConfig.getParameter<edm::FileInPath>("scriptName")).fullPath().c_str()),
   outputFile_(iConfig.getParameter<std::string>("outputFile")),
   args_(iConfig.getParameter<std::vector<std::string> >("args")),
+  npars_(iConfig.getParameter<uint32_t>("numberOfParameters")),
   nEvents_(iConfig.getParameter<uint32_t>("nEvents"))
 {
-  produces<std::string, edm::InRun>("LHEScriptOutput"); 
+  if (npars_ != args_.size())
+    throw cms::Exception("ExternalLHEProducer") << "Problem with configuration: " << args_.size() << " script arguments given, expected " << npars_;
+  produces<LHEXMLStringProduct, edm::InRun>("LHEScriptOutput"); 
 
   produces<LHEEventProduct>();
   produces<LHERunInfoProduct, edm::InRun>();
@@ -236,8 +241,8 @@ ExternalLHEProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
   executeScript();
   std::auto_ptr<std::string> localContents = readOutput();
   outputContents_ = *localContents;
-
-  run.put(localContents, "LHEScriptOutput");
+  std::auto_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct(*localContents));  
+  run.put(p, "LHEScriptOutput");
 
   // LHE C++ classes translation
 
@@ -458,6 +463,7 @@ ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::FileInPath>("scriptName", thePath);
   desc.add<std::string>("outputFile", "myoutput");
   desc.add<std::vector<std::string> >("args");
+  desc.add<uint32_t>("numberOfParameters");
   desc.add<uint32_t>("nEvents");
 
   descriptions.addDefault(desc);
