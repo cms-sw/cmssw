@@ -55,11 +55,10 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 
     const unsigned int nTrParm ( tvec.size()/HcalGeometry::k_NumberOfCellsForCorners ) ;
 
-    assert( dvec.size() == HcalGeometry::k_NumberOfShapes * HcalGeometry::k_NumberOfParametersPerShape ) ;
-
     edm::ESHandle<HcalTopology> hcalTopology;
     iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
     
+    assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
     PtrType ptr ( new HcalGeometry( &*hcalTopology ));
     
     ptr->fillDefaultNamedParameters() ;
