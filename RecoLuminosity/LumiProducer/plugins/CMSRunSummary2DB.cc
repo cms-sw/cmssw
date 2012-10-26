@@ -114,13 +114,12 @@ namespace lumi{
        egev: select distinct(string_value) from cms_runinfo.runsession_parameter where runnumber=:runnumber and name='CMS.SCAL:EGEV'
        hltkey: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:HLT_KEY_DESCRIPTION';
        fillnumber: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.SCAL:FILLN' order by time;//take the first one       sequence: select string_value from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:SEQ_NAME'
-       start/stop time:
-       select time from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:START_TIME_T';
-       select time from cms_runinfo.runsession_parameter where runnumber=129265 and name='CMS.LVL0:STOP_TIME_T';
     **/
     cmsrunsum result;
     std::string runinfoschema("CMS_RUNINFO");
+    std::string gtmonschema("CMS_GT_MON");
     std::string runsessionParamTable("RUNSESSION_PARAMETER");
+    std::string globalrunTable("GLOBAL_RUNS");
     coral::ConnectionService* svc=new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if(!m_authpath.empty()){
@@ -217,7 +216,7 @@ namespace lumi{
       
       seqBindVariableList["runnumber"].data<unsigned int>()=runnumber;
       seqBindVariableList["name"].data<std::string>()=std::string("CMS.LVL0:SEQ_NAME");
-      seqQuery->setCondition("RUNNUMBER =:runnumber AND NAME =:name",seqBindVariableList);
+      seqQuery->setCondition("RUNNUMBER=:runnumber AND NAME=:name",seqBindVariableList);
       seqQuery->addToOutputList("STRING_VALUE");
       coral::ICursor& seqCursor=seqQuery->execute();
       
@@ -251,7 +250,7 @@ namespace lumi{
     
     fillBindVariableList["runnumber"].data<unsigned int>()=runnumber;
     fillBindVariableList["name"].data<std::string>()=std::string("CMS.SCAL:FILLN");
-    fillQuery->setCondition("RUNNUMBER =:runnumber AND NAME =:name",fillBindVariableList);
+    fillQuery->setCondition("RUNNUMBER=:runnumber AND NAME=:name",fillBindVariableList);
     fillQuery->addToOutputList("STRING_VALUE"); 
     fillQuery->addToOrderList("TIME");
     //fillQuery->limitReturnedRows(1);
@@ -268,38 +267,6 @@ namespace lumi{
     if (result.fillnumber.empty()){
       throw nonCollisionException("retrieveData","CMSRunSummary2DB");
     }
-    coral::IQuery* startTQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
-    coral::AttributeList startTVariableList;
-    startTVariableList.extend("runnumber",typeid(unsigned int));
-    startTVariableList.extend("name",typeid(std::string));
-    
-    startTVariableList["runnumber"].data<unsigned int>()=runnumber;
-    startTVariableList["name"].data<std::string>()=std::string("CMS.LVL0:START_TIME_T");
-    startTQuery->setCondition("RUNNUMBER =:runnumber AND NAME =:name",startTVariableList);
-    startTQuery->addToOutputList("TIME"); 
-    coral::ICursor& startTCursor=startTQuery->execute();
-    
-    while( startTCursor.next() ){
-      const coral::AttributeList& row=startTCursor.currentRow();
-      result.startT=row["TIME"].data<coral::TimeStamp>();
-    }
-    delete startTQuery;
-    coral::IQuery* stopTQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
-    coral::AttributeList stopTVariableList;
-    stopTVariableList.extend("runnumber",typeid(unsigned int));
-    stopTVariableList.extend("name",typeid(std::string));
-    
-    stopTVariableList["runnumber"].data<unsigned int>()=runnumber;
-    stopTVariableList["name"].data<std::string>()=std::string("CMS.LVL0:STOP_TIME_T");
-    stopTQuery->setCondition("RUNNUMBER =:runnumber AND NAME =:name",stopTVariableList);
-    stopTQuery->addToOutputList("TIME"); 
-    coral::ICursor& stopTCursor=stopTQuery->execute();
-    
-    while( stopTCursor.next() ){
-      const coral::AttributeList& row=stopTCursor.currentRow();
-      result.stopT=row["TIME"].data<coral::TimeStamp>();
-    }
-    delete stopTQuery;
     coral::IQuery* l1keyQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
     coral::AttributeList l1keyOutput;
     l1keyOutput.extend("l1key",typeid(std::string));
@@ -319,12 +286,69 @@ namespace lumi{
       result.l1key=row["l1key"].data<std::string>();
     }
     delete l1keyQuery;
+    /**
+       start/stop time:
+       select start_time,stop_time from cms_gt_mon.global_runs where run_number=:runnum
+    **/
+    coral::ISchema& gtmonschemaHandle=runinfosession->schema(gtmonschema);
+    if(!gtmonschemaHandle.existsTable(globalrunTable)){
+      throw lumi::Exception(std::string("non-existing table "+globalrunTable),"CMSRunSummary2DB","retrieveData");
+    }
+    coral::IQuery* startTQuery=gtmonschemaHandle.tableHandle(globalrunTable).newQuery();
+    coral::AttributeList startTVariableList;
+    startTVariableList.extend("runnum",typeid(unsigned int));
+    startTQuery->setCondition("RUN_NUMBER=:runnum",startTVariableList);
+    startTVariableList["runnum"].data<unsigned int>()=runnumber;
+    startTQuery->addToOutputList("START_TIME");
+    startTQuery->addToOutputList("STOP_TIME");
+    coral::ICursor& startTCursor=startTQuery->execute();
+    unsigned int rowcounter=0;
+    while( startTCursor.next() ){
+      const coral::AttributeList& row=startTCursor.currentRow();
+      result.startT=row["START_TIME"].data<coral::TimeStamp>();
+      result.stopT=row["STOP_TIME"].data<coral::TimeStamp>();	
+	++rowcounter;
+    }
+    delete startTQuery;
+    if(rowcounter==0){//fallback to runinfo if gt has no data
+      coral::IQuery* runstartTQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
+      coral::AttributeList runstartTVariableList;
+      runstartTVariableList.extend("runnumber",typeid(unsigned int));
+      runstartTVariableList.extend("name",typeid(std::string));
+      
+      runstartTVariableList["runnumber"].data<unsigned int>()=runnumber;
+      runstartTVariableList["name"].data<std::string>()=std::string("CMS.LVL0:START_TIME_T");
+      runstartTQuery->setCondition("RUNNUMBER=:runnumber AND NAME=:name",runstartTVariableList);
+      runstartTQuery->addToOutputList("TIME"); 
+      coral::ICursor& runstartTCursor=runstartTQuery->execute();
+      
+      while( runstartTCursor.next() ){
+	const coral::AttributeList& row=runstartTCursor.currentRow();
+	result.startT=row["TIME"].data<coral::TimeStamp>();
+      }
+      delete runstartTQuery;
+      coral::IQuery* runstopTQuery=runinfoschemaHandle.tableHandle(runsessionParamTable).newQuery();
+      coral::AttributeList runstopTVariableList;
+      runstopTVariableList.extend("runnumber",typeid(unsigned int));
+      runstopTVariableList.extend("name",typeid(std::string));
+      runstopTVariableList["runnumber"].data<unsigned int>()=runnumber;
+      runstopTVariableList["name"].data<std::string>()=std::string("CMS.LVL0:STOP_TIME_T");
+      runstopTQuery->setCondition("RUNNUMBER=:runnumber AND NAME=:name",runstopTVariableList);
+      runstopTQuery->addToOutputList("TIME"); 
+      coral::ICursor& runstopTCursor=runstopTQuery->execute();	 
+      while( runstopTCursor.next() ){
+	const coral::AttributeList& row=runstopTCursor.currentRow();
+	result.stopT=row["TIME"].data<coral::TimeStamp>();
+      }
+      delete runstopTQuery;
+      }
     }catch( const coral::Exception& er){
       runinfosession->transaction().rollback();
       delete runinfosession;
       delete svc;
       throw er;
     }
+
     runinfosession->transaction().commit();
     delete runinfosession;
     
@@ -334,7 +358,7 @@ namespace lumi{
       result.fillscheme=std::string("");
       result.ncollidingbunches=0;
     }
-    std::cout<<"result for run "<<runnumber<<" : sequence : "<<result.sequence<<" : hltkey : "<<result.hltkey<<" : fillnumber : "<<result.fillnumber<<" : l1key : "<<result.l1key<<" : amodetag :"<<result.amodetag<<" : egev : "<<result.egev<<" : fillscheme "<<result.fillscheme<<" : ncollidingbunches : "<<result.ncollidingbunches<<std::endl; 
+    std::cout<<"result for run "<<runnumber<<" : sequence : "<<result.sequence<<" : hltkey : "<<result.hltkey<<" : fillnumber : "<<result.fillnumber<<" : l1key : "<<result.l1key<<" : amodetag :"<<result.amodetag<<" : egev : "<<result.egev<<" : fillscheme "<<result.fillscheme<<" : ncollidingbunches : "<<result.ncollidingbunches<<" start : "<<result.startT.toString()<<" stop : "<<result.stopT.toString()<<std::endl; 
 
     //std::cout<<"connecting to dest "<<m_dest<<std::endl; 
     coral::ISessionProxy* destsession=svc->connect(m_dest,coral::Update);
