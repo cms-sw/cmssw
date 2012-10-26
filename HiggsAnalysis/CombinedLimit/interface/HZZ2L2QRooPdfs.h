@@ -52,6 +52,8 @@ public:
   RooDoubleCB(const RooDoubleCB& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new RooDoubleCB(*this,newname); }
   inline virtual ~RooDoubleCB() { }
+  Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
+  Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
 
 protected:
 
