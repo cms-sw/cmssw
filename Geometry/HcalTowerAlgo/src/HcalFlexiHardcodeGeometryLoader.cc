@@ -46,7 +46,7 @@ CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopolog
   if( 0 == hcalGeometry->cornersMgr() ) hcalGeometry->allocateCorners ( 
      HcalGeometry::k_NumberOfCellsForCorners ) ;
   if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (
-     HcalGeometry::k_NumberOfShapes,
+      hcalGeometry->numberOfShapes(),
      HcalGeometry::k_NumberOfParametersPerShape ) ;
   if (fTopology.mode() == HcalTopologyMode::H2) {  // TB geometry
     fillHBHO (hcalGeometry, makeHBCells(fTopology), true);

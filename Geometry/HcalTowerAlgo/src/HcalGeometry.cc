@@ -9,24 +9,42 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
 HcalGeometry::HcalGeometry( const HcalTopology* topology ) :
-   theTopology    ( topology ) ,
-   m_ownsTopology ( false ) 
+    theTopology( topology ),
+    m_NumberOfShapes(( topology->mode() == HcalTopologyMode::SLHC ) ? 500 : 87 )
 {
-   init() ;
+   init();
 }
   
 
 HcalGeometry::~HcalGeometry() 
-{
-   if( m_ownsTopology ) delete theTopology ;
-}
+{}
 
 
 void
 HcalGeometry::init()
 {
-   m_hbCellVec = HBCellVec( HcalDetId::kHBSize ) ;
-   m_heCellVec = HECellVec( HcalDetId::kHESize ) ;
+    // SLHC
+    //
+    // kHBSizePreLS1 = 2*kHBhalf
+    // kHESizePreLS1 = 2*kHEhalf
+    // kHBHalfExtra  = 72*(maxDepthHB*15-16)
+    // kHEHalfExtra  = 36*(maxDepthHE*19-40)
+    // kHBSize = kHBSizePreLS1+kHBSizeExtra
+    // kHESize = kHESizePreLS1+kHESizeExtra
+
+    // Current
+    //
+    // kHBSize = 2*kHBhalf
+    // kHESize = 2*kHEhalf
+    
+    std::cout << "HcalGeometry::init() "
+	      << "HcalDetId::kHBSize " << theTopology->getHBSize() << " (HcalDetId::kHBSize " << HcalDetId::kHBSize << " ), "
+	      << "HcalDetId::kHESize " << theTopology->getHESize() << " (HcalDetId::kHESize " << HcalDetId::kHESize << " ), "
+	      << "HcalDetId::kHOSize " << HcalDetId::kHOSize
+	      << "HcalDetId::kHFSize " << HcalDetId::kHFSize << std::endl;
+    
+    m_hbCellVec = HBCellVec( theTopology->getHBSize() ) ;
+    m_heCellVec = HECellVec( theTopology->getHESize() ) ;
    m_hoCellVec = HOCellVec( HcalDetId::kHOSize ) ;
    m_hfCellVec = HFCellVec( HcalDetId::kHFSize ) ;
 }
@@ -355,6 +373,8 @@ HcalGeometry::localCorners( Pt3DVec&        lc  ,
    }
 }
 
+static int counter = 0;
+
 void
 HcalGeometry::newCell( const GlobalPoint& f1 ,
 		       const GlobalPoint& f2 ,
@@ -362,9 +382,13 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 		       const CCGFloat*    parm ,
 		       const DetId&       detId   ) 
 {
+    
    const CaloGenericDetId cgid ( detId ) ;
 
    const unsigned int din ( cgid.denseIndex() ) ;
+
+//    std::cout << counter++ << ": HcalGeometry::newCell subdet " << detId.subdetId() << ", raw ID " << detId.rawId()
+// 	     << ", cgid " << cgid << ", din " << din << std::endl;
 
    assert( cgid.isHcal() ) ;
 
@@ -384,15 +408,15 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 	 if( cgid.isHO() )
 	 {
 	    const unsigned int index ( din 
-				       - m_hbCellVec.size() 
+				       - m_hbCellVec.size()
 				       - m_heCellVec.size() ) ;
 	    m_hoCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
 	 }
 	 else
 	 {
 	    const unsigned int index ( din 
-				       - m_hbCellVec.size() 
-				       - m_heCellVec.size() 
+				       - m_hbCellVec.size()
+				       - m_heCellVec.size()
 				       - m_hoCellVec.size() ) ;
 	    m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm ) ;
 	 }

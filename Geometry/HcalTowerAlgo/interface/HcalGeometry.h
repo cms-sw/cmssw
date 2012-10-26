@@ -29,13 +29,14 @@ public:
 
   enum { k_NumberOfCellsForCorners = HcalDetId::kSizeForDenseIndexing } ;
 
-  enum { k_NumberOfShapes = 87 } ;
-
+  // 500 for SLHC?
+  //enum { k_NumberOfShapes = 87 } ;
+    
   enum { k_NumberOfParametersPerShape = 5 } ;
 
   static std::string dbString() { return "PHcalRcd" ; }
 
-  virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
+  virtual unsigned int numberOfShapes() const { return m_NumberOfShapes ; }
   virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
   explicit HcalGeometry(const HcalTopology * topology);
@@ -104,12 +105,14 @@ private:
   mutable std::vector<DetId> m_hoIds ;
   mutable std::vector<DetId> m_hfIds ;
   mutable std::vector<DetId> m_emptyIds ;
-  bool m_ownsTopology ;
 
   HBCellVec m_hbCellVec ;
   HECellVec m_heCellVec ;
   HOCellVec m_hoCellVec ;
   HFCellVec m_hfCellVec ;
+
+  const int m_NumberOfShapes;
+
 };
 
 

@@ -51,7 +51,7 @@ HcalHardcodeGeometryLoader::load( DetId::Detector det,
 
    if( hg->cornersMgr() == 0 ) hg->allocateCorners( HcalGeometry::k_NumberOfCellsForCorners ) ;
    if( hg->parMgr()     == 0 ) hg->allocatePar( 
-      HcalGeometry::k_NumberOfParametersPerShape*HcalGeometry::k_NumberOfShapes,
+       HcalGeometry::k_NumberOfParametersPerShape*hg->numberOfShapes(),
       HcalGeometry::k_NumberOfParametersPerShape ) ;
 
    switch (hsub) 
