@@ -917,7 +917,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Run 2 ***
 	endRun 1
 	writeRun 1
@@ -931,7 +931,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -939,7 +939,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: Lumi 1 ***
 	readAndCacheLumi 1
 	beginLumi 2/1
@@ -950,7 +950,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: Lumi 2 ***
 	endLumi 2/1
 	writeLumi 2/1
@@ -970,7 +970,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -978,9 +978,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
+	readAndMergeLumi 3
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -1152,7 +1152,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Run 2 ***
 	endRun 1
 	writeRun 1
@@ -1166,7 +1166,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -1174,7 +1174,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: Lumi 1 ***
 	readAndCacheLumi 1
     *** nextItemType: File 0 ***
@@ -1184,7 +1184,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: Lumi 2 ***
 	writeLumi 2/1
 	deleteLumiFromCache 2/1
@@ -1200,7 +1200,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -1208,9 +1208,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
+	readAndMergeLumi 3
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -1374,7 +1374,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Run 2 ***
 	writeRun 1
 	deleteRunFromCache 1
@@ -1386,7 +1386,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -1394,7 +1394,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: Lumi 1 ***
 	readAndCacheLumi 1
     *** nextItemType: File 0 ***
@@ -1404,7 +1404,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: Lumi 2 ***
 	writeLumi 2/1
 	deleteLumiFromCache 2/1
@@ -1420,7 +1420,7 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
@@ -1428,9 +1428,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
-	readAndCacheRun 2
+	readAndMergeRun 2
     *** nextItemType: Lumi 3 ***
-	readAndCacheLumi 3
+	readAndMergeLumi 3
     *** nextItemType: File 0 ***
 	shouldWeCloseOutput
 	respondToCloseInputFile
