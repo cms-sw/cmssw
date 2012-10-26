@@ -95,8 +95,7 @@ steps = Steps()
 #### Production test section ####
 steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_cfi','--relval':'9000,300'},step1Defaults])
 steps['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi','--relval':'9000,100'},step1Defaults])
-steps['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi','--relval':'9000,25'},step1Defaults])
-
+steps['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi','--relval':'9000,50'},step1Defaults])
 
 #### data ####
 #list of run to harvest for 2010A: 144086,144085,144084,144083,144011,139790,139789,139788,139787,138937,138934,138924,138923
@@ -188,38 +187,35 @@ steps['ZElSkim2012C']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012C-ZElec
 #### Standard release validation samples ####
 
 stCond={'--conditions':'auto:startup'}
-K9by25={'--relval':'9000,25'}
-K9by50={'--relval':'9000,50'}
-K9by500={'--relval':'9000,500'}
-K9by100={'--relval':'9000,100'}
-K50by100={'--relval':'50000,100'}
-K9by250={'--relval':'9000,250'}
-K25by250={'--relval':'25000,250'}
+def Kby(N,s):
+    return {'--relval':'%s000,%s'%(N,s)}
+
 
 def gen(fragment,howMuch):
     global step1Defaults
     return merge([{'cfg':fragment},howMuch,step1Defaults])
 
-steps['MinBias']=gen('MinBias_8TeV_cfi',K9by100)
-steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_cfi',K9by25)
-steps['QCD_Pt_80_120']=gen('QCD_Pt_80_120_8TeV_cfi',K9by50)
-steps['SingleElectronPt10']=gen('SingleElectronPt10_cfi',K9by250)
-steps['SingleElectronPt1000']=gen('SingleElectronPt1000_cfi',K9by250)
-steps['SingleElectronPt35']=gen('SingleElectronPt35_cfi',K9by250)
-steps['SingleGammaPt10']=gen('SingleGammaPt10_cfi',K9by100)
-steps['SingleGammaPt35']=gen('SingleGammaPt35_cfi',K9by100)
-steps['SingleMuPt1']=gen('SingleMuPt1_cfi',K25by250)
-steps['SingleMuPt10']=gen('SingleMuPt10_cfi',K25by250)
-steps['SingleMuPt100']=gen('SingleMuPt100_cfi',K9by250)
-steps['SingleMuPt1000']=gen('SingleMuPt1000_cfi',K9by100)
-steps['TTbar']=gen('TTbar_Tauola_8TeV_cfi',K9by50)
-steps['TTbarLepton']=gen('TTbarLepton_Tauola_8TeV_cfi',K9by100)
-steps['ZEE']=gen('ZEE_8TeV_cfi',K9by100)
-steps['Wjet_Pt_80_120']=gen('Wjet_Pt_80_120_8TeV_cfi',K9by100)
-steps['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_8TeV_cfi',K9by100)
-steps['LM1_sfts']=gen('LM1_sfts_8TeV_cfi',K9by100)
-steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',K9by100)
-steps['QCD_FlatPt_15_3000HS']=gen('QCDForPF_8TeV_cfi',K50by100)
+steps['MinBias']=gen('MinBias_8TeV_cfi',Kby(9,300))
+steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
+steps['QCD_Pt_600_800']=gen('QCD_Pt_600_800_8TeV_cfi',Kby(9,50))
+steps['QCD_Pt_80_120']=gen('QCD_Pt_80_120_8TeV_cfi',Kby(9,100))
+steps['SingleElectronPt10']=gen('SingleElectronPt10_cfi',Kby(9,3000))
+steps['SingleElectronPt35']=gen('SingleElectronPt35_cfi',Kby(9,500))
+steps['SingleElectronPt1000']=gen('SingleElectronPt1000_cfi',Kby(9,50))
+steps['SingleGammaPt10']=gen('SingleGammaPt10_cfi',Kby(9,3000))
+steps['SingleGammaPt35']=gen('SingleGammaPt35_cfi',Kby(9,500))
+steps['SingleMuPt1']=gen('SingleMuPt1_cfi',Kby(25,1000))
+steps['SingleMuPt10']=gen('SingleMuPt10_cfi',Kby(25,500))
+steps['SingleMuPt100']=gen('SingleMuPt100_cfi',Kby(9,500))
+steps['SingleMuPt1000']=gen('SingleMuPt1000_cfi',Kby(9,500))
+steps['TTbar']=gen('TTbar_Tauola_8TeV_cfi',Kby(9,100))
+steps['TTbarLepton']=gen('TTbarLepton_Tauola_8TeV_cfi',Kby(9,100))
+steps['ZEE']=gen('ZEE_8TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_80_120']=gen('Wjet_Pt_80_120_8TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_8TeV_cfi',Kby(9,50))
+steps['LM1_sfts']=gen('LM1_sfts_8TeV_cfi',Kby(9,100))
+steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',Kby(9,100))
+steps['QCD_FlatPt_15_3000HS']=gen('QCDForPF_8TeV_cfi',Kby(50,100))
 
 def identitySim(wf):
     return merge([{'--restoreRND':'SIM','--process':'SIM2'},wf])
@@ -278,14 +274,16 @@ ecalHcal={
     '--eventcontent':'FEVTDEBUG',
     '--customise':'Validation/Configuration/ECALHCAL.customise',
     '--beamspot':'NoSmear'}
+
+K25by250={'--relval':'25000,250'}
 steps['SingleElectronE120EHCAL']=merge([{'cfg':'SingleElectronE120EHCAL_cfi'},ecalHcal,K25by250,step1Defaults])
 steps['SinglePiE50HCAL']=merge([{'cfg':'SinglePiE50HCAL_cfi'},ecalHcal,K25by250,step1Defaults])
 
-steps['MinBiasHS']=gen('MinBias_8TeV_cfi',K25by250)
+steps['MinBiasHS']=gen('MinBias_8TeV_cfi',Kby(25,300))
 steps['InclusiveppMuX']=gen('InclusiveppMuX_8TeV_cfi',K110000by45000)
 steps['SingleElectronFlatPt5To100']=gen('SingleElectronFlatPt5To100_cfi',K250by250)
 steps['SinglePiPt1']=gen('SinglePiPt1_cfi',K250by250)
-steps['SingleMuPt1HS']=gen('SingleMuPt1_cfi',K250by250)
+steps['SingleMuPt1HS']=gen('SingleMuPt1_cfi',Kby(250,1000))
 steps['ZPrime5000Dijet']=gen('ZPrime5000JJ_8TeV_cfi',K250by100)
 steps['SinglePi0E10']=gen('SinglePi0E10_cfi',K250by100)
 steps['SinglePiPt10']=gen('SinglePiPt10_cfi',K250by250)
@@ -298,25 +296,20 @@ def genS(fragment,howMuch):
     global step1Defaults,stCond
     return merge([{'cfg':fragment},stCond,howMuch,step1Defaults])
 
-##steps['MinBias2']=genS('MinBias_8TeV_cfi',K9by100)
-steps['Higgs200ChargedTaus']=genS('H200ChargedTaus_Tauola_8TeV_cfi',K9by100)
-##steps['QCD_Pt_3000_3500_2']=genS('QCD_Pt_3000_3500_8TeV_cfi',K9by25)
-##steps['QCD_Pt_80_120_2']=genS('QCD_Pt_80_120_8TeV_cfi',K9by50)
-steps['JpsiMM']=genS('JpsiMM_8TeV_cfi',{'--relval':'65250,725'})
-##steps['TTbar2']=genS('TTbar_Tauola_8TeV_cfi',K9by50)
-steps['WE']=genS('WE_8TeV_cfi',K9by100)
-steps['WM']=genS('WM_8TeV_cfi',K9by100)
-steps['WpM']=genS('WpM_8TeV_cfi',K9by100)
-##steps['ZEE2']=genS('ZEE_8TeV_cfi',K9by100)
-steps['ZMM']=genS('ZMM_8TeV_cfi',{'--relval':'18000,200'})
-steps['ZpMM']=genS('ZpMM_8TeV_cfi',K9by100)
+steps['Higgs200ChargedTaus']=genS('H200ChargedTaus_Tauola_8TeV_cfi',Kby(9,100))
+steps['JpsiMM']=genS('JpsiMM_8TeV_cfi',Kby(66,1000))
+steps['WE']=genS('WE_8TeV_cfi',Kby(9,100))
+steps['WM']=genS('WM_8TeV_cfi',Kby(9,200))
+steps['WpM']=genS('WpM_8TeV_cfi',Kby(9,200))
+steps['ZMM']=genS('ZMM_8TeV_cfi',Kby(18,300))
+steps['ZpMM']=genS('ZpMM_8TeV_cfi',Kby(9,200))
 
-steps['ZTT']=genS('ZTT_Tauola_All_hadronic_8TeV_cfi',K9by100)
-steps['H130GGgluonfusion']=genS('H130GGgluonfusion_8TeV_cfi',K9by100)
-steps['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_8TeV_cfi',K9by100)
-steps['QQH1352T_Tauola']=genS('QQH1352T_Tauola_8TeV_cfi',K9by100)
-steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',K250by100)
-steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_cfi',K9by100)
+steps['ZTT']=genS('ZTT_Tauola_All_hadronic_8TeV_cfi',Kby(9,150))
+steps['H130GGgluonfusion']=genS('H130GGgluonfusion_8TeV_cfi',Kby(9,100))
+steps['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_8TeV_cfi',Kby(9,150))
+steps['QQH1352T_Tauola']=genS('QQH1352T_Tauola_8TeV_cfi',Kby(9,100))
+steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',Kby(250,100))
+steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
 
 steps['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -339,8 +332,8 @@ steps['ZpMMINPUT']={'INPUT':InputInfo(dataSet='/RelValWpM/%s/GEN-SIM'%(baseDataS
 steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300/%s/GEN-SIM'%(baseDataSetRelease[2],),location='STD')}
                                 
 
-steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--relval':'666000,3000','--scenario':'cosmics'},step1Defaults])
-steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},K9by100,step1Defaults])
+steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
+steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
 
 steps['CosmicsINPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['BeamHaloINPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -380,19 +373,20 @@ steps['TTbar_Tauola_UPGphase1_14']=merge([{'cfg':'TTbar_Tauola_14TeV_cfi','--rel
 
 ## pPb tests
 step1PPbDefaults={'--beamspot':'Realistic8TeVCollisionPPbBoost'}
-steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_cfi',K9by100)])
+steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_cfi',Kby(9,100))])
 
 ## heavy ions tests
-U500by5={'--relval': '500,5'}
-U80by2={'--relval': '80,2'}
+U500by1={'--relval': '500,1'}
+U80by1={'--relval': '80,1'}
+
 hiDefaults={'--conditions':'auto:starthi_HIon',
            '--scenario':'HeavyIons'}
 
-steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
+steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by1)])
 steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
-steps['HydjetQ_B0_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
+steps['HydjetQ_B0_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by1)])
 steps['HydjetQ_B0_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD')}
-steps['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by2)])
+steps['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by1)])
 steps['HydjetQ_B8_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B8_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='CAF')}
 
 
