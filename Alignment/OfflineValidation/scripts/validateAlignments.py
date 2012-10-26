@@ -1253,12 +1253,13 @@ def main(argv = None):
 
     # clean up of log directory to avoid cluttering with files with different
     # random numbers for geometry comparison
-    for file in os.listdir( config.getGeneral()["logdir"] ):
-        if ( 'stderr' in file.split( '.' )
-             or 'stdout' in file.split( '.' ) ):
-            continue
-        else:
-            os.remove( os.path.join( config.getGeneral()["logdir"], file ) )
+    if os.path.isdir( config.getGeneral()["logdir"] ):
+        for file in os.listdir( config.getGeneral()["logdir"] ):
+            if ( 'stderr' in file.split( '.' )
+                 or 'stdout' in file.split( '.' ) ):
+                continue
+            else:
+                os.remove( os.path.join( config.getGeneral()["logdir"], file ) )
     
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
