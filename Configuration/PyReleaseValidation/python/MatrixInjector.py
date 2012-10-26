@@ -173,7 +173,12 @@ class MatrixInjector(object):
                             chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir,step)
                             chainDict['nowmTasklist'][-1]['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] # copy to the proper parameter name
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
-                            chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
+                            if 'pileup' in chainDict['nowmTasklist'][-1]['nowmIO']:
+                                chainDict['nowmTasklist'][-1]['MCPileup']=chainDict['nowmTasklist'][-1]['nowmIO']['pileup']
+                                chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
+                            else:
+                                chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
+
                         index+=1
                         
             #wrap up for this one
