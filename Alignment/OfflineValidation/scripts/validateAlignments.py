@@ -423,9 +423,6 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
         if not randomWorkdirPart == None:
             self.randomWorkdirPart = randomWorkdirPart
         self.referenceAlignment = referenceAlignment
-        # self.__compares = {}
-        # allCompares = config.getCompares()
-        self.__compares = config.getCompares()
         try:
             self.jobmode = config.getResultingSection( "compare:"+self.name)["jobmode"]
         except KeyError:
@@ -434,12 +431,12 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
         if not self.referenceAlignment == "IDEAL":
             referenceName = self.referenceAlignment.name
 
-        # #test if all compare sections are present
-        # for compareName in self.alignmentToValidate.compareTo[ referenceName ]:
-        #     if compareName in allCompares:
-        #         self.__compares[compareName] = allCompares[compareName]
-        #     else:
-        #         raise StandardError, "could not find compare section '%s' in '%s'"%(compareName, allCompares)                  
+        allCompares = config.getCompares()
+        self.__compares = {}
+        if valName in allCompares:
+            self.__compares[valName] = allCompares[valName]
+        else:
+            raise StandardError, "Could not find compare section '%s' in '%s'"%(valName, allCompares)
         self.copyImages = copyImages
     
     def getRepMap(self, alignment = None):
@@ -1253,6 +1250,16 @@ def main(argv = None):
     config.set("general","workdir",os.path.join(general["workdir"],options.Name) )
     config.set("general","datadir",os.path.join(general["datadir"],options.Name) )
     config.set("general","logdir",os.path.join(general["logdir"],options.Name) )
+
+    # clean up of log directory to avoid cluttering with files with different
+    # random numbers for geometry comparison
+    for file in os.listdir( config.getGeneral()["logdir"] ):
+        if ( 'stderr' in file.split( '.' )
+             or 'stdout' in file.split( '.' ) ):
+            continue
+        else:
+            os.remove( os.path.join( config.getGeneral()["logdir"], file ) )
+    
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
     elif not os.path.isdir( outPath ):
