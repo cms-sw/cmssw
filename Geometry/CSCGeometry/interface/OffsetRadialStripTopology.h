@@ -11,10 +11,10 @@
  * 
  */
 
-#include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
+#include "Geometry/CommonTopologies/interface/CSCRadialStripTopology.h"
 #include <iosfwd>
 
-class OffsetRadialStripTopology : public RadialStripTopology
+class OffsetRadialStripTopology : public CSCRadialStripTopology
 {
 public:
 
@@ -38,7 +38,7 @@ public:
     // Pass through to base class since otherwise it is shadowed by the localPosition(const MP&).
     // Note that base class version is OK because it uses stripAngle() which is overridden in ORST!
     // Also note that xOfStrip from base class RST also works for ORST for the same reason.
-    return RadialStripTopology::localPosition( strip );
+    return CSCRadialStripTopology::localPosition( strip );
   }
 
   /** LocalPoint for a given MeasurementPoint <BR>

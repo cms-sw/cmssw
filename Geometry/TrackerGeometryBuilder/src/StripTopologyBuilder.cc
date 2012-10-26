@@ -1,6 +1,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripTopologyBuilder.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
+#include "Geometry/CommonTopologies/interface/TkRadialStripTopology.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
@@ -45,6 +45,6 @@ StripTopologyBuilder::constructForward( float length, float width, float widthAt
   int nstrip = int( 128 * theAPVNumb );
   float rCross = widthAtHalf * length / ( 2 * ( width - widthAtHalf ));
   float aw = atan2( widthAtHalf / 2., static_cast<double>( rCross )) / ( nstrip / 2 );
-  return new RadialStripTopology( nstrip, aw, length, rCross, yAxOr );
+  return new TkRadialStripTopology( nstrip, aw, length, rCross, yAxOr );
 }
 

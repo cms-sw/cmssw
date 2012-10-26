@@ -27,7 +27,7 @@ OffsetRadialStripTopology::OffsetRadialStripTopology(
   int numberOfStrips, float stripPhiPitch,
   float detectorHeight, float radialDistance,
   float stripOffset, float yCentre ) :
-  RadialStripTopology( numberOfStrips, stripPhiPitch, detectorHeight, radialDistance, +1, yCentre),
+  CSCRadialStripTopology( numberOfStrips, stripPhiPitch, detectorHeight, radialDistance, +1, yCentre),
 	     theStripOffset( stripOffset )
 { 
   float rotate_by = stripOffset * angularWidth(); // now in angular units (radians, I hope)
@@ -67,7 +67,7 @@ LocalPoint OffsetRadialStripTopology::localPosition(const MeasurementPoint & mp)
 
 MeasurementPoint OffsetRadialStripTopology::measurementPosition( const LocalPoint& lp ) const {
   LocalPoint lpp = this->toPrime(lp); // in prime system, aligned with strip plane sym axes
-  return RadialStripTopology::measurementPosition(lpp); // now can use the base class method
+  return CSCRadialStripTopology::measurementPosition(lpp); // now can use the base class method
 }
 
 float OffsetRadialStripTopology::strip(const LocalPoint& lp) const {
@@ -102,7 +102,7 @@ LocalPoint OffsetRadialStripTopology::toPrime(const LocalPoint& lp) const {
 std::ostream & operator<<(std::ostream & os, const OffsetRadialStripTopology & orst)
 {
   os << "OffsetRadialStripTopology isa "
-     <<  static_cast<const RadialStripTopology&>( orst )
+     <<  static_cast<const CSCRadialStripTopology&>( orst )
      << "fractional strip offset   " << orst.stripOffset()
      << "\ncos(angular offset)       " << orst.theCosOff
      << "\nsin(angular offset)       " << orst.theSinOff << std::endl;

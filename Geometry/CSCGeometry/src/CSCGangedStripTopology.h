@@ -24,7 +24,7 @@ public:
    * (Count from 1)
    */
   int channel(const LocalPoint& lp) const {
-    return (int) (RadialStripTopology::strip(lp)) % theNumberOfGangedStrips + 1;
+    return (int) (CSCRadialStripTopology::strip(lp)) % theNumberOfGangedStrips + 1;
   }
 
   /** 

@@ -17,16 +17,16 @@ ValidateRadial::ValidateRadial(const edm::ParameterSet& cfg)
 
 void ValidateRadial::
 analyze(const edm::Event& e, const edm::EventSetup& es) {
-  std::vector<const RadialStripTopology*> topologies = get_list_of_radial_topologies(e,es);
+  std::vector<const TkRadialStripTopology*> topologies = get_list_of_radial_topologies(e,es);
   for(unsigned i=0; i<topologies.size(); i++) {
     test_topology(topologies[i],i);
   }
   file_->Close();
 }
 
-std::vector<const RadialStripTopology*> ValidateRadial::
+std::vector<const TkRadialStripTopology*> ValidateRadial::
 get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
-  std::vector<const RadialStripTopology*> topos;
+  std::vector<const TkRadialStripTopology*> topos;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;  es.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
   const uint32_t radial_detids[] = { 402666125,//TID r1
 				     402668833,//TID r2
@@ -42,10 +42,10 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
     auto g = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet( radial_detids[i] ));
     if (!g) std::cout << "no geom for " << radial_detids[i] << std::endl;
     auto const topol = &g->specificTopology();
-    const RadialStripTopology* rt =0;	
+    const TkRadialStripTopology* rt =0;	
     auto const proxyT = dynamic_cast<const ProxyStripTopology*>(topol);
-    if (proxyT) rt = dynamic_cast<const RadialStripTopology*>(&(proxyT->specificTopology()));
-    else rt = dynamic_cast<const RadialStripTopology*>(topol);
+    if (proxyT) rt = dynamic_cast<const TkRadialStripTopology*>(&(proxyT->specificTopology()));
+    else rt = dynamic_cast<const TkRadialStripTopology*>(topol);
     if (!rt) std::cout << "no radial topology for " << radial_detids[i] << std::endl;
     else
     topos.push_back(rt);
@@ -56,7 +56,7 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
 
 
 void ValidateRadial::
-test_topology(const RadialStripTopology* t, unsigned i) {
+test_topology(const TkRadialStripTopology* t, unsigned i) {
 
   std::cout << *t << std::endl;
 
@@ -88,7 +88,7 @@ ValidateRadial::~ValidateRadial() {
 
 
 bool ValidateRadial::
-pass_frame_change_test(const RadialStripTopology* t, const float strip, const float stripErr2, const bool secondOrder) {
+pass_frame_change_test(const TkRadialStripTopology* t, const float strip, const float stripErr2, const bool secondOrder) {
   const LocalPoint lp = t->localPosition(strip);
   const LocalError le = t->localError(strip,stripErr2);
   const MeasurementPoint mp = t->measurementPosition(lp);
