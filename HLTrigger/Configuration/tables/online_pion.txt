@@ -49,6 +49,11 @@ HLT_PAL1ETM30_v*                                   # sr 131577
 HLT_PAL1ETM70_v*                                   # sr 131577
 HLT_PAPixelTracks_Multiplicity70_v*                # sr 131577
 HLT_PAPixelTracks_Multiplicity90_v*                # sr 131577
+HLT_PAPixelTracks_Multiplicity100_v*               # sr 132927
+HLT_PAPixelTracks_Multiplicity130_v*               # sr 132927
+HLT_PAPixelTracks_Multiplicity160_v*               # sr 132927
+HLT_PAPixelTracks_Multiplicity190_v*               # sr 132927
+HLT_PAPixelTracks_Multiplicity220_v*               # sr 132927
 HLT_PARomanPots_Tech52_v*                          # sr 131577
 HLT_PAL1Tech53_MB_v*                               # sr 131577
 HLT_PAL1Tech53_MB_SingleTrack_v*                   # sr 131577
