@@ -136,6 +136,10 @@
 	<class name="LHERunInfoProduct::Header" ClassVersion="10">
   <version ClassVersion="10" checksum="1310911082"/>
  </class>
+ <class name="LHEXMLStringProduct" ClassVersion="10">
+  <version ClassVersion="10" checksum="4158740350"/>
+ </class> 
+ <class name="edm::Wrapper&lt;LHEXMLStringProduct&gt;"/>
 	<class name="std::vector&lt;LHERunInfoProduct::Header&gt;"/>
 	<class name="LHERunInfoProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="2098560362"/>
