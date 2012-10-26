@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.14 2009/01/21 21:27:03 heltsley Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.15 2009/01/29 22:31:19 heltsley Exp $
 //
 //
 
@@ -37,6 +37,8 @@
 //
 CaloGeometryBuilder::CaloGeometryBuilder( const edm::ParameterSet& iConfig )
 {
+    std::cout << "CaloGeometryBuilder::CaloGeometryBuilder" << std::endl;
+    
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced( this, 

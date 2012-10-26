@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.h,v 1.2 2012/08/15 14:57:21 yana Exp $
+// $Id: CaloTowerConstituentsMapBuilder.h,v 1.3 2012/08/27 15:21:57 yana Exp $
 //
 //
 
@@ -51,8 +51,5 @@ public:
 private:
   void parseTextMap(const std::string& filename,CaloTowerConstituentsMap& theMap);
   std::string mapFile_;
-  const edm::ParameterSet m_pSet;
-    
-      // ----------member data ---------------------------
 };
 
