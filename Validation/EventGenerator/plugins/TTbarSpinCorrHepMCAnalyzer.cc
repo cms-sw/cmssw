@@ -34,8 +34,11 @@ TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   // --- the MC weights ---
   Handle<GenEventInfoProduct> evt_info;
   iEvent.getByLabel(genEventInfoProductTag_, evt_info);
-  weight = evt_info->weight() ;
+  if (evt_info.failedToGet())
+    return;
 
+  weight = evt_info->weight() ;
+  
   // --- get genParticles ---
   Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByLabel(genParticlesTag_, genParticles);   
