@@ -30,7 +30,8 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   maxDepthHB_(maxDepthHB),
   maxDepthHE_(maxDepthHE),
   HBSize_(HcalDetId::kHBSize +(( mode==HcalTopologyMode::SLHC ) ? ( 2*72*(maxDepthHB*15-16 )) : 0 )),
-  HESize_(HcalDetId::kHESize +(( mode==HcalTopologyMode::SLHC ) ? ( 2*36*(maxDepthHE*19-40 )) : 0 ))
+  HESize_(HcalDetId::kHESize +(( mode==HcalTopologyMode::SLHC ) ? ( 2*36*(maxDepthHE*19-40 )) : 0 )),
+  numberOfShapes_(( mode==HcalTopologyMode::SLHC ) ? 500 : 87 )
 {
     // SLHC
     //

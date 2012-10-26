@@ -19,8 +19,8 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2012/08/27 15:11:40 $
-   $Revision: 1.11 $
+   $Date: 2012/10/26 06:17:56 $
+   $Revision: 1.12 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
@@ -94,6 +94,8 @@ public:
   std::pair<int, int> segmentBoundaries(unsigned ring, unsigned depth) const;
   int getHBSize() const {return HBSize_;}
   int getHESize() const {return HESize_;}
+  unsigned int getNumberOfShapes() const { return numberOfShapes_; }
+    
     
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */
@@ -128,7 +130,8 @@ private:
   const int maxDepthHE_;
   const int HBSize_;
   const int HESize_;
-   
+  const unsigned int numberOfShapes_;
+    
   // index is ring;
   typedef std::map<unsigned, std::vector<int> > SegmentationMap;
   SegmentationMap depthSegmentation_;

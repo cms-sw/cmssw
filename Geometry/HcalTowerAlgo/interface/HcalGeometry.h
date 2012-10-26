@@ -36,7 +36,7 @@ public:
 
   static std::string dbString() { return "PHcalRcd" ; }
 
-  virtual unsigned int numberOfShapes() const { return m_NumberOfShapes ; }
+  virtual unsigned int numberOfShapes() const { return theTopology->getNumberOfShapes() ; }
   virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
   explicit HcalGeometry(const HcalTopology * topology);
@@ -110,9 +110,6 @@ private:
   HECellVec m_heCellVec ;
   HOCellVec m_hoCellVec ;
   HFCellVec m_hfCellVec ;
-
-  const int m_NumberOfShapes;
-
 };
 
 

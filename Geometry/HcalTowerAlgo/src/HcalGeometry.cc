@@ -9,8 +9,7 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
 HcalGeometry::HcalGeometry( const HcalTopology* topology ) :
-    theTopology( topology ),
-    m_NumberOfShapes(( topology->mode() == HcalTopologyMode::SLHC ) ? 500 : 87 )
+    theTopology( topology )
 {
    init();
 }
@@ -372,8 +371,6 @@ HcalGeometry::localCorners( Pt3DVec&        lc  ,
       IdealObliquePrism::localCorners( lc, pv, ref ) ;
    }
 }
-
-static int counter = 0;
 
 void
 HcalGeometry::newCell( const GlobalPoint& f1 ,
