@@ -169,7 +169,13 @@ class RunMEtUncertainties(ConfigToolBase):
                 cms.InputTag(moduleMETcorrShiftUpName)
             )
         )
-        moduleMETshiftUpName = "%s%s%sUp" % (metProducer.label(), particleType, shiftType)
+        metProducerLabel = metProducer.label()
+        if postfix != "":
+            if metProducerLabel[-len(postfix):] == postfix:
+                metProducerLabel = metProducerLabel[0:-len(postfix)]
+            else:
+                raise StandardError("Tried to remove postfix %s from label %s, but it wasn't there" % (postfix, metProducerLabel))
+        moduleMETshiftUpName = "%s%s%sUp" % (metProducerLabel, particleType, shiftType)
         moduleMETshiftUpName += postfix
         setattr(process, moduleMETshiftUpName, moduleMETshiftUp)
         sequence += moduleMETshiftUp
@@ -178,7 +184,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 cms.InputTag(moduleMETcorrShiftDownName)
             )
         )
-        moduleMETshiftDownName = "%s%s%sDown" % (metProducer.label(), particleType, shiftType)
+        moduleMETshiftDownName = "%s%s%sDown" % (metProducerLabel, particleType, shiftType)
         moduleMETshiftDownName += postfix
         setattr(process, moduleMETshiftDownName, moduleMETshiftDown)
         sequence += moduleMETshiftDown
