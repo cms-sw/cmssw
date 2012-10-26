@@ -50,8 +50,8 @@ siStripThresholdFakeESSource  = cms.ESSource("SiStripThresholdFakeESSource")
 es_prefer_fake_strip_threshold = cms.ESPrefer("SiStripThresholdFakeESSource",
                                                      "siStripThresholdFakeESSource")
 
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-TrackerDigiGeometryESModule.applyAlignment = False
+# from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import * Double check this later
+# TrackerDigiGeometryESModule.applyAlignment = False
 
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 MeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
@@ -84,3 +84,6 @@ from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
 mergedtruth.volumeRadius = cms.double(100.0)
 mergedtruth.volumeZ = cms.double(900.0)
 mergedtruth.discardOutVolume = cms.bool(True)
+
+#from Geometry.TrackerNumberingBuilder.pixelSLHCGeometryConstants_cfi import *
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
