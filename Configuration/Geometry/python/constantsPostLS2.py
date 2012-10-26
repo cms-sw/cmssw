@@ -18,7 +18,6 @@ def customise(process):
 
     process.hcalTopologyIdeal.hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
     process.es_hardcode.hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
-    process.CaloTowerConstituentsMapBuilder = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
     process.CaloTowerHardcodeGeometryEP = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
-    
+
     return process
