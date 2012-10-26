@@ -53,8 +53,8 @@ for plotsKey in searchTerms:
         for b in plotsToDraw:
             tkey = file.GetListOfKeys().FindObject(b)
             hist = tkey.ReadObj()
-            if hist.GetYaxis().GetXmax() > yMax : yMax = hist.GetYaxis().GetXmax()
-            if hist.GetYaxis().GetXmin() < yMin : yMin = hist.GetYaxis().GetXmin()
+            if hist.GetMaximum() > yMax : yMax = hist.GetMaximum()
+            if hist.GetMinimum() < yMin : yMin = hist.GetMinimum()
         yDif = yMax - yMin
         yMax = yMax + 0.1*yDif
         yMin = yMin - 0.1*yDif
