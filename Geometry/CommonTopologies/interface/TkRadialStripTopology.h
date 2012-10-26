@@ -244,7 +244,7 @@ class TkRadialStripTopology GCC11_FINAL : public RadialStripTopology {
   float theCentreToIntersection;  // distance centre of detector face to intersection of edge strips (projected)
   float thePhiOfOneEdge;   // local 'phi' of one edge of plane of strips (I choose it negative!)
   float theTanOfOneEdge;   // the positive tangent of the above...
-  float   theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
+  float theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
   float yCentre; // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
 };
 

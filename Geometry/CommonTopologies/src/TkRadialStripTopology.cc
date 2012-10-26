@@ -6,7 +6,9 @@
 #include <algorithm>
 #include <cassert>
 
+#ifdef MATH_STS
 #include<iostream>
+#endif
 namespace {
 
 #ifdef MATH_STS

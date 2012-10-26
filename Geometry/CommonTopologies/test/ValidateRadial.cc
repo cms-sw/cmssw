@@ -54,11 +54,49 @@ get_list_of_radial_topologies(const edm::Event&e, const edm::EventSetup& es) {
 }
 
 
+#include "Geometry/CommonTopologies/interface/CSCRadialStripTopology.h"
+
+
+void compare(const TkRadialStripTopology & t, const CSCRadialStripTopology & ot, const float strip, const float stripErr2) {
+  const LocalPoint lp = t.localPosition(strip);
+  const LocalError le = t.localError(strip,stripErr2);
+
+  const MeasurementPoint mp = t.measurementPosition(lp);
+  const MeasurementError me = t.measurementError(lp, le);
+  const float newstrip = t.strip(lp);
+
+  const LocalPoint olp = ot.localPosition(strip);
+  const LocalError ole = ot.localError(strip,stripErr2);
+
+  const MeasurementPoint omp = ot.measurementPosition(lp);
+  const MeasurementError ome = ot.measurementError(lp, le);
+  const float onewstrip = ot.strip(lp);
+
+  if(fabs(lp.x()-olp.x())>0.001) std::cout << lp.x() << " " << olp.x() << std::endl;
+  if(fabs(lp.y()-olp.y())>0.001) std::cout << lp.y() << " " << olp.y() << std::endl;
+  if(fabs(newstrip-onewstrip)>0.001) std::cout << newstrip << " " << onewstrip << std::endl;
+  if(fabs(le.xx()-ole.xx())>0.001) std::cout << le.xx() << " " << ole.xx() << std::endl;
+  if(fabs(le.yy()-ole.yy())>0.001) std::cout << le.yy() << " " << ole.xy() << std::endl;
+  if(fabs(le.xy()-ole.xy())>0.001) std::cout << le.xy() << " " << ole.yy() << std::endl;
+
+  if(fabs(mp.x()-omp.x())>0.001) std::cout << mp.x() << " " << omp.x() << std::endl;
+  if(fabs(me.uu()-ome.uu())>0.001) std::cout << me.uu() << " " << ome.uu() << std::endl;
+
+
+}
 
 void ValidateRadial::
 test_topology(const TkRadialStripTopology* t, unsigned i) {
 
-  std::cout << *t << std::endl;
+
+  CSCRadialStripTopology oldt(t->nstrips(), t->angularWidth(), 
+			      t->detHeight(), t->centreToIntersection(),
+			      t->yAxisOrientation(), t->yCentreOfStripPlane()
+			      );
+
+  std::cout << "\nTK\n" << *t << std::endl;
+  std::cout << "\nCSC\n" << oldt << std::endl;
+
 
   TProfile prof(("se2limit1"+boost::lexical_cast<std::string>(i)).c_str(),
 		"Precision Limit of recoverable strip error (1st order);strip;strip error",
@@ -67,17 +105,19 @@ test_topology(const TkRadialStripTopology* t, unsigned i) {
 		 "Precision Limit of recoverable strip error (2nd order);strip;strip error",
 		 t->nstrips()/8,0,t->nstrips());
   for(float strip = 0; strip<t->nstrips(); strip+=0.5) {
-    for(float stripErr2 = 0.03; stripErr2>1e-10; stripErr2/=1.1)
+    for(float stripErr2 = 0.03; stripErr2>1e-10; stripErr2/=1.1) {
+      compare(*t, oldt, strip, stripErr2);
       if(!pass_frame_change_test( t, strip, stripErr2, false ) ) {
 	prof.Fill(strip,sqrt(stripErr2));
 	break;
       }
+    }
     for(float stripErr2 = 0.03; stripErr2>1e-10; stripErr2/=1.1)
       if(!pass_frame_change_test( t, strip, stripErr2, true ) ) {
 	prof2.Fill(strip,sqrt(stripErr2));
 	break;
       }
-}
+  }
   prof.Write();
   prof2.Write();
 }

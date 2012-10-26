@@ -1,8 +1,6 @@
 #include <Geometry/CommonTopologies/interface/CSCRadialStripTopology.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <Utilities/General/interface/CMSexception.h>
 
-#include <iostream>
 #include <cmath>
 #include <algorithm>
 
