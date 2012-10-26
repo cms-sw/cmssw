@@ -121,9 +121,11 @@ class MatrixInjector(object):
                     chainDict['RequestString']='RV'+chainDict['CMSSWVersion']+s[1].split('+')[0]
                     index=0
                     splitForThisWf=None
+                    thisLabel=''
                     for step in s[3]:
                         if 'INPUT' in step or (not isinstance(s[2][index],str)):
                             nextHasDSInput=s[2][index]
+
                         else:
                             if 'HARVEST' in step:
                                 continue
@@ -139,6 +141,9 @@ class MatrixInjector(object):
                                     ns=map(int,arg[arg.index('--relval')+1].split(','))
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['SplittingArguments']['events_per_job'] = ns[1]
+                                if 'FASTSIM' in s[2][index]:
+                                    thisLabel='_FastSim'
+
                             elif nextHasDSInput:
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultInput))
                                 chainDict['nowmTasklist'][-1]['InputDataset']=nextHasDSInput.dataSet
@@ -147,12 +152,17 @@ class MatrixInjector(object):
                                 # get the run numbers or #events
                                 if len(nextHasDSInput.run):
                                     chainDict['nowmTasklist'][-1]['RunWhitelist']=nextHasDSInput.run
+                                print "what is s",s[2][index]
+                                if '--data' in s[2][index] and nextHasDSInput.label:
+                                    thisLabel='_RelVal_%s'%nextHasDSInput.label
                                 nextHasDSInput=None
                             else:
                                 #not first step and no inputDS
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultTask))
                                 if splitForThisWf:
                                     chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=splitForThisWf
+
+
                             #print step
                             chainDict['nowmTasklist'][-1]['TaskName']=step
                             try:
@@ -163,8 +173,7 @@ class MatrixInjector(object):
                             chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir,step)
                             chainDict['nowmTasklist'][-1]['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] # copy to the proper parameter name
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
-                            #chainDict['AcquisitionEra']=(chainDict['CMSSWVersion']+'-'+chainDict['GlobalTag']).replace('::All','')
-                            chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')
+                            chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
                         index+=1
                         
             #wrap up for this one
