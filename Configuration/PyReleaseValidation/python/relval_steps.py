@@ -232,6 +232,7 @@ baseDataSetRelease=[
 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QCD_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_3000_3500/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+## coming steps['QCD_Pt_600_800INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_600_800/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['QCD_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_Pt_80_120/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleElectronPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleElectronPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt1000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -391,14 +392,18 @@ steps['HydjetQ_B8_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B8_2
 
 
 
-def changeRefRelease(step1s,listOfPairs):
-    for s in step1s:
-        if ('INPUT' in step1s[s]):
+def changeRefRelease(steps,listOfPairs):
+    for s in steps:
+        if ('INPUT' in steps[s]):
             oldD=steps[s]['INPUT'].dataSet
             for (ref,newRef) in listOfPairs:
                 if  ref in oldD:
                     steps[s]['INPUT'].dataSet=oldD.replace(ref,newRef)
-                                        
+        if '--pileup_input' in steps[s]:
+            for (ref,newRef) in listOfPairs:
+                if ref in steps[s]['--pileup_input']:
+                    steps[s]['--pileup_input']=steps[s]['--pileup_input'].replace(ref,newRef)
+        
 def addForAll(steps,d):
     for s in steps:
         steps[s].update(d)
