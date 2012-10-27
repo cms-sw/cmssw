@@ -20,13 +20,36 @@
      - too many seeds are produced as input to the track building step (*TooManySeeds*).
 	=> No track is reconstructed from that iteration. 
 
+   # ELSeverityLevel
+      http://cmssdt.cern.ch/SDT/lxr/source/FWCore/MessageLogger/interface/ELseverityLevel.h?v=CMSSW_5_3_4
+108   enum ELsev_  {
+109     ELsev_noValueAssigned = 0  // default returned by map when not found
+110   , ELsev_zeroSeverity         // threshold use only
+111   , ELsev_incidental           // flash this on a screen
+112   , ELsev_success              // report reaching a milestone
+113   , ELsev_info                 // information
+114   , ELsev_warning              // warning
+115   , ELsev_warning2             // more serious warning
+116   , ELsev_error                // error detected
+117   , ELsev_error2               // more serious error
+118   , ELsev_next                 // advise to skip to next event
+119   , ELsev_unspecified          // severity was not specified
+120   , ELsev_severe               // future results are suspect
+121   , ELsev_severe2              // more severe
+122   , ELsev_abort                // suggest aborting
+123   , ELsev_fatal                // strongly suggest aborting!
+124   , ELsev_highestSeverity      // threshold use only
+125   // -----
+126   , nLevels                    // how many levels?
+127   };  // ELsev_
+
  Implementation:
      [Notes on implementation]
 */
 //
 // Original Author:  Mia Tosi,40 3-B32,+41227671609,
 //         Created:  Thu Mar  8 14:34:13 CET 2012
-// $Id: LogMessageMonitor.cc,v 1.2 2012/10/16 08:42:58 threus Exp $
+// $Id: LogMessageMonitor.cc,v 1.3 2012/10/16 10:07:41 threus Exp $
 //
 //
 
@@ -117,25 +140,19 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     size_t nCategories = categories_vector_.size();
 
-    for( size_t i = 0, n = errors->size();
-	i < n ; i++){    
+    for( size_t i = 0, n = errors->size(); i < n ; i++){    
       
-      //      std::cout << "Severity for error/warning: " << (*errors)[i].severity << " " <<(*errors)[i].module  << std::endl;
-      
+      //      std::cout << "LogMessageMonitor::analyze] Severity for error/warning: " << (*errors)[i].severity << " " <<(*errors)[i].module  << std::endl;
       // remove the first part of the module string, what is before ":"
       std::string s = (*errors)[i].module;
-      //      std::cout << "s: " << s << std::endl;
       size_t pos = s.find(':');
-      std::string s_temp = s.substr(pos+1,s.size());
-      std::map<std::string,int>::const_iterator it = modulesMap.find(s_temp);
-      //      std::cout << "it: " << " --> " << s_temp << std::endl;
+      std::string s_module = s.substr(pos+1,s.size());
+      std::map<std::string,int>::const_iterator it = modulesMap.find(s_module);
       if (it!=modulesMap.end()){
+	//      std::cout << "LogMessageMonitor::analyze] it: " << " --> " << s_module << std::endl;
+
 	// IF THIS IS AN ERROR on the ELseverityLevel SCALE, FILL ERROR HISTS
-	if((*errors)[i].severity.getLevel() >= el.getLevel()){
-	  //      if (categoryECount.size()<=40)
-	  //        categoryECount[(*errors)[i].category]+=(*errors)[i].count;
-	  //       std::map<std::string,int>::const_iterator it = modulesMap.find((*errors)[i].category);
-	  //	  std::cout << "it->second: " << it->second << std::endl;
+	if((*errors)[i].severity.getLevel() >= edm::ELseverityLevel::ELsev_error) {
 	  if ( doPUmonitoring_ )
 	    ModulesErrorsVsBXlumi[it->second]->Fill (BXlumi, (*errors)[i].count);
 
@@ -143,13 +160,29 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	  // defined by configuration file
 	  // if the category is not in the given list
 	  // it fills the bin "others"
-	  for (size_t icategory = 0; icategory < nCategories-1; icategory++) {
-	    if ( (*errors)[i].category==categories_vector_[icategory] )
-	      CategoriesVsModules->Fill(it->second,icategory);
-	    else
-	      CategoriesVsModules->Fill(it->second,nCategories-1);		  
+	  TString module = it->first;
+	  TString category = (*errors)[i].category;
+	  int ibinX = CategoriesVsModules->getTH1()->GetXaxis()->FindBin(module);
+	  int ibinY = CategoriesVsModules->getTH1()->GetYaxis()->FindBin(category);
+	  /*
+	  std::cout << "LogMessageMonitor::analyze] ibinX: " << ibinX << " it->second: " << it->second << " it->first: " << it->first << std::endl;
+	  std::cout << "LogMessageMonitor::analyze] ibinY: " << ibinY << " (*errors)[i].category: " << (*errors)[i].category << std::endl;
+	  size_t nbinsX = CategoriesVsModules->getTH1()->GetNbinsX();
+	  for (size_t bin = 1; bin<=nbinsX; bin++) {
+	    std::cout << "binX" << bin << ": " << CategoriesVsModules->getTH1()->GetXaxis()->GetBinLabel(bin) << std::endl;
 	  }
-
+	  size_t nbinsY = CategoriesVsModules->getTH1()->GetNbinsY();
+	  for (size_t bin = 1; bin<=nbinsY; bin++) {
+	    std::cout << "binY" << bin << ": " << CategoriesVsModules->getTH1()->GetYaxis()->GetBinLabel(bin) << std::endl;
+	  }
+	  */
+	  if ( ibinY>0 ) {
+	    int ncount = CategoriesVsModules->getTH1()->GetBinContent(ibinX,ibinY)+1;
+	    CategoriesVsModules->getTH1()->SetBinContent(ibinX,ibinY,ncount);
+	  } else {
+	    int ncount = CategoriesVsModules->getTH1()->GetBinContent(ibinX,nCategories)+1;
+	    CategoriesVsModules->getTH1()->SetBinContent(ibinX,nCategories,ncount);		  
+	  }
 	} else {
 	  // IF ONLY WARNING, FILL WARNING HISTS
 	  if ( doWarningsPlots_ ) 
@@ -180,6 +213,7 @@ LogMessageMonitor::beginJob()
    for (size_t imodule = 0; imodule < nModules; imodule++)
      CategoriesVsModules->setBinLabel(imodule+1,modules_vector_[imodule],1);
    CategoriesVsModules->setAxisTitle("categories",2);
+   //   CategoriesVsModules->getTH1()->GetXaxis()->LabelsOption("v");
    for (size_t icategories = 0; icategories < nCategories; icategories++)
      CategoriesVsModules->setBinLabel(icategories+1,categories_vector_[icategories],2);
    
