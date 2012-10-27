@@ -10,8 +10,8 @@ HLT_BTagMu_DiJet70_Mu5_v*                                                       
 HLT_BTagMu_DiJet110_Mu5_v*                                                                      # sr #126192, removed L1FastJet from name
 HLT_BTagMu_Jet300_Mu5_v*                                                                        # sr #126192, removed L1FastJet from name
 
-HLT_BTagMu_Jet20_Mu4_v*                                                                         # sr #130245
-HLT_BTagMu_Jet60_Mu4_v*                                                                         # sr #130245
+HLT_BTagMu_Jet20_Mu4_v*										# sr #130245
+HLT_BTagMu_Jet60_Mu4_v*										# sr #130245
 
 #HLT_HT250_DoubleDisplacedPFJet60_v*                                                            # sr #126222, removed L1FastJet from name, removed by sr #128276
 #HLT_HT250_DoubleDisplacedPFJet60_ChgFraction10_v*                                              # sr #126222, removed L1FastJet from name, removed by sr #128276
@@ -34,8 +34,8 @@ HLT_QuadJet75_55_38_20_BTagIP_VBF_v*                                            
 HLT_QuadPFJet78_61_44_31_BTagCSV_VBF_v*                                                         # sr #128529
 HLT_QuadPFJet82_65_48_35_BTagCSV_VBF_v*                                                         # sr #128530
 
-HLT_QuadJet75_55_35_20_VBF_v*                                                                   # sr #132735
-HLT_QuadPFJet78_61_44_31_VBF_v*                                                                 # sr #132736
+HLT_QuadJet75_55_35_20_VBF_v*									# sr #132735
+HLT_QuadPFJet78_61_44_31_VBF_v*									# sr #132736
 
 #HLT_Jet80Eta1p7_Jet70Eta1p7_DiBTagIP3D_v*                                                      # sr #126241, removed L1FastJet from name, removed by sr #128194
 #HLT_Jet60Eta1p7_Jet53Eta1p7_DiBTagIP3D_v*                                                      # sr #126241, removed L1FastJet from name, removed by sr #128194
@@ -104,7 +104,7 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v*     
 #HLT_Mu20_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                               # sr #127305, removed by sr #128283
 #HLT_Mu20_eta2p1_TriCentralPFNoPUJet30_v*                                                       # sr #127305, removed by sr #128283
 #HLT_Mu20_eta2p1_TriCentralPFNoPUJet50_40_30_v*                                                 # sr #127305, removed by sr #128283
-HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v*                            # sr #129852
+HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_DiCentralPFNoPUJet30_v*				# sr #129852
 
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_v*                                                        # sr #128283
 HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                             # sr #128283
@@ -122,8 +122,8 @@ HLT_Mu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v*                                
 #HLT_Ele25_CaloIdVL_CaloIsoT_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_30_20_v*                     # sr #128556, removed by sr #129788
 #HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30_30_20_v*                                              # sr #128556, removed by sr #129788
 #HLT_Mu17_eta2p1_TriCentralPFNoPUJet30_30_20_v*                                                 # sr #128556, removed by sr #129788
-HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25_v*                     # sr #129788
-HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25_v*                                               # sr #129788
+HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25_v*			# sr #129788
+HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25_v*						# sr #129788
 HLT_Mu17_eta2p1_TriCentralPFNoPUJet45_35_25_v*                                                  # sr #129788
 
 #HLT_Ele30_CaloIdVT_TrkIdT_PFJet100_PFJet25_v*                                                  # sr #126292, removed by sr #129401
@@ -322,16 +322,16 @@ HLT_L2Mu70_2Cha_eta2p1_PFMET60_v*                                               
 #HLT_Mu24_CentralPFJet30_CentralPFJet25_v*                                                      # sr #128209, removed by sr #131969
 #HLT_Mu24_PFJet30_PFJet25_Deta3_CentralPFJet25_v*                                               # sr #128209, removed by sr #131969
 
-HLT_IsoMu18_CentralPFJet30_CentralPFJet25_PFMET20_v*                                            # sr #131969
-HLT_IsoMu18_CentralPFJet30_CentralPFJet25_v*                                                    # sr #131969
-HLT_Mu18_CentralPFJet30_CentralPFJet25_v*                                                       # sr #131969
-HLT_IsoMu18_PFJet30_PFJet25_Deta3_CentralPFJet25_v*                                             # sr #131969
-HLT_IsoMu18_PFJet30_PFJet25_Deta3_v*                                                            # sr #131969
-HLT_Mu18_PFJet30_PFJet25_Deta3_CentralPFJet25_v*                                                # sr #131969
-HLT_Ele24_WP80_CentralPFJet35_CentralPFJet25_v*                                                 # sr #131969
-HLT_Ele24_WP80_PFJet30_PFJet25_Deta3_v*                                                         # sr #131969
-HLT_Ele24_WP80_PFJet30_PFJet25_Deta3_CentralPFJet30_v*                                          # sr #131969
-HLT_Ele24_WP80_CentralPFJet35_CentralPFJet25_PFMET20_v*                                         # sr #131969
+HLT_IsoMu18_CentralPFJet30_CentralPFJet25_PFMET20_v*						# sr #131969
+HLT_IsoMu18_CentralPFJet30_CentralPFJet25_v*							# sr #131969
+HLT_Mu18_CentralPFJet30_CentralPFJet25_v*							# sr #131969
+HLT_IsoMu18_PFJet30_PFJet25_Deta3_CentralPFJet25_v*						# sr #131969
+HLT_IsoMu18_PFJet30_PFJet25_Deta3_v*								# sr #131969
+HLT_Mu18_PFJet30_PFJet25_Deta3_CentralPFJet25_v*						# sr #131969
+HLT_Ele24_WP80_CentralPFJet35_CentralPFJet25_v*							# sr #131969
+HLT_Ele24_WP80_PFJet30_PFJet25_Deta3_v*								# sr #131969
+HLT_Ele24_WP80_PFJet30_PFJet25_Deta3_CentralPFJet30_v*						# sr #131969
+HLT_Ele24_WP80_CentralPFJet35_CentralPFJet25_PFMET20_v*						# sr #131969
 
 #HLT_Dimuon3p5_SameSign_v*                                                                      # sr #126442, superseeded by sr #126726
 #HLT_Tau2Mu_RegPixTrack_v*                                                                      # sr #126442, superseeded by sr #126726
@@ -387,7 +387,7 @@ HLT_DoubleMu3p5_LowMassNonResonant_Displaced_v*                                 
 HLT_Mu7_Track7_Jpsi_v*                                                                          #claimed by Higgs
 
 HLT_Dimuon7_PsiPrime_v*                                                                         # sr #128758
-HLT_Mu15_TkMu5_Onia_v*                                                                          # sr #130923
+HLT_Mu15_TkMu5_Onia_v*										# sr #130923
 
 #HLT_Mu18_eta2p1_LooseIsoPFTau20_v*                                                             # sr #126461, removed by sr #128206
 #HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v*                                                          # sr #126461, removed by sr #128206
@@ -434,12 +434,12 @@ HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v*                                       
 HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v*                                                       # sr #127332
 HLT_IsoMu15_eta2p1_LooseIsoPFTau35_Trk20_Prong1_L1ETM20_v*                                      # sr #127332
 
-HLT_IsoMu8_eta2p1_LooseIsoPFTau20_L1ETM26_v*                                                    # sr #131956
-HLT_IsoMu8_eta2p1_LooseIsoPFTau20_v*                                                            # sr #131956
-HLT_Mu8_eta2p1_LooseIsoPFTau20_L1ETM26_v*                                                       # sr #131956
-HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_L1ETM36_v*                                             # sr #131956
-HLT_Ele13_eta2p1_WP90NoIso_LooseIsoPFTau20_L1ETM36_v*                                           # sr #131956
-HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_v*                                                     # sr #131956
+HLT_IsoMu8_eta2p1_LooseIsoPFTau20_L1ETM26_v*							# sr #131956
+HLT_IsoMu8_eta2p1_LooseIsoPFTau20_v*								# sr #131956
+HLT_Mu8_eta2p1_LooseIsoPFTau20_L1ETM26_v*							# sr #131956
+HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_L1ETM36_v*						# sr #131956
+HLT_Ele13_eta2p1_WP90NoIso_LooseIsoPFTau20_L1ETM36_v*						# sr #131956
+HLT_Ele13_eta2p1_WP90Rho_LooseIsoPFTau20_v*							# sr #131956
 
 #HLT_DoubleMediumIsoPFTau25_Trk5_eta2p1_Jet30_v*                                                # sr #127359, removed by sr #128205
 #HLT_DoubleMediumIsoPFTau35_Trk5_eta2p1_Prong1_v*                                               # sr #127359, removed by sr #129017
@@ -454,6 +454,14 @@ HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_v*                                       
 HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v*                                                # sr #129017
 HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_v*                                                       # sr #129017
 HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk1_eta2p1_v*                                              # sr #129017
+
+HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Reg_Jet30_v*                                             # sr #132935
+HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Reg_v*                                                   # sr #132935
+HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_Reg_v*                                            # sr #132935
+HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v*                                                   # sr #132935
+HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk1_eta2p1_Reg_v*                                          # sr #132935
+
+HLT_DoubleIsoL2Tau30_eta2p1_v*									# sr #132936
 
 HLT_DiPFJet40_PFMETnoMu65_MJJ800VBF_AllJets_v*                                                  # sr #126471, sr #127434, removed L1FastJet from name
 HLT_DiPFJet40_PFMETnoMu65_MJJ600VBF_LeadingJets_v*                                              # sr #126471, sr #127434, removed L1FastJet from name
@@ -480,11 +488,11 @@ HLT_Photon75_CaloIdVL_v*                                                        
 HLT_Photon90_CaloIdVL_v*                                                                        # sr #126475
 
 HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v*               # sr #128416
-HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v*               # sr #131928
+HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v*		# sr #131928
 
-HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_Met25_HBHENoiseCleaned_v*                          # sr #131957
-HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_v*                                                 # sr #131957
-HLT_Photon30_v*                                                                                 # sr #131957
+HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_Met25_HBHENoiseCleaned_v*				# sr #131957
+HLT_Photon30_R9Id90_CaloId_HE10_Iso40_EBOnly_v*							# sr #131957
+HLT_Photon30_v*											# sr #131957
 
 HLT_Mu13_Mu8_v*                                                                                 # sr #126489, sr #130299
 HLT_L1SingleMu12_v*                                                                             # sr #126489
@@ -509,6 +517,9 @@ HLT_IsoMu24_eta2p1_v*                                                           
 HLT_Mu24_eta2p1_v*                                                                              # sr #126489
 HLT_Mu15_eta2p1_v*                                                                              # sr #126489
 HLT_IsoMu20_eta2p1_v*                                                                           # sr #126489, #126618
+
+HLT_Mu17_TkMu8_NoDZ_v*										# sr #133334
+HLT_Mu13_Mu8_NoDZ_v*										# sr #133334
 
 HLT_Mu24_v*                                                                                     # sr #128207
 HLT_Mu30_v*                                                                                     # sr #128207
@@ -666,7 +677,7 @@ HLT_ExclDiJet35_HFAND_v*                                                        
 #HLT_ZeroBiasPixel_SingleTrack_v*                                                               # sr #126817, removed by sr #126853
 
 HLT_ZeroBiasPixel_DoubleTrack_v*                                                                # sr #126853
-HLT_DoubleMu4_Acoplanarity03_v*                                                                 # sr #126853
+HLT_DoubleMu4_Acoplanarity03_v*									# sr #126853
 HLT_Dimuon0_Jpsi_NoVertexing_v*                                                                 # sr #126853
 HLT_Mu7_Ele7_CaloIdT_CaloIsoVL_v*                                                               # sr #126853
 
@@ -681,7 +692,7 @@ HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_v*                                        
 HLT_Ele27_WP80_WCandPt80_v*                                                                     # sr #127321
 #HLT_IsoMu20_eta2p1_WCandPt80_v*                                                                # sr #127321, replaced by sr #128565
 
-HLT_IsoMu20_WCandPt80_v*                                                                        # sr #128565
+HLT_IsoMu20_WCandPt80_v*									# sr #128565
 
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30_v*                           # sr #128284, sr129852
 HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet50_40_30_v*                     # sr #128284
@@ -693,10 +704,10 @@ HLT_DiJet35_MJJ650_AllJets_DEta3p5_VBF_v*                                       
 HLT_DiJet35_MJJ700_AllJets_DEta3p5_VBF_v*                                                       # sr #127987
 HLT_DiJet35_MJJ750_AllJets_DEta3p5_VBF_v*                                                       # sr #127987
 
-HLT_Mu15_eta2p1_DiCentral_40_20_v*                                                              # sr#131717
-HLT_Mu15_eta2p1_DiCentral_20_v*                                                                 # sr#131717
+HLT_Mu15_eta2p1_DiCentral_40_20_v*								# sr#131717
+HLT_Mu15_eta2p1_DiCentral_20_v*									# sr#131717
 
-HLT_HcalUTCA_v*                                                                                 # sr#131968
+HLT_HcalUTCA_v*											# sr#131968
 
 HLT_BeamGas_HF_Beam1_v*                                                                         # sr #126174
 HLT_BeamGas_HF_Beam2_v*                                                                         # sr #126174
@@ -718,8 +729,8 @@ DST_L1HTT_Or_L1MultiJet_v*                                                      
 DST_Mu5_HT250_v*                                                                                # sr #128199
 DST_Ele8_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_HT250_v*                                            # sr #128199
 
-HLT_ZeroBias_Parked_v*                                                                          # sr #132298
-HLT_Physics_Parked_v*                                                                           # sr #132298
+HLT_ZeroBias_Parked_v*										# sr #132298
+HLT_Physics_Parked_v*										# sr #132298
 
 HLT_ZeroBias_v*
 HLT_Physics_v*
