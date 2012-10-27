@@ -26,10 +26,13 @@ TrackCandidateLogMessageMon.pluginsMonName = cms.string ( 'TrackCandidate' )
 TrackCandidateLogMessageMon.modules        = cms.vstring( 'initialStepTrackCandidates', 'lowPtTripletStepTrackCandidates', 'pixelPairStepTrackCandidates', 'detachedTripletStepTrackCandidates', 'mixedTripletStepTrackCandidates', 'pixelLessStepTrackCandidates', 'tobTecStepTrackCandidates', 'convTrackCandidates' )
 TrackCandidateLogMessageMon.categories     = cms.vstring( 'TooManySeeds' )
 
+# TrackProducer:FailedPropagation 
 TrackFinderLogMessageMon = DQM.TrackingMonitor.LogMessageMonitor_cfi.LogMessageMon.clone()
 TrackFinderLogMessageMon.pluginsMonName = cms.string ( 'TrackFinder' ) 
 TrackFinderLogMessageMon.modules        = cms.vstring( 'pixelTracks', 'initialStepTracks', 'lowPtTripletStepTracks', 'pixelPairStepTracks', 'detachedTripletStepTracks', 'mixedTripletStepTracks', 'pixelLessStepTracks', 'tobTecStepTracks', 'generalTracks' )
-TrackFinderLogMessageMon.categories     = cms.vstring(  )
+TrackFinderLogMessageMon.categories     = cms.vstring(
+    'FailedPropagation'
+)
 
 FullIterTrackingLogMessageMon = DQM.TrackingMonitor.LogMessageMonitor_cfi.LogMessageMon.clone()
 FullIterTrackingLogMessageMon.pluginsMonName = cms.string ( 'FullIterTracking' ) 
