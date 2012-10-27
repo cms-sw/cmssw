@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HLT/V78 (CMSSW_5_2_7_HLT2)
+# /dev/CMSSW_5_2_6/HLT/V79 (CMSSW_5_2_7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V78')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V79')
 )
 
 streams = cms.PSet( 
@@ -186,8 +186,10 @@ datasets = cms.PSet(
     'HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v3',
     'HLT_L2DoubleMu23_NoVertex_v11',
     'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v3',
+    'HLT_Mu13_Mu8_NoDZ_v1',
     'HLT_Mu13_Mu8_v22',
     'HLT_Mu17_Mu8_v22',
+    'HLT_Mu17_TkMu8_NoDZ_v1',
     'HLT_Mu17_TkMu8_v14',
     'HLT_Mu17_v5',
     'HLT_Mu22_TkMu22_v9',

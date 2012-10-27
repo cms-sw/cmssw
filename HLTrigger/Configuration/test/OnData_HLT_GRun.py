@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v2.0/HLT/V4 (CMSSW_5_2_7_HLT2)
+# /online/collisions/2012/8e33/v2.0/HLT/V5 (CMSSW_5_2_7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v2.0/HLT/V4')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.0/HLT/V5')
 )
 
 process.streams = cms.PSet( 
@@ -156,8 +156,10 @@ process.datasets = cms.PSet(
     'HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v3',
     'HLT_L2DoubleMu23_NoVertex_v11',
     'HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v3',
+    'HLT_Mu13_Mu8_NoDZ_v1',
     'HLT_Mu13_Mu8_v22',
     'HLT_Mu17_Mu8_v22',
+    'HLT_Mu17_TkMu8_NoDZ_v1',
     'HLT_Mu17_TkMu8_v14',
     'HLT_Mu17_v5',
     'HLT_Mu22_TkMu22_v9',
