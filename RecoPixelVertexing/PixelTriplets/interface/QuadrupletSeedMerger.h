@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/LayerTriplets.h"
+//#include "RecoPixelVertexing/PixelTriplets/plugins/LayerTriplets.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
