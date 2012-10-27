@@ -12,7 +12,7 @@ Realistic5TeVCollisionPPbBoostVtxSmearingParameters= cms.PSet(
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.2440),
     Y0 = cms.double(0.3929),
-    Z0 = cms.double(0.4145)
+    Z0 = cms.double(0.4145),
     Beta=cms.double(-0.434)
 )
 
