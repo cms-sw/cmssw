@@ -81,7 +81,14 @@ class HLTProcess(object):
     "HLT_HcalUTCA_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-
+    
+    "HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Reg_Jet30_v*", 
+    "HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Reg_v*",
+    "HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_Reg_v*",
+    "HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v*",
+    "HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk1_eta2p1_Reg_v*",
+# (not really needed for the five above, because the corresponding paths without regional
+#  tracking are already in the HLT menu)
   
     )
 
