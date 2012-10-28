@@ -265,35 +265,35 @@ namespace reco {
 
     /// cast master clone reference to a concrete type                                                                 
     template<typename Ref>
-      Ref masterRef() const GCC11_FINAL  { return masterClone().template castTo<Ref>(); }
+      Ref masterRef() const { return masterClone().template castTo<Ref>(); }
     /// get a component                                                                                                
 
-    template<typename T> T get() const GCC11_FINAL  {
+    template<typename T> T get() const {
       if ( hasMasterClone() ) return masterClone()->get<T>();
       else return reco::get<T>( * this );
     }
     /// get a component                                                                                                
-    template<typename T, typename Tag> T get() const GCC11_FINAL  {
+    template<typename T, typename Tag> T get() const {
       if ( hasMasterClone() ) return masterClone()->get<T, Tag>();
       else return reco::get<T, Tag>( * this );
     }
     /// get a component                                                                                                
-    template<typename T> T get( size_type i ) const GCC11_FINAL  {
+    template<typename T> T get( size_type i ) const {
       if ( hasMasterClone() ) return masterClone()->get<T>( i );
       else return reco::get<T>( * this, i );
     }
     /// get a component                                                                                                
-    template<typename T, typename Tag> T get( size_type i ) const GCC11_FINAL  {
+    template<typename T, typename Tag> T get( size_type i ) const {
       if ( hasMasterClone() ) return masterClone()->get<T, Tag>( i );
       else return reco::get<T, Tag>( * this, i );
     }
     /// number of components                                                                                           
-    template<typename T> size_type numberOf() const GCC11_FINAL  {
+    template<typename T> size_type numberOf() const {
       if ( hasMasterClone() ) return masterClone()->numberOf<T>();
       else return reco::numberOf<T>( * this );
     }
     /// number of components                                                                                           
-    template<typename T, typename Tag> size_type numberOf() const GCC11_FINAL  {
+    template<typename T, typename Tag> size_type numberOf() const {
       if ( hasMasterClone() ) return masterClone()->numberOf<T, Tag>();
       else return reco::numberOf<T, Tag>( * this );
     }
@@ -304,11 +304,11 @@ namespace reco {
       };
 
     template<typename S>
-      typename daughter_iterator<S>::type beginFilter( const S & s ) const GCC11_FINAL  {
+      typename daughter_iterator<S>::type beginFilter( const S & s ) const {
       return boost::make_filter_iterator(s, begin(), end());
     }
     template<typename S>
-      typename daughter_iterator<S>::type endFilter( const S & s ) const GCC11_FINAL  {
+      typename daughter_iterator<S>::type endFilter( const S & s ) const {
       return boost::make_filter_iterator(s, end(), end());
     }
 
