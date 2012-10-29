@@ -9,8 +9,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2012/03/29 16:11:16 $
- *  $Revision: 1.18 $
+ *  $Date: 2012/08/28 14:03:59 $
+ *  $Revision: 1.19 $
  *  \author J. Mans - Minnesota
  *
  *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
@@ -59,27 +59,11 @@ public:
 
   uint32_t denseIndex() const { return hashed_index() ; }
 
-  static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
+  static bool validDenseIndex( uint32_t din ) ;
 
   static HcalDetId detIdFromDenseIndex( uint32_t di ) ;
 
   static const HcalDetId Undefined;
-
-private:
-
-  enum { kHBhalf = 1296 ,
-	 kHEhalf = 1296 ,
-	 kHOhalf = 1080 ,
-	 kHFhalf = 864  ,
-	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
-
-public:
-
-  enum { kSizeForDenseIndexing = 2*kHcalhalf } ;
-  enum { kHBSize = 2*kHBhalf } ;
-  enum { kHESize = 2*kHEhalf } ;
-  enum { kHOSize = 2*kHOhalf } ;
-  enum { kHFSize = 2*kHFhalf } ;
 
 };
 

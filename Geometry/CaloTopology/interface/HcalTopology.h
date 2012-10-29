@@ -19,8 +19,8 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2012/10/26 14:21:00 $
-   $Revision: 1.13 $
+   $Date: 2012/10/29 07:28:55 $
+   $Revision: 1.14 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
@@ -119,7 +119,9 @@ private:
   int decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
 
   /** Is this a valid cell id, ignoring the exclusion list */
+  bool validDetIdPreLS1(const HcalDetId& id) const;
   bool validRaw(const HcalDetId& id) const;
+  unsigned int detId2denseIdPreLS1 (const DetId& id) const;
 
   std::vector<HcalDetId> exclusionList_;
   bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
@@ -154,6 +156,18 @@ private:
   // index is ring;
   typedef std::map<unsigned, std::vector<int> > SegmentationMap;
   SegmentationMap depthSegmentation_;
+
+  enum { kHBhalf = 1296 ,
+	 kHEhalf = 1296 ,
+	 kHOhalf = 1080 ,
+	 kHFhalf = 864  ,
+	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
+  enum { kSizeForDenseIndexingPreLS1 = 2*kHcalhalf } ;
+  enum { kHBSizePreLS1 = 2*kHBhalf } ;
+  enum { kHESizePreLS1 = 2*kHEhalf } ;
+  enum { kHOSizePreLS1 = 2*kHOhalf } ;
+  enum { kHFSizePreLS1 = 2*kHFhalf } ;
+
 };
 
 

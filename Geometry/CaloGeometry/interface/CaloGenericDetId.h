@@ -32,6 +32,7 @@ class CaloGenericDetId : public DetId
       bool isEE()        const { return isEcal() && subdetId() == EEDetId::Subdet ; }
       bool isES()        const { return isEcal() && subdetId() == ESDetId::Subdet ; }
       bool isCalo()      const { return det() == DetId::Calo ; }
+      bool isHcal()      const { return det() == DetId::Hcal ; }
       bool isZDC()       const { return isCalo() && subdetId() == HcalZDCDetId::SubdetectorId ; }
       bool isCastor()    const { return isCalo() && subdetId() == HcalCastorDetId::SubdetectorId ; }
       bool isCaloTower() const { return isCalo() && subdetId() == CaloTowerDetId::SubdetId ; } 
