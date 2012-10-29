@@ -1,7 +1,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"                                                           
 
-#include "vdtMath.h"
+#include "vdt/vdtMath.h"
 
 namespace {
   inline
