@@ -49,7 +49,7 @@ void Analysis_Step5()
 
    string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
-
+/*
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
@@ -89,12 +89,13 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
-
-   InputPattern = "Results/Type5/";   CutIndex = 67; CutIndex_Flip=2;
+*/
+   InputPattern = "Results/Type5/";   CutIndex = 69; CutIndex_Flip=2;
+   InitdEdx("dedxProd");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   SelectionPlot(InputPattern, CutIndex);
-   CutFlow(InputPattern);
+//   SelectionPlot(InputPattern, CutIndex);
+//   CutFlow(InputPattern);
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -397,7 +398,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    Histos[1] = CtrlPt_S2_Is;                     legend.push_back(PtLimitsNames[1]);
    Histos[2] = CtrlPt_S3_Is;                     legend.push_back(PtLimitsNames[2]);
    Histos[3] = CtrlPt_S4_Is;                     legend.push_back(PtLimitsNames[3]);
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0.5, 0,0);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units",TypeMode!=5?0:0.7,TypeMode!=5?0.5:1.0, 0,0);
    DrawLegend(Histos,legend,"", "P");
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));

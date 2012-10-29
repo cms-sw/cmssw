@@ -137,7 +137,7 @@ void InitdEdx(std::string dEdxS_Label_){
       dEdxS_Legend = "I_{as}";
    }else if(dEdxS_Label_=="dedxProd" || dEdxS_Label_=="dedxNPProd"){
       dEdxS_UpLim  = 1.0;
-      dEdxS_Legend = "I_{prod}";
+      dEdxS_Legend = "I_{d}";
    }else{
       dEdxS_UpLim  = 30.0;
       dEdxS_Legend = "I_{h} (MeV/cm)";
