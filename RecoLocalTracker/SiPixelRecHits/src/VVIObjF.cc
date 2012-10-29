@@ -21,7 +21,7 @@
 
 #include <cmath>
 #include <algorithm>
-#include "vdtMath.h"
+#include "vdt/vdtMath.h"
 
 namespace VVIObjFDetails {
   void sincosint(float x, float & sint, float & cint);  //! Private version of the cosine and sine integral
