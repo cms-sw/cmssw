@@ -43,13 +43,11 @@ double GetEventInRange(double min, double max, TH1D* hist, double& error){
   return hist->Integral(binMin,binMax);
 }
 
-double GetMassFromBeta(double P, double beta){
-   double gamma = 1/sqrt(1-beta*beta);
-   return P/(beta*gamma);
-} 
 
 double GetTOFMass(double P, double TOF){
-   return GetMassFromBeta(P, 1/TOF);
+   double beta = 1/TOF;
+   double gamma = 1/sqrt(1-beta*beta);
+   return P/(beta*gamma);
 }
 
 

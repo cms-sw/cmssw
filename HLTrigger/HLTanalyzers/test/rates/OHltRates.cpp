@@ -454,7 +454,7 @@ int main(int argc, char *argv[]){
   /* *************************************************************** */
 
   char sLumi[10]; 
-  sprintf(sLumi,"%1.1e",ILumi); 
+  snprintf(sLumi, 10, "%1.1e",ILumi); 
   TString hltTableFileName= TString("hltTable_") + + TString(sEnergy) + "TeV_" + TString(sLumi) + TString("_") + sConditions + TString("Conditions") + sVersion; 
   TFile *fr = new TFile(hltTableFileName+TString(".root"),"recreate");
   fr->cd();
@@ -519,7 +519,7 @@ int main(int argc, char *argv[]){
 
   if (PrintAll==1) {
     //    char sLumi[10];
-    //    sprintf(sLumi,"%1.1e",ILumi);
+    //    snprintf(sLumi, 10, "%1.1e",ILumi);
     //    TString hltTableFileName= TString("hltTable_") + + TString(sEnergy) + "TeV_" + TString(sLumi) + TString("_") + sConditions + TString("Conditions") + sVersion;
     TString texFile = hltTableFileName + TString(".tex");
     TString dviFile = hltTableFileName + TString(".dvi");

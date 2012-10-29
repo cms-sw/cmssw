@@ -21,6 +21,8 @@
 #include <iomanip>
 #include <unistd.h>
 
+#include <sys/types.h>
+#include <signal.h>
 
 using namespace evf;
 using namespace std;
@@ -458,17 +460,17 @@ UInt_t FUResourceTable::allocateResource()
 bool FUResourceTable::buildResource(MemRef_t* bufRef)
 {
   bool eventComplete=false;
-  
+  bool lastMsg=isLastMessageOfEvent(bufRef);  
   I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block=
     (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)bufRef->getDataLocation();
   
   UInt_t      fuResourceId=(UInt_t)block->fuTransactionId;
   UInt_t      buResourceId=(UInt_t)block->buResourceId;
   FUResource* resource    =resources_[fuResourceId];
-  
   // allocate resource
   if (!resource->fatalError()&&!resource->isAllocated()) {
     FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
+    if(cell==0){bufRef->release(); return eventComplete;}
     resource->allocate(cell);
     timeval now;
     gettimeofday(&now,0);
@@ -506,7 +508,6 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   // bad event, release msg, and the whole resource if this was the last one
   //else {
   if (resource->fatalError()) {
-    bool lastMsg=isLastMessageOfEvent(bufRef);
     if (lastMsg) {
       shmBuffer_->releaseRawCell(resource->shmCell());
       resource->release();
@@ -519,7 +520,7 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
       bu_->sendDiscard(buResourceId);
       sendAllocate();
     }
-    bufRef->release(); // this should now be safe re: appendToSuperFrag as corrupted blocks will be removed... 
+    //    bufRef->release(); // this should now be safe re: appendToSuperFrag as corrupted blocks will be removed... 
   }
   
   return eventComplete;
@@ -708,6 +709,43 @@ void FUResourceTable::shutDownClients()
     shmBuffer_->scheduleRawEmptyCellForDiscard();
   }
   else {
+    int checks=0;
+
+    while(shmBuffer_->nbRawCellsToWrite()<nbClients() && nbClients()!=0)
+      {
+	checks++;
+	vector<pid_t> prcids=clientPrcIds();
+	for (UInt_t i=0;i<prcids.size();i++) {
+	  pid_t pid   =prcids[i];
+	  int   status=kill(pid,0);
+	  if (status!=0) {
+	    LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" completed with error.");
+	    handleCrashedEP(runNumber_,pid);
+	  }
+	}
+  
+	LOG4CPLUS_WARN(log_,"no cell to write stop " << shmBuffer_->nbRawCellsToWrite() 
+		       << " nClients " << nbClients());
+	if(checks>10){
+	  string msg = "No Raw Cell to Write STOP messages";
+	  XCEPT_RAISE(evf::Exception,msg);
+	}
+	::usleep(500000);
+      }
+    nbClientsToShutDown_ = nbClients();
+    if(nbClientsToShutDown_==0){
+      UInt_t n=nbResources();
+      for (UInt_t i=0;i<n;i++) {
+	evt::State_t state=shmBuffer_->evtState(i);
+	if (state!=evt::EMPTY){
+	  LOG4CPLUS_WARN(log_,"Schedule discard at STOP for orphaned event in state " 
+			 << state);
+	  shmBuffer_->setEvtDiscard(i,1);
+	  shmBuffer_->scheduleRawCellForDiscardServerSide(i);
+	}
+      }
+      shmBuffer_->scheduleRawEmptyCellForDiscard();
+    }
     UInt_t n=nbClientsToShutDown_;
     for (UInt_t i=0;i<n;++i) shmBuffer_->writeRawEmptyEvent();
   }
@@ -1033,8 +1071,9 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
 //______________________________________________________________________________
 bool FUResourceTable::isLastMessageOfEvent(MemRef_t* bufRef)
 {
-  while (0!=bufRef->getNextReference()) bufRef=bufRef->getNextReference();
-  
+  while (0!=bufRef->getNextReference()) {
+    bufRef=bufRef->getNextReference();
+  }
   I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block=
     (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)bufRef->getDataLocation();
   
@@ -1042,7 +1081,6 @@ bool FUResourceTable::isLastMessageOfEvent(MemRef_t* bufRef)
   UInt_t nBlock    =block->nbBlocksInSuperFragment;
   UInt_t iSuperFrag=block->superFragmentNb;
   UInt_t nSuperFrag=block->nbSuperFragmentsInEvent;
-
   return ((iSuperFrag==nSuperFrag-1)&&(iBlock==nBlock-1));
 }
 
@@ -1078,4 +1116,6 @@ void FUResourceTable::lastResort()
     shmBuffer_->scheduleRawCellForDiscardServerSide(newCell->index());
     std::cout << "lastResort: schedule raw cell for discard" << std::endl;
   }
+  //trigger the shutdown (again?)
+  shmBuffer_->scheduleRawEmptyCellForDiscard();
 }

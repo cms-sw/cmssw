@@ -1,6 +1,7 @@
 
 #include "GeneratorInterface/HiGenCommon/interface/HiGenEvtSelectorFactory.h"
 #include "GeneratorInterface/HiGenCommon/interface/EcalGenEvtSelector.h"
+#include "GeneratorInterface/HiGenCommon/interface/EcalGenEvtSelectorFrag.h"
 #include "GeneratorInterface/HiGenCommon/interface/MultiCandGenEvtSelector.h"
 #include "GeneratorInterface/HiGenCommon/interface/PartonHadronDecayGenEvtSelector.h"
 #include "GeneratorInterface/HiGenCommon/interface/HadronDecayGenEvtSelector.h"
@@ -10,6 +11,8 @@ BaseHiGenEvtSelector* HiGenEvtSelectorFactory::get(std::string filterType, const
      return new BaseHiGenEvtSelector(pset);
    }else if(filterType == "EcalGenEvtSelector"){
      return new EcalGenEvtSelector(pset);
+   }else if(filterType == "EcalGenEvtSelectorFrag"){
+     return new EcalGenEvtSelectorFrag(pset);
    }else if(filterType == "MultiCandGenEvtSelector"){
      return new MultiCandGenEvtSelector(pset);
    }else if(filterType == "PartonHadronDecayGenEvtSelector"){

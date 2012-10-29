@@ -1,0 +1,119 @@
+***DoubleMu***
+Trigger Rates [Hz] : 
+         Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
+----------------------------------------------------------------------------------------------
+                                HLT_L1DoubleMu0_v4 (    1510*20  )     0.705 +-   0.022 |    0.705 |    0.705
+                                HLT_L2DoubleMu0_v7 (     470*20  )     0.873 +-   0.024 |    0.866 |    1.571
+                      HLT_L2DoubleMu23_NoVertex_v7 (      20*1  )     0.836 +-   0.024 |    0.835 |    2.406
+                      HLT_L2DoubleMu30_NoVertex_v3 (       1*1  )     9.498 +-   0.080 |    9.038 |   11.444
+                  OpenHLT_L2DoubleMu45_NoVertex_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   11.444
+                                 HLT_DoubleMu3_v10 (      45*20  )     1.307 +-   0.030 |    1.279 |   12.724
+                                  HLT_DoubleMu5_v1 (      10*20  )     1.160 +-   0.028 |    0.981 |   13.705
+                                  HLT_DoubleMu6_v8 (      90*1  )     1.156 +-   0.028 |    1.126 |   14.831
+                                  HLT_DoubleMu7_v8 (      45*1  )     1.268 +-   0.029 |    0.617 |   15.447
+                                 HLT_DoubleMu45_v6 (       1*1  )     0.231 +-   0.012 |    0.087 |   15.535
+               OpenHLT_DoubleMu7_Acoplanarity03_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   15.535
+                                   HLT_Mu13_Mu8_v7 (       1*1  )    17.920 +-   0.109 |   15.634 |   31.169
+                                   HLT_Mu17_Mu8_v7 (       1*1  )    11.207 +-   0.086 |    0.000 |   31.169
+                             OpenHLT_Mu17_TkMu8_v1 (       1*  )     0.000 +-   0.000 |    0.000 |   31.169
+                                  HLT_TripleMu5_v9 (       1*1  )     1.841 +-   0.035 |    1.357 |   32.525
+                           HLT_DoubleMu5_IsoMu5_v8 (       1*1  )     0.341 +-   0.015 |    0.000 |   32.525
+                                 HLT_Mu8_Jet40_v10 (    2310*20  )     0.030 +-   0.004 |    0.030 |   32.555
+
+                                               TOTAL RATE : 32.555 +- 0.147 Hz
+
+***SingleMu***
+Trigger Rates [Hz] :
+         Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
+----------------------------------------------------------------------------------------------
+                               HLT_L1SingleMu10_v4 (    4480*30  )     0.359 +-   0.015 |    0.359 |    0.359
+                               HLT_L1SingleMu20_v4 (    3990*15  )     0.341 +-   0.015 |    0.341 |    0.700
+                                     HLT_L2Mu10_v6 (     640*30  )     0.513 +-   0.019 |    0.435 |    1.135
+                                     HLT_L2Mu20_v6 (     430*20  )     0.438 +-   0.017 |    0.438 |    1.573
+                                       HLT_Mu5_v10 (     640*240  )     0.265 +-   0.013 |    0.265 |    1.838
+                                        HLT_Mu8_v8 (      40*240  )     0.919 +-   0.025 |    0.863 |    2.701
+                                       HLT_Mu12_v8 (      70*80  )     0.310 +-   0.014 |    0.309 |    3.010
+                                       HLT_Mu15_v9 (      65*30  )     0.407 +-   0.016 |    0.405 |    3.414
+                                       HLT_Mu20_v8 (      30*20  )     0.637 +-   0.021 |    0.621 |    4.035
+                                       HLT_Mu24_v8 (      25*15  )     0.416 +-   0.017 |    0.415 |    4.450
+                                HLT_Mu24_eta2p1_v1 (     200*1  )     0.780 +-   0.023 |    0.777 |    5.227
+                                       HLT_Mu30_v8 (      10*20  )     0.553 +-   0.019 |    0.358 |    5.585
+                                HLT_Mu30_eta2p1_v1 (     160*1  )     0.586 +-   0.020 |    0.458 |    6.043
+                                       HLT_Mu40_v6 (       4*15  )     0.995 +-   0.026 |    0.941 |    6.984
+                                HLT_Mu40_eta2p1_v1 (       1*1  )    47.157 +-   0.177 |   45.397 |   52.381
+                                HLT_Mu60_eta2p1_v1 (       1*1  )    23.695 +-   0.126 |    0.000 |   52.381
+                               HLT_Mu100_eta2p1_v1 (       1*1  )    13.119 +-   0.094 |    0.000 |   52.381
+                                   HLT_IsoMu15_v14 (      15*30  )     0.773 +-   0.023 |    0.691 |   53.072
+                             HLT_IsoMu15_eta2p1_v1 (     140*1  )     1.524 +-   0.032 |    1.260 |   54.332
+                                   HLT_IsoMu17_v14 (       0*30  )     0.000 +-   0.000 |    0.000 |   54.332
+                                    HLT_IsoMu20_v9 (       8*20  )     0.653 +-   0.021 |    0.383 |   54.715
+                                    HLT_IsoMu24_v9 (       8*15  )     0.692 +-   0.021 |    0.332 |   55.047
+                             HLT_IsoMu24_eta2p1_v3 (       1*1  )    66.907 +-   0.211 |   36.264 |   91.311
+                             HLT_IsoMu30_eta2p1_v3 (       1*1  )    51.648 +-   0.186 |    0.000 |   91.311
+                             HLT_IsoMu34_eta2p1_v1 (       1*1  )    40.277 +-   0.164 |    0.000 |   91.311
+
+                                               TOTAL RATE : 91.311 +- 0.247 Hz
+
+
+***SingleElectron***
+Trigger Rates [Hz] : 
+         Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
+----------------------------------------------------------------------------------------------
+   HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v5 (      20*0  )     0.000 +-   0.000 |    0.000 |    0.000
+                          HLT_Ele27_WP80_PFMT50_v4 (       1*1  )     0.863 +-   0.024 |    0.863 |    0.863
+OpenHLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |    0.863
+                             OpenHLT_Ele27_WP80_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |    0.863
+                          HLT_Ele32_WP70_PFMT50_v4 (       1*1  )    12.365 +-   0.091 |   11.912 |   12.776
+                             OpenHLT_Ele32_WP70_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   12.776
+  HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v5 (     480*1  )     0.630 +-   0.021 |    0.608 |   13.384
+OpenHLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   13.384
+     HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v7 (      80*1  )     0.887 +-   0.024 |    0.606 |   13.989
+                      HLT_Ele65_CaloIdVT_TrkIdT_v4 (       1*1  )    11.092 +-   0.086 |    9.816 |   23.805
+                  OpenHLT_Ele80_CaloIdVT_TrkIdT_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   23.805
+                 OpenHLT_Ele100_CaloIdVT_TrkIdT_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   23.805
+
+                                               TOTAL RATE : 23.805 +- 0.126 Hz
+
+***Tau***
+Trigger Rates [Hz] : 
+         Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
+----------------------------------------------------------------------------------------------
+                     HLT_MediumIsoPFTau35_Trk20_v1 (      11*40  )     0.793 +-   0.023 |    0.793 |    0.793
+               HLT_MediumIsoPFTau35_Trk20_MET60_v1 (       1*1  )    15.513 +-   0.102 |   15.509 |   16.302
+               HLT_MediumIsoPFTau35_Trk20_MET70_v1 (       1*1  )     5.507 +-   0.061 |    0.000 |   16.302
+               HLT_DoubleIsoPFTau45_Trk5_eta2p1_v3 (       1*1, 1  )     4.117 +-   0.052 |    4.050 |   20.352
+           OpenHLT_DoubleIsoPFTau55_Trk5_eta2p1_v1 (       1*1, 1  )     0.000 +-   0.000 |    0.000 |   20.352
+          HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v3 (       0*10, 20  )     0.000 +-   0.000 |    0.000 |   20.352
+
+                                               TOTAL RATE : 20.352 +- 0.117 Hz
+
+
+***TauPlusX***
+Trigger Rates [Hz] : 
+         Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
+----------------------------------------------------------------------------------------------
+        HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v8 (       1*1  )     0.677 +-   0.021 |    0.677 |    0.677
+    OpenHLT_HT400_DoubleIsoPFTau10_Trk3_PFMHT50_v1 (       1*1400, 1  )     0.000 +-   0.000 |    0.000 |    0.677
+                       HLT_Mu15_LooseIsoPFTau15_v9 (       0*30  )     0.000 +-   0.000 |    0.000 |    0.677
+                    HLT_IsoMu15_LooseIsoPFTau15_v9 (       0*30  )     0.000 +-   0.000 |    0.000 |    0.677
+             HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v1 (       1*1  )    13.767 +-   0.096 |   13.767 |   14.444
+            HLT_IsoMu15_eta2p1_MediumIsoPFTau20_v1 (       1*1  )     6.812 +-   0.067 |    0.002 |   14.446
+             HLT_IsoMu15_eta2p1_TightIsoPFTau20_v1 (       1*1  )     5.250 +-   0.059 |    0.000 |   14.446
+     HLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20_v1 (       4*30  )     0.387 +-   0.016 |    0.387 |   14.833
+HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v1 (       1*30  )     0.505 +-   0.018 |    0.378 |   15.211
+HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v1 (       1*1, 0  )    10.895 +-   0.085 |   10.454 |   25.665
+OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau25_v1 (       1*  )     0.000 +-   0.000 |    0.000 |   25.665
+
+                                               TOTAL RATE : 25.665 +- 0.131 Hz
+
+***HighPileUp***
+Trigger Rates [Hz] : 
+         Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
+----------------------------------------------------------------------------------------------
+                           OpenHLT_800TowCal0p5_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |    0.000
+                           OpenHLT_950TowCal0p6_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |    0.000
+                                    HLT_60Jet10_v1 (     200*1  )     6.714 +-   0.067 |    6.714 |    6.714
+                                    HLT_70Jet10_v1 (      70*1  )     5.177 +-   0.059 |    4.932 |   11.646
+                                    HLT_70Jet13_v1 (       4*1  )     1.938 +-   0.036 |    1.854 |   13.500
+
+                                               TOTAL RATE : 13.500 +- 0.095 Hz

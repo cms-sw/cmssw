@@ -210,7 +210,7 @@ namespace sistrip{
 	      back_inserter(cmSubtrRawDigis),
 	      boost::bind(&SiStripRawDigi::adc ,_1)
 	      );
-    algorithms->suppressor->suppress(cmSubtrRawDigis,
+    algorithms->suppressor->suppress(cmSubtrRawDigis, 0,
 				     zsDetSetData);
     
   }//end of FEDEmulator::zeroSuppress method.

@@ -69,6 +69,7 @@ class TrackBuildingAnalyzer
         MonitorElement* SeedPt;
         MonitorElement* SeedEta;
         MonitorElement* SeedPhi;
+	MonitorElement* SeedPhiVsEta;
         MonitorElement* SeedTheta;
         MonitorElement* SeedQ;
         MonitorElement* SeedDxy;
@@ -98,6 +99,7 @@ class TrackBuildingAnalyzer
        	bool doPT;
 	bool doETA;
 	bool doPHI;
+	bool doPHIVsETA;
 	bool doTheta;
 	bool doQ;
 	bool doDxy;

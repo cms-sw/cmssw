@@ -1,22 +1,23 @@
 <use   name="root"/>
 <use   name="rootrflx"/>
-<use   name="hepmc"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
-<use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/HcalRecHit"/>
+<use   name="DataFormats/WrappedStdDictionaries"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/HeavyIonEvent"/>
-<use   name="CondFormats/DataRecord"/>
+<use   name="DataFormats/CaloTowers"/>
+<use   name="DataFormats/Provenance"/>
 <use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="DataFormats/CaloTowers"/>
-<use   name="DataFormats/TrackReco"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="clhep"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

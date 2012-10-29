@@ -231,12 +231,12 @@ struct RecoMuonValidatorPF::MuonME {
                                   hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinPull, -hDim.wPull, hDim.wPull);
 
     // -- Number of Hits
-    const int nHits = 200;
+    const int nHits = 100;
     hNHits_ = dqm->book1D("NHits", "Number of hits", nHits+1, -0.5, nHits+0.5);
     hNHits_vs_Pt_  = dqm->book2D("NHits_vs_Pt", "Number of hits vs p_{T}",
-                                 hDim.nBinPt, hDim.minPt, hDim.maxPt, nHits/4, -0.5, nHits-0.5);
+                                 hDim.nBinPt, hDim.minPt, hDim.maxPt, nHits/4+1, -0.25, nHits+0.25);
     hNHits_vs_Eta_ = dqm->book2D("NHits_vs_Eta", "Number of hits vs #eta",
-                                 hDim.nBinEta, hDim.minEta, hDim.maxEta, nHits/4, -0.5, nHits-0.5);
+                                 hDim.nBinEta, hDim.minEta, hDim.maxEta, nHits/4+1, -0.25, nHits+0.25);
     hNSimHits_ = dqm->book1D("NSimHits", "Number of simHits", nHits+1, -0.5, nHits+0.5);
 
     const int nLostHits = 5;
@@ -249,16 +249,16 @@ struct RecoMuonValidatorPF::MuonME {
     const int nTrackerHits = 40;
     hNTrackerHits_ = dqm->book1D("NTrackerHits", "Number of valid tracker hits", nTrackerHits+1, -0.5, nTrackerHits+0.5);
     hNTrackerHits_vs_Pt_ = dqm->book2D("NTrackerHits_vs_Pt", "Number of valid traker hits vs p_{T}",
-                                       hDim.nBinPt, hDim.minPt, hDim.maxPt, nTrackerHits/4, -0.5, nTrackerHits-0.5);
+                                       hDim.nBinPt, hDim.minPt, hDim.maxPt, nTrackerHits/4+1, -0.25, nTrackerHits+0.25);
     hNTrackerHits_vs_Eta_ = dqm->book2D("NTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
-                                        hDim.nBinEta, hDim.minEta, hDim.maxEta, nTrackerHits/4, -0.5, nTrackerHits-0.5);
+                                        hDim.nBinEta, hDim.minEta, hDim.maxEta, nTrackerHits/4+1, -0.25, nTrackerHits+0.25);
 
     const int nMuonHits = 60;
     hNMuonHits_ = dqm->book1D("NMuonHits", "Number of valid muon hits", nMuonHits+1, -0.5, nMuonHits+0.5);
     hNMuonHits_vs_Pt_  = dqm->book2D("NMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
-                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, nMuonHits/4, -0.5, nMuonHits-0.5);
+                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, nMuonHits/4+1, -0.25, nMuonHits+0.25);
     hNMuonHits_vs_Eta_ = dqm->book2D("NMuonHits_vs_Eta", "Number of valid muon hits vs #eta",
-                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, nMuonHits/4, -0.5, nMuonHits-0.5);
+                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, nMuonHits/4+1, -0.25, nMuonHits+0.25);
 
     hNDof_ = dqm->book1D("NDof", "Number of DoF", hDim.nDof+1, -0.5, hDim.nDof+0.5);
     hChi2_ = dqm->book1D("Chi2", "#Chi^{2}", hDim.nBinErr, 0., 200.);

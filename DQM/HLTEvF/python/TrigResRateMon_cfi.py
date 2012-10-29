@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: TrigResRateMon_cfi.py,v 1.7 2011/07/20 19:26:54 lwming Exp $
+# $Id: TrigResRateMon_cfi.py,v 1.3 2010/09/02 10:00:02 rekovic Exp $
 trRateMon = cms.EDAnalyzer("TrigResRateMon",
     dirname = cms.untracked.string("HLT/TrigResults/"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -12,8 +12,8 @@ trRateMon = cms.EDAnalyzer("TrigResRateMon",
     ptMin = cms.untracked.double(0.0),
 		Nbins = cms.untracked.uint32(50),
     referenceBX= cms.untracked.uint32(1),
-		NLuminositySegments= cms.untracked.uint32(1000),
-		LuminositySegmentSize= cms.untracked.double(23.3),
+		NLuminositySegments= cms.untracked.uint32(2000),
+		LuminositySegmentSize= cms.untracked.double(23),
 		NbinsOneOverEt = cms.untracked.uint32(10000),
 
 		muonEtaMax = cms.untracked.double(2.1),
@@ -50,33 +50,6 @@ trRateMon = cms.EDAnalyzer("TrigResRateMon",
             'HLT_L1_BPTX', 
             'HLT_ZeroBias'
       ),
-
-     # Will mask any path whose name
-     # contains any of the following sub-strings
-     # For example: HLT_Mu
-     # will mask all paths that contain the sub-string
-     # HLT_Mu                            
-     MaskedPaths = cms.vstring(
-            'HLT_ZeroBias_v',
-            'HLT_Mu3_v'
-      ),
-
-  ## Robin
-     testPaths = cms.vstring(
-            'HLT_IsoMu24',
-            'HLT_Ele65_CaloIdVT_TrkIdT',
-            'HLT_MET200',           
-            'HLT_Jet370',
-            'HLT_HT550',
-            'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL',
-            'HLT_IsoMu15_LooseIsoPFTau20',
-            'HLT_PFMHT150',
-            'HLT_Photon135',
-            'HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v'
-      ),                           
-
-   # Will pick the first trigger whose name contains this substring
-   ReferenceTrigger = cms.string('HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v'),
 
     paths = cms.VPSet(
              cms.PSet(

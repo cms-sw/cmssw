@@ -10,12 +10,12 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('CSCDBPedestalsRcd'),
-        tag = cms.string('CSCDBPedestals_express')
+        tag = cms.string('CSCDBPedestals_new_popcon')
     )),
-    connect=cms.string("oracle://cms_orcon_prod/CMS_COND_31X_CSC"),
+    connect = cms.string('sqlite_file:DBPedestals.db'),
     #string connect = "frontier://FrontierDev/CMS_COND_CSC"
     DBParameters = cms.PSet(
-        authenticationPath = cms.untracked.string('/nfshome0/popcondev/conddb/'),
+        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb'),
         authenticationMethod = cms.untracked.uint32(0)
     )
 )

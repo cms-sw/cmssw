@@ -74,7 +74,9 @@ dqmFeeder = cms.EDAnalyzer('EmDQMFeeder',
                            PtMax = cms.untracked.double(100.0),
                            isData = cms.bool(False),
                            verbosity = cms.untracked.uint32(0),
-                           mcMatchedOnly = cms.untracked.bool(True)
+                           mcMatchedOnly = cms.untracked.bool(True),
+                           noPhiPlots = cms.untracked.bool(True),
+                           noIsolationPlots = cms.untracked.bool(True)
                           )
 
 # selectors go into separate "prevalidation" sequence

@@ -29,11 +29,9 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
 			       const PixelClusterParameterEstimator* cpe,
 			       float weight, float annealing,
 			       bool computeCoarseLocalPosition) : 
-  TransientTrackingRecHit(geom, *rh, weight, annealing), theCPE(cpe) 
+  TransientTrackingRecHit(geom, *rh, weight, annealing), theHitData(*rh), theCPE(cpe)
 {
-  if (rh->hasPositionAndError() || !computeCoarseLocalPosition)
-    theHitData = SiPixelRecHit(*rh);
-  else{
+  if (! (rh->hasPositionAndError() || !computeCoarseLocalPosition)) {
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
     if (gdu){
       PixelClusterParameterEstimator::LocalValues lval= theCPE->localParameters(*rh->cluster(), *gdu);
@@ -41,7 +39,6 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
       theHitData = SiPixelRecHit(lval.first, lval.second,geom->geographicalId(),rh->cluster());
     }else{
       edm::LogError("TSiPixelRecHit") << " geomdet does not cast into geomdet unit. cannot create pixel local parameters.";
-      theHitData = SiPixelRecHit(*rh);
     }
   }
 

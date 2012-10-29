@@ -23,7 +23,7 @@ def mergeProcess(*inputFiles, **options):
     supported options:
 
     - process_name : name of the procee, defaults to Merge
-    - dqm_format   : specifies that input and output file format should be DQM IO
+    - newDQMIO     : specifies if the new DQM format should be used to merge the files
     - output_file  : sets the output file name
     - output_lfn   : sets the output LFN
 
@@ -35,7 +35,7 @@ def mergeProcess(*inputFiles, **options):
     outputFilename = options.get("output_file", "Merged.root")
     outputLFN = options.get("output_lfn", None)
     dropDQM = options.get("drop_dqm", False)
-    dqmFormat = options.get("dqm_format", False)
+    newDQMIO = options.get("newDQMIO", False)
     
     #  //
     # // build process
@@ -45,7 +45,7 @@ def mergeProcess(*inputFiles, **options):
     #  //
     # // input source
     #//
-    if dqmFormat:
+    if newDQMIO:
         process.source = Source("DQMRootSource")
         process.Merged = OutputModule("DQMRootOutputModule")
         process.add_(Service("DQMStore"))

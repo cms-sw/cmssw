@@ -24,8 +24,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2011/06/30 11:52:29 $
-  * $Revision: 1.54 $
+  * $Date: 2011/05/23 14:54:10 $
+  * $Revision: 1.51 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -102,11 +102,11 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   bool present_rechit[85][72][4]; // tests that rechit with energy > threshold at least once
   unsigned int recentoccupancy_digi[85][72][4]; // tests that cells haven't gone missing for long periods
   unsigned int recentoccupancy_rechit[85][72][4]; // tests that cells haven't dropped below threshold for long periods
-  unsigned int occupancy_RBX[156];
+  unsigned int occupancy_RBX[132];
   
   int deadevt_; // running count of events processed since last dead cell check
   int is_RBX_loss_;
-  int rbxlost[156];
+  int rbxlost[132];
   int alarmer_counter_;
   bool hbhedcsON, hfdcsON;
   unsigned int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;

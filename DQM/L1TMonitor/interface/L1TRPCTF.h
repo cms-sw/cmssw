@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2009/11/19 14:34:30 $
- * $Revision: 1.21 $
+ * $Date: 2009/10/19 12:30:19 $
+ * $Revision: 1.20 $
  * \author J. Berryhill
  *
 */
@@ -32,6 +32,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DQM/L1TMonitor/interface/L1TRateHelper.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -70,6 +71,7 @@ void endRun(const edm::Run & r, const edm::EventSetup & c);
 
 
 private:
+  void fillRateHistos(int orbit, bool flush=false);
 
   
   // ----------member data ---------------------------
@@ -87,11 +89,15 @@ private:
   MonitorElement* m_muonsEtaPhi[3];
   //MonitorElement* m_phipacked;
   
+  MonitorElement * m_rateAvg;
+  MonitorElement * m_rateMin;
+  MonitorElement * m_rateMax;
   MonitorElement* m_bxDiff;
   MonitorElement* rpctfcratesynchro[12];
   std::set<unsigned long long int>  m_globBX;
   
   
+  L1TRateHelper::L1TRateHelper m_rateHelper;
 
 
   edm::InputTag rpctfSource_ ;
@@ -104,6 +110,9 @@ private:
   //bool m_rpcDigiFine;
   //bool m_useRpcDigi;
 
+  int m_rateUpdateTime;
+  int m_rateBinSize;
+  int m_rateNoOfBins;
   long long int m_lastUsedBxInBxdiff;
   std::string output_dir_;
   struct BxDelays { int bx, eta_t, phi_p; };  

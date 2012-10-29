@@ -280,7 +280,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<RPCRecHitCollection> rpcHits;
   iEvent.getByLabel(RPCRecHitLabel_,rpcHits);  
   
-  if(rpcHits.isValid()) return;
+  if(!rpcHits.isValid()) return;
   
   if(incldt){
     if(debug) std::cout<<"\t Getting the DT Segments"<<std::endl;

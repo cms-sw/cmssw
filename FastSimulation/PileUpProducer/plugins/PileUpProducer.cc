@@ -228,7 +228,16 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   HepMC::GenEvent* evt = new HepMC::GenEvent();
   
   // How many pile-up events?
-  int PUevts = usePoisson_ ? (int) random->poissonShoot(averageNumber_) : (int) hprob->GetRandom();
+  int PUevts; float truePUevts;
+  if (usePoisson_) {
+    PUevts = (int) random->poissonShoot(averageNumber_);
+    truePUevts = (float) averageNumber_;
+  }
+  else {
+    float d = (float) hprob->GetRandom();
+    PUevts = (int) d;
+    truePUevts = d;
+  }
   //  std::cout << "PUevts = " << PUevts << std::endl;
 
   // Save this information in the PileupMixingContent object
@@ -242,7 +251,7 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   numInteractionList.push_back(PUevts);
   
   std::vector<float> trueInteractionList;
-  trueInteractionList.push_back((float)averageNumber_);
+  trueInteractionList.push_back(truePUevts);
   
   PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueInteractionList));
   iEvent.put(PileupMixing_);

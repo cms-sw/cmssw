@@ -1,4 +1,4 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
 #____________________________________________________________________ 
 # File: PackageManagement.pl
 #____________________________________________________________________ 
@@ -6,12 +6,14 @@
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # (Tagcollector interface taken from CmsTCPackageList.pl (author D.Lange))
 # Update: 2006-04-10 16:15:32+0200
-# Revision: $Id: PackageManagement.pl,v 1.14 2009/02/06 08:05:48 andreasp Exp $ 
+# Revision: $Id: PackageManagement.pl,v 1.9 2011/08/24 15:54:40 muzaffar Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
 #--------------------------------------------------------------------
 use Cwd;
+use File::Spec;
+use File::Temp qw/ tempfile /;
 use Getopt::Long ();
 
 # Fixed parameters:
@@ -30,6 +32,7 @@ my $versionfile;
 my $packagelist;
 my $startdir=cwd();
 my $package_search_regexp = '*';
+my $checkout="co";
 
 # Support for colours in messages:
 if ( -t STDIN && -t STDOUT && $^O !~ /MSWin32|cygwin/ )
@@ -39,6 +42,7 @@ if ( -t STDIN && -t STDOUT && $^O !~ /MSWin32|cygwin/ )
    $status = "\033[0;35;1m"; # Magenta
    $fail = "\033[0;31;1m";   # Red
    $pass = "\033[0;32;1m";   # Green
+   $ignored = "\033[0;33;1m"; # Yellow
    $good = $bold.$pass;      # Status messages ([OK])
    $error = $bold.$fail;     #                 ([ERROR])
    }
@@ -58,6 +62,9 @@ my %options =
     "dumptags"        => sub { $opts{DUMPTAGLIST} = 1 },
     "anoncvs"         => sub { $opts{ANONCVS} = 1; $cvsroot=$cvsrootAnon; }, 
     "silent"          => sub { $opts{VERBOSE} = 0 },
+    "export"          => sub { $checkout = "export" },
+    "ignore-checkout-errors" => sub { $opts {IGNORECHECKOUTERRORS} = 1 },
+    "-k" => sub { $opts {IGNORECHECKOUTERRORS} = 1 },
     "help"            => sub { &usage(); exit(0)}
     );
 
@@ -134,7 +141,7 @@ else
    # specified packages on the command line. In either case, make copies of the wanted tags:
    if ($opts{MYPACKAGES})
       {
-      $mypfile = cwd()."/".$mypackagefile;
+      $mypfile = File::Spec->rel2abs($mypackagefile);
       if ($opts{QUERY})
 	 {
 	 my $mypacklist=&getmypackages($mypfile);
@@ -337,7 +344,7 @@ sub do_checkout()
 	    $statmsg=" (updated)";
 	    print "-> ".$status."Removing $pkg for a clean re-checkout:".$normal."\n",if ($opts{VERBOSE});
 	    my $rv = system("rm","-rf",$pkg);
-#	    $rv = system($cvs,"-Q","-d",$cvsroot,"co","-P","-r",$packagelist->{$pkg}, $pkg);      
+#	    $rv = system($cvs,"-Q","-d",$cvsroot,$checkout,"-P","-r",$packagelist->{$pkg}, $pkg);      
 	    $toCoList{$packagelist->{$pkg}}.="$pkg ";
 	    # Check the status of the checkout and report if a package tag doesn't exist:
 	    }
@@ -349,9 +356,17 @@ sub do_checkout()
 	 $toCoList{$packagelist->{$pkg}}.="$pkg ";
          }
   }
+   my $cvspass = undef;
+   my $cvspass_env="";
+   if ($opts{ANONCVS})
+       {
+       $cvspass = File::Temp->new();
+       print $cvspass "/1 :pserver:anonymous\@cmscvs.cern.ch:2401/cvs_server/repositories/CMSSW AA_:yZZ3e\n";
+       $cvspass_env="CVS_PASSFILE=$cvspass"
+       }
    print "$starting to co\n";
    foreach my $tag (keys %toCoList) {
-       my $rv = system("$cvs -Q -d $cvsroot co -r $tag $toCoList{$tag}");
+       my $rv = system("$cvspass_env $cvs -Q -d $cvsroot $checkout -r $tag $toCoList{$tag}");
        if ($rv == 0)
        {
 	   my @sp=split(' ',$toCoList{$tag});
@@ -359,10 +374,20 @@ sub do_checkout()
 	       printf ("Package %-45s version %-13s checkout ".$good."SUCCESSFUL".$normal."\n",$pkg, $tag) if ($opts{VERBOSE});
 	   }
        }
+       elsif ($opts{IGNORECHECKOUTERRORS})
+       {
+    	   my @sp=split(' ',$toCoList{$tag});
+    	   foreach my $pkg (@sp) {
+    	       printf ("Package %-45s version %-13s checkout ".$ignored."ERRORS IGNORED".$normal."\n",$pkg, $tag) if ($opts{VERBOSE});
+    	   }
+       }
        else
        {
-	   printf STDERR ("Package %-45s version %-13s checkout ".$error."FAILED".$normal."\n",$pkg, $tag);
-	   printf STDERR "Checkout ERROR: tag ".$tag." for package $pkg is not correct!","\n";
+	   my @sp=split(' ',$toCoList{$tag});
+	   foreach my $pkg (@sp) {
+	       printf STDERR ("Package %-45s version %-13s checkout ".$error."FAILED".$normal."\n",$pkg, $tag);
+	       printf STDERR "Checkout ERROR: tag ".$tag." for package $pkg is not correct!","\n";
+	   }
 	   print "\n";
 	   exit(1);
        }	       	       	       	       
@@ -406,11 +431,15 @@ sub getpklistfromtc()
    # --no-check-certificate needed for 1.10 and above:
    my $wgetver = (`/usr/bin/wget --version` =~ /^GNU Wget 1\.1.*?/);
    my $options = ""; $options = "--no-check-certificate", if ($wgetver == 1);
-   my $user="cmstcreader";
-   my $pass="CmsTC";
    my $gotpacks=0;
-   
-   open(CMSTCQUERY,"/usr/bin/wget $options  -nv -o /dev/null -O- 'https://$user:$pass\@cmstags.cern.ch/tc/CreateTagList?release=$releaseid' |");
+   if ($wgetver)
+      {
+      open(CMSTCQUERY,"/usr/bin/wget $options  -nv -o /dev/null -O- 'https://cmstags.cern.ch/tc/CreateTagList?release=$releaseid' |");
+      }
+   else
+      {
+      open(CMSTCQUERY,"/usr/bin/curl -L -k --stderr /dev/null 'https://cmstags.cern.ch/tc/CreateTagList?release=$releaseid' |");
+      }
    
    my %tags;
    while ( <CMSTCQUERY> )
@@ -464,6 +493,7 @@ sub usage()
    $string.="--anoncvs                   Use the anonymous CVSROOT to check out packages\n";  
    $string.="--query | -q                Query package lists to see tags. Don't perform any checkouts.\n";
    $string.="--silent | -s               Be silent: don't print anything.\n";
+   $string.="--export | -e               Do cvs expot instead of checkout.\n";
    $string.="--help | -h                 Show this help and exit.\n";
    $string.="\n";
    print $string,"\n";

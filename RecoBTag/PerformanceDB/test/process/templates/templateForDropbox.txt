@@ -1,10 +1,7 @@
 destDB oracle://cms_orcon_prod/CMS_COND_31X_PHYSICSTOOLS
-tag BTagNAMETYPE_VERSION_offline
+tag BTagNAMETYPE_v1_offline
 inputtag NAME_TSHORT
 since 1
 Timetype 
 IOVCheck offline
-DuplicateTagHLT
-DuplicateTagEXPRESS
-DuplicateTagPROMPT
 usertext Upload of BTagging efficiency/mistag rate measurements for NAME.

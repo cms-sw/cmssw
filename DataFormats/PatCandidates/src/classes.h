@@ -6,8 +6,10 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/MHT.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
@@ -183,6 +185,12 @@ namespace {
   edm::Wrapper<std::vector<pat::JetCorrFactors> >  w_v_jcf;
   edm::ValueMap<pat::JetCorrFactors> vm_jcf;
   edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >  w_vm_jcf;
+  //std::vector<pat::TauJetCorrFactors::CorrectionFactor> v_tjcfcf;
+  //edm::Wrapper<std::vector<pat::TauJetCorrFactors::CorrectionFactor> > w_v_tjcfcf;
+  std::vector<pat::TauJetCorrFactors> v_tjcf;
+  edm::Wrapper<std::vector<pat::TauJetCorrFactors> >  w_v_tjcf;
+  edm::ValueMap<pat::TauJetCorrFactors> vm_tjcf;
+  edm::Wrapper<edm::ValueMap<pat::TauJetCorrFactors> >  w_vm_tjcf;
 
   edm::Wrapper<StringMap>   w_sm;
 

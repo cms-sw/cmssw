@@ -1,14 +1,16 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2011/06/27 09:44:05 $
- * $Revision: 1.68 $
+ * $Date: 2011/08/30 09:30:33 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <cmath>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,6 +44,8 @@ EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
+  energyThreshold_ = ps.getUntrackedParameter<double>("energyTreshold",1.0);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
@@ -54,8 +58,6 @@ EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
   meTimeAmpliSummary_ = 0;
   meTimeSummary1D_ = 0;
   meTimeSummaryMap_ = 0;
-  meTimeSummaryMapProjEta_ = 0;
-  meTimeSummaryMapProjPhi_ = 0;
 
 }
 
@@ -97,8 +99,6 @@ void EBTimingTask::reset(void) {
   if ( meTimeAmpliSummary_ ) meTimeAmpliSummary_->Reset();
   if ( meTimeSummary1D_ ) meTimeSummary1D_->Reset();
   if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Reset();
-  if ( meTimeSummaryMapProjEta_ ) meTimeSummaryMapProjEta_->Reset();
-  if ( meTimeSummaryMapProjPhi_ ) meTimeSummaryMapProjPhi_->Reset();
 
 }
 
@@ -106,55 +106,60 @@ void EBTimingTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
+
+  // for timing vs amplitude plots
+  const int nbinsE = 25;
+  const float minlogE = -0.5;
+  const float maxlogE = 2.;
+  float binEdgesE[nbinsE + 1];
+  for(int i = 0; i <= nbinsE; i++)
+    binEdgesE[i] = std::pow((float)10., minlogE + (maxlogE - minlogE) / nbinsE * i);
+
+  const int nbinsT = 200;
+  const float minT = -50.;
+  const float maxT = 50.;
+  float binEdgesT[nbinsT + 1];
+  for(int i = 0; i <= nbinsT; i++)
+    binEdgesT[i] = minT + (maxT - minT) / nbinsT * i;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBTimingTask");
 
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBTMT timing 1D %s", Numbers::sEB(i+1).c_str());
-      meTime_[i] = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+      name = "EBTMT timing 1D " + Numbers::sEB(i+1);
+      meTime_[i] = dqmStore_->book1D(name, name, 50, -25., 25.);
       meTime_[i]->setAxisTitle("time (ns)", 1);
       dqmStore_->tag(meTime_[i], i+1);
 
-      sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
-      meTimeMap_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 50, -25.+shiftProf2D, 25.+shiftProf2D, "s");
+      name = "EBTMT timing " + Numbers::sEB(i+1);
+      meTimeMap_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., -20.+shiftProf2D_, 20.+shiftProf2D_, "s");
       meTimeMap_[i]->setAxisTitle("ieta", 1);
       meTimeMap_[i]->setAxisTitle("iphi", 2);
       meTimeMap_[i]->setAxisTitle("time (ns)", 3);
       dqmStore_->tag(meTimeMap_[i], i+1);
 
-      sprintf(histo, "EBTMT timing vs amplitude %s", Numbers::sEB(i+1).c_str());
-      meTimeAmpli_[i] = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+      name = "EBTMT timing vs amplitude " + Numbers::sEB(i+1);
+      meTimeAmpli_[i] = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
       meTimeAmpli_[i]->setAxisTitle("energy (GeV)", 1);
       meTimeAmpli_[i]->setAxisTitle("time (ns)", 2);
       dqmStore_->tag(meTimeAmpli_[i], i+1);
     }
 
-    sprintf(histo, "EBTMT timing vs amplitude summary");
-    meTimeAmpliSummary_ = dqmStore_->book2D(histo, histo, 100, 0., 10., 50, -50., 50.);
+    name = "EBTMT timing vs amplitude summary";
+    meTimeAmpliSummary_ = dqmStore_->book2D(name, name, nbinsE, binEdgesE, nbinsT, binEdgesT);
     meTimeAmpliSummary_->setAxisTitle("energy (GeV)", 1);
     meTimeAmpliSummary_->setAxisTitle("time (ns)", 2);
 
-    sprintf(histo, "EBTMT timing 1D summary");
-    meTimeSummary1D_ = dqmStore_->book1D(histo, histo, 50, -50., 50.);
+    name = "EBTMT timing 1D summary";
+    meTimeSummary1D_ = dqmStore_->book1D(name, name, 50, -25., 25.);
     meTimeSummary1D_->setAxisTitle("time (ns)", 1);
 
-    sprintf(histo, "EBTMT timing map");
-    meTimeSummaryMap_ = dqmStore_->bookProfile2D(histo, histo, 72, 0., 360., 34, -85, 85, 50, -25.+shiftProf2D, 25.+shiftProf2D, "s");
+    name = "EBTMT timing map";
+    meTimeSummaryMap_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85, 85, -20.+shiftProf2D_, 20.+shiftProf2D_, "s");
     meTimeSummaryMap_->setAxisTitle("jphi", 1);
     meTimeSummaryMap_->setAxisTitle("jeta", 2);
     meTimeSummaryMap_->setAxisTitle("time (ns)", 3);
-
-    sprintf(histo, "EBTMT timing projection eta");
-    meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(histo, histo, 34, -85., 85., 50, -25., 25., "s");
-    meTimeSummaryMapProjEta_->setAxisTitle("jeta", 1);
-    meTimeSummaryMapProjEta_->setAxisTitle("time (ns)", 2);
-
-    sprintf(histo, "EBTMT timing projection phi");
-    meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(histo, histo, 72, 0., 360., 50, -25., 25., "s");
-    meTimeSummaryMapProjPhi_->setAxisTitle("jphi", 1);
-    meTimeSummaryMapProjPhi_->setAxisTitle("time (ns)", 2);
 
   }
 
@@ -186,12 +191,6 @@ void EBTimingTask::cleanup(void){
 
     if ( meTimeSummaryMap_ ) dqmStore_->removeElement( meTimeSummaryMap_->getName() );
     meTimeSummaryMap_ = 0;
-
-    if ( meTimeSummaryMapProjEta_ ) dqmStore_->removeElement( meTimeSummaryMapProjEta_->getName() );
-    meTimeSummaryMapProjEta_ = 0;
-
-    if ( meTimeSummaryMapProjPhi_ ) dqmStore_->removeElement( meTimeSummaryMapProjPhi_->getName() );
-    meTimeSummaryMapProjPhi_ = 0;
 
   }
 
@@ -301,16 +300,14 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( meTimeAmpli ) meTimeAmpli->Fill(xval, yval);
         if ( meTimeAmpliSummary_ ) meTimeAmpliSummary_->Fill(xval, yval);
 
-        if ( xval > 0.480 ) {
+        if ( xval > energyThreshold_ ) {
           if ( meTime ) meTime->Fill(yval);
-          if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval+shiftProf2D);
+          if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval+shiftProf2D_);
           if ( meTimeSummary1D_ ) meTimeSummary1D_->Fill(yval);
 
           float xebeta = id.ieta() - 0.5 * id.zside();
           float xebphi = id.iphi() - 0.5;
-          if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Fill(xebphi, xebeta, yval+shiftProf2D);
-          if ( meTimeSummaryMapProjEta_ ) meTimeSummaryMapProjEta_->Fill(xebeta, yval);
-          if ( meTimeSummaryMapProjPhi_ ) meTimeSummaryMapProjPhi_->Fill(xebphi, yval);
+          if ( meTimeSummaryMap_ ) meTimeSummaryMap_->Fill(xebphi, xebeta, yval+shiftProf2D_);
         }
 
       }

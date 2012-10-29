@@ -65,6 +65,9 @@ namespace edm
     HFPileInputTag_ = ps.getParameter<edm::InputTag>("HFPileInputTag");
     ZDCPileInputTag_ = ps.getParameter<edm::InputTag>("ZDCPileInputTag");
 
+    DoZDC_ = false;
+    if(ZDCPileInputTag_.label() != "") DoZDC_ = true;
+
     HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
     HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
     HFDigiCollectionDM_   = ps.getParameter<std::string>("HFDigiCollectionDM");
@@ -379,38 +382,41 @@ namespace edm
 
     // ZDC Next
 
-    boost::shared_ptr<Wrapper<ZDCDigiCollection>  const> ZDCDigisPTR = 
-          getProductByTag<ZDCDigiCollection>(*ep, ZDCPileInputTag_ );
+    if(DoZDC_) {
+
+
+      boost::shared_ptr<Wrapper<ZDCDigiCollection>  const> ZDCDigisPTR = 
+	getProductByTag<ZDCDigiCollection>(*ep, ZDCPileInputTag_ );
  
-    if(ZDCDigisPTR ) {
+      if(ZDCDigisPTR ) {
 
-     const ZDCDigiCollection*  ZDCDigis = const_cast< ZDCDigiCollection * >(ZDCDigisPTR->product());
+	const ZDCDigiCollection*  ZDCDigis = const_cast< ZDCDigiCollection * >(ZDCDigisPTR->product());
 
-     LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
+	LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
 
-       // loop over digis, adding these to the existing maps
-       for(ZDCDigiCollection::const_iterator it  = ZDCDigis->begin();
-	   it != ZDCDigis->end(); ++it) {
+	// loop over digis, adding these to the existing maps
+	for(ZDCDigiCollection::const_iterator it  = ZDCDigis->begin();
+	    it != ZDCDigis->end(); ++it) {
 
-         // calibration, for future reference:  (same block for all Hcal types)                                
-         HcalDetId cell = it->id();
-         //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
-         const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
-         HcalCoderDb coder (*channelCoder, *shape);
+	  // calibration, for future reference:  (same block for all Hcal types)                                
+	  HcalDetId cell = it->id();
+	  //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
+	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  HcalCoderDb coder (*channelCoder, *shape);
 
-         CaloSamples tool;
-         coder.adc2fC((*it),tool);
+	  CaloSamples tool;
+	  coder.adc2fC((*it),tool);
 
-	 ZDCDigiStorage_.insert(ZDCDigiMap::value_type( (it->id()), tool ));
+	  ZDCDigiStorage_.insert(ZDCDigiMap::value_type( (it->id()), tool ));
 	 
 #ifdef DEBUG	 
-	 LogDebug("DataMixingHcalDigiWorker") << "processed ZDCDigi with rawId: "
-				      << it->id() << "\n"
-				      << " digi energy: " << it->energy();
+	  LogDebug("DataMixingHcalDigiWorker") << "processed ZDCDigi with rawId: "
+					       << it->id() << "\n"
+					       << " digi energy: " << it->energy();
 #endif
-       }
+	}
+      }
     }
-
 
 
   }

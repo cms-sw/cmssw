@@ -13,7 +13,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalCalibRecHit.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
 #include <memory>
 
 /** \class HcalSimpleRecAlgo
@@ -52,7 +52,7 @@ private:
   bool correctForTimeslew_;
   bool correctForPulse_;
   float phaseNS_;
-  std::auto_ptr<HcalPulseContainmentManager> pulseCorr_;
+  std::auto_ptr<HcalPulseContainmentCorrection> pulseCorr_[11];
   bool setForData_;
   bool setLeakCorrection_;
 };

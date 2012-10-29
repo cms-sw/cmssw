@@ -12,8 +12,6 @@
 #include "Validation/RecoEgamma/plugins/ElectronMcFakeValidator.h"
 #include "Validation/RecoEgamma/plugins/ElectronMcFakePostValidator.h"
 #include "Validation/RecoEgamma/plugins/ElectronWebGetter.h"
-#include "Validation/RecoEgamma/plugins/ElectronConversionRejectionValidator.h"
-
 
 DEFINE_FWK_MODULE(EgammaObjects);
 DEFINE_FWK_MODULE(PhotonValidator);
@@ -25,6 +23,4 @@ DEFINE_FWK_MODULE(ElectronMcSignalPostValidator);
 DEFINE_FWK_MODULE(ElectronMcFakeValidator);
 DEFINE_FWK_MODULE(ElectronMcFakePostValidator);
 DEFINE_FWK_MODULE(ElectronWebGetter);
-DEFINE_FWK_MODULE(ElectronConversionRejectionValidator);
-
 

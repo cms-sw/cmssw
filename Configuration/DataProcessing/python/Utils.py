@@ -40,3 +40,51 @@ def addMonitoring(process):
                                  )
     
     return process
+
+
+def validateProcess(process):
+    """
+    _validateProcess_
+    
+    Check attributes of process are appropriate for production
+    This method returns nothing but will throw a RuntimeError for any issues it finds
+    likely to cause problems in the production system
+    
+    """
+    
+    schedule=process.schedule_()
+    paths=process.paths_()
+    endpaths=process.endpaths_()
+    
+    # check output mods are in paths and have appropriate settings
+    for outputModName in process.outputModules_().keys():
+        outputMod = getattr(process, outputModName)
+        if not hasattr(outputMod, 'dataset'):
+            msg = "Process contains output module without dataset PSET: %s \n" % outputModName
+            msg += " You need to add this PSET to this module to set dataTier and filterName\n"
+            raise RuntimeError, msg
+        ds=getattr(outputMod,'dataset')
+        if not hasattr(ds, "dataTier"):
+            msg = "Process contains output module without dataTier parameter: %s \n" % outputModName
+            msg += " You need to add an untracked parameter to the dataset PSET of this module to set dataTier\n"
+            raise RuntimeError, msg
+
+        # check module in path or whatever (not sure of exact syntax for endpath)
+        omRun=False
+
+        if schedule==None:
+            for path in paths:
+                if outputModName in getattr(process,path).moduleNames():
+                    omRun=True
+            for path in endpaths:
+                if outputModName in getattr(process,path).moduleNames():
+                    omRun=True
+        else:
+            for path in schedule:
+                if outputModName in path.moduleNames():
+                    omRun=True
+        if omRun==False:
+            msg = "Output Module %s not in endPath" % outputModName
+            raise RuntimeError, msg
+
+        

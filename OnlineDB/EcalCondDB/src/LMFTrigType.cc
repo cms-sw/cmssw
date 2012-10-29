@@ -36,8 +36,7 @@ LMFTrigType& LMFTrigType::setName(std::string s) {
 
 std::string LMFTrigType::fetchIdSql(Statement *stmt)
 {
-  std::string sql = "SELECT TRIG_TYPE, SNAME, LNAME FROM "
-    "CMS_ECAL_LASER_COND.LMF_TRIG_TYPE_DEF "
+  std::string sql = "SELECT TRIG_TYPE, SNAME, LNAME FROM LMF_TRIG_TYPE_DEF "
     "WHERE "
     "SNAME   = :1";
   stmt->setSQL(sql);
@@ -47,8 +46,7 @@ std::string LMFTrigType::fetchIdSql(Statement *stmt)
 
 std::string LMFTrigType::setByIDSql(Statement *stmt, int id) 
 {
-  std::string sql = "SELECT SNAME, LNAME FROM "
-    "CMS_ECAL_LASER_COND.LMF_TRIG_TYPE_DEF "
+  std::string sql = "SELECT SNAME, LNAME FROM LMF_TRIG_TYPE_DEF "
     "WHERE TRIG_TYPE = :1";
   stmt->setSQL(sql);
   stmt->setInt(1, id);
@@ -67,8 +65,7 @@ LMFTrigType * LMFTrigType::createObject() const {
 }
 
 std::string LMFTrigType::fetchAllSql(Statement *stmt) const {
-  std::string sql = "SELECT TRIG_TYPE FROM "
-    "CMS_ECAL_LASER_COND.LMF_TRIG_TYPE_DEF";
+  std::string sql = "SELECT TRIG_TYPE FROM LMF_TRIG_TYPE_DEF";
   stmt->setSQL(sql);
   return sql;
 }

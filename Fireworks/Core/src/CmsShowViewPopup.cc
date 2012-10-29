@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.28 2010/09/24 18:51:18 amraktad Exp $
+// $Id: CmsShowViewPopup.cc,v 1.29 2011/02/22 18:37:31 amraktad Exp $
 //
 
 // system include files
@@ -198,11 +198,21 @@ ViewerParameterGUI::reset()
    else
       m_selectedTabName = "Style";
 
+   // remove TGTab as the only child
    m_setters.clear();
-   if (m_tab) RemoveFrame(m_tab);
-   m_tab = 0;
-}
+   if (m_tab)
+   {
+      assert( GetList()->GetSize() == 1);
+      TGFrameElement *el = (TGFrameElement*) GetList()->First();
+      TGFrame* f = el->fFrame;
 
+      assert (f == m_tab);
+      f->UnmapWindow();
+      RemoveFrame(f);
+      f->DestroyWindow();
+      m_tab = 0;
+   }
+}
 
 ViewerParameterGUI&
 ViewerParameterGUI::requestTab(const char* name)
@@ -210,7 +220,7 @@ ViewerParameterGUI::requestTab(const char* name)
    if (!m_tab)
    {
       m_tab = new TGTab(this);
-      AddFrame(m_tab,  new TGLayoutHints(kLHintsExpandX));
+      AddFrame(m_tab,  new TGLayoutHints(kLHintsExpandX |kLHintsExpandY ));
    }
 
    if (!m_tab->GetTabContainer(name))
@@ -276,10 +286,10 @@ ViewerParameterGUI::addFrameToContainer(TGCompositeFrame* x)
    parent->Resize(parent->GetDefaultSize());
 }
 
-/* Setup after finish gui build. */
 void
 ViewerParameterGUI::populateComplete()
 {
+   // Set tab - same as it was before, if not exisiting select first time.
    if (m_tab) 
    {
       bool x = m_tab->SetTab(m_selectedTabName.c_str(), false);

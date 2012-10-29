@@ -36,8 +36,6 @@ NAME_TO_TITLE = {
 "segdif_dt13_slope.png" : "segdiff in dxdz residuals",
 "segdif_dt2_resid.png" : "segdiff in y residuals",
 "segdif_dt2_slope.png" : "segdiff in dydz residuals",
-"segdifphi_csc_resid.png" : "segdiff in rphi residuals vs phi",
-"segdifphi_csc_slope.png" : "segdiff in d(rphi)/dz residuals vs phi",
 "segdif_csc_resid.png" : "segdiff in rphi residuals",
 "segdif_csc_slope.png" : "segdiff in d(rphi)/dz residuals",
 "dt_bellcurves.png" : "residuals distributions",

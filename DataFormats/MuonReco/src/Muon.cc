@@ -744,33 +744,19 @@ void Muon::setCombined( const TrackRef & t ) { setGlobalTrack(t); }
 
 
 bool Muon::isAValidMuonTrack(const MuonTrackType& type) const{
-
-  switch (type) {
-  case InnerTrack:     return innerTrack().isNonnull();
-  case OuterTrack:     return standAloneMuon().isNonnull(); 
-  case CombinedTrack:  return globalTrack().isNonnull();
-  default:
-    MuonTrackRefMap::const_iterator iter =  refittedTrackMap_.find(type);
-    if(iter != refittedTrackMap_.end()) return iter->second.isNonnull();
-    else return false;
-  }
-  
+  return muonTrack(type).isNonnull();
 }
 
-
-
 TrackRef Muon::muonTrack(const MuonTrackType& type) const{
-
   switch (type) {
   case InnerTrack:     return innerTrack();
   case OuterTrack:     return standAloneMuon(); 
   case CombinedTrack:  return globalTrack();
-  default:
-    MuonTrackRefMap::const_iterator iter =  refittedTrackMap_.find(type);
-    if(iter != refittedTrackMap_.end()) return iter->second;
-    else return TrackRef();
+  case TPFMS:          return tpfmsTrack();
+  case Picky:          return pickyTrack();
+  case DYT:            return dytTrack();
+  default:             return muonTrackFromMap(type);
   }
-  
 }
 
 void Muon::setMuonTrack(const MuonTrackType& type, const TrackRef& t) {

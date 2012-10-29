@@ -1,8 +1,37 @@
+2011-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-05-01
+	* From Luis: fill total amount of dropped events into monitor
+	  element instead of the differential count.
+
+2011-08-31 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V08-05-00
+	* Move FragKey struct from otherwise unused IOPool/Streamer/HLTInfo into
+	  the EventFilter/StorageManager package.
+
+2011-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-03
+	* From Luis: fill total amount of dropped events into monitor
+	  element instead of the differential count.
+
+2011-08-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-02
+	* Reshuffle some code to avoid dependency on SMProxy header.
+
 2011-07-27 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-04-01
 	* Adjust unit tests to changed interface of InitMsgBuilder of
 	  IOPool/Streamer V07-03-00.
+
+2011-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-00-01
+	* From Luis: fill total amount of dropped events into monitor
+	  element instead of the differential count.
 
 2011-07-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
 

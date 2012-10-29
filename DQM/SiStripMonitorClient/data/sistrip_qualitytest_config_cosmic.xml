@@ -179,13 +179,13 @@
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__side__2__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
 </LINK>
-<LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_GenTk">
+<LINK name="*TrackParameters/GeneralProperties/NumberOfTracks_CKFTk">
   <TestName activate="true">MeanWithinExpectedRange:TrkRate</TestName>
 </LINK>
-<LINK name="*TrackParameters/HitProperties/NumberOfRecHitsPerTrack_GenTk">
+<LINK name="*TrackParameters/HitProperties/NumberOfRecHitsPerTrack_CKFTk">
   <TestName activate="true">XrangeWithin:NumberOfRecHitsPerTrk</TestName>
 </LINK>
-<LINK name="*TrackParameters/GeneralProperties/Chi2oNDF_GenTk">
+<LINK name="*TrackParameters/GeneralProperties/Chi2oNDF_CKFTk">
   <TestName activate="true">XrangeWithin:Chi2overDoF</TestName>
 </LINK>
 </TESTCONFIGURATION>

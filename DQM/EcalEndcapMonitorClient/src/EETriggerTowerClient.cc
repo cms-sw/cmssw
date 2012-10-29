@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2010/08/08 08:46:07 $
- * $Revision: 1.96 $
+ * $Date: 2011/08/30 09:29:45 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,6 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -110,7 +111,7 @@ void EETriggerTowerClient::endRun(void) {
 
 void EETriggerTowerClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EETriggerTowerClient" );
 
@@ -119,15 +120,15 @@ void EETriggerTowerClient::setup(void) {
     int ism = superModules_[i];
 
     if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
-    sprintf(histo, "EETTT Trigger Primitives Timing %s", Numbers::sEE(ism).c_str());
-    me_o01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    name = "EETTT Trigger Primitives Timing " + Numbers::sEE(ism);
+    me_o01_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     me_o01_[ism-1]->setAxisTitle("ix", 1);
     if ( ism >= 1 && ism <= 9 ) me_o01_[ism-1]->setAxisTitle("101-ix", 1);
     me_o01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
-    sprintf(histo, "EETTT Non Single Timing %s", Numbers::sEE(ism).c_str());
-    me_o02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    name = "EETTT Non Single Timing " + Numbers::sEE(ism);
+    me_o02_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     me_o02_[ism-1]->setAxisTitle("ix", 1);
     if ( ism >= 1 && ism <= 9 ) me_o02_[ism-1]->setAxisTitle("101-ix", 1);
     me_o02_[ism-1]->setAxisTitle("iy", 2);
@@ -212,27 +213,22 @@ void EETriggerTowerClient::analyze(void) {
     if ( debug_ ) std::cout << "EETriggerTowerClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EETTT EmulError %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EETriggerTowerTask/EETTT EmulError " + Numbers::sEE(ism) );
+    l01_[ism-1] = UtilsClient::getHisto( me, cloneME_, l01_[ism-1] );
     mel01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EETTT EmulFineGrainVetoError %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    l02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l02_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EETriggerTowerTask/EETTT EmulFineGrainVetoError " + Numbers::sEE(ism) );
+    l02_[ism-1] = UtilsClient::getHisto( me, cloneME_, l02_[ism-1] );
     mel02_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EETriggerTowerTask/EETTT EmulMatch %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    o01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, o01_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EETriggerTowerTask/EETTT EmulMatch " + Numbers::sEE(ism) );
+    o01_[ism-1] = UtilsClient::getHisto( me, cloneME_, o01_[ism-1] );
     meo01_[ism-1] = me;
 
     if ( me_o01_[ism-1] ) me_o01_[ism-1]->Reset();

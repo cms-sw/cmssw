@@ -526,11 +526,29 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 
   TransientTrackingRecHit::ConstRecHitContainer result;
   
+  TrajectoryStateTransform tsTrans;
+
+  TrajectoryStateOnSurface currTsos = tsTrans.innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
+
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
       if ( recoid.det() == DetId::Tracker ) {
-	result.push_back(theTrackerRecHitBuilder->build(&**hit));
+	TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
+	if (!ttrhit->hit()->hasPositionAndError()){
+	  TrajectoryStateOnSurface predTsos =  theService->propagator(theTrackerPropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
+	  
+	  if ( !predTsos.isValid() ) {
+	    edm::LogError("MissingTransientHit")
+	      <<"Could not get a tsos on the hit surface. We will miss a tracking hit.";
+	    continue; 
+	  }
+	  currTsos = predTsos;
+	  TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(predTsos);
+	  result.push_back(preciseHit);
+	}else{
+	  result.push_back(ttrhit);
+	}
       } else if ( recoid.det() == DetId::Muon ) {
 	if ( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {
 	  LogDebug(theCategory) << "RPC Rec Hit discarded"; 

@@ -83,7 +83,7 @@ process.famosSimHits.VertexGenerator.BetaStar = 0.00001
 process.famosSimHits.VertexGenerator.SigmaZ = 0.00001
 
 # Get frontier conditions   - not applied in the HCAL, see below
-# from Configuration.PyReleaseValidation.autoCond import autoCond
+# from Configuration.AlCa.autoCond import autoCond
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
 

@@ -1310,7 +1310,7 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
     
     // Prune the anode list to deal with the late tail 
     float anodeMaxDiff;
-    bool modified;
+    bool modified = false;
     std::vector<float>::iterator anodeMaxHit;
     do {
       if (anodeTimes.size()==0) continue;

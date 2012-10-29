@@ -78,11 +78,16 @@ class MassSearchReplaceAnyInputTagVisitor(object):
                             nrep = n; nrep.moduleLabel = self._paramReplace.moduleLabel
                             if self._verbose:print "Replace %s.%s[%d] %s ==> %s " % (base, name, i, n, nrep)
                             value[i] = nrep
-                elif type == 'cms.InputTag':
+                elif type.endswith('.InputTag'):
                     if value == self._paramSearch:
                         if self._verbose:print "Replace %s.%s %s ==> %s " % (base, name, self._paramSearch, self._paramReplace)
                         from copy import deepcopy
-                        setattr(pset, name, deepcopy(self._paramReplace) )
+                        if 'untracked' in type:
+                            setattr(pset, name, cms.untracked.InputTag(self._paramReplace.getModuleLabel(),
+                                                                       self._paramReplace.getProductInstanceLabel(),
+                                                                       self._paramReplace.getProcessName()))
+                        else:
+                            setattr(pset, name, deepcopy(self._paramReplace) )
                     elif self._moduleLabelOnly and value.moduleLabel == self._paramSearch.moduleLabel:
                         from copy import deepcopy
                         repl = deepcopy(getattr(pset, name))
@@ -100,7 +105,7 @@ class MassSearchReplaceAnyInputTagVisitor(object):
 
     def enter(self,visitee):
         label = ''
-        try:    label = visitee.label()
+        try:    label = visitee.label_()
         except AttributeError: label = '<Module not in a Process>'
         self.doIt(visitee, label)
     def leave(self,visitee):

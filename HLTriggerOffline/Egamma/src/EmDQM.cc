@@ -71,6 +71,8 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   plotMinEtForEtaEffPlot = pset.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15);
   useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
   mcMatchedOnly = pset.getUntrackedParameter<bool>("mcMatchedOnly", true);
+  noPhiPlots = pset.getUntrackedParameter<bool>("noPhiPlots", true);
+  noIsolationPlots = pset.getUntrackedParameter<bool>("noIsolationPlots", true);
   verbosity = pset.getUntrackedParameter<unsigned int>("verbosity",0);
 
   //preselction cuts 
@@ -103,7 +105,8 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
     if (isoNames.back().at(0).label()=="none") {
       plotiso.push_back(false);
     } else {
-      plotiso.push_back(true);
+      if (!noIsolationPlots) plotiso.push_back(true);
+      else plotiso.push_back(false);
     }
     nCandCuts.push_back(filterconf->getParameter<int>("ncandcut"));
     i++;
@@ -183,7 +186,7 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
       etagen = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
       histName = "gen_phi";
       histTitle= "#phi of "+ pdgIdString +"s " ;
-      phigen = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+      if (!noPhiPlots) phigen = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
     
       
     
@@ -214,12 +217,14 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
            histTitle = HltHistTitle[i]+" #eta (ALL)";
            tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
            etahist.push_back(tmphisto);          
-    
-           // Phi distribution of HLT objects passing filter i
-           histName = theHLTCollectionLabels[i].label()+"phi_all";
-           histTitle = HltHistTitle[i]+" #phi (ALL)";
-           tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
-           phihist.push_back(tmphisto);
+
+           if (!noPhiPlots) {
+             // Phi distribution of HLT objects passing filter i
+             histName = theHLTCollectionLabels[i].label()+"phi_all";
+             histTitle = HltHistTitle[i]+" #phi (ALL)";
+             tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+             phihist.push_back(tmphisto);
+           }
     
      
            // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
@@ -234,11 +239,13 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
            tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
            histEtaOfHltObjMatchToGen.push_back(tmphisto);
     
-           // phi distribution of HLT object that is closest delta-R match to sorted gen particle(s)
-           histName  = theHLTCollectionLabels[i].label()+"phi";
-           histTitle = HltHistTitle[i]+" phi";
-           tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
-           histPhiOfHltObjMatchToGen.push_back(tmphisto);
+           if (!noPhiPlots) {
+             // phi distribution of HLT object that is closest delta-R match to sorted gen particle(s)
+             histName  = theHLTCollectionLabels[i].label()+"phi";
+             histTitle = HltHistTitle[i]+" phi";
+             tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+             histPhiOfHltObjMatchToGen.push_back(tmphisto);
+           }
        }
     
         // Et distribution of gen object matching HLT object passing filter i
@@ -253,11 +260,13 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
         tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
         etahistmatch.push_back(tmphisto);
     
-        // Phi distribution of gen object matching HLT object passing filter i
-        histName = theHLTCollectionLabels[i].label()+"phi_MC_matched";
-        histTitle = HltHistTitle[i]+" #phi (MC matched)";
-        tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
-        phihistmatch.push_back(tmphisto);
+        if (!noPhiPlots) {
+          // Phi distribution of gen object matching HLT object passing filter i
+          histName = theHLTCollectionLabels[i].label()+"phi_MC_matched";
+          histTitle = HltHistTitle[i]+" #phi (MC matched)";
+          tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+          phihistmatch.push_back(tmphisto);
+        }
     
     
         if (!plotiso[i]) {
@@ -540,7 +549,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     etgen ->Fill( sortedGen[i].et()  ); //validity has been implicitily checked by the cut on gencut_ above
     if (sortedGen[i].et() > plotMinEtForEtaEffPlot) {
       etagen->Fill( sortedGen[i].eta() );
-      phigen->Fill( sortedGen[i].phi() );
+      if (!noPhiPlots) phigen->Fill( sortedGen[i].phi() );
     }
   } // END of loop over Generated particles
   if (gencut_ >= reqNum && !mcMatchedOnly) total->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
@@ -663,7 +672,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
       if ( closestEcalCandIndex >= 0 ) {
         histEtOfHltObjMatchToGen[n] ->Fill( recoecalcands[closestEcalCandIndex]->et()  );
         histEtaOfHltObjMatchToGen[n]->Fill( recoecalcands[closestEcalCandIndex]->eta() );
-        histPhiOfHltObjMatchToGen[n]->Fill( recoecalcands[closestEcalCandIndex]->phi() );
+        if (!noPhiPlots) histPhiOfHltObjMatchToGen[n]->Fill( recoecalcands[closestEcalCandIndex]->phi() );
         
         // Also store isolation info
         if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
@@ -711,7 +720,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
       // Fill HLT object histograms
       ethist[n] ->Fill(recoecalcands[i]->et() );
       etahist[n]->Fill(recoecalcands[i]->eta() );
-      phihist[n]->Fill(recoecalcands[i]->phi() );
+      if (!noPhiPlots) phihist[n]->Fill(recoecalcands[i]->phi() );
 
       ////////////////////////////////////////////////////////////
       //  Plot isolation variables (show the not-yet-cut        //
@@ -770,7 +779,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
     ethistmatch[n] ->Fill( sortedGen[i].et()  );
     if (sortedGen[i].et() > plotMinEtForEtaEffPlot) {
       etahistmatch[n]->Fill( sortedGen[i].eta() );
-      phihistmatch[n]->Fill( sortedGen[i].phi() );
+      if (!noPhiPlots) phihistmatch[n]->Fill( sortedGen[i].phi() );
     }
     ////////////////////////////////////////////////////////////
     //  Plot isolation variables (show the not-yet-cut        //

@@ -65,14 +65,14 @@ MuonAlignment::MuonAlignment( const edm::EventSetup& iSetup, const MuonAlignment
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::moveAlignableLocalCoord( DetId& detid, align::Scalars& displacements, align::Scalars& rotations ){
+void MuonAlignment::moveAlignableLocalCoord( DetId& detid, std::vector<float>& displacements, std::vector<float>& rotations ){
 
   // Displace and rotate DT an Alignable associated to a GeomDet or GeomDetUnit
   Alignable* theAlignable = theAlignableNavigator->alignableFromDetId( detid );
  
   // Convert local to global diplacements
-  align::LocalVector lvector( displacements.at(0), displacements.at(1), displacements.at(2)); 
-  align::GlobalVector gvector = ( theAlignable->surface()).toGlobal( lvector );
+  LocalVector lvector( displacements.at(0), displacements.at(1), displacements.at(2)); 
+  GlobalVector gvector = ( theAlignable->surface()).toGlobal( lvector );
 
   // global displacement of the chamber
   theAlignable->move( gvector );
@@ -86,13 +86,13 @@ void MuonAlignment::moveAlignableLocalCoord( DetId& detid, align::Scalars& displ
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, align::Scalars& displacements, align::Scalars& rotations ){
+void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, std::vector<float>& displacements, std::vector<float>& rotations ){
 
   // Displace and rotate DT an Alignable associated to a GeomDet or GeomDetUnit
   Alignable* theAlignable = theAlignableNavigator->alignableFromDetId( detid );
  
   // Convert std::vector to GlobalVector
-  align::GlobalVector gvector( displacements.at(0), displacements.at(1), displacements.at(2)); 
+  GlobalVector gvector( displacements.at(0), displacements.at(1), displacements.at(2)); 
 
   // global displacement of the chamber
   theAlignable->move( gvector );
@@ -106,8 +106,8 @@ void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, align::Scalars& disp
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::recursiveList(align::Alignables alignables, align::Alignables &theList) {
-   for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
+void MuonAlignment::recursiveList(std::vector<Alignable*> alignables, std::vector<Alignable*> &theList) {
+   for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       recursiveList((*alignable)->components(), theList);
       theList.push_back(*alignable);
    }
@@ -115,8 +115,8 @@ void MuonAlignment::recursiveList(align::Alignables alignables, align::Alignable
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::recursiveMap(align::Alignables alignables, std::map<align::ID, Alignable*> &theMap) {
-   for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
+void MuonAlignment::recursiveMap(std::vector<Alignable*> alignables, std::map<align::ID, Alignable*> &theMap) {
+   for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       unsigned int rawId = (*alignable)->geomDetId().rawId();
       if (rawId != 0) {
 	 theMap[rawId] = *alignable;
@@ -127,8 +127,8 @@ void MuonAlignment::recursiveMap(align::Alignables alignables, std::map<align::I
 
 //____________________________________________________________________________________
 //
-void MuonAlignment::recursiveStructureMap(align::Alignables alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap) {
-   for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
+void MuonAlignment::recursiveStructureMap(std::vector<Alignable*> alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap) {
+   for (std::vector<Alignable*>::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
       theMap[std::pair<align::StructureType, align::ID>((*alignable)->alignableObjectId(), (*alignable)->id())] = *alignable;
       recursiveStructureMap((*alignable)->components(), theMap);
    }
@@ -206,10 +206,10 @@ void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
 
       align::PositionType oldpos = alignable->globalPosition();
       align::RotationType oldrot = alignable->globalRotation();
-      alignable->move(align::GlobalVector(-oldpos.x(), -oldpos.y(), -oldpos.z()));
+      alignable->move(GlobalVector(-oldpos.x(), -oldpos.y(), -oldpos.z()));
       alignable->rotateInGlobalFrame(oldrot.transposed());
       alignable->rotateInGlobalFrame(rot);
-      alignable->move(align::GlobalVector(pos.x(), pos.y(), pos.z()));
+      alignable->move(GlobalVector(pos.x(), pos.y(), pos.z()));
 
       align::ErrorMatrix matrix6x6 = survey->errors();  // start from 0,0
       AlgebraicSymMatrix33 matrix3x3;                   // start from 0,0
@@ -224,8 +224,8 @@ void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
    }
 
    // do lower levels afterward to thwart the cumulative setting of APEs
-   align::Alignables components = alignable->components();
-   for (align::Alignables::const_iterator comp = components.begin();  comp != components.end();  ++comp) {
+   std::vector<Alignable*> components = alignable->components();
+   for (std::vector<Alignable*>::const_iterator comp = components.begin();  comp != components.end();  ++comp) {
       recursiveCopySurveyToAlignment(*comp);
    }
 }
@@ -251,10 +251,10 @@ void MuonAlignment::saveDTSurveyToDB(void) {
   Alignments *dtAlignments = new Alignments();
   SurveyErrors *dtSurveyErrors = new SurveyErrors();
 
-  align::Alignables alignableList;
+  std::vector<Alignable*> alignableList;
   recursiveList(theAlignableMuon->DTBarrel(), alignableList);
 
-  for (align::Alignables::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
+  for (std::vector<Alignable*>::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
      const align::PositionType &pos = (*alignable)->survey()->position();
      const align::RotationType &rot = (*alignable)->survey()->rotation();
 
@@ -284,10 +284,10 @@ void MuonAlignment::saveCSCSurveyToDB(void) {
   Alignments *cscAlignments = new Alignments();
   SurveyErrors *cscSurveyErrors = new SurveyErrors();
 
-  align::Alignables alignableList;
+  std::vector<Alignable*> alignableList;
   recursiveList(theAlignableMuon->CSCEndcaps(), alignableList);
 
-  for (align::Alignables::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
+  for (std::vector<Alignable*>::const_iterator alignable = alignableList.begin();  alignable != alignableList.end();  ++alignable) {
      const align::PositionType &pos = (*alignable)->survey()->position();
      const align::RotationType &rot = (*alignable)->survey()->rotation();
 

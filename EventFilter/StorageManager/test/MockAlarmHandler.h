@@ -1,4 +1,4 @@
-// $Id: MockAlarmHandler.h,v 1.4.12.1 2011/03/07 11:33:07 mommsen Exp $
+// $Id: MockAlarmHandler.h,v 1.5 2011/03/07 15:31:32 mommsen Exp $
 /// @file: MockAlarmHandler.h 
 
 #ifndef StorageManager_MockAlarmHandler_h
@@ -91,6 +91,10 @@ namespace stor {
       }
     }
 
+    void moveToFailedState(xcept::Exception& exception)
+    {
+      notifySentinel(AlarmHandler::FATAL, exception);
+    }
 
   private:
 

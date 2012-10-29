@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/05/31 05:31:11 $
+// last change    : $Date: 2011/02/11 10:49:02 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -74,7 +74,6 @@
 //     * StripStereo:     only Id's of stereo modules in 2D layers/rings 
 //     * StripRphi:       only Id's of rphi modules in 2D layers/rings 
 //     * StripDoubleOr1D: only Id's from 1D layers or composed Dets in 2D layers/rings
-//     * Not<one of above>: the opposite of the above three selections
 //
 // 4b) Geometrical and N(hit) selection:
 // void AddAdditionalSel(const TString &xyzrPhiNhit, Float_t min, Float_t max);
@@ -142,7 +141,7 @@ class PlotMillePede : public MillePedeTrees
   void AddSubDetId(Int_t subDetId); // 1-6 are TPB, TPE, TIB, TID, TOB, TEC
   Int_t SetAlignableTypeId(Int_t alignableTypeId);//detunit=1,det=2,...,TIBString=15,etc. from StructureType.h (-1: all)
   Int_t SetHieraLevel(Int_t hieraLevel); // select hierarchical level (-1: all)
-  void AddAdditionalSel(const char *selection);// special select; StripDoubleOr1D,StripRphi,StripStereo (may be prepended by 'Not')
+  void AddAdditionalSel(const char *selection);// special select; StripDoubleOr1D,StripRphi,StripStereo
   void AddAdditionalSel(const TString &xyzrPhiNhit, Float_t min, Float_t max); // x,y,z,r,phi,Nhit
 
   const TString GetAdditionalSel () const { return fAdditionalSel;}

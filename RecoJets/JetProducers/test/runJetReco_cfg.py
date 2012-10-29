@@ -47,7 +47,7 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_R_42_V12::All'
+process.GlobalTag.globaltag = 'GR_R_44_V1::All'
 
 process.load("RecoJets/Configuration/RecoPFClusterJets_cff")
 process.load("RecoMET/METProducers/PFClusterMET_cfi")

@@ -55,7 +55,21 @@ void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
   
   for( int istrip=0;istrip<nStrip;++istrip){
+    try{      
          selModME_.ProfileDistr->Fill(istrip+1,qualityHandle_->IsStripBad(qualityRange,istrip)?0.:1.);
+
+    } 
+    catch(cms::Exception& e){
+      edm::LogError("SiStripQualityDQM")          
+	<< "[SiStripQualityDQM::fillMEsForDet] cms::Exception accessing qualityHandle_->IsStripBad(qualityRange,istrip)?1.:0.) for strip "  
+	<< istrip 
+	<< " and detid " 
+	<< selDetId_  
+	<< " :  " 
+	<< e.what() ;
+    }
+
+
 
   }// istrip
   
@@ -157,6 +171,7 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
 	if(qualityHandle_->IsStripBad(qualityRange,istrip)) { numberOfBadStrips++;}
       }
     
+      try{ 
 	float fr=100*float(numberOfBadStrips)/nStrip;
 	selME_.SummaryDistr->Fill(i+1,fr);
 	if(fr>20){
@@ -172,6 +187,15 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
 	if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")){
 	  fillTkMap(sameLayerDetIds_[i], fr);
 	}
+
+      }
+      catch(cms::Exception& e){
+	edm::LogError("SiStripQualityDQM")
+	  << "[SiStripQualityDQM::fillMEsForLayer] cms::Exception filling fraction of bad strips for detId "
+	  << sameLayerDetIds_[i]
+	  << " :  "
+	  << e.what() ;
+      } 
     } 
   }//if Fill ...  
 }  

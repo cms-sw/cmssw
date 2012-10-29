@@ -4,13 +4,12 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.18 2011/02/23 16:50:56 kovitang Exp $
+// $Id: CaloJetTester.h,v 1.16 2009/07/13 19:03:02 chjeong Exp $
 
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 namespace reco {
   class CaloJet;
@@ -30,9 +29,7 @@ public:
   virtual void endJob() ;
  
 private:
-
- 
-
+  
   void fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet);
 
   edm::InputTag mInputCollection;
@@ -42,7 +39,6 @@ private:
   std::string METType_;
   std::string inputGenMETLabel_;
   std::string inputCaloMETLabel_;
-   
 
   // count number of events
   MonitorElement* numberofevents;
@@ -76,30 +72,6 @@ private:
   MonitorElement* mHadTiming;
   MonitorElement* mEmTiming;
 
-  //Corr jets
-  MonitorElement* mCorrJetPt;
-  MonitorElement* mCorrJetPt_80;
-  MonitorElement* mCorrJetPt_3000;
-  MonitorElement* mCorrJetEta;
-  MonitorElement* mCorrJetPhi;
-  MonitorElement* mpTRatio;
-  MonitorElement* mpTRatioB_d;
-  MonitorElement* mpTRatioE_d;
-  MonitorElement* mpTRatioF_d;
-  MonitorElement* mpTRatio_60_120_d;
-  MonitorElement* mpTRatio_200_300_d;
-  MonitorElement* mpTRatio_600_900_d;
-  MonitorElement* mpTRatio_2700_3500_d;
-  MonitorElement* mpTResponse;
-  MonitorElement* mpTResponseB_d;
-  MonitorElement* mpTResponseE_d;
-  MonitorElement* mpTResponseF_d;
-  MonitorElement* mpTResponse_60_120_d;
-  MonitorElement* mpTResponse_200_300_d;
-  MonitorElement* mpTResponse_600_900_d;
-  MonitorElement* mpTResponse_2700_3500_d;
-  MonitorElement* mpTResponse_30_d;
- 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
   MonitorElement* mPhiFirst;
@@ -191,9 +163,6 @@ private:
   MonitorElement* mpTScaleB_d;
   MonitorElement* mpTScaleE_d;
   MonitorElement* mpTScaleF_d;
-  MonitorElement* mpTScalePhiB_d;
-  MonitorElement* mpTScalePhiE_d;
-  MonitorElement* mpTScalePhiF_d;
 
   MonitorElement* mpTScale_60_120_s;
   MonitorElement* mpTScale_200_300_s;
@@ -231,8 +200,6 @@ private:
   double mGenEnergyFractionThreshold;
   double mReverseEnergyFractionThreshold;
   double mRThreshold;
-
-  std::string JetCorrectionService;
 
   // Switch on/off unimportant histogram
   std::string  mTurnOnEverything;

@@ -2,6 +2,11 @@
 #include "FileDescriptorHandler.h"
 
 #include "EventFilter/Utilities/interface/TriggerReportDef.h"
+#include <signal.h>
+#ifdef linux
+#include <sys/prctl.h>
+#endif
+#include <iostream>
 
 namespace evf{
 
@@ -75,6 +80,14 @@ namespace evf{
       }
     if(retval==0)
       {
+	int success = -1;
+#ifdef linux
+	success = prctl( PR_SET_PDEATHSIG, SIGKILL );
+#endif
+	if(success != 0){
+	  std::cout << getpid() << " could not set process death signal" << std::endl;
+	}
+
 	//	  freopen(filename,"w",stdout); // send all console output from children to /dev/null
 	freopen("/dev/null","w",stderr);
 	FileDescriptorHandler a; //handle socket file descriptors left open at fork

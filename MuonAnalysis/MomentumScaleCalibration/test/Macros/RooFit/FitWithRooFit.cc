@@ -20,8 +20,6 @@
 #include "RooAddModel.h"
 #include "RooPolynomial.h"
 #include "RooCBShape.h"
-#include "RooChi2Var.h"
-#include "RooMinuit.h"
 
 /**
  * This macro allows to use RooFit to perform a fit on a TH1 histogram. <br>
@@ -53,7 +51,7 @@ class FitWithRooFit
 public:
 
   FitWithRooFit() :
-    useChi2_(false), mean_(0), sigma_(0), gamma_(0), sigma2_(0), gaussFrac_(0), expCoeff_(0), fsig_(0),
+    mean_(0), sigma_(0), gamma_(0), sigma2_(0), gaussFrac_(0), expCoeff_(0), fsig_(0),
     constant_(0), linearTerm_(0), alpha_(0), n_(0), fGCB_(0)
   {
   }
@@ -88,26 +86,12 @@ public:
     // Build the composite model
     RooAbsPdf * model = buildModel(&x, signalType, backgroundType);
 
-    RooChi2Var chi2("chi2", "chi2", *model, *dh, DataError(RooAbsData::SumW2));
-
     // Fit the composite model
-    // -----------------------
-    // Fit with likelihood
-    if( !useChi2_ ) {
-      if( sumW2Error ) {
-	model->fitTo(*dh, Save(), SumW2Error(kTRUE));
-      }
-      else {
-	model->fitTo(*dh);
-      }
+    if( sumW2Error ) {
+      model->fitTo(*dh, Save(), SumW2Error(kTRUE));
     }
-    // Fit with chi^2
     else {
-      std::cout << "FITTING WITH CHI^2" << std::endl;
-      RooMinuit m(chi2);
-      m.migrad();
-      m.hesse();
-      // RooFitResult* r_chi2_wgt = m.save();
+      model->fitTo(*dh);
     }
     model->plotOn(frame);
     model->plotOn(frame, Components(backgroundType), LineStyle(kDashed));
@@ -378,8 +362,6 @@ public:
     }
     return model;
   }
-
-  bool useChi2_;
 
 protected:
 

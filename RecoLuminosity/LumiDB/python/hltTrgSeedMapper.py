@@ -25,7 +25,7 @@ def findUniqueSeed(hltPath,ExprStr):
         return None
     if re.match('HLT_Random',hltPath)!=None :
         return None
-    if re.match('HLTriggerFinalPath',hltPath)!=None :
+    if re.match('HLTTriggerFinalPath',hltPath)!=None :
         return None
     if re.match('HLT_[aA-zZ]*FEDSize',hltPath)!=None :
         return None

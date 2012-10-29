@@ -1,4 +1,4 @@
-// $Id: Tm.h,v 1.5 2011/03/25 09:06:48 organtin Exp $
+// $Id: Tm.h,v 1.4 2010/09/30 14:16:42 organtin Exp $
 
 #ifndef TM_HH
 #define TM_HH
@@ -61,10 +61,8 @@ class Tm {
   std::string str() const;
 
   /*
-   *  return number of microseconds since Jan 1 1970 and the epoch
+   *  return number of microseconds since Jan 1 1970
    */
-  uint64_t unixTime() const;
-  uint64_t epoch() const { return unixTime(); };
   uint64_t microsTime() const;
 
   /*

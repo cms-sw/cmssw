@@ -210,12 +210,13 @@ PFDisplacedVertexFinder::mergeSeeds(PFDisplacedVertexSeedCollection& tempDisplac
 
       for (unsigned idv_daughter = idv_mother+1;idv_daughter < tempDisplacedVertexSeeds.size(); idv_daughter++){
 	
-	if (!bLocked[idv_daughter] && isCloseTo(tempDisplacedVertexSeeds[idv_mother], tempDisplacedVertexSeeds[idv_daughter])) {
+	if (!bLocked[idv_daughter]){
+	  if (isCloseTo(tempDisplacedVertexSeeds[idv_mother], tempDisplacedVertexSeeds[idv_daughter])) {
 	
-	  tempDisplacedVertexSeeds[idv_mother].mergeWith(tempDisplacedVertexSeeds[idv_daughter]);
-	  bLocked[idv_daughter] = true;
-	  if (debug_) cout << "Seeds " << idv_mother << " and " << idv_daughter << " merged" << endl; 
-	
+	    tempDisplacedVertexSeeds[idv_mother].mergeWith(tempDisplacedVertexSeeds[idv_daughter]);
+	    bLocked[idv_daughter] = true;
+	    if (debug_) cout << "Seeds " << idv_mother << " and " << idv_daughter << " merged" << endl; 
+	  }
 	}
       }
     }
@@ -305,7 +306,12 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   if ( transTracksRaw.size() == 2 ){
 
     if (debug_) cout << "No raw fit done" << endl;
+    if (switchOff2TrackVertex_) {
+      if (debug_) 
+	cout << "Due to probably high pile-up conditions 2 track vertices switched off" << endl;
+      return true;
 
+    }
     GlobalError globalError;
 
     theVertexAdaptiveRaw = TransientVertex(seedPoint,  globalError, transTracksRaw, 1.);
@@ -328,7 +334,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
     /// It reject also many fake tracks
 
   
-    if ( transTracksRaw.size() < 10 ){
+    if ( transTracksRaw.size() < 1000 && transTracksRaw.size() > 3){
 
       if (debug_) cout << "First test with KFT" << endl;
 
@@ -353,11 +359,14 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
       Vertex vtx =  theVertexAdaptiveRaw;
       rho = vtx.position().rho();
 
-      if (rho < primaryVertexCut_) {
+      //   cout << "primary vertex cut  = " << primaryVertexCut_ << endl;
+
+      if (rho < primaryVertexCut_ || rho > 100) {
 	if (debug_) cout << "KFT Vertex geometrically rejected with  tracks #rho = " << rho << endl;
 	return true;
       }
 
+      //     cout << "primary vertex cut  = " << primaryVertexCut_ << " rho = " << rho << endl;
 
       theVertexAdaptiveRaw = theAdaptiveFitterRaw.vertex(transTracksRaw, theVertexAdaptiveRaw.position());
 
@@ -444,8 +453,15 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
   FitterType vtxFitter = F_NOTDEFINED;
 
   if (transTracks.size() < 2) return true;
-  else if (transTracks.size() == 2) 
+  else if (transTracks.size() == 2){
+    
+    if (switchOff2TrackVertex_) {
+      if (debug_) 
+	cout << "Due to probably high pile-up conditions 2 track vertices switched off" << endl;
+      return true;
+    }
     vtxFitter = F_KALMAN;
+  }
   else if (transTracks.size() > 2 && transTracksRaw.size() > transTracks.size()) 
     vtxFitter = F_ADAPTIVE;
   else if (transTracks.size() > 2 && transTracksRaw.size() == transTracks.size())  
@@ -670,16 +686,16 @@ PFDisplacedVertexFinder::rejectAndLabelVertex(PFDisplacedVertex& dv){
 bool 
 PFDisplacedVertexFinder::isCloseTo(const PFDisplacedVertexSeed& dv1, const PFDisplacedVertexSeed& dv2) const {
 
-  bool isCloseTo = false;
-
   const GlobalPoint vP1 = dv1.seedPoint();
   const GlobalPoint vP2 = dv2.seedPoint();
 
   double Delta_Long = getLongDiff(vP1, vP2);
+  if (Delta_Long > longSize_) return false;
   double Delta_Transv = getTransvDiff(vP1, vP2);
-  if (Delta_Long < longSize_ && Delta_Transv < transvSize_) isCloseTo = true;
+  if (Delta_Transv > transvSize_) return false;
+  //  if (Delta_Long < longSize_ && Delta_Transv < transvSize_) isCloseTo = true;
 
-  return isCloseTo;
+  return true;
 
 }
 
