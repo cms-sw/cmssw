@@ -686,7 +686,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      // Get cluster total charge
 	      const std::vector<uint8_t>& stripCharges = cluster->amplitudes();
 	      uint16_t charge = 0;
-	      for (uint i = 0; i < stripCharges.size(); ++i) 
+	      for (unsigned int i = 0; i < stripCharges.size(); ++i) 
 		{
 		  charge += stripCharges.at(i);
 		}
@@ -822,7 +822,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      // Get cluster total charge
 	      const std::vector<uint8_t>& stripCharges = cluster->amplitudes();
 	      uint16_t charge = 0;
-	      for (uint i = 0; i < stripCharges.size(); ++i) 
+	      for (unsigned int i = 0; i < stripCharges.size(); ++i) 
 		{
 		  charge += stripCharges.at(i);
 		}
