@@ -13,7 +13,7 @@ pfMETDQMAnalyzer = cms.EDAnalyzer("PFMETDQMAnalyzer",
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
 # Histogram Parameters related to pt
-    VariablePtBins  = cms.vdouble(0.,1.,2.,5.,10.,15.,20.,30.,50.,100.,250.),
+    VariablePtBins  = cms.vdouble(0.,1.,2.,5.,10.,15.,20.,30.,50.,100.,500.),
     PtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(100),
@@ -23,14 +23,14 @@ pfMETDQMAnalyzer = cms.EDAnalyzer("PFMETDQMAnalyzer",
     DeltaPtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(50),
-      xMin = cms.double(-500.0),
-      xMax = cms.double(500.0)        
+      xMin = cms.double(-300.0),
+      xMax = cms.double(300.0)        
     ),
     DeltaPtOvPtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(100),
-      xMin = cms.double(-1.0),
-      xMax = cms.double(1.0)        
+      xMin = cms.double(-3.0),
+      xMax = cms.double(3.0)        
     ),
 # Histogram Parameters related to Eta                               
     EtaHistoParameter = cms.PSet(
@@ -42,19 +42,19 @@ pfMETDQMAnalyzer = cms.EDAnalyzer("PFMETDQMAnalyzer",
     DeltaEtaHistoParameter = cms.PSet(
       switchOn = cms.bool(False),
       nBin = cms.int32(50),
-      xMin = cms.double(-0.5),
-      xMax = cms.double(0.5)        
+      xMin = cms.double(-0.2),
+      xMax = cms.double(0.2)        
     ),
 # Histogram Parameters related to Phi                               
     PhiHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      nBin = cms.int32(50),
-      xMin = cms.double(-3.1416),
-      xMax = cms.double(3.1416)        
+      nBin = cms.int32(64),
+      xMin = cms.double(-3.2),
+      xMax = cms.double(3.2)        
     ),
     DeltaPhiHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      nBin = cms.int32(50),
+      nBin = cms.int32(64),
       xMin = cms.double(-3.2),
       xMax = cms.double(3.2)        
     ),
@@ -68,8 +68,8 @@ pfMETDQMAnalyzer = cms.EDAnalyzer("PFMETDQMAnalyzer",
     DeltaPxHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(50),
-      xMin = cms.double(-500.0),
-      xMax = cms.double(500.0)        
+      xMin = cms.double(-300.0),
+      xMax = cms.double(300.0)        
     ),
 # Histogram Parameters related to Sum Et
     SumEtHistoParameter = cms.PSet(
@@ -81,14 +81,14 @@ pfMETDQMAnalyzer = cms.EDAnalyzer("PFMETDQMAnalyzer",
     DeltaSumEtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(100),
-      xMin = cms.double(-150.0),
-      xMax = cms.double(150.0)        
+      xMin = cms.double(-300.0),
+      xMax = cms.double(500.0)        
     ),
     DeltaSumEtOvSumEtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(100),
       xMin = cms.double(-1.0),
-      xMax = cms.double(1.0),        
+      xMax = cms.double(3.0),        
     ),
 # Histogram Parameters related to Charge                               
     ChargeHistoParameter = cms.PSet(

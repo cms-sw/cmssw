@@ -15,24 +15,24 @@ pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
 # Histogram Parameters related to pt
-    VariablePtBins  = cms.vdouble(0.,1.,2.,5.,10.,20.,50.,100.,200.,400.,1000.),
+    VariablePtBins  = cms.vdouble(0.,1.,2.,5.,10.,20.,50.,100.,200.,400.,500.),
     PtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      nBin = cms.int32(50),
+      nBin = cms.int32(100),
       xMin = cms.double(0.0),
-      xMax = cms.double(100.0)        
+      xMax = cms.double(200.0)        
     ),
     DeltaPtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(100),
-      xMin = cms.double(-50.0),
-      xMax = cms.double(50.0)        
+      xMin = cms.double(-100.0),
+      xMax = cms.double(100.0)        
     ),
     DeltaPtOvPtHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(200),
-      xMin = cms.double(-1.0),
-      xMax = cms.double(1.0)        
+      xMin = cms.double(-3.0),
+      xMax = cms.double(3.0)        
     ),
 # Histogram Parameters related to Eta                               
     EtaHistoParameter = cms.PSet(
@@ -44,21 +44,21 @@ pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
     DeltaEtaHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(50),
-      xMin = cms.double(-0.5),
-      xMax = cms.double(0.5)        
+      xMin = cms.double(-0.2),
+      xMax = cms.double(0.2)        
     ),
 # Histogram Parameters related to Phi                               
     PhiHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
-      nBin = cms.int32(100),
-      xMin = cms.double(-3.1416),
-      xMax = cms.double(3.1416)        
+      nBin = cms.int32(64),
+      xMin = cms.double(-3.2),
+      xMax = cms.double(3.2)        
     ),
     DeltaPhiHistoParameter = cms.PSet(
       switchOn = cms.bool(True),
       nBin = cms.int32(50),
-      xMin = cms.double(-0.5),
-      xMax = cms.double(0.5)        
+      xMin = cms.double(-0.2),
+      xMax = cms.double(0.2)        
     ),
 # Histogram Parameters related to Charge                               
     ChargeHistoParameter = cms.PSet(
