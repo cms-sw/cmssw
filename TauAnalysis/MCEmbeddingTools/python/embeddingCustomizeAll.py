@@ -216,7 +216,7 @@ def customise(process):
           instanceLabel = cms.string(instanceLabel)))
   process.l1extraParticlesORG = process.l1extraParticles.clone()
   process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
-      src1 = cms.InputTag('l1extraParticles::HLT'),
+      src1 = cms.InputTag('l1extraParticles::%s' % inputProcess),
       src2 = cms.InputTag('l1extraParticlesORG'),
       collections = cms.VPSet(l1extraParticleCollections)
   )
