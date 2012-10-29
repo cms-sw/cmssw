@@ -1,9 +1,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
-#include "DQM/CSCMonitorModule/interface/CSCDaqInfo.h"
-#include "DQM/CSCMonitorModule/interface/CSCDcsInfo.h"
-#include "DQM/CSCMonitorModule/interface/CSCCertificationInfo.h"
-#include "DQM/CSCMonitorModule/interface/CSCOfflineClient.h"
+#include "CSCMonitorModule.h"
+#include "CSCDaqInfo.h"
+#include "CSCDcsInfo.h"
+#include "CSCCertificationInfo.h"
+#include "CSCOfflineClient.h"
 
 DEFINE_FWK_MODULE(CSCMonitorModule);
 DEFINE_FWK_MODULE(CSCDaqInfo);
