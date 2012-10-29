@@ -10,5 +10,5 @@
 <flags   EDM_PLUGIN="1"/>
 <library   file="HcalCalibFEDSelector.cc,HcalCalibTypeFilter.cc,HcalDigiToRaw.cc,HcalEmptyEventFilter.cc,HcalHistogramRawToDigi.cc,HcalRawToDigi.cc,modules.cc" name="EventFilterHcalRawToDigiPlugins">
 </library>
-<library   file="HcalLaserEventFilter2012.cc,HcalLaserHFFilter2012.cc,HcalLaserHBHEFilter2012.cc" name="EventFilterHcalRawToDigiFiltersPlugins">
+<library   file="HcalLaserEventFilter2012.cc,HcalLaserHFFilter2012.cc,HcalLaserHBHEFilter2012.cc,HcalLaserHBHEHFFilter2012.cc" name="EventFilterHcalRawToDigiFiltersPlugins">
 </library>

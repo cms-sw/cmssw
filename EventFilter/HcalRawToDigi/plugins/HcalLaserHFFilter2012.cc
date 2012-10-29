@@ -13,7 +13,6 @@
 //
 // Original Author:  
 //         Created:  Fri Oct 19 13:15:44 EDT 2012
-// $Id: HcalLaserHFFilter2012.cc,v 1.3 2012/10/21 22:17:41 temple Exp $
 //
 //
 

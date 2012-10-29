@@ -13,7 +13,6 @@
 //
 // Original Author:  Jeff Temple, University of Maryland (jtemple@fnal.gov)
 //         Created:  Fri Oct 19 13:15:44 EDT 2012
-// $Id: HcalLaserEventFilter2012.cc,v 1.5 2012/10/21 22:17:41 temple Exp $
 //
 //
 
