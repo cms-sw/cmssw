@@ -9,24 +9,24 @@
 
 /** \class HcalTopology
 
-   The HcalTopology class contains a set of hardcoded constants which
-   represent the topology (tower relationship) of the CMS HCAL as
-   built.  These constants can be used to determine neighbor
-   relationships and existence of cells.
+   The HcalTopology class contains a set of constants which represent
+   the topology (tower relationship) of the CMS HCAL as built.  These
+   constants can be used to determine neighbor relationships and
+   existence of cells.
 
    For use with limited setups (testbeam, cosmic stands, etc), the
    topology can be limited by creating a rejection list -- a list of
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2012/10/26 06:17:56 $
-   $Revision: 1.12 $
+   $Date: 2012/10/26 14:21:00 $
+   $Revision: 1.13 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
 public:
 
-    HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE );
+  HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE );
 	
   HcalTopologyMode::Mode mode() const {return mode_;}
   /** Add a cell to exclusion list */
@@ -36,8 +36,20 @@ public:
   /** Exclude an eta/phi/depth range for a given subdetector */
   int exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi1, int iphi2, int depth1=1, int depth2=4);
 
+
+  /// return a linear packed id
+  virtual unsigned int detId2denseId(const DetId& id) const;
+  /// return a linear packed id
+  virtual DetId denseId2detId(unsigned int /*denseid*/) const;
+  /// return a count of valid cells (for dense indexing use)
+  virtual unsigned int ncells() const;
+  /// return a version which identifies the given topology
+  virtual int topoVersion() const;
+
   /** Is this a valid cell id? */
-  virtual bool valid(const HcalDetId& id) const;
+  virtual bool valid(const DetId& id) const;
+  /** Is this a valid cell id? */
+  bool validHcal(const HcalDetId& id) const;
   /** Get the neighbors of the given cell in east direction*/
   virtual std::vector<DetId> east(const DetId& id) const;
   /** Get the neighbors of the given cell in west direction*/
@@ -92,11 +104,14 @@ public:
   /// result is the first segment, and the second result is the first one
   /// of the next segment.  Used for calculating physical bounds.
   std::pair<int, int> segmentBoundaries(unsigned ring, unsigned depth) const;
+
   int getHBSize() const {return HBSize_;}
   int getHESize() const {return HESize_;}
+  int getHOSize() const {return HOSize_;}
+  int getHFSize() const {return HFSize_;}
+
   unsigned int getNumberOfShapes() const { return numberOfShapes_; }
-    
-    
+      
 private:
   /** Get the neighbors of the given cell with higher absolute ieta */
   int incAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
@@ -128,9 +143,13 @@ private:
   const int doublePhiBins_;
   const int maxDepthHB_;
   const int maxDepthHE_;
-  const int HBSize_;
-  const int HESize_;
+  int HBSize_;
+  int HESize_;
+  int HOSize_;
+  int HFSize_;
   const unsigned int numberOfShapes_;
+
+  int topoVersion_;
     
   // index is ring;
   typedef std::map<unsigned, std::vector<int> > SegmentationMap;

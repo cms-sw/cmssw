@@ -22,8 +22,8 @@ int main(int /*argc*/, char** /*argv*/) {
     for (int depth=1; depth<4; ++depth) {
       for (int ieta=-41; ieta<=41; ieta++) {
 	for (int iphi=1; iphi<=72; iphi++) {
-	  if (HcalDetId::validDetId(subdet,ieta,iphi,depth)) {
-	    const HcalDetId id(subdet,ieta,iphi,depth);
+	  const HcalDetId id(subdet,ieta,iphi,depth);
+	  if (topology.valid(id)) {
 	    std::vector<DetId> idE = topology.east(id);
 	    std::vector<DetId> idW = topology.west(id);
 	    std::vector<DetId> idN = topology.north(id);

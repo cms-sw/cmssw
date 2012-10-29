@@ -29,43 +29,41 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   doublePhiBins_(36),
   maxDepthHB_(maxDepthHB),
   maxDepthHE_(maxDepthHE),
-  HBSize_(HcalDetId::kHBSize +(( mode==HcalTopologyMode::SLHC ) ? ( 2*72*(maxDepthHB*15-16 )) : 0 )),
-  HESize_(HcalDetId::kHESize +(( mode==HcalTopologyMode::SLHC ) ? ( 2*36*(maxDepthHE*19-40 )) : 0 )),
+  HBSize_(3*6*4*18*2),
+  HESize_(3*6*4*18*2),
+  HOSize_(15*72*2),
+  HFSize_(36*12*2*2),
   numberOfShapes_(( mode==HcalTopologyMode::SLHC ) ? 500 : 87 )
 {
-    // SLHC
-    //
-    // kHBSizePreLS1 = 2*kHBhalf
-    // kHESizePreLS1 = 2*kHEhalf
-    // kHBHalfExtra  = 72*(maxDepthHB*15-16)
-    // kHEHalfExtra  = 36*(maxDepthHE*19-40)
-    // kHBSizeExtra  = 2*kHBHalfExtra
-    // kHESizeExtra  = 2*kHEHalfExtra
-    // kHBSize = kHBSizePreLS1+kHBSizeExtra
-    // kHESize = kHESizePreLS1+kHESizeExtra
 
-    // Current
-    //
-    // kHBSize = 2*kHBhalf
-    // kHESize = 2*kHEhalf
-    
-    std::cout << "HcalTopology::HcalTopology "
-	      << "HcalDetId::kHBSize " << HcalDetId::kHBSize
-	      << ", HcalDetId::kHESize " << HcalDetId::kHESize
-	      << ", HcalDetId::kHOSize " << HcalDetId::kHOSize
-	      << ", HcalDetId::kHFSize " << HcalDetId::kHFSize << std::endl;
+  if (mode_==HcalTopologyMode::LHC) {
+    topoVersion_=1;
+    HBSize_=3*6*4*18*2; // qie-per-fiber * fiber/rm * rm/rbx * rbx/barrel * barrel/hcal
+    HESize_=3*6*4*18*2; // qie-per-fiber * fiber/rm * rm/rbx * rbx/endcap * endcap/hcal
+    HOSize_=15*72*2; // ieta * iphi * 2
+    HFSize_=36*13*2*2; // phi * eta * depth * pm // TODO: FIXME with real tight packing, as Jeremy is lazy
+  } else if (mode_==HcalTopologyMode::SLHC) { // need to know more eventually
+    HBSize_=maxDepthHB*16*72*2;
+    HESize_=maxDepthHE*(29-16+1)*72*2;
+    HOSize_=15*72*2; // ieta * iphi * 2
+    HFSize_=36*13*2*2; // phi * eta * depth * pm // TODO: FIXME with real tight packing, as Jeremy is lazy
 
-    int kHBHalfExtra  = 72*(maxDepthHB*15-16);    
-    int kHEHalfExtra  = 36*(maxDepthHE*19-40);
-    int kHBSizeExtra  = ( mode==HcalTopologyMode::SLHC) ? ( 2*kHBHalfExtra ) : 0;
-    int kHESizeExtra  = ( mode==HcalTopologyMode::SLHC) ? ( 2*kHEHalfExtra ) : 0;
+    topoVersion_=10;
+  }
     
-    std::cout << "Actual kHBSize = " << HcalDetId::kHBSize+kHBSizeExtra << " ( " << HBSize_ << " )" 
-	      << ", actual kHESize = " << HcalDetId::kHESize+kHESizeExtra  << " ( " << HESize_ << " )" << std::endl;
+  std::cout << "HcalTopology::HcalTopology "
+	    << "HBSize " << HBSize_
+	    << ", HESize " << HESize_
+	    << ", HOSize " << HOSize_
+	    << ", HFSize " << HFSize_ << std::endl;
 }
 
+bool HcalTopology::valid(const DetId& id) const {
+  assert(id.det()==DetId::Hcal);
+  return validHcal(id);
+}
 
-bool HcalTopology::valid(const HcalDetId& id) const {
+bool HcalTopology::validHcal(const HcalDetId& id) const {
   // check the raw rules
   bool ok=validRaw(id);
 
@@ -520,3 +518,50 @@ std::pair<int, int> HcalTopology::segmentBoundaries(unsigned ring, unsigned dept
   return std::pair<int, int>(d1, d2);
 }
 
+unsigned int HcalTopology::detId2denseId(const DetId& id) const {
+  unsigned int retval(0);
+  if (topoVersion_==1) { // pre-LS1
+  } else if (topoVersion_==10) {
+    HcalDetId hid(id);
+    if (hid.subdet()==HcalBarrel) {
+      retval=(hid.depth()-1)+maxDepthHB_*(hid.iphi()-1);
+      if (hid.ieta()>0) {
+	retval+=maxDepthHB_*72*(hid.ieta()-1);
+      } else 
+	retval+=maxDepthHB_*72*(32+hid.ieta());
+    } else if (hid.subdet()==HcalEndcap) {
+      retval=HBSize_;
+      retval+=(hid.depth()-1)+maxDepthHE_*(hid.iphi()-1);
+      if (hid.ieta()>0) {
+	retval+=maxDepthHE_*72*(hid.ieta()-16);
+      } else 
+	retval+=maxDepthHE_*72*((14+29)+hid.ieta());      
+    } else if (hid.subdet()==HcalOuter) {
+      retval=HBSize_+HESize_;
+      if (hid.ieta()>0) retval+=(hid.iphi()-1)+72*(hid.ieta()-1);
+      else retval+=(hid.iphi()-1)+72*(30+hid.ieta());
+    } else { // HcalForward
+      retval=HBSize_+HESize_+HOSize_;
+      retval+=hid.depth()-1+2*(hid.iphi()-1);
+      if (hid.ieta()>0) retval+=2*72*(hid.ieta()-29);
+      else retval+=2*72*((29+13)-hid.ieta());
+    }
+    
+  }
+
+  /* TODO: Sunanda to fill with code which supports both pre-LS1 and TDR-upgrade */
+  return retval;
+}
+
+DetId HcalTopology::denseId2detId(unsigned int /*denseid*/) const {
+  /* TODO: Sunanda to fill with code which supports both pre-LS1 and TDR-upgrade */
+  return DetId(0);
+}
+
+unsigned int HcalTopology::ncells() const {
+  return HBSize_+HESize_+HOSize_+HFSize_;
+}
+
+int HcalTopology::topoVersion() const {
+  return topoVersion_;
+}
