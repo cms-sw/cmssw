@@ -40,8 +40,8 @@ HLT_PAMu5_v*                                       # sr 131577
 HLT_PAMu8_v*                                       # sr 131577
 HLT_PAL1DoubleMuOpen_v*                            # sr 133325
 HLT_PAL1DoubleMu0_HighQ_v*                         # sr 133325
-HLT_PAMu1_Track1_Mgt2_v*                           # sr 133325
-HLT_PAMu3_Track1_Mgt2_v*                           # sr 133325
+HLT_PAMu1_Track1_Mass2_v*                          # sr 133325
+HLT_PAMu3_Track1_Mass2_v*                          # sr 133325
 HLT_PAL2DoubleMu3_v*                               # sr 133325
 HLT_PAMu3_v*                                       # sr 133325
 HLT_PAMu7_v*                                       # sr 133325

@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/PIon/V51 (CMSSW_5_2_7_HLT2)
+# /dev/CMSSW_5_2_6/PIon/V52 (CMSSW_5_2_7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V51')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V52')
 )
 
 streams = cms.PSet( 
@@ -145,10 +145,10 @@ datasets = cms.PSet(
     'HLT_PAMinBiasHF_v1',
     'HLT_PAMinBiasHfOrBSC_v1',
     'HLT_PAMu12_v1',
-    'HLT_PAMu1_Track1_Mgt2_v1',
+    'HLT_PAMu1_Track1_Mass2_v1',
     'HLT_PAMu3PFJet20_v1',
     'HLT_PAMu3PFJet40_v1',
-    'HLT_PAMu3_Track1_Mgt2_v1',
+    'HLT_PAMu3_Track1_Mass2_v1',
     'HLT_PAMu3_v1',
     'HLT_PAMu5_v1',
     'HLT_PAMu7PFJet20_v1',
@@ -6390,7 +6390,7 @@ hltL1fL1sL1DoubleMuSingleANDL1f0 = cms.EDFilter( "HLTMuonL1Filter",
     CandTag = cms.InputTag( "hltL1extraParticles" ),
     ExcludeSingleSegmentCSC = cms.bool( False )
 )
-hltPrePAMu1Track1Mgt2 = cms.EDFilter( "HLTPrescaler",
+hltPrePAMu1Track1Mass2 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -6584,7 +6584,7 @@ hltMu1Track1Mgt2TrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilter",
     MaxTrackDxy = cms.double( 999.0 ),
     MinTrackP = cms.double( 2.5 )
 )
-hltPrePAMu3Track1Mgt2 = cms.EDFilter( "HLTPrescaler",
+hltPrePAMu3Track1Mass2 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -10620,8 +10620,8 @@ HLT_PAMu5_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu3 + hltPrePAMu5 
 HLT_PAMu8_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu3 + hltPrePAMu8 + hltL1fL1sMu3L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu3L2Filtered3 + HLTL3muonrecoSequence + hltL3fL1sMu3L3Filtered8 + HLTEndSequence )
 HLT_PAL1DoubleMu0_HighQ_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMuSingleAND0 + hltPrePAL1DoubleMu0HighQ + hltPADoubleMuLevel1PathL1HighQFiltered + HLTDoLocalHfSequence + hltHcalPM1Tower3GeVFilter + HLTEndSequence )
 HLT_PAL1DoubleMuOpen_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMuSingleAND0 + hltPrePAL1DoubleMuOpen + hltL1fL1sL1DoubleMuSingleANDL1f0 + HLTDoLocalHfSequence + hltHcalPM1Tower3GeVFilter + HLTEndSequence )
-HLT_PAMu1_Track1_Mgt2_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMuOpen + HLTDoLocalHfSequence + hltHcalPM1Tower3GeVFilter + hltPrePAMu1Track1Mgt2 + hltMu1TrackMgt2L1Filtered0 + HLTL2muonrecoSequence + hltMu1Track1Mgt2L2Filtered1 + HLTL3muonrecoSequence + hltMu1Track1Mgt2L3Filtered1 + HLTMuTrackMgt2PixelRecoSequence + hltMu1Track1Mgt2PixelMassFiltered + HLTMuTrackMgt2EffTrackRecoSequence + hltMu1Track1Mgt2TrackMassFiltered + HLTEndSequence )
-HLT_PAMu3_Track1_Mgt2_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu3 + HLTDoLocalHfSequence + hltHcalPM1Tower3GeVFilter + hltPrePAMu3Track1Mgt2 + hltMu3TrackMgt2L1Filtered0 + HLTL2muonrecoSequence + hltMu3Track1Mgt2L2Filtered3 + HLTL3muonrecoSequence + hltMu3Track1Mgt2L3Filtered3 + HLTMuTrackMgt2PixelRecoSequence + hltMu3Track1Mgt2PixelMassFiltered + HLTMuTrackMgt2EffTrackRecoSequence + hltMu3Track1Mgt2TrackMassFiltered + HLTEndSequence )
+HLT_PAMu1_Track1_Mass2_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMuOpen + HLTDoLocalHfSequence + hltHcalPM1Tower3GeVFilter + hltPrePAMu1Track1Mass2 + hltMu1TrackMgt2L1Filtered0 + HLTL2muonrecoSequence + hltMu1Track1Mgt2L2Filtered1 + HLTL3muonrecoSequence + hltMu1Track1Mgt2L3Filtered1 + HLTMuTrackMgt2PixelRecoSequence + hltMu1Track1Mgt2PixelMassFiltered + HLTMuTrackMgt2EffTrackRecoSequence + hltMu1Track1Mgt2TrackMassFiltered + HLTEndSequence )
+HLT_PAMu3_Track1_Mass2_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu3 + HLTDoLocalHfSequence + hltHcalPM1Tower3GeVFilter + hltPrePAMu3Track1Mass2 + hltMu3TrackMgt2L1Filtered0 + HLTL2muonrecoSequence + hltMu3Track1Mgt2L2Filtered3 + HLTL3muonrecoSequence + hltMu3Track1Mgt2L3Filtered3 + HLTMuTrackMgt2PixelRecoSequence + hltMu3Track1Mgt2PixelMassFiltered + HLTMuTrackMgt2EffTrackRecoSequence + hltMu3Track1Mgt2TrackMassFiltered + HLTEndSequence )
 HLT_PAL2DoubleMu3_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1DoubleMuSingleAND0 + hltPrePAL2DoubleMu3 + hltPADoubleMu0Level1PathL1Filtered + HLTDoLocalHfSequence + hltHcalPM1Tower3GeVFilter + HLTL2muonrecoSequence + hltPAL2DoubleMu3L2Filtered + HLTEndSequence )
 HLT_PAMu3_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu3 + hltPrePAMu3 + hltL1fL1sMu3L1Filtered0 + HLTDoLocalHfSequence + hltHcalPM1Tower3GeVFilter + HLTL2muonrecoSequence + hltL2L1sMu3L2Filtered3 + HLTL3muonrecoSequence + hltL3fL1sMu3L3Filtered3 + HLTEndSequence )
 HLT_PAMu7_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleMu7 + hltPrePAMu7 + hltL1fL1sMu7L1Filtered0 + HLTDoLocalHfSequence + hltHcalPM1Tower3GeVFilter + HLTL2muonrecoSequence + hltL2fL1sMu7L2Filtered3 + HLTL3muonrecoSequence + hltL3fL1sMu7L3Filtered7 + HLTEndSequence )
@@ -10673,7 +10673,7 @@ HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT_BeamGas_HF_Beam1_v5, HLT_BeamGas_HF_Beam2_v5, HLT_BeamHalo_v13, HLT_HcalPhiSym_v11, HLT_HcalNZS_v10, HLT_GlobalRunHPDNoise_v8, HLT_Physics_v5, DST_Physics_v5, HLT_DTCalibration_v2, HLT_EcalCalibration_v3, HLT_HcalCalibration_v3, HLT_TrackerCalibration_v3, AlCa_EcalPi0EBonly_v6, AlCa_EcalPi0EEonly_v6, AlCa_EcalEtaEBonly_v6, AlCa_EcalEtaEEonly_v6, AlCa_EcalPhiSym_v13, AlCa_RPCMuonNoTriggers_v9, AlCa_RPCMuonNoHits_v9, AlCa_RPCMuonNormalisation_v9, AlCa_LumiPixels_v8, AlCa_LumiPixels_ZeroBias_v4, AlCa_LumiPixels_Random_v1, HLT_PAL1SingleJet16_v1, HLT_PAL1SingleJet36_v1, HLT_PASingleForJet15_v1, HLT_PASingleForJet25_v1, HLT_PAak5CaloJet20_NoJetID_v1, HLT_PAak5CaloJet40_NoJetID_v1, HLT_PAak5CaloJet60_NoJetID_v1, HLT_PAL1SingleMuOpen_v1, HLT_PAL1SingleMu3_v1, HLT_PAL1SingleMu7_v1, HLT_PAL1SingleMu12_v1, HLT_PAL1DoubleMu0_v1, HLT_PADimuon0_NoVertexing_v1, HLT_PAMu5_v1, HLT_PAMu8_v1, HLT_PAL1DoubleMu0_HighQ_v1, HLT_PAL1DoubleMuOpen_v1, HLT_PAMu1_Track1_Mgt2_v1, HLT_PAMu3_Track1_Mgt2_v1, HLT_PAL2DoubleMu3_v1, HLT_PAMu3_v1, HLT_PAMu7_v1, HLT_PAMu12_v1, HLT_PABTagMu_Jet20_Mu4_v1, HLT_PAMu3PFJet20_v1, HLT_PAMu3PFJet40_v1, HLT_PAMu7PFJet20_v1, HLT_PAL1SingleEG5_v1, HLT_PAL1SingleEG7_v1, HLT_PAL1SingleEG12_v1, HLT_PAPhoton10_CaloIdVL_v1, HLT_PAPhoton15_CaloIdVL_v1, HLT_PAPhoton20_CaloIdVL_v1, HLT_PAPhoton30_CaloIdVL_v1, HLT_PAL1ETM30_v1, HLT_PAL1ETM70_v1, HLT_PAPixelTracks_Multiplicity70_v1, HLT_PAPixelTracks_Multiplicity90_v1, HLT_PAPixelTracks_Multiplicity100_v1, HLT_PAPixelTracks_Multiplicity130_v1, HLT_PAPixelTracks_Multiplicity160_v1, HLT_PAPixelTracks_Multiplicity190_v1, HLT_PAPixelTracks_Multiplicity220_v1, HLT_PARomanPots_Tech52_v1, HLT_PAL1Tech53_MB_v1, HLT_PAL1Tech53_MB_SingleTrack_v1, HLT_PAL1Tech54_ZeroBias_v1, HLT_PAT1minbias_Tech55_v1, HLT_PAL1Tech_HBHEHO_totalOR_v1, HLT_PAMinBiasHF_v1, HLT_PAMinBiasHF_OR_v1, HLT_PAMinBiasBSC_v1, HLT_PAMinBiasBSC_OR_v1, HLT_PAMinBiasHfOrBSC_v1, HLT_PAZeroBias_v1, HLT_PAZeroBiasPixel_SingleTrack_v1, HLT_PAHFOR_SingleTrack_v1, HLT_PAZeroBiasPixel_DoubleTrack_v1, HLT_PADoubleMu4_Acoplanarity03_v1, HLT_PAExclDijet35_HFAND_v1, HLT_PAL1DoubleEG3_FwdVeto_v1, HLT_PAL1DoubleJet20_RomanPotsOR_v1, HLT_PADoubleJet20_ForwardBackward_v1, HLT_PARandom_v1, DQM_FEDIntegrity_v11, HLT_LogMonitor_v4, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT_BeamGas_HF_Beam1_v5, HLT_BeamGas_HF_Beam2_v5, HLT_BeamHalo_v13, HLT_HcalPhiSym_v11, HLT_HcalNZS_v10, HLT_GlobalRunHPDNoise_v8, HLT_Physics_v5, DST_Physics_v5, HLT_DTCalibration_v2, HLT_EcalCalibration_v3, HLT_HcalCalibration_v3, HLT_TrackerCalibration_v3, AlCa_EcalPi0EBonly_v6, AlCa_EcalPi0EEonly_v6, AlCa_EcalEtaEBonly_v6, AlCa_EcalEtaEEonly_v6, AlCa_EcalPhiSym_v13, AlCa_RPCMuonNoTriggers_v9, AlCa_RPCMuonNoHits_v9, AlCa_RPCMuonNormalisation_v9, AlCa_LumiPixels_v8, AlCa_LumiPixels_ZeroBias_v4, AlCa_LumiPixels_Random_v1, HLT_PAL1SingleJet16_v1, HLT_PAL1SingleJet36_v1, HLT_PASingleForJet15_v1, HLT_PASingleForJet25_v1, HLT_PAak5CaloJet20_NoJetID_v1, HLT_PAak5CaloJet40_NoJetID_v1, HLT_PAak5CaloJet60_NoJetID_v1, HLT_PAL1SingleMuOpen_v1, HLT_PAL1SingleMu3_v1, HLT_PAL1SingleMu7_v1, HLT_PAL1SingleMu12_v1, HLT_PAL1DoubleMu0_v1, HLT_PADimuon0_NoVertexing_v1, HLT_PAMu5_v1, HLT_PAMu8_v1, HLT_PAL1DoubleMu0_HighQ_v1, HLT_PAL1DoubleMuOpen_v1, HLT_PAMu1_Track1_Mass2_v1, HLT_PAMu3_Track1_Mass2_v1, HLT_PAL2DoubleMu3_v1, HLT_PAMu3_v1, HLT_PAMu7_v1, HLT_PAMu12_v1, HLT_PABTagMu_Jet20_Mu4_v1, HLT_PAMu3PFJet20_v1, HLT_PAMu3PFJet40_v1, HLT_PAMu7PFJet20_v1, HLT_PAL1SingleEG5_v1, HLT_PAL1SingleEG7_v1, HLT_PAL1SingleEG12_v1, HLT_PAPhoton10_CaloIdVL_v1, HLT_PAPhoton15_CaloIdVL_v1, HLT_PAPhoton20_CaloIdVL_v1, HLT_PAPhoton30_CaloIdVL_v1, HLT_PAL1ETM30_v1, HLT_PAL1ETM70_v1, HLT_PAPixelTracks_Multiplicity70_v1, HLT_PAPixelTracks_Multiplicity90_v1, HLT_PAPixelTracks_Multiplicity100_v1, HLT_PAPixelTracks_Multiplicity130_v1, HLT_PAPixelTracks_Multiplicity160_v1, HLT_PAPixelTracks_Multiplicity190_v1, HLT_PAPixelTracks_Multiplicity220_v1, HLT_PARomanPots_Tech52_v1, HLT_PAL1Tech53_MB_v1, HLT_PAL1Tech53_MB_SingleTrack_v1, HLT_PAL1Tech54_ZeroBias_v1, HLT_PAT1minbias_Tech55_v1, HLT_PAL1Tech_HBHEHO_totalOR_v1, HLT_PAMinBiasHF_v1, HLT_PAMinBiasHF_OR_v1, HLT_PAMinBiasBSC_v1, HLT_PAMinBiasBSC_OR_v1, HLT_PAMinBiasHfOrBSC_v1, HLT_PAZeroBias_v1, HLT_PAZeroBiasPixel_SingleTrack_v1, HLT_PAHFOR_SingleTrack_v1, HLT_PAZeroBiasPixel_DoubleTrack_v1, HLT_PADoubleMu4_Acoplanarity03_v1, HLT_PAExclDijet35_HFAND_v1, HLT_PAL1DoubleEG3_FwdVeto_v1, HLT_PAL1DoubleJet20_RomanPotsOR_v1, HLT_PADoubleJet20_ForwardBackward_v1, HLT_PARandom_v1, DQM_FEDIntegrity_v11, HLT_LogMonitor_v4, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 # CMSSW version specific customizations
 import os

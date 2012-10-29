@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V51 (CMSSW_5_2_7_HLT2)
+# /dev/CMSSW_5_2_6/PIon/V52 (CMSSW_5_2_7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V51')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V52')
 )
 
 process.streams = cms.PSet( 
@@ -146,10 +146,10 @@ process.datasets = cms.PSet(
     'HLT_PAMinBiasHF_v1',
     'HLT_PAMinBiasHfOrBSC_v1',
     'HLT_PAMu12_v1',
-    'HLT_PAMu1_Track1_Mgt2_v1',
+    'HLT_PAMu1_Track1_Mass2_v1',
     'HLT_PAMu3PFJet20_v1',
     'HLT_PAMu3PFJet40_v1',
-    'HLT_PAMu3_Track1_Mgt2_v1',
+    'HLT_PAMu3_Track1_Mass2_v1',
     'HLT_PAMu3_v1',
     'HLT_PAMu5_v1',
     'HLT_PAMu7PFJet20_v1',
@@ -3621,10 +3621,10 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_PAL1DoubleMuOpen_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_PAMu1_Track1_Mgt2_v1" ),
+      cms.PSet(  pathName = cms.string( "HLT_PAMu1_Track1_Mass2_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_PAMu3_Track1_Mgt2_v1" ),
+      cms.PSet(  pathName = cms.string( "HLT_PAMu3_Track1_Mass2_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PAL2DoubleMu3_v1" ),
@@ -3763,7 +3763,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "DQM_FEDIntegrity_v11" ),
-        prescales = cms.vuint32( 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 )
+        prescales = cms.vuint32( 20, 20, 20, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_LogMonitor_v4" ),
         prescales = cms.vuint32( 10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
@@ -7131,7 +7131,7 @@ process.hltL1fL1sL1DoubleMuSingleANDL1f0 = cms.EDFilter( "HLTMuonL1Filter",
     CandTag = cms.InputTag( "hltL1extraParticles" ),
     ExcludeSingleSegmentCSC = cms.bool( False )
 )
-process.hltPrePAMu1Track1Mgt2 = cms.EDFilter( "HLTPrescaler",
+process.hltPrePAMu1Track1Mass2 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -7325,7 +7325,7 @@ process.hltMu1Track1Mgt2TrackMassFiltered = cms.EDFilter( "HLTMuonTrackMassFilte
     MaxTrackDxy = cms.double( 999.0 ),
     MinTrackP = cms.double( 2.5 )
 )
-process.hltPrePAMu3Track1Mgt2 = cms.EDFilter( "HLTPrescaler",
+process.hltPrePAMu3Track1Mass2 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -11420,10 +11420,10 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PAMinBiasHF_v1',
   'HLT_PAMinBiasHfOrBSC_v1',
   'HLT_PAMu12_v1',
-  'HLT_PAMu1_Track1_Mgt2_v1',
+  'HLT_PAMu1_Track1_Mass2_v1',
   'HLT_PAMu3PFJet20_v1',
   'HLT_PAMu3PFJet40_v1',
-  'HLT_PAMu3_Track1_Mgt2_v1',
+  'HLT_PAMu3_Track1_Mass2_v1',
   'HLT_PAMu3_v1',
   'HLT_PAMu5_v1',
   'HLT_PAMu7PFJet20_v1',
@@ -11863,8 +11863,8 @@ process.HLT_PAMu5_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1
 process.HLT_PAMu8_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu3 + process.hltPrePAMu8 + process.hltL1fL1sMu3L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sMu3L2Filtered3 + process.HLTL3muonrecoSequence + process.hltL3fL1sMu3L3Filtered8 + process.HLTEndSequence )
 process.HLT_PAL1DoubleMu0_HighQ_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuSingleAND0 + process.hltPrePAL1DoubleMu0HighQ + process.hltPADoubleMuLevel1PathL1HighQFiltered + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.HLTEndSequence )
 process.HLT_PAL1DoubleMuOpen_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuSingleAND0 + process.hltPrePAL1DoubleMuOpen + process.hltL1fL1sL1DoubleMuSingleANDL1f0 + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.HLTEndSequence )
-process.HLT_PAMu1_Track1_Mgt2_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMuOpen + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.hltPrePAMu1Track1Mgt2 + process.hltMu1TrackMgt2L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu1Track1Mgt2L2Filtered1 + process.HLTL3muonrecoSequence + process.hltMu1Track1Mgt2L3Filtered1 + process.HLTMuTrackMgt2PixelRecoSequence + process.hltMu1Track1Mgt2PixelMassFiltered + process.HLTMuTrackMgt2EffTrackRecoSequence + process.hltMu1Track1Mgt2TrackMassFiltered + process.HLTEndSequence )
-process.HLT_PAMu3_Track1_Mgt2_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu3 + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.hltPrePAMu3Track1Mgt2 + process.hltMu3TrackMgt2L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu3Track1Mgt2L2Filtered3 + process.HLTL3muonrecoSequence + process.hltMu3Track1Mgt2L3Filtered3 + process.HLTMuTrackMgt2PixelRecoSequence + process.hltMu3Track1Mgt2PixelMassFiltered + process.HLTMuTrackMgt2EffTrackRecoSequence + process.hltMu3Track1Mgt2TrackMassFiltered + process.HLTEndSequence )
+process.HLT_PAMu1_Track1_Mass2_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMuOpen + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.hltPrePAMu1Track1Mass2 + process.hltMu1TrackMgt2L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu1Track1Mgt2L2Filtered1 + process.HLTL3muonrecoSequence + process.hltMu1Track1Mgt2L3Filtered1 + process.HLTMuTrackMgt2PixelRecoSequence + process.hltMu1Track1Mgt2PixelMassFiltered + process.HLTMuTrackMgt2EffTrackRecoSequence + process.hltMu1Track1Mgt2TrackMassFiltered + process.HLTEndSequence )
+process.HLT_PAMu3_Track1_Mass2_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu3 + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.hltPrePAMu3Track1Mass2 + process.hltMu3TrackMgt2L1Filtered0 + process.HLTL2muonrecoSequence + process.hltMu3Track1Mgt2L2Filtered3 + process.HLTL3muonrecoSequence + process.hltMu3Track1Mgt2L3Filtered3 + process.HLTMuTrackMgt2PixelRecoSequence + process.hltMu3Track1Mgt2PixelMassFiltered + process.HLTMuTrackMgt2EffTrackRecoSequence + process.hltMu3Track1Mgt2TrackMassFiltered + process.HLTEndSequence )
 process.HLT_PAL2DoubleMu3_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuSingleAND0 + process.hltPrePAL2DoubleMu3 + process.hltPADoubleMu0Level1PathL1Filtered + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.HLTL2muonrecoSequence + process.hltPAL2DoubleMu3L2Filtered + process.HLTEndSequence )
 process.HLT_PAMu3_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu3 + process.hltPrePAMu3 + process.hltL1fL1sMu3L1Filtered0 + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.HLTL2muonrecoSequence + process.hltL2L1sMu3L2Filtered3 + process.HLTL3muonrecoSequence + process.hltL3fL1sMu3L3Filtered3 + process.HLTEndSequence )
 process.HLT_PAMu7_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleMu7 + process.hltPrePAMu7 + process.hltL1fL1sMu7L1Filtered0 + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.HLTL2muonrecoSequence + process.hltL2fL1sMu7L2Filtered3 + process.HLTL3muonrecoSequence + process.hltL3fL1sMu7L3Filtered7 + process.HLTEndSequence )
