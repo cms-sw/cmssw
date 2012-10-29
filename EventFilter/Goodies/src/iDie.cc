@@ -1225,6 +1225,7 @@ void iDie::initMonitorElements()
   lastRunNumberSet_ = runNumber_.value_;
   daqBusySummary_ = dqmStore_->book1D("reportSummaryMap",busySummaryTitle.str(),4000,1,4001.);
   daqBusySummary2_ = dqmStore_->book1D("reportSummaryMap_PROCSTAT","DAQ HLT Farm busy (%) from /proc/stat",4000,1,4001.);
+  daqTotalRateSummary_ = dqmStore_->book1D("reportSummaryMap_TOTRATE","DAQ HLT Farm input rate",4000,1,4001.);
 
   for (size_t i=1;i<=ROLL;i++) {
     std::ostringstream ostr;
@@ -1437,6 +1438,9 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   daqBusySummary_->setBinError(lsid,0);
   daqBusySummary2_->setBinContent(lsid,busyAvgCPU*100.);
   daqBusySummary2_->setBinError(lsid,0);
+
+  daqTotalRateSummary_->setBinContent(lsid,clst->getTotalRate());
+  daqTotalRateSummary_->setBinError(lsid,0);
 
   //"rolling" histograms
   rateSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getRate());

@@ -559,6 +559,7 @@ namespace evf {
     MonitorElement * fuReportsSummary_;
     MonitorElement * daqBusySummary_;
     MonitorElement * daqBusySummary2_;
+    MonitorElement * daqTotalRateSummary_;
     MonitorElement * busyModules_;
     unsigned int summaryLastLs_;
     std::vector<std::map<unsigned int, unsigned int> > occupancyNameMap;
