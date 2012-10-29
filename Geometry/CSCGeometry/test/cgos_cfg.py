@@ -1,10 +1,10 @@
-# Configuration file to run CSCGeometryOfStrips
-# to check local coordinate transformations for strips.
-# Tim Cox 21.01.2009
+# Configuration file to run CSCGeometryOfStrip[s
+# I hope this builds geometry from xml
+# Tim Cox 18.10.2012
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GeometryOfStrips")
+process = cms.Process("CSCGeometryTest")
 
 # Endcap Muon geometry
 # ====================
@@ -28,35 +28,20 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    ## DEBUG will dump addresses of CSCChamberSpecs objects etc. INFO does not.        
-    threshold = cms.untracked.string('INFO'),
-    categories = cms.untracked.vstring(
-       'CSC', 
-       'CSCChamberSpecs', 
-       'CSCWireTopology'
-    ),
-    destinations = cms.untracked.vstring('cout'),
-    noLineBreaks = cms.untracked.bool(True),                                    
-    cout = cms.untracked.PSet(
-       INFO = cms.untracked.PSet(
-          limit = cms.untracked.int32(-1)
-       ),
-      default = cms.untracked.PSet(
-         limit = cms.untracked.int32(0)
-      ),
-      CSCWireTopology = cms.untracked.PSet(
-         limit = cms.untracked.int32(-1)
-      ),
-      CSCChamberSpecs = cms.untracked.PSet(
-         limit = cms.untracked.int32(-1)
-      )
-   )
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.debugModules.append('CSCGeometryESModule')
+process.MessageLogger.categories.append('CSCGeometry')
+process.MessageLogger.categories.append('CSCGeometryBuilder')
+process.MessageLogger.cout = cms.untracked.PSet(
+   threshold = cms.untracked.string('DEBUG'),
+   default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
+   CSCGeometry = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+   CSCGeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
+# Executable
+# ==========
 process.producer = cms.EDAnalyzer("CSCGeometryOfStrips")
 
 process.p1 = cms.Path(process.producer)
-

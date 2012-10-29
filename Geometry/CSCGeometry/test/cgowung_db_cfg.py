@@ -1,6 +1,6 @@
-# Configuration file to run stubs/CSCGeometryOfStrips
+# Configuration file to run stubs/CSCGeometryOfWires
 # I hope this reads geometry from db
-# Tim Cox 18.10.2012 for 61X
+# Tim Cox 19.10.2012 for 61X AND UNGANGED ME1A
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,10 +34,9 @@ process.MessageLogger.cout = cms.untracked.PSet(
        CSCGeometryBuilder = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
-# Executable
-# ==========
-process.producer = cms.EDAnalyzer("CSCGeometryOfStrips")
+process.producer = cms.EDAnalyzer("CSCGeometryOfWires")
 
 process.p1 = cms.Path(process.producer)
 process.CSCGeometryESModule.debugV = True
+process.CSCGeometryESModule.useGangedStripsInME1a = False
 

@@ -1,90 +1,72 @@
-# Configuration file to run CSCGeometryAsLayers
-# printing table of layer information.
-# Tim Cox 21.01.2009
-# Version to read from database not DDD directly.
+# Configuration file to run stubs/CSCGeometryAsLayers
+# to dump CSC geometry information - from db
+# Tim Cox 18.10.2012 for 61X
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GeometryAsLayers")
+process = cms.Process("GeometryTest")
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
-# Endcap Muon geometry
-# ====================
-
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.PoolDBESSource = cms.ESSource(
-   "PoolDBESSource",
-   process.CondDBSetup,
-   loadAll = cms.bool(True),
-   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-   toGet = cms.VPSet(
-      cms.PSet(
-         record = cms.string('CSCRecoGeometryRcd'), tag = cms.string('XMLFILE_TEST_01')
-      ),
-      cms.PSet(
-         record = cms.string('CSCRecoDigiParametersRcd'), tag = cms.string('XMLFILE_TEST_02')
-      )
-   ),
-   DBParameters = cms.PSet(
-      messageLevel = cms.untracked.int32(9),
-      authenticationPath = cms.untracked.string('.')
-   ),
-   catalog = cms.untracked.string('file:PoolFileCatalog.xml'),
-   timetype = cms.string('runnumber'),
-   connect = cms.string('sqlite_file:myfile.db')
-
-)
-
-# Muon Numbering - strictly shouldn't need it since info is IN the db, but existing dependencies require it
-# ==============
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
-# Fake alignment is/should be ideal geometry
-# ==========================================
+process.GlobalTag.globaltag = 'MC_61_V2::All'
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
-process.fake2 = process.FakeAlignmentSource
-del process.FakeAlignmentSource
-process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "fake2")
+process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
 
-
-# flags for modelling of CSC layer & strip geometry
-# =================================================
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
-
-# Care! The following MessageLogger config deactivates even error messges
-# from other modules. Try removing altogether to see any!
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    ## DEBUG will dump addresses of CSCChamberSpecs objects etc. INFO does not.        
-    threshold = cms.untracked.string('INFO'),
-    categories = cms.untracked.vstring(
-       'CSC'
+process.MessageLogger = cms.Service("MessageLogger",
+    errors = cms.untracked.PSet(
+        threshold = cms.untracked.string('ERROR'),
+        extension = cms.untracked.string('.out')
     ),
-    destinations = cms.untracked.vstring('cout'),
-    noLineBreaks = cms.untracked.bool(True),                                    
-    cout = cms.untracked.PSet(
-       INFO = cms.untracked.PSet(
-          limit = cms.untracked.int32(-1)
-       ),
-      default = cms.untracked.PSet(
-         limit = cms.untracked.int32(0)
-      ),
-      CSC = cms.untracked.PSet(
-         limit = cms.untracked.int32(-1)
-      )
-   )
+    # No constraint on log content...equivalent to threshold INFO
+    # 0 means none, -1 means all (?)
+    log = cms.untracked.PSet(
+        extension = cms.untracked.string('.out')
+    ),
+    debug = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        extension = cms.untracked.string('.out'),
+        CSC = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        noLineBreaks = cms.untracked.bool(True),
+        DEBUG = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        CSCNumbering = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        threshold = cms.untracked.string('DEBUG'),
+        CSCGeometryBuilderFromDDD = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        RadialStripTopology = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        )
+    ),
+    # For LogDebug/LogTrace output...
+    debugModules = cms.untracked.vstring('*'),
+    categories = cms.untracked.vstring('CSC', 
+        'CSCNumbering', 
+        'CSCGeometryBuilderFromDDD', 
+        'RadialStripTopology'),
+    destinations = cms.untracked.vstring('log', 
+        'errors', 
+        'debug')
 )
 
 process.producer = cms.EDAnalyzer("CSCGeometryAsLayers")
 
-## process.CSCGeometryESModule.debugV = True
-process.CSCGeometryESModule.useDDD = False
-
 process.p1 = cms.Path(process.producer)
+process.CSCGeometryESModule.debugV = True
 

@@ -66,7 +66,11 @@ void
    std::cout << " I have "<<pDD->layers().size()      << " layers" << std::endl;
    std::cout << " I have "<<pDD->chambers().size()    << " chambers" << std::endl;
 
-
+   std::cout << " Ganged strips? " << pDD->gangedStrips() << std::endl;
+   std::cout << " Wires only?    " << pDD->wiresOnly() << std::endl;
+   std::cout << " Real wire geometry? " << pDD->realWireGeometry() << std::endl;
+   std::cout << " Use offsets to coi? " << pDD->centreTIOffsets() << std::endl;
+   
    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
    std::cout << "iter " << dashedLine_ << std::endl;
 
