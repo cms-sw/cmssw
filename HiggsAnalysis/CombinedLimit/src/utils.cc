@@ -511,10 +511,10 @@ void utils::setPhysicsModelParameters( std::string setPhysicsModelParameterExpre
       std::cout << "Error parsing physics model parameter expression : " << SetParameterExpressionList[p] << endl;
     } else {
       double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
-
       RooRealVar *tmpParameter = (RooRealVar*)POI->find(SetParameterExpression[0].c_str());      
-
       if (tmpParameter) {
+        cout << "Set Default Value of Parameter " << SetParameterExpression[0] 
+             << " To : " << PhysicsParameterValue << "\n";
         tmpParameter->setVal(PhysicsParameterValue);
       } else {
         std::cout << "Warning: Did not find a parameter with name " << SetParameterExpression[0] << endl;
@@ -543,10 +543,10 @@ void utils::setPhysicsModelParameterRanges( std::string setPhysicsModelParameter
     } else {
       double PhysicsParameterRangeLow = atof(SetParameterRangeExpression[1].c_str());
       double PhysicsParameterRangeHigh = atof(SetParameterRangeExpression[2].c_str());
-
-      RooRealVar *tmpParameter = (RooRealVar*)POI->find(SetParameterRangeExpression[0].c_str());      
-
+      RooRealVar *tmpParameter = (RooRealVar*)POI->find(SetParameterRangeExpression[0].c_str());            
       if (tmpParameter) {
+        cout << "Set Range of Parameter " << SetParameterRangeExpression[0] 
+             << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";
         tmpParameter->setRange(PhysicsParameterRangeLow,PhysicsParameterRangeHigh);
       } else {
         std::cout << "Warning: Did not find a parameter with name " << SetParameterRangeExpression[0] << endl;
