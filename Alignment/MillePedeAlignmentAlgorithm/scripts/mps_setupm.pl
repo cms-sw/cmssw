@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 #     G. Fluck, Uni Hamburg    13-May-2009
-#     $Revision: 1.2 $ by $Author: jbehr $
-#     $Date: 2011/06/15 14:24:52 $
+#     $Revision: 1.3 $ by $Author: jbehr $
+#     $Date: 2012/09/10 13:10:37 $
 #
 #  Setup an extra pede
 #
@@ -145,8 +145,20 @@ if($onlyactivejobs == 1 || $ignoredisabledjobs == 1) {
     ++$iIsOk;
 
     my $newName = sprintf "milleBinary%03d.dat",$i;
-    print "Adding $newName to list of binary files\n";
-    $binaryList = "$binaryList$sep\'$newName\'";
+    if($JOBSP2[$i-1] ne "" && defined $JOBSP2[$i-1])
+      {
+        my $weight = $JOBSP2[$i-1];
+        print "Adding $newName to list of binary files using weight $weight\n";
+        $binaryList = "$binaryList$sep\'$newName -- $weight\'";
+      }
+    else
+      {
+        print "Adding $newName to list of binary files\n";
+        $binaryList = "$binaryList$sep\'$newName\'";
+      }
+
+   # print "Adding $newName to list of binary files\n";
+   # $binaryList = "$binaryList$sep\'$newName\'";
   }
   my $nn  = ($filebody =~ s/mergeBinaryFiles = \[(.|\n)*?\]/mergeBinaryFiles = \[$binaryList\]/);
   $nn += ($filebody =~ s/mergeBinaryFiles = cms.vstring\(\)/mergeBinaryFiles = \[$binaryList\]/);
