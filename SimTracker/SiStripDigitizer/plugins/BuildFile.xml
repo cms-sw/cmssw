@@ -1,7 +1,23 @@
-<use   name="SimGeneral/MixingModule"/>
-<use   name="SimTracker/SiStripDigitizer"/>
-<use   name="MagneticField/Records"/>
+<use   name="CalibFormats/SiStripObjects"/>
+<use   name="CalibTracker/Records"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/SiStripDigi"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="MagneticField/Engine"/>
+<use   name="MagneticField/Records"/>
+<use   name="RecoLocalTracker/SiStripZeroSuppression"/>
+<use   name="SimDataFormats/CrossingFrame"/>
+<use   name="SimDataFormats/TrackerDigiSimLink"/>
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="SimGeneral/MixingModule"/>
+<use   name="SimGeneral/NoiseGenerators"/>
+<use   name="SimTracker/Common"/>
+<use   name="SimTracker/SiStripDigitizer"/>
+<use   name="boost"/>
+<use   name="gsl"/>
 <library   file="*.cc" name="SimTrackerSiStripDigitizerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

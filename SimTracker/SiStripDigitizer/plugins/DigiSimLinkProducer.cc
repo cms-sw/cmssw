@@ -4,7 +4,7 @@
 // system include files
 #include <memory>
 
-#include "SimTracker/SiStripDigitizer/interface/DigiSimLinkProducer.h"
+#include "DigiSimLinkProducer.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"

@@ -6,8 +6,8 @@
 
 #include "SimTracker/Common/interface/SimHitSelectorFromDB.h"
 
-#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizer.h"
-#include "SimTracker/SiStripDigitizer/interface/SiStripDigitizerAlgorithm.h"
+#include "SiStripDigitizer.h"
+#include "SiStripDigitizerAlgorithm.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
