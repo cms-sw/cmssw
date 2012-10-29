@@ -15,7 +15,6 @@
 <use   name="SimGeneral/MixingModule"/>
 <use   name="SimGeneral/NoiseGenerators"/>
 <use   name="SimTracker/Common"/>
-<use   name="SimTracker/SiStripDigitizer"/>
 <use   name="boost"/>
 <use   name="gsl"/>
 <library   file="*.cc" name="SimTrackerSiStripDigitizerPlugins">
