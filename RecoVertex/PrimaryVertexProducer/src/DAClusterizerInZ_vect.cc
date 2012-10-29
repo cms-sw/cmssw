@@ -8,7 +8,7 @@
 #include <limits>
 #include <iomanip>
 
-#include "vdtMath.h"
+#include "vdt/vdtMath.h"
 
 using namespace std;
 
