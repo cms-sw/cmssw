@@ -6,6 +6,7 @@
   <use name="CommonTools/Utils"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/CaloTopology"/>
   <use name="DataFormats/HcalDetId"/>
   <use name="DataFormats/EcalDetId"/>
   <flags   EDM_PLUGIN="1"/>
