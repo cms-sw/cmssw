@@ -182,6 +182,7 @@ class StorageInputStream :
 	unsigned int	pos;
         lzma_stream     lstr;
         bool            compression_;
+        unsigned int    lasttotal_;
 };
 
 typedef XMLInputSourceWrapper<CBInputStream> CBInputSource;
