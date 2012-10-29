@@ -135,6 +135,8 @@ struct stPlots {
    TH1F*  BS_Dz_FailSep;
    TH1F*  BS_InnerInvPtDiff;
    TH1F*  BS_Phi;
+   TH1F*  BS_CosmicDR;
+
 
    TH1F*  BS_Pt_FailDz;
    TH1F*  BS_Pt_FailDz_DT;
@@ -412,6 +414,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_MatchedStations"  ; st.BS_MatchedStations= new TH1F(Name.c_str(), Name.c_str(),                   8, -0.5, 7.5); st.BS_MatchedStations->Sumw2();
    Name = "BS_InnerInvPtDiff"  ; st.BS_InnerInvPtDiff = new TH1F(Name.c_str(), Name.c_str(),                   120, -4, 4); st.BS_InnerInvPtDiff->Sumw2();
    Name = "BS_Phi"  ; st.BS_Phi = new TH1F(Name.c_str(), Name.c_str(),                   50, -3.14, 3.14); st.BS_Phi->Sumw2();
+   Name = "BS_CosmicDR"  ; st.BS_CosmicDR = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, 1); st.BS_CosmicDR->Sumw2();
 
    Name = "BS_NVertex";  st.BS_NVertex = new TH1F(Name.c_str(), Name.c_str(), 50, 0,  50);  st.BS_NVertex    ->Sumw2();
    Name = "BS_NVertex_NoEventWeight";    st.BS_NVertex_NoEventWeight = new TH1F(Name.c_str(), Name.c_str(), 50, 0, 50);     st.BS_NVertex_NoEventWeight    ->Sumw2();
@@ -732,6 +735,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_Dz_FailSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_FailSep");
    st.BS_InnerInvPtDiff  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_InnerInvPtDiff");
    st.BS_Phi  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Phi");
+   st.BS_CosmicDR  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_CosmicDR");
 
    st.BS_Pt_FailDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz");
    st.BS_Pt_FailDz_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz_DT");
@@ -1286,7 +1290,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    TH1** Histos = new TH1*[10];
    std::vector<std::string> legend;
    TCanvas* c1;
-
+/*
    for(unsigned int i=0;i<st.size();i++){
 //      if(st[i]->Name=="Data")continue;
       c1 = new TCanvas("c1","c1,",600,600);                                               legend.clear();
@@ -1324,7 +1328,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    }
 
 
-
+*/
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_V3D->Clone();      legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral());   }
@@ -1609,7 +1613,6 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
-//
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_InnerInvPtDiff->Clone(); Histos[i]->Rebin(4);  legend.push_back(lg[i]);
@@ -1646,7 +1649,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    SaveCanvas(c1,SavePath,"Dz_FailSep_BS", true);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
-//
+
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_Dxy->Clone();  legend.push_back(lg[i]); Histos[i]->Rebin(1);

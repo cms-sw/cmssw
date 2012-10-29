@@ -301,6 +301,7 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 }
 
 // check if one HSCP candidate is passing the preselection (the function also has many more arguments because it is used to fill some histograms AND to evaluate the systematics
+double dRtoCosmic = -1; //global variable needed by PassPreselection... Ugly isn't it?!
 bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT)
 {
    if(TypeMode==1 && !(hscp.type() == HSCParticleType::trackerMuon || hscp.type() == HSCParticleType::globalMuon))return false;
@@ -565,7 +566,11 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
    if(st)st->BS_Phi->Fill(track->phi(),Event_Weight);
    if(TypeMode==3 && fabs(track->phi())>1.2 && fabs(track->phi())<1.9) return false;
-   
+
+    //skip HSCP that are compatible with cosmics.
+    if(st)st->BS_CosmicDR->Fill(dRtoCosmic,Event_Weight);
+    if(dRtoCosmic>0.3)return false;
+  
 
    if(st){if(dedxSObj) st->BS_EtaIs->Fill(track->eta(),dedxSObj->dEdx(),Event_Weight);
           if(dedxMObj) st->BS_EtaIm->Fill(track->eta(),dedxMObj->dEdx(),Event_Weight);
@@ -1111,8 +1116,7 @@ void Analysis_Step3(char* SavePath)
                if(TypeMode==5 && dedxSObj){
                   //for FractionalCharge dEdx discriminator probability is close to 0, just inverse the logic such that it become close to 1 as for other analyses
                   dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
-                  //skip HSCP that are compatible with cosmics.
-                  if(deltaROpositeTrack(hscpColl, hscp)<0.3)continue;
+                  dRtoCosmic = deltaROpositeTrack(hscpColl, hscp); //dRtoCosmic is a global variable... that's uggly C++, but that's the best I found so far
                }
                const reco::MuonTimeExtra* tof = NULL;
                const reco::MuonTimeExtra* dttof = NULL;
@@ -1132,7 +1136,7 @@ void Analysis_Step3(char* SavePath)
                   TRescale = -0.03; // added to the 1/beta value
 #endif
                   // compute systematic due to momentum scale
-                  if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
+                  if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
 
  		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p()*PRescale,dedxMObj->dEdx(),!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p()*PRescale,tof->inverseBeta());
@@ -1155,7 +1159,7 @@ void Analysis_Step3(char* SavePath)
                   }
 
                   // compute systematic due to dEdx (both Ias and Ih)
-                  if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, IRescale, 0)){
+                  if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, IRescale, 0)){
 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx()*MRescale,!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 		     double MassComb = -1;
@@ -1177,7 +1181,7 @@ void Analysis_Step3(char* SavePath)
                   }
 
                   // compute systematic due to Mass shift
-                  if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, 0)){
+                  if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, 0)){
 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx()*MRescale,!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 		     double MassComb = -1;
@@ -1199,7 +1203,7 @@ void Analysis_Step3(char* SavePath)
                   }
 
                   // compute systematic due to TOF
-                  if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, TRescale)){
+                  if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, TRescale)){
  		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx(),!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),(tof->inverseBeta()+TRescale));
 		     double MassComb = -1;
@@ -1221,7 +1225,7 @@ void Analysis_Step3(char* SavePath)
                   }
 
                   // compute systematics due to PU
-                  if(PassPreselection(hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
+                  if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx(),!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 		     double MassComb = -1;
@@ -1244,8 +1248,8 @@ void Analysis_Step3(char* SavePath)
                }//End of systematic computation for signal
 
                //check if the canddiate pass the preselection cuts
-               if(isMC)PassPreselection(hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, MCTrPlots   );
-               if(    !PassPreselection(hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, SamplePlots, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
+               if(isMC)PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, MCTrPlots   );
+               if(    !PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, SamplePlots, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
 
                //fill the ABCD histograms and a few other control plots
                if(isData)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, SamplePlots);
