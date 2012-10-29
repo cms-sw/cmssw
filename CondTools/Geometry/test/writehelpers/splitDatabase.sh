@@ -9,6 +9,11 @@ cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedX
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedPhaseIBeamPipe.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedPhaseIBeamPipe_mc -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedPostLS1.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedPostLS1_mc -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedPostLS2.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedPostLS2_mc -l sqlite_file:localpopconlog.db
+cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedFlat10Percent.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedFlat10Percent_mc -l sqlite_file:localpopconlog.db
+cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedFlat20Percent.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedFlat20Percent_mc -l sqlite_file:localpopconlog.db
+cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedFlat10Services30Percent.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedFlat10Services30Percent_mc -l sqlite_file:localpopconlog.db
+cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedFlat20Services30Percent.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedFlat20Services30Percent_mc -l sqlite_file:localpopconlog.db
+cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:GeometryFileExtendedServices30Percent.db -D CondFormatsGeometryObjects  -t XMLFILE_Geometry_TagXX_ExtendedServices30Percent_mc -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:TKRECO_Geometry.db -D CondFormatsGeometryObjects  -t TKRECO_Geometry_TagXX -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:TKExtra_Geometry.db -D CondFormatsGeometryObjects  -t TKExtra_Geometry_TagXX -l sqlite_file:localpopconlog.db
 cmscond_export_iov -s sqlite_file:myfile.db -d sqlite_file:EBRECO_Geometry.db -D CondFormatsGeometryObjects  -t EBRECO_Geometry_TagXX -l sqlite_file:localpopconlog.db

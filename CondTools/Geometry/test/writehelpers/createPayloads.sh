@@ -69,6 +69,22 @@ sed -i '{s/PostLS1/PostLS2/g}' geometryxmlwriter.py
 sed -i '{s/\/gepostls1/\/gepostls2/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
+sed -i '{s/PostLS2/Flat10Percent/g}' geometryxmlwriter.py
+sed -i '{s/\/gepostls2/\/geflat10percent/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+sed -i '{s/Flat10Percent/Flat20Percent/g}' geometryxmlwriter.py
+sed -i '{s/\/geflat10percent/\/geflat20percent/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+sed -i '{s/Flat20Percent/Flat10Services30Percent/g}' geometryxmlwriter.py
+sed -i '{s/\/geflat20percent/\/geflat10services30percent/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+sed -i '{s/Flat10Services30Percent/Flat20Services30Percent/g}' geometryxmlwriter.py
+sed -i '{s/\/geflat10services30percent/\/geflat20services30percent/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+sed -i '{s/Flat20Services30Percent/Services30Percent/g}' geometryxmlwriter.py
+sed -i '{s/\/geflat20services30percent/\/geservices30percent/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+
 # Read the one big XML file and output a record to the
 # database with the an identifying tag
 # This is repeated several times below.  The sed commands
@@ -109,6 +125,22 @@ sed -i '{s/\/gepibp/\/gepostls1/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 sed -i '{s/PostLS1/PostLS2/g}' xmlgeometrywriter.py
 sed -i '{s/\/gepostls1/\/gepostls2/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+
+sed -i '{s/PostLS2/Flat10Percent/g}' xmlgeometrywriter.py
+sed -i '{s/\/gepostls2/\/geflat10percent/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+sed -i '{s/Flat10Percent/Flat20Percent/g}' xmlgeometrywriter.py
+sed -i '{s/\/geflat10percent/\/geflat20percent/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+sed -i '{s/Flat20Percent/Flat10Services30Percent/g}' xmlgeometrywriter.py
+sed -i '{s/\/geflat20percent/\/geflat10services30percent/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+sed -i '{s/Flat10Services30Percent/Flat20Services30Percent/g}' xmlgeometrywriter.py
+sed -i '{s/\/geflat10services30percent/\/geflat20services30percent/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+sed -i '{s/Flat20Services30Percent/Services30Percent/g}' xmlgeometrywriter.py
+sed -i '{s/\/geflat20services30percent/\/geservices30percent/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
 # All the database objects were written into one database
