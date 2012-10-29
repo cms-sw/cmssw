@@ -27,19 +27,15 @@ public:
   typedef PHcalRcd           PGeometryRecord ;
   typedef HcalDetId          DetIdType       ;
 
-  enum { k_NumberOfCellsForCorners = HcalDetId::kSizeForDenseIndexing } ;
-
-  // 500 for SLHC?
-  //enum { k_NumberOfShapes = 87 } ;
     
   enum { k_NumberOfParametersPerShape = 5 } ;
 
   static std::string dbString() { return "PHcalRcd" ; }
 
-  virtual unsigned int numberOfShapes() const { return theTopology->getNumberOfShapes() ; }
+  virtual unsigned int numberOfShapes() const { return theTopology.getNumberOfShapes() ; }
   virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
-  explicit HcalGeometry(const HcalTopology * topology);
+  explicit HcalGeometry(const HcalTopology& topology);
 
   /// The HcalGeometry will delete all its cell geometries at destruction time
   virtual ~HcalGeometry();
@@ -73,11 +69,11 @@ public:
 
   static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-  static void localCorners( Pt3DVec&        lc  ,
-			    const CCGFloat* pv  , 
-			    unsigned int    i   ,
-			    Pt3D&           ref   ) ;
-
+  void localCorners( Pt3DVec&        lc  ,
+		     const CCGFloat* pv  , 
+		     unsigned int    i   ,
+		     Pt3D&           ref   ) ;
+  
   virtual void newCell( const GlobalPoint& f1 ,
 			const GlobalPoint& f2 ,
 			const GlobalPoint& f3 ,
@@ -98,7 +94,7 @@ private:
   int phiBin(double phi, int etaring) const;
 
 
-  const HcalTopology * theTopology;
+  const HcalTopology& theTopology;
   
   mutable std::vector<DetId> m_hbIds ;
   mutable std::vector<DetId> m_heIds ;

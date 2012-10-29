@@ -23,10 +23,12 @@ HcalDDDGeometryLoader::~HcalDDDGeometryLoader() {
 
 
 HcalDDDGeometryLoader::ReturnType 
-HcalDDDGeometryLoader::load(DetId::Detector det, int subdet) {
+HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int subdet) {
 
   HcalSubdetector  hsub        = static_cast<HcalSubdetector>(subdet);
-  HcalDDDGeometry* gDDD ( new HcalDDDGeometry );
+
+
+  HcalDDDGeometry* gDDD ( new HcalDDDGeometry(topo) );
   ReturnType geom ( gDDD );
 
   if ( geom->cornersMgr() == 0 ) {
@@ -46,9 +48,9 @@ HcalDDDGeometryLoader::load(DetId::Detector det, int subdet) {
 }
 
 HcalDDDGeometryLoader::ReturnType 
-HcalDDDGeometryLoader::load() {
+HcalDDDGeometryLoader::load(const HcalTopology& topo) {
 
-   HcalDDDGeometry* gDDD ( new HcalDDDGeometry );
+  HcalDDDGeometry* gDDD ( new HcalDDDGeometry(topo) );
    ReturnType geom ( gDDD );
 
    if( geom->cornersMgr() == 0 ) {

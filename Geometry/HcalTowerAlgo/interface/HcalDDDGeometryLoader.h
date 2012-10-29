@@ -4,6 +4,7 @@
 #include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometry.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 class DDCompactView;
 class CaloCellGeometry;
@@ -14,8 +15,8 @@ class HcalDetId;
  *
  * \note The Geometry as loaded from DDD
  *   
- * $Date: 2010/04/12 23:35:37 $
- * $Revision: 1.5 $
+ * $Date: 2011/06/04 19:07:17 $
+ * $Revision: 1.6 $
  * \author S. Banerjee
 */
 
@@ -27,9 +28,9 @@ class HcalDDDGeometryLoader // : public CaloVGeometryLoader {
       virtual ~HcalDDDGeometryLoader();
   
       typedef CaloSubdetectorGeometry* ReturnType ;
-      ReturnType load(DetId::Detector , int );
+      ReturnType load(const HcalTopology& topo, DetId::Detector , int );
       /// Load all of HCAL
-      ReturnType load();
+      ReturnType load(const HcalTopology& topo);
   
 private:
 
@@ -44,6 +45,8 @@ private:
 		 double, CaloSubdetectorGeometry* geom) const;
   
   HcalNumberingFromDDD* numberingFromDDD;
+
+  HcalTopology* dummyTopology_;
 
 };
 
