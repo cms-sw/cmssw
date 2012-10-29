@@ -53,22 +53,24 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
     }	 
     //*********************************************************************************************
 
-    const unsigned int nTrParm ( tvec.size()/HcalGeometry::k_NumberOfCellsForCorners ) ;
-
+ 
     edm::ESHandle<HcalTopology> hcalTopology;
     iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
     
     assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
-    PtrType ptr ( new HcalGeometry( &*hcalTopology ));
-    
+    HcalGeometry* hcg=new HcalGeometry( *hcalTopology );
+    PtrType ptr ( hcg );
+ 
+    const unsigned int nTrParm ( tvec.size()/hcalTopology->ncells() ) ;
+   
     ptr->fillDefaultNamedParameters() ;
 
-    ptr->allocateCorners( HcalGeometry::k_NumberOfCellsForCorners ) ;
+    ptr->allocateCorners( hcalTopology->ncells() );
 
     ptr->allocatePar(    dvec.size() ,
 			 HcalGeometry::k_NumberOfParametersPerShape ) ;
 
-    for( unsigned int i ( 0 ) ; i != HcalGeometry::k_NumberOfCellsForCorners ; ++i )
+    for( unsigned int i ( 0 ) ; i !=hcalTopology->ncells() ; ++i )
     {
 	const unsigned int nPerShape ( HcalGeometry::k_NumberOfParametersPerShape ) ;
 	DimVec dims ;
@@ -89,7 +91,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 							       ptr->parVecVec() ) ) ;
 
 
-	const DetId id ( HcalGeometry::DetIdType::detIdFromDenseIndex( i ) ) ;
+	const DetId id ( hcalTopology->denseId2detId(i) );
     
 	const unsigned int iGlob ( 0 == globalPtr ? 0 :
 				   HcalGeometry::alignmentTransformIndexGlobal( id ) ) ;
@@ -114,7 +116,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
 
 	Pt3D  lRef ;
 	Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
-	HcalGeometry::localCorners( lc, &dims.front(), i, lRef ) ;
+	hcg->localCorners( lc, &dims.front(), i, lRef ) ;
 
 	const Pt3D lBck ( 0.25*(lc[4]+lc[5]+lc[6]+lc[7] ) ) ; // ctr rear  face in local
 	const Pt3D lCor ( lc[0] ) ;

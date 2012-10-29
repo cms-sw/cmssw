@@ -13,7 +13,7 @@
 //
 // Original Author:  Sunanda Banerjee
 //         Created:  Thu Oct 20 11:35:27 CDT 2006
-// $Id: HcalDDDGeometryEP.cc,v 1.5 2008/08/07 12:54:09 sunanda Exp $
+// $Id: HcalDDDGeometryEP.cc,v 1.6 2010/03/25 22:08:44 case Exp $
 //
 //
 
@@ -66,12 +66,16 @@ HcalDDDGeometryEP::ReturnType
 HcalDDDGeometryEP::produceIdeal(const IdealGeometryRecord& iRecord) {
    idealRecordCallBack( iRecord ) ;
 
+   edm::LogInfo("HCAL") << "Using default HCAL topology" ;
+   edm::ESHandle<HcalTopology> topology ;
+   iRecord.get( topology ) ;
+
    assert( 0 == m_loader ) ;
    m_loader = new HcalDDDGeometryLoader(*m_cpv); 
 #ifdef DebugLog
    LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";
 #endif
-   ReturnType pC ( m_loader->load() ) ;
+   ReturnType pC ( m_loader->load(*topology) ) ;
 
    return pC ;
 }
@@ -80,12 +84,17 @@ HcalDDDGeometryEP::ReturnType
 HcalDDDGeometryEP::produceAligned(const HcalGeometryRecord& iRecord) {
    //now do what ever other initialization is needed
    assert( 0 != m_cpv ) ;
+
+   edm::LogInfo("HCAL") << "Using default HCAL topology" ;
+   edm::ESHandle<HcalTopology> topology ;
+   iRecord.get( topology ) ;
+
    if( 0 == m_loader ) m_loader = new HcalDDDGeometryLoader(*m_cpv); 
 #ifdef DebugLog
    LogDebug("HCalGeom")<<"HcalDDDGeometryEP:Initialize HcalDDDGeometryLoader";
 #endif
 
-   ReturnType pC ( m_loader->load() ) ;
+   ReturnType pC ( m_loader->load(*topology) ) ;
 
    return pC ;
 }
