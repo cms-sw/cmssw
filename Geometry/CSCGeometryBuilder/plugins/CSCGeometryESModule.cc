@@ -134,14 +134,16 @@ void CSCGeometryESModule::initCSCGeometry_( const MuonGeometryRecord& record )
 
   // Updates whenever a dependent Record was changed
 
-  cscGeometry = boost::shared_ptr<CSCGeometry>( new CSCGeometry );
+  cscGeometry = boost::shared_ptr<CSCGeometry>( new CSCGeometry( debugV, useGangedStripsInME1a, useOnlyWiresInME1a, useRealWireGeometry,
+								 useCentreTIOffsets ) );
 
-  cscGeometry->setUseRealWireGeometry( useRealWireGeometry );
-  cscGeometry->setOnlyWiresInME1a( useOnlyWiresInME1a );
-  cscGeometry->setGangedStripsInME1a( useGangedStripsInME1a );
-  cscGeometry->setUseCentreTIOffsets( useCentreTIOffsets );
-  cscGeometry->setDebugV( debugV );
-  if ( debugV ) cscGeometry->queryModelling();
+  //  cscGeometry->setUseRealWireGeometry( useRealWireGeometry );
+  //  cscGeometry->setOnlyWiresInME1a( useOnlyWiresInME1a );
+  //  cscGeometry->setGangedStripsInME1a( useGangedStripsInME1a );
+  //  cscGeometry->setUseCentreTIOffsets( useCentreTIOffsets );
+  //  cscGeometry->setDebugV( debugV );
+
+  //  if ( debugV ) cscGeometry->queryModelling();
 
   // Called whenever the muon numbering (or ideal geometry) changes
   //
