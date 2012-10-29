@@ -137,7 +137,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   // get the DCC header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
   const HcalDTCHeader* dtcHeader=(const HcalDTCHeader*)(raw.data());
-  bool is_VME_DCC=(dccHeader->getDCCDataFormatVersion()<0x10);
+  bool is_VME_DCC=(dccHeader->getDCCDataFormatVersion()<0x10) || ((mode_&0x1)==0);
   
   int dccid=(is_VME_DCC)?(dccHeader->getSourceId()-sourceIdOffset_):(dtcHeader->getSourceId()-sourceIdOffset_);
 

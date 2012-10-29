@@ -23,6 +23,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpackTTP_(conf.getUntrackedParameter<bool>("UnpackTTP",false)),
   silent_(conf.getUntrackedParameter<bool>("silent",true)),
   complainEmptyData_(conf.getUntrackedParameter<bool>("ComplainEmptyData",false)),
+  unpackerMode_(conf.getUntrackedParameter<int>("UnpackerMode",0)),
   expectedOrbitMessageTime_(conf.getUntrackedParameter<int>("ExpectedOrbitMessageTime",-1))
 {
   if (fedUnpackList_.empty()) {
@@ -31,6 +32,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   } 
   
   unpacker_.setExpectedOrbitMessageTime(expectedOrbitMessageTime_);
+  unpacker_.setMode(unpackerMode_);
   std::ostringstream ss;
   for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
     ss << fedUnpackList_[i] << " ";

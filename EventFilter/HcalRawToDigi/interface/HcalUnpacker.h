@@ -32,9 +32,9 @@ public:
   };
 
   /// for normal data
-  HcalUnpacker(int sourceIdOffset, int beg, int end) : sourceIdOffset_(sourceIdOffset), startSample_(beg), endSample_(end), expectedOrbitMessageTime_(-1) { }
+  HcalUnpacker(int sourceIdOffset, int beg, int end) : sourceIdOffset_(sourceIdOffset), startSample_(beg), endSample_(end), expectedOrbitMessageTime_(-1), mode_(0) { }
   /// For histograms, no begin and end
-  HcalUnpacker(int sourceIdOffset) : sourceIdOffset_(sourceIdOffset), startSample_(-1), endSample_(-1),  expectedOrbitMessageTime_(-1) { }
+  HcalUnpacker(int sourceIdOffset) : sourceIdOffset_(sourceIdOffset), startSample_(-1), endSample_(-1),  expectedOrbitMessageTime_(-1), mode_(0) { }
   void setExpectedOrbitMessageTime(int time) { expectedOrbitMessageTime_=time; }
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
@@ -44,11 +44,13 @@ public:
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HODataFrame>& precision, std::vector<HcalTriggerPrimitiveDigi>& tp);
   // Old -- deprecated
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HFDataFrame>& precision, std::vector<HcalTriggerPrimitiveDigi>& tp);
+  void setMode(int mode) { mode_=mode; }
 private:
   int sourceIdOffset_; ///< number to subtract from the source id to get the dcc id
   int startSample_; ///< first sample from fed raw data to copy 
   int endSample_; ///< last sample from fed raw data to copy (if present)
   int expectedOrbitMessageTime_; ///< Expected orbit bunch time (needed to evaluate time differences)
+  int mode_;
   std::set<HcalElectronicsId> unknownIds_,unknownIdsTrig_; ///< Recorded to limit number of times a log message is generated
 };
 
