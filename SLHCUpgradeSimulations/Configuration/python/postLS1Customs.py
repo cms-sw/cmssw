@@ -25,8 +25,13 @@ def digiCustoms(process):
     process=customise_csc_geom_cond_digi(process)
 
     #extend the event content
-    process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simMuonCSCDigis_*_*')
-    process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
+    if hasattr(process,'FEVTDEBUGoutput'):
+        process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simMuonCSCDigis_*_*')
+        process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
+    if hasattr(process,'GENRAWoutput'):
+        print 'ok'
+        process.GENRAWoutput.outputCommands.append( 'keep *_simMuonCSCDigis_*_*')
+        process.GENRAWoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
                                                    
     
     return process
