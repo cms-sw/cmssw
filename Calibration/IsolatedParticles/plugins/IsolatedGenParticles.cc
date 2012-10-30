@@ -665,12 +665,12 @@ void IsolatedGenParticles::BookHistograms(){
   h_NEventProc  = fs->make<TH1I>("h_NEventProc",  "h_NEventProc", 2, -0.5, 0.5);
   h_L1AlgoNames = fs->make<TH1I>("h_L1AlgoNames", "h_L1AlgoNames:Bin Labels", 128, -0.5, 127.5);  
 
-  double pBin[PBins+1] = {0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 20.0, 30.0, 40.0, 50.0,
-			  60.0, 70.0, 80.0, 90.0, 100.0, 150.0, 200.0, 250.0,
-			  300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0,
-			  650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0,
-			  1000.0};
-  double etaBin[EtaBins+1] = {-3.0, -2.9, -2.8, -2.7, -2.6, -2.5, -2.4, -2.3,
+  double pBin[] = {0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 20.0, 30.0, 40.0, 50.0,
+		   60.0, 70.0, 80.0, 90.0, 100.0, 150.0, 200.0, 250.0,
+		   300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0,
+		   650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0,
+		   1000.0};
+  constexpr double etaBin[] = {-3.0, -2.9, -2.8, -2.7, -2.6, -2.5, -2.4, -2.3,
 			      -2.2, -2.1, -2.0, -1.9, -1.8, -1.7, -1.6, -1.5,
 			      -1.4, -1.3, -1.2, -1.1, -1.0, -0.9, -0.8, -0.7,
 			      -0.6, -0.5, -0.4, -0.3, -0.2, -0.1,  0.0,  0.1,
@@ -678,15 +678,15 @@ void IsolatedGenParticles::BookHistograms(){
   			       1.0,  1.1,  1.2,  1.3,  1.4,  1.5,  1.6,  1.7,
   			       1.8,  1.9,  2.0,  2.1,  2.2,  2.3,  2.4,  2.5,
 			       2.6,  2.7,  2.8,  2.9,  3.0};
-  std::string particle[Particles] = {"electron", "positron", "#gamma", "#pi^+",
-				     "#pi^-", "K^+", "K^-", "p", "n", "pbar",
-				     "nbar", "K^0_L"};
+  constexpr char const* particle[] = {"electron", "positron", "#gamma", "#pi^+",
+				      "#pi^-", "K^+", "K^-", "p", "n", "pbar",
+				      "nbar", "K^0_L"};
   TFileDirectory dir1     = fs->mkdir( "pEta" );
   char name[20], title[50];
   for (int i=0; i<Particles; ++i) {
     sprintf (name, "pEta%d", i);
-    sprintf (title, "#eta vs momentum for %s", particle[i].c_str());
-    h_pEta[i] = dir1.make<TH2D>(name, title, PBins, pBin, EtaBins, etaBin);
+    sprintf (title, "#eta vs momentum for %s", particle[i]);
+    h_pEta[i] = dir1.make<TH2D>(name, title, (sizeof(pBin)/sizeof(double))-1, pBin, (sizeof(etaBin)/sizeof(double))-1, etaBin);
   }
 
   // build the tree
