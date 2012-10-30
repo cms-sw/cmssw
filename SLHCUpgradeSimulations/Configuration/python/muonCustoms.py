@@ -107,7 +107,7 @@ def customize_l1extra(process):
 
 def customise_csc_geom_cond_digi(process):
     process = unganged_me1a_geometry(process)
-    process = customise_csc_cond_ungangedME11A_mc(process)
+#    process = customise_csc_cond_ungangedME11A_mc(process)
     process = digitizer_timing_pre3_median(process)
     return process
 
