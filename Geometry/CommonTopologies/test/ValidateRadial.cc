@@ -13,7 +13,9 @@ ValidateRadial::ValidateRadial(const edm::ParameterSet& cfg)
     file_(new TFile(cfg.getParameter<std::string>("FileName").c_str(),"RECREATE")),
     printOut_(cfg.getParameter<bool>("PrintOut")),
     posOnly_(cfg.getParameter<bool>("PosOnly"))
-{}
+{
+  std::cout << "I'm ALIVE" << std::endl;
+}
 
 void ValidateRadial::
 analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -72,22 +74,22 @@ void compare(const TkRadialStripTopology & t, const CSCRadialStripTopology & ot,
   const MeasurementError ome = ot.measurementError(lp, le);
   const float onewstrip = ot.strip(lp);
 
-  if(fabs(lp.x()-olp.x())>0.001) std::cout << lp.x() << " " << olp.x() << std::endl;
-  if(fabs(lp.y()-olp.y())>0.001) std::cout << lp.y() << " " << olp.y() << std::endl;
-  if(fabs(newstrip-onewstrip)>0.001) std::cout << newstrip << " " << onewstrip << std::endl;
-  if(fabs(le.xx()-ole.xx())>0.001) std::cout << le.xx() << " " << ole.xx() << std::endl;
-  if(fabs(le.yy()-ole.yy())>0.001) std::cout << le.yy() << " " << ole.xy() << std::endl;
-  if(fabs(le.xy()-ole.xy())>0.001) std::cout << le.xy() << " " << ole.yy() << std::endl;
+  if(fabs(lp.x()-olp.x())>0.001) std::cout << "FAILED " << lp.x() << " " << olp.x() << std::endl;
+  if(fabs(lp.y()-olp.y())>0.001) std::cout << "FAILED "<< lp.y() << " " << olp.y() << std::endl;
+  if(fabs(newstrip-onewstrip)>0.001) std::cout << "FAILED "<< newstrip << " " << onewstrip << std::endl;
+  if(fabs(le.xx()-ole.xx())>0.001) std::cout << "FAILED "<< le.xx() << " " << ole.xx() << std::endl;
+  if(fabs(le.yy()-ole.yy())>0.001) std::cout << "FAILED "<< le.yy() << " " << ole.xy() << std::endl;
+  if(fabs(le.xy()-ole.xy())>0.001) std::cout << "FAILED "<< le.xy() << " " << ole.yy() << std::endl;
 
-  if(fabs(mp.x()-omp.x())>0.001) std::cout << mp.x() << " " << omp.x() << std::endl;
-  if(fabs(me.uu()-ome.uu())>0.001) std::cout << me.uu() << " " << ome.uu() << std::endl;
+  if(fabs(mp.x()-omp.x())>0.001) std::cout << "FAILED "<< mp.x() << " " << omp.x() << std::endl;
+  if(fabs(me.uu()-ome.uu())>0.001) std::cout << "FAILED "<< me.uu() << " " << ome.uu() << std::endl;
 
 
 }
 
 void ValidateRadial::
 test_topology(const TkRadialStripTopology* t, unsigned i) {
-
+  
 
   CSCRadialStripTopology oldt(t->nstrips(), t->angularWidth(), 
 			      t->detHeight(), t->centreToIntersection(),
@@ -159,7 +161,7 @@ pass_frame_change_test(const TkRadialStripTopology* t, const float strip, const 
   const bool passe = (secondOrder? pass2e : pass1e);
   
   if(printOut_ && ( (!passp) || ( (!posOnly_)&&(!passe)) ) )
-     std::cout << "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t"
+     std::cout << "FAILED "<< "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t"
      << "(" << stripErr2 << ", " << me.uu() << ")\t\t"
      << ( me.uv() ) << std::endl;
   return passp&passe;
