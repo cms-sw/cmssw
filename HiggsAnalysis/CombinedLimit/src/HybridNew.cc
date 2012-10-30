@@ -908,8 +908,9 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   } else if (!CLs_) {
 
       if (adaptiveToys_>0.){
-      	double qN = setup.toymcsampler->EvaluateTestStatistic(data,poi);
+      	double qN = 2*(setup.toymcsampler->EvaluateTestStatistic(data,poi));
       	double prob = ROOT::Math::chisquared_cdf_c(qN,poi.getSize());
+
 	std::vector<float>scaleAndConfidences;
   	std::vector<std::string> scaleAndConfidencesList;  
     	boost::split(scaleAndConfidencesList,scaleAndConfidenceSelection_ , boost::is_any_of(","));
