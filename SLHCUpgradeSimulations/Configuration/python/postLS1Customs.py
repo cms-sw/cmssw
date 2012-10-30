@@ -1,8 +1,10 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from muon_customs import customise_csc_geom_cond_digi
+from muonCustoms import customise_csc_geom_cond_digi
+from customise_mixing import customise_NoCrossing
 
-def postLS1Customs(process):
+def digiCustoms(process):
+#    process=customise_NoCrossing(process)
     process=customise_csc_geom_cond_digi(process)
     return process
