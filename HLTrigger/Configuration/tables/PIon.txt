@@ -88,6 +88,9 @@ HLT_PAExclDijet35_HFAND_v*                         # sr 131577
 HLT_PAL1DoubleEG3_FwdVeto_v*                       # sr 131577
 HLT_PAL1DoubleJet20_RomanPotsOR_v*                 # sr 131577
 HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577
+HLT_PAUpcSingleEG5Pixel_TrackVeto_v*               # sr 133308
+HLT_PAUpcSingleMuOpenPixel_TrackVeto_v*            # sr 133308
+HLT_PAUpcSingleMuOpenTkMu_Onia_v*                  # sr 133308
 HLT_PARandom_v*                                    # sr 131577
 DQM_FEDIntegrity_v*                                # sr 131577
 HLT_LogMonitor_v*                                  # sr 131577
