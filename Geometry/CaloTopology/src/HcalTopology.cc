@@ -45,8 +45,8 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   } else if (mode_==HcalTopologyMode::SLHC) { // need to know more eventually
     HBSize_= maxDepthHB*16*72*2;
     HESize_= maxDepthHE*(29-16+1)*72*2;
-    HOSize_= kHOSizePreLS1; // ieta * iphi * 2
-    HFSize_= kHFSizePreLS1; // phi * eta * depth * pm 
+    HOSize_= 15*72*2; // ieta * iphi * 2
+    HFSize_= 72*13*2*2; // phi * eta * depth * pm 
 
     topoVersion_=10;
   }
@@ -618,7 +618,7 @@ unsigned int HcalTopology::detId2denseId(const DetId& id) const {
       retval=HBSize_+HESize_+HOSize_;
       retval+=hid.depth()-1+2*(hid.iphi()-1);
       if (hid.ieta()>0) retval+=2*72*(hid.ieta()-29);
-      else retval+=2*72*((29+13)-hid.ieta());
+      else retval+=2*72*((29+13)+hid.ieta());
     }
   }
 
