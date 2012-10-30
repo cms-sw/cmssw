@@ -7,7 +7,9 @@
 #include <Riostream.h>
 #include <string>
 #include <vector>
+#include <set>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <stdint.h>
 #include <cstdlib>
@@ -19,12 +21,13 @@
 
 int main(int argc , char *argv[]) {
 
-  if(argc==2) {
+  if(argc==3) {
     char* filename = argv[1];
+    char* pclfilename = argv[2];
 
     std::cout << "ready to prepare list of bad modules " << filename << std::endl;
 
-    listbadmodule(filename);
+    listbadmodule(filename,pclfilename);
 
   }
   else {std::cout << "Too few arguments: " << argc << std::endl; return -1; }
@@ -33,9 +36,30 @@ int main(int argc , char *argv[]) {
 }
 
 
-void listbadmodule(std::string filename) {
+void listbadmodule(std::string filename, std::string pclfilename) {
 
   int debug = 1;
+
+  // extract fully bad modules from PCLBadComponents txt file
+
+  std::set<unsigned int> pclbadmods;
+
+  ifstream pclfile(pclfilename);
+
+  char line[400];
+  unsigned int pcldetid;
+  char sixapvs[]="1 1 1 1 1 1";
+  char fourapvs[]="1 1 x x 1 1";
+
+  while(pclfile.getline(line,400)) {
+    if(strstr(line,sixapvs) || strstr(line,fourapvs)) {
+      stringstream linestream;
+      linestream << line;
+      linestream >> pcldetid;
+      //      std::cout << pcldetid << endl;
+      pclbadmods.insert(pcldetid);
+    }
+  }
 
   std::vector<std::string> subdet;
   subdet.push_back("TIB");
@@ -80,8 +104,8 @@ void listbadmodule(std::string filename) {
     mec1->cd();
   }
 
-  outfile << "Number of bad modules in total:" << std::endl;
-  outfile << "-------------------------------" << std::endl;
+  outfile << "Number of bad modules in total excluding PCL-only bad modules:" << std::endl;
+  outfile << "--------------------------------------------------------------" << std::endl;
   outfile << subdet.at(0) << ": " << nbadmod.at(0) << std::endl;
   outfile << subdet.at(1) << ": " << nbadmod.at(1) << std::endl;
   outfile << subdet.at(2) << ": " << nbadmod.at(2) << std::endl;
@@ -93,6 +117,8 @@ void listbadmodule(std::string filename) {
   outfile << std::endl
           << "List of bad modules per partition:" << std::endl;
   outfile << "----------------------------------" << std::endl;
+
+  std::set<unsigned int>::const_iterator pclbadmod = pclbadmods.begin();
 
   for (unsigned int i=0; i < subdet.size(); i++){
     std::string badmodule_dir = subdet[i] + "/BadModuleList";
@@ -114,6 +140,13 @@ void listbadmodule(std::string filename) {
 	size_t pos1 = sflag.find("/");
 	sflag = sflag.substr(sflag.find("<")+13,pos1-2);
 	int flag = atoi(sflag.c_str());	
+	sscanf(detid.c_str(),"%u",&pcldetid);
+	// the following loop add modules which are bad only for the PCL to the list. 
+	// It requires that the bad modules from QT are sorted as the one of the PCL
+	while(pclbadmod!= pclbadmods.end() && pcldetid > *pclbadmod) {
+	  outfile << "Module " << *pclbadmod << " PCLBadModule " << std::endl;
+	  pclbadmod++;
+	}
 	std::string message;
 	message = "Module " + detid;
 	if (((flag >> 0) & 0x1) > 0) message += " Fed BadChannel : ";
@@ -121,6 +154,11 @@ void listbadmodule(std::string filename) {
 	if (((flag >> 2) & 0x1) > 0) message += " # of Clusters :";
 	if (((flag >> 3) & 0x1) > 0) message += " Excluded FED Channel ";
 	if (((flag >> 4) & 0x1) > 0) message += " DCSError "; 
+	if (pclbadmods.find(pcldetid) != pclbadmods.end()) {
+	  message += " PCLBadModule ";
+	  pclbadmod = pclbadmods.find(pcldetid);
+	  pclbadmod++;
+	}
 	outfile << message.c_str() << std::endl;
 	
       }
