@@ -1,3 +1,9 @@
+# This is the fix for a well-known bug in Matplotlib's
+# axes.Axes.hist() method for stepfilled histograms with a logarithmic
+# axis. The actual fix (see below) is quite small.
+
+# This is used by the create_public_lumi_plots.py script.
+
 import numpy as np
 import itertools
 import matplotlib.cbook as cbook
