@@ -150,7 +150,7 @@ if [ "${decay}" == true ] ; then
         if [ -f ${file}.lhe ] ; then
            mv ${file}.lhe ${file}_in.lhe
         fi
-        madevent/bin/decay < decay_$i\.in
+        madevent/bin/decay < madevent/bin/decay_$i\.in
      done
 fi
 #__________________________________________

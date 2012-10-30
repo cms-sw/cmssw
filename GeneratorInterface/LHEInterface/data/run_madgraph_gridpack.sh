@@ -56,15 +56,15 @@ tar xzf ${name}_gridpack.tar.gz ; rm -f ${name}_gridpack.tar.gz ; cd madevent
 version=`cat MGMEVersion.txt | grep -c "1.4"`
 
 if [ "$version" -eq "0" ] ; then
-./bin/compile
-./bin/clean4grid
+#./bin/compile
+#./bin/clean4grid
 mv bin/addmasses.py bin/addmasses.py.no
 fi
 
 if [ "$version" -eq "1" ] ; then
-./bin/change_compiler.py
-./bin/compile
-./bin/clean4grid
+#./bin/change_compiler.py
+#./bin/compile
+#./bin/clean4grid
 mv bin/internal/addmasses.py bin/internal/addmasses.py.no
 fi
 
@@ -135,7 +135,7 @@ if [ "${decay}" == true ] ; then
         if [ -f ${file}.lhe ] ; then
            mv ${file}.lhe ${file}_in.lhe
         fi
-        madevent/bin/decay < decay_$i\.in
+        madevent/bin/decay < madevent/bin/decay_$i\.in
      done
 fi
 
