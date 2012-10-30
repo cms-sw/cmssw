@@ -32,7 +32,7 @@
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 
-#include "DQM/SiStripMonitorClient/interface/SiStripOfflineDQM.h"
+#include "DQM/SiStripMonitorClient/plugins/SiStripOfflineDQM.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -41,7 +41,7 @@
 // Cabling
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+//#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
 #include <iostream>
 #include <iomanip>
@@ -182,8 +182,8 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
   // Access Cabling
   edm::ESHandle< SiStripDetCabling > det_cabling;
   eSetup.get<SiStripDetCablingRcd>().get(det_cabling);
-  edm::ESHandle< SiStripFedCabling > fed_cabling;
-  eSetup.get<SiStripFedCablingRcd>().get(fed_cabling);
+  //  edm::ESHandle< SiStripFedCabling > fed_cabling;
+  //  eSetup.get<SiStripFedCablingRcd>().get(fed_cabling);
   if (globalStatusFilling_ > 0) actionExecutor_->createStatus(dqmStore_);
 
   if (!trackerFEDsFound_) {
@@ -203,14 +203,14 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
     bool create_tkmap    = configPar_.getUntrackedParameter<bool>("CreateTkMap",false); 
     if (create_tkmap) {
       std::vector<edm::ParameterSet> tkMapOptions = configPar_.getUntrackedParameter< std::vector<edm::ParameterSet> >("TkMapOptions" );
-      if (actionExecutor_->readTkMapConfiguration()) {
+      if (actionExecutor_->readTkMapConfiguration(eSetup)) {
 	
 	for(std::vector<edm::ParameterSet>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
 	  edm::ParameterSet tkMapPSet = *it;
 	  std::string map_type = it->getUntrackedParameter<std::string>("mapName","");
 	  tkMapPSet.augment(configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
 	  std::cout << tkMapPSet << std::endl;
-	  actionExecutor_->createOfflineTkMap(tkMapPSet, fed_cabling, dqmStore_, map_type); 
+	  actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type); 
 	}
       }
     } 
