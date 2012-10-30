@@ -1,6 +1,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo//src/HcalHardcodeGeometryData.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
@@ -8,29 +9,25 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
 HcalGeometry::HcalGeometry( const HcalTopology& topology ) :
-    theTopology( topology )
-{
-   init();
+  theTopology( topology ) {
+  init();
 }
   
 
-HcalGeometry::~HcalGeometry() 
-{}
+HcalGeometry::~HcalGeometry() {}
 
 
-void
-HcalGeometry::init()
-{
-    std::cout << "HcalGeometry::init() "
-	      << " HBSize " << theTopology.getHBSize() 
-	      << " HESize " << theTopology.getHESize() 
-	      << " HOSize " << theTopology.getHOSize() 
-	      << " HFSize " << theTopology.getHFSize() << std::endl;
+void HcalGeometry::init() {
+  edm::LogInfo("HcalGeometry") << "HcalGeometry::init() "
+			       << " HBSize " << theTopology.getHBSize() 
+			       << " HESize " << theTopology.getHESize() 
+			       << " HOSize " << theTopology.getHOSize() 
+			       << " HFSize " << theTopology.getHFSize();
     
-    m_hbCellVec = HBCellVec( theTopology.getHBSize() ) ;
-    m_heCellVec = HECellVec( theTopology.getHESize() ) ;
-    m_hoCellVec = HOCellVec( theTopology.getHOSize() ) ;
-    m_hfCellVec = HFCellVec( theTopology.getHFSize() ) ;
+  m_hbCellVec = HBCellVec( theTopology.getHBSize() ) ;
+  m_heCellVec = HECellVec( theTopology.getHESize() ) ;
+  m_hoCellVec = HOCellVec( theTopology.getHOSize() ) ;
+  m_hfCellVec = HFCellVec( theTopology.getHFSize() ) ;
 }
 
 void
@@ -364,8 +361,7 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 		       const GlobalPoint& f2 ,
 		       const GlobalPoint& f3 ,
 		       const CCGFloat*    parm ,
-		       const DetId&       detId   ) 
-{
+		       const DetId&       detId   ) {
 
   assert (detId.det()==DetId::Hcal);
     
@@ -374,40 +370,30 @@ HcalGeometry::newCell( const GlobalPoint& f1 ,
 
 
   static int counter=0;
-  std::cout << counter++ << ": HcalGeometry::newCell subdet " << detId.subdetId() << ", raw ID " << detId.rawId()
-	    << ", hid " << hid << ", din " << din << std::endl;
+  edm::LogInfo("HcalGeometry") << counter++ << ": newCell subdet "
+			       << detId.subdetId() << ", raw ID " 
+			       << detId.rawId() << ", hid " << hid << ", din " 
+			       << din;
   
-    if( hid.subdet()==HcalBarrel)
-   {
-      m_hbCellVec[ din ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-   }
-   else
-   {
-     if( hid.subdet()==HcalEndcap )
-      {
-	 const unsigned int index ( din - m_hbCellVec.size() ) ;
-	 m_heCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-      }
-      else
-      {
-	if( hid.subdet()==HcalOuter )
-	 {
-	    const unsigned int index ( din 
-				       - m_hbCellVec.size()
-				       - m_heCellVec.size() ) ;
-	    m_hoCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-	 }
-	 else
-	 {
-	    const unsigned int index ( din 
-				       - m_hbCellVec.size()
-				       - m_heCellVec.size()
-				       - m_hoCellVec.size() ) ;
-	    m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm ) ;
-	 }
-      }
-   }
-   m_validIds.push_back( detId ) ;
+  if( hid.subdet()==HcalBarrel) {
+    m_hbCellVec[ din ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
+  } else if( hid.subdet()==HcalEndcap ) {
+    const unsigned int index ( din - m_hbCellVec.size() ) ;
+    m_heCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
+  } else if( hid.subdet()==HcalOuter ) {
+    const unsigned int index ( din 
+			       - m_hbCellVec.size()
+			       - m_heCellVec.size() ) ;
+    m_hoCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
+  } else {
+    const unsigned int index ( din 
+			       - m_hbCellVec.size()
+			       - m_heCellVec.size()
+			       - m_hoCellVec.size() ) ;
+    m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm ) ;
+  }
+
+  m_validIds.push_back( detId ) ;
 }
 
 const CaloCellGeometry* 
