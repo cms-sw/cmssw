@@ -19,8 +19,8 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2012/10/29 07:28:55 $
-   $Revision: 1.14 $
+   $Date: 2012/10/29 20:20:29 $
+   $Revision: 1.15 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
@@ -105,10 +105,10 @@ public:
   /// of the next segment.  Used for calculating physical bounds.
   std::pair<int, int> segmentBoundaries(unsigned ring, unsigned depth) const;
 
-  int getHBSize() const {return HBSize_;}
-  int getHESize() const {return HESize_;}
-  int getHOSize() const {return HOSize_;}
-  int getHFSize() const {return HFSize_;}
+  unsigned int getHBSize() const {return HBSize_;}
+  unsigned int getHESize() const {return HESize_;}
+  unsigned int getHOSize() const {return HOSize_;}
+  unsigned int getHFSize() const {return HFSize_;}
 
   unsigned int getNumberOfShapes() const { return numberOfShapes_; }
       
@@ -145,10 +145,10 @@ private:
   const int doublePhiBins_;
   const int maxDepthHB_;
   const int maxDepthHE_;
-  int HBSize_;
-  int HESize_;
-  int HOSize_;
-  int HFSize_;
+  unsigned int HBSize_;
+  unsigned int HESize_;
+  unsigned int HOSize_;
+  unsigned int HFSize_;
   const unsigned int numberOfShapes_;
 
   int topoVersion_;
