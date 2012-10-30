@@ -106,6 +106,11 @@ addMixingScenario("SLHC_LowLumiPileUp_stdgeom",{'file':'SLHCUpgradeSimulations.G
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R30F12_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R30F12_HCal_cff'})
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_HCal_cff'})
 
+#scenarios for L1 tdr work
+addMixingScenario("AVE_35_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-3,2), 'N': 35})
+addMixingScenario("AVE_50_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-3,2), 'N': 50})
+addMixingScenario("AVE_50_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-3,2), 'N': 50})
+
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 MixingFSDefaultKey = '2012_Summer_inTimeOnly'
 
