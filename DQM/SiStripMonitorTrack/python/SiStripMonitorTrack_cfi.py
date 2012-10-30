@@ -42,7 +42,7 @@ SiStripMonitorTrack = cms.EDAnalyzer(
 
     TH1nClustersOff = cms.PSet( Nbinx = cms.int32(200),
                              xmin  = cms.double(-0.5),
-                             xmax  = cms.double(3999.5),
+                             xmax  = cms.double(8999.5),
                              layerswitchon  = cms.bool(True)
                              ),
     

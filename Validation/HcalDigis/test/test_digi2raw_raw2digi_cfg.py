@@ -3,21 +3,17 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("VALID")
 # import of standard configurations
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
-process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 process.load("Configuration.StandardSequences.Simulation_cff")
 process.load("Configuration.StandardSequences.Digi_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("SimGeneral.MixingModule.mixNoPU_cfi")
-#process.load("Configuration.StandardSequences.MixingNoPileUp_cff") # old
+process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load('Configuration/StandardSequences/GeometryHCAL_cff')
 process.load('Configuration/StandardSequences/Generator_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#- new
-from Configuration.AlCa.autoCond import autoCond
-#- previous
-#from Configuration.AlCa.autoCond import autoCond
+from Configuration.PyReleaseValidation.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 process.load('Configuration/StandardSequences/DigiToRaw_cff')

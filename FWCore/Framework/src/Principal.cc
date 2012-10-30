@@ -657,7 +657,7 @@ namespace edm {
 
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
-    ConstGroupPtr const g = getGroup(bid, getProd, false);
+    ConstGroupPtr const g = getGroup(bid, getProd, true);
     if(g == 0) {
       throwGroupNotFoundException("getForOutput", errors::LogicError, bid);
     }

@@ -75,12 +75,12 @@ public:
 
    struct GeomDetInfo
    {
-      unsigned int id;
-      float points[24];
-      float parameters[9];
-      float shape[5];
-      float translation[3];
-      float matrix[9];
+      unsigned int id;       // DetId
+      float points[24];      // 3*8 x,y,z points defining its shape (can be undefined, e.g. 0s) 
+      float parameters[9];   // specific DetId dependent parameters, e.g. topology (can be undefined, e.g. 0s)
+      float shape[5];        // shape description: 0 - shape type, For Trap: 1 - dx1, 2 - dx2, 3 - dz, 4 - dy1; for Box: dx, dy, dz (can be undefined, e.g. 0s) 
+      float translation[3];  // translation x, y, z (can be undefined, e.g. 0s) 
+      float matrix[9];       // transformation matrix xx, yx, zx, xy, yy, zy, xz, yz, zz (can be undefined, e.g. 0s) 
      
       bool operator< ( unsigned int id ) const { 
          return ( this->id < id );

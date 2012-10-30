@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2012/03/30 09:35:32 $
- * $Revision: 1.267.2.5 $
+ * $Date: 2012/04/27 13:46:08 $
+ * $Revision: 1.270 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -956,6 +956,24 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
 
     this->analyze();
 
+  }
+
+  for(unsigned iC(0); iC < enabledClients_.size(); iC++){
+    std::string& name(enabledClients_[iC]);
+
+    if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
+
+    if(!dqmStore_->dirExists(prefixME_ + "/EE" + name + "Client")){
+      std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
+      if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
+
+      std::cout << "EE" << name << "Client is missing plots; resetting now" << std::endl;
+
+      EEClient* client(clients_[itr - clientsNames_.begin()]);
+
+      client->cleanup();
+      client->setup();
+    }
   }
 
 }

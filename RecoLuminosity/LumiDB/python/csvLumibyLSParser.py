@@ -47,26 +47,27 @@ class csvLumibyLSParser(object):
                     oldRun = runnumber
 
             try:
-                delivered, recorded = float( row[6] ), float( row[7] )
+                delivered, recorded = float( row[5] ), float( row[6] )
             except:
                 print 'Record not parsed, Run = %d, LS = %d' % (runnumber, lsnumber)                
 
-            if recorded>0 :
-                lastLumi = recorded
-                if NonValidLumi>0:
-                    # have to put real values in lumi list
-                    for lnum in llist:
-                        elems = [delivered, recorded]
-                        ldict[lnum] = elems
-                    NonValidLumi=0
-                    llist = []
-            else:
-                if lastLumi>0:
-                    recorded = lastLumi
-                else:
-                    # have to save lumi sections to fill once we get a non-zero lumi value
-                    llist.append(lsnumber)
-                    NonValidLumi=1
+# Commented out... If there is no value, there is no interpolation now...
+#            if recorded>0 :
+#                lastLumi = recorded
+#                if NonValidLumi>0:
+#                    # have to put real values in lumi list
+#                    for lnum in llist:
+#                        elems = [delivered, recorded]
+#                        ldict[lnum] = elems
+#                    NonValidLumi=0
+#                    llist = []
+#            else:
+#                if lastLumi>0:
+#                    recorded = lastLumi
+#                else:
+#                   # have to save lumi sections to fill once we get a non-zero lumi value
+#                   llist.append(lsnumber)
+#                   NonValidLumi=1
                     
             elems = [ delivered,recorded ]
             ldict[lsnumber]=elems

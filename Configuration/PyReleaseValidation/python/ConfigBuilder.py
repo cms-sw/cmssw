@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.381 $"
+__version__ = "$Revision: 1.381.2.10 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -66,6 +66,7 @@ defaultOptions.restoreRNDSeeds = False
 defaultOptions.donotDropOnInput = ''
 defaultOptions.python_filename =''
 defaultOptions.io=None
+defaultOptions.lumiToProcess=None
 
 # some helper routines
 def dumpPython(process,name):
@@ -402,8 +403,12 @@ class ConfigBuilder(object):
 		if not self._options.dropDescendant:
 			self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
+	if self._options.lumiToProcess:
+		import FWCore.PythonUtilities.LumiList as LumiList
+		self.process.source.eventsToProcess=cms.untracked.VEventRange( LumiList.LumiList(self._options.lumiToProcess).getCMSSWString().split(',') )
+
 		
-        if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
+        if 'GEN' in self.stepMap or 'LHE' in self.stepMap or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
             # if option himix is active, drop possibly duplicate DIGI-RAW info:
@@ -659,86 +664,31 @@ class ConfigBuilder(object):
 			self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")')
 		else:
 			self.executeAndRemember('process.RandomNumberGeneratorService.restoreStateTag=cms.untracked.InputTag("randomEngineStateProducer","","%s")'%(self._options.restoreRNDSeeds))
-		if self._options.inputEventContent:
-			if not self._options.inputCommands:
-				self._options.inputCommands='keep *, keep *_randomEngineStateProducer_*_*,'
-			else:
+		if self._options.inputEventContent or self._options.inputCommands:
+			if self._options.inputCommands:
 				self._options.inputCommands+='keep *_randomEngineStateProducer_*_*,'
+			else:
+				self._options.inputCommands='keep *_randomEngineStateProducer_*_*,'
 					
 
     def addConditions(self):
         """Add conditions to the process"""
 	if not self._options.conditions: return
 	
-        if 'auto:' in self._options.conditions:
-                from Configuration.AlCa.autoCond import autoCond
-                key=self._options.conditions.split(':')[-1]
-                if key not in autoCond:
-                        raise Exception('no correspondance for '+self._options.conditions+'\n available keys are'+','.join(autoCond.keys()))
-                else:
-                        self._options.conditions = autoCond[key]
-
-        # the option can be a list of GT name and connection string
-
-	if isinstance(self._options.conditions,tuple):
-		if self._options.custom_conditions:
-			self._options.custom_conditions+='+'+self._options.conditions[1]
-		else:
-			self._options.custom_conditions=self._options.conditions[1]
-		self._options.conditions=self._options.conditions[0]
-
-
 	if 'FrontierConditions_GlobalTag' in self._options.conditions:
 		print 'using FrontierConditions_GlobalTag in --conditions is not necessary anymore and will be deprecated soon. please update your command line'
 		self._options.conditions = self._options.conditions.replace("FrontierConditions_GlobalTag,",'')
 						
-	conditions = self._options.conditions.split(',')
-	
-        gtName = str( conditions[0] )
-        if len(conditions) > 1:
-          connect   = str( conditions[1] )
-        if len(conditions) > 2:
-          pfnPrefix = str( conditions[2] )
-
         self.loadAndRemember(self.ConditionsDefaultCFF)
 
-        # set the global tag
-        self.executeAndRemember("process.GlobalTag.globaltag = '%s'" % gtName)
-        if len(conditions) > 1:
-            self.executeAndRemember("process.GlobalTag.connect   = '%s'" % connect)
-        if len(conditions) > 2:
-            self.executeAndRemember("process.GlobalTag.pfnPrefix = cms.untracked.string('%s')" % pfnPrefix)
+        from Configuration.AlCa.GlobalTag import GlobalTag
+        self.process.GlobalTag = GlobalTag(self.process.GlobalTag, self._options.conditions, self._options.custom_conditions)
+        self.additionalCommands.append('from Configuration.AlCa.GlobalTag import GlobalTag')
+        self.additionalCommands.append('process.GlobalTag = GlobalTag(process.GlobalTag, %s, %s)' % (repr(self._options.conditions), repr(self._options.custom_conditions)))
 
 	if self._options.slhc:
 		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
 		
-        if self._options.custom_conditions!="":
-                specs=self._options.custom_conditions.split('+')
-                self.executeAndRemember("process.GlobalTag.toGet = cms.VPSet()")
-                for spec in specs:
-			#format is tag=<...>,record=<...>,connect=<...>,label=<...> with connect and label optionnal
-                        items=spec.split(',')
-			payloadSpec={}
-			allowedFields=['tag','record','connect','label']
-			for i,item in enumerate(items):
-				if '=' in item:
-					field=item.split('=')[0]
-					if not field in allowedFields:
-						raise Exception('in --custom_conditions, '+field+' is not a valid field')
-					payloadSpec[field]=item.split('=')[1]
-				else:
-					payloadSpec[allowedFields[i]]=item
-			if (not 'record' in payloadSpec) or (not 'tag' in payloadSpec):
-				raise Exception('conditions cannot be customised with: '+repr(payloadSpec)+' no record or tag field available')
-			payloadSpecToAppend=''
-			for i,item in enumerate(allowedFields):
-				if not item in payloadSpec: continue
-				if not payloadSpec[item]: continue
-				if i<2: untracked=''
-				else: untracked='untracked.'
-				payloadSpecToAppend+='%s=cms.%sstring("%s"),'%(item,untracked,payloadSpec[item])
-			print 'customising the GlogalTag with:',payloadSpecToAppend
-			self.executeAndRemember('process.GlobalTag.toGet.append(cms.PSet(%s))'%(payloadSpecToAppend,))
 
     def addCustomise(self):
         """Include the customise code """
@@ -861,8 +811,9 @@ class ConfigBuilder(object):
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 
         self.ALCADefaultSeq=None
-        self.SIMDefaultSeq=None
+	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
+        self.SIMDefaultSeq=None
         self.DIGIDefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
@@ -1205,6 +1156,22 @@ class ConfigBuilder(object):
                 #print "verify your configuration, ignoring for now"
                 raise Exception("The following alcas could not be found "+str(alcaList))
 
+    def prepare_LHE(self, sequence = None):
+	    #load the fragment
+	    ##make it loadable
+	    loadFragment = self._options.evt_type.replace('.py','',).replace('.','_').replace('python/','').replace('/','.')
+	    print "Loading lhe fragment from",loadFragment
+	    __import__(loadFragment)
+	    self.process.load(loadFragment)
+	    ##inline the modules
+	    self._options.inlineObjets+=','+sequence
+	    
+	    getattr(self.process,sequence).nEvents = int(self._options.number)
+	    
+	    #schedule it
+	    self.process.lhe_step = cms.Path( getattr( self.process,sequence)  )
+	    self.schedule.append( self.process.lhe_step )
+
     def prepare_GEN(self, sequence = None):
         """ load the fragment of generator configuration """
 	loadFailure=False
@@ -1263,6 +1230,9 @@ class ConfigBuilder(object):
 
         self.process.generation_step = cms.Path( getattr(self.process,genSeqName) )
         self.schedule.append(self.process.generation_step)
+
+	#register to the genstepfilter the name of the path (static right now, but might evolve)
+	self.executeAndRemember('process.genstepfilter.triggerConditions=cms.vstring("generation_step")')
 
 	if 'reGEN' in self.stepMap:
 		#stop here
@@ -1357,28 +1327,41 @@ class ConfigBuilder(object):
         if not sequence:
                 print "no specification of the hlt menu has been given, should never happen"
                 raise  Exception('no HLT sequence provided')
-        else:
-                if ',' in sequence:
-                        #case where HLT:something:something was provided
-                        self.executeAndRemember('import HLTrigger.Configuration.Utilities')
-                        optionsForHLT = {}
-                        if self._options.scenario == 'HeavyIons':
-                          optionsForHLT['type'] = 'HIon'
-                        else:
-                          optionsForHLT['type'] = 'GRun'
-                        optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
-                        self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
-                else:
-                        if 'FASTSIM' in self.stepMap:
-                            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
-                        else:
-                            self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
-	if self._options.name!='HLT':
+        if '@' in sequence:
+                # case where HLT:@something was provided
+                from Configuration.HLT.autoHLT import autoHLT
+                key = sequence[1:]
+                if key in autoHLT:
+                  sequence = autoHLT[key]
+                else:
+                  raise ValueError('no HLT mapping key "%s" found in autoHLT' % key)
+
+        if ',' in sequence:
+                # case where HLT:something:something was provided
+                self.executeAndRemember('import HLTrigger.Configuration.Utilities')
+                optionsForHLT = {}
+                if self._options.scenario == 'HeavyIons':
+                  optionsForHLT['type'] = 'HIon'
+                else:
+                  optionsForHLT['type'] = 'GRun'
+                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
+                self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
+        else:
+                if 'FASTSIM' in self.stepMap:
+                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
+                else:
+                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+
+        if self._options.isMC:
+		self._options.customisation_file+=",HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC"
+		
+	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
-		self.additionalCommands.append('process=ProcessName(process)')
+		self.additionalCommands.append('process = ProcessName(process)')
+                self.additionalCommands.append('')
 		from HLTrigger.Configuration.CustomConfigs import ProcessName
-		self.process=ProcessName(self.process)
+		self.process = ProcessName(self.process)
 		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
@@ -1497,7 +1480,7 @@ class ConfigBuilder(object):
                             prevalSeqName=''
                             valSeqName=sequence
 
-            if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
+            if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap and not valSeqName.startswith('genvalid'):
 		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
 			    self._options.restoreRNDSeeds=True
 
@@ -1510,16 +1493,17 @@ class ConfigBuilder(object):
             if prevalSeqName:
                     self.process.prevalidation_step = cms.Path( getattr(self.process, prevalSeqName ) )
                     self.schedule.append(self.process.prevalidation_step)
-            if valSeqName.startswith('genvalid'):
-                    self.loadAndRemember("IOMC.RandomEngine.IOMC_cff")
-                    self.process.validation_step = cms.Path( getattr(self.process,valSeqName ) )
-            else:
-                    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
+
+	    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
             self.schedule.append(self.process.validation_step)
 
 	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
 		    self.executeAndRemember("process.mix.playback = True")
 
+	    if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
+		    #will get in the schedule, smoothly
+		    self.process.validation_step._seq = self.process.genstepfilter * self.process.validation_step._seq
+		    
             return
 
 
@@ -1769,7 +1753,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.381 $"),
+                                            (version=cms.untracked.string("$Revision: 1.381.2.10 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1919,7 +1903,8 @@ class ConfigBuilder(object):
 		
 		for (o,om) in self.process.outputModules_().items():
 			ioJson[o]=om.fileName.value()
-		ioJson['GT']=self._options.conditions
+		#ioJson['GT']=self._options.conditions
+		ioJson['GT']=self.process.GlobalTag.globaltag.value()
 		import json
 		io.write(json.dumps(ioJson))
 	return

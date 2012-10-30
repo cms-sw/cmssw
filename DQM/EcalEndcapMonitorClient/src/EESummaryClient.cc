@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2012/04/27 13:46:08 $
- * $Revision: 1.221 $
+ * $Date: 2012/05/18 09:11:59 $
+ * $Revision: 1.223 $
  * \author G. Della Ricca
  *
 */
@@ -93,7 +93,7 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
   MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
   timingNHitThreshold_ = ps.getUntrackedParameter<int>("timingNHitThreshold", 5);
-  synchErrorThreshold_ = ps.getUntrackedParameter<int>("synchErrorThreshold", 5);
+  synchErrorThreshold_ = ps.getUntrackedParameter<double>("synchErrorThreshold", 0.01);
 
   // summary maps
   meIntegrity_[0]      = 0;
@@ -212,6 +212,8 @@ EESummaryClient::EESummaryClient(const edm::ParameterSet& ps) {
   meLedL1PNErr_         = 0;
   meLedL2Err_           = 0;
   meLedL2PNErr_         = 0;
+
+  meSummaryErr_ = 0;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -353,12 +355,14 @@ void EESummaryClient::setup(void) {
       meRecHitEnergy_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
       meRecHitEnergy_[0]->setAxisTitle("ix", 1);
       meRecHitEnergy_[0]->setAxisTitle("iy", 2);
+      meRecHitEnergy_[0]->setAxisTitle("energy (GeV)", 3);
 
       if( meRecHitEnergy_[1] ) dqmStore_->removeElement( meRecHitEnergy_[1]->getName() );
       name = "EEOT EE + energy summary";
       meRecHitEnergy_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
       meRecHitEnergy_[1]->setAxisTitle("ix", 1);
       meRecHitEnergy_[1]->setAxisTitle("iy", 2);
+      meRecHitEnergy_[1]->setAxisTitle("energy (GeV)", 3);
     }
     if(laserClient){
       if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
@@ -408,12 +412,14 @@ void EESummaryClient::setup(void) {
     mePedestalOnlineRMSMap_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     mePedestalOnlineRMSMap_[0]->setAxisTitle("ix", 1);
     mePedestalOnlineRMSMap_[0]->setAxisTitle("iy", 2);
+    mePedestalOnlineRMSMap_[0]->setAxisTitle("rms", 3);
 
     if ( mePedestalOnlineRMSMap_[1] ) dqmStore_->removeElement( mePedestalOnlineRMSMap_[1]->getName() );
     name = "EEPOT EE + pedestal G12 RMS map";
     mePedestalOnlineRMSMap_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     mePedestalOnlineRMSMap_[1]->setAxisTitle("ix", 1);
     mePedestalOnlineRMSMap_[1]->setAxisTitle("iy", 2);
+    mePedestalOnlineRMSMap_[1]->setAxisTitle("rms", 3);
 
     if ( mePedestalOnlineMean_ ) dqmStore_->removeElement( mePedestalOnlineMean_->getName() );
     name = "EEPOT pedestal G12 mean";
@@ -1040,12 +1046,14 @@ void EESummaryClient::setup(void) {
     meTriggerTowerEt_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meTriggerTowerEt_[0]->setAxisTitle("ix", 1);
     meTriggerTowerEt_[0]->setAxisTitle("iy", 2);
+    meTriggerTowerEt_[0]->setAxisTitle("Et (GeV)", 3);
 
     if( meTriggerTowerEt_[1] ) dqmStore_->removeElement( meTriggerTowerEt_[1]->getName() );
     name = "EETTT EE + Et trigger tower summary";
     meTriggerTowerEt_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meTriggerTowerEt_[1]->setAxisTitle("ix", 1);
     meTriggerTowerEt_[1]->setAxisTitle("iy", 2);
+    meTriggerTowerEt_[1]->setAxisTitle("Et (GeV)", 3);
 
     if( meTriggerTowerEmulError_[0] ) dqmStore_->removeElement( meTriggerTowerEmulError_[0]->getName() );
     name = "EETTT EE - emulator error quality summary";
@@ -1102,6 +1110,12 @@ void EESummaryClient::setup(void) {
     meGlobalSummary_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meGlobalSummary_[1]->setAxisTitle("ix", 1);
     meGlobalSummary_[1]->setAxisTitle("iy", 2);
+  }
+
+  if(meGlobalSummary_[0] && meGlobalSummary_[1]){
+    if(meSummaryErr_) dqmStore_->removeElement(meSummaryErr_->getName());
+    name = "EE global summary errors";
+    meSummaryErr_ = dqmStore_->book1D(name, name, 1, 0., 1.);
   }
 }
 
@@ -1434,6 +1448,9 @@ void EESummaryClient::cleanup(void) {
   if ( meGlobalSummary_[1] ) dqmStore_->removeElement( meGlobalSummary_[1]->getName() );
   meGlobalSummary_[1] = 0;
 
+  if(meSummaryErr_) dqmStore_->removeElement(meSummaryErr_->getName());
+  meSummaryErr_ = 0;
+
 }
 
 #ifdef WITH_ECAL_COND_DB
@@ -1649,6 +1666,8 @@ void EESummaryClient::analyze(void) {
   if( meGlobalSummary_[0] ) meGlobalSummary_[0]->setEntries( 0 );
   if( meGlobalSummary_[1] ) meGlobalSummary_[1]->setEntries(0);
 
+  if(meSummaryErr_) meSummaryErr_->Reset();
+
   MonitorElement *me(0);
   me = dqmStore_->get(prefixME_ + "/EETimingTask/EETMT timing map EE +");
   TProfile2D *htmtp(0);
@@ -1659,6 +1678,8 @@ void EESummaryClient::analyze(void) {
   htmtm = UtilsClient::getHisto(me, false, htmtm);
 
   std::string subdir(subfolder_ == "" ? "" : subfolder_ + "/");
+
+  TH1F* oosTrend(0);
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -1682,6 +1703,15 @@ void EESummaryClient::analyze(void) {
     TH2F* h2;
     TH2F* h3;
 
+    me = dqmStore_->get( prefixME_ + "/EcalInfo/EEMM DCC" );
+    norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
+
+    me = dqmStore_->get( prefixME_ + "/EERawDataTask/" + subdir + "EERDT L1A FE errors" );
+    synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
+
+    me = dqmStore_->get(prefixME_ + "/EERawDataTask/" + subdir + "EERDT accumulated FE synchronization errors");
+    oosTrend = UtilsClient::getHisto(me, cloneME_, oosTrend);
+
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
       int ism = superModules_[i];
@@ -1697,12 +1727,6 @@ void EESummaryClient::analyze(void) {
 
       me = dqmStore_->get( prefixME_ + "/EETimingTask/EETMT timing " + Numbers::sEE(ism) );
       htmt01_[ism-1] = UtilsClient::getHisto( me, cloneME_, htmt01_[ism-1] );
-
-      me = dqmStore_->get( prefixME_ + "/EcalInfo/EEMM DCC" );
-      norm01_ = UtilsClient::getHisto( me, cloneME_, norm01_ );
-
-      me = dqmStore_->get( prefixME_ + "/EERawDataTask/" + subdir + "EERDT L1A FE errors" );
-      synch01_ = UtilsClient::getHisto( me, cloneME_, synch01_ );
 
       for ( int ix = 1; ix <= 50; ix++ ) {
         for ( int iy = 1; iy <= 50; iy++ ) {
@@ -2829,9 +2853,14 @@ void EESummaryClient::analyze(void) {
               validCry = true;
 
               // recycle the validEE for the synch check of the DCC
-	      if(synch01_) {
-		float synchErrors = synch01_->GetBinContent(ism);
-		if(synchErrors >= synchErrorThreshold_) xval=0;
+              if(norm01_ && synch01_) {
+                float frac_synch_errors = 0.;
+                float norm = norm01_->GetBinContent(ism);
+                if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
+                if(frac_synch_errors > synchErrorThreshold_){
+		  xval = 0;
+		  if(oosTrend && oosTrend->GetBinContent(oosTrend->GetNbinsX()) - oosTrend->GetBinContent(1) < 1.) xval += 3.;
+		}
               }
 
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
@@ -2962,8 +2991,10 @@ void EESummaryClient::analyze(void) {
                 float frac_synch_errors = 0.;
                 float norm = norm01_->GetBinContent(ism);
                 if(norm > 0) frac_synch_errors = float(synch01_->GetBinContent(ism))/float(norm);
-                float val_sy = (frac_synch_errors <= synchErrorThreshold_);
-                if(val_sy==0) xval=0;
+                if(frac_synch_errors > synchErrorThreshold_){
+		  xval = 0.;
+		  if(oosTrend && oosTrend->GetBinContent(oosTrend->GetNbinsX()) - oosTrend->GetBinContent(1) < 1.) xval += 3.;
+		}
               }
 
               for ( unsigned int i=0; i<clients_.size(); i++ ) {
@@ -3005,7 +3036,8 @@ void EESummaryClient::analyze(void) {
     }
   }
 
-
+  if(meSummaryErr_)
+    meSummaryErr_->setBinContent(1, double(nGlobalErrors) / double(nValidChannels));
 
   float reportSummary = -1.0;
   if ( nValidChannels != 0 )
@@ -3051,6 +3083,29 @@ void EESummaryClient::analyze(void) {
 	      if ( xval == 0 ) ++nGlobalErrorsSC[iside][jxsc][jysc];
 	    }
 
+	  }
+	}
+      }
+
+      // Countermeasure to partial TR failure
+      // make the whole Dee red if more than 2 towers within a 2x2 matrix fails
+
+      for(int iside(0); iside < 2; iside++){
+	for(int jy(1); jy <= 20; jy++){
+	  for(int jx(1); jx <= 20; jx++){
+	    int nErr(0);
+	    if(nValidChannelsSC[iside][jx - 1][jy - 1] > 0 && nGlobalErrorsSC[iside][jx - 1][jy - 1] == nValidChannelsSC[iside][jx - 1][jy - 1]) nErr += 1;
+	    if(nValidChannelsSC[iside][jx][jy - 1] > 0 && nGlobalErrorsSC[iside][jx][jy - 1] == nValidChannelsSC[iside][jx][jy - 1]) nErr += 1;
+	    if(nValidChannelsSC[iside][jx - 1][jy] > 0 && nGlobalErrorsSC[iside][jx - 1][jy] == nValidChannelsSC[iside][jx - 1][jy]) nErr += 1;
+	    if(nValidChannelsSC[iside][jx][jy] > 0 && nGlobalErrorsSC[iside][jx][jy] == nValidChannelsSC[iside][jx][jy]) nErr += 1;
+	    if(nErr > 2){
+	      int jx0(((jx - 1) / 10) * 10);
+	      for(int jjx(jx0); jjx < jx0 + 10; jjx++){
+		for(int jjy(0); jjy < 20; jjy++){
+		  nGlobalErrorsSC[iside][jjx][jjy] = nValidChannelsSC[iside][jjx][jjy];
+		}
+	      }
+	    }
 	  }
 	}
       }

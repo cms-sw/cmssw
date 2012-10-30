@@ -14,19 +14,20 @@ addPfMET(process, 'PF')
 from PhysicsTools.PatAlgos.tools.jetTools import *
 
 
-## uncomment the following lines to add ak5JPTJets to your PAT output
-#addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
-#                 'AK5', 'JPT',
-#                 doJTA        = True,
-#                 doBTagging   = True,
-#                 jetCorrLabel = ('AK5JPT', cms.vstring(['L1Offset', 'L1JPTOffset', 'L2Relative', 'L3Absolute'])),
-#                 doType1MET   = False,
-#                 doL1Cleaning = False,
-#                 doL1Counters = True,
-#                 genJetCollection = cms.InputTag("ak5GenJets"),
-#                 doJetID      = True,
-#                 jetIdLabel   = "ak5"
-#                 )
+# uncomment the following lines to add ak5JPTJets to your PAT output
+addJetCollection(process,cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
+                 'AK5', 'JPT',
+                 doJTA        = True,
+                 doBTagging   = True,
+                 #jetCorrLabel = ('AK5JPT', cms.vstring(['L1Offset', 'L1JPTOffset', 'L2Relative', 'L3Absolute'])),
+                 jetCorrLabel = ('AK5JPT', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute'])),
+                 doType1MET   = False,
+                 doL1Cleaning = False,
+                 doL1Counters = True,
+                 genJetCollection = cms.InputTag("ak5GenJets"),
+                 doJetID      = True,
+                 jetIdLabel   = "ak5"
+                 )
 
 ## uncomment the following lines to add ak7CaloJets to your PAT output
 addJetCollection(process,cms.InputTag('ak7CaloJets'),
@@ -42,33 +43,33 @@ addJetCollection(process,cms.InputTag('ak7CaloJets'),
                  jetIdLabel   = "ak7"
                  )
 
-## uncomment the following lines to add kt4CaloJets to your PAT output
-addJetCollection(process,cms.InputTag('kt4CaloJets'),
-                 'KT4', 'Calo',
-                 doJTA        = True,
-                 doBTagging   = True,
-                 jetCorrLabel = ('KT4Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
-                 doType1MET   = True,
-                 doL1Cleaning = True,
-                 doL1Counters = False,
-                 genJetCollection=cms.InputTag("kt4GenJets"),
-                 doJetID      = True,
-                 jetIdLabel   = "kt4"
-                 )
-
-## uncomment the following lines to add kt6CaloJets to your PAT output
-#addJetCollection(process,cms.InputTag('kt6CaloJets'),
-#                 'KT6', 'Calo',
+### uncomment the following lines to add kt4CaloJets to your PAT output
+#addJetCollection(process,cms.InputTag('kt4CaloJets'),
+#                 'KT4', 'Calo',
 #                 doJTA        = True,
-#                 doBTagging   = False,
-#                 jetCorrLabel = ('KT6Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
-#                 doType1MET   = False,
+#                 doBTagging   = True,
+#                 jetCorrLabel = ('KT4Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
+#                 doType1MET   = True,
 #                 doL1Cleaning = True,
 #                 doL1Counters = False,
-#                 genJetCollection=cms.InputTag("kt6GenJets"),
+#                 genJetCollection=cms.InputTag("kt4GenJets"),
 #                 doJetID      = True,
-#                 jetIdLabel   = "kt6"
+#                 jetIdLabel   = "kt4"
 #                 )
+
+# uncomment the following lines to add kt6CaloJets to your PAT output
+addJetCollection(process,cms.InputTag('kt6PFJets'),
+                 'KT6', 'PF',
+                 doJTA        = True,
+                 doBTagging   = False,
+                 jetCorrLabel = ('KT6PF', cms.vstring()), # currently not available
+                 doType1MET   = False,
+                 doL1Cleaning = True,
+                 doL1Counters = False,
+                 genJetCollection=cms.InputTag("kt6GenJets"),
+                 doJetID      = True,
+                 jetIdLabel   = "kt6"
+                 )
 
 ## uncomment the following lines to add ak5PFJets to your PAT output
 switchJetCollection(process,cms.InputTag('ak5PFJets'),

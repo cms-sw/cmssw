@@ -44,7 +44,6 @@ namespace edm {
 
     void registerPsetsAndUpdateIDs();
 
-    std::string dump(unsigned int indent = 0) const;
     friend std::ostream& operator<<(std::ostream& os, VParameterSetEntry const& vpsetEntry);
 
   private:
