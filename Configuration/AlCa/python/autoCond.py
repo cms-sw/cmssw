@@ -1,8 +1,8 @@
 autoCond = { 
     # GlobalTag for MC production with perfectly aligned and calibrated detector
-    'mc'                :   'MC_61_V3::All',
+    'mc'                :   'MC_61_V4::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'START61_V3::All',
+    'startup'           :   'START61_V4::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
     'starthi'           :   'STARTHI61_V5::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
@@ -80,6 +80,14 @@ conditions_L1_HIRun2011 = (
     'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
 )
 
+# HLT Jet Energy Corrections
+conditions_HLT_JECs = (
+    # HLT 2012 jet energy corrections
+    'JetCorrectorParametersCollection_Jec11_V12_AK5CaloHLT,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5CaloHLT',
+    'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFHLT',
+    'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc,JetCorrectionsRecord,frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS,AK5PFchsHLT',
+)
+
 
 # dedicated GlobalTags for MC production with the frozen HLT menus
 autoCond['startup_5E33v4']   = ( autoCond['startup'], ) \
@@ -101,6 +109,7 @@ autoCond['startup_GRun']     = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012D
 
 autoCond['starthi_HIon']     = ( autoCond['starthi'], ) \
+                             + conditions_HLT_JECs \
                              + conditions_L1_HIRun2011
 
 # dedicated GlobalTags for running the frozen HLT menus on data
