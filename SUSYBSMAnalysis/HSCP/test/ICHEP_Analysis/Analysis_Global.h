@@ -135,7 +135,7 @@ void InitdEdx(std::string dEdxS_Label_){
    if(dEdxS_Label_=="dedxASmi" || dEdxS_Label_=="dedxNPASmi"){
       dEdxS_UpLim  = 1.0;
       dEdxS_Legend = "I_{as}";
-   if(dEdxS_Label_=="dedxRASmi" || dEdxS_Label_=="dedxNPRASmi"){
+   }else if(dEdxS_Label_=="dedxRASmi" || dEdxS_Label_=="dedxNPRASmi"){
       dEdxS_UpLim  = 1.0;
       dEdxS_Legend = "I_{as}^{Low}";
    }else if(dEdxS_Label_=="dedxProd" || dEdxS_Label_=="dedxNPProd"){
