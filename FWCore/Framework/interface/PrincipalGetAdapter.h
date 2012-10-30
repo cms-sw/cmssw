@@ -135,10 +135,6 @@ namespace edm {
     getByLabel(InputTag const& tag, Handle<PROD>& result) const; 	 
 
     template <typename PROD>
-    bool
-    getByType(Handle<PROD>& result) const;
-
-    template <typename PROD>
     void 
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
@@ -168,9 +164,6 @@ namespace edm {
 
     BasicHandle 
     getByLabel_(TypeID const& tid, InputTag const& tag) const;
-
-    BasicHandle 
-    getByType_(TypeID const& tid) const;
 
     void 
     getManyByType_(TypeID const& tid, 
@@ -314,19 +307,6 @@ namespace edm {
 			   Handle<PROD>& result) const {
     result.clear();
     BasicHandle bh = this->getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, std::string());
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
-      return false;
-    }
-    return true;
-  }
-
-  template <typename PROD>
-  inline
-  bool
-  PrincipalGetAdapter::getByType(Handle<PROD>& result) const {
-    result.clear();
-    BasicHandle bh = this->getByType_(TypeID(typeid(PROD)));
     convert_handle(bh, result);  // throws on conversion error
     if (bh.failedToGet()) {
       return false;

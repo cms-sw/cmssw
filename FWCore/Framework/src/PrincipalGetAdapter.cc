@@ -66,11 +66,6 @@ namespace edm {
     return principal_.getByLabel(tid, tag.label(), tag.instance(), tag.process(), tag.cachedOffset(), tag.fillCount());
   }
 
-  BasicHandle
-  PrincipalGetAdapter::getByType_(TypeID const& tid) const {
-    return principal_.getByType(tid);
-  }
-
   void
   PrincipalGetAdapter::getManyByType_(TypeID const& tid,
 		  BasicHandleVec& results) const {

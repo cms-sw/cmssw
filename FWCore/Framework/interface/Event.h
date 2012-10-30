@@ -113,10 +113,6 @@ namespace edm {
     getByLabel(std::string const& label, std::string const& productInstanceName, Handle<PROD>& result) const;
 
     template<typename PROD>
-    bool
-    getByType(Handle<PROD>& result) const;
-
-    template<typename PROD>
     void
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
@@ -359,16 +355,6 @@ namespace edm {
                     std::string const& productInstanceName,
                     Handle<PROD>& result) const {
     bool ok = provRecorder_.getByLabel(label, productInstanceName, result);
-    if(ok) {
-      addToGotBranchIDs(*result.provenance());
-    }
-    return ok;
-  }
-
-  template<typename PROD>
-  bool
-  Event::getByType(Handle<PROD>& result) const {
-    bool ok = provRecorder_.getByType(result);
     if(ok) {
       addToGotBranchIDs(*result.provenance());
     }

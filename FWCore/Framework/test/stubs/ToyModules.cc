@@ -191,7 +191,7 @@ namespace edmtest {
   IntProducerFromTransient::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
     edm::Handle<TransientIntProduct> result;
-    bool ok = e.getByType(result);
+    bool ok = e.getByLabel("TransientThing", result);
     assert(ok);
     std::auto_ptr<IntProduct> p(new IntProduct(result.product()->value));
     e.put(p);
@@ -893,7 +893,7 @@ namespace edmtest {
 
     // Get the product back out; it should be sorted.
     edm::Handle<SCSimpleProduct> h;
-    e.getByType(h);
+    e.getByLabel("scs", h);
     assert(h.isValid());
 
     // Check the sorting. DO NOT DO THIS IN NORMAL CODE; we are
@@ -937,7 +937,7 @@ namespace edmtest {
     typedef detset::value_type       value_type;
     // Get the product back out; it should be sorted.
     edm::Handle<product_type> h;
-    e.getByType(h);
+    e.getByLabel("dsv1", h);
     assert(h.isValid());
 
     // Check the sorting. DO NOT DO THIS IN NORMAL CODE; we are
@@ -962,7 +962,7 @@ namespace edmtest {
     typedef detset::value_type       value_type;
     // Get the product back out; it should be unsorted.
     edm::Handle<product_type> h;
-    e.getByType(h);
+    e.getByLabel("dsv1", h);
     assert(h.isValid());
 
     // Check the sorting. DO NOT DO THIS IN NORMAL CODE; we are

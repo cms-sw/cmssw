@@ -87,10 +87,6 @@ namespace edm {
     getMany(SelectorBase const&, std::vector<Handle<PROD> >& results) const;
 
     template<typename PROD>
-    bool
-    getByType(Handle<PROD>& result) const;
-
-    template<typename PROD>
     void
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
@@ -209,12 +205,6 @@ namespace edm {
   void
   LuminosityBlock::getMany(SelectorBase const& sel, std::vector<Handle<PROD> >& results) const {
     return provRecorder_.getMany(sel,results);
-  }
-
-  template<typename PROD>
-  bool
-  LuminosityBlock::getByType(Handle<PROD>& result) const {
-    return provRecorder_.getByType(result);
   }
 
   template<typename PROD>

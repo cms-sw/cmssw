@@ -46,7 +46,6 @@ class test_ep: public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(test_ep);
   CPPUNIT_TEST(failgetbyIdTest);
   CPPUNIT_TEST(failgetbyLabelTest);
-  CPPUNIT_TEST(failgetbyTypeTest);
   CPPUNIT_TEST(failgetManybyTypeTest);
   CPPUNIT_TEST(failgetbyInvalidIdTest);
   CPPUNIT_TEST(failgetProvenanceTest);
@@ -56,7 +55,6 @@ public:
   void tearDown();
   void failgetbyIdTest();
   void failgetbyLabelTest();
-  void failgetbyTypeTest();
   void failgetManybyTypeTest();
   void failgetbyInvalidIdTest();
   void failgetProvenanceTest();
@@ -233,13 +231,6 @@ void test_ep::failgetbyLabelTest() {
   size_t cachedOffset = 0;
   int fillCount = -1;
   edm::BasicHandle h(pEvent_->getByLabel(tid, label, std::string(), std::string(), cachedOffset, fillCount));
-  CPPUNIT_ASSERT(h.failedToGet());
-}
-
-void test_ep::failgetbyTypeTest() {
-  edmtest::IntProduct dummy;
-  edm::TypeID tid(dummy);
-  edm::BasicHandle h(pEvent_->getByType(tid));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
