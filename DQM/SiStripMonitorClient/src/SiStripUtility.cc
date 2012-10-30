@@ -124,7 +124,7 @@ void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int
   }
   // Excluded FED Channel 
   if (((status >> 3) & 0x1) > 0) {
-    rval = 255; gval = 255; bval = 255; 
+    rval = 100; gval = 100; bval = 255; 
     return;
   }
   // DCS Error
