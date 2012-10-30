@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 
 import os
 import subprocess
@@ -119,6 +119,12 @@ if __name__ == '__main__':
                       action='store_true',
                       default=False,
                       dest='dryRun')
+    
+    parser.add_option('-c', '--compress',
+                      help='compress the local .lhe file with xc before upload',
+                      action='store_true',
+                      default=False,
+                      dest='compress')
 
     (options,args) = parser.parse_args()
 
@@ -151,6 +157,7 @@ if __name__ == '__main__':
 
     if options.artIdLi==0:
         theList = options.fileList.split(',')
+        theCompressedFilesList = []
         for f in theList: 
             # Check the file name extension
             if not ( f.lower().endswith(".lhe") or f.lower().endswith(".lhe.xz") ):
@@ -158,6 +165,15 @@ if __name__ == '__main__':
             # Check the local file existence
             if not os.path.exists(f):
                 raise Exception('Input file '+f+' does not exists')
+            if reallyDoIt and options.compress:
+              print "Compressing file",f
+              theCompressionCommand = 'xz '+f
+              exeCompression = subprocess.Popen(["/bin/sh","-c",theCompressionCommand])
+              exeCompression.communicate()
+              theCompressedFilesList.append(f+'.xz')
+        if reallyDoIt and options.compress:
+          theList = theCompressedFilesList
+              
         
 
     newArt = 0
