@@ -506,4 +506,61 @@ bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& I
    }
    return false;
 }
+
+reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, bool reverseProb=false){
+     fwlite::Handle<HSCPDeDxInfoValueMap> dEdxHitsH;
+     dEdxHitsH.getByLabel(ev, "dedxHitInfo");
+     if(!dEdxHitsH.isValid()){printf("Invalid dEdxHitInfo\n");return NULL;}
+     const ValueMap<HSCPDeDxInfo>& dEdxHitMap = *dEdxHitsH.product();
+
+     const HSCPDeDxInfo& hscpHitsInfo = dEdxHitMap.get((size_t)track.key());
+
+     std::vector<double> vect_probs;
+     for(unsigned int h=0;h<hscpHitsInfo.charge.size();h++){
+        DetId detid(hscpHitsInfo.detIds[h]);  
+        if(detid.subdetId()<3)continue; // skip pixels
+        if(!hscpHitsInfo.shapetest[h])continue;
+
+        //Remove hits close to the border
+        //for unknown reasons, localx,localy, modwidth,modlength is not saved in all ntuples!
+        //double absDistEdgeXNorm = 1-fabs(hscpHitsInfo.localx[h])/(hscpHitsInfo.modwidth [h]/2.0);
+        //double absDistEdgeYNorm = 1-fabs(hscpHitsInfo.localy[h])/(hscpHitsInfo.modlength[h]/2.0);
+        //if(detid.subdetId()==1 && (absDistEdgeXNorm<0.05  || absDistEdgeYNorm<0.01)) continue;
+        //if(detid.subdetId()==2 && (absDistEdgeXNorm<0.05  || absDistEdgeYNorm<0.01)) continue; 
+        //if(detid.subdetId()==3 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.04)) continue;  
+        //if(detid.subdetId()==4 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.02)) continue;  
+        //if(detid.subdetId()==5 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.02 || absDistEdgeYNorm>0.97)) continue;
+        //if(detid.subdetId()==6 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.03 || absDistEdgeYNorm>0.8)) continue;
+
+        vect_probs.push_back(reverseProb?1.0-hscpHitsInfo.probability[h]:hscpHitsInfo.probability[h]);
+     }
+     int size = vect_probs.size();
+
+     //Prod
+//     double P = 1;
+//     for(int i=0;i<size;i++){
+//        if(vect_probs[i]<=0.0001){P *= pow(0.0001       , 1.0/size);}
+//        else                     {P *= pow(vect_probs[i], 1.0/size);}
+//     }
+
+     //Ias
+     double P = 1.0/(12*size);
+     std::sort(vect_probs.begin(), vect_probs.end(), std::less<double>() );
+     for(int i=1;i<=size;i++){
+        P += vect_probs[i-1] * pow(vect_probs[i-1] - ((2.0*i-1.0)/(2.0*size)),2);
+     }
+     P *= (3.0/size);
+
+
+     if(size<=0)P=-1;
+
+//     printf("%f vs %f (%i vs %i)\n",dedxSObj->dEdx(), P, dedxSObj->numberOfMeasurements(), size);
+
+//                  dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
+
+     return new DeDxData(P, dedxSObj->numberOfSaturatedMeasurements(), size);
+}
+
+
+
 #endif

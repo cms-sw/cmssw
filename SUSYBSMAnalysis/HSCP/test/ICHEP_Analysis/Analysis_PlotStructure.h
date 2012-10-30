@@ -17,6 +17,13 @@ struct stPlots {
    float        Tree_I;
    float        Tree_TOF;
    float        Tree_Mass;
+   float        Tree_dZ;
+   float        Tree_dXY;
+   float        Tree_dR;
+   float        Tree_eta;
+   float        Tree_phi;
+
+
 
    TH2F*  Mass;
    TH2F*  MassTOF;
@@ -619,6 +626,12 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    st.Tree->Branch("I"       ,&st.Tree_I         ,"I/F");
    st.Tree->Branch("TOF"     ,&st.Tree_TOF       ,"TOF/F");
    st.Tree->Branch("Mass"    ,&st.Tree_Mass      ,"Mass/F");
+   st.Tree->Branch("dZ"      ,&st.Tree_dZ        ,"dZ/F");
+   st.Tree->Branch("dXY"     ,&st.Tree_dXY       ,"dXY/F");
+   st.Tree->Branch("dR"      ,&st.Tree_dR        ,"dR/F");
+   st.Tree->Branch("eta"     ,&st.Tree_eta       ,"eta/F");
+   st.Tree->Branch("phi"     ,&st.Tree_phi       ,"phi/F");
+
 
    HistoFile->cd();
 }
@@ -824,7 +837,7 @@ void stPlots_Clear(stPlots* st, bool WriteFirst=false)
 }
 
 // add one candidate to the bookeeping tree --> the event must be saved in the tree if you want to find it back with the DumpInfo.C code later on
-void stPlots_FillTree(stPlots* st, unsigned int Run, unsigned int Event, unsigned int Hscp, double Pt, double I, double TOF, double Mass, int MaxEntry=20000){
+void stPlots_FillTree(stPlots* st, unsigned int Run, unsigned int Event, unsigned int Hscp, double Pt, double I, double TOF, double Mass, double dZ, double dXY, double dR, double eta, double phi, int MaxEntry=20000){
    if(MaxEntry>0 && st->Tree->GetEntries()>=MaxEntry)return;
    st->Tree_Run   = Run;
    st->Tree_Event = Event;
@@ -833,6 +846,11 @@ void stPlots_FillTree(stPlots* st, unsigned int Run, unsigned int Event, unsigne
    st->Tree_I     = I;
    st->Tree_TOF   = TOF;
    st->Tree_Mass  = Mass;
+   st->Tree_dZ    = dZ;
+   st->Tree_dXY   = dXY;
+   st->Tree_dR    = dR;
+   st->Tree_eta    = eta;
+   st->Tree_phi    = phi;
    st->Tree->Fill();
 }
 
@@ -1613,6 +1631,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
+//
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_InnerInvPtDiff->Clone(); Histos[i]->Rebin(4);  legend.push_back(lg[i]);
@@ -1649,7 +1668,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    SaveCanvas(c1,SavePath,"Dz_FailSep_BS", true);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
-
+// 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_Dxy->Clone();  legend.push_back(lg[i]); Histos[i]->Rebin(1);

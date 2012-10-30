@@ -2,7 +2,7 @@
 
 
 namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class PFMET; class HitPattern;}
-namespace susybsm { class HSCParticle; class HSCPIsolation; class MuonSegment;}
+namespace susybsm { class HSCParticle; class HSCPIsolation; class MuonSegment; class HSCPDeDxInfo;}
 namespace fwlite  { class ChainEvent;}
 namespace trigger { class TriggerEvent;}
 namespace edm     { class TriggerResults; class TriggerResultsByName; class InputTag; class LumiReWeighting;}
@@ -18,6 +18,7 @@ namespace reweight{ class PoissonMeanShifter;}
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPDeDxInfo.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/MuonSegment.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -199,9 +200,9 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 	 CutPt_Flip .push_back(-1);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
        }}
    }else if(TypeMode==5){   
-      for(double Pt =75 ; Pt <=125;Pt+=25){
-      for(double I  =0.75; I  <=1.0 ;I+=0.01){
-         if(I<0.85 && int(I*1000)%5!=0)continue;
+      for(double Pt =75 ; Pt <=150;Pt+=25){
+      for(double I  =0.0; I  <=0.45 ;I+=0.025){
+//         if(I<0.85 && int(I*1000)%5!=0)continue;
          CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(-1);
      }}
    }
@@ -302,6 +303,8 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 
 // check if one HSCP candidate is passing the preselection (the function also has many more arguments because it is used to fill some histograms AND to evaluate the systematics
 double dRtoCosmic = -1; //global variable needed by PassPreselection... Ugly isn't it?!
+double TreeDXY = -1;
+double TreeDZ = -1;
 bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT)
 {
    if(TypeMode==1 && !(hscp.type() == HSCParticleType::trackerMuon || hscp.type() == HSCParticleType::globalMuon))return false;
@@ -458,6 +461,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(st)st->BS_Dxy->Fill(dxy, Event_Weight);
 
+   TreeDXY = dxy;
    if(fabs(dxy)>GlobalMaxDXY) return false;
 
    if(st){st->V3D  ->Fill(0.0,Event_Weight);}
@@ -561,7 +565,10 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
        }
      }
    }
+   TreeDZ = dz;
 
+
+//   if(fabs(dz)<0.5 || fabs(dz)>1.0) return false;
    if(fabs(dz)>GlobalMaxDZ) return false;
    if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
    if(st)st->BS_Phi->Fill(track->phi(),Event_Weight);
@@ -569,7 +576,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
     //skip HSCP that are compatible with cosmics.
     if(st)st->BS_CosmicDR->Fill(dRtoCosmic,Event_Weight);
-    if(dRtoCosmic>0.3)return false;
+    if(dRtoCosmic<0.3)return false;
   
 
    if(st){if(dedxSObj) st->BS_EtaIs->Fill(track->eta(),dedxSObj->dEdx(),Event_Weight);
@@ -1115,7 +1122,8 @@ void Analysis_Step3(char* SavePath)
 
                if(TypeMode==5 && dedxSObj){
                   //for FractionalCharge dEdx discriminator probability is close to 0, just inverse the logic such that it become close to 1 as for other analyses
-                  dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
+//                  dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
+                  dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, true);
                   dRtoCosmic = deltaROpositeTrack(hscpColl, hscp); //dRtoCosmic is a global variable... that's uggly C++, but that's the best I found so far
                }
                const reco::MuonTimeExtra* tof = NULL;
@@ -1310,7 +1318,8 @@ void Analysis_Step3(char* SavePath)
                   if(isMC)MCTrPlots->MassComb->Fill(CutIndex, MassComb, Event_Weight);
                   SamplePlots      ->MassComb->Fill(CutIndex, MassComb, Event_Weight);
                } //end of Cut loop
-               if(PassNonTrivialSelection) stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, -1);
+//               if(PassNonTrivialSelection) stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, -1);
+               stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, TreeDZ, TreeDXY, dRtoCosmic, track->eta(), track->phi(), -1);
             }// end of Track Loop
 
             //save event dependent information thanks to the bookkeeping

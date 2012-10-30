@@ -148,18 +148,17 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(MODE=="COMPILE")return;
 
    string Data;
-   if(MODE.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
-   if(MODE.find("8TeV")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="8TeV"; }
-   printf("EXCLUSIONDIR = %s\n",EXCLUSIONDIR.c_str());  
- 
    if(MODE.find("SHAPE")!=string::npos){SHAPESTRING="SHAPE";}else{SHAPESTRING="";}
-   if(MODE.find("COMPUTELIMIT")!=string::npos){
-      Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);
-      return;
-   }else if(MODE.find("OPTIMIZE")!=string::npos){
-      Optimize(InputPattern, Data, signal, SHAPESTRING!="", false); //testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c      
-      return;
-   }else if(MODE.find("COMBINE")!=string::npos){
+   if(MODE.find("COMPUTELIMIT")!=string::npos || MODE.find("OPTIMIZE")!=string::npos){
+      if(signal.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
+      if(signal.find("8TeV")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="8TeV"; }
+      printf("EXCLUSIONDIR = %s\nData = %s\n",EXCLUSIONDIR.c_str(), Data.c_str());  
+
+      if(MODE.find("COMPUTELIMIT")!=string::npos){Optimize(InputPattern, Data, signal, SHAPESTRING!="", true);      return;}
+      if(MODE.find("OPTIMIZE")!=string::npos){    Optimize(InputPattern, Data, signal, SHAPESTRING!="", false);     return;} //testShapeBasedAnalysis(InputPattern,signal);  //use the second part if you want to run shape based analyssi on optimal point form c&c      
+   }
+
+   if(MODE.find("COMBINE")!=string::npos){
       printf("COMBINE!!!\n");
 
       string signal7TeV = signal; if(signal7TeV.find("_8TeV")!=string::npos) signal7TeV = signal7TeV.replace(signal7TeV.find("_8TeV"),5, "_7TeV");
@@ -175,10 +174,15 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       Optimize(InputPattern, Data, signal8TeV, SHAPESTRING!="", true);
 
       //Combined Limits
-     EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
+      EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
       Combine(InputPattern, signal7TeV, signal8TeV);
       return;
    }
+
+   if(MODE.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
+   if(MODE.find("8TeV")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="8TeV"; }
+   printf("EXCLUSIONDIR = %s\nData = %s\n",EXCLUSIONDIR.c_str(), Data.c_str());  
+
    
    string TkPattern  = "Results/Type0/";
    string MuPattern  = "Results/Type2/";
