@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 
 import os
 import subprocess
@@ -153,7 +153,7 @@ if __name__ == '__main__':
         theList = options.fileList.split(',')
         for f in theList: 
             # Check the file name extension
-            if not ( lower().endswith(".lhe") or lower().endswith(".lhe.xz") ):
+            if not ( f.lower().endswith(".lhe") or f.lower().endswith(".lhe.xz") ):
                 raise Exception('Input file name must have the "lhe" or "lhe.xz" final extension!')
             # Check the local file existence
             if not os.path.exists(f):
