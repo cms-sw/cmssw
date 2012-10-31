@@ -1183,7 +1183,7 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                fig.savefig("int_lumi_cumulative_%s_%d%s%s.png" % \
+                fig.savefig("int_lumi_per_day_cumulative_%s_%d%s%s.png" % \
                             (particle_type_str.lower(), year,
                              log_suffix, file_suffix))
 
