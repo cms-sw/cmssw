@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/08/18 14:22:13 $
- *  $Revision: 1.62 $
+ *  $Date: 2012/10/17 01:32:22 $
+ *  $Revision: 1.63 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -555,7 +555,7 @@ namespace edm {
   }
 
   EventPrincipal*
-  DaqSource::readEvent_() {
+  DaqSource::readEvent_(EventPrincipal& eventPrincipal) {
     //    std::cout << "assert not newRun " << std::endl;
     assert(!newRun());
     //    std::cout << "assert not newLumi " << std::endl;
@@ -566,8 +566,8 @@ namespace edm {
     assert(eventCached());
     //    std::cout << "asserts done " << std::endl;
     resetEventCached();
-    eventPrincipalCache()->setLuminosityBlockPrincipal(luminosityBlockPrincipal());
-    return eventPrincipalCache();
+    eventPrincipal.setLuminosityBlockPrincipal(luminosityBlockPrincipal());
+    return &eventPrincipal;
   }
 
   void
