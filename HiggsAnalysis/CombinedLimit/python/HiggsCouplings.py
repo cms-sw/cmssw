@@ -30,3 +30,9 @@ from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.LoopAndInvisibleModel impo
 higgsLoops  = HiggsLoops() 
 higgsLoopsInvisible  = HiggsLoopsInvisible() 
 
+# Model with full LO parametrization 
+from HiggsAnalysis.CombinedLimit.LOFullParametrization import C5, C6
+c5 = C5()
+c6 = C6()
+
+
