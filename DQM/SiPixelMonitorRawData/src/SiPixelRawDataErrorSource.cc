@@ -303,3 +303,5 @@ void SiPixelRawDataErrorSource::bookMEs(){
   //cout<<"...leaving SiPixelRawDataErrorSource::bookMEs now! "<<endl;
 
 }
+
+DEFINE_FWK_MODULE(SiPixelRawDataErrorSource);

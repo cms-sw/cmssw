@@ -5,7 +5,7 @@
 <use   name="DQMServices/Core"/>
 <use   name="DQM/SiPixelCommon"/>
 <use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>
+<flags   EDM_PLUGIN="1"/>

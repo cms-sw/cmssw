@@ -192,3 +192,5 @@ void SiPixelHLTSource::bookMEs(){
   delete ErrorHistogramId;
 
 }
+
+DEFINE_FWK_MODULE(SiPixelHLTSource);
