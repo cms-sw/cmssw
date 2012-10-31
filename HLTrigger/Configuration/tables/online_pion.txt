@@ -57,6 +57,16 @@ HLT_PAPhoton10_CaloIdVL_v*                         # sr 131577
 HLT_PAPhoton15_CaloIdVL_v*                         # sr 131577
 HLT_PAPhoton20_CaloIdVL_v*                         # sr 131577
 HLT_PAPhoton30_CaloIdVL_v*                         # sr 131577
+HLT_PAPhoton10_NoCaloIdVL_v*			   # sr 133321
+HLT_PAPhoton20_NoCaloIdVL_v*			   # sr 133321
+HLT_PAPhoton30_NoCaloIdVL_v*			   # sr 133321
+HLT_PAPhoton40_NoCaloIdVL_v*			   # sr 133321
+HLT_PAPhoton60_NoCaloIdVL_v*			   # sr 133321
+HLT_PAPhoton10_Photon10_NoCaloIdVL_v*		   # sr 133321
+HLT_PAPhoton15_Photon10_NoCaloIdVL_v*		   # sr 133321
+HLT_PAPhoton20_Photon15_NoCaloIdVL_v*		   # sr 133321
+HLT_PAPhoton20_Photon20_NoCaloIdVL_v*		   # sr 133321
+HLT_PAPhoton30_Photon30_NoCaloIdVL_v*		   # sr 133321 
 HLT_PAL1ETM30_v*                                   # sr 131577
 HLT_PAL1ETM70_v*                                   # sr 131577
 HLT_PAPixelTracks_Multiplicity70_v*                # sr 131577
