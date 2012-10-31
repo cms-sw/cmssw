@@ -149,7 +149,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
      IntegratedLuminosityBeforeTriggerChange = 0;
      IntegratedLuminosity = 4100;
 #endif
-   }else if(TypeMode==4){GlobalMaxTIsol = -1;
+   }else if(TypeMode==4){
 //         GlobalMaxTIsol   =  999999;      // cut on tracker isolation (SumPt)
 //         GlobalMaxRelTIsol   =  0.10; // cut on relative tracker isolation (SumPt/Pt)
          GlobalMaxEIsol   =  999999;   // cut on calorimeter isolation (E/P)
@@ -520,6 +520,8 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
        st->BS_Dz_FailSep->Fill(dz);
      }
    }
+
+
 
    //Now cut Eta separation
    //if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
