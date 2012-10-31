@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/GRun/V56 (CMSSW_5_2_7_HLT2)
+# /dev/CMSSW_5_2_6/GRun/V57 (CMSSW_5_2_7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V56')
+  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V57')
 )
 
 process.streams = cms.PSet( 
@@ -46346,7 +46346,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_v4',
   'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_Reg_v1',
   'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_v4',
-  'HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v1',
   'HLT_DoubleMu11_Acoplanarity03_v5',
   'HLT_DoubleMu14_Mass8_PFMET40_v8',
   'HLT_DoubleMu14_Mass8_PFMET50_v8',
@@ -46536,8 +46535,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_MET80_Track50_dEdx3p6_v6',
   'HLT_MET80_Track60_dEdx3p7_v6',
   'HLT_MET80_v5',
-  'HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v4')+cms.vstring( 'HLT_Mu12_eta2p1_DiCentral_20_v8',
-  'HLT_Mu12_eta2p1_DiCentral_40_20_BTagIP3D1stTrack_v8',
+  'HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v4',
+  'HLT_Mu12_eta2p1_DiCentral_20_v8')+cms.vstring( 'HLT_Mu12_eta2p1_DiCentral_40_20_BTagIP3D1stTrack_v8',
   'HLT_Mu12_eta2p1_DiCentral_40_20_DiBTagIP3D1stTrack_v8',
   'HLT_Mu12_eta2p1_DiCentral_40_20_v8',
   'HLT_Mu12_eta2p1_L1Mu10erJetC12WdEtaPhi1DiJetsC_v7',

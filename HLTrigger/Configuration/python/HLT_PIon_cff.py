@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/PIon/V56 (CMSSW_5_2_7_HLT2)
+# /dev/CMSSW_5_2_6/PIon/V57 (CMSSW_5_2_7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V56')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V57')
 )
 
 streams = cms.PSet( 
@@ -91,6 +91,7 @@ datasets = cms.PSet(
     'HLT_PAPhoton10_Photon10_NoCaloIdVL_v1',
     'HLT_PAPhoton15_Photon10_NoCaloIdVL_v1',
     'HLT_PAPhoton20_NoCaloIdVL_v1',
+    'HLT_PAPhoton20_Photon15_NoCaloIdVL_v1',
     'HLT_PAPhoton20_Photon20_NoCaloIdVL_v1',
     'HLT_PAPhoton30_NoCaloIdVL_v1',
     'HLT_PAPhoton30_Photon30_NoCaloIdVL_v1',
@@ -104,7 +105,6 @@ datasets = cms.PSet(
     'HLT_Physics_v5' ),
   OnlineHltMonitor = cms.vstring( 'HLT_PAMu5_v1',
     'HLT_PAMu8_v1',
-    'HLT_PAPhoton20_Photon15_NoCaloIdVL_v1',
     'HLT_PASingleForJet15_v1',
     'HLT_PASingleForJet25_v1' ),
   OnlineMonitor = cms.vstring( 'HLT_Activity_Ecal_SC7_v13',
