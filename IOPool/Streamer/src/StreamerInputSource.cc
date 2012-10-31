@@ -53,6 +53,7 @@ namespace edm {
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
+    sendEvent_(),
     productGetter_() {
   }
 
@@ -191,7 +192,7 @@ namespace edm {
   /**
    * Deserializes the specified event message into an EventPrincipal object.
    */
-  EventPrincipal*
+  void
   StreamerInputSource::deserializeEvent(EventMsgView const& eventView) {
     if(eventView.code() != Header::EVENT)
       throw cms::Exception("StreamTranslation","Event deserialization error")
@@ -243,39 +244,42 @@ namespace edm {
     RootDebug tracer(10,10);
 
     setRefCoreStreamer(&productGetter_);
-    std::auto_ptr<SendEvent> sd((SendEvent*)xbuf_.ReadObjectAny(tc_));
+    sendEvent_ = std::unique_ptr<SendEvent>((SendEvent*)xbuf_.ReadObjectAny(tc_));
     setRefCoreStreamer();
 
-    if(sd.get()==0) {
+    if(sendEvent_.get()==0) {
         throw cms::Exception("StreamTranslation","Event deserialization error")
           << "got a null event from input stream\n";
     }
-    ProcessHistoryRegistry::instance()->insertMapped(sd->processHistory());
+    ProcessHistoryRegistry::instance()->insertMapped(sendEvent_->processHistory());
 
-    FDEBUG(5) << "Got event: " << sd->aux().id() << " " << sd->products().size() << std::endl;
-    if(runAuxiliary().get() == 0 || runAuxiliary()->run() != sd->aux().run()) {
-      RunAuxiliary* runAuxiliary = new RunAuxiliary(sd->aux().run(), sd->aux().time(), Timestamp::invalidTimestamp());
-      runAuxiliary->setProcessHistoryID(sd->processHistory().id());
+    FDEBUG(5) << "Got event: " << sendEvent_->aux().id() << " " << sendEvent_->products().size() << std::endl;
+    if(runAuxiliary().get() == 0 || runAuxiliary()->run() != sendEvent_->aux().run()) {
+      RunAuxiliary* runAuxiliary = new RunAuxiliary(sendEvent_->aux().run(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
+      runAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
       setRunAuxiliary(runAuxiliary);
       resetLuminosityBlockAuxiliary();
     }
     if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventView.lumi()) {
       LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
-        new LuminosityBlockAuxiliary(runAuxiliary()->run(), eventView.lumi(), sd->aux().time(), Timestamp::invalidTimestamp());
-      luminosityBlockAuxiliary->setProcessHistoryID(sd->processHistory().id());
+        new LuminosityBlockAuxiliary(runAuxiliary()->run(), eventView.lumi(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
+      luminosityBlockAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
       setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
     }
-
-    boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sd->eventSelectionIDs()));
-    boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sd->branchListIndexes()));
-    branchIDListHelper()->fixBranchListIndexes(*indexes);
-    eventPrincipalCache()->fillEventPrincipal(sd->aux(), boost::shared_ptr<LuminosityBlockPrincipal>(), ids, indexes);
-    productGetter_.setEventPrincipal(eventPrincipalCache());
     setEventCached();
+  }
+
+  EventPrincipal *
+  StreamerInputSource::read(EventPrincipal& eventPrincipal) {
+    boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sendEvent_->eventSelectionIDs()));
+    boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sendEvent_->branchListIndexes()));
+    branchIDListHelper()->fixBranchListIndexes(*indexes);
+    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), luminosityBlockPrincipal(), ids, indexes);
+    productGetter_.setEventPrincipal(&eventPrincipal);
 
     // no process name list handling
 
-    SendProds & sps = sd->products();
+    SendProds & sps = sendEvent_->products();
     for(SendProds::iterator spi = sps.begin(), spe = sps.end(); spi != spe; ++spi) {
         FDEBUG(10) << "check prodpair" << std::endl;
         if(spi->desc() == 0)
@@ -292,19 +296,19 @@ namespace edm {
 
         if(spi->prod() != 0) {
           FDEBUG(10) << "addgroup next " << spi->branchID() << std::endl;
-          eventPrincipalCache()->putOnRead(branchDesc, spi->prod(), productProvenance);
+          eventPrincipal.putOnRead(branchDesc, spi->prod(), productProvenance);
           FDEBUG(10) << "addgroup done" << std::endl;
         } else {
           FDEBUG(10) << "addgroup empty next " << spi->branchID() << std::endl;
-          eventPrincipalCache()->putOnRead(branchDesc, spi->prod(), productProvenance);
+          eventPrincipal.putOnRead(branchDesc, spi->prod(), productProvenance);
           FDEBUG(10) << "addgroup empty done" << std::endl;
         }
         spi->clear();
     }
 
-    FDEBUG(10) << "Size = " << eventPrincipalCache()->size() << std::endl;
+    FDEBUG(10) << "Size = " << eventPrincipal.size() << std::endl;
 
-    return eventPrincipalCache();
+    return &eventPrincipal;
   }
 
   /**

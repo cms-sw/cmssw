@@ -1,4 +1,4 @@
-// $Id: EventStreamHttpReader.cc,v 1.52 2011/09/02 08:13:31 mommsen Exp $
+// $Id: EventStreamHttpReader.cc,v 1.53 2012/10/17 02:10:19 wmtan Exp $
 /// @file: EventStreamHttpReader.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -37,8 +37,7 @@ namespace edm
     readHeader();
   }
   
-  
-  EventPrincipal* EventStreamHttpReader::read()
+  bool EventStreamHttpReader::checkNextEvent()
   {
     initializeDQMStore();
 
@@ -49,12 +48,12 @@ namespace edm
     do
     {
       eventServerProxy_.getOneEvent(data);
-      if ( data.empty() ) return 0;
+      if ( data.empty() ) return false;
       
       HeaderView hdrView(&data[0]);
       if (hdrView.code() == Header::DONE)
       {
-        return 0;
+        return false;
       }
       
       EventMsgView eventView(&data[0]);
@@ -79,7 +78,8 @@ namespace edm
       me->Fill(totalDroppedEvents_);
     }
 
-    return deserializeEvent(EventMsgView(&data[0]));
+    deserializeEvent(EventMsgView(&data[0]));
+    return true;
   }
   
   

@@ -39,7 +39,7 @@ namespace edm {
 
     void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent = false);
 
-    EventPrincipal* deserializeEvent(EventMsgView const& eventView);
+    void deserializeEvent(EventMsgView const& eventView);
 
     static
     void mergeIntoRegistry(SendJobHeader const& header, ProductRegistry&, BranchIDListHelper&, bool subsequent);
@@ -77,6 +77,8 @@ namespace edm {
       EventPrincipal const* eventPrincipal_;
     };
 
+    virtual EventPrincipal* read(EventPrincipal& eventPrincipal);
+
     virtual void setRun(RunNumber_t r);
 
     virtual boost::shared_ptr<FileBlock> readFile_();
@@ -84,6 +86,7 @@ namespace edm {
     TClass* tc_;
     std::vector<unsigned char> dest_;
     TBufferFile xbuf_;
+    std::unique_ptr<SendEvent> sendEvent_;
     ProductGetter productGetter_;
 
     //Do not like these to be static, but no choice as deserializeRegistry() that sets it is a static memeber 

@@ -1,7 +1,8 @@
-// $Id: DQMHttpSource.cc,v 1.29 2012/10/17 02:03:00 wmtan Exp $
+// $Id: DQMHttpSource.cc,v 1.30 2012/10/17 12:55:26 wmtan Exp $
 /// @file: DQMHttpSource.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
 #include "EventFilter/StorageManager/src/EventServerProxy.icc"
@@ -11,6 +12,7 @@
 
 #include "TClass.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -26,33 +28,45 @@ namespace edm
     const InputSourceDescription& desc
   ) :
   edm::RawInputSource(pset, desc),
+  eventAuxiliary_(),
   dqmEventServerProxy_(pset),
   dqmStore_(0)
   {}
 
 
-  EventPrincipal* DQMHttpSource::read()
-  {
+  bool DQMHttpSource::checkNextEvent() {
     initializeDQMStore();
     stor::CurlInterface::Content data;
 
     dqmEventServerProxy_.getOneEvent(data);
-    if ( data.empty() ) return nullptr;
+    if ( data.empty() ) return false;
 
     HeaderView hdrView(&data[0]);
-    if (hdrView.code() == Header::DONE)
-      return nullptr;
+    if (hdrView.code() == Header::DONE) return false;
 
     const DQMEventMsgView dqmEventMsgView(&data[0]);
     addEventToDQMBackend(dqmStore_, dqmEventMsgView, true);
 
+    EventID id(dqmEventMsgView.runNumber(), dqmEventMsgView.lumiSection(), dqmEventMsgView.eventNumberAtUpdate());
+  
+    setEventAuxiliary(std::unique_ptr<EventAuxiliary>(new EventAuxiliary(id, std::string(), dqmEventMsgView.timeStamp(), true, EventAuxiliary::PhysicsTrigger)));
+
+    if(!runAuxiliary() || runAuxiliary()->run() != eventAuxiliary().run()) {
+      setRunAuxiliary(new RunAuxiliary(eventAuxiliary().run(), eventAuxiliary().time(), Timestamp::invalidTimestamp()));
+    }
+    if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventAuxiliary().luminosityBlock()) {
+      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(eventAuxiliary().run(), eventAuxiliary().luminosityBlock(), eventAuxiliary().time(), Timestamp::invalidTimestamp()));
+    }
+    return true;
+  }
+
+  EventPrincipal* DQMHttpSource::read(EventPrincipal& eventPrincipal)
+  {
     // make a fake event principal containing no data but the evId and runId from DQMEvent
     // and the time stamp from the event at update
     EventPrincipal* e = makeEvent(
-      dqmEventMsgView.runNumber(),
-      dqmEventMsgView.lumiSection(),
-      dqmEventMsgView.eventNumberAtUpdate(),
-      dqmEventMsgView.timeStamp()
+      eventPrincipal,
+      eventAuxiliary()
     );
 
     return e;

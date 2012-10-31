@@ -40,9 +40,8 @@ namespace edm {
     deserializeAndMergeWithRegistry(*header, false);
   }
 
-  EventPrincipal*
-  StreamerFileReader::read() {
 
+  bool StreamerFileReader::checkNextEvent() {
     EventMsgView const* eview = getNextEvent();
 
     if (newHeader()) {
@@ -53,9 +52,10 @@ namespace edm {
       deserializeAndMergeWithRegistry(*header, true);
     }
     if (eview == 0) {
-      return  0;
+      return  false;
     }
-    return(deserializeEvent(*eview));
+    deserializeEvent(*eview);
+    return true;
   }
 
   void

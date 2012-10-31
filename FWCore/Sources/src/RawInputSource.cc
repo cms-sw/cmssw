@@ -44,31 +44,24 @@ namespace edm {
   }
 
   EventPrincipal*
-  RawInputSource::readEvent_() {
+  RawInputSource::readEvent_(EventPrincipal& eventPrincipal) {
     assert(!newRun());
     assert(!newLumi());
     assert(eventCached());
     if(receiver_) {
       --numberOfEventsBeforeBigSkip_;
     }
+    eventPrincipal.setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     resetEventCached();
-    eventPrincipalCache()->setLuminosityBlockPrincipal(luminosityBlockPrincipal());
-    return eventPrincipalCache();
+    return read(eventPrincipal);
   }
 
   EventPrincipal*
-  RawInputSource::makeEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, Timestamp const& tstamp) {
-    if(!runAuxiliary() || runAuxiliary()->run() != run) {
-      setRunAuxiliary(new RunAuxiliary(run, tstamp, Timestamp::invalidTimestamp()));
-    }
-    if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != lumi) {
-      setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(run, lumi, tstamp, Timestamp::invalidTimestamp()));
-    }
+  RawInputSource::makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary) {
     EventSourceSentry sentry(*this);
-    EventAuxiliary aux(EventID(run, lumi, event), processGUID(), tstamp, true, EventAuxiliary::PhysicsTrigger);
-    eventPrincipalCache()->fillEventPrincipal(aux, boost::shared_ptr<LuminosityBlockPrincipal>());
+    eventPrincipal.fillEventPrincipal(eventAuxiliary, boost::shared_ptr<LuminosityBlockPrincipal>());
     setEventCached();
-    return eventPrincipalCache();
+    return &eventPrincipal;
   }
 
   void
@@ -114,8 +107,8 @@ namespace edm {
       resetRunAuxiliary(newRun());
       resetLuminosityBlockAuxiliary(newLumi());
     }
-    EventPrincipal *ep = read();
-    if(ep == nullptr || !eventCached()) {
+    bool another = checkNextEvent();
+    if(!another || !eventCached()) {
       return IsStop;
     } else if(inputFileTransitionsEachEvent_) {
       return IsFile;
