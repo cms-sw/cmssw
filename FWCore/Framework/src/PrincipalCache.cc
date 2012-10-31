@@ -239,23 +239,6 @@ namespace edm {
     lumiPrincipal_.reset();
   }
 
-  void PrincipalCache::adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg) {
-    if (eventPrincipal_) {
-      eventPrincipal_->adjustIndexesAfterProductRegistryAddition();
-      bool eventOK = eventPrincipal_->adjustToNewProductRegistry(*reg);
-      assert(eventOK);
-    }
-  }
-  
-  void PrincipalCache::adjustIndexesAfterProductRegistryAddition() {
-    if (runPrincipal_) {
-      runPrincipal_->adjustIndexesAfterProductRegistryAddition();
-    }
-    if (lumiPrincipal_) {
-      lumiPrincipal_->adjustIndexesAfterProductRegistryAddition();
-    }
-  }
-
   void
   PrincipalCache::throwRunMissing() const {
     throw edm::Exception(edm::errors::LogicError)
