@@ -100,6 +100,7 @@ def rerunParticleFlow(process, inputProcess):
     # CV: run particle-flow algorithm on final RECO muon collection
     #    (rather than running muon reconstruction sequence in steps)    
     process.pfTrackForPFMuonCleaning.MuColl = cms.InputTag('muons')
+    process.particleFlowBlockForPFMuonCleaning.RecMuons = cms.InputTag('muons')
     process.particleFlowTmpForPFMuonCleaning.muons = cms.InputTag('muons')
     process.particleFlowForPFMuonCleaning.FillMuonRefs = False
 
