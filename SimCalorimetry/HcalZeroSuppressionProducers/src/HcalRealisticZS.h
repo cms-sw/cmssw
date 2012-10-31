@@ -8,15 +8,15 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimCalorimetry/HcalZeroSuppressionAlgos/interface/HcalZSAlgoRealistic.h"
+#include "HcalZSAlgoRealistic.h"
 
 //#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 //#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 /** \class HcalSimpleRealisticZS
 	
-$Date: 2009/09/14 11:01:26 $
-$Revision: 1.2 $
+$Date: 2011/05/20 17:17:34 $
+$Revision: 1.3 $
 \author J. Mans - Minnesota
 */
 class HcalRealisticZS : public edm::EDProducer {

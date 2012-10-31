@@ -8,12 +8,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimCalorimetry/HcalZeroSuppressionAlgos/interface/HcalZSAlgoEnergy.h"
+#include "HcalZSAlgoEnergy.h"
 
 /** \class HcalSimpleAmplitudeZS
 	
-$Date: 2007/09/13 15:02:50 $
-$Revision: 1.2 $
+$Date: 2011/05/20 17:17:34 $
+$Revision: 1.3 $
 \author J. Mans - Minnesota
 */
 class HcalSimpleAmplitudeZS : public edm::EDProducer {

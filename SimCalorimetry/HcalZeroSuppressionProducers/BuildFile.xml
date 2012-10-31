@@ -1,5 +1,8 @@
 <flags   EDM_PLUGIN="1"/>
-<use   name="SimCalorimetry/HcalZeroSuppressionAlgos"/>
+<use   name="CalibFormats/HcalObjects"/>
+<use   name="CondFormats/HcalObjects"/>
+<use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/HcalDigi"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/PluginManager"/>

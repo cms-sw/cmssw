@@ -1,4 +1,4 @@
-#include "SimCalorimetry/HcalZeroSuppressionProducers/src/HcalRealisticZS.h"
+#include "HcalRealisticZS.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
