@@ -1884,7 +1884,8 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
       N++;
       if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.3)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001) {
 	//cout << endl << "D Sideband " << D_Sideband << " D_Cosmic " << D_Cosmic << " D_Sideband_Cosmic " << D_Sideband_Cosmic << endl;
-	//cout << "For Dz region " << LegendNames[Region] << " NPred " << NPred << " +- " << NPredErr << endl;}
+	//cout << "For Dz region " << LegendNames[Region] << " NPred " << NPred << " +- " << NPredErr << endl;
+      }
     }
 
     Mean  = Mean/Sigma;
@@ -1896,7 +1897,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
       SUM   += pow(Pred[Plot[i]*DzRegions + p]->GetBinContent(Bin)-Mean,2);
       STAT  += pow(Pred[Plot[i]*DzRegions + p]->GetBinError(Bin),2);
     }
-
+    
     SUM  = sqrt(SUM/(N-1));
     STAT = sqrt(STAT)/(N-1);
     SYST = sqrt(SUM*SUM - STAT*STAT);
@@ -2392,10 +2393,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   SaveCanvas(c1,SavePath,DataType +"CollisionSyst");
   delete c1;
   */
-} 
-
-
-
+}
 
 
 
