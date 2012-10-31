@@ -100,6 +100,44 @@ extern "C"
   } c2evt_; //epos.inc
 }
 
+
+extern "C"
+{
+  extern struct
+  {
+    char fnch[500];
+    char fnhi[500];
+    char fndt[500];
+    char fnii[500];
+    char fnid[500];
+    char fnie[500];
+    char fnrj[500];
+    char fnmt[500];
+    char fngrv[500];
+    char fncp[500];
+    char fnnx[500];
+    char fncs[500];
+    char fndr[500];
+    char fnhpf[500];
+  } fname_; //epos.inc
+
+  extern struct
+  {
+    char fndat[500];
+    char fnncs[500];
+    int ifdat;
+    int ifncs;
+  } qgsfname_; //epos-bas.f
+
+  extern struct
+  {
+    char fnIIdat[500];
+    char fnIIncs[500];
+    int ifIIdat;
+    int ifIIncs;
+  } qgsIIfname_; //epos-bas.f
+}
+
 namespace gen
 {
   extern "C" {
@@ -134,23 +172,23 @@ namespace gen
 
   private:
     edm::ParameterSet pset_;
-    double  fBeamMomentum;
-    double  fTargetMomentum;
-    int     fBeamID;
-    int     fTargetID;
-    int     fHEModel;
-    edm::FileInPath fParamFileName;
-    int     fNEvent;
+    double  m_BeamMomentum;
+    double  m_TargetMomentum;
+    int     m_BeamID;
+    int     m_TargetID;
+    int     m_HEModel;
+    edm::FileInPath m_ParamFileName;
+    int     m_NEvent;
 
-    int     fNParticles;
-    double  fImpactParameter;
-    int     fPartID[99990];
-    double  fPartPx[99990];
-    double  fPartPy[99990];
-    double  fPartPz[99990];
-    double  fPartEnergy[99990];
-    double  fPartMass[99990];
-    int     fPartStatus[99990];
+    int     m_NParticles;
+    double  m_ImpactParameter;
+    int     m_PartID[99990];
+    double  m_PartPx[99990];
+    double  m_PartPy[99990];
+    double  m_PartPz[99990];
+    double  m_PartEnergy[99990];
+    double  m_PartMass[99990];
+    int     m_PartStatus[99990];
   };
 
 } /*end namespace*/

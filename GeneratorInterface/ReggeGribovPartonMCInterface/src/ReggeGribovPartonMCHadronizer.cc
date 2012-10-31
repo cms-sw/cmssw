@@ -58,40 +58,68 @@ extern "C"
 ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet &pset) :
   BaseHadronizer(pset),
   pset_(pset),
-  fBeamMomentum(pset.getParameter<double>("beammomentum")),
-  fTargetMomentum(pset.getParameter<double>("targetmomentum")),
-  fBeamID(pset.getParameter<int>("beamid")),
-  fTargetID(pset.getParameter<int>("targetid")),
-  fHEModel(pset.getParameter<int>("model")),
-  fParamFileName(pset.getParameter<string>("paramFileName")),
-  fNEvent(0),
-  fImpactParameter(0.)
+  m_BeamMomentum(pset.getParameter<double>("beammomentum")),
+  m_TargetMomentum(pset.getParameter<double>("targetmomentum")),
+  m_BeamID(pset.getParameter<int>("beamid")),
+  m_TargetID(pset.getParameter<int>("targetid")),
+  m_HEModel(pset.getParameter<int>("model")),
+  m_ParamFileName(pset.getParameter<string>("paramFileName")),
+  m_NEvent(0),
+  m_ImpactParameter(0.)
 {
   // Default constructor
-
-  setbuf(stdout,NULL); /* set output to unbuffered */
 
   Service<RandomNumberGenerator> rng;
   if ( ! rng.isAvailable())
     {
       throw cms::Exception("Configuration")
-        << "XXXXXXX requires the RandomNumberGeneratorService\n"
+        << "ReggeGribovPartonMCHadronizer requires the RandomNumberGeneratorService\n"
         "which is not present in the configuration file.  You must add the service\n"
         "in the configuration file or remove the modules that require it.";
     }
 
   gFlatDistribution_.reset(new CLHEP::RandFlat(rng->getEngine(), 0., 1.));
 
-  int nevet = 1;
-  int noTables = 0; //don't calculate tables
-  int LHEoutput = 0; //no lhe
-  int dummySeed = 123;
+  int  nevet       = 1; //needed for CS
+  int  noTables    = 0; //don't calculate tables
+  int  LHEoutput   = 0; //no lhe
+  int  dummySeed   = 123;
   char dummyName[] = "dummy";
-  crmc_init_f_(nevet,dummySeed,fBeamMomentum,fTargetMomentum,fBeamID,
-               fTargetID,fHEModel,noTables,LHEoutput,dummyName,
-               fParamFileName.fullPath().c_str());
+  crmc_init_f_(nevet,dummySeed,m_BeamMomentum,m_TargetMomentum,m_BeamID,
+               m_TargetID,m_HEModel,noTables,LHEoutput,dummyName,
+               m_ParamFileName.fullPath().c_str());
 
-  //produces<HepMCProduct>();
+  //additionally initialise tables
+  //epos
+  FileInPath path_fnii =
+    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.initl");
+  FileInPath path_fnie =
+    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.iniev");
+  FileInPath path_fnrj =
+    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.inirj");
+  FileInPath path_fncs =
+    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.inics");
+  cout << "!!!! " << path_fnii.fullPath().length() << endl;
+  strcpy(fname_.fnii, path_fnii.fullPath().c_str());
+  strcpy(fname_.fnie, path_fnie.fullPath().c_str());
+  strcpy(fname_.fnrj, path_fnrj.fullPath().c_str());
+  strcpy(fname_.fncs, path_fncs.fullPath().c_str());
+
+  //qgsjet
+  FileInPath path_fndat =
+    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet.dat");
+  FileInPath path_fnncs =
+    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet.ncs");
+  strcpy(fname_.fndat, path_fndat.fullPath().c_str());
+  strcpy(fname_.fnncs, path_fnncs.fullPath().c_str());
+
+  //qgsjetII
+  FileInPath path_fnIIdat =
+    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet-II-04.lzma");
+  FileInPath path_fnIIncs =
+    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/sectnu-II-04");
+  strcpy(fname_.fnIIdat, path_fnIIdat.fullPath().c_str());
+  strcpy(fname_.fnIIncs, path_fnIIncs.fullPath().c_str());
 }
 
 
@@ -106,14 +134,14 @@ ReggeGribovPartonMCHadronizer::~ReggeGribovPartonMCHadronizer()
 bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
 {
   int iout=0,ievent=0;
-  crmc_f_(iout,ievent,fNParticles,fImpactParameter,
-         fPartID[0],fPartPx[0],fPartPy[0],fPartPz[0],
-          fPartEnergy[0],fPartMass[0],fPartStatus[0]);
+  crmc_f_(iout,ievent,m_NParticles,m_ImpactParameter,
+         m_PartID[0],m_PartPx[0],m_PartPy[0],m_PartPz[0],
+          m_PartEnergy[0],m_PartMass[0],m_PartStatus[0]);
   LogDebug("ReggeGribovPartonMCInterface") << "event generated" << endl;
 
   HepMC::GenEvent* evt = new HepMC::GenEvent();
 
-  evt->set_event_number(fNEvent++);
+  evt->set_event_number(m_NEvent++);
   evt->set_signal_process_id(c2evt_.typevt); //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
 
   //create event structure;
@@ -121,15 +149,23 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   evt->add_vertex(theVertex);
 
   //number of beam particles
-
-  for(int i = 0; i < fNParticles; i++)
+  for(int i = 0; i < m_NParticles; i++)
     {
-      if (fPartEnergy[i]*fPartEnergy[i] + 1e-9 < fPartPy[i]*fPartPy[i] + fPartPx[i]*fPartPx[i] + fPartPz[i]*fPartPz[i])
-        edm::LogInfo("ReggeGribovPartonMCInterface") << "momentum off  Id:" << fPartID[i] << "(" << i << ") " << sqrt(fabs(fPartEnergy[i]*fPartEnergy[i] - (fPartPy[i]*fPartPy[i] + fPartPx[i]*fPartPx[i] + fPartPz[i]*fPartPz[i]))) << endl;
-      theVertex->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(fPartPx[i], fPartPy[i], fPartPz[i], fPartEnergy[i]), fPartID[i], fPartStatus[i]));
-                                   }
+      if (m_PartEnergy[i]*m_PartEnergy[i] + 1e-9 < m_PartPy[i]*m_PartPy[i] + m_PartPx[i]*m_PartPx[i] + m_PartPz[i]*m_PartPz[i])
+        LogWarning("ReggeGribovPartonMCInterface")
+          << "momentum off  Id:" << m_PartID[i] 
+          << "(" << i << ") " 
+          << sqrt(fabs(m_PartEnergy[i]*m_PartEnergy[i] - (m_PartPy[i]*m_PartPy[i] + m_PartPx[i]*m_PartPx[i] + m_PartPz[i]*m_PartPz[i])))
+          << endl;
+      theVertex->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(m_PartPx[i],
+                                                                           m_PartPy[i],
+                                                                           m_PartPz[i],
+                                                                           m_PartEnergy[i]),
+                                                         m_PartID[i],
+                                                         m_PartStatus[i]));
+    }
 
-  if (fTargetID + fBeamID > 2)
+  if (m_TargetID + m_BeamID > 2)
     {
       HepMC::HeavyIon ion(-1, //cevt_.koievt, // FIXME // Number of hard scatterings
                           cevt_.npjevt,                // Number of projectile participants
