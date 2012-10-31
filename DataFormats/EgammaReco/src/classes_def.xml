@@ -41,6 +41,7 @@
 
   <class name="reco::SuperCluster" ClassVersion="11">
    <version ClassVersion="11" checksum="83023066"/>
+   <version ClassVersion="10" checksum="3131732439"/>
     <field name="rawEnergy_" iotype="Double32_t"/>
     <field name="phiWidth_" iotype="Double32_t"/>
     <field name="etaWidth_" iotype="Double32_t"/>
