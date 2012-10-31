@@ -6,7 +6,6 @@
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
@@ -54,7 +53,8 @@ namespace edm {
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size),
     sendEvent_(),
-    productGetter_() {
+    productGetter_(),
+    adjustEventToNewProductRegistry_(false) {
   }
 
   StreamerInputSource::~StreamerInputSource() {}
@@ -174,7 +174,7 @@ namespace edm {
      ProcessConfigurationVector const& pcv = sd->processConfigurations();
      mergeIntoRegistry(*sd, productRegistryUpdate(), *branchIDListHelper(), subsequent);
      if (subsequent) {
-       principalCache().adjustEventToNewProductRegistry(productRegistry());
+       adjustEventToNewProductRegistry_ = true;
      }
      SendJobHeader::ParameterSetMap const& psetMap = sd->processParameterSet();
      pset::Registry& psetRegistry = *pset::Registry::instance();
@@ -190,7 +190,7 @@ namespace edm {
   }
 
   /**
-   * Deserializes the specified event message into an EventPrincipal object.
+   * Deserializes the specified event message.
    */
   void
   StreamerInputSource::deserializeEvent(EventMsgView const& eventView) {
@@ -271,6 +271,12 @@ namespace edm {
 
   EventPrincipal *
   StreamerInputSource::read(EventPrincipal& eventPrincipal) {
+    if(adjustEventToNewProductRegistry_) {
+      eventPrincipal.adjustIndexesAfterProductRegistryAddition();
+      bool eventOK = eventPrincipal.adjustToNewProductRegistry(*productRegistry());
+      assert(eventOK);
+      adjustEventToNewProductRegistry_ = false;
+    }
     boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sendEvent_->eventSelectionIDs()));
     boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sendEvent_->branchListIndexes()));
     branchIDListHelper()->fixBranchListIndexes(*indexes);

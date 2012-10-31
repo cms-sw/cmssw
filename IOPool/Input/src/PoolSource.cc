@@ -55,10 +55,10 @@ namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :
     VectorInputSource(pset, desc),
     rootServiceChecker_(),
-    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), principalCache(),
+    primaryFileSequence_(new RootInputFileSequence(pset, *this, catalog(), 
                                                    primary() ? InputType::Primary : InputType::SecondarySource)),
     secondaryFileSequence_(catalog(1).empty() ? 0 :
-                           new RootInputFileSequence(pset, *this, catalog(1), principalCache(), InputType::SecondaryFile)),
+                           new RootInputFileSequence(pset, *this, catalog(1), InputType::SecondaryFile)),
     secondaryRunPrincipal_(),
     secondaryLumiPrincipal_(),
     secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), secondaryFileSequence_->fileBranchIDListHelper(), processConfiguration()) : 0),
@@ -112,7 +112,7 @@ namespace edm {
 
   boost::shared_ptr<FileBlock>
   PoolSource::readFile_() {
-    boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_(principalCache());
+    boost::shared_ptr<FileBlock> fb = primaryFileSequence_->readFile_();
     if(secondaryFileSequence_) {
       fb->setNotFastClonable(FileBlock::HasSecondaryFileSequence);
     }
@@ -134,9 +134,9 @@ namespace edm {
   }
 
   boost::shared_ptr<RunPrincipal>
-  PoolSource::readRun_(boost::shared_ptr<RunPrincipal> rpCache) {
+  PoolSource::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
     if(secondaryFileSequence_ && !branchIDsToReplace_[InRun].empty()) {
-      boost::shared_ptr<RunPrincipal> primaryPrincipal = primaryFileSequence_->readRun_(rpCache);
+      boost::shared_ptr<RunPrincipal> primaryPrincipal = primaryFileSequence_->readRun_(runPrincipal);
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(), 0U, 0U);
       if(found) {
         boost::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
@@ -152,13 +152,13 @@ namespace edm {
       }
       return primaryPrincipal;
     }
-    return primaryFileSequence_->readRun_(rpCache);
+    return primaryFileSequence_->readRun_(runPrincipal);
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  PoolSource::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache) {
+  PoolSource::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
     if(secondaryFileSequence_ && !branchIDsToReplace_[InLumi].empty()) {
-      boost::shared_ptr<LuminosityBlockPrincipal> primaryPrincipal = primaryFileSequence_->readLuminosityBlock_(lbCache);
+      boost::shared_ptr<LuminosityBlockPrincipal> primaryPrincipal = primaryFileSequence_->readLuminosityBlock_(lumiPrincipal);
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(), primaryPrincipal->luminosityBlock(), 0U);
       if(found) {
         boost::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
@@ -175,7 +175,7 @@ namespace edm {
       }
       return primaryPrincipal;
     }
-    return primaryFileSequence_->readLuminosityBlock_(lbCache);
+    return primaryFileSequence_->readLuminosityBlock_(lumiPrincipal);
   }
 
   EventPrincipal*
@@ -217,7 +217,7 @@ namespace edm {
       receiver_->receive();
       unsigned long toSkip = receiver_->numberToSkip();
       if(0 != toSkip) {
-        primaryFileSequence_->skipEvents(toSkip, principalCache());
+        primaryFileSequence_->skipEvents(toSkip);
         decreaseRemainingEventsBy(toSkip);
       }
       numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
@@ -237,7 +237,7 @@ namespace edm {
   PoolSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource> iReceiver) {
     receiver_ = iReceiver;
     receiver_->receive();
-    primaryFileSequence_->reset(principalCache());
+    primaryFileSequence_->reset();
     rewind();
   }
 
@@ -248,7 +248,7 @@ namespace edm {
     if(receiver_) {
       unsigned int numberToSkip = receiver_->numberToSkip();
       if(0 != numberToSkip) {
-        primaryFileSequence_->skipEvents(numberToSkip, principalCache());
+        primaryFileSequence_->skipEvents(numberToSkip);
         decreaseRemainingEventsBy(receiver_->numberToSkip());
       }
       numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
@@ -258,7 +258,7 @@ namespace edm {
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   void
   PoolSource::skip(int offset) {
-    primaryFileSequence_->skipEvents(offset, principalCache());
+    primaryFileSequence_->skipEvents(offset);
   }
 
   bool

@@ -37,7 +37,7 @@ namespace edm {
 
   class RootInputFileSequence {
   public:
-    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, PrincipalCache& cache, InputType::InputType inputType);
+    explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, InputType::InputType inputType);
     virtual ~RootInputFileSequence();
 
     RootInputFileSequence(RootInputFileSequence const&) = delete; // Disallow copying and moving
@@ -46,19 +46,19 @@ namespace edm {
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     EventPrincipal* readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb);
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
-    boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
+    boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
-    boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> rpCache);
-    boost::shared_ptr<FileBlock> readFile_(PrincipalCache& cache);
+    boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
+    boost::shared_ptr<FileBlock> readFile_();
     void closeFile_();
     void endJob();
     InputSource::ItemType getNextItemType();
-    bool skipEvents(int offset, PrincipalCache& cache);
+    bool skipEvents(int offset);
     bool goToEvent(EventID const& eventID);
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst = true);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     void rewind_();
-    void reset(PrincipalCache& cache);
+    void reset();
     EventPrincipal* readOneRandom();
     EventPrincipal* readOneRandomWithID(LuminosityBlockID const& id);
     EventPrincipal* readOneSequential();
@@ -73,8 +73,8 @@ namespace edm {
     ProcessingController::ReverseState reverseState() const;
   private:
     void initFile(bool skipBadFiles);
-    bool nextFile(PrincipalCache& cache);
-    bool previousFile(PrincipalCache& cache);
+    bool nextFile();
+    bool previousFile();
     void rewindFile();
     std::vector<FileCatalogItem> const& fileCatalogItems() const;
 
@@ -112,6 +112,8 @@ namespace edm {
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
     bool labelRawDataLikeMC_;
+    bool adjustEventToNewProductRegistry_;
+    bool adjustIndexesAfterProductRegistryAddition_;
     bool usingGoToEvent_;
     bool enablePrefetching_;
   }; // class RootInputFileSequence

@@ -11,7 +11,8 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/src/PrincipalCache.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -28,7 +29,6 @@ namespace edm {
                 ParameterSet const& pset,
                 PoolSource const& input,
                 InputFileCatalog const& catalog,
-                PrincipalCache& cache,
                 InputType::InputType inputType) :
     input_(input),
     inputType_(inputType),
@@ -63,6 +63,8 @@ namespace edm {
     duplicateChecker_(inputType == InputType::Primary ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", inputType != InputType::SecondarySource)),
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
+    adjustEventToNewProductRegistry_(false),
+    adjustIndexesAfterProductRegistryAddition_(false),
     usingGoToEvent_(false) {
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
@@ -98,7 +100,7 @@ namespace edm {
       if(rootFile_) {
         productRegistryUpdate().updateFromInput(rootFile_->productRegistry()->productList());
         if(initialNumberOfEventsToSkip_ != 0) {
-          skipEvents(initialNumberOfEventsToSkip_, cache);
+          skipEvents(initialNumberOfEventsToSkip_);
         }
       }
     }
@@ -115,7 +117,7 @@ namespace edm {
   }
 
   boost::shared_ptr<FileBlock>
-  RootInputFileSequence::readFile_(PrincipalCache& cache) {
+  RootInputFileSequence::readFile_() {
     if(firstFile_) {
       // The first input file has already been opened.
       firstFile_ = false;
@@ -123,7 +125,7 @@ namespace edm {
         initFile(skipBadFiles_);
       }
     } else {
-      if(!nextFile(cache)) {
+      if(!nextFile()) {
         assert(0);
       }
     }
@@ -287,7 +289,7 @@ namespace edm {
     return rootFile_->branchIDListHelper();
   }
 
-  bool RootInputFileSequence::nextFile(PrincipalCache& cache) {
+  bool RootInputFileSequence::nextFile() {
     if(fileIter_ != fileIterEnd_) ++fileIter_;
     if(fileIter_ == fileIterEnd_) {
       if(inputType_ == InputType::Primary) {
@@ -309,15 +311,16 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
+      // We may need to modify the cached principals due to the new product registry. 
       if(productRegistry()->size() > size) {
-        cache.adjustIndexesAfterProductRegistryAddition();
+        adjustIndexesAfterProductRegistryAddition_ = true;
       }
-      cache.adjustEventToNewProductRegistry(productRegistry());
+      adjustEventToNewProductRegistry_ = true;
     }
     return true;
   }
 
-  bool RootInputFileSequence::previousFile(PrincipalCache& cache) {
+  bool RootInputFileSequence::previousFile() {
     if(fileIter_ == fileIterBegin_) {
       if(inputType_ == InputType::Primary) {
         return false;
@@ -339,10 +342,11 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
+      // We may need to modify the cached principals due to the new product registry. 
       if(productRegistry()->size() > size) {
-        cache.adjustIndexesAfterProductRegistryAddition();
+        adjustIndexesAfterProductRegistryAddition_ = true;
       }
-      cache.adjustEventToNewProductRegistry(productRegistry());
+      adjustEventToNewProductRegistry_ = true;
     }
     if(rootFile_) rootFile_->setToLastEntry();
     return true;
@@ -362,18 +366,32 @@ namespace edm {
   }
 
   boost::shared_ptr<RunPrincipal>
-  RootInputFileSequence::readRun_(boost::shared_ptr<RunPrincipal> rpCache) {
-    return rootFile_->readRun_(rpCache);
+  RootInputFileSequence::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
+    if(adjustIndexesAfterProductRegistryAddition_) {
+      runPrincipal->adjustIndexesAfterProductRegistryAddition();
+      // We do not reset the adjustIndexesAfterProductRegistryAddition_ flag
+      // because we can have multiple cached RunPrincipals.
+      // adjustIndexesAfterProductRegistryAddition() is a safe no-op
+      //  if the adjustment has already been done.
+    }
+    return rootFile_->readRun_(runPrincipal);
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  RootInputFileSequence::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache) {
-    return rootFile_->readLumi(lbCache);
+  RootInputFileSequence::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
+    if(adjustIndexesAfterProductRegistryAddition_) {
+      lumiPrincipal->adjustIndexesAfterProductRegistryAddition();
+      // We do not reset the adjustIndexesAfterProductRegistryAddition_ flag
+      // because we can have multiple cached LumiPrincipals.
+      // adjustIndexesAfterProductRegistryAddition() is a safe no-op
+      // if the adjustment has already been done.
+    }
+    return rootFile_->readLumi(lumiPrincipal);
   }
 
   // readEvent() is responsible for setting up the EventPrincipal.
   //
-  //   1. create an EventPrincipal with a unique EventID
+  //   1. fill an EventPrincipal with a unique EventID
   //   2. For each entry in the provenance, put in one Group,
   //      holding the Provenance for the corresponding EDProduct.
   //   3. set up the caches in the EventPrincipal to know about this
@@ -385,8 +403,14 @@ namespace edm {
   //
 
   EventPrincipal*
-  RootInputFileSequence::readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
-    return rootFile_->readEvent(cache, lb);
+  RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
+    if(adjustEventToNewProductRegistry_) {
+      eventPrincipal.adjustIndexesAfterProductRegistryAddition();
+      bool eventOK = eventPrincipal.adjustToNewProductRegistry(*productRegistry());
+      assert(eventOK);
+      adjustEventToNewProductRegistry_ = false;
+    }
+    return rootFile_->readEvent(eventPrincipal, lb);
   }
 
   InputSource::ItemType
@@ -435,7 +459,7 @@ namespace edm {
   }
 
   void
-  RootInputFileSequence::reset(PrincipalCache& cache) {
+  RootInputFileSequence::reset() {
     //NOTE: Need to handle duplicate checker
     // Also what if skipBadFiles_==true and the first time we succeeded but after a reset we fail?
     if(inputType_ != InputType::SecondarySource) {
@@ -446,7 +470,7 @@ namespace edm {
       }
       if(rootFile_) {
         if(initialNumberOfEventsToSkip_ != 0) {
-          skipEvents(initialNumberOfEventsToSkip_, cache);
+          skipEvents(initialNumberOfEventsToSkip_);
         }
       }
     }
@@ -454,16 +478,16 @@ namespace edm {
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   bool
-  RootInputFileSequence::skipEvents(int offset, PrincipalCache& cache) {
+  RootInputFileSequence::skipEvents(int offset) {
     assert (initialNumberOfEventsToSkip_ == 0 || initialNumberOfEventsToSkip_ == offset);
     initialNumberOfEventsToSkip_ = offset;
     while(initialNumberOfEventsToSkip_ != 0) {
       bool atEnd = rootFile_->skipEvents(initialNumberOfEventsToSkip_);
-      if((initialNumberOfEventsToSkip_ > 0 || atEnd) && !nextFile(cache)) {
+      if((initialNumberOfEventsToSkip_ > 0 || atEnd) && !nextFile()) {
         initialNumberOfEventsToSkip_ = 0;
         return false;
       }
-      if(initialNumberOfEventsToSkip_ < 0 && !previousFile(cache)) {
+      if(initialNumberOfEventsToSkip_ < 0 && !previousFile()) {
         initialNumberOfEventsToSkip_ = 0;
         fileIter_ = fileIterEnd_;
         return false;

@@ -1491,20 +1491,20 @@ namespace edm {
   }
 
   boost::shared_ptr<RunPrincipal>
-  RootFile::readRun_(boost::shared_ptr<RunPrincipal> rpCache) {
+  RootFile::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
     // Begin code for backward compatibility before the existence of run trees.
     if(!runTree_.isValid()) {
       ++indexIntoFileIter_;
-      return rpCache;
+      return runPrincipal;
     }
     // End code for backward compatibility before the existence of run trees.
-    rpCache->fillRunPrincipal(runTree_.rootDelayedReader());
+    runPrincipal->fillRunPrincipal(runTree_.rootDelayedReader());
     // Read in all the products now.
-    rpCache->readImmediate();
+    runPrincipal->readImmediate();
     ++indexIntoFileIter_;
-    return rpCache;
+    return runPrincipal;
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>
@@ -1552,21 +1552,21 @@ namespace edm {
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  RootFile::readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbCache) {
+  RootFile::readLumi(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi);
     // Begin code for backward compatibility before the existence of lumi trees.
     if(!lumiTree_.isValid()) {
       ++indexIntoFileIter_;
-      return lbCache;
+      return lumiPrincipal;
     }
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
-    lbCache->fillLuminosityBlockPrincipal(lumiTree_.rootDelayedReader());
+    lumiPrincipal->fillLuminosityBlockPrincipal(lumiTree_.rootDelayedReader());
     // Read in all the products now.
-    lbCache->readImmediate();
+    lumiPrincipal->readImmediate();
     ++indexIntoFileIter_;
-    return lbCache;
+    return lumiPrincipal;
   }
 
   bool
