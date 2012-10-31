@@ -768,5 +768,6 @@ namespace edm {
         }
       }
     }
+    assert(preg_->constProductList().size() == groups_.size());
   }
 }
