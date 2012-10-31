@@ -25,6 +25,18 @@ from colorsys import hls_to_rgb, rgb_to_hls
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import pyplot as plt
+# FIX FIX FIX
+# This fixes a well-know bug with stepfilled logarithmic histograms in
+# Matplotlib.
+from RecoLuminosity.LumiDB.mpl_axes_hist_fix import hist
+if matplotlib.__version__ != '1.0.1':
+    print >> sys.stderr, \
+          "ERROR The %s script contains a hard-coded bug-fix " \
+          "for Matplotlib 1.0.1. The Matplotlib version loaded " \
+          "is %s" % (__file__, matplotlib.__version__)
+    sys.exit(1)
+matplotlib.axes.Axes.hist = hist
+# FIX FIX FIX end
 from matplotlib._png import read_png
 from matplotlib.offsetbox import OffsetImage
 from matplotlib.offsetbox import AnnotationBbox
@@ -475,7 +487,7 @@ def AddLogo(logo_name, ax, zoom=1.2):
     zoom_factor *= zoom
     logo_box = OffsetImage(logo_data, zoom=zoom_factor)
     ann_box = AnnotationBbox(logo_box, [0., 1.],
-                             xybox=(2., -2.),
+                             xybox=(2., -3.),
                              xycoords="axes fraction",
                              boxcoords="offset points",
                              box_alignment=(0., 1.),
@@ -511,13 +523,21 @@ def TweakPlot(fig, ax, (time_begin, time_end),
     # room for the legend.
     if add_extra_head_room:
         y_ticks = ax.get_yticks()
-        tmp = y_ticks[1] - y_ticks[0]
         (y_min, y_max) = ax.get_ylim()
-        ax.set_ylim(y_min, y_max + tmp)
+        is_log = (ax.get_yscale() == "log")
+        y_max_new = y_max
+        if is_log:
+            tmp = y_ticks[-1] / y_ticks[-2]
+            y_max_new = y_max * tmp
+        else:
+            tmp = y_ticks[-1] - y_ticks[-2]
+            y_max_new = y_max + tmp
+        ax.set_ylim(y_min, y_max_new)
 
     # Add a second vertical axis on the right-hand side.
     ax_sec = ax.twinx()
     ax_sec.set_ylim(ax.get_ylim())
+    ax_sec.set_yscale(ax.get_yscale())
 
     for ax_tmp in fig.axes:
         for sub_ax in [ax_tmp.xaxis, ax_tmp.yaxis]:
@@ -537,6 +557,19 @@ def TweakPlot(fig, ax, (time_begin, time_end),
 
     fig.subplots_adjust(top=.89, bottom=.125, left=.1, right=.925)
     # End of TweakPlot().
+
+######################################################################
+
+def RoundAwayFromZero(val):
+
+    res = None
+    if val < 0.:
+        res = math.floor(val)
+    else:
+        res = math.ceil(val)
+
+    # End of RoundAwayFromZero().
+    return res
 
 ######################################################################
 
@@ -977,92 +1010,119 @@ if __name__ == "__main__":
 
             #----------
 
-            fig.clear()
-            ax = fig.add_subplot(111)
+            for type in ["lin", "log"]:
+                is_log = (type == "log")
+                log_setting = False
+                if is_log:
+                    min_val = min(weights_del_inst)
+                    exp = RoundAwayFromZero(math.log10(min_val))
+                    log_setting = math.pow(10., exp)
 
-            units = GetUnits(year, accel_mode, "max_inst")
+                fig.clear()
+                ax = fig.add_subplot(111)
 
-            # Figure out the maximum instantaneous luminosity.
-            max_inst = max(weights_del_inst)
+                units = GetUnits(year, accel_mode, "max_inst")
 
-            if sum(weights_del) > 0:
+                # Figure out the maximum instantaneous luminosity.
+                max_inst = max(weights_del_inst)
 
-                ax.hist(times, bin_edges, weights=weights_del_inst,
-                        histtype="stepfilled",
-                        facecolor=color_fill_peak, edgecolor=color_line_peak,
-                        label="Max. inst. lumi.: $%.2f$ %s" % \
-                        (max_inst, LatexifyUnits(units)))
+                if sum(weights_del) > 0:
 
-                tmp_leg = ax.legend(loc="upper left",
-                                    bbox_to_anchor=(0.025, 0., 1., .97),
-                                    frameon=False)
-                tmp_leg.legendHandles[0].set_visible(False)
+                    ax.hist(times, bin_edges, weights=weights_del_inst,
+                            histtype="stepfilled",
+                            log=log_setting,
+                            facecolor=color_fill_peak, edgecolor=color_line_peak,
+                            label="Max. inst. lumi.: $%.2f$ %s" % \
+                            (max_inst, LatexifyUnits(units)))
 
-                # Set titles and labels.
-                fig.suptitle(r"CMS Peak Luminosity Per Day, " \
-                             "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                             (particle_type_str, year, cms_energy_str),
-                             fontproperties=FONT_PROPS_SUPTITLE)
-                ax.set_title("Data included from %s to %s UTC" % \
-                             (str_begin, str_end),
-                             fontproperties=FONT_PROPS_TITLE)
-                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % units,
-                              fontproperties=FONT_PROPS_AX_TITLE)
+                    tmp_leg = ax.legend(loc="upper left",
+                                        bbox_to_anchor=(0.025, 0., 1., .97),
+                                        frameon=False)
+                    tmp_leg.legendHandles[0].set_visible(False)
 
-                # Add the logo.
-                AddLogo(logo_name, ax)
-                TweakPlot(fig, ax, (time_begin, time_end), True)
+                    # Set titles and labels.
+                    fig.suptitle(r"CMS Peak Luminosity Per Day, " \
+                                 "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                                 (particle_type_str, year, cms_energy_str),
+                                 fontproperties=FONT_PROPS_SUPTITLE)
+                    ax.set_title("Data included from %s to %s UTC" % \
+                                 (str_begin, str_end),
+                                 fontproperties=FONT_PROPS_TITLE)
+                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % units,
+                                  fontproperties=FONT_PROPS_AX_TITLE)
 
-            fig.savefig("peak_lumi_per_day_%s_%d%s.png" % \
-                        (particle_type_str.lower(), year, file_suffix))
+                    # Add the logo.
+                    AddLogo(logo_name, ax)
+                    TweakPlot(fig, ax, (time_begin, time_end), True)
+
+                log_suffix = ""
+                if is_log:
+                    log_suffix = "_log"
+                fig.savefig("peak_lumi_per_day_%s_%d%s%s.png" % \
+                            (particle_type_str.lower(), year,
+                             log_suffix, file_suffix))
 
             #----------
 
             # The lumi-by-day plot.
-            fig.clear()
-            ax = fig.add_subplot(111)
+            for type in ["lin", "log"]:
+                is_log = (type == "log")
+                log_setting = False
+                if is_log:
+                    min_val = min(weights_rec)
+                    exp = RoundAwayFromZero(math.log10(min_val))
+                    log_setting = math.pow(10., exp)
 
-            units = GetUnits(year, accel_mode, "cum_day")
+                fig.clear()
+                ax = fig.add_subplot(111)
 
-            # Figure out the maximum delivered and recorded luminosities.
-            max_del = max(weights_del)
-            max_rec = max(weights_rec)
+                units = GetUnits(year, accel_mode, "cum_day")
 
-            if sum(weights_del) > 0:
+                # Figure out the maximum delivered and recorded luminosities.
+                max_del = max(weights_del)
+                max_rec = max(weights_rec)
 
-                ax.hist(times, bin_edges, weights=weights_del,
-                        histtype="stepfilled",
-                        facecolor=color_fill_del, edgecolor=color_line_del,
-                        label="LHC Delivered, max: $%.1f$ %s/day" % \
-                        (max_del, LatexifyUnits(units)))
-                ax.hist(times, bin_edges, weights=weights_rec,
-                        histtype="stepfilled",
-                        facecolor=color_fill_rec, edgecolor=color_line_rec,
-                    label="CMS Recorded, max: $%.1f$ %s/day" % \
-                        (max_rec, LatexifyUnits(units)))
-                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
-                          frameon=False)
+                if sum(weights_del) > 0:
 
-                # Set titles and labels.
-                fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
-                             "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                             (particle_type_str, year, cms_energy_str),
-                             fontproperties=FONT_PROPS_SUPTITLE)
-                ax.set_title("Data included from %s to %s UTC" % \
-                             (str_begin, str_end),
-                             fontproperties=FONT_PROPS_TITLE)
-                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                ax.set_ylabel(r"Integrated Luminosity (%s/day)" % \
-                              LatexifyUnits(units),
-                              fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.hist(times, bin_edges, weights=weights_del,
+                            histtype="stepfilled",
+                            log=log_setting,
+                            facecolor=color_fill_del, edgecolor=color_line_del,
+                            label="LHC Delivered, max: $%.1f$ %s/day" % \
+                            (max_del, LatexifyUnits(units)))
+                    ax.hist(times, bin_edges, weights=weights_rec,
+                            histtype="stepfilled",
+                            log=log_setting,
+                            facecolor=color_fill_rec, edgecolor=color_line_rec,
+                        label="CMS Recorded, max: $%.1f$ %s/day" % \
+                            (max_rec, LatexifyUnits(units)))
+                    ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                              frameon=False)
 
-                # Add the logo.
-                AddLogo(logo_name, ax)
-                TweakPlot(fig, ax, (time_begin, time_end), True)
+                    # Set titles and labels.
+                    fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
+                                 "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                                 (particle_type_str, year, cms_energy_str),
+                                 fontproperties=FONT_PROPS_SUPTITLE)
+                    ax.set_title("Data included from %s to %s UTC" % \
+                                 (str_begin, str_end),
+                                 fontproperties=FONT_PROPS_TITLE)
+                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_ylabel(r"Integrated Luminosity (%s/day)" % \
+                                  LatexifyUnits(units),
+                                  fontproperties=FONT_PROPS_AX_TITLE)
 
-            fig.savefig("int_lumi_per_day_%s_%d%s.png" % \
-                        (particle_type_str.lower(), year, file_suffix))
+                    # Add the logo.
+                    AddLogo(logo_name, ax)
+                    TweakPlot(fig, ax, (time_begin, time_end), True)
+
+                log_suffix = ""
+                if is_log:
+                    log_suffix = "_log"
+                fig.savefig("int_lumi_per_day_%s_%d%s%s.png" % \
+                            (particle_type_str.lower(), year,
+                             log_suffix, file_suffix))
 
             #----------
 
@@ -1070,46 +1130,62 @@ if __name__ == "__main__":
             units = GetUnits(year, accel_mode, "cum_year")
 
             # Figure out the totals.
+            min_del = min(weights_del_for_cum)
             tot_del = sum(weights_del_for_cum)
             tot_rec = sum(weights_rec_for_cum)
 
-            fig.clear()
-            ax = fig.add_subplot(111)
+            for type in ["lin", "log"]:
+                is_log = (type == "log")
+                log_setting = False
+                if is_log:
+                    min_val = min(weights_del_for_cum)
+                    exp = RoundAwayFromZero(math.log10(min_val))
+                    log_setting = math.pow(10., exp)
 
-            if sum(weights_del) > 0:
+                fig.clear()
+                ax = fig.add_subplot(111)
 
-                ax.hist(times, bin_edges, weights=weights_del_for_cum,
-                        histtype="stepfilled", cumulative=True,
-                        facecolor=color_fill_del, edgecolor=color_line_del,
-                        label="LHC Delivered: $%.2f$ %s" % \
-                        (tot_del, LatexifyUnits(units)))
-                ax.hist(times, bin_edges, weights=weights_rec_for_cum,
-                        histtype="stepfilled", cumulative=True,
-                        facecolor=color_fill_rec, edgecolor=color_line_rec,
-                        label="CMS Recorded: $%.2f$ %s" % \
-                        (tot_rec, LatexifyUnits(units)))
-                ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
-                          frameon=False)
+                if sum(weights_del) > 0:
 
-                # Set titles and labels.
-                fig.suptitle(r"CMS Integrated Luminosity, " \
-                             r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
-                             (particle_type_str, year, cms_energy_str),
-                             fontproperties=FONT_PROPS_SUPTITLE)
-                ax.set_title("Data included from %s to %s UTC" % \
-                             (str_begin, str_end),
-                             fontproperties=FONT_PROPS_TITLE)
-                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
-                              LatexifyUnits(units),
-                              fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.hist(times, bin_edges, weights=weights_del_for_cum,
+                            histtype="stepfilled", cumulative=True,
+                            log=log_setting,
+                            facecolor=color_fill_del, edgecolor=color_line_del,
+                            label="LHC Delivered: $%.2f$ %s" % \
+                            (tot_del, LatexifyUnits(units)))
+                    ax.hist(times, bin_edges, weights=weights_rec_for_cum,
+                            histtype="stepfilled", cumulative=True,
+                            log=log_setting,
+                            facecolor=color_fill_rec, edgecolor=color_line_rec,
+                            label="CMS Recorded: $%.2f$ %s" % \
+                            (tot_rec, LatexifyUnits(units)))
+                    ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                              frameon=False)
 
-                # Add the logo.
-                AddLogo(logo_name, ax)
-                TweakPlot(fig, ax, (time_begin, time_end))
+                    # Set titles and labels.
+                    fig.suptitle(r"CMS Integrated Luminosity, " \
+                                 r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                                 (particle_type_str, year, cms_energy_str),
+                                 fontproperties=FONT_PROPS_SUPTITLE)
+                    ax.set_title("Data included from %s to %s UTC" % \
+                                 (str_begin, str_end),
+                                 fontproperties=FONT_PROPS_TITLE)
+                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                                  LatexifyUnits(units),
+                                  fontproperties=FONT_PROPS_AX_TITLE)
 
-            fig.savefig("int_lumi_cumulative_%s_%d%s.png" % \
-                        (particle_type_str.lower(), year, file_suffix))
+                    # Add the logo.
+                    AddLogo(logo_name, ax)
+                    TweakPlot(fig, ax, (time_begin, time_end),
+                              add_extra_head_room=is_log)
+
+                log_suffix = ""
+                if is_log:
+                    log_suffix = "_log"
+                fig.savefig("int_lumi_cumulative_%s_%d%s%s.png" % \
+                            (particle_type_str.lower(), year,
+                             log_suffix, file_suffix))
 
     #----------
 
@@ -1134,126 +1210,135 @@ if __name__ == "__main__":
                 logo_name = color_scheme.logo_name
                 file_suffix = color_scheme.file_suffix
 
-                # fig.clear()
-                if mode == 1:
-                    aspect_ratio = matplotlib.figure.figaspect(1. / 2.5)
-                    fig = plt.figure(figsize=aspect_ratio)
-                else:
-                    fig = plt.figure()
-                ax = fig.add_subplot(111)
+                for type in ["lin", "log"]:
+                    is_log = (type == "log")
 
-                for (year_index, year) in enumerate(years):
-
-                    lumi_data = lumi_data_by_day_per_year[year]
-                    lumi_data.sort()
-                    times_tmp = [AtMidnight(i) for i in lumi_data.times()]
-                    # For the plots showing all years overlaid, shift
-                    # all but the first year forward.
-                    # NOTE: Years list is supposed to be sorted.
-                    if mode == 2:
-                        if year_index > 0:
-                            for y in years[:year_index]:
-                                num_days = NumDaysInYear(y)
-                                time_shift = datetime.timedelta(days=num_days)
-                                times_tmp = [(i - time_shift) \
-                                             for i in times_tmp]
-                    times = [matplotlib.dates.date2num(i) for i in times_tmp]
-                    # DEBUG DEBUG DEBUG
-                    for i in xrange(len(times) - 1):
-                        assert times[i] < times[i + 1]
-                    # DEBUG DEBUG DEBUG end
-                    weights_del = lumi_data.lum_del(units)
-                    weights_del_cum = [0.] * len(weights_del)
-                    tot_del = 0.
-                    for (i, val) in enumerate(weights_del):
-                        tot_del += val
-                        weights_del_cum[i] = tot_del
-                    if not beam_energy_from_cfg:
-                        beam_energy = beam_energy_defaults[accel_mode][year]
-                    cms_energy = 2. * beam_energy
-                    cms_energy_str = "???"
-                    if accel_mode == "IONPHYS":
-                        cms_energy_str = "%.2f TeV/nucleon" % \
-                                         (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
-                    elif accel_mode == "PROTPHYS":
-                        cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
-
-                    # NOTE: Special case for 2010.
-                    label = None
-                    if year == 2010:
-                        label = r"%d, %s, %.1f $\mathrm{pb^{-1}}$" % \
-                                (year, cms_energy_str, 1.e3 * tot_del)
+                    if mode == 1:
+                        aspect_ratio = matplotlib.figure.figaspect(1. / 2.5)
+                        fig = plt.figure(figsize=aspect_ratio)
                     else:
-                        label = r"%d, %s, %.1f %s" % \
-                                (year, cms_energy_str, tot_del,
-                                 LatexifyUnits(units))
+                        fig = plt.figure()
+                    ax = fig.add_subplot(111)
 
-                    # NOTE: Special case for 2010
-                    weights_tmp = None
-                    if year == 2010:
-                        weights_tmp = [scale_factor_2010 * i \
-                                       for i in weights_del_cum]
+                    for (year_index, year) in enumerate(years):
+
+                        lumi_data = lumi_data_by_day_per_year[year]
+                        lumi_data.sort()
+                        times_tmp = [AtMidnight(i) for i in lumi_data.times()]
+                        # For the plots showing all years overlaid, shift
+                        # all but the first year forward.
+                        # NOTE: Years list is supposed to be sorted.
+                        if mode == 2:
+                            if year_index > 0:
+                                for y in years[:year_index]:
+                                    num_days = NumDaysInYear(y)
+                                    time_shift = datetime.timedelta(days=num_days)
+                                    times_tmp = [(i - time_shift) \
+                                                 for i in times_tmp]
+                        times = [matplotlib.dates.date2num(i) for i in times_tmp]
+                        # DEBUG DEBUG DEBUG
+                        for i in xrange(len(times) - 1):
+                            assert times[i] < times[i + 1]
+                        # DEBUG DEBUG DEBUG end
+                        weights_del = lumi_data.lum_del(units)
+                        weights_del_cum = [0.] * len(weights_del)
+                        tot_del = 0.
+                        for (i, val) in enumerate(weights_del):
+                            tot_del += val
+                            weights_del_cum[i] = tot_del
+                        if not beam_energy_from_cfg:
+                            beam_energy = beam_energy_defaults[accel_mode][year]
+                        cms_energy = 2. * beam_energy
+                        cms_energy_str = "???"
+                        if accel_mode == "IONPHYS":
+                            cms_energy_str = "%.2f TeV/nucleon" % \
+                                             (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
+                        elif accel_mode == "PROTPHYS":
+                            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+
+                        # NOTE: Special case for 2010.
+                        label = None
+                        if year == 2010:
+                            label = r"%d, %s, %.1f $\mathrm{pb^{-1}}$" % \
+                                    (year, cms_energy_str, 1.e3 * tot_del)
+                        else:
+                            label = r"%d, %s, %.1f %s" % \
+                                    (year, cms_energy_str, tot_del,
+                                     LatexifyUnits(units))
+
+                        # NOTE: Special case for 2010
+                        weights_tmp = None
+                        if year == 2010:
+                            weights_tmp = [scale_factor_2010 * i \
+                                           for i in weights_del_cum]
+                        else:
+                            weights_tmp = weights_del_cum
+                        ax.plot(times, weights_tmp,
+                                color=color_line_del_by_year[year],
+                                marker="none", linestyle="solid",
+                                linewidth=3,
+                                label=label)
+                        if is_log:
+                            ax.set_yscale("log")
+
+                        # NOTE: Special case for 2010.
+                        if year == 2010:
+                            ax.annotate(r"$\times$ %.0f" % scale_factor_2010,
+                                        xy=(times[-1], weights_tmp[-1]),
+                                        xytext=(5., -2.),
+                                        xycoords="data", textcoords="offset points")
+
+                    # BUG BUG BUG
+                    # Needs work...
+                    time_begin = lumi_data.time_begin()
+                    time_end = lumi_data.time_end()
+                    str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
+                    str_end = time_end.strftime(DATE_FMT_STR_OUT)
+                    if mode == 1:
+                        time_begin = datetime.datetime(years[0], 1, 1, 0, 0, 0)
+                        time_end = datetime.datetime(years[-1], 12, 31, 23, 59,59)
                     else:
-                        weights_tmp = weights_del_cum
-                    ax.plot(times, weights_tmp,
-                            color=color_line_del_by_year[year],
-                            marker="none", linestyle="solid",
-                            linewidth=3,
-                            label=label)
+                        time_begin = datetime.datetime(years[0], 1, 1, 0, 0, 0)
+                        time_end = datetime.datetime(years[0], 12, 31, 23, 59,59)
+                    # BUG BUG BUG end
 
-                    # NOTE: Special case for 2010.
-                    if year == 2010:
-                        ax.annotate(r"$\times$ %.0f" % scale_factor_2010,
-                                    xy=(times[-1], weights_tmp[-1]),
-                                    xytext=(5., -2.),
-                                    xycoords="data", textcoords="offset points")
+                    num_cols = None
+                    if mode == 1:
+                        num_cols = len(years)
+                        tmp_x = 0.09
+                        tmp_y = .95
+                    else:
+                        num_cols = 1
+                        tmp_x = 0.175
+                        tmp_y = 1.01
+                    ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),
+                              frameon=False, ncol=num_cols)
 
-                # BUG BUG BUG
-                # Needs work...
-                time_begin = lumi_data.time_begin()
-                time_end = lumi_data.time_end()
-                str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
-                str_end = time_end.strftime(DATE_FMT_STR_OUT)
-                if mode == 1:
-                    time_begin = datetime.datetime(years[0], 1, 1, 0, 0, 0)
-                    time_end = datetime.datetime(years[-1], 12, 31, 23, 59,59)
-                else:
-                    time_begin = datetime.datetime(years[0], 1, 1, 0, 0, 0)
-                    time_end = datetime.datetime(years[0], 12, 31, 23, 59,59)
-                # BUG BUG BUG end
+                    # Set titles and labels.
+                    fig.suptitle(r"CMS Integrated Luminosity, %s" % particle_type_str,
+                                 fontproperties=FONT_PROPS_SUPTITLE)
+                    ax.set_title("Data included from %s to %s UTC" % \
+                                 (str_begin, str_end),
+                                 fontproperties=FONT_PROPS_TITLE)
+                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                                  LatexifyUnits(units),
+                                  fontproperties=FONT_PROPS_AX_TITLE)
 
-                num_cols = None
-                if mode == 1:
-                    num_cols = len(years)
-                    tmp_x = 0.09
-                    tmp_y = .95
-                else:
-                    num_cols = 1
-                    tmp_x = 0.175
-                    tmp_y = 1.01
-                ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),
-                          frameon=False, ncol=num_cols)
+                    # Add the logo.
+                    zoom = 1.7
+                    if mode == 1:
+                        zoom = .95
+                    AddLogo(logo_name, ax, zoom=zoom)
+                    TweakPlot(fig, ax, (time_begin, time_end),
+                              add_extra_head_room=is_log)
 
-                # Set titles and labels.
-                fig.suptitle(r"CMS Integrated Luminosity, %s" % particle_type_str,
-                             fontproperties=FONT_PROPS_SUPTITLE)
-                ax.set_title("Data included from %s to %s UTC" % \
-                             (str_begin, str_end),
-                             fontproperties=FONT_PROPS_TITLE)
-                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
-                              LatexifyUnits(units),
-                              fontproperties=FONT_PROPS_AX_TITLE)
-
-                # Add the logo.
-                zoom = 1.7
-                if mode == 1:
-                    zoom = .95
-                AddLogo(logo_name, ax, zoom=zoom)
-                TweakPlot(fig, ax, (time_begin, time_end))
-
-                fig.savefig("int_lumi_cumulative_%s_%d%s.png" % \
-                            (particle_type_str.lower(), mode, file_suffix))
+                    log_suffix = ""
+                    if is_log:
+                        log_suffix = "_log"
+                    fig.savefig("int_lumi_cumulative_%s_%d%s%s.png" % \
+                                (particle_type_str.lower(), mode,
+                                 log_suffix, file_suffix))
 
         for mode in [1, 2]:
             print "    mode %d" % mode
