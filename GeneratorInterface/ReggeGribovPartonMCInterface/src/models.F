@@ -184,6 +184,7 @@ c     if(model.eq.9)call IniEvtFlu
       end
 
       subroutine emsaaaModel(model,id,iret)
+      if (0.eq.1) print *, id, iret !get rid of unused warning
       if(model.eq.2) then
 #ifndef __QGSJET01__
          stop'please compile with requested model'
@@ -274,10 +275,12 @@ c     if(model.eq.9)call emsflu(iret)
       include 'epos.inc'
       
       double precision GTOT,GPROD,GABS,GDD,GQEL,GCOH
+      double precision e0
       dimension dumdif(3)
       if(model.eq.2)then
 #ifndef __QGSJET01__
          stop'please compile with requested model'
+         print *, GTOT,GPROD,GABS,GDD,GQEL,GCOH,sigt,sigi,sigc,sige,e0 !get rid of unused warning
 #else
          NITER=5000
          if(idtarg.eq.0)then
@@ -310,6 +313,7 @@ c     if(model.eq.9)call emsflu(iret)
       elseif(model.eq.6.and.maproj.eq.1)then
 #ifndef __SIBYLL__
          stop'please compile with requested model'
+         print *, dumdif(3)!get rid of unused warning
 #else
          K=1
          if(iclpro.eq.1)then
@@ -356,6 +360,7 @@ c     sigi=flucrse(ekin,maproj,matarg,idtarg)
       double precision a,b
 #ifndef __QGSJET01__
       stop'please compile with requested model'
+      print *, a, b             !get rid of unused warning
 #else
       CALL XXFZ(a,b)
 #endif
@@ -364,6 +369,7 @@ c     sigi=flucrse(ekin,maproj,matarg,idtarg)
       subroutine m3SIGMA(ek,idpro,idtar,latar,matar,sigi,sige)
 #ifndef __GHEISHA__
       stop'please compile with requested model'
+      print *, ek,idpro,idtar,latar,matar,sigi,sige !get rid of unused warning
 #else
       call ghecrse(ek,idpro,idtar,latar,matar,sigi,sige)
 #endif
@@ -373,6 +379,7 @@ c     sigi=flucrse(ekin,maproj,matarg,idtarg)
       dimension sdifr0(3)
 #ifndef __SIBYLL__
       stop'please compile with requested model'
+      print *, icl,engy,stot,sela,sine,sdifr,slela,Rho,sdifr0 !get rid of unused warning
 #else
       if(icl.eq.1)then
          L=2
@@ -388,11 +395,13 @@ c     sigi=flucrse(ekin,maproj,matarg,idtarg)
 
 
       subroutine m7SIGMA(stot,scut,sine,slela)
+      double precision bmsave
       double precision GzZ0(5),pi,bm,amws
       common /qgarr1/  ia(2),icz,icp
       common /qgarr6/  pi,bm,amws
 #ifndef __QGSJETII__
       stop'please compile with requested model QII'
+      print *, stot,scut,sine,slela,bmsave,GzZ0(5),pi,bm,amws !get rid of unused warning
 #else
       ia2save=ia(2)
       bmsave=bm
@@ -423,6 +432,7 @@ C     cross sections
      &     IPFIL,IFAFIL,IFBFIL
 #ifndef __PHOJET__
          stop'please compile with requested model'
+         print *, stot,scut,sine,sela,slela,ssd !get rid of unused warning
 #else
       stot=sngl(SIGTOT)
       sine=sngl(SIGTOT-SIGELA)
@@ -462,6 +472,7 @@ c     sela=sngl(Sel)
       if(model.eq.4)then
 #ifndef __PYTHIA__
          stop'please compile with requested model'
+         print *, ip,iret !get rid of unused warning
 #else
         call emspyt(iret,ip)
 #endif

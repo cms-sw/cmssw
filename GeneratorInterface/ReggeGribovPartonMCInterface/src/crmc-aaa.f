@@ -17,7 +17,7 @@ c 15.01.2009 Simplified Main program and random number generator for epos
 *          imodel     - HE model switch
 *          itab       - force tables production or stop if missing
 *          ilheout    - output type
-*          output     - output file name
+*          lheoutfile - output file name
 *          param      - param file name
 *
 ***************************************************************
@@ -45,11 +45,11 @@ c     Set parameters to default value
 c     Set common for crmc_init
       iout=ilheout
       output=lheoutfile
-      
+
 c     Stop program if missing tables (after aaset)
       producetables=.false.
       if(itab.eq.1)producetables=.true.
-      
+
 c     Calculations of energy of the center-of-mass in the detector frame
       call idmass(1120,m2)      !target mass = proton
       m1=m2                     !projectile mass
@@ -73,18 +73,18 @@ c     ycm2det defines this rapidity
       endif
 c     Update some parameters value to run correctly
       call IniEpos(iEvent,iSeed,ipart,itarg,iecms,imodel)
-      
+
 c     The parameters can be changed optionnaly by reading a file
 c     (example.param) using the following subroutine call
       call EposInput(param)     !(it can be commented)
-      
+
 c     if you put what is in input.optns in example.param, you can even run
 c     exactly the same way (coded parameters are overwritten). Don't forget
 c     the command : "EndEposInput" at the end of example.param, otherwise it
 c     will not run.
-      
+
       end
-      
+
       subroutine crmc_init_f()
 ***************************************************************
 *
@@ -95,15 +95,15 @@ c     will not run.
       integer iout
       character*1000 output
       common/lheoutput/iout,output
-      
+
 c     initialization for the given energy
       call ainit
-      
+
 c     Here the cross section sigineaa is defined
-      
+
 c     LHE type output done by EPOS
       if(iout.eq.1)call EposOutput(output)
-      
+
       end
 
 
@@ -205,7 +205,7 @@ c-----------------------------------------------------------------------
       double precision iecms
       integer iSeed,ipart,itarg,iModel,iadd,idtrafo,iEvent
       character*4 lhct
-      
+
       iframe=11                 !11 puts it always in nucleon nucleon reference
                                 !frame. This is ok because we use ecms
                                 !which is calculated in crmc_f.
@@ -440,10 +440,9 @@ c     some code taken from example from Torbjrn Sjstrand
 c     in http://www.thep.lu.se/~torbjorn/lhef
 c-----------------------------------------------------------------------
       include 'epos.inc'
- 
+
       integer id
       real taugm
-      double precision tini,tfin
 C...User process event common block.
       INTEGER MAXNUP
       PARAMETER (MAXNUP=nmxhep)  !extend array for file production
@@ -464,9 +463,9 @@ C...set event info and get number of particles.
       AQEDUP=-1d0          !alpha QED (not relevant)
       AQCDUP=-1d0          !alpha QCD (not relevant)
 
-C...Copy event lines, omitting trailing blanks. 
+C...Copy event lines, omitting trailing blanks.
 C...Embed in <event> ... </event> block.
-      write(ifdt,'(A)') '<event>' 
+      write(ifdt,'(A)') '<event>'
       write(ifdt,*)NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP
       DO 220 i=1,nhep
 
@@ -498,16 +497,14 @@ c  store particle variables:
 c optional informations
       write(ifdt,*)'#geometry',bimevt,phievt
 
-      write(ifdt,'(A)') '</event>' 
+      write(ifdt,'(A)') '</event>'
 
       if(n.eq.nevent)then
 C...Successfully reached end of event loop: write closing tag
-        write(ifdt,'(A)') '</LesHouchesEvents>' 
-        write(ifdt,'(A)') ' ' 
+        write(ifdt,'(A)') '</LesHouchesEvents>'
+        write(ifdt,'(A)') ' '
         close(ifdt)
       endif
-
- 1000 continue
 
       return
       end
@@ -663,13 +660,13 @@ C-----------------------------------------------------------------------
       implicit none
       common/eporansto2/irndmseq
       integer irndmseq
-      double precision uni,dummy
+      double precision uni(1),dummy
 C-----------------------------------------------------------------------
 
       call RMMARD( uni,1,irndmseq)
 
-      DRANF = UNI
-      UNI = dummy        !to avoid warning
+      DRANF = UNI(1)
+      UNI(1) = dummy        !to avoid warning
 
       RETURN
       END
