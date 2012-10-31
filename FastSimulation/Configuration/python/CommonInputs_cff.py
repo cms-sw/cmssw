@@ -44,6 +44,8 @@ if(CaloMode==1):
 if(CaloMode==2):
     FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = False
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
+    FamosCalorimetryBlock.Calorimetry.HCAL.smearTimeHF = True
 if(CaloMode==3):
     FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
+    FamosCalorimetryBlock.Calorimetry.HCAL.smearTimeHF = True
