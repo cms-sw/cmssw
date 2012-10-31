@@ -230,7 +230,6 @@ void GetPredictionRescale(std::string InputPattern, double& Rescale, double& RMS
 double FindIntersectionBetweenTwoGraphs(TGraph* obs, TGraph* th, double Min, double Max, double Step, double ThUncertainty=0, bool debug=false){
 
    double Intersection = -1;
-
    double ThShift = 1.0-ThUncertainty;
    double PreviousX = Min;
    double PreviousV = obs->Eval(PreviousX, 0, "") - (ThShift * th->Eval(PreviousX, 0, "")) ;

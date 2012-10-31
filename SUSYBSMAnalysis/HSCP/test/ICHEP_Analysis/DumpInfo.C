@@ -25,7 +25,7 @@
 
 
 class SiStripCluster;
-namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra;}
+namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class HitPattern;}
 namespace susybsm { class HSCParticle; class HSCPIsolation;}
 namespace fwlite  { class ChainEvent;}
 namespace trigger { class TriggerEvent;}
@@ -246,6 +246,7 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    reco::MuonRef  muon  = hscp.muonRef();
    reco::TrackRef track = hscp.trackRef();
    if(TypeMode!=3 && track.isNull()) return;
+
    reco::TrackRef SAtrack;
    if(!muon.isNull()) SAtrack = muon->standAloneMuon();
    if(TypeMode==3 && SAtrack.isNull()) return;
@@ -297,7 +298,7 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
 
    if(TypeMode!=3 && (track->pt()<=CutPt))return;// || dedxSObj->dEdx()<=CutI))return;
    if(TypeMode==3 && SAtrack->pt()<CutPt) return;
-//   if(track->pt()<=CutPt || dedxSObj->dEdx()<=CutI)return;
+   //   if(track->pt()<=CutPt || dedxSObj->dEdx()<=CutI)return;
    if(CutTOF>-1 && tof && tof->inverseBeta()<=CutTOF)return;
 
    double Mass=0;
@@ -343,10 +344,10 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    fprintf(pFile,"dEdx mass error     :%6.2f (1Sigma dEdx) or %6.2f (1Sigma P)\n",  GetMass(track->p(),0.95*dedxMObj->dEdx(), false),  GetMass(track->p()*(1-track->ptError()/track->pt()),dedxMObj->dEdx(), false) );
    for(unsigned int h=0;h<track->recHitsSize();h++){
         TrackingRecHit* recHit = (track->recHit(h))->clone();
-        if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
+//        if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
 //	  fprintf(pFile,"Mono  Hit "); printCluster(pFile,(matchedHit->monoHit()->cluster()).get());
 //          fprintf(pFile,"StereoHit ");printCluster(pFile,(matchedHit->stereoHit()->cluster()).get());
-       }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
+       if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
            fprintf(pFile,"2D    Hit ");printCluster(pFile,(singleHit->cluster()).get());
        }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
            fprintf(pFile,"1D    Hit ");printCluster(pFile,(single1DHit->cluster()).get());
@@ -367,10 +368,22 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
       else TOFMass = GetTOFMass(SAtrack->p(),tofComb.inverseBeta());
       fprintf(pFile,"MassTOF = %7.2fGeV\n",TOFMass);
 
-      fprintf(pFile,"Quality=%i type=%i P=%7.2f  Pt=%7.2f Eta=%+6.2f Phi=%+6.2f #Chambers=%i\n" ,muon->isQualityValid(),muon->type(),muon->p(),muon->pt(),muon->eta(),muon->phi(),muon->numberOfChambers());
-      fprintf(pFile,"muonTimeDT      : NDOF=%2i InvBeta=%6.2f+-%6.2f (Cut=%6.2f) --> beta=%6.2f FreeInvBeta=%6.2f+-%6.2f\n",tofDT  .nDof(),tofDT  .inverseBeta(), tofDT  .inverseBetaErr(), CutTOF, (1.0/tofDT  .inverseBeta()), tofDT  .freeInverseBeta(),tofDT  .freeInverseBetaErr());
-      fprintf(pFile,"muonTimeCSC     : NDOF=%2i InvBeta=%6.2f+-%6.2f (Cut=%6.2f) --> beta=%6.2f FreeInvBeta=%6.2f+-%6.2f\n",tofCSC .nDof(),tofCSC .inverseBeta(), tofCSC .inverseBetaErr(), CutTOF, (1.0/tofCSC .inverseBeta()), tofCSC .freeInverseBeta(),tofCSC .freeInverseBetaErr());
-      fprintf(pFile,"muonTimeCombined: NDOF=%2i InvBeta=%6.2f+-%6.2f (Cut=%6.2f) --> beta=%6.2f FreeInvBeta=%6.2f+-%6.2f\n",tofComb.nDof(),tofComb.inverseBeta(), tofComb.inverseBetaErr(), CutTOF, (1.0/tofComb.inverseBeta()), tofComb.freeInverseBeta(),tofComb.freeInverseBetaErr());
+      fprintf(pFile,"Quality=%i type=%i P=%7.2f  Pt=%7.2f Eta=%+6.2f Phi=%+6.2f #Chambers=%i\n" ,muon->isQualityValid(),muon->type(),muon->p(),muon->pt(),muon->eta(),muon->phi(),muon->numberOfChambersNoRPC());
+      if(!SAtrack.isNull())fprintf(pFile,"SA track P=%7.2f  Pt=%7.2f Eta=%+6.2f Phi=%+6.2f #Chambers=%i\n" ,SAtrack->p(),SAtrack->pt(),SAtrack->eta(),SAtrack->phi(),muon->numberOfMatchedStations());
+
+      for (int i=0; i<SAtrack->hitPattern().numberOfHits(); i++) {
+	uint32_t pattern = SAtrack->hitPattern().getHitPattern(i);
+	if (pattern == 0) break;
+	if (SAtrack->hitPattern().muonHitFilter(pattern) &&
+	    (int(SAtrack->hitPattern().getSubStructure(pattern)) == 1 ||
+	     int(SAtrack->hitPattern().getSubStructure(pattern)) == 2) &&
+	    SAtrack->hitPattern().getHitType(pattern) == 0) {
+	}
+      }
+
+      fprintf(pFile,"muonTimeDT      : NDOF=%2i InvBeta=%6.2f+-%6.2f (Cut=%6.2f) --> beta=%6.2f FreeInvBeta=%6.2f+-%6.2f VertexTime=%6.2f+-%6.2f\n",tofDT  .nDof(),tofDT  .inverseBeta(), tofDT  .inverseBetaErr(), CutTOF, (1.0/tofDT  .inverseBeta()), tofDT  .freeInverseBeta(),tofDT  .freeInverseBetaErr(), tofDT  .timeAtIpInOut(), tofDT  .timeAtIpInOutErr());
+      fprintf(pFile,"muonTimeCSC     : NDOF=%2i InvBeta=%6.2f+-%6.2f (Cut=%6.2f) --> beta=%6.2f FreeInvBeta=%6.2f+-%6.2f VertexTime=%6.2f+-%6.2f\n",tofCSC .nDof(),tofCSC .inverseBeta(), tofCSC .inverseBetaErr(), CutTOF, (1.0/tofCSC .inverseBeta()), tofCSC .freeInverseBeta(),tofCSC .freeInverseBetaErr(), tofCSC .timeAtIpInOut(), tofCSC .timeAtIpInOutErr());
+      fprintf(pFile,"muonTimeCombined: NDOF=%2i InvBeta=%6.2f+-%6.2f (Cut=%6.2f) --> beta=%6.2f FreeInvBeta=%6.2f+-%6.2f VertexTime=%6.2f+-%6.2f\n",tofComb.nDof(),tofComb.inverseBeta(), tofComb.inverseBetaErr(), CutTOF, (1.0/tofComb.inverseBeta()), tofComb.freeInverseBeta(),tofComb.freeInverseBetaErr(), tofComb.timeAtIpInOut(), tofComb.timeAtIpInOutErr());
    }
    if(hscp.hasRpcInfo()){
       fprintf(pFile,"------------------------------------------ RPC INFO -----------------------------------------------\n");
@@ -465,12 +478,12 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
 
 
 
-   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, "Data7TeV/HscpCandidates");
+   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, "Data8TeV/HscpCandidates");
    printf("Tree Entries=%lli\n",tree->GetEntries());
 
 
    std::vector<string> FileName;
-   for(int s=0;s<samples.size();s++){if(samples[s].Name == "Data8TeV")GetInputFiles(samples[s], BaseDirectory, FileName);}
+   for(unsigned int s=0;s<samples.size();s++){if(samples[s].Name == "Data8TeV")GetInputFiles(samples[s], BaseDirectory, FileName);}
    fwlite::ChainEvent ev(FileName);
 
 
@@ -495,7 +508,6 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
    fprintf(pFile, "H = %6.2E\n",H_H->GetBinContent(CutIndex+1));
    fprintf(pFile, "OBSERVED  EVENTS = %6.2E\n",H_D->GetBinContent(CutIndex+1));
    fprintf(pFile, "PREDICTED EVENTS = %6.2E+-%6.2E\n",H_P->GetBinContent(CutIndex+1), H_P->GetBinError(CutIndex+1));
-
 
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Scanning D                   :");

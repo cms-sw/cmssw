@@ -25,6 +25,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName="Data8TeV");
 void MakeExpLimitpLot(string Input, string Output);
 void CosmicBackgroundSystematic(string InputPattern, string DataType="8TeV");
 void CheckPrediction(string InputPattern, string HistoSuffix="_Flip", string DataType="Data8TeV");
+void CheckPredictionBin(string InputPattern, string HistoSuffix="_Flip", string DataType="Data8TeV", string bin="");
 void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType="Data8TeV");
 
 std::vector<stSample> samples;
@@ -43,13 +44,12 @@ void Analysis_Step5()
    gStyle->SetTitleYOffset(1.45);
    gStyle->SetPalette(1);
    gStyle->SetNdivisions(505);
-
    GetSampleDefinition(samples);
 
 
    string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
-/*
+
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
@@ -57,7 +57,7 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   CutFlow(InputPattern, CutIndex);
+   //CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
 
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
@@ -66,7 +66,6 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
    MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
-
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
@@ -76,7 +75,7 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
 
-   InputPattern = "Results/Type3/";   CutIndex = 125; CutIndex_Flip=58;
+   InputPattern = "Results/Type3/";   CutIndex = 79; CutIndex_Flip=58;
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
@@ -88,8 +87,19 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
-   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
-*/
+
+   /*
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "0");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "1");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "2");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "3");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "4");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "5");
+   */
+   //InputPattern = "Results/Type5/";   CutIndex = 67; CutIndex_Flip=2;
+   //SelectionPlot(InputPattern, CutIndex);
+   //CutFlow(InputPattern);
+
    InputPattern = "Results/Type5/";   CutIndex = 69; CutIndex_Flip=2;
    InitdEdx("dedxProd");
 //   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
@@ -154,7 +164,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    //compute integral for few mass window
    if(Data8TeV && Pred8TeV){
       for(double M=0;M<=1000;M+=100){
-         if(M>400 && (int(M)%200!=0))continue;
+	if(M>400 && (int)M%200!=0)continue;
          double D = Data8TeV->Integral( Data8TeV->GetXaxis()->FindBin(M),  Data8TeV->GetXaxis()->FindBin(2000.0));
          double P = Pred8TeV->Integral( Pred8TeV->GetXaxis()->FindBin(M),  Pred8TeV->GetXaxis()->FindBin(2000.0));
          double Perr = 0; for(int i=Pred8TeV->GetXaxis()->FindBin(M);i<Pred8TeV->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred8TeV->GetBinError(i),2); }  Perr = sqrt(Perr);
@@ -374,6 +384,24 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    TH1D* CtrlIm_S2_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIm_S2_TOF"); CtrlIm_S2_TOF->Rebin(1);
    TH1D* CtrlIm_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIm_S3_TOF"); CtrlIm_S3_TOF->Rebin(1);
    TH1D* CtrlIm_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIm_S4_TOF"); CtrlIm_S4_TOF->Rebin(1);
+
+   TH1D* CtrlPt_S1_TOF_Binned[MaxPredBins];
+   TH1D* CtrlPt_S2_TOF_Binned[MaxPredBins];
+   TH1D* CtrlPt_S3_TOF_Binned[MaxPredBins];
+   TH1D* CtrlPt_S4_TOF_Binned[MaxPredBins];
+
+   if(TypeMode==3) PredBins=6;
+   for(int i=0; i<PredBins; i++) {
+     char Suffix[1024];
+     sprintf(Suffix,"_%i",i);
+     string Bin=Suffix;
+
+     CtrlPt_S1_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S1_TOF_Binned"+Bin); CtrlPt_S1_TOF_Binned[i]->Rebin(1);
+     CtrlPt_S2_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S2_TOF_Binned"+Bin); CtrlPt_S2_TOF_Binned[i]->Rebin(1);
+     CtrlPt_S3_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S3_TOF_Binned"+Bin); CtrlPt_S3_TOF_Binned[i]->Rebin(1);
+     CtrlPt_S4_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S4_TOF_Binned"+Bin); CtrlPt_S4_TOF_Binned[i]->Rebin(1);
+   }
+
 /*
    std::vector<std::string> PtLimitsNames;
    if(TypeMode!=3) {
@@ -458,6 +486,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
 
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawLegend(Histos,legend, "","P");
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Is_TOFSpectrumLog");
    delete c1;
 
@@ -475,6 +504,30 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Im_TOFSpectrum");
    delete c1;
+
+   for(int i=0; i<PredBins; i++) {
+     char Suffix[1024];
+     sprintf(Suffix,"_%i",i);
+     string Bin=Suffix;
+
+     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+     if(CtrlPt_S1_TOF_Binned[i]->Integral()>0)CtrlPt_S1_TOF_Binned[i]->Scale(1/CtrlPt_S1_TOF_Binned[i]->Integral());
+     if(CtrlPt_S2_TOF_Binned[i]->Integral()>0)CtrlPt_S2_TOF_Binned[i]->Scale(1/CtrlPt_S2_TOF_Binned[i]->Integral());
+     if(CtrlPt_S3_TOF_Binned[i]->Integral()>0)CtrlPt_S3_TOF_Binned[i]->Scale(1/CtrlPt_S3_TOF_Binned[i]->Integral());
+     if(CtrlPt_S4_TOF_Binned[i]->Integral()>0)CtrlPt_S4_TOF_Binned[i]->Scale(1/CtrlPt_S4_TOF_Binned[i]->Integral());
+     Histos[0] = CtrlPt_S1_TOF_Binned[i];                    legend.push_back(PtLimitsNames[0]);
+     Histos[1] = CtrlPt_S2_TOF_Binned[i];                    legend.push_back(PtLimitsNames[1]);
+     Histos[2] = CtrlPt_S3_TOF_Binned[i];                    legend.push_back(PtLimitsNames[2]);
+     Histos[3] = CtrlPt_S4_TOF_Binned[i];                    legend.push_back(PtLimitsNames[3]);
+     DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
+     DrawLegend(Histos,legend,LegendTitle,"P");
+     c1->SetLogy(true);
+     DrawPreliminary(SQRTS, IntegratedLuminosity);
+     if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum_Binned"+Bin);
+     c1->SetLogy(false);
+     if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrumNoLog_Binned"+Bin);
+     delete c1;
+   }
 
    if(TypeMode<3) {//These plots only made for analyses using mass distribution
    //Show P, I and TOF distribution in the signal region (observed and predicted)
@@ -792,9 +845,8 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 
     for(unsigned int s=0;s<samples.size();s++){
        if (samples[s].Name!="Gluino_7TeV_M300_f10" && samples[s].Name!="Gluino_7TeV_M600_f10" && samples[s].Name!="Gluino_7TeV_M800_f10" && samples[s].Name!="Gluino_8TeV_M300_f10" && samples[s].Name!="Gluino_8TeV_M600_f10" && samples[s].Name!="Gluino_8TeV_M800_f10" && samples[s].Name!="GMStau_7TeV_M247" && samples[s].Name!="GMStau_7TeV_M370" && samples[s].Name!="GMStau_7TeV_M494" && samples[s].Name!="GMStau_8TeV_M247" && samples[s].Name!="GMStau_8TeV_M370" && samples[s].Name!="GMStau_8TeV_M494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M600_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M600_Q2o3" && samples[s].Name!="DY_8TeV_M100_Q1o3" &&  samples[s].Name!="DY_8TeV_M600_Q1o3" && samples[s].Name!="DY_8TeV_M100_Q2o3" &&  samples[s].Name!="DY_8TeV_M600_Q2o3") continue;
-
        if(!stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name)){printf("Missing sample %s\n",samples[s].Name.c_str());continue;}
-       stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
+       //stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
     }
 
     SQRTS=8; stPlots_Draw(Data8TeVPlots, InputPattern + "/Selection_Data8TeV", LegendTitle, CutIndex);
@@ -811,7 +863,11 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 
     if(TypeMode<=2){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_Gluino", LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);}
     if(TypeMode<=2){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_8TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);}
-    if(TypeMode==3){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);}
+    if(TypeMode==3){ 
+      //SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_7TeV", LegendTitle, CutIndex, &Data7TeVPlots,&SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
+      SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_8TeV", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);
+      //SQRTS=78; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_78TeV", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);
+    }
     if(TypeMode==5){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, &Data7TeVPlots, &MCTr7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M600_Q2o3",samples)]);}
     if(TypeMode==5){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_DY"    , LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M600_Q2o3",samples)]);}
 
@@ -1787,24 +1843,24 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
   string LegendNames[DzRegions]={"dz < 20 cm","20 cm < dz < 30 cm","30 cm < dz < 50 cm","50 cm < dz < 70 cm","70 cm < dz < 120 cm", "dz > 120 cm"};
 
   for(int i=0; i<TimeRegions; i++) {
-    StatSyst[i] = new TH1F(("StatSyst_TOF" + Preds[i]).c_str(), "StatSyst_TOF100", 8, 95, 365);
-    Stat[i] = new TH1F(("Stat_TOF" + Preds[i]).c_str(), "Stat_TOF100", 8, 95, 365);
-    Syst[i] = new TH1F(("Syst_TOF" + Preds[i]).c_str(), "Syst_TOF110", 8, 95, 365);
+    StatSyst[i] = new TH1F(("StatSyst_TOF" + Preds[i]).c_str(), "StatSyst_TOF100", 9, 95, 365);
+    Stat[i] = new TH1F(("Stat_TOF" + Preds[i]).c_str(), "Stat_TOF100", 9, 95, 365);
+    Syst[i] = new TH1F(("Syst_TOF" + Preds[i]).c_str(), "Syst_TOF110", 9, 95, 365);
 
     for(int Region=0; Region<DzRegions; Region++) {
       string Name="Pred_TOF" + Preds[i] + "_"+ RegionNames[Region];
-      Pred[i*DzRegions+Region] = new TH1F(Name.c_str(), Name.c_str(), 8, 95, 365);
+      Pred[i*DzRegions+Region] = new TH1F(Name.c_str(), Name.c_str(), 9, 95, 365);
     }
   }
 
   const double alpha = 1 - 0.6827;
-
+  //cout << endl << endl;
   for(unsigned int i=0; i<Index.size(); i++) {
     int CutIndex=Index[i];
     double D_Cosmic = H_D_Cosmic->GetBinContent(CutIndex+1);
     double D_Cosmic_Var = pow(ROOT::Math::gamma_quantile_c(alpha/2,D_Cosmic+1,1) - D_Cosmic,2);
 
-    int Bin=Pred[0]->FindBin(HCuts_Pt->GetBinContent(CutIndex));
+    int Bin=Pred[0]->FindBin(HCuts_Pt->GetBinContent(CutIndex+1));
 
     double Sigma = 0;
     double Mean = 0;
@@ -1826,6 +1882,9 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
       Mean+=NPred/pow(NPredErr,2);
       Sigma+=1/pow(NPredErr,2);
       N++;
+      if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.3)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001) {
+	//cout << endl << "D Sideband " << D_Sideband << " D_Cosmic " << D_Cosmic << " D_Sideband_Cosmic " << D_Sideband_Cosmic << endl;
+	//cout << "For Dz region " << LegendNames[Region] << " NPred " << NPred << " +- " << NPredErr << endl;}
     }
 
     Mean  = Mean/Sigma;
@@ -1841,12 +1900,13 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
     SUM  = sqrt(SUM/(N-1));
     STAT = sqrt(STAT)/(N-1);
     SYST = sqrt(SUM*SUM - STAT*STAT);
-
+    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.3)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001)
+      //cout << "Mean " << Mean << " Sigma " << Sigma << " Stat " << STAT/Mean << " StatSyst " << SUM/Mean << "Syst " << SYST/Mean << endl;
     Stat[Plot[i]]->SetBinContent(Bin, STAT/Mean);
     StatSyst[Plot[i]]->SetBinContent(Bin, SUM/Mean);
     Syst[Plot[i]]->SetBinContent(Bin, SYST/Mean);
   }
-
+    //cout << endl << endl;
   for(int i=0; i<TimeRegions; i++) {
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     for(int Region=2; Region<DzRegions; Region++) {
@@ -1982,8 +2042,8 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = Data[i];      legend.push_back("Obs");
     Histos[1] = Pred[i];    legend.push_back("Pred");
-    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 0,0);
-    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.3);
+    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 1, 100000);
+    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.5);
     c1->SetLogy(true);
     DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
 
@@ -2028,8 +2088,9 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   string SavePath  = InputPattern;
   MakeDirectories(SavePath);
   TCanvas* c1;
-  TH1** Histos = new TH1*[10];
+
   std::vector<string> legend;
+  TGraphErrors** Graphs = new TGraphErrors*[10];
 
   string LegendTitle = LegendFromType(InputPattern);
 
@@ -2044,22 +2105,22 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   TH1D*  HCuts_I_Flip        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I_Flip");
 
    TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_A");
-   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_B");
-   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_C");
+   //TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_B");
+   //TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_C");
    //TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_D");
    TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_E");
    TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_F");
    TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_G");
-   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_H");
+   //TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_H");
 
    TH1D*  H_A_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_A");
    TH1D*  H_B_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_B");
    TH1D*  H_C_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_C");
-   TH1D*  H_D_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_D");
+   //TH1D*  H_D_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_D");
    TH1D*  H_E_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_E");
    TH1D*  H_F_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_F");
    TH1D*  H_G_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_G");
-   TH1D*  H_H_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_H");
+   //TH1D*  H_H_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_H");
 
    TH1D*  H_B_Binned[MaxPredBins];
    TH1D*  H_F_Binned[MaxPredBins];
@@ -2106,53 +2167,35 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
 
   
   const int TimeRegions=2;
-  TH1F *Pred[TimeRegions*3];
-  TH1F *StatSyst[TimeRegions];
-  TH1F *Stat[TimeRegions];
-  TH1F *Syst[TimeRegions];
+
+  double Pred[TimeRegions][3][20];
+  double PredErr[TimeRegions][3][20];
+  double StatSyst[TimeRegions][20];
+  double Stat[TimeRegions][20];
+  double Syst[TimeRegions][20];
+  double PtCut[TimeRegions][20];
+  double PredN[TimeRegions]={0};
 
   string Preds[TimeRegions] = {"110", "120"};
   string PredsLegend[TimeRegions] = {"1/#beta>1.1", "1/#beta>1.2"};
-  string RegionNames[3]={"Normal", "FlipCenter", "FlipTail"};
   string LegendNames[3]={"BH/F", "BH'/F'", "BD'/B'"};
-
-  double bins=6;
-  double min=110;
-  double max=470;
-
-  if(TypeMode==2) {
-    bins=2;
-    min=40;
-    max=90;
-  }
-
-  for(int i=0; i<TimeRegions; i++) {
-    StatSyst[i] = new TH1F(("StatSyst_TOF" + Preds[i]).c_str(), "StatSyst_TOF100", bins, min, max);
-    Stat[i] = new TH1F(("Stat_TOF" + Preds[i]).c_str(), "Stat_TOF100", bins, min, max);
-    Syst[i] = new TH1F(("Syst_TOF" + Preds[i]).c_str(), "Syst_TOF110", bins, min, max);
-
-    for(int Region=0; Region<3; Region++) {
-      string Name="Pred_TOF" + Preds[i] + "_"+ RegionNames[Region];
-      Pred[i*3+Region] = new TH1F(Name.c_str(), Name.c_str(), bins, min, max);
-    }
-  }
 
   for(unsigned int i=0; i<Index.size(); i++) {
     int CutIndex=Index[i];
-    int Bin=Pred[0]->FindBin(HCuts_Pt->GetBinContent(CutIndex));
+    int Point=PredN[Plot[i]];
 
     double Sigma = 0;
     double Mean = 0;
     int N=0;
 
     double A = H_A->GetBinContent(Index[i]);
-    double B = H_B->GetBinContent(Index[i]);
-    double C = H_C->GetBinContent(Index[i]);
+    //double B = H_B->GetBinContent(Index[i]);
+    //double C = H_C->GetBinContent(Index[i]);
     //double D = H_D->GetBinContent(Index[i]);
     double E = H_E->GetBinContent(Index[i]);
     double F = H_F->GetBinContent(Index[i]);
     double G = H_G->GetBinContent(Index[i]);
-    double H = H_H->GetBinContent(Index[i]);
+    //double H = H_H->GetBinContent(Index[i]);
 
     double A_Flip = H_A_Flip->GetBinContent(Index_Flip[i]);
     double B_Flip = H_B_Flip->GetBinContent(Index_Flip[i]);
@@ -2161,7 +2204,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     double E_Flip = H_E_Flip->GetBinContent(Index_Flip[i]);
     double F_Flip = H_F_Flip->GetBinContent(Index_Flip[i]);
     double G_Flip = H_G_Flip->GetBinContent(Index_Flip[i]);
-    double H_Flip = H_H_Flip->GetBinContent(Index_Flip[i]);
+    //double H_Flip = H_H_Flip->GetBinContent(Index_Flip[i]);
 
     double NPred[3]={0};
     double NPredErr[3]={0};
@@ -2208,10 +2251,11 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
       }
     }
 
+
     for(int Region=0; Region<3; Region++) {
       NPredErr[Region]=sqrt(NPredErr[Region]);
-      Pred[Plot[i]*3 + Region]->SetBinContent(Bin, NPred[Region]);
-      Pred[Plot[i]*3 + Region]->SetBinError(Bin, NPredErr[Region]);
+      Pred[Plot[i]][Region][Point] = NPred[Region];
+      PredErr[Plot[i]][Region][Point] = NPredErr[Region];
       Mean+=NPred[Region]/pow(NPredErr[Region],2);
       Sigma+=1/pow(NPredErr[Region],2);
       N++;
@@ -2223,8 +2267,8 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     double SUM=0, STAT=0, SYST=0;
 
     for(int p=0;p<3;p++){
-      SUM   += pow(Pred[Plot[i]*3 + p]->GetBinContent(Bin)-Mean,2);
-      STAT  += pow(Pred[Plot[i]*3 + p]->GetBinError(Bin),2);
+      SUM   += pow(Pred[Plot[i]][p][Point]-Mean,2);
+      STAT  += pow(PredErr[Plot[i]][p][Point],2);
     }
   
     SUM  = sqrt(SUM/(N-1));
@@ -2232,35 +2276,100 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     if(SUM*SUM > STAT*STAT) SYST = sqrt(SUM*SUM - STAT*STAT);
     else SYST=0;
 
-    Stat[Plot[i]]->SetBinContent(Bin, STAT/Mean);
-    StatSyst[Plot[i]]->SetBinContent(Bin, SUM/Mean);
-    Syst[Plot[i]]->SetBinContent(Bin, SYST/Mean);
+    Stat[Plot[i]][Point]=STAT/Mean;
+    StatSyst[Plot[i]][Point]=SUM/Mean;
+    Syst[Plot[i]][Point]=SYST/Mean;
+
+    PtCut[Plot[i]][Point]=HCuts_Pt->GetBinContent(CutIndex);
+    PredN[Plot[i]]++;
   }
 
-  for(int i=0; i<TimeRegions; i++) {
+  TMultiGraph* PredGraphs;
+  for(int i=0; i<TimeRegions; i++) { 
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    PredGraphs = new TMultiGraph();
     for(int Region=0; Region<3; Region++) {
-      Histos[Region] = Pred[i*3 + Region];         legend.push_back(LegendNames[Region]);
+      Graphs[Region] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],Pred[Plot[i]][Region],0,PredErr[Plot[i]][Region]); legend.push_back(LegendNames[Region]);
+      Graphs[Region]->SetLineColor(Color[Region]);  Graphs[Region]->SetMarkerColor(Color[Region]);   Graphs[Region]->SetMarkerStyle(GraphStyle[Region]);
+      PredGraphs->Add(Graphs[Region],"LP");
     }
-    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Predicted", 0,0, 0,0);
-    DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
-    c1->SetLogy(true);
+    PredGraphs->Draw("A");
+    PredGraphs->SetTitle("");
+    PredGraphs->GetXaxis()->SetTitle("P_T cut");
+    PredGraphs->GetYaxis()->SetTitle("Number of expected backgrounds");
+    PredGraphs->GetYaxis()->SetTitleOffset(1.70);
+    PredGraphs->GetYaxis()->SetRangeUser(0,400);
+    c1->SetLogy(0);
+    DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,(DataType + "CollisionPrediction_TOF" + Preds[i]).c_str());
     delete c1;
+    delete PredGraphs;
   }
 
-  c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-  for(int i=0; i<TimeRegions; i++) {
-    Histos[i] = StatSyst[i];         legend.push_back(PredsLegend[i]);
-  }
-  DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Stat+Syst Rel. Error", 0,0, 0,1.4);
-  DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
-  c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-  SaveCanvas(c1,SavePath,DataType + "CollisionStatSyst");
-  delete c1;
 
+    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    PredGraphs = new TMultiGraph();
+    for(int i=0; i<TimeRegions; i++) {
+      Graphs[i] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],StatSyst[Plot[i]],0,0); legend.push_back(PredsLegend[i]);
+      Graphs[i]->SetLineColor(Color[i]);  Graphs[i]->SetMarkerColor(Color[i]);   Graphs[i]->SetMarkerStyle(GraphStyle[i]);
+      PredGraphs->Add(Graphs[i],"LP");
+    }
+    PredGraphs->Draw("A");
+    PredGraphs->SetTitle("");
+    PredGraphs->GetXaxis()->SetTitle("P_T cut");
+    PredGraphs->GetYaxis()->SetTitle("Relative Statistical + Systematic Uncertainty");
+    PredGraphs->GetYaxis()->SetTitleOffset(1.70);
+    PredGraphs->GetYaxis()->SetRangeUser(0,1.);
+    c1->SetLogy(0);
+    DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
+    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    SaveCanvas(c1,SavePath,DataType + "CollisionStatSyst");
+    delete c1;
+    delete PredGraphs;
+
+    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    PredGraphs = new TMultiGraph();
+    for(int i=0; i<TimeRegions; i++) {
+      Graphs[i] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],Stat[Plot[i]],0,0); legend.push_back(PredsLegend[i]);
+      Graphs[i]->SetLineColor(Color[i]);  Graphs[i]->SetMarkerColor(Color[i]);   Graphs[i]->SetMarkerStyle(GraphStyle[i]);
+      PredGraphs->Add(Graphs[i],"LP");
+    }
+    PredGraphs->Draw("A");
+    PredGraphs->SetTitle("");
+    PredGraphs->GetXaxis()->SetTitle("P_T cut");
+    PredGraphs->GetYaxis()->SetTitle("Relative Statistical Uncertainty");
+    PredGraphs->GetYaxis()->SetTitleOffset(1.70);
+    PredGraphs->GetYaxis()->SetRangeUser(0,1.);
+    c1->SetLogy(0);
+    DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
+    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    SaveCanvas(c1,SavePath,DataType + "CollisionStat");
+    delete c1;
+    delete PredGraphs;
+
+
+    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    PredGraphs = new TMultiGraph();
+    for(int i=0; i<TimeRegions; i++) {
+      Graphs[i] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],Syst[Plot[i]],0,0); legend.push_back(PredsLegend[i]);
+      Graphs[i]->SetLineColor(Color[i]);  Graphs[i]->SetMarkerColor(Color[i]);   Graphs[i]->SetMarkerStyle(GraphStyle[i]);
+      PredGraphs->Add(Graphs[i],"LP");
+    }
+    PredGraphs->Draw("A");
+    PredGraphs->SetTitle("");
+    PredGraphs->GetXaxis()->SetTitle("P_T cut");
+    PredGraphs->GetYaxis()->SetTitle("Relative Systemtic Uncertainty");
+    PredGraphs->GetYaxis()->SetTitleOffset(1.70);
+    PredGraphs->GetYaxis()->SetRangeUser(0,1.);
+    c1->SetLogy(0);
+    DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
+    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    SaveCanvas(c1,SavePath,DataType + "CollisionSyst");
+    delete c1;
+    delete PredGraphs;
+
+  /*
   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
   for(int i=0; i<TimeRegions; i++) {
     Histos[i] = Stat[i];         legend.push_back(PredsLegend[i]);
@@ -2282,4 +2391,138 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType +"CollisionSyst");
   delete c1;
-  }  
+  */
+} 
+
+
+
+
+
+
+
+
+void CheckPredictionBin(string InputPattern, string HistoSuffix, string DataType, string bin){
+  TypeMode = TypeFromPattern(InputPattern);
+  if(TypeMode==0)return;
+
+  std::vector<string> legend;
+  string LegendTitle = LegendFromType(InputPattern);
+  string SavePath  = InputPattern;
+  MakeDirectories(SavePath);
+  TCanvas* c1;
+  TH1** Histos = new TH1*[100];
+
+  TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
+  TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_Pt") + HistoSuffix);
+  TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_I") + HistoSuffix);
+  TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_TOF") + HistoSuffix);
+  cout << "Data histo " << string(DataType+"/H_D_Binned_" + HistoSuffix + "_" + bin) << " P Name " << string(DataType+"/H_P_Binned_" + HistoSuffix + "_" + bin) << endl;
+  TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, string(DataType+"/H_D_Binned" + HistoSuffix + "_" + bin));
+  TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, string(DataType+"/H_P_Binned" + HistoSuffix + "_" + bin));
+
+  std::vector<int> Index;   std::vector<int> Plot;
+  std::vector<double> TOFCuts;
+  double TOFCutMax=0, TOFCutMin=9999;
+
+  map<std::pair<double, double>,int> CutMap;
+
+  int countPlots=0;
+  for(int CutIndex=1; CutIndex<HCuts_TOF->GetNbinsX(); CutIndex++) {
+    TOFCuts.push_back(HCuts_TOF->GetBinContent(CutIndex+1));
+    if(HCuts_TOF->GetBinContent(CutIndex+1)<TOFCutMin) TOFCutMin=HCuts_TOF->GetBinContent(CutIndex+1);
+    if(HCuts_TOF->GetBinContent(CutIndex+1)>TOFCutMax) TOFCutMax=HCuts_TOF->GetBinContent(CutIndex+1);
+
+    std::pair<double, double> key(HCuts_I->GetBinContent(CutIndex+1), HCuts_Pt->GetBinContent(CutIndex+1));
+    //New combination of TOF and I cuts
+    if(CutMap.find(key)==CutMap.end()) {
+      CutMap[key]=countPlots;
+      countPlots++;
+    }
+  }
+
+  std::vector<TH1D*> Pred;
+  std::vector<TH1D*> Data;
+  std::vector<TH1D*> Ratio;
+
+  for(int i=0; i<countPlots; i++) {
+    char DataName[1024];
+    sprintf(DataName,"Data_%i",i);
+    TH1D* TempData = new TH1D(DataName, DataName, TOFCuts.size(), TOFCutMin, TOFCutMax);
+    Data.push_back(TempData);
+    char PredName[1024];
+    sprintf(PredName,"Pred_%i",i);
+    TH1D* TempPred = new TH1D(PredName, PredName, TOFCuts.size(), TOFCutMin, TOFCutMax);
+    Pred.push_back(TempPred);
+    char RatioName[1024];
+    sprintf(RatioName,"Ratio_%i",i);
+    TH1D* TempRatio = new TH1D(RatioName, RatioName, TOFCuts.size(), TOFCutMin, TOFCutMax);
+    Ratio.push_back(TempRatio);
+  }
+
+
+  for(int CutIndex=1; CutIndex<HCuts_TOF->GetNbinsX(); CutIndex++) {
+
+    std::pair<double, double> key(HCuts_I->GetBinContent(CutIndex+1), HCuts_Pt->GetBinContent(CutIndex+1));
+    int plot = CutMap.find(key)->second;
+    int histo_bin = Data[plot]->FindBin(HCuts_TOF->GetBinContent(CutIndex+1));
+
+    double D = H_D->GetBinContent(CutIndex+1);
+    Data[plot]->SetBinContent(histo_bin, D);
+
+    double P = H_P->GetBinContent(CutIndex+1);
+    double Perr = H_P->GetBinError(CutIndex+1);
+    Pred[plot]->SetBinContent(histo_bin, P);
+    Pred[plot]->SetBinError(histo_bin, Perr);
+
+    Ratio[plot]->SetBinContent(histo_bin, D/P);
+    Ratio[plot]->SetBinError(histo_bin, sqrt( D/(P*P) + pow(D*Perr/(P*P),2) ));
+  }
+
+  for(int i=0; i<countPlots; i++) {
+    map<std::pair<double, double>,int>::iterator it;
+    double ICut=-1, PtCut=-1;
+    for ( it=CutMap.begin() ; it != CutMap.end(); it++ ) if((*it).second==i) {
+      ICut = (*it).first.first;
+      PtCut = (*it).first.second;
+    }
+
+    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+    Histos[0] = Data[i];      legend.push_back("Obs");
+    Histos[1] = Pred[i];    legend.push_back("Pred");
+    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 0,0);
+    DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.5);
+    c1->SetLogy(true);
+    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+
+    char Title[1024];
+    if(ICut>-1 && PtCut>-1) sprintf(Title,"Pred%s_I%0.2f_Pt%3.0f_",HistoSuffix.c_str(), ICut, PtCut);
+    else if(PtCut>-1) sprintf(Title,"Pred%s_Pt%3.0f_",HistoSuffix.c_str(),PtCut);
+    else if(ICut>-1) sprintf(Title,"Pred%s_I%0.2f_",HistoSuffix.c_str(),ICut);
+    SaveCanvas(c1,SavePath,Title + DataType + "_Binned_" + bin);
+    delete c1;
+    delete Histos[0]; delete Histos[1];
+  }
+
+  legend.clear();
+  for(int i=0; i<countPlots; i++) {
+    map<std::pair<double, double>,int>::iterator it;
+    double ICut=-1, PtCut=-1;
+    for ( it=CutMap.begin() ; it != CutMap.end(); it++ ) if((*it).second==i) {
+      ICut = (*it).first.first;
+      PtCut = (*it).first.second;
+    }
+    char LegendName[1024];
+    if(ICut>-1 && PtCut>-1) sprintf(LegendName,"I>%0.2f Pt>%3.0f",ICut, PtCut);
+    else if(PtCut>-1) sprintf(LegendName,"Pt>%3.0f",PtCut);
+    else if(ICut>-1) sprintf(LegendName,"I>%0.2f",ICut);
+    Histos[i] = Ratio[i];            legend.push_back(LegendName);
+  }
+
+  c1 = new TCanvas("c1","c1,",600,600);
+  DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Data/MC", 0, 0, 0,0);
+  DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
+  c1->SetLogy(false);
+  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+  SaveCanvas(c1,SavePath,"Pred_Ratio_" + DataType + HistoSuffix);
+  delete c1;
+}

@@ -142,8 +142,8 @@ struct stPlots {
    TH1F*  BS_Dz_FailSep;
    TH1F*  BS_InnerInvPtDiff;
    TH1F*  BS_Phi;
+   TH1F*  BS_TimeAtIP;
    TH1F*  BS_CosmicDR;
-
 
    TH1F*  BS_Pt_FailDz;
    TH1F*  BS_Pt_FailDz_DT;
@@ -260,8 +260,6 @@ struct stPlots {
   TH2D*  RegionH_Ias_Flip;
 
   TH2D* H_D_DzSidebands;
-  TH2D* H_D_DzSidebands_DT;
-  TH2D* H_D_DzSidebands_CSC;
 
   TH1D*  CtrlPt_S1_Is;
   TH1D*  CtrlPt_S2_Is;
@@ -421,6 +419,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_MatchedStations"  ; st.BS_MatchedStations= new TH1F(Name.c_str(), Name.c_str(),                   8, -0.5, 7.5); st.BS_MatchedStations->Sumw2();
    Name = "BS_InnerInvPtDiff"  ; st.BS_InnerInvPtDiff = new TH1F(Name.c_str(), Name.c_str(),                   120, -4, 4); st.BS_InnerInvPtDiff->Sumw2();
    Name = "BS_Phi"  ; st.BS_Phi = new TH1F(Name.c_str(), Name.c_str(),                   50, -3.14, 3.14); st.BS_Phi->Sumw2();
+   Name = "BS_TimeAtIP"  ; st.BS_TimeAtIP = new TH1F(Name.c_str(), Name.c_str(),                   50, -100, 100); st.BS_TimeAtIP->Sumw2();
    Name = "BS_CosmicDR"  ; st.BS_CosmicDR = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, 1); st.BS_CosmicDR->Sumw2();
 
    Name = "BS_NVertex";  st.BS_NVertex = new TH1F(Name.c_str(), Name.c_str(), 50, 0,  50);  st.BS_NVertex    ->Sumw2();
@@ -503,8 +502,6 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "AS_TOFIm"; st.AS_TOFIm = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 1, 5, 50, 0, dEdxM_UpLim);
 
    Name = "H_D_DzSidebands"; st.H_D_DzSidebands = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, DzRegions, 0, DzRegions); st.H_D_DzSidebands->Sumw2();
-   Name = "H_D_DzSidebands_DT"; st.H_D_DzSidebands_DT = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, DzRegions, 0, DzRegions); st.H_D_DzSidebands_DT->Sumw2();
-   Name = "H_D_DzSidebands_CSC"; st.H_D_DzSidebands_CSC = new TH2D(Name.c_str(), Name.c_str() ,NCuts,0,NCuts, DzRegions, 0, DzRegions); st.H_D_DzSidebands_CSC->Sumw2();
 
    //Background prediction histograms don't need to be made for signal or individual MC samples
    if(!isSignal) {
@@ -748,6 +745,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_Dz_FailSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_FailSep");
    st.BS_InnerInvPtDiff  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_InnerInvPtDiff");
    st.BS_Phi  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Phi");
+   st.BS_TimeAtIP  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TimeAtIP");
    st.BS_CosmicDR  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_CosmicDR");
 
    st.BS_Pt_FailDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz");
@@ -1279,7 +1277,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
 { 
    char CutIndexStr[255];sprintf(CutIndexStr,"_%03i",CutIndex);
 
-   bool IsTkOnly = (SavePath.find("Type0",0)<std::string::npos);
+   //bool IsTkOnly = (SavePath.find("Type0",0)<std::string::npos);
    char YAxisTitle[2048];
 
   std::vector<std::string> lg;
@@ -1659,6 +1657,18 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->BS_TimeAtIP->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);
+     if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Time At Vertex (ns)", "Fraction of tracks", 0,0, 0,0);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+   c1->SetLogy(true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"TimeAtIP_BS", false);
+   for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_Dz_FailSep->Clone();  legend.push_back(lg[i]); Histos[i]->Rebin(1);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1));}
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", "Fraction of tracks", 0, 0, 1E-3,2);
@@ -1775,8 +1785,9 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    sprintf(YAxisTitle,"Fraction of tracks/%2.0f GeV/#font[12]{c}",Histos[0]->GetBinWidth(1));
    //DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", YAxisTitle, 0,1250, 0.000000001, 1.2);
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", YAxisTitle, 0,1250, 1E-6, 2);
-   if(IsTkOnly) DrawLegend((TObject**)Histos,legend,"","P", 0.45, 0.42, 0.26, 0.05);
-   else DrawLegend((TObject**)Histos,legend,"","P", 0.51, 0.39, 0.33, 0.05);
+   //if(IsTkOnly) DrawLegend((TObject**)Histos,legend,"","P", 0.45, 0.42, 0.26, 0.05);
+   //else DrawLegend((TObject**)Histos,legend,"","P", 0.51, 0.39, 0.33, 0.05);
+   DrawLegend((TObject**)Histos,legend,"","P");
    //DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "p_{T} (GeV/#font[12]{c})", YAxisTitle, 0,1250, 0.000000001, 1.2, false, true);
 
    c1->SetLogy(true);

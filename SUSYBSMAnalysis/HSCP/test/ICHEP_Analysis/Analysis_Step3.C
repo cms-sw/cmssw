@@ -183,11 +183,11 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
       }}}
    }else if(TypeMode==3){
       for(double Pt =GlobalMinPt+30 ; Pt <450;  Pt+=30){
-      for(double TOF=GlobalMinTOF+0.025; TOF<1.4;TOF+=0.025){
+      for(double TOF=GlobalMinTOF+0.025; TOF<1.5;TOF+=0.025){
          CutPt .push_back(Pt);   CutI  .push_back(-1);  CutTOF.push_back(TOF);
       }}
-      for(double Pt =GlobalMinPt+60 ; Pt <450;  Pt+=60){
-      for(double TOF=GlobalMinTOF-0.025; TOF>0.6;TOF-=0.025){
+      for(double Pt =GlobalMinPt+30 ; Pt <450;  Pt+=60){
+      for(double TOF=GlobalMinTOF-0.025; TOF>0.5;TOF-=0.025){
          CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(-1);  CutTOF_Flip.push_back(TOF);
       }}
    }else if(TypeMode==4){
@@ -260,25 +260,23 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
       if(!tr.isValid())return false;
 
       #ifdef ANALYSIS2011
-      if(TypeMode<3 || TypeMode>3) {
           if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMuFilter")))return true;
           else if(tr.accept(tr.triggerIndex("HSCPHLTTriggerPFMetFilter"))){
              if(!isData) Event_Weight=Event_Weight*0.96;
              return true;
           }
-       }else if(TypeMode==3) {
-           if(tr.size()== tr.triggerIndex("HSCPHLTTriggerL2MuFilter")) return false;
-           if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
-       }
+	  if(TypeMode==3) {
+	  if(tr.size()== tr.triggerIndex("HSCPHLTTriggerL2MuFilter")) return false;
+	  if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) return true;
+	  }
       #else
-	 if(TypeMode!=3) {
 //	   if(tr.accept("HSCPHLTTriggerMetDeDxFilter"))return true;
 //	   if(tr.accept("HSCPHLTTriggerMuDeDxFilter"))return true;
 	   if(tr.accept("HSCPHLTTriggerMuFilter"))return true;
            if(tr.accept("HSCPHLTTriggerPFMetFilter"))return true;
-	 }
-	 //Only for the TOF only analysis
-	 if(TypeMode==3) {
+
+	   //Could probably use this trigger for the other analyses as well
+	   if(TypeMode==3) {
            if(tr.size()== tr.triggerIndex("HSCPHLTTriggerL2MuFilter")) return false;
 	   if(tr.accept(tr.triggerIndex("HSCPHLTTriggerL2MuFilter"))) {
 	     if(!isData) {
@@ -291,12 +289,13 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 	     }
 	     return true;
 	   }
-	 }
+
 	 //Only accepted if looking for cosmic events
 	 if(isCosmic) {
            if(tr.size()== tr.triggerIndex("HSCPHLTTriggerCosmicFilter")) return false;
 	   if(tr.accept(tr.triggerIndex("HSCPHLTTriggerCosmicFilter"))) return true;
 	 }
+	   }
       #endif
       return false;
 }
@@ -379,6 +378,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(st) {
      st->BS_MatchedStations->Fill(count, Event_Weight);  ;
    }
+
    if(TypeMode==3 && count<minMuStations) return false;
    if(st) st->Stations->Fill(0.0, Event_Weight);
 
@@ -389,6 +389,8 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    //if(TypeMode>1 && tof->inverseBeta()+RescaleT<GlobalMinTOF)return false;
    if(st)st->BS_TOFError->Fill(tof->inverseBetaErr(),Event_Weight);
    if((TypeMode>1  && TypeMode!=5) && tof->inverseBetaErr()>GlobalMaxTOFErr)return false;
+   if(st) st->BS_TimeAtIP->Fill(tof->timeAtIpInOut(),Event_Weight);
+   if(min(min(fabs(tof->timeAtIpInOut()-100), fabs(tof->timeAtIpInOut()-50)), min(fabs(tof->timeAtIpInOut()+100), fabs(tof->timeAtIpInOut()+50)))<5) return false;
    }
 
    if(st){st->MTOF ->Fill(0.0,Event_Weight);
@@ -560,8 +562,6 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
        if(tof->inverseBeta()>=CutTOF[CutIndex]) {
 	 st->H_D_DzSidebands->Fill(CutIndex, DzType);
-	 if(fabs(track->eta())<DTRegion) st->H_D_DzSidebands_DT->Fill(CutIndex, DzType);
-         else st->H_D_DzSidebands_CSC->Fill(CutIndex, DzType);
        }
      }
    }
@@ -1262,7 +1262,6 @@ void Analysis_Step3(char* SavePath)
                //fill the ABCD histograms and a few other control plots
                if(isData)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, SamplePlots);
 	       else if(isMC) Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, MCTrPlots);
-
 	       //Find the number of tracks passing selection for TOF<1 that will be used to check the background prediction
 	       if(isMC || isData) {
                //compute the mass of the candidate, for TOF mass flip the TOF over 1 to get the mass, so 0.8->1.2
@@ -1277,6 +1276,7 @@ void Analysis_Step3(char* SavePath)
 		 //Background check looking at region with TOF<1
 		   if(!PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, true)) continue;
                   //Fill Mass Histograms
+
                   if(isMC)MCTrPlots->Mass_Flip->Fill(CutIndex, Mass,Event_Weight);
                   SamplePlots      ->Mass_Flip->Fill(CutIndex, Mass,Event_Weight);
                   if(tof){

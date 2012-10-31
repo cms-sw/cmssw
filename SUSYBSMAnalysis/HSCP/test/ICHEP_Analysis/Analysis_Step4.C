@@ -257,8 +257,7 @@ void Analysis_Step4(std::string InputPattern)
 	   Perr = sqrt(Perr_Coll*Perr_Coll + Perr_Cosmic*Perr_Cosmic);
 
 	   //Add in systematic contribution
-	   Perr = sqrt(Perr*Perr + P_Coll*P_Coll*0.15*0.15 + P_Cosmic*P_Cosmic*1.25*1.25);
-	   //cout<< endl << endl << "P Coll " << P_Coll << " +- " << Perr_Coll << " P Cosmic " << P_Cosmic << " +- " << Perr_Cosmic << " P " << P << " +- " << Perr << endl << endl;
+	   Perr = sqrt(Perr*Perr + P_Coll*P_Coll*0.15*0.15 + P_Cosmic*P_Cosmic*0.8*0.8);
 	 }else if(G>0){
 	   //Prediction in Ias-TOF plane
 	   P    = ((C*H)/G);
