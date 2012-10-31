@@ -168,7 +168,6 @@ namespace edm {
     void repeat() {
       remainingEvents_ = maxEvents_;
       remainingLumis_ = maxLumis_;
-      doneReadAhead_ = false;
     }
 
     /// Accessor for maximum number of events to be read.
@@ -325,7 +324,6 @@ namespace edm {
     void reset() const {
       resetLuminosityBlockAuxiliary();
       resetRunAuxiliary();
-      doneReadAhead_ = false;
       state_ = IsInvalid;
     }
     EventPrincipal* eventPrincipalCache();
@@ -358,8 +356,8 @@ namespace edm {
     virtual boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> rpCache);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(
         boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
-    virtual EventPrincipal* readEvent_() = 0;
-    virtual EventPrincipal* readIt(EventID const&);
+    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal) = 0;
+    virtual EventPrincipal* readIt(EventID const&, EventPrincipal& eventPrincipal);
     virtual boost::shared_ptr<FileBlock> readFile_();
     virtual void closeFile_() {}
     virtual bool goToEvent_(EventID const& eventID);
@@ -398,7 +396,6 @@ namespace edm {
     mutable bool newRun_;
     mutable bool newLumi_;
     bool eventCached_;
-    mutable bool doneReadAhead_;
     mutable ItemType state_;
     mutable boost::shared_ptr<RunAuxiliary> runAuxiliary_;
     mutable boost::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;

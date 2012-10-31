@@ -93,7 +93,7 @@ namespace edm {
     virtual void closeFile_();
 
     virtual ItemType getNextItemType();
-    virtual EventPrincipal* readEvent_();
+    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal);
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
 

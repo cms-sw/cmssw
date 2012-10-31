@@ -52,7 +52,7 @@ namespace edm {
     virtual void endRun(Run&);
     virtual void beginLuminosityBlock(LuminosityBlock&);
     virtual void endLuminosityBlock(LuminosityBlock&);
-    virtual EventPrincipal* readEvent_();
+    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal);
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     virtual void skip(int offset);

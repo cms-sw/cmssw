@@ -70,7 +70,6 @@ namespace edm {
       newRun_(true),
       newLumi_(true),
       eventCached_(false),
-      doneReadAhead_(false),
       state_(IsInvalid),
       runAuxiliary_(),
       lumiAuxiliary_(),
@@ -158,7 +157,7 @@ namespace edm {
     ItemType itemType = callWithTryCatchAndPrint<ItemType>( [this](){ return getNextItemType(); }, "Calling InputSource::getNextItemType" );
 
     if(itemType == IsEvent && processingMode() != RunsLumisAndEvents) {
-      callWithTryCatchAndPrint<EventPrincipal*>( [this](){ return readEvent_(); },
+      callWithTryCatchAndPrint<EventPrincipal*>( [this](){ return readEvent_(principalCache().eventPrincipal()); },
                                                  "Calling InputSource::readEvent_" );
       return nextItemType_();
     }
@@ -171,10 +170,6 @@ namespace edm {
 
   InputSource::ItemType
   InputSource::nextItemType() {
-    if(doneReadAhead_) {
-      return state_;
-    }
-    doneReadAhead_ = true;
     ItemType oldState = state_;
     if(eventLimitReached()) {
       // If the maximum event limit has been reached, stop.
@@ -250,10 +245,8 @@ namespace edm {
   // Return a dummy file block.
   boost::shared_ptr<FileBlock>
   InputSource::readFile() {
-    assert(doneReadAhead_);
     assert(state_ == IsFile);
     assert(!limitReached());
-    doneReadAhead_ = false;
     boost::shared_ptr<FileBlock> fb = callWithTryCatchAndPrint<boost::shared_ptr<FileBlock> >( [this](){ return readFile_(); },
                                                                                                "Calling InputSource::readFile_" );
     return fb;
@@ -305,10 +298,8 @@ namespace edm {
 
   int
   InputSource::markRun() {
-    assert(doneReadAhead_);
     assert(state_ == IsRun);
     assert(!limitReached());
-    doneReadAhead_ = false;
     return principalCache_->runPrincipal().run();
   }
 
@@ -336,10 +327,8 @@ namespace edm {
 
   int
   InputSource::markLumi() {
-    assert(doneReadAhead_);
     assert(state_ == IsLumi);
     assert(!limitReached());
-    doneReadAhead_ = false;
     --remainingLumis_;
     assert(principalCache_->lumiPrincipal().luminosityBlock() == luminosityBlockAuxiliary()->luminosityBlock());
     return principalCache_->lumiPrincipal().luminosityBlock();
@@ -362,12 +351,10 @@ namespace edm {
 
   EventPrincipal*
   InputSource::readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbCache) {
-    assert(doneReadAhead_);
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
-    doneReadAhead_ = false;
 
-    EventPrincipal* result = callWithTryCatchAndPrint<EventPrincipal*>( [this](){ return readEvent_(); },
+    EventPrincipal* result = callWithTryCatchAndPrint<EventPrincipal*>( [this](){ return readEvent_(principalCache().eventPrincipal()); },
                                                                         "Calling InputSource::readEvent_" );
 
     if(result != 0) {
@@ -389,7 +376,7 @@ namespace edm {
     EventPrincipal* result = 0;
 
     if(!limitReached()) {
-      result = callWithTryCatchAndPrint<EventPrincipal*>( [this,&eventID](){ return readIt(eventID); },
+      result = callWithTryCatchAndPrint<EventPrincipal*>( [this,&eventID](){ return readIt(eventID, principalCache().eventPrincipal()); },
                                                           "Calling InputSource::readIt" );
 
       if(result != 0) {
@@ -405,19 +392,16 @@ namespace edm {
 
   void
   InputSource::skipEvents(int offset) {
-    doneReadAhead_ = false;
     callWithTryCatchAndPrint<void>( [this,&offset](){ skip(offset); }, "Calling InputSource::skip" );
   }
 
   bool
   InputSource::goToEvent(EventID const& eventID) {
-    doneReadAhead_ = false;
     return callWithTryCatchAndPrint<bool>( [this,&eventID](){ return goToEvent_(eventID); }, "Calling InputSource::goToEvent_" );
   }
 
   void
   InputSource::rewind() {
-    doneReadAhead_ = false;
     state_ = IsInvalid;
     remainingEvents_ = maxEvents_;
     callWithTryCatchAndPrint<void>( [this](){ rewind_(); }, "Calling InputSource::rewind_" );
@@ -442,7 +426,7 @@ namespace edm {
   }
 
   EventPrincipal*
-  InputSource::readIt(EventID const&) {
+  InputSource::readIt(EventID const&, EventPrincipal&) {
     throw Exception(errors::LogicError)
       << "InputSource::readIt()\n"
       << "Random access is not implemented for this type of Input Source\n"

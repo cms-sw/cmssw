@@ -35,7 +35,7 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions & descriptions);
 
   private:
-    virtual EventPrincipal* readEvent_();
+    virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal);
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
@@ -44,7 +44,7 @@ namespace edm {
     virtual void closeFile_();
     virtual void endJob();
     virtual ItemType getNextItemType();
-    virtual EventPrincipal* readIt(EventID const& id);
+    virtual EventPrincipal* readIt(EventID const& id, EventPrincipal& eventPrincipal);
     virtual void skip(int offset);
     virtual bool goToEvent_(EventID const& eventID);
     virtual void rewind_();

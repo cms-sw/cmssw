@@ -179,9 +179,9 @@ namespace edm {
   }
 
   EventPrincipal*
-  PoolSource::readEvent_() {
+  PoolSource::readEvent_(EventPrincipal& eventPrincipal) {
     EventSourceSentry(*this);
-    EventPrincipal* primaryPrincipal = primaryFileSequence_->readEvent(*eventPrincipalCache(), luminosityBlockPrincipal());
+    EventPrincipal* primaryPrincipal = primaryFileSequence_->readEvent(eventPrincipal, luminosityBlockPrincipal());
     if(secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(),
                                                       primaryPrincipal->luminosityBlock(),
@@ -205,10 +205,10 @@ namespace edm {
   }
 
   EventPrincipal*
-  PoolSource::readIt(EventID const& id) {
+  PoolSource::readIt(EventID const& id, EventPrincipal& eventPrincipal) {
     bool found = primaryFileSequence_->skipToItem(id.run(), id.luminosityBlock(), id.event());
     if(!found) return 0;
-    return readEvent_();
+    return readEvent_(eventPrincipal);
   }
 
   InputSource::ItemType

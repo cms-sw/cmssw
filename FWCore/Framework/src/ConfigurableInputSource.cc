@@ -63,7 +63,7 @@ namespace edm {
   }
 
   EventPrincipal *
-  ConfigurableInputSource::readEvent_() {
+  ConfigurableInputSource::readEvent_(EventPrincipal& eventPrincipal) {
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
     resetEventCached();
     return eventPrincipalCache();

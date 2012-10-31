@@ -96,7 +96,7 @@ namespace edm {
   }
 
   EventPrincipal*
-  TestRunLumiSource::readEvent_() {
+  TestRunLumiSource::readEvent_(EventPrincipal& eventPrincipal) {
     if (whenToThrow_ == kReadEvent) throw cms::Exception("TestThrow") << "TestRunLumiSource::readEvent_";
 
     EventSourceSentry(*this);
