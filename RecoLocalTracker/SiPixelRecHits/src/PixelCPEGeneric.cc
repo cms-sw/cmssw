@@ -136,7 +136,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
     }
   }
 
-  useSizeNums_=isUpgrade ||(!with_track_angle && DoCosmics_);
+  isUpgrade_=isUpgrade;
+
 }
 
 
@@ -599,7 +600,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
   // Find if cluster contains double (big) pixels. 
   bool bigInX = theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
   bool bigInY = theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
-  if ( useSizeNums_ )
+  if (  isUpgrade_ ||(!with_track_angle && DoCosmics_) )
     {
       //cout << "Track angles are not known and we are processing cosmics." << endl; 
       //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
