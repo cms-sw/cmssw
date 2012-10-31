@@ -54,10 +54,6 @@ namespace edm
   }
 
   template <typename Producer>
-    return true;
-  }
-
-
   bool StreamerInputModule<Producer>::checkNextEvent() {
 
     EventMsgView const* eview = pr_->getNextEvent();
@@ -72,7 +68,7 @@ namespace edm
     if (eview == 0) {
         return  false;
     }
-    deserializeEvent(eventPrincipal, *eview);
+    deserializeEvent(*eview);
     return true;
   }
 
