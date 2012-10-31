@@ -26,14 +26,15 @@ namespace HepMC {
 extern "C"
 {
   //iout,ievent,noutpart,impactpar,outpart,outpx,outpy,outpz,oute,outm,outstat
-  void crmc_f_( int&, int&, int&, double&, int&, double&, double&, double&,
+  void crmc_f_(int&, int&, int&, double&, int&, double&, double&, double&,
                 double&, double&, int&);
-}
 
-extern "C"
-{
   //iEvent,iSeed,pproj,ptarg,ipart,itarg,imodel,itab,iout,output,param
-  void crmc_init_f_( int&, int&, double&, double&, int&, int&, int&, int&, int&, const char*, const char*);
+  void crmc_set_f_(int&, int&, double&, double&, int&, int&, int&, int&,
+                   int&, const char*, const char*);
+
+  //iEvent,iSeed,pproj,ptarg,ipart,itarg,imodel,itab,iout,output,param
+  void crmc_init_f_();
 }
 
 extern "C"
@@ -77,8 +78,8 @@ extern "C"
     int   nglevt; // ........ number of collisions acc to  Glauber
     float zppevt; // ........ average Z-parton-proj
     float zptevt; // ........ average Z-parton-targ
-    int   minfra; // 
-    int   maxfra; // 
+    int   minfra; //
+    int   maxfra; //
   } cevt_; //epos.inc
 
   extern struct
@@ -125,6 +126,24 @@ extern "C"
 
   extern struct
   {
+    int nfnch;
+    int nfnhi;
+    int nfndt;
+    int nfnii;
+    int nfnid;
+    int nfnie;
+    int nfnrj;
+    int nfnmt;
+    int nfngrv;
+    int nfncp;
+    int nfnnx;
+    int nfncs;
+    int nfndr;
+    int nfnhpf;
+  } nfname_; //epos.inc
+
+  extern struct
+  {
     char fndat[500];
     char fnncs[500];
     int ifdat;
@@ -133,11 +152,23 @@ extern "C"
 
   extern struct
   {
-    char fnIIdat[500];
-    char fnIIncs[500];
-    int ifIIdat;
-    int ifIIncs;
+    int nfndat;
+    int nfnncs;
+  } qgsnfname_; //epos-bas.f
+
+  extern struct
+  {
+    char fniidat[500];
+    char fniincs[500];
+    int ifiidat;
+    int ifiincs;
   } qgsiifname_; //epos-bas.f
+
+  extern struct
+  {
+    int nfniidat;
+    int nfniincs;
+  } qgsiinfname_; //epos-bas.f
 }
 
 namespace gen
@@ -156,7 +187,7 @@ namespace gen
 
   public:
     ReggeGribovPartonMCHadronizer(const edm::ParameterSet &);
-    virtual ~ReggeGribovPartonMCHadronizer(); 
+    virtual ~ReggeGribovPartonMCHadronizer();
 
     bool generatePartonsAndHadronize();
     bool hadronize();
@@ -167,7 +198,8 @@ namespace gen
     bool initializeForInternalPartons();
     bool declareStableParticles( const std::vector<int> );
     bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
-    
+    bool initializeTablePaths();
+
     void finalizeEvent();
     void statistics();
     const char* classname() const;

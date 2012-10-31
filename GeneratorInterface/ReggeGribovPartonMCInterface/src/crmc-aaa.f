@@ -1,12 +1,12 @@
 
 c 15.01.2009 Simplified Main program and random number generator for epos
 
-      subroutine crmc_init_f(iEvent,iSeed,pproj,ptarg,
-     $     ipart,itarg,imodel,itab,iout,output,param)
+      subroutine crmc_set_f(iEvent,iSeed,pproj,ptarg,
+     $     ipart,itarg,imodel,itab,ilheout,lheoutfile,param)
 
 ***************************************************************
 *
-*  interface to epos subroutine
+*  set parameters and call to read param file
 *
 *   input: iEvent     - number of events to generate
 *          iseed      - random seed
@@ -14,9 +14,9 @@ c 15.01.2009 Simplified Main program and random number generator for epos
 *          ptarg      - target momentum in GeV/c of nucleon! (detector frame)
 *          ipart      - primary particle type
 *          itarg      - target particle type
-*          imodel      - HE model switch
+*          imodel     - HE model switch
 *          itab       - force tables production or stop if missing
-*          iout       - output type
+*          ilheout    - output type
 *          output     - output file name
 *          param      - param file name
 *
@@ -25,9 +25,10 @@ c 15.01.2009 Simplified Main program and random number generator for epos
       include "epos.inc"
 
 c     Input values
-      integer iSeed,ipart,itarg,imodel,itab,iout,iEvent
+      integer iSeed,ipart,itarg,imodel,itab,ilheout,iEvent,iout
       double precision pproj, ptarg
-      character*1000 param,output
+      character*1000 param,lheoutfile,output
+      common/lheoutput/iout,output
 
       real   m1,m2
       double precision iecms,e1,e2
@@ -39,54 +40,70 @@ c     Input values
       logical producetables                         !with EPOS and QII
 
 c     Set parameters to default value
-         call aaset(0)
+      call aaset(0)
 
+c     Set common for crmc_init
+      iout=ilheout
+      output=lheoutfile
+      
 c     Stop program if missing tables (after aaset)
-         producetables=.false.
-         if(itab.eq.1)producetables=.true.
-
+      producetables=.false.
+      if(itab.eq.1)producetables=.true.
+      
 c     Calculations of energy of the center-of-mass in the detector frame
-         call idmass(1120,m2)  !target mass = proton
-         m1=m2                 !projectile mass
-         if(abs(itarg).eq.120)call idmass(120,m2) !if pion as targ or proj
-         if(abs(ipart).eq.120)call idmass(120,m1)
-         e2=dsqrt(dble(m1)**2+ptarg**2)
-         e1=dsqrt(dble(m2)**2+pproj**2)
-         iecms=dsqrt((e1+e2)**2-(pproj+ptarg)**2)
+      call idmass(1120,m2)      !target mass = proton
+      m1=m2                     !projectile mass
+      if(abs(itarg).eq.120)call idmass(120,m2) !if pion as targ or proj
+      if(abs(ipart).eq.120)call idmass(120,m1)
+      e2=dsqrt(dble(m1)**2+ptarg**2)
+      e1=dsqrt(dble(m2)**2+pproj**2)
+      iecms=dsqrt((e1+e2)**2-(pproj+ptarg)**2)
 c     Later a rapidity boost back into the detector system will be performed
 c     ycm2det defines this rapidity
-         if (((e1+e2)-(pproj+ptarg)) .le. 0d0) then
-            ycm2det=1d99
-         elseif (((e1+e2)+(pproj+ptarg)) .le. 0d0) then
-            ycm2det=-1d99
-         else
-            ycm2det=0.5d0*dlog(((e1+e2)+(pproj+ptarg))/
-     +                       ((e1+e2)-(pproj+ptarg)))
-         endif
-         if (pproj .le. 0d0) then
-            ycm2det=-ycm2det
-         endif
+      if (((e1+e2)-(pproj+ptarg)) .le. 0d0) then
+         ycm2det=1d99
+      elseif (((e1+e2)+(pproj+ptarg)) .le. 0d0) then
+         ycm2det=-1d99
+      else
+         ycm2det=0.5d0*dlog(((e1+e2)+(pproj+ptarg))/
+     +        ((e1+e2)-(pproj+ptarg)))
+      endif
+      if (pproj .le. 0d0) then
+         ycm2det=-ycm2det
+      endif
 c     Update some parameters value to run correctly
-         call IniEpos(iEvent,iSeed,ipart,itarg,iecms,imodel)
-
+      call IniEpos(iEvent,iSeed,ipart,itarg,iecms,imodel)
+      
 c     The parameters can be changed optionnaly by reading a file
 c     (example.param) using the following subroutine call
-         call EposInput(param)         !(it can be commented)
-
+      call EposInput(param)     !(it can be commented)
+      
 c     if you put what is in input.optns in example.param, you can even run
 c     exactly the same way (coded parameters are overwritten). Don't forget
 c     the command : "EndEposInput" at the end of example.param, otherwise it
 c     will not run.
-
-
+      
+      end
+      
+      subroutine crmc_init_f()
+***************************************************************
+*
+*  init models with values set in crmc_set_f
+*
+***************************************************************
+      implicit none
+      integer iout
+      character*1000 output
+      common/lheoutput/iout,output
+      
 c     initialization for the given energy
-         call ainit
-
+      call ainit
+      
 c     Here the cross section sigineaa is defined
-
+      
 c     LHE type output done by EPOS
-         if(iout.eq.1)call EposOutput(output)
-
+      if(iout.eq.1)call EposOutput(output)
+      
       end
 
 

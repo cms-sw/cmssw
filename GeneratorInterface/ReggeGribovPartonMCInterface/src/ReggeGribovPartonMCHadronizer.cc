@@ -44,10 +44,7 @@ extern "C"
     float a = float(gFlatDistribution_->fire());
     return a;
   }
-}
 
-extern "C"
-{
   double gen::drangen_(int *idummy)
   {
     double a = gFlatDistribution_->fire();
@@ -69,8 +66,6 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
   m_NEvent(0),
   m_ImpactParameter(0.)
 {
-  // Default constructor
-
   Service<RandomNumberGenerator> rng;
   if ( ! rng.isAvailable())
     {
@@ -87,45 +82,19 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
   int  LHEoutput   = 0; //no lhe
   int  dummySeed   = 123;
   char dummyName[] = "dummy";
-  crmc_init_f_(nevet,dummySeed,m_BeamMomentum,m_TargetMomentum,m_BeamID,
-               m_TargetID,m_HEModel,noTables,LHEoutput,dummyName,
-               m_ParamFileName.fullPath().c_str());
+  crmc_set_f_(nevet,dummySeed,m_BeamMomentum,m_TargetMomentum,m_BeamID,
+              m_TargetID,m_HEModel,noTables,LHEoutput,dummyName,
+              m_ParamFileName.fullPath().c_str());
 
   //additionally initialise tables
-  //epos
-  FileInPath path_fnii =
-    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.initl");
-  FileInPath path_fnie =
-    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.iniev");
-  FileInPath path_fnrj =
-    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.inirj");
-  FileInPath path_fncs =
-    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.inics");
-  cout << "!!!! " << path_fnii.fullPath().length() << endl;
-  strcpy(fname_.fnii, path_fnii.fullPath().c_str());
-  strcpy(fname_.fnie, path_fnie.fullPath().c_str());
-  strcpy(fname_.fnrj, path_fnrj.fullPath().c_str());
-  strcpy(fname_.fncs, path_fncs.fullPath().c_str());
-
-  //qgsjet
-  FileInPath path_fndat =
-    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet.dat");
-  FileInPath path_fnncs =
-    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet.ncs");
-  strcpy(qgsfname_.fndat, path_fndat.fullPath().c_str());
-  strcpy(qgsfname_.fnncs, path_fnncs.fullPath().c_str());
-
-  //qgsjetII
-  FileInPath path_fnIIdat =
-    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet-II-04.lzma");
-  FileInPath path_fnIIncs =
-    FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/sectnu-II-04");
-  strcpy(qgsiifname_.fnIIdat, path_fnIIdat.fullPath().c_str());
-  strcpy(qgsiifname_.fnIIncs, path_fnIIncs.fullPath().c_str());
+  initializeTablePaths();
 
   //change impact paramter
   nucl2_.bminim = float(m_bMin);
   nucl2_.bmaxim = float(m_bMax);
+
+  //use set parameters to init models
+  crmc_init_f_();
 }
 
 
@@ -157,21 +126,27 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   //number of beam particles
   for(int i = 0; i < m_NParticles; i++)
     {
-      if (m_PartEnergy[i]*m_PartEnergy[i] + 1e-9 < m_PartPy[i]*m_PartPy[i] + m_PartPx[i]*m_PartPx[i] + m_PartPz[i]*m_PartPz[i])
+      //consistency check
+      const double e2 = m_PartEnergy[i] * m_PartEnergy[i];
+      const double pc2 = m_PartPy[i]*m_PartPy[i] + m_PartPx[i]*m_PartPx[i] + m_PartPz[i]*m_PartPz[i];
+      if (e2 + 1e-9 < pc2 )
         LogWarning("ReggeGribovPartonMCInterface")
-          << "momentum off  Id:" << m_PartID[i] 
-          << "(" << i << ") " 
-          << sqrt(fabs(m_PartEnergy[i]*m_PartEnergy[i] - (m_PartPy[i]*m_PartPy[i] + m_PartPx[i]*m_PartPx[i] + m_PartPz[i]*m_PartPz[i])))
+          << "momentum off  Id:" << m_PartID[i]
+          << "(" << i << ") "
+          << sqrt(fabs(e2 - pc2))
           << endl;
-      theVertex->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(m_PartPx[i],
-                                                                           m_PartPy[i],
-                                                                           m_PartPz[i],
-                                                                           m_PartEnergy[i]),
-                                                         m_PartID[i],
-                                                         m_PartStatus[i]));
+
+      //add particle. do not delete. not stored as a copy
+      HepMC::GenParticle* p = new HepMC::GenParticle(HepMC::FourVector(m_PartPx[i],
+                                                                       m_PartPy[i],
+                                                                       m_PartPz[i],
+                                                                       m_PartEnergy[i]),
+                                                     m_PartID[i],
+                                                     m_PartStatus[i]);
+      theVertex->add_particle_out(p);
     }
 
-  if (m_TargetID + m_BeamID > 2)
+  if (m_TargetID + m_BeamID > 2) //other than pp
     {
       HepMC::HeavyIon ion(-1, //cevt_.koievt, // FIXME // Number of hard scatterings
                           cevt_.npjevt,                // Number of projectile participants
@@ -232,3 +207,52 @@ bool ReggeGribovPartonMCHadronizer::initializeForInternalPartons()
 {
  return true;
  }
+
+bool ReggeGribovPartonMCHadronizer::initializeTablePaths()
+{
+  //epos
+  string path_fnii(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.initl").fullPath());
+  string path_fnie(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.iniev").fullPath());
+  string path_fnrj(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.inirj").fullPath());
+  string path_fncs(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/epos.inics").fullPath());
+
+  if (path_fnii.length() >= 500) LogError("ReggeGribovPartonMCInterface") << "table path too long" << endl;
+  else nfname_.nfnii = path_fnii.length();
+  if (path_fnie.length() >= 500) LogError("ReggeGribovPartonMCInterface") << "table path too long" << endl;
+  else nfname_.nfnie = path_fnie.length();
+  if (path_fnrj.length() >= 500) LogError("ReggeGribovPartonMCInterface") << "table path too long" << endl;
+  else nfname_.nfnrj = path_fnrj.length();
+  if (path_fncs.length() >= 500) LogError("ReggeGribovPartonMCInterface") << "table path too long" << endl;
+  else nfname_.nfncs = path_fncs.length();
+
+  strcpy(fname_.fnii, path_fnii.c_str());
+  strcpy(fname_.fnie, path_fnie.c_str());
+  strcpy(fname_.fnrj, path_fnrj.c_str());
+  strcpy(fname_.fncs, path_fncs.c_str());
+
+  //qgsjet
+  string path_fndat(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet.dat").fullPath());
+  string path_fnncs(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet.ncs").fullPath());
+
+  if (path_fndat.length() >= 500) LogError("ReggeGribovPartonMCInterface") << "table path too long" << endl;
+  else qgsnfname_.nfndat = path_fndat.length();
+  if (path_fnncs.length() >= 500) LogError("ReggeGribovPartonMCInterface") << "table path too long" << endl;
+  else qgsnfname_.nfnncs = path_fnncs.length();
+
+  strcpy(qgsfname_.fndat, path_fndat.c_str());
+  strcpy(qgsfname_.fnncs, path_fnncs.c_str());
+
+  //qgsjetII
+  string path_fniidat(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsdat-II-04.lzma").fullPath());
+  string path_fniincs(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/sectnu-II-04").fullPath());
+
+  if (path_fniidat.length() >= 500) LogError("ReggeGribovPartonMCInterface") << "table path too long" << endl;
+  else qgsiinfname_.nfniidat = path_fniidat.length();
+  if (path_fniincs.length() >= 500) LogError("ReggeGribovPartonMCInterface") << "table path too long" << endl;
+  else qgsiinfname_.nfniincs = path_fniincs.length();
+
+  strcpy(qgsiifname_.fniidat, path_fniidat.c_str());
+  strcpy(qgsiifname_.fniincs, path_fniincs.c_str());
+
+ return true;
+}
