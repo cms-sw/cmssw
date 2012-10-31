@@ -528,10 +528,10 @@ def TweakPlot(fig, ax, (time_begin, time_end),
         y_max_new = y_max
         if is_log:
             tmp = y_ticks[-1] / y_ticks[-2]
-            y_max_new = y_max * tmp
+            y_max_new = y_max * math.pow(tmp, add_extra_head_room)
         else:
             tmp = y_ticks[-1] - y_ticks[-2]
-            y_max_new = y_max + tmp
+            y_max_new = y_max + add_extra_head_room * tmp
         ax.set_ylim(y_min, y_max_new)
 
     # Add a second vertical axis on the right-hand side.
@@ -1330,8 +1330,14 @@ if __name__ == "__main__":
                     if mode == 1:
                         zoom = .95
                     AddLogo(logo_name, ax, zoom=zoom)
+                    extra_head_room = 0
+                    if is_log:
+                        if mode == 1:
+                            extra_head_room = 1
+                        elif mode == 2:
+                            extra_head_room = 2
                     TweakPlot(fig, ax, (time_begin, time_end),
-                              add_extra_head_room=is_log)
+                              add_extra_head_room=extra_head_room)
 
                     log_suffix = ""
                     if is_log:
