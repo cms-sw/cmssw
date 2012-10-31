@@ -102,19 +102,16 @@ int main() {
   int maxDepthHB = 2;
   int maxDepthHE = 3;
   HcalTopology topology(mode, maxDepthHB, maxDepthHE);
-
-  HcalHardcodeGeometryLoader l(topology);
-  HcalHardcodeGeometryLoader::ReturnType b=l.load(DetId::Hcal,HcalBarrel);
-  HcalHardcodeGeometryLoader::ReturnType e=l.load(DetId::Hcal,HcalEndcap);
-  HcalHardcodeGeometryLoader::ReturnType o=l.load(DetId::Hcal,HcalOuter);
-  HcalHardcodeGeometryLoader::ReturnType f=l.load(DetId::Hcal,HcalForward);
-
+  HcalGeometry geometry( topology );
+  
   std::cout << std::endl << " BARREL : " << std::endl;
-  const std::vector<DetId>& idshb=b->getValidDetIds(DetId::Hcal,HcalBarrel);
+
+  const std::vector<DetId>& idshb=geometry.getValidDetIds(DetId::Hcal,HcalBarrel);
+
   for (std::vector<DetId>::const_iterator i=idshb.begin(); i!=idshb.end(); i++) {
     HcalDetId hid=(*i);
     if (hid.iphi()!=1) continue;
-    const CaloCellGeometry* geom=b->getGeometry(hid);
+    const CaloCellGeometry* geom=geometry.getGeometry(hid);
     const CaloCellGeometry::CornersVec& corners=geom->getCorners();
     std::cout << hid << std::endl;
     for (CaloCellGeometry::CornersVec::const_iterator j=corners.begin(); j!=corners.end(); j++) {
@@ -123,13 +120,13 @@ int main() {
   }
 
   std::cout << std::endl << " FORWARD : " << std::endl;
-  const std::vector<DetId>& idshf=f->getValidDetIds(DetId::Hcal,HcalForward);
+  const std::vector<DetId>& idshf=geometry.getValidDetIds(DetId::Hcal,HcalForward);
   for (std::vector<DetId>::const_iterator i=idshf.begin(); i!=idshf.end(); i++) {
     HcalDetId hid=(*i);
     //  if (hid.iphi()!=1 && hid.iphi()!=2 && hid.iphi()!=3) continue;
     std::cout << hid << std::endl;
     
-    const CaloCellGeometry* geom=f->getGeometry(hid);
+    const CaloCellGeometry* geom=geometry.getGeometry(hid);
     const CaloCellGeometry::CornersVec& corners=geom->getCorners();
     for (CaloCellGeometry::CornersVec::const_iterator j=corners.begin(); j!=corners.end(); j++) {
       std::cout << "  " << *j << std::endl;
@@ -137,13 +134,13 @@ int main() {
   }
 
   std::cout << std::endl << " ENDCAP : " << std::endl;
-  const std::vector<DetId>& idshe=e->getValidDetIds(DetId::Hcal,HcalEndcap);
+  const std::vector<DetId>& idshe=geometry.getValidDetIds(DetId::Hcal,HcalEndcap);
   for (std::vector<DetId>::const_iterator i=idshe.begin(); i!=idshe.end(); i++) {
     HcalDetId hid=(*i);
     if (hid.iphi()!=1 && hid.iphi()!=2 && hid.iphi()!=3) continue;
     std::cout << hid << std::endl;
     
-    const CaloCellGeometry* geom=e->getGeometry(hid);
+    const CaloCellGeometry* geom=geometry.getGeometry(hid);
     const CaloCellGeometry::CornersVec& corners=geom->getCorners();
     for (CaloCellGeometry::CornersVec::const_iterator j=corners.begin(); j!=corners.end(); j++) {
       std::cout << "  " << *j << std::endl;
@@ -151,13 +148,13 @@ int main() {
   }
 
   std::cout << std::endl << " OUTER : " << std::endl;
-  const std::vector<DetId>& idsho=o->getValidDetIds(DetId::Hcal,HcalOuter);
+  const std::vector<DetId>& idsho=geometry.getValidDetIds(DetId::Hcal,HcalOuter);
   for (std::vector<DetId>::const_iterator i=idsho.begin(); i!=idsho.end(); i++) {
     HcalDetId hid=(*i);
     if (hid.iphi()!=1 && hid.iphi()!=2 && hid.iphi()!=3) continue;
     std::cout << hid << std::endl;
     
-    const CaloCellGeometry* geom=o->getGeometry(hid);
+    const CaloCellGeometry* geom=geometry.getGeometry(hid);
     const CaloCellGeometry::CornersVec& corners=geom->getCorners();
     for (CaloCellGeometry::CornersVec::const_iterator j=corners.begin(); j!=corners.end(); j++) {
       std::cout << "  " << *j << std::endl;
@@ -166,6 +163,6 @@ int main() {
 
   testTriggerGeometry();
 
-  testClosestCells();
+  //testClosestCells();
   return 0;
 }
