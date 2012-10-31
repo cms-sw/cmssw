@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.27 2012/03/03 21:39:22 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.28 2012/03/04 17:37:07 chrjones Exp $
 //
 
 // system include files
@@ -312,7 +312,7 @@ class DQMRootSource : public edm::InputSource
       virtual boost::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() ;
       virtual boost::shared_ptr<edm::RunPrincipal> readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache);
       virtual boost::shared_ptr<edm::LuminosityBlockPrincipal> readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrincipal> lbCache);
-      virtual edm::EventPrincipal* readEvent_() ;
+      virtual edm::EventPrincipal* readEvent_(edm::EventPrincipal&) ;
       
       virtual boost::shared_ptr<edm::FileBlock> readFile_();
       virtual void closeFile_();
@@ -447,7 +447,7 @@ namespace {
   };
 }
 
-edm::EventPrincipal* DQMRootSource::readEvent_()
+edm::EventPrincipal* DQMRootSource::readEvent_(edm::EventPrincipal&)
 {
   return 0;
 }
