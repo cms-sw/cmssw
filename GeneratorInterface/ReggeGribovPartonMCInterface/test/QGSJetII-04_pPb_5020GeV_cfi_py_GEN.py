@@ -34,9 +34,9 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('ReggeGribovMC generator'),
-    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/python/ReggeGribovPartonMC_cfi.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/test/QGSJetII-04_pPb_5020GeV_cfi_py_GEN.py,v $')
 )
 
 # Output definition
@@ -64,11 +64,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
 process.generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
     beamid = cms.int32(208),
-    paramFileName = cms.string('Configuration/Generator/data/ReggeGribovPartonMC.param'),
     targetid = cms.int32(1),
     model = cms.int32(7),
     targetmomentum = cms.double(-4000),
-    beammomentum = cms.double(1577)
+    beammomentum = cms.double(1577),
+    bmin = cms.double(0),
+    bmax = cms.double(10000),
+    paramFileName = cms.untracked.string("Configuration/Generator/data/ReggeGribovPartonMC.param")
 )
 
 

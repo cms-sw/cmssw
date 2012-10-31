@@ -63,7 +63,9 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
   m_BeamID(pset.getParameter<int>("beamid")),
   m_TargetID(pset.getParameter<int>("targetid")),
   m_HEModel(pset.getParameter<int>("model")),
-  m_ParamFileName(pset.getParameter<string>("paramFileName")),
+  m_bMin(pset.getParameter<double>("bmin")),
+  m_bMax(pset.getParameter<double>("bmax")),
+  m_ParamFileName(pset.getUntrackedParameter<string>("paramFileName")),
   m_NEvent(0),
   m_ImpactParameter(0.)
 {
@@ -120,6 +122,10 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
     FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/sectnu-II-04");
   strcpy(qgsiifname_.fnIIdat, path_fnIIdat.fullPath().c_str());
   strcpy(qgsiifname_.fnIIncs, path_fnIIncs.fullPath().c_str());
+
+  //change impact paramter
+  nucl2_.bminim = float(m_bMin);
+  nucl2_.bmaxim = float(m_bMax);
 }
 
 

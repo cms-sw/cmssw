@@ -52,10 +52,7 @@ extern "C"
     float sigelaaa;
     float sigcutaa;
   } hadr5_; //crmc-aaa.f
-}
 
-extern "C"
-{
   extern struct
   {
     float phievt; // ........ angle of impact parameter
@@ -83,10 +80,7 @@ extern "C"
     int   minfra; // 
     int   maxfra; // 
   } cevt_; //epos.inc
-}
 
-extern "C"
-{
   extern struct
   {
     int   ng1evt; // ........ number of collisions acc to  Glauber
@@ -98,6 +92,14 @@ extern "C"
     int   ikoevt; // ........ number of elementary parton-parton scatterings
     float typevt; // ........ type of event (1=Non Diff, 2=Double Diff, 3=Single Diff)
   } c2evt_; //epos.inc
+
+  extern struct
+  {
+    float bmaxim;
+    float bminim;
+    float phimax;
+    float phimin;
+  } nucl2_; //epos.inc
 }
 
 
@@ -177,6 +179,8 @@ namespace gen
     int     m_BeamID;
     int     m_TargetID;
     int     m_HEModel;
+    double  m_bMin;
+    double  m_bMax;
     edm::FileInPath m_ParamFileName;
     int     m_NEvent;
 

@@ -8,12 +8,14 @@ generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
                     beamid = cms.int32(1),
                     targetid = cms.int32(1),
                     model = cms.int32(0),
-                    paramFileName = cms.string("Configuration/Generator/data/ReggeGribovPartonMC.param")
+                    bmin = cms.double(0),
+                    bmax = cms.double(10000),
+                    paramFileName = cms.untracked.string("Configuration/Generator/data/ReggeGribovPartonMC.param")
                     )
 
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/python/ReggeGribovPartonMC_cfi.py,v $'),
     annotation = cms.untracked.string('ReggeGribovMC generator')
     )
