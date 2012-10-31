@@ -26,6 +26,8 @@ using namespace std;
 
 struct LzmaFile {
 
+  LzmaFile();
+
   SRes Open(const std::string& fileName);
   SRes Close();
   SRes DecodeAll();
@@ -37,8 +39,8 @@ struct LzmaFile {
   CFileSeqInStream inStream;
   int res;
   CLzmaDec state;
-
-  std::ostringstream fStrNumber;
+  
+  // std::ostringstream fStrNumber;
 
   UInt64 unpackSize;
   
@@ -50,6 +52,23 @@ struct LzmaFile {
   size_t inPos;
   size_t inSize;
   size_t outPos;
+
+  // string converting
+  bool fStartNumber;
+
+  bool fReadSign;
+  bool fReadMantisseR;
+  bool fReadMantisseF;
+  bool fReadExponentSign;
+  bool fReadExponent;
+  
+  bool fNegative;
+  bool fExponentNegative;
+      
+  double fMantisseR;
+  double fMantisseF;
+  int fMantisseFcount;
+  int fExponent;
 
 };
 

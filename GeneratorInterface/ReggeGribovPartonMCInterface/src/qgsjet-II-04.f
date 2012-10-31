@@ -417,8 +417,6 @@ c reading cross sections from the file
          if(ifIIdat.ne.1)then
             open(1,file=DATDIR(1:INDEX(DATDIR,' ')-1)//'qgsdat-II-04'
      *           ,status='old')
-            if(debug.ge.0)write (moniou,214) 
-     *           DATDIR(1:INDEX(DATDIR,' ')-1)//'qgsdat-II-04'
          else                   !used to link with nexus
             if (LEN(fnIIdat).gt.6.and.
      *           fnIIdat(nfnIIdat-4:nfnIIdat) .eq. ".lzma") then
@@ -427,10 +425,11 @@ c reading cross sections from the file
             else
                open(ifIIdat,file=fnIIdat(1:nfnIIdat),status='old')
             endif
-            if(debug.ge.0)write (moniou,214) fnIIdat(1:nfnIIdat)
          endif
 
        if (lzmaUse.ne.0) then
+
+          if(debug.ge.0)write (moniou,214) 'qgsdat-II-04.lzma'
 
           call LzmaFillArray(csborn,size(csborn))
           call LzmaFillArray(cs0,size(cs0))
@@ -454,6 +453,7 @@ c reading cross sections from the file
           call LzmaFillArray(qrt,size(qrt))
           call LzmaCloseFile()
        else
+          if(debug.ge.0)write (moniou,214) 'qgsdat-II-04'
           read (1,*)csborn,cs0,cstot,evk,qpomi,qpomis,qlegi,qfanu,qfanc
      *         ,qdfan,qpomr,gsect,qlegc0,qlegc,qpomc,fsud,qrt,qrev,fsud,
      *         qrt
@@ -6067,7 +6067,7 @@ ctp define collision type
      * .or.jdiff.eq.7.or.jdiff.eq.10)then                  !SD
         typevt=3  
        elseif(jdiff.eq.9)then                                !CD
-        typevt=1
+        typevt=4
        else
         stop'problem with typevt!'
        endif
@@ -6236,6 +6236,16 @@ c-----------------------------------------------------------------------
 
       if(scm.le.sgap**2)stop'qg3pdf: scm<sgap**2!'
       iret=0
+      vpacng=0.d0
+      vtacng=0.d0
+      vpacpe=0.d0
+      vtacpe=0.d0
+      vimp=0.d0
+      viuc=0.d0
+      viuu=0.d0
+      vip=0.d0
+      vicc=0.d0
+      vicu=0.d0
 c normalization of rejection function
       xpomr=1.d0/dsqrt(scm)
       bpt=dsqrt((xa(ip,1)+b-xb(it,1))**2+(xa(ip,2)-xb(it,2))**2)
@@ -6967,16 +6977,6 @@ c     *  .and.qgran(b10).lt.max(0.d0,wzgt/(vv(1)+vv(7))))nptg0=0
        ippr0(1)=ip
       endif
 
-      vpacng=0.d0
-      vtacng=0.d0
-      vpacpe=0.d0
-      vtacpe=0.d0
-      vimp=0.d0
-      viuc=0.d0
-      viuu=0.d0
-      vip=0.d0
-      vicc=0.d0
-      vicu=0.d0
       if(jt.eq.8.and.nptgh0.lt.nptg0.or.jt.eq.10)then !'fan' from cut vertex
        vpacng=min(vpac0(ip)
      * ,qgfani(1.d0/xpomr,bbpr,vvxts,vvxp0,vvxpl,iddp(ip),icz,4))
@@ -10118,6 +10118,7 @@ c-----------------------------------------------------------------------
          v1ic0=0.d0
          v1ic1=0.d0
          v1ic=0.d0
+         stop 'Should no happen in qgloolc !'
        endif
        fan1=fan1+a1(ix1)*a1(ix2)*a1(ix3)/z*rp2
      * *vpl*(v1ic*exp(-2.d0*v1icn)-v1ic1)
@@ -10141,6 +10142,7 @@ c-----------------------------------------------------------------------
        dleg=qglegc(sy,xp,bb,0.d0,icdp,icz,2)
       else
        dleg=0.d0
+       stop 'Should no happen in qgloolc !'
       endif
       fan0=fan0+dleg
       fan1=fan1+dleg
@@ -10199,6 +10201,7 @@ c-----------------------------------------------------------------------
         else
          vpl=0.d0
          vi=0.d0
+         stop 'Should no happen in qglscr !'
         endif
 
         dpx=vpl*vi*exp(-2.d0*vicn)
@@ -11892,14 +11895,6 @@ c---------------------------------------------------------------------------
       if(debug.ge.1)write (moniou,201)iqq,wpp,wpm,izp,izt,icdp,icdt
      *,icz,jpt,nj
 
-      nj0=nj                       !store number of final partons
-      nsp0=nsp                     !store number of final particles
-
-1     sy=wpp*wpm  !energy squared for semi-hard inter. (including preevolution)
-      nj=nj0
-      nsp=nsp0
-      s2min=4.d0*fqscal*qt0       !threshold energy
-      if(sy.lt.s2min)stop'qghot: sy<s2min!!!'
       wwgg=0.d0
       wwqg=0.d0
       wwgq=0.d0
@@ -11912,6 +11907,14 @@ c---------------------------------------------------------------------------
       sea2=0.d0
       glu1=0.d0
       glu2=0.d0
+      nj0=nj                       !store number of final partons
+      nsp0=nsp                     !store number of final particles
+
+1     sy=wpp*wpm  !energy squared for semi-hard inter. (including preevolution)
+      nj=nj0
+      nsp=nsp0
+      s2min=4.d0*fqscal*qt0       !threshold energy
+      if(sy.lt.s2min)stop'qghot: sy<s2min!!!'
 
       if(iqq.eq.3)then             !q_vq_v-ladder
        wpi=wpp                     !LC+ for the hard interaction
@@ -12066,13 +12069,15 @@ c sharing of LC momenta between soft preevolution and hard ladder
         wwgq=glu1*sea2*sjqg
         wwqq=sea1*sea2*sjqq
         gbyj=-dlog(zpm)*(wwgg+wwqg+wwgq+wwqq)
-        rh=0.d0
         if(jpt.eq.0)then
          rh=rq(icdp,icz)+rq(icdt,2)-alfp*dlog(zpm*sy/scm)
         elseif(jpt.eq.1)then
          rh=rq(icdp,icz)-alfp*dlog(wpp/wp0*zpm)
         elseif(jpt.eq.2)then
          rh=rq(icdt,2)-alfp*dlog(wpm/wm0*zpm)
+        else
+         rh=0.d0
+         stop 'Should not happen in qghot'
         endif
         gbyj=gbyj/rh*exp(-b*b/(4.d0*.0389d0*rh))
 
@@ -12165,7 +12170,6 @@ c sharing of LC momenta between soft preevolution and hard ladder
          endif
         endif
         gbyj=wwqg+wwqq
-        rh=0.d0
         if(jpt.eq.0)then
          if(iqq.eq.1)then
           rh=rq(icdp,icz)+rq(icdt,2)-alfp*dlog(wpm/wm0*zpm)
@@ -12176,6 +12180,9 @@ c sharing of LC momenta between soft preevolution and hard ladder
          rh=rq(icdp,icz)-alfp*dlog(zpm)
         elseif(jpt.eq.2)then
          rh=rq(icdt,2)-alfp*dlog(zpm)
+        else
+         rh=0.d0
+         stop 'Should not happen in qghot'
         endif
         gbyj=gbyj/rh*exp(-b*b/(4.d0*.0389d0*rh))
        endif
@@ -14650,7 +14657,6 @@ c---------------------------------------------------------------------------
       if(debug.ge.2)write (moniou,201)ich,icz
 
       is=iabs(ich)/ich
-      ich1=0
       if(icz.eq.1)then                      !pion
        ic1=ich*(1-3*int(.5d0+qgran(b10)))
        if(qgran(b10).lt.dc(2))then
@@ -14704,6 +14710,9 @@ c leading nucleon type simulation ( flavors combinatorics )
        ic1=is*int(1.5d0+qgran(b10))
        ic2=-ic1
        ich1=ich
+      else
+       ich1=0
+       stop 'Should not happen in qgixxd !'
       endif
       ich=ich1
 
@@ -16103,37 +16112,45 @@ c string masses
       sm2=wpi*wmi
 
 c mass thresholds
-      am1=am(1)
       if(iabs(ic1).le.2)then
        am1=am(1)
       elseif(iabs(ic1).eq.3)then
        am1=am(2)
       elseif(iabs(ic1).eq.4)then
        am1=am(3)
+      else
+       am1=0.d0
+       stop 'should not happen in qgstr 1 !'
       endif
-      am2=am(1)
       if(iabs(ic2).le.2)then
        am2=am(1)
       elseif(iabs(ic2).eq.3)then
        am2=am(2)
       elseif(iabs(ic2).eq.4)then
        am2=am(3)
+      else
+       am2=0.d0
+       stop 'should not happen in qgstr 2 !'
       endif
-      am12=am(1)
       if(iabs(ic12).le.2)then
        am12=am(1)
       elseif(iabs(ic12).eq.3)then
        am12=am(2)
       elseif(iabs(ic12).eq.4)then
        am12=am(3)
+      else
+       am12=0.d0
+       stop 'should not happen in qgstr 3 !'
       endif
-      am21=am(1)
       if(iabs(ic21).le.2)then
        am21=am(1)
       elseif(iabs(ic21).eq.3)then
        am21=am(2)
       elseif(iabs(ic21).eq.4)then
        am21=am(3)
+      else
+       am21=0.d0
+       stop 'should not happen in qgstr 4 !'
       endif
 
 c too short strings are neglected (energy is given to partner string

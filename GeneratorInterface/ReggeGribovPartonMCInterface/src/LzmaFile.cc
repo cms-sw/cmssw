@@ -5,8 +5,9 @@
 #include "Types.h"
 #include "7zFile.h"
 
-#include <sstream>
-#include <string>
+//#include <sstream>
+//#include <string>
+#include <cmath>
 #include <iostream>
 #include <queue>
 #include <cstdlib>
@@ -21,14 +22,32 @@ static void *SzAlloc(void *p, size_t size) { p = p; return MyAlloc(size); }
 static void SzFree(void *p, void *address) { p = p; MyFree(address); }
 static ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
+LzmaFile::LzmaFile()
+{
+  // fStorage.reserve(10000);
+  fStartNumber = false;
 
+  fReadSign = true;
+  fReadMantisseR = true;
+  fReadMantisseF = false;
+  fReadExponentSign = false;
+  fReadExponent = false;
+      
+  fNegative = false;
+  fExponentNegative = false;
+      
+  fMantisseR = 0;
+  fMantisseF = 0;
+  fMantisseFcount = 0;
+  fExponent = 0;
+}
 
 
 SRes 
 LzmaFile::Open(const string& fileName) 
 {
-  fStrNumber.str("");
-  fStrNumber.clear();
+  //fStrNumber.str("");
+  //fStrNumber.clear();
   
   FileSeqInStream_CreateVTable(&inStream);
   File_Construct(&inStream.file);
@@ -104,6 +123,41 @@ LzmaFile::FillArray(double* data, const int length)
 }
 
 
+/*
+double 
+LzmaFile::strToDouble(const char& p) {
+
+  // init
+  fR = 0;  
+  fNegative = false;
+  
+  if (*p == '-') {
+    neg = true;
+    ++p;
+  }
+  while (*p >= '0' && *p <= '9') {
+    r = (r*10.0) + (*p - '0');
+    ++p;
+  }
+  if (*p == '.') {
+    double f = 0.0;
+    int n = 0;
+    ++p;
+    while (*p >= '0' && *p <= '9') {
+      f = (f*10.0) + (*p - '0');
+      ++p;
+      ++n;
+    }
+    r += f / std::pow(10.0, n);
+  }
+  if (neg) {
+    r = -r;
+  }
+  return r;
+}
+*/
+
+
 SRes
 LzmaFile::DecodeBuffer()
 {
@@ -133,62 +187,125 @@ LzmaFile::DecodeBuffer()
   inPos += inProcessed;
   unpackSize -= outProcessed;
   
-  
-  /*int k=0;
-  cout << ", NEW INPUT" << endl;
-  for (k=0; k<outProcessed; ++k) {
-    printf("%c", outBuf[k]);
-    }*/
     
-  istringstream strBuf((char*)outBuf); 
+  const char* strBuf = (const char*)outBuf;
 
-  //  const double test = strtod("0.454545")
-  
   int countC = 0;
   int countNum = 0;
   do {
     
-    if (countC >= int(outProcessed) ||
-	countC >= int(strBuf.str().length()) || 
-	strBuf.eof()) {
-      /*
-      cout << " countC=" << countC 
-	   << " outProcessed=" << outProcessed
-	   << " strBuf.str().length()=" << strBuf.str().length()
-	   << " strBuf.eof()=" << strBuf.eof()
-	   << endl;
-      */
+    if (countC >= int(outProcessed)) {
+      // cout << " countC=" << countC 
+      // 	   << " outProcessed=" << outProcessed
+      // 	   << endl;
       break;
     }
     
-    const char C = strBuf.get();
+    const char& C = strBuf[countC]; 
     countC++;
     
     //cout << "\'" << C << "\'" << endl;
     
-    if (C==' ' || C=='\n') {
-      
-      if (fStrNumber.str().length()==0)
+    if (C==' ' || C=='\n') { // END OF NUMBER
+
+      if (!fStartNumber) 
 	continue;
       
-      istringstream strToNum(fStrNumber.str());
-      double number;
-      strToNum >> number;
-      fStorage.push(number);
+      //istringstream strToNum(fStrNumber.str().c_str());
+      //double number = atof(fStrNumber.str().c_str());
+      //strToNum >> number;
       
+      const double number = (fNegative?-1:1) * (fMantisseR + fMantisseF/pow(10, fMantisseFcount)) * pow(10, (fExponentNegative?-1:1) * fExponent);
+      //cout << " number=" << number << endl;
+      
+      fStorage.push(number);      
       countNum++;
       
-      fStrNumber.str("");
-      fStrNumber.clear();
+      fStartNumber = false;
+
+      fReadSign = true;
+      fReadMantisseR = true;
+      fReadMantisseF = false;
+      fReadExponentSign = false;
+      fReadExponent = false;
+      
+      fNegative = false;
+      fExponentNegative = false;
+      
+      fMantisseR = 0;
+      fMantisseF = 0;
+      fMantisseFcount = 0;
+      fExponent = 0;
+      
       continue;
     }
+    
+    fStartNumber = true;
+    const int num = C - '0';
+    if (num >= 0 && num <= 9) {
+	
+      if (fReadMantisseR) {
+	fReadSign = false;
+	fMantisseR = fMantisseR*10 + num;
+      } else if (fReadMantisseF) {
+	fReadSign = false;
+	fMantisseF = fMantisseF*10 + num;
+	++fMantisseFcount;
+      } else if (fReadExponent) {
+	fReadExponentSign = false;
+	fExponent = fExponent*10 + num;
+      }
       
-    if (C=='e' || C=='E' || C=='D' || C=='d')
-      fStrNumber << 'e';
-    else 
-      fStrNumber << C;
-            
+    } else {
+      
+      switch(C) {
+      case '-':
+	{
+	  if (fReadSign) {
+	    fNegative = true;
+	    fReadSign = false;
+	    fReadMantisseR = true;
+	  } else if (fReadExponentSign) {	
+	    fExponentNegative = true;
+	    fReadExponentSign = false;
+	    fReadExponent = true;
+	  } else {
+	    cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
+	    exit(10);
+	  }
+	}
+	break;
+      case '.': 
+	if (!fReadMantisseR) {
+	  cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
+	  exit(10);
+	}
+	fReadMantisseR = false;
+	fReadMantisseF = true;
+	break;
+      case 'e':
+      case 'E':
+      case 'D': 
+      case 'd':
+	if (!fReadMantisseR || !fReadMantisseF) {
+	  fReadMantisseR = false;
+	  fReadMantisseF = false;
+	  fReadExponentSign = true;
+	  fReadExponent = true;
+	}
+	break;
+      default:
+	cout << "LzmaFile: found \'" << C << "\' at wrong position. " << endl;
+	exit(10);
+	break;
+      }
+    }
+	
   } while(true);
+  
+  //strBuf.str("");
+  //strBuf.clear();
+  
 
   /*    
   if (!strNumber.str().empty()) {
@@ -200,9 +317,7 @@ LzmaFile::DecodeBuffer()
   }
   */
     
-    
-  strBuf.str("");
-  strBuf.clear();
+  
 
     
   if (res != SZ_OK || (thereIsSize && unpackSize == 0)) 
