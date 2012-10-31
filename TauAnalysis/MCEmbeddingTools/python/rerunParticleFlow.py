@@ -79,8 +79,6 @@ def rerunParticleFlow(process, inputProcess):
         process.UpdaterService = cms.Service("UpdaterService")
 
     # load module definitions necessary to rerun particle-flow sequence
-    loadIfNecessary(process, "RecoMuon.Configuration.RecoMuon_cff", "muonshighlevelreco")
-    loadIfNecessary(process, "RecoParticleFlow.PFTracking.particleFlowTrack_cff", "pfTrackingGlobalReco")
     loadIfNecessary(process, "RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff", "particleFlowCluster")    
     loadIfNecessary(process, "RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff", "gsfEcalDrivenElectronSequence")
     loadIfNecessary(process, "RecoParticleFlow.Configuration.RecoParticleFlow_cff", "particleFlowReco")
@@ -88,13 +86,10 @@ def rerunParticleFlow(process, inputProcess):
 
     # define complete sequence of all modules necessary to rerun particle-flow algorithm
     process.rerunParticleFlowSequence = cms.Sequence(
-        process.muonrecoComplete
-       + process.particleFlowCluster 
-       + process.pfTrackingGlobalReco
+        process.particleFlowCluster 
+       + process.particleFlowTrackWithDisplacedVertex
        + process.gsfEcalDrivenElectronSequence
        + process.particleFlowReco
-       + process.cosmicsMuonIdSequence
-       + process.muonshighlevelreco
        + process.particleFlowLinks
     )
 
@@ -102,18 +97,14 @@ def rerunParticleFlow(process, inputProcess):
     #     can be run using "official" module labels on embedded event later
     configtools.cloneProcessingSnippet(process, process.rerunParticleFlowSequence, "ForPFMuonCleaning")
 
-    # CV: disable precise track uncertainty computation
-    #    (to avoid error message that local hit positions are not stored on RECO and need to be recomputed)    
-    process.glbTrackQualForPFMuonCleaning.RefitterParameters.TrackerRecHitBuilder = cms.string('WithTrackAngleForPFMuonCleaning')
-    process.ttrhbwrForPFMuonCleaning = process.ttrhbwr.clone(
-        ComponentName = cms.string('WithTrackAngleForPFMuonCleaning')
-    )
+    # CV: run particle-flow algorithm on final RECO muon collection
+    #    (rather than running muon reconstruction sequence in steps)    
+    process.pfTrackForPFMuonCleaning.MuColl = cms.InputTag('muons')
+    process.particleFlowTmpForPFMuonCleaning.muons = cms.InputTag('muons')
+    process.particleFlowForPFMuonCleaning.FillMuonRefs = False
 
     # CV: make sure that all particle-flow based isolation is computed wrt. 'particleFlowTmp' collection
     #    (PAT may overwrite configuration parameters to refer to 'particleFlow' instead)
     configtools.massSearchReplaceAnyInputTag(process.rerunParticleFlowSequenceForPFMuonCleaning, cms.InputTag('particleFlow'), cms.InputTag('particleFlowTmp'))
-
-    # CV: fix instanceLabel dynamically composed from moduleLabel by MuonProducer
-    process.particleFlowForPFMuonCleaning.Muons = cms.InputTag("muonsForPFMuonCleaning", "muons1stStepForPFMuonCleaning2muonsForPFMuonCleaninsMap")
 
     return process.rerunParticleFlowSequenceForPFMuonCleaning
