@@ -704,7 +704,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
 
    LEGMu->Draw();
-   bool found=false;
+
    TMultiGraph* MGLQ = new TMultiGraph();
    if(!Combine) {
    MGLQ->Add(ThGraphMap["DY_Q1o3"    ]     ,"L");
@@ -1867,6 +1867,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 bool Combine(string InputPattern, string signal7, string signal8){
 //   CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return false;  }
 //   int s = CurrentSampleIndex;
+   int TypeMode = TypeFromPattern(InputPattern);
+   if(TypeMode==3) signal7="";
 
    string outpath = InputPattern + "/"+SHAPESTRING+EXCLUSIONDIR+"/";
    MakeDirectories(outpath);
@@ -1879,8 +1881,8 @@ bool Combine(string InputPattern, string signal7, string signal8){
    stAllInfo result = result12;
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
 
-   string signal = signal7;
-   if(signal.find("_7TeV")!=string::npos){signal.replace(signal.find("_7TeV"),5, "");}
+   string signal = signal8;
+   if(signal.find("_8TeV")!=string::npos){signal.replace(signal.find("_8TeV"),5, "");}
 
    FILE* pFileTmp = NULL;
 
@@ -1891,7 +1893,6 @@ bool Combine(string InputPattern, string signal7, string signal8){
    bool is8TeVPresent = true;
    pFileTmp = fopen((InputPattern+"/EXCLUSION8TeV/shape_"+signal8+".dat").c_str(), "r");
    if(!pFileTmp){is8TeVPresent=false;}else{fclose(pFileTmp);}
-
 
    string CodeToExecute = "combineCards.py ";
    if(is7TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+signal7+".dat ";
@@ -1908,7 +1909,6 @@ bool Combine(string InputPattern, string signal7, string signal8){
    result.XSec_Th = 1.0;
    double NPred = result.NPred;
    double NSign = result.NSign / 1000.0;
-
 
    //ALL CODE BELOW IS A BIT DIFFERENT THAN THE ONE USED IN runCombined, BECAUSE HERE WE KEEP THE RESULTS ON LIMIT IN TERMS OF SIGNAL STRENGTH (r=SigmaObs/SigmaTH)
    if(true){
