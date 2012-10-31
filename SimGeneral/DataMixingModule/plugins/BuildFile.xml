@@ -1,4 +1,27 @@
-<use   name="SimGeneral/DataMixingModule"/>
+<use   name="CalibFormats/HcalObjects"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="DataFormats/CSCDigi"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/DTDigi"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/HcalDigi"/>
+<use   name="DataFormats/HcalRecHit"/>
+<use   name="DataFormats/Provenance"/>
+<use   name="DataFormats/RPCDigi"/>
+<use   name="DataFormats/SiPixelDigi"/>
+<use   name="DataFormats/SiStripDigi"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="Mixing/Base"/>
+<use   name="SimCalorimetry/CaloSimAlgos"/>
+<use   name="SimCalorimetry/HcalSimAlgos"/>
+<use   name="SimCalorimetry/HcalSimProducers"/>
 <library   file="*.cc" name="SimGeneralDataMixingModulePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
