@@ -1,4 +1,5 @@
 // Original Author:  Loic Quertenmont
+#include "Analysis_Global.h"
 
 #include "Analysis_Global.h"
 #include "Analysis_CommonFunction.h"
@@ -100,10 +101,14 @@ void Analysis_Step5()
    //SelectionPlot(InputPattern, CutIndex);
    //CutFlow(InputPattern);
 
+   InputPattern = "Results/Type4/";   CutIndex = 21; CutIndex_Flip=21;
+   //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
+   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
+   
    InputPattern = "Results/Type5/";   CutIndex = 69; CutIndex_Flip=2;
    InitdEdx("dedxProd");
 //   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
-   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
 //   SelectionPlot(InputPattern, CutIndex);
 //   CutFlow(InputPattern);
 
@@ -2106,22 +2111,22 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   TH1D*  HCuts_I_Flip        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I_Flip");
 
    TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_A");
-   //TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_B");
-   //TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_C");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_C");
    //TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_D");
    TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_E");
    TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_F");
    TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_G");
-   //TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_H");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_H");
 
-   TH1D*  H_A_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_A");
-   TH1D*  H_B_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_B");
-   TH1D*  H_C_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_C");
-   //TH1D*  H_D_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_D");
-   TH1D*  H_E_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_E");
-   TH1D*  H_F_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_F");
-   TH1D*  H_G_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_G");
-   //TH1D*  H_H_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_H");
+   TH1D*  H_A_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_A_Flip");
+   TH1D*  H_B_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_B_Flip");
+   TH1D*  H_C_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_C_Flip");
+   TH1D*  H_D_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_D_Flip");
+   TH1D*  H_E_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_E_Flip");
+   TH1D*  H_F_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_F_Flip");
+   TH1D*  H_G_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_G_Flip");
+   TH1D*  H_H_Flip            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_H_Flip");
 
    TH1D*  H_B_Binned[MaxPredBins];
    TH1D*  H_F_Binned[MaxPredBins];
@@ -2154,13 +2159,18 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.9)<0.001 || fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.8)<0.001) {
       for(int CutIndex=0; CutIndex<HCuts_Pt->GetNbinsX(); CutIndex++) {
 	if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-(2-HCuts_TOF->GetBinContent(CutIndex+1)))<0.0001 &&
-	  fabs(HCuts_Pt_Flip->GetBinContent(CutIndex_Flip+1)-HCuts_Pt->GetBinContent(CutIndex+1))<0.0001 &&
+	   fabs(HCuts_Pt_Flip->GetBinContent(CutIndex_Flip+1)-HCuts_Pt->GetBinContent(CutIndex+1))<0.0001 &&
 	   fabs(HCuts_I_Flip->GetBinContent(CutIndex_Flip+1)-HCuts_I->GetBinContent(CutIndex+1))<0.0001) {
-	  Index.push_back(CutIndex);
-          Index_Flip.push_back(CutIndex_Flip);
 
-	  if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.9)<0.001) Plot.push_back(0);
-          if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.8)<0.001) Plot.push_back(1);
+	  if ( (TypeMode == 4) && (fabs(HCuts_I->GetBinContent(CutIndex+1)) > 0.36))	    {
+	      continue;
+	  }
+	  else	    {
+	    Index.push_back(CutIndex);
+	    Index_Flip.push_back(CutIndex_Flip);
+	    if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.9)<0.001) Plot.push_back(0);
+	    if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.8)<0.001) Plot.push_back(1);
+	  }
 	}
       }
     }
@@ -2169,18 +2179,43 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   
   const int TimeRegions=2;
 
-  double Pred[TimeRegions][3][20];
-  double PredErr[TimeRegions][3][20];
-  double StatSyst[TimeRegions][20];
-  double Stat[TimeRegions][20];
-  double Syst[TimeRegions][20];
-  double PtCut[TimeRegions][20];
+  int NCuts = 20;
+  if (TypeMode == 4)  NCuts = Index.size()/TimeRegions;
+
+  double Pred[TimeRegions][3][NCuts];
+  double PredErr[TimeRegions][3][NCuts];
+  double StatSyst[TimeRegions][NCuts];
+  double Stat[TimeRegions][NCuts];
+  double Syst[TimeRegions][NCuts];
+  double PtCut[TimeRegions][NCuts];
+  double IasCut[TimeRegions][NCuts];
   double PredN[TimeRegions]={0};
 
   string Preds[TimeRegions] = {"110", "120"};
   string PredsLegend[TimeRegions] = {"1/#beta>1.1", "1/#beta>1.2"};
   string LegendNames[3]={"BH/F", "BH'/F'", "BD'/B'"};
+  if (TypeMode == 4)      {      LegendNames[0] = "CH/G";      LegendNames[1] = "CH'/G'";      LegendNames[2] = "CD'/C'";    }
+  
+  
+  string outfile = SavePath + "BkgUncertainty.txt";
+  ofstream fout(outfile.c_str());
+  if ( ! fout.good() )    { 
+    cout << "unable to create file " << outfile << endl;
+    return;
+  }
 
+  char record[400];
+  if(DataType.find("7TeV")!=string::npos){
+    sprintf(record, "      This is 7 TeV data");
+  }
+  else {
+    sprintf(record, "      This is 8 TeV data");
+  }
+  fout << record << endl << endl;
+
+  sprintf(record, "     %-10s%-10s%-14s%-14s%-14s%-14s%-14s%-14s%-14s%-14s%-14s", "Ias", "1/beta", "Pred1", "Pred2", "Pred3", "DeltaPred1", "DeltaPred2", "DeltaPred3", "STAT", "STATSYST", "SYST");
+  fout << record << endl ;
+  
   for(unsigned int i=0; i<Index.size(); i++) {
     int CutIndex=Index[i];
     int Point=PredN[Plot[i]];
@@ -2190,22 +2225,22 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     int N=0;
 
     double A = H_A->GetBinContent(Index[i]);
-    //double B = H_B->GetBinContent(Index[i]);
-    //double C = H_C->GetBinContent(Index[i]);
+    double B = H_B->GetBinContent(Index[i]);
+    double C = H_C->GetBinContent(Index[i]);
     //double D = H_D->GetBinContent(Index[i]);
     double E = H_E->GetBinContent(Index[i]);
     double F = H_F->GetBinContent(Index[i]);
     double G = H_G->GetBinContent(Index[i]);
-    //double H = H_H->GetBinContent(Index[i]);
+    double H = H_H->GetBinContent(Index[i]);
 
     double A_Flip = H_A_Flip->GetBinContent(Index_Flip[i]);
     double B_Flip = H_B_Flip->GetBinContent(Index_Flip[i]);
     double C_Flip = H_C_Flip->GetBinContent(Index_Flip[i]);
-    //double D_Flip = H_D_Flip->GetBinContent(Index_Flip[i]);
+    double D_Flip = H_D_Flip->GetBinContent(Index_Flip[i]);
     double E_Flip = H_E_Flip->GetBinContent(Index_Flip[i]);
     double F_Flip = H_F_Flip->GetBinContent(Index_Flip[i]);
     double G_Flip = H_G_Flip->GetBinContent(Index_Flip[i]);
-    //double H_Flip = H_H_Flip->GetBinContent(Index_Flip[i]);
+    double H_Flip = H_H_Flip->GetBinContent(Index_Flip[i]);
 
     double NPred[3]={0};
     double NPredErr[3]={0};
@@ -2252,6 +2287,16 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
       }
     }
 
+    if(TypeMode==4) {
+      NPred[0]    = ((C*H)/G);
+      NPredErr[0] = (pow(H/G,2)*C) + (pow(C/G,2)*H) + (pow((H*(C)/(G*G)),2)*G);
+      
+      NPred[1]    = ((C*H_Flip)/G_Flip);
+      NPredErr[1] = (pow(H_Flip/G_Flip,2)*C) + (pow(C/G_Flip,2)*H_Flip) + (pow((H_Flip*(C)/(G_Flip*G_Flip)),2)*G_Flip);
+      
+      NPred[2]    = ((C*D_Flip)/C_Flip);
+      NPredErr[2] = (pow(D_Flip/C_Flip,2)*C) + (pow(C/C_Flip,2)*D_Flip) + (pow((D_Flip*(C)/(C_Flip*C_Flip)),2)*C_Flip);
+    }
 
     for(int Region=0; Region<3; Region++) {
       NPredErr[Region]=sqrt(NPredErr[Region]);
@@ -2273,7 +2318,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     }
   
     SUM  = sqrt(SUM/(N-1));
-    STAT = sqrt(STAT)/(N-1);
+    STAT = sqrt(STAT/N);
     if(SUM*SUM > STAT*STAT) SYST = sqrt(SUM*SUM - STAT*STAT);
     else SYST=0;
 
@@ -2282,25 +2327,48 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     Syst[Plot[i]][Point]=SYST/Mean;
 
     PtCut[Plot[i]][Point]=HCuts_Pt->GetBinContent(CutIndex);
+    IasCut[Plot[i]][Point]=HCuts_I->GetBinContent(CutIndex);
     PredN[Plot[i]]++;
+
+    sprintf(record, "%-5i%-10.3f%-10.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f", i, HCuts_I->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), Pred[Plot[i]][0][Point], Pred[Plot[i]][1][Point], Pred[Plot[i]][2][Point], PredErr[Plot[i]][0][Point], PredErr[Plot[i]][1][Point], PredErr[Plot[i]][2][Point],Stat[Plot[i]][Point], StatSyst[Plot[i]][Point], Syst[Plot[i]][Point]);
+    fout << record << endl ;
+
+   
   }
+
+
+  fout.close();
 
   TMultiGraph* PredGraphs;
   for(int i=0; i<TimeRegions; i++) { 
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     PredGraphs = new TMultiGraph();
     for(int Region=0; Region<3; Region++) {
-      Graphs[Region] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],Pred[Plot[i]][Region],0,PredErr[Plot[i]][Region]); legend.push_back(LegendNames[Region]);
+      if (TypeMode!=4)	{
+	Graphs[Region] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],Pred[Plot[i]][Region],0,PredErr[Plot[i]][Region]); legend.push_back(LegendNames[Region]);
+      }
+      else	{
+	std::cout << PredN[Plot[i]] << "    "  << *IasCut[Plot[i]] << "    "  << *Pred[Plot[i]][Region] << "    "  << *PredErr[Plot[i]][Region]  << std::endl;
+	Graphs[Region] = new TGraphErrors(PredN[Plot[1]],IasCut[Plot[i]],Pred[Plot[i]][Region],0,PredErr[Plot[i]][Region]); legend.push_back(LegendNames[Region]);
+      }
       Graphs[Region]->SetLineColor(Color[Region]);  Graphs[Region]->SetMarkerColor(Color[Region]);   Graphs[Region]->SetMarkerStyle(GraphStyle[Region]);
       PredGraphs->Add(Graphs[Region],"LP");
     }
+
     PredGraphs->Draw("A");
     PredGraphs->SetTitle("");
     PredGraphs->GetXaxis()->SetTitle("P_T cut");
+    if (TypeMode==4)      PredGraphs->GetXaxis()->SetTitle("I_{as} cut");
     PredGraphs->GetYaxis()->SetTitle("Number of expected backgrounds");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
     PredGraphs->GetYaxis()->SetRangeUser(0,400);
     c1->SetLogy(0);
+
+    if (TypeMode == 4)   
+      {
+	PredGraphs->GetYaxis()->SetRangeUser(0.0001,600000);
+	c1->SetLogy(true);
+      }
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,(DataType + "CollisionPrediction_TOF" + Preds[i]).c_str());
@@ -2312,13 +2380,22 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     PredGraphs = new TMultiGraph();
     for(int i=0; i<TimeRegions; i++) {
-      Graphs[i] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],StatSyst[Plot[i]],0,0); legend.push_back(PredsLegend[i]);
+
+      if (TypeMode!=4)	{
+	Graphs[i] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],StatSyst[Plot[i]],0,0); legend.push_back(PredsLegend[i]);
+      }
+      else 	{
+	Graphs[i] = new TGraphErrors(PredN[Plot[i]],IasCut[Plot[i]],StatSyst[Plot[i]],0,0); legend.push_back(PredsLegend[i]);	
+	}
       Graphs[i]->SetLineColor(Color[i]);  Graphs[i]->SetMarkerColor(Color[i]);   Graphs[i]->SetMarkerStyle(GraphStyle[i]);
       PredGraphs->Add(Graphs[i],"LP");
+
+
     }
     PredGraphs->Draw("A");
     PredGraphs->SetTitle("");
     PredGraphs->GetXaxis()->SetTitle("P_T cut");
+    if (TypeMode==4)      PredGraphs->GetXaxis()->SetTitle("I_{as} cut");
     PredGraphs->GetYaxis()->SetTitle("Relative Statistical + Systematic Uncertainty");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
     PredGraphs->GetYaxis()->SetRangeUser(0,1.);
@@ -2329,16 +2406,24 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     delete c1;
     delete PredGraphs;
 
+
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     PredGraphs = new TMultiGraph();
     for(int i=0; i<TimeRegions; i++) {
-      Graphs[i] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],Stat[Plot[i]],0,0); legend.push_back(PredsLegend[i]);
+      if (TypeMode!=4)	{
+	Graphs[i] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],Stat[Plot[i]],0,0); legend.push_back(PredsLegend[i]);
+      }
+      else	{
+	Graphs[i] = new TGraphErrors(PredN[Plot[i]],IasCut[Plot[i]],Stat[Plot[i]],0,0); legend.push_back(PredsLegend[i]);	
+	}
       Graphs[i]->SetLineColor(Color[i]);  Graphs[i]->SetMarkerColor(Color[i]);   Graphs[i]->SetMarkerStyle(GraphStyle[i]);
       PredGraphs->Add(Graphs[i],"LP");
+
     }
     PredGraphs->Draw("A");
     PredGraphs->SetTitle("");
     PredGraphs->GetXaxis()->SetTitle("P_T cut");
+    if (TypeMode==4)      PredGraphs->GetXaxis()->SetTitle("I_{as} cut");
     PredGraphs->GetYaxis()->SetTitle("Relative Statistical Uncertainty");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
     PredGraphs->GetYaxis()->SetRangeUser(0,1.);
@@ -2353,13 +2438,19 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     PredGraphs = new TMultiGraph();
     for(int i=0; i<TimeRegions; i++) {
-      Graphs[i] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],Syst[Plot[i]],0,0); legend.push_back(PredsLegend[i]);
+      if (TypeMode!=4)	{
+	  Graphs[i] = new TGraphErrors(PredN[Plot[i]],PtCut[Plot[i]],Syst[Plot[i]],0,0); legend.push_back(PredsLegend[i]);	 
+	}
+      else 	{
+	Graphs[i] = new TGraphErrors(PredN[Plot[i]],IasCut[Plot[i]],Syst[Plot[i]],0,0); legend.push_back(PredsLegend[i]);	 
+	}
       Graphs[i]->SetLineColor(Color[i]);  Graphs[i]->SetMarkerColor(Color[i]);   Graphs[i]->SetMarkerStyle(GraphStyle[i]);
       PredGraphs->Add(Graphs[i],"LP");
     }
     PredGraphs->Draw("A");
     PredGraphs->SetTitle("");
     PredGraphs->GetXaxis()->SetTitle("P_T cut");
+    if (TypeMode==4)      PredGraphs->GetXaxis()->SetTitle("I_{as} cut");
     PredGraphs->GetYaxis()->SetTitle("Relative Systemtic Uncertainty");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
     PredGraphs->GetYaxis()->SetRangeUser(0,1.);
@@ -2369,6 +2460,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     SaveCanvas(c1,SavePath,DataType + "CollisionSyst");
     delete c1;
     delete PredGraphs;
+
 
   /*
   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
