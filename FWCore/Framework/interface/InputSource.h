@@ -102,7 +102,7 @@ namespace edm {
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null ptr.
-    EventPrincipal* readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
+    EventPrincipal* readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
 
     /// Read a specific event
     EventPrincipal* readEvent(EventID const&);
@@ -353,9 +353,9 @@ namespace edm {
     ItemType nextItemType_();
     virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_() = 0;
     virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() = 0;
-    virtual boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> rpCache);
+    virtual boost::shared_ptr<RunPrincipal> readRun_(boost::shared_ptr<RunPrincipal> runPrincipal);
     virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(
-        boost::shared_ptr<LuminosityBlockPrincipal> lbCache);
+        boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
     virtual EventPrincipal* readEvent_(EventPrincipal& eventPrincipal) = 0;
     virtual EventPrincipal* readIt(EventID const&, EventPrincipal& eventPrincipal);
     virtual boost::shared_ptr<FileBlock> readFile_();

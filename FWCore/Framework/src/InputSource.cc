@@ -335,22 +335,22 @@ namespace edm {
   }
 
   boost::shared_ptr<RunPrincipal>
-  InputSource::readRun_(boost::shared_ptr<RunPrincipal> rpCache) {
+  InputSource::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
-    rpCache->fillRunPrincipal();
-    return rpCache;
+    runPrincipal->fillRunPrincipal();
+    return runPrincipal;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  InputSource::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lbCache) {
-    lbCache->fillLuminosityBlockPrincipal();
-    return lbCache;
+  InputSource::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
+    lumiPrincipal->fillLuminosityBlockPrincipal();
+    return lumiPrincipal;
   }
 
   EventPrincipal*
-  InputSource::readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbCache) {
+  InputSource::readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
 
@@ -359,8 +359,8 @@ namespace edm {
 
     if(result != 0) {
       assert(result->luminosityBlockPrincipalPtrValid());
-      assert(lbCache->run() == result->run());
-      assert(lbCache->luminosityBlock() == result->luminosityBlock());
+      assert(lumiPrincipal->run() == result->run());
+      assert(lumiPrincipal->luminosityBlock() == result->luminosityBlock());
       Event event(*result, moduleDescription());
       postRead(event);
       if(remainingEvents_ > 0) --remainingEvents_;
