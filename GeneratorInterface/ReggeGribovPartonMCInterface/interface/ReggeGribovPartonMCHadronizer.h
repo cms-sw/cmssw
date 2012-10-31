@@ -135,7 +135,7 @@ extern "C"
     char fnIIncs[500];
     int ifIIdat;
     int ifIIncs;
-  } qgsIIfname_; //epos-bas.f
+  } qgsiifname_; //epos-bas.f
 }
 
 namespace gen

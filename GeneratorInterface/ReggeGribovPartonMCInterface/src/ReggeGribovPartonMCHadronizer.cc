@@ -110,16 +110,16 @@ ReggeGribovPartonMCHadronizer::ReggeGribovPartonMCHadronizer(const ParameterSet 
     FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet.dat");
   FileInPath path_fnncs =
     FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet.ncs");
-  strcpy(fname_.fndat, path_fndat.fullPath().c_str());
-  strcpy(fname_.fnncs, path_fnncs.fullPath().c_str());
+  strcpy(qgsfname_.fndat, path_fndat.fullPath().c_str());
+  strcpy(qgsfname_.fnncs, path_fnncs.fullPath().c_str());
 
   //qgsjetII
   FileInPath path_fnIIdat =
     FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsjet-II-04.lzma");
   FileInPath path_fnIIncs =
     FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/sectnu-II-04");
-  strcpy(fname_.fnIIdat, path_fnIIdat.fullPath().c_str());
-  strcpy(fname_.fnIIncs, path_fnIIncs.fullPath().c_str());
+  strcpy(qgsiifname_.fnIIdat, path_fnIIdat.fullPath().c_str());
+  strcpy(qgsiifname_.fnIIncs, path_fnIIncs.fullPath().c_str());
 }
 
 
