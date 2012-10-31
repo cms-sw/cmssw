@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+
 import FWCore.ParameterSet.Config as cms
-import os
   
 from Configuration.Generator.PythiaUESettings_cfi import *
 
