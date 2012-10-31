@@ -77,6 +77,7 @@
   <class name="std::vector<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> > >"/>
   <class name="std::vector<reco::PFJetRefVector>"/>
   <class name="edm::Wrapper<std::vector<reco::PFJetRefVector> >"/>
+  <class name="edm::reftobase::RefVectorHolder<reco::PFJetRefVector>"/>
 
   <class name="reco::GenJet" ClassVersion="10">
    <version ClassVersion="10" checksum="1136403928"/>
@@ -218,6 +219,7 @@
   <class name="edm::RefToBase<reco::Jet>" />
   <class name="edm::reftobase::BaseHolder<reco::Jet>" />
   <class name="edm::reftobase::IndirectHolder<reco::Jet>" />
+  <class name="edm::reftobase::IndirectVectorHolder<reco::Jet>" />
   <class name="edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> > "/>
   <class name="edm::RefToBaseVector<reco::Jet>"/>
   <class name="edm::Wrapper<edm::RefToBaseVector<reco::Jet> >"/>

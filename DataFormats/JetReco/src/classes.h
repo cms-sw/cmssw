@@ -134,6 +134,7 @@ namespace {
     std::vector<edm::Ref<std::vector<reco::PFJet> > > vrvr5;
     std::vector<reco::PFJetRefVector> vrv5;
     edm::Wrapper<std::vector<reco::PFJetRefVector> > wfvrv5;
+    edm::reftobase::RefVectorHolder<reco::PFJetRefVector> rrpfr5;
 
     reco::TrackJetCollection o6;
     reco::TrackJetRef r6;
@@ -227,6 +228,7 @@ namespace {
     // RefToBase Holders for Jets
     edm::RefToBase<reco::Jet>  rtbj;
     edm::reftobase::IndirectHolder<reco::Jet> ihj;
+    edm::reftobase::IndirectVectorHolder<reco::Jet> ihvj;
     edm::reftobase::Holder<reco::Jet, reco::CaloJetRef> hcj;
     edm::reftobase::Holder<reco::Jet, reco::JPTJetRef> hjptj;
     edm::reftobase::Holder<reco::Jet, reco::GenJetRef> hgj;
