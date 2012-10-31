@@ -33,5 +33,7 @@ def digiCustoms(process):
         process.GENRAWoutput.outputCommands.append( 'keep *_simMuonCSCDigis_*_*')
         process.GENRAWoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
                                                    
-    
+
+    process.digi2raw_step.remove(process.cscpacker)
+
     return process
