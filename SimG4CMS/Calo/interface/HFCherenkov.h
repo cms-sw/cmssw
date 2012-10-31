@@ -61,6 +61,7 @@ private:
    double              aperture, apertureTrap;
    double              gain;
    bool                checkSurvive;
+   bool                UseNewPMT;
 
    G4ThreeVector       phMom;
    std::vector<double> wl;

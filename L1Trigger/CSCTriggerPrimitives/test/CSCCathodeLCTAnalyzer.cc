@@ -4,8 +4,7 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2010/02/12 15:05:14 $
- * $Revision: 1.15 $
+ * $Id: $
  *
  */
 
@@ -46,6 +45,7 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(
       << "+++ Number of CSCCathodeLayerInfo objects, " << clctInfo.size()
       << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
+  // might be not a good check for high PU
   if (clctInfo.size() != (unsigned)clct.getQuality()) {
     edm::LogWarning("L1CSCTPEmulatorWrongValues")
       << "+++ Warning: mismatch between CLCT quality, " << clct.getQuality()

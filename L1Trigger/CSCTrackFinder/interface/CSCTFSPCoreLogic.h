@@ -15,6 +15,7 @@
 #include <L1Trigger/CSCTrackFinder/src/core_2011_01_18/vpp_generated.h>
 #include <L1Trigger/CSCTrackFinder/src/core_2012_01_31/vpp_generated.h> 
 #include <L1Trigger/CSCTrackFinder/src/core_2012_03_13/vpp_generated.h> 
+#include <L1Trigger/CSCTrackFinder/src/core_2012_07_30/vpp_generated.h> 
 
 class vpp_generated_2010_01_22;
 class vpp_generated_2010_07_28;
@@ -24,6 +25,7 @@ class vpp_generated_2010_12_10;
 class vpp_generated_2011_01_18;
 class vpp_generated_2012_01_31;
 class vpp_generated_2012_03_13;
+class vpp_generated_2012_07_30;
 
 class CSCTFSPCoreLogic
 {
@@ -123,6 +125,7 @@ class CSCTFSPCoreLogic
   static vpp_generated_2011_01_18 sp_2011_01_18_;
   static vpp_generated_2012_01_31 sp_2012_01_31_;
   static vpp_generated_2012_03_13 sp_2012_03_13_;
+  static vpp_generated_2012_07_30 sp_2012_07_30_;
    
   std::vector<SPio> io_;
   bool runme;

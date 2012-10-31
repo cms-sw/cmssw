@@ -6,6 +6,7 @@
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
@@ -136,8 +137,8 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p), m_fieldBuilder(0)
-
+      m_p(p), m_fieldBuilder(0),
+      m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
 {    
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
@@ -240,7 +241,16 @@ void RunManager::initG4(const edm::EventSetup & es)
   if (physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
   m_physicsList = physicsMaker->make(map_,fPDGTable,m_fieldBuilder,m_pPhysics,m_registry);
   if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
-  m_kernel->SetPhysics(m_physicsList.get());
+
+  // adding GFlash on top of any Physics Lists
+  //const edm::ParameterSet gflash = m_pPhysics.getParameter<edm::ParameterSet>("GFlash"); 
+  bool ecal = m_pPhysics.getParameter<bool>("GflashEcal"); 
+  bool hcal = m_pPhysics.getParameter<bool>("GflashHcal"); 
+  PhysicsList* phys = m_physicsList.get(); 
+  if(ecal || hcal) { 
+    phys->RegisterPhysics(new ParametrisedEMPhysics("GFlash",m_pPhysics));
+  }
+  m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
 
   m_physicsList->ResetStoredInAscii();
@@ -483,7 +493,7 @@ void RunManager::abortRun(bool softAbort)
 void RunManager::resetGenParticleId( edm::Event& inpevt ) {
 
   edm::Handle<edm::LHCTransportLinkContainer> theLHCTlink;
-  inpevt.getByType( theLHCTlink );
+  inpevt.getByLabel( m_theLHCTlinkTag, theLHCTlink );
   if ( theLHCTlink.isValid() ) {
     m_trackManager->setLHCTransportLink( theLHCTlink.product() );
   }

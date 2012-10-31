@@ -11,8 +11,8 @@
 //   Author List: Benn Tannenbaum 30 August 1999.
 //                Based on code by Nick Wisniewski.
 //
-//   $Date: 2007/06/13 14:45:02 $
-//   $Revision: 1.5 $
+//   $Date: 2009/02/09 21:33:37 $
+//   $Revision: 1.6 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -23,6 +23,23 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include <algorithm>
+
+CSCMuonPortCard::CSCMuonPortCard()
+{
+  _max_stubs = CSCConstants::maxStubs;
+}
+
+CSCMuonPortCard::CSCMuonPortCard(const edm::ParameterSet& conf)
+{
+  _max_stubs = CSCConstants::maxStubs;
+
+  edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
+  if (commonParams.getUntrackedParameter<bool>("isSLHC",false))
+  {
+    edm::ParameterSet mpcParams = conf.getParameter<edm::ParameterSet>("mpcSLHC");
+    _max_stubs = mpcParams.getUntrackedParameter<unsigned int>("mpcMaxStubs", CSCConstants::maxStubs);
+  }
+}
 
 void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
 {
@@ -60,8 +77,8 @@ std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const
   if (result.size()) {
     std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
     // Can only return maxStubs or less LCTs per bunch crossing.
-    if (result.size() > CSCConstants::maxStubs)
-      result.erase(result.begin() + CSCConstants::maxStubs, result.end());
+    if (result.size() > _max_stubs)
+      result.erase(result.begin() + _max_stubs, result.end());
 
 
     // Go through the sorted list and label the LCTs with a sorting number.

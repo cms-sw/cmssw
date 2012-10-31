@@ -16,6 +16,7 @@
  **/
 
 #include <vector>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
@@ -24,7 +25,8 @@
 class CSCMuonPortCard
 {
  public:
-  CSCMuonPortCard() {};
+  CSCMuonPortCard();
+  CSCMuonPortCard(const edm::ParameterSet& conf);
 
   typedef CSCTriggerContainer<csctf::TrackStub> TrackStubList;
 
@@ -43,6 +45,7 @@ class CSCMuonPortCard
 
  private:
   CSCTriggerContainer<csctf::TrackStub> _stubs;
+  unsigned int _max_stubs;
 };
 
 #endif

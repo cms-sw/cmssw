@@ -157,6 +157,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   // 28 - Anna's: for fw 20110118 and up, curves with MC like method 4 <- 2011 data taking
           //with improvments at ME1/1a: find max pt for 3 links hypothesis
   // 29 - Bobby's medium Quality: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
+  // 33 - Bobby's medium Quality: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. No max pt at eta > 2.1 
   // 30 - Bobby's loose Quality: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
   // 31 - Bobby's tight Quality: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
   // 32 - Bobby's medium Quality+ {tight only mode5 at eta > 2.1}: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
@@ -311,7 +312,7 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
  int PtbyMLH = false;
   
   //***************************************************//
-  if(pt_method >= 29 && pt_method <= 32)
+  if(pt_method >= 29 && pt_method <= 33)
     {
         // using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning.
       PtbyMLH = 0x1 & (getPtbyMLH >> (int)mode);
@@ -1348,7 +1349,7 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
       quality = 1;
       if (isBeamStartConf && eta >= 12 && pt_method < 20) // eta > 2.1
 	quality = 3;
-      if(pt_method == 27 || pt_method == 28 || pt_method == 29 || pt_method == 32 || pt_method == 30) quality = 3;// all mode = 5 set to quality 3 due to a lot dead ME1/1a stations
+      if(pt_method == 27 || pt_method == 28 || pt_method == 29 || pt_method == 32 || pt_method == 30 || pt_method == 33) quality = 3;// all mode = 5 set to quality 3 due to a lot dead ME1/1a stations
       break;
     case 6:
       if (eta>=3) // eta > 1.2

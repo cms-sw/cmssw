@@ -13,14 +13,12 @@
 #include <map>
 #include <vector>
 
-
-
 class CaloMiscalibMapHcal: public CaloMiscalibMap {
 public:
-CaloMiscalibMapHcal(){ 
-}
+    CaloMiscalibMapHcal(){
+    }
 
-void prefillMap(){
+void prefillMap(const HcalTopology & topology){
 
   for (int det = 1; det < 5; det++) {
     for (int eta = -63; eta < 64; eta++) {
@@ -71,7 +69,6 @@ return mapHcal_;
 private:
 
    std::map<uint32_t, float> mapHcal_;
-   HcalTopology topology;
    // EcalIntercalibConstants map_;
    // const CaloSubdetectorGeometry *geometry;
 };

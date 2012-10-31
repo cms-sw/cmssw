@@ -7,19 +7,11 @@
 
 #include "G4Poisson.hh"
 #include "G4ParticleDefinition.hh"
+#include "TMath.h"
 
 //#define DebugLog
 
 HFCherenkov::HFCherenkov(edm::ParameterSet const & m_HF) {
-
-  //Simple configurables
-  //static SimpleConfigurable<double> p1(1.459, "HFCherenkov:RefIndex");
-  //static SimpleConfigurable<double> p2(280.0, "HFCherenkov:Lambda1");
-  //static SimpleConfigurable<double> p3(700.0, "HFCherenkov:Lambda2");
-  //static SimpleConfigurable<double> p4(0.33,  "HFCherenkov:Aperture");
-  //static SimpleConfigurable<double> p5(0.22,  "HFCherenkov:ApertureTrapped");
-  //static SimpleConfigurable<double> p6(0.33,  "HFCherenkov:Gain");
-  //static SimpleConfigurable<bool>   p7(false, "HFCherenkov:CheckSurvive");
 
   ref_index    = m_HF.getParameter<double>("RefIndex");
   lambda1      = ((m_HF.getParameter<double>("Lambda1"))/pow(double(10),7))*cm;
@@ -28,13 +20,15 @@ HFCherenkov::HFCherenkov(edm::ParameterSet const & m_HF) {
   apertureTrap = cos(asin(m_HF.getParameter<double>("ApertureTrapped")));
   gain         = m_HF.getParameter<double>("Gain");
   checkSurvive = m_HF.getParameter<bool>("CheckSurvive");
+  UseNewPMT    = m_HF.getParameter<bool>("UseR7600UPMT");
 
   edm::LogInfo("HFShower") << "HFCherenkov:: initialised with ref_index " 
 			   << ref_index << " lambda1/lambda2 (cm) " 
 			   << lambda1/cm << "/" << lambda2/cm
 			   << " aperture(total/trapped) " << aperture << "/"
 			   << apertureTrap << " Check photon survival in HF " 
-			   << checkSurvive << " Gain " << gain;
+			   << checkSurvive << " Gain " << gain << " useNewPMT "
+			   << UseNewPMT;
 
   clearVectors();
 }
@@ -320,10 +314,26 @@ int HFCherenkov::computeNbOfPhotons(double beta, G4double stepL) {
 
 double HFCherenkov::computeQEff(double wavelength) {
 
-  double y        = (wavelength - 275.) /180.;
-  double func     = 1. / (1. + 250.*pow((y/5.),4));
-  double qE_R7525 = 0.77 * y * exp(-y) * func ;
-  double qeff     = qE_R7525;
+  double qeff=0.;
+  if (UseNewPMT) {
+    if (wavelength<=350) {
+      qeff=2.45867*(TMath::Landau(wavelength,353.820,59.1324));
+    } else if (wavelength>350 && wavelength<500) {
+      qeff= 0.441989*exp(-pow((wavelength-358.371),2)/(2*pow((138.277),2)));
+    } else if (wavelength>=500 && wavelength<550) {
+      qeff= 0.271862*exp(-pow((wavelength-491.505),2)/(2*pow((47.0418),2)));
+    } else if (wavelength>=550) {
+      qeff= 0.137297*exp(-pow((wavelength-520.260),2)/(2*pow((75.5023),2)));
+    }
+    //std::cout<<"for new PMT : wavelength ===\t"<<wavelength<<"\tqeff  ===\t"<<qeff<<std::endl;
+  } else {
+    double y        = (wavelength - 275.) /180.;
+    double func     = 1. / (1. + 250.*pow((y/5.),4));
+    double qE_R7525 = 0.77 * y * exp(-y) * func ;
+    qeff            = qE_R7525;
+    //std::cout<<"for old PMT : wavelength = "<<wavelength<<"; qeff = "<<qeff<<std::endl;
+  }
+
 #ifdef DebugLog
   LogDebug("HFShower") << "HFCherenkov::computeQEff: wavelength " << wavelength
 		       << " y/func " << y << "/" << func << " qeff " << qeff;

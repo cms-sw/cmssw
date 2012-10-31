@@ -1,8 +1,16 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
+<use   name="classlib"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="DataFormats/TauReco"/>
 <use   name="DQMServices/Core"/>
-<use   name="PhysicsTools/JetMCUtils"/>
-<use   name="CommonTools/Utils"/>
-<use   name="CommonTools/TriggerUtils"/>
+<use   name="rootgraphics"/>
+<use   name="DataFormats/RecoCandidate"/>
+<use   name="DataFormats/TauReco"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="CommonTools/UtilAlgos"/>
+<library   file="*.cc" name="ValidationRecoTauPlugin">
+  <flags   EDM_PLUGIN="1"/>
+</library>

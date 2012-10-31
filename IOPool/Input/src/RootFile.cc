@@ -141,7 +141,8 @@ namespace edm {
                      std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
                      std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
                      bool labelRawDataLikeMC,
-                     bool usingGoToEvent) :
+                     bool usingGoToEvent,
+                     bool enablePrefetching) :
       file_(fileName),
       logicalFile_(logicalFileName),
       processConfiguration_(processConfiguration),
@@ -165,9 +166,9 @@ namespace edm {
       hasNewlyDroppedBranch_(),
       branchListIndexesUnchanged_(false),
       eventAux_(),
-      eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries),
-      lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
-      runTree_(filePtr_, InRun, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
+      eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries, enablePrefetching),
+      lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
+      runTree_(filePtr_, InRun, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries, enablePrefetching),
       treePointers_(),
       lastEventEntryNumberRead_(-1LL),
       productRegistry_(),
@@ -252,6 +253,7 @@ namespace edm {
       psetTree->SetBranchAddress(poolNames::idToParameterSetBlobsBranchName().c_str(), &pIdToBlob);
 
       std::unique_ptr<TTreeCache> psetTreeCache = roottree::trainCache(psetTree.get(), *filePtr_, roottree::defaultNonEventCacheSize, "*");
+      psetTreeCache->SetEnablePrefetching(false);
       filePtr_->SetCacheRead(psetTreeCache.get());
       for(Long64_t i = 0; i != psetTree->GetEntries(); ++i) {
         psetTree->GetEntry(i);
@@ -1806,6 +1808,13 @@ namespace edm {
     } else {
       for(StoredProductProvenanceVector::const_iterator it = provVector_.begin(), itEnd = provVector_.end();
            it != itEnd; ++it) {
+        if(it->parentageIDIndex_ >= parentageIDLookup_.size()) {
+          throw edm::Exception(errors::LogicError)
+            << "ReducedProvenanceReader::ReadProvenance\n"
+            << "The parentage ID index value " << it->parentageIDIndex_ << " is out of bounds.  The maximum value is " << parentageIDLookup_.size()-1 << ".\n"
+            << "This should never happen.\n"
+            << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
+        }
         mapper.insertIntoSet(ProductProvenance(BranchID(it->branchID_), parentageIDLookup_[it->parentageIDIndex_]));
       }
     }

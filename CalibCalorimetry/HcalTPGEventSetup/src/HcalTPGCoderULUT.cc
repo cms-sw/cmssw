@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: HcalTPGCoderULUT.cc,v 1.8 2009/06/04 12:09:45 tulika Exp $
+// $Id: HcalTPGCoderULUT.cc,v 1.10 2009/10/27 12:06:34 kvtsang Exp $
 //
 //
 
@@ -32,7 +32,6 @@
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 //
 // class decleration
@@ -72,7 +71,10 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
    bool read_XML = iConfig.getParameter<bool>("read_XML_LUTs");
    read_FGLut_ = iConfig.getParameter<bool>("read_FG_LUTs"); 
    fgfile_ = iConfig.getParameter<edm::FileInPath>("FGLUTs");
-
+   const edm::ParameterSet hcalTopoConsts = iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" );
+   StringToEnumParser<HcalTopologyMode::Mode> parser;
+   HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+   
    //the following line is needed to tell the framework what
    // data is being produced
    if (!(read_Ascii || read_XML)) setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
@@ -85,7 +87,10 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
       edm::FileInPath ifilename(iConfig.getParameter<edm::FileInPath>("inputLUTs"));
       edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename.fullPath() << " for HcalTPGCoderULUT initialization";
       if (read_Ascii) theCoder_->update(ifilename.fullPath().c_str());
-      else if (read_XML) theCoder_->updateXML(ifilename.fullPath().c_str());
+      else if (read_XML) theCoder_->updateXML(ifilename.fullPath().c_str(),
+					      mode,
+					      hcalTopoConsts.getParameter<int>("maxDepthHB"),
+					      hcalTopoConsts.getParameter<int>("maxDepthHE"));
 
       // Read FG LUT and append to most significant bit 11
       if (read_FGLut_) theCoder_->update(fgfile_.fullPath().c_str(), true);

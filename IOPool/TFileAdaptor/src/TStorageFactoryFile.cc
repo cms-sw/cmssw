@@ -169,6 +169,8 @@ TStorageFactoryFile::Initialize(const char *path,
     create = kTRUE;
   }
 
+  assert(read || update || create);
+
   int           openFlags = IOFlags::OpenRead;
   if (!read)    openFlags |= IOFlags::OpenWrite;
   if (create)   openFlags |= IOFlags::OpenCreate;
@@ -316,7 +318,7 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
     ;
   }
 
-  IOPosBuffer iov(off, (void *) 0, len ? len : 4096);
+  IOPosBuffer iov(off, (void *) 0, len ? len : PREFETCH_PROBE_LENGTH);
   if (storage_->prefetch(&iov, 1))
   {
     stats.tick(len);

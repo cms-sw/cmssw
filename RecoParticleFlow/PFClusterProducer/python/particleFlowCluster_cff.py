@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+import Geometry.HcalEventSetup.hcalTopologyIdeal_cfi
+
 from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import *
 from RecoJets.Configuration.CaloTowersRec_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECAL_cfi import *

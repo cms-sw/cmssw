@@ -4,8 +4,7 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2009/03/27 17:14:31 $
- * $Revision: 1.12 $
+ * $Id: $
  *
  */
 
@@ -46,6 +45,7 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(
       << "+++ Number of CSCAnodeLayerInfo objects, " << alctInfo.size()
       << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
+  // might be not a good check for high PU
   if (alctInfo.size() != (unsigned)alct.getQuality()+3) {
     edm::LogWarning("L1CSCTPEmulatorWrongValues")
       << "+++ Warning: mismatch between ALCT quality, " << alct.getQuality()

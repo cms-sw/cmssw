@@ -5,6 +5,7 @@
 #include <map>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/CaloTopology/interface/HcalTopologyMode.h"
 
 /** \class HcalTopology
 
@@ -18,17 +19,17 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2011/05/09 22:36:59 $
-   $Revision: 1.8.4.1 $
+   $Date: 2012/08/15 14:56:18 $
+   $Revision: 1.10 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
 public:
   //HcalTopology(bool h2_mode=false);
-  enum Mode { md_LHC=0, md_H2=1, md_SLHC=2, md_H2HE=3 };
-  HcalTopology(Mode mode=md_LHC);
+  //enum Mode { md_LHC=0, md_H2=1, md_SLHC=2, md_H2HE=3 };
+    HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE);
 	
-  Mode mode() const {return mode_;}
+  HcalTopologyMode::Mode mode() const {return mode_;}
   /** Add a cell to exclusion list */
   void exclude(const HcalDetId& id);
   /** Exclude an entire subdetector */
@@ -106,7 +107,7 @@ private:
   bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
 
   //bool h2mode_;
-  Mode mode_;
+  HcalTopologyMode::Mode mode_;
   bool isExcluded(const HcalDetId& id) const;
 
   const int firstHBRing_;
@@ -123,7 +124,9 @@ private:
   const int firstHETripleDepthRing_;
   const int singlePhiBins_;
   const int doublePhiBins_;
-
+  const int maxDepthHB_;
+  const int maxDepthHE_;
+    
   // index is ring;
   typedef std::map<unsigned, std::vector<int> > SegmentationMap;
   SegmentationMap depthSegmentation_;

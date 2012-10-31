@@ -6,7 +6,9 @@
 #include <iostream>
 #include <cassert>
 
-HcalTrigTowerGeometry::HcalTrigTowerGeometry() {
+HcalTrigTowerGeometry::HcalTrigTowerGeometry( const HcalTopology* topology )
+    : theTopology( topology ) 
+{
   useShortFibers_=true;
   useHFQuadPhiRings_=true;
   useUpgradeConfigurationHFTowers_=!true;
@@ -53,21 +55,21 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
       // go two cells per trigger tower.
 
       int iphi = (((cellId.iphi()+shift)/HfTowerPhiSize) * HfTowerPhiSize + shift)%72; // 71+1 --> 1, 3+5 --> 5
-      if (useHFQuadPhiRings_ || cellId.ietaAbs() < theTopology.firstHFQuadPhiRing())
+      if (useHFQuadPhiRings_ || cellId.ietaAbs() < theTopology->firstHFQuadPhiRing())
         results.push_back( HcalTrigTowerDetId(ieta, iphi) );
     }
       
   } else {
     // the first twenty rings are one-to-one
-    if(cellId.ietaAbs() < theTopology.firstHEDoublePhiRing()) {    
+    if(cellId.ietaAbs() < theTopology->firstHEDoublePhiRing()) {    
       results.push_back( HcalTrigTowerDetId(cellId.ieta(), cellId.iphi()) );
     } else {
       // the remaining rings are two-to-one in phi
       int iphi1 = cellId.iphi();
       int ieta = cellId.ieta();
       // the last eta ring in HE is split.  Recombine.
-      if(ieta == theTopology.lastHERing()) --ieta;
-      if(ieta == -theTopology.lastHERing()) ++ieta;
+      if(ieta == theTopology->lastHERing()) --ieta;
+      if(ieta == -theTopology->lastHERing()) ++ieta;
 
       results.push_back( HcalTrigTowerDetId(ieta, iphi1) );
       results.push_back( HcalTrigTowerDetId(ieta, iphi1+1) );
@@ -93,29 +95,29 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
 
   // HB
   
-  if (abs(cell_ieta) <= theTopology.lastHBRing()){
-    theTopology.depthBinInformation(HcalBarrel, abs(tower_ieta), n_depths, min_depth);
+  if (abs(cell_ieta) <= theTopology->lastHBRing()){
+    theTopology->depthBinInformation(HcalBarrel, abs(tower_ieta), n_depths, min_depth);
     for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++)
       results.push_back(HcalDetId(HcalBarrel,cell_ieta,cell_iphi,cell_depth));
   }
 
   // HO
   
-  if (abs(cell_ieta) <= theTopology.lastHORing()){ 
-    theTopology.depthBinInformation(HcalOuter , abs(tower_ieta), n_depths, min_depth);  
+  if (abs(cell_ieta) <= theTopology->lastHORing()){ 
+    theTopology->depthBinInformation(HcalOuter , abs(tower_ieta), n_depths, min_depth);  
     for (int ho_depth = min_depth; ho_depth <= min_depth + n_depths - 1; ho_depth++)
       results.push_back(HcalDetId(HcalOuter, cell_ieta,cell_iphi,ho_depth));
   }
 
   // HE 
 
-  if (abs(cell_ieta) >= theTopology.firstHERing() && 
-      abs(cell_ieta) <  theTopology.lastHERing()){   
+  if (abs(cell_ieta) >= theTopology->firstHERing() && 
+      abs(cell_ieta) <  theTopology->lastHERing()){   
 
-    theTopology.depthBinInformation(HcalEndcap, abs(tower_ieta), n_depths, min_depth);
+    theTopology->depthBinInformation(HcalEndcap, abs(tower_ieta), n_depths, min_depth);
     
     // Special for double-phi cells
-    if (abs(cell_ieta) >= theTopology.firstHEDoublePhiRing())
+    if (abs(cell_ieta) >= theTopology->firstHEDoublePhiRing())
       if (tower_iphi%2 == 0) cell_iphi = tower_iphi - 1;
     
     for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++)
@@ -123,7 +125,7 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
     
     // Special for split-eta cells
     if (abs(tower_ieta) == 28){
-      theTopology.depthBinInformation(HcalEndcap, abs(tower_ieta)+1, n_depths, min_depth);
+      theTopology->depthBinInformation(HcalEndcap, abs(tower_ieta)+1, n_depths, min_depth);
       for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++){
 	if (tower_ieta < 0) results.push_back(HcalDetId(HcalEndcap, tower_ieta - 1, cell_iphi, cell_depth));
 	if (tower_ieta > 0) results.push_back(HcalDetId(HcalEndcap, tower_ieta + 1, cell_iphi, cell_depth));
@@ -134,7 +136,7 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
     
   // HF 
 
-  if (abs(cell_ieta) >= theTopology.firstHFRing()){  
+  if (abs(cell_ieta) >= theTopology->firstHFRing()){  
 
     int HfTowerPhiSize;
     if   ( useUpgradeConfigurationHFTowers_ ) HfTowerPhiSize = 1;
@@ -160,7 +162,7 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
 
 	if (cell_ieta >= 40 && cell_iphi%4 == 1) continue;  // These cells don't exist.
 
-	theTopology.depthBinInformation(HcalForward, cell_ieta, n_depths, min_depth);  
+	theTopology->depthBinInformation(HcalForward, cell_ieta, n_depths, min_depth);  
 
 	// Negative tower_ieta -> negative cell_ieta
 	int zside = 1;
@@ -172,7 +174,7 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
 	  results.push_back(HcalDetId(HcalForward, cell_ieta, cell_iphi, cell_depth));
 	
 	if ( zside * cell_ieta == 30 ) {
-	  theTopology.depthBinInformation(HcalForward, 29 * zside, n_depths, min_depth);  
+	  theTopology->depthBinInformation(HcalForward, 29 * zside, n_depths, min_depth);  
 	  for (int cell_depth = min_depth; cell_depth <= min_depth + n_depths - 1; cell_depth++) 
 	    results.push_back(HcalDetId(HcalForward, 29 * zside , cell_iphi, cell_depth));
 	}
@@ -200,7 +202,7 @@ int HcalTrigTowerGeometry::hfTowerEtaSize(int ieta) const {
 int HcalTrigTowerGeometry::firstHFRingInTower(int ietaTower) const {
   // count up to the correct HF ring
   int inputTower = abs(ietaTower);
-  int result = theTopology.firstHFRing();
+  int result = theTopology->firstHFRing();
   for(int iTower = firstHFTower(); iTower != inputTower; ++iTower) {
     result += hfTowerEtaSize(iTower);
   }
@@ -217,12 +219,12 @@ void HcalTrigTowerGeometry::towerEtaBounds(int ieta, double & eta1, double & eta
     eta1 = theHBHEEtaBounds[ietaAbs-1];
     eta2 = theHBHEEtaBounds[ietaAbs];
     // the last tower is split, so get tower 29, too
-    if(ietaAbs == theTopology.lastHERing()-1) {
+    if(ietaAbs == theTopology->lastHERing()-1) {
       eta2 = theHBHEEtaBounds[ietaAbs+1];
     } 
   } else {
     // count from 0
-    int hfIndex = firstHFRingInTower(ietaAbs) - theTopology.firstHFRing();
+    int hfIndex = firstHFRingInTower(ietaAbs) - theTopology->firstHFRing();
     eta1 = theHFEtaBounds[hfIndex];
     eta2 = theHFEtaBounds[hfIndex + hfTowerEtaSize(ieta)];
   }

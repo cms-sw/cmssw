@@ -20,6 +20,9 @@
 #include "Geometry/CaloTopology/interface/HcalTopologyRestrictionParser.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 //
 // constants, enums and typedefs
 //
@@ -31,12 +34,10 @@
 //
 // constructors and destructor
 //
-HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf) :
-  m_restrictions(conf.getUntrackedParameter<std::string>("Exclude","")),
-  m_h2mode(conf.getUntrackedParameter<bool>("H2Mode",false)),
-  m_SLHCmode(conf.getUntrackedParameter<bool>("SLHCMode",false)),
-  m_H2HEmode(conf.getUntrackedParameter<bool>("H2HEMode",false))
-{
+HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
+  : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude","")),
+    m_pSet( conf )
+{    
   // copied from HcalHitRelabeller, input like {1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,4}
   m_segmentation.resize(29);
   std::vector<int> segmentation;
@@ -58,6 +59,31 @@ HcalTopologyIdealEP::~HcalTopologyIdealEP()
 { 
 }
 
+void
+HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) 
+{
+  edm::ParameterSetDescription hcalTopologyConstants;
+  hcalTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::LHC" );
+  hcalTopologyConstants.add<int>( "maxDepthHB", 2 );
+  hcalTopologyConstants.add<int>( "maxDepthHE", 3 );  
+  descriptions.add( "hcalTopologyConstants", hcalTopologyConstants );
+
+  edm::ParameterSetDescription hcalSLHCTopologyConstants;
+  hcalSLHCTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::SLHC" );
+  hcalSLHCTopologyConstants.add<int>( "maxDepthHB", 7 );
+  hcalSLHCTopologyConstants.add<int>( "maxDepthHE", 7 );
+  descriptions.add( "hcalSLHCTopologyConstants", hcalSLHCTopologyConstants );
+
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<std::string>( "Exclude", "" );
+  desc.addOptional<edm::ParameterSetDescription>( "hcalTopologyConstants", hcalTopologyConstants );
+  descriptions.add( "hcalTopologyIdeal", desc );
+
+  edm::ParameterSetDescription descSLHC;
+  descSLHC.addUntracked<std::string>( "Exclude", "" );
+  descSLHC.addOptional<edm::ParameterSetDescription>( "hcalTopologyConstants", hcalSLHCTopologyConstants );
+  descriptions.add( "hcalTopologyIdealSLHC", descSLHC );  
+}
 
 //
 // member functions
@@ -68,22 +94,20 @@ HcalTopologyIdealEP::ReturnType
 HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)
 {
   using namespace edm::es;
-  HcalTopology::Mode mode=HcalTopology::md_LHC;
-	
-  if (m_h2mode){
-    edm::LogInfo("HCAL") << "Using H2 Topology";
-    mode=HcalTopology::md_H2;	
-  } 
-  if (m_SLHCmode) {
-    edm::LogInfo("HCAL") << "Using SLHC Topology";
-    mode=HcalTopology::md_SLHC;
-  }
-  if (m_H2HEmode) {
-    edm::LogInfo("HCAL") << "Using H2HE Topology";
-    mode=HcalTopology::md_H2HE;
+
+  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
+  int maxDepthHB = 2;
+  int maxDepthHE = 3;
+  if( m_pSet.exists( "hcalTopologyConstants" ))
+  {
+    const edm::ParameterSet hcalTopoConsts( m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
+    StringToEnumParser<HcalTopologyMode::Mode> eparser;
+    mode = (HcalTopologyMode::Mode) eparser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+    maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+    maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
   }
 
-  ReturnType myTopo(new HcalTopology(mode));
+  ReturnType myTopo(new HcalTopology( mode, maxDepthHB, maxDepthHE ));
 
   HcalTopologyRestrictionParser parser(*myTopo);
   if (!m_restrictions.empty()) {

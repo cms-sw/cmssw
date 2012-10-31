@@ -11,8 +11,7 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2010/04/23 21:07:19 $
- * $Revision: 1.7 $
+ * $Id: CSCTriggerPrimitivesBuilder.h,v 1.8.2.1 2012/05/16 00:31:25 khotilov Exp $
  *
  */
 
@@ -73,6 +72,15 @@ class CSCTriggerPrimitivesBuilder
   static const int max_subsector;
   static const int min_chamber;   // chambers per trigger subsector
   static const int max_chamber;
+
+  /// a flag whether to honor skipping of chambers from the bad chambers map
+  bool skipbadchamber;
+
+  /** SLHC: special configuration parameters for ME11 treatment. */
+  bool smartME1aME1b, disableME1a;
+
+  /** SLHC: special switch for disabling ME42 */
+  bool disableME42;
 
   int m_minBX, m_maxBX; // min and max BX to sort.
 

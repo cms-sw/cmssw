@@ -11,10 +11,13 @@
 
 /** \class CaloTPGTranscoderULUT
   *  
-  * $Date: 2009/10/27 12:08:49 $
-  * $Revision: 1.15 $
+  * $Date: 2010/05/12 13:22:15 $
+  * $Revision: 1.16 $
   * \author J. Mans - Minnesota
   */
+
+class HcalTrigTowerGeometry;
+
 class CaloTPGTranscoderULUT : public CaloTPGTranscoder {
 public:
   CaloTPGTranscoderULUT(const std::string& compressionFile="",
@@ -72,5 +75,6 @@ public:
   mutable LUT *outputLUT_[NOUTLUTS];
   mutable std::vector<RCTdecompression> hcaluncomp_;
   mutable edm::ESHandle<HcalLutMetadata> lutMetadata_;
+  mutable edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
 };
 #endif

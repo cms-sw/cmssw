@@ -192,10 +192,14 @@ int EBDetId::distanceEta(const EBDetId& a,const EBDetId& b)
 
 int EBDetId::distancePhi(const EBDetId& a,const EBDetId& b)
 {
-  if (abs(a.iphi() -b.iphi()) > 180)
-    return abs(a.iphi() - b.iphi()) - 180;
-  else
-    return abs(a.iphi()-b.iphi());
+
+  int PI = 180;
+  int  result = a.iphi() - b.iphi();
+
+  while  (result > PI)    result -= 2*PI;
+  while  (result <= -PI)  result += 2*PI;
+  return abs(result);
+
 }
 
 float EBDetId::approxEta( const DetId id ) {

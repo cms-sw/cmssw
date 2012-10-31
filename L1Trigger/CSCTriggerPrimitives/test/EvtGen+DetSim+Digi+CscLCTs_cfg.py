@@ -7,8 +7,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.372.2.1 $'),
-    name = cms.untracked.string("$Source: /cvs/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
+    version = cms.untracked.string('$Revision: 1.11 $'),
+    name = cms.untracked.string("$Source: /local/reps/CMSSW/CMSSW/L1Trigger/CSCTriggerPrimitives/test/EvtGen+DetSim+Digi+CscLCTs_cfg.py,v $"),
     annotation = cms.untracked.string("SV: single particle gun mu- 50 GeV")
 )
 
@@ -67,8 +67,8 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 )
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'DESIGN_52_V5::All'
-process.GlobalTag.globaltag = 'MC_52_V8::All'
+#process.GlobalTag.globaltag = 'DESIGN_61_V1::All'
+process.GlobalTag.globaltag = 'MC_61_V1::All'
 #process.GlobalTag.globaltag = 'STARTUP_V5::All'
 #process.prefer("GlobalTag")
 
@@ -87,16 +87,17 @@ process.cscpacker.correlatedLCTDigiTag = cms.InputTag("cscTriggerPrimitiveDigis"
 #- Output module
 process.output = cms.OutputModule("PoolOutputModule",
     #fileName = cms.untracked.string("/data0/slava/test/muminus_pt50_CMSSW_3_9_0_pre1.root"),
-    fileName = cms.untracked.string("muminus_pt50_CMSSW_5_2_3_p1.root"),
+    fileName = cms.untracked.string("muminus_pt50_CMSSW_6_1_0_pre2.root"),
     outputCommands = cms.untracked.vstring("keep *", 
-         # "drop *_simSiPixelDigis_*_*",
-         # "drop *_simSiStripDigis_*_*",
-         # "drop *_simEcalUnsuppressedDigis_*_*",
-         # "drop *_simHcalDigis_*_*",
-        "drop *_simMuonDTDigis_*_*", 
-        "drop *_simMuonRPCDigis_*_*", 
-        "drop PSimHits_*_*_*", 
-        "keep PSimHits_*_MuonCSCHits_*", 
+        "drop *_simSiPixelDigis_*_*",
+        "drop *_simSiStripDigis_*_*",
+        "drop *_simEcalUnsuppressedDigis_*_*",
+        "drop *_simHcalUnsuppressedDigis_*_*",
+        "drop *_simMuonDTDigis_*_*",
+        "drop *_simMuonRPCDigis_*_*",
+        "drop *_simCastorDigis_*_*",
+        "drop PSimHits_*_*_*",
+        "keep PSimHits_*_MuonCSCHits_*",
         "drop PCaloHits_*_*_*")
 )
 

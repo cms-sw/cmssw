@@ -1,0 +1,10 @@
+destDB oracle://cms_orcon_prod/CMS_COND_34X_GEOMETRY
+tag XMLFILE_Geometry_TagXX_ExtendedPhaseIBeamPipe_mc
+inputtag 
+since 
+Timetype runnumber
+IOVCheck offline
+DuplicateTagHLT
+DuplicateTagEXPRESS
+DuplicateTagPROMPT
+usertext Geometry payload for Full DDD XML Extended config and a PhaseI beampipe. TagXX

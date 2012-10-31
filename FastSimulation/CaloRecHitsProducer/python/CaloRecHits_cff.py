@@ -18,19 +18,22 @@ if(CaloMode==1):
     from FastSimulation.CaloRecHitsProducer.EcalDigisPlusRecHits_cff import *
     from FastSimulation.CaloRecHitsProducer.HcalRecHitsCustom_cff import *
 
-    caloRecHits = cms.Sequence(ecalDigisPlusRecHitSequence*ecalPreshowerRecHit*hbhereco*horeco*hfreco)
+    caloDigis = cms.Sequence(ecalDigisSequence)
+    caloRecHits = cms.Sequence(ecalRecHitSequence*ecalPreshowerRecHit*hbhereco*horeco*hfreco)
     
 if(CaloMode==2):
 
     from FastSimulation.CaloRecHitsProducer.EcalRecHitsCustom_cff import *
     from FastSimulation.CaloRecHitsProducer.HcalDigisPlusRecHits_cff import *
 
-    caloRecHits = cms.Sequence(ecalRecHit*ecalPreshowerRecHit*hcalDigisPlusRecHitsSequence)
+    caloDigis = cms.Sequence(hcalDigisSequence)
+    caloRecHits = cms.Sequence(ecalRecHit*ecalPreshowerRecHit*hcalRecHitSequence)
 
 if(CaloMode==3):
 
     from FastSimulation.CaloRecHitsProducer.EcalDigisPlusRecHits_cff import *
     from FastSimulation.CaloRecHitsProducer.HcalDigisPlusRecHits_cff import *
 
-    caloRecHits = cms.Sequence(ecalDigisPlusRecHitSequence*ecalPreshowerRecHit*hcalDigisPlusRecHitsSequence)
+    caloDigis = cms.Sequence(ecalDigisSequence*hcalDigisSequence)
+    caloRecHits = cms.Sequence(ecalRecHitSequence*ecalPreshowerRecHit*hcalRecHitSequence)
 

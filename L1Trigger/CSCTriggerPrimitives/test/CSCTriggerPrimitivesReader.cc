@@ -7,8 +7,7 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/08/04 14:51:37 $
-//   $Revision: 1.41 $
+//   $Id: $
 //
 //   Modifications:
 //
@@ -127,6 +126,11 @@ CSCTriggerPrimitivesReader::CSCTriggerPrimitivesReader(const edm::ParameterSet& 
   simHitProducer_ = conf.getParameter<edm::InputTag>("CSCSimHitProducer");
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
+
+  resultsFileNamesPrefix_ = conf.getUntrackedParameter<string>("resultsFileNamesPrefix","");
+  
+  skipbadchambers = conf.getUntrackedParameter<bool>("skipbadchambers",true);
+  
   debug = conf.getUntrackedParameter<bool>("debug", false);
   //rootFileName = conf.getUntrackedParameter<string>("rootFileName");
 
@@ -165,10 +169,12 @@ void CSCTriggerPrimitivesReader::analyze(const edm::Event& ev,
 
   // Find conditions data for bad chambers & cache it.  Needed for efficiency
   // calculations.
-  edm::ESHandle<CSCBadChambers> pBad;
-  setup.get<CSCBadChambersRcd>().get(pBad);
-  badChambers_=pBad.product();
-
+  if (skipbadchambers) {
+    edm::ESHandle<CSCBadChambers> pBad;
+    setup.get<CSCBadChambersRcd>().get(pBad);
+    badChambers_=pBad.product();
+  }
+  
   // Get the collections of ALCTs, CLCTs, and correlated LCTs from event.
   edm::Handle<CSCALCTDigiCollection> alcts_data;
   edm::Handle<CSCCLCTDigiCollection> clcts_data;
@@ -407,7 +413,7 @@ void CSCTriggerPrimitivesReader::bookALCTHistos() {
   string s;
 
   edm::Service<TFileService> fs;
-  hAlctPerEvent  = fs->make<TH1F>("ALCTs_per_event", "ALCTs per event",     11, -0.5,  10.5);
+  hAlctPerEvent  = fs->make<TH1F>("ALCTs_per_event", "ALCTs per event",     31, -0.5,  30.5);
   hAlctPerChamber= fs->make<TH1F>("ALCTs_per_chamber", "ALCTs per chamber",    4, -0.5,   3.5);
   hAlctPerCSC    = fs->make<TH1F>("ALCTs_per_CSCtype", "ALCTs per CSC type",  10, -0.5,   9.5);
   for (int i = 0; i < MAX_ENDCAPS; i++) { // endcaps
@@ -428,6 +434,8 @@ void CSCTriggerPrimitivesReader::bookALCTHistos() {
   hAlctKeyGroup  = fs->make<TH1F>("ALCT_key_wiregroup", "ALCT key wiregroup", 120, -0.5, 119.5);
   hAlctBXN       = fs->make<TH1F>("ALCT_bx", "ALCT bx",             20, -0.5,  19.5);
 
+  hAlctKeyGroupME11 = fs->make<TH1F>("hAlctKeyGroupME11", "ALCT key wiregroup ME1/1", 50, -0.5, 49.5);
+  
   bookedALCTHistos = true;
 }
 
@@ -435,7 +443,7 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos() {
   string s;
 
   edm::Service<TFileService> fs;
-  hClctPerEvent  = fs->make<TH1F>("CLCTs_per_event", "CLCTs per event",    11, -0.5, 10.5);
+  hClctPerEvent  = fs->make<TH1F>("CLCTs_per_event", "CLCTs per event",    31, -0.5, 30.5);
   hClctPerChamber= fs->make<TH1F>("CLCTs_per_chamber", "CLCTs per chamber",   3, -0.5,  2.5);
   hClctPerCSC    = fs->make<TH1F>("CLCTs_per_CSCtype", "CLCTs per CSC type", 10, -0.5,  9.5);
   for (int i = 0; i < MAX_ENDCAPS; i++) { // endcaps
@@ -476,6 +484,8 @@ void CSCTriggerPrimitivesReader::bookCLCTHistos() {
     hClctKeyStripCsc[i]   = fs->make<TH1F>(asdf, s2.c_str(), max_ds, 0., max_ds);
   }
 
+  hClctKeyStripME11 = fs->make<TH1F>("hClctKeyStripME11","CLCT keystrip, halfstrips ME1/1",161, -0.5, 160.5);
+
   bookedCLCTHistos = true;
 }
 
@@ -483,7 +493,7 @@ void CSCTriggerPrimitivesReader::bookLCTTMBHistos() {
   string s;
 
   edm::Service<TFileService> fs;
-  hLctTMBPerEvent  = fs->make<TH1F>("LCTs_per_event", "LCTs per event",    11, -0.5, 10.5);
+  hLctTMBPerEvent  = fs->make<TH1F>("LCTs_per_event", "LCTs per event",    31, -0.5, 30.5);
   hLctTMBPerChamber= fs->make<TH1F>("LCTs_per_chamber", "LCTs per chamber",   3, -0.5,  2.5);
   hLctTMBPerCSC    = fs->make<TH1F>("LCTs_per_CSCtype", "LCTs per CSC type", 10, -0.5,  9.5);
   hCorrLctTMBPerCSC= fs->make<TH1F>("CorrLCTs_per_CSCtype", "Corr. LCTs per CSC type", 10, -0.5, 9.5);
@@ -518,6 +528,9 @@ void CSCTriggerPrimitivesReader::bookLCTTMBHistos() {
     hLctTMBChamber[istat] = fs->make<TH1F>("", histname,  10, -0.5, 9.5);
   }
   
+  hLctTMBKeyGroupME11  = fs->make<TH1F>("hLctTMBKeyGroupME11", "LCT key wiregroup ME1/1", 50, -0.5, 49.5);
+  hLctTMBKeyStripME11  = fs->make<TH1F>("hLctTMBKeyStripME11", "LCT key strip ME1/1",	  161, -0.5, 160.5);
+
   bookedLCTTMBHistos = true;
 }
 
@@ -571,7 +584,7 @@ int CSCTriggerPrimitivesReader::chamberSerial( CSCDetId id ) {
 
 void CSCTriggerPrimitivesReader::bookLCTMPCHistos() {
   edm::Service<TFileService> fs;
-  hLctMPCPerEvent  = fs->make<TH1F>("MPC_per_event", "LCTs per event",    11, -0.5, 10.5);
+  hLctMPCPerEvent  = fs->make<TH1F>("MPC_per_event", "LCTs per event",    31, -0.5, 30.5);
   hLctMPCPerCSC    = fs->make<TH1F>("MPC_per_CSCtype", "LCTs per CSC type", 10, -0.5,  9.5);
   hCorrLctMPCPerCSC= fs->make<TH1F>("CorrMPC_per_CSCtype", "Corr. LCTs per CSC type", 10, -0.5,9.5);
   hLctMPCEndcap    = fs->make<TH1F>("MPC_Endcap", "Endcap",             4, -0.5,  3.5);
@@ -594,6 +607,9 @@ void CSCTriggerPrimitivesReader::bookLCTMPCHistos() {
     sprintf(histname, "MPC_CSCId, station %d", istat+1);
     hLctMPCChamber[istat] = fs->make<TH1F>("", histname,  10, -0.5, 9.5);
   }
+
+  hLctMPCKeyGroupME11  = fs->make<TH1F>("hLctMPCKeyGroupME11", "MPC LCT key wiregroup ME1/1", 50, -0.5, 49.5);
+  hLctMPCKeyStripME11  = fs->make<TH1F>("hLctMPCKeyStripME11", "MPC LCT key strip ME1/1",     161, -0.5, 160.5);
 
   bookedLCTMPCHistos = true;
 }
@@ -880,7 +896,7 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
   for (detUnitIt = alcts->begin(); detUnitIt != alcts->end(); detUnitIt++) {
     int nValidALCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
-    if (badChambers_->isInBadChamber(id)) continue;
+    if (skipbadchambers && badChambers_->isInBadChamber(id)) continue;
     const CSCALCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -897,6 +913,8 @@ void CSCTriggerPrimitivesReader::fillALCTHistos(const CSCALCTDigiCollection* alc
 	int csctype = getCSCType(id);
 	hAlctPerCSC->Fill(csctype);
 	hAlctCsc[id.endcap()-1][csctype]->Fill(id.chamber());
+
+	if (csctype==0) hAlctKeyGroupME11->Fill((*digiIt).getKeyWG());
 
         nValidALCTs++;
 	nValidALCTsPerCSC++;
@@ -926,7 +944,7 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
   for (detUnitIt = clcts->begin(); detUnitIt != clcts->end(); detUnitIt++) {
     int nValidCLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
-    if (badChambers_->isInBadChamber(id)) continue;
+    if (skipbadchambers && badChambers_->isInBadChamber(id)) continue;
     const CSCCLCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCCLCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -949,6 +967,8 @@ void CSCTriggerPrimitivesReader::fillCLCTHistos(const CSCCLCTDigiCollection* clc
 	hClctPerCSC->Fill(csctype);
 	hClctCsc[id.endcap()-1][csctype]->Fill(id.chamber());
 
+	if (striptype==1 && csctype==0) hClctKeyStripME11->Fill(keystrip);
+	
 	int phibend;
 	int pattern = (*digiIt).getPattern();
 	if (!isTMB07) phibend = ptype[pattern];
@@ -987,7 +1007,7 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
   for (detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
     int nValidLCTsPerCSC = 0;
     const CSCDetId& id = (*detUnitIt).first;
-    if (badChambers_->isInBadChamber(id)) continue;
+    if (skipbadchambers && badChambers_->isInBadChamber(id)) continue;
     const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -1032,6 +1052,13 @@ void CSCTriggerPrimitivesReader::fillLCTTMBHistos(const CSCCorrelatedLCTDigiColl
 	// Truly correlated LCTs; for DAQ
 	if (alct_valid && clct_valid) hCorrLctTMBPerCSC->Fill(csctype); 
 
+        if (alct_valid && csctype==0) {
+          hLctTMBKeyGroupME11->Fill((*digiIt).getKeyWG());
+        }
+        if (clct_valid && csctype==0) {
+          hLctTMBKeyStripME11->Fill((*digiIt).getStrip());
+        }
+
         nValidLCTs++;
 	nValidLCTsPerCSC++;
 
@@ -1060,7 +1087,7 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator detUnitIt;
   for (detUnitIt = lcts->begin(); detUnitIt != lcts->end(); detUnitIt++) {
     const CSCDetId& id = (*detUnitIt).first;
-    if (badChambers_->isInBadChamber(id)) continue;
+    if (skipbadchambers && badChambers_->isInBadChamber(id)) continue;
     const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
     for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -1103,6 +1130,14 @@ void CSCTriggerPrimitivesReader::fillLCTMPCHistos(const CSCCorrelatedLCTDigiColl
 	hLctMPCPerCSC->Fill(csctype);
 	// Truly correlated LCTs; for DAQ
 	if (alct_valid && clct_valid) hCorrLctMPCPerCSC->Fill(csctype); 
+
+
+        if (alct_valid && csctype==0) {
+ 	  hLctMPCKeyGroupME11->Fill((*digiIt).getKeyWG());
+        }
+        if (clct_valid && csctype==0) {
+	  hLctMPCKeyStripME11->Fill((*digiIt).getStrip());
+        }
 
         nValidLCTs++;
 
@@ -1170,7 +1205,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	  CSCDetId detid(endc, stat, ring, cham, 0);
 
 	  // Skip chambers marked as bad.
-	  if (badChambers_->isInBadChamber(detid)) continue;
+	  if (skipbadchambers && badChambers_->isInBadChamber(detid)) continue;
 
 	  std::vector<CSCALCTDigi> alctV_data, alctV_emul;
 	  const CSCALCTDigiCollection::Range& drange = alcts_data->get(detid);
@@ -1344,7 +1379,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	  CSCDetId detid(endc, stat, ring, cham, 0);
 
 	  // Skip chambers marked as bad.
-	  if (badChambers_->isInBadChamber(detid)) continue;
+	  if (skipbadchambers && badChambers_->isInBadChamber(detid)) continue;
 
 	  std::vector<CSCCLCTDigi> clctV_data, clctV_emul;
 	  const CSCCLCTDigiCollection::Range& drange = clcts_data->get(detid);
@@ -1516,7 +1551,7 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	  CSCDetId detid(endc, stat, ring, cham, 0);
 
 	  // Skip chambers marked as bad.
-	  if (badChambers_->isInBadChamber(detid)) continue;
+	  if (skipbadchambers && badChambers_->isInBadChamber(detid)) continue;
 
 	  std::vector<CSCCorrelatedLCTDigi> lctV_data, lctV_emul;
 	  const CSCCorrelatedLCTDigiCollection::Range&
@@ -1847,7 +1882,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
   CSCALCTDigiCollection::DigiRangeIterator adetUnitIt;
   for (adetUnitIt = alcts->begin(); adetUnitIt != alcts->end(); adetUnitIt++) {
     const CSCDetId& id = (*adetUnitIt).first;
-    if (badChambers_->isInBadChamber(id)) continue;
+    if (skipbadchambers && badChambers_->isInBadChamber(id)) continue;
     const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
     for (CSCALCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -1886,6 +1921,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	  hEtaDiffVsEta[stat-1]->Fill(fabs(alctEta), fabs(deltaEta));
 	  hEtaDiffVsWireCsc[csctype]->Fill(wiregroup, deltaEta);
 	}
+	// should I comment out this "else"?
 	else {
 	  edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	    << "+++ Warning in calcResolution(): no matched SimHit"
@@ -1903,7 +1939,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
   CSCCLCTDigiCollection::DigiRangeIterator cdetUnitIt;
   for (cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++) {
     const CSCDetId& id = (*cdetUnitIt).first;
-    if (badChambers_->isInBadChamber(id)) continue;
+    if (skipbadchambers && badChambers_->isInBadChamber(id)) continue;
     const CSCCLCTDigiCollection::Range& range = (*cdetUnitIt).second;
     for (CSCCLCTDigiCollection::const_iterator digiIt = range.first;
 	 digiIt != range.second; digiIt++) {
@@ -1982,6 +2018,7 @@ void CSCTriggerPrimitivesReader::calcResolution(
 	    }
 	  }
 	}
+	// should I comment out this "else"?
 	else {
 	  edm::LogWarning("L1CSCTPEmulatorWrongInput")
 	    << "+++ Warning in calcResolution(): no matched SimHit"
@@ -2044,8 +2081,9 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
     bool sameId = false;
     CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
     // Skip chambers marked as bad (includes most of ME4/2 chambers).
-    if (badChambers_->isInBadChamber(hitId)) continue;
-    if (hitId.ring() == 4) continue; // skip ME1/A for now.
+    if (skipbadchambers && badChambers_->isInBadChamber(hitId)) continue;
+    //if (hitId.ring() == 4) continue; // skip ME1/A for now.
+    if (!plotME1A && hitId.ring() == 4) continue;
     for (chamberIdIt = chamberIds.begin(); chamberIdIt != chamberIds.end();
 	 chamberIdIt++) {
       if ((*chamberIdIt).endcap()  == hitId.endcap() &&
@@ -2185,7 +2223,8 @@ void CSCTriggerPrimitivesReader::calcEfficiency(
 
 void CSCTriggerPrimitivesReader::drawALCTHistos() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
-  TPostScript *ps = new TPostScript("alcts.ps", 111);
+  string fname = resultsFileNamesPrefix_+"alcts.ps";
+  TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
   for (int i_page = 0; i_page < MAXPAGES; i_page++) {
@@ -2258,7 +2297,8 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
 
 void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
-  TPostScript *ps = new TPostScript("clcts.ps", 111);
+  string fname = resultsFileNamesPrefix_+"clcts.ps";
+  TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
   for (int i_page = 0; i_page < MAXPAGES; i_page++) {
@@ -2426,7 +2466,8 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
 
 void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
-  TPostScript *ps = new TPostScript("lcts_tmb.ps", 111);
+  string fname = resultsFileNamesPrefix_+"lcts_tmb.ps";
+  TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
   for (int i_page = 0; i_page < MAXPAGES; i_page++) {
@@ -2522,7 +2563,8 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
 
 void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
-  TPostScript *ps = new TPostScript("lcts_mpc.ps", 111);
+  string fname = resultsFileNamesPrefix_+"lcts_mpc.ps";
+  TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
   for (int i_page = 0; i_page < MAXPAGES; i_page++) {
@@ -2594,7 +2636,8 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
 
 void CSCTriggerPrimitivesReader::drawCompHistos() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
-  TPostScript *ps = new TPostScript("lcts_comp.ps", 111);
+  string fname = resultsFileNamesPrefix_+"lcts_comp.ps";
+  TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
   for (int i_page = 0; i_page < MAXPAGES; i_page++) {
@@ -2931,7 +2974,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 
 void CSCTriggerPrimitivesReader::drawResolHistos() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 640);
-  TPostScript *ps = new TPostScript("lcts_resol.ps", 111);
+  string fname = resultsFileNamesPrefix_+"lcts_resol.ps";
+  TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
   for (int i_page = 0; i_page < MAXPAGES; i_page++) {
@@ -3307,7 +3351,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
 
 void CSCTriggerPrimitivesReader::drawEfficHistos() {
   TCanvas *c1 = new TCanvas("c1", "", 0, 0, 500, 700);
-  TPostScript *ps = new TPostScript("lcts_effic.ps", 111);
+  string fname = resultsFileNamesPrefix_+"lcts_effic.ps";
+  TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
   for (int i_page = 0; i_page < MAXPAGES; i_page++) {
@@ -3362,7 +3407,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
     hALCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
     hALCTEffVsEtaCsc[idh]->Divide(hEfficALCTEtaCsc[idh],
 				  hEfficHitsEtaCsc[idh], 1., 1., "B");
-    if (idh == 4 || idh == 6 || idh == 8) {
+    if (idh == 3 || idh == 4 || idh == 6 || idh == 8) {
       gPad->Update();  gStyle->SetStatX(0.43);
     }
     else {
@@ -3419,7 +3464,7 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
     hCLCTEffVsEtaCsc[idh] = (TH1F*)hEfficHitsEtaCsc[idh]->Clone();
     hCLCTEffVsEtaCsc[idh]->Divide(hEfficCLCTEtaCsc[idh],
 				  hEfficHitsEtaCsc[idh], 1., 1., "B");
-    if (idh == 4 || idh == 6 || idh == 8) {
+    if (idh == 3 || idh == 4 || idh == 6 || idh == 8) {
       gPad->Update();  gStyle->SetStatX(0.43);
     }
     else {
@@ -3637,6 +3682,9 @@ int CSCTriggerPrimitivesReader::getCSCType(const CSCDetId& id) {
 
   if (id.station() == 1) {
     type = (id.triggerCscId()-1)/3;
+    if (id.ring() == 4) {
+      type = 3;
+    }
   }
   else { // stations 2-4
     type = 3 + id.ring() + 2*(id.station()-2);

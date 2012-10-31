@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# module to make simple analyses of top event hypotheses
+# module to make simple analyses of top event hypothese
 #
 analyzeHypothesis = cms.EDAnalyzer("HypothesisAnalyzer",
     semiLepEvent = cms.InputTag("ttSemiLepEvent"),
-    hypoClassKey = cms.string("kMaxSumPtWMass")
+    hypoClassKey = cms.InputTag("ttSemiLepHypMaxSumPtWMass","Key")
 )
 
 

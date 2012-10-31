@@ -2,7 +2,6 @@
 #define HcalSimAlgos_HcalSignalGenerator_h
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalBaseSignalGenerator.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"

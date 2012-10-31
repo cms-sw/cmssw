@@ -48,7 +48,7 @@ CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopolog
   if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (
      HcalGeometry::k_NumberOfShapes,
      HcalGeometry::k_NumberOfParametersPerShape ) ;
-  if (fTopology.mode() == HcalTopology::md_H2) {  // TB geometry
+  if (fTopology.mode() == HcalTopologyMode::H2) {  // TB geometry
     fillHBHO (hcalGeometry, makeHBCells(fTopology), true);
     fillHBHO (hcalGeometry, makeHOCells(), false);
     fillHE (hcalGeometry, makeHECells_H2());
@@ -79,7 +79,7 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardc
   std::vector <HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> result;
   for(int iring = 1; iring <= 16; ++iring) {
     std::vector<float> depths;
-    if (topology.mode() != HcalTopology::md_SLHC) {
+    if (topology.mode() != HcalTopologyMode::SLHC) {
       if (iring == 15) {
 	for (int i=0; i<3; ++i) depths.push_back(ring15Depths[i]);
       } else if (iring == 16) {
@@ -227,7 +227,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
     int iring = iringm16 + 16;
     std::vector<float> depths;
     unsigned int startingDepth = 1;
-    if (topology.mode() != HcalTopology::md_SLHC) {
+    if (topology.mode() != HcalTopologyMode::SLHC) {
       if (iring == 16)     
 	{for (int i=0; i<2; ++i) depths.push_back(ring16Depths[i]); startingDepth = 3;}
       else if (iring == 17) 
@@ -285,7 +285,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
 	//	std::cout << "HE Depth " << idepth << ":" << depthIndex << " Z " << zmin << ":" << zmax << "\n";
 	int stepPhi = (iring >= topology.firstHEDoublePhiRing() ? 2 : 1);
 	int deltaPhi =  (iring >= topology.firstHEDoublePhiRing() ? 10 : 5);
-	if (topology.mode() != HcalTopology::md_SLHC &&
+	if (topology.mode() != HcalTopologyMode::SLHC &&
 	    iring == topology.lastHERing()-1 && idepth == ndepth-1) {
 	  //	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etaBounds[iringm16+2] << std::endl;
 	  result.push_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etaBounds[iringm16+2]));

@@ -7,16 +7,16 @@
 
 /** \class CaloTowerHardcodeGeometryLoader
   *  
-  * $Date: 2009/02/06 10:32:33 $
-  * $Revision: 1.4 $
+  * $Date: 2011/06/04 19:07:17 $
+  * $Revision: 1.5 $
   * \author J. Mans - Minnesota
   */
 class CaloTowerHardcodeGeometryLoader {
 public:
-  std::auto_ptr<CaloSubdetectorGeometry> load();
+  std::auto_ptr<CaloSubdetectorGeometry> load(const HcalTopology *limits);
 private:
   void makeCell(int ieta, int iphi, CaloSubdetectorGeometry* geom) const;
-  HcalTopology limits; // just for the ring limits
+  const HcalTopology *m_limits; // just for the ring limits
 
 };
 
