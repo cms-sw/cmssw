@@ -439,5 +439,6 @@ HcalGeometry::cellGeomPtr( uint32_t din ) const
 	 }
       }
    }
-   return ( 0 == cell || 0 == cell->param() ? 0 : cell ) ;
+   
+   return (( 0 == cell || 0 == cell->param()) ? 0 : cell ) ;
 }
