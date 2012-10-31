@@ -96,8 +96,8 @@ workflows[5.3] = ['SingleMuPt100', ['SingleMuPt100FS']]
 workflows[5.4] = ['ZEE', ['ZEEFS']]
 workflows[5.5] = ['ZTT',['ZTTFS']]
 
-workflows[39]  = ['QCD_FlatPt_15_3000', ['QCDFlatPt153000FS']]
-workflows[6.4] = ['H130GGgluonfusion', ['H130GGgluonfusionFS']]
+workflows[5.6]  = ['QCD_FlatPt_15_3000', ['QCDFlatPt153000FS']]
+workflows[5.7] = ['H130GGgluonfusion', ['H130GGgluonfusionFS']]
 
 ### standard set ###
 workflows[15] = ['', ['SingleElectronPt10','DIGI','RECO']]
@@ -117,6 +117,7 @@ workflows[38] = ['', ['QCD_FlatPt_15_3000','DIGI','RECO']]
 
 workflows[9]  = ['', ['Higgs200ChargedTaus','DIGI','RECO']]
 workflows[13] = ['', ['QCD_Pt_3000_3500','DIGI','RECO']]
+workflows[39] = ['', ['QCD_Pt_600_800','DIGI','RECO']]
 workflows[23] = ['', ['JpsiMM','DIGI','RECO']]
 workflows[25] = ['', ['TTbar','DIGI','RECO','ALCATT']]
 workflows[26] = ['', ['WE','DIGI','RECO','HARVEST']]

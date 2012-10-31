@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-pfAllNeutralHadrons = cms.EDFilter("PFCandidateFwdPtrCollectionPdgIdFilter",
+pfAllNeutralHadrons = cms.EDFilter("PdgIdPFCandidateSelector",
     src = cms.InputTag("pfNoPileUpIso"),
-    pdgId = cms.vint32(111,130,310,2112),
-    makeClones = cms.bool(True)
+    pdgId = cms.vint32(111,130,310,2112)
 )
 
 

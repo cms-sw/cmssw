@@ -11,10 +11,6 @@
 
 class PFPileUpAlgo {
  public:
-
-
-  typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
-
   PFPileUpAlgo():checkClosestZVertex_(true), verbose_(false) {;}
     
   PFPileUpAlgo( bool checkClosestZVertex, bool verbose=false):
@@ -23,16 +19,17 @@ class PFPileUpAlgo {
   ~PFPileUpAlgo(){;}
 
   // the last parameter is needed if you want to use the sourceCandidatePtr
-  void process(const PFCollection & pfCandidates, 
-	       const reco::VertexCollection & vertices)  ;
+  void process(const reco::PFCandidateCollection & pfCandidates, 
+	       const reco::VertexCollection & vertices, 
+	       const edm::Handle<reco::PFCandidateCollection> * handle=0)  ;
 
   inline void setVerbose(bool verbose) { verbose_ = verbose; }
 
   inline void setCheckClosestZVertex(bool val) { checkClosestZVertex_ = val;}
 
-  const PFCollection & getPFCandidatesFromPU() const {return pfCandidatesFromPU_;}
+  const reco::PFCandidateCollection & getPFCandidatesFromPU() const {return pfCandidatesFromPU_;}
   
-  const PFCollection & getPFCandidatesFromVtx() const {return pfCandidatesFromVtx_;}
+  const reco::PFCandidateCollection & getPFCandidatesFromVtx() const {return pfCandidatesFromVtx_;}
 
   int chargedHadronVertex(const reco::VertexCollection& vertices, 
 			const reco::PFCandidate& pfcand ) const;
@@ -47,8 +44,8 @@ class PFPileUpAlgo {
   /// verbose ?
   bool   verbose_;
 
-  PFCollection pfCandidatesFromVtx_;
-  PFCollection pfCandidatesFromPU_;
+  reco::PFCandidateCollection pfCandidatesFromVtx_;
+  reco::PFCandidateCollection pfCandidatesFromPU_;
   
 };
 

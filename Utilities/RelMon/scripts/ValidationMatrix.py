@@ -3,9 +3,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: anorkus $
-# $Date: 2012/10/23 15:10:14 $
-# $Revision: 1.7 $
+# $Author: agimbuta $
+# $Date: 2012/07/12 15:30:54 $
+# $Revision: 1.4 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -18,7 +18,7 @@ import os
 import cPickle
 import glob
 from re import search
-from subprocess import call,PIPE
+from subprocess import Popen,PIPE
 from multiprocessing import Pool
 from sys import exit
 
@@ -288,20 +288,13 @@ def call_compare_using_files(args):
   # Inspect the HLT directories
   if options.hlt:
     command+=" -d HLT "
-  
-  if options.hash_name:
-    command += " --hash_name "
-
-  if options.blacklist_file:
-    command += " --use_black_file "
 
   if len(blacklists[sample]) >0:
     command+= '-B %s ' %blacklists[sample]
   print "\nExecuting --  %s" %command
 
-  process=call(filter(lambda x: len(x)>0,command.split(" ")))
-  return process
-  
+  process=Popen(filter(lambda x: len(x)>0,command.split(" ")))
+  process.name=sample
 
 #--------------------------------------------------------------------------------
 
@@ -363,7 +356,7 @@ def do_comparisons_threaded(options):
       #first=False
       
     #print n_processes
-  #print n_processes
+  print n_processes
   
   # Test if we treat data
   skim_name=""
@@ -372,19 +365,20 @@ def do_comparisons_threaded(options):
     
   running_subprocesses=[]
   process_counter=0
-  #print ref_filenames
+  print ref_filenames
 
   ## Compare all pairs of root files
   pool = Pool(n_processes)
   args_iterable = [list(args) + [options] for args in zip(samples, ref_filenames, test_filenames)]
-  pool.map(call_compare_using_files, args_iterable) 
+  pool.map(call_compare_using_files, args_iterable)
+
   # move the pickles on the top, hack
   os.system("mv */*pkl .")
   
   os.chdir("..")
 #-------------------------------------------------------------------------------
 def do_reports(indir):
-  #print indir
+  print indir
   os.chdir(indir)
   pkl_list=filter(lambda x:".pkl" in x, os.listdir("./"))
   running_subprocesses=[]
@@ -398,7 +392,7 @@ def do_reports(indir):
     command+= "-P %s " %pklfilename
     command+= "-o %s " %pklfilename[:-4]
     print "Executing %s" %command
-    process=call(filter(lambda x: len(x)>0,command.split(" ")))
+    process=Popen(filter(lambda x: len(x)>0,command.split(" ")))
     process_counter+=1
     # add it to the list
     running_subprocesses.append(process)   
@@ -411,7 +405,7 @@ def do_reports(indir):
   os.chdir("..")
   
 #-------------------------------------------------------------------------------
-def do_html(options, hashing_flag):
+def do_html(options):
 
   if options.reports:
     print "Preparing reports for the single files..."
@@ -427,7 +421,7 @@ def do_html(options, hashing_flag):
   else:
     aggregation_rules=definitions.aggr_pairs_dict['reco']
     aggregation_rules_twiki=definitions.aggr_pairs_twiki_dict['reco']
-  table_html = make_summary_table(options.input_dir,aggregation_rules,aggregation_rules_twiki, hashing_flag)
+  table_html = make_summary_table(options.input_dir,aggregation_rules,aggregation_rules_twiki)
 
   # create summary html file
   ofile = open("RelMonSummary.html","w")
@@ -526,18 +520,6 @@ if __name__ == "__main__":
                     dest="reports",
                     default=False,
                     help="Do the reports for the pickles \n(default is %s)" %in_dir)
-##---HASHING---##
-  parser.add_option("--hash_name",
-                    action="store_true",
-                    dest="hash_name",
-                    default=False,
-                    help="Set if you want to minimize & hash the output HTML files.")
-##--Blacklist File --##                  
-  parser.add_option("--use_black_file",
-                    action="store_true",
-                    dest="blacklist_file",
-                    default=False,
-                    help="Use a black list file of histograms located @ /RelMon/data")
 
   (options, args) = parser.parse_args()
 
@@ -549,7 +531,7 @@ if __name__ == "__main__":
   if len(options.all_samples)>0 or (len(options.ref_samples)*len(options.test_samples)>0):
     do_comparisons_threaded(options)
   if len(options.input_dir)>0:
-    do_html(options, options.hash_name)
+    do_html(options)
 
 
 

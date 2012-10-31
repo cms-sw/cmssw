@@ -13,8 +13,8 @@ class RandomNumberServiceHelper(object):
 
     Provide both user level and WM APIs.
 
-    Revision: "$Id: RandomServiceHelper.py,v 1.4 2008/06/10 19:49:49 ewv Exp $"
-    Version   "$Revision: 1.4 $"
+    Revision: "$Id: RandomServiceHelper.py,v 1.5 2012/07/30 07:39:51 davidlt Exp $"
+    Version   "$Revision: 1.5 $"
     Author:   Dave Evans
     Modified: Eric Vaandering
     """
@@ -31,7 +31,7 @@ class RandomNumberServiceHelper(object):
         True/False if the psetInstance has seeds in it
 
         """
-        if psetInstance == None:
+        if psetInstance is None:
             return False
         if not isinstance(psetInstance,CfgTypes.PSet):
             return False

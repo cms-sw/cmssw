@@ -19,7 +19,6 @@
 
 // system include files
 #include <string>
-#include <utility>
 
 // user include files
 
@@ -60,131 +59,6 @@ public:
     enum TriggerCategory {
         AlgorithmTrigger = 0, TechnicalTrigger = 1
     };
-
-    /**
-     * \class L1GtUtils
-     * 
-     * 
-     * Description: return L1 trigger results for a logical expression.
-     *
-     * Implementation:
-     *    Return L1 trigger results for a logical expression of algorithm or technical triggers.
-     *    Mixture of algorithm and technical triggers in the logical expression is allowed only if
-     *    trigger names or aliases are used. Mixing bit numbers and names or aliases is not supported.
-     *    If the expression has bit numbers, they are assumed to be technical triggers.
-     *    
-     * \author: Vasile Mihai Ghete - HEPHY Vienna
-     *      *
-     */
-    class LogicalExpressionL1Results {
-
-    public:
-        /// constructor(s)
-
-        /// trigger decisions, prescale factors and masks from GT record(s) with input tag(s) 
-        /// from provenance
-        explicit LogicalExpressionL1Results(const std::string&, L1GtUtils&);
-
-        /// trigger decisions, prescale factors and masks from GT record(s) with input tag(s) 
-        /// explicitly given
-        explicit LogicalExpressionL1Results(const std::string&, L1GtUtils&,
-                const edm::InputTag&, const edm::InputTag&);
-
-        /// destructor
-        ~LogicalExpressionL1Results();
-
-    public:
-
-        inline bool isValid() {
-            return m_validLogicalExpression;
-        }
-
-        const int logicalExpressionRunUpdate(const edm::Run&,
-                const edm::EventSetup&);
-
-        /// list of triggers in the logical expression, trigger decisions, prescale factors and masks, error codes
-
-        inline const std::vector<L1GtLogicParser::OperandToken>& expL1Triggers() {
-            return m_expL1Triggers;
-        }
-        const std::vector<std::pair<std::string, bool> >& decisionsBeforeMask();
-        const std::vector<std::pair<std::string, bool> >& decisionsAfterMask();
-        const std::vector<std::pair<std::string, int> >& prescaleFactors();
-        const std::vector<std::pair<std::string, int> >& triggerMasks();
-
-        const std::vector<std::pair<std::string, int> >& errorCodes(
-                const edm::Event&);
-
-    private:
-
-        /// parse the logical expression, initialize the private members to required size 
-        /// such that one can just reset them
-        bool initialize();
-
-        /// reset for each L1 trigger the value from pair.second
-        void reset(std::vector<std::pair<std::string, bool> >) const;
-        void reset(std::vector<std::pair<std::string, int> >) const;
-
-        void
-        l1Results(const edm::Event& iEvent,
-                const edm::InputTag& l1GtRecordInputTag,
-                const edm::InputTag& l1GtReadoutRecordInputTag);
-
-    private:
-
-        /// private members as input parameters
-
-        /// logical expression 
-        std::string m_logicalExpression;
-
-        L1GtUtils& m_l1GtUtils;
-
-        edm::InputTag m_l1GtRecordInputTag;
-        edm::InputTag m_l1GtReadoutRecordInputTag;
-
-    private:
-
-        // private members
-
-        /// code for L1 trigger configuration
-        int m_l1ConfCode;
-
-        /// true if valid L1 configuration - if not, reset all quantities and return
-        bool m_validL1Configuration;
-
-        /// true if the logical expression uses accepted L1GtLogicParser operators  
-        bool m_validLogicalExpression;
-
-        /// true if input tags for GT records are to be found from provenance 
-        /// (if both input tags from constructors are empty)
-        bool m_l1GtInputTagsFromProv;
-
-        /// set to true if the method l1Results was called once
-        bool m_l1ResultsAlreadyCalled;
-
-        std::vector<L1GtLogicParser::OperandToken> m_expL1Triggers;
-        size_t m_expL1TriggersSize;
-
-        /// trigger category for each L1 trigger in the logical expression 
-        std::vector<L1GtUtils::TriggerCategory> m_expTriggerCategory;
-
-        /// flag true, if the logical expression is built from technical trigger bits
-        bool m_expBitsTechTrigger;
-
-        /// for each L1 trigger in the logical expression, true if the trigger is found
-        /// in the current L1 menu
-        std::vector<bool> m_expTriggerInMenu;
-
-        ///
-        std::vector<std::pair<std::string, bool> > m_decisionsBeforeMask;
-        std::vector<std::pair<std::string, bool> > m_decisionsAfterMask;
-        std::vector<std::pair<std::string, int> > m_prescaleFactors;
-        std::vector<std::pair<std::string, int> > m_triggerMasks;
-        std::vector<std::pair<std::string, int> > m_errorCodes;
-
-    };
-
-public:
 
     /// public methods
 
@@ -228,19 +102,6 @@ public:
     /// get the input tag for L1GtTriggerMenuLite
     void getL1GtTriggerMenuLiteInputTag(const edm::Run& iRun,
             edm::InputTag& l1GtTriggerMenuLiteInputTag) const;
-    
-    /// return the input tags found from provenance
-    inline const edm::InputTag& provL1GtRecordInputTag() {
-        return m_provL1GtRecordInputTag;
-    }
-    
-    inline const edm::InputTag& provL1GtReadoutRecordInputTag() {
-        return m_provL1GtReadoutRecordInputTag;
-    }
-    
-    inline const edm::InputTag& provL1GtTriggerMenuLiteInputTag() {
-        return m_provL1GtTriggerMenuLiteInputTag;
-    }
 
     /// return the trigger "category" trigCategory
     ///    algorithm trigger alias or algorithm trigger name AlgorithmTrigger = 0,
@@ -253,16 +114,6 @@ public:
 
     const bool l1AlgoTechTrigBitNumber(const std::string& nameAlgoTechTrig,
             TriggerCategory& trigCategory, int& bitNumber) const;
-
-    /// return the trigger name and alias for a given trigger category and a given 
-    /// bit number
-    ///
-    /// in case no algorithm trigger / technical trigger is defined for that bit in the menu,
-    /// the returned function is false, and the name and the alias is empty
-
-    const bool l1TriggerNameFromBit(const int& bitNumber,
-            const TriggerCategory& trigCategory, std::string& aliasL1Trigger,
-            std::string& nameL1Trigger) const;
 
     /// return results for a given algorithm or technical trigger:
     /// input:
@@ -499,6 +350,9 @@ private:
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrigLite;
     const std::vector<std::vector<int> >* m_prescaleFactorsTechTrigLite;
 
+    edm::RunID m_runIDCache;
+    edm::RunID m_provRunIDCache;
+
     bool m_l1GtMenuLiteValid;
 
     /// flag for call of getL1GtRunCache in beginRun
@@ -509,11 +363,6 @@ private:
     mutable edm::InputTag m_provL1GtRecordInputTag;
     mutable edm::InputTag m_provL1GtReadoutRecordInputTag;
     mutable edm::InputTag m_provL1GtTriggerMenuLiteInputTag;
-    
-    /// run cache ID 
-    edm::RunID m_runIDCache;
-    edm::RunID m_provRunIDCache;
-
 
 private:
 

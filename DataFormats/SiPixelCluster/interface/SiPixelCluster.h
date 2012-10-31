@@ -18,9 +18,15 @@
 //---------------------------------------------------------------------------
 
 #include <vector>
-#include "boost/cstdint.hpp"
-#include <cassert>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+#ifndef CMS_NOCXX11
+#include <cstdint>
+#else
+#include "boost/cstdint.hpp"
+#endif
+
+#include <cassert>
 
 class PixelDigi;
 
@@ -32,9 +38,9 @@ public:
     constexpr Pixel() : x(0), y(0), adc(0){} // for root
     constexpr Pixel(int pix_x, int pix_y, int pix_adc) :
       x(pix_x), y(pix_y), adc(pix_adc) {}
-    unsigned short  x;
-    unsigned short y;
-    unsigned short adc;
+    uint16_t  x;
+    uint16_t y;
+    uint16_t adc;
   };
   
   //--- Integer shift in x and y directions.
@@ -71,13 +77,13 @@ public:
 #ifndef CMS_NOCXX11
   static constexpr unsigned int POSBITS=10;
   static constexpr unsigned int SPANBITS=6;
-  static constexpr unsigned short MAXSPAN=63;
-  static constexpr unsigned short MAXPOS=1023;
+  static constexpr unsigned int MAXSPAN=63;
+  static constexpr unsigned int MAXPOS=1023;
 #else
   static const unsigned int POSBITS=10;
   static const unsigned int SPANBITS=6;
-  static const unsigned short MAXSPAN=63;
-  static const unsigned short MAXPOS=1023;
+  static const unsigned int MAXSPAN=63;
+  static const unsigned int MAXPOS=1023;
 #endif  
   
   /** Construct from a range of digis that form a cluster and from 
@@ -87,16 +93,16 @@ public:
   SiPixelCluster() : thePixelRow(MAXPOS), thePixelCol(MAXPOS), err_x(-99999.9), err_y(-99999.9) {}  // needed by many....
   
   SiPixelCluster(unsigned int isize, uint16_t const * adcs,
-		 unsigned short const * xpos,  unsigned short const * ypos, 
-		 unsigned short const  xmin,  unsigned short const  ymin) :   
+		 uint16_t const * xpos,  uint16_t const * ypos, 
+		 uint16_t const  xmin,  uint16_t const  ymin) :   
     thePixelOffset(2*isize), thePixelADC(adcs,adcs+isize), err_x(-99999.9), err_y(-99999.9) {
-    unsigned short maxCol = 0;
-    unsigned short maxRow = 0;
+    uint16_t maxCol = 0;
+    uint16_t maxRow = 0;
     for (unsigned int i=0; i!=isize; ++i) {
-      unsigned short xoffset = xpos[i]-xmin;
-      unsigned short yoffset = ypos[i]-ymin;
-      thePixelOffset[i*2] = std::min(MAXSPAN,xoffset);
-      thePixelOffset[i*2+1] = std::min(MAXSPAN,yoffset);
+      uint16_t xoffset = xpos[i]-xmin;
+      uint16_t yoffset = ypos[i]-ymin;
+      thePixelOffset[i*2] = std::min(uint16_t(MAXSPAN),xoffset);
+      thePixelOffset[i*2+1] = std::min(uint16_t(MAXSPAN),yoffset);
       if (xoffset > maxRow) maxRow = xoffset; 
       if (yoffset > maxCol) maxCol = yoffset; 
     }
@@ -175,9 +181,9 @@ public:
 private:
   
   static int span_(uint16_t packed) { return packed >> POSBITS;}
-  static int overflow_(uint16_t packed) { return span_(packed)==MAXSPAN;}
-  static uint16_t pack_(unsigned short zmin, unsigned  short zspan) {
-    zspan = std::min(zspan, MAXSPAN);
+  static int overflow_(uint16_t packed) { return span_(packed)==uint16_t(MAXSPAN);}
+  static uint16_t pack_(uint16_t zmin, unsigned  short zspan) {
+    zspan = std::min(zspan, uint16_t(MAXSPAN));
     return (zspan<<POSBITS) | zmin;
   }
 public:
@@ -193,10 +199,10 @@ public:
   
   bool overflow() const { return  overflowCol() || overflowRow(); }
   
-  void packCol(unsigned short ymin, unsigned short yspan) {
+  void packCol(uint16_t ymin, uint16_t yspan) {
     thePixelCol = pack_(ymin,yspan);
   }
-  void packRow(unsigned short xmin, unsigned short xspan) {
+  void packRow(uint16_t xmin, uint16_t xspan) {
     thePixelRow = pack_(xmin,xspan);
   }
   

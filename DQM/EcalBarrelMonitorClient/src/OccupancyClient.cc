@@ -1,20 +1,49 @@
 #include "../interface/OccupancyClient.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
-#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
+#include "DQM/EcalBarrelMonitorTasks/interface/OccupancyTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
 namespace ecaldqm {
 
-  OccupancyClient::OccupancyClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerClient(_workerParams, _commonParams, "OccupancyClient"),
-    minHits_(_workerParams.getUntrackedParameter<int>("minHits")),
-    deviationThreshold_(_workerParams.getUntrackedParameter<double>("deviationThreshold"))
+  OccupancyClient::OccupancyClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
+    DQWorkerClient(_params, _paths, "OccupancyClient"),
+    geometry_(0),
+    minHits_(0),
+    deviationThreshold_(0.)
   {
-    qualitySummaries_.insert(kQualitySummary);
+    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
+    minHits_ = taskParams.getUntrackedParameter<int>("minHits");
+    deviationThreshold_ = taskParams.getUntrackedParameter<double>("deviationThreshold");
+
+    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
+    source_(sDigi, "OccupancyTask", OccupancyTask::kDigi, sources);
+    source_(sRecHitThr, "OccupancyTask", OccupancyTask::kRecHitThr, sources);
+    source_(sTPDigiThr, "OccupancyTask", OccupancyTask::kTPDigiThr, sources);
+  }
+
+  void
+  OccupancyClient::beginRun(const edm::Run &, const edm::EventSetup &_es)
+  {
+    edm::ESHandle<CaloGeometry> geomHndl;
+    _es.get<CaloGeometryRecord>().get(geomHndl);
+    geometry_ = geomHndl.product();
+    if(!geometry_)
+      throw cms::Exception("EventSetup") << "CaloGeometry invalid";
+  }
+
+  void
+  OccupancyClient::bookMEs()
+  {
+    DQWorker::bookMEs();
+
+    MEs_[kQualitySummary]->resetAll(-1.);
   }
 
   void
@@ -26,88 +55,76 @@ namespace ecaldqm {
     MEs_[kHotRecHitThr]->reset();
     MEs_[kHotTPDigiThr]->reset();
 
-    uint32_t mask(1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR |
-                  1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING |
-                  1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_ERROR);
+    uint32_t mask(1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR);
 
-    vector<double> digiPhiRingMean(56, 0.);
-    vector<double> rechitPhiRingMean(56, 0.);
-    vector<int> numCrystals(56, 0); // this is static, but is easier to count now
+    vector<double> digiPhiRingMean(28, 0.);
+    vector<double> rechitPhiRingMean(28, 0.);
+    vector<int> numCrystals(28, 0); // this is static, but is easier to count now
 
-    MESet::const_iterator dEnd(sources_[kDigi]->end());
-    MESet::const_iterator rItr(sources_[kRecHitThr]);
-    for(MESet::const_iterator dItr(sources_[kDigi]->beginChannel()); dItr != dEnd; dItr.toNextChannel()){
-      rItr = dItr;
+    for(unsigned dccid(1); dccid <= 54; dccid++){
+      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+	vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
-      float entries(dItr->getBinContent());
-      float rhentries(rItr->getBinContent());
+	if(ids.size() == 0) continue;
 
-      DetId id(dItr->getId());
-      int ieta(0);
-      if(id.subdetId() == EcalTriggerTower) // barrel
-        ieta = EcalTrigTowerDetId(id).ieta();
-      else{
-        std::vector<DetId> ids(scConstituents(EcalScDetId(id)));
-        if(ids.size() == 0) continue;
-        ieta = getTrigTowerMap()->towerOf(ids[0]).ieta();
+	for(vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
+	  float entries(sources_[sDigi]->getBinContent(*idItr));
+	  float rhentries(sources_[sRecHitThr]->getBinContent(*idItr));
+
+	  int ieta(getTrigTowerMap()->towerOf(*idItr).ietaAbs());
+	  digiPhiRingMean.at(ieta - 1) += entries;
+	  rechitPhiRingMean.at(ieta - 1) += rhentries;
+
+	  numCrystals.at(ieta - 1) += 1;
+	}
       }
-
-      unsigned index(ieta < 0 ? ieta + 28 : ieta + 27);
-
-      digiPhiRingMean.at(index) += entries;
-      rechitPhiRingMean.at(index) += rhentries;
-      numCrystals.at(index) += 1;
     }
 
-    for(int ie(0); ie < 56; ie++){
+    for(int ie(0); ie < 28; ie++){
       digiPhiRingMean[ie] /= numCrystals[ie];
       rechitPhiRingMean[ie] /= numCrystals[ie];
     }
 
     // second round to find hot towers
-    for(MESet::const_iterator dItr(sources_[kDigi]->beginChannel()); dItr != dEnd; dItr.toNextChannel()){
-      DetId id(dItr->getId());
+    for(unsigned dccid(1); dccid <= 54; dccid++){
+      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+	vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
-      bool doMask(applyMask_(kQualitySummary, id, mask));
+	if(ids.size() == 0) continue;
 
-      rItr = dItr;
+	float quality(1.);
+	for(vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
+	  float entries(sources_[sDigi]->getBinContent(*idItr));
+	  float rhentries(sources_[sRecHitThr]->getBinContent(*idItr));
 
-      float entries(dItr->getBinContent());
-      float rhentries(rItr->getBinContent());
+	  int ieta(getTrigTowerMap()->towerOf(*idItr).ietaAbs());
 
-      int ieta(0);
-      if(id.subdetId() == EcalTriggerTower) // barrel
-        ieta = EcalTrigTowerDetId(id).ieta();
-      else{
-        std::vector<DetId> ids(scConstituents(EcalScDetId(id)));
-        if(ids.size() == 0) continue;
-        ieta = getTrigTowerMap()->towerOf(ids[0]).ieta();
+	  if(entries > minHits_ && entries > digiPhiRingMean.at(ieta - 1) * deviationThreshold_){
+	    MEs_[kHotDigi]->fill(*idItr);
+	    quality = 0.;
+	  }
+	  if(rhentries > minHits_ && rhentries > rechitPhiRingMean.at(ieta - 1) * deviationThreshold_){
+	    MEs_[kHotRecHitThr]->fill(*idItr);
+	    quality = 0.;
+	  }
+	}
+	if(dccid <= 9 || dccid >= 46){
+	  vector<EcalScDetId> scs(getElectronicsMap()->getEcalScDetId(dccid, tower));
+	  for(vector<EcalScDetId>::iterator scItr(scs.begin()); scItr != scs.end(); ++scItr)
+	    fillQuality_(kQualitySummary, *scItr, mask, quality);
+	}
+	else
+	  fillQuality_(kQualitySummary, ids[0], mask, quality);
       }
-
-      unsigned index(ieta < 0 ? ieta + 28 : ieta + 27);
-
-      int quality(doMask ? kMGood : kGood);
-
-      if(entries > minHits_ && entries > digiPhiRingMean.at(index) * deviationThreshold_){
-        MEs_[kHotDigi]->fill(id);
-        quality = doMask ? kMBad : kBad;
-      }
-      if(rhentries > minHits_ && rhentries > rechitPhiRingMean.at(index) * deviationThreshold_){
-        MEs_[kHotRecHitThr]->fill(id);
-        quality = doMask ? kMBad : kBad;
-      }
-
-      MEs_[kQualitySummary]->setBinContent(id, double(quality));
     }
 
-    vector<double> tpdigiPhiRingMean(56, 0.);
+    vector<double> tpdigiPhiRingMean(28, 0.);
 
-    for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT){
+    for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
-      float entries(sources_[kTPDigiThr]->getBinContent(ttid));
+      float entries(sources_[sTPDigiThr]->getBinContent(ttid));
 
-      unsigned index(ttid.ieta() < 0 ? ttid.ieta() + 28 : ttid.ieta() + 27);
-      tpdigiPhiRingMean.at(index) += entries;
+      tpdigiPhiRingMean.at(ttid.ietaAbs() - 1) += entries;
     }
 
     for(int ie(0); ie < 28; ie++){
@@ -115,48 +132,34 @@ namespace ecaldqm {
       if(ie < 27) denom = 72.;
       else denom = 36.;
       tpdigiPhiRingMean[ie] /= denom;
-      tpdigiPhiRingMean[55 - ie] /= denom;
     }
 
-    for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT){
+    for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
-
-      float entries(sources_[kTPDigiThr]->getBinContent(ttid));
-
-      int quality(kGood);
+      float entries(sources_[sTPDigiThr]->getBinContent(ttid));
 
       if(entries > minHits_ && entries > tpdigiPhiRingMean.at(ttid.ietaAbs() - 1) * deviationThreshold_){
-        MEs_[kHotTPDigiThr]->fill(ttid);
-        quality = kBad;
-      }
-
-      if(quality != kBad) continue;
-
-      std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
-      for(unsigned iD(0); iD < ids.size(); ++iD){
-        DetId& id(ids[iD]);
-
-        int quality(MEs_[kQualitySummary]->getBinContent(id));
-        if(quality == kMBad || quality == kBad) continue;
-
-        MEs_[kQualitySummary]->setBinContent(id, applyMask_(kQualitySummary, id, mask) ? kMBad : kBad);
-      }
+	MEs_[kHotTPDigiThr]->fill(ttid);
+	vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttid));
+	for(vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
+	  if(MEs_[kQualitySummary]->getBinContent(*idItr) > 0.)
+	    fillQuality_(kQualitySummary, *idItr, mask, 0.);
+	}
+      }   
     }
+
   }
 
   /*static*/
   void
-  OccupancyClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
+  OccupancyClient::setMEData(std::vector<MEData>& _data)
   {
-    _nameToIndex["HotDigi"] = kHotDigi;
-    _nameToIndex["HotRecHitThr"] = kHotRecHitThr;
-    _nameToIndex["HotTPDigiThr"] = kHotTPDigiThr;
-    _nameToIndex["QualitySummary"] = kQualitySummary;
-
-    _nameToIndex["Digi"] = kDigi;
-    _nameToIndex["RecHitThr"] = kRecHitThr;
-    _nameToIndex["TPDigiThr"] = kTPDigiThr;
+    _data[kHotDigi] = MEData("HotDigi", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
+    _data[kHotRecHitThr] = MEData("HotRecHitThr", BinService::kChannel, BinService::kCrystal, MonitorElement::DQM_KIND_TH1F);
+    _data[kHotTPDigiThr] = MEData("HotTPDigiThr", BinService::kChannel, BinService::kTriggerTower, MonitorElement::DQM_KIND_TH1F);
+    _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
   }
 
   DEFINE_ECALDQM_WORKER(OccupancyClient);
 }
+

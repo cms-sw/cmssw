@@ -32,8 +32,6 @@ HcalNoiseSummary::HcalNoiseSummary()
     calibCountgt15TS45_(0),
     calibChargeTS45_(0.),
     calibChargegt15TS45_(0.),
-    calibCountHF_(0),
-    calibChargeHF_(0.),
     hitsInLaserRegion_(0),
     hitsInNonLaserRegion_(0),
     energyInLaserRegion_(0.),
@@ -329,18 +327,6 @@ double HcalNoiseSummary::GetCalibChargeTS45(void) const
 double HcalNoiseSummary::GetCalibgt15ChargeTS45(void) const
 {
   return calibChargegt15TS45_;
-}
-
-int HcalNoiseSummary::GetCalibCountHF(void) const
-{
-  // calibCountHF_ is the number of HF calibration digis in the event (no charge threshold required when counting these digis)
-  return calibCountHF_;
-}
-
-double HcalNoiseSummary::GetCalibChargeHF(void) const
-{
-  // calibChargeHF_ is the total charge (over all 10 time slices) for all HF calibration digis in the event
-  return calibChargeHF_;
 }
 
 int HcalNoiseSummary::GetHitsInNonLaserRegion(void) const

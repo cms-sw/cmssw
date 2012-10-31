@@ -4,7 +4,6 @@
 
 <use   name="CondFormats/SiPixelObjects"/>
 <use   name="CalibTracker/SiPixelESProducers"/>
-<use   name="DataFormats/SiPixelCluster"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="boost"/>

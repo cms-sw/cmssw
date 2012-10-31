@@ -13,7 +13,7 @@ public:
   TrajectoryStateAccessor( const FreeTrajectoryState& fts) :
     theFts(fts) {}
 
-  float inversePtError() const;
+  double inversePtError() const;
 
 private:
 

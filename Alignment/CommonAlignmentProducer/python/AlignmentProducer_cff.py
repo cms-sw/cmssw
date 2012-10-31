@@ -55,9 +55,6 @@ looper = cms.Looper("AlignmentProducer",
                     
                     # Choose one algorithm with configuration, HIP is default
                     algoConfig = cms.PSet(HIPAlignmentAlgorithm), # why not by reference?
-                    # Some algorithms support integrated calibrations, which to use is defined
-                    # by the string 'calibrationName' in the PSet of each calibration.
-                    calibrations = cms.VPSet(),
                     # choose monitors (default is none)
                     monitorConfig = cms.PSet(monitors = cms.untracked.vstring()),
 

@@ -34,12 +34,10 @@ L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet & iConfig) :
 	 if(reqPhi || reqEta || reqPt)
             throw cms::Exception("Configuration") << "L1MuonMatcherAlgo: Can't set sortBy = 'deltaR' and set also another 'sortBy<XXX>' parameter to True.\n";
     }
-    bool reqQ = (sortBy == "quality");
     // so, if we're here there's no ambiguity in what the user may want. either everything is false, or exactly one req is true.
     if      (reqEta) sortBy_ = SortByDeltaEta;
     else if (reqPhi) sortBy_ = SortByDeltaPhi;
     else if (reqPt)  sortBy_ = SortByPt;
-    else if (reqQ)   sortBy_ = SortByQuality;
     else             sortBy_ = SortByDeltaR;
 }
 

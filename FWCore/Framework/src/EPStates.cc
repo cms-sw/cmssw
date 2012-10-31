@@ -222,7 +222,7 @@ namespace statemachine {
   void HandleRuns::setupCurrentRun() {
 
     runException_ = true;
-    currentRun_ = ep_.readAndCacheRun(false);
+    currentRun_ = ep_.readAndCacheRun();
     runException_ = false;
 
     if(context<Machine>().emptyRunLumiMode() != doNotHandleEmptyRunsAndLumis) {
@@ -330,7 +330,7 @@ namespace statemachine {
   ContinueRun1::ContinueRun1(my_context ctx) :
       my_base(ctx),
       ep_(context<Machine>().ep()) {
-    ep_.readAndCacheRun(true);
+    ep_.readAndMergeRun();
     checkInvariant();
   }
 
@@ -414,7 +414,7 @@ namespace statemachine {
     Run const& run = context<HandleRuns>().currentRun();
     assert(run != INVALID_RUN);
     lumiException_ = true;
-    currentLumi_ = HandleLumis::LumiID(run.processHistoryID(), run.runNumber(), ep_.readAndCacheLumi(false));
+    currentLumi_ = HandleLumis::LumiID(run.processHistoryID(), run.runNumber(), ep_.readAndCacheLumi());
 
     if(context<Machine>().emptyRunLumiMode() == handleEmptyRunsAndLumis) {
       assert(context<HandleRuns>().beginRunCalled());
@@ -602,7 +602,7 @@ namespace statemachine {
   ContinueRun2::ContinueRun2(my_context ctx) :
       my_base(ctx),
       ep_(context<Machine>().ep()) {
-    ep_.readAndCacheRun(true);
+    ep_.readAndMergeRun();
     checkInvariant();
   }
 
@@ -648,7 +648,7 @@ namespace statemachine {
   ContinueLumi::ContinueLumi(my_context ctx) :
     my_base(ctx),
     ep_(context<Machine>().ep()) {
-    ep_.readAndCacheLumi(true);
+    ep_.readAndMergeLumi();
     checkInvariant();
   }
 

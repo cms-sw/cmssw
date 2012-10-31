@@ -1,17 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-pfAllElectrons = cms.EDFilter("PFCandidateFwdPtrCollectionPdgIdFilter",
+pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
     src = cms.InputTag("pfNoMuon"),
-    pdgId = cms.vint32(11,-11),
-    makeClones = cms.bool(True)
+    pdgId = cms.vint32(11,-11)
 )
-
-
-pfAllElectronsClones = cms.EDProducer("PFCandidateProductFromFwdPtrProducer",
-                                  src = cms.InputTag("pfAllElectrons")
-                                  )
-
-
 
 
 

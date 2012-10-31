@@ -102,7 +102,6 @@ public:
   
   void ReportCall(const clang::CXXMemberCallExpr *CE);
   void ReportMember(const clang::MemberExpr *ME);
-  void ReportCallReturn(const clang::CXXMemberCallExpr *CE);
   void ReportCallArg(const clang::CXXMemberCallExpr *CE, const int i);
   void ReportCallParam(const clang::CXXMethodDecl * MD, const clang::ParmVarDecl *PVD); 
 };
@@ -178,27 +177,17 @@ clang::CXXRecordDecl * RD = llvm::dyn_cast<clang::CXXRecordDecl>(CE->getRecordDe
 const clang::CXXMethodDecl * ACD = llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl());
 const clang::CXXRecordDecl * MRD = ACD->getParent();
 
-if (!ME->isImplicitAccess()) {
-	if (llvm::isa<clang::MemberExpr>(IOA->IgnoreParenCasts())) {
-		if (!support::isConst(qual_ioa)) {
-		ReportCall(CE); 
-		}
+if (!ME->isImplicitAccess())
+if (llvm::isa<clang::MemberExpr>(IOA->IgnoreParenCasts())) 
+if (!support::isConst(qual_ioa))
+	{
+	ReportCall(CE);
 	}
-}
 
 
 clang::CXXMethodDecl * MD = CE->getMethodDecl();
 //clang::QualType MQT = MD->getThisType(AC->getASTContext());
-clang::QualType RQT = MD->getCallResultType();
-
-//if (ME->isImplicitAccess()) {
-	if (RQT.getTypePtr()->isPointerType()) { 
-		if (!support::isConst(RQT))  {
-			ReportCallReturn(CE);
-			}
-		}
-//	}
-                                                                                                        
+                                                                                                             
 for(int i=0, j=CE->getNumArgs(); i<j; i++) {
 	if ( const clang::Expr *E = llvm::dyn_cast<clang::Expr>(CE->getArg(i)))
 		{
@@ -315,7 +304,8 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
 //        CE->getArg(i)->printPretty(s, 0, Policy);
 //        os << "arg: " << s.str() << " ";
 //	}	
-//  	os << ".\n";
+
+  	os << ".\n";
 
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
@@ -376,57 +366,6 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
 
 }
 
-void WalkAST::ReportCallReturn(const clang::CXXMemberCallExpr *CE) {
-  llvm::SmallString<100> buf;
-  llvm::raw_svector_ostream os(buf);
-
-  CmsException m_exception;
-  clang::LangOptions LangOpts;
-  LangOpts.CPlusPlus = true;
-  clang::PrintingPolicy Policy(LangOpts);
-
-  // Name of current visiting CallExpr.
-  	os << *CE->getRecordDecl()<<"::"<<*CE->getMethodDecl() 
-	<< " is a const member function that returns a pointer to a non-const member data object ";
-	os << " in call stack \n";
-
-	llvm::dyn_cast<clang::CXXMethodDecl>(AC->getDecl())->getParent()->printName(os);
-	os<<"::";
-	llvm::dyn_cast<clang::NamedDecl>(AC->getDecl())->printName(os);
-      	os << "-->";
- 	for (llvm::SmallVectorImpl<const clang::CXXMemberCallExpr *>::iterator I = WList.begin(),
-	    	E = WList.end(); I != E; I++) {
-	    	const clang::CXXMethodDecl *FD = (*(I))->getMethodDecl();
-	    	assert(FD);
-		FD->getParent()->printName(os);
-		os<<"::";
-	 	FD->printName(os);
-		os<<"-->";
-		}
-  	os << *CE->getRecordDecl()<<"::"<<*CE->getMethodDecl(); 
-	os << ".\n";
-
-// Names of args  
-//    for(int i=0, j=CE->getNumArgs(); i<j; i++)
-//	{
-//	std::string TypeS;
-//        llvm::raw_string_ostream s(TypeS);
-//        CE->getArg(i)->printPretty(s, 0, Policy);
-//        os << "arg: " << s.str() << " ";
-//	}	
-//  	os << ".\n";
-
-  clang::ento::PathDiagnosticLocation CELoc =
-    clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
-  clang::SourceRange R = CE->getCallee()->getSourceRange();
-  
-
-// llvm::errs()<<os.str();
-  if (!m_exception.reportClass( CELoc, BR ) ) return;
-  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker : Const function call returns pointer to non-const member data object","ThreadSafety",os.str(),CELoc,R);
-	 
-}
-
 void WalkAST::ReportCallParam(const clang::CXXMethodDecl * MD,const clang::ParmVarDecl *PVD) {
   llvm::SmallString<100> buf;
   llvm::raw_svector_ostream os(buf);
@@ -444,8 +383,6 @@ void WalkAST::ReportCallParam(const clang::CXXMethodDecl * MD,const clang::ParmV
   BR.EmitBasicReport(MD,"Class Checker :  Method Decl Param Decl check","ThreadSafety",os.str(),ELoc,R);
 
 }
-
-
 
 void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const {

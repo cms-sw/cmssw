@@ -28,6 +28,14 @@ namespace edm {
     v.d =x;
     return (v.l&mask)!=mask;
   }
+
+  template<>
+  inline
+  bool isFinite(long double x) {
+    double xx=x;
+    return isFinite(xx);
+  }
+
 }
 
 #endif // FWCORE_Utilities_isFinite_H

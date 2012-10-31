@@ -21,41 +21,36 @@ namespace ecaldqm{
 
   class DQWorker {
   public :
-    DQWorker(edm::ParameterSet const&, edm::ParameterSet const&, std::string const&);
+    DQWorker(const edm::ParameterSet&, const edm::ParameterSet&, std::string const&);
     virtual ~DQWorker();
 
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&){};
-    virtual void endRun(edm::Run const&, edm::EventSetup const&){};
+    virtual void beginRun(const edm::Run &, const edm::EventSetup &){};
+    virtual void endRun(const edm::Run &, const edm::EventSetup &){};
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){};
-    virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){};
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
+    virtual void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
 
     virtual void bookMEs();
 
     virtual void reset();
-    virtual void initialize();
+    virtual std::string const& getName() { return name_; }
     virtual bool isInitialized() { return initialized_; }
+    virtual void setInitialized(bool _init) { initialized_ = _init; }
     virtual void setVerbosity(int _verbosity) { verbosity_ = _verbosity; }
 
-    std::string const& getName() const { return name_; }
-    std::vector<MESet*> const& getMEs() const { return MEs_; }
+    const std::vector<MESet*>& getMEs() { return MEs_; }
 
     enum MESets {
       nMESets
     };
 
-    static std::map<std::string, std::map<std::string, unsigned> > meOrderingMaps;
+    static std::map<std::string, std::vector<MEData> > meData;
     // needs to be declared in each derived class
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
-    static bool online;
-    static time_t now;
-    static edm::RunNumber_t iRun;
-    static edm::LuminosityBlockNumber_t iLumi;
-    static edm::EventNumber_t iEvt;
+    static void setMEData(std::vector<MEData>&);
 
   protected :
-    void print_(std::string const&, int = 0) const;
+    void meSet_(unsigned, edm::ParameterSet const&);
+    MESet* createMESet_(std::string const&, MEData const&, bool _readOnly = false) const;
 
     std::string name_;
     std::vector<MESet*> MEs_; // [nMESets]
@@ -66,24 +61,27 @@ namespace ecaldqm{
 
 
 
-  typedef DQWorker* (*WorkerFactory)(edm::ParameterSet const&, edm::ParameterSet const&);
+  typedef DQWorker* (*WorkerFactory)(const edm::ParameterSet&, const edm::ParameterSet&);
 
   // template of WorkerFactory instance
   template<class W>
     DQWorker* 
-    workerFactory(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams)
+    workerFactory(const edm::ParameterSet& _params, const edm::ParameterSet& _paths)
     {
-      return new W(_workerParams, _commonParams);
+      W* worker(new W(_params, _paths));
+      return worker;
     }
 
   // to be instantiated after the implementation of each worker module
-  class WorkerFactoryHelper {
+  class SetWorker {
   public:
-    template <class W> WorkerFactoryHelper(const std::string& _name, W*){
+    template <class W> SetWorker(const std::string& _name, W*){
       workerFactories_[_name] = workerFactory<W>;
 
-      std::map<std::string, unsigned>& oMap(DQWorker::meOrderingMaps[_name]);
-      W::setMEOrdering(oMap);
+      std::vector<MEData>& data(DQWorker::meData[_name]);
+      data.clear();
+      data.resize(W::nMESets);
+      W::setMEData(data);
     }
     static WorkerFactory findFactory(const std::string&);
   private:
@@ -93,6 +91,6 @@ namespace ecaldqm{
 }
 
 #define DEFINE_ECALDQM_WORKER(TYPE) \
-  TYPE *p##TYPE(0); WorkerFactoryHelper TYPE##Instance(#TYPE, p##TYPE)
+  TYPE *p##TYPE(0); SetWorker TYPE##Instance(#TYPE, p##TYPE)
 
 #endif

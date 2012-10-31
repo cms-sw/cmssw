@@ -113,14 +113,20 @@ namespace edm {
     /// Read next run Auxiliary
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary();
 
-    /// Read next run
-    void readAndCacheRun(bool merge, HistoryAppender& historyAppender);
+    /// Read next run (new run)
+    void readAndCacheRun(HistoryAppender& historyAppender);
+
+    /// Read next run (same as a prior run)
+    void readAndMergeRun();
 
     /// Mark run as read
     int markRun();
 
-    /// Read next luminosity block
-    void readAndCacheLumi(bool merge, HistoryAppender& historyAppender);
+    /// Read next luminosity block (new lumi)
+    void readAndCacheLumi(HistoryAppender& historyAppender);
+
+    /// Read next luminosity block (same as a prior lumi)
+    void readAndMergeLumi();
 
     /// Mark lumi as read
     int markLumi();

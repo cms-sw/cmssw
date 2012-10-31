@@ -208,7 +208,10 @@ FamosCalorimetryBlock = cms.PSet(
             samplingHF   = cms.vdouble(0.383, 0.368),
             samplingHO   = cms.vdouble(231.0, 231.0, 231.0, 231.0, 360.0, 
                                        360.0, 360.0, 360.0, 360.0, 360.0,
-                                       360.0, 360.0, 360.0, 360.0, 360.0)
+                                       360.0, 360.0, 360.0, 360.0, 360.0),
+            smearTimeHF  = cms.untracked.bool(False),
+            timeShiftHF  = cms.untracked.double(17.),
+            timeSmearingHF  = cms.untracked.double(2.),
             )
         ),
     GFlash = cms.PSet(

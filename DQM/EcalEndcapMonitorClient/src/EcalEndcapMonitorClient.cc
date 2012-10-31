@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2012/08/30 07:59:22 $
- * $Revision: 1.272 $
+ * $Date: 2012/04/27 13:46:08 $
+ * $Revision: 1.270 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -943,30 +943,6 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
     std::cout << std::endl;
   }
 
-  bool clientMissing(false);
-  for(unsigned iC(0); iC < enabledClients_.size(); iC++){
-    std::string& name(enabledClients_[iC]);
-
-    if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
-
-    std::string dir(prefixME_ + "/EE" + name + "Client");
-    if(!dqmStore_->dirExists(dir) || !dqmStore_->containsAnyMonitorable(dir)){
-      std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
-      if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
-      std::cout << "EE" << name << "Client is missing plots; issuing beginRun" << std::endl;
-
-      clientMissing = true;
-      break;
-    }
-  }
-  if(clientMissing){
-    forced_status_ = false;
-    endRun();
-    inputFile_ = "dummy";
-    beginRun();
-    inputFile_ = "";
-  }
-
   if ( updateTime_ > 0 ) {
     if ( (current_time_ - last_time_update_) < 60 * updateTime_ ) {
       return;
@@ -981,6 +957,25 @@ void EcalEndcapMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
     this->analyze();
 
   }
+
+  for(unsigned iC(0); iC < enabledClients_.size(); iC++){
+    std::string& name(enabledClients_[iC]);
+
+    if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
+
+    if(!dqmStore_->dirExists(prefixME_ + "/EE" + name + "Client")){
+      std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
+      if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
+
+      std::cout << "EE" << name << "Client is missing plots; resetting now" << std::endl;
+
+      EEClient* client(clients_[itr - clientsNames_.begin()]);
+
+      client->cleanup();
+      client->setup();
+    }
+  }
+
 }
 
 void EcalEndcapMonitorClient::reset(void) {

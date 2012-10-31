@@ -1,40 +1,63 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
+from DQM.EcalCommon.dqmpset import *
+from DQM.EcalCommon.CommonParams_cfi import *
 
-from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
-from DQM.EcalBarrelMonitorClient.OccupancyClient_cfi import ecalOccupancyClient
-from DQM.EcalBarrelMonitorClient.PresampleClient_cfi import ecalPresampleClient
-from DQM.EcalBarrelMonitorClient.TrigPrimClient_cfi import ecalTrigPrimClient
-from DQM.EcalBarrelMonitorClient.RawDataClient_cfi import ecalRawDataClient
-from DQM.EcalBarrelMonitorClient.TimingClient_cfi import ecalTimingClient
-from DQM.EcalBarrelMonitorClient.SelectiveReadoutClient_cfi import ecalSelectiveReadoutClient
-from DQM.EcalBarrelMonitorClient.SummaryClient_cfi import ecalSummaryClient
+from DQM.EcalBarrelMonitorTasks.EcalMonitorTask_cfi import ecalMonitorTaskPaths
+
+import DQM.EcalBarrelMonitorClient.IntegrityClient_cfi as ecalIntegrityClient
+import DQM.EcalBarrelMonitorClient.OccupancyClient_cfi as ecalOccupancyClient
+import DQM.EcalBarrelMonitorClient.PresampleClient_cfi as ecalPresampleClient
+import DQM.EcalBarrelMonitorClient.TrigPrimClient_cfi as ecalTrigPrimClient
+import DQM.EcalBarrelMonitorClient.RawDataClient_cfi as ecalRawDataClient
+import DQM.EcalBarrelMonitorClient.TimingClient_cfi as ecalTimingClient
+import DQM.EcalBarrelMonitorClient.SelectiveReadoutClient_cfi as ecalSelectiveReadoutClient
+import DQM.EcalBarrelMonitorClient.SummaryClient_cfi as ecalSummaryClient
+
+ecalMonitorClientPaths = dict(
+    IntegrityClient = ecalIntegrityClient.integrityClientPaths,
+    OccupancyClient = ecalOccupancyClient.occupancyClientPaths,
+    PresampleClient = ecalPresampleClient.presampleClientPaths,
+    TrigPrimClient = ecalTrigPrimClient.trigPrimClientPaths,
+    RawDataClient = ecalRawDataClient.rawDataClientPaths,
+    TimingClient = ecalTimingClient.timingClientPaths,
+    SelectiveReadoutClient = ecalSelectiveReadoutClient.selectiveReadoutClientPaths,
+    SummaryClient = ecalSummaryClient.summaryClientPaths
+)
+
+ecalMonitorClientSources = dict(ecalMonitorClientPaths)
+ecalMonitorClientSources.update(ecalMonitorTaskPaths)
+
+ecalMonitorClientParams = dict(
+    IntegrityClient = ecalIntegrityClient.integrityClient,
+    OccupancyClient = ecalOccupancyClient.occupancyClient,
+    PresampleClient = ecalPresampleClient.presampleClient,
+    TrigPrimClient = ecalTrigPrimClient.trigPrimClient,
+    RawDataClient = ecalRawDataClient.rawDataClient,
+    TimingClient = ecalTimingClient.timingClient,
+    SelectiveReadoutClient = ecalSelectiveReadoutClient.selectiveReadoutClient,
+    SummaryClient = ecalSummaryClient.summaryClient,
+    Common = ecalCommonParams,
+    sources = dqmpaths("Ecal", ecalMonitorClientSources)
+)
 
 ecalMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
     moduleName = cms.untracked.string("Ecal Monitor Client"),
-    mergeRuns = cms.untracked.bool(False),
-    # workers to be turned on
-    workers = cms.untracked.vstring(
+    # clients to be turned on
+    clients = cms.untracked.vstring(
         "IntegrityClient",
         "OccupancyClient",
         "PresampleClient",
+        "TrigPrimClient",
         "RawDataClient",
         "TimingClient",
+        "SelectiveReadoutClient",
         "SummaryClient"
     ),
     # task parameters (included from indivitual cfis)
-    workerParameters = cms.untracked.PSet(
-        IntegrityClient = ecalIntegrityClient,
-        OccupancyClient = ecalOccupancyClient,
-        PresampleClient = ecalPresampleClient,
-        TrigPrimClient = ecalTrigPrimClient,
-        RawDataClient = ecalRawDataClient,
-        TimingClient = ecalTimingClient,
-        SelectiveReadoutClient = ecalSelectiveReadoutClient,
-        SummaryClient = ecalSummaryClient,
-        common = ecalCommonParams
-    ),
-    verbosity = cms.untracked.int32(0),
-    online = cms.untracked.bool(False)
+    clientParameters = dqmpset(ecalMonitorClientParams),
+    # ME paths for each task (included from inidividual cfis)
+    mePaths = dqmpaths("Ecal", ecalMonitorClientPaths),
+    runAtEndLumi = cms.untracked.bool(False),
+    verbosity = cms.untracked.int32(0)
 )

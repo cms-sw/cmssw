@@ -2049,14 +2049,26 @@ namespace edm {
     }
   }
 
-  statemachine::Run EventProcessor::readAndCacheRun(bool merge) {
-    input_->readAndCacheRun(merge, *historyAppender_);
+  statemachine::Run EventProcessor::readAndCacheRun() {
+    input_->readAndCacheRun(*historyAppender_);
     input_->markRun();
     return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
-  int EventProcessor::readAndCacheLumi(bool merge) {
-    input_->readAndCacheLumi(merge, *historyAppender_);
+  statemachine::Run EventProcessor::readAndMergeRun() {
+    input_->readAndMergeRun();
+    input_->markRun();
+    return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
+  }
+
+  int EventProcessor::readAndCacheLumi() {
+    input_->readAndCacheLumi(*historyAppender_);
+    input_->markLumi();
+    return input_->luminosityBlock();
+  }
+
+  int EventProcessor::readAndMergeLumi() {
+    input_->readAndMergeLumi();
     input_->markLumi();
     return input_->luminosityBlock();
   }

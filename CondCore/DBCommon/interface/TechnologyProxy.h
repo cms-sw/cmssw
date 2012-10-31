@@ -19,9 +19,8 @@ namespace cond{
   public:
     explicit TechnologyProxy( ){}
     virtual ~TechnologyProxy(){}
-    virtual void initialize( const DbConnection& connection )=0;
-    virtual std::string getRealConnectString( const std::string&userconnect ) const=0;
-    virtual std::string getRealConnectString( const std::string&userconnect, const std::string& transactionId ) const=0;
+    virtual void initialize(const std::string&userconnect, const DbConnection& connection)=0;
+    virtual std::string getRealConnectString() const=0;
     virtual bool isTransactional() const=0;
   private:
     TechnologyProxy( const TechnologyProxy& );

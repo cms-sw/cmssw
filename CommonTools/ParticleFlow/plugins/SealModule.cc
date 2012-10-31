@@ -6,10 +6,8 @@
 #include "CommonTools/ParticleFlow/plugins/Type1PFMET.h"
 #include "CommonTools/ParticleFlow/plugins/PFPileUp.h"
 #include "CommonTools/ParticleFlow/plugins/TopProjector.cc"
-#include "CommonTools/ParticleFlow/plugins/PFCandidateFwdPtrCollectionFilter.h"
-#include "CommonTools/ParticleFlow/plugins/PFJetFwdPtrProducer.h"
-#include "CommonTools/ParticleFlow/plugins/PFTauFwdPtrProducer.h"
-#include "CommonTools/ParticleFlow/plugins/PFCandidateFromFwdPtrProducer.h"
+
+
 
 DEFINE_FWK_MODULE(PFMET);
 DEFINE_FWK_MODULE(Type1PFMET);
@@ -19,9 +17,3 @@ DEFINE_FWK_MODULE(TPPFCandidatesOnPileUpPFCandidates);
 DEFINE_FWK_MODULE(TPIsolatedPFCandidatesOnPFCandidates);
 DEFINE_FWK_MODULE(TPPFJetsOnPFCandidates);
 DEFINE_FWK_MODULE(TPPFTausOnPFJets);
-DEFINE_FWK_MODULE(TPPFTausOnPFJetsDeltaR);
-DEFINE_FWK_MODULE(PFCandidateFwdPtrCollectionStringFilter);
-DEFINE_FWK_MODULE(PFCandidateFwdPtrCollectionPdgIdFilter);
-DEFINE_FWK_MODULE(PFJetFwdPtrProducer);
-DEFINE_FWK_MODULE(PFTauFwdPtrProducer);
-DEFINE_FWK_MODULE(PFCandidateFromFwdPtrProducer);

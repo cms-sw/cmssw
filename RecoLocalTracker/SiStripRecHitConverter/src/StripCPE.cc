@@ -68,7 +68,7 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det) const {
   StripCPE::Param const & p = param(det);
   const float barycenter = cluster.barycenter();
   const float fullProjection = p.coveredStrips( p.drift + LocalVector(0,0,-p.thickness), p.topology->localPosition(barycenter));
-  const float strip = barycenter - 0.5f * (1.f-shift[p.moduleGeom]) * fullProjection;
+  const float strip = barycenter - 0.5f * (1-shift[p.moduleGeom]) * fullProjection;
 
   return std::make_pair( p.topology->localPosition(strip),
 			 p.topology->localError(strip, 1.f/12.f) );
@@ -76,7 +76,9 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det) const {
 
 float StripCPE::Param::
 coveredStrips(const LocalVector& lvec, const LocalPoint& lpos) const {  
-  return topology->coveredStrips(lpos + 0.5f*lvec,lpos - 0.5f*lvec);
+  return 
+    ( topology->measurementPosition(lpos + 0.5f*lvec) 
+    - topology->measurementPosition(lpos - 0.5f*lvec)).x();
 }
 
 LocalVector StripCPE::

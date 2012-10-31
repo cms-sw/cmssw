@@ -9,7 +9,6 @@ namespace edm { class Event; class EventSetup; }
 
 class SeedGeneratorFromRegionHits;
 class TrackingRegionProducer;
-class QuadrupletSeedMerger;
 
 class SeedGeneratorFromRegionHitsEDProducer : public edm::EDProducer {
 public:
@@ -27,9 +26,6 @@ private:
   SeedGeneratorFromRegionHits * theGenerator; 
   TrackingRegionProducer* theRegionProducer;
   ClusterChecker theClusterCheck;
-  QuadrupletSeedMerger *theMerger_;
-
-
   bool theSilentOnClusterCheck;
 };
 

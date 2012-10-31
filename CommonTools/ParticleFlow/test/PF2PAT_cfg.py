@@ -15,7 +15,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:/uscms/home/rappocc/nobackup/analysis/GED/CMSSW_6_1_0_pre3/src/401.0_TTbar+TTbarFSPU2/step1.root'
+    '/store/relval/CMSSW_5_1_2/RelValZMM/GEN-SIM-RECO/START50_V15A-v1/0247/301EC619-0062-E111-8A3F-00261894387B.root'
     
     ))
     
@@ -28,10 +28,10 @@ print process.source
 
 process.load("CommonTools.ParticleFlow.PF2PAT_cff")
 
-#from CommonTools.ParticleFlow.Tools.enablePileUpCorrection import enablePileUpCorrectionInPF2PAT
+from CommonTools.ParticleFlow.Tools.enablePileUpCorrection import enablePileUpCorrectionInPF2PAT
 
 # the following is advocated by JetMET, but leads to include very far tracks in the no pile up collection
-#enablePileUpCorrectionInPF2PAT( process, postfix='')
+# enablePileUpCorrectionInPF2PAT( process, postfix='')
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
@@ -45,7 +45,7 @@ process.p = cms.Path(
 process.load("Configuration.EventContent.EventContent_cff")
 process.pf2pat = cms.OutputModule("PoolOutputModule",
                                   #    process.AODSIMEventContent,
-                                  outputCommands = cms.untracked.vstring('keep *'),
+                                  outputCommands = cms.untracked.vstring('drop *'),
                                   fileName = cms.untracked.string('PF2PAT.root')
 )
 process.aod = cms.OutputModule("PoolOutputModule",

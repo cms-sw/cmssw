@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.5 $"
+__version__ = "$Revision: 1.6 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1806,7 +1806,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.5 $"),
+                                            (version=cms.untracked.string("$Revision: 1.6 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1957,7 +1957,8 @@ class ConfigBuilder(object):
 		if hasattr(self.process.source,"secondaryFileNames"):
 			if len(self.process.source.secondaryFileNames.value()):
 				ioJson['secondary']=self.process.source.secondaryFileNames.value()
-		
+		if self._options.pileup_input and self._options.pileup_input.startswith('dbs'):
+			ioJson['pileup']=self._options.pileup_input[4:]
 		for (o,om) in self.process.outputModules_().items():
 			ioJson[o]=om.fileName.value()
 		ioJson['GT']=self.process.GlobalTag.globaltag.value()

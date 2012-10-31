@@ -103,12 +103,6 @@ class SiPixelDataQuality {
   MonitorElement * SummaryPixel;
   MonitorElement * SummaryBarrel;
   MonitorElement * SummaryEndcap;
-  MonitorElement * ClusterModAll;
-  MonitorElement * ClusterMod1;
-  MonitorElement * ClusterMod2;
-  MonitorElement * ClusterMod3;
-  MonitorElement * ClusterMod4;
-
   float qflag_;
   int allMods_, errorMods_, barrelMods_, endcapMods_;
  

@@ -33,5 +33,4 @@ typedef TopProjector<PFCandidate, PileUpPFCandidate> TPPFCandidatesOnPileUpPFCan
 typedef TopProjector<IsolatedPFCandidate, PFCandidate> TPIsolatedPFCandidatesOnPFCandidates;
 typedef TopProjector<PFJet, PFCandidate> TPPFJetsOnPFCandidates;
 typedef TopProjector<PFTau, PFJet> TPPFTausOnPFJets;
-typedef TopProjector<PFTau, PFJet, TopProjectorDeltaROverlap<PFTau,PFJet> > TPPFTausOnPFJetsDeltaR;
 

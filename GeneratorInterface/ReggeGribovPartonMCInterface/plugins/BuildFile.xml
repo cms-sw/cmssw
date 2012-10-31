@@ -1,4 +1,0 @@
-<use   name="GeneratorInterface/ReggeGribovPartonMCInterface"/>
-<library   file="*.cc" name="GeneratorInterfaceReggeGribovPartonMCInterfacePlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

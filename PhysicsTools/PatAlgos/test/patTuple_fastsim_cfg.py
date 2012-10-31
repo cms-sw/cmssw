@@ -1,9 +1,6 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-# load the PAT config
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
 ## let it run
 process.p = cms.Path(
         process.patDefaultSequence

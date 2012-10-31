@@ -15,35 +15,24 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cfi import *
 
-# getting the ptrs
-from RecoParticleFlow.PFProducer.particleFlowPtrs_cfi import particleFlowTmpPtrs as particleFlowPtrs
-
 # generator tools
 from CommonTools.ParticleFlow.genForPF2PAT_cff import *
 
 # plugging PF2PAT on the collection of PFCandidates from RECO:
-particleFlowPtrs.src = 'particleFlow'
 
-pfPileUp.PFCandidates = 'particleFlowPtrs'
-pfNoPileUp.bottomCollection = 'particleFlowPtrs'
-pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
-pfNoPileUpIso.bottomCollection='particleFlowPtrs'
-pfPileUpJME.PFCandidates = 'particleFlowPtrs' 
-pfNoPileUpJME.bottomCollection='particleFlowPtrs'
+pfPileUp.PFCandidates = 'particleFlow'
+pfNoPileUp.bottomCollection = 'particleFlow'
+pfPileUpIso.PFCandidates = 'particleFlow' 
+pfNoPileUpIso.bottomCollection='particleFlow'
 
 PFBRECO = cms.Sequence(
-    particleFlowPtrs +
     pfNoPileUpSequence +
-    pfNoPileUpJMESequence +
     pfParticleSelectionSequence + 
     pfPhotonSequence +
     pfMuonSequence + 
     pfNoMuon +
-    pfNoMuonJME +
     pfElectronSequence +
-    pfNoElectron +
-    pfNoElectronJME +
-    pfNoElectronJMEClones+
+    pfNoElectron + 
     pfJetSequence +
     pfNoJet + 
     pfTauSequence +

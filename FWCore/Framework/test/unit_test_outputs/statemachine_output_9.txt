@@ -334,9 +334,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readAndMergeLumi 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent
@@ -352,9 +352,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readAndMergeLumi 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent
@@ -413,9 +413,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readAndMergeLumi 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent
@@ -431,9 +431,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readAndMergeLumi 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent
@@ -492,9 +492,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readAndMergeLumi 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent
@@ -510,9 +510,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Lumi 1 ***
-	readAndCacheLumi 1
+	readAndMergeLumi 1
     *** nextItemType: Event ***
 	readEvent
 	processEvent

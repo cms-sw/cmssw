@@ -24,7 +24,7 @@
 
 namespace edm {
 
-  ProcessHistory Principal::emptyProcessHistory_;
+  ProcessHistory const Principal::emptyProcessHistory_;
 
   static
   void
@@ -33,14 +33,6 @@ namespace edm {
       checkDictionaries(isElement ? productType.className() : wrappedClassName(productType.className()), false);
       throwMissingDictionariesException();
     }
-  }
-
-  static
-  void
-  throwMultiFoundException(char const* where, int nFound, TypeID const& productType) {
-    throw Exception(errors::ProductNotFound)
-      << "Principal::" << where << ": Found " << nFound << " products rather than one which match all criteria\n"
-      << "Looking for type: " << productType << "\n";
   }
 
   static
@@ -55,14 +47,6 @@ namespace edm {
   throwCorruptionException(char const* where, std::string const& branchName) {
     throw Exception(errors::EventCorruption)
        << "Principal::" << where <<": Product on branch " << branchName << " occurs twice in the same event.\n";
-  }
-
-  static
-  boost::shared_ptr<cms::Exception>
-  makeNotFoundException(char const* where, TypeID const& productType) {
-    boost::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
-    *exception << "Principal::" << where << ": Found zero products matching all criteria\nLooking for type: " << productType << "\n";
-    return exception;
   }
 
   static
@@ -379,31 +363,6 @@ namespace edm {
     return BasicHandle(*result);
   }
 
-  BasicHandle
-  Principal::getByType(TypeID const& productType) const {
-
-    BasicHandle result;
-    std::string emptyString;
-
-    int nFound = findGroup(productType,
-                           preg_->productLookup(),
-                           false,
-                           emptyString,
-                           emptyString,
-                           emptyString,
-                           result);
-
-    if(nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed = makeNotFoundException("getByType", productType);
-      return BasicHandle(whyFailed);
-    }
-
-    if(nFound > 1) {
-      throwMultiFoundException("getByType", nFound, productType);
-    }
-    return result;
-  }
-
   void
   Principal::getManyByType(TypeID const& productType,
                            BasicHandleVec& results) const {
@@ -423,7 +382,6 @@ namespace edm {
 
     return findGroup(typeID,
                      preg_->elementLookup(),
-                     true,
                      moduleLabel,
                      productInstanceName,
                      processName,
@@ -486,7 +444,6 @@ namespace edm {
   size_t
   Principal::findGroup(TypeID const& typeID,
                        TransientProductLookupMap const& typeLookup,
-                       bool doMatching,
                        std::string const& moduleLabel,
                        std::string const& productInstanceName,
                        std::string const& processName,
@@ -513,15 +470,9 @@ namespace edm {
 
       ConstBranchDescription const& bd = *(it->branchDescription());
 
-      // Unless matching by module label, ignore aliases to avoid matching the same product multiple times.
-      if(bd.isAlias() && !doMatching) {
-        continue;
-      }
-
-      if ( !doMatching ||
-           ( moduleLabel == bd.moduleLabel() &&
-             productInstanceName == bd.productInstanceName() &&
-             (processName.empty() || processName == bd.processName()))) {
+      if ( moduleLabel == bd.moduleLabel() &&
+           productInstanceName == bd.productInstanceName() &&
+           (processName.empty() || processName == bd.processName())) {
 
         //now see if the data is actually available
         ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);

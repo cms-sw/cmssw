@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pfIsolatedElectronsClones  = cms.EDFilter(
+pfIsolatedElectrons  = cms.EDFilter(
     "IsolatedPFCandidateSelector",
     src = cms.InputTag("pfSelectedElectrons"),
     isolationValueMapsCharged = cms.VInputTag(
@@ -18,7 +18,3 @@ pfIsolatedElectronsClones  = cms.EDFilter(
     isolationCut = cms.double(0.2)
     )
                             
-
-pfIsolatedElectrons = cms.EDProducer("PFCandidateFwdPtrProducer",
-                                 src = cms.InputTag("pfIsolatedElectronsClones")
-    )

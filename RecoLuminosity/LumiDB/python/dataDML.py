@@ -310,31 +310,27 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,fillmin=None,fillmax=Non
         qResult=coral.AttributeList()
         qResult.extend('runnum','unsigned int')
         qResult.extend('starttime','string')
-        qResult.extend('stoptime','string')
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         qHandle.addToOutputList(r+'.RUNNUM','runnum')
         qHandle.addToOutputList('TO_CHAR('+r+'.STARTTIME,\'MM/DD/YY HH24:MI:SS\')','starttime')
-        qHandle.addToOutputList('TO_CHAR('+r+'.STOPTIME,\'MM/DD/YY HH24:MI:SS\')','stoptime')
         cursor=qHandle.execute()
         
         while cursor.next():
             starttimeStr=cursor.currentRow()['starttime'].data()
-            stoptimeStr=cursor.currentRow()['stoptime'].data()
             runnum=cursor.currentRow()['runnum'].data()
             minTime=None
             maxTime=None
             if startT and stopT:
                 minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
                 maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
-                runstartTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                runstopTime=lute.StrToDatetime(stoptimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runstopTime>=minTime and runstartTime<=maxTime and runnum not in result:
+                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
+                if runTime>=minTime and runTime<=maxTime and runnum not in result:
                     result.append(runnum)
             elif startT is not None:
                 minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
-                runstartTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runstopTime>=minTime and runnum not in result:
+                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
+                if runTime>=minTime and runnum not in result:
                     result.append(runnum)
             elif stopT is not None:
                 maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
@@ -825,46 +821,6 @@ def lumiRunByIds(schema,dataidMap,lumitype='HF'):
         if lumidataid:
             perrundata=lumiRunById(schema,lumidataid,lumitype=lumitype)
             result[r]=(perrundata[1],perrundata[2],perrundata[3])
-    return result
-
-def beamstatusByIds(schema,dataidMap):
-    '''
-    input dataidMap : {run:lumidataid}
-    result {runnum:{cmslsnum:beamstatus}}
-    '''
-    result={}
-    if not dataidMap:
-        return result
-    inputRange=dataidMap.keys()
-    for r in inputRange:
-        if not result.has_key(r):
-            result[r]={}
-        lumidataid=dataidMap[r][0]
-        if lumidataid:
-            qHandle=schema.newQuery()
-            try:
-                qHandle.addToTableList(nameDealer.lumisummaryv2TableName())
-                qHandle.addToOutputList('CMSLSNUM')
-                qHandle.addToOutputList('BEAMSTATUS')
-                qConditionStr='DATA_ID=:dataid'
-                qCondition=coral.AttributeList()
-                qCondition.extend('dataid','unsigned long long')
-                qCondition['dataid'].setData(int(lumidataid))
-                qResult=coral.AttributeList()
-                qResult.extend('CMSLSNUM','unsigned int')
-                qResult.extend('BEAMSTATUS','string')
-                qHandle.defineOutput(qResult)
-                qHandle.setCondition(qConditionStr,qCondition)
-                cursor=qHandle.execute()
-                while cursor.next():
-                    cmslsnum=cursor.currentRow()['CMSLSNUM'].data()
-                    bs=cursor.currentRow()['BEAMSTATUS'].data()
-                    if bs!='STABLE BEAMS':
-                        result[r][cmslsnum]=bs
-            except:
-                del qHandle
-                raise 
-            del qHandle
     return result
 
 def lumiRunById(schema,lumidataid,lumitype='HF'):

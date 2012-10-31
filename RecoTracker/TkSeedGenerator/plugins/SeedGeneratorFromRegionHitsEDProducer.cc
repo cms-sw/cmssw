@@ -19,26 +19,13 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
+
 
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
-  : theConfig(cfg), theGenerator(0), theRegionProducer(0),
-    theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
-    theMerger_(0)
+  : theConfig(cfg), theGenerator(0), theRegionProducer(0), theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet"))
 {
   theSilentOnClusterCheck = cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false);
-
-  // seed merger & its settings
-  if ( cfg.exists("SeedMergerPSet")) {
-    edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
-    theMerger_=new QuadrupletSeedMerger();
-    theMerger_->setTTRHBuilderLabel( mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" ) );
-    theMerger_->setMergeTriplets( mergerPSet.getParameter<bool>( "mergeTriplets" ) );
-    theMerger_->setAddRemainingTriplets( mergerPSet.getParameter<bool>( "addRemainingTriplets" ) );
-    theMerger_->setLayerListName( mergerPSet.getParameter<std::string>( "layerListName" ) );
-  }
-
   produces<TrajectorySeedCollection>();
 }
 
@@ -76,51 +63,37 @@ void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run &run, const edm::E
   SeedCreator * aCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet);
 
   theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator); 
- 
+  
+  
 }
 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> triplets(new TrajectorySeedCollection());
-  std::auto_ptr<TrajectorySeedCollection> quadruplets( new TrajectorySeedCollection() );
+  std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
 
   //protection for big ass events...
   size_t clustsOrZero = theClusterCheck.tooManyClusters(ev);
   if (clustsOrZero){
     if (!theSilentOnClusterCheck)
 	edm::LogError("TooManyClusters") << "Found too many clusters (" << clustsOrZero << "), bailing out.\n";
-    ev.put(triplets);
+    ev.put(result);
     return ;
   }
 
   typedef std::vector<TrackingRegion* > Regions;
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(ev,es);
-  if (theMerger_!=0)
-    theMerger_->update(es);
 
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
     const TrackingRegion & region = **ir;
 
     // make job
-    theGenerator->run(*triplets, region, ev,es);
-
-    // make quadruplets
-    // (TODO: can partly be propagated to the merger)
-    if ( theMerger_ !=0 ) {
-      TrajectorySeedCollection const& tempQuads = theMerger_->mergeTriplets( *triplets, region, es, theConfig ); //@@
-      for( TrajectorySeedCollection::const_iterator qIt = tempQuads.begin(); qIt < tempQuads.end(); ++qIt ) {
-	quadruplets->push_back( *qIt );
-      }
-    }
+    theGenerator->run(*result, region, ev,es);
   }
- 
+
   // clear memory
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
 
   // put to event
-  if ( theMerger_!=0)
-    ev.put(quadruplets);
-  else
-    ev.put(triplets);
+  ev.put(result);
 }

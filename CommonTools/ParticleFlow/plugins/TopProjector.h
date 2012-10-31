@@ -21,9 +21,7 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/OverlapChecker.h"  
 
-#include "DataFormats/Math/interface/deltaR.h"
 
 /**\class TopProjector 
 \brief 
@@ -35,95 +33,16 @@
 #include <iostream>
 
 
-/// This checks a slew of possible overlaps for FwdPtr<Candidate> and derivatives. 
-template < class Top, class Bottom>
-  class TopProjectorFwdPtrOverlap : public std::binary_function<edm::FwdPtr<Top>, edm::FwdPtr<Bottom>, bool > { 
-
-  public:
-    typedef edm::FwdPtr<Top> TopFwdPtr;
-    typedef edm::FwdPtr<Bottom> BottomFwdPtr;
-
-    explicit TopProjectorFwdPtrOverlap() {}
-    explicit TopProjectorFwdPtrOverlap(edm::ParameterSet const & ) {}
-
-    bool operator() ( TopFwdPtr const & top, BottomFwdPtr const & bottom ) const{
-      bool matched = 
-	(top.ptr().refCore() == bottom.ptr().refCore() && top.ptr().key() == bottom.ptr().key()) ||
-	(top.ptr().refCore() == bottom.backPtr().refCore() && top.ptr().key() == bottom.backPtr().key()) ||
-	(top.backPtr().refCore() == bottom.ptr().refCore() && top.backPtr().key() == bottom.ptr().key()) ||
-	(top.backPtr().refCore() == bottom.backPtr().refCore() && top.backPtr().key() == bottom.backPtr().key())
-	;
-      if ( !matched ) {
-	for ( unsigned isource = 0; isource < top->numberOfSourceCandidatePtrs(); ++isource ) {
-	  reco::CandidatePtr const & topSrcPtr = top->sourceCandidatePtr(isource);
-	  if ( (topSrcPtr.refCore() == bottom.ptr().refCore() && topSrcPtr.key() == bottom.ptr().key())|| 
-	       (topSrcPtr.refCore() == bottom.backPtr().refCore() && topSrcPtr.key() == bottom.backPtr().key())
-	       ) {
-	    matched = true;
-	    break;
-	  }
-	}
-      }
-      if ( !matched ) {
-	for ( unsigned isource = 0; isource < bottom->numberOfSourceCandidatePtrs(); ++isource ) {
-	  reco::CandidatePtr const & bottomSrcPtr = bottom->sourceCandidatePtr(isource);
-	  if ( (bottomSrcPtr.refCore() == top.ptr().refCore() && bottomSrcPtr.key() == top.ptr().key() )|| 
-	       (bottomSrcPtr.refCore() == top.backPtr().refCore() && bottomSrcPtr.key() == top.backPtr().key() )
-	       ) {
-	    matched = true;
-	    break;
-	  }
-	}
-      }
-
-      return matched;
-      
-    }
- 
-};
-
-
-/// This checks matching based on delta R
-template < class Top, class Bottom>
-  class TopProjectorDeltaROverlap : public std::binary_function<edm::FwdPtr<Top>, edm::FwdPtr<Bottom>, bool > { 
-
-  public:
-    typedef edm::FwdPtr<Top> TopFwdPtr;
-    typedef edm::FwdPtr<Bottom> BottomFwdPtr;
-
-    explicit TopProjectorDeltaROverlap() {}
-    explicit TopProjectorDeltaROverlap(edm::ParameterSet const & config ) :
-    deltaR_( config.getParameter<double>("deltaR") )
-    {}
-
-    bool operator() ( TopFwdPtr const & top, BottomFwdPtr const & bottom ) const{
-      bool matched = reco::deltaR( top->p4(), bottom->p4() ) < deltaR_;
-      return matched;
-    }
-
- protected :
-    double deltaR_;
- 
-};
-
-template< class Top, class Bottom, class Matcher = TopProjectorFwdPtrOverlap<Top,Bottom> >
+template< class Top, class Bottom>
 class TopProjector : public edm::EDProducer {
 
  public:
 
   typedef std::vector<Top> TopCollection;
   typedef edm::Handle< std::vector<Top> > TopHandle;
-  typedef edm::FwdPtr<Top> TopFwdPtr;
-  typedef std::vector<TopFwdPtr> TopFwdPtrCollection; 
-  typedef edm::Handle< TopFwdPtrCollection > TopFwdPtrHandle; 
-
   typedef std::vector<Bottom> BottomCollection;
   typedef edm::Handle< std::vector<Bottom> > BottomHandle;
   typedef edm::Ptr<Bottom> BottomPtr; 
-  typedef edm::Ref<BottomCollection> BottomRef; 
-  typedef edm::FwdPtr<Bottom> BottomFwdPtr;
-  typedef std::vector<BottomFwdPtr> BottomFwdPtrCollection;
-  typedef edm::Handle< BottomFwdPtrCollection > BottomFwdPtrHandle; 
 
   TopProjector(const edm::ParameterSet&);
 
@@ -134,8 +53,32 @@ class TopProjector : public edm::EDProducer {
 
 
  private:
+ 
+  /// fills ancestors with ptrs to the PFCandidates that in
+  /// one way or another contribute to the candidate pointed to by 
+  /// candPtr
+  void
+    ptrToAncestor( reco::CandidatePtr candRef,
+		   reco::CandidatePtrVector& ancestors,
+		   const edm::ProductID& ancestorsID,
+		   const edm::Event& iEvent ) const;
 
-  Matcher         match_;
+  /// ancestors is a RefToBase vector. For each object in this vector
+  /// get the index and set the corresponding slot to true in the 
+  /// masked vector
+  void maskAncestors( const reco::CandidatePtrVector& ancestors,
+		      std::vector<bool>& masked ) const;
+    
+  
+  void processCollection( const edm::Handle< std::vector<Top> >& handle,
+			  const edm::Handle< std::vector<Bottom> >& allPFCandidates ,
+			  std::vector<bool>& masked,
+			  const char* objectName,
+			  const edm::Event& iEvent ) const; 
+
+  void  printAncestors( const reco::CandidatePtrVector& ancestors,
+			const edm::Handle< std::vector<Bottom> >& allPFCandidates ) const;
+
 
   /// enable? if not, all candidates in the bottom collection are copied to the output collection
   bool            enable_;
@@ -156,9 +99,8 @@ class TopProjector : public edm::EDProducer {
 
 
 
-template< class Top, class Bottom, class Matcher >
-TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConfig) : 
-  match_(iConfig),
+template< class Top, class Bottom>
+TopProjector< Top, Bottom >::TopProjector(const edm::ParameterSet& iConfig) : 
   enable_(iConfig.getParameter<bool>("enable")) {
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
@@ -168,12 +110,12 @@ TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConf
 
   // will produce a collection of the unmasked candidates in the 
   // bottom collection 
-  produces< BottomFwdPtrCollection > ();
+  produces< std::vector<Bottom> >();
 }
 
 
-template< class Top, class Bottom, class Matcher >
-void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
+template< class Top, class Bottom >
+void TopProjector< Top, Bottom >::produce(edm::Event& iEvent,
 					  const edm::EventSetup& iSetup) {
   
   if( verbose_)
@@ -182,7 +124,7 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
   // get the various collections
 
   // Access the masking collection
-  TopFwdPtrHandle tops;
+  TopHandle tops;
   iEvent.getByLabel(  inputTagTop_, tops );
 
 
@@ -199,7 +141,7 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 
   // Access the collection to
   // be masked by the other ones
-  BottomFwdPtrHandle bottoms;
+  BottomHandle bottoms;
   iEvent.getByLabel(  inputTagBottom_, bottoms );
 
 /*   if( !bottoms.isValid() ) { */
@@ -226,47 +168,166 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
   }
 
 
-  // output collection of FwdPtrs to objects,
+  // output collection of objects,
   // selected from the Bottom collection
-  std::auto_ptr< BottomFwdPtrCollection > 
-    pBottomFwdPtrOutput( new BottomFwdPtrCollection );
+
+  std::auto_ptr< BottomCollection >
+    pBottomOutput( new BottomCollection );
+  
+  // mask for each bottom object.
+  // at the beginning, all bottom objects are unmasked.
+  std::vector<bool> masked( bottoms->size(), false);
+    
+  if( enable_ )
+    processCollection( tops, bottoms, masked, name_.c_str(), iEvent );
+
+  const BottomCollection& inCands = *bottoms;
 
   if(verbose_)
     std::cout<<" Remaining candidates in the bottom collection ------ "<<std::endl;
   
-  for(unsigned i=0; i<bottoms->size(); i++) {
-
-    BottomFwdPtr masked;
+  for(unsigned i=0; i<inCands.size(); i++) {
     
-    BottomFwdPtr bottom = (*bottoms)[i];
-    
-    if ( enable_ ) {
-      // Find any references in the "bottom" collection that match one
-      // in the "top" collection. If that is found, it's masked.
-      for ( unsigned j=0; j<tops->size(); j++ ) {
-	TopFwdPtr top = (*tops)[j];
-	if ( match_(top,bottom) ) {
-	  masked = (*bottoms)[i];
-	  break; 
-	}
-      }
-    }
-
-    // If this is masked in the top projection, we remove it. 
-    if( enable_ && masked.isNonnull() && masked.isAvailable() ) {
+    if(masked[i]) {
       if(verbose_)
-	std::cout<<"X "<<i<<" "<< masked.id() <<std::endl;
+	std::cout<<"X "<<i<<" "<<inCands[i]<<std::endl;
       continue;
     }
-    // otherwise, we keep it. 
     else {
       if(verbose_)
-	std::cout<<"O "<<i<<" "<< (*bottoms)[i].id() <<std::endl;
-      pBottomFwdPtrOutput->push_back( (*bottoms)[i] );
+	std::cout<<"O "<<i<<" "<<inCands[i]<<std::endl;
+
+      pBottomOutput->push_back( inCands[i] );
+      BottomPtr motherPtr( bottoms, i );
+      pBottomOutput->back().setSourceCandidatePtr(motherPtr); 
     }
   }
 
-  iEvent.put( pBottomFwdPtrOutput ); 
+  iEvent.put( pBottomOutput );
+}
+
+
+
+template< class Top, class Bottom > 
+void TopProjector< Top, Bottom >::processCollection( const edm::Handle< std::vector<Top> >& tops,
+						     const edm::Handle< std::vector<Bottom> >& bottoms ,
+						     std::vector<bool>& masked,
+						     const char* objectName,
+						     const edm::Event& iEvent) const {
+
+  if( tops.isValid() && bottoms.isValid() ) {
+    const std::vector<Top>& topCollection = *tops;
+    
+    if(verbose_) 
+      std::cout<<"******* TopProjector "<<objectName
+	       <<" size = "<<topCollection.size()<<" ******** "<<std::endl;
+    
+    for(unsigned i=0; i<topCollection.size(); i++) {
+      
+      
+      edm::Ptr<Top>   ptr( tops, i);
+      reco::CandidatePtr basePtr( ptr );
+ 
+      
+      reco::CandidatePtrVector ancestors;
+      ptrToAncestor( basePtr,
+		     ancestors,
+		     bottoms.id(), 
+		     iEvent );
+      
+      if(verbose_) {
+/* 	std::cout<<"\t"<<objectName<<" "<<i */
+/* 		 <<" pt,eta,phi = " */
+/* 		 <<basePtr->pt()<<"," */
+/* 		 <<basePtr->eta()<<"," */
+/* 		 <<basePtr->phi()<<std::endl; */
+	
+	std::cout<<"\t"<<topCollection[i]<<std::endl;
+	printAncestors( ancestors, bottoms );
+      }
+  
+      maskAncestors( ancestors, masked );
+    }
+  }
+
+}
+
+
+template< class Top, class Bottom >
+void  TopProjector<Top,Bottom>::printAncestors( const reco::CandidatePtrVector& ancestors,
+				      const edm::Handle< std::vector<Bottom> >& allPFCandidates ) const {
+  
+
+  std::vector<Bottom> pfs = *allPFCandidates;
+
+  for(unsigned i=0; i<ancestors.size(); i++) {
+
+    edm::ProductID id = ancestors[i].id();
+    assert( id == allPFCandidates.id() );
+ 
+    unsigned index = ancestors[i].key();
+    assert( index < pfs.size() );
+    
+    std::cout<<"\t\t"<<pfs[index]<<std::endl;
+  }
+}
+
+
+
+template< class Top, class Bottom >
+void
+TopProjector<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
+					 reco::CandidatePtrVector& ancestors,
+					 const edm::ProductID& ancestorsID,
+					 const edm::Event& iEvent) const {
+
+  
+  unsigned nSources = candPtr->numberOfSourceCandidatePtrs();
+
+  if(verbose_) {
+    const edm::Provenance& hereProv = iEvent.getProvenance(candPtr.id());
+
+    std::cout<<"going down from "<<candPtr.id()
+	<<"/"<<candPtr.key()<<" #mothers "<<nSources
+	<<" ancestor id "<<ancestorsID<<std::endl
+	<<hereProv.branchDescription()<<std::endl;
+  }  
+
+  for(unsigned i=0; i<nSources; i++) {
+    
+    reco::CandidatePtr mother = candPtr->sourceCandidatePtr(i);
+    if( verbose_ ) {
+/*       const Provenance& motherProv = iEvent.getProvenance(mother.id()); */
+      std::cout<<"  mother id "<<mother.id()<<std::endl;
+    }
+    if(  mother.id() != ancestorsID ) {
+      // the mother is not yet at lowest level
+      ptrToAncestor( mother, ancestors, ancestorsID, iEvent );
+    }
+    else {
+      // adding mother to the list of ancestors
+      ancestors.push_back( mother ); 
+    }
+  }
+}
+
+
+
+
+template< class Top, class Bottom >
+void TopProjector<Top,Bottom>::maskAncestors( const reco::CandidatePtrVector& ancestors,
+					 std::vector<bool>& masked ) const {
+  
+  for(unsigned i=0; i<ancestors.size(); i++) {
+    unsigned index = ancestors[i].key();
+    assert( index<masked.size() );
+    
+    //     if(verbose_) {
+    //       ProductID id = ancestors[i].id();
+    //       std::cout<<"\tmasking "<<index<<", ancestor "<<id<<"/"<<index<<std::endl;
+    //     }
+    masked[index] = true;
+  }
 }
 
 

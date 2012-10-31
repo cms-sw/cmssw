@@ -160,12 +160,6 @@ if __name__ == '__main__':
                         default=None,
                         required=False,
                         help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
-    
-    parser.add_argument('--headerfile',dest='headerfile',action='store',
-                        default=None,
-                        required=False,
-                        help='write command header output to specified file'
-                       )
     #################################################
     #switches
     #################################################
@@ -195,6 +189,7 @@ if __name__ == '__main__':
                         help='debug'
                         )
     options=parser.parse_args()
+    
     if not options.runnumber and not options.inputfile and not options.fillnum and not options.begin:
         raise RuntimeError('at least one run selection argument in [-r,-f,-i,--begin] is required')
     reqrunmin=None
@@ -239,7 +234,7 @@ if __name__ == '__main__':
         cmsswWorkingBase=os.environ['CMSSW_BASE']
         if not cmsswWorkingBase:
             print 'Please check out RecoLuminosity/LumiDB from CVS,scram b,cmsenv'
-            sys.exit(11)
+            sys.exit(0)
         c=checkforupdate.checkforupdate()
         workingversion=c.runningVersion(cmsswWorkingBase,'lumiCalc2.py',isverbose=False)
         if workingversion:
@@ -315,19 +310,18 @@ if __name__ == '__main__':
             normid=normDML.normIdByName(session.nominalSchema(),normname)
         if not normid:
             raise RuntimeError('[ERROR] cannot resolve norm/correction')
-            sys.exit(12)
+            sys.exit(-1)
         normvalueDict=normDML.normValueById(session.nominalSchema(),normid) #{since:[corrector(0),{paramname:paramvalue}(1),amodetag(2),egev(3),comment(4)]}
     session.transaction().commit()
-    lumiReport.toScreenHeader(thiscmmd,datatagname,normname,workingversion,updateversion,'HF',toFile=options.headerfile)
+    lumiReport.toScreenHeader(thiscmmd,datatagname,normname,workingversion,updateversion,'HF')
     if not dataidmap:
         print '[INFO] No qualified data found, do nothing'
-        sys.exit(13)
+        sys.exit(0)
                 
     ##################
     # ls level       #
     ##################
     session.transaction().start(True)
-
     GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
     if options.action == 'delivered':
         result=lumiCalcAPI.deliveredLumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=pbeammode,timeFilter=timeFilter,normmap=normvalueDict,lumitype='HF')

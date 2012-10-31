@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: anorkus $
-# $Date: 2012/10/17 09:23:53 $
-# $Revision: 1.11 $
+# $Author: agimbuta $
+# $Date: 2012/07/17 14:28:23 $
+# $Revision: 1.4 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -114,7 +114,7 @@ class StatisticalTest(object):
 
   def get_rank(self):
     if not self.is_init:
-      if self.rank < 0:
+      if self.rank<0:
         type1=type(self.h1)
         type2=type(self.h2)
         if (type1 != type2):
@@ -158,7 +158,7 @@ class StatisticalTest(object):
     if self.get_rank()<0:
       status=NULL
       logger(0,"+++ Test %s FAILED: rank is %s and threshold is %s ==> %s" %(self.name, self.rank, self.threshold, status))  
-    elif self.get_rank() < self.threshold:
+    elif self.get_rank()<=self.threshold:
       status=FAIL
     logger(0,"+++ Test %s: rank is %s and threshold is %s ==> %s" %(self.name, self.rank, self.threshold, status))
     return status
@@ -263,35 +263,16 @@ class Chi2(StatisticalTest):
           #print "Histo ",h.GetName()," Bin:",i,"-Content:",h.GetBinContent(i)," had zero error"
           h.SetBinContent(i,0)
 
-  def check_histograms(self, histogram):
-      if histogram.InheritsFrom("TProfile") or  (histogram.GetEntries()!=histogram.GetSumOfWeights()):
-          return 'W'
-      else:
-          return 'U'
 
   def do_test(self):
     self.absval()
     if self.check_filled_bins(3):
-      #if self.h1.InheritsFrom("TProfile") or  (self.h1.GetEntries()!=self.h1.GetSumOfWeights()):
-      #  chi2=self.h1.Chi2Test(self.h2,'WW')
-      #  #if chi2==0: print "DEBUG",self.h1.GetName(),"Chi2 is:", chi2
-      #  return chi2
-      #else:
-      #  return self.h1.Chi2Test(self.h2,'UU')
-      hist1 = self.check_histograms(self.h1)
-      hist2 = self.check_histograms(self.h2)
-      if hist1 =='W' and hist2 =='W': ##in case 
-          chi2 = self.h1.Chi2Test(self.h2,'WW')     ## the both histograms are weighted
-          return chi2
-      elif hist1 == 'U' and hist2 == 'U':
-          chi2 = self.h1.Chi2Test(self.h2,'UU')    ##the both histograms are unweighted
-          return chi2
-      elif hist1 == 'U' and hist2 == 'W':
-          chi2 = self.h1.Chi2Test(self.h2,'UW')   ## 1st histogram is unweighted, 2nd weighted
-          return chi2
-      elif hist1 == 'W' and hist2 == 'U':
-          chi2 = self.h2.Chi2Test(self.h1,'UW')   ## 1 is wieghted, 2nd unweigthed. so flip order to make a UW comparison
-          return chi2
+      if self.h1.InheritsFrom("TProfile") or  (self.h1.GetEntries()!=self.h1.GetSumOfWeights()):
+        chi2=self.h1.Chi2Test(self.h2,'WW')
+        #if chi2==0: print "DEBUG",self.h1.GetName(),"Chi2 is:", chi2
+        return chi2
+      else:
+        return self.h1.Chi2Test(self.h2,'UU')
     else:
       return 1
       #return test_codes["FEW_BINS"]
@@ -536,14 +517,18 @@ def get_relval_max_version(files):
 
 def get_relval_cmssw_version(file):
     cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
-    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
+    gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(?:_[\w\d]*)?-v', file)
     if cmssw_release and gr_r_version:
         return (cmssw_release[0], gr_r_version[0])
 
 def get_relval_id(file):
     """Returns unique relval ID (dataset name) for a given file."""
     dataset_name = re.findall('R\d{9}__([\w\d]*)__CMSSW_', file)
-    return dataset_name[0]
+    run = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-[\w\d]*_V\d*\w?(?:_([\w\d]*))?-v\d*__', file)
+    if run[0]:
+        return (dataset_name[0], run[0])
+    else:
+        return (dataset_name[0], '_V\d*\w?-v\d*__')
 
 ##-------------------------  Make files pairs --------------------------
 def is_relvaldata(files):
@@ -553,13 +538,11 @@ def is_relvaldata(files):
 def make_files_pairs(files, verbose=True):
     ## Select functions to use
     if is_relvaldata(files):
-        is_relval_data = True
         get_cmssw_version = get_relvaldata_cmssw_version
         get_id = get_relvaldata_id
         get_max_version = get_relvaldata_max_version
         # print 'Pairing Data RelVal files.'
     else:
-        is_relval_data = False
         get_cmssw_version = get_relval_cmssw_version
         get_id = get_relval_id
         get_max_version = get_relval_max_version
@@ -580,10 +563,6 @@ def make_files_pairs(files, verbose=True):
         for version in versions_files:
             print '%s: %d files' % (str(version),  len(versions_files[version]))
 
-    if len(versions_files.keys()) <= 1:
-        print '\nFound too little versions, there is nothing to pair. Exiting...\n'
-        exit()
-
     ## Select two biggest groups.
     versions = versions_files.keys()
     sizes = [len(value) for value in versions_files.values()]
@@ -598,24 +577,16 @@ def make_files_pairs(files, verbose=True):
                 len(versions_files[v1]), str(v2), len(versions_files[v2]))
 
     ## Pairing two versions
-    print '\nGot pairs:'
     pairs = []
     for unique_id in set([get_id(file) for file in versions_files[v1]]):
-        if is_relval_data:
-            dataset_re = re.compile(unique_id[0]+'_')
-            run_re = re.compile(unique_id[1])
-            c1_files = [file for file in versions_files[v1] if dataset_re.search(file) and run_re.search(file)]
-            c2_files = [file for file in versions_files[v2] if dataset_re.search(file) and run_re.search(file)]
-        else:
-            dataset_re = re.compile(unique_id+'_')
-            c1_files = [file for file in versions_files[v1] if dataset_re.search(file)]
-            c2_files = [file for file in versions_files[v2] if dataset_re.search(file)]
-
+        dataset_re = re.compile(unique_id[0]+'_')
+        run = re.compile(unique_id[1])
+        c1_files = [file for file in versions_files[v1] if dataset_re.search(file) and run.search(file)]
+        c2_files = [file for file in versions_files[v2] if dataset_re.search(file) and run.search(file)]
         if len(c1_files) > 0 and len(c2_files) > 0:
             first_file = get_max_version(c1_files)
             second_file = get_max_version(c2_files)
-            print '%s\n%s\n' % (first_file, second_file)
             pairs.extend((first_file, second_file))
     if verbose:
-        print "Paired and got %d files.\n" % len(pairs)
+        print "\nPaired and got %d files.\n" % len(pairs)
     return pairs

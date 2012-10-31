@@ -29,9 +29,8 @@ namespace gen {
       void init();
       const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
       HepMC::GenEvent* apply( HepMC::GenEvent* );
-      void configureOnlyFor( int );
+      // --> void configureOnlyFor( int );
       void avoidTauLeptonicDecays() { fAvoidTauLeptonicDecays=true; return; }
-      bool isTauLeptonicDecay( HepMC::GenVertex* );
       
       private: 
             
@@ -46,11 +45,8 @@ namespace gen {
       std::vector<std::string> fSpecialSettings; 
       bool                     fAvoidTauLeptonicDecays;  
       std::vector<int>         fBarcodes;
-      std::vector<int>         fSecVtxStore;
       bool                     fIsInitialized;
       
-      void applyToVertex( HepMC::GenEvent*, int );
-      void applyToBranch( HepMC::GenEvent*, int );
       void attachParticles( HepMC::GenEvent*, HepMC::GenVertex*, int );
              
    };

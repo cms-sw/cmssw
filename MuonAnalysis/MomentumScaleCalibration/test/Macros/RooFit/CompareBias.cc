@@ -5,9 +5,8 @@
 #include "TROOT.h"
 #include "TLegend.h"
 
-
-#include "FitMassSlices.cc"
-#include "Legend.h"
+#include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/FitMassSlices.cc"
+#include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/Legend.h"
 
 class CompareBias
 {
@@ -19,7 +18,7 @@ public:
     doFit_ = false;
 
     TString fileNum1("0");
-    TString fileNum2("2");
+    TString fileNum2("1");
 
     TString inputFileName("_MuScleFit.root");
     TString outputFileName("BiasCheck_");
@@ -32,22 +31,15 @@ public:
     FitMassSlices fitter1;
     FitMassSlices fitter2;
 
-    fitter1.rebinZ = 1; // 2 for Z
-
-    fitter1.useChi2 = false;
-
-    fitter1.rebinX = 2;
-    fitter1.rebinY = 2;
+    fitter1.rebinX = 1;
     fitter1.sigma2 = 1.;
-    fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "crystalBall", "exponential", 3.095, 2.8, 3.4, 0.04, 0., 0.);
-    // fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10);
+    // fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "crystalBall", "", 3.095, 2.8, 3.2, 0.04, 0., 0.1);
+    fitter1.fit(fileNum1+"_MuScleFit.root", "BiasCheck_"+fileNum1+".root", "crystalBall", "", 3.095, 2.8, 3.2, 0.04, 0.01, 0.1);
 
     if( fileNum2 != "" ) {
-      fitter2.rebinX = 2;
-      fitter2.rebinY = 2;
+      fitter2.rebinX = 1;
       fitter2.sigma2 = 1.;
-      fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "crystalBall", "exponential", 3.095, 2.8, 3.4, 0.04, 0., 0.);    
-      // fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "voigtian", "", 91, 80, 100, 2, 0.1, 10); 
+      fitter2.fit(fileNum2+"_MuScleFit.root", "BiasCheck_"+fileNum2+".root", "crystalBall", "", 3.095, 2.8, 3.2, 0.04, 0.01, 0.1);
     }
 
     file1_ = new TFile(outputFile1, "READ");
@@ -60,14 +52,6 @@ public:
 
     compare("MassVsPt", "uniform", 1., 8., "muon pt (GeV)", "Mass (GeV)");
     compare("MassVsEta", "uniform", -2.8, 2.8, "muon #eta", "Mass (GeV)");
-    
-    //r.c. ------------------
-    compare("MassVsEtaPlus", "uniform", -2.8, 2.8, "muon + #eta", "Mass (GeV)");
-    compare("MassVsEtaMinus", "uniform", -2.8, 2.8, "muon - #eta", "Mass (GeV)");   
-    //    compare("MassVsEtaPhiPlus", "uniform", -2.8, 2.8, "muon - #eta #phi", "Mass (GeV)");   
-    //r.c. -----------------
-
-
     compare("MassVsPhiPlus", "uniform", -3.14, 3.14, "muon(+) #phi", "Mass (GeV)");
     compare("MassVsPhiMinus", "uniform", -3.14, 3.14, "muon(-) #phi", "Mass (GeV)");
 

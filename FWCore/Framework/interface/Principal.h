@@ -99,8 +99,6 @@ namespace edm {
                             size_t& cachedOffset,
                             int& fillCount) const;
 
-    BasicHandle  getByType(TypeID const& tid) const;
-
     void getManyByType(TypeID const& tid,
                  BasicHandleVec& results) const;
 
@@ -191,7 +189,6 @@ namespace edm {
 
     size_t findGroup(TypeID const& typeID,
                      TypeLookup const& typeLookup,
-                     bool doMatching,
                      std::string const& moduleLabel,
                      std::string const& productInstanceName,
                      std::string const& processName,
@@ -239,7 +236,7 @@ namespace edm {
     // The Principal does not own this object.
     HistoryAppender* historyAppender_;
 
-    static ProcessHistory emptyProcessHistory_;
+    static const ProcessHistory emptyProcessHistory_;
   };
 
   template <typename PROD>

@@ -211,9 +211,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRunsAndLumi
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
+	readAndMergeLumi 2
     *** nextItemType: Event ***
 	readEvent
 	processEvent
@@ -261,9 +261,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = handleEmptyRuns
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
+	readAndMergeLumi 2
     *** nextItemType: Event ***
 	beginLumi 1/2
 	readEvent
@@ -312,9 +312,9 @@ Machine parameters:  mode = FULLMERGE  emptyRunLumiMode = doNotHandleEmptyRunsAn
  	readFile
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
-	readAndCacheRun 1
+	readAndMergeRun 1
     *** nextItemType: Lumi 2 ***
-	readAndCacheLumi 2
+	readAndMergeLumi 2
     *** nextItemType: Event ***
 	beginLumi 1/2
 	readEvent

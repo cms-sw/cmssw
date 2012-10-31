@@ -5,34 +5,57 @@ import os
 from Configuration.Generator.PythiaUESettings_cfi import *
 
 TauolaNoPolar = cms.PSet(
-  UseTauolaPolarization = cms.bool(False)
+    UseTauolaPolarization = cms.bool(False)
 )
 TauolaPolar = cms.PSet(
-  UseTauolaPolarization = cms.bool(True)
+   UseTauolaPolarization = cms.bool(True)
 )
+
 
 from TauAnalysis.MCEmbeddingTools.MCParticleReplacer_cfi import *
-generator.algorithm = "Ztautau"
-generator.pluginType = "ParticleReplacerZtautau"
-generator.src = cms.InputTag("") # CV: replaced in embeddingCustomizeAll.py
-generator.Ztautau.TauolaOptions.InputCards.mdtau = cms.int32(0)
-generator.Ztautau.minVisibleTransverseMomentum = cms.untracked.string("")
+newSource.algorithm = "ZTauTau"
+newSource.ZTauTau.TauolaOptions.InputCards.mdtau = cms.int32(0)
+newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(0)
+
+
+
+#source = cms.Source("EmptySource")
+
+source = cms.Source("PoolSource",
+        skipEvents = cms.untracked.uint32(0),
+        fileNames = cms.untracked.vstring('file:/tmp/fruboes/Zmumu/patLayer1_fromAOD_PF2PAT_full.root')
+)
+
+
+if os.path.exists("/storage/6/zeise/temp/goldenZmumuEvents_RAW_RECO_9_1_EzB.root"):
+	source.fileNames=cms.untracked.vstring("file:/storage/6/zeise/temp/goldenZmumuEvents_RAW_RECO_9_1_EzB.root")
+if os.path.exists("/scratch/scratch0/tfruboes/2011.04.Embedding/CMSSW_4_1_4/DATA/goldenZmumu500.root"):
+	source.fileNames=cms.untracked.vstring("file:/scratch/scratch0/tfruboes/2011.04.Embedding/CMSSW_4_1_4/DATA/goldenZmumu500.root")
 
 filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
-  target = cms.untracked.int32(1),
-  src = cms.untracked.InputTag("generator", "", "HLT2")
+    target = cms.untracked.int32(1),
+    src = cms.untracked.InputTag("generator","","HLT2")
 )
+
+#adaptedMuonsFromDiTauCands = cms.EDProducer("CompositePtrCandidateT1T2MEtAdapter",
+#    diTau  = cms.untracked.InputTag("zMuMuCandsMuEta"),
+#    pfCands = cms.untracked.InputTag("particleFlow","")
+#)
+
+#inputColl = cms.InputTag("adaptedMuonsFromDiTauCands","zMusExtracted")
+inputColl = cms.InputTag("goldenZmumuCandidatesGe2IsoMuons")
 
 # Removes input muons from tracks and PF candidate collections
 removedInputMuons = cms.EDProducer('ZmumuPFEmbedder',
-  tracks = cms.InputTag("generalTracks"),
-  trajectories = cms.InputTag("generalTracks"),                                 
-  pfCands = cms.InputTag("particleFlow"),				   
-  selectedMuons = cms.InputTag("") # CV: replaced in embeddingCustomizeAll.py
+    tracks = cms.InputTag("generalTracks"),
+    selectedMuons = inputColl,
+    keepMuonTrack = cms.bool(False),
+    useCombinedCandidate = cms.untracked.bool(True),
 )
- 
-ProductionFilterSequence = cms.Sequence(
-  removedInputMuons
- * generator
- * filterEmptyEv
-)
+
+generator = newSource.clone()
+generator.src = inputColl
+
+#ProductionFilterSequence = cms.Sequence(adaptedMuonsFromDiTauCands*removedInputMuons*generator*filterEmptyEv)
+ProductionFilterSequence = cms.Sequence(removedInputMuons*generator*filterEmptyEv)
+#ProductionFilterSequence = cms.Sequence(generator)

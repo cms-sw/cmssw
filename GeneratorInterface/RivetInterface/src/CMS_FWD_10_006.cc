@@ -5,6 +5,7 @@
 #include "Rivet/Tools/Logging.hh"
 #include "Rivet/Projections/FinalState.hh"
 #include "Rivet/Projections/FastJets.hh"
+/// @todo Include more projections as required, e.g. ChargedFinalState, FastJets, ZFinder...
 
 namespace Rivet {
 
@@ -14,6 +15,8 @@ namespace Rivet {
 
     // Data members like post-cuts event weight counters go here
 
+    int eventcounter;
+    int cf_counter;
     AIDA::IHistogram1D* _hist_jetpt_forward;
     AIDA::IHistogram1D* _hist_jetpt_central;
 
@@ -40,14 +43,16 @@ namespace Rivet {
       
       addProjection(fs, "FS");
       FastJets fj(fs, FastJets::ANTIKT, 0.5);
+      fj.useInvisibles();
       addProjection(fj, "Jets");
       
       
+      eventcounter = 0;
+      cf_counter = 0;
       //Histograms
       
       _hist_jetpt_forward = bookHistogram1D(1,1,1);
       _hist_jetpt_central = bookHistogram1D(2,1,1);
-
 
     }
 
@@ -57,11 +62,23 @@ namespace Rivet {
 
       const double weight = event.weight();
 
+      
+//       cout<<"Next evt=============================================="<<endl;
+
+//       const FinalState& cfs =
+// 	applyProjection<FinalState>(event, "FS");
+
+//       foreach (const Particle& p, cfs.particles()) {	
+// 	double eta = p.momentum().eta();
+// 	long  iD = p.pdgId(); 
+// 	cout<<iD<<endl;
+//       }
+
+
       const FastJets& fastjets = applyProjection<FastJets>(event, "Jets"); 
       const Jets jets = fastjets.jetsByPt(32.);
       double cjet_pt=0.0;
       double fjet_pt=0.0;
-
       foreach( const Jet& j, jets ) {
 	double pT = 0.0;
 	pT = j.momentum().pT();
@@ -79,24 +96,34 @@ namespace Rivet {
 	
       }
 
+      eventcounter++;
+      
       if( cjet_pt>35 && fjet_pt>35 ){
 	_hist_jetpt_forward->fill( fjet_pt, weight );
 	_hist_jetpt_central->fill( cjet_pt, weight );
+	cf_counter++;
       }
 
 
     }
 
+    /// @todo Do the event by event analysis here
+
+
+
 
     /// Normalise histograms etc., after the run
     void finalize() {
+ 
+      //      getLog() << Log::INFO << "Number of events after event selection: " << cf_counter << endl;	
+      
+      cout<<"Number of events after event selection: " << cf_counter << endl;
 
-      // value of picobarn is one.
       double invlumi = crossSection()/picobarn/sumOfWeights();
 
-      // Scale with the width of the used eta bin, weights and cross section.
-      scale(_hist_jetpt_forward, invlumi/3.0); 
-      scale(_hist_jetpt_central, invlumi/5.6);
+
+      scale(_hist_jetpt_forward, invlumi); 
+      scale(_hist_jetpt_central, invlumi);
      
     }
     

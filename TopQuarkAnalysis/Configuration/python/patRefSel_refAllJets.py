@@ -22,9 +22,9 @@ from TopQuarkAnalysis.Configuration.patRefSel_PF2PAT import *
 ### Trigger selection
 
 # HLT selection
-triggerSelectionDataRelVals = 'HLT_SixJet45_v*' # 2012A RelVals
+triggerSelectionDataRelVals = 'HLT_QuadJet50_DiJet40_v*' # 2011B RelVals
 triggerSelectionData        = 'HLT_*' # not defined yet
-triggerSelectionMC          = 'HLT_*' # not recommended
+triggerSelectionMC          = 'HLT_QuadJet60_DiJet20_v*' # not defined yet
 
 ### Muon selection
 
@@ -65,6 +65,6 @@ electronCut += ' && (chargedHadronIso+max(0.,neutralHadronIso)+photonIso-0.5*puC
 ### Trigger matching
 
 # Trigger object selection
-triggerObjectSelectionDataRelVals = 'type("TriggerJet") && ( path("HLT_SixJet45_v*") )' # 2012A RelVals
+triggerObjectSelectionDataRelVals = 'type("TriggerJet") && ( path("HLT_QuadJet50_DiJet40_v*") )' # 2011B RelVals
 triggerObjectSelectionData        = 'type("TriggerJet") && ( path("HLT_*") )' # not defined yet
-triggerObjectSelectionMC          = 'type("TriggerJet") && ( path("HLT_*") )' # not recommended
+triggerObjectSelectionMC          = 'type("TriggerJet") && ( path("HLT_QuadPFJet75_55_35_20_BTagCSV_VBF_v*") )' # not defined yet

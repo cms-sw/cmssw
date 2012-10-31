@@ -62,12 +62,24 @@
                         <group><box><range min="90" max="150"/><range/></box></group>
                         <group><box><range/><range min="-1.2" max="1.2"/></box></group>
                         <group><box><range/><range min="-2.1" max="2.1"/></box></group>
-                        <group><box><range/><range/></box></group>
+                        
                 </config>
                 <output>
                         <var name="category"/>
                 </output>
         </processor>
+        <processor id="count" name="ProcCount">
+                <input>
+                        <var source="input" name="trackSip2dSig"/>
+                </input>
+                <config>
+                        
+                </config>
+                <output>
+                        <var name="nTracks"/>
+                </output>
+        </processor>
+
         <processor id="norm2" name="ProcNormalize">
                 <input>
                         <var source="input" name="jetPt"/>
@@ -85,12 +97,12 @@
                         <pdf/>
                         <pdf/>
                         <pdf smooth="1" lower="-80" upper="150"/>      <!-- trackSip2dSig -->
-                        <pdf smooth="1" lower="-80" upper="150"/>     <!-- trackSip3dSig -->
-                        <pdf smooth="1" lower="-0.2" upper="0.2"/>     <!-- trackSip2dVal -->
+                        <pdf smooth="1" lower="-80" upper="150"/>      <!-- trackSip3dSig -->
+                        <pdf smooth="1" lower="-0.2" upper="0.2"/>      <!-- trackSip2dVal -->
                         <pdf smooth="1" lower="-3" upper="3"/>      <!-- trackSip3dVal -->
                         <pdf smooth="1" lower="0" upper="250"/>      <!-- trackMomentum -->
                         <pdf smooth="1" lower="1.2" upper="8.5" />      <!-- trackEtaRel -->
-                        <pdf smooth="1" lower="-50" upper="80"/>     <!-- trackSip2dSigAboveCharm -->
+                        <pdf smooth="1" lower="-50" upper="80"/>      <!-- trackSip2dSigAboveCharm -->
                         <pdf smooth="1" lower="-50" upper="80"/>      <!-- trackSip3dSigAboveCharm -->
                 </config>
                 <output>
@@ -130,12 +142,12 @@
                         <var source="split2" name="vartrackSip3dSig_rest"/>
                 </input>
                 <config>
-												<general strict="true"/>
+                        <general/>
                         <category count="15"/>
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_1 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_2 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_3 -->
-                        <sigbkg smooth="3"/> <!-- vartrackSip3dSig_rest -->							
+                        <sigbkg smooth="3"/> <!-- vartrackSip3dSig_rest -->
                 </config>
                 <output>
                         <var name="discr2"/>
@@ -146,7 +158,7 @@
                         <var source="lkh2" name="discr2"/>
                 </input>
                 <config>
-                        <pdf smooth="3"/>
+                        <pdf lower="-0.5" upper="1.5" size="200" smooth="1"/>
                 </config>
                 <output>
                         <var name="normdiscr2"/>
@@ -158,48 +170,33 @@
                         <var source="normlkh2" name="normdiscr2"/>
                 </input>
                 <config>
-								        <general strict="true"/>
-        	              <category count="15"/>
-	                      <sigbkg smooth="3"/>
                         <bias_table><!--B_C-->
-<bias>0.728464</bias>
-<bias>0.800217</bias>
-<bias>0.869003</bias>
-<bias>0.464005</bias>
-<bias>0.54678</bias>
-<bias>0.677409</bias>
-<bias>0.349333</bias>
-<bias>0.428114</bias>
-<bias>0.578582</bias>
-<bias>0.300714</bias>
-<bias>0.378426</bias>
-<bias>0.530827</bias>
-<bias>0.360274</bias>
-<bias>0.43358</bias>
-<bias>0.590759</bias>
+                                <bias>0.68134</bias>
+				<bias>0.74779</bias>
+				<bias>0.822418</bias>		
+				<bias>0.445611</bias>		
+				<bias>0.51504</bias>
+				<bias>0.627904</bias>
+				<bias>0.35771</bias>
+				<bias>0.429451</bias>
+				<bias>0.55269</bias>
+				<bias>0.324465</bias>
+				<bias>0.40044</bias>
+				<bias>0.53543</bias>
+				<bias>0.41276</bias>
+				<bias>0.472191</bias>
+				<bias>0.602347</bias>
                         </bias_table><!--B_C-->
+        	        <category count="15"/>
+	                <sigbkg lower="0" upper="1" size="200" smooth="1"/>
                 </config>
                 <output>
                         <var name="biasdiscr2"/>
                 </output>
         </processor>
-        <processor id="opt2" name="ProcOptional">
-					<input>
-						<var source="biaslkh2" name="biasdiscr2"/>
-					</input>
-					<config>
-						<neutral pos="-1"/>
-					</config>
-					<output>
-						<var name="optdiscr2"/>
-					</output>
-        </processor>
+
 	<output>
-		<var source="opt2" name="optdiscr2"/>
+		<var source="biaslkh2" name="biasdiscr2"/>
 	</output>
 
 </MVATrainer>
-
-
-
-

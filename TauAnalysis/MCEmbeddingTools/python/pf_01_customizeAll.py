@@ -39,7 +39,13 @@ class SeqVisitor(object):
     def leave(self,visitee):
 	    pass
 
+  
+
+
+
 def customise(process):
+ 
+   
   
   process._Process__name="EmbeddedRECO"
   process.TFileService = cms.Service("TFileService",  fileName = cms.string("histo_embedded.root")          )
@@ -90,7 +96,6 @@ def customise(process):
 
 
   hltProcessName = "HLT"	#"REDIGI38X"
-  RECOproc = "RECO"
   # the following block can be used for more efficient processing by replacing the HLT variable below automatically
   try:
     hltProcessName = __HLT__
@@ -147,12 +152,6 @@ def customise(process):
                     VarParsing.VarParsing.multiplicity.singleton,
                     VarParsing.VarParsing.varType.int,         
                     "should I override beamspot in globaltag?")
-
-  options.register ('skimEnabled',
-                    0, # default value, true
-                    VarParsing.VarParsing.multiplicity.singleton,
-                    VarParsing.VarParsing.varType.int,         
-                    "should I apply Zmumu event selection cuts?")
 
 #  options.register ('primaryProcess',
 #                    'RECO', # default value
@@ -214,6 +213,7 @@ def customise(process):
 
 # -*- coding: utf-8 -*-
 
+
   process.tmfTracks = cms.EDProducer("RecoTracksMixer",
       trackCol1 = cms.InputTag("removedInputMuons","tracks"),
       trackCol2 = cms.InputTag("generalTracks","","EmbeddedRECO")
@@ -221,7 +221,6 @@ def customise(process):
 
   process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("tmfTracks")
   process.offlinePrimaryVertices.TrackLabel = cms.InputTag("tmfTracks")
-
   if hasattr(process.muons, "TrackExtractorPSet"):
     process.muons.TrackExtractorPSet.inputTrackCollection = cms.InputTag("tmfTracks")
   elif hasattr(process, "muons1stStep") and hasattr(process.muons1stStep, "TrackExtractorPSet"):
@@ -234,6 +233,7 @@ def customise(process):
   for s in process.sequences:
      seq =  getattr(process,s)
      seq.remove(process.offlineBeamSpot) 
+
 
   try:
   	process.metreco.remove(process.BeamHaloId)
@@ -249,29 +249,12 @@ def customise(process):
   except:
     pass
 
+
   for p in process.paths:
     pth = getattr(process,p)
     if "generalTracks" in pth.moduleNames():
       pth.replace(process.generalTracks, process.generalTracks*process.tmfTracks)
 
-  #'''
-  process.gsfElectronsORG = process.gsfElectrons.clone()
-  #print dir(process)
-  #for p in dir(process):
-
-  for p in process.paths:
-    pth = getattr(process,p)
-    #if hasattr(pth,"gsfElectrons"):
-    if "gsfElectrons" in pth.moduleNames():
-      pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
-      #print p, dir(pth.moduleNames())
-
-  # xxx
-  process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
-      col1 = cms.InputTag("gsfElectronsORG"),
-      col2 = cms.InputTag("gsfElectrons","", RECOproc )
-  )
-  #'''
 
   process.particleFlowORG = process.particleFlow.clone()
 
@@ -284,11 +267,7 @@ def customise(process):
     process.particleFlowTmpMixed = cms.EDProducer('PFCandidateMixer',
       col1 = cms.untracked.InputTag("removedInputMuons","pfCands"),
       col2 = cms.untracked.InputTag("particleFlowTmp", ""),
-      trackCol = cms.untracked.InputTag("tmfTracks"),
-
-      # Don't produce value maps:
-      muons = cms.untracked.InputTag(""),
-      gsfElectrons = cms.untracked.InputTag("")
+      trackCol = cms.untracked.InputTag("tmfTracks")
     )
     process.muons.PFCandidates = cms.InputTag("particleFlowTmpMixed")
 
@@ -321,14 +300,11 @@ def customise(process):
     process.pfSelectedElectrons.src = cms.InputTag("particleFlowORG")
     process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
 
-  process.particleFlow = cms.EDProducer('PFCandidateMixer',
+
+  process.particleFlow =  cms.EDProducer('PFCandidateMixer',
           col1 = cms.untracked.InputTag("removedInputMuons","pfCands"),
           col2 = cms.untracked.InputTag("particleFlowORG", ""),
-          trackCol = cms.untracked.InputTag("tmfTracks"),
-
-          muons = cms.untracked.InputTag("muons"),
-          gsfElectrons = cms.untracked.InputTag("gsfElectrons")
-          # TODO: photons???
+          trackCol = cms.untracked.InputTag("tmfTracks")
   )
 
   process.filterEmptyEv.src = cms.untracked.InputTag("generator","","EmbeddedRECO")
@@ -354,6 +330,7 @@ def customise(process):
              print "Changing: ", target, " ", targetAttribute, " ", attr, " to particleFlowORG"
              attr.setModuleLabel("particleFlowORG")
 
+
        #i.replace(target, source) 
        seqVis.prepareSearch()
        seqVis.setLookFor(target)
@@ -363,70 +340,31 @@ def customise(process):
        #seqVis.catch=0
        #i.__iadd__(source)
 
-  # CV: mix L1Extra collections
-  l1ExtraCollections = [
-      [ "L1EmParticle",     "Isolated"    ],
-      [ "L1EmParticle",     "NonIsolated" ],
-      [ "L1EtMissParticle", "MET"         ],
-      [ "L1EtMissParticle", "MHT"         ],
-      [ "L1JetParticle",    "Central"     ],
-      [ "L1JetParticle",    "Forward"     ],
-      [ "L1JetParticle",    "Tau"         ],
-      [ "L1MuonParticle",   ""            ]
-  ]
-  l1extraParticleCollections = []
-  for l1ExtraCollection in l1ExtraCollections:
-      inputType = l1ExtraCollection[0]
-      pluginType = None
-      if inputType == "L1EmParticle":
-          pluginType = "L1ExtraEmParticleMixerPlugin"
-      elif inputType == "L1EtMissParticle":
-          pluginType = "L1ExtraMEtMixerPlugin"
-      elif inputType == "L1JetParticle":
-          pluginType = "L1ExtraJetParticleMixerPlugin"
-      elif inputType == "L1MuonParticle":
-          pluginType = "L1ExtraMuonParticleMixerPlugin"
-      else:
-          raise ValueError("Invalid L1Extra type = %s !!" % inputType)
-      instanceLabel = l1ExtraCollection[1]
-      l1extraParticleCollections.append(cms.PSet(
-          pluginType = cms.string(pluginType),
-          instanceLabel = cms.string(instanceLabel)))
-  process.l1extraParticlesORG = process.l1extraParticles.clone()
-  process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
-      src1 = cms.InputTag('l1extraParticles::HLT'),
-      src2 = cms.InputTag('l1extraParticlesORG'),
-      collections = cms.VPSet(l1extraParticleCollections)
-  )
-  for p in process.paths:
-      pth = getattr(process,p)
-      if "l1extraParticles" in pth.moduleNames():
-          pth.replace(process.l1extraParticles, process.l1extraParticlesORG*process.l1extraParticles)
 
-  #if hasattr(process, "DQM_FEDIntegrity_v3"):
-  #  process.schedule.remove(process.DQM_FEDIntegrity_v3)
-  fedIntRemoved = False
-  for i in range(1,30):
-     attrName = "DQM_FEDIntegrity_v"+str(i) 
-     if hasattr(process, attrName ):
-       process.schedule.remove(process.DQM_FEDIntegrity_v11)
-       del process.DTDataIntegrityTask 
-       fedIntRemoved = True
-       break
- 
-  if fedIntRemoved:
-      print "Removed", attrName
-  else:
-      print "DQM_FEDIntegrity_vXX not found, expect problems"
+  #'''
+  process.gsfElectronsORG = process.gsfElectrons.clone()
+  #print dir(process)
+  #for p in dir(process):
+
+  for p in process.paths:
+    pth = getattr(process,p)
+    #if hasattr(pth,"gsfElectrons"):
+    if "gsfElectrons" in pth.moduleNames():
+      pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
+      #print p, dir(pth.moduleNames())
+
+  # xxx
+  process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
+      col1 = cms.InputTag("gsfElectronsORG"),
+      col2 = cms.InputTag("gsfElectrons","","RECO"),
+  )
+  #'''
+
+  if hasattr(process, "DQM_FEDIntegrity_v3"):
+    process.schedule.remove(process.DQM_FEDIntegrity_v3)
 
   skimEnabled = False
-  if setFromCL:
-      if options.skimEnabled != 0:
-          skimEnabled = True
-  else:
-      if hasattr(process,"doZmumuSkim"):
-          skimEnabled = True
-  if skimEnabled:
+  if hasattr(process,"doZmumuSkim"):
       print "Enabling Zmumu skim"
       skimEnabled = True
 
@@ -436,11 +374,6 @@ def customise(process):
         print "Using legacy version of Zmumu skim. Note, that muon isolation is disabled"
         print
         process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelectionLegacy_cff")
-        process.RandomNumberGeneratorService.dummy = cms.PSet(
-          initialSeed = cms.untracked.uint32(123456789),
-          engineName = cms.untracked.string('HepJamesRandom')
-        )
-
       else:
         process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
 
@@ -454,14 +387,11 @@ def customise(process):
       #process.options = cms.untracked.PSet(
       #  wantSummary = cms.untracked.bool(True)
       #)
-  else:
+
+
+  if not skimEnabled:
       print "Zmumu skim not enabled"
-      # CV: add path for keeping track of skimming efficiency
-      process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
-      process.skimEffFlag = cms.EDProducer("DummyBoolEventSelFlagProducer")
-      process.skimEffPath = cms.Path(process.goldenZmumuSelectionSequence * process.skimEffFlag)
-      
-      process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+
 
   print "# ######################################################################################"
   print "  Following parameters can be added before customize function "
@@ -470,4 +400,11 @@ def customise(process):
   print "     process.doZmumuSkim = cms.PSet() # adds Zmumu skimming before embedding is run"
   print "# ######################################################################################"
 
+
+
+
+  print "#############################################################"
+  print " Warning! PFCandidates 'electron' collection is not mixed, "
+  print "  and probably shouldnt be used. "
+  print "#############################################################"
   return(process)

@@ -51,7 +51,6 @@ void OHltPileupRateFitter::fitForPileup(
   TString model = thecfg->nonlinearPileupFit;
   double minLumi = 999999999.0;
   double maxLumi = 0.0;
-  float lumiMagicNumber = 6.37;
 
   for (int iPath=0; iPath<nPaths; iPath++)
     {
@@ -60,10 +59,14 @@ void OHltPileupRateFitter::fitForPileup(
       vector <double> vLumiErrors;
 
       for (int iLS=0; iLS<RunLSn; iLS++) {//looping over the entire set of data
+	double lumi = 0;
 	double rate = 0;
 	double rateerr = 0;
 	double lumierr = 0.0;
 
+	// Inst lumi
+	lumi = LumiPerLS[iLS];
+	
 	// Inst rate. Note here we've already applied the linear scale factor for the target lumi
 	// So cheat and uncorrect this back to the actual online rate before fitting 
 	rate = (double) (RatePerLS[iLS][iPath]) / (thecfg->lumiScaleFactor);
@@ -94,7 +97,7 @@ void OHltPileupRateFitter::fitForPileup(
       double lumierr = 0;
       
       // Inst lumi
-      lumi = lumiMagicNumber * LumiPerLS[iLS];
+      lumi = LumiPerLS[iLS];
 
       if(lumi > maxLumi)
 	maxLumi = lumi;
@@ -115,63 +118,9 @@ void OHltPileupRateFitter::fitForPileup(
   TGraphErrors* vTotalRateGraph = new TGraphErrors(RunLSn, &LumiPerLS[0], &vTotalRate[0], &vLumiError[0], &vTotalRateError[0]);
   vTotalRateGraph->SetTitle("Total rate");
 
-  // JH -testing rebinning
-  // Now for total/PD rate 
-  vector <double> vTotalRateRebinned; //temp vector containing rates 
-  vector <double> vTotalRateRebinnedError; 
-  vector <double> vLumiRebinned;
-  vector <double> vLumiRebinnedError;
-
-  int lsPerBin = 150;
-  int lsInBin = 0;
-  int rebinnedBins = RunLSn/150.0;
-  double lumiBin = 0;  
-  double rateBin = 0;  
-  double rateerrBin = 0;  
-  double lumierrBin = 0;  
-  double totalCountsBin = 0;
-
-  for (int iLS=0; iLS<RunLSn; iLS++)  
-    { 
-      // Inst lumi 
-      lumiBin += LumiPerLS[iLS]; 
-      rateBin += (double) (totalRatePerLS[iLS]) / (thecfg->lumiScaleFactor); 
-      totalCountsBin += totalCountPerLS[iLS];
-      lumierrBin = 0.0; 
-
-      lsInBin++;
-      if(lsInBin == lsPerBin)
-	{
-	  rateBin = 1.0 * rateBin/lsPerBin; 
-	  lumiBin = lumiMagicNumber * 1.0 * lumiBin/lsPerBin;
-	  rateerrBin = (double) rateBin * sqrt(totalCountsBin) / (totalCountsBin);  
-
-	  cout << "Finished bin after " << lsInBin << " LS" << endl
-	       << "\tRate average = " << rateBin << endl
-	       << "\tTotal counts = " << totalCountsBin << endl
-	       << "\tAverage lumi = " << lumiBin << endl;
-
-	  vTotalRateRebinned.push_back(rateBin);  
-	  vTotalRateRebinnedError.push_back(rateerrBin);  
-	  vLumiRebinned.push_back(lumiBin);
-	  vLumiRebinnedError.push_back(lumierrBin);  
-	  totalCountsBin=0;
-	  rateBin=0;
-	  rateerrBin=0;
-	  lumiBin=0;
-	  lumierrBin=0;
-          lsInBin = 0; 
-	}
-    }
-
-
-  TGraphErrors* vTotalRebinnedRateGraph = new TGraphErrors(rebinnedBins,&vLumiRebinned[0], &vTotalRateRebinned[0], &vLumiRebinnedError[0], &vTotalRateRebinnedError[0]); 
-  vTotalRebinnedRateGraph->SetTitle("Total rate (rebinned)"); 
-  // end JH 
-  
   // Fitting w/ quadratic and cubic
   // User should check the Chi2/Ndof
-  TF1* fp1     = new TF1("fp1", model, 0, 9000);
+  TF1* fp1     = new TF1("fp1", model, 0, 7000);
 
   int ix = TMath::Floor(sqrt(nPaths)); //Choose the proper canvas division
   int iy = ix;
@@ -221,11 +170,12 @@ void OHltPileupRateFitter::fitForPileup(
     }
 
   // Total rate
-  TCanvas* cTotalRateFit = new TCanvas("cTotalRateFit","cTotalRateFit",0,0,1200,800);
+  TCanvas* cTotalRateFit = new TCanvas("cTotalRateFit","cTotalRateFit",0,0,6000,1000);
   vTotalRateGraph->SetMarkerColor(4);
   vTotalRateGraph->SetMarkerStyle(20);
   vTotalRateGraph->Draw("ap");
   fp1->SetParLimits(3,0.000000001,0.1);
+  //  vTotalRateGraph->Fit("fp1","Q","",minLumi, maxLumi);
   vTotalRateGraph->Fit("fp1","QR","",minLumi, maxLumi);
   fp1->SetLineColor(2);
   fp1->DrawCopy("same");
@@ -241,33 +191,8 @@ void OHltPileupRateFitter::fitForPileup(
    cout
      << "----------------------------------------------------------------------------------------------\n";
 
-   TF1* fp2     = new TF1("fp2", model, 0, 9000); 
-
-   TCanvas* cTotalRebinnedRateFit = new TCanvas("cTotalRebinnedRateFit","cTotalRebinnedRateFit",0,0,1200,800); 
-   vTotalRebinnedRateGraph->SetMarkerColor(4); 
-   vTotalRebinnedRateGraph->SetMarkerStyle(20); 
-   vTotalRebinnedRateGraph->SetLineColor(4);  
-   vTotalRebinnedRateGraph->SetLineWidth(3);   
-   vTotalRebinnedRateGraph->Draw("ap"); 
-   fp2->SetParLimits(3,0.0,1.0); 
-   vTotalRebinnedRateGraph->Fit("fp2","QR","",minLumi, maxLumi); 
-   fp2->SetLineColor(2); 
-   fp2->DrawCopy("same"); 
-   cout << "\n"; 
-   cout << setw(60) << "TOTAL RATE (REBINNED): " << setw(5) << fp2->Eval(targetLumi) << " Hz"; 
- 
-   double pchi2totalrebinned = TMath::Prob(fp2->GetChisquare(),fp2->GetNDF()); 
-   if(pchi2totalrebinned>0.01) 
-     cout<<endl; 
-   else 
-     cout << " chi2/ndof = " << fp2->GetChisquare() << "/" << fp2->GetNDF() << endl; 
- 
-   cout 
-     << "----------------------------------------------------------------------------------------------\n"; 
-
  
   cIndividualRateFits->Write();
   cTotalRateFit->Write();
-  cTotalRebinnedRateFit->Write(); 
 }
 

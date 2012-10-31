@@ -23,7 +23,7 @@ def dumptocsv(fieldnames,result,filename):
         r.writeRow(fieldnames)
         r.writeRows(result)
         
-def toScreenHeader(commandname,datatagname,normtag,worktag,updatetag,lumitype,toFile=None):
+def toScreenHeader(commandname,datatagname,normtag,worktag,updatetag,lumitype):
     '''
     input:
        commandname: commandname
@@ -45,16 +45,8 @@ def toScreenHeader(commandname,datatagname,normtag,worktag,updatetag,lumitype,to
     header+='* \n'
     header+='* update: '+updatetag+'\n'
     header+=''.join(['*']*80)+'\n'
-    if not toFile:
-        sys.stdout.write(header)
-    else:
-        assert(toFile)
-        if toFile.upper()=='STDOUT':
-            r=sys.stdout
-        else:
-            r=open(toFile,'wb')
-        r.write(header)
-        
+    sys.stdout.write(header)
+    
 def toScreenNormSummary(allnorms):
     '''
     list all known norms summary
@@ -330,7 +322,7 @@ def toScreenOverview(lumidata,resultlines,scalefactor,irunlsdict=None,noWarning=
                     existdata.append(cmslsnum)
             if irunlsdict and irunlsdict[run]:
                 if lumilsnum and lumilsnum in irunlsdict[run]:
-                    if perlsdata[5] is not None:
+                    if perlsdata[5]:
                         deliveredData.append(perlsdata[5])
                     if perlsdata[6]:
                         recordedData.append(perlsdata[6])

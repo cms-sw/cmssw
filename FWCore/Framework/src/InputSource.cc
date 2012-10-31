@@ -287,14 +287,18 @@ namespace edm {
   }
 
   void
-  InputSource::readAndCacheRun(bool merge, HistoryAppender& historyAppender) {
+  InputSource::readAndCacheRun(HistoryAppender& historyAppender) {
     RunSourceSentry sentry(*this);
-    if (merge) {
-      principalCache_->merge(runAuxiliary(), productRegistry_);
-    } else {
-      boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration(), &historyAppender));
-      principalCache_->insert(rp);
-    }
+    boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration(), &historyAppender));
+    principalCache_->insert(rp);
+    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this](){ return readRun_(principalCache_->runPrincipalPtr()); },
+                                                                "Calling InputSource::readRun_" );
+  }
+
+  void
+  InputSource::readAndMergeRun() {
+    RunSourceSentry sentry(*this);
+    principalCache_->merge(runAuxiliary(), productRegistry_);
     callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this](){ return readRun_(principalCache_->runPrincipalPtr()); },
                                                                 "Calling InputSource::readRun_" );
   }
@@ -309,19 +313,23 @@ namespace edm {
   }
 
   void
-  InputSource::readAndCacheLumi(bool merge, HistoryAppender& historyAppender) {
+  InputSource::readAndCacheLumi(HistoryAppender& historyAppender) {
     LumiSourceSentry sentry(*this);
-    if (merge) {
-      principalCache_->merge(luminosityBlockAuxiliary(), productRegistry_);
-    } else {
-      boost::shared_ptr<LuminosityBlockPrincipal> lb(
-        new LuminosityBlockPrincipal(luminosityBlockAuxiliary(),
-                                     productRegistry_,
-                                     processConfiguration(),
-                                     principalCache_->runPrincipalPtr(),
-                                     &historyAppender));
-      principalCache_->insert(lb);
-    }
+    boost::shared_ptr<LuminosityBlockPrincipal> lb(
+      new LuminosityBlockPrincipal(luminosityBlockAuxiliary(),
+                                   productRegistry_,
+                                   processConfiguration(),
+                                   principalCache_->runPrincipalPtr(),
+                                   &historyAppender));
+    principalCache_->insert(lb);
+    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this](){ return readLuminosityBlock_(principalCache_->lumiPrincipalPtr()); },
+                                                                            "Calling InputSource::readLuminosityBlock_" );
+  }
+
+  void
+  InputSource::readAndMergeLumi() {
+    LumiSourceSentry sentry(*this);
+    principalCache_->merge(luminosityBlockAuxiliary(), productRegistry_);
     callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this](){ return readLuminosityBlock_(principalCache_->lumiPrincipalPtr()); },
                                                                             "Calling InputSource::readLuminosityBlock_" );
   }

@@ -9,6 +9,3 @@
 <library file="EcalDQMBinningService.cc" name="DQMEcalCommonEcalDQMBinningService">
    <flags EDM_PLUGIN="1"/>
 </library>
-<library file="EcalCondDBWriter.cc" name="DQMEcalCommonEcalCondDBWriter">
-   <flags EDM_PLUGIN="1"/>
-</library>

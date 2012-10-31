@@ -109,7 +109,7 @@ private:
   //static const int NPBins   = 21;
   static const int NPBins   = 3;
   static const int NEtaBins = 4;
-  static const int PBins=32, EtaBins=60, Particles=12;
+  static const int Particles=12;
   int    nEventProc;
   double genPartPBins[NPBins+1], genPartEtaBins[NEtaBins+1];
   double pSeed, ptMin, etaMax, pCutIsolate;

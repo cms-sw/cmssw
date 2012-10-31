@@ -13,13 +13,12 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.cc,v 1.11 2011/10/26 22:57:17 igv Exp $
+// $Id: FFTJetProducer.cc,v 1.10 2011/10/25 00:23:52 igv Exp $
 //
 //
 
 #include <iostream>
 #include <fstream>
-#include <functional>
 #include <algorithm>
 
 // Header for this class
@@ -52,7 +51,6 @@
 #include "RecoJets/FFTJetAlgorithms/interface/jetConverters.h"
 #include "RecoJets/FFTJetAlgorithms/interface/matchOneToOne.h"
 #include "RecoJets/FFTJetAlgorithms/interface/JetToPeakDistance.h"
-#include "RecoJets/FFTJetAlgorithms/interface/adjustForPileup.h"
 
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
@@ -108,8 +106,6 @@ FFTJetProducer::Resolution FFTJetProducer::parse_resolution(
         return GLOBALLY_ADAPTIVE;
     else if (!name.compare("locallyAdaptive"))
         return LOCALLY_ADAPTIVE;
-    else if (!name.compare("fromGenJets"))
-        return FROM_GENJETS;
     else
         throw cms::Exception("FFTJetBadConfig")
             << "Invalid resolution specification \""
@@ -153,8 +149,6 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
       init_param(bool, isCrisp),
       init_param(double, unlikelyBgWeight),
       init_param(double, recombinationDataCutoff),
-      init_param(edm::InputTag, genJetsLabel),
-      init_param(unsigned, maxInitialPreclusters),
       resolution(parse_resolution(ps.getParameter<std::string>("resolution"))),
 
       minLevel(0),
@@ -216,41 +210,13 @@ void FFTJetProducer::loadSparseTreeData(const edm::Event& iEvent)
 }
 
 
-void FFTJetProducer::genJetPreclusters(
-    const SparseTree& /* tree */,
-    edm::Event& iEvent, const edm::EventSetup& /* iSetup */,
-    const fftjet::Functor1<bool,fftjet::Peak>& peakSelect,
-    std::vector<fftjet::Peak>* preclusters)
-{
-    typedef reco::FFTAnyJet<reco::GenJet> InputJet;
-    typedef std::vector<InputJet> InputCollection;
-
-    edm::Handle<InputCollection> input;
-    iEvent.getByLabel(genJetsLabel, input);
-
-    const unsigned sz = input->size();
-    preclusters->reserve(sz);
-    for (unsigned i=0; i<sz; ++i)
-    {
-        const RecoFFTJet& jet(jetFromStorable((*input)[i].getFFTSpecific()));
-        fftjet::Peak p(jet.precluster());
-        const double scale(p.scale());
-        p.setEtaPhi(jet.vec().Eta(), jet.vec().Phi());
-        p.setMagnitude(jet.vec().Pt()/scale/scale);
-        p.setStatus(resolution);
-        if (peakSelect(p))
-            preclusters->push_back(p);
-    }
-}
-
-
 void FFTJetProducer::selectPreclusters(
     const SparseTree& tree,
-    const fftjet::Functor1<bool,fftjet::Peak>& peakSelect,
+    const fftjet::Functor1<bool,fftjet::Peak>& peakSelector,
     std::vector<fftjet::Peak>* preclusters)
 {
     nodes.clear();
-    selectTreeNodes(tree, peakSelect, &nodes);
+    selectTreeNodes(tree, peakSelector, &nodes);
 
     // Fill out the vector of preclusters using the tree node ids
     const unsigned nNodes = nodes.size();
@@ -653,12 +619,21 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
         // Subtract the pile-up
         if (calculatePileup && subtractPileup)
         {
-            jet4vec = adjustForPileup(jet4vec, pileup[ijet], 
-                                      subtractPileupAs4Vec);
             if (subtractPileupAs4Vec)
+            {
+                jet4vec -= pileup[ijet];
                 setJetStatusBit(&myjet, PILEUP_SUBTRACTED_4VEC, true);
+            }
             else
+            {
+                const double pt = jet4vec.Pt();
+                if (pt > 0.0)
+                {
+                    const double pileupPt = pileup[ijet].Pt();
+                    jet4vec *= ((pt - pileupPt)/pt);
+                }
                 setJetStatusBit(&myjet, PILEUP_SUBTRACTED_PT, true);
+            }
         }
 
         // Write the specifics to the jet (simultaneously sets 4-vector,
@@ -759,16 +734,7 @@ void FFTJetProducer::produce(edm::Event& iEvent,
 
     // Select the preclusters using the requested resolution scheme
     preclusters.clear();
-    if (resolution == FROM_GENJETS)
-        genJetPreclusters(sparseTree, iEvent, iSetup,
-                          *peakSelector, &preclusters);
-    else
-        selectPreclusters(sparseTree, *peakSelector, &preclusters);
-    if (preclusters.size() > maxInitialPreclusters)
-    {
-        std::sort(preclusters.begin(), preclusters.end(), std::greater<fftjet::Peak>());
-        preclusters.erase(preclusters.begin()+maxInitialPreclusters, preclusters.end());
-    }
+    selectPreclusters(sparseTree, *peakSelector, &preclusters);
 
     // Prepare to run the jet recombination procedure
     prepareRecombinationScales();

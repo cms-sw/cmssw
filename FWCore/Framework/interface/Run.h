@@ -60,10 +60,6 @@ namespace edm {
     getByLabel(InputTag const& tag, Handle<PROD>& result) const;
 
     template <typename PROD>
-    bool
-    getByType(Handle<PROD>& result) const;
-
-    template <typename PROD>
     void
     getManyByType(std::vector<Handle<PROD> >& results) const;
 
@@ -177,12 +173,6 @@ namespace edm {
   bool
   Run::getByLabel(InputTag const& tag, Handle<PROD>& result) const {
     return provRecorder_.getByLabel(tag, result);
-  }
-
-  template <typename PROD>
-  bool
-  Run::getByType(Handle<PROD>& result) const {
-    return provRecorder_.getByType(result);
   }
 
   template <typename PROD>

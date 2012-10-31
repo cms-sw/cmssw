@@ -46,17 +46,14 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       }
       else if ( curSet == "Tauola" )
       {
-         // this is for old tauola27 (+pretauola)
+         fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
 	 //
-	 // --> fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
+	 // in the future, here it should be something like:
 	 //
-	 // for tauola++, here it should be something like:
-	 //
-	 fTauolaInterface = TauolaInterface::getInstance();
-	 fTauolaInterface->setPSet( pset.getUntrackedParameter< ParameterSet >(curSet) );
-	 fPhotosInterface = new gen::PhotosInterface();
-	 fPhotosInterface->configureOnlyFor( 15 );
-	 fPhotosInterface->avoidTauLeptonicDecays();
+	 // fTauolaInterface = TauolaInterface::getInstance();
+	 // fTauolaInterface->setPSet( pset.getUntrackedParameter< ParameterSet >(curSet) );
+	 // fPhotosInterface = new gen::PhotosInterface();
+	 // fPhotosInterface->avoidTauLeptonicDecays();
       }
       else if ( curSet == "Photos" )
       {
@@ -91,11 +88,13 @@ HepMC::GenEvent* ExternalDecayDriver::decay( HepMC::GenEvent* evt )
       if ( !evt ) return 0;
    }
    
+
    if ( fPhotosInterface )
    {
       evt = fPhotosInterface->apply( evt );
       if ( !evt ) return 0;
    }
+
          
    return evt;
 }
@@ -125,25 +124,31 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
    if ( fPhotosInterface )
    {
       fPhotosInterface->init();
-//   for tauola++ 
+/*   will fix shortly, for future tauola++
       if ( fPhotosInterface )
       {
          for ( unsigned int iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ )
          {
-            fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss] );
+            fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss]; )
          }
       }
+*/
    }
    
-// this is specific to old tauola27 only, because it calls up photos automatically
-//
-//
-//   if ( fTauolaInterface )
-//   {
-//      // override !
-//      fSpecialSettings.clear();
-//      fSpecialSettings.push_back( "QED-brem-off:15" );
-//   }
+   // now do special settings
+
+   // This is TEMPORARY THING, until we switch to tauola++ !!!
+   
+   if ( fPhotosInterface )
+   {
+      fSpecialSettings.push_back( "QED-brem-off:all" );
+   }
+   if ( fTauolaInterface )
+   {
+      // override !
+      fSpecialSettings.clear();
+      fSpecialSettings.push_back( "QED-brem-off:15" );
+   }
    
    fIsInitialized = true;
    

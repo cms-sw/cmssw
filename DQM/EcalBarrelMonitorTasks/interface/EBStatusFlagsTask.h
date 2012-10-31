@@ -4,8 +4,8 @@
 /*
  * \file EBStatusFlagsTask.h
  *
- * $Date: 2012/04/27 13:46:00 $
- * $Revision: 1.12 $
+ * $Date: 2012/03/20 20:26:47 $
+ * $Revision: 1.9.16.1 $
  * \author G. Della Ricca
  *
 */
@@ -42,7 +42,7 @@ void endJob(void);
 void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup);
 
 /// EndLuminosityBlock
-void endLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&);
+void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup);
 
 /// BeginRun
 void beginRun(const edm::Run & r, const edm::EventSetup & c);
