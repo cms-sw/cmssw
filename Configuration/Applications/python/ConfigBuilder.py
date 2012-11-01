@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -68,6 +68,7 @@ defaultOptions.donotDropOnInput = ''
 defaultOptions.python_filename =''
 defaultOptions.io=None
 defaultOptions.lumiToProcess=None
+defaultOptions.fast=False
 
 # some helper routines
 def dumpPython(process,name):
@@ -186,6 +187,10 @@ class ConfigBuilder(object):
                         raise ValueError("Step definition "+step+" invalid")
         #print "map of steps is:",self.stepMap
 
+	if 'FASTSIM' in self.stepMap:
+		#overriding the --fast option to True
+		self._options.fast=True
+		
         self.with_output = with_output
         if hasattr(self._options,"no_output_flag") and self._options.no_output_flag:
                 self.with_output = False
@@ -621,18 +626,20 @@ class ConfigBuilder(object):
 				mixingDict['F']=filesFromDBSQuery('find file where dataset = %s'%(self._options.pileup_input[4:],))[0]
 			else:
 				mixingDict['F']=self._options.pileup_input.split(',')
-		specialization=defineMixing(mixingDict,'FASTSIM' in self.stepMap)
+		specialization=defineMixing(mixingDict,self._options.fast)
 		for command in specialization:
 			self.executeAndRemember(command)
 		if len(mixingDict)!=0:
 			raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
 
+		if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
+			self.executeAndRemember('process.mix.playback= True')
 		
         # load the geometry file
         try:
 		if len(self.stepMap):
 			self.loadAndRemember(self.GeometryCFF)
-			if 'SIM' in self.stepMap or 'reSIM' in self.stepMap:
+			if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
 				self.loadAndRemember(self.SimGeometryCFF)
 				if self.geometryDBLabel:
 					self.executeAndRemember('process.XMLFromDBSource.label = cms.string("%s")'%(self.geometryDBLabel))
@@ -828,7 +835,7 @@ class ConfigBuilder(object):
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
-        self.SIMDefaultSeq=None
+        self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
@@ -855,12 +862,6 @@ class ConfigBuilder(object):
         self.REPACKDefaultSeq='DigiToRawRepack'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
-
-        # if fastsim switch event content
-        if "FASTSIM" in self.stepMap.keys():
-		self.GENDefaultSeq='pgen_genonly'
-                self.EVTCONTDefaultCFF = "FastSimulation/Configuration/EventContent_cff"
-                self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 
 	if not self._options.beamspot:
 		self._options.beamspot=VtxSmearedDefaultKey
@@ -933,7 +934,7 @@ class ConfigBuilder(object):
 	self.GeometryCFF='Configuration/StandardSequences/GeometryRecoDB_cff'
 	self.geometryDBLabel=None
 	simGeometry=''
-        if 'FASTSIM' in self.stepMap:
+        if self._options.fast:
                 if 'start' in self._options.conditions.lower():
                         self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
                 else:
@@ -977,11 +978,22 @@ class ConfigBuilder(object):
             self.SIMDefaultCFF="Configuration/StandardSequences/SimNOBEAM_cff"
             self._options.beamspot='NoSmear'
 
+        # if fastsim switch event content
+	if self._options.fast:
+		self.GENDefaultSeq='pgen_genonly'
+		self.SIMDefaultCFF = 'FastSimulation.Configuration.FamosSequences_cff'
+		self.SIMDefaultSeq='simulationWithFamos'
+		self.RECODefaultCFF= 'FastSimulation.Configuration.FamosSequences_cff'
+		self.RECODefaultSeq= 'reconstructionWithFamos'
+                self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
+                self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
+
+		
 
         # Mixing
 	if self._options.pileup=='default':
 		from Configuration.StandardSequences.Mixing import MixingDefaultKey,MixingFSDefaultKey
-		if 'FASTSIM' in self.stepMap:
+		if self._options.fast:
 			self._options.pileup=MixingFSDefaultKey
 		else:
 			self._options.pileup=MixingDefaultKey
@@ -990,7 +1002,7 @@ class ConfigBuilder(object):
 	if self._options.isData:
 		self._options.pileup=None
         if self._options.isMC==True and self._options.himix==False:
-                if 'FASTSIM' in self.stepMap:
+                if self._options.fast:
 			self._options.pileup='FS_'+self._options.pileup
         elif self._options.isMC==True and self._options.himix==True:
 		self._options.pileup='HiMix'
@@ -1237,10 +1249,13 @@ class ConfigBuilder(object):
         self.loadDefaultOrSpecifiedCFF(sequence,self.GENDefaultCFF)
         genSeqName=sequence.split('.')[-1]
 
-        if not 'FASTSIM' in self.stepMap:
+	if True:
                 try:
 			from Configuration.StandardSequences.VtxSmeared import VtxSmeared
-			self.loadAndRemember(VtxSmeared[self._options.beamspot])
+			cffToBeLoaded=VtxSmeared[self._options.beamspot]
+			if self._options.fast:
+				cffToBeLoaded='IOMC.EventVertexGenerators.VtxSmearedParameters_cfi'
+			self.loadAndRemember(cffToBeLoaded)
                 except ImportError:
                         raise Exception("VertexSmearing type or beamspot "+self._options.beamspot+" unknown.")
 
@@ -1265,20 +1280,37 @@ class ConfigBuilder(object):
 
     def prepare_SIM(self, sequence = None):
         """ Enrich the schedule with the simulation step"""
-        self.loadAndRemember(self.SIMDefaultCFF)
-        if self._options.gflash==True:
-                self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
+	self.loadDefaultOrSpecifiedCFF(sequence,self.SIMDefaultCFF)
+	if not self._options.fast:
+		if self._options.gflash==True:
+			self.loadAndRemember("Configuration/StandardSequences/GFlashSIM_cff")
 
-        if self._options.magField=='0T':
-                self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
+		if self._options.magField=='0T':
+			self.executeAndRemember("process.g4SimHits.UseMagneticField = cms.bool(False)")
 
-        if self._options.himix==True:
-                if self._options.geometry in defaultOptions.geometryExtendedOptions:
-                        self.loadAndRemember("SimGeneral/MixingModule/himixSIMExtended_cff")
-                else:
-                        self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
-
-	self.scheduleSequence('psim','simulation_step')
+		if self._options.himix==True:
+			if self._options.geometry in defaultOptions.geometryExtendedOptions:
+				self.loadAndRemember("SimGeneral/MixingModule/himixSIMExtended_cff")
+			else:
+				self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
+	else:
+		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
+		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
+		self.executeAndRemember("process.ecalRecHit.doDigis = True") #shouldn't this be always true and at root level?
+		## manipulate the beamspot
+		if 'Flat' in self._options.beamspot:
+			beamspotType = 'Flat'
+		elif 'Gauss' in self._options.beamspot:
+			beamspotType = 'Gaussian'
+		else:
+			beamspotType = 'BetaFunc'
+		beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
+		self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
+		self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
+		if hasattr(self.process,'famosPileUp'):
+			self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
+		
+	self.scheduleSequence(sequence.split('.')[-1],'simulation_step')
         return
 
     def prepare_DIGI(self, sequence = None):
@@ -1367,7 +1399,7 @@ class ConfigBuilder(object):
                 optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
                 self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
-                if 'FASTSIM' in self.stepMap:
+                if self._options.fast:
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
                 else:
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
@@ -1384,9 +1416,15 @@ class ConfigBuilder(object):
 		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
-        if ('FASTSIM' in self.stepMap and 'HLT' in self.stepMap):
+        if (self._options.fast and 'HLT' in self.stepMap and 'FASTSIM' in self.stepMap):
                 self.finalizeFastSimHLT()
 
+	#this is a fake, to be removed with fastim migration and HLT menu dump
+	if not hasattr(self.process,'HLTEndSequence'):
+		self.executeAndRemember("process.HLTEndSequence = cms.Sequence( process.dummyModule )")
+	if not hasattr(self.process,'simulation'):
+		self.executeAndRemember("process.simulation = cms.Sequence( process.dummyModule )")
+		
 
     def prepare_RAW2RECO(self, sequence = None):
             if ','in sequence:
@@ -1531,12 +1569,12 @@ class ConfigBuilder(object):
                             prevalSeqName=''
                             valSeqName=sequence
 
-            if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap and not valSeqName.startswith('genvalid'):
+            if not 'DIGI' in self.stepMap and not self._options.fast and not valSeqName.startswith('genvalid'):
 		    if self._options.restoreRNDSeeds==False and not self._options.restoreRNDSeeds==True:
 			    self._options.restoreRNDSeeds=True
 
             #rename the HLT process in validation steps
-	    if ('HLT' in self.stepMap and not 'FASTSIM' in self.stepMap) or self._options.hltProcess:
+	    if ('HLT' in self.stepMap and not self._options.fast) or self._options.hltProcess:
 		    self.renameHLTprocessInSequence(valSeqName)
                     if prevalSeqName:
                             self.renameHLTprocessInSequence(prevalSeqName)
@@ -1548,7 +1586,7 @@ class ConfigBuilder(object):
 	    self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
             self.schedule.append(self.process.validation_step)
 
-	    if not 'DIGI' in self.stepMap and not 'FASTSIM' in self.stepMap:
+	    if not 'DIGI' in self.stepMap and not self._options.fast:
 		    self.executeAndRemember("process.mix.playback = True")
 		    self.executeAndRemember("process.mix.digitizers = cms.PSet()")
                     self.executeAndRemember("for a in process.aliases: delattr(process, a)")
@@ -1778,6 +1816,20 @@ class ConfigBuilder(object):
             # if we don't want to filter after HLT but simulate everything regardless of what HLT tells, we have to add reconstruction explicitly
             if sequence == 'all' and not 'HLT' in self.stepMap.keys(): #(a)
                 self.finalizeFastSimHLT()
+	elif sequence == 'sim':
+		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
+		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
+		
+		self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
+		
+		self.process.fastsim_step = cms.Path( getattr(self.process, "simulationWithFamos") )
+		self.schedule.append(self.process.fastsim_step)
+	elif sequence == 'reco':
+		self.executeAndRemember("process.mix.playback = True")
+		self.executeAndRemember("process.reconstruction = cms.Sequence(process.reconstructionWithFamos)")
+		
+		self.process.fastsim_step = cms.Path( getattr(self.process, "reconstructionWithFamos") )
+		self.schedule.append(self.process.fastsim_step)
         elif sequence == 'famosWithEverything':
             self.process.fastsim_step = cms.Path( getattr(self.process, "famosWithEverything") )
             self.schedule.append(self.process.fastsim_step)
@@ -1806,7 +1858,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.6 $"),
+                                            (version=cms.untracked.string("$Revision: 1.7 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

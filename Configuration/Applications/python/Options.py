@@ -83,7 +83,11 @@ parser.add_option("--no_exec",
                   action="store_true",
                   default=False,
                   dest="no_exec_flag")   
-
+parser.add_option("--fast",
+                  help="Specify that the configuration is for FASTSIM",
+                  action="store_true",
+                  default=False)
+                  
 # expert settings
 expertSettings.add_option("--beamspot",
                           help="What beam spot to use (from Configuration/StandardSequences). Default depends on scenario",
