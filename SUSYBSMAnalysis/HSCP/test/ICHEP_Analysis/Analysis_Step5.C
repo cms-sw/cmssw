@@ -2363,7 +2363,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
 	double Predmin =  Pred[TimeRegions-1][Region][NCuts-1];
 	if (Predmin < ydown) ydown = Predmin;
 	}
-        PredGraphs->GetYaxis()->SetRangeUser(ydown, yup*1.4);
+        PredGraphs->GetYaxis()->SetRangeUser(ydown*0.4, yup*1.4);
 	c1->SetLogy(true);
       }
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
