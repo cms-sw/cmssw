@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagLEDClient.cc
  * 
- * $Date: 2010/05/13 14:21:11 $
- * $Revision: 1.8 $
+ * $Date: 2012/06/18 08:23:10 $
+ * $Revision: 1.9 $
  * \author J. Temple
  * \brief Hcal DetDiagLED Client class
  */
@@ -392,7 +392,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
 	       HcalElectronicsId emap_entry=emap.lookup(*detid);
 	       printTableLine(BadTiming,cnt++,*detid,lmap_entry,emap_entry,comment); BadTimingCnt++;
 	       delete detid;
-	    }catch(...){ continue;}
+	    }catch(cms::Exception &){ continue;}
          }
       }	
   }
@@ -424,7 +424,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
 	       HcalElectronicsId emap_entry=emap.lookup(*detid);
 	       printTableLine(Unstable,cnt++,*detid,lmap_entry,emap_entry,comment); UnstableCnt++;
 	       delete detid;
-	    }catch(...){ continue;}
+	    }catch(cms::Exception &){ continue;}
          }
       }	
   }
@@ -458,7 +458,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
                if(badstatusmap.find(*detid)!=badstatusmap.end()){ s="Known problem"; }	
 	       printTableLine(BadLED,cnt++,*detid,lmap_entry,emap_entry,s); UnstableLEDCnt++;
 	       delete detid;
-	    }catch(...){ continue;}
+	    }catch(cms::Exception &){ continue;}
          }
       }	
   }
