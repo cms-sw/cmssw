@@ -490,7 +490,7 @@ double FastestHSCP(const fwlite::ChainEvent& ev){
       if(genColl[g].pt()<5)continue;
       if(genColl[g].status()!=1)continue;
       int AbsPdg=abs(genColl[g].pdgId());
-      if(AbsPdg<1000000)continue;    
+      if(AbsPdg<1000000 && AbsPdg!=17)continue;
 
       double beta=genColl[g].p()/genColl[g].energy();
       if(MaxBeta<beta)MaxBeta=beta;
