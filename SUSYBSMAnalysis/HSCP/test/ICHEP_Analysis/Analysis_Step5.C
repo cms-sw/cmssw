@@ -101,9 +101,9 @@ void Analysis_Step5()
    //SelectionPlot(InputPattern, CutIndex);
    //CutFlow(InputPattern);
 
-   InputPattern = "Results/Type4/";   CutIndex = 21; CutIndex_Flip=21;
-   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
-   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
+   //   InputPattern = "Results/Type4/";   CutIndex = 21; CutIndex_Flip=21;
+   //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
+   //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
 
    InputPattern = "Results/Type5/";   CutIndex = 69; CutIndex_Flip=2;
    InitdEdx("dedxProd");
@@ -2175,10 +2175,9 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
       }
     }
   }
+ 
 
-  
   const int TimeRegions=2;
-
   int NCuts = 20;
   if (TypeMode == 4)  NCuts = Index.size()/TimeRegions;
 
@@ -2195,7 +2194,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   string PredsLegend[TimeRegions] = {"1/#beta>1.1", "1/#beta>1.2"};
   string LegendNames[3]={"BH/F", "BH'/F'", "BD'/B'"};
   if (TypeMode == 4)      {      LegendNames[0] = "CH/G";      LegendNames[1] = "CH'/G'";      LegendNames[2] = "CD'/C'";    }
-  
+
   string outfile = SavePath + "BkgUncertainty_"  + DataType.substr(4)  +".txt";
   ofstream fout(outfile.c_str());
   if ( ! fout.good() )    { 
@@ -2327,10 +2326,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     sprintf(record, "%-5i%-10.3f%-10.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f%-14.3f", i, HCuts_I->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), Pred[Plot[i]][0][Point], Pred[Plot[i]][1][Point], Pred[Plot[i]][2][Point], PredErr[Plot[i]][0][Point], PredErr[Plot[i]][1][Point], PredErr[Plot[i]][2][Point],Stat[Plot[i]][Point], StatSyst[Plot[i]][Point], Syst[Plot[i]][Point]);
     fout << record << endl ;
 
-   
   }
-
-
   fout.close();
 
 
@@ -2361,7 +2357,13 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
 
     if (TypeMode == 4)   
       {
-	PredGraphs->GetYaxis()->SetRangeUser(0.0001,600000);
+        double yup = *Pred[Plot[0]][0];
+	double ydown = 1.0000;
+	for(int Region=0; Region<3; Region++) {
+	double Predmin =  Pred[TimeRegions-1][Region][NCuts-1];
+	if (Predmin < ydown) ydown = Predmin;
+	}
+        PredGraphs->GetYaxis()->SetRangeUser(ydown, yup*1.4);
 	c1->SetLogy(true);
       }
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
