@@ -93,7 +93,7 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 	    if (!present(EBDetId(zbin*bin,1,EBDetId::ETAPHIMODE)))
 	      continue;
 
-	    CCGFloat eta = getGeometry(EBDetId(zbin*bin,1,EBDetId::ETAPHIMODE))->getPosition().eta();
+	    CCGFloat eta = getGeometry(EBDetId(zbin*bin,1,EBDetId::ETAPHIMODE))->etaPos();
 
 	    if(fabs(pointeta-eta)<deta)
 	      {
