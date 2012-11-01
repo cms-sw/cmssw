@@ -27,7 +27,7 @@ EcalBarrelGeometry::EcalBarrelGeometry() :
    m_cellVec      ( k_NumberOfCellsForCorners )
 {
    const int neba[] = {25,45,65,85} ;
-   _EtaBaskets = std::vector<int>( &neba[0], &neba[3] ) ;
+   _EtaBaskets = std::vector<int>( neba, neba+4 ) ;
 }
 
 

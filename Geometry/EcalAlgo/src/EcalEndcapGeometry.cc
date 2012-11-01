@@ -35,7 +35,7 @@ EcalEndcapGeometry::EcalEndcapGeometry( void )
   m_xoff[0] = 0.;
   m_xoff[1] = 0.;
   m_yoff[0] = 0.;
-  m_yoff[0] = 0.;
+  m_yoff[1] = 0.;
 }
 
 EcalEndcapGeometry::~EcalEndcapGeometry() 

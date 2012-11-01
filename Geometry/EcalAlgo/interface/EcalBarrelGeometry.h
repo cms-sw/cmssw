@@ -14,7 +14,7 @@
 #include "Geometry/Records/interface/PEcalBarrelRcd.h"
 #include <vector>
 
-class EcalBarrelGeometry : public CaloSubdetectorGeometry 
+class EcalBarrelGeometry GCC11_FINAL : public CaloSubdetectorGeometry 
 {
    public:
 
