@@ -235,6 +235,66 @@ void TkAlExtendedOfflineValidation()
 """
 
 
+######################################################################
+######################################################################
+crabCfgTemplate="""
+[CRAB]
+jobtype = cmssw
+scheduler = caf
+use_server = 0
+
+[CMSSW]
+datasetpath = .oO[datasetCrab]Oo.
+pset = .oO[cfgFile]Oo.
+## for MC
+# total_number_of_events = .oO[nEvents]Oo.
+# events_per_job = 5000
+## for real Data
+##Data
+total_number_of_lumis = -1
+number_of_jobs = .oO[numberOfJobs]Oo.
+output_file = .oO[outputFile]Oo.
+runselection = .oO[runRange]Oo.
+lumi_mask = .oO[JSON]Oo.
+
+[USER]
+return_data = 0
+copy_data = 1
+storage_element = T2_CH_CERN
+user_remote_dir	= AlignmentValidation/.oO[crabOutputDir]Oo.
+ui_working_dir = .oO[crabWorkingDir]Oo.
+# script_exe = .oO[script]Oo.
+
+[CAF]
+queue = .oO[queue]Oo.
+"""
+
+
+######################################################################
+######################################################################
+crabShellScriptTemplate="""
+cd .oO[crabBaseDir]Oo.
+
+# source the needed environment for crab in the right order
+source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env..oO[useCshell]Oo.sh
+cmsenv
+source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab..oO[useCshell]Oo.sh
+
+# Create and submit parallel jobs
+.oO[crabCommand]Oo.
+
+cd -
+"""
+
+
+######################################################################
+######################################################################
+crabCommandTemplate="""
+crab -create -cfg .oO[crabCfgName]Oo.
+crab -submit -c .oO[crabWorkingDir]Oo.
+"""
+
+
 
 ######################################################################
 ######################################################################
