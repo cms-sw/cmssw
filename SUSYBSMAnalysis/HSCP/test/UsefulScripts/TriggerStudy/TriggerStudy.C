@@ -1,6 +1,6 @@
 
 namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class PFMET; class HitPattern;}
-namespace susybsm { class HSCParticle; class HSCPIsolation; class MuonSegment;}
+namespace susybsm { class HSCParticle; class HSCPIsolation; class MuonSegment; class HSCPDeDxInfo;}
 namespace fwlite  { class ChainEvent;}
 namespace trigger { class TriggerEvent;}
 namespace edm     { class TriggerResults; class TriggerResultsByName; class InputTag; class LumiReWeighting;}
@@ -16,6 +16,7 @@ namespace reweight{ class PoissonMeanShifter;}
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPDeDxInfo.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/MuonSegment.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -140,10 +141,15 @@ void TriggerStudy()
    for(unsigned int i=0;i<samples.size();i++){
       if(samples[i].Type!=2)continue;
       if(samples[i].Name != "Gluino_8TeV_M300_f10" && samples[i].Name != "Gluino_8TeV_M600_f10" && samples[i].Name != "Gluino_8TeV_M1100_f10"
+      && samples[i].Name != "Gluino_7TeV_M300_f10" && samples[i].Name != "Gluino_7TeV_M600_f10" && samples[i].Name != "Gluino_7TeV_M1100_f10"
       && samples[i].Name != "GMStau_8TeV_M100"     && samples[i].Name != "GMStau_8TeV_M200"     && samples[i].Name != "GMStau_8TeV_M308"     
+      && samples[i].Name != "GMStau_7TeV_M100"     && samples[i].Name != "GMStau_7TeV_M200"     && samples[i].Name != "GMStau_7TeV_M308"     
       && samples[i].Name != "PPStau_8TeV_M100"     && samples[i].Name != "PPStau_8TeV_M200"     && samples[i].Name != "PPStau_8TeV_M308"
+      && samples[i].Name != "PPStau_7TeV_M100"     && samples[i].Name != "PPStau_7TeV_M200"     && samples[i].Name != "PPStau_7TeV_M308"
       && samples[i].Name != "DY_8TeV_M100_Q1o3"    && samples[i].Name != "DY_8TeV_M600_Q1o3"    && samples[i].Name != "DY_8TeV_M100_Q2o3"     && samples[i].Name != "DY_8TeV_M600_Q2o3"    
-      && samples[i].Name != "DY_8TeV_M100_Q2"      && samples[i].Name != "DY_8TeV_M600_Q2"      && samples[i].Name != "DY_8TeV_M100_Q5"       && samples[i].Name != "DY_8TeV_M600_Q5" )continue;
+      && samples[i].Name != "DY_7TeV_M100_Q1o3"    && samples[i].Name != "DY_7TeV_M600_Q1o3"    && samples[i].Name != "DY_7TeV_M100_Q2o3"     && samples[i].Name != "DY_7TeV_M600_Q2o3"
+      && samples[i].Name != "DY_8TeV_M100_Q2"      && samples[i].Name != "DY_8TeV_M600_Q2"      && samples[i].Name != "DY_8TeV_M100_Q5"       && samples[i].Name != "DY_8TeV_M600_Q5" 
+      && samples[i].Name != "DY_7TeV_M100_Q2"      && samples[i].Name != "DY_7TeV_M600_Q2"      && samples[i].Name != "DY_7TeV_M100_Q5"       && samples[i].Name != "DY_7TeV_M600_Q5"  )continue;
       plots[i] = new stPlot(samples[i].Name);
       TriggerStudy_Core(samples[i].Name, pFile, plots[i]);
    }
@@ -153,37 +159,65 @@ void TriggerStudy()
 
    int Id;                                                  vector<stPlot*> objs;        vector<string> leg;
 
-                                                            objs.clear();                leg.clear();
+   if(SQRTS == 8.0){
+   SQRTS = 8.0;                                             objs.clear();                leg.clear();
    Id = JobIdToIndex("Gluino_8TeV_M300_f10", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    Id = JobIdToIndex("Gluino_8TeV_M600_f10", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    Id = JobIdToIndex("Gluino_8TeV_M1100_f10",samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    layout(objs, leg, "summary_8TeV_Gluino");
 
-                                                         objs.clear();                leg.clear();
+   SQRTS = 8.0;                                             objs.clear();                leg.clear();
    Id = JobIdToIndex("GMStau_8TeV_M100", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("GMStau_8TeV_M200", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    Id = JobIdToIndex("GMStau_8TeV_M308", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("PPStau_8TeV_M100", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("PPStau_8TeV_M308", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    layout(objs, leg, "summary_8TeV_GMStau");
 
-                                                        objs.clear();                leg.clear();
-   Id = JobIdToIndex("PPStau_8TeV_M100", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("PPStau_8TeV_M200", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("PPStau_8TeV_M308", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   layout(objs, leg, "summary_8TeV_PPStau");
-
-                                                        objs.clear();                leg.clear();
+   SQRTS = 8.0;                                             objs.clear();                leg.clear();
    Id = JobIdToIndex("DY_8TeV_M100_Q1o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    Id = JobIdToIndex("DY_8TeV_M600_Q1o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    Id = JobIdToIndex("DY_8TeV_M100_Q2o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    Id = JobIdToIndex("DY_8TeV_M600_Q2o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    layout(objs, leg, "summary_8TeV_DYLQ");
-
-                                                        objs.clear();                leg.clear();
+   
+   SQRTS = 8.0;                                             objs.clear();                leg.clear();
    Id = JobIdToIndex("DY_8TeV_M100_Q2", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    Id = JobIdToIndex("DY_8TeV_M600_Q2", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    Id = JobIdToIndex("DY_8TeV_M100_Q5", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    Id = JobIdToIndex("DY_8TeV_M600_Q5", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
    layout(objs, leg, "summary_8TeV_DYHQ");
+   }
+
+   if(SQRTS == 7.0){
+   SQRTS = 7.0;                                             objs.clear();                leg.clear();
+   Id = JobIdToIndex("Gluino_7TeV_M300_f10", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("Gluino_7TeV_M600_f10", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("Gluino_7TeV_M1100_f10",samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   layout(objs, leg, "summary_7TeV_Gluino");
+
+   SQRTS = 7.0;                                             objs.clear();                leg.clear();
+   Id = JobIdToIndex("GMStau_7TeV_M100", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("GMStau_7TeV_M308", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("PPStau_7TeV_M100", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("PPStau_7TeV_M308", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   layout(objs, leg, "summary_7TeV_GMStau");
+
+
+   SQRTS = 7.0;                                             objs.clear();                leg.clear();
+   Id = JobIdToIndex("DY_7TeV_M100_Q1o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("DY_7TeV_M600_Q1o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("DY_7TeV_M100_Q2o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("DY_7TeV_M600_Q2o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   layout(objs, leg, "summary_7TeV_DYLQ");
+
+
+   SQRTS = 7.0;                                             objs.clear();                leg.clear();
+   Id = JobIdToIndex("DY_7TeV_M100_Q2", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("DY_7TeV_M600_Q2", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("DY_7TeV_M100_Q5", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   Id = JobIdToIndex("DY_7TeV_M600_Q5", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
+   layout(objs, leg, "summary_7TeV_DYHQ");
+   }
 
 /*
 
@@ -233,10 +267,12 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
    double TrMu        = 0;
    double TrBoth      = 0;
 
+   int JobId = JobIdToIndex(SignalName, samples);
+
    int MaxPrint = 0;
    for (int period=0; period<RunningPeriods; period++) {
 
-   int JobId = JobIdToIndex(SignalName, samples);
+   if(SignalName.find("7TeV")!=string::npos){SQRTS = 7.0;}else{SQRTS=8.0;}
 
 
    vector<string> fileNames;
@@ -411,7 +447,7 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
    Histos[0] = (TH1*)plot->BetaMuon;                    legend.push_back("Mu triggers");
    Histos[1] = (TH1*)plot->BetaTotal;                   legend.push_back("Mu+Met triggers");
    DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#beta of the fastest HSCP", "Trigger Efficiency (%)", 0,1, 0,100);
-   DrawLegend((TObject**)Histos,legend,"Trigger:","LP",0.35, 0.93, 0.18, 0.04);
+   DrawLegend((TObject**)Histos,legend,samples[JobId].Legend,"LP",0.35, 0.93, 0.18, 0.04);
    c1->Modified();
    DrawPreliminary("Simulation", SQRTS, -1);
    SaveCanvas(c1,"pictures/",SignalName);
@@ -432,7 +468,7 @@ void layout(vector<stPlot*>& plots, vector<string>& sigs, string name){
 
    TCanvas* c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
+   c1->SetGridy();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<plots.size();i++){
@@ -456,7 +492,7 @@ void layout(vector<stPlot*>& plots, vector<string>& sigs, string name){
 
    c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
+   c1->SetGridy();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<plots.size();i++){
