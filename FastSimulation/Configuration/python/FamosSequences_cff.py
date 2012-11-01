@@ -282,6 +282,7 @@ famosEcalDrivenElectronSequence = cms.Sequence(
 
 # The reconstruction sequence
 reconstructionWithFamos = cms.Sequence(
+    cms.SequencePlaceholder("mix")+
     iterativeTracking+
     vertexreco+
     caloTowersRec+
