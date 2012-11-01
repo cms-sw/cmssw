@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/HIon/V57 (CMSSW_5_2_7_HLT2)
+# /dev/CMSSW_5_2_6/HIon/V58 (CMSSW_5_2_7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V57')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V58')
 )
 
 process.streams = cms.PSet( 
@@ -316,7 +316,7 @@ process.datasets = cms.PSet(
 )
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "GR_H_V30::All" ),
+    globaltag = cms.string( "GR_H_V32::All" ),
     RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     toGet = cms.VPSet( 
@@ -1752,7 +1752,7 @@ process.hltESPKullbackLeiblerDistance5D = cms.ESProducer( "DistanceBetweenCompon
 process.hltESPL1FastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
   srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
-  algorithm = cms.string( "AK5Calo" ),
+  algorithm = cms.string( "AK5CaloHLT" ),
   level = cms.string( "L1FastJet" )
 )
 process.hltESPL1PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
@@ -1779,12 +1779,12 @@ process.hltESPL2PFRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrection
 )
 process.hltESPL2RelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5Calo" ),
+  algorithm = cms.string( "AK5CaloHLT" ),
   level = cms.string( "L2Relative" )
 )
 process.hltESPL3AbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5Calo" ),
+  algorithm = cms.string( "AK5CaloHLT" ),
   level = cms.string( "L3Absolute" )
 )
 process.hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",

@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/PIon/V57 (CMSSW_5_2_7_HLT2)
+# /dev/CMSSW_5_2_6/PIon/V58 (CMSSW_5_2_7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V57')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V58')
 )
 
 streams = cms.PSet( 
@@ -1406,7 +1406,7 @@ hltESPKullbackLeiblerDistance5D = cms.ESProducer( "DistanceBetweenComponentsESPr
 hltESPL1FastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
   srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
-  algorithm = cms.string( "AK5Calo" ),
+  algorithm = cms.string( "AK5CaloHLT" ),
   level = cms.string( "L1FastJet" )
 )
 hltESPL1PFFastJetCorrectionESProducer = cms.ESProducer( "L1FastjetCorrectionESProducer",
@@ -1433,12 +1433,12 @@ hltESPL2PFRelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProduc
 )
 hltESPL2RelativeCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5Calo" ),
+  algorithm = cms.string( "AK5CaloHLT" ),
   level = cms.string( "L2Relative" )
 )
 hltESPL3AbsoluteCorrectionESProducer = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
-  algorithm = cms.string( "AK5Calo" ),
+  algorithm = cms.string( "AK5CaloHLT" ),
   level = cms.string( "L3Absolute" )
 )
 hltESPL3MuKFTrajectoryFitter = cms.ESProducer( "KFTrajectoryFitterESProducer",
