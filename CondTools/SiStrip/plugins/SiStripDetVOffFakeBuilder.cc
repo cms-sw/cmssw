@@ -99,8 +99,6 @@ void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventS
       edm::LogError("SiStripDetVOffFakeBuilder")<<er.what()<<std::endl;
     }catch(const std::exception& er){
       edm::LogError("SiStripDetVOffFakeBuilder")<<"caught std::exception "<<er.what()<<std::endl;
-    }catch(...){
-      edm::LogError("SiStripDetVOffFakeBuilder")<<"Funny error"<<std::endl;
     }
   }else{
     edm::LogError("SiStripDetVOffFakeBuilder")<<"Service is unavailable"<<std::endl;
