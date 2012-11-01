@@ -14,7 +14,7 @@ import sys
 import ROOT
 ROOT.gROOT.SetBatch(1)
 
-# Dummy variables for getting tree values
+# Dummy variables for getting tree values (not used with HybridNew output)
 dumx = array('f',[0.])
 dumy = array('f',[0.])
 dumv = array('f',[0.])
@@ -37,8 +37,9 @@ class physicsPoint:
     self.nToys     = 0
 
   def is_point(self,valx,valy):
-    if abs(valx-self.x)<errLevel and abs(valy-self.y)<errLevel: return True
-    else: return False
+    if 	abs(valx-self.x)>errLevel: return False 
+    if  abs(valy-self.y)>errLevel: return False
+    return True
 
   def get_n_toys(self):
     return self.nToys
@@ -85,6 +86,7 @@ def getPoints(tree,varx,vary):
 
   # grab all the distributions:
   hypoResults = tree.GetListOfKeys()
+  hypoResults = filter(lambda ke: "HypoTestResult" in ke.GetName(),hypoResults)
 
   #for a in range(tree.GetEntries()):
   for k_i,key in enumerate(hypoResults):
@@ -267,8 +269,6 @@ else:
 
   xbins = returnPoints(points,0)
   ybins = returnPoints(points,1)
-  print "Found points in grid: %s = %.2f->%.2f (%d points), %s = %.2f->%.2f (%d points) "\
-      %(xvar,xmin,xmax,nx,yvar,ymin,ymax,ny)
   xbins_d = array('f',xbins)
   ybins_d = array('f',ybins)
   tgrXY  = ROOT.TGraph2D()
@@ -282,13 +282,19 @@ else:
     tgrXY.SetPoint(pt_i,xval,yval,zval)
     ntXY.SetPoint(pt_i,xval,yval,pt.get_n_toys())
 
-  tgrXY.Draw()
-  tgrXY.GetXaxis().SetTitle(xvar)
-  tgrXY.GetYaxis().SetTitle(yvar)
+  print "Found points in grid: %s = %.2f->%.2f (%d points), %s = %.2f->%.2f (%d points) "\
+      %(xvar,xmin,xmax,nx,yvar,ymin,ymax,ny)
+
   clXY = tgrXY.GetHistogram()
-  nthistXY = ntXY.GetHistogram()
+  clXY.GetXaxis().SetTitle(xvar)
+  clXY.GetYaxis().SetTitle(yvar)
   clXY.SetName("h2_cl")
+
+  nthistXY = ntXY.GetHistogram()
+  nthistXY.GetXaxis().SetTitle(xvar)
+  nthistXY.GetYaxis().SetTitle(yvar)
   nthistXY.SetName("n_toys")
+
   outFile.cd(); clXY.Write(); nthistXY.Write();
 
   # Histogram for each contour plot, going through and checking if point passes CL is 
