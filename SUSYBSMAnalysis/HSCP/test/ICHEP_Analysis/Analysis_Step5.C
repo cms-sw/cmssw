@@ -102,9 +102,9 @@ void Analysis_Step5()
    //CutFlow(InputPattern);
 
    InputPattern = "Results/Type4/";   CutIndex = 21; CutIndex_Flip=21;
-   //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
+   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
-   
+
    InputPattern = "Results/Type5/";   CutIndex = 69; CutIndex_Flip=2;
    InitdEdx("dedxProd");
 //   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
@@ -2196,8 +2196,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   string LegendNames[3]={"BH/F", "BH'/F'", "BD'/B'"};
   if (TypeMode == 4)      {      LegendNames[0] = "CH/G";      LegendNames[1] = "CH'/G'";      LegendNames[2] = "CD'/C'";    }
   
-  
-  string outfile = SavePath + "BkgUncertainty.txt";
+  string outfile = SavePath + "BkgUncertainty_"  + DataType.substr(4)  +".txt";
   ofstream fout(outfile.c_str());
   if ( ! fout.good() )    { 
     cout << "unable to create file " << outfile << endl;
@@ -2205,12 +2204,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   }
 
   char record[400];
-  if(DataType.find("7TeV")!=string::npos){
-    sprintf(record, "      This is 7 TeV data");
-  }
-  else {
-    sprintf(record, "      This is 8 TeV data");
-  }
+  sprintf(record, "                                                 This is %5s data", DataType.substr(4).c_str());
   fout << record << endl << endl;
 
   sprintf(record, "     %-10s%-10s%-14s%-14s%-14s%-14s%-14s%-14s%-14s%-14s%-14s", "Ias", "1/beta", "Pred1", "Pred2", "Pred3", "DeltaPred1", "DeltaPred2", "DeltaPred3", "STAT", "STATSYST", "SYST");
@@ -2289,13 +2283,13 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
 
     if(TypeMode==4) {
       NPred[0]    = ((C*H)/G);
-      NPredErr[0] = (pow(H/G,2)*C) + (pow(C/G,2)*H) + (pow((H*(C)/(G*G)),2)*G);
+      NPredErr[0] = (pow(C/G,2)*H) + (pow((H*(C)/(G*G)),2)*G);
       
       NPred[1]    = ((C*H_Flip)/G_Flip);
-      NPredErr[1] = (pow(H_Flip/G_Flip,2)*C) + (pow(C/G_Flip,2)*H_Flip) + (pow((H_Flip*(C)/(G_Flip*G_Flip)),2)*G_Flip);
+      NPredErr[1] = (pow(C/G_Flip,2)*H_Flip) + (pow((H_Flip*(C)/(G_Flip*G_Flip)),2)*G_Flip);
       
       NPred[2]    = ((C*D_Flip)/C_Flip);
-      NPredErr[2] = (pow(D_Flip/C_Flip,2)*C) + (pow(C/C_Flip,2)*D_Flip) + (pow((D_Flip*(C)/(C_Flip*C_Flip)),2)*C_Flip);
+      NPredErr[2] = (pow(C/C_Flip,2)*D_Flip) + (pow((D_Flip*(C)/(C_Flip*C_Flip)),2)*C_Flip);
     }
 
     for(int Region=0; Region<3; Region++) {
@@ -2338,6 +2332,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
 
 
   fout.close();
+
 
   TMultiGraph* PredGraphs;
   for(int i=0; i<TimeRegions; i++) { 
@@ -2460,7 +2455,6 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     SaveCanvas(c1,SavePath,DataType + "CollisionSyst");
     delete c1;
     delete PredGraphs;
-
 
   /*
   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
