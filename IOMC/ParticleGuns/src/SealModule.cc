@@ -1,17 +1,9 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 // #include "IOMC/Input/interface/MCFileSource.h"
 
 // Julia Yarba : related to particle gun prototypes
 //
 //#include "IOMC/ParticleGuns/interface/FlatEGunASCIIWriter.h"
-//#include "IOMC/ParticleGuns/interface/FlatRandomEGunSource.h"
-//#include "IOMC/ParticleGuns/interface/FlatRandomPtGunSource.h"
-//#include "IOMC/ParticleGuns/interface/FlatRandomEThetaGunSource.h"
-//#include "IOMC/ParticleGuns/interface/FlatRandomPtThetaGunSource.h"
-//#include "IOMC/ParticleGuns/interface/ExpoRandomPtGunSource.h"
-//#include "IOMC/ParticleGuns/interface/MultiParticleInConeGunSource.h"
 
 #include "IOMC/ParticleGuns/interface/FileRandomKEThetaGunProducer.h"
 #include "IOMC/ParticleGuns/interface/FlatRandomEGunProducer.h"
@@ -29,18 +21,6 @@
 /*
 using edm::FlatEGunASCIIWriter;
 DEFINE_FWK_MODULE(FlatEGunASCIIWriter);
-using edm::FlatRandomEGunSource;
-DEFINE_FWK_INPUT_SOURCE(FlatRandomEGunSource);
-using edm::FlatRandomPtGunSource;
-DEFINE_FWK_INPUT_SOURCE(FlatRandomPtGunSource);
-using edm::FlatRandomEThetaGunSource;
-DEFINE_FWK_INPUT_SOURCE(FlatRandomEThetaGunSource);
-using edm::FlatRandomPtThetaGunSource;
-DEFINE_FWK_INPUT_SOURCE(FlatRandomPtThetaGunSource);
-using edm::ExpoRandomPtGunSource;
-DEFINE_FWK_INPUT_SOURCE(ExpoRandomPtGunSource);
-using edm::MultiParticleInConeGunSource;
-DEFINE_FWK_INPUT_SOURCE(MultiParticleInConeGunSource);
 */
 
 using edm::FileRandomKEThetaGunProducer;
