@@ -101,9 +101,16 @@ void Analysis_Step5()
    //SelectionPlot(InputPattern, CutIndex);
    //CutFlow(InputPattern);
 
-   //   InputPattern = "Results/Type4/";   CutIndex = 21; CutIndex_Flip=21;
+   // InputPattern = "Results/Type4/";   CutIndex = 21; CutIndex_Flip=21;
+   // PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   // PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+   // CheckPrediction(InputPattern, "", "Data7TeV");
+   // CheckPrediction(InputPattern, "_Flip", "Data7TeV");
+   // CheckPrediction(InputPattern, "", "Data8TeV");
+   // CheckPrediction(InputPattern, "_Flip", "Data8TeV");
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
+   //    CutFlow(InputPattern);
 
    InputPattern = "Results/Type5/";   CutIndex = 48; CutIndex_Flip=2;
    InitdEdx("dedxRAsmi");
@@ -111,6 +118,7 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    SelectionPlot(InputPattern, CutIndex);
    CutFlow(InputPattern);
+
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -406,7 +414,6 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
      CtrlPt_S3_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S3_TOF_Binned"+Bin); CtrlPt_S3_TOF_Binned[i]->Rebin(1);
      CtrlPt_S4_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S4_TOF_Binned"+Bin); CtrlPt_S4_TOF_Binned[i]->Rebin(1);
    }
-
 /*
    std::vector<std::string> PtLimitsNames;
    if(TypeMode!=3) {
@@ -642,6 +649,48 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    delete c1;
    }
 */
+
+   if (TypeMode==4)     {
+     TH1D* HCuts_I                 = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
+     TH1D* HCuts_TOF               = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
+     TH2D* Pred_Ias                = (TH2D*)GetObjectFromPath(InputFile, Data+"/RegionH_Ias");
+     TH2D* Data_Ias                = (TH2D*)GetObjectFromPath(InputFile, Data+"/RegionD_Ias");
+     TH1D* Data_C                  = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_C");
+     TH1D* Data_G                  = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_G");
+     TH1D* Data_H                  = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_H");
+     TH1D* Data_D                  = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_D");
+     TH1D* Data_P                  = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_P");       
+
+     cout << "  Ias cut is " << HCuts_I->GetBinContent(CutIndex+1) << " , 1/beta cut is " << HCuts_TOF->GetBinContent(CutIndex+1) << endl;
+     cout << "  C = " << Data_C->GetBinContent(CutIndex+1) << endl;
+     cout << "  G = " << Data_G->GetBinContent(CutIndex+1) << endl;
+     cout << "  H = " << Data_H->GetBinContent(CutIndex+1) << endl;
+     cout << "  D = " << Data_D->GetBinContent(CutIndex+1) << endl;
+     cout << " Prediction is " << Data_P->GetBinContent(CutIndex+1) << " +/- " << Data_P->GetBinError(CutIndex+1) << endl;
+     
+     if (Data_P->GetBinContent(CutIndex+1) >  Data_D->GetBinContent(CutIndex+1)){
+       cout << " Data is fewer by " << ((Data_P->GetBinContent(CutIndex+1)- Data_D->GetBinContent(CutIndex+1))/Data_P->GetBinContent(CutIndex+1))*100.0 << "%"  << endl;
+     }
+     else {
+       cout << " Prediction is fewer by " << ((Data_D->GetBinContent(CutIndex+1)-Data_P->GetBinContent(CutIndex+1))/Data_P->GetBinContent(CutIndex+1))*100.0 << "%"  << endl;
+     }
+
+     double factor = Data_C->GetBinContent(CutIndex+1)/Data_G->GetBinContent(CutIndex+1) ;
+     //       cout << "  factor    =  " << factor << endl;
+     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+     c1->SetLogy(true);
+     Histos[0] = (TH1D*)(Data_Ias->ProjectionY("IasD",CutIndex+1,CutIndex+1,"o"));   legend.push_back("Observed");
+     Histos[1] = (TH1D*)(Pred_Ias->ProjectionY("IasH",CutIndex+1,CutIndex+1,"o"));   legend.push_back("Prediction");
+     ((TH1D*)Histos[1])->Scale(factor);
+     DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "I_{as} ", "Tracks", 0,0, 0.05, 400000);
+     DrawLegend(Histos,legend,"","P");
+     c1->SetLogy(true);
+     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+     SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_IasSpectrum");
+     delete Histos[0]; delete Histos[1];
+     delete c1;
+   }
+   
    if(TypeMode==5){
       TH1D* HCuts_Pt              = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
       TH1D* HCuts_I               = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
@@ -2012,6 +2061,7 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
     sprintf(PredName,"Pred_%i",i);
     TH1D* TempPred = new TH1D(PredName, PredName, TOFCuts.size(), TOFCutMin, TOFCutMax);
     Pred.push_back(TempPred);
+
     char RatioName[1024];
     sprintf(RatioName,"Ratio_%i",i);
     TH1D* TempRatio = new TH1D(RatioName, RatioName, TOFCuts.size(), TOFCutMin, TOFCutMax);
@@ -2020,7 +2070,6 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
 
 
   for(int CutIndex=1; CutIndex<HCuts_TOF->GetNbinsX(); CutIndex++) {
-
     std::pair<double, double> key(HCuts_I->GetBinContent(CutIndex+1), HCuts_Pt->GetBinContent(CutIndex+1));
     int plot = CutMap.find(key)->second;
     int bin = Data[plot]->FindBin(HCuts_TOF->GetBinContent(CutIndex+1));
@@ -2046,9 +2095,14 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
     }
 
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-    Histos[0] = Data[i];      legend.push_back("Obs");
-    Histos[1] = Pred[i];    legend.push_back("Pred");
-    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 1, 100000);
+    Histos[0] = Data[i];      legend.push_back("Observed");
+    Histos[1] = Pred[i];    legend.push_back("Prediction");
+    if (TypeMode!=4) {
+      DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 1, 100000);
+    }
+    else {
+      DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 1, 2200000);
+    }
     DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.5);
     c1->SetLogy(true);
     DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
