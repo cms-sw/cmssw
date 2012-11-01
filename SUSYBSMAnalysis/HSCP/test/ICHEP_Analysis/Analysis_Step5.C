@@ -691,7 +691,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
      delete c1;
    }
    
-   if(TypeMode==5){
+   if(TypeMode==0 || TypeMode==5){
       TH1D* HCuts_Pt              = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
       TH1D* HCuts_I               = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
       TH1D* HCuts_TOF             = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
@@ -738,46 +738,74 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
       frame->SetMinimum(0.1);
       frame->Draw("AXIS");
 
-      mapObs[75.0]->SetMarkerColor(2);
-      mapObs[75.0]->SetMarkerStyle(20); 
-      mapObs[75.0]->Draw("P");
-      mapPred[75.0]->SetLineColor(2);
-      mapPred[75.0]->SetLineWidth(2.0);
-      mapPred[75.0]->Draw("C");
-
-      mapObs[100.0]->SetMarkerColor(4);
-      mapObs[100.0]->SetMarkerStyle(20);
-      mapObs[100.0]->Draw("P");
-      mapPred[100.0]->SetLineColor(4);  
-      mapPred[100.0]->SetLineWidth(2.0);
-      mapPred[100.0]->Draw("C");
-
-      mapObs[125.0]->SetMarkerColor(8);
-      mapObs[125.0]->SetMarkerStyle(20);
-      mapObs[125.0]->Draw("P");
-      mapPred[125.0]->SetLineColor(8);
-      mapPred[125.0]->SetLineWidth(2.0);
-      mapPred[125.0]->Draw("C");
-
-
-
-
       TLegend* LEG = new TLegend(0.45,0.65,0.65,0.90);
       LEG->SetFillColor(0);
       LEG->SetFillStyle(0);
       LEG->SetBorderSize(0);
 
-      TH1D* obsLeg = (TH1D*)mapObs [75.0]->Clone("ObsLeg");
-      obsLeg->SetMarkerColor(1);
-      LEG->AddEntry(obsLeg, "Data"    ,"P");
-      LEG->AddEntry(mapPred[75.0], "Pred (pT>75GeV)","L");
-      LEG->AddEntry(mapPred[100.0], "Pred (pT>100GeV)","L");
-      LEG->AddEntry(mapPred[125.0], "Pred (pT>125GeV)","L");
-      LEG->Draw("same");
+      if(TypeMode==0){
+         mapObs[55.0]->SetMarkerColor(2);
+         mapObs[55.0]->SetMarkerStyle(20);
+         mapObs[55.0]->Draw("P");
+         mapPred[55.0]->SetLineColor(2);
+         mapPred[55.0]->SetLineWidth(2.0);
+         mapPred[55.0]->Draw("C");
+
+         mapObs[65.0]->SetMarkerColor(4);
+         mapObs[65.0]->SetMarkerStyle(20);
+         mapObs[65.0]->Draw("P");
+         mapPred[65.0]->SetLineColor(4);
+         mapPred[65.0]->SetLineWidth(2.0);
+         mapPred[65.0]->Draw("C");
+
+         mapObs[75.0]->SetMarkerColor(8);
+         mapObs[75.0]->SetMarkerStyle(20);
+         mapObs[75.0]->Draw("P");
+         mapPred[75.0]->SetLineColor(8);
+         mapPred[75.0]->SetLineWidth(2.0);
+         mapPred[75.0]->Draw("C");
+
+         TH1D* obsLeg = (TH1D*)mapObs [55.0]->Clone("ObsLeg");
+         obsLeg->SetMarkerColor(1);
+         LEG->AddEntry(obsLeg, "Data"    ,"P");
+         LEG->AddEntry(mapPred[55.0], "Pred (pT>55GeV)","L");
+         LEG->AddEntry(mapPred[65.0], "Pred (pT>65GeV)","L");
+         LEG->AddEntry(mapPred[75.0], "Pred (pT>75GeV)","L");
+         LEG->Draw("same");
+      }else if(TypeMode==5){
+         mapObs[75.0]->SetMarkerColor(2);
+         mapObs[75.0]->SetMarkerStyle(20); 
+         mapObs[75.0]->Draw("P");
+         mapPred[75.0]->SetLineColor(2);
+         mapPred[75.0]->SetLineWidth(2.0);
+         mapPred[75.0]->Draw("C");
+
+         mapObs[100.0]->SetMarkerColor(4);
+         mapObs[100.0]->SetMarkerStyle(20);
+         mapObs[100.0]->Draw("P");
+         mapPred[100.0]->SetLineColor(4);  
+         mapPred[100.0]->SetLineWidth(2.0);
+         mapPred[100.0]->Draw("C");
+
+         mapObs[125.0]->SetMarkerColor(8);
+         mapObs[125.0]->SetMarkerStyle(20);
+         mapObs[125.0]->Draw("P");
+         mapPred[125.0]->SetLineColor(8);
+         mapPred[125.0]->SetLineWidth(2.0);
+         mapPred[125.0]->Draw("C");
+
+         TH1D* obsLeg = (TH1D*)mapObs [75.0]->Clone("ObsLeg");
+         obsLeg->SetMarkerColor(1);
+         LEG->AddEntry(obsLeg, "Data"    ,"P");
+         LEG->AddEntry(mapPred[75.0], "Pred (pT>75GeV)","L");
+         LEG->AddEntry(mapPred[100.0], "Pred (pT>100GeV)","L");
+         LEG->AddEntry(mapPred[125.0], "Pred (pT>125GeV)","L");
+         LEG->Draw("same");
+      }
 
 
       DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
-      SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_LQ_PredVsObs");
+      SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObs");
       delete c1;
    }
 
@@ -945,6 +973,8 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
 
    TypeMode = TypeFromPattern(InputPattern); 
    if(TypeMode!=2)return;
+   string LegendTitle = LegendFromType(InputPattern);;
+
 
    TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
@@ -1153,7 +1183,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    MGTOF->GetYaxis()->SetTitleOffset(1.70);
    MGTOF->GetYaxis()->SetRangeUser(500,1E6);
    LEG->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Systematics_")+DataName+"_TOF_Value");
    delete c1;
 
@@ -1171,7 +1201,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    MGI->GetYaxis()->SetTitleOffset(1.70);
    MGI->GetYaxis()->SetRangeUser(500,1E6);
    LEG->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Systematics_")+DataName+"_I_Value");
    delete c1;
 
@@ -1189,7 +1219,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    MGP->GetYaxis()->SetTitleOffset(1.70);
    MGP->GetYaxis()->SetRangeUser(500,1E6);
    LEG->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Systematics_")+DataName+"_P_Value");
    delete c1;
 
@@ -1970,7 +2000,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
     DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Pt Cut", "Predicted", 0,0, 0,0);
     DrawLegend((TObject**)Histos,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     c1->SetLogy(false);
-    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,(DataType + "CosmicPrediction_TOF" + Preds[i]).c_str());
     delete c1;
   }  
@@ -1982,7 +2012,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Stat+Syst Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+  DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType +"CosmicStatSyst");
   delete c1;
 
@@ -1993,7 +2023,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Stat Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+  DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType +"CosmicStat");
   delete c1;
 
@@ -2004,7 +2034,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Syst Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+  DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType +"CosmicSyst");
   delete c1;
 }  
@@ -2105,7 +2135,7 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
     }
     DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.5);
     c1->SetLogy(true);
-    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
 
     char Title[1024];
     if(ICut>-1 && PtCut>-1) sprintf(Title,"Pred%s_I%0.2f_Pt%3.0f_",HistoSuffix.c_str(), ICut, PtCut);
@@ -2135,7 +2165,7 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Data/MC", 0, 0, 0,0);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+  DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,"Pred_Ratio_" + DataType + HistoSuffix);
   delete c1;
 }
@@ -2421,7 +2451,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
 	c1->SetLogy(true);
       }
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
-    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,(DataType + "CollisionPrediction_TOF" + Preds[i]).c_str());
     delete c1;
     delete PredGraphs;
@@ -2452,7 +2482,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     PredGraphs->GetYaxis()->SetRangeUser(0,1.);
     c1->SetLogy(0);
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
-    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,DataType + "CollisionStatSyst");
     delete c1;
     delete PredGraphs;
@@ -2480,7 +2510,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     PredGraphs->GetYaxis()->SetRangeUser(0,1.);
     c1->SetLogy(0);
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
-    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,DataType + "CollisionStat");
     delete c1;
     delete PredGraphs;
@@ -2507,7 +2537,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     PredGraphs->GetYaxis()->SetRangeUser(0,1.);
     c1->SetLogy(0);
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
-    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,DataType + "CollisionSyst");
     delete c1;
     delete PredGraphs;
@@ -2520,7 +2550,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Stat Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+  DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType + "CollisionStat");
   delete c1;
 
@@ -2531,7 +2561,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   DrawSuperposedHistos((TH1**)Histos, legend, "",  "Pt Cut", "Syst Rel. Error", 0,0, 0,1.4);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+  DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,DataType +"CollisionSyst");
   delete c1;
   */
@@ -2632,7 +2662,7 @@ void CheckPredictionBin(string InputPattern, string HistoSuffix, string DataType
     DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Tracks", 0, 0, 0,0);
     DrawLegend((TObject**)Histos,legend,LegendTitle,"P", 0.5);
     c1->SetLogy(true);
-    DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
 
     char Title[1024];
     if(ICut>-1 && PtCut>-1) sprintf(Title,"Pred%s_I%0.2f_Pt%3.0f_",HistoSuffix.c_str(), ICut, PtCut);
@@ -2662,7 +2692,7 @@ void CheckPredictionBin(string InputPattern, string HistoSuffix, string DataType
   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta Cut", "Data/MC", 0, 0, 0,0);
   DrawLegend((TObject**)Histos,legend,LegendTitle,"P");
   c1->SetLogy(false);
-  DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
+  DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
   SaveCanvas(c1,SavePath,"Pred_Ratio_" + DataType + HistoSuffix);
   delete c1;
 }
