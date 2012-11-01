@@ -14,9 +14,14 @@ process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 # Description of EE trigger tower map
 process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 
-process.source = cms.Source("EcalSimpleSource",
-    #number of events to generate:
-    maxEvents = cms.untracked.int32(2),
+process.source = cms.Source("EmptySource")
+
+process.maxEvents = cms.untracked.PSet(
+    # number of events to generate:
+    input = cms.untracked.int32(2)
+)
+
+process.ecalSimpleProducer = cms.EDProducer("EcalSimpleProducer",
     #      string formula = "200+(4<=isample0)*(isample0<=6)*16*(1.)+1<<12"
     formula = cms.string(''),
     #TT samples:
@@ -28,8 +33,8 @@ process.source = cms.Source("EcalSimpleSource",
     verbose = cms.untracked.bool(False)
 )
 
-process.p = cms.Path(process.ecalSimRawData)
-process.ecalSimRawData.trigPrimProducer = 'source'
+process.p = cms.Path(process.ecalSimpleProducer*process.ecalSimRawData)
+process.ecalSimRawData.trigPrimProducer = 'ecalSimpleProducer'
 process.ecalSimRawData.tcpDigiCollection = ''
 process.ecalSimRawData.tcc2dccData = False
 process.ecalSimRawData.srp2dccData = False

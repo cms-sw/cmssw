@@ -20,14 +20,14 @@ process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 #
 process.load("SimCalorimetry.EcalElectronicsEmulation.EcalSimRawData_cfi")
 
-# Set ecalSimRawData.unsuppressedDigiProducer to "source" if the digis
-# are produced by the EcalSimpleSource module, keep the default value
+# Set ecalSimRawData.unsuppressedDigiProducer to "ecalSimpleProducer" if the digis
+# are produced by the EcalSimpleProducer module, keep the default value
 # otherwise:
-#replace ecalSimRawData.unsuppressedDigiProducer = "source"
-# Set ecalSimRawData.trigPrimProducer to "source" if the TP digis
-# are produced by the EcalSimpleSource module, keep the default value
+#replace ecalSimRawData.unsuppressedDigiProducer = "ecalSimpleProducer"
+# Set ecalSimRawData.trigPrimProducer to "ecalSimpleProducer" if the TP digis
+# are produced by the EcalSimpleProducer module, keep the default value
 # otherwise:
-#replace ecalSimRawData.trigPrimProducer = "source"
+#replace ecalSimRawData.trigPrimProducer = "ecalSimpleProducer"
 #
 #
 #
@@ -41,9 +41,14 @@ process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 # Description of EE trigger tower map
 process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 
-process.source = cms.Source("EcalSimpleSource",
+process.source = cms.Source("EmptySource")
+
+process.maxEvents = cms.untracked.PSet(
     # number of events to generate:
-    maxEvents = cms.untracked.int32(1),
+    input = cms.untracked.int32(1)
+)
+
+process.ecalSimpleProducer = cms.EDProducer("EcalSimpleProducer",
     #xtal channel digis. Set to empty string for no digis.
     # some realistic shape. Gain 12 (ID=1, see 1<<12). Every crystals with a 
     # 160 ADC count amplitude above a 200 ADC count baseline. 
@@ -71,7 +76,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:toto.root')
 )
 
-process.p = cms.Path(process.mix*process.simEcalUnsuppressedDigis*process.simEcalTriggerPrimitiveDigis*process.simEcalDigis*process.ecalSimRawData)
+process.p = cms.Path(process.ecalSimpleProducer*process.mix*process.simEcalUnsuppressedDigis*process.simEcalTriggerPrimitiveDigis*process.simEcalDigis*process.ecalSimRawData)
 process.fine = cms.EndPath(process.out)
 process.simEcalTriggerPrimitiveDigis.Label = 'simEcalUnsuppressedDigis'
 process.simEcalTriggerPrimitiveDigis.InstanceEB = ''

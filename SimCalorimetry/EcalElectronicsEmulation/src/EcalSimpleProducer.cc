@@ -1,4 +1,4 @@
-#include "SimCalorimetry/EcalElectronicsEmulation/interface/EcalSimpleSource.h"
+#include "SimCalorimetry/EcalElectronicsEmulation/interface/EcalSimpleProducer.h"
 #include "TFormula.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -13,14 +13,14 @@
 using namespace std;
 using namespace edm;
 
-bool EcalSimpleSource::produce(edm::Event& evt){
+void EcalSimpleProducer::produce(edm::Event& evt, const edm::EventSetup&){
+  const int ievt = evt.id().event();
   if(formula_.get()!=0){
     auto_ptr<EBDigiCollection> digis(new EBDigiCollection);
     
     digis->reserve(170*360);
     
     const int nSamples = digis->stride();
-    const int ievt = event();
     for(int iEta0=0; iEta0<170; ++iEta0){
       for(int iPhi0=0; iPhi0<360; ++iPhi0){
 	int iEta1 = cIndex2iEta(iEta0);
@@ -45,7 +45,6 @@ bool EcalSimpleSource::produce(edm::Event& evt){
       = auto_ptr<EcalTrigPrimDigiCollection>(new EcalTrigPrimDigiCollection);
     tps->reserve(56*72);
     const int nSamples = 5;
-    const int ievt = event();
     for(int iTtEta0=0; iTtEta0<56; ++iTtEta0){
       for(int iTtPhi0=0; iTtPhi0<72; ++iTtPhi0){
 	int iTtEta1 = cIndex2iTtEta(iTtEta0);
@@ -75,7 +74,6 @@ bool EcalSimpleSource::produce(edm::Event& evt){
   if(simHitFormula_.get()!=0){//generation of barrel sim hits
     auto_ptr<PCaloHitContainer> hits
       = auto_ptr<PCaloHitContainer>(new PCaloHitContainer);
-    const int ievt = event();
     for(int iEta0=0; iEta0<170; ++iEta0){
       for(int iPhi0=0; iPhi0<360; ++iPhi0){
 	int iEta1 = cIndex2iEta(iEta0);
@@ -94,12 +92,10 @@ bool EcalSimpleSource::produce(edm::Event& evt){
     evt.put(auto_ptr<PCaloHitContainer>(new PCaloHitContainer()),
 	    "EcalHitsEE");
   }
-  return true;
 }
 
-EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
-				   const edm::InputSourceDescription& sdesc):
-  GeneratedInputSource(pset, sdesc){
+EcalSimpleProducer::EcalSimpleProducer(const edm::ParameterSet& pset):
+  EDProducer(){
   string formula = pset.getParameter<string>("formula");
   string tpFormula = pset.getParameter<string>("tpFormula");
   string simHitFormula = pset.getParameter<string>("simHitFormula");
@@ -139,7 +135,7 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
     formula_ = auto_ptr<TFormula>(new TFormula("f", formula.c_str()));
     Int_t err = formula_->Compile();
     if(err!=0){
-      throw cms::Exception("Error in EcalSimpleSource 'formula' config.");
+      throw cms::Exception("Error in EcalSimpleProducer 'formula' config.");
     }
     produces<EBDigiCollection>();
     produces<EEDigiCollection>();
@@ -148,7 +144,7 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
     tpFormula_ = auto_ptr<TFormula>(new TFormula("f", tpFormula.c_str()));
     Int_t err = tpFormula_->Compile();
     if(err!=0){
-      throw cms::Exception("Error in EcalSimpleSource 'tpFormula' config.");
+      throw cms::Exception("Error in EcalSimpleProducer 'tpFormula' config.");
     }
     produces<EcalTrigPrimDigiCollection>();
   }
@@ -157,7 +153,7 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
       = auto_ptr<TFormula>(new TFormula("f", simHitFormula.c_str()));
     Int_t err = simHitFormula_->Compile();
     if(err!=0){
-      throw cms::Exception("Error in EcalSimpleSource "
+      throw cms::Exception("Error in EcalSimpleProducer "
 			   "'simHitFormula' config.");
     }
     produces<edm::PCaloHitContainer>("EcalHitsEB");
@@ -165,7 +161,7 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
   }
 }
 
-void EcalSimpleSource::replaceAll(std::string& s, const std::string& from,
+void EcalSimpleProducer::replaceAll(std::string& s, const std::string& from,
 				  const std::string& to) const{
   string::size_type pos = 0;
   //  cout << "replaceAll(" << s << "," << from << "," << to << ")\n";

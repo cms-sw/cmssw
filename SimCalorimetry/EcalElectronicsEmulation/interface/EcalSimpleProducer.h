@@ -1,16 +1,12 @@
-/*
- * $Id: EcalSimpleSource.h,v 1.2 2007/03/07 19:42:02 pgras Exp $
- */
+#ifndef SimCalorimetry_EcalElectronicsEmulationEcalSimpleProducer_h
+#define SimCalorimetry_EcalElectronicsEmulationEcalSimpleProducer_h
 
-#ifndef ECALSIMPLESOURCE_H
-#define ECALSIMPLESOURCE_H
-
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include <memory>
 #include <TFormula.h>
 #include <string>
 
-/** This edm source module generates Ecal Digis (data frames and TPGs)
+/** This edm producer generates Ecal Digis (data frames and TPGs)
  * according to a given pattern. The pattern is defined
  * as function of event id, crystal/TT, and time sample. Only barrel
  * is currently supported for the crystal channel data.
@@ -39,20 +35,19 @@
  * TFormula</A>
  *
  */
-class EcalSimpleSource: public edm::GeneratedInputSource {
+class EcalSimpleProducer: public edm::EDProducer {
 
   //constructor(s) and destructor(s)
 public:
-  /** Constructs an EcalSimpleSource
+  /** Constructs an EcalSimpleProducer
    * @param pset CMSSW configuration
    * @param sdesc description of this input source
    */
-  EcalSimpleSource(const edm::ParameterSet& pset,
-		   const edm::InputSourceDescription& sdesc);
+  EcalSimpleProducer(const edm::ParameterSet& pset);
 
   /**Destructor
    */
-  virtual ~EcalSimpleSource(){};
+  virtual ~EcalSimpleProducer(){};
 
   /** Called at start of job.
    * @param es the event setup
@@ -62,7 +57,7 @@ public:
   /** The main method. It produces the event.
    * @param evt [out] produced event.
    */
-  virtual bool produce(edm::Event& evt);
+  virtual void produce(edm::Event& evt, const edm::EventSetup&);
   
   //method(s)
 public:
