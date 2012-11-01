@@ -6,19 +6,17 @@
 #include <string>
 #include <algorithm>
 
-using namespace std;
-
 template< typename T >
 class StringToEnumParser
 {
-    map< string, T > enumMap;
+    std::map< std::string, T > enumMap;
 public:
     
     StringToEnumParser( void );
 
-    T parseString( const string &value )
+    T parseString( const std::string &value )
 	{ 
-	    typename map<string, T>::const_iterator iValue = enumMap.find( value );
+	    typename std::map<std::string, T>::const_iterator iValue = enumMap.find( value );
 	    if( iValue  == enumMap.end())
                 throw cms::Exception( "Configuration" )
 		    << "the value " << value << " is not defined.";
