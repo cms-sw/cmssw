@@ -60,7 +60,6 @@ namespace edm {
   RawInputSource::makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary) {
     EventSourceSentry sentry(*this);
     eventPrincipal.fillEventPrincipal(eventAuxiliary, boost::shared_ptr<LuminosityBlockPrincipal>());
-    setEventCached();
     return &eventPrincipal;
   }
 
