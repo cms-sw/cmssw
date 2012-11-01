@@ -195,7 +195,7 @@ int main(int argc, char* argv[]) {
       std::ostringstream auout;
       if (adler32) {
         unsigned int const EDMFILEUTILADLERBUFSIZE = 10*1024*1024; // 10MB buffer
-        char buffer[EDMFILEUTILADLERBUFSIZE];
+        static char buffer[EDMFILEUTILADLERBUFSIZE];
         size_t bufToRead = EDMFILEUTILADLERBUFSIZE;
         uint32_t a = 1, b = 0;
         size_t fileSize = tfile->GetSize();
