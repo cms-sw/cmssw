@@ -382,9 +382,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
          double* XSecErrLow  = new double[ThXSec[k]->GetN()];
          double* XSecErrHigh = new double[ThXSec[k]->GetN()];
          //assume 15% error on xsection
-       for(int i=0;i<ThXSec[k]->GetN();i++){ XSecErrLow[i] = ThXSec[k]->GetY()[i]*0.85; XSecErrHigh[i] = ThXSec[k]->GetY()[i]*1.15; }
-         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", ThXSec[k]->GetN(),ThXSec[k]->GetX(),XSecErrLow,XSecErrHigh, PlotMinScale, PlotMaxScale); 
-      }
+         for(int i=0;i<ThXSec[k]->GetN();i++){ XSecErrLow[i] = ThXSec[k]->GetY()[i]*0.85; XSecErrHigh[i] = ThXSec[k]->GetY()[i]*1.15; }
+            ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", ThXSec[k]->GetN(),ThXSec[k]->GetX(),XSecErrLow,XSecErrHigh, PlotMinScale, PlotMaxScale); 
+         }
    }
 
    //Print the excluded mass range
@@ -400,10 +400,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
       if(isNeutral) continue;//skip charged suppressed models
-      if(TkGraphs[k]->GetN()==0) continue;
+      if(MuGraphs[k]->GetN()==0) continue;
       if(MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1]<0) continue;
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MuGraphs[k],  ThXSec[k], MuGraphs[k]->GetX()[0], MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1], 1, 0.00));
-   }   
+   }  
+ 
    fprintf(pFile,"-----------------------\n0%% MU+Only        \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
@@ -412,6 +413,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       if(MOGraphs[k]->GetX()[MOGraphs[k]->GetN()-1]<0) continue;
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MOGraphs[k],  ThXSec[k], MOGraphs[k]->GetX()[0], MOGraphs[k]->GetX()[MOGraphs[k]->GetN()-1], 1, 0.00));
    }
+
    fprintf(pFile,"-----------------------\n0%% Q<1+Only        \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
@@ -422,6 +424,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    }
 
    fclose(pFile);
+
 
    //Make the final plot with all curves in it
    // I don't like much this part because it is dependent of what is in Analysis_Samples.h in an hardcoded way   
@@ -702,9 +705,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQLEGTh->Draw();
    }
 
-
    LEGMu->Draw();
-
+   bool found=false;
    TMultiGraph* MGLQ = new TMultiGraph();
    if(!Combine) {
    MGLQ->Add(ThGraphMap["DY_Q1o3"    ]     ,"L");
@@ -1867,8 +1869,6 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 bool Combine(string InputPattern, string signal7, string signal8){
 //   CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return false;  }
 //   int s = CurrentSampleIndex;
-   int TypeMode = TypeFromPattern(InputPattern);
-   if(TypeMode==3) signal7="";
 
    string outpath = InputPattern + "/"+SHAPESTRING+EXCLUSIONDIR+"/";
    MakeDirectories(outpath);
@@ -1881,8 +1881,8 @@ bool Combine(string InputPattern, string signal7, string signal8){
    stAllInfo result = result12;
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
 
-   string signal = signal8;
-   if(signal.find("_8TeV")!=string::npos){signal.replace(signal.find("_8TeV"),5, "");}
+   string signal = signal7;
+   if(signal.find("_7TeV")!=string::npos){signal.replace(signal.find("_7TeV"),5, "");}
 
    FILE* pFileTmp = NULL;
 
@@ -1893,6 +1893,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
    bool is8TeVPresent = true;
    pFileTmp = fopen((InputPattern+"/EXCLUSION8TeV/shape_"+signal8+".dat").c_str(), "r");
    if(!pFileTmp){is8TeVPresent=false;}else{fclose(pFileTmp);}
+
 
    string CodeToExecute = "combineCards.py ";
    if(is7TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+signal7+".dat ";
@@ -1909,6 +1910,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
    result.XSec_Th = 1.0;
    double NPred = result.NPred;
    double NSign = result.NSign / 1000.0;
+
 
    //ALL CODE BELOW IS A BIT DIFFERENT THAN THE ONE USED IN runCombined, BECAUSE HERE WE KEEP THE RESULTS ON LIMIT IN TERMS OF SIGNAL STRENGTH (r=SigmaObs/SigmaTH)
    if(true){

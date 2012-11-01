@@ -105,12 +105,12 @@ void Analysis_Step5()
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
 
-   InputPattern = "Results/Type5/";   CutIndex = 69; CutIndex_Flip=2;
-   InitdEdx("dedxProd");
-//   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
-PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-//   SelectionPlot(InputPattern, CutIndex);
-//   CutFlow(InputPattern);
+   InputPattern = "Results/Type5/";   CutIndex = 48; CutIndex_Flip=2;
+   InitdEdx("dedxRAsmi");
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+   SelectionPlot(InputPattern, CutIndex);
+   CutFlow(InputPattern);
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -2311,7 +2311,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     }
   
     SUM  = sqrt(SUM/(N-1));
-    STAT = sqrt(STAT/N);
+    STAT = sqrt(STAT/(N-1)); //HERE IT MUST BE N-1 !!!, IF YOU HAVE ARGUMENTS TO USE N, PLEASE ARGUE
     if(SUM*SUM > STAT*STAT) SYST = sqrt(SUM*SUM - STAT*STAT);
     else SYST=0;
 
