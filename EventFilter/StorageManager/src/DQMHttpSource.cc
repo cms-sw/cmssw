@@ -1,4 +1,4 @@
-// $Id: DQMHttpSource.cc,v 1.30 2012/10/17 12:55:26 wmtan Exp $
+// $Id: DQMHttpSource.cc,v 1.31 2012/10/31 17:09:27 wmtan Exp $
 /// @file: DQMHttpSource.cc
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -57,6 +57,7 @@ namespace edm
     if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventAuxiliary().luminosityBlock()) {
       setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(eventAuxiliary().run(), eventAuxiliary().luminosityBlock(), eventAuxiliary().time(), Timestamp::invalidTimestamp()));
     }
+    setEventCached();
     return true;
   }
 
