@@ -11,19 +11,22 @@
 
 #include <string>
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
 class PhotonIsolationCalculator {
 
 public:
 
-  PhotonIsolationCalculator(){};
+  PhotonIsolationCalculator(){}
 
-  virtual ~PhotonIsolationCalculator(){};
+  ~PhotonIsolationCalculator(){}
 
   void setup(const edm::ParameterSet& conf,
-	     std::vector<int> flagsEB_,
-	     std::vector<int> flagsEE_,
-	     std::vector<int> severitiesEB_,
-	     std::vector<int> severitiesEE_);
+	     std::vector<int> const & flagsEB_,
+	     std::vector<int> const & flagsEE_,
+	     std::vector<int> const & severitiesEB_,
+	     std::vector<int> const & severitiesEE_);
 
   void calculate(const reco::Photon*, 
 		 const edm::Event&, const edm::EventSetup& es,
@@ -39,6 +42,10 @@ public:
 		bool &isEERingGap,
 		bool &isEEDeeGap,
 		bool &isEBEEGap);
+
+
+private:
+
   void calculateTrackIso(const reco::Photon* photon,
 			 const edm::Event &e,
 			 double &trkCone,
@@ -48,7 +55,7 @@ public:
 			 double RinnerCone=.1,
                          double etaSlice=0.015,
                          double lip=0.2,
-                         double d0=0.1);
+                         double d0=0.1) dso_internal;
 
 
 
@@ -61,7 +68,7 @@ public:
 				double eMin,
 				double etMin, 
 				bool vetoClusteredHits, 
-				bool useNumCrystals);
+				bool useNumCrystals) dso_internal;
 
   double calculateHcalTowerIso(const reco::Photon* photon,
 			       const edm::Event& iEvent,
@@ -69,7 +76,7 @@ public:
 			       double RCone,
 			       double RConeInner,
 			       double eMin,
-                               signed int depth);
+                               signed int depth) dso_internal;
 
 
   double calculateHcalTowerIso(const reco::Photon* photon,
@@ -77,12 +84,12 @@ public:
 			       const edm::EventSetup& iSetup,
 			       double RCone,
 			       double eMin,
-                               signed int depth);
+                               signed int depth) dso_internal;
 
 
 
   
- protected:
+ private:
 
   edm::InputTag barrelecalCollection_;
   edm::InputTag endcapecalCollection_;

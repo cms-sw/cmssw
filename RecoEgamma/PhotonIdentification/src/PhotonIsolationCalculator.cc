@@ -43,7 +43,10 @@
 #include <TMath.h>
 
 
-void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, std::vector<int> flagsEB, std::vector<int> flagsEE, std::vector<int> severitiesEB, std::vector<int> severitiesEE) {
+void PhotonIsolationCalculator::setup(const edm::ParameterSet& conf, 
+std::vector<int> const & flagsEB, std::vector<int> const & flagsEE, 
+std::vector<int> const & severitiesEB, std::vector<int> const & severitiesEE) 
+{
 
   trackInputTag_ = conf.getParameter<edm::InputTag>("trackProducer");
   beamSpotProducerTag_ = conf.getParameter<edm::InputTag>("beamSpotProducer");
