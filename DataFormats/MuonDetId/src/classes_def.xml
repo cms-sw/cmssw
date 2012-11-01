@@ -29,4 +29,7 @@
   <class name="DTSectCollId" ClassVersion="10">
    <version ClassVersion="10" checksum="1624682691"/>
   </class>
+  <class name="GEMDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="3587583837"/>
+  </class>
 </lcgdict>

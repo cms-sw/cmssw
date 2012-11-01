@@ -10,3 +10,4 @@
 #include "DataFormats/MuonDetId/interface/DTBtiId.h"
 #include "DataFormats/MuonDetId/interface/DTTracoId.h"
 #include "DataFormats/MuonDetId/interface/DTSectCollId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
