@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2012/03/29 14:49:31 $
- * $Revision: 1.39 $
+ * $Date: 2012/04/05 14:57:59 $
+ * $Revision: 1.40 $
  * \author J. Berryhill
  *
  */
@@ -592,21 +592,21 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
               lclphidat lclPhi;  		
               try {
                 lclPhi = srLUTs_[fpga]->localPhi(lct->getStrip(), lct->getPattern(), lct->getQuality(), lct->getBend());
-              } catch(...) { 
+              } catch(cms::Exception &) { 
                 bzero(&lclPhi,sizeof(lclPhi)); 
               }
 				
               gblphidat gblPhi;
               try {
                 gblPhi = srLUTs_[fpga]->globalPhiME(lclPhi.phi_local, lct->getKeyWG(), cscId+1);
-              } catch(...) { 
+              } catch(cms::Exception &) { 
                 bzero(&gblPhi,sizeof(gblPhi)); 
               }
 				
               gbletadat gblEta;
               try {
                 gblEta = srLUTs_[fpga]->globalEtaME(lclPhi.phi_bend_local, lclPhi.phi_local, lct->getKeyWG(), cscId+1);
-              } catch(...) { 
+              } catch(cms::Exception &) { 
                 bzero(&gblEta,sizeof(gblEta)); 
               }
            
