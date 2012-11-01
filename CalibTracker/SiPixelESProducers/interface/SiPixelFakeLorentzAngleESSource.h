@@ -52,7 +52,8 @@ class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::Even
   
   
  private:
-  
+
+  double tanLorentzAnglePerTesla_;
   edm::FileInPath fp_;
 
 };
