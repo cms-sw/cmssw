@@ -251,7 +251,6 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 	 unsigned offset=0;
 	 int zsign=1;
 	 //================================================================
-	 std::vector<CCGFloat> SS;
       
 	 // compute the distance of the point with respect of the 4 crystal lateral planes
 
@@ -292,15 +291,14 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 		  offset=1;
 	       zsign=-1;
 	    }
-	    std::vector<GlobalPoint> corners;
-	    corners.clear();
-	    corners.resize(8);
+	    GlobalPoint corners[8];
 	    for(unsigned ic=0;ic<4;++ic)
 	    {
 	       corners[ic]=getGeometry(mycellID)->getCorners()[(unsigned)((zsign*ic+offset)%4)];
 	       corners[4+ic]=getGeometry(mycellID)->getCorners()[(unsigned)(4+(zsign*ic+offset)%4)];
 	    }
-	    
+
+	    CCGFloat SS[4];
 	    for (short i=0; i < 4 ; ++i)
 	    {
 	       A = Pt3D(corners[i%4].x(),corners[i%4].y(),corners[i%4].z());
@@ -310,7 +308,7 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 	       plane.normalize();
 	       CCGFloat distance = plane.distance(point);
 	       if (corners[0].z()<0.) distance=-distance;
-	       SS.push_back(distance);
+	       SS[i] = distance;
 	    }
 	 
 	    // Only one move in necessary direction
@@ -348,34 +346,34 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
    CaloSubdetectorGeometry::DetIdSet dis ; // return object
    if( 0.000001 < dR )
    {
-      if( dR > M_PI/2. ) // this code assumes small dR
+     if( dR > M_PI/2. ) // this code assumes small dR
       {
 	 dis = CaloSubdetectorGeometry::getCells( r, dR ) ; // base class version
       }
       else
       {
-	 const double dR2  ( dR*dR ) ;
-	 const double reta ( r.eta() ) ;
-	 const double rphi ( r.phi() ) ;
-	 const double rx   ( r.x() ) ;
-	 const double ry   ( r.y() ) ;
-	 const double rz   ( r.z() ) ;
-	 const double fac  ( fabs( zeP/rz ) ) ;
-	 const double xx   ( rx*fac ) ; // xyz at endcap z
-	 const double yy   ( ry*fac ) ; 
-	 const double zz   ( rz*fac ) ; 
+	 const float dR2  ( dR*dR ) ;
+	 const float reta ( r.eta() ) ;
+	 const float rphi ( r.phi() ) ;
+	 const float rx   ( r.x() ) ;
+	 const float ry   ( r.y() ) ;
+	 const float rz   ( r.z() ) ;
+	 const float fac  ( std::abs( zeP/rz ) ) ;
+	 const float xx   ( rx*fac ) ; // xyz at endcap z
+	 const float yy   ( ry*fac ) ; 
+	 const float zz   ( rz*fac ) ; 
 
-	 const double xang  ( atan( xx/zz ) ) ;
-	 const double lowX  ( zz>0 ? zz*tan( xang - dR ) : zz*tan( xang + dR ) ) ;
-	 const double highX ( zz>0 ? zz*tan( xang + dR ) : zz*tan( xang - dR ) ) ;
-	 const double yang  ( atan( yy/zz ) ) ;
-	 const double lowY  ( zz>0 ? zz*tan( yang - dR ) : zz*tan( yang + dR ) ) ;
-	 const double highY ( zz>0 ? zz*tan( yang + dR ) : zz*tan( yang - dR ) ) ;
+	 const float xang  ( std::atan( xx/zz ) ) ;
+	 const float lowX  ( zz>0 ? zz*std::tan( xang - dR ) : zz*std::tan( xang + dR ) ) ;
+	 const float highX ( zz>0 ? zz*std::tan( xang + dR ) : zz*std::tan( xang - dR ) ) ;
+	 const float yang  ( std::atan( yy/zz ) ) ;
+	 const float lowY  ( zz>0 ? zz*std::tan( yang - dR ) : zz*std::tan( yang + dR ) ) ;
+	 const float highY ( zz>0 ? zz*std::tan( yang + dR ) : zz*std::tan( yang - dR ) ) ;
 
-	 const double refxlo ( 0 > rz ? m_xlo[0] : m_xlo[1] ) ;
-	 const double refxhi ( 0 > rz ? m_xhi[0] : m_xhi[1] ) ;
-	 const double refylo ( 0 > rz ? m_ylo[0] : m_ylo[1] ) ;
-	 const double refyhi ( 0 > rz ? m_yhi[0] : m_yhi[1] ) ;
+	 const float refxlo ( 0 > rz ? m_xlo[0] : m_xlo[1] ) ;
+	 const float refxhi ( 0 > rz ? m_xhi[0] : m_xhi[1] ) ;
+	 const float refylo ( 0 > rz ? m_ylo[0] : m_ylo[1] ) ;
+	 const float refyhi ( 0 > rz ? m_yhi[0] : m_yhi[1] ) ;
 
 	 if( lowX  <  refxhi &&   // proceed if any possible overlap with the endcap
 	     lowY  <  refyhi &&
@@ -408,9 +406,8 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
 			   const CaloCellGeometry* cell ( getGeometry( id ) );
 			   if( 0 != cell )
 			   {
-			      const GlobalPoint& p    ( cell->getPosition() ) ;
-			      const double       eta  ( p.eta() ) ;
-			      const double       phi  ( p.phi() ) ;
+			      const float       eta  (cell->etaPos() ) ;
+			      const float       phi  (cell->phiPos() ) ;
 			      if( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) dis.insert( id ) ;
 			   }
 			}

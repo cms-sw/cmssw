@@ -19,53 +19,24 @@ const float CaloCellGeometry::k_ScaleFromDDDtoGeant ( 0.1 ) ;
 CaloCellGeometry::CaloCellGeometry() :
    m_refPoint ( 0., 0., 0. ),
    m_corners  (  ) ,
-   m_parms    ( (CCGFloat*) 0 ) 
+   m_parms    ( (CCGFloat*) 0 ), m_eta(0), m_phi(0) 
 {}
 
-CaloCellGeometry::CaloCellGeometry( const CaloCellGeometry& cell )
-{
-  *this = cell ;
-}
-
-CaloCellGeometry&
-CaloCellGeometry::operator=( const CaloCellGeometry& cell )
-{
-   if( this != &cell )
-   {
-      m_refPoint = cell.m_refPoint ;
-      m_corners  = cell.m_corners  ;
-      m_parms    = cell.m_parms    ;
-   }
-   return *this ;
-}
 
 CaloCellGeometry::~CaloCellGeometry()
 {}
 
-const GlobalPoint& 
-CaloCellGeometry::getPosition() const 
-{
-   return m_refPoint ; 
-}
 
-bool 
-CaloCellGeometry::emptyCorners() const 
-{
-  return m_corners.empty() ;
-}
 
-const CCGFloat* 
-CaloCellGeometry::param() const 
-{
-   return m_parms ;
-}
+
 
 CaloCellGeometry::CaloCellGeometry( CornersVec::const_reference gp ,
 				    const CornersMgr*           mgr,
 				    const CCGFloat*             par ) :
    m_refPoint ( gp  ),
    m_corners  ( mgr ),
-   m_parms    ( par ) 
+   m_parms    ( par ),
+   m_eta(gp.eta()), m_phi(gp.phi())
 {}
 
 CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
@@ -74,7 +45,8 @@ CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
 		0.25*( cv[0].y() + cv[1].y() + cv[2].y() + cv[3].y() ),
 		0.25*( cv[0].z() + cv[1].z() + cv[2].z() + cv[3].z() )  ), 
    m_corners  ( cv ),
-   m_parms    ( par ) 
+   m_parms    ( par ),
+   m_eta( m_refPoint.eta()), m_phi(m_refPoint.phi())
 {}
 
 CaloCellGeometry::CornersVec& 

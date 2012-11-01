@@ -109,10 +109,10 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
     
 
   // Now the closest phi. always same number of phi bins(!?)
-  const CCGFloat twopi = M_PI+M_PI;
-
+  constexpr CCGFloat twopi = M_PI+M_PI;
   // 10 degree tilt
-  const CCGFloat tilt=twopi/36.;
+  constexpr CCGFloat tilt=twopi/36.;
+
   CCGFloat pointphi = r.phi()+tilt;
 
   // put phi in correct range (0->2pi)
@@ -146,8 +146,8 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 
       // Since the point can lie between crystals, it is necessary to keep track of the movements
       // to avoid infinite loops
-      std::vector<CCGFloat> history;
-      history.resize(4,0.);
+      CCGFloat history[4]{0.f};
+
       //
       // stop movement in eta direction when closest cell was found (point between crystals)
       int start = 1;
@@ -159,7 +159,7 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 	  levery = 0;
 	  const CaloCellGeometry::CornersVec& corners 
 	     ( getGeometry(myCell)->getCorners() ) ;
-	  std::vector<CCGFloat> SS;
+	  CCGFloat SS[4];
 
 	  // compute the distance of the point with respect of the 4 crystal lateral planes
 	  for (short i=0; i < 4 ; ++i)
@@ -172,7 +172,7 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 	      CCGFloat distance = plane.distance(point);
 	      if(plane.d()>0.) distance=-distance;
 	      if (corners[0].z()<0.) distance=-distance;
-	      SS.push_back(distance);
+	      SS[i] = distance;
 	    }
 
 	  // SS's - normals
@@ -270,7 +270,7 @@ EcalBarrelGeometry::getClosestCell(const GlobalPoint& r) const
 	  
 	  // Update the history. If the point lies between crystals, the closest one
 	  // is returned
-	  history =SS;
+	  std::copy(SS,SS+4,history);
 	  
 	  counter++;
 	  if (counter == 10)
@@ -305,24 +305,24 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
       }
       else
       {
-	 const double dR2     ( dR*dR ) ;
-	 const double reta    ( r.eta() ) ;
-	 const double rz      ( r.z()   ) ;
-	 const double rphi    ( r.phi() ) ;
-	 const double lowEta  ( reta - dR ) ;
-	 const double highEta ( reta + dR ) ;
+	 const float dR2     ( dR*dR ) ;
+	 const float reta    ( r.eta() ) ;
+	 const float rz      ( r.z()   ) ;
+	 const float rphi    ( r.phi() ) ;
+	 const float lowEta  ( reta - dR ) ;
+	 const float highEta ( reta + dR ) ;
 	 
 	 if( highEta > -1.5 &&
 	     lowEta  <  1.5    ) // in barrel
 	 {
-	    const double scale       ( maxphi/(2*M_PI) ) ; // angle to index
+	    const float scale       ( maxphi/float(2*M_PI) ) ; // angle to index
 	    const int    ieta_center ( int( reta*scale + ((rz<0)?(-1):(1))) ) ;
-	    const double phi         ( rphi<0 ? rphi + 2*M_PI : rphi ) ;
-	    const int    iphi_center ( int( phi*scale + 11. ) ) ; // phi=-9.4deg is iphi=1
+	    const float phi         ( rphi<0 ? rphi + float(2*M_PI) : rphi ) ;
+	    const int    iphi_center ( int( phi*scale + 11.f ) ) ; // phi=-9.4deg is iphi=1
 
-	    const double fr    ( dR*scale    ) ; // # crystal widths in dR
-	    const double frp   ( 1.08*fr + 1. ) ; // conservatively above fr 
-	    const double frm   ( 0.92*fr - 1. ) ; // conservatively below fr
+	    const float fr    ( dR*scale    ) ; // # crystal widths in dR
+	    const float frp   ( 1.08f*fr + 1.f ) ; // conservatively above fr 
+	    const float frm   ( 0.92f*fr - 1.f ) ; // conservatively below fr
 	    const int    idr   ( (int)frp        ) ; // integerize
 	    const int    idr2p ( (int)(frp*frp)     ) ;
 	    const int    idr2m ( frm > 0 ? int(frm*frm) : 0 ) ;
@@ -354,9 +354,8 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 			      const CaloCellGeometry* cell ( getGeometry( id ) );
 			      if( 0 != cell )
 			      {
-				 const GlobalPoint& p   ( cell->getPosition() ) ;
-				 const double       eta ( p.eta() ) ;
-				 const double       phi ( p.phi() ) ;
+				 const float       eta ( cell->etaPos() ) ;
+				 const float       phi ( cell->phiPos() ) ;
 				 ok = ( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) ;
 			      }
 			   }
