@@ -8,7 +8,7 @@
       <PARAM name="useSigma">0</PARAM>
       <PARAM name="useRange">1</PARAM>
       <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">0.5</PARAM>
+      <PARAM name="xmax">10.0</PARAM>
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:nBadChannelStatusBits">
       <TYPE>MeanWithinExpected</TYPE>
