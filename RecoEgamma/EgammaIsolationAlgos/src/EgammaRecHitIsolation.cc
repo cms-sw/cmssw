@@ -72,13 +72,13 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
   if (caloHits_){
     //Take the SC position
     reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
-    math::XYZPoint theCaloPosition = sc.get()->position();
+    math::XYZPoint const & theCaloPosition = sc.get()->position();
     GlobalPoint pclu (theCaloPosition.x () ,
 		      theCaloPosition.y () ,
 		      theCaloPosition.z () );
-    double etaclus = pclu.eta();
-    double phiclus = pclu.phi();
-    double r2 = intRadius_*intRadius_;
+    float etaclus = pclu.eta();
+    float phiclus = pclu.phi();
+    float r2 = intRadius_*intRadius_;
     
     std::vector< std::pair<DetId, float> >::const_iterator rhIt;
     
@@ -88,12 +88,12 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i != chosen.end (); ++i){ //loop selected cells
 	j = caloHits_->find(*i); // find selected cell among rechits
 	if(j != caloHits_->end()) { // add rechit only if available 
-	  const  GlobalPoint & position = theCaloGeom_.product()->getPosition(*i);
-	  double eta = position.eta();
-	  double phi = position.phi();
-	  double etaDiff = eta - etaclus;
-	  double phiDiff= reco::deltaPhi(phi,phiclus);
-	  double energy = j->energy();
+	  auto const cell  = theCaloGeom_.product()->getGeometry(*i);
+	  float eta = cell->etaPos();
+	  float phi = cell->phiPos();
+	  float etaDiff = eta - etaclus;
+	  float phiDiff= reco::deltaPhi(phi,phiclus);
+	  float energy = j->energy();
 
 	  if(useNumCrystals_) {
 	    if(fabs(etaclus) < 1.479) {  // Barrel num crystals, crystal width = 0.0174
@@ -160,7 +160,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  
 	  
 	  
-	  double et = energy*position.perp()/position.mag();
+	  float et = energy*std::sqrt(cell->getPosition().perp2()/cell->getPosition().mag2());
 	  if ( et > etLow_ && energy > eLow_) { //Changed energy --> fabs(energy) - now changed back to energy
 	    if(returnEt) 
 	      energySum += et;
