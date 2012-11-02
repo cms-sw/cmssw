@@ -60,6 +60,10 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     edm::ESHandle<HcalTopology> hcalTopology;
     iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
 
+    std::cout << "dvec.size() " << dvec.size() << ", hcalTopology->getNumberOfShapes() " << hcalTopology->getNumberOfShapes()
+	      << ", HcalGeometry::k_NumberOfParametersPerShape " << HcalGeometry::k_NumberOfParametersPerShape
+	      << " == " << hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape << std::endl;
+    
     assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
     HcalGeometry* hcg=new HcalGeometry( *hcalTopology );
     PtrType ptr ( hcg );
@@ -80,7 +84,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 	dims.reserve( nPerShape ) ;
 
 	const unsigned int indx ( ivec.size()==1 ? 0 : i ) ;
-
+	
 	DimVec::const_iterator dsrc ( dvec.begin() + ivec[indx]*nPerShape ) ;
 
 	for( unsigned int j ( 0 ) ; j != nPerShape ; ++j )
@@ -115,8 +119,8 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 
 	assert( 0 == at || ( HcalGeometry::alignmentTransformIndexLocal( DetId( at->rawId() ) ) == iLoc ) ) ;
 
-	const CaloGenericDetId gId ( id ) ;
-
+	std::cout << i << ": " << HcalDetId(id) << std::endl;
+	    
 	Pt3D  lRef ;
 	Pt3DVec lc ( 8, Pt3D(0,0,0) ) ;
 	hcg->localCorners( lc, &dims.front(), i, lRef ) ;
@@ -155,7 +159,8 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 
 	ptr->newCell(  fCtr, fBck, fCor, myParm, id ) ;
     }
-
+    std::cout << "About to initialize " << std::endl;
+    
     ptr->initializeParms() ; // initializations; must happen after cells filled
 
     return ptr ; 
