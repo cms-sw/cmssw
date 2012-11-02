@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2012/11/02 00:02:35 $
- *  $Revision: 1.18 $
+ *  $Date: 2012/11/02 05:02:00 $
+ *  $Revision: 1.19 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -247,13 +247,13 @@ bool TauValidation::isLastTauinChain(const HepMC::GenParticle* tau){
 }
 
 
-void TauValidation::findFirstinChain(const HepMC::GenParticle* tau){
+void TauValidation::findTauList(const HepMC::GenParticle* tau,std::vector<const HepMC::GenParticle*> &TauList){
+  TauList.insert(TauList.begin(),tau);
   if ( tau->production_vertex() ) {
     HepMC::GenVertex::particle_iterator mother;
     for (mother = tau->production_vertex()->particles_begin(HepMC::parents); mother!= tau->production_vertex()->particles_end(HepMC::parents);mother++) {
       if((*mother)->pdg_id() == tau->pdg_id()){
-	tau=*mother;
-	findFirstinChain(tau);
+	findTauList(*mother,TauList);
       }
     }
   }
@@ -270,8 +270,8 @@ void TauValidation::findISRandFSR(const HepMC::GenParticle* p, bool doFSR, std::
   if ( p->end_vertex() ) {
     HepMC::GenVertex::particle_iterator dau;
     for (dau = p->end_vertex()->particles_begin(HepMC::children); dau!= p->end_vertex()->particles_end(HepMC::children); dau++ ) {
-      //if(doFSR)std::cout << "true " << (*dau)->pdg_id() << std::endl;
-      //else std::cout << "false " << (*dau)->pdg_id() << std::endl;
+      //if(doFSR) std::cout << "true " << (*dau)->pdg_id() << " "  << std::endl;
+      //else std::cout << "false " << (*dau)->pdg_id() << " " << std::endl;
       if(abs((*dau)->pdg_id()) == abs(photo_ID) && !doFSR){ListofISR.push_back(*dau);}
       if(abs((*dau)->pdg_id()) == abs(photo_ID) && doFSR){ListofFSR.push_back(*dau);}
       if((*dau)->end_vertex() && (*dau)->end_vertex()->particles_out_size()>0 && abs((*dau)->pdg_id()) != 111 /* remove pi0 decays*/){
@@ -519,35 +519,38 @@ double TauValidation::visibleTauEnergy(const HepMC::GenParticle* tau){
 
 void TauValidation::photons(const HepMC::GenParticle* tau, double weight){
   // Find First tau in chain
-  findFirstinChain(tau);
+  std::vector<const HepMC::GenParticle*> TauList;
+  findTauList(tau,TauList);
 
   // Get List of ISR and FSR
   bool passedW=false;
   std::vector<const HepMC::GenParticle*> ListofISR; ListofISR.clear();
   std::vector<const HepMC::GenParticle*> ListofFSR; ListofFSR.clear(); 
-  TauValidation::findISRandFSR(tau,passedW,ListofISR,ListofFSR);
-  
-  TauISRPhotonsN->Fill(ListofISR.size(),weight);
-  TauFSRPhotonsN->Fill(ListofFSR.size(),weight);
-  
-  double photonPtSum=0;
-  for(unsigned int i=0;i<ListofISR.size();i++){
-    photonPtSum+=ListofISR.at(i)->momentum().perp();
-  }
-  if(photonPtSum>0){
-    TauISRPhotonsPtRatio->Fill(photonPtSum/tau->momentum().perp(),weight);
-  }
-  else{photonPtSum=tau->momentum().perp();}
-  TauISRPhotonsPt->Fill(ListofISR.size(),photonPtSum);
+  if(TauList.size()>0){
+    TauValidation::findISRandFSR(TauList.at(0),passedW,ListofISR,ListofFSR);
 
-  photonPtSum=0;
-  for(unsigned int i=0;i<ListofFSR.size();i++){
-    photonPtSum+=ListofFSR.at(i)->momentum().perp();
+    TauISRPhotonsN->Fill(ListofISR.size(),weight);
+    TauFSRPhotonsN->Fill(ListofFSR.size(),weight);
+    
+    double photonPtSum=0;
+    for(unsigned int i=0;i<ListofISR.size();i++){
+      photonPtSum+=ListofISR.at(i)->momentum().perp();
+    }
+    if(photonPtSum>0){
+      TauISRPhotonsPtRatio->Fill(photonPtSum/TauList.at(0)->momentum().perp(),weight);
+    }
+    else{photonPtSum=TauList.at(0)->momentum().perp();}
+    TauISRPhotonsPt->Fill(ListofISR.size(),photonPtSum);
+    
+    photonPtSum=0;
+    for(unsigned int i=0;i<ListofFSR.size();i++){
+      photonPtSum+=ListofFSR.at(i)->momentum().perp();
+    }
+    if(photonPtSum>0){
+      TauFSRPhotonsPtRatio->Fill(photonPtSum/TauList.at(0)->momentum().perp(),weight);
+    }
+    else{photonPtSum=TauList.at(0)->momentum().perp();}
+    TauFSRPhotonsPt->Fill(ListofFSR.size(),photonPtSum);
   }
-  if(photonPtSum>0){
-    TauFSRPhotonsPtRatio->Fill(photonPtSum/tau->momentum().perp(),weight);
-  }
-  else{photonPtSum=tau->momentum().perp();}
-  TauFSRPhotonsPt->Fill(ListofFSR.size(),photonPtSum);
 }
 
