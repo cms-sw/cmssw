@@ -38,6 +38,7 @@ DC = parseCard(file, options)
 if not DC.hasShapes: DC.hasShapes = True
 MB = ShapeBuilder(DC, options)
 for b in DC.bins:
+    print " ============= ", b , "===================="
     if options.channel != None and (options.channel != b): continue
     exps = {}
     for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
