@@ -95,7 +95,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
     std::map<int,double>                obsValues;
     for (size_t i = 0, n = t->GetEntries(); i < n; ++i) {
         t->GetEntry(i);
-        iMass = int(mass*10);
+        iMass = int(mass*100);
         //printf("%6d mh=%.1f  limit=%8.3f +/- %8.3f toy=%5d quant=% .3f\n", i, mass, limit, limitErr, iToy, quant);
         if (syst != doSyst)           continue;
         if (iChannel != whichChannel) continue;
@@ -220,7 +220,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
                 }
         } // end switch
         tge->Set(ip+1);
-        tge->SetPoint(ip, it->first*0.1, x);
+        tge->SetPoint(ip, it->first*0.01, x);
         tge->SetPointError(ip, 0, 0, x-summer68, winter68-x);
         ip++;
     }
