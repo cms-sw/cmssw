@@ -78,7 +78,6 @@ namespace edm
     edm::ESHandle<HcalDbService> conditions;                                                
     ES.get<HcalDbRecord>().get(conditions);                                         
 
-    const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic         
 
 
     // fill in maps of hits
@@ -109,6 +108,7 @@ namespace edm
          HcalDetId cell = it->id();                                                         
 	 //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);        
          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);                
+	 const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
          HcalCoderDb coder (*channelCoder, *shape);                                         
 
 	 CaloSamples tool;
@@ -156,6 +156,7 @@ namespace edm
          HcalDetId cell = it->id();
          //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	 const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
          HcalCoderDb coder (*channelCoder, *shape);
 
          CaloSamples tool;
@@ -196,6 +197,7 @@ namespace edm
          HcalDetId cell = it->id();
          //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	 const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
          HcalCoderDb coder (*channelCoder, *shape);
 
          CaloSamples tool;
@@ -236,6 +238,7 @@ namespace edm
          HcalDetId cell = it->id();
          //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	 const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
          HcalCoderDb coder (*channelCoder, *shape);
 
          CaloSamples tool;
@@ -262,8 +265,6 @@ namespace edm
     edm::ESHandle<HcalDbService> conditions;
     ES.get<HcalDbRecord>().get(conditions);
 
-    const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic         
-
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // HBHE first
@@ -285,6 +286,7 @@ namespace edm
          HcalDetId cell = it->id();
          //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	 const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
          HcalCoderDb coder (*channelCoder, *shape);
 
          CaloSamples tool;
@@ -318,6 +320,7 @@ namespace edm
          HcalDetId cell = it->id();
          //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	 const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
          HcalCoderDb coder (*channelCoder, *shape);
 
          CaloSamples tool;
@@ -353,6 +356,7 @@ namespace edm
          HcalDetId cell = it->id();
          //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
          const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	 const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
          HcalCoderDb coder (*channelCoder, *shape);
 
          CaloSamples tool;
@@ -391,6 +395,7 @@ namespace edm
 	  HcalDetId cell = it->id();
 	  //         const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);                
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
 	  HcalCoderDb coder (*channelCoder, *shape);
 
 	  CaloSamples tool;
@@ -421,9 +426,6 @@ namespace edm
     // get conditions                                                                                                             
     edm::ESHandle<HcalDbService> conditions;
     ES.get<HcalDbRecord>().get(conditions);
-
-    // un-calibrate
-    const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic                            
 
     // loop over the maps we have, re-making individual hits or digis if necessary.
     DetId formerID = 0;
@@ -498,6 +500,7 @@ namespace edm
 
 	  HcalDetId cell = HB_old.id();
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
 	  HcalCoderDb coder (*channelCoder, *shape);
 
 	  unsigned int sizeold = HB_old.size();
@@ -521,6 +524,7 @@ namespace edm
 
 	HcalDetId cell = (iHB->second).id();
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
 	HcalCoderDb coder (*channelCoder, *shape);
 
         unsigned int sizenew = (iHB->second).size();
@@ -591,6 +595,7 @@ namespace edm
 
 	  HcalDetId cell = HO_old.id();
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
 	  HcalCoderDb coder (*channelCoder, *shape);
 
 	  unsigned int sizeold = HO_old.size();
@@ -612,6 +617,7 @@ namespace edm
 
 	  HcalDetId cell = (iHO->second).id();
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
 	  HcalCoderDb coder (*channelCoder, *shape);
 
 	  unsigned int sizeold = (iHO->second).size();
@@ -682,6 +688,7 @@ namespace edm
 
 	  HcalDetId cell = HF_old.id();
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
 	  HcalCoderDb coder (*channelCoder, *shape);
 
 	  unsigned int sizeold = HF_old.size();
@@ -703,6 +710,7 @@ namespace edm
 
 	  HcalDetId cell = (iHF->second).id();
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
 	  HcalCoderDb coder (*channelCoder, *shape);
 
 	  unsigned int sizeold = (iHF->second).size();
@@ -774,6 +782,7 @@ namespace edm
 
 	  HcalDetId cell = ZDC_old.id();
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
 	  HcalCoderDb coder (*channelCoder, *shape);
 
 	  unsigned int sizeold = ZDC_old.size();
@@ -795,6 +804,7 @@ namespace edm
 
 	  HcalDetId cell = (iZDC->second).id();
 	  const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	  const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); // this one is generic         
 	  HcalCoderDb coder (*channelCoder, *shape);
 
 	  unsigned int sizeold = (iZDC->second).size();
