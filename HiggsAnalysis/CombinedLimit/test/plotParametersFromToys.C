@@ -117,10 +117,13 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 	TObjArray *l_branches = tree_->GetListOfBranches();
 	int nBranches = l_branches->GetEntries();
 
+
 	TCanvas *c = new TCanvas("c","",960,800);
 
 	std::string treename = tree_->GetName();
 	c->SaveAs(Form("%s.pdf[",treename.c_str()));
+	// File to store plots in 
+	TFile *fOut = new TFile(Form("%s.root",treename.c_str()),"RECREATE");
 
 	for (int iobj=0;iobj<nBranches;iobj++){
 
@@ -216,7 +219,6 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 
 
 		TLatex *titletext = new TLatex();titletext->SetNDC();
-		titletext->SetTextSize(0.03);titletext->SetTextAlign(21); titletext->DrawLatex(0.49,0.95,name);
 
 		if ( isFitted ){
 			c->cd(4); 
@@ -275,7 +277,10 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 
 		}
 
+		double titleSize = isFitted ? 0.1 : 0.03;
+		titletext->SetTextSize(titleSize);titletext->SetTextAlign(21); titletext->DrawLatex(0.49,0.92,name);
 		c->SaveAs(Form("%s.pdf",treename.c_str()));
+		fOut->WriteObject(c,Form("%s_%s.pdf",treename.c_str(),name));
 		//c->SaveAs(Form("%s_%s.pdf",treename.c_str(),name));
 	}
 	
@@ -303,6 +308,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		pullSummaryHist.SetMarkerStyle(21);pullSummaryHist.SetMarkerSize(1.5);pullSummaryHist.SetMarkerColor(2);pullSummaryHist.SetLabelSize(pullLabelSize);
 		pullSummaryHist.GetYaxis()->SetRangeUser(-3,3);pullSummaryHist.GetYaxis()->SetTitle("pull summary (n#sigma)");pullSummaryHist.Draw("E1");
 		hc->SaveAs(Form("%s.pdf",treename.c_str()));
+		fOut->WriteObject(hc,Form("comb_pulls_%s_%d.pdf",treename.c_str(),pullPlots));
 	//	hc->SaveAs(Form("comb_pulls_%s_%d.pdf",treename.c_str(),pullPlots));
 		pullPlots++;
 	   }
@@ -311,7 +317,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 	}
 
 	c->SaveAs(Form("%s.pdf]",treename.c_str()));
-
+	fOut->Close();
 	delete c;
 	return;
 
