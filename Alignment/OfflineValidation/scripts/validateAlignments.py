@@ -368,7 +368,7 @@ copyImages indicates wether plot*.eps files should be copied back from the farm
             self.randomWorkdirPart = randomWorkdirPart
         self.referenceAlignment = referenceAlignment
         try:
-            self.jobmode = config.get( "offline:"+self.name, "jobmode" )
+            self.jobmode = config.get( "compare:"+self.name, "jobmode" )
         except ConfigParser.NoOptionError:
             pass
         referenceName = "IDEAL"
