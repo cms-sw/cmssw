@@ -316,7 +316,6 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   // get the conditions and channel quality
   edm::ESHandle<HcalDbService> conditions;
   iSetup.get<HcalDbRecord>().get(conditions);
-  const HcalQIEShape* shape = conditions->getHcalShape();
   edm::ESHandle<HcalChannelQuality> qualhandle;
   iSetup.get<HcalChannelQualityRcd>().get(qualhandle);
   const HcalChannelQuality* myqual = qualhandle.product();
@@ -348,6 +347,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
     // get the calibrations and coder
     const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
     const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+    const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
     HcalCoderDb coder (*channelCoder, *shape);
 
     // match the digi to an rbx and hpd
@@ -418,6 +418,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
            continue;
 
         const HcalQIECoder *channelCoder = conditions->getHcalCoder(cell);
+	const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
         HcalCoderDb coder(*channelCoder, *shape);
 
         CaloSamples tool;
