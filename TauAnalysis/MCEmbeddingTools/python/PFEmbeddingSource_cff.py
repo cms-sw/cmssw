@@ -26,8 +26,8 @@ filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
 # Removes input muons from tracks and PF candidate collections
 removedInputMuons = cms.EDProducer('ZmumuPFEmbedder',
   tracks = cms.InputTag("generalTracks"),
-  trajectories = cms.InputTag("generalTracks"),                                 
-  pfCands = cms.InputTag("particleFlow"),				   
+  trajectories = cms.InputTag("generalTracks"),
+  pfCands = cms.InputTag("particleFlow"),
   selectedMuons = cms.InputTag("") # CV: replaced in embeddingCustomizeAll.py
 )
  
