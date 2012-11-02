@@ -28,7 +28,7 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *qcdPhotonsDQM
                            *topDiLeptonOfflineDQM
                            *topSingleLeptonDQM
-                           *SingleTopTChannelLeptonDQM
+                           *singleTopDQM
                            *susyDQM
                            *HiggsDQM
 #                           *ewkDQM
