@@ -36,6 +36,7 @@ bool TauDecay_CMSSW::AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &JAK_ID,uns
   
 void TauDecay_CMSSW::Analyze(HepMC::GenParticle *Particle,unsigned int midx, bool dores, bool dopi0){
   unsigned int pdgid=abs(Particle->pdg_id());
+  isTauResonanceCounter(pdgid);
   if(isTauFinalStateParticle(pdgid)){
     if(!isTauParticleCounter(pdgid)) std::cout << "TauDecay_CMSSW::Analyze WARNING: Unknow Final State Particle in Tau Decay... " << pdgid << std::endl;
     TauDecayProducts.push_back(Particle);
