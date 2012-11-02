@@ -196,10 +196,10 @@ class Alignment:
                                           "required!"%option)
                 if len( condParameters ) < 3:
                     condParameters.append( "" )
-                    conditions.append({"rcdName": rcdName.strip(),
-                                       "connectString": condParameters[0].strip(),
-                                       "tagName": condParameters[1].strip(),
-                                       "labelName": condParameters[2].strip()})
+                conditions.append({"rcdName": rcdName.strip(),
+                                   "connectString": condParameters[0].strip(),
+                                   "tagName": condParameters[1].strip(),
+                                   "labelName": condParameters[2].strip()})
         return conditions
 
     def __testDbExist(self, dbpath):
