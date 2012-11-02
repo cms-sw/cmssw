@@ -23,6 +23,7 @@
 using namespace RooStats;
 
 MultiDimFit::Algo MultiDimFit::algo_ = None;
+MultiDimFit::GridType MultiDimFit::gridType_ = G1x1;
 std::vector<std::string>  MultiDimFit::poi_;
 std::vector<RooRealVar *> MultiDimFit::poiVars_;
 std::vector<float>        MultiDimFit::poiVals_;
@@ -63,8 +64,9 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         algo_ = Singles;
     } else if (algo == "cross") {
         algo_ = Cross;
-    } else if (algo == "grid") {
-        algo_ = Grid;
+    } else if (algo == "grid" || algo == "grid3x3" ) {
+        algo_ = Grid; gridType_ = G1x1;
+        if (algo == "grid3x3") gridType_ = G3x3;
     } else if (algo == "random") {
         algo_ = RandomPoints;
     } else if (algo == "contour2d") {
@@ -221,31 +223,29 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
             poiVals_[0] = x;
             poiVars_[0]->setVal(x);
             // now we minimize
-            {   
-                //CloseCoutSentry sentry(verbose < 3);    
-                bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
-                            true : 
-                            minim.minimize(verbose-1);
-                if (ok) {
-                    deltaNLL_ = nll.getVal() - nll0;
-                    double qN = 2*(deltaNLL_);
-                    double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-                    Combine::commitPoint(true, /*quantile=*/prob);
-                }
-            } 
+            bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
+                        true : 
+                        minim.minimize(verbose-1);
+            if (ok) {
+                deltaNLL_ = nll.getVal() - nll0;
+                double qN = 2*(deltaNLL_);
+                double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                Combine::commitPoint(true, /*quantile=*/prob);
+            }
         }
     } else if (n == 2) {
         unsigned int sqrn = ceil(sqrt(double(points_)));
         unsigned int ipoint = 0, nprint = ceil(0.005*sqrn*sqrn);
         RooAbsReal::setEvalErrorLoggingMode(RooAbsReal::CountErrors);
-        CloseCoutSentry sentry(verbose < 2);    
+        CloseCoutSentry sentry(verbose < 2);
+        double deltaX =  (pmax[0]-pmin[0])/sqrn, deltaY = (pmax[1]-pmin[1])/sqrn;
         for (unsigned int i = 0; i < sqrn; ++i) {
             for (unsigned int j = 0; j < sqrn; ++j, ++ipoint) {
                 if (ipoint < firstPoint_) continue;
                 if (ipoint > lastPoint_)  break;
                 *params = snap; 
-                double x =  pmin[0] + (i+0.5)*(pmax[0]-pmin[0])/sqrn; 
-                double y =  pmin[1] + (j+0.5)*(pmax[1]-pmin[1])/sqrn; 
+                double x =  pmin[0] + (i+0.5)*deltaX; 
+                double y =  pmin[1] + (j+0.5)*deltaY; 
                 if (verbose && (ipoint % nprint == 0)) {
                          fprintf(sentry.trueStdOut(), "Point %d/%d, (i,j) = (%d,%d), %s = %f, %s = %f\n",
                                         ipoint,sqrn*sqrn, i,j, poiVars_[0]->GetName(), x, poiVars_[1]->GetName(), y);
@@ -260,15 +260,39 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                     continue;
                 }
                 // now we minimize
-                {   
-                    bool ok = fastScan_ ? true : minim.minimize(verbose-1);
-                    if (ok) {
-                        deltaNLL_ = nll.getVal() - nll0;
-                        double qN = 2*(deltaNLL_);
-                        double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
-                        Combine::commitPoint(true, /*quantile=*/prob);
+                bool skipme = hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_;
+                bool ok = fastScan_ || skipme ? true :  minim.minimize(verbose-1);
+                if (ok) {
+                    deltaNLL_ = nll.getVal() - nll0;
+                    double qN = 2*(deltaNLL_);
+                    double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                    Combine::commitPoint(true, /*quantile=*/prob);
+                }
+                if (gridType_ == G3x3 && !skipme) {
+                    double x0 = x, y0 = y;
+                    for (int i2 = -1; i2 <= +1; ++i2) {
+                        for (int j2 = -1; j2 <= +1; ++j2) {
+                            if (i2 == 0 && j2 == 0) continue;
+                            x = x0 + 0.33333333*i2*deltaX;
+                            y = y0 + 0.33333333*j2*deltaY;
+                            poiVals_[0] = x; poiVars_[0]->setVal(x);
+                            poiVals_[1] = y; poiVars_[1]->setVal(y);
+                            nll.clearEvalErrorLog(); nll.getVal();
+                            if (nll.numEvalErrors() > 0) { 
+                                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
+                                continue;
+                            }
+                            deltaNLL_ = nll.getVal() - nll0;
+                            if (!fastScan_ && std::min(fabs(deltaNLL_ - 1.15), fabs(deltaNLL_ - 2.995)) < 0.3) {
+                                minim.minimize(verbose-1);
+                                deltaNLL_ = nll.getVal() - nll0;
+                            }
+                            double qN = 2*(deltaNLL_);
+                            double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
+                            Combine::commitPoint(true, /*quantile=*/prob);
+                        }
                     }
-                } 
+                }
             }
         }
     }

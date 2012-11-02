@@ -27,6 +27,9 @@ protected:
   enum Algo { None, Singles, Cross, Grid, RandomPoints, Contour2D };
   static Algo algo_;
 
+  enum GridType { G1x1, G3x3 };
+  static GridType gridType_;
+
   static std::vector<std::string>  poi_;
   static std::vector<RooRealVar*>  poiVars_;
   static std::vector<float>        poiVals_;
