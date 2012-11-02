@@ -402,14 +402,11 @@ EcalEndcapGeometry::getCells( const GlobalPoint& r,
 		     {
 			if( EEDetId::validDetId( kx, ky, iz ) ) // reject invalid ids
 			{
-			   const EEDetId id ( kx, ky, iz ) ;
-			   const CaloCellGeometry* cell ( getGeometry( id ) );
-			   if( 0 != cell )
-			   {
-			      const float       eta  (cell->etaPos() ) ;
-			      const float       phi  (cell->phiPos() ) ;
-			      if( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) dis.insert( id ) ;
-			   }
+			  const EEDetId id ( kx, ky, iz ) ;
+			  const CaloCellGeometry* cell  = &m_cellVec[ id.denseIndex()];
+			  const float       eta  (cell->etaPos() ) ;
+			  const float       phi  (cell->phiPos() ) ;
+			  if( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) dis.insert( id ) ;
 			}
 		     }
 		  }

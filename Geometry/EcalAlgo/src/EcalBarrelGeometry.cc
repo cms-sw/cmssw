@@ -351,13 +351,10 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 			   
 			   if( !ok ) // if not ok, then we have to test this cell for being inside cone
 			   {
-			      const CaloCellGeometry* cell ( getGeometry( id ) );
-			      if( 0 != cell )
-			      {
-				 const float       eta ( cell->etaPos() ) ;
-				 const float       phi ( cell->phiPos() ) ;
-				 ok = ( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) ;
-			      }
+			     const CaloCellGeometry* cell  = &m_cellVec[ id.denseIndex()];
+			     const float       eta ( cell->etaPos() ) ;
+			     const float       phi ( cell->phiPos() ) ;
+			     ok = ( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) ;
 			   }
 			   if( ok ) dis.insert( id ) ;
 			}

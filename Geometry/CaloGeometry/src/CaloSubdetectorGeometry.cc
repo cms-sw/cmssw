@@ -116,6 +116,15 @@ CaloSubdetectorGeometry::getCells( const GlobalPoint& r,
    return dss;
 }
 
+CaloSubdetectorGeometry::CellSet 
+CaloSubdetectorGeometry::getCellSet( const GlobalPoint& r, double dR ) const {
+  // stupid implementation not to be really used...
+  DetIdSet ids = getCells(r, dR);
+  CellSet cells; cells.reserve(ids.size());
+  for ( auto id : ids) cells.push_back(getGeometry(id));
+  return cells;
+}
+
 void 
 CaloSubdetectorGeometry::allocateCorners( CaloCellGeometry::CornersVec::size_type n )
 {
