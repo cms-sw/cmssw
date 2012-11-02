@@ -35,7 +35,8 @@ class CvCfHiggs(SMLikeHiggsModel):
         """Create POI out of signal strength and MH"""
         # --- Signal Strength as only POI --- 
         self.modelBuilder.doVar("CV[1,%s,%s]" % (self.cVRange[0], self.cVRange[1]))
-        self.modelBuilder.doVar("CF[1,%s,%s]" % (self.cVRange[0], self.cVRange[1]))
+        self.modelBuilder.doVar("CF[1,%s,%s]" % (self.cFRange[0], self.cFRange[1]))
+
         if self.floatMass:
             if self.modelBuilder.out.var("MH"):
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
