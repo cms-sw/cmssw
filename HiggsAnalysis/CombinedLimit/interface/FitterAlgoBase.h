@@ -50,6 +50,7 @@ protected:
   RooFitResult *doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r,  const RooCmdArg &constrain, bool doHesse=true, int ndim=1,bool reuseNLL=false) ;
   RooFitResult *doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse=true, int ndim=1,bool reuseNLL=false) ;
   double findCrossing(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) ;
+  double findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll, RooRealVar &r, double level, double rStart, double rBound) ;
 };
 
 
