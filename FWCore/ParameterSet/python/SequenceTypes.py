@@ -31,6 +31,8 @@ class _Sequenceable(object):
     def isOperation(self):
         """Returns True if the object is an operator (e.g. *,+ or !) type"""
         return False
+    def isLeaf(self):
+        return False
     def _visitSubNodes(self,visitor):
         pass
     def visitNode(self,visitor):
@@ -49,9 +51,81 @@ def _checkIfSequenceable(caller, v):
         msg +="\nPlease remove the problematic object from the argument list"
         raise TypeError(msg)
 
+def _checkIfBooleanLogicSequenceable(caller, v):
+    if not isinstance(v,_BooleanLogicSequenceable):
+        typename = format_typename(caller)
+        msg = format_outerframe(2)
+        msg += "%s only takes arguments of types which are allowed in a boolean logic sequence, but was given:\n" %typename
+        msg +=format_typename(v)
+        msg +="\nPlease remove the problematic object from the argument list"
+        raise TypeError(msg)
+
+class _BooleanLogicSequenceable(_Sequenceable):
+    """Denotes an object which can be used in a boolean logic sequence"""
+    def __init__(self):
+        super(_BooleanLogicSequenceable,self).__init__()
+    def __or__(self,other):
+        return _BooleanLogicExpression(_BooleanLogicExpression.OR,self,other)
+    def __and__(self,other):
+        return _BooleanLogicExpression(_BooleanLogicExpression.AND,self,other)
+
+
+class _BooleanLogicExpression(_BooleanLogicSequenceable):
+    """Contains the operation of a boolean logic expression"""
+    OR = 0
+    AND = 1
+    def __init__(self,op,left,right):
+        _checkIfBooleanLogicSequenceable(self,left)
+        _checkIfBooleanLogicSequenceable(self,right)
+        self._op = op
+        self._items = list()
+        #if either the left or right side are the same kind of boolean expression
+        # then we can just add their items to our own. This keeps the expression
+        # tree more compact
+        if isinstance(left,_BooleanLogicExpression) and left._op == self._op:
+            self._items.extend(left._items)
+        else:
+            self._items.append(left)
+        if isinstance(right,_BooleanLogicExpression) and right._op == self._op:
+            self._items.extend(right._items)
+        else:
+            self._items.append(right)
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        for i in self._items:
+            i.visitNode(visitor)
+    def dumpSequencePython(self):
+        returnValue = ''
+        join = ''
+        operatorJoin =self.operatorString()
+        for m in self._items:
+            returnValue +=join
+            join = operatorJoin
+            if not isinstance(m,_BooleanLogicSequenceLeaf):
+                returnValue += '('+m.dumpSequencePython()+')'
+            else:
+                returnValue += m.dumpSequencePython()
+        return returnValue
+    def operatorString(self):
+        returnValue ='|'
+        if self._op == self.AND:
+            returnValue = '&'
+        return returnValue
+
+
 class _SequenceLeaf(_Sequenceable):
     def __init__(self):
         pass
+    def isLeaf(self):
+        return True
+
+
+class _BooleanLogicSequenceLeaf(_BooleanLogicSequenceable):
+    def __init__(self):
+        pass
+    def isLeaf(self):
+        return True
 
 class _SequenceCollection(_Sequenceable):
     """Holds representation of the operations without having to use recursion.
@@ -272,7 +346,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if self._seq is not None:
             self._seq.visitNode(visitor)
 
-class _UnarySequenceOperator(_Sequenceable):
+class _UnarySequenceOperator(_BooleanLogicSequenceable):
     """For ~ and - operators"""
     def __init__(self, operand):
        self._operand = operand
@@ -304,6 +378,8 @@ class _UnarySequenceOperator(_Sequenceable):
         return True
     def _visitSubNodes(self,visitor):
         self._operand.visitNode(visitor)
+    def decoration(self):
+        self._operand.decoration()
 
 
 class _SequenceNegation(_UnarySequenceOperator):
@@ -315,7 +391,11 @@ class _SequenceNegation(_UnarySequenceOperator):
     def dumpSequenceConfig(self):
         return '!%s' %self._operand.dumpSequenceConfig()
     def dumpSequencePython(self):
+        if self._operand.isOperation():
+            return '~(%s)' %self._operand.dumpSequencePython()
         return '~%s' %self._operand.dumpSequencePython()
+    def decoration(self):
+        return '!'
 
 class _SequenceIgnore(_UnarySequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '-' operator"""
@@ -327,6 +407,8 @@ class _SequenceIgnore(_UnarySequenceOperator):
         return '-%s' %self._operand.dumpSequenceConfig()
     def dumpSequencePython(self):
         return 'cms.ignore(%s)' %self._operand.dumpSequencePython()
+    def decoration(self):
+        return '-'
 
 def ignore(seq):
     """The EDFilter passed as an argument will be run but its filter value will be ignored
@@ -436,7 +518,7 @@ class ModuleNodeVisitor(object):
     def __init__(self,l):
         self.l = l
     def enter(self,visitee):
-        if isinstance(visitee,_SequenceLeaf):
+        if visitee.isLeaf():
             self.l.append(visitee)
         pass
     def leave(self,visitee):
@@ -448,7 +530,7 @@ class NodeNameVisitor(object):
     def __init__(self,l):
         self.l = l
     def enter(self,visitee):
-        if isinstance(visitee,_SequenceLeaf):
+        if visitee.isLeaf():
             self.l.add(visitee.label_())
         pass
     def leave(self,visitee):
@@ -461,7 +543,7 @@ class ExpandVisitor(object):
         self._type = type
         self.l = []
     def enter(self,visitee):
-        if isinstance(visitee,_SequenceLeaf):
+        if visitee.isLeaf():
             self.l.append(visitee)
     def leave(self, visitee):
         if isinstance(visitee,_UnarySequenceOperator):
@@ -480,10 +562,11 @@ class DecoratedNodeNameVisitor(object):
     """ Adds any '!' or '-' needed.  Takes a list """
     def __init__(self,l):
         self.l = l
+        self._decoration =''
     def enter(self,visitee):
-        if isinstance(visitee,_SequenceLeaf):
+        if visitee.isLeaf():
             if hasattr(visitee, "_Labelable__label"):
-                self.l.append(visitee.label_())
+                self.l.append(self._decoration+visitee.label_())
             else:
                 error = "An object in a sequence was not found in the process\n"
                 if hasattr(visitee, "_filename"):
@@ -491,9 +574,17 @@ class DecoratedNodeNameVisitor(object):
                 else:
                     error += "Dump follows\n" + repr(visitee)
                 raise RuntimeError(error)
-    def leave(self,visitee):
+        if isinstance(visitee,_BooleanLogicExpression):
+            self.l.append(self._decoration+visitee.operatorString())
         if isinstance(visitee,_UnarySequenceOperator):
-           self.l[-1] = visitee.dumpSequenceConfig()
+            self._decoration=visitee.decoration()
+        else:
+            self._decoration=''
+
+    def leave(self,visitee):
+        if isinstance(visitee,_BooleanLogicExpression):
+            #need to add the 'go back' command to keep track of where we are in the tree
+            self.l.append('@')
 
 
 class ResolveVisitor(object):
@@ -523,7 +614,7 @@ class _CopyAndExcludeSequenceVisitorOld(object):
        if len(self.__stack) > 0:
            #add visitee to its parent's stack entry
            self.__stack[-1].append([visitee,False])
-       if isinstance(visitee,_SequenceLeaf):
+       if visitee.isLeaf():
            if visitee in self.__modulesToIgnore:
                self.__didExclude = True
                self.__stack[-1][-1]=[None,True]
@@ -537,7 +628,7 @@ class _CopyAndExcludeSequenceVisitorOld(object):
            self.__stack.append(list())
    def leave(self,visitee):
        node = visitee
-       if not isinstance(visitee,_SequenceLeaf):
+       if not visitee.isLeaf():
            #were any children changed?
            l = self.__stack[-1]
            changed = False
@@ -582,7 +673,7 @@ class _CopyAndExcludeSequenceVisitorOld(object):
                        c[0]=node
                        c[1]=True
                        break
-       if not isinstance(visitee,_SequenceLeaf):
+       if not visitee.isLeaf():
            self.__stack = self.__stack[:-1]        
    def result(self):
        result = None
@@ -620,7 +711,7 @@ class _MutatingSequenceVisitor(object):
           self.__stack.append(list())
     def leave(self,visitee):
       node = visitee
-      if not isinstance(visitee,_SequenceLeaf):
+      if not visitee.isLeaf():
           #were any children changed?
           l = self.__stack[-1]
           changed = False
@@ -667,7 +758,7 @@ class _MutatingSequenceVisitor(object):
                       c[0]=node
                       c[1]=True
                       break
-      if not isinstance(visitee,_SequenceLeaf):
+      if not visitee.isLeaf():
           self.__stack = self.__stack[:-1]        
     def result(self):
       result = None
@@ -734,10 +825,80 @@ if __name__=="__main__":
     class DummyModule(_Labelable, _SequenceLeaf):
         def __init__(self,name):
             self.setLabel(name)
+    class DummyBooleanModule(_Labelable, _BooleanLogicSequenceLeaf):
+        def __init__(self,name):
+            self.setLabel(name)
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
             pass
+        def testBoolean(self):
+            a = DummyBooleanModule("a")
+            b = DummyBooleanModule("b")
+            p = Path( a & b)
+            self.assertEqual(p.dumpPython(None),"cms.Path(process.a&process.b)\n")
+            l = list()
+            namesVisitor = DecoratedNodeNameVisitor(l)
+            p.visit(namesVisitor)
+            self.assertEqual(l,['&','a','b','@'])
+            p2 = Path( a | b)
+            self.assertEqual(p2.dumpPython(None),"cms.Path(process.a|process.b)\n")
+            l[:]=[]
+            p2.visit(namesVisitor)
+            self.assertEqual(l,['|','a','b','@'])
+            c = DummyBooleanModule("c")
+            d = DummyBooleanModule("d")
+            p3 = Path(a & b & c & d)
+            self.assertEqual(p3.dumpPython(None),"cms.Path(process.a&process.b&process.c&process.d)\n")
+            l[:]=[]
+            p3.visit(namesVisitor)
+            self.assertEqual(l,['&','a','b','c','d','@'])
+            p3 = Path(((a & b) & c) & d)
+            self.assertEqual(p3.dumpPython(None),"cms.Path(process.a&process.b&process.c&process.d)\n")
+            p3 = Path(a & (b & (c & d)))
+            self.assertEqual(p3.dumpPython(None),"cms.Path(process.a&process.b&process.c&process.d)\n")
+            p3 = Path((a & b) & (c & d))
+            self.assertEqual(p3.dumpPython(None),"cms.Path(process.a&process.b&process.c&process.d)\n")
+            p3 = Path(a & (b & c) & d)
+            self.assertEqual(p3.dumpPython(None),"cms.Path(process.a&process.b&process.c&process.d)\n")
+            p4 = Path(a | b | c | d)
+            self.assertEqual(p4.dumpPython(None),"cms.Path(process.a|process.b|process.c|process.d)\n")
+            p5 = Path(a | b & c & d )
+            self.assertEqual(p5.dumpPython(None),"cms.Path(process.a|(process.b&process.c&process.d))\n")
+            l[:]=[]
+            p5.visit(namesVisitor)
+            self.assertEqual(l,['|','a','&','b','c','d','@','@'])
+            p5 = Path(a & b | c & d )
+            self.assertEqual(p5.dumpPython(None),"cms.Path((process.a&process.b)|(process.c&process.d))\n")
+            l[:]=[]
+            p5.visit(namesVisitor)
+            self.assertEqual(l,['|','&','a','b','@','&','c','d','@','@'])
+            p5 = Path(a & (b | c) & d )
+            self.assertEqual(p5.dumpPython(None),"cms.Path(process.a&(process.b|process.c)&process.d)\n")
+            l[:]=[]
+            p5.visit(namesVisitor)
+            self.assertEqual(l,['&','a','|','b','c','@','d','@'])
+            p5 = Path(a & b & c | d )
+            self.assertEqual(p5.dumpPython(None),"cms.Path((process.a&process.b&process.c)|process.d)\n")
+            l[:]=[]
+            p5.visit(namesVisitor)
+            self.assertEqual(l,['|','&','a','b','c','@','d','@'])
+            p6 = Path( a & ~b)
+            self.assertEqual(p6.dumpPython(None),"cms.Path(process.a&(~process.b))\n")
+            l[:]=[]
+            p6.visit(namesVisitor)
+            self.assertEqual(l,['&','a','!b','@'])
+            p6 = Path( a & ignore(b))
+            self.assertEqual(p6.dumpPython(None),"cms.Path(process.a&(cms.ignore(process.b)))\n")
+            l[:]=[]
+            p6.visit(namesVisitor)
+            self.assertEqual(l,['&','a','-b','@'])
+            p6 = Path(~(a&b))
+            self.assertEqual(p6.dumpPython(None),"cms.Path(~(process.a&process.b))\n")
+            l[:]=[]
+            p6.visit(namesVisitor)
+            self.assertEqual(l,['!&','a','b','@'])
+
         def testDumpPython(self):
             a = DummyModule("a")
             b = DummyModule('b')
