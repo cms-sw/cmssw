@@ -384,6 +384,17 @@ def AtMidnight(datetime_in):
 
 ######################################################################
 
+def AtMidWeek(datetime_in):
+    tmp = datetime_in.date()
+    date_tmp = tmp - \
+               datetime.timedelta(days=tmp.weekday()) + \
+               datetime.timedelta(days=2)
+    res = datetime.datetime.combine(date_tmp, datetime.time())
+    # End of AtMidWeek().
+    return res
+
+######################################################################
+
 def GetUnits(year, accel_mode, mode):
 
     units_spec = {
@@ -402,7 +413,7 @@ def GetUnits(year, accel_mode, mode):
         },
         2012 : {
         "cum_day" : "pb^{-1}",
-        "cum_week" : "pb^{-1}",
+        "cum_week" : "fb^{-1}",
         "cum_year" : "fb^{-1}",
         "max_inst" : "Hz/nb",
         }
@@ -544,11 +555,7 @@ def TweakPlot(fig, ax, (time_begin, time_end),
             for label in sub_ax.get_ticklabels():
                 label.set_font_properties(FONT_PROPS_TICK_LABEL)
 
-    time_lo = datetime.datetime.combine(time_begin.date(), datetime.time()) - \
-              datetime.timedelta(days=.5)
-    time_hi = datetime.datetime.combine(time_end.date(), datetime.time()) + \
-              datetime.timedelta(days=.5)
-    ax.set_xlim(time_lo, time_hi)
+    ax.set_xlim(time_begin, time_end)
 
     locator = GetXLocator(ax)
     ax.xaxis.set_major_locator(locator)
@@ -671,7 +678,8 @@ if __name__ == "__main__":
         "PROTPHYS" : {2010 : 3500.,
                       2011 : 3500.,
                       2012 : 4000.},
-        "IONPHYS" : {2011 : 3500.}
+        "IONPHYS" : {2010 : 3500.,
+                     2011 : 3500.}
         }
 
     ##########
@@ -741,6 +749,7 @@ if __name__ == "__main__":
         year = date_end.isocalendar()[0]
         week = date_end.isocalendar()[1]
         weeks.append((year, week))
+        weeks = list(set(weeks))
 
     # Figure out the last day we want to read back from the cache.
     # NOTE: The above checking ensures that date_end is <= today, so
@@ -845,6 +854,14 @@ if __name__ == "__main__":
             except KeyError:
                 lumi_data_by_week[year] = {week: lumi.copy()}
 
+    lumi_data_by_week_per_year = {}
+    for (year, tmp_lumi) in lumi_data_by_week.iteritems():
+        for (week, lumi) in tmp_lumi.iteritems():
+            try:
+                lumi_data_by_week_per_year[year].add(lumi)
+            except KeyError:
+                lumi_data_by_week_per_year[year] = LumiDataBlockCollection(lumi)
+
     # Bunch lumiCalc data together into years.
     print "Combining lumiCalc data year-by-year"
     lumi_data_by_year = {}
@@ -855,8 +872,6 @@ if __name__ == "__main__":
         except KeyError:
             lumi_data_by_year[year] = lumi.copy()
 
-    # BUG BUG BUG
-    # Should move this into the right spot...
     lumi_data_by_day_per_year = {}
     for (day, lumi) in lumi_data_by_day.iteritems():
         year = day.isocalendar()[0]
@@ -864,7 +879,6 @@ if __name__ == "__main__":
             lumi_data_by_day_per_year[year].add(lumi)
         except KeyError:
             lumi_data_by_day_per_year[year] = LumiDataBlockCollection(lumi)
-    # BUG BUG BUG end
 
     ##########
 
@@ -931,13 +945,12 @@ if __name__ == "__main__":
     ColorScheme.InitColors()
 
     #------------------------------
-    # Create the delivered-lumi plots, one version of everything for
-    # each year.
+    # Create the per-day delivered-lumi plots.
     #------------------------------
 
     for year in years:
 
-        print "  for %d" % year
+        print "  daily lumi plots for %d" % year
 
         if not beam_energy_from_cfg:
             beam_energy = beam_energy_defaults[accel_mode][year]
@@ -981,13 +994,17 @@ if __name__ == "__main__":
 
         # Figure out the time window of the data included for the plot
         # subtitles.
-        time_begin = lumi_data.time_begin()
-        time_end = lumi_data.time_end()
+        time_begin = datetime.datetime.combine(lumi_data.time_begin(),
+                                               datetime.time()) - \
+                                               datetime.timedelta(days=.5)
+        time_end = datetime.datetime.combine(lumi_data.time_end(),
+                                             datetime.time()) + \
+                                             datetime.timedelta(days=.5)
         str_begin = None
         str_end = None
         if sum(weights_del) > 0.:
-            str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
-            str_end = time_end.strftime(DATE_FMT_STR_OUT)
+            str_begin = lumi_data.time_begin().strftime(DATE_FMT_STR_OUT)
+            str_end = lumi_data.time_end().strftime(DATE_FMT_STR_OUT)
 
         #----------
 
@@ -1049,7 +1066,8 @@ if __name__ == "__main__":
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
-                    ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % units,
+                    ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
+                                  LatexifyUnits(units),
                                   fontproperties=FONT_PROPS_AX_TITLE)
 
                     # Add the logo.
@@ -1065,7 +1083,7 @@ if __name__ == "__main__":
 
             #----------
 
-            # The lumi-by-day plot.
+            # The lumi-per-day plot.
             for type in ["lin", "log"]:
                 is_log = (type == "log")
                 log_setting = False
@@ -1187,11 +1205,269 @@ if __name__ == "__main__":
                             (particle_type_str.lower(), year,
                              log_suffix, file_suffix))
 
+    #------------------------------
+    # Create the per-week delivered-lumi plots.
+    #------------------------------
+
+    for year in years:
+
+        print "  weekly lumi plots for %d" % year
+
+        if not beam_energy_from_cfg:
+            beam_energy = beam_energy_defaults[accel_mode][year]
+        cms_energy = 2. * beam_energy
+        cms_energy_str = "???"
+        if accel_mode == "IONPHYS":
+            cms_energy_str = "%.2f TeV/nucleon" % \
+                             (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
+        elif accel_mode == "PROTPHYS":
+            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+
+        lumi_data = lumi_data_by_week_per_year[year]
+        lumi_data.sort()
+
+        # NOTE: Tweak the time range a bit to force the bins to be
+        # split at the middle of the weeks.
+        week_lo = AtMidWeek(lumi_data.time_begin()) - \
+                  datetime.timedelta(days=3, seconds=12*60*60)
+        week_hi = AtMidWeek(lumi_data.time_end()) + \
+                  datetime.timedelta(days=3, seconds=12*60*60)
+
+        #----------
+
+        # Build the histograms.
+        num_weeks = week_hi.isocalendar()[1] - week_lo.isocalendar()[1] + 1
+        bin_edges = np.linspace(matplotlib.dates.date2num(week_lo),
+                                matplotlib.dates.date2num(week_hi),
+                                num_weeks)
+        times = [matplotlib.dates.date2num(i) for i in lumi_data.times()]
+        # Delivered and recorded luminosity integrated per week.
+        units = GetUnits(year, accel_mode, "cum_week")
+        weights_del = lumi_data.lum_del(units)
+        weights_rec = lumi_data.lum_rec(units)
+        # Cumulative versions of the above.
+        units = GetUnits(year, accel_mode, "cum_year")
+        weights_del_for_cum = lumi_data.lum_del(units)
+        weights_rec_for_cum = lumi_data.lum_rec(units)
+        # Maximum instantaneous delivered luminosity per week.
+        units = GetUnits(year, accel_mode, "max_inst")
+        weights_del_inst = lumi_data.lum_inst_max(units)
+
+        # Figure out the time window of the data included for the plot
+        # subtitles.
+        str_begin = None
+        str_end = None
+        if sum(weights_del) > 0.:
+            str_begin = lumi_data.time_begin().strftime(DATE_FMT_STR_OUT)
+            str_end = lumi_data.time_end().strftime(DATE_FMT_STR_OUT)
+
+        #----------
+
+        # Loop over all color schemes.
+        for color_scheme_name in color_scheme_names:
+
+            print "    color scheme '%s'" % color_scheme_name
+
+            color_scheme = ColorScheme(color_scheme_name)
+            color_fill_del = color_scheme.color_fill_del
+            color_fill_rec = color_scheme.color_fill_rec
+            color_fill_peak = color_scheme.color_fill_peak
+            color_line_del = color_scheme.color_line_del
+            color_line_rec = color_scheme.color_line_rec
+            color_line_peak = color_scheme.color_line_peak
+            logo_name = color_scheme.logo_name
+            file_suffix = color_scheme.file_suffix
+
+            fig = plt.figure()
+
+            #----------
+
+            for type in ["lin", "log"]:
+                is_log = (type == "log")
+                log_setting = False
+                if is_log:
+                    min_val = min(weights_del_inst)
+                    exp = RoundAwayFromZero(math.log10(min_val))
+                    log_setting = math.pow(10., exp)
+
+                fig.clear()
+                ax = fig.add_subplot(111)
+
+                units = GetUnits(year, accel_mode, "max_inst")
+
+                # Figure out the maximum instantaneous luminosity.
+                max_inst = max(weights_del_inst)
+
+                if sum(weights_del) > 0:
+
+                    ax.hist(times, bin_edges, weights=weights_del_inst,
+                            histtype="stepfilled",
+                            log=log_setting,
+                            facecolor=color_fill_peak, edgecolor=color_line_peak,
+                            label="Max. inst. lumi.: $%.2f$ %s" % \
+                            (max_inst, LatexifyUnits(units)))
+
+                    tmp_leg = ax.legend(loc="upper left",
+                                        bbox_to_anchor=(0.025, 0., 1., .97),
+                                        frameon=False)
+                    tmp_leg.legendHandles[0].set_visible(False)
+
+                    # Set titles and labels.
+                    fig.suptitle(r"CMS Peak Luminosity Per Week, " \
+                                 "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                                 (particle_type_str, year, cms_energy_str),
+                                 fontproperties=FONT_PROPS_SUPTITLE)
+                    ax.set_title("Data included from %s to %s UTC" % \
+                                 (str_begin, str_end),
+                                 fontproperties=FONT_PROPS_TITLE)
+                    ax.set_xlabel(r"Date (UTC)",
+                                  fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
+                                  LatexifyUnits(units),
+                                  fontproperties=FONT_PROPS_AX_TITLE)
+
+                    # Add the logo.
+                    AddLogo(logo_name, ax)
+                    TweakPlot(fig, ax, (week_lo, week_hi), True)
+
+                log_suffix = ""
+                if is_log:
+                    log_suffix = "_log"
+                fig.savefig("peak_lumi_per_week_%s_%d%s%s.png" % \
+                            (particle_type_str.lower(), year,
+                             log_suffix, file_suffix))
+
+            #----------
+
+            # The lumi-per-week plot.
+            for type in ["lin", "log"]:
+                is_log = (type == "log")
+                log_setting = False
+                if is_log:
+                    min_val = min(weights_rec)
+                    exp = RoundAwayFromZero(math.log10(min_val))
+                    log_setting = math.pow(10., exp)
+
+                fig.clear()
+                ax = fig.add_subplot(111)
+
+                units = GetUnits(year, accel_mode, "cum_week")
+
+                # Figure out the maximum delivered and recorded luminosities.
+                max_del = max(weights_del)
+                max_rec = max(weights_rec)
+
+                if sum(weights_del) > 0:
+
+                    ax.hist(times, bin_edges, weights=weights_del,
+                            histtype="stepfilled",
+                            log=log_setting,
+                            facecolor=color_fill_del, edgecolor=color_line_del,
+                            label="LHC Delivered, max: $%.1f$ %s/week" % \
+                            (max_del, LatexifyUnits(units)))
+                    ax.hist(times, bin_edges, weights=weights_rec,
+                            histtype="stepfilled",
+                            log=log_setting,
+                            facecolor=color_fill_rec, edgecolor=color_line_rec,
+                        label="CMS Recorded, max: $%.1f$ %s/week" % \
+                            (max_rec, LatexifyUnits(units)))
+                    ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                              frameon=False)
+
+                    # Set titles and labels.
+                    fig.suptitle(r"CMS Integrated Luminosity Per Week, " \
+                                 "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                                 (particle_type_str, year, cms_energy_str),
+                                 fontproperties=FONT_PROPS_SUPTITLE)
+                    ax.set_title("Data included from %s to %s UTC" % \
+                                 (str_begin, str_end),
+                                 fontproperties=FONT_PROPS_TITLE)
+                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_ylabel(r"Integrated Luminosity (%s/week)" % \
+                                  LatexifyUnits(units),
+                                  fontproperties=FONT_PROPS_AX_TITLE)
+
+                    # Add the logo.
+                    AddLogo(logo_name, ax)
+                    TweakPlot(fig, ax, (week_lo, week_hi), True)
+
+                log_suffix = ""
+                if is_log:
+                    log_suffix = "_log"
+                fig.savefig("int_lumi_per_week_%s_%d%s%s.png" % \
+                            (particle_type_str.lower(), year,
+                             log_suffix, file_suffix))
+
+            #----------
+
+            # Now for the cumulative plot.
+            units = GetUnits(year, accel_mode, "cum_year")
+
+            # Figure out the totals.
+            min_del = min(weights_del_for_cum)
+            tot_del = sum(weights_del_for_cum)
+            tot_rec = sum(weights_rec_for_cum)
+
+            for type in ["lin", "log"]:
+                is_log = (type == "log")
+                log_setting = False
+                if is_log:
+                    min_val = min(weights_del_for_cum)
+                    exp = RoundAwayFromZero(math.log10(min_val))
+                    log_setting = math.pow(10., exp)
+
+                fig.clear()
+                ax = fig.add_subplot(111)
+
+                if sum(weights_del) > 0:
+
+                    ax.hist(times, bin_edges, weights=weights_del_for_cum,
+                            histtype="stepfilled", cumulative=True,
+                            log=log_setting,
+                            facecolor=color_fill_del, edgecolor=color_line_del,
+                            label="LHC Delivered: $%.2f$ %s" % \
+                            (tot_del, LatexifyUnits(units)))
+                    ax.hist(times, bin_edges, weights=weights_rec_for_cum,
+                            histtype="stepfilled", cumulative=True,
+                            log=log_setting,
+                            facecolor=color_fill_rec, edgecolor=color_line_rec,
+                            label="CMS Recorded: $%.2f$ %s" % \
+                            (tot_rec, LatexifyUnits(units)))
+                    ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                              frameon=False)
+
+                    # Set titles and labels.
+                    fig.suptitle(r"CMS Integrated Luminosity, " \
+                                 r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
+                                 (particle_type_str, year, cms_energy_str),
+                                 fontproperties=FONT_PROPS_SUPTITLE)
+                    ax.set_title("Data included from %s to %s UTC" % \
+                                 (str_begin, str_end),
+                                 fontproperties=FONT_PROPS_TITLE)
+                    ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                    ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
+                                  LatexifyUnits(units),
+                                  fontproperties=FONT_PROPS_AX_TITLE)
+
+                    # Add the logo.
+                    AddLogo(logo_name, ax)
+                    TweakPlot(fig, ax, (week_lo, week_hi),
+                              add_extra_head_room=is_log)
+
+                log_suffix = ""
+                if is_log:
+                    log_suffix = "_log"
+                fig.savefig("int_lumi_per_week_cumulative_%s_%d%s%s.png" % \
+                            (particle_type_str.lower(), year,
+                             log_suffix, file_suffix))
+
+    plt.close()
+
     #----------
 
     # Now the cumulative plot showing all years together.
     if len(years) > 1:
-        print "  for %s together" % ", ".join([str(i) for i in years])
+        print "  cumulative luminosity for %s together" % ", ".join([str(i) for i in years])
 
         def PlotAllYears(lumi_data_by_day_per_year, mode):
             """Mode 1: years side-by-side, mode 2: years overlaid."""
@@ -1259,8 +1535,10 @@ if __name__ == "__main__":
                         # NOTE: Special case for 2010.
                         label = None
                         if year == 2010:
-                            label = r"%d, %s, %.1f $\mathrm{pb^{-1}}$" % \
-                                    (year, cms_energy_str, 1.e3 * tot_del)
+                            label = r"%d, %s, %.1f %s" % \
+                                    (year, cms_energy_str,
+                                     1.e3 * tot_del,
+                                     LatexifyUnits("pb^{-1}"))
                         else:
                             label = r"%d, %s, %.1f %s" % \
                                     (year, cms_energy_str, tot_del,
@@ -1276,7 +1554,7 @@ if __name__ == "__main__":
                         ax.plot(times, weights_tmp,
                                 color=color_line_del_by_year[year],
                                 marker="none", linestyle="solid",
-                                linewidth=3,
+                                linewidth=4,
                                 label=label)
                         if is_log:
                             ax.set_yscale("log")
@@ -1349,6 +1627,138 @@ if __name__ == "__main__":
         for mode in [1, 2]:
             print "    mode %d" % mode
             PlotAllYears(lumi_data_by_day_per_year, mode)
+
+    plt.close()
+
+    #----------
+
+    # Now the peak lumi plot showing all years together.
+    if len(years) > 1:
+        print "  peak luminosity for %s together" % ", ".join([str(i) for i in years])
+
+        units = GetUnits(years[-1], accel_mode, "max_inst")
+
+        scale_factor_2010 = 10.
+
+        # Loop over all color schemes and plot.
+        for color_scheme_name in color_scheme_names:
+
+            print "      color scheme '%s'" % color_scheme_name
+
+            color_scheme = ColorScheme(color_scheme_name)
+            color_line_del_by_year = color_scheme.color_line_del_by_year
+            logo_name = color_scheme.logo_name
+            file_suffix = color_scheme.file_suffix
+
+            for type in ["lin", "log"]:
+                is_log = (type == "log")
+
+                aspect_ratio = matplotlib.figure.figaspect(1. / 2.5)
+                fig = plt.figure(figsize=aspect_ratio)
+                ax = fig.add_subplot(111)
+
+                for (year_index, year) in enumerate(years):
+
+                    lumi_data = lumi_data_by_day_per_year[year]
+                    lumi_data.sort()
+                    times_tmp = [AtMidnight(i) for i in lumi_data.times()]
+                    times = [matplotlib.dates.date2num(i) for i in times_tmp]
+                    # DEBUG DEBUG DEBUG
+                    for i in xrange(len(times) - 1):
+                        assert times[i] < times[i + 1]
+                    # DEBUG DEBUG DEBUG end
+                    weights_inst = lumi_data.lum_inst_max(units)
+                    max_inst = max(weights_inst)
+                    if not beam_energy_from_cfg:
+                        beam_energy = beam_energy_defaults[accel_mode][year]
+                    cms_energy = 2. * beam_energy
+                    cms_energy_str = "???"
+                    if accel_mode == "IONPHYS":
+                        cms_energy_str = "%.2f TeV/nucleon" % \
+                                         (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
+                    elif accel_mode == "PROTPHYS":
+                        cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+
+                    # NOTE: Special case for 2010.
+                    label = None
+                    if year == 2010:
+                        label = r"%d, %s, max. %.1f %s" % \
+                                (year, cms_energy_str,
+                                 1.e3 * max_inst,
+                                 LatexifyUnits("Hz/ub"))
+                    else:
+                        label = r"%d, %s, max. %.1f %s" % \
+                                (year, cms_energy_str, max_inst,
+                                 LatexifyUnits(units))
+
+                    # NOTE: Special case for 2010
+                    weights_tmp = None
+                    if year == 2010:
+                        weights_tmp = [scale_factor_2010 * i \
+                                       for i in weights_inst]
+                    else:
+                        weights_tmp = weights_inst
+                    ax.plot(times, weights_tmp,
+                            color=color_line_del_by_year[year],
+                            marker=".", markersize=8.,
+                            linestyle="none",
+                            label=label)
+                    if is_log:
+                        ax.set_yscale("log")
+
+                    # NOTE: Special case for 2010.
+                    if year == 2010:
+                        ax.annotate(r"$\times$ %.0f" % scale_factor_2010,
+                                    xy=(times[-1], max(weights_tmp)),
+                                    xytext=(5., -2.),
+                                    xycoords="data", textcoords="offset points")
+
+                    # BUG BUG BUG
+                    # Needs work...
+                    time_begin = lumi_data.time_begin()
+                    time_end = lumi_data.time_end()
+                    str_begin = time_begin.strftime(DATE_FMT_STR_OUT)
+                    str_end = time_end.strftime(DATE_FMT_STR_OUT)
+                    time_begin = datetime.datetime(years[0], 1, 1, 0, 0, 0)
+                    time_end = datetime.datetime(years[-1], 12, 31, 23, 59,59)
+                    # BUG BUG BUG end
+
+                    num_cols = None
+                    num_cols = len(years)
+                    tmp_x = .09
+                    tmp_y = .95
+                    ax.legend(loc="upper left",
+                              bbox_to_anchor=(tmp_x, 0., 1., tmp_y),
+                              labelspacing=.2,
+                              columnspacing=.2,
+                              frameon=False, ncol=num_cols)
+
+                # Set titles and labels.
+                fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str,
+                             fontproperties=FONT_PROPS_SUPTITLE)
+                ax.set_title("Data included from %s to %s UTC" % \
+                             (str_begin, str_end),
+                             fontproperties=FONT_PROPS_TITLE)
+                ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
+                ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
+                              LatexifyUnits(units),
+                              fontproperties=FONT_PROPS_AX_TITLE)
+
+                # Add the logo.
+                zoom = .95
+                AddLogo(logo_name, ax, zoom=zoom)
+                head_room = 2.
+                if is_log:
+                    head_room = 2.
+                TweakPlot(fig, ax, (time_begin, time_end),
+                          add_extra_head_room=head_room)
+
+                log_suffix = ""
+                if is_log:
+                    log_suffix = "_log"
+                fig.savefig("peak_lumi_%s%s%s.png" % \
+                            (particle_type_str.lower(),
+                             log_suffix, file_suffix))
 
     #----------
 
