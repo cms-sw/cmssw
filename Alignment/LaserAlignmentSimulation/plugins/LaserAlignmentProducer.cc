@@ -1,27 +1,26 @@
-/** \file LaserAlignmentSource.cc
- *  Source to be used for the Simulation of the Laser Alignment System
+/** \file LaserAlignmentProducer.cc
+ *  Producer to be used for the Simulation of the Laser Alignment System
  *  an empty MCHepEvent will be generated (needed by OscarProducer). The actual simulation of 
  *  the laser beams is done in the SimWatcher attached to OscarProducer
  *
- *  $Date: 2009/01/05 11:05:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/09/16 06:23:27 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 // system include files
 #include "FWCore/Framework/interface/Event.h"
 
 // user include files
-#include "Alignment/LaserAlignmentSimulation/plugins/LaserAlignmentSource.h"
-#include "FWCore/Framework/interface/InputSourceMacros.h" 
+#include "Alignment/LaserAlignmentSimulation/plugins/LaserAlignmentProducer.h"
+#include "FWCore/Framework/interface/MakerMacros.h" 
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 //
 // constructors and destructor
 //
-LaserAlignmentSource::LaserAlignmentSource(const edm::ParameterSet& iConfig, 
-					   const edm::InputSourceDescription& iDescription) :
-  GeneratedInputSource(iConfig, iDescription),
+LaserAlignmentProducer::LaserAlignmentProducer(const edm::ParameterSet&) :
+  EDProducer(),
   theEvent(0)
 {
   //register your products
@@ -31,13 +30,13 @@ LaserAlignmentSource::LaserAlignmentSource(const edm::ParameterSet& iConfig,
 }
 
 
-LaserAlignmentSource::~LaserAlignmentSource()
+LaserAlignmentProducer::~LaserAlignmentProducer()
 {
   // no need to cleanup theEvent since it's done in HepMCProduct
 }
 
 // ------------ method called to produce the event  ------------
-bool LaserAlignmentSource::produce(edm::Event& iEvent)
+void LaserAlignmentProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
 {
   // create the event
   theEvent = new HepMC::GenEvent();
@@ -55,7 +54,7 @@ bool LaserAlignmentSource::produce(edm::Event& iEvent)
   theEvent->add_vertex(theVtx);
 
   // set the event number
-  theEvent->set_event_number(event());
+  theEvent->set_event_number(iEvent.id().event());
   // set the signal process id
   theEvent->set_signal_process_id(20);
 
@@ -65,10 +64,8 @@ bool LaserAlignmentSource::produce(edm::Event& iEvent)
    
   // put the output to the event
   iEvent.put(theOutput);
-
-  return true;
 }
 
 //define this as a plug-in
 
-DEFINE_FWK_INPUT_SOURCE(LaserAlignmentSource);
+DEFINE_FWK_MODULE(LaserAlignmentProducer);

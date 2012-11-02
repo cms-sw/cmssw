@@ -9,7 +9,7 @@
   <use   name="FWCore/PluginManager"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="LaserAlignmentSource.cc">
+<library   file="LaserAlignmentProducer.cc">
   <use   name="FWCore/Framework"/>
   <use   name="SimDataFormats/GeneratorProducts"/>
   <use   name="hepmc"/>

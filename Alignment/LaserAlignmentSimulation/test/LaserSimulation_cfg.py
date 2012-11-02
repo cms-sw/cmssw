@@ -76,9 +76,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 
-process.source = cms.Source( "LaserAlignmentSource",
+process.source = cms.Source( "EmptySource",
     firstRun = cms.untracked.uint32( 1 )
 )
+
+process.laserAlignmentProducer = cms.EDProducer( "LaserAlignmentProducer" )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32( 1 )
@@ -92,12 +94,12 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     )
 )
 
-process.p1 = cms.Path(process.simulation)
+process.p1 = cms.Path(process.laserAlignmentProducer*process.simulation)
 process.output = cms.EndPath(process.o1)
 
 process.XMLIdealGeometryESSource.geomXMLFiles.append('Alignment/LaserAlignmentSimulation/data/AlignmentTubes.xml')
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/LaserOpticalPhysics'
-process.g4SimHits.Generator.HepMCProductLabel = 'source' ### needed if using a source, otherwise nasty hidden segfault
+process.g4SimHits.Generator.HepMCProductLabel = 'laserAlignmentProducer'
 process.g4SimHits.Watchers = cms.VPSet(
   cms.PSet(
     NumberOfPhotonsInEachBeam = cms.untracked.int32( 10 ),
