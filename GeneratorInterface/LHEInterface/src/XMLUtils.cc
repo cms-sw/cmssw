@@ -211,7 +211,7 @@ StorageInputStream::StorageInputStream(StorageWrap &in) :
 {
   // Check the kind of file.
   char header[6];
-  unsigned int s = in->read(header, 6);
+  /*unsigned int s = */ in->read(header, 6);
   in->position(0, Storage::SET);
   // Let's use lzma to start with.
   if (header[1] == '7'
