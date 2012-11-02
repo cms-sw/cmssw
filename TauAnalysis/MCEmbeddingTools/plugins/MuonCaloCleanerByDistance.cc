@@ -77,10 +77,25 @@ void MuonCaloCleanerByDistance::fillEnergyDepositMap(const reco::Candidate& muon
     if ( energyDepositCorrection_.find(key) == energyDepositCorrection_.end() )
       throw cms::Exception("MuonCaloCleanerByDistance") 
 	<< "No energy deposit correction defined for detId = " << detId.rawId() << " (key = " << key << ") !!\n";
-    
+
+    double dedx, rho;
+    switch(detId.det())
+    {
+    case DetId::Ecal:
+      dedx = dedxGraphPbwo4_->Eval(muon.p());
+      rho = 8.28; // PbWO4
+      break;
+    case DetId::Hcal:
+      // AB: We don't have a dedx curve for the HCAL. Use the PbWO4 one as an approximation,
+      // the correction factors should be determined with respect to the PbWO4 curve.
+      dedx = dedxGraphPbwo4_->Eval(muon.p());
+      rho = 8.53; // brass absorber
+      break;
+    default:
+      throw cms::Exception("MuonCaloCleanerByDistance") << "Unknown detector type: " << key << ", ID=" << detId;
+    }
+
     const double distance = rawDetId_and_distance->second;
-    const double dedx = dedxGraphPbwo4_->Eval(muon.p()); // TODO: Adapt for HCAL
-    const double rho = 8.28; // TODO: Adapt for HCAL
     const double energyDepositCorrection_value = energyDepositCorrection_[key];
 
     energyDepositMap[rawDetId_and_distance->first] += distance * dedx * rho * energyDepositCorrection_value;
