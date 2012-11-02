@@ -554,10 +554,8 @@ void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
                                                   double etaSlice, 
                                                   double lip, 
                                                   double d0)  const {
-  int counter  =0;
-  double ptSum =0.;
   
-  
+  ntrkCone =0;trkCone=0;
   //get the tracks
   edm::Handle<reco::TrackCollection> tracks;
   e.getByLabel(trackInputTag_,tracks);
@@ -580,10 +578,9 @@ void PhotonIsolationCalculator::calculateTrackIso(const reco::Photon* photon,
 			   trackCollection, 
 			   math::XYZPoint(vertexBeamSpot.x0(),vertexBeamSpot.y0(),vertexBeamSpot.z0()));
 
-  counter = phoIso.getNumberTracks(photon);
-  ptSum = phoIso.getPtTracks(photon);
-  ntrkCone = counter;
-  trkCone = ptSum;
+  std::pair<int,double> res = phoIso.getIso(photon);
+  ntrkCone = res.first;
+  trkCone = res.second;
 }
 
 

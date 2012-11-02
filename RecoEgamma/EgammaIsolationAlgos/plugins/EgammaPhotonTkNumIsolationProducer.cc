@@ -76,7 +76,7 @@ EgammaPhotonTkNumIsolationProducer::produce(edm::Event& iEvent, const edm::Event
   PhotonTkIsolation myTkIsolation(extRadius_,intRadiusBarrel_,intRadiusEndcap_,stripBarrel_,stripEndcap_,ptMin_,maxVtxDist_,drb_,trackCollection,beamspot) ;
 
   for(unsigned int i = 0 ; i < photonHandle->size(); ++i ){
-    int isoValue = myTkIsolation.getNumberTracks(&(photonHandle->at(i)));
+    int isoValue = myTkIsolation.getIso(&(photonHandle->at(i))).first;
     retV[i] = isoValue;
   }
    
