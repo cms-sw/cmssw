@@ -117,6 +117,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 	TObjArray *l_branches = tree_->GetListOfBranches();
 	int nBranches = l_branches->GetEntries();
 
+	gStyle->SetPadTopMargin(0.01);
 
 	TCanvas *c = new TCanvas("c","",960,800);
 
@@ -208,7 +209,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		TPad pad1("t1","",pad1_x1,pad1_y1,pad1_x2,pad1_y2);
 		TPad pad1a("t1a","",0.01,0.045,0.59,0.522);
 		TPad pad2("t2","",0.59,0.04,0.98,0.62);
-		TPad pad3("t3","",0.59,0.64,0.98,0.90);
+		TPad pad3("t3","",0.55,0.64,0.96,0.95);
 
 		pad1.SetNumber(1); pad2.SetNumber(2); pad3.SetNumber(3); pad1a.SetNumber(4);
 
@@ -253,34 +254,34 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 			double gap;
 			TLatex *tlatex = new TLatex(); tlatex->SetNDC(); 
 			if (fitPullf) {tlatex->SetTextSize(0.09); gap=0.12;}
-			else  {tlatex->SetTextSize(0.12);gap=0.15;}
+			else  {tlatex->SetTextSize(0.11);gap=0.14;}
 
 			tlatex->SetTextColor(4);
-			tlatex->DrawLatex(0.15,0.82,Form("Mean    : %.3f #pm %.3f",bH->GetFunction("gaus")->GetParameter(1),bH->GetFunction("gaus")->GetParError(1)));
-			tlatex->DrawLatex(0.15,0.82-gap,Form("Sigma   : %.3f #pm %.3f",bH->GetFunction("gaus")->GetParameter(2),bH->GetFunction("gaus")->GetParError(2)));
+			tlatex->DrawLatex(0.11,0.80,Form("Mean    : %.3f #pm %.3f",bH->GetFunction("gaus")->GetParameter(1),bH->GetFunction("gaus")->GetParError(1)));
+			tlatex->DrawLatex(0.11,0.80-gap,Form("Sigma   : %.3f #pm %.3f",bH->GetFunction("gaus")->GetParameter(2),bH->GetFunction("gaus")->GetParError(2)));
 
 			if (fitPullf){ 
 				tlatex->SetTextColor(2);
-				tlatex->DrawLatex(0.15,0.60,Form("Mean    : %.3f #pm %.3f",bHf->GetFunction("gaus")->GetParameter(1),bHf->GetFunction("gaus")->GetParError(1)));
-				tlatex->DrawLatex(0.15,0.60-gap,Form("Sigma   : %.3f #pm %.3f",bHf->GetFunction("gaus")->GetParameter(2),bHf->GetFunction("gaus")->GetParError(2)));
+				tlatex->DrawLatex(0.11,0.60,Form("Mean    : %.3f #pm %.3f",bHf->GetFunction("gaus")->GetParameter(1),bHf->GetFunction("gaus")->GetParError(1)));
+				tlatex->DrawLatex(0.11,0.60-gap,Form("Sigma   : %.3f #pm %.3f",bHf->GetFunction("gaus")->GetParameter(2),bHf->GetFunction("gaus")->GetParError(2)));
 			}
 
-			tlatex->SetTextSize(0.12);
+			tlatex->SetTextSize(0.10);
 			tlatex->SetTextColor(1);
 					
-			tlatex->DrawLatex(0.15,0.33,Form("Pre-fit #pm #sigma_{#theta}: %.3f #pm %.3f",prevals_[name].first, p_err));
-			tlatex->DrawLatex(0.15,0.18,Form("Best-fit (#theta_{B})  : %.3f ",p_mean));
-			tlatex->DrawLatex(0.15,0.03,Form("Best-fit (#theta_{S+B}): %.3f ",bfvals_sb_[name].first));
+			tlatex->DrawLatex(0.11,0.33,Form("Pre-fit #pm #sigma_{#theta}: %.3f #pm %.3f",prevals_[name].first, p_err));
+			tlatex->DrawLatex(0.11,0.18,Form("Best-fit (#theta_{B})  : %.3f ",p_mean));
+			tlatex->DrawLatex(0.11,0.03,Form("Best-fit (#theta_{S+B}): %.3f ",bfvals_sb_[name].first));
 			
 			pullSummaryMap[name]=std::make_pair<double,double>(bH->GetFunction("gaus")->GetParameter(1),bH->GetFunction("gaus")->GetParameter(2));
 			nPulls++;
 
 		}
 
-		double titleSize = isFitted ? 0.1 : 0.03;
-		titletext->SetTextSize(titleSize);titletext->SetTextAlign(21); titletext->DrawLatex(0.49,0.92,name);
+		double titleSize = isFitted ? 0.1 : 0.028;
+		titletext->SetTextSize(titleSize);titletext->SetTextAlign(21); titletext->DrawLatex(0.55,0.92,name);
 		c->SaveAs(Form("%s.pdf",treename.c_str()));
-		fOut->WriteObject(c,Form("%s_%s.pdf",treename.c_str(),name));
+		fOut->WriteObject(c,Form("%s_%s",treename.c_str(),name));
 		//c->SaveAs(Form("%s_%s.pdf",treename.c_str(),name));
 	}
 	
@@ -308,7 +309,7 @@ void plotTree(TTree *tree_, std::string whichfit, std::string selectString){
 		pullSummaryHist.SetMarkerStyle(21);pullSummaryHist.SetMarkerSize(1.5);pullSummaryHist.SetMarkerColor(2);pullSummaryHist.SetLabelSize(pullLabelSize);
 		pullSummaryHist.GetYaxis()->SetRangeUser(-3,3);pullSummaryHist.GetYaxis()->SetTitle("pull summary (n#sigma)");pullSummaryHist.Draw("E1");
 		hc->SaveAs(Form("%s.pdf",treename.c_str()));
-		fOut->WriteObject(hc,Form("comb_pulls_%s_%d.pdf",treename.c_str(),pullPlots));
+		fOut->WriteObject(hc,Form("comb_pulls_%s_%d",treename.c_str(),pullPlots));
 	//	hc->SaveAs(Form("comb_pulls_%s_%d.pdf",treename.c_str(),pullPlots));
 		pullPlots++;
 	   }
