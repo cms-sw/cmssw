@@ -34,6 +34,8 @@ unsigned int MultiDimFit::lastPoint_  = std::numeric_limits<unsigned int>::max()
 bool MultiDimFit::floatOtherPOIs_ = false;
 unsigned int MultiDimFit::nOtherFloatingPoi_ = 0;
 bool MultiDimFit::fastScan_ = false;
+bool MultiDimFit::hasMaxDeltaNLLForProf_ = false;
+float MultiDimFit::maxDeltaNLLForProf_ = 200;
 
 
 MultiDimFit::MultiDimFit() :
@@ -47,6 +49,7 @@ MultiDimFit::MultiDimFit() :
         ("firstPoint",  boost::program_options::value<unsigned int>(&firstPoint_)->default_value(firstPoint_), "First point to use")
         ("lastPoint",  boost::program_options::value<unsigned int>(&lastPoint_)->default_value(lastPoint_), "Last point to use")
         ("fastScan", "Do a fast scan, evaluating the likelihood without profiling it.")
+        ("maxDeltaNLLForProf",  boost::program_options::value<float>(&maxDeltaNLLForProf_)->default_value(maxDeltaNLLForProf_), "Last point to use")
        ;
 }
 
@@ -68,6 +71,7 @@ void MultiDimFit::applyOptions(const boost::program_options::variables_map &vm)
         algo_ = Contour2D;
     } else throw std::invalid_argument(std::string("Unknown algorithm: "+algo));
     fastScan_ = (vm.count("fastScan") > 0);
+    hasMaxDeltaNLLForProf_ = !vm["maxDeltaNLLForProf"].defaulted();
 }
 
 bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -219,7 +223,9 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
             // now we minimize
             {   
                 //CloseCoutSentry sentry(verbose < 3);    
-                bool ok = fastScan_ ? true : minim.minimize(verbose-1);
+                bool ok = fastScan_ || (hasMaxDeltaNLLForProf_ && (nll.getVal() - nll0) > maxDeltaNLLForProf_) ? 
+                            true : 
+                            minim.minimize(verbose-1);
                 if (ok) {
                     deltaNLL_ = nll.getVal() - nll0;
                     double qN = 2*(deltaNLL_);

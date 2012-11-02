@@ -38,6 +38,8 @@ protected:
   static unsigned int points_, firstPoint_, lastPoint_;
   static bool floatOtherPOIs_;
   static bool fastScan_;
+  static bool hasMaxDeltaNLLForProf_;
+  static float maxDeltaNLLForProf_;
 
   // initialize variables
   void initOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s) ;
