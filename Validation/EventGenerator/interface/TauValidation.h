@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2012/02/10 14:51:48 $
- *  $Revision: 1.10 $
+ *  $Date: 2012/10/15 11:29:01 $
+ *  $Revision: 1.11 $
  *
  */
 
@@ -85,7 +85,11 @@ class TauValidation : public edm::EDAnalyzer
 	double visibleTauEnergy(const HepMC::GenParticle*);
 	TLorentzVector leadingPionP4(const HepMC::GenParticle*);
 	TLorentzVector motherP4(const HepMC::GenParticle*);
-	void photons(const HepMC::GenParticle*, double weight, bool decayonly);
+	void photons(const HepMC::GenParticle*, double weight);
+	void findFirstinChain(const HepMC::GenParticle* tau);
+	void findISRandFSR(const HepMC::GenParticle* p, bool passedW, std::vector<const HepMC::GenParticle*> &ListofISR,
+			   std::vector<const HepMC::GenParticle*> &ListofFSR);
+
 
         WeightManager _wmanager;
 
@@ -103,7 +107,7 @@ class TauValidation : public edm::EDAnalyzer
   	MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, 
 	               *TauRtauW, *TauRtauHpm,
 	               *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
-	               *TauPhotonsBeforeDecay,*TauPhotonsBeforeDecayPt,*TauPhotonsN,*TauPhotonsPt;
+	  *TauISRPhotonsN,*TauISRPhotonsPt,*TauISRPhotonsPtRatio,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtRatio;
 	unsigned int NJAKID;
 	MonitorElement *JAKID;
 	std::vector<std::vector<MonitorElement *> > JAKInvMass;
