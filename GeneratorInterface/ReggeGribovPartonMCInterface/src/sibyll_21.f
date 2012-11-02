@@ -1686,7 +1686,7 @@ C...Print particle list
      +         ,9x,'E', /, 3X,70('-'))
 120      FORMAT(1X,I4,1X,A18,1X,I4,2X,2(F9.3,2X),2(E9.3,2X))
 140      FORMAT(1X,'Tot = ',24X,2(F9.3,2X),G9.3,2X,E9.3)
-      write(LUN,'(1x,a,i3,3x,a,i3))') 'Total charge:',ichar,
+      write(LUN,'(1x,a,i3,3x,a,i3)') 'Total charge:',ichar,
      &  'baryon number:',ibary
 
       RETURN
