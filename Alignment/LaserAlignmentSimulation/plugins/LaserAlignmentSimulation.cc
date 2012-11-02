@@ -1,8 +1,8 @@
 /** \file LaserAlignmentSimulation.cc
  *  SimWatcher for the simulation of the Laser Alignment System of the CMS Tracker
  *
- *  $Date: 2007/12/04 23:53:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/02/25 00:27:58 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -15,8 +15,6 @@
 #include "G4Step.hh" 
 #include "G4Timer.hh" 
 #include "G4VProcess.hh" 
-
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
