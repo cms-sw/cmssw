@@ -25,7 +25,6 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
