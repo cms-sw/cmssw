@@ -74,6 +74,10 @@ class CvCfHiggs(SMLikeHiggsModel):
         
         self.SMH.makeScaling('hgg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
         self.SMH.makeScaling('hZg', Cb='CF', Ctop='CF', CW='CV', Ctau='CF')
+
+        # Ideas for a cleaner future
+        #        self.SMH.makeScaling('hww', 'CV*CV') -> Scaling_hww("@0*@0",CV)
+        #        self.SMH.makeScaling('total', hbb='CF*CF', htoptop='CF*CF', hww='CV*CV', hzz='CV', hgg='Scaling_hgg', hgluglu='Scaling_hgluglu' )
         
         ## partial widths, normalized to the SM one, for decays scaling with F, V and total
         for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
