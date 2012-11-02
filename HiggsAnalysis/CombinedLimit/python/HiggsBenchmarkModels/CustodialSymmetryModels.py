@@ -40,51 +40,78 @@ class LambdaWZHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
+
+        self.decayScaling = {
+            'hgg':'hgg',
+            'hZg':'hZg',
+            'hww':'hww',
+            'hzz':'hzz',
+            'hbb':'hff',
+            'htt':'hff',
+            }
+        self.productionScaling = {
+            'ggH':'kf',
+            'ttH':'kf',
+            'WH':'kW',
+            'ZH':'kZ',
+            }
+
+        
         # define kW as lambdaWZ*kZ
         self.modelBuilder.factory_('expr::kW("@0*@1",kZ, lambdaWZ)')
 
         # scalings of the loops
         self.SMH.makeScaling('hgg', Cb='kf', Ctop='kf', CW='kW', Ctau='kf')
+        self.SMH.makeScaling('hZg', Cb='kf', Ctop='kf', CW='kW', Ctau='kf')
         self.SMH.makeScaling('qqH', CW='kW', CZ='kZ')
         
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]: self.SMH.makeBR(d)
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+            self.SMH.makeBR(d)
 
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::lambdaWZ_Gscal_Z("@0*@0 * @1", kZ, SM_BR_hzz)') 
         self.modelBuilder.factory_('expr::lambdaWZ_Gscal_W("@0*@0 * @1", kW, SM_BR_hww)') 
         self.modelBuilder.factory_('expr::lambdaWZ_Gscal_fermions("@0*@0 * (@1+@2+@3+@4+@5+@6+@7)", kf, SM_BR_hbb, SM_BR_htt, SM_BR_hcc, SM_BR_htoptop, SM_BR_hgluglu, SM_BR_hmm, SM_BR_hss)') 
         self.modelBuilder.factory_('expr::lambdaWZ_Gscal_gg("@0 * @1", Scaling_hgg, SM_BR_hgg)') 
-        self.modelBuilder.factory_('sum::lambdaWZ_Gscal_tot(lambdaWZ_Gscal_Z, lambdaWZ_Gscal_W, lambdaWZ_Gscal_fermions, lambdaWZ_Gscal_gg)')
+        self.modelBuilder.factory_('expr::lambdaWZ_Gscal_Zg("@0 * @1", Scaling_hZg, SM_BR_hZg)') 
+        self.modelBuilder.factory_('sum::lambdaWZ_Gscal_tot(lambdaWZ_Gscal_Z, lambdaWZ_Gscal_W, lambdaWZ_Gscal_fermions, lambdaWZ_Gscal_gg, lambdaWZ_Gscal_Zg)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM) / (total/total_SM) 
         self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hzz("@0*@0/@1", kZ, lambdaWZ_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hww("@0*@0/@1", kW, lambdaWZ_Gscal_tot)')
-        self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hf("@0*@0/@1", kf, lambdaWZ_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hff("@0*@0/@1", kf, lambdaWZ_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hgg("@0/@1", Scaling_hgg, lambdaWZ_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdaWZ_BRscal_hZg("@0/@1", Scaling_hZg, lambdaWZ_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
-        name = "lambdaWZ_XSBRscal_%s_%s" % (production,decay)
-        print '[CustodialSymmetryModels::LambdaWZHiggs]'
-        print name, production, decay, energy
-        if self.modelBuilder.out.function(name) == None:
-            XSscal = "Scaling_qqH_"+energy
-            if production in ["ggH","ttH"]: XSscal = "kf"
-            if production == "WH": XSscal = "kW"
-            if production == "ZH": XSscal = "kZ"
-            BRscal = "hgg"
-            if decay in ["hbb", "htt"]: BRscal = "hf"
-            if decay in ["hww", "hzz"]: BRscal = decay
-            # hack to avoid "VH"
-            if production == "VH": self.modelBuilder.factory_('expr::%s("1.0*@0", lambdaWZ_BRscal_%s)' % (name, BRscal))
-            else: self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdaWZ_BRscal_%s)' % (name, XSscal, BRscal))
-        return name
 
+        name = 'lambdaWZ_XSBRscal_%(production)s_%(decay)s' % locals()
+        
+        #Special case that depends on Energy
+        if production == 'qqH':
+            self.productionScaling[production]='Scaling_qqH_'+energy
+            name += '_%(energy)s' % locals()
 
+        if self.modelBuilder.out.function(name):
+            return name
 
+        try:
+            BRscal = self.decayScaling[decay]
+            XSscal = self.productionScaling[production]
+            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdaWZ_BRscal_%s)' % (name, XSscal, BRscal))
+            return name
+        except KeyError:
+            if production == "VH":
+                print "WARNING: You are trying to use a VH production mode in a model that needs WH and ZH separately. "\
+                "The best I can do is to scale [%(production)s, %(decay)s, %(energy)s] with the decay BR only but this is wrong..." % locals()
+                self.modelBuilder.factory_('expr::%s("1.0*@0", lambdaWZ_BRscal_%s)' % (name, BRscal))
+                return name
+            raise
+        
 class RzwHiggs(SMLikeHiggsModel):
     "scale WW by mu and ZZ by cZW^2 * mu"
     def __init__(self):

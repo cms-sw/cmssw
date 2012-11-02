@@ -39,15 +39,25 @@ class HiggsLoops(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
+
+        self.decayScaling = {
+            'hgg':'hgg',
+            'hZg':'hxx',
+            'hww':'hxx',
+            'hzz':'hxx',
+            'hbb':'hxx',
+            'htt':'hxx',
+            }
+        
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]: self.SMH.makeBR(d)
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+            self.SMH.makeBR(d)
 
         ## total witdh, normalized to the SM one
-        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop)')
+        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop, SM_BR_hZg)')
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0*@0* @1", kgamma, SM_BR_hgg)') 
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_Zg("@0*@0* @1", kgamma, SM_BR_hZg)')
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gluglu("@0*@0* @1", kgluon, SM_BR_hgluglu)')
-        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_tot(loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_Zg, loopGluonGamma_Gscal_gluglu)')
+        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_tot(loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_gluglu)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hxx("1.0/@0",loopGluonGamma_Gscal_tot)')
@@ -57,16 +67,18 @@ class HiggsLoops(SMLikeHiggsModel):
         #self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
+        
         name = "loopGluonGamma_XSBRscal_%s_%s" % (production,decay)
-        print '[LoopAndInvisibleModel::HiggsLoops]'
-        print name, production, decay, energy
-        if self.modelBuilder.out.function(name) == None:
-            if production == "ggH":
-                BRscal = "hgg" if decay=="hgg" else "hxx"
-                self.modelBuilder.factory_('expr::%s("@0*@0 * @1", kgluon, loopGluonGamma_BRscal_%s)' % (name, BRscal))
-            else:
-                BRscal = "hgg" if decay=="hgg" else "hxx"
-                self.modelBuilder.factory_('expr::%s("1.0 * @0", loopGluonGamma_BRscal_%s)' % (name,BRscal))
+
+        if self.modelBuilder.out.function(name):
+            return name
+        
+        BRscal = self.decayScaling[decay]
+
+        if production == "ggH":
+            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", kgluon, loopGluonGamma_BRscal_%s)' % (name, BRscal))
+        else:
+            self.modelBuilder.factory_('expr::%s("1.0 * @0", loopGluonGamma_BRscal_%s)' % (name,BRscal))
                 
         return name
 
@@ -109,15 +121,25 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
+
+        self.decayScaling = {
+            'hgg':'hgg',
+            'hZg':'hxx',
+            'hww':'hxx',
+            'hzz':'hxx',
+            'hbb':'hxx',
+            'htt':'hxx',
+            }
+        
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]: self.SMH.makeBR(d)
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+            self.SMH.makeBR(d)
 
         ## total witdh, normalized to the SM one
-        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop)')
+        self.modelBuilder.factory_('sum::loopGluonGamma_Gscal_OtherDecays(SM_BR_hbb, SM_BR_htt, SM_BR_hmm, SM_BR_hss, SM_BR_hzz, SM_BR_hww, SM_BR_hcc, SM_BR_htoptop, SM_BR_hZg)')
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gg("@0*@0* @1", kgamma, SM_BR_hgg)') 
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_Zg("@0*@0* @1", kgamma, SM_BR_hZg)')
         self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_gluglu("@0*@0* @1", kgluon, SM_BR_hgluglu)')
-        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_tot("(@1+@2+@3+@4)/(1-@0)", BRInvUndet, loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_Zg, loopGluonGamma_Gscal_gluglu)')
+        self.modelBuilder.factory_('expr::loopGluonGamma_Gscal_tot("(@1+@2+@3)/(1.0-@0)", BRInvUndet, loopGluonGamma_Gscal_OtherDecays, loopGluonGamma_Gscal_gg, loopGluonGamma_Gscal_gluglu)')
 
         ## BRs, normalized to the SM ones: they scale as (partial/partial_SM)^2 / (total/total_SM)^2 
         self.modelBuilder.factory_('expr::loopGluonGamma_BRscal_hxx("1.0/@0",loopGluonGamma_Gscal_tot)')
@@ -128,14 +150,15 @@ class HiggsLoopsInvisible(SMLikeHiggsModel):
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
         name = "loopGluonGamma_XSBRscal_%s_%s" % (production,decay)
-        print '[LoopAndInvisibleModel::HiggsLoops]'
-        print name, production, decay, energy
-        if self.modelBuilder.out.function(name) == None:
-            if production == "ggH":
-                BRscal = "hgg" if decay=="hgg" else "hxx"
-                self.modelBuilder.factory_('expr::%s("@0*@0 * @1", kgluon, loopGluonGamma_BRscal_%s)' % (name, BRscal))
-            else:
-                BRscal = "hgg" if decay=="hgg" else "hxx"
-                self.modelBuilder.factory_('expr::%s("1.0 * @0", loopGluonGamma_BRscal_%s)' % (name,BRscal))
+
+        if self.modelBuilder.out.function(name):
+            return name
+
+        BRscal = self.decayScaling[decay]
+
+        if production == "ggH":
+            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", kgluon, loopGluonGamma_BRscal_%s)' % (name, BRscal))
+        else:
+            self.modelBuilder.factory_('expr::%s("1.0 * @0", loopGluonGamma_BRscal_%s)' % (name, BRscal))
                 
         return name

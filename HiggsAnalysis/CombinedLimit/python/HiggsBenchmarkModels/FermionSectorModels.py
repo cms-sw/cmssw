@@ -41,6 +41,23 @@ class LambdaduHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
+
+        self.decayScaling = {
+            'hgg':'hgg',
+            'hZg':'hZg',
+            'hww':'hvv',
+            'hzz':'hvv',
+            'hbb':'hdd',
+            'htt':'hdd',
+            }
+        self.productionScaling = {
+            'ttH':'ku',
+            'qqH':'kV',
+            'WH':'kV',
+            'ZH':'kV',
+            'VH':'kV',
+            }
+        
         # define kd as lambdadu*ku
         self.modelBuilder.factory_('expr::kd("@0*@1",ku, lambdadu)')
 
@@ -51,7 +68,8 @@ class LambdaduHiggs(SMLikeHiggsModel):
         self.SMH.makeScaling('hgluglu', Cb='kd', Ctop='ku')
 
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]: self.SMH.makeBR(d)
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+            self.SMH.makeBR(d)
 
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::lambdadu_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)') 
@@ -67,22 +85,26 @@ class LambdaduHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::lambdadu_BRscal_huu("@0*@0/@1", ku, lambdadu_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdadu_BRscal_hdd("@0*@0/@1", kd, lambdadu_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdadu_BRscal_hgg("@0/@1", Scaling_hgg, lambdadu_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdadu_BRscal_hZg("@0/@1", Scaling_hZg, lambdadu_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
-        name = "lambdadu_XSBRscal_%s_%s" % (production,decay)
-        print '[FermionSectorModels::LambdaduHiggs]'
-        print name, production, decay, energy
-        if self.modelBuilder.out.function(name) == None:
-            XSscal = "Scaling_ggH_"+energy
-            if production == "ttH": XSscal = "ku"
-            if production in ["qqH","WH","ZH","VH"]: XSscal = "kV"
-            BRscal = "hgg"
-            if decay in ["hbb", "htt"]: BRscal = "hdd"
-            if decay in ["hww", "hzz"]: BRscal = "hvv"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdadu_BRscal_%s)' % (name, XSscal, BRscal))
+
+        name = 'lambdadu_XSBRscal_%(production)s_%(decay)s' % locals()
+
+        #Special case that depends on Energy
+        if production == 'ggH':
+            self.productionScaling[production] = 'Scaling_ggH_' + energy
+            name += '_%(energy)s' % locals()
+            
+        if self.modelBuilder.out.function(name):
+            return name
+
+        XSscal = self.productionScaling[production]
+        BRscal = self.decayScaling[decay]
+        self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdadu_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
 
@@ -124,6 +146,24 @@ class LambdalqHiggs(SMLikeHiggsModel):
         self.setup()
 
     def setup(self):
+
+        self.decayScaling = {
+            'hgg':'hgg',
+            'hZg':'hZg',
+            'hww':'hvv',
+            'hzz':'hvv',
+            'hbb':'hqq',
+            'htt':'hll',
+            }
+        self.productionScaling = {
+            'ggH':'kq',
+            'ttH':'kq',
+            'qqH':'kV',
+            'WH':'kV',
+            'ZH':'kV',
+            'VH':'kV',
+            }
+        
         # define kd as lambdalq*kq
         self.modelBuilder.factory_('expr::kl("@0*@1",kq, lambdalq)')
 
@@ -132,7 +172,8 @@ class LambdalqHiggs(SMLikeHiggsModel):
         self.SMH.makeScaling('hZg', Cb='kq', Ctop='kq', CW='kV', Ctau='kl')
 
         # SM BR
-        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]: self.SMH.makeBR(d)
+        for d in [ "htt", "hbb", "hcc", "hww", "hzz", "hgluglu", "htoptop", "hgg", "hZg", "hmm", "hss" ]:
+            self.SMH.makeBR(d)
 
         ## total witdhs, normalized to the SM one
         self.modelBuilder.factory_('expr::lambdalq_Gscal_Vectors("@0*@0 * (@1+@2)", kV, SM_BR_hzz, SM_BR_hww)') 
@@ -147,22 +188,20 @@ class LambdalqHiggs(SMLikeHiggsModel):
         self.modelBuilder.factory_('expr::lambdalq_BRscal_hqq("@0*@0/@1", kq, lambdalq_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdalq_BRscal_hll("@0*@0/@1", kl, lambdalq_Gscal_tot)')
         self.modelBuilder.factory_('expr::lambdalq_BRscal_hgg("@0/@1", Scaling_hgg, lambdalq_Gscal_tot)')
+        self.modelBuilder.factory_('expr::lambdalq_BRscal_hZg("@0/@1", Scaling_hZg, lambdalq_Gscal_tot)')
 
         # verbosity
         #self.modelBuilder.out.Print()
 
     def getHiggsSignalYieldScale(self,production,decay,energy):
-        name = "lambdalq_XSBRscal_%s_%s" % (production,decay)
-        print '[FermionSectorModels::LambdalqHiggs]'
-        print name, production, decay, energy
-        if self.modelBuilder.out.function(name) == None:
-            XSscal = "kq"
-            if production in ["qqH","WH","ZH","VH"]: XSscal = "kV"
-            BRscal = "hgg"
-            if decay  == "hbb": BRscal = "hqq"
-            if decay  == "htt": BRscal = "hll"
-            if decay in ["hww", "hzz"]: BRscal = "hvv"
-            self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdalq_BRscal_%s)' % (name, XSscal, BRscal))
+        
+        name = "lambdalq_XSBRscal_%(production)s_%(decay)s" % locals()
+        if self.modelBuilder.out.function(name):
+            return name
+
+        XSscal = self.productionScaling[production]
+        BRscal = self.decayScaling[decay]
+        self.modelBuilder.factory_('expr::%s("@0*@0 * @1", %s, lambdalq_BRscal_%s)' % (name, XSscal, BRscal))
         return name
 
 
