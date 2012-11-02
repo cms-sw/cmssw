@@ -661,7 +661,7 @@ void HcalLedAnalysis::LedHBHEHists(const HcalDetId& detid, const HBHEDataFrame& 
   float ta = 0;
   m_coder = cond.getHcalCoder(detid);
   m_ped = cond.getPedestal(detid);
-  m_shape = cond.getHcalShape();
+  m_shape = cond.getHcalShape(m_coder);
   for (int TS = m_startTS; TS < m_endTS && TS < ledDigi.size(); TS++){
     int capid = ledDigi[TS].capid();
     int adc = ledDigi[TS].adc();
@@ -726,7 +726,7 @@ void HcalLedAnalysis::LedHOHists(const HcalDetId& detid, const HODataFrame& ledD
   float ta = 0;
   m_coder = cond.getHcalCoder(detid);
   m_ped = cond.getPedestal(detid);
-  m_shape = cond.getHcalShape();
+  m_shape = cond.getHcalShape(m_coder);
   for (int TS = m_startTS; TS < m_endTS && TS < ledDigi.size(); TS++){
     int capid = ledDigi[TS].capid();
     int adc = ledDigi[TS].adc();
@@ -790,7 +790,7 @@ void HcalLedAnalysis::LedHFHists(const HcalDetId& detid, const HFDataFrame& ledD
   float ta = 0;
   m_coder = cond.getHcalCoder(detid);
   m_ped = cond.getPedestal(detid);
-  m_shape = cond.getHcalShape();
+  m_shape = cond.getHcalShape(m_coder);
   //cout << "New Digi!!!!!!!!!!!!!!!!!!!!!!" << endl;
   for (int TS = m_startTS; TS < m_endTS && TS < ledDigi.size(); TS++){
     int capid = ledDigi[TS].capid();

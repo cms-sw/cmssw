@@ -345,7 +345,6 @@ void HcalDigiMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
   std::vector<DetId> mydetids = chanquality->getAllChannels();
   PedestalsByCapId_.clear();
 
-  const HcalQIEShape* shape = conditions_->getHcalShape();
   for (std::vector<DetId>::const_iterator chan = mydetids.begin();chan!=mydetids.end();++chan)
     {
       if (chan->det()!=DetId::Hcal) continue; // not hcal
@@ -353,6 +352,7 @@ void HcalDigiMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
       peds.clear();
       HcalCalibrations calibs=conditions_->getHcalCalibrations(*chan);
       const HcalQIECoder* channelCoder = conditions_->getHcalCoder(*chan);
+      const HcalQIEShape* shape = conditions_->getHcalShape(channelCoder);
       //double total=0; // use this is we want to calculate average pedestal value
       for (int capid=0;capid<4;++capid)
 	{

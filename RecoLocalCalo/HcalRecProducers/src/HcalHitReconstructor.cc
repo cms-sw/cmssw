@@ -250,7 +250,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
-  const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
   // HACK related to HB- corrections
   if(e.isRealData()) reco_.setForData();    
   if(useLeakCorrection_) reco_.setLeakCorrection();
@@ -352,6 +351,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	const HcalQIEShape* shape = conditions->getHcalShape (channelCoder);
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
@@ -457,6 +457,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	const HcalQIEShape* shape = conditions->getHcalShape (channelCoder);
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
@@ -543,6 +544,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	const HcalQIEShape* shape = conditions->getHcalShape (channelCoder);
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// Set HFDigiTime flag values from digiTimeFromDB_
@@ -652,6 +654,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	const HcalQIEShape* shape = conditions->getHcalShape (channelCoder);
 	HcalCoderDb coder (*channelCoder, *shape);
 
 	// firstSample & samplesToAdd

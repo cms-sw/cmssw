@@ -45,7 +45,6 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
   typename edm::SortedCollection<Digi>::const_iterator digiItr;
      
   // ADC2fC 
-  const HcalQIEShape* shape = conditions->getHcalShape();
   HcalCalibrations calibrations;
   CaloSamples tool;
 
@@ -327,6 +326,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
 
       const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
+      const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*digiItr,tool);
       

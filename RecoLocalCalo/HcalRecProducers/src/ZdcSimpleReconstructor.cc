@@ -55,7 +55,6 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
-  const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
   // define vectors to pass noiseTS and signalTS
   std::vector<unsigned int> mySignalTS;
   std::vector<unsigned int> myNoiseTS;
@@ -93,6 +92,7 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
 	}   
       const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+      const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); 
       HcalCoderDb coder (*channelCoder, *shape);
       rec->push_back(reco_.reconstruct(*i,myNoiseTS,mySignalTS,coder,calibrations));
     }

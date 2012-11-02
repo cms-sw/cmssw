@@ -18,8 +18,8 @@ namespace ZSEnergy_impl {
   template <class DIGI> 
   bool keepMe(const HcalDbService& db, const DIGI& inp, int threshold, int firstSample, int samples, bool twosided) {
     bool keepIt=false;
-    const HcalQIEShape* shape = db.getHcalShape (); // this one is generic
     const HcalQIECoder* channelCoder = db.getHcalCoder (inp.id());
+    const HcalQIEShape* shape = db.getHcalShape (channelCoder);
 
     // determine average pedestal for channel
     float pedsum=0, pedave=0, offset=0, slope=0;

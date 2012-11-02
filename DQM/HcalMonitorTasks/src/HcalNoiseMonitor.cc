@@ -237,7 +237,7 @@ void HcalNoiseMonitor::analyze(edm::Event const &iEvent, edm::EventSetup const &
       HcalDetId id = iter->id();
       const HcalCalibrations &Calibrations = hConditions->getHcalCalibrations(id);
       const HcalQIECoder *ChannelCoder = hConditions->getHcalCoder(id);
-      const HcalQIEShape *Shape = hConditions->getHcalShape();
+      const HcalQIEShape *Shape = hConditions->getHcalShape(ChannelCoder);
       HcalCoderDb Coder(*ChannelCoder, *Shape);
       CaloSamples Tool;
       Coder.adc2fC(*iter, Tool);

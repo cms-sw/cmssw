@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2010/01/06 14:18:54 $
- *  $Revision: 1.14 $
+ *  $Date: 2012/01/31 16:33:10 $
+ *  $Revision: 1.15 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -681,7 +681,6 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
       << "Unable to find HCalconditions in event!";
     return;
   } 
-  const HcalQIEShape *shape = HCalconditions->getHcalShape();
   //HcalCalibrations calibrations;
   CaloSamples tool;
 
@@ -745,6 +744,8 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
       const HcalCalibrations& calibrations = 
 	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
+      const HcalQIEShape *shape = HCalconditions->getHcalShape(channelCoder);
+
       HcalCoderDb coder(*channelCoder, *shape);
       coder.adc2fC(*ihbhe, tool);
       
@@ -811,6 +812,8 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
       const HcalCalibrations& calibrations = 
 	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
+      const HcalQIEShape *shape = HCalconditions->getHcalShape(channelCoder);
+
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*iho, tool);
 
@@ -854,6 +857,8 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
       const HcalCalibrations& calibrations = 
 	HCalconditions->getHcalCalibrations(cell);
       const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
+      const HcalQIEShape *shape = HCalconditions->getHcalShape(channelCoder);
+
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*ihf, tool);
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ali Fahim,22 R-013,+41227672649,
 //         Created:  Wed Mar 23 11:42:34 CET 2011
-// $Id: HcalDigisValidation.cc,v 1.2 2012/05/24 13:59:17 abdullin Exp $
+// $Id: HcalDigisValidation.cc,v 1.3 2012/05/24 15:53:11 abdullin Exp $
 //
 //
 
@@ -474,7 +474,6 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
     typename edm::SortedCollection<Digi>::const_iterator digiItr;
 
     // ADC2fC
-    const HcalQIEShape* shape = conditions->getHcalShape();
     HcalCalibrations calibrations;
     CaloSamples tool;
     iEvent.getByLabel(inputTag_, digiCollection);
@@ -610,6 +609,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
 
             const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
+	    const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
             HcalCoderDb coder(*channelCoder, *shape);
             coder.adc2fC(*digiItr, tool);
 

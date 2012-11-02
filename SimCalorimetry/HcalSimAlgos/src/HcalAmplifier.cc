@@ -141,7 +141,7 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
   }
 
   const HcalQIECoder* coder = theDbService->getHcalCoder(hcalGenDetId);
-  const HcalQIEShape* shape = theDbService->getHcalShape();
+  const HcalQIEShape* shape = theDbService->getHcalShape(coder);
 
   for (int tbin = 0; tbin < frame.size(); ++tbin) {
     int capId = (theStartingCapId_2 + tbin)%4;

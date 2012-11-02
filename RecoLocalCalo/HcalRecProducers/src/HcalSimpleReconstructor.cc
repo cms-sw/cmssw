@@ -65,7 +65,6 @@ void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& even
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
-  const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
 
   // HACK related to HB- corrections
   if(e.isRealData()) reco_.setForData();
@@ -90,6 +89,7 @@ void HcalSimpleReconstructor::process(edm::Event& e, const edm::EventSetup& even
 
     const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
     const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+    const HcalQIEShape* shape = conditions->getHcalShape (channelCoder); 
     HcalCoderDb coder (*channelCoder, *shape);
 
     //>>> firstSample & samplesToAdd

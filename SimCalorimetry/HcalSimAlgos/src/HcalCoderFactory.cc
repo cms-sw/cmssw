@@ -17,7 +17,7 @@ std::auto_ptr<HcalCoder> HcalCoderFactory::coder(const DetId & id) const {
     assert(theDbService != 0);
     HcalGenericDetId hcalGenDetId(id);
     const HcalQIECoder * qieCoder = theDbService->getHcalCoder(hcalGenDetId );
-    const HcalQIEShape * qieShape = theDbService->getHcalShape();
+    const HcalQIEShape * qieShape = theDbService->getHcalShape(hcalGenDetId);
     result = new HcalCoderDb(*qieCoder, *qieShape);
   }
 

@@ -73,7 +73,6 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
   // get conditions
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
-  const HcalQIEShape* shape = conditions->getHcalShape (); // this one is generic
   
   edm::ESHandle<HcalChannelQuality> p;
   eventSetup.get<HcalChannelQualityRcd>().get(p);
@@ -106,6 +105,7 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
 	  if (i->zsMarkAndPass()) continue;
 	const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
 	const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
+	const HcalQIEShape* shape = conditions->getHcalShape (channelCoder);
 	HcalCoderDb coder (*channelCoder, *shape);
 
 // get db values for signalTSs and noiseTSs

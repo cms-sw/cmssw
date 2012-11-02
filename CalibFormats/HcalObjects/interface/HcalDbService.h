@@ -36,7 +36,8 @@ class HcalDbService {
   const HcalGain* getGain (const HcalGenericDetId& fId) const;
   const HcalGainWidth* getGainWidth (const HcalGenericDetId& fId) const;
   const HcalQIECoder* getHcalCoder (const HcalGenericDetId& fId) const;
-  const HcalQIEShape* getHcalShape () const;
+  const HcalQIEShape* getHcalShape (const HcalGenericDetId& fId) const;
+  const HcalQIEShape* getHcalShape (const HcalQIECoder *coder) const;
   const HcalElectronicsMap* getHcalMapping () const;
   const HcalRespCorr* getHcalRespCorr (const HcalGenericDetId& fId) const;
   const HcalTimeCorr* getHcalTimeCorr (const HcalGenericDetId& fId) const;

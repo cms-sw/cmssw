@@ -185,7 +185,6 @@ void HcaluLUTTPGCoder::updateXML(const char* filename, HcalTopologyMode::Mode mo
 
 void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
-   const HcalQIEShape* shape = conditions.getHcalShape();
    HcalCalibrations calibrations;
    const HcalLutMetadata *metadata = conditions.getHcalLutMetadata();
    assert(metadata !=0);
@@ -205,6 +204,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
                HcalDetId cell(subdet, ieta, iphi, depth);
                const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
+	       const HcalQIEShape* shape = conditions.getHcalShape(cell);
                HcalCoderDb coder (*channelCoder, *shape);
                const HcalLutMetadatum *meta = metadata->getValues(cell);
 

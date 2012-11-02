@@ -134,7 +134,6 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
     if(evt_curr==0)evt_curr=m_nevtsample;
   }
 
-  m_shape = cond.getHcalShape();
   // Get data for every CAPID.
   // HBHE
   try{
@@ -142,6 +141,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
+      m_shape = cond.getHcalShape(m_coder);
       for(int k=0; k<(int)state.size();k++) state[k]=true;
 // here we loop over pairs of time slices, it is more convenient
 // in order to extract the correlation matrix
@@ -269,7 +269,7 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
   _mei = _meot->second;
 
   const HcalQIECoder* coder = cond.getHcalCoder(detid);
-  const HcalQIEShape* shape = cond.getHcalShape();
+  const HcalQIEShape* shape = cond.getHcalShape(coder);
   float charge1 = coder->charge(*shape,qie1.adc(),qie1.capid());
   float charge2 = coder->charge(*shape,qie2.adc(),qie2.capid());
 

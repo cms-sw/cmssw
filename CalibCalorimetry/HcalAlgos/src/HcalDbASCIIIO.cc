@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.63 2011/10/26 13:58:20 xiezhen Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.66 2011/11/23 13:48:27 abdullin Exp $
 //
 #include <vector>
 #include <string>
@@ -1166,17 +1166,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
     std::vector <std::string> items = splitString (std::string (buffer));
     if (items.size()<1) continue;
     if (items [0] == "SHAPE") { // basic shape
-      if (items.size () < 33) {
-	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 33 items: SHAPE  32 x low QIE edges for first 32 bins" << std::endl;
-	continue;
-      }
-      // comment, as normally not used ----------------------- 
-      /* 
-      float lowEdges [32];
-      int i = 32;
-      while (--i >= 0) lowEdges [i] = atof (items [i+1].c_str ());
-      */
-      //      fObject->setShape (lowEdges);
+      //this shape keyword is obsolete
     }
     else { // QIE parameters
       if (items.size () < 36) {
@@ -1202,6 +1192,9 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 	    coder.setSlope (capid, range, atof (items [index++].c_str ()));
 	  }
 	}
+	if (items.size()>36)
+	  coder.setQIEIndex(atoi(items[index++].c_str()));
+
 	fObject->addCoder (coder);
 //      }
     }
@@ -1211,15 +1204,8 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 }
 
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObject) {
+  std::cout <<"dumping object\n";
   char buffer [1024];
-  fOutput << "# QIE basic shape: SHAPE 32 x low edge values for first 32 channels" << std::endl;
-  sprintf (buffer, "SHAPE ");
-  fOutput << buffer;
-  for (unsigned bin = 0; bin < 32; bin++) {
-    sprintf (buffer, " %8.5f", fObject.getShape ().lowEdge (bin));
-    fOutput << buffer;
-  }
-  fOutput << std::endl;
 
   fOutput << "# QIE data" << std::endl;
   sprintf (buffer, "# %15s %15s %15s %15s %36s %36s %36s %36s %36s %36s %36s %36s\n", 
@@ -1246,6 +1232,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
 	fOutput << buffer;
       }
     }
+    sprintf (buffer, " %2d", coder->qieIndex());
+    fOutput << buffer;
     fOutput << std::endl;
   }
   return true;
