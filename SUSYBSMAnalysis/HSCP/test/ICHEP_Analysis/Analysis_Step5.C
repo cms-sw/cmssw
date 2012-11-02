@@ -79,7 +79,7 @@ void Analysis_Step5()
    InputPattern = "Results/Type3/";   CutIndex = 79; CutIndex_Flip=58;
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   CutFlow(InputPattern, CutIndex);
+   //CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
    CosmicBackgroundSystematic(InputPattern, "8TeV");
    CosmicBackgroundSystematic(InputPattern, "7TeV");
@@ -87,6 +87,7 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
    CheckPrediction(InputPattern, "", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
+   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
 
    /*
@@ -414,7 +415,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
      CtrlPt_S3_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S3_TOF_Binned"+Bin); CtrlPt_S3_TOF_Binned[i]->Rebin(1);
      CtrlPt_S4_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S4_TOF_Binned"+Bin); CtrlPt_S4_TOF_Binned[i]->Rebin(1);
    }
-/*
+
    std::vector<std::string> PtLimitsNames;
    if(TypeMode!=3) {
      PtLimitsNames.push_back(" 50<p_{T}< 60 GeV");
@@ -648,7 +649,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    delete Histos[0]; delete Histos[1];
    delete c1;
    }
-*/
+
 
    if (TypeMode==4)     {
      TH1D* HCuts_I                 = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
@@ -1967,8 +1968,8 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
       Sigma+=1/pow(NPredErr,2);
       N++;
       if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.3)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001) {
-	//cout << endl << "D Sideband " << D_Sideband << " D_Cosmic " << D_Cosmic << " D_Sideband_Cosmic " << D_Sideband_Cosmic << endl;
-	//cout << "For Dz region " << LegendNames[Region] << " NPred " << NPred << " +- " << NPredErr << endl;
+	cout << endl << "D Sideband " << D_Sideband << " D_Cosmic " << D_Cosmic << " D_Sideband_Cosmic " << D_Sideband_Cosmic << endl;
+	cout << "For Dz region " << LegendNames[Region] << " NPred " << NPred << " +- " << NPredErr << endl;
       }
     }
 
@@ -1983,15 +1984,15 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
     }
     
     SUM  = sqrt(SUM/(N-1));
-    STAT = sqrt(STAT)/(N-1);
+    STAT = sqrt(STAT/(N));
     SYST = sqrt(SUM*SUM - STAT*STAT);
     if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.3)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001)
-      //cout << "Mean " << Mean << " Sigma " << Sigma << " Stat " << STAT/Mean << " StatSyst " << SUM/Mean << "Syst " << SYST/Mean << endl;
+      cout << "Mean " << Mean << " Sigma " << Sigma << " Stat " << STAT/Mean << " StatSyst " << SUM/Mean << "Syst " << SYST/Mean << endl;
     Stat[Plot[i]]->SetBinContent(Bin, STAT/Mean);
     StatSyst[Plot[i]]->SetBinContent(Bin, SUM/Mean);
     Syst[Plot[i]]->SetBinContent(Bin, SYST/Mean);
   }
-    //cout << endl << endl;
+  //cout << endl << endl;
   for(int i=0; i<TimeRegions; i++) {
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     for(int Region=2; Region<DzRegions; Region++) {
@@ -2042,6 +2043,8 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
 void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
   TypeMode = TypeFromPattern(InputPattern);
   if(TypeMode==0)return;
+
+  if(DataType.find("7TeV")!=string::npos){SQRTS=7.0;}else{SQRTS=8.0;}
 
   std::vector<string> legend;
   string LegendTitle = LegendFromType(InputPattern);
@@ -2322,6 +2325,9 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     double NPred[3]={0};
     double NPredErr[3]={0};
 
+    //Calculate the three predictions and their statistical errors
+    //The statisitical uncertainty due to the shared region is not included as it is correlated between the predictions
+
     if(TypeMode==2) {
       NPred[0]    = (A*F*G)/(E*E);
       NPredErr[0] = sqrt( ((pow(F*G,2)* A + pow(A*G,2)*F + pow(A*F,2)*G)/pow(E,4)) + (pow((2*A*F*G)/pow(E,3),2)*E));
@@ -2395,7 +2401,8 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     }
   
     SUM  = sqrt(SUM/(N-1));
-    STAT = sqrt(STAT/(N-1)); //HERE IT MUST BE N-1 !!!, IF YOU HAVE ARGUMENTS TO USE N, PLEASE ARGUE
+    STAT = sqrt(STAT/(N)); //Use N here as averaging the various statistical uncertaties, correlation due to the shared is accounted for above.
+
     if(SUM*SUM > STAT*STAT) SYST = sqrt(SUM*SUM - STAT*STAT);
     else SYST=0;
 
@@ -2436,7 +2443,8 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     if (TypeMode==4)      PredGraphs->GetXaxis()->SetTitle("I_{as} cut");
     PredGraphs->GetYaxis()->SetTitle("Number of expected backgrounds");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
-    PredGraphs->GetYaxis()->SetRangeUser(0,400);
+    if(i==0) PredGraphs->GetYaxis()->SetRangeUser(0,50000);
+    else PredGraphs->GetYaxis()->SetRangeUser(0,2400);
     c1->SetLogy(0);
 
     if (TypeMode == 4)   
