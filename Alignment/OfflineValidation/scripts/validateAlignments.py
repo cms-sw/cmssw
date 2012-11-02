@@ -1078,7 +1078,7 @@ class ValidationJob:
                     }
                 log+=getCommandOutput2("%(bsub)s %(commands)s -J %(jobName)s "
                                        "-o %(logDir)s/%(jobName)s.stdout -e "
-                                       "%(logDir)s/%(jobName)s.stderr"
+                                       "%(logDir)s/%(jobName)s.stderr "
                                        "%(script)s"%repMap)
             elif self.validation.jobmode.split( "," )[0] == "crab":
                 pass
