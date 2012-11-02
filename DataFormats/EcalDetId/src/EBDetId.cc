@@ -1,7 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-//#include <iostream>
 #include <algorithm>
 const int EBDetId::kModuleBoundaries[4] = { 25, 45, 65, 85 };
 

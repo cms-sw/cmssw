@@ -1,7 +1,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
     
-#include <iostream>
 #include <algorithm>
    
 const int EEDetId::QuadColLimits[EEDetId::nCols+1] = { 0, 8,17,27,36,45,54,62,70,76,79 };
