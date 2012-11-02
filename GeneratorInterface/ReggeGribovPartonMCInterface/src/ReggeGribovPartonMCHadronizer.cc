@@ -242,6 +242,9 @@ bool ReggeGribovPartonMCHadronizer::initializeTablePaths()
   strcpy(qgsfname_.fndat, path_fndat.c_str());
   strcpy(qgsfname_.fnncs, path_fnncs.c_str());
 
+  qgsfname_.ifdat=1; //option to overwrite the normal path
+  qgsfname_.ifncs=2;
+
   //qgsjetII
   string path_fniidat(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/qgsdat-II-04.lzma").fullPath());
   string path_fniincs(FileInPath("GeneratorInterface/ReggeGribovPartonMCInterface/data/sectnu-II-04").fullPath());
@@ -253,6 +256,9 @@ bool ReggeGribovPartonMCHadronizer::initializeTablePaths()
 
   strcpy(qgsiifname_.fniidat, path_fniidat.c_str());
   strcpy(qgsiifname_.fniincs, path_fniincs.c_str());
+
+  qgsiifname_.ifiidat=1; //option to overwrite the normal path
+  qgsiifname_.ifiincs=2;
 
  return true;
 }
