@@ -9,7 +9,7 @@ process = cms.Process('TOPDQM')
 process.load('DQMOffline.Configuration.DQMOffline_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("DQM.Physics.singleTopDQM_cfi")
+
 
 
 ## --------------------------------------------------------------------
