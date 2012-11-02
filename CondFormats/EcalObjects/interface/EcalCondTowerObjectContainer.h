@@ -6,7 +6,7 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
 
-#include <cstdio>
+// #include <cstdio>
 
 template < typename T >
 class EcalCondTowerObjectContainer {
@@ -49,7 +49,7 @@ class EcalCondTowerObjectContainer {
 		  } else if(  id.subdetId() == EcalEndcap  ) { 
 		    ee_.insert(a);
 		  } else {
-		    std::cout <<"*** ERROR it is not barrel nor endcap tower"<< std::endl;
+//		    std::cout <<"*** ERROR it is not barrel nor endcap tower"<< std::endl;
 		  }
                 }
                 
