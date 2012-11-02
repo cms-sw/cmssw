@@ -293,8 +293,10 @@ CaloSubdetectorGeometry::DetIdSet
 EcalBarrelGeometry::getCells( const GlobalPoint& r, 
 			      double             dR ) const 
 {
-   static const int maxphi ( EBDetId::MAX_IPHI ) ;
-   static const int maxeta ( EBDetId::MAX_IETA ) ;
+   constexpr int maxphi ( EBDetId::MAX_IPHI ) ;
+   constexpr int maxeta ( EBDetId::MAX_IETA ) ;
+   constexpr float scale( maxphi/(2*M_PI) ) ; // angle to index
+
    CaloSubdetectorGeometry::DetIdSet dis;  // this is the return object
 
    if( 0.000001 < dR )
@@ -315,53 +317,52 @@ EcalBarrelGeometry::getCells( const GlobalPoint& r,
 	 if( highEta > -1.5 &&
 	     lowEta  <  1.5    ) // in barrel
 	 {
-	    const float scale       ( maxphi/float(2*M_PI) ) ; // angle to index
-	    const int    ieta_center ( int( reta*scale + ((rz<0)?(-1):(1))) ) ;
-	    const float phi         ( rphi<0 ? rphi + float(2*M_PI) : rphi ) ;
-	    const int    iphi_center ( int( phi*scale + 11.f ) ) ; // phi=-9.4deg is iphi=1
+	   const int    ieta_center ( int( reta*scale + ((rz<0)?(-1):(1))) ) ;
+	   const float phi         ( rphi<0 ? rphi + float(2*M_PI) : rphi ) ;
+	   const int    iphi_center ( int( phi*scale + 11.f ) ) ; // phi=-9.4deg is iphi=1
 
-	    const float fr    ( dR*scale    ) ; // # crystal widths in dR
-	    const float frp   ( 1.08f*fr + 1.f ) ; // conservatively above fr 
-	    const float frm   ( 0.92f*fr - 1.f ) ; // conservatively below fr
-	    const int    idr   ( (int)frp        ) ; // integerize
-	    const int    idr2p ( (int)(frp*frp)     ) ;
-	    const int    idr2m ( frm > 0 ? int(frm*frm) : 0 ) ;
-
-	    for( int de ( -idr ) ; de <= idr ; ++de ) // over eta limits
-	    {
+	   const float fr    ( dR*scale    ) ; // # crystal widths in dR
+	   const float frp   ( 1.08f*fr + 1.f ) ; // conservatively above fr 
+	   const float frm   ( 0.92f*fr - 1.f ) ; // conservatively below fr
+	   const int    idr   ( (int)frp        ) ; // integerize
+	   const int    idr2p ( (int)(frp*frp)     ) ;
+	   const int    idr2m ( frm > 0 ? int(frm*frm) : 0 ) ;
+	   
+	   for( int de ( -idr ) ; de <= idr ; ++de ) // over eta limits
+	     {
 	       int ieta ( de + ieta_center ) ;
 	       
 	       if( std::abs(ieta) <= maxeta &&
 		   ieta      != 0         ) // eta is in EB
-	       {
-		  const int de2 ( de*de ) ;
-		  for( int dp ( -idr ) ; dp <= idr ; ++dp )  // over phi limits
-		  {
-		     const int irange2 ( dp*dp + de2 ) ;
-		     
-		     if( irange2 <= idr2p ) // cut off corners that must be too far away
+		 {
+		   const int de2 ( de*de ) ;
+		   for( int dp ( -idr ) ; dp <= idr ; ++dp )  // over phi limits
 		     {
-			const int iphi ( ( iphi_center + dp + maxphi - 1 )%maxphi + 1 ) ;
-			
-			if( iphi != 0 )
-			{
-			   const EBDetId id ( ieta, iphi ) ;
+		       const int irange2 ( dp*dp + de2 ) ;
+		       
+		       if( irange2 <= idr2p ) // cut off corners that must be too far away
+			 {
+			   const int iphi ( ( iphi_center + dp + maxphi - 1 )%maxphi + 1 ) ;
 			   
-			   bool ok ( irange2 < idr2m ) ;  // no more calculation necessary if inside this radius
+			   if( iphi != 0 )
+			     {
+			       const EBDetId id ( ieta, iphi ) ;
+			       
+			       bool ok ( irange2 < idr2m ) ;  // no more calculation necessary if inside this radius
 			   
-			   if( !ok ) // if not ok, then we have to test this cell for being inside cone
-			   {
-			     const CaloCellGeometry* cell  = &m_cellVec[ id.denseIndex()];
-			     const float       eta ( cell->etaPos() ) ;
-			     const float       phi ( cell->phiPos() ) ;
-			     ok = ( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) ;
+			       if( !ok ) // if not ok, then we have to test this cell for being inside cone
+				 {
+				   const CaloCellGeometry* cell  = &m_cellVec[ id.denseIndex()];
+				   const float       eta ( cell->etaPos() ) ;
+				   const float       phi ( cell->phiPos() ) ;
+				   ok = ( reco::deltaR2( eta, phi, reta, rphi ) < dR2 ) ;
 			   }
-			   if( ok ) dis.insert( id ) ;
-			}
+			       if( ok ) dis.insert( id ) ;
+			     }
+			 }
 		     }
-		  }
-	       }
-	    }
+		 }
+	     }
 	 }
       }
    }
