@@ -33,7 +33,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
   HESize_(kHESizePreLS1),
   HOSize_(kHOSizePreLS1),
   HFSize_(kHFSizePreLS1),
-  numberOfShapes_(( mode==HcalTopologyMode::SLHC ) ? 500 : 87 )
+  numberOfShapes_(( mode==HcalTopologyMode::SLHC ) ? 143 : 87 ) // not 500?
 {
 
   if (mode_==HcalTopologyMode::LHC) {
