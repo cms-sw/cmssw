@@ -1,7 +1,7 @@
 #ifndef ECALDETID_ECALTRIGTOWERDETID_H
 #define ECALDETID_ECALTRIGTOWERDETID_H
 
-#include <ostream>
+#include <iosfwd>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
@@ -10,7 +10,7 @@
     
    DetId for an Ecal Trigger tower
 
-   $Id: EcalTrigTowerDetId.h,v 1.8 2007/07/31 15:20:00 ratnik Exp $
+   $Id: EcalTrigTowerDetId.h,v 1.9 2009/01/16 23:51:34 heltsley Exp $
 */
 
 

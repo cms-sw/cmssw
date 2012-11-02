@@ -1,7 +1,7 @@
 #ifndef ECALDETID_EBDETID_H
 #define ECALDETID_EBDETID_H
 
-#include <ostream>
+#include <iosfwd>
 #include <cmath>
 #include <cstdlib>
 #include "DataFormats/DetId/interface/DetId.h"
@@ -13,7 +13,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.27 2010/03/10 00:26:45 ferriff Exp $
+ *  $Id: EBDetId.h,v 1.28 2012/11/02 08:25:14 innocent Exp $
  */
 
 
@@ -66,7 +66,7 @@ class EBDetId : public DetId {
   /// get the number of module inside the SM (1-4)
   int im() const {
     int ii = (ietaAbs()-26);
-    return ii<0 ? 1 : ii/20 +2;
+    return ii<0 ? 1 : (ii/20 +2);
   }
   /// get ECAL/crystal number inside SM
   int ic() const;
@@ -123,8 +123,8 @@ class EBDetId : public DetId {
 
   /// check if a valid index combination
   static bool validDetId(int i, int j) {
-    return i!=0 && std::abs(i) <= MAX_IETA
-      && std::abs(j) <= MAX_IPHI; 
+    return i!=0 && (std::abs(i) <= MAX_IETA)
+      && (j>=MIN_IPHI) && (j <= MAX_IPHI); 
   }
 
   static bool isNextToBoundary(EBDetId id);

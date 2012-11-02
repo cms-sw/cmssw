@@ -1,7 +1,7 @@
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <iostream>
+#include <ostream>
 #include <cassert>
 
 short EcalScDetId::xyz2HashedIndex[EcalScDetId::IX_MAX][EcalScDetId::IY_MAX][EcalScDetId::nEndcaps];

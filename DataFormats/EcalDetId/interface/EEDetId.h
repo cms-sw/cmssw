@@ -1,7 +1,7 @@
 #ifndef ECALDETID_EEDETID_H
 #define ECALDETID_EEDETID_H
 
-#include <ostream>
+#include <iosfwd>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -11,7 +11,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.25 2010/03/03 18:52:39 ferriff Exp $
+ *  $Id: EEDetId.h,v 1.26 2012/11/02 08:25:14 innocent Exp $
  */
 class EEDetId : public DetId {
 public:
@@ -184,7 +184,7 @@ public:
   {
     const uint32_t jx ( ix() ) ;
     const uint32_t jd ( 2*( iy() - 1 ) + ( jx - 1 )/50 ) ;
-    return (  ( zside()<0 ? 0 : kEEhalf ) + kdi[jd] + jx - kxf[jd] ) ;
+    return (  ( positiveZ() ? kEEhalf : 0) + kdi[jd] + jx - kxf[jd] ) ;
   }
   
   /** Same as hashedIndex()

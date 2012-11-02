@@ -160,6 +160,8 @@ float EBDetId::approxEta( const DetId id ) {
   }
 }
   
+
+#include<ostream>
 std::ostream& operator<<(std::ostream& s,const EBDetId& id) {
   return s << "(EB ieta " << id.ieta() << ", iphi " << id.iphi() 
 	   << " ; ism " << id.ism() << " , ic " << id.ic()  << ')';

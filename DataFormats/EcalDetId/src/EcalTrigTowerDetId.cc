@@ -165,6 +165,7 @@ EcalTrigTowerDetId::detIdFromDenseIndex( uint32_t di )
    return EcalTrigTowerDetId( iz, sd, i, j ) ;
 }
 
+#include <ostream>
 std::ostream& operator<<(std::ostream& s,const EcalTrigTowerDetId& id) {
   return s << "(EcalTT subDet " << ((id.subDet()==EcalBarrel)?("Barrel"):("Endcap")) 
 	   <<  " iz " << ((id.zside()>0)?("+ "):("- ")) << " ieta " 
