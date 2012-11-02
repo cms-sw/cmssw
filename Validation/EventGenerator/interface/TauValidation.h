@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2012/10/15 11:29:01 $
- *  $Revision: 1.11 $
+ *  $Date: 2012/11/02 00:02:34 $
+ *  $Revision: 1.12 $
  *
  */
 
@@ -87,7 +87,7 @@ class TauValidation : public edm::EDAnalyzer
 	TLorentzVector motherP4(const HepMC::GenParticle*);
 	void photons(const HepMC::GenParticle*, double weight);
 	void findFirstinChain(const HepMC::GenParticle* tau);
-	void findISRandFSR(const HepMC::GenParticle* p, bool passedW, std::vector<const HepMC::GenParticle*> &ListofISR,
+	void findISRandFSR(const HepMC::GenParticle* p, bool doFSR, std::vector<const HepMC::GenParticle*> &ListofISR,
 			   std::vector<const HepMC::GenParticle*> &ListofFSR);
 
 
@@ -103,7 +103,7 @@ class TauValidation : public edm::EDAnalyzer
   	///ME's "container"
   	DQMStore *dbe;
 
-        MonitorElement *nEvt;
+        MonitorElement *nTaus, *nPrimeTaus;
   	MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, 
 	               *TauRtauW, *TauRtauHpm,
 	               *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
