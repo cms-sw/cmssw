@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.101 $
+ * $Date: 2011/04/18 20:12:14 $
+ * $Revision: 1.102 $
  * \author J. Temple
  * 
  */
@@ -587,7 +587,6 @@ void HcalMonitorClient::writeChannelStatus()
 
 void HcalMonitorClient::PlotPedestalValues(const HcalDbService& cond)
 {
-  const HcalQIEShape* shape_ = cond.getHcalShape(); // this one is generic
 
   double ADC_ped=0;
   double ADC_width=0;
@@ -628,6 +627,7 @@ void HcalMonitorClient::PlotPedestalValues(const HcalDbService& cond)
 		  calibs_= cond.getHcalCalibrations(detid);  
 		  const HcalPedestalWidth* pedw = cond.getPedestalWidth(detid);
 		  const HcalQIECoder* channelCoder_ = cond.getHcalCoder(detid);
+		  const HcalQIEShape* shape_ = cond.getHcalShape(channelCoder_); 
 
 		  // Loop over capIDs
 		  for (unsigned int capid=0;capid<4;++capid)
