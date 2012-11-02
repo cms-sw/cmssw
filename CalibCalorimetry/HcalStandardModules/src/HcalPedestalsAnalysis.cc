@@ -4,7 +4,7 @@
 // This code runs 1000x faster and produces all outputs from a single run
 // (ADC, fC in .txt plus an .xml file)
 //
-// $Id: HcalPedestalsAnalysis.cc,v 1.21 2011/03/10 17:55:28 andrey Exp $
+// $Id: HcalPedestalsAnalysis.cc,v 1.23 2012/10/09 15:43:33 wdd Exp $
 
 #include <memory>
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalsAnalysis.h"
@@ -213,7 +213,6 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
    edm::ESHandle<HcalDbService> conditions;
    iSetup.get<HcalDbRecord>().get(conditions);
 
-   const HcalQIEShape* shape = conditions->getHcalShape();
 
    if(firsttime)
    {
@@ -291,6 +290,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       for(int ts = firstTS; ts != lastTS+1; ts++)
       {
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
+	 const HcalQIEShape* shape = conditions->getHcalShape(coder);
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
          double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
@@ -327,6 +327,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
+	 const HcalQIEShape* shape = conditions->getHcalShape(coder);
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
          double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
@@ -363,6 +364,7 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
       for(int ts = firstTS; ts <= lastTS; ts++)
       {
          const HcalQIECoder* coder = conditions->getHcalCoder(digi.id().rawId());
+	 const HcalQIEShape* shape = conditions->getHcalShape(coder);
          bunch_it->num[digi.sample(ts).capid()][digi.sample(ts).capid()] += 1;
          bunch_it->cap[digi.sample(ts).capid()] += digi.sample(ts).adc();
          double charge1 = coder->charge(*shape, digi.sample(ts).adc(), digi.sample(ts).capid());
