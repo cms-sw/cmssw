@@ -13,7 +13,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.26 2010/03/03 18:52:39 ferriff Exp $
+ *  $Id: EBDetId.h,v 1.27 2010/03/10 00:26:45 ferriff Exp $
  */
 
 
@@ -26,11 +26,19 @@ class EBDetId : public DetId {
   EBDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from crystal ieta and iphi 
       or from SM# and crystal# */
-  EBDetId(int index1, int index2, int mode = ETAPHIMODE);
+  // fast
+  EBDetId(  int crystal_ieta, int crystal_iphi) : DetId(Ecal,EcalBarrel) {
+    id_|=((crystal_ieta>0)?(0x10000|(crystal_ieta<<9)):((-crystal_ieta)<<9))|(crystal_iphi&0x1FF);
+  }
+  // slow
+  EBDetId(int index1, int index2, int mode);
   /** Constructor from a generic cell id */
-  EBDetId(const DetId& id);
+  EBDetId(const DetId& id) : DetId(id){}
   /** Assignment operator from cell id */
-  EBDetId& operator=(const DetId& id);
+  EBDetId& operator=(const DetId& id) {
+    id_=id.rawId();
+  return *this;
+  }
 
   /// get the subdetector .i.e EcalBarrel (what else?)
   // EcalSubdetector subdet() const { return EcalSubdetector(subdetId()); }
@@ -51,9 +59,15 @@ class EBDetId : public DetId {
   /// get the HCAL/trigger iphi of this crystal
   EcalTrigTowerDetId tower() const { return EcalTrigTowerDetId(zside(),EcalBarrel,abs(tower_ieta()),tower_iphi()); }
   /// get the ECAL/SM id
-  int ism() const;
+  int ism() const  {
+    int id = ( iphi() - 1 ) / kCrystalsInPhi + 1;
+    return positiveZ() ? id : id+18;
+  }
   /// get the number of module inside the SM (1-4)
-  int im() const;
+  int im() const {
+    int ii = (ietaAbs()-26);
+    return ii<0 ? 1 : ii/20 +2;
+  }
   /// get ECAL/crystal number inside SM
   int ic() const;
   /// get the crystal ieta in the SM convention (1-85)
@@ -98,12 +112,20 @@ class EBDetId : public DetId {
   static EBDetId detIdFromDenseIndex( uint32_t di ) { return unhashIndex( di ) ; }
 
   /// get a DetId from a compact index for arrays
-  static EBDetId unhashIndex( int hi ) ;
+  static EBDetId unhashIndex( int hi ) {
+    const int pseudo_eta = hi/MAX_IPHI - MAX_IETA;
+    return ( validHashIndex( hi ) ?
+	     EBDetId(pseudo_eta<0 ? pseudo_eta :  pseudo_eta+1, hi%MAX_IPHI+1) :
+	     EBDetId() ) ;
+  }
 
   static bool validHashIndex(int i) { return !(i<MIN_HASH || i>MAX_HASH); }
 
   /// check if a valid index combination
-  static bool validDetId(int i, int j) ;
+  static bool validDetId(int i, int j) {
+    return i!=0 && std::abs(i) <= MAX_IETA
+      && std::abs(j) <= MAX_IPHI; 
+  }
 
   static bool isNextToBoundary(EBDetId id);
 

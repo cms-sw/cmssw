@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.16 2011/01/12 20:38:57 heltsley Exp $
+   \version $Id: testEcalDetId.cpp,v 1.17 2012/08/09 22:51:23 argiro Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.16 2011/01/12 20:38:57 heltsley Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.17 2012/08/09 22:51:23 argiro Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -67,6 +67,7 @@ void testEcalDetId::testEBDetId(){
 	  {
 	    {
 	      EBDetId aPositiveId(ieta,iphi);
+	      CPPUNIT_ASSERT(EBDetId::validDetId(ieta,iphi));
 	      CPPUNIT_ASSERT(aPositiveId.ieta()==ieta);
 	      CPPUNIT_ASSERT(aPositiveId.iphi()==iphi);
 	      CPPUNIT_ASSERT(aPositiveId.zside()==1);
@@ -89,6 +90,7 @@ void testEcalDetId::testEBDetId(){
 	    //EBDetId Zside -1 
 	    {
 	      EBDetId aNegativeId(-1*ieta,iphi);
+	      CPPUNIT_ASSERT(EBDetId::validDetId(-ieta,iphi));
 	      CPPUNIT_ASSERT(aNegativeId.ieta()==-1*ieta);
 	      CPPUNIT_ASSERT(aNegativeId.iphi()==iphi);
 	      CPPUNIT_ASSERT(aNegativeId.zside()==-1);
@@ -106,17 +108,17 @@ void testEcalDetId::testEBDetId(){
 	      CPPUNIT_ASSERT(EBDetId::validHashIndex(aNegativeId.hashedIndex()));
 	      CPPUNIT_ASSERT(EBDetId::unhashIndex(aNegativeId.hashedIndex())==aNegativeId);
 	      detIds.at(aNegativeId.hashedIndex()) = aNegativeId;
-	      
-
 	    }
 	  }
 	catch ( cms::Exception &e ) 
 	  { 
+	    std::cout << e.what() << " failed for " << ieta << "," <<iphi << std::endl;
 	    bool cmsExceptionCought=false;
 	    CPPUNIT_ASSERT(cmsExceptionCought);
 	  }
 	catch ( std::exception &e ) 
 	  { 
+	    std::cout << e.what() <<" failed for " << ieta << "," <<iphi << std::endl;
 	    bool stdExceptionCought=false;
 	    CPPUNIT_ASSERT(stdExceptionCought);
 	  }

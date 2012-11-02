@@ -93,23 +93,8 @@ EEDetId::EEDetId( int index1, int index2, int iz, int mode ) : DetId( Ecal, Ecal
    id_|=(crystal_iy&0x7f)|((crystal_ix&0x7f)<<7)|((iz>0)?(0x4000):(0));
 }
   
-EEDetId::EEDetId( const DetId& gen ) 
-{
-   if (!gen.null() && (gen.det()!=Ecal || gen.subdetId()!=EcalEndcap)) {
-      throw cms::Exception("InvalidDetId"); 
-   }
-   id_ = gen.rawId();
-}
+
   
-EEDetId& EEDetId::operator=( const DetId& gen ) 
-{
-   if (!gen.null() && ( gen.det()!=Ecal || gen.subdetId()!=EcalEndcap )) 
-   {
-      throw cms::Exception("InvalidDetId"); 
-   }
-   id_ = gen.rawId();
-   return *this;
-}
 
 EEDetId 
 EEDetId::unhashIndex( int hi )
