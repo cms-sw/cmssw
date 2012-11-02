@@ -70,13 +70,17 @@ FastSimCJPT = cms.PSet(
 #Full Event content 
 FastSimRecoLocalCaloFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_caloRecHits_*_*', 
-        'keep *_hcalRecHits_*_*')
+        'keep *_hcalRecHits_*_*',
+        'keep EBDigiCollection_ecalRecHit_*_*',
+        'keep EEDigiCollection_ecalRecHit_*_*')
 )
 
 #RECO content
 FastSimRecoLocalCaloRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_caloRecHits_*_*', 
-        'keep *_hcalRecHits_*_*')
+        'keep *_hcalRecHits_*_*',
+        'keep EBDigiCollection_ecalRecHit_*_*',
+        'keep EEDigiCollection_ecalRecHit_*_*')
 )
 
 #AOD content
