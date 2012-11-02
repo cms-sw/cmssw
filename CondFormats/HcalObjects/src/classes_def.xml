@@ -63,7 +63,10 @@
  </class>
  <class name="HcalGainWidths"/>
 
- <class name="HcalQIECoder"/>
+ <class name="HcalQIECoder">
+   <field name="mQIEIndex" transient="true"/>
+ </class>
+
  <class name="std::vector<HcalQIECoder>"/>
  <class name="std::pair<std::string, std::vector<HcalQIECoder> >"/>
  <class name="std::vector<std::pair<std::string, std::vector<HcalQIECoder> > >"/>
@@ -77,7 +80,10 @@
   <field name="CALIBcontainer" mapping="blob" />
   <field name="CASTORcontainer" mapping="blob" />
  </class>
- <class name="HcalQIEData"/>
+
+ <class name="HcalQIEData">
+   <field name="mShape" transient="true"/>
+ </class>
 
  <class name="HcalCalibrationQIECoder"/>
  <class name="std::vector<HcalCalibrationQIECoder>"/>

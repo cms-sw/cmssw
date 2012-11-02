@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store QIE coder parameters for one channel
 $Author: ratnikov
-$Date: 2007/12/14 13:59:46 $
-$Revision: 1.8 $
+$Date: 2008/03/05 10:38:03 $
+$Revision: 1.9 $
 */
 #include <boost/cstdint.hpp>
 
@@ -18,7 +18,7 @@ class HcalQIEShape;
 
 class HcalQIECoder {
  public:
-  HcalQIECoder (unsigned long fId = 0) : mId (fId) {}
+  HcalQIECoder (unsigned long fId = 0) : mId (fId), mQIEIndex(0) {}
 
   /// ADC [0..127] + capid [0..3] -> fC conversion
   float charge (const HcalQIEShape& fShape, unsigned fAdc, unsigned fCapId) const;
@@ -33,6 +33,9 @@ class HcalQIECoder {
   void setSlope (unsigned fCapId, unsigned fRange, float fValue);
 
   uint32_t rawId () const {return mId;}
+
+  uint32_t qieIndex() const {return mQIEIndex;}
+  void setQIEIndex(uint32_t v) { mQIEIndex=v;}
 
  private:
   uint32_t mId;
@@ -68,6 +71,7 @@ class HcalQIECoder {
   float mSlope31;
   float mSlope32;
   float mSlope33;
+  unsigned int mQIEIndex;
 };
 
 #endif

@@ -7,8 +7,8 @@
    (preserve backwards compatibility of methods for this release)
 POOL object to store QIE parameters
 $Author: ratnikov
-$Date: 2009/03/24 16:05:32 $
-$Revision: 1.10 $
+$Date: 2012/03/29 16:20:12 $
+$Revision: 1.12 $
 */
 
 #include <vector>
@@ -19,21 +19,18 @@ $Revision: 1.10 $
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-namespace
-{
-  HcalQIEShape shape_;
-}
 
 class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
 {
  public:
 
   // constructor, destructor, and all methods stay the same
- HcalQIEData():HcalCondObjectContainer<HcalQIECoder>() {}
+  HcalQIEData();
 
   /// get basic shape
   //   const HcalQIEShape& getShape () const {return mShape;}
-  const HcalQIEShape& getShape () const { return shape_;}
+   const HcalQIEShape& getShape (DetId fId) const { return mShape[getCoder(fId)->qieIndex()];}
+   const HcalQIEShape& getShape (const HcalQIECoder* coder) const { return mShape[coder->qieIndex()];}
   /// get QIE parameters
   const HcalQIECoder* getCoder (DetId fId) const { return getValues(fId); }
   // check if data are sorted - remove in the next version
@@ -46,6 +43,9 @@ class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
   std::string myname() const {return (std::string)"HcalQIEData";}
 
   //not needed/not used  HcalQIEData(const HcalQIEData&);
+
+ private:
+  HcalQIEShape mShape[2];
 
 };
 
