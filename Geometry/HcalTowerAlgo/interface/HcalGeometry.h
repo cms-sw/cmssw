@@ -79,6 +79,11 @@ public:
 			const GlobalPoint& f3 ,
 			const CCGFloat*    parm,
 			const DetId&       detId     ) ;
+
+  virtual const CaloCellGeometry* getGeometry( const DetId& id ) const {
+      return cellGeomPtr( theTopology.detId2denseId( id ) ) ;
+  }
+
 protected:
 
   virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
