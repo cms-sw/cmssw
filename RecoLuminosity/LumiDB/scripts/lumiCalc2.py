@@ -215,6 +215,12 @@ if __name__ == '__main__':
     if options.action=='recorded':
         reqTrg=True
         reqHlt=True
+    if options.runnumber:
+        reqrunmax=options.runnumber
+        reqrunmin=options.runnumber
+    if options.fillnum:
+        reqfillmin=options.fillnum
+        reqfillmax=options.fillnum
     if options.begin:
         (reqrunmin,reqfillmin,reqtimemin)=CommonUtil.parseTime(options.begin)
         if reqtimemin:
@@ -272,21 +278,26 @@ if __name__ == '__main__':
     irunlsdict={}
     rruns=[]
     session.transaction().start(True)
-    if options.runnumber: # if runnumber specified, do not go through other run selection criteria
-        irunlsdict[options.runnumber]=None
-        rruns=irunlsdict.keys()
+    runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=reqrunmin,runmax=reqrunmax,fillmin=reqfillmin,fillmax=reqfillmax,startT=reqtimemin,stopT=reqtimemax,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=False,requirehlt=False) #this is run list and has no ls
+    filerunlist=[]
+    if options.inputfile:
+        (irunlsdict,iresults)=parseInputFiles(options.inputfile)
+        filerunlist=irunlsdict.keys()
+    if filerunlist and runlist:
+        rruns=list(set(runlist) & set(filerunlist))
+    elif filerunlist:
+        rruns=filerunlist
+    elif runlist:
+        rruns=runlist
     else:
-        runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=reqrunmin,runmax=reqrunmax,fillmin=reqfillmin,fillmax=reqfillmax,startT=reqtimemin,stopT=reqtimemax,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=False,requirehlt=False)
-        if options.inputfile:
-            (irunlsdict,iresults)=parseInputFiles(options.inputfile)
-            rruns=[val for val in runlist if val in irunlsdict.keys()]
-            for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
-                if selectedrun not in rruns:
-                    del irunlsdict[selectedrun]
-        else:
-            for run in runlist:
-                irunlsdict[run]=None
-            rruns=irunlsdict.keys()
+        print '[INFO] No qualified run found, do nothing'
+        sys.exit(14)
+    if not irunlsdict: #no file
+        irunlsdict=dict(zip(rruns,[None]*len(rruns)))
+    else:
+        for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
+            if selectedrun not in rruns:
+                del irunlsdict[selectedrun]
     ##############################################################
     # check datatag
     # #############################################################       
