@@ -368,8 +368,12 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   }
 
 
-  if (!isnan(rMin_)) ((RooRealVar*)POI->first())->setMin(rMin_);
-  if (!isnan(rMax_)) ((RooRealVar*)POI->first())->setMax(rMax_);
+  RooRealVar *r = (RooRealVar*)POI->first();
+  if (!isnan(rMin_)) r->setMin(rMin_);
+  if (!isnan(rMax_)) r->setMax(rMax_);
+  if (!isnan(rMin_) || !isnan(rMax_)) {
+    r->setVal(0.5*(r->getMin() + r->getMax()));
+  }
 
   if (mc->GetPriorPdf() == 0) {
       if (prior_ == "flat") {
