@@ -16,9 +16,9 @@
  * 
  * \author Manuel Zeise 
  *
- * \version $Revision: 1.11 $
+ * \version $Revision: 1.1 $
  *
- * $Id: ParticleReplacerZtautau.h,v 1.11 2012/10/14 12:22:48 veelken Exp $
+ * $Id: ParticleReplacerZtautau.h,v 1.1 2012/10/14 12:59:48 veelken Exp $
  *
  */
 
@@ -76,7 +76,10 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
   bool useExternalGenerators_;
   bool useTauola_;
   bool useTauolaPolarization_;
-	
+  double rfRotationAngle_; // angle of rotation around Z-direction of embedded leptons wrt. reconstructed muons
+                           // (used to "place" simulated leptons in a detector region different from reconstructed muons,
+                           //  while preserving Z/W-boson momentum and spin effects)
+
   gen::TauolaInterface tauola_;
 
   bool printEvent_;

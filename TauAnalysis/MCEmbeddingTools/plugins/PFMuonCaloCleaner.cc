@@ -26,8 +26,11 @@ PFMuonCaloCleaner::PFMuonCaloCleaner(const edm::ParameterSet& cfg)
     dRmatch_(cfg.getParameter<double>("dRmatch"))
 {
   // maps of detId to energy deposit attributed to muon
-  produces<detIdToFloatMap>("muPlus");
-  produces<detIdToFloatMap>("muMinus");
+  produces<detIdToFloatMap>("energyDepositsMuPlus");
+  produces<detIdToFloatMap>("energyDepositsMuMinus");
+
+  verbosity_ = ( cfg.exists("verbosity") ) ?
+    cfg.getParameter<int>("verbosity") : 0;
 }
 
 void PFMuonCaloCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
@@ -46,8 +49,24 @@ void PFMuonCaloCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
   fillEnergyDepositMap(dynamic_cast<const reco::Muon*>(&*muPlus), *pfCandidates, *energyDepositMuPlus);
   fillEnergyDepositMap(dynamic_cast<const reco::Muon*>(&*muMinus), *pfCandidates, *energyDepositMuMinus);
 
-  evt.put(energyDepositMuPlus, "muPlus");
-  evt.put(energyDepositMuMinus, "muMinus");
+  evt.put(energyDepositMuPlus, "energyDepositsMuPlus");
+  evt.put(energyDepositMuMinus, "energyDepositsMuMinus");
+}
+
+namespace
+{
+  std::string getPFCandidateType(reco::PFCandidate::ParticleType pfCandidateType)
+  {
+    if      ( pfCandidateType == reco::PFCandidate::X         ) return "undefined";
+    else if ( pfCandidateType == reco::PFCandidate::h         ) return "PFChargedHadron";
+    else if ( pfCandidateType == reco::PFCandidate::e         ) return "PFElectron";
+    else if ( pfCandidateType == reco::PFCandidate::mu        ) return "PFMuon";
+    else if ( pfCandidateType == reco::PFCandidate::gamma     ) return "PFGamma";
+    else if ( pfCandidateType == reco::PFCandidate::h0        ) return "PFNeutralHadron";
+    else if ( pfCandidateType == reco::PFCandidate::h_HF      ) return "HF_had";
+    else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return "HF_em";
+    else assert(0);
+  }
 }
 
 void PFMuonCaloCleaner::fillEnergyDepositMap(const reco::Muon* muon, const edm::View<reco::PFCandidate>& pfCandidates, detIdToFloatMap& energyDepositMap)
@@ -78,12 +97,22 @@ void PFMuonCaloCleaner::fillEnergyDepositMap(const reco::Muon* muon, const edm::
 	    }
 	  }
 	}
+	isMatched = true;
       }
     }
   }
   if ( !isMatched ) {
     edm::LogWarning("PFMuonCaloCleaner") 
       << "Failed to match Muon to PFCandidate: Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << " !!" << std::endl;
+    if ( verbosity_ ) {
+      int idx = 0;
+      for ( edm::View<reco::PFCandidate>::const_iterator pfCandidate = pfCandidates.begin();
+	    pfCandidate != pfCandidates.end(); ++pfCandidate ) {
+	std::cout << "PFCandidate #" << idx << " (" << getPFCandidateType(pfCandidate->particleId()) << "):"
+		  << " Pt = " << pfCandidate->pt() << ", eta = " << pfCandidate->eta() << ", phi = " << pfCandidate->phi() << std::endl;
+	++idx;
+      }
+    }
   }
 }
 

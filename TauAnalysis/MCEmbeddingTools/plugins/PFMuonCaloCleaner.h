@@ -29,6 +29,8 @@ class PFMuonCaloCleaner : public edm::EDProducer
   edm::InputTag srcSelectedMuons_;  
   edm::InputTag srcPFCandidates_;  
   double dRmatch_;
+
+  int verbosity_;
 };
 
 #endif   
