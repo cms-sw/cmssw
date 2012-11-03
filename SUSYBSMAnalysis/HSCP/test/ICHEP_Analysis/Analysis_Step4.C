@@ -51,7 +51,10 @@ void Analysis_Step4(std::string InputPattern)
    gStyle->SetNdivisions(505);
 
    unsigned int NPseudoExp = 100; //Number of PseudoExperiment to run
-   double CosmicVetoInEfficiency = 0.1*0.012; //dZ*dXY*OpenAngle
+   double CosmicVetoInEfficiency = 0.26 * 0.26 * 0.04 ; //dZ*dXY*OpenAngle
+   //7TeV DXY/DZ/ANGLE 85/326  86/327   10/251
+   //8TeV DXY/DZ/ANGLE 19/22    0/3      0/3
+
 
    string Input     = InputPattern + "Histos.root";
    TFile* InputFile = new TFile(Input.c_str(), "UPDATE");
