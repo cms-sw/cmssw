@@ -51,10 +51,18 @@ void Analysis_Step4(std::string InputPattern)
    gStyle->SetNdivisions(505);
 
    unsigned int NPseudoExp = 100; //Number of PseudoExperiment to run
-   double CosmicVetoInEfficiency = 0.26 * 0.26 * 0.04 ; //dZ*dXY*OpenAngle
-   //7TeV DXY/DZ/ANGLE 85/326  86/327   10/251
-   //8TeV DXY/DZ/ANGLE 19/22    0/3      0/3
 
+   //7TeV DXY/DZ/ANGLE 85/326  86/327   10/251
+   double CosmicVetoInEfficiency7TeV    = 0.26 * 0.26 * 0.04 ; 
+   double CosmicVetoInEfficiency7TeVErr = sqrt(pow(0.03*0.26*0.04,2) + pow(0.26*0.03*0.04,2) +pow(0.26*0.04*0.01,2) + pow(0.50*CosmicVetoInEfficiency7TeV,2));  //add 50% syst uncertainty
+
+   //8TeV DXY/DZ/ANGLE 19/22    0/3      0/3
+   double CosmicVetoInEfficiency8TeV    = 0.86 * 0.26 * 0.04 ; 
+   double CosmicVetoInEfficiency8TeVErr = sqrt(pow(0.20*0.26*0.04,2) + pow(0.86*0.03*0.04,2) + pow(0.86*0.04*0.01,2) + pow(0.50*CosmicVetoInEfficiency8TeV,2)); //add 50% syst uncertainty
+
+   double CosmicVetoInEfficiency    = CosmicVetoInEfficiency7TeV;
+   double CosmicVetoInEfficiencyErr = CosmicVetoInEfficiency7TeVErr;
+   
 
    string Input     = InputPattern + "Histos.root";
    TFile* InputFile = new TFile(Input.c_str(), "UPDATE");
@@ -76,6 +84,14 @@ void Analysis_Step4(std::string InputPattern)
 	  string DirName;
 	  DirName = DirName + list->At(d)->GetName();
 	  if(DirName.find("Cosmic")!=string::npos) continue;
+
+          if(DirName.find("7TeV")!=string::npos){
+             CosmicVetoInEfficiency    = CosmicVetoInEfficiency7TeV;
+             CosmicVetoInEfficiencyErr = CosmicVetoInEfficiency7TeVErr;
+          }else{
+             CosmicVetoInEfficiency    = CosmicVetoInEfficiency8TeV;
+             CosmicVetoInEfficiencyErr = CosmicVetoInEfficiency8TeVErr;
+          }
 
 	  TDirectory* directory = InputFile->GetDirectory(list->At(d)->GetName());
 	  directory->cd();
@@ -175,26 +191,37 @@ void Analysis_Step4(std::string InputPattern)
       for(unsigned int CutIndex=0;CutIndex<(unsigned int)HCuts_Pt->GetXaxis()->GetNbins();CutIndex++){
          //if(CutIndex<86 || CutIndex>87)continue;
 
-         double A=H_A->GetBinContent(CutIndex+1);
-         double B=H_B->GetBinContent(CutIndex+1);
-         double C=H_C->GetBinContent(CutIndex+1);
-         double D=H_D->GetBinContent(CutIndex+1);
-         double E=H_E->GetBinContent(CutIndex+1);
-         double F=H_F->GetBinContent(CutIndex+1);
-         double G=H_G->GetBinContent(CutIndex+1);
-         double H=H_H->GetBinContent(CutIndex+1);
+         double A=H_A->GetBinContent(CutIndex+1);  double AErr = sqrt(A);
+         double B=H_B->GetBinContent(CutIndex+1);  double BErr = sqrt(B);
+         double C=H_C->GetBinContent(CutIndex+1);  double CErr = sqrt(C);
+         double D=H_D->GetBinContent(CutIndex+1);  double DErr = sqrt(D);
+         double E=H_E->GetBinContent(CutIndex+1); // double EErr = sqrt(E);
+         double F=H_F->GetBinContent(CutIndex+1); // double FErr = sqrt(F);
+         double G=H_G->GetBinContent(CutIndex+1); // double GErr = sqrt(G);
+         double H=H_H->GetBinContent(CutIndex+1); // double HErr = sqrt(H);
 
          double A_Cosmic=1, B_Cosmic=0, C_Cosmic=0, D_Cosmic=0;
+         double AErr_Cosmic=0, BErr_Cosmic=0, CErr_Cosmic=0, DErr_Cosmic=0;
          if(S==0 && TypeMode==5){
-            A_Cosmic=H_A_Cosmic->GetBinContent(CutIndex+1) * (CosmicVetoInEfficiency);
-            B_Cosmic=H_B_Cosmic->GetBinContent(CutIndex+1) * (CosmicVetoInEfficiency);
-            C_Cosmic=H_C_Cosmic->GetBinContent(CutIndex+1) * (CosmicVetoInEfficiency);
-            D_Cosmic=H_D_Cosmic->GetBinContent(CutIndex+1) * (CosmicVetoInEfficiency);
+            A_Cosmic=H_A_Cosmic->GetBinContent(CutIndex+1) * CosmicVetoInEfficiency;
+            B_Cosmic=H_B_Cosmic->GetBinContent(CutIndex+1) * CosmicVetoInEfficiency;
+            C_Cosmic=H_C_Cosmic->GetBinContent(CutIndex+1) * CosmicVetoInEfficiency;
+            D_Cosmic=H_D_Cosmic->GetBinContent(CutIndex+1) * CosmicVetoInEfficiency;
 
-            A = A - A_Cosmic;
-            B = B - B_Cosmic;
-            C = C - C_Cosmic;
-            //D = D - D_Cosmic;
+            AErr_Cosmic=sqrt( pow(sqrt(H_A_Cosmic->GetBinContent(CutIndex+1)) * CosmicVetoInEfficiency,2) + pow(H_A_Cosmic->GetBinContent(CutIndex+1) * CosmicVetoInEfficiencyErr,2) );
+            BErr_Cosmic=sqrt( pow(sqrt(H_B_Cosmic->GetBinContent(CutIndex+1)) * CosmicVetoInEfficiency,2) + pow(H_B_Cosmic->GetBinContent(CutIndex+1) * CosmicVetoInEfficiencyErr,2) );
+            CErr_Cosmic=sqrt( pow(sqrt(H_C_Cosmic->GetBinContent(CutIndex+1)) * CosmicVetoInEfficiency,2) + pow(H_C_Cosmic->GetBinContent(CutIndex+1) * CosmicVetoInEfficiencyErr,2) );
+            DErr_Cosmic=sqrt( pow(sqrt(H_D_Cosmic->GetBinContent(CutIndex+1)) * CosmicVetoInEfficiency,2) + pow(H_D_Cosmic->GetBinContent(CutIndex+1) * CosmicVetoInEfficiencyErr,2) );
+
+            if(CutIndex==44){
+               printf("scale factor = %f+-%f\n", CosmicVetoInEfficiency, CosmicVetoInEfficiencyErr);
+               printf("%E+-%E   %E+-%E   %E+-%E\n", A_Cosmic, AErr_Cosmic, B_Cosmic, BErr_Cosmic, C_Cosmic, CErr_Cosmic);
+            }
+
+            A = A - A_Cosmic;    AErr = sqrt(AErr*AErr + AErr_Cosmic*AErr_Cosmic);
+            B = B - B_Cosmic;    BErr = sqrt(BErr*BErr + BErr_Cosmic*BErr_Cosmic);
+            C = C - C_Cosmic;    CErr = sqrt(CErr*CErr + CErr_Cosmic*CErr_Cosmic);
+          //D = D - D_Cosmic;    DErr = sqrt(DErr*DErr + DErr_Cosmic*DErr_Cosmic);
          }
 
          double B_Binned[MaxPredBins];
@@ -235,20 +262,20 @@ void Analysis_Step4(std::string InputPattern)
          }else if(A>0){
 	   //Prediction in Pt-Is plane
             P    = ((C*B)/A);
-            Perr = sqrt( (pow(B/A,2)*C) + (pow(C/A,2)*B) + (pow((B*(C)/(A*A)),2)*A) );
+            Perr = sqrt( pow(CErr*B/A,2) + pow(BErr*C/A,2) + pow((AErr*B*C/(A*A)),2) );
 
             if(S==0 && TypeMode==5){
                P_Coll      = P;
                Perr_Coll   = Perr;
                P_Cosmic    = ((C_Cosmic*B_Cosmic)/A_Cosmic);
                if(P_Cosmic>0){
-                  Perr_Cosmic = sqrt( (pow(B_Cosmic/A_Cosmic,2)*C_Cosmic) + (pow(C_Cosmic/A_Cosmic,2)*B_Cosmic) + (pow((B_Cosmic*(C_Cosmic)/(A_Cosmic*A_Cosmic)),2)*A_Cosmic) );                                          
+                  Perr_Cosmic = sqrt( pow(CErr_Cosmic*B_Cosmic/A_Cosmic,2) + pow(BErr_Cosmic*C_Cosmic/A_Cosmic,2) + pow(AErr_Cosmic*B_Cosmic*C_Cosmic/(A_Cosmic*A_Cosmic),2) );
                }else if(D_Cosmic>0){
                   P_Cosmic = D_Cosmic * CosmicVetoInEfficiency;
-                  Perr_Cosmic = sqrt(D_Cosmic) * CosmicVetoInEfficiency;
+                  Perr_Cosmic = sqrt( pow(DErr_Cosmic * CosmicVetoInEfficiency,2) + pow(D_Cosmic*CosmicVetoInEfficiencyErr,2));
                }else{
-                  P_Cosmic = 3 * CosmicVetoInEfficiency;
-                  Perr_Cosmic = P_Cosmic; 
+                  P_Cosmic = 3/2.0 * CosmicVetoInEfficiency;
+                  Perr_Cosmic = P_Cosmic; //100% uncertainty
                }
                P           = P_Coll + P_Cosmic;
                Perr        = sqrt( Perr_Coll*Perr_Coll + Perr_Cosmic*Perr_Cosmic);

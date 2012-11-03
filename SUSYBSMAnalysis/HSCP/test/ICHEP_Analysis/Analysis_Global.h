@@ -145,10 +145,10 @@ const   float TrueDist2012_f[60] = {1.05858e-06 ,2.79007e-06 ,5.66022e-06 ,2.217
 void InitdEdx(std::string dEdxS_Label_){
    if(dEdxS_Label_=="dedxASmi" || dEdxS_Label_=="dedxNPASmi"){
       dEdxS_UpLim  = 1.0;
-      dEdxS_Legend = "I_{as}";
+      dEdxS_Legend = "I_{as High}";
    }else if(dEdxS_Label_=="dedxRASmi" || dEdxS_Label_=="dedxNPRASmi"){
       dEdxS_UpLim  = 1.0;
-      dEdxS_Legend = "I_{as}^{Low}";
+      dEdxS_Legend = "I_{as Low}";
    }else if(dEdxS_Label_=="dedxProd" || dEdxS_Label_=="dedxNPProd"){
       dEdxS_UpLim  = 1.0;
       dEdxS_Legend = "I_{d}";
