@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import FWCore.ParameterSet.Config as cms
+
+from TauAnalysis.MCEmbeddingTools.rerunParticleFlow import rerunParticleFlow
+
 import os
 
 def customise(process):
@@ -9,17 +12,16 @@ def customise(process):
   from TauAnalysis.MCEmbeddingTools.setDefaults import setDefaults
   setDefaults(process)
    
-  inputProcess = "HLT"  # some automagic check possible?
-  #inputProcess = "RECO"  # some automagic check possible?
-
-  print "Input process set to", inputProcess
+  inputProcess = process.customization_options.inputProcess.value()
+  print "Input process set to '%s'" % inputProcess
+  
   process._Process__name = "EmbeddedRECO"
   process.TFileService = cms.Service("TFileService",
     fileName = cms.string("histo_embedded.root")
   )
 
   # update InputTags defined in PFEmbeddingSource_cff.py
-  print "Setting collection of Z->mumu candidates to", inputProcess
+  print "Setting collection of Z->mumu candidates to '%s'" % process.customization_options.ZmumuCollection.getModuleLabel()
   if not hasattr(process, "removedInputMuons"):
     process.load("TauAnalysis.MCEmbeddingTools.PFEmbeddingSource_cff")
   process.removedInputMuons.selectedMuons = process.customization_options.ZmumuCollection
@@ -72,14 +74,14 @@ def customise(process):
   process.HLTAnalyzerEndpath.remove(process.hltL1GtTrigReport)
   
   # apply configuration parameters
-  print "Setting mdtau to ", process.customization_options.mdtau.value()
+  print "Setting mdtau to %i" % process.customization_options.mdtau.value()
   process.generator.Ztautau.TauolaOptions.InputCards.mdtau = process.customization_options.mdtau 
   process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = process.customization_options.mdtau 
   
-  print "Setting minVisibleTransverseMomentum to ", process.customization_options.minVisibleTransverseMomentum.value()
+  print "Setting minVisibleTransverseMomentum to ''", process.customization_options.minVisibleTransverseMomentum.value()
   process.generator.Ztautau.minVisibleTransverseMomentum = process.customization_options.minVisibleTransverseMomentum
 
-  print "Setting transformationMode to ", process.customization_options.transformationMode.value()
+  print "Setting transformationMode to %i" % process.customization_options.transformationMode.value()
   process.generator.Ztautau.transformationMode = process.customization_options.transformationMode
 
   if process.customization_options.overrideBeamSpot.value():
@@ -91,7 +93,7 @@ def customise(process):
         connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_BEAMSPOT")
       )
     )
-    print "BeamSpot in globaltag set to ", bs 
+    print "BeamSpot in globaltag set to '%s'" % bs 
   else:
     print "BeamSpot in globaltag not changed"
 
@@ -102,6 +104,15 @@ def customise(process):
     myLumis = LumiList.LumiList(filename = 'my.json').getCMSSWString().split(',')
     process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
     process.source.lumisToProcess.extend(myLumis)
+
+  #----------------------------------------------------------------------------------------------------------------------
+  # CV: need to rerun particle-flow algorithm in order to create links between PFMuon -> PFBlocks -> PFClusters -> PFRecHits
+  #    (configure particle-flow sequence before overwriting modules in order to mix collections
+  #     of objects reconstructed and Z -> mu+ mu- event with simulated tau decay products)
+  if process.customization_options.embeddingMode.value() == "RH" and process.customization_options.cleaningMode == 'PF':
+    rerunParticleFlow(process, inputProcess)
+    process.ProductionFilterSequence += process.rerunParticleFlowSequenceForPFMuonCleaning
+  #----------------------------------------------------------------------------------------------------------------------  
 
   # mix "general" Track collection
   process.generalTracksORG = process.generalTracks.clone()
@@ -140,8 +151,8 @@ def customise(process):
   # mix collections of GSF electron tracks
   process.electronGsfTracksORG = process.electronGsfTracks.clone()
   process.electronGsfTracks = cms.EDProducer("GsfTrackMixer", 
-      col1 = cms.InputTag("electronGsfTracksORG","","EmbeddedRECO"),
-      col2= cms.InputTag("electronGsfTracks","", inputProcess),
+      col1 = cms.InputTag("electronGsfTracksORG", "", "EmbeddedRECO"),
+      col2 = cms.InputTag("electronGsfTracks", "", inputProcess)
   )
 
   process.gsfConversionTrackProducer.TrackProducer = cms.string('electronGsfTracksORG')
@@ -170,8 +181,9 @@ def customise(process):
     pth = getattr(process,p)
     for mod in pth.moduleNames():
       if mod.find("dedx") != -1 and mod.find("Zmumu") == -1:
-        print "Removing", mod
-        module = getattr(process,mod)
+        if mod.find("ForPFMuonCleaning") == -1:
+          print "Removing %s" % mod
+        module = getattr(process, mod)
         pth.remove(module)
 
   if process.customization_options.embeddingMode.value() == "PF":
@@ -216,8 +228,8 @@ def customise(process):
           instanceLabel = cms.string(instanceLabel)))
   process.l1extraParticlesORG = process.l1extraParticles.clone()
   process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
-      src1 = cms.InputTag('l1extraParticles::%s' % inputProcess),
-      src2 = cms.InputTag('l1extraParticlesORG'),
+      src1 = cms.InputTag("l1extraParticlesORG", "", "EmbeddedRECO"),                                      
+      src2 = cms.InputTag("l1extraParticles", "", inputProcess),
       collections = cms.VPSet(l1extraParticleCollections)
   )
   for p in process.paths:

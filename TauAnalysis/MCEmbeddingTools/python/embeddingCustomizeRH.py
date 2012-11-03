@@ -4,14 +4,18 @@ import FWCore.ParameterSet.Config as cms
 import os
 
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
+#from TauAnalysis.MCEmbeddingTools.rerunParticleFlow import rerunParticleFlow, updateInputTags
+from TauAnalysis.MCEmbeddingTools.rerunParticleFlow import updateInputTags
 
 def customise(process, inputProcess):
 
   # Determine detIds of calorimeter cells crossed by muon track
+  trackAssocParamsForMuonCleaning = TrackAssociatorParameterBlock.TrackAssociatorParameters
+  updateInputTags(process, trackAssocParamsForMuonCleaning, inputProcess)
   process.muonCaloEnergyDepositsAllCrossed = cms.EDProducer('MuonCaloCleanerAllCrossed',
-    trackAssociator = TrackAssociatorParameterBlock.TrackAssociatorParameters,
+    trackAssociator = trackAssocParamsForMuonCleaning,
     selectedMuons = process.customization_options.ZmumuCollection,
-    esRecHits = cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES")
+    esRecHits = cms.InputTag("ecalPreshowerRecHit", "EcalRecHitsES", inputProcess)
   )
   process.ProductionFilterSequence += process.muonCaloEnergyDepositsAllCrossed
 
@@ -21,37 +25,56 @@ def customise(process, inputProcess):
     typeEnergyDepositMap = cms.string("absolute"), # CV: use 'absolute' for 'MuonCaloCleanerAllCrossed' module
   )
 
-  # CV: Compute expected energy deposits of muon in EB/EE, HB/HE and HO:
-  #      (1) compute distance traversed by muons produced in Z -> mu+ mu- decay
-  #          through individual calorimeter cells
-  #      (2) scale distances by expected energy loss dE/dx of muon
-  process.muonCaloDistances = cms.EDProducer('MuonCaloDistanceProducer',
-    trackAssociator = TrackAssociatorParameterBlock.TrackAssociatorParameters,
-    selectedMuons = process.customization_options.ZmumuCollection
-  )
-  process.ProductionFilterSequence += process.muonCaloDistances
+  recHitCaloCleanerByDistanceConfig = None
+  if process.customization_options.cleaningMode == 'dE/dx':
+    # CV: Compute expected energy deposits of muon in EB/EE, HB/HE and HO:
+    #      (1) compute distance traversed by muons produced in Z -> mu+ mu- decay
+    #          through individual calorimeter cells
+    #      (2) scale distances by expected energy loss dE/dx of muon
+    process.muonCaloDistances = cms.EDProducer('MuonCaloDistanceProducer',
+      trackAssociator = TrackAssociatorParameterBlock.TrackAssociatorParameters,
+      selectedMuons = process.customization_options.ZmumuCollection
+    )
+    process.ProductionFilterSequence += process.muonCaloDistances
 
-  process.muonCaloEnergyDepositsByDistance = cms.EDProducer('MuonCaloCleanerByDistance',
-    muons = cms.InputTag("muonCaloDistances", "muons"),
-    distanceMapMuPlus = cms.InputTag("muonCaloDistances", "distancesMuPlus"),
-    distanceMapMuMinus = cms.InputTag("muonCaloDistances", "distancesMuMinus"),
-    energyDepositCorrection = cms.PSet(
-      H_Ecal_EcalBarrel  = cms.double(0.9),
-      H_Ecal_EcalEndcap  = cms.double(0.9), # use barrel value for now
-      H_Hcal_HcalBarrel  = cms.double(1.1), 
-      H_Hcal_HcalOuter   = cms.double(0.9), # TODO: This is ECAL value... need to determine HCAL value separately
-      H_Hcal_HcalEndcap  = cms.double(0.9), 
-      H_Hcal_HcalForward = cms.double(0.000), # CV: simulated tau decay products are not expected to deposit eny energy in HF calorimeter
-      H_Hcal_HcalOther   = cms.double(0.000)
-    )                                                  
-  )
-  process.ProductionFilterSequence += process.muonCaloEnergyDepositsByDistance
+    process.muonCaloEnergyDepositsByDistance = cms.EDProducer('MuonCaloCleanerByDistance',
+      muons = cms.InputTag("muonCaloDistances", "muons"),
+      distanceMapMuPlus = cms.InputTag("muonCaloDistances", "distancesMuPlus"),
+      distanceMapMuMinus = cms.InputTag("muonCaloDistances", "distancesMuMinus"),
+      energyDepositCorrection = cms.PSet(
+        H_Ecal_EcalBarrel  = cms.double(0.9),
+        H_Ecal_EcalEndcap  = cms.double(0.9), # use barrel value for now
+        H_Hcal_HcalBarrel  = cms.double(1.1), 
+        H_Hcal_HcalOuter   = cms.double(0.9), # TODO: This is ECAL value... need to determine HCAL value separately
+        H_Hcal_HcalEndcap  = cms.double(0.9), 
+        H_Hcal_HcalForward = cms.double(0.000), # CV: simulated tau decay products are not expected to deposit eny energy in HF calorimeter
+        H_Hcal_HcalOther   = cms.double(0.000)
+      )                                                  
+    )
+    process.ProductionFilterSequence += process.muonCaloEnergyDepositsByDistance
   
-  recHitCaloCleanerByDistanceConfig = cms.PSet(
-    srcEnergyDepositMapMuPlus = cms.InputTag("muonCaloEnergyDepositsByDistance", "energyDepositsMuPlus"),
-    srcEnergyDepositMapMuMinus = cms.InputTag("muonCaloEnergyDepositsByDistance", "energyDepositsMuMinus"),
-    typeEnergyDepositMap = cms.string("absolute"), # CV: use 'absolute' ('relative') for 'MuonCaloCleanerByDistance' ('PFMuonCleaner') module
-  )
+    recHitCaloCleanerByDistanceConfig = cms.PSet(
+      srcEnergyDepositMapMuPlus = cms.InputTag("muonCaloEnergyDepositsByDistance", "energyDepositsMuPlus"),
+      srcEnergyDepositMapMuMinus = cms.InputTag("muonCaloEnergyDepositsByDistance", "energyDepositsMuMinus"),
+      typeEnergyDepositMap = cms.string("absolute"), # CV: use 'absolute' ('relative') for 'MuonCaloCleanerByDistance' ('PFMuonCleaner') module
+    )
+  elif process.customization_options.cleaningMode == 'PF':
+    # Take energy deposits associated to muon by particle-flow algorithm
+    process.pfMuonCaloEnergyDeposits = cms.EDProducer('PFMuonCaloCleaner',
+      selectedMuons = process.customization_options.ZmumuCollection,
+      pfCandidates = cms.InputTag("particleFlowForPFMuonCleaning"),
+      dRmatch = cms.double(0.3),
+      verbosity = cms.int32(1)                                                
+    )
+    process.ProductionFilterSequence += process.pfMuonCaloEnergyDeposits
+    
+    recHitCaloCleanerByDistanceConfig = cms.PSet(
+      srcEnergyDepositMapMuPlus = cms.InputTag("pfMuonCaloEnergyDeposits", "energyDepositsMuPlus"),
+      srcEnergyDepositMapMuMinus = cms.InputTag("pfMuonCaloEnergyDeposits", "energyDepositsMuMinus"),
+      typeEnergyDepositMap = cms.string("absolute"), # CV: use 'absolute' for 'PFMuonCaloCleaner'
+    )
+  else:
+    raise ValueError("Invalid Configuration parameter 'cleaningMode' = %s !!" % process.customization_options.cleaningMode)
 
   # mix recHits in CASTOR calorimeter
   #

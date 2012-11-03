@@ -48,9 +48,10 @@ generator = cms.EDProducer("MCParticleReplacer",
         ),
         filterEfficiency = cms.untracked.double(1.0),
         beamEnergy = cms.double(4000.), # GeV
+        rfRotationAngle = cms.double(90.),                       
         pythiaHepMCVerbosity = cms.untracked.bool(False),
         generatorMode = cms.string("Tauola"),  # "Tauola", "Pythia" (not implemented yet)
-
+        verbosity = cms.int32(0)                       
     )
 )
 

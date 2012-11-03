@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import patMuons
 patMuons.addGenMatch = cms.bool(False)
+patMuons.embedCaloMETMuonCorrs = cms.bool(False)
+patMuons.embedTcMETMuonCorrs = cms.bool(False)
 
 goodVertex = cms.EDFilter("VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
