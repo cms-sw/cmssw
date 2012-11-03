@@ -129,8 +129,8 @@ double EgammaTowerIsolation::getTowerESum(float candEta, float candPhi, const st
     if ( this_e*sin(trItr->theta()) < etLow_ )
       continue ;
 
-    double towerEta=trItr->eta();
-    double towerPhi=trItr->phi();
+    float towerEta=trItr->eta();
+    float towerPhi=trItr->phi();
    
     float dr2 = reco::deltaR2(candEta,candPhi,towerEta, towerPhi);
 
