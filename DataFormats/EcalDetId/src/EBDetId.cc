@@ -124,7 +124,7 @@ bool EBDetId::isNextToBoundary(EBDetId id) {
 
 bool EBDetId::isNextToEtaBoundary(EBDetId id) {
   int ieta = id.ietaSM();
-  return ieta == 1 || std::find( kModuleBoundaries, kModuleBoundaries + 4, ieta );
+  return ieta == 1 || (kModuleBoundaries + 4)!=std::find( kModuleBoundaries, kModuleBoundaries + 4, ieta );
 }
 
 bool EBDetId::isNextToPhiBoundary(EBDetId id) {

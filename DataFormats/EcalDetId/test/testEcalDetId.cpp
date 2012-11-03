@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.17 2012/08/09 22:51:23 argiro Exp $
+   \version $Id: testEcalDetId.cpp,v 1.18 2012/11/02 08:25:14 innocent Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.17 2012/08/09 22:51:23 argiro Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.18 2012/11/02 08:25:14 innocent Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -19,7 +19,7 @@ static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.17 2012/08/09 22:51:23 a
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include<vector>
-
+#include<algorithm>
 #include <iostream>
 
 class testEcalDetId: public CppUnit::TestFixture {
@@ -59,6 +59,13 @@ void testEcalDetId::testEBDetId(){
 
   std::vector<unsigned int> detIds(EBDetId::kSizeForDenseIndexing,0);
 
+  CPPUNIT_ASSERT(!EBDetId::validDetId(0,1));
+  CPPUNIT_ASSERT(!EBDetId::validDetId(1,0));
+  CPPUNIT_ASSERT(!EBDetId::validDetId(1,-1));
+  CPPUNIT_ASSERT(!EBDetId::validDetId(1,EBDetId::MAX_IPHI+1));
+  CPPUNIT_ASSERT(!EBDetId::validDetId(EBDetId::MAX_IETA+1,1));
+  CPPUNIT_ASSERT(!EBDetId::validDetId(-EBDetId::MAX_IETA-1,1));
+
   for (int ieta=EBDetId::MIN_IETA;ieta<=EBDetId::MAX_IETA;ieta++)
     for (int iphi=EBDetId::MIN_IPHI;iphi<=EBDetId::MAX_IPHI;iphi++)
       {
@@ -72,6 +79,12 @@ void testEcalDetId::testEBDetId(){
 	      CPPUNIT_ASSERT(aPositiveId.iphi()==iphi);
 	      CPPUNIT_ASSERT(aPositiveId.zside()==1);
 	      CPPUNIT_ASSERT(aPositiveId.ietaAbs()==ieta);
+	      int i=0;
+	      for(; i!=4; ++i) if (aPositiveId.ietaAbs()<=EBDetId::kModuleBoundaries[i]) break;
+	      CPPUNIT_ASSERT(aPositiveId.im()==i+1);
+	      CPPUNIT_ASSERT(!(EBDetId::isNextToEtaBoundary(aPositiveId)^
+			       (ieta==1||std::binary_search(EBDetId::kModuleBoundaries,EBDetId::kModuleBoundaries + 4, ieta ))
+			       ));
 
 	      smId = EBDetId(aPositiveId.ism(), aPositiveId.ic(),
 			     EBDetId::SMCRYSTALMODE);
