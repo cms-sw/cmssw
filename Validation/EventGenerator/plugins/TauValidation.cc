@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2012/11/02 05:02:00 $
- *  $Revision: 1.19 $
+ *  $Date: 2012/11/02 13:00:24 $
+ *  $Revision: 1.20 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -46,7 +46,7 @@ void TauValidation::beginJob()
     TauEta           = dbe->book1D("TauEta","Tau eta", 100 ,-2.5,2.5);
     TauPhi           = dbe->book1D("TauPhi","Tau phi", 100 ,-3.14,3.14);
     TauProngs        = dbe->book1D("TauProngs","Tau n prongs", 7 ,0,7);
-    TauDecayChannels = dbe->book1D("TauDecayChannels","Tau decay channels", 12 ,0,12);
+    TauDecayChannels = dbe->book1D("TauDecayChannels","Tau decay channels", 13 ,0,13);
 	TauDecayChannels->setBinLabel(1+undetermined,"?");
     	TauDecayChannels->setBinLabel(1+electron,"e");
     	TauDecayChannels->setBinLabel(1+muon,"mu");
@@ -56,7 +56,7 @@ void TauValidation::beginJob()
 	TauDecayChannels->setBinLabel(1+pi1pi0,"#pi^{#pm}#pi^{0}");
     	TauDecayChannels->setBinLabel(1+pinpi0,"#pi^{#pm}n#pi^{0}");
     	TauDecayChannels->setBinLabel(1+tripi,"3#pi^{#pm}");
-//    	TauDecayChannels->setBinLabel(1+tripinpi0,"3#pi^{#pm}n#pi^{0}");
+    	TauDecayChannels->setBinLabel(1+tripinpi0,"3#pi^{#pm}n#pi^{0}");
 	TauDecayChannels->setBinLabel(1+K,"K");
 	TauDecayChannels->setBinLabel(1+Kstar,"K^{*}");
 	TauDecayChannels->setBinLabel(1+stable,"Stable");
@@ -327,7 +327,7 @@ int TauValidation::tauProngs(const HepMC::GenParticle* tau, double weight){
   return nProngs;
 }
 
-int TauValidation::findTauDecayChannel(const HepMC::GenParticle* tau){
+int TauValidation::tauDecayChannel(const HepMC::GenParticle* tau, double weight){
 
   int channel = undetermined;
   if(tau->status() == 1) channel = stable;
@@ -346,7 +346,7 @@ int TauValidation::findTauDecayChannel(const HepMC::GenParticle* tau){
     for(des = tau->end_vertex()->particles_begin(HepMC::descendants);
 	des!= tau->end_vertex()->particles_end(HepMC::descendants);++des ) {
       int pid = (*des)->pdg_id();
-      if(abs(pid) == 15) return findTauDecayChannel(*des);
+      if(abs(pid) == 15) return tauDecayChannel(*des,weight);
       
       allCount++;
       if(abs(pid) == 11)    eCount++;
@@ -360,29 +360,25 @@ int TauValidation::findTauDecayChannel(const HepMC::GenParticle* tau){
       
     }
   }
+  // resonances  
+  if(KCount >= 1)     channel = K;
+  if(KstarCount >= 1) channel = Kstar;
+  if(a1Count >= 1)    channel = a1;
+  if(rhoCount >= 1)   channel = rho;
+  if(channel!=undetermined && weight!=0.0) TauDecayChannels->Fill(channel,weight);
   
-  if(KCount == 1 && allCount == 2)  channel = K;
-  if(KstarCount == 1 && allCount == 2)  channel = Kstar;
-  if(a1Count == 1 && allCount == 2)  channel = a1;
-  if(rhoCount == 1 && allCount == 2)  channel = rho;
-  
+  // final state products
   if(piCount == 1 && pi0Count == 0) channel = pi;
   if(piCount == 1 && pi0Count == 1) channel = pi1pi0;
   if(piCount == 1 && pi0Count > 1)  channel = pinpi0;
-  
   if(piCount == 3 && pi0Count == 0) channel = tripi;
-  
+  if(piCount == 3 && pi0Count > 0)  channel = tripinpi0;
   if(eCount == 1)                   channel = electron;
   if(muCount == 1)                  channel = muon;
-  
+  if(weight!=0.0) TauDecayChannels->Fill(channel,weight);
   return channel;
 }
 
-int TauValidation::tauDecayChannel(const HepMC::GenParticle* tau, double weight){
-  int channel = findTauDecayChannel(tau);
-  TauDecayChannels->Fill(channel,weight);
-  return channel;
-}
 
 void TauValidation::rtau(const HepMC::GenParticle* tau,int mother, int decay, double weight){
 
@@ -428,7 +424,7 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
       
       int pid = (*des)->pdg_id();
       if(abs(findMother(*des)) != 15 &&
-	 abs(pid) == 15 && findTauDecayChannel(*des) == pi){
+	 abs(pid) == 15 && tauDecayChannel(*des) == pi){
 	nSinglePionDecays++;
 	tautau += TLorentzVector((*des)->momentum().px(),
 				 (*des)->momentum().py(),

@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2012/11/02 05:02:00 $
- *  $Revision: 1.13 $
+ *  $Date: 2012/11/02 13:00:23 $
+ *  $Revision: 1.14 $
  *
  */
 
@@ -48,7 +48,7 @@ class TauValidation : public edm::EDAnalyzer
 	       pi1pi0,
                pinpi0,
                tripi,
-//               tripinpi0,
+               tripinpi0,
 	       stable};
 	// tau mother particles 
 	enum  {other,
@@ -74,9 +74,8 @@ class TauValidation : public edm::EDAnalyzer
     private:
 	int tauMother(const HepMC::GenParticle*, double weight);
 	int tauProngs(const HepMC::GenParticle*, double weight);
-	int tauDecayChannel(const HepMC::GenParticle*, double weight);
+	int tauDecayChannel(const HepMC::GenParticle*, double weight=0.0);
 	int findMother(const HepMC::GenParticle*);
-	int findTauDecayChannel(const HepMC::GenParticle*);
 	bool isLastTauinChain(const HepMC::GenParticle* tau);
 	void rtau(const HepMC::GenParticle*,int,int, double weight);
 	void spinEffects(const HepMC::GenParticle*,int,int, double weight);
