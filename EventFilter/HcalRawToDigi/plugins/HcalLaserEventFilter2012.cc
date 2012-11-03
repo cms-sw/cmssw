@@ -105,11 +105,11 @@ HcalLaserEventFilter2012::HcalLaserEventFilter2012(const edm::ParameterSet& ps)
   templist=ps.getUntrackedParameter<std::vector<std::string> >("EventList",dummylist); // get list of events
   
   // Loop through list of bad events, and if run is in allowed range, add bad event to EventList
-  for (uint i=0;i<templist.size();++i)
+  for (unsigned int i=0;i<templist.size();++i)
     {
       int run=0;
-      uint ls=0;
-      uint event=0;
+      unsigned int ls=0;
+      unsigned int event=0;
       // Check that event list object is in correct form
       size_t found = templist[i].find(":");  // find first colon
       if (found!=std::string::npos)
