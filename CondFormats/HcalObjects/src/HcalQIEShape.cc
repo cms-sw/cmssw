@@ -3,17 +3,10 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store pedestal values 4xCapId
 $Author: ratnikov
-$Date: 2005/12/16 20:56:15 $
-$Revision: 1.5 $
+$Date: 2012/11/02 14:13:15 $
+$Revision: 1.6 $
 */
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
-
-//namespace {
-//  const float binMin [32] = {-1,  0,  1,  2,  3,  4,  5,  6,  7,  8,
-//			     9, 10, 11, 12, 13, 14, 16, 18, 20, 22,
-//			     24, 26, 28, 31, 34, 37, 40, 44, 48, 52,
-			     //			     57, 62};
-  //}
 
 HcalQIEShape::HcalQIEShape()
   :nbins_(0)
@@ -62,7 +55,7 @@ bool HcalQIEShape::setLowEdge (float fValue, unsigned fAdc) {
 bool HcalQIEShape::setLowEdges (unsigned int nbins, const float *fValue) {
   nbins_=nbins;
   mValues.clear();
-  mValues.resize(4*nbins_);
+  mValues.resize(4*nbins_+1);
   bool result = true;
   for (unsigned int adc = 0; adc < nbins_; adc++) result = result && setLowEdge (fValue [adc], adc);
   expand ();
