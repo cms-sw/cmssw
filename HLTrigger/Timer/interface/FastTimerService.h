@@ -279,14 +279,14 @@ private:
   const bool                                    m_enable_dqm_bypath_counters;
   const bool                                    m_enable_dqm_bypath_exclusive;
   const bool                                    m_enable_dqm_bymodule;          // require per-module timers
-  const bool                                    m_enable_dqm_bylumi;
+  const bool                                    m_enable_dqm_byls;
   const double                                  m_dqm_eventtime_range;
   const double                                  m_dqm_eventtime_resolution;
   const double                                  m_dqm_pathtime_range;
   const double                                  m_dqm_pathtime_resolution;
   const double                                  m_dqm_moduletime_range;
   const double                                  m_dqm_moduletime_resolution;
-  const uint32_t                                m_dqm_lumi_range;
+  const uint32_t                                m_dqm_ls_range;
   std::string                                   m_dqm_path;
 
   // job configuration and caching
@@ -324,11 +324,11 @@ private:
   TProfile *                                    m_dqm_paths_interpaths;
 
   // per-lumisection plots
-  TProfile *                                    m_dqm_bylumi_event;
-  TProfile *                                    m_dqm_bylumi_source;
-  TProfile *                                    m_dqm_bylumi_all_paths;
-  TProfile *                                    m_dqm_bylumi_all_endpaths;
-  TProfile *                                    m_dqm_bylumi_interpaths;
+  TProfile *                                    m_dqm_byls_event;
+  TProfile *                                    m_dqm_byls_source;
+  TProfile *                                    m_dqm_byls_all_paths;
+  TProfile *                                    m_dqm_byls_all_endpaths;
+  TProfile *                                    m_dqm_byls_interpaths;
 
   // per-path and per-module accounting
   PathInfo *                                    m_current_path;

@@ -73,14 +73,17 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_dqm_bypath_counters(  config.getUntrackedParameter<bool>(   "enableDQMbyPathCounters"  ) ),
   m_enable_dqm_bypath_exclusive( config.getUntrackedParameter<bool>(   "enableDQMbyPathExclusive" ) ),
   m_enable_dqm_bymodule(         config.getUntrackedParameter<bool>(   "enableDQMbyModule"        ) ),
-  m_enable_dqm_bylumi(           config.getUntrackedParameter<bool>(   "enableDQMbyLumi"          ) ),
+  m_enable_dqm_byls(             config.existsAs<bool>("enableDQMbyLumiSection", false) ? 
+                                    config.getUntrackedParameter<bool>("enableDQMbyLumiSection") : 
+                                    ( edm::LogWarning("Configuration") << "enableDQMbyLumi is deprecated, please use enableDQMbyLumiSection instead", config.getUntrackedParameter<bool>("enableDQMbyLumi") ) 
+                                 ),
   m_dqm_eventtime_range(         config.getUntrackedParameter<double>( "dqmTimeRange"             ) ),    // ms
   m_dqm_eventtime_resolution(    config.getUntrackedParameter<double>( "dqmTimeResolution"        ) ),    // ms
   m_dqm_pathtime_range(          config.getUntrackedParameter<double>( "dqmPathTimeRange"         ) ),    // ms
   m_dqm_pathtime_resolution(     config.getUntrackedParameter<double>( "dqmPathTimeResolution"    ) ),    // ms
   m_dqm_moduletime_range(        config.getUntrackedParameter<double>( "dqmModuleTimeRange"       ) ),    // ms
   m_dqm_moduletime_resolution(   config.getUntrackedParameter<double>( "dqmModuleTimeResolution"  ) ),    // ms
-  m_dqm_lumi_range(              config.getUntrackedParameter<uint32_t>( "dqmLumiSectionsRange"   ) ),    // lumisections
+  m_dqm_ls_range(                config.getUntrackedParameter<uint32_t>( "dqmLumiSectionsRange"   ) ),    // lumisections
   m_dqm_path(                    config.getUntrackedParameter<std::string>("dqmPath" ) ),
   // caching
   m_first_path(0),          // these are initialized at prePathBeginRun(),
@@ -113,11 +116,11 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_dqm_paths_exclusive_time(0),
   m_dqm_paths_interpaths(0),
   // per-lumisection plots
-  m_dqm_bylumi_event(0),
-  m_dqm_bylumi_source(0),
-  m_dqm_bylumi_all_paths(0),
-  m_dqm_bylumi_all_endpaths(0),
-  m_dqm_bylumi_interpaths(0),
+  m_dqm_byls_event(0),
+  m_dqm_byls_source(0),
+  m_dqm_byls_all_paths(0),
+  m_dqm_byls_all_endpaths(0),
+  m_dqm_byls_interpaths(0),
   // per-path and per-module accounting
   m_current_path(0),
   m_paths(),
@@ -257,22 +260,22 @@ void FastTimerService::postBeginJob() {
     }
 
     // per-lumisection plots
-    if (m_enable_dqm_bylumi) {
-      m_dqm_bylumi_event        = m_dqms->bookProfile("event_bylumi",        "Event processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      m_dqm_bylumi_event        ->StatOverflows(true);
-      m_dqm_bylumi_event        ->SetYTitle("processing time [ms]");
-      m_dqm_bylumi_source       = m_dqms->bookProfile("source_bylumi",       "Source processing time, by Lumisection",   m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      m_dqm_bylumi_source       ->StatOverflows(true);
-      m_dqm_bylumi_source       ->SetYTitle("processing time [ms]");
-      m_dqm_bylumi_all_paths    = m_dqms->bookProfile("all_paths_bylumi",    "Paths processing time, by Lumisection",    m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      m_dqm_bylumi_all_paths    ->StatOverflows(true);
-      m_dqm_bylumi_all_paths    ->SetYTitle("processing time [ms]");
-      m_dqm_bylumi_all_endpaths = m_dqms->bookProfile("all_endpaths_bylumi", "EndPaths processing time, by Lumisection", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      m_dqm_bylumi_all_endpaths ->StatOverflows(true);
-      m_dqm_bylumi_all_endpaths ->SetYTitle("processing time [ms]");
-      m_dqm_bylumi_interpaths   = m_dqms->bookProfile("interpaths_bylumi",   "Time spent between paths, by Lumisection", m_dqm_lumi_range, 0.5, m_dqm_lumi_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      m_dqm_bylumi_interpaths   ->StatOverflows(true);
-      m_dqm_bylumi_interpaths   ->SetYTitle("processing time [ms]");
+    if (m_enable_dqm_byls) {
+      m_dqm_byls_event        = m_dqms->bookProfile("event_byls",        "Event processing time, by LumiSection",    m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byls_event        ->StatOverflows(true);
+      m_dqm_byls_event        ->SetYTitle("processing time [ms]");
+      m_dqm_byls_source       = m_dqms->bookProfile("source_byls",       "Source processing time, by LumiSection",   m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byls_source       ->StatOverflows(true);
+      m_dqm_byls_source       ->SetYTitle("processing time [ms]");
+      m_dqm_byls_all_paths    = m_dqms->bookProfile("all_paths_byls",    "Paths processing time, by LumiSection",    m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byls_all_paths    ->StatOverflows(true);
+      m_dqm_byls_all_paths    ->SetYTitle("processing time [ms]");
+      m_dqm_byls_all_endpaths = m_dqms->bookProfile("all_endpaths_byls", "EndPaths processing time, by LumiSection", m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byls_all_endpaths ->StatOverflows(true);
+      m_dqm_byls_all_endpaths ->SetYTitle("processing time [ms]");
+      m_dqm_byls_interpaths   = m_dqms->bookProfile("interpaths_byls",   "Time spent between paths, by LumiSection", m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byls_interpaths   ->StatOverflows(true);
+      m_dqm_byls_interpaths   ->SetYTitle("processing time [ms]");
     }
 
     // per-path and per-module accounting
@@ -561,18 +564,18 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
     //edm::LogImportant("FastTimerService") << m_dqm_interpaths->GetName() << "->Fill(" << m_interpaths * 1000. << ")";
     m_dqm_interpaths->Fill(m_interpaths * 1000.);                           // convert to ms
 
-    if (m_enable_dqm_bylumi) {
-      unsigned int lumi = event.getLuminosityBlock().luminosityBlock();
-      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_event->GetName() << "->Fill(" << lumi << ", " <<  m_event * 1000. << ")";
-      m_dqm_bylumi_event        ->Fill(lumi, m_event        * 1000.);       // convert to ms
-      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_source->GetName() << "->Fill(" << lumi << ", " <<  m_source * 1000. << ")";
-      m_dqm_bylumi_source       ->Fill(lumi, m_source       * 1000.);       // convert to ms
-      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_all_paths->GetName() << "->Fill(" << lumi << ", " <<  m_all_paths * 1000. << ")";
-      m_dqm_bylumi_all_paths    ->Fill(lumi, m_all_paths    * 1000.);       // convert to ms
-      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_all_endpaths->GetName() << "->Fill(" << lumi << ", " <<  m_all_endpaths * 1000. << ")";
-      m_dqm_bylumi_all_endpaths ->Fill(lumi, m_all_endpaths * 1000.);       // convert to ms
-      //edm::LogImportant("FastTimerService") << m_dqm_bylumi_interpaths->GetName() << "->Fill(" << lumi << ", " <<  m_interpaths * 1000. << ")";
-      m_dqm_bylumi_interpaths   ->Fill(lumi, m_interpaths   * 1000.);       // convert to ms
+    if (m_enable_dqm_byls) {
+      unsigned int ls = event.getLuminosityBlock().luminosityBlock();
+      //edm::LogImportant("FastTimerService") << m_dqm_byls_event->GetName() << "->Fill(" << ls << ", " <<  m_event * 1000. << ")";
+      m_dqm_byls_event        ->Fill(ls, m_event        * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_byls_source->GetName() << "->Fill(" << ls << ", " <<  m_source * 1000. << ")";
+      m_dqm_byls_source       ->Fill(ls, m_source       * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_byls_all_paths->GetName() << "->Fill(" << ls << ", " <<  m_all_paths * 1000. << ")";
+      m_dqm_byls_all_paths    ->Fill(ls, m_all_paths    * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_byls_all_endpaths->GetName() << "->Fill(" << ls << ", " <<  m_all_endpaths * 1000. << ")";
+      m_dqm_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_byls_interpaths->GetName() << "->Fill(" << ls << ", " <<  m_interpaths * 1000. << ")";
+      m_dqm_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);       // convert to ms
     }
   }
 }
@@ -1003,7 +1006,10 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<bool>(   "enableDQMbyPathCounters",  true);
   desc.addUntracked<bool>(   "enableDQMbyPathExclusive", false);
   desc.addUntracked<bool>(   "enableDQMbyModule",        false);
-  desc.addUntracked<bool>(   "enableDQMbyLumi",          false);
+  desc.addNode(
+    edm::ParameterDescription<bool>(   "enableDQMbyLumiSection", false, false) or
+    edm::ParameterDescription<bool>(   "enableDQMbyLumi",        false, false)
+  );
   desc.addUntracked<double>( "dqmTimeRange",             1000. );   // ms
   desc.addUntracked<double>( "dqmTimeResolution",           5. );   // ms
   desc.addUntracked<double>( "dqmPathTimeRange",          100. );   // ms
