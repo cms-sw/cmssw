@@ -29,7 +29,8 @@ extern "C" {
 #endif
 
 #include <Math/VectorUtil.h>
-#include <Math/RotationZ.h>
+#include <TMath.h>
+#include <TVector3.h>
 
 #include <stack>
 #include <queue>
@@ -131,6 +132,8 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
       minVisPtCuts_.push_back(cuts);
     }
   }
+
+  rfRotationAngle_ = cfg.getParameter<double>("rfRotationAngle")*TMath::Pi()/180.;
 
   edm::Service<TFileService> fileService_;
   if ( fileService_.isAvailable() ) {
@@ -551,6 +554,28 @@ void ParticleReplacerZtautau::repairBarcodes(HepMC::GenEvent* genEvt)
   }
 }
 
+namespace
+{
+  reco::Particle::LorentzVector rotate(const reco::Particle::LorentzVector& p4, const reco::Particle::LorentzVector& axis, double angle)
+  {
+    TVector3 p3(p4.px(), p4.py(), p4.pz());
+    p3.Rotate(angle, TVector3(axis.x(), axis.y(), axis.z()).Unit());
+    reco::Particle::LorentzVector p4_rotated(p3.Px(), p3.Py(), p3.Pz(), p4.energy());
+    assert(TMath::Abs(p3.Mag() - p4.P()) < (1.e-3*p4.P()));
+    return p4_rotated;
+  }
+
+  void print(const std::string& label, const reco::Particle::LorentzVector& p4, const reco::Particle::LorentzVector* p4_ref = 0)
+  {
+    std::cout << label << ": En = " << p4.E() << ", P = " << p4.P() << ", theta = " << p4.theta() << ", phi = " << p4.phi();
+    if ( p4_ref ) {
+      double angle = TMath::ACos((p4.px()*p4_ref->px() + p4.py()*p4_ref->py() + p4.pz()*p4_ref->pz())/(p4.P()*p4_ref->P()));
+      std::cout << " (angle wrt. ref = " << angle << ")";
+    }
+    std::cout << std::endl;
+  }
+}
+
 void ParticleReplacerZtautau::transformMuMu2LepLep(reco::Particle* muon1, reco::Particle* muon2)
 {
 //--- transform a muon pair into an electron/tau pair,
@@ -567,6 +592,27 @@ void ParticleReplacerZtautau::transformMuMu2LepLep(reco::Particle* muon1, reco::
 
   reco::Particle::LorentzVector muon1P4_rf = boost_to_rf(muon1P4_lab);
   reco::Particle::LorentzVector muon2P4_rf = boost_to_rf(muon2P4_lab);
+
+  if ( verbosity_ ) {
+    std::cout << "before rotation:" << std::endl;
+    print("muon1(lab)", muon1P4_lab, &zP4_lab);
+    print("muon2(lab)", muon2P4_lab, &zP4_lab);
+    print("Z(lab)", zP4_lab);
+    print("muon1(rf)", muon1P4_rf, &zP4_lab);
+    print("muon2(rf)", muon2P4_rf, &zP4_lab);
+    print("Z(rf)", zP4_rf);
+  }
+
+  if ( rfRotationAngle_ != 0. ) {
+    double rfRotationAngle_value = rfRotationAngle_;
+    if ( rfRotationAngle_ == -1. ) {
+      double u = decayRandomEngine->flat();
+      rfRotationAngle_value = 2.*TMath::Pi()*u;
+    }
+    
+    muon1P4_rf = rotate(muon1P4_rf, zP4_lab, rfRotationAngle_value);
+    muon2P4_rf = rotate(muon2P4_rf, zP4_lab, rfRotationAngle_value);
+  }
 
   double muon1P_rf2 = square(muon1P4_rf.px()) + square(muon1P4_rf.py()) + square(muon1P4_rf.pz());
   double lep1Mass2 = square(targetParticle1Mass_);
@@ -586,18 +632,18 @@ void ParticleReplacerZtautau::transformMuMu2LepLep(reco::Particle* muon1, reco::
   reco::Particle::LorentzVector lep2P4_rf = reco::Particle::LorentzVector(
     scaleFactor2*muon2P4_rf.px(), scaleFactor2*muon2P4_rf.py(), scaleFactor2*muon2P4_rf.pz(), lep2En_rf);
 
-  // Rotate by 90 degrees around phi in CM frame
-  const reco::Particle::LorentzVector lep1P4_rf_rotated = ROOT::Math::RotationZ(ROOT::Math::Pi()/2.0) * lep1P4_rf;
-  const reco::Particle::LorentzVector lep2P4_rf_rotated = ROOT::Math::RotationZ(ROOT::Math::Pi()/2.0) * lep2P4_rf;
-
   reco::Particle::LorentzVector lep1P4_lab = boost_to_lab(lep1P4_rf);
   reco::Particle::LorentzVector lep2P4_lab = boost_to_lab(lep2P4_rf);
 
-  reco::Particle::LorentzVector lep1P4_lab_rotated = boost_to_lab(lep1P4_rf_rotated);
-  reco::Particle::LorentzVector lep2P4_lab_rotated = boost_to_lab(lep2P4_rf_rotated);
-
-  //std::cout << "Tau1: pt=" << lep1P4_lab.Pt() << "/" << lep1P4_lab_rotated.Pt() << ", eta=" << lep1P4_lab.Eta() << "/" << lep1P4_lab_rotated.Eta() << ", phi=" << lep1P4_lab.Phi() << "/" << lep1P4_lab_rotated.Phi() << std::endl;
-  //std::cout << "Tau2: pt=" << lep2P4_lab.Pt() << "/" << lep2P4_lab_rotated.Pt() << ", eta=" << lep2P4_lab.Eta() << "/" << lep2P4_lab_rotated.Eta() << ", phi=" << lep2P4_lab.Phi() << "/" << lep2P4_lab_rotated.Phi() << std::endl;
+  if ( verbosity_ ) {
+    std::cout << "after rotation:" << std::endl;
+    print("lep1(rf)", muon1P4_rf, &zP4_lab);
+    print("lep2(rf)", muon2P4_rf, &zP4_lab);    
+    reco::Particle::LorentzVector lep1p2_lab = lep1P4_lab + lep2P4_lab;
+    print("lep1(lab)", lep1P4_lab, &zP4_lab);
+    print("lep2(lab)", lep2P4_lab, &zP4_lab);    
+    print("lep1+2(lab)", lep1p2_lab);
+  }
 
   // perform additional checks:
   // the following tests guarantee a deviation of less than 0.1% 
