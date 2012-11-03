@@ -1048,6 +1048,7 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<bool>(   "enableDQMbyPathCounters",  true);
   desc.addUntracked<bool>(   "enableDQMbyPathExclusive", false);
   desc.addUntracked<bool>(   "enableDQMbyModule",        false);
+  desc.addUntracked<bool>(   "enableDQMbyLuminosity",    false);
   desc.addNode(
     edm::ParameterDescription<bool>(   "enableDQMbyLumiSection", false, false) or
     edm::ParameterDescription<bool>(   "enableDQMbyLumi",        false, false)
@@ -1058,9 +1059,9 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);   // ms
   desc.addUntracked<double>( "dqmModuleTimeRange",         40. );   // ms
   desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);   // ms
-  desc.addUntracked<double>( "dqmLuminosityRange",        1.e34);   // cm⁻²s⁻¹
-  desc.addUntracked<double>( "dqmLuminosityResolution",   1.e31);   // cm⁻²s⁻¹
-  desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",    2500 );   // ~ 16 hours
+  desc.addUntracked<double>( "dqmLuminosityRange",      10000  );   // x 10³⁰ cm⁻²s⁻¹
+  desc.addUntracked<double>( "dqmLuminosityResolution",    10  );   // x 10³⁰ cm⁻²s⁻¹
+  desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",   2500  );   // ~ 16 hours
   desc.addUntracked<std::string>(   "dqmPath",           "HLT/TimerService");
   desc.addUntracked<edm::InputTag>( "luminosityProduct", edm::InputTag("hltScalersRawToDigi"));
   descriptions.add("FastTimerService", desc);
