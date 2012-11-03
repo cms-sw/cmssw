@@ -63,7 +63,7 @@ double EgammaTowerIsolation::getTowerEtSum(float candEta, float candPhi, const s
     // skip the towers to exclude
     if ( detIdToExclude )
      {
-      std::vector<CaloTowerDetId>::const_iterator itcheck=find(detIdToExclude->begin(),detIdToExclude->end(),trItr->id());
+       std::vector<CaloTowerDetId>::const_iterator itcheck=std::find(detIdToExclude->begin(),detIdToExclude->end(),trItr->id());
       if (itcheck != detIdToExclude->end())
 	      continue;
      }
@@ -71,8 +71,8 @@ double EgammaTowerIsolation::getTowerEtSum(float candEta, float candPhi, const s
     double this_pt=0;
     switch(depth_){
     case AllDepths: this_pt = trItr->hadEt();break;
-    case Depth1: this_pt = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEt() : trItr->hadEnergyHeInnerLayer()*sin(trItr->theta());break;
-    case Depth2: this_pt = trItr->hadEnergyHeOuterLayer()*sin(trItr->theta());break;
+    case Depth1: this_pt = (trItr->ietaAbs()<18 || trItr->ietaAbs()>29) ? trItr->hadEt() : trItr->hadEnergyHeInnerLayer()*std::sin(trItr->theta());break;
+    case Depth2: this_pt = trItr->hadEnergyHeOuterLayer()*std::sin(trItr->theta());break;
     default:  break;
     }
 
@@ -113,7 +113,7 @@ double EgammaTowerIsolation::getTowerESum(float candEta, float candPhi, const st
     
     // skip the towers to exclude
     if( detIdToExclude ) {
-      std::vector<CaloTowerDetId>::const_iterator itcheck=find(detIdToExclude->begin(),detIdToExclude->end(),trItr->id());
+      std::vector<CaloTowerDetId>::const_iterator itcheck=std::find(detIdToExclude->begin(),detIdToExclude->end(),trItr->id());
       if (itcheck != detIdToExclude->end())
 	continue;
     }
@@ -121,12 +121,12 @@ double EgammaTowerIsolation::getTowerESum(float candEta, float candPhi, const st
     double this_e=0;
     switch(depth_){
     case AllDepths: this_e = trItr->hadEnergy();break;
-    case Depth1: this_e = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEnergy() : trItr->hadEnergyHeInnerLayer();break;
+    case Depth1: this_e = (trItr->ietaAbs()<18 || trItr->ietaAbs()>29) ? trItr->hadEnergy() : trItr->hadEnergyHeInnerLayer();break;
     case Depth2: this_e = trItr->hadEnergyHeOuterLayer();break;
     default: break;
     }
 
-    if ( this_e*sin(trItr->theta()) < etLow_ )
+    if ( this_e*std::sin(trItr->theta()) < etLow_ )
       continue ;
 
     float towerEta=trItr->eta();

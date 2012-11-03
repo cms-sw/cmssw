@@ -12,7 +12,6 @@
 
 //C++ includes
 #include <vector>
-#include <functional>
 
 //CMSSW includes
 #include "FWCore/Framework/interface/ESHandle.h"
