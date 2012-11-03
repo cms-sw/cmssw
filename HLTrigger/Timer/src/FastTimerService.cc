@@ -74,6 +74,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_dqm_bypath_counters(  config.getUntrackedParameter<bool>(     "enableDQMbyPathCounters"  ) ),
   m_enable_dqm_bypath_exclusive( config.getUntrackedParameter<bool>(     "enableDQMbyPathExclusive" ) ),
   m_enable_dqm_bymodule(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
+  m_enable_dqm_summary(          config.getUntrackedParameter<bool>(     "enableDQMSummary"         ) ),
   m_enable_dqm_byluminosity(     config.getUntrackedParameter<bool>(     "enableDQMbyLuminosity"    ) ),   
   m_enable_dqm_byls(             config.existsAs<bool>("enableDQMbyLumiSection", false) ? 
                                     config.getUntrackedParameter<bool>("enableDQMbyLumiSection") : 
@@ -219,24 +220,26 @@ void FastTimerService::postBeginJob() {
 
     m_dqms->setCurrentFolder(m_dqm_path);
 
-    // event plots
-    m_dqm_event         = m_dqms->book1D("event",        "Event processing time",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
-    m_dqm_event         ->StatOverflows(true);
-    m_dqm_event         ->SetXTitle("processing time [ms]");
-    m_dqm_source        = m_dqms->book1D("source",       "Source processing time",   pathbins,  0., m_dqm_pathtime_range)->getTH1F();
-    m_dqm_source        ->StatOverflows(true);
-    m_dqm_source        ->SetXTitle("processing time [ms]");
-    m_dqm_all_paths     = m_dqms->book1D("all_paths",    "Paths processing time",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
-    m_dqm_all_paths     ->StatOverflows(true);
-    m_dqm_all_paths     ->SetXTitle("processing time [ms]");
-    m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths processing time", pathbins,  0., m_dqm_pathtime_range)->getTH1F();
-    m_dqm_all_endpaths  ->StatOverflows(true);
-    m_dqm_all_endpaths  ->SetXTitle("processing time [ms]");
-    m_dqm_interpaths    = m_dqms->book1D("interpaths",   "Time spent between paths", pathbins,  0., m_dqm_eventtime_range)->getTH1F();
-    m_dqm_interpaths    ->StatOverflows(true);
-    m_dqm_interpaths    ->SetXTitle("processing time [ms]");
+    // event summary plots
+    if (m_enable_dqm_summary) {
+      m_dqm_event         = m_dqms->book1D("event",        "Event processing time",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
+      m_dqm_event         ->StatOverflows(true);
+      m_dqm_event         ->SetXTitle("processing time [ms]");
+      m_dqm_source        = m_dqms->book1D("source",       "Source processing time",   pathbins,  0., m_dqm_pathtime_range)->getTH1F();
+      m_dqm_source        ->StatOverflows(true);
+      m_dqm_source        ->SetXTitle("processing time [ms]");
+      m_dqm_all_paths     = m_dqms->book1D("all_paths",    "Paths processing time",    eventbins, 0., m_dqm_eventtime_range)->getTH1F();
+      m_dqm_all_paths     ->StatOverflows(true);
+      m_dqm_all_paths     ->SetXTitle("processing time [ms]");
+      m_dqm_all_endpaths  = m_dqms->book1D("all_endpaths", "EndPaths processing time", pathbins,  0., m_dqm_pathtime_range)->getTH1F();
+      m_dqm_all_endpaths  ->StatOverflows(true);
+      m_dqm_all_endpaths  ->SetXTitle("processing time [ms]");
+      m_dqm_interpaths    = m_dqms->book1D("interpaths",   "Time spent between paths", pathbins,  0., m_dqm_eventtime_range)->getTH1F();
+      m_dqm_interpaths    ->StatOverflows(true);
+      m_dqm_interpaths    ->SetXTitle("processing time [ms]");
+    }
 
-    // summary plots
+    // plots by path
     m_dqm_paths_active_time     = m_dqms->bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
     m_dqm_paths_active_time     ->StatOverflows(true);
     m_dqm_paths_active_time     ->SetYTitle("processing time [ms]");
@@ -286,19 +289,20 @@ void FastTimerService::postBeginJob() {
 
     // plots vs. instantaneous luminosity
     if (m_enable_dqm_byluminosity) {
-      m_dqm_byluminosity_event        = m_dqms->bookProfile("event_byluminosity",        "Event processing timevs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_event        = m_dqms->bookProfile("event_byluminosity",        "Event processing time vs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_byluminosity_event        ->StatOverflows(true);
       m_dqm_byluminosity_event        ->SetYTitle("processing time [ms]");
-      m_dqm_byluminosity_source       = m_dqms->bookProfile("source_byluminosity",       "Source processing timevs. instantaneous luminosity",   lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_event        ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+      m_dqm_byluminosity_source       = m_dqms->bookProfile("source_byluminosity",       "Source processing time vs. instantaneous luminosity",   lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_byluminosity_source       ->StatOverflows(true);
       m_dqm_byluminosity_source       ->SetYTitle("processing time [ms]");
-      m_dqm_byluminosity_all_paths    = m_dqms->bookProfile("all_paths_byluminosity",    "Paths processing timevs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_all_paths    = m_dqms->bookProfile("all_paths_byluminosity",    "Paths processing time vs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_byluminosity_all_paths    ->StatOverflows(true);
       m_dqm_byluminosity_all_paths    ->SetYTitle("processing time [ms]");
-      m_dqm_byluminosity_all_endpaths = m_dqms->bookProfile("all_endpaths_byluminosity", "EndPaths processing timevs. instantaneous luminosity", lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_all_endpaths = m_dqms->bookProfile("all_endpaths_byluminosity", "EndPaths processing time vs. instantaneous luminosity", lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_byluminosity_all_endpaths ->StatOverflows(true);
       m_dqm_byluminosity_all_endpaths ->SetYTitle("processing time [ms]");
-      m_dqm_byluminosity_interpaths   = m_dqms->bookProfile("interpaths_byluminosity",   "Time spent between pathsvs. instantaneous luminosity", lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_interpaths   = m_dqms->bookProfile("interpaths_byluminosity",   "Time spent between paths vs. instantaneous luminosity", lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_byluminosity_interpaths   ->StatOverflows(true);
       m_dqm_byluminosity_interpaths   ->SetYTitle("processing time [ms]");
     }
@@ -581,13 +585,21 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
   m_interpaths += interpaths;
   m_summary_interpaths += m_interpaths;
   if (m_dqms) {
-    //edm::LogImportant("FastTimerService") << m_dqm_event->GetName() << "->Fill(" << m_event * 1000. << ")";
-    m_dqm_event->Fill(m_event * 1000.);                                     // convert to ms
-
     //edm::LogImportant("FastTimerService") << m_dqm_paths_interpaths->GetName() << "->Fill(" << m_paths.size()<< ", " <<  interpaths * 1000. << ")";
     m_dqm_paths_interpaths->Fill(m_paths.size(), interpaths * 1000.);       // convert to ms
-    //edm::LogImportant("FastTimerService") << m_dqm_interpaths->GetName() << "->Fill(" << m_interpaths * 1000. << ")";
-    m_dqm_interpaths->Fill(m_interpaths * 1000.);                           // convert to ms
+    
+    if (m_enable_dqm_summary) {
+      //edm::LogImportant("FastTimerService") << m_dqm_event->GetName() << "->Fill(" << m_event * 1000. << ")";
+      m_dqm_event         ->Fill(m_event          * 1000.);               // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_source->GetName() << "->Fill(" << m_source * 1000. << ")";
+      m_dqm_source        ->Fill(m_source         * 1000.);               // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_all_paths->GetName() << "->Fill(" << m_all_paths * 1000. << ")";
+      m_dqm_all_paths     ->Fill(m_all_paths      * 1000.);               // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_all_endpaths->GetName() << "->Fill(" << m_all_endpaths * 1000. << ")";
+      m_dqm_all_endpaths  ->Fill(m_all_endpaths   * 1000.);               // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_interpaths->GetName() << "->Fill(" << m_interpaths * 1000. << ")";
+      m_dqm_interpaths    ->Fill(m_interpaths     * 1000.);               // convert to ms
+    }
 
     if (m_enable_dqm_byls) {
       unsigned int ls = event.getLuminosityBlock().luminosityBlock();
@@ -640,10 +652,6 @@ void FastTimerService::postSource() {
   stop(m_timer_source);
   m_source = delta(m_timer_source);
   m_summary_source += m_source;
-  if (m_dqms) {
-    //edm::LogImportant("FastTimerService") << m_dqm_source->GetName() << "->Fill(" << m_source * 1000. << ")";
-    m_dqm_source->Fill(m_source * 1000.);                       // convert to ms
-  }
 }
 
 void FastTimerService::prePathBeginRun(std::string const & path ) {
@@ -849,19 +857,11 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
     m_timer_paths.second = m_timer_path.second;
     m_all_paths = delta(m_timer_paths);
     m_summary_all_paths += m_all_paths;
-    if (m_dqms) {
-      //edm::LogImportant("FastTimerService") << m_dqm_all_paths->GetName() << "->Fill(" << m_all_paths * 1000. << ")";
-      m_dqm_all_paths->Fill(m_all_paths * 1000.);               // convert to ms
-    }
   } else if (& path == m_last_endpath) {
     // this is the last endpath, stop and account the "all endpaths" counter
     m_timer_endpaths.second = m_timer_path.second;
     m_all_endpaths = delta(m_timer_endpaths);
     m_summary_all_endpaths += m_all_endpaths;
-    if (m_dqms) {
-      //edm::LogImportant("FastTimerService") << m_dqm_all_endpaths->GetName() << "->Fill(" << m_all_endpaths * 1000. << ")";
-      m_dqm_all_endpaths->Fill(m_all_endpaths * 1000.);         // convert to ms
-    }
   }
 
 }
@@ -1048,6 +1048,7 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<bool>(   "enableDQMbyPathCounters",  true);
   desc.addUntracked<bool>(   "enableDQMbyPathExclusive", false);
   desc.addUntracked<bool>(   "enableDQMbyModule",        false);
+  desc.addUntracked<bool>(   "enableDQMSummary",         false);
   desc.addUntracked<bool>(   "enableDQMbyLuminosity",    false);
   desc.addNode(
     edm::ParameterDescription<bool>(   "enableDQMbyLumiSection", false, false) or

@@ -279,6 +279,7 @@ private:
   const bool                                    m_enable_dqm_bypath_counters;
   const bool                                    m_enable_dqm_bypath_exclusive;
   const bool                                    m_enable_dqm_bymodule;          // require per-module timers
+  const bool                                    m_enable_dqm_summary;
   const bool                                    m_enable_dqm_byluminosity;
   const bool                                    m_enable_dqm_byls;
   const double                                  m_dqm_eventtime_range;
