@@ -7,11 +7,8 @@
 //*****************************************************************************
 //C++ includes
 #include <vector>
-#include <functional>
-#include <math.h>
-
-//ROOT includes
-#include <Math/VectorUtil.h>
+#include <algorithm>
+#include <cmath>
 
 
 //CMSSW includes
@@ -21,20 +18,25 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-using namespace ROOT::Math::VectorUtil ;
+#include "DataFormats/Math/interface/deltaR.h"
 
 EgammaTowerIsolation::EgammaTowerIsolation (double extRadius,
 				      double intRadius,
 				      double etLow,
 				      signed int depth,
 				      const CaloTowerCollection* towercollection)   :
-  extRadius_(extRadius),
-  intRadius_(intRadius),
+  extRadius2_(extRadius*extRadius),
+  intRadius2_(intRadius*intRadius),
   etLow_(etLow),
   depth_(depth),
   towercollection_(towercollection)
 {
+    switch(depth_){
+    case AllDepths: break;
+    case Depth1:;break;
+    case Depth2: break;
+    default: throw cms::Exception("Configuration Error") << "EgammaTowerIsolation: Depth " << depth_ << " not known. "; break;
+    }
 }
 
 EgammaTowerIsolation::~EgammaTowerIsolation ()
@@ -42,22 +44,22 @@ EgammaTowerIsolation::~EgammaTowerIsolation ()
 }
 
 
-
-
-double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const
-{
-  return getTowerEtSum( photon->get<reco::SuperClusterRef>().get(), detIdToExclude );
+double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
+  return getTowerEtSum(photon->eta(),photon->phi(), detIdToExclude );
 }
 
-double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const
-{
-  double candEta=sc->eta();
-  double candPhi=sc->phi();
-  double ptSum =0.;
+double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
+  return getTowerEtSum(sc->eta(),sc->phi(), detIdToExclude );
+}
 
+
+double EgammaTowerIsolation::getTowerEtSum(float candEta, float candPhi, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
+  
+  double ptSum =0.;
+  
   //loop over towers
   for(CaloTowerCollection::const_iterator trItr = towercollection_->begin(); trItr != towercollection_->end(); ++trItr){
-
+    
     // skip the towers to exclude
     if ( detIdToExclude )
      {
@@ -69,27 +71,21 @@ double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc, const s
     double this_pt=0;
     switch(depth_){
     case AllDepths: this_pt = trItr->hadEt();break;
-    case Depth1: this_pt = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEt() : trItr->hadEnergyHeInnerLayer()*sin(trItr->p4().theta());break;
-    case Depth2: this_pt = trItr->hadEnergyHeOuterLayer()*sin(trItr->p4().theta());break;
-    default: throw cms::Exception("Configuration Error") << "EgammaTowerIsolation: Depth " << depth_ << " not known. "; break;
+    case Depth1: this_pt = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEt() : trItr->hadEnergyHeInnerLayer()*sin(trItr->theta());break;
+    case Depth2: this_pt = trItr->hadEnergyHeOuterLayer()*sin(trItr->theta());break;
+    default:  break;
     }
 
     if ( this_pt < etLow_ )
       continue ;
 
-    double towerEta=trItr->eta();
-    double towerPhi=trItr->phi();
-    double twoPi= 2*M_PI;
-    if(towerPhi<0) towerPhi+=twoPi;
-    if(candPhi<0) candPhi+=twoPi;
-    double deltaPhi=fabs(towerPhi-candPhi);
-    if(deltaPhi>twoPi) deltaPhi-=twoPi;
-    if(deltaPhi>M_PI) deltaPhi=twoPi-deltaPhi;
-    double deltaEta = towerEta - candEta;
+    float towerEta=trItr->eta();
+    float towerPhi=trItr->phi();
+    
 
-    double dr = deltaEta*deltaEta + deltaPhi*deltaPhi;
-    if( dr < extRadius_*extRadius_ &&
-        dr >= intRadius_*intRadius_ )
+    float dr2 = reco::deltaR2(candEta,candPhi,towerEta, towerPhi);
+    if( dr2 < extRadius2_ &&
+        dr2 >= intRadius2_ )
      { ptSum += this_pt ; }
 
    }//end loop over tracks
@@ -99,20 +95,22 @@ double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc, const s
  }
 
 
-double EgammaTowerIsolation::getTowerESum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const
-{
-  return getTowerESum( photon->get<reco::SuperClusterRef>().get(), detIdToExclude );
+double EgammaTowerIsolation::getTowerESum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
+  return getTowerESum(photon->eta(),photon->phi(), detIdToExclude );
 }
 
-double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const
-{
-  double candEta=sc->eta();
-  double candPhi=sc->phi();
-  double eSum =0.;
+double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
+  return getTowerESum(sc->eta(),sc->phi(), detIdToExclude );
+}
 
+
+double EgammaTowerIsolation::getTowerESum(float candEta, float candPhi, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
+  
+  double eSum =0.;
+  
   //loop over towers
   for(CaloTowerCollection::const_iterator trItr = towercollection_->begin(); trItr != towercollection_->end(); ++trItr){
-
+    
     // skip the towers to exclude
     if( detIdToExclude ) {
       std::vector<CaloTowerDetId>::const_iterator itcheck=find(detIdToExclude->begin(),detIdToExclude->end(),trItr->id());
@@ -125,26 +123,19 @@ double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc, const st
     case AllDepths: this_e = trItr->hadEnergy();break;
     case Depth1: this_e = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEnergy() : trItr->hadEnergyHeInnerLayer();break;
     case Depth2: this_e = trItr->hadEnergyHeOuterLayer();break;
-    default: throw cms::Exception("Configuration Error") << "EgammaTowerIsolation: Depth " << depth_ << " not known. "; break;
+    default: break;
     }
 
-    if ( this_e*sin(trItr->p4().theta()) < etLow_ )
+    if ( this_e*sin(trItr->theta()) < etLow_ )
       continue ;
 
     double towerEta=trItr->eta();
     double towerPhi=trItr->phi();
-    double twoPi= 2*M_PI;
-    if(towerPhi<0) towerPhi+=twoPi;
-    if(candPhi<0) candPhi+=twoPi;
-    double deltaPhi=fabs(towerPhi-candPhi);
-    if(deltaPhi>twoPi) deltaPhi-=twoPi;
-    if(deltaPhi>M_PI) deltaPhi=twoPi-deltaPhi;
-    double deltaEta = towerEta - candEta;
+   
+    float dr2 = reco::deltaR2(candEta,candPhi,towerEta, towerPhi);
 
-
-    double dr = deltaEta*deltaEta + deltaPhi*deltaPhi;
-    if( dr < extRadius_*extRadius_ &&
-        dr >= intRadius_*intRadius_ )
+    if( dr2 < extRadius2_ &&
+        dr2 >= intRadius2_ )
       {
 	eSum += this_e;
       }

@@ -39,16 +39,18 @@ class EgammaTowerIsolation {
   ~EgammaTowerIsolation() ;
     //methods
 
-  int getNumberTracks(const reco::Candidate*) const ;
   double getTowerEtSum (const reco::Candidate*, const std::vector<CaloTowerDetId> * detIdToExclude=0) const ;
   double getTowerESum (const reco::Candidate*, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const ;
   double getTowerEtSum(const reco::SuperCluster*, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const;
   double getTowerESum(const reco::SuperCluster*, const std::vector<CaloTowerDetId> * detIdToExclude=0) const;
+  double getTowerEtSum(float candEta, float candPhi, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const;
+  double getTowerESum(float candEta, float candPhi, const std::vector<CaloTowerDetId> * detIdToExclude=0) const;
+
 
  private:
 
-  double extRadius_ ;
-  double intRadius_ ;
+  double extRadius2_ ;
+  double intRadius2_ ;
   double etLow_ ;
   signed int depth_;
 
