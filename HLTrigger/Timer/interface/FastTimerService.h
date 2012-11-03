@@ -279,6 +279,7 @@ private:
   const bool                                    m_enable_dqm_bypath_counters;
   const bool                                    m_enable_dqm_bypath_exclusive;
   const bool                                    m_enable_dqm_bymodule;          // require per-module timers
+  const bool                                    m_enable_dqm_byluminosity;
   const bool                                    m_enable_dqm_byls;
   const double                                  m_dqm_eventtime_range;
   const double                                  m_dqm_eventtime_resolution;
@@ -286,8 +287,11 @@ private:
   const double                                  m_dqm_pathtime_resolution;
   const double                                  m_dqm_moduletime_range;
   const double                                  m_dqm_moduletime_resolution;
+  const double                                  m_dqm_luminosity_range;
+  const double                                  m_dqm_luminosity_resolution;
   const uint32_t                                m_dqm_ls_range;
-  std::string                                   m_dqm_path;
+  const std::string                             m_dqm_path;
+  const edm::InputTag                           m_luminosity_label;     // label of the per-Event luminosity EDProduct
 
   // job configuration and caching
   std::string const *                           m_first_path;           // the framework does not provide a pre-paths or pre-endpaths signal,
@@ -329,6 +333,13 @@ private:
   TProfile *                                    m_dqm_byls_all_paths;
   TProfile *                                    m_dqm_byls_all_endpaths;
   TProfile *                                    m_dqm_byls_interpaths;
+
+  // plots vs. instantaneous luminosity
+  TProfile *                                    m_dqm_byluminosity_event;
+  TProfile *                                    m_dqm_byluminosity_source;
+  TProfile *                                    m_dqm_byluminosity_all_paths;
+  TProfile *                                    m_dqm_byluminosity_all_endpaths;
+  TProfile *                                    m_dqm_byluminosity_interpaths;
 
   // per-path and per-module accounting
   PathInfo *                                    m_current_path;

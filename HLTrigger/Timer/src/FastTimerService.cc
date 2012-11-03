@@ -40,6 +40,7 @@ typedef int clockid_t;
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/Timer/interface/FastTimerService.h"
@@ -57,34 +58,38 @@ void fill_dups(std::vector<std::string> & dups, unsigned int size) {
 
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
   // configuration
-  m_timer_id(                   config.getUntrackedParameter<bool>(    "useRealTimeClock"         ) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
-  m_is_cpu_bound(               false ),
-  m_enable_timing_paths(        config.getUntrackedParameter<bool>(    "enableTimingPaths"        ) ),
-  m_enable_timing_modules(      config.getUntrackedParameter<bool>(    "enableTimingModules"      ) ),
-  m_enable_timing_exclusive(    config.getUntrackedParameter<bool>(    "enableTimingExclusive"    ) ),
-  m_enable_timing_summary(      config.getUntrackedParameter<bool>(    "enableTimingSummary"      ) ),
-  m_skip_first_path(            config.getUntrackedParameter<bool>(    "skipFirstPath"            ) ),
+  m_timer_id(                    config.getUntrackedParameter<bool>(     "useRealTimeClock"         ) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
+  m_is_cpu_bound(                false ),
+  m_enable_timing_paths(         config.getUntrackedParameter<bool>(     "enableTimingPaths"        ) ),
+  m_enable_timing_modules(       config.getUntrackedParameter<bool>(     "enableTimingModules"      ) ),
+  m_enable_timing_exclusive(     config.getUntrackedParameter<bool>(     "enableTimingExclusive"    ) ),
+  m_enable_timing_summary(       config.getUntrackedParameter<bool>(     "enableTimingSummary"      ) ),
+  m_skip_first_path(             config.getUntrackedParameter<bool>(     "skipFirstPath"            ) ),
   // dqm configuration
-  m_enable_dqm(                  config.getUntrackedParameter<bool>(   "enableDQM"                ) ),
-  m_enable_dqm_bypath_active(    config.getUntrackedParameter<bool>(   "enableDQMbyPathActive"    ) ),
-  m_enable_dqm_bypath_total(     config.getUntrackedParameter<bool>(   "enableDQMbyPathTotal"     ) ),
-  m_enable_dqm_bypath_overhead(  config.getUntrackedParameter<bool>(   "enableDQMbyPathOverhead"  ) ),
-  m_enable_dqm_bypath_details(   config.getUntrackedParameter<bool>(   "enableDQMbyPathDetails"   ) ),
-  m_enable_dqm_bypath_counters(  config.getUntrackedParameter<bool>(   "enableDQMbyPathCounters"  ) ),
-  m_enable_dqm_bypath_exclusive( config.getUntrackedParameter<bool>(   "enableDQMbyPathExclusive" ) ),
-  m_enable_dqm_bymodule(         config.getUntrackedParameter<bool>(   "enableDQMbyModule"        ) ),
+  m_enable_dqm(                  config.getUntrackedParameter<bool>(     "enableDQM"                ) ),
+  m_enable_dqm_bypath_active(    config.getUntrackedParameter<bool>(     "enableDQMbyPathActive"    ) ),
+  m_enable_dqm_bypath_total(     config.getUntrackedParameter<bool>(     "enableDQMbyPathTotal"     ) ),
+  m_enable_dqm_bypath_overhead(  config.getUntrackedParameter<bool>(     "enableDQMbyPathOverhead"  ) ),
+  m_enable_dqm_bypath_details(   config.getUntrackedParameter<bool>(     "enableDQMbyPathDetails"   ) ),
+  m_enable_dqm_bypath_counters(  config.getUntrackedParameter<bool>(     "enableDQMbyPathCounters"  ) ),
+  m_enable_dqm_bypath_exclusive( config.getUntrackedParameter<bool>(     "enableDQMbyPathExclusive" ) ),
+  m_enable_dqm_bymodule(         config.getUntrackedParameter<bool>(     "enableDQMbyModule"        ) ),
+  m_enable_dqm_byluminosity(     config.getUntrackedParameter<bool>(     "enableDQMbyLuminosity"    ) ),   
   m_enable_dqm_byls(             config.existsAs<bool>("enableDQMbyLumiSection", false) ? 
                                     config.getUntrackedParameter<bool>("enableDQMbyLumiSection") : 
                                     ( edm::LogWarning("Configuration") << "enableDQMbyLumi is deprecated, please use enableDQMbyLumiSection instead", config.getUntrackedParameter<bool>("enableDQMbyLumi") ) 
                                  ),
-  m_dqm_eventtime_range(         config.getUntrackedParameter<double>( "dqmTimeRange"             ) ),    // ms
-  m_dqm_eventtime_resolution(    config.getUntrackedParameter<double>( "dqmTimeResolution"        ) ),    // ms
-  m_dqm_pathtime_range(          config.getUntrackedParameter<double>( "dqmPathTimeRange"         ) ),    // ms
-  m_dqm_pathtime_resolution(     config.getUntrackedParameter<double>( "dqmPathTimeResolution"    ) ),    // ms
-  m_dqm_moduletime_range(        config.getUntrackedParameter<double>( "dqmModuleTimeRange"       ) ),    // ms
-  m_dqm_moduletime_resolution(   config.getUntrackedParameter<double>( "dqmModuleTimeResolution"  ) ),    // ms
-  m_dqm_ls_range(                config.getUntrackedParameter<uint32_t>( "dqmLumiSectionsRange"   ) ),    // lumisections
+  m_dqm_eventtime_range(         config.getUntrackedParameter<double>(   "dqmTimeRange"             ) ),    // ms
+  m_dqm_eventtime_resolution(    config.getUntrackedParameter<double>(   "dqmTimeResolution"        ) ),    // ms
+  m_dqm_pathtime_range(          config.getUntrackedParameter<double>(   "dqmPathTimeRange"         ) ),    // ms
+  m_dqm_pathtime_resolution(     config.getUntrackedParameter<double>(   "dqmPathTimeResolution"    ) ),    // ms
+  m_dqm_moduletime_range(        config.getUntrackedParameter<double>(   "dqmModuleTimeRange"       ) ),    // ms
+  m_dqm_moduletime_resolution(   config.getUntrackedParameter<double>(   "dqmModuleTimeResolution"  ) ),    // ms
+  m_dqm_luminosity_range(        config.getUntrackedParameter<double>(   "dqmLuminosityRange"       ) ),    // cm⁻²s⁻¹
+  m_dqm_luminosity_resolution(   config.getUntrackedParameter<double>(   "dqmLuminosityResolution"  ) ),    // cm⁻²s⁻¹
+  m_dqm_ls_range(                config.getUntrackedParameter<uint32_t>( "dqmLumiSectionsRange"     ) ),    // lumisections
   m_dqm_path(                    config.getUntrackedParameter<std::string>("dqmPath" ) ),
+  m_luminosity_label(            config.getUntrackedParameter<edm::InputTag>("luminosityProduct") ),
   // caching
   m_first_path(0),          // these are initialized at prePathBeginRun(),
   m_last_path(0),           // to make sure we cache the correct pointers
@@ -210,6 +215,7 @@ void FastTimerService::postBeginJob() {
     int eventbins  = (int) std::ceil(m_dqm_eventtime_range  / m_dqm_eventtime_resolution);
     int pathbins   = (int) std::ceil(m_dqm_pathtime_range   / m_dqm_pathtime_resolution);
     int modulebins = (int) std::ceil(m_dqm_moduletime_range / m_dqm_moduletime_resolution);
+    int lumibins   = (int) std::ceil(m_dqm_luminosity_range / m_dqm_luminosity_resolution);
 
     m_dqms->setCurrentFolder(m_dqm_path);
 
@@ -276,6 +282,25 @@ void FastTimerService::postBeginJob() {
       m_dqm_byls_interpaths   = m_dqms->bookProfile("interpaths_byls",   "Time spent between paths, by LumiSection", m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
       m_dqm_byls_interpaths   ->StatOverflows(true);
       m_dqm_byls_interpaths   ->SetYTitle("processing time [ms]");
+    }
+
+    // plots vs. instantaneous luminosity
+    if (m_enable_dqm_byluminosity) {
+      m_dqm_byluminosity_event        = m_dqms->bookProfile("event_byluminosity",        "Event processing timevs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_event        ->StatOverflows(true);
+      m_dqm_byluminosity_event        ->SetYTitle("processing time [ms]");
+      m_dqm_byluminosity_source       = m_dqms->bookProfile("source_byluminosity",       "Source processing timevs. instantaneous luminosity",   lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_source       ->StatOverflows(true);
+      m_dqm_byluminosity_source       ->SetYTitle("processing time [ms]");
+      m_dqm_byluminosity_all_paths    = m_dqms->bookProfile("all_paths_byluminosity",    "Paths processing timevs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_all_paths    ->StatOverflows(true);
+      m_dqm_byluminosity_all_paths    ->SetYTitle("processing time [ms]");
+      m_dqm_byluminosity_all_endpaths = m_dqms->bookProfile("all_endpaths_byluminosity", "EndPaths processing timevs. instantaneous luminosity", lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_all_endpaths ->StatOverflows(true);
+      m_dqm_byluminosity_all_endpaths ->SetYTitle("processing time [ms]");
+      m_dqm_byluminosity_interpaths   = m_dqms->bookProfile("interpaths_byluminosity",   "Time spent between pathsvs. instantaneous luminosity", lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      m_dqm_byluminosity_interpaths   ->StatOverflows(true);
+      m_dqm_byluminosity_interpaths   ->SetYTitle("processing time [ms]");
     }
 
     // per-path and per-module accounting
@@ -576,6 +601,23 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
       m_dqm_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);       // convert to ms
       //edm::LogImportant("FastTimerService") << m_dqm_byls_interpaths->GetName() << "->Fill(" << ls << ", " <<  m_interpaths * 1000. << ")";
       m_dqm_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);       // convert to ms
+    }
+
+    if (m_enable_dqm_byluminosity) {
+      float luminosity = 0.;
+      edm::Handle<LumiScalersCollection> h_luminosity;
+      if (event.getByLabel(m_luminosity_label, h_luminosity))
+        luminosity = h_luminosity->front().instantLumi();
+      //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_event->GetName() << "->Fill(" << luminosity << ", " <<  m_event * 1000. << ")";
+      m_dqm_byluminosity_event        ->Fill(luminosity, m_event        * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_source->GetName() << "->Fill(" << luminosity << ", " <<  m_source * 1000. << ")";
+      m_dqm_byluminosity_source       ->Fill(luminosity, m_source       * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_all_paths->GetName() << "->Fill(" << luminosity << ", " <<  m_all_paths * 1000. << ")";
+      m_dqm_byluminosity_all_paths    ->Fill(luminosity, m_all_paths    * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_all_endpaths->GetName() << "->Fill(" << luminosity << ", " <<  m_all_endpaths * 1000. << ")";
+      m_dqm_byluminosity_all_endpaths ->Fill(luminosity, m_all_endpaths * 1000.);       // convert to ms
+      //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_interpaths->GetName() << "->Fill(" << luminosity << ", " <<  m_interpaths * 1000. << ")";
+      m_dqm_byluminosity_interpaths   ->Fill(luminosity, m_interpaths   * 1000.);       // convert to ms
     }
   }
 }
@@ -1016,7 +1058,10 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);   // ms
   desc.addUntracked<double>( "dqmModuleTimeRange",         40. );   // ms
   desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);   // ms
-  desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",    2500 );    // ~ 16 hours
-  desc.addUntracked<std::string>( "dqmPath",             "HLT/TimerService");
+  desc.addUntracked<double>( "dqmLuminosityRange",        1.e34);   // cm⁻²s⁻¹
+  desc.addUntracked<double>( "dqmLuminosityResolution",   1.e31);   // cm⁻²s⁻¹
+  desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",    2500 );   // ~ 16 hours
+  desc.addUntracked<std::string>(   "dqmPath",           "HLT/TimerService");
+  desc.addUntracked<edm::InputTag>( "luminosityProduct", edm::InputTag("hltScalersRawToDigi"));
   descriptions.add("FastTimerService", desc);
 }
