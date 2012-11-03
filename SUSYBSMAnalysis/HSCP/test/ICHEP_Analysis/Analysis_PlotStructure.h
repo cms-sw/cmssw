@@ -143,7 +143,8 @@ struct stPlots {
    TH1F*  BS_InnerInvPtDiff;
    TH1F*  BS_Phi;
    TH1F*  BS_TimeAtIP;
-   TH1F*  BS_CosmicDR;
+   TH1F*  BS_OpenAngle;
+   TH1F*  BS_OpenAngle_Cosmic;
 
    TH1F*  BS_Pt_FailDz;
    TH1F*  BS_Pt_FailDz_DT;
@@ -152,7 +153,9 @@ struct stPlots {
    TH1F*  BS_TOF_FailDz_DT;
    TH1F*  BS_TOF_FailDz_CSC;
    TH1F*  BS_Dxy;
+   TH1F*  BS_Dxy_Cosmic;
    TH1F*  BS_Dz;
+   TH1F*  BS_Dz_Cosmic;
    TH1F*  BS_Dz_CSC;
    TH1F*  BS_Dz_DT;
    TH1F*  BS_Pt_Binned[MaxPredBins];
@@ -176,6 +179,9 @@ struct stPlots {
    TH1F*  BS_TOF;          TH2F*  AS_TOF;
    TH1F*  BS_TOF_DT;
    TH1F*  BS_TOF_CSC;
+   TH1F*  BS_Is_Cosmic;
+   TH1F*  BS_Pt_Cosmic;
+
 
    TH2F*  BS_EtaIs;        //TH3F*  AS_EtaIs;
    TH2F*  BS_EtaIm;        //TH3F*  AS_EtaIm;
@@ -408,9 +414,11 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_SumpTOverpT";  st.BS_SumpTOverpT = new TH1F(Name.c_str(), Name.c_str(), 80, 0.0,  2.0);  st.BS_SumpTOverpT    ->Sumw2();
    Name = "BS_P"    ; st.BS_P     = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_P->Sumw2();
    Name = "BS_Pt"   ; st.BS_Pt    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt->Sumw2();
+   Name = "BS_Pt_Cosmic"   ; st.BS_Pt_Cosmic    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_Cosmic->Sumw2();
    Name = "BS_Pt_DT"   ; st.BS_Pt_DT    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_DT->Sumw2();
    Name = "BS_Pt_CSC"   ; st.BS_Pt_CSC    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_CSC->Sumw2();
    Name = "BS_Is"   ; st.BS_Is    = new TH1F(Name.c_str(), Name.c_str(),                   100, 0, dEdxS_UpLim);       st.BS_Is->Sumw2();
+   Name = "BS_Is_Cosmic"   ; st.BS_Is_Cosmic    = new TH1F(Name.c_str(), Name.c_str(),                   100, 0, dEdxS_UpLim);       st.BS_Is_Cosmic->Sumw2();
    Name = "BS_Im"   ; st.BS_Im    = new TH1F(Name.c_str(), Name.c_str(),                   100, 3, dEdxM_UpLim);       st.BS_Im->Sumw2();
    Name = "BS_TOF"  ; st.BS_TOF   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF->Sumw2();
    Name = "BS_TOF_DT"  ; st.BS_TOF_DT   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF_DT->Sumw2();
@@ -420,7 +428,9 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_InnerInvPtDiff"  ; st.BS_InnerInvPtDiff = new TH1F(Name.c_str(), Name.c_str(),                   120, -4, 4); st.BS_InnerInvPtDiff->Sumw2();
    Name = "BS_Phi"  ; st.BS_Phi = new TH1F(Name.c_str(), Name.c_str(),                   50, -3.14, 3.14); st.BS_Phi->Sumw2();
    Name = "BS_TimeAtIP"  ; st.BS_TimeAtIP = new TH1F(Name.c_str(), Name.c_str(),                   50, -100, 100); st.BS_TimeAtIP->Sumw2();
-   Name = "BS_CosmicDR"  ; st.BS_CosmicDR = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, 1); st.BS_CosmicDR->Sumw2();
+   Name = "BS_OpenAngle"  ; st.BS_OpenAngle = new TH1F(Name.c_str(), Name.c_str(),                   50, -0.3, 3.15); st.BS_OpenAngle->Sumw2();
+   Name = "BS_OpenAngle_Cosmic"  ; st.BS_OpenAngle_Cosmic = new TH1F(Name.c_str(), Name.c_str(),                   50, -0.3, 3.15); st.BS_OpenAngle_Cosmic->Sumw2();
+
 
    Name = "BS_NVertex";  st.BS_NVertex = new TH1F(Name.c_str(), Name.c_str(), 50, 0,  50);  st.BS_NVertex    ->Sumw2();
    Name = "BS_NVertex_NoEventWeight";    st.BS_NVertex_NoEventWeight = new TH1F(Name.c_str(), Name.c_str(), 50, 0, 50);     st.BS_NVertex_NoEventWeight    ->Sumw2();
@@ -439,7 +449,9 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_Dz_FailSep"; st.BS_Dz_FailSep   = new TH1F(Name.c_str(), Name.c_str(), 50,  -150,  150); st.BS_Dz_FailSep->Sumw2();
 
    Name = "BS_Dxy"; st.BS_Dxy   = new TH1F(Name.c_str(), Name.c_str(), 150,  -IPbound,  IPbound); st.BS_Dxy->Sumw2();
+   Name = "BS_Dxy_Cosmic"; st.BS_Dxy_Cosmic   = new TH1F(Name.c_str(), Name.c_str(), 150,  -IPbound,  IPbound); st.BS_Dxy_Cosmic->Sumw2();
    Name = "BS_Dz"; st.BS_Dz   = new TH1F(Name.c_str(), Name.c_str(), 150,  -IPbound,  IPbound); st.BS_Dz->Sumw2();
+   Name = "BS_Dz_Cosmic"; st.BS_Dz_Cosmic   = new TH1F(Name.c_str(), Name.c_str(), 150,  -IPbound,  IPbound); st.BS_Dz_Cosmic->Sumw2();
    Name = "BS_Dz_CSC"; st.BS_Dz_CSC = new TH1F(Name.c_str(), Name.c_str(), 150,  -IPbound,  IPbound); st.BS_Dz_CSC->Sumw2();
    Name = "BS_Dz_DT"; st.BS_Dz_DT=new TH1F(Name.c_str(), Name.c_str(), 150,  -IPbound,  IPbound); st.BS_Dz_DT->Sumw2();
    Name = "BS_Pt_FailDz"; st.BS_Pt_FailDz = new TH1F(Name.c_str(), Name.c_str(),  50, 0, PtHistoUpperBound); st.BS_Pt_FailDz->Sumw2();
@@ -746,7 +758,9 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_InnerInvPtDiff  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_InnerInvPtDiff");
    st.BS_Phi  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Phi");
    st.BS_TimeAtIP  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TimeAtIP");
-   st.BS_CosmicDR  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_CosmicDR");
+   st.BS_OpenAngle  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_OpenAngle");
+   st.BS_OpenAngle_Cosmic  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_OpenAngle_Cosmic");
+
 
    st.BS_Pt_FailDz  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz");
    st.BS_Pt_FailDz_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_FailDz_DT");
@@ -755,19 +769,23 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_TOF_FailDz_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_FailDz_DT");
    st.BS_TOF_FailDz_CSC  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_FailDz_CSC");
    st.BS_Dxy    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dxy");
+   st.BS_Dxy_Cosmic    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dxy_Cosmic");
    st.BS_Dz    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz");
+   st.BS_Dz_Cosmic    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_Cosmic");
    st.BS_Dz_CSC    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_CSC");
    st.BS_Dz_DT    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_DT");
 
    st.BS_P      = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_P");
    st.AS_P      = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_P");
    st.BS_Pt     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt");
+   st.BS_Pt_Cosmic     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_Cosmic");
    st.BS_Pt_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_DT");
    st.BS_Pt_CSC = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_CSC");
    st.AS_Pt     = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_Pt");
    st.BS_Im     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Im");
    st.AS_Im     = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_Im");
    st.BS_Is     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Is");
+   st.BS_Is_Cosmic  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Is_Cosmic");
    st.AS_Is     = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_Is");
    st.BS_TOF    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF");
    st.BS_TOF_DT    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_DT");
@@ -1669,21 +1687,34 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
-     Histos[i] = (TH1*)st[i]->BS_CosmicDR->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);
+     Histos[i] = (TH1*)st[i]->BS_OpenAngle->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#Delta R", "Fraction of tracks", 0,0, 1E-4,1E-1);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#theta max", "Fraction of tracks", 0,0, 1E-4,2);
    DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"CosmicDR_BS", false);
+   SaveCanvas(c1,SavePath,"OpenAngle_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->BS_OpenAngle_Cosmic->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);
+     if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "#theta max", "Fraction of tracks", 0,0, 1E-4,2);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+   c1->SetLogy(true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"OpenAngle_Cosmic_BS", false);
+   for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
+   delete c1;
+
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_Dz_FailSep->Clone();  legend.push_back(lg[i]); Histos[i]->Rebin(1);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1));}
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", "Fraction of tracks", 0, 0, 1E-3,2);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", "Fraction of tracks", 0, 0, 1E-6,2);
    DrawLegend((TObject**)Histos,legend,"","P", 0.79, 0.92, 0.25, 0.08);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
@@ -1704,6 +1735,21 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    SaveCanvas(c1,SavePath,"Dxy_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->BS_Dxy_Cosmic->Clone();  legend.push_back(lg[i]); Histos[i]->Rebin(1);
+     if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1));
+   }
+   sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dxy (cm)", YAxisTitle, 0, 0, 1E-3,2, false, false, true, true);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+   c1->SetLogy(true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"Dxy_Cosmic_BS", false);
+   for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
+   delete c1;
+
    
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
@@ -1718,6 +1764,21 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    SaveCanvas(c1,SavePath,"Dz_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   for(unsigned int i=0;i<st.size();i++){
+     Histos[i] = (TH1*)st[i]->BS_Dz_Cosmic->Clone();  legend.push_back(lg[i]); Histos[i]->Rebin(1);
+     if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1));
+   }
+   sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Dz (cm)", YAxisTitle, 0, 0, 1E-3,2, false, false, true, true);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+   c1->SetLogy(true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"Dz_Cosmic_BS", false);
+   for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
+   delete c1;
+
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){

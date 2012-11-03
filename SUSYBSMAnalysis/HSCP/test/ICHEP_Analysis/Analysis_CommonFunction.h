@@ -403,11 +403,11 @@ void  GetGenHSCPBeta (const std::vector<reco::GenParticle>& genColl, double& bet
    }
 }
 
-
+#include "TVector3.h"
 double deltaROpositeTrack(const susybsm::HSCParticleCollection& hscpColl, const susybsm::HSCParticle& hscp){
    reco::TrackRef track1=hscp.trackRef();
 
-   double minDr=10;
+   double maxDr=-0.1;
    for(unsigned int c=0;c<hscpColl.size();c++){
       reco::TrackRef track2;
       if(!hscpColl[c].trackRef().isNull()){
@@ -419,10 +419,13 @@ double deltaROpositeTrack(const susybsm::HSCParticleCollection& hscpColl, const 
       }
 
       if(fabs(track1->pt()-track2->pt())<1 && deltaR(track1->eta(), track1->phi(), track2->eta(), track2->phi())<0.1)continue; //Skip same tracks
-      double dR = deltaR(-1*track1->eta(), M_PI+track1->phi(), track2->eta(), track2->phi());
-      if(dR<minDr)minDr=dR;
+//      double dR = deltaR(-1*track1->eta(), M_PI+track1->phi(), track2->eta(), track2->phi());
+      TVector3 v1 = TVector3(track1->momentum().x(), track1->momentum().y(), track1->momentum().z());
+      TVector3 v2 = TVector3(track2->momentum().x(), track2->momentum().y(), track2->momentum().z());
+      double dR = v1.Angle(v2);
+      if(dR>maxDr)maxDr=dR;
    }
-   return minDr;
+   return maxDr;
 }
 
 #endif

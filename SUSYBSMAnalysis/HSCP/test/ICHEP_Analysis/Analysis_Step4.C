@@ -51,6 +51,7 @@ void Analysis_Step4(std::string InputPattern)
    gStyle->SetNdivisions(505);
 
    unsigned int NPseudoExp = 100; //Number of PseudoExperiment to run
+   double CosmicVetoInEfficiency = 0.1*0.012; //dZ*dXY*OpenAngle
 
    string Input     = InputPattern + "Histos.root";
    TFile* InputFile = new TFile(Input.c_str(), "UPDATE");
@@ -58,9 +59,9 @@ void Analysis_Step4(std::string InputPattern)
 
       //Do two loops, one for the actual background prediction and one for the 
       //region with TOF<1
-      for(unsigned int i=0; i<2; i++) {
+      for(unsigned int S=0; S<2; S++) {
 	string Suffix="";
-	if(i==1) Suffix="_Flip";
+	if(S==1) Suffix="_Flip";
 
 	TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, ("HCuts_Pt" + Suffix).c_str());
 	TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, ("HCuts_I" + Suffix).c_str());
@@ -84,6 +85,11 @@ void Analysis_Step4(std::string InputPattern)
 	  TH1D*  H_F            = (TH1D*)GetObjectFromPath(directory, ("H_F" + Suffix).c_str());
 	  TH1D*  H_G            = (TH1D*)GetObjectFromPath(directory, ("H_G" + Suffix).c_str());
 	  TH1D*  H_H            = (TH1D*)GetObjectFromPath(directory, ("H_H" + Suffix).c_str());
+        
+          TH1D*  H_A_Cosmic     = (S==0) ? (TH1D*)GetObjectFromPath(directory, ("H_A_Flip" + Suffix).c_str()) : NULL;
+          TH1D*  H_B_Cosmic     = (S==0) ? (TH1D*)GetObjectFromPath(directory, ("H_B_Flip" + Suffix).c_str()) : NULL;
+          TH1D*  H_C_Cosmic     = (S==0) ? (TH1D*)GetObjectFromPath(directory, ("H_C_Flip" + Suffix).c_str()) : NULL;
+          TH1D*  H_D_Cosmic     = (S==0) ? (TH1D*)GetObjectFromPath(directory, ("H_D_Flip" + Suffix).c_str()) : NULL;
 
           TH1D*  H_B_Binned[MaxPredBins];
           TH1D*  H_F_Binned[MaxPredBins];
@@ -109,7 +115,7 @@ void Analysis_Step4(std::string InputPattern)
 
 
           TH2D*  H_D_DzSidebands= (TH2D*)GetObjectFromPath(directory, "H_D_DzSidebands");
-	  TH1D*  H_D_Cosmic=NULL;
+	  TH1D*  H_D_CosmicMO=NULL;
           TH2D*  H_D_DzSidebands_Cosmic=NULL;
 
 	  TH1D*  H_B_Cosmic_Binned[MaxPredBins];
@@ -121,7 +127,7 @@ void Analysis_Step4(std::string InputPattern)
             string CosmicDir = "Cosmic8TeV";
 	    //string CosmicDir = DirName.replace(0, 4, "Cosmic");
 	    H_D_DzSidebands_Cosmic = (TH2D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D_DzSidebands").c_str());
-	    H_D_Cosmic             = (TH1D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D" + Suffix).c_str());
+	    H_D_CosmicMO           = (TH1D*)GetObjectFromPath(InputFile, (CosmicDir + "/H_D" + Suffix).c_str());
 
 	    for(int i=0; i<PredBins; i++) {
 	      string Version=Suffix;
@@ -146,8 +152,8 @@ void Analysis_Step4(std::string InputPattern)
 
       //take data histogram to save the resulting momentum distribution
           TH1D*  H_P            = (TH1D*)GetObjectFromPath(directory, ("H_D" + Suffix).c_str())->Clone(("H_P" + Suffix).c_str());                   H_P->Reset();
-	  TH1D* H_P_Coll        = (TH1D*)H_P->Clone(("H_P_Coll" + Suffix).c_str());
-          TH1D* H_P_Cosmic      = (TH1D*)H_P->Clone(("H_P_Cosmic" + Suffix).c_str());
+	  TH1D*  H_P_Coll       = (TH1D*)H_P->Clone(("H_P_Coll" + Suffix).c_str());
+          TH1D*  H_P_Cosmic     = (TH1D*)H_P->Clone(("H_P_Cosmic" + Suffix).c_str());
           TH2D*  Pred_Mass      = (TH2D*)GetObjectFromPath(directory, ("Mass" + Suffix).c_str())->Clone(("Pred_Mass" + Suffix).c_str());         Pred_Mass->Reset();
 	  TH2D*  Pred_MassTOF   = (TH2D*)GetObjectFromPath(directory, ("MassTOF" + Suffix).c_str())->Clone(("Pred_MassTOF" + Suffix).c_str());  Pred_MassTOF->Reset();
 	  TH2D*  Pred_MassComb  = (TH2D*)GetObjectFromPath(directory, ("MassComb" + Suffix).c_str())->Clone(("Pred_MassComb" + Suffix).c_str()); Pred_MassComb->Reset();
@@ -166,14 +172,27 @@ void Analysis_Step4(std::string InputPattern)
       for(unsigned int CutIndex=0;CutIndex<(unsigned int)HCuts_Pt->GetXaxis()->GetNbins();CutIndex++){
          //if(CutIndex<86 || CutIndex>87)continue;
 
-         const double& A=H_A->GetBinContent(CutIndex+1);
-         const double& B=H_B->GetBinContent(CutIndex+1);
-         const double& C=H_C->GetBinContent(CutIndex+1);
-         const double& D=H_D->GetBinContent(CutIndex+1);
-         const double& E=H_E->GetBinContent(CutIndex+1);
-         const double& F=H_F->GetBinContent(CutIndex+1);
-         const double& G=H_G->GetBinContent(CutIndex+1);
-         const double& H=H_H->GetBinContent(CutIndex+1);
+         double A=H_A->GetBinContent(CutIndex+1);
+         double B=H_B->GetBinContent(CutIndex+1);
+         double C=H_C->GetBinContent(CutIndex+1);
+         double D=H_D->GetBinContent(CutIndex+1);
+         double E=H_E->GetBinContent(CutIndex+1);
+         double F=H_F->GetBinContent(CutIndex+1);
+         double G=H_G->GetBinContent(CutIndex+1);
+         double H=H_H->GetBinContent(CutIndex+1);
+
+         double A_Cosmic=1, B_Cosmic=0, C_Cosmic=0, D_Cosmic=0;
+         if(S==0 && TypeMode==5){
+            A_Cosmic=H_A_Cosmic->GetBinContent(CutIndex+1) * (CosmicVetoInEfficiency);
+            B_Cosmic=H_B_Cosmic->GetBinContent(CutIndex+1) * (CosmicVetoInEfficiency);
+            C_Cosmic=H_C_Cosmic->GetBinContent(CutIndex+1) * (CosmicVetoInEfficiency);
+            D_Cosmic=H_D_Cosmic->GetBinContent(CutIndex+1) * (CosmicVetoInEfficiency);
+
+            A = A - A_Cosmic;
+            B = B - B_Cosmic;
+            C = C - C_Cosmic;
+            //D = D - D_Cosmic;
+         }
 
          double B_Binned[MaxPredBins];
          double F_Binned[MaxPredBins];
@@ -214,6 +233,23 @@ void Analysis_Step4(std::string InputPattern)
 	   //Prediction in Pt-Is plane
             P    = ((C*B)/A);
             Perr = sqrt( (pow(B/A,2)*C) + (pow(C/A,2)*B) + (pow((B*(C)/(A*A)),2)*A) );
+
+            if(S==0 && TypeMode==5){
+               P_Coll      = P;
+               Perr_Coll   = Perr;
+               P_Cosmic    = ((C_Cosmic*B_Cosmic)/A_Cosmic);
+               if(P_Cosmic>0){
+                  Perr_Cosmic = sqrt( (pow(B_Cosmic/A_Cosmic,2)*C_Cosmic) + (pow(C_Cosmic/A_Cosmic,2)*B_Cosmic) + (pow((B_Cosmic*(C_Cosmic)/(A_Cosmic*A_Cosmic)),2)*A_Cosmic) );                                          
+               }else if(D_Cosmic>0){
+                  P_Cosmic = D_Cosmic * CosmicVetoInEfficiency;
+                  Perr_Cosmic = sqrt(D_Cosmic) * CosmicVetoInEfficiency;
+               }else{
+                  P_Cosmic = 3 * CosmicVetoInEfficiency;
+                  Perr_Cosmic = P_Cosmic; 
+               }
+               P           = P_Coll + P_Cosmic;
+               Perr        = sqrt( Perr_Coll*Perr_Coll + Perr_Cosmic*Perr_Cosmic);
+            }
 	 }else if(F>0){
 	   //Predict the number of cosmics passing all cuts as number passing in dz sideband times the ratio of tracks in the sideband
 	   //vs number in central region as determined by pure cosmic sample
@@ -221,15 +257,14 @@ void Analysis_Step4(std::string InputPattern)
            double D_Sideband = 0;
            double D_Sideband_Cosmic = 0;
 	   if(DirName.find("Data")!=string::npos) {
-	   D_Sideband = H_D_DzSidebands->GetBinContent(CutIndex+1, 5);
-	   double D_Cosmic = H_D_Cosmic->GetBinContent(CutIndex+1);
-           D_Sideband_Cosmic = H_D_DzSidebands_Cosmic->GetBinContent(CutIndex+1, 5);
-	   if(D_Sideband_Cosmic>0) {
-	     P_Cosmic = D_Sideband * D_Cosmic / D_Sideband_Cosmic;
-	     Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+              D_Sideband = H_D_DzSidebands->GetBinContent(CutIndex+1, 5);
+              double D_Cosmic = H_D_CosmicMO->GetBinContent(CutIndex+1);
+              D_Sideband_Cosmic = H_D_DzSidebands_Cosmic->GetBinContent(CutIndex+1, 5);
+              if(D_Sideband_Cosmic>0) {
+                P_Cosmic = D_Sideband * D_Cosmic / D_Sideband_Cosmic;
+                Perr_Cosmic = sqrt( (pow(D_Cosmic/D_Sideband_Cosmic,2)*D_Sideband) + (pow(D_Sideband/D_Sideband_Cosmic,2)*D_Cosmic) + (pow((D_Cosmic*(D_Sideband)/(D_Sideband_Cosmic*D_Sideband_Cosmic)),2)*D_Sideband_Cosmic) );
+              }
 	   }
-	   }
-
 
 	   //Prediction in Pt-TOF plane
            for(int i=0; i<PredBins; i++) {
@@ -442,9 +477,10 @@ void Analysis_Step4(std::string InputPattern)
       Pred_Mass    ->Write();
       Pred_MassTOF ->Write();
       Pred_MassComb->Write();
+      H_P_Coll->Write();
+      H_P_Cosmic->Write();
+
       if(TypeMode==3) {
-	H_P_Coll->Write();
-        H_P_Cosmic->Write();
 	for(int i=0; i<PredBins; i++) {
 	  H_P_Binned[i]->Write();
 	}
@@ -462,7 +498,7 @@ void Analysis_Step4(std::string InputPattern)
          const double& F=H_F->GetBinContent(CutIndex+1);
          const double& G=H_G->GetBinContent(CutIndex+1);
          const double& H=H_H->GetBinContent(CutIndex+1);
-         fprintf(pFile  ,"CutIndex=%4i --> (Pt>%6.2f I>%6.3f TOF>%6.3f) Ndata=%+6.2E  NPred=%6.3E+-%6.3E <--> A=%6.2E B=%6.2E C=%6.2E D=%6.2E E=%6.2E F=%6.2E G=%6.2E H=%6.2E\n",CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), D,H_P->GetBinContent(CutIndex+1),H_P->GetBinError(CutIndex+1) ,A, B, C, D, E, F, G, H);
+         fprintf(pFile  ,"CutIndex=%4i --> (Pt>%6.2f I>%6.3f TOF>%6.3f) Ndata=%+6.2E  NPred=%6.3E+-%6.3E (=%6.3E+-%6.3E + %6.3E+-%6.3E) <--> A=%6.2E B=%6.2E C=%6.2E D=%6.2E E=%6.2E F=%6.2E G=%6.2E H=%6.2E\n",CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), D,H_P->GetBinContent(CutIndex+1),H_P->GetBinError(CutIndex+1), H_P_Coll->GetBinContent(CutIndex+1),H_P_Coll->GetBinError(CutIndex+1), H_P_Cosmic->GetBinContent(CutIndex+1),H_P_Cosmic->GetBinError(CutIndex+1), A, B, C, D, E, F, G, H);
       }
       fprintf(pFile,"--------------------\n");
       fclose(pFile);      

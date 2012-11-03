@@ -145,6 +145,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 //         GlobalMaxRelTIsol   =  0.10; // cut on relative tracker isolation (SumPt/Pt)
          GlobalMaxEIsol   =  999999;   // cut on calorimeter isolation (E/P)
    } else if(TypeMode==5){
+     IPbound=4.5;
      GlobalMinIm   = 2.8; //is actually dEdx max at skim level (reverse logic for type5)
      GlobalMinNDOF = 0; //tkOnly analysis --> comment these 2 lines to use only global muon tracks
      GlobalMinTOF  = 0;
@@ -194,7 +195,8 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
       for(double Pt =75 ; Pt <=150;Pt+=25){
       for(double I  =0.0; I  <=0.45 ;I+=0.025){
 //         if(I<0.85 && int(I*1000)%5!=0)continue;
-         CutPt .push_back(Pt);   CutI  .push_back(I);  CutTOF.push_back(-1);
+         CutPt     .push_back(Pt);   CutI     .push_back(I);  CutTOF     .push_back(-1);
+         CutPt_Flip.push_back(Pt);   CutI_Flip.push_back(I);  CutTOF_Flip.push_back(-1);
      }}
    }
 
@@ -292,9 +294,11 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
 }
 
 // check if one HSCP candidate is passing the preselection (the function also has many more arguments because it is used to fill some histograms AND to evaluate the systematics
-double dRtoCosmic = -1; //global variable needed by PassPreselection... Ugly isn't it?!
+double OpenAngle = -1; //global variable needed by PassPreselection... Ugly isn't it?!
 double TreeDXY = -1;
 double TreeDZ = -1;
+bool isCosmicSB = false;
+bool isSemiCosmicSB = false;
 bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* dedxSObj, const reco::DeDxData* dedxMObj, const reco::MuonTimeExtra* tof, const reco::MuonTimeExtra* dttof, const reco::MuonTimeExtra* csctof, const fwlite::ChainEvent& ev, stPlots* st, const double& GenBeta, bool RescaleP, const double& RescaleI, const double& RescaleT)
 {
    if(TypeMode==1 && !(hscp.type() == HSCParticleType::trackerMuon || hscp.type() == HSCParticleType::globalMuon))return false;
@@ -454,8 +458,11 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(st)st->BS_Dxy->Fill(dxy, Event_Weight);
 
-   TreeDXY = dxy;
-   if(fabs(dxy)>GlobalMaxDXY) return false;
+   TreeDXY = dxy;   
+   bool DXYSB = false;
+   if(TypeMode!=5 && fabs(dxy)>GlobalMaxDXY)return false;
+   if(TypeMode==5 && fabs(dxy)>4)return false;
+   if(TypeMode==5 && fabs(dxy)>GlobalMaxDXY) DXYSB = true;
 
    if(st){st->V3D  ->Fill(0.0,Event_Weight);}
 
@@ -558,20 +565,27 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
        }
      }
    }
+
    TreeDZ = dz;
+   bool DZSB = false;
+   if(TypeMode!=5 && fabs(dz)>GlobalMaxDZ) return false;
+   if(TypeMode==5 && fabs(dz)>4) return false;
+   if(TypeMode==5 && fabs(dz)>GlobalMaxDZ) DZSB = true;
 
 
-//   if(fabs(dz)<0.5 || fabs(dz)>1.0) return false;
-   if(fabs(dz)>GlobalMaxDZ) return false;
    if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
    if(st)st->BS_Phi->Fill(track->phi(),Event_Weight);
    if(TypeMode==3 && fabs(track->phi())>1.2 && fabs(track->phi())<1.9) return false;
 
     //skip HSCP that are compatible with cosmics.
-    if(st)st->BS_CosmicDR->Fill(dRtoCosmic,Event_Weight);
-    if(dRtoCosmic>=0 && dRtoCosmic<0.3)return false;
-  
+    if(st)st->BS_OpenAngle->Fill(OpenAngle,Event_Weight);
 
+    bool OASB = false;
+    if(TypeMode==5 && OpenAngle>=2.8)OASB = true;
+
+   isCosmicSB = DXYSB && DZSB && OASB;
+   isSemiCosmicSB = (!isCosmicSB && (DXYSB || DZSB || OASB));
+ 
    if(st){if(dedxSObj) st->BS_EtaIs->Fill(track->eta(),dedxSObj->dEdx(),Event_Weight);
           if(dedxMObj) st->BS_EtaIm->Fill(track->eta(),dedxMObj->dEdx(),Event_Weight);
           st->BS_EtaP ->Fill(track->eta(),track->p(),Event_Weight);
@@ -580,8 +594,14 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    }
 
    if(st){if(GenBeta>=0)st->Beta_PreselectedC->Fill(GenBeta, Event_Weight);
+          if(DZSB  && OASB)st->BS_Dxy_Cosmic->Fill(dxy, Event_Weight);
+          if(DXYSB && OASB)st->BS_Dz_Cosmic->Fill(dz, Event_Weight);
+          if(DXYSB && DZSB)st->BS_OpenAngle_Cosmic->Fill(OpenAngle,Event_Weight);
+
           st->BS_P  ->Fill(track->p(),Event_Weight);
           st->BS_Pt ->Fill(track->pt(),Event_Weight);
+          if(DXYSB && DZSB && OASB) st->BS_Pt_Cosmic->Fill(track->pt(),Event_Weight);
+
 	  if(fabs(track->eta())<DTRegion) st->BS_Pt_DT->Fill(track->pt(),Event_Weight);
 	  else st->BS_Pt_CSC->Fill(track->pt(),Event_Weight);
 
@@ -592,6 +612,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
           }
 
           if(dedxSObj) st->BS_Is ->Fill(dedxSObj->dEdx(),Event_Weight);
+          if(dedxSObj && DXYSB && DZSB && OASB) st->BS_Is_Cosmic->Fill(dedxSObj->dEdx(),Event_Weight);
           if(dedxSObj) st->BS_Im ->Fill(dedxMObj->dEdx(),Event_Weight);
           if(tof) {
 	    st->BS_TOF->Fill(tof->inverseBeta(),Event_Weight);
@@ -618,6 +639,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 	    if(tof) st->BS_TOF_Binned[bin]->Fill(tof->inverseBeta(),Event_Weight);
 	  }
    }
+
    return true;
 }
 
@@ -712,10 +734,11 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 	 double Ih=0;
 	 if(dedxMObj) Ih=dedxMObj->dEdx();
 
+         if(!isCosmicSB){
 	 st->Hist_Pt->Fill(track->pt(),Event_Weight);
          st->Hist_Is->Fill(Is,Event_Weight);
          st->Hist_TOF->Fill(MuonTOF,Event_Weight);
-
+         }
 
 //          /\ I
 //       /\  |----------------------------
@@ -756,6 +779,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 	      else bin=muonStations(track->hitPattern())+1;
 	    }
 
+         if(!isCosmicSB){
             if(track->pt()>PtLimits[0]){
                st->CtrlPt_S4_Is->Fill(Is, Event_Weight);
                st->CtrlPt_S4_Im->Fill(Ih, Event_Weight);
@@ -789,9 +813,12 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
             }else if(Ih>3.8){     if(tof)st->CtrlIm_S2_TOF->Fill(MuonTOF, Event_Weight);
             }else{                if(tof)st->CtrlIm_S1_TOF->Fill(MuonTOF, Event_Weight);
             }
+         }
+
 
          for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
-	   if(MuonTOF<GlobalMinTOF) continue;
+ 	    if(MuonTOF<GlobalMinTOF) continue;
+            if(TypeMode==5 && isCosmicSB)continue;
             bool PassPtCut  = track->pt()>=CutPt[CutIndex];
             bool PassICut   = (Is>=CutI[CutIndex]);
             bool PassTOFCut = MuonTOF>=CutTOF[CutIndex];
@@ -847,10 +874,13 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 
 	 //Use events with low TOF to check accuracy of background prediction
          for(unsigned int CutIndex=0;CutIndex<CutPt_Flip.size();CutIndex++){
-	   if(MuonTOF>GlobalMinTOF) continue;
+            if(TypeMode!=5 && MuonTOF>=GlobalMinTOF) continue;
+            if(TypeMode==5 && !isCosmicSB)continue;
+
             bool PassPtCut  = track->pt()>=CutPt_Flip[CutIndex];
             bool PassICut   = (Is>=CutI_Flip[CutIndex]);
-            bool PassTOFCut = MuonTOF<=CutTOF_Flip[CutIndex];
+            bool PassTOFCut = MuonTOF<=CutTOF_Flip[CutIndex]; 
+            if(TypeMode==5)PassTOFCut=true;
 
             if(       PassTOFCut &&  PassPtCut &&  PassICut){   //Region D
 	      st->RegionD_P_Flip  ->Fill(CutIndex,track->p(),     Event_Weight);
@@ -878,7 +908,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
                st->H_H_Flip->Fill(CutIndex,          Event_Weight);
                if(bin>-1 && bin<MaxPredBins) st->H_H_Binned_Flip[bin]->Fill(CutIndex,                Event_Weight);
 	       st->RegionH_Ias_Flip  ->Fill(CutIndex,Is,Event_Weight);
-	       //               Pred_P_Flip->Fill(CutIndex,track->p(),        Event_Weight);
+	       //   Pred_P_Flip->Fill(CutIndex,track->p(),        Event_Weight);
 	       //               Pred_I_Flip->Fill(CutIndex,Ih,   Event_Weight);
             }else if(!PassTOFCut &&  PassPtCut && !PassICut){   //Region G
                st->H_G_Flip->Fill(CutIndex,                 Event_Weight);
@@ -1029,8 +1059,7 @@ void Analysis_Step3(char* SavePath)
 
 	      //If is cosmic event then switch plots to use to the ones for cosmics
 	      SamplePlots=&plotsMap[CosmicName];
-	    }
-	    else if(TypeMode==3) {
+	    }else if(TypeMode==3) {
 	      SamplePlots = &plotsMap[samples[s].Name];
 	    }
 
@@ -1113,16 +1142,20 @@ void Analysis_Step3(char* SavePath)
 		 dedxMObj  = &dEdxMCollH->get(track.key());
 	       }
 
-               if(TypeMode==5 && dedxSObj){
-                  //for FractionalCharge dEdx discriminator probability is close to 0, just inverse the logic such that it become close to 1 as for other analyses
-//                  dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
-                  dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, true);
-                  dRtoCosmic = deltaROpositeTrack(hscpColl, hscp); //dRtoCosmic is a global variable... that's uggly C++, but that's the best I found so far
-               }
                const reco::MuonTimeExtra* tof = NULL;
                const reco::MuonTimeExtra* dttof = NULL;
                const reco::MuonTimeExtra* csctof = NULL;
               if(TypeMode>1 && !hscp.muonRef().isNull()){ tof  = &TOFCollH->get(hscp.muonRef().key()); dttof = &TOFDTCollH->get(hscp.muonRef().key());  csctof = &TOFCSCCollH->get(hscp.muonRef().key());}
+
+
+               //If fractionnal charge analysis: recompute dEdx on the fly, compute cosmic veto and check if it is in dZ side band or no
+               if(TypeMode==5 && dedxSObj){
+                  //for FractionalCharge dEdx discriminator probability is close to 0, just inverse the logic such that it become close to 1 as for other analyses
+//                  dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
+                  dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, true);
+                  OpenAngle = deltaROpositeTrack(hscpColl, hscp); //OpenAngle is a global variable... that's uggly C++, but that's the best I found so far
+               }
+
 
                //compute systematic uncertainties on signal
                if(isSignal){
@@ -1138,7 +1171,6 @@ void Analysis_Step3(char* SavePath)
 #endif
                   // compute systematic due to momentum scale
                   if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
-
  		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p()*PRescale,dedxMObj->dEdx(),!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p()*PRescale,tof->inverseBeta());
 		     double MassComb = -1;
@@ -1250,11 +1282,16 @@ void Analysis_Step3(char* SavePath)
 
                //check if the canddiate pass the preselection cuts
                if(isMC)PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, MCTrPlots   );
-               if(    !PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, SamplePlots, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
+               if(    !PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, SamplePlots, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1)) continue;
+               stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, -1, TreeDZ, TreeDXY, OpenAngle, track->eta(), track->phi(), -1);
+               if(TypeMode==5 && isSemiCosmicSB)continue;
 
                //fill the ABCD histograms and a few other control plots
                if(isData)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, SamplePlots);
 	       else if(isMC) Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, MCTrPlots);
+
+               if(TypeMode==5 && isCosmicSB)continue; 
+
 	       //Find the number of tracks passing selection for TOF<1 that will be used to check the background prediction
 	       if(isMC || isData) {
                //compute the mass of the candidate, for TOF mass flip the TOF over 1 to get the mass, so 0.8->1.2
@@ -1274,7 +1311,7 @@ void Analysis_Step3(char* SavePath)
                   SamplePlots      ->Mass_Flip->Fill(CutIndex, Mass,Event_Weight);
                   if(tof){
                   if(isMC)MCTrPlots->MassTOF_Flip->Fill(CutIndex, MassTOF, Event_Weight);
-                     SamplePlots  ->MassTOF_Flip->Fill(CutIndex, MassTOF, Event_Weight);
+                     SamplePlots   ->MassTOF_Flip->Fill(CutIndex, MassTOF, Event_Weight);
                   }
                   if(isMC)MCTrPlots->MassComb_Flip->Fill(CutIndex, MassComb, Event_Weight);
                   SamplePlots      ->MassComb_Flip->Fill(CutIndex, MassComb, Event_Weight);
@@ -1292,7 +1329,6 @@ void Analysis_Step3(char* SavePath)
 
                //loop on all possible selection (one of them, the optimal one, will be used later)
                for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
-
                   //Full Selection
 		 if(isMC)PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, MCTrPlots);
 		 if(    !PassSelection   (hscp, dedxSObj, dedxMObj, tof, ev, CutIndex, SamplePlots, false, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1))continue;
@@ -1311,8 +1347,7 @@ void Analysis_Step3(char* SavePath)
                   if(isMC)MCTrPlots->MassComb->Fill(CutIndex, MassComb, Event_Weight);
                   SamplePlots      ->MassComb->Fill(CutIndex, MassComb, Event_Weight);
                } //end of Cut loop
-               if(PassNonTrivialSelection) stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, TreeDZ, TreeDXY, dRtoCosmic, track->eta(), track->phi(), -1);
-               //stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, TreeDZ, TreeDXY, dRtoCosmic, track->eta(), track->phi(), -1);
+               //if(PassNonTrivialSelection) stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, TreeDZ, TreeDXY, OpenAngle, track->eta(), track->phi(), -1);
             }// end of Track Loop
 
             //save event dependent information thanks to the bookkeeping
