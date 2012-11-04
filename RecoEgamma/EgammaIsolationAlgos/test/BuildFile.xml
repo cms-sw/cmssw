@@ -1,0 +1,2 @@
+<use name="RecoEgamma/EgammaIsolationAlgos"/>
+<bin file="EgammaTowerIso_t.cpp" />
