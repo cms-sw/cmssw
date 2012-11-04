@@ -1123,6 +1123,7 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    delete Histos[0];
    delete c1;
 
+
    TH1** Histos1D = new TH1*[10];
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos1D[0] = (TH1*)st.AS_Eta_RegionA->ProjectionY((st.Name+"A").c_str(),CutIndex+1,CutIndex+1); legend.push_back("A");  
@@ -1182,6 +1183,8 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    SaveCanvas(c1,SavePath,std::string("EtaRegions_ACEG_AS")+CutIndexStr);
    for(unsigned int i=0;i<4;i++){delete Histos1D[i];}
    delete c1;
+
+
 
    if(st.Name.find("Cosmic")!=string::npos) {
      c1 = new TCanvas("c1","c1,",600,600);                                               legend.clear();
@@ -1288,6 +1291,41 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
      SaveCanvas(c1,SavePath,"TOF_Binned_BS", false);
      delete c1;
    }
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.BS_OpenAngle_Cosmic->Clone(); legend.push_back("|Dz|>0.5cm & |Dxy|>0.5cm");
+   ((TH1D*) Histos[0])->Rebin(2);
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST",  "#theta max", "Number of tracks", -0.5, 3.2, 0,0, false, false, true, true);
+   DrawLegend((TObject**)Histos,legend,"","L", 0.78, 0.92, 0.38, 0.045);
+//   c1->SetLogy(true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"OpenAngle_Cosmic_BS", false);
+   delete c1;
+
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.BS_Dxy_Cosmic->Clone();   legend.push_back("|Dz|>0.5cm & #theta>2.8rad");
+   ((TH1D*) Histos[0])->Rebin(4);
+//   sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST",  "Dxy (cm)", "Number of tracks", -2, 2, 0, 0, false, false, true, true);
+   DrawLegend((TObject**)Histos,legend,"","L", 0.78, 0.92, 0.38, 0.045);
+//   c1->SetLogy(true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"Dxy_Cosmic_BS", false);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)st.BS_Dz_Cosmic->Clone();   legend.push_back("|Dxy|>0.5cm & #theta>2.8rad");
+   ((TH1D*) Histos[0])->Rebin(4);
+//   sprintf(YAxisTitle,"Fraction of tracks/%2.0f [cm]",Histos[0]->GetBinWidth(1));
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST",  "Dz (cm)", "Number of tracks", 0, 0, 0, 0, false, false, true, true);
+   DrawLegend((TObject**)Histos,legend,"","L", 0.78, 0.92, 0.38, 0.045);
+//   c1->SetLogy(true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"Dz_Cosmic_BS", false);
+   delete c1;
+
+
 }
 
 // draw all plots that meant for comparison with other samples (mostly 1D plots that can be superimposed)

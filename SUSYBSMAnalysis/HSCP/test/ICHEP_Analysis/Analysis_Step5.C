@@ -50,7 +50,7 @@ void Analysis_Step5()
 
    string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
-/*
+
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
@@ -112,13 +112,13 @@ void Analysis_Step5()
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
    //    CutFlow(InputPattern);
-*/
+
    InputPattern = "Results/Type5/";   CutIndex = 48; CutIndex_Flip=2;
    InitdEdx("dedxRASmi");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-//   SelectionPlot(InputPattern, CutIndex);
-//   CutFlow(InputPattern);
+   SelectionPlot(InputPattern, CutIndex);
+   CutFlow(InputPattern);
 
 
      //This function has not yet been reviewed after july's update
@@ -721,8 +721,11 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
 
               max = std::max(max, H_P->GetBinContent(CutIndex_+i+1));
 //              min = std::min(min, std::max(H_P->GetBinContent(CutIndex_+i+1), 0.1) );
-              mapPred[PtCut]->SetPoint     (i, HCuts_I->GetBinContent(CutIndex_+i+1), H_P->GetBinContent(CutIndex_+i+1));
-              mapPred[PtCut]->SetPointError(i, 0                                    , sqrt(pow(H_P->GetBinError  (CutIndex_+i+1),2) + pow(0.1*H_P->GetBinContent(CutIndex_+i+1),2) ) );
+              double P    =  H_P->GetBinContent(CutIndex_+i+1);
+              double Perr =  H_P->GetBinError(CutIndex_+i+1);
+              if(S==1 && P<=0){P = 3/2.0; Perr=3/2.0;  max = std::max(max, 3.0);}
+              mapPred[PtCut]->SetPoint     (i, HCuts_I->GetBinContent(CutIndex_+i+1), P);
+              mapPred[PtCut]->SetPointError(i, 0                                    , sqrt(pow(Perr,2) + pow(0.1*H_P->GetBinContent(CutIndex_+i+1),2) ) );
 
               max = std::max(max, H_D->GetBinContent(CutIndex_+i+1));
               min = std::min(min, std::max(H_D->GetBinContent(CutIndex_+i+1), 0.1));
@@ -736,7 +739,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          c1 = new TCanvas("c1","c1,",600,600);
          c1->SetLogy(true);
 
-         TH1D* frame = new TH1D("frame", "frame", 1,std::max(xmin,0.05),xmax);
+         TH1D* frame = new TH1D("frame", "frame", 1,std::max(xmin,0.02),xmax);
          frame->GetXaxis()->SetNdivisions(505);
          frame->SetTitle("");
          frame->SetStats(kFALSE);
@@ -747,7 +750,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          frame->SetMinimum(min*0.1);
          frame->Draw("AXIS");
 
-         TLegend* LEG = new TLegend(0.45,0.65,0.65,0.90);
+         TLegend* LEG = new TLegend(0.45,0.75,0.65,0.93);
          LEG->SetFillColor(0);
          LEG->SetFillStyle(0);
          LEG->SetBorderSize(0);
