@@ -11,7 +11,7 @@ int main() {
 
   CaloTower cand;
   EgammaTowerIsolationNew<2>::Sum sum;
-  iso.compute(sum,cand,nullptr,nullptr);
+  iso.compute(true,sum,cand,nullptr,nullptr);
 
   return 0;
 

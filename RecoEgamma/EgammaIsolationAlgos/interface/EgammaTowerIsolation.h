@@ -163,7 +163,7 @@ public:
 			const CaloTowerCollection* towers );
   
   double getTowerEtSum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const;
-  double  getTowerESum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude) const;
+  double  getTowerESum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=0) const;
   private:
   double getSum (bool et, const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude) const;
 
