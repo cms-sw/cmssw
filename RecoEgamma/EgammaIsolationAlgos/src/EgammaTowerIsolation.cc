@@ -17,7 +17,7 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadius,
 					    const CaloTowerCollection* towers ) : newAlgo(&extRadius,&intRadius,*towers), depth_(depth){}
 
 
-ouble  EgammaTowerIsolation::getSum (bool et, reco::SuperCluster const & sc, const std::vector<CaloTowerDetId> * detIdToExclude) const{
+double  EgammaTowerIsolation::getSum (bool et, reco::SuperCluster const & sc, const std::vector<CaloTowerDetId> * detIdToExclude) const{
   EgammaTowerIsolationNew<1>::Sum sum;
   newAlgo.compute(et, sum, sc, 
 		  (detIdToExclude==0) ? nullptr : &((*detIdToExclude).front()),
