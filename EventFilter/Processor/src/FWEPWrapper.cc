@@ -30,6 +30,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+
 #include "xoap/MessageFactory.h"
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
@@ -90,6 +91,7 @@ namespace evf{
     , waitingForLs_(false)
     , mwrRef_(nullptr)
     , sorRef_(nullptr)
+    , ftsRef_(nullptr)
     , countDatasets_(false)
   {
     //list of variables for scalers flashlist
@@ -325,6 +327,18 @@ namespace evf{
     sorRef_=sor;
     //  if(swr) swr->clear(); // in case we are coming from stop we need to clear the swr
 
+
+    FastTimerService *fts = 0;
+    try{
+      if(edm::Service<FastTimerService>().isAvailable())
+	fts = edm::Service<FastTimerService>().operator->();
+    }
+    catch(...) { 
+      LOG4CPLUS_INFO(log_,
+		     "exception when trying to get service FastTimerService");
+    }
+    ftsRef_=fts;
+
     //get and copy streams and datasets PSet from the framework configuration
     edm::ParameterSet streamsPSet;
     edm::ParameterSet datasetsPSet;
@@ -461,19 +475,30 @@ namespace evf{
     return;
   }
 
+  //______________________________________________________________________________
   void FWEPWrapper::makeServicesOnly()
   {
     edm::ServiceRegistry::Operate operate(serviceToken_);
   }
  
-  ModuleWebRegistry * FWEPWrapper::getModuleWebRegistry() {
+  //______________________________________________________________________________
+  ModuleWebRegistry * FWEPWrapper::getModuleWebRegistry()
+  {
     return mwrRef_;
   }
 
-  ShmOutputModuleRegistry * FWEPWrapper::getShmOutputModuleRegistry() {
+  //______________________________________________________________________________
+  ShmOutputModuleRegistry * FWEPWrapper::getShmOutputModuleRegistry()
+  {
     return sorRef_;
   }
 
+  //______________________________________________________________________________
+  void FWEPWrapper::setupFastTimerService(unsigned int nProcesses)
+  {
+    if (ftsRef_) ftsRef_->setNumberOfProcesses( nProcesses );
+  }
+ 
   //______________________________________________________________________________
   edm::EventProcessor::StatusCode FWEPWrapper::stop()
   {

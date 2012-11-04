@@ -418,7 +418,8 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	// moved to wrapper class
 	configuration_ = evtProcessor_.configuration();
 	if(nbSubProcesses_.value_==0) evtProcessor_.startMonitoringWorkLoop(); 
-	evtProcessor_->beginJob(); 
+	evtProcessor_->beginJob();
+	evtProcessor_.setupFastTimerService(nbSubProcesses_.value_>0 ? nbSubProcesses_.value_:1);
 	if(cpustat_) {delete cpustat_; cpustat_=0;}
 	cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			       nbSubProcesses_.value_,
@@ -529,6 +530,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 
   if(!epInitialized_){
     evtProcessor_->beginJob(); 
+    evtProcessor_.setupFastTimerService(nbSubProcesses_.value_>0 ? nbSubProcesses_.value_:1);
     if(cpustat_) {delete cpustat_; cpustat_=0;}
     cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
 			   nbSubProcesses_.value_,
@@ -2674,7 +2676,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.160 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.161 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

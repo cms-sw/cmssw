@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EventProcessor.h"
 
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
+#include "HLTrigger/Timer/interface/FastTimerService.h"
 
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "TriggerReportHelpers.h"
@@ -92,6 +93,7 @@ namespace evf{
 
     void publishConfigAndMonitorItems(bool);
     void publishConfigAndMonitorItemsSP();
+    void setupFastTimerService(unsigned int nProcesses);
 
     std::string wlMonitoring(){
       if(wlMonitoring_!=0 && wlMonitoring_->isActive()) return (wlMonitoringActive_ ? "active" : "inactive");
@@ -151,8 +153,7 @@ namespace evf{
 
     // prescale (cmssw framework-) service
     edm::service::PrescaleService*  prescaleSvc_;
-    
-    
+
     fuep::TriggerReportHelpers       trh_;
     log4cplus::Logger                log_;
     bool                             isPython_;
@@ -241,6 +242,7 @@ namespace evf{
     int                              notstarted_state_code_;
     ModuleWebRegistry                *mwrRef_;
     ShmOutputModuleRegistry          *sorRef_;
+    FastTimerService                 *ftsRef_;
     bool                              countDatasets_;
     friend class FUEventProcessor;
 

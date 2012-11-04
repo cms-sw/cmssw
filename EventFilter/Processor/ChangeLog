@@ -1,3 +1,8 @@
+2012-11-04 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V02-05-26
+	* send number of working processes to FastTimerService
+
 2012-10-17 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V02-05-25
