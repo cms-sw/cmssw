@@ -45,7 +45,8 @@ EgammaTowerIsolation::~EgammaTowerIsolation ()
 
 
 double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
-  return getTowerEtSum(photon->eta(),photon->phi(), detIdToExclude );
+ return getTowerEtSum( photon->get<reco::SuperClusterRef>().get(), detIdToExclude );
+//  return getTowerEtSum(photon->eta(),photon->phi(), detIdToExclude );
 }
 
 double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
@@ -96,7 +97,8 @@ double EgammaTowerIsolation::getTowerEtSum(float candEta, float candPhi, const s
 
 
 double EgammaTowerIsolation::getTowerESum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
-  return getTowerESum(photon->eta(),photon->phi(), detIdToExclude );
+ return getTowerESum( photon->get<reco::SuperClusterRef>().get(), detIdToExclude );
+//  return getTowerESum(photon->eta(),photon->phi(), detIdToExclude );
 }
 
 double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const {
