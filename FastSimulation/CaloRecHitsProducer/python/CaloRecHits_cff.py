@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-CaloMode = 0
+CaloMode = 1
 # 0: custom local reco bypassing digis, ECAL and HCAL
-# 1: as 0, but full digi + std local reco in ECAL
+# 1: as 0, but full digi + std local reco in ECAL - default since 610pre6
 # 2: as 0, but full digi + std local reco in HCAL
 # 3: full digi + std local reco in ECAL and HCAL
 
