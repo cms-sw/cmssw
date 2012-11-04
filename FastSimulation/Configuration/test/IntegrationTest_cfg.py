@@ -41,7 +41,9 @@ process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
 process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_nofakes_cff')
 
 # Apply ECAL miscalibration
-process.ecalRecHit.doMiscalib = True
+from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
+if(CaloMode==0 or CaloMode==2):
+    process.ecalRecHit.doMiscalib = True
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
