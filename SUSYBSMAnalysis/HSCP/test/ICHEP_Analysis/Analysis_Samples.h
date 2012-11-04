@@ -152,6 +152,16 @@ void keepOnlySamplesOfNameX(std::vector<stSample>& samples, string NameX){
    for(unsigned int s=0;s<samples.size();s++){if(samples[s].Name!=NameX){samples.erase(samples.begin()+s);s--;} }
 }  
 
+void keepOnlySamplesOfNamesXtoY(std::vector<stSample>& samples, std::vector<string> NamesXtoY){
+    for(unsigned int s=0;s<samples.size();s++){
+      bool keep=false;
+      for(unsigned int i=0;i<NamesXtoY.size();i++){
+	if(samples[s].Name==NamesXtoY[i]) {keep=true; break;}
+      }
+      if(!keep) {samples.erase(samples.begin()+s);s--;}
+    }
+}
+
 void keepOnlySamplesAt7and8TeVX(std::vector<stSample>& samples, double SQRTS_){
    if(SQRTS_==78 || SQRTS_==87){
       std::vector<stSample> samples_tmp;
@@ -250,6 +260,7 @@ double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, doub
    double PUWeight_thisevent=1;
    std::vector<PileupSummaryInfo>::const_iterator PVI;
    int npv = -1; float Tnpv = -1;
+
    if(pileup=="S4"){
       float sum_nvtx = 0;
       for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {

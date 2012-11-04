@@ -1,9 +1,8 @@
-
-namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class PFMET; class HitPattern;}
+namespace reco { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class PFMET; class HitPattern;}
 namespace susybsm { class HSCParticle; class HSCPIsolation; class MuonSegment; class HSCPDeDxInfo;}
-namespace fwlite  { class ChainEvent;}
+namespace fwlite { class ChainEvent;}
 namespace trigger { class TriggerEvent;}
-namespace edm     { class TriggerResults; class TriggerResultsByName; class InputTag; class LumiReWeighting;}
+namespace edm { class TriggerResults; class TriggerResultsByName; class InputTag; class LumiReWeighting;}
 namespace reweight{ class PoissonMeanShifter;}
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
@@ -50,28 +49,54 @@ using namespace reweight;
 #include "../../ICHEP_Analysis/Analysis_Samples.h"
 #include "../../ICHEP_Analysis/tdrstyle.C"
 
-
+std::vector< float > BgLumiMC; //MC                                                                                                                                                  
+std::vector< float > TrueDist;
+edm::LumiReWeighting LumiWeightsMC;
+reweight::PoissonMeanShifter PShift(0.6);
 
 std::vector<stSample> samples;
-vector<std::pair<string,string>> JetMetSD_triggers;
-vector<std::pair<string,string>> MuSD_triggers;
-vector<std::pair<string,string>> OthersSD_triggers;
 vector<std::pair<string,string>> All_triggers;
-map<string,bool> All_mask;
+vector<std::pair<string,string>> AllSA_triggers;
+
+std::string OutputDirectory="pictures/";
 
 class stPlot{
    public:
    TH1D* Histo;
    TH1D* HistoInc;
+   TH1D* HistoMatched;
+   TH1D* HistoIncMatched;
+   TH1D* HistoMatchedSA;
+   TH1D* HistoIncMatchedSA;
+   TH1D* HistoMatchedGl;
+   TH1D* HistoIncMatchedGl;
    TH1D* BetaCount;
    TH1D* BetaTotal;
    TH1D* BetaMuon;
    TH1D* BetaJet;
+   TH1D* BetaCountMatched;
+   TH1D* BetaTotalMatched;
+   TH1D* BetaMuonMatched;
+   TH1D* BetaJetMatched;
+   TH1D* BetaCountMatchedSA;
+   TH1D* BetaTotalMatchedSA;
+   TH1D* BetaMuonMatchedSA;
+   TH1D* BetaJetMatchedSA;
+   TH1D* BetaCountMatchedGl;
+   TH1D* BetaTotalMatchedGl;
+   TH1D* BetaMuonMatchedGl;
+   TH1D* BetaJetMatchedGl;
 
    stPlot(string SignalName){
       int numberofbins=All_triggers.size()+1;
-      Histo    = new TH1D((SignalName + "Abs").c_str(),(SignalName + "Abs").c_str(),numberofbins,0,numberofbins);
-      HistoInc = new TH1D((SignalName + "Inc").c_str(),(SignalName + "Inc").c_str(),numberofbins,0,numberofbins);
+      Histo             = new TH1D((SignalName + "Abs").c_str(),(SignalName + "Abs").c_str(),numberofbins,0,numberofbins);
+      HistoInc          = new TH1D((SignalName + "Inc").c_str(),(SignalName + "Inc").c_str(),numberofbins,0,numberofbins);
+      HistoMatched      = new TH1D((SignalName + "AbsMatched").c_str(),(SignalName + "AbsMatched").c_str(),numberofbins,0,numberofbins);
+      HistoIncMatched   = new TH1D((SignalName + "IncMatched").c_str(),(SignalName + "IncMatched").c_str(),numberofbins,0,numberofbins);
+      HistoMatchedSA    = new TH1D((SignalName + "AbsMatchedSA").c_str(),(SignalName + "AbsMatched").c_str(),numberofbins,0,numberofbins);
+      HistoIncMatchedSA = new TH1D((SignalName + "IncMatchedSA").c_str(),(SignalName + "IncMatched").c_str(),numberofbins,0,numberofbins);
+      HistoMatchedGl    = new TH1D((SignalName + "AbsMatchedGl").c_str(),(SignalName + "AbsMatched").c_str(),numberofbins,0,numberofbins);
+      HistoIncMatchedGl = new TH1D((SignalName + "IncMatchedGl").c_str(),(SignalName + "IncMatched").c_str(),numberofbins,0,numberofbins);
 
       for(unsigned int i=0;i<All_triggers.size();i++)    { Histo->GetXaxis()->SetBinLabel(i+1,All_triggers[i].second.c_str());   }
       Histo->GetXaxis()->SetBinLabel(numberofbins,"Total");
@@ -79,13 +104,52 @@ class stPlot{
       for(unsigned int i=0;i<All_triggers.size();i++)    { HistoInc->GetXaxis()->SetBinLabel(i+1,All_triggers[i].second.c_str());   }
       HistoInc->GetXaxis()->SetBinLabel(numberofbins,"Total");
 
+      for(unsigned int i=0;i<All_triggers.size();i++) { HistoMatched->GetXaxis()->SetBinLabel(i+1,All_triggers[i].second.c_str()); }
+      HistoMatched->GetXaxis()->SetBinLabel(numberofbins,"Total");
+
+      for(unsigned int i=0;i<All_triggers.size();i++) { HistoIncMatched->GetXaxis()->SetBinLabel(i+1,All_triggers[i].second.c_str()); }
+      HistoIncMatched->GetXaxis()->SetBinLabel(numberofbins,"Total");
+
+      for(unsigned int i=0;i<All_triggers.size();i++) { HistoMatchedSA->GetXaxis()->SetBinLabel(i+1,AllSA_triggers[i].second.c_str()); }
+      HistoMatchedSA->GetXaxis()->SetBinLabel(numberofbins,"Total");
+
+      for(unsigned int i=0;i<All_triggers.size();i++) { HistoIncMatchedSA->GetXaxis()->SetBinLabel(i+1,AllSA_triggers[i].second.c_str()); }
+      HistoIncMatchedSA->GetXaxis()->SetBinLabel(numberofbins,"Total");
+
+      for(unsigned int i=0;i<All_triggers.size();i++) { HistoMatchedGl->GetXaxis()->SetBinLabel(i+1,All_triggers[i].second.c_str()); }
+      HistoMatchedGl->GetXaxis()->SetBinLabel(numberofbins,"Total");
+
+      for(unsigned int i=0;i<All_triggers.size();i++) { HistoIncMatchedGl->GetXaxis()->SetBinLabel(i+1,All_triggers[i].second.c_str()); }
+      HistoIncMatchedGl->GetXaxis()->SetBinLabel(numberofbins,"Total");
+
       Histo->Sumw2();
       HistoInc->Sumw2();
+      HistoMatched->Sumw2();
+      HistoIncMatched->Sumw2();
+      HistoMatchedSA->Sumw2();
+      HistoIncMatchedSA->Sumw2();
+      HistoMatchedGl->Sumw2();
+      HistoIncMatchedGl->Sumw2();
 
       BetaCount    = new TH1D((SignalName + "BetaMuCount").c_str() ,(SignalName + "BetaCount").c_str()   ,20,0,1);   BetaCount  ->Sumw2();
       BetaTotal    = new TH1D((SignalName + "BetaTotal"  ).c_str() ,(SignalName + "BetaTotal").c_str()   ,20,0,1);   BetaTotal  ->Sumw2();
       BetaMuon     = new TH1D((SignalName + "BetaMuon"   ).c_str() ,(SignalName + "BetaMuon" ).c_str()   ,20,0,1);   BetaMuon   ->Sumw2();
       BetaJet      = new TH1D((SignalName + "BetaJet"    ).c_str() ,(SignalName + "BetaJet"  ).c_str()   ,20,0,1);   BetaJet    ->Sumw2();
+
+      BetaCountMatched    = new TH1D((SignalName + "BetaMuCountMatched").c_str() ,(SignalName + "BetaCountMatched").c_str()   ,20,0,1);   BetaCountMatched  ->Sumw2();
+      BetaTotalMatched    = new TH1D((SignalName + "BetaTotalMatched"  ).c_str() ,(SignalName + "BetaTotalMatched").c_str()   ,20,0,1);   BetaTotalMatched  ->Sumw2();
+      BetaMuonMatched     = new TH1D((SignalName + "BetaMuonMatched"   ).c_str() ,(SignalName + "BetaMuonMatched" ).c_str()   ,20,0,1);   BetaMuonMatched   ->Sumw2();
+      BetaJetMatched      = new TH1D((SignalName + "BetaJetMatched"    ).c_str() ,(SignalName + "BetaJetMatched"  ).c_str()   ,20,0,1);   BetaJetMatched    ->Sumw2();
+
+      BetaCountMatchedSA    = new TH1D((SignalName + "BetaMuCountMatchedSA").c_str() ,(SignalName + "BetaCountMatchedSA").c_str()   ,20,0,1);   BetaCountMatchedSA  ->Sumw2();
+      BetaTotalMatchedSA    = new TH1D((SignalName + "BetaTotalMatchedSA"  ).c_str() ,(SignalName + "BetaTotalMatchedSA").c_str()   ,20,0,1);   BetaTotalMatchedSA  ->Sumw2();
+      BetaMuonMatchedSA     = new TH1D((SignalName + "BetaMuonMatchedSA"   ).c_str() ,(SignalName + "BetaMuonMatchedSA" ).c_str()   ,20,0,1);   BetaMuonMatchedSA   ->Sumw2();
+      BetaJetMatchedSA      = new TH1D((SignalName + "BetaJetMatchedSA"    ).c_str() ,(SignalName + "BetaJetMatchedSA"  ).c_str()   ,20,0,1);   BetaJetMatchedSA    ->Sumw2();
+
+      BetaCountMatchedGl    = new TH1D((SignalName + "BetaMuCountMatchedGl").c_str() ,(SignalName + "BetaCountMatchedGl").c_str()   ,20,0,1);   BetaCountMatchedGl  ->Sumw2();
+      BetaTotalMatchedGl    = new TH1D((SignalName + "BetaTotalMatchedGl"  ).c_str() ,(SignalName + "BetaTotalMatchedGl").c_str()   ,20,0,1);   BetaTotalMatchedGl  ->Sumw2();
+      BetaMuonMatchedGl     = new TH1D((SignalName + "BetaMuonMatchedGl"   ).c_str() ,(SignalName + "BetaMuonMatchedGl" ).c_str()   ,20,0,1);   BetaMuonMatchedGl   ->Sumw2();
+      BetaJetMatchedGl      = new TH1D((SignalName + "BetaJetMatchedGl"    ).c_str() ,(SignalName + "BetaJetMatchedGl"  ).c_str()   ,20,0,1);   BetaJetMatchedGl    ->Sumw2();
    }
 
 };
@@ -94,11 +158,20 @@ class stPlot{
 void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot);
 double FastestHSCP(const fwlite::ChainEvent& ev);
 //bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut,int NObjectAboveThreshold, bool averageThreshold=false);
-void layout(vector<stPlot*>& plots, vector<string>& sigs, string name);
+void layout(stPlot** plots, vector<string>& sigs, string name);
 
-void TriggerStudy()
+void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", string Sample3="", string Sample4="", string Sample5="", string Sample6="")
 {
+  if(Sample1=="COMPILE") return;
+
    system("mkdir pictures");
+   std::vector<string> SamplesToRun;
+   if(Sample1!="") SamplesToRun.push_back(Sample1);
+   if(Sample2!="") SamplesToRun.push_back(Sample2);
+   if(Sample3!="") SamplesToRun.push_back(Sample3);
+   if(Sample4!="") SamplesToRun.push_back(Sample4);
+   if(Sample5!="") SamplesToRun.push_back(Sample5);
+   if(Sample6!="") SamplesToRun.push_back(Sample6);
 
    gStyle->SetPadTopMargin   (0.06);
    gStyle->SetPadBottomMargin(0.14);
@@ -110,114 +183,63 @@ void TriggerStudy()
    gStyle->SetPalette(1);
    gStyle->SetNdivisions(505);
 
+   //initialize LumiReWeighting
+#ifdef ANALYSIS2011
+   for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
+   for(int i=0; i<35; ++i) TrueDist.push_back(TrueDist2011_f[i]);
+   SQRTS=7;
+#else
+   for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
+   for(int i=0; i<60; ++i) TrueDist.push_back(TrueDist2012_f[i]);
+   SQRTS=8;
+#endif
+   LumiWeightsMC = edm::LumiReWeighting(BgLumiMC, TrueDist);
 
    InitBaseDirectory();
    GetSampleDefinition(samples, "../../ICHEP_Analysis/Analysis_Samples.txt");
-   keepOnlySamplesAt7and8TeVX(samples, SQRTS);
+
+   keepOnlySamplesOfNamesXtoY(samples, SamplesToRun);
 
    ///////////////////////////////////////////////////////
 
-   MuSD_triggers.push_back(std::make_pair("HSCPHLTTriggerMuFilter", "Mu40_eta2p1"));
-   JetMetSD_triggers.push_back(std::make_pair("HSCPHLTTriggerPFMetFilter","PFMET150"));
+   All_triggers.push_back(std::make_pair("HSCPHLTTriggerMuFilter", "Mu40_eta2p1"));
+   All_triggers.push_back(std::make_pair("HSCPHLTTriggerPFMetFilter","PFMET150"));
+#ifndef ANALYSIS2011
+   All_triggers.push_back(std::make_pair("HSCPHLTTriggerL2MuFilter", "L2Muon+Met"));
+   All_triggers.push_back(std::make_pair("HSCPHLTTriggerMetDeDxFilter", "Met80+dEdx"));
+   All_triggers.push_back(std::make_pair("HSCPHLTTriggerMuDeDxFilter", "Mu40+dEdx"));
+   All_triggers.push_back(std::make_pair("HSCPHLTTriggerHtDeDxFilter", "HT+dEdx"));
+#endif
+   All_triggers.push_back(std::make_pair("HSCPHLTTriggerHtFilter", "HT650" ) );
 
-   OthersSD_triggers.push_back(std::make_pair("HSCPHLTTriggerL2MuFilter", "L2Muon+Met"));
-   OthersSD_triggers.push_back(std::make_pair("HSCPHLTTriggerMetDeDxFilter", "Met80+dEdx"));
-   OthersSD_triggers.push_back(std::make_pair("HSCPHLTTriggerMuDeDxFilter", "Mu40+dEdx"));
-   OthersSD_triggers.push_back(std::make_pair("HSCPHLTTriggerHtDeDxFilter", "HT+dEdx"));
-   OthersSD_triggers.push_back(std::make_pair("HSCPHLTTriggerHtFilter", "HT650" ) );
-//   OthersSD_triggers.push_back("HSCPHLTTriggerMetFilter");
-
-
-   All_triggers.clear();
-   for(unsigned int i=0;i<MuSD_triggers.size();i++)All_triggers.push_back(MuSD_triggers[i]);
-   for(unsigned int i=0;i<JetMetSD_triggers.size();i++)All_triggers.push_back(JetMetSD_triggers[i]);
-   for(unsigned int i=0;i<OthersSD_triggers.size();i++)All_triggers.push_back(OthersSD_triggers[i]);
-   for(unsigned int i=0;i<All_triggers.size();i++)All_mask[All_triggers[i].first] = true;
+#ifndef ANALYSIS2011
+   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerL2MuFilter", "L2Muon+Met"));
+#endif
+   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerPFMetFilter","PFMET150"));
+   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerMuFilter", "Mu40_eta2p1"));
+#ifndef ANALYSIS2011
+   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerMetDeDxFilter", "Met80+dEdx"));
+   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerMuDeDxFilter", "Mu40+dEdx"));
+   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerHtDeDxFilter", "HT+dEdx"));
+#endif
+   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerHtFilter", "HT650" ) );
    ///////////////////////////////////////////////////////
 
-   FILE* pFile = fopen("Results.txt","w");
+   FILE* pFile = fopen((OutputDirectory + "Results_" + Name + ".txt").c_str(),"w");
+
+   vector<string> leg;
 
    stPlot** plots = new stPlot*[samples.size()];  
    for(unsigned int i=0;i<samples.size();i++){
-      if(samples[i].Type!=2)continue;
-      if(samples[i].Name != "Gluino_8TeV_M300_f10" && samples[i].Name != "Gluino_8TeV_M600_f10" && samples[i].Name != "Gluino_8TeV_M1100_f10"
-      && samples[i].Name != "Gluino_7TeV_M300_f10" && samples[i].Name != "Gluino_7TeV_M600_f10" && samples[i].Name != "Gluino_7TeV_M1100_f10"
-      && samples[i].Name != "GMStau_8TeV_M100"     && samples[i].Name != "GMStau_8TeV_M200"     && samples[i].Name != "GMStau_8TeV_M308"     
-      && samples[i].Name != "GMStau_7TeV_M100"     && samples[i].Name != "GMStau_7TeV_M200"     && samples[i].Name != "GMStau_7TeV_M308"     
-      && samples[i].Name != "PPStau_8TeV_M100"     && samples[i].Name != "PPStau_8TeV_M200"     && samples[i].Name != "PPStau_8TeV_M308"
-      && samples[i].Name != "PPStau_7TeV_M100"     && samples[i].Name != "PPStau_7TeV_M200"     && samples[i].Name != "PPStau_7TeV_M308"
-      && samples[i].Name != "DY_8TeV_M100_Q1o3"    && samples[i].Name != "DY_8TeV_M600_Q1o3"    && samples[i].Name != "DY_8TeV_M100_Q2o3"     && samples[i].Name != "DY_8TeV_M600_Q2o3"    
-      && samples[i].Name != "DY_7TeV_M100_Q1o3"    && samples[i].Name != "DY_7TeV_M600_Q1o3"    && samples[i].Name != "DY_7TeV_M100_Q2o3"     && samples[i].Name != "DY_7TeV_M600_Q2o3"
-      && samples[i].Name != "DY_8TeV_M100_Q2"      && samples[i].Name != "DY_8TeV_M600_Q2"      && samples[i].Name != "DY_8TeV_M100_Q5"       && samples[i].Name != "DY_8TeV_M600_Q5" 
-      && samples[i].Name != "DY_7TeV_M100_Q2"      && samples[i].Name != "DY_7TeV_M600_Q2"      && samples[i].Name != "DY_7TeV_M100_Q5"       && samples[i].Name != "DY_7TeV_M600_Q5"  )continue;
-      plots[i] = new stPlot(samples[i].Name);
-      TriggerStudy_Core(samples[i].Name, pFile, plots[i]);
+     if(samples[i].Type!=2)continue;
+     leg.push_back(samples[i].Legend);
+     plots[i] = new stPlot(samples[i].Name);
+     TriggerStudy_Core(samples[i].Name, pFile, plots[i]);
    }
    fflush(pFile);
    fclose(pFile);
 
-
-   int Id;                                                  vector<stPlot*> objs;        vector<string> leg;
-
-   if(SQRTS == 8.0){
-   SQRTS = 8.0;                                             objs.clear();                leg.clear();
-   Id = JobIdToIndex("Gluino_8TeV_M300_f10", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("Gluino_8TeV_M600_f10", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("Gluino_8TeV_M1100_f10",samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   layout(objs, leg, "summary_8TeV_Gluino");
-
-   SQRTS = 8.0;                                             objs.clear();                leg.clear();
-   Id = JobIdToIndex("GMStau_8TeV_M100", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("GMStau_8TeV_M308", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("PPStau_8TeV_M100", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("PPStau_8TeV_M308", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   layout(objs, leg, "summary_8TeV_GMStau");
-
-   SQRTS = 8.0;                                             objs.clear();                leg.clear();
-   Id = JobIdToIndex("DY_8TeV_M100_Q1o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_8TeV_M600_Q1o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_8TeV_M100_Q2o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_8TeV_M600_Q2o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   layout(objs, leg, "summary_8TeV_DYLQ");
-   
-   SQRTS = 8.0;                                             objs.clear();                leg.clear();
-   Id = JobIdToIndex("DY_8TeV_M100_Q2", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_8TeV_M600_Q2", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_8TeV_M100_Q5", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_8TeV_M600_Q5", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   layout(objs, leg, "summary_8TeV_DYHQ");
-   }
-
-   if(SQRTS == 7.0){
-   SQRTS = 7.0;                                             objs.clear();                leg.clear();
-   Id = JobIdToIndex("Gluino_7TeV_M300_f10", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("Gluino_7TeV_M600_f10", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("Gluino_7TeV_M1100_f10",samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   layout(objs, leg, "summary_7TeV_Gluino");
-
-   SQRTS = 7.0;                                             objs.clear();                leg.clear();
-   Id = JobIdToIndex("GMStau_7TeV_M100", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("GMStau_7TeV_M308", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("PPStau_7TeV_M100", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("PPStau_7TeV_M308", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   layout(objs, leg, "summary_7TeV_GMStau");
-
-
-   SQRTS = 7.0;                                             objs.clear();                leg.clear();
-   Id = JobIdToIndex("DY_7TeV_M100_Q1o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_7TeV_M600_Q1o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_7TeV_M100_Q2o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_7TeV_M600_Q2o3", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   layout(objs, leg, "summary_7TeV_DYLQ");
-
-
-   SQRTS = 7.0;                                             objs.clear();                leg.clear();
-   Id = JobIdToIndex("DY_7TeV_M100_Q2", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_7TeV_M600_Q2", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_7TeV_M100_Q5", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   Id = JobIdToIndex("DY_7TeV_M600_Q5", samples);      objs.push_back(plots[Id]);   leg.push_back(samples[Id].Legend);
-   layout(objs, leg, "summary_7TeV_DYHQ");
-   }
+   if(samples.size()!=0) layout(plots, leg, Name);
 
 /*
 
@@ -257,50 +279,47 @@ void TriggerStudy()
 void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
 {
 
-   double Total       = 0;
-   double SDJetMET    = 0;
-   double SDMu        = 0;
-   double SDBoth      = 0;
-   double SDJetMETInc = 0;
-   double SDMuInc     = 0;
-   double TrJetMET    = 0;
-   double TrMu        = 0;
-   double TrBoth      = 0;
+  for (int period=0; period<2; period++) {
+    int JobId = JobIdToIndex(SignalName, samples);
 
-   int JobId = JobIdToIndex(SignalName, samples);
+    vector<string> fileNames;
+    GetInputFiles(samples[JobId], BaseDirectory, fileNames, period);
 
-   int MaxPrint = 0;
-   for (int period=0; period<RunningPeriods; period++) {
-
-   if(SignalName.find("7TeV")!=string::npos){SQRTS = 7.0;}else{SQRTS=8.0;}
-
-
-   vector<string> fileNames;
-   GetInputFiles(samples[JobId], BaseDirectory, fileNames, period);
-
-   string thisname = fileNames[0];
-   bool simhitshifted =0;
-   if(thisname.find("S.",0)<std::string::npos ||thisname.find("SBX1.",0)<std::string::npos) simhitshifted=1 ;
-//   cout<<thisname<<simhitshifted<<endl;
+    string thisname = fileNames[0];
+   //bool simhitshifted =0;
+   //if(thisname.find("S.",0)<std::string::npos ||thisname.find("SBX1.",0)<std::string::npos) simhitshifted=1 ;
 
 //fileNames.clear();
 //      fileNames.push_back("/uscmst1b_scratch/lpc1/lpcphys/jchen/2011Runanalysis/aftereps/cls/CMSSW_4_2_8/src/SUSYBSMAnalysis/HSCP/test/BuildHSCParticles/ShiftSignals/HSCP.root");
 
-   fwlite::ChainEvent ev(fileNames);
+    fwlite::ChainEvent ev(fileNames);
+    int MaxEvent = -1;
 
-   //double SampleWeight = GetSampleWeigh(IntegratedLuminosity,IntegratedLuminosityBeforeTriggerChange,samples[JobId].XSec,0, period);
+    double SampleWeight = 1.0;
+    double PUSystFactor;
+
+
+   //get PU reweighted total # MC events.
+   double NMCevents=0;
+   for(Long64_t ientry=0;ientry<ev.size();ientry++) {
+     ev.to(ientry);
+     if(MaxEvent>0 && ientry>MaxEvent)break;
+     NMCevents += GetPUWeight(ev, samples[JobId].Pileup, PUSystFactor, LumiWeightsMC, PShift);
+   }
+
+   SampleWeight = GetSampleWeight  (IntegratedLuminosity,IntegratedLuminosityBeforeTriggerChange,samples[JobId].XSec,NMCevents, period);
+
+   if(SampleWeight==0) continue; //If sample weight 0 don't run, happens Int Lumi before change = 0
 
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Looping on %10s        :", SignalName.c_str());
    int TreeStep = ev.size()/50;if(TreeStep==0)TreeStep=1;
-   int MaxEvent = 10000; 
    if(MaxEvent<0 || MaxEvent>ev.size())MaxEvent = ev.size();
    for(Long64_t e=0;e<MaxEvent;e++){
       if(e%TreeStep==0){printf(".");fflush(stdout);}
       ev.to(e);
 
-      double Event_Weight = 1.0;//SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, PShift);
-
+      double Event_Weight = SampleWeight * GetPUWeight(ev, samples[JobId].Pileup, PUSystFactor, LumiWeightsMC, PShift);
 
       edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT"); 
 //      if(simhitshifted) tr= ev.triggerResultsByName("HLTSIMHITSHIFTER");
@@ -313,35 +332,89 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
       trEvHandle.getByLabel(ev,"hltTriggerSummaryAOD");
       trigger::TriggerEvent trEv = *trEvHandle;
 
-      //for(unsigned int i=0;i<trEvHandle->sizeFilters();i++){
-      //   if(strncmp(trEvHandle->filterTag(i).label().c_str(),"hltL1",5)==0)continue;
-      //   printf("%i - %s\n",i,trEvHandle->filterTag(i).label().c_str());
-      //}
+      fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
+      hscpCollHandle.getByLabel(ev,"HSCParticleProducer");
+      if(!hscpCollHandle.isValid()){continue;}
+      susybsm::HSCParticleCollection hscpColl = *hscpCollHandle;
 
+      //get the collection of generated Particles
+      fwlite::Handle< std::vector<reco::GenParticle> > genCollHandle;
+      genCollHandle.getByLabel(ev, "genParticles");
+      if(!genCollHandle.isValid()){printf("GenParticle Collection NotFound\n");continue;}
+      std::vector<reco::GenParticle> genColl = *genCollHandle;
 
-      bool JetMetSD    = false;
-      bool MuSD        = false;
-      bool OtherSD     = false;
-      bool JetMetSDInc = false;
-      bool MuSDInc     = false;
-      bool OtherSDInc  = false;
-      bool JetMetTr    = false;
-      bool MuTr        = false;
-      bool OtherTr     = false;
+      int NChargedHSCP=HowManyChargedHSCP(genColl);
+      Event_Weight*=samples[JobId].GetFGluinoWeight(NChargedHSCP);
 
+      //Match gen HSCP to reco tracks
+      bool match=false; double betaMatched=-9999.; 
+      bool matchSA=false; double betaMatchedSA=-9999.;
+      bool matchGl=false; double betaMatchedGl=-9999.;
 
-      unsigned int TrIndex_Unknown     = tr.size();
+	for(unsigned int g=0;g<genColl.size();g++){
+	  if(genColl[g].pt()<5)continue;
+	  if(genColl[g].status()!=1)continue;
+	  int AbsPdg=abs(genColl[g].pdgId());
+	  if(AbsPdg<1000000 && AbsPdg!=17)continue;
 
-      bool AlreadyAccepted = false;
+	  double RMin=9999;
+	  double RMinSA = 9999;
+          double RMinGl = 9999;
+	  for(unsigned int c=0;c<hscpColl.size();c++){
+	  //define alias for important variable
+	    susybsm::HSCParticle hscp  = hscpColl[c];
+	    reco::MuonRef  muon  = hscp.muonRef();
 
-      for(unsigned int i=0;i<All_triggers.size();i++){
-         vector<std::pair<string,string> >::iterator whereMuSD     = find(MuSD_triggers    .begin(), MuSD_triggers    .end(),All_triggers[i] );
-         vector<std::pair<string,string> >::iterator whereJetMetSD = find(JetMetSD_triggers.begin(), JetMetSD_triggers.end(),All_triggers[i] );
-         vector<std::pair<string,string> >::iterator whereOtherSD  = find(OthersSD_triggers.begin(), OthersSD_triggers.end(),All_triggers[i] );
+	  //For TOF only analysis use updated stand alone muon track.
+	  //Otherwise use inner tracker track
+	    reco::TrackRef track;
+	    track = hscp.trackRef();
 
- 
-         bool Accept = false;
-         bool Accept2 = false;
+	    reco::TrackRef trackSA;
+	    if(trackSA.isNull()) {
+	      if(muon.isNull()) continue;
+	      trackSA = muon->standAloneMuon();
+	    }
+	    //skip events without track
+	    if(!track.isNull()) {
+	      double dR = deltaR(track->eta(), track->phi(), genColl[g].eta(), genColl[g].phi());
+	      if(dR<RMin)RMin=dR;
+	    }
+
+	    if(!trackSA.isNull()){
+	      double dR = deltaR(trackSA->eta(), trackSA->phi(), genColl[g].eta(), genColl[g].phi());
+	      if(dR<RMinSA)RMinSA=dR;
+	    }
+	    if(!muon.isNull() && !track.isNull() && muon->isGlobalMuon()){
+              double dR = deltaR(track->eta(), track->phi(), genColl[g].eta(), genColl[g].phi());
+              if(dR<RMinGl)RMinGl=dR;
+            }
+	  }
+	  if(RMin<0.3) {
+	    match=true;
+	    if(genColl[g].p()/genColl[g].energy()>betaMatched) betaMatched=genColl[g].p()/genColl[g].energy();
+	  }
+
+	  if(RMinSA<0.3) {
+	    matchSA=true;
+	    if(genColl[g].p()/genColl[g].energy()>betaMatchedSA) betaMatchedSA=genColl[g].p()/genColl[g].energy();
+	  }
+          if(RMinGl<0.3) {
+            matchGl=true;
+            if(genColl[g].p()/genColl[g].energy()>betaMatchedGl) betaMatchedGl=genColl[g].p()/genColl[g].energy();
+          }
+	}
+         
+	unsigned int TrIndex_Unknown     = tr.size();
+
+	bool AlreadyAccepted = false;
+	bool AcceptMu = false;
+	bool AcceptMET = false;
+        bool AcceptMuMET = false;
+
+	for(unsigned int i=0;i<All_triggers.size();i++){
+	  if(TrIndex_Unknown==tr.triggerIndex(All_triggers[i].first))  {cout << "Trigger " << All_triggers[i].first << " not found" << endl; continue;}
+	  bool Accept = tr.accept(All_triggers[i].first.c_str());
 
 /*           if(All_triggers[i]=="HLT_PFMHT150_v2"){
                if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v2")){
@@ -361,74 +434,102 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
               else  Accept = IncreasedTreshold(trEv, InputTag("hltSingleMu30L3Filtered30","","HLT"),40 , 2.1, 1, false);              
               Accept2 = Accept;
            }
-           else{*/
-               Accept = tr.accept(All_triggers[i].first.c_str());
-               Accept2 = Accept;
-//            }
+*/
 
-         if(Accept                    ){plot->Histo   ->Fill(All_triggers[i].second.c_str(),Event_Weight);}       
-         if(Accept && !AlreadyAccepted){plot->HistoInc->Fill(All_triggers[i].second.c_str(),Event_Weight);}
-
-         if     (whereJetMetSD!=JetMetSD_triggers.end()){ JetMetSD |= Accept; if(!AlreadyAccepted)JetMetSDInc |= Accept;}
-         else if(whereMuSD    !=MuSD_triggers.end())    { MuSD     |= Accept; if(!AlreadyAccepted)MuSDInc     |= Accept;}
-         else if(whereOtherSD !=OthersSD_triggers.end()){ OtherSD  |= Accept; if(!AlreadyAccepted)OtherSDInc  |= Accept;}
-
-
-         if     (whereJetMetSD!=JetMetSD_triggers.end()){ JetMetTr |= Accept2; }
-         else if(whereMuSD    !=MuSD_triggers.end())    { MuTr     |= Accept2; }
-         else if(whereOtherSD !=OthersSD_triggers.end()) { OtherTr  |= Accept2; }
-
+	  if(Accept){
+	    plot->Histo          ->Fill(All_triggers[i].second.c_str(),Event_Weight);
+	    if(!AlreadyAccepted) plot->HistoInc       ->Fill(All_triggers[i].second.c_str(),Event_Weight);
+	  }
+         if(Accept && match){
+	   plot->HistoMatched   ->Fill(All_triggers[i].second.c_str(),Event_Weight);
+	   if(!AlreadyAccepted) plot->HistoIncMatched->Fill(All_triggers[i].second.c_str(),Event_Weight);
+	 }
+	 if(Accept && matchGl){
+	   plot->HistoMatchedGl  ->Fill(All_triggers[i].second.c_str(),Event_Weight);
+	   if(!AlreadyAccepted) plot->HistoIncMatchedGl->Fill(All_triggers[i].second.c_str(),Event_Weight);
+	 }
          AlreadyAccepted |= Accept;
-      }       
+
+	 if(Accept && All_triggers[i].first.find("HSCPHLTTriggerMuFilter")!=string::npos) AcceptMu=true;
+         if(Accept && All_triggers[i].first.find("PFMet")!=string::npos) AcceptMET=true;
+	 if(Accept && All_triggers[i].first.find("HSCPHLTTriggerL2MuFilter")!=string::npos) AcceptMuMET=true;
+	}
+
+      bool AlreadyAcceptedSA = false;
+      for(unsigned int i=0;i<AllSA_triggers.size();i++){
+	bool Accept = tr.accept(AllSA_triggers[i].first.c_str());
+
+	if(Accept && matchSA){
+	  plot->HistoMatchedSA  ->Fill(AllSA_triggers[i].second.c_str(),Event_Weight);
+	  if(!AlreadyAcceptedSA) plot->HistoIncMatchedSA->Fill(AllSA_triggers[i].second.c_str(),Event_Weight);
+	}
+	AlreadyAcceptedSA |= Accept;
+      }
+   
       fflush(stdout);
 
 
-      if(JetMetSD||MuSD||OtherSD){
+      if(AlreadyAccepted){
          plot->Histo->Fill("Total",Event_Weight);
          plot->HistoInc->Fill("Total",Event_Weight);
+	 if(match) {
+	   plot->HistoMatched->Fill("Total",Event_Weight);
+	   plot->HistoIncMatched->Fill("Total",Event_Weight);
+	 }
+	 if(matchGl) {
+	   plot->HistoMatchedGl->Fill("Total",Event_Weight);
+	   plot->HistoIncMatchedGl->Fill("Total",Event_Weight);
+	 }
       }
-
-//      JetMetTr = JetMetSD & ((rand()%100)<90);
-//      MuTr     = MuSD     & ((rand()%100)<90);  
-
-      Total+=Event_Weight;
-      if(JetMetSD)SDJetMET+=Event_Weight;
-      if(MuSD)SDMu+=Event_Weight;
-      if(JetMetSDInc)SDJetMETInc+=Event_Weight;
-      if(MuSDInc)SDMuInc+=Event_Weight;
-      if(JetMetSD||MuSD)SDBoth+=Event_Weight;
-      if(JetMetTr)TrJetMET+=Event_Weight;
-      if(MuTr)TrMu+=Event_Weight;
-      if(JetMetTr||MuTr)TrBoth+=Event_Weight;
+      if(AlreadyAcceptedSA){
+         if(matchSA) {
+           plot->HistoMatchedSA->Fill("Total",Event_Weight);
+           plot->HistoIncMatchedSA->Fill("Total",Event_Weight);
+         }
+      }
 
       double Beta = 1.0;
       if(SignalName!="Data")Beta = FastestHSCP(ev);
+
       plot->BetaCount->Fill(Beta,Event_Weight);
-      if(MuSD||JetMetSD)plot->BetaTotal->Fill(Beta,Event_Weight);
-      if(MuSD)plot->BetaMuon->Fill(Beta,Event_Weight);
-      if(JetMetSD)plot->BetaJet->Fill(Beta,Event_Weight);
+      if(AcceptMu || AcceptMET)plot->BetaTotal->Fill(Beta,Event_Weight);
+      if(AcceptMu)plot->BetaMuon->Fill(Beta,Event_Weight);
+      if(AcceptMET)plot->BetaJet->Fill(Beta,Event_Weight);
+
+      if(match) {
+	plot->BetaCountMatched->Fill(betaMatched,Event_Weight);
+	if(AcceptMu || AcceptMET){
+	  plot->BetaTotalMatched->Fill(betaMatched,Event_Weight);
+	}
+	if(AcceptMu)plot->BetaMuonMatched->Fill(betaMatched,Event_Weight);
+	if(AcceptMET)plot->BetaJetMatched->Fill(betaMatched,Event_Weight);
+      }
+      
+      if(matchSA) {
+	plot->BetaCountMatchedSA->Fill(betaMatchedSA,Event_Weight);
+        if(AcceptMuMET || AcceptMET || AcceptMu)plot->BetaTotalMatchedSA->Fill(betaMatchedSA,Event_Weight);
+        if(AcceptMu || AcceptMuMET)plot->BetaMuonMatchedSA->Fill(betaMatchedSA,Event_Weight);
+        if(AcceptMET)plot->BetaJetMatchedSA->Fill(betaMatchedSA,Event_Weight);
+      }
+      if(matchGl) {
+        plot->BetaCountMatchedGl->Fill(betaMatchedGl,Event_Weight);
+        if(AcceptMu || AcceptMET)plot->BetaTotalMatchedGl->Fill(betaMatchedGl,Event_Weight);
+        if(AcceptMu)plot->BetaMuonMatchedGl->Fill(betaMatchedGl,Event_Weight);
+        if(AcceptMET)plot->BetaJetMatchedGl->Fill(betaMatchedGl,Event_Weight);
+      }
 
    }printf("\n");
-   }
-
-//   fprintf(pFile,  "%15s --> JetMET = %5.2f%% (was %5.2f%%) Mu = %5.2f%% (was %5.2f%%) JetMET||Mu = %5.2f%% (%5.2f%%)\n",SignalName.c_str(), (100.0*TrJetMET)/Total, (100.0*SDJetMET)/Total, (100.0*TrMu)/Total, (100.0*SDMu)/Total, (100.0*TrBoth)/Total, (100.0*SDBoth)/Total);
-//   fprintf(stdout, "%15s --> JetMET = %5.2f%% (was %5.2f%%) Mu = %5.2f%% (was %5.2f%%) JetMET||Mu = %5.2f%% (%5.2f%%)\n",SignalName.c_str(), (100.0*TrJetMET)/Total, (100.0*SDJetMET)/Total, (100.0*TrMu)/Total, (100.0*SDMu)/Total, (100.0*TrBoth)/Total, (100.0*SDBoth)/Total);
-
-
-   fprintf(pFile,  "%15s --> MET = %5.2f%% (modified %5.2f%%) Mu = %5.2f%% (modified %5.2f%%) JetMET||Mu = %5.2f%% (%5.2f%%)\n",SignalName.c_str(), (100.0*SDJetMET)/Total, (100.0*TrJetMET)/Total, (100.0*SDMu)/Total, (100.0*TrMu)/Total, (100.0*SDBoth)/Total, (100.0*TrBoth)/Total);
-   fprintf(stdout, "%15s --> MET = %5.2f%% (modified %5.2f%%) Mu = %5.2f%% (modified %5.2f%%) JetMET||Mu = %5.2f%% (%5.2f%%)\n",SignalName.c_str(), (100.0*SDJetMET)/Total, (100.0*TrJetMET)/Total, (100.0*SDMu)/Total, (100.0*TrMu)/Total, (100.0*SDBoth)/Total, (100.0*TrBoth)/Total);
-
-
+  }
 
 //   printf("Total %i \n",Total);
    plot->Histo->SetStats(0)  ;
    plot->Histo->LabelsOption("v");
-   plot->Histo->Scale(100./Total);
+   plot->Histo->Scale(100./plot->BetaCount->Integral());
 
 
    plot->HistoInc->SetStats(0)  ;
    plot->HistoInc->LabelsOption("v");
-   plot->HistoInc->Scale(100./Total);
+   plot->HistoInc->Scale(100./plot->BetaCount->Integral());
 
 
    plot->BetaTotal->Divide(plot->BetaCount);
@@ -439,27 +540,145 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
    plot->BetaMuon ->Scale(100.0);
    plot->BetaJet  ->Scale(100.0);
 
+   plot->HistoMatched->SetStats(0)  ;
+   plot->HistoMatched->LabelsOption("v");
+   plot->HistoMatched->Scale(100./plot->BetaCountMatched->Integral());
+
+
+   plot->HistoIncMatched->SetStats(0)  ;
+   plot->HistoIncMatched->LabelsOption("v");
+   plot->HistoIncMatched->Scale(100./plot->BetaCountMatched->Integral());
+
+
+   plot->BetaTotalMatched->Divide(plot->BetaCountMatched);
+   plot->BetaMuonMatched ->Divide(plot->BetaCountMatched);
+   plot->BetaJetMatched  ->Divide(plot->BetaCountMatched);
+
+   plot->BetaTotalMatched->Scale(100.0);
+   plot->BetaMuonMatched ->Scale(100.0);
+   plot->BetaJetMatched  ->Scale(100.0);
+
+   plot->HistoMatchedSA->SetStats(0)  ;
+   plot->HistoMatchedSA->LabelsOption("v");
+   plot->HistoMatchedSA->Scale(100./plot->BetaCountMatchedSA->Integral());
+
+
+   plot->HistoIncMatchedSA->SetStats(0)  ;
+   plot->HistoIncMatchedSA->LabelsOption("v");
+   plot->HistoIncMatchedSA->Scale(100./plot->BetaCountMatched->Integral());
+
+   plot->BetaTotalMatchedSA->Divide(plot->BetaCountMatchedSA);
+   plot->BetaMuonMatchedSA ->Divide(plot->BetaCountMatchedSA);
+   plot->BetaJetMatchedSA  ->Divide(plot->BetaCountMatchedSA);
+
+   plot->BetaTotalMatchedSA->Scale(100.0);
+   plot->BetaMuonMatchedSA ->Scale(100.0);
+   plot->BetaJetMatchedSA  ->Scale(100.0);
+
+
+   plot->HistoMatchedGl->SetStats(0)  ;
+   plot->HistoMatchedGl->LabelsOption("v");
+   plot->HistoMatchedGl->Scale(100./plot->BetaCountMatchedGl->Integral());
+
+   plot->HistoIncMatchedGl->SetStats(0)  ;
+   plot->HistoIncMatchedGl->LabelsOption("v");
+   plot->HistoIncMatchedGl->Scale(100./plot->BetaCountMatched->Integral());
+
+   plot->BetaTotalMatchedGl->Divide(plot->BetaCountMatchedGl);
+   plot->BetaMuonMatchedGl ->Divide(plot->BetaCountMatchedGl);
+   plot->BetaJetMatchedGl  ->Divide(plot->BetaCountMatchedGl);
+
+   plot->BetaTotalMatchedGl->Scale(100.0);
+   plot->BetaMuonMatchedGl ->Scale(100.0);
+   plot->BetaJetMatchedGl  ->Scale(100.0);
+
    TH1** Histos = new TH1*[10];
    std::vector<string> legend;
    TCanvas* c1;
-   
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)plot->BetaMuon;                    legend.push_back("Mu triggers");
    Histos[1] = (TH1*)plot->BetaTotal;                   legend.push_back("Mu+Met triggers");
    DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#beta of the fastest HSCP", "Trigger Efficiency (%)", 0,1, 0,100);
-   DrawLegend((TObject**)Histos,legend,samples[JobId].Legend,"LP",0.35, 0.93, 0.18, 0.04);
+   DrawLegend((TObject**)Histos,legend,"Trigger:","LP",0.35, 0.93, 0.18, 0.04);
    c1->Modified();
    DrawPreliminary("Simulation", SQRTS, -1);
-   SaveCanvas(c1,"pictures/",SignalName);
+   SaveCanvas(c1,OutputDirectory,SignalName);
    delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)plot->BetaMuonMatched;                    legend.push_back("Mu triggers");
+   Histos[1] = (TH1*)plot->BetaTotalMatched;                   legend.push_back("Mu+Met triggers");
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#beta of the fastest HSCP", "Trigger Efficiency (%)", 0,1, 0,100);
+   DrawLegend((TObject**)Histos,legend,"Trigger:","LP",0.35, 0.93, 0.18, 0.04);
+   c1->Modified();
+   DrawPreliminary("Simulation", SQRTS, -1);
+   SaveCanvas(c1,OutputDirectory,SignalName + "Matched");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)plot->BetaMuonMatchedSA;                    legend.push_back("Mu triggers");
+   Histos[1] = (TH1*)plot->BetaTotalMatchedSA;                   legend.push_back("Mu+Met triggers");
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#beta of the fastest HSCP", "Trigger Efficiency (%)", 0,1, 0,100);
+   DrawLegend((TObject**)Histos,legend,"Trigger:","LP",0.35, 0.93, 0.18, 0.04);
+   c1->Modified();
+   DrawPreliminary("Simulation", SQRTS, -1);
+   SaveCanvas(c1,OutputDirectory,SignalName + "MatchedSA");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = (TH1*)plot->BetaMuonMatchedGl;                    legend.push_back("Mu triggers");
+   Histos[1] = (TH1*)plot->BetaTotalMatchedGl;                   legend.push_back("Mu+Met triggers");
+   DrawSuperposedHistos((TH1**)Histos, legend, "HIST E1",  "#beta of the fastest HSCP", "Trigger Efficiency (%)", 0,1, 0,100);
+   DrawLegend((TObject**)Histos,legend,"Trigger:","LP",0.35, 0.93, 0.18, 0.04);
+   c1->Modified();
+   DrawPreliminary("Simulation", SQRTS, -1);
+   SaveCanvas(c1,OutputDirectory,SignalName + "MatchedGl");
+   delete c1;
+
+  fprintf(pFile,  "Trigger efficiency for %15s\n",SignalName.c_str());
+   for(unsigned int i=0; i<All_triggers.size(); i++) {
+     fprintf(pFile,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",All_triggers[i].first.c_str(), plot->Histo->GetBinContent(i+1), plot->HistoInc->GetBinContent(i+1), plot->HistoInc->Integral(1, i+1));
+   }
+   fprintf(pFile,  "\nIn events with reconstructed track\n");
+
+   for(unsigned int i=0; i<All_triggers.size(); i++) {
+     fprintf(pFile,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",All_triggers[i].first.c_str(), plot->HistoMatched->GetBinContent(i+1), plot->HistoIncMatched->GetBinContent(i+1), plot->HistoIncMatched->Integral(1, i+1));
+   }
+   fprintf(pFile,  "\nIn events with reconstructed stand alone muon\n");
+   for(unsigned int i=0; i<All_triggers.size(); i++) {
+     fprintf(pFile,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",All_triggers[i].first.c_str(), plot->HistoMatchedSA->GetBinContent(i+1), plot->HistoIncMatchedSA->GetBinContent(i+1), plot->HistoIncMatchedSA->Integral(1, i+1));
+   }
+
+   fprintf(pFile,  "\nIn events with global muon\n");
+   for(unsigned int i=0; i<All_triggers.size(); i++) {
+     fprintf(pFile,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",All_triggers[i].first.c_str(), plot->HistoMatchedGl->GetBinContent(i+1), plot->HistoIncMatchedGl->GetBinContent(i+1), plot->HistoIncMatchedGl->Integral(1, i+1));
+   }
+
+  fprintf(stdout,  "Trigger efficiency for %15s\n",SignalName.c_str());
+   for(unsigned int i=0; i<All_triggers.size(); i++) {
+     fprintf(stdout,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",All_triggers[i].first.c_str(), plot->Histo->GetBinContent(i+1), plot->HistoInc->GetBinContent(i+1), plot->HistoInc->Integral(1, i+1));
+   }
+   fprintf(stdout,  "\nIn events with reconstructed track\n");
+   for(unsigned int i=0; i<All_triggers.size(); i++) {
+     fprintf(stdout,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",All_triggers[i].first.c_str(), plot->HistoMatched->GetBinContent(i+1), plot->HistoIncMatched->GetBinContent(i+1), plot->HistoIncMatched->Integral(1, i+1));
+   }
+   fprintf(stdout,  "\nIn events with reconstructed stand alone muon\n");
+   for(unsigned int i=0; i<All_triggers.size(); i++) {
+     fprintf(stdout,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",All_triggers[i].first.c_str(), plot->HistoMatchedSA->GetBinContent(i+1), plot->HistoIncMatchedSA->GetBinContent(i+1), plot->HistoIncMatchedSA->Integral(1, i+1));
+   }
+   fprintf(stdout,  "\nIn events with global muon\n");
+   for(unsigned int i=0; i<All_triggers.size(); i++) {
+     fprintf(stdout,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",All_triggers[i].first.c_str(), plot->HistoMatchedGl->GetBinContent(i+1), plot->HistoIncMatchedGl->GetBinContent(i+1), plot->HistoIncMatchedGl->Integral(1, i+1));
+   }
+   fprintf(pFile,  "\n\n");
+   fprintf(stdout,  "\n\n");
 }
 
-void layout(vector<stPlot*>& plots, vector<string>& sigs, string name){
-   unsigned int NPath   = 0+3;
+void layout(stPlot** plots, vector<string>& sigs, string name){
+  //unsigned int NPath   = 0+3;
 
    std::vector<string> legend;
-   TObject** Histos1 = new TObject*[plots.size()];
-
+   TObject** Histos1 = new TObject*[sigs.size()];
 
 //   TLine* line1 = new TLine(plots[0]->Histo->GetBinLowEdge(NPath+1), 0, plots[0]->Histo->GetBinLowEdge(NPath+1), 100);
 //   line1->SetLineWidth(2); line1->SetLineStyle(1);
@@ -468,11 +687,66 @@ void layout(vector<stPlot*>& plots, vector<string>& sigs, string name){
 
    TCanvas* c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGridy();
+   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
-   for(unsigned int i=0;i<plots.size();i++){
+   for(unsigned int i=0;i<sigs.size();i++){
       Histos1[i]=plots[i]->Histo; legend.push_back(sigs[i]);
+   }
+
+//   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);  
+//   if(name=="summary_Gluino")DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,30);
+//   else                      DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);
+   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);
+   c1->Update();
+
+   DrawLegend(Histos1,legend,"","P", 0.58, 0.90, 0.13, 0.07);
+   c1->Update();
+
+   DrawPreliminary("Simulation", SQRTS, -1);
+   c1->Update();
+   for(unsigned int i=0;i<sigs.size();i++){
+      plots[i]->Histo->GetYaxis()->SetTitleOffset(1.55);
+      plots[i]->Histo->SetMarkerSize(0.8);
+   }
+//   line1->Draw();
+//   line2->Draw();
+   c1->Update();
+   SaveCanvas(c1,OutputDirectory,name);
+   delete c1;
+
+   c1 = new TCanvas("MyC","Histo",600,600);
+   legend.clear();
+   c1->SetGrid();
+   c1->SetBottomMargin(0.3);
+
+   for(unsigned int i=0;i<sigs.size();i++){
+      Histos1[i]=plots[i]->HistoInc; legend.push_back(sigs[i]);
+   }
+//   if(name=="summary_Gluino")DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,30);
+//   else                      DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,100);
+
+   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,100);
+   DrawLegend(Histos1,legend,"","P", 0.58, 0.90, 0.13, 0.07);
+   DrawPreliminary("Simulation", SQRTS, -1);
+   for(unsigned int i=0;i<sigs.size();i++){
+      plots[i]->HistoInc->GetYaxis()->SetTitleOffset(1.55);
+      plots[i]->HistoInc->SetMarkerSize(0.8);
+   }
+
+//   line1->Draw();
+//   line2->Draw();
+   SaveCanvas(c1,OutputDirectory,name + "_inc");
+   delete c1;
+
+
+   c1 = new TCanvas("MyC","Histo",600,600);
+   legend.clear();
+   c1->SetGrid();
+   c1->SetBottomMargin(0.3);
+
+   for(unsigned int i=0;i<sigs.size();i++){
+      Histos1[i]=plots[i]->HistoMatched; legend.push_back(sigs[i]);
    }
 //   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);  
 //   if(name=="summary_Gluino")DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,30);
@@ -481,36 +755,137 @@ void layout(vector<stPlot*>& plots, vector<string>& sigs, string name){
    DrawLegend(Histos1,legend,"","P", 0.58, 0.90, 0.13, 0.07);
    DrawPreliminary("Simulation", SQRTS, -1);
 
-   for(unsigned int i=0;i<plots.size();i++){
-      plots[i]->Histo->GetYaxis()->SetTitleOffset(1.55);
-      plots[i]->Histo->SetMarkerSize(0.8);
+   for(unsigned int i=0;i<sigs.size();i++){
+      plots[i]->HistoMatched->GetYaxis()->SetTitleOffset(1.55);
+      plots[i]->HistoMatched->SetMarkerSize(0.8);
    }
 //   line1->Draw();
 //   line2->Draw();
-   SaveCanvas(c1,"pictures/",name);
+   SaveCanvas(c1,OutputDirectory,name + "Matched");
    delete c1;
 
    c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGridy();
+   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
-   for(unsigned int i=0;i<plots.size();i++){
-      Histos1[i]=plots[i]->HistoInc; legend.push_back(sigs[i]);
+   for(unsigned int i=0;i<sigs.size();i++){
+      Histos1[i]=plots[i]->HistoIncMatched; legend.push_back(sigs[i]);
    }
 //   if(name=="summary_Gluino")DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,30);
 //   else                      DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,100);
    DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,100);
    DrawLegend(Histos1,legend,"","P", 0.58, 0.90, 0.13, 0.07);
    DrawPreliminary("Simulation", SQRTS, -1);
-   for(unsigned int i=0;i<plots.size();i++){
-      plots[i]->HistoInc->GetYaxis()->SetTitleOffset(1.55);
-      plots[i]->HistoInc->SetMarkerSize(0.8);
+   for(unsigned int i=0;i<sigs.size();i++){
+      plots[i]->HistoIncMatched->GetYaxis()->SetTitleOffset(1.55);
+      plots[i]->HistoIncMatched->SetMarkerSize(0.8);
    }
 
 //   line1->Draw();
 //   line2->Draw();
-   SaveCanvas(c1,"pictures/",name + "_inc");
+   SaveCanvas(c1,OutputDirectory,name + "_incMatched");
+   delete c1;
+
+
+
+   c1 = new TCanvas("MyC","Histo",600,600);
+   legend.clear();
+   c1->SetGrid();
+   c1->SetBottomMargin(0.3);
+
+   for(unsigned int i=0;i<sigs.size();i++){
+      Histos1[i]=plots[i]->HistoMatchedSA; legend.push_back(sigs[i]);
+   }
+//   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);  
+//   if(name=="summary_Gluino")DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,30);
+//   else                      DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);
+   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);
+   DrawLegend(Histos1,legend,"","P", 0.58, 0.90, 0.13, 0.07);
+   DrawPreliminary("Simulation", SQRTS, -1);
+
+   for(unsigned int i=0;i<sigs.size();i++){
+      plots[i]->HistoMatchedSA->GetYaxis()->SetTitleOffset(1.55);
+      plots[i]->HistoMatchedSA->SetMarkerSize(0.8);
+   }
+//   line1->Draw();
+//   line2->Draw();
+   SaveCanvas(c1,OutputDirectory,name + "MatchedSA");
+   delete c1;
+
+   c1 = new TCanvas("MyC","Histo",600,600);
+   legend.clear();
+   c1->SetGrid();
+   c1->SetBottomMargin(0.3);
+
+   for(unsigned int i=0;i<sigs.size();i++){
+      Histos1[i]=plots[i]->HistoIncMatchedSA; legend.push_back(sigs[i]);
+   }
+//   if(name=="summary_Gluino")DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,30);
+//   else                      DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,100);
+   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,100);
+   DrawLegend(Histos1,legend,"","P", 0.58, 0.90, 0.13, 0.07);
+   DrawPreliminary("Simulation", SQRTS, -1);
+   for(unsigned int i=0;i<sigs.size();i++){
+      plots[i]->HistoIncMatchedSA->GetYaxis()->SetTitleOffset(1.55);
+      plots[i]->HistoIncMatchedSA->SetMarkerSize(0.8);
+   }
+
+//   line1->Draw();
+//   line2->Draw();
+   SaveCanvas(c1,OutputDirectory,name + "_incMatchedSA");
+   delete c1;
+
+
+
+
+
+
+   c1 = new TCanvas("MyC","Histo",600,600);
+   legend.clear();
+   c1->SetGrid();
+   c1->SetBottomMargin(0.3);
+
+   for(unsigned int i=0;i<sigs.size();i++){
+      Histos1[i]=plots[i]->HistoMatchedGl; legend.push_back(sigs[i]);
+   }
+//   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);  
+//   if(name=="summary_Gluino")DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,30);
+//   else                      DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);
+   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);
+   DrawLegend(Histos1,legend,"","P", 0.58, 0.90, 0.13, 0.07);
+   DrawPreliminary("Simulation", SQRTS, -1);
+
+   for(unsigned int i=0;i<sigs.size();i++){
+      plots[i]->HistoMatchedGl->GetYaxis()->SetTitleOffset(1.55);
+      plots[i]->HistoMatchedGl->SetMarkerSize(0.8);
+   }
+//   line1->Draw();
+//   line2->Draw();
+   SaveCanvas(c1,OutputDirectory,name + "MatchedGl");
+   delete c1;
+
+   c1 = new TCanvas("MyC","Histo",600,600);
+   legend.clear();
+   c1->SetGrid();
+   c1->SetBottomMargin(0.3);
+
+   for(unsigned int i=0;i<sigs.size();i++){
+      Histos1[i]=plots[i]->HistoIncMatchedGl; legend.push_back(sigs[i]);
+   }
+//   if(name=="summary_Gluino")DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,30);
+//   else                      DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,100);
+   DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Incremental Efficiency (%)", 0,0, 0,100);
+   DrawLegend(Histos1,legend,"","P", 0.58, 0.90, 0.13, 0.07);
+   DrawPreliminary("Simulation", SQRTS, -1);
+   for(unsigned int i=0;i<sigs.size();i++){
+      plots[i]->HistoIncMatchedGl->GetYaxis()->SetTitleOffset(1.55);
+      plots[i]->HistoIncMatchedGl->SetMarkerSize(0.8);
+   }
+
+//   line1->Draw();
+//   line2->Draw();
+   SaveCanvas(c1,OutputDirectory,name + "_incMatchedGl");
    delete c1;
 }
 
@@ -533,51 +908,3 @@ double FastestHSCP(const fwlite::ChainEvent& ev){
    }
    return MaxBeta;
 }
-
-/*
-bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold)
-{
-   unsigned int filterIndex = trEv.filterIndex(InputPath);
-   //if(filterIndex<trEv.sizeFilters())printf("SELECTED INDEX =%i --> %s    XXX   %s\n",filterIndex,trEv.filterTag(filterIndex).label().c_str(), trEv.filterTag(filterIndex).process().c_str());
-
-   if (filterIndex<trEv.sizeFilters()){
-      const trigger::Vids& VIDS(trEv.filterIds(filterIndex));
-      const trigger::Keys& KEYS(trEv.filterKeys(filterIndex));
-      const int nI(VIDS.size());
-      const int nK(KEYS.size());
-      assert(nI==nK);
-      const int n(std::max(nI,nK));
-      const trigger::TriggerObjectCollection& TOC(trEv.getObjects());
-
-
-      if(!averageThreshold){
-         int NObjectAboveThresholdObserved = 0;
-         for (int i=0; i!=n; ++i) {
-            if(TOC[KEYS[i]].pt()> NewThreshold && fabs(TOC[KEYS[i]].eta())<etaCut) NObjectAboveThresholdObserved++;
-            //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
-         }
-         if(NObjectAboveThresholdObserved>=NObjectAboveThreshold)return true;
-
-      }else{
-         std::vector<double> ObjPt;
-
-         for (int i=0; i!=n; ++i) {
-            ObjPt.push_back(TOC[KEYS[i]].pt());
-            //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
-         }
-         if((int)(ObjPt.size())<NObjectAboveThreshold)return false;
-         std::sort(ObjPt.begin(), ObjPt.end());
-
-         double Average = 0;
-         for(int i=0; i<NObjectAboveThreshold;i++){
-            Average+= ObjPt[ObjPt.size()-1-i];
-         }Average/=NObjectAboveThreshold;
-         //cout << "AVERAGE = " << Average << endl;
-
-         if(Average>NewThreshold)return true;
-      }
-   }
-   return false;
-}
-*/
-
