@@ -53,7 +53,7 @@ class EgammaTowerIsolationNew {
 
   ~EgammaTowerIsolationNew() { delete[] mem;}
   
-  void compute(Sum&sum, reco::Candidate const & cand,  CaloTowerDetId const * first,  CaloTowerDetId const * last) const;
+  void compute(bool et, Sum&sum, reco::Candidate const & cand,  CaloTowerDetId const * first,  CaloTowerDetId const * last) const;
   
 private:
 
@@ -66,11 +66,13 @@ private:
   float * phi;
   float * he;
   float * h2;
+  float * st;
   uint32_t * id;
   uint32_t * mem=nullptr;
   void init() {
-    mem = new uint32_t[nt*5];
-    eta = (float*)(mem); phi = eta+nt; he = phi+nt; h2 = he+nt; id = (uint32_t*)(h2) + nt;
+    mem = new uint32_t[nt*6];
+    eta = (float*)(mem); phi = eta+nt; he = phi+nt; h2 = he+nt; st = h2+nt;
+    id = (uint32_t*)(st) + nt;
   }
   
   
@@ -109,18 +111,16 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
     eta[i]=towers[j].eta();
     phi[i]=towers[j].phi();
     id[i]=towers[i].id();
-    float st = std::cosh(eta[i]);
-    he[i] = st*towers[j].hadEnergy();
-    h2[i] = st*towers[j].hadEnergyHeOuterLayer();
+    st[i] = std::cosh(eta[i]);
+    he[i] = towers[j].hadEnergy();
+    h2[i] = towers[j].hadEnergyHeOuterLayer();
   }
-  
-  
 }
 
 template<unsigned int NC>
 inline
 void
-EgammaTowerIsolationNew<NC>::compute(Sum &sum, reco::Candidate const & cand,  CaloTowerDetId const * first,  CaloTowerDetId const * last) const {
+EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::Candidate const & cand,  CaloTowerDetId const * first,  CaloTowerDetId const * last) const {
   if (nt==0) return;
   
   reco::SuperCluster const & sc =  *cand.get<reco::SuperClusterRef>().get();
@@ -134,15 +134,16 @@ EgammaTowerIsolationNew<NC>::compute(Sum &sum, reco::Candidate const & cand,  Ca
   // should be restricted in eta....
   for (uint32_t i=0;i!=nt; ++i) {
     float dr2 = reco::deltaR2(candEta,candPhi,eta[i], phi[i]);
+    float tt = et ? st[i] : 1.f;
     for (unsigned int j=0; j!=NCuts; ++j) {
       if (dr2<extRadius2_[j]) {
 	if (dr2>=intRadius2_[j]) {
-	  sum.he[j] +=he[i];
-	  sum.h2[j] +=h2[i];
+	  sum.he[j] +=he[i]*tt;
+	  sum.h2[j] +=h2[i]*tt;
 	}
 	if(ok[i]) {
-	  sum.heBC[j] +=he[i];
-	  sum.h2BC[j] +=h2[i];
+	  sum.heBC[j] +=he[i]*tt;
+	  sum.h2BC[j] +=h2[i]*tt;
 	}
       }
     }
@@ -162,6 +163,10 @@ public:
 			const CaloTowerCollection* towers );
   
   double getTowerEtSum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const;
+  double  getTowerESum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude) const;
+  private:
+  double getSum (bool et, const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude) const;
+
   
 private:
   EgammaTowerIsolationNew<1> newAlgo;

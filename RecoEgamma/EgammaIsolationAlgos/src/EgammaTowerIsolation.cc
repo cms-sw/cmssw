@@ -18,8 +18,15 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadius,
 
 
 double  EgammaTowerIsolation::getTowerEtSum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude) const{
+  return getSum(true,cand,detIdToExclude);
+}
+double  EgammaTowerIsolation::getTowerESum (const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude) const{
+  return getSum(false,cand,detIdToExclude);
+}
+
+double  EgammaTowerIsolation::getSum (bool et,const reco::Candidate* cand, const std::vector<CaloTowerDetId> * detIdToExclude) const{
   EgammaTowerIsolationNew<1>::Sum sum;
-  newAlgo.compute(sum,*cand, 
+  newAlgo.compute(et, sum,*cand, 
 		  (detIdToExclude==0) ? nullptr : &((*detIdToExclude).front()),
 		  (detIdToExclude==0) ? nullptr : (&(*detIdToExclude).back())+1
 		  );
