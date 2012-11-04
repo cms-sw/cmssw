@@ -1159,15 +1159,17 @@ void Analysis_Step3(char* SavePath)
 
                //compute systematic uncertainties on signal
                if(isSignal){
+#ifdef ANALYSIS2011
                   bool   PRescale = true;
                   double IRescale = RNG->Gaus(0, 0.083)+0.015; // added to the Ias value
                   double MRescale = 1.036;
-		  double TRescale;
-#ifdef ANALYSIS2011
-		  TRescale = -0.02; // added to the 1/beta value
+		  double TRescale = -0.02; // added to the 1/beta value
 		  if(tof) if(csctof->nDof()==0) TRescale = -0.003;
 #else
-                  TRescale = -0.03; // added to the 1/beta value
+                  bool   PRescale = true;
+                  double IRescale = RNG->Gaus(0, 0.048)-0.07; // added to the Ias value
+                  double MRescale = 1.041;
+		  double TRescale = -0.03; // added to the 1/beta value
 #endif
                   // compute systematic due to momentum scale
                   if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){

@@ -312,6 +312,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    CheckSignalUncertainty(pFile,talkFile,TkPattern);
    CheckSignalUncertainty(pFile,talkFile,MuPattern);
    CheckSignalUncertainty(pFile,talkFile,MOPattern);
+   CheckSignalUncertainty(pFile,talkFile,LQPattern);
 
    //Get Theoretical xsection and error bands
    TGraph** ThXSec    = new TGraph*[modelVector.size()];
@@ -794,7 +795,7 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    int TypeMode = TypeFromPattern(InputPattern);
 
    fprintf(pFile   ,"\n\n %20s \n\n", LegendFromType(InputPattern).c_str());
-   if(TypeMode==0){
+   if(TypeMode==0 || TypeMode==5){
       fprintf(pFile   ,          "%20s    Eff   --> PScale |  DeDxScale | PUScale | TotalUncertainty     \n","Model");
       fprintf(talkFile, "\\hline\n%20s &  Eff     & PScale &  DeDxScale & PUScale & TotalUncertainty \\\\\n","Model");
    }else {
@@ -813,10 +814,10 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
       double PU      = tmp.Eff - tmp.Eff_SYSTPU;
       double T       = tmp.Eff - tmp.Eff_SYSTT;
       double Ptemp=max(P, 0.0), Itemp=max(I, 0.0), PUtemp=max(PU, 0.0), Ttemp=max(T, 0.0);
-      if(TypeMode==0)fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f\n"        ,samples[s].Name.c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff           , sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);        
+      if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f\n"        ,samples[s].Name.c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff           , sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);        
       else          fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f\n",samples[s].Name.c_str(), tmp.Eff, P/tmp.Eff, I/tmp.Eff, PU/tmp.Eff, T/tmp.Eff, sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
 
-      if(TypeMode==0)fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%%             \\\\\n",samples[s].Name.c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);	
+      if(TypeMode==0 || TypeMode==5)fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%%             \\\\\n",samples[s].Name.c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);	
       else        fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%% & %7.1f\\%% \\\\\n",samples[s].Name.c_str(), 100.*tmp.Eff, 100.*P/tmp.Eff, 100.*I/tmp.Eff, 100.*PU/tmp.Eff, 100.*T/tmp.Eff, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp)/tmp.Eff);
    }
 }
