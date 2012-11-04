@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1420,10 +1420,11 @@ class ConfigBuilder(object):
                 self.finalizeFastSimHLT()
 
 	#this is a fake, to be removed with fastim migration and HLT menu dump
-	if not hasattr(self.process,'HLTEndSequence'):
-		self.executeAndRemember("process.HLTEndSequence = cms.Sequence( process.dummyModule )")
-	if not hasattr(self.process,'simulation'):
-		self.executeAndRemember("process.simulation = cms.Sequence( process.dummyModule )")
+	if self._options.fast and not 'FASTSIM' in self.stepMap:
+		if not hasattr(self.process,'HLTEndSequence'):
+			self.executeAndRemember("process.HLTEndSequence = cms.Sequence( process.dummyModule )")
+		if not hasattr(self.process,'simulation'):
+			self.executeAndRemember("process.simulation = cms.Sequence( process.dummyModule )")
 		
 
     def prepare_RAW2RECO(self, sequence = None):
@@ -1858,7 +1859,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.7 $"),
+                                            (version=cms.untracked.string("$Revision: 1.8 $"),
                                              name=cms.untracked.string("Applications"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
