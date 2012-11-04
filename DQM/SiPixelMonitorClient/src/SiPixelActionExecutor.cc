@@ -749,12 +749,10 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
-      //Look to see if plot is already booked?
       bool isBooked = false;
-      vector<string> contents = bei->getMEs(); 
+      vector<string> contents = bei->getMEs();
       for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++)
-	if ((*im).find(*iv) != string::npos) isBooked = true;
-      if (isBooked) edm::LogInfo("SiPixelActionExecutor") << "[SiPixelActionExecutor]: Double-booking found for "<< (*iv) <<"\n";
+        if ((*im).find(*iv) != string::npos) isBooked = true;
       if(source_type_==5||source_type_==6){
 	if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
 	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
@@ -764,41 +762,55 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	  prefix="SUMRAW";
       }
       if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
-	   (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
-	   (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
-	   (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap"){
+	 (*iv)=="TBMType"||(*iv)=="EvtNbr"||(*iv)=="evtSize"||(*iv)=="linkId"||
+	 (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
+	 (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap"){
         string tag = prefix + "_" + (*iv) + "_FEDErrors";
         MonitorElement* temp = getFEDSummaryME(bei, tag);
         sum_mes.push_back(temp);
-      }else if(!isBooked && ((*iv)=="FedChLErrArray"||(*iv)=="FedChNErrArray"||(*iv)=="FedETypeNErrArray")){
+      }else if((*iv)=="FedChLErrArray"||(*iv)=="FedChNErrArray"||(*iv)=="FedETypeNErrArray"){
         string tag = prefix + "_" + (*iv);
 	MonitorElement* temp;
-	if((*iv)=="FedChLErrArray") temp = bei->book2D("FedChLErrArray","Type of last error",40,-0.5,39.5,37,0.,37.);
-	if((*iv)=="FedChNErrArray") temp = bei->book2D("FedChNErrArray","Total number of errors",40,-0.5,39.5,37,0.,37.);
+	if((*iv)=="FedChLErrArray") {if (!isBooked) temp = bei->book2D("FedChLErrArray","Type of last error",40,-0.5,39.5,37,0.,37.);
+	  else{ 
+	    string fullpathname = bei->pwd() + "/" + (*iv);
+	    temp = bei->get(fullpathname);
+	    temp->Reset();}}  //If I don't reset this one, then I instead start adding error codes..
+	if((*iv)=="FedChNErrArray") {if (!isBooked) temp = bei->book2D("FedChNErrArray","Total number of errors",40,-0.5,39.5,37,0.,37.);
+	  else{ 
+	    string fullpathname = bei->pwd() + "/" + (*iv);
+	    temp = bei->get(fullpathname);
+	    temp->Reset();}}  //If I don't reset this one, then I instead start adding error codes..
 	if((*iv)=="FedETypeNErrArray"){
-	  temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,21,0.,21.);
-	  temp->setBinLabel(1,"ROC of 25",2);
-	  temp->setBinLabel(2,"Gap word",2);
-	  temp->setBinLabel(3,"Dummy word",2);
-	  temp->setBinLabel(4,"FIFO full",2);
-	  temp->setBinLabel(5,"Timeout",2);
-	  temp->setBinLabel(6,"Stack full",2);
-	  temp->setBinLabel(7,"Pre-cal issued",2);
-	  temp->setBinLabel(8,"Trigger clear or sync",2);
-	  temp->setBinLabel(9,"No token bit",2);
-	  temp->setBinLabel(10,"Overflow",2);
-	  temp->setBinLabel(11,"FSM error",2);
-	  temp->setBinLabel(12,"Invalid #ROCs",2);
-	  temp->setBinLabel(13,"Event number",2);
-	  temp->setBinLabel(14,"Slink header",2);
-	  temp->setBinLabel(15,"Slink trailer",2);
-	  temp->setBinLabel(16,"Event size",2);
-	  temp->setBinLabel(17,"Invalid channel#",2);
-	  temp->setBinLabel(18,"ROC value",2);
-	  temp->setBinLabel(19,"Dcol or pixel value",2);
-	  temp->setBinLabel(20,"Readout order",2);
-	  temp->setBinLabel(21,"CRC error",2);
-        }	  
+	  if(!isBooked){
+	    temp = bei->book2D("FedETypeNErrArray","Number of each error type",40,-0.5,39.5,21,0.,21.);
+	    temp->setBinLabel(1,"ROC of 25",2);
+	    temp->setBinLabel(2,"Gap word",2);
+	    temp->setBinLabel(3,"Dummy word",2);
+	    temp->setBinLabel(4,"FIFO full",2);
+	    temp->setBinLabel(5,"Timeout",2);
+	    temp->setBinLabel(6,"Stack full",2);
+	    temp->setBinLabel(7,"Pre-cal issued",2);
+	    temp->setBinLabel(8,"Trigger clear or sync",2);
+	    temp->setBinLabel(9,"No token bit",2);
+	    temp->setBinLabel(10,"Overflow",2);
+	    temp->setBinLabel(11,"FSM error",2);
+	    temp->setBinLabel(12,"Invalid #ROCs",2);
+	    temp->setBinLabel(13,"Event number",2);
+	    temp->setBinLabel(14,"Slink header",2);
+	    temp->setBinLabel(15,"Slink trailer",2);
+	    temp->setBinLabel(16,"Event size",2);
+	    temp->setBinLabel(17,"Invalid channel#",2);
+	    temp->setBinLabel(18,"ROC value",2);
+	    temp->setBinLabel(19,"Dcol or pixel value",2);
+	    temp->setBinLabel(20,"Readout order",2);
+	    temp->setBinLabel(21,"CRC error",2);
+	  }
+	  else{
+	    string fullpathname = bei->pwd() + "/" + (*iv);
+	    temp = bei->get(fullpathname);
+	    temp->Reset();}  //If I don't reset this one, then I instead start adding error codes..
+	}
 	sum_mes.push_back(temp);
       }
     }
