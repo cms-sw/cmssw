@@ -1243,6 +1243,7 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
     edm::ParameterDescription<bool>(   "enableDQMbyLumiSection", false, false) or
     edm::ParameterDescription<bool>(   "enableDQMbyLumi",        false, false)
   );
+  desc.addUntracked<bool>(   "enableDQMbyProcesses",     false);
   desc.addUntracked<double>( "dqmTimeRange",             1000. );   // ms
   desc.addUntracked<double>( "dqmTimeResolution",           5. );   // ms
   desc.addUntracked<double>( "dqmPathTimeRange",          100. );   // ms
@@ -1254,5 +1255,6 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",   2500  );   // ~ 16 hours
   desc.addUntracked<std::string>(   "dqmPath",           "HLT/TimerService");
   desc.addUntracked<edm::InputTag>( "luminosityProduct", edm::InputTag("hltScalersRawToDigi"));
+  desc.addUntracked<std::vector<unsigned int> >("supportedProcesses", { 8, 24, 32 });
   descriptions.add("FastTimerService", desc);
 }
