@@ -214,7 +214,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     isBinary = true;
   } else {
     TString txtFile = fileToLoad.Data();
-    TString options = TString::Format(" -m %f -D %s", mass_, dataset.c_str());
+    TString options = TString::Format(" -m %g -D %s", mass_, dataset.c_str());
     if (!withSystematics) options += " --stat ";
     if (compiledExpr_)    options += " --compiled ";
     if (verbose > 1)      options += TString::Format(" --verbose %d", verbose-1);
