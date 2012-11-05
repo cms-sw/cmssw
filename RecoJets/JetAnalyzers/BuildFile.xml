@@ -29,3 +29,4 @@
 <use   name="CondFormats/HcalObjects"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="RecoJets/FFTJetAlgorithms"/>
+<use   name="RecoJets/FFTJetProducers"/>
