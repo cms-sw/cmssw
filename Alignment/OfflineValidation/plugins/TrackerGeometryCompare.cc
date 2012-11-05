@@ -1,5 +1,7 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h" 
+#include "CondFormats/Alignment/interface/Definitions.h" 
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
@@ -13,6 +15,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
+#include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h" 
@@ -37,6 +41,7 @@
 // Database
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 //#include "Geometry/Records/interface/PGeometricDetRcd.h"
 
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
@@ -48,9 +53,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream> 
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
-  m_params( cfg ),
   referenceTracker(0),
   dummyTracker(0),
   currentTracker(0),
@@ -60,14 +65,24 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
   _commonTrackerLevel(align::invalid),
   _inputRootFile1(0),
   _inputRootFile2(0),
-  _inputTree1(0),
-  _inputTree2(0),
-  firstEvent_(true)
+  _inputTree01(0),
+  _inputTree02(0),
+  _inputTree11(0),
+  _inputTree12(0),
+  m_nBins(10000),
+  m_rangeLow(-.1),
+  m_rangeHigh(.1), 
+  firstEvent_(true),
+  m_tkhisto(new TkHistoMap("SurfDeform_3","SurfDeform_3",-1)) ,
+  m_tkmap(new TrackerMap()),  
+  m_vtkmap(13)	 
 {
+	
 	//input is ROOT
 	_inputFilename1 = cfg.getUntrackedParameter< std::string > ("inputROOTFile1");
 	_inputFilename2 = cfg.getUntrackedParameter< std::string > ("inputROOTFile2");
-	_inputTreename = cfg.getUntrackedParameter< std::string > ("treeName");
+	_inputTreename1 = cfg.getUntrackedParameter< std::string > ("treeName1","alignTree");
+	_inputTreename2 = cfg.getUntrackedParameter< std::string > ("treeName2","alignTreeDeformations");
 	
 	//output file
 	_filename = cfg.getUntrackedParameter< std::string > ("outputFile");
@@ -84,10 +99,12 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 	_weightByIdFile = cfg.getUntrackedParameter< std::string > ("weightByIdFile");
 	
 	//setting the levels being used in the geometry comparator
+	AlignableObjectId dummy;
 	edm::LogInfo("TrackerGeometryCompare") << "levels: " << levels.size();
 	for (unsigned int l = 0; l < levels.size(); ++l){
-		theLevels.push_back(AlignableObjectId::stringToId(levels[l]));
+		m_theLevels.push_back( dummy.nameToType(levels[l]));
 		edm::LogInfo("TrackerGeometryCompare") << "level: " << levels[l];
+		edm::LogInfo("TrackerGeometryCompare") << "structure type: " << dummy.typeToName(m_theLevels.at(l)); 
 	}
 	
 		
@@ -120,7 +137,6 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 		}
 		inFile.close();
 	}
-	
 	
 	//root configuration
 	_theFile = new TFile(_filename.c_str(),"RECREATE");
@@ -159,12 +175,58 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 	_alignTree->Branch("surL", &_surLength, "surL/F");
 	_alignTree->Branch("surRot", &_surRot, "surRot[9]/D");
 	_alignTree->Branch("identifiers", &_identifiers, "identifiers[6]/I");
+	_alignTree->Branch("type", &_type, "type/I");
+        _alignTree->Branch("surfDeform", &_surfDeform, "surfDeform[13]/D"); 
 
+////	m_tkmap->setPalette(1) ;
+////	m_tkmap->addPixel(true) ; 
+
+	for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
+          it->setPalette(1) ;
+	  it->addPixel(true) ;
+	}
+
+        edm::Service<TFileService> fs;
+	TFileDirectory subDir_All = fs->mkdir( "AllSubdetectors" );
+	TFileDirectory subDir_PXB = fs->mkdir( "PixelBarrel" );
+	TFileDirectory subDir_PXF = fs->mkdir( "PixelEndcap" );
+        for (int ii = 0; ii < 13; ++ii) { 
+          std::stringstream histname0 ;
+          histname0 << "SurfDeform_Par_" << ii ; 
+          m_h1[histname0.str()] = subDir_All.make<TH1D>((histname0.str()).c_str(),(histname0.str()).c_str(),m_nBins,m_rangeLow,m_rangeHigh); 
+        
+          std::stringstream histname1 ;
+          histname1 << "SurfDeform_PixelBarrel_Par_" << ii ; 
+          m_h1[histname1.str()] = subDir_PXB.make<TH1D>((histname1.str()).c_str(),(histname1.str()).c_str(),m_nBins,m_rangeLow,m_rangeHigh); 
+        
+          std::stringstream histname2 ;
+          histname2 << "SurfDeform_PixelEndcap_Par_" << ii ; 
+          m_h1[histname2.str()] = subDir_PXF.make<TH1D>((histname2.str()).c_str(),(histname2.str()).c_str(),m_nBins,m_rangeLow,m_rangeHigh); 
+        }
 	
 }
 
 void TrackerGeometryCompare::beginJob(){
   firstEvent_ = true;
+}
+
+void TrackerGeometryCompare::endJob(){
+
+  int iname(0) ;
+  for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
+    std::stringstream mapname ;
+    mapname << "TkMap_Pix_SurfDeform" << iname << ".png" ; 
+    it->save(true,0,0,mapname.str());
+    mapname.clear() ; 
+    mapname << "TkMap_Pix_SurfDeform" << iname << ".pdf" ; 
+    it->save(true,0,0,mapname.str());
+    ++iname ; 
+  }
+
+  _theFile->cd();
+  _alignTree->Write();
+  _theFile->Close();
+	
 }
 
 void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& iSetup){
@@ -173,23 +235,19 @@ void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& i
 
 	//upload the ROOT geometries
 	createROOTGeometry(iSetup);
-	
+
 	//set common tracker system first
 	// if setting the tracker common system
 	if (_setCommonTrackerSystem != "NONE"){
 		setCommonTrackerSystem();
 	}
 	
-	
 	//compare the goemetries
 	compareGeometries(referenceTracker,currentTracker);
+	compareSurfaceDeformations(_inputTree11, _inputTree12); 
 	
 	//write out ntuple
 	//might be better to do within output module
-	_theFile->cd();
-	_alignTree->Write();
-	_theFile->Close();
-	
 	
 	if (_writeToDB){
 		Alignments* myAlignments = currentTracker->alignments();
@@ -221,20 +279,20 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	AlignmentErrors* alignmentErrors1 = new AlignmentErrors();	
 	if (_inputFilename1 != "IDEAL"){
 		_inputRootFile1 = new TFile(_inputFilename1.c_str());
-		TTree* _inputTree1 = (TTree*) _inputRootFile1->Get(_inputTreename.c_str());
-		_inputTree1->SetBranchAddress("rawid", &inputRawId1);
-		_inputTree1->SetBranchAddress("x", &inputX1);
-		_inputTree1->SetBranchAddress("y", &inputY1);
-		_inputTree1->SetBranchAddress("z", &inputZ1);
-		_inputTree1->SetBranchAddress("alpha", &inputAlpha1);
-		_inputTree1->SetBranchAddress("beta", &inputBeta1);
-		_inputTree1->SetBranchAddress("gamma", &inputGamma1);
-		
-		int nEntries1 = _inputTree1->GetEntries();
+		TTree* _inputTree01 = (TTree*) _inputRootFile1->Get(_inputTreename1.c_str());
+		_inputTree01->SetBranchAddress("rawid", &inputRawId1);
+		_inputTree01->SetBranchAddress("x", &inputX1);
+		_inputTree01->SetBranchAddress("y", &inputY1);
+		_inputTree01->SetBranchAddress("z", &inputZ1);
+		_inputTree01->SetBranchAddress("alpha", &inputAlpha1);
+		_inputTree01->SetBranchAddress("beta", &inputBeta1);
+		_inputTree01->SetBranchAddress("gamma", &inputGamma1);
+
+		int nEntries1 = _inputTree01->GetEntries();
 		//fill alignments
 		for (int i = 0; i < nEntries1; ++i){
 			
-			_inputTree1->GetEntry(i);
+			_inputTree01->GetEntry(i);
 			CLHEP::Hep3Vector translation1(inputX1, inputY1, inputZ1);
 			CLHEP::HepEulerAngles eulerangles1(inputAlpha1,inputBeta1,inputGamma1);
 			uint32_t detid1 = inputRawId1;
@@ -256,20 +314,20 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	AlignmentErrors* alignmentErrors2 = new AlignmentErrors();
 	if (_inputFilename2 != "IDEAL"){	
 		_inputRootFile2 = new TFile(_inputFilename2.c_str());
-		TTree* _inputTree2 = (TTree*) _inputRootFile2->Get(_inputTreename.c_str());
-		_inputTree2->SetBranchAddress("rawid", &inputRawId2);
-		_inputTree2->SetBranchAddress("x", &inputX2);
-		_inputTree2->SetBranchAddress("y", &inputY2);
-		_inputTree2->SetBranchAddress("z", &inputZ2);
-		_inputTree2->SetBranchAddress("alpha", &inputAlpha2);
-		_inputTree2->SetBranchAddress("beta", &inputBeta2);
-		_inputTree2->SetBranchAddress("gamma", &inputGamma2);
+		TTree* _inputTree02 = (TTree*) _inputRootFile2->Get(_inputTreename1.c_str());
+		_inputTree02->SetBranchAddress("rawid", &inputRawId2);
+		_inputTree02->SetBranchAddress("x", &inputX2);
+		_inputTree02->SetBranchAddress("y", &inputY2);
+		_inputTree02->SetBranchAddress("z", &inputZ2);
+		_inputTree02->SetBranchAddress("alpha", &inputAlpha2);
+		_inputTree02->SetBranchAddress("beta", &inputBeta2);
+		_inputTree02->SetBranchAddress("gamma", &inputGamma2);
 		
-		int nEntries2 = _inputTree2->GetEntries();
+		int nEntries2 = _inputTree02->GetEntries();
 		//fill alignments
 		for (int i = 0; i < nEntries2; ++i){
 			
-			_inputTree2->GetEntry(i);
+			_inputTree02->GetEntry(i);
 			CLHEP::Hep3Vector translation2(inputX2, inputY2, inputZ2);
 			CLHEP::HepEulerAngles eulerangles2(inputAlpha2,inputBeta2,inputGamma2);
 			uint32_t detid2 = inputRawId2;
@@ -279,7 +337,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 			//dummy errors
 			CLHEP::HepSymMatrix clhepSymMatrix(3,0);
 			AlignTransformError transformError(clhepSymMatrix, detid2);
-			alignmentErrors2->m_alignError.push_back(transformError);
+			alignmentErrors2->m_alignError.push_back(transformError); 
 		}			
 		
 		//to get the right order
@@ -296,20 +354,50 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	
 	edm::ESHandle<Alignments> globalPositionRcd;
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
-
+	
 	//reference tracker
-	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, m_params);
-
+	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet); 
 	if (_inputFilename1 != "IDEAL"){
 		GeometryAligner aligner1;
 		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
 												  align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)));
 	}
 	referenceTracker = new AlignableTracker(&(*theRefTracker));
+	//referenceTracker->setSurfaceDeformation(surfDef1, true) ; 
 
+	int inputRawid1;
+	int inputRawid2;
+	int inputDtype1, inputDtype2 ; 
+	std::vector<double> inputDpar1;
+	std::vector<double> inputDpar2 ; 
+	std::vector<double>* p_inputDpar1 = &inputDpar1; 
+	std::vector<double>* p_inputDpar2 = &inputDpar2; 
+
+	const std::vector<Alignable*> comp1 = referenceTracker->deepComponents(); 
+
+	SurfaceDeformation * surfDef1; 
+	if (_inputFilename1 != "IDEAL"){
+	  TTree* _inputTree11 = (TTree*) _inputRootFile1->Get(_inputTreename2.c_str());
+	  _inputTree11->SetBranchAddress("irawid", &inputRawid1);
+	  _inputTree11->SetBranchAddress("dtype", &inputDtype1);
+	  _inputTree11->SetBranchAddress("dpar", &p_inputDpar1);
+
+	  unsigned int nEntries11 = _inputTree11->GetEntries();
+	  edm::LogInfo("TrackerGeometryCompare") << " nentries11 = " << nEntries11 << std::endl ; 
+	  for (unsigned int iEntry = 0; iEntry < nEntries11; ++iEntry) {
+            _inputTree11->GetEntry(iEntry) ; 
+
+            surfDef1 = SurfaceDeformationFactory::create( inputDtype1, inputDpar1);
+
+	    if (int(comp1[iEntry]->id()) == inputRawid1) {
+	      comp1[iEntry]->setSurfaceDeformation(surfDef1, true) ; 
+	    }
+
+	  }
+	}
+		
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, m_params);
-
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
@@ -317,13 +405,177 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 	currentTracker = new AlignableTracker(&(*theCurTracker));
 	
+	const std::vector<Alignable*> comp2 = currentTracker->deepComponents(); 
+
+	SurfaceDeformation * surfDef2 ; 
+	if (_inputFilename2 != "IDEAL"){ 
+	  TTree* _inputTree12 = (TTree*) _inputRootFile2->Get(_inputTreename2.c_str());
+	  _inputTree12->SetBranchAddress("irawid", &inputRawid2);
+	  _inputTree12->SetBranchAddress("dtype", &inputDtype2);
+	  _inputTree12->SetBranchAddress("dpar",  &p_inputDpar2);
+
+	  unsigned int nEntries12 = _inputTree12->GetEntries();
+	  edm::LogInfo("TrackerGeometryCompare") << " nentries12 = " << nEntries12 << std::endl ; 
+	  for (unsigned int iEntry = 0; iEntry < nEntries12; ++iEntry) {
+            _inputTree12->GetEntry(iEntry) ; 
+	    
+            surfDef2 = SurfaceDeformationFactory::create( inputDtype2, inputDpar2);
+
+	    if (int(comp2[iEntry]->id()) == inputRawid2) {
+	      comp2[iEntry]->setSurfaceDeformation(surfDef2, true) ; 
+	    }
+
+	  }
+	}
+		
 	delete alignments1;
 	delete alignmentErrors1;
 	delete alignments2;
 	delete alignmentErrors2;
+
+}
+
+void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* curTree) {
+  	
+  if (_inputFilename1 != "IDEAL" && _inputFilename2 != "IDEAL") {
+             
+    int inputRawid1;
+    int inputRawid2;
+    int inputSubdetid1, inputSubdetid2 ; 
+    int inputDtype1, inputDtype2 ; 
+    std::vector<double> inputDpar1;
+    std::vector<double> inputDpar2 ; 
+    std::vector<double>* p_inputDpar1 = &inputDpar1; 
+    std::vector<double>* p_inputDpar2 = &inputDpar2; 
+  
+    TTree* refTree = (TTree*) _inputRootFile1->Get(_inputTreename2.c_str());
+    refTree->SetBranchAddress("irawid", &inputRawid1);
+    refTree->SetBranchAddress("subdetid", &inputSubdetid1);
+    refTree->SetBranchAddress("dtype", &inputDtype1);
+    refTree->SetBranchAddress("dpar", &p_inputDpar1);
+  
+    TTree* curTree = (TTree*) _inputRootFile2->Get(_inputTreename2.c_str());
+    curTree->SetBranchAddress("irawid", &inputRawid2);
+    curTree->SetBranchAddress("subdetid", &inputSubdetid2);
+    curTree->SetBranchAddress("dtype", &inputDtype2);
+    curTree->SetBranchAddress("dpar",  &p_inputDpar2);
+  
+    unsigned int nEntries11 = refTree->GetEntries();
+    unsigned int nEntries12 = curTree->GetEntries();
+    
+    for (unsigned int iEntry = 0; iEntry < nEntries12; ++iEntry) {
+      refTree->GetEntry(iEntry) ;
+      curTree->GetEntry(iEntry) ;
+      for (int ii = 0; ii < 12; ++ii) { _surfDeform[ii] = -1.0 ; } 
+      for (int npar = 0; npar < int(inputDpar2.size()); ++npar ) {
+  	    if (inputRawid1 == inputRawid2) {
+        _surfDeform[npar] = inputDpar2.at(npar) - inputDpar1.at(npar) ; 
+        std::stringstream histname0 ;
+        histname0 << "SurfDeform_Par_" << npar ;  
+	if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname0.str()]->Fill(_surfDeform[npar]) ; 
+	if (inputSubdetid1 == 1 && inputSubdetid2 == 1) {
+          std::stringstream histname1 ;
+          histname1 << "SurfDeform_PixelBarrel_Par_" << npar ;  
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname1.str()]->Fill(_surfDeform[npar]) ; 
+	}
+	if (inputSubdetid1 == 2 && inputSubdetid2 == 2) {
+          std::stringstream histname2 ;
+          histname2 << "SurfDeform_PixelEndcap_Par_" << npar ;  
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname2.str()]->Fill(_surfDeform[npar]) ; 
+	}
+        (m_vtkmap.at(npar)).fill_current_val(inputRawid1,_surfDeform[npar]) ; 
+  	    }
+      }
+    }
+  
+  } else if ( _inputFilename1 == "IDEAL" && _inputFilename2 != "IDEAL" ) {
+             
+    int inputRawid2;
+    int inputSubdetid2 ; 
+    int inputDtype2 ; 
+    std::vector<double> inputDpar2 ; 
+    std::vector<double>* p_inputDpar2 = &inputDpar2; 
+  
+    TTree* curTree = (TTree*) _inputRootFile2->Get(_inputTreename2.c_str());
+    curTree->SetBranchAddress("irawid", &inputRawid2);
+    curTree->SetBranchAddress("subdetid", &inputSubdetid2);
+    curTree->SetBranchAddress("dtype", &inputDtype2);
+    curTree->SetBranchAddress("dpar",  &p_inputDpar2);
+  
+    unsigned int nEntries12 = curTree->GetEntries();
+    
+    for (unsigned int iEntry = 0; iEntry < nEntries12; ++iEntry) {
+      curTree->GetEntry(iEntry) ;
+      for (int ii = 0; ii < 12; ++ii) { _surfDeform[ii] = -1.0 ; } 
+      for (int npar = 0; npar < int(inputDpar2.size()); ++npar ) {
+        _surfDeform[npar] = inputDpar2.at(npar) ; 
+        std::stringstream histname0 ;
+        histname0 << "SurfDeform_Par_" << npar ;  
+        if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname0.str()]->Fill(_surfDeform[npar]) ; 
+	if (inputSubdetid2 == 1) {
+          std::stringstream histname1 ;
+          histname1 << "SurfDeform_PixelBarrel_Par_" << npar ;  
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname1.str()]->Fill(_surfDeform[npar]) ; 
+	}
+	if (inputSubdetid2 == 2) {
+          std::stringstream histname2 ;
+          histname2 << "SurfDeform_PixelEndcap_Par_" << npar ;  
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname2.str()]->Fill(_surfDeform[npar]) ; 
+	}
+        (m_vtkmap.at(npar)).fill_current_val(inputRawid2,_surfDeform[npar]) ; 
+      }
+    }
+  
+  } else if ( _inputFilename1 != "IDEAL" && _inputFilename2 == "IDEAL" ) {
+             
+    int inputRawid1;
+    int inputSubdetid1 ; 
+    int inputDtype1 ; 
+    std::vector<double> inputDpar1;
+    std::vector<double>* p_inputDpar1 = &inputDpar1; 
+  
+    TTree* refTree = (TTree*) _inputRootFile1->Get(_inputTreename2.c_str());
+    refTree->SetBranchAddress("irawid", &inputRawid1);
+    refTree->SetBranchAddress("subdetid", &inputSubdetid1);
+    refTree->SetBranchAddress("dtype", &inputDtype1);
+    refTree->SetBranchAddress("dpar", &p_inputDpar1);
+  
+    unsigned int nEntries11 = refTree->GetEntries();
+    
+    for (unsigned int iEntry = 0; iEntry < nEntries11; ++iEntry) {
+      refTree->GetEntry(iEntry) ;
+      for (int ii = 0; ii < 12; ++ii) { _surfDeform[ii] = -1.0 ; } 
+      for (int npar = 0; npar < int(inputDpar1.size()); ++npar ) {
+        _surfDeform[npar] = - inputDpar1.at(npar) ; 
+        std::stringstream histname0 ;
+        histname0 << "SurfDeform_Par_" << npar ;  
+        if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname0.str()]->Fill(_surfDeform[npar]) ; 
+	if (inputSubdetid1 == 1) {
+          std::stringstream histname1 ;
+          histname1 << "SurfDeform_PixelBarrel_Par_" << npar ;  
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname1.str()]->Fill(_surfDeform[npar]) ; 
+	}
+	if (inputSubdetid1 == 2) {
+          std::stringstream histname2 ;
+          histname2 << "SurfDeform_PixelEndcap_Par_" << npar ;  
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname2.str()]->Fill(_surfDeform[npar]) ; 
+	}
+        (m_vtkmap.at(npar)).fill_current_val(inputRawid1,_surfDeform[npar]) ; 
+      }
+    }
+  
+  } else if ( _inputFilename1 == "IDEAL" && _inputFilename2 == "IDEAL" ) {
+
+	  edm::LogInfo("TrackerGeometryCompare") << ">>>> Comparing IDEAL with IDEAL: nothing to do! <<<<\n" ; 
+	  
+  }
+
+  return ; 	
 }
 
 void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* curAli){
+
+	using namespace align ; 
 	
 	const std::vector<Alignable*>& refComp = refAli->components();
 	const std::vector<Alignable*>& curComp = curAli->components();
@@ -331,8 +583,8 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 	unsigned int nComp = refComp.size();
 	//only perform for designate levels
 	bool useLevel = false;
-	for (unsigned int i = 0; i < theLevels.size(); ++i){
-		if (refAli->alignableObjectId() == theLevels[i]) useLevel = true;
+	for (unsigned int i = 0; i < m_theLevels.size(); ++i){
+		if (refAli->alignableObjectId() == m_theLevels[i]) useLevel = true;
 	}
 	
 	//another added level for difference between det and detunit
@@ -342,12 +594,20 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 	if (useLevel){
 		//std::cout << "ali identifiers: " << refAli->id() << ", " << refAli->alignableObjectId() << std::endl;
 		//std::cout << "diff pos" << (refAli->globalPosition() - curAli->globalPosition()) << std::endl;
-		//std::cout <<"z";
+		//std::cout <<"z\n";
+		DetId detid(refAli->id());
+		std::cout << " alObjId: "   << refAli->alignableObjectId()
+//			  << ", structure type: " << (refAli->alignableObjectId()).typeToName(m_theLevels.at(l)) ; 
+		          << ", subdetId: " << detid.subdetId() 
+		          << ", rawId: "    << refAli->geomDetId().rawId()
+			  << std::endl ; 
 
 		CLHEP::Hep3Vector Rtotal, Wtotal, lRtotal, lWtotal;
+		Rtotal.set(0.,0.,0.); 
+		Wtotal.set(0.,0.,0.);
+		lRtotal.set(0.,0.,0.); 
+		lWtotal.set(0.,0.,0.);
 
-		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
-		lRtotal.set(0.,0.,0.); lWtotal.set(0.,0.,0.);
 		for (int i = 0; i < 100; i++){
 			AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
 			CLHEP::Hep3Vector dR(diff[0],diff[1],diff[2]);
@@ -367,7 +627,6 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 			AlgebraicVector check = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
 			align::GlobalVector checkR(check[0],check[1],check[2]);
 			align::GlobalVector checkW(check[3],check[4],check[5]);
-			DetId detid(refAli->id());
 			if ((checkR.mag() > tolerance)||(checkW.mag() > tolerance)){
 				edm::LogInfo("TrackerGeometryCompare") << "Tolerance Exceeded!(alObjId: " << refAli->alignableObjectId()
 				<< ", rawId: " << refAli->geomDetId().rawId()
@@ -378,7 +637,7 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 				break;
 			}
 		}
-		
+
 		AlgebraicVector TRtot(12);
 		// global 
 		TRtot(1) = Rtotal.x(); TRtot(2) = Rtotal.y(); TRtot(3) = Rtotal.z();
@@ -386,19 +645,154 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 		// local
 		TRtot(7) = lRtotal.x(); TRtot(8) = lRtotal.y(); TRtot(9) = lRtotal.z();
 		TRtot(10) = lWtotal.x(); TRtot(11) = lWtotal.y(); TRtot(12) = lWtotal.z();
+
+//DM//		uint32_t modid = refAli->id() ; 
+//DM//		std::cout << " modid: " << modid << " rawId: " << refAli->geomDetId().rawId() << std::endl ; 
+		
+//DM//                 AlignmentSurfaceDeformations* refdef = refAli->surfaceDeformations() ; 
+//DM//                 AlignmentSurfaceDeformations* curdef = curAli->surfaceDeformations() ; 
+//DM// 
+//DM// 		AlignmentSurfaceDeformations::ItemVector refitemvec = refdef->items() ; 
+//DM// 		AlignmentSurfaceDeformations::ItemVector curitemvec = curdef->items() ; 
+//DM// 
+//DM// 		
+//DM// 
+//DM// 		typedef AlignmentSurfaceDeformations::ItemVector::const_iterator surfdefitemIt ;
+//DM// 
+//DM// 		for (int ii = 0; ii < 12; ++ii) { _surfDeform[ii] = -1.0 ; } 
+//DM// 
+//DM// 		/**\ get surface deformation differences */ 
+//DM// 		if (_inputFilename1 == "IDEAL" && _inputFilename2 == "IDEAL") { 
+//DM// 
+//DM// 
+//DM//                   edm::LogInfo("TrackerGeometryCompare") << "IDEAL - IDEAL: Nothing to compare: " << std::endl ; 
+//DM// 
+//DM// 		} 
+//DM// 		else if (_inputFilename1 == "IDEAL" && _inputFilename2 != "IDEAL") {
+//DM// 
+//DM//                   edm::LogInfo("TrackerGeometryCompare") << "IDEAL - not IDEAL" << std::endl ;
+//DM//                   int nparam(0)	;
+//DM// 
+//DM//                   for (unsigned ii = 0; ii < (curdef->items()).size(); ++ii) {
+//DM//                     for (AlignmentSurfaceDeformations::ParametersConstIterator it = curdef->parameters(ii).first; it <= curdef->parameters(ii).second; ++it) {
+//DM//                       _surfDeform[nparam] = *it ;
+//DM// 	              (m_vtkmap.at(nparam)).fill_current_val(modid,_surfDeform[nparam]) ; 
+//DM//                       std::stringstream histname ;
+//DM//                       histname << "SurfDeform_Par_" << nparam ;  
+//DM// 		      m_h1[histname.str()]->Fill(_surfDeform[nparam]) ; 
+//DM// ////		      if (detid.subdetId() > 2 && nparam == 3) m_tkhisto->fill(modid,float(*it)) ; 
+//DM// //                      edm::LogInfo("TrackerGeometryCompare") << "Param = " << _surfDeform[nparam] << std::endl ; 
+//DM// 		      ++nparam ; 
+//DM// 		    }
+//DM// 		  }
+//DM// 
+//DM// 		}
+//DM// 		else if (_inputFilename1 != "IDEAL" && _inputFilename2 == "IDEAL") {
+//DM// 
+//DM//                   edm::LogInfo("TrackerGeometryCompare") << "not IDEAL -  IDEAL" << std::endl ;
+//DM//                   int nparam(0)	;
+//DM//                   for (unsigned ii = 0; ii < (refdef->items()).size(); ++ii) {
+//DM//                     for (AlignmentSurfaceDeformations::ParametersConstIterator it = refdef->parameters(0).first; it !=refdef->parameters(0).second; ++it) {
+//DM//                       _surfDeform[nparam] = -(*it); 
+//DM// 	              (m_vtkmap.at(nparam)).fill_current_val(modid,_surfDeform[nparam]) ; 
+//DM//                       std::stringstream histname ;
+//DM//                       histname << "SurfDeform_Par_" << nparam ;  
+//DM// 		      m_h1[histname.str()]->Fill(_surfDeform[nparam]) ; 
+//DM// ////		      if (detid.subdetId() > 2 && nparam == 0) m_tkhisto->fill(modid,float(-(*it))) ; 
+//DM// 		      ++nparam ; 
+//DM// 		    }
+//DM// 		  }
+//DM// 
+//DM// 		}
+//DM// 		//else if (_inputFilename1 != "IDEAL" && _inputFilename2 != "IDEAL" && refAli->id() == curAli->id()) {
+//DM// 		else if (_inputFilename1 != "IDEAL" && _inputFilename2 != "IDEAL" && refAli->geomDetId().rawId() == curAli->geomDetId().rawId()) {
+//DM// 
+//DM// ////              edm::LogInfo("TrackerGeometryCompare") << "not IDEAL - not IDEAL" << std::endl ;
+//DM// ////
+//DM// ////	          AlignableObjectId dummy;
+//DM// ////		  edm::LogInfo("TrackerGeometryCompare") 
+//DM// ////	          << " AlignableObjectId: " << refAli->alignableObjectId()
+//DM// ////		  << ", subdetId: "         << detid.subdetId() 
+//DM// ////		  << ", name of subdet: "   << dummy.typeToName(detid.subdetId()) 
+//DM// ////		  << ", rawId: "            << refAli->geomDetId().rawId()
+//DM// ////		  << std::endl ;
+//DM// 
+//DM// ////		  int nparam(0) ;
+//DM// ////                  for (unsigned ii = 0; ii < (curdef->items()).size(); ++ii) { // No.of deformation sets? Usually 1 
+//DM// ////		  	AlignmentSurfaceDeformations::ParametersConstIterator refit = refdef->parameters(0).first ; 
+//DM// ////		  	AlignmentSurfaceDeformations::ParametersConstIterator curit = curdef->parameters(0).first ; 
+//DM// ////		  	for (AlignmentSurfaceDeformations::ParametersConstIterator curit = curdef->parameters(0).first ; curit != curdef->parameters(0).second; ++curit) { // looping over all surface deformation parameters 
+//DM// ////			    if (_surfDeform[nparam] < -.9) { 
+//DM// ////			      edm::LogInfo("TrackerGeometryCompare") << " No deform rawId: " << refAli->geomDetId().rawId() 
+//DM// ////                                                               << " _surfDeform[nparam] = "  << _surfDeform[nparam] 
+//DM// ////			    	                               << " *curit = " << *curit 
+//DM// ////			    				       << " *refit = " << *refit 
+//DM// ////			    				       << std::endl ; 
+//DM// ////			    }
+//DM// ////			    else {
+//DM// ////			      edm::LogInfo("TrackerGeometryCompare") << " What deform rawId: " << refAli->geomDetId().rawId() 
+//DM// ////			    	                               << " *curit = " << *curit 
+//DM// ////			    				       << " *refit = " << *refit 
+//DM// ////			    				       << std::endl ; 
+//DM// ////			    }
+//DM// ////                            _surfDeform[nparam] = (*curit) - (*refit) ;
+//DM// ////////                        m_tkmap->fill_current_val(modid,float((*curit) - (*refit))) ; 
+//DM// ////			    (m_vtkmap.at(nparam)).fill_current_val(modid,_surfDeform[nparam]) ; 
+//DM// ////                            std::stringstream histname ;
+//DM// ////                            histname << "SurfDeform_Par_" << nparam ;  
+//DM// ////			    m_h1[histname.str()]->Fill(_surfDeform[nparam]) ; 
+//DM// ////			    if (detid.subdetId() > 2 && nparam == 3) { 
+//DM// ////////				    m_tkhisto->fill(modid,float((*curit) - (*refit))) ;  
+//DM// ////////				    edm::LogInfo("TrackerGeometryCompare") << " modid" << modid
+//DM// ////////					                                 << " param " << float((*curit) - (*refit))
+//DM// ////////									 << std::endl ; 
+//DM// ////			    }
+//DM// ////		  	    ++nparam;
+//DM// ////		  	    ++refit;
+//DM// ////		  	}
+//DM// ////		  }
+//DM// ////		  edm::LogInfo("TrackerGeometryCompare") << " nparam = " << nparam << std::endl ; 
+//DM// 
+//DM// 		}
+//DM// 
+//DM// 		for (surfdefitemIt it = curitemvec.begin(); it != curitemvec.end(); ++it) { 
+//DM// 		  _type = it->m_parametrizationType ; 
+//DM//                 //  edm::LogInfo("TrackerGeometryCompare") << " raw id = " << it->m_rawId 
+//DM// 		//	                               << " type = " << it->m_parametrizationType 
+//DM// 		//				       << " index = " << it->m_index 
+//DM// 		//				       << std::endl ; 
+//DM// 		}
+//DM// 
+//DM// 		//edm::LogInfo("TrackerGeometryCompare") << ">>>> RefAli: Items = " << (refdef->items()).size() << std::endl ; 
+//DM// 		edm::LogInfo("TrackerGeometryCompare") << ">>>> CurAli: Items = " << (curdef->items()).size() << std::endl ; 
+//DM// 		//if ((refdef->items()).size() != (curdef->items()).size()) {
+//DM//                 //  edm::LogInfo("TrackerGeometryCompare") << ">>>> Number of items varies " << std::endl ;	
+//DM// 		//}
+//DM// 
+//DM// 		int nparams(0) ;
+//DM//                 for (unsigned ii = 0; ii < (curdef->items()).size(); ++ii) {
+//DM// 		  for (AlignmentSurfaceDeformations::ParametersConstIterator it = curdef->parameters(ii).first; it !=curdef->parameters(ii).second; ++it) {
+//DM//                     //edm::LogInfo("TrackerGeometryCompare") << "Param = " << *it << std::endl ; 
+//DM// 		    ++nparams;
+//DM// 		  }
+//DM// 		}
+//DM// //		edm::LogInfo("TrackerGeometryCompare") << "NParam = " << nparams << std::endl ; 
+
 		fillTree(refAli, TRtot);
 	}
 
-	//another added level for difference between det and detunit
+	// another added level for difference between det and detunit
 	for (unsigned int i = 0; i < nComp; ++i) 
 	  compareGeometries(refComp[i],curComp[i]);	
+
 }
 
 void TrackerGeometryCompare::setCommonTrackerSystem(){
 
 	edm::LogInfo("TrackerGeometryCompare") << "Setting Common Tracker System....";
 	
-	_commonTrackerLevel = AlignableObjectId::stringToId(_setCommonTrackerSystem);
+	AlignableObjectId dummy;
+	_commonTrackerLevel = dummy.nameToType(_setCommonTrackerSystem);
 		
 	diffCommonTrackerSystem(referenceTracker, currentTracker);
 	
@@ -491,7 +885,6 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 
 void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	
-	
 	_id = refAli->id();
 	_level = refAli->alignableObjectId();
 	//need if ali has no mother
@@ -560,16 +953,12 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	}
 	else _detDim = 0;
 	
-	
-	
-	
 	_surWidth = refAli->surface().width();
 	_surLength = refAli->surface().length();
 	align::RotationType rt = refAli->globalRotation();
 	_surRot[0] = rt.xx(); _surRot[1] = rt.xy(); _surRot[2] = rt.xz();
 	_surRot[3] = rt.yx(); _surRot[4] = rt.yy(); _surRot[5] = rt.yz();
 	_surRot[6] = rt.zx(); _surRot[7] = rt.zy(); _surRot[8] = rt.zz();
-	
 	
 	//Fill
 	_alignTree->Fill();
@@ -680,13 +1069,8 @@ void TrackerGeometryCompare::fillIdentifiers( int subdetlevel, int rawid ){
 	
 	switch( subdetlevel ){
 			
-		case 1:
-		{
-			PXBDetId pxbid( rawid );
-			_identifiers[0] = pxbid.module();
-			_identifiers[1] = pxbid.ladder();
-			_identifiers[2] = pxbid.layer();
-			_identifiers[3] = 999;
+                case 1:
+	        {
 			_identifiers[4] = 999;
 			_identifiers[5] = 999;
 			break;

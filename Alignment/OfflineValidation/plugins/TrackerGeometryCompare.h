@@ -14,9 +14,14 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2012/06/13 09:20:14 $
- *  $Revision: 1.11 $
+ *  $Date: 2010/01/04 18:24:37 $
+ *  $Revision: 1.10 $
  *  \author Nhan Tran
+ *
+ * ********
+ * ******** Including surface deformations in the geometry comparison ******** 
+ * ********
+ *
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -27,14 +32,20 @@
 
 #include "Alignment/CommonAlignment/interface/AlignTools.h"
 
+
+//******** Single include for the TkMap *************
+#include "CommonTools/TrackerMap/interface/TrackerMap.h" 
+#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
+//***************************************************
+
 #include <algorithm>
+#include <string>
 #include "TTree.h"
+#include "TH1D.h"
 
 class AlignTransform;
 
-class TrackerGeometryCompare:
-public edm::EDAnalyzer
-{
+class TrackerGeometryCompare: public edm::EDAnalyzer { 
 public:
 	typedef AlignTransform SurveyValue;
 	typedef Alignments SurveyValues;
@@ -48,6 +59,8 @@ public:
   /// Read from DB and print survey info.
 	virtual void beginJob();
 
+	virtual void endJob();
+
 	virtual void analyze(
 		const edm::Event&,
 		const edm::EventSetup&
@@ -58,13 +71,15 @@ private:
 
 	//parameters
 	edm::ParameterSet m_params;
-	std::vector<align::StructureType> theLevels;
+	std::vector<align::StructureType> m_theLevels;
 	//std::vector<int> theSubDets;
 	
+	//compare surface deformations
+	void compareSurfaceDeformations(TTree* _inputTree11, TTree* _inputTree12); 
 	//compares two geometries
 	void compareGeometries(Alignable* refAli, Alignable* curAli);
 	//filling the ROOT file
-	void fillTree(Alignable *refAli, AlgebraicVector diff);
+	void fillTree(Alignable *refAli, AlgebraicVector diff); // typedef CLHEP::HepVector      AlgebraicVector; 
 	//for filling identifiers
 	void fillIdentifiers( int subdetlevel, int rawid );
 	//converts surveyRcd into alignmentRcd
@@ -90,7 +105,8 @@ private:
 	// configurables
 	std::string _inputFilename1;
 	std::string _inputFilename2;
-	std::string _inputTreename;
+	std::string _inputTreename1;
+	std::string _inputTreename2;
 	bool _writeToDB; 
 	std::string _weightBy;
 	std::string _setCommonTrackerSystem;
@@ -112,11 +128,14 @@ private:
 	TTree* _alignTree;
 	TFile* _inputRootFile1;
 	TFile* _inputRootFile2;
-	TTree* _inputTree1;
-	TTree* _inputTree2;
-
-  	int _id, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
-	float _xVal, _yVal, _zVal, _rVal, _phiVal, _alphaVal, _betaVal, _gammaVal, _etaVal;
+	TTree* _inputTree01;
+	TTree* _inputTree02;
+	TTree* _inputTree11;
+	TTree* _inputTree12;
+	
+	/**\ Tree variables */
+	int _id, _level, _mid, _mlevel, _sublevel, _useDetId, _detDim;
+	float _xVal, _yVal, _zVal, _rVal, _etaVal, _phiVal, _alphaVal, _betaVal, _gammaVal;
 	// changes in global variables
 	float _dxVal, _dyVal, _dzVal, _drVal, _dphiVal, _dalphaVal, _dbetaVal, _dgammaVal;
 	// changes local variables: u, v, w, alpha, beta, gamma
@@ -124,8 +143,22 @@ private:
 	float _surWidth, _surLength;
 	uint32_t _identifiers[6];
 	double _surRot[9];
+	int _type;
+	double _surfDeform[13]; 
 
+	int m_nBins ; 
+	double m_rangeLow ;
+	double m_rangeHigh ; 
+	
 	bool firstEvent_;
+
+	TkHistoMap* m_tkhisto; 
+	TrackerMap* m_tkmap; 
+
+	std::vector<TrackerMap> m_vtkmap; 
+
+	std::map<std::string,TH1D*> m_h1 ; 
+
 	
 };
 
