@@ -176,7 +176,7 @@ def parseCard(file, options):
         ns_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s == True])
         nb_bin = sum([(ret.exp[b][p] != 0) for (b1,p,s) in ret.keyline if b1 == b and s != True])
         if np_bin == 0: raise RuntimeError, "Bin %s has no processes contributing to it" % b
-        if ns_bin == 0: raise RuntimeError, "Bin %s has no signal processes contributing to it" % b
+        if ns_bin == 0: stderr.write("Warning: Bin %s has no signal processes contributing to it\n" % b)
         if nb_bin == 0: raise RuntimeError, "Bin %s has no background processes contributing to it" % b
     # cleanup systematics that have no effect to avoid zero derivatives
     syst2 = []
