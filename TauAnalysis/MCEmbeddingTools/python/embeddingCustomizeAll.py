@@ -50,9 +50,11 @@ def customise(process):
 
   # add collections of Z -> mumu candidates
   # (with different muon isolation criteria applied)
-  outputModule.outputCommands.extend(['keep *_goldenZmumuCandidatesGe0IsoMuons_*_*'])
-  outputModule.outputCommands.extend(['keep *_goldenZmumuCandidatesGe1IsoMuons_*_*'])
-  outputModule.outputCommands.extend(['keep *_goldenZmumuCandidatesGe2IsoMuons_*_*'])
+  outputModule.outputCommands.extend(['keep *_goldenZmumuCandidatesGe0IsoMuons_*_*',
+                                      'keep *_goldenZmumuCandidatesGe1IsoMuons_*_*',
+                                      'keep *_goldenZmumuCandidatesGe2IsoMuons_*_*',
+                                      'keep *_goldenZmumuPreFilterHistos_*_*',
+                                      'keep *_goldenZmumuPostFilterHistos_*_*'])
 
   # replace HLT process name
   # (needed for certain reprocessed Monte Carlo samples)

@@ -88,6 +88,10 @@ goldenZmumuFilter = cms.EDFilter("CandViewCountFilter",
     minNumber = cms.uint32(1)
 )
 
+goldenZmumuPreFilterHistos = cms.EDProducer("AcceptanceHistoProducer", 
+	srcGenParticles = cms.InputTag("genParticles"))
+goldenZmumuPostFilterHistos = goldenZmumuPreFilterHistos.clone()
+
 goldenZmumuSelectionSequence = cms.Sequence(
     goodVertex
    * patMuons 
@@ -102,5 +106,7 @@ goldenZmumuSelectionSequence = cms.Sequence(
    * goldenZmumuCandidatesGe1IsoMuonsComb2
    * goldenZmumuCandidatesGe1IsoMuons
    * goldenZmumuCandidatesGe2IsoMuons
+   * goldenZmumuPreFilterHistos
    * goldenZmumuFilter
+   * goldenZmumuPostFilterHistos
 )

@@ -19,12 +19,19 @@ def customise(process):
   outputModule.outputCommands.extend(
     cms.untracked.vstring("keep *_goldenZmumuCandidatesGe0IsoMuons_*_*",
                           "keep *_goldenZmumuCandidatesGe1IsoMuons_*_*",
-                          "keep *_goldenZmumuCandidatesGe2IsoMuons_*_*"))
+                          "keep *_goldenZmumuCandidatesGe2IsoMuons_*_*",
+                          "keep *_goldenZmumuPreFilterHistos_*_*",
+                          "keep *_goldenZmumuPostFilterHistos_*_*"))
 
   process.load('Configuration.StandardSequences.GeometryDB_cff')
   process.load('Configuration.StandardSequences.MagneticField_38T_cff')
   process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
-  process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
+  process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandaloneSelection_cff")
+
+  # output file for muon acceptance histograms
+  process.TFileService = cms.Service("TFileService",
+    fileName = cms.string("histo_skimmed.root")
+  )
 
   # Define configuration parameter default values
   from TauAnalysis.MCEmbeddingTools.setDefaults import setDefaults
