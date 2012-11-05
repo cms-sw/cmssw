@@ -187,6 +187,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     case 2: // mumu -> ee   
       targetParticle1Mass_     = electronMass;
       targetParticle1AbsPdgID_ = 11;
+      break;
     default:
       assert(0);
     }
