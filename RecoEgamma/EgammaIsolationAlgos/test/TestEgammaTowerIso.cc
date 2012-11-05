@@ -1,10 +1,3 @@
-/*
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-bool bha( std::vector<unsigned int> const &vv) {
-  return find(vv.begin(),vv.end(),42)==vv.end();
-}
-*/
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
