@@ -56,7 +56,8 @@ c     -------------------------------------------------
           endif
           nptlbpo=nptl
           call jintpo(iret)  !parton-ladder-fusion
-         if(ish.ge.2)call alist('parton-ladder-fusion&',nptlbpo+1,nptl)
+         if(ish.ge.2)call alist('parton-ladder-fusion&',
+     +sizeof('parton-ladder-fusion&'),nptlbpo+1,nptl)
          if(iret.eq.1)goto 1001
         endif
         goto 5000
@@ -74,7 +75,8 @@ c     -------------------------------------------------
       if(idecay.eq.0)goto779  !skip decay
 
 
-      if(ish.ge.2)call alist('final decay&',0,0)
+      if(ish.ge.2)call alist('final decay&',
+     +sizeof('final decay&'),0,0)
       if(iappl.eq.4.or.iappl.eq.7.or.iappl.eq.9)then
         nptli=1
       else
@@ -116,16 +118,19 @@ c remove useless particles if not enough space
       np1=np2+1
       if(np1.le.nptl)then
       if(ish.ge.2)then
-      if(ish.ge.3)call alist('partial list',0,0)
+      if(ish.ge.3)call alist('partial list',
+     +sizeof('partial list'),0,0)
       do 6 ip=np1,nptl
-        call alist('&',ip,ip)
+        call alist('&',
+     +sizeof('&'),ip,ip)
 6     continue
       endif
       goto 41
       endif
   779 continue
 
-      if(ish.ge.2)call alist('complete list&',1,nptl)
+      if(ish.ge.2)call alist('complete list&',
+     +sizeof('complete list&'),1,nptl)
 
 c     on shell check
 c     --------------
@@ -1837,7 +1842,8 @@ c      if(jc(nf,ij).ge.10)idr=7*10**8
 c40    continue
 c           if(idr/10**8.ne.7)then
 c      call idenco(jc,ic,ireten)
-c      if(ireten.eq.1)call utstop('jintfu: idenco ret code = 1&')
+c      if(ireten.eq.1)call utstop('jintfu: idenco ret code = 1&',
+c     +sizeof('jintfu: idenco ret code = 1&'))
 c      id=idtra(ic,0,0,3)
 c43    amc=amf
 c      call idres(id,amc,idr,iadj)
@@ -2107,7 +2113,8 @@ c...Start cluster formation
       nsegsuj=max(nsegce,nint(nsegsuj/1.08**ntry))
       ntry=ntry+1
       if(ntry.gt.90)        !do not put more than 100 or change limit for p4mean
-     &call utstop('jintpo: cluster formation impossible ! &')
+     &call utstop('jintpo: cluster formation impossible ! &',
+     +sizeof('jintpo: cluster formation impossible ! &'))
       nptl=nptla
 
       do 1 k=1,m3grid
@@ -2938,7 +2945,8 @@ c copy decayed strings into new strings if no fragments are used for cluster
         maxfra=nptl
         nptla=nptl
         if(ish.ge.6.and.nptl.ne.nptlx-1)
-     &      call alist('list after second fragmentation&',nptlx,nptl)
+     &      call alist('list after second fragmentation&',
+     +sizeof('list after second fragmentation&'),nptlx,nptl)
         if(irescl.eq.1)then
           call utghost(iret)
           if(iret.gt.0)goto 1000
@@ -4115,7 +4123,8 @@ c Decay droplets not included in clusters
         if(istptl(mm).eq.10)then
           if(ish.ge.5)write(ifch,*)'Decay remaining droplet :',mm
           if(nptlb.gt.mxptl-10)
-     &    call utstop('jintpo: mxptl too small (2)&')
+     &    call utstop('jintpo: mxptl too small (2)&',
+     +sizeof('jintpo: mxptl too small (2)&'))
           if(ioclude.eq.3)then
             call hnbaaa(mm,iret)
           else
@@ -4210,7 +4219,8 @@ c         else
 c          write(ifch,*)
 c     *    'i:',i,' id:',idptl(i),' k:',k,' m:',am
 c          write(ifch,*)'jc:',(jc(l,1),l=1,6),(jc(l,2),l=1,6)
-c          call utstop('jrad: meson radius not defined&')
+c          call utstop('jrad: meson radius not defined&',
+c     +sizeof('jrad: meson radius not defined&'))
 c         endif
 c        else                    ! flavor singlet vector mesons
 c         if(am.ge.0.000)then
@@ -4225,7 +4235,8 @@ c         else
 c          write(ifch,*)
 c     *    'i:',i,' id:',idptl(i),' k:',k,' m:',am
 c          write(ifch,*)'jc:',(jc(l,1),l=1,6),(jc(l,2),l=1,6)
-c          call utstop('jrad: meson radius not defined&')
+c          call utstop('jrad: meson radius not defined&',
+c     +sizeof('jrad: meson radius not defined&'))
 c         endif
 c        endif
 c       elseif(kc(3).eq.0.and.kc(4).eq.0)then  ! nonstrange, noncharmed
@@ -4242,14 +4253,16 @@ c         rad=0.68  ! kaon resonances
 c        endif
 c       else                                   ! charmed
 c        write(ifch,*)'i:',i,' id:',idptl(i)
-c        call utstop('jrad: radius of meson not defined&')
+c        call utstop('jrad: radius of meson not defined&',
+c     +sizeof('jrad: radius of meson not defined&'))
 c       endif
 c      else   !baryons
 c       if(kc(4).gt.0)then       ! charmed
 c        write(ifch,*)
 c     *  'i:',i,' id:',idptl(i),' k:',k,' m:',am
 c        write(ifch,*)'i:',i,' id:',idptl(i)
-c        call utstop('jrad: radius of charmed baryon not defined&')
+c        call utstop('jrad: radius of charmed baryon not defined&',
+c     +sizeof('jrad: radius of charmed baryon not defined&'))
 c       elseif(kc(3).eq.0)then   ! nonstrange
 c        if(k.eq.0)then
 c         rad=0.82  !nucleons
@@ -4276,7 +4289,8 @@ c     *  'i:',i,' id:',idptl(i),' k:',k,' m:',am
 c        write(ifch,*)
 c     *  'q:',(jc(l,1),l=1,6),' qbar:',(jc(l,2),l=1,6),
 c     *  ' |q-qbar|:',(kc(l),l=1,6)
-c        call utstop('jrad: should not happen&')
+c        call utstop('jrad: should not happen&',
+c     +sizeof('jrad: should not happen&'))
 c       endif
 cc string fragments with |#q|>3
 c       if(na.gt.3)then
@@ -4527,7 +4541,8 @@ ctp to avoid precision problem, replace abs(p3)/p4 by sqrt(1-(pt2+m2)/E2)
         ti1=dble(xo4)
       else
         ti1=0
-        call utstop("Wrong iopt in jtain !&")
+        call utstop("Wrong iopt in jtain !&",
+     +sizeof("Wrong iopt in jtain !&"))
       endif
       ti2=dble(tivptl(2,i))
 

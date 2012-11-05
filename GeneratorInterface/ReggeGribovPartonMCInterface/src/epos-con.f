@@ -73,7 +73,8 @@ c     ---------------------------------------------------------------
 
       b1=bminim
       b2=amin1(bkmx,bmaxim)
-      if(b1.gt.b2)call utstop('conaa: bmin > bmax&')
+      if(b1.gt.b2)call utstop('conaa: bmin > bmax&',
+     +sizeof('conaa: bmin > bmax&'))
       bimp=sqrt(b1*b1+(b2*b2-b1*b1)*rangen())
       koll=1
       do n=1,4
@@ -109,7 +110,8 @@ c     ---------------------------------------------------------------
       if(bimevt.lt.0)then
         b1=bminim
         b2=amin1(rmproj+rmtarg,bmaxim)
-        if(b1.gt.b2)call utstop('conaa: bmin > bmax&')
+        if(b1.gt.b2)call utstop('conaa: bmin > bmax&',
+     +sizeof('conaa: bmin > bmax&'))
         bimp=sqrt(b1**2+(b2**2-b1**2)*rangen())
         if(nbarray.gt.0)bimp=barray(mod(nrevt,nbarray)+1)
         if(jpsi.gt.0)then
@@ -146,7 +148,8 @@ c     ---------------------------------------------------------------
       if(bij.gt.bkmx)goto 11
 
       koll=koll+1
-      if(koll.gt.kollmx)call utstop('conaa: kollmx too small&')
+      if(koll.gt.kollmx)call utstop('conaa: kollmx too small&',
+     +sizeof('conaa: kollmx too small&'))
       bk(koll)=bij
       bkx(koll)=xproj(i)+bx-xtarg(j)
       bky(koll)=yproj(i)+by-ytarg(j)
@@ -1049,11 +1052,13 @@ c-----------------------------------------------------------------------
       massnr=matarg
       iii=2
       else
-      call utstop('conxyz: nucleus neither proj nor targ&')
+      call utstop('conxyz: nucleus neither proj nor targ&',
+     +sizeof('conxyz: nucleus neither proj nor targ&'))
       endif
 
       if(massnr.eq.0)return
-      if(massnr.gt.n)call utstop('conxyz: massnr.gt.n&')
+      if(massnr.gt.n)call utstop('conxyz: massnr.gt.n&',
+     +sizeof('conxyz: massnr.gt.n&'))
       if(massnr.eq.1)then
       x(1)=0
       y(1)=0

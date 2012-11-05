@@ -1742,7 +1742,8 @@ c     jorptl(i) ..... particle number of mother (if .le. 0 : no mother)
             write(ifch,*)'ici',VTIMUP(nhep),tivptl(2,i),tivptl(1,i)
      &                        ,i,nptl
             VTIMUP(nhep)=ainfin
-            call utstop("aie&")
+            call utstop("aie&",
+     +sizeof("aie&"))
           endif
           SPINUP(nhep)=9           !polarization (not known)
           write(ifdt,*)IDUP(nhep),ISTUP(nhep),
@@ -2109,7 +2110,8 @@ c      PARAMETER (MAXNUP=500)
             open(unit=ifin,file=fnin(1:nfnin),status='old')
             ifinp=ifin
           else
-            call utstop('Cannot open file for conversion !&')
+            call utstop('Cannot open file for conversion !&',
+     +sizeof('Cannot open file for conversion !&'))
           endif
         endif
       endif
@@ -2395,7 +2397,8 @@ c-----------------------------------------------------------------------
      .    .and.abs(xorptl(4,i)).le.ainfin
      .    .and.pptl(5,i).le.ainfin
      .    .and.pptl(4,i).gt.0.)then
-c            if(ish.ge.4)call alistc('afinal&',i,i)
+c            if(ish.ge.4)call alistc('afinal&',
+c     +sizeof('afinal&'),i,i)
             t=tivptl(1,i)
             xorptl(1,i)=xorptl(1,i)+pptl(1,i)/pptl(4,i)*(t-xorptl(4,i))
             xorptl(2,i)=xorptl(2,i)+pptl(2,i)/pptl(4,i)*(t-xorptl(4,i))
@@ -2410,7 +2413,8 @@ c            if(ish.ge.4)call alistc('afinal&',i,i)
      .        '*** warning (afinal): ',
      .        i,idptl(i),idior,ityptl(i),tivptl(1,i), pptl(4,i)
      .        ,pptl(5,i),xorptl(1,i),xorptl(2,i),xorptl(3,i),xorptl(4,i)
-c              call alistc(' ici &',1,i)
+c              call alistc(' ici &',
+c     +sizeof(' ici &'),1,i)
             endif
             tivptl(1,i)=2*ainfin
             tivptl(2,i)=2*ainfin
@@ -2536,7 +2540,8 @@ c boost in lab frame
           lclean=.true.
           istptl(i)=99
         else
-          call utstop("Negative energy in afinal&")
+          call utstop("Negative energy in afinal&",
+     +sizeof("Negative energy in afinal&"))
         endif
       endif
       enddo
@@ -2547,16 +2552,26 @@ c boost in lab frame
       endif
 
       if(ish.ge.2)then
-        if(model.eq.1)call alistf('EPOS&')
-        if(model.eq.2)call alistf('QGSJET01&')
-        if(model.eq.3)call alistf('GHEISHA&')
-        if(model.eq.4)call alistf('PYTHIA&')
-        if(model.eq.5)call alistf('HIJING&')
-        if(model.eq.6)call alistf('SIBYLL 2.1&')
-        if(model.eq.7.or.model.eq.11)call alistf('QGSJET II&')
-        if(model.eq.8)call alistf('PHOJET&')
-        if(model.eq.9)call alistf('FLUKA&')
-        if(model.eq.10)call alistf('URQMD&')
+        if(model.eq.1)call alistf('EPOS&',
+     +sizeof('EPOS&'))
+        if(model.eq.2)call alistf('QGSJET01&',
+     +sizeof('QGSJET01&'))
+        if(model.eq.3)call alistf('GHEISHA&',
+     +sizeof('GHEISHA&'))
+        if(model.eq.4)call alistf('PYTHIA&',
+     +sizeof('PYTHIA&'))
+        if(model.eq.5)call alistf('HIJING&',
+     +sizeof('HIJING&'))
+        if(model.eq.6)call alistf('SIBYLL 2.1&',
+     +sizeof('SIBYLL 2.1&'))
+        if(model.eq.7.or.model.eq.11)call alistf('QGSJET II&',
+     +sizeof('QGSJET II&'))
+        if(model.eq.8)call alistf('PHOJET&',
+     +sizeof('PHOJET&'))
+        if(model.eq.9)call alistf('FLUKA&',
+     +sizeof('FLUKA&'))
+        if(model.eq.10)call alistf('URQMD&',
+     +sizeof('URQMD&'))
       endif
 
 c      if(isto.eq.1)stop
@@ -2636,7 +2651,8 @@ c$$$      call testconex(2)
       if(iwtime.eq.1)call wtime(1)
       if(iwtime.eq.1.and.nrevt.eq.nevent)call wtime(2)
 
-      if(ish.ge.8)call alistc('afinal&',1,nptl)
+      if(ish.ge.8)call alistc('afinal&',
+     +sizeof('afinal&'),1,nptl)
 
       call utprix('afinal',ish,ishini,4)
       return
@@ -2858,18 +2874,22 @@ c        if(model.eq.2.or.model.eq.6)idproj=idtarg   !for qgsjet01, projectile a
 
         if((idproj.ne.1120.and.(laproj.ne.-1.or.maproj.ne.1))
      &    .or.maproj.le.0)
-     &  call utstop('Invalid projectile setup !&')
+     &  call utstop('Invalid projectile setup !&',
+     +sizeof('Invalid projectile setup !&'))
 c        if((idtarg.ne.1120.and.(latarg.ne.-1.or.matarg.ne.1))
 c     &    .or.matarg.le.0)
-c     &  call utstop('Invalid target setup !&')
+c     &  call utstop('Invalid target setup !&',
+c     +sizeof('Invalid target setup !&'))
 
       if(iabs(idtarg).ne.1120.and.iabs(idtarg).ne.1220.and.idtarg.ne.0)
-     &  call utstop('Invalid target !&')
+     &  call utstop('Invalid target !&',
+     +sizeof('Invalid target !&'))
       if((((idtarg.eq.-1120.or.iabs(idtarg).eq.1220)
      &    .and.(latarg.ne.-1.or.matarg.ne.1))
      &    .and.(idtarg.ne.1120.or.latarg.lt.0))
      &    .or.matarg.le.0)
-     &  call utstop('Invalid target setup !&')
+     &  call utstop('Invalid target setup !&',
+     +sizeof('Invalid target setup !&'))
 
 
       call idmass(idproj,amproj)
@@ -2940,8 +2960,10 @@ c     &                   -amproj**2) )
            endif
          endif
 
-      if(pnll.le.0.001)call utstop('ainit: energy too low&')
-      if(engy.gt.egymax)call utstop('ainit: energy too high&')
+      if(pnll.le.0.001)call utstop('ainit: energy too low&',
+     +sizeof('ainit: energy too low&'))
+      if(engy.gt.egymax)call utstop('ainit: energy too high&',
+     +sizeof('ainit: energy too high&'))
       s=engy**2
       pnullx=utpcm(engy,amproj,amtarg)
       yhaha=alog((sqrt(pnll**2+s)+pnll)/sqrt(s))
@@ -4451,7 +4473,8 @@ c     *     write(ifmt,'(a)')'kinks: icbac1 icbac2 icfor1 icfor2?'
       elseif(line(i:j).eq.'particle')then
         ir=2
       else
-        call utstop("Wrong definition for record!&")
+        call utstop("Wrong definition for record!&",
+     +sizeof("Wrong definition for record!&"))
       endif
       maxrec(ir)=0
  20   call utworn(line,j,ne)
@@ -4632,7 +4655,8 @@ c      if(line(i:j).eq.'off')iorsce=0
       endif
       if(abs(iappl).ne.1.and.iappl.ne.3.and.model.ne.1
      &.and..not.(model.eq.4.and.iappl.eq.7))
-     &call utstop('Application not possible with this model&')
+     &call utstop('Application not possible with this model&',
+     +sizeof('Application not possible with this model&'))
 
            elseif(line(i:j).eq.'trigger')then
 
@@ -4682,7 +4706,8 @@ c      if(line(i:j).eq.'off')iorsce=0
       elseif(line(i:j).eq.'writex')then
         ii=2
       else
-        call utstop("Wrong definition for write!&")
+        call utstop("Wrong definition for write!&",
+     +sizeof("Wrong definition for write!&"))
       endif
       call utword(line,i,j,0)
       idol=0
@@ -5111,7 +5136,8 @@ c      integer iutime(5)
 c      call timer(iutime)
 c      timeini=iutime(3)+float(iutime(4))/1000.
       if(ish.ge.2)then
-          call alist('start event&',0,0)
+          call alist('start event&',
+     +sizeof('start event&'),0,0)
           write(ifch,*)'event number:',nrevt+1
       endif
 
@@ -5134,23 +5160,27 @@ c for Air target, set the target nucleus
       if(ntry.gt.100)stop'in aepos, to many amicro attempts.    '
       call amicro(iret)
       if(iret.ne.0)goto 1
-      if(ish.ge.2)call alist('list before int/decays&',1,nptl)
+      if(ish.ge.2)call alist('list before int/decays&',
+     +sizeof('list before int/decays&'),1,nptl)
       nevt=1
       nbdky=nptl
       call bjinta(ier)
       if(ier.eq.1)stop'error in bjinta'
-      if(ish.ge.2)call alist('list after int/decays&',1,nptl)
+      if(ish.ge.2)call alist('list after int/decays&',
+     +sizeof('list after int/decays&'),1,nptl)
       goto 1000
       endif
 
       if(iappl.eq.9)then
       call ahydro
-      if(ish.ge.2)call alist('list before int/decays&',1,nptl)
+      if(ish.ge.2)call alist('list before int/decays&',
+     +sizeof('list before int/decays&'),1,nptl)
       nevt=1
       nbdky=nptl
       call bjinta(ier)
       if(ier.eq.1)stop'error in bjinta'
-      if(ish.ge.2)call alist('list after int/decays&',1,nptl)
+      if(ish.ge.2)call alist('list after int/decays&',
+     +sizeof('list after int/decays&'),1,nptl)
       goto 1000
       endif
 
@@ -5234,7 +5264,8 @@ c elastic event
       elseif(iappl.eq.3.or.iappl.eq.-1) then
         nevt=1
         call bread
-        if(ish.ge.2)call alist('list after reading&',1,nptl)
+        if(ish.ge.2)call alist('list after reading&',
+     +sizeof('list after reading&'),1,nptl)
         goto 500
 
       elseif(iappl.eq.5) then !---kinky---
@@ -5264,7 +5295,8 @@ c elastic event
 
       if(nevt.eq.0)stop'************ should not be ***************'
 
-      if(ish.ge.2)call alist('list before fragmentation&',1,nptl)
+      if(ish.ge.2)call alist('list before fragmentation&',
+     +sizeof('list before fragmentation&'),1,nptl)
       nptlx=nptl+1
       if(iappl.ne.2.and.iappl.ne.7.and.nevt.eq.1.and.ifrade.ne.0)then
         iclu=0
@@ -5273,7 +5305,8 @@ c elastic event
         if(iret.gt.0)goto 3
         maxfra=nptl
         if(ish.ge.2.and.model.eq.1)
-     &              call alist('list after fragmentation&',nptlx,nptl)
+     &              call alist('list after fragmentation&',
+     +sizeof('list after fragmentation&'),nptlx,nptl)
         if(irescl.eq.1)then
           call utghost(iret)
           if(iret.gt.0)goto 3
@@ -5306,7 +5339,8 @@ c Form nuclear fragments
 
         if(ish.ge.1)then
           !if(ish.ge.2.and.ifrade.ne.0)
-          !&    call alist('list after int/decays&',1,nptl)
+          !&    call alist('list after int/decays&',
+          !+sizeof('list after int/decays&'),1,nptl)
           if(abs(iappl).eq.1.or.iappl.eq.3)then
             numbar=0
             pp4=0.
@@ -5365,7 +5399,8 @@ c Form nuclear fragments
        enddo
        nvio=maproj+matarg-numbar
        if(nvio.ne.0)then
-        call alist('complete list&',1,nptl)
+        call alist('complete list&',
+     +sizeof('complete list&'),1,nptl)
         write(6,'(//10x,a,i3//)')'ERROR: baryon number violation:',nvio
         write(6,'(10x,a//)')
      *        'a complete list has been printed into the check-file'
@@ -5436,7 +5471,8 @@ c-----------------------------------------------------------------------
       common/col3/ncol,kolpt
 
       call utpri('emsaaa',ish,ishini,4)
-      if(ish.ge.3)call alist('Determine Pomeron Configuration&',0,0)
+      if(ish.ge.3)call alist('Determine Pomeron Configuration&',
+     +sizeof('Determine Pomeron Configuration&'),0,0)
 
       iret=0
 
@@ -5467,7 +5503,7 @@ c-----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      subroutine alist(text,n1,n2)
+      subroutine alist(text,size,n1,n2)
 c----------------------------------------------------------------------
 c    ior  jor  i  ifr1  ifr2     id  ist  ity      pt  m  y
 c----------------------------------------------------------------------
@@ -5483,14 +5519,11 @@ c----------------------------------------------------------------------
       include 'epos.inc'
       common/cxyzt/xptl(mxptl),yptl(mxptl),zptl(mxptl),tptl(mxptl)
      *,optl(mxptl),uptl(mxptl),sptl(mxptl),rptl(mxptl,3)
-      parameter(itext=40)
-      character  text*40
       dimension pp(5)
+      character text(*)
+      integer(8) size,imax
+      imax=size
       if(n1.gt.n2)return
-      imax=itext+1
-      do i=itext,1,-1
-      if(text(i:i).eq.'&')imax=i
-      enddo
       if(imax.gt.1)then
       write(ifch,'(/1x,89a1/1x,a,a,a,90a1)')
      *('#',k=1,89),'############  ',text(1:imax-1),'  '
@@ -5666,20 +5699,17 @@ c----------------------------------------------------------------------
       end
 
 c----------------------------------------------------------------------
-      subroutine alistf(text)
+      subroutine alistf(text,size)
 c----------------------------------------------------------------------
       include 'epos.inc'
-      parameter(itext=40)
-      character  text*40
       dimension pp(5),erest(5),errp(4)
+      character text(*)
+      integer(8) size,imax
+      imax=size
       n1=1
       if(iframe.eq.21.and.(abs(iappl).eq.1.or.iappl.eq.3))
      *n1=2*(maproj+matarg+1)
       n2=nptl
-      imax=itext+1
-      do i=itext,1,-1
-      if(text(i:i).eq.'&')imax=i
-      enddo
       if(imax.gt.1)then
       write(ifch,'(/1x,124a1/1x,a,a,a,108a1)')
      *('#',k=1,124),'#############  ',text(1:imax-1),'  '
@@ -5784,16 +5814,13 @@ c     *,4x,4(e8.2,1x))
       end
 
 c----------------------------------------------------------------------
-      subroutine alistc(text,n1,n2)
+      subroutine alistc(text,size,n1,n2)
 c----------------------------------------------------------------------
       include 'epos.inc'
-      parameter(itext=40)
-      character  text*40
+      character text(*)
+      integer(8) size,imax
+      imax=size
       if(n1.gt.n2)return
-      imax=itext+1
-      do i=itext,1,-1
-      if(text(i:i).eq.'&')imax=i
-      enddo
       if(n1.ne.n2)write(ifch,'(1x,a,a,a)')
      *'--------------- ',text(1:imax-1),' ---------------  '
       do i=n1,n2

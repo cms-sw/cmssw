@@ -235,7 +235,8 @@ c          zzz=fkainc*zz
       if(ish.ge.4)write(ifch,*)"String parameters:"
      &                      ,iclu,itp,krm,kdrm,kzrm,fkap,zzzz,pb,x
       if(fkap(1).le.0..or.zzzz.le.0.)
-     &   call utstop("fkappa<=0. not allowed !&")
+     &   call utstop("fkappa<=0. not allowed !&",
+     +sizeof("fkappa<=0. not allowed !&"))
 
       igmx=1
       if(iLHC.eq.1)igmx=3
@@ -399,7 +400,8 @@ c.....total momentum...............................................
 
 c.....write total string on pptl - list.............................
       nptl=nptl+1
-      if(nptl.gt.mxptl)call utstop('gakfra: mxptl too small ...&')
+      if(nptl.gt.mxptl)call utstop('gakfra: mxptl too small ...&',
+     +sizeof('gakfra: mxptl too small ...&'))
       call idtr5(idptl(nk1),ic1)
       call idtr5(idptl(nk2),ic2)
       ic(1)=ic1(1)+ic2(1)
@@ -444,7 +446,8 @@ c...................light string....................................
        if(ish.ge.1)write (ifch,*) id,am,idr,iadj
         nptl=nptl+1
         if(nptl.gt.mxptl)
-     &       call utstop('gakfra (light): mxptl too small ...&')
+     &       call utstop('gakfra (light): mxptl too small ...&',
+     +sizeof('gakfra (light): mxptl too small ...&'))
         do i=1,5
           pptl(i,nptl)=p1(i)
         enddo
@@ -738,7 +741,8 @@ c.....write particles in pptl-list................................
 
       nptlini=nptl
       if(nptlini+nbr+1.gt.mxptl)
-     &       call utstop('gakfra (end): mxptl too small ...&')
+     &       call utstop('gakfra (end): mxptl too small ...&',
+     +sizeof('gakfra (end): mxptl too small ...&'))
       do i=1,nbr+1
          nptl=nptl+1
          if(i.lt.nbr+1)then     !particle = left side of breakpoints
@@ -2573,7 +2577,8 @@ c      MSTU41=2
          endif
 
          IF(nptl+NP.GE.mxptl) THEN
-            CALL utstop('gakthru: no more memory left in cptl&')
+            CALL utstop('gakthru: no more memory left in cptl&',
+     +sizeof('gakthru: no more memory left in cptl&'))
             thru(4,1)=-1.
             RETURN
          ENDIF

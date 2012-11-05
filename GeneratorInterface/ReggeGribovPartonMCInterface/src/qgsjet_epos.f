@@ -50,7 +50,8 @@ c QGSJet Common
       COMMON /Q_QGSNEX1/ XA,XB,BQGS,BMAXQGS,BMAXNEX,BMINNEX
 
       if(matarg.gt.210.or.maproj.gt.210)
-     &  call utstop('Nucleus too big for QGSJet (Mmax=210) !&')
+     &  call utstop('Nucleus too big for QGSJet (Mmax=210) !&',
+     +sizeof('Nucleus too big for QGSJet (Mmax=210) !&'))
       call iclass(idproj,iclpro)
       call iclass(idtarg,icltar)
       e0=dble(elab)
@@ -96,7 +97,8 @@ c IAF(i) - mass of the i-th fragment
       a=pi*(b2**2-b1**2)
 
       if(a.gt.0..and.rangen().gt.qgsincs/10./a)goto 1001   !no interaction
-      if(ish.ge.3)call alist('Determine QGSJet Production&',0,0)
+      if(ish.ge.3)call alist('Determine QGSJet Production&',
+     +sizeof('Determine QGSJet Production&'),0,0)
 
       nptl=0
       nsp=0
@@ -256,7 +258,8 @@ c k0l
      $     , ' momentum :',(esp(k,is),k=1,4)
 
             nptl=nptl+1
-            if(nptl.gt.mxptl)call utstop('qgsjet: mxptl too small&')
+            if(nptl.gt.mxptl)call utstop('qgsjet: mxptl too small&',
+     +sizeof('qgsjet: mxptl too small&'))
             id=idtrafo('qgs','nxs',ic)
             if(ish.ge.7)write(ifch,'(a,i5,a,i5,a)')
      $       ' epos particle ',nptl,' id :',id,' after conversion'

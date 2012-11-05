@@ -40,8 +40,10 @@ c no last generation -> no decay
       if(istptl(i).ne.0)return
 
       if(nptl.gt.mxptl-10)then
-        call alist('end&',1,nptl)
-        call utstop('hdecas: mxptl too small&')
+        call alist('end&',
+     +sizeof('end&'),1,nptl)
+        call utstop('hdecas: mxptl too small&',
+     +sizeof('hdecas: mxptl too small&'))
       endif
 c entry
 
@@ -691,10 +693,12 @@ c     -----------------------------------------------
 
  900    continue
         nptl=nptl+naddptl
-        if(nptl.gt.mxptl)call utstop('hdecay: nptl>mxptl&')
+        if(nptl.gt.mxptl)call utstop('hdecay: nptl>mxptl&',
+     +sizeof('hdecay: nptl>mxptl&'))
 c        nqk=0           !???????????????????unused
         if(iabs(idptl(nptl)).lt.10.or.mod(idptl(nptl),100).eq.0)then
-c          call utstop('hdecay: decay ptcl is parton&')
+c          call utstop('hdecay: decay ptcl is parton&',
+c     +sizeof('hdecay: decay ptcl is parton&'))
         endif
 
 c     print
@@ -706,9 +710,11 @@ c     -----
      *'    decay  at tau =',f6.2/
      *' ----------------------------')
       write(ifch,*)'decaying object:'
-      call alist('&',ip,ip)
+      call alist('&',
+     +sizeof('&'),ip,ip)
       write(ifch,*)'decay products:'
-      call alist('&',nptlb+1,nptl)
+      call alist('&',
+     +sizeof('&'),nptlb+1,nptl)
       endif
       if(ish.ge.5)then
       write(ifch,*)'momentum sum:'
@@ -718,7 +724,8 @@ c     -----
       pptl(kk,nptl+1)=pptl(kk,nptl+1)+pptl(kk,ii)
       enddo
       enddo
-      call alist('&',nptl+1,nptl+1)
+      call alist('&',
+     +sizeof('&'),nptl+1,nptl+1)
       endif
 
 c     exit
@@ -733,7 +740,8 @@ c     ----
       call utprix('hdecay',ish,ishini,5)
       return
 
- 9999   call utstop('hdecay: mxptl too small&')
+ 9999   call utstop('hdecay: mxptl too small&',
+     +sizeof('hdecay: mxptl too small&'))
         end
 
 c---------------------------------------------------------------------
@@ -2049,7 +2057,8 @@ c      if(ird.gt.1171)return   ! ??????????????????????????
       if(noeta.and.ires.eq.220) goto220
       if(ires.eq.iold) goto230
       if(ires.lt.0.or.ires.gt.mxlook)
-     *call utstop('hdecin: ires out of range&')
+     *call utstop('hdecin: ires out of range&',
+     +sizeof('hdecin: ires out of range&'))
       look(ires)=loop
 230   iold=ires
       cbr(loop)=br
@@ -2064,7 +2073,8 @@ c      if(ird.gt.1171)return   ! ??????????????????????????
       goto200
 
 9999  write(ifch,*)'loop=', loop
-      call utstop('hdecin: loop > mxdky&')
+      call utstop('hdecin: loop > mxdky&',
+     +sizeof('hdecin: loop > mxdky&'))
 
       end
 

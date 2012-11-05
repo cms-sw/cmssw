@@ -269,7 +269,8 @@ c-----------------------------------------------------------------
         xmin1=xmin**dble(delh+.4)
         xmax1=xmax**dble(delh+.4)
         zp0=dsqrt(xmin)
-        if(zp0.ge.1.d0)call utstop('zp0 in sem&')
+        if(zp0.ge.1.d0)call utstop('zp0 in sem&',
+     +sizeof('zp0 in sem&'))
       !........ kinematical bounds
         tmax0=dlog((1.d0+dsqrt(1.d0-zp0))/(1.d0-dsqrt(1.d0-zp0)))
         tmin0=dlog((1.d0+dsqrt(1.d0-xpmax0))
@@ -894,7 +895,8 @@ c-------------------------------------------------------------------------
             ifl=ifl1
           endif
         else
-          call utstop('No quark for hard Pomeron+ in psahot!&')
+          call utstop('No quark for hard Pomeron+ in psahot!&',
+     +sizeof('No quark for hard Pomeron+ in psahot!&'))
         endif
 
         if(iret1.eq.1.or.iret2.eq.1)then
@@ -1088,7 +1090,8 @@ c add the corresponding anti-parton in the list to compensate the emitted one
             ifl=ifl2
           endif
         else
-          call utstop('No quark for hard Pomeron- in psahot!&')
+          call utstop('No quark for hard Pomeron- in psahot!&',
+     +sizeof('No quark for hard Pomeron- in psahot!&'))
         endif
 
         if(iret1.eq.1.or.iret2.eq.1)then
@@ -1778,10 +1781,12 @@ c --- update remnant flavour ---
 
       iret1=0
       call idenco(jcp,icp,iret1)
-      if(iret1.eq.1)call utstop('Problem with proj rem in psahot !&')
+      if(iret1.eq.1)call utstop('Problem with proj rem in psahot !&',
+     +sizeof('Problem with proj rem in psahot !&'))
       iret2=0
       call idenco(jct,ict,iret2)
-      if(iret2.eq.1)call utstop('Problem with targ rem in psahot !&')
+      if(iret2.eq.1)call utstop('Problem with targ rem in psahot !&',
+     +sizeof('Problem with targ rem in psahot !&'))
 
       do i=1,2
         icproj(i,ip)=icp(i)
@@ -2024,8 +2029,10 @@ c-----------------------------------------------------------------------
       if(ish.ge.9)write (ifch,*)'nptl,kj (sto)',nptl,kj
       if(nptl.ge.mxptl.or.kj.le.0)then
        write (ifmt,*)'nptl,kj',nptl,kj
-       call alist('Error in pspawr: nptl or kj out of bounds &',1,nptl)
-       call utstop('nptl or kj out of bounds&')
+       call alist('Error in pspawr: nptl or kj out of bounds &',
+     +sizeof('Error in pspawr: nptl or kj out of bounds &'),1,nptl)
+       call utstop('nptl or kj out of bounds&',
+     +sizeof('nptl or kj out of bounds&'))
       endif
 
       if(ifrptl(1,iptl).eq.0)ifrptl(1,iptl)=nptl

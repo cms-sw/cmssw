@@ -48,13 +48,16 @@ c-----------------------------------------------------------------------
 
 
       if(matarg.gt.18.or.maproj.gt.64)
-     &  call utstop('Mass too big for Sibyll (Mtrg<18, Mprj<64) !&')
+     &  call utstop('Mass too big for Sibyll (Mtrg<18, Mprj<64) !&',
+     +sizeof('Mass too big for Sibyll (Mtrg<18, Mprj<64) !&'))
       id=idtrafo('nxs','sib',idproj)
       ida=abs(id)
       if(ida.lt.6.or.ida.gt.14)
-     &  call utstop('projectile no allowed in Sibyll !&')
+     &  call utstop('projectile no allowed in Sibyll !&',
+     +sizeof('projectile no allowed in Sibyll !&'))
       if(idtarg.ne.0.and.idtarg.ne.1120)
-     &  call utstop('target no allowed in Sibyll !&')
+     &  call utstop('target no allowed in Sibyll !&',
+     +sizeof('target no allowed in Sibyll !&'))
       if(bminim.gt.0.or.bmaxim.lt.1000)
      &  write(ifmt,*)'Only min bias event in Sibyll ... no b !'
       call iclass(idproj,iclpro)
@@ -145,7 +148,8 @@ C  SIBYLL
       a=pi*(b2**2-b1**2)
 
       if(a.gt.0..and.rangen().gt.sibincs/10./a)goto 1001   !no interaction
-      if(ish.ge.3)call alist('Determine Sibyll Production&',0,0)
+      if(ish.ge.3)call alist('Determine Sibyll Production&',
+     +sizeof('Determine Sibyll Production&'),0,0)
 
       nptl=0
       NP=0
@@ -193,7 +197,8 @@ c LLIST is the code of final particle, P - its 4-momentum and mass.
      $     , ' momentum :',(P(k,i),i=1,5)
 
           nptl=nptl+1
-          if(nptl.gt.mxptl)call utstop('Sibyll: mxptl too small&')
+          if(nptl.gt.mxptl)call utstop('Sibyll: mxptl too small&',
+     +sizeof('Sibyll: mxptl too small&'))
 
           if(abs(ic).ge.10000)then
             ic=ic-sign(10000,ic)
@@ -277,7 +282,8 @@ c LLIST is the code of final particle, P - its 4-momentum and mass.
             endif
           endif
           nptl=nptl+1
-          if(nptl.gt.mxptl)call utstop('Sibyll: mxptl too small&')
+          if(nptl.gt.mxptl)call utstop('Sibyll: mxptl too small&',
+     +sizeof('Sibyll: mxptl too small&'))
           id=idtrafo('sib','nxs',ic)
           if(ish.ge.7)write(ifch,'(a,i5,a,i10,a)')
      $         ' epos particle ',nptl,' id :',id,' after conversion'

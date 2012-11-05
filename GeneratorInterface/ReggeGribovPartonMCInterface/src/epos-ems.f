@@ -59,7 +59,8 @@ c Metropolis
         if(ish.ge.6)write (ifch,*)'after xEmsI1'
         if(nemsi.le.4.and.iemsi2.eq.1)call xEmsI2(1,0)
         if(ish.ge.6)write (ifch,*)'after xEmsI2'
-        if(ish.ge.6)call XPrint('Before Markov:&')
+        if(ish.ge.6)call XPrint('Before Markov:&',
+     +sizeof('Before Markov:&'))
 
 
 c     Markov
@@ -187,7 +188,8 @@ c     ------
 
 c --- Plot Pomeron b-distributions ---
 
-      if(ish.ge.6)call XPrint('After Markov :&')
+      if(ish.ge.6)call XPrint('After Markov :&',
+     +sizeof('After Markov :&'))
 
       if(iemsb.eq.1)then ! plot
        do k=1,koll
@@ -299,7 +301,8 @@ c random selection
 
         endif
 
-        if(ish.ge.6)call XPrint('After ProNucSpl:&')
+        if(ish.ge.6)call XPrint('After ProNucSpl:&',
+     +sizeof('After ProNucSpl:&'))
 
       endif
 
@@ -463,7 +466,8 @@ c      if(irzptn.eq.1)call recalcZPtn
         endif
       endif
 
-      if(ish.ge.6)call XPrint('After fixing:&')
+      if(ish.ge.6)call XPrint('After fixing:&',
+     +sizeof('After fixing:&'))
 
 
 c --- Plot MC pomeron number ---
@@ -896,7 +900,8 @@ c       if(kolt(it).ne.0)call ProCot(it,maproj+it)
 c ---- Remnant Masses (ProReM)
 
 
-      if(ish.ge.6)call XPrint('Before  ProReM:&')
+      if(ish.ge.6)call XPrint('Before  ProReM:&',
+     +sizeof('Before  ProReM:&'))
       ntry=0
       iret=0
       call StoRe(1)             !Store Remnant configuration
@@ -945,7 +950,8 @@ c random selection
           it=-ishuff(indx,ir)
           call ProReM(-1,it,iret)
         endif
-        if(ish.ge.10)call XPrint('In  ProReM:&')
+        if(ish.ge.10)call XPrint('In  ProReM:&',
+     +sizeof('In  ProReM:&'))
 
         if(iret.eq.1)then
           !----------------------------------------
@@ -987,7 +993,8 @@ c      enddo
 
 
       iret=0
-      if(ish.ge.6)call XPrint('After ProReM:&')
+      if(ish.ge.6)call XPrint('After ProReM:&',
+     +sizeof('After ProReM:&'))
 
 
 c --- Write Z into zpaptl for connected strings
@@ -1224,7 +1231,8 @@ c----------------------------------------------------------------------
        xmtmn(it)=xmtstx
 
       else
-      call utstop('mode should integer from -2 to 2 (without 0)&')
+      call utstop('mode should integer from -2 to 2 (without 0)&',
+     +sizeof('mode should integer from -2 to 2 (without 0)&'))
       endif
       return
       end
@@ -1769,7 +1777,8 @@ c-------------------------------------------------------------------------
       it=itarg(k)
       if(ish.ge.4)write(ifch,*)'ProPoTy:k,n,idpr,x',k,n,ip,it,nprt(k)
      *                                              ,idpr(n,k),xpr(n,k)
-      if(idpr(n,k).ne.1)call utstop('ProPoTy: should not happen&')
+      if(idpr(n,k).ne.1)call utstop('ProPoTy: should not happen&',
+     +sizeof('ProPoTy: should not happen&'))
 
       cont=.true.
       do i=1,3
@@ -1932,7 +1941,8 @@ c restore x from nuclear splitting
             ivp(ip)=ivp(ip)-1
             ivt(it)=ivt(it)-1
           else
-            call utstop('ems-unknown pomeron&')
+            call utstop('ems-unknown pomeron&',
+     +sizeof('ems-unknown pomeron&'))
           endif
           if(ish.ge.6)write(ifch,*)'ProPoTy:idhpr',idhpr(n,k)
      &         ,' |',ip,ivp(ip),' |',it,ivt(it)
@@ -2534,7 +2544,8 @@ c-----------------------------------------------------------------------
 
       if(idp1pr(n,k).eq.0.and.idp2pr(n,k).eq.0
      * .and.idm1pr(n,k).eq.0.and.idm2pr(n,k).eq.0)
-     *call utstop('no Pomeron in ProSex&')
+     *call utstop('no Pomeron in ProSex&',
+     +sizeof('no Pomeron in ProSex&'))
 
       xp=xppr(n,k)
       xm=xmpr(n,k)
@@ -2800,7 +2811,8 @@ c   second quark
                   id=-1
                   return
                 else
-                  call utstop("Virpom:should not happen (2) !&")
+                  call utstop("Virpom:should not happen (2) !&",
+     +sizeof("Virpom:should not happen (2) !&"))
                 endif
               endif
             else      !if no pair has be found (because quarks already used by other valid string), then redo event to avoid problem in flavor conservation
@@ -2808,7 +2820,8 @@ c   second quark
                 id=-1
                 return
               else
-                call utstop("Virpom:should not happen  (3) !&")
+                call utstop("Virpom:should not happen  (3) !&",
+     +sizeof("Virpom:should not happen  (3) !&"))
               endif
             endif
 
@@ -2832,7 +2845,8 @@ c Projectile quark-antiquark pair
                 id=-1
                 return
               else
-                call utstop("Virpom:should not happen (4) !&")
+                call utstop("Virpom:should not happen (4) !&",
+     +sizeof("Virpom:should not happen (4) !&"))
               endif
             endif
           endif
@@ -2874,7 +2888,8 @@ c    second quark
                   id=-1
                   return
                 else
-                  call utstop("Virpom:should not happen (5) !&")
+                  call utstop("Virpom:should not happen (5) !&",
+     +sizeof("Virpom:should not happen (5) !&"))
                 endif
               endif
             else
@@ -2882,7 +2897,8 @@ c    second quark
                 id=-1
                 return
               else
-                call utstop("Virpom:should not happen (6) !&")
+                call utstop("Virpom:should not happen (6) !&",
+     +sizeof("Virpom:should not happen (6) !&"))
               endif
             endif
 
@@ -2906,7 +2922,8 @@ c Target quark-antiquark pair
                 id=-1
                 return
               else
-                call utstop("Virpom:should not happen (7) !&")
+                call utstop("Virpom:should not happen (7) !&",
+     +sizeof("Virpom:should not happen (7) !&"))
               endif
             endif
           endif
@@ -3007,7 +3024,8 @@ c       restore target
 
       else
 
-        call utstop('Do not know what to do in StoRe.&')
+        call utstop('Do not know what to do in StoRe.&',
+     +sizeof('Do not know what to do in StoRe.&'))
 
       endif
 
@@ -3167,7 +3185,8 @@ c-----------------------------------------------------------------------
         jrem=2
       else
         jrem=0
-        call utstop("Wrong ir in WriteZZ !&")
+        call utstop("Wrong ir in WriteZZ !&",
+     +sizeof("Wrong ir in WriteZZ !&"))
       endif
 
       do li=1,lremn(irem,jrem)
@@ -3413,8 +3432,10 @@ c check
           kkk=kremn(irem,li,jrem)
           write(ifch,*)'kkk',kkk
         enddo
-        call XPrint('ProRem :&')
-        call utstop('Big problem in ProRem !&')
+        call XPrint('ProRem :&',
+     +sizeof('ProRem :&'))
+        call utstop('Big problem in ProRem !&',
+     +sizeof('Big problem in ProRem !&'))
       endif
 
 c xtest = xminus-max,  corresponding mostly to a remnant mass 0.2
@@ -3758,7 +3779,8 @@ c-----------------------------------------------------------------------
         idm1pr(n,k)=1
         idm2pr(n,k)=1
        else
-        call utstop('ProSeTy-idhpr????&')
+        call utstop('ProSeTy-idhpr????&',
+     +sizeof('ProSeTy-idhpr????&'))
        endif
        if(iremn.eq.3)then       !add flavor to jcpref and jctref for psahot and ProSeF later (sea quark)
          idum=idrafl(iclpro,jcp,1,'s',3,iret)
@@ -3783,7 +3805,8 @@ c    projectile
          enddo
        endif
   1    ntry=ntry+1
-       if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&')
+       if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&',
+     +sizeof('something goes wrong in sr ProSeTy&'))
        ivp(ip)=ivpi
        idp(ip)=idpi
        if(iremn.eq.3)then
@@ -3920,7 +3943,8 @@ c    target
          enddo
        endif
   2    ntry=ntry+1
-       if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&')
+       if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&',
+     +sizeof('something goes wrong in sr ProSeTy&'))
        ivt(it)=ivti
        idt(it)=idti
        if(iremn.eq.3)then
@@ -4839,7 +4863,8 @@ c        ifl=idrafl(jcp,2,'v',iret)
 c        iqp=1      ! subtract antiquark
 c        iqt=2      ! add antiquark
 c       else
-c        call utstop('fremfl&')
+c        call utstop('fremfl&',
+c     +sizeof('fremfl&'))
 c       endif
 c      elseif(iakt.eq.4)then
 c       if(ikt.eq.4.or.ikt.eq.-2)then
@@ -4851,7 +4876,8 @@ c        ifl=idrafl(jct,2,'v',iret)
 c        iqp=2      ! add antiquark
 c        iqt=1      ! subtract antiquark
 c       else
-c        call utstop('fremfl&')
+c        call utstop('fremfl&',
+c     +sizeof('fremfl&'))
 c       endif
 c      elseif(iakp.eq.3)then
 c       if(ikp.gt.0)then
@@ -4914,7 +4940,8 @@ c        iqp=2      ! subtract quark
 c        iqt=1      ! add quark
 c       endif
 c      else
-c       call utstop('fremfl: error&')
+c       call utstop('fremfl: error&',
+c     +sizeof('fremfl: error&'))
 c      endif
 c
 c      if(ish.ge.7)write(ifch,*)'iq_p:',iqp,' iq_t:',iqt,' if:',ifl
@@ -5089,7 +5116,8 @@ c resonance
       elseif(idend(ii).eq.0.and.idend(jj).eq.0)then
        goto1000
       else
-       call utstop('error in fstrwr&')
+       call utstop('error in fstrwr&',
+     +sizeof('error in fstrwr&'))
       endif
 
   100 format(a,4e9.3,i5)
@@ -5211,12 +5239,14 @@ c        if(kolt(m).le.0)goto1000
           enddo
         endif
       else
-        call utstop('ProReF: ir ???&')
+        call utstop('ProReF: ir ???&',
+     +sizeof('ProReF: ir ???&'))
       endif
       if(ish.ge.3)
      &write(ifch,*)'remnant particle index:',mm,m,iclpt,isopt
 
-      if(ish.ge.8)call alist('ProRef&',1,nptl)
+      if(ish.ge.8)call alist('ProRef&',
+     +sizeof('ProRef&'),1,nptl)
       antotre=antotre+1.
 
       mmini=mm
@@ -5457,7 +5487,8 @@ c            Remnant radius to have eps=dens GeV/fm3
           enddo
           call iddeco(icf,jcf)
           call idquacjc(jcf,nqu,naq)
-          if(iret.eq.1)call utstop('Pb in ProRef in strg+drop process&')
+          if(iret.eq.1)call utstop('Pb in ProRef in strg+drop process&',
+     +sizeof('Pb in ProRef in strg+drop process&'))
           !!!  print*,'new remnant:',icf,ept(5)    !!!
           nptl=nptl+1
           t=xorptl(4,mm)
@@ -5497,7 +5528,8 @@ c            Remnant radius to have eps=dens GeV/fm3
      &       .or.amasini.le.amasmin*flow)then      !decay here only if no fusion or large mass or mass too low for flow
 
           if(ish.ge.3)write(ifch,*)'Decay remnant droplet...'
-          if(nptlb.gt.mxptl-10)call utstop('ProRef: mxptl too small&')
+          if(nptlb.gt.mxptl-10)call utstop('ProRef: mxptl too small&',
+     +sizeof('ProRef: mxptl too small&'))
 
           if(ifrade.gt.0.and.ispherio.eq.0)then
             if(ioclude.eq.3.or.dble(pptl(5,mm)).lt.xmdrmin)then
@@ -5947,7 +5979,8 @@ c          endif
         !..... forward string end
 
         nptl=nptl+1
-        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&')
+        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&',
+     +sizeof('ProRef: mxptl too small&'))
         pptl(1,nptl)=sngl(ep(1))
         pptl(2,nptl)=sngl(ep(2))
         pptl(3,nptl)=sngl(ep(3))
@@ -6012,7 +6045,8 @@ c          endif
         !....... backward string end
 
         nptl=nptl+1
-        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&')
+        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&',
+     +sizeof('ProRef: mxptl too small&'))
         pptl2=0.
         do i=1,3
          pptl(i,nptl)=sngl(ept(i)-ep(i))
@@ -6074,7 +6108,8 @@ c............................no string = resonance...................
 
         nptl=nptl+1
         if(idr.ne.0)id=idr
-        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&')
+        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&',
+     +sizeof('ProRef: mxptl too small&'))
         if(iept.eq.0.or.iept.eq.6)call idmass(id,am)
         idptl(nptl)=id
         pptl(1,nptl)=sngl(ept(1))
@@ -6229,7 +6264,8 @@ c  remove mesons
             if(iret.ne.0)goto 1000
               nptl=nptl+1
               if(nptl.gt.mxptl)
-     &             call utstop('RemoveHadrons: mxptl too small&')
+     &             call utstop('RemoveHadrons: mxptl too small&',
+     +sizeof('RemoveHadrons: mxptl too small&'))
               idptl(nptl)=idd
               do i=1,5
                 pptl(i,nptl)=sngl(aa(i))
@@ -6287,7 +6323,8 @@ c remove (anti)baryons
             if(iret.ne.0)goto 1000
               nptl=nptl+1
               if(nptl.gt.mxptl)
-     &             call utstop('RemoveHadron: mxptl too small&')
+     &             call utstop('RemoveHadron: mxptl too small&',
+     +sizeof('RemoveHadron: mxptl too small&'))
               idptl(nptl)=idd
               do i=1,5
                 pptl(i,nptl)=sngl(aa(i))
@@ -6520,11 +6557,13 @@ c            write(ifch,*)'ici',ifq,ifa,jc,'| ',jcv
             endif
             call idmass(idf,amss)
            else
-            call utstop('This imb does not exist in gethad !&')
+            call utstop('This imb does not exist in gethad !&',
+     +sizeof('This imb does not exist in gethad !&'))
            endif
 
           if(iret2.ne.0)then
-c            call utstop('Not enough quark in gethad ???&')
+c            call utstop('Not enough quark in gethad ???&',
+c     +sizeof('Not enough quark in gethad ???&'))
             call utmsg('gethad')
             write(ifch,*)'Not enough quark ??? ... redo event !'
             call utmsgf
@@ -6589,7 +6628,8 @@ c If energy to small, then produce a new particle adding the needed missing ener
             if(iret.eq.0)then
              goto 777
             else
-c              call utstop('Problem with qcm in gethadron !&')
+c              call utstop('Problem with qcm in gethadron !&',
+c     +sizeof('Problem with qcm in gethadron !&'))
               call utmsg('gethad')
               write(ifch,*)'Problem with qcm  ... redo event !'
               call utmsgf
@@ -6811,7 +6851,8 @@ c  get id of string ends, the remnant string jc is updated
              nqu=2
              naq=2
            else
-             call utstop('This should not happen (getdrop) !&')
+             call utstop('This should not happen (getdrop) !&',
+     +sizeof('This should not happen (getdrop) !&'))
            endif
          elseif(nqu.eq.2.and.naq.eq.2)then
            idps=1
@@ -6927,15 +6968,18 @@ c a third one to complete the string
 
           endif      !iremn=3
 
-          if(iret.ne.0)call utstop('Not enough quark in getdro ???&')
+          if(iret.ne.0)call utstop('Not enough quark in getdro ???&',
+     +sizeof('Not enough quark in getdro ???&'))
           if(jcini(4,1)+jcini(4,2).ne.0)
-     &         call utstop('There is sitll charm quark in getdro???&')
+     &         call utstop('There is sitll charm quark in getdro???&',
+     +sizeof('There is sitll charm quark in getdro???&'))
 
 c string id
 
          call idenco(jcfin,icx,iret)
          if(iret.eq.1)then
-           call utstop('Exotic flavor in getdroplet !&')
+           call utstop('Exotic flavor in getdroplet !&',
+     +sizeof('Exotic flavor in getdroplet !&'))
          endif
 
 
@@ -7272,7 +7316,8 @@ c create q-aq from sea (but no charm)
            strcomp=.true.
            valqu=.false.
          elseif(mod(nqu-naq,3).ne.0)then
-           call utstop('This should not happen (getdropx) !&')
+           call utstop('This should not happen (getdropx) !&',
+     +sizeof('This should not happen (getdropx) !&'))
          endif
 
 c  get id of string ends, the remnant string jc is updated
@@ -7285,12 +7330,14 @@ c First remove all charm
              idps=1
              idms=1
            else
-             call utstop('getdropx can not manage more than c-cb !&')
+             call utstop('getdropx can not manage more than c-cb !&',
+     +sizeof('getdropx can not manage more than c-cb !&'))
            endif
 
          elseif(nqc.ne.0.and.jcini(4,1)*jcini(4,2).ne.0)then
 
-           call utstop('getdropx can not manage c quarks this way !&')
+           call utstop('getdropx can not manage c quarks this way !&',
+     +sizeof('getdropx can not manage c quarks this way !&'))
 
          else
 
@@ -7316,7 +7363,8 @@ c First remove all charm
                idps=1
                idms=5
              elseif(jcini(4,1).gt.1.or.jcini(4,2).gt.1)then
-               call utstop('getdropx can not use more than 3 c/cb !&')
+               call utstop('getdropx can not use more than 3 c/cb !&',
+     +sizeof('getdropx can not use more than 3 c/cb !&'))
              endif
            endif
 
@@ -7449,15 +7497,18 @@ c choose flavor with priority to valence quark (after charm)
 
           endif
 
-          if(iret.ne.0)call utstop('Not enough quark in getdropx ???&')
+          if(iret.ne.0)call utstop('Not enough quark in getdropx ???&',
+     +sizeof('Not enough quark in getdropx ???&'))
           if(jcini(4,1)+jcini(4,2).ne.0)
-     &         call utstop('There is sitll charm quark in getdropx???&')
+     &         call utstop('There is sitll charm quark in getdropx???&',
+     +sizeof('There is sitll charm quark in getdropx???&'))
 
 c string id
 
          call idenco(jcfin,icx,iret)
          if(iret.eq.1)then
-           call utstop('Exotic flavor in getdropx !&')
+           call utstop('Exotic flavor in getdropx !&',
+     +sizeof('Exotic flavor in getdropx !&'))
          endif
 
 
@@ -7933,7 +7984,8 @@ c----------------------------------------------------------------------
 c parameter test
 
       if(nflavems.lt.nrflav)
-     &   call utstop("nflavems<nrflav : change it in epos-ems !&")
+     &   call utstop("nflavems<nrflav : change it in epos-ems !&",
+     +sizeof("nflavems<nrflav : change it in epos-ems !&"))
 
 
 c abreviations
@@ -8411,7 +8463,8 @@ c determine ncol
         tivptl(2,maproj+j)=coord(4,k)
 8      continue
        if(ncolx.ne.ncol)write(6,*)'ncolx,ncol:', ncolx,ncol
-       if(ncolx.ne.ncol)call utstop('********ncolx.ne.ncol********&')
+       if(ncolx.ne.ncol)call utstop('********ncolx.ne.ncol********&',
+     +sizeof('********ncolx.ne.ncol********&'))
        if(ncol.eq.0)goto1001
 
 c determine npj, ntg
@@ -8531,7 +8584,8 @@ c     determine kolz
       else
         kolz=1
       endif
-c      if(kolz.eq.0)call utstop(' kolz=0 (proj)&')
+c      if(kolz.eq.0)call utstop(' kolz=0 (proj)&',
+c     +sizeof(' kolz=0 (proj)&'))
       if(kolz.eq.0)then
         t=0.
       else
@@ -8568,7 +8622,8 @@ c      if(kolz.eq.0)call utstop(' kolz=0 (proj)&')
           icproj(2,i)=icrmn(2)
         elseif(iremn.eq.3)then
       write(ifch,*)'Problem in projectile flavor :',i,' ->',jc,' :',isum
-          call utstop('Procop: Problem in projectile flavor !&')
+          call utstop('Procop: Problem in projectile flavor !&',
+     +sizeof('Procop: Problem in projectile flavor !&'))
         else     !for iremn=2 and large number of quark define icproj=999999
           icproj(1,i)=999999
           icproj(2,i)=999999
@@ -8679,7 +8734,8 @@ c     determine kolz
       else
         kolz=1
       endif
-c      if(kolz.eq.0)call utstop(' kolz=0 (targ)&')
+c      if(kolz.eq.0)call utstop(' kolz=0 (targ)&',
+c     +sizeof(' kolz=0 (targ)&'))
       if(kolz.eq.0)then
         t=0.
       else
@@ -8716,7 +8772,8 @@ c      if(kolz.eq.0)call utstop(' kolz=0 (targ)&')
           ictarg(2,j)=icrmn(2)
         elseif(iremn.eq.3)then
       write(ifch,*)'Problem in projectile flavor :',j,' ->',jc,' :',isum
-          call utstop('Procot: Problem in target flavor !&')
+          call utstop('Procot: Problem in target flavor !&',
+     +sizeof('Procot: Problem in target flavor !&'))
         else     !for iremn=2 and large number of quark define ictarg=999999
           ictarg(1,j)=999999
           ictarg(2,j)=999999
@@ -8792,7 +8849,8 @@ c-----------------------------------------------------------------------
 
       if(npproj(i).eq.0)then
         write(*,*)'emswrp i ii',i,ii
-        call utstop('emswrp with npproj=0 should never happen !&')
+        call utstop('emswrp with npproj=0 should never happen !&',
+     +sizeof('emswrp with npproj=0 should never happen !&'))
 
 c        t=xorptl(4,kolp(i))
 c        istptl(ii)=1
@@ -8824,7 +8882,8 @@ c        kolp(i)=1
       pptl(2,mm)=sngl(xyp(i))
       pptl(3,mm)=sngl((xpp(i)-xmp(i))*plc/2d0)
       pptl(4,mm)=sngl((xpp(i)+xmp(i))*plc/2d0)
-      if(pptl(4,mm).lt.-eps)call utstop('E pro<0 !&')
+      if(pptl(4,mm).lt.-eps)call utstop('E pro<0 !&',
+     +sizeof('E pro<0 !&'))
       p5sq=xpp(i)*xmp(i)*s-xxp(i)*xxp(i)-xyp(i)*xyp(i)
       if(p5sq.gt.1.d-10)then
         pptl(5,mm)=sngl(sqrt(p5sq))
@@ -8863,7 +8922,8 @@ c-----------------------------------------------------------------------
       if(nptarg(j).eq.0)then
 
         write(*,*)'emswrt j jj',j,jj
-        call utstop('emswrt with nptarg=0 should never happen !&')
+        call utstop('emswrt with nptarg=0 should never happen !&',
+     +sizeof('emswrt with nptarg=0 should never happen !&'))
 
 c        t=xorptl(4,kolt(j))
 c        istptl(jj)=1
@@ -8895,7 +8955,8 @@ c        kolt(j)=1
       pptl(2,mm)=sngl(xyt(j))
       pptl(3,mm)=sngl((xpt(j)-xmt(j))*plc/2d0)
       pptl(4,mm)=sngl((xpt(j)+xmt(j))*plc/2d0)
-      if(pptl(4,mm).lt.-eps)call utstop('E targ<0 !&')
+      if(pptl(4,mm).lt.-eps)call utstop('E targ<0 !&',
+     +sizeof('E targ<0 !&'))
       p5sq=xpt(j)*xmt(j)*s-xxt(j)*xxt(j)-xyt(j)*xyt(j)
       if(p5sq.gt.1.d-10)then
         pptl(5,mm)=sngl(sqrt(p5sq))
@@ -8964,7 +9025,8 @@ c-----------------------------------------------------------------------
         ityptl(nptl)=30
         if(itpr(k).gt.0)ityptl(nptl)=35
        else
-        call utstop('emswrpom: unknown id&')
+        call utstop('emswrpom: unknown id&',
+     +sizeof('emswrpom: unknown id&'))
        endif
        do l = 1,4
         ibptl(l,nptl)=0
@@ -9201,7 +9263,8 @@ c  remaining nucleus is one fragment
               pptl(4,nptl)=pptl(4,nptl)+dble(pptl(4,is))
             endif
           enddo
-          if(inucl.ne.inew/100)call utstop('Pb in emsfrag !&')
+          if(inucl.ne.inew/100)call utstop('Pb in emsfrag !&',
+     +sizeof('Pb in emsfrag !&'))
           idnucl=1000000000+mod(inew,100)*10000+(inew/100)*10
           call idmass(idnucl,am)
           pptl(5,nptl)=am    !mass
@@ -9451,7 +9514,8 @@ c  remaining nucleus is one fragment
               pptl(4,nptl)=pptl(4,nptl)+dble(pptl(4,is))
             endif
           enddo
-          if(inucl.ne.inew/100)call utstop('Pb in emsfrag !&')
+          if(inucl.ne.inew/100)call utstop('Pb in emsfrag !&',
+     +sizeof('Pb in emsfrag !&'))
           idnucl=1000000000+mod(inew,100)*10000+(inew/100)*10
           call idmass(idnucl,am)
           pptl(5,nptl)=am    !mass
@@ -9582,7 +9646,8 @@ c-----------------------------------------------------------------------
       double precision plc,s,seedp
       common/cems5/plc,s
 
-c      if(iemsi2.eq.0)call utstop('ERROR in XemsI1: iemsi2 = 0&')
+c      if(iemsi2.eq.0)call utstop('ERROR in XemsI1: iemsi2 = 0&',
+c     +sizeof('ERROR in XemsI1: iemsi2 = 0&'))
 
        if(iii.eq.1)then
 
@@ -9856,7 +9921,8 @@ c-----------------------------------------------------------------------
      *,wxp(nbix,nid),wxm(nbix,nid),wx(nbix,nid),wy(nbiy,nid)
      *,xpu,xpo,xmu,xmo,xu,xo,yu,yo,dy
 
-      if(iemsrx.eq.0)call utstop('ERROR in XemsRx: iemsrx = 0&')
+      if(iemsrx.eq.0)call utstop('ERROR in XemsRx: iemsrx = 0&',
+     +sizeof('ERROR in XemsRx: iemsrx = 0&'))
 
         if(iii.eq.0)then
 
@@ -10047,7 +10113,8 @@ c-----------------------------------------------------------------------
       common/cems5/plc,s
       common/cemspm/sumb(nbib)
 
-      if(iemspm.eq.0)call utstop('ERROR in XemsPm: iemspm = 0&')
+      if(iemspm.eq.0)call utstop('ERROR in XemsPm: iemspm = 0&',
+     +sizeof('ERROR in XemsPm: iemspm = 0&'))
 
         if(iii.eq.0)then
 
@@ -10181,7 +10248,8 @@ c-----------------------------------------------------------------------
       common/geom/rmproj,rmtarg,bmax,bkmx
       dimension uua2(nbib),uuo2(nbib),uu3(nbib)
 
-      if(iemsb.eq.0)call utstop('ERROR in XemsB: iemsB = 0&')
+      if(iemsb.eq.0)call utstop('ERROR in XemsB: iemsB = 0&',
+     +sizeof('ERROR in XemsB: iemsB = 0&'))
 
         if(iii.eq.0)then
 
@@ -10346,7 +10414,8 @@ c-----------------------------------------------------------------------
       double precision seedp,PhiExpo!,PhiExact
       common/geom/rmproj,rmtarg,bmax,bkmx
 
-      if(iemsbg.eq.0)call utstop('ERROR in XemsBg: iemsbg = 0&')
+      if(iemsbg.eq.0)call utstop('ERROR in XemsBg: iemsbg = 0&',
+     +sizeof('ERROR in XemsBg: iemsbg = 0&'))
 
         if(iii.eq.0)then
 
@@ -10498,7 +10567,8 @@ c-----------------------------------------------------------------------
 
       nposi=5
 
-      if(iemspx.eq.0)call utstop('ERROR in XemsPx: iemspx = 0&')
+      if(iemspx.eq.0)call utstop('ERROR in XemsPx: iemspx = 0&',
+     +sizeof('ERROR in XemsPx: iemspx = 0&'))
 
       if(iii.eq.0)then
 
@@ -10921,7 +10991,8 @@ c-----------------------------------------------------------------------
       common/cemspbx/xlub1,xlub2,xlob
 ctp060829      character imod*5
 
-      if(iemspbx.eq.0)call utstop('ERROR in xEmsP2: iemspbx = 0&')
+      if(iemspbx.eq.0)call utstop('ERROR in xEmsP2: iemspbx = 0&',
+     +sizeof('ERROR in xEmsP2: iemspbx = 0&'))
 
       if(iii.eq.0)then
 
@@ -11619,17 +11690,14 @@ c
 c      end
 c
 c------------------------------------------------------------------------
-      subroutine XPrint(text)
+      subroutine XPrint(text,size)
 c------------------------------------------------------------------------
       include 'epos.inc'
       include 'epos.incems'
       double precision xpptot,xmptot,xpttot,xmttot
-      parameter(itext=15)
-      character  text*15
-      imax=itext+1
-      do i=itext,1,-1
-      if(text(i:i).eq.'&')imax=i
-      enddo
+      character text(*)
+      integer(8) size,imax
+      imax=size
       write(ifch,'(1x,a)')text(1:imax-1)
 
       write(ifch,'(a)')

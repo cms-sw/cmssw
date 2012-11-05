@@ -142,7 +142,8 @@ c-----------------------------------------------------------------------
       jc(n,1)=jc(n,1)-k
       jc(n,2)=jc(n,2)-k
       if(jc(n,1).lt.0.or.jc(n,2).lt.0)
-     *call utstop('idcomp: jc negative&')
+     *call utstop('idcomp: jc negative&',
+     +sizeof('idcomp: jc negative&'))
       l=l+jc(n,1)+jc(n,2)
            enddo
            if(l.eq.0)then
@@ -151,7 +152,8 @@ c-----------------------------------------------------------------------
            endif
            if(im.eq.1)then
       call idenco(jc,icx,ireten)
-      if(ireten.eq.1)call utstop('idcomp: idenco ret code = 1&')
+      if(ireten.eq.1)call utstop('idcomp: idenco ret code = 1&',
+     +sizeof('idcomp: idenco ret code = 1&'))
            endif
       return
       end
@@ -214,7 +216,8 @@ c-----------------------------------------------------------------------
 40    continue
            if(id/10**8.ne.7)then
       call idenco(jc,ic,ireten)
-      if(ireten.eq.1)call utstop('idenct: idenco ret code = 1&')
+      if(ireten.eq.1)call utstop('idenct: idenco ret code = 1&',
+     +sizeof('idenct: idenco ret code = 1&'))
       if(mod(ic(1),100).ne.0.or.mod(ic(2),100).ne.0)then
       id=9*10**8
       else
@@ -928,7 +931,8 @@ c-----------------------------------------------------------------------
         i=4
         proba=pcs
        else
-        call utstop("Problem in idraflx, should not be !&")
+        call utstop("Problem in idraflx, should not be !&",
+     +sizeof("Problem in idraflx, should not be !&"))
        endif
       else
         i=idrafl(icl,jc,j,"v",0,iretso)      !no update of jc here
@@ -1266,16 +1270,19 @@ c-----------------------------------------------------------------------
  43   continue
       ix=iabs(id)/10
       if(ix.lt.1.or.ix.gt.mxindx)then
-        call utstop('idres: ix out of range. id='//cad//'&')
+        call utstop('idres: ix out of range. id='//cad//'&',
+     +sizeof('idres: ix out of range. id='//cad//'&'))
       endif
       i=indx(ix)
       if(i.lt.1.or.i.gt.mxre)then
         write(ifch,*)'idres problem',id,am
-        call utstop('idres: particle not in table&')
+        call utstop('idres: particle not in table&',
+     +sizeof('idres: particle not in table&'))
       endif
       do 1 j=1,mxma-1
       if(am.ge.rema(i,j).and.am.le.rema(i,j+1))then
-      if(j-1.gt.9)call utstop('idres: spin > 9&')
+      if(j-1.gt.9)call utstop('idres: spin > 9&',
+     +sizeof('idres: spin > 9&'))
       idr=id/10*10+(j-1)*id/iabs(id)
       goto 2
       endif
@@ -1286,7 +1293,8 @@ c-----------------------------------------------------------------------
       do 4 k=1,mxmx
       if(ix.eq.idmx(1,k))then
       if(j.lt.1.or.j.gt.mxma-1)
-     *call utstop('idres: index j out of range&')
+     *call utstop('idres: index j out of range&',
+     +sizeof('idres: index j out of range&'))
       if(idmx(j+1,k).ne.0)idr=idmx(j+1,k)*id/iabs(id)
       endif
 4     continue
@@ -1306,7 +1314,8 @@ c-----------------------------------------------------------------------
      *,'neg mass returned from idmass'
       write(ifch,*)'id,am(input):',idi,ami
       write(ifch,*)'idr,am:',idr,am
-      call utstop('idres: neg mass returned from idmass&')
+      call utstop('idres: neg mass returned from idmass&',
+     +sizeof('idres: neg mass returned from idmass&'))
       endif
       del=max(1.e-3,2.*rewi(i,j))
       if(abs(ami-am).gt.del)iadj=1
@@ -1513,15 +1522,19 @@ c     *233.,1.427,1.634,0.000,0.000,0.000,0.000,0.000,0.000,0.000,0.000,
 2     idmx(j,i)=idmxi(j,i)
 
       ntec=n
-      if(ntec.gt.mxre)call utstop('idresi: dimension mxre too small&')
+      if(ntec.gt.mxre)call utstop('idresi: dimension mxre too small&',
+     +sizeof('idresi: dimension mxre too small&'))
       do 1 k=1,n
       ix=nint(remai(k,1))
       ix2=nint(rewii(k,1))
       ix3=icrei(k,1)
-      if(ix.ne.ix2)call utstop('idresi: ix /= ix2&')
-      if(ix.ne.ix3)call utstop('idresi: ix /= ix3&')
+      if(ix.ne.ix2)call utstop('idresi: ix /= ix2&',
+     +sizeof('idresi: ix /= ix2&'))
+      if(ix.ne.ix3)call utstop('idresi: ix /= ix3&',
+     +sizeof('idresi: ix /= ix3&'))
       if(ix.lt.1.or.ix.gt.mxindx)
-     *call utstop('idresi: ix out of range.&')
+     *call utstop('idresi: ix out of range.&',
+     +sizeof('idresi: ix out of range.&'))
       indx(ix)=k
       rema(k,1)=0.
       rewi(k,1)=0.
@@ -1595,7 +1608,8 @@ c-----------------------------------------------------------------------
       ix=iabs(id)/10
       if(ix.lt.1.or.ix.gt.mxindx)then
         write(ifch,*)'id:',id
-        call utstop('idtau: ix out of range.&')
+        call utstop('idtau: ix out of range.&',
+     +sizeof('idtau: ix out of range.&'))
       endif
       ii=indx(ix)
       jj=mod(iabs(id),10)+2
@@ -1613,7 +1627,8 @@ c-----------------------------------------------------------------------
 75    continue
       if(ii.lt.1.or.ii.gt.mxre.or.jj.lt.1.or.jj.gt.mxma)then
       write(ifch,*)'id,ii,jj:',id,'   ',ii,jj
-      call utstop('idtau: ii or jj out of range&')
+      call utstop('idtau: ii or jj out of range&',
+     +sizeof('idtau: ii or jj out of range&'))
       endif
       wi=rewi(ii,jj)
            else
@@ -1743,17 +1758,20 @@ c-----------------------------------------------------------------------
         ic(2)=0
       else
         write(ifch,*)'***** id: ',id
-        call utstop('idtr4: unrecognized id&')
+        call utstop('idtr4: unrecognized id&',
+     +sizeof('idtr4: unrecognized id&'))
       endif
       return
 
  9998 continue
       write(ifch,*)'id: ',id
-      call utstop('idtr4: indx=0.&')
+      call utstop('idtr4: indx=0.&',
+     +sizeof('idtr4: indx=0.&'))
       
  9999 continue
       write(ifch,*)'id: ',id
-      call utstop('idtr4: ix out of range.&')
+      call utstop('idtr4: ix out of range.&',
+     +sizeof('idtr4: ix out of range.&'))
       end
 
 c-----------------------------------------------------------------------
@@ -1820,7 +1838,8 @@ c-----------------------------------------------------------------------
       if(idtra.ne.0)return
       if(ier.ne.1)return
       write(ifch,*)'idtra: ic = ',ic,ires
-      call utstop('idtra: unknown code&')
+      call utstop('idtra: unknown code&',
+     +sizeof('idtra: unknown code&'))
 
       entry idtrai(num,id,ier)
       idtrai=0
@@ -1848,7 +1867,8 @@ c-----------------------------------------------------------------------
       endif
       if(ier.ne.1)return
       write(ifch,*)'idtrai: id = ',id
-      call utstop('idtrai: unknown code&')
+      call utstop('idtrai: unknown code&',
+     +sizeof('idtrai: unknown code&'))
       end
 
 c-----------------------------------------------------------------------
@@ -1888,7 +1908,8 @@ c-----------------------------------------------------------------------
       write(ifch,*)'***** error in idtrbi: bottom or top quarks'
       write(ifch,*)'jc:'
       write(ifch,*)jc
-      call utstop('idtrbi: bottom or top quarks&')
+      call utstop('idtrbi: bottom or top quarks&',
+     +sizeof('idtrbi: bottom or top quarks&'))
       endif
       return
       end
@@ -2435,7 +2456,8 @@ c      print *,'idtrafo',' ',code1,' ',code2,idi
             endif
           endif
           idtrafo=idt(j,n+mm)*isi
-          if(abs(idtrafo).eq.99)call utstop('New particle not allowed ')
+          if(abs(idtrafo).eq.99)call utstop('New particle not allowed ',
+     +sizeof('New particle not allowed '))
           if(idtrafo.lt.0.and.j.eq.4)then           !corsika  id always >0
             iadtr=abs(idtrafo)
             if(iadtr.eq.13)then
@@ -2490,7 +2512,8 @@ c      return
         endif
         return
       else
-        call utstop('Should not happen in idtrafo !&')
+        call utstop('Should not happen in idtrafo !&',
+     +sizeof('Should not happen in idtrafo !&'))
       endif
 
       end

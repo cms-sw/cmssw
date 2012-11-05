@@ -22,7 +22,8 @@ c-----------------------------------------------------------------------
       if(nptl.le.nptlpt) goto 9999
 
       if(ish.ge.8)then
-        call alistf('list before boost&')
+        call alistf('list before boost&',
+     +sizeof('list before boost&'))
       endif
       esoll=0.d0
       psoll=0.d0
@@ -65,7 +66,8 @@ c check maximum energy
          if(iLHC.eq.1.and.pptl(4,i).gt.engy*0.51)then
            write(ifch,*)'Energy of particle too high !',i,ityptl(i)
      &                                                 ,pptl(4,i)
-c           call utstop('utresc&')
+c           call utstop('utresc&',
+c     +sizeof('utresc&'))
            if(ityptl(i).eq.48.or.ityptl(i).eq.58  !diffractive resonance
      &    .or.ityptl(i).eq.47.or.ityptl(i).eq.57)then   !active spectators
              pptl(4,i)=0.5*engy
@@ -81,7 +83,8 @@ c           call utstop('utresc&')
            endif
            if(iret.eq.1)then
              write(ifch,*)'Warning in utresc: redo event ... '
-c             call utstop('Energy of particle too high !&')
+c             call utstop('Energy of particle too high !&',
+c     +sizeof('Energy of particle too high !&'))
              goto 9999
            endif
          endif
@@ -132,7 +135,8 @@ c calculate boost vector to have sum of pt=0 and sum of pz=0
         write(ifch,*)'p1',p1(1),p1(2),p1(3),p1(4),ppp
         if(ish.ge.2)write (ifch,*) 'Problem in utresc (1): redo event'
         write (ifmt,*) 'Problem in utresc (1): redo event'
-c       call utstop('utresc&')
+c       call utstop('utresc&',
+c     +sizeof('utresc&'))
         goto 9999
       endif
       esoll=p1(5)
@@ -158,7 +162,8 @@ c     -----
       enddo
 
       if(ish.ge.6)then
-        call alistf('list after boost&')
+        call alistf('list after boost&',
+     +sizeof('list after boost&'))
       endif
 
       if(ish.ge.5)write(ifch,'(a)')'--------rescale momenta----------'
@@ -299,7 +304,8 @@ c     -----
         endif
       enddo
 
-      if(ish.ge.4)call alist('list after rescaling&',1,nptl)
+      if(ish.ge.4)call alist('list after rescaling&',
+     +sizeof('list after rescaling&'),1,nptl)
 
  9999 continue
       if(ish.ge.2)then
@@ -364,7 +370,8 @@ c     -----------
            if(ish.ge.1)write(ifmt,*)'ghost:',j,idptl(j),ityptl(j)
            if(ish.ge.5)then
               write(ifch,'(a,$)')'ghost:'
-              call alistc("&",j,j)
+              call alistc("&",
+     +sizeof("&"),j,j)
             endif
             ityptl(j)=100+ityptl(j)/10
           elseif(irescl.ge.1)then
@@ -378,7 +385,8 @@ c if not droplet with fusion
             if(ish.ge.1)then
               write(ifmt,*)'Lost particle (E=0)'
               write(ifch,*)'Lost particle (E=0) :'
-              call alistc("utghost&",j,j)
+              call alistc("utghost&",
+     +sizeof("utghost&"),j,j)
             endif
             istptl(j)=istptl(j)+2
           endif
@@ -491,7 +499,8 @@ c Check Ghost list
           if(mod(istptl(j),10).eq.0)then
             if(ityptl(j).le.105.and.ityptl(j).ge.101)then
               write(ifch,'(a,$)')'ghost:'
-              call alistc("&",j,j)
+              call alistc("&",
+     +sizeof("&"),j,j)
             endif
           endif
         enddo
@@ -680,7 +689,8 @@ c50    continue
 c      jc0(iflav,iqa)=jc0(iflav,iqa)+1
 c      if(isame.eq.1)jc0(iflav,3-iqa)=jc0(iflav,3-iqa)+1
 c      call idenco(jc0,ic,ireten)
-c      if(ireten.eq.1)call utstop('randfl: idenco ret code = 1&')
+c      if(ireten.eq.1)call utstop('randfl: idenco ret code = 1&',
+c     +sizeof('randfl: idenco ret code = 1&'))
 c      if(ish.ge.6)then
 c      write(ifch,*)'probab:'
 c      write(ifch,*)probab
@@ -1443,7 +1453,8 @@ c      write(ifch,100)keu,ked,kes,kec,keb,ket,amnull
 c      print*,keu,ked,kes,kec,keb,ket,amnull
 
       if(keu+ked+kes+kec+keb+ket.ne.ke)
-     *call utstop('utamnu: sum_kei /= ke&')
+     *call utstop('utamnu: sum_kei /= ke&',
+     +sizeof('utamnu: sum_kei /= ke&'))
       keq=keu+ked
       keqx=keq
       amnux=0
@@ -1456,8 +1467,10 @@ c   removing strange baryons
       amnux=amnux+asuha(1+i)
       kes=kes-i
       keq=keq-3+i
-      if(kes.lt.0)call utstop('utamnu: negative kes&')
-      if(keq.lt.0)call utstop('utamnu: negative keq&')
+      if(kes.lt.0)call utstop('utamnu: negative kes&',
+     +sizeof('utamnu: negative kes&'))
+      if(keq.lt.0)call utstop('utamnu: negative keq&',
+     +sizeof('utamnu: negative keq&'))
       goto3
       endif
       if(i.gt.1)goto2
@@ -1471,7 +1484,8 @@ c   removing strange baryons
 8     continue
       endif
 
-      if(keu+ked.ne.keq)call utstop('utamnu: keu+ked /= keq&')
+      if(keu+ked.ne.keq)call utstop('utamnu: keu+ked /= keq&',
+     +sizeof('utamnu: keu+ked /= keq&'))
 c      write(ifch,100)keu,ked,kes,kec,keb,ket,amnull+amnux
 c      print*,keu,ked,kes,kec,keb,ket,amnull+amnux
 
@@ -1480,13 +1494,15 @@ c   removing nonstrange baryons
       if(keu.gt.2*ked)then
       amnux=amnux+asuha(7)
       keu=keu-3
-      if(keu.lt.0)call utstop('utamnu: negative keu&')
+      if(keu.lt.0)call utstop('utamnu: negative keu&',
+     +sizeof('utamnu: negative keu&'))
       goto9
       endif
       if(ked.gt.2*keu)then
       amnux=amnux+asuha(7)
       ked=ked-3
-      if(ked.lt.0)call utstop('utamnu: negative ked&')
+      if(ked.lt.0)call utstop('utamnu: negative ked&',
+     +sizeof('utamnu: negative ked&'))
       goto9
       endif
       keq=keu+ked
@@ -1494,7 +1510,8 @@ c   removing nonstrange baryons
 c      write(ifch,100)keu,ked,kes,kec,keb,ket,amnull+amnux
 c      print*,keu,ked,kes,kec,keb,ket,amnull+amnux
 
-      if(mod(keq,3).ne.0)call utstop('utamnu: mod(keq,3) /= 0&')
+      if(mod(keq,3).ne.0)call utstop('utamnu: mod(keq,3) /= 0&',
+     +sizeof('utamnu: mod(keq,3) /= 0&'))
       amnux=amnux+asuha(1)*keq/3
 
 c      write(ifch,100)keu,ked,kes,kec,keb,ket,amnull+amnux
@@ -1570,7 +1587,8 @@ c-----------------------------------------------------------------------
         amms2=0
         amms3=0
         amms4=0
-        call utstop('utamnx: no singlet possible (1)&')
+        call utstop('utamnx: no singlet possible (1)&',
+     +sizeof('utamnx: no singlet possible (1)&'))
       endif
       keu=jcm(1,1)-jcm(1,2)
       ked=jcm(2,1)-jcm(2,2)
@@ -1592,7 +1610,8 @@ c-----------------------------------------------------------------------
         ked=ked-1
         amms4=utamnu(keu,ked,kes,kec,keb,ket,5)
       else
-        call utstop('utamnx: no singlet possible (2)&')
+        call utstop('utamnx: no singlet possible (2)&',
+     +sizeof('utamnx: no singlet possible (2)&'))
       endif
       utamnx=min(amms1+amms3,amms2+amms4)
 c       print *,amms1,amms3,amms2,amms4,jcp,jcm
@@ -2164,10 +2183,12 @@ c-----------------------------------------------------------------------
       return
     5 write(ifch,10)sngl(x)
    10 format(1x,'argument of gamma fctn = ',e20.5)
-      call utstop('utgam : negative integer argument&')
+      call utstop('utgam : negative integer argument&',
+     +sizeof('utgam : negative integer argument&'))
     6 write(ifch,11)sngl(x)
    11 format(1x,'argument of gamma fctn = ',e20.5)
-      call utstop('utgam : argument too large&')
+      call utstop('utgam : argument too large&',
+     +sizeof('utgam : argument too large&'))
       end
 
 c---------------------------------------------------------------------
@@ -2196,7 +2217,8 @@ CU    USES utgmln
         h=h*del
         if(abs(del-1.).lt.EPS)goto 1
 11    continue
-      call utstop("a too large, ITMAX too small in utgcf&")
+      call utstop("a too large, ITMAX too small in utgcf&",
+     +sizeof("a too large, ITMAX too small in utgcf&"))
 1     gammcf=exp(-x+a*log(x)-gln)*h
       return
       END
@@ -2230,7 +2252,8 @@ c---------------------------------------------------------------------
       REAL a,utgmq,x
 CU    USES utgcf,utgser
       REAL gammcf,gamser,gln
-      if(x.lt.0..or.a.le.0.) call utstop("bad arguments in utgmq&")
+      if(x.lt.0..or.a.le.0.) call utstop("bad arguments in utgmq&",
+     +sizeof("bad arguments in utgmq&"))
       if(x.lt.a+1.)then
         call utgser(gamser,a,x,gln)
         utgmq=1.-gamser
@@ -2252,7 +2275,8 @@ CU    USES utgmln
       REAL ap,del,sum,utgmln
       gln=utgmln(a)
       if(x.le.0.)then
-        if(x.lt.0.)call utstop("x < 0 in utgser&")
+        if(x.lt.0.)call utstop("x < 0 in utgser&",
+     +sizeof("x < 0 in utgser&"))
         gamser=0.
         return
       endif
@@ -2265,7 +2289,8 @@ CU    USES utgmln
         sum=sum+del
         if(abs(del).lt.abs(sum)*EPS)goto 1
 11    continue
-      call utstop("a too large, ITMAX too small in utgser&")
+      call utstop("a too large, ITMAX too small in utgser&",
+     +sizeof("a too large, ITMAX too small in utgser&"))
 1     gamser=sum*exp(-x+a*log(x)-gln)
       return
       END
@@ -2334,10 +2359,12 @@ c      lo=lz
 c      elseif((xar(lz).lt.x).and.(x.le.xar(lo)))then
 c      lu=lz
 c      else
-c      call utstop('utindx: no interval found&')
+c      call utstop('utindx: no interval found&',
+c     +sizeof('utindx: no interval found&'))
 c      endif
 c      if((lo-lu).ge.2) goto1
-c      if(lo.le.lu)call utstop('utinvt: lo.le.lu&')
+c      if(lo.le.lu)call utstop('utinvt: lo.le.lu&',
+c     +sizeof('utinvt: lo.le.lu&'))
 c      i=lu
 c      return
 c      end
@@ -2349,7 +2376,8 @@ c     returns x with y=q(x)
 c-----------------------------------------------------------------------
       include 'epos.inc'
       real x(n),q(n)
-      if(q(n).eq.0.)call utstop('utinvt: q(n)=0&')
+      if(q(n).eq.0.)call utstop('utinvt: q(n)=0&',
+     +sizeof('utinvt: q(n)=0&'))
            if(y.lt.0.)then
       if(ish.ge.1)then
       call utmsg('utinvt')
@@ -2376,10 +2404,12 @@ c-----------------------------------------------------------------------
       write(ifch,*)'q(1),y,q(n):',q(1),y,q(n)
       write(ifch,*)'lu,lz,lo:',lu,lz,lo
       write(ifch,*)'q(lu),q(lz),q(lo):',q(lu),q(lz),q(lo)
-      call utstop('utinvt: no interval found&')
+      call utstop('utinvt: no interval found&',
+     +sizeof('utinvt: no interval found&'))
       endif
       if((lo-lu).ge.2) goto1
-      if(lo.le.lu)call utstop('utinvt: lo.le.lu&')
+      if(lo.le.lu)call utstop('utinvt: lo.le.lu&',
+     +sizeof('utinvt: lo.le.lu&'))
       utinvt=x(lu)+(y-q(lu))*(x(lo)-x(lu))/(q(lo)-q(lu))
       return
       end
@@ -2429,7 +2459,8 @@ c-----------------------------------------------------------------------
       write(ifmt,*)'call identifyer:',idi
       write(ifmt,*)'p(5): ',p1,p2,p3,p4,p5
       call utmsgf
-      call utstop('utlob2: p5 negative.&')
+      call utstop('utlob2: p5 negative.&',
+     +sizeof('utlob2: p5 negative.&'))
       endif
       z(1)=x1
       z(2)=x2
@@ -2544,7 +2575,8 @@ c-----------------------------------------------------------------------
       write(ifch,*)'*****  mass <= 0.'
       write(ifch,*)'p(5): ',p1,p2,p3,p4,p5
       call utmsgf
-      call utstop('utlobo: mass <= 0.&')
+      call utstop('utlobo: mass <= 0.&',
+     +sizeof('utlobo: mass <= 0.&'))
       endif
       z(1)=x1
       z(2)=x2
@@ -2637,7 +2669,8 @@ cc-----------------------------------------------------------------------
 cc     calculates kth moment for f(x) with q(i)=int[0,x(i)]f(z)dz
 cc-----------------------------------------------------------------------
 c      real x(n),q(n)
-c      if(n.lt.2)call utstop('utmom : dimension too small&')
+c      if(n.lt.2)call utstop('utmom : dimension too small&',
+c     +sizeof('utmom : dimension too small&'))
 c      utmom=0
 c      do 1 i=2,n
 c1     utmom=utmom+((x(i)+x(i-1))/2)**k*(q(i)-q(i-1))
@@ -2900,7 +2933,8 @@ c      aaa=aaa+aa(i)**2
 c      xxx=xxx+xx(i)**2
 c      enddo
 c      if(xxx.eq.0d0)return
-c      if(aaa.eq.0d0)call utstop('utroa1: zero rotation axis&')
+c      if(aaa.eq.0d0)call utstop('utroa1: zero rotation axis&',
+c     +sizeof('utroa1: zero rotation axis&'))
 c      aaa=dsqrt(aaa)
 c      xxx=dsqrt(xxx)
 cc e3 = a / !a!
@@ -2977,7 +3011,8 @@ c-----------------------------------------------------------------------
       xxx=xxx+xx(i)**2
       enddo
       if(xxx.eq.0d0)return
-      if(aaa.eq.0d0)call utstop('utroa1: zero rotation axis&')
+      if(aaa.eq.0d0)call utstop('utroa1: zero rotation axis&',
+     +sizeof('utroa1: zero rotation axis&'))
       aaa=1.0/dsqrt(aaa)
 c e3 = a / !a!
       do i=1,3
@@ -3033,7 +3068,8 @@ c      REAL df,dx,dxold,f,fh,fl,temp,xh,xl
 c      call funcd(x1,fl,df)
 c      call funcd(x2,fh,df)
 c      if((fl.gt.0..and.fh.gt.0.).or.(fl.lt.0..and.fh.lt.0.))
-c     *call utstop('utroot: root must be bracketed&')
+c     *call utstop('utroot: root must be bracketed&',
+c     +sizeof('utroot: root must be bracketed&'))
 c      if(fl.eq.0.)then
 c        utroot=x1
 c        return
@@ -3091,7 +3127,8 @@ c-----------------------------------------------------------------------
          if(ax**2.eq.0.and.ay**2.eq.0.and.az**2.eq.0.)then
       write(ifch,*)'ax**2,ay**2,az**2:',ax**2,ay**2,az**2
       write(ifch,*)'ax,ay,az:',ax,ay,az
-      call utstop('utrot2: zero vector.&')
+      call utstop('utrot2: zero vector.&',
+     +sizeof('utrot2: zero vector.&'))
          endif
          if(az.ge.0.)then
       rx=ax
@@ -3190,21 +3227,20 @@ c-----------------------------------------------------------------------
       end
 
 c-----------------------------------------------------------------------
-      subroutine utstop(text)
+      subroutine utstop(text,size)
 c-----------------------------------------------------------------------
 c  returns error message and stops execution.
 c  text is an optonal text to appear in the error message.
 c  text is a character string of length 40;
 c     for shorter text, it has to be terminated by &;
-c        example: call utstop('error in subr xyz&')
+c        example: call utstop('error in subr xyz&',
+c     +sizeof('error in subr xyz&'))
 c-----------------------------------------------------------------------
       include 'epos.inc'
-      parameter(itext=40)
-      character  text*40  ,txt*6
-      imax=itext+1
-      do i=itext,1,-1
-      if(text(i:i).eq.'&')imax=i
-      enddo
+      character txt*6
+      character text(*)
+      integer(8) size,imax
+      imax=size
       do 1 j=1,2
       if(j.eq.1)then
         ifi=ifch
@@ -3841,7 +3877,8 @@ CU    USES gammln
           z=z1-p1/pp
           if(abs(z-z1).le.EPS)goto 1
 12      continue
-        call utstop("too many iterations in gaulag")
+        call utstop("too many iterations in gaulag",
+     +sizeof("too many iterations in gaulag"))
 1       x(i)=z
         w(i)=-exp(gammln(alf+n)-gammln(float(n)))/(pp*n*p2)
 13    continue

@@ -54,13 +54,15 @@ c QGSJET-II Common
 
 
       if(matarg.gt.iapmax.or.maproj.gt.iapmax)
-     &  call utstop('Nucleus too big for QGSJET-II (Mmax=208) !&')
+     &  call utstop('Nucleus too big for QGSJET-II (Mmax=208) !&',
+     +sizeof('Nucleus too big for QGSJET-II (Mmax=208) !&'))
       call iclass(idproj,iclpro)
       call iclass(idtarg,icltar)
       icp=idtrafo('nxs','qgs',idproj)
       if(icp.eq.0)icp=1-2*int(rangen()+0.5)       !pi0=pi+ or p-
       if(abs(icp).gt.5)
-     &  call utstop('Projectile not allowed in QGSJET-II !&')
+     &  call utstop('Projectile not allowed in QGSJET-II !&',
+     +sizeof('Projectile not allowed in QGSJET-II !&'))
       e0=dble(elab)
       call qgini(e0,icp,maproj,matarg)
       call qgini(e0,icp,maproj,matarg)        !again to set bm properly
@@ -104,7 +106,8 @@ c iaf(i) - mass of the i-th fragment
       a=pi*(b2**2-b1**2)
 
       if(a.gt.0..and.rangen().gt.qgsIIincs/10./a)goto 1001   !no interaction
-      if(ish.ge.3)call alist('Determine QGSJET-II Production&',0,0)
+      if(ish.ge.3)call alist('Determine QGSJET-II Production&',
+     +sizeof('Determine QGSJET-II Production&'),0,0)
 
       nptl=0
       nsp=0
@@ -268,7 +271,8 @@ c k0l
      $     , ' momentum :',(esp(k,is),k=1,4)
 
             nptl=nptl+1
-            if(nptl.gt.mxptl)call utstop('qgsjet: mxptl too small&')
+            if(nptl.gt.mxptl)call utstop('qgsjet: mxptl too small&',
+     +sizeof('qgsjet: mxptl too small&'))
             id=idtrafo('qgs','nxs',ic)
             if(ish.ge.7)write(ifch,'(a,i5,a,i5,a)')
      $       ' epos particle ',nptl,' id :',id,' after conversion'

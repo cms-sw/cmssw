@@ -78,7 +78,8 @@ ccc      if(abs(energ-tecm).gt.0.1) goto50   !uncomment for energy conservation
 
       do n=1,np
         nptl=nptl+1
-        if(nptl.gt.mxptl)call utstop('StaHadShort: mxptl too small&')
+        if(nptl.gt.mxptl)call utstop('StaHadShort: mxptl too small&',
+     +sizeof('StaHadShort: mxptl too small&'))
         idptl(nptl)=ident(n)
         do j=1,4
           pptl(j,nptl)=pcm(j,n)
@@ -782,7 +783,8 @@ c-------------------------------------------------------------------------------
       phinull=phievt+ranphi
       nptl=nptl+1
       if(nptl.gt.mxptl)
-     . call utstop('FOStore: mxptl too small&')
+     . call utstop('FOStore: mxptl too small&',
+     +sizeof('FOStore: mxptl too small&'))
       idptl(nptl)=id
       pptl(1,nptl)=ptr*cos(pha+phinull)
       pptl(2,nptl)=ptr*sin(pha+phinull)
@@ -1165,7 +1167,8 @@ c----------------------------------------------------------------------
      *        '    droplet decay'/
      *        ' ----------------------------------')
       write(ifch,*)'droplet:'
-      call alist('&',ip,ip)
+      call alist('&',
+     +sizeof('&'),ip,ip)
       endif
       call ManiParticles(1,1) !store parameters, to be restored at the end
 
@@ -1415,7 +1418,8 @@ c----------------------------------------------------------------------
       do n=1,np
         nptl=nptl+1
         if(nptl.gt.mxptl)
-     .   call utstop('DropletDecay: mxptl too small&')
+     .   call utstop('DropletDecay: mxptl too small&',
+     +sizeof('DropletDecay: mxptl too small&'))
         idptl(nptl)=ident(n)
         do j=1,4
           p(j)=pcm(j,n)
@@ -1464,7 +1468,8 @@ c----------------------------------------------------------------------
       enddo
       if(ish.ge.3)then
         write(ifch,*)'decay products:'
-        call alist('&',nptlb+1,nptl)
+        call alist('&',
+     +sizeof('&'),nptlb+1,nptl)
         if(ish.ge.5)then
           write(ifch,*)'momentum sum:'
           do kk=1,5
@@ -1474,7 +1479,8 @@ c----------------------------------------------------------------------
           enddo
           pptl(kk,nptl+2)=c(kk)
           enddo
-          call alist('&',nptl+1,nptl+2)
+          call alist('&',
+     +sizeof('&'),nptl+1,nptl+2)
         endif
       endif
 

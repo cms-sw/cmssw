@@ -168,7 +168,8 @@ c      nepfra=0
           nfp=32
         else
           nfp=0
-          call utstop("Wrong frame in xini !&")
+          call utstop("Wrong frame in xini !&",
+     +sizeof("Wrong frame in xini !&"))
         endif
         go=.true.
         inl=0
@@ -658,7 +659,8 @@ c---------------------------------------------------------------------
       call utpri('xana  ',ish,ishini,4)
 
       if(ish.ge.2)then
-          call alist('fill histograms&',0,0)
+          call alist('fill histograms&',
+     +sizeof('fill histograms&'),0,0)
       endif
 
       do n=1,nhis
@@ -3078,7 +3080,8 @@ c--------------------------------- 101 - 200 ----------------------------
          if(pp.ne.0.)x=eef*sqrt(p(1,lf)**2+p(2,lf)**2)/pp
          if(x.ne.x)then
            write(ifch,*)x,eef,p(1,lf),p(2,lf),p(3,lf),pp,prom,idptl(j),j
-           call alist('xan&',1,nptl)
+           call alist('xan&',
+     +sizeof('xan&'),1,nptl)
            stop 'probleme dans xan'
          endif
          endif
@@ -4397,7 +4400,8 @@ c.....run the clustering with a pp generalised-kt sequential recombination alg
 c            write(ifch,*)'fastjet',i,njets,nptl,idptl(nptl),istptl(nptl)
 c     &         ,sqrt(pptl(1,nptl)**2+pptl(2,nptl)**2)
           enddo
-          if(ish.ge.5)call alist('list after fastjet&',nptl0,nptl)
+          if(ish.ge.5)call alist('list after fastjet&',
+     +sizeof('list after fastjet&'),nptl0,nptl)
         endif
       endif
 

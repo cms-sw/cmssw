@@ -173,7 +173,8 @@ C  sample y
             WRITE(*,'(1X,A,2E12.5,2(1X,1A,1X,3E13.5))')
      &        'phoGPHERAepo: problem with cuts:',PFIN(4),EEMIN2,'|'
      &       ,THMIN2,PFTHE,THMAX2,'|',ECMIN2,GGECM,ECMAX2
-            call utstop("Problem with cuts in phoGPHERAepo !&")
+            call utstop("Problem with cuts in phoGPHERAepo !&",
+     +sizeof("Problem with cuts in phoGPHERAepo !&"))
         ENDIF
            ITRW = ITRW+1
           YY = EXP(XIDEL*drangen(AY)+XIMIN)
@@ -184,7 +185,8 @@ C  sample y
           IF(WGMAX.LE.WGH) THEN
             WRITE(*,'(1X,A,3E12.5)')
      &        'phoGPHERAepo: inconsistent weight:',YY,WGMAX,WGH
-            call utstop("Problem with YY in phoGPHERAepo !$")
+            call utstop("Problem with YY in phoGPHERAepo !$",
+     +sizeof("Problem with YY in phoGPHERAepo !$"))
           ENDIF
         IF(drangen(AY2)*WGMAX.GT.WGH) GOTO 175
 C  sample Q2
@@ -194,7 +196,8 @@ C  sample Q2
           IF(WEIGHT.GE.1d0) THEN
             WRITE(*,'(1X,A,3E12.5)')
      &        'phoGPHERAepo: inconsistent weight:',YY,Q2,YEFF,WEIGHT
-            call utstop("Problem with Q2 in phoGPHERAepo !$")
+            call utstop("Problem with Q2 in phoGPHERAepo !$",
+     +sizeof("Problem with Q2 in phoGPHERAepo !$"))
           ENDIF
         IF(WEIGHT.LT.drangen(Q2)) GOTO 185
 C
