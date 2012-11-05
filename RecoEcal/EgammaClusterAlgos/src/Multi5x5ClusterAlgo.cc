@@ -152,11 +152,11 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
         bool usedButCanSeed = false;
         if (canSeed_s.find(it->id()) != canSeed_s.end()) usedButCanSeed = true;
 
-        // avoid seeding for anomalous channels (recoFlag based)
-        uint32_t rhFlag = (*it).recoFlag();
-        std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(), rhFlag );
-        if ( vit != v_chstatus_.end() ) continue; // the recHit has to be excluded from seeding
-
+        // avoid seeding for anomalous channels 	
+	if(! it->checkFlag(EcalRecHit::kGood)){ // if rechit is good, no need for further checks
+	  if (it->checkFlags( v_chstatus_ )) continue;
+	}
+	
         // make sure the current seed does not belong to a cluster already.
         if ((used_s.find(it->id()) != used_s.end()) && (usedButCanSeed == false))
         {
