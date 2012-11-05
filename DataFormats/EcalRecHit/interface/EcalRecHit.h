@@ -2,10 +2,11 @@
 #define DATAFORMATS_ECALRECHIT_H 1
 
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
+#include <vector>
 
 /** \class EcalRecHit
  *  
- * $Id: EcalRecHit.h,v 1.23 2011/02/15 20:11:48 argiro Exp $
+ * $Id: EcalRecHit.h,v 1.24 2012/01/30 16:03:39 theofil Exp $
  * \author P. Meridiani INFN Roma1
  */
 
@@ -100,6 +101,9 @@ public:
 
   /// check if the flag is true
   bool checkFlag(int flag) const{return flagBits_ & ( 0x1<<flag);}
+
+  /// check if one of the flags in a set is true
+  bool checkFlags(const std::vector<int>& flagsvec) const;
 
   /// apply a bitmask to our flags. Experts only
   bool checkFlagMask(uint32_t mask) const { return flagBits_&mask; }

@@ -129,6 +129,18 @@ bool EcalRecHit::isTimeErrorValid() const
 }
 
 
+/// check if one of the flags in a set is true
+bool EcalRecHit::checkFlags(const std::vector<int>&  flagsvec ) const{
+  
+
+  for (std::vector<int>::const_iterator flagPtr = flagsvec.begin(); 
+       flagPtr!= flagsvec.end(); ++flagPtr) { // check if one of the flags is up
+    if (checkFlag(*flagPtr)) return true;    
+  }
+  return false;
+}
+
+
  /// DEPRECATED provided for temporary backward compatibility
 EcalRecHit::Flags EcalRecHit::recoFlag() const {
   for (int i=kUnknown; ; --i){
