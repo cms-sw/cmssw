@@ -45,6 +45,9 @@ class MuScleFitMuonSelector
     debug_(debug)
   {}
   ~MuScleFitMuonSelector() {}
+
+  //Method to get the muon after FSR (status 1 muon) starting from status 3 muon which is daughter of the Z
+  const reco::Candidate* getStatus1Muon(const reco::Candidate* status3Muon);
   
   /// Main method used to select muons of type specified by muonType_ from the collection specified by muonLabel_ and PATmuons_
   void selectMuons(const edm::Event & event, std::vector<reco::LeafCandidate> & muons,

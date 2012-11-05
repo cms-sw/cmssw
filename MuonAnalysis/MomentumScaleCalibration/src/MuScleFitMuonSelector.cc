@@ -1,8 +1,25 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitMuonSelector.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 const double MuScleFitMuonSelector::mMu2 = 0.011163612;
 const unsigned int MuScleFitMuonSelector::motherPdgIdArray[] = {23, 100553, 100553, 553, 100443, 443};
+
+const reco::Candidate* 
+MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
+  const reco::Candidate* tempStatus1Muon = status3Muon;
+  while(tempStatus1Muon == 0 || tempStatus1Muon->numberOfDaughters()!=0){
+    //std::vector<const reco::Candidate*> daughters;
+    for (unsigned int i=0; i<tempStatus1Muon->numberOfDaughters(); ++i){
+      if ( tempStatus1Muon->daughter(i)->pdgId()==tempStatus1Muon->pdgId() ){
+	tempStatus1Muon = tempStatus1Muon->daughter(i);
+	break;
+      }else continue;
+    }//for loop
+  }//while loop
+
+  return tempStatus1Muon;
+}
 
 
 bool MuScleFitMuonSelector::selGlobalMuon(const pat::Muon* aMuon)
@@ -379,7 +396,7 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
   //Loop on generated particles
   if( debug_>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
   for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
-    if (fabs(part->pdgId())==13 && part->status()==1) {
+    if (fabs(part->pdgId())==13 && part->status()==3) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();
       if( debug_>0 ) {
@@ -389,17 +406,19 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
 	if( motherPdgId == motherPdgIdArray[ires] && resfind_[ires] ) fromRes = true;
       }
       if(fromRes){
-	if(part->pdgId()==13) {
-	  muFromRes.mu1 = part->p4();
+	const reco::Candidate* status3Muon = &(*part);
+	  const reco::Candidate* status1Muon = getStatus1Muon(status3Muon);
+	  if(part->pdgId()==13) {
+	  muFromRes.mu1 = status1Muon->p4();
 	  if( debug_>0 ) std::cout << "Found a genMuon + : " << muFromRes.mu1 << std::endl;
-	  // 	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
-	  // 					   part->p4().pz(),part->p4().e()));
+	  // 	  muFromRes.first = (lorentzVector(status1Muon->p4().px(),status1Muon->p4().py(),
+	  // 					   status1Muon->p4().pz(),status1Muon->p4().e()));
 	}
 	else {
-	  muFromRes.mu2 = part->p4();
+	  muFromRes.mu2 = status1Muon->p4();
 	  if( debug_>0 ) std::cout << "Found a genMuon - : " << muFromRes.mu2 << std::endl;
-	  // 	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),
-	  // 					    part->p4().pz(),part->p4().e()));
+	  // 	  muFromRes.second = (lorentzVector(status1Muon->p4().px(),status1Muon->p4().py(),
+	  // 					    status1Muon->p4().pz(),status1Muon->p4().e()));
 	}
       }
     }

@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2011/09/20 14:57:55 $
- *  $Revision: 1.32 $
+ *  $Date: 2011/10/03 14:50:29 $
+ *  $Revision: 1.33 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -195,10 +195,10 @@ public:
   static double x[7][10000]; // smearing values set by MuScleFit constructor
   static int goodmuon;       // number of events with a usable resonance
   static int counter_resprob;// number of times there are resolution problems
-  static double GLZValue[40][1001][1001]; // matrix with integral values of Lorentz * Gaussian
-  static double GLZNorm[40][1001];        // normalization values per each sigma
-  static double GLValue[6][1001][1001]; // matrix with integral values of Lorentz * Gaussian
-  static double GLNorm[6][1001];        // normalization values per each sigma
+  static double GLZValue[40][1002][1002]; // matrix with integral values of Lorentz * Gaussian
+  static double GLZNorm[40][1002];        // normalization values per each sigma
+  static double GLValue[6][1002][1002]; // matrix with integral values of Lorentz * Gaussian
+  static double GLNorm[6][1002];        // normalization values per each sigma
   static double ResMaxSigma[6];         // max sigma of matrix
   static double ResHalfWidth[6];        // halfwidth in matrix
   static int nbins;                     // number of bins in matrix
@@ -267,7 +267,7 @@ public:
 
   /// Computes the probability given the mass, mass resolution and the arrays with the probabilities and the normalizations.
   static double probability( const double & mass, const double & massResol,
-                             const double GLvalue[][1001][1001], const double GLnorm[][1001],
+                             const double GLvalue[][1002][1002], const double GLnorm[][1002],
                              const int iRes, const int iY );
 
 protected:

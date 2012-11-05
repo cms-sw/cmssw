@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2011/10/03 14:50:30 $
- *  $Revision: 1.53 $
+ *  $Date: 2012/03/16 13:42:05 $
+ *  $Revision: 1.54 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -177,11 +177,11 @@ double MuScleFitUtils::x[][10000];
 
 // Probability matrices and normalization values
 // ---------------------------------------------
-int MuScleFitUtils::nbins = 1000;
-double MuScleFitUtils::GLZValue[][1001][1001];
-double MuScleFitUtils::GLZNorm[][1001];
-double MuScleFitUtils::GLValue[][1001][1001];
-double MuScleFitUtils::GLNorm[][1001];
+int MuScleFitUtils::nbins = 1001;
+double MuScleFitUtils::GLZValue[][1002][1002];
+double MuScleFitUtils::GLZNorm[][1002];
+double MuScleFitUtils::GLValue[][1002][1002];
+double MuScleFitUtils::GLNorm[][1002];
 double MuScleFitUtils::ResMaxSigma[];
 
 // Masses and widths from PDG 2006, half widths to be revised
@@ -727,7 +727,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
  * - if passing iRes != 0, iY is used to select the resonance
  */
 double MuScleFitUtils::probability( const double & mass, const double & massResol,
-                                    const double GLvalue[][1001][1001], const double GLnorm[][1001],
+                                    const double GLvalue[][1002][1002], const double GLnorm[][1002],
                                     const int iRes, const int iY )
 {
   if( iRes == 0 && iY > 23 ) {
@@ -874,7 +874,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
   //   GL(m,s) = Int(M-10H,M+10H) [ L(x-M,H) * G(x-m,s) ] dx
   //
   // The above convolution is computed numerically by an independent root macro, Probs.C, which outputs
-  // the values in six 1001x1001 grids, one per resonance.
+  // the values in six 1002x1002 grids, one per resonance.
   //
   // NB THe following block of explanations for background models is outdated, see detailed
   // explanations where the code computes PB.
@@ -1309,7 +1309,7 @@ void MuScleFitUtils::minimizeLikelihood()
   double errdef;
   int npari;
   int nparx;
-  rmin.mnexcm ("call fcn", arglis, 1, ierror);
+  rmin.mnexcm ("CALL FCN", arglis, 1, ierror);
 
   // First, fix all parameters
   // -------------------------
@@ -1477,17 +1477,29 @@ void MuScleFitUtils::minimizeLikelihood()
 
       // rmin.SetMaxIterations(500*parnumber);
 
+      //Print some informations
+      std::cout<<"MINUIT is starting the minimization for the iteration number "<<loopCounter<<std::endl;
+
+      //Try to set iterations
+      //      rmin.SetMaxIterations(100000);
+
+      std::cout<<"maxNumberOfIterations (just set) = "<<rmin.GetMaxIterations()<<std::endl;
+
       MuScleFitUtils::normalizationChanged_ = 0;
 
       // Maximum number of iterations
-      arglis[0] = 5000;
+      arglis[0] = 100000;
+      // tolerance 
+      arglis[1] = 0.1;
 
       // Run simplex first to get an initial estimate of the minimum
       if( startWithSimplex_ ) {
-	rmin.mnexcm( "simplex", arglis, 0, ierror );
+	rmin.mnexcm( "SIMPLEX", arglis, 0, ierror );
       }
 
-      rmin.mnexcm( "mini", arglis, 0, ierror );
+      rmin.mnexcm( "MIGRAD", arglis, 2, ierror ); 
+
+
 
 
 // #ifdef DEBUG
@@ -1504,12 +1516,12 @@ void MuScleFitUtils::minimizeLikelihood()
 
 
       // Compute again the error matrix
-      rmin.mnexcm( "hesse", arglis, 0, ierror );
+      rmin.mnexcm( "HESSE", arglis, 0, ierror );
 
       // Peform minos error analysis.
       if( computeMinosErrors_ ) {
 	duringMinos_ = true;
-	rmin.mnexcm( "minos", arglis, 0, ierror );
+	rmin.mnexcm( "MINOS", arglis, 0, ierror );
 	duringMinos_ = false;
       }
 
@@ -1580,7 +1592,9 @@ void MuScleFitUtils::minimizeLikelihood()
                           << " + " << parerr[3*ipar+1] << " - " << parerr[3*ipar+2]
                           // << " \t\t (" << parname[ipar] << ")"
                           << std::endl;
-//       }
+
+
+
     }
     rmin.mnstat (fmin, fdem, errdef, npari, nparx, istat); // NNBB Commented for a check!
     FitParametersFile << std::endl;
@@ -1607,7 +1621,7 @@ void MuScleFitUtils::minimizeLikelihood()
 	    TCanvas * canvas = new TCanvas(("likelihoodCanvas_loop_"+iLoopString.str()+"_oder_"+iorderString.str()+"_par_"+iparStringName.str()).c_str(), ("likelihood_"+iparStringName.str()).c_str(), 1000, 800);
 	    canvas->cd();
 	    // arglis[0] = ipar;
-	    // rmin.mnexcm( "sca", arglis, 0, ierror );
+	    // rmin.mnexcm( "SCA", arglis, 0, ierror );
 	    TGraph * graph = (TGraph*)rmin.GetPlot();
 	    graph->Draw("AP");
 	    // graph->SetTitle(("parvalue["+iparStringName.str()+"]").c_str());
@@ -1851,13 +1865,15 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
 
 //  #ifdef DEBUG
 
-  if( MuScleFitUtils::minuitLoop_ < 10000 ) {
-    if( MuScleFitUtils::likelihoodInLoop_ != 0 ) {
-      ++MuScleFitUtils::minuitLoop_;
-      MuScleFitUtils::likelihoodInLoop_->SetBinContent(MuScleFitUtils::minuitLoop_, fval);
-    }
+//  if( MuScleFitUtils::minuitLoop_ < 10000 ) {
+  if( MuScleFitUtils::likelihoodInLoop_ != 0 ) {
+    ++MuScleFitUtils::minuitLoop_;
+    MuScleFitUtils::likelihoodInLoop_->SetBinContent(MuScleFitUtils::minuitLoop_, fval);
   }
+  //  }
   // else std::cout << "minuitLoop over 10000. Not filling histogram" << std::endl;
+
+  std::cout<<"MINUIT loop number "<<MuScleFitUtils::minuitLoop_<<", likelihood = "<<fval<<std::endl;
 
   if( MuScleFitUtils::debug > 0 ) {
     //     if( MuScleFitUtils::duringMinos_ ) {
