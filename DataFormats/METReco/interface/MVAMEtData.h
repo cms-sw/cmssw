@@ -8,9 +8,9 @@
  * \authors Phil Harris, CERN
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MVAMEtData.h,v 1.2 2012/05/25 15:34:39 veelken Exp $
+ * $Id: MVAMEtData.h,v 1.1 2012/08/31 08:57:54 veelken Exp $
  *
  */
 
@@ -31,6 +31,7 @@ namespace reco
     reco::Candidate::LorentzVector p4_;
     enum { kUndefined, kPileUp, kNoPileUp };
     int type_; // either kPileUp or kNoPileUp
+    bool passesLooseJetId_;
     double neutralEnFrac_;
     double offsetEnCorr_;
 
@@ -54,6 +55,7 @@ namespace reco
     enum { kUndefined, kPileUpCharged, kNoPileUpCharged, kNeutral };
     int type_; // either kPileUpCharged, kNoPileUpCharged or kNeutral
     bool isWithinJet_;
+    bool passesLooseJetId_; // flag indicating if associated jet passes or fails loose jet Id.
 
     metsig::SigInputObj pfMEtSignObj_; // contribution of this PFCandidate to PFMET significance matrix
   };
