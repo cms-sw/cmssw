@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.cc,v 1.11 2011/10/26 22:57:17 igv Exp $
+// $Id: FFTJetProducer.cc,v 1.14 2012/07/19 16:42:59 igv Exp $
 //
 //
 
@@ -94,6 +94,15 @@
                " This is a bug. Please report.");\
     }\
 } while(0);
+
+namespace {
+    struct LocalSortByPt
+    {
+        template<class Jet>
+        inline bool operator()(const Jet& l, const Jet& r) const
+            {return l.pt() > r.pt();}
+    };
+}
 
 using namespace fftjetcms;
 
@@ -633,6 +642,8 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
     const unsigned nJets = recoJets.size();
     jets->reserve(nJets);
 
+    bool sorted = true;
+    double previousPt = DBL_MAX;
     for (unsigned ijet=0; ijet<nJets; ++ijet)
     {
         RecoFFTJet& myjet(recoJets[ijet]);
@@ -686,7 +697,17 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
             fj.setNCells(ncells);
         }
         jets->push_back(OutputJet(jet, fj));
+
+        // Check whether the sequence remains sorted by pt
+        const double pt = jet.pt();
+        if (pt > previousPt)
+            sorted = false;
+        previousPt = pt;
     }
+
+    // Sort the collection
+    if (!sorted)
+        std::sort(jets->begin(), jets->end(), LocalSortByPt());
 
     // put the collection into the event
     iEvent.put(jets, outputLabel);
