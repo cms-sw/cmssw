@@ -200,7 +200,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
         double oldMax = r->getMax();
         if (oneSided_ != signFlipDef ) r->setMin(0); 
         if (initialR == 0 || (oneSided_ != oneSidedDef)) r->removeMax(); else r->setMax(1.1*initialR); 
-        r->setVal(initialR == 0 ? (std::isnormal(oldMax) ? 0.1*oldMax : 0.5) : 0.5*initialR); //best guess
+        r->setVal(initialR == 0 ? (std::isnormal(oldMax) && fabs(oldMax) < 1e28 ? 0.1*oldMax : 0.5) : 0.5*initialR); //best guess
         r->setConstant(false);
     } else {
         utils::setAllConstant(poiParams_,false);
