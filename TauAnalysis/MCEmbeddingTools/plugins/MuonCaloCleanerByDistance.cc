@@ -78,6 +78,9 @@ void MuonCaloCleanerByDistance::fillEnergyDepositMap(const reco::Candidate& muon
       throw cms::Exception("MuonCaloCleanerByDistance") 
 	<< "No energy deposit correction defined for detId = " << detId.rawId() << " (key = " << key << ") !!\n";
 
+    double distance = rawDetId_and_distance->second;
+    double energyDepositCorrection_value = energyDepositCorrection_[key];
+
     double dedx, rho;
     switch(detId.det())
     {
@@ -89,14 +92,23 @@ void MuonCaloCleanerByDistance::fillEnergyDepositMap(const reco::Candidate& muon
       // AB: We don't have a dedx curve for the HCAL. Use the PbWO4 one as an approximation,
       // the correction factors should be determined with respect to the PbWO4 curve.
       dedx = dedxGraphPbwo4_->Eval(muon.p());
-      rho = 8.53; // brass absorber
+      if(detId.subdetId() == HcalOuter)
+      {
+        rho = 7.87; // iron coil and return yoke
+
+        // HO uses magnet coil as additional absorber, add to flight distance:
+        const double theta = muon.theta();
+        distance += 31.2 / sin(theta); // 31.2cm is dr of cold mass of the magnet coil
+      }
+      else
+      {
+        rho = 8.53; // brass absorber
+      }
+
       break;
     default:
       throw cms::Exception("MuonCaloCleanerByDistance") << "Unknown detector type: " << key << ", ID=" << detId;
     }
-
-    const double distance = rawDetId_and_distance->second;
-    const double energyDepositCorrection_value = energyDepositCorrection_[key];
 
     energyDepositMap[rawDetId_and_distance->first] += distance * dedx * rho * energyDepositCorrection_value;
   }
