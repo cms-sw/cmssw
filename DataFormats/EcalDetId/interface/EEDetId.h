@@ -11,7 +11,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.26 2012/11/02 08:25:14 innocent Exp $
+ *  $Id: EEDetId.h,v 1.27 2012/11/02 13:07:52 innocent Exp $
  */
 class EEDetId : public DetId {
 public:
@@ -246,8 +246,26 @@ public:
    * @see EEDetId(int, int, int, int) for index definition
    * @return true if valid, false otherwise
    */
-  static bool validDetId(int crystal_ix, int crystal_iy, int iz);
-  
+  static bool validDetId(int crystal_ix, int crystal_iy, int iz) {
+    return 
+      crystal_ix >= IX_MIN && crystal_ix <= IX_MAX &&
+      crystal_iy >= IY_MIN && crystal_iy <= IY_MAX &&  
+      std::abs(iz)==1 && 
+      ( fastValidDetId(crystal_ix,crystal_iy) ||
+	slowValidDetId(crystal_ix,crystal_iy) );
+  }
+  static bool slowValidDetId(int crystal_ix, int crystal_iy);
+
+  /**  check if ix and iy is in a "ring" inscribed in EE
+   *   if is inside is valid for sure
+   *   if not the slow version shall be called
+   */
+  static bool fastValidDetId(int crystal_ix, int crystal_iy) {
+    float x =  crystal_ix; float y =  crystal_iy;
+    float r = (x - 50.5f) * (x - 50.5f) + (y - 50.5f) * (y - 50.5f);
+    return r > 12.f * 12.f && r < 48.f * 48.f;
+  }
+
   /** Returns the distance along x-axis in crystal units between two EEDetId
    * @param a det id of first crystal
    * @param b det id of second crystal

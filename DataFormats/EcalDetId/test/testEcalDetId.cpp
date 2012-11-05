@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.18 2012/11/02 08:25:14 innocent Exp $
+   \version $Id: testEcalDetId.cpp,v 1.19 2012/11/03 12:30:48 innocent Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.18 2012/11/02 08:25:14 innocent Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.19 2012/11/03 12:30:48 innocent Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -154,8 +154,10 @@ void testEcalDetId::testEEDetId(){
     for (int iy=EEDetId::IY_MIN;iy<=EEDetId::IY_MAX;iy++)
       try
 	{
+	  bool fastV = EEDetId::fastValidDetId(ix,iy);
 	  //EEDetId Zside 1 
-	  if ( EEDetId::validDetId(ix,iy,1) ) {
+	  if ( EEDetId::slowValidDetId(ix,iy) ) {
+	    CPPUNIT_ASSERT(EEDetId::validDetId(ix,iy,1));
 	    EEDetId aPositiveId(ix,iy,1);
 	    CPPUNIT_ASSERT(aPositiveId.ix()==ix);
 	    CPPUNIT_ASSERT(aPositiveId.iy()==iy);
@@ -163,9 +165,12 @@ void testEcalDetId::testEEDetId(){
 	    CPPUNIT_ASSERT(EEDetId::validHashIndex(aPositiveId.hashedIndex()));
 	    CPPUNIT_ASSERT(EEDetId::unhashIndex(aPositiveId.hashedIndex())==aPositiveId);
 	    detIds.at(aPositiveId.hashedIndex()) = aPositiveId;
+	  } else {
+	    CPPUNIT_ASSERT(!fastV);
 	  }
 	  //EEDetId Zside -1 
-	  if ( EEDetId::validDetId(ix,iy,-1) ) {
+	  if ( EEDetId::slowValidDetId(ix,iy) ) {
+	    CPPUNIT_ASSERT(EEDetId::validDetId(ix,iy,-1));
 	    EEDetId aNegativeId(ix,iy,-1);
 	    CPPUNIT_ASSERT(aNegativeId.ix()==ix);
 	    CPPUNIT_ASSERT(aNegativeId.iy()==iy);
