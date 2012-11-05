@@ -5,6 +5,7 @@
 #include "EventFilter/Utilities/interface/TriggerReportDef.h"
 
 #include "xdata/String.h"
+#include "xdata/Double.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Boolean.h"
 #include "xdata/ActionListener.h"
@@ -22,7 +23,9 @@
 
 #include "toolbox/net/URN.h"
 #include "toolbox/fsm/exception/Exception.h"
+#include "toolbox/task/WorkLoopFactory.h"
 
+#include <atomic>
 
 #include <vector>
 #include <deque>
@@ -121,6 +124,7 @@ namespace evf {
     // xdata:ActionListener interface
     void actionPerformed(xdata::Event& e);
 
+    bool updateFlashlists(toolbox::task::WorkLoop *);
 
   private:
 
@@ -184,6 +188,23 @@ namespace evf {
 
     xdata::UnsignedInteger32        runNumber_;
     unsigned int                    lastRunNumberSet_;
+
+    //CPU load flashlist
+    xdata::InfoSpace                *cpuInfoSpace_;
+    xdata::UnsignedInteger32        flashRunNumber_;
+    xdata::UnsignedInteger32        flashLumi_;
+    xdata::Double                   flashCPULoad_;
+    xdata::Double                   flashCPUPeakLoad_;
+    xdata::Double                   flashCPUPeakLoadLumi_;
+    double                          loadAccum_;
+    unsigned int                    loadAccumLs_;
+    double                          cpuLoads_[4000];
+    std::atomic<unsigned int>       cpuLoadsLastLs_;
+    std::atomic<unsigned int>       cpuLoadsSentLs_;
+
+    //flashlist updater thread
+    toolbox::task::ActionSignature  *asFlashUpdater_;
+    toolbox::task::WorkLoop         *wlFlashUpdater_;
 
     //run info
     MonitorElement * runId_;

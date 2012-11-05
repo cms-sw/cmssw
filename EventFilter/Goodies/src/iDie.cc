@@ -2,6 +2,8 @@
 
 #include "xdaq/NamespaceURI.h"
 
+#include "xdata/InfoSpaceFactory.h"
+
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
 #include "xoap/domutils.h"
@@ -180,8 +182,44 @@ iDie::iDie(xdaq::ApplicationStub *s)
   nbSubsClasses = epInstances.size();
   lsHistory = new std::deque<lsStat*>[nbSubsClasses];
   //umask for setting permissions of created directories
+
+  //flashlists
+  std::string cpuInfoSpaceName="evf-idie-cpu-load";
+  toolbox::net::URN urn = this->createQualifiedInfoSpace(cpuInfoSpaceName);
+  cpuInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
+  flashRunNumber_.value_=0;
+  flashLumi_.value_=0;
+  flashCPUPeakLoad_.value_=0;
+  flashCPUPeakLoadLumi_.value_=0;
+  flashCPULoad_.value_=0;
+  loadAccum_=0.;
+  loadAccumLs_=0;
+  cpuLoadsLastLs_=0;
+  cpuLoadsSentLs_=0;
+  memset(cpuLoads_,0,sizeof(double));
+  cpuInfoSpace_->fireItemAvailable("run",&flashRunNumber_);
+  cpuInfoSpace_->fireItemAvailable("lumi",&flashLumi_);
+  cpuInfoSpace_->fireItemAvailable("peakLoad",&flashCPUPeakLoad_);
+  cpuInfoSpace_->fireItemAvailable("peakLoadLumi",&flashCPUPeakLoadLumi_);
+  cpuInfoSpace_->fireItemAvailable("load",&flashCPULoad_);
+
+  //permissive for written files
   umask(000);
 
+  //start flashlist workloop
+  try {
+    wlFlashUpdater_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop("FlashUpdater",
+	  "waiting");
+    if (!wlFlashUpdater_->isActive()) wlFlashUpdater_->activate();
+    asFlashUpdater_ = toolbox::task::bind(this,&iDie::updateFlashlists,
+	"FlashUpdater");
+    wlFlashUpdater_->submit(asFlashUpdater_);
+  }
+  catch (xcept::Exception& e) {
+    std::string msg = "Failed to start workloop 'FlashUpdater'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
 }
 
 
@@ -254,6 +292,12 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     if(commandName == "Configure") {dqmState_ = "Ready"; state = "Ready";}
     else if(commandName == "Enable") {dqmState_ = "Enabled"; state = "Enabled";}
     else if(commandName == "Stop" || commandName == "Halt") {
+      //cleanup flashlist data
+      loadAccum_=0.;
+      loadAccumLs_=0;
+      cpuLoadsLastLs_=0;
+      memset(cpuLoads_,0,sizeof(float));
+      cpuLoadsSentLs_=0;
       //remove histograms
       std::cout << " Stopping/Halting iDie. command=" << commandName << " initialized=" << meInitialized_ << std::endl;
       if (meInitialized_) {
@@ -1433,6 +1477,28 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   busyFrCPUTheor=fround(busyFrCPUTheor,0.001f);
   busyAvg=fround(busyAvg,0.001f);
 
+  //flashlist peak cpu value
+  double newLoadAccum = 0.;
+  if (lsid>3) {
+    for (unsigned int lsb=lsid-3; lsb<lsid; lsb++)
+      newLoadAccum+=daqBusySummary_->getBinContent(lsb);
+    newLoadAccum/=3.;
+  }
+  else {
+    loadAccum_=0;loadAccumLs_=0;
+  }
+  if (newLoadAccum>loadAccum_) {
+    loadAccumLs_=lsid-1;
+    loadAccum_=newLoadAccum;
+  }
+  //flashlist cpu values
+  if (lsid)
+    while (cpuLoadsLastLs_<lsid-1) {
+      if (cpuLoadsLastLs_>=4000) break;
+      cpuLoads_[cpuLoadsLastLs_]=daqBusySummary_->getBinContent(cpuLoadsLastLs_+1);
+      cpuLoadsLastLs_++;
+  }
+
   //filling plots
   daqBusySummary_->setBinContent(lsid,busyAvg*100.);
   daqBusySummary_->setBinError(lsid,0);
@@ -1591,6 +1657,35 @@ void iDie::doFlush() {
       dqmService_->flushStandalone();
 }
 
+bool iDie::updateFlashlists(toolbox::task::WorkLoop *)
+{
+  bool updatedRN=false;
+  if (runNumber_>flashRunNumber_.value_)
+  {
+    cpuInfoSpace_->lock();
+    flashRunNumber_=runNumber_;
+    updatedRN=true;
+    cpuInfoSpace_->unlock();
+  }
+  if (updatedRN || loadAccum_>flashCPUPeakLoad_.value_)
+  {
+    cpuInfoSpace_->lock();
+    flashCPUPeakLoad_=loadAccum_;
+    flashCPUPeakLoadLumi_=loadAccumLs_;
+    cpuInfoSpace_->unlock();
+  }
+  if (cpuLoadsSentLs_<cpuLoadsLastLs_ && cpuLoadsLastLs_<=4000)
+  {
+    cpuInfoSpace_->lock();
+    flashCPUPeakLoad_=cpuLoads_[cpuLoadsLastLs_-1];
+    cpuLoadsSentLs_++;
+    cpuInfoSpace_->unlock();
+  }
+  //push
+  sleep(15);
+  return true;
+}
+
 void iDie::perLumiFileSaver(unsigned int lsid)
 {
 
@@ -1733,7 +1828,6 @@ void iDie::perTimeFileSaver()
       lastSavedForTime_=dT;
     }
   }
-
   if (willSaveForTime && writeDirectoryPresent_)
   {
     char suffix[64];
