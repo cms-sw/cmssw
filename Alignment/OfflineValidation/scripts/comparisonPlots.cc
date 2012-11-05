@@ -260,99 +260,99 @@ void comparisonPlots::plot3x3Rot(TCut Cut, char* dirName, bool savePlot, std::st
 	  zCut[5] = "sublevel==6";
 	} 
 	 
-	data->Project("h_dalphaVr", "dalpha:r",Cut);
+	data->Project("h_dalphaVr", "dalpha*1000:r",Cut);
 	TGraph* gr_dalphaVr_Array[j];
 	TMultiGraph* mgr_dalphaVr=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dalpha:r",Cut+zCut[i]);	  
+		data->Draw("dalpha*1000:r",Cut+zCut[i]);	  
 		gr_dalphaVr_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dalphaVr_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dalphaVr_Array[i]->SetMarkerStyle(6);	  
 		mgr_dalphaVr->Add(gr_dalphaVr_Array[i],"p");
 	}	
 	
-	data->Project("h_dbetaVr", "dbeta:r",Cut);
+	data->Project("h_dbetaVr", "dbeta*1000:r",Cut);
 	TGraph* gr_dbetaVr_Array[j];
 	TMultiGraph* mgr_dbetaVr=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dbeta:r",Cut+zCut[i]);	  
+		data->Draw("dbeta*1000:r",Cut+zCut[i]);	  
 		gr_dbetaVr_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dbetaVr_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dbetaVr_Array[i]->SetMarkerStyle(6);	  
 		mgr_dbetaVr->Add(gr_dbetaVr_Array[i],"p");
 	}	
 	
-	data->Project("h_dgammaVr", "dgamma:r",Cut);
+	data->Project("h_dgammaVr", "dgamma*1000:r",Cut);
 	TGraph* gr_dgammaVr_Array[j];
 	TMultiGraph* mgr_dgammaVr=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dgamma:r",Cut+zCut[i]);	  
+		data->Draw("dgamma*1000:r",Cut+zCut[i]);	  
 		gr_dgammaVr_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dgammaVr_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dgammaVr_Array[i]->SetMarkerStyle(6);	  
 		mgr_dgammaVr->Add(gr_dgammaVr_Array[i],"p");
 	}	
 	
-	data->Project("h_dalphaVz", "dalpha:z",Cut);
+	data->Project("h_dalphaVz", "dalpha*1000:z",Cut);
 	TGraph* gr_dalphaVz_Array[j];
 	TMultiGraph* mgr_dalphaVz=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dalpha:z",Cut+zCut[i]);	  
+		data->Draw("dalpha*1000:z",Cut+zCut[i]);	  
 		gr_dalphaVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dalphaVz_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dalphaVz_Array[i]->SetMarkerStyle(6);	  
 		mgr_dalphaVz->Add(gr_dalphaVz_Array[i],"p");
 	}	
 	
-	data->Project("h_dbetaVz", "dbeta:z",Cut);
+	data->Project("h_dbetaVz", "dbeta*1000:z",Cut);
 	TGraph* gr_dbetaVz_Array[j];
 	TMultiGraph* mgr_dbetaVz=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dbeta:z",Cut+zCut[i]);	  
+		data->Draw("dbeta*1000:z",Cut+zCut[i]);	  
 		gr_dbetaVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dbetaVz_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dbetaVz_Array[i]->SetMarkerStyle(6);	  
 		mgr_dbetaVz->Add(gr_dbetaVz_Array[i],"p");
 	}	
 	
-	data->Project("h_dgammaVz", "dgamma:z",Cut);
+	data->Project("h_dgammaVz", "dgamma*1000:z",Cut);
 	TGraph* gr_dgammaVz_Array[j];
 	TMultiGraph* mgr_dgammaVz=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dgamma:z",Cut+zCut[i]);	  
+		data->Draw("dgamma*1000:z",Cut+zCut[i]);	  
 		gr_dgammaVz_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dgammaVz_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dgammaVz_Array[i]->SetMarkerStyle(6);	  
 		mgr_dgammaVz->Add(gr_dgammaVz_Array[i],"p");
 	}	
 	
-	data->Project("h_dalphaVphi", "dalpha:phi",Cut);
+	data->Project("h_dalphaVphi", "dalpha*1000:phi",Cut);
 	TGraph* gr_dalphaVphi_Array[j];
 	TMultiGraph* mgr_dalphaVphi=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dalpha:phi",Cut+zCut[i]);	  
+		data->Draw("dalpha*1000:phi",Cut+zCut[i]);	  
 		gr_dalphaVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dalphaVphi_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dalphaVphi_Array[i]->SetMarkerStyle(6);	  
 		mgr_dalphaVphi->Add(gr_dalphaVphi_Array[i],"p");
 	}	
 	
-	data->Project("h_dbetaVphi", "dbeta:phi",Cut);
+	data->Project("h_dbetaVphi", "dbeta*1000:phi",Cut);
 	TGraph* gr_dbetaVphi_Array[j];
 	TMultiGraph* mgr_dbetaVphi=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dbeta:phi",Cut+zCut[i]);	  
+		data->Draw("dbeta*1000:phi",Cut+zCut[i]);	  
 		gr_dbetaVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dbetaVphi_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dbetaVphi_Array[i]->SetMarkerStyle(6);	  
 		mgr_dbetaVphi->Add(gr_dbetaVphi_Array[i],"p");
 	}	
 	
-	data->Project("h_dgammaVphi", "dgamma:phi",Cut);
+	data->Project("h_dgammaVphi", "dgamma*1000:phi",Cut);
 	TGraph* gr_dgammaVphi_Array[j];
 	TMultiGraph* mgr_dgammaVphi=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dgamma:phi",Cut+zCut[i]);	  
+		data->Draw("dgamma*1000:phi",Cut+zCut[i]);	  
 		gr_dgammaVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dgammaVphi_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dgammaVphi_Array[i]->SetMarkerStyle(6);	  
@@ -395,25 +395,25 @@ void comparisonPlots::plot3x3Rot(TCut Cut, char* dirName, bool savePlot, std::st
 	if (!autolimits) h_dgammaVphi->Draw();
 	if (autolimits) mgr_dgammaVphi->Draw("a");
 	
-	mgr_dalphaVr->GetXaxis()  ->SetTitle("r");
-	mgr_dbetaVr->GetXaxis()   ->SetTitle("r");           
-	mgr_dgammaVr->GetXaxis()  ->SetTitle("r");    
-	mgr_dalphaVz->GetXaxis()  ->SetTitle("z");           
-	mgr_dbetaVz->GetXaxis()   ->SetTitle("z");           
-	mgr_dgammaVz->GetXaxis()  ->SetTitle("z");    
+	mgr_dalphaVr->GetXaxis()  ->SetTitle("r (cm)");
+	mgr_dbetaVr->GetXaxis()   ->SetTitle("r (cm)");           
+	mgr_dgammaVr->GetXaxis()  ->SetTitle("r (cm)");    
+	mgr_dalphaVz->GetXaxis()  ->SetTitle("z (cm)");           
+	mgr_dbetaVz->GetXaxis()   ->SetTitle("z (cm)");           
+	mgr_dgammaVz->GetXaxis()  ->SetTitle("z (cm)");    
 	mgr_dalphaVphi->GetXaxis()->SetTitle("#phi");      
 	mgr_dbetaVphi->GetXaxis() ->SetTitle("#phi");      
 	mgr_dgammaVphi->GetXaxis()->SetTitle("#phi");
 	
-	mgr_dalphaVr->GetYaxis()  ->SetTitle("#Delta #alpha");
-	mgr_dbetaVr->GetYaxis()   ->SetTitle("#Delta #beta");           
-	mgr_dgammaVr->GetYaxis()  ->SetTitle("#Delta #gamma");    
-	mgr_dalphaVz->GetYaxis()  ->SetTitle("#Delta #alpha");           
-	mgr_dbetaVz->GetYaxis()   ->SetTitle("#Delta #beta");           
-	mgr_dgammaVz->GetYaxis()  ->SetTitle("#Delta #gamma");    
-	mgr_dalphaVphi->GetYaxis()->SetTitle("#Delta #alpha");      
-	mgr_dbetaVphi->GetYaxis() ->SetTitle("#Delta #beta");      
-	mgr_dgammaVphi->GetYaxis()->SetTitle("#Delta #gamma");
+	mgr_dalphaVr->GetYaxis()  ->SetTitle("#Delta #alpha (mrad)");
+	mgr_dbetaVr->GetYaxis()   ->SetTitle("#Delta #beta (mrad)");           
+	mgr_dgammaVr->GetYaxis()  ->SetTitle("#Delta #gamma (mrad)");    
+	mgr_dalphaVz->GetYaxis()  ->SetTitle("#Delta #alpha (mrad)");           
+	mgr_dbetaVz->GetYaxis()   ->SetTitle("#Delta #beta (mrad)");           
+	mgr_dgammaVz->GetYaxis()  ->SetTitle("#Delta #gamma (mrad)");    
+	mgr_dalphaVphi->GetYaxis()->SetTitle("#Delta #alpha (mrad)");      
+	mgr_dbetaVphi->GetYaxis() ->SetTitle("#Delta #beta (mrad)");      
+	mgr_dgammaVphi->GetYaxis()->SetTitle("#Delta #gamma (mrad)");
 	
 	c->Update();
 	
@@ -429,13 +429,9 @@ void comparisonPlots::plot3x3Rot(TCut Cut, char* dirName, bool savePlot, std::st
 
 void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::string plotName, bool autolimits, int ColorCode ){
 	
-  //int ColorCodeHalfBarrels = 1; //color seperation of moodules corresponding to the different subdets
+  //int ColorCodeHalfBarrels = 1; 
+  //color seperation of moodules corresponding to the different subdets
   //if you want to seperate corresponding to the halfbarrels (+z or -z) set colorcode !=1
-  //gStyle->SetTitleAlign(22);
-  //gStyle->SetTitleX(0.5);
-  //gStyle->SetTitleY(0.97);
-  //gStyle->SetShadowColor(0);
-  //gStyle->SetTitleSize(.5);
   
   gStyle->SetTitleFont(62);
   gStyle->SetOptTitle(0);
@@ -466,13 +462,18 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
   gStyle->SetHistLineWidth(1.85);
   gStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
 
+  gStyle->SetTitleAlign(22);
+  gStyle->SetTitleX(0.5);
+  gStyle->SetTitleY(0.97);
+  gStyle->SetTitleFont(62);
+
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
 
   gStyle->SetPadTopMargin(0.1);
-  gStyle->SetPadRightMargin(0.02);
+  gStyle->SetPadRightMargin(0.05);
   gStyle->SetPadBottomMargin(0.16);
-  gStyle->SetPadLeftMargin(0.20);
+  gStyle->SetPadLeftMargin(0.18);
   
   // ---------  create directory for histograms ---------
   //const char* dirName = Cut;
@@ -700,7 +701,7 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	TGraph* gr_drVphi_Array[j];
 	TMultiGraph* mgr_drVphi=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dr:phi*10000",Cut+zCut[i]);	  
+		data->Draw("dr*10000:phi",Cut+zCut[i]);	  
 		gr_drVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_drVphi_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_drVphi_Array[i]->SetMarkerStyle(6);	  
@@ -711,7 +712,7 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	TGraph* gr_dzVphi_Array[j];
 	TMultiGraph* mgr_dzVphi=new TMultiGraph();
 	for ( int i = 0; i < j; i++) {
-		data->Draw("dz:phi*10000",Cut+zCut[i]);	  
+		data->Draw("dz*10000:phi",Cut+zCut[i]);	  
 		gr_dzVphi_Array[i] = new TGraph(data->GetSelectedRows(),data->GetV2(),data->GetV1());
 		gr_dzVphi_Array[i]->SetMarkerColor(int(i/4)+i+1);	  
 		gr_dzVphi_Array[i]->SetMarkerStyle(6);	  
@@ -868,21 +869,21 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	mgr_dxVphi->GetYaxis()->SetTitle("#Delta x (#mum)");      
 	mgr_dyVphi->GetYaxis()->SetTitle("#Delta y (#mum)");   
 	
-	mgr_drVr->GetYaxis()->SetTitleOffset(1.1);
-	mgr_dzVr->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_rdphiVr->GetYaxis()->SetTitleOffset(1.1);    
-	mgr_dxVr->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_dyVr->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_drVz->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_dzVz->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_rdphiVz->GetYaxis()->SetTitleOffset(1.1);    
-	mgr_dxVz->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_dyVz->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_drVphi->GetYaxis()->SetTitleOffset(1.1);      
-	mgr_dzVphi->GetYaxis()->SetTitleOffset(1.1);      
-	mgr_rdphiVphi->GetYaxis()->SetTitleOffset(1.1);
-	mgr_dxVphi->GetYaxis()->SetTitleOffset(1.1);      
-	mgr_dyVphi->GetYaxis()->SetTitleOffset(1.1);   
+	mgr_drVr->GetYaxis()->SetTitleOffset(1.15);
+	mgr_dzVr->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_rdphiVr->GetYaxis()->SetTitleOffset(1.15);    
+	mgr_dxVr->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_dyVr->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_drVz->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_dzVz->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_rdphiVz->GetYaxis()->SetTitleOffset(1.15);    
+	mgr_dxVz->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_dyVz->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_drVphi->GetYaxis()->SetTitleOffset(1.15);      
+	mgr_dzVphi->GetYaxis()->SetTitleOffset(1.15);      
+	mgr_rdphiVphi->GetYaxis()->SetTitleOffset(1.15);
+	mgr_dxVphi->GetYaxis()->SetTitleOffset(1.15);      
+	mgr_dyVphi->GetYaxis()->SetTitleOffset(1.15);   
 	
 	c->Update();
 	
@@ -899,21 +900,49 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 
 void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool savePlot, std::string plotName, bool autolimits,int ColorCode ){
 
+  //int ColorCodeHalfBarrels = 1; 
+  //color seperation of moodules corresponding to the different subdets
+  //if you want to seperate corresponding to the halfbarrels (+z or -z) set colorcode !=1
+
   //for all histograms set the title centered
+  gStyle->SetTitleFont(62);
+  gStyle->SetOptTitle(0);
+   
+  gStyle->SetFrameBorderMode(0);
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetPadBorderMode(0);
+  gStyle->SetPadColor(0);
+  gStyle->SetCanvasColor(0);
+  gStyle->SetTitleColor(1);
+  gStyle->SetStatColor(0);
+  gStyle->SetStatBorderSize(1);
+  gStyle->SetFrameFillColor(0);
+
+  gStyle->SetTextFont(132);
+  gStyle->SetTextSize(0.08);
+  gStyle->SetLabelFont(132,"x");
+  gStyle->SetLabelFont(132,"y");
+  gStyle->SetLabelFont(132,"z");
+  gStyle->SetTitleSize(0.08,"x");
+  gStyle->SetTitleSize(0.08,"y");
+  gStyle->SetTitleSize(0.08,"z");
+  gStyle->SetLabelSize(0.08,"x");
+  gStyle->SetLabelSize(0.08,"y");
+  gStyle->SetLabelSize(0.08,"z");
+
   gStyle->SetTitleAlign(22);
   gStyle->SetTitleX(0.5);
   gStyle->SetTitleY(0.97);
-  //gStyle->SetShadowColor(0);
-   //gStyle->SetTitleSize(.5);
   gStyle->SetTitleFont(62);
 
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+
   gStyle->SetPadTopMargin(0.1);
-  gStyle->SetPadRightMargin(0.04);
+  gStyle->SetPadRightMargin(0.05);
   gStyle->SetPadBottomMargin(0.16);
-  gStyle->SetPadLeftMargin(0.20);
+  gStyle->SetPadLeftMargin(0.18);
   
-  //int ColorCodeHalfBarrels = 1; //color seperation of moodules corresponding to the different subdets
-  //if you want to seperate corresponding to the halfbarrels (+z or -z) set colorcode !=1
 	// ---------  create directory for histograms ---------
 	//const char* dirName = Cut;
 	string s;// = "profile";
@@ -976,7 +1005,7 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 		getHistMaxMin(phdy, maximumDY, minimumDY, 1);
 	}
 	else{
-		minimumR     = 0.,    maximumR     = 120.; 
+		minimumR     = 0.,    maximumR     = 200.; 
 		minimumZ     = -300., maximumZ     = 300.; 
 		minimumPhi   = -3.15, maximumPhi   = 3.15;
 		minimumDR    = -1,    maximumDR    = 1;
@@ -1022,8 +1051,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	  mgr_drVr->SetMinimum( 2.*mgr_drVr->GetMinimum("nostack") );
 	}
 	else{
-	  mgr_drVr->SetMaximum(100*mgr_drVr->GetMaximum("nostack"));
-	  mgr_drVr->SetMinimum( 100.*mgr_drVr->GetMinimum("nostack"));
+	  mgr_drVr->SetMaximum(10.);
+	  mgr_drVr->SetMinimum( -10.);
 	}
 	
 	//data->Project("hprof_dzVr", "dz:r",Cut,"prof");
@@ -1043,8 +1072,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	   mgr_dzVr->SetMinimum( 2.*mgr_dzVr->GetMinimum("nostack") );
 	 }	
 	 else{
-	   mgr_dzVr->SetMaximum( 100.*mgr_dzVr->GetMaximum("nostack") );
-	   mgr_dzVr->SetMinimum( 100.*mgr_dzVr->GetMinimum("nostack") );
+	   mgr_dzVr->SetMaximum( 10.);
+	   mgr_dzVr->SetMinimum( -10.);
 	 }
 
 	//data->Project("hprof_rdphiVr", "r*dphi:r",Cut,"prof");
@@ -1064,8 +1093,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_rdphiVr->SetMinimum( 2.*mgr_rdphiVr->GetMinimum("nostack") );
 	}
 	else{
-	mgr_rdphiVr->SetMaximum( 100.*mgr_rdphiVr->GetMaximum("nostack") );
-	mgr_rdphiVr->SetMinimum( 100.*mgr_rdphiVr->GetMinimum("nostack") );
+	mgr_rdphiVr->SetMaximum( 10.);
+	mgr_rdphiVr->SetMinimum( -10.);
 	}
 	  
 	//data->Project("hprof_dxVr", "dx:r",Cut,"prof");
@@ -1085,8 +1114,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_dxVr->SetMinimum( 2.*mgr_dxVr->GetMinimum("nostack") );
 	}
 	else{
-	  mgr_dxVr->SetMaximum( 100.*mgr_dxVr->GetMaximum("nostack") );
-	  mgr_dxVr->SetMinimum( 100.*mgr_dxVr->GetMinimum("nostack") );
+	  mgr_dxVr->SetMaximum( 10.);
+	  mgr_dxVr->SetMinimum( -10.);
         }
 	
 	//data->Project("hprof_dyVr", "dy:r",Cut,"prof");
@@ -1106,8 +1135,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	  mgr_dyVr->SetMinimum( 2.*mgr_dyVr->GetMinimum("nostack") );
 	}
 	else{
-	  mgr_dyVr->SetMaximum( 100.*mgr_dyVr->GetMaximum("nostack") );
-	  mgr_dyVr->SetMinimum( 100.*mgr_dyVr->GetMinimum("nostack") );
+	  mgr_dyVr->SetMaximum( 10.);
+	  mgr_dyVr->SetMinimum( -10.);
 	}
 
 	//data->Project("hprof_drVz", "dr:z",Cut,"prof");
@@ -1127,8 +1156,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_drVz->SetMinimum( 2.*mgr_drVz->GetMinimum("nostack") );
 	}
 	else{
-	mgr_drVz->SetMaximum( 100.*mgr_drVz->GetMaximum("nostack") );
-	mgr_drVz->SetMinimum( 100.*mgr_drVz->GetMinimum("nostack") );
+	mgr_drVz->SetMaximum( 10.);
+	mgr_drVz->SetMinimum( -10.);
 	}
 
 	//data->Project("hprof_dzVz", "dz:z",Cut,"prof");
@@ -1148,8 +1177,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_dzVz->SetMinimum( 2.*mgr_dzVz->GetMinimum("nostack") );
 	}
 	else{
-	mgr_dzVz->SetMaximum( 100.*mgr_dzVz->GetMaximum("nostack") );
-	mgr_dzVz->SetMinimum( 100.*mgr_dzVz->GetMinimum("nostack") );
+	mgr_dzVz->SetMaximum( 10.);
+	mgr_dzVz->SetMinimum( -10.);
 	}
 
 	//data->Project("hprof_rdphiVz", "r*dphi:z",Cut,"prof");
@@ -1169,8 +1198,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_rdphiVz->SetMinimum( 2.*mgr_rdphiVz->GetMinimum("nostack") );
 	}
 	else{
-	mgr_rdphiVz->SetMaximum( 100.*mgr_rdphiVz->GetMaximum("nostack") );
-	mgr_rdphiVz->SetMinimum( 100.*mgr_rdphiVz->GetMinimum("nostack") );
+	mgr_rdphiVz->SetMaximum( 10.);
+	mgr_rdphiVz->SetMinimum( -10.);
 	}
 
 	//data->Project("hprof_dxVz", "dx:z",Cut,"prof");
@@ -1190,8 +1219,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_dxVz->SetMinimum( 2.*mgr_dxVz->GetMinimum("nostack") );
 	}
 	else{
-	  mgr_dxVz->SetMaximum( 100.*mgr_dxVz->GetMaximum("nostack") );
-	  mgr_dxVz->SetMinimum( 100.*mgr_dxVz->GetMinimum("nostack") );
+	  mgr_dxVz->SetMaximum( 10.);
+	  mgr_dxVz->SetMinimum( -10.);
 	}
 	
 	//data->Project("hprof_dyVz", "dy:z",Cut,"prof");
@@ -1211,8 +1240,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	  mgr_dyVz->SetMinimum( 2.*mgr_dyVz->GetMinimum("nostack") );
 	}
 	else{
-	  mgr_dyVz->SetMaximum( 100.*mgr_dyVz->GetMaximum("nostack") );
-	  mgr_dyVz->SetMinimum( 100.*mgr_dyVz->GetMinimum("nostack") );
+	  mgr_dyVz->SetMaximum( 10.);
+	  mgr_dyVz->SetMinimum( -10.);
 	}
 
 	//data->Project("hprof_drVphi", "dr:phi",Cut,"prof");
@@ -1232,8 +1261,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_drVphi->SetMinimum( 2.*mgr_drVphi->GetMinimum("nostack") );
 	}
 	else{
-	  mgr_drVphi->SetMaximum( 100.*mgr_drVphi->GetMaximum("nostack") );
-	  mgr_drVphi->SetMinimum( 100.*mgr_drVphi->GetMinimum("nostack") );
+	  mgr_drVphi->SetMaximum( 10.);
+	  mgr_drVphi->SetMinimum( -10.);
 	}
 
 	//data->Project("hprof_dzVphi", "dz:phi",Cut,"prof");
@@ -1253,8 +1282,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_dzVphi->SetMinimum( 2.*mgr_dzVphi->GetMinimum("nostack") );
 	}
 	else{
-	mgr_dzVphi->SetMaximum( 100.*mgr_dzVphi->GetMaximum("nostack") );
-	mgr_dzVphi->SetMinimum( 100.*mgr_dzVphi->GetMinimum("nostack") );
+	mgr_dzVphi->SetMaximum( 10.);
+	mgr_dzVphi->SetMinimum( -10.);
 	}
 
 	//data->Project("hprof_rdphiVphi", "r*dphi:phi",Cut,"prof");
@@ -1274,8 +1303,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_rdphiVphi->SetMinimum( 2.*mgr_rdphiVphi->GetMinimum("nostack") );
 	}
 	else{
-	  mgr_rdphiVphi->SetMaximum( 100.*mgr_rdphiVphi->GetMaximum("nostack") );
-	  mgr_rdphiVphi->SetMinimum( 100.*mgr_rdphiVphi->GetMinimum("nostack") );
+	  mgr_rdphiVphi->SetMaximum( 10.);
+	  mgr_rdphiVphi->SetMinimum( -10.);
 	}
 
 	//data->Project("hprof_dxVphi", "dx:phi",Cut,"prof");
@@ -1295,8 +1324,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_dxVphi->SetMinimum( 2.*mgr_dxVphi->GetMinimum("nostack") );
 	}
 	else{
-	mgr_dxVphi->SetMaximum( 100.*mgr_dxVphi->GetMaximum("nostack") );
-	mgr_dxVphi->SetMinimum( 100.*mgr_dxVphi->GetMinimum("nostack") );
+	mgr_dxVphi->SetMaximum( 10.);
+	mgr_dxVphi->SetMinimum( -10.);
 	}
 
 	//data->Project("hprof_dyVphi", "dy:phi",Cut,"prof");
@@ -1316,8 +1345,8 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
         	mgr_dyVphi->SetMinimum( 2.*mgr_dyVphi->GetMinimum("nostack") );
         }
         else{
-               mgr_dyVphi->SetMaximum( 100.*mgr_dyVphi->GetMaximum("nostack") );
-               mgr_dyVphi->SetMinimum( 100.*mgr_dyVphi->GetMinimum("nostack") );
+               mgr_dyVphi->SetMaximum( 10.);
+               mgr_dyVphi->SetMinimum( -10.);
         }
 	
 	mgr_drVr->SetTitle("#Delta r vs. r");           
@@ -1415,28 +1444,28 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	mgr_dzVz->GetYaxis()->SetTitle("#Delta z (#mum)");           
 	mgr_rdphiVz->GetYaxis()->SetTitle("r#Delta #phi (#mum)");    
 	mgr_dxVz->GetYaxis()->SetTitle("#Delta x (#mum)");           
-	mgr_dyVz->GetYaxis()->SetTitle("#Delta y (#mum) (#mum)");           
+	mgr_dyVz->GetYaxis()->SetTitle("#Delta y (#mum)");           
 	mgr_drVphi->GetYaxis()->SetTitle("#Delta r (#mum)");      
 	mgr_dzVphi->GetYaxis()->SetTitle("#Delta z (#mum)");      
 	mgr_rdphiVphi->GetYaxis()->SetTitle("r#Delta #phi (#mum)");
 	mgr_dxVphi->GetYaxis()->SetTitle("#Delta x (#mum)");      
 	mgr_dyVphi->GetYaxis()->SetTitle("#Delta y (#mum)");   
 	
-	mgr_drVr->GetYaxis()->SetTitleOffset(1.1);
-	mgr_dzVr->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_rdphiVr->GetYaxis()->SetTitleOffset(1.1);    
-	mgr_dxVr->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_dyVr->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_drVz->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_dzVz->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_rdphiVz->GetYaxis()->SetTitleOffset(1.1);    
-	mgr_dxVz->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_dyVz->GetYaxis()->SetTitleOffset(1.1);           
-	mgr_drVphi->GetYaxis()->SetTitleOffset(1.1);      
-	mgr_dzVphi->GetYaxis()->SetTitleOffset(1.1);      
-	mgr_rdphiVphi->GetYaxis()->SetTitleOffset(1.1);
-	mgr_dxVphi->GetYaxis()->SetTitleOffset(1.1);      
-	mgr_dyVphi->GetYaxis()->SetTitleOffset(1.1);   
+	mgr_drVr->GetYaxis()->SetTitleOffset(1.15);
+	mgr_dzVr->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_rdphiVr->GetYaxis()->SetTitleOffset(1.15);    
+	mgr_dxVr->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_dyVr->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_drVz->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_dzVz->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_rdphiVz->GetYaxis()->SetTitleOffset(1.15);    
+	mgr_dxVz->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_dyVz->GetYaxis()->SetTitleOffset(1.15);           
+	mgr_drVphi->GetYaxis()->SetTitleOffset(1.15);      
+	mgr_dzVphi->GetYaxis()->SetTitleOffset(1.15);      
+	mgr_rdphiVphi->GetYaxis()->SetTitleOffset(1.15);
+	mgr_dxVphi->GetYaxis()->SetTitleOffset(1.15);      
+	mgr_dyVphi->GetYaxis()->SetTitleOffset(1.15);   
 	
 	c->Update();
 	
