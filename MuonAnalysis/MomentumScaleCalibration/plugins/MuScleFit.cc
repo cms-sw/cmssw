@@ -1,16 +1,16 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2012/05/07 10:03:26 $
- *  $Revision: 1.108 $
+ *  $Date: 2012/09/06 11:26:57 $
+ *  $Revision: 1.109 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2012/05/07 10:03:26 $
-//  $Revision: 1.108 $
+//  $Date: 2012/09/06 11:26:57 $
+//  $Revision: 1.109 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -904,9 +904,10 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
       bool eta1InSecondRange = eta1 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta1 < MuScleFitUtils::maxMuonEtaSecondRange_;
       bool eta2InSecondRange = eta2 >= MuScleFitUtils::minMuonEtaSecondRange_ && eta2 < MuScleFitUtils::maxMuonEtaSecondRange_;
 
+      // This is my logic, which should be erroneous, but certainly simpler...
       if( !(pt1 >= MuScleFitUtils::minMuonPt_ && pt1 < MuScleFitUtils::maxMuonPt_ &&
 	    pt2 >= MuScleFitUtils::minMuonPt_ && pt2 < MuScleFitUtils::maxMuonPt_ &&
-	    ( (eta1InFirstRange && eta2InFirstRange) || (eta1InSecondRange && eta2InSecondRange) )) ) {
+	    eta1InFirstRange && eta2InSecondRange ) ) {
 	dontPass = true;
       }
     }
