@@ -87,11 +87,11 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
 }
 
 
-RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL) {
-    return doFit(pdf, data, RooArgList (r), constrain, doHesse, ndim, reuseNLL);
+RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &r, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL, bool saveFitResult) {
+    return doFit(pdf, data, RooArgList (r), constrain, doHesse, ndim, reuseNLL, saveFitResult);
 }
 
-RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL) {
+RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooArgList &rs, const RooCmdArg &constrain, bool doHesse, int ndim, bool reuseNLL, bool saveFitResult) {
     RooFitResult *ret = 0;
     if (reuseNLL && nll.get() != 0) nll->setData(data);	// reuse nll but swap out the data
     else nll.reset(pdf.createNLL(data, constrain, RooFit::Extended(pdf.canBeExtended()))); // make a new nll
@@ -114,7 +114,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     if (!ok && !keepFailures_) { std::cout << "Initial minimization failed. Aborting." << std::endl; return 0; }
     if (doHesse) minim.minimizer().hesse();
     sentry.clear();
-    ret = minim.save();
+    ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
     if (verbose > 1) { ret->Print("V");  }
 
     std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
@@ -306,21 +306,44 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
     double rVal   = rStart;
 
     bool unbound = !runtimedef::get("FITTER_BOUND");
+    bool neverGiveUp = runtimedef::get("FITTER_NEVER_GIVE_UP");
+    double stepSize = stepSize_;
     for (int iter = 0; iter < 20; ++iter) {
+        rVal = rStart; r.setVal(rVal); 
+        nll.clearEvalErrorLog(); 
         double yStart = nll.getVal();
-        double rInc = stepSize_*(rBound - rStart);
-        if (verbose > 1) fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f                       step %+10.6f [ START OF ITER %d ]\n", rVal, yStart-level, rInc, iter);  
+        if (nll.numEvalErrors() > 0 || std::isnan(yStart) || std::isinf(yStart)) { 
+            fprintf(sentry.trueStdOut(), "Error: logEvalErrors on stat of loop for iteration %d, x %+10.6f\n", iter, rVal); return NAN; 
+        }
+        double rInc = stepSize*(rBound - rStart);
+        if (rInc == 0) break;
+        if (verbose > 1) fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f                       step %+10.6f [ START OF ITER %d, bound %+10.6f ]\n", rVal, yStart-level, rInc, iter, rBound);  
         // first move w/o profiling
-        bool hitbound = true;
+        bool hitbound = true; //, hiterr = false;
         while (unbound || (rBound - rVal - rInc)*rInc >= 0) { // if I've not yet reached the boundary
             rVal += rInc;
             r.setVal(rVal);
             if (r.getVal() != rVal) { fprintf(sentry.trueStdOut(), "Error: can't set %s = %g\n", r.GetName(), rVal); return NAN; }
+            nll.clearEvalErrorLog();
             double y = nll.getVal();
+            if (nll.numEvalErrors() > 0 || std::isnan(y) || std::isinf(y) || fabs(y-level) > 1e6) { 
+                if (verbose > 1) fprintf(sentry.trueStdOut(), "logEvalErrors on stepping for iteration %d, set range to [ %+10.6f, %+10.6f ]\n", iter, rStart, rVal);
+                rVal -= rInc; r.setVal(rVal);
+                //hiterr = true;
+                hitbound = false;
+                stepSize *= 0.3; // we have to step very carefully
+                //unbound = true; // boundaries are real, so we might have to go very close to them
+                break;
+            }
             double yCorr = y - quadCorr*std::pow(rVal-rStart,2);
             if (verbose > 1) fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f\n", rVal, y-level, yCorr-level);  
-            if (fabs(y - yStart) > 0.7) { hitbound = false; break; }
+            if (fabs(yCorr - yStart) > 0.7) { 
+                hitbound = false;
+                if (verbose > 1) fprintf(sentry.trueStdOut(), "     --------> accumulated big change in NLL, will go do minimize\n");
+                break; 
+            }
             if ((level-yCorr)*(level-yStart) < 0) { 
+                if (verbose > 1) fprintf(sentry.trueStdOut(), "     --------> found crossing\n");
                 double r2 = rVal - rInc; //r2 should be on the same side as yStart, yCorr(rVal) on the opposite
                 for (int iter2 = 0; (fabs(yCorr - level) > minimizerTolerance_) && iter2 < 5; ++iter2) {
                     double rMid = 0.5*(rVal+r2); r.setVal(rMid);
@@ -332,12 +355,17 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
                         r2   = rMid;
                     }
                 }
+                r.setVal(rVal); // save final value after bisection loop
+                if (verbose > 1) fprintf(sentry.trueStdOut(), "     --------> ending with x %+10.6f\n", rVal);
                 hitbound = false; break;
             }
         } 
+        // if we have hit an error, rBound has been updated and we just restart stepping slowly towards it
+        //if (hiterr) continue;
+
         // now we profile
         double yUnprof = nll.getVal(), yCorr = yUnprof - quadCorr*std::pow(rVal-rStart,2);
-        if (!minim.improve(verbose-1))  { fprintf(sentry.trueStdOut(), "Error: minimization failed at %s = %g\n", r.GetName(), rVal); return NAN; }
+        if (!minim.improve(verbose-1))  { fprintf(sentry.trueStdOut(), "Error: minimization failed at %s = %g\n", r.GetName(), rVal); if (!neverGiveUp) return NAN; }
         double yProf = nll.getVal();
         if (verbose > 1) fprintf(sentry.trueStdOut(), "x %+10.6f   y %+10.6f   yCorr %+10.6f   yProf  %+10.6f   (P-U) %+10.6f    (P-C) %+10.6f    oldSlope %+10.6f    newSlope %+10.6f\n", 
                                                        rVal, yUnprof-level, yCorr-level, yProf-level, yProf - yUnprof, yProf - yCorr, quadCorr, (yUnprof-yProf)/std::pow(rVal-rStart,2));  
@@ -348,25 +376,27 @@ double FitterAlgoBase::findCrossingNew(CascadeMinimizer &minim, RooAbsReal &nll,
             return (w1*rVal + w0*rStart)/(w0+w1);
         }
 
-        if (hitbound) {
-            fprintf(sentry.trueStdOut(), "Error: closed range at %s = %g without finding any crossing \n", r.GetName(), rVal); 
-            return rVal; 
-        }
-
         // save checkpoint
         //checkpoint.readFrom(*allpars);
         // update correction
-        quadCorr = (yUnprof-yProf)/std::pow(rVal-rStart,2);
+        if (rVal != rStart) quadCorr = (yUnprof-yProf)/std::pow(rVal-rStart,2);
         if ((level - yStart)*(level - yProf) > 0) {
             // still on the same side as rStart
             rStart = rVal; 
-            fprintf(sentry.trueStdOut(), " ---> change search window to [ %g , %g ]\n", rStart, rBound);
+            if (hitbound) {
+                fprintf(sentry.trueStdOut(), "Error: closed range at %s = %g without finding any crossing \n", r.GetName(), rVal); 
+                return rVal; 
+            } else {
+                if (verbose > 1) fprintf(sentry.trueStdOut(), " ---> change search window to [ %g , %g ]\n", rStart, rBound);
+            }
         } else {
             rBound = rStart;
             rStart = rVal;
-            fprintf(sentry.trueStdOut(), " ---> change search window to [ %g , %g ]\n", rStart, rBound);
+            unbound = true; // I did have a bracketing, so I don't need external bounds anymore
+            if (verbose > 1) fprintf(sentry.trueStdOut(), " ---> all your brackets are belong to us!!\n");
+            if (verbose > 1) fprintf(sentry.trueStdOut(), " ---> change search window to [ %g , %g ]\n", rStart, rBound);
         }
     }
-    fprintf(sentry.trueStdOut(), "Error: search did not converge!\n"); 
-    return NAN;
+    fprintf(sentry.trueStdOut(), "Error: search did not converge, will return approximate answer %+.6f\n",rVal); 
+    return rVal;
 }

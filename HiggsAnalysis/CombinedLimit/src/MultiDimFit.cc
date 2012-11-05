@@ -96,8 +96,8 @@ bool MultiDimFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooS
     }
  
     // start with a best fit
-    const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooFit::NumCPU(1);
-    std::auto_ptr<RooFitResult> res(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true)); 
+    const RooCmdArg &constrainCmdArg = withSystematics  ? RooFit::Constrain(*mc_s->GetNuisanceParameters()) : RooCmdArg();
+    std::auto_ptr<RooFitResult> res(doFit(pdf, data, (algo_ == Singles ? poiList_ : RooArgList()), constrainCmdArg, false, 1, true, false)); 
     if (res.get() || keepFailures_) {
         for (int i = 0, n = poi_.size(); i < n; ++i) {
             poiVals_[i] = poiVars_[i]->getVal();
@@ -257,6 +257,16 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                 nll.clearEvalErrorLog(); nll.getVal();
                 if (nll.numEvalErrors() > 0) { 
                     deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
+                    if (gridType_ == G3x3) {
+                        for (int i2 = -1; i2 <= +1; ++i2) {
+                            for (int j2 = -1; j2 <= +1; ++j2) {
+                                if (i2 == 0 && j2 == 0) continue;
+                                poiVals_[0] = x + 0.33333333*i2*deltaX;
+                                poiVals_[1] = y + 0.33333333*j2*deltaY;
+                                deltaNLL_ = 9999; Combine::commitPoint(true, /*quantile=*/0); 
+                            }
+                        }
+                    }
                     continue;
                 }
                 // now we minimize
@@ -268,11 +278,13 @@ void MultiDimFit::doGrid(RooAbsReal &nll)
                     double prob = ROOT::Math::chisquared_cdf_c(qN, n+nOtherFloatingPoi_);
                     Combine::commitPoint(true, /*quantile=*/prob);
                 }
-                if (gridType_ == G3x3 && !skipme) {
+                if (gridType_ == G3x3) {
+                    utils::CheapValueSnapshot center(*params);
                     double x0 = x, y0 = y;
                     for (int i2 = -1; i2 <= +1; ++i2) {
                         for (int j2 = -1; j2 <= +1; ++j2) {
                             if (i2 == 0 && j2 == 0) continue;
+                            center.writeTo(*params);
                             x = x0 + 0.33333333*i2*deltaX;
                             y = y0 + 0.33333333*j2*deltaY;
                             poiVals_[0] = x; poiVars_[0]->setVal(x);

@@ -310,8 +310,12 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       double loErr = -(rf->hasRange("err68") ? rf->getMin("err68") - bestFitVal : rf->getAsymErrorLo());
       double maxError = std::max<double>(std::max<double>(hiErr, loErr), rf->getError());
 
-      if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
-      if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
+      if (!robustFit_) {
+          // this can legitimately happen if the physical boundary of the pdf is at a value smaller than rf->getMin();
+          // however, for MINOS it's most likely due to a failure
+          if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
+          if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
+      }
 
       double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
       double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
