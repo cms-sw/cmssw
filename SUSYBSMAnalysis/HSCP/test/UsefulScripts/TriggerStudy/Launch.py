@@ -26,7 +26,7 @@ elif sys.argv[1]=='0':
    LaunchOnCondor.SendCluster_Create(FarmDirectory, JobName)
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_8TeV_Gluino"', '"Gluino_8TeV_M400_f10"', '"Gluino_8TeV_M800_f10"', '"Gluino_8TeV_M1200_f10"'])
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_8TeV_GluinoN"', '"Gluino_8TeV_M400N_f10"', '"Gluino_8TeV_M800N_f10"', '"Gluino_8TeV_M1200N_f10"'])
-   LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_8TeV_Gluino"', '"Gluino_8TeV_M400_f100"', '"Gluino_8TeV_M800_f100"', '"Gluino_8TeV_M1200_f100"'])
+   LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_8TeV_Gluino_f100"', '"Gluino_8TeV_M400_f100"', '"Gluino_8TeV_M800_f100"', '"Gluino_8TeV_M1200_f100"'])
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_8TeV_Stop"', '"Stop_8TeV_M200"', '"Stop_8TeV_M500"', '"Stop_8TeV_M800"'])
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_8TeV_StopN"', '"StopN_8TeV_M200"', '"StopN_8TeV_M500"', '"StopN_8TeV_M800"'])
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_8TeV_GMStau"', '"GMStau_8TeV_M100"', '"GMStau_8TeV_M308"', '"GMStau_8TeV_M494"'])
@@ -36,7 +36,7 @@ elif sys.argv[1]=='0':
 
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_7TeV_Gluino"', '"Gluino_7TeV_M400_f10"', '"Gluino_7TeV_M800_f10"', '"Gluino_7TeV_M1200_f10"'])
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_7TeV_GluinoN"', '"Gluino_7TeV_M400N_f10"', '"Gluino_7TeV_M800N_f10"', '"Gluino_7TeV_M1200N_f10"'])
-   LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_7TeV_Gluino"', '"Gluino_7TeV_M400_f100"', '"Gluino_7TeV_M800_f100"', '"Gluino_7TeV_M1200_f100"'])
+   LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_7TeV_Gluino_f100"', '"Gluino_7TeV_M400_f100"', '"Gluino_7TeV_M800_f100"', '"Gluino_7TeV_M1200_f100"'])
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_7TeV_Stop"', '"Stop_7TeV_M200"', '"Stop_7TeV_M500"', '"Stop_7TeV_M800"'])
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_7TeV_StopN"', '"StopN_7TeV_M200"', '"StopN_7TeV_M500"', '"StopN_7TeV_M800"'])
    LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/TriggerStudy.C", '"summary_7TeV_GMStau"', '"GMStau_7TeV_M100"', '"GMStau_7TeV_M308"', '"GMStau_7TeV_M494"'])
