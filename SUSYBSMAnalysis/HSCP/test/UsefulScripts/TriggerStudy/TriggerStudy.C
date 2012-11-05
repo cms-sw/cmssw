@@ -646,7 +646,7 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
    }
    fprintf(pFile,  "\nIn events with reconstructed stand alone muon\n");
    for(unsigned int i=0; i<AllSA_triggers.size(); i++) {
-     fprintf(pFile,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",AllSAtriggers[i].first.c_str(), plot->HistoMatchedSA->GetBinContent(i+1), plot->HistoIncMatchedSA->GetBinContent(i+1), plot->HistoIncMatchedSA->Integral(1, i+1));
+     fprintf(pFile,  "Trigger %15s Efficiency = %5.2f%% which adds an incremental efficiency = %5.2f%% Cumulative Efficiency = %5.2f%%\n",AllSA_triggers[i].first.c_str(), plot->HistoMatchedSA->GetBinContent(i+1), plot->HistoIncMatchedSA->GetBinContent(i+1), plot->HistoIncMatchedSA->Integral(1, i+1));
    }
 
    fprintf(pFile,  "\nIn events with global muon\n");
