@@ -28,24 +28,31 @@ namespace l1slhc
 
 		L1TowerJet( );
 		L1TowerJet( const int& aJetSize, const L1TowerJet::tJetShape& aJetShapeType , const int& aJetArea );
-		L1TowerJet( const int& aJetSize, const L1TowerJet::tJetShape& aJetShapeType , const int& aJetArea , const int& iEta, const int& iPhi );
+		L1TowerJet( const int& aJetSize, const L1TowerJet::tJetShape& aJetShapeType , const int& aJetArea , const int& iEta, const int& iPhi);
 		 ~L1TowerJet(  );
 
 		// getters
 		const int& iEta(  ) const;
 		const int& iPhi(  ) const;
 		const int& E(  ) const;
+		const bool& central(  ) const;
 
 		//asymmetry member variables
 		const int& AsymEta(  ) const;
 		const int& AsymPhi(  ) const;
 
-		const bool& central(  ) const;
+                //weighted iEta, iPhi
+                const double& iWeightedEta( ) const;
+                const double& iWeightedPhi( ) const;
+
+                const double& WeightedEta( ) const;
+                const double& WeightedPhi( ) const;
+
 		const math::PtEtaPhiMLorentzVector& p4(  ) const;	// returns LorentzVector in eta,phi space
 		const int& JetSize(  ) const;
 		const L1TowerJet::tJetShape& JetShape(  ) const;
 
-//possibly helpful methods
+//              possibly helpful methods
 //		double EcalVariance(  ) const;
 //		double HcalVariance(  ) const;
 //		double EnergyVariance(  ) const;
@@ -59,6 +66,14 @@ namespace l1slhc
 		void setP4( const math::PtEtaPhiMLorentzVector & p4 );
 		void setCentral( const bool& );
 //		void setE( const int& );
+
+                void CalcWeightediEta();
+                void CalcWeightediPhi();
+
+		void calculateWeightedEta( );
+		void calculateWeightedPhi();
+
+
 
 
 		void addConstituent( const L1CaloTowerRef & Tower );
@@ -74,9 +89,17 @@ namespace l1slhc
 		int mIphi;
 		int mE;
 		bool mCentral;
-//add asym
+
+                //add asym
 		int mAsymEta;
 		int mAsymPhi;
+
+                //weighted eta and phi
+		double mWeightedIeta;
+		double mWeightedIphi;
+		double mWeightedEta;
+		double mWeightedPhi;
+
 
 		int mJetSize;
 		L1TowerJet::tJetShape mJetShapeType;
