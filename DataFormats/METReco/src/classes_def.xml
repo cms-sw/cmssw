@@ -21,17 +21,19 @@
   <class name="std::vector<metsig::SigInputObj>"/> 
   <class name="edm::Wrapper<std::vector<metsig::SigInputObj> >"/> 
 
-  <class name="reco::MVAMEtJetInfo" ClassVersion="12">
+  <class name="reco::MVAMEtJetInfo" ClassVersion="13">
    <version ClassVersion="10" checksum="695030979"/>
    <version ClassVersion="11" checksum="2096949665"/>
    <version ClassVersion="12" checksum="774362219"/>
+   <version ClassVersion="13" checksum="2740526285"/>
   </class>
   <class name="reco::MVAMEtJetInfoCollection" />
   <class name="edm::Wrapper<reco::MVAMEtJetInfoCollection>" />
 
-  <class name="reco::MVAMEtPFCandInfo" ClassVersion="11">
+  <class name="reco::MVAMEtPFCandInfo" ClassVersion="12">
    <version ClassVersion="10" checksum="2500257969"/>
    <version ClassVersion="11" checksum="1494751375"/>
+   <version ClassVersion="12" checksum="3638048109"/>
   </class>
   <class name="reco::MVAMEtPFCandInfoCollection" />
   <class name="edm::Wrapper<reco::MVAMEtPFCandInfoCollection>" />
