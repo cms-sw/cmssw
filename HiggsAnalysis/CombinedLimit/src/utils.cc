@@ -322,6 +322,10 @@ bool utils::checkModel(const RooStats::ModelConfig &model, bool throwOnFail) {
         } else {
             errors << "WARNING: pdf parameter " << a->GetName() << " (type " << a->ClassName() << ") is not allowed to float (it's not nuisance, poi, observable or global observable\n"; 
         }
+        RooRealVar *v = dynamic_cast<RooRealVar *>(a);
+        if (v != 0 && !v->isConstant() && (v->getVal() < v->getMin() || v->getVal() > v->getMax())) {
+            ok = false; errors << "ERROR: parameter " << a->GetName() << " has value " << v->getVal() << " outside range [ " << v->getMin() << " , " << v->getMax() << " ]\n"; 
+        }
     }
     iter.reset();
     std::cout << errors.str() << std::endl;
