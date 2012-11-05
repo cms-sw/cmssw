@@ -8,13 +8,17 @@
 
 //CMSSW includes
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include<cassert>
 
 
 EgammaTowerIsolation::EgammaTowerIsolation (float extRadius,
 					    float intRadius,
 					    float etLow,
 					    signed int depth,
-					    const CaloTowerCollection* towers ) : newAlgo(&extRadius,&intRadius,*towers), depth_(depth){}
+					    const CaloTowerCollection* towers ) : newAlgo(&extRadius,&intRadius,*towers), depth_(depth){
+  assert(0==etLow);
+  if (towers==0) assert(0==intRadius);
+}
 
 
 double  EgammaTowerIsolation::getSum (bool et, reco::SuperCluster const & sc, const std::vector<CaloTowerDetId> * detIdToExclude) const{

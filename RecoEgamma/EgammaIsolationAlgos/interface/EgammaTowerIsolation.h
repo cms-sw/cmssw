@@ -64,6 +64,7 @@ private:
   float extRadius2_[NCuts] ;
   float intRadius2_[NCuts] ;
   
+  float maxEta;
   //SOA
   const uint32_t nt;
   float * eta;
@@ -89,7 +90,9 @@ template<unsigned int NC>
 inline
 EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
 						     float intRadius[NC],
-						     CaloTowerCollection const & towers) : nt(towers.size()) {
+						     CaloTowerCollection const & towers) :
+  maxEta(*std::max_element(extRadius,extRadius+NC)),
+  nt(towers.size()) {
   if (nt==0) return;
   init();
   
@@ -114,12 +117,13 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
     auto j = index[i];
     eta[i]=towers[j].eta();
     phi[i]=towers[j].phi();
-    id[i]=towers[i].id();
-    st[i] = std::cosh(eta[i]);
+    id[i]=towers[j].id();
+    st[i] = std::sin(towers[j].theta());   //std::cosh(eta[i]);
     he[i] = towers[j].hadEnergy();
     h2[i] = towers[j].hadEnergyHeOuterLayer();
   }
 }
+
 
 template<unsigned int NC>
 inline
@@ -129,7 +133,13 @@ EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::SuperCluster const
   
   float candEta = sc.eta();
   float candPhi = sc.phi();
-  
+
+  /*
+  auto lb = std::lower_bound(eta,eta+nt,candEta-maxEta);
+  auto ub = std::upper_bound(eta,eta+nt,candEta+maxEta);
+  uint32_t il = lb-eta;
+  uint32_t iu = std::min(nt,ub-eta+1);
+  */
   bool ok[nt];
   for ( uint32_t i=0;i!=nt; ++i)
     ok[i] = (std::find(first,last,id[i])==last);
