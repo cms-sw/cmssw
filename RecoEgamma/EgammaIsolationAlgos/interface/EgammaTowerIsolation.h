@@ -10,6 +10,9 @@
 //=============================================================================
 //*****************************************************************************
 
+#include<vector>
+
+
 //CMSSW includes
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -22,6 +25,7 @@
 #include <cstdint>
 
 #include "DataFormats/Math/interface/deltaR.h"
+
 
 
 /*
@@ -78,7 +82,8 @@ private:
     mem = new uint32_t[nt*6];
     eta = (float*)(mem); phi = eta+nt; he = phi+nt; h2 = he+nt; st = h2+nt;
     id = (uint32_t*)(st) + nt;
-  }
+
+ }
   
   
 };
@@ -144,6 +149,8 @@ EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::SuperCluster const
   for ( uint32_t i=0;i!=nt; ++i)
     ok[i] = (std::find(first,last,id[i])==last);
   
+
+
   // should be restricted in eta....
   for (uint32_t i=0;i!=nt; ++i) {
     float dr2 = reco::deltaR2(candEta,candPhi,eta[i], phi[i]);
