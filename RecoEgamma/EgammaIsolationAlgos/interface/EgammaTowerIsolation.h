@@ -88,7 +88,16 @@ private:
   
 };
 
+namespace etiStat {
 
+  struct Count {
+    uint32_t create=0;
+    uint32_t comp=0;
+    static Count count;
+    ~Count();
+  };
+
+}
 
 
 template<unsigned int NC>
@@ -100,6 +109,9 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
   nt(towers.size()) {
   if (nt==0) return;
   init();
+
+  etiStat::Count::count.create++;
+
   
   for (unsigned int i=0; i!=NCuts; ++i) {
     extRadius2_[i]=extRadius[i]*extRadius[i];
@@ -114,8 +126,9 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
   for (uint32_t i=0; i!=nt; ++i) {
     tmp[i]=towers[i].eta();
     index[i]=i;
+    std::push_heap(index,index+i+1,[p](uint32_t i, uint32_t j){ return p[i]<p[j];});
   }
-  std::sort(index,index+nt,[p](uint32_t i, uint32_t j){ return p[i]<p[j];});
+  std::sort_heap(index,index+nt,[p](uint32_t i, uint32_t j){ return p[i]<p[j];});
   
   
   for ( uint32_t i=0;i!=nt; ++i) {
@@ -123,7 +136,7 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
     eta[i]=towers[j].eta();
     phi[i]=towers[j].phi();
     id[i]=towers[j].id();
-    st[i] = std::sin(towers[j].theta());   //std::cosh(eta[i]);
+    st[i] =  1.f/std::cosh(eta[i]); // std::sin(towers[j].theta());   //;
     he[i] = towers[j].hadEnergy();
     h2[i] = towers[j].hadEnergyHeOuterLayer();
   }
@@ -135,24 +148,26 @@ inline
 void
 EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::SuperCluster const & sc,  CaloTowerDetId const * first,  CaloTowerDetId const * last) const {
   if (nt==0) return;
-  
+
+  etiStat::Count::count.comp++;
+
   float candEta = sc.eta();
   float candPhi = sc.phi();
 
-  /*
+  
   auto lb = std::lower_bound(eta,eta+nt,candEta-maxEta);
   auto ub = std::upper_bound(eta,eta+nt,candEta+maxEta);
   uint32_t il = lb-eta;
-  uint32_t iu = std::min(nt,ub-eta+1);
-  */
+  uint32_t iu = std::min(nt,uint32_t(ub-eta+1));
+  
   bool ok[nt];
-  for ( uint32_t i=0;i!=nt; ++i)
+  for ( uint32_t i=il;i!=iu; ++i)
     ok[i] = (std::find(first,last,id[i])==last);
   
 
 
   // should be restricted in eta....
-  for (uint32_t i=0;i!=nt; ++i) {
+  for (uint32_t i=il;i!=iu; ++i) {
     float dr2 = reco::deltaR2(candEta,candPhi,eta[i], phi[i]);
     float tt = et ? st[i] : 1.f;
     for (unsigned int j=0; j!=NCuts; ++j) {

@@ -47,7 +47,7 @@ void TestEgammaTowerIsolation::analyze(const edm::Event& iEvent, const edm::Even
       towers[j].id() << ", " <<
       towers[j].ietaAbs() << ", " <<
       std::sin(towers[j].theta()) << ", " <<
-      std::cosh(towers[j].eta()) << ", " <<
+      1./std::cosh(towers[j].eta()) << ", " <<
       towers[j].hadEnergy() << ", " <<
       towers[j].hadEnergyHeInnerLayer() << ", " <<
       towers[j].hadEnergyHeOuterLayer() << ", " <<

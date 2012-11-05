@@ -10,6 +10,13 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include<cassert>
 
+namespace etiStat {
+  Count::~Count() { 
+    std::cout << "\nEgammaTowerIsolationNew " << create << "/" << comp << std::endl<< std::endl;
+    }
+
+Count Count::count;
+}
 
 EgammaTowerIsolation::EgammaTowerIsolation (float extRadius,
 					    float intRadius,
