@@ -83,11 +83,12 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
                              reducedRecHits
                              )
 
+from CommonTools.ParticleFlow.EITopPAG_cff import *
 
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
-reconstruction         = cms.Sequence(localreco        *globalreco       *highlevelreco*logErrorHarvester)
+reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*EITopPAG*logErrorHarvester)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
@@ -150,13 +151,13 @@ reconstruction_noTracking = reconstruction.copyAndExclude(noTrackingAndDependent
 
 
 #sequences with additional stuff
-reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*logErrorHarvester)
-reconstruction_withRS  = cms.Sequence(localreco        *globalreco_plusRS*highlevelreco*logErrorHarvester)
-reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highlevelreco*logErrorHarvester)
+reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*EITopPAG*logErrorHarvester)
+reconstruction_withRS  = cms.Sequence(localreco        *globalreco_plusRS*highlevelreco*EITopPAG*logErrorHarvester)
+reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highlevelreco*EITopPAG*logErrorHarvester)
 
 #sequences without some stuffs
 #
-reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco       *logErrorHarvester)
+reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*EITopPAG*logErrorHarvester)
 
 
 # define a standard candle. please note I am picking up individual
