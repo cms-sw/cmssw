@@ -286,6 +286,7 @@ private:
   const bool                                    m_enable_dqm_byluminosity;
   const bool                                    m_enable_dqm_byls;
   const bool                                    m_enable_dqm_bynproc;
+  bool                                          m_nproc_enabled;                // check if the plots by number of processes have been correctly enabled
   const double                                  m_dqm_eventtime_range;
   const double                                  m_dqm_eventtime_resolution;
   const double                                  m_dqm_pathtime_range;

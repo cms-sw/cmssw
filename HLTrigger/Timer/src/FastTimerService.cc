@@ -81,6 +81,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
                                     ( edm::LogWarning("Configuration") << "enableDQMbyLumi is deprecated, please use enableDQMbyLumiSection instead", config.getUntrackedParameter<bool>("enableDQMbyLumi") ) 
                                  ),
   m_enable_dqm_bynproc(          config.getUntrackedParameter<bool>(     "enableDQMbyProcesses"     ) ),
+  m_nproc_enabled(               false ),
   m_dqm_eventtime_range(         config.getUntrackedParameter<double>(   "dqmTimeRange"             ) ),            // ms
   m_dqm_eventtime_resolution(    config.getUntrackedParameter<double>(   "dqmTimeResolution"        ) ),            // ms
   m_dqm_pathtime_range(          config.getUntrackedParameter<double>(   "dqmPathTimeRange"         ) ),            // ms
@@ -531,8 +532,9 @@ void FastTimerService::setNumberOfProcesses(unsigned int procs) {
   if (not m_dqms)
     return;
 
-  // the service is not configured to support this number of processes
+  // check if the service is configured to support this number of processes
   if (std::find(m_supported_processes.begin(), m_supported_processes.end(), procs) == m_supported_processes.end()) {
+    m_nproc_enabled = false;
     // event summary plots - summed over nodes with the same number of processes
     m_dqm_nproc_event                     = 0;
     m_dqm_nproc_source                    = 0;
@@ -552,6 +554,7 @@ void FastTimerService::setNumberOfProcesses(unsigned int procs) {
     m_dqm_nproc_byluminosity_all_endpaths = 0;
     m_dqm_nproc_byluminosity_interpaths   = 0;
   } else {
+    m_dqm_nproc_enabled = true;
     // event summary plots - summed over nodes with the same number of processes
     m_dqm_nproc_event                     = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "event"                    ).str() )->getTH1F();
     m_dqm_nproc_source                    = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "source"                   ).str() )->getTH1F();
@@ -651,6 +654,8 @@ void FastTimerService::postEndJob() {
 }
 
 void FastTimerService::reset() {
+  // transient dqm configuration
+  m_nproc_enabled = false;
   // caching
   m_first_path = 0;          // these are initialized at prePathBeginRun(),
   m_last_path = 0;           // to make sure we cache the correct pointers
@@ -798,6 +803,14 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
       m_dqm_all_paths     ->Fill(m_all_paths      * 1000.);
       m_dqm_all_endpaths  ->Fill(m_all_endpaths   * 1000.);
       m_dqm_interpaths    ->Fill(m_interpaths     * 1000.);
+
+      if (m_nproc_enabled) {
+        m_dqm_nproc_event         ->Fill(m_event          * 1000.);
+        m_dqm_nproc_source        ->Fill(m_source         * 1000.);
+        m_dqm_nproc_all_paths     ->Fill(m_all_paths      * 1000.);
+        m_dqm_nproc_all_endpaths  ->Fill(m_all_endpaths   * 1000.);
+        m_dqm_nproc_interpaths    ->Fill(m_interpaths     * 1000.);
+      }
     }
 
     if (m_enable_dqm_byls) {
@@ -807,6 +820,14 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
       m_dqm_byls_all_paths    ->Fill(ls, m_all_paths    * 1000.);
       m_dqm_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);
       m_dqm_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);
+      
+      if (m_nproc_enabled) {
+        m_dqm_nproc_byls_event        ->Fill(ls, m_event        * 1000.);
+        m_dqm_nproc_byls_source       ->Fill(ls, m_source       * 1000.);
+        m_dqm_nproc_byls_all_paths    ->Fill(ls, m_all_paths    * 1000.);
+        m_dqm_nproc_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);
+        m_dqm_nproc_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);
+      }
     }
 
     if (m_enable_dqm_byluminosity) {
@@ -819,6 +840,14 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
       m_dqm_byluminosity_all_paths    ->Fill(luminosity, m_all_paths    * 1000.);
       m_dqm_byluminosity_all_endpaths ->Fill(luminosity, m_all_endpaths * 1000.);
       m_dqm_byluminosity_interpaths   ->Fill(luminosity, m_interpaths   * 1000.);
+      
+      if (m_nproc_enabled) {
+        m_dqm_nproc_byluminosity_event        ->Fill(luminosity, m_event        * 1000.);
+        m_dqm_nproc_byluminosity_source       ->Fill(luminosity, m_source       * 1000.);
+        m_dqm_nproc_byluminosity_all_paths    ->Fill(luminosity, m_all_paths    * 1000.);
+        m_dqm_nproc_byluminosity_all_endpaths ->Fill(luminosity, m_all_endpaths * 1000.);
+        m_dqm_nproc_byluminosity_interpaths   ->Fill(luminosity, m_interpaths   * 1000.);
+      }
     }
   }
 }
