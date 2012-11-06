@@ -23,10 +23,10 @@ AlCa_RPCMuonNormalisation_v*                       # sr 131577
 AlCa_LumiPixels_v*                                 # sr 131577
 AlCa_LumiPixels_ZeroBias_v*                        # sr 131577
 AlCa_LumiPixels_Random_v*                          # sr 131577
-HLT_PAL1SingleJet16_v*                             # sr 131577
-HLT_PAL1SingleJet36_v*                             # sr 131577
-HLT_PASingleForJet15_v*                            # sr 131577
-HLT_PASingleForJet25_v*                            # sr 131577
+HLT_PAL1SingleJet16_v*                             # sr 131577, sr 133528
+HLT_PAL1SingleJet36_v*                             # sr 131577, sr 133528
+HLT_PASingleForJet15_v*                            # sr 131577, sr 133528
+HLT_PASingleForJet25_v*                            # sr 131577, sr 133528
 HLT_PAak5CaloJet20_NoJetID_v*                      # sr 131577
 HLT_PAak5CaloJet40_NoJetID_v*                      # sr 131577
 HLT_PAak5CaloJet60_NoJetID_v*                      # sr 131577
@@ -34,8 +34,8 @@ HLT_PAL1SingleMuOpen_v*                            # sr 131577
 HLT_PAL1SingleMu3_v*                               # sr 131577
 HLT_PAL1SingleMu7_v*                               # sr 131577
 HLT_PAL1SingleMu12_v*                              # sr 131577
-HLT_PAL1DoubleMu0_v*                               # sr 131577
-HLT_PADimuon0_NoVertexing_v*                       # sr 131577
+HLT_PAL1DoubleMu0_v*                               # sr 131577, sr 133528
+HLT_PADimuon0_NoVertexing_v*                       # sr 131577, sr 133528
 HLT_PAMu5_v*                                       # sr 131577
 HLT_PAMu8_v*                                       # sr 131577
 HLT_PAL1DoubleMuOpen_v*                            # sr 133325
@@ -99,11 +99,12 @@ HLT_PAZeroBiasPixel_SingleTrack_v*                 # sr 131577
 HLT_PAHFOR_SingleTrack_v*                          # sr 131577
 # HLT_PAHFOR_SingleTrack_ExpressStream_v*          # sr 131577 removed sr 131770
 HLT_PAZeroBiasPixel_DoubleTrack_v*                 # sr 131577
-HLT_PADoubleMu4_Acoplanarity03_v*                  # sr 131577
-HLT_PAExclDijet35_HFAND_v*                         # sr 131577
-HLT_PAL1DoubleEG3_FwdVeto_v*                       # sr 131577
-HLT_PAL1DoubleJet20_RomanPotsOR_v*                 # sr 131577
-HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577
+HLT_PADoubleMu4_Acoplanarity03_v*                  # sr 131577, sr 133528
+HLT_PAExclDijet35_HFAND_v*                         # sr 131577, sr 133528
+HLT_PAL1DoubleEG3_FwdVeto_v*                       # sr 131577, sr 133528
+HLT_PAL1DoubleJet20_RomanPotsOR_v*                 # sr 131577, sr 133528
+HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577, sr 133528
+HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v*                # sr 133528
 HLT_PARandom_v*                                    # sr 131577
 DQM_FEDIntegrity_v*                                # sr 131577
 HLT_LogMonitor_v*                                  # sr 131577

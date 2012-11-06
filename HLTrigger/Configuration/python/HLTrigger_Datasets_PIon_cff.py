@@ -99,6 +99,7 @@ streamA_datasetPAPhysics_selector.triggerConditions = cms.vstring('HLT_PABTagMu_
     'HLT_PAMu3_v1', 
     'HLT_PAMu5_v1', 
     'HLT_PAMu7PFJet20_v1', 
+    'HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1', 
     'HLT_PAMu7_v1', 
     'HLT_PAMu8_v1', 
     'HLT_PAPhoton10_CaloIdVL_v1', 
