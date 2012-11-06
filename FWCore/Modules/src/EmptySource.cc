@@ -34,7 +34,11 @@ namespace edm {
     GeneratedInputSource::fillDescription(desc);
     descriptions.add("source", desc);
   }
+
+  typedef EmptySource DummySource;
 }
 
 using edm::EmptySource;
+using edm::DummySource;
 DEFINE_FWK_INPUT_SOURCE(EmptySource);
+DEFINE_FWK_INPUT_SOURCE(DummySource);
