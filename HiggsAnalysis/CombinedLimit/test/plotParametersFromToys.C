@@ -356,7 +356,7 @@ void plotLLRdistribution(TTree *tree_, TFile *fdata_){
 
 }
 
-void plotParamtersFromToys(std::string inputFile, std::string dataFits="", std::string workspace="", std::string selectString="mu>0"){
+void plotParametersFromToys(std::string inputFile, std::string dataFits="", std::string workspace="", std::string selectString="mu>0"){
 
 	// Some Global preferences
 	gSystem->Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so");
