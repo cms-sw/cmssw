@@ -527,32 +527,50 @@ void FastTimerService::setNumberOfProcesses(unsigned int procs) {
   if (not m_enable_dqm or not m_enable_dqm_bynproc)
     return;
 
-  // the service is not configured to support this number of processes
-  if (std::find(m_supported_processes.begin(), m_supported_processes.end(), procs) == m_supported_processes.end())
-    return;
-
   // the DQM store has not been configured yet
   if (not m_dqms)
     return;
 
-  // event summary plots - summed over nodes with the same number of processes
-  m_dqm_nproc_event                     = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "event"                    ).str() )->getTH1F();
-  m_dqm_nproc_source                    = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "source"                   ).str() )->getTH1F();
-  m_dqm_nproc_all_paths                 = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_paths"                ).str() )->getTH1F();
-  m_dqm_nproc_all_endpaths              = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_endpaths"             ).str() )->getTH1F();
-  m_dqm_nproc_interpaths                = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "interpaths"               ).str() )->getTH1F();
-  // plots per lumisection - summed over nodes with the same number of processes
-  m_dqm_nproc_byls_event                = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "event_byls"               ).str() )->getTProfile();
-  m_dqm_nproc_byls_source               = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "source_byls"              ).str() )->getTProfile();
-  m_dqm_nproc_byls_all_paths            = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_paths_byls"           ).str() )->getTProfile();
-  m_dqm_nproc_byls_all_endpaths         = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_endpaths_byls"        ).str() )->getTProfile();
-  m_dqm_nproc_byls_interpaths           = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "interpaths_byls"          ).str() )->getTProfile();
-  // plots vs. instantaneous luminosity - summed over nodes with the same number of processes
-  m_dqm_nproc_byluminosity_event        = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "event_byluminosity"       ).str() )->getTProfile();
-  m_dqm_nproc_byluminosity_source       = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "source_byluminosity"      ).str() )->getTProfile();
-  m_dqm_nproc_byluminosity_all_paths    = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_paths_byluminosity"   ).str() )->getTProfile();
-  m_dqm_nproc_byluminosity_all_endpaths = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_endpaths_byluminosity").str() )->getTProfile();
-  m_dqm_nproc_byluminosity_interpaths   = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "interpaths_byluminosity"  ).str() )->getTProfile();
+  // the service is not configured to support this number of processes
+  if (std::find(m_supported_processes.begin(), m_supported_processes.end(), procs) == m_supported_processes.end()) {
+    // event summary plots - summed over nodes with the same number of processes
+    m_dqm_nproc_event                     = 0;
+    m_dqm_nproc_source                    = 0;
+    m_dqm_nproc_all_paths                 = 0;
+    m_dqm_nproc_all_endpaths              = 0;
+    m_dqm_nproc_interpaths                = 0;
+    // plots per lumisection - summed over nodes with the same number of processes
+    m_dqm_nproc_byls_event                = 0;
+    m_dqm_nproc_byls_source               = 0;
+    m_dqm_nproc_byls_all_paths            = 0;
+    m_dqm_nproc_byls_all_endpaths         = 0;
+    m_dqm_nproc_byls_interpaths           = 0;
+    // plots vs. instantaneous luminosity - summed over nodes with the same number of processes
+    m_dqm_nproc_byluminosity_event        = 0;
+    m_dqm_nproc_byluminosity_source       = 0;
+    m_dqm_nproc_byluminosity_all_paths    = 0;
+    m_dqm_nproc_byluminosity_all_endpaths = 0;
+    m_dqm_nproc_byluminosity_interpaths   = 0;
+  } else {
+    // event summary plots - summed over nodes with the same number of processes
+    m_dqm_nproc_event                     = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "event"                    ).str() )->getTH1F();
+    m_dqm_nproc_source                    = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "source"                   ).str() )->getTH1F();
+    m_dqm_nproc_all_paths                 = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_paths"                ).str() )->getTH1F();
+    m_dqm_nproc_all_endpaths              = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_endpaths"             ).str() )->getTH1F();
+    m_dqm_nproc_interpaths                = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "interpaths"               ).str() )->getTH1F();
+    // plots per lumisection - summed over nodes with the same number of processes
+    m_dqm_nproc_byls_event                = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "event_byls"               ).str() )->getTProfile();
+    m_dqm_nproc_byls_source               = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "source_byls"              ).str() )->getTProfile();
+    m_dqm_nproc_byls_all_paths            = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_paths_byls"           ).str() )->getTProfile();
+    m_dqm_nproc_byls_all_endpaths         = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_endpaths_byls"        ).str() )->getTProfile();
+    m_dqm_nproc_byls_interpaths           = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "interpaths_byls"          ).str() )->getTProfile();
+    // plots vs. instantaneous luminosity - summed over nodes with the same number of processes
+    m_dqm_nproc_byluminosity_event        = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "event_byluminosity"       ).str() )->getTProfile();
+    m_dqm_nproc_byluminosity_source       = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "source_byluminosity"      ).str() )->getTProfile();
+    m_dqm_nproc_byluminosity_all_paths    = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_paths_byluminosity"   ).str() )->getTProfile();
+    m_dqm_nproc_byluminosity_all_endpaths = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "all_endpaths_byluminosity").str() )->getTProfile();
+    m_dqm_nproc_byluminosity_interpaths   = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "interpaths_byluminosity"  ).str() )->getTProfile();
+  }
 }
 
 void FastTimerService::postEndJob() {
