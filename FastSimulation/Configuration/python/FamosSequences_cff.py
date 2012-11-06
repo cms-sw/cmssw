@@ -241,7 +241,7 @@ famosBTaggingSequence = cms.Sequence(
     btagging
 )
 
-
+############### FastSim sequences
 
 # The sole simulation sequence
 simulationSequence = cms.Sequence(
@@ -257,10 +257,20 @@ if(CaloMode==0):
     lowLevelRecoSequence = cms.Sequence(
         caloRecHits
         )
+    trackVertexReco = cms.Sequence(
+        cms.SequencePlaceholder("mix")+
+        iterativeTracking+
+        vertexreco
+        )
 elif(CaloMode==1):
     lowLevelRecoSequence = cms.Sequence(
         caloDigis+
         caloRecHits 
+        )
+    trackVertexReco = cms.Sequence(
+        cms.SequencePlaceholder("mix")+
+        iterativeTracking+
+        vertexreco
         )
 else:
     lowLevelRecoSequence = cms.Sequence(
@@ -268,6 +278,11 @@ else:
         iterativeTracking+ # because tracks are used for noise cleaning in HCAL low-level reco
         caloDigis+
         caloRecHits 
+        )
+    trackVertexReco = cms.Sequence(
+        cms.SequencePlaceholder("mix")+
+        iterativeTracking+ # this repetition is normally harmless, but it is annoying if you want to run SIM and RECO in two steps
+        vertexreco
         )
 
 famosSimulationSequence = cms.Sequence(
@@ -282,9 +297,7 @@ famosEcalDrivenElectronSequence = cms.Sequence(
 
 # The reconstruction sequence
 reconstructionWithFamos = cms.Sequence(
-    cms.SequencePlaceholder("mix")+
-    iterativeTracking+
-    vertexreco+
+    trackVertexReco+
     caloTowersRec+
     ecalClusters+
     particleFlowCluster+
@@ -310,6 +323,41 @@ reconstructionWithFamos = cms.Sequence(
     famosPFTauTaggingSequence
 )
 
+# Special sequences for two-step operation
+simulationWithSomeReconstruction = cms.Sequence(
+    famosSimulationSequence+
+    siTrackerGaussianSmearingRecHits+
+    iterativeTracking+
+    vertexreco+
+    caloTowersRec+
+    ecalClusters+
+    particleFlowCluster+
+    famosGsfTrackSequence+
+    famosMuonSequence+
+    famosMuonIdAndIsolationSequence+
+    famosConversionSequence+
+    particleFlowTrackWithDisplacedVertex+
+    famosEcalDrivenElectronSequence+
+    famosPhotonSequence+
+    famosParticleFlowSequence+
+    egammaHighLevelRecoPostPF
+    )
+
+reconstructionHighLevel = cms.Sequence(
+    cms.SequencePlaceholder("mix")+
+    muonshighlevelreco+
+    particleFlowLinks+
+    caloJetMetGen+
+    caloJetMet+
+    PFJetMet+
+    ic5JetTracksAssociatorAtVertex+
+    ak5JetTracksAssociatorAtVertex+
+    famosTauTaggingSequence+
+    reducedRecHits+
+    famosBTaggingSequence+
+    famosPFTauTaggingSequence
+)
+
 # Famos pre-defined sequences (and self-explanatory names)
 
 famosWithTrackerHits = cms.Sequence(
@@ -320,7 +368,7 @@ famosWithTrackerHits = cms.Sequence(
 famosWithTracks = cms.Sequence(
     famosWithTrackerHits+
     iterativeTracking
-)
+    )
 
 famosWithTracksAndMuonHits = cms.Sequence(
     famosSimulationSequence+

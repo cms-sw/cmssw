@@ -73,6 +73,7 @@ FastSimRecoLocalCaloFEVT = cms.PSet(
         'keep *_hcalRecHits_*_*',
         'keep EBDigiCollection_ecalRecHit_*_*',
         'keep EEDigiCollection_ecalRecHit_*_*')
+#        'keep *_particleFlowRecHit_*_*')
 )
 
 #RECO content
@@ -81,6 +82,7 @@ FastSimRecoLocalCaloRECO = cms.PSet(
         'keep *_hcalRecHits_*_*',
         'keep EBDigiCollection_ecalRecHit_*_*',
         'keep EEDigiCollection_ecalRecHit_*_*')
+#        'keep *_particleFlowRecHit_*_*')
 )
 
 #AOD content
@@ -114,7 +116,14 @@ FastSimRecoTrackerAOD = cms.PSet(
 
 #Full Event content 
 FastSimParticleFlowFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoPFCandidates_FSparticleFlow_*_*')
+    outputCommands = cms.untracked.vstring('keep recoPFCandidates_FSparticleFlow_*_*',
+                                           #stuff added for two-step processing (simWithSomeReco followed by reconstructionHighLevel):
+                                           'keep *_muons1stStep_*_*',
+                                           'keep *_towerMaker*_*_*',
+                                           'keep *_particleFlowCluster*_*_*',
+                                           'keep *_pfPileUp*_*_*',
+                                           'keep *_pfAllNeutralHadronsAndPhotons_*_*',
+                                           'keep *_*DetId*_*_*')
 )
 
 #RECO content 
