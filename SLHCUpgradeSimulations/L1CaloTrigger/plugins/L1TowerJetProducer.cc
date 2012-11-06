@@ -24,7 +24,6 @@ public L1CaloAlgoBase < l1slhc::L1CaloTowerCollection, l1slhc::L1TowerJetCollect
 
   private:
 	void calculateJetPosition( l1slhc::L1TowerJet & lJet );
-
 	//some helpful members
 	int mJetDiameter;
 	l1slhc::L1TowerJet::tJetShape mJetShape;
@@ -106,7 +105,8 @@ void L1TowerJetProducer::algorithm( const int &aEta, const int &aPhi )
   int lTowerIndex = mCaloTriggerSetup->getBin( aEta, aPhi );
   std::pair < int, int > lTowerEtaPhi = mCaloTriggerSetup->getTowerEtaPhi( lTowerIndex );
   
-  l1slhc::L1TowerJet lJet( mJetDiameter, mJetShape , mJetShapeMap.size() , lTowerEtaPhi.first , lTowerEtaPhi.second );
+  l1slhc::L1TowerJet lJet( mJetDiameter, mJetShape , mJetShapeMap.size() , lTowerEtaPhi.first , lTowerEtaPhi.second  );
+
   
   for ( std::vector< std::pair< int , int > >::const_iterator lJetShapeMapIt = mJetShapeMap.begin() ; lJetShapeMapIt != mJetShapeMap.end() ; ++lJetShapeMapIt )
   {
@@ -119,12 +119,16 @@ void L1TowerJetProducer::algorithm( const int &aEta, const int &aPhi )
     {
       l1slhc::L1CaloTowerRef lRef( mInputCollection, lTowerItr - mInputCollection->begin(  ) );
       lJet.addConstituent( lRef );
+
+	lJet.CalcWeightediEta();lJet.CalcWeightediPhi();
     }
   }
   
   if ( lJet.E(  ) > 0 )
   {
     calculateJetPosition( lJet );
+    
+    lJet.calculateWeightedEta();lJet.calculateWeightedPhi();
     mOutputCollection->insert( lTowerEtaPhi.first, lTowerEtaPhi.second, lJet );
 
   }
@@ -186,7 +190,6 @@ void L1TowerJetProducer::calculateJetPosition( l1slhc::L1TowerJet & lJet )
   lJet.setP4( math::PtEtaPhiMLorentzVector( Et, eta, phi, 0. ) );
 
 } 
-
 
 
 
