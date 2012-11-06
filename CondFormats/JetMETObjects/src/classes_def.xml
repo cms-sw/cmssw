@@ -13,5 +13,8 @@
   <class name="std::vector<JetCorrectorParametersCollection>"/>
   <class name="SimpleJetCorrectionUncertainty"/>
   <class name="SimpleJetCorrector"/>
+  <class name="FFTJetCorrectorParameters" class_version="0">
+     <field name="m_buffer" mapping="blob"/>
+  </class>
 </selection>
 </lcgdict>
