@@ -760,7 +760,7 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
       m_dqm_paths_exclusive_time->Fill(pathinfo.index, exclusive * 1000.);
       if (m_enable_dqm_bypath_exclusive) {
         //edm::LogImportant("FastTimerService") << pathinfo.dqm_exclusive->GetName() << "->Fill(" << exclusive * 1000. << ")";
-        pathinfo.dqm_exclusive->Fill(exclusive * 1000.);      // convert to ms
+        pathinfo.dqm_exclusive->Fill(exclusive * 1000.);
       }
     }
   }
@@ -775,33 +775,33 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
   m_summary_interpaths += m_interpaths;
   if (m_dqms) {
     //edm::LogImportant("FastTimerService") << m_dqm_paths_interpaths->GetName() << "->Fill(" << m_paths.size()<< ", " <<  interpaths * 1000. << ")";
-    m_dqm_paths_interpaths->Fill(m_paths.size(), interpaths * 1000.);       // convert to ms
+    m_dqm_paths_interpaths->Fill(m_paths.size(), interpaths * 1000.);
     
     if (m_enable_dqm_summary) {
       //edm::LogImportant("FastTimerService") << m_dqm_event->GetName() << "->Fill(" << m_event * 1000. << ")";
-      m_dqm_event         ->Fill(m_event          * 1000.);               // convert to ms
+      m_dqm_event         ->Fill(m_event          * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_source->GetName() << "->Fill(" << m_source * 1000. << ")";
-      m_dqm_source        ->Fill(m_source         * 1000.);               // convert to ms
+      m_dqm_source        ->Fill(m_source         * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_all_paths->GetName() << "->Fill(" << m_all_paths * 1000. << ")";
-      m_dqm_all_paths     ->Fill(m_all_paths      * 1000.);               // convert to ms
+      m_dqm_all_paths     ->Fill(m_all_paths      * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_all_endpaths->GetName() << "->Fill(" << m_all_endpaths * 1000. << ")";
-      m_dqm_all_endpaths  ->Fill(m_all_endpaths   * 1000.);               // convert to ms
+      m_dqm_all_endpaths  ->Fill(m_all_endpaths   * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_interpaths->GetName() << "->Fill(" << m_interpaths * 1000. << ")";
-      m_dqm_interpaths    ->Fill(m_interpaths     * 1000.);               // convert to ms
+      m_dqm_interpaths    ->Fill(m_interpaths     * 1000.);
     }
 
     if (m_enable_dqm_byls) {
       unsigned int ls = event.getLuminosityBlock().luminosityBlock();
       //edm::LogImportant("FastTimerService") << m_dqm_byls_event->GetName() << "->Fill(" << ls << ", " <<  m_event * 1000. << ")";
-      m_dqm_byls_event        ->Fill(ls, m_event        * 1000.);       // convert to ms
+      m_dqm_byls_event        ->Fill(ls, m_event        * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_byls_source->GetName() << "->Fill(" << ls << ", " <<  m_source * 1000. << ")";
-      m_dqm_byls_source       ->Fill(ls, m_source       * 1000.);       // convert to ms
+      m_dqm_byls_source       ->Fill(ls, m_source       * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_byls_all_paths->GetName() << "->Fill(" << ls << ", " <<  m_all_paths * 1000. << ")";
-      m_dqm_byls_all_paths    ->Fill(ls, m_all_paths    * 1000.);       // convert to ms
+      m_dqm_byls_all_paths    ->Fill(ls, m_all_paths    * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_byls_all_endpaths->GetName() << "->Fill(" << ls << ", " <<  m_all_endpaths * 1000. << ")";
-      m_dqm_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);       // convert to ms
+      m_dqm_byls_all_endpaths ->Fill(ls, m_all_endpaths * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_byls_interpaths->GetName() << "->Fill(" << ls << ", " <<  m_interpaths * 1000. << ")";
-      m_dqm_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);       // convert to ms
+      m_dqm_byls_interpaths   ->Fill(ls, m_interpaths   * 1000.);
     }
 
     if (m_enable_dqm_byluminosity) {
@@ -810,15 +810,15 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
       if (event.getByLabel(m_luminosity_label, h_luminosity))
         luminosity = h_luminosity->front().instantLumi();
       //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_event->GetName() << "->Fill(" << luminosity << ", " <<  m_event * 1000. << ")";
-      m_dqm_byluminosity_event        ->Fill(luminosity, m_event        * 1000.);       // convert to ms
+      m_dqm_byluminosity_event        ->Fill(luminosity, m_event        * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_source->GetName() << "->Fill(" << luminosity << ", " <<  m_source * 1000. << ")";
-      m_dqm_byluminosity_source       ->Fill(luminosity, m_source       * 1000.);       // convert to ms
+      m_dqm_byluminosity_source       ->Fill(luminosity, m_source       * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_all_paths->GetName() << "->Fill(" << luminosity << ", " <<  m_all_paths * 1000. << ")";
-      m_dqm_byluminosity_all_paths    ->Fill(luminosity, m_all_paths    * 1000.);       // convert to ms
+      m_dqm_byluminosity_all_paths    ->Fill(luminosity, m_all_paths    * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_all_endpaths->GetName() << "->Fill(" << luminosity << ", " <<  m_all_endpaths * 1000. << ")";
-      m_dqm_byluminosity_all_endpaths ->Fill(luminosity, m_all_endpaths * 1000.);       // convert to ms
+      m_dqm_byluminosity_all_endpaths ->Fill(luminosity, m_all_endpaths * 1000.);
       //edm::LogImportant("FastTimerService") << m_dqm_byluminosity_interpaths->GetName() << "->Fill(" << luminosity << ", " <<  m_interpaths * 1000. << ")";
-      m_dqm_byluminosity_interpaths   ->Fill(luminosity, m_interpaths   * 1000.);       // convert to ms
+      m_dqm_byluminosity_interpaths   ->Fill(luminosity, m_interpaths   * 1000.);
     }
   }
 }
@@ -907,7 +907,7 @@ void FastTimerService::preProcessPath(std::string const & path ) {
   m_interpaths += interpaths;
   if (m_dqms) {
     //edm::LogImportant("FastTimerService") << m_dqm_paths_interpaths->GetName() << "->Fill(" << m_current_path->index << ", " <<  interpaths * 1000. << ")";
-    m_dqm_paths_interpaths->Fill(m_current_path->index, interpaths * 1000.);    // convert to ms
+    m_dqm_paths_interpaths->Fill(m_current_path->index, interpaths * 1000.);
   }
 }
 
@@ -928,10 +928,10 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
 
     if (m_dqms) {
       //edm::LogImportant("FastTimerService") << m_dqm_paths_active_time->GetName() << "->Fill(" << pathinfo.index << ", " <<  active * 1000. << ")";
-      m_dqm_paths_active_time->Fill(pathinfo.index, active * 1000.);        // convert to ms
+      m_dqm_paths_active_time->Fill(pathinfo.index, active * 1000.);
       if (m_enable_dqm_bypath_active) {
         //edm::LogImportant("FastTimerService") << pathinfo.dqm_active->GetName() << "->Fill(" << active * 1000. << ")";
-        pathinfo.dqm_active->Fill(active * 1000.);                          // convert to ms
+        pathinfo.dqm_active->Fill(active * 1000.);
       }
     }
 
@@ -976,11 +976,11 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
         if (m_enable_dqm_bypath_details) {
           // fill the total time for all non-duplicate modules
           //edm::LogImportant("FastTimerService") << pathinfo.dqm_module_total->GetName() << "->Fill(" << i << ", " <<  module->time_active * 1000. << ")";
-          pathinfo.dqm_module_total->Fill(i, module->time_active * 1000.);      // convert to ms
+          pathinfo.dqm_module_total->Fill(i, module->time_active * 1000.);
           if (module->has_just_run) {
             // fill the active time only for module actually running in this path
             //edm::LogImportant("FastTimerService") << pathinfo.dqm_module_active->GetName() << "->Fill(" << i << ", " <<  module->time_active * 1000. << ")";
-            pathinfo.dqm_module_active->Fill(i, module->time_active * 1000.);   // convert to ms
+            pathinfo.dqm_module_active->Fill(i, module->time_active * 1000.);
           }
         }
 
@@ -1026,16 +1026,16 @@ void FastTimerService::postProcessPath(std::string const & path, edm::HLTPathSta
       if (m_dqms) {
         if (m_enable_dqm_bypath_overhead) {
           //edm::LogImportant("FastTimerService") << pathinfo.dqm_overhead->GetName() << "->Fill(" << overhead * 1000. << ")";
-          pathinfo.dqm_premodules  ->Fill(pre      * 1000.);      // convert to ms
-          pathinfo.dqm_intermodules->Fill(inter    * 1000.);      // convert to ms
-          pathinfo.dqm_postmodules ->Fill(post     * 1000.);      // convert to ms
-          pathinfo.dqm_overhead    ->Fill(overhead * 1000.);      // convert to ms
+          pathinfo.dqm_premodules  ->Fill(pre      * 1000.);
+          pathinfo.dqm_intermodules->Fill(inter    * 1000.);
+          pathinfo.dqm_postmodules ->Fill(post     * 1000.);
+          pathinfo.dqm_overhead    ->Fill(overhead * 1000.);
         }
         //edm::LogImportant("FastTimerService") << m_dqm_paths_total_time->GetName() << "->Fill(" << pathinfo.index << ", " <<  total * 1000. << ")";
         m_dqm_paths_total_time->Fill(pathinfo.index, total * 1000.);
         if (m_enable_dqm_bypath_total) {
           //edm::LogImportant("FastTimerService") << pathinfo.dqm_total->GetName() << "->Fill(" << total    * 1000. << ")";
-          pathinfo.dqm_total       ->Fill(total    * 1000.);      // convert to ms
+          pathinfo.dqm_total       ->Fill(total    * 1000.);
         }
       }
     }
@@ -1091,7 +1091,7 @@ void FastTimerService::postModule(edm::ModuleDescription const & module) {
 
     if (m_dqms and m_enable_dqm_bymodule) {
       //edm::LogImportant("FastTimerService") << module.dqm_active->GetName() << "->Fill(" << time * 1000. << ")";
-      module.dqm_active->Fill(time * 1000.);                    // convert to ms
+      module.dqm_active->Fill(time * 1000.);
     }
   } else {
     // should never get here
