@@ -190,7 +190,7 @@ void testmakepset::fileinpathAux() {
   "    ufip = cms.untracked.FileInPath('FWCore/ParameterSet/python/Types.py'),\n"
   "    extraneous = cms.int32(12)\n"
   ")\n"
-  "process.source = cms.Source('DummySource')\n";
+  "process.source = cms.Source('EmptySource')\n";
 
   std::string config(kTest);
 
@@ -248,7 +248,7 @@ void testmakepset::fileinpathAux() {
   "process.main = cms.PSet(\n"
   "    fip2 = cms.FileInPath('tmp.py')\n"
   ")\n"
-  "process.source = cms.Source('DummySource')\n";
+  "process.source = cms.Source('EmptySource')\n";
 
   std::string config2(kTest2);
   // Create the ParameterSet object from this configuration string.
