@@ -340,7 +340,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      CheckSignalUncertainty(pFile,talkFile,LQPattern, modelVector[k], modelMap[modelVector[k]]);
    }
 
-   return;
    //Get Theoretical xsection and error bands
    TGraph** ThXSec    = new TGraph*[modelVector.size()];
    TCutG ** ThXSecErr = new TCutG* [modelVector.size()];
@@ -402,7 +401,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
            ThXSec   [k] = new TGraph(NMass,THXSEC8TeV_PPStau_Mass,ones);
          }
      }else{
-         if(modelVector[k].find("o3")){
+         if(modelVector[k].find("o3")!=string::npos){
             ThXSec   [k] = MakePlot(NULL, NULL, LQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
          }else{
             ThXSec   [k] = MakePlot(NULL, NULL, TkPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
@@ -538,7 +537,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->GetXaxis()->SetRangeUser(50,1550);
 
    DrawPreliminary("Tracker + TOF", SQRTS, LInt);
-   TLegend* LEGMu = new TLegend(0.45,0.65,0.65,0.90);   
+   TLegend* LEGMu = !Combine ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.45,0.10,0.65,0.42);
    LEGMu->SetFillColor(0); 
    LEGMu->SetFillStyle(0);
    LEGMu->SetBorderSize(0);
@@ -607,8 +606,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->GetXaxis()->SetRangeUser(50,1550);
    
    DrawPreliminary("Tracker - Only", SQRTS, LInt);
-   
-   TLegend* LEGTk = new TLegend(0.45,0.58,0.795,0.9);
+
+   TLegend* LEGTk = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.10,0.795,0.42);
    LEGTk->SetFillColor(0); 
    LEGTk->SetFillStyle(0);
    LEGTk->SetBorderSize(0);
@@ -733,8 +732,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQLEGTh->Draw();
    }
 
-   LEGMu->Draw();
-
    TMultiGraph* MGLQ = new TMultiGraph();
    if(!Combine) {
    MGLQ->Add(ThGraphMap["DY_Q1o3"    ]     ,"L");
@@ -759,7 +756,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    DrawPreliminary("frac. charge", SQRTS, LInt);
 
-   TLegend* LEGLQ = new TLegend(0.45,0.58,0.795,0.9);
+   TLegend* LEGLQ = !Combine ? new TLegend(0.55,0.80,0.795,0.9) : new TLegend(0.55,0.15,0.795,0.25);
 //   LEGLQ->SetHeader("Q<1");
    LEGLQ->SetFillColor(0); 
    LEGLQ->SetFillStyle(0);
@@ -800,7 +797,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    
    DrawPreliminary("Muon - Only", SQRTS, LInt);
    
-   TLegend* LEGMO = new TLegend(0.45,0.58,0.795,0.9);
+   TLegend* LEGMO = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.10,0.795,0.42);
    LEGMO->SetFillColor(0); 
    LEGMO->SetFillStyle(0);
    LEGMO->SetBorderSize(0);

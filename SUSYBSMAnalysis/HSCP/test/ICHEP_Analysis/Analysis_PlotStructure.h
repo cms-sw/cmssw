@@ -1292,6 +1292,7 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
      delete c1;
    }
 
+   if(TypeMode==5) {
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_OpenAngle_Cosmic->Clone(); legend.push_back("|Dz|>0.5cm & |Dxy|>0.5cm");
    ((TH1D*) Histos[0])->Rebin(2);
@@ -1324,7 +1325,7 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"Dz_Cosmic_BS", false);
    delete c1;
-
+   }
 
 }
 
@@ -1723,6 +1724,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
+   if(TypeMode==5) {
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_OpenAngle->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);
@@ -1746,7 +1748,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    SaveCanvas(c1,SavePath,"OpenAngle_Cosmic_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
-
+   }
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
@@ -1774,6 +1776,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
+   if(TypeMode==5) {
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_Dxy_Cosmic->Clone();  legend.push_back(lg[i]); Histos[i]->Rebin(1);
@@ -1787,6 +1790,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    SaveCanvas(c1,SavePath,"Dxy_Cosmic_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
+   }
 
    
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -1803,6 +1807,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
+   if(TypeMode==5) {
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_Dz_Cosmic->Clone();  legend.push_back(lg[i]); Histos[i]->Rebin(1);
@@ -1816,7 +1821,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    SaveCanvas(c1,SavePath,"Dz_Cosmic_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
-
+   }
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){

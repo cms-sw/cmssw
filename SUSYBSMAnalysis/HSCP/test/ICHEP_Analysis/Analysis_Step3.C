@@ -1285,7 +1285,7 @@ void Analysis_Step3(char* SavePath)
                //check if the canddiate pass the preselection cuts
                if(isMC)PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, MCTrPlots   );
                if(    !PassPreselection( hscp, dedxSObj, dedxMObj, tof, dttof, csctof, ev, SamplePlots, isSignal?genColl[ClosestGen].p()/genColl[ClosestGen].energy():-1)) continue;
-               stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, -1, TreeDZ, TreeDXY, OpenAngle, track->eta(), track->phi(), -1);
+               //stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, -1, TreeDZ, TreeDXY, OpenAngle, track->eta(), track->phi(), -1);
                if(TypeMode==5 && isSemiCosmicSB)continue;
 
                //fill the ABCD histograms and a few other control plots
@@ -1349,7 +1349,7 @@ void Analysis_Step3(char* SavePath)
                   if(isMC)MCTrPlots->MassComb->Fill(CutIndex, MassComb, Event_Weight);
                   SamplePlots      ->MassComb->Fill(CutIndex, MassComb, Event_Weight);
                } //end of Cut loop
-               //if(PassNonTrivialSelection) stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, TreeDZ, TreeDXY, OpenAngle, track->eta(), track->phi(), -1);
+               if(PassNonTrivialSelection) stPlots_FillTree(SamplePlots, ev.eventAuxiliary().run(),ev.eventAuxiliary().event(), c, track->pt(), dedxSObj ? dedxSObj->dEdx() : -1, tof ? tof->inverseBeta() : -1, Mass, TreeDZ, TreeDXY, OpenAngle, track->eta(), track->phi(), -1);
             }// end of Track Loop
 
             //save event dependent information thanks to the bookkeeping

@@ -233,7 +233,7 @@ double FindIntersectionBetweenTwoGraphs(TGraph* obs, TGraph* th, double Min, dou
    double ThShift = 1.0-ThUncertainty;
    double PreviousX = Min;
    double PreviousV = obs->Eval(PreviousX, 0, "") - (ThShift * th->Eval(PreviousX, 0, "")) ;
-   if(PreviousV>0){if(debug){printf("FindIntersectionBetweenTwoGraphs returns -1 because observed xsection is above th xsection for the first mass already : %f vs %f\n", obs->Eval(PreviousX, 0, ""), th->Eval(PreviousX, 0, ""));}return -1;}
+   if(PreviousV>0){if(debug){printf("FindIntersectionBetweenTwoGraphs returns -1 because observed xsection is above th xsection for the first mass already : %f vs %f\n", obs->Eval(PreviousX, 0, ""), th->Eval(PreviousX, 0, ""));}return -2;}
    for(double x=Min+=Step;x<Max;x+=Step){                 
       double V = obs->Eval(x, 0, "") - (ThShift * th->Eval(x, 0, "") );
       if(debug){
@@ -248,7 +248,8 @@ double FindIntersectionBetweenTwoGraphs(TGraph* obs, TGraph* th, double Min, dou
          Intersection = PreviousX;
       }
    }
-   return Intersection;
+   if(Intersection!=-1)return Intersection;
+   return PreviousV>0 ? Intersection : -1*Max;
 }
 
 
