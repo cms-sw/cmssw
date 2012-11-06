@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/online/collisions/2012/8e33/v2.0/HLT'
+HLT='/online/collisions/2012/8e33/v2.1/HLT'
 L1T='L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc'
 #L1T='L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db'
 
