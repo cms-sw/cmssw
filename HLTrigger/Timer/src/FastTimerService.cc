@@ -554,7 +554,7 @@ void FastTimerService::setNumberOfProcesses(unsigned int procs) {
     m_dqm_nproc_byluminosity_all_endpaths = 0;
     m_dqm_nproc_byluminosity_interpaths   = 0;
   } else {
-    m_dqm_nproc_enabled = true;
+    m_nproc_enabled = true;
     // event summary plots - summed over nodes with the same number of processes
     m_dqm_nproc_event                     = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "event"                    ).str() )->getTH1F();
     m_dqm_nproc_source                    = m_dqms->get( (boost::format("%s/Running %d processes/%s") % m_dqm_path % procs % "source"                   ).str() )->getTH1F();
