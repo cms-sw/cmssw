@@ -60,8 +60,10 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>
   CorrMETData delta;
   double sumMuPx    = 0.;
   double sumMuPy    = 0.;
+  double sumMuPt    = 0.;
   double sumMuDepEx = 0.;
   double sumMuDepEy = 0.;
+  double sumMuDepEt = 0.;
 
   unsigned int nMuons = inputMuons.size();
   for(unsigned int iMu = 0; iMu<nMuons; iMu++) {
@@ -70,8 +72,7 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>
     int flag   = muCorrData.type();      
     float deltax = muCorrData.corrX();      
     float deltay = muCorrData.corrY();      
-    
-        
+            
     LorentzVector mup4;
     if (flag == 0) //this muon is not used to correct the MET
       continue;
@@ -81,22 +82,23 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>
     
     sumMuPx    += mup4.px();
     sumMuPy    += mup4.py();
+    sumMuPt    += mup4.pt();
     sumMuDepEx += deltax;
     sumMuDepEy += deltay;
+    sumMuDepEt += sqrt(deltax*deltax + deltay*deltay);
     corMETX    = corMETX - mup4.px() + deltax;
     corMETY    = corMETY - mup4.py() + deltay;
   
   }
   delta.mex = sumMuDepEx - sumMuPx;
   delta.mey = sumMuDepEy - sumMuPy;
-  delta.sumet = sqrt(sumMuPx*sumMuPx + sumMuPy*sumMuPy) - sqrt(sumMuDepEx*sumMuDepEx + sumMuDepEy*sumMuDepEy);
-  MET::LorentzVector correctedMET4vector( corMETX, corMETY, 0., sqrt(corMETX*corMETX + corMETY*corMETY));
+  delta.sumet = sumMuPt - sumMuDepEt;
+  MET::LorentzVector correctedMET4vector(corMETX, corMETY, 0., sqrt(corMETX*corMETX + corMETY*corMETY));
   std::vector<CorrMETData> corrections = uncorMETObj.mEtCorr();
   corrections.push_back(delta);
    
-  T result = makeMET(uncorMETObj, uncorMETObj.sumEt()+delta.sumet, corrections, correctedMET4vector);
+  T result = makeMET(uncorMETObj, uncorMETObj.sumEt() + delta.sumet, corrections, correctedMET4vector);
   v_corMET->push_back(result);
-
 }
 
 void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
