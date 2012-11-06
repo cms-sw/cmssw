@@ -53,7 +53,7 @@ user=`echo -n $principal | cut -d " " -f 3 | sed -e s'/@CERN.CH//'`
 
 cerncvs ()
 {
-    CVS_RSH=ssh cvs -d $user@cmscvs.cern.ch:/cvs_server/repositories/CMSSW $@
+    CVS_RSH=ssh cvs -d $user@cmscvs.cern.ch:/local/reps/CMSSW $@
 }
 
 #
