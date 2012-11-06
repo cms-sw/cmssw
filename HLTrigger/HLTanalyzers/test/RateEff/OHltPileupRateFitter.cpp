@@ -226,7 +226,7 @@ void OHltPileupRateFitter::fitForPileup(
   vTotalRateGraph->SetMarkerStyle(20);
   vTotalRateGraph->Draw("ap");
   fp1->SetParLimits(3,0.000000001,0.1);
-  vTotalRateGraph->Fit("fp1","QR","",minLumi, maxLumi);
+  vTotalRateGraph->Fit("fp1","QRL","",minLumi, maxLumi);
   fp1->SetLineColor(2);
   fp1->DrawCopy("same");
   cout << "\n";
@@ -250,7 +250,7 @@ void OHltPileupRateFitter::fitForPileup(
    vTotalRebinnedRateGraph->SetLineWidth(3);   
    vTotalRebinnedRateGraph->Draw("ap"); 
    fp2->SetParLimits(3,0.0,1.0); 
-   vTotalRebinnedRateGraph->Fit("fp2","QR","",minLumi, maxLumi); 
+   vTotalRebinnedRateGraph->Fit("fp2","QRL","",minLumi, maxLumi); 
    fp2->SetLineColor(2); 
    fp2->DrawCopy("same"); 
    cout << "\n"; 
