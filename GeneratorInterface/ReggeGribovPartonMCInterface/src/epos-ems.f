@@ -11801,17 +11801,21 @@ c prepare plot for xbDens
           if(lproj(ip).ne.0)then
             Nnucla=Nnucla+1
             do l=1,lproj(ip)
-              k=kproj(ip,l)
-              b=bk(k)
-              i=1+int(b/bkmx*float(mxnucl))
+C...fix compilation warning             
+C              k=kproj(ip,l)
+C              b=bk(k)
+C              i=1+int(b/bkmx*float(mxnucl))
+              i=1+int(bk(kproj(ip,l))/bkmx*float(mxnucl)) 
               if(i.le.mxnucl)bnucl(i,iii)=bnucl(i,iii)+1.
             enddo
           endif
           if(lproj3(ip).ne.0)then
             do l=1,lproj3(ip)
-              k=kproj3(ip,l)
-              b=bk(k)
-              i=1+int(b/bkmx*float(mxnucl))
+C...fix compilation warning
+C              k=kproj3(ip,l)
+C              b=bk(k)
+C              i=1+int(b/bkmx*float(mxnucl))
+              i=1+int(bk(kproj3(ip,l))/bkmx*float(mxnucl)) 
               if(i.le.mxnucl)bnucl(i,iii+2)=bnucl(i,iii+2)+1.
             enddo
           endif
