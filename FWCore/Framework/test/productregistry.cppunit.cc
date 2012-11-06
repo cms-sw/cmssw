@@ -206,7 +206,7 @@ void testProductRegistry:: testProductRegistration() {
       "process = cms.Process('TEST')\n"
       "process.maxEvents = cms.untracked.PSet(\n"
       "  input = cms.untracked.int32(-1))\n"
-      "process.source = cms.Source('DummySource')\n"
+      "process.source = cms.Source('EmptySource')\n"
       "process.m1 = cms.EDProducer('TestPRegisterModule1')\n"
       "process.m2 = cms.EDProducer('TestPRegisterModule2')\n"
       "process.p = cms.Path(process.m1*process.m2)\n");
