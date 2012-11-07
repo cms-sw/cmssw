@@ -120,9 +120,8 @@ FastSimParticleFlowFEVT = cms.PSet(
                                            #stuff added for two-step processing (simWithSomeReco followed by reconstructionHighLevel):
                                            'keep *_muons1stStep_*_*',
                                            'keep *_towerMaker*_*_*',
-                                           'keep *_particleFlowCluster*_*_*',
-                                           'keep *_pfPileUp*_*_*',
-                                           'keep *_pfAllNeutralHadronsAndPhotons_*_*',
+                                           'keep *_particleFlow*_*_*',
+                                           'keep *_pf*_*_*',
                                            'keep *_*DetId*_*_*')
 )
 
