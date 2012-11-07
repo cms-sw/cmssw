@@ -91,6 +91,7 @@ double GetMass(double P, double I, bool MC){
    return sqrt((I-C)/K)*P;
 }
 
+
 // return a TF1 corresponding to a mass line in the momentum vs dEdx 2D plane
 TF1* GetMassLine(double M, bool MC){
    double& K = dEdxK_Data;
@@ -115,6 +116,36 @@ TF1* GetMassLine(double M, bool MC){
    return MassLine;
 }
 
+
+TF1* GetMassLineQ(double M, double Charge=1, bool MC=false)
+{
+   double K;   double C;
+   if(MC){
+      K = dEdxK_MC;
+      C = dEdxC_MC;
+   }else{ 
+      K = dEdxK_Data;
+      C = dEdxC_Data;
+   }
+
+   double BetaMax = 0.999;
+   double PMax = sqrt((BetaMax*BetaMax*M*M)/(1-BetaMax*BetaMax));
+
+   double BetaMin = 0.01;
+   double PMin = sqrt((BetaMin*BetaMin*M*M)/(1-BetaMin*BetaMin));
+
+   TF1* MassLine = new TF1("MassLine","[3] * ([2] + ([0]*[0]*[1])/(x*x*[3]))", PMin, PMax);
+   MassLine->SetParName  (0,"M");
+   MassLine->SetParName  (1,"K");
+   MassLine->SetParName  (2,"C");
+   MassLine->SetParName  (3,"z2");
+   MassLine->SetParameter(0, M);
+   MassLine->SetParameter(1, K);
+   MassLine->SetParameter(2, C);
+   MassLine->SetParameter(3, Charge*Charge);
+   MassLine->SetLineWidth(2);
+   return MassLine;
+}
 
 
 

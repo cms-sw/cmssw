@@ -52,6 +52,7 @@ void Analysis_Step5()
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
+   Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
    MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
@@ -62,6 +63,7 @@ void Analysis_Step5()
    SelectionPlot(InputPattern, CutIndex);
 
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
+   Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
    MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
@@ -77,6 +79,7 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
 
    InputPattern = "Results/Type3/";   CutIndex = 79; CutIndex_Flip=58;
+   Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    //CutFlow(InputPattern, CutIndex);
@@ -99,6 +102,7 @@ void Analysis_Step5()
    //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "5");
    
    InputPattern = "Results/Type4/";   CutIndex = 21; CutIndex_Flip=21;
+   Make2DPlot_Core(InputPattern, 0);
    // PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    // PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    // CheckPrediction(InputPattern, "", "Data7TeV");
@@ -112,6 +116,7 @@ void Analysis_Step5()
 
    InputPattern = "Results/Type5/";   CutIndex = 48; CutIndex_Flip=2;
    InitdEdx("dedxRASmi");
+   Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    SelectionPlot(InputPattern, CutIndex);
@@ -1488,78 +1493,101 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    string Input = InputPattern + "Histos.root";
    string outpath = InputPattern;
    MakeDirectories(outpath);
+   TypeMode = TypeFromPattern(InputPattern);
+   string LegendTitle = LegendFromType(InputPattern);;
 
-   TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
-   TH1D* Gluino300_Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, "Gluino300_f10/Mass"    ), CutIndex, "G300Mass");
-   TH2D* Gluino300_PIs  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino300_f10/AS_PIs"  ), CutIndex, "G300PIs_zy");
-   TH2D* Gluino300_PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino300_f10/AS_PIm"  ), CutIndex, "G300PIm_zy");
-   TH2D* Gluino300_TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino300_f10/AS_TOFIs"), CutIndex, "G300TIs_zy");
-   TH2D* Gluino300_TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino300_f10/AS_TOFIm"), CutIndex, "G300TIm_zy");
-   TH1D* Gluino500_Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, "Gluino500_f10/Mass"    ), CutIndex, "G500Mass");
-   TH2D* Gluino500_PIs  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino500_f10/AS_PIs"  ), CutIndex, "G500PIs_zy");
-   TH2D* Gluino500_PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino500_f10/AS_PIm"  ), CutIndex, "G500PIm_zy");
-   TH2D* Gluino500_TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino500_f10/AS_TOFIs"), CutIndex, "G500TIs_zy");
-   TH2D* Gluino500_TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino500_f10/AS_TOFIm"), CutIndex, "G500TIm_zy");
-   TH1D* Gluino800_Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, "Gluino800_f10/Mass"    ), CutIndex, "G800Mass");
-   TH2D* Gluino800_PIs  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino800_f10/AS_PIs"  ), CutIndex, "G800PIs_zy");
-   TH2D* Gluino800_PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino800_f10/AS_PIm"  ), CutIndex, "G800PIm_zy");
-   TH2D* Gluino800_TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino800_f10/AS_TOFIs"), CutIndex, "G800TIs_zy");
-   TH2D* Gluino800_TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Gluino800_f10/AS_TOFIm"), CutIndex, "G800TIm_zy");
-   TH2D* Data_PIs       = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Data/AS_PIs"       ), CutIndex);
-   TH2D* Data_PIm       = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Data/AS_PIm"       ), CutIndex);
-   TH2D* Data_TOFIs     = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Data/AS_TOFIs"     ), CutIndex);
-   TH2D* Data_TOFIm     = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, "Data/AS_TOFIm"     ), CutIndex);
-   TH2D* Data_PIm_075   = (TH2D*)Data_PIm->Clone();   Data_PIm_075->Reset(); 
-   TH2D* Data_PIm_150   = (TH2D*)Data_PIm->Clone();   Data_PIm_150->Reset();
-   TH2D* Data_PIm_300   = (TH2D*)Data_PIm->Clone();   Data_PIm_300->Reset();
-   TH2D* Data_PIm_450   = (TH2D*)Data_PIm->Clone();   Data_PIm_450->Reset();
-   TH2D* Data_PIm_All   = (TH2D*)Data_PIm->Clone();   Data_PIm_All->Reset();
+   string S1 = "Gluino_8TeV_M300_f10"; double Q1=1;
+   string S2 = "Gluino_8TeV_M600_f10"; double Q2=1;
+   string S3 = "Gluino_8TeV_M900_f10"; double Q3=1;
+   string Da = "Data8TeV";
+   string outName = "2DPlots";
 
-   for(unsigned int i=0;i<(unsigned int)Data_PIm->GetNbinsX();i++){
-   for(unsigned int j=0;j<(unsigned int)Data_PIm->GetNbinsY();j++){
-      if(Data_PIm->GetBinContent(i,j)<=0)continue;
-      double M = GetMass(Data_PIm->GetXaxis ()->GetBinCenter(i), Data_PIm->GetYaxis ()->GetBinCenter(j), false);
-      if(isnan(M))continue;
-      if     (M<100){ Data_PIm_075->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-      else if(M<200){ Data_PIm_150->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-      else if(M<300){ Data_PIm_300->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-      else if(M<395){ Data_PIm_450->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-      else          { Data_PIm_All->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
-   }}
+   if(TypeMode==4){
+      S1 = "DY_8TeV_M400_Q1"; double Q1=1;
+      S2 = "DY_8TeV_M400_Q2"; double Q2=2;
+      S3 = "DY_8TeV_M400_Q3"; double Q3=3;
+   }
 
-   Gluino300_Mass = (TH1D*) Gluino300_Mass->Rebin(2);
-   Gluino500_Mass = (TH1D*) Gluino500_Mass->Rebin(2);
-   Gluino800_Mass = (TH1D*) Gluino800_Mass->Rebin(2);
+   if(TypeMode==5){
+      S1 = "DY_8TeV_M300_Q1o3"; double Q1=1/3.0;
+      S2 = "DY_8TeV_M300_Q2o3"; double Q2=2/3.0;
+      S3 = "DY_8TeV_M600_Q2o3"; double Q3=2/3.0;
+   }
+
+   int S1i   = JobIdToIndex(S1,samples);    if(S1i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
+   int S2i   = JobIdToIndex(S2,samples);    if(S2i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }                
+   int S3i   = JobIdToIndex(S3,samples);    if(S3i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }                 
+
+
+   TFile* InputFile  = new TFile((InputPattern + "Histos.root").c_str());
+   TH1D* Signal1Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, S1+"/Mass"    ), CutIndex, "S1Mass"   );
+   TH2D* Signal1PtIs = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_PtIs" ), CutIndex, "S1PtIs_zy");
+   TH2D* Signal1PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_PIm"  ), CutIndex, "S1PIm_zy" );
+   TH2D* Signal1TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_TOFIs"), CutIndex, "S1TIs_zy" );
+   TH2D* Signal1TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_TOFIm"), CutIndex, "S1TIm_zy" );
+   TH1D* Signal2Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, S2+"/Mass"    ), CutIndex, "S2Mass"   );
+   TH2D* Signal2PtIs = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_PtIs" ), CutIndex, "S2PtIs_zy");
+   TH2D* Signal2PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_PIm"  ), CutIndex, "S2PIm_zy" );
+   TH2D* Signal2TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_TOFIs"), CutIndex, "S2TIs_zy" );
+   TH2D* Signal2TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_TOFIm"), CutIndex, "S2TIm_zy" );
+   TH1D* Signal3Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, S3+"/Mass"    ), CutIndex, "S3Mass"   );
+   TH2D* Signal3PtIs = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_PtIs" ), CutIndex, "S3PtIs_zy");
+   TH2D* Signal3PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_PIm"  ), CutIndex, "S3PIm_zy" );
+   TH2D* Signal3TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_TOFIs"), CutIndex, "S3TIs_zy" );
+   TH2D* Signal3TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_TOFIm"), CutIndex, "S3TIm_zy" );
+   TH2D* Data_PtIs   = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_PtIs" ), CutIndex);
+   TH2D* Data_PIm    = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_PIm"  ), CutIndex);
+   TH2D* Data_TOFIs  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_TOFIs"), CutIndex);
+   TH2D* Data_TOFIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_TOFIm"), CutIndex);
+//   TH2D* Data_PIm_075   = (TH2D*)Data_PIm->Clone();   Data_PIm_075->Reset(); 
+//   TH2D* Data_PIm_150   = (TH2D*)Data_PIm->Clone();   Data_PIm_150->Reset();
+//   TH2D* Data_PIm_300   = (TH2D*)Data_PIm->Clone();   Data_PIm_300->Reset();
+//   TH2D* Data_PIm_450   = (TH2D*)Data_PIm->Clone();   Data_PIm_450->Reset();
+//   TH2D* Data_PIm_All   = (TH2D*)Data_PIm->Clone();   Data_PIm_All->Reset();
+//   for(unsigned int i=0;i<(unsigned int)Data_PIm->GetNbinsX();i++){
+//   for(unsigned int j=0;j<(unsigned int)Data_PIm->GetNbinsY();j++){
+//      if(Data_PIm->GetBinContent(i,j)<=0)continue;
+//      double M = GetMass(Data_PIm->GetXaxis ()->GetBinCenter(i), Data_PIm->GetYaxis ()->GetBinCenter(j), false);
+//      if(isnan(M))continue;
+//      if     (M<100){ Data_PIm_075->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+//      else if(M<200){ Data_PIm_150->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+//      else if(M<300){ Data_PIm_300->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+//      else if(M<395){ Data_PIm_450->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+//      else          { Data_PIm_All->SetBinContent(i,j, Data_PIm->GetBinContent(i,j) ); }
+//   }}
+
+   Signal1Mass = (TH1D*) Signal1Mass->Rebin(2);
+   Signal2Mass = (TH1D*) Signal2Mass->Rebin(2);
+   Signal3Mass = (TH1D*) Signal3Mass->Rebin(2);
 
    double Min = 1E-3;
    double Max = 1E4;
 
    char YAxisLegend[1024];
-   sprintf(YAxisLegend,"#tracks / %2.0f GeV/c^{2}",Gluino300_Mass->GetXaxis()->GetBinWidth(1));
-
+   sprintf(YAxisLegend,"#tracks / %2.0f GeV/c^{2}",Signal1Mass->GetXaxis()->GetBinWidth(1));
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   Gluino300_Mass->SetAxisRange(0,1250,"X");
-   Gluino300_Mass->SetAxisRange(Min,Max,"Y");
-   Gluino300_Mass->SetTitle("");
-   Gluino300_Mass->SetStats(kFALSE);
-   Gluino300_Mass->GetXaxis()->SetTitle("m (GeV/c^{2})");
-   Gluino300_Mass->GetYaxis()->SetTitle(YAxisLegend);
-   Gluino300_Mass->SetLineWidth(2);
-   Gluino300_Mass->SetLineColor(Color[0]);
-   Gluino300_Mass->SetMarkerColor(Color[0]);
-   Gluino300_Mass->SetMarkerStyle(Marker[0]);
-   Gluino300_Mass->Draw("HIST E1");
-   Gluino500_Mass->Draw("HIST E1 same");
-   Gluino500_Mass->SetLineColor(Color[1]);
-   Gluino500_Mass->SetMarkerColor(Color[1]);
-   Gluino500_Mass->SetMarkerStyle(Marker[1]);
-   Gluino500_Mass->SetLineWidth(2);
-   Gluino800_Mass->SetLineWidth(2);
-   Gluino800_Mass->SetLineColor(Color[2]);
-   Gluino800_Mass->SetMarkerColor(Color[2]);
-   Gluino800_Mass->SetMarkerStyle(Marker[2]);
-   Gluino800_Mass->Draw("HIST E1 same");
+   Signal1Mass->SetAxisRange(0,1250,"X");
+   Signal1Mass->SetAxisRange(Min,Max,"Y");
+   Signal1Mass->SetTitle("");
+   Signal1Mass->SetStats(kFALSE);
+   Signal1Mass->GetXaxis()->SetTitle("m (GeV/c^{2})");
+   Signal1Mass->GetYaxis()->SetTitle(YAxisLegend);
+   Signal1Mass->SetLineWidth(2);
+   Signal1Mass->SetLineColor(Color[0]);
+   Signal1Mass->SetMarkerColor(Color[0]);
+   Signal1Mass->SetMarkerStyle(Marker[0]);
+   Signal1Mass->Draw("HIST E1");
+   Signal2Mass->Draw("HIST E1 same");
+   Signal2Mass->SetLineColor(Color[1]);
+   Signal2Mass->SetMarkerColor(Color[1]);
+   Signal2Mass->SetMarkerStyle(Marker[1]);
+   Signal2Mass->SetLineWidth(2);
+   Signal3Mass->SetLineWidth(2);
+   Signal3Mass->SetLineColor(Color[2]);
+   Signal3Mass->SetMarkerColor(Color[2]);
+   Signal3Mass->SetMarkerStyle(Marker[2]);
+   Signal3Mass->Draw("HIST E1 same");
    c1->SetLogy(true);
 
    TLine* line300 = new TLine(300, Min, 300, Max);
@@ -1581,31 +1609,30 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    line800->Draw("same");
 
    leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Gluino300_Mass, "Gluino300"   ,"P");
-   leg->AddEntry(Gluino500_Mass, "Gluino500"   ,"P");
-   leg->AddEntry(Gluino800_Mass, "Gluino800"   ,"P");
+   leg->AddEntry(Signal1Mass,  samples[S1i].Legend.c_str()   ,"P");
+   leg->AddEntry(Signal2Mass,  samples[S2i].Legend.c_str()   ,"P");
+   leg->AddEntry(Signal3Mass,  samples[S3i].Legend.c_str()   ,"P");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Gluino_Mass");
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_Mass");
    delete c1;
 
 
    c1 = new TCanvas("c1","c1", 600, 600);
    c1->SetLogz(true);
-   Data_PIs->SetTitle("");
-   Data_PIs->SetStats(kFALSE);
-   Data_PIs->GetXaxis()->SetTitle("p (GeV/c)");
-   Data_PIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
-   Data_PIs->SetAxisRange(0,1250,"X");
-   Data_PIs->SetMarkerSize (0.2);
-   Data_PIs->SetMarkerColor(Color[4]);
-   Data_PIs->SetFillColor(Color[4]);
-   Data_PIs->Draw("COLZ");
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Data_PIs", true);
+   Data_PtIs->SetTitle("");
+   Data_PtIs->SetStats(kFALSE);
+   Data_PtIs->GetXaxis()->SetTitle("p (GeV/c)");
+   Data_PtIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
+   Data_PtIs->SetAxisRange(0,1750,"X");
+   Data_PtIs->SetMarkerSize (0.2);
+   Data_PtIs->SetMarkerColor(Color[4]);
+   Data_PtIs->SetFillColor(Color[4]);
+   Data_PtIs->Draw("COLZ");
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_Data_PtIs", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
@@ -1614,14 +1641,14 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_PIm->SetStats(kFALSE);
    Data_PIm->GetXaxis()->SetTitle("p (GeV/c)");
    Data_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
-   Data_PIm->SetAxisRange(0,1250,"X");
-   Data_PIm->SetAxisRange(0,15,"Y");
+   Data_PIm->SetAxisRange(0,1750,"X");
+   Data_PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
    Data_PIm->SetMarkerSize (0.2);
    Data_PIm->SetMarkerColor(Color[4]);
    Data_PIm->SetFillColor(Color[4]);
    Data_PIm->Draw("COLZ");
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Data_PIm", true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_Data_PIm", true);
    delete c1;
 
 
@@ -1631,13 +1658,13 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_TOFIs->SetStats(kFALSE);
    Data_TOFIs->GetXaxis()->SetTitle("1/#beta_{TOF}");
    Data_TOFIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
-   Data_TOFIs->SetAxisRange(0,1250,"X");
+   Data_TOFIs->SetAxisRange(0,1750,"X");
    Data_TOFIs->SetMarkerSize (0.2);
    Data_TOFIs->SetMarkerColor(Color[4]);
    Data_TOFIs->SetFillColor(Color[4]);
    Data_TOFIs->Draw("COLZ");
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Data_TOFIs", true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_Data_TOFIs", true);
    delete c1;
 
 
@@ -1652,215 +1679,210 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_TOFIm->SetMarkerColor(Color[4]);
    Data_TOFIm->SetFillColor(Color[4]);
    Data_TOFIm->Draw("COLZ");
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Data_TOFIm", true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_Data_TOFIm", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   Gluino800_PIs->SetTitle("");
-   Gluino800_PIs->SetStats(kFALSE);
-   Gluino800_PIs->GetXaxis()->SetTitle("p (GeV/c)");
-   Gluino800_PIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
-   Gluino800_PIs->SetAxisRange(0,1250,"X");
-   Gluino800_PIs->Scale(1/Gluino800_PIs->Integral());
-   Gluino800_PIs->SetMarkerSize (0.2);
-   Gluino800_PIs->SetMarkerColor(Color[2]);
-   Gluino800_PIs->SetFillColor(Color[2]);
-   Gluino800_PIs->Draw("BOX");
-   Gluino500_PIs->Scale(1/Gluino500_PIs->Integral());
-   Gluino500_PIs->SetMarkerSize (0.2);
-   Gluino500_PIs->SetMarkerColor(Color[1]);
-   Gluino500_PIs->SetFillColor(Color[1]);
-   Gluino500_PIs->Draw("BOX same");
-   Gluino300_PIs->Scale(1/Gluino300_PIs->Integral());
-   Gluino300_PIs->SetMarkerSize (0.2);
-   Gluino300_PIs->SetMarkerColor(Color[0]);
-   Gluino300_PIs->SetFillColor(Color[0]);
-   Gluino300_PIs->Draw("BOX same");
+   Signal3PtIs->SetTitle("");
+   Signal3PtIs->SetStats(kFALSE);
+   Signal3PtIs->GetXaxis()->SetTitle("p (GeV/c)");
+   Signal3PtIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
+   Signal3PtIs->SetAxisRange(0,1750,"X");
+   Signal3PtIs->Scale(1/Signal3PtIs->Integral());
+   Signal3PtIs->SetMarkerSize (0.2);
+   Signal3PtIs->SetMarkerColor(Color[2]);
+   Signal3PtIs->SetFillColor(Color[2]);
+   Signal3PtIs->Draw("BOX");
+   Signal2PtIs->Scale(1/Signal2PtIs->Integral());
+   Signal2PtIs->SetMarkerSize (0.2);
+   Signal2PtIs->SetMarkerColor(Color[1]);
+   Signal2PtIs->SetFillColor(Color[1]);
+   Signal2PtIs->Draw("BOX same");
+   Signal1PtIs->Scale(1/Signal1PtIs->Integral());
+   Signal1PtIs->SetMarkerSize (0.2);
+   Signal1PtIs->SetMarkerColor(Color[0]);
+   Signal1PtIs->SetFillColor(Color[0]);
+   Signal1PtIs->Draw("BOX same");
 
-   leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
+   leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Gluino300_PIs, "Gluino300"   ,"F");
-   leg->AddEntry(Gluino500_PIs, "Gluino500"   ,"F");
-   leg->AddEntry(Gluino800_PIs, "Gluino800"   ,"F");
+   leg->AddEntry(Signal1PtIs,  samples[S1i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal2PtIs,  samples[S2i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal3PtIs,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Gluino_PIs", true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_PtIs", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   Gluino300_PIm->SetTitle("");
-   Gluino300_PIm->SetStats(kFALSE);
-   Gluino300_PIm->GetXaxis()->SetTitle("p (GeV/c)");
-   Gluino300_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
-   Gluino300_PIm->SetAxisRange(0,1250,"X");
-   Gluino300_PIm->SetAxisRange(0,15,"Y");
-   Gluino300_PIm->Scale(1/Gluino300_PIm->Integral());
-   Gluino300_PIm->SetMarkerSize (0.2);
-   Gluino300_PIm->SetMarkerColor(Color[2]);
-   Gluino300_PIm->SetFillColor(Color[2]);
-   Gluino300_PIm->Draw("BOX");
-   Gluino500_PIm->Scale(1/Gluino500_PIm->Integral());
-   Gluino500_PIm->SetMarkerSize (0.2);
-   Gluino500_PIm->SetMarkerColor(Color[1]);
-   Gluino500_PIm->SetFillColor(Color[1]);
-   Gluino500_PIm->Draw("BOX same");
-   Gluino800_PIm->Scale(1/Gluino800_PIm->Integral());
-   Gluino800_PIm->SetMarkerSize (0.2);
-   Gluino800_PIm->SetMarkerColor(Color[0]);
-   Gluino800_PIm->SetFillColor(Color[0]);
-   Gluino800_PIm->Draw("BOX same");
+//   c1->SetLogz(true);
+   Signal1PIm->SetTitle("");
+   Signal1PIm->SetStats(kFALSE);
+   Signal1PIm->GetXaxis()->SetTitle("p (GeV/c)");
+   Signal1PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+   Signal1PIm->SetAxisRange(0,1750,"X");
+   Signal1PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
+   Signal1PIm->Scale(10/Signal1PIm->Integral());
+   Signal1PIm->SetMarkerSize (0.2);
+   Signal1PIm->SetMarkerColor(Color[2]);
+   Signal1PIm->SetFillColor(Color[2]);
+   Signal1PIm->Draw("BOX");
+   Signal2PIm->Scale(10/Signal2PIm->Integral());
+   Signal2PIm->SetMarkerSize (0.2);
+   Signal2PIm->SetMarkerColor(Color[1]);
+   Signal2PIm->SetFillColor(Color[1]);
+   Signal2PIm->Draw("BOX same");
+   Signal3PIm->Scale(10/Signal3PIm->Integral());
+   Signal3PIm->SetMarkerSize (0.2);
+   Signal3PIm->SetMarkerColor(Color[0]);
+   Signal3PIm->SetFillColor(Color[0]);
+   Signal3PIm->Draw("BOX same");
 
-   TF1* MassLine800 = GetMassLine(800, true);
-   MassLine800->SetLineColor(kGray+3);
-   MassLine800->SetLineWidth(2);
-   MassLine800->Draw("same");
-   TF1* MassLine500 = GetMassLine(500, true);
-   MassLine500->SetLineColor(kBlue-7);
-   MassLine500->SetLineWidth(2);
-   MassLine500->Draw("same");
-   TF1* MassLine300 = GetMassLine(300, true);
-   MassLine300->SetLineColor(kRed-7);
-   MassLine300->SetLineWidth(2);
-   MassLine300->Draw("same");
+//   TF1* MassLine800 = GetMassLineQ(samples[S3i].Mass, Q3, true);
+//   MassLine800->SetLineColor(kGray+3);
+//   MassLine800->SetLineWidth(2);
+//   MassLine800->Draw("same");
+//   TF1* MassLine500 = GetMassLineQ(samples[S2i].Mass, Q2, true);
+//   MassLine500->SetLineColor(kBlue-7);
+//   MassLine500->SetLineWidth(2);
+//   MassLine500->Draw("same");
+//   TF1* MassLine300 = GetMassLineQ(samples[S1i].Mass, Q1, true);
+//   MassLine300->SetLineColor(kRed-7);
+//   MassLine300->SetLineWidth(2);
+//   MassLine300->Draw("same");
 
-   leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
+   leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Gluino300_PIm, "Gluino300"   ,"F");
-   leg->AddEntry(Gluino500_PIm, "Gluino500"   ,"F");
-   leg->AddEntry(Gluino800_PIm, "Gluino800"   ,"F");
+   leg->AddEntry(Signal1PIm,  samples[S1i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal2PIm,  samples[S2i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal3PIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Gluino_PIm", true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_PIm", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   Gluino800_TOFIs->SetTitle("");
-   Gluino800_TOFIs->SetStats(kFALSE);
-   Gluino800_TOFIs->GetXaxis()->SetTitle("1/#beta_{TOF}");
-   Gluino800_TOFIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
-   Gluino800_TOFIs->SetAxisRange(0,1250,"X");
-   Gluino800_TOFIs->Scale(1/Gluino800_TOFIs->Integral());
-   Gluino800_TOFIs->SetMarkerSize (0.2);
-   Gluino800_TOFIs->SetMarkerColor(Color[2]);
-   Gluino800_TOFIs->SetFillColor(Color[2]);
-   Gluino800_TOFIs->Draw("BOX");
-   Gluino500_TOFIs->Scale(1/Gluino500_TOFIs->Integral());
-   Gluino500_TOFIs->SetMarkerSize (0.2);
-   Gluino500_TOFIs->SetMarkerColor(Color[1]);
-   Gluino500_TOFIs->SetFillColor(Color[1]);
-   Gluino500_TOFIs->Draw("BOX same");
-   Gluino300_TOFIs->Scale(1/Gluino300_TOFIs->Integral());
-   Gluino300_TOFIs->SetMarkerSize (0.2);
-   Gluino300_TOFIs->SetMarkerColor(Color[0]);
-   Gluino300_TOFIs->SetFillColor(Color[0]);
-   Gluino300_TOFIs->Draw("BOX same");
+   Signal3TOFIs->SetTitle("");
+   Signal3TOFIs->SetStats(kFALSE);
+   Signal3TOFIs->GetXaxis()->SetTitle("1/#beta_{TOF}");
+   Signal3TOFIs->GetYaxis()->SetTitle(dEdxS_Legend.c_str());
+   Signal3TOFIs->SetAxisRange(0,1750,"X");
+   Signal3TOFIs->Scale(1/Signal3TOFIs->Integral());
+   Signal3TOFIs->SetMarkerSize (0.2);
+   Signal3TOFIs->SetMarkerColor(Color[2]);
+   Signal3TOFIs->SetFillColor(Color[2]);
+   Signal3TOFIs->Draw("BOX");
+   Signal2TOFIs->Scale(1/Signal2TOFIs->Integral());
+   Signal2TOFIs->SetMarkerSize (0.2);
+   Signal2TOFIs->SetMarkerColor(Color[1]);
+   Signal2TOFIs->SetFillColor(Color[1]);
+   Signal2TOFIs->Draw("BOX same");
+   Signal1TOFIs->Scale(1/Signal1TOFIs->Integral());
+   Signal1TOFIs->SetMarkerSize (0.2);
+   Signal1TOFIs->SetMarkerColor(Color[0]);
+   Signal1TOFIs->SetFillColor(Color[0]);
+   Signal1TOFIs->Draw("BOX same");
 
-   leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
+   leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Gluino300_TOFIs, "Gluino300"   ,"F");
-   leg->AddEntry(Gluino500_TOFIs, "Gluino500"   ,"F");
-   leg->AddEntry(Gluino800_TOFIs, "Gluino800"   ,"F");
+   leg->AddEntry(Signal1TOFIs,  samples[S1i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal2TOFIs,  samples[S2i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal3TOFIs,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Gluino_TOFIs", true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_TOFIs", true);
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
-   Gluino800_TOFIm->SetTitle("");
-   Gluino800_TOFIm->SetStats(kFALSE);
-   Gluino800_TOFIm->GetXaxis()->SetTitle("1/#beta_{TOF}");
-   Gluino800_TOFIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
-   Gluino800_TOFIm->SetAxisRange(0,1250,"X");
-   Gluino800_TOFIm->SetAxisRange(0,15,"Y");
-   Gluino800_TOFIm->Scale(1/Gluino800_TOFIm->Integral());
-   Gluino800_TOFIm->SetMarkerSize (0.2);
-   Gluino800_TOFIm->SetMarkerColor(Color[2]);
-   Gluino800_TOFIm->SetFillColor(Color[2]);
-   Gluino800_TOFIm->Draw("BOX");
-   Gluino500_TOFIm->Scale(1/Gluino500_TOFIm->Integral());
-   Gluino500_TOFIm->SetMarkerSize (0.2);
-   Gluino500_TOFIm->SetMarkerColor(Color[1]);
-   Gluino500_TOFIm->SetFillColor(Color[1]);
-   Gluino500_TOFIm->Draw("BOX same");
-   Gluino300_TOFIm->Scale(1/Gluino300_TOFIm->Integral());
-   Gluino300_TOFIm->SetMarkerSize (0.2);
-   Gluino300_TOFIm->SetMarkerColor(Color[0]);
-   Gluino300_TOFIm->SetFillColor(Color[0]);
-   Gluino300_TOFIm->Draw("BOX same");
+   Signal3TOFIm->SetTitle("");
+   Signal3TOFIm->SetStats(kFALSE);
+   Signal3TOFIm->GetXaxis()->SetTitle("1/#beta_{TOF}");
+   Signal3TOFIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+   Signal3TOFIm->SetAxisRange(0,1750,"X");
+   Signal3TOFIm->SetAxisRange(0,15,"Y");
+   Signal3TOFIm->Scale(1/Signal3TOFIm->Integral());
+   Signal3TOFIm->SetMarkerSize (0.2);
+   Signal3TOFIm->SetMarkerColor(Color[2]);
+   Signal3TOFIm->SetFillColor(Color[2]);
+   Signal3TOFIm->Draw("BOX");
+   Signal2TOFIm->Scale(1/Signal2TOFIm->Integral());
+   Signal2TOFIm->SetMarkerSize (0.2);
+   Signal2TOFIm->SetMarkerColor(Color[1]);
+   Signal2TOFIm->SetFillColor(Color[1]);
+   Signal2TOFIm->Draw("BOX same");
+   Signal1TOFIm->Scale(1/Signal1TOFIm->Integral());
+   Signal1TOFIm->SetMarkerSize (0.2);
+   Signal1TOFIm->SetMarkerColor(Color[0]);
+   Signal1TOFIm->SetFillColor(Color[0]);
+   Signal1TOFIm->Draw("BOX same");
 
-   leg = new TLegend(0.80,0.93,0.80 - 0.20,0.93 - 6*0.03);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
+   leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
    leg->SetFillColor(0);
    leg->SetBorderSize(0);
-   leg->AddEntry(Gluino300_TOFIm, "Gluino300"   ,"F");
-   leg->AddEntry(Gluino500_TOFIm, "Gluino500"   ,"F");
-   leg->AddEntry(Gluino800_TOFIm, "Gluino800"   ,"F");
+   leg->AddEntry(Signal1TOFIm,  samples[S1i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal2TOFIm,  samples[S2i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal3TOFIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Gluino_TOFIm", true);
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_TOFIm", true);
    delete c1;
 
-   c1 = new TCanvas("c1","c1", 600, 600);
-   Data_PIm_075->SetTitle("");
-   Data_PIm_075->SetStats(kFALSE);
-   Data_PIm_075->GetXaxis()->SetTitle("p (GeV/c)");
-   Data_PIm_075->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
-//   Data_PIm_075->SetAxisRange(0,15,"Y");
-//   Data_PIm_075->SetAxisRange(0,1250,"X");
-   Data_PIm_075->SetAxisRange(3,10,"Y");
-   Data_PIm_075->SetAxisRange(0,2000,"X");
-   Data_PIm_075->SetMarkerSize (0.6);
-   Data_PIm_075->SetMarkerColor(Color[4]);
-   Data_PIm_075->SetMarkerStyle(Marker[4]);
-   Data_PIm_075->SetFillColor(Color[4]);
-   Data_PIm_075->Draw("");
-   Data_PIm_150->SetMarkerSize (0.8);
-   Data_PIm_150->SetMarkerColor(Color[3]);
-   Data_PIm_150->SetMarkerStyle(Marker[3]);
-   Data_PIm_150->SetFillColor(Color[3]);
-   Data_PIm_150->Draw("same");
-   Data_PIm_300->SetMarkerSize (1.0);
-   Data_PIm_300->SetMarkerColor(Color[2]);
-   Data_PIm_300->SetMarkerStyle(Marker[2]);
-   Data_PIm_300->SetFillColor(Color[2]);
-   Data_PIm_300->Draw("same");
-   Data_PIm_450->SetMarkerSize (1.2);
-   Data_PIm_450->SetMarkerColor(Color[1]);
-   Data_PIm_450->SetMarkerStyle(Marker[1]);
-   Data_PIm_450->SetFillColor(Color[1]);
-   Data_PIm_450->Draw("same");
-   Data_PIm_All->SetMarkerSize (1.4);
-   Data_PIm_All->SetMarkerColor(Color[0]);
-   Data_PIm_All->SetFillColor(Color[0]);
-   Data_PIm_All->Draw("same");
+//   c1 = new TCanvas("c1","c1", 600, 600);
+//   Data_PIm_075->SetTitle("");
+//   Data_PIm_075->SetStats(kFALSE);
+//   Data_PIm_075->GetXaxis()->SetTitle("p (GeV/c)");
+//   Data_PIm_075->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+//   Data_PIm_075->SetAxisRange(3,10,"Y");
+//   Data_PIm_075->SetAxisRange(0,2000,"X");
+//   Data_PIm_075->SetMarkerSize (0.6);
+//   Data_PIm_075->SetMarkerColor(Color[4]);
+//   Data_PIm_075->SetMarkerStyle(Marker[4]);
+//   Data_PIm_075->SetFillColor(Color[4]);
+//   Data_PIm_075->Draw("");
+//   Data_PIm_150->SetMarkerSize (0.8);
+//   Data_PIm_150->SetMarkerColor(Color[3]);
+//   Data_PIm_150->SetMarkerStyle(Marker[3]);
+//   Data_PIm_150->SetFillColor(Color[3]);
+//   Data_PIm_150->Draw("same");
+//   Data_PIm_300->SetMarkerSize (1.0);
+//   Data_PIm_300->SetMarkerColor(Color[2]);
+//   Data_PIm_300->SetMarkerStyle(Marker[2]);
+//   Data_PIm_300->SetFillColor(Color[2]);
+//   Data_PIm_300->Draw("same");
+//   Data_PIm_450->SetMarkerSize (1.2);
+//   Data_PIm_450->SetMarkerColor(Color[1]);
+//   Data_PIm_450->SetMarkerStyle(Marker[1]);
+//   Data_PIm_450->SetFillColor(Color[1]);
+//   Data_PIm_450->Draw("same");
+//   Data_PIm_All->SetMarkerSize (1.4);
+//   Data_PIm_All->SetMarkerColor(Color[0]);
+//   Data_PIm_All->SetFillColor(Color[0]);
+//   Data_PIm_All->Draw("same");
 
-   for(double m=100;m<1000;m+=100){
-      TF1* MassLine = GetMassLine(m, false);
-      MassLine->SetLineColor(1);
-      MassLine->SetLineWidth(1);
-      MassLine->Draw("same");
-   }
+//   for(double m=100;m<1000;m+=100){
+//      TF1* MassLine = GetMassLine(m, false);
+//      MassLine->SetLineColor(1);
+//      MassLine->SetLineWidth(1);
+//      MassLine->Draw("same");
+//   }
 
-   leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.03);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
-   leg->SetFillColor(0);
-   leg->SetBorderSize(0);
-   leg->AddEntry(Data_PIm_075, "M < 100 GeV","P");
-   leg->AddEntry(Data_PIm_150, "100 < M < 200 GeV","P");
-   leg->AddEntry(Data_PIm_300, "200 < M < 300 GeV","P");
-   leg->AddEntry(Data_PIm_450, "300 < M < 400 GeV","P");
-   leg->AddEntry(Data_PIm_All, "400 < M GeV"      ,"P");
-   leg->Draw();
-   DrawPreliminary(SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1, outpath, "Data_PIm_Colored", true);
-   delete c1;
+//   leg = new TLegend(0.80,0.93,0.80 - 0.30,0.93 - 6*0.03);
+//   leg->SetHeader(LegendFromType(InputPattern).c_str());
+//   leg->SetFillColor(0);
+//   leg->SetBorderSize(0);
+//   leg->AddEntry(Data_PIm_075, "M < 100 GeV","P");
+//   leg->AddEntry(Data_PIm_150, "100 < M < 200 GeV","P");
+//   leg->AddEntry(Data_PIm_300, "200 < M < 300 GeV","P");
+//   leg->AddEntry(Data_PIm_450, "300 < M < 400 GeV","P");
+//   leg->AddEntry(Data_PIm_All, "400 < M GeV"      ,"P");
+//   leg->Draw();
+//   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+//   SaveCanvas(c1, outpath, "Data_PIm_Colored", true);
+//   delete c1;
 }
 
 
