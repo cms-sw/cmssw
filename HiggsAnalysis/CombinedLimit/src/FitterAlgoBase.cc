@@ -115,7 +115,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
     if (doHesse) minim.minimizer().hesse();
     sentry.clear();
     ret = (saveFitResult || rs.getSize() ? minim.save() : new RooFitResult("dummy","success"));
-    if (verbose > 1) { ret->Print("V");  }
+    if (verbose > 1 && ret != 0 && (saveFitResult || rs.getSize())) { ret->Print("V");  }
 
     std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
 
