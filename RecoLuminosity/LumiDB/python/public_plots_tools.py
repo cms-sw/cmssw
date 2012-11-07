@@ -16,10 +16,10 @@ import numpy as np
 
 ######################################################################
 
-FONT_PROPS_SUPTITLE = FontProperties(size="large", weight="bold", stretch="condensed")
-FONT_PROPS_TITLE = FontProperties(size="medium", weight="bold")
-FONT_PROPS_AX_TITLE = FontProperties(size="large", weight="bold")
-FONT_PROPS_TICK_LABEL = FontProperties(size="medium", weight="bold")
+FONT_PROPS_SUPTITLE = FontProperties(size="x-large", weight="bold", stretch="condensed")
+FONT_PROPS_TITLE = FontProperties(size="large", weight="regular")
+FONT_PROPS_AX_TITLE = FontProperties(size="x-large", weight="bold")
+FONT_PROPS_TICK_LABEL = FontProperties(size="large", weight="bold")
 
 ######################################################################
 
@@ -60,18 +60,18 @@ def RoundAwayFromZero(val):
 def LatexifyUnits(units_in):
 
     latex_units = {
-        "b^{-1}" : "$\mathrm{b}^{-1}$",
-        "mb^{-1}" : "$\mathrm{mb}^{-1}$",
-        "ub^{-1}" : "$\mu\mathrm{b}^{-1}$",
-        "nb^{-1}" : "$\mathrm{nb}^{-1}$",
-        "pb^{-1}" : "$\mathrm{pb}^{-1}$",
-        "fb^{-1}" : "$\mathrm{fb}^{-1}$",
-        "Hz/b" : "$\mathrm{Hz/b}$",
-        "Hz/mb" : "$\mathrm{Hz/mb}$",
-        "Hz/ub" : "$\mathrm{Hz/}\mu\mathrm{b}$",
-        "Hz/nb" : "$\mathrm{Hz/nb}$",
-        "Hz/pb" : "$\mathrm{Hz/pb}$",
-        "Hz/fb" : "$\mathrm{Hz/fb}$"
+        "b^{-1}" : "$\mathbf{b}^{-1}$",
+        "mb^{-1}" : "$\mathbf{mb}^{-1}$",
+        "ub^{-1}" : "$\mu\mathbf{b}^{-1}$",
+        "nb^{-1}" : "$\mathbf{nb}^{-1}$",
+        "pb^{-1}" : "$\mathbf{pb}^{-1}$",
+        "fb^{-1}" : "$\mathbf{fb}^{-1}$",
+        "Hz/b" : "$\mathbf{Hz/b}$",
+        "Hz/mb" : "$\mathbf{Hz/mb}$",
+        "Hz/ub" : "$\mathbf{Hz/}\mathbf{\mu}\mathbf{b}$",
+        "Hz/nb" : "$\mathbf{Hz/nb}$",
+        "Hz/pb" : "$\mathbf{Hz/pb}$",
+        "Hz/fb" : "$\mathbf{Hz/fb}$"
         }
 
     res = latex_units[units_in]

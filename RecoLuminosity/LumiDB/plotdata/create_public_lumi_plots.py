@@ -413,7 +413,7 @@ def TweakPlot(fig, ax, (time_begin, time_end),
     formatter = matplotlib.dates.DateFormatter(DATE_FMT_STR_AXES)
     ax.xaxis.set_major_formatter(formatter)
 
-    fig.subplots_adjust(top=.89, bottom=.125, left=.1, right=.925)
+    fig.subplots_adjust(top=.85, bottom=.14, left=.13, right=.91)
     # End of TweakPlot().
 
 ######################################################################
@@ -626,13 +626,13 @@ if __name__ == "__main__":
             (status, output) = commands.getstatusoutput(cmd)
             if status != 0:
                 # This means 'no qualified data found'.
-                if (status >> 8) == 13:
+                if ((status >> 8) == 13 or (status >> 8) == 14):
                     # If no data is found it never writes the output
                     # file. So for days without data we would keep
                     # querying the database in vain every time the
                     # script runs. To avoid this we just write a dummy
                     # cache file for such days.
-                    if output.find("[INFO] No qualified data found, do nothing") > -1:
+                    if output.find("[INFO] No qualified data found, do nothing") > -1 or "[INFO] No qualified run found, do nothing"> -1:
                         if verbose:
                             print "No lumi data for %s, " \
                                   "writing dummy cache file to avoid re-querying the DB" % \
@@ -887,20 +887,22 @@ if __name__ == "__main__":
                             histtype="stepfilled",
                             log=log_setting,
                             facecolor=color_fill_peak, edgecolor=color_line_peak,
-                            label="Max. inst. lumi.: $%.2f$ %s" % \
+                            label="Max. inst. lumi.: %.2f %s" % \
                             (max_inst, LatexifyUnits(units)))
 
                     tmp_leg = ax.legend(loc="upper left",
                                         bbox_to_anchor=(0.025, 0., 1., .97),
                                         frameon=False)
                     tmp_leg.legendHandles[0].set_visible(False)
+		    for t in tmp_leg.get_texts():
+		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Peak Luminosity Per Day, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
                                  (particle_type_str, year, cms_energy_str),
                                  fontproperties=FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC" % \
+                    ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
@@ -945,23 +947,24 @@ if __name__ == "__main__":
                             histtype="stepfilled",
                             log=log_setting,
                             facecolor=color_fill_del, edgecolor=color_line_del,
-                            label="LHC Delivered, max: $%.1f$ %s/day" % \
+                            label="LHC Delivered, max: %.1f %s/day" % \
                             (max_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec,
                             histtype="stepfilled",
                             log=log_setting,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                        label="CMS Recorded, max: $%.1f$ %s/day" % \
+                        label="CMS Recorded, max: %.1f %s/day" % \
                             (max_rec, LatexifyUnits(units)))
-                    ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                    leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
-
+                    for t in leg.get_texts():
+		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
                                  (particle_type_str, year, cms_energy_str),
                                  fontproperties=FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC" % \
+                    ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
@@ -1007,23 +1010,25 @@ if __name__ == "__main__":
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
                             facecolor=color_fill_del, edgecolor=color_line_del,
-                            label="LHC Delivered: $%.2f$ %s" % \
+                            label="LHC Delivered: %.2f %s" % \
                             (tot_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec_for_cum,
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                            label="CMS Recorded: $%.2f$ %s" % \
+                            label="CMS Recorded: %.2f %s" % \
                             (tot_rec, LatexifyUnits(units)))
-                    ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                    leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
+		    for t in leg.get_texts():
+		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity, " \
                                  r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
                                  (particle_type_str, year, cms_energy_str),
                                  fontproperties=FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC" % \
+                    ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
@@ -1142,20 +1147,22 @@ if __name__ == "__main__":
                             histtype="stepfilled",
                             log=log_setting,
                             facecolor=color_fill_peak, edgecolor=color_line_peak,
-                            label="Max. inst. lumi.: $%.2f$ %s" % \
+                            label="Max. inst. lumi.: %.2f %s" % \
                             (max_inst, LatexifyUnits(units)))
 
                     tmp_leg = ax.legend(loc="upper left",
                                         bbox_to_anchor=(0.025, 0., 1., .97),
                                         frameon=False)
                     tmp_leg.legendHandles[0].set_visible(False)
+		    for t in tmp_leg.get_texts():
+		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Peak Luminosity Per Week, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
                                  (particle_type_str, year, cms_energy_str),
                                  fontproperties=FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC" % \
+                    ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)",
@@ -1201,23 +1208,25 @@ if __name__ == "__main__":
                             histtype="stepfilled",
                             log=log_setting,
                             facecolor=color_fill_del, edgecolor=color_line_del,
-                            label="LHC Delivered, max: $%.1f$ %s/week" % \
+                            label="LHC Delivered, max: %.1f %s/week" % \
                             (max_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec,
                             histtype="stepfilled",
                             log=log_setting,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                        label="CMS Recorded, max: $%.1f$ %s/week" % \
+                        label="CMS Recorded, max: %.1f %s/week" % \
                             (max_rec, LatexifyUnits(units)))
-                    ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                    leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
+                    for t in leg.get_texts():
+		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity Per Week, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
                                  (particle_type_str, year, cms_energy_str),
                                  fontproperties=FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC" % \
+                    ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
@@ -1263,23 +1272,25 @@ if __name__ == "__main__":
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
                             facecolor=color_fill_del, edgecolor=color_line_del,
-                            label="LHC Delivered: $%.2f$ %s" % \
+                            label="LHC Delivered: %.2f %s" % \
                             (tot_del, LatexifyUnits(units)))
                     ax.hist(times, bin_edges, weights=weights_rec_for_cum,
                             histtype="stepfilled", cumulative=True,
                             log=log_setting,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                            label="CMS Recorded: $%.2f$ %s" % \
+                            label="CMS Recorded: %.2f %s" % \
                             (tot_rec, LatexifyUnits(units)))
-                    ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
+                    leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
+                    for t in leg.get_texts():
+		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity, " \
                                  r"%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
                                  (particle_type_str, year, cms_energy_str),
                                  fontproperties=FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC" % \
+                    ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
@@ -1421,19 +1432,21 @@ if __name__ == "__main__":
                     num_cols = None
                     if mode == 1:
                         num_cols = len(years)
-                        tmp_x = 0.09
+                        tmp_x = 0.095
                         tmp_y = .95
                     else:
                         num_cols = 1
                         tmp_x = 0.175
                         tmp_y = 1.01
-                    ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),
+                    leg = ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),
                               frameon=False, ncol=num_cols)
+                    for t in leg.get_texts():
+		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity, %s" % particle_type_str,
                                  fontproperties=FONT_PROPS_SUPTITLE)
-                    ax.set_title("Data included from %s to %s UTC" % \
+                    ax.set_title("Data included from %s to %s UTC \n" % \
                                  (str_begin, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
@@ -1562,19 +1575,21 @@ if __name__ == "__main__":
                     # BUG BUG BUG end
 
                     num_cols = None
-                    num_cols = len(years)
+                    num_cols = len(years) - 2 
                     tmp_x = .09
-                    tmp_y = .95
-                    ax.legend(loc="upper left",
+                    tmp_y = .97
+                    leg = ax.legend(loc="upper left",
                               bbox_to_anchor=(tmp_x, 0., 1., tmp_y),
                               labelspacing=.2,
                               columnspacing=.2,
                               frameon=False, ncol=num_cols)
+	            for t in leg.get_texts():
+		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
 
                 # Set titles and labels.
                 fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str,
                              fontproperties=FONT_PROPS_SUPTITLE)
-                ax.set_title("Data included from %s to %s UTC" % \
+                ax.set_title("Data included from %s to %s UTC \n" % \
                              (str_begin, str_end),
                              fontproperties=FONT_PROPS_TITLE)
                 ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
@@ -1583,7 +1598,7 @@ if __name__ == "__main__":
                               fontproperties=FONT_PROPS_AX_TITLE)
 
                 # Add the logo.
-                zoom = .95
+                zoom = .97
                 AddLogo(logo_name, ax, zoom=zoom)
                 head_room = 2.
                 if is_log:

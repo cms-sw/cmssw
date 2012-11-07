@@ -79,6 +79,46 @@ def InitMatplotlib():
 
 ######################################################################
 
+def TweakPlot(fig, ax, add_extra_head_room=False):
+
+    # Fiddle with axes ranges etc.
+    ax.relim()
+    ax.autoscale_view(False, True, True)
+    for label in ax.get_xticklabels():
+        label.set_ha("right")
+        label.set_rotation(30.)
+
+    # Bit of magic here: increase vertical scale by one tick to make
+    # room for the legend.
+    if add_extra_head_room:
+        y_ticks = ax.get_yticks()
+        (y_min, y_max) = ax.get_ylim()
+        is_log = (ax.get_yscale() == "log")
+        y_max_new = y_max
+        if is_log:
+            tmp = y_ticks[-1] / y_ticks[-2]
+            y_max_new = y_max * math.pow(tmp, add_extra_head_room)
+        else:
+            tmp = y_ticks[-1] - y_ticks[-2]
+            y_max_new = y_max + add_extra_head_room * tmp
+        ax.set_ylim(y_min, y_max_new)
+
+    # Add a second vertical axis on the right-hand side.
+    ax_sec = ax.twinx()
+    ax_sec.set_ylim(ax.get_ylim())
+    ax_sec.set_yscale(ax.get_yscale())
+
+    for ax_tmp in fig.axes:
+        for sub_ax in [ax_tmp.xaxis, ax_tmp.yaxis]:
+            for label in sub_ax.get_ticklabels():
+                label.set_font_properties(FONT_PROPS_TICK_LABEL)
+
+
+    fig.subplots_adjust(top=.89, bottom=.125, left=.1, right=.925)
+    # End of TweakPlot().
+
+######################################################################
+
 if __name__ == "__main__":
 
     desc_str = "This script creates the official CMS pileup plots " \
@@ -132,17 +172,17 @@ if __name__ == "__main__":
 
     # First run pileupCalc.
     tmp_file_name = "pileup_calc_tmp.root"
-#     cmd = "pileupCalc.py -i %s --inputLumiJSON=%s %s %s" % \
-#           (input_json, input_lumi_json,
-#            pileupcalc_flags_from_cfg, tmp_file_name)
-#     print "Running pileupCalc (this may take a while)"
-#     if verbose:
-#         print "  pileupCalc cmd: '%s'" % cmd
-#     (status, output) = commands.getstatusoutput(cmd)
-#     if status != 0:
-#         print >> sys.stderr, \
-#               "ERROR Problem running pileupCalc: %s" % output
-#         sys.exit(1)
+#    cmd = "pileupCalc.py -i %s --inputLumiJSON=%s %s %s" % \
+#          (input_json, input_lumi_json,
+#           pileupcalc_flags_from_cfg, tmp_file_name)
+#    print "Running pileupCalc (this may take a while)"
+#    if verbose:
+#        print "  pileupCalc cmd: '%s'" % cmd
+#    (status, output) = commands.getstatusoutput(cmd)
+#    if status != 0:
+#        print >> sys.stderr, \
+#              "ERROR Problem running pileupCalc: %s" % output
+#        sys.exit(1)
 
     ##########
 
@@ -213,7 +253,7 @@ if __name__ == "__main__":
                           fontproperties=FONT_PROPS_AX_TITLE)
 
             # Add the average pileup number to the top right.
-            ax.text(.95, .925, r"$<\mu> = %.0f$" % \
+            ax.text(.95, .925, r"<$\mathbf{\mu}$> = %.0f" % \
                     round(pileup_hist.GetMean()),
                     transform = ax.transAxes,
                     horizontalalignment="right",
@@ -221,6 +261,7 @@ if __name__ == "__main__":
 
             # Add the logo.
             AddLogo(logo_name, ax)
+            TweakPlot(fig, ax, True)
 
             log_suffix = ""
             if is_log:
