@@ -846,7 +846,8 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern, st
       SystI[s]       = (tmp.Eff - tmp.Eff_SYSTI)/tmp.Eff;
       SystPU[s]      = (tmp.Eff - tmp.Eff_SYSTPU)/tmp.Eff;
       SystT[s]       = (tmp.Eff - tmp.Eff_SYSTT)/tmp.Eff;
-      double Ptemp=max(SystP[s], 0.0), Itemp=max(SystI[s], 0.0), PUtemp=max(SystPU[s], 0.0), Ttemp=max(SystT[s], 0.0);
+//      double Ptemp=max(SystP[s], 0.0), Itemp=max(SystI[s], 0.0), PUtemp=max(SystPU[s], 0.0), Ttemp=max(SystT[s], 0.0);
+      double Ptemp=SystP[s], Itemp=SystI[s], PUtemp=SystPU[s], Ttemp=SystT[s];
       SystTotal[s] = sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp);
       if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f\n"        ,modelSample[s].Name.c_str(), tmp.Eff, SystP[s], SystI[s], SystPU[s]           , SystTotal[s]);  
       else          fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f\n",modelSample[s].Name.c_str(), tmp.Eff, SystP[s], SystI[s], SystPU[s], SystT[s], SystTotal[s]);
@@ -865,36 +866,39 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern, st
    TGraph* graphSystTotal = new TGraph(N,Mass,SystTotal);
    TMultiGraph* SystGraphs = new TMultiGraph();
 
-   graphSystP->SetLineColor(Color[0]);      graphSystP->SetMarkerColor(Color[0]);       graphSystP->SetMarkerStyle(0);
-   graphSystI->SetLineColor(Color[1]);      graphSystI->SetMarkerColor(Color[1]);       graphSystI->SetMarkerStyle(Color[1]);
-   graphSystPU->SetLineColor(Color[2]);     graphSystPU->SetMarkerColor(Color[2]);      graphSystPU->SetMarkerStyle(Color[2]);
-   graphSystT->SetLineColor(Color[3]);      graphSystT->SetMarkerColor(Color[3]);       graphSystT->SetMarkerStyle(Color[3]);
-   graphSystTotal->SetLineColor(Color[4]);  graphSystTotal->SetMarkerColor(Color[4]);   graphSystTotal->SetMarkerStyle(Color[4]);
+   graphSystTotal->SetLineColor(Color[0]);  graphSystTotal->SetMarkerColor(Color[0]);   graphSystTotal->SetMarkerStyle(20); graphSystTotal->SetLineWidth(2);
+   graphSystP->SetLineColor(Color[1]);      graphSystP->SetMarkerColor(Color[1]);       graphSystP->SetMarkerStyle(Marker[1]); graphSystP->SetLineWidth(2);
+   graphSystI->SetLineColor(Color[2]);      graphSystI->SetMarkerColor(Color[2]);       graphSystI->SetMarkerStyle(Marker[2]); graphSystI->SetLineWidth(2);
+   graphSystPU->SetLineColor(Color[3]);     graphSystPU->SetMarkerColor(Color[3]);      graphSystPU->SetMarkerStyle(Marker[3]);graphSystPU->SetLineWidth(2);
+   graphSystT->SetLineColor(Color[4]);      graphSystT->SetMarkerColor(Color[4]);       graphSystT->SetMarkerStyle(Marker[4]);graphSystT->SetLineWidth(2);
 
-   SystGraphs->Add(graphSystP,"LP");
-   if(TypeMode!=3)SystGraphs->Add(graphSystI,"LP");
-   SystGraphs->Add(graphSystPU,"LP");
-   if(TypeMode!=0 && TypeMode!=5)SystGraphs->Add(graphSystT,"LP");
-   SystGraphs->Add(graphSystTotal,"LP");
+   SystGraphs->Add(graphSystP,"C");
+   if(TypeMode!=3)SystGraphs->Add(graphSystI,"C");
+   SystGraphs->Add(graphSystPU,"C");
+   if(TypeMode!=0 && TypeMode!=5)SystGraphs->Add(graphSystT,"C");
+   SystGraphs->Add(graphSystTotal,"P");
 
    SystGraphs->Draw("A");
    SystGraphs->SetTitle("");
    SystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    SystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    SystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   SystGraphs->GetYaxis()->SetRangeUser(0, 0.3);
+   SystGraphs->GetYaxis()->SetRangeUser(-0.35, 0.35);
+   SystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
-   TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
-   LEG->SetHeader(LegendFromType(InputPattern).c_str());
+   TLegend* LEG = new TLegend(0.55,0.75,0.80,0.90);
    LEG->SetFillColor(0);
+   LEG->SetFillStyle(0);
    LEG->SetBorderSize(0);
    LEG->AddEntry(graphSystP,  "P Syst" ,"L");
    if(TypeMode!=3)LEG->AddEntry(graphSystI,  "I Syst" ,"L");
    LEG->AddEntry(graphSystPU,  "PU Syst" ,"L");
    if(TypeMode!=0 && TypeMode!=5)LEG->AddEntry(graphSystT,  "T Syst" ,"L");
-   LEG->AddEntry(graphSystTotal,  "Total Syst" ,"L");
+   LEG->AddEntry(graphSystTotal,  "Total Syst" ,"P");
    LEG->Draw();
    c1->SetLogy(false);
+   c1->SetGridy(true);
+
 
    DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", string(prefix+ ModelName + "Uncertainty"));
