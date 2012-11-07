@@ -20,6 +20,9 @@ def customise(process):
     fileName = cms.string("histo_embedded.root")
   )
 
+  # DQM store output for muon acceptance histograms
+  process.DQMStore = cms.Service("DQMStore")
+
   # select generator level muons
   process.genMuonsFromZs = cms.EDProducer("GenParticlesFromZsSelectorForMCEmbedding",
     src = cms.InputTag("genParticles", "", inputProcess),
@@ -77,8 +80,7 @@ def customise(process):
   outputModule.outputCommands.extend(['keep *_goldenZmumuCandidatesGe0IsoMuons_*_*',
                                       'keep *_goldenZmumuCandidatesGe1IsoMuons_*_*',
                                       'keep *_goldenZmumuCandidatesGe2IsoMuons_*_*',
-                                      'keep *_goldenZmumuPreFilterHistos_*_*',
-                                      'keep *_goldenZmumuPostFilterHistos_*_*'])
+                                      'keep TH2DMEtoEDM_MEtoEDMConverter_*_*'])
 
   # keep flag indicating whether event passes or fails
   #  o Z -> mumu event selection

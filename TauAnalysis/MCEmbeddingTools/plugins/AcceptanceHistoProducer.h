@@ -9,19 +9,20 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: AcceptanceHistoProducer.h,v 1.1 2012/10/14 12:22:24 aburgmei Exp $
+ * $Id: AcceptanceHistoProducer.h,v 1.1 2012/11/05 15:32:43 aburgmei Exp $
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <TH2D.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class AcceptanceHistoProducer : public edm::EDProducer
+class AcceptanceHistoProducer : public edm::EDAnalyzer
 {
  public:
 
@@ -32,16 +33,18 @@ class AcceptanceHistoProducer : public edm::EDProducer
   virtual ~AcceptanceHistoProducer();
 
  private:
-  void beginLuminosityBlock(edm::LuminosityBlock& lumi, const edm::EventSetup&);
-  void produce(edm::Event&, const edm::EventSetup&);
-  void endLuminosityBlock(edm::LuminosityBlock& lumi, const edm::EventSetup&);
+  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
+  std::string dqmDir_;
   edm::InputTag srcGenParticles_;
 
-  TH2D* hPtPosPtNeg_;
-  TH2D* hEtaPosEtaNeg_;
-  TH2D* hPtPosEtaPos_;
-  TH2D* hPtNegEtaNeg_;
+  DQMStore* dbe_;
+
+  MonitorElement* hPtPosPtNeg_;
+  MonitorElement* hEtaPosEtaNeg_;
+  MonitorElement* hPtPosEtaPos_;
+  MonitorElement* hPtNegEtaNeg_;
 };
 
 #endif    

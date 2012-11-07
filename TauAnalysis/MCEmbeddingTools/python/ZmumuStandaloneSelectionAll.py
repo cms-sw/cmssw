@@ -20,18 +20,15 @@ def customise(process):
     cms.untracked.vstring("keep *_goldenZmumuCandidatesGe0IsoMuons_*_*",
                           "keep *_goldenZmumuCandidatesGe1IsoMuons_*_*",
                           "keep *_goldenZmumuCandidatesGe2IsoMuons_*_*",
-                          "keep *_goldenZmumuPreFilterHistos_*_*",
-                          "keep *_goldenZmumuPostFilterHistos_*_*"))
+                          "keep TH2DMEtoEDM_MEtoEDMConverter_*_*"))
 
   process.load('Configuration.StandardSequences.GeometryDB_cff')
   process.load('Configuration.StandardSequences.MagneticField_38T_cff')
   process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
   process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandaloneSelection_cff")
 
-  # output file for muon acceptance histograms
-  process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("histo_skimmed.root")
-  )
+  # DQM store output for muon acceptance histograms
+  process.load('DQMServices.Core.DQMStore_cfg')
 
   # Define configuration parameter default values
   from TauAnalysis.MCEmbeddingTools.setDefaults import setDefaults

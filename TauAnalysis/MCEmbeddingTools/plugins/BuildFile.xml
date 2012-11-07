@@ -20,6 +20,7 @@
   <use   name="GeneratorInterface/Pythia6Interface"/>
   <use   name="RecoMuon/MuonIsolation"/>
   <use   name="SimDataFormats/GeneratorProducts"/>
+  <use   name="DQMServices/Core"/>
   <use   name="pythia6"/>
   <use   name="rootmath"/>
   <use   name="roottmva"/>

@@ -2,48 +2,42 @@
 
 #include "TauAnalysis/MCEmbeddingTools/plugins/AcceptanceHistoProducer.h"
 
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 AcceptanceHistoProducer::AcceptanceHistoProducer(const edm::ParameterSet& cfg):
+  dqmDir_(cfg.getParameter<std::string>("dqmDir")),
   srcGenParticles_(cfg.getParameter<edm::InputTag>("srcGenParticles")),
   hPtPosPtNeg_(NULL), hEtaPosEtaNeg_(NULL), hPtPosEtaPos_(NULL), hPtNegEtaNeg_(NULL)
 {
-  /*produces<TH2D, edm::InLumi>("PtPosPtNeg");
-  produces<TH2D, edm::InLumi>("EtaPosEtaNeg");
-  produces<TH2D, edm::InLumi>("PtPosEtaPos");
-  produces<TH2D, edm::InLumi>("PtNegEtaNeg");*/
-
-  edm::Service<TFileService> fs;
-  hPtPosPtNeg_ = fs->make<TH2D>("PtPosPtNeg", "Positive muon transverse momentum vs. negative muon transverse momentum;p_{T}^{+};p_{T}^{-}", 500, 0.0, 500.0, 500, 0.0, 500.0);
-  hEtaPosEtaNeg_ = fs->make<TH2D>("EtaPosEtaNeg", "Positive muon pseudorapdity vs. negative muon pseudorapidity;#eta^{+};#eta^{-}", 500, -2.5, 2.5, 500, -2.5, 2.5);
-  hPtPosEtaPos_ = fs->make<TH2D>("PtPosEtaPos", "Positive muon transverse momentum vs. positive muon pseudorapidity;p_{T}^{+};#eta^{+}", 500, 0.0, 500.0, 500, -2.5, 2.5);
-  hPtNegEtaNeg_ = fs->make<TH2D>("PtNegEtaNeg", "Negative muon transverse momentum vs. negative muon pseudorapidity;p_{T}^{-};#eta^{-}", 500, 0.0, 500.0, 500, -2.5, 2.5);
 }
 
 AcceptanceHistoProducer::~AcceptanceHistoProducer()
 {
 }
 
-void AcceptanceHistoProducer::beginLuminosityBlock(edm::LuminosityBlock& lumi, const edm::EventSetup&)
+void AcceptanceHistoProducer::beginJob()
 {
-#if 0
-  assert(hPtPosPtNeg_ == NULL);
-  assert(hEtaPosEtaNeg_ == NULL);
-  assert(hPtPosEtaPos_ == NULL);
-  assert(hPtNegEtaNeg_ == NULL);
+  dbe_ = edm::Service<DQMStore>().operator->();
 
-  hPtPosPtNeg_ = new TH2D("PtPosPtNeg", "Positive muon transverse momentum vs. negative muon transverse momentum;p_{T}^{+};p_{T}^{-}", 500, 0.0, 500.0, 500, 0.0, 500.0);
-  hEtaPosEtaNeg_ = new TH2D("EtaPosEtaNeg", "Positive muon pseudorapdity vs. negative muon pseudorapidity;#eta^{+};#eta^{-}", 500, -2.5, 2.5, 500, -2.5, 2.5);
-  hPtPosEtaPos_ = new TH2D("PtPosEtaPos", "Positive muon transverse momentum vs. positive muon pseudorapidity;p_{T}^{+};#eta^{+}", 500, 0.0, 500.0, 500, -2.5, 2.5);
-  hPtNegEtaNeg_ = new TH2D("PtNegEtaNeg", "Negative muon transverse momentum vs. negative muon pseudorapidity;p_{T}^{-};#eta^{-}", 500, 0.0, 500.0, 500, -2.5, 2.5);
-#endif
+  dbe_->setCurrentFolder("MCEmbedding/ZmumuAcceptance/" + dqmDir_);
+  hPtPosPtNeg_ = dbe_->book2DD("PtPosPtNeg", "Positive muon transverse momentum vs. negative muon transverse momentum;p_{T}^{+};p_{T}^{-}", 500, 0.0, 500.0, 500, 0.0, 500.0);
+  hEtaPosEtaNeg_ = dbe_->book2DD("EtaPosEtaNeg", "Positive muon pseudorapdity vs. negative muon pseudorapidity;#eta^{+};#eta^{-}", 500, -2.5, 2.5, 500, -2.5, 2.5);
+  hPtPosEtaPos_ = dbe_->book2DD("PtPosEtaPos", "Positive muon transverse momentum vs. positive muon pseudorapidity;p_{T}^{+};#eta^{+}", 500, 0.0, 500.0, 500, -2.5, 2.5);
+  hPtNegEtaNeg_ = dbe_->book2DD("PtNegEtaNeg", "Negative muon transverse momentum vs. negative muon pseudorapidity;p_{T}^{-};#eta^{-}", 500, 0.0, 500.0, 500, -2.5, 2.5);
+
+  hPtPosPtNeg_->setResetMe(true);
+  hPtPosPtNeg_->setLumiFlag();
+  hEtaPosEtaNeg_->setResetMe(true);
+  hEtaPosEtaNeg_->setLumiFlag();
+  hPtPosEtaPos_->setResetMe(true);
+  hPtPosEtaPos_->setLumiFlag();
+  hPtNegEtaNeg_->setResetMe(true);
+  hPtNegEtaNeg_->setLumiFlag();
 }
 
-void AcceptanceHistoProducer::produce(edm::Event& evt, const edm::EventSetup& es)
+void AcceptanceHistoProducer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 {
   assert(hPtPosPtNeg_ != NULL);
   assert(hEtaPosEtaNeg_ != NULL);
@@ -107,7 +101,7 @@ void AcceptanceHistoProducer::produce(edm::Event& evt, const edm::EventSetup& es
     }
 
     // Loop might have broken earlier if there are no more daugthers, or if
-    // the decay chain does not decay in a muon.
+    // the decay chain does not end in a muon.
     if(genPosMuon->status() == 1 && genNegMuon->status() == 1)
     {
       hPtPosPtNeg_->Fill(genPosMuon->pt(), genNegMuon->pt());
@@ -116,31 +110,6 @@ void AcceptanceHistoProducer::produce(edm::Event& evt, const edm::EventSetup& es
       hPtNegEtaNeg_->Fill(genNegMuon->pt(), genNegMuon->eta());
     }
   }
-}
-
-void AcceptanceHistoProducer::endLuminosityBlock(edm::LuminosityBlock& lumi, const edm::EventSetup&)
-{
-#if 0
-  assert(hPtPosPtNeg_ != NULL);
-  assert(hEtaPosEtaNeg_ != NULL);
-  assert(hPtPosEtaPos_ != NULL);
-  assert(hPtNegEtaNeg_ != NULL);
-
-  std::auto_ptr<TH2D> hPtPosPtNeg(hPtPosPtNeg_);
-  std::auto_ptr<TH2D> hEtaPosEtaNeg(hEtaPosEtaNeg_);
-  std::auto_ptr<TH2D> hPtPosEtaPos(hPtPosEtaPos_);
-  std::auto_ptr<TH2D> hPtNegEtaNeg(hPtNegEtaNeg_);
-
-  hPtPosPtNeg_ = NULL;
-  hEtaPosEtaNeg_ = NULL;
-  hPtPosEtaPos_ = NULL;
-  hPtNegEtaNeg_ = NULL;
-
-  lumi.put(hPtPosPtNeg, "PtPosPtNeg");
-  lumi.put(hEtaPosEtaNeg, "EtaPosEtaNeg");
-  lumi.put(hPtPosEtaPos, "PtPosEtaPos");
-  lumi.put(hPtNegEtaNeg, "PtNegEtaNeg");
-#endif
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

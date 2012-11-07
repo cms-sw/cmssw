@@ -88,9 +88,14 @@ goldenZmumuFilter = cms.EDFilter("CandViewCountFilter",
     minNumber = cms.uint32(1)
 )
 
-goldenZmumuPreFilterHistos = cms.EDProducer("AcceptanceHistoProducer", 
+goldenZmumuPreFilterHistos = cms.EDAnalyzer("AcceptanceHistoProducer",
+	dqmDir = cms.string('PreFilter'),
 	srcGenParticles = cms.InputTag("genParticles"))
-goldenZmumuPostFilterHistos = goldenZmumuPreFilterHistos.clone()
+goldenZmumuPostFilterHistos = goldenZmumuPreFilterHistos.clone(
+	dqmDir = cms.string('PostFilter'))
+
+from DQMServices.Components.MEtoEDMConverter_cff import MEtoEDMConverter
+MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)
 
 goldenZmumuSelectionSequence = cms.Sequence(
     goodVertex
@@ -109,4 +114,5 @@ goldenZmumuSelectionSequence = cms.Sequence(
    * goldenZmumuPreFilterHistos
    * goldenZmumuFilter
    * goldenZmumuPostFilterHistos
+   * MEtoEDMConverter
 )
