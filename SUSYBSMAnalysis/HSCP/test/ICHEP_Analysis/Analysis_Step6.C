@@ -1252,9 +1252,11 @@ void DrawRatioBands(string InputPattern)
 //will run on all possible selection and try to identify which is the best one for this sample
 void Optimize(string InputPattern, string Data, string signal, bool shape, bool cutFromFile){
    printf("Optimize selection for %s in %s\n",signal.c_str(), InputPattern.c_str());fflush(stdout);
-
+  
    //get the typeMode from pattern
    TypeMode = TypeFromPattern(InputPattern); 
+
+   if (TypeMode == 4)    RescaleError = 0.20;
 
    //Identify the signal sample
    GetSampleDefinition(samples);
@@ -1264,7 +1266,6 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
 
    if(Data.find("7TeV")!=string::npos){SQRTS=7.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS); }
    if(Data.find("8TeV")!=string::npos){SQRTS=8.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);  }
-
 
  
    //For muon only don't run on neutral samples as near zero efficiency can make jobs take very long time
@@ -1296,6 +1297,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    TH2D* MassSignPU    = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass_SystPU" );
    TH1D* TotalE        = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalE" );
    TH1D* TotalEPU      = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalEPU" );
+
 
 
    //If Take the cuts From File --> Load the actual cut index
@@ -1345,7 +1347,6 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       if(OptimCutIndex<0){printf("DID NOT FIND THE CUT TO USE FOR THIS SAMPLE %s\n",signal.c_str());return;}
    }
 
-
    //normalise the signal samples to XSection * IntLuminosity
    double LInt  = H_Lumi->GetBinContent(1);
    double norm  = samples[CurrentSampleIndex].XSec*LInt/TotalE  ->Integral(); //normalize the samples to the actual lumi used for limits
@@ -1386,12 +1387,13 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       if(OptimCutIndex>=0 && CutIndex!=OptimCutIndex)continue;
 
       //make sure the pT cut is high enough to get some statistic for both ABCD and mass shape
-      if(HCuts_Pt ->GetBinContent(CutIndex+1) < 50 ){printf("Skip cut=%i because of too lose pT cut\n", CutIndex); continue;}
+      if(HCuts_Pt ->GetBinContent(CutIndex+1) < 50 && TypeMode!=4){printf("Skip cut=%i because of too lose pT cut\n", CutIndex); continue; }
 
       //make sure we have a reliable prediction of the number of events      
       if(OptimCutIndex<0 && H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<25 || H_F->GetBinContent(CutIndex+1)<25 || H_G->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (AFG/EE) is not reliable
       if(OptimCutIndex<0 && H_E->GetBinContent(CutIndex+1)==0 && H_A->GetBinContent(CutIndex+1)>0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CB/A) is not reliable
       if(OptimCutIndex<0 && H_F->GetBinContent(CutIndex+1)>0 && H_A->GetBinContent(CutIndex+1)==0 && (H_B->GetBinContent(CutIndex+1)<25 || H_H->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CB/A) is not reliable
+      if(OptimCutIndex<0 && H_G->GetBinContent(CutIndex+1)>0 && H_F->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<25 || H_H->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CH/G) is not reliable
    
 
       //make sure we have a reliable prediction of the shape 
@@ -1643,6 +1645,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       NSignM      = MassSignProjM ->Integral(0, MassSignProjM ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
       NSignT      = MassSignProjT ->Integral(0, MassSignProjT ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
       NSignPU     = MassSignProjPU->Integral(0, MassSignProjPU->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
+
+      NPredErr = sqrt(pow((NPred* RescaleError), 2) + pow(NPredErr,2));      // incorporate background uncertainty
    }
 
    //skip pathological selection point
