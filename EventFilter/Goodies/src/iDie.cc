@@ -3,6 +3,7 @@
 #include "xdaq/NamespaceURI.h"
 
 #include "xdata/InfoSpaceFactory.h"
+#include "toolbox/task/TimerFactory.h"
 
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
@@ -91,6 +92,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , dqmService_(nullptr)
   , dqmStore_(nullptr)
   , dqmEnabled_(false)
+  , updateFlashlists_(false)
   , saveLsInterval_(10)
   , ilumiprev_(0)
   , dqmSaveDir_("")
@@ -139,6 +141,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("dqmFilesWritableByAll",    &dqmFilesWritable_        );
   ispace->fireItemAvailable("dqmTopLevelFolder",        &topLevelFolder_          );
   ispace->fireItemAvailable("dqmEnabled",               &dqmEnabled_              );
+  ispace->fireItemAvailable("updateFlashlists",         &updateFlashlists_        );
 
   // timestamps
   lastModuleLegendaMessageTimeStamp_.tv_sec=0;
@@ -201,27 +204,31 @@ iDie::iDie(xdaq::ApplicationStub *s)
   memset(cpuLoads_,0,sizeof(double));
   cpuInfoSpace_->fireItemAvailable("run",&flashRunNumber_);
   cpuInfoSpace_->fireItemAvailable("lumi",&flashLumi_);
+  cpuInfoSpace_->fireItemAvailable("load",&flashCPULoad_);
   cpuInfoSpace_->fireItemAvailable("peakLoad",&flashCPUPeakLoad_);
   cpuInfoSpace_->fireItemAvailable("peakLoadLumi",&flashCPUPeakLoadLumi_);
-  cpuInfoSpace_->fireItemAvailable("load",&flashCPULoad_);
 
   //permissive for written files
   umask(000);
 
-  //start flashlist workloop
+  //start flashlist updater timer
   try {
-    wlFlashUpdater_=
-      toolbox::task::getWorkLoopFactory()->getWorkLoop("FlashUpdater",
-	  "waiting");
-    if (!wlFlashUpdater_->isActive()) wlFlashUpdater_->activate();
-    asFlashUpdater_ = toolbox::task::bind(this,&iDie::updateFlashlists,
-	"FlashUpdater");
-    wlFlashUpdater_->submit(asFlashUpdater_);
+   toolbox::task::Timer * timer = toolbox::task::getTimerFactory()->createTimer("xmas-iDie-updater");
+   toolbox::TimeInterval timerInterval;
+   timerInterval.fromString("PT15S");
+   toolbox::TimeVal timerStart;
+   timerStart = toolbox::TimeVal::gettimeofday();
+   timer->start();
+   timer->scheduleAtFixedRate( timerStart, this, timerInterval, 0, "xmas-iDie-producer" );
   }
-  catch (xcept::Exception& e) {
-    std::string msg = "Failed to start workloop 'FlashUpdater'.";
-    XCEPT_RETHROW(evf::Exception,msg,e);
+  catch (xdaq::exception::Exception& e) {
+    LOG4CPLUS_WARN(getApplicationLogger(), e.what());
   }
+  monNames_.push_back("run");
+  monNames_.push_back("lumi");
+  monNames_.push_back("peakLoad");
+  monNames_.push_back("peakLoadLumi");
+  monNames_.push_back("load");
 }
 
 
@@ -1680,33 +1687,56 @@ void iDie::doFlush() {
       dqmService_->flushStandalone();
 }
 
-bool iDie::updateFlashlists(toolbox::task::WorkLoop *)
+void iDie::timeExpired(toolbox::task::TimerEvent& e)
 {
+  bool pushUpdate=false;
   bool updatedRN=false;
-  if (runNumber_>flashRunNumber_.value_)
+  if (!runNumber_ || !updateFlashlists_.value_) return;
+  try
   {
-    cpuInfoSpace_->lock();
-    flashRunNumber_=runNumber_;
-    updatedRN=true;
-    cpuInfoSpace_->unlock();
+    if (runNumber_>flashRunNumber_.value_)
+    {
+      cpuInfoSpace_->lock();
+      flashRunNumber_=runNumber_;
+      updatedRN=true;
+      cpuInfoSpace_->unlock();
+      pushUpdate=true;
+    }
+    if (updatedRN || loadAccum_>flashCPUPeakLoad_.value_)
+    {
+      cpuInfoSpace_->lock();
+      flashCPUPeakLoad_=loadAccum_;
+      flashCPUPeakLoadLumi_=loadAccumLs_;
+      cpuInfoSpace_->unlock();
+      pushUpdate=true;
+    }
+    if (cpuLoadsSentLs_<cpuLoadsLastLs_ && cpuLoadsLastLs_<=4000)
+    {
+      cpuInfoSpace_->lock();
+      flashCPUPeakLoad_=cpuLoads_[cpuLoadsLastLs_-1];
+      cpuLoadsSentLs_++;
+      cpuInfoSpace_->unlock();
+      pushUpdate=true;
+    }
+    if (pushUpdate) {
+      cpuInfoSpace_->fireItemGroupChanged(monNames_, this);
+    }
   }
-  if (updatedRN || loadAccum_>flashCPUPeakLoad_.value_)
+  catch (xdata::exception::Exception& xe)
   {
-    cpuInfoSpace_->lock();
-    flashCPUPeakLoad_=loadAccum_;
-    flashCPUPeakLoadLumi_=loadAccumLs_;
-    cpuInfoSpace_->unlock();
+    LOG4CPLUS_WARN(getApplicationLogger(), xe.what() );
   }
-  if (cpuLoadsSentLs_<cpuLoadsLastLs_ && cpuLoadsLastLs_<=4000)
+  catch (std::exception& se)
   {
-    cpuInfoSpace_->lock();
-    flashCPUPeakLoad_=cpuLoads_[cpuLoadsLastLs_-1];
-    cpuLoadsSentLs_++;
-    cpuInfoSpace_->unlock();
+    std::string msg = "Caught standard exception while trying to collect: ";
+    msg += se.what();
+    LOG4CPLUS_WARN(getApplicationLogger(), msg );
   }
-  //push
-  sleep(15);
-  return true;
+  catch (...)
+  {
+    std::string msg = "Caught unknown exception while trying to collect";
+    LOG4CPLUS_WARN(getApplicationLogger(), msg );
+  }
 }
 
 void iDie::perLumiFileSaver(unsigned int lsid)

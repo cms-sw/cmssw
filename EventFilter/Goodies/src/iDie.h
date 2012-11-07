@@ -1,8 +1,8 @@
 #ifndef EVENTFILTER_GOODIES_IDIE_H
 #define EVENTFILTER_GOODIES_IDIE_H
 
-#include "EventFilter/Utilities/interface/Exception.h"
-#include "EventFilter/Utilities/interface/TriggerReportDef.h"
+//XDAQ
+#include "xdaq/Application.h"
 
 #include "xdata/String.h"
 #include "xdata/Double.h"
@@ -19,28 +19,36 @@
 #include "xgi/Output.h"
 #include "xgi/Method.h"
 
-#include "xdaq/Application.h"
-
 #include "toolbox/net/URN.h"
 #include "toolbox/fsm/exception/Exception.h"
-#include "toolbox/task/WorkLoopFactory.h"
+#include "toolbox/task/TimerListener.h"
 
+//C++2011
 #include <atomic>
 
+//C++
+#include <list>
 #include <vector>
 #include <deque>
 
+//C
 #include <sys/time.h>
 #include <math.h>
 
+//ROOT
 #include "TFile.h"
 #include "TTree.h"
 
+//framework
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "DQMServices/Core/src/DQMService.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+
+//CMSSW EventFilter
+#include "EventFilter/Utilities/interface/Exception.h"
+#include "EventFilter/Utilities/interface/TriggerReportDef.h"
 
 #define MODNAMES 25
 
@@ -80,8 +88,10 @@ namespace evf {
   typedef std::map<std::string,internal::fu> fmap;
   typedef fmap::iterator ifmap;
   
-  class iDie : public xdaq::Application,
-    public xdata::ActionListener
+  class iDie :
+    public xdaq::Application,
+    public xdata::ActionListener,
+    public toolbox::task::TimerListener
   {
   public:
     //
@@ -89,7 +99,6 @@ namespace evf {
     //
     XDAQ_INSTANTIATOR();
   
-    
     //
     // construction/destruction
     //
@@ -125,7 +134,8 @@ namespace evf {
     // xdata:ActionListener interface
     void actionPerformed(xdata::Event& e);
 
-    bool updateFlashlists(toolbox::task::WorkLoop *);
+    //toolbox::Task::TimerListener interface
+    void timeExpired(toolbox::task::TimerEvent& e);
 
   private:
 
@@ -176,6 +186,7 @@ namespace evf {
     void perTimeFileSaver();
     void initDQMEventInfo();
     void setRunStartTimeStamp();
+
     //
     // member data
     //
@@ -204,10 +215,8 @@ namespace evf {
     double                          cpuLoads_[4000];
     std::atomic<unsigned int>       cpuLoadsLastLs_;
     std::atomic<unsigned int>       cpuLoadsSentLs_;
-
+    std::list<std::string>          monNames_;
     //flashlist updater thread
-    toolbox::task::ActionSignature  *asFlashUpdater_;
-    toolbox::task::WorkLoop         *wlFlashUpdater_;
 
     //EventInfo
     MonitorElement * runId_;
@@ -582,6 +591,7 @@ namespace evf {
     DQMStore                        *dqmStore_;
     std::string                     configString_;
     xdata::Boolean                  dqmEnabled_;
+    xdata::Boolean                  updateFlashlists_;
 
     std::map<unsigned int,int> nbSubsList;
     std::map<int,unsigned int> nbSubsListInv;

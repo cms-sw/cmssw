@@ -3,7 +3,7 @@
 
 	* tag V00-02-19
 	* Total input rate 1D plot
-	* flashlist data for shipping cpu loads to DB
+	* CPU loads flashlist and sender timer thread
 	* runTimeStamp MonitorElement filles
 	* other default ME-s included
 
