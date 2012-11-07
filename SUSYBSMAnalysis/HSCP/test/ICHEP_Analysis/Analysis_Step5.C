@@ -2264,9 +2264,17 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
      }
    }
 
+   vector<double> InversebetaCuts;
+   if (TypeMode!=4)   {
+     InversebetaCuts.push_back(1.10);   InversebetaCuts.push_back(1.20);
+   }
+   else  {
+     InversebetaCuts.push_back(1.05);   InversebetaCuts.push_back(1.15);
+   }
+    
   std::vector<int> Index;   std::vector<int> Index_Flip;   std::vector<int> Plot;
   for(int CutIndex_Flip=0; CutIndex_Flip<HCuts_Pt_Flip->GetNbinsX(); CutIndex_Flip++) {
-    if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.9)<0.001 || fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.8)<0.001) {
+    if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-( 2-InversebetaCuts[0]))<0.001 || fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-( 2-InversebetaCuts[1]))<0.001) {
       for(int CutIndex=0; CutIndex<HCuts_Pt->GetNbinsX(); CutIndex++) {
 	if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-(2-HCuts_TOF->GetBinContent(CutIndex+1)))<0.0001 &&
 	   fabs(HCuts_Pt_Flip->GetBinContent(CutIndex_Flip+1)-HCuts_Pt->GetBinContent(CutIndex+1))<0.0001 &&
@@ -2278,15 +2286,14 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
 	  else	    {
 	    Index.push_back(CutIndex);
 	    Index_Flip.push_back(CutIndex_Flip);
-	    if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.9)<0.001) Plot.push_back(0);
-	    if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-0.8)<0.001) Plot.push_back(1);
+	    if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-( 2-InversebetaCuts[0]))<0.001) Plot.push_back(0);
+	    if(fabs(HCuts_TOF_Flip->GetBinContent(CutIndex_Flip+1)-( 2-InversebetaCuts[1]))<0.001) Plot.push_back(1);
 	  }
 	}
       }
     }
   }
  
-
   const int TimeRegions=2;
   int NCuts = 20;
   if (TypeMode == 4)  NCuts = Index.size()/TimeRegions;
@@ -2301,7 +2308,9 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   double PredN[TimeRegions]={0};
 
   string Preds[TimeRegions] = {"110", "120"};
+  if (TypeMode == 4)  { Preds[0] = "105";   Preds[1] = "115";  }
   string PredsLegend[TimeRegions] = {"1/#beta>1.1", "1/#beta>1.2"};
+  if (TypeMode == 4)  {  PredsLegend[0] = "1/#beta>1.05";    PredsLegend[1] = "1/#beta>1.15";  }
   string LegendNames[3]={"BH/F", "BH'/F'", "BD'/B'"};
   if (TypeMode == 4)      {      LegendNames[0] = "CH/G";      LegendNames[1] = "CH'/G'";      LegendNames[2] = "CD'/C'";    }
 
@@ -2510,7 +2519,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     if (TypeMode==4)      PredGraphs->GetXaxis()->SetTitle("I_{as} cut");
     PredGraphs->GetYaxis()->SetTitle("Relative Statistical + Systematic Uncertainty");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
-    PredGraphs->GetYaxis()->SetRangeUser(0,1.);
+    PredGraphs->GetYaxis()->SetRangeUser(0,0.40);
     c1->SetLogy(0);
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
@@ -2538,7 +2547,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     if (TypeMode==4)      PredGraphs->GetXaxis()->SetTitle("I_{as} cut");
     PredGraphs->GetYaxis()->SetTitle("Relative Statistical Uncertainty");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
-    PredGraphs->GetYaxis()->SetRangeUser(0,1.);
+    PredGraphs->GetYaxis()->SetRangeUser(0,0.40);
     c1->SetLogy(0);
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
@@ -2565,7 +2574,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     if (TypeMode==4)      PredGraphs->GetXaxis()->SetTitle("I_{as} cut");
     PredGraphs->GetYaxis()->SetTitle("Relative Systemtic Uncertainty");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
-    PredGraphs->GetYaxis()->SetRangeUser(0,1.);
+    PredGraphs->GetYaxis()->SetRangeUser(0,0.40);
     c1->SetLogy(0);
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
