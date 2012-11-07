@@ -22,7 +22,13 @@ TrackRefitter = cms.EDProducer("TrackRefitter",
     useHitsSplitting = cms.bool(False),
 
     TrajectoryInEvent = cms.bool(True),
-                             
+
+    # this parameter decides if the propagation to the beam line
+    # for the track parameters defiition is from the first hit
+    # or from the closest to the beam line
+    # true for cosmics, false for collision tracks (needed by loopers)
+    GeometricInnerState = cms.bool(False),
+
     # Navigation school is necessary to fill the secondary hit patterns                         
     NavigationSchool = cms.string('SimpleNavigationSchool'),
     MeasurementTracker = cms.string(''),                                              

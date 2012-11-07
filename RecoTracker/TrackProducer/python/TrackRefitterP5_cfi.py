@@ -5,7 +5,8 @@ TrackRefitterP5  = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clo
     src = cms.InputTag("ctfWithMaterialTracksP5"),
     Fitter = cms.string('FittingSmootherRKP5'),
     #TTRHBuilder = cms.string('WithAngleAndTemplate'),
-    AlgorithmName = cms.string('ctf')
+    AlgorithmName = cms.string('ctf'),
+    GeometricInnerState = cms.bool(True)
 )
 
 

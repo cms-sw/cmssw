@@ -25,6 +25,6 @@ ctfWithMaterialTracksCosmics = RecoTracker.TrackProducer.TrackProducer_cfi.Track
     src = 'ckfTrackCandidatesP5',
     Fitter = 'FittingSmootherRKP5',
     #TTRHBuilder = 'WithTrackAngle',
-    AlgorithmName = cms.string('ctf')
+    AlgorithmName = cms.string('ctf'),
+    GeometricInnerState = cms.bool(True)
 )
-

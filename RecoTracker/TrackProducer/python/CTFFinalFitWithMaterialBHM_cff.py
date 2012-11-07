@@ -34,4 +34,4 @@ beamhaloTracks.TTRHBuilder = 'WithTrackAngle'
 beamhaloTracks.NavigationSchool = 'BeamHaloNavigationSchool'
 beamhaloTracks.AlgorithmName = 'beamhalo'
 beamhaloTracks.alias = 'beamhaloTracks'
-
+beamhaloTracks.GeometricInnerState = True

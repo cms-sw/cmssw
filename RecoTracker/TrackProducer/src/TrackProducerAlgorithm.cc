@@ -118,8 +118,19 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
   if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
  
  
-  //    const FreeTrajectoryState & stateForProjectionToBeamLine=*innertsos.freeState();
-  const TrajectoryStateOnSurface & stateForProjectionToBeamLineOnSurface = theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState();
+  //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
+  //if geometricInnerState_ is true the state for projection to beam line is the one from the (geometrically) closest measurement to the beam line: to be sued for non-collision tracks
+  //the two shouuld give the same result for collision tracks that are NOT loopers
+  TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface;
+  if (geometricInnerState_) {
+    stateForProjectionToBeamLineOnSurface = theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState();
+  } else {
+    if (theTraj->direction() == alongMomentum) {
+      stateForProjectionToBeamLineOnSurface = theTraj->firstMeasurement().updatedState();
+    } else { 
+      stateForProjectionToBeamLineOnSurface = theTraj->lastMeasurement().updatedState();
+    }
+  }
 
   if unlikely(!stateForProjectionToBeamLineOnSurface.isValid()){
     edm::LogError("CannotPropagateToBeamLine")<<"the state on the closest measurement isnot valid. skipping track.";
@@ -226,15 +237,27 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
   if unlikely(std::abs(theTSOS.magneticField()->nominalValue())<DBL_MIN) ++ndof;  // same as -4
   
   
-  //    const FreeTrajectoryState & stateForProjectionToBeamLine=*innertsos.freeState();
-  const TrajectoryStateOnSurface & stateForProjectionToBeamLineOnSurface = theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState();
+  //if geometricInnerState_ is false the state for projection to beam line is the state attached to the first hit: to be used for loopers
+  //if geometricInnerState_ is true the state for projection to beam line is the one from the (geometrically) closest measurement to the beam line: to be sued for non-collision tracks
+  //the two shouuld give the same result for collision tracks that are NOT loopers
+  TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface;
+  if (geometricInnerState_) {
+    stateForProjectionToBeamLineOnSurface = theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState();
+  } else {
+    if (theTraj->direction() == alongMomentum) {
+      stateForProjectionToBeamLineOnSurface = theTraj->firstMeasurement().updatedState();
+    } else { 
+      stateForProjectionToBeamLineOnSurface = theTraj->lastMeasurement().updatedState();
+    }
+  }
+
   if unlikely(!stateForProjectionToBeamLineOnSurface.isValid()){
       edm::LogError("CannotPropagateToBeamLine")<<"the state on the closest measurement isnot valid. skipping track.";
       delete theTraj;
       return false;
     }    
   
-  const FreeTrajectoryState & stateForProjectionToBeamLine=*theTraj->closestMeasurement(GlobalPoint(bs.x0(),bs.y0(),bs.z0())).updatedState().freeState();
+  const FreeTrajectoryState & stateForProjectionToBeamLine=*stateForProjectionToBeamLineOnSurface.freeState();
   
   LogDebug("GsfTrackProducer") << "stateForProjectionToBeamLine=" << stateForProjectionToBeamLine;
   
