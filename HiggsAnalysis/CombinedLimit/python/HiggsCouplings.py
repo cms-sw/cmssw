@@ -30,6 +30,11 @@ from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.LoopAndInvisibleModel impo
 higgsLoops  = HiggsLoops() 
 higgsLoopsInvisible  = HiggsLoopsInvisible() 
 
+# Minimal and maximal
+from HiggsAnalysis.CombinedLimit.HiggsBenchmarkModels.MinimalModels import HiggsMinimal
+higgsMinimal = HiggsMinimal()
+#higgsMinimalInvisible = HiggsMinimalInvisible()
+
 # Model with full LO parametrization 
 from HiggsAnalysis.CombinedLimit.LOFullParametrization import C5, C6
 c5 = C5()
