@@ -1,4 +1,4 @@
-## Dump  10  events in CSC rechit builder - Tim Cox - 01.11.2012
+## Dump  100  events in CSC rechit builder - Tim Cox - 01.11.2012
 ## This version runs in 610pre4 on a real data RelVal RAW sample.
 
 import FWCore.ParameterSet.Config as cms
@@ -18,7 +18,7 @@ process.GlobalTag.globaltag = 'GR_R_61_V1::All'
 
 # --- NUMBER OF EVENTS --- 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.options   = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound') )
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -33,6 +33,7 @@ process.source    = cms.Source("PoolSource",
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.categories.append("CSCRecHit")
+##process.MessageLogger.categories.append("CSCRecoConditions")
 # module label is something like "muonCSCDigis"...
 process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.destinations = cms.untracked.vstring("cout","junk")
@@ -41,6 +42,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
     FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
     CSCRecHit = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+##    , CSCRecoConditions = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
 )
 
 #process.p = cms.Path(process.muonCSCDigis * process.csc2DRecHits * process.cscSegments * process.cscValidation)
