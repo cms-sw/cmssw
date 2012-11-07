@@ -84,7 +84,7 @@ MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   if ( muons.size() == 0 ) {
     edm::LogError("MCParticleReplacer") 
-      << "No candidates or muons found!";
+      << "No Z -> mumu candidates or muons found !!" << std::endl;
     return;
   }
 	
@@ -97,7 +97,7 @@ MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
     hepMC = replacer_->produce(muons);
   } else
     throw cms::Exception("LogicError") 
-      << "Invalid hepMcMode " << hepMcMode_ << std::endl;
+      << "Invalid hepMcMode " << hepMcMode_ << " !!" << std::endl;
 
   if ( hepMC.get() != 0 ) {
     std::auto_ptr<edm::HepMCProduct> bare_product(new edm::HepMCProduct());  
