@@ -108,7 +108,7 @@ void PFSuperClusterProducer::produce(edm::Event& iEvent,
 
   //Load the pfcluster collections
   edm::Handle<reco::PFClusterCollection> pfclustersHandle;
-  found = iEvent.getByLabel( inputTagPFClusters_, pfclustersHandle );  
+  iEvent.getByLabel( inputTagPFClusters_, pfclustersHandle );  
 
 
   //Load the ECAL energy calibration
