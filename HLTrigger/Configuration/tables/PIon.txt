@@ -38,18 +38,18 @@ HLT_PAL1DoubleMu0_v*                               # sr 131577, sr 133528
 HLT_PADimuon0_NoVertexing_v*                       # sr 131577, sr 133528
 HLT_PAMu5_v*                                       # sr 131577
 HLT_PAMu8_v*                                       # sr 131577
-HLT_PAL1DoubleMuOpen_v*				   # sr 133325
-HLT_PAL1DoubleMu0_HighQ_v*			   # sr 133325
-HLT_PAMu1_Track1_Mass2_v*			   # sr 133325
-HLT_PAMu3_Track1_Mass2_v*			   # sr 133325
-HLT_PAL2DoubleMu3_v*				   # sr 133325
-HLT_PAMu3_v*					   # sr 133325
-HLT_PAMu7_v*					   # sr 133325
-HLT_PAMu12_v*					   # sr 133325
-HLT_PABTagMu_Jet20_Mu4_v*			   # sr 133325
-HLT_PAMu3PFJet20_v*				   # sr 133325
-HLT_PAMu3PFJet40_v*				   # sr 133325
-HLT_PAMu7PFJet20_v*				   # sr 133325
+HLT_PAL1DoubleMuOpen_v*                            # sr 133325
+HLT_PAL1DoubleMu0_HighQ_v*                         # sr 133325
+HLT_PAMu1_Track1_Mass2_v*                          # sr 133325
+HLT_PAMu3_Track1_Mass2_v*                          # sr 133325
+HLT_PAL2DoubleMu3_v*                               # sr 133325
+HLT_PAMu3_v*                                       # sr 133325
+HLT_PAMu7_v*                                       # sr 133325
+HLT_PAMu12_v*                                      # sr 133325
+HLT_PABTagMu_Jet20_Mu4_v*                          # sr 133325
+HLT_PAMu3PFJet20_v*                                # sr 133325
+HLT_PAMu3PFJet40_v*                                # sr 133325
+HLT_PAMu7PFJet20_v*                                # sr 133325
 HLT_PAL1SingleEG5_v*                               # sr 131577
 HLT_PAL1SingleEG7_v*                               # sr 131577
 HLT_PAL1SingleEG12_v*                              # sr 131577
@@ -76,12 +76,12 @@ HLT_PAPixelTracks_Multiplicity130_v*               # sr 132927
 HLT_PAPixelTracks_Multiplicity160_v*               # sr 132927
 HLT_PAPixelTracks_Multiplicity190_v*               # sr 132927
 HLT_PAPixelTracks_Multiplicity220_v*               # sr 132927
-HLT_PAPixelTrackMultiplicity100_FullTrack12_v*	   # sr 133420
-HLT_PAPixelTrackMultiplicity130_FullTrack12_v*	   # sr 133420
-HLT_PAPixelTrackMultiplicity160_FullTrack12_v*	   # sr 133420
-HLT_PAFullTrack12_v*				   # sr 133420
-HLT_PAFullTrack30_v*				   # sr 133420
-HLT_PAFullTrack50_v*				   # sr 133420
+HLT_PAPixelTrackMultiplicity100_FullTrack12_v*     # sr 133420
+HLT_PAPixelTrackMultiplicity130_FullTrack12_v*     # sr 133420
+HLT_PAPixelTrackMultiplicity160_FullTrack12_v*     # sr 133420
+HLT_PAFullTrack12_v*                               # sr 133420
+HLT_PAFullTrack30_v*                               # sr 133420
+HLT_PAFullTrack50_v*                               # sr 133420
 HLT_PARomanPots_Tech52_v*                          # sr 131577
 HLT_PAL1Tech53_MB_v*                               # sr 131577
 HLT_PAL1Tech53_MB_SingleTrack_v*                   # sr 131577
@@ -104,7 +104,7 @@ HLT_PAExclDijet35_HFAND_v*                         # sr 131577, sr 133528
 HLT_PAL1DoubleEG3_FwdVeto_v*                       # sr 131577, sr 133528
 HLT_PAL1DoubleJet20_RomanPotsOR_v*                 # sr 131577, sr 133528
 HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577, sr 133528
-HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v*		   # sr 133528
+HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v*                # sr 133528
 HLT_PAUpcSingleEG5Pixel_TrackVeto_v*               # sr 133308
 HLT_PAUpcSingleMuOpenPixel_TrackVeto_v*            # sr 133308
 HLT_PAUpcSingleMuOpenTkMu_Onia_v*                  # sr 133308
