@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
+import os
 
 hcallasereventfilter2012=cms.EDFilter("HcalLaserEventFilter2012",
-                                      # Specify laser events to remove
-                                      # Events are listed as string in 'run:ls:event' format
-                                      EventList = cms.untracked.vstring([]),
+                                      # Specify laser events to remove in gziped file
+                                      eventFileName = cms.string(os.getenv('CMSSW_BASE')+"/src/EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt.gz"),
                                       # if verbose==true, run:ls:event for any event failing filter will be printed to cout
                                       verbose   = cms.untracked.bool(False),
                                       # Select a prefix to appear before run:ls:event when run info dumped to cout.  This makes searching for listed events a bit easier
