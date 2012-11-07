@@ -6,6 +6,7 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>
