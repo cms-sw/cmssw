@@ -118,7 +118,7 @@ FastSimRecoTrackerAOD = cms.PSet(
 FastSimParticleFlowFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoPFCandidates_FSparticleFlow_*_*',
                                            #stuff added for two-step processing (simWithSomeReco followed by reconstructionHighLevel):
-                                           'keep *_muons1stStep_*_*',
+                                           'keep *_muon*_*_*',
                                            'keep *_towerMaker*_*_*',
                                            'keep *_particleFlow*_*_*',
                                            'keep *_pf*_*_*',
