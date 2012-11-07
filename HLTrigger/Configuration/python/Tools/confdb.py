@@ -464,9 +464,9 @@ if 'PrescaleService' in %(dict)s:
     # override the GlobalTag connection string and pfnPrefix
     text = """
 # override the GlobalTag, connection string and pfnPrefix
-if 'GlobalTag' in %%(dict)s:
-    %%(process)sGlobalTag.connect   = '%%(connect)s/CMS_COND_31X_GLOBALTAG'
-    %%(process)sGlobalTag.pfnPrefix = cms.untracked.string('%%(connect)s/')
+if 'GlobalTag' in %(dict)s:
+    %(process)sGlobalTag.connect   = '%(connect)s/CMS_COND_31X_GLOBALTAG'
+    %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
 """
 
     # when running on MC, override the global tag even if not specified on the command line
