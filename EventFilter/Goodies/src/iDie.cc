@@ -59,6 +59,8 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , instance_(0)
   , runNumber_(0)
   , lastRunNumberSet_(0)
+  , runTS_(0)
+  , latencyTS_(0)
   , dqmCollectorHost_()
   , dqmCollectorPort_()
   , totalCores_(0)
@@ -239,6 +241,7 @@ void iDie::actionPerformed(xdata::Event& e)
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "New Run was started - iDie will reset");
       reset();
+      setRunStartTimeStamp();
 
       dqmState_ = "Prepared";
       if (dqmEnabled_.value_) { 
@@ -290,9 +293,15 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     // generate correct return state string
     std::string state;
     if(commandName == "Configure") {dqmState_ = "Ready"; state = "Ready";}
-    else if(commandName == "Enable") {dqmState_ = "Enabled"; state = "Enabled";}
+    else if(commandName == "Enable" || commandName == "Start") {
+      dqmState_ = "Enabled"; state = "Enabled";
+      setRunStartTimeStamp();
+
+    }
     else if(commandName == "Stop" || commandName == "Halt") {
       //cleanup flashlist data
+      runTS_=0.;//resetting run time stamp
+      latencyTS_=0;
       loadAccum_=0.;
       loadAccumLs_=0;
       cpuLoadsLastLs_=0;
@@ -810,7 +819,19 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 	  lumisecId_->Fill(currentLs_[nbsIdx]);
 	  struct timeval now;
 	  gettimeofday(&now, 0);
-	  eventTimeStamp_->Fill(  now.tv_sec + 1e-6*now.tv_usec );
+	  double time_now = now.tv_sec + 1e-6*now.tv_usec;
+	  eventTimeStamp_->Fill( time_now );
+
+	  //check if run timestamp is set
+	  double runTS = runTS_;
+	  if (runTS==0.)
+            runTS_ = time_now;
+
+	  runStartTimeStamp_->Fill(runTS);
+
+	  processLatencyMe_->Fill(time_now-latencyTS_);
+	  latencyTS_=time_now;
+	  processTimeStampMe_->Fill(time_now);
 
 	  //do histogram updates for the lumi
 	  lsStat * lst = lsHistory[nbsIdx].back();
@@ -1233,6 +1254,8 @@ void iDie::initMonitorElements()
   eventId_ = dqmStore_->bookInt("iEvent");
   eventId_->Fill(-1);
   eventTimeStamp_ = dqmStore_->bookFloat("eventTimeStamp");
+  runStartTimeStamp_ = dqmStore_->bookFloat("runStartTimeStamp");
+  initDQMEventInfo();
 
   dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
   for (unsigned int i=0;i<nbSubsClasses;i++) {
@@ -1857,6 +1880,50 @@ void iDie::perTimeFileSaver()
 }
 
 
+void iDie::initDQMEventInfo()
+{
+  struct timeval now;
+  gettimeofday(&now, 0);
+  double time_now = now.tv_sec + 1e-6*now.tv_usec;
+
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
+  runId_     = dqmStore_->bookInt("iRun");
+  runId_->Fill(-1);
+  lumisecId_ = dqmStore_->bookInt("iLumiSection");
+  lumisecId_->Fill(-1);
+  eventId_ = dqmStore_->bookInt("iEvent");
+  eventId_->Fill(-1);
+  eventTimeStamp_ = dqmStore_->bookFloat("eventTimeStamp");
+
+  runStartTimeStamp_ = dqmStore_->bookFloat("runStartTimeStamp");
+
+  processTimeStampMe_ = dqmStore_->bookFloat("processTimeStamp");
+  processTimeStampMe_->Fill(time_now);
+  processLatencyMe_ = dqmStore_->bookFloat("processLatency");
+  processLatencyMe_->Fill(-1);
+  processEventsMe_ = dqmStore_->bookInt("processedEvents");
+  processEventsMe_->Fill(0);
+  processEventRateMe_ = dqmStore_->bookFloat("processEventRate");
+  processEventRateMe_->Fill(-1); 
+  nUpdatesMe_= dqmStore_->bookInt("processUpdates");
+  nUpdatesMe_->Fill(-1);
+  processIdMe_= dqmStore_->bookInt("processID"); 
+  processIdMe_->Fill(getpid());
+  processStartTimeStampMe_ = dqmStore_->bookFloat("processStartTimeStamp");
+  processStartTimeStampMe_->Fill(time_now);
+  hostNameMe_= dqmStore_->bookString("hostName","cmsidie");
+  processNameMe_= dqmStore_->bookString("processName","iDie");
+  workingDirMe_= dqmStore_->bookString("workingDir","/tmp");
+  cmsswVerMe_= dqmStore_->bookString("CMSSW_Version",edm::getReleaseVersion());
+}
+
+void iDie::setRunStartTimeStamp()
+{
+  struct timeval now;
+  gettimeofday(&now, 0);
+  double time_now = now.tv_sec + 1e-6*now.tv_usec;
+  runTS_ = time_now;
+}
 
 
 

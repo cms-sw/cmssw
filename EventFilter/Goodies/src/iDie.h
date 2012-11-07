@@ -40,6 +40,7 @@
 #include "DQMServices/Core/src/DQMService.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #define MODNAMES 25
 
@@ -173,6 +174,8 @@ namespace evf {
     void doFlush();
     void perLumiFileSaver(unsigned int lsid);
     void perTimeFileSaver();
+    void initDQMEventInfo();
+    void setRunStartTimeStamp();
     //
     // member data
     //
@@ -206,11 +209,27 @@ namespace evf {
     toolbox::task::ActionSignature  *asFlashUpdater_;
     toolbox::task::WorkLoop         *wlFlashUpdater_;
 
-    //run info
+    //EventInfo
     MonitorElement * runId_;
     MonitorElement * lumisecId_;
     MonitorElement * eventId_;
     MonitorElement * eventTimeStamp_;
+    MonitorElement * runStartTimeStamp_;
+
+    MonitorElement * processTimeStampMe_;
+    MonitorElement * processLatencyMe_;
+    MonitorElement * processEventsMe_;
+    MonitorElement * processEventRateMe_;
+    MonitorElement * nUpdatesMe_;
+    MonitorElement * processIdMe_;
+    MonitorElement * processStartTimeStampMe_;
+    MonitorElement * hostNameMe_;
+    MonitorElement * processNameMe_;
+    MonitorElement * workingDirMe_;
+    MonitorElement * cmsswVerMe_;
+
+    float runTS_;
+    float latencyTS_;
 
     xdata::String                   dqmCollectorHost_;
     xdata::String                   dqmCollectorPort_;

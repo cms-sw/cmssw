@@ -4,6 +4,8 @@
 	* tag V00-02-19
 	* Total input rate 1D plot
 	* flashlist data for shipping cpu loads to DB
+	* runTimeStamp MonitorElement filles
+	* other default ME-s included
 
 2012-10-11 Srecko Morovic <srecko.morovic@cern.ch>
 
