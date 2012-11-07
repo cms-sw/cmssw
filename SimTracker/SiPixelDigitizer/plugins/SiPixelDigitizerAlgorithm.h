@@ -225,10 +225,10 @@ class SiPixelDigitizerAlgorithm  {
    * Internal use only.
    */
    struct PixelEfficiencies {
-     PixelEfficiencies(const edm::ParameterSet& conf, int pixelLuminosity, int NumberOfBarrelLayers, int NumberOfEndcapDisks);
-     float thePixelEfficiency[30];     // Single pixel effciency
-     float thePixelColEfficiency[30];  // Column effciency
-     float thePixelChipEfficiency[30]; // ROC efficiency
+     PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks);
+     float thePixelEfficiency[20];     // Single pixel effciency
+     float thePixelColEfficiency[20];  // Column effciency
+     float thePixelChipEfficiency[20]; // ROC efficiency
      unsigned int FPixIndex;         // The Efficiency index for FPix Disks
    };
 
@@ -314,7 +314,7 @@ class SiPixelDigitizerAlgorithm  {
     const bool addNoisyPixels;
     const bool fluctuateCharge;
     //-- pixel efficiency
-    const int  thePixelLuminosity;        // luminosity for inefficiency, 0,1,10
+    const bool AddPixelInefficiency;        // bool to read in inefficiencies
 
     const bool addThresholdSmearing;
         

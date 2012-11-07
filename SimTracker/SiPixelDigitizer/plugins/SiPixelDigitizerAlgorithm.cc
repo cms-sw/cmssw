@@ -217,7 +217,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   fluctuateCharge(conf.getUntrackedParameter<bool>("FluctuateCharge",true)),
 
   // Control the pixel inefficiency
-  thePixelLuminosity(conf.getParameter<int>("AddPixelInefficiency")),
+  AddPixelInefficiency(conf.getParameter<bool>("AddPixelInefficiencyFromPython")),
 
   // Add threshold gaussian smearing:
   addThresholdSmearing(conf.getParameter<bool>("AddThresholdSmearing")),
@@ -236,10 +236,10 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theNoiser(addNoise ? new GaussianTailNoiseGenerator(eng) : 0),
   calmap(doMissCalibrate ? initCal() : std::map<int,CalParameters,std::less<int> >()),
   theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf) : 0),
-  pixelEfficiencies_(conf, thePixelLuminosity,NumberOfBarrelLayers,NumberOfEndcapDisks),
-  flatDistribution_((addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandFlat(eng, 0., 1.) : 0),
-  gaussDistribution_((addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandGaussQ(eng, 0., theReadoutNoise) : 0),
-  gaussDistributionVCALNoise_((addNoise || thePixelLuminosity || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandGaussQ(eng, 0., 1.) : 0),
+  pixelEfficiencies_(conf, AddPixelInefficiency,NumberOfBarrelLayers,NumberOfEndcapDisks),
+  flatDistribution_((addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandFlat(eng, 0., 1.) : 0),
+  gaussDistribution_((addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandGaussQ(eng, 0., theReadoutNoise) : 0),
+  gaussDistributionVCALNoise_((addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandGaussQ(eng, 0., 1.) : 0),
   // Threshold smearing with gaussian distribution:
   smearedThreshold_FPix_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_FPix , theThresholdSmearing_FPix) : 0),
   smearedThreshold_BPix_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_BPix , theThresholdSmearing_BPix) : 0),
@@ -256,7 +256,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
                               << theThresholdInE_BPix_L1
 			      <<" " << theElectronPerADC << " " << theAdcFullScale
 			      << " The delta cut-off is set to " << tMax
-			      << " pix-inefficiency "<<thePixelLuminosity;
+			      << " pix-inefficiency "<<AddPixelInefficiency;
 
 }
 
@@ -357,92 +357,53 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
   LogDebug ("PixelDigitizer")<<"SiPixelDigitizerAlgorithm deleted";
 }
 
-SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::ParameterSet& conf, int thePixelLuminosity, int NumberOfBarrelLayers, int NumberOfEndcapDisks) {
-  //pixel inefficiency
+SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks) {
+  // pixel inefficiency
+  // Don't use Hard coded values, read inefficiencies in from python or don't use any
   int NumberOfTotLayers = NumberOfBarrelLayers + NumberOfEndcapDisks;
   FPixIndex=NumberOfBarrelLayers;
-  if (thePixelLuminosity==-20){
+  if (AddPixelInefficiency){
 		     int i=0;
  	  	     thePixelColEfficiency[i++] = conf.getParameter<double>("thePixelColEfficiency_BPix1");
  	  	     thePixelColEfficiency[i++] = conf.getParameter<double>("thePixelColEfficiency_BPix2");
  	  	     thePixelColEfficiency[i++] = conf.getParameter<double>("thePixelColEfficiency_BPix3");
-		     // Only try to read in 4th barrel layer if there are 4 or more of them
 		     if (NumberOfBarrelLayers>=4){thePixelColEfficiency[i++] = conf.getParameter<double>("thePixelColEfficiency_BPix4");}
- 	  	     thePixelColEfficiency[FPixIndex] = conf.getParameter<double>("thePixelColEfficiency_FPix1");
- 	  	     //thePixelColEfficiency[FPixIndex+1] = conf.getParameter<double>("thePixelColEfficiency_FPix2"); // Not used, but leave it in in case we want use it to later
-                     //thePixelColEfficiency[FPixIndex+2] = conf.getParameter<double>("thePixelColEfficiency_FPix3"); // Not used, but leave it in in case we want use it to later
- 	  	     //std::cout<<"\nReading in custom Pixel efficiencies "<<thePixelColEfficiency[0]<<" , "<<thePixelColEfficiency[1]<<" , "
- 	  	     //              <<thePixelColEfficiency[2]<<" , "<<thePixelColEfficiency[3]<<" , "<<thePixelColEfficiency[4]<<"\n";
- 	  	     //if (thePixelColEfficiency[0]<=0.5) {std::cout <<"\n\nDid you mean to set the Pixel efficiency at "<<thePixelColEfficiency[0]
- 	  	     //                                              <<", or did you mean for this to be the inefficiency?\n\n\n";}
-		     for (int j=0; j<NumberOfTotLayers;j++) { // Now set the other two at 100%
-		       thePixelEfficiency[j]     = 1.;  // pixels = 100%
-		       thePixelChipEfficiency[j] = 1.; // chips = 100%
-		       }
- 	  	     }
+		     //
+		     i=0;
+		     thePixelEfficiency[i++] = conf.getParameter<double>("thePixelEfficiency_BPix1");
+                     thePixelEfficiency[i++] = conf.getParameter<double>("thePixelEfficiency_BPix2");
+                     thePixelEfficiency[i++] = conf.getParameter<double>("thePixelEfficiency_BPix3");
+                     if (NumberOfBarrelLayers>=4){thePixelEfficiency[i++] = conf.getParameter<double>("thePixelEfficiency_BPix4");}
+		     //
+                     i=0;
+		     thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix1");
+                     thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix2");
+                     thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix3");
+                     if (NumberOfBarrelLayers>=4){thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix4");}
+		     // The next is needed for Phase2 Tracker studies
+		     if (NumberOfBarrelLayers>=5){
+			if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
+			// For Phase2 tracker layers just set the outermost BPix inefficiency to 99.9%
+			for (int j=5 ; j<=NumberOfBarrelLayers ; j++){
+			    thePixelColEfficiency[j-1]=0.999;
+			    thePixelEfficiency[j-1]=0.999;
+			    thePixelChipEfficiency[j-1]=0.999;
+			}
+		     }
+		     //
+                     thePixelColEfficiency[FPixIndex] 	= conf.getParameter<double>("thePixelColEfficiency_FPix");
+                     thePixelEfficiency[FPixIndex] 	= conf.getParameter<double>("thePixelEfficiency_FPix");
+                     thePixelChipEfficiency[FPixIndex] 	= conf.getParameter<double>("thePixelChipEfficiency_FPix");
+  }
   // the first "NumberOfBarrelLayers" settings [0],[1], ... , [NumberOfBarrelLayers-1] are for the barrel pixels
   // the next  "NumberOfEndcapDisks"  settings [NumberOfBarrelLayers],[NumberOfBarrelLayers+1], ... are for the endcaps (undecided how)
-  if(thePixelLuminosity==-1) {  // No inefficiency, all 100% efficient
+  if(!AddPixelInefficiency) {  // No inefficiency, all 100% efficient
     for (int i=0; i<NumberOfTotLayers;i++) {
       thePixelEfficiency[i]     = 1.;  // pixels = 100%
       thePixelColEfficiency[i]  = 1.;  // columns = 100%
-      thePixelChipEfficiency[i] = 1.; // chips = 100%
+      thePixelChipEfficiency[i] = 1.;  // chips = 100%
     }
-
-    // include only the static (non rate depedent) efficiency
-    // Usefull for very low rates (luminosity)
-  } else if(thePixelLuminosity==0) { // static effciency
-    // Default efficiencies
-    for (int i=0; i<NumberOfTotLayers;i++) {
-      if(i<NumberOfBarrelLayers) {  // For the barrel
-	// Assume 1% inefficiency for single pixels,
-	// this is given by faulty bump-bonding and seus.
-	thePixelEfficiency[i]     = 1.-0.001;  // pixels = 99.9%
-	// For columns make 0.1% default.
-	thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
-	// A flat 0.1% inefficiency due to lost rocs
-	thePixelChipEfficiency[i] = 1.-0.001; // chips = 99.9%
-      } else { // For the endcaps
-	// Assume 1% inefficiency for single pixels,
-	// this is given by faulty bump-bonding and seus.
-	thePixelEfficiency[i]     = 1.-0.001;  // pixels = 99.9%
-	// For columns make 0.1% default.
-	thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
-	// A flat 0.1% inefficiency due to lost rocs
-	thePixelChipEfficiency[i] = 1.-0.001; // chips = 99.9%
-      }
-    }
-
-    // Include also luminosity rate dependent inefficieny
-  } else if(thePixelLuminosity>0) { // Include effciency
-    // Default efficiencies
-    for (int i=0; i<NumberOfTotLayers;i++) {
-      if(i<NumberOfBarrelLayers) { // For the barrel
-	// Assume 1% inefficiency for single pixels,
-	// this is given by faulty bump-bonding and seus.
-	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
-	// For columns make 1% default.
-	thePixelColEfficiency[i]  = 1.-0.01;  // columns = 99%
-	// A flat 0.25% inefficiency due to lost data packets from TBM
-	thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
-      } else { // For the endcaps
-	// Assume 1% inefficiency for single pixels,
-	// this is given by faulty bump-bonding and seus.
-	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
-	// For columns make 1% default.
-	thePixelColEfficiency[i]  = 1.-0.01;  // columns = 99%
-	// A flat 0.25% inefficiency due to lost data packets from TBM
-	thePixelChipEfficiency[i] = 1.-0.0025; // chips = 99.75%
-      }
-    }
-
-    // Special cases ( High-lumi for 4cm layer) where the readout losses are higher
-    if(thePixelLuminosity==10) { // For high luminosity, bar layer 1
-      thePixelColEfficiency[0] = 1.-0.034; // 3.4% for r=4 only
-      thePixelEfficiency[0]    = 1.-0.015; // 1.5% for r=4
-    }
-
-  } // end the pixel inefficiency part
+  }
 }
 
 //=========================================================================
@@ -548,7 +509,7 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
 
     // Do only if needed
 
-    if(((thePixelLuminosity>=0)||(thePixelLuminosity==-20)) && (theSignal.size()>0))
+    if((AddPixelInefficiency) && (theSignal.size()>0))
       pixel_inefficiency(pixelEfficiencies_, pixdet); // Kill some pixels
 
     if(use_ineff_from_db_ && (theSignal.size()>0))
@@ -1306,7 +1267,6 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     pixelEfficiency  = eff.thePixelEfficiency[eff.FPixIndex];
     columnEfficiency = eff.thePixelColEfficiency[eff.FPixIndex];
     chipEfficiency   = eff.thePixelChipEfficiency[eff.FPixIndex];
-
     // Sometimes the forward pixels have wrong size,
     // this crashes the index conversion, so exit, but only check if it is not an upgrade geometry
     if (NumberOfBarrelLayers==3){
@@ -1389,7 +1349,6 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     } // end if
 
   } // end pixel loop
-
 } // end pixel_indefficiency
 
 //***********************************************************************

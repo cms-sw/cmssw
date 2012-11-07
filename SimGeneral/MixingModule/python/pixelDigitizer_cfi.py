@@ -41,7 +41,8 @@ pixelDigitizer = cms.PSet(
     TanLorentzAnglePerTesla_BPix = cms.double(0.106),
     AddNoisyPixels = cms.bool(True),
     Alpha2Order = cms.bool(True),
-    AddPixelInefficiency = cms.int32(0),
+    AddPixelInefficiency = cms.int32(0), # deprecated, use next option
+    AddPixelInefficiencyFromPython = cms.bool(True),
     AddNoise = cms.bool(True),
     ChargeVCALSmearing = cms.bool(True),
     GainSmearing = cms.double(0.0),
@@ -54,13 +55,18 @@ pixelDigitizer = cms.PSet(
     killModules = cms.bool(True),
     NumPixelBarrel = cms.int32(3),
     NumPixelEndcap = cms.int32(2),
-    thePixelColEfficiency_BPix1 = cms.double(0.9762), # Only used when AddPixelInefficiency = cms.int32(-20)
-    thePixelColEfficiency_BPix2 = cms.double(0.9954),
-    thePixelColEfficiency_BPix3 = cms.double(0.9982),
-    thePixelColEfficiency_BPix4 = cms.double(0.9992),
-    thePixelColEfficiency_FPix1 = cms.double(0.9982),
-    #thePixelColEfficiency_FPix2 = cms.double(0.9982),
-    #thePixelColEfficiency_FPix2 = cms.double(0.9982),
+    thePixelColEfficiency_BPix1 = cms.double(0.999), 	# Only used when AddPixelInefficiency = true
+    thePixelColEfficiency_BPix2 = cms.double(0.999),
+    thePixelColEfficiency_BPix3 = cms.double(0.999),
+    thePixelColEfficiency_FPix = cms.double(0.999), 	# Used for all FPix disks
+    thePixelEfficiency_BPix1 = cms.double(0.999), 	# Only used when AddPixelInefficiency = true
+    thePixelEfficiency_BPix2 = cms.double(0.999),
+    thePixelEfficiency_BPix3 = cms.double(0.999),
+    thePixelEfficiency_FPix = cms.double(0.999), 	# Used for all FPix disks
+    thePixelChipEfficiency_BPix1 = cms.double(0.999), 	# Only used when AddPixelInefficiency = true
+    thePixelChipEfficiency_BPix2 = cms.double(0.999),
+    thePixelChipEfficiency_BPix3 = cms.double(0.999),
+    thePixelChipEfficiency_FPix = cms.double(0.999),  	# Used for all FPix disks
 DeadModules = cms.VPSet(
  cms.PSet(Dead_detID = cms.int32(302055940), Module = cms.string("tbmB"))
 ,cms.PSet(Dead_detID = cms.int32(302059800), Module = cms.string("whole"))
