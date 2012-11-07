@@ -113,8 +113,11 @@ def TweakPlot(fig, ax, add_extra_head_room=False):
             for label in sub_ax.get_ticklabels():
                 label.set_font_properties(FONT_PROPS_TICK_LABEL)
 
+    if is_log:
+        fig.subplots_adjust(top=.89, bottom=.125, left=.11, right=.925)
+    else:
+        fig.subplots_adjust(top=.89, bottom=.125, left=.1, right=.925)
 
-    fig.subplots_adjust(top=.89, bottom=.125, left=.1, right=.925)
     # End of TweakPlot().
 
 ######################################################################
