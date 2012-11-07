@@ -97,9 +97,9 @@ def getPoints(tree,varx,vary):
     if vary=="": dumy=defaultYval # dummy value
     else:dumy   = findStringValue(keyname,vary) 
 
-    if (options.xrange[0]>-999. and options.xrange[1]>-999.) and (dumx>options.xrange[1] or dumx<options.xrange[0]): continue
+    if (options.xrange[0]>-999. and options.xrange[1]>-999.) and (dumx>options.xrange[1]+errLevel or dumx<options.xrange[0]-errLevel): continue
     if not vary=="":
-      if (options.yrange[0]>-999. and options.yrange[1]>-999.) and (dumy>options.yrange[1] or dumy<options.yrange[0]): continue
+      if (options.yrange[0]>-999. and options.yrange[1]>-999.) and (dumy>options.yrange[1]+errLevel or dumy<options.yrange[0]-errLevel): continue
     
     pointExists = False 
 
@@ -207,8 +207,8 @@ from optparse import OptionParser
 parser = OptionParser()
 parser = OptionParser(usage="usage: %prog [options] files (or list of files) \nrun with --help to get list of options")
 parser.add_option("","--cl",dest="cl",default="",type='str',action='callback',callback=get_confs,help="Set Confidence Levels (comma separated) (eg 0.68 for 68%)")
-parser.add_option("-x","--xvar",dest="xvar",default="r_qqH",type='str',help="Name of branch for x-value")
-parser.add_option("-y","--yvar",dest="yvar",default="r_ggH",type='str',help="Name of branch for y-value")
+parser.add_option("-x","--xvar",dest="xvar",default="",type='str',help="Name of branch for x-value")
+parser.add_option("-y","--yvar",dest="yvar",default="",type='str',help="Name of branch for y-value")
 parser.add_option("","--xrange",dest="xrange",default=(-9999.,-9999.),nargs=2,type='float',help="only pick points inside here")
 parser.add_option("","--yrange",dest="yrange",default=(-9999.,-9999.),nargs=2,type='float',help="only pick points inside here")
 parser.add_option("","--d1",dest="oned",default=False,action="store_true",help="Run 1D FC (ie just report confidence belt). In this case --yvar is irrelevant")
