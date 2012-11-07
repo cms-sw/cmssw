@@ -6,6 +6,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="boost"/>
+<use   name="zlib"/>
 <use   name="EventFilter/HcalRawToDigi"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="HcalCalibFEDSelector.cc,HcalCalibTypeFilter.cc,HcalDigiToRaw.cc,HcalEmptyEventFilter.cc,HcalHistogramRawToDigi.cc,HcalRawToDigi.cc,modules.cc" name="EventFilterHcalRawToDigiPlugins">
