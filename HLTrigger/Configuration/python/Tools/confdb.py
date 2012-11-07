@@ -489,9 +489,14 @@ if 'GlobalTag' in %%(dict)s:
 
     if self.config.globaltag or self.config.l1cond:
       text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
-      text += "    %%(process)sGlobalTag = customiseGlobalTag(%%(process)sGlobalTag,%(globaltag)s,%(l1cond)s)\n"
+      text += "    %(process)sGlobalTag = customiseGlobalTag(%(process)sGlobalTag"
+      if self.config.globaltag:
+        text += ", globaltag = %s"  % repr(self.config.globaltag)
+      if self.config.l1cond:
+        text += ", conditions = %s" % repr(self.config.l1cond)
+      text += ")\n"
 
-    self.data += text % { 'globaltag' : repr(self.config.globaltag), 'l1cond' : repr(self.config.l1cond) }
+    self.data += text
 
   def overrideL1MenuXml(self):
     # if requested, override the L1 menu from the GlobalTag (Xml file)
