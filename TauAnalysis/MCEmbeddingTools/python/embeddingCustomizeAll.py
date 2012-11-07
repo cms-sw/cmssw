@@ -16,16 +16,13 @@ def customise(process):
   print "Input process set to '%s'" % inputProcess
   
   process._Process__name = "EmbeddedRECO"
-  process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("histo_embedded.root")
-  )
 
   # DQM store output for muon acceptance histograms
   process.DQMStore = cms.Service("DQMStore")
 
   # select generator level muons
   process.genMuonsFromZs = cms.EDProducer("GenParticlesFromZsSelectorForMCEmbedding",
-    src = cms.InputTag("genParticles", "", inputProcess),
+    src = cms.InputTag("genParticles"),
     pdgIdsMothers = cms.vint32(23, 22),
     pdgIdsDaughters = cms.vint32(13),
     maxDaughters = cms.int32(2),

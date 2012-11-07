@@ -6,7 +6,6 @@
 #include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -51,7 +50,6 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
     generatorMode_(cfg.getParameter<std::string>("generatorMode")),
     beamEnergy_(cfg.getParameter<double>("beamEnergy")),
     tauola_(cfg.getParameter<edm::ParameterSet>("TauolaOptions")),
-    outTree_(0),
     maxNumberOfAttempts_(cfg.getUntrackedParameter<int>("maxNumberOfAttempts", 1000))
 {
   // transformationMode =
@@ -134,12 +132,6 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   }
 
   rfRotationAngle_ = cfg.getParameter<double>("rfRotationAngle")*TMath::Pi()/180.;
-
-  edm::Service<TFileService> fileService_;
-  if ( fileService_.isAvailable() ) {
-    outTree_ = fileService_->make<TTree>( "event_generation", "This tree stores information about the Embedding event generation");
-    outTree_->Branch("attempts", &attempts_, "attempts/I");
-  }
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( !rng.isAvailable() ) 
@@ -372,12 +364,8 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   if ( !passedEvt_output ) {
     edm::LogError ("Replacer") 
       << "Failed to create an event which satisfies the visible Pt cuts !!" << std::endl;
-    attempts_ = -1;
-    if ( outTree_ ) outTree_->Fill();
     return std::auto_ptr<HepMC::GenEvent>(0);
   }
-  attempts_ = 0;
-  if ( outTree_ ) outTree_->Fill();	
   
   // undo the "hack" (*): 
   // recover the particle status codes

@@ -16,9 +16,9 @@
  * 
  * \author Manuel Zeise 
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ParticleReplacerZtautau.h,v 1.1 2012/10/14 12:59:48 veelken Exp $
+ * $Id: ParticleReplacerZtautau.h,v 1.2 2012/11/03 15:33:24 veelken Exp $
  *
  */
 
@@ -99,8 +99,6 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
   double targetParticle2Mass_;
   int targetParticle2AbsPdgID_;
 	
-  TTree* outTree_;
-  int attempts_;
   int maxNumberOfAttempts_;
 };
 
