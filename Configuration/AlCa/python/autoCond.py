@@ -105,6 +105,9 @@ autoCond['startup_7E33v4']   = ( autoCond['startup'], ) \
 autoCond['startup_8E33v1']   = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012D
 
+autoCond['startup_8E33v2']   = ( autoCond['startup'], ) \
+                             + conditions_L1_Run2012D
+
 autoCond['startup_GRun']     = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012D
 
@@ -128,6 +131,9 @@ autoCond['hltonline_7E33v4'] = ( autoCond['hltonline'], ) \
 autoCond['hltonline_8E33v1'] = ( autoCond['hltonline'], ) \
                              + conditions_L1_Run2012D
 
+autoCond['hltonline_8E33v2'] = ( autoCond['hltonline'], ) \
+                             + conditions_L1_Run2012D
+
 autoCond['hltonline_GRun']   = ( autoCond['hltonline'], ) \
                              + conditions_L1_Run2012D
 
@@ -148,6 +154,9 @@ autoCond['com10_7E33v4']     = ( autoCond['com10'], ) \
                              + conditions_L1_Run2012C
 
 autoCond['com10_8E33v1']     = ( autoCond['com10'], ) \
+                             + conditions_L1_Run2012D
+
+autoCond['com10_8E33v2']     = ( autoCond['com10'], ) \
                              + conditions_L1_Run2012D
 
 autoCond['com10_GRun']       = ( autoCond['com10'], ) \
