@@ -68,7 +68,7 @@ namespace edm {
     ProcessConfigurationID processConfigurationID() const;
     ParameterSetID psetID() const;
     std::string moduleName() const;
-    ReleaseVersion const& releaseVersion() const;
+    ReleaseVersion releaseVersion() const;
     std::map<ProcessConfigurationID, ParameterSetID> const& parameterSetIDs() const {
       return product().parameterSetIDs();
     }

@@ -65,7 +65,7 @@ namespace edm {
     return config.id();
   }
 
-  ReleaseVersion const&
+  ReleaseVersion
   Provenance::releaseVersion() const {
     ProcessConfiguration pc;
     ProcessConfigurationRegistry::instance()->getMapped(processConfigurationID(), pc);
@@ -109,7 +109,10 @@ namespace edm {
     // This is grossly inadequate, but it is not critical for the
     // first pass.
     product().write(os);
-    productProvenance()->write(os);
+    ProductProvenance* pp = productProvenance();
+    if (pp != 0) {
+      pp->write(os);
+    }
   }
 
   bool operator==(Provenance const& a, Provenance const& b) {

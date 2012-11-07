@@ -1615,7 +1615,6 @@ void TestIndexIntoFile::testIterEndWithLumi() {
 
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterNumEnd = indexIntoFile.end(IndexIntoFile::numericalOrder);
-  i = 0;
   for (i = 0; iterNum != iterNumEnd; ++iterNum, ++i) {
     if (i == 0)       check(iterNum, kRun,   0, 1, -1, 0, 0);
     else if (i == 1)  check(iterNum, kLumi,  0, 1, -1, 0, 0);
