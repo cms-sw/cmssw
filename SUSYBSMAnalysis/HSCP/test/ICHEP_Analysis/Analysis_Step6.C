@@ -111,7 +111,7 @@ double PlotMaxScale = 3;
 void Optimize(string InputPattern, string Data, string signal, bool shape, bool cutFromFile);
 double GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, double MinRange, double MaxRange);
 TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples, double& LInt);
-void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSample);
+TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSample);
 void DrawModelLimitWithBand(string InputPattern);
 void DrawRatioBands(string InputPattern);
 
@@ -123,6 +123,7 @@ void testShapeBasedAnalysis(string InputPattern, string signal);
 double computeSignificance(string datacard, bool expected, string& signal, string massStr, float Strength);
 bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH1* MassData, TH1* MassPred, TH1* MassSign, TH1* MassSignP, TH1* MassSignI, TH1* MassSignM, TH1* MassSignT, TH1* MassSignPU);
 bool Combine(string InputPattern, string signal7, string signal8);
+bool useSample(int TypeMode, string sample);
 
 double MinRange = 0;
 double MaxRange = 1999;
@@ -241,6 +242,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
    TCanvas* c1;
+   TLegend* LEG;
    double LInt = 0;
 
    FILE* pFile    = fopen((outpath+string("Analysis_Step6_Result") + ".txt").c_str(),"w");
@@ -312,32 +314,176 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    //print a table with all uncertainty on signal efficiency
 
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* TkSystGraphs = new TMultiGraph();
+
+   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG->SetFillColor(0);
+   LEG->SetFillStyle(0);
+   LEG->SetBorderSize(0);
+
    fprintf(pFile   ,"\n\n %20s \n\n", LegendFromType(TkPattern).c_str());
    fprintf(pFile   ,          "%20s    Eff   --> PScale |  DeDxScale | PUScale | TotalUncertainty     \n","Model");
    fprintf(talkFile, "\\hline\n%20s &  Eff     & PScale &  DeDxScale & PUScale & TotalUncertainty \\\\\n","Model");
+   int Graphs=0;
+
    for(unsigned int k=0; k<modelVector.size(); k++){
-     CheckSignalUncertainty(pFile,talkFile,TkPattern, modelVector[k], modelMap[modelVector[k]]);
+     TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,TkPattern, modelVector[k], modelMap[modelVector[k]]);
+     if(Uncertainty!=NULL && useSample(0, modelVector[k])) {
+       Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
+       TkSystGraphs->Add(Uncertainty,"C");
+       LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
+       Graphs++;
+     }
    }
+   
+   if(Graphs>0) {
+   TkSystGraphs->Draw("A");
+   TkSystGraphs->SetTitle("");
+   TkSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
+   TkSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
+   TkSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   TkSystGraphs->GetYaxis()->SetRangeUser(0., 0.35);
+   TkSystGraphs->GetYaxis()->SetNdivisions(520, "X");
+
+   LEG->Draw();
+   c1->SetLogy(false);
+   c1->SetGridy(false);
+
+   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "TkUncertainty");
+   delete c1;
+   delete TkSystGraphs;
+   delete LEG;
+   }
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* MuSystGraphs = new TMultiGraph();
+
+   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG->SetFillColor(0);
+   LEG->SetFillStyle(0);
+   LEG->SetBorderSize(0);
 
    fprintf(pFile   ,"\n\n %20s \n\n", LegendFromType(MuPattern).c_str());
    fprintf(pFile,             "%20s   Eff   --> PScale |  DeDxScale | PUScale | TOFScale | TotalUncertainty     \n","Model");
    fprintf(talkFile, "\\hline\n%20s &  Eff    & PScale &  DeDxScale & PUScale & TOFScale & TotalUncertainty \\\\\n","Model");
+   Graphs=0;
    for(unsigned int k=0; k<modelVector.size(); k++){
-     CheckSignalUncertainty(pFile,talkFile,MuPattern, modelVector[k], modelMap[modelVector[k]]);
+     TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,MuPattern, modelVector[k], modelMap[modelVector[k]]);
+
+     if(Uncertainty!=NULL && useSample(2, modelVector[k])) {
+       Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
+       MuSystGraphs->Add(Uncertainty,"C");
+       LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
+       Graphs++;
+     }
+   }
+
+   if(Graphs>0) {
+   MuSystGraphs->Draw("A");
+   MuSystGraphs->SetTitle("");
+   MuSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
+   MuSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
+   MuSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   MuSystGraphs->GetYaxis()->SetRangeUser(0., 0.35);
+   MuSystGraphs->GetYaxis()->SetNdivisions(520, "X");
+
+   LEG->Draw();
+   c1->SetLogy(false);
+   c1->SetGridy(false);
+
+   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "MuUncertainty");
+   delete c1;
+   delete MuSystGraphs;
+   delete LEG;
    }
 
    fprintf(pFile   ,"\n\n %20s \n\n", LegendFromType(MOPattern).c_str());
    fprintf(pFile,             "%20s   Eff   --> PScale |  DeDxScale | PUScale | TOFScale | TotalUncertainty     \n","Model");
    fprintf(talkFile, "\\hline\n%20s &  Eff    & PScale &  DeDxScale & PUScale & TOFScale & TotalUncertainty \\\\\n","Model");
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* MOSystGraphs = new TMultiGraph();
+
+   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG->SetFillColor(0);
+   LEG->SetFillStyle(0);
+   LEG->SetBorderSize(0);
+
+   Graphs=0;
    for(unsigned int k=0; k<modelVector.size(); k++){
-     CheckSignalUncertainty(pFile,talkFile,MOPattern, modelVector[k], modelMap[modelVector[k]]);
+     TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,MOPattern, modelVector[k], modelMap[modelVector[k]]);
+     if(Uncertainty!=NULL && useSample(3, modelVector[k])) {
+       Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
+       MOSystGraphs->Add(Uncertainty,"C");
+       LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
+       Graphs++;
+     }
    }
+
+   if(Graphs>0) {
+   MOSystGraphs->Draw("A");
+   MOSystGraphs->SetTitle("");
+   MOSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
+   MOSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
+   MOSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   MOSystGraphs->GetYaxis()->SetRangeUser(0., 0.35);
+   MOSystGraphs->GetYaxis()->SetNdivisions(520, "X");
+
+   LEG->Draw();
+   c1->SetLogy(false);
+   c1->SetGridy(false);
+
+   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "MOUncertainty");
+   delete c1;
+   delete MOSystGraphs;
+   delete LEG;
+   }
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* LQSystGraphs = new TMultiGraph();
+
+   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG->SetFillColor(0);
+   LEG->SetFillStyle(0);
+   LEG->SetBorderSize(0);
 
    fprintf(pFile   ,"\n\n %20s \n\n", LegendFromType(LQPattern).c_str());
    fprintf(pFile   ,          "%20s    Eff   --> PScale |  DeDxScale | PUScale | TotalUncertainty     \n","Model");
    fprintf(talkFile, "\\hline\n%20s &  Eff     & PScale &  DeDxScale & PUScale & TotalUncertainty \\\\\n","Model");
+
+   Graphs=0;
    for(unsigned int k=0; k<modelVector.size(); k++){
-     CheckSignalUncertainty(pFile,talkFile,LQPattern, modelVector[k], modelMap[modelVector[k]]);
+     TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,LQPattern, modelVector[k], modelMap[modelVector[k]]);
+     if(Uncertainty!=NULL && useSample(5, modelVector[k])) {
+       Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
+       LQSystGraphs->Add(Uncertainty,"C");
+       LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
+       Graphs++;
+     }
+   }
+
+   if(Graphs>0) {
+   LQSystGraphs->Draw("A");
+   LQSystGraphs->SetTitle("");
+   LQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
+   LQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
+   LQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   LQSystGraphs->GetYaxis()->SetRangeUser(0., 0.35);
+   LQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
+
+   LEG->Draw();
+   c1->SetLogy(false);
+   c1->SetGridy(false);
+
+   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "LQUncertainty");
+   delete c1;
+   delete LQSystGraphs;
+   delete LEG;
    }
 
    //Get Theoretical xsection and error bands
@@ -815,24 +961,26 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 }
 
 
-void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSample){
-   int TypeMode = TypeFromPattern(InputPattern);
-   string prefix = "BUG";
-   switch(TypeMode){
-   case 0: prefix   = "Tk"; break;
-   case 2: prefix   = "Mu"; break;
-   case 3: prefix   = "Mo"; break;
-   case 4: prefix   = "HQ"; break;
-   case 5: prefix   = "LQ"; break;
-   }
+TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSample){
+  int TypeMode = TypeFromPattern(InputPattern);
+  string prefix = "BUG";
+  switch(TypeMode){
+  case 0: prefix   = "Tk"; break;
+  case 2: prefix   = "Mu"; break;
+  case 3: prefix   = "Mo"; break;
+  case 4: prefix   = "HQ"; break;
+  case 5: prefix   = "LQ"; break;
+  }
 
-   unsigned int N   = modelSample.size();
+   unsigned int N   = 0;
 
    double* Mass      = new double   [modelSample.size()];
    double* SystP     = new double   [modelSample.size()];
    double* SystI     = new double   [modelSample.size()];
    double* SystPU    = new double   [modelSample.size()];
    double* SystT     = new double   [modelSample.size()];
+   double* SystTr    = new double   [modelSample.size()];
+   double* SystRe    = new double   [modelSample.size()];
    double* SystTotal = new double   [modelSample.size()];
 
    for(unsigned int s=0;s<modelSample.size();s++){
@@ -841,72 +989,94 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern, st
       if(TypeMode!=0 && IsNeutral)continue;
       stAllInfo tmp(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR + "/"+modelSample[s].Name+".txt");
       if(tmp.Eff==0) continue;
-      Mass[s]        = tmp.Mass;
-      SystP[s]       = (tmp.Eff - tmp.Eff_SYSTP)/tmp.Eff;
-      SystI[s]       = (tmp.Eff - tmp.Eff_SYSTI)/tmp.Eff;
-      SystPU[s]      = (tmp.Eff - tmp.Eff_SYSTPU)/tmp.Eff;
-      SystT[s]       = (tmp.Eff - tmp.Eff_SYSTT)/tmp.Eff;
-//      double Ptemp=max(SystP[s], 0.0), Itemp=max(SystI[s], 0.0), PUtemp=max(SystPU[s], 0.0), Ttemp=max(SystT[s], 0.0);
-      double Ptemp=SystP[s], Itemp=SystI[s], PUtemp=SystPU[s], Ttemp=SystT[s];
-      SystTotal[s] = sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp);
-      if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f\n"        ,modelSample[s].Name.c_str(), tmp.Eff, SystP[s], SystI[s], SystPU[s]           , SystTotal[s]);  
-      else          fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f\n",modelSample[s].Name.c_str(), tmp.Eff, SystP[s], SystI[s], SystPU[s], SystT[s], SystTotal[s]);
 
-      //if(TypeMode==0 || TypeMode==5)fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%%             \\\\\n",modelSample[s].Name.c_str(), 100.*tmp.Eff, 100.*P, 100.*I, 100.*PU, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp));	
-      //else        fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%% & %7.1f\\%% \\\\\n",modelSample[s].Name.c_str(), 100.*tmp.Eff, 100.*P, 100.*I, 100.*PU, 100.*T, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp));
+      Mass[N]        = tmp.Mass;
+      SystP[N]       = (tmp.Eff - tmp.Eff_SYSTP)/tmp.Eff;
+      SystI[N]       = (tmp.Eff - tmp.Eff_SYSTI)/tmp.Eff;
+      SystPU[N]      = (tmp.Eff - tmp.Eff_SYSTPU)/tmp.Eff;
+      SystT[N]       = (tmp.Eff - tmp.Eff_SYSTT)/tmp.Eff;
+      SystTr[N]      = 0.05;
+      SystRe[N]      = 0.02;
+
+//      double Ptemp=max(SystP[N], 0.0), Itemp=max(SystI[N], 0.0), PUtemp=max(SystPU[N], 0.0), Ttemp=max(SystT[N], 0.0);
+      double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
+      SystTotal[N] = sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp + SystTr[N]*SystTr[N] + SystRe[N]*SystRe[N]);
+
+      if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f\n"        ,modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N]           , SystTotal[N]);  
+      else          fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f\n",modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N], SystT[N], SystTotal[N]);
+
+      //if(TypeMode==0 || TypeMode==5)fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%%             \\\\\n",modelSample[N].Name.c_str(), 100.*tmp.Eff, 100.*P, 100.*I, 100.*PU, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp));	
+      //else        fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%% & %7.1f\\%% \\\\\n",modelSample[N].Name.c_str(), 100.*tmp.Eff, 100.*P, 100.*I, 100.*PU, 100.*T, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp));
+      N++;
    }
+
+   TGraph* graphSystP = NULL;
+   TGraph* graphSystI = NULL;
+   TGraph* graphSystPU = NULL;
+   TGraph* graphSystT = NULL;
+   TGraph* graphSystTr = NULL;
+   TGraph* graphSystRe = NULL;
+   TGraph* graphSystTotal = NULL;
 
    if(N>0) {
-   TCanvas* c1 = new TCanvas("c1", "c1",600,600);
+     TCanvas* c2 = new TCanvas("c2", "c2",600,600);
 
-   TGraph* graphSystP = new TGraph(N,Mass,SystP);
-   TGraph* graphSystI = new TGraph(N,Mass,SystI);
-   TGraph* graphSystPU = new TGraph(N,Mass,SystPU);
-   TGraph* graphSystT = new TGraph(N,Mass,SystT);
-   TGraph* graphSystTotal = new TGraph(N,Mass,SystTotal);
-   TMultiGraph* SystGraphs = new TMultiGraph();
+     graphSystP = new TGraph(N,Mass,SystP);
+     graphSystI = new TGraph(N,Mass,SystI);
+     graphSystPU = new TGraph(N,Mass,SystPU);
+     graphSystT = new TGraph(N,Mass,SystT);
+     graphSystTr = new TGraph(N,Mass,SystTr);
+     graphSystRe = new TGraph(N,Mass,SystRe);
+     graphSystTotal = new TGraph(N,Mass,SystTotal);
+     TMultiGraph* SystGraphs = new TMultiGraph();
 
-   graphSystTotal->SetLineColor(Color[0]);  graphSystTotal->SetMarkerColor(Color[0]);   graphSystTotal->SetMarkerStyle(20); graphSystTotal->SetLineWidth(2);
-   graphSystP->SetLineColor(Color[1]);      graphSystP->SetMarkerColor(Color[1]);       graphSystP->SetMarkerStyle(Marker[1]); graphSystP->SetLineWidth(2);
-   graphSystI->SetLineColor(Color[2]);      graphSystI->SetMarkerColor(Color[2]);       graphSystI->SetMarkerStyle(Marker[2]); graphSystI->SetLineWidth(2);
-   graphSystPU->SetLineColor(Color[3]);     graphSystPU->SetMarkerColor(Color[3]);      graphSystPU->SetMarkerStyle(Marker[3]);graphSystPU->SetLineWidth(2);
-   graphSystT->SetLineColor(Color[4]);      graphSystT->SetMarkerColor(Color[4]);       graphSystT->SetMarkerStyle(Marker[4]);graphSystT->SetLineWidth(2);
+     graphSystTotal->GetYaxis()->SetTitle("CrossSection ( pb )");
+     graphSystTotal->SetLineColor(Color[0]);  graphSystTotal->SetMarkerColor(Color[0]);   graphSystTotal->SetMarkerStyle(20);    graphSystTotal->SetLineWidth(2);
+     graphSystP->SetLineColor(Color[1]);      graphSystP->SetMarkerColor(Color[1]);       graphSystP->SetMarkerStyle(Marker[1]); graphSystP->SetLineWidth(2);
+     graphSystI->SetLineColor(Color[2]);      graphSystI->SetMarkerColor(Color[2]);       graphSystI->SetMarkerStyle(Marker[2]); graphSystI->SetLineWidth(2);
+     graphSystPU->SetLineColor(Color[3]);     graphSystPU->SetMarkerColor(Color[3]);      graphSystPU->SetMarkerStyle(Marker[3]);graphSystPU->SetLineWidth(2);
+     graphSystT->SetLineColor(Color[4]);      graphSystT->SetMarkerColor(Color[4]);       graphSystT->SetMarkerStyle(Marker[4]); graphSystT->SetLineWidth(2);
+     graphSystTr->SetLineColor(Color[5]);     graphSystTr->SetMarkerColor(Color[5]);      graphSystTr->SetMarkerStyle(Marker[5]);graphSystTr->SetLineWidth(2);
+     graphSystRe->SetLineColor(Color[6]);     graphSystRe->SetMarkerColor(Color[6]);      graphSystRe->SetMarkerStyle(Marker[6]);graphSystRe->SetLineWidth(2);
+     SystGraphs->Add(graphSystP,"C");
 
-   SystGraphs->Add(graphSystP,"C");
-   if(TypeMode!=3)SystGraphs->Add(graphSystI,"C");
-   SystGraphs->Add(graphSystPU,"C");
-   if(TypeMode!=0 && TypeMode!=5)SystGraphs->Add(graphSystT,"C");
-   SystGraphs->Add(graphSystTotal,"P");
+     SystGraphs->Add(graphSystTr,"C");
+     SystGraphs->Add(graphSystRe,"C");
+     if(TypeMode!=3)SystGraphs->Add(graphSystI,"C");
+     SystGraphs->Add(graphSystPU,"C");
+     if(TypeMode!=0 && TypeMode!=5)SystGraphs->Add(graphSystT,"C");
+     SystGraphs->Add(graphSystTotal,"P");
 
-   SystGraphs->Draw("A");
-   SystGraphs->SetTitle("");
-   SystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
-   SystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
-   SystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   SystGraphs->GetYaxis()->SetRangeUser(-0.35, 0.35);
-   SystGraphs->GetYaxis()->SetNdivisions(520, "X");
+     SystGraphs->Draw("A");
+     SystGraphs->SetTitle("");
+     SystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
+     SystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
+     SystGraphs->GetYaxis()->SetTitleOffset(1.70);
+     SystGraphs->GetYaxis()->SetRangeUser(-0.05, 0.35);
+     SystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
-   TLegend* LEG = new TLegend(0.55,0.75,0.80,0.90);
-   LEG->SetFillColor(0);
-   LEG->SetFillStyle(0);
-   LEG->SetBorderSize(0);
-   LEG->AddEntry(graphSystP,  "P Syst" ,"L");
-   if(TypeMode!=3)LEG->AddEntry(graphSystI,  "I Syst" ,"L");
-   LEG->AddEntry(graphSystPU,  "PU Syst" ,"L");
-   if(TypeMode!=0 && TypeMode!=5)LEG->AddEntry(graphSystT,  "T Syst" ,"L");
-   LEG->AddEntry(graphSystTotal,  "Total Syst" ,"P");
-   LEG->Draw();
-   c1->SetLogy(false);
-   c1->SetGridy(true);
-
+     TLegend* LEG = new TLegend(0.45,0.55,0.80,0.90);
+     LEG->SetFillColor(0);
+     LEG->SetFillStyle(0);
+     LEG->SetBorderSize(0);
+     LEG->AddEntry(graphSystTr,  "Trigger" ,"L");
+     LEG->AddEntry(graphSystRe,  "Reconstruction" ,"L");
+     LEG->AddEntry(graphSystP,  "P" ,"L");
+     if(TypeMode!=3)LEG->AddEntry(graphSystI,  "dE/dx" ,"L");
+     LEG->AddEntry(graphSystPU,  "Pile Up" ,"L");
+     if(TypeMode!=0 && TypeMode!=5)LEG->AddEntry(graphSystT,  "1/#beta" ,"L");
+     LEG->AddEntry(graphSystTotal,  "Total" ,"P");
+     LEG->Draw();
+     c2->SetLogy(false);
+     c2->SetGridy(false);
 
    DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
-   SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", string(prefix+ ModelName + "Uncertainty"));
-   delete c1;
-   delete SystGraphs;
+   SaveCanvas(c2,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", string(prefix+ ModelName + "Uncertainty"));
+   delete c2;
+   //delete SystGraphs;
    }
 
-   return;
+   return graphSystTotal;
 }
 
 
@@ -1355,6 +1525,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    double LInt  = H_Lumi->GetBinContent(1);
    double norm  = samples[CurrentSampleIndex].XSec*LInt/TotalE  ->Integral(); //normalize the samples to the actual lumi used for limits
    double normPU= samples[CurrentSampleIndex].XSec*LInt/TotalEPU->Integral();
+
    MassSign  ->Scale(norm);
    MassSignP ->Scale(norm);
    MassSignI ->Scale(norm);
@@ -1399,7 +1570,6 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       if(OptimCutIndex<0 && H_F->GetBinContent(CutIndex+1)>0 && H_A->GetBinContent(CutIndex+1)==0 && (H_B->GetBinContent(CutIndex+1)<25 || H_H->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CB/A) is not reliable
       if(OptimCutIndex<0 && H_G->GetBinContent(CutIndex+1)>0 && H_F->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<25 || H_H->GetBinContent(CutIndex+1)<25)){printf("Skip cut=%i because of unreliable ABCD prediction\n", CutIndex); continue;}  //Skip events where Prediction (CH/G) is not reliable
    
-
       //make sure we have a reliable prediction of the shape 
       if(TypeMode<=2){
          double N_P = H_P->GetBinContent(CutIndex+1);       
@@ -1980,6 +2150,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
    bool is7TeVPresent = true;
    pFileTmp = fopen((InputPattern+"/EXCLUSION7TeV/shape_"+signal7+".dat").c_str(), "r");
    if(!pFileTmp){is7TeVPresent=false;}else{fclose(pFileTmp);}
+   if(TypeMode==3) is7TeVPresent=false;
 
    bool is8TeVPresent = true;
    pFileTmp = fopen((InputPattern+"/EXCLUSION8TeV/shape_"+signal8+".dat").c_str(), "r");
@@ -2075,5 +2246,12 @@ bool Combine(string InputPattern, string signal7, string signal8){
 }
 
 
-
+bool useSample(int TypeMode, string sample) {
+  if(TypeMode==0 && (sample=="Gluino_f10" || sample=="GluinoN_f10" || sample=="StopN" || sample=="Stop" || sample=="DY_Q2o3")) return true;
+  if(TypeMode==2 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Stop" || sample=="GMStau" || sample=="PPStau" || sample=="DY_Q2o3")) return true;
+  if(TypeMode==3 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Gluino_f100" || sample=="Stop")) return true;
+  if(TypeMode==4) return true;
+  if(TypeMode==5) return true;
+  return false;
+}
 
