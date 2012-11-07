@@ -26,7 +26,7 @@ def customise(process, inputProcess):
   )
 
   recHitCaloCleanerByDistanceConfig = None
-  if process.customization_options.cleaningMode == 'dE/dx':
+  if process.customization_options.cleaningMode == 'DEDX':
     # CV: Compute expected energy deposits of muon in EB/EE, HB/HE and HO:
     #      (1) compute distance traversed by muons produced in Z -> mu+ mu- decay
     #          through individual calorimeter cells
