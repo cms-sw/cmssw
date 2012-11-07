@@ -1,3 +1,4 @@
+<use   name="RecoTracker/DuplicateFormats"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/Math"/>
@@ -25,5 +26,6 @@
 <use   name="RecoTracker/TrackProducer"/>
 <use   name="CommonTools/Utils"/>
 <use   name="clhep"/>
+<use   name="roottmva"/>
 <flags   EDM_PLUGIN="1"/>
 
