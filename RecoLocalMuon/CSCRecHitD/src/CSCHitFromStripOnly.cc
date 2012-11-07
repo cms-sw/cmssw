@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-
+//#include <iostream>
 
 CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoConditions_(0), calcped_(0) {
   
@@ -69,12 +69,25 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
   layer_     = layer;
   nstrips_   = layer->chamber()->specs()->nStrips();
 
+  LogTrace("CSCHitFromStripOnly")  << "[CSCHitFromStripOnly::runStrip] id= " << id_ << " nstrips= " << nstrips_;
+
   tmax_cluster = 5;
 
   // Get gain correction weights for all strips in layer, and cache in gainWeight.
   // They're used in fillPulseHeights below.
   if ( useCalib ) {
-    recoConditions_->stripWeights( id, gainWeight );
+    recoConditions_->stripWeights( id, nstrips_, gainWeight );
+
+    // *** START DUMP gainWeight
+    //    std::cout << "gainWeight for id= " << id_ << " nstrips= " << nstrips_ << std::endl;
+    //    for ( size_t i = 0; i!=10; ++i ) {
+    //      for ( size_t j = 0; j!=8; ++j ) {
+    //	std::cout << gainWeight[i*8 + j] << "   ";
+    //      }
+    //      std::cout << std::endl;
+    //    }
+    // *** END DUMP gainWeight
+
   }
   
   // Store pulseheights from SCA and find maxima (potential hits)
@@ -138,7 +151,6 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
         aDeadStrip = theMaxima.at(imax)+1;
       }
     }
-    //std::cout << " Size of theStrips from SCSHitFromStripOnly: " <<  theStrips.size() << std::endl;
     
     /// L1A (Begin looping)
     /// Attempt to redefine theStrips, to encode L1A phase bits
@@ -369,12 +381,13 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     // (To apply gains use CSCStripData::op*= which scales only the non-raw sca ph's;
     // but note that both sca & scaRaw are pedestal-subtracted.)
 
-    if ( id_.ring() != 4 ) { // non-ME1a
-      thePulseHeightMap[thisChannel-1] = CSCStripData( thisChannel, phmax, tmax, scaRaw, sca );
-      if ( useCalib ) thePulseHeightMap[thisChannel-1] *= gainWeight[thisChannel-1];
-    } 
-    else { // ME1a, so unfold its 16 channels to its 48 strips
-      for ( int j = 0; j < 3; ++j ) {
+    // From StripDigi, thisChannel labels strip channel. Values phmax, tmax, scaRaw, sca belong to thisChannel
+    thePulseHeightMap[thisChannel-1] = CSCStripData( thisChannel, phmax, tmax, scaRaw, sca );
+    if ( useCalib ) thePulseHeightMap[thisChannel-1] *= gainWeight[thisChannel-1];
+
+    // for ganged ME1a need to duplicate values on istrip=thisChannel to iStrip+16 and iStrip+32
+    if ( id_.ring() == 4 && layer_->chamber()->specs()->gangedStrips() ) {
+      for ( int j = 1; j < 3; ++j ) {  
 	thePulseHeightMap[thisChannel-1+16*j] = CSCStripData( thisChannel+16*j, phmax, tmax, scaRaw, sca );
 	if ( useCalib ) thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
       }
