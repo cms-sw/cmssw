@@ -16,7 +16,7 @@ namespace edm {
   /// from a FwdPtr. This particular example is for copy
   /// construction, but the same signature can be used elsewhere. 
   template<class T>
-  class ProductFromFwdPtrFactory : public std::unary_function<T, edm::FwdPtr<T> > {
+    class ProductFromFwdPtrFactory : public std::unary_function<edm::FwdPtr<T>, T > {
   public :
     T operator() (edm::FwdPtr<T> const &r)  const  { return T(*r); }
   };
@@ -27,7 +27,7 @@ namespace edm {
   /// Factory class template for how to produce FwdPtrs
   /// from a View. 
   template<class T>
-  class FwdPtrFromProductFactory : public std::binary_function<edm::FwdPtr<T>, edm::View<T>, unsigned int > {
+    class FwdPtrFromProductFactory : public std::binary_function<edm::View<T>, unsigned int, edm::FwdPtr<T> > {
   public :
     edm::FwdPtr<T> operator() (edm::View<T> const & view, unsigned int i)  const  { return edm::FwdPtr<T>(view.ptrAt(i),view.ptrAt(i)); }
   };
