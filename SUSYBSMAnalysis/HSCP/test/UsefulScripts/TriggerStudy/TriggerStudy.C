@@ -187,13 +187,13 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
 
    //initialize LumiReWeighting
 #ifdef ANALYSIS2011
-   if(Name.find("7TeV")==string::npos)return;
+   if(Name.find("7TeV")==string::npos){printf("Skim %s because of wrong center of mass energy\n", Name.c_str());return;}
 
    for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
    for(int i=0; i<35; ++i) TrueDist.push_back(TrueDist2011_f[i]);
    SQRTS=7;
 #else
-   if(Name.find("8TeV")==string::npos)return;
+   if(Name.find("8TeV")==string::npos){printf("Skim %s because of wrong center of mass energy\n", Name.c_str());return;}
 
    for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
    for(int i=0; i<60; ++i) TrueDist.push_back(TrueDist2012_f[i]);
