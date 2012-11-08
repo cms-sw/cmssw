@@ -372,11 +372,13 @@ cacheutils::CachingAddNLL::evaluate() const
     }
     // then get the final nll
     double ret = 0;
+    bool fastExit = runtimedef::get("ADDNLL_FASTEXIT");
     for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
         if (*itw == 0) continue;
         if (!isnormal(*its) || *its <= 0) {
             std::cerr << "WARNING: underflow to " << *its << " in " << GetName() << std::endl; 
             if (!CachingSimNLL::noDeepLEE_) logEvalError("Number of events is negative or error"); else CachingSimNLL::hasError_ = true;
+            if (fastExit) break;
         }
         double thispiece = (*itw) * (*its <= 0 ? -9e9 : log( ((*its) / sumCoeff) ));
         #ifdef ADDNLL_KAHAN_SUM
