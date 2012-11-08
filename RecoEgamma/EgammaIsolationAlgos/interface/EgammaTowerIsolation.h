@@ -70,6 +70,7 @@ class EgammaTowerIsolationNew {
       extRadius2_[i]=extRadius[i]*extRadius[i];
       intRadius2_[i]=intRadius[i]*intRadius[i];
     }
+    maxEta = *std::max_element(extRadius,extRadius+NC);
   }
 
 public:
