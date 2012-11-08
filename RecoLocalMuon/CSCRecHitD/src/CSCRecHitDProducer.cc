@@ -47,7 +47,9 @@ CSCRecHitDProducer::~CSCRecHitDProducer()
 
 void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup )
 {
-  LogTrace("CSCRecHit")<< "CSCRecHitDProducer: starting event " << ev.id().event() << " of run " << ev.id().run();
+  // Dumps the message TWICE if both categories are set!
+  //  LogTrace("CSCRecHitDProducer|CSCRecHit")<< "[CSCRecHitDProducer] starting event " << ev.id().event() << " of run " << ev.id().run();
+  LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] starting event " << ev.id().event() << " of run " << ev.id().run();
   // find the geometry for this event & cache it in the builder
   edm::ESHandle<CSCGeometry> h;
   setup.get<MuonGeometryRecord>().get( h );
@@ -72,7 +74,7 @@ void  CSCRecHitDProducer::produce( edm::Event& ev, const edm::EventSetup& setup 
   recHitBuilder_->build( stripDigis.product(), wireDigis.product(), *oc);
 
   // Put collection in event
-  LogTrace("CSCRecHit")<< "CSCRecHitDProducer: putting collection of " << oc->size() << " rechits into event.";
+  LogTrace("CSCRecHit")<< "[CSCRecHitDProducer] putting collection of " << oc->size() << " rechits into event.";
   ev.put( oc );
 
 }
