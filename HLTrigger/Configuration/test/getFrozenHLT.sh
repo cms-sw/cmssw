@@ -1,12 +1,11 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="5E33v4 7E33v2 7E33v3 7E33v4 8E33v1 8E33v2"
+TABLES="5E33v4 7E33v2 7E33v3 7E33v4 8E33v2"
 HLT_5E33v4="/online/collisions/2012/5e33/v4.4/HLT/V12"
 HLT_7E33v2="/online/collisions/2012/7e33/v2.2/HLT/V7"
 HLT_7E33v3="/online/collisions/2012/7e33/v3.0/HLT/V21"
 HLT_7E33v4="/online/collisions/2012/7e33/v4.1/HLT/V2"
-HLT_8E33v1="/online/collisions/2012/8e33/v1.2/HLT/V2"
 HLT_8E33v2="/online/collisions/2012/8e33/v2.1/HLT/V2"
 
 # print extra messages ?
