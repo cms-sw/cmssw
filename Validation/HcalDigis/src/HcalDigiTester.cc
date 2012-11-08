@@ -326,7 +326,8 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
 
       const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
-      const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
+//      const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
+      const HcalQIEShape* shape = conditions->getHcalShape(); //fixed compile error by lhx
       HcalCoderDb coder (*channelCoder, *shape);
       coder.adc2fC(*digiItr,tool);
       

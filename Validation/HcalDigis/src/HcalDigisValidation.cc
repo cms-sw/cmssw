@@ -13,7 +13,7 @@
 //
 // Original Author:  Ali Fahim,22 R-013,+41227672649,
 //         Created:  Wed Mar 23 11:42:34 CET 2011
-// $Id: HcalDigisValidation.cc,v 1.3 2012/05/24 15:53:11 abdullin Exp $
+// $Id: HcalDigisValidation.cc,v 1.4 2012/11/02 14:16:51 dlange Exp $
 //
 //
 
@@ -62,7 +62,8 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
     HistLim Ndigis(2600, 0., 2600.);
     HistLim ndigis(505, -10., 1000.);
     HistLim sime(200, 0., 1.0);
-    HistLim digiAmp(2050, -100., 4000.);
+//    HistLim digiAmp(2050, -100., 4000.);
+    HistLim digiAmp(205, -100., 4000.);
     HistLim ratio(2000, -100., 3900.);
     HistLim sumAmp(100, -500., 1500.);
 
@@ -135,6 +136,7 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
 
 
         // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
+/*
         sprintf(histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth1_%s", sub);
         book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth2_%s", sub);
@@ -143,6 +145,7 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
         book2D(histo, ietaLim, iphiLim);
         sprintf(histo, "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth4_%s", sub);
         book2D(histo, ietaLim, iphiLim);
+*/
         // just 1D of all cells' amplitudes
         sprintf(histo, "HcalDigiTask_sum_all_amplitudes_%s", sub);
         book1D(histo, sumAmp);
@@ -182,11 +185,12 @@ void HcalDigisValidation::booking(const std::string bsubdet, int bnoise, int bmc
         sprintf(histo, "HcalDigiTask_signal_amplitude_vs_bin_all_depths_%s", sub);
         book2D(histo, nbin, digiAmp);
 
+/*
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_depth1_%s", sub);
         book2D(histo, nbin, digiAmp);
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_depth2_%s", sub);
         book2D(histo, nbin, digiAmp);
-
+*/
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth1_%s", sub);
         book1D(histo, nbin);
         sprintf(histo, "HcalDigiTask_all_amplitudes_vs_bin_1D_depth2_%s", sub);
@@ -609,7 +613,8 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
 
             const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
-	    const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
+//	    const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
+	    const HcalQIEShape* shape = conditions->getHcalShape(); //fix a compile error by lhx
             HcalCoderDb coder(*channelCoder, *shape);
             coder.adc2fC(*digiItr, tool);
 
@@ -635,12 +640,13 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
                 int capid = (*digiItr)[ii].capid();
                 // single ts amplitude
                 double val = (tool[ii] - calibrations.pedestal(capid));
-
+/*
                 if (val > 10.) {
                     if (depth == 1) strtmp = "HcalDigiTask_all_amplitudes_vs_bin_depth1_" + subdet_;
                     else strtmp = "HcalDigiTask_all_amplitudes_vs_bin_depth2_" + subdet_;
                     fill2D(strtmp, double(ii), val);
                 }
+*/
                 if (val > 100.) {
                     if (depth == 1) strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth1_" + subdet_;
                     else strtmp = "HcalDigiTask_all_amplitudes_vs_bin_1D_depth2_" + subdet_;
@@ -691,7 +697,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
 
 
             // maps of sum of amplitudes (sum lin.digis(4,5,6,7) - ped) all depths
-
+/*
             strtmp = "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth1_" + subdet_;
             fill2D(strtmp, double(ieta), double(iphi), ampl1);
             strtmp = "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth2_" + subdet_;
@@ -700,7 +706,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             fill2D(strtmp, double(ieta), double(iphi), ampl3);
             strtmp = "HcalDigiTask_ieta_iphi_map_of_amplitudes_fC_depth4_" + subdet_;
             fill2D(strtmp, double(ieta), double(iphi), ampl4);
-
+*/
             // just 1D of all cells' amplitudes
             strtmp = "HcalDigiTask_sum_all_amplitudes_" + subdet_;
             fill1D(strtmp, ampl);
