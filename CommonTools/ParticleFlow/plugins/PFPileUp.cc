@@ -111,8 +111,8 @@ void PFPileUp::produce(Event& iEvent,
     pileUpAlgo_.process(*pfCandidatesRef,*vertices);
     pOutput->insert(pOutput->end(),pileUpAlgo_.getPFCandidatesFromPU().begin(),pileUpAlgo_.getPFCandidatesFromPU().end());
 
-    for ( PFCollection::const_iterator byValueBegin = pfCandidatesRef->begin(),
-	    byValueEnd = pfCandidatesRef->end(), ibyValue = byValueBegin;
+    for ( PFCollection::const_iterator byValueBegin = pileUpAlgo_.getPFCandidatesFromPU().begin(),
+	    byValueEnd = pileUpAlgo_.getPFCandidatesFromPU().end(), ibyValue = byValueBegin;
 	  ibyValue != byValueEnd; ++ibyValue ) {
       pOutputByValue->push_back( **ibyValue );
     }

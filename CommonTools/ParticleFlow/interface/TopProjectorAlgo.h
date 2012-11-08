@@ -152,12 +152,12 @@ std::vector<Bottom> TopProjectorAlgo< Top, Bottom >::produce( const edm::Handle<
     
     if(masked[i]) {
       if(verbose_)
-	cout<<"X "<<i<<" "<<inCands[i]<<endl;
+	cout<<"X "<<i<<" "<< *(inCands[i].get())<<endl;
       continue;
     }
     else {
       if(verbose_)
-	cout<<"O "<<i<<" "<<inCands[i]<<endl;
+	cout<<"O "<<i<<" "<< *(inCands[i].get())<<endl;
 
       pBottomOutput->push_back( inCands[i] );
       BottomPtr motherPtr( bottoms, i );

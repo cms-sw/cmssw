@@ -255,13 +255,13 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
     // If this is masked in the top projection, we remove it. 
     if( enable_ && masked.isNonnull() && masked.isAvailable() ) {
       if(verbose_)
-	std::cout<<"X "<<i<<" "<< masked.id() <<std::endl;
+	std::cout<<"X "<<i<<" "<< *masked <<std::endl;
       continue;
     }
     // otherwise, we keep it. 
     else {
       if(verbose_)
-	std::cout<<"O "<<i<<" "<< (*bottoms)[i].id() <<std::endl;
+	std::cout<<"O "<<i<<" "<< *((*bottoms)[i]) <<std::endl;
       pBottomFwdPtrOutput->push_back( (*bottoms)[i] );
     }
   }

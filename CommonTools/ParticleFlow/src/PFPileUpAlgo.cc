@@ -26,8 +26,12 @@ void PFPileUpAlgo::process(const PFCollection & pfCandidates,
     // not pile-up
     if( ivertex == -1  || 
 	ivertex == 0 ) {
+      if(verbose_)
+	std::cout<<"VTX "<<i<<" "<< *(pfCandidates[i])<<std::endl;
       pfCandidatesFromVtx_.push_back( pfCandidates[i] );
     } else {
+      if(verbose_)
+	std::cout<<"PU  "<<i<<" "<< *(pfCandidates[i])<<std::endl;
       // associated to a vertex
       pfCandidatesFromPU_.push_back( pfCandidates[i] );
     }
