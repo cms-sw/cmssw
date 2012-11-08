@@ -343,7 +343,9 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   } else {
     iEvent.getByLabel(src_,pfinputsHandleAsFwdPtr);
     for (size_t i = 0; i < pfinputsHandleAsFwdPtr->size(); ++i) {
-      inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].backPtr() );
+      if ( (*pfinputsHandleAsFwdPtr)[i].backPtr().isNonnull() && (*pfinputsHandleAsFwdPtr)[i].backPtr().isAvailable() ) {
+	inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].backPtr() );
+      }
     }    
   }
   LogDebug("VirtualJetProducer") << "Got inputs\n";
