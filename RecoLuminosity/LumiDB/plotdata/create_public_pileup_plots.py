@@ -150,7 +150,10 @@ if __name__ == "__main__":
               "ERROR Config file '%s' does not exist" % config_file_name
         sys.exit(1)
     cfg_parser.read(config_file_name)
-
+    
+    #location to cached root file
+    cache_file_dir = cfg_parser.get("general", "cache_dir")
+    
     # Which color scheme to use for drawing the plots.
     color_scheme_names_tmp = cfg_parser.get("general", "color_schemes")
     color_scheme_names = [i.strip() for i in color_scheme_names_tmp.split(",")]
@@ -179,7 +182,7 @@ if __name__ == "__main__":
     ##########
 
     # First run pileupCalc.
-    tmp_file_name = "pileup_calc_tmp.root"
+    tmp_file_name = os.path.join(cache_file_dir,"pileup_calc_tmp.root")
     if (not ignore_cache):
         cmd = "pileupCalc.py -i %s --inputLumiJSON=%s %s %s" % \
               (input_json, input_lumi_json,
