@@ -173,6 +173,7 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
    if(Sample5!="") SamplesToRun.push_back(Sample5);
    if(Sample6!="") SamplesToRun.push_back(Sample6);
 
+   setTDRStyle();
    gStyle->SetCanvasBorderMode(0);
    gStyle->SetCanvasColor(kWhite);
    gStyle->SetPadTopMargin   (0.06);
@@ -184,18 +185,20 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
    gStyle->SetTitleYOffset(1.45);
    gStyle->SetPalette(1);
    gStyle->SetNdivisions(505);
+   gStyle->SetPadGridY(false);
+   gStyle->SetErrorX(0.5);
 
    //initialize LumiReWeighting
   BgLumiMC.clear();
   TrueDist.clear();
 #ifdef ANALYSIS2011
-   if(Name.find("7TeV")==string::npos){printf("Skim %s because of wrong center of mass energy\n", Name.c_str());return;}
+   if(Name.find("7TeV")==string::npos){printf("Skip %s because of wrong center of mass energy\n", Name.c_str());return;}
 
    for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
    for(int i=0; i<35; ++i) TrueDist.push_back(TrueDist2011_f[i]);
    SQRTS=7;
 #else
-   if(Name.find("8TeV")==string::npos){printf("Skim %s because of wrong center of mass energy\n", Name.c_str());return;}
+   if(Name.find("8TeV")==string::npos){printf("Skip %s because of wrong center of mass energy\n", Name.c_str());return;}
 
    for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
    for(int i=0; i<60; ++i) TrueDist.push_back(TrueDist2012_f[i]);
@@ -209,6 +212,7 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
    keepOnlySamplesOfNamesXtoY(samples, SamplesToRun);
 
    ///////////////////////////////////////////////////////
+
    All_triggers.clear();
    All_triggers.push_back(std::make_pair("HSCPHLTTriggerMuFilter", "Mu40_eta2p1"));
    All_triggers.push_back(std::make_pair("HSCPHLTTriggerPFMetFilter","PFMET150"));
@@ -221,8 +225,10 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
    All_triggers.push_back(std::make_pair("HSCPHLTTriggerHtFilter", "HT650" ) );
 
    AllSA_triggers.clear();
-   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerPFMetFilter","PFMET150"));
    AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerMuFilter", "Mu40_eta2p1"));
+   //AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerL2MuFilter", "L2Muon+Met"));
+   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerPFMetFilter","PFMET150"));
+   //AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerMuFilter", "Mu40_eta2p1"));
 #ifndef ANALYSIS2011
    AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerL2MuFilter", "L2Muon+Met"));
    AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerMetDeDxFilter", "Met80+dEdx"));
@@ -692,7 +698,6 @@ void layout(stPlot** plots, vector<string>& sigs, string name){
 
    TCanvas* c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<sigs.size();i++){
@@ -703,26 +708,19 @@ void layout(stPlot** plots, vector<string>& sigs, string name){
 //   if(name=="summary_Gluino")DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,30);
 //   else                      DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);
    DrawSuperposedHistos((TH1**)Histos1, legend, "E1",  "", "Efficiency (%)", 0,0, 0,100);
-   c1->Update();
-
    DrawLegend(Histos1,legend,"","P", 0.58, 0.90, 0.13, 0.07);
-   c1->Update();
-
    DrawPreliminary("Simulation", SQRTS, -1);
-   c1->Update();
    for(unsigned int i=0;i<sigs.size();i++){
       plots[i]->Histo->GetYaxis()->SetTitleOffset(1.55);
       plots[i]->Histo->SetMarkerSize(0.8);
    }
 //   line1->Draw();
 //   line2->Draw();
-   c1->Update();
    SaveCanvas(c1,OutputDirectory,name);
    delete c1;
 
    c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<sigs.size();i++){
@@ -747,7 +745,6 @@ void layout(stPlot** plots, vector<string>& sigs, string name){
 
    c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<sigs.size();i++){
@@ -771,7 +768,6 @@ void layout(stPlot** plots, vector<string>& sigs, string name){
 
    c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<sigs.size();i++){
@@ -796,7 +792,6 @@ void layout(stPlot** plots, vector<string>& sigs, string name){
 
    c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<sigs.size();i++){
@@ -820,7 +815,6 @@ void layout(stPlot** plots, vector<string>& sigs, string name){
 
    c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<sigs.size();i++){
@@ -848,7 +842,6 @@ void layout(stPlot** plots, vector<string>& sigs, string name){
 
    c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<sigs.size();i++){
@@ -872,7 +865,6 @@ void layout(stPlot** plots, vector<string>& sigs, string name){
 
    c1 = new TCanvas("MyC","Histo",600,600);
    legend.clear();
-   c1->SetGrid();
    c1->SetBottomMargin(0.3);
 
    for(unsigned int i=0;i<sigs.size();i++){

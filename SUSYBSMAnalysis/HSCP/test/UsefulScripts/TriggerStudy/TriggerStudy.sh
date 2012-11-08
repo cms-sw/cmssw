@@ -13,6 +13,7 @@ root -l -b << EOF
    gSystem->Load("libDataFormatsHepMCCandidate.so");
    gSystem->Load("libPhysicsToolsUtilities.so");
    gSystem->Load("libdcap.so");
+   //.x /uscms_data/d2/farrell3/WorkArea/14Aug2012/CMSSW_5_3_3/src/SUSYBSMAnalysis/HSCP/test/UsefulScripts/TriggerStudy/TriggerStudy.C++("test8TeV", "Gluino_8TeV_M800_f10", "Gluino_8TeV_M1200_f10")
    .x TriggerStudy.C++("summary_8TeV_Gluino"     , "Gluino_8TeV_M400_f10" , "Gluino_8TeV_M800_f10" , "Gluino_8TeV_M1200_f10" );
    .x TriggerStudy.C+ ("summary_8TeV_Gluino_f100", "Gluino_8TeV_M400_f100", "Gluino_8TeV_M800_f100", "Gluino_8TeV_M1200_f100");
    .x TriggerStudy.C+ ("summary_8TeV_GMStau"     , "GMStau_8TeV_M100"     , "GMStau_8TeV_M308"     , "PPStau_8TeV_M100"      , "PPStau_8TeV_M308");
