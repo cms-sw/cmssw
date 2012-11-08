@@ -221,12 +221,10 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
    All_triggers.push_back(std::make_pair("HSCPHLTTriggerHtFilter", "HT650" ) );
 
    AllSA_triggers.clear();
-#ifndef ANALYSIS2011
-   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerL2MuFilter", "L2Muon+Met"));
-#endif
    AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerPFMetFilter","PFMET150"));
    AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerMuFilter", "Mu40_eta2p1"));
 #ifndef ANALYSIS2011
+   AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerL2MuFilter", "L2Muon+Met"));
    AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerMetDeDxFilter", "Met80+dEdx"));
    AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerMuDeDxFilter", "Mu40+dEdx"));
    AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerHtDeDxFilter", "HT+dEdx"));
