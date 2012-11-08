@@ -127,15 +127,15 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
 }
 
 RooDataSet *  
-toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar) 
+toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar, double weightScale) 
 {
     static int nPA = runtimedef::get("TMCSO_PseudoAsimov");
-    if (nPA) return generatePseudoAsimov(weightVar, nPA);
-    return generateWithHisto(weightVar, true);
+    if (nPA) return generatePseudoAsimov(weightVar, nPA, weightScale);
+    return generateWithHisto(weightVar, true, weightScale);
 }
 
 RooDataSet *  
-toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, int nPoints) 
+toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, int nPoints, double weightScale) 
 {
     if (mode_ == Unbinned) {
         double expEvents = pdf_->expectedEvents(observables_);
@@ -145,7 +145,7 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
         RooDataSet *rds = new RooDataSet(data->GetName(), "", obsPlusW, weightVar->GetName());
         for (int i = 0; i < nPoints; ++i) {
             observables_ = *data->get(i);
-            rds->add(observables_, expEvents/nPoints);
+            rds->add(observables_, weightScale*expEvents/nPoints);
         }
         return rds; 
     } else {
@@ -155,7 +155,7 @@ toymcoptutils::SinglePdfGenInfo::generatePseudoAsimov(RooRealVar *&weightVar, in
 
 
 RooDataSet *  
-toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool asimov) 
+toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool asimov, double weightScale) 
 {
     if (mode_ == Counting) return generateCountingAsimov();
     if (observables_.getSize() > 3) throw std::invalid_argument(std::string("ERROR in SinglePdfGenInfo::generateWithHisto for ") + pdf_->GetName() + ", more than 3 observable");
@@ -182,7 +182,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
         case 1:
             for (int i = 1, n = histoSpec_->GetNbinsX(); i <= n; ++i) {
                 x->setVal(histoSpec_->GetXaxis()->GetBinCenter(i));
-                data->add(observables_, asimov ? histoSpec_->GetBinContent(i) : RooRandom::randomGenerator()->Poisson(histoSpec_->GetBinContent(i)) );
+                data->add(observables_,  weightScale*(asimov ? histoSpec_->GetBinContent(i) : RooRandom::randomGenerator()->Poisson(histoSpec_->GetBinContent(i))) );
             }
             break;
         case 2:
@@ -192,7 +192,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
             for (int iy = 1, ny = h2.GetNbinsY(); iy <= ny; ++iy) {
                 x->setVal(h2.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h2.GetYaxis()->GetBinCenter(iy));
-                data->add(observables_, asimov ? h2.GetBinContent(ix,iy) : RooRandom::randomGenerator()->Poisson(h2.GetBinContent(ix,iy)) );
+                data->add(observables_, weightScale*(asimov ? h2.GetBinContent(ix,iy) : RooRandom::randomGenerator()->Poisson(h2.GetBinContent(ix,iy))) );
             } }
             }
             break;
@@ -205,7 +205,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
                 x->setVal(h3.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h3.GetYaxis()->GetBinCenter(iy));
                 z->setVal(h3.GetYaxis()->GetBinCenter(iz));
-                data->add(observables_, asimov ? h3.GetBinContent(ix,iy,iz) : RooRandom::randomGenerator()->Poisson(h3.GetBinContent(ix,iy,iz)) );
+                data->add(observables_, weightScale*(asimov ? h3.GetBinContent(ix,iy,iz) : RooRandom::randomGenerator()->Poisson(h3.GetBinContent(ix,iy,iz))) );
             } } }
             }
     }
@@ -401,6 +401,43 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar)
     return ret;
 }
 
+RooAbsData *  
+toymcoptutils::SimPdfGenInfo::generateEpsilon(RooRealVar *&weightVar) 
+{
+    RooAbsData *ret = 0;
+    TString retName =  TString::Format("%sData", pdf_->GetName());
+    if (cat_ != 0) {
+        //bool needsWeights = false;
+        for (int i = 0, n = cat_->numBins((const char *)0); i < n; ++i) {
+            if (pdfs_[i] == 0) continue;
+            if (pdfs_[i]->mode() != SinglePdfGenInfo::Unbinned) continue;
+            cat_->setBin(i);
+            RooAbsData *&data =  datasetPieces_[cat_->getLabel()]; delete data;
+            data = pdfs_[i]->generateAsimov(weightVar, 1e-9); 
+        }
+        if (copyData_) { 
+            RooArgSet vars(observables_), varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
+            ret = new RooDataSet(retName, "", varsPlusWeight, (weightVar ? weightVar->GetName() : 0));
+            for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
+                cat_->setLabel(it->first.c_str());
+                for (unsigned int i = 0, n = it->second->numEntries(); i < n; ++i) {
+                    vars = *it->second->get(i);
+                    ret->add(vars, it->second->weight());
+                }
+            }
+        } else {
+            // not copyData is the "fast" mode used when generating toys as a ToyMCSampler.
+            // this doesn't copy the data, so the toys cannot outlive this class and each new
+            // toy over-writes the memory of the previous one.
+            ret = new RooDataSet(retName, "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
+        }
+    } else ret = pdfs_[0]->generateAsimov(weightVar, 1e-9);
+    //std::cout << "Asimov dataset generated from sim pdf " << pdf_->GetName() << " (sumw? " << ret->sumEntries() << ")" << std::endl; 
+    //utils::printRAD(ret);
+    return ret;
+}
+
+
 void
 toymcoptutils::SimPdfGenInfo::setCacheTemplates(bool cache) 
 {
@@ -527,7 +564,7 @@ ToyMCSamplerOpt::Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataS
    if (info == 0) { 
        info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents);
        info->setCopyData(false);
-       if (!fPriorNuisance) info->setCacheTemplates(true);
+       if (!fPriorNuisance && importanceSnapshots_.empty()) info->setCacheTemplates(true);
    }
    return info->generate(weightVar_, protoData, forceEvents);
 }

@@ -37,7 +37,7 @@ protected:
   static float stepSize_;
   static int   maxFailedSteps_;
 
-  static bool  saveNLL_, keepFailures_;
+  static bool  saveNLL_, keepFailures_, protectUnbinnedChannels_;
   static float nllValue_;
   std::auto_ptr<RooAbsReal> nll;
   // method that is implemented in the subclass

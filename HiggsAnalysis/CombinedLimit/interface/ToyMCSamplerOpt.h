@@ -1,6 +1,7 @@
 #ifndef ROOT_ToyMCSamplerOpt_h
 #define ROOT_ToyMCSamplerOpt_h
 
+#include <memory>
 #include <RooStats/ToyMCSampler.h>
 struct RooProdPdf;
 struct RooPoisson;
@@ -12,10 +13,11 @@ namespace toymcoptutils {
             SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             ~SinglePdfGenInfo() ;
             RooAbsData *generate(const RooDataSet* protoData = NULL, int forceEvents = 0) ;
-            RooDataSet *generateAsimov(RooRealVar *&weightVar) ;
-            RooDataSet *generatePseudoAsimov(RooRealVar *&weightVar, int nPoints) ;
+            RooDataSet *generateAsimov(RooRealVar *&weightVar, double weightScale = 1.0) ;
+            RooDataSet *generatePseudoAsimov(RooRealVar *&weightVar, int nPoints, double weightScale = 1.0) ;
             const RooAbsPdf * pdf() const { return pdf_; }
             void setCacheTemplates(bool cache) { keepHistoSpec_ = cache; }
+            Mode mode() const { return mode_; }
         private:
             Mode mode_;
             RooAbsPdf *pdf_; 
@@ -24,7 +26,7 @@ namespace toymcoptutils {
             TH1        *histoSpec_;
             bool        keepHistoSpec_;
             RooRealVar *weightVar_;
-            RooDataSet *generateWithHisto(RooRealVar *&weightVar, bool asimov) ;
+            RooDataSet *generateWithHisto(RooRealVar *&weightVar, bool asimov, double weightScale = 1.0) ;
             RooDataSet *generateCountingAsimov() ;
             void setToExpected(RooProdPdf &prod, RooArgSet &obs) ;
             void setToExpected(RooPoisson &pois, RooArgSet &obs) ;
@@ -35,6 +37,7 @@ namespace toymcoptutils {
             ~SimPdfGenInfo() ;
             RooAbsData *generate(RooRealVar *&weightVar, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             RooAbsData *generateAsimov(RooRealVar *&weightVar) ;
+            RooAbsData *generateEpsilon(RooRealVar *&weightVar) ;
             void setCopyData(bool copyData) { copyData_ = copyData; }
             void setCacheTemplates(bool cache) ;
         private:
@@ -60,6 +63,8 @@ class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
         void setGlobalObsPdf(RooAbsPdf *pdf) { globalObsPdf_ = pdf; }
         virtual RooAbsData* GenerateToyData(RooArgSet& /*nullPOI*/, double& weight) const ;
     private:
+        RooAbsData* GenerateToyDataWithImportanceSampling(RooArgSet& /*nullPOI*/, double& weight) const ;
+
         RooAbsData* Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataSet* protoData = NULL, int forceEvents = 0) const ;
         RooAbsPdf *globalObsPdf_;
         mutable RooDataSet *globalObsValues_; 
@@ -71,7 +76,9 @@ class ToyMCSamplerOpt : public RooStats::ToyMCSampler{
 
         mutable RooRealVar *weightVar_;
         mutable std::map<RooAbsPdf *, toymcoptutils::SimPdfGenInfo *> genCache_;
-        
+
+        mutable std::auto_ptr<RooArgSet> paramsForImportanceSampling_;
+        mutable std::vector<RooArgSet *> importanceSnapshots_;
 };
 
 #endif

@@ -23,6 +23,7 @@
 #include "../interface/CascadeMinimizer.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/utils.h"
+#include "../interface/ToyMCSamplerOpt.h"
 
 #include "../interface/ProfilingTools.h"
 
@@ -48,6 +49,7 @@ int         FitterAlgoBase::maxFailedSteps_ = 5;
 bool        FitterAlgoBase::do95_ = false;
 bool        FitterAlgoBase::saveNLL_ = false;
 bool        FitterAlgoBase::keepFailures_ = false;
+bool        FitterAlgoBase::protectUnbinnedChannels_ = false;
 float       FitterAlgoBase::nllValue_ = std::numeric_limits<float>::quiet_NaN();
 
 FitterAlgoBase::FitterAlgoBase(const char *title) :
@@ -67,6 +69,7 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("minimizerToleranceForMinos",  boost::program_options::value<float>(&minimizerToleranceForMinos_)->default_value(minimizerToleranceForMinos_),      "Tolerance for minimizer for profiling in robust fits")
         ("saveNLL",  "Save the negative log-likelihood at the minimum in the output tree (note: value is relative to the pre-fit state)")
         ("keepFailures",  "Save the results even if the fit is declared as failed (for NLL studies)")
+        ("protectUnbinnedChannels", "Protect PDF from going negative in unbinned channels")
     ;
 }
 
@@ -74,6 +77,7 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
 {
     saveNLL_ = vm.count("saveNLL");
     keepFailures_ = vm.count("keepFailures");
+    protectUnbinnedChannels_ = vm.count("protectUnbinnedChannels");
 }
 
 bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -83,7 +87,28 @@ bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   static bool shouldCreateNLLBranch = saveNLL_;
   if (shouldCreateNLLBranch) { Combine::addBranch("nll", &nllValue_, "nll/F"); shouldCreateNLLBranch = false; }
 
-  return runSpecific(w, mc_s, mc_b, data, limit, limitErr, hint);
+  RooAbsData *theData = &data;
+  std::auto_ptr<toymcoptutils::SimPdfGenInfo> generator;
+  std::auto_ptr<RooAbsData> generatedData;
+  if (protectUnbinnedChannels_) {
+      RooRealVar *weightVar = 0;
+      generator.reset(new toymcoptutils::SimPdfGenInfo(*mc_s->GetPdf(), *mc_s->GetObservables(), false));
+      generatedData.reset(generator->generateEpsilon(weightVar));
+      theData = &*generatedData;
+      for (int i = 0, n = data.numEntries(); i < n; ++i) {
+        const RooArgSet &entry = *data.get(i);
+        theData->add(entry, data.weight());
+      }
+  }
+
+  bool ret = runSpecific(w, mc_s, mc_b, *theData, limit, limitErr, hint);
+  if (protectUnbinnedChannels_) { 
+    // destroy things in the proper order
+    nll.reset(); // can't keep this
+    generatedData.reset(); 
+    generator.reset(); 
+  }
+  return ret;
 }
 
 
