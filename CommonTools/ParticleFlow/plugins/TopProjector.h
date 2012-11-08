@@ -47,17 +47,23 @@ template < class Top, class Bottom>
     explicit TopProjectorFwdPtrOverlap(edm::ParameterSet const & ) {}
 
     bool operator() ( TopFwdPtr const & top, BottomFwdPtr const & bottom ) const{
+      bool topFwdGood = top.ptr().isNonnull() && top.ptr().isAvailable();
+      bool topBckGood = top.backPtr().isNonnull() && top.backPtr().isAvailable();
+      bool bottomFwdGood = bottom.ptr().isNonnull() && bottom.ptr().isAvailable();
+      bool bottomBckGood = bottom.backPtr().isNonnull() && bottom.backPtr().isAvailable();
+
       bool matched = 
-	(top.ptr().refCore() == bottom.ptr().refCore() && top.ptr().key() == bottom.ptr().key()) ||
-	(top.ptr().refCore() == bottom.backPtr().refCore() && top.ptr().key() == bottom.backPtr().key()) ||
-	(top.backPtr().refCore() == bottom.ptr().refCore() && top.backPtr().key() == bottom.ptr().key()) ||
-	(top.backPtr().refCore() == bottom.backPtr().refCore() && top.backPtr().key() == bottom.backPtr().key())
+	(topFwdGood && bottomFwdGood && top.ptr().refCore() == bottom.ptr().refCore() && top.ptr().key() == bottom.ptr().key()) ||
+	(topFwdGood && bottomBckGood && top.ptr().refCore() == bottom.backPtr().refCore() && top.ptr().key() == bottom.backPtr().key()) ||
+	(topBckGood && bottomFwdGood && top.backPtr().refCore() == bottom.ptr().refCore() && top.backPtr().key() == bottom.ptr().key()) ||
+	(topBckGood && bottomBckGood && top.backPtr().refCore() == bottom.backPtr().refCore() && top.backPtr().key() == bottom.backPtr().key())
 	;
       if ( !matched ) {
 	for ( unsigned isource = 0; isource < top->numberOfSourceCandidatePtrs(); ++isource ) {
 	  reco::CandidatePtr const & topSrcPtr = top->sourceCandidatePtr(isource);
-	  if ( (topSrcPtr.refCore() == bottom.ptr().refCore() && topSrcPtr.key() == bottom.ptr().key())|| 
-	       (topSrcPtr.refCore() == bottom.backPtr().refCore() && topSrcPtr.key() == bottom.backPtr().key())
+	  bool topSrcGood = topSrcPtr.isNonnull() && topSrcPtr.isAvailable();
+	  if ( (topSrcGood && bottomFwdGood && topSrcPtr.refCore() == bottom.ptr().refCore() && topSrcPtr.key() == bottom.ptr().key())|| 
+	       (topSrcGood && bottomBckGood && topSrcPtr.refCore() == bottom.backPtr().refCore() && topSrcPtr.key() == bottom.backPtr().key())
 	       ) {
 	    matched = true;
 	    break;
@@ -67,8 +73,9 @@ template < class Top, class Bottom>
       if ( !matched ) {
 	for ( unsigned isource = 0; isource < bottom->numberOfSourceCandidatePtrs(); ++isource ) {
 	  reco::CandidatePtr const & bottomSrcPtr = bottom->sourceCandidatePtr(isource);
-	  if ( (bottomSrcPtr.refCore() == top.ptr().refCore() && bottomSrcPtr.key() == top.ptr().key() )|| 
-	       (bottomSrcPtr.refCore() == top.backPtr().refCore() && bottomSrcPtr.key() == top.backPtr().key() )
+	  bool bottomSrcGood = bottomSrcPtr.isNonnull() && bottomSrcPtr.isAvailable();
+	  if ( (topFwdGood && bottomSrcGood && bottomSrcPtr.refCore() == top.ptr().refCore() && bottomSrcPtr.key() == top.ptr().key() )|| 
+	       (topBckGood && bottomSrcGood && bottomSrcPtr.refCore() == top.backPtr().refCore() && bottomSrcPtr.key() == top.backPtr().key() )
 	       ) {
 	    matched = true;
 	    break;
@@ -218,11 +225,24 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
     std::cout<<"Top projector: event "<<iEvent.id().event()<<std::endl;
     std::cout<<"Inputs --------------------"<<std::endl;
     std::cout<<"Top      :  "
-	<<tops.id()<<"\t"<<tops->size()<<std::endl
-	<<topProv.branchDescription()<<std::endl
-	<<"Bottom   :  "
-	<<bottoms.id()<<"\t"<<bottoms->size()<<std::endl
-	<<bottomProv.branchDescription()<<std::endl;
+	     <<tops.id()<<"\t"<<tops->size()<<std::endl
+	     <<topProv.branchDescription()<<std::endl;
+
+    for(unsigned i=0; i<tops->size(); i++) {
+      TopFwdPtr top = (*tops)[i];
+      std::cout << "< " << i << " " << top.key() << " : " << *top << std::endl;
+    }
+
+
+    std::cout<<"Bottom   :  "
+	     <<bottoms.id()<<"\t"<<bottoms->size()<<std::endl
+	     <<bottomProv.branchDescription()<<std::endl;
+
+    for(unsigned i=0; i<bottoms->size(); i++) {
+      BottomFwdPtr bottom = (*bottoms)[i];
+      std::cout << "> " << i << " " << bottom.key() << " : " << *bottom << std::endl;
+    }
+
   }
 
 
