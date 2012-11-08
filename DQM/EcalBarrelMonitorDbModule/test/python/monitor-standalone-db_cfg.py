@@ -14,7 +14,7 @@ process.ecalDbMonitor = cms.EDAnalyzer("EcalBarrelMonitorDbModule",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.source = cms.Source("DummySource")
+process.source = cms.Source("EmptySource")
 
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
