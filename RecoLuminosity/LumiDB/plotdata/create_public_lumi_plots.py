@@ -1345,6 +1345,8 @@ if __name__ == "__main__":
                         fig = plt.figure()
                     ax = fig.add_subplot(111)
 
+                    time_begin_ultimate = lumi_data_by_day_per_year[years[0]].time_begin()
+                    str_begin_ultimate = time_begin_ultimate.strftime(DATE_FMT_STR_OUT)
                     for (year_index, year) in enumerate(years):
 
                         lumi_data = lumi_data_by_day_per_year[year]
@@ -1447,7 +1449,8 @@ if __name__ == "__main__":
                     fig.suptitle(r"CMS Integrated Luminosity, %s" % particle_type_str,
                                  fontproperties=FONT_PROPS_SUPTITLE)
                     ax.set_title("Data included from %s to %s UTC \n" % \
-                                 (str_begin, str_end),
+#                                 (str_begin, str_end),
+                                 (str_begin_ultimate, str_end),
                                  fontproperties=FONT_PROPS_TITLE)
                     ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
                     ax.set_ylabel(r"Total Integrated Luminosity (%s)" % \
@@ -1465,7 +1468,8 @@ if __name__ == "__main__":
                             extra_head_room = 1
                         elif mode == 2:
                             extra_head_room = 2
-                    TweakPlot(fig, ax, (time_begin, time_end),
+#                    TweakPlot(fig, ax, (time_begin, time_end),
+                    TweakPlot(fig, ax, (time_begin_ultimate, time_end),
                               add_extra_head_room=extra_head_room)
 
                     log_suffix = ""
@@ -1508,6 +1512,8 @@ if __name__ == "__main__":
                 fig = plt.figure(figsize=aspect_ratio)
                 ax = fig.add_subplot(111)
 
+                time_begin_ultimate = lumi_data_by_day_per_year[years[0]].time_begin()
+                str_begin_ultimate = time_begin_ultimate.strftime(DATE_FMT_STR_OUT)
                 for (year_index, year) in enumerate(years):
 
                     lumi_data = lumi_data_by_day_per_year[year]
@@ -1590,7 +1596,8 @@ if __name__ == "__main__":
                 fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str,
                              fontproperties=FONT_PROPS_SUPTITLE)
                 ax.set_title("Data included from %s to %s UTC \n" % \
-                             (str_begin, str_end),
+#                             (str_begin, str_end),
+                             (str_begin_ultimate, str_end),
                              fontproperties=FONT_PROPS_TITLE)
                 ax.set_xlabel(r"Date (UTC)", fontproperties=FONT_PROPS_AX_TITLE)
                 ax.set_ylabel(r"Peak Delivered Luminosity (%s)" % \
@@ -1603,7 +1610,8 @@ if __name__ == "__main__":
                 head_room = 2.
                 if is_log:
                     head_room = 2.
-                TweakPlot(fig, ax, (time_begin, time_end),
+#                TweakPlot(fig, ax, (time_begin, time_end),
+                TweakPlot(fig, ax, (time_begin_ultimate, time_end),
                           add_extra_head_room=head_room)
 
                 log_suffix = ""

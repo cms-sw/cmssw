@@ -127,12 +127,17 @@ if __name__ == "__main__":
     desc_str = "This script creates the official CMS pileup plots " \
                "based on the output from the pileupCalc.py script."
     arg_parser = optparse.OptionParser(description=desc_str)
+    arg_parser.add_option("--ignore-cache", action="store_true",
+                          help="Ignore all cached PU results " \
+                          "and run pileupCalc. " \
+                          "(Rebuilds the cache as well.)")
     (options, args) = arg_parser.parse_args()
     if len(args) != 1:
         print >> sys.stderr, \
               "ERROR Need exactly one argument: a config file name"
         sys.exit(1)
     config_file_name = args[0]
+    ignore_cache = options.ignore_cache
 
     cfg_defaults = {
         "pileupcalc_flags" : "",
@@ -175,17 +180,18 @@ if __name__ == "__main__":
 
     # First run pileupCalc.
     tmp_file_name = "pileup_calc_tmp.root"
-#    cmd = "pileupCalc.py -i %s --inputLumiJSON=%s %s %s" % \
-#          (input_json, input_lumi_json,
-#           pileupcalc_flags_from_cfg, tmp_file_name)
-#    print "Running pileupCalc (this may take a while)"
-#    if verbose:
-#        print "  pileupCalc cmd: '%s'" % cmd
-#    (status, output) = commands.getstatusoutput(cmd)
-#    if status != 0:
-#        print >> sys.stderr, \
-#              "ERROR Problem running pileupCalc: %s" % output
-#        sys.exit(1)
+    if (not ignore_cache):
+        cmd = "pileupCalc.py -i %s --inputLumiJSON=%s %s %s" % \
+              (input_json, input_lumi_json,
+               pileupcalc_flags_from_cfg, tmp_file_name)
+        print "Running pileupCalc (this may take a while)"
+        if verbose:
+            print "  pileupCalc cmd: '%s'" % cmd
+        (status, output) = commands.getstatusoutput(cmd)
+        if status != 0:
+            print >> sys.stderr, \
+                  "ERROR Problem running pileupCalc: %s" % output
+            sys.exit(1)
 
     ##########
 
