@@ -162,7 +162,7 @@ void layout(stPlot** plots, vector<string>& sigs, string name);
 
 void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", string Sample3="", string Sample4="", string Sample5="", string Sample6="")
 {
-  if(Sample1=="COMPILE") return;
+  if(Name=="COMPILE") return;
 
    system("mkdir pictures");
    std::vector<string> SamplesToRun;
@@ -173,6 +173,8 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
    if(Sample5!="") SamplesToRun.push_back(Sample5);
    if(Sample6!="") SamplesToRun.push_back(Sample6);
 
+   gStyle->SetCanvasBorderMode(0);
+   gStyle->SetCanvasColor(kWhite);
    gStyle->SetPadTopMargin   (0.06);
    gStyle->SetPadBottomMargin(0.14);
    gStyle->SetPadRightMargin (0.16);
@@ -185,10 +187,14 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
 
    //initialize LumiReWeighting
 #ifdef ANALYSIS2011
+   if(Name.find("7TeV")==string::npos)return;
+
    for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
    for(int i=0; i<35; ++i) TrueDist.push_back(TrueDist2011_f[i]);
    SQRTS=7;
 #else
+   if(Name.find("8TeV")==string::npos)return;
+
    for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
    for(int i=0; i<60; ++i) TrueDist.push_back(TrueDist2012_f[i]);
    SQRTS=8;
@@ -293,8 +299,6 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
 //      fileNames.push_back("/uscmst1b_scratch/lpc1/lpcphys/jchen/2011Runanalysis/aftereps/cls/CMSSW_4_2_8/src/SUSYBSMAnalysis/HSCP/test/BuildHSCParticles/ShiftSignals/HSCP.root");
 
     fwlite::ChainEvent ev(fileNames);
-    int MaxEvent = -1;
-
     double SampleWeight = 1.0;
     double PUSystFactor;
 
@@ -314,6 +318,7 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Looping on %10s        :", SignalName.c_str());
    int TreeStep = ev.size()/50;if(TreeStep==0)TreeStep=1;
+    int MaxEvent = 10000;
    if(MaxEvent<0 || MaxEvent>ev.size())MaxEvent = ev.size();
    for(Long64_t e=0;e<MaxEvent;e++){
       if(e%TreeStep==0){printf(".");fflush(stdout);}
