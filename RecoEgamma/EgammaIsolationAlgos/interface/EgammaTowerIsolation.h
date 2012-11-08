@@ -67,10 +67,10 @@ class EgammaTowerIsolationNew {
 
   void setRadius(float extRadius[NC],float intRadius[NC]) {
     for (std::size_t i=0; i!=NCuts; ++i) {
-    extRadius2_[i]=extRadius[i]*extRadius[i];
-    intRadius2_[i]=intRadius[i]*intRadius[i];
+      extRadius2_[i]=extRadius[i]*extRadius[i];
+      intRadius2_[i]=intRadius[i]*intRadius[i];
+    }
   }
-
 
 public:
 
