@@ -92,7 +92,6 @@ public:
     mem = new uint32_t[nt*6];
     eta = (float*)(mem); phi = eta+nt; he = phi+nt; h2 = he+nt; st = h2+nt;
     id = (uint32_t*)(st) + nt;
-
  }
   
   
@@ -103,6 +102,7 @@ namespace etiStat {
   struct Count {
     uint32_t create=0;
     uint32_t comp=0;
+    uint32_t span=0;
     static Count count;
     ~Count();
   };
@@ -129,8 +129,6 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
   }
   
   // sort in eta  (kd-tree anoverkill,does not vectorize...)
-  
-  
   uint32_t index[nt];
   float e[nt];
   for (std::size_t i=0; i!=nt; ++i) {
@@ -170,6 +168,8 @@ EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::SuperCluster const
   uint32_t il = lb-eta;
   uint32_t iu = std::min(nt,uint32_t(ub-eta+1));
   
+  etiStat::Count::count.span += (iu-il);
+
   bool ok[iu-il];
   for (std::size_t i=il;i!=iu; ++i)
     ok[i-il] = (std::find(first,last,id[i])==last);

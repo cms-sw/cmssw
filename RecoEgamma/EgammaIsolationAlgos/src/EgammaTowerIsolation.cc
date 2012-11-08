@@ -12,7 +12,8 @@
 
 namespace etiStat {
   Count::~Count() { 
-    std::cout << "\nEgammaTowerIsolationNew " << create << "/" << comp << std::endl<< std::endl;
+    std::cout << "\nEgammaTowerIsolationNew " << create << "/" << comp << "/" << float(span)/float(comp)  
+	      << std::endl<< std::endl;
     }
 
   Count Count::count;
