@@ -65,7 +65,7 @@ class EgammaTowerIsolationNew {
   }
   void compute(bool et, Sum &sum, reco::SuperCluster const & sc,  CaloTowerDetId const * first,  CaloTowerDetId const * last) const;
 
-  void setRadius(float extRadius[NC],float intRadius[NC]) {
+  void setRadius(float const extRadius[NC],float const intRadius[NC]) {
     for (std::size_t i=0; i!=NCuts; ++i) {
       extRadius2_[i]=extRadius[i]*extRadius[i];
       intRadius2_[i]=intRadius[i]*intRadius[i];
@@ -131,10 +131,10 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
   // sort in eta  (kd-tree anoverkill,does not vectorize...)
   uint32_t index[nt];
   float e[nt];
-  for (std::size_t i=0; i!=nt; ++i) {
-    e[i]=towers[i].eta();
-    index[i]=i;
-    std::push_heap(index,index+i+1,[&e](uint32_t i, uint32_t j){ return e[i]<e[j];});
+  for (std::size_t k=0; k!=nt; ++k) {
+    e[k]=towers[k].eta();
+    index[k]=k;
+    std::push_heap(index,index+k+1,[&e](uint32_t i, uint32_t j){ return e[i]<e[j];});
   }
   std::sort_heap(index,index+nt,[&e](uint32_t i, uint32_t j){ return e[i]<e[j];});
   
@@ -201,8 +201,8 @@ public:
   enum HcalDepth{AllDepths=-1,Undefined=0,Depth1=1,Depth2=2};
   
   //constructors
-  EgammaTowerIsolation (float extRadius,
-			float intRadius,
+  EgammaTowerIsolation (float extRadiusI,
+			float intRadiusI,
 			float etLow,
 			signed int depth,
 			const CaloTowerCollection* towers );
@@ -230,7 +230,8 @@ private:
   static const CaloTowerCollection* oldTowers;
   static uint32_t id15;
   signed int depth_;
-  bool rzero;
+  float extRadius;
+  float intRadius;
 };
 
 

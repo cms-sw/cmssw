@@ -25,11 +25,15 @@ EgammaTowerIsolationNew<1> *EgammaTowerIsolation::newAlgo=nullptr;
 const CaloTowerCollection* EgammaTowerIsolation::oldTowers=nullptr;
 uint32_t EgammaTowerIsolation::id15=0;
 
-EgammaTowerIsolation::EgammaTowerIsolation (float extRadius,
-					    float intRadius,
+EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
+					    float intRadiusI,
 					    float etLow,
 					    signed int depth,
-					    const CaloTowerCollection* towers ) :  depth_(depth), rzero(intRadius==0){
+					    const CaloTowerCollection* towers ) :  
+  depth_(depth), 
+  extRadius(extRadiusI),
+  intRadius(intRadiusI)
+{
   assert(0==etLow);
 
   // cheating  (test of performance)
@@ -39,13 +43,15 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadius,
     oldTowers=towers;
     id15 = (*towers)[15].id();
   }
-  newAlgo->setRadius(&extRadius,&intRadius);
 }
 
 
 double  EgammaTowerIsolation::getSum (bool et, reco::SuperCluster const & sc, const std::vector<CaloTowerDetId> * detIdToExclude) const{
 
-  if (0!=detIdToExclude) assert(rzero);
+  if (0!=detIdToExclude) assert(0==intRadius);
+
+  // hack
+  newAlgo->setRadius(&extRadius,&intRadius);
 
   EgammaTowerIsolationNew<1>::Sum sum;
   newAlgo->compute(et, sum, sc, 
