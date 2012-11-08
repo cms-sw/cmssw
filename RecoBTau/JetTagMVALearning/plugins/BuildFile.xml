@@ -8,7 +8,6 @@
   <use name="FWCore/Utilities"/>
   <use name="PhysicsTools/MVATrainer"/>
   <use name="RecoBTau/JetTagComputer"/>
-  <use name="RecoBTau/JetTagMVALearning"/>
   <use name="SimDataFormats/JetMatching"/>
   <flags EDM_PLUGIN="1"/>
 </library>
