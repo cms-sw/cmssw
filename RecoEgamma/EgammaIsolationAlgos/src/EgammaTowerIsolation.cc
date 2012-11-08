@@ -43,7 +43,7 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadius,
 
 double  EgammaTowerIsolation::getSum (bool et, reco::SuperCluster const & sc, const std::vector<CaloTowerDetId> * detIdToExclude) const{
 
-  if (0==detIdToExclude) assert(rzero);
+  if (0!=detIdToExclude) assert(rzero);
 
   EgammaTowerIsolationNew<1>::Sum sum;
   newAlgo->compute(et, sum, sc, 
