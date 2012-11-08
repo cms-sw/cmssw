@@ -1,7 +1,6 @@
 <library   file="*.cc" name="DQMCSCMonitorModulePlugins">
   <flags   CPPDEFINES="DQMGLOBAL"/>
   <flags   EDM_PLUGIN="1"/>
-  <use   name="DQM/CSCMonitorModule"/>
   <use   name="DQMServices/ClientConfig"/>
   <use   name="DQMServices/Components"/>
   <use   name="DQMServices/Core"/>
