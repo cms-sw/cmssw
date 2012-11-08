@@ -186,6 +186,8 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
    gStyle->SetNdivisions(505);
 
    //initialize LumiReWeighting
+  BgLumiMC.clear();
+  TrueDist.clear();
 #ifdef ANALYSIS2011
    if(Name.find("7TeV")==string::npos){printf("Skim %s because of wrong center of mass energy\n", Name.c_str());return;}
 
@@ -207,7 +209,7 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
    keepOnlySamplesOfNamesXtoY(samples, SamplesToRun);
 
    ///////////////////////////////////////////////////////
-
+   All_triggers.clear();
    All_triggers.push_back(std::make_pair("HSCPHLTTriggerMuFilter", "Mu40_eta2p1"));
    All_triggers.push_back(std::make_pair("HSCPHLTTriggerPFMetFilter","PFMET150"));
 #ifndef ANALYSIS2011
@@ -218,6 +220,7 @@ void TriggerStudy(string Name="COMPILE", string Sample1="", string Sample2="", s
 #endif
    All_triggers.push_back(std::make_pair("HSCPHLTTriggerHtFilter", "HT650" ) );
 
+   AllSA_triggers.clear();
 #ifndef ANALYSIS2011
    AllSA_triggers.push_back(std::make_pair("HSCPHLTTriggerL2MuFilter", "L2Muon+Met"));
 #endif
