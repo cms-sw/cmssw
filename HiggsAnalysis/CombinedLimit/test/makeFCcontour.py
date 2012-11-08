@@ -20,7 +20,7 @@ dumy = array('f',[0.])
 dumv = array('f',[0.])
 dumd = array('i',[0])
 
-errLevel = 10E-8 
+errLevel = 10E-6 
 defaultYval = 1.
 
 class physicsPoint:
@@ -52,7 +52,7 @@ class physicsPoint:
 
   def set_data(self,dat):
 
-    if self.hasdata: return
+    if self.hasdata and self.data > -999.: return
     self.data = dat
     self.hasdata = True
     
@@ -97,9 +97,9 @@ def getPoints(tree,varx,vary):
     if vary=="": dumy=defaultYval # dummy value
     else:dumy   = findStringValue(keyname,vary) 
 
-    if (options.xrange[0]>-999. and options.xrange[1]>-999.) and (dumx>options.xrange[1]+errLevel or dumx<options.xrange[0]-errLevel): continue
+    if (options.xrange[0]>-999. and options.xrange[1]>-999.) and (dumx>options.xrange[1]-errLevel or dumx<options.xrange[0]+errLevel): continue
     if not vary=="":
-      if (options.yrange[0]>-999. and options.yrange[1]>-999.) and (dumy>options.yrange[1]+errLevel or dumy<options.yrange[0]-errLevel): continue
+      if (options.yrange[0]>-999. and options.yrange[1]>-999.) and (dumy>options.yrange[1]-errLevel or dumy<options.yrange[0]+errLevel): continue
     
     pointExists = False 
 
@@ -251,12 +251,17 @@ if options.oned:
   tgrX = ROOT.TGraph(); tgrX.SetMarkerStyle(21); tgrX.SetMarkerSize(1.0)
   # can sort the points since only 1D
   points = sorted(points,key=lambda pt:pt.x)
-  values = [(pt.x,pt.get_cl()) for pt in points]
+  values  = [(pt.x,pt.get_cl()) for pt in points]
+  numtoys = [pt.get_n_toys() for pt in points]
+  data = [pt.data for pt in points]
   # make a graph too
   for pt_i,pt in enumerate(values):
     xval = pt[0]
     zval = pt[1]
     tgrX.SetPoint(pt_i,zval,xval)
+    print "Found %d toys for point (%f)" % (numtoys[pt_i],xval),
+    print data[pt_i]
+    
     
   for c_i,confLevel in enumerate(confidenceLevels):
     lowcl,highcl = findInterval(values,confLevel)
