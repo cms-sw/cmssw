@@ -65,6 +65,13 @@ class EgammaTowerIsolationNew {
   }
   void compute(bool et, Sum &sum, reco::SuperCluster const & sc,  CaloTowerDetId const * first,  CaloTowerDetId const * last) const;
 
+  void setRadius(float extRadius[NC],float intRadius[NC]) {
+    for (std::size_t i=0; i!=NCuts; ++i) {
+    extRadius2_[i]=extRadius[i]*extRadius[i];
+    intRadius2_[i]=intRadius[i]*intRadius[i];
+  }
+
+
 public:
 
   float extRadius2_[NCuts] ;
