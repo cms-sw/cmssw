@@ -15,22 +15,38 @@ namespace etiStat {
     std::cout << "\nEgammaTowerIsolationNew " << create << "/" << comp << std::endl<< std::endl;
     }
 
-Count Count::count;
+  Count Count::count;
 }
+
+
+
+EgammaTowerIsolationNew<1> *EgammaTowerIsolation::newAlgo=nullptr;
+const CaloTowerCollection* EgammaTowerIsolation::oldTowers=nullptr;
+uint32_t EgammaTowerIsolation::id15=0;
 
 EgammaTowerIsolation::EgammaTowerIsolation (float extRadius,
 					    float intRadius,
 					    float etLow,
 					    signed int depth,
-					    const CaloTowerCollection* towers ) : newAlgo(&extRadius,&intRadius,*towers), depth_(depth){
+					    const CaloTowerCollection* towers ) :  depth_(depth), rzero(intRadius==0){
   assert(0==etLow);
-  if (towers==0) assert(0==intRadius);
+
+  // cheating  (test of performance)
+  if (newAlgo==nullptr ||  towers!=oldTowers || towers->size()!=newAlgo->nt || (towers->size()>15 && (*towers)[15].id()!=id15)) {
+    delete newAlgo;
+    newAlgo = new EgammaTowerIsolationNew<1>(&extRadius,&intRadius,*towers);
+    oldTowers=towers;
+    id15 = (*towers)[15].id();
+  }
 }
 
 
 double  EgammaTowerIsolation::getSum (bool et, reco::SuperCluster const & sc, const std::vector<CaloTowerDetId> * detIdToExclude) const{
+
+  if (0==detIdToExclude) assert(rzero);
+
   EgammaTowerIsolationNew<1>::Sum sum;
-  newAlgo.compute(et, sum, sc, 
+  newAlgo->compute(et, sum, sc, 
 		  (detIdToExclude==0) ? nullptr : &((*detIdToExclude).front()),
 		  (detIdToExclude==0) ? nullptr : (&(*detIdToExclude).back())+1
 		  );

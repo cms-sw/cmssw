@@ -50,6 +50,8 @@ class EgammaTowerIsolationNew {
   constexpr static unsigned int NCuts = NC;
 
   //constructors
+
+  EgammaTowerIsolationNew () : nt(0){}
   EgammaTowerIsolationNew (float extRadius[NC],
 			   float intRadius[NC],
 			   CaloTowerCollection const & towers) ;
@@ -63,7 +65,7 @@ class EgammaTowerIsolationNew {
   }
   void compute(bool et, Sum &sum, reco::SuperCluster const & sc,  CaloTowerDetId const * first,  CaloTowerDetId const * last) const;
 
-private:
+public:
 
   float extRadius2_[NCuts] ;
   float intRadius2_[NCuts] ;
@@ -78,7 +80,7 @@ private:
   float * st;
   uint32_t * id;
   uint32_t * mem=nullptr;
-  void init() {
+  void initSoa() {
     mem = new uint32_t[nt*6];
     eta = (float*)(mem); phi = eta+nt; he = phi+nt; h2 = he+nt; st = h2+nt;
     id = (uint32_t*)(st) + nt;
@@ -108,12 +110,12 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
   maxEta(*std::max_element(extRadius,extRadius+NC)),
   nt(towers.size()) {
   if (nt==0) return;
-  init();
+  initSoa();
 
   etiStat::Count::count.create++;
 
   
-  for (unsigned int i=0; i!=NCuts; ++i) {
+  for (std::size_t i=0; i!=NCuts; ++i) {
     extRadius2_[i]=extRadius[i]*extRadius[i];
     intRadius2_[i]=intRadius[i]*intRadius[i];
   }
@@ -122,16 +124,16 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
   
   
   uint32_t index[nt];
-  float tmp[nt]; float * p=tmp;
-  for (uint32_t i=0; i!=nt; ++i) {
-    tmp[i]=towers[i].eta();
+  float e[nt];
+  for (std::size_t i=0; i!=nt; ++i) {
+    e[i]=towers[i].eta();
     index[i]=i;
-    std::push_heap(index,index+i+1,[p](uint32_t i, uint32_t j){ return p[i]<p[j];});
+    std::push_heap(index,index+i+1,[&e](uint32_t i, uint32_t j){ return e[i]<e[j];});
   }
-  std::sort_heap(index,index+nt,[p](uint32_t i, uint32_t j){ return p[i]<p[j];});
+  std::sort_heap(index,index+nt,[&e](uint32_t i, uint32_t j){ return e[i]<e[j];});
   
   
-  for ( uint32_t i=0;i!=nt; ++i) {
+  for (std::size_t i=0;i!=nt; ++i) {
     auto j = index[i];
     eta[i]=towers[j].eta();
     phi[i]=towers[j].phi();
@@ -156,27 +158,27 @@ EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::SuperCluster const
 
   
   auto lb = std::lower_bound(eta,eta+nt,candEta-maxEta);
-  auto ub = std::upper_bound(eta,eta+nt,candEta+maxEta);
+  auto ub = std::upper_bound(lb,eta+nt,candEta+maxEta);
   uint32_t il = lb-eta;
   uint32_t iu = std::min(nt,uint32_t(ub-eta+1));
   
-  bool ok[nt];
-  for ( uint32_t i=il;i!=iu; ++i)
-    ok[i] = (std::find(first,last,id[i])==last);
+  bool ok[iu-il];
+  for (std::size_t i=il;i!=iu; ++i)
+    ok[i-il] = (std::find(first,last,id[i])==last);
   
 
 
   // should be restricted in eta....
-  for (uint32_t i=il;i!=iu; ++i) {
+  for (std::size_t i=il;i!=iu; ++i) {
     float dr2 = reco::deltaR2(candEta,candPhi,eta[i], phi[i]);
     float tt = et ? st[i] : 1.f;
-    for (unsigned int j=0; j!=NCuts; ++j) {
+    for (std::size_t j=0; j!=NCuts; ++j) {
       if (dr2<extRadius2_[j]) {
 	if (dr2>=intRadius2_[j]) {
 	  sum.he[j] +=he[i]*tt;
 	  sum.h2[j] +=h2[i]*tt;
 	}
-	if(ok[i]) {
+	if(ok[i-il]) {
 	  sum.heBC[j] +=he[i]*tt;
 	  sum.h2BC[j] +=h2[i]*tt;
 	}
@@ -216,8 +218,11 @@ public:
 
   
 private:
-  EgammaTowerIsolationNew<1> newAlgo;
+  static EgammaTowerIsolationNew<1> * newAlgo;
+  static const CaloTowerCollection* oldTowers;
+  static uint32_t id15;
   signed int depth_;
+  bool rzero;
 };
 
 
