@@ -2314,7 +2314,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
         }
       }
       file->Close();
-/*
+
       //RUN FULL HYBRID CLS LIMIT (just for observed limit so far, because it is very slow for expected limits --> should be updated --> FIXME)
       CodeToExecute = "cd /tmp/;";
       CodeToExecute += "combine -M HybridNew -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";
@@ -2334,11 +2334,17 @@ bool Combine(string InputPattern, string signal7, string signal8){
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
-        if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit/1000.0;
+//              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/1000.0);
+//        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/1000.0);
+//        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/1000.0);
+//        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/1000.0);
+//        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/1000.0);
+//        }else
+        if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/1000.0);
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
-      file->Close();*/
+      file->Close();
    }
 
 
