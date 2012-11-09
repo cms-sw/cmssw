@@ -630,7 +630,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       if(MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1]<0) continue;
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MuGraphs[k],  ThXSec[k], MuGraphs[k]->GetX()[0], MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1], 1, 0.00));
    }  
- 
+
    fprintf(pFile,"-----------------------\n0%% MU+Only        \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
@@ -1325,7 +1325,8 @@ void DrawModelLimitWithBand(string InputPattern){
       MG->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
       DrawPreliminary(SQRTS, LInt);
       
-      TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
+      TLegend* LEG = !Combine ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.45,0.10,0.65,0.42);
+      //TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
       string headerstr = "95% CL Limits (";
       headerstr += LegendFromType(InputPattern) + string(")");
       LEG->SetHeader(headerstr.c_str());
