@@ -114,6 +114,7 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
 TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSample);
 void DrawModelLimitWithBand(string InputPattern);
 void DrawRatioBands(string InputPattern);
+void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSamples);
 
 
 void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, bool Shape);
@@ -190,6 +191,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    string TkPattern  = "Results/Type0/";
    string MuPattern  = "Results/Type2/";
    string MOPattern  = "Results/Type3/";
+   string HQPattern  = "Results/Type4/";
    string LQPattern  = "Results/Type5/";
 
    bool Combine = (MODE.find("COMB")!=string::npos);
@@ -311,6 +313,40 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    fprintf(pFile   ,"\\end{document}\n\n");
    fprintf(talkFile,"\\end{document}\n\n");
+
+
+   if(SQRTS==8.0){
+      fprintf(pFile,"%%TKONLY\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & $\\mu_{obs}$ ($\\mu_{pred}$) \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, TkPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+
+      fprintf(pFile,"%%TKTOF\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & $\\mu_{obs}$ ($\\mu_{pred}$) \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, MuPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+
+      fprintf(pFile,"%%MUONLY\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & $\\mu_{obs}$ ($\\mu_{pred}$) \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, MOPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+
+      fprintf(pFile,"%%Q>1\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & $\\mu_{obs}$ ($\\mu_{pred}$) \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, HQPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+
+      fprintf(pFile,"%%Q<1\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, LQPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+   }
+
 
    //print a table with all uncertainty on signal efficiency
 
@@ -595,6 +631,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       if(LQGraphs[k]->GetX()[LQGraphs[k]->GetN()-1]<0) continue;
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(LQGraphs[k],  ThXSec[k], LQGraphs[k]->GetX()[0], LQGraphs[k]->GetX()[LQGraphs[k]->GetN()-1], 1, 0.00));
    }
+
+
+
+
+
 
    fclose(pFile);
 
@@ -1134,6 +1175,38 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
    graph->GetYaxis()->SetTitleOffset(1.70);
    return graph;
 }
+
+
+void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSamples){
+   for(unsigned int i=0;i<modelSamples.size();i++){
+      string signal7TeV = modelSamples[i].Name; if(signal7TeV.find("_8TeV")!=string::npos) signal7TeV = signal7TeV.replace(signal7TeV.find("_8TeV"),5, "_7TeV");
+      string signal8TeV = modelSamples[i].Name; if(signal8TeV.find("_7TeV")!=string::npos) signal8TeV = signal8TeV.replace(signal8TeV.find("_7TeV"),5, "_8TeV");
+      string signal     = signal8TeV;           if(signal    .find("_8TeV")!=string::npos) signal     = signal    .replace(signal    .find("_8TeV"),5, "");
+      stAllInfo Infos7(InputPattern+""+SHAPESTRING+"EXCLUSION7TeV"+"/" + signal7TeV +".txt");
+      stAllInfo Infos8(InputPattern+""+SHAPESTRING+"EXCLUSION8TeV"+"/" + signal8TeV +".txt");
+      stAllInfo InfosC(InputPattern+""+SHAPESTRING+"EXCLUSIONCOMB"+"/" + signal     +".txt");
+      if(Infos7.Mass<=0 && Infos8.Mass<=0 && InfosC.Mass<=0)continue;
+      if(Infos7.Eff<=0 && Infos8.Eff<=0)continue;
+      double Mass = std::max(Infos7.Mass, Infos8.Mass);
+      TString ModelNameTS =  ModelName.c_str();  ModelNameTS.ReplaceAll("_"," ");  ModelNameTS.ReplaceAll("8TeV",""); ModelNameTS.ReplaceAll("7TeV","");
+
+      if(ModelNameTS.Contains("Stop")   && ((int)(Mass)/100)%2!=0)continue;
+      if(ModelNameTS.Contains("Gluino") && ((int)(Mass)/100)%2!=1)continue;
+      if(ModelNameTS.Contains("DY")     && ((int)(Mass)/100)%2!=0)continue;
+      if(ModelNameTS.Contains("DC")                              )continue;
+
+      char massCut[255];  if(Infos8.MassCut>0){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
+      char Results7[255]; if(Infos7.Mass>0){sprintf(Results7, "%6.2f & %6.2E & %6.2E & %6.2E", Infos7.Eff, Infos7.XSec_Th,Infos7.XSec_Obs, Infos7.XSec_Exp);}else{sprintf(Results7, "       &          &          &         ");}
+      char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%6.2f & %6.2E & %6.2E & %6.2E", Infos8.Eff, Infos8.XSec_Th,Infos8.XSec_Obs, Infos8.XSec_Exp);}else{sprintf(Results8, "       &          &          &         ");}
+      char ResultsC[255]; if(InfosC.Mass>0){sprintf(ResultsC, "%6.2E & %6.2E", InfosC.XSec_Obs, InfosC.XSec_Exp);}else{sprintf(ResultsC, "         &         ");}
+
+      fprintf(pFile,"%-20s & %4.0f & %-7s & %s & %s & %s\\\\\n", ModelNameTS.Data(), Mass, massCut, Results7, Results8, ResultsC);
+   }
+}
+
+
+
+
 
 double GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, double MinRange_, double MaxRange_){
    TFile* InputFile     = new TFile((InputPattern + "Histos.root").c_str());

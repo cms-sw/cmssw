@@ -1049,32 +1049,56 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    Index.push_back(100);     Plot.push_back(1);
    Index.push_back(114);     Plot.push_back(1);
    //variation on Pt cut 50->115 0.05 1.05
-   Index.push_back(16);      Plot.push_back(2);
-   Index.push_back(436);     Plot.push_back(2);
-   Index.push_back(856);     Plot.push_back(2);
-   Index.push_back(1276);    Plot.push_back(2);
-   Index.push_back(1696);    Plot.push_back(2);
-   Index.push_back(2116);    Plot.push_back(2);
-   Index.push_back(2536);    Plot.push_back(2);
-   Index.push_back(2746);    Plot.push_back(2);
-   //variation on Pt cut 50->115 0.1 1.1 
+//   Index.push_back(16);      Plot.push_back(2);
+//   Index.push_back(436);     Plot.push_back(2);
+//   Index.push_back(856);     Plot.push_back(2);
+//   Index.push_back(1276);    Plot.push_back(2);
+//   Index.push_back(1696);    Plot.push_back(2);
+//   Index.push_back(2116);    Plot.push_back(2);
+//   Index.push_back(2536);    Plot.push_back(2);
+//   Index.push_back(2746);    Plot.push_back(2);
+
+   //variation on Pt cut 50->90 0.30 1.05
+   Index.push_back(156);     Plot.push_back(2);
+   Index.push_back(366);     Plot.push_back(2);
+   Index.push_back(576);     Plot.push_back(2);
+   Index.push_back(786);     Plot.push_back(2);
+   Index.push_back( 996);    Plot.push_back(2);
+   Index.push_back(1206);    Plot.push_back(2);
+   Index.push_back(1416);    Plot.push_back(2);
+   Index.push_back(1626);    Plot.push_back(2);
+
+
+   //variation on Pt cut 50->90 0.1 1.1 
    Index.push_back(46);      Plot.push_back(3);
+   Index.push_back(256);     Plot.push_back(3);
    Index.push_back(466);     Plot.push_back(3);
+   Index.push_back(676);     Plot.push_back(3);
    Index.push_back(886);     Plot.push_back(3);
+   Index.push_back(1096);    Plot.push_back(3);
    Index.push_back(1306);    Plot.push_back(3);
-   Index.push_back(1726);    Plot.push_back(3);
-   Index.push_back(2146);    Plot.push_back(3);
-   Index.push_back(2566);    Plot.push_back(3);
-   Index.push_back(2776);    Plot.push_back(3);
-   //variation on Pt cut 50->115 0.15 1.05 
-   Index.push_back(72);      Plot.push_back(4);
-   Index.push_back(492);     Plot.push_back(4);
-   Index.push_back(912);     Plot.push_back(4);
-   Index.push_back(1332);    Plot.push_back(4);
-   Index.push_back(1752);    Plot.push_back(4);
-   Index.push_back(2172);    Plot.push_back(4);
-   Index.push_back(2592);    Plot.push_back(4);
-   Index.push_back(2802);    Plot.push_back(4);
+   Index.push_back(1516);    Plot.push_back(3);
+
+   //variation on Pt cut 50->90 0.15 1.05 
+//   Index.push_back(72);      Plot.push_back(4);
+//   Index.push_back(492);     Plot.push_back(4);
+//   Index.push_back(912);     Plot.push_back(4);
+//   Index.push_back(1332);    Plot.push_back(4);
+//   Index.push_back(1752);    Plot.push_back(4);
+//   Index.push_back(2172);    Plot.push_back(4);
+//   Index.push_back(2592);    Plot.push_back(4);
+//   Index.push_back(2802);    Plot.push_back(4);
+
+   //variation on Pt cut 50->90 0.10 1.20 
+   Index.push_back(50);      Plot.push_back(4);
+   Index.push_back(260);     Plot.push_back(4);
+   Index.push_back(470);     Plot.push_back(4);
+   Index.push_back(680);     Plot.push_back(4);
+   Index.push_back(890);     Plot.push_back(4);
+   Index.push_back(1100);    Plot.push_back(4);
+   Index.push_back(1310);    Plot.push_back(4);
+   Index.push_back(1520);    Plot.push_back(4);
+
    //Not used
    Index.push_back(82 + 4);  Plot.push_back(5);
    Index.push_back(154+ 4);  Plot.push_back(5);
@@ -1313,9 +1337,9 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
          LEG = new TLegend(0.50,0.65,0.80,0.90);
          LEG->SetFillColor(0);
          LEG->SetBorderSize(0);
-         LEG->AddEntry(graph_sum,  "I_{as}>0.15 & 1/#beta>1.05", "L");
-         LEG->AddEntry(graph_sum2, "I_{as}>0.05 & 1/#beta>1.05", "L");
-         LEG->AddEntry(graph_sum3, "I_{as}>0.10 & 1/#beta>1.10", "L");
+         LEG->AddEntry(graph_sum2, "I_{as}>0.10 & 1/#beta>1.10", "L");
+         LEG->AddEntry(graph_sum3, "I_{as}>0.30 & 1/#beta>1.05", "L");
+         LEG->AddEntry(graph_sum,  "I_{as}>0.10 & 1/#beta>1.20", "L");
          LEG->Draw();
       }
       SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"Sum");
@@ -1331,7 +1355,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       graph_stat->GetYaxis()->SetTitleOffset(1.70);
       graph_stat->GetXaxis()->SetTitle(Title.c_str());
       graph_stat->Draw("AC*");
-      graph_stat->GetYaxis()->SetRangeUser(0,0.15);
+      graph_stat->GetYaxis()->SetRangeUser(0,0.25);
 
       if(p==2){
          TGraph* graph_stat2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrStat[p+1]);
@@ -1352,9 +1376,10 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
          LEG = new TLegend(0.50,0.65,0.80,0.90);
          LEG->SetFillColor(0);
          LEG->SetBorderSize(0);
-         LEG->AddEntry(graph_stat,  "I_{as}>0.15 & 1/#beta>1.05", "L");
-         LEG->AddEntry(graph_stat2, "I_{as}>0.05 & 1/#beta>1.05", "L");
-         LEG->AddEntry(graph_stat3, "I_{as}>0.10 & 1/#beta>1.10", "L");
+         LEG->AddEntry(graph_stat2, "I_{as}>0.10 & 1/#beta>1.10", "L");
+         LEG->AddEntry(graph_stat3, "I_{as}>0.30 & 1/#beta>1.05", "L");
+         LEG->AddEntry(graph_stat,  "I_{as}>0.10 & 1/#beta>1.20", "L");
+
          LEG->Draw();
       }
       SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"Stat");
@@ -1371,7 +1396,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       graph_statB->GetXaxis()->SetTitle(Title.c_str());
       
       graph_statB->Draw("AC*");
-      graph_statB->GetYaxis()->SetRangeUser(0,0.15);
+      graph_statB->GetYaxis()->SetRangeUser(0,0.25);
 
       if(p==2){
          TGraph* graph_statB2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrStatB[p+1]);
@@ -1392,9 +1417,10 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
          LEG = new TLegend(0.50,0.65,0.80,0.90);
          LEG->SetFillColor(0);
          LEG->SetBorderSize(0);
-         LEG->AddEntry(graph_statB,  "I_{as}>0.15 & 1/#beta>1.05", "L");
-         LEG->AddEntry(graph_statB2, "I_{as}>0.05 & 1/#beta>1.05", "L");
-         LEG->AddEntry(graph_statB3, "I_{as}>0.10 & 1/#beta>1.10", "L");
+         LEG->AddEntry(graph_statB2, "I_{as}>0.10 & 1/#beta>1.10", "L");
+         LEG->AddEntry(graph_statB3, "I_{as}>0.30 & 1/#beta>1.05", "L");
+         LEG->AddEntry(graph_statB,  "I_{as}>0.10 & 1/#beta>1.20", "L");
+
          LEG->Draw();
       }
       SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"StatB");
@@ -1411,7 +1437,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       graph_syst->GetXaxis()->SetTitle(Title.c_str());
       graph_syst->Draw("AC*");
       graph_syst->GetXaxis()->SetRangeUser(40,100);
-      graph_syst->GetYaxis()->SetRangeUser(0,0.15);
+      graph_syst->GetYaxis()->SetRangeUser(0,0.25);
 
       if(p==2){
          TGraph* graph_syst2 = new TGraph(ArrN[p+1],ArrPt[p+1],ArrSyst[p+1]);
@@ -1432,9 +1458,9 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
          LEG = new TLegend(0.50,0.65,0.80,0.90);
          LEG->SetFillColor(0);
          LEG->SetBorderSize(0);
-         LEG->AddEntry(graph_syst,  "I_{as}>0.15 & 1/#beta>1.05", "L");
-         LEG->AddEntry(graph_syst2, "I_{as}>0.05 & 1/#beta>1.05", "L");
-         LEG->AddEntry(graph_syst3, "I_{as}>0.10 & 1/#beta>1.10", "L");
+         LEG->AddEntry(graph_syst2, "I_{as}>0.10 & 1/#beta>1.10", "L");
+         LEG->AddEntry(graph_syst3, "I_{as}>0.30 & 1/#beta>1.05", "L");
+         LEG->AddEntry(graph_syst,  "I_{as}>0.10 & 1/#beta>1.20", "L");
          LEG->Draw();
       }
       SaveCanvas(c1,InputPattern,string(string("Systematics_")+DataName+"_")+Name+"Syst");
