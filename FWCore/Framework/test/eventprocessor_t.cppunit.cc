@@ -164,7 +164,10 @@ void testeventprocessor::asyncTest() {
 
 bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep) {
   for(int i = 0; i < 7; ++i) {
-      ep.setRunNumber(i + 1);
+      try {
+        ep.setRunNumber(i + 1);
+      } catch(cms::Exception& e) {
+      }
       ep.runAsync();
       if(sleep_secs_ > 0) sleep(sleep_secs_);
 
@@ -209,7 +212,10 @@ bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep) {
 }
 
 bool testeventprocessor::asyncRunTimeout(edm::EventProcessor& ep) {
+  try {
   ep.setRunNumber(1);
+  } catch(cms::Exception& e) {
+  }
   ep.runAsync();
   edm::EventProcessor::StatusCode rc = ep.waitTillDoneAsync(1);
   std::cerr << " ep runAsync run " << 1 << " done\n";

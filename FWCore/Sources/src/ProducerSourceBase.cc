@@ -1,0 +1,235 @@
+/*----------------------------------------------------------------------
+----------------------------------------------------------------------*/
+
+#include <errno.h>
+
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
+
+namespace edm {
+  //used for defaults
+  static unsigned long long const kNanoSecPerSec = 1000000000ULL;
+  static unsigned long long const kAveEventPerSec = 200ULL;
+  
+  namespace {
+    std::unique_ptr<InputFileCatalog> theCatalog(ParameterSet const& pset) {
+      if(!pset.existsAs<std::vector<std::string> >("fileNames")) {
+        return std::unique_ptr<InputFileCatalog>();
+      }
+      return std::unique_ptr<InputFileCatalog>(
+        new InputFileCatalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
+                             pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())));
+      
+    }
+  }
+
+  ProducerSourceBase::ProducerSourceBase(ParameterSet const& pset,
+				       InputSourceDescription const& desc, bool realData) :
+      InputSource(pset, desc),
+      numberEventsInRun_(pset.getUntrackedParameter<unsigned int>("numberEventsInRun", remainingEvents())),
+      numberEventsInLumi_(pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", remainingEvents())),
+      presentTime_(pset.getUntrackedParameter<unsigned long long>("firstTime", 1ULL)),  //time in ns
+      origTime_(presentTime_),
+      timeBetweenEvents_(pset.getUntrackedParameter<unsigned long long>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)),
+      eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
+      numberEventsInThisRun_(0),
+      numberEventsInThisLumi_(0),
+      zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
+      eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1), zerothEvent_),
+      origEventID_(eventID_),
+      isRealData_(realData),
+      eType_(EventAuxiliary::Undefined),
+      catalog_(theCatalog(pset)) {
+
+    setTimestamp(Timestamp(presentTime_));
+    // We need to map this string to the EventAuxiliary::ExperimentType enumeration
+    // std::string eType = pset.getUntrackedParameter<std::string>("experimentType", std::string("Any"))),
+  }
+
+  ProducerSourceBase::~ProducerSourceBase() {
+  }
+
+  boost::shared_ptr<RunAuxiliary>
+  ProducerSourceBase::readRunAuxiliary_() {
+    Timestamp ts = Timestamp(presentTime_);
+    resetNewRun();
+    return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(eventID_.run(), ts, Timestamp::invalidTimestamp()));
+  }
+
+  boost::shared_ptr<LuminosityBlockAuxiliary>
+  ProducerSourceBase::readLuminosityBlockAuxiliary_() {
+    if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockAuxiliary>();
+    Timestamp ts = Timestamp(presentTime_);
+    resetNewLumi();
+    return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp()));
+  }
+
+  EventPrincipal *
+  ProducerSourceBase::readEvent_(EventPrincipal& eventPrincipal) {
+    assert(eventCached() || processingMode() != RunsLumisAndEvents);
+    EventSourceSentry sentry(*this);
+    EventAuxiliary aux(eventID_, processGUID(), Timestamp(presentTime_), isRealData_, eType_);
+    eventPrincipal.fillEventPrincipal(aux, luminosityBlockPrincipal());
+    Event e(eventPrincipal, moduleDescription());
+    produce(e);
+    e.commit_();
+    resetEventCached();
+    return &eventPrincipal;
+  }
+
+  void
+  ProducerSourceBase::skip(int offset) {
+    EventID oldEventID = eventID_;
+    for(; offset < 0; ++offset) {
+      retreatToPrevious(eventID_, presentTime_);
+    }
+    for(; offset > 0; --offset) {
+      advanceToNext(eventID_, presentTime_);
+    }
+    if(eventID_.run() != oldEventID.run()) {
+      // New Run
+      setNewRun();
+      setNewLumi();
+    }
+    if (eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
+      // New Lumi
+      setNewLumi();
+    }
+  }
+
+  void
+  ProducerSourceBase::beginRun(Run&) {
+  }
+
+  void
+  ProducerSourceBase::endRun(Run&) {
+  }
+
+  void
+  ProducerSourceBase::beginLuminosityBlock(LuminosityBlock&) {
+  }
+
+  void
+  ProducerSourceBase::endLuminosityBlock(LuminosityBlock&) {
+  }
+
+  void
+  ProducerSourceBase::rewind_() {
+    presentTime_ = origTime_;
+    eventID_ = origEventID_;
+    numberEventsInThisRun_ = 0;
+    numberEventsInThisLumi_ = 0;
+    setNewRun();
+    setNewLumi();
+  }
+    
+  InputSource::ItemType 
+  ProducerSourceBase::getNextItemType() {
+    if(state() == IsInvalid) {
+      return IsFile;
+    }
+    if (newRun()) {
+      return IsRun;
+    }
+    if (newLumi()) {
+      return IsLumi;
+    }
+    if(eventCached()) {
+      return IsEvent;
+    }
+    EventID oldEventID = eventID_;
+    advanceToNext(eventID_, presentTime_);
+    if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
+    bool another = setRunAndEventInfo(eventID_, presentTime_);
+    if(!another) {
+      return IsStop;
+    }
+    setEventCached();
+    if(eventID_.run() != oldEventID.run()) {
+      // New Run
+      setNewRun();
+      setNewLumi();
+      return IsRun;
+    }
+    if (processingMode() == Runs) {
+      return IsRun;
+    }
+    if (processingMode() == RunsAndLumis) {
+      return IsLumi;
+    }
+    // Same Run
+    if (eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
+      // New Lumi
+      setNewLumi();
+      return IsLumi;
+    }
+    return IsEvent;
+  }
+
+  void 
+  ProducerSourceBase::advanceToNext(EventID& eventID, TimeValue_t& time)  {
+    if (numberEventsInRun_ < 1 || numberEventsInThisRun_ < numberEventsInRun_) {
+      // same run
+      ++numberEventsInThisRun_;
+      if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ < numberEventsInLumi_)) {
+        // new lumi
+        eventID = eventID.next(eventID.luminosityBlock() + 1);
+        numberEventsInThisLumi_ = 1;
+      } else {
+        eventID = eventID.next(eventID.luminosityBlock());
+        ++numberEventsInThisLumi_;
+      }
+    } else {
+      // new run
+      eventID = eventID.nextRunFirstEvent(origEventID_.luminosityBlock());
+      numberEventsInThisLumi_ = 1;
+      numberEventsInThisRun_ = 1;
+    }
+    time += timeBetweenEvents_;
+  }
+
+  void 
+  ProducerSourceBase::retreatToPrevious(EventID& eventID, TimeValue_t& time)  {
+    if (numberEventsInRun_ < 1 || numberEventsInThisRun_ > 0) {
+      // same run
+      --numberEventsInThisRun_;
+      eventID = eventID.previous(eventID.luminosityBlock());
+      if (!(numberEventsInLumi_ < 1 || numberEventsInThisLumi_ > 0)) {
+        // new lumi
+        eventID = eventID.previous(eventID.luminosityBlock() - 1);
+        numberEventsInThisLumi_ = numberEventsInLumi_;
+      } else {
+        --numberEventsInThisLumi_;
+      }
+    } else {
+      // new run
+      eventID = eventID.previousRunLastEvent(origEventID_.luminosityBlock() + numberEventsInRun_/numberEventsInLumi_);
+      eventID = EventID(numberEventsInRun_, eventID.luminosityBlock(), eventID.run());
+      numberEventsInThisLumi_ = numberEventsInLumi_;
+      numberEventsInThisRun_ = numberEventsInRun_;
+    }
+    time -= timeBetweenEvents_;
+  }
+  
+  void
+  ProducerSourceBase::fillDescription(ParameterSetDescription& desc) {
+    desc.addOptionalUntracked<unsigned int>("numberEventsInRun")->setComment("Number of events to generate in each run.");
+    desc.addOptionalUntracked<unsigned int>("numberEventsInLuminosityBlock")->setComment("Number of events to generate in each lumi.");
+    desc.addUntracked<unsigned long long>("firstTime", 1)->setComment("Time before first event (ns) (for timestamp).");
+    desc.addUntracked<unsigned long long>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)->setComment("Time between consecutive events (ns) (for timestamp).");
+    desc.addUntracked<unsigned int>("eventCreationDelay", 0)->setComment("Real time delay between generation of consecutive events (ms).");
+    desc.addUntracked<unsigned int>("firstEvent", 1)->setComment("Event number of first event to generate.");
+    desc.addUntracked<unsigned int>("firstLuminosityBlock", 1)->setComment("Luminosity block number of first lumi to generate.");
+    desc.addUntracked<unsigned int>("firstRun", 1)->setComment("Run number of first run to generate.");
+    std::vector<std::string> defaultStrings;
+    desc.addOptionalUntracked<std::vector<std::string> >("fileNames")->setComment("Names of files to be processed.");
+    desc.addOptionalUntracked<std::string>("overrideCatalog", std::string());
+    InputSource::fillDescription(desc);
+  }
+}
+
