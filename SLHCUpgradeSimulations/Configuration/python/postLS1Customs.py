@@ -35,15 +35,6 @@ def digiEventContent(process):
         process.GENRAWoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
 
     return process    
-    
-def digiCustoms(process):
-    process=turnOffXFrame(process)
-    
-    #deal with csc
-    process=customise_csc_geom_cond_digi(process)
-    process=digiEventContent(process)
-    process.digi2raw_step.remove(process.cscpacker)
-    return process
 
 def digiCustomsRelVal(process):
     #deal with csc
@@ -51,7 +42,27 @@ def digiCustomsRelVal(process):
     process=digiEventContent(process)
     process.digi2raw_step.remove(process.cscpacker)
     return process
-    
+
+def digiCustoms(process):
+    process=turnOffXFrame(process)
+    process=digiCustomsRelVal(process)
+    return process
+
+
+def hltCustoms(process):
+    process.CSCGeometryESModule.useGangedStripsInME1a = False
+
+    process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
+    process.hltCsc2DRecHits.CSCUseTimingCorrections = cms.bool(False)
+    process.hltCsc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
+
+    # Switch input for CSCRecHitD to  s i m u l a t e d  digis
+
+    process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+    process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+
+    return process
+
 def recoCustoms(process):
 
     # ME1/1A is  u n g a n g e d  Post-LS1
@@ -70,3 +81,4 @@ def recoCustoms(process):
     process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
 
     return process
+
