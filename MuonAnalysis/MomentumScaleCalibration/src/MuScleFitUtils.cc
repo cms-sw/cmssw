@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2012/03/16 13:42:05 $
- *  $Revision: 1.54 $
+ *  $Date: 2012/11/05 14:37:53 $
+ *  $Revision: 1.55 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -606,7 +606,7 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   double mass_res = sqrt(std::pow(dmdpt1*sigma_pt1*pt1,2)+std::pow(dmdpt2*sigma_pt2*pt2,2)+
   			 std::pow(dmdphi1*sigma_phi1,2)+std::pow(dmdphi2*sigma_phi2,2)+
   			 std::pow(dmdcotgth1*sigma_cotgth1,2)+std::pow(dmdcotgth2*sigma_cotgth2,2)+
-  			 2*dmdpt1*dmdpt2*cov_pt1pt2);
+  			 2*dmdpt1*dmdpt2*cov_pt1pt2*sigma_pt1*sigma_pt2);
 
   if (debug>19) {
     std::cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1)/sin(theta1) << " - Pt2=" << pt2

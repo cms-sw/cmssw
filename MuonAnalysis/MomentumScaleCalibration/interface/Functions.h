@@ -5054,7 +5054,7 @@ class resolutionFunctionType43 : public resolutionFunctionBase<T> {
 
 
 
-// Binned in eta to fit the Z with 40/pb
+// Binned in eta to fit the Z (parametrization as linear sum)
 template <class T>
 class resolutionFunctionType45 : public resolutionFunctionBase<T> {
  public:
@@ -5126,16 +5126,16 @@ class resolutionFunctionType45 : public resolutionFunctionBase<T> {
     // name, step, mini, maxi
     parSet[0]  = ParameterSet( "Pt res. sc.", 0.002,      -0.1,  0.1  );
     parSet[1]  = ParameterSet( "eta bin 1",   0.00002,    -0.01, 0.01 );
-    parSet[2]  = ParameterSet( "eta bin 2",   0.000002,   0.,    0.01 );
-    parSet[3]  = ParameterSet( "eta bin 3",   0.000002,   0.,    0.01 );
+    parSet[2]  = ParameterSet( "eta bin 2",   0.00002,    -0.01, 0.01 );
+    parSet[3]  = ParameterSet( "eta bin 3",   0.00002,    -0.01, 0.01 );
     parSet[4]  = ParameterSet( "eta bin 4",   0.00002,    -0.01, 0.01 );
-    parSet[5]  = ParameterSet( "eta bin 5",   0.000002,   0.,    0.01 );
+    parSet[5]  = ParameterSet( "eta bin 5",   0.00002,    -0.01, 0.01 );
     parSet[6]  = ParameterSet( "eta bin 6",   0.00002,    -0.01, 0.01 );
-    parSet[7]  = ParameterSet( "eta bin 7",   0.000002,   0.,    0.01 );
+    parSet[7]  = ParameterSet( "eta bin 7",   0.00002,    -0.01, 0.01 );
     parSet[8]  = ParameterSet( "eta bin 8",   0.00002,    -0.01, 0.01 );
-    parSet[9]  = ParameterSet( "eta bin 9",   0.000002,   0.,    0.01 );
+    parSet[9]  = ParameterSet( "eta bin 9",   0.00002,    -0.01, 0.01 );
     parSet[10] = ParameterSet( "eta bin 10",  0.00002,    -0.01, 0.01 );
-    parSet[11] = ParameterSet( "eta bin 11",  0.000002,   0.,    0.01 );
+    parSet[11] = ParameterSet( "eta bin 11",  0.00002,    -0.01, 0.01 );
     parSet[12] = ParameterSet( "eta bin 12",  0.00002,    -0.01, 0.01 );
 
 
@@ -5173,6 +5173,251 @@ class resolutionFunctionType45 : public resolutionFunctionBase<T> {
     parSet[10] = ParameterSet( "eta bin 10",  parStep[10], parMin[10], parMax[10] );
     parSet[11] = ParameterSet( "eta bin 11",  parStep[11], parMin[11], parMax[11] );
     parSet[12] = ParameterSet( "eta bin 12",  parStep[12], parMin[12], parMax[12] );
+
+    std::cout << "setting parameters" << std::endl;
+    for( int i=0; i<this->parNum_; ++i ) {
+      std::cout << "parStep["<<i<<"] = " << parStep[i]
+		<< ", parMin["<<i<<"] = " << parMin[i]
+		<< ", parMax["<<i<<"] = " << parMin[i] << std::endl;
+    }
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
+  }
+};
+
+
+
+
+// Binned in eta to fit the Z (parametrization as sum in quadrature)
+template <class T>
+class resolutionFunctionType46 : public resolutionFunctionBase<T> {
+ public:
+  int etaBin(const double & eta)
+  {
+    // 24 bins from -2.4 to 2.4, first shift the range to be positive and then compute the index by x/k
+    double shiftedEta = eta+2.4;
+
+    // std::cout << "for eta = " << eta << ", bin = " << bin << std::endl;
+
+    if( eta < -2.0 ) return 1;
+    if( eta < -1.8 ) return 2;
+    if( eta < -1.6 ) return 3;
+    if( eta < -1.2 ) return 4;
+    if( eta < -0.8 ) return 5;
+    if( eta < 0. )  return 6;
+    if( eta < 0.8 ) return 7;
+    if( eta < 1.2 ) return 8;
+    if( eta < 1.6 ) return 9;
+    if( eta < 1.8 ) return 10;
+    if( eta < 2.0 ) return 11;
+    return 12;
+  }
+   
+  // resolutionFunctionType46() { this->parNum_ = 21; }
+  resolutionFunctionType46() { this->parNum_ = 13; }
+
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval)
+  {
+    // std::cout << "parval["<<etaBin(eta)<<"] = " << parval[etaBin(eta)] << std::endl;
+    return sqrt(pow(parval[0]*pt,2) + pow(parval[etaBin(eta)],2));
+  }
+  //
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return 0;
+  }
+  //
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return 0.;
+  }
+
+  // derivatives ---------------
+
+  virtual double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError)
+  {
+    // Use the etaByPoints function to select the right bin for the parameter
+    double r = sqrt(pow(parval[0]*pt,2) + pow(parval[etaBin(eta)],2));
+    return sqrt( pow(pt*pt*parval[0]*parError[0],2) + pow(parval[etaBin(eta)]*parError[etaBin(eta)],2) )/r;
+  }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
+			     TString* parname, const T & parResol, const std::vector<int> & parResolOrder,
+			     const int muonType)
+  {
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+    parSet[0]  = ParameterSet( "Pt res. sc.", 0.0002,    0.,  0.1  );
+    parSet[1]  = ParameterSet( "eta bin 1",   0.00002,   0.,  0.01 );
+    parSet[2]  = ParameterSet( "eta bin 2",   0.00002,   0.,  0.01 );
+    parSet[3]  = ParameterSet( "eta bin 3",   0.00002,   0.,  0.01 );
+    parSet[4]  = ParameterSet( "eta bin 4",   0.00002,   0.,  0.01 );
+    parSet[5]  = ParameterSet( "eta bin 5",   0.00002,   0.,  0.01 );
+    parSet[6]  = ParameterSet( "eta bin 6",   0.00002,   0.,  0.01 );
+    parSet[7]  = ParameterSet( "eta bin 7",   0.00002,   0.,  0.01 );
+    parSet[8]  = ParameterSet( "eta bin 8",   0.00002,   0.,  0.01 );
+    parSet[9]  = ParameterSet( "eta bin 9",   0.00002,   0.,  0.01 );
+    parSet[10] = ParameterSet( "eta bin 10",  0.00002,   0.,  0.01 );
+    parSet[11] = ParameterSet( "eta bin 11",  0.00002,   0.,  0.01 );
+    parSet[12] = ParameterSet( "eta bin 12",  0.00002,   0.,  0.01 );
+
+
+    std::cout << "setting parameters" << std::endl;
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
+  }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+			     const T & parResol, const std::vector<int> & parResolOrder,
+			     const std::vector<double> & parStep,
+			     const std::vector<double> & parMin,
+			     const std::vector<double> & parMax,
+			     const int muonType)
+  {
+    if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
+      std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
+      std::cout << "parNum = " << this->parNum_ << std::endl;
+      std::cout << "parStep.size() = " << parStep.size() << std::endl;
+      std::cout << "parMin.size() = " << parMin.size() << std::endl;
+      std::cout << "parMax.size() = " << parMax.size() << std::endl;
+      exit(1);
+    }
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+    parSet[0]  = ParameterSet( "Pt res. sc.", parStep[0],  parMin[0],  parMax[0]  );
+    parSet[1]  = ParameterSet( "eta bin 1",   parStep[1],  parMin[1],  parMax[1]  );
+    parSet[2]  = ParameterSet( "eta bin 2",   parStep[2],  parMin[2],  parMax[2]  );
+    parSet[3]  = ParameterSet( "eta bin 3",   parStep[3],  parMin[3],  parMax[3]  );
+    parSet[4]  = ParameterSet( "eta bin 4",   parStep[4],  parMin[4],  parMax[4]  );
+    parSet[5]  = ParameterSet( "eta bin 5",   parStep[5],  parMin[5],  parMax[5]  );
+    parSet[6]  = ParameterSet( "eta bin 6",   parStep[6],  parMin[6],  parMax[6]  );
+    parSet[7]  = ParameterSet( "eta bin 7",   parStep[7],  parMin[7],  parMax[7]  );
+    parSet[8]  = ParameterSet( "eta bin 8",   parStep[8],  parMin[8],  parMax[8]  );
+    parSet[9]  = ParameterSet( "eta bin 9",   parStep[9],  parMin[9],  parMax[9]  );
+    parSet[10] = ParameterSet( "eta bin 10",  parStep[10], parMin[10], parMax[10] );
+    parSet[11] = ParameterSet( "eta bin 11",  parStep[11], parMin[11], parMax[11] );
+    parSet[12] = ParameterSet( "eta bin 12",  parStep[12], parMin[12], parMax[12] );
+
+    std::cout << "setting parameters" << std::endl;
+    for( int i=0; i<this->parNum_; ++i ) {
+      std::cout << "parStep["<<i<<"] = " << parStep[i]
+		<< ", parMin["<<i<<"] = " << parMin[i]
+		<< ", parMax["<<i<<"] = " << parMin[i] << std::endl;
+    }
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
+  }
+};
+
+
+// Binned in eta to fit the Z (parametrization as sum in quadrature) and including an overall covariance
+template <class T>
+class resolutionFunctionType47 : public resolutionFunctionBase<T> {
+ public:
+  int etaBin(const double & eta)
+  {
+    // 24 bins from -2.4 to 2.4, first shift the range to be positive and then compute the index by x/k
+    double shiftedEta = eta+2.4;
+
+    // std::cout << "for eta = " << eta << ", bin = " << bin << std::endl;
+
+    if( eta < -2.0 ) return 1;
+    if( eta < -1.8 ) return 2;
+    if( eta < -1.6 ) return 3;
+    if( eta < -1.2 ) return 4;
+    if( eta < -0.8 ) return 5;
+    if( eta < 0. )  return 6;
+    if( eta < 0.8 ) return 7;
+    if( eta < 1.2 ) return 8;
+    if( eta < 1.6 ) return 9;
+    if( eta < 1.8 ) return 10;
+    if( eta < 2.0 ) return 11;
+    return 12;
+  }
+   
+  // resolutionFunctionType47() { this->parNum_ = 21; }
+  resolutionFunctionType47() { this->parNum_ = 14; }
+
+  virtual double sigmaPt(const double & pt, const double & eta, const T & parval)
+  {
+    // std::cout << "parval["<<etaBin(eta)<<"] = " << parval[etaBin(eta)] << std::endl;
+    return sqrt(pow(parval[0]*pt,2) + pow(parval[etaBin(eta)],2) + pow(parval[13],2));
+  }
+  //
+  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+    return 0;
+  }
+  //
+  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+    return 0.;
+  }
+
+  virtual double covPt1Pt2(const double & pt1, const double & eta1, const double & pt2, const double & eta2, const T & parval)
+  {
+    return parval[14];
+  }
+
+  // derivatives ---------------
+
+  virtual double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError)
+  {
+    // Use the etaByPoints function to select the right bin for the parameter
+    double r = sqrt(pow(parval[0]*pt,2) + pow(parval[etaBin(eta)],2) + pow(parval[13],2));
+    return sqrt( pow(pt*pt*parval[0]*parError[0],2) + pow(parval[etaBin(eta)]*parError[etaBin(eta)],2) + pow(parval[13]*parError[13],2) )/r;
+  }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
+			     TString* parname, const T & parResol, const std::vector<int> & parResolOrder,
+			     const int muonType)
+  {
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+    parSet[0]  = ParameterSet( "Pt res. sc.", 0.0002,    0.,  0.1  );
+    parSet[1]  = ParameterSet( "eta bin 1",   0.00002,   0.,  0.01 );
+    parSet[2]  = ParameterSet( "eta bin 2",   0.00002,   0.,  0.01 );
+    parSet[3]  = ParameterSet( "eta bin 3",   0.00002,   0.,  0.01 );
+    parSet[4]  = ParameterSet( "eta bin 4",   0.00002,   0.,  0.01 );
+    parSet[5]  = ParameterSet( "eta bin 5",   0.00002,   0.,  0.01 );
+    parSet[6]  = ParameterSet( "eta bin 6",   0.00002,   0.,  0.01 );
+    parSet[7]  = ParameterSet( "eta bin 7",   0.00002,   0.,  0.01 );
+    parSet[8]  = ParameterSet( "eta bin 8",   0.00002,   0.,  0.01 );
+    parSet[9]  = ParameterSet( "eta bin 9",   0.00002,   0.,  0.01 );
+    parSet[10] = ParameterSet( "eta bin 10",  0.00002,   0.,  0.01 );
+    parSet[11] = ParameterSet( "eta bin 11",  0.00002,   0.,  0.01 );
+    parSet[12] = ParameterSet( "eta bin 12",  0.00002,   0.,  0.01 );
+    parSet[13] = ParameterSet( "cov(pt1,pt2)",  0.00002,   0.,  0.01 );
+
+
+    std::cout << "setting parameters" << std::endl;
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
+  }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+			     const T & parResol, const std::vector<int> & parResolOrder,
+			     const std::vector<double> & parStep,
+			     const std::vector<double> & parMin,
+			     const std::vector<double> & parMax,
+			     const int muonType)
+  {
+    if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
+      std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
+      std::cout << "parNum = " << this->parNum_ << std::endl;
+      std::cout << "parStep.size() = " << parStep.size() << std::endl;
+      std::cout << "parMin.size() = " << parMin.size() << std::endl;
+      std::cout << "parMax.size() = " << parMax.size() << std::endl;
+      exit(1);
+    }
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+    parSet[0]  = ParameterSet( "Pt res. sc.", parStep[0],  parMin[0],  parMax[0]  );
+    parSet[1]  = ParameterSet( "eta bin 1",   parStep[1],  parMin[1],  parMax[1]  );
+    parSet[2]  = ParameterSet( "eta bin 2",   parStep[2],  parMin[2],  parMax[2]  );
+    parSet[3]  = ParameterSet( "eta bin 3",   parStep[3],  parMin[3],  parMax[3]  );
+    parSet[4]  = ParameterSet( "eta bin 4",   parStep[4],  parMin[4],  parMax[4]  );
+    parSet[5]  = ParameterSet( "eta bin 5",   parStep[5],  parMin[5],  parMax[5]  );
+    parSet[6]  = ParameterSet( "eta bin 6",   parStep[6],  parMin[6],  parMax[6]  );
+    parSet[7]  = ParameterSet( "eta bin 7",   parStep[7],  parMin[7],  parMax[7]  );
+    parSet[8]  = ParameterSet( "eta bin 8",   parStep[8],  parMin[8],  parMax[8]  );
+    parSet[9]  = ParameterSet( "eta bin 9",   parStep[9],  parMin[9],  parMax[9]  );
+    parSet[10] = ParameterSet( "eta bin 10",  parStep[10], parMin[10], parMax[10] );
+    parSet[11] = ParameterSet( "eta bin 11",  parStep[11], parMin[11], parMax[11] );
+    parSet[12] = ParameterSet( "eta bin 12",  parStep[12], parMin[12], parMax[12] );
+    parSet[13] = ParameterSet( "cov(pt1,pt2)",parStep[13], parMin[13], parMax[13] );
 
     std::cout << "setting parameters" << std::endl;
     for( int i=0; i<this->parNum_; ++i ) {
