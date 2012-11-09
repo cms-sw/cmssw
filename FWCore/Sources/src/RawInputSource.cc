@@ -8,7 +8,6 @@
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
@@ -17,9 +16,7 @@ namespace edm {
     InputSource(pset, desc),
     // The default value for the following parameter get defined in at least one derived class
     // where it has a different default value.
-    inputFileTransitionsEachEvent_(pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)),
-    receiver_(),
-    numberOfEventsBeforeBigSkip_(0) {
+    inputFileTransitionsEachEvent_(pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)) {
       setTimestamp(Timestamp::beginOfTime());
   }
 
@@ -48,9 +45,6 @@ namespace edm {
     assert(!newRun());
     assert(!newLumi());
     assert(eventCached());
-    if(receiver_) {
-      --numberOfEventsBeforeBigSkip_;
-    }
     eventPrincipal.setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     resetEventCached();
     return read(eventPrincipal);
@@ -68,28 +62,8 @@ namespace edm {
     closeFile(boost::shared_ptr<FileBlock>(), false);
   }
 
-  void
-  RawInputSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource> iReceiver) {
-    receiver_ = iReceiver;
-    receiver_->receive();
-    rewind();
-  }
-
   InputSource::ItemType
   RawInputSource::getNextItemType() {
-    if(receiver_ && 0 == numberOfEventsBeforeBigSkip_) {
-      receiver_->receive();
-      unsigned long toSkip = receiver_->numberToSkip();
-      if(0 != toSkip) {
-        skip(toSkip);
-        decreaseRemainingEventsBy(toSkip);
-        resetEventCached();
-      }
-      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
-      if(0 == numberOfEventsBeforeBigSkip_ or 0 == remainingEvents() or 0 == remainingLuminosityBlocks()) {
-        return IsStop;
-      }
-    }
     if(state() == IsInvalid) {
       return IsFile;
     }
@@ -130,17 +104,7 @@ namespace edm {
 
   void
   RawInputSource::rewind_() {
-    setNewRun();
-    setNewLumi();
-    resetEventCached();
     reset_();
-    if(receiver_) {
-      unsigned int numberToSkip = receiver_->numberToSkip();
-      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
-      skip(numberToSkip);
-      decreaseRemainingEventsBy(numberToSkip);
-    }
-    resetEventCached();
   }
 
   void

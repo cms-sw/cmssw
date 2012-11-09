@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -62,9 +61,7 @@ namespace edm {
     secondaryRunPrincipal_(),
     secondaryLumiPrincipal_(),
     secondaryEventPrincipal_(secondaryFileSequence_ ? new EventPrincipal(secondaryFileSequence_->fileProductRegistry(), secondaryFileSequence_->fileBranchIDListHelper(), processConfiguration()) : 0),
-    branchIDsToReplace_(),
-    receiver_(),
-    numberOfEventsBeforeBigSkip_(0) {
+    branchIDsToReplace_() {
     if(secondaryFileSequence_) {
       assert(primary());
       std::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
@@ -198,9 +195,6 @@ namespace edm {
           primaryPrincipal->id() << " is not found in the secondary input files\n";
       }
     }
-    if(receiver_) {
-      --numberOfEventsBeforeBigSkip_;
-    }
     return primaryPrincipal;
   }
 
@@ -213,18 +207,6 @@ namespace edm {
 
   InputSource::ItemType
   PoolSource::getNextItemType() {
-    if(receiver_ && 0 == numberOfEventsBeforeBigSkip_) {
-      receiver_->receive();
-      unsigned long toSkip = receiver_->numberToSkip();
-      if(0 != toSkip) {
-        primaryFileSequence_->skipEvents(toSkip);
-        decreaseRemainingEventsBy(toSkip);
-      }
-      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
-      if(0 == numberOfEventsBeforeBigSkip_ or 0 == remainingEvents() or 0 == remainingLuminosityBlocks()) {
-        return IsStop;
-      }
-    }
     return primaryFileSequence_->getNextItemType();;
   }
 
@@ -233,26 +215,10 @@ namespace edm {
     primaryFileSequence_->closeFile_();
   }
 
-  void
-  PoolSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource> iReceiver) {
-    receiver_ = iReceiver;
-    receiver_->receive();
-    primaryFileSequence_->reset();
-    rewind();
-  }
-
   // Rewind to before the first event that was read.
   void
   PoolSource::rewind_() {
     primaryFileSequence_->rewind_();
-    if(receiver_) {
-      unsigned int numberToSkip = receiver_->numberToSkip();
-      if(0 != numberToSkip) {
-        primaryFileSequence_->skipEvents(numberToSkip);
-        decreaseRemainingEventsBy(receiver_->numberToSkip());
-      }
-      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
-    }
   }
 
   // Advance "offset" events.  Offset can be positive or negative (or zero).

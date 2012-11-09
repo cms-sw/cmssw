@@ -55,7 +55,6 @@ namespace edm {
     virtual EventPrincipal* readOneSpecified(EventID const& id);
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     virtual void preForkReleaseResources();
-    virtual void postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>);
     virtual bool randomAccess_() const;
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;
@@ -67,11 +66,6 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
     std::unique_ptr<EventPrincipal> secondaryEventPrincipal_;
     std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
-
-    //used when process has been forked
-    boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
-    unsigned int numberOfEventsBeforeBigSkip_;
-
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

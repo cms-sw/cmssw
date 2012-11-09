@@ -36,13 +36,8 @@ namespace edm {
     virtual void rewind_();
     virtual ItemType getNextItemType();
     virtual void preForkReleaseResources();
-    virtual void postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>);
 
     bool inputFileTransitionsEachEvent_;
-
-    //used when process has been forked
-    boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
-    unsigned int numberOfEventsBeforeBigSkip_;
   };
 }
 #endif
