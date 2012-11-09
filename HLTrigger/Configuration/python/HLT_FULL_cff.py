@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HLT/V92 (CMSSW_5_2_7_HLT3)
+# /dev/CMSSW_5_2_6/HLT/V93 (CMSSW_5_2_7_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V92')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V93')
 )
 
 streams = cms.PSet( 
@@ -58805,8 +58805,39 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# customization for CMSSW_5_2_X
+if cmsswVersion.startswith('CMSSW_5_2_'):
+
+    # force the use of the correct calo jet energy corrections
+    if 'hltESPL1FastJetCorrectionESProducer' in locals():
+        hltESPL1FastJetCorrectionESProducer.algorithm  = "AK5CaloHLT"
+
+    if 'hltESPL2RelativeCorrectionESProducer' in locals():
+        hltESPL2RelativeCorrectionESProducer.algorithm = "AK5CaloHLT"
+
+    if 'hltESPL3AbsoluteCorrectionESProducer' in locals():
+        hltESPL3AbsoluteCorrectionESProducer.algorithm = "AK5CaloHLT"
+
+
+# customization for CMSSW_5_3_X
+if cmsswVersion.startswith('CMSSW_5_3_'):
+
+    # do not override the calo jet energy corrections in 5.3.x for consistency with the current MC samples
+    pass
+
+
 # customization for CMSSW_6_1_X
 if cmsswVersion.startswith('CMSSW_6_1_'):
+
+    # force the use of the correct calo jet energy corrections
+    if 'hltESPL1FastJetCorrectionESProducer' in locals():
+        hltESPL1FastJetCorrectionESProducer.algorithm  = "AK5CaloHLT"
+
+    if 'hltESPL2RelativeCorrectionESProducer' in locals():
+        hltESPL2RelativeCorrectionESProducer.algorithm = "AK5CaloHLT"
+
+    if 'hltESPL3AbsoluteCorrectionESProducer' in locals():
+        hltESPL3AbsoluteCorrectionESProducer.algorithm = "AK5CaloHLT"
 
     # adapt the HLT menu to the "prototype for Event Interpretation" development
     if 'hltPFPileUp' in locals():
