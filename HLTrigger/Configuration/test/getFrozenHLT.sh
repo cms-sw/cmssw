@@ -14,7 +14,8 @@ VERBOSE=false
 # this is used for brace expansion
 TABLES_=$(echo $TABLES | sed -e's/ \+/,/g')
 
-[ "$1" == "-v" ] && { VERBOSE=true; shift; }
+[ "$1" == "-v" ] && { VERBOSE=true;  shift; }
+[ "$1" == "-q" ] && { VERBOSE=false; shift; }
 
 function log() {
   $VERBOSE && echo -e "$@"
@@ -23,7 +24,7 @@ function log() {
 function getConfigForCVS() {
   local CONFIG="$1"
   local NAME="$2"
-  log "    dumping HLT cffs for $NAME from $CONFIG"
+  log "  dumping HLT cffs for $NAME from $CONFIG"
   # do not use any conditions or L1 override
   hltGetConfiguration --cff --offline --mc    $CONFIG --type "GRun" > HLT_${NAME}_cff.py
   hltGetConfiguration --fastsim               $CONFIG --type "GRun" > HLT_${NAME}_Famos_cff.py
@@ -32,7 +33,7 @@ function getConfigForCVS() {
 function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
-  log "    dumping full HLT for $NAME from $CONFIG"
+  log "  dumping full HLT for $NAME from $CONFIG"
   # override the conditions with a menu-dependent "virtual" global tag, which takes care of overriding the L1 menu
   hltGetConfiguration --full --offline --data $CONFIG --type "GRun" --unprescale --process "HLT${NAME}" --globaltag "auto:hltonline_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root"    > OnData_HLT_${NAME}.py
   hltGetConfiguration --full --offline --mc   $CONFIG --type "GRun" --unprescale --process "HLT${NAME}" --globaltag "auto:startup_${NAME}"   --input "file:RelVal_Raw_${NAME}_STARTUP.root" > OnLine_HLT_${NAME}.py
@@ -57,7 +58,7 @@ log
 
 # full config dumps, in CVS under HLTrigger/Configuration/test
 log "Extracting full configuration dumps"
-FILES=$(eval echo OnData_HLT_{$TABLES_}.py OnLine_HLT_{$TABLES_}.py)
+FILES=$(eval echo On{Data,Line}_HLT_{$TABLES_}.py)
 rm -f $FILES
 for TABLE in $TABLES; do
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))
