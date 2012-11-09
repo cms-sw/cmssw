@@ -23,7 +23,8 @@ class MatrixReader(object):
         self.addCommand=opt.command
         self.commandLineWf=opt.workflow
         self.overWrite=opt.overWrite
-        
+
+        self.noRun = opt.noRun
         return
 
     def reset(self, what='all'):
@@ -225,6 +226,8 @@ class MatrixReader(object):
 
                 if input:
                     cmd = input
+                    if self.noRun:
+                        cmd.run=[]
                 else:
                     if cfg:
                         cmd  = 'cmsDriver.py '+cfg+' '+opts

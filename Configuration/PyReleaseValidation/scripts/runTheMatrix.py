@@ -160,6 +160,13 @@ if __name__ == '__main__':
                       dest='overWrite',
                       default=None
                       )
+    parser.add_option('--noRun',
+                      help='Remove all run list selection from wfs',
+                      dest='noRun',
+                      default=False,
+                      action='store_true')
+
+
     
     opt,args = parser.parse_args()
     if opt.restricted:
