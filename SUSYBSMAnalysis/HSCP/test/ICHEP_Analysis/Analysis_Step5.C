@@ -29,6 +29,8 @@ void CheckPrediction(string InputPattern, string HistoSuffix="_Flip", string Dat
 void CheckPredictionBin(string InputPattern, string HistoSuffix="_Flip", string DataType="Data8TeV", string bin="");
 void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType="Data8TeV");
 
+void Make2DPlot_Special(string ResultPattern,string ResultPattern2, unsigned int CutIndex);
+
 std::vector<stSample> samples;
 
 /////////////////////////// CODE PARAMETERS /////////////////////////////
@@ -50,6 +52,8 @@ void Analysis_Step5()
 
    string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
+
+//   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);
 
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
@@ -2782,3 +2786,120 @@ void CheckPredictionBin(string InputPattern, string HistoSuffix, string DataType
   SaveCanvas(c1,SavePath,"Pred_Ratio_" + DataType + HistoSuffix);
   delete c1;
 }
+
+
+
+
+void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int CutIndex){
+   TCanvas* c1;
+   TLegend* leg;
+
+   string Input = InputPattern + "Histos.root";
+   string outpath = InputPattern;
+   MakeDirectories(outpath);
+   TypeMode = TypeFromPattern(InputPattern);
+   string LegendTitle = LegendFromType(InputPattern);;
+
+   string S1 = "DY_8TeV_M400_Q1o3"; double Q1=1;
+   string S2 = "DY_8TeV_M400_Q1"; double Q2=1;
+   string S3 = "DY_8TeV_M400_Q2"; double Q3=1;
+
+   string Da = "Data8TeV";
+   string outName = "2DPlotsS";
+
+   int S1i   = JobIdToIndex(S1,samples);    if(S1i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
+   int S2i   = JobIdToIndex(S2,samples);    if(S2i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }                
+   int S3i   = JobIdToIndex(S3,samples);    if(S3i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }                 
+
+
+   TFile* InputFile  = new TFile((InputPattern + "Histos.root").c_str());
+   TH2D* Signal1PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_PIm"  ), CutIndex, "S1PIm_zy" );
+   TH2D* Signal2PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_PIm"  ), CutIndex, "S2PIm_zy" );
+   TH2D* Signal3PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_PIm"  ), CutIndex, "S3PIm_zy" );
+   TH2D* Data_PIm    = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_PIm"  ), CutIndex);
+
+
+   TFile* InputFile2  = new TFile((InputPattern2 + "Histos.root").c_str());
+   TH2D* Signal1PIm2  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, S1+"/AS_PIm"  ), CutIndex, "S1PIm_zy" );
+//   TH2D* Signal2PIm2  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, S2+"/AS_PIm"  ), CutIndex, "S2PIm_zy" );
+//   TH2D* Signal3PIm2  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, S3+"/AS_PIm"  ), CutIndex, "S3PIm_zy" );
+   TH2D* Data_PIm2    = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, Da+"/AS_PIm"  ), CutIndex);
+
+   Signal1PIm->Add(Signal1PIm2);
+//   Signal2PIm->Add(Signal2PIm2);
+//   Signal3PIm->Add(Signal3PIm2);
+   Data_PIm  ->Add(Data_PIm2);
+
+   gStyle->SetPalette(53);
+
+   c1 = new TCanvas("c1","c1", 600, 600);
+   c1->SetLogz(true);
+   Data_PIm->SetTitle("");
+   Data_PIm->SetStats(kFALSE);
+   Data_PIm->GetXaxis()->SetTitle("p (GeV/c)");
+   Data_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+   Data_PIm->GetYaxis()->SetTitleOffset(1.60);
+   Data_PIm->SetAxisRange(50,1750,"X");
+//   Data_PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
+   Data_PIm->SetMarkerSize (0.2);
+   Data_PIm->SetMarkerColor(Color[1]);
+   Data_PIm->SetFillColor(Color[1]);
+   Data_PIm->Draw("COLZ");
+//   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+//   SaveCanvas(c1, outpath, outName + "_Data_PIm", true);
+//   delete c1;
+
+//   c1 = new TCanvas("c1","c1", 600, 600);
+//   c1->SetLogz(true);
+   Signal1PIm->SetTitle("");
+   Signal1PIm->SetStats(kFALSE);
+   Signal1PIm->GetXaxis()->SetTitle("p (GeV/c)");
+   Signal1PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+   Signal1PIm->SetAxisRange(50,1750,"X");
+   Signal1PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
+   Signal1PIm->Scale(100/Signal1PIm->Integral());
+   Signal1PIm->SetMarkerStyle (6);
+   Signal1PIm->SetMarkerColor(Color[2]);
+   Signal1PIm->SetFillColor(Color[2]);
+   Signal1PIm->Draw("BOX same");
+   Signal2PIm->Scale(100/Signal2PIm->Integral());
+   Signal2PIm->SetMarkerStyle (6);
+   Signal2PIm->SetMarkerColor(Color[3]);
+   Signal2PIm->SetFillColor(Color[3]);
+   Signal2PIm->Draw("BOX same");
+   Signal3PIm->Scale(100/Signal3PIm->Integral());
+   Signal3PIm->SetMarkerStyle(6);
+   Signal3PIm->SetMarkerColor(Color[4]);
+   Signal3PIm->SetFillColor(Color[4]);
+   Signal3PIm->Draw("BOX same");
+
+//   TF1* MassLine800 = GetMassLineQ(samples[S3i].Mass, Q3, true);
+//   MassLine800->SetLineColor(kGray+3);
+//   MassLine800->SetLineWidth(2);
+//   MassLine800->Draw("same");
+//   TF1* MassLine500 = GetMassLineQ(samples[S2i].Mass, Q2, true);
+//   MassLine500->SetLineColor(kBlue-7);
+//   MassLine500->SetLineWidth(2);
+//   MassLine500->Draw("same");
+//   TF1* MassLine300 = GetMassLineQ(samples[S1i].Mass, Q1, true);
+//   MassLine300->SetLineColor(kRed-7);
+//   MassLine300->SetLineWidth(2);
+//   MassLine300->Draw("same");
+
+   leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
+   leg->SetFillColor(0);
+   leg->SetBorderSize(0);
+   leg->AddEntry(Data_PIm,    "Data (#sqrt{s}=8 TeV)"       ,"F");
+   leg->AddEntry(Signal3PIm,  samples[S3i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal2PIm,  samples[S2i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal1PIm,  samples[S1i].Legend.c_str()   ,"F");
+   leg->Draw();
+   DrawPreliminary(NULL, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_PIm", false);
+   delete c1;
+
+   gStyle->SetPalette(1);
+
+}
+
+
