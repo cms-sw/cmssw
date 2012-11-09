@@ -9,11 +9,11 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Integration/test/ThingAlgorithm.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 namespace edmtest {
-  class ThingSource : public edm::GeneratedInputSource {
+  class ThingSource : public edm::ProducerSourceBase {
   public:
 
     // The following is not yet used, but will be the primary
@@ -23,7 +23,9 @@ namespace edmtest {
 
     virtual ~ThingSource();
 
-    virtual bool produce(edm::Event& e);
+    virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&) {return true;}
+
+    virtual void produce(edm::Event& e);
 
     virtual void beginRun(edm::Run& r);
 

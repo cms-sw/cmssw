@@ -7,7 +7,7 @@
 
 namespace edmtest {
   ThingSource::ThingSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc) :
-    GeneratedInputSource(pset, desc), alg_() {
+    ProducerSourceBase(pset, desc, false), alg_() {
     produces<ThingCollection>();
     produces<ThingCollection, edm::InLumi>("beginLumi");
     produces<ThingCollection, edm::InLumi>("endLumi");
@@ -19,7 +19,7 @@ namespace edmtest {
   ThingSource::~ThingSource() { }  
 
   // Functions that gets called by framework every event
-  bool ThingSource::produce(edm::Event& e) {
+  void ThingSource::produce(edm::Event& e) {
     // Step A: Get Inputs 
 
     // Step B: Create empty output 
@@ -30,8 +30,6 @@ namespace edmtest {
 
     // Step D: Put outputs into event
     e.put(result);
-
-    return true;
   }
 
   // Functions that gets called by framework every luminosity block
