@@ -63,7 +63,7 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   //CutFlow(InputPattern, CutIndex);
+   CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
 
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
@@ -86,7 +86,7 @@ void Analysis_Step5()
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   //CutFlow(InputPattern, CutIndex);
+   CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
    CosmicBackgroundSystematic(InputPattern, "8TeV");
    CosmicBackgroundSystematic(InputPattern, "7TeV");
@@ -106,16 +106,16 @@ void Analysis_Step5()
    //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "5");
    
    InputPattern = "Results/Type4/";   CutIndex = 21; CutIndex_Flip=21;
-   Make2DPlot_Core(InputPattern, 0);
-   // PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
-   // PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+//   Make2DPlot_Core(InputPattern, 0);
+    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    // CheckPrediction(InputPattern, "", "Data7TeV");
    // CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    // CheckPrediction(InputPattern, "", "Data8TeV");
    // CheckPrediction(InputPattern, "_Flip", "Data8TeV");
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
-   SelectionPlot(InputPattern, CutIndex);
+//   SelectionPlot(InputPattern, CutIndex);
    //    CutFlow(InputPattern);
 
    InputPattern = "Results/Type5/";   CutIndex = 48; CutIndex_Flip=2;
@@ -713,14 +713,17 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
 
          std::map<double, TGraphErrors*> mapPred;
          std::map<double, TGraphErrors*> mapObs;
+         std::map<double, TGraphErrors*> mapRatio;
 
          double max = 1; double min = 1000;
          double xmin=100; double xmax=0;
          for(int CutIndex_=1;CutIndex_<H_P->GetNbinsX();CutIndex_++){
             double PtCut = HCuts_Pt->GetBinContent(CutIndex_+1);
             int N = 0;for(int i=CutIndex_;i<H_P->GetNbinsX();i++){if(HCuts_Pt->GetBinContent(i+1)==PtCut){N++;}else{break;}}
-            mapPred[PtCut] = new TGraphErrors(N);
-            mapObs[PtCut] = new TGraphErrors(N);
+            mapPred [PtCut] = new TGraphErrors(N);
+            mapObs  [PtCut] = new TGraphErrors(N);
+            mapRatio[PtCut] = new TGraphErrors(N);
+
             for(int i=0;i<N;i++){
               xmin = std::min(xmin, HCuts_I->GetBinContent(CutIndex_+i+1));
               xmax = std::max(xmax, HCuts_I->GetBinContent(CutIndex_+i+1));
@@ -737,13 +740,20 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
               min = std::min(min, std::max(H_D->GetBinContent(CutIndex_+i+1), 0.1));
               mapObs [PtCut]->SetPoint     (i, HCuts_I->GetBinContent(CutIndex_+i+1), H_D->GetBinContent(CutIndex_+i+1)); 
               mapObs [PtCut]->SetPointError(i, 0                                    , H_D->GetBinError  (CutIndex_+i+1));
+
+            
+              mapRatio[PtCut]->SetPoint     (i, HCuts_I->GetBinContent(CutIndex_+i+1), H_D->GetBinContent(CutIndex_+i+1)<=0 ? 0 : P    / H_D->GetBinContent(CutIndex_+i+1));
+              mapRatio[PtCut]->SetPointError(i, 0                                    , H_D->GetBinContent(CutIndex_+i+1)<=0 ? 0 : sqrt(pow(Perr * H_D->GetBinContent(CutIndex_+i+1),2) + pow(P * H_D->GetBinError  (CutIndex_+i+1),2) ) / pow(H_D->GetBinContent(CutIndex_+i+1),2) );
             }
             CutIndex_+=N-1;
          }
 
 
          c1 = new TCanvas("c1","c1,",600,600);
-         c1->SetLogy(true);
+         TPad* t1 = new TPad("t1","t1", 0.0, 0.20, 1.0, 1.0);
+         t1->Draw();
+         t1->cd();
+         t1->SetLogy(true);
 
          TH1D* frame = new TH1D("frame", "frame", 1,std::max(xmin,0.02),xmax);
          frame->GetXaxis()->SetNdivisions(505);
@@ -761,33 +771,55 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          LEG->SetFillStyle(0);
          LEG->SetBorderSize(0);
 
+         c1->cd();
+         TPad* t2 = new TPad("t2","t2", 0.0, 0.0, 1.0, 0.2); 
+         t2->Draw();
+         t2->cd();
+         t2->SetGridy(true);
+         t2->SetPad(0,0.0,1.0,0.2);
+         t2->SetTopMargin(0);
+         t2->SetBottomMargin(0.5);
+
+         TH1D* frameR = new TH1D("frameR", "frameR", 1,std::max(xmin,0.02),xmax);
+         frameR->GetXaxis()->SetNdivisions(505);
+         frameR->SetTitle("");
+         frameR->SetStats(kFALSE);
+         frameR->GetXaxis()->SetTitle("");//dEdxS_Legend.c_str());
+         frameR->GetYaxis()->SetTitle("Pred / Obs");
+         //frameR->GetYaxis()->SetTitleOffset(1.50);
+         frameR->SetMaximum(1.40);
+         frameR->SetMinimum(0.60);
+         frameR->Draw("AXIS");
+
+         t1->cd();
+
          if(TypeMode==0){
             mapObs[55.0]->SetMarkerColor(2);
             mapObs[55.0]->SetMarkerStyle(20);
             mapObs[55.0]->Draw("P");
-            mapPred[55.0]->SetLineColor(2);
-            mapPred[55.0]->SetLineWidth(2.0);
-            mapPred[55.0]->SetFillColor(2);
-            mapPred[55.0]->SetFillStyle(3004);
-            mapPred[55.0]->Draw("4C");
+            mapPred[55.0]->SetLineColor(2);     mapRatio[55.0]->SetLineColor(2);
+            mapPred[55.0]->SetLineWidth(2.0);   mapRatio[55.0]->SetLineWidth(2.0);
+            mapPred[55.0]->SetFillColor(2);     mapRatio[55.0]->SetFillColor(2);
+            mapPred[55.0]->SetFillStyle(3004);  mapRatio[55.0]->SetFillStyle(3004);
+            mapPred[55.0]->Draw("3C");
 
             mapObs[65.0]->SetMarkerColor(4);
             mapObs[65.0]->SetMarkerStyle(20);
             mapObs[65.0]->Draw("P");
-            mapPred[65.0]->SetLineColor(4);
-            mapPred[65.0]->SetLineWidth(2.0);
-            mapPred[65.0]->SetFillColor(4);
-            mapPred[65.0]->SetFillStyle(3005);
-            mapPred[65.0]->Draw("4C");
+            mapPred[65.0]->SetLineColor(4);     mapRatio[65.0]->SetLineColor(4);
+            mapPred[65.0]->SetLineWidth(2.0);   mapRatio[65.0]->SetLineWidth(2.0);
+            mapPred[65.0]->SetFillColor(4);     mapRatio[65.0]->SetFillColor(4);
+            mapPred[65.0]->SetFillStyle(3005);  mapRatio[65.0]->SetFillStyle(3005);
+            mapPred[65.0]->Draw("3C");
 
             mapObs[75.0]->SetMarkerColor(8);
             mapObs[75.0]->SetMarkerStyle(20);
             mapObs[75.0]->Draw("P");
-            mapPred[75.0]->SetLineColor(8);
-            mapPred[75.0]->SetLineWidth(2.0);
-            mapPred[75.0]->SetFillColor(8);
-            mapPred[75.0]->SetFillStyle(3022);
-            mapPred[75.0]->Draw("4C");
+            mapPred[75.0]->SetLineColor(8);     mapRatio[75.0]->SetLineColor(8);
+            mapPred[75.0]->SetLineWidth(2.0);   mapRatio[75.0]->SetLineWidth(2.0);
+            mapPred[75.0]->SetFillColor(8);     mapRatio[75.0]->SetFillColor(8);
+            mapPred[75.0]->SetFillStyle(3007);  mapRatio[75.0]->SetFillStyle(3007);
+            mapPred[75.0]->Draw("3C");
 
             TH1D* obsLeg = (TH1D*)mapObs [55.0]->Clone("ObsLeg");
             obsLeg->SetMarkerColor(1);
@@ -796,33 +828,40 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
             LEG->AddEntry(mapPred[65.0], "Pred (pT>65GeV)","FL");
             LEG->AddEntry(mapPred[75.0], "Pred (pT>75GeV)","FL");
             LEG->Draw("same");
+
+            t2->cd();
+            
+            mapRatio[55.0]->Draw("3C");
+            mapRatio[65.0]->Draw("3C");
+            mapRatio[75.0]->Draw("3C");
+
          }else if(TypeMode==5){
             mapObs[ 75.0]->SetMarkerColor(2);
             mapObs[ 75.0]->SetMarkerStyle(20); 
             mapObs[ 75.0]->Draw("P");
-            mapPred[ 75.0]->SetLineColor(2);
-            mapPred[ 75.0]->SetLineWidth(2.0);
-            mapPred[ 75.0]->SetFillColor(2);
-            mapPred[ 75.0]->SetFillStyle(3004);
-            mapPred[ 75.0]->Draw("4C");
+            mapPred[ 75.0]->SetLineColor(2);    mapRatio[ 75.0]->SetLineColor(2);
+            mapPred[ 75.0]->SetLineWidth(2.0);  mapRatio[ 75.0]->SetLineWidth(2.0);
+            mapPred[ 75.0]->SetFillColor(2);    mapRatio[ 75.0]->SetFillColor(2);
+            mapPred[ 75.0]->SetFillStyle(3004); mapRatio[ 75.0]->SetFillStyle(3004);
+            mapPred[ 75.0]->Draw("3C");
 
             mapObs[100.0]->SetMarkerColor(4);
             mapObs[100.0]->SetMarkerStyle(20);
             mapObs[100.0]->Draw("P");
-            mapPred[100.0]->SetLineColor(4);  
-            mapPred[100.0]->SetLineWidth(2.0);
-            mapPred[100.0]->SetFillColor(4);
-            mapPred[100.0]->SetFillStyle(3005);
-            mapPred[100.0]->Draw("4C");
+            mapPred[100.0]->SetLineColor(4);    mapRatio[100.0]->SetLineColor(4);
+            mapPred[100.0]->SetLineWidth(2.0);  mapRatio[100.0]->SetLineWidth(2.0);
+            mapPred[100.0]->SetFillColor(4);    mapRatio[100.0]->SetFillColor(4);
+            mapPred[100.0]->SetFillStyle(3005); mapRatio[100.0]->SetFillStyle(3005);
+            mapPred[100.0]->Draw("3C");
 
             mapObs[125.0]->SetMarkerColor(8);
             mapObs[125.0]->SetMarkerStyle(20);
             mapObs[125.0]->Draw("P");
-            mapPred[125.0]->SetLineColor(8);
-            mapPred[125.0]->SetLineWidth(2.0);
-            mapPred[125.0]->SetFillColor(8);
-            mapPred[125.0]->SetFillStyle(3022);
-            mapPred[125.0]->Draw("4C");
+            mapPred[125.0]->SetLineColor(8);    mapRatio[125.0]->SetLineColor(8);
+            mapPred[125.0]->SetLineWidth(2.0);  mapRatio[125.0]->SetLineWidth(2.0);
+            mapPred[125.0]->SetFillColor(8);    mapRatio[125.0]->SetFillColor(8);
+            mapPred[125.0]->SetFillStyle(3007); mapRatio[125.0]->SetFillStyle(3007);
+            mapPred[125.0]->Draw("3C");
 
             TH1D* obsLeg = (TH1D*)mapObs [75.0]->Clone("ObsLeg");
             obsLeg->SetMarkerColor(1);
@@ -831,9 +870,204 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
             LEG->AddEntry(mapPred[100.0], "Pred (pT>100GeV)","FL");
             LEG->AddEntry(mapPred[125.0], "Pred (pT>125GeV)","FL");
             LEG->Draw("same");
+
+            t2->cd();
+
+            mapRatio[ 75.0]->Draw("3C");
+            mapRatio[100.0]->Draw("3C");
+            mapRatio[125.0]->Draw("3C");
          }
 
-         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+         c1->cd();
+         SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObs"+suffix);
+         delete c1;
+      }
+   }
+
+
+
+
+   if(TypeMode==4){  
+      TH1D* HCuts_Pt              = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
+      TH1D* HCuts_I               = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
+      TH1D* HCuts_TOF             = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
+      
+      for(int S=0;S<2;S++){
+         if(TypeMode!=5 && S>0)continue;
+
+         string suffix = "";
+         if(S==1)suffix = "_Flip";
+         TH1D* H_D                   = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_D"+suffix);
+         TH1D* H_P                   = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_P"+suffix);
+
+         std::map<double, TGraphErrors*> mapPred;
+         std::map<double, TGraphErrors*> mapObs;
+         std::map<double, TGraphErrors*> mapRatio;
+
+         double max = 1; double min = 1000;
+         double xmin=100; double xmax=0;
+         for(int CutIndex_=1;CutIndex_<H_P->GetNbinsX();CutIndex_++){
+            double PtCut = HCuts_Pt->GetBinContent(CutIndex_+1);
+            int N = 0;for(int i=CutIndex_;i<H_P->GetNbinsX();i++){if(HCuts_Pt->GetBinContent(i+1)==PtCut){N++;}else{break;}}
+            mapPred [PtCut] = new TGraphErrors(N);
+            mapObs  [PtCut] = new TGraphErrors(N);
+            mapRatio[PtCut] = new TGraphErrors(N);
+
+            for(int i=0;i<N;i++){
+              xmin = std::min(xmin, HCuts_I->GetBinContent(CutIndex_+i+1));
+              xmax = std::max(xmax, HCuts_I->GetBinContent(CutIndex_+i+1));
+
+              max = std::max(max, H_P->GetBinContent(CutIndex_+i+1));
+//              min = std::min(min, std::max(H_P->GetBinContent(CutIndex_+i+1), 0.1) );
+              double P    =  H_P->GetBinContent(CutIndex_+i+1);
+              double Perr =  H_P->GetBinError(CutIndex_+i+1);
+              if(S==1 && P<=0){P = 3/2.0; Perr=3/2.0;  max = std::max(max, 3.0);}
+              mapPred[PtCut]->SetPoint     (i, HCuts_I->GetBinContent(CutIndex_+i+1), P);
+              mapPred[PtCut]->SetPointError(i, 0                                    , sqrt(pow(Perr,2) + pow(0.1*H_P->GetBinContent(CutIndex_+i+1),2) ) );
+
+              max = std::max(max, H_D->GetBinContent(CutIndex_+i+1));
+              min = std::min(min, std::max(H_D->GetBinContent(CutIndex_+i+1), 0.1));
+              mapObs [PtCut]->SetPoint     (i, HCuts_I->GetBinContent(CutIndex_+i+1), H_D->GetBinContent(CutIndex_+i+1)); 
+              mapObs [PtCut]->SetPointError(i, 0                                    , H_D->GetBinError  (CutIndex_+i+1));
+
+            
+              mapRatio[PtCut]->SetPoint     (i, HCuts_I->GetBinContent(CutIndex_+i+1), H_D->GetBinContent(CutIndex_+i+1)<=0 ? 0 : P    / H_D->GetBinContent(CutIndex_+i+1));
+              mapRatio[PtCut]->SetPointError(i, 0                                    , H_D->GetBinContent(CutIndex_+i+1)<=0 ? 0 : Perr / H_D->GetBinContent(CutIndex_+i+1));
+            }
+            CutIndex_+=N-1;
+         }
+
+
+         c1 = new TCanvas("c1","c1,",600,600);
+         TPad* t1 = new TPad("t1","t1", 0.0, 0.20, 1.0, 1.0);
+         t1->Draw();
+         t1->cd();
+         t1->SetLogy(true);
+
+         TH1D* frame = new TH1D("frame", "frame", 1,std::max(xmin,0.02),xmax);
+         frame->GetXaxis()->SetNdivisions(505);
+         frame->SetTitle("");
+         frame->SetStats(kFALSE);
+         frame->GetXaxis()->SetTitle(dEdxS_Legend.c_str());
+         frame->GetYaxis()->SetTitle("#Events");
+         frame->GetYaxis()->SetTitleOffset(1.50);
+         frame->SetMaximum(max*10);
+         frame->SetMinimum(min*0.1);
+         frame->Draw("AXIS");
+
+         TLegend* LEG = new TLegend(0.45,0.75,0.65,0.93);
+         LEG->SetFillColor(0);
+         LEG->SetFillStyle(0);
+         LEG->SetBorderSize(0);
+
+         c1->cd();
+         TPad* t2 = new TPad("t2","t2", 0.0, 0.0, 1.0, 0.2); 
+         t2->Draw();
+         t2->cd();
+         t2->SetGridy(true);
+         t2->SetPad(0,0.0,1.0,0.2);
+         t2->SetTopMargin(0);
+         t2->SetBottomMargin(0.5);
+
+         TH1D* frameR = new TH1D("frameR", "frameR", 1,std::max(xmin,0.02),xmax);
+         frameR->GetXaxis()->SetNdivisions(505);
+         frameR->SetTitle("");
+         frameR->SetStats(kFALSE);
+         frameR->GetXaxis()->SetTitle("");//dEdxS_Legend.c_str());
+         frameR->GetYaxis()->SetTitle("Pred / Obs");
+         frameR->GetYaxis()->SetTitleOffset(1.50);
+         frameR->SetMaximum(1.40);
+         frameR->SetMinimum(0.60);
+         frameR->Draw("AXIS");
+
+         t1->cd();
+
+         if(TypeMode==0){
+            mapObs[55.0]->SetMarkerColor(2);
+            mapObs[55.0]->SetMarkerStyle(20);
+            mapObs[55.0]->Draw("P");
+            mapPred[55.0]->SetLineColor(2);     mapRatio[55.0]->SetLineColor(2);
+            mapPred[55.0]->SetLineWidth(2.0);   mapRatio[55.0]->SetLineWidth(2.0);
+            mapPred[55.0]->SetFillColor(2);     mapRatio[55.0]->SetFillColor(2);
+            mapPred[55.0]->SetFillStyle(3004);  mapRatio[55.0]->SetFillStyle(3004);
+            mapPred[55.0]->Draw("3C");
+
+            mapObs[65.0]->SetMarkerColor(4);
+            mapObs[65.0]->SetMarkerStyle(20);
+            mapObs[65.0]->Draw("P");
+            mapPred[65.0]->SetLineColor(4);     mapRatio[65.0]->SetLineColor(4);
+            mapPred[65.0]->SetLineWidth(2.0);   mapRatio[65.0]->SetLineWidth(2.0);
+            mapPred[65.0]->SetFillColor(4);     mapRatio[65.0]->SetFillColor(4);
+            mapPred[65.0]->SetFillStyle(3005);  mapRatio[65.0]->SetFillStyle(3005);
+            mapPred[65.0]->Draw("3C");
+
+            mapObs[75.0]->SetMarkerColor(8);
+            mapObs[75.0]->SetMarkerStyle(20);
+            mapObs[75.0]->Draw("P");
+            mapPred[75.0]->SetLineColor(8);     mapRatio[75.0]->SetLineColor(8);
+            mapPred[75.0]->SetLineWidth(2.0);   mapRatio[75.0]->SetLineWidth(2.0);
+            mapPred[75.0]->SetFillColor(8);     mapRatio[75.0]->SetFillColor(8);
+            mapPred[75.0]->SetFillStyle(3007);  mapRatio[75.0]->SetFillStyle(3007);
+            mapPred[75.0]->Draw("3C");
+
+            TH1D* obsLeg = (TH1D*)mapObs [55.0]->Clone("ObsLeg");
+            obsLeg->SetMarkerColor(1);
+            LEG->AddEntry(obsLeg, "Data"    ,"P");
+            LEG->AddEntry(mapPred[55.0], "Pred (pT>55GeV)","FL");
+            LEG->AddEntry(mapPred[65.0], "Pred (pT>65GeV)","FL");
+            LEG->AddEntry(mapPred[75.0], "Pred (pT>75GeV)","FL");
+            LEG->Draw("same");
+
+            t2->cd();
+            
+            mapRatio[55.0]->Draw("3C");
+            mapRatio[65.0]->Draw("3C");
+            mapRatio[75.0]->Draw("3C");
+
+         }else if(TypeMode==5){
+            mapObs[ 75.0]->SetMarkerColor(2);
+            mapObs[ 75.0]->SetMarkerStyle(20); 
+            mapObs[ 75.0]->Draw("P");
+            mapPred[ 75.0]->SetLineColor(2);    mapRatio[ 75.0]->SetLineColor(2);
+            mapPred[ 75.0]->SetLineWidth(2.0);  mapRatio[ 75.0]->SetLineWidth(2.0);
+            mapPred[ 75.0]->SetFillColor(2);    mapRatio[ 75.0]->SetFillColor(2);
+            mapPred[ 75.0]->SetFillStyle(3004); mapRatio[ 75.0]->SetFillStyle(3004);
+            mapPred[ 75.0]->Draw("3C");
+
+            mapObs[100.0]->SetMarkerColor(4);
+            mapObs[100.0]->SetMarkerStyle(20);
+            mapObs[100.0]->Draw("P");
+            mapPred[100.0]->SetLineColor(4);    mapRatio[100.0]->SetLineColor(4);
+            mapPred[100.0]->SetLineWidth(2.0);  mapRatio[100.0]->SetLineWidth(2.0);
+            mapPred[100.0]->SetFillColor(4);    mapRatio[100.0]->SetFillColor(4);
+            mapPred[100.0]->SetFillStyle(3005); mapRatio[100.0]->SetFillStyle(3005);
+            mapPred[100.0]->Draw("3C");
+
+            mapObs[125.0]->SetMarkerColor(8);
+            mapObs[125.0]->SetMarkerStyle(20);
+            mapObs[125.0]->Draw("P");
+            mapPred[125.0]->SetLineColor(8);    mapRatio[125.0]->SetLineColor(8);
+            mapPred[125.0]->SetLineWidth(2.0);  mapRatio[125.0]->SetLineWidth(2.0);
+            mapPred[125.0]->SetFillColor(8);    mapRatio[125.0]->SetFillColor(8);
+            mapPred[125.0]->SetFillStyle(3007); mapRatio[125.0]->SetFillStyle(3007);
+            mapPred[125.0]->Draw("3C");
+
+            TH1D* obsLeg = (TH1D*)mapObs [75.0]->Clone("ObsLeg");
+            obsLeg->SetMarkerColor(1);
+            LEG->AddEntry(obsLeg, "Data"    ,"P");
+            LEG->AddEntry(mapPred[ 75.0], "Pred (pT> 75GeV)","FL");
+            LEG->AddEntry(mapPred[100.0], "Pred (pT>100GeV)","FL");
+            LEG->AddEntry(mapPred[125.0], "Pred (pT>125GeV)","FL");
+            LEG->Draw("same");
+
+            t2->cd();
+
+            mapRatio[ 75.0]->Draw("3C");
+            mapRatio[100.0]->Draw("3C");
+            mapRatio[125.0]->Draw("3C");
+         }
+
+         c1->cd();
          SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObs"+suffix);
          delete c1;
       }

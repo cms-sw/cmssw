@@ -297,6 +297,23 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
 
+
+   fprintf(pFile   , "%% %50s\n", "multiple charge");
+   fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
+   fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
+   fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & $#beta^{-1]$ & Mass Cut (GeV) & N pred & N observed & Eff \\\\\n");
+   fprintf(talkFile, "\\hline\n");
+   TGraph** HQGraphs = new TGraph*[modelVector.size()];
+   for(unsigned int k=0; k<modelVector.size(); k++){
+      if(modelVector[k].find("DY")==string::npos)continue;
+      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
+      if(isFractional) continue;//skip q>=1 charged suppressed models
+      HQGraphs[k] = MakePlot(pFile,talkFile,HQPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
+   }
+   fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
+   fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
+
+
    fprintf(pFile   , "%% %50s\n", "fractionnally charge");
    fprintf(pFile   , "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
    fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
@@ -317,32 +334,32 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    if(SQRTS==8.0){
       fprintf(pFile,"%%TKONLY\n");
-      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
-      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & $\\mu_{obs}$ ($\\mu_{pred}$) \\\\\\hline\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
       for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, TkPattern , modelVector[k], modelMap[modelVector[k]]); }
       fprintf(pFile,"\\hline\n\n\n");
 
       fprintf(pFile,"%%TKTOF\n");
-      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
-      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & $\\mu_{obs}$ ($\\mu_{pred}$) \\\\\\hline\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
       for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, MuPattern , modelVector[k], modelMap[modelVector[k]]); }
       fprintf(pFile,"\\hline\n\n\n");
 
       fprintf(pFile,"%%MUONLY\n");
-      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
-      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & $\\mu_{obs}$ ($\\mu_{pred}$) \\\\\\hline\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
       for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, MOPattern , modelVector[k], modelMap[modelVector[k]]); }
       fprintf(pFile,"\\hline\n\n\n");
 
       fprintf(pFile,"%%Q>1\n");
-      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
-      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ ($\\sigma_{pred}$) & $\\mu_{obs}$ ($\\mu_{pred}$) \\\\\\hline\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
       for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, HQPattern , modelVector[k], modelMap[modelVector[k]]); }
       fprintf(pFile,"\\hline\n\n\n");
 
       fprintf(pFile,"%%Q<1\n");
-      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt(s)=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt(s)=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt(s)=7+8TeV$} \\\\\\hline\n");
-      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Efff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
       for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, LQPattern , modelVector[k], modelMap[modelVector[k]]); }
       fprintf(pFile,"\\hline\n\n\n");
    }
@@ -623,7 +640,19 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MOGraphs[k],  ThXSec[k], MOGraphs[k]->GetX()[0], MOGraphs[k]->GetX()[MOGraphs[k]->GetN()-1], 1, 0.00));
    }
 
-   fprintf(pFile,"-----------------------\n0%% Q<1+Only        \n-------------------------\n");
+
+   fprintf(pFile,"-----------------------\n0%% Q>1            \n-------------------------\n");
+   for(unsigned int k=0; k<modelVector.size(); k++){
+      if(modelVector[k].find("DY")==string::npos)continue;
+      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
+      if(isFractional) continue;//skip non fractional charge models
+      if(HQGraphs[k]->GetN()==0) continue;
+      if(HQGraphs[k]->GetX()[HQGraphs[k]->GetN()-1]<0) continue;
+      fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(HQGraphs[k],  ThXSec[k], HQGraphs[k]->GetX()[0], HQGraphs[k]->GetX()[HQGraphs[k]->GetN()-1], 1, 0.00));
+   }
+
+
+   fprintf(pFile,"-----------------------\n0%% Q<1             \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
       if(!isFractional) continue;//skip non fractional charge models
