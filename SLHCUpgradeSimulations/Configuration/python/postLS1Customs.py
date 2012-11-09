@@ -21,13 +21,8 @@ def turnOffXFrame(process):
     process.digitisation_step.remove(process.simSiStripDigiSimLink)
     process.digitisation_step.remove(process.mergedtruth)
     return process
-    
-def digiCustoms(process):
-    process=turnOffXFrame(process)
-    
-    #deal with csc
-    process=customise_csc_geom_cond_digi(process)
 
+def digiEventContent(process):
     #extend the event content
     if hasattr(process,'FEVTDEBUGoutput'):
         process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simMuonCSCDigis_*_*')
@@ -39,10 +34,24 @@ def digiCustoms(process):
         process.GENRAWoutput.outputCommands.append( 'keep *_simMuonRPCDigis_*_*')
         process.GENRAWoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
 
+    return process    
+    
+def digiCustoms(process):
+    process=turnOffXFrame(process)
+    
+    #deal with csc
+    process=customise_csc_geom_cond_digi(process)
+    process=digiEventContent(process)
     process.digi2raw_step.remove(process.cscpacker)
-
     return process
 
+def digiCustomsRelVal(process):
+    #deal with csc
+    process=customise_csc_geom_cond_digi(process)
+    process=digiEventContent(process)
+    process.digi2raw_step.remove(process.cscpacker)
+    return process
+    
 def recoCustoms(process):
 
     # ME1/1A is  u n g a n g e d  Post-LS1
