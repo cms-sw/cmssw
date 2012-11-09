@@ -216,6 +216,26 @@ class HLTProcess(object):
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+
+# customization for CMSSW_6_1_X
+if cmsswVersion.startswith('CMSSW_6_1_'):
+
+    # adapt the HLT menu to the "prototype for Event Interpretation" development
+    if 'hltPFPileUp' in %(dict)s:
+        # define new PFCandidateFwdPtrProducer module
+        %(process)shltParticleFlowPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
+            src = cms.InputTag('hltParticleFlow')
+        )
+        # add the new module before the hltPFPileUp module
+        _sequence = None
+        for _sequence in [ _sequence for _sequence in %(dict)s.itervalues() if isinstance(_sequence, cms._ModuleSequenceType)]:
+            try:
+                _sequence.insert( _sequence.index(%(process)shltPFPileUp), %(process)shltParticleFlowPtrs )
+            except ValueError:
+                pass
+        # reconfigure hltPFPileUp and hltPFNoPileUp to use the new module
+        %(process)shltPFPileUp.PFCandidates       = cms.InputTag( "hltParticleFlowPtrs" )
+        %(process)shltPFNoPileUp.bottomCollection = cms.InputTag( "hltParticleFlowPtrs" )
 """
 
   # customize the configuration according to the options
