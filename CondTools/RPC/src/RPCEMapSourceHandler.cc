@@ -290,7 +290,7 @@ void popcon::RPCEMapSourceHandler::readEMap1()
             coral::ICursor& cursor7 = query7->execute();
             while (cursor7.next()) {
               const coral::AttributeList& row = cursor7.currentRow();
-              char diskOrWheel=row["DISKORWHEEL"].data<short>()+3;
+              char diskOrWheel=row["DISKORWHEEL"].data<short>()+4;
               char layer=row["LAYER"].data<short>();
               int sector=row["SECTOR"].data<short>();
               temp=row["SUBSECTOR"].data<std::string>();
