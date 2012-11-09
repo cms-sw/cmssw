@@ -2,5 +2,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Sources"/>
 <use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>

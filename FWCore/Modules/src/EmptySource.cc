@@ -1,37 +1,42 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 namespace edm {
-  class EmptySource : public GeneratedInputSource {
+  class EmptySource : public ProducerSourceBase {
   public:
     explicit EmptySource(ParameterSet const&, InputSourceDescription const&);
     ~EmptySource();
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
   private:
-    virtual bool produce(Event &);
+    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time);
+    virtual void produce(Event &);
   };
 
   EmptySource::EmptySource(ParameterSet const& pset,
 				       InputSourceDescription const& desc) :
-    GeneratedInputSource(pset, desc)
+    ProducerSourceBase(pset, desc, false)
   { }
 
   EmptySource::~EmptySource() {
   }
 
   bool
-  EmptySource::produce(edm::Event &) {
+  EmptySource::setRunAndEventInfo(EventID&, TimeValue_t&) {
     return true;
+  }
+
+  void
+  EmptySource::produce(edm::Event&) {
   }
 
   void
   EmptySource::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;
     desc.setComment("Creates runs, lumis and events containing no products.");
-    GeneratedInputSource::fillDescription(desc);
+    ProducerSourceBase::fillDescription(desc);
     descriptions.add("source", desc);
   }
 }
