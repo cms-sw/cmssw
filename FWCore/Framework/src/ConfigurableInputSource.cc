@@ -10,7 +10,6 @@
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 
 namespace edm {
   //used for defaults
@@ -34,9 +33,7 @@ namespace edm {
     lumiSet_(false),
     eventSet_(false),
     isRealData_(realData),
-    eType_(EventAuxiliary::Undefined),
-    receiver_(),
-    numberOfEventsBeforeBigSkip_(0)
+    eType_(EventAuxiliary::Undefined)
   { 
 
     setTimestamp(Timestamp(presentTime_));
@@ -140,34 +137,12 @@ namespace edm {
     lumiSet_ = true;
   }
 
-  void 
-  ConfigurableInputSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource> iReceiver) {
-    receiver_ = iReceiver;
-    receiver_->receive();
-    numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices() + 1;
-    repeat();
-    rewind();
-  }
-
   void
   ConfigurableInputSource::rewind_() {
     presentTime_ = origTime_;
     eventID_ = origEventID_;
     numberEventsInThisRun_ = 0;
     numberEventsInThisLumi_ = 0;
-
-    if(receiver_) {
-      unsigned int numberToSkip = receiver_->numberToSkip();
-      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices() + 1;
-      //NOTE: skip() will decrease numberOfEventsBeforeBigSkip_ and therefore we need
-      // to be sure it is large enough so that it never goes to 0 during the skipping
-      if(numberOfEventsBeforeBigSkip_ < numberToSkip) {
-        numberOfEventsBeforeBigSkip_ = numberToSkip+1;
-      }
-      skip(numberToSkip);
-      decreaseRemainingEventsBy(numberToSkip);
-      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices() + 1;
-    }
     setNewRun();
     setNewLumi();
   }
@@ -272,21 +247,6 @@ namespace edm {
   
   void
   ConfigurableInputSource::setRunAndEventInfo() {
-    if(receiver_ && 0 == --numberOfEventsBeforeBigSkip_) {
-      receiver_->receive();
-      unsigned long numberOfEventsToSkip = receiver_->numberToSkip();
-      if (numberOfEventsToSkip !=0) {
-        skip(numberOfEventsToSkip);
-        decreaseRemainingEventsBy(numberOfEventsToSkip);
-      }
-      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
-      //Since we decrease 'remaining events' count we need to see if we reached 0 and therefore are at the end
-      if(0 == numberOfEventsBeforeBigSkip_ or 0==remainingEvents() or 0 == remainingLuminosityBlocks()) {
-        //this means we are to stop
-        eventID_ = EventID();
-        return;
-      }
-    }
     advanceToNext();
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
   }

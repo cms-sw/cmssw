@@ -60,7 +60,6 @@ namespace edm {
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
 
-    virtual void postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>);
     void advanceToNext() ;
     void retreatToPrevious();
 
@@ -80,10 +79,6 @@ namespace edm {
     bool eventSet_;
     bool isRealData_;
     EventAuxiliary::ExperimentType eType_;
-     
-    //used when process has been forked
-    boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
-    unsigned int numberOfEventsBeforeBigSkip_;
   };
 }
 #endif

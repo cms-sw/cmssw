@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/src/PrincipalCache.h"
@@ -73,7 +74,9 @@ namespace edm {
       state_(IsInvalid),
       runAuxiliary_(),
       lumiAuxiliary_(),
-      statusFileName_() {
+      statusFileName_(),
+      receiver_(),
+      numberOfEventsBeforeBigSkip_(0) {
 
     if(pset.getUntrackedParameter<bool>("writeStatusFile", false)) {
       std::ostringstream statusfilename;
@@ -153,7 +156,18 @@ namespace edm {
   // for that source.
   InputSource::ItemType
   InputSource::nextItemType_() {
-
+    if(receiver_ && 0 == numberOfEventsBeforeBigSkip_) {
+      receiver_->receive();
+      unsigned long toSkip = receiver_->numberToSkip();
+      if(0 != toSkip) {
+        skip(toSkip);
+        decreaseRemainingEventsBy(toSkip);
+      }
+      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
+      if(0 == numberOfEventsBeforeBigSkip_ or 0 == remainingEvents() or 0 == remainingLuminosityBlocks()) {
+        return IsStop;
+      }
+    }
     ItemType itemType = callWithTryCatchAndPrint<ItemType>( [this](){ return getNextItemType(); }, "Calling InputSource::getNextItemType" );
 
     if(itemType == IsEvent && processingMode() != RunsLumisAndEvents) {
@@ -356,6 +370,9 @@ namespace edm {
 
     EventPrincipal* result = callWithTryCatchAndPrint<EventPrincipal*>( [this](){ return readEvent_(principalCache().eventPrincipal()); },
                                                                         "Calling InputSource::readEvent_" );
+    if(receiver_) {
+      --numberOfEventsBeforeBigSkip_;
+    }
 
     if(result != 0) {
       assert(result->luminosityBlockPrincipalPtrValid());
@@ -404,7 +421,15 @@ namespace edm {
   InputSource::rewind() {
     state_ = IsInvalid;
     remainingEvents_ = maxEvents_;
+    setNewRun();
+    setNewLumi();
+    resetEventCached();
     callWithTryCatchAndPrint<void>( [this](){ rewind_(); }, "Calling InputSource::rewind_" );
+    if(receiver_) {
+      unsigned int numberToSkip = receiver_->numberToSkip();
+      skip(numberToSkip);
+      decreaseRemainingEventsBy(numberToSkip);
+    }
   }
 
   void
@@ -575,7 +600,12 @@ namespace edm {
   InputSource::preForkReleaseResources() {}
 
   void
-  InputSource::postForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource>) {}
+  InputSource::postForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
+    receiver_ = iReceiver;
+    receiver_->receive();
+    numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
+    rewind();
+  }
 
   bool
   InputSource::randomAccess_() const {

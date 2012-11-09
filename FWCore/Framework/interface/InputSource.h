@@ -46,6 +46,7 @@ Some examples of InputSource subclasses may be:
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 
@@ -400,6 +401,10 @@ namespace edm {
     mutable boost::shared_ptr<RunAuxiliary> runAuxiliary_;
     mutable boost::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;
     std::string statusFileName_;
+
+    //used when process has been forked
+    boost::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
+    unsigned int numberOfEventsBeforeBigSkip_;
   };
 }
 
