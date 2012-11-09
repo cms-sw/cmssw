@@ -729,8 +729,6 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
             mapObs  [std::make_pair(PtCut, TCut)] = new TGraphErrors(N);
             mapRatio[std::make_pair(PtCut, TCut)] = new TGraphErrors(N);
 
-            printf("%f %f - %i\n",PtCut, TCut, N);
-
             int N_i = 0;
             for(int i=CutIndex_;i<H_P->GetNbinsX();i++){
               if(float(HCuts_Pt->GetBinContent(i+1))!=PtCut || float(HCuts_TOF->GetBinContent(i+1))!=TCut)continue;
@@ -752,8 +750,6 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
             
               mapRatio[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), H_D->GetBinContent(i+1)<=0 ? 0 : P    / H_D->GetBinContent(i+1));
               mapRatio[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , H_D->GetBinContent(i+1)<=0 ? 0 : sqrt(pow(Perr * H_D->GetBinContent(i+1),2) + pow(P * H_D->GetBinError  (i+1),2) ) / pow(H_D->GetBinContent(i+1),2) );
-
-              printf("   %f --> %f vs %f\n",HCuts_I->GetBinContent(i+1), H_D->GetBinContent(i+1), P);
 
               N_i++;
             }
