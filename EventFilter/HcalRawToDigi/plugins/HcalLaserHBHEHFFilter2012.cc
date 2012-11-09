@@ -171,6 +171,7 @@ HcalLaserHBHEHFFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   for (HcalCalibDigiCollection::const_iterator Calibiter = calib_digi->begin();
        Calibiter != calib_digi->end(); ++ Calibiter) {
     const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*Calibiter);
+    if (digi.zsMarkAndPass()) continue; // skip digis labeled as "mark and pass" in NZS events
     HcalCalibDetId myid=(HcalCalibDetId)digi.id();
     if (filterHBHE_ && (myid.hcalSubdet()==HcalBarrel || myid.hcalSubdet()==HcalEndcap)) 
       {

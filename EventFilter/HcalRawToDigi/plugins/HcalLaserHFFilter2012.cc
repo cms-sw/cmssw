@@ -144,6 +144,7 @@ HcalLaserHFFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        Calibiter != calib_digi->end(); ++ Calibiter)
      {
        const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*Calibiter);
+       if (digi.zsMarkAndPass()) continue; // skip digis labeled as "mark and pass" in NZS events
        HcalCalibDetId myid=(HcalCalibDetId)digi.id();
        if (myid.hcalSubdet()!=HcalForward) continue;
        ++ncalibHF;
