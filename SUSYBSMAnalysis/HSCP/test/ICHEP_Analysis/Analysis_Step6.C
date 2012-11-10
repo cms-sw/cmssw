@@ -191,7 +191,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    string TkPattern  = "Results/Type0/";
    string MuPattern  = "Results/Type2/";
    string MOPattern  = "Results/Type3/";
-   string HQPattern  = "Results/Type4/";
+   string GQPattern  = "Results/Type4/";
    string LQPattern  = "Results/Type5/";
 
    bool Combine = (MODE.find("COMB")!=string::npos);
@@ -303,12 +303,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
    fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & $#beta^{-1]$ & Mass Cut (GeV) & N pred & N observed & Eff \\\\\n");
    fprintf(talkFile, "\\hline\n");
-   TGraph** HQGraphs = new TGraph*[modelVector.size()];
+   TGraph** GQGraphs  = new TGraph*[modelVector.size()];
    for(unsigned int k=0; k<modelVector.size(); k++){
-      if(modelVector[k].find("DY")==string::npos)continue;
-      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
-      if(isFractional) continue;//skip q>=1 charged suppressed models
-      HQGraphs[k] = MakePlot(pFile,talkFile,HQPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
+     bool ismHSCP = false;
+     if(modelVector[k].find("DY_Q")!=string::npos && modelVector[k].find("o3")==string::npos ) ismHSCP = true;
+     if(!ismHSCP) continue;  //  only mHSCP models
+     GQGraphs[k] = MakePlot(pFile,talkFile,GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
    }
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
@@ -354,7 +354,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       fprintf(pFile,"%%Q>1\n");
       fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
       fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
-      for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, HQPattern , modelVector[k], modelMap[modelVector[k]]); }
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, GQPattern , modelVector[k], modelMap[modelVector[k]]); }
       fprintf(pFile,"\\hline\n\n\n");
 
       fprintf(pFile,"%%Q<1\n");
@@ -599,7 +599,72 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
            for(int i=0; i<NMass; i++) ones[i]=1;
            ThXSec   [k] = new TGraph(NMass,THXSEC8TeV_PPStau_Mass,ones);
          }
-     }else{
+     }     else if(modelVector[k].find("DY_Q1"  )!=string::npos  &&  modelVector[k].find("o3"  )==string::npos ){
+       if(SQRTS==7){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);   
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_mHSCPQ1_Mass)/sizeof(double), THXSEC7TeV_mHSCPQ1_Mass, THXSEC7TeV_mHSCPQ1_Low, THXSEC7TeV_mHSCPQ1_High, PlotMinScale, PlotMaxScale);
+       }else if(SQRTS==8){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_mHSCPQ1_Mass)/sizeof(double),THXSEC8TeV_mHSCPQ1_Mass, THXSEC8TeV_mHSCPQ1_Low, THXSEC8TeV_mHSCPQ1_High, PlotMinScale, PlotMaxScale);
+       }         else {
+         const int NMass=sizeof(THXSEC8TeV_mHSCPQ1_Mass)/sizeof(double);
+         double ones[NMass];
+         for(int i=0; i<NMass; i++) ones[i]=1;
+         ThXSec   [k] = new TGraph(NMass,THXSEC8TeV_mHSCPQ1_Mass,ones); 
+       }
+     }     else if(modelVector[k].find("DY_Q2"  )!=string::npos  &&  modelVector[k].find("o3"  )==string::npos ){
+       if(SQRTS==7){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);   
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_mHSCPQ2_Mass)/sizeof(double), THXSEC7TeV_mHSCPQ2_Mass, THXSEC7TeV_mHSCPQ2_Low, THXSEC7TeV_mHSCPQ2_High, PlotMinScale, PlotMaxScale);
+       }else if(SQRTS==8){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_mHSCPQ2_Mass)/sizeof(double),THXSEC8TeV_mHSCPQ2_Mass, THXSEC8TeV_mHSCPQ2_Low, THXSEC8TeV_mHSCPQ2_High, PlotMinScale, PlotMaxScale);
+       }         else {
+         const int NMass=sizeof(THXSEC8TeV_mHSCPQ2_Mass)/sizeof(double);
+         double ones[NMass];
+         for(int i=0; i<NMass; i++) ones[i]=1;
+         ThXSec   [k] = new TGraph(NMass,THXSEC8TeV_mHSCPQ2_Mass,ones); 
+       }
+     }     else if(modelVector[k].find("DY_Q3"  )!=string::npos  &&  modelVector[k].find("o3"  )==string::npos ){
+       if(SQRTS==7){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);   
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_mHSCPQ3_Mass)/sizeof(double), THXSEC7TeV_mHSCPQ3_Mass, THXSEC7TeV_mHSCPQ3_Low, THXSEC7TeV_mHSCPQ3_High, PlotMinScale, PlotMaxScale);
+       }else if(SQRTS==8){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_mHSCPQ3_Mass)/sizeof(double),THXSEC8TeV_mHSCPQ3_Mass, THXSEC8TeV_mHSCPQ3_Low, THXSEC8TeV_mHSCPQ3_High, PlotMinScale, PlotMaxScale);
+       }         else {
+         const int NMass=sizeof(THXSEC8TeV_mHSCPQ3_Mass)/sizeof(double);
+         double ones[NMass];
+         for(int i=0; i<NMass; i++) ones[i]=1;
+         ThXSec   [k] = new TGraph(NMass,THXSEC8TeV_mHSCPQ3_Mass,ones); 
+       }
+     }     else if(modelVector[k].find("DY_Q4"  )!=string::npos  &&  modelVector[k].find("o3"  )==string::npos ){
+       if(SQRTS==7){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);   
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_mHSCPQ4_Mass)/sizeof(double), THXSEC7TeV_mHSCPQ4_Mass, THXSEC7TeV_mHSCPQ4_Low, THXSEC7TeV_mHSCPQ4_High, PlotMinScale, PlotMaxScale);
+       }else if(SQRTS==8){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_mHSCPQ4_Mass)/sizeof(double),THXSEC8TeV_mHSCPQ4_Mass, THXSEC8TeV_mHSCPQ4_Low, THXSEC8TeV_mHSCPQ4_High, PlotMinScale, PlotMaxScale);
+       }         else {
+         const int NMass=sizeof(THXSEC8TeV_mHSCPQ4_Mass)/sizeof(double);
+         double ones[NMass];
+         for(int i=0; i<NMass; i++) ones[i]=1;
+         ThXSec   [k] = new TGraph(NMass,THXSEC8TeV_mHSCPQ4_Mass,ones); 
+       }
+     }     else if(modelVector[k].find("DY_Q5"  )!=string::npos  &&  modelVector[k].find("o3"  )==string::npos ){
+       if(SQRTS==7){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);   
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC7TeV_mHSCPQ5_Mass)/sizeof(double), THXSEC7TeV_mHSCPQ5_Mass, THXSEC7TeV_mHSCPQ5_Low, THXSEC7TeV_mHSCPQ5_High, PlotMinScale, PlotMaxScale);
+       }else if(SQRTS==8){
+         ThXSec   [k] = MakePlot(NULL, NULL, GQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
+         ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", sizeof(THXSEC8TeV_mHSCPQ5_Mass)/sizeof(double),THXSEC8TeV_mHSCPQ5_Mass, THXSEC8TeV_mHSCPQ5_Low, THXSEC8TeV_mHSCPQ5_High, PlotMinScale, PlotMaxScale);
+       }         else {
+         const int NMass=sizeof(THXSEC8TeV_mHSCPQ5_Mass)/sizeof(double);
+         double ones[NMass];
+         for(int i=0; i<NMass; i++) ones[i]=1;
+         ThXSec   [k] = new TGraph(NMass,THXSEC8TeV_mHSCPQ5_Mass,ones); 
+       }
+     }     else{
          if(modelVector[k].find("o3")!=string::npos){
             ThXSec   [k] = MakePlot(NULL, NULL, LQPattern,modelVector[k], 0, modelMap[modelVector[k]], LInt);
          }else{
@@ -610,7 +675,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
          //assume 15% error on xsection
          for(int i=0;i<ThXSec[k]->GetN();i++){ XSecErrLow[i] = ThXSec[k]->GetY()[i]*0.85; XSecErrHigh[i] = ThXSec[k]->GetY()[i]*1.15; }
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", ThXSec[k]->GetN(),ThXSec[k]->GetX(),XSecErrLow,XSecErrHigh, PlotMinScale, PlotMaxScale); 
-         }
+     }
    }
 
    //Print the excluded mass range
@@ -640,17 +705,16 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MOGraphs[k],  ThXSec[k], MOGraphs[k]->GetX()[0], MOGraphs[k]->GetX()[MOGraphs[k]->GetN()-1], 1, 0.00));
    }
 
-
    fprintf(pFile,"-----------------------\n0%% Q>1            \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
-      if(modelVector[k].find("DY")==string::npos)continue;
-      bool isFractional = false;if(modelVector[k].find("1o3")!=string::npos || modelVector[k].find("2o3")!=string::npos)isFractional = true;
-      if(isFractional) continue;//skip non fractional charge models
-      if(HQGraphs[k]->GetN()==0) continue;
-      if(HQGraphs[k]->GetX()[HQGraphs[k]->GetN()-1]<0) continue;
-      fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(HQGraphs[k],  ThXSec[k], HQGraphs[k]->GetX()[0], HQGraphs[k]->GetX()[HQGraphs[k]->GetN()-1], 1, 0.00));
-   }
+     bool ismHSCP = false;
+     if(modelVector[k].find("DY_Q")!=string::npos && modelVector[k].find("o3")==string::npos ) ismHSCP = true;
+     if(!ismHSCP) continue; 
 
+      if(GQGraphs[k]->GetN()==0) continue;
+      if(GQGraphs[k]->GetX()[GQGraphs[k]->GetN()-1]<0) continue;
+      fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(GQGraphs[k],  ThXSec[k], GQGraphs[k]->GetX()[0], GQGraphs[k]->GetX()[GQGraphs[k]->GetN()-1], 1, 0.00));
+   }
 
    fprintf(pFile,"-----------------------\n0%% Q<1             \n-------------------------\n");
    for(unsigned int k=0; k<modelVector.size(); k++){
@@ -661,11 +725,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(LQGraphs[k],  ThXSec[k], LQGraphs[k]->GetX()[0], LQGraphs[k]->GetX()[LQGraphs[k]->GetN()-1], 1, 0.00));
    }
 
-
-
-
-
-
    fclose(pFile);
 
 
@@ -674,6 +733,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    std::map<string, TGraph*> TkGraphMap;
    std::map<string, TGraph*> MuGraphMap;
    std::map<string, TGraph*> LQGraphMap;
+   std::map<string, TGraph*> GQGraphMap;
    std::map<string, TGraph*> MOGraphMap;
    std::map<string, TGraph*> ThGraphMap;
    std::map<string, TCutG* > ThErrorMap;
@@ -681,6 +741,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       TkGraphMap[modelVector[k]] = TkGraphs [k];
       MuGraphMap[modelVector[k]] = MuGraphs [k];
       LQGraphMap[modelVector[k]] = LQGraphs [k];
+      GQGraphMap[modelVector[k]] = GQGraphs [k];
       MOGraphMap[modelVector[k]] = MOGraphs [k];
       ThGraphMap[modelVector[k]] = ThXSec   [k];
       ThErrorMap[modelVector[k]] = ThXSecErr[k];
@@ -722,6 +783,21 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThGraphMap["DY_Q2o3"      ]->SetLineColor(43); ThGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  ThGraphMap["DY_Q2o3"      ]->SetLineWidth(1);   ThGraphMap["DY_Q2o3"      ]->SetLineStyle(10); ThGraphMap["DY_Q2o3"      ]->SetMarkerStyle(1);
    TkGraphMap["DY_Q2o3"      ]->SetLineColor(43); TkGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  TkGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   TkGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  TkGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
    LQGraphMap["DY_Q2o3"      ]->SetLineColor(43); LQGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  LQGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
+
+   ThGraphMap["DY_Q1"        ]->SetLineColor(46); ThGraphMap["DY_Q1"        ]->SetMarkerColor(46);  ThGraphMap["DY_Q1"        ]->SetLineWidth(1);   ThGraphMap["DY_Q1"        ]->SetLineStyle(1);  ThGraphMap["DY_Q1"        ]->SetMarkerStyle(1);
+   GQGraphMap["DY_Q1"        ]->SetLineColor(46); GQGraphMap["DY_Q1"        ]->SetMarkerColor(46);  GQGraphMap["DY_Q1"        ]->SetLineWidth(2);   GQGraphMap["DY_Q1"        ]->SetLineStyle(1);  GQGraphMap["DY_Q1"        ]->SetMarkerStyle(20);
+
+   ThGraphMap["DY_Q2"        ]->SetLineColor(2); ThGraphMap["DY_Q2"        ]->SetMarkerColor(2);  ThGraphMap["DY_Q2"        ]->SetLineWidth(1);   ThGraphMap["DY_Q2"        ]->SetLineStyle(2);  ThGraphMap["DY_Q2"        ]->SetMarkerStyle(1);
+   GQGraphMap["DY_Q2"        ]->SetLineColor(2); GQGraphMap["DY_Q2"        ]->SetMarkerColor(2);  GQGraphMap["DY_Q2"        ]->SetLineWidth(2);   GQGraphMap["DY_Q2"        ]->SetLineStyle(1);  GQGraphMap["DY_Q2"        ]->SetMarkerStyle(21);
+
+   ThGraphMap["DY_Q3"        ]->SetLineColor(1); ThGraphMap["DY_Q3"        ]->SetMarkerColor(1);  ThGraphMap["DY_Q3"        ]->SetLineWidth(1);   ThGraphMap["DY_Q3"        ]->SetLineStyle(9);  ThGraphMap["DY_Q3"        ]->SetMarkerStyle(1);
+   GQGraphMap["DY_Q3"        ]->SetLineColor(1); GQGraphMap["DY_Q3"        ]->SetMarkerColor(1);  GQGraphMap["DY_Q3"        ]->SetLineWidth(2);   GQGraphMap["DY_Q3"        ]->SetLineStyle(1);  GQGraphMap["DY_Q3"        ]->SetMarkerStyle(22);
+
+   ThGraphMap["DY_Q4"        ]->SetLineColor(6); ThGraphMap["DY_Q4"        ]->SetMarkerColor(6);  ThGraphMap["DY_Q4"        ]->SetLineWidth(1);   ThGraphMap["DY_Q4"        ]->SetLineStyle(3);  ThGraphMap["DY_Q4"        ]->SetMarkerStyle(1);
+   GQGraphMap["DY_Q4"        ]->SetLineColor(6); GQGraphMap["DY_Q4"        ]->SetMarkerColor(6);  GQGraphMap["DY_Q4"        ]->SetLineWidth(2);   GQGraphMap["DY_Q4"        ]->SetLineStyle(1);  GQGraphMap["DY_Q4"        ]->SetMarkerStyle(23);
+
+   ThGraphMap["DY_Q5"        ]->SetLineColor(4); ThGraphMap["DY_Q5"        ]->SetMarkerColor(4);  ThGraphMap["DY_Q5"        ]->SetLineWidth(1);   ThGraphMap["DY_Q5"        ]->SetLineStyle(8);  ThGraphMap["DY_Q5"        ]->SetMarkerStyle(1);
+   GQGraphMap["DY_Q5"        ]->SetLineColor(4); GQGraphMap["DY_Q5"        ]->SetMarkerColor(4);  GQGraphMap["DY_Q5"        ]->SetLineWidth(2);   GQGraphMap["DY_Q5"        ]->SetLineStyle(1);  GQGraphMap["DY_Q5"        ]->SetMarkerStyle(29);
 
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGMu = new TMultiGraph();
@@ -1025,6 +1101,86 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGMO->Draw();
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("MOExclusionLog"));
+   delete c1;
+
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* MGGQ = new TMultiGraph();
+
+   if(!Combine) {
+     MGGQ->Add(ThGraphMap["DY_Q1" ]      ,"L");
+     MGGQ->Add(ThGraphMap["DY_Q2" ]      ,"L");
+     MGGQ->Add(ThGraphMap["DY_Q3" ]      ,"L");
+     MGGQ->Add(ThGraphMap["DY_Q4" ]      ,"L");
+     MGGQ->Add(ThGraphMap["DY_Q5" ]      ,"L");
+   }
+   MGGQ->Add(GQGraphMap["DY_Q1" ]      ,"LP");
+   MGGQ->Add(GQGraphMap["DY_Q2" ]      ,"LP");
+   MGGQ->Add(GQGraphMap["DY_Q3" ]      ,"LP");
+   MGGQ->Add(GQGraphMap["DY_Q4" ]      ,"LP");
+   MGGQ->Add(GQGraphMap["DY_Q5" ]      ,"LP");
+   MGGQ->Draw("A");
+   
+   if(!Combine) {
+     ThErrorMap["DY_Q1"]->Draw("f");
+     ThErrorMap["DY_Q2"]->Draw("f");
+     ThErrorMap["DY_Q3"]->Draw("f");
+     ThErrorMap["DY_Q4"]->Draw("f");
+     ThErrorMap["DY_Q5"]->Draw("f");
+   }
+   
+   MGGQ->Draw("same");
+   MGGQ->SetTitle("");
+   MGGQ->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+   MGGQ->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGGQ->GetYaxis()->SetTitleOffset(1.40);
+   //   MGGQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   MGGQ->GetYaxis()->SetRangeUser(PlotMinScale,100);
+   MGGQ->GetXaxis()->SetRangeUser(50,1200);
+
+   DrawPreliminary("multi-charged", SQRTS, LInt);
+   TLegend* LEGGQ = !Combine ? new TLegend(0.62,0.64,0.82,0.84) : new TLegend(0.50,0.20,0.70,0.52);
+
+   LEGGQ->SetFillColor(0); 
+   LEGGQ->SetFillStyle(0);
+   LEGGQ->SetBorderSize(0);
+   LEGGQ->AddEntry(GQGraphMap["DY_Q1"] , "MC - Q=1 "    ,"LP");
+   LEGGQ->AddEntry(GQGraphMap["DY_Q2"] , "MC - Q=2 "    ,"LP");
+   LEGGQ->AddEntry(GQGraphMap["DY_Q3"] , "MC - Q=3 "    ,"LP");
+   LEGGQ->AddEntry(GQGraphMap["DY_Q4"] , "MC - Q=4 "    ,"LP");
+   LEGGQ->AddEntry(GQGraphMap["DY_Q5"] , "MC - Q=5 "    ,"LP");
+
+   TLegend* GQLEGTh = new TLegend(0.32,0.64,0.72,0.88);
+   if(!Combine) {
+   GQLEGTh->SetHeader("Theoretical Prediction");
+   GQLEGTh->SetFillColor(0);
+   GQLEGTh->SetFillStyle(0);
+   GQLEGTh->SetBorderSize(0);
+   
+   TGraph* Q1ThLeg = (TGraph*) ThGraphMap["DY_Q1"]->Clone("HSCPQ1ThLeg");
+   Q1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
+   GQLEGTh->AddEntry(Q1ThLeg, "Q=1 (LO)" ,"LF");
+
+   TGraph* Q2ThLeg = (TGraph*) ThGraphMap["DY_Q2"]->Clone("HSCPQ2ThLeg");
+   Q2ThLeg->SetFillColor(ThErrorMap["DY_Q2"]->GetFillColor());
+   GQLEGTh->AddEntry(Q2ThLeg, "Q=2 (LO)" ,"LF");
+
+   TGraph* Q3ThLeg = (TGraph*) ThGraphMap["DY_Q3"]->Clone("HSCPQ3ThLeg");
+   Q3ThLeg->SetFillColor(ThErrorMap["DY_Q3"]->GetFillColor());
+   GQLEGTh->AddEntry(Q3ThLeg, "Q=3 (LO)" ,"LF");
+
+   TGraph* Q4ThLeg = (TGraph*) ThGraphMap["DY_Q4"]->Clone("HSCPQ4ThLeg");
+   Q4ThLeg->SetFillColor(ThErrorMap["DY_Q4"]->GetFillColor());
+   GQLEGTh->AddEntry(Q4ThLeg, "Q=4 (LO)" ,"LF");
+
+   TGraph* Q5ThLeg = (TGraph*) ThGraphMap["DY_Q5"]->Clone("HSCPQ5ThLeg");
+   Q5ThLeg->SetFillColor(ThErrorMap["DY_Q5"]->GetFillColor());
+   GQLEGTh->AddEntry(Q5ThLeg, "Q=5 (LO)" ,"LF");
+
+   GQLEGTh->Draw();
+   LEGGQ->Draw();
+   c1->SetLogy(true);
+   SaveCanvas(c1, outpath, string("GQExclusionLog"));
    delete c1;
 
    return;
