@@ -174,7 +174,7 @@ TTbar_Kinematics::beginJob()
   
   hBottomPtPz    = dbe->book2D("TTbar_BottomPtPz","b quark longitudinal vs transverse momentum",1000,0.,1000.,200,-100.,100.);     hBottomPtPz->setAxisTitle("P_{z} (GeV)",1);hBottomPtPz->setAxisTitle("P_{t} (GeV)",2);
   hBottomEtaPz   = dbe->book2D("TTbar_BottomEtaPz","b quark longitudinal momentum vs pseudorapidity",200,-5.,5.,200,-100.,100.);   hBottomEtaPz->setAxisTitle("#eta",1);hBottomEtaPz->setAxisTitle("P_{z} (GeV)",1);
-  hBottomEtaPt   = dbe->book2D("TTbar_BottomEtaPt"," quark transveral   momentum vs pseudorapidity",200,-5.,5.,1000,1000.,100.);   hBottomEtaPt->setAxisTitle("#eta");hBottomEtaPt->setAxisTitle("P_{t} (GeV)");
+  hBottomEtaPt   = dbe->book2D("TTbar_BottomEtaPt"," quark transveral   momentum vs pseudorapidity",200,-5.,5.,1000,0.,1000.);   hBottomEtaPt->setAxisTitle("#eta");hBottomEtaPt->setAxisTitle("P_{t} (GeV)");
   hBottomYPz     = dbe->book2D("TTbar_BottomYPz","b quark longitudinal momentum vs rapidity",200,-5.,5.,200,-100.,100.);           hBottomYPz->setAxisTitle("Y");hBottomYPz->setAxisTitle("P_{z} (GeV)");
   hBottomMassPz  = dbe->book2D("TTbar_BottomMassPz","b quark longitudinal momentum vs mass",50,0.,5.,200,-100.,100.);              hBottomMassPz->setAxisTitle("M (GeV)");hBottomMassPz->setAxisTitle("P_{z} (GeV)");
   hBottomMassEta = dbe->book2D("TTbar_BottomMassEta","b quark pseudorapidity vs mass",50,0.,5.,200,-5.,5.);                        hBottomMassEta->setAxisTitle("M (GeV)");hBottomMassEta->setAxisTitle("#eta");
