@@ -267,6 +267,8 @@ struct stPlots {
 
   TH2D* H_D_DzSidebands;
 
+  TH2F*  genrecopT;
+
   TH1D*  CtrlPt_S1_Is;
   TH1D*  CtrlPt_S2_Is;
   TH1D*  CtrlPt_S3_Is;
@@ -460,6 +462,8 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_TOF_FailDz"; st.BS_TOF_FailDz = new TH1F(Name.c_str(), Name.c_str(),  150, -1, 5); st.BS_TOF_FailDz->Sumw2();
    Name = "BS_TOF_FailDz_DT"; st.BS_TOF_FailDz_DT = new TH1F(Name.c_str(), Name.c_str(),  150, -1, 5); st.BS_TOF_FailDz_DT->Sumw2();
    Name = "BS_TOF_FailDz_CSC"; st.BS_TOF_FailDz_CSC = new TH1F(Name.c_str(), Name.c_str(),  150, -1, 5); st.BS_TOF_FailDz_CSC->Sumw2();
+   Name = "genrecopT"; st.genrecopT = new TH2F(Name.c_str(), Name.c_str(),            50, 0, PtHistoUpperBound, 50, 0, PtHistoUpperBound);    st.genrecopT->Sumw2();
+
 
    //Initialize histograms for number of bins.  For everything but muon only PredBins=0 so no histograms created
    for(int i=0; i<PredBins; i++) {
@@ -774,6 +778,8 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_Dz_Cosmic    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_Cosmic");
    st.BS_Dz_CSC    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_CSC");
    st.BS_Dz_DT    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Dz_DT");
+   st.genrecopT     = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/genrecopT");
+
 
    st.BS_P      = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_P");
    st.AS_P      = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_P");

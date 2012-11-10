@@ -30,6 +30,7 @@ void CheckPredictionBin(string InputPattern, string HistoSuffix="_Flip", string 
 void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType="Data8TeV");
 
 void Make2DPlot_Special(string ResultPattern,string ResultPattern2, unsigned int CutIndex);
+void CompareRecoAndGenPt(string ResultPattern);
 
 std::vector<stSample> samples;
 
@@ -117,7 +118,7 @@ void Analysis_Step5()
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
    SelectionPlot(InputPattern, CutIndex);
    //    CutFlow(InputPattern);
-
+   //   CompareRecoAndGenPt(InputPattern);
 
    InputPattern = "Results/Type5/";   CutIndex = 48; CutIndex_Flip=2;
    InitdEdx("dedxRASmi");
@@ -2926,4 +2927,73 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int 
 
 }
 
+void CompareRecoAndGenPt(string InputPattern){
+
+  TCanvas* c1;
+  TLegend* leg;
+
+  string outpath = InputPattern;
+  MakeDirectories(outpath);
+  TypeMode = TypeFromPattern(InputPattern);
+  string LegendTitle = LegendFromType(InputPattern);;
+  
+  string S1 = "DY_7TeV_M400_Q1o3";   double Q1=1/3.0;
+  string S2 = "DY_7TeV_M400_Q1";     double Q2=1;
+  string S3 = "DY_7TeV_M400_Q3";     double Q3=1;  
+  
+  int S1i   = JobIdToIndex(S1,samples);    if(S1i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
+  int S2i   = JobIdToIndex(S2,samples);    if(S2i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }                
+  int S3i   = JobIdToIndex(S3,samples);    if(S3i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }                 
+  
+  TFile* InputFile  = new TFile((InputPattern + "Histos.root").c_str());
+  TH2D* Signal1genrecopt = (TH2D*)GetObjectFromPath(InputFile, S1+"/genrecopT");
+  TH2D* Signal2genrecopt = (TH2D*)GetObjectFromPath(InputFile, S2+"/genrecopT");
+  TH2D* Signal3genrecopt = (TH2D*)GetObjectFromPath(InputFile, S3+"/genrecopT");
+
+  
+  c1 = new TCanvas("c1","c1", 600, 600);
+  Signal1genrecopt->SetTitle("");
+  Signal1genrecopt->SetStats(kFALSE);
+  Signal1genrecopt->GetXaxis()->SetTitle("gen p_{T} (GeV/c)");
+  Signal1genrecopt->GetYaxis()->SetTitle("reco p_{T} (GeV/c)");
+  Signal1genrecopt->GetYaxis()->SetTitleOffset(1.70);
+  Signal1genrecopt->SetAxisRange(0,1200,"X");
+  Signal1genrecopt->SetAxisRange(0,1200,"Y");
+  Signal1genrecopt->GetXaxis()->SetNdivisions(206, 0);
+  Signal1genrecopt->GetYaxis()->SetNdivisions(206, 0);
+
+  Signal1genrecopt->SetMarkerSize (0.2);
+  Signal1genrecopt->SetMarkerColor(Color[2]);
+  Signal1genrecopt->SetFillColor(Color[2]);
+  Signal1genrecopt->Draw("BOX");
+
+  Signal2genrecopt->SetMarkerSize (0.2);
+  Signal2genrecopt->SetMarkerColor(Color[1]);
+  Signal2genrecopt->SetFillColor(Color[1]);
+  Signal2genrecopt->Draw("BOX same");
+
+  Signal3genrecopt->SetMarkerSize (0.2);
+  Signal3genrecopt->SetMarkerColor(Color[0]);
+  Signal3genrecopt->SetFillColor(Color[0]);
+  Signal3genrecopt->Draw("BOX same");
+
+  TLine* diagonal = new TLine(0, 0, 1200, 1200);
+  diagonal->SetLineWidth(2);
+  diagonal->SetLineColor(Color[0]);
+  diagonal->SetLineStyle(2);
+  diagonal->Draw("same");
+
+  leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
+  leg->SetFillColor(0);
+  leg->SetBorderSize(0);
+  leg->AddEntry(Signal1genrecopt,  samples[S1i].Legend.c_str()   ,"F");
+  leg->AddEntry(Signal2genrecopt,  samples[S2i].Legend.c_str()   ,"F");
+  leg->AddEntry(Signal3genrecopt,  samples[S3i].Legend.c_str()   ,"F");
+  
+  leg->Draw();
+  DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+  SaveCanvas(c1, outpath,  "SIM_Validation_Pt", true);
+  delete c1;
+  return;
+}
 
