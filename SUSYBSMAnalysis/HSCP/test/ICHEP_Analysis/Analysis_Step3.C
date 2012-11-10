@@ -1171,6 +1171,21 @@ void Analysis_Step3(char* SavePath)
                   double MRescale = 1.041;
 		  double TRescale = -0.03; // added to the 1/beta value
 #endif
+		  
+		  double genpT = -1.0;
+		  for(unsigned int g=0;g<genColl.size();g++) {
+		    if(genColl[g].pt()<5)continue;
+		    if(genColl[g].status()!=1)continue;
+		    int AbsPdg=abs(genColl[g].pdgId());
+		    if(AbsPdg!=17)continue;
+		    
+		    double separation = deltaR(track->eta(), track->phi(), genColl[g].eta(), genColl[g].phi());
+		    if (separation > 0.03) continue;
+		    genpT = genColl[g].pt();
+		    break;    
+		  }
+                  if (genpT>0) {  SamplePlots->genrecopT->Fill(genpT, track->pt()); }
+		  
                   // compute systematic due to momentum scale
                   if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
  		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p()*PRescale,dedxMObj->dEdx(),!isData);
