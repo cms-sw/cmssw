@@ -13,7 +13,7 @@
  * In case the propagation was not successful, this state can be invalid.
  */
 
-class TSCPBuilderNoMaterial : 
+class TSCPBuilderNoMaterial GCC11_FINAL : 
   public TrajectoryStateClosestToPointBuilder
 {
 public: 
@@ -33,12 +33,12 @@ private:
   typedef std::pair<bool, FreeTrajectoryState> 	PairBoolFTS;
   
   PairBoolFTS createFTSatTransverseImpactPoint(const FTS& originalFTS, 
-      const GlobalPoint& referencePoint) const; 
+      const GlobalPoint& referencePoint) const dso_internal; 
   
   PairBoolFTS createFTSatTransverseImpactPointCharged(const FTS& originalFTS, 
-      const GlobalPoint& referencePoint) const; 
+      const GlobalPoint& referencePoint) const  dso_internal; 
   
   PairBoolFTS createFTSatTransverseImpactPointNeutral(const FTS& originalFTS, 
-      const GlobalPoint& referencePoint) const; 
+      const GlobalPoint& referencePoint) const  dso_internal; 
 };
 #endif

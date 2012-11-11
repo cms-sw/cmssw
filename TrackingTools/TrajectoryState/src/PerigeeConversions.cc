@@ -68,8 +68,8 @@ GlobalPoint PerigeeConversions::positionFromPerigee
   (const PerigeeTrajectoryParameters& parameters, const GlobalPoint& referencePoint)
 {
   AlgebraicVector5 theVector = parameters.vector();
-  return GlobalPoint(theVector[3]*sin(theVector[2])+referencePoint.x(),
-  		     -theVector[3]*cos(theVector[2])+referencePoint.y(),
+  return GlobalPoint(theVector[3]*vdt::fast_sin(theVector[2])+referencePoint.x(),
+  		     -theVector[3]*vdt::fast_cos(theVector[2])+referencePoint.y(),
 		     theVector[4]+referencePoint.z());
 }
 
