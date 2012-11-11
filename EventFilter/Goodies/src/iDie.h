@@ -6,6 +6,7 @@
 
 #include "xdata/String.h"
 #include "xdata/Double.h"
+#include "xdata/Float.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Boolean.h"
 #include "xdata/ActionListener.h"
@@ -202,21 +203,50 @@ namespace evf {
 
     xdata::UnsignedInteger32        runNumber_;
     unsigned int                    lastRunNumberSet_;
+    bool                            runActive_;
+
+    xdata::UnsignedInteger32        flashRunNumber_;
 
     //CPU load flashlist
-    xdata::InfoSpace                *cpuInfoSpace_;
-    xdata::UnsignedInteger32        flashRunNumber_;
-    xdata::UnsignedInteger32        flashLumi_;
-    xdata::Double                   flashCPULoad_;
-    xdata::Double                   flashCPUPeakLoad_;
-    xdata::Double                   flashCPUPeakLoadLumi_;
-    double                          loadAccum_;
-    unsigned int                    loadAccumLs_;
-    double                          cpuLoads_[4000];
-    std::atomic<unsigned int>       cpuLoadsLastLs_;
-    std::atomic<unsigned int>       cpuLoadsSentLs_;
     std::list<std::string>          monNames_;
-    //flashlist updater thread
+    xdata::InfoSpace                *cpuInfoSpace_;
+    xdata::UnsignedInteger32        flashLoadLs_;
+    std::atomic<unsigned int>       cpuLoadLastLs_;
+    std::atomic<unsigned int>       cpuLoadSentLs_;
+
+    float                           cpuLoad_[4000];
+    float                           cpuLoadPS_[4000];
+    float                           cpuLoadTime7_[4000];
+    float                           cpuLoadTime12_[4000];
+    float                           cpuLoadTime16_[4000];
+    float                           cpuLoadRate_[4000];
+
+    xdata::Float                    flashLoad_;
+    xdata::Float                    flashLoadPS_;
+    xdata::Float                    flashLoadTime7_;
+    xdata::Float                    flashLoadTime12_;
+    xdata::Float                    flashLoadTime16_;
+    xdata::Float                    flashLoadRate_;
+
+
+    //CPU peak load flashlist
+    xdata::InfoSpace                *cpuInfoSpaceMax_;
+    xdata::UnsignedInteger32        flashLoadMaxLs_;
+    std::atomic<unsigned int>       loadMaxLs_;
+ 
+    float                           loadMax_;
+    float                           loadMaxPS_;
+    float                           loadMaxTime7_;
+    float                           loadMaxTime12_;
+    float                           loadMaxTime16_;
+    float                           loadMaxRate_;
+
+    xdata::Float                    flashLoadMax_;
+    xdata::Float                    flashLoadMaxPS_;
+    xdata::Float                    flashLoadMaxTime7_;
+    xdata::Float                    flashLoadMaxTime12_;
+    xdata::Float                    flashLoadMaxTime16_;
+    xdata::Float                    flashLoadMaxRate_;
 
     //EventInfo
     MonitorElement * runId_;
@@ -591,7 +621,7 @@ namespace evf {
     DQMStore                        *dqmStore_;
     std::string                     configString_;
     xdata::Boolean                  dqmEnabled_;
-    xdata::Boolean                  updateFlashlists_;
+    xdata::Boolean                  debugMode_;
 
     std::map<unsigned int,int> nbSubsList;
     std::map<int,unsigned int> nbSubsListInv;
