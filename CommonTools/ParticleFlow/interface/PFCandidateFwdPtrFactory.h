@@ -21,7 +21,8 @@ namespace reco {
       edm::Ptr<reco::PFCandidate> backPtr = ptr;
       if ( ptr.isNonnull() && ptr.isAvailable() && ptr->numberOfSourceCandidatePtrs() > 0 ) {
 	edm::Ptr<reco::Candidate> basePtr = ptr->sourceCandidatePtr(0);
-	backPtr = edm::Ptr<reco::PFCandidate>( basePtr );
+	if (basePtr.isNonnull() && basePtr.isAvailable())
+	  backPtr = edm::Ptr<reco::PFCandidate>( basePtr );//this cast works only for available stuff
       }
       return edm::FwdPtr<reco::PFCandidate>(ptr,backPtr); 
     }
