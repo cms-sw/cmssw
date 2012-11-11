@@ -18,4 +18,5 @@ from RecoEcal.EgammaCoreTools.EcalNextToDeadChannelESProducer_cff import *
 #particle flow super clustering sequence
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff import *
 
-ecalClusters = cms.Sequence(hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence*particleFlowSuperClusteringSequence)
+ecalClustersNoPFBox = cms.Sequence(hybridClusteringSequence*multi5x5ClusteringSequence*multi5x5PreshowerClusteringSequence)
+ecalClusters = cms.Sequence(ecalClustersNoPFBox*particleFlowSuperClusteringSequence)
