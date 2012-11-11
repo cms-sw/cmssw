@@ -299,8 +299,8 @@ famosEcalDrivenElectronSequence = cms.Sequence(
 reconstructionWithFamos = cms.Sequence(
     trackVertexReco+
     caloTowersRec+
-    ecalClusters+
     particleFlowCluster+
+    ecalClusters+
     famosGsfTrackSequence+
     famosMuonSequence+
     famosMuonIdAndIsolationSequence+
@@ -330,8 +330,8 @@ simulationWithSomeReconstruction = cms.Sequence(
     iterativeTracking+
     vertexreco+
     caloTowersRec+
-    ecalClusters+
     particleFlowCluster+
+    ecalClusters+
     famosGsfTrackSequence+
     famosMuonSequence+
     famosMuonIdAndIsolationSequence+
@@ -395,8 +395,8 @@ famosWithCaloHits = cms.Sequence(
 
 famosWithEcalClusters = cms.Sequence(
     famosWithCaloHits+
-    ecalClusters+
-    particleFlowCluster
+    particleFlowCluster+
+    ecalClusters
 )
 
 famosWithTracksAndCaloHits = cms.Sequence(
@@ -406,8 +406,8 @@ famosWithTracksAndCaloHits = cms.Sequence(
 
 famosWithTracksAndEcalClusters = cms.Sequence(
     famosWithTracksAndCaloHits+
-    ecalClusters+
-    particleFlowCluster
+    particleFlowCluster+
+    ecalClusters
 )
 
     
@@ -452,8 +452,8 @@ famosWithTracksAndJets = cms.Sequence(
 famosWithJets = cms.Sequence(
     famosWithTracksAndCaloTowers+
     vertexreco+
-    ecalClusters+
     particleFlowCluster+
+    ecalClusters+
     famosGsfTrackSequence+
     famosMuonSequence+
     famosMuonIdAndIsolationSequence+
@@ -495,7 +495,7 @@ famosWithPhotons = cms.Sequence(
     famosWithTracks+
     vertexreco+
     caloRecHits+
-    ecalClusters+
+    ecalClustersNoPFBox+
     famosPhotonSequence+
     interestingGamIsoDetIdEB+
     interestingGamIsoDetIdEE
@@ -506,7 +506,7 @@ famosWithElectronsAndPhotons = cms.Sequence(
     vertexreco+
 #    caloRecHits+
     caloTowersRec+
-    ecalClusters+
+    ecalClustersNoPFBox+
 #    caloTowersRec+
     famosElectronSequence+
     famosPhotonSequence+
@@ -519,7 +519,7 @@ famosWithBTagging = cms.Sequence(
     vertexreco+
     ak5CaloJets+
     ak5JetTracksAssociatorAtVertex+
-    ecalClusters+
+    ecalClustersNoPFBox+
     famosMuonSequence+
     reducedRecHits+ 
     famosBTaggingSequence
@@ -530,7 +530,7 @@ famosWithTauTagging = cms.Sequence(
     vertexreco+
     iterativeCone5CaloJets+
     ic5JetTracksAssociatorAtVertex+
-    ecalClusters+
+    ecalClustersNoPFBox+
     famosTauTaggingSequence
 )
 
@@ -558,8 +558,8 @@ reconstructionWithFamosNoTk = cms.Sequence(
     vertexreco+
     caloRecHits+
     caloTowersRec+
-    ecalClusters+
     particleFlowCluster+
+    ecalClusters+
     famosGsfTrackSequence+
     famosMuonSequence+
     famosMuonIdAndIsolationSequence+
