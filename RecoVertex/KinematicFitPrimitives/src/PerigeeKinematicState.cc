@@ -21,8 +21,7 @@ PerigeeKinematicState::PerigeeKinematicState(const KinematicState& state, const 
  ki2cu.Place_at(jj.jacobian(),0,0);
  ki2cu(5,6) = 1.;
  AlgebraicMatrix66 cu2pe;
- PerigeeConversions pc;
- cu2pe.Place_at(pc.jacobianCurvilinear2Perigee(state.freeTrajectoryState()),0,0);
+ cu2pe.Place_at(PerigeeConversions::jacobianCurvilinear2Perigee(state.freeTrajectoryState()),0,0);
  cu2pe(5,5) = 1.;
  AlgebraicMatrix67 jacobian = cu2pe*ki2cu;
 

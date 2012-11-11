@@ -3,8 +3,8 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2011/08/25 19:50:26 $
- *  $Revision: 1.19 $
+ *  $Date: 2011/12/23 08:13:36 $
+ *  $Revision: 1.20 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University
@@ -170,8 +170,7 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
     // evaluate the dynamical region if possible
     if(tscbl.isValid()){
 
-      PerigeeConversions tspConverter;
-      PerigeeTrajectoryError trackPerigeeErrors = tspConverter.ftsToPerigeeError(tscbl.trackStateAtPCA());
+      PerigeeTrajectoryError trackPerigeeErrors = PerigeeConversions::ftsToPerigeeError(tscbl.trackStateAtPCA());
       GlobalVector pTrack = tscbl.trackStateAtPCA().momentum();
 
     // calculate deltaEta from deltaTheta

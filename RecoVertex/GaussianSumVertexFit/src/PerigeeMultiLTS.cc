@@ -145,9 +145,8 @@ PerigeeMultiLTS::createRefittedTrackState(
 	const AlgebraicVectorM & vectorParameters,
 	const AlgebraicSymMatrixOO & covarianceMatrix) const
 {
-  PerigeeConversions perigeeConversions;
   TrajectoryStateClosestToPoint refittedTSCP =
-        perigeeConversions.trajectoryStateClosestToPoint(
+        PerigeeConversions::trajectoryStateClosestToPoint(
 	  vectorParameters, vertexPosition, charge(), covarianceMatrix, theTrack.field());
   return RefCountedRefittedTrackState(new PerigeeRefittedTrackState(refittedTSCP, vectorParameters));
 }

@@ -456,12 +456,12 @@ MatcherUsingTracksAlgorithm::getChi2(const FreeTrajectoryState &start, const Fre
 double
 MatcherUsingTracksAlgorithm::getChi2(const FreeTrajectoryState &start, const TrajectoryStateClosestToPoint &other, bool diagonalOnly, bool useVertex) {
     if (!start.hasError() && !other.hasError()) throw cms::Exception("LogicError") << "At least one of the two states must have errors to make chi2s.\n";
-    PerigeeConversions pgconvert; double pt; // needed by pgconvert
+    double pt; // needed by pgconvert
     AlgebraicSymMatrix55 cov;
-    if (start.hasError()) cov += pgconvert.ftsToPerigeeError(start).covarianceMatrix();
+    if (start.hasError()) cov += PerigeeConversions::ftsToPerigeeError(start).covarianceMatrix();
     if (other.hasError()) cov += other.perigeeError().covarianceMatrix();
     cropAndInvert(cov, diagonalOnly, !useVertex);
-    AlgebraicVector5 pgpar1 = pgconvert.ftsToPerigeeParameters(start,other.referencePoint(),pt).vector();
+    AlgebraicVector5 pgpar1 = PerigeeConversions::ftsToPerigeeParameters(start,other.referencePoint(),pt).vector();
     AlgebraicVector5 pgpar2 = other.perigeeParameters().vector();
     AlgebraicVector5 diff(pgpar1-pgpar2);
     return ROOT::Math::Similarity(diff, cov);

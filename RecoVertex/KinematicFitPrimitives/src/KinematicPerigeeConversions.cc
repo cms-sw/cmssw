@@ -99,8 +99,7 @@ AlgebraicMatrix77 KinematicPerigeeConversions::jacobianParameters2Kinematic(
 	const AlgebraicVector4& momentum, const GlobalPoint& referencePoint,
 	const TrackCharge& charge, const MagneticField* field)const
 {
-  PerigeeConversions pc;
-  AlgebraicMatrix66 param2cart = pc.jacobianParameters2Cartesian
+  AlgebraicMatrix66 param2cart = PerigeeConversions::jacobianParameters2Cartesian
   	(AlgebraicVector3(momentum[0],momentum[1],momentum[2]),
 	referencePoint, charge, field);
   AlgebraicMatrix77 frameTransJ;
