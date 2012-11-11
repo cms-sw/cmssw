@@ -7,6 +7,8 @@
 // OrigAuth:  Matthias Mozer
 // Institute: IIHE-VUB
 //  Adding feature to exclude towers used by H/E
+//
+//  11/11/12 Hack by VI to make it 100 times faster
 //=============================================================================
 //*****************************************************************************
 

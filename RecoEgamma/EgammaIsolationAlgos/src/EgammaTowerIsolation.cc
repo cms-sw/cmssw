@@ -10,10 +10,12 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include<cassert>
 
+
+// #include<iostream>
 namespace etiStat {
   Count::~Count() { 
-    std::cout << "\nEgammaTowerIsolationNew " << create << "/" << comp << "/" << float(span)/float(comp)  
-	      << std::endl<< std::endl;
+    //    std::cout << "\nEgammaTowerIsolationNew " << create << "/" << comp << "/" << float(span)/float(comp)  
+    //	      << std::endl<< std::endl;
     }
 
   Count Count::count;
