@@ -240,7 +240,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
    timerInterval.fromString("PT15S");
    toolbox::TimeVal timerStart;
    timerStart = toolbox::TimeVal::gettimeofday();
-   timer->start();
+   //timer->start();
    timer->scheduleAtFixedRate( timerStart, this, timerInterval, 0, "xmas-iDie-producer" );
   }
   catch (xdaq::exception::Exception& e) {
