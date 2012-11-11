@@ -142,10 +142,10 @@ PerigeeConversions::jacobianParameters2Cartesian(
   frameTransJ(2,2) = 1;
   frameTransJ(3,3) =  (f1 * c2); 
   frameTransJ(4,3) =  (f1 * s2);
-  frameTransJ(5,3) =  (f1*s1/c1);  
+  frameTransJ(5,3) =  (f1*c1/s1);  
 
   frameTransJ(3,5) = (f2 * s2);
-  frameTransJ(4,5) = (f2 * c2);
+  frameTransJ(4,5) = -(f2 * c2);
   frameTransJ(5,4) = (f2/(s1*s1));
 
   return frameTransJ;

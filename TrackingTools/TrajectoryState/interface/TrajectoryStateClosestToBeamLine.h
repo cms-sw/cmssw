@@ -22,8 +22,9 @@ public:
 
   TrajectoryStateClosestToBeamLine
     (const FTS& stateAtPCA, const GlobalPoint & pointOnBeamLine,
-     const reco::BeamSpot & beamSpot)  theFTS(stateAtPCA) , thePointOnBeamLine(pointOnBeamLine),
-    theBeamSpot(beamSpot), valid(true),
+     const reco::BeamSpot & beamSpot) : 
+      theFTS(stateAtPCA) , thePointOnBeamLine(pointOnBeamLine),
+      theBeamSpot(beamSpot), valid(true)
   {}
 
   ~TrajectoryStateClosestToBeamLine(){}

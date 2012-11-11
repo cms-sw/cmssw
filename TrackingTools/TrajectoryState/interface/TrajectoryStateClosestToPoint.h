@@ -6,7 +6,6 @@
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
-#include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
 /**
  * Trajectory state defined at a given point on the helix, which is 
@@ -51,8 +50,6 @@ public:
    * are defined.
    */ 
   const GlobalPoint & referencePoint() const {
-    if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
     return theRefPoint;
   }
 
@@ -62,17 +59,13 @@ public:
    *  point.
    */
   const PerigeeTrajectoryParameters & perigeeParameters() const {
-    if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
-    return theParameters;
+     return theParameters;
   }
 
   /**
    * returns the transverse momentum magnitude
    */
   double pt() const {
-    if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
     return thePt;
   }
 
@@ -81,10 +74,6 @@ public:
    * available
    */
   const PerigeeTrajectoryError & perigeeError() const {
-    if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
-    if (!errorIsAvailable) throw TrajectoryStateException(
-      "TrajectoryStateClosestToPoint: attempt to access errors when none available");
     return thePerigeeError;
   }
 
@@ -93,29 +82,21 @@ public:
    * reference point.
    */
   GlobalPoint position() const {
-    if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
-    return PerigeeConversions::positionFromPerigee(theParameters, theRefPoint);
+     return PerigeeConversions::positionFromPerigee(theParameters, theRefPoint);
   }
 
 
   GlobalVector momentum() const {
-    if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
     return PerigeeConversions::momentumFromPerigee(theParameters, thePt, theRefPoint);
   }
 
 
   TrackCharge charge() const {
-    if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
     return theParameters.charge();
   }
 
 
   const FreeTrajectoryState & theState() const {
-    if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
     if (!theFTSavailable) calculateFTS();
     return theFTS;
   }
@@ -126,8 +107,6 @@ public:
    * is available.
    */
   bool hasError() const {
-    if(!isValid()) throw TrajectoryStateException(
-	"TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
     return errorIsAvailable;
   }
 

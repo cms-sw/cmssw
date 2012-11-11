@@ -1,16 +1,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToBeamLine.h"
 
-TrajectoryStateClosestToBeamLine::TrajectoryStateClosestToBeamLine
-	(const FreeTrajectoryState& stateAtPCA, const GlobalPoint & pointOnBeamLine,
-	 const reco::BeamSpot& beamSpot) :
-	  valid(true), theFTS(stateAtPCA) , thePointOnBeamLine(pointOnBeamLine),
-	theBeamSpot(beamSpot)
-{}
 
 Measurement1D TrajectoryStateClosestToBeamLine::transverseImpactParameter() const
 {
-  if (!isValid()) throw TrajectoryStateException(
-    "TrajectoryStateClosestToBeamLine is invalid.");
   AlgebraicSymMatrix33 error = theBeamSpot.rotatedCovariance3D() +
 	theFTS.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(0,0);
 
