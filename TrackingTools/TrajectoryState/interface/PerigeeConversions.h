@@ -9,68 +9,47 @@
 class TrajectoryStateClosestToPoint;
 
 /**
- * Class provides several methods to transform perigee parameters to and from
+ * namespace provides several functions to transform perigee parameters to and from
  * various other parametrisations.
  */
-
-class PerigeeConversions
-{
+namespace PerigeeConversions {
   typedef FreeTrajectoryState		FTS;
-
-public:
-
-   /**
-   * This method calculates the perigee parameters from a given FTS
+  /**
+   *  calculates the perigee parameters from a given FTS
    * and a reference point.
    */
-
   PerigeeTrajectoryParameters ftsToPerigeeParameters(const FTS& originalFTS,
-    const GlobalPoint& referencePoint, double& pt) const;
+    const GlobalPoint& referencePoint, double& pt);
 
-  PerigeeTrajectoryError ftsToPerigeeError(const FTS& originalFTS) const;
-
-//   PerigeeTrajectoryParameters helixToPerigeeParameters
-//     (const reco::helix::Parameters & helixPar, const GlobalPoint& referencePoint) const;
-// 
-//   PerigeeTrajectoryError helixToPerigeeError(const reco::helix::Parameters & helixPar, 
-// 	const reco::helix::Covariance & helixCov) const;
-
+  PerigeeTrajectoryError ftsToPerigeeError(const FTS& originalFTS);
 
 
   /**
-   * This method returns the position (on the helix) at which the
+   *  returns the position (on the helix) at which the
    * parameters are defined
    */
-
   GlobalPoint positionFromPerigee(const PerigeeTrajectoryParameters& parameters,
-    const GlobalPoint& referencePoint) const;
+    const GlobalPoint& referencePoint);
 
   /**
-   * This method returns the (Cartesian) momentum.
+   *  returns the (Cartesian) momentum.
    * The parameters need not be the full perigee parameters, as long as the first
    * 3 parameters are the transverse curvature, theta and phi.
    */
-
    GlobalVector momentumFromPerigee(const AlgebraicVector3& momentum, 
     const TrackCharge& charge, const GlobalPoint& referencePoint,
-    const MagneticField* field)  const;
+    const MagneticField* field);
 
   /**
-   * This method returns the (Cartesian) momentum from the PerigeeTrajectoryParameters
+   *  returns the (Cartesian) momentum from the PerigeeTrajectoryParameters
    */
-
   GlobalVector momentumFromPerigee (const PerigeeTrajectoryParameters& parameters,
 				    double pt,
-				    const GlobalPoint& referencePoint) const;
+				    const GlobalPoint& referencePoint);
 
-  /**
-   * This method returns the charge.
-   */
-
-  TrackCharge chargeFromPerigee(const PerigeeTrajectoryParameters& perigee) const;
 
   CurvilinearTrajectoryError curvilinearError(const PerigeeTrajectoryError& perigeeError,
-    const GlobalTrajectoryParameters& gtp) const;
+    const GlobalTrajectoryParameters& gtp);
 
 
   /**
@@ -84,19 +63,16 @@ public:
   TrajectoryStateClosestToPoint trajectoryStateClosestToPoint
 	(const AlgebraicVector3& momentum, const GlobalPoint& referencePoint,
 	 const TrackCharge& charge, const AlgebraicSymMatrix66& theCovarianceMatrix,
-	 const MagneticField* field) const;
+	 const MagneticField* field);
 
 
 /**
    * Jacobians of tranformations between the parametrixation
    * (x, y, z, transverse curvature, theta, phi) to Cartesian
    */
-
   AlgebraicMatrix66  jacobianParameters2Cartesian
 	(const AlgebraicVector3& momentum, const GlobalPoint& position,
-	 const TrackCharge& charge, const MagneticField* field) const;
-
-
+	 const TrackCharge& charge, const MagneticField* field);
 
 
   /**
@@ -104,15 +80,11 @@ public:
    * approach in transverse plane and perigee frame. The fts must therefore be
    * given at exactly this point in order to yield the correct Jacobians.
    */
+  AlgebraicMatrix55 jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts);
 
-  AlgebraicMatrix55 jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts) const;
-
-  AlgebraicMatrix55 jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters& gtp) const;
-
-
-//   AlgebraicMatrix jacobianHelix2Perigee(const reco::helix::Parameters & helixPar, 
-// 	const reco::helix::Covariance & helixCov) const;
+  AlgebraicMatrix55 jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters& gtp);
 
 
-};
+}
+
 #endif

@@ -8,6 +8,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
+#include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 
 #include <iostream>
 
@@ -57,6 +58,14 @@ int main() {
     CurvilinearTrajectoryError theCurvilinearError = 
       ROOT::Math::Similarity(jac, ts.cartesianError().matrix());
     cout << "curv from cart \n" <<  theCurvilinearError.matrix() << std::endl;
+
+    auto a55 = 
+      PerigeeConversions::jacobianCurvilinear2Perigee(*ts.freeState());
+    std::cout << " curv 2 per " << a55 << std::endl;
+    a55 = PerigeeConversions::jacobianPerigee2Curvilinear(gtp);
+    std::cout << " per 2 cuv " << a55 << std::endl;
+    auto a66 = PerigeeConversions::jacobianParameters2Cartesian({1.,1.,1.}, gp,1,field);
+    std::cout << " per 2 cart " << a66 << std::endl;
   }
 
   LocalPoint lp(0,0,0);
@@ -77,6 +86,11 @@ int main() {
     CurvilinearTrajectoryError theCurvilinearError = 
       ROOT::Math::Similarity(jac, ts2.cartesianError().matrix());
     cout << "curv from cart \n" <<  theCurvilinearError.matrix() << std::endl;
+
+    auto a55 = 
+      PerigeeConversions::jacobianCurvilinear2Perigee(*ts2.freeState());
+    std::cout  << " curv 2 per "<< a55 << std::endl;
   }
+
 
 }
