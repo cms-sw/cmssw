@@ -1536,8 +1536,8 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   double newLoadMaxRate = 0.;
   if (lsid>7) {//skip ls 1-4
     for (unsigned int lsb=lsid-3; lsb<lsid; lsb++) {
-      newLoadMax+=daqBusySummary_->getBinContent(lsb);
-      newLoadMaxPS+=daqBusySummary2_->getBinContent(lsb);
+      newLoadMax+=daqBusySummary_->getBinContent(lsb)/100.;
+      newLoadMaxPS+=daqBusySummary2_->getBinContent(lsb)/100.;
       newLoadMaxTime7+=meVecTime_[0]->getBinContent(lsb);
       newLoadMaxTime12+=meVecTime_[2]->getBinContent(lsb);
       newLoadMaxTime16+=meVecTime_[3]->getBinContent(lsb);
@@ -1567,8 +1567,8 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   if (lsid)
     while (cpuLoadLastLs_<lsid-1) {
       if (cpuLoadLastLs_>=4000-1) break;
-      cpuLoad_[cpuLoadLastLs_]=daqBusySummary_->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadPS_[cpuLoadLastLs_]=daqBusySummary2_->getBinContent(cpuLoadLastLs_+1);
+      cpuLoad_[cpuLoadLastLs_]=daqBusySummary_->getBinContent(cpuLoadLastLs_+1)/100.;
+      cpuLoadPS_[cpuLoadLastLs_]=daqBusySummary2_->getBinContent(cpuLoadLastLs_+1)/100.;
       cpuLoadTime7_[cpuLoadLastLs_]=meVecTime_[0]->getBinContent(cpuLoadLastLs_+1);
       cpuLoadTime12_[cpuLoadLastLs_]=meVecTime_[2]->getBinContent(cpuLoadLastLs_+1);
       cpuLoadTime16_[cpuLoadLastLs_]=meVecTime_[3]->getBinContent(cpuLoadLastLs_+1);
