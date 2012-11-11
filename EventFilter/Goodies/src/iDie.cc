@@ -1762,13 +1762,17 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
        flashLoadMaxTime16_=loadMaxTime16_;
        flashLoadMaxRate_=loadMaxRate_;
        cpuInfoSpaceMax_->unlock();
-       cpuInfoSpaceMax_->fireItemGroupChanged(monNames_, this);
+
        if (debugMode_.value_)
          std::cout << "debug - updated max flashlist with values "
 	           << flashLoadMaxLs_ << " " << flashLoadMax_ << " " << flashLoadMaxPS_
 		   << " " << flashLoadMaxTime7_ << " " << flashLoadMaxTime12_  << " "
 		   << flashLoadMaxTime16_ << " " << flashLoadMaxRate_ << std::endl;
+
+       cpuInfoSpaceMax_->fireItemGroupChanged(monNames_, this);
     }
+
+    if (debugMode_.value_) std::cout << " checking per-lumi flashlist" << std::endl;
 
     if (cpuLoadSentLs_>cpuLoadLastLs_) cpuLoadSentLs_=0;
     if (cpuLoadSentLs_<cpuLoadLastLs_ && cpuLoadLastLs_<=4000)
@@ -1787,18 +1791,17 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
 	cpuLoadSentLs_++;
 	cpuInfoSpace_->unlock();
 	if (cpuLoadSentLs_<=cpuLoadLastLs_) {
-	  cpuInfoSpace_->fireItemGroupChanged(monNames_, this);
 
-       if (debugMode_.value_)
-         std::cout << "debug - updated lumi flashlist with values "
-	           << flashLoadLs_ << " " << flashLoad_ << " " << flashLoadPS_
-		   << " " << flashLoadTime7_ << " " << flashLoadTime12_  << " "
-		   << flashLoadTime16_ << " " << flashLoadRate_ << std::endl;
+	  if (debugMode_.value_)
+	    std::cout << "debug - updated lumi flashlist with values "
+	      << flashLoadLs_ << " " << flashLoad_ << " " << flashLoadPS_
+	      << " " << flashLoadTime7_ << " " << flashLoadTime12_  << " "
+	      << flashLoadTime16_ << " " << flashLoadRate_ << std::endl;
+
+	  cpuInfoSpace_->fireItemGroupChanged(monNames_, this);
 
 	}
       }
-    }
-    if (pushUpdate) {
     }
   }
   catch (xdata::exception::Exception& xe)
