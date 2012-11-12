@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: CorrMETData.h,v 1.4 2012/09/10 17:48:10 sakuma Exp $
+// $Id: CorrMETData.h,v 1.5 2012/09/10 18:21:56 sakuma Exp $
 #ifndef METRECO_CORR_MET_DATA_H
 #define METRECO_CORR_MET_DATA_H
 
@@ -17,8 +17,9 @@ struct CorrMETData
 
   double mex;
   double mey;
-  double sumet;
-  double significance;
+
+  double sumet; // to be deleted
+  double significance; // to be deleted
 
   CorrMETData() : mex(0.0), mey(0.0), sumet(0.0), significance(0.0) { }
 
