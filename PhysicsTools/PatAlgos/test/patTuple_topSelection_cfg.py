@@ -27,7 +27,7 @@ process.patMuons.usePV = False
 #-------------------------------------------------
 
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-process.step1 = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_Mu15_eta2p1_v1"])
+process.step1 = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_Mu15_eta2p1_v3"])
 
 #-------------------------------------------------
 # selection step 2: vertex filter

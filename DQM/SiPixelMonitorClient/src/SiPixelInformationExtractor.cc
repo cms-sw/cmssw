@@ -402,7 +402,6 @@ void SiPixelInformationExtractor::readModuleHistoTree(DQMStore* bei,
 void SiPixelInformationExtractor::printModuleHistoList(DQMStore * bei, 
                                                        ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printModuleHistoList"<<endl;
-  static string indent_str = "";
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   str_val << " <li>\n"
@@ -495,7 +494,6 @@ void SiPixelInformationExtractor::readSummaryHistoTree(DQMStore* bei,
 void SiPixelInformationExtractor::printSummaryHistoList(DQMStore * bei, 
                                                         ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printSummaryHistoList"<<endl;
-  static string indent_str = "";
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   if (dname.find("Module_") ==0 || dname.find("FED_")==0) return;
@@ -598,7 +596,6 @@ void SiPixelInformationExtractor::printAlarmList(DQMStore * bei,
 //        << ACPlain
 //        << " Enter" 
 //        << endl ;
-  static string indent_str = "";
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   string image_name;
@@ -1526,7 +1523,12 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
 	//        const sipixelobjects::PixelFEDLink * link = theFed->link(cabling.link);
 	//        const sipixelobjects::PixelROC *theRoc = link->roc(cabling.roc);
         sipixelobjects::LocalPixel locpixel(loc);
-	sipixelobjects::CablingPathToDetUnit path = {realfedID, cabling.link, cabling.roc};  
+        assert(realfedID >= 0);
+        assert(cabling.link >= 0);
+        assert(cabling.roc >= 0);
+	sipixelobjects::CablingPathToDetUnit path = {static_cast<unsigned int>(realfedID), 
+                                                     static_cast<unsigned int>(cabling.link),
+                                                     static_cast<unsigned int>(cabling.roc)};  
 	const sipixelobjects::PixelROC *theRoc = theCablingMap->findItem(path);
 	// END of FIX
 	

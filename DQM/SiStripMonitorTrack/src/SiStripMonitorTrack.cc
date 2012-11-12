@@ -146,9 +146,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin();
        iSubDet != SubDetMEsMap.end(); iSubDet++) {
     SubDetMEs subdet_mes = iSubDet->second;
-    if (subdet_mes.totNClustersOnTrack > 0) {
-      fillME(subdet_mes.nClustersOnTrack, subdet_mes.totNClustersOnTrack);
-    }
+    fillME(subdet_mes.nClustersOnTrack, subdet_mes.totNClustersOnTrack);
     fillME(subdet_mes.nClustersOffTrack, subdet_mes.totNClustersOffTrack);
     if (Trend_On_) {
       fillME(subdet_mes.nClustersTrendOnTrack,iOrbitSec,subdet_mes.totNClustersOnTrack);

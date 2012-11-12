@@ -198,9 +198,6 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     MuonCollection = cms.InputTag("muons"),
     TrackCollection = cms.InputTag("generalTracks"),
 
-    doPrimaryVertexCheck = cms.bool( True ),
-    vertexLabel     = cms.InputTag("offlinePrimaryVertices"),
-
     ptBin = cms.int32(10),
     ptMax = cms.double(100),
     ptMin = cms.double(10),
@@ -211,12 +208,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
 
     phiBin = cms.int32(8),
     phiMax = cms.double(3.2),
-    phiMin = cms.double(-3.2),
-
-    vtxBin = cms.int32(10),
-    vtxMax = cms.double(50.5),
-    vtxMin = cms.double(0.5)
-    
+    phiMin = cms.double(-3.2)
 
     )
                               

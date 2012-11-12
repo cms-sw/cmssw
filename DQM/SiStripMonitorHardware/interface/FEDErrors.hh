@@ -117,6 +117,10 @@ public:
     std::vector<unsigned int> nErrors;
   };
 
+  struct EventProperties {
+    long long deltaBX;
+  };
+    
   FEDErrors();
 
   ~FEDErrors();
@@ -182,6 +186,8 @@ public:
 			  unsigned int & aNBadChannels,
 			  unsigned int & aNBadActiveChannels);
 
+  void fillEventProperties(long long dbx);
+
   //bool foundFEDErrors();
 
   const bool failMonitoringFEDCheck();
@@ -203,6 +209,8 @@ public:
   FECounters & getFEErrorsCounters();
 
   FEDLevelErrors & getFEDLevelErrors();
+
+  EventProperties & getEventProperties();
   
   std::vector<FELevelErrors> & getFELevelErrors();
 
@@ -266,6 +274,8 @@ private:
   bool failUnpackerFEDCheck_;
 
   LumiErrors lumiErr_;
+
+  EventProperties eventProp_;
 
 };//class
 
