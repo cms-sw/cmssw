@@ -16,13 +16,14 @@
    * </ul>
    */
 
-class TwoTrackMinimumDistance : public ClosestApproachOnHelices {
+class TwoTrackMinimumDistance GCC11_FINAL : public ClosestApproachOnHelices {
 
 public:
 
   enum Mode { FastMode=0, SlowMode=1 };
 
   TwoTrackMinimumDistance( const Mode m=FastMode ) { theModus=m; status_ = false;};
+  ~TwoTrackMinimumDistance(){}
 
   virtual bool calculate(const TrajectoryStateOnSurface & sta, 
 	 const TrajectoryStateOnSurface & stb);
@@ -71,11 +72,11 @@ private:
   std::pair<GlobalPoint, GlobalPoint> points_;
 
   bool pointsLineLine(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb);
+	const GlobalTrajectoryParameters & stb)  dso_internal;
   bool pointsHelixLine(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb);
+	const GlobalTrajectoryParameters & stb)  dso_internal;
   bool pointsHelixHelix(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb);
+	const GlobalTrajectoryParameters & stb)  dso_internal;
 };
 
 #endif

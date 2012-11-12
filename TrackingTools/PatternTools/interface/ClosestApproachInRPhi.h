@@ -15,11 +15,12 @@
  *     the z-coordinates on the 2 tracks are the closest is chosen. 
  */
 
-class ClosestApproachInRPhi : public ClosestApproachOnHelices {
+class ClosestApproachInRPhi GCC11_FINAL : public ClosestApproachOnHelices {
 
 public:
 
   ClosestApproachInRPhi() {status_ = false;}
+  ~ClosestApproachInRPhi(){}
 
   virtual bool calculate(const TrajectoryStateOnSurface & sta, 
 			 const TrajectoryStateOnSurface & stb);
@@ -59,21 +60,21 @@ private:
 	       const GlobalPoint & positionA, 
 	       const TrackCharge & chargeB, 
 	       const GlobalVector & momentumB, 
-	       const GlobalPoint & positionB);
+	       const GlobalPoint & positionB) dso_internal;
 
   // given the old Parameters, and a new GlobalPoint,
   // we return the full new GlobalTrajectoryParameters at the
   // Point.
   static GlobalTrajectoryParameters
   newTrajectory( const GlobalPoint & newpt,
-		 const GlobalTrajectoryParameters & oldpar, double bz);
+		 const GlobalTrajectoryParameters & oldpar, double bz)  dso_internal;
 
   // Computes center coordinates and unsigned radius of circle;
   static void circleParameters(const TrackCharge& charge, 
 			       const GlobalVector& momemtum, 
 			       const GlobalPoint& position, 
 			       double& xc, double& yc, double& r,
-			       double bz);
+			       double bz)  dso_internal;
 
   // Computes crossing points of 2 circles with centres (cx_i, cy_i) 
   // and unsigned radii r_i. 
@@ -86,11 +87,11 @@ private:
   static int transverseCoord(double cxa, double cya, double ra, 
 			     double cxb, double cyb, double rb, 
 			     double & xg1, double & yg1, 
-			     double & xg2, double & yg2);
+			     double & xg2, double & yg2)  dso_internal;
 
   // Computes z-coordinate on helix at given transverse coordinates
   static double zCoord(const GlobalVector& mom, const GlobalPoint& pos, 
-		       double r, double xc, double yc, double xg, double yg);
+		       double r, double xc, double yc, double xg, double yg)  dso_internal; 
 
 
 private:
