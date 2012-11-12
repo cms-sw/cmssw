@@ -1337,9 +1337,9 @@ void iDie::initMonitorElements()
   std::ostringstream busySummaryTitle;
   busySummaryTitle << "DAQ HLT Farm busy (%) for run "<< runNumber_.value_;
   lastRunNumberSet_ = runNumber_.value_;
-  daqBusySummary_ = dqmStore_->book1D("reportSummaryMap",busySummaryTitle.str(),4000,1,4001.);
-  daqBusySummary2_ = dqmStore_->book1D("reportSummaryMap_PROCSTAT","DAQ HLT Farm busy (%) from /proc/stat",4000,1,4001.);
-  daqTotalRateSummary_ = dqmStore_->book1D("reportSummaryMap_TOTALRATE","DAQ HLT Farm input rate",4000,1,4001.);
+  daqBusySummary_ = dqmStore_->book1D("00 reportSummaryMap",busySummaryTitle.str(),4000,1,4001.);
+  daqBusySummary2_ = dqmStore_->book1D("00 reportSummaryMap_PROCSTAT","DAQ HLT Farm busy (%) from /proc/stat",4000,1,4001.);
+  daqTotalRateSummary_ = dqmStore_->book1D("00 reportSummaryMap_TOTALRATE","DAQ HLT Farm input rate",4000,1,4001.);
 
   for (size_t i=1;i<=ROLL;i++) {
     std::ostringstream ostr;

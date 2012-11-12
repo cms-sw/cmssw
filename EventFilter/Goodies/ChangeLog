@@ -3,10 +3,10 @@
 
 	* tag V00-02-19
 	* separate folders for module info and tables
+	* cpu usage plots promoted to the top of the page
 	* Total input rate 1D plot
-	* CPU loads flashlist and sender timer thread
-	* one flashlist per run and one per run,lumi
-	* runTimeStamp MonitorElement filled, other default ME-s included
+	* EventInfo runStartTimeStamp, and other default ME-s added
+	* CPU load flashlists and sender timer thread
 
 2012-10-11 Srecko Morovic <srecko.morovic@cern.ch>
 
