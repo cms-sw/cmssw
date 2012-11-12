@@ -5,145 +5,29 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// #include "CommonReco/PatternTools/interface/TransverseImpactPointExtrapolator.h"
-// #include "CommonDet/DetUtilities/interface/FastTimeMe.h"
 
-/** Method returning the constant term of the Taylor expansion
- *  of the measurement equation
- */
-const AlgebraicVector5 & PerigeeLinearizedTrackState::constantTerm() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  return theConstantTerm;
-}
 
-/**
- * Method returning the Position Jacobian (Matrix A)
- */
-const AlgebraicMatrix53 & PerigeeLinearizedTrackState::positionJacobian() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  return thePositionJacobian;
-}
-
-/**      
- * Method returning the Momentum Jacobian (Matrix B)
- */
-const AlgebraicMatrix53 & PerigeeLinearizedTrackState::momentumJacobian() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  return theMomentumJacobian;
-}
-
-/** Method returning the parameters of the Taylor expansion
- */
-const AlgebraicVector5 & PerigeeLinearizedTrackState::parametersFromExpansion() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  return theExpandedParams;
-}
-
-/**
- * Method returning the TrajectoryStateClosestToPoint at the point
- * of closest approch to the z-axis (a.k.a. transverse impact point)
- */      
-const TrajectoryStateClosestToPoint & PerigeeLinearizedTrackState::predictedState() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  return thePredState;
-}
-
-// /** Method returning the impact point measurement     
-//  */      
-// ImpactPointMeasurement  PerigeeLinearizedTrackState::impactPointMeasurement() const 
-// {
-//   if (!impactPointAvailable) compute3DImpactPoint(); 
-//     return the3DImpactPoint;
-// }
-// 
 void PerigeeLinearizedTrackState::computeJacobians() const
 {
   GlobalPoint paramPt(theLinPoint);
-
-//   std::cout << "Track "
-//   << "\n Param    " << theTSOS.globalParameters ()
-//   << "\n Dir      " << theTSOS.globalDirection ()
-//    << "\n";
+  
   thePredState = builder(theTSOS, paramPt); 
-  if (!thePredState.isValid())
-    return;
-//   std::cout << "thePredState " << thePredState.theState().position()<<std::endl;
-//   edm::LogInfo("RecoVertex/PerigeeLTS") 
-//     << "predstate built" << "\n";
+  if unlikely(!thePredState.isValid()) return;
+  
   double field =  theTrack.field()->inInverseGeV(thePredState.theState().position()).z();
-
+  
   if ((std::abs(theCharge)<1e-5)||(fabs(field)<1.e-10)){
     //neutral track
     computeNeutralJacobians();
   } else {
     //charged track
-//     edm::LogInfo("RecoVertex/PerigeeLTS") 
-//       << "about to compute charged jac" << "\n";
     computeChargedJacobians();
-//     edm::LogInfo("RecoVertex/PerigeeLTS") 
-//       << "charged jac computed" << "\n";
   }
-
-
-
 
   jacobiansAvailable = true;
 }
 
-// void PerigeeLinearizedTrackState::compute3DImpactPoint() const 
-// {
-//   the3DImpactPoint = theIPMExtractor.impactPointMeasurement(theTrack, theLinPoint);
-//   impactPointAvailable = true;
-// }
 
-bool PerigeeLinearizedTrackState::hasError() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  return thePredState.hasError();
-}
-
-AlgebraicVector5 PerigeeLinearizedTrackState::predictedStateParameters() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  return thePredState.perigeeParameters().vector();
-}
-  
-AlgebraicVector3 PerigeeLinearizedTrackState::predictedStateMomentumParameters() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  AlgebraicVector3 momentum;
-  momentum[0] = thePredState.perigeeParameters().vector()(0);
-  momentum[1] = thePredState.perigeeParameters().theta();
-  momentum[2] = thePredState.perigeeParameters().phi();
-  return momentum;
-}
-  
-AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight(int & error) const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  if (!thePredState.isValid()) {
-    error = 1;
-    return AlgebraicSymMatrix55();
-  }
-  return thePredState.perigeeError().weightMatrix(error);
-}
-  
-AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateError() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  return thePredState.perigeeError().covarianceMatrix();
-} 
-
-AlgebraicSymMatrix33 PerigeeLinearizedTrackState::predictedStateMomentumError() const
-{
-  if (!jacobiansAvailable) computeJacobians();
-  return thePredState.perigeeError().covarianceMatrix().Sub<AlgebraicSymMatrix33>(0,2);
-} 
 
 bool PerigeeLinearizedTrackState::operator ==(LinearizedTrackState<5> & other)const
 {
@@ -200,10 +84,8 @@ PerigeeLinearizedTrackState::components() const
 AlgebraicVector5 PerigeeLinearizedTrackState::refittedParamFromEquation(
 	const RefCountedRefittedTrackState & theRefittedState) const
 {
-  AlgebraicVector3 vertexPosition;
-  vertexPosition(0) = theRefittedState->position().x();
-  vertexPosition(1) = theRefittedState->position().y();
-  vertexPosition(2) = theRefittedState->position().z();
+  auto p = theRefittedState->position();
+  AlgebraicVector3 vertexPosition(p.x(),p.y(),p.z());
   AlgebraicVector3 momentum = theRefittedState->momentumVector();
   if ((momentum(2)*predictedStateMomentumParameters()(2) <  0)&&(fabs(momentum(2))>M_PI/2) ) {
     if (predictedStateMomentumParameters()(2) < 0.) momentum(2)-= 2*M_PI;
@@ -232,9 +114,9 @@ void PerigeeLinearizedTrackState::computeChargedJacobians() const
   double field =  theTrack.field()->inInverseGeV(thePredState.theState().position()).z();
   double signTC = -theCharge;
     
-  double thetaAtEP = thePredState.theState().momentum().theta();
-  double phiAtEP   = thePredState.theState().momentum().phi();
-  double ptAtEP = thePredState.theState().momentum().perp();
+  double thetaAtEP = thePredState.perigeeParameters().theta();
+  double phiAtEP   = thePredState.perigeeParameters().phi();
+  double ptAtEP = thePredState.pt();
   double transverseCurvatureAtEP = field / ptAtEP*signTC;
 
   double x_v = thePredState.theState().position().x();
@@ -309,14 +191,9 @@ void PerigeeLinearizedTrackState::computeChargedJacobians() const
 
    // And finally the residuals:
 
-  AlgebraicVector3 expansionPoint;
-  expansionPoint(0) = thePredState.theState().position().x();
-  expansionPoint(1) = thePredState.theState().position().y();
-  expansionPoint(2) = thePredState.theState().position().z(); 
-  AlgebraicVector3 momentumAtExpansionPoint;
-  momentumAtExpansionPoint(0) = transverseCurvatureAtEP;  // Transverse Curv
-  momentumAtExpansionPoint(1) = thetaAtEP;
-  momentumAtExpansionPoint(2) = phiAtEP; 
+  auto p = thePredState.theState().position();
+  AlgebraicVector3 expansionPoint(p.x(),p.y(),p.z());
+  AlgebraicVector3 momentumAtExpansionPoint( transverseCurvatureAtEP,thetaAtEP,phiAtEP); 
 
   theConstantTerm = AlgebraicVector5( theExpandedParams -
   		  thePositionJacobian * expansionPoint -
@@ -380,14 +257,9 @@ void PerigeeLinearizedTrackState::computeNeutralJacobians() const
 
    // And finally the residuals:
 
-  AlgebraicVector3 expansionPoint;
-  expansionPoint(0) = thePredState.theState().position().x();
-  expansionPoint(1) = thePredState.theState().position().y();
-  expansionPoint(2) = thePredState.theState().position().z(); 
-  AlgebraicVector3 momentumAtExpansionPoint;
-  momentumAtExpansionPoint(0) = 1 / ptAtEP;  // 
-  momentumAtExpansionPoint(1) = thetaAtEP;
-  momentumAtExpansionPoint(2) = phiAtEP; 
+  auto p = thePredState.theState().position();
+  AlgebraicVector3 expansionPoint(p.x(),p.y(),p.z());
+  AlgebraicVector3 momentumAtExpansionPoint(1./ptAtEP,thetaAtEP,phiAtEP); 
 
   theConstantTerm = AlgebraicVector5( theExpandedParams -
   		  thePositionJacobian * expansionPoint -
@@ -395,13 +267,3 @@ void PerigeeLinearizedTrackState::computeNeutralJacobians() const
 
 }
 
-bool PerigeeLinearizedTrackState::isValid() const
-{
-  if (!theTSOS.isValid())
-    return false;
-
-  if (!jacobiansAvailable)
-    computeJacobians();
-
-  return jacobiansAvailable;
-}

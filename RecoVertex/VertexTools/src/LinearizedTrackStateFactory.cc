@@ -24,12 +24,6 @@ LinearizedTrackStateFactory::linearizedTrackState
 {
   return RefCountedLinearizedTrackState(lts);
 }    
-// RefCountedLinearizedTrackState
-// LinearizedTrackStateFactory::linearizedTrackState(const GlobalPoint & linP, RefCountedKinematicParticle & prt) const
-// {
-//  return RefCountedLinearizedTrackState(new KinematicLinearizedTrackState(linP, prt));
-// }
-//
 
 const LinearizedTrackStateFactory * LinearizedTrackStateFactory::clone() const
 {

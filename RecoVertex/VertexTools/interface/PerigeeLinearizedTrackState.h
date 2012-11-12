@@ -8,6 +8,9 @@
 #include "Math/SMatrix.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
 /** Calculates and stores the ImpactPointMeasurement of the
  *  impact point (point of closest approach in 3D) to the
  *  given linearization point.
@@ -29,7 +32,7 @@
  *  see Billoir et al. NIM in PR A311(1992) 139-150
  */
 
-class PerigeeLinearizedTrackState : public LinearizedTrackState<5> {
+class PerigeeLinearizedTrackState GCC11_FINAL : public LinearizedTrackState<5> {
 
 
 public:
@@ -136,8 +139,7 @@ public:
 
   virtual void inline checkParameters(AlgebraicVector5 & parameters) const;
 
-  virtual std::vector<ReferenceCountingPointer<LinearizedTrackState<5> > > components()
-  									const;
+  virtual std::vector<ReferenceCountingPointer<LinearizedTrackState<5> > > components() const;
 
   virtual bool isValid() const;
 
@@ -148,9 +150,8 @@ private:
    */
    PerigeeLinearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track, 
   	const TrajectoryStateOnSurface& tsos)
-     : theLinPoint(linP), theTrack(track), jacobiansAvailable(false),
-       // impactPointAvailable(false), 
-       theCharge(theTrack.charge()), theTSOS(tsos) {}
+     : theLinPoint(linP), theTrack(track), 
+     theTSOS(tsos),  theCharge(theTrack.charge()), jacobiansAvailable(false) {}
 
   /** Method calculating the track parameters and the Jacobians.
    */
@@ -167,19 +168,130 @@ private:
 
   GlobalPoint theLinPoint;
   reco::TransientTrack theTrack;
+  const TrajectoryStateOnSurface theTSOS;
 
-  mutable bool jacobiansAvailable;
   mutable AlgebraicMatrix53 thePositionJacobian, theMomentumJacobian;
   mutable TrajectoryStateClosestToPoint thePredState;
   mutable AlgebraicVector5 theConstantTerm;
   mutable AlgebraicVector5 theExpandedParams;
 
-//   ImpactPointMeasurementExtractor theIPMExtractor;
   TSCPBuilderNoMaterial builder;
-//   mutable bool impactPointAvailable;
-//   mutable ImpactPointMeasurement the3DImpactPoint;
+
   TrackCharge theCharge;
-  const TrajectoryStateOnSurface theTSOS;
+  mutable bool jacobiansAvailable;
+
 };
+
+
+
+
+/** Method returning the constant term of the Taylor expansion
+ *  of the measurement equation
+ */
+inline
+const AlgebraicVector5 & PerigeeLinearizedTrackState::constantTerm() const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  return theConstantTerm;
+}
+
+/**
+ * Method returning the Position Jacobian (Matrix A)
+ */
+inline
+const AlgebraicMatrix53 & PerigeeLinearizedTrackState::positionJacobian() const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  return thePositionJacobian;
+}
+
+/**      
+ * Method returning the Momentum Jacobian (Matrix B)
+ */
+inline
+const AlgebraicMatrix53 & PerigeeLinearizedTrackState::momentumJacobian() const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  return theMomentumJacobian;
+}
+
+/** Method returning the parameters of the Taylor expansion
+ */
+inline
+const AlgebraicVector5 & PerigeeLinearizedTrackState::parametersFromExpansion() const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  return theExpandedParams;
+}
+
+/**
+ * Method returning the TrajectoryStateClosestToPoint at the point
+ * of closest approch to the z-axis (a.k.a. transverse impact point)
+ */      
+inline
+const TrajectoryStateClosestToPoint & PerigeeLinearizedTrackState::predictedState() const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  return thePredState;
+}
+
+
+inline
+bool PerigeeLinearizedTrackState::hasError() const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  return thePredState.hasError();
+}
+
+inline
+AlgebraicVector5 PerigeeLinearizedTrackState::predictedStateParameters() const
+{
+  if (!jacobiansAvailable) computeJacobians();
+  return thePredState.perigeeParameters().vector();
+}
+  
+inline
+AlgebraicVector3 PerigeeLinearizedTrackState::predictedStateMomentumParameters() const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  auto v= thePredState.perigeeParameters().vector();
+  return AlgebraicVector3(v[0],v[1],v[2]);
+
+}
+  
+inline
+AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateWeight(int & error) const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  if (!thePredState.isValid()) {
+    error = 1;
+    return AlgebraicSymMatrix55();
+  }
+  return thePredState.perigeeError().weightMatrix(error);
+}
+  
+inline
+AlgebraicSymMatrix55 PerigeeLinearizedTrackState::predictedStateError() const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  return thePredState.perigeeError().covarianceMatrix();
+} 
+
+inline
+AlgebraicSymMatrix33 PerigeeLinearizedTrackState::predictedStateMomentumError() const
+{
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  return thePredState.perigeeError().covarianceMatrix().Sub<AlgebraicSymMatrix33>(0,2);
+} 
+
+inline
+bool PerigeeLinearizedTrackState::isValid() const
+{
+  if unlikely(!theTSOS.isValid()) return false;
+  if unlikely(!jacobiansAvailable) computeJacobians();
+  return jacobiansAvailable;
+}
+
+
 
 #endif
