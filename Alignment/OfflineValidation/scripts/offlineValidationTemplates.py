@@ -418,9 +418,17 @@ else
         root -x -b -q .oO[logdir]Oo./TkAlOfflineJobsMerge.C
         mv /tmp/$USER/merge_output.root .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root
         ls -al .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo.*.root > .oO[datadir]Oo./log_.oO[nameValidation]Oo._.oO[name]Oo._rootfilelist.txt
+        # if merging has succeeded, remove root files produces by parallel jobs
+        if [ -s .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root ] ; then
+            rm -f .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo._*.root
+        else
+            echo
+            echo "The merged file has disappeared, cannot continue!!"
+            echo "Please rerun."
+            exit 1
+        fi
     fi
 fi
-rm -f .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo._*.root
 """
 
 
