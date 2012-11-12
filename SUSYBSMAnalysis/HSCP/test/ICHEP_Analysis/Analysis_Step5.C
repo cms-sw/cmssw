@@ -55,7 +55,7 @@ void Analysis_Step5()
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
 //   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);
-
+/*
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
@@ -66,23 +66,23 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
-
+*/
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
-   Make2DPlot_Core(InputPattern, 0);
-   MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
-   MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
-   MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
-   MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
-   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
-   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
-   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   CutFlow(InputPattern, CutIndex);
-   SelectionPlot(InputPattern, CutIndex);
+//   Make2DPlot_Core(InputPattern, 0);
+//   MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
+//   MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
+//   MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
+//   MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
+//   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
+//   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+//   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+//   CutFlow(InputPattern, CutIndex);
+//   SelectionPlot(InputPattern, CutIndex);
    GetSystematicOnPrediction(InputPattern, "Data7TeV");
    GetSystematicOnPrediction(InputPattern, "Data8TeV");
-   CheckPrediction(InputPattern, "_Flip", "Data7TeV");
-   CheckPrediction(InputPattern, "_Flip", "Data8TeV");
-
+//   CheckPrediction(InputPattern, "_Flip", "Data7TeV");
+//   CheckPrediction(InputPattern, "_Flip", "Data8TeV");
+return;
    InputPattern = "Results/Type3/";   CutIndex = 79; CutIndex_Flip=58;
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
@@ -1046,18 +1046,18 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_H");
  //TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, DataName+"/H_P");
 
-   int    ArrN[6];  ArrN[0] = 0; ArrN[1] = 0; ArrN[2] = 0;  ArrN[3] = 0;  ArrN[4] = 0; ArrN[5] = 0;
-   double ArrPred[5][6][20];  double ArrErr[5][6][20];  int ArrPredN[5][6];  for(unsigned int i=0;i<5;i++){for(unsigned int j=0;j<6;j++){ArrPredN[i][j]=0;}}
- //double ArrMean [6][20];
-   double ArrSigma[6][20];
-   double ArrDist [6][20];
-   double ArrSum  [6][20];
-   double ArrSyst [6][20];
-   double ArrStat [6][20];
-   double ArrStatB[6][20];
-   double ArrPt   [6][20];
-   double ArrI    [6][20];
-   double ArrT    [6][20];
+   int    ArrN[8] = {0,0,0,0,0,0,0,0};
+   double ArrPred[5][8][20];  double ArrErr[5][8][20];  int ArrPredN[5][8];  for(unsigned int i=0;i<6;i++){for(unsigned int j=0;j<8;j++){ArrPredN[i][j]=0;}}
+ //double ArrMean [8][20];
+   double ArrSigma[8][20];
+   double ArrDist [8][20];
+   double ArrSum  [8][20];
+   double ArrSyst [8][20];
+   double ArrStat [8][20];
+   double ArrStatB[8][20];
+   double ArrPt   [8][20];
+   double ArrI    [8][20];
+   double ArrT    [8][20];
 
    std::vector<int> Index;   std::vector<int> Plot;
    //variation on TOF cut 50, 0.05 1.05->1.2
@@ -1077,15 +1077,6 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    Index.push_back(86);      Plot.push_back(1);
    Index.push_back(100);     Plot.push_back(1);
    Index.push_back(114);     Plot.push_back(1);
-   //variation on Pt cut 50->115 0.05 1.05
-//   Index.push_back(16);      Plot.push_back(2);
-//   Index.push_back(436);     Plot.push_back(2);
-//   Index.push_back(856);     Plot.push_back(2);
-//   Index.push_back(1276);    Plot.push_back(2);
-//   Index.push_back(1696);    Plot.push_back(2);
-//   Index.push_back(2116);    Plot.push_back(2);
-//   Index.push_back(2536);    Plot.push_back(2);
-//   Index.push_back(2746);    Plot.push_back(2);
 
    //variation on Pt cut 50->90 0.30 1.05
    Index.push_back(156);     Plot.push_back(2);
@@ -1141,6 +1132,19 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    Index.push_back(730+ 4);  Plot.push_back(5);
    Index.push_back(802+ 4);  Plot.push_back(5);
 
+
+   //variation on Pt cut 50->115 0.05 1.05
+   Index.push_back(16);      Plot.push_back(6);
+   Index.push_back(436);     Plot.push_back(6);
+   Index.push_back(856);     Plot.push_back(6);
+   Index.push_back(1276);    Plot.push_back(6);
+   Index.push_back(1696);    Plot.push_back(6);
+   Index.push_back(2116);    Plot.push_back(6);
+   Index.push_back(2536);    Plot.push_back(6);
+   Index.push_back(2746);    Plot.push_back(6);
+
+
+
    for(unsigned int i=0;i<Index.size();i++){      
       int CutIndex = Index[i];
       const double& A=H_A->GetBinContent(CutIndex+1);
@@ -1152,13 +1156,13 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       const double& G=H_G->GetBinContent(CutIndex+1);
       const double& H=H_H->GetBinContent(CutIndex+1);
 
-      double Pred[5];
-      double Err [5]; 
+      double Pred[8];
+      double Err [8]; 
       double N = 0;
       double Sigma = 0;
       double Mean = 0;
 
-      for(unsigned int p=0;p<4;p++){
+      for(unsigned int p=0;p<7;p++){
          Pred[p] = -1;
          Err [p] = -1;
          if(p==0){
@@ -1196,7 +1200,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       double Dist    = fabs(Pred[0] - Mean);
       double Sum=0, Stat=0, Syst=0, StatB=0;
 
-      for(unsigned int p=0;p<4;p++){
+      for(unsigned int p=0;p<7;p++){
          if(Pred[p]>=0){
             Sum   += pow(Pred[p]-Mean,2);
             Stat  += pow(Err [p],2);
@@ -1226,6 +1230,7 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       }
    }
 
+std::cout << "TESTB\n";
    TGraphErrors* graph_T0 = new TGraphErrors(ArrPredN[0][0],ArrT [0],ArrPred[0][0],0,ArrErr[0][0]);   graph_T0->SetLineColor(1);  graph_T0->SetMarkerColor(1);   graph_T0->SetMarkerStyle(20);
    TGraphErrors* graph_T1 = new TGraphErrors(ArrPredN[1][0],ArrT [0],ArrPred[1][0],0,ArrErr[1][0]);   graph_T1->SetLineColor(2);  graph_T1->SetMarkerColor(2);   graph_T1->SetMarkerStyle(21); 
    TGraphErrors* graph_T2 = new TGraphErrors(ArrPredN[2][0],ArrT [0],ArrPred[2][0],0,ArrErr[2][0]);   graph_T2->SetLineColor(4);  graph_T2->SetMarkerColor(4);   graph_T2->SetMarkerStyle(22);
@@ -1234,10 +1239,11 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
    TGraphErrors* graph_I1 = new TGraphErrors(ArrPredN[1][1],ArrI [1],ArrPred[1][1],0,ArrErr[1][1]);   graph_I1->SetLineColor(2);  graph_I1->SetMarkerColor(2);   graph_I1->SetMarkerStyle(21);
    TGraphErrors* graph_I2 = new TGraphErrors(ArrPredN[2][1],ArrI [1],ArrPred[2][1],0,ArrErr[2][1]);   graph_I2->SetLineColor(4);  graph_I2->SetMarkerColor(4);   graph_I2->SetMarkerStyle(22);
    TGraphErrors* graph_I3 = new TGraphErrors(ArrPredN[3][1],ArrI [1],ArrPred[3][1],0,ArrErr[3][1]);   graph_I3->SetLineColor(8);  graph_I3->SetMarkerColor(8);   graph_I3->SetMarkerStyle(23);
-   TGraphErrors* graph_P0 = new TGraphErrors(ArrPredN[0][2],ArrPt[2],ArrPred[0][2],0,ArrErr[0][2]);   graph_P0->SetLineColor(1);  graph_P0->SetMarkerColor(1);   graph_P0->SetMarkerStyle(20);
-   TGraphErrors* graph_P1 = new TGraphErrors(ArrPredN[1][2],ArrPt[2],ArrPred[1][2],0,ArrErr[1][2]);   graph_P1->SetLineColor(2);  graph_P1->SetMarkerColor(2);   graph_P1->SetMarkerStyle(21);
-   TGraphErrors* graph_P2 = new TGraphErrors(ArrPredN[2][2],ArrPt[2],ArrPred[2][2],0,ArrErr[2][2]);   graph_P2->SetLineColor(4);  graph_P2->SetMarkerColor(4);   graph_P2->SetMarkerStyle(22);
-   TGraphErrors* graph_P3 = new TGraphErrors(ArrPredN[3][2],ArrPt[2],ArrPred[3][2],0,ArrErr[3][2]);   graph_P3->SetLineColor(8);  graph_P3->SetMarkerColor(8);   graph_P3->SetMarkerStyle(23);
+   TGraphErrors* graph_P0 = new TGraphErrors(ArrPredN[0][6],ArrPt[6],ArrPred[0][6],0,ArrErr[0][6]);   graph_P0->SetLineColor(1);  graph_P0->SetMarkerColor(1);   graph_P0->SetMarkerStyle(20);
+   TGraphErrors* graph_P1 = new TGraphErrors(ArrPredN[1][6],ArrPt[6],ArrPred[1][6],0,ArrErr[1][6]);   graph_P1->SetLineColor(2);  graph_P1->SetMarkerColor(2);   graph_P1->SetMarkerStyle(21);
+   TGraphErrors* graph_P2 = new TGraphErrors(ArrPredN[2][6],ArrPt[6],ArrPred[2][6],0,ArrErr[2][6]);   graph_P2->SetLineColor(4);  graph_P2->SetMarkerColor(4);   graph_P2->SetMarkerStyle(22);
+   TGraphErrors* graph_P3 = new TGraphErrors(ArrPredN[3][6],ArrPt[6],ArrPred[3][6],0,ArrErr[3][6]);   graph_P3->SetLineColor(8);  graph_P3->SetMarkerColor(8);   graph_P3->SetMarkerStyle(23);
+std::cout << "TESTC\n"; 
 
    TLegend* LEG = NULL;
    LEG = new TLegend(0.50,0.65,0.80,0.90);
