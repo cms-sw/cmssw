@@ -9,6 +9,7 @@
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -233,7 +234,6 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
 	task->bookMEs();
       }
 
-
       task->beginEvent(_evt, _es);
       atLeastOne = true;
     }
@@ -256,3 +256,5 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
     if(enabled_[task]) task->endEvent(_evt, _es);
   }
 }
+
+DEFINE_FWK_MODULE(EcalDQMonitorTask);

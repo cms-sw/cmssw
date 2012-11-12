@@ -30,43 +30,6 @@ namespace ecaldqm {
     void runOnBasicClusters(const reco::BasicClusterCollection &, Collections);
     void runOnSuperClusters(const reco::SuperClusterCollection &, Collections);
 
-    enum MESets {
-      kBCEMap, // profile2d
-      kBCEMapProjEta, // profile
-      kBCEMapProjPhi, // profile
-      kBCOccupancy, // h2f
-      kBCOccupancyProjEta, // h1f
-      kBCOccupancyProjPhi, // h1f
-      kBCSizeMap, // profile2d
-      kBCSizeMapProjEta, // profile
-      kBCSizeMapProjPhi, // profile
-      kBCE, // h1f
-      kBCNum, // h1f for EB & EE
-      kBCSize, // h1f for EB & EE
-      kSCE, // h1f
-      kSCELow, // h1f
-      kSCSeedEnergy, // h1f
-      kSCClusterVsSeed, // h2f
-      kSCSeedOccupancy, // h2f
-      kSingleCrystalCluster, // h2f
-      kSCNum, // h1f
-      kSCNBCs, // h1f
-      kSCNcrystals, // h1f
-      kSCR9, // h1f
-/*       kPi0, // h1f */
-/*       kJPsi, // h1f */
-/*       kZ, // h1f */
-/*       kHighMass, // h1f */
-      kTrendNBC,
-      kTrendBCSize,
-      kTrendNSC,
-      kTrendSCSize,
-      nMESets
-    };
-
-    // needs to be declared in each derived class
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
     const CaloTopology *topology_;
     const CaloSubdetectorGeometry* ebGeometry_;

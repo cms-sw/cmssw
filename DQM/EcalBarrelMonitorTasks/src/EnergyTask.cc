@@ -1,7 +1,7 @@
 #include "../interface/EnergyTask.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
+//#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
@@ -10,29 +10,28 @@ namespace ecaldqm {
 
   EnergyTask::EnergyTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerTask(_workerParams, _commonParams, "EnergyTask"),
-    topology_(0),
+    //    topology_(0),
     isPhysicsRun_(_workerParams.getUntrackedParameter<bool>("isPhysicsRun"))/*,
-                                                                              threshS9_(_workerParams.getUntrackedParameter<double>("threshS9"))*/
+    threshS9_(_workerParams.getUntrackedParameter<double>("threshS9"))*/
   {
-    collectionMask_ = 
-      (0x1 << kRun) |
-      (0x1 << kEBRecHit) |
-      (0x1 << kEERecHit);
+    collectionMask_[kRun] = true;
+    collectionMask_[kEBRecHit] = true;
+    collectionMask_[kEERecHit] = true;
   }
 
   EnergyTask::~EnergyTask()
   {
   }
 
-  void
-  EnergyTask::beginRun(const edm::Run &, const edm::EventSetup &_es)
-  {
-    edm::ESHandle<CaloTopology> topoHndl;
-    _es.get<CaloTopologyRecord>().get(topoHndl);
-    topology_ = topoHndl.product();
-    if(!topology_)
-      throw cms::Exception("EventSetup") << "CaloTopology missing" << std::endl;
-  }
+//   void
+//   EnergyTask::beginRun(const edm::Run &, const edm::EventSetup &/*_es*/)
+//   {
+//     edm::ESHandle<CaloTopology> topoHndl;
+//     _es.get<CaloTopologyRecord>().get(topoHndl);
+//     topology_ = topoHndl.product();
+//     if(!topology_)
+//       throw cms::Exception("EventSetup") << "CaloTopology missing" << std::endl;
+//   }
   
   bool
   EnergyTask::filterRunType(const std::vector<short>& _runType)
@@ -52,6 +51,11 @@ namespace ecaldqm {
   void 
   EnergyTask::runOnRecHits(const EcalRecHitCollection &_hits)
   {
+    MESet* meHitMap(MEs_["HitMap"]);
+    MESet* meHitMapAll(MEs_["HitMapAll"]);
+    MESet* meHit(MEs_["Hit"]);
+    MESet* meHitAll(MEs_["HitAll"]);
+
     uint32_t notGood(~(0x1 << EcalRecHit::kGood));
     uint32_t neitherGoodNorOOT(~(0x1 << EcalRecHit::kGood |
                                  0x1 << EcalRecHit::kOutOfTime));
@@ -67,10 +71,10 @@ namespace ecaldqm {
 
       DetId id(hitItr->id());
 
-      MEs_[kHitMap]->fill(id, energy);
-      MEs_[kHitMapAll]->fill(id, energy);
-      MEs_[kHit]->fill(id, energy);
-      MEs_[kHitAll]->fill(id, energy);
+      meHitMap->fill(id, energy);
+      meHitMapAll->fill(id, energy);
+      meHit->fill(id, energy);
+      meHitAll->fill(id, energy);
 
       // look for the seeds
 //       float e3x3(energy);
@@ -97,17 +101,6 @@ namespace ecaldqm {
 // 	MEs_[kMiniCluster]->fill(id, e3x3);
 
     }
-  }
-
-  /*static*/
-  void
-  EnergyTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["HitMap"] = kHitMap; 
-    _nameToIndex["HitMapAll"] = kHitMapAll;
-    _nameToIndex["Hit"] = kHit; 
-    _nameToIndex["HitAll"] = kHitAll;
-    //    _nameToIndex["MiniCluster"] = kMiniCluster; 
   }
 
   DEFINE_ECALDQM_WORKER(EnergyTask);

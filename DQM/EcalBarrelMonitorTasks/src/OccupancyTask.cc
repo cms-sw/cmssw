@@ -9,12 +9,11 @@ namespace ecaldqm {
     recHitThreshold_(_workerParams.getUntrackedParameter<double>("recHitThreshold")),
     tpThreshold_(_workerParams.getUntrackedParameter<double>("tpThreshold"))
   {
-    collectionMask_ =
-      (0x1 << kEBDigi) |
-      (0x1 << kEEDigi) |
-      (0x1 << kTrigPrimDigi) |
-      (0x1 << kEBRecHit) |
-      (0x1 << kEERecHit);
+    collectionMask_[kEBDigi] = true;
+    collectionMask_[kEEDigi] = true;
+    collectionMask_[kTrigPrimDigi] = true;
+    collectionMask_[kEBRecHit] = true;
+    collectionMask_[kEERecHit] = true;
   }
 
   OccupancyTask::~OccupancyTask()
@@ -39,100 +38,97 @@ namespace ecaldqm {
   void
   OccupancyTask::runOnDigis(const EcalDigiCollection &_digis, Collections _collection)
   {
+    MESet* meDigi(MEs_["Digi"]);
+    MESet* meDigiProjEta(MEs_["DigiProjEta"]);
+    MESet* meDigiProjPhi(MEs_["DigiProjPhi"]);
+    MESet* meDigiAll(MEs_["DigiAll"]);
+    MESet* meDigiDCC(MEs_["DigiDCC"]);
+    MESet* meDigi1D(MEs_["Digi1D"]);
+    MESet* meTrendNDigi(online ? MEs_["TrendNDigi"] : 0);
+
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
-      MEs_[kDigi]->fill(id);
-      MEs_[kDigiProjEta]->fill(id);
-      MEs_[kDigiProjPhi]->fill(id);
-      MEs_[kDigiAll]->fill(id);
-      MEs_[kDigiDCC]->fill(id);
+      meDigi->fill(id);
+      meDigiProjEta->fill(id);
+      meDigiProjPhi->fill(id);
+      meDigiAll->fill(id);
+      meDigiDCC->fill(id);
     }
 
     unsigned iSubdet(_collection == kEBDigi ? BinService::kEB + 1 : BinService::kEE + 1);
-    MEs_[kDigi1D]->fill(iSubdet, double(_digis.size()));
-    if(online) MEs_[kTrendNDigi]->fill(iSubdet, double(iLumi), double(_digis.size()));
+    meDigi1D->fill(iSubdet, double(_digis.size()));
+    if(online) meTrendNDigi->fill(iSubdet, double(iLumi), double(_digis.size()));
   }
 
   void
   OccupancyTask::runOnTPDigis(const EcalTrigPrimDigiCollection &_digis)
   {
+    //    MESet* meTPDigiAll(MEs_["TPDigiAll"]);
+    //    MESet* meTPDigiProjEta(MEs_["TPDigiProjEta"]);
+    //    MESet* meTPDigiProjPhi(MEs_["TPDigiProjPhi"]);
+    MESet* meTPDigiThrAll(MEs_["TPDigiThrAll"]);
+    MESet* meTPDigiThrProjEta(MEs_["TPDigiThrProjEta"]);
+    MESet* meTPDigiThrProjPhi(MEs_["TPDigiThrProjPhi"]);
+    MESet* meTrendNTPDigi(online ? MEs_["TrendNTPDigi"] : 0);
+
     double nFilteredEB(0.);
     double nFilteredEE(0.);
 
     for(EcalTrigPrimDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       EcalTrigTowerDetId const& id(digiItr->id());
 
-      MEs_[kTPDigiProjEta]->fill(id);
-      MEs_[kTPDigiProjPhi]->fill(id);
-      MEs_[kTPDigiAll]->fill(id);
+//       meTPDigiProjEta->fill(id);
+//       meTPDigiProjPhi->fill(id);
+//       meTPDigiAll->fill(id);
 
       if(digiItr->compressedEt() > tpThreshold_){
-	MEs_[kTPDigiThrProjEta]->fill(id);
-	MEs_[kTPDigiThrProjPhi]->fill(id);
-	MEs_[kTPDigiThrAll]->fill(id);
+	meTPDigiThrProjEta->fill(id);
+	meTPDigiThrProjPhi->fill(id);
+	meTPDigiThrAll->fill(id);
         if(id.subDet() == EcalBarrel) nFilteredEB += 1.;
         else nFilteredEE += 1.;
       }
     }
 
     if(online){
-      MEs_[kTrendNTPDigi]->fill(unsigned(BinService::kEB + 1), double(iLumi), nFilteredEB);
-      MEs_[kTrendNTPDigi]->fill(unsigned(BinService::kEE + 1), double(iLumi), nFilteredEE);
+      meTrendNTPDigi->fill(unsigned(BinService::kEB + 1), double(iLumi), nFilteredEB);
+      meTrendNTPDigi->fill(unsigned(BinService::kEE + 1), double(iLumi), nFilteredEE);
     }
   }
 
   void
   OccupancyTask::runOnRecHits(const EcalRecHitCollection &_hits, Collections _collection)
   {
+    MESet* meRecHitAll(MEs_["RecHitAll"]);
+    MESet* meRecHitProjEta(MEs_["RecHitProjEta"]);
+    MESet* meRecHitProjPhi(MEs_["RecHitProjPhi"]);
+    MESet* meRecHitThrAll(MEs_["RecHitThrAll"]);
+    MESet* meRecHitThrProjEta(MEs_["RecHitThrProjEta"]);
+    MESet* meRecHitThrProjPhi(MEs_["RecHitThrProjPhi"]);
+    MESet* meRecHitThr1D(MEs_["RecHitThr1D"]);
+    MESet* meTrendNRecHitThr(online ? MEs_["TrendNRecHitThr"] : 0);
+
     uint32_t mask(~(0x1 << EcalRecHit::kGood));
     double nFiltered(0.);
 
     for(EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr){
       DetId id(hitItr->id());
 
-      MEs_[kRecHitAll]->fill(id);
-      MEs_[kRecHitProjEta]->fill(id);
-      MEs_[kRecHitProjPhi]->fill(id);
+      meRecHitAll->fill(id);
+      meRecHitProjEta->fill(id);
+      meRecHitProjPhi->fill(id);
 
       if(!hitItr->checkFlagMask(mask) && hitItr->energy() > recHitThreshold_){
-	MEs_[kRecHitThrProjEta]->fill(id);
-	MEs_[kRecHitThrProjPhi]->fill(id);
-	MEs_[kRecHitThrAll]->fill(id);
+	meRecHitThrProjEta->fill(id);
+	meRecHitThrProjPhi->fill(id);
+	meRecHitThrAll->fill(id);
         nFiltered += 1.;
       }
     }
 
     unsigned iSubdet(_collection == kEBRecHit ? BinService::kEB + 1 : BinService::kEE + 1);
-    MEs_[kRecHitThr1D]->fill(iSubdet, nFiltered);
-    if(online) MEs_[kTrendNRecHitThr]->fill(iSubdet, double(iLumi), nFiltered);
-  }
-
-  /*static*/
-  void
-  OccupancyTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["Digi"] = kDigi;
-    _nameToIndex["DigiProjEta"] = kDigiProjEta;
-    _nameToIndex["DigiProjPhi"] = kDigiProjPhi;
-    _nameToIndex["DigiAll"] = kDigiAll;
-    _nameToIndex["DigiDCC"] = kDigiDCC;
-    _nameToIndex["Digi1D"] = kDigi1D;
-    _nameToIndex["RecHitAll"] = kRecHitAll;
-    _nameToIndex["RecHitProjEta"] = kRecHitProjEta;
-    _nameToIndex["RecHitProjPhi"] = kRecHitProjPhi;
-    _nameToIndex["RecHitThrProjEta"] = kRecHitThrProjEta;
-    _nameToIndex["RecHitThrProjPhi"] = kRecHitThrProjPhi;
-    _nameToIndex["RecHitThrAll"] = kRecHitThrAll;
-    _nameToIndex["RecHitThr1D"] = kRecHitThr1D;
-    _nameToIndex["TPDigiProjEta"] = kTPDigiProjEta;
-    _nameToIndex["TPDigiProjPhi"] = kTPDigiProjPhi;
-    _nameToIndex["TPDigiAll"] = kTPDigiAll;
-    _nameToIndex["TPDigiThrProjEta"] = kTPDigiThrProjEta;
-    _nameToIndex["TPDigiThrProjPhi"] = kTPDigiThrProjPhi;
-    _nameToIndex["TPDigiThrAll"] = kTPDigiThrAll;
-    _nameToIndex["TrendNDigi"] = kTrendNDigi;
-    _nameToIndex["TrendNRecHitThr"] = kTrendNRecHitThr;
-    _nameToIndex["TrendNTPDigi"] = kTrendNTPDigi;
+    meRecHitThr1D->fill(iSubdet, nFiltered);
+    if(online) meTrendNRecHitThr->fill(iSubdet, double(iLumi), nFiltered);
   }
 
   DEFINE_ECALDQM_WORKER(OccupancyTask);

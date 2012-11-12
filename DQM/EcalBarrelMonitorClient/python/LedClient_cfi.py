@@ -12,7 +12,7 @@ toleranceTiming = 1.
 toleranceTimRMS = 25.
 expectedPNAmplitude = [800., 800.]
 tolerancePNAmp = 0.1
-tolerancePNRMSRatio = 0.3
+tolerancePNRMSRatio = 1.
 
 ecalLedClient = cms.untracked.PSet(
     forwardFactor = cms.untracked.double(forwardFactor),

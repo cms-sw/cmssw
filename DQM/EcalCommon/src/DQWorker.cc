@@ -10,7 +10,6 @@
 
 namespace ecaldqm{
 
-  std::map<std::string, std::map<std::string, unsigned> > DQWorker::meOrderingMaps;
   bool DQWorker::online(false);
   time_t DQWorker::now(0);
   edm::RunNumber_t DQWorker::iRun(0);
@@ -19,49 +18,34 @@ namespace ecaldqm{
 
   DQWorker::DQWorker(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams, std::string const& _name) :
     name_(_name),
-    MEs_(0),
+    MEs_(),
     initialized_(false),
     verbosity_(0)
   {
     using namespace std;
 
-    map<string, map<string, unsigned> >::const_iterator mItr(meOrderingMaps.find(name_));
-    if(mItr == meOrderingMaps.end())
-      throw cms::Exception("InvalidConfiguration") << "Cannot find ME ordering for " << name_;
-
     edm::ParameterSet const& MEParams(_workerParams.getUntrackedParameterSet("MEs"));
     vector<string> const& MENames(MEParams.getParameterNames());
 
-    MEs_.resize(MENames.size());
-
-    map<string, unsigned> const& nameToIndex(mItr->second);
-
     for(unsigned iME(0); iME < MENames.size(); iME++){
       string const& MEName(MENames[iME]);
-
-      map<string, unsigned>::const_iterator nItr(nameToIndex.find(MEName));
-      if(nItr == nameToIndex.end())
-        throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << MEName;
-
-      MESet* meSet(createMESet(MEParams.getUntrackedParameterSet(MEName)));
-      if(meSet) MEs_[nItr->second] = meSet;
+      MEs_.insert(MEName, createMESet(MEParams.getUntrackedParameterSet(MEName)));
     }
   }
 
   DQWorker::~DQWorker()
   {
-    for(unsigned iME(0); iME < MEs_.size(); iME++)
-      delete MEs_[iME];
   }
 
   void
   DQWorker::bookMEs()
   {
-    for(unsigned iME(0); iME < MEs_.size(); iME++){
-      if(MEs_[iME]){
-        if(MEs_[iME]->getBinType() == BinService::kTrend && !online) continue;
-        if(MEs_[iME]->isActive()) continue;
-        MEs_[iME]->book();
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+      MESet* me(mItr->second);
+      if(me){
+        if(me->getBinType() == BinService::kTrend && !online) continue;
+        if(me->isActive()) continue;
+        me->book();
       }
     }
   }
@@ -69,8 +53,8 @@ namespace ecaldqm{
   void
   DQWorker::reset()
   {
-    for(unsigned iME(0); iME < MEs_.size(); iME++)
-      if(MEs_[iME]) MEs_[iME]->clear();
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr)
+      if(mItr->second) mItr->second->clear();
 
     initialized_ = false;
   }
@@ -79,12 +63,6 @@ namespace ecaldqm{
   DQWorker::initialize()
   {
     initialized_ = true;
-  }
-
-  /*static*/
-  void
-  DQWorker::setMEOrdering(std::map<std::string, unsigned>&)
-  {
   }
 
   void

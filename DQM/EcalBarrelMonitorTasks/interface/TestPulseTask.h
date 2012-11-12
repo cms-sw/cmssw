@@ -23,16 +23,6 @@ namespace ecaldqm {
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
     void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&);
 
-    enum MESets{
-      kOccupancy,
-      kShape,
-      kAmplitude,
-      kPNAmplitude,
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   protected:
     std::map<int, unsigned> gainToME_;
     std::map<int, unsigned> pnGainToME_;

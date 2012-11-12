@@ -12,26 +12,6 @@ namespace ecaldqm {
 
     void producePlots();
 
-    enum MESets {
-      kQuality,
-      kAmplitudeMean,
-      kAmplitudeRMS,
-      kTimingMean,
-      kTimingRMSMap,
-      kQualitySummary,
-      kPNQualitySummary,
-      nMESets
-    };
-
-    enum Sources {
-      kAmplitude,
-      kTiming,
-      kPNAmplitude,
-      nSources
-    };
- 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   protected:
     std::map<int, unsigned> wlToME_;
 

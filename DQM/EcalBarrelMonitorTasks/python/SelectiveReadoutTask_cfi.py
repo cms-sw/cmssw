@@ -109,6 +109,16 @@ ecalSelectiveReadoutTask = cms.untracked.PSet(
             btype = cms.untracked.string('DCC'),
             description = cms.untracked.string('Distribution of the per-DCC data size.')
         ),
+        DCCSizeProf = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/%(prefix)sSRT DCC event size'),
+            kind = cms.untracked.string('TProfile'),
+            yaxis = cms.untracked.PSet(
+                title = cms.untracked.string('event size (kB)')
+            ),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('DCC'),
+            description = cms.untracked.string('Mean and spread of the per-DCC data size.')
+        ),
         ZSMap = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/Counters/%(prefix)sSRT tower ZS1+ZS2 counter%(suffix)s'),
             kind = cms.untracked.string('TH2F'),

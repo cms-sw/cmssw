@@ -10,40 +10,35 @@ namespace ecaldqm {
   CertificationClient::CertificationClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerClient(_workerParams, _commonParams, "CertificationClient")
   {
-    qualitySummaries_.insert(kCertificationMap);
-    qualitySummaries_.insert(kCertificationContents);
-    qualitySummaries_.insert(kCertification);
+    qualitySummaries_.insert("CertificationMap");
+    qualitySummaries_.insert("CertificationContents");
+    qualitySummaries_.insert("Certification");
   }
 
   void
   CertificationClient::producePlots()
   {
+    MESet* meCertificationContents(MEs_["CertificationContents"]);
+    MESet* meCertificationMap(MEs_["CertificationMap"]);
+    MESet* meCertification(MEs_["Certification"]);
+
+    MESet const* sDAQ(sources_["DAQ"]);
+    MESet const* sDCS(sources_["DCS"]);
+    MESet const* sDQM(sources_["DQM"]);
+
     double meanValue(0.);
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
-      double certValue(sources_[kDAQ]->getBinContent(iDCC + 1) *
-                       sources_[kDCS]->getBinContent(iDCC + 1) *
-                       sources_[kDQM]->getBinContent(iDCC + 1));
+      double certValue(sDAQ->getBinContent(iDCC + 1) *
+                       sDCS->getBinContent(iDCC + 1) *
+                       sDQM->getBinContent(iDCC + 1));
 
-      MEs_[kCertificationContents]->fill(iDCC + 1, certValue);
-      MEs_[kCertificationMap]->setBinContent(iDCC + 1, certValue);
+      meCertificationContents->fill(iDCC + 1, certValue);
+      meCertificationMap->setBinContent(iDCC + 1, certValue);
 
       meanValue += certValue * nCrystals(iDCC + 1);
     }
 
-    MEs_[kCertification]->fill(meanValue / EBDetId::kSizeForDenseIndexing + EEDetId::kSizeForDenseIndexing);
-  }
-
-  /*static*/
-  void
-  CertificationClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["CertificationMap"] = kCertificationMap;
-    _nameToIndex["CertificationContents"] = kCertificationContents;
-    _nameToIndex["Certification"] = kCertification;
-
-    _nameToIndex["DAQ"] = kDAQ;
-    _nameToIndex["DCS"] = kDCS;
-    _nameToIndex["DQM"] = kDQM;
+    meCertification->fill(meanValue / EBDetId::kSizeForDenseIndexing + EEDetId::kSizeForDenseIndexing);
   }
 
   DEFINE_ECALDQM_WORKER(CertificationClient);

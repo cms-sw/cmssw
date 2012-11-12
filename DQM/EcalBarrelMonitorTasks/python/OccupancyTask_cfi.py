@@ -35,13 +35,13 @@ ecalOccupancyTask = cms.untracked.PSet(
             btype = cms.untracked.string('ProjPhi'),
             description = cms.untracked.string('Projection of digi occupancy.')
         ),
-        TPDigiProjEta = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi occupancy%(suffix)s projection eta'),
-            kind = cms.untracked.string('TH1F'),
-            otype = cms.untracked.string('Ecal3P'),
-            btype = cms.untracked.string('ProjEta'),
-            description = cms.untracked.string('Projection of TP digi occupancy.')
-        ),
+#        TPDigiProjEta = cms.untracked.PSet(
+#            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi occupancy%(suffix)s projection eta'),
+#            kind = cms.untracked.string('TH1F'),
+#            otype = cms.untracked.string('Ecal3P'),
+#            btype = cms.untracked.string('ProjEta'),
+#            description = cms.untracked.string('Projection of TP digi occupancy.')
+#        ),
         Digi = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT digi occupancy %(sm)s'),
             kind = cms.untracked.string('TH2F'),
@@ -63,13 +63,13 @@ ecalOccupancyTask = cms.untracked.PSet(
             btype = cms.untracked.string('Trend'),
             description = cms.untracked.string('Trend of the per-event number of rec hits with GOOD reconstruction flag and E > ' + str(recHitThreshold) + ' GeV.')
         ),
-        TPDigiAll = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi occupancy%(suffix)s'),
-            kind = cms.untracked.string('TH2F'),
-            otype = cms.untracked.string('Ecal3P'),
-            btype = cms.untracked.string('TriggerTower'),
-            description = cms.untracked.string('TP digi occupancy.')
-        ),
+#        TPDigiAll = cms.untracked.PSet(
+#            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi occupancy%(suffix)s'),
+#            kind = cms.untracked.string('TH2F'),
+#            otype = cms.untracked.string('Ecal3P'),
+#            btype = cms.untracked.string('TriggerTower'),
+#            description = cms.untracked.string('TP digi occupancy.')
+#        ),
         TPDigiThrProjEta = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi thr occupancy%(suffix)s projection eta'),
             kind = cms.untracked.string('TH1F'),
@@ -164,13 +164,13 @@ ecalOccupancyTask = cms.untracked.PSet(
             btype = cms.untracked.string('ProjPhi'),
             description = cms.untracked.string('Projection of the occupancy of rec hits with GOOD reconstruction flag and E > ' + str(recHitThreshold) + ' GeV.')
         ),
-        TPDigiProjPhi = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi occupancy%(suffix)s projection phi'),
-            kind = cms.untracked.string('TH1F'),
-            otype = cms.untracked.string('Ecal3P'),
-            btype = cms.untracked.string('ProjPhi'),
-            description = cms.untracked.string('Projection of TP digi occupancy.')
-        )
+#        TPDigiProjPhi = cms.untracked.PSet(
+#            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT TP digi occupancy%(suffix)s projection phi'),
+#            kind = cms.untracked.string('TH1F'),
+#            otype = cms.untracked.string('Ecal3P'),
+#            btype = cms.untracked.string('ProjPhi'),
+#            description = cms.untracked.string('Projection of TP digi occupancy.')
+#        )
     )
 )
 

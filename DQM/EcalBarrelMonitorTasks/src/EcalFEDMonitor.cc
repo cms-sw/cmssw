@@ -3,6 +3,7 @@
 
 #include "../interface/EcalFEDMonitor.h"
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -216,3 +217,5 @@ EcalFEDMonitor::analyze(const edm::Event& _evt, const edm::EventSetup&)
     }
   }
 }
+
+DEFINE_FWK_MODULE(EcalFEDMonitor);

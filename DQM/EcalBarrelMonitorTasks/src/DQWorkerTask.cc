@@ -6,17 +6,17 @@ namespace ecaldqm {
 
   DQWorkerTask::DQWorkerTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams, std::string const& _name) :
     DQWorker(_workerParams, _commonParams, _name),
-    collectionMask_(0),
-    resettable_(MEs_.size(), true)
+    collectionMask_(nProcessedObjects, false),
+    resettable_()
   {
     // TEMPORARY MEASURE - softReset does not accept variable bin size as of September 2012
     // isVariableBinning is true for 1. MESetEcal or MESetNonObject with any custom binning or 2. MESetTrend
     // In principle it is sufficient to protect the MESetTrends from being reset
-    for(unsigned iME(0); iME < resettable_.size(); ++iME){
-      if(/*MEs_[iME]->getBinType() == BinService::kTrend ||*/
-         MEs_[iME]->isVariableBinning() ||
-         MEs_[iME]->getKind() == MonitorElement::DQM_KIND_REAL)
-        resettable_[iME] = false;
+    for(MESetCollection::const_iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+      if(/*mItr->second->getBinType() != BinService::kTrend &&*/
+         !mItr->second->isVariableBinning() &&
+         mItr->second->getKind() != MonitorElement::DQM_KIND_REAL)
+        resettable_.insert(mItr->first);
     }
   }
 
@@ -35,15 +35,19 @@ namespace ecaldqm {
   void
   DQWorkerTask::softReset()
   {
-    for(unsigned iM(0); iM < resettable_.size(); ++iM)
-      if(resettable_[iM]) MEs_[iM]->softReset();
+    for(std::set<std::string>::const_iterator rItr(resettable_.begin()); rItr != resettable_.end(); ++rItr){
+      MESet* meset(MEs_[*rItr]);
+      if(meset) meset->softReset();
+    }
   }
 
   void
   DQWorkerTask::recoverStats()
   {
-    for(unsigned iM(0); iM < resettable_.size(); ++iM)
-      if(resettable_[iM]) MEs_[iM]->recoverStats();
+    for(std::set<std::string>::const_iterator rItr(resettable_.begin()); rItr != resettable_.end(); ++rItr){
+      MESet* meset(MEs_[*rItr]);
+      if(meset) meset->recoverStats();
+    }
   }
 
   void

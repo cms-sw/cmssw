@@ -8,114 +8,108 @@ namespace ecaldqm {
     DQWorkerTask(_workerParams, _commonParams, "IntegrityTask"),
     hltTaskMode_(_commonParams.getUntrackedParameter<int>("hltTaskMode"))
   {
-    collectionMask_ = 
-      (0x1 << kLumiSection) |
-      (0x1 << kGainErrors) |
-      (0x1 << kChIdErrors) |
-      (0x1 << kGainSwitchErrors) |
-      (0x1 << kTowerIdErrors) |
-      (0x1 << kBlockSizeErrors);
+    collectionMask_[kLumiSection] = true;
+    collectionMask_[kGainErrors] = true;
+    collectionMask_[kChIdErrors] = true;
+    collectionMask_[kGainSwitchErrors] = true;
+    collectionMask_[kTowerIdErrors] = true;
+    collectionMask_[kBlockSizeErrors] = true;
   }
 
   void
   IntegrityTask::bookMEs()
   {
     if(hltTaskMode_ != 1){
-      for(unsigned iME(0); iME < nMESets; iME++){
-        if(iME == kFEDNonFatal) continue;
-        if(iME == kTrendNErrors && !online) continue;
-	MEs_[iME]->book();
+      for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+        if(mItr->first == "FEDNonFatal") continue;
+	mItr->second->book();
       }
-      MEs_[kByLumi]->setLumiFlag();
+      MEs_["ByLumi"]->setLumiFlag();
     }
     if(hltTaskMode_ != 0){
-      MEs_[kFEDNonFatal]->book();
-      MEs_[kFEDNonFatal]->getME(0)->getTH1()->GetXaxis()->SetLimits(601., 655.);
+      MEs_["FEDNonFatal"]->book();
+      MEs_["FEDNonFatal"]->getME(0)->getTH1()->GetXaxis()->SetLimits(601., 655.);
     }
   }
 
   void
   IntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
   {
-    MEs_[kByLumi]->reset();
+    MEs_["ByLumi"]->reset();
   }
 
   void
   IntegrityTask::runOnErrors(const DetIdCollection &_ids, Collections _collection)
   {
-    MESets set(nMESets);
+    if(_ids.size() == 0) return;
+
+    MESet* set(0);
     switch(_collection){
     case kGainErrors:
-      set = kGain;
+      set = MEs_["Gain"];
       break;
     case kChIdErrors:
-      set = kChId;
+      set = MEs_["ChId"];
       break;
     case kGainSwitchErrors:
-      set = kGainSwitch;
+      set = MEs_["GainSwitch"];
       break;
     default:
       return;
     }
 
-    for(DetIdCollection::const_iterator idItr(_ids.begin()); idItr != _ids.end(); ++idItr){
-      MEs_[set]->fill(*idItr);
-      unsigned dccid(dccId(*idItr));
-      MEs_[kFEDNonFatal]->fill(dccid);
-      MEs_[kByLumi]->fill(dccid);
-      MEs_[kTotal]->fill(dccid);
+    MESet* meFEDNonFatal(MEs_["FEDNonFatal"]);
+    MESet* meByLumi(MEs_["ByLumi"]);
+    MESet* meTotal(MEs_["Total"]);
+    MESet* meTrendNErrors(online ? MEs_["TrendNErrors"] : 0);
 
-      if(online) MEs_[kTrendNErrors]->fill(double(iLumi), 1.);
+    for(DetIdCollection::const_iterator idItr(_ids.begin()); idItr != _ids.end(); ++idItr){
+      set->fill(*idItr);
+      unsigned dccid(dccId(*idItr));
+      meFEDNonFatal->fill(dccid);
+      meByLumi->fill(dccid);
+      meTotal->fill(dccid);
+
+      if(online) meTrendNErrors->fill(double(iLumi), 1.);
     }
   }
   
   void
   IntegrityTask::runOnErrors(const EcalElectronicsIdCollection &_ids, Collections _collection)
   {
-    MESets set(nMESets);
+    if(_ids.size() == 0) return;
 
+    MESet* set(0);
     switch(_collection){
     case kTowerIdErrors:
-      set = kTowerId;
+      set = MEs_["TowerId"];
       break;
     case kBlockSizeErrors:
-      set = kBlockSize;
+      set = MEs_["BlockSize"];
       break;
     default:
       return;
     }
 
-    // 25 is not correct
+    MESet* meFEDNonFatal(MEs_["FEDNonFatal"]);
+    MESet* meByLumi(MEs_["ByLumi"]);
+    MESet* meTotal(MEs_["Total"]);
+    MESet* meTrendNErrors(online ? MEs_["TrendNErrors"] : 0);
 
     for(EcalElectronicsIdCollection::const_iterator idItr(_ids.begin()); idItr != _ids.end(); ++idItr){
-      MEs_[set]->fill(*idItr);
+      set->fill(*idItr);
       unsigned dccid(idItr->dccId());
       double nCrystals(0.);
       if(dccid <= kEEmHigh + 1 || dccid >= kEEpLow + 1)
         nCrystals = getElectronicsMap()->dccTowerConstituents(dccid, idItr->towerId()).size();
       else
         nCrystals = 25.;
-      MEs_[kFEDNonFatal]->fill(dccid, nCrystals);
-      MEs_[kByLumi]->fill(dccid, nCrystals);
-      MEs_[kTotal]->fill(dccid, nCrystals);
+      meFEDNonFatal->fill(dccid, nCrystals);
+      meByLumi->fill(dccid, nCrystals);
+      meTotal->fill(dccid, nCrystals);
 
-      if(online) MEs_[kTrendNErrors]->fill(double(iLumi), nCrystals);
+      if(online) meTrendNErrors->fill(double(iLumi), nCrystals);
     }
-  }
-
-  /*static*/
-  void
-  IntegrityTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["ByLumi"] = kByLumi;
-    _nameToIndex["Total"] = kTotal;
-    _nameToIndex["Gain"] = kGain;
-    _nameToIndex["ChId"] = kChId;
-    _nameToIndex["GainSwitch"] = kGainSwitch;
-    _nameToIndex["BlockSize"] = kBlockSize;
-    _nameToIndex["TowerId"] = kTowerId;
-    _nameToIndex["FEDNonFatal"] = kFEDNonFatal;
-    _nameToIndex["TrendNErrors"] = kTrendNErrors;
   }
 
   DEFINE_ECALDQM_WORKER(IntegrityTask);

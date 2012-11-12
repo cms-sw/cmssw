@@ -19,42 +19,42 @@ namespace ecaldqm {
     using namespace std;
 
     usedSources_.clear();
-    use_(kPNIntegrity);
+    usedSources_.insert("PNIntegrity");
 
     vector<std::string> sourceList(_workerParams.getUntrackedParameter<std::vector<std::string> >("activeSources"));
     for(unsigned iS(0); iS < sourceList.size(); ++iS){
       std::string& sourceName(sourceList[iS]);
       if(sourceName == "Laser"){
-        use_(kLaser);
-        use_(kLaserPN);
+        usedSources_.insert("Laser");
+        usedSources_.insert("LaserPN");
       }
       else if(sourceName == "Led"){
-        use_(kLed);
-        use_(kLedPN);
+        usedSources_.insert("Led");
+        usedSources_.insert("LedPN");
       }
       else if(sourceName == "TestPulse"){
-        use_(kTestPulse);
-        use_(kTestPulsePN);
+        usedSources_.insert("TestPulse");
+        usedSources_.insert("TestPulsePN");
       }
       else if(sourceName == "Pedestal"){
-        use_(kPedestal);
-        use_(kPedestalPN);
+        usedSources_.insert("Pedestal");
+        usedSources_.insert("PedestalPN");
       }
     }
 
     stringstream ss;
     map<string, string> replacements;
 
-    if(using_(kLaser)){
+    if(using_("Laser")){
       vector<int> laserWavelengths(_workerParams.getUntrackedParameter<vector<int> >("laserWavelengths"));
       unsigned iMELaserWL(0);
       for(vector<int>::iterator wlItr(laserWavelengths.begin()); wlItr != laserWavelengths.end(); ++wlItr){
         if(*wlItr <= 0 || *wlItr >= 5) throw cms::Exception("InvalidConfiguration") << "Laser Wavelength" << endl;
         laserWlToME_[*wlItr] = iMELaserWL++;
       }
-      unsigned laserPlots[] = {kLaser, kLaserPN};
-      for(unsigned iP(0); iP < sizeof(laserPlots) / sizeof(int); ++iP){
-        unsigned plot(laserPlots[iP]);
+      std::string laserPlots[] = {"Laser", "LaserPN"};
+      for(unsigned iP(0); iP < sizeof(laserPlots) / sizeof(std::string); ++iP){
+        std::string& plot(laserPlots[iP]);
         MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
         for(map<int, unsigned>::iterator wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr){
           multi->use(wlItr->second);
@@ -68,16 +68,16 @@ namespace ecaldqm {
       }
     }
 
-    if(using_(kLed)){
+    if(using_("Led")){
       vector<int> ledWavelengths(_workerParams.getUntrackedParameter<vector<int> >("ledWavelengths"));
       unsigned iMELedWL(0);
       for(vector<int>::iterator wlItr(ledWavelengths.begin()); wlItr != ledWavelengths.end(); ++wlItr){
         if(*wlItr <= 0 || *wlItr >= 3) throw cms::Exception("InvalidConfiguration") << "Led Wavelength" << endl;
         ledWlToME_[*wlItr] = iMELedWL++;
       }
-      unsigned ledPlots[] = {kLed, kLedPN};
-      for(unsigned iP(0); iP < sizeof(ledPlots) / sizeof(int); ++iP){
-        unsigned plot(ledPlots[iP]);
+      std::string ledPlots[] = {"Led", "LedPN"};
+      for(unsigned iP(0); iP < sizeof(ledPlots) / sizeof(std::string); ++iP){
+        std::string& plot(ledPlots[iP]);
         MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
         for(map<int, unsigned>::iterator wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr){
           multi->use(wlItr->second);
@@ -91,7 +91,7 @@ namespace ecaldqm {
       }
     }
 
-    if(using_(kTestPulse)){
+    if(using_("TestPulse")){
       vector<int> tpMGPAGains(_workerParams.getUntrackedParameter<vector<int> >("testPulseMGPAGains"));
       vector<int> tpMGPAGainsPN(_workerParams.getUntrackedParameter<vector<int> >("testPulseMGPAGainsPN"));
       unsigned iMETPGain(0);
@@ -105,7 +105,7 @@ namespace ecaldqm {
         tpPNGainToME_[*gainItr] = iMETPPNGain++;
       }
 
-      MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[kTestPulse]));
+      MESetMulti const* multi(static_cast<MESetMulti const*>(sources_["TestPulse"]));
       for(map<int, unsigned>::iterator gainItr(tpGainToME_.begin()); gainItr != tpGainToME_.end(); ++gainItr){
         multi->use(gainItr->second);
 
@@ -116,7 +116,7 @@ namespace ecaldqm {
         multi->formPath(replacements);
       }
 
-      multi = static_cast<MESetMulti const*>(sources_[kTestPulsePN]);
+      multi = static_cast<MESetMulti const*>(sources_["TestPulsePN"]);
       for(map<int, unsigned>::iterator gainItr(tpPNGainToME_.begin()); gainItr != tpPNGainToME_.end(); ++gainItr){
         multi->use(gainItr->second);
 
@@ -128,7 +128,7 @@ namespace ecaldqm {
       }
     }
 
-    if(using_(kPedestal)){
+    if(using_("Pedestal")){
       vector<int> pedMGPAGains(_workerParams.getUntrackedParameter<vector<int> >("pedestalMGPAGains"));
       vector<int> pedMGPAGainsPN(_workerParams.getUntrackedParameter<vector<int> >("pedestalMGPAGainsPN"));
       unsigned iMEPedGain(0);
@@ -143,7 +143,7 @@ namespace ecaldqm {
         pedPNGainToME_[*gainItr] = iMEPedPNGain++;
       }
 
-      MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[kPedestal]));
+      MESetMulti const* multi(static_cast<MESetMulti const*>(sources_["Pedestal"]));
       for(map<int, unsigned>::iterator gainItr(pedGainToME_.begin()); gainItr != pedGainToME_.end(); ++gainItr){
         multi->use(gainItr->second);
 
@@ -155,7 +155,7 @@ namespace ecaldqm {
       }
 
 
-      multi = static_cast<MESetMulti const*>(sources_[kPedestalPN]);
+      multi = static_cast<MESetMulti const*>(sources_["PedestalPN"]);
       for(map<int, unsigned>::iterator gainItr(pedPNGainToME_.begin()); gainItr != pedPNGainToME_.end(); ++gainItr){
         multi->use(gainItr->second);
 
@@ -167,8 +167,8 @@ namespace ecaldqm {
       }
     }
 
-    qualitySummaries_.insert(kQualitySummary);
-    qualitySummaries_.insert(kPNQualitySummary);
+    qualitySummaries_.insert("QualitySummary");
+    qualitySummaries_.insert("PNQualitySummary");
   }
 
   void
@@ -176,18 +176,40 @@ namespace ecaldqm {
   {
     using namespace std;
 
-    MESet::iterator qEnd(MEs_[kQualitySummary]->end());
-    MESet::const_iterator lItr(sources_[kLaser], using_(kLaser) ? 0 : -1, 0);
-    MESet::const_iterator tItr(sources_[kTestPulse], using_(kTestPulse) ? 0 : -1, 0);
-    MESet::const_iterator pItr(sources_[kPedestal], using_(kPedestal) ? 0 : -1, 0);
-    for(MESet::iterator qItr(MEs_[kQualitySummary]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
+    MESet* meQualitySummary(MEs_["QualitySummary"]);
+    MESet* mePNQualitySummary(MEs_["PNQualitySummary"]);
+
+    MESetMulti const* sLaser(static_cast<MESetMulti const*>(sources_["Laser"]));
+    MESetMulti const* sLaserPN(static_cast<MESetMulti const*>(sources_["LaserPN"]));
+    MESetMulti const* sLed(static_cast<MESetMulti const*>(sources_["Led"]));
+    MESetMulti const* sLedPN(static_cast<MESetMulti const*>(sources_["LedPN"]));
+    MESetMulti const* sTestPulse(static_cast<MESetMulti const*>(sources_["TestPulse"]));
+    MESetMulti const* sTestPulsePN(static_cast<MESetMulti const*>(sources_["TestPulsePN"]));
+    MESetMulti const* sPedestal(static_cast<MESetMulti const*>(sources_["Pedestal"]));
+    MESetMulti const* sPedestalPN(static_cast<MESetMulti const*>(sources_["PedestalPN"]));
+    MESet const* sPNIntegrity(sources_["PNIntegrity"]);
+
+    bool useLaser(using_("Laser"));
+    bool useLaserPN(using_("LaserPN"));
+    bool useLed(using_("Led"));
+    bool useLedPN(using_("LedPN"));
+    bool useTestPulse(using_("TestPulse"));
+    bool useTestPulsePN(using_("TestPulsePN"));
+    bool usePedestal(using_("Pedestal"));
+    bool usePedestalPN(using_("PedestalPN"));
+
+    MESet::iterator qEnd(meQualitySummary->end());
+    MESet::const_iterator lItr(sLaser, useLaser ? 0 : -1, 0);
+    MESet::const_iterator tItr(sTestPulse, useTestPulse ? 0 : -1, 0);
+    MESet::const_iterator pItr(sPedestal, usePedestal ? 0 : -1, 0);
+    for(MESet::iterator qItr(meQualitySummary->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       int status(kGood);
 
-      if(status == kGood && using_(kLaser)){
+      if(status == kGood && useLaser){
         lItr = qItr;
         for(map<int, unsigned>::iterator wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr){
-          static_cast<MESetMulti const*>(sources_[kLaser])->use(wlItr->second);
+          sLaser->use(wlItr->second);
           if(lItr->getBinContent() == kBad){
             status = kBad;
             break;
@@ -195,12 +217,12 @@ namespace ecaldqm {
         }
       }
 
-      if(status == kGood && using_(kLed)){
+      if(status == kGood && useLed){
         DetId id(qItr->getId());
         if(id.subdetId() == EcalEndcap){
           for(map<int, unsigned>::iterator wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr){
-            static_cast<MESetMulti const*>(sources_[kLed])->use(wlItr->second);
-            if(sources_[kLed]->getBinContent(id) == kBad){
+            sLed->use(wlItr->second);
+            if(sLed->getBinContent(id) == kBad){
               status = kBad;
               break;
             }
@@ -208,10 +230,10 @@ namespace ecaldqm {
         }
       }
 
-      if(status == kGood && using_(kTestPulse)){
+      if(status == kGood && useTestPulse){
         tItr = qItr;
         for(map<int, unsigned>::iterator gainItr(tpGainToME_.begin()); gainItr != tpGainToME_.end(); ++gainItr){
-          static_cast<MESetMulti const*>(sources_[kTestPulse])->use(gainItr->second);
+          sTestPulse->use(gainItr->second);
           if(tItr->getBinContent() == kBad){
             status = kBad;
             break;
@@ -219,10 +241,10 @@ namespace ecaldqm {
         }
       }
 
-      if(status == kGood && using_(kPedestal)){
+      if(status == kGood && usePedestal){
         pItr = qItr;
         for(map<int, unsigned>::iterator gainItr(pedGainToME_.begin()); gainItr != pedGainToME_.end(); ++gainItr){
-          static_cast<MESetMulti const*>(sources_[kPedestal])->use(gainItr->second);
+          sPedestal->use(gainItr->second);
           if(pItr->getBinContent() == kBad){
             status = kBad;
             break;
@@ -244,69 +266,51 @@ namespace ecaldqm {
 
         int status(kGood);
 
-        if(sources_[kPNIntegrity]->getBinContent(id) == kBad) status = kBad;
+        if(sPNIntegrity->getBinContent(id) == kBad) status = kBad;
 
-        if(status == kGood && using_(kLaserPN)){
+        if(status == kGood && useLaserPN){
           for(map<int, unsigned>::iterator wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr){
-            static_cast<MESetMulti const*>(sources_[kLaserPN])->use(wlItr->second);
-            if(sources_[kLaserPN]->getBinContent(id) == kBad){
+            sLaserPN->use(wlItr->second);
+            if(sLaserPN->getBinContent(id) == kBad){
               status = kBad;
               break;
             }
           }
         }
 
-        if(status == kGood && using_(kLedPN)){
+        if(status == kGood && useLedPN){
           for(map<int, unsigned>::iterator wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr){
-            static_cast<MESetMulti const*>(sources_[kLedPN])->use(wlItr->second);
-            if(sources_[kLedPN]->getBinContent(id) == kBad){
+            sLedPN->use(wlItr->second);
+            if(sLedPN->getBinContent(id) == kBad){
               status = kBad;
               break;
             }
           }
         }
 
-        if(status == kGood && using_(kTestPulsePN)){
+        if(status == kGood && useTestPulsePN){
           for(map<int, unsigned>::iterator gainItr(tpPNGainToME_.begin()); gainItr != tpPNGainToME_.end(); ++gainItr){
-            static_cast<MESetMulti const*>(sources_[kTestPulsePN])->use(gainItr->second);
-            if(sources_[kTestPulsePN]->getBinContent(id) == kBad){
+            sTestPulsePN->use(gainItr->second);
+            if(sTestPulsePN->getBinContent(id) == kBad){
               status = kBad;
               break;
             }
           }
         }
 
-        if(status == kGood && using_(kPedestalPN)){
+        if(status == kGood && usePedestalPN){
           for(map<int, unsigned>::iterator gainItr(pedPNGainToME_.begin()); gainItr != pedPNGainToME_.end(); ++gainItr){
-            static_cast<MESetMulti const*>(sources_[kPedestalPN])->use(gainItr->second);
-            if(sources_[kPedestalPN]->getBinContent(id) == kBad){
+            sPedestalPN->use(gainItr->second);
+            if(sPedestalPN->getBinContent(id) == kBad){
               status = kBad;
               break;
             }
           }
         }
 
-        MEs_[kPNQualitySummary]->setBinContent(id, status);
+        mePNQualitySummary->setBinContent(id, status);
       }
     }
-  }
-
-  /*static*/
-  void
-  CalibrationSummaryClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["QualitySummary"] = kQualitySummary;
-    _nameToIndex["PNQualitySummary"] = kPNQualitySummary;
-
-    _nameToIndex["PNIntegrity"] = kPNIntegrity;
-    _nameToIndex["Laser"] = kLaser;
-    _nameToIndex["LaserPN"] = kLaserPN;
-    _nameToIndex["Led"] = kLed;
-    _nameToIndex["LedPN"] = kLedPN;
-    _nameToIndex["TestPulse"] = kTestPulse;
-    _nameToIndex["TestPulsePN"] = kTestPulsePN;
-    _nameToIndex["Pedestal"] = kPedestal;
-    _nameToIndex["PedestalPN"] = kPedestalPN;
   }
 
   DEFINE_ECALDQM_WORKER(CalibrationSummaryClient);

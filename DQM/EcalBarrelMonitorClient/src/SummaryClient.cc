@@ -10,35 +10,35 @@ namespace ecaldqm {
     fedBadFraction_(_workerParams.getUntrackedParameter<double>("fedBadFraction"))
   {
     usedSources_.clear();
-    use_(kIntegrity);
-    use_(kIntegrityByLumi);
-    use_(kRawData);
-    use_(kDesyncByLumi);
-    use_(kFEByLumi);
+    usedSources_.insert("Integrity");
+    usedSources_.insert("IntegrityByLumi");
+    usedSources_.insert("RawData");
+    usedSources_.insert("DesyncByLumi");
+    usedSources_.insert("FEByLumi");
 
     std::vector<std::string> sourceList(_workerParams.getUntrackedParameter<std::vector<std::string> >("activeSources"));
     for(unsigned iS(0); iS < sourceList.size(); ++iS){
       std::string& sourceName(sourceList[iS]);
-      if(sourceName == "Presample") use_(kPresample);
-      else if(sourceName == "Timing") use_(kTiming);
-      else if(sourceName == "TriggerPrimitives") use_(kTriggerPrimitives);
-      else if(sourceName == "HotCell") use_(kHotCell);
+      if(sourceName == "Presample") usedSources_.insert("Presample");
+      else if(sourceName == "Timing") usedSources_.insert("Timing");
+      else if(sourceName == "TriggerPrimitives") usedSources_.insert("TriggerPrimitives");
+      else if(sourceName == "HotCell") usedSources_.insert("HotCell");
     }
 
-    qualitySummaries_.insert(kQualitySummary);
-    qualitySummaries_.insert(kReportSummaryMap);
-    qualitySummaries_.insert(kReportSummaryContents);
-    qualitySummaries_.insert(kReportSummary);
+    qualitySummaries_.insert("QualitySummary");
+    qualitySummaries_.insert("ReportSummaryMap");
+    qualitySummaries_.insert("ReportSummaryContents");
+    qualitySummaries_.insert("ReportSummary");
   }
 
   void
   SummaryClient::bookMEs()
   {
-    for(unsigned iME(0); iME < MEs_.size(); iME++){
-      if(iME == kNBadFEDs && !online) continue;
-      if(MEs_[iME]){
-        if(MEs_[iME]->getBinType() == BinService::kTrend && !online) continue;
-        if(!MEs_[iME]->isActive()) MEs_[iME]->book();
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+      if(mItr->first == "NBadFEDs" && !online) continue;
+      if(mItr->second){
+        if(mItr->second->getBinType() == BinService::kTrend && !online) continue;
+        if(!mItr->second->isActive()) mItr->second->book();
       }
     }
   }
@@ -46,6 +46,27 @@ namespace ecaldqm {
   void
   SummaryClient::producePlots()
   {
+    bool usePresample(using_("Presample"));
+    bool useHotCell(using_("HotCell"));
+    bool useTiming(using_("Timing"));
+    bool useTrigPrim(using_("TriggerPrimitives"));
+
+    MESet* meQualitySummary(MEs_["QualitySummary"]);
+    MESet* meReportSummaryMap(MEs_["ReportSummaryMap"]);
+    MESet* meReportSummaryContents(MEs_["ReportSummaryContents"]);
+    MESet* meReportSummary(MEs_["ReportSummary"]);
+    MESet* meNBadFEDs(online ? MEs_["NBadFEDs"] : 0);
+
+    MESet const* sIntegrity(sources_["Integrity"]);
+    MESet const* sIntegrityByLumi(sources_["IntegrityByLumi"]);
+    MESet const* sPresample(usePresample ? sources_["Presample"] : 0);
+    MESet const* sTiming(useTiming ? sources_["Timing"] : 0);
+    MESet const* sRawData(sources_["RawData"]);
+    MESet const* sDesyncByLumi(sources_["DesyncByLumi"]);
+    MESet const* sFEByLumi(sources_["FEByLumi"]);
+    MESet const* sTriggerPrimitives(useTrigPrim ? sources_["TriggerPrimitives"] : 0);
+    MESet const* sHotCell(useHotCell ? sources_["HotCell"] : 0);
+
     float totalChannels(0.);
     float totalGood(0.);
 
@@ -55,16 +76,16 @@ namespace ecaldqm {
     std::vector<float> integrityByLumi(BinService::nDCC, 0.);
     std::vector<float> rawDataByLumi(BinService::nDCC, 0.);
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
-      integrityByLumi[iDCC] = sources_[kIntegrityByLumi]->getBinContent(iDCC + 1);
-      rawDataByLumi[iDCC] = sources_[kDesyncByLumi]->getBinContent(iDCC + 1) + sources_[kFEByLumi]->getBinContent(iDCC + 1);
+      integrityByLumi[iDCC] = sIntegrityByLumi->getBinContent(iDCC + 1);
+      rawDataByLumi[iDCC] = sDesyncByLumi->getBinContent(iDCC + 1) + sFEByLumi->getBinContent(iDCC + 1);
     }
 
     std::map<uint32_t, int> badChannelsCount;
 
-    MESet::iterator qEnd(MEs_[kQualitySummary]->end());
-    MESet::const_iterator iItr(sources_[kIntegrity]);
-    MESet::const_iterator pItr(sources_[kPresample], using_(kPresample) ? 0 : -1, 0);
-    for(MESet::iterator qItr(MEs_[kQualitySummary]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
+    MESet::iterator qEnd(meQualitySummary->end());
+    MESet::const_iterator iItr(sIntegrity);
+    MESet::const_iterator pItr(sPresample, usePresample ? 0 : -1, 0);
+    for(MESet::iterator qItr(meQualitySummary->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       DetId id(qItr->getId());
       unsigned iDCC(dccId(id) - 1);
@@ -80,12 +101,12 @@ namespace ecaldqm {
 
       pItr = qItr;
 
-      int presample(using_(kPresample) ? pItr->getBinContent() : kUnknown);
-      int hotcell(using_(kHotCell) ? sources_[kHotCell]->getBinContent(id) : kUnknown);
-      int timing(using_(kTiming) ? sources_[kTiming]->getBinContent(id) : kUnknown);
-      int trigprim(using_(kTriggerPrimitives) ? sources_[kTriggerPrimitives]->getBinContent(id) : kUnknown);
+      int presample(usePresample ? pItr->getBinContent() : kUnknown);
+      int hotcell(useHotCell ? sHotCell->getBinContent(id) : kUnknown);
+      int timing(useTiming ? sTiming->getBinContent(id) : kUnknown);
+      int trigprim(useTrigPrim ? sTriggerPrimitives->getBinContent(id) : kUnknown);
 
-      int rawdata(sources_[kRawData]->getBinContent(id));
+      int rawdata(sRawData->getBinContent(id));
 
       // summary retains only problems during this LS
       if(integrity == kBad && integrityByLumi[iDCC] == 0.) integrity = kGood;
@@ -177,38 +198,19 @@ namespace ecaldqm {
 
       unsigned dccid(iDCC + 1);
       float frac(dccGood[iDCC] / dccChannels[iDCC]);
-      MEs_[kReportSummaryMap]->setBinContent(dccid, frac);
-      MEs_[kReportSummaryContents]->fill(dccid, frac);
+      meReportSummaryMap->setBinContent(dccid, frac);
+      meReportSummaryContents->fill(dccid, frac);
 
       if(1. - frac > fedBadFraction_) nBad += 1.;
     }
 
-    if(totalChannels > 0.) MEs_[kReportSummary]->fill(totalGood / totalChannels);
+    if(totalChannels > 0.) meReportSummary->fill(totalGood / totalChannels);
 
-    if(online) MEs_[kNBadFEDs]->setBinContent(1, nBad);
-  }
-
-  /*static*/
-  void
-  SummaryClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["QualitySummary"] = kQualitySummary;
-    _nameToIndex["ReportSummaryMap"] = kReportSummaryMap;
-    _nameToIndex["ReportSummaryContents"] = kReportSummaryContents;
-    _nameToIndex["ReportSummary"] = kReportSummary;
-    _nameToIndex["NBadFEDs"] = kNBadFEDs;
-
-    _nameToIndex["Integrity"] = kIntegrity;
-    _nameToIndex["IntegrityByLumi"] = kIntegrityByLumi;
-    _nameToIndex["Presample"] = kPresample;
-    _nameToIndex["Timing"] = kTiming;
-    _nameToIndex["RawData"] = kRawData;
-    _nameToIndex["DesyncByLumi"] = kDesyncByLumi;
-    _nameToIndex["FEByLumi"] = kFEByLumi;
-    _nameToIndex["TriggerPrimitives"] = kTriggerPrimitives;
-    _nameToIndex["HotCell"] = kHotCell;
+    if(online) meNBadFEDs->setBinContent(1, nBad);
   }
 
   DEFINE_ECALDQM_WORKER(SummaryClient);
 }
+
+
 

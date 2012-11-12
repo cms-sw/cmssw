@@ -30,15 +30,12 @@ namespace ecaldqm {
     };
 
   protected:
-    void source_(unsigned, std::string const&, unsigned, edm::ParameterSet const&);
-    bool applyMask_(unsigned, DetId const&, uint32_t);
-    void towerAverage_(unsigned, unsigned, float);
-    void use_(unsigned _s) { usedSources_.insert(_s); }
-    bool using_(unsigned _s) { return usedSources_.find(_s) != usedSources_.end(); }
+    void towerAverage_(MESet*, MESet const*, float);
+    bool using_(std::string const& _s) { return usedSources_.find(_s) != usedSources_.end(); }
 
-    std::vector<MESet const*> sources_;
-    std::set<unsigned> usedSources_;
-    std::set<unsigned> qualitySummaries_;
+    ConstMESetCollection sources_;
+    std::set<std::string> usedSources_;
+    std::set<std::string> qualitySummaries_;
   };
 
 }

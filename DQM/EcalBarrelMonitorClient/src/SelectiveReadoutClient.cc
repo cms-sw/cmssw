@@ -14,32 +14,50 @@ namespace ecaldqm {
   void
   SelectiveReadoutClient::producePlots()
   {
-    using namespace std;
+    MESet* meFRDropped(MEs_["FRDropped"]);
+    MESet* meZSReadout(MEs_["ZSReadout"]);
+    MESet* meFR(MEs_["FR"]);
+    MESet* meRUForced(MEs_["RUForced"]);
+    MESet* meZS1(MEs_["ZS1"]);
+    MESet* meHighInterest(MEs_["HighInterest"]);
+    MESet* meMedInterest(MEs_["MedInterest"]);
+    MESet* meLowInterest(MEs_["LowInterest"]);
 
-    MEs_[kFRDropped]->reset();
-    MEs_[kZSReadout]->reset();
-    MEs_[kFR]->reset();
-    MEs_[kRUForced]->reset();
-    MEs_[kZS1]->reset();
-    MEs_[kHighInterest]->reset();
-    MEs_[kMedInterest]->reset();
-    MEs_[kLowInterest]->reset();
+    MESet const* sFlagCounterMap(sources_["FlagCounterMap"]);
+    MESet const* sRUForcedMap(sources_["RUForcedMap"]);
+    MESet const* sFullReadoutMap(sources_["FullReadoutMap"]);
+    MESet const* sZS1Map(sources_["ZS1Map"]);
+    MESet const* sZSMap(sources_["ZSMap"]);
+    MESet const* sZSFullReadoutMap(sources_["ZSFullReadoutMap"]);
+    MESet const* sFRDroppedMap(sources_["FRDroppedMap"]);
+    MESet const* sHighIntMap(sources_["HighIntMap"]);
+    MESet const* sMedIntMap(sources_["MedIntMap"]);
+    MESet const* sLowIntMap(sources_["LowIntMap"]);
 
-    MESet::const_iterator ruItr(sources_[kRUForcedMap]);
-    MESet::const_iterator frItr(sources_[kFullReadoutMap]);
-    MESet::const_iterator zs1Itr(sources_[kZS1Map]);
-    MESet::const_iterator zsItr(sources_[kZSMap]);
-    MESet::const_iterator zsfrItr(sources_[kZSFullReadoutMap]);
-    MESet::const_iterator frdItr(sources_[kFRDroppedMap]);
+    meFRDropped->reset();
+    meZSReadout->reset();
+    meFR->reset();
+    meRUForced->reset();
+    meZS1->reset();
+    meHighInterest->reset();
+    meMedInterest->reset();
+    meLowInterest->reset();
 
-    MESet::iterator frdRateItr(MEs_[kFRDropped]);
-    MESet::iterator zsrRateItr(MEs_[kZSReadout]);
-    MESet::iterator frRateItr(MEs_[kFR]);
-    MESet::iterator ruRateItr(MEs_[kRUForced]);
-    MESet::iterator zs1RateItr(MEs_[kZS1]);
+    MESet::const_iterator ruItr(sRUForcedMap);
+    MESet::const_iterator frItr(sFullReadoutMap);
+    MESet::const_iterator zs1Itr(sZS1Map);
+    MESet::const_iterator zsItr(sZSMap);
+    MESet::const_iterator zsfrItr(sZSFullReadoutMap);
+    MESet::const_iterator frdItr(sFRDroppedMap);
 
-    MESet::const_iterator cEnd(sources_[kFlagCounterMap]->end());
-    for(MESet::const_iterator cItr(sources_[kFlagCounterMap]->beginChannel()); cItr != cEnd; cItr.toNextChannel()){
+    MESet::iterator frdRateItr(meFRDropped);
+    MESet::iterator zsrRateItr(meZSReadout);
+    MESet::iterator frRateItr(meFR);
+    MESet::iterator ruRateItr(meRUForced);
+    MESet::iterator zs1RateItr(meZS1);
+
+    MESet::const_iterator cEnd(sFlagCounterMap->end());
+    for(MESet::const_iterator cItr(sFlagCounterMap->beginChannel()); cItr != cEnd; cItr.toNextChannel()){
 
       ruItr = cItr;
       frItr = cItr;
@@ -74,42 +92,17 @@ namespace ecaldqm {
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; ++iTT){
       EcalTrigTowerDetId id(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
 
-      float nHigh(sources_[kHighIntMap]->getBinContent(id));
-      float nMed(sources_[kMedIntMap]->getBinContent(id));
-      float nLow(sources_[kLowIntMap]->getBinContent(id));
+      float nHigh(sHighIntMap->getBinContent(id));
+      float nMed(sMedIntMap->getBinContent(id));
+      float nLow(sLowIntMap->getBinContent(id));
       float total(nHigh + nMed + nLow);
 
       if(total > 0.){
-        MEs_[kHighInterest]->setBinContent(id, nHigh / total);
-        MEs_[kMedInterest]->setBinContent(id, nMed / total);
-        MEs_[kLowInterest]->setBinContent(id, nLow / total);
+        meHighInterest->setBinContent(id, nHigh / total);
+        meMedInterest->setBinContent(id, nMed / total);
+        meLowInterest->setBinContent(id, nLow / total);
       }
     }
-  }
-
-  /*static*/
-  void
-  SelectiveReadoutClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["FRDropped"] = kFRDropped;
-    _nameToIndex["ZSReadout"] = kZSReadout;
-    _nameToIndex["FR"] = kFR;
-    _nameToIndex["RUForced"] = kRUForced;
-    _nameToIndex["ZS1"] = kZS1;
-    _nameToIndex["HighInterest"] = kHighInterest;
-    _nameToIndex["MedInterest"] = kMedInterest;
-    _nameToIndex["LowInterest"] = kLowInterest;
-
-    _nameToIndex["FlagCounterMap"] = kFlagCounterMap;
-    _nameToIndex["RUForcedMap"] = kRUForcedMap;
-    _nameToIndex["FullReadoutMap"] = kFullReadoutMap;
-    _nameToIndex["ZS1Map"] = kZS1Map;
-    _nameToIndex["ZSMap"] = kZSMap;
-    _nameToIndex["ZSFullReadoutMap"] = kZSFullReadoutMap;
-    _nameToIndex["FRDroppedMap"] = kFRDroppedMap;
-    _nameToIndex["HighIntMap"] = kHighIntMap;
-    _nameToIndex["MedIntMap"] = kMedIntMap;
-    _nameToIndex["LowIntMap"] = kLowIntMap;
   }
 
   DEFINE_ECALDQM_WORKER(SelectiveReadoutClient);

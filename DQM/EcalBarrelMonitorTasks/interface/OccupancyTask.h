@@ -21,34 +21,6 @@ namespace ecaldqm {
     void runOnTPDigis(const EcalTrigPrimDigiCollection &);
     void runOnRecHits(const EcalRecHitCollection &, Collections);
 
-    enum MESets {
-      kDigi, // h2f
-      kDigiProjEta, // h1f
-      kDigiProjPhi, // h1f
-      kDigiAll,
-      kDigiDCC,
-      kDigi1D,
-      kRecHitAll,
-      kRecHitProjEta,
-      kRecHitProjPhi,
-      kRecHitThrProjEta, // h1f
-      kRecHitThrProjPhi, // h1f
-      kRecHitThrAll, // h1f
-      kRecHitThr1D,
-      kTPDigiProjEta, // h1f
-      kTPDigiProjPhi, // h1f
-      kTPDigiAll, // h2f
-      kTPDigiThrProjEta, // h1f
-      kTPDigiThrProjPhi, // h1f
-      kTPDigiThrAll,
-      kTrendNDigi,
-      kTrendNRecHitThr,
-      kTrendNTPDigi,
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
     float recHitThreshold_;
     float tpThreshold_;

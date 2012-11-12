@@ -1,4 +1,5 @@
 #include "../interface/TimingClient.h"
+#include "../interface/EcalDQMClientUtils.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
@@ -20,8 +21,8 @@ namespace ecaldqm {
     minTowerEntriesFwd_(_workerParams.getUntrackedParameter<int>("minChannelEntriesFwd")),
     tailPopulThreshold_(_workerParams.getUntrackedParameter<double>("tailPopulThreshold"))
   {
-    qualitySummaries_.insert(kQuality);
-    qualitySummaries_.insert(kQualitySummary);
+    qualitySummaries_.insert("Quality");
+    qualitySummaries_.insert("QualitySummary");
   }
 
   void
@@ -29,22 +30,36 @@ namespace ecaldqm {
   {
     using namespace std;
 
-    MEs_[kMeanSM]->reset();
-    MEs_[kMeanAll]->reset();
-    MEs_[kRMSAll]->reset();
-    MEs_[kProjEta]->reset();
-    MEs_[kProjPhi]->reset();
-    MEs_[kFwdBkwdDiff]->reset();
-    MEs_[kFwdvBkwd]->reset();
+    MESet* meQuality(MEs_["Quality"]);
+    MESet* meMeanSM(MEs_["MeanSM"]);
+    MESet* meMeanAll(MEs_["MeanAll"]);
+    MESet* meFwdBkwdDiff(MEs_["FwdBkwdDiff"]);
+    MESet* meFwdvBkwd(MEs_["FwdvBkwd"]);
+    MESet* meRMSMap(MEs_["RMSMap"]);
+    MESet* meRMSAll(MEs_["RMSAll"]);
+    MESet* meProjEta(MEs_["ProjEta"]);
+    MESet* meProjPhi(MEs_["ProjPhi"]);
+    MESet* meQualitySummary(MEs_["QualitySummary"]);
+
+    MESet const* sTimeAllMap(sources_["TimeAllMap"]);
+    MESet const* sTimeMap(sources_["TimeMap"]);
+
+    meMeanSM->reset();
+    meMeanAll->reset();
+    meRMSAll->reset();
+    meProjEta->reset();
+    meProjPhi->reset();
+    meFwdBkwdDiff->reset();
+    meFwdvBkwd->reset();
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
-    MESet::iterator qEnd(MEs_[kQuality]->end());
+    MESet::iterator qEnd(meQuality->end());
 
-    MESet::iterator rItr(MEs_[kRMSMap]);
-    MESet::const_iterator tItr(sources_[kTimeMap]);
+    MESet::iterator rItr(meRMSMap);
+    MESet::const_iterator tItr(sTimeMap);
 
-    for(MESet::iterator qItr(MEs_[kQuality]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
+    for(MESet::iterator qItr(meQuality->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       tItr = qItr;
       rItr = qItr;
@@ -61,7 +76,7 @@ namespace ecaldqm {
         rmsThresh = toleranceRMSFwd_;
       }
 
-      bool doMask(applyMask_(kQuality, id, mask));
+      bool doMask(applyMask(meQuality->getBinType(), id, mask));
 
       float entries(tItr->getBinEntries());
 
@@ -74,11 +89,11 @@ namespace ecaldqm {
       float mean(tItr->getBinContent());
       float rms(tItr->getBinError() * sqrt(entries));
 
-      MEs_[kMeanSM]->fill(id, mean);
-      MEs_[kMeanAll]->fill(id, mean);
-      MEs_[kProjEta]->fill(id, mean);
-      MEs_[kProjPhi]->fill(id, mean);
-      MEs_[kRMSAll]->fill(id, rms);
+      meMeanSM->fill(id, mean);
+      meMeanAll->fill(id, mean);
+      meProjEta->fill(id, mean);
+      meProjPhi->fill(id, mean);
+      meRMSAll->fill(id, rms);
       rItr->setBinContent(rms);
 
       bool negative(false);
@@ -89,7 +104,7 @@ namespace ecaldqm {
         if(ebid.zside() < 0){
           negative = true;
           EBDetId posId(EBDetId::switchZSide(ebid));
-          posTime = sources_[kTimeMap]->getBinContent(posId);
+          posTime = sTimeMap->getBinContent(posId);
         }
       }
       else{
@@ -97,12 +112,12 @@ namespace ecaldqm {
         if(eeid.zside() < 0){
           negative = true;
           EEDetId posId(EEDetId::switchZSide(eeid));
-          posTime = sources_[kTimeMap]->getBinContent(posId);
+          posTime = sTimeMap->getBinContent(posId);
         }
       }
       if(negative){
-        MEs_[kFwdBkwdDiff]->fill(id, posTime - mean);
-        MEs_[kFwdvBkwd]->fill(id, mean, posTime);
+        meFwdBkwdDiff->fill(id, posTime - mean);
+        meFwdvBkwd->fill(id, mean, posTime);
       }
 
       if(abs(mean) > meanThresh || rms > rmsThresh)
@@ -111,9 +126,9 @@ namespace ecaldqm {
         qItr->setBinContent(doMask ? kMGood : kGood);
     }
 
-    MESet::iterator qsEnd(MEs_[kQualitySummary]->end());
+    MESet::iterator qsEnd(meQualitySummary->end());
 
-    for(MESet::iterator qsItr(MEs_[kQualitySummary]->beginChannel()); qsItr != qsEnd; qsItr.toNextChannel()){
+    for(MESet::iterator qsItr(meQualitySummary->beginChannel()); qsItr != qsEnd; qsItr.toNextChannel()){
 
       DetId tId(qsItr->getId());
 
@@ -135,7 +150,7 @@ namespace ecaldqm {
       }
 
       // tower entries != sum(channel entries) because of the difference in timing cut at the source
-      float summaryEntries(sources_[kTimeAllMap]->getBinEntries(tId));
+      float summaryEntries(sTimeAllMap->getBinEntries(tId));
 
       float towerEntries(0.);
       float towerMean(0.);
@@ -146,9 +161,9 @@ namespace ecaldqm {
       for(vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
         DetId& id(*idItr);
 
-        doMask |= applyMask_(kQuality, id, mask);
+        doMask |= applyMask(meQuality->getBinType(), id, mask);
 
-        MESet::const_iterator tmItr(sources_[kTimeMap], id);
+        MESet::const_iterator tmItr(sTimeMap, id);
 
         float entries(tmItr->getBinEntries());
         if(entries < 0.) continue;
@@ -180,24 +195,6 @@ namespace ecaldqm {
     }
   }
 
-  /*static*/
-  void
-  TimingClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["Quality"] = kQuality;
-    _nameToIndex["MeanSM"] = kMeanSM;
-    _nameToIndex["MeanAll"] = kMeanAll;
-    _nameToIndex["FwdBkwdDiff"] = kFwdBkwdDiff;
-    _nameToIndex["FwdvBkwd"] = kFwdvBkwd;
-    _nameToIndex["RMSMap"] = kRMSMap;
-    _nameToIndex["RMSAll"] = kRMSAll;
-    _nameToIndex["ProjEta"] = kProjEta;
-    _nameToIndex["ProjPhi"] = kProjPhi;
-    _nameToIndex["QualitySummary"] = kQualitySummary;
-
-    _nameToIndex["TimeAllMap"] = kTimeAllMap;
-    _nameToIndex["TimeMap"] = kTimeMap;
-  }
-
   DEFINE_ECALDQM_WORKER(TimingClient);
 }
+

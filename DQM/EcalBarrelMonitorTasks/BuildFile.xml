@@ -19,6 +19,4 @@
 <use   name="CondFormats/EcalObjects"/>
 <use name="Geometry/CaloTopology"/>
 <use   name="rootphysics"/>
-<export>
-  <lib   name="1"/>
-</export>
+<flags   EDM_PLUGIN="1"/>

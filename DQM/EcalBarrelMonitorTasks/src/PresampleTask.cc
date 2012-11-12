@@ -8,9 +8,8 @@ namespace ecaldqm {
   PresampleTask::PresampleTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerTask(_workerParams, _commonParams, "PresampleTask")
   {
-    collectionMask_ =
-      (0x1 << kEBDigi) |
-      (0x1 << kEEDigi);
+    collectionMask_[kEBDigi] = true;
+    collectionMask_[kEEDigi] = true;
   }
 
   PresampleTask::~PresampleTask()
@@ -35,6 +34,8 @@ namespace ecaldqm {
   void
   PresampleTask::runOnDigis(const EcalDigiCollection &_digis)
   {
+    MESet* mePedestal(MEs_["Pedestal"]);
+
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
 
@@ -58,15 +59,8 @@ namespace ecaldqm {
       if(iMax != 5 || gainSwitch) continue;
 
       for(int iSample(0); iSample < 3; ++iSample)
-	MEs_[kPedestal]->fill(id, dataFrame.sample(iSample).adc());
+	mePedestal->fill(id, double(dataFrame.sample(iSample).adc()));
     }
-  }
-
-  /*static*/
-  void
-  PresampleTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["Pedestal"] = kPedestal;
   }
 
   DEFINE_ECALDQM_WORKER(PresampleTask);

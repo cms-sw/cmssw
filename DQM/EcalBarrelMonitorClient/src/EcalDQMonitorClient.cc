@@ -8,6 +8,7 @@
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
@@ -144,3 +145,5 @@ EcalDQMonitorClient::runWorkers()
   if(verbosity_ > 0)
     std::cout << " done." << std::endl;
 }
+
+DEFINE_FWK_MODULE(EcalDQMonitorClient);

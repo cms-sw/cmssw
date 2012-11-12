@@ -12,27 +12,6 @@ namespace ecaldqm {
 
     void producePlots();
 
-    enum MESets {
-      kQualitySummary,
-      kPNQualitySummary,
-      nMESets
-    };
-
-    enum Sources {
-      kPNIntegrity,
-      kLaser,
-      kLaserPN,
-      kLed,
-      kLedPN,
-      kTestPulse,
-      kTestPulsePN,
-      kPedestal,
-      kPedestalPN,
-      nSources
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   protected:
     std::map<int, unsigned> laserWlToME_;
     std::map<int, unsigned> ledWlToME_;

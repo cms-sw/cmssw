@@ -17,13 +17,6 @@ namespace ecaldqm {
     void analyze(const void*, Collections);
 
     void runOnDigis(const EcalDigiCollection &);
-
-    enum MESets {
-      kPedestal, // profile2d
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
   };
 
   inline void PresampleTask::analyze(const void* _p, Collections _collection){

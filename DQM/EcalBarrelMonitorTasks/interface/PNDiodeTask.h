@@ -20,19 +20,6 @@ namespace ecaldqm {
     void runOnErrors(const EcalElectronicsIdCollection &, Collections);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
 
-    enum MESets {
-      kMEMChId,
-      kMEMGain,
-      kMEMBlockSize,
-      kMEMTowerId,
-      kPedestal,
-      kOccupancy,
-      kOccupancySummary,
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   protected:
     bool enable_[BinService::nDCC];
   };

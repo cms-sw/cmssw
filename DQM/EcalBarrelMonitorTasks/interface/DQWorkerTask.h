@@ -86,8 +86,8 @@ namespace ecaldqm {
     void recoverStats();
 
   protected:
-    uint32_t collectionMask_;
-    std::vector<bool> resettable_;
+    std::vector<bool> collectionMask_;
+    std::set<std::string> resettable_;
   };
 
   inline
@@ -95,7 +95,7 @@ namespace ecaldqm {
   DQWorkerTask::runsOn(unsigned _collection)
   {
     if(_collection >= nProcessedObjects) return false;
-    return (collectionMask_ >> _collection) & 0x1;
+    return collectionMask_[_collection];
   }
 }
 #endif

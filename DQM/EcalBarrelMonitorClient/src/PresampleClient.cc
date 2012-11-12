@@ -1,4 +1,5 @@
 #include "../interface/PresampleClient.h"
+#include "../interface/EcalDQMClientUtils.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
@@ -16,31 +17,43 @@ namespace ecaldqm {
     toleranceRMS_(_workerParams.getUntrackedParameter<double>("toleranceRMS")),
     toleranceRMSFwd_(_workerParams.getUntrackedParameter<double>("toleranceRMSFwd"))
   {
-    qualitySummaries_.insert(kQuality);
-    qualitySummaries_.insert(kQualitySummary);
+    qualitySummaries_.insert("Quality");
+    qualitySummaries_.insert("QualitySummary");
   }
 
   void
   PresampleClient::producePlots()
   {
-    MEs_[kMean]->reset();
-    MEs_[kRMS]->reset();
+    MESet* meQualitySummary(MEs_["QualitySummary"]);
+    MESet* meQuality(MEs_["Quality"]);
+    MESet* meMean(MEs_["Mean"]);
+    MESet* meRMS(MEs_["RMS"]);
+    MESet* meRMSMap(MEs_["RMSMap"]);
+    MESet* meRMSMapAll(MEs_["RMSMapAll"]);
+    MESet* meTrendMean(online ? MEs_["TrendMean"] : 0);
+    MESet* meTrendRMS(online ? MEs_["TrendRMS"] : 0);
+
+    MESet const* sPedestal(sources_["Pedestal"]);
+
+    meMean->reset();
+    meRMS->reset();
+    meRMSMapAll->reset(-1.);
 
     uint32_t mask(1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR |
 		  1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR);
 
-    MESet::iterator qEnd(MEs_[kQuality]->end());
+    MESet::iterator qEnd(meQuality->end());
 
-    MESet::const_iterator pItr(sources_[kPedestal]);
+    MESet::const_iterator pItr(sPedestal);
     double maxEB(0.), minEB(0.), maxEE(0.), minEE(0.);
     double rmsMaxEB(0.), rmsMaxEE(0.);
-    for(MESet::iterator qItr(MEs_[kQuality]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
+    for(MESet::iterator qItr(meQuality->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
       pItr = qItr;
 
       DetId id(qItr->getId());
 
-      bool doMask(applyMask_(kQuality, id, mask));
+      bool doMask(applyMask(meQuality->getBinType(), id, mask));
 
       double rmsThresh(toleranceRMS_);
 
@@ -50,8 +63,8 @@ namespace ecaldqm {
 
       if(entries < minChannelEntries_){
         qItr->setBinContent(doMask ? kMUnknown : kUnknown);
-        MEs_[kQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
-        MEs_[kRMSMap]->setBinContent(id, -1.);
+        meQualitySummary->setBinContent(id, doMask ? kMUnknown : kUnknown);
+        meRMSMap->setBinContent(id, -1.);
         continue;
       }
 
@@ -60,17 +73,17 @@ namespace ecaldqm {
 
       unsigned dccid(dccId(id));
 
-      MEs_[kMean]->fill(dccid, mean);
-      MEs_[kRMS]->fill(dccid, rms);
-      MEs_[kRMSMap]->setBinContent(id, rms);
+      meMean->fill(dccid, mean);
+      meRMS->fill(dccid, rms);
+      meRMSMap->setBinContent(id, rms);
 
       if(std::abs(mean - expectedMean_) > toleranceMean_ || rms > rmsThresh){
         qItr->setBinContent(doMask ? kMBad : kBad);
-        MEs_[kQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
+        meQualitySummary->setBinContent(id, doMask ? kMBad : kBad);
       }
       else{
         qItr->setBinContent(doMask ? kMGood : kGood);
-        MEs_[kQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);
+        meQualitySummary->setBinContent(id, doMask ? kMGood : kGood);
       }
 
       if(id.subdetId() == EcalBarrel){
@@ -85,27 +98,14 @@ namespace ecaldqm {
       }
     }
 
+    towerAverage_(meRMSMapAll, meRMSMap, -1.);
+
     if(online){
-      MEs_[kTrendMean]->fill(unsigned(BinService::kEB + 1), double(iLumi), maxEB - minEB);
-      MEs_[kTrendMean]->fill(unsigned(BinService::kEE + 1), double(iLumi), maxEE - minEE);
-      MEs_[kTrendRMS]->fill(unsigned(BinService::kEB + 1), double(iLumi), rmsMaxEB);
-      MEs_[kTrendRMS]->fill(unsigned(BinService::kEE + 1), double(iLumi), rmsMaxEE);
+      meTrendMean->fill(unsigned(BinService::kEB + 1), double(iLumi), maxEB - minEB);
+      meTrendMean->fill(unsigned(BinService::kEE + 1), double(iLumi), maxEE - minEE);
+      meTrendRMS->fill(unsigned(BinService::kEB + 1), double(iLumi), rmsMaxEB);
+      meTrendRMS->fill(unsigned(BinService::kEE + 1), double(iLumi), rmsMaxEE);
     }
-  }
-
-  /*static*/
-  void
-  PresampleClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["Quality"] = kQuality;
-    _nameToIndex["Mean"] = kMean;
-    _nameToIndex["RMS"] = kRMS;
-    _nameToIndex["RMSMap"] = kRMSMap;
-    _nameToIndex["QualitySummary"] = kQualitySummary;
-    _nameToIndex["TrendMean"] = kTrendMean;
-    _nameToIndex["TrendRMS"] = kTrendRMS;
-
-    _nameToIndex["Pedestal"] = kPedestal;
   }
 
   DEFINE_ECALDQM_WORKER(PresampleClient);

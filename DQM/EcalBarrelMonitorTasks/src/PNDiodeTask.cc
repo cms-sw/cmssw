@@ -7,13 +7,12 @@ namespace ecaldqm {
   PNDiodeTask::PNDiodeTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerTask(_workerParams, _commonParams, "PNDiodeTask")
   {
-    collectionMask_ = 
-      (0x1 << kMEMTowerIdErrors) |
-      (0x1 << kMEMBlockSizeErrors) |
-      (0x1 << kMEMChIdErrors) |
-      (0x1 << kMEMGainErrors) |
-      (0x1 << kPnDiodeDigi) |
-      (0x1 << kRun);
+    collectionMask_[kMEMTowerIdErrors] = true;
+    collectionMask_[kMEMBlockSizeErrors] = true;
+    collectionMask_[kMEMChIdErrors] = true;
+    collectionMask_[kMEMGainErrors] = true;
+    collectionMask_[kPnDiodeDigi] = true;
+    collectionMask_[kRun] = true;
 
     for(unsigned iD(0); iD < BinService::nDCC; ++iD)
       enable_[iD] = false;
@@ -46,20 +45,22 @@ namespace ecaldqm {
   void
   PNDiodeTask::runOnErrors(const EcalElectronicsIdCollection &_ids, Collections _collection)
   {
-    MESets set(nMESets);
+    if(_ids.size() == 0) return;
+
+    MESet* set(0);
 
     switch(_collection){
     case kMEMTowerIdErrors:
-      set = kMEMTowerId;
+      set = MEs_["MEMTowerId"];
       break;
     case kMEMBlockSizeErrors:
-      set = kMEMBlockSize;
+      set = MEs_["MEMBlockSize"];
       break;
     case kMEMChIdErrors:
-      set = kMEMChId;
+      set = MEs_["MEMChId"];
       break;
     case kMEMGainErrors:
-      set = kMEMGain;
+      set = MEs_["MEMGain"];
       break;
     default:
       return;
@@ -67,50 +68,30 @@ namespace ecaldqm {
 
     for(EcalElectronicsIdCollection::const_iterator idItr(_ids.begin()); idItr != _ids.end(); ++idItr){
       EcalElectronicsId eid(idItr->dccId(), idItr->towerId(), 1, idItr->xtalId());
-      if(MEs_[set]) MEs_[set]->fill(eid);
+      set->fill(eid);
     }
   }
 
   void
   PNDiodeTask::runOnPnDigis(const EcalPnDiodeDigiCollection &_digis)
   {
+    MESet* meOccupancy(MEs_["Occupancy"]);
+    MESet* meOccupancySummary(MEs_["OccupancySummary"]);
+    MESet* mePedestal(MEs_["Pedestal"]);
+
     for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const EcalPnDiodeDetId& id(digiItr->id());
 
       if(!enable_[dccId(id) - 1]) continue;
 
-      MEs_[kOccupancy]->fill(id);
-      MEs_[kOccupancySummary]->fill(id);
-
-      float mean(0.);
-      bool gainSwitch(false);
+      meOccupancy->fill(id);
+      meOccupancySummary->fill(id);
 
       for(int iSample(0); iSample < 4; iSample++){
-	if(digiItr->sample(iSample).gainId() != 1){
-	  gainSwitch = true;
-	  break;
-	}
-	mean += digiItr->sample(iSample).adc();
+	if(digiItr->sample(iSample).gainId() != 1) break;
+        mePedestal->fill(id, double(digiItr->sample(iSample).adc()));
       }
-      if(gainSwitch) continue;
-
-      mean /= 4.;
-
-      MEs_[kPedestal]->fill(id, mean);
     }
-  }
-
-  /*static*/
-  void
-  PNDiodeTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["MEMChId"] = kMEMChId;
-    _nameToIndex["MEMGain"] = kMEMGain;
-    _nameToIndex["MEMBlockSize"] = kMEMBlockSize;
-    _nameToIndex["MEMTowerId"] = kMEMTowerId;
-    _nameToIndex["Pedestal"] = kPedestal;
-    _nameToIndex["Occupancy"] = kOccupancy;
-    _nameToIndex["OccupancySummary"] = kOccupancySummary;
   }
 
   DEFINE_ECALDQM_WORKER(PNDiodeTask);

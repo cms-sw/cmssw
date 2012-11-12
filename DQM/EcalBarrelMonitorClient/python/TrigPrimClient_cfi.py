@@ -10,7 +10,6 @@ ecalTrigPrimClient = cms.untracked.PSet(
     minEntries = cms.untracked.int32(minEntries),
     errorFractionThreshold = cms.untracked.double(errorFractionThreshold),
     sources = cms.untracked.PSet(
-        EtRealMap = ecalTrigPrimTask.MEs.EtRealMap,
         EtEmulError = ecalTrigPrimTask.MEs.EtEmulError,
         MatchedIndex = ecalTrigPrimTask.MEs.MatchedIndex
     ),

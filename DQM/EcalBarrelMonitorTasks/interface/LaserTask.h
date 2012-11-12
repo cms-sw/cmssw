@@ -29,19 +29,6 @@ namespace ecaldqm {
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
     void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&);
 
-    enum MESets {
-      kAmplitude,
-      kAmplitudeSummary,
-      kOccupancy,
-      kTiming,
-      kShape,
-      kAOverP,
-      kPNAmplitude,
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
     std::map<int, unsigned> wlToME_;
 

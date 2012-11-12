@@ -8,6 +8,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMBinningService.h"
+#include "DQM/EcalCommon/interface/PtrMap.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -310,6 +311,9 @@ namespace ecaldqm
     }
   
   };
+
+  typedef PtrMap<std::string, MESet> MESetCollection;
+  typedef PtrMap<std::string, MESet const> ConstMESetCollection;
 
 }
 

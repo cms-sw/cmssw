@@ -12,34 +12,6 @@ namespace ecaldqm {
 
     void producePlots();
 
-    enum MESets {
-      kFRDropped,
-      kZSReadout,
-      kFR,
-      kRUForced,
-      kZS1,
-      kHighInterest,
-      kMedInterest,
-      kLowInterest,
-      nMESets
-    };
-
-    enum Sources {
-      kFlagCounterMap,
-      kRUForcedMap,
-      kFullReadoutMap,
-      kZS1Map,
-      kZSMap,
-      kZSFullReadoutMap,
-      kFRDroppedMap,
-      kHighIntMap,
-      kMedIntMap,
-      kLowIntMap,
-      nSources
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   };
 
 }

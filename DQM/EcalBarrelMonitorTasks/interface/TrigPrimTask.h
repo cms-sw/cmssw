@@ -24,31 +24,6 @@ namespace ecaldqm {
     void runOnEmulTPs(const EcalTrigPrimDigiCollection &);
     void runOnDigis(const EcalDigiCollection &);
 
-    enum MESets {
-      kEtReal,
-      //      kEtEmul,
-      kEtMaxEmul,
-      kEtRealMap,
-      //      kEtEmulMap,
-      kEtSummary,
-      kMatchedIndex,
-      kEmulMaxIndex,
-      kEtVsBx,
-      kOccVsBx,
-      kLowIntMap,
-      kMedIntMap,
-      kHighIntMap,
-      kTTFlags,
-      kTTFMismatch,
-/*       kTimingCalo, */
-/*       kTimingMuon, */
-      kEtEmulError,
-      kFGEmulError,
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
     enum Constants {
       nBXBins = 15
     };

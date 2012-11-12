@@ -12,22 +12,6 @@ namespace ecaldqm {
 
     void producePlots();
 
-    enum MESets {
-      kQualitySummary,
-      nMESets
-    };
-
-    enum Sources {
-      kOccupancy,
-      kMEMChId,
-      kMEMGain,
-      kMEMBlockSize,
-      kMEMTowerId,
-      nSources
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   protected:
     float errFractionThreshold_;
   };

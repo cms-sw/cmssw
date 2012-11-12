@@ -23,9 +23,8 @@ namespace ecaldqm {
     doDAQInfo_(_workerParams.getUntrackedParameter<bool>("doDAQInfo")),
     doDCSInfo_(_workerParams.getUntrackedParameter<bool>("doDCSInfo"))
   {
-    collectionMask_ = 
-      (0x1 << kRun) |
-      (0x1 << kLumiSection);
+    collectionMask_[kRun] = true;
+    collectionMask_[kLumiSection] = true;
 
     if(!doDAQInfo_ && !doDCSInfo_)
       throw cms::Exception("InvalidConfiguration") << "Nonthing to do in TowerStatusTask";
@@ -35,22 +34,22 @@ namespace ecaldqm {
   TowerStatusTask::beginRun(const edm::Run &, const edm::EventSetup &)
   {
     if(doDAQInfo_){
-      MEs_[kDAQSummary]->book();
-      MEs_[kDAQSummaryMap]->book();
-      MEs_[kDAQContents]->book();
+      MEs_["DAQSummary"]->book();
+      MEs_["DAQSummaryMap"]->book();
+      MEs_["DAQContents"]->book();
 
-      MEs_[kDAQSummary]->reset(-1.);
-      MEs_[kDAQSummaryMap]->resetAll(-1.);
-      MEs_[kDAQContents]->reset(-1.);
+      MEs_["DAQSummary"]->reset(-1.);
+      MEs_["DAQSummaryMap"]->resetAll(-1.);
+      MEs_["DAQContents"]->reset(-1.);
     }
     if(doDCSInfo_){
-      MEs_[kDCSSummary]->book();
-      MEs_[kDCSSummaryMap]->book();
-      MEs_[kDCSContents]->book();
+      MEs_["DCSSummary"]->book();
+      MEs_["DCSSummaryMap"]->book();
+      MEs_["DCSContents"]->book();
 
-      MEs_[kDCSSummary]->reset(-1.);
-      MEs_[kDCSSummaryMap]->resetAll(-1.);
-      MEs_[kDCSContents]->reset(-1.);
+      MEs_["DCSSummary"]->reset(-1.);
+      MEs_["DCSSummaryMap"]->resetAll(-1.);
+      MEs_["DCSContents"]->reset(-1.);
     }
 
     initialized_ = true;
@@ -117,40 +116,30 @@ namespace ecaldqm {
   {
     if(!initialized_) return;
 
-    unsigned summary, summaryMap, contents;
+    MESet* meSummary(0);
+    MESet* meSummaryMap(0);
+    MESet* meContents(0);
     if(_type == DAQInfo){
-      summary = kDAQSummary;
-      summaryMap = kDAQSummaryMap;
-      contents = kDAQContents;
+      meSummary = MEs_["DAQSummary"];
+      meSummaryMap = MEs_["DAQSummaryMap"];
+      meContents = MEs_["DAQContents"];
     }
     else{
-      summary = kDCSSummary;
-      summaryMap = kDCSSummaryMap;
-      contents = kDCSContents;
+      meSummary = MEs_["DCSSummary"];
+      meSummaryMap = MEs_["DCSSummaryMap"];
+      meContents = MEs_["DCSContents"];
     }
 
-    MEs_[summaryMap]->reset();
+    meSummaryMap->reset();
 
     float totalFraction(0.);
     for(unsigned iDCC(0); iDCC < 54; iDCC++){
-      MEs_[summaryMap]->setBinContent(iDCC + 1, _status[iDCC]);
-      MEs_[contents]->fill(iDCC + 1, _status[iDCC]);
+      meSummaryMap->setBinContent(iDCC + 1, _status[iDCC]);
+      meContents->fill(iDCC + 1, _status[iDCC]);
       totalFraction += _status[iDCC] / nCrystals(iDCC + 1);
     }
 
-    MEs_[summary]->fill(totalFraction);
-  }
-
-  /*static*/
-  void
-  TowerStatusTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["DAQSummary"] = kDAQSummary;
-    _nameToIndex["DAQSummaryMap"] = kDAQSummaryMap;
-    _nameToIndex["DAQContents"] = kDAQContents;
-    _nameToIndex["DCSSummary"] = kDCSSummary;
-    _nameToIndex["DCSSummaryMap"] = kDCSSummaryMap;
-    _nameToIndex["DCSContents"] = kDCSContents;
+    meSummary->fill(totalFraction);
   }
 
   DEFINE_ECALDQM_WORKER(TowerStatusTask);

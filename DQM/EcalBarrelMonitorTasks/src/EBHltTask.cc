@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.17 $
+ * $Date: 2012/04/27 13:46:02 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -12,6 +12,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
@@ -440,3 +441,4 @@ int EBHltTask::iSM( const EcalElectronicsId& id ) {
 
 }
 
+DEFINE_FWK_MODULE(EBHltTask);

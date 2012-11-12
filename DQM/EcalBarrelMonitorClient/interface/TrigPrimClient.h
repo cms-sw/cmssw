@@ -12,23 +12,6 @@ namespace ecaldqm {
 
     void producePlots();
 
-    enum MESets {
-      //      kTiming,
-      kTimingSummary,
-      kNonSingleSummary,
-      kEmulQualitySummary,
-      nMESets
-    };
-
-    enum Sources {
-      kEtRealMap,
-      kEtEmulError,
-      kMatchedIndex,
-      nSources
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
     int minEntries_;
     float errorFractionThreshold_;

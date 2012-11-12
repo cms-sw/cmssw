@@ -8,56 +8,6 @@
 
 namespace ecaldqm {
 
-  template <class Key, class V>
-  class PtrMap : public std::map<Key, V*> {
-    typedef V* T;
-    typedef V const* ConstT;
-    typedef std::map<Key, T> BaseType;
-  public:
-    PtrMap() : std::map<Key, T>() {}
-    ~PtrMap()
-    {
-      for(typename BaseType::iterator itr(this->begin()); itr != this->end(); ++itr)
-        delete itr->second;
-    }
-
-    T& operator[](const Key& _k)
-    {
-      return this->insert(std::make_pair(_k, T(0))).first->second;
-    }
-    ConstT operator[](const Key& _k) const
-    {
-      typename BaseType::const_iterator itr(this->find(_k));
-      if(itr == this->end()) return ConstT(0);
-      else return itr->second;
-    }
-    void clear()
-    {
-      for(typename BaseType::iterator itr(this->begin()); itr != this->end(); ++itr)
-        delete itr->second;
-      BaseType::clear();
-    }
-    void erase(typename BaseType::iterator _itr)
-    {
-      delete _itr->second;
-      BaseType::erase(_itr);
-    }
-    size_t erase(Key const& _k)
-    {
-      typename BaseType::iterator itr(this->find(_k));
-      if(itr == this->end()) return 0;
-      delete itr->second;
-      BaseType::erase(itr);
-      return 1;
-    }
-    void erase(typename BaseType::iterator _first, typename BaseType::iterator _last)
-    {
-      for(typename BaseType::iterator itr(_first); itr != _last; ++itr)
-        delete itr->second;
-      BaseType::erase(_first, _last);
-    }
-  };
-
   class DBWriterWorker {
   public:
     DBWriterWorker(std::string const&, edm::ParameterSet const&);
@@ -76,7 +26,7 @@ namespace ecaldqm {
   protected:
     std::string const name_;
     std::set<std::string> runTypes_;
-    PtrMap<std::string, MESet const> source_;
+    ConstMESetCollection source_;
     bool active_;
     int verbosity_;
   };

@@ -38,13 +38,23 @@ ecalPresampleClient = cms.untracked.PSet(
             description = cms.untracked.string('Trend of presample RMS averaged over all channels in EB / EE.')
         ),
         RMSMap = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sPedestalOnlineClient/%(prefix)sPOT pedestal rms map G12 %(sm)s'),
+            kind = cms.untracked.string('TH2F'),
+            zaxis = cms.untracked.PSet(
+                title = cms.untracked.string('RMS')
+            ),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('Crystal'),
+            description = cms.untracked.string('2D distribution of the presample RMS. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
+        ),
+        RMSMapAll = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPOT%(suffix)s pedestal G12 RMS map'),
             kind = cms.untracked.string('TH2F'),
             zaxis = cms.untracked.PSet(
                 title = cms.untracked.string('RMS')
             ),
             otype = cms.untracked.string('Ecal3P'),
-            btype = cms.untracked.string('Crystal'),
+            btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('2D distribution of the presample RMS. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         TrendMean = cms.untracked.PSet(

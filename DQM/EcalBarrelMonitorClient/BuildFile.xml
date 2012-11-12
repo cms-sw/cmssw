@@ -6,6 +6,4 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="rootcore"/>
-<export>
-  <lib   name="1"/>
-</export>
+<flags EDM_PLUGIN="1"/>

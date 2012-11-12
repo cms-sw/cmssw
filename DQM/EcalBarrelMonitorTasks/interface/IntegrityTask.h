@@ -21,21 +21,6 @@ namespace ecaldqm {
     void runOnErrors(const DetIdCollection &, Collections);
     void runOnErrors(const EcalElectronicsIdCollection &, Collections);
 
-    enum MESets {
-      kByLumi,
-      kTotal,
-      kGain,
-      kChId,
-      kGainSwitch,
-      kBlockSize,
-      kTowerId,
-      kTrendNErrors,
-      kFEDNonFatal,
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
     int hltTaskMode_; // 0 -> Do not produce FED plots; 1 -> Only produce FED plots; 2 -> Do both
     std::string hltTaskFolder_;

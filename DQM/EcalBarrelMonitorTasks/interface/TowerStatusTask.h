@@ -19,18 +19,6 @@ namespace ecaldqm {
 
     void runOnTowerStatus(std::vector<float> const&, InfoType);
 
-    enum MESets {
-      kDAQSummary,
-      kDAQSummaryMap,
-      kDAQContents,
-      kDCSSummary,
-      kDCSSummaryMap,
-      kDCSContents,
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
     bool doDAQInfo_;
     bool doDCSInfo_;

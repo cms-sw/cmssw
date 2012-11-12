@@ -160,14 +160,14 @@ namespace ecaldqm {
     for(unsigned iP(0); iP < meNames.size(); ++iP){
       std::string& meName(meNames[iP]);
       edm::ParameterSet const& meParam(sourceParams.getUntrackedParameterSet(meName));
-      source_[meName] = ecaldqm::createMESet(meParam);
+      source_.insert(meName, ecaldqm::createMESet(meParam));
     }
   }
 
   void
   DBWriterWorker::retrieveSource()
   {
-    for(PtrMap<std::string, MESet const>::iterator sItr(source_.begin()); sItr != source_.end(); ++sItr){
+    for(ConstMESetCollection::iterator sItr(source_.begin()); sItr != source_.end(); ++sItr){
       if(!sItr->second->retrieve()){
         std::cerr << name_ << ": MESet " << sItr->first << " not found" << std::endl;
         active_ = false;
@@ -212,27 +212,19 @@ namespace ecaldqm {
     MESet const* chidME(source_["ChId"]);
     MESet const* gainswitchME(source_["GainSwitch"]);
     MESet const* qualityME(source_["Quality"]);
-    if(!digiME || !gainME || !chidME || !gainswitchME || !qualityME)
-      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
 
     MESet const* toweridME(source_["TowerId"]);
     MESet const* blocksizeME(source_["BlockSize"]);
     MESet const* l1aME(source_["L1AFE"]);
     MESet const* bxME(source_["BXFE"]);
-    if(!toweridME || !blocksizeME || !l1aME || !bxME)
-      throw cms::Exception("Configuration") << "Tower integrity MEs not found";
 
     MESet const* memdigiME(source_["MEMDigi"]);
     MESet const* memchidME(source_["MEMChId"]);
     MESet const* memgainME(source_["MEMGain"]);
     MESet const* pnqualityME(source_["PNQuality"]);
-    if(!memdigiME || !memchidME || !memgainME || !pnqualityME)
-      throw cms::Exception("Configuration") << "MEM channel integrity MEs not found";
 
     MESet const* memtoweridME(source_["MEMTowerId"]);
     MESet const* memblocksizeME(source_["MEMBlockSize"]);
-    if(!memtoweridME || !memblocksizeME)
-      throw cms::Exception("Configuration") << "MEM tower integrity MEs not found";
 
     if(verbosity_ > 1) std::cout << " Looping over crystals" << std::endl;
 
@@ -456,14 +448,10 @@ namespace ecaldqm {
     MESet const* aopME(source_["AOverP"]);
     MESet const* timeME(source_["Timing"]);
     MESet const* qualityME(source_["Quality"]);
-    if(!ampME || !aopME || !timeME || !qualityME)
-      throw cms::Exception("Configuration") << "Laser MEs not found";
 
     MESet const* pnME(source_["PNAmplitude"]);
     MESet const* pnQualityME(source_["PNQuality"]);
     MESet const* pnPedestalME(source_["PNPedestal"]);
-    if(!pnME || !pnQualityME || !pnPedestalME)
-      throw cms::Exception("Configuration") << "Laser PN MEs not found";
 
     for(std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
       int wl(wlItr->first);
@@ -767,13 +755,9 @@ namespace ecaldqm {
 
     MESet const* pedestalME(source_["Pedestal"]);
     MESet const* qualityME(source_["Quality"]);
-    if(!pedestalME || !qualityME)
-      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
 
     MESet const* pnPedestalME(source_["PNPedestal"]);
     MESet const* pnQualityME(source_["PNQuality"]);
-    if(!pnPedestalME || !pnQualityME)
-      throw cms::Exception("Configuration") << "Tower integrity MEs not found";
 
     for(std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
       int gain(gainItr->first);
@@ -914,8 +898,6 @@ namespace ecaldqm {
 
     MESet const* pedestalME(source_["Pedestal"]);
     MESet const* qualityME(source_["Quality"]);
-    if(!pedestalME || !qualityME)
-      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
 
     MESet::const_iterator pEnd(pedestalME->end());
     MESet::const_iterator qItr(qualityME);
@@ -1031,14 +1013,10 @@ namespace ecaldqm {
     MESet const* amplitudeME(source_["Amplitude"]);
     MESet const* shapeME(source_["Shape"]);
     MESet const* qualityME(source_["Quality"]);
-    if(!amplitudeME || !shapeME || !qualityME)
-      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
 
     MESet const* pnAmplitudeME(source_["PNAmplitude"]);
     MESet const* pnPedestalME(source_["PNPedestal"]);
     MESet const* pnQualityME(source_["PNQuality"]);
-    if(!pnAmplitudeME || !pnPedestalME || !pnQualityME)
-      throw cms::Exception("Configuration") << "Tower integrity MEs not found";
 
     for(std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
       int gain(gainItr->first);
@@ -1230,8 +1208,6 @@ namespace ecaldqm {
 
     MESet const* timingME(source_["Timing"]);
     MESet const* qualityME(source_["Quality"]);
-    if(!timingME || !qualityME)
-      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
 
     MESet::const_iterator tEnd(timingME->end());
     MESet::const_iterator qItr(qualityME);
@@ -1330,14 +1306,10 @@ x      PNDiodeTask.Pedestal (i13, i14)
     MESet const* aopME(source_["AOverP"]);
     MESet const* timeME(source_["Timing"]);
     MESet const* qualityME(source_["Quality"]);
-    if(!ampME || !aopME || !timeME || !qualityME)
-      throw cms::Exception("Configuration") << "Led MEs not found";
 
 //     MESet const* pnME(source_["PNAmplitude"]);
 //     MESet const* pnQualityME(source_["PNQuality"]);
 //     MESet const* pnPedestalME(source_["PNPedestal"]);
-//     if(!pnME || !pnQualityME || !pnPedestalME)
-//       throw cms::Exception("Configuration") << "Led PN MEs not found";
 
     for(std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
       int wl(wlItr->first);
@@ -1509,8 +1481,6 @@ x      PNDiodeTask.Pedestal (i13, i14)
 
     MESet const* occupancyME(source_["Occupancy"]);
     MESet const* energyME(source_["Energy"]);
-    if(!occupancyME || !energyME)
-      throw cms::Exception("Configuration") << "Channel integrity MEs not found";
 
     MESet::const_iterator oEnd(occupancyME->end());
     MESet::const_iterator eItr(energyME);

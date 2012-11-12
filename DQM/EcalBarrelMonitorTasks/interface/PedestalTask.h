@@ -19,15 +19,6 @@ namespace ecaldqm {
     void runOnDigis(const EcalDigiCollection&);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
 
-    enum MESets {
-      kOccupancy, // h2f
-      kPedestal, // profile2d
-      kPNPedestal, // profile2d
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   protected:
     std::map<int, unsigned> gainToME_;
     std::map<int, unsigned> pnGainToME_;

@@ -587,7 +587,7 @@ namespace ecaldqm
         break;
       case BinService::kEBSMMEM:
         {
-          unsigned iDCC(memDCCId(iME + kEBmLow) - 1);
+          unsigned iDCC(memDCCId(iME + 4) - 1);
           replacements["subdet"] = "EcalBarrel";
           replacements["prefix"] = "EB";
           replacements["sm"] = binService_->channelName(iDCC + 1);
@@ -595,7 +595,7 @@ namespace ecaldqm
         break;
       case BinService::kEESMMEM:
         {
-          unsigned iDCC(memDCCId(iME <= kEEmHigh ? iME : iME + 36));
+          unsigned iDCC(memDCCId(iME < 4 ? iME : iME + 36) - 1);
           replacements["subdet"] = "EcalEndcap";
           replacements["prefix"] = "EE";
           replacements["sm"] = binService_->channelName(iDCC + 1);

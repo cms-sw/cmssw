@@ -19,12 +19,11 @@ namespace ecaldqm {
   {
     using namespace std;
 
-    collectionMask_ = 
-      (0x1 << kEBDigi) |
-      (0x1 << kEEDigi) |
-      (0x1 << kPnDiodeDigi) |
-      (0x1 << kEBTestPulseUncalibRecHit) |
-      (0x1 << kEETestPulseUncalibRecHit);
+    collectionMask_[kEBDigi] = true;
+    collectionMask_[kEEDigi] = true;
+    collectionMask_[kPnDiodeDigi] = true;
+    collectionMask_[kEBTestPulseUncalibRecHit] = true;
+    collectionMask_[kEETestPulseUncalibRecHit] = true;
 
     for(unsigned iD(0); iD < BinService::nDCC; ++iD){
       enable_[iD] = false;
@@ -49,9 +48,9 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned apdPlots[] = {kShape, kAmplitude};
-    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(apdPlots[iS]);
+    std::string apdPlots[] = {"Shape", "Amplitude"};
+    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(std::string); ++iS){
+      std::string& plot(apdPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
@@ -65,9 +64,9 @@ namespace ecaldqm {
       }
     }
 
-    unsigned pnPlots[] = {kPNAmplitude};
-    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(pnPlots[iS]);
+    std::string pnPlots[] = {"PNAmplitude"};
+    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(std::string); ++iS){
+      std::string& plot(pnPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
@@ -120,12 +119,15 @@ namespace ecaldqm {
   void
   TestPulseTask::runOnDigis(const EcalDigiCollection &_digis)
   {
+    MESet* meOccupancy(MEs_["Occupancy"]);
+    MESet* meShape(MEs_["Shape"]);
+
     unsigned iME(-1);
 
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
 
-      MEs_[kOccupancy]->fill(id);
+      meOccupancy->fill(id);
 
       int iDCC(dccId(id) - 1);
 
@@ -136,17 +138,19 @@ namespace ecaldqm {
 
       if(iME != gainToME_[gain_[iDCC]]){
         iME = gainToME_[gain_[iDCC]];
-        static_cast<MESetMulti*>(MEs_[kShape])->use(iME);
+        static_cast<MESetMulti*>(meShape)->use(iME);
       }
 
       for(int iSample(0); iSample < 10; iSample++)
-	MEs_[kShape]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
+	meShape->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
     }
   }
 
   void
   TestPulseTask::runOnPnDigis(const EcalPnDiodeDigiCollection &_digis)
   {
+    MESet* mePNAmplitude(MEs_["PNAmplitude"]);
+
     unsigned iME(-1);
 
     for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
@@ -167,7 +171,7 @@ namespace ecaldqm {
 
       if(iME != pnGainToME_[gain]){
         iME = pnGainToME_[gain];
-        static_cast<MESetMulti*>(MEs_[kPNAmplitude])->use(iME);
+        static_cast<MESetMulti*>(mePNAmplitude)->use(iME);
       }
 
       float pedestal(0.);
@@ -181,13 +185,15 @@ namespace ecaldqm {
 
       double amplitude(max - pedestal);
 
-      MEs_[kPNAmplitude]->fill(id, amplitude);
+      mePNAmplitude->fill(id, amplitude);
     }
   }
 
   void
   TestPulseTask::runOnUncalibRecHits(const EcalUncalibratedRecHitCollection &_uhits)
   {
+    MESet* meAmplitude(MEs_["Amplitude"]);
+
     unsigned iME(-1);
 
     for(EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr){
@@ -199,21 +205,11 @@ namespace ecaldqm {
 
       if(iME != gainToME_[gain_[iDCC]]){
         iME = gainToME_[gain_[iDCC]];
-        static_cast<MESetMulti*>(MEs_[kAmplitude])->use(iME);
+        static_cast<MESetMulti*>(meAmplitude)->use(iME);
       }
 
-      MEs_[kAmplitude]->fill(id, uhitItr->amplitude());
+      meAmplitude->fill(id, uhitItr->amplitude());
     }
-  }
-
-  /*static*/
-  void
-  TestPulseTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["Occupancy"] = kOccupancy;
-    _nameToIndex["Shape"] = kShape;
-    _nameToIndex["Amplitude"] = kAmplitude;
-    _nameToIndex["PNAmplitude"] = kPNAmplitude;
   }
 
   DEFINE_ECALDQM_WORKER(TestPulseTask);

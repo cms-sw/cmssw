@@ -33,29 +33,6 @@ namespace ecaldqm {
     void runOnEESrFlags(const EESrFlagCollection &);
     void runOnDigis(const EcalDigiCollection &, Collections);
 
-    enum MESets {
-      kTowerSize, // profile2d
-      kDCCSize, // h2f
-      kEventSize, // h1f
-      kFlagCounterMap, // h2f counter
-      kRUForcedMap, // h2f counter
-      kFullReadout, // h1f
-      kFullReadoutMap, // h2f counter
-      kZS1Map, // h2f counter
-      kZSMap, // h2f counter
-      kZSFullReadout, // h1f
-      kZSFullReadoutMap, // h2f counter
-      kFRDropped, // h1f
-      kFRDroppedMap, // h2f counter
-      kHighIntPayload, // h1f
-      kLowIntPayload, // h1f
-      kHighIntOutput, // h1f
-      kLowIntOutput, // h1f
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
     enum Constants {
       nFIRTaps = 6,
       bytesPerCrystal = 24,
@@ -64,7 +41,7 @@ namespace ecaldqm {
 
   private:
     void setFIRWeights_(const std::vector<double> &);
-    void runOnSrFlag_(const DetId &, int, double&);
+    void runOnSrFlag_(const DetId &, int, double&, MESet**);
 
     bool useCondDb_;
     int iFirstSample_;

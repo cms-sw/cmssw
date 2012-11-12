@@ -18,10 +18,9 @@ namespace ecaldqm {
   {
     using namespace std;
 
-    collectionMask_ = 
-      (0x1 << kEBDigi) |
-      (0x1 << kEEDigi) |
-      (0x1 << kPnDiodeDigi);
+    collectionMask_[kEBDigi] = true;
+    collectionMask_[kEEDigi] = true;
+    collectionMask_[kPnDiodeDigi] = true;
 
     for(unsigned iD(0); iD < BinService::nDCC; ++iD)
       enable_[iD] = false;
@@ -44,9 +43,9 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned apdPlots[] = {kPedestal};
-    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(apdPlots[iS]);
+    std::string apdPlots[] = {"Pedestal"};
+    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(std::string); ++iS){
+      std::string& plot(apdPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
@@ -60,9 +59,9 @@ namespace ecaldqm {
       }
     }
 
-    unsigned pnPlots[] = {kPNPedestal};
-    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(pnPlots[iS]);
+    std::string pnPlots[] = {"PNPedestal"};
+    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(std::string); ++iS){
+      std::string& plot(pnPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
@@ -98,6 +97,9 @@ namespace ecaldqm {
   void
   PedestalTask::runOnDigis(const EcalDigiCollection &_digis)
   {
+    MESet* mePedestal(MEs_["Pedestal"]);
+    MESet* meOccupancy(MEs_["Occupancy"]);
+
     unsigned iME(-1);
 
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
@@ -122,20 +124,21 @@ namespace ecaldqm {
 
       if(iME != gainToME_[gain]){
         iME = gainToME_[gain];
-        static_cast<MESetMulti*>(MEs_[kPedestal])->use(iME);
+        static_cast<MESetMulti*>(mePedestal)->use(iME);
       }
 
-      MEs_[kOccupancy]->fill(id);
+      meOccupancy->fill(id);
 
       for(int iSample(0); iSample < 10; iSample++)
-	MEs_[kPedestal]->fill(id, dataFrame.sample(iSample).adc());
-      
+	mePedestal->fill(id, double(dataFrame.sample(iSample).adc()));
     }
   }
 
   void
   PedestalTask::runOnPnDigis(const EcalPnDiodeDigiCollection &_digis)
   {
+    MESet* mePNPedestal(MEs_["PNPedestal"]);
+
     unsigned iME(-1);
 
     for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
@@ -156,25 +159,12 @@ namespace ecaldqm {
 
       if(iME != pnGainToME_[gain]){
         iME = pnGainToME_[gain];
-        static_cast<MESetMulti*>(MEs_[kPNPedestal])->use(iME);
+        static_cast<MESetMulti*>(mePNPedestal)->use(iME);
       }
 
-      float mean(0.);
       for(int iSample(0); iSample < 50; iSample++)
-	mean += digiItr->sample(iSample).adc();
-      mean /= 50.;
-
-      MEs_[kPNPedestal]->fill(id, mean);
+        mePNPedestal->fill(id, double(digiItr->sample(iSample).adc()));
     }
-  }
-
-  /*static*/
-  void
-  PedestalTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["Occupancy"] = kOccupancy;
-    _nameToIndex["Pedestal"] = kPedestal;
-    _nameToIndex["PNPedestal"] = kPNPedestal;
   }
 
   DEFINE_ECALDQM_WORKER(PedestalTask);

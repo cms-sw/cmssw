@@ -18,18 +18,6 @@ namespace ecaldqm {
 
     void runOnRecHits(const EcalRecHitCollection &, Collections);
 
-    enum MESets {
-      kTimeMap,
-      kTime1D,
-      kTimeAmp,
-      kTimeAll,
-      kTimeAllMap,
-      kTimeAmpAll,
-      nMESets
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
     float energyThresholdEB_;
     float energyThresholdEE_;

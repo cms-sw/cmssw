@@ -9,9 +9,8 @@ namespace ecaldqm {
     energyThresholdEB_(_workerParams.getUntrackedParameter<double>("energyThresholdEB")),
     energyThresholdEE_(_workerParams.getUntrackedParameter<double>("energyThresholdEE"))
   {
-    collectionMask_ = 
-      (0x1 << kEBRecHit) |
-      (0x1 << kEERecHit);
+    collectionMask_[kEBRecHit] = true;
+    collectionMask_[kEERecHit] = true;
   }
 
   TimingTask::~TimingTask()
@@ -36,6 +35,13 @@ namespace ecaldqm {
   void 
   TimingTask::runOnRecHits(const EcalRecHitCollection &_hits, Collections _collection)
   {
+    MESet* meTimeAmp(MEs_["TimeAmp"]);
+    MESet* meTimeAmpAll(MEs_["TimeAmpAll"]);
+    MESet* meTimeAll(MEs_["TimeAll"]);
+    MESet* meTimeAllMap(MEs_["TimeAllMap"]);
+    MESet* meTimeMap(MEs_["TimeMap"]);
+    MESet* meTime1D(MEs_["Time1D"]);
+
     uint32_t mask(~((0x1 << EcalRecHit::kGood) | (0x1 << EcalRecHit::kOutOfTime)));
     float threshold(_collection == kEBRecHit ? energyThresholdEB_ : energyThresholdEE_);
 
@@ -48,28 +54,16 @@ namespace ecaldqm {
       float time(hitItr->time());
       float energy(hitItr->energy());
 
-      MEs_[kTimeAmp]->fill(id, energy, time);
-      MEs_[kTimeAmpAll]->fill(id, energy, time);
+      meTimeAmp->fill(id, energy, time);
+      meTimeAmpAll->fill(id, energy, time);
 
       if(energy > threshold){
-	MEs_[kTimeAll]->fill(id, time);
-	MEs_[kTimeMap]->fill(id, time);
-        MEs_[kTime1D]->fill(id, time);
-	MEs_[kTimeAllMap]->fill(id, time);
+	meTimeAll->fill(id, time);
+	meTimeMap->fill(id, time);
+        meTime1D->fill(id, time);
+	meTimeAllMap->fill(id, time);
       }
     }
-  }
-
-  /*static*/
-  void
-  TimingTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["TimeMap"] = kTimeMap;
-    _nameToIndex["Time1D"] = kTime1D;
-    _nameToIndex["TimeAmp"] = kTimeAmp;
-    _nameToIndex["TimeAll"] = kTimeAll;
-    _nameToIndex["TimeAllMap"] = kTimeAllMap;
-    _nameToIndex["TimeAmpAll"] = kTimeAmpAll;
   }
 
   DEFINE_ECALDQM_WORKER(TimingTask);

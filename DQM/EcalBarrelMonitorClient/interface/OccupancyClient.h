@@ -12,23 +12,6 @@ namespace ecaldqm {
 
     void producePlots();
 
-    enum MESets {
-      kHotDigi,
-      kHotRecHitThr,
-      kHotTPDigiThr,
-      kQualitySummary,
-      nMESets
-    };
-
-    enum Sources {
-      kDigi,
-      kRecHitThr,
-      kTPDigiThr,
-      nSources
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
     int minHits_;
     float deviationThreshold_;

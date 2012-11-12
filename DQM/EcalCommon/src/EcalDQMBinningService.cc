@@ -427,9 +427,14 @@ EcalDQMBinningService::findPlot(ObjectType _otype, unsigned _dcctccid, BinningTy
       else if(iSM <= kEBpHigh) return 1;
       else return 2;
     }
-    else{
+    else if(_btype == kTCC){
       if(iSM <= kEEmTCCHigh) return 0;
       else if(iSM <= kEBTCCHigh) return 1;
+      else return 2;
+    }
+    else{
+      if(iSM == kEEm) return 0;
+      else if(iSM == kEB) return 1;
       else return 2;
     }
 

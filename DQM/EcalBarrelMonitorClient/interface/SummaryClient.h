@@ -14,30 +14,6 @@ namespace ecaldqm {
 
     void producePlots();
 
-    enum MESets {
-      kQualitySummary,
-      kReportSummaryMap,
-      kReportSummaryContents,
-      kReportSummary,
-      kNBadFEDs,
-      nMESets
-    };
-
-    enum Sources {
-      kIntegrity,
-      kIntegrityByLumi,
-      kPresample,
-      kTiming,
-      kRawData,
-      kDesyncByLumi,
-      kFEByLumi,
-      kTriggerPrimitives,
-      kHotCell,
-      nSources
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
     float towerBadFraction_;
     float fedBadFraction_;

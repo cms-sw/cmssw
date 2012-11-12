@@ -11,22 +11,6 @@ namespace ecaldqm {
     ~CertificationClient() {}
 
     void producePlots();
-
-    enum MESets {
-      kCertificationMap,
-      kCertificationContents,
-      kCertification,
-      nMESets
-    };
-
-    enum Sources {
-      kDAQ,
-      kDCS,
-      kDQM,
-      nSources
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
   };
 
 }

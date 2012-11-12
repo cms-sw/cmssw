@@ -1,4 +1,5 @@
 #include "../interface/PedestalClient.h"
+#include "../interface/EcalDQMClientUtils.h"
 
 #include <iomanip>
 
@@ -77,9 +78,9 @@ namespace ecaldqm
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned apdPlots[] = {kQuality, kMean, kRMS, kQualitySummary};
-    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(apdPlots[iS]);
+    std::string apdPlots[] = {"Quality", "Mean", "RMS", "QualitySummary"};
+    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(std::string); ++iS){
+      std::string& plot(apdPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
@@ -93,9 +94,9 @@ namespace ecaldqm
       }
     }
 
-    unsigned pnPlots[] = {kPNRMS, kPNQualitySummary};
-    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(pnPlots[iS]);
+    std::string pnPlots[] = {"PNRMS", "PNQualitySummary"};
+    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(std::string); ++iS){
+      std::string& plot(pnPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
@@ -109,9 +110,9 @@ namespace ecaldqm
       }
     }
 
-    unsigned apdSources[] = {kPedestal};
-    for(unsigned iS(0); iS < sizeof(apdSources) / sizeof(unsigned); ++iS){
-      unsigned plot(apdSources[iS]);
+    std::string apdSources[] = {"Pedestal"};
+    for(unsigned iS(0); iS < sizeof(apdSources) / sizeof(std::string); ++iS){
+      std::string& plot(apdSources[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
@@ -125,9 +126,9 @@ namespace ecaldqm
       }
     }
 
-    unsigned pnSources[] = {kPNPedestal};
-    for(unsigned iS(0); iS < sizeof(pnSources) / sizeof(unsigned); ++iS){
-      unsigned plot(pnSources[iS]);
+    std::string pnSources[] = {"PNPedestal"};
+    for(unsigned iS(0); iS < sizeof(pnSources) / sizeof(std::string); ++iS){
+      std::string& plot(pnSources[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
@@ -141,9 +142,9 @@ namespace ecaldqm
       }
     }
 
-    qualitySummaries_.insert(kQuality);
-    qualitySummaries_.insert(kQualitySummary);
-    qualitySummaries_.insert(kPNQualitySummary);
+    qualitySummaries_.insert("Quality");
+    qualitySummaries_.insert("QualitySummary");
+    qualitySummaries_.insert("PNQualitySummary");
   }
 
   void
@@ -151,16 +152,26 @@ namespace ecaldqm
   {
     using namespace std;
 
+    MESetMulti* meQuality(static_cast<MESetMulti*>(MEs_["Quality"]));
+    MESetMulti* meQualitySummary(static_cast<MESetMulti*>(MEs_["QualitySummary"]));
+    MESetMulti* meMean(static_cast<MESetMulti*>(MEs_["Mean"]));
+    MESetMulti* meRMS(static_cast<MESetMulti*>(MEs_["RMS"]));
+    MESetMulti* mePNQualitySummary(static_cast<MESetMulti*>(MEs_["PNQualitySummary"]));
+    MESetMulti* mePNRMS(static_cast<MESetMulti*>(MEs_["PNRMS"]));
+
+    MESetMulti const* sPedestal(static_cast<MESetMulti const*>(sources_["Pedestal"]));
+    MESetMulti const* sPNPedestal(static_cast<MESetMulti const*>(sources_["PNPedestal"]));
+
     for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
-      static_cast<MESetMulti*>(MEs_[kQuality])->use(gainItr->second);
-      static_cast<MESetMulti*>(MEs_[kQualitySummary])->use(gainItr->second);
-      static_cast<MESetMulti*>(MEs_[kMean])->use(gainItr->second);
-      static_cast<MESetMulti*>(MEs_[kRMS])->use(gainItr->second);
+      meQuality->use(gainItr->second);
+      meQualitySummary->use(gainItr->second);
+      meMean->use(gainItr->second);
+      meRMS->use(gainItr->second);
 
-      static_cast<MESetMulti const*>(sources_[kPedestal])->use(gainItr->second);
+      sPedestal->use(gainItr->second);
 
-      MEs_[kMean]->reset();
-      MEs_[kRMS]->reset();
+      meMean->reset();
+      meRMS->reset();
 
       uint32_t mask(0);
       switch(gainItr->first){
@@ -180,13 +191,13 @@ namespace ecaldqm
         break;
       }
 
-      MESet::iterator qEnd(MEs_[kQuality]->end());
-      MESet::const_iterator pItr(sources_[kPedestal]);
-      for(MESet::iterator qItr(MEs_[kQuality]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
+      MESet::iterator qEnd(meQuality->end());
+      MESet::const_iterator pItr(sPedestal);
+      for(MESet::iterator qItr(meQuality->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
         DetId id(qItr->getId());
 
-        bool doMask(applyMask_(kQuality, id, mask));
+        bool doMask(applyMask(meQuality->getBinType(), id, mask));
 
         pItr = qItr;
 
@@ -200,8 +211,8 @@ namespace ecaldqm
         float mean(pItr->getBinContent());
         float rms(pItr->getBinError() * sqrt(entries));
 
-        MEs_[kMean]->fill(id, mean);
-        MEs_[kRMS]->fill(id, rms);
+        meMean->fill(id, mean);
+        meRMS->fill(id, rms);
 
         if(abs(mean - expectedMean_) > toleranceMean_ || rms > toleranceRMS_[gainItr->second])
           qItr->setBinContent(doMask ? kMBad : kBad);
@@ -209,16 +220,16 @@ namespace ecaldqm
           qItr->setBinContent(doMask ? kMGood : kGood);
       }
 
-      towerAverage_(kQualitySummary, kQuality, 0.2);
+      towerAverage_(meQualitySummary, meQuality, 0.2);
     }
 
     for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
-      static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(gainItr->second);
-      static_cast<MESetMulti*>(MEs_[kPNRMS])->use(gainItr->second);
+      mePNQualitySummary->use(gainItr->second);
+      mePNRMS->use(gainItr->second);
 
-      static_cast<MESetMulti const*>(sources_[kPNPedestal])->use(gainItr->second);
+      sPNPedestal->use(gainItr->second);
 
-      MEs_[kPNRMS]->reset();
+      mePNRMS->reset();
 
       uint32_t mask(0);
       switch(gainItr->first){
@@ -245,41 +256,27 @@ namespace ecaldqm
 
           EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-          bool doMask(applyMask_(kPNQualitySummary, id, mask));
+          bool doMask(applyMask(mePNQualitySummary->getBinType(), id, mask));
 
-          float entries(sources_[kPNPedestal]->getBinEntries(id));
+          float entries(sPNPedestal->getBinEntries(id));
 
           if(entries < minChannelEntries_){
-            MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
+            mePNQualitySummary->setBinContent(id, doMask ? kMUnknown : kUnknown);
             continue;
           }
 
-          float mean(sources_[kPNPedestal]->getBinContent(id));
-          float rms(sources_[kPNPedestal]->getBinError(id) * sqrt(entries));
+          float mean(sPNPedestal->getBinContent(id));
+          float rms(sPNPedestal->getBinError(id) * sqrt(entries));
 
-          MEs_[kPNRMS]->fill(id, rms);
+          mePNRMS->fill(id, rms);
 
           if(abs(mean - expectedPNMean_) > tolerancePNMean_ || rms > tolerancePNRMS_[gainItr->second])
-            MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
+            mePNQualitySummary->setBinContent(id, doMask ? kMBad : kBad);
           else
-            MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);
+            mePNQualitySummary->setBinContent(id, doMask ? kMGood : kGood);
         }
       }
     }
-  }
-
-  void
-  PedestalClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["Quality"] = kQuality;
-    _nameToIndex["Mean"] = kMean;
-    _nameToIndex["RMS"] = kRMS;
-    _nameToIndex["PNRMS"] = kPNRMS;
-    _nameToIndex["QualitySummary"] = kQualitySummary;
-    _nameToIndex["PNQualitySummary"] = kPNQualitySummary;
-
-    _nameToIndex["Pedestal"] = kPedestal;
-    _nameToIndex["PNPedestal"] = kPNPedestal;
   }
 
   DEFINE_ECALDQM_WORKER(PedestalClient);

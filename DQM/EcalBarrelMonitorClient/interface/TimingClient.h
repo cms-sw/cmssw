@@ -12,28 +12,6 @@ namespace ecaldqm {
 
     void producePlots();
 
-    enum MESets {
-      kQuality,
-      kMeanSM,
-      kMeanAll,
-      kFwdBkwdDiff,
-      kFwdvBkwd,
-      kRMSMap,
-      kRMSAll,
-      kProjEta,
-      kProjPhi,
-      kQualitySummary,
-      nMESets
-    };
-
-    enum Sources {
-      kTimeAllMap,
-      kTimeMap,
-      nSources
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   protected:
     float toleranceMean_;
     float toleranceMeanFwd_;

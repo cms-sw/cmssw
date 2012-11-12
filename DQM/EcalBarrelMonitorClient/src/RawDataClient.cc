@@ -1,4 +1,5 @@
 #include "../interface/RawDataClient.h"
+#include "../interface/EcalDQMClientUtils.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/FEFlags.h"
@@ -13,28 +14,34 @@ namespace ecaldqm {
     DQWorkerClient(_workerParams, _commonParams, "RawDataClient"),
     synchErrThresholdFactor_(_workerParams.getUntrackedParameter<double>("synchErrThresholdFactor"))
   {
-    qualitySummaries_.insert(kQualitySummary);
+    qualitySummaries_.insert("QualitySummary");
   }
 
   void
   RawDataClient::producePlots()
   {
+    MESet* meQualitySummary(MEs_["QualitySummary"]);
+
+    MESet const* sEntries(sources_["Entries"]);
+    MESet const* sL1ADCC(sources_["L1ADCC"]);
+    MESet const* sFEStatus(sources_["FEStatus"]);
+
     uint32_t mask(1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR);
 
     std::vector<int> dccStatus(BinService::nDCC, 1);
 
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
-      double entries(sources_[kEntries]->getBinContent(iDCC + 1));
-      if(entries > 1. && sources_[kL1ADCC]->getBinContent(iDCC + 1) > synchErrThresholdFactor_ * std::log(entries) / std::log(10.))
+      double entries(sEntries->getBinContent(iDCC + 1));
+      if(entries > 1. && sL1ADCC->getBinContent(iDCC + 1) > synchErrThresholdFactor_ * std::log(entries) / std::log(10.))
         dccStatus[iDCC] = 0;
     }
 
-    MESet::iterator meEnd(MEs_[kQualitySummary]->end());
-    for(MESet::iterator meItr(MEs_[kQualitySummary]->beginChannel()); meItr != meEnd; meItr.toNextChannel()){
+    MESet::iterator meEnd(meQualitySummary->end());
+    for(MESet::iterator meItr(meQualitySummary->beginChannel()); meItr != meEnd; meItr.toNextChannel()){
 
       DetId id(meItr->getId());
 
-      bool doMask(applyMask_(kQualitySummary, id, mask));
+      bool doMask(applyMask(meQualitySummary->getBinType(), id, mask));
 
       unsigned dccid(dccId(id));
 
@@ -46,7 +53,7 @@ namespace ecaldqm {
       int towerStatus(doMask ? kMGood : kGood);
       float towerEntries(0.);
       for(unsigned iS(0); iS < nFEFlags; iS++){
-        float entries(sources_[kFEStatus]->getBinContent(id, iS + 1));
+        float entries(sFEStatus->getBinContent(id, iS + 1));
         towerEntries += entries;
         if(entries > 0. &&
            iS != Enabled && iS != Disabled && iS != Suppressed &&
@@ -59,17 +66,6 @@ namespace ecaldqm {
       meItr->setBinContent(towerStatus);
 
     }
-  }
-
-  /*static*/
-  void
-  RawDataClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["QualitySummary"] = kQualitySummary;
-
-    _nameToIndex["Entries"] = kEntries;
-    _nameToIndex["L1ADCC"] = kL1ADCC;
-    _nameToIndex["FEStatus"] = kFEStatus;
   }
 
   DEFINE_ECALDQM_WORKER(RawDataClient);

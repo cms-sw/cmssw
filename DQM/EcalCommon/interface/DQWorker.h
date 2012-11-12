@@ -38,15 +38,6 @@ namespace ecaldqm{
     virtual void setVerbosity(int _verbosity) { verbosity_ = _verbosity; }
 
     std::string const& getName() const { return name_; }
-    std::vector<MESet*> const& getMEs() const { return MEs_; }
-
-    enum MESets {
-      nMESets
-    };
-
-    static std::map<std::string, std::map<std::string, unsigned> > meOrderingMaps;
-    // needs to be declared in each derived class
-    static void setMEOrdering(std::map<std::string, unsigned>&);
 
     static bool online;
     static time_t now;
@@ -58,7 +49,7 @@ namespace ecaldqm{
     void print_(std::string const&, int = 0) const;
 
     std::string name_;
-    std::vector<MESet*> MEs_; // [nMESets]
+    MESetCollection MEs_;
     bool initialized_;
 
     int verbosity_;
@@ -81,9 +72,6 @@ namespace ecaldqm{
   public:
     template <class W> WorkerFactoryHelper(const std::string& _name, W*){
       workerFactories_[_name] = workerFactory<W>;
-
-      std::map<std::string, unsigned>& oMap(DQWorker::meOrderingMaps[_name]);
-      W::setMEOrdering(oMap);
     }
     static WorkerFactory findFactory(const std::string&);
   private:

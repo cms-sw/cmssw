@@ -19,12 +19,11 @@ namespace ecaldqm {
     bxBin_(0.),
     towerReadouts_()
   {
-    collectionMask_ = 
-      (0x1 << kRun) |
-      (0x1 << kEBDigi) |
-      (0x1 << kEEDigi) |
-      (0x1 << kTrigPrimDigi) |
-      (runOnEmul_ ? 0x1 << kTrigPrimEmulDigi : 0);
+    collectionMask_[kRun] = true;
+    collectionMask_[kEBDigi] = true;
+    collectionMask_[kEEDigi] = true;
+    collectionMask_[kTrigPrimDigi] = true;
+    collectionMask_[kTrigPrimEmulDigi] = runOnEmul_;
 
     // binning in terms of bunch trains
     int binEdges[nBXBins + 1] = {1, 271, 541, 892, 1162, 1432, 1783, 2053, 2323, 2674, 2944, 3214, 3446, 3490, 3491, 3565};
@@ -44,19 +43,19 @@ namespace ecaldqm {
 
     if(runOnEmul_){
       DQWorker::bookMEs();
-      MEs_[kEmulMaxIndex]->setBinLabel(-1, 1, "no maximum", 1);
-      MEs_[kMatchedIndex]->setBinLabel(-1, 1, "no emul", 2);
+      MEs_["EmulMaxIndex"]->setBinLabel(-1, 1, "no maximum", 1);
+      MEs_["MatchedIndex"]->setBinLabel(-1, 1, "no emul", 2);
       for(int i(2); i <= 6; i++){
 	ss.str("");
 	ss << (i - 1);
-	MEs_[kEmulMaxIndex]->setBinLabel(-1, i, ss.str(), 1);
-	MEs_[kMatchedIndex]->setBinLabel(-1, i, ss.str(), 2);
+	MEs_["EmulMaxIndex"]->setBinLabel(-1, i, ss.str(), 1);
+	MEs_["MatchedIndex"]->setBinLabel(-1, i, ss.str(), 2);
       }
     }
     else{
-      unsigned bookList[] = {kEtReal, kEtRealMap, kEtSummary, kEtVsBx, kOccVsBx,
-			     kLowIntMap, kMedIntMap, kHighIntMap, kTTFlags, kTTFMismatch};
-      for(unsigned iME(0); iME < sizeof(bookList) / sizeof(unsigned); iME++)
+      std::string bookList[] = {"EtReal", "EtRealMap", "EtSummary", "EtVsBx", "OccVsBx",
+			     "LowIntMap", "MedIntMap", "HighIntMap", "TTFlags", "TTFMismatch"};
+      for(unsigned iME(0); iME < sizeof(bookList) / sizeof(std::string); iME++)
 	MEs_[bookList[iME]]->book();
     }
 
@@ -65,15 +64,15 @@ namespace ecaldqm {
       ss.str("");
       if(bxBinEdges_[i] - bxBinEdges_[i - 1] == 1) ss << bxBinEdges_[i - 1];
       else ss << bxBinEdges_[i - 1] << " - " << (bxBinEdges_[i] - 1);
-      MEs_[kEtVsBx]->setBinLabel(-1, iBin, ss.str(), 1);
-      MEs_[kOccVsBx]->setBinLabel(-1, iBin, ss.str(), 1);
+      MEs_["EtVsBx"]->setBinLabel(-1, iBin, ss.str(), 1);
+      MEs_["OccVsBx"]->setBinLabel(-1, iBin, ss.str(), 1);
       iBin++;
     }
 
     for(int iBin(1); iBin <= 8; ++iBin){
       ss.str("");
       ss << iBin - 1;
-      MEs_[kTTFlags]->setBinLabel(-1, iBin, ss.str(), 2);
+      MEs_["TTFlags"]->setBinLabel(-1, iBin, ss.str(), 2);
     }
   }
 
@@ -162,61 +161,81 @@ namespace ecaldqm {
   void
   TrigPrimTask::runOnRealTPs(const EcalTrigPrimDigiCollection &_tps)
   {
+    MESet* meEtVsBx(MEs_["EtVsBx"]);
+    MESet* meEtReal(MEs_["EtReal"]);
+    MESet* meEtRealMap(MEs_["EtRealMap"]);
+    MESet* meEtSummary(MEs_["EtSummary"]);
+    MESet* meLowIntMap(MEs_["LowIntMap"]);
+    MESet* meMedIntMap(MEs_["MedIntMap"]);
+    MESet* meHighIntMap(MEs_["HighIntMap"]);
+    MESet* meTTFlags(MEs_["TTFlags"]);
+    MESet* meTTFMismatch(MEs_["TTFMismatch"]);
+    MESet* meOccVsBx(MEs_["OccVsBx"]);
+
     realTps_ = &_tps;
 
-    double nTP(0.);
+    double nTP[] = {0., 0., 0.};
 
     for(EcalTrigPrimDigiCollection::const_iterator tpItr(_tps.begin()); tpItr != _tps.end(); ++tpItr){
       EcalTrigTowerDetId ttid(tpItr->id());
       float et(tpItr->compressedEt());
 
       if(et > 0.){
-	nTP += 1.;
-	MEs_[kEtVsBx]->fill(ttid, bxBin_, et);
+        if(ttid.subDet() == EcalBarrel)
+          nTP[0] += 1.;
+        else if(ttid.zside() < 0)
+          nTP[1] += 1.;
+        else
+          nTP[2] += 2.;
+	meEtVsBx->fill(ttid, bxBin_, et);
       }
 
-      MEs_[kEtReal]->fill(ttid, et);
-      MEs_[kEtRealMap]->fill(ttid, et);
-      MEs_[kEtSummary]->fill(ttid, et);
+      meEtReal->fill(ttid, et);
+      meEtRealMap->fill(ttid, et);
+      meEtSummary->fill(ttid, et);
 
       int interest(tpItr->ttFlag() & 0x3);
 
       switch(interest){
       case 0:
-	MEs_[kLowIntMap]->fill(ttid);
+	meLowIntMap->fill(ttid);
 	break;
       case 1:
-	MEs_[kMedIntMap]->fill(ttid);
+	meMedIntMap->fill(ttid);
 	break;
       case 3:
-	MEs_[kHighIntMap]->fill(ttid);
+	meHighIntMap->fill(ttid);
 	break;
       default:
 	break;
       }
 
-      MEs_[kTTFlags]->fill(ttid, float(tpItr->ttFlag()));
+      meTTFlags->fill(ttid, float(tpItr->ttFlag()));
 
       if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
-	MEs_[kTTFMismatch]->fill(ttid);
+	meTTFMismatch->fill(ttid);
     }
 
-    MEs_[kOccVsBx]->fill(bxBin_, nTP);
+    meOccVsBx->fill(unsigned(BinService::kEB + 1), bxBin_, nTP[0]);
+    meOccVsBx->fill(unsigned(BinService::kEEm + 1), bxBin_, nTP[1]);
+    meOccVsBx->fill(unsigned(BinService::kEEp + 1), bxBin_, nTP[2]);
   }
 
   void
   TrigPrimTask::runOnEmulTPs(const EcalTrigPrimDigiCollection &_tps)
   {
+    MESet* meEtMaxEmul(MEs_["EtMaxEmul"]);
+    MESet* meEmulMaxIndex(MEs_["EmulMaxIndex"]);
+    MESet* meMatchedIndex(MEs_["MatchedIndex"]);
+    MESet* meEtEmulError(MEs_["EtEmulError"]);
+    MESet* meFGEmulError(MEs_["FGEmulError"]);
+
     for(EcalTrigPrimDigiCollection::const_iterator tpItr(_tps.begin()); tpItr != _tps.end(); ++tpItr){
       EcalTrigTowerDetId ttid(tpItr->id());
 
       int et(tpItr->compressedEt());
 
-      //      MEs_[kEtEmul]->fill(ttid, et);
-
-      //      MEs_[kEtEmulMap]->fill(ttid, et);
-
-      float maxEt(0);
+      float maxEt(0.);
       int iMax(0);
       for(int iDigi(0); iDigi < 5; iDigi++){
 	float sampleEt((*tpItr)[iDigi].compressedEt());
@@ -227,8 +246,9 @@ namespace ecaldqm {
 	}
       }
 
-      MEs_[kEtMaxEmul]->fill(ttid, maxEt);
-      MEs_[kEmulMaxIndex]->fill(ttid, iMax + 0.5);
+      meEtMaxEmul->fill(ttid, maxEt);
+      if(maxEt > 0.)
+        meEmulMaxIndex->fill(ttid, iMax + 0.5);
 
       bool match(true);
       bool matchFG(true);
@@ -254,7 +274,7 @@ namespace ecaldqm {
 
             if(!matchedIndex.size()) matchedIndex.push_back(0);
             for(std::vector<int>::iterator matchItr(matchedIndex.begin()); matchItr != matchedIndex.end(); ++matchItr){
-              MEs_[kMatchedIndex]->fill(ttid, *matchItr + 0.5);
+              meMatchedIndex->fill(ttid, *matchItr + 0.5);
 
               // timing information is only within emulated TPs (real TPs have one time sample)
               // 	    if(HLTCaloBit_) MEs_[kTimingCalo]->fill(ttid, float(*matchItr));
@@ -269,30 +289,9 @@ namespace ecaldqm {
 	matchFG = false;
       }
 
-      if(!match) MEs_[kEtEmulError]->fill(ttid);
-      if(!matchFG) MEs_[kFGEmulError]->fill(ttid);
+      if(!match) meEtEmulError->fill(ttid);
+      if(!matchFG) meFGEmulError->fill(ttid);
     }
-  }
-
-  /*static*/
-  void
-  TrigPrimTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["EtReal"] = kEtReal;
-    _nameToIndex["EtMaxEmul"] = kEtMaxEmul;
-    _nameToIndex["EtRealMap"] = kEtRealMap;
-    _nameToIndex["EtSummary"] = kEtSummary;
-    _nameToIndex["MatchedIndex"] = kMatchedIndex;
-    _nameToIndex["EmulMaxIndex"] = kEmulMaxIndex;
-    _nameToIndex["EtVsBx"] = kEtVsBx;
-    _nameToIndex["OccVsBx"] = kOccVsBx;
-    _nameToIndex["LowIntMap"] = kLowIntMap;
-    _nameToIndex["MedIntMap"] = kMedIntMap;
-    _nameToIndex["HighIntMap"] = kHighIntMap;
-    _nameToIndex["TTFlags"] = kTTFlags;
-    _nameToIndex["TTFMismatch"] = kTTFMismatch;
-    _nameToIndex["EtEmulError"] = kEtEmulError;
-    _nameToIndex["FGEmulError"] = kFGEmulError;
   }
 
   DEFINE_ECALDQM_WORKER(TrigPrimTask);

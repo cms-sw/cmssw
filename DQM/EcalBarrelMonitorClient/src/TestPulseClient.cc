@@ -1,4 +1,5 @@
 #include "../interface/TestPulseClient.h"
+#include "../interface/EcalDQMClientUtils.h"
 
 #include "DQM/EcalCommon/interface/MESetMulti.h"
 
@@ -81,9 +82,9 @@ namespace ecaldqm
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned apdPlots[] = {kQuality, kAmplitudeRMS, kQualitySummary};
-    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(apdPlots[iS]);
+    std::string apdPlots[] = {"Quality", "AmplitudeRMS", "QualitySummary"};
+    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(std::string); ++iS){
+      std::string& plot(apdPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
@@ -97,9 +98,9 @@ namespace ecaldqm
       }
     }
 
-    unsigned pnPlots[] = {kPNQualitySummary};
-    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(pnPlots[iS]);
+    std::string pnPlots[] = {"PNQualitySummary"};
+    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(std::string); ++iS){
+      std::string& plot(pnPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
@@ -113,9 +114,9 @@ namespace ecaldqm
       }
     }
 
-    unsigned apdSources[] = {kAmplitude};
-    for(unsigned iS(0); iS < sizeof(apdSources) / sizeof(unsigned); ++iS){
-      unsigned plot(apdSources[iS]);
+    std::string apdSources[] = {"Amplitude"};
+    for(unsigned iS(0); iS < sizeof(apdSources) / sizeof(std::string); ++iS){
+      std::string& plot(apdSources[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
@@ -129,9 +130,9 @@ namespace ecaldqm
       }
     }
 
-    unsigned pnSources[] = {kPNAmplitude};
-    for(unsigned iS(0); iS < sizeof(pnSources) / sizeof(unsigned); ++iS){
-      unsigned plot(pnSources[iS]);
+    std::string pnSources[] = {"PNAmplitude"};
+    for(unsigned iS(0); iS < sizeof(pnSources) / sizeof(std::string); ++iS){
+      std::string& plot(pnSources[iS]);
       MESetMulti const* multi(static_cast<MESetMulti const*>(sources_[plot]));
 
       for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
@@ -145,9 +146,9 @@ namespace ecaldqm
       }
     }
 
-    qualitySummaries_.insert(kQuality);
-    qualitySummaries_.insert(kQualitySummary);
-    qualitySummaries_.insert(kPNQualitySummary);
+    qualitySummaries_.insert("Quality");
+    qualitySummaries_.insert("QualitySummary");
+    qualitySummaries_.insert("PNQualitySummary");
   }
 
   void
@@ -155,14 +156,22 @@ namespace ecaldqm
   {
     using namespace std;
 
+    MESetMulti* meQuality(static_cast<MESetMulti*>(MEs_["Quality"]));
+    MESetMulti* meAmplitudeRMS(static_cast<MESetMulti*>(MEs_["AmplitudeRMS"]));
+    MESetMulti* meQualitySummary(static_cast<MESetMulti*>(MEs_["QualitySummary"]));
+    MESetMulti* mePNQualitySummary(static_cast<MESetMulti*>(MEs_["PNQualitySummary"]));
+
+    MESetMulti const* sAmplitude(static_cast<MESetMulti const*>(sources_["Amplitude"]));
+    MESetMulti const* sPNAmplitude(static_cast<MESetMulti const*>(sources_["PNAmplitude"]));
+
     for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
-      static_cast<MESetMulti*>(MEs_[kQuality])->use(gainItr->second);
-      static_cast<MESetMulti*>(MEs_[kQualitySummary])->use(gainItr->second);
-      static_cast<MESetMulti*>(MEs_[kAmplitudeRMS])->use(gainItr->second);
+      meQuality->use(gainItr->second);
+      meQualitySummary->use(gainItr->second);
+      meAmplitudeRMS->use(gainItr->second);
 
-      static_cast<MESetMulti const*>(sources_[kAmplitude])->use(gainItr->second);
+      sAmplitude->use(gainItr->second);
 
-      MEs_[kAmplitudeRMS]->reset();
+      meAmplitudeRMS->reset();
 
       uint32_t mask(0);
       switch(gainItr->first){
@@ -182,13 +191,13 @@ namespace ecaldqm
         break;
       }
 
-      MESet::iterator qEnd(MEs_[kQuality]->end());
-      MESet::const_iterator aItr(sources_[kAmplitude]);
-      for(MESet::iterator qItr(MEs_[kQuality]->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
+      MESet::iterator qEnd(meQuality->end());
+      MESet::const_iterator aItr(sAmplitude);
+      for(MESet::iterator qItr(meQuality->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
         DetId id(qItr->getId());
 
-        bool doMask(applyMask_(kQuality, id, mask));
+        bool doMask(applyMask(meQuality->getBinType(), id, mask));
 
         aItr = qItr;
 
@@ -202,7 +211,7 @@ namespace ecaldqm
         float amp(aItr->getBinContent());
         float rms(aItr->getBinError() * sqrt(entries));
 
-        MEs_[kAmplitudeRMS]->setBinContent(id, rms);
+        meAmplitudeRMS->setBinContent(id, rms);
 
         if(amp < amplitudeThreshold_[gainItr->second] || rms > toleranceRMS_[gainItr->second])
           qItr->setBinContent(doMask ? kMBad : kBad);
@@ -210,13 +219,13 @@ namespace ecaldqm
           qItr->setBinContent(doMask ? kMGood : kGood);
       }
 
-      towerAverage_(kQualitySummary, kQuality, 0.2);
+      towerAverage_(meQualitySummary, meQuality, 0.2);
     }
 
     for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
-      static_cast<MESetMulti*>(MEs_[kPNQualitySummary])->use(gainItr->second);
+      mePNQualitySummary->use(gainItr->second);
 
-      static_cast<MESetMulti const*>(sources_[kPNAmplitude])->use(gainItr->second);
+      sPNAmplitude->use(gainItr->second);
 
       uint32_t mask(0);
       switch(gainItr->first){
@@ -243,37 +252,24 @@ namespace ecaldqm
 
           EcalPnDiodeDetId id(subdet, iDCC + 1, iPN + 1);
 
-          bool doMask(applyMask_(kPNQualitySummary, id, mask));
+          bool doMask(applyMask(mePNQualitySummary->getBinType(), id, mask));
 
-          float amp(sources_[kPNAmplitude]->getBinContent(id));
-          float entries(sources_[kPNAmplitude]->getBinEntries(id));
-          float rms(sources_[kPNAmplitude]->getBinError(id) * sqrt(entries));
+          float amp(sPNAmplitude->getBinContent(id));
+          float entries(sPNAmplitude->getBinEntries(id));
+          float rms(sPNAmplitude->getBinError(id) * sqrt(entries));
 
           if(entries < minChannelEntries_){
-            MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMUnknown : kUnknown);
+            mePNQualitySummary->setBinContent(id, doMask ? kMUnknown : kUnknown);
             continue;
           }
 
           if(amp < PNAmplitudeThreshold_[gainItr->second] || rms > tolerancePNRMS_[gainItr->second])
-            MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMBad : kBad);
+            mePNQualitySummary->setBinContent(id, doMask ? kMBad : kBad);
           else
-            MEs_[kPNQualitySummary]->setBinContent(id, doMask ? kMGood : kGood);
+            mePNQualitySummary->setBinContent(id, doMask ? kMGood : kGood);
         }
       }
     }
-  }
-
-  /*static*/
-  void
-  TestPulseClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["Quality"] = kQuality;
-    _nameToIndex["AmplitudeRMS"] = kAmplitudeRMS;
-    _nameToIndex["QualitySummary"] = kQualitySummary;
-    _nameToIndex["PNQualitySummary"] = kPNQualitySummary;
-
-    _nameToIndex["Amplitude"] = kAmplitude;
-    _nameToIndex["PNAmplitude"] = kPNAmplitude;
   }
 
   DEFINE_ECALDQM_WORKER(TestPulseClient);

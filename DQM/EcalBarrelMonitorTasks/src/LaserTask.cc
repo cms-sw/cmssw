@@ -14,13 +14,12 @@ namespace ecaldqm {
   {
     using namespace std;
 
-    collectionMask_ = 
-      (0x1 << kEcalRawData) |
-      (0x1 << kEBDigi) |
-      (0x1 << kEEDigi) |
-      (0x1 << kPnDiodeDigi) |
-      (0x1 << kEBLaserLedUncalibRecHit) |
-      (0x1 << kEELaserLedUncalibRecHit);
+    collectionMask_[kEcalRawData] = true;
+    collectionMask_[kEBDigi] = true;
+    collectionMask_[kEEDigi] = true;
+    collectionMask_[kPnDiodeDigi] = true;
+    collectionMask_[kEBLaserLedUncalibRecHit] = true;
+    collectionMask_[kEELaserLedUncalibRecHit] = true;
 
     for(unsigned iD(0); iD < BinService::nDCC; ++iD){
       enable_[iD] = false;
@@ -39,9 +38,9 @@ namespace ecaldqm {
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned wlPlots[] = {kAmplitude, kAmplitudeSummary, kTiming, kShape, kAOverP, kPNAmplitude};
-    for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(wlPlots[iS]);
+    std::string wlPlots[] = {"Amplitude", "AmplitudeSummary", "Timing", "Shape", "AOverP", "PNAmplitude"};
+    for(unsigned iS(0); iS < sizeof(wlPlots) / sizeof(std::string); ++iS){
+      std::string& plot(wlPlots[iS]);
       MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
 
       for(map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr){
@@ -126,6 +125,9 @@ namespace ecaldqm {
   void
   LaserTask::runOnDigis(const EcalDigiCollection &_digis)
   {
+    MESet* meOccupancy(MEs_["Occupancy"]);
+    MESet* meShape(MEs_["Shape"]);
+
     int nReadouts[BinService::nDCC];
     int maxpos[BinService::nDCC][10];
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC){
@@ -136,7 +138,7 @@ namespace ecaldqm {
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const DetId& id(digiItr->id());
 
-      MEs_[kOccupancy]->fill(id);
+      meOccupancy->fill(id);
 
       unsigned iDCC(dccId(id) - 1);
 
@@ -200,11 +202,11 @@ namespace ecaldqm {
 
       if(iME != wlToME_[wavelength_[iDCC]]){
         iME = wlToME_[wavelength_[iDCC]];
-        static_cast<MESetMulti*>(MEs_[kShape])->use(iME);
+        static_cast<MESetMulti*>(meShape)->use(iME);
       }
 
       for(int iSample(0); iSample < 10; iSample++)
-	MEs_[kShape]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
+	meShape->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
 
       EcalPnDiodeDetId pnidA(pnForCrystal(id, 'a'));
       EcalPnDiodeDetId pnidB(pnForCrystal(id, 'b'));
@@ -217,6 +219,8 @@ namespace ecaldqm {
   void
   LaserTask::runOnPnDigis(const EcalPnDiodeDigiCollection &_digis)
   {
+    MESet* mePNAmplitude(MEs_["PNAmplitude"]);
+
     bool enable(false);
     for(unsigned iDCC(0); iDCC < BinService::nDCC; ++iDCC)
       enable |= enable_[iDCC];
@@ -247,10 +251,10 @@ namespace ecaldqm {
 
       if(iME != wlToME_[wavelength_[iDCC]]){
         iME = wlToME_[wavelength_[iDCC]];
-        static_cast<MESetMulti*>(MEs_[kPNAmplitude])->use(iME);
+        static_cast<MESetMulti*>(mePNAmplitude)->use(iME);
       }
 
-      MEs_[kPNAmplitude]->fill(id, max);
+      mePNAmplitude->fill(id, max);
 
       ampItr->second = max;
     }
@@ -259,6 +263,11 @@ namespace ecaldqm {
   void
   LaserTask::runOnUncalibRecHits(const EcalUncalibratedRecHitCollection &_uhits)
   {
+    MESet* meAmplitude(MEs_["Amplitude"]);
+    MESet* meAmplitudeSummary(MEs_["AmplitudeSummary"]);
+    MESet* meTiming(MEs_["Timing"]);
+    MESet* meAOverP(MEs_["AOverP"]);
+
     using namespace std;
 
     bool enable(false);
@@ -278,18 +287,18 @@ namespace ecaldqm {
 
       if(iME != wlToME_[wavelength_[iDCC]]){
         iME = wlToME_[wavelength_[iDCC]];
-        static_cast<MESetMulti*>(MEs_[kAmplitude])->use(iME);
-        static_cast<MESetMulti*>(MEs_[kAmplitudeSummary])->use(iME);
-        static_cast<MESetMulti*>(MEs_[kTiming])->use(iME);
-        static_cast<MESetMulti*>(MEs_[kAOverP])->use(iME);
+        static_cast<MESetMulti*>(meAmplitude)->use(iME);
+        static_cast<MESetMulti*>(meAmplitudeSummary)->use(iME);
+        static_cast<MESetMulti*>(meTiming)->use(iME);
+        static_cast<MESetMulti*>(meAOverP)->use(iME);
       }
 
       float amp(max((double)uhitItr->amplitude(), 0.));
       float jitter(max((double)uhitItr->jitter() + 5.0, 0.));
 
-      MEs_[kAmplitude]->fill(id, amp);
-      MEs_[kAmplitudeSummary]->fill(id, amp);
-      MEs_[kTiming]->fill(id, jitter);
+      meAmplitude->fill(id, amp);
+      meAmplitudeSummary->fill(id, amp);
+      meTiming->fill(id, jitter);
 
       float aop(0.);
 
@@ -300,21 +309,8 @@ namespace ecaldqm {
       else if(ampItrA == pnAmp_.end()) aop = amp / ampItrB->second;
       else aop = amp / (ampItrA->second + ampItrB->second) * 2.;
 
-      MEs_[kAOverP]->fill(id, aop);
+      meAOverP->fill(id, aop);
     }
-  }
-
-  /*static*/
-  void
-  LaserTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["Amplitude"] = kAmplitude;
-    _nameToIndex["AmplitudeSummary"] = kAmplitudeSummary;
-    _nameToIndex["Occupancy"] = kOccupancy;
-    _nameToIndex["Timing"] = kTiming;
-    _nameToIndex["Shape"] = kShape;
-    _nameToIndex["AOverP"] = kAOverP;
-    _nameToIndex["PNAmplitude"] = kPNAmplitude;
   }
 
   DEFINE_ECALDQM_WORKER(LaserTask);

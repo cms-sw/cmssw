@@ -12,17 +12,15 @@ namespace ecaldqm {
   RawDataTask::RawDataTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
     DQWorkerTask(_workerParams, _commonParams, "RawDataTask"),
     hltTaskMode_(_commonParams.getUntrackedParameter<int>("hltTaskMode")),
-    run_(0),
     l1A_(0),
     orbit_(0),
     bx_(0),
     triggerType_(0),
     feL1Offset_(0)
   {
-    collectionMask_ = 
-      (0x1 << kLumiSection) |
-      (0x1 << kSource) |
-      (0x1 << kEcalRawData);
+    collectionMask_[kLumiSection] = true;
+    collectionMask_[kSource] = true;
+    collectionMask_[kEcalRawData] = true;
   }
 
   void
@@ -81,40 +79,38 @@ namespace ecaldqm {
       statuses[VParity] = "VPARITY";
       statuses[ForcedZS] = "FORCEDZS";
 
-      for(unsigned iME(0); iME < nMESets; iME++){
-        if(iME == kFEDEntries || iME == kFEDFatal) continue;
-        if(iME == kTrendNSyncErrors && !online) continue;
-	MEs_[iME]->book();
+      for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+        if(mItr->first == "FEDEntries" || mItr->first == "FEDFatal") continue;
+	mItr->second->book();
       }
-      MEs_[kFEByLumi]->setLumiFlag();
+      MEs_["FEByLumi"]->setLumiFlag();
 
       for(int i(1); i <= nEventTypes; i++){
-	MEs_[kEventTypePreCalib]->setBinLabel(-1, i, eventTypes[i - 1], 1);
-	MEs_[kEventTypeCalib]->setBinLabel(-1, i, eventTypes[i - 1], 1);
-	MEs_[kEventTypePostCalib]->setBinLabel(-1, i, eventTypes[i - 1], 1);
+	MEs_["EventTypePreCalib"]->setBinLabel(-1, i, eventTypes[i - 1], 1);
+	MEs_["EventTypeCalib"]->setBinLabel(-1, i, eventTypes[i - 1], 1);
+	MEs_["EventTypePostCalib"]->setBinLabel(-1, i, eventTypes[i - 1], 1);
       }
 
       for(int i(1); i <= nFEFlags; i++)
-	MEs_[kFEStatus]->setBinLabel(-1, i, statuses[i - 1], 2);
+	MEs_["FEStatus"]->setBinLabel(-1, i, statuses[i - 1], 2);
     }
 
     if(hltTaskMode_ != 0){
-      MEs_[kFEDEntries]->book();
-      MEs_[kFEDFatal]->book();
+      MEs_["FEDEntries"]->book();
+      MEs_["FEDFatal"]->book();
     }
   }
 
   void
   RawDataTask::beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &)
   {
-    MEs_[kDesyncByLumi]->reset();
-    MEs_[kFEByLumi]->reset();
+    MEs_["DesyncByLumi"]->reset();
+    MEs_["FEByLumi"]->reset();
   }
 
   void
   RawDataTask::beginEvent(const edm::Event &_evt, const edm::EventSetup &)
   {
-    run_ = _evt.run();
     orbit_ = _evt.orbitNumber() & 0xffffff;
     bx_ = _evt.bunchCrossing() & 0xfff;
     triggerType_ = _evt.experimentType() & 0xf;
@@ -125,6 +121,10 @@ namespace ecaldqm {
   void
   RawDataTask::runOnSource(const FEDRawDataCollection &_fedRaw, Collections)
   {
+    MESet* meFEDEntries(MEs_["FEDEntries"]);
+    //    MESet* meFEDFatal(MEs_["FEDFatal"]);
+    MESet* meCRC(MEs_["CRC"]);
+
     // Get GT L1 info
     const FEDRawData &gtFED(_fedRaw.FEDData(812));
     if(gtFED.size() > sizeof(uint64_t)){ // FED header is one 64 bit word
@@ -136,14 +136,14 @@ namespace ecaldqm {
       const FEDRawData& fedData(_fedRaw.FEDData(iFED));
       unsigned length(fedData.size() / sizeof(uint64_t));
       if(length > 1){ // FED header is one 64 bit word
-	MEs_[kFEDEntries]->fill(iFED - 600);
+	meFEDEntries->fill(iFED - 600);
 
  	const uint64_t* pData(reinterpret_cast<const uint64_t*>(fedData.data()));
  	bool crcError((pData[length - 1] >> 2) & 0x1);
 
 	if(crcError){
-          MEs_[kFEDFatal]->fill(iFED - 600);
-          MEs_[kCRC]->fill(iFED - 600);
+          //          meFEDFatal->fill(iFED - 600);
+          meCRC->fill(iFED - 600);
         }
       }
     }
@@ -153,6 +153,26 @@ namespace ecaldqm {
   RawDataTask::runOnRawData(const EcalRawDataCollection &_dcchs, Collections)
   {
     using namespace std;
+
+    MESet* meRunNumber(MEs_["RunNumber"]);
+    MESet* meOrbit(MEs_["Orbit"]);
+    MESet* meTriggerType(MEs_["TriggerType"]);
+    MESet* meL1ADCC(MEs_["L1ADCC"]);
+    MESet* meBXDCC(MEs_["BXDCC"]);
+    MESet* meBXFE(MEs_["BXFE"]);
+    MESet* meL1AFE(MEs_["L1AFE"]);
+    MESet* meFEStatus(MEs_["FEStatus"]);
+    MESet* meDesyncByLumi(MEs_["DesyncByLumi"]);
+    MESet* meDesyncTotal(MEs_["DesyncTotal"]);
+    MESet* meFEByLumi(MEs_["FEByLumi"]);
+    MESet* meBXTCC(MEs_["BXTCC"]);
+    MESet* meL1ATCC(MEs_["L1ATCC"]);
+    MESet* meBXSRP(MEs_["BXSRP"]);
+    MESet* meL1ASRP(MEs_["L1ASRP"]);
+    MESet* meTrendNSyncErrors(online ? MEs_["L1ATCC"] : 0);
+    MESet* meEventTypePreCalib(MEs_["EventTypePreCalib"]);
+    MESet* meEventTypeCalib(MEs_["EventTypeCalib"]);
+    MESet* meEventTypePostCalib(MEs_["EventTypePostCalib"]);
 
     if(hltTaskMode_ == 1) return;
 
@@ -178,11 +198,11 @@ namespace ecaldqm {
       short dccL1AShort(dccL1A & 0xfff);
       int dccBX(dcchItr->getBX());
 
-      if(dcchItr->getRunNumber() != run_) MEs_[kRunNumber]->fill(dccId);
-      if(dcchItr->getOrbit() != orbit_) MEs_[kOrbit]->fill(dccId);
-      if(dcchItr->getBasicTriggerType() != triggerType_) MEs_[kTriggerType]->fill(dccId);
-      if(dccL1A != l1A_) MEs_[kL1ADCC]->fill(dccId);
-      if(dccBX != bx_) MEs_[kBXDCC]->fill(dccId);
+      if(dcchItr->getRunNumber() != int(iRun)) meRunNumber->fill(dccId);
+      if(dcchItr->getOrbit() != orbit_) meOrbit->fill(dccId);
+      if(dcchItr->getBasicTriggerType() != triggerType_) meTriggerType->fill(dccId);
+      if(dccL1A != l1A_) meL1ADCC->fill(dccId);
+      if(dccBX != bx_) meBXDCC->fill(dccId);
 
       const vector<short> &feStatus(dcchItr->getFEStatus());
       const vector<short> &feBxs(dcchItr->getFEBxs());
@@ -198,14 +218,14 @@ namespace ecaldqm {
 
 	if(status != BXDesync && status != L1ABXDesync){ // BX desync not detected in the DCC
 	  if(feBxs[iFE] != dccBX && feBxs[iFE] != -1 && dccBX != -1){
-	    MEs_[kBXFE]->fill(dccId, iFE + 0.5);
+	    meBXFE->fill(dccId, iFE + 0.5);
 	    feDesync += 1.;
 	  }
 	}
 
 	if(status != L1ADesync && status != L1ABXDesync){
 	  if(feL1s[iFE] + feL1Offset_ != dccL1AShort && feL1s[iFE] != -1 && dccL1AShort != 0){
-	    MEs_[kL1AFE]->fill(dccId, iFE + 0.5);
+	    meL1AFE->fill(dccId, iFE + 0.5);
 	    feDesync += 1.;
 	  }
 	}
@@ -213,7 +233,7 @@ namespace ecaldqm {
 	if(iFE >= 68) continue;
 
 	DetId id(getElectronicsMap()->dccTowerConstituents(dccId, iFE + 1).at(0));
-	MEs_[kFEStatus]->fill(id, status + 0.5);
+	meFEStatus->fill(id, status + 0.5);
 
 	switch(status){
 	case Timeout:
@@ -234,12 +254,12 @@ namespace ecaldqm {
       }
 
       if(feDesync > 0.){
-        MEs_[kDesyncByLumi]->fill(dccId, feDesync);
-        MEs_[kDesyncTotal]->fill(dccId, feDesync);
-        if(online) MEs_[kTrendNSyncErrors]->fill(double(iLumi), feDesync);
+        meDesyncByLumi->fill(dccId, feDesync);
+        meDesyncTotal->fill(dccId, feDesync);
+        if(online) meTrendNSyncErrors->fill(double(iLumi), feDesync);
       }
       if(statusError > 0.)
-        MEs_[kFEByLumi]->fill(dccId, statusError);
+        meFEByLumi->fill(dccId, statusError);
 
       const vector<short> &tccBx(dcchItr->getTCCBx());
       const vector<short> &tccL1(dcchItr->getTCCLv1());
@@ -249,19 +269,19 @@ namespace ecaldqm {
 	  for(int iTCC(0); iTCC < 4; iTCC++){
 
 	    if(tccBx[iTCC] != dccBX && tccBx[iTCC] != -1 && dccBX != -1)
-	      MEs_[kBXTCC]->fill(dccId);
+	      meBXTCC->fill(dccId);
 
 	    if(tccL1[iTCC] != dccL1AShort && tccL1[iTCC] != -1 && dccL1AShort != 0)
-	      MEs_[kL1ATCC]->fill(dccId);
+	      meL1ATCC->fill(dccId);
 
 	  }
 	}else{
 
 	  if(tccBx[0] != dccBX && tccBx[0] != -1 && dccBX != -1)
-	    MEs_[kBXTCC]->fill(dccId);
+            meBXTCC->fill(dccId);
 
 	  if(tccL1[0] != dccL1AShort && tccL1[0] != -1 && dccL1AShort != 0)
-	    MEs_[kL1ATCC]->fill(dccId);
+	    meL1ATCC->fill(dccId);
 
 	}
       }
@@ -270,49 +290,20 @@ namespace ecaldqm {
       short srpL1(dcchItr->getSRPLv1());
 
       if(srpBx != dccBX && srpBx != -1 && dccBX != -1)
-	MEs_[kBXSRP]->fill(dccId);
+	meBXSRP->fill(dccId);
 
       if(srpL1 != dccL1AShort && srpL1 != -1 && dccL1AShort != 0)
-	MEs_[kL1ASRP]->fill(dccId);
+	meL1ASRP->fill(dccId);
 
       const int calibBX(3490);
 
       short runType(dcchItr->getRunType() + 1);
       if(runType < 0 || runType > 22) runType = 0;
-      if(dccBX < calibBX) MEs_[kEventTypePreCalib]->fill(dccId, runType + 0.5, 1. / 54.);
-      else if(dccBX == calibBX) MEs_[kEventTypeCalib]->fill(dccId, runType + 0.5, 1. / 54.);
-      else MEs_[kEventTypePostCalib]->fill(dccId, runType + 0.5, 1. / 54.);
+      if(dccBX < calibBX) meEventTypePreCalib->fill(dccId, runType + 0.5, 1. / 54.);
+      else if(dccBX == calibBX) meEventTypeCalib->fill(dccId, runType + 0.5, 1. / 54.);
+      else meEventTypePostCalib->fill(dccId, runType + 0.5, 1. / 54.);
 
     }
-  }
-
-  /*static*/
-  void
-  RawDataTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["EventTypePreCalib"] = kEventTypePreCalib;
-    _nameToIndex["EventTypeCalib"] = kEventTypeCalib;
-    _nameToIndex["EventTypePostCalib"] = kEventTypePostCalib;
-    _nameToIndex["Entries"] = kEntries;
-    _nameToIndex["CRC"] = kCRC;
-    _nameToIndex["RunNumber"] = kRunNumber;
-    _nameToIndex["Orbit"] = kOrbit;
-    _nameToIndex["TriggerType"] = kTriggerType;
-    _nameToIndex["L1ADCC"] = kL1ADCC;
-    _nameToIndex["L1AFE"] = kL1AFE;
-    _nameToIndex["L1ATCC"] = kL1ATCC;
-    _nameToIndex["L1ASRP"] = kL1ASRP;
-    _nameToIndex["BXDCC"] = kBXDCC;
-    _nameToIndex["BXFE"] = kBXFE;
-    _nameToIndex["BXTCC"] = kBXTCC;
-    _nameToIndex["BXSRP"] = kBXSRP;
-    _nameToIndex["DesyncByLumi"] = kDesyncByLumi;
-    _nameToIndex["DesyncTotal"] = kDesyncTotal;
-    _nameToIndex["FEStatus"] = kFEStatus;
-    _nameToIndex["FEByLumi"] = kFEByLumi;
-    _nameToIndex["FEDEntries"] = kFEDEntries;
-    _nameToIndex["FEDFatal"] = kFEDFatal;
-    _nameToIndex["TrendNSyncErrors"] = kTrendNSyncErrors;
   }
 
   DEFINE_ECALDQM_WORKER(RawDataTask);

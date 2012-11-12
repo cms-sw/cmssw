@@ -1,4 +1,5 @@
 #include "../interface/TrigPrimClient.h"
+#include "../interface/EcalDQMClientUtils.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
@@ -13,28 +14,35 @@ namespace ecaldqm {
     minEntries_(_workerParams.getUntrackedParameter<int>("minEntries")),
     errorFractionThreshold_(_workerParams.getUntrackedParameter<double>("errorFractionThreshold"))
   {
-    qualitySummaries_.insert(kEmulQualitySummary);
+    qualitySummaries_.insert("EmulQualitySummary");
   }
 
   void
   TrigPrimClient::producePlots()
   {
-    //    MEs_[kTiming]->reset();
-    MEs_[kTimingSummary]->reset();
-    MEs_[kNonSingleSummary]->reset();
+    MESet* meTimingSummary(MEs_["TimingSummary"]);
+    MESet* meNonSingleSummary(MEs_["NonSingleSummary"]);
+    MESet* meEmulQualitySummary(MEs_["EmulQualitySummary"]);
+
+    MESet const* sEtEmulError(sources_["EtEmulError"]);
+    MESet const* sMatchedIndex(sources_["MatchedIndex"]);
+
+    //    meTiming->reset();
+    meTimingSummary->reset();
+    meNonSingleSummary->reset();
 
     uint32_t mask(1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING);
 
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++){
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
 
-      bool doMask(applyMask_(kEmulQualitySummary, ttid, mask));
+      bool doMask(applyMask(meEmulQualitySummary->getBinType(), ttid, mask));
 
       float towerEntries(0.);
       float tMax(0.5);
       float nMax(0.);
       for(int iBin(0); iBin < 6; iBin++){
-	float entries(sources_[kMatchedIndex]->getBinContent(ttid, iBin + 1));
+	float entries(sMatchedIndex->getBinContent(ttid, iBin + 1));
 	towerEntries += entries;
 
 	if(entries > nMax){
@@ -43,38 +51,24 @@ namespace ecaldqm {
 	}
       }
 
-      MEs_[kTimingSummary]->setBinContent(ttid, tMax);
+      meTimingSummary->setBinContent(ttid, tMax);
 
       if(towerEntries < minEntries_){
-	MEs_[kEmulQualitySummary]->setBinContent(ttid, doMask ? kMUnknown : kUnknown);
+	meEmulQualitySummary->setBinContent(ttid, doMask ? kMUnknown : kUnknown);
 	continue;
       }
 
       float nonsingleFraction(1. - nMax / towerEntries);
 
       if(nonsingleFraction > 0.)
-	MEs_[kNonSingleSummary]->setBinContent(ttid, nonsingleFraction);
+	meNonSingleSummary->setBinContent(ttid, nonsingleFraction);
 
-      if(sources_[kEtEmulError]->getBinContent(ttid) / towerEntries > errorFractionThreshold_)
-        MEs_[kEmulQualitySummary]->setBinContent(ttid, doMask ? kMBad : kBad);
+      if(sEtEmulError->getBinContent(ttid) / towerEntries > errorFractionThreshold_)
+        meEmulQualitySummary->setBinContent(ttid, doMask ? kMBad : kBad);
       else
-        MEs_[kEmulQualitySummary]->setBinContent(ttid, doMask ? kMGood : kGood);
+        meEmulQualitySummary->setBinContent(ttid, doMask ? kMGood : kGood);
     }
-  }
-
-  /*static*/
-  void
-  TrigPrimClient::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["TimingSummary"] = kTimingSummary;
-    _nameToIndex["NonSingleSummary"] = kNonSingleSummary;
-    _nameToIndex["EmulQualitySummary"] = kEmulQualitySummary;
-
-    _nameToIndex["EtRealMap"] = kEtRealMap;
-    _nameToIndex["EtEmulError"] = kEtEmulError;
-    _nameToIndex["MatchedIndex"] = kMatchedIndex;
   }
 
   DEFINE_ECALDQM_WORKER(TrigPrimClient);
 }
-

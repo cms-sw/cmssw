@@ -12,24 +12,6 @@ namespace ecaldqm {
 
     void producePlots();
 
-    enum MESets {
-      kQuality,
-      kMean,
-      kRMS,
-      kRMSMap,
-      kQualitySummary,
-      kTrendMean,
-      kTrendRMS,
-      nMESets
-    };
-
-    enum Sources {
-      kPedestal,
-      nSources
-    };
-
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   protected:
     int minChannelEntries_;
     float expectedMean_;

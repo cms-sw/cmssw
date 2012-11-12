@@ -25,14 +25,13 @@ namespace ecaldqm {
     suppressed_(),
     flags_(nRU, -1)
   {
-    collectionMask_ = 
-      (0x1 << kRun) |
-      (0x1 << kSource) |
-      (0x1 << kEcalRawData) |
-      (0x1 << kEBSrFlag) |
-      (0x1 << kEESrFlag) |
-      (0x1 << kEBDigi) |
-      (0x1 << kEEDigi);
+    collectionMask_[kRun] = true;
+    collectionMask_[kSource] = true;
+    collectionMask_[kEcalRawData] = true;
+    collectionMask_[kEBSrFlag] = true;
+    collectionMask_[kEESrFlag] = true;
+    collectionMask_[kEBDigi] = true;
+    collectionMask_[kEEDigi] = true;
 
     if(!useCondDb_){
       std::vector<double> normWeights(_workerParams.getUntrackedParameter<std::vector<double> >("ZSFIRWeights"));
@@ -78,18 +77,25 @@ namespace ecaldqm {
   void
   SelectiveReadoutTask::runOnSource(const FEDRawDataCollection &_fedRaw)
   {
-    float ebSize(0.), eeSize(0.);
+    MESet* meDCCSize(MEs_["DCCSize"]);
+    MESet* meDCCSizeProf(MEs_["DCCSizeProf"]);
+    MESet* meEventSize(MEs_["EventSize"]);
+
+    float ebSize(0.), eemSize(0.), eepSize(0.);
 
     // DCC event size
     for(unsigned iFED(601); iFED <= 654; iFED++){
       float size(_fedRaw.FEDData(iFED).size() / 1024.);
-      MEs_[kDCCSize]->fill(iFED - 600, size);
-      if(iFED - 601 <= kEEmHigh || iFED - 601 >= kEEpLow) eeSize += size;
+      meDCCSize->fill(iFED - 600, size);
+      meDCCSizeProf->fill(iFED - 600, size);
+      if(iFED - 601 <= kEEmHigh) eemSize += size;
+      else if(iFED - 601 >= kEEpLow) eepSize += size;
       else ebSize += size;
     }
 
-    MEs_[kEventSize]->fill(unsigned(BinService::kEE) + 1, eeSize / 18.);
-    MEs_[kEventSize]->fill(unsigned(BinService::kEB) + 1, ebSize / 36.);
+    meEventSize->fill(unsigned(BinService::kEEm) + 1, eemSize / 9.);
+    meEventSize->fill(unsigned(BinService::kEEp) + 1, eepSize / 9.);
+    meEventSize->fill(unsigned(BinService::kEB) + 1, ebSize / 36.);
   }
 
   void
@@ -106,29 +112,41 @@ namespace ecaldqm {
   void
   SelectiveReadoutTask::runOnEBSrFlags(const EBSrFlagCollection &_srfs)
   {
+    MESet* meFullReadout(MEs_["FullReadout"]);
+    MESet* maps[] = {MEs_["FlagCounterMap"], MEs_["FullReadoutMap"], MEs_["ZS1Map"], MEs_["ZSMap"], MEs_["RUForcedMap"]};
+
     double nFR(0.);
 
     for(EBSrFlagCollection::const_iterator srfItr(_srfs.begin()); srfItr != _srfs.end(); ++srfItr)
-      runOnSrFlag_(srfItr->id(), srfItr->value(), nFR);
+      runOnSrFlag_(srfItr->id(), srfItr->value(), nFR, maps);
 
-    MEs_[kFullReadout]->fill(unsigned(BinService::kEB) + 1, nFR);
+    meFullReadout->fill(unsigned(BinService::kEB) + 1, nFR);
   }
 
   void
   SelectiveReadoutTask::runOnEESrFlags(const EESrFlagCollection &_srfs)
   {
+    MESet* meFullReadout(MEs_["FullReadout"]);
+    MESet* maps[] = {MEs_["FlagCounterMap"], MEs_["FullReadoutMap"], MEs_["ZS1Map"], MEs_["ZSMap"], MEs_["RUForcedMap"]};
+
     double nFR(0.);
 
     for(EESrFlagCollection::const_iterator srfItr(_srfs.begin()); srfItr != _srfs.end(); ++srfItr)
-      runOnSrFlag_(srfItr->id(), srfItr->value(), nFR);
+      runOnSrFlag_(srfItr->id(), srfItr->value(), nFR, maps);
 
-    MEs_[kFullReadout]->fill(unsigned(BinService::kEE) + 1, nFR);
+    meFullReadout->fill(unsigned(BinService::kEE) + 1, nFR);
   }
 
   void
-  SelectiveReadoutTask::runOnSrFlag_(const DetId &_id, int _flag, double& _nFR)
+  SelectiveReadoutTask::runOnSrFlag_(const DetId &_id, int _flag, double& _nFR, MESet** _maps)
   {
-    MEs_[kFlagCounterMap]->fill(_id);
+    MESet* meFlagCounterMap(_maps[0]);
+    MESet* meFullReadoutMap(_maps[1]);
+    MESet* meZS1Map(_maps[2]);
+    MESet* meZSMap(_maps[3]);
+    MESet* meRUForcedMap(_maps[4]);
+
+    meFlagCounterMap->fill(_id);
 
     unsigned iRU(-1);
     if(_id.subdetId() == EcalTriggerTower)
@@ -139,31 +157,44 @@ namespace ecaldqm {
 
     switch(_flag & ~EcalSrFlag::SRF_FORCED_MASK){
     case EcalSrFlag::SRF_FULL:
-      MEs_[kFullReadoutMap]->fill(_id);
+      meFullReadoutMap->fill(_id);
       _nFR += 1.;
       break;
     case EcalSrFlag::SRF_ZS1:
-      MEs_[kZS1Map]->fill(_id);
+      meZS1Map->fill(_id);
       // fallthrough
     case EcalSrFlag::SRF_ZS2:
-      MEs_[kZSMap]->fill(_id);
+      meZSMap->fill(_id);
       break;
     default:
       break;
     }
 
     if(_flag & EcalSrFlag::SRF_FORCED_MASK)
-      MEs_[kRUForcedMap]->fill(_id);
+      meRUForcedMap->fill(_id);
   }
   
   void
   SelectiveReadoutTask::runOnDigis(const EcalDigiCollection &_digis, Collections _collection)
   {
-    unsigned const nTower(_collection == kEBDigi ? unsigned(EcalTrigTowerDetId::kEBTotalTowers) : unsigned(EcalScDetId::kSizeForDenseIndexing));
+    MESet* meHighIntOutput(MEs_["HighIntOutput"]);
+    MESet* meLowIntOutput(MEs_["LowIntOutput"]);
+    MESet* meHighIntPayload(MEs_["HighIntPayload"]);
+    MESet* meLowIntPayload(MEs_["LowIntPayload"]);
+    MESet* meTowerSize(MEs_["TowerSize"]);
+    MESet* meZSFullReadoutMap(MEs_["ZSFullReadoutMap"]);
+    MESet* meFRDroppedMap(MEs_["FRDroppedMap"]);
+    MESet* meZSFullReadout(MEs_["ZSFullReadout"]);
+    MESet* meFRDropped(MEs_["FRDropped"]);
+
+    bool isEB(_collection == kEBDigi);
+
+    unsigned const nTower(isEB ? unsigned(EcalTrigTowerDetId::kEBTotalTowers) : unsigned(EcalScDetId::kSizeForDenseIndexing));
 
     std::vector<unsigned> sizes(nTower, 0);
 
-    int nHighInt(0), nLowInt(0);
+    int nHighInt[] = {0, 0};
+    int nLowInt[] = {0, 0};
 
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
 
@@ -172,7 +203,7 @@ namespace ecaldqm {
       unsigned iTower(-1);
       unsigned iRU(-1);
 
-      if(_collection == kEBDigi){
+      if(isEB){
         iTower = EBDetId(id).tower().hashedIndex();
         iRU = iTower;
       }
@@ -221,36 +252,43 @@ namespace ecaldqm {
       bool highInterest((flags_[iRU] & ~EcalSrFlag::SRF_FORCED_MASK) == EcalSrFlag::SRF_FULL);
 
       if(highInterest){
-	MEs_[kHighIntOutput]->fill(id, ZSFIRValue);
-	nHighInt += 1;
+	meHighIntOutput->fill(id, ZSFIRValue);
+        if(isEB || dccId(id) - 1 <= kEEmHigh)
+          nHighInt[0] += 1;
+        else
+          nHighInt[1] += 1;
       }
       else{
-	MEs_[kLowIntOutput]->fill(id, ZSFIRValue);
-	nLowInt += 1;
+	meLowIntOutput->fill(id, ZSFIRValue);
+        if(isEB || dccId(id) - 1 <= kEEmHigh)
+          nLowInt[0] += 1;
+        else
+          nLowInt[1] += 1;
       }
     }
 
-    unsigned iSubdet(_collection == kEBDigi ? BinService::kEB : BinService::kEE);
-    float denom(_collection == kEBDigi ? 36. : 18.);
+    float denom(_collection == kEBDigi ? 36. : 9.);
 
-    float highIntPayload(nHighInt * bytesPerCrystal / 1024. / denom);
-    MEs_[kHighIntPayload]->fill(iSubdet + 1, highIntPayload);
+    if(isEB){
+      meHighIntPayload->fill(unsigned(BinService::kEB + 1), nHighInt[0] * bytesPerCrystal / 1024. / 36.);
+      meLowIntPayload->fill(unsigned(BinService::kEB + 1), nLowInt[0] * bytesPerCrystal / 1024. / 36.);
+    }
+    else{
+      meHighIntPayload->fill(unsigned(BinService::kEEm + 1), nHighInt[0] * bytesPerCrystal / 1024. / 9.);
+      meHighIntPayload->fill(unsigned(BinService::kEEp + 1), nHighInt[1] * bytesPerCrystal / 1024. / 9.);
+      meLowIntPayload->fill(unsigned(BinService::kEEm + 1), nLowInt[0] * bytesPerCrystal / 1024. / 9.);
+      meLowIntPayload->fill(unsigned(BinService::kEEp + 1), nLowInt[1] * bytesPerCrystal / 1024. / 9.);
+    }
 
-    float lowIntPayload(nLowInt * bytesPerCrystal / 1024. / denom);
-    MEs_[kLowIntPayload]->fill(iSubdet + 1, lowIntPayload);
-
-    float nZSFullReadout(0.);
-    float nFRDropped(0.);
-
-    unsigned iRU(iSubdet == BinService::kEB ? 0 : EcalTrigTowerDetId::kEBTotalTowers);
+    unsigned iRU(isEB ? 0 : EcalTrigTowerDetId::kEBTotalTowers);
     for(unsigned iTower(0); iTower < nTower; ++iTower, ++iRU){
       DetId id;
-      if(iSubdet == BinService::kEB) id = EcalTrigTowerDetId::detIdFromDenseIndex(iTower);
+      if(isEB) id = EcalTrigTowerDetId::detIdFromDenseIndex(iTower);
       else id = EcalScDetId::unhashIndex(iTower);
 
       double towerSize(sizes[iTower] * bytesPerCrystal);
 
-      MEs_[kTowerSize]->fill(id, towerSize);
+      meTowerSize->fill(id, towerSize);
 
       if(flags_[iRU] < 0) continue;
 
@@ -264,18 +302,15 @@ namespace ecaldqm {
       bool ruFullyReadout(sizes[iTower] == getElectronicsMap()->dccTowerConstituents(dccid, towerid).size());
 
       if(ruFullyReadout && (flag == EcalSrFlag::SRF_ZS1 || flag == EcalSrFlag::SRF_ZS2)){
-	MEs_[kZSFullReadoutMap]->fill(id);
-	nZSFullReadout += 1.;
+	meZSFullReadoutMap->fill(id);
+        meZSFullReadout->fill(id);
       }
 
       if(sizes[iTower] == 0 && flag == EcalSrFlag::SRF_FULL){
-        MEs_[kFRDroppedMap]->fill(id);
-        nFRDropped += 1.;
+        meFRDroppedMap->fill(id);
+        meFRDropped->fill(id);
       }
     }
-
-    MEs_[kZSFullReadout]->fill(iSubdet + 1, nZSFullReadout);
-    MEs_[kFRDropped]->fill(iSubdet + 1, nFRDropped);
   }
 
   void
@@ -312,29 +347,6 @@ namespace ecaldqm {
 	  ZSFIRWeights_[i] = ZSFIRWeights_[i] < 0 ? -maxWeight : maxWeight;
       }
     }
-  }
-
-  /*static*/
-  void
-  SelectiveReadoutTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
-  {
-    _nameToIndex["TowerSize"] = kTowerSize;
-    _nameToIndex["DCCSize"] = kDCCSize;
-    _nameToIndex["EventSize"] = kEventSize;
-    _nameToIndex["FlagCounterMap"] = kFlagCounterMap;
-    _nameToIndex["RUForcedMap"] = kRUForcedMap;
-    _nameToIndex["FullReadout"] = kFullReadout;
-    _nameToIndex["FullReadoutMap"] = kFullReadoutMap;
-    _nameToIndex["ZS1Map"] = kZS1Map;
-    _nameToIndex["ZSMap"] = kZSMap;
-    _nameToIndex["ZSFullReadout"] = kZSFullReadout;
-    _nameToIndex["ZSFullReadoutMap"] = kZSFullReadoutMap;
-    _nameToIndex["FRDropped"] = kFRDropped;
-    _nameToIndex["FRDroppedMap"] = kFRDroppedMap;
-    _nameToIndex["HighIntPayload"] = kHighIntPayload;
-    _nameToIndex["LowIntPayload"] = kLowIntPayload;
-    _nameToIndex["HighIntOutput"] = kHighIntOutput;
-    _nameToIndex["LowIntOutput"] = kLowIntOutput;
   }
 
   DEFINE_ECALDQM_WORKER(SelectiveReadoutTask);
