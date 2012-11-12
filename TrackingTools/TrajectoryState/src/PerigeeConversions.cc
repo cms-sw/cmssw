@@ -34,7 +34,7 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   AlgebraicVector5 theTrackParameters;
 
   double signTC = - originalFTS.charge();
-  bool isCharged = (signTC!=0) && (fabs(field)>1.e-10);
+  bool isCharged = (signTC!=0) && (std::abs(field)>1.e-10);
   if (isCharged) {
     theTrackParameters[0] = field / pt*signTC;
   } else {
@@ -90,7 +90,7 @@ GlobalVector PerigeeConversions::momentumFromPerigee
   double pt;
 
   double bz = fabs(field->inInverseGeV(referencePoint).z());
-  if ( charge!=0 && bz>1.e-10 ) {
+  if ( charge!=0 && std::abs(bz)>1.e-10 ) {
     pt = std::abs(bz/momentum[0]);
     // if (pt<1.e-10) throw cms::Exception("PerigeeConversions", "pt is 0");
   } else {

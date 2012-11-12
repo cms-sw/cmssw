@@ -32,7 +32,11 @@ public:
    * no error is provided.
    */
   TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
-				const GlobalPoint& referencePoint, const MagneticField* field);
+				const GlobalPoint& referencePoint, const MagneticField* field):
+    theField(field), theRefPoint(referencePoint), 
+    theParameters(perigeeParameters), thePt( pt ), 
+    valid(true),  theFTSavailable(false), errorIsAvailable(false)
+  {}
 
   /**
    * Public constructor, which is used to convert perigee 
@@ -41,7 +45,10 @@ public:
    */
   TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
 				const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint,
-				const MagneticField* field);
+				const MagneticField* field):
+    theField(field),  theRefPoint(referencePoint),
+    theParameters(perigeeParameters), thePt( pt ), thePerigeeError(perigeeError),
+    valid(true), theFTSavailable(false), errorIsAvailable(true){}
 
 
   /**

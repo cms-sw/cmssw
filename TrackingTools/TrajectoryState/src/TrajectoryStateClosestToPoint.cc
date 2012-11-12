@@ -24,32 +24,6 @@ TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referen
 }
 
 
-/**
- * Public constructor, which is used to convert perigee 
- * parameters to a FreeTrajectoryState. For the case where
- * no error is provided.
- */
-TrajectoryStateClosestToPoint::
-TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
-			      const GlobalPoint& referencePoint, const MagneticField* field) :
-  theField(field), theRefPoint(referencePoint), 
-  theParameters(perigeeParameters), thePt( pt ), 
-  valid(true),  theFTSavailable(false), errorIsAvailable(false)
-{}
-
-/**
- * Public constructor, which is used to convert perigee 
- * parameters to a FreeTrajectoryState. For the case where
- * an error is provided.
- */
-TrajectoryStateClosestToPoint::
-TrajectoryStateClosestToPoint(const PerigeeTrajectoryParameters& perigeeParameters, double pt,
-			      const PerigeeTrajectoryError& perigeeError, const GlobalPoint& referencePoint,
-			      const MagneticField* field):
-  theField(field),  theRefPoint(referencePoint),
-  theParameters(perigeeParameters), thePt( pt ), thePerigeeError(perigeeError),
-  valid(true), theFTSavailable(false), errorIsAvailable(true){}
-
 
 void TrajectoryStateClosestToPoint::calculateFTS() const {
   if(!isValid()) throw TrajectoryStateException("TrajectoryStateClosestToPoint is invalid and cannot return any parameters");
