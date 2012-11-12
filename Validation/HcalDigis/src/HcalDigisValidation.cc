@@ -13,7 +13,7 @@
 //
 // Original Author:  Ali Fahim,22 R-013,+41227672649,
 //         Created:  Wed Mar 23 11:42:34 CET 2011
-// $Id: HcalDigisValidation.cc,v 1.4 2012/11/02 14:16:51 dlange Exp $
+// $Id: HcalDigisValidation.cc,v 1.5 2012/11/08 05:47:19 lhx Exp $
 //
 //
 
@@ -613,8 +613,7 @@ template<class Digi> void HcalDigisValidation::reco(const edm::Event& iEvent, co
             HcalCalibrations calibrations = conditions->getHcalCalibrations(cell);
 
             const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
-//	    const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
-	    const HcalQIEShape* shape = conditions->getHcalShape(); //fix a compile error by lhx
+	    const HcalQIEShape* shape = conditions->getHcalShape(channelCoder);
             HcalCoderDb coder(*channelCoder, *shape);
             coder.adc2fC(*digiItr, tool);
 
