@@ -137,7 +137,10 @@ rfmkdir -p .oO[workdir]Oo.
 rfmkdir -p .oO[datadir]Oo.
 
 #remove possible result file from previous runs
-rm -f  .oO[datadir]Oo./*.oO[alignmentName]Oo..root
+if [ -e .oO[datadir]Oo./*.oO[alignmentName]Oo..root ] ; then
+    for file in .oO[datadir]Oo./*.oO[alignmentName]Oo..root; do mv -f $file $file.bak; done
+    #rm -f  .oO[datadir]Oo./*.oO[alignmentName]Oo..root
+fi    
 
 rm -f .oO[workdir]Oo./*
 cd .oO[workdir]Oo.
