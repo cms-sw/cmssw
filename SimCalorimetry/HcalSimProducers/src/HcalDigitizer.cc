@@ -34,6 +34,7 @@
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 #include <boost/foreach.hpp>
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 namespace HcalDigitizerImpl {
 
@@ -556,7 +557,14 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
     std::vector<HcalDetId> zecotekDetIds, hamamatsuDetIds;
     edm::ESHandle<HcalMCParams> p;
     eventSetup.get<HcalMCParamsRcd>().get(p);
+    edm::ESHandle<HcalTopology> htopo;
+    eventSetup.get<IdealGeometryRecord>().get(htopo);
+   
     HcalMCParams mcParams(*p.product());
+    if (mcParams.topo()==0) {
+      mcParams.setTopo(htopo.product());
+    }
+
     for(std::vector<DetId>::const_iterator detItr = allCells.begin();
         detItr != allCells.end(); ++detItr)
     {

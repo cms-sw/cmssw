@@ -88,6 +88,9 @@ protected:
 
   virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
 
+  virtual unsigned int indexFor(const DetId& id) const { return  theTopology.detId2denseId(id); }
+  virtual unsigned int sizeForDenseIndex(const DetId& id) const { return theTopology.ncells(); }
+
 private:
 
   void fillDetIds() const ;

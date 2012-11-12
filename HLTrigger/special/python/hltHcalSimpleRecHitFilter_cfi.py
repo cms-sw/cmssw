@@ -5,7 +5,7 @@ hltHcalSimpleRecHitFilter = cms.EDFilter("HLTHcalSimpleRecHitFilter",
    minNHitsNeg = cms.int32(1),
    minNHitsPos = cms.int32(1),
    doCoincidence = cms.bool(True),
-   maskedChannels = cms.vint32(),
+   maskedChannels = cms.vuint32(), # now by raw detid, not hashed id
    HFRecHitCollection = cms.InputTag("hltHfreco"),
    saveTags = cms.bool( False )
 )
