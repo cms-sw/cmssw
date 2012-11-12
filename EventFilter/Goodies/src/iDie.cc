@@ -210,6 +210,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   urn = this->createQualifiedInfoSpace(cpuInfoSpaceName);
   cpuInfoSpaceMax_ = xdata::getInfoSpaceFactory()->get(urn.toString());
   cpuInfoSpaceMax_->fireItemAvailable("run",&flashRunNumber_);
+  cpuInfoSpaceMax_->fireItemAvailable("time",&flashLoadMaxTimestamp_);
   cpuInfoSpaceMax_->fireItemAvailable("lumi",&flashLoadMaxLs_);
   cpuInfoSpaceMax_->fireItemAvailable("load",&flashLoadMax_);
   cpuInfoSpaceMax_->fireItemAvailable("loadPS",&flashLoadMaxPS_);
@@ -226,7 +227,18 @@ iDie::iDie(xdaq::ApplicationStub *s)
   monNames_.push_back("evttime7");
   monNames_.push_back("evttime12");
   monNames_.push_back("evttime16");
-  monNames_.push_back("evttimerate");
+  monNames_.push_back("rate");
+
+
+  monNamesMax_.push_back("run");
+  monNamesMax_.push_back("time");
+  monNamesMax_.push_back("lumi");
+  monNamesMax_.push_back("load");
+  monNamesMax_.push_back("loadPS");
+  monNamesMax_.push_back("evttime7");
+  monNamesMax_.push_back("evttime12");
+  monNamesMax_.push_back("evttime16");
+  monNamesMax_.push_back("rate");
 
 
 
@@ -343,11 +355,15 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
         meInitializedDatasets_=false;
         sleep(1);//making sure that any running ls update finishes
 
-        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
-        dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Streams/");
         dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Datasets/");
+        dqmStore_->removeContents();
+        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Modules/");
+        dqmStore_->removeContents();
+        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Tables/");
+        dqmStore_->removeContents();
+        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
         dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
         dqmStore_->removeContents();
@@ -1284,16 +1300,17 @@ void iDie::initMonitorElements()
   runStartTimeStamp_ = dqmStore_->bookFloat("runStartTimeStamp");
   initDQMEventInfo();
 
-  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
   for (unsigned int i=0;i<nbSubsClasses;i++) {
     std::ostringstream str;
     str << nbSubsListInv[i];
+    dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
     meVecRate_.push_back(dqmStore_->book1D("EVENT_RATE_"+TString(str.str().c_str()),
 	  "Average event rate for nodes with " + TString(str.str().c_str()) + " EP instances",
 	  4000,1.,4001));
     meVecTime_.push_back(dqmStore_->book1D("EVENT_TIME_"+TString(str.str().c_str()),
 	  "Average event processing time for nodes with " + TString(str.str().c_str()) + " EP instances",
 	  4000,1.,4001));
+    dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Modules/");
     meVecOffenders_.push_back(dqmStore_->book2D("MODULE_FRACTION_"+TString(str.str().c_str()),
 	  "Module processing time fraction_"+ TString(str.str().c_str()),
 	  ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES));
@@ -1301,6 +1318,9 @@ void iDie::initMonitorElements()
     meVecOffenders_[i]->Fill(0,1);
     occupancyNameMap[i].clear();
   }
+
+  //tables
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Tables");
   rateSummary_   = dqmStore_->book2D("00_RATE_SUMMARY","Rate Summary (Hz)",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
   reportPeriodSummary_   = dqmStore_->book2D("00_REPORT_PERIOD_SUMMARY","Average report period (s)",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
   timingSummary_ = dqmStore_->book2D("01_TIMING_SUMMARY","Event Time Summary (ms)",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
@@ -1312,14 +1332,14 @@ void iDie::initMonitorElements()
       ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
   fuReportsSummary_ = dqmStore_->book2D("06_EP_REPORTS_SUMMARY","Number of reports received",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
 
-  //busyModules_  = dqmStore_->book2D("MODULES_BUSY",ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES);
-  //everything goes into layouts folder
+  //everything else goes into layouts folder
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
   std::ostringstream busySummaryTitle;
   busySummaryTitle << "DAQ HLT Farm busy (%) for run "<< runNumber_.value_;
   lastRunNumberSet_ = runNumber_.value_;
   daqBusySummary_ = dqmStore_->book1D("reportSummaryMap",busySummaryTitle.str(),4000,1,4001.);
   daqBusySummary2_ = dqmStore_->book1D("reportSummaryMap_PROCSTAT","DAQ HLT Farm busy (%) from /proc/stat",4000,1,4001.);
-  daqTotalRateSummary_ = dqmStore_->book1D("reportSummaryMap_TOTRATE","DAQ HLT Farm input rate",4000,1,4001.);
+  daqTotalRateSummary_ = dqmStore_->book1D("reportSummaryMap_TOTALRATE","DAQ HLT Farm input rate",4000,1,4001.);
 
   for (size_t i=1;i<=ROLL;i++) {
     std::ostringstream ostr;
@@ -1562,6 +1582,7 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
     loadMaxTime12_ = newLoadMaxTime12;
     loadMaxTime16_ = newLoadMaxTime16;
     loadMaxRate_ = newLoadMaxRate;
+    //capture time
   }
   //flashlist per-lumi values
   if (lsid)
@@ -1736,7 +1757,7 @@ void iDie::doFlush() {
 
 void iDie::timeExpired(toolbox::task::TimerEvent& e)
 {
-  bool pushUpdate=false;
+  //bool pushUpdate=false;
   if (debugMode_.value_)
     std::cout << "debug - runNumber:" << runNumber_ << " run active:" << runActive_ << std::endl;
   if (!runActive_) return;
@@ -1754,6 +1775,8 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
     if (loadMax_>flashLoadMax_.value_)
     {
        cpuInfoSpaceMax_->lock();
+       //timestamp
+       flashLoadMaxTimestamp_ = toolbox::TimeVal::gettimeofday();
        flashLoadMaxLs_.value_=loadMaxLs_;
        flashLoadMax_=loadMax_;
        flashLoadMaxPS_=loadMaxPS_;
@@ -1764,12 +1787,14 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
        cpuInfoSpaceMax_->unlock();
 
        if (debugMode_.value_)
-         std::cout << "debug - updated max flashlist with values "
-	           << flashLoadMaxLs_ << " " << flashLoadMax_ << " " << flashLoadMaxPS_
-		   << " " << flashLoadMaxTime7_ << " " << flashLoadMaxTime12_  << " "
-		   << flashLoadMaxTime16_ << " " << flashLoadMaxRate_ << std::endl;
+         std::cout << "debug - updated max flashlist with values time:"
+		   << " " << flashLoadMaxTimestamp_.value_ << " " << flashLoadMaxLs_
+		   << " " << flashLoadMax_          << " " << flashLoadMaxPS_
+		   << " " << flashLoadMaxTime7_     << " " << flashLoadMaxTime12_
+		   << " " << flashLoadMaxTime16_    << " " << flashLoadMaxRate_
+		   << " " << std::endl;
 
-       cpuInfoSpaceMax_->fireItemGroupChanged(monNames_, this);
+       cpuInfoSpaceMax_->fireItemGroupChanged(monNamesMax_, this);
     }
 
     if (debugMode_.value_) std::cout << " checking per-lumi flashlist" << std::endl;

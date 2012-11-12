@@ -2,6 +2,7 @@
 2012-10-29 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-19
+	* separate folders for module info and tables
 	* Total input rate 1D plot
 	* CPU loads flashlist and sender timer thread
 	* one flashlist per run and one per run,lumi

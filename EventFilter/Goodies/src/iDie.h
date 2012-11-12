@@ -9,6 +9,7 @@
 #include "xdata/Float.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Boolean.h"
+#include "xdata/TimeVal.h"
 #include "xdata/ActionListener.h"
 
 #include "xoap/MessageReference.h"
@@ -230,6 +231,7 @@ namespace evf {
 
 
     //CPU peak load flashlist
+    std::list<std::string>          monNamesMax_;
     xdata::InfoSpace                *cpuInfoSpaceMax_;
     xdata::UnsignedInteger32        flashLoadMaxLs_;
     std::atomic<unsigned int>       loadMaxLs_;
@@ -247,6 +249,7 @@ namespace evf {
     xdata::Float                    flashLoadMaxTime12_;
     xdata::Float                    flashLoadMaxTime16_;
     xdata::Float                    flashLoadMaxRate_;
+    xdata::TimeVal                  flashLoadMaxTimestamp_;
 
     //EventInfo
     MonitorElement * runId_;
