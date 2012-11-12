@@ -44,5 +44,5 @@ date >> $logpath/$logfile
 
 cd $outdir
 date >> $logpath/$logfile
-python -u ./create_public_pileup_plots.py $cfgfile ${IGNORE_CACHE_FLAG} >> $logpath/$logfile
+python -u $macrodir/create_public_pileup_plots.py $cfgfile ${IGNORE_CACHE_FLAG} >> $logpath/$logfile
 date >> $logpath/$logfile
