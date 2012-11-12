@@ -77,6 +77,7 @@ private:
   // The purpose of these values is to shorten the length of the EventList_ vector when running on only a subset of data
   int minrun_;
   int maxrun_;  // if specified (i.e., values > -1), then only events in the given range will be filtered
+  int minRunInFile, maxRunInFile;
 
   bool WriteBadToFile_;
   bool forceFilterTrue_;
@@ -107,11 +108,14 @@ HcalLaserEventFilter2012::HcalLaserEventFilter2012(const edm::ParameterSet& ps)
     outfile_.open("badHcalLaserList_eventfilter.txt");
   forceFilterTrue_=ps.getUntrackedParameter<bool>("forceFilterTrue",false);
 
+  minRunInFile=999999; maxRunInFile=1;
   string eventFileName=ps.getParameter<string>("eventFileName");
   if (verbose_) edm::LogInfo("HcalLaserHFFilter2012") << "HCAL laser event list from file "<<eventFileName;
   readEventListFile(eventFileName);
   std::sort(EventList_.begin(), EventList_.end());
   if (verbose_) edm::LogInfo("HcalLaserHFFilter2012")<<" A total of "<<EventList_.size()<<" listed HCAL laser events found in given run range";
+  if (minrun_==-1 || minrun_<minRunInFile) minrun_=minRunInFile;
+  if (maxrun_==-1 || maxrun_>maxRunInFile) maxrun_=maxRunInFile;
 }
 
 void HcalLaserEventFilter2012::addEventString(const string & eventString)
@@ -154,6 +158,8 @@ void HcalLaserEventFilter2012::addEventString(const string & eventString)
       if (verbose_) edm::LogInfo("HcalLaserHFFilter2012") <<"Skipping Event list input '"<<eventString<<"' because it is greater than maximum run # "<<maxrun_;
       return;
     }
+  if (minRunInFile>run) minRunInFile=run;
+  if (maxRunInFile<run) maxRunInFile=run;
   // Now add event to Event List
   EventList_.push_back(eventString);
 }
