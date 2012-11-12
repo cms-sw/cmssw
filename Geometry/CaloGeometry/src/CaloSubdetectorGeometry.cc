@@ -222,7 +222,7 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
 
    if( 0 == m_deltaPhi )
    {
-      const uint32_t kSize ( cgId.sizeForDenseIndexing() ) ;
+     const uint32_t kSize ( sizeForDenseIndex(detId));
       m_deltaPhi = new std::vector<CCGFloat> ( kSize ) ;
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
@@ -262,17 +262,16 @@ CaloSubdetectorGeometry::deltaPhi( const DetId& detId ) const
 	 }
       }
    }
-   return (*m_deltaPhi)[ cgId.denseIndex() ] ;
+   return (*m_deltaPhi)[ indexFor(detId) ] ;
 }
 
 CCGFloat 
 CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
 {
-   const CaloGenericDetId cgId ( detId ) ;
 
    if( 0 == m_deltaEta )
    {
-      const uint32_t kSize ( cgId.sizeForDenseIndexing() ) ;
+     const uint32_t kSize ( sizeForDenseIndex(detId));
       m_deltaEta = new std::vector<CCGFloat> ( kSize ) ;
       for( uint32_t i ( 0 ) ; i != kSize ; ++i )
       {
@@ -310,5 +309,10 @@ CaloSubdetectorGeometry::deltaEta( const DetId& detId ) const
 	 }
       }
    }
-   return (*m_deltaEta)[ cgId.denseIndex() ] ;
+   return (*m_deltaEta)[ indexFor(detId)];
 }
+
+
+unsigned int CaloSubdetectorGeometry::indexFor(const DetId& id) const { return CaloGenericDetId(id).denseIndex(); }
+
+unsigned int CaloSubdetectorGeometry::sizeForDenseIndex(const DetId& id) const { return CaloGenericDetId(id).sizeForDenseIndexing(); }

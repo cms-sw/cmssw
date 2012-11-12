@@ -19,16 +19,17 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2012/10/29 20:20:29 $
-   $Revision: 1.15 $
+   $Date: 2012/10/30 15:36:04 $
+   $Revision: 1.16 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
 public:
 
-  HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE );
+  HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_PreLS1);
 	
   HcalTopologyMode::Mode mode() const {return mode_;}
+  HcalTopologyMode::TriggerMode triggerMode() const { return triggerMode_; }
   /** Add a cell to exclusion list */
   void exclude(const HcalDetId& id);
   /** Exclude an entire subdetector */
@@ -105,10 +106,29 @@ public:
   /// of the next segment.  Used for calculating physical bounds.
   std::pair<int, int> segmentBoundaries(unsigned ring, unsigned depth) const;
 
-  unsigned int getHBSize() const {return HBSize_;}
-  unsigned int getHESize() const {return HESize_;}
-  unsigned int getHOSize() const {return HOSize_;}
-  unsigned int getHFSize() const {return HFSize_;}
+
+  int getHBSize() const {return HBSize_;}
+  int getHESize() const {return HESize_;}
+  int getHOSize() const {return HOSize_;}
+  int getHFSize() const {return HFSize_;}
+  int getHTSize() const {return HTSize_;}
+  int getCALIBSize() const {return CALIBSize_;}
+
+  int maxDepthHB() const { return maxDepthHB_;}
+  int maxDepthHE() const { return maxDepthHE_;}
+
+  /// return a linear packed id from HB
+  unsigned int detId2denseIdHB(const DetId& id) const;
+  /// return a linear packed id from HE
+  unsigned int detId2denseIdHE(const DetId& id) const;
+  /// return a linear packed id from HO
+  unsigned int detId2denseIdHO(const DetId& id) const;
+  /// return a linear packed id from HF
+  unsigned int detId2denseIdHF(const DetId& id) const;
+  /// return a linear packed id from HT
+  unsigned int detId2denseIdHT(const DetId& id) const;
+  /// return a linear packed id from CALIB
+  unsigned int detId2denseIdCALIB(const DetId& id) const;
 
   unsigned int getNumberOfShapes() const { return numberOfShapes_; }
       
@@ -127,6 +147,7 @@ private:
   bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
 
   HcalTopologyMode::Mode mode_;
+  HcalTopologyMode::TriggerMode triggerMode_;
   bool isExcluded(const HcalDetId& id) const;
 
   const int firstHBRing_;
@@ -145,10 +166,13 @@ private:
   const int doublePhiBins_;
   const int maxDepthHB_;
   const int maxDepthHE_;
-  unsigned int HBSize_;
-  unsigned int HESize_;
-  unsigned int HOSize_;
-  unsigned int HFSize_;
+
+  int HBSize_;
+  int HESize_;
+  int HOSize_;
+  int HFSize_;
+  int HTSize_;
+  int CALIBSize_;
   const unsigned int numberOfShapes_;
 
   int topoVersion_;
@@ -161,13 +185,18 @@ private:
 	 kHEhalf = 1296 ,
 	 kHOhalf = 1080 ,
 	 kHFhalf = 864  ,
+	 kHThalf = 2088,
+	 kZDChalf = 11,
+	 kCASTORhalf = 224,
+	 kCALIBhalf = 693,
 	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
   enum { kSizeForDenseIndexingPreLS1 = 2*kHcalhalf } ;
   enum { kHBSizePreLS1 = 2*kHBhalf } ;
   enum { kHESizePreLS1 = 2*kHEhalf } ;
   enum { kHOSizePreLS1 = 2*kHOhalf } ;
   enum { kHFSizePreLS1 = 2*kHFhalf } ;
-
+  enum { kHTSizePreLS1 = 2*kHThalf };
+  enum { kCALIBSizePreLS1 = 2*kCALIBhalf };
 };
 
 

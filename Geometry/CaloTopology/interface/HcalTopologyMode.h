@@ -28,6 +28,10 @@ public:
 namespace HcalTopologyMode {
     enum Mode {
 	LHC=0, H2=1, SLHC=2, H2HE=3 };
+
+    enum TriggerMode {
+      tm_LHC_PreLS1=0  // HF is summed in 3x2 regions
+    };
 }
 
 

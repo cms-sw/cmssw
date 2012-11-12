@@ -9,8 +9,8 @@
 #include <vector>
 /** \class CaloSubdetectorTopology
       
-$Date: 2011/09/27 09:11:27 $
-$Revision: 1.4 $
+$Date: 2012/10/29 07:28:55 $
+$Revision: 1.5 $
 \author P.Meridiani INFN Roma1
 \author J. Mans - Minnesota
 */
@@ -31,6 +31,8 @@ public:
   virtual unsigned int ncells() const { return 1; }
   /// return a version which identifies the given topology
   virtual int topoVersion() const { return 0; }
+  /// return whether this topology is consistent with the numbering in the given topology
+  virtual bool denseIdConsistent(int topoVer) const { return topoVer==topoVersion(); }
 
   /** Get the neighbors of the given cell in east direction*/
   virtual std::vector<DetId> east(const DetId& id) const = 0;
