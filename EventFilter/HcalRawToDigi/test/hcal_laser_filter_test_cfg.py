@@ -59,23 +59,6 @@ process.load("EventFilter.HcalRawToDigi.hcallasereventfilter2012_cfi")
 process.load("EventFilter.HcalRawToDigi.hcallaserhbhefilter2012_cfi")
 process.load("EventFilter.HcalRawToDigi.hcallaserhffilter2012_cfi")
 
-# -------------------------------------------------------------------------- 
-This is an example of how to read in a txt (gzipped) file of bad events, and put in in the hcallasereventfilter2012 'EventList' vector.  Input (gzipped) files should have the structure run:LS:event
-
-import string
-import os
-import gzip
-
-#--- taking events list from the release area
-#file = gzip.GzipFile(os.getenv('CMSSW_RELEASE_BASE')+"/src/EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt.gz")
-
-#--- alternatively - taking events list from local area
-file = gzip.GzipFile(os.getenv('CMSSW_BASE')+"/src/EventFilter/HcalRawToDigi/data/AllBadHCALLaser.txt.gz")
-
-mylist=file.readlines()  # read all lines in the inputfile
-for j in mylist:
-        process.hcallasereventfilter2012.EventList.append(string.strip(j)) 
-print "A total of %i events read"%len(process.hcallasereventfilter2012.EventList)
 
 
 
