@@ -42,3 +42,5 @@
 </bin>
 <bin   file="Similarity_t.cpp" name="DataFormatsSimilarity_t">
 </bin>
+<bin   file="MulSymMatrix_t.cpp" name="DataFormatsMulSymMatrix_t">
+</bin>
