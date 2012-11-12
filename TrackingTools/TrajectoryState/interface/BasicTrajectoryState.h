@@ -29,7 +29,7 @@
 #include "FWCore/Utilities/interface/Likely.h"
 
 /// vvv DEBUG
-#include <iostream>
+// #include <iostream>
 
 //class MagneticField;
 #include "MagneticField/Engine/interface/MagneticField.h"
