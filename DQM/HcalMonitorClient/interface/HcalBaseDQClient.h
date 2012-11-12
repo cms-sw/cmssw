@@ -9,11 +9,13 @@
 #include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+class HcalLogicalMap;
+
 /*
  * \file HcalBaseDQClient.h
  * 
- * $Date: 2012/06/11 22:12:08 $
- * $Revision: 1.7 $
+ * $Date: 2012/06/18 08:23:09 $
+ * $Revision: 1.8 $
  * \author J. Temple
  * \brief Hcal Monitor Client base class
  * based on code in EcalBarrelMonitorClient/interface/EBClient.h
@@ -23,7 +25,7 @@
 class HcalBaseDQClient
 {
  public:
-  HcalBaseDQClient(){name_="HcalBaseDQClient";subdir_="HcalInfo";badChannelStatusMask_=0;enoughevents_=true;minerrorrate_=0;minevents_=0;};
+  HcalBaseDQClient(){name_="HcalBaseDQClient";subdir_="HcalInfo";badChannelStatusMask_=0;enoughevents_=true;minerrorrate_=0;minevents_=0;logicalMap_=0; needLogicalMap_=false;};
   HcalBaseDQClient(std::string s, const edm::ParameterSet& ps);
   virtual ~HcalBaseDQClient(void);
   
@@ -49,6 +51,8 @@ class HcalBaseDQClient
   virtual void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual){};     
   
   virtual bool validHtmlOutput();
+
+  void getLogicalMap(const edm::EventSetup& es);
 
   inline void setEventSetup(const edm::EventSetup& es) 
     { c = &(es);  }
@@ -78,6 +82,10 @@ class HcalBaseDQClient
   std::map<HcalDetId, unsigned int> badstatusmap;
   DQMStore* dqmStore_;
   bool enoughevents_;
+
+  bool needLogicalMap_;
+  HcalLogicalMap* logicalMap_;
+
 }; // class HcalBaseDQClient
 
 

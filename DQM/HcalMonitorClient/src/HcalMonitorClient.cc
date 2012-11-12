@@ -1,8 +1,8 @@
 /*
  * \file HcalMonitorClient.cc
  * 
- * $Date: 2011/04/18 20:12:14 $
- * $Revision: 1.102 $
+ * $Date: 2012/11/02 14:23:43 $
+ * $Revision: 1.103 $
  * \author J. Temple
  * 
  */
@@ -191,9 +191,13 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
   badchannelmap.clear();
 
   // Let's get the channel status quality
+  edm::ESHandle<HcalTopology> topo;
+  c.get<IdealGeometryRecord>().get(topo);
+
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
   chanquality_= new HcalChannelQuality(*p.product());
+  if (!chanquality_->topo()) chanquality_->setTopo(topo.product());
  
   if (dqmStore_ && ChannelStatus==0)
     {
@@ -325,7 +329,13 @@ void HcalMonitorClient::analyze(const edm::Event & e, const edm::EventSetup & c)
 
   run_=e.id().run();
   evt_=e.id().event();
-  if (prescaleFactor_>0 && jevt_%prescaleFactor_==0) this->analyze(e.luminosityBlock());
+  if (prescaleFactor_>0 && jevt_%prescaleFactor_==0) {
+
+    for (unsigned int i=0;i<clients_.size();++i)
+      clients_[i]->getLogicalMap(c); // actually runs just once internally
+
+    this->analyze(e.luminosityBlock());
+  }
 
 } // void HcalMonitorClient::analyze(const edm::Event & e, const edm::EventSetup & c)
 
@@ -544,7 +554,7 @@ void HcalMonitorClient::writeChannelStatus()
   if (debug_>0) std::cout <<"<HcalMonitorClient::writeChannelStatus()>  myquality size = "<<myquality.size()<<std::endl;
 
   std::vector<DetId> mydetids = chanquality_->getAllChannels();
-  HcalChannelQuality* newChanQual = new HcalChannelQuality();
+  HcalChannelQuality* newChanQual = new HcalChannelQuality(chanquality_->topo());
 
   for (unsigned int i=0;i<mydetids.size();++i)
     {

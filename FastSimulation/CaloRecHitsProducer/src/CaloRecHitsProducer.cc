@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -12,6 +13,9 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalBarrelRecHitsMaker.h"
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalEndcapRecHitsMaker.h"
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalPreshowerRecHitsMaker.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // Random engine
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -186,6 +190,9 @@ void CaloRecHitsProducer::endJob()
 
 void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
+   edm::ESHandle<HcalTopology> topo;
+   es.get<IdealGeometryRecord>().get( topo );
+
 
   // create empty outputs for HCAL 
   // see RecoLocalCalo/HcalRecProducers/src/HcalSimpleReconstructor.cc
@@ -240,7 +247,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 	// hbhe
 	std::auto_ptr<HBHERecHitCollection> rec1(new HBHERecHitCollection); // Barrel+Endcap
 	std::auto_ptr<HBHEDigiCollection> digihbhe(new HBHEDigiCollection);
-	HcalRecHitsMaker_->loadHcalRecHits(iEvent,*rec1,*digihbhe);
+	HcalRecHitsMaker_->loadHcalRecHits(iEvent,(*topo),*rec1,*digihbhe);
 	if ( theOutputRecHitCollections.size()&& theOutputRecHitCollections[input].size())		    
 	  iEvent.put(rec1,theOutputRecHitCollections[input]);
 	else
@@ -256,7 +263,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 	std::auto_ptr<HORecHitCollection> rec2(new HORecHitCollection);     // Outer
 	std::auto_ptr<HODigiCollection> digiho(new HODigiCollection);
 
-	HcalRecHitsMaker_->loadHcalRecHits(iEvent,*rec2,*digiho);
+	HcalRecHitsMaker_->loadHcalRecHits(iEvent,(*topo),*rec2,*digiho);
 	if(theOutputRecHitCollections.size()&& theOutputRecHitCollections[input].size())	  
 	  iEvent.put(rec2,theOutputRecHitCollections[input]);
 	else
@@ -270,7 +277,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 	//hf 
 	std::auto_ptr<HFRecHitCollection> rec3(new HFRecHitCollection);     // Forward
 	std::auto_ptr<HFDigiCollection> digihf(new HFDigiCollection);
-	HcalRecHitsMaker_->loadHcalRecHits(iEvent,*rec3,*digihf);
+	HcalRecHitsMaker_->loadHcalRecHits(iEvent,(*topo),*rec3,*digihf);
 	if(theOutputRecHitCollections.size()&& theOutputRecHitCollections[input].size())
 	  iEvent.put(rec3,theOutputRecHitCollections[input]);
 	else

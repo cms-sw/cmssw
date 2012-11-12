@@ -6,7 +6,6 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 #include <iostream>
@@ -14,8 +13,8 @@
 /*
  * \file HcalDetDiagPedestalClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.11 $
+ * $Date: 2012/06/18 08:23:10 $
+ * $Revision: 1.12 $
  * \author J. Temple
  * \brief Hcal DetDiagPedestal Client class
  */
@@ -24,6 +23,7 @@
 HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(std::string myname)
 {
   name_=myname;   status=0;
+  needLogicalMap_=true;
 }
 
 HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(std::string myname, const edm::ParameterSet& ps)
@@ -52,6 +52,7 @@ HcalDetDiagPedestalClient::HcalDetDiagPedestalClient(std::string myname, const e
 
   ProblemCells=0;
   ProblemCellsByDepth=0;
+  needLogicalMap_=true;
 }
 
 void HcalDetDiagPedestalClient::analyze()
@@ -395,9 +396,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
  if (debug_>0) std::cout << "<HcalDetDiagPedestalClient::htmlOutput> Preparing  html output ..." << std::endl;
   if(!dqmStore_) return;
 
-  HcalLogicalMapGenerator gen;
-  HcalLogicalMap lmap(gen.createMap());
-  HcalElectronicsMap emap=lmap.generateHcalElectronicsMap();
+  HcalElectronicsMap emap=logicalMap_->generateHcalElectronicsMap();
   TH2F *Missing_val[4],*Unstable_val[4],*BadPed_val[4],*BadRMS_val[4];
   MonitorElement* me;
 
@@ -618,7 +617,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
           std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badMissing,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -639,7 +638,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
           std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badMissing,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -660,7 +659,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
           std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badMissing,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -681,7 +680,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
           std::string s=" ";
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s="Known problem";}	
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badMissing,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -704,7 +703,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badUnstable,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -726,7 +725,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badUnstable,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -748,7 +747,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badUnstable,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -770,7 +769,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
           char comment[100]; sprintf(comment,"Missing in %.3f%% of events\n",(1.0-val)*100.0);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badUnstable,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -797,7 +796,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badPedRMS,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -823,7 +822,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badPedRMS,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -849,7 +848,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badPedRMS,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 
@@ -875,7 +874,7 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
 	  if(val1!=0 && val2!=0) sprintf(comment,"Ped-Ref=%.2f,Rms-Ref=%.2f",val1,val2);
           std::string s=comment;
           if(badstatusmap.find(hcalid)!=badstatusmap.end()){ s+=",Known problem";}	
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
 	  printTableLine(badPedRMS,cnt++,hcalid,lmap_entry,emap_entry,s);
       } 

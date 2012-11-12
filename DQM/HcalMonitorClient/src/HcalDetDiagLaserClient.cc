@@ -6,7 +6,6 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 #include <iostream>
@@ -14,8 +13,8 @@
 /*
  * \file HcalDetDiagLaserClient.cc
  * 
- * $Date: 2011/04/12 18:25:42 $
- * $Revision: 1.6 $
+ * $Date: 2012/06/18 08:23:10 $
+ * $Revision: 1.7 $
  * \author J. Temple
  * \brief Hcal DetDiagLaser Client class
  */
@@ -37,6 +36,7 @@ using namespace edm;
 HcalDetDiagLaserClient::HcalDetDiagLaserClient(std::string myname)
 {
   name_=myname;   status=0;
+  needLogicalMap_=true;
 }
 
 HcalDetDiagLaserClient::HcalDetDiagLaserClient(std::string myname, const edm::ParameterSet& ps)
@@ -65,6 +65,7 @@ HcalDetDiagLaserClient::HcalDetDiagLaserClient(std::string myname, const edm::Pa
 
   ProblemCells=0;
   ProblemCellsByDepth=0;
+  needLogicalMap_=true;
 }
 
 void HcalDetDiagLaserClient::analyze()
@@ -383,9 +384,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
   if(debug_>2) std::cout <<"\t<HcalDetDiagLaserClient::htmlOutput>  Preparing html for task: "<<name_<<std::endl;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  HcalLogicalMapGenerator gen;
-  HcalLogicalMap lmap(gen.createMap());
-  HcalElectronicsMap emap=lmap.generateHcalElectronicsMap();
+  HcalElectronicsMap emap=logicalMap_->generateHcalElectronicsMap();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   string ref_run,s;
@@ -615,7 +614,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
           float val=BadTiming_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Time-Ref=%.2f",val);
 	  printTableLine(badTiming,cnt++,hcalid,lmap_entry,emap_entry,str);
@@ -635,7 +634,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
           float val=BadTiming_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Time-Ref=%.2f",val);
 	  printTableLine(badTiming,cnt++,hcalid,lmap_entry,emap_entry,str);
@@ -655,7 +654,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
           float val=BadTiming_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Time-Ref=%.2f",val);
 	  printTableLine(badTiming,cnt++,hcalid,lmap_entry,emap_entry,str);
@@ -675,7 +674,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
           float val=BadTiming_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Time-Ref=%.2f",val);
 	  printTableLine(badTiming,cnt++,hcalid,lmap_entry,emap_entry,str);
@@ -696,7 +695,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
           float val=BadEnergy_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalBarrel,ieta,phi+1,d+1);
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Energy/Ref=%.2f",val);
 	  printTableLine(badEnergy,cnt++,hcalid,lmap_entry,emap_entry,str);
@@ -716,7 +715,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
           float val=BadEnergy_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalEndcap,ieta,phi+1,d+1);
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Energy/Ref=%.2f",val);
 	  printTableLine(badEnergy,cnt++,hcalid,lmap_entry,emap_entry,str);
@@ -736,7 +735,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
           float val=BadEnergy_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalOuter,ieta,phi+1,d+1);
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Energy/Ref=%.2f",val);
 	  printTableLine(badEnergy,cnt++,hcalid,lmap_entry,emap_entry,str);
@@ -756,7 +755,7 @@ void HcalDetDiagLaserClient::htmlOutput(string htmlDir){
           float val=BadEnergy_val[d]->GetBinContent(eta+1,phi+1);
 	  if(val==0) continue;
           HcalDetId hcalid(HcalForward,ieta,phi+1,d+1);
-	  HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(hcalid);
+	  HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(hcalid);
 	  HcalElectronicsId emap_entry=emap.lookup(hcalid);
           sprintf(str,"Energy/Ref=%.2f",val);
 	  printTableLine(badEnergy,cnt++,hcalid,lmap_entry,emap_entry,str);
