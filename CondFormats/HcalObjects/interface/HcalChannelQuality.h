@@ -15,7 +15,10 @@ POOL object to store HcalChannelStatus
 class HcalChannelQuality: public HcalCondObjectContainer<HcalChannelStatus>
 {
  public:
-  HcalChannelQuality():HcalCondObjectContainer<HcalChannelStatus>() {}
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalChannelQuality():HcalCondObjectContainer<HcalChannelStatus>(0) {}
+#endif
+  HcalChannelQuality(const HcalTopology* topo):HcalCondObjectContainer<HcalChannelStatus>(topo) {}
 
   std::string myname() const {return (std::string)"HcalChannelQuality";}
 

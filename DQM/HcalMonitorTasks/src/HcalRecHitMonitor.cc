@@ -56,6 +56,7 @@ HcalRecHitMonitor::HcalRecHitMonitor(const edm::ParameterSet& ps)
 
   timediffThresh_    = ps.getUntrackedParameter<double>("collisiontimediffThresh",10.);
   setupDone_         = false;
+  needLogicalMap_    = true;
 } //constructor
 
 HcalRecHitMonitor::~HcalRecHitMonitor()
@@ -87,10 +88,6 @@ void HcalRecHitMonitor::setup()
 
   if (debug_>0)
     std::cout <<"<HcalRecHitMonitor::setup>  Setting up histograms"<<std::endl;
-
-  // Can we include this just in the setup, or do we need to get a new logical map with every run?
-  HcalLogicalMapGenerator gen;
-  logicalMap=new HcalLogicalMap(gen.createMap());
 
   // RecHit Monitor - specific cfg variables
 
@@ -585,6 +582,7 @@ void HcalRecHitMonitor::cleanup()
 
 void HcalRecHitMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
+  getLogicalMap(s);
   if (debug_>0)  std::cout <<"HcalRecHitMonitor::analyze; debug = "<<debug_<<std::endl;
 
   if (!IsAllowedCalibType()) return;
@@ -767,8 +765,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       double fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
 
       int calcEta = CalcEtaBin(subdet,ieta,depth);
-      int rbxindex=logicalMap->getHcalFrontEndId(HBHEiter->detid()).rbxIndex();
-      int rm= logicalMap->getHcalFrontEndId(HBHEiter->detid()).rm();
+      int rbxindex=logicalMap_->getHcalFrontEndId(HBHEiter->detid()).rbxIndex();
+      int rm= logicalMap_->getHcalFrontEndId(HBHEiter->detid()).rm();
 
       // Fill HBHE flag plots
       h_HBHE_FlagCorr->Fill(HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape),
@@ -968,8 +966,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       int calcEta = CalcEtaBin(HcalOuter,ieta,depth);
       double fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
       
-      int rbxindex=logicalMap->getHcalFrontEndId(HOiter->detid()).rbxIndex();
-      int rm= logicalMap->getHcalFrontEndId(HOiter->detid()).rm();
+      int rbxindex=logicalMap_->getHcalFrontEndId(HOiter->detid()).rbxIndex();
+      int rm= logicalMap_->getHcalFrontEndId(HOiter->detid()).rm();
       
       if (HOiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
 	h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
@@ -1063,8 +1061,8 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28]));
       int calcEta = CalcEtaBin(HcalForward,ieta,depth);
 
-      int rbxindex=logicalMap->getHcalFrontEndId(HFiter->detid()).rbxIndex();
-      int rm= logicalMap->getHcalFrontEndId(HFiter->detid()).rm(); 
+      int rbxindex=logicalMap_->getHcalFrontEndId(HFiter->detid()).rbxIndex();
+      int rm= logicalMap_->getHcalFrontEndId(HFiter->detid()).rm(); 
 	 
       h_HF_FlagCorr->Fill(HFiter->flagField(HcalCaloFlagLabels::HFDigiTime),HFiter->flagField(HcalCaloFlagLabels::HFLongShort)); 
       if (HFiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))

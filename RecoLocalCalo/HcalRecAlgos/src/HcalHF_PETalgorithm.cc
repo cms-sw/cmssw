@@ -70,7 +70,7 @@ HcalHF_PETalgorithm::~HcalHF_PETalgorithm(){}
 
 void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
 					   HFRecHitCollection& rec,
-					   HcalChannelQuality* myqual,
+					   const HcalChannelQuality* myqual,
 					   const HcalSeverityLevelComputer* mySeverity)
 {
   /*  Set the HFLongShort flag by comparing the ratio |L-S|/|L+S|.  Channels must first pass energy and ET cuts, and channels whose partners are known to be dead are skipped, since those channels can never satisfy the ratio cut.  */

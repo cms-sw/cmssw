@@ -112,7 +112,7 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     // go through list of valid channels from reference, look up if pedestals exist for update
     // push back into new vector the corresponding updated pedestals,
     // or if it doesn't exist, the reference
-    HcalPedestals *resultPeds = new HcalPedestals(myRefPeds->isADC() );
+    HcalPedestals *resultPeds = new HcalPedestals(myRefPeds->topo(), myRefPeds->isADC() );
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
     std::vector<DetId>::iterator cell;
     for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)

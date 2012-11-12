@@ -15,7 +15,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 //
 // Original Author:  Andrey Pozdnyakov
 //         Created:  Tue Nov  4 01:16:05 CET 2008
-// $Id: ValidIsoTrkCalib.cc,v 1.12 2010/03/05 22:50:27 andrey Exp $
+// $Id: ValidIsoTrkCalib.cc,v 1.13 2010/03/09 01:14:48 andrey Exp $
 //
 
 // system include files
@@ -400,7 +400,7 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
        MaxHit.hitenergy=-100.;
 
       //container for used recHits
-      std::vector<int> usedHits; 
+      std::vector<DetId> usedHits; 
       //  
       usedHits.clear();
       //cout <<"Point 1. Entrance to HBHECollection"<<endl;
@@ -418,13 +418,12 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  
 	  //check that this hit was not considered before and push it into usedHits
 	  bool hitIsUsed=false;
-	  int hitHashedIndex=hhit->id().hashed_index();
 	  for (uint32_t i=0; i<usedHits.size(); i++)
 	    {
-	      if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
+	      if (usedHits[i]==hhit->id()) hitIsUsed=true;
 	    }
 	  if (hitIsUsed) continue;
-	  usedHits.push_back(hitHashedIndex);
+	  usedHits.push_back(hhit->id());
 	  //
 
 	  // rof 16.05.2008 start: include the possibility for recalibration
@@ -520,13 +519,12 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
 	  
 	  //check that this hit was not considered before and push it into usedHits
 	  bool hitIsUsed=false;
-	  int hitHashedIndex=hhit->id().hashed_index();
 	  for (uint32_t i=0; i<usedHits.size(); i++)
 	    {
-	      if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
+	      if (usedHits[i]==hhit->id()) hitIsUsed=true;
 	    }
 	  if (hitIsUsed) continue;
-	  usedHits.push_back(hitHashedIndex);
+	  usedHits.push_back(hhit->id());
 	  
 	  int DIETA = 100;
 	  if(MaxHit.ietahitm*(hhit->id()).ieta()>0)

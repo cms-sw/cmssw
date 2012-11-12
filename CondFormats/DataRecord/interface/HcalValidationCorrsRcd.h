@@ -16,11 +16,12 @@
 //
 // Author:      Gena Kukartsev
 // Created:     Wed Jul 29 14:35:28 CSET 2009
-// $Id: HcalValidationCorrsRcd.h,v 1.1 2009/07/29 16:57:14 kukartse Exp $
+// $Id: HcalValidationCorrsRcd.h,v 1.1 2009/07/30 20:38:37 kukartse Exp $
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalValidationCorrsRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalValidationCorrsRcd> {};
+class HcalValidationCorrsRcd : public edm::eventsetup::DependentRecordImplementation<HcalValidationCorrsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
 
 #endif

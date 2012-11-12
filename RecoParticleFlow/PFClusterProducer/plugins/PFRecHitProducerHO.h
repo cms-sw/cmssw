@@ -28,6 +28,7 @@
 */
 
 class CaloSubdetectorTopology;
+class HcalTopology;
 class CaloSubdetectorGeometry;
 class DetId;
 
@@ -61,7 +62,7 @@ class PFRecHitProducerHO : public PFRecHitProducer {
 
   /// find rechit neighbours, using the hashed index
     void 
-      findRecHitNeighboursHO( reco::PFRecHit& rh, 
+      findRecHitNeighboursHO( reco::PFRecHit& rh, const HcalTopology& topo,
   			      const std::map<unsigned,unsigned >& sortedHits );
 void
     findRecHitNeighbours( reco::PFRecHit& rh, 
@@ -73,9 +74,9 @@ void
   /// which keep track of the neighbours of each rechit. 
   /// to be called at the beginning of the run
   void hoNeighbArray( const CaloSubdetectorGeometry& barrelGeom,
-			const CaloSubdetectorTopology& barrelTopo);
+			const HcalTopology& barrelTopo);
 
-  DetId move(DetId cell, const CaloDirection& dir ) const;
+  DetId move(DetId cell, const HcalTopology& barrelTopo, const CaloDirection& dir ) const;
 
   bool stdsimplemove(DetId& cell, 
 		     const CaloDirection& dir,

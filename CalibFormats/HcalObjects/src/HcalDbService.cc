@@ -29,6 +29,15 @@ HcalDbService::HcalDbService (const edm::ParameterSet& cfg):
   mUpdateCalibrations (true), mUpdateCalibWidths(true)
  {}
 
+const HcalTopology* HcalDbService::getTopologyUsed() const {
+  if (mPedestals && mPedestals->topo()) return mPedestals->topo();
+  if (mGains && mGains->topo()) return mGains->topo();
+  if (mRespCorrs && mRespCorrs->topo()) return mRespCorrs->topo();
+  if (mL1TriggerObjects && mL1TriggerObjects->topo()) return mL1TriggerObjects->topo();
+  if (mLutMetadata && mLutMetadata->topo()) return mLutMetadata->topo();
+  return 0;
+}
+
 
 const HcalCalibrations& HcalDbService::getHcalCalibrations(const HcalGenericDetId& fId) const 
 { 

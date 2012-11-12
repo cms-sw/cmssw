@@ -11,6 +11,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <iostream>
 
@@ -31,7 +32,9 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   setSaturationFlags_(conf.getParameter<bool>("setSaturationFlags")),
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
-  AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec"))
+  AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec")),
+  myobject(0),
+  theTopology(0)
   
 { 
   std::sort(AuxTSvec_.begin(),AuxTSvec_.end()); // sort vector in ascending TS order
@@ -63,10 +66,17 @@ void ZdcHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
    edm::ESHandle<HcalLongRecoParams> p;
    es.get<HcalLongRecoParamsRcd>().get(p);
    myobject = new HcalLongRecoParams(*p.product());
+
+   edm::ESHandle<HcalTopology> htopo;
+   es.get<IdealGeometryRecord>().get(htopo);
+   theTopology=new HcalTopology(*htopo);
+   myobject->setTopo(theTopology);
+
 }
 
 void ZdcHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
-  if (myobject) delete myobject;
+  if (myobject) delete myobject; myobject=0;
+  if (theTopology) delete theTopology; theTopology=0;
 }
 void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {

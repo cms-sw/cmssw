@@ -51,7 +51,7 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
     // go through list of valid channels from reference, look up if pedestals exist for update
     // push back into new vector the corresponding updated pedestals,
     // or if it doesn't exist, the reference
-    HcalPedestalWidths *resultPeds = new HcalPedestalWidths(myRefPeds->isADC() );
+    HcalPedestalWidths *resultPeds = new HcalPedestalWidths(myRefPeds->topo(), myRefPeds->isADC() );
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
     std::vector<DetId>::iterator cell;
 

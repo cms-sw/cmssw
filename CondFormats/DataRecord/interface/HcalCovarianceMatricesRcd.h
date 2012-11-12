@@ -16,11 +16,12 @@
 //
 // Author:      
 // Created:     Sat Mar  1 15:49:28 CET 2008
-// $Id: HcalCovarianceMatricesRcd.h,v 1.1 2008/03/03 16:57:14 rofierzy Exp $
+// $Id: HcalCovarianceMatricesRcd.h,v 1.1 2010/04/26 22:13:34 kukartse Exp $
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalCovarianceMatricesRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalCovarianceMatricesRcd> {};
+class HcalCovarianceMatricesRcd : public edm::eventsetup::DependentRecordImplementation<HcalCovarianceMatricesRcd, boost::mpl::vector<IdealGeometryRecord> > {};
 
 #endif

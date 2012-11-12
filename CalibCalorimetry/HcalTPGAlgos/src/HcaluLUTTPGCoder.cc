@@ -55,7 +55,7 @@ int HcaluLUTTPGCoder::getLUTId(const HcalDetId& detid) const {
    return getLUTId(detid.subdet(), detid.ieta(), detid.iphi(), detid.depth());
 }
 
-void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB){
+void HcaluLUTTPGCoder::update(const char* filename, const HcalTopology& theTopo, bool appendMSB){
 
    std::ifstream file(filename, std::ios::in);
    assert(file.is_open());
@@ -140,8 +140,10 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB){
       for (int ieta = ietaL[i]; ieta <= ietaU[i]; ++ieta){
          for (int iphi = iphiL[i]; iphi <= iphiU[i]; ++iphi){
             for (int depth = depL[i]; depth <= depU[i]; ++depth){
-               if (!HcalDetId::validDetId(subdet[i], ieta, iphi, depth)) continue;
+	      
                HcalDetId id(subdet[i], ieta, iphi, depth);
+ 	       if (!theTopo.valid(id)) continue;
+
                int lutId = getLUTId(id);
                for (size_t adc = 0; adc < INPUT_LUT_SIZE; ++adc){
                   if (appendMSB){
@@ -159,8 +161,7 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB){
    }// for nCol
 }
 
-void HcaluLUTTPGCoder::updateXML(const char* filename, HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE) {
-   HcalTopology theTopo(mode, maxDepthHB, maxDepthHE);
+void HcaluLUTTPGCoder::updateXML(const char* filename, const HcalTopology& theTopo) {
    LutXml * _xml = new LutXml(filename);
    _xml->create_lut_map();
    HcalSubdetector subdet[3] = {HcalBarrel, HcalEndcap, HcalForward};
@@ -200,9 +201,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
       for (int ieta = -41; ieta <= 41; ++ieta){
          for (int iphi = 1; iphi <= 72; ++iphi){
             for (int depth = 1; depth <= 3; ++depth){
-               if (!HcalDetId::validDetId(subdet, ieta, iphi, depth)) continue;
-
                HcalDetId cell(subdet, ieta, iphi, depth);
+	       if (!metadata->topo()->valid(cell)) continue;
+
                const HcalQIECoder* channelCoder = conditions.getHcalCoder (cell);
 	       const HcalQIEShape* shape = conditions.getHcalShape(cell);
                HcalCoderDb coder (*channelCoder, *shape);

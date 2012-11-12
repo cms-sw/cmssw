@@ -1,32 +1,51 @@
 #ifndef HcalCondObjectContainer_h
 #define HcalCondObjectContainer_h
 
-
-#include <iostream>
 #include <vector>
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <cstdlib>
+
+class HcalTopology;
+
+//#define HCAL_COND_SUPPRESS_DEFAULT
+
+class HcalCondObjectContainerBase {
+public:
+  const HcalTopology* topo() const { return topo_; }
+  int getCreatorPackedIndexVersion() const { return packedIndexVersion_; }
+  void setTopo(const HcalTopology* topo) const;
+  void setTopo(const HcalTopology* topo);
+protected:
+  HcalCondObjectContainerBase(const HcalTopology*);
+  unsigned int indexFor(DetId) const;
+  unsigned int sizeFor(DetId) const;
+  int packedIndexVersion_;
+  inline HcalOtherSubdetector extractOther(const DetId& id) const { return HcalOtherSubdetector((id.rawId()>>20)&0x1F); }
+  std::string textForId(const DetId& id) const;
+private:
+  mutable const HcalTopology* topo_;
+};
 
 template<class Item>
-class HcalCondObjectContainer
-{
- public:
+class HcalCondObjectContainer : public HcalCondObjectContainerBase {
+public:
   // default constructor
-  HcalCondObjectContainer();
+  HcalCondObjectContainer(const HcalTopology* topo) : HcalCondObjectContainerBase(topo) { }
 
   // destructor:
   virtual ~HcalCondObjectContainer();
 
   // get the object back
-  const Item* getValues(DetId fId) const;
+  const Item* getValues(DetId fId, bool throwOnFail=true) const;
 
   // does the object exist ?
   const bool exists(DetId fId) const;
 
   // set the object/fill it in:
-  bool addValues(const Item& myItem, bool h2mode_=false);
+  bool addValues(const Item& myItem);
 
   // list of available channels:
   std::vector<DetId> getAllChannels() const;
@@ -51,9 +70,7 @@ class HcalCondObjectContainer
   }
 
  private:
-  void initContainer(int container, bool h2mode_ = false);
-
-  //  bool m_h2mode;
+  void initContainer(DetId container);
 
   std::vector<Item> HBcontainer;
   std::vector<Item> HEcontainer;
@@ -63,14 +80,12 @@ class HcalCondObjectContainer
   std::vector<Item> ZDCcontainer;
   std::vector<Item> CALIBcontainer;
   std::vector<Item> CASTORcontainer;
+  
+  //volatile const HcalTopology* topo_; // This needs to not be in the DB
+
+
 };
 
-
-template<class Item>
-HcalCondObjectContainer<Item>::HcalCondObjectContainer()
-//: m_h2mode(false)
-{
-}
 
 template<class Item>
 HcalCondObjectContainer<Item>::~HcalCondObjectContainer()
@@ -78,221 +93,139 @@ HcalCondObjectContainer<Item>::~HcalCondObjectContainer()
 }
 
 template<class Item> void
-HcalCondObjectContainer<Item>::initContainer(int container, bool h2mode_)
+HcalCondObjectContainer<Item>::initContainer(DetId fId)
 {
-  //  if (!m_h2mode) m_h2mode = h2mode_;
-
   Item emptyItem;
 
-  switch (container) 
-    {
-    case HcalGenericDetId::HcalGenBarrel: 
-      for (int i=0; i<(2*HcalGenericDetId::HBhalf); i++) HBcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenEndcap: 
-      if (!h2mode_) for (int i=0; i<(2*HcalGenericDetId::HEhalf); i++) HEcontainer.push_back(emptyItem); 
-      else for (int i=0; i<(2*HcalGenericDetId::HEhalfh2mode); i++) HEcontainer.push_back(emptyItem); 
-      break;
-    case HcalGenericDetId::HcalGenOuter: 
-      for (int i=0; i<(2*HcalGenericDetId::HOhalf); i++) HOcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenForward: 
-      for (int i=0; i<(2*HcalGenericDetId::HFhalf); i++) HFcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenTriggerTower: 
-      for (int i=0; i<(2*HcalGenericDetId::HThalf); i++) HTcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenZDC: 
-      for (int i=0; i<(2*HcalGenericDetId::ZDChalf); i++) ZDCcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenCalibration: 
-      for (int i=0; i<(2*HcalGenericDetId::CALIBhalf); i++) CALIBcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenCastor: 
-      for (int i=0; i<(2*HcalGenericDetId::CASTORhalf); i++) CASTORcontainer.push_back(emptyItem); break;
+  if (fId.det()==DetId::Hcal) {
+    switch (HcalSubdetector(fId.subdetId())) {
+    case(HcalBarrel) : for (unsigned int i=0; i<sizeFor(fId); i++) HBcontainer.push_back(emptyItem); break;
+    case(HcalEndcap) : for (unsigned int i=0; i<sizeFor(fId); i++) HEcontainer.push_back(emptyItem); break;
+    case(HcalOuter) : for (unsigned int i=0; i<sizeFor(fId); i++) HOcontainer.push_back(emptyItem); break;
+    case(HcalForward) : for (unsigned int i=0; i<sizeFor(fId); i++) HFcontainer.push_back(emptyItem); break;
+    case(HcalTriggerTower) : for (unsigned int i=0; i<sizeFor(fId); i++) HTcontainer.push_back(emptyItem); break;
+    case(HcalOther) : if (extractOther(fId)==HcalCalibration) 
+	for (unsigned int i=0; i<sizeFor(fId); i++) CALIBcontainer.push_back(emptyItem); break;
+      break; 
     default: break;
     }
+  } else if (fId.det()==DetId::Calo) {
+    if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
+      for (unsigned int i=0; i<sizeFor(fId); i++) CASTORcontainer.push_back(emptyItem); 
+    } else if (fId.subdetId()==HcalZDCDetId::SubdetectorId) {
+      for (unsigned int i=0; i<sizeFor(fId); i++) ZDCcontainer.push_back(emptyItem); 
+    }
+  }
 }
 
 
 template<class Item> const Item*
-HcalCondObjectContainer<Item>::getValues(DetId fId) const
+HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
 {
-  HcalGenericDetId myId(fId);
-  bool h2mode_ = (HEcontainer.size()==(2*HcalGenericDetId::HEhalfh2mode));
-
-  int index = myId.hashedId(h2mode_);
-  //  std::cout << "::::: getting values at index " << index  << ", DetId " << myId << std::endl;
-  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
-
+  unsigned int index=indexFor(fId);
+  
   const Item* cell = NULL;
-  if (index >= 0)
-    switch (myId.genericSubdet() ) {
-    case HcalGenericDetId::HcalGenBarrel: 
-      if (index1 < HBcontainer.size()) 
-	cell = &(HBcontainer.at(index1) );  
-      break;
-    case HcalGenericDetId::HcalGenEndcap: 
-      if (index1 < HEcontainer.size()) 
-	cell = &(HEcontainer.at(index1) ); 
-      break;
-    case HcalGenericDetId::HcalGenOuter: 
-      if (index1 < HOcontainer.size())
-	cell = &(HOcontainer.at(index1) ); 
-      break;
-    case HcalGenericDetId::HcalGenForward:
-      if (index1 < HFcontainer.size()) 
-	cell = &(HFcontainer.at(index1) ); 
-      break;
-    case HcalGenericDetId::HcalGenTriggerTower: 
-      if (index1 < HTcontainer.size()) 
-	cell = &(HTcontainer.at(index1) ); 
-      break;
-    case HcalGenericDetId::HcalGenZDC:    
-      if (index1 < ZDCcontainer.size()) 
-	cell = &(ZDCcontainer.at(index1) ); 
-      break;
-    case HcalGenericDetId::HcalGenCastor:
-      if (index1 < CASTORcontainer.size()) 
-	cell = &(CASTORcontainer.at(index1) ); 
-      break;
-    case HcalGenericDetId::HcalGenCalibration:
-      if (index1 < CALIBcontainer.size())
-	cell = &(CALIBcontainer.at(index1) ); 
-      break;
-    default: break;
+
+  if (index<0xFFFFFFFu) {
+    if (fId.det()==DetId::Hcal) {
+      switch (HcalSubdetector(fId.subdetId())) {
+      case(HcalBarrel) : if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  break;
+      case(HcalEndcap) : if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  break;
+      case(HcalForward) : if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );   break; 
+      case(HcalOuter) : if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );    break;
+      case(HcalTriggerTower) : if (index < HTcontainer.size()) cell = &(HTcontainer.at(index) );    break;
+      case(HcalOther) : if (extractOther(fId)==HcalCalibration) 
+	  if (index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index) );  
+	break; 
+      default: break;
+      }
+    } else if (fId.det()==DetId::Calo) {
+      if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
+	if (index < CASTORcontainer.size()) cell = &(CASTORcontainer.at(index) );
+      } else if (fId.subdetId()==HcalZDCDetId::SubdetectorId) {
+	if (index < ZDCcontainer.size()) cell = &(ZDCcontainer.at(index) );
+      }
     }
+  }
   
   //  Item emptyItem;
   //  if (cell->rawId() == emptyItem.rawId() ) 
-  if ((!cell) || (cell->rawId() != fId ) )
-    throw cms::Exception ("Conditions not found") 
-      << "Unavailable Conditions of type " << myname() << " for cell " << myId;
+  if ((!cell)) {
+    if (throwOnFail) {
+      throw cms::Exception ("Conditions not found") 
+	<< "Unavailable Conditions of type " << myname() << " for cell " << textForId(fId);
+    } 
+  } else if (cell->rawId() != fId) {
+    if (throwOnFail) {
+      throw cms::Exception ("Conditions mismatch") 
+	<< "Requested conditions of type " << myname() << " for cell " << textForId(fId) << " got conditions for cell " << textForId(DetId(cell->rawId()));
+    } 
+    cell=0;
+  }
+
   return cell;
 }
 
 template<class Item> const bool
 HcalCondObjectContainer<Item>::exists(DetId fId) const
 {
-  HcalGenericDetId myId(fId);
-  bool h2mode_ = (HEcontainer.size()==(2*HcalGenericDetId::HEhalfh2mode));
+  const Item* cell = getValues(fId,false);
 
-  int index = myId.hashedId(h2mode_);
-  if (index < 0) return false;
-  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
-  const Item* cell = NULL;
-  switch (myId.genericSubdet() ) {
-  case HcalGenericDetId::HcalGenBarrel: 
-    if (index1 < HBcontainer.size()) cell = &(HBcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenEndcap: 
-    if (index1 < HEcontainer.size()) cell = &(HEcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenOuter: 
-    if (index1 < HOcontainer.size()) cell = &(HOcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenForward: 
-    if (index1 < HFcontainer.size()) cell = &(HFcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenTriggerTower: 
-    if (index1 < HTcontainer.size()) cell = &(HTcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenZDC: 
-    if (index1 < ZDCcontainer.size()) cell = &(ZDCcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenCastor: 
-    if (index1 < CASTORcontainer.size()) cell = &(CASTORcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenCalibration: 
-    if (index1 < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index1) );  
-    break;
-  default: return false; break;
-  }
-  
-  //  Item emptyItem;
   if (cell)
-    //    if (cell->rawId() != emptyItem.rawId() ) 
     if (cell->rawId() == fId ) 
       return true;
-
+  
   return false;
 }
 
 template<class Item> bool
-HcalCondObjectContainer<Item>::addValues(const Item& myItem, bool h2mode_)
+HcalCondObjectContainer<Item>::addValues(const Item& myItem)
 {
-  unsigned long myRawId = myItem.rawId();
-  HcalGenericDetId myId(myRawId);
-  int index = myId.hashedId(h2mode_);
   bool success = false;
-  if (index < 0) success = false;
-  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
+  DetId fId(myItem.rawId());
+  unsigned int index=indexFor(fId);
+  
+  Item* cell = NULL;
 
-  switch (myId.genericSubdet() ) {
-  case HcalGenericDetId::HcalGenBarrel:
-    if (!HBcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < HBcontainer.size())
-      {
-	HBcontainer.at(index1)  = myItem;
-	success = true;
+  if (index<0xFFFFFFFu) {
+    if (fId.det()==DetId::Hcal) {
+      switch (HcalSubdetector(fId.subdetId())) {
+      case(HcalBarrel) : if (!HBcontainer.size() ) initContainer(fId);
+      	if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  break;
+      case(HcalEndcap) : if (!HEcontainer.size() ) initContainer(fId);
+      	if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  break;
+      case(HcalForward) : if (!HFcontainer.size() ) initContainer(fId);
+      	if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );  break;
+      case(HcalOuter) : if (!HOcontainer.size() ) initContainer(fId);
+      	if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  break;
+      case(HcalTriggerTower) : if (!HTcontainer.size() ) initContainer(fId);
+      	if (index < HTcontainer.size()) cell = &(HTcontainer.at(index) );  break;  
+      case(HcalOther) : if (extractOther(fId)==HcalCalibration) {
+	  if (!CALIBcontainer.size() ) initContainer(fId);
+	  if (index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index) );  
+	}
+	break; 
+      default: break;
       }
-    break;
-  case HcalGenericDetId::HcalGenEndcap: 
-    if (!HEcontainer.size() ) initContainer(myId.genericSubdet(), h2mode_ );
-    if (index1 < HEcontainer.size())
-      {
-	HEcontainer.at(index1)  = myItem; 
-	success = true;
+    } else if (fId.det()==DetId::Calo) {
+      if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
+	if (!CASTORcontainer.size() ) initContainer(fId);
+	if (index < CASTORcontainer.size()) cell = &(CASTORcontainer.at(index) );
+      } else if (fId.subdetId()==HcalZDCDetId::SubdetectorId) {	
+	if (!ZDCcontainer.size() ) initContainer(fId);
+	if (index < ZDCcontainer.size()) cell = &(ZDCcontainer.at(index) );
       }
-    break;
-  case HcalGenericDetId::HcalGenOuter:  
-    if (!HOcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < HOcontainer.size())
-      {
-	HOcontainer.at(index1)  = myItem; 
-	success = true;
-      }
-    break;
-  case HcalGenericDetId::HcalGenForward: 
-    if (!HFcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < HFcontainer.size())
-      {
-	HFcontainer.at(index1)  = myItem;
-	success = true;
-      }
-    break;
-  case HcalGenericDetId::HcalGenTriggerTower: 
-    if (!HTcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < HTcontainer.size())
-      {
-	HTcontainer.at(index1)  = myItem;
-	success = true;
-      }
-    break;
-  case HcalGenericDetId::HcalGenZDC: 
-    if (!ZDCcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < ZDCcontainer.size())
-      {
-	ZDCcontainer.at(index1)  = myItem; 
-	success = true;
-      }
-    break;
-  case HcalGenericDetId::HcalGenCastor: 
-    if (!CASTORcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < CASTORcontainer.size())
-      {
-	CASTORcontainer.at(index1)  = myItem; 
-	success = true;
-      }
-    break;
-  case HcalGenericDetId::HcalGenCalibration: 
-    if (!CALIBcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < CALIBcontainer.size())
-      {
-	CALIBcontainer.at(index1)  = myItem;  
-	success = true;
-      }
-    break;
-  default: break;
+    }
+  }
+
+  if (cell!=0) {
+    (*cell)=myItem;
+    success=true;
   }
 
   if (!success) 
     throw cms::Exception ("Filling of conditions failed") 
-      << " no valid filling possible for Conditions of type " << myname() << " for DetId " << myId;
+      << " no valid filling possible for Conditions of type " << myname() << " for DetId " << textForId(fId);
   return success;
 }
 

@@ -9,7 +9,10 @@
 class HcalRecoParams: public HcalCondObjectContainer<HcalRecoParam>
 {
  public:
-  HcalRecoParams():HcalCondObjectContainer<HcalRecoParam>() {}
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalRecoParams():HcalCondObjectContainer<HcalRecoParam>(0) {}
+#endif
+  HcalRecoParams(const HcalTopology* topo):HcalCondObjectContainer<HcalRecoParam>(topo) {}
 
   std::string myname() const {return (std::string)"HcalRecoParams";}
 

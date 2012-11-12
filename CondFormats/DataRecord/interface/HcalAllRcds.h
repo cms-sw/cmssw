@@ -26,4 +26,5 @@
 #include "CondFormats/DataRecord/interface/HcalMCParamsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalFlagHFDigiTimeParamsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalTimingParamsRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #endif

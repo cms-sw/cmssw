@@ -15,7 +15,10 @@ POOL object to store Hcal Response Corrections
 class HcalRespCorrs: public HcalCondObjectContainer<HcalRespCorr>
 {
  public:
-  HcalRespCorrs():HcalCondObjectContainer<HcalRespCorr>() {}
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalRespCorrs():HcalCondObjectContainer<HcalRespCorr>(0) {}
+#endif
+  HcalRespCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalRespCorr>(topo) {}
 
   std::string myname() const {return (std::string)"HcalRespCorrs";}
 

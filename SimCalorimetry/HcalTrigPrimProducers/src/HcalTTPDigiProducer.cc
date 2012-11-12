@@ -77,12 +77,6 @@ HcalTTPDigiProducer::HcalTTPDigiProducer(const edm::ParameterSet& ps)
         edm::LogWarning("HcalTTPDigiProducer") << "Presamples reset to HF SoI value" ; 
     }
         
-    for (unsigned int i=0; i<maskedChannels_.size(); i++) {
-        HcalDetId id(maskedChannels_.at(i)) ;
-        if ( !id.validDetId(HcalForward,id.ieta(),id.iphi(),id.depth()) ) 
-            throw cms::Exception("HcalTTPDigiProducer") << "Invalid HCAL Det ID" ; 
-    }
-    
     produces<HcalTTPDigiCollection>();
 }
 

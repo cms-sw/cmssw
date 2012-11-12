@@ -39,7 +39,7 @@ class ParticleTowerProducer : public edm::EDProducer {
   void resetTowers(edm::Event& iEvent,const edm::EventSetup& iSetup);
   DetId getNearestTower(const reco::PFCandidate & in) const;
   DetId getNearestTower(double eta, double phi) const;
-  uint32_t denseIndex(int ieta, int iphi, double eta) const;
+  //  uint32_t denseIndex(int ieta, int iphi, double eta) const;
   int eta2ieta(double eta) const;
   int phi2iphi(double phi, int ieta) const;
   

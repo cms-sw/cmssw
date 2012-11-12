@@ -6,6 +6,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 
 int main (int argn, char* argv []) {
@@ -16,12 +17,13 @@ int main (int argn, char* argv []) {
   std::ifstream inStream (argv[1]);
   std::ofstream outStream (argv[2]);
   std::ifstream inCorr (argv[3]);
-  HcalGains gainsIn;
+  HcalTopology topo(HcalTopologyMode::LHC,2,3);
+  HcalGains gainsIn(&topo);;
   HcalDbASCIIIO::getObject (inStream, &gainsIn);
-  HcalRespCorrs corrsIn;
+  HcalRespCorrs corrsIn(&topo);;
   HcalDbASCIIIO::getObject (inCorr, &corrsIn);
 
-  HcalGains gainsOut;
+  HcalGains gainsOut(&topo);;
   std::vector<DetId> channels = gainsIn.getAllChannels ();
   for (unsigned i = 0; i < channels.size(); i++) {
     DetId id = channels[i];

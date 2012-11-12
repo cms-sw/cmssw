@@ -57,7 +57,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 // this is to retrieve HCAL LogicalMap
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 // to retrive trigger information (local runs only)
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
@@ -197,6 +196,7 @@ HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) :
   L1ADataLabel_  = ps.getUntrackedParameter<edm::InputTag>("gtLabel");
   
   RMSummary = 0;
+  needLogicalMap_=true;
   setupDone_ = false;
 }
 
@@ -282,13 +282,12 @@ void HcalDetDiagNoiseMonitor::setup(){
      }
   } 
 
-  gen =new HcalLogicalMapGenerator();
-  lmap =new HcalLogicalMap(gen->createMap());
 
   return;
 } 
 
 void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+  getLogicalMap(iSetup);
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(iEvent.luminosityBlock())==false) return;
   HcalBaseDQMonitor::analyze(iEvent, iSetup);
@@ -363,7 +362,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
        if(max<adc2fC[digi->sample(i).adc()&0xff]) max=adc2fC[digi->sample(i).adc()&0xff];
        if(adc2fC[digi->sample(i).adc()&0xff]==0) n_zero++;
      }
-     HcalFrontEndId lmap_entry=lmap->getHcalFrontEndId(digi->id());
+     HcalFrontEndId lmap_entry=logicalMap_->getHcalFrontEndId(digi->id());
      int index=lmap_entry.rmIndex(); if(index>=HcalFrontEndId::maxRmIndex) continue;
      RMs[index].n_zero++;
      if(max>HPDthresholdLo){
@@ -385,7 +384,7 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
      if((Eta>=11 && Eta<=15 && Phi>=59 && Phi<=70) || (Eta>=5 && Eta<=10 && Phi>=47 && Phi<=58)){
        continue; // ignory SiPMs
      }else{
-       HcalFrontEndId lmap_entry=lmap->getHcalFrontEndId(digi->id());
+       HcalFrontEndId lmap_entry=logicalMap_->getHcalFrontEndId(digi->id());
        int index=lmap_entry.rmIndex(); if(index>=HcalFrontEndId::maxRmIndex) continue;
        RMs[index].n_zero++;
        if(max>HPDthresholdLo){

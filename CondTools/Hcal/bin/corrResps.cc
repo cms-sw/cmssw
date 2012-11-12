@@ -5,22 +5,23 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
-
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 int main (int argn, char* argv []) {
   if (argn < 3) {
     std::cerr << "Use: " << argv[0] << " <RespCorrs to scale (.txt)> <resultRespCorrs (.txt)> <correction-respcorr (.txt)>" << std::endl;
     return 1;
   }
+  HcalTopology topo(HcalTopologyMode::LHC,2,3);
   std::ifstream inStream (argv[1]);
   std::ofstream outStream (argv[2]);
   std::ifstream inCorr (argv[3]);
-  HcalRespCorrs respIn;
+  HcalRespCorrs respIn(&topo);
   HcalDbASCIIIO::getObject (inStream, &respIn);
-  HcalRespCorrs corrsIn;
+  HcalRespCorrs corrsIn(&topo);
   HcalDbASCIIIO::getObject (inCorr, &corrsIn);
 
-  HcalRespCorrs respOut;
+  HcalRespCorrs respOut(&topo);
   std::vector<DetId> channels = respIn.getAllChannels ();
   for (unsigned i = 0; i < channels.size(); i++) {
     DetId id = channels[i];

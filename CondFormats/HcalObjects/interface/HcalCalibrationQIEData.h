@@ -21,7 +21,7 @@ $Id
 class HcalCalibrationQIEData: public HcalCondObjectContainer<HcalCalibrationQIECoder>
 {
  public:
-   
+  HcalCalibrationQIEData(const HcalTopology* ht) : HcalCondObjectContainer<HcalCalibrationQIECoder>(ht) { }
   /// get QIE parameters
   const HcalCalibrationQIECoder* getCoder (DetId fId) const { return getValues(fId); }
   // check if data are sorted

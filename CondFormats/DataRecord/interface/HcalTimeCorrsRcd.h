@@ -16,11 +16,12 @@
 //
 // Author:      
 // Created:     Sat Mar  1 15:49:28 CET 2008
-// $Id: HcalTimeCorrsRcd.h,v 1.1 2008/03/03 16:57:14 rofierzy Exp $
+// $Id: HcalTimeCorrsRcd.h,v 1.1 2009/05/08 13:45:46 rofierzy Exp $
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalTimeCorrsRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalTimeCorrsRcd> {};
+class HcalTimeCorrsRcd : public edm::eventsetup::DependentRecordImplementation<HcalTimeCorrsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
 
 #endif

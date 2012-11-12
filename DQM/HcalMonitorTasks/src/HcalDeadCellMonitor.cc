@@ -1,5 +1,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
 {
@@ -58,14 +59,12 @@ HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps)
   HOenergyThreshold_     = ps.getUntrackedParameter<double>("HO_energyThreshold",energyThreshold_);
   HFenergyThreshold_     = ps.getUntrackedParameter<double>("HF_energyThreshold",energyThreshold_);
 
-  HcalLogicalMapGenerator gen;
-  logicalMap_=new HcalLogicalMap(gen.createMap());
+  needLogicalMap_=true;
   setupDone_=false;
 } //constructor
 
 HcalDeadCellMonitor::~HcalDeadCellMonitor()
 {
-  if (logicalMap_ == 0) delete logicalMap_;
 } //destructor
 
 

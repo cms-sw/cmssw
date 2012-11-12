@@ -18,15 +18,13 @@ class HcalDetDiagNoiseRMSummary;
 class DQMStore;
 class MonitorElement;
 class HcalDbService;
-class HcalLogicalMap;
-class HcalLogicalMapGenerator;
 
 // #########################################################################################
 
 /** \class HcalDetDiagNoiseMonitor
   *  
-  * $Date: 2012/06/27 13:20:29 $
-  * $Revision: 1.7 $
+  * $Date: 2012/08/30 21:48:47 $
+  * $Revision: 1.8 $
   * \author D. Vishnevskiy
   */
 
@@ -52,9 +50,6 @@ private:
   edm::InputTag rawDataLabel_;
   edm::InputTag hcalTBTriggerDataTag_;
 
-  HcalLogicalMap          *lmap;
-  HcalLogicalMapGenerator *gen;
- 
   std::string OutputFilePath;
   bool Overwrite;
   int dataset_seq_number;

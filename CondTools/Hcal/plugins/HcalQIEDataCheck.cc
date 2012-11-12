@@ -42,7 +42,7 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
     // first get the list of all channels from the update
     std::vector<DetId> listNewChan = myNewQIEs->getAllChannels();   
 
-    HcalQIEData *resultQIEs = new HcalQIEData();
+    HcalQIEData *resultQIEs = new HcalQIEData(myRefQIEs->topo());
     std::vector<DetId> listRefChan = myRefQIEs->getAllChannels();
     std::vector<DetId>::iterator cell;
 

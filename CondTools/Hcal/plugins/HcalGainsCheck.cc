@@ -159,7 +159,7 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
     // or if it doesn't exist, the reference
 
     if(outfile.compare("null")!=0){
-    HcalGains *resultGains = new HcalGains();
+      HcalGains *resultGains = new HcalGains(refGains->topo());
     for (std::vector<DetId>::const_iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
 	DetId mydetid = *it;

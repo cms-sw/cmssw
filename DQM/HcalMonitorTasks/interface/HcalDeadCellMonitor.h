@@ -4,8 +4,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
@@ -25,8 +23,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2012/06/21 13:40:22 $
-  * $Revision: 1.60 $
+  * $Date: 2012/06/27 13:20:28 $
+  * $Revision: 1.61 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -64,8 +62,6 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
 
   bool deadmon_makeDiagnostics_;
   int minDeadEventCount_;
-
-  HcalLogicalMap* logicalMap_;
 
   // Booleans to control which of the dead cell checking routines are used
   bool deadmon_test_digis_;

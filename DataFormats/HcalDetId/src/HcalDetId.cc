@@ -65,25 +65,4 @@ std::ostream& operator<<(std::ostream& s,const HcalDetId& id) {
   }
 }
 
-bool HcalDetId::validDetId( HcalSubdetector sd,
-			    int             ies,
-			    int             ip,
-			    int             dp      ) {
 
-  throw cms::Exception("Invalid DetId ") << "The call needs to be made to HcalTopology Class";
-}
-
-int HcalDetId::hashed_index() const {
-
-  throw cms::Exception("Invalid DetId ") << "The call needs to be made to HcalTopology Class";
-}
-
-bool HcalDetId::validDenseIndex( uint32_t din ) {
-
-  throw cms::Exception("Invalid DetId ") << "The call needs to be made to HcalTopology Class";
-}
-
-HcalDetId HcalDetId::detIdFromDenseIndex( uint32_t di ) {
-
-  throw cms::Exception("Invalid DetId ") << "The call needs to be made to HcalTopology Class";
-}

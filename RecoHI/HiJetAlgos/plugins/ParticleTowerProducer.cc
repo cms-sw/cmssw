@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id: ParticleTowerProducer.cc,v 1.8 2012/02/13 12:38:34 mnguyen Exp $
+// $Id: ParticleTowerProducer.cc,v 1.9 2012/02/14 08:43:00 mnguyen Exp $
 //
 //
 
@@ -43,6 +43,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 #include "TMath.h"
 #include "TRandom.h"
@@ -128,8 +129,12 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     int iphi = phi2iphi(particle.phi(),ieta);
        
+    HcalSubdetector sd;
+    if(abs(ieta)<=16) sd = HcalBarrel;
+    else if(fabs(eta)< 3.) sd = HcalEndcap;  // Use the endcap until eta =3
+    else sd = HcalForward;
     
-    HcalDetId hid = HcalDetId::detIdFromDenseIndex(denseIndex(ieta,iphi,eta));
+    HcalDetId hid = HcalDetId(sd,ieta,iphi,1); // assume depth=1
 
     // check against the old method (boundaries slightly shifted in the endcaps
     /*
@@ -522,51 +527,5 @@ int ParticleTowerProducer::phi2iphi(double phi, int ieta) const {
 
 }
 
-uint32_t 
-ParticleTowerProducer::denseIndex(int ieta, int iphi, double eta) const 
-{
-  const uint32_t ie ( abs(ieta)     ) ;
-  //const uint32_t ip ( iphi    - 1 ) ;
-  const uint32_t ip ( iphi  ) ;
-  const int dp ( 1 );
-  const int zn  ( eta < 0 ? 1 : 0 );  // 1 means negative z
-
-  // vanilla towers
-  /*
-  return ( ( 0 > ieta ? 0 : allNTot ) +
-	   ( ( barIEta >= ie ? ( ie - 1 )*barNPhi + ip :
-	       ( endIEta >= ie ?  barNTot + ( ie - 1 - barIEta )*endNPhi + ip/2 :
-		 barNTot + endNTot + ( ie - 1 - endIEta )*forNPhi + ip/4 ) ) ) ) ;
-
-  */
-
-
-  // Hcal towers
-  HcalSubdetector sd;
-  if(ie<=16) sd = HcalBarrel;
-  //else if(fabs(eta)< 2.853) sd = HcalEndcap;
-  else if(fabs(eta)< 3.) sd = HcalEndcap;  // Use the endcap until eta =3
-  else sd = HcalForward;
-  
-  return ( ( sd == HcalBarrel ) ?
-	   ( ip - 1 )*18 + dp - 1 + ie - ( ie<16 ? 1 : 0 ) + zn*1296 :
-	   ( ( sd == HcalEndcap ) ?
-	     2*1296 + ( ip - 1 )*8 + ( ip/2 )*20 +
-	     ( ( ie==16 || ie==17 ) ? ie - 16 :
-	       ( ( ie>=18 && ie<=20 ) ? 2 + 2*( ie - 18 ) + dp - 1 :
-		 ( ( ie>=21 && ie<=26 ) ? 8 + 2*( ie - 21 ) + dp - 1 :
-		   ( ( ie>=27 && ie<=28 ) ? 20 + 3*( ie - 27 ) + dp - 1 :
-		     26 + 2*( ie - 29 ) + dp - 1 ) ) ) ) + zn*1296 :
-	     ( ( sd == HcalOuter ) ?
-	       2*1296 + 2*1296 + ( ip - 1 )*15 + ( ie - 1 ) + zn*1080 :
-	       ( ( sd == HcalForward ) ?
-		   2*1296 + 2*1296 + 2*1080 + 
-		 ( ( ip - 1 )/4 )*4 + ( ( ip - 1 )/2 )*22 + 
-		 2*( ie - 29 ) + ( dp - 1 ) + zn*864 : -1 ) ) ) ) ; 
-
-}
-
-
-    
     //define this as a plug-in
 DEFINE_FWK_MODULE(ParticleTowerProducer);

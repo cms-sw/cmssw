@@ -2,7 +2,7 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
-
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
 #include "TFile.h"
 #include <math.h>
@@ -21,7 +21,7 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
     fValPedestals (0),
     fValPedestalWidths (0)
 {
-
+  fTopology=0;
   m_coder = 0;
   m_shape = 0;
   evt=0;
@@ -60,6 +60,8 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   m_startTS = ps.getUntrackedParameter<int>("firstTS", 0);
   if(m_startTS<0) m_startTS=0;
   m_endTS = ps.getUntrackedParameter<int>("lastTS", 9);
+
+  fTopology=new HcalTopology(HcalTopologyMode::LHC,2,3);
 
 //  m_logFile.open("HcalPedestalAnalysis.log");
 
@@ -517,14 +519,14 @@ int HcalPedestalAnalysis::done(const HcalPedestals* fInputPedestals,
   if(m_pedValflag>0) {
     fValPedestals = fOutputPedestals;
     fValPedestalWidths = fOutputPedestalWidths;
-    fRawPedestals = new HcalPedestals(m_pedsinADC);
-    fRawPedestalWidths = new HcalPedestalWidths(m_pedsinADC);
+    fRawPedestals = new HcalPedestals(fTopology,m_pedsinADC);
+    fRawPedestalWidths = new HcalPedestalWidths(fTopology,m_pedsinADC);
   }
   else {
     fRawPedestals = fOutputPedestals;
     fRawPedestalWidths = fOutputPedestalWidths;
-    fValPedestals = new HcalPedestals(m_pedsinADC);
-    fValPedestalWidths = new HcalPedestalWidths(m_pedsinADC);
+    fValPedestals = new HcalPedestals(fTopology,m_pedsinADC);
+    fValPedestalWidths = new HcalPedestalWidths(fTopology,m_pedsinADC);
   }
 
 // compute pedestal constants

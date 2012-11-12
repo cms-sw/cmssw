@@ -2,32 +2,34 @@
 #define HcalLogicalMapGenerator_h
 
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
-
+class HcalTopology;
 
 class HcalLogicalMapGenerator {
-
-    
   public:
          
     HcalLogicalMapGenerator( );
     ~HcalLogicalMapGenerator( );
-    HcalLogicalMap createMap(unsigned int mapIOV = 4);
+    HcalLogicalMap createMap(const HcalTopology* topo, unsigned int mapIOV = 4);
 
   private:
 
-    void buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>&,std::vector <HTLogicalMapEntry>&,std::vector <uint32_t>&,
+    void buildHBEFTMap(const HcalTopology* topo,
+		       std::vector <HBHEHFLogicalMapEntry>&,std::vector <HTLogicalMapEntry>&,std::vector <uint32_t>&,
 		       std::vector <uint32_t>&,
 		       std::vector <uint32_t>&,
 		       std::vector <uint32_t>&,
 		       std::vector <uint32_t>&);
-    void buildHOXMap  (std::vector <HOHXLogicalMapEntry>&  ,std::vector <uint32_t>&,
+    void buildHOXMap  (const HcalTopology* topo,
+		       std::vector <HOHXLogicalMapEntry>&  ,std::vector <uint32_t>&,
 		       std::vector <uint32_t>&,
 		       std::vector <uint32_t>&);
-    void buildCALIBMap(std::vector <CALIBLogicalMapEntry>& ,std::vector <uint32_t>&,
+    void buildCALIBMap(const HcalTopology* topo,
+		       std::vector <CALIBLogicalMapEntry>& ,std::vector <uint32_t>&,
 		       std::vector <uint32_t>&);
-    void buildZDCMap  (std::vector <ZDCLogicalMapEntry>&   ,std::vector <uint32_t>&,
+    void buildZDCMap  (const HcalTopology* topo,
+		       std::vector <ZDCLogicalMapEntry>&   ,std::vector <uint32_t>&,
 		       std::vector <uint32_t>&);
-    void ConstructTriggerTower(
+    void ConstructTriggerTower(const HcalTopology* topo,
 			       std::vector <HTLogicalMapEntry>&,
 			       int i_side, int i_eta, int i_phi, int i_dphi, int i_depth, std::string i_det, int i_wedge, int i_rm,
 			       int i_pixel, int i_qie, int i_adc, int i_rm_fi, int i_fi_ch, int i_crate, int i_htr, std::string i_fpga,

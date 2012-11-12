@@ -12,7 +12,10 @@
 class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
 {
  public:
-  HcalL1TriggerObjects():HcalCondObjectContainer<HcalL1TriggerObject>() {}
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+ HcalL1TriggerObjects():HcalCondObjectContainer<HcalL1TriggerObject>(0) { }
+#endif
+  HcalL1TriggerObjects(const HcalTopology* topo):HcalCondObjectContainer<HcalL1TriggerObject>(topo) {}
 
   //fill the chars and read them
   void setTagString(std::string fTag) {strncpy(mTag,fTag.c_str(),128);}

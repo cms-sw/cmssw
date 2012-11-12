@@ -13,7 +13,7 @@
 //
 // Original Author:  Ka Vang TSANG
 //         Created:  Fri Jul 31 15:18:53 CEST 2009
-// $Id$
+// $Id: WriteL1TriggerObjetsXml.cc,v 1.1 2009/09/23 22:06:28 kukartse Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 //
 // class decleration
@@ -95,6 +96,7 @@ WriteL1TriggerObjetsXml::analyze(const edm::Event& iEvent, const edm::EventSetup
    using namespace edm;
    edm::ESHandle<HcalDbService> conditions;
    iSetup.get<HcalDbRecord>().get(conditions);
+   const HcalTopology* topo=conditions->getTopologyUsed();
 
    HcalSubdetector subDet[3] = {HcalBarrel, HcalEndcap, HcalForward};
    std::string subDetName[3] = {"HB", "HE", "HF"};
@@ -104,8 +106,9 @@ WriteL1TriggerObjetsXml::analyze(const edm::Event& iEvent, const edm::EventSetup
       for (int ieta = -41; ieta <= 41; ++ieta){
          for (int iphi = 1; iphi <=72; ++iphi){
             for (int depth = 1; depth <= 3; ++depth){
-               if (!HcalDetId::validDetId(subDet[isub], ieta, iphi, depth)) continue;
                HcalDetId id(subDet[isub], ieta, iphi, depth);
+
+               if (!topo->valid(id)) continue;
                HcalCalibrations calibrations = conditions->getHcalCalibrations(id);
                const HcalChannelStatus* channelStatus = conditions->getHcalChannelStatus(id);
                uint32_t status = channelStatus->getValue();

@@ -14,7 +14,7 @@
 // Original Authors: Andrey Pozdnyakov, Sergey Petrushanko,
 //                   Grigory Safronov, Olga Kodolova
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.25 2010/03/17 19:43:12 wmtan Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.26 2011/12/21 08:27:47 eulisse Exp $
 //
 //
 
@@ -337,7 +337,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
       //container for used recHits
-      std::vector<int> usedHits; 
+	std::vector<DetId> usedHits; 
       //      
       //clear usedHits
       usedHits.clear();
@@ -353,13 +353,13 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  
 	  //check that this hit was not considered before and push it into usedHits
 	  bool hitIsUsed=false;
-	  int hitHashedIndex=hhit->id().hashed_index();
+	  DetId hitId=hhit->id();
 	  for (uint32_t i=0; i<usedHits.size(); i++)
 	    {
-	      if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
+	      if (usedHits[i]==hitId) hitIsUsed=true;
 	    }
 	  if (hitIsUsed) continue;
-	  usedHits.push_back(hitHashedIndex);
+	  usedHits.push_back(hitId);
 	  //
 
 	  // rof 16.05.2008 start: include the possibility for recalibration
@@ -428,17 +428,17 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 	      //check that this hit was not considered before and push it into usedHits
 	      bool hitIsUsed=false;
-	      int hitHashedIndex=hhit->id().hashed_index();
+	      DetId hitId=hhit->id();
 	      for (uint32_t i=0; i<usedHits.size(); i++)
 		{
-		  if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
+		  if (usedHits[i]==hitId) hitIsUsed=true;
 		}
 	      if (hitIsUsed) 
 		{
 		  //cout<<"Hit is Used!   ieta: "<< (hhit->id()).ieta()<<"  iphi: "<<(hhit->id()).iphi()<<"  depth: "<<(hhit->id()).depth()<<"  hashed_index: "<<hitHashedIndex<<endl;
 		  continue;}
 	      
-	      usedHits.push_back(hitHashedIndex);
+	      usedHits.push_back(hitId);
 	      //
 
 	      int DIETA = 100;
@@ -556,14 +556,14 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 	    //check that this hit was not considered before and push it into usedHits
 	    bool hitIsUsed=false;
-	    int hitHashedIndex=hoItr->id().hashed_index();
+	    DetId hitId=hoItr->id();
 	    for (uint32_t i=0; i<usedHits.size(); i++)
 	      {
-		if (usedHits[i]==hitHashedIndex) hitIsUsed=true;
+		if (usedHits[i]==hitId) hitIsUsed=true;
 	      }
 	    if (hitIsUsed) continue;
 
-	    usedHits.push_back(hitHashedIndex);
+	    usedHits.push_back(hitId);
 
 	    /*AP
 	    GlobalPoint pos = geo->getPosition(hoItr->detid());

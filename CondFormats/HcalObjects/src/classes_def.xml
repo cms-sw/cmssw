@@ -1,4 +1,10 @@
 <lcgdict>
+    <class name="HcalCondObjectContainerBase">
+      <field name="topo_" transient="true" />
+      <field name="packedIndexVersion_" transient="true"/>
+  </class>
+
+
  <class name="HcalPedestal"/>
  <class name="std::vector<HcalPedestal>"/>
  <class name="std::pair<std::string, std::vector<HcalPedestal> >"/>

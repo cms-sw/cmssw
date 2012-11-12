@@ -1,7 +1,8 @@
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/HcalCovarianceMatrices.h"
 
 
-HcalCovarianceMatrices::HcalCovarianceMatrices()
+HcalCovarianceMatrices::HcalCovarianceMatrices(const HcalTopology* topo) : HcalCondObjectContainerBase(topo) 
 {
 }
 
@@ -10,92 +11,60 @@ HcalCovarianceMatrices::~HcalCovarianceMatrices()
 }
 
 void
-HcalCovarianceMatrices::initContainer(int container, bool h2mode_)
+HcalCovarianceMatrices::initContainer(DetId fId)
 {
-  HcalCovarianceMatrix emptyHcalCovarianceMatrix;
+  HcalCovarianceMatrix emptyItem;
 
-  switch (container) 
-    {
-    case HcalGenericDetId::HcalGenBarrel: 
-      for (int i=0; i<(2*HcalGenericDetId::HBhalf); i++) HBcontainer.push_back(emptyHcalCovarianceMatrix); break;
-    case HcalGenericDetId::HcalGenEndcap: 
-      if (!h2mode_) for (int i=0; i<(2*HcalGenericDetId::HEhalf); i++) HEcontainer.push_back(emptyHcalCovarianceMatrix); 
-      else for (int i=0; i<(2*HcalGenericDetId::HEhalfh2mode); i++) HEcontainer.push_back(emptyHcalCovarianceMatrix); 
-      break;
-    case HcalGenericDetId::HcalGenOuter: 
-      for (int i=0; i<(2*HcalGenericDetId::HOhalf); i++) HOcontainer.push_back(emptyHcalCovarianceMatrix); break;
-    case HcalGenericDetId::HcalGenForward: 
-      for (int i=0; i<(2*HcalGenericDetId::HFhalf); i++) HFcontainer.push_back(emptyHcalCovarianceMatrix); break;
+
+  if (fId.det()==DetId::Hcal) {
+    switch (HcalSubdetector(fId.subdetId())) {
+    case(HcalBarrel) : for (unsigned int i=0; i<sizeFor(fId); i++) HBcontainer.push_back(emptyItem); break;
+    case(HcalEndcap) : for (unsigned int i=0; i<sizeFor(fId); i++) HEcontainer.push_back(emptyItem); break;
+    case(HcalOuter) : for (unsigned int i=0; i<sizeFor(fId); i++) HOcontainer.push_back(emptyItem); break;
+    case(HcalForward) : for (unsigned int i=0; i<sizeFor(fId); i++) HFcontainer.push_back(emptyItem); break;
     default: break;
     }
 }
 
+}
+
 
 const HcalCovarianceMatrix*
-HcalCovarianceMatrices::getValues(DetId fId) const
+HcalCovarianceMatrices::getValues(DetId fId, bool throwOnFail) const
 {
-  HcalGenericDetId myId(fId);
-  bool h2mode_ = (HEcontainer.size()==(2*HcalGenericDetId::HEhalfh2mode));
-
-  int index = myId.hashedId(h2mode_);
-  //  std::cout << "::::: getting values at index " << index  << ", DetId " << myId << std::endl;
-  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
+  unsigned int index=indexFor(fId);
 
   const HcalCovarianceMatrix* cell = NULL;
-  if (index >= 0)
-    switch (myId.genericSubdet() ) {
-    case HcalGenericDetId::HcalGenBarrel: 
-      if (index1 < HBcontainer.size()) 
-        cell = &(HBcontainer.at(index1) );  
-      break;
-    case HcalGenericDetId::HcalGenEndcap: 
-      if (index1 < HEcontainer.size()) 
-        cell = &(HEcontainer.at(index1) ); 
-      break;
-    case HcalGenericDetId::HcalGenOuter: 
-      if (index1 < HOcontainer.size())
-        cell = &(HOcontainer.at(index1) ); 
-      break;
-    case HcalGenericDetId::HcalGenForward:
-      if (index1 < HFcontainer.size()) 
-        cell = &(HFcontainer.at(index1) ); 
-      break;
+
+  if (index<0xFFFFFFFFu) {
+    if (fId.det()==DetId::Hcal) {
+      switch (HcalSubdetector(fId.subdetId())) {
+      case(HcalBarrel) : if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  
+      case(HcalEndcap) : if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  
+      case(HcalForward) : if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );  
+      case(HcalOuter) : if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  
     default: break;
     }
+    }
+  }
   
   //  HcalCovarianceMatrix emptyHcalCovarianceMatrix;
   //  if (cell->rawId() == emptyHcalCovarianceMatrix.rawId() ) 
-  if ((!cell) || (cell->rawId() != fId ) )
+  if ((!cell) || (cell->rawId() != fId ) ) {
+    if (throwOnFail) {
     throw cms::Exception ("Conditions not found") 
-      << "Unavailable Conditions of type " << myname() << " for cell " << myId;
+	<< "Unavailable Conditions of type " << myname() << " for cell " << fId.rawId();
+    } else {
+      cell=0;
+    }
+  }
   return cell;
 }
 
 const bool
 HcalCovarianceMatrices::exists(DetId fId) const
 {
-  HcalGenericDetId myId(fId);
-  bool h2mode_ = (HEcontainer.size()==(2*HcalGenericDetId::HEhalfh2mode));
-
-  int index = myId.hashedId(h2mode_);
-  if (index < 0) return false;
-  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
-  const HcalCovarianceMatrix* cell = NULL;
-  switch (myId.genericSubdet() ) {
-  case HcalGenericDetId::HcalGenBarrel: 
-    if (index1 < HBcontainer.size()) cell = &(HBcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenEndcap: 
-    if (index1 < HEcontainer.size()) cell = &(HEcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenOuter: 
-    if (index1 < HOcontainer.size()) cell = &(HOcontainer.at(index1) );  
-    break;
-  case HcalGenericDetId::HcalGenForward: 
-    if (index1 < HFcontainer.size()) cell = &(HFcontainer.at(index1) );  
-    break;
-  default: return false; break;
-  }
+  const HcalCovarianceMatrix* cell = getValues(fId,false);
   
   //  HcalCovarianceMatrix emptyHcalCovarianceMatrix;
   if (cell)
@@ -107,54 +76,37 @@ HcalCovarianceMatrices::exists(DetId fId) const
 }
 
 bool
-HcalCovarianceMatrices::addValues(const HcalCovarianceMatrix& myHcalCovarianceMatrix, bool h2mode_)
+HcalCovarianceMatrices::addValues(const HcalCovarianceMatrix& myHcalCovarianceMatrix)
 {
-  unsigned long myRawId = myHcalCovarianceMatrix.rawId();
-  HcalGenericDetId myId(myRawId);
-  int index = myId.hashedId(h2mode_);
+  unsigned int index=0;
   bool success = false;
-  if (index < 0) success = false;
-  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
+  HcalCovarianceMatrix* cell=0;
+  DetId fId(myHcalCovarianceMatrix.rawId());
 
-  switch (myId.genericSubdet() ) {
-  case HcalGenericDetId::HcalGenBarrel:
-    if (!HBcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < HBcontainer.size())
-      {
-        HBcontainer.at(index1)  = myHcalCovarianceMatrix;
+  if (index<0xFFFFFFFu) {
+    if (fId.det()==DetId::Hcal) {
+      switch (HcalSubdetector(fId.subdetId())) {
+      case(HcalBarrel) : if (!HBcontainer.size() ) initContainer(fId); 
+	if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  break;
+      case(HcalEndcap) : if (!HEcontainer.size() ) initContainer(fId); 
+	if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  break;
+      case(HcalForward) : if (!HFcontainer.size() ) initContainer(fId); 
+	if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );  break; 
+      case(HcalOuter) : if (!HOcontainer.size() ) initContainer(fId); 
+	if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  break;  
+      default: break;
+      }
+      }
+      }
+  if (cell) {
+    *cell=myHcalCovarianceMatrix;
         success = true;
       }
-    break;
-  case HcalGenericDetId::HcalGenEndcap: 
-    if (!HEcontainer.size() ) initContainer(myId.genericSubdet(), h2mode_ );
-    if (index1 < HEcontainer.size())
-      {
-        HEcontainer.at(index1)  = myHcalCovarianceMatrix; 
-        success = true;
-      }
-    break;
-  case HcalGenericDetId::HcalGenOuter:  
-    if (!HOcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < HOcontainer.size())
-      {
-        HOcontainer.at(index1)  = myHcalCovarianceMatrix; 
-        success = true;
-      }
-    break;
-  case HcalGenericDetId::HcalGenForward: 
-    if (!HFcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < HFcontainer.size())
-      {
-        HFcontainer.at(index1)  = myHcalCovarianceMatrix;
-        success = true;
-      }
-    break;
-  default: break;
-  }
+
 
   if (!success) 
     throw cms::Exception ("Filling of conditions failed") 
-      << " no valid filling possible for Conditions of type " << myname() << " for DetId " << myId;
+      << " no valid filling possible for Conditions of type " << myname() << " for DetId " << fId.rawId();
   return success;
 }
 

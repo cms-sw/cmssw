@@ -133,7 +133,7 @@ private:
   int evt_curr;
   float m_stat[4];
   std::vector<bool> state;
-
+  HcalTopology* fTopology;
 // flag to make gaussian fits to charge dists
   static const int fitflag=0;
 };

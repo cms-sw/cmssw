@@ -18,7 +18,6 @@
 
 #include "boost/array.hpp"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include <vector>
 
 class HcalHPDRBXMap {
@@ -49,7 +48,7 @@ class HcalHPDRBXMap {
   bool static isValidRBX(int index);
   
   // determines whether a HcalDetId corresponds to a valid HPD/RBX
-  // this requires that the HcalDetId be in the HB or HE
+  // this requires that the HcalDetId be in the HB or HE, does not check depth
   bool static isValid(const HcalDetId&);
 
   // determines whether the ieta, iphi coordinate corresponds to a valid HPD/RBX
@@ -88,9 +87,6 @@ class HcalHPDRBXMap {
  private:
   HcalHPDRBXMap();
   ~HcalHPDRBXMap();
-
-  // used to determine if a detector ID element is valid
-  static HcalTopology theTopology_;
 
 };
 

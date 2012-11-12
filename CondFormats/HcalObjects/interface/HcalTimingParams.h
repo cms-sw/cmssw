@@ -9,7 +9,10 @@
 class HcalTimingParams: public HcalCondObjectContainer<HcalTimingParam>
 {
  public:
-  HcalTimingParams():HcalCondObjectContainer<HcalTimingParam>() {}
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalTimingParams():HcalCondObjectContainer<HcalTimingParam>(0) {}
+#endif
+  HcalTimingParams(const HcalTopology* topo):HcalCondObjectContainer<HcalTimingParam>(topo) {}
 
   std::string myname() const {return (std::string)"HcalTimingParams";}
 

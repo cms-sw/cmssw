@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.20 2011/06/24 22:15:53 temple Exp $
+// $Id: HcalTextCalibrations.cc,v 1.21 2011/10/26 14:00:29 xiezhen Exp $
 //
 //
 
@@ -10,10 +10,12 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/ValidityInterval.h"
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 
@@ -159,6 +161,22 @@ HcalTextCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecordKey
 }
 
 template <class T>
+std::auto_ptr<T> produce_impl (const HcalTopology* topo, const std::string& fFile) {
+  std::auto_ptr<T> result (new T (topo));
+  //  std::auto_ptr<T> result;
+  std::ifstream inStream (fFile.c_str ());
+  if (!inStream.good ()) {
+    std::cerr << "HcalTextCalibrations-> Unable to open file '" << fFile << "'" << std::endl;
+    throw cms::Exception("FileNotFound") << "Unable to open '" << fFile << "'" << std::endl;
+  }
+  if (!HcalDbASCIIIO::getObject (inStream, &*result)) {
+    std::cerr << "HcalTextCalibrations-> Can not read object from file '" << fFile << "'" << std::endl;
+    throw cms::Exception("ReadError") << "Can not read object from file '" << fFile << "'" << std::endl;
+  }
+  return result;
+}
+
+template <class T>
 std::auto_ptr<T> produce_impl (const std::string& fFile) {
   std::auto_ptr<T> result (new T ());
   //  std::auto_ptr<T> result;
@@ -176,52 +194,88 @@ std::auto_ptr<T> produce_impl (const std::string& fFile) {
 
 
 
-std::auto_ptr<HcalPedestals> HcalTextCalibrations::producePedestals (const HcalPedestalsRcd&) {
-  return produce_impl<HcalPedestals> (mInputs ["Pedestals"]);
+std::auto_ptr<HcalPedestals> HcalTextCalibrations::producePedestals (const HcalPedestalsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+
+  return produce_impl<HcalPedestals> (topo,mInputs ["Pedestals"]);
 }
 
-std::auto_ptr<HcalPedestalWidths> HcalTextCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
-  return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"]);
+std::auto_ptr<HcalPedestalWidths> HcalTextCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalPedestalWidths> (topo,mInputs ["PedestalWidths"]);
 }
 
-std::auto_ptr<HcalGains> HcalTextCalibrations::produceGains (const HcalGainsRcd&) {
-  return produce_impl<HcalGains> (mInputs ["Gains"]);
+std::auto_ptr<HcalGains> HcalTextCalibrations::produceGains (const HcalGainsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalGains> (topo,mInputs ["Gains"]);
 }
 
-std::auto_ptr<HcalGainWidths> HcalTextCalibrations::produceGainWidths (const HcalGainWidthsRcd&) {
-  return produce_impl<HcalGainWidths> (mInputs ["GainWidths"]);
+std::auto_ptr<HcalGainWidths> HcalTextCalibrations::produceGainWidths (const HcalGainWidthsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalGainWidths> (topo,mInputs ["GainWidths"]);
 }
 
 std::auto_ptr<HcalQIEData> HcalTextCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
-  return produce_impl<HcalQIEData> (mInputs ["QIEData"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalQIEData> (topo,mInputs ["QIEData"]);
 }
 
 std::auto_ptr<HcalChannelQuality> HcalTextCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
-  return produce_impl<HcalChannelQuality> (mInputs ["ChannelQuality"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalChannelQuality> (topo,mInputs ["ChannelQuality"]);
 }
 
-std::auto_ptr<HcalZSThresholds> HcalTextCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {
-  return produce_impl<HcalZSThresholds> (mInputs ["ZSThresholds"]);
+std::auto_ptr<HcalZSThresholds> HcalTextCalibrations::produceZSThresholds (const HcalZSThresholdsRcd& rcd) {  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalZSThresholds> (topo,mInputs ["ZSThresholds"]);
 }
 
 std::auto_ptr<HcalRespCorrs> HcalTextCalibrations::produceRespCorrs (const HcalRespCorrsRcd& rcd) {
-  return produce_impl<HcalRespCorrs> (mInputs ["RespCorrs"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalRespCorrs> (topo,mInputs ["RespCorrs"]);
 }
 
 std::auto_ptr<HcalLUTCorrs> HcalTextCalibrations::produceLUTCorrs (const HcalLUTCorrsRcd& rcd) {
-  return produce_impl<HcalLUTCorrs> (mInputs ["LUTCorrs"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalLUTCorrs> (topo,mInputs ["LUTCorrs"]);
 }
 
 std::auto_ptr<HcalPFCorrs> HcalTextCalibrations::producePFCorrs (const HcalPFCorrsRcd& rcd) {
-  return produce_impl<HcalPFCorrs> (mInputs ["PFCorrs"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalPFCorrs> (topo,mInputs ["PFCorrs"]);
 }
 
 std::auto_ptr<HcalTimeCorrs> HcalTextCalibrations::produceTimeCorrs (const HcalTimeCorrsRcd& rcd) {
-  return produce_impl<HcalTimeCorrs> (mInputs ["TimeCorrs"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalTimeCorrs> (topo,mInputs ["TimeCorrs"]);
 }
 
 std::auto_ptr<HcalL1TriggerObjects> HcalTextCalibrations::produceL1TriggerObjects (const HcalL1TriggerObjectsRcd& rcd) {
-  return produce_impl<HcalL1TriggerObjects> (mInputs ["L1TriggerObjects"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalL1TriggerObjects> (topo,mInputs ["L1TriggerObjects"]);
 }
 
 std::auto_ptr<HcalElectronicsMap> HcalTextCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
@@ -229,11 +283,17 @@ std::auto_ptr<HcalElectronicsMap> HcalTextCalibrations::produceElectronicsMap (c
 }
 
 std::auto_ptr<HcalValidationCorrs> HcalTextCalibrations::produceValidationCorrs (const HcalValidationCorrsRcd& rcd) {
-  return produce_impl<HcalValidationCorrs> (mInputs ["ValidationCorrs"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalValidationCorrs> (topo,mInputs ["ValidationCorrs"]);
 }
 
 std::auto_ptr<HcalLutMetadata> HcalTextCalibrations::produceLutMetadata (const HcalLutMetadataRcd& rcd) {
-  return produce_impl<HcalLutMetadata> (mInputs ["LutMetadata"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalLutMetadata> (topo,mInputs ["LutMetadata"]);
 }
 
 std::auto_ptr<HcalDcsValues>
@@ -246,27 +306,48 @@ std::auto_ptr<HcalDcsMap> HcalTextCalibrations::produceDcsMap (const HcalDcsMapR
 }
 
 std::auto_ptr<HcalCovarianceMatrices> HcalTextCalibrations::produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd) {
-  return produce_impl<HcalCovarianceMatrices> (mInputs ["CovarianceMatrices"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalCovarianceMatrices> (topo,mInputs ["CovarianceMatrices"]);
 }
 
 std::auto_ptr<HcalCholeskyMatrices> HcalTextCalibrations::produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rcd) {
-  return produce_impl<HcalCholeskyMatrices> (mInputs ["CholeskyMatrices"]);
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalCholeskyMatrices> (topo,mInputs ["CholeskyMatrices"]);
 }
 
-std::auto_ptr<HcalRecoParams> HcalTextCalibrations::produceRecoParams (const HcalRecoParamsRcd&) {
-  return produce_impl<HcalRecoParams> (mInputs ["RecoParams"]);
+std::auto_ptr<HcalRecoParams> HcalTextCalibrations::produceRecoParams (const HcalRecoParamsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalRecoParams> (topo,mInputs ["RecoParams"]);
 }
 
-std::auto_ptr<HcalLongRecoParams> HcalTextCalibrations::produceLongRecoParams (const HcalLongRecoParamsRcd&) {
-  return produce_impl<HcalLongRecoParams> (mInputs ["LongRecoParams"]);
+std::auto_ptr<HcalLongRecoParams> HcalTextCalibrations::produceLongRecoParams (const HcalLongRecoParamsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalLongRecoParams> (topo,mInputs ["LongRecoParams"]);
 }
-std::auto_ptr<HcalTimingParams> HcalTextCalibrations::produceTimingParams (const HcalTimingParamsRcd&) {
-  return produce_impl<HcalTimingParams> (mInputs ["TimingParams"]);
+std::auto_ptr<HcalTimingParams> HcalTextCalibrations::produceTimingParams (const HcalTimingParamsRcd& rcd) {
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalTimingParams> (topo,mInputs ["TimingParams"]);
 }
-std::auto_ptr<HcalMCParams> HcalTextCalibrations::produceMCParams (const HcalMCParamsRcd&) {
-  return produce_impl<HcalMCParams> (mInputs ["MCParams"]);
+std::auto_ptr<HcalMCParams> HcalTextCalibrations::produceMCParams (const HcalMCParamsRcd& rcd) {  
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalMCParams> (topo,mInputs ["MCParams"]);
 }
 
-std::auto_ptr<HcalFlagHFDigiTimeParams> HcalTextCalibrations::produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd&) {
-  return produce_impl<HcalFlagHFDigiTimeParams> (mInputs ["FlagHFDigiTimeParams"]);
+std::auto_ptr<HcalFlagHFDigiTimeParams> HcalTextCalibrations::produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd) {  
+  edm::ESHandle<HcalTopology> htopo;
+  rcd.getRecord<IdealGeometryRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  return produce_impl<HcalFlagHFDigiTimeParams> (topo,mInputs ["FlagHFDigiTimeParams"]);
 }

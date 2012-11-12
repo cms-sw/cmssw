@@ -9,6 +9,7 @@
 //#include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 
 
@@ -21,11 +22,12 @@ int main (int argn, char* argv []) {
     std::cerr << "                   add,sub,mult,div = +-*/ of vector values (in RespCorr-format)\n";
     return 1;
   }
+  HcalTopology topo(HcalTopologyMode::LHC,2,3);
 
   // get base conditions
   std::cerr << argv[2] << std::endl;
   std::ifstream inStream (argv[2]);
-  HcalGains gainsIn;
+  HcalGains gainsIn(&topo);;
   HcalDbASCIIIO::getObject (inStream, &gainsIn);
 
   // where to write the result
@@ -37,7 +39,7 @@ int main (int argn, char* argv []) {
   s_operation = argv[1];
   bool vectorop = false;
 
-  HcalRespCorrs corrsIn;
+  HcalRespCorrs corrsIn(&topo);;
 
   if ( (std::strcmp(s_operation.c_str(),"add")==0) || 
        (std::strcmp(s_operation.c_str(),"sub")==0) || 
@@ -62,7 +64,7 @@ int main (int argn, char* argv []) {
       return 1;
     }
 
-  HcalGains gainsOut;
+  HcalGains gainsOut(&topo);;
   std::vector<DetId> channels = gainsIn.getAllChannels ();
   std::cerr << "size = " << channels.size() << std::endl;
   for (unsigned i = 0; i < channels.size(); i++) {

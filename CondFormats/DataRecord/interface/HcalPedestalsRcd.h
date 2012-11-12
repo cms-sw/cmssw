@@ -2,6 +2,8 @@
 // name: ratnikov, date: Mon Sep 26 17:02:41 CDT 2005
 #ifndef HcalPedestalsRcd_H
 #define HcalPedestalsRcd_H
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-class HcalPedestalsRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalPedestalsRcd> {};
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+class HcalPedestalsRcd : public edm::eventsetup::DependentRecordImplementation<HcalPedestalsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
 #endif

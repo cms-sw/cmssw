@@ -9,7 +9,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.h,v 1.4 2009/09/20 08:38:43 andreasp Exp $
+// $Id: hcalCalib.h,v 1.5 2009/10/26 01:48:57 anastass Exp $
 //
 ///////////////////////////////////////////////////////////////
 
@@ -34,6 +34,7 @@
 
 // needed to get cell coordinates
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 
 class hcalCalib : public TSelector {
@@ -145,6 +146,7 @@ public :
    
 
     const CaloGeometry* theCaloGeometry;
+    const HcalTopology* topo_;
 
 
     void SetMinTargetE(Float_t e)                   { MIN_TARGET_E = e; }
@@ -179,7 +181,7 @@ public :
     void SetHistoFileName(TString filename)         { HISTO_FILENAME = filename; }
 
 
-    void SetCaloGeometry (const CaloGeometry* g)    { theCaloGeometry = g; }
+    void SetCaloGeometry (const CaloGeometry* g, const HcalTopology* topo)    { theCaloGeometry = g; topo_=topo; }
 
     void GetCoefFromMtrxInvOfAve();
 

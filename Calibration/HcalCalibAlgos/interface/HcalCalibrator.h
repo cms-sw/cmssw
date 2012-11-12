@@ -4,7 +4,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-//#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 
 //-------------------
@@ -77,6 +77,7 @@ private:
 
 
   const CaloGeometry* mTheCaloGeometry;
+  const HcalTopology* mTheHcalTopology;
 
   
   bool allowMissingInputs_;

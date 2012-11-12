@@ -2,7 +2,7 @@
 //
 // Original Author:  Gena Kukartsev Mar 11, 2009
 // Adapted from HcalDbASCIIIO.cc,v 1.41
-// $Id: HcalDbOmds.cc,v 1.19 2010/03/07 23:01:33 kukartse Exp $
+// $Id: HcalDbOmds.cc,v 1.20 2010/08/06 20:24:12 wmtan Exp $
 //
 #include <vector>
 #include <string>
@@ -77,7 +77,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalPedestals* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalPedestals;
+  if (!fObject) return false; // fObject = new HcalPedestals;  
   int _unit=0;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
@@ -143,7 +143,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalPedestalWidths* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalPedestalWidths;
+  if (!fObject) return false; //fObject = new HcalPedestalWidths;
   int _unit=0;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
@@ -234,7 +234,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalGains* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalGains;
+  if (!fObject) return false; //fObject = new HcalGains;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -289,7 +289,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalGainWidths* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalGainWidths;
+  if (!fObject) return false; //fObject = new HcalGainWidths;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -344,7 +344,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalQIEData* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalQIEData;
+  if (!fObject) return false; //fObject = new HcalQIEData;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -423,7 +423,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalElectronicsMap* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalElectronicsMap;
+  if (!fObject) return false; //fObject = new HcalElectronicsMap;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -501,7 +501,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
   std::cout << " +++++=====> HcalDbOmds::getObject" << std::endl;
 
   bool result=true;
-  if (!fObject) fObject = new HcalChannelQuality;
+  if (!fObject) return false; //fObject = new HcalChannelQuality;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -553,7 +553,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalRespCorrs* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalRespCorrs;
+  if (!fObject) return false; //fObject = new HcalRespCorrs;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -605,7 +605,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalZSThresholds* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalZSThresholds;
+  if (!fObject) return false;// fObject = new HcalZSThresholds;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -657,7 +657,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalL1TriggerObjects* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalL1TriggerObjects;
+  if (!fObject) return false; //fObject = new HcalL1TriggerObjects;
   std::string _tag;
   std::string _algo;
   try {
@@ -733,7 +733,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalValidationCorrs* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalValidationCorrs;
+  if (!fObject) return false; //fObject = new HcalValidationCorrs;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -786,7 +786,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalLutMetadata* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalLutMetadata;
+  if (!fObject) return false; //fObject = new HcalLutMetadata;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);
@@ -853,7 +853,7 @@ bool HcalDbOmds::getObject (oracle::occi::Connection * connection,
 			    const std::string & fQuery,
 			    HcalDcsValues* fObject) {
   bool result=true;
-  if (!fObject) fObject = new HcalDcsValues;
+  if (!fObject) return false; //fObject = new HcalDcsValues;
   try {
     oracle::occi::Statement* stmt = connection->createStatement(fQuery);
     stmt->setString(1,fTag);

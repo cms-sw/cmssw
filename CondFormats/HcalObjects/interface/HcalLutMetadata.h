@@ -13,7 +13,10 @@ POOL object to store Hcal trigger LUT channel metadata
 class HcalLutMetadata: public HcalCondObjectContainer<HcalLutMetadatum>
 {
  public:
-  HcalLutMetadata() : HcalCondObjectContainer<HcalLutMetadatum>(){}
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalLutMetadata() : HcalCondObjectContainer<HcalLutMetadatum>(0){}
+#endif
+  HcalLutMetadata(const HcalTopology* topo) : HcalCondObjectContainer<HcalLutMetadatum>(topo){}
     
   std::string myname() const {return (std::string)"HcalLutMetadata";}
     

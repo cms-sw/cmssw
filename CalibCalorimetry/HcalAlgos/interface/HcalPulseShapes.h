@@ -8,12 +8,13 @@
 
 /** \class HcalPulseShapes
   *  
-  * $Date: 2011/09/08 13:23:03 $
-  * $Revision: 1.5 $
+  * $Date: 2011/11/23 13:48:27 $
+  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class HcalMCParams;
 class HcalRecoParams;
+class HcalTopology;
 
 class HcalPulseShapes {
 public:
@@ -46,6 +47,7 @@ private:
   Shape hpdShape_v3, hpdShapeMC_v3;
   Shape hpdBV30Shape_v2, hpdBV30ShapeMC_v2;
   const HcalMCParams * theMCParams;
+  const HcalTopology * theTopology;
   const HcalRecoParams * theRecoParams;
   typedef std::map<int, const Shape *> ShapeMap;
   ShapeMap theShapes;

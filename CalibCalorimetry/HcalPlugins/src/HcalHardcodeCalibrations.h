@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.20 2012/03/29 16:24:02 sunanda Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.21 2012/08/28 13:44:18 yana Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -77,10 +77,5 @@ protected:
   std::auto_ptr<HcalLongRecoParams> produceLongRecoParams (const HcalLongRecoParamsRcd& rcd);
   std::auto_ptr<HcalMCParams> produceMCParams (const HcalMCParamsRcd& rcd);
   std::auto_ptr<HcalFlagHFDigiTimeParams> produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd);
-
-  int maxDepthHB_;
-  int maxDepthHE_;  
-  HcalTopologyMode::Mode mode_;
-  bool               h2mode_;
 };
 

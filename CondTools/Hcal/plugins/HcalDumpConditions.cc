@@ -31,6 +31,7 @@ September 21, 2009  Added HcalLutMetadata - Gena Kukartsev
 
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
@@ -82,6 +83,9 @@ namespace edmtest
   void
    HcalDumpConditions::analyze(const edm::Event& e, const edm::EventSetup& context)
   {
+    edm::ESHandle<HcalTopology> topology ;
+    context.get<IdealGeometryRecord>().get( topology );
+
     using namespace edm::eventsetup;
     std::cout <<"HcalDumpConditions::analyze-> I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
 
@@ -89,49 +93,49 @@ namespace edmtest
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end())
       dumpIt(new HcalElectronicsMap, new HcalElectronicsMapRcd, e,context,"ElectronicsMap");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end())
-      dumpIt(new HcalQIEData, new HcalQIEDataRcd, e,context,"QIEData");
+      dumpIt(new HcalQIEData(&(*topology)), new HcalQIEDataRcd, e,context,"QIEData");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end())
-      dumpIt(new HcalPedestals(false), new HcalPedestalsRcd, e,context,"Pedestals");
+      dumpIt(new HcalPedestals(&(*topology)), new HcalPedestalsRcd, e,context,"Pedestals");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end())
-      dumpIt(new HcalPedestalWidths(false), new HcalPedestalWidthsRcd, e,context,"PedestalWidths");
+      dumpIt(new HcalPedestalWidths(&(*topology)), new HcalPedestalWidthsRcd, e,context,"PedestalWidths");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end())
-      dumpIt(new HcalGains, new HcalGainsRcd, e,context,"Gains");
+      dumpIt(new HcalGains(&(*topology)), new HcalGainsRcd, e,context,"Gains");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end())
-      dumpIt(new HcalGainWidths, new HcalGainWidthsRcd, e,context,"GainWidths");
+      dumpIt(new HcalGainWidths(&(*topology)), new HcalGainWidthsRcd, e,context,"GainWidths");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end())
-      dumpIt(new HcalChannelQuality, new HcalChannelQualityRcd, e,context,"ChannelQuality");
+      dumpIt(new HcalChannelQuality(&(*topology)), new HcalChannelQualityRcd, e,context,"ChannelQuality");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RespCorrs")) != mDumpRequest.end())
-      dumpIt(new HcalRespCorrs, new HcalRespCorrsRcd, e,context,"RespCorrs");
+      dumpIt(new HcalRespCorrs(&(*topology)), new HcalRespCorrsRcd, e,context,"RespCorrs");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end())
-      dumpIt(new HcalZSThresholds, new HcalZSThresholdsRcd, e,context,"ZSThresholds");
+      dumpIt(new HcalZSThresholds(&(*topology)), new HcalZSThresholdsRcd, e,context,"ZSThresholds");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("L1TriggerObjects")) != mDumpRequest.end())
-      dumpIt(new HcalL1TriggerObjects, new HcalL1TriggerObjectsRcd, e,context,"L1TriggerObjects");
+      dumpIt(new HcalL1TriggerObjects(&(*topology)), new HcalL1TriggerObjectsRcd, e,context,"L1TriggerObjects");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TimeCorrs")) != mDumpRequest.end())
-      dumpIt(new HcalTimeCorrs, new HcalTimeCorrsRcd, e,context,"TimeCorrs");
+      dumpIt(new HcalTimeCorrs(&(*topology)), new HcalTimeCorrsRcd, e,context,"TimeCorrs");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LUTCorrs")) != mDumpRequest.end())
-      dumpIt(new HcalLUTCorrs, new HcalLUTCorrsRcd, e,context,"LUTCorrs");
+      dumpIt(new HcalLUTCorrs(&(*topology)), new HcalLUTCorrsRcd, e,context,"LUTCorrs");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PFCorrs")) != mDumpRequest.end())
-      dumpIt(new HcalPFCorrs, new HcalPFCorrsRcd, e,context,"PFCorrs");
+      dumpIt(new HcalPFCorrs(&(*topology)), new HcalPFCorrsRcd, e,context,"PFCorrs");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ValidationCorrs")) != mDumpRequest.end())
-      dumpIt(new HcalValidationCorrs, new HcalValidationCorrsRcd, e,context,"ValidationCorrs");
+      dumpIt(new HcalValidationCorrs(&(*topology)), new HcalValidationCorrsRcd, e,context,"ValidationCorrs");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LutMetadata")) != mDumpRequest.end())
-      dumpIt(new HcalLutMetadata, new HcalLutMetadataRcd, e,context,"LutMetadata");
+      dumpIt(new HcalLutMetadata(&(*topology)), new HcalLutMetadataRcd, e,context,"LutMetadata");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("DcsValues")) != mDumpRequest.end())
       dumpIt(new HcalDcsValues, new HcalDcsRcd, e,context,"DcsValues");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("DcsMap")) != mDumpRequest.end())
       dumpIt(new HcalDcsMap, new HcalDcsMapRcd, e,context,"DcsMap");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("CholeskyMatrices")) != mDumpRequest.end())
-      dumpIt(new HcalCholeskyMatrices, new HcalCholeskyMatricesRcd, e,context,"CholeskyMatrices");
+      dumpIt(new HcalCholeskyMatrices(&(*topology)), new HcalCholeskyMatricesRcd, e,context,"CholeskyMatrices");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end())
-      dumpIt(new HcalRecoParams, new HcalRecoParamsRcd, e,context,"RecoParams");
+      dumpIt(new HcalRecoParams(&(*topology)), new HcalRecoParamsRcd, e,context,"RecoParams");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TimingParams")) != mDumpRequest.end())
-      dumpIt(new HcalTimingParams, new HcalTimingParamsRcd, e,context,"TimingParams");
+      dumpIt(new HcalTimingParams(&(*topology)), new HcalTimingParamsRcd, e,context,"TimingParams");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LongRecoParams")) != mDumpRequest.end())
-      dumpIt(new HcalLongRecoParams, new HcalLongRecoParamsRcd, e,context,"LongRecoParams");
+      dumpIt(new HcalLongRecoParams(&(*topology)), new HcalLongRecoParamsRcd, e,context,"LongRecoParams");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("MCParams")) != mDumpRequest.end())
-      dumpIt(new HcalMCParams, new HcalMCParamsRcd, e,context,"MCParams");
+      dumpIt(new HcalMCParams(&(*topology)), new HcalMCParamsRcd, e,context,"MCParams");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FlagHFDigiTimeParams")) != mDumpRequest.end())
-      dumpIt(new HcalFlagHFDigiTimeParams, new HcalFlagHFDigiTimeParamsRcd, e,context,"FlagHFDigiTimeParams");
+      dumpIt(new HcalFlagHFDigiTimeParams(&(*topology)), new HcalFlagHFDigiTimeParamsRcd, e,context,"FlagHFDigiTimeParams");
 
     
   }

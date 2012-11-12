@@ -4,22 +4,23 @@
 
 namespace {
   struct dictionary {
-    HcalPedestals mypeds;
+
+    HcalPedestals mypeds();
     std::vector<HcalPedestal> mypedsVec;
  
-    HcalPedestalWidths mywidths;
+    HcalPedestalWidths mywidths();
     std::vector<HcalPedestalWidth> mywidthsVec;
  
-    HcalGains mygains;
+    HcalGains mygains();
     std::vector<HcalGain> mygainsVec;
  
-    HcalGainWidths mygwidths;
+    HcalGainWidths mygwidths();
     std::vector<HcalGainWidth> mygwidthsVec;
  
-    HcalQIEData myqie;
+    HcalQIEData myqie();
     std::vector<HcalQIECoder> myqievec;
  
-    HcalCalibrationQIEData mycalqie;
+    HcalCalibrationQIEData mycalqie();
     std::vector<HcalCalibrationQIECoder> mycalqieVec;
  
     HcalElectronicsMap mymap;

@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.cc,v 1.7 2010/10/03 08:31:49 elmer Exp $
+// $Id: hcalCalib.cc,v 1.8 2010/10/03 20:38:58 elmer Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
@@ -657,7 +657,8 @@ Bool_t hcalCalib::ReadPhiSymCor() {
       cout << "\nInconsistent info in phi symmetry file: subdet, iEta, iPhi, depth do not match rawId!\n" << endl;
       return kFALSE;    
     }
-    if (!HcalDetId::validDetId(sd, iEta, iPhi, depth)) {
+    HcalDetId hId(detId);
+    if (!topo_->valid(hId)) {
       cout << "\nInvalid DetId from: iEta=" << iEta << " iPhi=" << iPhi << " depth=" << depth 
 	   << " subdet=" << sdName.Data() << " detId=" << detId << endl << endl; 
       return kFALSE;    
@@ -696,7 +697,7 @@ void hcalCalib::makeTextFile() {
 
 	  for(Int_t d=1; d<5; d++) {
 
-	    if (!HcalDetId::validDetId(HcalSubdetector(sd), eta, phi, d)) continue;
+	    if (!topo_->valid(HcalDetId(HcalSubdetector(sd), eta, phi, d))) continue;
 	    HcalDetId id(HcalSubdetector(sd), eta, phi, d);
 	    Float_t corrFactor = 1.0;
 	    

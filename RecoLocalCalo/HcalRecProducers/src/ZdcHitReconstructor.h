@@ -23,10 +23,12 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalADCSaturationFlag.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HFTimingTrustFlag.h"
 
+class HcalTopology;
+
     /** \class ZdcHitReconstructor
 	
-    $Date: 2011/05/20 17:17:30 $
-    $Revision: 1.4 $
+    $Date: 2011/11/10 10:16:20 $
+    $Revision: 1.5 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -65,6 +67,7 @@
       double lowGainFrac_;
       
       HcalLongRecoParams* myobject; //noiseTS and signalTS from db
+      HcalTopology *theTopology;
     };
 
 #endif

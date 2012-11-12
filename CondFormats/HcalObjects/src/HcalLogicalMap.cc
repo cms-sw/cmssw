@@ -1,6 +1,6 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
-
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 #include <string>
@@ -13,7 +13,7 @@
 
 using namespace std;
 
-HcalLogicalMap::HcalLogicalMap(std::vector<HBHEHFLogicalMapEntry>& HBHEHFEntries,
+HcalLogicalMap::HcalLogicalMap(const HcalTopology* topo,std::vector<HBHEHFLogicalMapEntry>& HBHEHFEntries,
 			       std::vector<HOHXLogicalMapEntry>& HOHXEntries,
 			       std::vector<CALIBLogicalMapEntry>& CALIBEntries,
 			       std::vector<ZDCLogicalMapEntry>& ZDCEntries,
@@ -25,7 +25,7 @@ HcalLogicalMap::HcalLogicalMap(std::vector<HBHEHFLogicalMapEntry>& HBHEHFEntries
 			       std::vector<uint32_t>& HtHash2Entry,
 			       std::vector<uint32_t>& HoHash2Entry,
 			       std::vector<uint32_t>& HxCalibHash2Entry,
-			       std::vector<uint32_t>& ZdcHash2Entry)
+			       std::vector<uint32_t>& ZdcHash2Entry) : topo_(topo)
 
 {
   HBHEHFEntries_.resize(HBHEHFEntries.size());
@@ -262,31 +262,37 @@ const DetId HcalLogicalMap::getDetId(const HcalElectronicsId& eid)
 const HcalFrontEndId HcalLogicalMap::getHcalFrontEndId(const DetId& did)
 {
   const HcalGenericDetId hgdi(did);
+  
   const HcalGenericDetId::HcalGenericSubdetector hgsd=hgdi.genericSubdet();
-  const int hashedId=hgdi.hashedId(false);
   if (hgsd==HcalGenericDetId::HcalGenBarrel) {
+    const int hashedId=topo_->detId2denseIdHB(did);
     const uint32_t entry=HbHash2Entry_.at(hashedId)-1;
     return HBHEHFEntries_.at(entry).getHcalFrontEndId();
   }
   else if (hgsd==HcalGenericDetId::HcalGenEndcap) {
+    const int hashedId=topo_->detId2denseIdHE(did);
     const uint32_t entry=HeHash2Entry_.at(hashedId)-1;
     return HBHEHFEntries_.at(entry).getHcalFrontEndId();
   }
   else if (hgsd==HcalGenericDetId::HcalGenForward) {
+    const int hashedId=topo_->detId2denseIdHF(did);
     const uint32_t entry=HfHash2Entry_.at(hashedId)-1;
     return HBHEHFEntries_.at(entry).getHcalFrontEndId();
   }
   else if (hgsd==HcalGenericDetId::HcalGenOuter) {
+    const int hashedId=topo_->detId2denseIdHO(did);
     const uint32_t entry=HoHash2Entry_.at(hashedId)-1;
     return HOHXEntries_.at(entry).getHcalFrontEndId();
   }
   else if (hgsd==HcalGenericDetId::HcalGenCalibration) {
     HcalCalibDetId hcid(did);
     if (hcid.calibFlavor()==HcalCalibDetId::HOCrosstalk) {
+      const int hashedId=topo_->detId2denseIdCALIB(did);
       const uint32_t entry=HxCalibHash2Entry_.at(hashedId)-1;
       return HOHXEntries_.at(entry).getHcalFrontEndId();
     }
     else if (hcid.calibFlavor()==HcalCalibDetId::CalibrationBox) {
+      const int hashedId=topo_->detId2denseIdCALIB(did);
       const uint32_t entry=HxCalibHash2Entry_.at(hashedId)-1;
       return CALIBEntries_.at(entry).getHcalFrontEndId();
     }
@@ -386,31 +392,31 @@ void HcalLogicalMap::checkHashIds() {
   cout << "\nRunning the hash checker for detIds..." << endl;
   for (std::vector<HBHEHFLogicalMapEntry>::iterator it = HBHEHFEntries_.begin(); it!=HBHEHFEntries_.end(); ++it) {
     if (it->getDetId().subdetId()==HcalBarrel) {
-      HB_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+      HB_Hashes_.push_back(topo_->detId2denseIdHB(it->getDetId()));
     }
     else if (it->getDetId().subdetId()==HcalEndcap) {
-      HE_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+      HE_Hashes_.push_back(topo_->detId2denseIdHE(it->getDetId()));
     }
     else if (it->getDetId().subdetId()==HcalForward) {
-      HF_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+      HF_Hashes_.push_back(topo_->detId2denseIdHF(it->getDetId()));
     }
   }
   for (std::vector<HOHXLogicalMapEntry>::iterator it = HOHXEntries_.begin(); it!=HOHXEntries_.end(); ++it) {
     if (HcalGenericDetId(it->getDetId().rawId()).isHcalCalibDetId() ) {
-      CALIBHX_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+      CALIBHX_Hashes_.push_back(topo_->detId2denseIdCALIB(it->getDetId()));
     }
     else {
-      HO_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+      HO_Hashes_.push_back(topo_->detId2denseIdHO(it->getDetId()));
     }
   }
   for (std::vector<CALIBLogicalMapEntry>::iterator it = CALIBEntries_.begin(); it!=CALIBEntries_.end(); ++it) {
-    CALIBHX_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+    CALIBHX_Hashes_.push_back(topo_->detId2denseIdCALIB(it->getDetId()));
   }
   for (std::vector<ZDCLogicalMapEntry>::iterator it = ZDCEntries_.begin(); it!=ZDCEntries_.end(); ++it) {
-    ZDC_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+    ZDC_Hashes_.push_back(HcalZDCDetId(it->getDetId()).denseIndex());
   }
   for (std::vector<HTLogicalMapEntry>::iterator it = HTEntries_.begin(); it!=HTEntries_.end(); ++it) {
-    HT_Hashes_.push_back(HcalGenericDetId(it->getDetId().rawId()).hashedId(false));
+    HT_Hashes_.push_back(topo_->detId2denseIdHT(it->getDetId()));
   }
 
   sort(HB_Hashes_.begin()     , HB_Hashes_.end());

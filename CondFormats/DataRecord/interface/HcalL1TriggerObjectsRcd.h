@@ -16,11 +16,12 @@
 //
 // Author:      
 // Created:     Fri Nov  7 18:37:16 CET 2008
-// $Id$
+// $Id: HcalL1TriggerObjectsRcd.h,v 1.1 2008/11/08 21:19:31 rofierzy Exp $
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalL1TriggerObjectsRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalL1TriggerObjectsRcd> {};
+class HcalL1TriggerObjectsRcd : public edm::eventsetup::DependentRecordImplementation<HcalL1TriggerObjectsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
 
 #endif

@@ -7,8 +7,8 @@
    (preserve backwards compatibility of methods for this release)
 POOL object to store QIE parameters
 $Author: ratnikov
-$Date: 2012/03/29 16:20:12 $
-$Revision: 1.12 $
+$Date: 2012/11/02 14:13:11 $
+$Revision: 1.13 $
 */
 
 #include <vector>
@@ -23,10 +23,13 @@ $Revision: 1.12 $
 class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
 {
  public:
-
+#ifndef HCAL_COND_SUPPRESS_DEFAULT
+  HcalQIEData():HcalCondObjectContainer<HcalQIECoder>(0) {setupShape();}
+#endif
   // constructor, destructor, and all methods stay the same
-  HcalQIEData();
+  HcalQIEData(const HcalTopology* topo):HcalCondObjectContainer<HcalQIECoder>(topo) {setupShape();}
 
+  void setupShape();  
   /// get basic shape
   //   const HcalQIEShape& getShape () const {return mShape;}
    const HcalQIEShape& getShape (DetId fId) const { return mShape[getCoder(fId)->qieIndex()];}
@@ -36,7 +39,7 @@ class HcalQIEData: public HcalCondObjectContainer<HcalQIECoder>
   // check if data are sorted - remove in the next version
   bool sorted () const { return true; }
   // fill values [capid][range]
-  bool addCoder (const HcalQIECoder& fCoder, bool h2mode_ = false) { return addValues(fCoder, h2mode_); }
+  bool addCoder (const HcalQIECoder& fCoder) { return addValues(fCoder); }
   // sort values by channelId - remove in the next version  
   void sort () {}
   

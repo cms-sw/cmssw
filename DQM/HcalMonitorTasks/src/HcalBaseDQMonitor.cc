@@ -1,5 +1,8 @@
 #include <DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h>
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 
 #include <iostream>
 #include <vector>
@@ -7,8 +10,8 @@
 /*
  * \file HcalBaseDQMonitor.cc
  *
- * $Date: 2012/06/21 13:40:22 $
- * $Revision: 1.7 $
+ * $Date: 2012/06/27 13:20:29 $
+ * $Revision: 1.8 $
  * \author J Temple
  *
  * Base class for all Hcal DQM analyzers
@@ -37,6 +40,8 @@ HcalBaseDQMonitor::HcalBaseDQMonitor(const edm::ParameterSet& ps)
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
   
   setupDone_ = false;
+  logicalMap_= 0;
+  needLogicalMap_=false;
   meIevt_=0;
   meLevt_=0;
   meTevtHist_=0;
@@ -54,7 +59,7 @@ HcalBaseDQMonitor::HcalBaseDQMonitor(const edm::ParameterSet& ps)
 
 HcalBaseDQMonitor::~HcalBaseDQMonitor()
 {
-
+  if (logicalMap_) delete logicalMap_;
 }
 
 void HcalBaseDQMonitor::beginJob(void)
@@ -214,8 +219,19 @@ bool HcalBaseDQMonitor::IsAllowedCalibType()
   return false;
 } // bool HcalBaseDQMonitor::IsAllowedCalibType()
 
+void HcalBaseDQMonitor::getLogicalMap(const edm::EventSetup& c) {
+  if (needLogicalMap_ && logicalMap_==0) {
+    edm::ESHandle<HcalTopology> pT;
+    c.get<IdealGeometryRecord>().get(pT);   
+    HcalLogicalMapGenerator gen;
+    logicalMap_=new HcalLogicalMap(gen.createMap(&(*pT)));
+  }
+}
+ 
 void HcalBaseDQMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
+  getLogicalMap(c);
+
   if (debug_>5) std::cout <<"\t<HcalBaseDQMonitor::analyze>  event = "<<ievt_<<std::endl;
   eventAllowed_=true; // assume event is allowed
 

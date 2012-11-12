@@ -8,7 +8,6 @@
 // to retrive trigger desition words, to select pedestal (from hcal point of view) triggers (global runs only)
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 #include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
@@ -120,9 +119,7 @@ public:
   void fillHistos();
   int  GetStatistics(){ return ievt_; }
 private:
-  HcalLogicalMapGenerator *gen;
-  HcalElectronicsMap      emap;
-  HcalLogicalMap          *lmap;
+  HcalElectronicsMap*      emap;
   void SaveReference();
   void LoadReference();
   void CheckStatus();
@@ -271,6 +268,9 @@ HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps) :
 
   digiLabel_       = ps.getUntrackedParameter<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
   calibDigiLabel_  = ps.getUntrackedParameter<edm::InputTag>("calibDigiLabel",edm::InputTag("hcalDigis"));
+
+  emap=0;
+  needLogicalMap_ = true;
 }
 
 HcalDetDiagLEDMonitor::~HcalDetDiagLEDMonitor(){}
@@ -372,14 +372,16 @@ void HcalDetDiagLEDMonitor::setup(){
      ChannelStatusTimeRMS = new EtaPhiHists();
      ChannelStatusTimeRMS->setup(dbe_," Time RMS");
 
-     gen=new HcalLogicalMapGenerator();
-     lmap =new HcalLogicalMap(gen->createMap());
-     emap=lmap->generateHcalElectronicsMap();
-     return;
+     
 } 
 
 void HcalDetDiagLEDMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 int  eta,phi,depth,nTS;
+   HcalBaseDQMonitor::getLogicalMap(iSetup);
+   if (emap==0) {
+     emap=new HcalElectronicsMap(logicalMap_->generateHcalElectronicsMap());
+   }
+
    if(!dbe_) return; 
    bool LEDEvent=false;
    bool LocalRun=false;
@@ -628,11 +630,11 @@ void HcalDetDiagLEDMonitor::fillHistos(){
   for(int i=0;i<18;i++) for(int j=0;j<4;j++)
    ho0[i][j]=nho0[i][j]=ho1p[i][j]=nho1p[i][j]=ho2p[i][j]=nho2p[i][j]=ho1m[i][j]=nho1m[i][j]=ho2m[i][j]=nho2m[i][j]=0;
 
-   std::vector <HcalElectronicsId> AllElIds = emap.allElectronicsIdPrecision();
+   std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
    for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
-      DetId detid=emap.lookup(*eid);
+      DetId detid=emap->lookup(*eid);
       if(detid.det()!=DetId::Hcal) continue;
-      HcalGenericDetId gid(emap.lookup(*eid));
+      HcalGenericDetId gid(emap->lookup(*eid));
       if(!(!(gid.null()) && 
             (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
              gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
@@ -653,7 +655,7 @@ void HcalDetDiagLEDMonitor::fillHistos(){
       double ave =get_energy(subdet[sd],eta,phi,depth,1);
       double ref =get_energy(subdet[sd],eta,phi,depth,2);
 
-      HcalFrontEndId  lmap_entry=lmap->getHcalFrontEndId(hid);
+      HcalFrontEndId  lmap_entry=logicalMap_->getHcalFrontEndId(hid);
       int rbx; 
       if(sd==0 || sd==1 || sd==3){
 	   sscanf(&(lmap_entry.rbx().c_str())[3],"%d",&rbx);
@@ -857,11 +859,11 @@ char   Subdet[10],str[500];
       xmlFile<<"     </PREDEFINED_ATTRIBUTES>\n";
       xmlFile<<"     <!-- multiple data block records -->\n\n";
 
-      std::vector <HcalElectronicsId> AllElIds = emap.allElectronicsIdPrecision();
+      std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
       for(std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++){
-         DetId detid=emap.lookup(*eid);
+         DetId detid=emap->lookup(*eid);
          if (detid.det()!=DetId::Hcal) continue;
-         HcalGenericDetId gid(emap.lookup(*eid));
+         HcalGenericDetId gid(emap->lookup(*eid));
          if(!(!(gid.null()) && 
             (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
              gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
@@ -1058,11 +1060,11 @@ void HcalDetDiagLEDMonitor::CheckStatus(){
       ChannelStatusTimeRMS->depth[i]->Reset();
    }
   
-   std::vector <HcalElectronicsId> AllElIds = emap.allElectronicsIdPrecision();
+   std::vector <HcalElectronicsId> AllElIds = emap->allElectronicsIdPrecision();
    for (std::vector <HcalElectronicsId>::iterator eid = AllElIds.begin(); eid != AllElIds.end(); eid++) {
-      DetId detid=emap.lookup(*eid);
+      DetId detid=emap->lookup(*eid);
       if (detid.det()!=DetId::Hcal) continue;
-      HcalGenericDetId gid(emap.lookup(*eid));
+      HcalGenericDetId gid(emap->lookup(*eid));
       if(!(!(gid.null()) && 
             (gid.genericSubdet()==HcalGenericDetId::HcalGenBarrel ||
              gid.genericSubdet()==HcalGenericDetId::HcalGenEndcap  ||
