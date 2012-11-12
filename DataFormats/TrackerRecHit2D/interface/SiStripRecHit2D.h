@@ -4,7 +4,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 
 
-class SiStripRecHit2D GCC11_FINAL : public TrackerSingleRecHit {
+class SiStripRecHit2D : public TrackerSingleRecHit {
 public:
 
   SiStripRecHit2D(): sigmaPitch_(-1.){}

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/02/16 10:03:23 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/25 16:38:34 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -17,8 +17,6 @@
 
 using namespace std;
 using namespace edm;
-
-namespace dtCalibration {
 
 DTTTrigFillWithAverage::DTTTrigFillWithAverage(const ParameterSet& pset):foundAverage_(false) {
   dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
@@ -98,5 +96,3 @@ void DTTTrigFillWithAverage::getAverage() {
                              << "                               kFactor mean: " << aveKFactor;
   foundAverage_ = true;
 }
-
-} // namespace

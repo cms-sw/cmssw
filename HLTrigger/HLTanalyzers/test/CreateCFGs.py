@@ -5,14 +5,14 @@ import sys,string,time,os
 
 ### parameters ###
 istart=0
-NJOBS=100
+NJOBS=41
 ##################
 
 
 INPUTSTARTSWITH="INPUTFILE="
 searchInput="xxx"
 
-OUTPUTSTARTSWITH="OUTPUTFILE="
+OUTPUTSTARTSWITH="    OUTPUTFILE="
 #OUTPUTSTARTSWITH="SkimmedOutput="
 searchOutput=".root"
 

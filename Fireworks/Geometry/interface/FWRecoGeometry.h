@@ -7,8 +7,7 @@ class FWRecoGeometry
 {
 public:
   FWRecoGeometry( void )
-    : idToName( 260000 )
-    {}
+    { idToName.reserve(260000); }
   
   virtual ~FWRecoGeometry( void ) 
     {}

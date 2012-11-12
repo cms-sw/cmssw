@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.199 2012/03/14 19:22:13 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.200 2012/03/16 21:40:00 amraktad Exp $
 //
 
 // system include files
@@ -188,14 +188,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    catch ( const std::exception& e)
    {
       // Return with exit status 0 to avoid generating crash reports
-      if (strcmp(e.what(), "debug") == 0) {   
-         fwLog(fwlog::kError) <<  e.what() << std::endl;    
-         exit(0); 
-      }
-      else 
-      {    
-         fwLog(fwlog::kInfo) <<  "Debug option is no longer supported, because cmsShow crash report will be generated automatically in case of non-zero exit status.\n";     
-      }
+
+      fwLog(fwlog::kError) <<  e.what() << std::endl;
+      std::cout << desc <<std::endl;
+      exit(0); 
    }
 
    if(vm.count(kHelpOpt)) {

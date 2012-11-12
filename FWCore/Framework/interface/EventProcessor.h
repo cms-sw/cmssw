@@ -46,7 +46,6 @@ namespace edm {
   class SubProcess;
   namespace eventsetup {
     class EventSetupProvider;
-    class EventSetupsController;
   }
 
   namespace event_processor {
@@ -266,7 +265,7 @@ namespace edm {
     // boost statemachine
 
     virtual void readFile();
-    virtual void closeInputFile(bool cleaningUpAfterException);
+    virtual void closeInputFile();
     virtual void openOutputFiles();
     virtual void closeOutputFiles();
 
@@ -284,10 +283,10 @@ namespace edm {
     virtual void doErrorStuff();
 
     virtual void beginRun(statemachine::Run const& run);
-    virtual void endRun(statemachine::Run const& run, bool cleaningUpAfterException);
+    virtual void endRun(statemachine::Run const& run);
 
     virtual void beginLumi(ProcessHistoryID const& phid, int run, int lumi);
-    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi, bool cleaningUpAfterException);
+    virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi);
 
     virtual statemachine::Run readAndCacheRun(bool merge);
     virtual int readAndCacheLumi(bool merge);
@@ -349,7 +348,6 @@ namespace edm {
     boost::shared_ptr<SignallingProductRegistry>  preg_;
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<InputSource>                input_;
-    boost::scoped_ptr<eventsetup::EventSetupsController> espController_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
     boost::shared_ptr<ActionTable const>          act_table_;
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;

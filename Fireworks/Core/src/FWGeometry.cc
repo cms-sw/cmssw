@@ -16,7 +16,6 @@
 #include <algorithm>
 
 FWGeometry::FWGeometry( void )
-  : m_idToInfo( 260000 )
 {}
 
 FWGeometry::~FWGeometry( void )

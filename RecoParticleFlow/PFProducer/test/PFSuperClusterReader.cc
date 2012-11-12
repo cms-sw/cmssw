@@ -119,6 +119,9 @@ void PFSuperClusterReader::analyze(const edm::Event & iEvent,const edm::EventSet
       std::cout << " Calibrated preshower energy : " << mySuperCluster.preshowerEnergy() ;
       etotbasic += mySuperCluster.preshowerEnergy();
       std::cout << " Basic Clusters + PS :" << etotbasic << std::endl;
+      if(fabs(etotbasic-myPFCandidate->ecalEnergy())>0.01)
+	std::cout << " AARRRGGGHHH - inconsistency with PFCandidate " << std::endl; 
+
       std::cout << " Summary " << mySuperCluster.energy() << " " << eta << " " << et ;
       std::cout << " " <<mySuperCluster.preshowerEnergy() << " " << mva << std::endl;
       std::cout << std::endl;

@@ -41,7 +41,7 @@ class MatrixReader(object):
                              'relval_pileup': 'PU-'  ,
                              'relval_generator': 'gen-'  ,
                              'relval_production': 'prod-'  ,
-                             'relval_ged': 'ged-'
+                            #'relval_ged': 'ged-'
                              }
 
         self.files = ['relval_standard' ,
@@ -49,7 +49,7 @@ class MatrixReader(object):
                       'relval_pileup',
                       'relval_generator',
                       'relval_production',
-                      'relval_ged'
+                     #'relval_ged'
                       ]
 
         self.relvalModule = None
@@ -182,8 +182,9 @@ class MatrixReader(object):
                 stepName=step
                 if self.wm:
                     #cannot put a certain number of things in wm
-                    if stepName in ['SKIMD','HARVESTD','HARVEST','HARVESTD','RECODFROMRAWRECO']:
+                    if stepName in ['HARVEST','HARVESTD','HARVESTDreHLT','RECODFROMRAWRECO','SKIMD','SKIMCOSD','SKIMDreHLT']:
                         continue
+                    
                 #replace stepName is needed
                 #if stepName in self.replaceStep
                 if len(name) > 0 : name += '+'
@@ -220,6 +221,8 @@ class MatrixReader(object):
                         cmd+=' --io %s.io --python %s.py'%(stepName,stepName)
                     if self.addCommand:
                         cmd +=' '+self.addCommand
+                    if self.wm:
+                        cmd=cmd.replace('DQMROOT','DQM')
                 commands.append(cmd)
                 ranStepList.append(stepName)
                 stepIndex+=1

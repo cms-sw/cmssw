@@ -6,7 +6,7 @@
 
 class GeomDetUnit;
 
-class TRecHit5DParamConstraint GCC11_FINAL : public TransientTrackingRecHit
+class TRecHit5DParamConstraint : public TransientTrackingRecHit
 {
 
 private:

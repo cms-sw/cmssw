@@ -318,8 +318,8 @@ def runsummary(schema,runnum,sessionflavor=''):
 def mostRecentLuminorms(schema,branchfilter):
     '''
     this overview query should be only for norm
-    select e.name,n.data_id,r.revision_id,n.amodetag,n.norm_1,n.egev_1,n.norm_occ2,n.norm_et,n.norm_pu,n.constfactor from luminorms_entries e,luminorms_rev r,luminorms n where n.entry_id=e.entry_id and n.data_id=r.data_id and r.revision_id>=min(branchfilter) and r.revision_id<=max(branchfilter);
-    output {norm_name:[data_id,amodetag,norm_1,egev_1,norm_occ2,norm_et,norm_pu,constfactor]}
+    select e.name,max(n.data_id),r.revision_id , n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2 from luminorms_entries e,luminorms_rev r,luminorms n where n.entry_id=e.entry_id and n.data_id=r.data_id and r.revision_id>=min(branchfilter) and r.revision_id<=max(branchfilter) group by e.entry_name,r.revision_id,n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2;
+    output {norm_name:[data_id,amodetag,norm_1,egev_1,norm_2,egev_2]}
     '''
     #print branchfilter
     result={}
@@ -331,23 +331,19 @@ def mostRecentLuminorms(schema,branchfilter):
         branchmax=max(branchfilter)
     else:
         return result
-    #print branchmin,branchmax
     qHandle=schema.newQuery()
-    normdict={}
     try:
         qHandle.addToTableList(nameDealer.entryTableName(nameDealer.luminormTableName()),'e')
         qHandle.addToTableList(nameDealer.luminormTableName(),'n')
         qHandle.addToTableList(nameDealer.revmapTableName(nameDealer.luminormTableName()),'r')
         qHandle.addToOutputList('e.NAME','normname')
-        qHandle.addToOutputList('r.DATA_ID','data_id')
+        qHandle.addToOutputList('max(r.DATA_ID)','data_id')
         qHandle.addToOutputList('r.REVISION_ID','revision_id')
         qHandle.addToOutputList('n.AMODETAG','amodetag')
         qHandle.addToOutputList('n.NORM_1','norm_1')
         qHandle.addToOutputList('n.EGEV_1','energy_1')
-        qHandle.addToOutputList('n.NORM_OCC2','norm_occ2')
-        qHandle.addToOutputList('n.NORM_ET','norm_et')
-        qHandle.addToOutputList('n.NORM_PU','norm_pu')
-        qHandle.addToOutputList('n.CONSTFACTOR','constfactor')
+        qHandle.addToOutputList('n.NORM_2','norm_2')
+        qHandle.addToOutputList('n.EGEV_2','energy_2')
         qCondition=coral.AttributeList()
         qCondition.extend('branchmin','unsigned long long')
         qCondition.extend('branchmax','unsigned long long')
@@ -360,36 +356,24 @@ def mostRecentLuminorms(schema,branchfilter):
         qResult.extend('amodetag','string')
         qResult.extend('norm_1','float')
         qResult.extend('energy_1','unsigned int')
-        qResult.extend('norm_occ2','float')
-        qResult.extend('norm_et','float')
-        qResult.extend('norm_pu','float')
-        qResult.extend('constfactor','float')
+        qResult.extend('norm_2','float')
+        qResult.extend('energy_2','unsigned int')
         qHandle.defineOutput(qResult)
         qHandle.setCondition('n.ENTRY_ID=e.ENTRY_ID and n.DATA_ID=r.DATA_ID AND n.DATA_ID=r.DATA_ID AND r.REVISION_ID>=:branchmin AND r.REVISION_ID<=:branchmax',qCondition)
+        qHandle.groupBy('e.name,r.revision_id,n.amodetag,n.norm_1,n.egev_1,n.norm_2,n.egev_2')
         cursor=qHandle.execute()
         while cursor.next():
-            data_id=cursor.currentRow()['data_id'].data()
             normname=cursor.currentRow()['normname'].data()
-            if not normdict.has_key(normname):
-                normdict[normname]=0
-            if data_id>normdict[normname]:
-                normdict[normname]=data_id
-                amodetag=cursor.currentRow()['amodetag'].data()
-                norm_1=cursor.currentRow()['norm_1'].data()
-                energy_1=cursor.currentRow()['energy_1'].data()
-                norm_occ2=1.0
-                if cursor.currentRow()['norm_occ2'].data():
-                    norm_occ2=cursor.currentRow()['norm_occ2'].data()
-                norm_et=1.0
-                if cursor.currentRow()['norm_et'].data():
-                    norm_et=cursor.currentRow()['norm_et'].data()
-                norm_pu=1.0
-                if cursor.currentRow()['norm_pu'].data():
-                    norm_pu=cursor.currentRow()['norm_pu'].data()
-                constfactor=1.0
-                if cursor.currentRow()['constfactor'].data():
-                    constfactor=cursor.currentRow()['constfactor'].data()
-                result[normname]=(amodetag,norm_1,energy_1,norm_occ2,norm_et,norm_pu,constfactor)
+            amodetag=cursor.currentRow()['amodetag'].data()
+            norm_1=cursor.currentRow()['norm_1'].data()
+            energy_1=cursor.currentRow()['energy_1'].data()
+            norm_2=None
+            if cursor.currentRow()['norm_2'].data():
+                norm_2=cursor.currentRow()['norm_2'].data()
+            energy_2=None
+            if cursor.currentRow()['energy_2'].data():
+                energy_2=cursor.currentRow()['energy_2'].data()
+            result[normname]=[amodetag,norm_1,energy_1,norm_2,energy_2]
     except:
         raise
     return result

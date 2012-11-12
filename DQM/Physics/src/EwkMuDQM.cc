@@ -172,9 +172,9 @@ void EwkMuDQM::init_histograms() {
   */
 
   snprintf(chtitle, 255, "Number of jets (%s) above %.2f GeV", jetTag_.label().data(), eJetMin_);
-  njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,10,-0.5,9.5);
-  njets_after_ = theDbe->book1D("NJETS_AFTERWCUTS",chtitle,10,-0.5,9.5);
-  njets_afterZ_ = theDbe->book1D("NJETS_AFTERZCUTS",chtitle,10,-0.5,9.5);
+  njets_before_ = theDbe->book1D("NJETS_BEFORECUTS",chtitle,16,-0.5,15.5);
+  njets_after_ = theDbe->book1D("NJETS_AFTERWCUTS",chtitle,16,-0.5,15.5);
+  njets_afterZ_ = theDbe->book1D("NJETS_AFTERZCUTS",chtitle,16,-0.5,15.5);
 
   leadingjet_pt_before_ = theDbe->book1D("LEADINGJET_PT_BEFORECUTS","Leading Jet transverse momentum",300,0.,300.);
   leadingjet_pt_after_ = theDbe->book1D("LEADINGJET_PT_AFTERWCUTS","Leading Jet transverse momentum",300,0.,300.);
@@ -217,23 +217,24 @@ void EwkMuDQM::init_histograms() {
   ztrig_afterZ_ = theDbe->book1D("ZTRIG_AFTERZCUTS","Trigger response (boolean of muon triggers)",2,-0.5,1.5); 
   dimuonmass_before_= theDbe->book1D("DIMUONMASS_BEFORECUTS","DiMuonMass (2 globals)",100,0,200);
   dimuonmass_afterZ_= theDbe->book1D("DIMUONMASS_AFTERZCUTS","DiMuonMass (2 globals)",100,0,200);
-  npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS","Number of Valid Primary Vertices",30,-0.5,29.5);
-  npvs_after_ = theDbe->book1D("NPVs_AFTERZCUTS","Number of Valid Primary Vertices",30,-0.5,29.5);
-  npvs_afterZ_ = theDbe->book1D("NPVs_AFTERWCUTS","Number of Valid Primary Vertices",30,-0.5,29.5);
+  npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS","Number of Valid Primary Vertices",51,-0.5,50.5);
+  npvs_after_ = theDbe->book1D("NPVs_AFTERWCUTS","Number of Valid Primary Vertices",51,-0.5,50.5);
+  npvs_afterZ_ = theDbe->book1D("NPVs_AFTERZCUTS","Number of Valid Primary Vertices",51,-0.5,50.5);
   muoncharge_before_ = theDbe->book1D("MUONCHARGE_BEFORECUTS","Muon Charge",3,-1.5,1.5);
-  muoncharge_after_ = theDbe->book1D("MUONCHARGE_AFTERZCUTS","Muon Charge",3,-1.5,1.5);
-  muoncharge_afterZ_ = theDbe->book1D("MUONCHARGE_AFTERWCUTS","Muon Charge",3,-1.5,1.5);
+  muoncharge_after_ = theDbe->book1D("MUONCHARGE_AFTERWCUTS","Muon Charge",3,-1.5,1.5);
+  muoncharge_afterZ_ = theDbe->book1D("MUONCHARGE_AFTERZCUTS","Muon Charge",3,-1.5,1.5);
 
   // Adding these to replace the NZ ones (more useful, since they are more general?)     
   nmuons_ = theDbe->book1D("NMuons","Number of muons in the event",10,-0.5,9.5);
   ngoodmuons_ = theDbe->book1D("NGoodMuons","Number of muons passing the quality criteria",10,-0.5,9.5);
 
   nph_ = theDbe->book1D("nph","Number of photons in the event",20,0.,20.); 
-  npfph_ = theDbe->book1D("npfph","Number of PF photons in the event",20,0.,20.); 
+  //npfph_ = theDbe->book1D("npfph","Number of PF photons in the event",20,0.,20.); 
   phPt_ = theDbe->book1D("phPt","Photon transverse momentum [GeV]",1000,0.,1000.);
-  pfphPt_ = theDbe->book1D("pfphPt","PF Photon transverse momentum [GeV]",1000,0.,1000.); 
-  phEta_ = theDbe->book1D("phEta","Photon pseudorapidity",100,-2.5,2.5); 
-  pfphEta_ = theDbe->book1D("pfphEta","PF Photon pseudorapidity",100,-2.5,2.5); 
+  //pfphPt_ = theDbe->book1D("pfphPt","PF Photon transverse momentum [GeV]",1000,0.,1000.); 
+  snprintf(chtitle, 255, "Photon pseudorapidity (pT>%4.1f)",ptThrForPhoton_);
+  phEta_ = theDbe->book1D("phEta",chtitle,100,-2.5,2.5); 
+  //pfphEta_ = theDbe->book1D("pfphEta","PF Photon pseudorapidity",100,-2.5,2.5); 
 
 }
 
@@ -400,7 +401,10 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       for (unsigned int i=0; i<photonCollection->size(); i++){
       	const Photon &ph = photonCollection->at(i);
       	double photonPt = ph.pt();
-      	if (photonPt> ptThrForPhoton_) ngam++;
+      	if (photonPt> ptThrForPhoton_) {
+	  ngam++;
+	  phEta_->Fill(ph.eta());
+	}
 	phPt_->Fill(photonPt); 
       	}
       nph_->Fill(ngam); 
@@ -686,8 +690,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                                     }
                                if(flags_passed_z==NFLAGSZ) {met_afterZ_->Fill(met_et);
                                           if(!zfullsel_hist_done){
-                                          npvs_after_->Fill(nvvertex);
-                                          muoncharge_after_->Fill(charge);
+                                          npvs_afterZ_->Fill(nvvertex);
+                                          muoncharge_afterZ_->Fill(charge);
                                           }
                                           zfullsel_hist_done=true;
                                }     

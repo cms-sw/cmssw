@@ -1,9 +1,14 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
-	<LogicalPartSection label="eregalgo.xml">
-		<LogicalPart name="ECAL" category="unspecified">
-			<rSolid name="TBH4:ECAL"/>
-			<rMaterial name="materials:Air"/>
-		</LogicalPart>
-	</LogicalPartSection>
+
+
+
+<LogicalPartSection label="eregalgo.xml">
+ <LogicalPart name="ECAL" category="unspecified">
+  <rSolid name="TBH4:ECAL"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+
 </DDDefinition>

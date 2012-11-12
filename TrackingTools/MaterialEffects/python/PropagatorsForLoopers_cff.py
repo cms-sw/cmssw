@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 PropagatorWithMaterialForLoopers = cms.ESProducer("PropagatorWithMaterialESProducer",
-    MaxDPhi = cms.double(4.0),      #default was 1.6
+    MaxDPhi = cms.double(2.0),      #default was 1.6
     ComponentName = cms.string('PropagatorWithMaterialForLoopers'),
     Mass = cms.double(0.1396),      #default was 0.105
     PropagationDirection = cms.string('alongMomentum'),
@@ -20,7 +20,7 @@ PropagatorWithMaterialForLoopers = cms.ESProducer("PropagatorWithMaterialESProdu
 
 
 PropagatorWithMaterialForLoopersOpposite = cms.ESProducer("PropagatorWithMaterialESProducer",
-    MaxDPhi = cms.double(4.0),     #default was 1.6
+    MaxDPhi = cms.double(2.0),     #default was 1.6
     ComponentName = cms.string('PropagatorWithMaterialForLoopersOpposite'),
     Mass = cms.double(0.1396),     #default was 0.105
     PropagationDirection = cms.string('oppositeToMomentum'),

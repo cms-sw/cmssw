@@ -41,13 +41,22 @@ public:
 private:
   virtual bool filter(edm::Event&, edm::EventSetup const&);
 
+  virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+
   // ----------member data ---------------------------
   edm::InputTag harvesterTag_;
   bool atLeastOneError_;
   bool atLeastOneWarning_;
   bool atLeastOneEntry_;
+  bool useThresholdsPerKind_;
+
+  unsigned int maxErrorKindsPerLumi_;
+  unsigned int maxWarningKindsPerLumi_;
+
   std::vector<std::string> avoidCategories_;
 
+  std::map<std::string, unsigned int> errorCounts_;
+  std::map<std::string, unsigned int> warningCounts_;
 };
 
 //
@@ -66,10 +75,17 @@ LogErrorFilter::LogErrorFilter(edm::ParameterSet const& iConfig) :
   atLeastOneError_(iConfig.getParameter<bool>("atLeastOneError")),
   atLeastOneWarning_(iConfig.getParameter<bool>("atLeastOneWarning")),
   atLeastOneEntry_(atLeastOneError_ && atLeastOneWarning_),
+  useThresholdsPerKind_(iConfig.getParameter<bool>("useThresholdsPerKind")),
   avoidCategories_(iConfig.getParameter<std::vector<std::string> >("avoidCategories")) {
   if(!atLeastOneError_ && !atLeastOneWarning_) {
     throw edm::Exception(edm::errors::Configuration) <<
       "Useless configuration of the error/warning filter. Need to select on an error or a warning or both.\n";
+  }
+  maxErrorKindsPerLumi_ = 999999;
+  maxWarningKindsPerLumi_ = 999999;
+  if (useThresholdsPerKind_){
+    maxErrorKindsPerLumi_ = iConfig.getParameter<unsigned int>("maxErrorKindsPerLumi");
+    maxWarningKindsPerLumi_ = iConfig.getParameter<unsigned int>("maxWarningKindsPerLumi");
   }
 }
 
@@ -91,52 +107,94 @@ LogErrorFilter::filter(edm::Event& iEvent, edm::EventSetup const&) {
   if(errorsAndWarnings.failedToGet()) {
     return false;
   } else {
-    if(atLeastOneEntry_) {
-      if(avoidCategories_.size() != 0) {
-        for(unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
-          //veto categories from user input.
-          if(std::find(avoidCategories_.begin(),avoidCategories_.end(), ((*errorsAndWarnings)[iE]).category) != avoidCategories_.end()) {
-            continue;
-          } else {
-            return true;
-          }
-        }
-        return false;
-      } else {
-        return (errorsAndWarnings->size() != 0);
+    if (useThresholdsPerKind_){
+      unsigned int errorsBelowThreshold = 0;
+      unsigned int warningsBelowThreshold = 0;
+      // update counters here
+      for(unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
+	const edm::ErrorSummaryEntry& iSummary = (*errorsAndWarnings)[iE];
+	if (std::find(avoidCategories_.begin(),avoidCategories_.end(), iSummary.category) != avoidCategories_.end() )
+	  continue;
+	std::string kind= iSummary.category + ":" + iSummary.module;
+	int iSeverity = iSummary.severity.getLevel();
+	if (iSeverity == edm::ELseverityLevel::ELsev_error || iSeverity == edm::ELseverityLevel::ELsev_error2 ){
+	  unsigned int& iCount = errorCounts_[kind];
+	  iCount++;
+	  if (iCount <= maxErrorKindsPerLumi_) errorsBelowThreshold++;
+	}
+	if (iSeverity == edm::ELseverityLevel::ELsev_warning || iSeverity == edm::ELseverityLevel::ELsev_warning2 ){
+	  unsigned int& iCount = warningCounts_[kind];
+	  iCount++;
+	  if (iCount <= maxWarningKindsPerLumi_) warningsBelowThreshold++;
+	}
       }
+      return ( (atLeastOneEntry_ && (errorsBelowThreshold > 0 || warningsBelowThreshold > 0))
+	       || (atLeastOneError_ && errorsBelowThreshold > 0)
+	       || (atLeastOneWarning_ && warningsBelowThreshold > 0));
     } else {
-      if(atLeastOneError_ || atLeastOneWarning_) {
-        unsigned int nError = 0;
-        unsigned int nWarning = 0;
-        for(unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
-          //veto categories from user input.
-          if(avoidCategories_.size() != 0) {
-            if(std::find(avoidCategories_.begin(),avoidCategories_.end(), ((*errorsAndWarnings)[iE]).category) != avoidCategories_.end()) {
-              continue;
-            }
-          }
-          edm::ELseverityLevel const& severity = ((*errorsAndWarnings)[iE]).severity;
-          //count errors
-          if(severity.getLevel() == edm::ELseverityLevel::ELsev_error || severity.getLevel() == edm::ELseverityLevel::ELsev_error2) {
-            ++nError;
-          }
-          //count warnings
-          if(severity.getLevel() == edm::ELseverityLevel::ELsev_warning || severity.getLevel() == edm::ELseverityLevel::ELsev_warning2) {
-            ++nWarning;
-          }
-        }
-        if(atLeastOneError_ && nError != 0) {
-          return (true);
-        }
-        if(atLeastOneWarning_ && nWarning != 0) {
-          return (true);
-        }
+      //no separation by kind, just count any errors/warnings
+      if(atLeastOneEntry_) {
+	if(avoidCategories_.size() != 0) {
+	  for(unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
+	    //veto categories from user input.
+	    if(std::find(avoidCategories_.begin(),avoidCategories_.end(), ((*errorsAndWarnings)[iE]).category) != avoidCategories_.end()) {
+	      continue;
+	    } else {
+	      return true;
+	    }
+	  }
+	  return false;
+	} else {
+	  return (errorsAndWarnings->size() != 0);
+	}
+      } else {
+	if(atLeastOneError_ || atLeastOneWarning_) {
+	  unsigned int nError = 0;
+	  unsigned int nWarning = 0;
+	  for(unsigned int iE = 0; iE != errorsAndWarnings->size(); ++iE) {
+	    //veto categories from user input.
+	    if(avoidCategories_.size() != 0) {
+	      if(std::find(avoidCategories_.begin(),avoidCategories_.end(), ((*errorsAndWarnings)[iE]).category) != avoidCategories_.end()) {
+		continue;
+	      }
+	    }
+	    edm::ELseverityLevel const& severity = ((*errorsAndWarnings)[iE]).severity;
+	    //count errors
+	    if(severity.getLevel() == edm::ELseverityLevel::ELsev_error || severity.getLevel() == edm::ELseverityLevel::ELsev_error2) {
+	      ++nError;
+	    }
+	    //count warnings
+	    if(severity.getLevel() == edm::ELseverityLevel::ELsev_warning || severity.getLevel() == edm::ELseverityLevel::ELsev_warning2) {
+	      ++nWarning;
+	    }
+	  }
+	  if(atLeastOneError_ && nError != 0) {
+	    return (true);
+	  }
+	  if(atLeastOneWarning_ && nWarning != 0) {
+	    return (true);
+	  }
+	}
       }
     }
   }
   return (false);
 }
+
+bool LogErrorFilter::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&){
+  if (useThresholdsPerKind_){
+    typedef std::map<std::string, unsigned int>::iterator msIter;
+    msIter errorMI = errorCounts_.begin();
+    msIter errorMIEnd = errorCounts_.end();
+    for (;errorMI != errorMIEnd; ++errorMI) errorMI->second = 0;
+    msIter warningMI = warningCounts_.begin();
+    msIter warningMIEnd = warningCounts_.end();
+    for (;warningMI != warningMIEnd; ++warningMI) warningMI->second = 0;
+  }
+
+  return true;
+}
+
 
 void
 LogErrorFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -144,6 +202,9 @@ LogErrorFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<edm::InputTag>("harvesterTag");
   desc.add<bool>("atLeastOneError");
   desc.add<bool>("atLeastOneWarning");
+  desc.add<bool>("useThresholdsPerKind");
+  desc.add<unsigned int>("maxErrorKindsPerLumi", 999999);
+  desc.add<unsigned int>("maxWarningKindsPerLumi", 999999);
   desc.add<std::vector<std::string> >("avoidCategories");
   descriptions.add("logErrorFilter", desc);
 }

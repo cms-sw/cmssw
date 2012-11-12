@@ -43,6 +43,7 @@ class EcalDQMonitorTask : public EcalDQMonitor {
 
   void formSchedule_(const std::vector<ecaldqm::Collections>&, const std::multimap<ecaldqm::Collections, ecaldqm::Collections>&);
 
+  int ievt_;
   // list of workers
   std::vector<ecaldqm::DQWorkerTask*> workers_;
   // list of InputTags
@@ -53,6 +54,9 @@ class EcalDQMonitorTask : public EcalDQMonitor {
   std::vector<ecaldqm::DQWorkerTask*> taskLists_[ecaldqm::nCollections];
   // which worker is enabled for this event?
   std::map<ecaldqm::DQWorkerTask*, bool> enabled_;
+
+  std::map<ecaldqm::DQWorkerTask*, double> taskTimes_;
+  bool evaluateTime_;
 
   bool allowMissingCollections_;
 };

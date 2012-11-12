@@ -8,7 +8,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Include the RandomNumberGeneratorService definition
-process.load("IOMC.RandomEngine.IOMC_cff")
+process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 # Histograms
 process.load("DQMServices.Core.DQM_cfg")

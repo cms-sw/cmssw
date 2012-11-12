@@ -108,9 +108,10 @@ cms.Process.resetHistory=new_resetHistory
 def new_dumpHistory(self,withImports=True):
     dumpHistory=[]
     for item,objects in self.history():
-        if isinstance(item,str):
+        if isinstance(item,(str,unicode)):
             dumpHistory.append(item +"\n")
         else: # isTool
+	    print item
             dump=item.dumpPython()
             if isinstance(dump,tuple):
                 if withImports and dump[0] not in dumpHistory:
@@ -442,40 +443,44 @@ cms._ParameterTypeBase.resetModified = new_ParameterTypeBase_resetModified
 
 def new__Sequenceable_name(self):
     return ''
-cms._Sequenceable._name = new__Sequenceable_name
+cms._Sequenceable._name_ = new__Sequenceable_name
 
 try:
     # for backwards-compatibility with CMSSW_3_10_X
     from FWCore.ParameterSet.SequenceTypes import _SequenceOperator
 
     def new__SequenceOperator_name(self):
-        return str(self._left._name())+str(self._pySymbol)+str(self._right._name())
-    _SequenceOperator._name = new__SequenceOperator_name    
+        return str(self._left._name_())+str(self._pySymbol)+str(self._right._name_())
+    _SequenceOperator._name_ = new__SequenceOperator_name    
 except:
     pass
 
-from FWCore.ParameterSet.SequenceTypes import _SequenceNegation, _SequenceIgnore
+from FWCore.ParameterSet.SequenceTypes import _SequenceNegation, _SequenceIgnore, SequencePlaceholder
+
+def new__SequencePlaceholder_name(self):
+    return self._name
+SequencePlaceholder._name_ = new__SequencePlaceholder_name
 
 def new__SequenceNegation_name(self):
     if self._operand:
-        return '~'+str(self._operand._name())
+        return '~'+str(self._operand._name_())
     else:
         return '~()'
-_SequenceNegation._name = new__SequenceNegation_name    
+_SequenceNegation._name_ = new__SequenceNegation_name    
 
 def new__SequenceIgnore_name(self):
     if self._operand:
-        return '-'+str(self._operand._name())
+        return '-'+str(self._operand._name_())
     else:
         return '-()'
-_SequenceIgnore._name = new__SequenceIgnore_name
+_SequenceIgnore._name_ = new__SequenceIgnore_name
 
 def new_Sequence_name(self):
     if self._seq:
-        return '('+str(self._seq._name())+')'
+        return '('+str(self._seq._name_())+')'
     else:
         return '()'
-cms.Sequence._name = new_Sequence_name
+cms.Sequence._name_ = new_Sequence_name
 
 def new__Module_name(self):
   if hasattr(self,'_Labelable__label'):
@@ -483,7 +488,7 @@ def new__Module_name(self):
   elif hasattr(self,'_TypedParameterizable__type'):
     return 'unnamed(%s)'%getattr(self,'_TypedParameterizable__type')
   return type(self).__name__
-cms._Module._name = new__Module_name
+cms._Module._name_ = new__Module_name
 
 def new__ModuleSequenceType__init__(self,*arg,**argv):
     self._modifications = []
@@ -511,7 +516,7 @@ cms._ModuleSequenceType.copy = new__ModuleSequenceType_copy
 def new__ModuleSequenceType_replace(self, original, replacement):
     stack = auto_inspect()
     self._isModified=True
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name(),'new':replacement._name()})
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'replace','old':original._name_(),'new':replacement._name_()})
     return self.old_replace(original, replacement)
 cms._ModuleSequenceType.old_replace = cms._ModuleSequenceType.replace
 cms._ModuleSequenceType.replace = new__ModuleSequenceType_replace
@@ -519,14 +524,14 @@ cms._ModuleSequenceType.replace = new__ModuleSequenceType_replace
 def new__ModuleSequenceType_remove(self, original):
     stack = auto_inspect()
     self._isModified=True
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'remove','old':original._name(),'new':None})
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'remove','old':original._name_(),'new':None})
     return self.old_remove(original)
 cms._ModuleSequenceType.old_remove = cms._ModuleSequenceType.remove
 cms._ModuleSequenceType.remove = new__ModuleSequenceType_remove
 
 def new__ModuleSequenceType__imul__(self,other):
     stack = auto_inspect()
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name(),'old':None})
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name_(),'old':None})
     self._isModified=True
     return self.old__iadd__(other)
 cms._ModuleSequenceType.old__imul__ = cms._ModuleSequenceType.__imul__
@@ -535,7 +540,7 @@ cms._ModuleSequenceType.__imul__ = new__ModuleSequenceType__imul__
 def new__ModuleSequenceType__iadd__(self,other):
     stack = auto_inspect()
     self._isModified=True
-    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name(),'old':None})
+    self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name_(),'old':None})
     return self.old__iadd__(other)
 cms._ModuleSequenceType.old__iadd__ = cms._ModuleSequenceType.__iadd__
 cms._ModuleSequenceType.__iadd__ = new__ModuleSequenceType__iadd__

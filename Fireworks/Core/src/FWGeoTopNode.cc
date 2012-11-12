@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.23 2012/04/30 19:59:36 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.24 2012/05/04 00:22:05 amraktad Exp $
 //
 
 // system include files
@@ -107,7 +107,7 @@ void FWGeoTopNode::ProcessSelection(TGLSelectRecord& rec, std::set<TGLPhysicalSh
 {
    // printf("FWGeoTopNode::ProcessSelection ===============================\n");
 
-   fSceneJebo->BeginUpdate();
+   m_scene->BeginUpdate();
 
    if (sset.empty())
    {
@@ -164,14 +164,14 @@ void FWGeoTopNode::ProcessSelection(TGLSelectRecord& rec, std::set<TGLPhysicalSh
 
    if (rec.GetSecSelResult() != TGLSelectRecord::kNone)
    {
-      fSceneJebo->EndUpdate(kTRUE, kFALSE, kTRUE);
+      m_scene->EndUpdate(kTRUE, kFALSE, kTRUE);
       gEve->Redraw3D();
 
       tableManager()->dataChanged();
    }
    else
    {
-      fSceneJebo->EndUpdate(kFALSE, kFALSE, kFALSE);
+      m_scene->EndUpdate(kFALSE, kFALSE, kFALSE);
    }
 }
 
@@ -180,7 +180,7 @@ bool FWGeoTopNode::selectPhysicalFromTable( int tableIndex)
 {
    //   printf("FWGeoTopNode::selectPhysicalFromTable 
 
-   TGLPhysicalShape* ps = fSceneJebo->FindPhysical(phyID(tableIndex));
+   TGLPhysicalShape* ps = m_scene->FindPhysical(phyID(tableIndex));
    if (ps) {
       fSted.insert(ps);
       ps->Select(1);
@@ -260,7 +260,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
    TGeoCompositeShape* compositeShape = dynamic_cast<TGeoCompositeShape*>(shape);
    if (compositeShape)
    {
-      // fSceneJebo->fNextCompositeID = phyID(tableIndex);
+      // m_scene->fNextCompositeID = phyID(tableIndex);
 
       Double_t halfLengths[3] = { compositeShape->GetDX(), compositeShape->GetDY(), compositeShape->GetDZ() };
 
@@ -277,7 +277,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
       Bool_t paintComponents = kTRUE;
       // Start a composite shape, identified by this buffer
       if (TBuffer3D::GetCSLevel() == 0) {
-         paintComponents = fSceneJebo->OpenCompositeWithPhyID(phyID(tableIndex), buff);
+         paintComponents = m_scene->OpenCompositeWithPhyID(phyID(tableIndex), buff);
       }
 
       TBuffer3D::IncCSLevel();
@@ -294,7 +294,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
          gPad->GetViewer3D()->CloseComposite();
 
 
-      //  fSceneJebo->fNextCompositeID = 0;
+      //  m_scene->fNextCompositeID = 0;
    }
    else
    {
@@ -329,7 +329,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
 // ______________________________________________________________________
 void FWGeoTopNode::Paint(Option_t* opt)
 {
-   static const TEveException eh("TEveTopNodeJebo::Paint ");
+   static const TEveException eh("FWGeoTopNode::Paint ");
 
    TBuffer3D buff(TBuffer3DTypes::kGeneric);
 

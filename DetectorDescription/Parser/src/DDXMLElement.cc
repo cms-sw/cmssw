@@ -166,7 +166,7 @@ DDXMLElement::getVectorAttribute( const std::string& name )
     else
     {
       DCOUT_V('P', "DDXMLAttributeAccumulator::getAttribute was asked to provide a std::vector of values for an attribute named " << name << " but there was no such attribute.");
-      //      throw cms::Exception("DDException") << msg;
+      //      throw DDException(msg);
     }
   } 
   return tv;
@@ -321,5 +321,5 @@ DDXMLElement::throwError( const std::string& keyMessage ) const
   std::string msg = keyMessage + "\n";
   msg += " Element " + myElement_ +"\n";
 
-  throw cms::Exception("DDException") << msg;
+  throw DDException(msg);
 }

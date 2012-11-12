@@ -1,6 +1,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMonitorTask.h"
 
 #include <algorithm>
+#include <iomanip>
 
 #include "DQM/EcalCommon/interface/DQWorkerTask.h"
 #include "DQM/EcalCommon/interface/MESet.h"
@@ -15,6 +16,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -25,7 +28,12 @@ using namespace ecaldqm;
 
 EcalDQMonitorTask::EcalDQMonitorTask(const edm::ParameterSet &_ps) :
   EcalDQMonitor(_ps),
+  ievt_(0),
   workers_(0),
+  schedule_(),
+  enabled_(),
+  taskTimes_(),
+  evaluateTime_(_ps.getUntrackedParameter<bool>("evaluateTime")),
   allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections"))
 {
   using namespace std;
@@ -114,12 +122,12 @@ EcalDQMonitorTask::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
   // set up ecaldqm::electronicsMap in EcalDQMCommonUtils
   edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
   _es.get<EcalMappingRcd>().get(elecMapHandle);
-  ecaldqm::setElectronicsMap(elecMapHandle.product());
+  setElectronicsMap(elecMapHandle.product());
 
   // set up ecaldqm::electronicsMap in EcalDQMCommonUtils
   edm::ESHandle<EcalTrigTowerConstituentsMap> ttMapHandle;
   _es.get<IdealGeometryRecord>().get(ttMapHandle);
-  ecaldqm::setTrigTowerMap(ttMapHandle.product());
+  setTrigTowerMap(ttMapHandle.product());
 
   for(std::vector<DQWorkerTask*>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
     DQWorkerTask* task(*wItr);
@@ -129,14 +137,32 @@ EcalDQMonitorTask::beginRun(const edm::Run &_run, const edm::EventSetup &_es)
 
   if(verbosity_ > 0)
     std::cout << moduleName_ << ": Starting run " << _run.run() << std::endl;
+
+  ievt_ = 0;
+  taskTimes_.clear();
 }
 
 void
 EcalDQMonitorTask::endRun(const edm::Run &_run, const edm::EventSetup &_es)
 {
-  for(std::vector<DQWorkerTask *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+  using namespace std;
+
+  for(vector<DQWorkerTask *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
     DQWorkerTask* task(*wItr);
     if(task->runsOn(kRun)) task->endRun(_run, _es);
+  }
+
+  if(evaluateTime_){
+    stringstream ss;
+
+    ss << "************** " << moduleName_ << " **************" << endl;
+    ss << "      Mean time consumption of the modules" << endl;
+    ss << "____________________________________" << endl;
+    for(std::vector<DQWorkerTask *>::iterator wItr(workers_.begin()); wItr != workers_.end(); ++wItr){
+      DQWorkerTask* task(*wItr);
+      ss << setw(20) << setfill(' ') << task->getName() << "|   " << (taskTimes_[task] / ievt_) << endl;
+    }
+    edm::LogInfo("EcalDQM") << ss.str();
   }
 }
 
@@ -163,6 +189,8 @@ EcalDQMonitorTask::analyze(const edm::Event &_evt, const edm::EventSetup &_es)
 {
   using namespace std;
   using namespace ecaldqm;
+
+  ievt_++;
 
   edm::Handle<EcalRawDataCollection> dcchsHndl;
   if(!_evt.getByLabel(collectionTags_[kEcalRawData], dcchsHndl))

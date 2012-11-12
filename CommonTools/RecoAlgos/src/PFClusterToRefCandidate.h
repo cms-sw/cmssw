@@ -3,8 +3,8 @@
 #include "CommonTools/RecoAlgos/src/MassiveCandidateConverter.h"
 #include "CommonTools/RecoAlgos/src/CandidateProducer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidate.h"
-#include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidateFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoPFClusterRefCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoPFClusterRefCandidateFwd.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 namespace converter {

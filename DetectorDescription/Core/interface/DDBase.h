@@ -4,6 +4,7 @@
 #include <utility>
 #include <string>
 #include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/Store.h"
 #include "DetectorDescription/Base/interface/rep_type.h"
 
@@ -93,18 +94,18 @@ public:
     { return *(prep_->second); }
     
   const typename DDI::rep_traits<N,C>::reference val() const
-   { if (!isValid()) throw cms::Exception("DDException") << "undefined: " << name(); 
+    { if (!isValid()) throw DDException(std::string("undefined: ") + std::string(name())); 
       return rep();
     };  
 
   const typename DDI::rep_traits<N,C>::reference val() 
-   { if (!isValid()) throw cms::Exception("DDException") << "undefined: " << name(); 
+    { if (!isValid()) throw DDException(std::string("undefined: ") + std::string(name())); 
       return rep();
     };  
   
   bool operator==(const DDBase & b) const { return prep_ == b.prep_; }
   // true, if registered or defined
-  operator bool() const { return isValid(); }
+  operator bool() const { return prep_ ? prep_->second : false; }
   
   bool operator<(const DDBase & b) const { return prep_ < b.prep_; }
   bool operator>(const DDBase & b) const { return prep_ > b.prep_; }

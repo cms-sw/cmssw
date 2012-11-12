@@ -4,8 +4,8 @@
 /*
  * \file EERawDataTask.h
  *
- * $Date: 2012/03/20 20:26:49 $
- * $Revision: 1.8.8.1 $
+ * $Date: 2012/04/27 13:46:13 $
+ * $Revision: 1.13 $
  * \author E. Di Marco
  *
 */
@@ -94,6 +94,12 @@ MonitorElement* meEEL1ASRPErrors_;
 MonitorElement* meEEBunchCrossingSRPErrors_;
 
 MonitorElement* meEESynchronizationErrorsByLumi_;
+
+ MonitorElement* meEESynchronizationErrorsTrend_;
+
+ int ls_;
+
+ float fatalErrors_;
 
 bool init_;
 

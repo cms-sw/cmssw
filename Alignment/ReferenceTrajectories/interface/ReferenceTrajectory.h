@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2010/11/26 07:54:53 $
+ * last update: $Date: 2011/09/14 15:48:19 $
  * by         : $Author: mussgill $
  *
  *  Class implementing the reference trajectory of a single charged
@@ -20,12 +20,18 @@
  *
  *  materialEffects =  none/multipleScattering/energyLoss/combined
  *
+ *  Correct multiple scattering treatment, even if ignoring the off-diagonal
+ *  elements of the covariance matrix, can be achieved with 
+ *  (cf. documentaion of ReferenceTrajectoryBase):
+ *
+ *  materialEffects = BrokenLines[Coarse]/BrokenLinesFine/BreakPoints
+ *
  *  By default, the mass is assumed to be the muon-mass, but can be
  *  changed via a constructor argument.
  *
  * LIMITATIONS:
- *  So far all input hits have to be valid, but invalid hits
- *  would be needed to take into account the material effects in them...
+ *  Only broken lines and break points parameterisations take into account 
+ *  material effects of invalid hits.
  *
  */
 
@@ -142,14 +148,25 @@ protected:
 				     const GlobalTrajectoryParameters &gtp,   
 				     const double minStep = 1.0);
           
-  // Don't care for propagation direction 'anyDirection' - in that case the material effects
-  // are anyway not updated ...
+  /// Don't care for propagation direction 'anyDirection' - in that case the material effects
+  /// are anyway not updated ...
   inline SurfaceSide surfaceSide(const PropagationDirection dir) const
   {
     return ( dir == alongMomentum ) ?
       SurfaceSideDefinition::beforeSurface :
       SurfaceSideDefinition::afterSurface;
   }
+
+  /** first (generic) helper to get the projection matrix
+   */
+  AlgebraicMatrix
+    getHitProjectionMatrix(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
+
+  /** second helper (templated on the dimension) to get the projection matrix
+   */
+  template <unsigned int N>
+    AlgebraicMatrix
+    getHitProjectionMatrixT(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
 };
 
 #endif

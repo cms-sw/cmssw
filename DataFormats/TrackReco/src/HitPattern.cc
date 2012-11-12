@@ -11,11 +11,9 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 using namespace reco;
 
-
-uint32_t HitPattern::encode(const TrackingRecHit & hit, unsigned int i){
-  
+void HitPattern::set(const TrackingRecHit & hit, unsigned int i) {
   // ignore the rec hit if the number of hit is larger than the max
-  if (i >= 32 * PatternSize / HitSize) return 0;
+  if (i >= 32 * PatternSize / HitSize) return;
 
   // get rec hit det id and rec hit type
   DetId id = hit.geographicalId();
@@ -72,9 +70,9 @@ uint32_t HitPattern::encode(const TrackingRecHit & hit, unsigned int i){
   // adding hit type bits
   pattern += (hitType&HitTypeMask)<<HitTypeOffset;
 
-  return pattern;
+  // set pattern for i-th hit
+  setHitPattern(i, pattern);
 }
-
 
 void HitPattern::setHitPattern(int position, uint32_t pattern) {
   int offset = position * HitSize;
@@ -84,62 +82,6 @@ void HitPattern::setHitPattern(int position, uint32_t pattern) {
     hitPattern_[pos / 32] += bit << ((offset + i) % 32); 
   }
 }
-
-void HitPattern::appendHit(const TrackingRecHit & hit){
-
-  // get rec hit det id and rec hit type
-  DetId id = hit.geographicalId();
-  uint32_t detid = id.det();
-  uint32_t subdet = id.subdetId();
-
-  std::vector<const TrackingRecHit*> hits;
-
-
-  if (detid == DetId::Tracker)
-    hits.push_back(&hit);
-   
-  if (detid == DetId::Muon) {
-
-    if (subdet == (uint32_t) MuonSubdetId::DT){
-
-      // DT rechit (granularity 2)
-      if(hit.dimension() == 1)
-	hits.push_back(&hit);
-      
-      // 4D segment (granularity 0) 
-      else if(hit.dimension() > 1){ // Both 2 and 4 dim cases. MB4s have 2D, but formatted in 4D segments 
-	std::vector<const TrackingRecHit*> seg2D = hit.recHits(); // 4D --> 2D
-	// load 1D hits (2D --> 1D)
-	for(std::vector<const TrackingRecHit*>::const_iterator it = seg2D.begin(); it != seg2D.end(); ++it){
-	  std::vector<const TrackingRecHit*> hits1D =  (*it)->recHits();
-	  copy(hits1D.begin(),hits1D.end(),back_inserter(hits));
-	}
-      }
-    }
-
-    else if (subdet == (uint32_t) MuonSubdetId::CSC){
-      
-      // CSC rechit (granularity 2)
-      if(hit.dimension() == 2)
-	hits.push_back(&hit);
-
-      // 4D segment (granularity 0) 
-      if(hit.dimension() == 4)
-	hits = hit.recHits(); // load 2D hits (4D --> 1D)
-    }
-   
-    else if (subdet == (uint32_t) MuonSubdetId::RPC) {
-      hits.push_back(&hit);
-    }
-  }
-
-  unsigned int i =  numberOfHits();
-  for(std::vector<const TrackingRecHit*>::const_iterator it = hits.begin(); it != hits.end(); ++it)
-    set(**it,i++);
-
-
-}
-
 
 uint32_t HitPattern::getHitPattern(int position) const {
 /* Note: you are not taking a consecutive sequence of HitSize bits starting from position*HitSize

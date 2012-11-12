@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.18 2011/05/06 12:44:42 innocent Exp $
+$Id: RefVectorBase.h,v 1.17 2011/03/03 22:04:46 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -13,7 +13,6 @@ $Id: RefVectorBase.h,v 1.18 2011/05/06 12:44:42 innocent Exp $
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
 #include <vector>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
 
@@ -28,7 +27,7 @@ namespace edm {
     RefVectorBase() : product_(), keys_() {}
     RefVectorBase( RefVectorBase const & rhs) : product_(rhs.product_), keys_(rhs.keys_) {}
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    RefVectorBase( RefVectorBase && rhs)  noexcept : product_(std::move(rhs.product_)), keys_(std::move(rhs.keys_)) {}
+    RefVectorBase( RefVectorBase && rhs) : product_(std::move(rhs.product_)), keys_(std::move(rhs.keys_)) {}
 #endif
 
     explicit RefVectorBase(ProductID const& productID, void const* prodPtr = 0,
@@ -36,7 +35,7 @@ namespace edm {
       product_(productID, prodPtr, prodGetter, false), keys_() {}
 
     /// Destructor
-    ~RefVectorBase() noexcept {}
+    ~RefVectorBase() {}
 
     /// Accessor for product ID and product getter
     RefCore const& refCore() const {return product_;}
@@ -73,7 +72,7 @@ namespace edm {
     }
 
     /// swap two vectors
-    void swap(RefVectorBase<KEY> & other)  noexcept {
+    void swap(RefVectorBase<KEY> & other) {
       product_.swap(other.product_);
       keys_.swap(other.keys_);
     }
@@ -85,7 +84,7 @@ namespace edm {
       return *this;
     }
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    RefVectorBase& operator=(RefVectorBase && rhs)  noexcept {
+    RefVectorBase& operator=(RefVectorBase && rhs) {
       product_ = std::move(rhs.product_); 
       keys_ =std::move(rhs.keys_);
       return *this;

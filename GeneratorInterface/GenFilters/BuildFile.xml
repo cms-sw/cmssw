@@ -23,4 +23,5 @@
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/EgammaReco"/>
 <flags   EDM_PLUGIN="1"/>

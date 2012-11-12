@@ -5,7 +5,6 @@
 #include "TrackingTools/TrajectoryState/interface/CopyUsingNew.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /** A base class for reference counting proxies.
  *  The class to which this one is proxy must inherit from
@@ -20,20 +19,20 @@ template <class T, class Cloner >
 class ProxyBase {
 protected:
 
-  ProxyBase()  noexcept : theData(0) {}
+  ProxyBase() : theData(0) {}
 
-  explicit ProxyBase( T* p)  noexcept : theData(p) {if (theData) theData->addReference();}
+  explicit ProxyBase( T* p) : theData(p) {if (theData) theData->addReference();}
 
-  ProxyBase( const ProxyBase& other)  noexcept {
+  ProxyBase( const ProxyBase& other) {
     theData = other.theData;
     if (theData) theData->addReference();
   }
 
-  ~ProxyBase()  noexcept { 
+  ~ProxyBase() { 
     destroy();
   }
 
-  ProxyBase& operator=( const ProxyBase& other)  noexcept {
+  ProxyBase& operator=( const ProxyBase& other) {
     if  likely( theData != other.theData) { 
       destroy();
       theData = other.theData;
@@ -43,18 +42,18 @@ protected:
   }
 
 
-  void swap(ProxyBase& other)  noexcept {
+  void swap(ProxyBase& other) {
     std::swap(theData,other.theData);
   }
 
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
-  ProxyBase(ProxyBase&& other)  noexcept {
+  ProxyBase(ProxyBase&& other) {
     theData = other.theData;
     other.theData=0;
   }
   
-  ProxyBase& operator=(ProxyBase&& other)  noexcept {
+  ProxyBase& operator=(ProxyBase&& other) {
     if  likely( theData != other.theData) { 
       destroy();
       theData = other.theData;
@@ -85,7 +84,7 @@ protected:
       throw TrajectoryStateException("Error: uninitialized ProxyBase used");
   }
 
-  void destroy()  noexcept { if  likely(isValid()) theData->removeReference();}
+  void destroy() { if  likely(isValid()) theData->removeReference();}
 
   int  references() const {return theData->references();}  
 
@@ -95,7 +94,7 @@ private:
 
 template <class T, class Cloner >
 inline
-void swap(ProxyBase<T,Cloner>& lh, ProxyBase<T,Cloner>& rh)  noexcept {
+void swap(ProxyBase<T,Cloner>& lh, ProxyBase<T,Cloner>& rh) {
   lh.swap(rh);
 }
 

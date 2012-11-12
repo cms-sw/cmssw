@@ -963,12 +963,8 @@ EcalDQMBinningService::getBinMapEcal_(BinningType _bkey) const
 
   case kDCC:
     binMap.resize(nDCC);
-    for(int ix = kEEmLow; ix <= kEEmHigh + 1; ix++)
-      binMap[ix - 1] = (ix + 5) % 9 + 1;
-    for(int ix = kEBpLow; ix <= kEBpHigh + 1; ix++)
-      binMap[ix - 1] = ix;
-    for(int ix = kEEpLow; ix <= kEEpHigh + 1; ix++)
-      binMap[ix - 1] = (ix + 5) % 9 + 1 + kEEpLow;
+    for(int ix(kEEmLow); ix <= kEEpHigh; ix++)
+      binMap[ix] = ix + 1;
     return &binMap;
 
   default:

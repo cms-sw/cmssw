@@ -7,7 +7,6 @@
 #include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -150,12 +149,9 @@ namespace edm {
   // for that source.
   InputSource::ItemType
   InputSource::nextItemType_() {
-
-    ItemType itemType = callWithTryCatchAndPrint<ItemType>( [this](){ return getNextItemType(); }, "Calling InputSource::getNextItemType" );
-
+    ItemType itemType = getNextItemType();
     if(itemType == IsEvent && processingMode() != RunsLumisAndEvents) {
-      callWithTryCatchAndPrint<EventPrincipal*>( [this](){ return readEvent_(); },
-                                                 "Calling InputSource::readEvent_" );
+      readEvent_();
       return nextItemType_();
     }
     if(itemType == IsLumi && processingMode() == Runs) {
@@ -214,18 +210,6 @@ namespace edm {
     return state_;
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
-  InputSource::readLuminosityBlockAuxiliary() {
-    return callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockAuxiliary> >( [this](){ return readLuminosityBlockAuxiliary_(); },
-                                                                                   "Calling InputSource::readLuminosityBlockAuxiliary_" );
-  }
-
-  boost::shared_ptr<RunAuxiliary>
-  InputSource::readRunAuxiliary() {
-    return callWithTryCatchAndPrint<boost::shared_ptr<RunAuxiliary> >( [this](){ return readRunAuxiliary_(); },
-                                                                       "Calling InputSource::readRunAuxiliary_" );
-  }
-
   void
   InputSource::doBeginJob() {
     this->beginJob();
@@ -250,17 +234,14 @@ namespace edm {
     assert(state_ == IsFile);
     assert(!limitReached());
     doneReadAhead_ = false;
-    boost::shared_ptr<FileBlock> fb = callWithTryCatchAndPrint<boost::shared_ptr<FileBlock> >( [this](){ return readFile_(); },
-                                                                                               "Calling InputSource::readFile_" );
+    boost::shared_ptr<FileBlock> fb = readFile_();
     return fb;
   }
 
   void
-  InputSource::closeFile(boost::shared_ptr<FileBlock> fb, bool cleaningUpAfterException) {
+  InputSource::closeFile(boost::shared_ptr<FileBlock> fb) {
     fb->close();
-    callWithTryCatchAndPrint<void>( [this](){ closeFile_(); },
-                                    "Calling InputSource::closeFile_",
-                                    cleaningUpAfterException );
+    closeFile_();
     return;
   }
 
@@ -291,8 +272,7 @@ namespace edm {
       boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration(), &historyAppender));
       principalCache_->insert(rp);
     }
-    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this](){ return readRun_(principalCache_->runPrincipalPtr()); },
-                                                                "Calling InputSource::readRun_" );
+    readRun_(principalCache_->runPrincipalPtr());
   }
 
   int
@@ -318,8 +298,7 @@ namespace edm {
                                      &historyAppender));
       principalCache_->insert(lb);
     }
-    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this](){ return readLuminosityBlock_(principalCache_->lumiPrincipalPtr()); },
-                                                                            "Calling InputSource::readLuminosityBlock_" );
+    readLuminosityBlock_(principalCache_->lumiPrincipalPtr());
   }
 
   int
@@ -355,9 +334,7 @@ namespace edm {
     assert(!eventLimitReached());
     doneReadAhead_ = false;
 
-    EventPrincipal* result = callWithTryCatchAndPrint<EventPrincipal*>( [this](){ return readEvent_(); },
-                                                                        "Calling InputSource::readEvent_" );
-
+    EventPrincipal* result = readEvent_();
     if(result != 0) {
       assert(result->luminosityBlockPrincipalPtrValid());
       assert(lbCache->run() == result->run());
@@ -377,9 +354,7 @@ namespace edm {
     EventPrincipal* result = 0;
 
     if(!limitReached()) {
-      result = callWithTryCatchAndPrint<EventPrincipal*>( [this,&eventID](){ return readIt(eventID); },
-                                                          "Calling InputSource::readIt" );
-
+      result = readIt(eventID);
       if(result != 0) {
         Event event(*result, moduleDescription());
         postRead(event);
@@ -394,21 +369,13 @@ namespace edm {
   void
   InputSource::skipEvents(int offset) {
     doneReadAhead_ = false;
-    callWithTryCatchAndPrint<void>( [this,&offset](){ skip(offset); }, "Calling InputSource::skip" );
+    this->skip(offset);
   }
 
   bool
   InputSource::goToEvent(EventID const& eventID) {
     doneReadAhead_ = false;
-    return callWithTryCatchAndPrint<bool>( [this,&eventID](){ return goToEvent_(eventID); }, "Calling InputSource::goToEvent_" );
-  }
-
-  void
-  InputSource::rewind() {
-    doneReadAhead_ = false;
-    state_ = IsInvalid;
-    remainingEvents_ = maxEvents_;
-    callWithTryCatchAndPrint<void>( [this](){ rewind_(); }, "Calling InputSource::rewind_" );
+    return this->goToEvent_(eventID);
   }
 
   void
@@ -501,61 +468,45 @@ namespace edm {
   void
   InputSource::doBeginRun(RunPrincipal& rp) {
     Run run(rp, moduleDescription());
-    callWithTryCatchAndPrint<void>( [this,&run](){ beginRun(run); }, "Calling InputSource::beginRun" );
+    beginRun(run);
     run.commit_();
   }
 
   void
-  InputSource::doEndRun(RunPrincipal& rp, bool cleaningUpAfterException) {
+  InputSource::doEndRun(RunPrincipal& rp) {
     rp.setEndTime(time_);
     Run run(rp, moduleDescription());
-    callWithTryCatchAndPrint<void>( [this,&run](){ endRun(run); }, "Calling InputSource::endRun", cleaningUpAfterException );
+    endRun(run);
     run.commit_();
   }
 
   void
   InputSource::doBeginLumi(LuminosityBlockPrincipal& lbp) {
     LuminosityBlock lb(lbp, moduleDescription());
-    callWithTryCatchAndPrint<void>( [this,&lb](){ beginLuminosityBlock(lb); }, "Calling InputSource::beginLuminosityBlock" );
+    beginLuminosityBlock(lb);
     lb.commit_();
   }
 
   void
-  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException) {
+  InputSource::doEndLumi(LuminosityBlockPrincipal& lbp) {
     lbp.setEndTime(time_);
     LuminosityBlock lb(lbp, moduleDescription());
-    callWithTryCatchAndPrint<void>( [this,&lb](){ endLuminosityBlock(lb); }, "Calling InputSource::endLuminosityBlock", cleaningUpAfterException );
+    endLuminosityBlock(lb);
     lb.commit_();
   }
 
   void
   InputSource::doPreForkReleaseResources() {
-    callWithTryCatchAndPrint<void>( [this](){ preForkReleaseResources(); }, "Calling InputSource::preForkReleaseResources" );
+    preForkReleaseResources();
   }
 
   void
   InputSource::doPostForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
-    callWithTryCatchAndPrint<void>( [this, &iReceiver](){ postForkReacquireResources(iReceiver); },
-                                    "Calling InputSource::postForkReacquireResources" );
+    postForkReacquireResources(iReceiver);
   }
 
-  bool
-  InputSource::randomAccess() const {
-    return callWithTryCatchAndPrint<bool>( [this](){ return randomAccess_(); },
-                                           "Calling InputSource::randomAccess_" );
-  }
-
-  ProcessingController::ForwardState
-  InputSource::forwardState() const {
-    return callWithTryCatchAndPrint<ProcessingController::ForwardState>( [this](){ return forwardState_(); },
-                                                                         "Calling InputSource::forwardState_" );
-  }
-
-  ProcessingController::ReverseState
-  InputSource::reverseState() const {
-    return callWithTryCatchAndPrint<ProcessingController::ReverseState>( [this](){ return reverseState_(); },
-                                                                         "Calling InputSource::reverseState__" );
-  }
+  void
+  InputSource::wakeUp_() {}
 
   void
   InputSource::beginLuminosityBlock(LuminosityBlock&) {}

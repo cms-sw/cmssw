@@ -19,7 +19,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 
 
-class SiPixelRecHit GCC11_FINAL : public TrackerSingleRecHit {
+class SiPixelRecHit : public TrackerSingleRecHit {
   
 public:
   

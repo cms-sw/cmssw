@@ -6,18 +6,18 @@
 
 // forward declarations
 namespace edm {
+  struct CommonParams;
   class ParameterSet;
   namespace eventsetup {
     class EventSetupProvider;
-    class EventSetupsController;
 
     std::auto_ptr<EventSetupProvider>
     makeEventSetupProvider(ParameterSet const& params);
 
     void
-    fillEventSetupProvider(EventSetupsController& esController,
-                           EventSetupProvider& cp,
-                           ParameterSet& params);
+    fillEventSetupProvider(EventSetupProvider& cp,
+                           ParameterSet& params,
+                           CommonParams const& common);
 
     void
     validateEventSetupParameters(ParameterSet& pset);

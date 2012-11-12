@@ -278,7 +278,7 @@ void check_sigma ( string filename , string iDir , string plot , float limit_err
 bool check_isgood ( vector<int> & ls_badlist, int ls ) 
 {
   //check if this LS is found in the BAD list
-  for ( u_int i = 0; i < ls_badlist.size() ; i++ )
+  for ( unsigned int i = 0; i < ls_badlist.size() ; i++ )
     {
       if ( ls == ls_badlist[i] ) return false;
     }
@@ -367,7 +367,7 @@ void Cleaning( vector<int> &LSlist)
 
   //cleaning: keep only 1st and last lumisection in the range
   int refLS = LSlist[0];
-  for (u_int at = 1; at < LSlist.size() - 1; at++) 
+  for (unsigned int at = 1; at < LSlist.size() - 1; at++) 
     {
       //delete LSnums in between a single continuous range
       if ( refLS + 1 == LSlist[at] && LSlist[at] + 1 == LSlist[at+1] )
@@ -389,7 +389,7 @@ string ListOut(vector<int> &LSlist)
 
   string strout = "";
   bool rangeset = false;
-  for (u_int at = 0; at < LSlist.size(); at++)
+  for (unsigned int at = 0; at < LSlist.size(); at++)
     {
       if ( LSlist[at] != -1 ) 
         {
@@ -415,7 +415,7 @@ void vector_AND ( vector<int> & bad_def, vector<int> bad_sc)
 
   int def_size = bad_def.size();
   for ( int i = 0; i < def_size; i++ )
-    for ( u_int j = 0; j < bad_sc.size(); j++ )
+    for ( unsigned int j = 0; j < bad_sc.size(); j++ )
       if ( bad_def[ i ] == bad_sc[ j ] )
 	{
 	  temp.push_back( bad_def[ i ] );

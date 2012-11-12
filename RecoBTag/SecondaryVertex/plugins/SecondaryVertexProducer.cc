@@ -44,8 +44,6 @@
 #include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
 #include "RecoBTag/SecondaryVertex/interface/VertexSorting.h"
 
-#include "DataFormats/GeometryVector/interface/VectorUtil.h"
-
 using namespace reco;
 
 namespace {
@@ -93,9 +91,6 @@ class SecondaryVertexProducer : public edm::EDProducer {
 	double				minTrackWeight;
 	VertexFilter			vertexFilter;
 	VertexSorting			vertexSorting;
-        bool                            useExternalSV;  
-        double                          extSVDeltaRToJet;      
- 	edm::InputTag                   extSVCollection; 
 };
 
 SecondaryVertexProducer::ConstraintType
@@ -161,11 +156,6 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	    constraint == CONSTRAINT_PV_PRIMARIES_IN_FIT )
 	    beamSpotTag = params.getParameter<edm::InputTag>("beamSpotTag");
 
-        useExternalSV = params.getParameter<bool> ("useExternalSV");
-        if(useExternalSV) {
-           extSVCollection  = params.getParameter<edm::InputTag>("extSVCollection");
-       	   extSVDeltaRToJet = params.getParameter<double>("extSVDeltaRToJet");
-        }
 	produces<SecondaryVertexTagInfoCollection>();
 }
 
@@ -221,11 +211,6 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	edm::Handle<TrackIPTagInfoCollection> trackIPTagInfos;
 	event.getByLabel(trackIPTagInfoLabel, trackIPTagInfos);
 
-        // External Sec Vertex collection (e.g. for IVF usage)
-        edm::Handle<reco::VertexCollection> extSecVertex;          
-        if(useExternalSV) event.getByLabel(extSVCollection,extSecVertex);
-                                                             
-
 	edm::Handle<BeamSpot> beamSpot;
 	unsigned int bsCovSrc[7] = { 0, };
 	double sigmaZ = 0.0, beamWidth = 0.0;
@@ -280,8 +265,8 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 	for(TrackIPTagInfoCollection::const_iterator iterJets =
 		trackIPTagInfos->begin(); iterJets != trackIPTagInfos->end();
 		++iterJets) {
+
 		std::vector<SecondaryVertexTagInfo::IndexedTrackData> trackData;
-//		      std::cout << "Jet " << iterJets-trackIPTagInfos->begin() << std::endl; 
 
 		const Vertex &pv = *iterJets->primaryVertex();
 
@@ -389,12 +374,8 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 		// perform actual vertex finding
 
-
-	 	std::vector<reco::Vertex>       extAssoCollection;    
 		std::vector<TransientVertex> fittedSVs;
-		std::vector<SecondaryVertex> SVs;
-		if(!useExternalSV){ 
-    		  switch(constraint)   {
+		switch(constraint) {
 		    case CONSTRAINT_NONE:
 			if (useGhostTrack)
 				fittedSVs = vertexRecoGT->vertices(
@@ -459,6 +440,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 		// build combined SV information and filter
 
+		std::vector<SecondaryVertex> SVs;
 		SVBuilder svBuilder(pv, jetDir, withPVError);
 		std::remove_copy_if(boost::make_transform_iterator(
 		                    	fittedSVs.begin(), svBuilder),
@@ -468,32 +450,12 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		                    SVFilter(vertexFilter, pv, jetDir));
 
 		// clean up now unneeded collections
-             }else{
-                  for(size_t iExtSv = 0; iExtSv < extSecVertex->size(); iExtSv++){
-		      const reco::Vertex & extVertex = (*extSecVertex)[iExtSv];
-//    	              GlobalVector vtxDir = GlobalVector(extVertex.p4().X(),extVertex.p4().Y(),extVertex.p4().Z());
-//                     if(Geom::deltaR(extVertex.position() - pv.position(), vtxDir)>0.2) continue; //pointing angle
-//		      std::cout << " dR " << iExtSv << " " << Geom::deltaR( ( extVertex.position() - pv.position() ), jetDir ) << "eta: " << ( extVertex.position() - pv.position()).eta() << " vs " << jetDir.eta() << " phi: "  << ( extVertex.position() - pv.position()).phi() << " vs  " << jetDir.phi() <<  std::endl; 
-	              if( Geom::deltaR( ( extVertex.position() - pv.position() ), jetDir ) >  extSVDeltaRToJet || extVertex.p4().M() < 0.3)
-                	continue;
-//		      std::cout << " SV added " << iExtSv << std::endl; 
- 		      extAssoCollection.push_back( extVertex );
-                   }
-                   SVBuilder svBuilder(pv, jetDir, withPVError);
-	           std::remove_copy_if(boost::make_transform_iterator( extAssoCollection.begin(), svBuilder),
-                                boost::make_transform_iterator(extAssoCollection.end(), svBuilder),
-                                std::back_inserter(SVs),
-                                SVFilter(vertexFilter, pv, jetDir));
 
-
-                 }
-//		std::cout << "size: " << SVs.size() << std::endl; 
 		gtPred.reset();
 		ghostTrack.reset();
 		gtStates.clear();
 		fitTracks.clear();
 		fittedSVs.clear();
-		extAssoCollection.clear();
 
 		// sort SVs by importance
 
@@ -523,19 +485,16 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 				TrackRefVector::const_iterator pos =
 					std::find(trackRefs.begin(), trackRefs.end(),
 					          iter->castTo<TrackRef>());
-
-				if (pos == trackRefs.end() ) {
-				   if(!useExternalSV)
+				if (pos == trackRefs.end())
 					throw cms::Exception("TrackNotFound")
 						<< "Could not find track from secondary "
 						   "vertex in original tracks."
 						<< std::endl;
-				} else {
+
 				unsigned int index = pos - trackRefs.begin();
 				trackData[index].second.svStatus =
 					(SecondaryVertexTagInfo::TrackData::Status)
 					((unsigned int)SecondaryVertexTagInfo::TrackData::trackAssociatedToVertex + idx);
- 				}
 			}
 		}
 

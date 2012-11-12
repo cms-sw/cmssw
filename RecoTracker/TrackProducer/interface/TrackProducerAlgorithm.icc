@@ -75,8 +75,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       
       //build Track
       LogDebug("TrackProducer") << "going to buildTrack"<< "\n";      
-      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof, bs,
-      	      		    theTC->seedRef(),0,theTC->nLoops());
+      bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
       LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
       if(ok) cont++;
     }
@@ -176,7 +175,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 
 	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, 
-			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
+			     seed, ndof, bs, theT->seedRef(),theT->qualityMask());
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
@@ -240,7 +239,7 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 	
 	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
-			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
+			     seed, ndof, bs, theT->seedRef(),theT->qualityMask());
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
@@ -294,7 +293,7 @@ TrackProducerAlgorithm<T>::runWithTrackParameters(const TrackingGeometry * theG,
 
 	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
-			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
+			     seed, ndof, bs, theT->seedRef(),theT->qualityMask());
 	if(ok) cont++;
       } catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
@@ -394,7 +393,7 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 
 	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
-			     seed, ndof, bs, theT->seedRef(),theT->qualityMask(),theT->nLoops());
+			     seed, ndof, bs, theT->seedRef(),theT->qualityMask());
 	if(ok) cont++;
       } catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      

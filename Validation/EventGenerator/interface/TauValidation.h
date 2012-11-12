@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2011/12/29 10:53:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/02/17 14:46:42 $
+ *  $Revision: 1.8 $
  *
  */
 
@@ -52,8 +52,6 @@ class TauValidation : public edm::EDAnalyzer
 	       stable};
 	// tau mother particles 
 	enum  {other,
-	       B,
-	       D,
 	       gamma,
 	       Z,
 	       W,
@@ -103,10 +101,6 @@ class TauValidation : public edm::EDAnalyzer
                        *TauRtauW, *TauRtauHpm,
                        *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
 	               *TauPhotonsN,*TauPhotonsPt;
-	unsigned int NJAKID;
-	MonitorElement *JAKID;
-	std::vector<std::vector<MonitorElement *> > JAKInvMass;
-
 };
 
 #endif

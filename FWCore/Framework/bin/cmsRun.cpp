@@ -272,13 +272,13 @@ int main(int argc, char* argv[]) {
       proc->beginJob();
 
       alwaysAddContext = true;
-      context = "Calling EventProcessor::forkProcess";
+      context = "Forking processes";
       if (!proc->forkProcess(jobReportFile)) {
         return 0;
       }
 
       alwaysAddContext = false;
-      context = "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
+      context = "Processing input";
       proc.on();
       bool onlineStateTransitions = false;
       proc->runToCompletion(onlineStateTransitions);

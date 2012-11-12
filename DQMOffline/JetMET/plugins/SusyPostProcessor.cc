@@ -65,6 +65,47 @@ void  SusyPostProcessor::QuantilePlots(MonitorElement* ME, double q_value)
 
 void SusyPostProcessor::endRun(const edm::Run&, const edm::EventSetup&)
 {
+  // MET
+  //----------------------------------------------------------------------------
+  dqm->setCurrentFolder("JetMET/MET");
+
+  Dirs = dqm->getSubdirs();
+
+  std::vector<std::string> metFolders;
+
+  metFolders.push_back("All/");
+  metFolders.push_back("BasicCleanup/");
+  metFolders.push_back("ExtraCleanup/");
+
+  for (int i=0; i<int(Dirs.size()); i++) {
+
+    std::string prefix = "dummy";
+
+    if (size_t(Dirs[i].find("Calo")) != string::npos) prefix = "Calo";
+    if (size_t(Dirs[i].find("Pf"))   != string::npos) prefix = "Pf";
+    if (size_t(Dirs[i].find("Tc"))   != string::npos) prefix = "";
+
+    for (std::vector<std::string>::const_iterator ic=metFolders.begin();
+	 ic!=metFolders.end(); ic++) {
+
+      std::string dirName = Dirs[i] + "/" + *ic;
+
+      MEx = dqm->get(dirName + "METTask_" + prefix + "MEx");
+      MEy = dqm->get(dirName + "METTask_" + prefix + "MEx");
+
+      if (MEx && MEx->kind() == MonitorElement::DQM_KIND_TH1F) {
+	if (MEx->getTH1F()->GetEntries() > 50) MEx->getTH1F()->Fit("gaus", "q");
+      }
+
+      if (MEy && MEy->kind() == MonitorElement::DQM_KIND_TH1F) {
+	if (MEy->getTH1F()->GetEntries() > 50) MEy->getTH1F()->Fit("gaus", "q");
+      }
+    }
+  }
+
+
+  // SUSY
+  //----------------------------------------------------------------------------
   dqm->setCurrentFolder(SUSYFolder);
   Dirs = dqm->getSubdirs();
   for (int i=0; i<int(Dirs.size()); i++)

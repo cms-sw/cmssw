@@ -75,7 +75,6 @@ public:
  
    bool getEnableHighlight() { return m_enableHighlight.value(); } 
    virtual  FWGeometryTableManagerBase*  getTableManager() { return 0; }
-   virtual void setFrom(const FWConfiguration&);
 
    // ---------- const member functions --------------------- 
 
@@ -151,6 +150,8 @@ protected:
 
    void postConst();
    
+   void setTopNodePathFromConfig(const FWConfiguration& iFrom);
+
    virtual void populateController(ViewerParameterGUI&) const;
 
 private:

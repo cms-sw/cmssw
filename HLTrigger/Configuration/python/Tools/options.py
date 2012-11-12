@@ -4,6 +4,7 @@ globalTag = {
   'GRun': 'auto:startup',       # use as default
   'data': 'auto:hltonline',
   'HIon': 'auto:starthi',
+  'PIon': 'auto:startup',
 }
 
 
@@ -68,7 +69,7 @@ class HLTProcessOptions(object):
   def __init__(self):
     self.menu       = None        #     hlt menu
     self.name       = 'HLTX'      # (*) if set, override the process name
-    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon' or 'online' menus
+    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon', 'PIon' or 'online' menus
     self.data       = True        #     run on data (true) or mc (false)
     self.online     = False       # (*) run online (true) or offline (false)
     self.globaltag  = None        # (*) if set, override the GlobalTag
@@ -77,6 +78,7 @@ class HLTProcessOptions(object):
     self.emulator   = None        # (*) if set, run (part of) the L1 emulator instead of taking the L1 results from the data
     self.unprescale = False       # (*) if set, unprescale all paths
     self.open       = False       #     if set, cms.ignore all filters, making all paths run on and accept all events
+    self.errortype  = False       #     if set, change all HLTTriggerTypeFilter EDFilters to accept only error events (SelectedTriggerType = 0)
     self.profiling  = False       #     if set, instrument the menu for profiling measurements
     self.timing     = False       #     if set, instrument the menu for timing measurements (implies profiling)
     self.paths      = None        #     if set, include in the dump only the given paths (wildcards are supported)

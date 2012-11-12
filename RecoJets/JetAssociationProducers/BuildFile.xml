@@ -10,3 +10,6 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/TrackAssociator"/>
+<export>
+  <lib   name="1"/>
+</export>

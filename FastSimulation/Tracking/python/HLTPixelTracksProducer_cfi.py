@@ -39,4 +39,3 @@ hltFastPixelTracksRecoverVHbb = hltPixelTracks.clone()
 hltFastPrimaryVertex = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltFastPVPixelTracks = hltPixelTracks.clone()
 hltFastPVPixelTracksRecover = hltPixelTracks.clone()
-

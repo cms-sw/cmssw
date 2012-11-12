@@ -1,8 +1,6 @@
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPCaloInfo.h"
-#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPDeDxInfo.h"
-#include "AnalysisDataFormats/SUSYBSMObjects/interface/MuonSegment.h"
 
 namespace {
  namespace {
@@ -28,13 +26,6 @@ namespace {
   susybsm::HSCParticleRefProd hp;
   susybsm::HSCParticleRefVector hv;
   edm::Wrapper<susybsm::HSCParticleCollection> wr1;
-
-  susybsm::MuonSegment ms;
-  susybsm::MuonSegmentCollection msc;
-  susybsm::MuonSegmentRef msr;
-  susybsm::MuonSegmentRefProd msp;
-  susybsm::MuonSegmentRefVector msv;
-  edm::Wrapper<susybsm::MuonSegmentCollection> mswr1;
   
   susybsm::TracksEcalRecHitsMap terhm;
   edm::Wrapper<susybsm::TracksEcalRecHitsMap> wr2;
@@ -56,16 +47,6 @@ namespace {
   edm::Wrapper<susybsm::HSCPCaloInfo> hscpCW;
   edm::Wrapper<susybsm::HSCPCaloInfoCollection> hscpCcW;
   edm::Wrapper<susybsm::HSCPCaloInfoValueMap> hscpCvmW;
-
-  susybsm::HSCPDeDxInfo hscpDEDX;
-  susybsm::HSCPDeDxInfoCollection hscpDEDXc;
-  susybsm::HSCPDeDxInfoRef hscpDEDXr;
-  susybsm::HSCPDeDxInfoRefProd hscpDEDXp;
-  susybsm::HSCPDeDxInfoRefVector hscpDEDXv;
-  susybsm::HSCPDeDxInfoValueMap hscpDEDXvm;
-  edm::Wrapper<susybsm::HSCPDeDxInfo> hscpDEDXW;
-  edm::Wrapper<susybsm::HSCPDeDxInfoCollection> hscpDEDXcW;
-  edm::Wrapper<susybsm::HSCPDeDxInfoValueMap> hscpDEDXvmW;
 
   
  }

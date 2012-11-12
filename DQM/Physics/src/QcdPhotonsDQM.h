@@ -6,8 +6,8 @@
  *
  *  DQM offline for QCD-Photons
  *
- *  $Date: 2010/06/16 15:53:52 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/08/31 19:29:45 $
+ *  $Revision: 1.16 $
  *  \author Michael B. Anderson, University of Wisconsin Madison
  */
 
@@ -61,24 +61,24 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   std::string logTraceName;
 
   // Variables from config file
-  std::string   theTriggerPathToPass;
-  std::vector<std::string> thePlotTheseTriggersToo;
-  std::string   theHltMenu;
-  std::string   theTriggerResultsCollection;
-  edm::InputTag thePhotonCollectionLabel;
-  edm::InputTag theCaloJetCollectionLabel;
-  edm::InputTag theVertexCollectionLabel;
-  double theMinCaloJetPt;
-  double theMinPhotonEt;
-  bool   theRequirePhotonFound;
-  double thePlotPhotonMaxEt;
-  double thePlotPhotonMaxEta;
-  double thePlotJetMaxEta;
+  std::string   theTriggerPathToPass_;
+  std::vector<std::string> thePlotTheseTriggersToo_;
+  edm::InputTag trigTag_;
+  edm::InputTag thePhotonCollectionLabel_;
+  edm::InputTag theJetCollectionLabel_;
+  edm::InputTag theVertexCollectionLabel_;
+  double theMinJetPt_;
+  double theMinPhotonEt_;
+  bool   theRequirePhotonFound_;
+  double thePlotPhotonMaxEt_;
+  double thePlotPhotonMaxEta_;
+  double thePlotJetMaxEta_;
 
   int num_events_in_run;
 
   // Histograms
   MonitorElement* h_triggers_passed;
+  MonitorElement* h_photon_et_beforeCuts;
   MonitorElement* h_photon_et;
   MonitorElement* h_photon_eta;
   MonitorElement* h_photon_count_bar;

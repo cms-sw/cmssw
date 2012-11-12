@@ -14,6 +14,8 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
+#include "TStopwatch.h"
+
 using namespace ecaldqm;
 
 template <class C>
@@ -23,12 +25,25 @@ EcalDQMonitorTask::runOnCollection(const edm::Event& _evt, Collections _colName)
   edm::Handle<C> hndl;
   if(_evt.getByLabel(collectionTags_[_colName], hndl)){
 
+    TStopwatch* sw(0);
+    if(evaluateTime_){
+      sw = new TStopwatch;
+      sw->Stop();
+    }
+
     DQWorkerTask* task(0);
 
     for(std::vector<DQWorkerTask *>::iterator wItr(taskLists_[_colName].begin()); wItr != taskLists_[_colName].end(); ++wItr){
       task = *wItr;
+      if(evaluateTime_) sw->Start();
       if(enabled_[task]) task->analyze(hndl.product(), _colName);
+      if(evaluateTime_){
+	sw->Stop();
+	taskTimes_[task] += sw->RealTime();
+      }
     }
+
+    delete sw;
   }
   else if(!allowMissingCollections_)
     throw cms::Exception("ObjectNotFound") << "Collection with InputTag " << collectionTags_[_colName] << " does not exist";
@@ -50,12 +65,25 @@ EcalDQMonitorTask::runOnCollection<DetIdCollection>(const edm::Event& _evt, Coll
     for(unsigned iId(0); iId < nEB; iId++) ids.push_back(DetId(ebHndl->at(iId)));
     for(unsigned iId(0); iId < nEE; iId++) ids.push_back(DetId(eeHndl->at(iId)));
 
+    TStopwatch* sw(0);
+    if(evaluateTime_){
+      sw = new TStopwatch;
+      sw->Stop();
+    }
+
     DQWorkerTask* task(0);
 
     for(std::vector<DQWorkerTask *>::iterator wItr(taskLists_[_colName].begin()); wItr != taskLists_[_colName].end(); ++wItr){
       task = *wItr;
+      if(evaluateTime_) sw->Start();
       if(enabled_[task]) task->analyze(const_cast<const DetIdCollection*>(&ids), _colName);
+      if(evaluateTime_){
+	sw->Stop();
+	taskTimes_[task] += sw->RealTime();
+      }
     }
+
+    delete sw;
   }
   else if(!allowMissingCollections_)
     throw cms::Exception("ObjectNotFound") << "DetIdCollection with InputTag " << collectionTags_[_colName] << " does not exist";

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 # Include the RandomNumberGeneratorService definition
-process.load("IOMC.RandomEngine.IOMC_cff")
+process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
 process.load("FastSimulation.Configuration.QCDpt50_120_cfi")
 

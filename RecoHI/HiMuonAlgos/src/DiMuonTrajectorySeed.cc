@@ -11,7 +11,7 @@ DiMuonTrajectorySeed::DiMuonTrajectorySeed( const TrajectoryMeasurement& mtm0, c
                         theTrajMeasurements.push_back(mtm0);
                        // theRecHits.push_back(rh->clone()); theDetId = det;
                        // PTraj = boost::shared_ptr<PTrajectoryStateOnDet>(
-                       // trajectoryStateTransform::persistentState(tsos, theDetId) );
+                       // transformer.persistentState(tsos, theDetId) );
 }
 }
 
