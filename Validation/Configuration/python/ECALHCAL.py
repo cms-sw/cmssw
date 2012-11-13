@@ -57,7 +57,7 @@ def customise(process):
 
 #    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalLocalRecoSequence * process.hbhereco * process.hfreco * process.horeco * (process.ecalClusters+process.caloTowersRec) * process.reducedEcalRecHitsSequence )
 
-    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco *(process.ecalClusters+process.caloTowersRec) * process.reducedEcalRecHitsSequence )
+    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco *(process.ecalClustersNoPFBox+process.caloTowersRec) * process.reducedEcalRecHitsSequence )
 
     process.schedule.append(process.local_digireco)
 
