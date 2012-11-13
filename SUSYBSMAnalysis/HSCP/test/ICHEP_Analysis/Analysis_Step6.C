@@ -206,7 +206,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(SQRTS!=78.0) keepOnlySamplesAt7and8TeVX(samples, SQRTS);
 
    for(unsigned int s=0;s<samples.size();s++){
-    if(samples[s].Type!=2)continue;
+    if(samples[s].Type<2)continue;
     //printf("Name-->Model >>  %30s --> %s\n",samples[s].Name.c_str(), samples[s].ModelName().c_str());
 
     if(SQRTS== 7.0  && samples[s].Name.find("_7TeV")==string::npos){continue;}
@@ -1082,7 +1082,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "MC - Q=5 "    ,"LP");
 
    TLegend* HQLEGTh = new TLegend(0.32,0.64,0.72,0.88);
-   if(!Combine) {
+   if(!Combine){
    HQLEGTh->SetHeader("Theoretical Prediction");
    HQLEGTh->SetFillColor(0);
    HQLEGTh->SetFillStyle(0);
@@ -1107,8 +1107,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TGraph* Q5ThLeg = (TGraph*) ThGraphMap["DY_Q5"]->Clone("HSCPQ5ThLeg");
    Q5ThLeg->SetFillColor(ThErrorMap["DY_Q5"]->GetFillColor());
    HQLEGTh->AddEntry(Q5ThLeg, "Q=5 (LO)" ,"LF");
-
    HQLEGTh->Draw();
+   }
+
    LEGHQ->Draw();
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("HQExclusionLog"));
@@ -1654,6 +1655,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    TH2D* MassData      = (TH2D*)GetObjectFromPath(InputFile, Data+"/Mass");
    TH2D* MassPred      = (TH2D*)GetObjectFromPath(InputFile, Data+"/Pred_Mass");
    TH2D* MassSign      = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass" );
+   if(!MassSign){printf("The sample %s is not present in the root file, returns\n", signal.c_str());return;}
    TH2D* MassSignP     = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass_SystP");
    TH2D* MassSignI     = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass_SystI");
    TH2D* MassSignM     = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass_SystM");
@@ -1661,8 +1663,6 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    TH2D* MassSignPU    = (TH2D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/Mass_SystPU" );
    TH1D* TotalE        = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalE" );
    TH1D* TotalEPU      = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalEPU" );
-
-
 
    //If Take the cuts From File --> Load the actual cut index
    int OptimCutIndex = -1;  //int OptimMassWindow;
@@ -1812,6 +1812,9 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    }//end of selection cut loop
    fclose(pFile);   
  
+std::cout << "TEST4\n";
+
+
    //recompute the limit for the final point and save the output in the final directory (also save some plots for the shape based analysis)
    if(TypeMode<=2){runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
    }else          {runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);

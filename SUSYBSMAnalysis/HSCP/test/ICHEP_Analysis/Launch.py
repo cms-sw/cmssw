@@ -52,7 +52,7 @@ elif sys.argv[1]=='0':
            vals=line.split(',')
            if((vals[0].replace('"','')) in CMSSW_VERSION):
               for Type in AnalysesToRun:
-                 if(int(vals[1])==2 and skipSamples(Type, vals[2])==True):continue
+                 if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue
                  if  (Type==0):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 0, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
                  elif(Type==2):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 2, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 45, 2.1])
                  elif(Type==3):LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step3.C", '"ANALYSE_'+str(index)+'_to_'+str(index)+'"'  , 3, '"dedxASmi"'  ,'"dedxHarm2"'  , '"combined"', 0.0, 0.0, 0.0, 80, 2.1, 15, 15])
@@ -87,9 +87,9 @@ elif sys.argv[1]=='3':
         f= open('Analysis_Samples.txt','r')
         for line in f :
            vals=line.split(',')
-           if(int(vals[1])!=2):continue
+           if(int(vals[1])<2):continue
            for Type in AnalysesToRun:
-              if(int(vals[1])==2 and skipSamples(Type, vals[2])==True):continue
+              if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue
               Path = "Results/Type"+str(Type)+"/"
               LaunchOnCondor.SendCluster_Push(["ROOT", os.getcwd()+"/Analysis_Step6.C", '"OPTIMIZE"', '"'+Path+'"', vals[2] ])
         f.close()
@@ -105,9 +105,9 @@ elif sys.argv[1]=='4':
         f = open('Analysis_Samples.txt','r')
         for line in f :
            vals=line.split(',')
-           if(int(vals[1])!=2):continue
+           if(int(vals[1])<2):continue
            for Type in AnalysesToRun:            
-              if(int(vals[1])==2 and skipSamples(Type, vals[2])==True):continue     
+              if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue     
               skip = False
 
               #skip 8TeV samples that have already been processed together with the  7TeV (since for each sample we do 7TeV+8TeV+Comb)

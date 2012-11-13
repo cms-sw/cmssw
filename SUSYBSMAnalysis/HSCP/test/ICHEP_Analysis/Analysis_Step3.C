@@ -937,7 +937,7 @@ void Analysis_Step3(char* SavePath)
    for(unsigned int s=0;s<samples.size();s++){
       bool isData   = (samples[s].Type==0);
       bool isMC     = (samples[s].Type==1);
-      bool isSignal = (samples[s].Type==2);
+      bool isSignal = (samples[s].Type>=2);
 
       //check that the plot container exist for this sample, otherwise create it
       if(plotsMap.find(samples[s].Name)==plotsMap.end()){plotsMap[samples[s].Name] = stPlots();}
@@ -980,8 +980,7 @@ void Analysis_Step3(char* SavePath)
       double* MaxMass_SystPU= new double[CutPt.size()];
 
       //do two loops through signal for samples with and without trigger changes.
-      for (int period=0; period<(samples[s].Type==2?2:1); period++){
-	//for (int period=0; period<(samples[s].Type==2?RunningPeriods:1); period++){
+      for (int period=0; period<(samples[s].Type>=2?2:1); period++){
          //load the files corresponding to this sample
          std::vector<string> FileName;
 	 GetInputFiles(samples[s], BaseDirectory, FileName, period);
@@ -1013,7 +1012,7 @@ void Analysis_Step3(char* SavePath)
 
          //Loop on the events
          printf("Progressing Bar                   :0%%       20%%       40%%       60%%       80%%       100%%\n");
-         printf("Building Mass for %10s (%1i/%1i) :",samples[s].Name.c_str(),period+1,(samples[s].Type==2?RunningPeriods:1));
+         printf("Building Mass for %10s (%1i/%1i) :",samples[s].Name.c_str(),period+1,(samples[s].Type>=2?RunningPeriods:1));
          int TreeStep = ev.size()/50;if(TreeStep==0)TreeStep=1;
          for(Long64_t ientry=0;ientry<ev.size();ientry++){
             ev.to(ientry);
