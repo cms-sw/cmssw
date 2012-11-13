@@ -1,0 +1,95 @@
+Id: 1
+Class: std::vector<std::array<gs::test::Persistent2(1),5(0)>(0)>(0)
+Name: name1
+Category: category1
+I/O prototype: gs::Single
+URI: file://./archive.0.gsbd
+Cached: 
+Compression: 0
+Length: 2728
+Streampos: 70
+Offset: 0
+
+Id: 2
+Class: std::vector<std::array<gs::test::Persistent2(1),5(0)>(0)>(0)
+Name: name1
+Category: category1
+I/O prototype: gs::Single
+URI: file://./archive.0.gsbd
+Cached: 
+Compression: 0
+Length: 5328
+Streampos: 2990
+Offset: 0
+
+Id: 3
+Class: std::vector<std::array<double(0),5(0)>(0)>(0)
+Name: name2
+Category: category2
+I/O prototype: gs::Single
+URI: file://./archive.0.gsbd
+Cached: 
+Compression: 0
+Length: 2098
+Streampos: 8510
+Offset: 0
+
+Id: 4
+Class: unsigned(0)
+Name: my number
+Category: who cares
+I/O prototype: gs::Single
+URI: file://./archive.0.gsbd
+Cached: 
+Compression: 0
+Length: 23
+Streampos: 10785
+Offset: 0
+
+Id: 5
+Class: gs::StringArchive(1)
+Name: my archive
+Category: yok
+I/O prototype: gs::Single
+URI: file://./archive.0.gsbd
+Cached: 
+Compression: 0
+Length: 299
+Streampos: 10955
+Offset: 0
+
+Id: 6
+Class: std::vector<double(0)>(0)
+Name: my vector
+Category: 
+I/O prototype: gs::Single
+URI: file://./archive.0.gsbd
+Cached: 
+Compression: 0
+Length: 441
+Streampos: 11405
+Offset: 0
+
+Id: 7
+Class: std::vector<gs::test::Persistent2(1)>(0)
+Name: my vector 2
+Category: duh
+I/O prototype: gs::Single
+URI: file://./archive.0.gsbd
+Cached: 
+Compression: 0
+Length: 288
+Streampos: 11998
+Offset: 0
+
+Id: 8
+Class: std::string(0)
+Name: some message
+Category: uh
+I/O prototype: gs::Single
+URI: file://./archive.0.gsbd
+Cached: 
+Compression: 0
+Length: 39
+Streampos: 12458
+Offset: 0
