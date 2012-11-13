@@ -104,8 +104,6 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
 //  HMapping_.resize(10000,myZero_);
   EBMapping_.resize(62000);
   EEMapping_.resize(20000);
-  HMapping_.resize(10000);
-  theDetIds_.resize(10000);
 
   unsigned s=(unfoldedMode_)?5:1;
   for(unsigned ic=0;ic<62000;++ic)
@@ -113,8 +111,6 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
       EBMapping_[ic].reserve(s);
       if(ic<20000)
 	EEMapping_[ic].reserve(s);
-      if(ic<10000)
-	HMapping_[ic].reserve(s);
     }
 
   //  myHistos = 0; 
@@ -215,11 +211,7 @@ void CalorimetryManager::clean()
     }
   firedCellsEE_.clear();
   
-  size=firedCellsHCAL_.size();
-  for(unsigned ic=0;ic<size;++ic)
-    {
-      HMapping_[firedCellsHCAL_[ic]].clear();
-    }
+  HMapping_.clear();
   firedCellsHCAL_.clear();
 
   ESMapping_.clear();
@@ -250,17 +242,6 @@ void CalorimetryManager::reconstruct()
   // Clear the content of the calorimeters 
   if(!initialized_)
     {
-      const CaloSubdetectorGeometry* geom=myCalorimeter_->getHcalGeometry();
-      for(int subdetn=1;subdetn<=4;++subdetn)
-	{
-	  const std::vector<DetId>& ids(geom->getValidDetIds(DetId::Hcal,subdetn));  
-	  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) 
-	    {
-	      HcalDetId myDetId(*i);
-	      unsigned hi=myDetId.hashed_index();
-	      theDetIds_[hi]=myDetId;
-	    }
-	}
       
       // Check if the preshower is really available
       if(simulatePreshower_ && !myCalorimeter_->preshowerPresent())
@@ -555,7 +536,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   endmapitr=myHcalHitMaker.getHits().end();
   for(mapitr=myHcalHitMaker.getHits().begin();mapitr!=endmapitr;++mapitr)
     {
-      updateMap(HcalDetId(mapitr->first).hashed_index(),mapitr->second,myTrack.id(),HMapping_,firedCellsHCAL_);
+      updateMap(HcalDetId(mapitr->first).rawId(),mapitr->second,myTrack.id(),HMapping_);
       //      std::cout << " Adding " <<mapitr->first << " " << mapitr->second <<std::endl; 
     }
 
@@ -655,7 +636,7 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
   if( hit != 2  || emeas > 0.) 
     if(!detid.null()) 
       {
-	updateMap(hdetid.hashed_index(),emeas,track.id(),HMapping_,firedCellsHCAL_);
+	updateMap(hdetid.rawId(),emeas,track.id(),HMapping_);
       }
 
 }
@@ -733,7 +714,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
 
   if(emeas > 0.) {  
     DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-    updateMap(HcalDetId(cell).hashed_index(), emeas, myTrack.id(),HMapping_,firedCellsHCAL_);
+    updateMap(cell.rawId(), emeas, myTrack.id(),HMapping_);
   }
 }
 
@@ -1051,7 +1032,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
 	
 	EsH += energy;
 
-	updateMap(HcalDetId(mapitr->first).hashed_index(),energy,myTrack.id(),HMapping_,firedCellsHCAL_);
+	updateMap(HcalDetId(mapitr->first).rawId(),energy,myTrack.id(),HMapping_);
 	if(debug_)
 	  LogInfo("FastCalorimetry") << " HCAL cell "  
 	       << mapitr->first << " added    E = " 
@@ -1077,7 +1058,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
       if(myTrack.onHcal() || myTrack.onVFcal())
 	{
 	  DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
-	  updateMap(HcalDetId(cell).hashed_index(),emeas,myTrack.id(),HMapping_,firedCellsHCAL_);
+	  updateMap(cell.rawId(),emeas,myTrack.id(),HMapping_);
 	  if(debug_)
 	    LogInfo("FastCalorimetry") << " HCAL simple cell "   
 					<< cell.rawId() << " added    E = " 
@@ -1330,7 +1311,7 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
   for(mapitr=myHcalHitMaker.getHits().begin(); mapitr!=endmapitr; ++mapitr) {
     double energy = mapitr->second;
     {
-      updateMap(HcalDetId(mapitr->first).hashed_index(),energy,myTrack.id(),HMapping_,firedCellsHCAL_);
+      updateMap(HcalDetId(mapitr->first).rawId(),energy,myTrack.id(),HMapping_);
     }
     if(debug_)
       LogInfo("FastCalorimetry") << " HCAL cell "  
@@ -1644,29 +1625,30 @@ void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer & c) const
 
 void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
 {
-  unsigned size=firedCellsHCAL_.size();
+
   double time;
-  for(unsigned ic=0;ic<size;++ic){
-    int hi=firedCellsHCAL_[ic];
+  std::map<uint32_t,std::vector<std::pair< int,float> > >::const_iterator cellit;
+  for (cellit=HMapping_.begin(); cellit!=HMapping_.end(); cellit++) {
+    DetId hi=DetId(cellit->first);
     if(!unfoldedMode_){
       if(HcalDigitizer_) {
-	time=(myCalorimeter_->getHcalGeometry()->getGeometry(theDetIds_[hi])->getPosition().mag())/29.98;//speed of light
-	if (smearTimeHF_ && theDetIds_[hi].subdetId()== HcalForward){ // shift and smearing for HF
+	time=(myCalorimeter_->getHcalGeometry()->getGeometry(hi)->getPosition().mag())/29.98;//speed of light
+	if (smearTimeHF_ && hi.subdetId()== HcalForward){ // shift and smearing for HF
 	  time = random->gaussShoot((time+timeShiftHF_),timeSmearingHF_);
 	}
       } else time = 0.;
-      c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][0].second,time,0));
+      c.push_back(PCaloHit(hi,cellit->second[0].second,time,0));
     }
     else{
-      unsigned npart=HMapping_[hi].size();
+      unsigned npart=cellit->second.size();
       for(unsigned ip=0;ip<npart;++ip){
 	if(HcalDigitizer_) {
-	  time=(myCalorimeter_->getHcalGeometry()->getGeometry(theDetIds_[hi])->getPosition().mag())/29.98;//speed of light
-	  if (smearTimeHF_ && theDetIds_[hi].subdetId()== HcalForward){ // shift and smearing for HF
+	  time=(myCalorimeter_->getHcalGeometry()->getGeometry(hi)->getPosition().mag())/29.98;//speed of light
+	  if (smearTimeHF_ && hi.subdetId()== HcalForward){ // shift and smearing for HF
 	    time = random->gaussShoot((time+timeShiftHF_),timeSmearingHF_);
 	  }
 	} else time = 0.;
-	c.push_back(PCaloHit(theDetIds_[hi],HMapping_[hi][ip].second, time, HMapping_[hi][ip].first));
+	c.push_back(PCaloHit(hi,cellit->second[ip].second, time, cellit->second[ip].first));
       }
     }
   }

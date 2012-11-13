@@ -107,16 +107,14 @@ class CalorimetryManager{
   // the preshower does not have hashed_indices, hence the map 
   std::vector<std::vector<std::pair<int,float> > > EBMapping_;
   std::vector<std::vector<std::pair<int,float> > > EEMapping_;
-  std::vector<std::vector<std::pair<int,float> > > HMapping_;
+  std::map<uint32_t,std::vector<std::pair<int,float> > > HMapping_;
   std::map<uint32_t,std::vector<std::pair<int,float> > > ESMapping_;
 
   std::vector<int> firedCellsEB_;
   std::vector<int> firedCellsEE_;
-  std::vector<int> firedCellsHCAL_;
+  std::vector<DetId> firedCellsHCAL_;
 
-  // this is bad, the same information already exists in CaloRecHitsProducers
-  // should make a es_producer of CaloGeometryTools 
-  std::vector<DetId> theDetIds_;
+  
   bool debug_;
   bool useDQM_;
   std::vector<unsigned int> evtsToDebug_;
