@@ -218,38 +218,22 @@ namespace evf {
     float                           cpuLoad_[4000];
     float                           cpuLoadPS_[4000];
     float                           cpuLoadTime7_[4000];
+    float                           cpuLoadTime8_[4000];
     float                           cpuLoadTime12_[4000];
     float                           cpuLoadTime16_[4000];
+    float                           cpuLoadTime24_[4000];
+    float                           cpuLoadTime32_[4000];
     float                           cpuLoadRate_[4000];
 
     xdata::Float                    flashLoad_;
     xdata::Float                    flashLoadPS_;
     xdata::Float                    flashLoadTime7_;
+    xdata::Float                    flashLoadTime8_;
     xdata::Float                    flashLoadTime12_;
     xdata::Float                    flashLoadTime16_;
+    xdata::Float                    flashLoadTime24_;
+    xdata::Float                    flashLoadTime32_;
     xdata::Float                    flashLoadRate_;
-
-
-    //CPU peak load flashlist
-    std::list<std::string>          monNamesMax_;
-    xdata::InfoSpace                *cpuInfoSpaceMax_;
-    xdata::UnsignedInteger32        flashLoadMaxLs_;
-    std::atomic<unsigned int>       loadMaxLs_;
- 
-    float                           loadMax_;
-    float                           loadMaxPS_;
-    float                           loadMaxTime7_;
-    float                           loadMaxTime12_;
-    float                           loadMaxTime16_;
-    float                           loadMaxRate_;
-
-    xdata::Float                    flashLoadMax_;
-    xdata::Float                    flashLoadMaxPS_;
-    xdata::Float                    flashLoadMaxTime7_;
-    xdata::Float                    flashLoadMaxTime12_;
-    xdata::Float                    flashLoadMaxTime16_;
-    xdata::Float                    flashLoadMaxRate_;
-    xdata::TimeVal                  flashLoadMaxTimestamp_;
 
     //EventInfo
     MonitorElement * runId_;

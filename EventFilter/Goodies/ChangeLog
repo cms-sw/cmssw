@@ -6,7 +6,7 @@
 	* cpu usage plots promoted to the top of the page
 	* Total input rate 1D plot
 	* EventInfo runStartTimeStamp, and other default ME-s added
-	* CPU load flashlists and sender timer thread
+	* CPU usage flashlist
 
 2012-10-11 Srecko Morovic <srecko.morovic@cern.ch>
 

@@ -193,54 +193,32 @@ iDie::iDie(xdaq::ApplicationStub *s)
   flashRunNumber_.value_=0;
   cpuLoadLastLs_=0;
   cpuLoadSentLs_=0;
-  std::string cpuInfoSpaceName="evf-idie-cpu-load";
+  std::string cpuInfoSpaceName="hltCPUUsage";
   toolbox::net::URN urn = this->createQualifiedInfoSpace(cpuInfoSpaceName);
   cpuInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
-  cpuInfoSpace_->fireItemAvailable("run",&flashRunNumber_);
-  cpuInfoSpace_->fireItemAvailable("lumi",&flashLoadLs_);
-  cpuInfoSpace_->fireItemAvailable("load",&flashLoad_);
-  cpuInfoSpace_->fireItemAvailable("loadPS",&flashLoadPS_);
-  cpuInfoSpace_->fireItemAvailable("evttime7",&flashLoadTime7_);
-  cpuInfoSpace_->fireItemAvailable("evttime12",&flashLoadTime12_);
-  cpuInfoSpace_->fireItemAvailable("evttime16",&flashLoadTime16_);
-  cpuInfoSpace_->fireItemAvailable("rate",&flashLoadRate_);
+  cpuInfoSpace_->fireItemAvailable("runNumber",&flashRunNumber_);
+  cpuInfoSpace_->fireItemAvailable("lumiSection",&flashLoadLs_);
+  cpuInfoSpace_->fireItemAvailable("hltCPULoad",&flashLoad_);
+  cpuInfoSpace_->fireItemAvailable("systemCPULoad",&flashLoadPS_);
+  cpuInfoSpace_->fireItemAvailable("eventTime7EP",&flashLoadTime7_);
+  cpuInfoSpace_->fireItemAvailable("eventTime8EP",&flashLoadTime8_);
+  cpuInfoSpace_->fireItemAvailable("eventTime12EP",&flashLoadTime12_);
+  cpuInfoSpace_->fireItemAvailable("eventTime16EP",&flashLoadTime16_);
+  cpuInfoSpace_->fireItemAvailable("eventTime24EP",&flashLoadTime24_);
+  cpuInfoSpace_->fireItemAvailable("eventTime32EP",&flashLoadTime32_);
+  cpuInfoSpace_->fireItemAvailable("hltProcessingRate",&flashLoadRate_);
 
-  flashLoadMax_.value_=0;
-  cpuInfoSpaceName="evf-idie-cpu-max-load";
-  urn = this->createQualifiedInfoSpace(cpuInfoSpaceName);
-  cpuInfoSpaceMax_ = xdata::getInfoSpaceFactory()->get(urn.toString());
-  cpuInfoSpaceMax_->fireItemAvailable("run",&flashRunNumber_);
-  cpuInfoSpaceMax_->fireItemAvailable("time",&flashLoadMaxTimestamp_);
-  cpuInfoSpaceMax_->fireItemAvailable("lumi",&flashLoadMaxLs_);
-  cpuInfoSpaceMax_->fireItemAvailable("load",&flashLoadMax_);
-  cpuInfoSpaceMax_->fireItemAvailable("loadPS",&flashLoadMaxPS_);
-  cpuInfoSpaceMax_->fireItemAvailable("evttime7",&flashLoadMaxTime7_);
-  cpuInfoSpaceMax_->fireItemAvailable("evttime12",&flashLoadMaxTime12_);
-  cpuInfoSpaceMax_->fireItemAvailable("evttime16",&flashLoadMaxTime16_);
-  cpuInfoSpaceMax_->fireItemAvailable("rate",&flashLoadMaxRate_);
-
-
-  monNames_.push_back("run");
-  monNames_.push_back("lumi");
-  monNames_.push_back("load");
-  monNames_.push_back("loadPS");
-  monNames_.push_back("evttime7");
-  monNames_.push_back("evttime12");
-  monNames_.push_back("evttime16");
-  monNames_.push_back("rate");
-
-
-  monNamesMax_.push_back("run");
-  monNamesMax_.push_back("time");
-  monNamesMax_.push_back("lumi");
-  monNamesMax_.push_back("load");
-  monNamesMax_.push_back("loadPS");
-  monNamesMax_.push_back("evttime7");
-  monNamesMax_.push_back("evttime12");
-  monNamesMax_.push_back("evttime16");
-  monNamesMax_.push_back("rate");
-
-
+  monNames_.push_back("runNumber");
+  monNames_.push_back("lumiSection");
+  monNames_.push_back("hltCPULoad");
+  monNames_.push_back("systemCPULoad");
+  monNames_.push_back("eventTime7EP");
+  monNames_.push_back("eventTime8EP");
+  monNames_.push_back("eventTime12EP");
+  monNames_.push_back("eventTime16EP");
+  monNames_.push_back("eventTime24EP");
+  monNames_.push_back("eventTime32EP");
+  monNames_.push_back("hltProcessingRate");
 
   //be permissive for written files
   umask(000);
@@ -341,8 +319,6 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
       runTS_=0.;
       latencyTS_=0;
       //cleanup flashlist data
-      loadMaxLs_=0;
-      loadMax_=0.;
       cpuLoadLastLs_=0;
       cpuLoadSentLs_=0;
       //remove histograms
@@ -1547,52 +1523,18 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   busyFrCPUTheor=fround(busyFrCPUTheor,0.001f);
   busyAvg=fround(busyAvg,0.001f);
 
-  //flashlist peak cpu value
-  double newLoadMax = 0.;
-  double newLoadMaxPS = 0.;
-  double newLoadMaxTime7 = 0.;
-  double newLoadMaxTime12 = 0.;
-  double newLoadMaxTime16 = 0.;
-  double newLoadMaxRate = 0.;
-  if (lsid>7) {//skip ls 1-4
-    for (unsigned int lsb=lsid-3; lsb<lsid; lsb++) {
-      newLoadMax+=daqBusySummary_->getBinContent(lsb)/100.;
-      newLoadMaxPS+=daqBusySummary2_->getBinContent(lsb)/100.;
-      newLoadMaxTime7+=meVecTime_[0]->getBinContent(lsb);
-      newLoadMaxTime12+=meVecTime_[2]->getBinContent(lsb);
-      newLoadMaxTime16+=meVecTime_[3]->getBinContent(lsb);
-      newLoadMaxRate+=daqTotalRateSummary_->getBinContent(lsb);
-    }
-    newLoadMax*=0.3333f;
-    newLoadMaxPS*=0.3333f;
-    newLoadMaxTime7*=0.3333f;
-    newLoadMaxTime12*=0.3333f;
-    newLoadMaxTime16*=0.3333f;
-    newLoadMaxRate*=0.3333f;
-  }
-  else {
-    loadMaxLs_=0;
-    loadMax_=0.;
-  }
-  if (newLoadMax>loadMax_) {
-    loadMaxLs_=lsid-1;
-    loadMax_ = newLoadMax;
-    loadMaxPS_ = newLoadMaxPS;
-    loadMaxTime7_ = newLoadMaxTime7;
-    loadMaxTime12_ = newLoadMaxTime12;
-    loadMaxTime16_ = newLoadMaxTime16;
-    loadMaxRate_ = newLoadMaxRate;
-    //capture time
-  }
   //flashlist per-lumi values
-  if (lsid)
-    while (cpuLoadLastLs_<lsid-1) {
+  if (lsid>2)
+    while (cpuLoadLastLs_<lsid-2) {
       if (cpuLoadLastLs_>=4000-1) break;
       cpuLoad_[cpuLoadLastLs_]=daqBusySummary_->getBinContent(cpuLoadLastLs_+1)/100.;
       cpuLoadPS_[cpuLoadLastLs_]=daqBusySummary2_->getBinContent(cpuLoadLastLs_+1)/100.;
       cpuLoadTime7_[cpuLoadLastLs_]=meVecTime_[0]->getBinContent(cpuLoadLastLs_+1);
+      cpuLoadTime8_[cpuLoadLastLs_]=meVecTime_[1]->getBinContent(cpuLoadLastLs_+1);
       cpuLoadTime12_[cpuLoadLastLs_]=meVecTime_[2]->getBinContent(cpuLoadLastLs_+1);
       cpuLoadTime16_[cpuLoadLastLs_]=meVecTime_[3]->getBinContent(cpuLoadLastLs_+1);
+      cpuLoadTime24_[cpuLoadLastLs_]=meVecTime_[4]->getBinContent(cpuLoadLastLs_+1);
+      cpuLoadTime32_[cpuLoadLastLs_]=meVecTime_[5]->getBinContent(cpuLoadLastLs_+1);
       cpuLoadRate_[cpuLoadLastLs_]=daqTotalRateSummary_->getBinContent(cpuLoadLastLs_+1);
       cpuLoadLastLs_++;
   }
@@ -1766,35 +1708,9 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
   {
     if (runNumber_>flashRunNumber_.value_)
     {
-      cpuInfoSpaceMax_->lock();
+      cpuInfoSpace_->lock();
       flashRunNumber_.value_=runNumber_;
-      flashLoadMax_.value_=0.;
-      cpuInfoSpaceMax_->unlock();
-    }
-
-    if (loadMax_>flashLoadMax_.value_)
-    {
-       cpuInfoSpaceMax_->lock();
-       //timestamp
-       flashLoadMaxTimestamp_ = toolbox::TimeVal::gettimeofday();
-       flashLoadMaxLs_.value_=loadMaxLs_;
-       flashLoadMax_=loadMax_;
-       flashLoadMaxPS_=loadMaxPS_;
-       flashLoadMaxTime7_=loadMaxTime7_;
-       flashLoadMaxTime12_=loadMaxTime12_;
-       flashLoadMaxTime16_=loadMaxTime16_;
-       flashLoadMaxRate_=loadMaxRate_;
-       cpuInfoSpaceMax_->unlock();
-
-       if (debugMode_.value_)
-         std::cout << "debug - updated max flashlist with values time:"
-		   << " " << flashLoadMaxTimestamp_.value_ << " " << flashLoadMaxLs_
-		   << " " << flashLoadMax_          << " " << flashLoadMaxPS_
-		   << " " << flashLoadMaxTime7_     << " " << flashLoadMaxTime12_
-		   << " " << flashLoadMaxTime16_    << " " << flashLoadMaxRate_
-		   << " " << std::endl;
-
-       cpuInfoSpaceMax_->fireItemGroupChanged(monNamesMax_, this);
+      cpuInfoSpace_->unlock();
     }
 
     if (debugMode_.value_) std::cout << " checking per-lumi flashlist" << std::endl;
@@ -1810,8 +1726,11 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
         flashLoad_=cpuLoad_[toSend];
 	flashLoadPS_=cpuLoadPS_[toSend];
 	flashLoadTime7_=cpuLoadTime7_[toSend];
+	flashLoadTime8_=cpuLoadTime8_[toSend];
 	flashLoadTime12_=cpuLoadTime12_[toSend];
 	flashLoadTime16_=cpuLoadTime16_[toSend];
+	flashLoadTime24_=cpuLoadTime24_[toSend];
+	flashLoadTime32_=cpuLoadTime32_[toSend];
 	flashLoadRate_=cpuLoadRate_[toSend];
 	cpuLoadSentLs_++;
 	cpuInfoSpace_->unlock();
@@ -1820,8 +1739,8 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
 	  if (debugMode_.value_)
 	    std::cout << "debug - updated lumi flashlist with values "
 	      << flashLoadLs_ << " " << flashLoad_ << " " << flashLoadPS_
-	      << " " << flashLoadTime7_ << " " << flashLoadTime12_  << " "
-	      << flashLoadTime16_ << " " << flashLoadRate_ << std::endl;
+	      << " t:" << flashLoadTime7_ << " " << flashLoadTime8_ << " " << flashLoadTime12_  << " "
+	      << flashLoadTime16_ << " " << flashLoadTime24_ << flashLoadTime32_ << " r:" << flashLoadRate_ << std::endl;
 
 	  cpuInfoSpace_->fireItemGroupChanged(monNames_, this);
 
