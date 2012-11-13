@@ -19,8 +19,8 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2012/10/30 15:36:04 $
-   $Revision: 1.16 $
+   $Date: 2012/11/12 21:38:35 $
+   $Revision: 1.17 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
@@ -107,12 +107,12 @@ public:
   std::pair<int, int> segmentBoundaries(unsigned ring, unsigned depth) const;
 
 
-  int getHBSize() const {return HBSize_;}
-  int getHESize() const {return HESize_;}
-  int getHOSize() const {return HOSize_;}
-  int getHFSize() const {return HFSize_;}
-  int getHTSize() const {return HTSize_;}
-  int getCALIBSize() const {return CALIBSize_;}
+  unsigned int getHBSize() const {return HBSize_;}
+  unsigned int getHESize() const {return HESize_;}
+  unsigned int getHOSize() const {return HOSize_;}
+  unsigned int getHFSize() const {return HFSize_;}
+  unsigned int getHTSize() const {return HTSize_;}
+  unsigned int getCALIBSize() const {return CALIBSize_;}
 
   int maxDepthHB() const { return maxDepthHB_;}
   int maxDepthHE() const { return maxDepthHE_;}
@@ -167,12 +167,12 @@ private:
   const int maxDepthHB_;
   const int maxDepthHE_;
 
-  int HBSize_;
-  int HESize_;
-  int HOSize_;
-  int HFSize_;
-  int HTSize_;
-  int CALIBSize_;
+  unsigned int HBSize_;
+  unsigned int HESize_;
+  unsigned int HOSize_;
+  unsigned int HFSize_;
+  unsigned int HTSize_;
+  unsigned int CALIBSize_;
   const unsigned int numberOfShapes_;
 
   int topoVersion_;
