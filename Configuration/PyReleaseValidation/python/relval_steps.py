@@ -522,9 +522,12 @@ dataReco={'--conditions':'auto:com10',
           '--scenario':'pp',
           }
 
+hltKey='relval'
+from Configuration.HLT.autoHLT import autoHLT
+menu = autoHLT[hltKey]
 steps['HLTD']=merge([{'--process':'reHLT',
-                      '-s':'L1REPACK,HLT:8E33v2',
-                      '--conditions':'auto:hltonline_8E33v2',
+                      '-s':'L1REPACK,HLT:@%s'%hltKey,
+                      '--conditions':'auto:hltonline_%s'%menu,
                       '--data':'',
                       '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
                       },])
@@ -587,7 +590,7 @@ step3Defaults = {
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
-steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_8E33v2'},steps['RECOD']])
+steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_%s'%menu},steps['RECOD']])
 steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
@@ -673,7 +676,7 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--data':'',
                    '--scenario':'pp'}
 
-steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:com10_8E33v2'}, steps['HARVESTD'] ])
+steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:com10_%s'%menu}, steps['HARVESTD'] ])
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
@@ -724,7 +727,7 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--filein':'file:step2.root',
                 '--secondfilein':'filelist:step1_dbsquery.log'}
 
-steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:com10_8E33v2','--filein':'file:step3.root'}, steps['SKIMD'] ])
+steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:com10_%s'%menu,'--filein':'file:step3.root'}, steps['SKIMD'] ])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--conditions':'auto:com10',
