@@ -5,15 +5,17 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 #include <iostream>
 
@@ -35,6 +37,8 @@ SiStripTrackerMapCreator::SiStripTrackerMapCreator() {
 */
 SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): eSetup_(eSetup) {
   trackerMap_ = 0;
+  stripTopLevelDir_="";
+  eSetup_.get<SiStripDetCablingRcd>().get(detcabling_);
   if(!edm::Service<TkDetMap>().isAvailable()){
     edm::LogError("TkHistoMap") <<
       "\n------------------------------------------"
@@ -56,8 +60,9 @@ SiStripTrackerMapCreator::~SiStripTrackerMapCreator() {
 void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset, 
 				      DQMStore* dqm_store, std::string& map_type) {
 
-  edm::ESHandle< SiStripFedCabling > fedcabling;
-  eSetup_.get<SiStripFedCablingRcd>().get(fedcabling);
+  const SiStripFedCabling* fedcabling = detcabling_->fedCabling();
+
+  if(!fedcabling) return;
 
   if (trackerMap_) delete trackerMap_;
   trackerMap_ = new TrackerMap(tkmapPset, fedcabling);
@@ -65,13 +70,15 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   trackerMap_->setTitle(tmap_title);
  
   nDet     = 0;
-  tkMapLog_ = false;
   tkMapMax_ = 0.0; 
   tkMapMin_ = 0.0; 
   useSSQuality_ = false;
   ssqLabel_ = "";
+  stripTopLevelDir_="SiStrip";
 
   if (map_type == "QTestAlarm") {
+    setTkMapFromAlarm(dqm_store);
+    /*
     trackerMap_->fillc_all_blank();
     const std::vector<uint16_t>& feds = fedcabling->feds(); 
     uint32_t detId_save = 0;
@@ -88,6 +95,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
 	}
       }
     } 
+    */
   } else {
     trackerMap_->fill_all_blank();
     setTkMapFromHistogram(dqm_store, map_type);
@@ -103,22 +111,42 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
 void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapPset, 
 						DQMStore* dqm_store, std::string& map_type){
 
-  edm::ESHandle< SiStripFedCabling > fedcabling;
-  eSetup_.get<SiStripFedCablingRcd>().get(fedcabling);
+  // Determine the strip top level dirctory in the DQM file: it is the path where MechanicalView is minus one directory
+
+  std::string mdir = "MechanicalView";
+  dqm_store->cd();
+  if (!SiStripUtility::goToDir(dqm_store, mdir)) {
+    edm::LogError("SiStripTopLevelDirNotFound") << "I cannot find the SiStrip top level directory in the DQM file";
+  }
+  else {
+    std::string mechanicalview_dir = dqm_store->pwd();
+    stripTopLevelDir_=mechanicalview_dir.substr(0,mechanicalview_dir.find_last_of("/"));    
+    edm::LogInfo("SiStripTopLevelDirFound") << "SiStrip top level directory is " << stripTopLevelDir_;
+  }
+  dqm_store->cd();
+
+  //
+  const SiStripFedCabling* fedcabling = detcabling_->fedCabling();
+
+  if(!fedcabling) return;
 
   if (trackerMap_) delete trackerMap_;
   trackerMap_ = new TrackerMap(tkmapPset,fedcabling);
 
-  tkMapLog_ = tkmapPset.getUntrackedParameter<bool>("logScale",false);
   useSSQuality_ = tkmapPset.getUntrackedParameter<bool>("useSSQuality",false);
   ssqLabel_ = tkmapPset.getUntrackedParameter<std::string>("ssqLabel","");
   bool tkMapPSU = tkmapPset.getUntrackedParameter<bool>("psuMap",false);
+  bool tkMapFED = tkmapPset.getUntrackedParameter<bool>("fedMap",false);
  
   std::string tmap_title = " Tracker Map from  " + map_type;
-  if(tkMapLog_) tmap_title += ": Log10 scale";
   trackerMap_->setTitle(tmap_title);
 
-  setTkMapFromHistogram(dqm_store, map_type);
+  if (map_type == "QTestAlarm") {
+    setTkMapFromAlarm(dqm_store);
+  }
+  else {
+    setTkMapFromHistogram(dqm_store, map_type);
+  }
   // if not overwitten by manual configuration min=0 and max= mean value * 2.5
   setTkMapRangeOffline();
 
@@ -127,16 +155,24 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   if(tkmapPset.exists("mapMax")) tkMapMax_ = tkmapPset.getUntrackedParameter<double>("mapMax");
   if(tkmapPset.exists("mapMin")) tkMapMin_ = tkmapPset.getUntrackedParameter<double>("mapMin");
   
-  std::cout << "Ready to save TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_ << std::endl;
+  edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
   
   trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+".svg");  
   trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+".png",4500,2400);
 
   if(tkMapPSU) {
 
-    std::cout << "Ready to save PSU TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_ << std::endl;
+    edm::LogInfo("PSUMapToBeSaved") << "Ready to save PSU TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
     trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+"_psu.svg");
     trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+"_psu.png",6000,3200);
+
+  }
+
+  if(tkMapFED) {
+
+    edm::LogInfo("FEDMapToBeSaved") << "Ready to save FED TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
+    //    trackerMap_->save_as_fedtrackermap(true, tkMapMin_,tkMapMax_, map_type+"_fed.svg");
+    trackerMap_->save_as_fedtrackermap(true, tkMapMin_,tkMapMax_, map_type+"_fed.png");
 
   }
 
@@ -144,9 +180,130 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   trackerMap_ = 0;
 }
 //
+// -- Fill Tracker Map with QTest Alarms and SiStripQuality bad modules
+void SiStripTrackerMapCreator::setTkMapFromAlarm(DQMStore* dqm_store) {
+
+  nDet     = 0;
+  tkMapMax_ = 0.0; 
+  tkMapMin_ = 0.0; 
+
+  edm::ESHandle<SiStripQuality> ssq;
+
+  if(useSSQuality_) { eSetup_.get<SiStripQualityRcd>().get(ssqLabel_,ssq);  }
+
+  const SiStripFedCabling* fedcabling = detcabling_->fedCabling();
+
+  trackerMap_->fillc_all_blank();
+
+  std::map<unsigned int,std::string>* badmodmap = new std::map<unsigned int,std::string>;
+
+  if(!fedcabling) return;
+
+  const std::vector<uint16_t>& feds = fedcabling->feds(); 
+  // used to avoid multiple checks on the same detid since the loop is done on the FED channels
+    uint32_t detId_save = 0;
+    for(std::vector<unsigned short>::const_iterator ifed = feds.begin(); 
+	ifed < feds.end(); ifed++){
+      const std::vector<FedChannelConnection> fedChannels = fedcabling->connections( *ifed );
+      for(std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
+	
+	uint32_t detId = iconn->detId();
+	if (detId == 0 || detId == 0xFFFFFFFF)  continue;
+	if (detId_save != detId) {
+	  detId_save = detId;
+	  bool isBad = useSSQuality_ && ssq->IsModuleBad(detId);
+          paintTkMapFromAlarm(detId, dqm_store,isBad,badmodmap);
+	}
+      }
+    } 
+    printBadModuleList(badmodmap);
+    delete badmodmap;
+}
+//
+void SiStripTrackerMapCreator::printBadModuleList(std::map<unsigned int,std::string>* badmodmap) {
+
+  bool tibDone=false,tidSide1Done=false,tidSide2Done=false,tobDone=false,tecSide1Done=false,tecSide2Done=false;
+  unsigned int tibFirst=369120277-1,
+    tidSide1First=402664197-1,tidSide2First=402672389-1,
+    tobFirst=436228134-1,
+    tecSide1First=470044965-1,tecSide2First=470307109-1;
+
+  int ntib=0,ntids1=0,ntids2=0,ntob=0,ntecs1=0,ntecs2=0;
+
+  for(std::map<unsigned int,std::string>::const_iterator badmod = badmodmap->begin(); badmod!= badmodmap->end(); ++badmod) {
+    SiStripDetId ssdetid(badmod->first);
+    if(ssdetid.subDetector()==SiStripDetId::TIB) ntib++;
+    if(ssdetid.subDetector()==SiStripDetId::TID) {
+      TIDDetId tiddetid(ssdetid);
+      if(tiddetid.side()==1) ntids1++;
+      if(tiddetid.side()==2) ntids2++;
+    }
+    if(ssdetid.subDetector()==SiStripDetId::TOB) ntob++;
+    if(ssdetid.subDetector()==SiStripDetId::TEC) {
+      TECDetId tecdetid(ssdetid);
+      if(tecdetid.side()==1) ntecs1++;
+      if(tecdetid.side()==2) ntecs2++;
+    }
+  }
+
+  edm::LogVerbatim("BadModuleList") << "Number of bad modules in total:";
+  edm::LogVerbatim("BadModuleList") << "--------------------------------------------------------------";
+  edm::LogVerbatim("BadModuleList") << "TIB: " << ntib;
+  edm::LogVerbatim("BadModuleList") << "TID/side_1: " << ntids1;
+  edm::LogVerbatim("BadModuleList") << "TID/side_2: " << ntids2;
+  edm::LogVerbatim("BadModuleList") << "TOB: " << ntob;
+  edm::LogVerbatim("BadModuleList") << "TEC/side_1: " << ntecs1;
+  edm::LogVerbatim("BadModuleList") << "TEC/side_2: " << ntecs2;
+  edm::LogVerbatim("BadModuleList") << "-------------------------------";
+  edm::LogVerbatim("BadModuleList") ;
+  edm::LogVerbatim("BadModuleList") << "List of bad modules per partition:";
+  edm::LogVerbatim("BadModuleList") << "----------------------------------";
+  
+  for(std::map<unsigned int,std::string>::const_iterator badmod = badmodmap->begin(); badmod!= badmodmap->end(); ++badmod) {
+    if(!tibDone && badmod->first >= tibFirst) {
+      tibDone = true;
+      edm::LogVerbatim("BadModuleList") ;
+      edm::LogVerbatim("BadModuleList") << "SubDetector TIB";
+      edm::LogVerbatim("BadModuleList") ;
+    }
+    if(!tidSide1Done && badmod->first >= tidSide1First) {
+      tidSide1Done = true;
+      edm::LogVerbatim("BadModuleList") ;
+      edm::LogVerbatim("BadModuleList") << "SubDetector TID/side_1";
+      edm::LogVerbatim("BadModuleList") ;
+    }
+    if(!tidSide2Done && badmod->first >= tidSide2First) {
+      tidSide2Done = true;
+      edm::LogVerbatim("BadModuleList") ;
+      edm::LogVerbatim("BadModuleList") << "SubDetector TID/side_2";
+      edm::LogVerbatim("BadModuleList") ;
+    }
+    if(!tobDone && badmod->first >= tobFirst) {
+      tobDone = true;
+      edm::LogVerbatim("BadModuleList") ;
+      edm::LogVerbatim("BadModuleList") << "SubDetector TOB";
+      edm::LogVerbatim("BadModuleList") ;
+    }
+    if(!tecSide1Done && badmod->first >= tecSide1First) {
+      tecSide1Done = true;
+      edm::LogVerbatim("BadModuleList") ;
+      edm::LogVerbatim("BadModuleList") << "SubDetector TEC/side_1";
+      edm::LogVerbatim("BadModuleList") ;
+    }
+    if(!tecSide2Done && badmod->first >= tecSide2First) {
+      tecSide2Done = true;
+      edm::LogVerbatim("BadModuleList") ;
+      edm::LogVerbatim("BadModuleList") << "SubDetector TEC/side_2";
+      edm::LogVerbatim("BadModuleList") ;
+    }
+    edm::LogVerbatim("BadModuleList") << badmod->second;
+  }
+}
+
+//
 // -- Paint Tracker Map with QTest Alarms 
 //
-void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, DQMStore* dqm_store) {
+void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, DQMStore* dqm_store, bool isBad, std::map<unsigned int,std::string>* badmodmap) {
   
   std::ostringstream comment;
   uint16_t flag = 0; 
@@ -154,8 +311,10 @@ void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, DQMStore* dq
 
   int rval, gval, bval;
   SiStripUtility::getDetectorStatusColor(flag, rval, gval, bval);
+  if(isBad) { rval=255; gval=255; bval = 0; comment << " PCLBadModule ";}
   trackerMap_->setText(det_id, comment.str());
   trackerMap_->fillc(det_id, rval, gval, bval);
+  if(badmodmap && (flag!=0 || isBad)) (*badmodmap)[det_id] = comment.str();
 }
 
 //
@@ -193,6 +352,7 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
 	name = (*itkh)->getName();
 	if (name.find("TkHMap") == std::string::npos) continue;
 	if (htype == "QTestAlarm" ){
+	  edm::LogError("ItShouldNotBeHere") << "QTestAlarm map: you should not be here!";
 	  tkhmap_me = (*itkh);
 	  break;
 	} else if (name.find(htype) != std::string::npos) {
@@ -210,9 +370,9 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
 }
 void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& htype) {
 
-  edm::ESHandle<SiStripQuality> ssq;
+  //  edm::ESHandle<SiStripQuality> ssq;
 
-  if(useSSQuality_) { eSetup_.get<SiStripQualityRcd>().get(ssqLabel_,ssq);  }
+  //  if(useSSQuality_) { eSetup_.get<SiStripQualityRcd>().get(ssqLabel_,ssq);  }
 
   std::string name  = me->getName();
   std::string lname = name.substr(name.find("TkHMap_")+7);  
@@ -233,6 +393,8 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
       }
     } else  fval = me->getBinContent(xyval.ix, xyval.iy);
     if (htype == "QTestAlarm") {
+      edm::LogError("ItShouldNotBeHere") << "QTestAlarm map: you should not be here!";
+      /*
       int rval, gval, bval;
       std::ostringstream comment;
       uint32_t flag = 0;
@@ -241,10 +403,10 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
       if(useSSQuality_ && ssq->IsModuleBad(det_id)) { rval=255; gval=255; bval = 0;}
       trackerMap_->fillc(det_id, rval, gval, bval);
       trackerMap_->setText(det_id, comment.str());
+      */
     } else {
       if (fval == 0.0) trackerMap_->fillc(det_id,255, 255, 255);  
       else {
-        if(tkMapLog_) fval = log(fval)/log(10);
  	trackerMap_->fill_current_val(det_id, fval);
       }
       tkMapMax_ += fval;
@@ -281,25 +443,57 @@ void SiStripTrackerMapCreator::setTkMapRangeOffline() {
 // -- Get Flag and status Comment
 //
 uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store, uint32_t det_id, std::ostringstream& comment) {
-  comment << " DetId " << det_id << " : ";
+  //  comment << " DetId " << det_id << " : ";
+  comment << "Module " << det_id;
   uint16_t flag = 0;
+
+  // get FED channels corresponding to the det_id
+
+  //  if(detcabling_) {
+  comment << " FEDCHs ";
+  std::vector<const FedChannelConnection*> conns = detcabling_->getConnections(det_id);
+  for(unsigned int i=0; i< conns.size() ;++i) {
+    if(conns[i]) {
+      comment << std::setw(3) << conns[i]->fedId() << "/" << std::setw(2) << conns[i]->fedCh()<< " ";
+    }
+    else {
+      comment << "       ";
+    }
+  }
+  if(conns.size()==0) {	comment << "                     ";      }
+  if(conns.size()==1) {	comment << "              ";      }
+  if(conns.size()==2) {	comment << "       ";      }
+    //  }
 
   SiStripFolderOrganizer folder_organizer;
   std::string subdet_folder, badmodule_folder;
 
+  dqm_store->cd();
+
+  folder_organizer.setSiStripFolderName(stripTopLevelDir_);
   folder_organizer.getSubDetFolder(det_id, subdet_folder);
+
+  LogDebug("SearchBadModule") << det_id << " " << subdet_folder << " " << stripTopLevelDir_;
+
   if (dqm_store->dirExists(subdet_folder)){ 
     badmodule_folder = subdet_folder + "/BadModuleList";
+    LogDebug("SearchBadModule") << subdet_folder << " exists: " << badmodule_folder;
   } else {
-    badmodule_folder = dqm_store->pwd() + "/BadModuleList"; 
+    //    badmodule_folder = dqm_store->pwd() + "/BadModuleList"; 
+    edm::LogError("SubDetFolderNotFound") << subdet_folder << " does not exist for detid " << det_id;
+    return flag;
   }
-  if (!dqm_store->dirExists(badmodule_folder)) return flag;
-
+  if (!dqm_store->dirExists(badmodule_folder))  {
+    LogDebug("BadModuleFolderNotFound") << badmodule_folder << " does not exist for detid " << det_id;
+    return flag;
+  }
   std::ostringstream badmodule_path;
   badmodule_path << badmodule_folder << "/" << det_id;
+  LogDebug("SearchBadModule") << badmodule_folder << " exists: " << badmodule_path;
 
   MonitorElement* bad_module_me = dqm_store->get(badmodule_path.str());
   if (bad_module_me && bad_module_me->kind() == MonitorElement::DQM_KIND_INT) {
+    LogDebug("SearchBadModule") << "Monitor Element found";
     flag = bad_module_me->getIntValue();
     std::string message;
     SiStripUtility::getBadModuleStatus(flag, message);

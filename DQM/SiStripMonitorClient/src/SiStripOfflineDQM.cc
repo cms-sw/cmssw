@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.4 2012/04/07 09:40:38 venturia Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.39 2012/10/30 22:01:24 venturia Exp $
 //
 //
 
@@ -60,7 +60,6 @@
 */
 SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) : configPar_(pSet) {
   // Create MessageSender
-  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::Deleting SiStripOfflineDQM ";
 
   // Action Executor
   actionExecutor_ = new SiStripActionExecutor(pSet);
@@ -83,7 +82,6 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) : configPar_
 * 
 */
 SiStripOfflineDQM::~SiStripOfflineDQM() {
-  edm::LogInfo("SiStripOfflineDQM") << "SiStripOfflineDQM::Deleting SiStripOfflineDQM ";
 
 }
 /** 
@@ -99,11 +97,11 @@ void SiStripOfflineDQM::beginJob() {
   // Read the summary configuration file
   if (createSummary_) {  
     if (!actionExecutor_->readConfiguration()) {
-      edm::LogInfo ("SiStripOfflineDQM") <<"SiStripOfflineDQM:: Error to read configuration file!! Summary will not be produced!!!";
+      edm::LogInfo ("ReadConfigurationProblem") <<"SiStripOfflineDQM:: Error to read configuration file!! Summary will not be produced!!!";
       createSummary_ = false;
     }
   }
-  edm::LogInfo("SiStripOfflineDQM") << "SiStripOfflineDQM::beginJob done";
+  edm::LogInfo("BeginJobDone") << "SiStripOfflineDQM::beginJob done";
 }
 /** 
 * @brief 
@@ -115,7 +113,7 @@ void SiStripOfflineDQM::beginJob() {
 *  Event Setup object with Geometry, Magnetic Field, etc.
 */
 void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo ("SiStripOfflineDQM") <<"SiStripOfflineDQM:: Begining of Run";
+  edm::LogInfo ("BeginRun") <<"SiStripOfflineDQM:: Begining of Run";
 
   int nFEDs = 0;
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
@@ -164,7 +162,7 @@ void SiStripOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSet
  *
 */
 void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
-  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endLuminosityBlock";
+  edm::LogInfo( "EndLumiBlock") << "SiStripOfflineDQM::endLuminosityBlock";
   if (trackerFEDsFound_) {
     if (globalStatusFilling_ > 0) actionExecutor_->fillStatusAtLumi(dqmStore_);
   }
@@ -177,7 +175,7 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 */
 void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
 
-  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endRun";
+  edm::LogInfo( "EndOfRun") << "SiStripOfflineDQM::endRun";
 
   // Access Cabling
   edm::ESHandle< SiStripDetCabling > det_cabling;
@@ -209,7 +207,7 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
 	  edm::ParameterSet tkMapPSet = *it;
 	  std::string map_type = it->getUntrackedParameter<std::string>("mapName","");
 	  tkMapPSet.augment(configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
-	  std::cout << tkMapPSet << std::endl;
+	  edm::LogInfo("TkMapParameters") << tkMapPSet;
 	  actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type); 
 	}
       }
@@ -224,7 +222,7 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
 */
 void SiStripOfflineDQM::endJob() {
 
-  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endJob";
+  edm::LogInfo( "EndOfJob") << "SiStripOfflineDQM::endJob";
   if (!usedWithEDMtoMEConverter_) {
     if (printFaultyModuleList_) {
       std::ostringstream str_val;
@@ -244,7 +242,7 @@ void SiStripOfflineDQM::endJob() {
 */
 bool SiStripOfflineDQM::openInputFile() { 
   if (inputFileName_.size() == 0) return false;
-  edm::LogInfo("SiStripOfflineDQM") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
+  edm::LogInfo("OpenFile") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
   dqmStore_->open(inputFileName_, false); 
   return true;
 }

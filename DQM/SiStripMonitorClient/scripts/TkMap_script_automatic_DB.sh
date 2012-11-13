@@ -84,6 +84,9 @@ do
 
     cmsRun ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/test/SiStripDQM_OfflineTkMap_Template_cfg_DB.py print globalTag=${GLOBALTAG} runNumber=${Run_numb} dqmFile=${file_path}/$dqmFileName  # update GlobalTag
 
+# rename bad module list file
+
+     mv QTBadModules.log QualityTest_run${Run_numb}.txt
 #    mv *.png $Run_numb/$1
 #    mv *.xml $Run_numb/$1
 #    mv PCLBadComponents.log $Run_numb/$1
@@ -140,7 +143,7 @@ do
 
 # overwrite destination for tests
 
-#    dest=AndreaTests
+#    dest=AndreaTests4
 
 #    ssh cmstacuser@cmstac05 "mkdir -p /storage/data2/SiStrip/event_display/Data2011/${dest}/${nnn}/${Run_numb} 2> /dev/null"
  mkdir -p /data/users/event_display/Data2012/${dest}/${nnn}/${Run_numb}/$1 2> /dev/null

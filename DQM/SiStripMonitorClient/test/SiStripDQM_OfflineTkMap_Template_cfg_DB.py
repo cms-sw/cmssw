@@ -27,17 +27,32 @@ options.register ('runNumber',
 options.parseArguments()
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout','PCLBadComponents'), #Reader, cout
-    categories = cms.untracked.vstring('SiStripQualityStatistics'), #Reader, cout
+    destinations = cms.untracked.vstring('cout','cerr','PCLBadComponents','QTBadModules'), #Reader, cout
+    categories = cms.untracked.vstring('SiStripQualityStatistics',
+                                       'BadModuleList',
+                                       'TkMapParameters',
+                                       'TkMapToBeSaved',
+                                       'PSUMapToBeSaved'), #Reader, cout
     debugModules = cms.untracked.vstring('siStripDigis', 
                                          'siStripClusters', 
                                          'siStripZeroSuppression', 
                                          'SiStripClusterizer',
                                          'siStripOfflineAnalyser'),
-    cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
+    cerr = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')
+                              ),
+    cout = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
+                                default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+                                TkMapParameters = cms.untracked.PSet(limit=cms.untracked.int32(100000)),
+                                TkMapToBeSaved = cms.untracked.PSet(limit=cms.untracked.int32(100000)),
+                                PSUMapToBeSaved = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+                              ),
     PCLBadComponents = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
                                 default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
                                 SiStripQualityStatistics = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+                                ),
+    QTBadModules = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
+                                default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+                                BadModuleList = cms.untracked.PSet(limit=cms.untracked.int32(100000))
                                 )
                                     
 )
@@ -81,7 +96,7 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
           mapMin            = cms.untracked.double(0.)
        ),
        TkMapOptions             = cms.untracked.VPSet(
-    cms.PSet(mapName=cms.untracked.string('QTestAlarm'),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string("")),
+    cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string("")),
     cms.PSet(mapName=cms.untracked.string('FractionOfBadChannels'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True)),
     cms.PSet(mapName=cms.untracked.string('NumberOfCluster')),
     cms.PSet(mapName=cms.untracked.string('NumberOfDigi')),

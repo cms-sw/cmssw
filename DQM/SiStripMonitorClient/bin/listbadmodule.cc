@@ -75,7 +75,7 @@ void listbadmodule(std::string filename, std::string pclfilename) {
   
   ofstream outfile;
   std::string namefile;
-  namefile = "QualityTest_run" + nrun + ".txt";
+  namefile = "QualityTestOBSOLETE_run" + nrun + ".txt";
   outfile.open(namefile.c_str());
  
   TFile *myfile = TFile::Open(filename.c_str());

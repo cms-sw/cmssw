@@ -11,6 +11,7 @@
 <use   name="DQM/TrackerCommon"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="DQM/SiStripMonitorSummary"/>
+<use   name="DataFormats/SiStripDetId"/>
 <use   name="boost"/>
 <use   name="root"/>
 <flags EDM_PLUGIN="1"/>

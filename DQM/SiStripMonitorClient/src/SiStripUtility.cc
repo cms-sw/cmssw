@@ -287,9 +287,9 @@ void SiStripUtility::setBadModuleFlag(std::string & hname, uint16_t& flg){
 // -- Get the Status Message from Bad Module Flag
 //
 void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string & message){
-  if (flag == 0) message += "No Error";
+  if (flag == 0) message += " No Error";
   else {
-    message += " Error from :: "; 
+    //    message += " Error from :: "; 
     if (((flag >> 0) & 0x1) > 0) message += " Fed BadChannel : ";
     if (((flag >> 1) & 0x1) > 0) message += " # of Digi : ";  
     if (((flag >> 2) & 0x1) > 0) message += " # of Clusters :";
