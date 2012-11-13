@@ -321,6 +321,15 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(fabs(track->eta())>GlobalMaxEta) return false;
 
+   //Cut on number of matched muon stations
+   int count = muonStations(track->hitPattern());
+   if(st) {
+     st->BS_MatchedStations->Fill(count, Event_Weight);
+   }
+
+   if(TypeMode==3 && count<minMuStations) return false;
+   if(st) st->Stations->Fill(0.0, Event_Weight);
+
    if(st){st->BS_TNOH->Fill(track->found(),Event_Weight);
           st->BS_TNOHFraction->Fill(track->validFraction(),Event_Weight);
 	  st->BS_TNOPH->Fill(track->hitPattern().numberOfValidPixelHits(),Event_Weight);
@@ -368,22 +377,15 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(dedxMObj && ((TypeMode!=5 && dedxMObj->dEdx()<GlobalMinIm) || (TypeMode==5 && dedxMObj->dEdx()>GlobalMinIm)) )return false;
    if(st){st->MI   ->Fill(0.0,Event_Weight);}
 
-   //Cut on number of matched muon stations
-   int count = muonStations(track->hitPattern());
-   if(st) {
-     st->BS_MatchedStations->Fill(count, Event_Weight);  ;
-   }
-
-   if(TypeMode==3 && count<minMuStations) return false;
-   if(st) st->Stations->Fill(0.0, Event_Weight);
-
    if(tof){
    if(st){st->BS_MTOF ->Fill(tof->inverseBeta(),Event_Weight);}
    //This cut is no longer applied here but rather in the PassSelection part to use the region
    //with TOF<GlobalMinTOF as a background check
    //if(TypeMode>1 && tof->inverseBeta()+RescaleT<GlobalMinTOF)return false;
+
    if(st)st->BS_TOFError->Fill(tof->inverseBetaErr(),Event_Weight);
    if((TypeMode>1  && TypeMode!=5) && tof->inverseBetaErr()>GlobalMaxTOFErr)return false;
+
    if(st) st->BS_TimeAtIP->Fill(tof->timeAtIpInOut(),Event_Weight);
    if(min(min(fabs(tof->timeAtIpInOut()-100), fabs(tof->timeAtIpInOut()-50)), min(fabs(tof->timeAtIpInOut()+100), fabs(tof->timeAtIpInOut()+50)))<5) return false;
    }

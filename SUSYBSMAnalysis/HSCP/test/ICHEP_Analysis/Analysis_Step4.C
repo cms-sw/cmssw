@@ -320,7 +320,7 @@ void Analysis_Step4(std::string InputPattern)
 
 	   P    = P_Coll + P_Cosmic;
 	   Perr = sqrt(Perr_Coll*Perr_Coll + Perr_Cosmic*Perr_Cosmic);
-
+	   //cout << "Systemtic uncertainty " << sqrt(P_Coll*P_Coll*0.20*0.20 + P_Cosmic*P_Cosmic*0.8*0.8)/P << endl;
 	   //Add in systematic contribution
 	   Perr = sqrt(Perr*Perr + P_Coll*P_Coll*0.15*0.15 + P_Cosmic*P_Cosmic*0.8*0.8);
 	 }else if(G>0){

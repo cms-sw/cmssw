@@ -55,7 +55,7 @@ void Analysis_Step5()
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
 //   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);
-/*
+
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
@@ -66,23 +66,23 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex);
-*/
+
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
-//   Make2DPlot_Core(InputPattern, 0);
-//   MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
-//   MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
-//   MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
-//   MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
-//   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
-//   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
-//   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-//   CutFlow(InputPattern, CutIndex);
-//   SelectionPlot(InputPattern, CutIndex);
+   Make2DPlot_Core(InputPattern, 0);
+   MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
+   MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
+   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+   CutFlow(InputPattern, CutIndex);
+   SelectionPlot(InputPattern, CutIndex);
    GetSystematicOnPrediction(InputPattern, "Data7TeV");
    GetSystematicOnPrediction(InputPattern, "Data8TeV");
 //   CheckPrediction(InputPattern, "_Flip", "Data7TeV");
 //   CheckPrediction(InputPattern, "_Flip", "Data8TeV");
-return;
+
    InputPattern = "Results/Type3/";   CutIndex = 79; CutIndex_Flip=58;
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
@@ -127,7 +127,6 @@ return;
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    SelectionPlot(InputPattern, CutIndex);
    CutFlow(InputPattern);
-
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -543,7 +542,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
      DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 0,2, 0,0);
      DrawLegend(Histos,legend,LegendTitle,"P");
      c1->SetLogy(true);
-     DrawPreliminary(SQRTS, IntegratedLuminosity);
+     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
      if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrum_Binned"+Bin);
      c1->SetLogy(false);
      if(TypeMode>=2)SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_TOFSpectrumNoLog_Binned"+Bin);
@@ -951,8 +950,7 @@ void CutFlow(string InputPattern, unsigned int CutIndex){
     }
 
     for(unsigned int s=0;s<samples.size();s++){
-       if(samples[s].Type!=2 || !samples[s].MakePlot)continue;
-
+      if(samples[s].Type!=2 || !samples[s].MakePlot)continue;
        if(stPlots_InitFromFile(InputFile, plots, samples[s].Name)){
           stPlots_Dump(plots, pFile, CutIndex);       
           stPlots_Clear(&plots);
@@ -966,6 +964,7 @@ void CutFlow(string InputPattern, unsigned int CutIndex){
 // make all plots of the preselection and selection variables as well as some plots showing 2D planes
 void SelectionPlot(string InputPattern, unsigned int CutIndex){
     string LegendTitle = LegendFromType(InputPattern);;
+    TypeMode = TypeFromPattern(InputPattern);
 
     TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
     stPlots Data8TeVPlots, Data7TeVPlots, MCTr8TeVPlots, MCTr7TeVPlots, Cosmic7TeVPlots, Cosmic8TeVPlots, SignPlots[samples.size()];
@@ -981,11 +980,10 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     }
 
     for(unsigned int s=0;s<samples.size();s++){
-       if (samples[s].Name!="Gluino_7TeV_M300_f10" && samples[s].Name!="Gluino_7TeV_M600_f10" && samples[s].Name!="Gluino_7TeV_M800_f10" && samples[s].Name!="Gluino_8TeV_M300_f10" && samples[s].Name!="Gluino_8TeV_M600_f10" && samples[s].Name!="Gluino_8TeV_M800_f10" && samples[s].Name!="GMStau_7TeV_M247" && samples[s].Name!="GMStau_7TeV_M370" && samples[s].Name!="GMStau_7TeV_M494" && samples[s].Name!="GMStau_8TeV_M247" && samples[s].Name!="GMStau_8TeV_M370" && samples[s].Name!="GMStau_8TeV_M494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M600_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M600_Q2o3" && samples[s].Name!="DY_8TeV_M100_Q1o3" &&  samples[s].Name!="DY_8TeV_M600_Q1o3" && samples[s].Name!="DY_8TeV_M100_Q2o3" &&  samples[s].Name!="DY_8TeV_M600_Q2o3" &&  samples[s].Name!="DY_8TeV_M400_Q1" && samples[s].Name!="DY_8TeV_M400_Q3" &&  samples[s].Name!="DY_8TeV_M400_Q5") continue;
+       if (samples[s].Name!="Gluino_7TeV_M300_f10" && samples[s].Name!="Gluino_7TeV_M600_f10" && samples[s].Name!="Gluino_7TeV_M800_f10" && samples[s].Name!="Gluino_8TeV_M1200_f100" && samples[s].Name!="Gluino_8TeV_M300_f10" && samples[s].Name!="Gluino_8TeV_M600_f10" && samples[s].Name!="Gluino_8TeV_M800_f10" && samples[s].Name!="GMStau_7TeV_M247" && samples[s].Name!="GMStau_7TeV_M370" && samples[s].Name!="GMStau_7TeV_M494" && samples[s].Name!="GMStau_8TeV_M247" && samples[s].Name!="GMStau_8TeV_M370" && samples[s].Name!="GMStau_8TeV_M494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M600_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M600_Q2o3" && samples[s].Name!="DY_8TeV_M100_Q1o3" &&  samples[s].Name!="DY_8TeV_M600_Q1o3" && samples[s].Name!="DY_8TeV_M100_Q2o3" &&  samples[s].Name!="DY_8TeV_M600_Q2o3" &&  samples[s].Name!="DY_8TeV_M400_Q1" && samples[s].Name!="DY_8TeV_M400_Q3" &&  samples[s].Name!="DY_8TeV_M400_Q5") continue;
        if(!stPlots_InitFromFile(InputFile, SignPlots[s],samples[s].Name)){printf("Missing sample %s\n",samples[s].Name.c_str());continue;}
        //stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
     }
-
     SQRTS=8; stPlots_Draw(Data8TeVPlots, InputPattern + "/Selection_Data8TeV", LegendTitle, CutIndex);
     SQRTS=7; stPlots_Draw(Data7TeVPlots, InputPattern + "/Selection_Data7TeV", LegendTitle, CutIndex);
     SQRTS=8; stPlots_Draw(MCTr8TeVPlots  , InputPattern + "/Selection_MCTr_8TeV"  , LegendTitle, CutIndex);
@@ -1002,7 +1000,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
     if(TypeMode<=2){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Gluino", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_8TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);}
     if(TypeMode==3){ 
       //SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_7TeV", LegendTitle, CutIndex, &Data7TeVPlots,&SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
-      SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_8TeV", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);
+      SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_8TeV", LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_8TeV_M1200_f100",samples)]);
       //SQRTS=78; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_78TeV", LegendTitle, CutIndex, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);
     }
     if(TypeMode==4){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_DY_QG"    , LegendTitle, CutIndex, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M400_Q1",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M400_Q3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M400_Q5",samples)]);}
@@ -1563,6 +1561,12 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    string Da = "Data8TeV";
    string outName = "2DPlots";
 
+   if(TypeMode==3) {
+     S1 = "Gluino_8TeV_M500_f100";
+     S2 = "Gluino_8TeV_M1000_f100";
+     S3 = "Gluino_8TeV_M1500_f100";
+   }
+
    if(TypeMode==4){
       S1 = "DY_8TeV_M400_Q1"; double Q1=1;
       S2 = "DY_8TeV_M400_Q2"; double Q2=2;
@@ -1586,20 +1590,25 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    TH2D* Signal1PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_PIm"  ), CutIndex, "S1PIm_zy" );
    TH2D* Signal1TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_TOFIs"), CutIndex, "S1TIs_zy" );
    TH2D* Signal1TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_TOFIm"), CutIndex, "S1TIm_zy" );
+   TH2D* Signal1PtTOF= (TH2D*)GetObjectFromPath(InputFile, S1+"/BS_PtTOF" ); Signal1PtTOF->RebinX(2); Signal1PtTOF->RebinY(2);
    TH1D* Signal2Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, S2+"/Mass"    ), CutIndex, "S2Mass"   );
    TH2D* Signal2PtIs = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_PtIs" ), CutIndex, "S2PtIs_zy");
    TH2D* Signal2PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_PIm"  ), CutIndex, "S2PIm_zy" );
    TH2D* Signal2TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_TOFIs"), CutIndex, "S2TIs_zy" );
    TH2D* Signal2TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_TOFIm"), CutIndex, "S2TIm_zy" );
+   TH2D* Signal2PtTOF= (TH2D*)GetObjectFromPath(InputFile, S2+"/BS_PtTOF" ); Signal2PtTOF->RebinX(2); Signal2PtTOF->RebinY(2);
    TH1D* Signal3Mass = GetCutIndexSliceFromTH2((TH2D*)GetObjectFromPath(InputFile, S3+"/Mass"    ), CutIndex, "S3Mass"   );
    TH2D* Signal3PtIs = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_PtIs" ), CutIndex, "S3PtIs_zy");
    TH2D* Signal3PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_PIm"  ), CutIndex, "S3PIm_zy" );
    TH2D* Signal3TOFIs= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_TOFIs"), CutIndex, "S3TIs_zy" );
    TH2D* Signal3TOFIm= GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_TOFIm"), CutIndex, "S3TIm_zy" );
+   TH2D* Signal3PtTOF= (TH2D*)GetObjectFromPath(InputFile, S3+"/BS_PtTOF" ); Signal3PtTOF->RebinX(2); Signal3PtTOF->RebinY(2);
    TH2D* Data_PtIs   = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_PtIs" ), CutIndex);
    TH2D* Data_PIm    = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_PIm"  ), CutIndex);
    TH2D* Data_TOFIs  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_TOFIs"), CutIndex);
    TH2D* Data_TOFIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_TOFIm"), CutIndex);
+   TH2D* Data_PtTOF  = (TH2D*)GetObjectFromPath(InputFile, Da+"/BS_PtTOF" ); Data_PtTOF->RebinX(2); Data_PtTOF->RebinY(2);
+
 //   TH2D* Data_PIm_075   = (TH2D*)Data_PIm->Clone();   Data_PIm_075->Reset(); 
 //   TH2D* Data_PIm_150   = (TH2D*)Data_PIm->Clone();   Data_PIm_150->Reset();
 //   TH2D* Data_PIm_300   = (TH2D*)Data_PIm->Clone();   Data_PIm_300->Reset();
@@ -1742,6 +1751,21 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    Data_TOFIm->Draw("COLZ");
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, outName + "_Data_TOFIm", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1", 600, 600);
+   c1->SetLogz(true);
+   Data_PtTOF->SetTitle("");
+   Data_PtTOF->SetStats(kFALSE);
+   Data_PtTOF->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+   Data_PtTOF->GetYaxis()->SetTitle("1/#beta");
+   Data_PtTOF->SetAxisRange(0,1750,"X");
+   Data_PtTOF->SetMarkerSize (0.2);
+   Data_PtTOF->SetMarkerColor(Color[4]);
+   Data_PtTOF->SetFillColor(Color[4]);
+   Data_PtTOF->Draw("COLZ");
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_Data_PtTOF", false);
    delete c1;
 
    c1 = new TCanvas("c1","c1", 600, 600);
@@ -1890,6 +1914,39 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->Draw();
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, outName + "_TOFIm", true);
+   delete c1;
+
+   c1 = new TCanvas("c1","c1", 600, 600);
+   Signal3PtTOF->SetTitle("");
+   Signal3PtTOF->SetStats(kFALSE);
+   Signal3PtTOF->GetXaxis()->SetTitle("p_{T} (GeV/c)");
+   Signal3PtTOF->GetYaxis()->SetTitle("1/#beta");
+   Signal3PtTOF->SetAxisRange(0,1750,"X");
+   Signal3PtTOF->Scale(1/Signal3PtTOF->Integral());
+   Signal3PtTOF->SetMarkerSize (0.2);
+   Signal3PtTOF->SetMarkerColor(Color[2]);
+   Signal3PtTOF->SetFillColor(Color[2]);
+   Signal3PtTOF->Draw("BOX");
+   Signal2PtTOF->Scale(1/Signal2PtTOF->Integral());
+   Signal2PtTOF->SetMarkerSize (0.2);
+   Signal2PtTOF->SetMarkerColor(Color[1]);
+   Signal2PtTOF->SetFillColor(Color[1]);
+   Signal2PtTOF->Draw("BOX same");
+   Signal1PtTOF->Scale(1/Signal1PtTOF->Integral());
+   Signal1PtTOF->SetMarkerSize (0.2);
+   Signal1PtTOF->SetMarkerColor(Color[0]);
+   Signal1PtTOF->SetFillColor(Color[0]);
+   Signal1PtTOF->Draw("BOX same");
+
+   leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
+   leg->SetFillColor(0);
+   leg->SetBorderSize(0);
+   leg->AddEntry(Signal1PtTOF,  samples[S1i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal2PtTOF,  samples[S2i].Legend.c_str()   ,"F");
+   leg->AddEntry(Signal3PtTOF,  samples[S3i].Legend.c_str()   ,"F");
+   leg->Draw();
+   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1, outpath, outName + "_PtTOF", false);
    delete c1;
 
 //   c1 = new TCanvas("c1","c1", 600, 600);
@@ -2376,8 +2433,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   }
  
   const int TimeRegions=2;
-  int NCuts = 20;
-  if (TypeMode == 4)  NCuts = Index.size()/TimeRegions;
+  int NCuts = Index.size()/TimeRegions;
 
   double Pred[TimeRegions][3][NCuts];
   double PredErr[TimeRegions][3][NCuts];
@@ -2556,21 +2612,22 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     if (TypeMode==4)      PredGraphs->GetXaxis()->SetTitle("I_{as} cut");
     PredGraphs->GetYaxis()->SetTitle("Number of expected backgrounds");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
-    if(i==0) PredGraphs->GetYaxis()->SetRangeUser(0,50000);
-    else PredGraphs->GetYaxis()->SetRangeUser(0,2400);
-    c1->SetLogy(0);
+    //if(i==0) PredGraphs->GetYaxis()->SetRangeUser(0,50000);
+    //else PredGraphs->GetYaxis()->SetRangeUser(0,2400);
 
-    if (TypeMode == 4)   
-      {
-        double yup = *Pred[Plot[0]][0];
-	double ydown = 1.0000;
+    //if (TypeMode == 4)   
+    //{
+
+        double yup = Pred[i][0][0];
+	double ydown = 1000000.0000;
 	for(int Region=0; Region<3; Region++) {
-	double Predmin =  Pred[TimeRegions-1][Region][NCuts-1];
+	double Predmin =  Pred[i][Region][NCuts-1];
 	if (Predmin < ydown) ydown = Predmin;
 	}
         PredGraphs->GetYaxis()->SetRangeUser(ydown*0.4, yup*1.4);
 	c1->SetLogy(true);
-      }
+	//}
+  
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,(DataType + "CollisionPrediction_TOF" + Preds[i]).c_str());
@@ -2603,6 +2660,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     PredGraphs->GetYaxis()->SetRangeUser(0,0.40);
     c1->SetLogy(0);
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
+    PredGraphs->GetYaxis()->SetRangeUser(0, 0.4);
     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
     SaveCanvas(c1,SavePath,DataType + "CollisionStatSyst");
     delete c1;
@@ -2629,6 +2687,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     PredGraphs->GetYaxis()->SetTitle("Relative Statistical Uncertainty");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
     PredGraphs->GetYaxis()->SetRangeUser(0,0.40);
+
     c1->SetLogy(0);
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
@@ -2656,6 +2715,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     PredGraphs->GetYaxis()->SetTitle("Relative Systemtic Uncertainty");
     PredGraphs->GetYaxis()->SetTitleOffset(1.70);
     PredGraphs->GetYaxis()->SetRangeUser(0,0.40);
+
     c1->SetLogy(0);
     DrawLegend((TObject**)Graphs,legend,LegendTitle,"P",0.8, 0.9, 0.4, 0.05);
     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
