@@ -1174,8 +1174,8 @@ void JetPlusTrackCorrector::rebuildJta( const reco::Jet& fJet,
 	  if(&(**ii) == &fJet ) {continue;}
 	  double dR2 = deltaR2( (*ii)->eta(), (*ii)->phi(), trkEta, trkPhi );
 	  double scale = dR2;
-	  if(jetSplitMerge_ == 0) scale = 1.*jetEtIn;
-	  if(jetSplitMerge_ == 2) scale = dR2*jetEtIn;
+	  if(jetSplitMerge_ == 0) scale = 1./(**ii).et();
+	  if(jetSplitMerge_ == 2) scale = dR2/(**ii).et();
 	  if(scale < scalethis) flag = 0;
 
 	  if(flag == 0) {
