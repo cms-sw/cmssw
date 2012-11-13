@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2011/11/23 14:23:15 $
- * $Revision: 1.69 $
+ * $Date: 2012/09/24 16:08:06 $
+ * $Revision: 1.70 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -222,13 +222,15 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
       for(;histoIt != histoEnd; ++histoIt) { (*histoIt).second->Reset(); }
     }
 
-    // re-set mapping for not real channels in the occupancyHits per chamber
-    for(int wh=-2; wh<=2; wh++) {
-      for(int sect=1; sect<=14; sect++) {
-        for(int st=1; st<=4; st++) {
-          if( (sect == 13 || sect == 14) && st != 4 ) {continue;}
-           const DTChamberId dtChId(wh,st,sect);
-           channelsMap(dtChId, "OccupancyAllHits_perCh");
+    if(doAllHitsOccupancies) {
+      // re-set mapping for not real channels in the occupancyHits per chamber
+      for(int wh=-2; wh<=2; wh++) {
+        for(int sect=1; sect<=14; sect++) {
+          for(int st=1; st<=4; st++) {
+            if( (sect == 13 || sect == 14) && st != 4 ) {continue;}
+            const DTChamberId dtChId(wh,st,sect);
+            channelsMap(dtChId, "OccupancyAllHits_perCh");
+          }
         }
       }
     }
@@ -824,27 +826,27 @@ void DTDigiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const e
 
 void DTDigiTask::channelsMap(const DTChamberId &dtCh, string histoTag) {
 
-      // n max channels
-      int nWires_max = (digiHistos[histoTag])[dtCh.rawId()] -> getNbinsX();
+  // n max channels
+  int nWires_max = (digiHistos[histoTag])[dtCh.rawId()] -> getNbinsX();
 
-      // set bin content = -1 for each not real channel. For visualization purposes
-      for(int sl=1; sl<=3; sl++) {
-        for(int ly=1; ly<=4; ly++) {
-          for(int ch=1; ch<=nWires_max; ch++) {
+  // set bin content = -1 for each not real channel. For visualization purposes
+  for(int sl=1; sl<=3; sl++) {
+    for(int ly=1; ly<=4; ly++) {
+      for(int ch=1; ch<=nWires_max; ch++) {
 
-            int dduId = -1, rosId = -1, robId = -1, tdcId = -1, channelId = -1;
-            int realCh = mapping->geometryToReadOut(dtCh.wheel(),dtCh.station(),dtCh.sector(),sl,ly,ch,dduId,rosId,robId,tdcId,channelId);
+        int dduId = -1, rosId = -1, robId = -1, tdcId = -1, channelId = -1;
+        int realCh = mapping->geometryToReadOut(dtCh.wheel(),dtCh.station(),dtCh.sector(),sl,ly,ch,dduId,rosId,robId,tdcId,channelId);
 
-            // realCh = 0 if the channel exists, while realCh = 1 if it does not exist
-            if( realCh ) {
+        // realCh = 0 if the channel exists, while realCh = 1 if it does not exist
+        if( realCh ) {
 
-              int lybin = (4*sl - 4) + ly;
-              (digiHistos[histoTag])[dtCh.rawId()] -> setBinContent(ch,lybin,-1.);
+          int lybin = (4*sl - 4) + ly;
+          (digiHistos[histoTag])[dtCh.rawId()] -> setBinContent(ch,lybin,-1.);
 
-            } 
+        } 
 
-          }
-        }
       }
+    }
+  }
 
 }
