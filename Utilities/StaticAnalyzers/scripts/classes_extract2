@@ -5,21 +5,19 @@ eval `scram runtime -sh`
 	| awk 'BEGIN{FS="TYPELOOKUP_DATA_REG\\\(|\\\)";OFS="\n";} {print $2}'\
 	| awk 'BEGIN{FS="::";OFS="\n";} {print $1, $2, $3, $4 , $5 , $6 , $7 , $8 , $9}' \
 	| awk 'BEGIN{FS="<|>";OFS="\n";} {print $1, $2, $3, $4, $5 ,$6, $7, $8, $9}' \
-	| tr " " "\n" | sort -u | grep ^[A-Z]`
+	| tr " " "\n" | sort -u |grep -v -e ^[0-9] `
 	echo $classes | tr " " "\n" >/tmp/classes2.txt
 	paths=`cmsglimpse -G TYPELOOKUP_DATA_REG  \
 	| awk 'BEGIN{FS="\"|<|>";OFS="\n";} /^#include/ {print $2}'| tr " " "\n"| sort -u`
 	echo $paths | tr " " "\n"  >/tmp/paths2.txt
 	pathtmp=""
-	for class in $classes;do
-		tmps=`cmsglimpse -F '.h$' -y -l -w -i " $class " ` 
-		for tmp in $tmps;do 
-			tmps2=`ctags -f - ${CMSSW_RELEASE_BASE}/src/$tmp | grep  -e c$ | cut -f 2`
+	cd  ${CMSSW_RELEASE_BASE}/src
+			tmps2=`cat /tmp/paths2.txt | ctags -f - -L - |awk '/\tc\t|\tc$/ {print $2}'`
 			for tmp2 in $tmps2;do
-				tmp3=`echo $tmp2 | sed 's/\/.*src\///'`
-				test "$tmp3" != "" && (grep -q $tmp3 /tmp/paths2.txt) && pathtmp=$tmp3" "$pathtmp
+				#echo $tmp2
+				tmp3=`basename $tmp2`
+				#echo $tmp3
+				test "$tmp3" != "" && pathtmp=`grep $tmp3 /tmp/paths2.txt`" "$pathtmp
 			done
-		done
-	done
 	echo  -e $pathtmp | tr " " "\n" | sort -u >/tmp/headers2.txt
 	

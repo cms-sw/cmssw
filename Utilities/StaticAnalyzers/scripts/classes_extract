@@ -1,31 +1,25 @@
 #!/bin/bash
-eval `scram runtime -sh`
+#eval `scram runtime -sh`
 	classes=`cmsglimpse -F classes_def.xml$ -G class \
 	| awk 'BEGIN{FS="<class name=\"|\"";} /class name/ { print $2 }' \
 	| awk 'BEGIN{FS="<|>";OFS = "\n";} {print $1, $2, $3, $4, $5, $6, $7, $8, $9}' \
 	| awk 'BEGIN{FS="&lt;|&gt;";OFS = "\n";} {print $1, $2, $3, $4, $5, $6, $7, $8, $9}'\
 	| awk 'BEGIN{FS=",";OFS="\n";} {print $1,$2,$3,$4,$5,$6,$7,$8,$9}'\
-	| awk 'BEGIN{FS="::";OFS="\n";} {print $2,$3,$4,$5,$6}' \
-	| tr " " "\n" |sort -u 
-	| grep -v edm | grep -v std | \
-	| grep -v \* | grep -E "[A-Z].*"\
-	`
+	| awk 'BEGIN{FS="::";OFS="\n";} {print $1,$2,$3,$4,$5,$6,$7,$8,$9}' \
+	| tr " " "\n" | sort -u | grep -v  -e \* -e ^[0-9]  -e \& `
 	echo $classes | tr " " "\n" >/tmp/classes1.txt
 	paths=`cmsglimpse -F classes.h$ -G include \
 	| awk 'BEGIN{FS="\"|<|>";OFS="\n";} /^\#include/ {print $2}'\
-	| grep -v "DataFormats/Common" | grep -v classes.h | tr " " "\n"| sort -u`
+	| grep -v classes.h | tr " " "\n"| sort -u`
 	echo $paths | tr " " "\n"  >/tmp/paths1.txt
 	pathtmp=""
-	for class in $classes;do
-		tmps=`cmsglimpse -F '.h$' -y -l -w -i " $class " ` 
-		for tmp in $tmps;do
-			tmps2=`ctags -f - ${CMSSW_RELEASE_BASE}/src/$tmp | grep  -e c$ | cut -f 2`
-				echo $tmps2
+	cd ${CMSSW_RELEASE_BASE}/src
+			tmps2=` cat /tmp/paths1.txt | ctags -f - -L - | awk '/\tc\t|\tc$/ {print $2}' `
+				#echo $tmps2
 				for tmp2 in $tmps2;do
-					echo $tmp2
-					tmp3=`echo $tmp2 | sed 's/\/.*src\///'`
-					test "$tmp3" != "" && (grep -q $tmp3 /tmp/paths1.txt) && pathtmp=$tmp3" "$pathtmp;
+					#echo $tmp2
+					tmp3=`basename $tmp2`
+					#echo $tmp3
+                                	test "$tmp3" != "" &&  pathtmp=`grep $tmp3 /tmp/paths1.txt`" "$pathtmp
 				done
-		done
-	done
 	echo  -e $pathtmp | tr " " "\n" | sort -u >/tmp/headers1.txt

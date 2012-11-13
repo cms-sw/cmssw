@@ -2,13 +2,13 @@
 url=`curl -s  http://cmssdt.cern.ch/SDT/html/showIB.html \
 | egrep "CMSSW_[0-9]_[0-9]_CLANG_X_[0-9]+-[0-9]+-[0-9]+-[0-9]" - \
 | grep showBuildLogs | head -1 | cut -d\" -f2 | sed 's/cgi-bin\/showBuildLogs.py/html\/rc/'`
-[ -e /tmp/warning.txt ] || curl  $url"/release-build.log" | grep warning: > /tmp/warning.txt
+[ -e /tmp/warnings.txt ] || curl  $url"/release-build.log" | grep warning: > /tmp/warnings.txt
 [ -e /tmp/headers1.txt ] || ./classes_extract 
 [ -e /tmp/headers2.txt ] || ./classes_extract2 
-for file in `cat /tmp/headers1.txt`;do grep -F $file /tmp/warning.txt ; done \
-| sort -u | sed 's/\/.*src\///' >/tmp/warning.headers1.txt
-for file in `cat /tmp/headers2.txt`;do grep -F $file /tmp/warning.txt ; done \
-| sort -u | sed 's/\/.*src\///' >/tmp/warning.headers2.txt
-cat /tmp/warning.headers1.txt /tmp/warning.headers2.txt >/tmp/warnings.headers.txt
-cat /tmp/warnings.headers.txt| cut -d: -f1 \
-| sort -u >/tmp/warning.headers.txt
+for file in `cat /tmp/headers1.txt`;do grep -F $file /tmp/warnings.txt ; done \
+| sort -u | sed 's/\/.*src\///' >/tmp/header-warnings1.txt
+for file in `cat /tmp/headers2.txt`;do grep -F $file /tmp/warnings.txt ; done \
+| sort -u | sed 's/\/.*src\///' >/tmp/header-warnings2.txt
+cat /tmp/header-warnings1.txt /tmp/header-warnings2.txt | grep -v "In file" | sort -u >/tmp/header-warnings.txt
+cat /tmp/header-warnings.txt| cut -d: -f1 \
+| sort -u >/tmp/headers-with-warnings.txt
