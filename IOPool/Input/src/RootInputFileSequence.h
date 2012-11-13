@@ -58,7 +58,6 @@ namespace edm {
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst = true);
     bool skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event);
     void rewind_();
-    void reset();
     EventPrincipal* readOneRandom();
     EventPrincipal* readOneRandomWithID(LuminosityBlockID const& id);
     EventPrincipal* readOneSequential();
