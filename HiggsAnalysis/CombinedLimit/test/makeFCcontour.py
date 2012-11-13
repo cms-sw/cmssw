@@ -23,6 +23,9 @@ dumd = array('i',[0])
 errLevel = 10E-6 
 defaultYval = 1.
 
+cutGrid  = False
+cutGridy = False
+
 class physicsPoint:
   
   def __init__(self,x):
@@ -97,9 +100,9 @@ def getPoints(tree,varx,vary):
     if vary=="": dumy=defaultYval # dummy value
     else:dumy   = findStringValue(keyname,vary) 
 
-    if (options.xrange[0]>-999. and options.xrange[1]>-999.) and (dumx>options.xrange[1]-errLevel or dumx<options.xrange[0]+errLevel): continue
+    if ( cutGrid ) and (dumx>options.xrange[1]+errLevel or dumx<options.xrange[0]-errLevel): continue
     if not vary=="":
-      if (options.yrange[0]>-999. and options.yrange[1]>-999.) and (dumy>options.yrange[1]-errLevel or dumy<options.yrange[0]+errLevel): continue
+      if (cutGridy ) and (dumy>options.yrange[1]+errLevel or dumy<options.yrange[0]-errLevel): continue
     
     pointExists = False 
 
@@ -214,6 +217,8 @@ parser.add_option("","--yrange",dest="yrange",default=(-9999.,-9999.),nargs=2,ty
 parser.add_option("","--d1",dest="oned",default=False,action="store_true",help="Run 1D FC (ie just report confidence belt). In this case --yvar is irrelevant")
 parser.add_option("-o","--out",dest="out",default="plots2DFC.root",type='str',help="Output File for 2D histos/1D confidence scan")
 parser.add_option("-t","--tdir",dest="treename",default='toys',type=str,help="Name of TDirectory for toys inside grid files")
+parser.add_option("","--minToys",dest="minToys",default='-10',type=int,help="Minimum number of toys to accept a point")
+
 
 (options,args)=parser.parse_args()
 allFiles = args[:]
@@ -222,6 +227,9 @@ if options.cl :confidenceLevels = [float(c) for c in options.cl]
 else: confidenceLevels=[]
 
 if options.yvar and options.oned: sys.exit("For 1D intervals, only specify x variable")
+
+if options.oned: cutGrid = options.xrange[0]>-999. and options.xrange[1]>-999.
+else :cutGridy = (options.yrange[0]>-999. and options.yrange[1]>-999.)
 
 # 2D set of points, labelled x,y
 xvar = options.xvar
@@ -236,7 +244,13 @@ for fileName in allFiles:
   print "Opening File -- ", fileName
 
   tFile = ROOT.TFile.Open(fileName)
+  if tFile == None : 
+	print "File Corrupted, skipping"
+	continue
   tToys = tFile.Get(treeName)
+  if tToys == None : 
+	print "File doesn't contain ", treeName
+	continue
 
   if options.oned: cpoints = getPoints(tToys,xvar,"")
   else: cpoints = getPoints(tToys,xvar,yvar)
@@ -253,14 +267,12 @@ if options.oned:
   points = sorted(points,key=lambda pt:pt.x)
   values  = [(pt.x,pt.get_cl()) for pt in points]
   numtoys = [pt.get_n_toys() for pt in points]
-  data = [pt.data for pt in points]
   # make a graph too
   for pt_i,pt in enumerate(values):
     xval = pt[0]
     zval = pt[1]
     tgrX.SetPoint(pt_i,zval,xval)
-    print "Found %d toys for point (%f)" % (numtoys[pt_i],xval),
-    print data[pt_i]
+    print "Found %d toys for point (%f)" % (numtoys[pt_i],xval)
     
     
   for c_i,confLevel in enumerate(confidenceLevels):
@@ -285,13 +297,19 @@ else:
   tgrXY  = ROOT.TGraph2D()
   ntXY   = ROOT.TGraph2D()
 
-  for pt_i,pt in enumerate(points):
+  pt_i = 0
+  for i,pt in enumerate(points):
     xval = pt.x
     yval = pt.y
     zval = pt.get_cl()
-    print "Found %d toys for point (%f,%f)" % (pt.get_n_toys(),xval,yval)
-    tgrXY.SetPoint(pt_i,xval,yval,zval)
-    ntXY.SetPoint(pt_i,xval,yval,pt.get_n_toys())
+    print "Found %d toys for point (%f,%f)" % (pt.get_n_toys(),xval,yval),
+    if options.minToys > -1  and pt.get_n_toys() < options.minToys: 
+	print " (not enough toys, ignore point) "
+    else:
+	 print "\n"
+   	 tgrXY.SetPoint(pt_i,xval,yval,zval)
+    	 ntXY.SetPoint(pt_i,xval,yval,pt.get_n_toys())
+    	 pt_i+=1
 
   print "Found points in grid: %s = %.2f->%.2f (%d points), %s = %.2f->%.2f (%d points) "\
       %(xvar,xmin,xmax,nx,yvar,ymin,ymax,ny)

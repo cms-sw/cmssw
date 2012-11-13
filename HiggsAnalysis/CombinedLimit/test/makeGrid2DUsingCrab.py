@@ -12,6 +12,7 @@ parser.add_option("--server",         dest="server",   default=False, action="st
 parser.add_option("-q", "--queue",    dest="queue",    default="8nh",   type="string", help="LSF queue to use (can be changed in .cfg file)")
 parser.add_option("-O", "--options",  dest="options",  default="--freq ",  type="string", help="options to use for combine")
 parser.add_option("-n", "--points",   dest="points",   default=(10,10),     nargs=2, type="int",  help="Points to choose in the range (note: both endpoints are included)")
+parser.add_option("", "--parameterRanges",   dest="parameterRanges", nargs=4, type="float",  help="physics model parameter ranges (should be x1,x2,y1,y2) used to induce boundaries for physical regions. Default is range of POI points")
 parser.add_option("-P", "--POI",      dest="POI",      default=("r","MH"),  nargs=2, type="string",  help="Parameters")
 parser.add_option("-T", "--toysH",    dest="T",        default=50, type="int",  help="Toys per point per iteration")
 parser.add_option("-t", "--toys",     dest="t",        default=10,  type="int",  help="Total number of iterations per point among all jobs (can be changed in .cfg file)")
@@ -84,7 +85,18 @@ echo "## Starting at $(date)"
 for i,x in enumerate(points):
     seed = ("$((%d + $i))" % (i*10000)) if options.random == False else "-1"
     interleave = "(( ($i + %d) %% %d == 0 )) && " % (i, options.interl)
-    ranges = "--setPhysicsModelParameterRanges %s=%g,%g:%s=%g,%g" % (options.POI[0], xmin,xmax,options.POI[1],ymin,ymax)  # Needed for naming of HypoTestResults
+    if ( options.parameterRanges ) :
+		xrngemin = options.parameterRanges[0]
+		xrngemax = options.parameterRanges[1]
+		yrngemin = options.parameterRanges[2]
+		yrngemax = options.parameterRanges[3]
+    else : 
+		xrngemin = xmin
+		xrngemax = xmax
+		yrngemin = ymin
+		yrngemax = ymax
+
+    ranges = "--setPhysicsModelParameterRanges %s=%g,%g:%s=%g,%g" % (options.POI[0], xrngemin,xrngemax,options.POI[1],yrngemin,yrngemax)  # Needed for naming of HypoTestResults and physics boundaries
     toys = "$n"
     what = "--singlePoint %s=%g,%s=%g " % (options.POI[0], x[0], options.POI[1], x[1]) ;
     script.write("{cond} ./combine {wsp} -M HybridNew {opts} -m {mass} --testStat=PL --rule=CLsplusb --fork $nchild -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} {what}  {ranges} \n".format(
