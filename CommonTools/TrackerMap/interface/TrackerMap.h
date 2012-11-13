@@ -12,6 +12,46 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "TColor.h"
 
+/*
+#define  NUMFEDCH_INCOLUMN 12
+#define  NUMFEDCH_INROW 8
+#define  NUMFED_INCOLUMN 6
+#define  NUMFED_INROW 4
+#define  NUMFEDCRATE_INCOLUMN 3
+#define  XFEDCSIZE  340
+#define  YFEDCSIZE  400
+*/
+
+/*
+#define  NUMFEDCH_INCOLUMN 12
+#define  NUMFEDCH_INROW 8
+#define  NUMFED_INCOLUMN 1
+#define  NUMFED_INROW 21
+//#define  NUMFEDCRATE_INCOLUMN 11
+//#define  NUMFEDCRATE_INROW 3
+#define  NUMFEDCRATE_INCOLUMN 16
+#define  NUMFEDCRATE_INROW 2
+//#define  XFEDCSIZE  160  // 14 boxes
+//#define  YFEDCSIZE  2100 // 9*21 boxes
+#define  XFEDCSIZE  140  // 14 boxes
+#define  YFEDCSIZE  1890 // 9*21 boxes
+*/
+
+#define  NUMFEDCH_INCOLUMN 12
+#define  NUMFEDCH_INROW 8
+#define  NUMFED_INCOLUMN 21
+#define  NUMFED_INROW 1
+//#define  NUMFEDCRATE_INCOLUMN 11
+//#define  NUMFEDCRATE_INROW 3
+#define  NUMFEDCRATE_INCOLUMN 1
+#define  NUMFEDCRATE_INROW 31
+//#define  XFEDCSIZE  160  // 14 boxes
+//#define  YFEDCSIZE  2100 // 9*21 boxes
+#define  XFEDCSIZE  2940  // 14*21 boxes
+#define  YFEDCSIZE  90 // 9 boxes
+#define  XFEDOFFSET 150
+#define  YFEDOFFSET 100
+
 class TmModule;
 class TmApvPair;
 class EventSetup;
@@ -23,7 +63,7 @@ class TrackerMap {
   //TrackerMap(){TrackerMap(" ");};   //!< default constructor
   TrackerMap(std::string s=" ",int xsize1=340,int ysize1=200);
   TrackerMap(const edm::ParameterSet & iConfig);
-  TrackerMap(const edm::ParameterSet & iConfig,const edm::ESHandle<SiStripFedCabling> tkFed);
+  TrackerMap(const edm::ParameterSet & iConfig,const SiStripFedCabling* tkFed);
   ~TrackerMap();  //!< default destructor
   
   void build();
@@ -34,7 +74,9 @@ class TrackerMap {
   void printonline();
   void printlayers(bool print_total=true,float minval=0., float maxval=0.,std::string s="layer");
   void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
-  void save_as_fedtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fed_svgmap.svg",int width=1500, int height=800);
+  void save_as_fedtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fed_svgmap.svg",
+			     int width=YFEDOFFSET+(YFEDCSIZE+YFEDOFFSET)*NUMFEDCRATE_INROW+300,
+			     int height=XFEDOFFSET+(XFEDCSIZE+XFEDOFFSET)*NUMFEDCRATE_INCOLUMN+300);
   void save_as_fectrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fec_svgmap.svg",int width=1500, int height=800);
   void save_as_psutrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="psu_svgmap.svg",int width=1500, int height=800);
   void save_as_HVtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="psu_svgmap.svg",int width=1500, int height=800);
@@ -67,7 +109,7 @@ class TrackerMap {
   void setText(int idmod , std::string s );
   void setText(int layer, int ring, int nmod , std::string s );
   void setPalette(int numpalette){palette=numpalette;} 
-  void drawPalette(std::ofstream * file); 
+  void drawPalette(std::ofstream * file, int xoffset=3660, int yoffset=1540); 
   void showPalette(bool printflag1){printflag=printflag1;}; 
   void setTitle(std::string s){title=s;};
   void setRange(float min,float max);
@@ -91,6 +133,7 @@ class TrackerMap {
    ModApvPair apvModuleMap;
   typedef std::map<const int  , int>  SvgFed;
   SvgFed fedMap;
+  SvgFed slotMap;
   typedef std::map<const int  , TmCcu*> MapCcu;
   MapCcu  ccuMap;
   typedef std::multimap<TmCcu*  , TmModule*> FecModule;
@@ -198,16 +241,16 @@ class TrackerMap {
   }
   double  xdpixelc(double x){
     double res;
-    if(saveAsSingleLayer)res= ((x-xmin)/(xmax-xmin)*xsize);
-    else res= ((x-xmin)/(xmax-xmin)*xsize)+ix;
+    if(saveAsSingleLayer)res= ((x-xmin)/(xmax-xmin)*XFEDCSIZE);
+    else res= ((x-xmin)/(xmax-xmin)*XFEDCSIZE)+ix;
     return res;
   }
   double  ydpixelc(double y){
     double res;
     double y1;
     y1 = (y-ymin)/(ymax-ymin);
-     if(saveAsSingleLayer)res= 2*ysize - (y1*2*ysize);
-     else res= 2*ysize - (y1*2*ysize)+iy;
+     if(saveAsSingleLayer)res= YFEDCSIZE - (y1*YFEDCSIZE);
+     else res= YFEDCSIZE - (y1*YFEDCSIZE)+iy;
     return res;
   }
   double  xdpixelfec(double x){
@@ -240,23 +283,27 @@ class TrackerMap {
   }
 
    void defcwindow(int num_crate){
-    ncrate = num_crate;
-    int xoffset=xsize/3;
-    int yoffset=ysize;
-    xmin=-1.;xmax=63.;  ymin = -1.; ymax=37.;
-    if((ncrate%3)==2)ix = xoffset+xsize*4/3;
-    if((ncrate%3)==1)ix = xoffset+2*xsize*4/3;
-    if((ncrate%3)==0)ix = xoffset;
-    iy = yoffset+((ncrate-1)/3)*ysize*2;
+     //    ncrate = num_crate;
+     int xoffset=XFEDOFFSET;
+    int yoffset=YFEDOFFSET;
+    //    xmin=-1.;xmax=(NUMFEDCH_INCOLUMN+2)*NUMFED_INCOLUMN+1;  ymin = -1.; ymax=(NUMFEDCH_INROW+1)*NUMFED_INROW+1;
+    xmin=0.;xmax=(NUMFEDCH_INCOLUMN+2)*NUMFED_INCOLUMN;  ymin = 0.; ymax=(NUMFEDCH_INROW+1)*NUMFED_INROW;
+    /*
+    if((num_crate%3)==2)ix = xoffset+xsize*(NUMFED_INCOLUMN+1)/NUMFED_INCOLUMN;
+    if((num_crate%3)==1)ix = xoffset+2*xsize*(NUMFED_INCOLUMN+1)/NUMFED_INCOLUMN;
+    if((num_crate%3)==0)ix = xoffset;
+    */
+    ix = xoffset+((NUMFEDCRATE_INCOLUMN-1)-((num_crate-1)%NUMFEDCRATE_INCOLUMN))*(XFEDCSIZE+XFEDOFFSET);
+    iy = yoffset+((num_crate-1)/NUMFEDCRATE_INCOLUMN)*(YFEDCSIZE+YFEDOFFSET);
   } 
    void deffecwindow(int num_crate){
-    ncrate = num_crate;
+     //    ncrate = num_crate;
     int xoffset=xsize/3;
     int yoffset=2*ysize;
     xmin=-1.;xmax=37.;  ymin = -10.; ymax=40.;
-    if(ncrate==1||ncrate==3)ix = xoffset+xsize*2;
-    if(ncrate==2||ncrate==4)ix = xoffset;
-    iy = yoffset+((ncrate-1)/2)*ysize*4;
+    if(num_crate==1||num_crate==3)ix = xoffset+xsize*2;
+    if(num_crate==2||num_crate==4)ix = xoffset;
+    iy = yoffset+((num_crate-1)/2)*ysize*4;
   }
    void defpsuwindow(int num_rack){
     nrack = num_rack;
@@ -276,47 +323,47 @@ class TrackerMap {
 
 
 void defwindow(int num_lay){
-  nlay = num_lay;
+  // nlay = num_lay;
   if(posrel){ // separated modules
     xmin=-2.;ymin=-2.;xmax=2.;ymax=2.;
-    if(nlay >12 && nlay < 19){
+    if(num_lay >12 && num_lay < 19){
       xmin=-.40;xmax=.40;ymin=-.40;ymax=.40;
     }
-    if(nlay>30){
+    if(num_lay>30){
       xmin=-0.1;xmax=3.;ymin=-0.1;ymax=8.5;
-      if(nlay<34){xmin=-0.3;xmax=1.0;}
-      if(nlay>33&&nlay<38){xmax=2.0;}
-      if(nlay>37){ymax=8.;}//inner
+      if(num_lay<34){xmin=-0.3;xmax=1.0;}
+      if(num_lay>33&&num_lay<38){xmax=2.0;}
+      if(num_lay>37){ymax=8.;}//inner
     }
   }else{ //overlayed modules
     xmin=-1.3;ymin=-1.3;xmax=1.3;ymax=1.3;
-    if(nlay >12 && nlay < 19){
+    if(num_lay >12 && num_lay < 19){
       xmin=-.20;xmax=.20;ymin=-.20;ymax=.20;
     }
-    if(nlay>30){
+    if(num_lay>30){
       xmin=-1.5;xmax=1.5;ymin=-1.;ymax=28.;
-      if(nlay<34){xmin=-0.5;xmax=0.5;}
-      if(nlay>33&&nlay<38){xmin=-1.;xmax=1.;}
+      if(num_lay<34){xmin=-0.5;xmax=0.5;}
+      if(num_lay>33&&num_lay<38){xmin=-1.;xmax=1.;}
     }
     
   }
-  if(nlay<16){
+  if(num_lay<16){
       ix=0;
-      if(nlay==15||nlay==14)iy=(15-nlay)*2*ysize; else 
-          {if(nlay>9&&nlay<13)iy=4*ysize-(int)(ysize/2.)+(12-nlay)*(int)(ysize/1.50);else iy=6*ysize+(9-nlay)*(int)(ysize*1.3);}}
-  if(nlay>15&&nlay<31){
+      if(num_lay==15||num_lay==14)iy=(15-num_lay)*2*ysize; else 
+          {if(num_lay>9&&num_lay<13)iy=4*ysize-(int)(ysize/2.)+(12-num_lay)*(int)(ysize/1.50);else iy=6*ysize+(9-num_lay)*(int)(ysize*1.3);}}
+  if(num_lay>15&&num_lay<31){
     ix=3*xsize;
-     if(nlay==16||nlay==17)iy=(nlay-16)*2*ysize; else 
-          {if(nlay>18&&nlay<22)iy=4*ysize-(int)(ysize/2.)+(nlay-19)*(int)(ysize/1.50);else iy=6*ysize+(nlay-22)*(int)(ysize*1.3);}}
-  if(nlay>30){
-    if(nlay==31){ix=(int)(1.5*xsize);iy=0;}
-    if(nlay==32){int il=(nlay-30)/2;ix=xsize;iy=il*2*ysize;}
-    if(nlay==33){int il=(nlay-30)/2;ix=2*xsize;iy=il*2*ysize;}
-    if(nlay==34){int il=(nlay-30)/2;ix=xsize;iy=il*(int)(2.57*ysize);}
-    if(nlay>34 && nlay%2==0){int il=(nlay-30)/2;ix=xsize;iy=il*(int)(2.5*ysize);}
-    if(nlay>34 && nlay%2!=0){int il=(nlay-30)/2;ix=2*xsize;iy=il*(int)(2.5*ysize);}
+     if(num_lay==16||num_lay==17)iy=(num_lay-16)*2*ysize; else 
+          {if(num_lay>18&&num_lay<22)iy=4*ysize-(int)(ysize/2.)+(num_lay-19)*(int)(ysize/1.50);else iy=6*ysize+(num_lay-22)*(int)(ysize*1.3);}}
+  if(num_lay>30){
+    if(num_lay==31){ix=(int)(1.5*xsize);iy=0;}
+    if(num_lay==32){int il=(num_lay-30)/2;ix=xsize;iy=il*2*ysize;}
+    if(num_lay==33){int il=(num_lay-30)/2;ix=2*xsize;iy=il*2*ysize;}
+    if(num_lay==34){int il=(num_lay-30)/2;ix=xsize;iy=il*(int)(2.57*ysize);}
+    if(num_lay>34 && num_lay%2==0){int il=(num_lay-30)/2;ix=xsize;iy=il*(int)(2.5*ysize);}
+    if(num_lay>34 && num_lay%2!=0){int il=(num_lay-30)/2;ix=2*xsize;iy=il*(int)(2.5*ysize);}
   }
- }
+}
   
   int getringCount(int subdet, int partdet, int layer){
     int ncomponent=0;
@@ -432,6 +479,7 @@ void defwindow(int num_lay){
   int ncrate;
   int nrack;
   int ncrates;
+  int firstcrate;
   int nfeccrates;
   int npsuracks;
   double xmin,xmax,ymin,ymax;
