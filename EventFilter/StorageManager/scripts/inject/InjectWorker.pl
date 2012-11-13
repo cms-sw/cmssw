@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.88 2012/04/13 10:06:19 babar Exp $
+# $Id: InjectWorker.pl,v 1.89 2012/10/07 21:56:25 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -23,7 +23,7 @@ my $nodbint     = 0; # SM_DONTACCESSDB: no access any DB at all
 my $nodbwrite   = 0; # SM_DONTWRITEDB : no write to DB but retrieve HLT key
 my $norunconddb = 0; # SM_NORUNCONDDB : do not access ConfDB at all, fake
 my $nofilecheck = 0; # SM_NOFILECHECK : no check if files are locally accessible
-my $maxhooks    = 3; # Number of parallel hooks
+my $maxhooks    = 1; # Number of parallel hooks
 ################################################################################
 my %invalidOracleError = (
     '03113' => 'End-of-file on communication channel',
