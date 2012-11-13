@@ -77,16 +77,6 @@ HcalLedAnalyzer::~HcalLedAnalyzer(){
 void HcalLedAnalyzer::beginJob(){
   m_ievt = 0;
   led_sample = 1;
-  HcalPedestals* inputPeds=0;
-// get pedestals
-  if (!m_inputPedestals_source.empty ()) {
-    inputPeds = new HcalPedestals ();
-    if (!getObject (inputPeds, m_inputPedestals_source, m_inputPedestals_tag, m_inputPedestals_run)) {
-      std::cerr << "HcalLedAnalyzer-> Failed to get pedestal values" << std::endl;
-    }
-    //m_ledAnal->doPeds(inputPeds);
-    delete inputPeds;
-  }
 }
 
 void HcalLedAnalyzer::endJob(void) {

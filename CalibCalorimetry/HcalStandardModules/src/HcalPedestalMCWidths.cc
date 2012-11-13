@@ -6,6 +6,7 @@
 //
 #include <memory>
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalMCWidths.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 HcalPedestalMCWidths::HcalPedestalMCWidths(const edm::ParameterSet& ps) :
    hbheDigiCollectionTag_(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
@@ -19,7 +20,7 @@ HcalPedestalMCWidths::HcalPedestalMCWidths(const edm::ParameterSet& ps) :
 
 HcalPedestalMCWidths::~HcalPedestalMCWidths()
 {
-   HcalCovarianceMatrices * rawCovItem = new HcalCovarianceMatrices();
+   HcalCovarianceMatrices * rawCovItem = new HcalCovarianceMatrices(theTopology);
    std::ofstream outfile(widthsfilename.c_str());
    std::vector<MCWidthsBunch>::iterator bunch_it;
    for(bunch_it=Bunches.begin(); bunch_it != Bunches.end(); bunch_it++)
@@ -117,6 +118,7 @@ HcalPedestalMCWidths::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 
    if(firsttime)
    {
+      theTopology=new HcalTopology(*(myRefPeds->topo()));
       runnum = e.id().run();
       std::string runnum_string;
       std::stringstream tempstringout;

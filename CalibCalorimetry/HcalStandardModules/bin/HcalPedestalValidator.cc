@@ -11,6 +11,7 @@
 #include "CondTools/Hcal/interface/HcalDbOnline.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPedestalAnalysis.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 namespace {
   bool defaultsFile (const std::string fParam) {
@@ -138,15 +139,18 @@ int main (int argn, char* argv []) {
   int outputPedRun = RawPedRun;
   int outputPedWidRun = outputPedRun;
 
+  // need to know how to make proper topology in the future.
+  HcalTopology topo(HcalTopologyMode::LHC,2,4);
+
 // get reference objects
   HcalPedestals* RefPeds = 0;
-  RefPeds = new HcalPedestals ();
+  RefPeds = new HcalPedestals (&topo);
   if (!getObject (RefPeds, RefPedSource, RefPedTag, RefPedRun)) {
     std::cerr << "HcalPedestalValidator-> Failed to get reference Pedestals" << std::endl;
     return 1;
   }
   HcalPedestalWidths* RefPedWids = 0;
-  RefPedWids = new HcalPedestalWidths ();
+  RefPedWids = new HcalPedestalWidths (&topo);
   if (!getObject (RefPedWids, RefPedWidSource, RefPedWidTag, RefPedWidRun)) {
     std::cerr << "HcalPedestalValidator-> Failed to get reference PedestalWidths" << std::endl;
     return 2;
@@ -154,13 +158,13 @@ int main (int argn, char* argv []) {
 
 // get input raw objects
   HcalPedestals* RawPeds = 0;
-  RawPeds = new HcalPedestals ();
+  RawPeds = new HcalPedestals (&topo);
   if (!getObject (RawPeds, RawPedSource, RawPedTag, RawPedRun)) {
     std::cerr << "HcalPedestalValidator-> Failed to get raw Pedestals" << std::endl;
     return 3;
   }
   HcalPedestalWidths* RawPedWids = 0;
-  RawPedWids = new HcalPedestalWidths ();
+  RawPedWids = new HcalPedestalWidths (&topo);
   if (!getObject (RawPedWids, RawPedWidSource, RawPedWidTag, RawPedWidRun)) {
     std::cerr << "HcalPedestalValidator-> Failed to get raw PedestalWidths" << std::endl;
     return 4;
@@ -168,9 +172,9 @@ int main (int argn, char* argv []) {
 
 // make output objects
   HcalPedestals* outputPeds = 0;
-  outputPeds = new HcalPedestals ();
+  outputPeds = new HcalPedestals (&topo);
   HcalPedestalWidths* outputPedWids = 0;
-  outputPedWids = new HcalPedestalWidths ();
+  outputPedWids = new HcalPedestalWidths (&topo);
 
 // run algorithm
   int nstat[4]={2500,2500,2500,2500};

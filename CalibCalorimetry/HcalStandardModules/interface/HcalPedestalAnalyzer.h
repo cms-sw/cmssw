@@ -4,8 +4,8 @@
 /*
  * \file HcalPedestalAnalyzer.h
  *
- * $Date: 2009/12/17 21:09:32 $
- * $Revision: 1.3 $
+ * $Date: 2012/10/09 14:57:58 $
+ * $Revision: 1.4 $
  * \author S. Stoynev / W. Fisher
  *
 */
@@ -70,6 +70,8 @@ private:
   //string m_outputFileMean;
   //string m_outputFileWidth;
   HcalPedestalAnalysis* m_pedAnal;
+
+  const HcalTopology* m_topo; 
 
   int m_startSample;
   int m_endSample;
