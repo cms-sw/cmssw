@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2012/11/02 13:00:23 $
- *  $Revision: 1.14 $
+ *  $Date: 2012/11/03 12:05:14 $
+ *  $Revision: 1.15 $
  *
  */
 
@@ -86,9 +86,10 @@ class TauValidation : public edm::EDAnalyzer
 	TLorentzVector motherP4(const HepMC::GenParticle*);
 	void photons(const HepMC::GenParticle*, double weight);
 	void findTauList(const HepMC::GenParticle* tau,std::vector<const HepMC::GenParticle*> &TauList);
-	void findISRandFSR(const HepMC::GenParticle* p, bool doFSR, std::vector<const HepMC::GenParticle*> &ListofISR,
-			   std::vector<const HepMC::GenParticle*> &ListofFSR);
-
+	void findFSRandBrem(const HepMC::GenParticle* p, bool doBrem, std::vector<const HepMC::GenParticle*> &ListofFSR,
+			   std::vector<const HepMC::GenParticle*> &ListofBrem);
+	void FindPhotosFSR(const HepMC::GenParticle* p,std::vector<const HepMC::GenParticle*> &ListofFSR,double &BosonScale);
+	const HepMC::GenParticle* GetMother(const HepMC::GenParticle* tau);
 
         WeightManager _wmanager;
 
@@ -106,7 +107,7 @@ class TauValidation : public edm::EDAnalyzer
   	MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, 
 	               *TauRtauW, *TauRtauHpm,
 	               *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
-	  *TauISRPhotonsN,*TauISRPhotonsPt,*TauISRPhotonsPtRatio,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtRatio;
+	  *TauBremPhotonsN,*TauBremPhotonsPt,*TauBremPhotonsPtSum,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtSum;
 	unsigned int NJAKID;
 	MonitorElement *JAKID;
 	std::vector<std::vector<MonitorElement *> > JAKInvMass;

@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2012/11/02 13:00:24 $
- *  $Revision: 1.20 $
+ *  $Date: 2012/11/03 12:05:15 $
+ *  $Revision: 1.21 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -84,21 +84,19 @@ void TauValidation::beginJob()
     TauSpinEffectsZ   = dbe->book1D("TauSpinEffectsZ","Mass of pi+ pi-", 22 ,0,1.1);
     TauSpinEffectsZ->setAxisTitle("M_{#pi^{+}#pi^{-}}");
 
-    TauFSRPhotonsN      = dbe->book1D("TauFSRPhotonsN","Photons radiating from tau in decay", 5 ,-0.5,4.5);
-    TauFSRPhotonsN->setBinLabel(1,"Number of taus");
-    TauFSRPhotonsN->setBinLabel(2,"Number of taus with FSR");
-    TauFSRPhotonsPt       = dbe->book1D("TauFSRPhotonsPt","FSR Photon Sum Pt (GeV)", 5 ,-0.5,4.5);
-    TauFSRPhotonsPt->setBinLabel(1,"Sum of tau pt");
-    TauFSRPhotonsPt->setBinLabel(2,"Sum of FSR pt");
-    TauFSRPhotonsPtRatio  = dbe->book1D("TauFSRPhotonsPtRatio","Sum FSR Pt over tau Pt", 100 ,0,1);
+    TauFSRPhotonsN=dbe->book1D("TauFSRPhotonsN","FSR Photons radiating from/with tau (Gauge Boson)", 5 ,-0.5,4.5);
+    TauFSRPhotonsN->setAxisTitle("N FSR Photons radiating from/with tau");
+    TauFSRPhotonsPt=dbe->book1D("TauFSRPhotonsPt","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100);
+    TauFSRPhotonsPt->setAxisTitle("P_{t} of FSR Photons radiating from/with tau [per tau]");
+    TauFSRPhotonsPtSum=dbe->book1D("TauFSRPhotonsPtSum","Pt of FSR Photons radiating from/with tau (Gauge Boson)", 100 ,0,100);
+    TauFSRPhotonsPtSum->setAxisTitle("P_{t} of FSR Photons radiating from/with tau [per tau]");
 
-    TauISRPhotonsN        = dbe->book1D("TauISRPhotonsN","Photons radiating from tau", 5 ,-0.5,4.5);
-    TauISRPhotonsN->setBinLabel(1,"Number of taus");
-    TauISRPhotonsN->setBinLabel(2,"Number of taus with ISR");
-    TauISRPhotonsPt       = dbe->book1D("TauISRPhotonsPt","ISR Photon Sum Pt (GeV)", 5 ,-0.5,4.5);
-    TauISRPhotonsPt->setBinLabel(1,"Sum of tau pt");
-    TauISRPhotonsPt->setBinLabel(2,"Sum of ISR pt");
-    TauISRPhotonsPtRatio  = dbe->book1D("TauISRPhotonsPtRatio","Sum ISR Pt over tau Pt", 100 ,0,1);
+    TauBremPhotonsN=dbe->book1D("TauBremPhotonsN","Brem. Photons radiating in tau decay", 5 ,-0.5,4.5);
+    TauBremPhotonsN->setAxisTitle("N FSR Photons radiating from/with tau");
+    TauBremPhotonsPt=dbe->book1D("TauBremPhotonsPt","Sum Brem Pt ", 100 ,0,100);
+    TauFSRPhotonsPt->setAxisTitle("P_{t} of Brem. Photons radiating in tau decay");    
+    TauBremPhotonsPtSum =dbe->book1D("TauBremPhotonsPtSum","Sum of Brem Pt ", 100 ,0,100);
+    TauFSRPhotonsPtSum->setAxisTitle("Sum P_{t} of Brem. Photons radiating in tau decay");
 
     JAKID =dbe->book1D("JAKID","JAK ID",NJAKID+1,-0.5,NJAKID+0.5);
     for(unsigned int i=0; i<NJAKID+1;i++){
@@ -222,9 +220,19 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   delete myGenEvent;
 }//analyze
 
+const HepMC::GenParticle* TauValidation::GetMother(const HepMC::GenParticle* tau){
+  if ( tau->production_vertex() ) {
+    HepMC::GenVertex::particle_iterator mother;
+    for (mother = tau->production_vertex()->particles_begin(HepMC::parents); mother!= tau->production_vertex()->particles_end(HepMC::parents); mother++ ) {
+      if((*mother)->pdg_id() == tau->pdg_id()) return GetMother(*mother);
+      return (*mother);
+    }
+  }
+  return tau;
+}
+
 int TauValidation::findMother(const HepMC::GenParticle* tau){
   int mother_pid = 0;
-  
   if ( tau->production_vertex() ) {
     HepMC::GenVertex::particle_iterator mother;
     for (mother = tau->production_vertex()->particles_begin(HepMC::parents); mother!= tau->production_vertex()->particles_end(HepMC::parents); mother++ ) {
@@ -234,6 +242,7 @@ int TauValidation::findMother(const HepMC::GenParticle* tau){
   }
   return mother_pid;
 }
+
 
 bool TauValidation::isLastTauinChain(const HepMC::GenParticle* tau){
   if ( tau->end_vertex() ) {
@@ -259,26 +268,50 @@ void TauValidation::findTauList(const HepMC::GenParticle* tau,std::vector<const 
   }
 }
 
-void TauValidation::findISRandFSR(const HepMC::GenParticle* p, bool doFSR, std::vector<const HepMC::GenParticle*> &ListofISR,
-				  std::vector<const HepMC::GenParticle*> &ListofFSR){
-  // note this code split the ISR and FSR based one if the tau decays into a tau+photon or not with the Fortran Tauola Interface, this is not 100% correct because photos puts the tau with the regular tau decay products. 
+void TauValidation::findFSRandBrem(const HepMC::GenParticle* p, bool doBrem, std::vector<const HepMC::GenParticle*> &ListofFSR,
+				  std::vector<const HepMC::GenParticle*> &ListofBrem){
+  // note this code split the FSR and Brem based one if the tau decays into a tau+photon or not with the Fortran Tauola Interface, this is not 100% correct because photos puts the tau with the regular tau decay products. 
   if(abs(p->pdg_id())==15){
-    if(isLastTauinChain(p)){ doFSR=true;}
-    else{ doFSR=false;}
+    if(isLastTauinChain(p)){ doBrem=true;}
+    else{ doBrem=false;}
   }
     int photo_ID=22;
   if ( p->end_vertex() ) {
     HepMC::GenVertex::particle_iterator dau;
     for (dau = p->end_vertex()->particles_begin(HepMC::children); dau!= p->end_vertex()->particles_end(HepMC::children); dau++ ) {
-      //if(doFSR) std::cout << "true " << (*dau)->pdg_id() << " "  << std::endl;
+      //if(doBrem) std::cout << "true " << (*dau)->pdg_id() << " "  << std::endl;
       //else std::cout << "false " << (*dau)->pdg_id() << " " << std::endl;
-      if(abs((*dau)->pdg_id()) == abs(photo_ID) && !doFSR){ListofISR.push_back(*dau);}
-      if(abs((*dau)->pdg_id()) == abs(photo_ID) && doFSR){ListofFSR.push_back(*dau);}
-      if((*dau)->end_vertex() && (*dau)->end_vertex()->particles_out_size()>0 && abs((*dau)->pdg_id()) != 111 /* remove pi0 decays*/){
-	findISRandFSR(*dau,doFSR,ListofISR,ListofFSR);
+      if(abs((*dau)->pdg_id()) == abs(photo_ID) && !doBrem){ListofFSR.push_back(*dau);}
+      if(abs((*dau)->pdg_id()) == abs(photo_ID) && doBrem){ListofBrem.push_back(*dau);}
+      if((*dau)->end_vertex() && (*dau)->end_vertex()->particles_out_size()>0 && abs((*dau)->pdg_id()) != 111 && abs((*dau)->pdg_id()) != 221/* remove pi0 and eta decays*/){
+	findFSRandBrem(*dau,doBrem,ListofFSR,ListofBrem);
       }
     }
   }
+}
+
+
+
+void TauValidation::FindPhotosFSR(const HepMC::GenParticle* p,std::vector<const HepMC::GenParticle*> &ListofFSR,double &BosonScale){
+  BosonScale=0.0;
+  const HepMC::GenParticle* m=GetMother(p);
+  double mother_pid=m->pdg_id();
+  if(m->end_vertex() && mother_pid!=p->pdg_id()){
+    HepMC::GenVertex::particle_iterator dau;
+    for (dau = m->end_vertex()->particles_begin(HepMC::children); dau!= m->end_vertex()->particles_end(HepMC::children); dau++ ) {
+      int dau_pid = (*dau)->pdg_id();
+      if(fabs(dau_pid) == 22) {
+	ListofFSR.push_back(*dau);
+      }
+    }
+  }
+  if(abs(mother_pid) == 24) BosonScale=1.0; // W
+  if(abs(mother_pid) == 23) BosonScale=2.0; // Z;
+  if(abs(mother_pid) == 22) BosonScale=2.0; // gamma;
+  if(abs(mother_pid) == 25) BosonScale=2.0; // HSM;
+  if(abs(mother_pid) == 35) BosonScale=2.0; // H0;
+  if(abs(mother_pid) == 36) BosonScale=2.0; // A0;
+  if(abs(mother_pid) == 37) BosonScale=1.0; //Hpm;
 }
 
 
@@ -518,35 +551,40 @@ void TauValidation::photons(const HepMC::GenParticle* tau, double weight){
   std::vector<const HepMC::GenParticle*> TauList;
   findTauList(tau,TauList);
 
-  // Get List of ISR and FSR
+  // Get List of Gauge Boson to tau(s) FSR and Brem
   bool passedW=false;
-  std::vector<const HepMC::GenParticle*> ListofISR; ListofISR.clear();
-  std::vector<const HepMC::GenParticle*> ListofFSR; ListofFSR.clear(); 
+  std::vector<const HepMC::GenParticle*> ListofFSR;  ListofFSR.clear();
+  std::vector<const HepMC::GenParticle*> ListofBrem; ListofBrem.clear();
+  std::vector<const HepMC::GenParticle*> FSR_photos; FSR_photos.clear();
+  double BosonScale(1);
   if(TauList.size()>0){
-    TauValidation::findISRandFSR(TauList.at(0),passedW,ListofISR,ListofFSR);
+    TauValidation::findFSRandBrem(TauList.at(0),passedW,ListofFSR,ListofBrem);
+    TauValidation::FindPhotosFSR(TauList.at(0),FSR_photos,BosonScale);
 
-    TauISRPhotonsN->Fill(ListofISR.size(),weight);
-    TauFSRPhotonsN->Fill(ListofFSR.size(),weight);
-    
+    // Add the Tau Brem. information
+    TauBremPhotonsN->Fill(ListofBrem.size(),weight);
     double photonPtSum=0;
-    for(unsigned int i=0;i<ListofISR.size();i++){
-      photonPtSum+=ListofISR.at(i)->momentum().perp();
+    for(unsigned int i=0;i<ListofBrem.size();i++){
+      photonPtSum+=ListofBrem.at(i)->momentum().perp();
+      TauBremPhotonsPt->Fill(ListofBrem.at(i)->momentum().perp(),weight);
     }
-    if(photonPtSum>0){
-      TauISRPhotonsPtRatio->Fill(photonPtSum/TauList.at(0)->momentum().perp(),weight);
+    TauBremPhotonsPtSum->Fill(photonPtSum,weight);
+        
+    // Now add the Gauge Boson FSR information
+    if(BosonScale!=0){
+      TauFSRPhotonsN->Fill(ListofFSR.size(),weight);
+      photonPtSum=0;
+      for(unsigned int i=0;i<ListofFSR.size();i++){
+	photonPtSum+=ListofFSR.at(i)->momentum().perp();
+	TauFSRPhotonsPt->Fill(ListofFSR.at(i)->momentum().perp(),weight);
+      }
+      double FSR_photosSum(0);
+      for(unsigned int i=0;i<FSR_photos.size();i++){
+	FSR_photosSum+=FSR_photos.at(i)->momentum().perp();
+	TauFSRPhotonsPt->Fill(FSR_photos.at(i)->momentum().perp()/BosonScale,weight*BosonScale);
+      }
+      TauFSRPhotonsPtSum->Fill(photonPtSum+FSR_photosSum/BosonScale,weight);
     }
-    else{photonPtSum=TauList.at(0)->momentum().perp();}
-    TauISRPhotonsPt->Fill(ListofISR.size(),photonPtSum);
-    
-    photonPtSum=0;
-    for(unsigned int i=0;i<ListofFSR.size();i++){
-      photonPtSum+=ListofFSR.at(i)->momentum().perp();
-    }
-    if(photonPtSum>0){
-      TauFSRPhotonsPtRatio->Fill(photonPtSum/TauList.at(0)->momentum().perp(),weight);
-    }
-    else{photonPtSum=TauList.at(0)->momentum().perp();}
-    TauFSRPhotonsPt->Fill(ListofFSR.size(),photonPtSum);
   }
 }
 
