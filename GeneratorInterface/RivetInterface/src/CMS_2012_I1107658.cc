@@ -57,12 +57,11 @@ namespace Rivet {
     void analyze(const Event& event) {
        const double weight = event.weight();
        const ZFinder& zfinder = applyProjection<ZFinder>(event, "ZFinder");
-       const FinalState& fs = zfinder.constituentsFinalState();
    
-       if (zfinder.particles().size() != 1) vetoEvent;
+       if (zfinder.particles().size() != 2) vetoEvent;
 
-       Particle lepton0 = fs.particles().at(0);
-       Particle lepton1 = fs.particles().at(1);
+       Particle lepton0 = zfinder.particles().at(0);
+       Particle lepton1 = zfinder.particles().at(1);
 
        if (lepton0.pdgId() != -lepton1.pdgId()) vetoEvent; 
 
@@ -73,9 +72,9 @@ namespace Rivet {
 
        if(pt0 > 20. && pt1 > 20 && fabs(eta1) < 2.4 && fabs(eta0) < 2.4){
 
-       	double _Zpt = zfinder.particles()[0].momentum().pT()/GeV;
-       	double _Zphi = zfinder.particles()[0].momentum().phi(); 
-       	double _Zmass = zfinder.particles()[0].momentum().mass()/GeV;
+       	double _Zpt = zfinder.bosons()[0].momentum().pT()/GeV;
+       	double _Zphi = zfinder.bosons()[0].momentum().phi(); 
+       	double _Zmass = zfinder.bosons()[0].momentum().mass()/GeV;
 
        	ParticleVector particles =
           applyProjection<ChargedFinalState>(event, "CFS").particlesByPt();
