@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v2.1/HLT/V4 (CMSSW_5_2_7_HLT3)
+# /online/collisions/2012/8e33/v2.1/HLT/V5 (CMSSW_5_2_7_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v2.1/HLT/V4')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.1/HLT/V5')
 )
 
 process.streams = cms.PSet( 
@@ -5848,7 +5848,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 40, 40, 40, 40, 40, 400, 800, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele8_CaloIdT_TrkIdVL_Jet30_v7" ),
-        prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 15, 0, 0 )
+        prescales = cms.vuint32( 1, 1, 1, 1, 1, 8, 15, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele8_CaloIdL_CaloIsoVL_v17" ),
         prescales = cms.vuint32( 40, 40, 40, 40, 40, 320, 800, 0, 0 )
