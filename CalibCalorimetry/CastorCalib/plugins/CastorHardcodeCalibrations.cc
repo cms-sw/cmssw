@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: CastorHardcodeCalibrations.cc,v 1.4 2009/05/14 10:29:05 katsas Exp $
+// $Id: CastorHardcodeCalibrations.cc,v 1.5 2011/05/09 19:35:15 mundim Exp $
 // Adapted for CASTOR by L. Mundim
 //
 
@@ -21,6 +21,7 @@
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/CastorQIEDataRcd.h"
 #include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
+#include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
 
 #include "Geometry/ForwardGeometry/interface/CastorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
@@ -109,7 +110,10 @@ CastorHardcodeCalibrations::CastorHardcodeCalibrations ( const edm::ParameterSet
       setWhatProduced (this, &CastorHardcodeCalibrations::produceRecoParams);
       findingRecord <CastorRecoParamsRcd> ();
     }
-
+    if ((*objectName == "SaturationCorrs") || all) {
+      setWhatProduced (this, &CastorHardcodeCalibrations::produceSaturationCorrs);
+      findingRecord <CastorSaturationCorrsRcd> ();
+    }
   }
 }
 
@@ -214,3 +218,13 @@ std::auto_ptr<CastorRecoParams> CastorHardcodeCalibrations::produceRecoParams (c
 	return result;
 }
 
+std::auto_ptr<CastorSaturationCorrs> CastorHardcodeCalibrations::produceSaturationCorrs (const CastorSaturationCorrsRcd& rcd) {
+	edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::produceSaturationCorrs-> ...";
+	std::auto_ptr<CastorSaturationCorrs> result (new CastorSaturationCorrs ());
+	std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+	for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+		CastorSaturationCorr item = CastorDbHardcode::makeSaturationCorr (*cell);
+		result->addValues(item);
+	}
+	return result;
+}
