@@ -7,8 +7,8 @@
  *  in this class.
  *  Ported from ORCA.
  *
- *  $Date: 2011/04/16 14:51:22 $
- *  $Revision: 1.13 $
+ *  $Date: 2012/05/05 17:44:59 $
+ *  $Revision: 1.14 $
  *  \author todorov, cerati
  */
 
@@ -22,6 +22,14 @@
 class MaterialEffectsUpdator
 {  
 public:
+  
+  struct Effect {
+    // Change in |p| from material effects.
+    double deltaP=0;
+    // Contribution to covariance matrix (in local co-ordinates) from material effects.
+    AlgebraicSymMatrix55 deltaCov;
+  };
+
   /** Constructor with explicit mass hypothesis
    */
   MaterialEffectsUpdator ( double mass );
@@ -42,16 +50,7 @@ public:
   virtual bool updateStateInPlace (TrajectoryStateOnSurface& TSoS, 
 				   const PropagationDirection propDir) const;
 
- 
-  /** Change in |p| from material effects.
-   */
-  virtual double deltaP (const TrajectoryStateOnSurface& TSoS, const PropagationDirection propDir) const;
 
-
-  /** Contribution to covariance matrix (in local co-ordinates) from material effects.
-   */
-  virtual const AlgebraicSymMatrix55 &deltaLocalError (const TrajectoryStateOnSurface& TSoS, 
-						       const PropagationDirection propDir) const;
 
   /** Particle mass assigned at construction.
    */
@@ -61,27 +60,12 @@ public:
 
   virtual MaterialEffectsUpdator* clone()  const = 0;
 
- private:
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const dso_internal = 0;
-
-  // check of arguments for use with cached values
-  bool newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const dso_internal;
-  
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const = 0;
+ 
  private:
   double theMass;
 
-  // chache previous call state
-  mutable double theLastOverP;
-  mutable double theLastDxdz;
-  mutable float  theLastRL;
-  mutable PropagationDirection theLastPropDir;
-
-
-protected:  
-  mutable double theDeltaP;
-  mutable AlgebraicSymMatrix55 theDeltaCov;
-  static  AlgebraicSymMatrix55  theNullMatrix;
 };
 
 #endif

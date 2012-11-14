@@ -28,14 +28,10 @@ public:
     thePtMin(ptMin) {}
   /// destructor
   ~MultipleScatteringUpdator() {}
-  /// reimplementation of deltaP (since always 0)
-  virtual double deltaP (const TrajectoryStateOnSurface&, const PropagationDirection) const {
-    return 0.;
-  }
 
-private:
+
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const dso_internal;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect & effect) const;
 
 
 private:  

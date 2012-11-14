@@ -3,21 +3,11 @@
 
 using namespace SurfaceSideDefinition;
 
-// static initialization
-AlgebraicSymMatrix55  MaterialEffectsUpdator::theNullMatrix;
-
-
 
 /** Constructor with explicit mass hypothesis
  */
 MaterialEffectsUpdator::MaterialEffectsUpdator ( double mass ) :
-  theMass(mass),
-  theLastOverP(0),
-  theLastDxdz(0), 
-  theLastRL(0),
-  theLastPropDir(anyDirection),
-  theDeltaP(0.),
-  theDeltaCov() {}
+  theMass(mass) {}
 
 MaterialEffectsUpdator::~MaterialEffectsUpdator () {}
 
@@ -31,28 +21,6 @@ TrajectoryStateOnSurface MaterialEffectsUpdator::updateState (const TrajectorySt
   return updateStateInPlace(shallowCopy, propDir) ? shallowCopy : TrajectoryStateOnSurface();
 }
 
-
-/** Change in |p| from material effects.
- */
-double MaterialEffectsUpdator::deltaP (const TrajectoryStateOnSurface& TSoS, const PropagationDirection propDir) const {
-  // check for material
-  if ( !TSoS.surface().mediumProperties() )  return 0.;
-  // check for change (avoid using compute method if possible)
-  if ( newArguments(TSoS,propDir) )  compute(TSoS,propDir);
-  return theDeltaP;
-}
-
-
-  /** Contribution to covariance matrix (in local co-ordinates) from material effects.
-   */
-const AlgebraicSymMatrix55 & MaterialEffectsUpdator::deltaLocalError (const TrajectoryStateOnSurface& TSoS, 
-								      const PropagationDirection propDir) const {
-  // check for material
-  if ( !TSoS.surface().mediumProperties() )  return theNullMatrix;
-  // check for change (avoid using compute method if possible)
-  if ( newArguments(TSoS,propDir) )  compute(TSoS,propDir);
-  return theDeltaCov;
-}  
 
 
 //
@@ -79,14 +47,16 @@ bool MaterialEffectsUpdator::updateStateInPlace (TrajectoryStateOnSurface& TSoS,
   // Update momentum. In case of failure: return invalid state
   //
   LocalTrajectoryParameters lp = TSoS.localParameters();
-  if ( !lp.updateP(deltaP(TSoS,propDir)) )  
+  Effect effect;
+  compute (TSoS,propDir,effect);
+  if ( !lp.updateP(effect.deltaP) )  
     return false;
   //
   // Update covariance matrix?
   //
   SurfaceSide side = propDir==alongMomentum ? afterSurface : beforeSurface;
   if ( TSoS.hasError() ) {
-    AlgebraicSymMatrix55 eloc = TSoS.localError().matrix() + deltaLocalError(TSoS,propDir);
+    AlgebraicSymMatrix55 eloc = TSoS.localError().matrix() + effect.deltaCov;
     //TSoS = TrajectoryStateOnSurface(lp,LocalTrajectoryError(eloc),surface, &(TSoS.globalParameters().magneticField()),side);
     TSoS.update(lp,LocalTrajectoryError(eloc),surface,
                 &(TSoS.globalParameters().magneticField()),side);
@@ -98,21 +68,4 @@ bool MaterialEffectsUpdator::updateStateInPlace (TrajectoryStateOnSurface& TSoS,
   return true;
 }
 
-bool MaterialEffectsUpdator::newArguments (const TrajectoryStateOnSurface & TSoS, PropagationDirection  propDir) const {
-  // check that track as same momentum and direction, surface has same radLen
-  // it optimize also against multiple evaluations on different "surfaces" 
-  // belonging to contigous detectors with same radLem 
-  bool ok = 
-    theLastOverP != TSoS.localParameters().qbp() ||
-    theLastDxdz != TSoS.localParameters().dxdz() || 
-    theLastRL    != TSoS.surface().mediumProperties()->radLen() ||
-    theLastPropDir != propDir;
-  if (ok) {
-    theLastOverP = TSoS.localParameters().qbp();
-    theLastDxdz  = TSoS.localParameters().dxdz(); 
-    theLastRL  = TSoS.surface().mediumProperties()->radLen();
-    theLastPropDir = propDir;
-  }
-  return ok;
-}
-  
+

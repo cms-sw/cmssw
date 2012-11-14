@@ -28,15 +28,16 @@ public:
   EnergyLossUpdator( double mass ) :
     MaterialEffectsUpdator(mass) {}
 
-private:
   // here comes the actual computation of the values
   virtual void compute (const TrajectoryStateOnSurface&, 
-			const PropagationDirection) const dso_internal;
+			const PropagationDirection, Effect & effect) const;
+
+private:
   // Internal routine for ionization acc. to Bethe-Bloch
-  void computeBetheBloch (const LocalVector&, const MediumProperties&) const dso_internal;
+  void computeBetheBloch (const LocalVector&, const MediumProperties&, Effect & effect) const dso_internal;
   // Internal routine for energy loss by electrons due to radiation
   void computeElectrons (const LocalVector&, const MediumProperties&,
-			 const PropagationDirection) const dso_internal;
+			 const PropagationDirection, Effect & effect) const dso_internal;
 
 };
 

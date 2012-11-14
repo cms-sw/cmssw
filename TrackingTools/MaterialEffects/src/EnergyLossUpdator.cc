@@ -20,17 +20,13 @@ oldComputeElectrons (const LocalVector& localP,
 // contribution of radiation acc. to Bethe & Heitler.
 //
 void EnergyLossUpdator::compute (const TrajectoryStateOnSurface& TSoS, 
-				 const PropagationDirection propDir) const
+				 const PropagationDirection propDir, Effect & effect) const
 {
   //
   // Get surface
   //
   const Surface& surface = TSoS.surface();
   //
-  // Initialise dP and the update to the covariance matrix
-  //
-  theDeltaP = 0.;
-  theDeltaCov(0,0) = 0.;
   //
   // Now get information on medium
   //
@@ -39,15 +35,15 @@ void EnergyLossUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     // Bethe-Bloch
     //
     if ( mass()>0.001 )
-      computeBetheBloch(TSoS.localMomentum(),*surface.mediumProperties());
+      computeBetheBloch(TSoS.localMomentum(),*surface.mediumProperties(),effect);
     //
     // Special treatment for electrons (currently rather crude
     // distinction using mass)
     //
     else
       computeElectrons(TSoS.localMomentum(),*surface.mediumProperties(),
-		       propDir);
-    if (propDir != alongMomentum) theDeltaP *= -1.;
+		       propDir,effect);
+    if (propDir != alongMomentum) effect.deltaP *= -1.;
   }
 }
 //
@@ -55,7 +51,7 @@ void EnergyLossUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 //
 void
 EnergyLossUpdator::computeBetheBloch (const LocalVector& localP,
-				      const MediumProperties& materialConstants) const {
+				      const MediumProperties& materialConstants, Effect & effect) const {
   //
   // calculate absolute momentum and correction to path length from angle 
   // of incidence
@@ -90,8 +86,8 @@ EnergyLossUpdator::computeBetheBloch (const LocalVector& localP,
   Float dEdx2 = xi*emax*(Float(1.)-Float(0.5)*beta2);
   Float dP    = dEdx/std::sqrt(beta2);
   Float sigp2 = dEdx2/(beta2*p2*p2);
-  theDeltaP += -dP;
-  theDeltaCov(0,0) += sigp2;
+  effect.deltaP += -dP;
+  effect.deltaCov(0,0) += sigp2;
 
 
   // std::cout << "pion new " <<  theDeltaP << " " << theDeltaCov(0,0) << std::endl;
@@ -104,7 +100,7 @@ EnergyLossUpdator::computeBetheBloch (const LocalVector& localP,
 void 
 EnergyLossUpdator::computeElectrons (const LocalVector& localP,
 				     const MediumProperties& materialConstants,
-				     const PropagationDirection propDir) const {
+				     const PropagationDirection propDir, Effect & effect) const {
   //
   // calculate absolute momentum and correction to path length from angle 
   // of incidence
@@ -128,19 +124,19 @@ EnergyLossUpdator::computeElectrons (const LocalVector& localP,
     // convert to obtain equivalent delta(p). Sign of deltaP is corrected
     // in method compute -> deltaP<0 at this place!!!
     //
-    theDeltaP += -p*(1.f/z-1.f);
-    theDeltaCov(0,0) += varz/p2;
+    effect.deltaP += -p*(1.f/z-1.f);
+    effect.deltaCov(0,0) += varz/p2;
   }
   else {	
     //
     // for forward propagation: calculate in p (linear in 1/z=p_inside/p_outside),
     // then convert sig(p) to sig(1/p). 
     //
-    theDeltaP += p*(z-1.f);
+    effect.deltaP += p*(z-1.f);
     //    float f = 1/p/z/z;
     // patch to ensure consistency between for- and backward propagation
     float f2 = 1.f/(p2*z*z);
-    theDeltaCov(0,0) += f2*varz;
+    effect.deltaCov(0,0) += f2*varz;
   }
 
 
