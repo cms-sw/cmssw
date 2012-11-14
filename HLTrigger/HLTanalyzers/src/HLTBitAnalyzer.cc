@@ -136,6 +136,9 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
   double ptHat=-1.;
   if (genEventInfo.isValid()) {ptHat=genEventInfo->qScale();}
 
+  edm::ESHandle<LumiCorrectionParam> lumicorrdatahandle; //get LumiCorrectionParam object from event setup 
+  iSetup.getData(lumicorrdatahandle); 
+
   // print missing collections
   if (not missing.empty() and (errCnt < errMax())) {
     errCnt++;
@@ -167,7 +170,7 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
     iEvent,
     HltTree);
 
-  evt_header_.analyze(iEvent, HltTree);
+  evt_header_.analyze(iEvent, lumicorrdatahandle, HltTree);
 
   mct_analysis_.analyze(
 			mctruth,

@@ -51,18 +51,20 @@ void OHltPileupRateFitter::fitForPileup(
   TString model = thecfg->nonlinearPileupFit;
   double minLumi = 999999999.0;
   double maxLumi = 0.0;
-  float lumiMagicNumber = 6.37;
+  float lumiMagicNumber = 1.0;
 
   for (int iPath=0; iPath<nPaths; iPath++)
     {
       vector <double> vRates; //temp vector containing rates
       vector <double> vRateErrors; 
       vector <double> vLumiErrors;
+      vector <double> vLumi;
 
       for (int iLS=0; iLS<RunLSn; iLS++) {//looping over the entire set of data
 	double rate = 0;
 	double rateerr = 0;
 	double lumierr = 0.0;
+	double lumi = 0.0;
 
 	// Inst rate. Note here we've already applied the linear scale factor for the target lumi
 	// So cheat and uncorrect this back to the actual online rate before fitting 
@@ -70,13 +72,16 @@ void OHltPileupRateFitter::fitForPileup(
 	rateerr = (double) rate * sqrt(CountPerLS[iLS][iPath]) / (CountPerLS[iLS][iPath]);
 	lumierr = 0.0;
 
+	lumi = lumiMagicNumber * LumiPerLS[iLS];
+
+	vLumi.push_back(lumi);
 	vRates.push_back(rate);
 	vRateErrors.push_back(rateerr);
 	vLumiErrors.push_back(lumierr);
 
       }//end looping over the entire set of data
       
-      TGraphErrors* g = new TGraphErrors(RunLSn, &LumiPerLS[0], &vRates[0], &vLumiErrors[0], &vRateErrors[0]);
+      TGraphErrors* g = new TGraphErrors(RunLSn, &vLumi[0], &vRates[0], &vLumiErrors[0], &vRateErrors[0]);
       g->SetTitle(themenu->GetTriggerName(iPath));
       vGraph.push_back(g);
     }//end looping over paths
@@ -203,7 +208,7 @@ void OHltPileupRateFitter::fitForPileup(
       vGraph.at(jPath)->Draw("ap");
       fp1->SetParLimits(2,0,1000000);
       fp1->SetParLimits(3,0,1000000);
-      vGraph.at(jPath)->Fit("fp1","Q","",minLumi, maxLumi); 
+      vGraph.at(jPath)->Fit("fp1","QR","",minLumi, maxLumi); 
       fp1->SetLineColor(2);
       fp1->DrawCopy("same");
       /*
@@ -226,7 +231,7 @@ void OHltPileupRateFitter::fitForPileup(
   vTotalRateGraph->SetMarkerStyle(20);
   vTotalRateGraph->Draw("ap");
   fp1->SetParLimits(3,0.000000001,0.1);
-  vTotalRateGraph->Fit("fp1","QRL","",minLumi, maxLumi);
+  vTotalRateGraph->Fit("fp1","QR","",minLumi, maxLumi);
   fp1->SetLineColor(2);
   fp1->DrawCopy("same");
   cout << "\n";
@@ -250,7 +255,7 @@ void OHltPileupRateFitter::fitForPileup(
    vTotalRebinnedRateGraph->SetLineWidth(3);   
    vTotalRebinnedRateGraph->Draw("ap"); 
    fp2->SetParLimits(3,0.0,1.0); 
-   vTotalRebinnedRateGraph->Fit("fp2","QRL","",minLumi, maxLumi); 
+   vTotalRebinnedRateGraph->Fit("fp2","QR","",minLumi, maxLumi); 
    fp2->SetLineColor(2); 
    fp2->DrawCopy("same"); 
    cout << "\n"; 

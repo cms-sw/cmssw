@@ -51,6 +51,7 @@
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoHI/HiEgammaAlgos"/>
 <use   name="RecoJets/JetProducers"/>
+<use   name="RecoLuminosity/LumiProducer"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="DQMServices/Core"/>
 <use   name="rootcore"/>
