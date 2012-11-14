@@ -834,7 +834,7 @@ void FastTimerService::postProcessEvent(edm::Event const & event, edm::EventSetu
       float luminosity = 0.;
       edm::Handle<LumiScalersCollection> h_luminosity;
       if (event.getByLabel(m_luminosity_label, h_luminosity) and not h_luminosity->empty())
-        luminosity = h_luminosity->front().instantLumi();
+        luminosity = h_luminosity->front().instantLumi();   // in units of 1e30 cm-2s-1
 
       m_dqm_byluminosity_event        ->Fill(luminosity, m_event        * 1000.);
       m_dqm_byluminosity_source       ->Fill(luminosity, m_source       * 1000.);
