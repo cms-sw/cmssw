@@ -45,9 +45,9 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
    // Turns out, in the online system we do sometimes gets files without any  
    // history, this really should be investigated
    if (history.empty())
-      std::cout << "WARNING: the file '"
+      fwLog(fwlog::kWarning) << "WARNING: the file '"
          << file->GetName() << "' contains no processing history"
-            " and therefore should have no accessible data.\n";
+            " and therefore should have no accessible data";
    
    std::copy(history.rbegin(),history.rend(),
              std::back_inserter(processNamesInJob()));

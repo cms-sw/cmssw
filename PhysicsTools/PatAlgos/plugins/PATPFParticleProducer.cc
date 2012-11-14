@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.cc,v 1.5 2009/06/25 23:49:35 gpetrucc Exp $
+// $Id: PATPFParticleProducer.cc,v 1.4 2009/03/26 05:02:42 hegner Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPFParticleProducer.h"
@@ -23,9 +23,7 @@
 using namespace pat;
 
 
-PATPFParticleProducer::PATPFParticleProducer(const edm::ParameterSet & iConfig) :
-    userDataHelper_ ( iConfig.getParameter<edm::ParameterSet>("userData") )
-{
+PATPFParticleProducer::PATPFParticleProducer(const edm::ParameterSet & iConfig) {
   // general configurables
   pfCandidateSrc_ = iConfig.getParameter<edm::InputTag>( "pfCandidateSource" );
  
@@ -52,11 +50,7 @@ PATPFParticleProducer::PATPFParticleProducer(const edm::ParameterSet & iConfig) 
      resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
 
-  // Check to see if the user wants to add user data
-  useUserData_ = false;
-  if ( iConfig.exists("userData") ) {
-    useUserData_ = true;
-  }
+
 
   // produces vector of muons
   produces<std::vector<PFParticle> >();
@@ -117,11 +111,6 @@ void PATPFParticleProducer::produce(edm::Event & iEvent,
     if (resolutionLoader_.enabled()) {
         resolutionLoader_.setResolutions(aPFParticle);
     }
-
-    if ( useUserData_ ) {
-        userDataHelper_.add( aPFParticle, iEvent, iSetup );
-    }
-
 
     // add sel to selected
     patPFParticles->push_back(aPFParticle);

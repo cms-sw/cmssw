@@ -22,7 +22,7 @@ void FWBeamSpot::checkBeamSpot(const edm::EventBase* event)
    }
    catch (cms::Exception& iException)
    {
-      fwLog(fwlog::kWarning) <<"Can't get beam spot info. Setting coordintes to (0, 0, 0).\n";
+      fwLog(fwlog::kError) <<"FWBeamSpot::checkBeamSpot failed "<<iException.what() <<std::endl;
       m_beamspot = 0;
    }
 }

@@ -8,19 +8,16 @@
 #include <map>
 #include <vector>
 
-//#include <boost/cstdint.hpp>
-
 class CaloGeometry;
 class RandomEngine;
-// class HcalTPGCoder;
 class HcalSimParameterMap;
 class HcalDbService;
 class HcalRespCorrs;
 
 namespace edm { 
-  class ParameterSet;
   class Event;
   class EventSetup;
+  class ParameterSet;
 }
 
 class HcalRecHitsMaker

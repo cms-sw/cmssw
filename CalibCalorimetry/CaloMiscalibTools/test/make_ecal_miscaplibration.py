@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 import commands,string,time,thread,random,math,sys
 
 #global variables

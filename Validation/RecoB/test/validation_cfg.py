@@ -82,7 +82,7 @@ if runOnMC:
     process.bTagValidation.allHistograms = True 
     #process.bTagValidation.fastMC = True
     process.bTagValidation.applyPtHatWeight = False
-    process.bTagValidation.mcPlots = 1 #0=no flavour histogram; 1=b, c, udsg and ni; 2=all flavour histograms
+    process.bTagValidation.flavPlots = "allbcl" #if contains "noall" plots for all jets not booked, if contains "dusg" all histograms booked, default : all, b, c, udsg, ni
 else:
     process.load("DQMOffline.RecoB.bTagAnalysisData_cfi")
 
@@ -116,6 +116,6 @@ process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 process.PoolSource.fileNames = [
-
+    
 ]
 

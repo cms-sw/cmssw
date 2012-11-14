@@ -5,8 +5,8 @@
  *
  *  DQM monitoring source for JPT Jets
  *
- *  $Date: 2012/03/23 18:24:43 $
- *  $Revision: 1.12 $
+ *  $Date: 2012/03/06 11:39:21 $
+ *  $Revision: 1.11 $
  *  \author N. Cripps - Imperial
  */
 
@@ -85,19 +85,18 @@ class JPTJetAnalyzer : public JetAnalyzerBase {
     MonitorElement* ptHisto;
     MonitorElement* phiHisto;
     MonitorElement* etaHisto;
-    /*    MonitorElement* nHitsHisto;
-	  MonitorElement* nLayersHisto;  */
+    MonitorElement* nHitsHisto;
+    MonitorElement* nLayersHisto;
     MonitorElement* ptVsEtaHisto;
-    /*    MonitorElement* dzHisto;
-    MonitorElement* dxyHisto;  */ 
+    MonitorElement* dzHisto;
+    MonitorElement* dxyHisto;
     MonitorElement* trackDirectionJetDRHisto;
     MonitorElement* trackImpactPointJetDRHisto;
     TrackHistograms();
-    TrackHistograms(MonitorElement* theNTracksHisto, MonitorElement* thePtHisto, MonitorElement* thePhiHisto, MonitorElement* theEtaHisto, 
-		    /* MonitorElement* theNHitsHisto, MonitorElement* theNLayersHisto, */ 
-MonitorElement* thePtVsEtaHisto, 
-		    /* MonitorElement* dzHisto, MonitorElement* dxyHisto,  */
-MonitorElement* theTrackDirectionJetDRHisto, MonitorElement* theTrackImpactPointJetDRHisto);
+    TrackHistograms(MonitorElement* theNTracksHisto, MonitorElement* thePtHisto, MonitorElement* thePhiHisto, MonitorElement* theEtaHisto,
+                    MonitorElement* theNHitsHisto, MonitorElement* theNLayersHisto, MonitorElement* thePtVsEtaHisto,
+                    MonitorElement* dzHisto, MonitorElement* dxyHisto,
+                    MonitorElement* theTrackDirectionJetDRHisto, MonitorElement* theTrackImpactPointJetDRHisto);
   };
   
   // Private methods
@@ -150,7 +149,7 @@ MonitorElement* theTrackDirectionJetDRHisto, MonitorElement* theTrackImpactPoint
   
   /// Jet ID cuts
   const int n90HitsMin_;
-  const double fHPDMax_;  
+  const double fHPDMax_;
   const double resEMFMin_;
   const double correctedPtMin_;
   
@@ -162,21 +161,19 @@ MonitorElement* theTrackDirectionJetDRHisto, MonitorElement* theTrackImpactPoint
   std::auto_ptr<reco::helper::JetIDHelper> jetID_;
   
   // Histograms
-  MonitorElement *JetE_, *JetEt_, *JetP_,  *JetPt_;
-  /*  MonitorElement *JetMass_   */
+  MonitorElement *JetE_, *JetEt_, *JetP_, *JetMass_, *JetPt_;
   MonitorElement *JetPt1_, *JetPt2_, *JetPt3_;
   MonitorElement *JetPx_, *JetPy_, *JetPz_;
   MonitorElement *JetEta_, *JetPhi_, *JetDeltaEta_, *JetDeltaPhi_, *JetPhiVsEta_;
-  /*  MonitorElement *JetN90Hits_ 
-      MonitorElement *JetfHPD_, *JetResEMF_, *JetfRBX_; 
-  MonitorElement *TrackSiStripHitStoNHisto_;  */
+  MonitorElement *JetN90Hits_, *JetfHPD_, *JetResEMF_, *JetfRBX_;
+  MonitorElement *TrackSiStripHitStoNHisto_;
   MonitorElement *InCaloTrackDirectionJetDRHisto_, *OutCaloTrackDirectionJetDRHisto_;
   MonitorElement *InVertexTrackImpactPointJetDRHisto_, *OutVertexTrackImpactPointJetDRHisto_;
   MonitorElement *NTracksPerJetHisto_, *NTracksPerJetVsJetEtHisto_, *NTracksPerJetVsJetEtaHisto_;
-  /*  MonitorElement *PtFractionInConeHisto_, *PtFractionInConeVsJetRawEtHisto_, *PtFractionInConeVsJetEtaHisto_;
+  MonitorElement *PtFractionInConeHisto_, *PtFractionInConeVsJetRawEtHisto_, *PtFractionInConeVsJetEtaHisto_;
   MonitorElement *CorrFactorHisto_, *CorrFactorVsJetEtHisto_, *CorrFactorVsJetEtaHisto_;
   MonitorElement *ZSPCorrFactorHisto_, *ZSPCorrFactorVsJetEtHisto_, *ZSPCorrFactorVsJetEtaHisto_;
-  MonitorElement *JPTCorrFactorHisto_, *JPTCorrFactorVsJetEtHisto_, *JPTCorrFactorVsJetEtaHisto_;  */ 
+  MonitorElement *JPTCorrFactorHisto_, *JPTCorrFactorVsJetEtHisto_, *JPTCorrFactorVsJetEtaHisto_;
   TrackHistograms allPionHistograms_, inCaloInVertexPionHistograms_, inCaloOutVertexPionHistograms_, outCaloInVertexPionHistograms_;
   TrackHistograms allMuonHistograms_, inCaloInVertexMuonHistograms_, inCaloOutVertexMuonHistograms_, outCaloInVertexMuonHistograms_;
   TrackHistograms allElectronHistograms_, inCaloInVertexElectronHistograms_, inCaloOutVertexElectronHistograms_, outCaloInVertexElectronHistograms_;

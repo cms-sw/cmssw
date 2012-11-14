@@ -18,7 +18,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		PTLUT = cms.PSet(
 			LowQualityFlag = cms.untracked.uint32(4),
 			ReadPtLUT = cms.bool(False),
-			PtMethod = cms.untracked.uint32(32)
+			PtMethod = cms.untracked.uint32(33) # no triple gain at ME11a
 		),
 		
 		# Operational mode control
@@ -35,7 +35,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		trigger_on_ME3 = cms.bool(False),
 		trigger_on_ME4 = cms.bool(False),
 		singlesTrackOutput = cms.uint32(1),
-		gangedME1a = cms.untracked.bool(True),
+		gangedME1a = cms.untracked.bool(False),
 		CoreLatency = cms.uint32(7),
 		PreTrigger = cms.uint32(2),
 		BXAdepth = cms.uint32(2),
@@ -94,7 +94,7 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 		QualityEnableME4b  = cms.uint32(65535),
 		QualityEnableME4c  = cms.uint32(65535),
 
-		firmwareSP = cms.uint32(20120319),#core 20120313
+		firmwareSP = cms.uint32(20120730),#core 20120730
 		firmwareFA = cms.uint32(20091026),
 		firmwareDD = cms.uint32(20091026),
 		firmwareVM = cms.uint32(20091026),
@@ -103,8 +103,8 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
                                    
 		#use firmware version and PTLUTs listed in this files if True
                 #use firmware and PTLUTs from O2O if False 
-                #initializeFromPSet = cms.bool(True)
-                initializeFromPSet = cms.bool(False)
+                initializeFromPSet = cms.bool(True)
+                #initializeFromPSet = cms.bool(False)
 	),
                                  
 	isTMB07 = cms.bool(True),

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.201 2012/05/08 03:16:09 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.200 2012/03/16 21:40:00 amraktad Exp $
 //
 
 // system include files
@@ -597,7 +597,7 @@ CmsShowMain::setupDataHandling()
    m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
    m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, guiManager(), _1));
    m_navigator->filterStateChanged_.connect(boost::bind(&CmsShowMain::navigatorChangedFilterState, this, _1));
-   m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering, this, _1));
+   m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering, this));
 
    // navigator fitlering <-
    guiManager()->showEventFilterGUI_.connect(boost::bind(&CmsShowNavigator::showEventFilterGUI, m_navigator.get(),_1));
@@ -776,11 +776,11 @@ CmsShowMain::preFiltering()
 }
 
 void
-CmsShowMain::postFiltering(bool doDraw)
+CmsShowMain::postFiltering()
 {
    // called only filter is changed
    guiManager()->clearStatus();
-   if (doDraw) draw();
+   draw();
    checkPosition();
    guiManager()->setFilterButtonText(m_navigator->filterStatusMessage());
 }

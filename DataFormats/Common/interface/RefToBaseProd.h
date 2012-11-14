@@ -146,7 +146,9 @@ namespace edm {
   inline
   RefToBaseProd<T>::RefToBaseProd(const RefToBaseProd<T>& ref) :
     product_(ref.product_) {
-      product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : 0);
+      if(product_.productPtr()) {
+        product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : 0);
+      }
   }
 
   template<typename T>

@@ -1,11 +1,10 @@
-// $Id: HcalCorrPFCalculation.cc,v 1.26 2011/04/27 13:40:35 kodolova Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.27 2012/02/09 08:26:41 eulisse Exp $
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalSourcePositionData.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
 

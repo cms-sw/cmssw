@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
 options.register('globalTag',
-                 '', #default value
+                 'IDEAL', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Global Tag")
@@ -18,12 +18,6 @@ options.register('run',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "run number")
-options.register('cfi',
-                 '0',
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "CMSSW cfi file")
-                 
 options.parseArguments()
 
 # the job
@@ -51,9 +45,6 @@ if (options.globalTag != "") :
 if (options.sqlite != "") :
     process.load("CondTools.L1Trigger.L1CondDBSource_cff")
     print "Can't read SQLite files yet"
-
-if (options.cfi > 0) :
-    process.load("L1Trigger.Configuration.L1Trigger_FakeConditions_cff")
 
 #from CondCore.DBCommon.CondDBSetup_cfi import *
 

@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTFClient.cc
  *
- * $Date: 2011/11/15 13:32:32 $
- * $Revision: 1.8 $
+ * $Date: 2011/03/28 15:16:52 $
+ * $Revision: 1.7 $
  * \author G. Codispoti
  *
  */
@@ -60,7 +60,6 @@ void L1TDTTFClient::beginJob(void)
 
   inclusivepath_ = l1tdttffolder_ + "/01-INCLUSIVE";
   gmtpath_ = l1tdttffolder_ + "/08-GMT_MATCH";
-  testpath_ = l1tdttffolder_ + "/09-TEST";
 
   /// occupancy summary
   char hname[100];//histo name
@@ -196,18 +195,6 @@ void L1TDTTFClient::beginJob(void)
   dttf_gmt_matching->setBinLabel(1, "GMT Only", 1);
   dttf_gmt_matching->setBinLabel(2, "Matching", 1);
   dttf_gmt_matching->setBinLabel(3, "DTTF Only", 1);
-
-
-  ////////////////////////////////////////////////////////
-  /// TEST directory for stats comparisons
-  ////////////////////////////////////////////////////////
-
-  dbe_->setCurrentFolder( testpath_ );
-  sprintf(hname, "dttf_01_tracks_occupancy_test_summary");
-  sprintf(mename, "DTTF Tracks Occupancy");
-  dttf_occupancySummary_test = dbe_->book2D( hname, mename, 6, 0, 6, 12, 1, 13 );
-  setWheelLabel( dttf_occupancySummary_test );
-  dttf_occupancySummary_test->setAxisTitle("Sector", 2);
 
 
   ////////////////////////////////////////////////////////
@@ -647,7 +634,6 @@ void L1TDTTFClient::buildSummaries()
 	    // else
 	    //   dttf_occupancySummary->setBinContent( wh+1, sector, bxval );
             dttf_occupancySummary->setBinContent( wh+1, sector, bxval );
-            dttf_occupancySummary_test->setBinContent( wh+1, sector, bxval );
 	    dttf_nTracks_wheel[wh]->setBinContent(sector, bxval );
 	  }
 	  wheelBx[bx] += bxval;

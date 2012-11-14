@@ -71,20 +71,15 @@ class Calculate {
      
   /// calculate W boson mass estimate
   double massWBoson(const std::vector<reco::Jet>& jets);
-  /// calculate t-quark mass estimate
-  double massTopQuark(const std::vector<reco::Jet>& jets);
-  /// calculate b-tagged t-quark mass estimate
-  //double massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<bool> bjet);
-  double massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<double> VbtagWP, double btagWP_);
+  /// calculate W boson mass estimate
+  double massTopQuark(const std::vector<reco::Jet>& jets); 
   
  private:
   /// do the calculation; this is called only once per event by the first 
   /// function call to return a mass estimate. The once calculated values 
   /// are cached afterwards
   void operator()(const std::vector<reco::Jet>& jets);
-  ///do the calculation of the t-quark mass with one b-jet
-  void operator2(const std::vector<reco::Jet>& , std::vector<double> , double);
-  
+
  private:
   /// indicate failed associations
   bool failed_;
@@ -96,9 +91,6 @@ class Calculate {
   double massWBoson_;
   /// cache of top quark mass estimate
   double massTopQuark_;
-  /// cache of b-tagged top quark mass estimate
-  double massBTopQuark_;
-  
 };
 
 

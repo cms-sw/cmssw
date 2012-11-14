@@ -10,7 +10,7 @@ class HcalDetId;
 class HcalTrigTowerGeometry {
 public:
 
-  HcalTrigTowerGeometry();
+  HcalTrigTowerGeometry( const HcalTopology* topology );
 
   void setupHF(bool useShortFibers, bool useQuadRings);
   
@@ -44,7 +44,7 @@ public:
   }
 
 private:
-  HcalTopology theTopology;
+  const HcalTopology* theTopology;
   bool useShortFibers_;
   bool useHFQuadPhiRings_;
   bool useUpgradeConfigurationHFTowers_;

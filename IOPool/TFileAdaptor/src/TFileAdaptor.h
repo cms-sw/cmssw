@@ -33,6 +33,7 @@ private:
 
   bool enabled_;
   bool doStats_;
+  bool enablePrefetching_;
   std::string cacheHint_;
   std::string readHint_;
   std::string tempDir_;

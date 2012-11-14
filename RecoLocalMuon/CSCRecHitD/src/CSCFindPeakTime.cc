@@ -11,7 +11,7 @@ CSCFindPeakTime::CSCFindPeakTime( const edm::ParameterSet& ps ):
   useAverageTime = ps.getParameter<bool>("UseAverageTime");
   useParabolaFit = ps.getParameter<bool>("UseParabolaFit");
   useFivePoleFit = ps.getParameter<bool>("UseFivePoleFit");
-  LogTrace("CSCRecHit|CSCFindPeakTime") << "CSCFindPeakTime: useAverageTime=" << useAverageTime <<
+  LogTrace("CSCRecHit") << "[CSCFindPeakTime] useAverageTime=" << useAverageTime <<
     ", useParabolaFit=" << useParabolaFit << ", useFivePoleFit=" << useFivePoleFit;
 }
 
@@ -59,7 +59,7 @@ float CSCFindPeakTime::parabolaFitTime( int tmax, const float* adc ) {
    if ( (y1+y3) < 2.*y2 ) tcorr =  0.5 * ( y1 - y3 ) / ( y1 - 2.*y2 + y3 );
    tpeak += tcorr;
 
-   LogTrace("CSCRecHit|CSCFindPeakTime") << "CSCFindPeakTime: tmax=" << tmax 
+   LogTrace("CSCFindPeakTime") << "[CSCFindPeakTime] tmax=" << tmax 
      << ", parabolic peak time is tmax+" << tcorr <<" bins, or " << tpeak*50. << " ns";
    
    return tpeak * 50.; // convert to ns.

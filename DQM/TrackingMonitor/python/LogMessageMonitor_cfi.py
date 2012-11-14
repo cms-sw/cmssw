@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.TrackingMonitor.BXlumiParameters_cfi import BXlumiSetup
 
 LogMessageMon = cms.EDAnalyzer("LogMessageMonitor",
-    pluginsMonName = cms.string("tracking"),
+
     # input modules                               
     modules = cms.vstring(
        'siPixelDigis',
@@ -34,14 +34,8 @@ LogMessageMon = cms.EDAnalyzer("LogMessageMonitor",
        'convTrackCandidates',
        'convStepTracks',
     ),
-    categories = cms.vstring(
-       'TooManyClusters',
-       'TooManyPairs',
-       'TooManyTriplets',
-       'TooManySeeds',
-    ),
     doWarningsPlots     = cms.bool(False),
-    doPUmonitoring      = cms.bool(False),
+
     LogFolderName       = cms.string('Tracking/MessageLog'),
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName      = cms.string('MonitorTrack.root'),

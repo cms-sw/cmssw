@@ -268,10 +268,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	self.label = label
 	return 1
 
-    def finalize( self ):
-	if self.resDb.checkLabelSequence(self.label) == False:
-		self.resDb.writeSequence(self.label)
-	runID = self.resDb.nextRunIDVal(self.label)
+    def finalize( self, writeFlag ):
 
 	reStr = "\!L\!([^!]+)\!TR\!([^!]+)\!TA\!([^!]+)\!RR\!([^!]+)\!RA\!([^!]+)"
 	for i in range (0, self.n_res):
@@ -282,15 +279,21 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	matching = pattern.findall(self.out_value)
 	stdoutMod = pattern.sub("", self.out_value)
 	timeStamp = self.resDb.getDate()
+        stat = "SUCCESS"
+	runID = 0
+	if( writeFlag ):
+		runID = self.resDb.getNewRunId()
 	for match in matching:
 		#print match
-		self.resDb.writeStatus(runID, timeStamp, match,self.resTags)
+		if( writeFlag):
+			self.resDb.writeResult(runID, timeStamp, match,self.resTags)
+		for i in range(5, len(match)):
+			if( match[i] != str(0) ):
+				stat = "FAILURE"
 	print stdoutMod
-	self.resDb.addLogStatus(self.label, runID, stdoutMod)
+	if( writeFlag ):
+		self.resDb.addResultLog(runID, stdoutMod)
         print "Test '%s' runID=%d" %(self.label, runID)
-        stat = "SUCCESS"
-	if(self.resDb.checkIfOkStatus(runID, self.label) == False):
-                stat = "FAILURE"
         print "Exit status=%s" %stat
         print "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 
@@ -299,6 +302,7 @@ def CmdUsage():
 	print "-F (--full) -t [test_label] -r [release] -a [arch] -p [path]: runs the full test. " 
 	print "-S (--self) -t [test_label] -r [release] -a [arch] -p [path]: runs the self test. " 
 	print "-R [ref_release] -A [ref_arch] -P [ref_path]  -t [test_label] -r [release] -a [arch] -p [path]: runs the test against the specified ref release. "
+	print "   optional flag -w: write the test result in the database. "
 	
 def CheckPath (release, arch, path):
 	if(os.path.exists(path)):
@@ -316,7 +320,7 @@ def CheckPath (release, arch, path):
 		return False
 	
 try:
-	opts, args = getopt.getopt(sys.argv[1:], "FSR:A:P:t:r:a:p:h", ['full', 'self', 'help'])
+	opts, args = getopt.getopt(sys.argv[1:], "FSR:A:P:t:r:a:p:hw", ['full', 'self', 'help'])
 except getopt.GetoptError, err:
 	# print help information and exit:
 	print str(err) # will print something like "option -a not recognized"
@@ -331,7 +335,7 @@ REF_PATH = None
 LABEL = None
 fflag = False
 sflag = False
-hflag = False
+wflag = False
 for o, a in opts:
 	if o in ("-F", "--full"):
 		fflag = True
@@ -351,6 +355,8 @@ for o, a in opts:
 		ARCH = a
 	elif o == "-p":
 		PATH = a
+	elif o == "-w":
+		wflag = True
 	elif o in ("-h", "--help"):
 		CmdUsage()
 		sys.exit(2)
@@ -387,7 +393,6 @@ else:
                     ret = test.runOnReference(LABEL, RELEASE, ARCH, PATH, RELEASE, ARCH, PATH)
                     done = True
                 if( REF_RELEASE != None and done==False ):
-                    okPar = False
                     if( REF_ARCH == None ):
                         okPar = False
                         print "Error: missing -A (ref architecture) parameter"
@@ -401,5 +406,5 @@ else:
                         ret = test.runOnReference(LABEL, RELEASE, ARCH, PATH, REF_RELEASE, REF_ARCH, REF_PATH)
 			done = True
 		if ( done == True and ret>0  ):
-			test.finalize()
+			test.finalize( wflag )
 		conn.close()	

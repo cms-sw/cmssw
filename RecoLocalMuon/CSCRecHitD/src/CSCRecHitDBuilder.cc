@@ -49,7 +49,7 @@ CSCRecHitDBuilder::~CSCRecHitDBuilder() {
 
 void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCWireDigiCollection* wiredc,
                                CSCRecHit2DCollection& oc ) {
-  LogTrace("CSCRecHit") << "CSCRecHitDBuilder: build entered";
+  LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] build entered";
   // Clean hit collections sorted by layer    
   std::vector<CSCDetId> stripLayer;
   std::vector<CSCDetId>::const_iterator sIt;
@@ -77,7 +77,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     clean_woc.put( id, rhv.begin(), rhv.end() );
   }
 
-  LogTrace("CSCRecHit") << "CSCRecHitDBuilder: wire hits created";
+  LogTrace("CSCRecHitBuilder") << "[CSCRecHitDBuilder] wire hits created";
 
   // Make collection of strip only hits
   
@@ -98,7 +98,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     clean_soc.put( id, rhv.begin(), rhv.end() );
   }
 
-  LogTrace("CSCRecHit") << "CSCRecHitDBuilder: strip hits created";
+  LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] strip hits created";
 
 
   // Now create 2-D hits by looking at superposition of strip and wire hit in a layer
@@ -139,17 +139,16 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     CSCDetId compId = sDetId;
     CSCWireDigiCollection::Range rwired = wiredc->get( sDetId );
     // Skip if no wire digis in this layer
-    // But for ME11, real wire digis are labelled as belonging to
-    //ME1b, so that's where ME1a must look
+    // But for ME11, real wire digis are labelled as belonging to ME1b, so that's where ME1a must look
     // (We try ME1a - above - anyway, because simulated wire digis are labelled as ME1a.)
     if ( rwired.second == rwired.first ) {
       if ( sDetId.station()!=1 || sDetId.ring()!=4 ){
         continue; // not ME1a, skip to next layer
       }
       // So if ME1a has no wire digis (always the case for data) make the
-      // wire digi ID pointing to ME1b. This is what is compared to the
-      // strip digi ID below (and not used anywhere else). Later, rechits use 
-      // the strip digi ID for construction,  
+      // wire digi ID point to ME1b. This is what is compared to the
+      // strip digi ID below (and not used anywhere else). 
+      // Later, rechits use the strip digi ID for construction.
    
       // It is ME1a but no wire digis there, so try ME1b...
       int endcap  = sDetId.endcap();
@@ -183,7 +182,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
         // Build 2D hit for all possible strip-wire pairs 
         // overlapping within this layer
 
-        LogTrace("CSCRecHit")<< "CSCRecHitDBuilder: found " << cscStripHit.size() << " strip and " 
+        LogTrace("CSCRecHitBuilder")<< "[CSCRecHitDBuilder] found " << cscStripHit.size() << " strip and " 
                              << cscWireHit.size()  << " wire hits in layer " << sDetId;
 
         for (unsigned i = 0; i != cscStripHit.size(); ++i ) {
@@ -202,7 +201,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
       }
     }
 
-    LogTrace("CSCRecHit") << "CSCRecHitDBuilder: " << hits_in_layer << " rechits found in layer " << sDetId;
+    LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId;
 
     // output vector of 2D rechits to collection
     if (hits_in_layer > 0) {
@@ -214,7 +213,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     old_id = sDetId;
   }
 
-  LogTrace("CSCRecHit|CSCOutput") << "CSCRecHitDBuilder: " << oc.size() << " 2d rechits created in this event.";
+  LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << oc.size() << " 2d rechits created in this event.";
 
 }
 

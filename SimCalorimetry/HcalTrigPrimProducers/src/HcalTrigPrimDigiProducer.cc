@@ -20,6 +20,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <algorithm>
 
@@ -59,6 +60,9 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
   eventSetup.get<HcalLutMetadataRcd>().get(lutMetadata);
   float rctlsb = lutMetadata->getRctLsb();
 
+  edm::ESHandle<HcalTrigTowerGeometry> pG;
+  eventSetup.get<CaloGeometryRecord>().get(pG);
+  
   // Step B: Create empty output
   std::auto_ptr<HcalTrigPrimDigiCollection> result(new HcalTrigPrimDigiCollection());
 
@@ -104,7 +108,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
   theAlgo_.run(inputCoder.product(),outTranscoder->getHcalCompressor().get(),
-	      *hbheDigis,  *hfDigis, *result, rctlsb);
+	       *hbheDigis,  *hfDigis, *result, &(*pG), rctlsb);
 
   // Step C.1: Run FE Format Error / ZS for real data.
   if (runFrontEndFormatError_) {

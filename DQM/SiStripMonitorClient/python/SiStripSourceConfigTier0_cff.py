@@ -195,7 +195,6 @@ SiStripDQMTier0 = cms.Sequence(
     # temporary test in order to have the "goodPrimaryVertexCollection"
 #    * goodOfflinePrimaryVertices
     *TrackerCollisionTrackMonCommon
-    * LocalRecoLogMessageMon * ClusterizerLogMessageMon * SeedingLogMessageMon * TrackCandidateLogMessageMon * TrackFinderLogMessageMon
 #    * TrackerCollisionIterTrackingLogMessageMonCommon
     *TrackMonStep0*TrackMonStep1*TrackMonStep2*TrackMonStep3*TrackMonStep4*TrackMonStep5*TrackMonStep6
     *dqmInfoSiStrip)

@@ -414,7 +414,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
       edm::LogInfo("SiStripCalibLorentzAngle")<<"id: "<<id;    
             
       float thickness=stripdet->specificSurface().bounds().thickness();
-      const StripTopology& topol=(StripTopology&)stripdet->topology();
+      const StripTopology& topol=(const StripTopology&)stripdet->topology();
       float pitch = topol.localPitch(p);
            	  
       fitfunc->SetParameter(0, p0_guess);

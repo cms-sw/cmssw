@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -40,13 +39,9 @@ using namespace std;
 using namespace edm;
 
 PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
-  : PFRecHitProducer( iConfig ) 
+  : PFRecHitProducer( iConfig )
 {
-
- 
-
   // access to the collections of rechits 
-
   
   inputTagHcalRecHitsHBHE_ =
     iConfig.getParameter<InputTag>("hcalRecHitsHBHE");
@@ -966,7 +961,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
        
   
     // get the hcal topology
-    HcalTopology hcalTopology;
+    edm::ESHandle<HcalTopology> hcalTopology;
+    iSetup.get<IdealGeometryRecord>().get( hcalTopology );
     
     // HCAL rechits 
     //    vector<edm::Handle<HBHERecHitCollection> > hcalHandles;  
@@ -1043,9 +1039,9 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
       for(unsigned i=0; i<rechits.size(); i++ ) {
 	
 	findRecHitNeighbours( rechits[i], idSortedRecHits, 
-			      hcalTopology, 
+			      *hcalTopology, 
 			      *hcalBarrelGeometry, 
-			      hcalTopology,
+			      *hcalTopology,
 			      *hcalEndcapGeometry);
       } // loop for navigation
     }  // endif hcal rechits were found

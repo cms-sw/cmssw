@@ -195,6 +195,13 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     std::string slhafilename = f1.fullPath();
     std::string pythiacommandslha = std::string("SLHA:file = ") + slhafilename;
     pythia->readString(pythiacommandslha);
+    for ( ParameterCollector::const_iterator line = parameters.begin();
+          line != parameters.end(); ++line ) {
+      if (line->find("SLHA:file") != std::string::npos)
+        throw cms::Exception("PythiaError") << "Attempted to set SLHA file name twice, "
+        << "using Pythia8 card SLHA:file and Pythia8Interface card SLHAFileForPythia8"
+        << std::endl;
+     }  
   }
 
   // Reweight user hook

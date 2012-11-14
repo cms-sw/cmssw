@@ -5,3 +5,4 @@
 /bin/sh dropBoxOffline_test.sh GeometryFileExtendedLiMax.db metaGeometryExtendedLiMax.txt 
 /bin/sh dropBoxOffline_test.sh GeometryFileExtendedX0Min.db metaGeometryExtendedX0Min.txt 
 /bin/sh dropBoxOffline_test.sh GeometryFileExtendedX0Max.db metaGeometryExtendedX0Max.txt 
+/bin/sh dropBoxOffline_test.sh GeometryFileExtendedPhaseIBeamPipe.db metaGeometryExtendedPhaseIBeamPipe.txt 

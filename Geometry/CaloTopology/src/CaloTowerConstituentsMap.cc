@@ -4,7 +4,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-CaloTowerConstituentsMap::CaloTowerConstituentsMap() :
+CaloTowerConstituentsMap::CaloTowerConstituentsMap(const HcalTopology * topology) :
+  m_topology(topology),
   standardHB_(false),
   standardHE_(false),
   standardHF_(false),
@@ -70,39 +71,38 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
     items.push_back(j->second);
 
   // dealing with topo dependency...
-  static HcalTopology htopo;
   int nd, sd;
 
   if (standardHB_) {
-    if (id.ietaAbs()<=htopo.lastHBRing()) {
-      htopo.depthBinInformation(HcalBarrel,id.ietaAbs(),nd,sd);
+    if (id.ietaAbs()<=m_topology->lastHBRing()) {
+      m_topology->depthBinInformation(HcalBarrel,id.ietaAbs(),nd,sd);
       for (int i=0; i<nd; i++)
 	items.push_back(HcalDetId(HcalBarrel,id.ieta(),id.iphi(),i+sd));
     }
   }
   if (standardHO_) {
-    if (id.ietaAbs()<=htopo.lastHORing()) {
-      htopo.depthBinInformation(HcalOuter,id.ietaAbs(),nd,sd);
+    if (id.ietaAbs()<=m_topology->lastHORing()) {
+      m_topology->depthBinInformation(HcalOuter,id.ietaAbs(),nd,sd);
       for (int i=0; i<nd; i++)
 	items.push_back(HcalDetId(HcalOuter,id.ieta(),id.iphi(),i+sd));
     }
   }
   if (standardHE_) {
-    if (id.ietaAbs()>=htopo.firstHERing() && id.ietaAbs()<=htopo.lastHERing()) {
-      htopo.depthBinInformation(HcalEndcap,id.ietaAbs(),nd,sd);
+    if (id.ietaAbs()>=m_topology->firstHERing() && id.ietaAbs()<=m_topology->lastHERing()) {
+      m_topology->depthBinInformation(HcalEndcap,id.ietaAbs(),nd,sd);
       for (int i=0; i<nd; i++)
 	items.push_back(HcalDetId(HcalEndcap,id.ieta(),id.iphi(),i+sd));
     }
   }
   if (standardHF_) {
-    if (id.ietaAbs()>htopo.firstHFRing() && id.ietaAbs()<=htopo.lastHFRing()) { 
+    if (id.ietaAbs()>m_topology->firstHFRing() && id.ietaAbs()<=m_topology->lastHFRing()) { 
       int ieta=id.ieta();
-      htopo.depthBinInformation(HcalForward,id.ietaAbs(),nd,sd);
+      m_topology->depthBinInformation(HcalForward,id.ietaAbs(),nd,sd);
       for (int i=0; i<nd; i++)
 	items.push_back(HcalDetId(HcalForward,ieta,id.iphi(),i+sd));
        if (id.ietaAbs() == 30) {
        ieta = 29*id.zside();
-       htopo.depthBinInformation(HcalForward,ieta,nd,sd);
+       m_topology->depthBinInformation(HcalForward,ieta,nd,sd);
        for (int i=0; i<nd; i++)
          items.push_back(HcalDetId(HcalForward,ieta,id.iphi(),i+sd));
        }

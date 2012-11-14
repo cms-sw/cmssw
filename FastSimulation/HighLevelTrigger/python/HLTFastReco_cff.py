@@ -29,6 +29,7 @@ rctDigis.hcalDigis = cms.VInputTag(cms.InputTag("simHcalTriggerPrimitiveDigis"))
 L1Emulator = cms.Sequence(L1CaloEmulator*L1MuonEmulator*gtDigis)
 
 # The calorimeter emulator requires doDigis=true)
+CaloMode = 0   ### In CMSSW > 61X CaloMode can be updated with the following import
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 if(CaloMode==0 or CaloMode==2):
     ecalRecHit.doDigis = True

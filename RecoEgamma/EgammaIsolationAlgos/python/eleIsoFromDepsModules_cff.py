@@ -19,9 +19,9 @@ eleIsoFromDepsEcalFromHits= cms.EDProducer("CandIsolatorFromDeposits",
         deltaR = cms.double(0.4),
         vetos = cms.vstring('EcalBarrel:0.045', 
                             'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)',
-                            'EcalBarrel:AbsThresholdFromTransverse(0.095)',
-                            'EcalEndcaps:AbsThreshold(0.110)',
-                            'EcalEndcaps:0.070', 
+                            'EcalBarrel:ThresholdFromTransverse(0.095)',
+                            'EcalEndcaps:Threshold(0.110)',
+                            #'EcalEndcaps:0.070', 
                             'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'), 
         skipDefaultVeto = cms.bool(True)
     ))
@@ -35,8 +35,8 @@ eleIsoFromDepsEcalFromHitsByCrystal = cms.EDProducer("CandIsolatorFromDeposits",
         deltaR = cms.double(0.4),
         vetos = cms.vstring('NumCrystalVeto(3.0)', 
                             'NumCrystalEtaPhiVeto(1.5,9999.0)',
-                            'EcalBarrel:AbsThresholdFromTransverse(0.095)',
-                            'EcalEndcaps:AbsThreshold(0.110)'),
+                            'EcalBarrel:ThresholdFromTransverse(0.095)',
+                            'EcalEndcaps:Threshold(0.110)'),
         skipDefaultVeto = cms.bool(True)
     ))
 )

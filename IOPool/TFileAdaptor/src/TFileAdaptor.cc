@@ -81,6 +81,7 @@
   TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry& ar)
     : enabled_(true),
       doStats_(true),
+      enablePrefetching_(false),
       cacheHint_("auto-detect"),
       readHint_("auto-detect"),
       tempDir_(),
@@ -129,7 +130,12 @@
         native_ = *p;
       }
       debugLevel_ = pSLC->debugLevel();
+      enablePrefetching_ = pSLC->enablePrefetching();
     }
+
+    // Prefetching does not work with storage-only; forcibly disable it.
+    if ((enablePrefetching_) && ((cacheHint_ == "storage-only") || (cacheHint_ == "auto-detect")))
+      cacheHint_ = "application-only";
 
     // tell factory how clients should access files
     if (cacheHint_ == "application-only")
@@ -221,6 +227,7 @@
     float const oneMeg = 1048576.0;
     o << "Storage parameters: adaptor: true"
       << " Stats:" << (doStats_ ? "true" : "false") << '\n'
+      << " Prefetching:" << (enablePrefetching_ ? "true" : "false") << '\n'
       << " Cache hint:" << cacheHint_ << '\n'
       << " Read hint:" << readHint_ << '\n'
       << "Storage statistics: "
@@ -237,6 +244,7 @@
     float const oneMeg = 1048576.0;
     data.insert(std::make_pair("Parameter-untracked-bool-enabled", "true"));
     data.insert(std::make_pair("Parameter-untracked-bool-stats", (doStats_ ? "true" : "false")));
+    data.insert(std::make_pair("Parameter-untracked-bool-prefetching", (enablePrefetching_ ? "true" : "false")));
     data.insert(std::make_pair("Parameter-untracked-string-cacheHint", cacheHint_));
     data.insert(std::make_pair("Parameter-untracked-string-readHint", readHint_));
     StorageAccount::fillSummary(data);
