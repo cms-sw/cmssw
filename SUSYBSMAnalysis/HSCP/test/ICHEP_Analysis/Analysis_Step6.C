@@ -1844,12 +1844,12 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
 
    
    if(TypeMode==0){
-            if(SignalName.find("1o3")!=string::npos()){ SignalUnc=1.20;
-      }else if(SignalName.find("2o3")!=string::npos()){ SignalUnc=1.20;
+            if(SignalName.find("1o3")!=string::npos){ SignalUnc=1.20;
+      }else if(SignalName.find("2o3")!=string::npos){ SignalUnc=1.20;
       }
    }else if(TypeMode==5){
-            if(SignalName.find("1o3")!=string::npos()){ SignalUnc=1.25;
-      }else if(SignalName.find("2o3")!=string::npos()){ SignalUnc=1.10;
+            if(SignalName.find("1o3")!=string::npos){ SignalUnc=1.25;
+      }else if(SignalName.find("2o3")!=string::npos){ SignalUnc=1.10;
       }
    }
 
