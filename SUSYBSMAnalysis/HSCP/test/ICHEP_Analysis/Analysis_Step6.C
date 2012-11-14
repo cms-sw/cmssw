@@ -1837,6 +1837,23 @@ std::cout << "TEST4\n";
 
 // produce the Higgs combine stat tool datacard
 void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, bool Shape){
+
+
+   double LumiUnc   = (SQRTS==7?1.022:1.044);
+   double SignalUnc = 1.07;
+
+   
+   if(TypeMode==0){
+            if(SignalName.find("1o3")!=string::npos()){ SignalUnc=1.20;
+      }else if(SignalName.find("2o3")!=string::npos()){ SignalUnc=1.20;
+      }
+   }else if(TypeMode==5){
+            if(SignalName.find("1o3")!=string::npos()){ SignalUnc=1.25;
+      }else if(SignalName.find("2o3")!=string::npos()){ SignalUnc=1.10;
+      }
+   }
+
+
    FILE* pFile = fopen(outpath.c_str(), "w");
    fprintf(pFile, "imax 1\n");
    fprintf(pFile, "jmax *\n");
@@ -1854,9 +1871,9 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
    fprintf(pFile, "process  0 1\n");
    fprintf(pFile, "rate    %f %f\n",Sign,std::max(1E-4, Pred) );  //if Pred<1E-4 we have troubles when merging datacards
    fprintf(pFile, "-------------------------------\n");
-   fprintf(pFile, "%35s    %6s 1.022     1.0  \n","Lumi" , "lnN");
+   fprintf(pFile, "%35s    %6s %5.3f     1.0  \n","Lumi" , "lnN", LumiUnc);
    fprintf(pFile, "%35s    %6s -         %5.3f\n",(ChannelName+"systP").c_str(), "lnN", PredRelErr);
-   fprintf(pFile, "%35s    %6s 1.07      -    \n",(ChannelName+"systS").c_str(), "lnN");
+   fprintf(pFile, "%35s    %6s %5.3f     -    \n",(ChannelName+"systS").c_str(), "lnN", SignalUnc);
    if(Shape){
    fprintf(pFile, "%35s    %6s 1.000     -    \n",(ChannelName+"statS").c_str(), "shapeN2");
    fprintf(pFile, "%35s    %6s -         1    \n",(ChannelName+"statP").c_str(), "shapeN2");
