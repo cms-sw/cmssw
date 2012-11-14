@@ -206,7 +206,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(SQRTS!=78.0) keepOnlySamplesAt7and8TeVX(samples, SQRTS);
 
    for(unsigned int s=0;s<samples.size();s++){
-    if(samples[s].Type<2)continue;
+    if(samples[s].Type!=2)continue;
     //printf("Name-->Model >>  %30s --> %s\n",samples[s].Name.c_str(), samples[s].ModelName().c_str());
 
     if(SQRTS== 7.0  && samples[s].Name.find("_7TeV")==string::npos){continue;}
@@ -1149,10 +1149,10 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       if(tmp.Eff==0) continue;
 
       Mass[N]        = tmp.Mass;
-      SystP[N]       = (tmp.Eff - tmp.Eff_SYSTP)/tmp.Eff;
-      SystI[N]       = (tmp.Eff - tmp.Eff_SYSTI)/tmp.Eff;
-      SystPU[N]      = (tmp.Eff - tmp.Eff_SYSTPU)/tmp.Eff;
-      SystT[N]       = (tmp.Eff - tmp.Eff_SYSTT)/tmp.Eff;
+      SystP[N]       = (tmp.Eff_SYSTP  - tmp.Eff)/tmp.Eff;
+      SystI[N]       = (tmp.Eff_SYSTI  - tmp.Eff)/tmp.Eff;
+      SystPU[N]      = (tmp.Eff_SYSTPU - tmp.Eff)/tmp.Eff;
+      SystT[N]       = (tmp.Eff_SYSTT  - tmp.Eff)/tmp.Eff;
       SystTr[N]      = 0.05;
       SystRe[N]      = 0.02;
 
@@ -1160,11 +1160,22 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
       SystTotal[N] = sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp + SystTr[N]*SystTr[N] + SystRe[N]*SystRe[N]);
 
-      if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f\n"        ,modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N]           , SystTotal[N]);  
-      else          fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f\n",modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N], SystT[N], SystTotal[N]);
+      if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f"        ,modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N]           , SystTotal[N]);  
+      else          fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f",modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N], SystT[N], SystTotal[N]);
 
-      //if(TypeMode==0 || TypeMode==5)fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%%             \\\\\n",modelSample[N].Name.c_str(), 100.*tmp.Eff, 100.*P, 100.*I, 100.*PU, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp));	
-      //else        fprintf(talkFile, "\\hline\n%20s &  %7.1f\\%% & %7.1f\\%%  &  %7.1f\\%%  & %7.1f\\%%  & %7.1f\\%% & %7.1f\\%% \\\\\n",modelSample[N].Name.c_str(), 100.*tmp.Eff, 100.*P, 100.*I, 100.*PU, 100.*T, 100.*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp));
+
+      //Check if they are variated samples for this point
+      for(unsigned int sv=0;sv<samples.size();sv++){
+         if(samples[sv].Type!=3)continue;
+         if(samples[sv].Name.length() != modelSample[s].Name.length()+3)continue; // variated samples are exactly 3char longer
+         if(samples[sv].Name.find(modelSample[s].Name)!=0)continue; //we expect to have the beginning of the name being identical
+         stAllInfo tmpVaried(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR + "/"+samples[sv].Name+".txt");
+         if(tmp.Mass<=0) continue;
+//         fprintf(pFile, "%20s%10s    %7.3f --> RelDiff=%7.3f\n", "   Variation --> ",samples[sv].Name.c_str()+modelSample[s].Name.length()+1, tmpVaried.Eff, (tmpVaried.Eff-tmp.Eff)/tmp.Eff);
+         fprintf(pFile, " | %7.3f (%2s)", (tmpVaried.Eff - tmp.Eff)/tmp.Eff, samples[sv].Name.c_str()+modelSample[s].Name.length()+1);
+      }
+
+      fprintf(pFile, "\n");
       N++;
    }
 
