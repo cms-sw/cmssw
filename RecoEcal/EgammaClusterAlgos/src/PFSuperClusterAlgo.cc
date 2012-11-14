@@ -35,6 +35,7 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
   //3- take all the pfclusters passing the threshold in this window and remove them from the list of available pfclusters
   //4- go to next seed if not already clustered
   
+  const reco::PFClusterCollection& pfclusters = *pfclustersHandle.product();
   //Setting parameters
   if (detector==0) {
     threshPFClusterSeed_ = threshPFClusterSeedBarrel_;
@@ -64,10 +65,10 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
   seedCandidateIndex_.clear();
   pfClusterIndex_.clear();
 
-  EclustersPS1.clear();
-  EclustersPS2.clear();
+  unsigned int nClusters = pfclusters.size();
+  allPfClusterCalibratedEnergy_.resize(nClusters);
+  allPfClusterCalibratedEnergy_.assign(nClusters, 0.d);
 
-  allPfClusterCalibratedEnergy_.clear();
   pfClusterCalibratedEnergy_.clear();
 
   seedCandidateCollection.clear();
@@ -79,16 +80,15 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
   if (detector==1) layer = PFLayer::ECAL_ENDCAP;
 
   //Select PF clusters available for the clustering
-  for (uint i=0; i<pfclustersHandle->size(); i++){
-
-    if (verbose_) cout << "PFCluster i="<<i<<" energy="<<(*pfclustersHandle)[i].energy()<<endl;
+  for (unsigned int i=0; i<pfclusters.size(); i++){
+    const reco::PFCluster & myPFCluster = pfclusters[i];
+    if (verbose_) cout << "PFCluster i="<<i<<" energy="<<myPFCluster.energy()<<endl;
     
-    if ((*pfclustersHandle)[i].layer()==layer){
+    if (myPFCluster.layer()==layer){
 
-      const reco::PFCluster & myPFCluster (*(reco::PFClusterRef(pfclustersHandle, i)));
-      double PFClusterCalibratedEnergy = thePFEnergyCalibration_->energyEm(myPFCluster,EclustersPS1,EclustersPS2,applyCrackCorrections_);
+      double PFClusterCalibratedEnergy = thePFEnergyCalibration_->energyEm(myPFCluster,0.d,0.d,applyCrackCorrections_);
 
-      allPfClusterCalibratedEnergy_.push_back(PFClusterCalibratedEnergy);
+      allPfClusterCalibratedEnergy_[i]= PFClusterCalibratedEnergy;
 
       //select PFClusters seeds
       if (PFClusterCalibratedEnergy > threshPFClusterSeed_){
@@ -111,11 +111,11 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
   sort(seedCandidateCollection.begin(), seedCandidateCollection.end(), less_magPF());
  
   if (verbose_) cout << "After sorting"<<endl;
-  for (uint is=0; is<seedCandidateCollection.size(); is++) {
+  for (unsigned int is=0; is<seedCandidateCollection.size(); is++) {
     if (verbose_) cout << "SeedPFCluster "<<is<< " energy="<<seedCandidateCollection[is]->energy()<<endl;
 
-    for (uint i=0; i<pfclustersHandle->size(); i++){
-      if (seedCandidateCollection[is]->energy()==(*pfclustersHandle)[i].energy()) {
+    for (unsigned int i=0; i<pfclusters.size(); i++){
+      if (seedCandidateCollection[is].key()==i) {
 	seedCandidateIndex_.push_back(i);
 	if (verbose_) cout << "seedCandidateIndex_[is]="<<seedCandidateIndex_[is]<<endl;
       }
@@ -125,19 +125,16 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
 
   //Keep pfclusters within etawidth-phiwidth window around seeds
 
-  isSeedUsed = new int[seedCandidateCollection.size()];
-  for (uint is=0; is<seedCandidateCollection.size(); is++) isSeedUsed[is] = 0;
+  std::vector<int> isSeedUsed(seedCandidateCollection.size(),0);
 
-  isPFclusterUsed = new int[pfClusterAboveThresholdCollection.size()];
-  for (uint j=0; j<pfClusterAboveThresholdCollection.size(); j++) isPFclusterUsed[j] = 0;
+  std::vector<int> isPFclusterUsed(pfClusterAboveThresholdCollection.size(), 0);
 
-  isClusterized = new bool[pfclustersHandle->size()];
-  for (uint i=0; i<pfclustersHandle->size(); i++) isClusterized[i] = false;
+  std::vector<bool> isClusterized(pfclusters.size(), false);
 
   nSuperClusters = 0;
 
   //run over the seed candidates
-  for (uint is=0; is<seedCandidateCollection.size(); is++){
+  for (unsigned int is=0; is<seedCandidateCollection.size(); is++){
 
     if (verbose_) cout << "is="<<is<<" seedCandidate Energy="<<seedCandidateCollection[is]->energy() <<" eta="<< seedCandidateCollection[is]->eta()<< " phi="<< seedCandidateCollection[is]->phi()<< endl;
 
@@ -147,17 +144,21 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
     }
     isSeedUsed[is]=0;
 
+    double seedEta = seedCandidateCollection[is]->eta();
+    double seedPhi = seedCandidateCollection[is]->phi();
     //check if the pfclusters can belong to the seeded supercluster
-    for (uint j=0; j<pfClusterAboveThresholdCollection.size(); j++){
+    for (unsigned int j=0; j<pfClusterAboveThresholdCollection.size(); j++){
       
+      reco::PFClusterRef myPFClusterRef = pfClusterAboveThresholdCollection[j];
+      const reco::PFCluster & myPFCluster (*myPFClusterRef);
       if (isPFclusterUsed[j]==1) {
-	if (verbose_) cout << "This PFCluster (energy="<<pfClusterAboveThresholdCollection[j]->energy() <<") is already used" << endl;
+	if (verbose_) cout << "This PFCluster (energy="<<myPFCluster.energy() <<") is already used" << endl;
 	continue;
       }
       
       //checking if the pfcluster is inside the eta/phi box around the seed
-      if (fabs(seedCandidateCollection[is]->eta()-pfClusterAboveThresholdCollection[j]->eta())<etawidthSuperCluster_
-	  && fabs(seedCandidateCollection[is]->phi()-pfClusterAboveThresholdCollection[j]->phi())<phiwidthSuperCluster_
+      if (fabs(seedEta-myPFCluster.eta())<etawidthSuperCluster_
+	  && fabs(seedPhi-myPFCluster.phi())<phiwidthSuperCluster_ //FIXME wraparound
 		  ){
 
 	isSeedUsed[is]++;
@@ -170,17 +171,20 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
 	isPFclusterUsed[j]=1;
 	
 	//add pfcluster to collection of basicclusters
-	createBasicCluster(pfClusterAboveThresholdCollection[j], basicClusters_[nSuperClusters], pfClusters_[nSuperClusters]);
+	createBasicCluster(myPFClusterRef, basicClusters_[nSuperClusters], pfClusters_[nSuperClusters]);
 
-	const reco::PFCluster & myPFCluster (*(pfClusterAboveThresholdCollection[j]));
-	double PFClusterCalibratedEnergy = thePFEnergyCalibration_->energyEm(myPFCluster,EclustersPS1,EclustersPS2,applyCrackCorrections_);
+	double PFClusterCalibratedEnergy = allPfClusterCalibratedEnergy_[myPFClusterRef.key()];
+	  //thePFEnergyCalibration_->energyEm(myPFCluster,0.d,0.d,applyCrackCorrections_);
 	pfClusterCalibratedEnergy_[nSuperClusters].push_back(PFClusterCalibratedEnergy);
 
-	if (pfClusterAboveThresholdCollection[j]->energy()==seedCandidateCollection[is]->energy()) {
+	if (myPFClusterRef==seedCandidateCollection[is]) {
 	  scPFseedIndex_.push_back(basicClusters_[nSuperClusters].size()-1);
 	}
 
-	if (verbose_) cout << "Use PFCluster "<<j<<" eta="<< pfClusterAboveThresholdCollection[j]->eta()<< "phi="<< pfClusterAboveThresholdCollection[j]->phi()<<" energy="<< pfClusterAboveThresholdCollection[j]->energy()<<" calibEnergy="<< pfClusterCalibratedEnergy_[nSuperClusters][basicClusters_[nSuperClusters].size()-1]<<endl;
+	if (verbose_) cout << "Use PFCluster "<<j<<" eta="<< myPFCluster.eta()
+			   << "phi="<< myPFCluster.phi()
+			   <<" energy="<< myPFCluster.energy()
+			   <<" calibEnergy="<< pfClusterCalibratedEnergy_[nSuperClusters][basicClusters_[nSuperClusters].size()-1]<<endl;
 	
 	isClusterized[pfClusterIndex_[j]] = true;
 	
@@ -192,7 +196,7 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
     if (isSeedUsed[is]>0) {
 
       if (verbose_) cout << "New supercluster, number "<<nSuperClusters<<" having "<< basicClusters_[nSuperClusters].size()<< " basicclusters"<<endl;
-      if (verbose_) for (uint i=0; i<basicClusters_[nSuperClusters].size(); i++) cout << "BC "<<i<<" energy="<<basicClusters_[nSuperClusters][i].energy()<<endl;
+      if (verbose_) for (unsigned int i=0; i<basicClusters_[nSuperClusters].size(); i++) cout << "BC "<<i<<" energy="<<basicClusters_[nSuperClusters][i].energy()<<endl;
 
       basicClusters_p->insert(basicClusters_p->end(),basicClusters_[nSuperClusters].begin(), basicClusters_[nSuperClusters].end());
 
@@ -208,11 +212,6 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
     if (detector==1) cout << "Leaving doClustering in EE (nothing more to clusterize)"<<endl;
   }
 
-
-  //Deleting objects
-  delete[] isSeedUsed;
-  delete[] isPFclusterUsed;
-  delete[] isClusterized;
 
   return;
 }
@@ -232,14 +231,16 @@ void PFSuperClusterAlgo::createBasicCluster(const reco::PFClusterRef & myPFClust
 
 
 
-  basicClusters.push_back(reco::CaloCluster(//coCandidate.rawEcalEnergy(),
-					    myPFCluster.energy(),
-					    myPFCluster.position(),
-					    myPFCluster.caloID(),
-					    myPFCluster.hitsAndFractions(),
-					    myPFCluster.algo(),
-					    myPFCluster.seed()));
-
+  basicClusters.push_back(myPFCluster);
+  /*
+    reco::CaloCluster(//coCandidate.rawEcalEnergy(),
+    myPFCluster.energy(),
+    myPFCluster.position(),
+    myPFCluster.caloID(),
+    myPFCluster.hitsAndFractions(),
+    myPFCluster.algo(),
+    myPFCluster.seed()));
+  */
 
 }
 
@@ -388,25 +389,29 @@ void PFSuperClusterAlgo::matchSCtoESclusters(const edm::Handle<reco::PFClusterCo
 
   if (detector==0) return;
 
-  //std::vector<reco::PFClusterRef> pfESClusterAboveThresholdCollection;
+  const reco::PFClusterCollection& pfclusters = *pfclustersHandle.product();
+  std::vector<const reco::PFCluster*> pfESClusterAboveThresholdCollection;
   pfClusterCalibratedEnergyWithES_.clear();
-  pfESClusterAboveThresholdCollection.clear();
+  //  pfESClusterAboveThresholdCollection.clear();
 
   //Select the preshower pfclusters above thresholds
-  for (uint i=0; i<pfclustersHandle->size(); i++){
+  typedef reco::PFClusterCollection::const_iterator PFCI;
+  unsigned int i=0;
+  for (PFCI cluster = pfclusters.begin(), cEnd = pfclusters.end(); cluster!=cEnd; ++cluster,++i){
     
-    if ((*pfclustersHandle)[i].layer()==PFLayer::PS1 || (*pfclustersHandle)[i].layer()==PFLayer::PS2){
+    if (cluster->layer()==PFLayer::PS1 || cluster->layer()==PFLayer::PS2){
       
-      if (verbose_) cout << "ES PFCluster i="<<i<<" energy="<<(*pfclustersHandle)[i].energy()<<endl;
+      if (verbose_) cout << "ES PFCluster i="<<i<<" energy="<<cluster->energy()<<endl;
       
-      if ((*pfclustersHandle)[i].energy()>threshPFClusterES_){
-	const reco::PFClusterRef pfESClusterAboveThreshold = reco::PFClusterRef(pfclustersHandle, i);
-	pfESClusterAboveThresholdCollection.push_back(pfESClusterAboveThreshold);
+      if (cluster->energy()>threshPFClusterES_){
+	pfESClusterAboveThresholdCollection.push_back(&*cluster);
       }
 
     }
 
   }
+
+  unsigned int nESaboveThreshold = pfESClusterAboveThresholdCollection.size();
 
 
   //for each preshower pfcluster get the associated EE pfcluster if existing
@@ -416,36 +421,57 @@ void PFSuperClusterAlgo::matchSCtoESclusters(const edm::Handle<reco::PFClusterCo
   int iscsel = -1;
   int ibcsel = -1;
 
+  unsigned int nSCs = pfClusters_.size();
+ 
   //These vectors will relate the EE clusters in the SC to the ES clusters (needed for calibration)
-  SCBCtoESenergyPS1 = new std::vector<double>*[pfClusters_.size()]; 
-  SCBCtoESenergyPS2 = new std::vector<double>*[pfClusters_.size()];
-  for (uint isc=0; isc<pfClusters_.size(); isc++) {
-    SCBCtoESenergyPS1[isc] = new std::vector<double>[pfClusters_[isc].size()];
-    SCBCtoESenergyPS2[isc] = new std::vector<double>[pfClusters_[isc].size()];
+  unsigned int maxSize = 0;
+  for (unsigned int isc=0; isc<nSCs; isc++) {
+    unsigned int iscSize = pfClusters_[isc].size();
+    if (maxSize < iscSize) maxSize = iscSize;
   }
 
-  for (uint ies=0; ies<pfESClusterAboveThresholdCollection.size(); ies++){ //loop over the ES pfclusters above the threshold
+  //cache some values instead of recomputing ntimes
+  std::vector<double > SCBCtoESenergyPS1(nSCs*maxSize, 0);
+  std::vector<double > SCBCtoESenergyPS2(nSCs*maxSize, 0);
+
+  std::vector<double> bcEtas(nSCs*maxSize,0);
+  std::vector<double> bcPhis(nSCs*maxSize,0);
+  for (unsigned int isc=0; isc<nSCs; isc++) {
+    for (unsigned int ibc=0, nBCs = pfClusters_[isc].size(); ibc<nBCs; ibc++){
+      unsigned int indBC = isc*maxSize + ibc;
+      bcEtas[indBC] = pfClusters_[isc][ibc]->eta();
+      bcPhis[indBC] = pfClusters_[isc][ibc]->phi();
+    }
+  }
+  for (unsigned int ies=0;  ies<nESaboveThreshold; ies++){ //loop over the ES pfclusters above the threshold
 
     distmin = 1000;
     iscsel = -1;
     ibcsel = -1;
+    
+    const reco::PFCluster* pfes(pfESClusterAboveThresholdCollection[ies]);
+    double pfesEta = pfes->eta();
+    double pfesPhi = pfes->phi();
+    for (unsigned int isc=0; isc<nSCs; isc++){ //loop over the superclusters
+      for (unsigned int ibc=0, nBCs = pfClusters_[isc].size(); ibc<nBCs; ibc++){ //loop over the basic clusters inside the SC
+	unsigned int indBC = isc*maxSize + ibc;
+	const reco::PFCluster* bcPtr = pfClusters_[isc][ibc];
 
-    for (uint isc=0; isc<pfClusters_.size(); isc++){ //loop over the superclusters
-      for (uint ibc=0; ibc<pfClusters_[isc].size(); ibc++){ //loop over the basic clusters inside the SC
-
-	if (pfClusters_[isc][ibc]->layer()!=PFLayer::ECAL_ENDCAP) continue;
-	if (pfClusters_[isc][ibc]->eta()*pfESClusterAboveThresholdCollection[ies]->eta()<0) continue; //same side of the EE
+	if (bcPtr->layer()!=PFLayer::ECAL_ENDCAP) continue;
+	double bcEta = bcEtas[indBC];
+	double deta=fabs(bcEta-pfesEta);
+	if (bcEta*pfesEta<0 || fabs(deta)>0.3) continue; //same side of the EE
 	
-	double dphi= fabs(pfClusters_[isc][ibc]->phi()-pfESClusterAboveThresholdCollection[ies]->phi()); 
+	double bcPhi = bcPhis[indBC];
+	double dphi= fabs(bcPhi-pfesPhi); 
 	if (dphi>TMath::Pi()) dphi-= TMath::TwoPi();
-	double deta=fabs(pfClusters_[isc][ibc]->eta()-pfESClusterAboveThresholdCollection[ies]->eta());
 	//if (fabs(deta)>0.4 || fabs(dphi)>1.0) continue;
-	if (fabs(deta)>0.3 || fabs(dphi)>0.6) continue; //geometrical matching to speed up the timing
+	if (fabs(dphi)>0.6) continue; //geometrical matching to speed up the timing
 	
-	dist = LinkByRecHit::testECALAndPSByRecHit( *(pfClusters_[isc][ibc]), *(pfESClusterAboveThresholdCollection[ies]), false); //matches EE and ES cluster
+	dist = LinkByRecHit::testECALAndPSByRecHit( *(bcPtr), *(pfes), false); //matches EE and ES cluster
       
 	if (dist!=-1){
-	  if (verbose_) cout << "isc="<<isc<<" ibc="<<ibc<< " ies="<<ies<< " ESenergy="<< pfESClusterAboveThresholdCollection[ies]->energy()<<" dist="<<dist<<endl;
+	  if (verbose_) cout << "isc="<<isc<<" ibc="<<ibc<< " ies="<<ies<< " ESenergy="<< pfes->energy()<<" dist="<<dist<<endl;
 	  
 	  if (dist<distmin){
 	    distmin = dist;
@@ -461,12 +487,12 @@ void PFSuperClusterAlgo::matchSCtoESclusters(const edm::Handle<reco::PFClusterCo
     //Store energies of the ES clusters associated to BC of the SC
     if (iscsel!=-1 && ibcsel!=-1){
       if (verbose_) cout << "Associate ESpfcluster ies="<<ies<<" to BC "<<ibcsel<<" in SC"<<iscsel<<endl;
-
-      if (pfESClusterAboveThresholdCollection[ies]->layer()==PFLayer::PS1) {
-	SCBCtoESenergyPS1[iscsel][ibcsel].push_back(pfESClusterAboveThresholdCollection[ies]->energy());
+      unsigned int indBCsel = iscsel*maxSize + ibcsel;
+      if (pfes->layer()==PFLayer::PS1) {
+	SCBCtoESenergyPS1[indBCsel]+=pfes->energy();
       }
-      if (pfESClusterAboveThresholdCollection[ies]->layer()==PFLayer::PS2) {
-	SCBCtoESenergyPS2[iscsel][ibcsel].push_back(pfESClusterAboveThresholdCollection[ies]->energy());
+      if (pfes->layer()==PFLayer::PS2) {
+	SCBCtoESenergyPS2[indBCsel]+=pfes->energy();
       }
     }
 
@@ -474,24 +500,24 @@ void PFSuperClusterAlgo::matchSCtoESclusters(const edm::Handle<reco::PFClusterCo
 
 
   //Compute the calibrated pfcluster energy, including EE+ES calibration. 
-   for (uint isc=0; isc<pfClusters_.size(); isc++){
-      for (uint ibc=0; ibc<pfClusters_[isc].size(); ibc++){
-	if (pfClusters_[isc][ibc]->layer()!=PFLayer::ECAL_ENDCAP) continue;
-
-	pfClusterCalibratedEnergyWithES_.push_back(std::vector<double>());
-
+   for (unsigned int isc=0; isc<nSCs; isc++){
+      pfClusterCalibratedEnergyWithES_.push_back(std::vector<double>());
+      for (unsigned int ibc=0; ibc<pfClusters_[isc].size(); ibc++){
 	const reco::PFCluster & myPFCluster (*(pfClusters_[isc][ibc]));
-	double PFClusterCalibratedEnergy = thePFEnergyCalibration_->energyEm(myPFCluster,SCBCtoESenergyPS1[isc][ibc],SCBCtoESenergyPS2[isc][ibc],applyCrackCorrections_);
-	if (verbose_) cout << "isc="<<isc<<" ibc="<<ibc<<" EEenergy="<<pfClusters_[isc][ibc]->energy()<<" calibEnergyWithoutES="<< pfClusterCalibratedEnergy_[isc][ibc] << " calibEnergyWithES="<<PFClusterCalibratedEnergy <<endl;
-	pfClusterCalibratedEnergyWithES_[isc].push_back(PFClusterCalibratedEnergy);
+	if (myPFCluster.layer()!=PFLayer::ECAL_ENDCAP) continue;
 
+	unsigned int indBC = isc*maxSize + ibc;
+	double PFClusterCalibratedEnergy = 
+	  thePFEnergyCalibration_->energyEm(myPFCluster,SCBCtoESenergyPS1[indBC],SCBCtoESenergyPS2[indBC],applyCrackCorrections_);
+	if (verbose_) cout << "isc="<<isc<<" ibc="<<ibc<<" EEenergy="<<myPFCluster.energy()
+			   <<" calibEnergyWithoutES="<< pfClusterCalibratedEnergy_[isc][ibc] 
+			   << " calibEnergyWithES="<<PFClusterCalibratedEnergy <<endl;
+	pfClusterCalibratedEnergyWithES_[isc].push_back(PFClusterCalibratedEnergy);
 	
 	if (verbose_){
-	  double PS1energy=0;
-	  double PS2energy=0;
-	  for (uint ies=0; ies<SCBCtoESenergyPS1[isc][ibc].size(); ies++) PS1energy+=SCBCtoESenergyPS1[isc][ibc][ies];
-	  for (uint ies=0; ies<SCBCtoESenergyPS2[isc][ibc].size(); ies++) PS2energy+=SCBCtoESenergyPS2[isc][ibc][ies];
-	  cout << "isc="<<isc<<" ibc="<<ibc<<" EEenergy="<<pfClusters_[isc][ibc]->energy()<<" PS1energy="<< PS1energy<<" PS2energy="<<PS2energy<<" calibEnergyWithoutES="<< pfClusterCalibratedEnergy_[isc][ibc] << " calibEnergyWithES="<<PFClusterCalibratedEnergy <<endl;
+	  cout << "isc="<<isc<<" ibc="<<ibc<<" EEenergy="<<myPFCluster.energy()
+	       <<" PS1energy="<< SCBCtoESenergyPS1[indBC]<<" PS2energy="<<SCBCtoESenergyPS2[indBC]
+	       <<" calibEnergyWithoutES="<< pfClusterCalibratedEnergy_[isc][ibc] << " calibEnergyWithES="<<PFClusterCalibratedEnergy <<endl;
 	}
 	
       }
@@ -506,15 +532,6 @@ void PFSuperClusterAlgo::matchSCtoESclusters(const edm::Handle<reco::PFClusterCo
 
    pfSuperClustersWithES_p->insert(pfSuperClustersWithES_p->end(), superClusters_.begin(), superClusters_.end());
    
-
-   //Deleting objects
-   for (uint isc=0; isc<pfClusters_.size(); isc++) {
-     delete[] SCBCtoESenergyPS1[isc];
-     delete[] SCBCtoESenergyPS2[isc];
-   }
-   delete SCBCtoESenergyPS1;
-   delete SCBCtoESenergyPS2;
-
   return;
 }
 
@@ -536,7 +553,7 @@ void PFSuperClusterAlgo::findClustersOutsideMustacheArea(){
   std::vector<unsigned int> insideMustList;
   std::vector<unsigned int> outsideMustList;
 
-  for (uint isc=0; isc<basicClusters_.size(); isc++){
+  for (unsigned int isc=0; isc<basicClusters_.size(); isc++){
     
     //if (verbose_) cout << "isc="<<isc<<endl;
  

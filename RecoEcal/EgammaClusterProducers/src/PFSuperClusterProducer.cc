@@ -67,6 +67,10 @@ PFSuperClusterProducer::PFSuperClusterProducer(const edm::ParameterSet& iConfig)
   //superClusterAlgo_.setThreshPFClusterMustacheOutBarrel( threshPFClusterMustacheOutBarrel );
   //superClusterAlgo_.setThreshPFClusterMustacheOutEndcap( threshPFClusterMustacheOutEndcap );
 
+  //Load the ECAL energy calibration
+  thePFEnergyCalibration_ = boost::shared_ptr<PFEnergyCalibration>(new PFEnergyCalibration());
+
+
 
   bool applyCrackCorrections_ = iConfig.getParameter<bool>("applyCrackCorrections");
   superClusterAlgo_.setCrackCorrections(applyCrackCorrections_);
@@ -112,10 +116,6 @@ void PFSuperClusterProducer::produce(edm::Event& iEvent,
 
   edm::Handle<reco::PFClusterCollection> preshowerpfclustersHandle;
   iEvent.getByLabel( inputTagPFClustersES_,  preshowerpfclustersHandle);
-
-
-  //Load the ECAL energy calibration
-  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_(new PFEnergyCalibration());
 
 
   // do BARREL clustering 
