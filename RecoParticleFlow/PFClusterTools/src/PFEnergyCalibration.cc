@@ -5,6 +5,7 @@
 #include <vector>
 #include <TF1.h>
 #include <map>
+#include <algorithm>
 
 using namespace std;
 
@@ -386,18 +387,22 @@ PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 			      std::vector<double> &EclustersPS1,
 			      std::vector<double> &EclustersPS2,
 			      bool crackCorrection ){
+  double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.d));
+  double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.d));
+  return energyEm(clusterEcal, ePS1, ePS2, crackCorrection);
+}
+
+double
+PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
+			      double ePS1,
+			      double ePS2,
+			      bool crackCorrection ){
   double eEcal = clusterEcal.energy();
   //temporaty ugly fix
   reco::PFCluster myPFCluster=clusterEcal;
   myPFCluster.calculatePositionREP();
   double eta = myPFCluster.positionREP().eta();
   double phi = myPFCluster.positionREP().phi();
-
-  double ePS1 = 0;
-  double ePS2 = 0;
-
-  for(unsigned i=0;i<EclustersPS1.size();i++) ePS1 += EclustersPS1[i];
-  for(unsigned i=0;i<EclustersPS2.size();i++) ePS2 += EclustersPS2[i];
 
   double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi, crackCorrection);
   if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
@@ -409,18 +414,20 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 				     std::vector<double> &EclustersPS2,
 				     double& ps1,double& ps2,
 				     bool crackCorrection){
+  double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.d));
+  double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.d));
+  return energyEm(clusterEcal, ePS1, ePS2, ps1, ps2, crackCorrection);
+}
+double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
+				     double ePS1, double ePS2,
+				     double& ps1,double& ps2,
+				     bool crackCorrection){
   double eEcal = clusterEcal.energy();
   //temporaty ugly fix
   reco::PFCluster myPFCluster=clusterEcal;
   myPFCluster.calculatePositionREP();
   double eta = myPFCluster.positionREP().eta();
   double phi = myPFCluster.positionREP().phi();
-
-  double ePS1 = 0;
-  double ePS2 = 0;
-
-  for(unsigned i=0;i<EclustersPS1.size();i++) ePS1 += EclustersPS1[i];
-  for(unsigned i=0;i<EclustersPS2.size();i++) ePS2 += EclustersPS2[i];
 
   double calibrated = Ecorr(eEcal,ePS1,ePS2,eta,phi,ps1,ps2,crackCorrection);
   if(eEcal!=0 && calibrated==0) std::cout<<"Eecal = "<<eEcal<<"  eta = "<<eta<<"  phi = "<<phi<<std::endl; 
