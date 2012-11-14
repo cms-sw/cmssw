@@ -35,6 +35,9 @@ TopDecaySubset::~TopDecaySubset()
 void
 TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
 {     
+  // create target vector
+  std::auto_ptr<reco::GenParticleCollection> target( new reco::GenParticleCollection );
+
   // get source collection
   edm::Handle<reco::GenParticleCollection> src;
   event.getByLabel(src_, src);
@@ -46,19 +49,19 @@ TopDecaySubset::produce(edm::Event& event, const edm::EventSetup& setup)
   if(showerModel_==kStart)
     showerModel_=checkShowerModel(tops);
 
-  // check sanity of W bosons
-  checkWBosons(tops);
+  if(showerModel_!=kNone) {
+    // check sanity of W bosons
+    checkWBosons(tops);
 
-  // create target vector
-  std::auto_ptr<reco::GenParticleCollection> target( new reco::GenParticleCollection );
-  // get ref product from the event
-  const reco::GenParticleRefProd ref = event.getRefBeforePut<reco::GenParticleCollection>(); 
-  // clear existing refs
-  clearReferences();  
-  // fill output
-  fillListing(tops, *target);
-  // fill references
-  fillReferences(ref, *target);
+    // get ref product from the event
+    const reco::GenParticleRefProd ref = event.getRefBeforePut<reco::GenParticleCollection>(); 
+    // clear existing refs
+    clearReferences();
+    // fill output
+    fillListing(tops, *target);
+    // fill references
+    fillReferences(ref, *target);
+  }
 
   // write vectors to the event
   event.put(target);
