@@ -128,6 +128,9 @@ TopDecaySubset::checkWBosons(std::vector<const reco::GenParticle*>& tops) const
     const reco::GenParticle* top = *it;
     bool isContained=false;
     bool expectedStatus=false;
+    if(showerModel_!=kPythia && top->begin()==top->end())
+      throw edm::Exception(edm::errors::LogicError,
+			   "showerModel_!=kPythia && top->begin()==top->end()\n");
     for(reco::GenParticle::const_iterator td=((showerModel_==kPythia) ? top->begin() : top->begin()->begin());
 	td!=((showerModel_==kPythia) ? top->end() : top->begin()->end());
 	++td){
@@ -182,6 +185,10 @@ TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& tops, r
     // manage the daughter refs
     int iW = 0;
     std::vector<int> wDaughters;
+    // sanity check
+    if(showerModel_!=kPythia && t->begin()==t->end())
+      throw edm::Exception(edm::errors::LogicError,
+			   "showerModel_!=kPythia && t->begin()==t->end()\n");
     //iterate over top daughters
     for(reco::GenParticle::const_iterator td=((showerModel_==kPythia)?t->begin():t->begin()->begin()); td!=((showerModel_==kPythia)?t->end():t->begin()->end()); ++td){
       if( td->status()==TopDecayID::unfrag && std::abs( td->pdgId() )<=TopDecayID::bID ){ 
@@ -194,6 +201,10 @@ TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& tops, r
 	  addRadiation(motherPartIdx_,td,target); 
 	}
       }
+      // sanity check
+      if(showerModel_!=kPythia && td->begin()==td->end())
+	throw edm::Exception(edm::errors::LogicError,
+			     "showerModel_!=kPythia && td->begin()==td->end()\n");
       reco::GenParticle::const_iterator buffer = (showerModel_==kPythia)?td:td->begin();
       if( buffer->status()==TopDecayID::unfrag && std::abs( buffer->pdgId() )==TopDecayID::WID ){ 
 	// if particle is a W boson
@@ -206,6 +217,9 @@ TopDecaySubset::fillListing(const std::vector<const reco::GenParticle*>& tops, r
 	if(addRadiation_){
 	  addRadiation(motherPartIdx_,buffer,target); 
 	}
+	if(showerModel_!=kPythia && buffer->begin()==buffer->end())
+	  throw edm::Exception(edm::errors::LogicError,
+			       "showerModel_!=kPythia && buffer->begin()==buffer->end()\n");
 	// iterate over W daughters
 	for(reco::GenParticle::const_iterator wd=((showerModel_==kPythia)?buffer->begin():buffer->begin()->begin()); wd!=((showerModel_==kPythia)?buffer->end():buffer->begin()->end()); ++wd){
 	  // make sure the W daughter is of status unfrag and not the W itself
