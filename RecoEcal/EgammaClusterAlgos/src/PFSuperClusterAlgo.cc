@@ -67,7 +67,7 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
 
   unsigned int nClusters = pfclusters.size();
   allPfClusterCalibratedEnergy_.resize(nClusters);
-  allPfClusterCalibratedEnergy_.assign(nClusters, 0.d);
+  allPfClusterCalibratedEnergy_.assign(nClusters, 0.0);
 
   pfClusterCalibratedEnergy_.clear();
 
@@ -86,7 +86,7 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
     
     if (myPFCluster.layer()==layer){
 
-      double PFClusterCalibratedEnergy = thePFEnergyCalibration_->energyEm(myPFCluster,0.d,0.d,applyCrackCorrections_);
+      double PFClusterCalibratedEnergy = thePFEnergyCalibration_->energyEm(myPFCluster,0.0,0.0,applyCrackCorrections_);
 
       allPfClusterCalibratedEnergy_[i]= PFClusterCalibratedEnergy;
 
@@ -174,7 +174,7 @@ void PFSuperClusterAlgo::doClustering(const edm::Handle<reco::PFClusterCollectio
 	createBasicCluster(myPFClusterRef, basicClusters_[nSuperClusters], pfClusters_[nSuperClusters]);
 
 	double PFClusterCalibratedEnergy = allPfClusterCalibratedEnergy_[myPFClusterRef.key()];
-	  //thePFEnergyCalibration_->energyEm(myPFCluster,0.d,0.d,applyCrackCorrections_);
+	  //thePFEnergyCalibration_->energyEm(myPFCluster,0.0,0.0,applyCrackCorrections_);
 	pfClusterCalibratedEnergy_[nSuperClusters].push_back(PFClusterCalibratedEnergy);
 
 	if (myPFClusterRef==seedCandidateCollection[is]) {

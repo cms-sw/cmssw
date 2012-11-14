@@ -387,8 +387,8 @@ PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 			      std::vector<double> &EclustersPS1,
 			      std::vector<double> &EclustersPS2,
 			      bool crackCorrection ){
-  double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.d));
-  double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.d));
+  double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.0));
+  double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.0));
   return energyEm(clusterEcal, ePS1, ePS2, crackCorrection);
 }
 
@@ -414,8 +414,8 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 				     std::vector<double> &EclustersPS2,
 				     double& ps1,double& ps2,
 				     bool crackCorrection){
-  double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.d));
-  double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.d));
+  double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.0));
+  double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.0));
   return energyEm(clusterEcal, ePS1, ePS2, ps1, ps2, crackCorrection);
 }
 double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
