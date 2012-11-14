@@ -1911,7 +1911,8 @@ void iDie::perTimeFileSaver()
   {
     char suffix[64];
     char rewrite[128];
-    sprintf(suffix, "_R%09d_T%08d", runNumber_.value_, willSaveForTime);
+    //sprintf(suffix, "_R%09d_T%08d", runNumber_.value_, willSaveForTime);
+    sprintf(suffix, "_R%09d", runNumber_.value_);
     sprintf(rewrite, "\\1Run %d/\\2/Run summary", runNumber_.value_);
 
     std::vector<std::string> systems = {topLevelFolder_.value_};
