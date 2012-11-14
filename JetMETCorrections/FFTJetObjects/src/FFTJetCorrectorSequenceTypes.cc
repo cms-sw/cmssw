@@ -1,0 +1,9 @@
+#include "JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectorSequenceTypes.h"
+#include "FWCore/Utilities/interface/typelookup.h"
+
+TYPELOOKUP_DATA_REG(FFTBasicJetCorrectorSequence);
+TYPELOOKUP_DATA_REG(FFTCaloJetCorrectorSequence);
+TYPELOOKUP_DATA_REG(FFTGenJetCorrectorSequence);
+TYPELOOKUP_DATA_REG(FFTPFJetCorrectorSequence);
+TYPELOOKUP_DATA_REG(FFTTrackJetCorrectorSequence);
+TYPELOOKUP_DATA_REG(FFTJPTJetCorrectorSequence);
