@@ -29,15 +29,18 @@ namespace edm {
   void
   StreamerFileReader::reset_() {
     if (streamerNames_.size() > 1) {
-      streamReader_ = std::auto_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_, &initialNumberOfEventsToSkip_, eventSkipperByID_));
+      streamReader_ = std::unique_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_, eventSkipperByID_));
     } else if (streamerNames_.size() == 1) {
-      streamReader_ = std::auto_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_.at(0), &initialNumberOfEventsToSkip_, eventSkipperByID_));
+      streamReader_ = std::unique_ptr<StreamerInputFile>(new StreamerInputFile(streamerNames_.at(0), eventSkipperByID_));
     } else {
       throw Exception(errors::FileReadError, "StreamerFileReader::StreamerFileReader")
          << "No fileNames were specified\n";
     }
     InitMsgView const* header = getHeader();
     deserializeAndMergeWithRegistry(*header, false);
+    if(initialNumberOfEventsToSkip_) {
+      skip(initialNumberOfEventsToSkip_);
+    }
   }
 
 
@@ -51,7 +54,7 @@ namespace edm {
       InitMsgView const* header = getHeader();
       deserializeAndMergeWithRegistry(*header, true);
     }
-    if (eview == 0) {
+    if (eview == nullptr) {
       return  false;
     }
     deserializeEvent(*eview);
@@ -61,8 +64,13 @@ namespace edm {
   void
   StreamerFileReader::skip(int toSkip) {
     for(int i = 0; i != toSkip; ++i) {
-      if(!streamReader_->next()) {
-        break;
+      EventMsgView const* evMsg = getNextEvent();
+      if(evMsg == nullptr)  {
+        return;
+      }
+      // If the event would have been skipped anyway, don't count it as a skipped event.
+      if(eventSkipperByID_ && eventSkipperByID_->skipIt(evMsg->run(), evMsg->lumi(), evMsg->event())) {
+        --i;
       }
     }
   }
@@ -93,7 +101,7 @@ namespace edm {
   EventMsgView const*
   StreamerFileReader::getNextEvent() {
     if (!streamReader_->next()) {
-      return 0;
+      return nullptr;
     }
     return streamReader_->currentRecord();
   }
