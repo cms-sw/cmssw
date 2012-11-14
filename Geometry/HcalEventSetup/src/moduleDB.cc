@@ -56,7 +56,6 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBReader>::produceAligned( const type
  
     edm::ESHandle<HcalTopology> hcalTopology;
     iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
-    std::cout << dvec.size() << " " <<hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape << " " <<hcalTopology->getNumberOfShapes() <<" " << HcalGeometry::k_NumberOfParametersPerShape << std::endl; 
     assert( dvec.size() == hcalTopology->getNumberOfShapes() * HcalGeometry::k_NumberOfParametersPerShape ) ;
     HcalGeometry* hcg=new HcalGeometry( *hcalTopology );
     PtrType ptr ( hcg );

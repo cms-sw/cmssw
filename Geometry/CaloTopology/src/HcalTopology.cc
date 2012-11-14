@@ -54,11 +54,6 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
     topoVersion_=10;
   }
     
-  std::cout << "HcalTopology::HcalTopology "
-	    << "HBSize " << HBSize_
-	    << ", HESize " << HESize_
-	    << ", HOSize " << HOSize_
-	    << ", HFSize " << HFSize_ << std::endl;
 }
 
 bool HcalTopology::valid(const DetId& id) const {
@@ -295,7 +290,7 @@ bool HcalTopology::validRaw(const HcalDetId& id) const {
     } else if (subdet==HcalOuter) {
       if (aieta>lastHORing() || iphi>IPHI_MAX || depth!=4) ok=false;
     } else if (subdet==HcalForward) {
-      if (aieta<firstHFRing() || aieta>lastHFRing() || ((iphi%2)==0) || (depth>2) || (aieta>=firstHFQuadPhiRing() && ((iphi+1)%4)!=0)) ok=false;
+      if (aieta<firstHFRing() || aieta>lastHFRing() || ((iphi%2)==0) || (depth>2) ||  (aieta>=firstHFQuadPhiRing() && ((iphi+1)%4)!=0)) ok=false;
     } else ok=false;
   }
     
