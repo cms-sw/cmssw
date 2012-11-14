@@ -6,7 +6,7 @@ class BRChargedHiggs(PhysicsModel):
 
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
-        self.modelBuilder.doVar('BR[0.05,0,1]');
+        self.modelBuilder.doVar('BR[0,0,1]');
 
         self.modelBuilder.doSet('POI','BR')
 
