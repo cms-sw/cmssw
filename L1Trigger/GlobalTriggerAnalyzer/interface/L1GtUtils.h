@@ -95,10 +95,17 @@ public:
 
     public:
 
+        /// return true if the logical expression is syntactically correct 
         inline bool isValid() {
             return m_validLogicalExpression;
         }
 
+        /// update quantities related to the logical expression at the beginning of the run
+        ///     new logical expression, replacing the logical expression given the in previous run
+        const int logicalExpressionRunUpdate(const edm::Run&,
+                const edm::EventSetup&, const std::string&);
+        //
+        ///     keep the logical expression given in the previous run
         const int logicalExpressionRunUpdate(const edm::Run&,
                 const edm::EventSetup&);
 

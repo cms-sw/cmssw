@@ -2576,6 +2576,45 @@ bool L1GtUtils::LogicalExpressionL1Results::initialize() {
 
 }
 
+
+const int L1GtUtils::LogicalExpressionL1Results::logicalExpressionRunUpdate(
+        const edm::Run& iRun, const edm::EventSetup& evSetup,
+        const std::string& logicExpression) {
+
+    // initialize error code
+    int errorCode = 0;
+
+    // logical expression has changed - one must re-initialize all quantities related to the logical expression
+    // and clear the vectors
+
+    m_logicalExpression = logicExpression;
+    m_validLogicalExpression = false;
+
+    m_l1ResultsAlreadyCalled = false;
+
+    m_expL1TriggersSize = 0;
+    m_expBitsTechTrigger = false;
+    
+    // 
+    m_decisionsBeforeMask.clear();
+    m_decisionsAfterMask.clear();
+    m_prescaleFactors.clear();
+    m_triggerMasks.clear();
+    m_errorCodes.clear();
+    m_expTriggerCategory.clear();
+    m_expTriggerInMenu.clear();
+
+
+    initialize();
+
+    //
+    errorCode = logicalExpressionRunUpdate(iRun, evSetup);
+
+    return errorCode;
+
+}
+
+
 const int L1GtUtils::LogicalExpressionL1Results::logicalExpressionRunUpdate(
         const edm::Run& iRun, const edm::EventSetup& evSetup) {
 

@@ -39,6 +39,7 @@ if useRelValSample == False :
     #
     sampleIdentifier = '165633-CAFDQM'
     #sampleIdentifier = '191833_RAW'
+    #sampleIdentifier = '205666.A.storageManager'
 
 else :
 
@@ -250,14 +251,70 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                 ] );
                 
  
-    elif sampleIdentifier == 'FileStream_105760' :
+    elif sampleIdentifier == 'StreamFile_105760' :
         runNumber = '105760'
         dataset = 'A_Stream'
-        dataType = 'FileStream'
+        dataType = 'StreamFile'
         useDAS = False
         readFiles.extend( [
                 'file:/lookarea_SM/MWGR_29.00105760.0001.A.storageManager.00.0000.dat'       
                 ] );
+                
+    # run with L1 GT data - emulator disagreements for the selectedEvents               
+    elif sampleIdentifier == '205666.A.storageManager' :
+        runNumber = '205666'
+        dataset = 'A.storageManager'
+        dataType = 'StreamFile'
+        useDAS = False
+        
+        selectedEvents = cms.untracked.VEventRange(
+                                    '205666:101:125069341',
+                                    '205666:161:238160322',
+                                    '205666:281:443371795',
+                                    '205666:341:537654884',
+                                    '205666:361:567121052'
+                                    )
+        
+        readFiles.extend( [ 
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0001.A.storageManager.00.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0021.A.storageManager.01.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0041.A.storageManager.02.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0061.A.storageManager.03.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0081.A.storageManager.04.0000.dat',
+            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0101.A.storageManager.05.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0121.A.storageManager.06.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0141.A.storageManager.07.0000.dat',
+            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0161.A.storageManager.08.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0181.A.storageManager.09.0000.dat',                   
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0201.A.storageManager.10.0000.dat',                   
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0221.A.storageManager.11.0000.dat',                   
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0241.A.storageManager.12.0000.dat',                   
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0261.A.storageManager.13.0000.dat',
+            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0281.A.storageManager.14.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0301.A.storageManager.15.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0321.A.storageManager.00.0000.dat',
+            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0341.A.storageManager.01.0000.dat',
+            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0361.A.storageManager.02.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0381.A.storageManager.03.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0401.A.storageManager.04.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0421.A.storageManager.05.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0441.A.storageManager.06.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0461.A.storageManager.07.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0481.A.storageManager.08.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0501.A.storageManager.09.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0521.A.storageManager.10.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0541.A.storageManager.11.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0561.A.storageManager.12.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0581.A.storageManager.13.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0601.A.storageManager.14.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0621.A.storageManager.15.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0641.A.storageManager.00.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0661.A.storageManager.01.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0681.A.storageManager.02.0000.dat',
+#            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0701.A.storageManager.03.0000.dat',
+            'file:/afs/cern.ch/user/g/ghete/work/L1Trigger/data/Data.00205666.0721.A.storageManager.04.0000.dat'                     
+           ]);    
+                
                 
     else :
         print 'Error: sample identifier ', sampleIdentifier, ' not defined.\n'
@@ -304,15 +361,17 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
         
             
 else :
-    # local file
+    # local file(s)
     
-    dataType = 'RAW'
-    readFiles.extend( [                        
-        'file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/LocalFile_source.root'
-        ]);                                                                                               
 
-    secFiles.extend([
-        ])
+    if sampleIdentifier == 'dummy' :
+        dataType = 'RAW'
+        readFiles.extend( [                        
+            'file:/afs/cern.ch/user/g/ghete/scratch0/CmsswTestFiles/LocalFile_source.root'
+            ]);                                                                                               
+
+        secFiles.extend([
+            ])
 
     print 'Local file(s)', readFiles
     

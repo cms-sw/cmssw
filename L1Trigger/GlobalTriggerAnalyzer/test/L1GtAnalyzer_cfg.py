@@ -17,7 +17,11 @@ if errorUserOptions == True :
 
 # source according to data type
 if dataType == 'StreamFile' :
-    process.source = cms.Source("NewEventStreamFileReader", fileNames=readFiles)
+    process.source = cms.Source("NewEventStreamFileReader", 
+                                fileNames=readFiles,
+                                lumisToProcess = selectedLumis,
+                                eventsToProcess = selectedEvents
+                                )
 else :        
     process.source = cms.Source ('PoolSource', 
                                  fileNames=readFiles, 
@@ -36,7 +40,7 @@ process.maxEvents = cms.untracked.PSet(
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = useGlobalTag
@@ -83,14 +87,18 @@ process.l1GtAnalyzer.analyzeL1GtUtilsEventSetupEnable = True
 #process.l1GtAnalyzer.CondInEdmInputTag = 'conditionsInEdm'
 
 # physics algorithm name or alias, technical trigger name 
-process.l1GtAnalyzer.AlgorithmName = 'L1_SingleEG20'
+#process.l1GtAnalyzer.AlgorithmName = 'L1_SingleEG20'
+#process.l1GtAnalyzer.AlgorithmName = 'L1_DoubleMu0er_HighQ'
+process.l1GtAnalyzer.AlgorithmName = 'L1_SingleMu14er'
 #process.l1GtAnalyzer.AlgorithmName = 'L1_BscMinBiasOR_BptxPlusORMinus'
 #process.l1GtAnalyzer.AlgorithmName = 'L1Tech_BPTX_plus_AND_minus_instance1.v0'
 #process.l1GtAnalyzer.AlgorithmName = 'L1Tech_BPTX_quiet.v0'
 #process.l1GtAnalyzer.AlgorithmName = 'L1Tech_BPTX_plus_AND_minus.v0'
 
 # condition in the above algorithm to test the object maps
-process.l1GtAnalyzer.ConditionName = 'SingleIsoEG_0x14'
+#process.l1GtAnalyzer.ConditionName = 'SingleIsoEG_0x14'
+#process.l1GtAnalyzer.ConditionName = 'DoubleMu_0x01_HighQ_EtaCuts'
+process.l1GtAnalyzer.ConditionName = 'DoubleMu_0x01_HighQ_EtaCuts'
 
 # a bit number
 process.l1GtAnalyzer.BitNumber = 10
@@ -127,7 +135,7 @@ process.l1GtTrigReport.PrintOutput = 3
 
 
 # for RAW data, run first the RAWTODIGI and then L1Reco
-if (dataType == 'RAW') and not (useRelValSample) :
+if ((dataType == 'RAW') or (dataType == 'StreamFile')) and not (useRelValSample) :
     process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
     process.load('L1Trigger/Configuration/L1Reco_cff')
     process.l1GtTrigReport.L1GtRecordInputTag = "gtDigis"
@@ -167,9 +175,9 @@ process.MessageLogger.L1GtAnalyzer_debug = cms.untracked.PSet(
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-        L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
+        L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
         L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
-        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
+        L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
         )
 
 process.MessageLogger.L1GtAnalyzer_info = cms.untracked.PSet( 

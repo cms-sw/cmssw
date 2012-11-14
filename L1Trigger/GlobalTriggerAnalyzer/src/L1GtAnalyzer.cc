@@ -224,13 +224,23 @@ void L1GtAnalyzer::beginRun(const edm::Run& iRun,
             // a LogWarning message is written in L1GtUtils
         }
 
-        if (m_logicalExpressionL1Results.isValid()) {
-            m_logicalExpressionL1Results.logicalExpressionRunUpdate(iRun,
-                    evSetup);
-        } else {
+//        if (m_logicalExpressionL1Results.isValid()) {
+//            m_logicalExpressionL1Results.logicalExpressionRunUpdate(iRun,
+//                    evSetup);
+//        } else {
+//            // do whatever is necessary if parsing fails - the size of all vectors with L1 results is zero in this case
+//            // a LogWarning message is written in L1GtUtils
+//        }
+
+        // if the logical expression is changed, one has to check it's validity after the logicalExpressionRunUpdate call
+        // (...dirty testing with the same logical expression)
+        m_logicalExpressionL1Results.logicalExpressionRunUpdate(iRun, evSetup,
+                m_l1GtUtilsLogicalExpression);
+        if (!(m_logicalExpressionL1Results.isValid())) {
             // do whatever is necessary if parsing fails - the size of all vectors with L1 results is zero in this case
             // a LogWarning message is written in L1GtUtils
-        }
+        } 
+
     }
 
 }
@@ -1089,8 +1099,17 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
     std::ostringstream myCoutStream;
 
     // print all the stuff if at LogDebug level
-    myCoutStream
-            << "\n\nFull analysis of an algorithm or technical trigger \nMethod: L1GtAnalyzer::analyzeTrigger \n\n";
+    myCoutStream << "\n\nFull analysis of an algorithm or technical trigger"
+            << "\nMethod:  L1GtAnalyzer::analyzeTrigger" << "\nTrigger: "
+            << m_nameAlgTechTrig << "\n" << std::endl;
+
+    const unsigned int runNumber = iEvent.run();
+    const unsigned int lsNumber = iEvent.luminosityBlock();
+    const unsigned int eventNumber = iEvent.id().event();
+
+    myCoutStream << "Run: " << runNumber << " LS: " << lsNumber << " Event: "
+            << eventNumber << "\n\n" << std::endl;
+
 
     // before accessing any result from L1GtUtils, one must retrieve and cache
     // the L1 trigger event setup and the L1GtTriggerMenuLite product
@@ -1149,16 +1168,17 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
 
     if (l1Conf) {
         LogDebug("L1GtAnalyzer") << "\nL1 configuration code:" << l1ConfCode
-                << "\nValid L1 trigger configuration." << std::endl;
+                << "\nValid L1 trigger configuration.\n" << std::endl;
 
-        LogDebug("L1GtAnalyzer") << "\nL1 trigger menu name and implementation:" << "\n"
-                << m_l1GtUtils.l1TriggerMenu() << "\n"
-                << m_l1GtUtils.l1TriggerMenuImplementation() << std::endl;
+        LogTrace("L1GtAnalyzer") << "\nL1 trigger menu name and implementation:"
+                << "\n" << m_l1GtUtils.l1TriggerMenu() << "\n"
+                << m_l1GtUtils.l1TriggerMenuImplementation() << "\n"
+                << std::endl;
 
     } else {
         myCoutStream << "\nL1 configuration code:" << l1ConfCode
                 << "\nNo valid L1 trigger configuration available."
-                << "\nCheck L1GtUtils wiki page for error code interpretation"
+                << "\nCheck L1GtUtils wiki page for error code interpretation\n"
                 << std::endl;
         return;
     }
@@ -1268,7 +1288,7 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
     } else {
 
         iErrorRecord = 10;
-        LogDebug("L1GtUtils") << "\nL1GlobalTriggerObjectMaps with \n  "
+        LogDebug("L1GtAnalyzer") << "\nL1GlobalTriggerObjectMaps with \n  "
                 << m_l1GtObjectMapsInputTag << "\nnot found in the event."
                 << std::endl;
     }
@@ -1284,18 +1304,18 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
     } else {
 
         iErrorRecord = iErrorRecord + 100;
-        LogDebug("L1GtUtils") << "\nL1GlobalTriggerObjectMapRecord with \n  "
+        LogDebug("L1GtAnalyzer") << "\nL1GlobalTriggerObjectMapRecord with \n  "
                 << m_l1GtObjectMapTag << "\nnot found in the event."
                 << std::endl;
 
     }
-
-    //FIXME remove
-    LogDebug("L1GtUtils") << validRecord << gtObjectMapRecordValid
-            << decisionBeforeMaskAlgTechTrig << decisionAfterMaskAlgTechTrig
-            << decisionAlgTechTrig << prescaleFactorAlgTechTrig
-            << triggerMaskAlgTechTrig << std::endl;
     
+    //FIXME remove when validRecord and gtObjectMapRecordValid are used - avoid warning here :-)
+    if (validRecord && gtObjectMapRecordValid) {
+        // do nothing
+    }
+
+
     // get the RPN vector
 
 
@@ -1321,7 +1341,7 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
 //
 //    } else {
 //
-//        LogDebug("L1GtUtils") << "\nError: "
+//        LogDebug("L1GtAnalyzer") << "\nError: "
 //                << "\nNo valid L1GlobalTriggerRecord with \n  "
 //                << l1GtRecordInputTag << "\nfound in the event."
 //                << "\nNo valid L1GlobalTriggerReadoutRecord with \n  "
@@ -1332,6 +1352,16 @@ void L1GtAnalyzer::analyzeTrigger(const edm::Event& iEvent,
 //        return;
 //
 //    }
+
+    // 
+    myCoutStream << "\nResults for trigger " << m_nameAlgTechTrig
+            << "\n  Trigger mask:          " << triggerMaskAlgTechTrig
+            << "\n  Prescale factor:       " << prescaleFactorAlgTechTrig
+            << "\n  Decision before mask:  " << decisionBeforeMaskAlgTechTrig
+            << "\n  Decision after mask:   " << decisionAfterMaskAlgTechTrig
+            << "\n  Decision (after mask): " << decisionAlgTechTrig << "\n"
+            << std::endl;
+    
 
     printOutput(myCoutStream);
 }
