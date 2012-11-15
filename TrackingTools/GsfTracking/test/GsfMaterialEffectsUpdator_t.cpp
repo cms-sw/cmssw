@@ -63,8 +63,11 @@ int main(int argc, char * arg[]) {
   GsfCombinedMaterialEffectsUpdator comb(msu,
 					 bhu);
 
-  GsfMaterialEffectsUpdator * meu = &comb;
+  GsfMaterialEffectsUpdator * meus[] = {&msu,&bhu,&comb};
 
+  double neverKnow=0;
+  for (int j=0; j!=3; ++j) {
+  GsfMaterialEffectsUpdator * meu = meus[j];
 
   Basic3DVector<float>  axis(0.5,1.,1);
   
@@ -78,7 +81,6 @@ int main(int argc, char * arg[]) {
 
   edm::HRTimeDiffType totT=0;
   int n=0;
-  double neverKnow=0;
   bool printIt=true;
   for (int i=0; i!=100000; ++i) {
     LocalTrajectoryParameters tp(1./(10.+0.01*i), 1.,1., 0.,0.,1.);
@@ -106,6 +108,7 @@ int main(int argc, char * arg[]) {
   }
 
   std::cout << "\nupdate  time " << double(totT)/double(n) << std::endl;
+  }
   return neverKnow!=0 ? 0 : 20;
 
 }

@@ -15,8 +15,8 @@ void GsfCombinedMaterialEffectsUpdator::compute (const TrajectoryStateOnSurface&
 						 const PropagationDirection propDir, Effect effects[]) const
 {
   Effect msEffects[theMSUpdator->size()];
-  Effect elEffects[theELUpdator->size()];
   theMSUpdator->compute(TSoS,propDir,msEffects);
+  Effect elEffects[theELUpdator->size()];
   theELUpdator->compute(TSoS,propDir,elEffects);
  
   //
