@@ -83,9 +83,9 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
   // Create update (transformation of independant variations
   //   on angle in orthogonal planes to local parameters.
   float den = 1.f/(cl2*cl2);
-  effect.deltaCov(1,1) += (den*sigt2)*(sf2*cl2 + cf2);
-  effect.deltaCov(1,2) += (den*sigt2)*(d.x()*d.y()  );
-  effect.deltaCov(2,2) += (den*sigt2)*(cf2*cl2 + sf2);
+  effect.deltaCov[msxx] += (den*sigt2)*(sf2*cl2 + cf2);
+  effect.deltaCov[msxy] += (den*sigt2)*(d.x()*d.y()  );
+  effect.deltaCov[msyy] += (den*sigt2)*(cf2*cl2 + sf2);
   
   /*
     std::cout << "new " <<  theDeltaCov(1,1) << " " <<  theDeltaCov(1,2)  << " " <<  theDeltaCov(2,2) << std::endl;

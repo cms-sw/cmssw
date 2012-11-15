@@ -56,7 +56,8 @@ bool MaterialEffectsUpdator::updateStateInPlace (TrajectoryStateOnSurface& TSoS,
   //
   SurfaceSide side = propDir==alongMomentum ? afterSurface : beforeSurface;
   if ( TSoS.hasError() ) {
-    AlgebraicSymMatrix55 eloc = TSoS.localError().matrix() + effect.deltaCov;
+    AlgebraicSymMatrix55 eloc = TSoS.localError().matrix();
+    effect.deltaCov.add(eloc);
     //TSoS = TrajectoryStateOnSurface(lp,LocalTrajectoryError(eloc),surface, &(TSoS.globalParameters().magneticField()),side);
     TSoS.update(lp,LocalTrajectoryError(eloc),surface,
                 &(TSoS.globalParameters().magneticField()),side);

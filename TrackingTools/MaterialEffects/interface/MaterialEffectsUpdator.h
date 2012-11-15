@@ -17,8 +17,7 @@
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-class MaterialEffectsUpdator {  
-public:
+namespace materialEffect {
   enum CovIndex { elos=0, msxx=1, msxy=2, msyy=3};
   class Covariance {
   public:
@@ -41,6 +40,14 @@ public:
     // Contribution to covariance matrix (in local co-ordinates) from material effects.
     Covariance deltaCov;
   };
+
+}
+
+class MaterialEffectsUpdator {  
+public:
+  typedef materialEffect::Covariance Covariance;
+  typedef materialEffect::Effect Effect;
+  using materialEffect::CovIndex;
 
   /** Constructor with explicit mass hypothesis
    */
