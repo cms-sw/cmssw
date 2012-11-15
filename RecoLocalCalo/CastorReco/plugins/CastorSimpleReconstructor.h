@@ -10,6 +10,7 @@
 
 #include "RecoLocalCalo/CastorReco/interface/CastorSimpleRecAlgo.h"
 #include "CondFormats/CastorObjects/interface/CastorRecoParams.h"
+#include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
 
 class CastorSimpleReconstructor : public edm::EDProducer {
     public:
@@ -30,6 +31,8 @@ class CastorSimpleReconstructor : public edm::EDProducer {
       CastorRecoParams* paramTS_;
       bool setSaturationFlag_;
       int maxADCvalue_;
+      bool doSaturationCorr_;
+      CastorSaturationCorrs* satCorr_;
 };
 
 #endif

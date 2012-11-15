@@ -15,6 +15,8 @@ using namespace std;
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelStatus.h"
 #include "CondFormats/DataRecord/interface/CastorChannelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
+#include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -29,7 +31,8 @@ CastorSimpleReconstructor::CastorSimpleReconstructor(edm::ParameterSet const& co
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
   tsFromDB_(conf.getParameter<bool>("tsFromDB")),
   setSaturationFlag_(conf.getParameter<bool>("setSaturationFlag")),
-  maxADCvalue_(conf.getParameter<int>("maxADCvalue"))
+  maxADCvalue_(conf.getParameter<int>("maxADCvalue")),
+  doSaturationCorr_(conf.getParameter<bool>("doSaturationCorr"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"CASTOR")) {
@@ -56,6 +59,15 @@ void CastorSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es)
   	} else {
       		paramTS_ = new CastorRecoParams(*p.product());
   	}
+  }
+  
+  // read out saturation correction factors for this run
+  edm::ESHandle<CastorSaturationCorrs> satcorr;
+  es.get<CastorSaturationCorrsRcd>().get(satcorr);
+  if (!satcorr.isValid()) { 
+      	edm::LogWarning("CastorSimpleReconstructor") << "Could not handle the CastorSaturationCorrsRcd correctly." << std::endl;
+  } else {
+      	satCorr_ = new CastorSaturationCorrs(*satcorr.product());
   }
   
 }
@@ -92,8 +104,19 @@ void CastorSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& ev
       const CastorQIECoder* channelCoder = conditions->getCastorCoder (cell);
       CastorCoderDb coder (*channelCoder, *shape);
       
+      // get saturation correction value
+      const CastorSaturationCorr* saturationCorr = satCorr_->getValues(detcell.rawId());
+      double satCorrConst = 1.;
+      satCorrConst = saturationCorr->getValue();
+      //std::cout << " satCorrConst = " << satCorrConst << std::endl;
+      
       rec->push_back(reco_.reconstruct(*i,coder,calibrations));
-     if (setSaturationFlag_) reco_.checkADCSaturation(rec->back(),*i,maxADCvalue_);
+      if (setSaturationFlag_) reco_.checkADCSaturation(rec->back(),*i,maxADCvalue_);
+
+      //++++ Saturation Correction +++++
+      // only for a real event try to recover the energy
+      if (e.eventAuxiliary().isRealData() && doSaturationCorr_) 
+	reco_.recoverADCSaturation(rec->back(),coder,calibrations,*i,maxADCvalue_,satCorrConst);
     }
     // return result
     e.put(rec);     
