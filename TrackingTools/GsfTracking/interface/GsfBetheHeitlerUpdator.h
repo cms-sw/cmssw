@@ -16,7 +16,7 @@
  * construction time.
  */
 
-class GsfBetheHeitlerUpdator : public GsfMaterialEffectsUpdator {
+class GsfBetheHeitlerUpdator GCC11_FINAL: public GsfMaterialEffectsUpdator {
 
 private:
   /** Helper class for construction & evaluation of a polynomial
@@ -53,18 +53,20 @@ public:
 public:
   /// constructor with explicit filename and correction flag
   GsfBetheHeitlerUpdator (const std::string fileName, const int correctionFlag);
-//   GsfBetheHeitlerUpdator (const std::string fileName, const CorrectionFlag correctionFlag);
 
 private:
   typedef std::vector< Triplet<double,double,double> > GSContainer;
 
-private:
   /// Computation: generates vectors of weights, means and standard deviations
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
+
+private:
+
   /// Read parametrization from file
   void readParameters (const std::string);
   /// Read coefficients of one polynomial from file
   Polynomial readPolynomial (std::ifstream&,const int);
+
   /// Logistic function (needed for transformation of weight and mean)
   inline double logisticFunction (const double x) const {return 1./(1.+exp(-x));}
   /// First moment of the Bethe-Heitler distribution (in z=E/E0)
@@ -86,25 +88,16 @@ private:
   /// Correction for variance of component 1
   double correctedFirstVar (const double,const GSContainer&) const;
   
-protected:
-  /// check of arguments for use with cached values
-  virtual bool newArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const;
-  /// storage of arguments for later use of 
-  virtual void storeArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const;
 
 private:
   int theNrComponents;                  /// number of components used for parameterisation
   int theTransformationCode;            /// values to be transformed by logistic / exp. function?
-  std::vector<Polynomial> thePolyWeights;    /// parametrisation of weight for each component
-  std::vector<Polynomial> thePolyMeans;      /// parametrisation of mean for each component
-  std::vector<Polynomial> thePolyVars;       /// parametrisation of variance for each component
-
   int theCorrectionFlag;                /// correction of 1st or 1st&2nd moments
 
-  mutable float theLastDz;
-  mutable float theLastP;
-  mutable PropagationDirection theLastPropDir;
-  mutable float theLastRadLength;
+ std::vector<Polynomial> thePolyWeights;    /// parametrisation of weight for each component
+ std::vector<Polynomial> thePolyMeans;      /// parametrisation of mean for each component
+ std::vector<Polynomial> thePolyVars;       /// parametrisation of variance for each component
+
 };
 
 #endif

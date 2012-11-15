@@ -11,45 +11,25 @@
  *  velocity and Xs=X0*h(Z).
  */
 
-class GsfMultipleScatteringUpdator : public GsfMaterialEffectsUpdator {
+class GsfMultipleScatteringUpdator GCC11_FINAL : public GsfMaterialEffectsUpdator {
 
 public:
-//   /// default constructor (mass from configurable)
-//   GsfMultipleScatteringUpdator() :
-//     GsfMaterialEffectsUpdator(),
-//     theLastDz(0.),
-//     theLastP(0.),
-//     theLastPropDir(alongMomentum),
-//     theLastRadLength(0.) {}
+
   /// constructor with explicit mass
   GsfMultipleScatteringUpdator(float mass) :
-    GsfMaterialEffectsUpdator(mass),
-    theLastDz(0.),
-    theLastP(0.),
-    theLastPropDir(alongMomentum),
-    theLastRadLength(0.) {}
+    GsfMaterialEffectsUpdator(mass,2) {}
   
   virtual GsfMultipleScatteringUpdator* clone() const
   {
     return new GsfMultipleScatteringUpdator(*this);
   }
   
-  
-private:
   /// Computation: generates vectors of weights, means and standard deviations
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection) const;
-  
-protected:
-  // check of arguments for use with cached values
-  virtual bool newArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const;
-  // storage of arguments for later use of 
-  virtual void storeArguments (const TrajectoryStateOnSurface&, const PropagationDirection) const;
+  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
 
-private:
-  mutable float theLastDz;
-  mutable float theLastP;
-  mutable PropagationDirection theLastPropDir;
-  mutable float theLastRadLength;
+  virtual size_t size() const { return 2;}
+  
+
 };
 
 #endif

@@ -7,17 +7,13 @@
 #include <string>
 #include <fstream>
 #include <cmath>
+#include<cassert>
 
 GsfBetheHeitlerUpdator::GsfBetheHeitlerUpdator(const std::string fileName,
 					       const int correctionFlag) :
-  // 					       const CorrectionFlag correctionFlag) :
-  GsfMaterialEffectsUpdator(0.000511),
+  GsfMaterialEffectsUpdator(0.000511,6),
   theNrComponents(0),
-  theCorrectionFlag(correctionFlag),
-  theLastDz(0.),
-  theLastP(-1.),
-  theLastPropDir(alongMomentum),
-  theLastRadLength(-1.)
+  theCorrectionFlag(correctionFlag)
 {
   if ( theCorrectionFlag==1 )
     edm::LogInfo("GsfBetheHeitlerUpdator") << "1st moment of mixture will be corrected";
@@ -26,6 +22,7 @@ GsfBetheHeitlerUpdator::GsfBetheHeitlerUpdator(const std::string fileName,
       << "1st and 2nd moments of mixture will be corrected";
 
   readParameters(fileName);
+  assert(theNrComponents<=6);
 }
 
 void GsfBetheHeitlerUpdator::readParameters (const std::string fileName)
@@ -60,15 +57,9 @@ GsfBetheHeitlerUpdator::readPolynomial (std::ifstream& aStream,
 
 void
 GsfBetheHeitlerUpdator::compute (const TrajectoryStateOnSurface& TSoS,
-				 const PropagationDirection propDir) const 
+				 const PropagationDirection propDir, Effect effects[]) const 
 {
-  //
-  // clear cache
-  //
-  theWeights.clear();
-  theDeltaPs.clear();
-  theDeltaCovs.clear();
-  //
+   //
   // Get surface and check presence of medium properties
   //
   const Surface& surface = TSoS.surface();
@@ -103,13 +94,13 @@ GsfBetheHeitlerUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 
     for ( int i=0; i<theNrComponents; i++ ) {
       double varPinv;
-      theWeights.push_back(mixture[i].first);
+      effects[i].weight*=mixture[i].first;
       if ( propDir==alongMomentum ) {
 	//
 	// for forward propagation: calculate in p (linear in 1/z=p_inside/p_outside),
 	// then convert sig(p) to sig(1/p). 
 	//
-	theDeltaPs.push_back(p*(mixture[i].second-1));
+	 effects[i].deltaP += p*(mixture[i].second-1);
 	//    double f = 1./p/mixture[i].second/mixture[i].second;
 	// patch to ensure consistency between for- and backward propagation
 	double f = 1./p/mixture[i].second;
@@ -120,23 +111,13 @@ GsfBetheHeitlerUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 	// for backward propagation: delta(1/p) is linear in z=p_outside/p_inside
 	// convert to obtain equivalent delta(p)
 	//
-	theDeltaPs.push_back(p*(1/mixture[i].second-1));
+	effects[i].deltaP += p*(1/mixture[i].second-1);
 	varPinv = mixture[i].third/p/p;
       }
-      AlgebraicSymMatrix55 errors;
-      errors(0,0) = varPinv;
-      theDeltaCovs.push_back(errors);
+      using namespace materialEffect;
+      effects[i].deltaCov[elos] +=  varPinv;
     }
   }
-  else {
-    theWeights.push_back(1.);
-    theDeltaPs.push_back(0.);
-    theDeltaCovs.push_back(AlgebraicSymMatrix55());
-  }
-  //
-  // Save arguments to avoid duplication of computation
-  //
-  storeArguments(TSoS,propDir); 
 }
 //
 // Mixture parameters (in z)
@@ -225,23 +206,3 @@ GsfBetheHeitlerUpdator::correctedFirstVar (const double rl,
   return std::max(var/mixture[0].first,0.);
 }
 
-//
-// Compare arguments with the ones of the previous call
-//
-bool 
-GsfBetheHeitlerUpdator::newArguments (const TrajectoryStateOnSurface& TSoS, 
-				      const PropagationDirection propDir) const {
-  return TSoS.localMomentum().unit().z()!=theLastDz ||
-    TSoS.localMomentum().mag()!=theLastP || propDir!=theLastPropDir ||
-    TSoS.surface().mediumProperties()->radLen()!=theLastRadLength;
-}
-//
-// Save arguments
-//
-void GsfBetheHeitlerUpdator::storeArguments (const TrajectoryStateOnSurface& TSoS, 
-					     const PropagationDirection propDir) const {
-  theLastDz = TSoS.localMomentum().unit().z();
-  theLastP = TSoS.localMomentum().mag();
-  theLastPropDir = propDir;
-  theLastRadLength = TSoS.surface().mediumProperties()->radLen();
-}

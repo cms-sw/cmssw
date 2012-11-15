@@ -44,6 +44,8 @@ void en(){}
 
 int main(int argc, char * arg[]) {
 
+
+
   std::string file("BetheHeitler_cdfmom_nC6_O5.par");
   if (argc<2) {
     std::cerr << "parameter file not given in input: default used" << std::endl;
@@ -65,19 +67,39 @@ int main(int argc, char * arg[]) {
   Surface::PositionType pos( 0., 0., 0.);
 
   BoundPlane::BoundPlanePointer plane = BoundPlane::build(pos,rot, RectangularPlaneBounds(1.,1.,1));
-  plane->setMediumProperties(MediumProperties(0.1,0.3));
-
-  LocalTrajectoryParameters tp(1., 1.,1., 0.,0.,0.);
-  LocalTrajectoryError lerr(1.,1.,0.1,0.1,0.1);
+  plane->setMediumProperties(MediumProperties(1.1,1.3));
   M5T const m; 
-  
-  
-  TrajectoryStateOnSurface tsos(tp,lerr,*plane, &m, SurfaceSideDefinition::beforeSurface);
-  
-  st();
-  meu->updateState(tsos,alongMomentum);
-  en();
 
-  return 0;
+  edm::HRTimeDiffType totT=0;
+  int n=0;
+  double neverKnow=0;
+  bool printIt=true;
+  for (int i=0; i!=100000; ++i) {
+    LocalTrajectoryParameters tp(1.+0.01*i, 1.,1., 0.,0.,1.);
+    LocalTrajectoryError lerr(1.,1.,0.1,0.1,0.1);
+    
+    TrajectoryStateOnSurface tsos(tp,lerr,*plane, &m, SurfaceSideDefinition::beforeSurface);
+    if (printIt) {
+      std::cout << tsos.globalMomentum() << std::endl;
+      std::cout << tsos.localError().matrix() << std::endl;
+      std::cout << tsos.weight() << std::endl;
+    }
+    st();
+    totT -= edm::hrRealTime();
+    meu->updateState(tsos,alongMomentum);
+    totT +=edm::hrRealTime();
+    ++n;
+    en();
+    neverKnow+=tsos.globalMomentum().perp();
+    if (printIt) {
+      std::cout << tsos.globalMomentum() << std::endl;
+      std::cout << tsos.localError().matrix() << std::endl;
+      std::cout << tsos.weight() << std::endl;
+      printIt=false;
+    }
+  }
+
+  std::cout << "\nupdate  time " << double(totT)/double(n) << std::endl;
+  return neverKnow!=0 ? 0 : 20;
 
 }
