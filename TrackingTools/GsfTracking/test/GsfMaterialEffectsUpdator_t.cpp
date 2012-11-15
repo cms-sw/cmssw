@@ -78,7 +78,7 @@ int main(int argc, char * arg[]) {
   Surface::PositionType pos( 0., 0., 0.);
 
   BoundPlane::BoundPlanePointer plane = BoundPlane::build(pos,rot, RectangularPlaneBounds(1.,1.,1));
-  plane->setMediumProperties(MediumProperties(1.1,1.3));
+  plane->setMediumProperties(MediumProperties(0.1,0.3));
   M5T const m; 
 
   edm::HRTimeDiffType totT=0;

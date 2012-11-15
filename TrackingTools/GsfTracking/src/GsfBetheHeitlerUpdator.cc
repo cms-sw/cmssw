@@ -9,22 +9,24 @@
 #include <cmath>
 #include<cassert>
 
-/*
+
 namespace {
  /// Logistic function (needed for transformation of weight and mean)
   inline float logisticFunction (const float x) {return 1./(1.+unsafe_expf<4>(-x));}
   /// First moment of the Bethe-Heitler distribution (in z=E/E0)
   inline float BetheHeitlerMean (const float rl) {
-    return unsafe_expf<3>(-rl);
+    return unsafe_expf<4>(-rl);
   }
   /// Second moment of the Bethe-Heitler distribution (in z=E/E0)
   inline float BetheHeitlerVariance (const float rl)
   {
     constexpr float l3ol2 = std::log(3.)/std::log(2.);
-    return unsafe_expf<3>(-rl*l3ol2) -  unsafe_expf<3>(-2*rl);
+    float mean = BetheHeitlerMean(rl);
+    return unsafe_expf<4>(-rl*l3ol2) -  mean*mean;
   }
 }
-*/
+
+/*
 namespace {
  /// Logistic function (needed for transformation of weight and mean)
   inline float logisticFunction (const float x) {return 1.f/(1.f+std::exp(-x));}
@@ -39,7 +41,7 @@ namespace {
     return std::exp(-rl*l3ol2) -  std::exp(-2*rl);
   }
 }
-
+*/
 
 GsfBetheHeitlerUpdator::GsfBetheHeitlerUpdator(const std::string fileName,
 					       const int correctionFlag) :
