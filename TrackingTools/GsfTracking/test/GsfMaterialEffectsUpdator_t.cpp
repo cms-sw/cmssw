@@ -58,15 +58,17 @@ int main(int argc, char * arg[]) {
   std::cout << "using file " << file << std::endl;
 
   GsfBetheHeitlerUpdator bhu(file,0); 
+  GsfBetheHeitlerUpdator bhu1(file,1);
+  GsfBetheHeitlerUpdator bhu2(file,2); 
   GsfMaterialEffectsAdapter msu(MultipleScatteringUpdator(bhu.mass()));
   
   GsfCombinedMaterialEffectsUpdator comb(msu,
 					 bhu);
 
-  GsfMaterialEffectsUpdator * meus[] = {&msu,&bhu,&comb};
+  GsfMaterialEffectsUpdator * meus[] = {&msu,&bhu,&bhu1,&bhu2,&comb};
 
   double neverKnow=0;
-  for (int j=0; j!=3; ++j) {
+  for (int j=0; j!=5; ++j) {
   GsfMaterialEffectsUpdator * meu = meus[j];
 
   Basic3DVector<float>  axis(0.5,1.,1);

@@ -46,6 +46,8 @@ public:
   virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect effects[]) const = 0;
 
   size_t size() const { return m_size;}
+protected:
+  void resize(size_t is) { m_size=is;}
 
 private:
   float theMass;
