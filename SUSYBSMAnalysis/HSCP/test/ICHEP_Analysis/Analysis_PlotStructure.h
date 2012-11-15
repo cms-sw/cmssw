@@ -1335,11 +1335,12 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
 }
 
 // draw all plots that meant for comparison with other samples (mostly 1D plots that can be superimposed)
-void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsigned int CutIndex, stPlots* st1, stPlots* st2=NULL, stPlots* st3=NULL, stPlots* st4=NULL, stPlots* st5=NULL, stPlots* st6=NULL, stPlots* st7=NULL)
+void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsigned int CutIndex, unsigned int CutIndexTight, stPlots* st1, stPlots* st2=NULL, stPlots* st3=NULL, stPlots* st4=NULL, stPlots* st5=NULL, stPlots* st6=NULL, stPlots* st7=NULL)
 { 
    char CutIndexStr[255];sprintf(CutIndexStr,"_%03i",CutIndex);
 
    //bool IsTkOnly = (SavePath.find("Type0",0)<std::string::npos);
+   TypeMode = TypeFromPattern(SavePath);
    char YAxisTitle[2048];
 
   std::vector<std::string> lg;
@@ -1369,7 +1370,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    TH1** Histos = new TH1*[10];
    std::vector<std::string> legend;
    TCanvas* c1;
-/*
+
    for(unsigned int i=0;i<st.size();i++){
 //      if(st[i]->Name=="Data")continue;
       c1 = new TCanvas("c1","c1,",600,600);                                               legend.clear();
@@ -1384,30 +1385,35 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
       delete c1;
    }
 
-   for(unsigned int i=0;i<st.size();i++){
-//      if(st[i]->Name=="Data")continue;
-      c1 = new TCanvas("c1","c1,",600,600);                                               legend.clear();
-//    Histos[0] = (TH1*)st[i]->Beta_Gen;                                                  legend.push_back("Gen");
-//    Histos[1] = (TH1*)st[i]->Beta_GenCharged;                                           legend.push_back("Charged Gen");
-      Histos[0] = (TH1*)st[i]->Beta_Triggered;                                            legend.push_back("Triggered");
-      Histos[1] = (TH1*)st[i]->Beta_Matched;                                              legend.push_back("Reconstructed");
-//    Histos[0] = (TH1*)st[i]->Beta_PreselectedA;                                         legend.push_back("PreselectedA");
-//    Histos[0] = (TH1*)st[i]->Beta_PreselectedB;                                         legend.push_back("PreselectedB");
-      Histos[2] = (TH1*)st[i]->Beta_PreselectedC;                                         legend.push_back("Preselected");
-      Histos[3] = (TH1*)st[i]->Beta_SelectedP->ProjectionY("A",CutIndex+1,CutIndex+1);    legend.push_back("p_{T}>Cut");
-      Histos[4] = (TH1*)st[i]->Beta_SelectedI->ProjectionY("B",CutIndex+1,CutIndex+1);    legend.push_back("I  >Cut");
-      if(!IsTkOnly){Histos[5] = (TH1*)st[i]->Beta_SelectedT->ProjectionY("C",CutIndex+1,CutIndex+1);    legend.push_back("ToF>Cut");}
-      DrawSuperposedHistos((TH1**)Histos, legend,"HIST E1",  "#beta", "# HSCP", 0,0, 0,0);
-      DrawLegend((TObject**)Histos,legend,"","P", 0.36, 0.92, 0.20, 0.025);
-      c1->SetLogy(true);
-      DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-      SaveCanvas(c1,SavePath,st[i]->Name + "_Beta");
-      //for(int l=0;l<legend.size();l++){delete Histos[l];}
-      delete c1;
+   for(unsigned int C=0;C<2;C++){
+       unsigned int CutIndex_ = C==0?CutIndex:CutIndexTight;
+
+      for(unsigned int i=0;i<st.size();i++){
+   //      if(st[i]->Name=="Data")continue;
+         c1 = new TCanvas("c1","c1,",600,600);                                               legend.clear();
+         Histos[0] = (TH1*)st[i]->Beta_Gen;                                                  legend.push_back("Gen");
+   //    Histos[1] = (TH1*)st[i]->Beta_GenCharged;                                           legend.push_back("Charged Gen");
+         Histos[1] = (TH1*)st[i]->Beta_Triggered;                                            legend.push_back("Triggered");
+         Histos[2] = (TH1*)st[i]->Beta_Matched;                                              legend.push_back("Reconstructed");
+   //    Histos[0] = (TH1*)st[i]->Beta_PreselectedA;                                         legend.push_back("PreselectedA");
+   //    Histos[0] = (TH1*)st[i]->Beta_PreselectedB;                                         legend.push_back("PreselectedB");
+         Histos[3] = (TH1*)st[i]->Beta_PreselectedC;                                         legend.push_back("Preselected");
+         Histos[4] = (TH1*)st[i]->Beta_SelectedP->ProjectionY("A",CutIndex_+1,CutIndex_+1);    legend.push_back("p_{T}>Cut");
+         Histos[5] = (TH1*)st[i]->Beta_SelectedI->ProjectionY("B",CutIndex_+1,CutIndex_+1);    legend.push_back("I  >Cut");
+         if(!(TypeMode==0 || TypeMode==5)){Histos[6] = (TH1*)st[i]->Beta_SelectedT->ProjectionY("C",CutIndex_+1,CutIndex_+1);    legend.push_back("ToF>Cut");}
+         DrawSuperposedHistos((TH1**)Histos, legend,"HIST E1",  "#beta", "# HSCP", 0,0, 0,0);
+         DrawLegend((TObject**)Histos,legend,"","P", 0.36, 0.92, 0.20, 0.025);
+         c1->SetLogy(true);
+         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+         if(C==0)SaveCanvas(c1,SavePath,st[i]->Name + "_Beta");
+         else    SaveCanvas(c1,SavePath,st[i]->Name + "_BetaTight");
+         //for(int l=0;l<legend.size();l++){delete Histos[l];}
+         delete c1;
+      }
+
    }
 
 
-*/
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
    Histos[i] = (TH1*)st[i]->BS_V3D->Clone();      legend.push_back(lg[i]);  if(Histos[i]->Integral()>0) Histos[i]->Scale(1.0/Histos[i]->Integral());   }
