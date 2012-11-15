@@ -6,15 +6,14 @@
 using namespace SurfaceSideDefinition;
 
 BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec) :
-  BasicTrajectoryState(tsvec.front().surface()) {
+  BasicTrajectoryState(tsvec.front().surface()), theStates(tsvec) {
  
   // only accept planes!!
   const BoundPlane* bp = dynamic_cast<const BoundPlane*>(&tsvec.begin()->surface());
   if unlikely( bp==0 )
 	       throw cms::Exception("LogicError") << "MultiTrajectoryState constructed on cylinder";
    
-  theStates.reserve(tsvec.size());
-  for (std::vector<TSOS>::const_iterator i=tsvec.begin(); i!=tsvec.end(); i++) {
+  for (auto i=tsvec.begin(); i!=tsvec.end(); i++) {
     if unlikely(!i->isValid()) {
       throw cms::Exception("LogicError") << "MultiTrajectoryState constructed with invalid state";
     }
@@ -33,8 +32,8 @@ BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& t
 	<< "MultiTrajectoryState mixes states with different signs of local p_z";
     }
 
-    theStates.push_back( *i);
   }
+  //
   combine();
 }
 
@@ -87,21 +86,17 @@ BasicMultiTrajectoryState::combine()  {
   double sumw = 0.;
   //int dim = tsos.front().localParameters().vector().num_row();
   AlgebraicVector5 mean;
-  AlgebraicSymMatrix55 covarPart1, covarPart2;
-  for (std::vector<TrajectoryStateOnSurface>::const_iterator it1 = tsos.begin(); 
-       it1 != tsos.end(); it1++) {
+  AlgebraicSymMatrix55 covarPart1, covarPart2, covtmp;
+  for (auto it1 = tsos.begin(); it1 != tsos.end(); it1++) {
     double weight = it1->weight();
     AlgebraicVector5 param = it1->localParameters().vector();
     sumw += weight;
     mean += weight * param;
     covarPart1 += weight * it1->localError().matrix();
-    for (std::vector<TrajectoryStateOnSurface>::const_iterator it2 = it1 + 1; 
-	 it2 != tsos.end(); it2++) {
+    for (auto it2 = it1 + 1; it2 != tsos.end(); it2++) {
       AlgebraicVector5 diff = param - it2->localParameters().vector();
-      AlgebraicSymMatrix11 s = AlgebraicMatrixID(); //stupid trick to make CLHEP work decently
-      covarPart2 += (weight * it2->weight()) * 
-      				ROOT::Math::Similarity(AlgebraicMatrix51(diff.Array(), 5), s);
-                        //FIXME: we can surely write this thing in a better way
+      ROOT::Math::AssignSym::Evaluate(covtmp,ROOT::Math::TensorProd(diff,diff));
+      covarPart2 += (weight * it2->weight()) * covtmp;
     }   
   }
   double sumwI = 1.0/sumw;

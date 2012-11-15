@@ -14,7 +14,7 @@
  *  of components. The relevant formulas can be found in
  *  R. Fruhwirth, Computer Physics Communications 100 (1997), 1.
  */
-class BasicMultiTrajectoryState : public BasicTrajectoryState {
+class BasicMultiTrajectoryState GCC11_FINAL : public BasicTrajectoryState {
 
   typedef TrajectoryStateOnSurface        TSOS;  
   
@@ -57,7 +57,7 @@ private:
 
   std::vector<TSOS> theStates;
 
-  void combine();
+  void combine() dso_internal;
 
 };
 

@@ -84,6 +84,15 @@ int main(int args, char ** argv) {
 
   if (fabs(one-two)>1.e-15) std::cout << "vincenzo was wrong!" << std::endl;
 
+  AlgebraicVector5 v(1.,0.5,-0.5,0.3,0.7);
+  AlgebraicSymMatrix55 c1;
+  AlgebraicSymMatrix55 c2;
+  AlgebraicSymMatrix11 s = AlgebraicMatrixID(); //stupid trick to make CLHEP work decently
+  c1 = ROOT::Math::Similarity(AlgebraicMatrix51(v.Array(), 5), s);
+  std::cout << c1 << std::endl;
+  ROOT::Math::AssignSym::Evaluate(c2,ROOT::Math::TensorProd(v,v));
+  std::cout << c2 << std::endl;
+
 
   return 0;
 
