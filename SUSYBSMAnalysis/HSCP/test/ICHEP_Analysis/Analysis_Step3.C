@@ -64,6 +64,7 @@ void Analysis_FillControlAndPredictionHist(const susybsm::HSCParticle& hscp, con
 double SegSep(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, double& minPhi, double& minEta);
 double RescaledPt(const double& pt, const double& eta, const double& phi, const int& charge);
 int  muonStations(reco::HitPattern hitPattern);
+double scaleFactor(double eta);
 /////////////////////////// VARIABLE DECLARATION /////////////////////////////
 
 float Event_Weight = 1;
@@ -1111,9 +1112,6 @@ void Analysis_Step3(char* SavePath)
             for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){  MaxMass_SystM [CutIndex] = -1; }
             for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){  MaxMass_SystPU[CutIndex] = -1; }
 
-	    //Apply MC scale factor for muon only analysis to account for differences in preselection efficiency seen in Tag and Probe studies
-	    if(TypeMode==3 && !isData) Event_Weight=Event_Weight*0.95;
-
             //loop on HSCP candidates
             for(unsigned int c=0;c<hscpColl.size();c++){
                //define alias for important variable
@@ -1130,6 +1128,10 @@ void Analysis_Step3(char* SavePath)
 	       }
                //skip events without track
 	       if(track.isNull())continue;
+
+	       //Apply a scale factor to muon only analysis to account for differences seen in data/MC preselection efficiency
+	       //For eta regions where Data > MC no correction to be conservative
+	       if(!isData && TypeMode==3 && scaleFactor(track->eta())<RNG->Uniform(0, 1)) continue;
 
                //for signal only, make sure that the candidate is associated to a true HSCP
                int ClosestGen;
@@ -1170,7 +1172,7 @@ void Analysis_Step3(char* SavePath)
                   bool   PRescale = true;
                   double IRescale = RNG->Gaus(0, 0.048)-0.07; // added to the Ias value
                   double MRescale = 1.041;
-		  double TRescale = -0.03; // added to the 1/beta value
+		  double TRescale = -0.01; // added to the 1/beta value
 #endif
 		  
 		  double genpT = -1.0;
@@ -1511,3 +1513,9 @@ int  muonStations(reco::HitPattern hitPattern) {
   return stations[0]+stations[1]+stations[2]+stations[3];
 }
 
+double scaleFactor(double eta) {
+  double etaBins[15]   = {-2.1, -1.8, -1.5, -1.2, -0.9, -0.6, -0.3, 0.0 , 0.3 , 0.6 , 0.9 , 1.2 ,1.5 , 1.8 , 2.1 };
+  double scaleBins[15] = {0,    0.97, 1.06, 1.00, 0.89, 0.91, 0.93, 0.93, 0.92, 0.92, 0.91, 0.89,1.00, 1.06, 0.99};
+  for (int i=0; i<15; i++) if(eta<etaBins[i]) return scaleBins[i];
+  return 0;
+}
