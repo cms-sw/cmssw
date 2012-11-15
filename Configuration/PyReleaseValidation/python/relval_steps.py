@@ -434,6 +434,17 @@ steps['QCD_Pt_3000_3500FS']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi'},K100by500
 steps['H130GGgluonfusionFS']=merge([{'cfg':'H130GGgluonfusion_8TeV_cfi'},step1FastDefaults])
 steps['SingleGammaFlatPt10To10FS']=merge([{'cfg':'SingleGammaFlatPt10To100_cfi'},K100by500,step1FastDefaults])
 
+steps['TTbarSFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},
+                        {'-s':'GEN,SIM',
+                         '--eventcontent':'FEVTDEBUG',
+                         '--datatier':'GEN-SIM',
+                         '--fast':''},
+                        step1Defaults])
+steps['TTbarSFSA']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
+                           's':'GEN,SIM,RECO,HLT,VALIDATION',
+                           '--fast':''},
+                          step1FastDefaults])
+
 def identityFS(wf):
     return merge([{'--restoreRND':'HLT','--process':'HLT2','--hltProcess':'HLT2'},wf])
 
@@ -614,6 +625,9 @@ steps['RECOHID11St3']=merge([{
 steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
                               '--filtername':'reRECO'},
                              steps['RECOHID11St3']])
+steps['RECOFS']=merge([{'--fast':'',
+                        '-s':'RECO,HLT:@relval,VALIDATION'},
+                       steps['RECO']])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
