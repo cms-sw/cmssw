@@ -1,0 +1,14 @@
+<?xml version='1.0'?>
+<xmas:flash xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:hltCPUUsage" version="$Revision: 1.2 $" key="runNumber,lumiSection">
+	<xmas:item name="runNumber"                 infospace="urn:hltCPUUsage" type="unsigned int 32"/>
+        <xmas:item name="lumiSection"               infospace="urn:hltCPUUsage" type="unsigned int 32"/>
+        <xmas:item name="hltCPULoad"                infospace="urn:hltCPUUsage" type="float"/>
+        <xmas:item name="systemCPULoad"             infospace="urn:hltCPUUsage" type="float"/>
+        <xmas:item name="eventTime7EP"              infospace="urn:hltCPUUsage" type="float"/>
+        <xmas:item name="eventTime8EP"              infospace="urn:hltCPUUsage" type="float"/>
+        <xmas:item name="eventTime12EP"             infospace="urn:hltCPUUsage" type="float"/>
+	<xmas:item name="eventTime16EP"             infospace="urn:hltCPUUsage" type="float"/>
+	<xmas:item name="eventTime24EP"             infospace="urn:hltCPUUsage" type="float"/>
+	<xmas:item name="eventTime32EP"             infospace="urn:hltCPUUsage" type="float"/>
+        <xmas:item name="hltProcessingRate"         infospace="urn:hltCPUUsage" type="float"/>
+</flash>

@@ -193,7 +193,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   flashRunNumber_.value_=0;
   cpuLoadLastLs_=0;
   cpuLoadSentLs_=0;
-  std::string cpuInfoSpaceName="hltCPUUsage";
+  std::string cpuInfoSpaceName="filterFarmUsageAndTiming";
   toolbox::net::URN urn = this->createQualifiedInfoSpace(cpuInfoSpaceName);
   cpuInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
   cpuInfoSpace_->fireItemAvailable("runNumber",&flashRunNumber_);
