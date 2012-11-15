@@ -73,6 +73,9 @@ void GsfBetheHeitlerUpdator::readParameters (const std::string fileName)
   int orderP;
   ifs >> orderP;
   ifs >> theTransformationCode;
+
+  assert(orderP<MaxOrder);
+
   for ( int ic=0; ic!=theNrComponents; ++ic ) {
     thePolyWeights[ic]=readPolynomial(ifs,orderP);
     thePolyMeans[ic]=readPolynomial(ifs,orderP);
@@ -169,7 +172,8 @@ GsfBetheHeitlerUpdator::getMixtureParameters (const float rl,
     if ( theTransformationCode )  z = logisticFunction(z);
 
     float vz = thePolyVars[i](rl);
-    if ( theTransformationCode )  vz = unsafe_expf<4>(vz);
+    if ( theTransformationCode )  
+      vz = unsafe_expf<4>(vz);
     else                          vz = vz*vz;
 
     mixture[i]=Triplet<float,float,float>(weight,z,vz);
@@ -205,7 +209,7 @@ GsfBetheHeitlerUpdator::correctedFirstMean (const float rl,
   // calculate difference true mean - weighted sum
   //
   float mean = BetheHeitlerMean(rl);
-  for ( int i=0; i<theNrComponents; i++ )
+  for ( int i=1; i<theNrComponents; i++ )
     mean -= mixture[i].first*mixture[i].second;
   //
   // return corrected mean for first component
@@ -225,7 +229,7 @@ GsfBetheHeitlerUpdator::correctedFirstVar (const float rl,
   float var = BetheHeitlerVariance(rl) +
     BetheHeitlerMean(rl)*BetheHeitlerMean(rl) -
     mixture[0].first*mixture[0].second*mixture[0].second;
-  for ( int i=0; i<theNrComponents; i++ )
+  for ( int i=1; i<theNrComponents; i++ )
     var -= mixture[i].first*(mixture[i].second*mixture[i].second+mixture[i].third);
   //
   // return corrected variance for first component

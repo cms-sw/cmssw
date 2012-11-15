@@ -27,6 +27,7 @@ class GsfBetheHeitlerUpdator GCC11_FINAL: public GsfMaterialEffectsUpdator {
 
 private:
   static constexpr int MaxSize=6;
+  static constexpr int MaxOrder=6;
 
   /** Helper class for construction & evaluation of a polynomial
    */
@@ -50,7 +51,7 @@ private:
       return sum;
     }
   private:
-    float theCoeffs[MaxSize] ={0};
+    float theCoeffs[MaxOrder] ={0};
     int m_size=0;
   };
 
