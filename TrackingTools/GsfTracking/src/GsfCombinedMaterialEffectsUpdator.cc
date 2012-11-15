@@ -1,6 +1,8 @@
 #include "TrackingTools/GsfTracking/interface/GsfCombinedMaterialEffectsUpdator.h"
 #include<cassert>
 
+#include<iostream>
+
 GsfCombinedMaterialEffectsUpdator::GsfCombinedMaterialEffectsUpdator(GsfMaterialEffectsUpdator& msUpdator,
 								     GsfMaterialEffectsUpdator& elUpdator) :
   GsfMaterialEffectsUpdator(msUpdator.mass(),msUpdator.size()*elUpdator.size()),
@@ -24,10 +26,8 @@ void GsfCombinedMaterialEffectsUpdator::compute (const TrajectoryStateOnSurface&
   //
   uint32_t k=0;
   for ( auto const & mse : msEffects ) 
-    for ( auto const & ele : elEffects) {
-      ++k;
-      effects[k].combine(mse,ele);
-    }
+    for ( auto const & ele : elEffects)
+      effects[k++].combine(mse,ele);
   assert(k==size());
 }
 
