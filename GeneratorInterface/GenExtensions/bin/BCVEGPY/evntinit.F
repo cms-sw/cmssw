@@ -9,7 +9,6 @@ c*******************************************************
 #include "bcvegpy_set_par.inc"
 
 c...three pythia functions return integers, so need declaring.
-      integer pycomp
 c...external statement.
       external pydata,totfun
 
@@ -99,6 +98,10 @@ c...3---singlet 1p1; 4---singlet 3p0; 5---singlet 3p1; 6---singlet 3p2.
 	common/mixevnt/xbcsec(8),imix,imixtype
 	common/mixevnt2/xbcsum,ibclimit
 	character*1 pfile
+	logical unwght
+	common/unweight/unwght
+	common/xxmax/xmax(NVEGBIN,8)
+
 
 c************************************************
 c... open recording files.--record mainly the 
@@ -124,7 +127,7 @@ c...reference light-like momentum, which can be choosing arbitrarily.
 c...this can be used to check tht rightness of the program.
 c...--used only for s-wave gluon fusion mechanism.
 	pmomup(1,8)=3.0d0
-      pmomup(2,8)=4.0d0
+	pmomup(2,8)=4.0d0
 	pmomup(3,8)=5.0d0
 	pmomup(4,8)=dsqrt(pmomup(1,8)**2+pmomup(2,8)**2+pmomup(3,8)**2)
 	pmomup(5,8)=0.0d0
@@ -171,10 +174,10 @@ c******************************************************************
 c...using vegas to get the importance function and then the 
 c...sampling stratage: xi(), which will be stored in grade files.
 c******************************************************************
-
-      if(vegasopen) then
-	  if(isubonly.eq.0) then
-          if(imix.eq.0) then
+	ndim=7
+	if(vegasopen) then
+	 if(isubonly.eq.0) then
+      if(imix.eq.0) then
 c--------------------------------------
 c... using existed grade to generate more precise grade.
 c... this way is only used for imix=0 (preferable); 
@@ -187,10 +190,31 @@ c--------------------------------------
 		   do i=1,NVEGBIN
 	          read(11,*) (xi(i,j),j=1,7)
 	       end do
-c	       open(unit=29,file='data/newgrade.grid',status='unknown')
 	       open(unit=29,file='newgrade.grid',status='unknown')
+          do
+	      read(11,*) pfile
+	      if(pfile.eq.'&') exit
+	     enddo
+		 do i=1,NVEGBIN
+	        read(11,*) (xmax(i,j),j=1,ndim)
+	    end do
+        do
+	      read(11,*) pfile
+	      if(pfile.eq.'+') exit
+	     enddo
+	      read(11,*) vegsec,vegerr,crossmax
+	      rewind(11)
 	     end if
-		 call vegas(totfun,7,number,nitmx,2)
+
+	     if(iveggrade.eq.1) then
+        call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+        if(unwght) call gen(totfun,ndim,xmax,0)
+	   else 
+        call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+        if(unwght) call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+        if(unwght) call gen(totfun,ndim,xmax,0)
+	   end if
+
 		 do i=1,NVEGBIN
 	       if(iveggrade.eq.1) then
 			  write(29,*) (xi(i,j),j=1,7)
@@ -198,169 +222,280 @@ c	       open(unit=29,file='data/newgrade.grid',status='unknown')
 	          write(11,*) (xi(i,j),j=1,7)
 		   end if
 		 end do
-		end if
+
+	     write(29,*) '&'
+       if(iveggrade.eq.1) then
+	   else
+	     write(11,*) '&'
+	   end if
+
+		do i=1,NVEGBIN
+	     if(iveggrade.eq.1) then
+			write(29,*) (xmax(i,j),j=1,ndim)
+        else
+	      write(11,*) (xmax(i,j),j=1,ndim)          
+		  end if
+		end do
+
+	   if(iveggrade.eq.1) then
+	     write(29,*) '+'
+	     write(29,*) vegsec,vegerr,crossmax
+	   else
+	     write(11,*) '+'
+	     write(11,*) vegsec,vegerr,crossmax
+	   end if
+
+		end if!mix=0 end
 
 c******************************************************
-
-          if(imix.eq.1) then
-	      if(imixtype.eq.1.or.imixtype.eq.2) then
-		   ibcstate=1                         !1s0 and singlet
-             write(*,'(a)') '...generating cross-sec and grade (1s0)...'
-             write(3,'(a)') '...generating cross-sec and grade (1s0)...'
-		   call paraswave(ibcstate)
-		   call vegas(totfun,7,number,nitmx,2)
-             xbcsec(1)=vegsec
-		   do i=1,NVEGBIN
-	           write(36,*) (xi(i,j),j=1,7)
-		   end do
-	       write(36,*) '+'
-             write(36,*) vegsec,crossmax
-		   rewind(36)
-	      end if
-
-c********************************
-	      if(imixtype.eq.1.or.imixtype.eq.2) then
-		   ibcstate=2                         !3s1 and singlet
-             write(*,'(a)') '...generating cross-sec and grade (3s1)...'
-             write(3,'(a)') '...generating cross-sec and grade (3s1)...'
-             call paraswave(ibcstate)
-             call vegas(totfun,7,number,nitmx,2)
-             xbcsec(2)=vegsec
-             do i=1,NVEGBIN
-	           write(37,*) (xi(i,j),j=1,7)
-		   end do
-	       write(37,*) '+'
-             write(37,*) vegsec,crossmax
-	       rewind(37)
-            end if
+	  if(imix.eq.1) then  !mix=1 begin
+	   if(imixtype.eq.1.or.imixtype.eq.2) then
+		 ibcstate=1                         !1s0 and singlet
+       write(*,'(a)') '...generating cross-sec and grade (1s0)...'
+       write(3,'(a)') '...generating cross-sec and grade (1s0)...'
+		 call paraswave(ibcstate)
+       call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+       if(unwght)call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+       if(unwght)call gen(totfun,ndim,xmax,0)
+       xbcsec(1)=vegsec
+		 do i=1,NVEGBIN
+	       write(36,*) (xi(i,j),j=1,7)
+		 end do
+       write(36,*) '&'
+       do i=1,NVEGBIN
+		  write(36,*) (xmax(i,j),j=1,ndim)
+		 end do
+	    write(36,*) '+'
+       write(36,*) vegsec,vegerr,crossmax
+		 rewind(36)
+	   end if
 
 c********************************
-	      if(imixtype.eq.1.or.imixtype.eq.3) then
-		   ibcstate=3
-             write(*,'(a)') '...generating cross-sec and grade (1p1)...'
-             write(3,'(a)') '...generating cross-sec and grade (1p1)...'
-             call parapwave
-             call vegas(totfun,7,number,nitmx,2)
-             xbcsec(3)=vegsec
-             do i=1,NVEGBIN
-	           write(38,*) (xi(i,j),j=1,7)
-		   end do
-	       write(38,*) '+'
-             write(38,*) vegsec,crossmax
-	       rewind(38)
-	      end if
+	 if(imixtype.eq.1.or.imixtype.eq.2) then
+	    ibcstate=2                         !3s1 and singlet
+        write(*,'(a)') '...generating cross-sec and grade (3s1)...'
+        write(3,'(a)') '...generating cross-sec and grade (3s1)...'
+        call paraswave(ibcstate)
+        call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+        if(unwght)call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+        if(unwght)call gen(totfun,ndim,xmax,0)
+        xbcsec(2)=vegsec
+	     do i=1,NVEGBIN
+	       write(37,*) (xi(i,j),j=1,ndim)
+	     end do
+        write(37,*) '&'
+        do i=1,NVEGBIN
+	 	   write(37,*) (xmax(i,j),j=1,ndim)
+	     end do
+        write(37,*) '+'
+        write(37,*) vegsec,vegerr,crossmax
+        rewind(37)
+	  end if
 
 c********************************
-    	      if(imixtype.eq.1.or.imixtype.eq.3) then
-		   ibcstate=4
-             write(*,'(a)') '...generating cross-sec and grade (3p0)...'
-             write(3,'(a)') '...generating cross-sec and grade (3p0)...'
-             call parapwave
-             call vegas(totfun,7,number,nitmx,2)
-             xbcsec(4)=vegsec
-             do i=1,NVEGBIN
-	           write(39,*) (xi(i,j),j=1,7)
-		   end do
-	       write(39,*) '+'
-             write(39,*) vegsec,crossmax
-	       rewind(39)
-	     end if
+	 if(imixtype.eq.1.or.imixtype.eq.3) then
+	    ibcstate=3
+        write(*,'(a)') '...generating cross-sec and grade (1p1)...'
+        write(3,'(a)') '...generating cross-sec and grade (1p1)...'
+        call parapwave
+        call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+        if(unwght) call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+        if(unwght) call gen(totfun,ndim,xmax,0)
+        xbcsec(3)=vegsec
+	     do i=1,NVEGBIN
+	       write(38,*) (xi(i,j),j=1,ndim)
+	     end do
+        write(38,*) '&'
+        do i=1,NVEGBIN
+	 	   write(38,*) (xmax(i,j),j=1,ndim)
+	     end do
+        write(38,*) '+'
+        write(38,*) vegsec,vegerr,crossmax
+	  rewind(38)
+	 end if
 
 c********************************
-	     if(imixtype.eq.1.or.imixtype.eq.3) then
-		   ibcstate=5
-             write(*,'(a)') '...generating cross-sec and grade (3p1)...'
-             write(3,'(a)') '...generating cross-sec and grade (3p1)...'
-             call parapwave
-             call vegas(totfun,7,number,nitmx,2)
-             xbcsec(5)=vegsec
-             do i=1,NVEGBIN
-	           write(46,*) (xi(i,j),j=1,7)
-		   end do
-	       write(46,*) '+'
-             write(46,*) vegsec,crossmax
-	       rewind(46)
-	      end if
+	 if(imixtype.eq.1.or.imixtype.eq.3) then
+	    ibcstate=4
+        write(*,'(a)') '...generating cross-sec and grade (3p0)...'
+        write(3,'(a)') '...generating cross-sec and grade (3p0)...'
+        call parapwave
+        call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+        if(unwght)call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+        if(unwght)call gen(totfun,ndim,xmax,0)
+        xbcsec(4)=vegsec
+	     do i=1,NVEGBIN
+	     end do
+        write(39,*) '&'
+        do i=1,NVEGBIN
+	 	   write(39,*) (xmax(i,j),j=1,ndim)
+	     end do
+        write(39,*) '+'
+        write(39,*) vegsec,vegerr,crossmax
+	  rewind(39)
+	 end if
 
 c********************************
-	      if(imixtype.eq.1.or.imixtype.eq.3) then
-		   ibcstate=6
-             write(*,'(a)') '...generating cross-sec and grade (3p2)...'
-             write(3,'(a)') '...generating cross-sec and grade (3p2)...'
-             call parapwave
-             call vegas(totfun,7,number,nitmx,2)
-             xbcsec(6)=vegsec
-             do i=1,NVEGBIN
-	           write(47,*) (xi(i,j),j=1,7)
-		   end do
-	       write(47,*) '+'
-             write(47,*) vegsec,crossmax
-	       rewind(47)
-	      end if
+	 if(imixtype.eq.1.or.imixtype.eq.3) then
+	  ibcstate=5
+         write(*,'(a)') '...generating cross-sec and grade (3p1)...'
+         write(3,'(a)') '...generating cross-sec and grade (3p1)...'
+         call parapwave
+         call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+         if(unwght)call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+         if(unwght)call gen(totfun,ndim,xmax,0)
+         xbcsec(5)=vegsec
+	      do i=1,NVEGBIN
+	        write(46,*) (xi(i,j),j=1,ndim)
+	      end do
+         write(46,*) '&'
+         do i=1,NVEGBIN
+	  	   write(46,*) (xmax(i,j),j=1,ndim)
+	      end do
+         write(46,*) '+'
+         write(46,*) vegsec,vegerr,crossmax
+	   rewind(46)
+	  end if
 
 c********************************
-	      if(imixtype.eq.1.or.imixtype.eq.3) then
-		   ibcstate=7                         !1s0 and octet
-             write(*,'(a)') '.generating cross-sec and grade (1s0)_8...'
-             write(3,'(a)') '.generating cross-sec and grade (1s0)_8...'
-             call paraswave(ibcstate)
-             ibcstate=1                   !return to original definition
-		   call vegas(totfun,7,number,nitmx,2)
-             xbcsec(7)=vegsec
-             do i=1,NVEGBIN
-	           write(48,*) (xi(i,j),j=1,7)
-		   end do
-	       write(48,*) '+'
-             write(48,*) vegsec,crossmax
-	       rewind(48)
-	      end if
+	  if(imixtype.eq.1.or.imixtype.eq.3) then
+	     ibcstate=6
+         write(*,'(a)') '...generating cross-sec and grade (3p2)...'
+         write(3,'(a)') '...generating cross-sec and grade (3p2)...'
+         call parapwave
+         call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+         if(unwght)call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+         if(unwght)call gen(totfun,ndim,xmax,0)
+         xbcsec(6)=vegsec
+	      do i=1,NVEGBIN
+	        write(47,*) (xi(i,j),j=1,ndim)
+	      end do
+         write(47,*) '&'
+         do i=1,NVEGBIN
+	  	   write(47,*) (xmax(i,j),j=1,ndim)
+	      end do
+         write(47,*) '+'
+         write(47,*) vegsec,vegerr,crossmax
+	   rewind(47)
+	  end if
 
 c********************************
-	      if(imixtype.eq.1.or.imixtype.eq.3) then
-		   ibcstate=8                         !3s1 and octet
-             write(*,'(a)') '.generating cross-sec and grade (3s1)_8...'
-             write(3,'(a)') '.generating cross-sec and grade (3s1)_8...'
-             call paraswave(ibcstate)
-             ibcstate=2                   !return to original definition
-             call vegas(totfun,7,number,nitmx,2)
-             do i=1,NVEGBIN
-	           write(49,*) (xi(i,j),j=1,7)
-		   end do
-             xbcsec(8)=vegsec
-	       write(49,*) '+'
-             write(49,*) vegsec,crossmax
-	       rewind(49)
-	      end if
-		end if
-	  else
-	   write(*,'(a,a,1x,g12.5)')'getting subprocess info....',
+	  if(imixtype.eq.1.or.imixtype.eq.3) then
+	     ibcstate=7                         !1s0 and octet
+         write(*,'(a)') '.generating cross-sec and grade (1s0)_8...'
+         write(3,'(a)') '.generating cross-sec and grade (1s0)_8...'
+         call paraswave(ibcstate)
+         ibcstate=1    !return to original definition
+         call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+         if(unwght)call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+         if(unwght)call gen(totfun,ndim,xmax,0)
+         xbcsec(7)=vegsec
+	      do i=1,NVEGBIN
+	        write(48,*) (xi(i,j),j=1,ndim)
+	      end do
+         write(48,*) '&'
+         do i=1,NVEGBIN
+	  	   write(48,*) (xmax(i,j),j=1,ndim)
+	      end do
+	      write(48,*) '+'
+         write(48,*) vegsec,vegerr,crossmax
+	   rewind(48)
+	  end if
+
+c********************************
+	 if(imixtype.eq.1.or.imixtype.eq.3) then
+	    ibcstate=8                         !3s1 and octet
+        write(*,'(a)') '.generating cross-sec and grade (3s1)_8...'
+        write(3,'(a)') '.generating cross-sec and grade (3s1)_8...'
+        call paraswave(ibcstate)
+        ibcstate=2                   !return to original definition
+        call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+        if(unwght)call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+        if(unwght)call gen(totfun,ndim,xmax,0)
+        xbcsec(8)=vegsec
+	     do i=1,NVEGBIN
+	       write(49,*) (xi(i,j),j=1,ndim)
+	     end do
+        write(49,*) '&'
+        do i=1,NVEGBIN
+	 	   write(49,*) (xmax(i,j),j=1,ndim)
+	     end do
+        write(49,*) '+'
+        write(49,*) vegsec,vegerr,crossmax
+	  rewind(49)
+	 end if
+	   end if!mix=1 end
+	 else !isubonly=0 else
+		write(*,'(a,a,1x,g12.5)')'getting subprocess info....',
      &		 'at c.m. energy(gev)',subenergy
-	   write(3,'(a,a,1x,g12.5)')'getting subprocess info....',
+		write(3,'(a,a,1x,g12.5)')'getting subprocess info....',
      &		 'at c.m. energy(gev)',subenergy
-	   write(*,'(a)') 'the info. of hadron collider is no use!!!'
-	   write(3,'(a)') 'the info. of hadron collider is no use!!!'
+	   	write(*,'(a)') 'the info. of hadron collider is no use!!!'
+		write(3,'(a)') 'the info. of hadron collider is no use!!!'
+
           if(iveggrade.eq.1) then
-	   write(*,'(a)')'using existed grade to gene. precise grade.'
-	   write(3,'(a)')'using existed grade to gene. precise grade.'
+	       write(*,'(a)')'using existed grade to gene. precise grade.'
+		   write(3,'(a)')'using existed grade to gene. precise grade.'
 		   do i=1,NVEGBIN
-	          read(11,*) (xi(i,j),j=1,7)
+	          read(11,*) (xi(i,j),j=1,ndim)
 	       end do
-c	       open(unit=29,file='data/newgrade.grid',status='unknown')
+         do
+	       read(11,*) pfile
+	       if(pfile.eq.'&') exit
+	      enddo
+		   do i=1,NVEGBIN
+	        read(11,*) (xmax(i,j),j=1,ndim)
+	      end do
+         do
+	       read(11,*) pfile
+	       if(pfile.eq.'+') exit
+	      enddo
+	      read(11,*) vegsec,vegerr,crossmax
+	      rewind(11)
 	       open(unit=29,file='newgrade.grid',status='unknown')
 	    end if	   
 		ndim=5
-		call vegas(totfun,ndim,number,nitmx,2)
-c...record the (new) generated grade.
-	    do i=1,NVEGBIN
+       if(iveggrade.eq.1) then
+        call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+        if(unwght) call gen(totfun,ndim,xmax,0)
+	   else 
+        call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,0)
+        if(unwght) call vegas(totfun,ndim,number,nitmx,2,vegsec,xmax,1)
+        if(unwght) call gen(totfun,ndim,xmax,0)
+	   end if
+
+		 do i=1,NVEGBIN
 	       if(iveggrade.eq.1) then
-			    write(29,*) (xi(i,j),j=1,ndim)
+			  write(29,*) (xi(i,j),j=1,7)
 	       else
-	            write(11,*) (xi(i,j),j=1,ndim)
+	          write(11,*) (xi(i,j),j=1,7)
 		   end if
+		 end do
+
+       if(iveggrade.eq.1) then
+	     write(29,*) '&'
+	   else
+	     write(11,*) '&'
+	   end if
+
+		do i=1,NVEGBIN
+	     if(iveggrade.eq.1) then
+			write(29,*) (xmax(i,j),j=1,ndim)
+        else
+	      write(11,*) (xmax(i,j),j=1,ndim)          
+		  end if
 		end do
-	  end if
+
+	   if(iveggrade.eq.1) then
+	     write(29,*) '+'
+	     write(29,*) vegsec,vegerr,crossmax
+	   else
+	     write(11,*) '+'
+	     write(11,*) vegsec,vegerr,crossmax
+	   end if
+	 end if!isubonly=0 end
 	  call vegasend(vegasopen,ievntdis,usegrade)
-      else
+	else !vegasopen else
 	  call vegasend(vegasopen,ievntdis,usegrade)
 	  if(isubonly.eq.0) then
 	     ndim=7
@@ -383,25 +518,37 @@ c...initialize the grade.
 c*****************************************************************
 c...using the existed grade. one thing should be care here is that
 c...the existed grade should be formed under the same parameters.
-        if(imix.eq.0) then
+      if(imix.eq.0) then
 	    if(usegrade) then
 	     write(*,'(a)') 'using the existed vegas grade.'
-		 write(3,'(a)') 'using the existed vegas grade.'
-		 do i=1,NVEGBIN
+	     write(3,'(a)') 'using the existed vegas grade.'
+	     do i=1,NVEGBIN
 	        read(11,*) (xi(i,j),j=1,7)
-	     end do
+	      end do
+	      do
+	       read(11,*) pfile
+	       if(pfile.eq.'&') exit
+	      enddo
+	      do i=1,NVEGBIN
+	        read(11,*) (xmax(i,j),j=1,ndim)
+	      end do
+	      do
+	       read(11,*) pfile
+	       if(pfile.eq.'+') exit
+	      enddo
+	      read(11,*) vegsec,vegerr,crossmax
+	      rewind(11)
+	      if(unwght) call gen(totfun,ndim,xmax,0)
 	    end if
-	  end if
-      end if
+	  end if !mix=0 end
+	end if !vegasopen end
 
 c********************************************
 c***  find the total-corssection for each state 
 c***  from the previous generated grade, used
 c***  when vegas not used.
 c********************************************
-
       if(imix.eq.1 .and. (.not.vegasopen)) then
-
 	 if(imixtype.eq.1) then
 	  do i=1,4
 	   do
@@ -481,6 +628,10 @@ c*******************************************
 	end if
 
 	crossmax=0.0d0
+c...if to get mixed results, then one should redefine grade
+c...(the sampling importance function), the old grade files
+c...must be exist and be generated under the same condition.
+      if(imix.eq.1 .and. isubonly.eq.0) call initmixgrade
 
 c***************************************************
 c***    some switches for event generation     *****
@@ -488,7 +639,7 @@ c***************************************************
 c...switch off aspects: initial and final state
 c...showers, multiple interactions, hadronization.
       if(ishower.eq.0) then
-	  mstp(61) =0
+	mstp(61) =0
         mstp(71) =0
         mstp(81) =0
         mstp(111)=0
@@ -501,8 +652,9 @@ c...pyinit--->to initialize the generation procedure.
       call pyinit('user',' ',' ',0d0)
 
 c...set bc+ stable.
-      mdcy(pycomp(541),1)=0
+	   mdcy(pycomp(541),1)=0
 c***************************************************
 
       return
 	end
+

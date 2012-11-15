@@ -16,6 +16,11 @@ c*
       common/counter/ibcstate,nev
       common/loggrade/ievntdis,igenerate,ivegasopen,igrade
       logical usegrade,usevegas
+	common/vegcross/vegsec,vegerr,iveggrade
+	character*1 pfile
+	logical unwght
+	common/unweight/unwght
+	common/xxmax/xmax(NVEGBIN,8)
        
          usegrade=.false.
          if(igrade.eq.1) usegrade=.true.
@@ -43,7 +48,7 @@ c----------------------
            if(ibcstate.eq.7 .or. ibcstate.eq.8) then
                call paraswave(ibcstate)
            end if
-
+	   ndim=7
 c------------------------------------------------------------
 c...the following way to generate the mixed events are not
 c...appreciable, list here only for completeness of the program.
@@ -55,7 +60,6 @@ c...grade for every state.
 c------------------------------------------------------------
 	   if((.not. usevegas) .and. (.not. usegrade)) then
 c...initialize the grade.
- 	     ndim=7	! fix for uninizialized variable
              rc=1.0d0/NVEGBIN
              do 77 j=1,ndim
                xi(NVEGBIN,j)=1.0d0
@@ -76,69 +80,173 @@ c*** returned, so the following can be introduced without
 c*** if conditions.
 c**********************************************************
 c**********************************************************
-
-		   if(ibcstate.eq.1) then
-		       do i=1,NVEGBIN
+	     if(ibcstate.eq.1) then
+	         do i=1,NVEGBIN
 	             read(36,*) (xi(i,j),j=1,7)
-	           end do
-		     rewind(36)
-		   end if
+	          end do
+                  do
+	           read(36,*) pfile
+	           if(pfile.eq.'&') exit
+	          enddo
+	          do i=1,NVEGBIN
+	           read(36,*) (xmax(i,j),j=1,7)
+	          end do
+                   do
+	           read(36,*) pfile
+	           if(pfile.eq.'+') exit
+	          enddo
+	          read(36,*) vegsec,vegerr,crossmax
+	          rewind(36)
+	          if(unwght) call gen(totfun,ndim,xmax,0)
+	      end if
 
 c***************************************
-		   if(ibcstate.eq.2) then
-		       do i=1,NVEGBIN
+	      if(ibcstate.eq.2) then
+	           do i=1,NVEGBIN
 	             read(37,*) (xi(i,j),j=1,7)
 	           end do
-		     rewind(37)
-		   end if
+	         do
+	           read(37,*) pfile
+	           if(pfile.eq.'&') exit
+	          enddo
+	         do i=1,NVEGBIN
+	           read(37,*) (xmax(i,j),j=1,7)
+	          end do
+                  do
+	           read(37,*) pfile
+	           if(pfile.eq.'+') exit
+	          enddo
+	          read(37,*) vegsec,vegerr,crossmax
+	          rewind(37)
+	          if(unwght) call gen(totfun,ndim,xmax,0)
+	       end if
 
 c***************************************
-		   if(ibcstate.eq.3) then
-		       do i=1,NVEGBIN
+	      if(ibcstate.eq.3) then
+	         do i=1,NVEGBIN
 	             read(38,*) (xi(i,j),j=1,7)
 	           end do
-		     rewind(38)
-		   end if
+                  do
+	           read(38,*) pfile
+	           if(pfile.eq.'&') exit
+	          enddo
+	         do i=1,NVEGBIN
+	           read(38,*) (xmax(i,j),j=1,7)
+	          end do
+                 do
+	           read(38,*) pfile
+	           if(pfile.eq.'+') exit
+	          enddo
+	          read(38,*) vegsec,vegerr,crossmax
+	          rewind(38)
+	          if(unwght) call gen(totfun,ndim,xmax,0)
+	      end if
 
 c***************************************
-		   if(ibcstate.eq.4) then
-		       do i=1,NVEGBIN
+	       if(ibcstate.eq.4) then
+	          do i=1,NVEGBIN
 	             read(39,*) (xi(i,j),j=1,7)
 	           end do
-		     rewind(39)
-		   end if
+                  do
+	           read(39,*) pfile
+	           if(pfile.eq.'&') exit
+	          enddo
+	          do i=1,NVEGBIN
+	           read(39,*) (xmax(i,j),j=1,7)
+	          end do
+                  do
+	           read(39,*) pfile
+	           if(pfile.eq.'+') exit
+	          enddo
+	          read(39,*) vegsec,vegerr,crossmax
+	          rewind(39)
+	          if(unwght) call gen(totfun,ndim,xmax,0)
+	        end if
 
 c***************************************
-		   if(ibcstate.eq.5) then
-		       do i=1,NVEGBIN
+	       if(ibcstate.eq.5) then
+	           do i=1,NVEGBIN
 	             read(46,*) (xi(i,j),j=1,7)
 	           end do
-		     rewind(46)
-		   end if
+                   do
+	           read(46,*) pfile
+	           if(pfile.eq.'&') exit
+	          enddo
+	          do i=1,NVEGBIN
+	           read(46,*) (xmax(i,j),j=1,7)
+	          end do
+                  do
+	           read(46,*) pfile
+	           if(pfile.eq.'+') exit
+	          enddo
+	          read(46,*) vegsec,vegerr,crossmax
+	          rewind(46)
+	          if(unwght) call gen(totfun,ndim,xmax,0)
+	       end if
 
 c***************************************
-		   if(ibcstate.eq.6) then
-		       do i=1,NVEGBIN
+	       if(ibcstate.eq.6) then
+	          do i=1,NVEGBIN
 	             read(47,*) (xi(i,j),j=1,7)
 	           end do
-		     rewind(47)
-		   end if
+                  do
+	           read(47,*) pfile
+	           if(pfile.eq.'&') exit
+	          enddo
+	          do i=1,NVEGBIN
+	           read(47,*) (xmax(i,j),j=1,7)
+	          end do
+                  do
+	           read(47,*) pfile
+	           if(pfile.eq.'+') exit
+	          enddo
+	          read(47,*) vegsec,vegerr,crossmax
+	          rewind(47)
+	          if(unwght) call gen(totfun,ndim,xmax,0)
+	        end if
 
 c***************************************
-		   if(ibcstate.eq.7) then
+	      if(ibcstate.eq.7) then
                       ibcstate=1   !1s0 and color-octet
-		      do i=1,NVEGBIN
-	               read(48,*) (xi(i,j),j=1,7)
-	              end do
-		      rewind(48)
-		   end if
+	          do i=1,NVEGBIN
+	            read(48,*) (xi(i,j),j=1,7)
+	           end do
+                  do
+	           read(48,*) pfile
+	           if(pfile.eq.'&') exit
+	          enddo
+	          do i=1,NVEGBIN
+	           read(48,*) (xmax(i,j),j=1,7)
+	          end do
+                  do
+	           read(48,*) pfile
+	           if(pfile.eq.'+') exit
+	          enddo
+	          read(48,*) vegsec,vegerr,crossmax
+	          rewind(48)
+	          if(unwght) call gen(totfun,ndim,xmax,0)
+	       end if
 
 c***************************************
-		   if(ibcstate.eq.8) then
+	       if(ibcstate.eq.8) then
                       ibcstate=2   !3s1 and color-octet
-		      do i=1,NVEGBIN
+	           do i=1,NVEGBIN
 	               read(49,*) (xi(i,j),j=1,7)
-	              end do
-		      rewind(49)
-		   end if
-      end
+	            end do
+                  do
+	           read(49,*) pfile
+	           if(pfile.eq.'&') exit
+	          enddo
+	         do i=1,NVEGBIN
+	           read(49,*) (xmax(i,j),j=1,7)
+	          end do
+                  do
+	           read(49,*) pfile
+	           if(pfile.eq.'+') exit
+	          enddo
+	          read(49,*) vegsec,vegerr,crossmax
+	          rewind(49)
+	          if(unwght) call gen(totfun,ndim,xmax,0)
+	        end if
+	 end
+

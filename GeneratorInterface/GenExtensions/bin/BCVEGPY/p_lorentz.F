@@ -470,11 +470,11 @@ c************************
          pp(i,10)=0.d0
          pp(i,9)=0.d0
       enddo
-        call wa0(3,9,c(2,n))
-        call wa0(6,9,c(5,n))
-        call wa0(7,9,c(8,n))
-        call wa0(8,9,c(9,n))
-        call wa0(2,9,c(31,n))
+        call wa0(3,9,10,c(2,n))
+        call wa0(6,9,10,c(5,n))
+        call wa0(7,9,10,c(8,n))
+        call wa0(8,9,10,c(9,n))
+        call wa0(2,9,10,c(31,n))
         call wa1(3,8,11,12,c(1,n))
         call wa1(3,2,11,12,c(28,n))
         call wa1(6,3,11,12,c(3,n))
@@ -542,11 +542,11 @@ c************************
          pp(i,10)=0.d0
          pp(i,9)=0.d0
         enddo
-        call wa0(3,11,c(3,n))
-        call wa0(6,11,c(7,n))
-        call wa0(7,11,c(10,n))
-        call wa0(8,11,c(11,n))
-        call wa0(2,11,c(30,n))
+        call wa0(3,11,12,c(3,n))
+        call wa0(6,11,12,c(7,n))
+        call wa0(7,11,12,c(10,n))
+        call wa0(8,11,12,c(11,n))
+        call wa0(2,11,12,c(30,n))
         call wa1(3,8,9,10,c(2,n))
         call wa1(3,2,9,10,c(31,n))
         call wa1(6,3,9,10,c(5,n))
@@ -614,16 +614,16 @@ c************************
          pp(i,15)=0.d0
          pp(i,14)=0.d0
         enddo
-        call wa0(3,14,c(33,n))
-        call wa0(6,14,c(6,n))
-        call wa0(7,14,c(10,n))
-        call wa0(8,14,c(11,n))
-        call wa0(9,14,c(12,n))
-        call wa0(1,14,c(66,n))
-        call wa0(10,14,c(29,n))
-        call wa0(11,14,c(40,n))
-        call wa0(12,14,c(62,n))
-        call wa0(13,14,c(83,n))
+        call wa0(3,14,15,c(33,n))
+        call wa0(6,14,15,c(6,n))
+        call wa0(7,14,15,c(10,n))
+        call wa0(8,14,15,c(11,n))
+        call wa0(9,14,15,c(12,n))
+        call wa0(1,14,15,c(66,n))
+        call wa0(10,14,15,c(29,n))
+        call wa0(11,14,15,c(40,n))
+        call wa0(12,14,15,c(62,n))
+        call wa0(13,14,15,c(83,n))
         call wa1(3,8,16,17,c(1,n))
         call wa1(3,9,16,17,c(2,n))
         call wa1(3,11,16,17,c(41,n))
@@ -754,7 +754,7 @@ c%  wa6 -- c* p6_hat * p5_hat * p4_hat * p3_hat * p2_hat * p1_hat * p0_hat  %
 c%         ........                                                         %
 c%  wan -- c* pn_hat * .......................................... * p0_hat  %
 c%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-      subroutine wa0(n0,na,c)
+      subroutine wa0(n0,na,nb,c)
       implicit double precision(a-h, o-z)
 	implicit integer(i-n)
       common/ppp/pp(4,40),guv(4)

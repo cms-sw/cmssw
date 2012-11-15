@@ -11,17 +11,20 @@ c**********************************************************************
 c***********************************************************************
 c...changes are made which make the program only to get the importance
 c...function. 
-      subroutine vegas(fxn,ndim,ncall,itmx,nprn)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c    arguments:                                                        c
-c       fxn    = function to be integrated/mapped                      c
-c       ndim   = # dimensions                                          c
-c       ncall  = maximum total # of calls to the function              c
-c       itmx   = maximum # of iterations allowed                       c
-c       nprn   = printout level:                                       c
-c              >=2  additionally inf. about accumulated values         c
-c                     per iteration.                                   c
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine vegas(fxn,ndim,ncall,itmx,nprn,xint,xmax,imode)
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c    arguments:                                                    c
+c       fxn    = function to be integrated/mapped                  c
+c       ndim   = # dimensions                                      c
+c       ncall  = maximum total # of calls to the function          c
+c       itmx   = maximum # of iterations allowed                   c
+c       nprn   = printout level:                                   c
+c              >=2  additionally inf. about accumulated values     c
+c                     per iteration.                               c
+c       xint   = integral value will be used when imode=1          c
+c       xmax   = upper bound of of the function                    c
+c       imode  = 0 get integral value will be used when imode=1    c
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit double precision(a-h,o-z)
 	implicit integer (i-n)
 
@@ -41,8 +44,10 @@ c...user process event common block.
      &	smin,smax,ymin,ymax,psetamin,psetamax
 	common/vegcross/vegsec,vegerr,iveggrade
 
+c	character*8 begin_time,end_time
 
-      dimension x(10),xin(NVEGBIN),r(NVEGBIN),ia(10),d(NVEGBIN,10)
+	dimension x(ndim),xin(NVEGBIN),r(NVEGBIN),ia(ndim),
+     &    d(NVEGBIN,ndim),xmax(NVEGBIN,ndim)
 c      data alph/1.5d0/
 
       alph=1.50d0
@@ -62,7 +67,7 @@ c===============================================================
 c...............................................................
 c  defining the initial intervals distribution
 c...............................................................
-      if(iveggrade.eq.0) then
+      if(iveggrade.eq.0.and.imode.eq.0) then
 	  rc=1.0d0/xnd
         do 7 j=1,ndim
           xi(nd,j)=1.0d0
@@ -72,6 +77,15 @@ c...............................................................
           xi(i,j)=dr
 7       continue
       end if
+c...xint is the value of integral vegsec when imode=0      
+      if(imode.eq.1.and.(iveggrade.eq.0)) then
+         do idm=1,ndim
+            do ibin=1,nd
+               xmax(ibin,idm)=
+     #              xint**(1d0/ndim)
+            enddo
+         enddo
+      endif
 
 c===============================================================
 c b))  iterating loop
@@ -112,6 +126,26 @@ c...record the maximum differential cross-section.
             iaj=ia(j)
             d(iaj,j)=d(iaj,j)+fun2
           end do
+c===============================================================
+c----- update the upper bounding envelope
+c===============================================================
+		  if(imode.eq.1) then
+            prod=1
+            do idm=1,ndim
+               prod=prod*xmax(ia(idm),idm)
+            enddo
+            prod=(tempfxn/prod)
+            if(prod.gt.1) then
+               if(it.eq.itmx)  call increasecnt
+     #    ('Error: the xmax is ramain unstable change iteration value')
+c This guarantees a 10% increase of the upper bound in this cell
+               prod=1+0.1d0/ndim
+               do idm=1,ndim
+                  xmax(ia(idm),idm)=xmax(ia(idm),idm)
+     #          * prod
+               enddo
+            endif
+         endif   
 11      continue
 c...............................................................
 c  computing the integral and error values
@@ -147,8 +181,8 @@ c		write(*,'(a)') end_time
 c		write(3,'(a)') end_time
 	  end if
 
-c778     format('integral value =',g10.4,'+/-',
-c     &   g10.4,3x,' chi**2=',g10.4, /' ')
+778     format('integral value =',g10.4,'+/-',
+     &   g10.4,3x,' chi**2=',g10.4, /' ')
 201     format('iter.no',i3,' acc.result(pb)==>',g14.5,'+/-',g10.4,
      .   '... % err=',g10.2)
 c===============================================================
@@ -262,3 +296,124 @@ c*****************************************************************
 
       return
       end
+
+      subroutine gen(fxn,ndim,xmax,imode)
+c imode=0 to initialize
+c imode=1 to generate
+c imode=3 store generation efficiency in eff
+	implicit double precision(a-h,o-z)
+	implicit integer (i-n)
+
+c...user process event common block.
+	common/subopen/subfactor,subenergy,isubonly
+	common/grade/xi(NVEGBIN,8)
+	dimension x(ndim),ia(ndim),xmax(NVEGBIN,ndim),ncell(ndim),xmmm(NVEGBIN,8)
+
+      integer icalls,mcalls,idm,ibin
+      save icalls,mcalls,xmmm
+
+      nd=NVEGBIN
+      xnd =nd*1.0d0
+      if(imode.eq.0) then
+         do idm=1,ndim           
+            xmmm(1,idm)=xmax(1,idm)
+            do ibin=2,nd
+               xmmm(ibin,idm)=xmmm(ibin-1,idm)+
+     #              xmax(ibin,idm)
+            enddo
+            do ibin=1,nd
+               xmmm(ibin,idm)=xmmm(ibin,idm)/xmmm(nd,idm)
+c               write(*,*), xmmm(ibin,idm)
+            enddo
+         enddo
+         icalls=0
+         mcalls=0
+         return
+      elseif(imode.eq.3) then
+         if(icalls.gt.0) then
+            eff=dble(mcalls)/icalls
+         else
+            eff=-1
+         endif
+         write(*,*), 'Efficiency in the generation is ',eff
+         return
+      endif
+       mcalls=mcalls+1
+ 10   continue
+      do idm=1,ndim
+         r=rand(0)
+         do ibin=1,nd
+            if(r.lt.xmmm(ibin,idm)) then
+               ncell(idm)=ibin
+               goto 1
+            endif
+         enddo
+ 1       continue
+      enddo
+      ubound=1
+      do idm=1,ndim
+         ubound=ubound*xmax(ncell(idm),idm)
+      enddo
+c       write(*,*),'The ubound is ',ubound 
+      fun=0
+
+      call generand(ndim,xnd,x,ia,wgt)
+		call phpoint(x,wt)
+		if(wt.lt.1.0d-15) then
+	      fun=0.0d0
+		else
+		  fun=fun+fxn(x,wt)*wgt
+	   end if
+      if(fun.lt.0) then
+         write(*,*) 'gen: non positive function'
+         stop
+      endif
+      if(fun.gt.ubound) then
+         call increasecnt 
+     #    ('upper bound failure')
+      endif
+      ubound=ubound*rand(0)
+       icalls=icalls+1
+      if(ubound.gt.fun) then
+         call increasecnt
+     #    ('vetoed calls in inclusive cross section')
+         goto 10
+      endif
+c      print *,'The ubound*random is  ',ubound
+c      print *,'the cross-section is ', fun
+c....when ubound>fun>ubound*random() the event accept  
+      end
+
+      subroutine increasecnt(string)
+      implicit none
+      character *(*) string
+      integer maxnum
+      parameter (maxnum=100)
+      character * 100 keywords(maxnum)
+      real * 8 counters(maxnum)
+      integer ncounters
+      common/ccounters/keywords,counters,ncounters
+      integer ini,j
+      data ini/0/
+      save ini
+      if(ini.eq.0) then
+         ncounters=0
+         ini=1
+      endif
+      do j=1,ncounters
+         if(string.eq.keywords(j)) then
+            counters(j)=counters(j)+1
+            return
+         endif
+      enddo
+c not found
+      if(ncounters.eq.maxnum) then
+         write(*,*) ' too many counters requested'
+         stop
+      endif
+      ncounters=ncounters+1
+      keywords(ncounters)=string
+      counters(ncounters)=1
+      end
+
+

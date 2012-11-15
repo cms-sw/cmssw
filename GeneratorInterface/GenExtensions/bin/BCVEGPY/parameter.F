@@ -59,8 +59,8 @@ c...xbcsec(8) records the total differential cross-sections for different
 c...states: 1---singlet 1s0; 2---singlet 3s1; 7---octet 1s0; 8---octet 3s1;
 c...3---singlet 1p1; 4---singlet 3p0; 5---singlet 3p1; 6---singlet 3p2.
 	common/mixevnt/xbcsec(8),imix,imixtype
-
-	logical wronginput
+	logical wronginput,unwght
+	common/unweight/unwght
 c
 c... Read parameter setting from file bcvegpy_set_par.nam
 c	
@@ -116,10 +116,10 @@ c                        !distributions for p_t, rap, shat, pseta, y, z.
 
 c------------------------------------------
 c...event information
+      unwght =.true. !generate the unweighted events
       igenerate =0 !whether generating full events must be with idwtup=1
-c      ishower=0    !switch off aspects: initial and final state showers,
+      ishower=0   !switch off aspects: initial and final state showers,
 c                    !multiple interactions and hadronization.
-      ishower = i_shower
 
 c...using pythia pdf or not.
       ioutpdf  =1
@@ -154,7 +154,7 @@ c...imixtype=2: the mixed events for two color-singlet s-wave states.
 c...imixtype=3: the mixed events for the four color-singlet 
 c...            p-wave plus two color-octet s-wave states,
 c************************************************
-        imixtype=1
+        imixtype = mix_type
 
 c*************************************************
 c...some of the parameters are fixed only for simplicity.
@@ -165,7 +165,7 @@ c... 2) ivegasopen=0 and igrade=1.
 c... it is not an appreciable way:
 c... 3) ivegasopen=0 and igrade=0.
 c*************************************************
-        mixmethod=1
+        mixmethod = mix_method
 
         if(mixmethod.eq.1) then
 	     ivegasopen=1
@@ -374,7 +374,7 @@ c... Get parameters from namelist
 	implicit integer(i-n)
 	
 	Namelist / bcvegpy_set_par / ENERGYOFTEVA, ENERGYOFLHC,
-     +	 pmassb,  pmassc, naccel, i_shower, i_mix, 
+     +	 pmassb,  pmassc, naccel, i_mix, mix_type, mix_method, 
      +	 NUMOFEVENTS, NVEGCALL, NVEGITMX, ibcrandom
 #include "bcvegpy_set_par.inc"
 c

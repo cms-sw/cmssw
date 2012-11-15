@@ -166,7 +166,7 @@ c             if data file not initialized, do so.
          endif
 c        print *, 'pdf file ', tablefile	 
          open(iu, file=tablefile, status='old', err=100)
-         call readtbl (iu)
+ 21      call readtbl (iu)
          close (iu)
          isetold=iset
       endif
@@ -264,12 +264,7 @@ c                                        adapted from "numerical recipes"
           hp=xa(i+m)-x
           w=c(i+1)-d(i)
           den=ho-hp
-c pause is not supported anymore
-c          if(den.eq.0.)pause
-          if (den.eq.0.) then
-            WRITE (*,*) 'den is 0'
-            READ (*,'()')
-          endif
+          if(den.eq.0.)pause
           den=w/den
           d(i)=hp*den
           c(i)=ho*den
@@ -795,7 +790,7 @@ c	   stop
       ss = fint(narg,xt,na,arrf,xsf)  * x1**7 * xs
       gl = fint(narg,xt,na,arrf,xgf)  * x1**5 * xs 
 *
-      return
+ 60   return
       end
 *
 *
@@ -924,7 +919,7 @@ c	   stop
       f2b = fint(narg,xt,na,arrf,xf2bf) * x1**7 * xs
       f2  = f2l + f2c + f2b
 *
-      return
+ 60   return
       end
 *
 *
@@ -935,7 +930,7 @@ c	   stop
 *                                                                   *
 *********************************************************************
       implicit double precision (a-h, o-z)
-      dimension arg(narg),nent(narg),ent(*),table(*)
+      dimension arg(5),nent(5),ent(1000),table(10000)
       dimension d(5),ncomb(5),ient(5)
 
       kd=1
@@ -1086,8 +1081,8 @@ c***************************************************************c
           if(mode.eq.1) then
         call mrst1(x,q2,upv,dnv,usea,dsea,str,chm,bot,glu) 
       endif 
-c  99  format('  warning:  q^2 value is out of range   ','q2= ',e10.5)
-c  98  format('  warning:   x  value is out of range   ','x= ',e10.5)
+  99  format('  warning:  q^2 value is out of range   ','q2= ',e10.5)
+  98  format('  warning:   x  value is out of range   ','x= ',e10.5)
       return
       end
 c********************************************************
@@ -1206,7 +1201,7 @@ c************************************************
       implicit real*8(a-h,o-z)
       parameter(nnx=49,mmy=37)
       dimension xx(nx),yy(my),ff(nx,my),ff1(nnx,mmy),ff2(nnx,mmy),
-     xff12(nnx,mmy),yy0(4),yy1(4),yy2(4),yy12(4),z(16),
+     xff12(nnx,mmy),yy0(4),yy1(4),yy2(4),yy12(4),z(16),wt(16,16),
      xcl(16),cc(nx,my,4,4),iwt(16,16)
 
       data iwt/1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

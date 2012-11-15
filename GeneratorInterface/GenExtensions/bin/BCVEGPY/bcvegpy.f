@@ -88,9 +88,10 @@ c...user process event common block.
      &	smin,smax,ymin,ymax,psetamin,psetamax
       common/loggrade/ievntdis,igenerate,ivegasopen,igrade
 	common/mixevnt/xbcsec(8),imix,imixtype
+      	logical unwght
+	common/unweight/unwght
+
 	character*8 begin_time,end_time,blank
-
-
 c....Temporaty file for initialization/event output
         MSTP(161) = 77
         OPEN (77, FILE='BCVEGPY.init',STATUS='unknown')
@@ -99,7 +100,7 @@ c....Temporaty file for initialization/event output
 c....Final Les Houches Event file, obtained by combaining above two
         MSTP(163) = 79
         OPEN (79, FILE='BCVEGPY.lhe',STATUS='unknown')
-        MSTP(164) = 1
+c        MSTP(164) = 1 !save tmp file bcvegpy.evnt and bcvegpy.init
 
 c*********************************************
 c... setting initial parameters in parameter.F. 
@@ -142,42 +143,18 @@ c*******************************************************
 c...there list some typical ways for recording the data.
 c...users may use one convenient way/or their own way.
 c******************************************************
-c***********find highest weight*******************    
-      MAXWGT=0.0D0
-      do iev=1,10000
-      call pyevnt
-      if (MAXWGT.le.xwgtup) then
-         MAXWGT=xwgtup
-      end if
-      end do 
-c---------------------------------------------------
-      do iev=1,nev
-		call pyevnt
-c     call bcvegpy_write_lhe
-c**************The unweighting scheme**************** 
-c******the ratio of xwgtup and the xwgtup_max setted at the beginning******
-      xwt_r=xwgtup/MAXWGT
 
-      x_r = ran(0)
 
-      if (x_r.le.xwt_r.and.xwt_r.le.1) then
-c         write(*,*) "random number ",x_r," ratio ",xwt_r 
-c         write(*,*) "max xwgtup",MAXWGT
-         call bcvegpy_write_lhe
+	do iev=1,nev
+c		call pyevnt  !don't use this subroutine
+        if (unwght) then
+         call upevnt
+	      call  bcvegpy_write_lhe !if you want generate weighted LHE file need comment "if (unwght)"
+      else 
+	      call pyevnt !old mode generate weighted event for theoritical study
       end if
-      if(xwt_r.gt.1) then
-         do ic=1,int(xwt_r)
-c         write(*,*) "fill times",ic
-         call bcvegpy_write_lhe
-         end do
-         sxwt=xwt_r-int(xwt_r)
-         x_r = ran(0)
-         if (x_r.le.sxwt) then
-         call bcvegpy_write_lhe
-         end if
-      end if
-   
-c****************************************************************
+
+c
 		if (idwtup.eq.1.and.iev.ne.1.and.generate) then
 	        call pylist(7)
 c	        call time(end_time)
@@ -188,13 +165,14 @@ c	        call time(end_time)
 
 c*********************************************************
 	    do i=1,10
-             if(k(i,2).eq.541) then
-c...pt of bc.
-                pt =pyp(i,10)
+             if(idup(i).eq.541) then
+c...pt of the Bc. 
+             pt =sqrt(pup(1,i)*pup(1,i)+pup(2,i)*pup(2,i))  !sqrt(Px^2+Py^2)
 c...true rapidity.
-	          eta=pyp(i,17)
+	          eta=0.5*log((pup(4,i)+pup(3,i))/(pup(4,i)-pup(3,i))) !0.5*log((E+pz)/(E-pz))
 c...pseudo-rapidity
-	          pseta=pyp(i,19)
+	          pseta=-log(tan( atan2(pt,pup(3,i))/2 ))
+
 c...these two constrain (and other) may be added here to partly compensate
 c...some numerical problems.
 			  if(pt.lt.ptcut) xwgtup=0.0d0
@@ -217,7 +195,7 @@ c...1) (idwtup=1 and generte.eq.true) and ievntdis.eq.1;
 c...2)  idwtup=3 and ievntdis.eq.0; 3) (idwtup=1 and generate.eq.fause)
 c...and ievntdis.eq.0; the method 2) and 3) are the same, both needs
 c...a proper normalization for numbers and at the same time
-c...recording every event with it's corresponding weight so as to get
+c...recording every event with its corresponding weight so as to get
 c...final right event number distributions. the method 1) is general
 c...one used by experimental, which will spend a long time. so for 
 c...theoretical studies we suggest using method 2) or 3).
@@ -247,17 +225,17 @@ c...can be commentted out by user, if using his/her own way to
 c...record the data.
 c--------------------------------------------------------------- 
 c...pyfact all the pybooks.
-c	call uppyfact(idwtup,generate,ievntdis)
+		call uppyfact(idwtup,generate,ievntdis)
 c...open files to record the obtained pybook data for distributions.
-c	call updatafile
+		call updatafile
 c...dump the data into the corresponding files.
-c      call uppydump
+	   call uppydump
 c...close pybook files.
-c      call upclosepyfile
+	 call upclosepyfile
 c***************************************************************
 
 c	call time(end_time)
-	write(3,'(a,d19.6,a)') 'maximum diff. cross-sec=',crossmax,'pb'
+	write(3,'(a,d19.6,a)') "maximum diff. cross-sec=",crossmax,"pb"
 	write(3,'(i9,3x,a,3x,a)') nev,begin_time,end_time
 
 c...when the number of sampling points are high enough, it is
@@ -265,16 +243,20 @@ c...just the real value. for (idwtup.eq.1.and.ievntdis.eq.1),
 c...becaue of small event number the value of appcros is not
 c...accurate.
 	if(idwtup.ne.1.and.ievntdis.eq.1) then
-	  write(3,'(a,d16.6,1x,a)') '!approxi. total cross-sec=',
+	  write(3,'(a,d16.6,1x,a)') "!approxi. total cross-sec=",
      &	appcross,'nb'
       end if
 
 c...store the approximate total cross-section.
 c...appcross=\sum(xwgtup*wgt)/nev. when the number of sampling points 
 c...are high enough, it will be the true value obtained from pythia.
-	pari(1) =appcross*1.0d-3
-	write(3,'(a,3x,d16.6,x,a)') 'total cross-sec(from pythia)=',
-     &	pari(1),'mb'
+		pari(1) =appcross*1.0d-3
+		write(3,5111) 'cross-sec(pythia)=',pari(1),'mb'
+		write(3,5112) "cross-sec(vegas)=", xsecup(1),'+-',xerrup(1),'nb'
+		write(*,*) "cross-sec (vegas)=",xsecup(1),"+-",xerrup(1),"nb"
+
+ 5111 format(a,3x,d16.6,x,a)
+ 5112 format(a,3x,d16.6,x,a,x,d16.6,a)
 
 c*****************************
 c...histograms.
@@ -300,10 +282,8 @@ c***************************
 c***************************
 c...close intemediate file.
       close(3)
-
-C....Produce final LHE file
-c      CALL PYUPIN
-c      call bcvegpy_PYUPIN
-      CALL PYLHEF 
+      call pylhef
 
       end     !end of main program
+
+

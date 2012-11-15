@@ -5,7 +5,7 @@ c...helicity amplitude of the bound state part: \bar{b}+c->bc.
       subroutine bundhelicity(ibc)
       implicit double precision (a-h,o-z)
 	implicit integer (i-n)
-	double complex colmat,bundamp,polsppup
+	double complex colmat,bundamp,polsppup,inpup
 	common/upcom/ecm,pmbc,pmb,pmc,fbcc,pmomup(5,8),
      & 	colmat(10,64),bundamp(4),pmomzero(5,8)
       common/pol/polar(4,3)

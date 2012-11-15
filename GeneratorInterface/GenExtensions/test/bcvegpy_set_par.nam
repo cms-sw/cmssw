@@ -1,13 +1,14 @@
  $bcvegpy_set_par   
    ENERGYOFTEVA = 1.96d+3
-   ENERGYOFLHC  = 1.00d+4
-   pmassb       = 4.9d0  
-   pmassc       = 1.386d0 
+   ENERGYOFLHC  = 0.70d+4
+   pmassb       = 5.0d0  
+   pmassc       = 1.275d0 
    naccel       = 2 
-   i_shower     = 0 
    i_mix        = 1
-   NUMOFEVENTS  = 250000
+   mix_type     = 1
+   mix_method   = 1
+   NUMOFEVENTS  = 50000
    NVEGCALL     = 50000
-   NVEGITMX     = 10
-   ibcrandom    = 19780505
+   NVEGITMX     = 20
+   ibcrandom    = 35349925
  $End

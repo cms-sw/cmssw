@@ -22,7 +22,7 @@ c...it's original form easily.
      & 	colmat(10,64),bundamp(4),pmomzero(5,8)
 	common/rconst/pi
       dimension xm(3),p(4,3),q(4,3),r(4),z(5),
-     &   p2(3),xm2(3),e(3),v(3),y(5)
+     &   b(3),p2(3),xm2(3),e(3),v(3),y(5)
 c      data acc/1.0d-14/,itmax/6/,in_it/0/,pi2log/1.837877d0/
       
       acc=1.0d-14

@@ -18,14 +18,14 @@ c...selection of hard scattering subprocesses.
       common/pypars/mstp(200),parp(200),msti(200),pari(200)
       save /pypars/
  
-      INTEGER MAXPUP
-      PARAMETER (MAXPUP=100)
-      INTEGER IDBMUP,PDFGUP,PDFSUP,IDWTUP,NPRUP,LPRUP
-      DOUBLE PRECISION EBMUP,XSECUP,XERRUP,XMAXUP
-      COMMON/HEPRUP/IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
-     &IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),XMAXUP(MAXPUP),
-     &LPRUP(MAXPUP)
-      SAVE /HEPRUP/
+      integer maxpup
+      parameter (maxpup=100)
+      integer idbmup,pdfgup,pdfsup,idwtup,nprup,lprup
+      double precision ebmup,xsecup,xerrup,xmaxup
+      common/heprup/idbmup(2),ebmup(2),pdfgup(2),pdfsup(2),
+     &idwtup,nprup,xsecup(maxpup),xerrup(maxpup),xmaxup(maxpup),
+     &lprup(maxpup)
+      save /heprup/
  
 c...user process event common block.
       parameter (maxnup=500)
@@ -47,16 +47,13 @@ c...the user own transfer of information.
 	logical generate
 	common/genefull/generate
 	common/vegcross/vegsec,vegerr,iveggrade
+	common/mixevnt2/xbcsum,ibclimit
 
 c...parameters transformtion.
       common/funtrans/nq2,npdfu
 	common/usertran/ishower,idpp
 c...transform some variables
       common/loggrade/ievntdis,igenerate,ivegasopen,igrade
-
-C...Lines to read in assumed never longer than 200 characters. 
-      PARAMETER (MAXLEN=200)
-
 
 
 c...set up incoming beams. tevotran
@@ -106,7 +103,8 @@ c...the value of xsecup(1) can be given arbitrarily. all of them are
 c...only used for pystat(1) to produce a sensible cross-section table.
 c...the actural total cross-sec of xsecup is (appcross).
 	if (idwtup.eq.3) then
-	  xsecup(1)=vegsec*1.0d+3  ! vegas value (nb) for initialization.
+	  xsecup(1)=xbcsum*1.0d+3  ! vegas value (nb) for initialization.
+	  xerrup(1)=vegerr*1.0d+3  ! error value (nb) for initialization
 	  xmaxup(1)=crossmax       ! maximum differential cross-section
 	end if
 
@@ -121,21 +119,21 @@ c...all real arithmetic in double precision.
       implicit double precision(a-h, o-z)
       implicit integer(i-n)
 
-C...PYTHIA commonblock: only used to provide read unit MSTP(162).
-      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
-      SAVE /PYPARS/
+C...pythia commonblock: only used to provide read unit mstp(162).
+      common/pypars/mstp(200),parp(200),msti(200),pari(200)
+      save /pypars/
 
 
 c...user process event common block.
 
-      INTEGER MAXNUP
-      PARAMETER (MAXNUP=500)
-      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
-      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
-      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,IDUP(MAXNUP),
-     &ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
-     &VTIMUP(MAXNUP),SPINUP(MAXNUP)
-      SAVE /HEPEUP/
+      integer maxnup
+      parameter (maxnup=500)
+      integer nup,idprup,idup,istup,mothup,icolup
+      double precision xwgtup,scalup,aqedup,aqcdup,pup,vtimup,spinup
+      common/hepeup/nup,idprup,xwgtup,scalup,aqedup,aqcdup,idup(maxnup),
+     &istup(maxnup),mothup(2,maxnup),icolup(2,maxnup),pup(5,maxnup),
+     &vtimup(maxnup),spinup(maxnup)
+      save /hepeup/
 
       parameter (maxpup=100)
       integer pdfgup,pdfsup,lprup
@@ -144,8 +142,6 @@ c...user process event common block.
      &lprup(maxpup)
       save /heprup/
 
-C...Lines to read in assumed never longer than 200 characters. 
-      PARAMETER (MAXLEN=200)
 
 #include "invegas.h"
 #include "bcvegpy_set_par.inc"
@@ -167,16 +163,14 @@ c...to get the subprocess cross-section.
 c...for transform the subprocess information, i.e.,  whether using
 c...the subprocess q\bar{q}->bc+b+\bar{c} to generate events.
       common/qqbar/iqqbar,iqcode
-      common/mixevnt/xbcsec(8),imix,imixtype
-
-      dimension x(10),ia(10)
+	common/mixevnt/xbcsec(8),imix,imixtype
+	logical unwght
+	common/unweight/unwght
+	common/xxmax/xmax(NVEGBIN,8)
+	dimension x(10),ia(10)
 
 cc#include "invegas.h"
 
-c...if to get mixed results, then one should redefine grade
-c...(the sampling importance function), the old grade files
-c...must be exist and be generated under the same condition.
-      if(imix.eq.1 .and. isubonly.eq.0) call initmixgrade
 
 c...call the respective routine to generate event.
       if(idprup.eq.1001) then
@@ -188,14 +182,19 @@ c...call the respective routine to generate event.
          end if
 
 c...using the generated grade to generate the events points.
-         call generand(ndim,xnd,x,ia,wgt)
-         call phpoint(x,wt)
-         if(wt.lt.1.0d-16) then
-            xwgtup=0.0d0
-         else
-            xwgtup=totfun(x,wt)*wgt
-         end if
-         
+	 if(.not.unwght) then
+	   call generand(ndim,xnd,x,ia,wgt)
+	   call phpoint(x,wt)
+	   if(wt.lt.1.0d-16) then
+	     xwgtup=0.0d0
+	   else
+	     xwgtup=totfun(x,wt)*wgt
+	   end if
+	 else
+       call gen(totfun,ndim,xmax,1)
+	     xwgtup=1
+	 end if
+
          if(idwtup.eq.1.and.generate) then
 * a dirty trick: limiting the diff xsection to current xwgtup
 * the current xwgtup is high enough, so the total xsection 
@@ -236,134 +235,134 @@ C...Les Houches event record.
  
       SUBROUTINE bcvegpy_write_lhe
  
-C...Double precision and integer declarations.
-      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
+c...double precision and integer declarations.
+      implicit double precision(a-h, o-z)
+      implicit integer(i-n)
  
-C...Commonblocks.
-      COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
-      COMMON/PYCTAG/NCT,MCT(4000,2)
-      COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
-      COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
-      COMMON/PYDAT3/MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
-      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
-      COMMON/PYINT1/MINT(400),VINT(400)
-      COMMON/PYINT2/ISET(500),KFPR(500,2),COEF(500,20),ICOL(40,4,2)
-      COMMON/PYINT4/MWID(500),WIDS(500,5)
-      SAVE /PYJETS/,/PYCTAG/,/PYDAT1/,/PYDAT2/,/PYDAT3/,/PYPARS/,
-     &/PYINT1/,/PYINT2/,/PYINT4/
+c...commonblocks.
+      common/pyjets/n,npad,k(4000,5),p(4000,5),v(4000,5)
+      common/pyctag/nct,mct(4000,2)
+      common/pydat1/mstu(200),paru(200),mstj(200),parj(200)
+      common/pydat2/kchg(500,4),pmas(500,4),parf(2000),vckm(4,4)
+      common/pydat3/mdcy(500,3),mdme(8000,2),brat(8000),kfdp(8000,5)
+      common/pypars/mstp(200),parp(200),msti(200),pari(200)
+      common/pyint1/mint(400),vint(400)
+      common/pyint2/iset(500),kfpr(500,2),coef(500,20),icol(40,4,2)
+      common/pyint4/mwid(500),wids(500,5)
+      save /pyjets/,/pyctag/,/pydat1/,/pydat2/,/pydat3/,/pypars/,
+     &/pyint1/,/pyint2/,/pyint4/
  
-C...HEPEUP for output.
-      INTEGER MAXNUP
-      PARAMETER (MAXNUP=500)
-      INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
-      DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP
-      COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,IDUP(MAXNUP),
-     &ISTUP(MAXNUP),MOTHUP(2,MAXNUP),ICOLUP(2,MAXNUP),PUP(5,MAXNUP),
-     &VTIMUP(MAXNUP),SPINUP(MAXNUP)
-      SAVE /HEPEUP/
+c...hepeup for output.
+      integer maxnup
+      parameter (maxnup=500)
+      integer nup,idprup,idup,istup,mothup,icolup
+      double precision xwgtup,scalup,aqedup,aqcdup,pup,vtimup,spinup
+      common/hepeup/nup,idprup,xwgtup,scalup,aqedup,aqcdup,idup(maxnup),
+     &istup(maxnup),mothup(2,maxnup),icolup(2,maxnup),pup(5,maxnup),
+     &vtimup(maxnup),spinup(maxnup)
+      save /hepeup/
       
-c IDWTUP = 3 requires XWGTUP = 1
-      XWGTUP_wlhe = 1
+c idwtup = 3 requires xwgtup = 1
+      xwgtup_wlhe = 1
 
-C...Optionally write out event to disk. Minimal size for time/spin fields.
-      IF(MSTP(162).GT.0) THEN
-        WRITE(MSTP(162),5200) NUP,IDPRUP,XWGTUP_wlhe,SCALUP,AQEDUP
-     +   ,AQCDUP
-        DO 190 I=1,NUP
-          IF(VTIMUP(I).EQ.0D0) THEN
-            WRITE(MSTP(162),5300) IDUP(I),ISTUP(I),MOTHUP(1,I),
-     &      MOTHUP(2,I),ICOLUP(1,I),ICOLUP(2,I),(PUP(J,I),J=1,5),
+c...optionally write out event to disk. minimal size for time/spin fields.
+      if(mstp(162).gt.0) then
+        write(mstp(162),5200) nup,idprup,xwgtup_wlhe,scalup,aqedup
+     +   ,aqcdup
+        do 190 i=1,nup
+          if(vtimup(i).eq.0d0) then
+            write(mstp(162),5300) idup(i),istup(i),mothup(1,i),
+     &      mothup(2,i),icolup(1,i),icolup(2,i),(pup(j,i),j=1,5),
      &      ' 0. 9.'
-          ELSE
-            WRITE(MSTP(162),5400) IDUP(I),ISTUP(I),MOTHUP(1,I),
-     &      MOTHUP(2,I),ICOLUP(1,I),ICOLUP(2,I),(PUP(J,I),J=1,5),
-     &      VTIMUP(I),' 9.'
-          ENDIF
-  190   CONTINUE
+          else
+            write(mstp(162),5400) idup(i),istup(i),mothup(1,i),
+     &      mothup(2,i),icolup(1,i),icolup(2,i),(pup(j,i),j=1,5),
+     &      vtimup(i),' 9.'
+          endif
+  190   continue
 
-C...Optional extra line with parton-density information.
-        IF(MSTP(165).GE.1) WRITE(MSTP(162),5500) MSTI(15),MSTI(16),
-     &  PARI(33),PARI(34),PARI(23),PARI(29),PARI(30) 
-      ENDIF
+c...optional extra line with parton-density information.
+        if(mstp(165).ge.1) write(mstp(162),5500) msti(15),msti(16),
+     &  pari(33),pari(34),pari(23),pari(29),pari(30) 
+      endif
  
-C...Print formats.
+c...print formats.
 
- 5200 FORMAT(1P,2I6,4E14.6)
- 5300 FORMAT(1P,I8,5I5,5E18.10,A6)
- 5400 FORMAT(1P,I8,5I5,5E18.10,E12.4,A3)
- 5500 FORMAT(1P,'#pdf ',2I5,5E18.10)
+ 5200 format(1p,2i6,4e14.6)
+ 5300 format(1p,i8,5i5,5e18.10,a6)
+ 5400 format(1p,i8,5i5,5e18.10,e12.4,a3)
+ 5500 format(1p,'#pdf ',2i5,5e18.10)
  
-      RETURN
-      END
+      return
+      end
       
-C*********************************************************************
+c*********************************************************************
  
-C...bcvegpy_PYUPIN
-C...Fills the HEPRUP commonblock with info on incoming beams and allowed
-C...processes, and optionally stores that information on file.
+c...bcvegpy_pyupin
+c...fills the heprup commonblock with info on incoming beams and allowed
+c...processes, and optionally stores that information on file.
  
-      SUBROUTINE bcvegpy_PYUPIN
+      subroutine bcvegpy_pyupin
  
-C...Double precision and integer declarations.
-      IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      IMPLICIT INTEGER(I-N)
+c...double precision and integer declarations.
+      implicit double precision(a-h, o-z)
+      implicit integer(i-n)
  
-C...Commonblocks.
-      COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
-      COMMON/PYSUBS/MSEL,MSELPD,MSUB(500),KFIN(2,-40:40),CKIN(200)
-      COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
-      COMMON/PYINT5/NGENPD,NGEN(0:500,3),XSEC(0:500,3)
-      SAVE /PYJETS/,/PYSUBS/,/PYPARS/,/PYINT5/
+c...commonblocks.
+      common/pyjets/n,npad,k(4000,5),p(4000,5),v(4000,5)
+      common/pysubs/msel,mselpd,msub(500),kfin(2,-40:40),ckin(200)
+      common/pypars/mstp(200),parp(200),msti(200),pari(200)
+      common/pyint5/ngenpd,ngen(0:500,3),xsec(0:500,3)
+      save /pyjets/,/pysubs/,/pypars/,/pyint5/
  
-C...User process initialization commonblock.
-      INTEGER MAXPUP
-      PARAMETER (MAXPUP=100)
-      INTEGER IDBMUP,PDFGUP,PDFSUP,IDWTUP,NPRUP,LPRUP
-      DOUBLE PRECISION EBMUP,XSECUP,XERRUP,XMAXUP
-      COMMON/HEPRUP/IDBMUP(2),EBMUP(2),PDFGUP(2),PDFSUP(2),
-     &IDWTUP,NPRUP,XSECUP(MAXPUP),XERRUP(MAXPUP),XMAXUP(MAXPUP),
-     &LPRUP(MAXPUP)
-      SAVE /HEPRUP/
+c...user process initialization commonblock.
+      integer maxpup
+      parameter (maxpup=100)
+      integer idbmup,pdfgup,pdfsup,idwtup,nprup,lprup
+      double precision ebmup,xsecup,xerrup,xmaxup
+      common/heprup/idbmup(2),ebmup(2),pdfgup(2),pdfsup(2),
+     &idwtup,nprup,xsecup(maxpup),xerrup(maxpup),xmaxup(maxpup),
+     &lprup(maxpup)
+      save /heprup/
  
-C...Store info on incoming beams.
-c      IDBMUP(1)=K(1,2)
-c      IDBMUP(2)=K(2,2)
-c      EBMUP(1)=P(1,4)
-c      EBMUP(2)=P(2,4)
-      PDFGUP(1)=0
-      PDFGUP(2)=0
-      PDFSUP(1)=MSTP(51)
-      PDFSUP(2)=MSTP(51)
+c...store info on incoming beams.
+c      idbmup(1)=k(1,2)
+c      idbmup(2)=k(2,2)
+c      ebmup(1)=p(1,4)
+c      ebmup(2)=p(2,4)
+      pdfgup(1)=0
+      pdfgup(2)=0
+      pdfsup(1)=mstp(51)
+      pdfsup(2)=mstp(51)
  
-C...Event weighting strategy.
-      IDWTUP=3
+c...event weighting strategy.
+      idwtup=3
  
-C...Info on individual processes.
-c      NPRUP=0
-c      DO 100 ISUB=1,500
-c        IF(MSUB(ISUB).EQ.1) THEN
-c          NPRUP=NPRUP+1
-c          XSECUP(NPRUP)=1D9*XSEC(ISUB,3)
-c          XERRUP(NPRUP)=XSECUP(NPRUP)/SQRT(MAX(1D0,DBLE(NGEN(ISUB,3))))
-c          XMAXUP(NPRUP)=1D0
-c          LPRUP(NPRUP)=ISUB
-c        ENDIF
-c  100 CONTINUE
+c...info on individual processes.
+c      nprup=0
+c      do 100 isub=1,500
+c        if(msub(isub).eq.1) then
+c          nprup=nprup+1
+c          xsecup(nprup)=1d9*xsec(isub,3)
+c          xerrup(nprup)=xsecup(nprup)/sqrt(max(1d0,dble(ngen(isub,3))))
+c          xmaxup(nprup)=1d0
+c          lprup(nprup)=isub
+c        endif
+c  100 continue
  
-C...Write info to file.
-      IF(MSTP(161).GT.0) THEN
-        WRITE(MSTP(161),5100) IDBMUP(1),IDBMUP(2),EBMUP(1),EBMUP(2),
-     &  PDFGUP(1),PDFGUP(2),PDFSUP(1),PDFSUP(2),IDWTUP,NPRUP
-        DO 110 IPR=1,NPRUP
-          WRITE(MSTP(161),5200) XSECUP(IPR),XERRUP(IPR),XMAXUP(IPR),
-     &    LPRUP(IPR)
-  110   CONTINUE
-      ENDIF
+c...write info to file.
+      if(mstp(161).gt.0) then
+        write(mstp(161),5100) idbmup(1),idbmup(2),ebmup(1),ebmup(2),
+     &  pdfgup(1),pdfgup(2),pdfsup(1),pdfsup(2),idwtup,nprup
+        do 110 ipr=1,nprup
+          write(mstp(161),5200) xsecup(ipr),xerrup(ipr),xmaxup(ipr),
+     &    lprup(ipr)
+  110   continue
+      endif
  
-C...Formats for printout.
- 5100 FORMAT(1P,2I8,2E14.6,6I6)
- 5200 FORMAT(1P,3E14.6,I6)
+c...formats for printout.
+ 5100 format(1p,2i8,2e14.6,6i6)
+ 5200 format(1p,3e14.6,i6)
  
-      RETURN
-      END      
+      return
+      end      
