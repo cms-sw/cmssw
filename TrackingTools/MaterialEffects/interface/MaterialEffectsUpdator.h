@@ -7,9 +7,8 @@
  *  in this class.
  *  Ported from ORCA.
  *
- *  $Date: 2012/05/05 17:44:59 $
- *  $Revision: 1.14 $
- *  \author todorov, cerati
+ *  Moved "state" into an independent struct "Effect"
+ *
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
@@ -17,17 +16,30 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-#include "FWCore/Utilities/interface/Visibility.h"
 
-class MaterialEffectsUpdator
-{  
+class MaterialEffectsUpdator {  
 public:
-  
+  enum CovIndex { elos=0, msxx=1, msxy=2, msyy=3};
+  class Covariance {
+  public:
+    float operator[](CovIndex i) const { return data[i];}
+    float & operator[](CovIndex i) { return data[i];}
+    void add(AlgebraicSymMatrix55 & cov) const {
+      cov(0,0) += data[elos];
+      cov(1,1) += data[msxx];
+      cov(1,2) += data[msxy];
+      cov(2,2) += data[msyy];
+
+    }
+  private:
+    float data[4]={0};
+  };
+
   struct Effect {
     // Change in |p| from material effects.
     double deltaP=0;
     // Contribution to covariance matrix (in local co-ordinates) from material effects.
-    AlgebraicSymMatrix55 deltaCov;
+    Covariance deltaCov;
   };
 
   /** Constructor with explicit mass hypothesis
