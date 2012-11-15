@@ -87,6 +87,7 @@ EnergyLossUpdator::computeBetheBloch (const LocalVector& localP,
   Float dP    = dEdx/std::sqrt(beta2);
   Float sigp2 = dEdx2/(beta2*p2*p2);
   effect.deltaP += -dP;
+  using namespace materialEffect;
   effect.deltaCov[elos] += sigp2;
 
 
@@ -125,6 +126,7 @@ EnergyLossUpdator::computeElectrons (const LocalVector& localP,
     // in method compute -> deltaP<0 at this place!!!
     //
     effect.deltaP += -p*(1.f/z-1.f);
+    using namespace materialEffect;
     effect.deltaCov[elos]  += varz/p2;
   }
   else {	
@@ -136,6 +138,7 @@ EnergyLossUpdator::computeElectrons (const LocalVector& localP,
     //    float f = 1/p/z/z;
     // patch to ensure consistency between for- and backward propagation
     float f2 = 1.f/(p2*z*z);
+    using namespace materialEffect;
     effect.deltaCov[elos] += f2*varz;
   }
 

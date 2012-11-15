@@ -83,6 +83,7 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
   // Create update (transformation of independant variations
   //   on angle in orthogonal planes to local parameters.
   float den = 1.f/(cl2*cl2);
+  using namespace materialEffect;
   effect.deltaCov[msxx] += (den*sigt2)*(sf2*cl2 + cf2);
   effect.deltaCov[msxy] += (den*sigt2)*(d.x()*d.y()  );
   effect.deltaCov[msyy] += (den*sigt2)*(cf2*cl2 + sf2);

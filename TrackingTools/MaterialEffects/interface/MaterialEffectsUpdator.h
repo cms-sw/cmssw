@@ -47,7 +47,7 @@ class MaterialEffectsUpdator {
 public:
   typedef materialEffect::Covariance Covariance;
   typedef materialEffect::Effect Effect;
-  using materialEffect::CovIndex;
+  typedef  materialEffect::CovIndex CovIndex;
 
   /** Constructor with explicit mass hypothesis
    */
