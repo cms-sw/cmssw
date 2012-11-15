@@ -4,8 +4,8 @@
 /** \class MuonGeometryRecord
  *  The Muon DetUnit geometry.
  *
- *  $Date: 2011/12/10 03:15:16 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/12/12 21:45:30 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
+#include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
@@ -24,7 +25,7 @@
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
-class MuonGeometryRecord : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRecord,boost::mpl::vector<IdealGeometryRecord, MuonNumberingRecord, DTAlignmentRcd, DTAlignmentErrorRcd, CSCAlignmentRcd, CSCAlignmentErrorRcd, GlobalPositionRcd, RPCRecoGeometryRcd, DTRecoGeometryRcd, CSCRecoGeometryRcd, CSCRecoDigiParametersRcd> > {};
+class MuonGeometryRecord : public edm::eventsetup::DependentRecordImplementation<MuonGeometryRecord,boost::mpl::vector<IdealGeometryRecord, MuonNumberingRecord, DTAlignmentRcd, DTAlignmentErrorRcd, CSCAlignmentRcd, CSCAlignmentErrorRcd, GlobalPositionRcd, GEMRecoGeometryRcd, RPCRecoGeometryRcd, DTRecoGeometryRcd, CSCRecoGeometryRcd, CSCRecoDigiParametersRcd> > {};
 
 #endif
 
