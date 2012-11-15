@@ -81,7 +81,7 @@ int main(int argc, char * arg[]) {
   double neverKnow=0;
   bool printIt=true;
   for (int i=0; i!=100000; ++i) {
-    LocalTrajectoryParameters tp(1.+0.01*i, 1.,1., 0.,0.,1.);
+    LocalTrajectoryParameters tp(1./(10.+0.01*i), 1.,1., 0.,0.,1.);
     LocalTrajectoryError lerr(1.,1.,0.1,0.1,0.1);
     
     TrajectoryStateOnSurface tsos(tp,lerr,*plane, &m, SurfaceSideDefinition::beforeSurface);
@@ -92,15 +92,15 @@ int main(int argc, char * arg[]) {
     }
     st();
     totT -= edm::hrRealTime();
-    meu->updateState(tsos,alongMomentum);
+    TrajectoryStateOnSurface tsos2 = meu->updateState(tsos,alongMomentum);
     totT +=edm::hrRealTime();
     ++n;
     en();
-    neverKnow+=tsos.globalMomentum().perp();
+    neverKnow+=tsos2.globalMomentum().perp();
     if (printIt) {
-      std::cout << tsos.globalMomentum() << std::endl;
-      std::cout << tsos.localError().matrix() << std::endl;
-      std::cout << tsos.weight() << std::endl;
+      std::cout << tsos2.globalMomentum() << std::endl;
+      std::cout << tsos2.localError().matrix() << std::endl;
+      std::cout << tsos2.weight() << std::endl;
       printIt=false;
     }
   }
