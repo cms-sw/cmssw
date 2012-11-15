@@ -535,8 +535,8 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   // Now fill the HCAL hits
   endmapitr=myHcalHitMaker.getHits().end();
   for(mapitr=myHcalHitMaker.getHits().begin();mapitr!=endmapitr;++mapitr)
-    {
-      updateMap(HcalDetId(mapitr->first).rawId(),mapitr->second,myTrack.id(),HMapping_);
+    { 
+     updateMap(HcalDetId(mapitr->first).rawId(),mapitr->second,myTrack.id(),HMapping_);
       //      std::cout << " Adding " <<mapitr->first << " " << mapitr->second <<std::endl; 
     }
 
@@ -636,6 +636,7 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
   if( hit != 2  || emeas > 0.) 
     if(!detid.null()) 
       {
+
 	updateMap(hdetid.rawId(),emeas,track.id(),HMapping_);
       }
 
@@ -714,6 +715,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
 
   if(emeas > 0.) {  
     DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
+
     updateMap(cell.rawId(), emeas, myTrack.id(),HMapping_);
   }
 }
@@ -1032,13 +1034,16 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
 	
 	EsH += energy;
 
+      HcalDetId hId(mapitr->first);
+      if ( hId.depth()>0 ){
 	updateMap(HcalDetId(mapitr->first).rawId(),energy,myTrack.id(),HMapping_);
 	if(debug_)
 	  LogInfo("FastCalorimetry") << " HCAL cell "  
 	       << mapitr->first << " added    E = " 
 	       << mapitr->second << std::endl;  
       }
-	  
+      }
+      	  
 	  if(useDQM_){
 	    //fill energy histos
 	    dbe->get("HDEnergies/EpECAL")->Fill(EpE/eGen);
@@ -1058,6 +1063,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
       if(myTrack.onHcal() || myTrack.onVFcal())
 	{
 	  DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
+
 	  updateMap(cell.rawId(),emeas,myTrack.id(),HMapping_);
 	  if(debug_)
 	    LogInfo("FastCalorimetry") << " HCAL simple cell "   
