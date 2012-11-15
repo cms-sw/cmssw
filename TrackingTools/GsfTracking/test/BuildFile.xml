@@ -1,4 +1,5 @@
 <use name="TrackingTools/GsfTracking"/>
+<use name="TrackingTools/MaterialEffects"/>
 <use name="TrackingTools/AnalyticalJacobians"/>
 <use name="MagneticField/Engine"/>
 <use name="boost"/>

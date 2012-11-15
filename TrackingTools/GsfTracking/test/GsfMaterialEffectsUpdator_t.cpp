@@ -2,6 +2,9 @@
 
 
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
+#include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
+#include "TrackingTools/GsfTracking/interface/GsfCombinedMaterialEffectsUpdator.h"
+#include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsAdapter.h"
 
 
 
@@ -54,10 +57,13 @@ int main(int argc, char * arg[]) {
 
   std::cout << "using file " << file << std::endl;
 
-
   GsfBetheHeitlerUpdator bhu(file,0); 
+  GsfMaterialEffectsAdapter msu(MultipleScatteringUpdator(bhu.mass()));
   
-  GsfMaterialEffectsUpdator * meu = &bhu;
+  GsfCombinedMaterialEffectsUpdator comb(msu,
+					 bhu);
+
+  GsfMaterialEffectsUpdator * meu = &comb;
 
 
   Basic3DVector<float>  axis(0.5,1.,1);
