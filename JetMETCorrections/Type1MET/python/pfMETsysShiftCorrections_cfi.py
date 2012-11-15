@@ -117,6 +117,20 @@ pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_mc = cms.VPSet(cms.PSet(
     py = cms.string("+1.52720e-01 - 1.28052e-01*Nvtx")
 ))
 
+pfMEtSysShiftCorrParameters_2012runABCvsNvtx_data = cms.VPSet(cms.PSet(
+    numJetsMin = cms.int32(-1),
+    numJetsMax = cms.int32(-1),
+    px = cms.string("+0.2661 + 0.3217*Nvtx"),
+    py = cms.string("-0.2251 - 0.1747*Nvtx")
+))
+
+pfMEtSysShiftCorrParameters_2012runABCvsNvtx_mc = cms.VPSet(cms.PSet(
+    numJetsMin = cms.int32(-1),
+    numJetsMax = cms.int32(-1),
+    px = cms.string("+0.1166 + 0.0200*Nvtx"),
+    py = cms.string("+0.2764 - 0.1280*Nvtx")
+))
+
 selectedVerticesForMEtCorr = cms.EDFilter("VertexSelector",
     src = cms.InputTag('offlinePrimaryVertices'),
     cut = cms.string("isValid & ndof >= 4 & chi2 > 0 & tracksSize > 0 & abs(z) < 24 & abs(position.Rho) < 2."),
