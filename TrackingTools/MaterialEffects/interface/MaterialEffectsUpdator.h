@@ -30,15 +30,25 @@ namespace materialEffect {
       cov(2,2) += data[msyy];
 
     }
+    Covariance & operator+=(Covariance const & cov) {
+      for(int i=0;i!=4;++i) data[i]+=cov.data[i];
+      return *this;
+    }
   private:
     float data[4]={0};
   };
 
   struct Effect {
+    float weight=1.f;
     // Change in |p| from material effects.
-    double deltaP=0;
+    float deltaP=0;
     // Contribution to covariance matrix (in local co-ordinates) from material effects.
     Covariance deltaCov;
+    void combine(Effect const & e1,Effect const & e2) {
+      weight *= e1.weight*e2.weight;
+      deltaP+=e1.deltaP+e2.deltaP;
+      deltaCov+=e1.deltaCov; deltaCov+=e2.deltaCov;
+    } 
   };
 
 }
