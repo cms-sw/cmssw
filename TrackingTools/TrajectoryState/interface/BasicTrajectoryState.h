@@ -25,8 +25,7 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
-#include "FWCore/Utilities/interface/Visibility.h"
-#include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /// vvv DEBUG
 // #include <iostream>
@@ -210,7 +209,7 @@ public:
     return *theSurfaceP;
   }
 
-  virtual double weight() const {return theWeight;} 
+  double weight() const {return theWeight;} 
 
   void rescaleError(double factor);
 

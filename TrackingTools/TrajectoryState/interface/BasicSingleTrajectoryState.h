@@ -7,7 +7,7 @@
 /** Concrete implementation for the state of one trajectory on a surface.
  */
 
-class BasicSingleTrajectoryState : public BasicTrajectoryState {
+class BasicSingleTrajectoryState  GCC11_FINAL : public BasicTrajectoryState {
 public:
   BasicSingleTrajectoryState() :  BasicTrajectoryState(){}
   template<typename... Args>
