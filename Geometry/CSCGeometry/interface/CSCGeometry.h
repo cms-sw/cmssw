@@ -37,9 +37,6 @@ class CSCGeometry : public TrackingGeometry {
   /// Default constructor
   CSCGeometry();
 
-  /// Real constructor
-  CSCGeometry( bool debugV, bool gangedstripsME1a_, bool onlywiresME1a_, bool realWireGeometry_, bool useCentreTIOffsets_ );
-
   /// Destructor
   virtual ~CSCGeometry();
 
@@ -98,21 +95,21 @@ class CSCGeometry : public TrackingGeometry {
 				 const std::vector<float>& fupar,
 				 const CSCWireGroupPackage& wg );
 
-  void setGangedStripsInME1a(bool gs) { gangedstripsME1a_ = gs; }
-  void setOnlyWiresInME1a(bool ow) { onlywiresME1a_ = ow; }
-  void setUseRealWireGeometry(bool rwg) { realWireGeometry_ = rwg; }
-  void setUseCentreTIOffsets(bool cti) { useCentreTIOffsets_ = cti; }
-  void setDebugV(bool dbgv) { debugV_ = dbgv; }
+  void setGangedStripsInME1a(bool gs) { gangedstripsME1a = gs; }
+  void setOnlyWiresInME1a(bool ow) { onlywiresME1a = ow; }
+  void setUseRealWireGeometry(bool wg) { useRealWireGeometry = wg; }
+  void setUseCentreTIOffsets(bool cti) { useCentreTIOffsets = cti; }
+  void setDebugV(bool dbgv) { debugV = dbgv; }
 
   /**
    * Ganged strips in ME1a
    */
-  bool gangedStrips() const { return gangedstripsME1a_; }
+  bool gangedStrips() const { return gangedstripsME1a; }
 
   /**
    * Wires only in ME1a
    */
-  bool wiresOnly() const { return onlywiresME1a_; }
+  bool wiresOnly() const { return onlywiresME1a; }
 
   /**
    * Wire geometry modelled as real hardware (complex
@@ -121,13 +118,13 @@ class CSCGeometry : public TrackingGeometry {
    * (as was done in ORCA versions up to and including ORCA_8_8_1).
    *
    */
-  bool realWireGeometry() const { return realWireGeometry_; }
+  bool realWireGeometry() const { return useRealWireGeometry; }
 
   /**
    * Use the backed-out offsets for theCentreToIntersection in
    * CSCLayerGeometry
    */
-  bool centreTIOffsets() const { return useCentreTIOffsets_; }
+  bool centreTIOffsets() const { return useCentreTIOffsets; }
 
   /// Dump parameters for overall strip and wire modelling
   void queryModelling() const;
@@ -168,12 +165,12 @@ class CSCGeometry : public TrackingGeometry {
 
   // Parameters controlling modelling of geometry 
 
-  bool debugV_; // for debug printout etc.
+  bool debugV; // for debug printout etc.
 
-  bool gangedstripsME1a_;
-  bool onlywiresME1a_;
-  bool realWireGeometry_;
-  bool useCentreTIOffsets_;
+  bool gangedstripsME1a;
+  bool onlywiresME1a;
+  bool useRealWireGeometry;
+  bool useCentreTIOffsets;
 
   // Store pointers to Specs objects as we build them.
   CSCSpecsContainer specsContainer;

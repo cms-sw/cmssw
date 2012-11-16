@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2012/08/30 07:59:20 $
- * $Revision: 1.510 $
+ * $Date: 2012/04/27 13:45:59 $
+ * $Revision: 1.507 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -548,8 +548,6 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const edm::ParameterSet& ps) {
   clientsStatus_.insert(std::pair<std::string,int>( "StatusFlags",    12 ));
   clientsStatus_.insert(std::pair<std::string,int>( "Occupancy",      13 ));
 
-  summaryClient_ = 0;
-
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Summary" ) != enabledClients_.end() ) {
 
     summaryClient_ = new EBSummaryClient(ps);
@@ -896,30 +894,6 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
     std::cout << std::endl;
   }
 
-  bool clientMissing(false);
-  for(unsigned iC(0); iC < enabledClients_.size(); iC++){
-    std::string& name(enabledClients_[iC]);
-
-    if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
-
-    std::string dir(prefixME_ + "/EB" + name + "Client");
-    if(!dqmStore_->dirExists(dir) || !dqmStore_->containsAnyMonitorable(dir)){
-      std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
-      if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
-      std::cout << "EB" << name << "Client is missing plots; issuing beginRun" << std::endl;
-      clientMissing = true;
-      break;
-    }
-  }
-
-  if(clientMissing){
-    forced_status_ = false;
-    endRun();
-    inputFile_ = "dummy";
-    analyze();
-    inputFile_ = "";
-  }
-
   if ( updateTime_ > 0 ) {
     if ( (current_time_ - last_time_update_) < 60 * updateTime_ ) {
       return;
@@ -933,6 +907,25 @@ void EcalBarrelMonitorClient::endLuminosityBlock(const edm::LuminosityBlock& l, 
     this->analyze();
 
   }
+
+  for(unsigned iC(0); iC < enabledClients_.size(); iC++){
+    std::string& name(enabledClients_[iC]);
+
+    if(name == "Cluster" || name == "Cosmic" || name == "Occupancy" || name == "StatusFlags" || name == "Trend") continue;
+
+    if(!dqmStore_->dirExists(prefixME_ + "/EB" + name + "Client")){
+      std::vector<std::string>::iterator itr(std::find(clientsNames_.begin(), clientsNames_.end(), name));
+      if(itr == clientsNames_.end()) continue; // something seriously wrong, but ignore
+
+      std::cout << "EB" << name << "Client is missing plots; resetting now" << std::endl;
+
+      EBClient* client(clients_[itr - clientsNames_.begin()]);
+
+      client->cleanup();
+      client->setup();
+    }
+  }
+
 }
 
 void EcalBarrelMonitorClient::reset(void) {
@@ -1713,6 +1706,7 @@ void EcalBarrelMonitorClient::analyze(void) {
   }
 
   // END: run-time fixes for missing state transitions
+
 }
 
 void EcalBarrelMonitorClient::analyze(const edm::Event& e, const edm::EventSetup& c) {

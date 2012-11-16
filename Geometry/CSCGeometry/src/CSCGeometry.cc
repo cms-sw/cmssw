@@ -7,15 +7,9 @@
 
 #include <string>
 
-CSCGeometry::CSCGeometry():  debugV_(false), gangedstripsME1a_(true), 
-   onlywiresME1a_(false), realWireGeometry_(true), useCentreTIOffsets_(false) {
-   if ( debugV_ ) queryModelling();
-}
-
-CSCGeometry::CSCGeometry( bool dbgv, bool gangedstripsME1a, bool onlywiresME1a, bool realWireGeometry, bool useCentreTIOffsets ) :  
-   debugV_(dbgv), gangedstripsME1a_( gangedstripsME1a ), onlywiresME1a_( onlywiresME1a ), 
-   realWireGeometry_( realWireGeometry ), useCentreTIOffsets_( useCentreTIOffsets ) {
-   if ( debugV_ ) queryModelling();
+CSCGeometry::CSCGeometry():  debugV(false), gangedstripsME1a(true), 
+   onlywiresME1a(false), useRealWireGeometry(true), useCentreTIOffsets(false) {
+   if ( debugV ) queryModelling();
 }
 
 CSCGeometry::~CSCGeometry(){
@@ -111,6 +105,11 @@ const CSCGeometry::ChamberContainer& CSCGeometry::chambers() const
 
 const CSCGeometry::LayerContainer& CSCGeometry::layers() const
 {
+//   for( DetUnitContainer::const_iterator it = theDetUnits.begin();
+//        it != theDetUnits.end(); ++it ) {
+//     CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
+//     if ( layer ) theLayers.push_back( layer );
+//   }
   return theLayers;
 }
 
@@ -131,10 +130,8 @@ void CSCGeometry::queryModelling() const {
 
   LogTrace("CSCGeometry|CSC")  << "CSCGeometry::queryModelling entered...";
 
-  edm::LogInfo("CSC") << "CSCGeometry version 18-Oct-2012 queryModelling...\n";
-
   std::string gs = " ";
-  if ( gangedstripsME1a_ )
+  if ( gangedstripsME1a )
     gs = "GANGED";
   else
     gs = "UNGANGED";
@@ -142,7 +139,7 @@ void CSCGeometry::queryModelling() const {
   edm::LogInfo("CSC") << "CSCGeometry: in ME1a use " << gs << " strips" << "\n";
 
   std::string wo = " ";
-  if ( onlywiresME1a_ )
+  if ( onlywiresME1a )
     wo = "WIRES ONLY";
   else
     wo = "WIRES & STRIPS";
@@ -150,7 +147,7 @@ void CSCGeometry::queryModelling() const {
   edm::LogInfo("CSC") << "CSCGeometry: in ME1a use  " << wo << "\n";
 
   std::string wg = " ";
-  if ( realWireGeometry_ )
+  if ( useRealWireGeometry )
     wg = "REAL";
   else
     wg = "PSEUDO";
@@ -158,7 +155,7 @@ void CSCGeometry::queryModelling() const {
   edm::LogInfo("CSC") << "CSCGeometry: wires are modelled using " << wg << " wire geometry " << "\n";
 
   std::string cti = " ";
-  if ( useCentreTIOffsets_ )
+  if ( useCentreTIOffsets )
     cti = "WITH";
   else
     cti = "WITHOUT";

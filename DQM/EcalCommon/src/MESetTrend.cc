@@ -1,89 +1,50 @@
 #include "DQM/EcalCommon/interface/MESetTrend.h"
 
-#include <ctime>
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace ecaldqm {
 
-  MESetTrend::MESetTrend(std::string const& _fullPath, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind, bool _minutely, bool _cumulative, BinService::AxisSpecs const* _yaxis/* = 0*/) :
-    MESetEcal(_fullPath, _otype, _btype, _kind, 1, 0, _yaxis),
-    minutely_(_minutely),
-    currentBin_(_cumulative ? 1 : -1)
+  MESetTrend::MESetTrend(std::string const& _fullpath, MEData const& _data, bool _readOnly/* = false*/) :
+    MESetEcal(_fullpath, _data, 1, _readOnly),
+    t0_(0),
+    minutely_(false),
+    tLow_(0)
   {
-    switch(kind_){
-    case MonitorElement::DQM_KIND_TH1F:
-    case MonitorElement::DQM_KIND_TH2F:
-      break;
-    case MonitorElement::DQM_KIND_TPROFILE:
-    case MonitorElement::DQM_KIND_TPROFILE2D:
-      if(!_cumulative) break;
-    default:
-      throw_("Unsupported MonitorElement kind");
-    }
-  }
-
-  MESetTrend::MESetTrend(MESetTrend const& _orig) :
-    MESetEcal(_orig),
-    minutely_(_orig.minutely_),
-    currentBin_(_orig.currentBin_)
-  {
+    if(!_data.xaxis || _data.xaxis->edges)
+      throw cms::Exception("InvalidConfiguration") << "MESetTrend";
   }
 
   MESetTrend::~MESetTrend()
   {
   }
 
-  MESet&
-  MESetTrend::operator=(MESet const& _rhs)
-  {
-    MESetTrend const* pRhs(dynamic_cast<MESetTrend const*>(&_rhs));
-    if(pRhs){
-      minutely_ = pRhs->minutely_;
-      currentBin_ = pRhs->currentBin_;
-    }
-
-    return MESetEcal::operator=(_rhs);
-  }
-
-  MESet*
-  MESetTrend::clone() const
-  {
-    return new MESetTrend(*this);
-  }
-
   void
   MESetTrend::book()
   {
-    BinService::AxisSpecs xaxis;
-    xaxis.nbins = 100;
+    int conversion(minutely_ ? 60 : 3600);
+    time_t width((data_->xaxis->high - data_->xaxis->low) * conversion);
 
-    if(minutely_){
-      time_t localTime(time(0));
-      struct tm timeBuffer;
-      gmtime_r(&localTime, &timeBuffer); // gmtime() is not thread safe
-      unsigned utcTime(mktime(&timeBuffer));
+    tLow_ = t0_;
 
-      xaxis.low = utcTime;
-      xaxis.high = utcTime + xaxis.nbins * 60.;
-      // 1 minute per bin
-    }
-    else{
-      xaxis.low = 0;
-      xaxis.high = xaxis.nbins * 2.;
-      // 2 lumisections per bin
-    }
+    MEData const* temp(data_);
+    BinService::AxisSpecs xaxis(*temp->xaxis);
+    xaxis.low = tLow_;
+    xaxis.high = tLow_ + width;
 
-    if(xaxis_) delete xaxis_;
-    xaxis_ = new BinService::AxisSpecs(xaxis);
+    data_ = new MEData(temp->pathName, temp->otype, temp->btype, temp->kind, &xaxis, temp->yaxis, temp->zaxis);
 
     MESetEcal::book();
 
-    if(minutely_){
-      for(unsigned iME(0); iME < mes_.size(); ++iME)
-        mes_[iME]->getTH1()->GetXaxis()->SetTimeDisplay(1);
-      setAxisTitle("UTC");
+    delete data_;
+    data_ = temp;
+
+    // if yaxis was variable bin size, xaxis will be booked as variable too
+
+    for(unsigned iME(0); iME < mes_.size(); iME++){
+      TAxis* axis(mes_[iME]->getTH1()->GetXaxis());
+      if(axis->IsVariableBinSize())
+	axis->Set(data_->xaxis->nbins, data_->xaxis->low, data_->xaxis->high);
     }
-    else
-      setAxisTitle("LumiSections");
   }
 
   void
@@ -91,23 +52,10 @@ namespace ecaldqm {
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(otype_, _id));
-    checkME_(iME);
+    unsigned offset(binService_->findOffset(data_->otype, _id));
 
-    if(shift_(unsigned(_t)))
-      fill_(iME, _t + 0.5, _wy, _w);
-  }
-
-  void
-  MESetTrend::fill(EcalElectronicsId const& _id, double _t, double _wy/* = 1.*/, double _w/* = 1.*/)
-  {
-    if(!active_) return;
-
-    unsigned iME(binService_->findPlot(otype_, _id));
-    checkME_(iME);
-
-    if(shift_(unsigned(_t)))
-      fill_(iME, _t + 0.5, _wy, _w);
+    if(shift_(time_t(_t)))
+      MESet::fill_(offset, _t, _wy, _w);
   }
 
   void
@@ -115,11 +63,10 @@ namespace ecaldqm {
   {
     if(!active_) return;
 
-    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
-    checkME_(iME);
+    unsigned offset(binService_->findOffset(data_->otype, data_->btype, _dcctccid));
 
-    if(shift_(unsigned(_t)))
-      fill_(iME, _t + 0.5, _wy, _w);
+    if(shift_(time_t(_t)))
+      MESet::fill_(offset, _t, _wy, _w);
   }
 
   void
@@ -127,98 +74,30 @@ namespace ecaldqm {
   {
     if(!active_) return;
     if(mes_.size() != 1)
-      throw_("MESet type incompatible");
+      throw cms::Exception("InvalidCall") << "MESet type incompatible" << std::endl;
 
-    if(shift_(unsigned(_t)))
-      fill_(0, _t + 0.5, _wy, _w);
-  }
-
-  int
-  MESetTrend::findBin(DetId const& _id, double _t, double _y/* = 0.*/) const
-  {
-    if(!active_) return -1;
-
-    unsigned iME(binService_->findPlot(otype_, _id));
-    checkME_(iME);
-
-    return mes_[iME]->getTH1()->FindBin(_t + 0.5, _y);
-  }
-
-  int
-  MESetTrend::findBin(EcalElectronicsId const& _id, double _t, double _y/* = 0.*/) const
-  {
-    if(!active_) return -1;
-
-    unsigned iME(binService_->findPlot(otype_, _id));
-    checkME_(iME);
-
-    return mes_[iME]->getTH1()->FindBin(_t + 0.5, _y);
-  }
-
-  int
-  MESetTrend::findBin(unsigned _dcctccid, double _t, double _y/* = 0.*/) const
-  {
-    if(!active_) return -1;
-
-    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
-    checkME_(iME);
-
-    return mes_[iME]->getTH1()->FindBin(_t + 0.5, _y);
-  }
-
-  int
-  MESetTrend::findBin(double _t, double _y/* = 0.*/) const
-  {
-    if(!active_) return -1;
-    if(mes_.size() != 1)
-      throw_("MESet type incompatible");
-
-    return mes_[0]->getTH1()->FindBin(_t + 0.5, _y);
+    if(shift_(time_t(_t)))
+      MESet::fill_(0, _t, _wy, _w);
   }
 
   bool
-  MESetTrend::shift_(unsigned _t)
+  MESetTrend::shift_(time_t _t)
   {
-    TAxis* tAxis(mes_[0]->getTH1()->GetXaxis());
-    int nbinsX(xaxis_->nbins);
+    int conversion(minutely_ ? 60 : 3600);
+    time_t width((data_->xaxis->high - data_->xaxis->low) * conversion);
 
-    unsigned tLow(tAxis->GetBinLowEdge(1));
-    unsigned tHigh(tAxis->GetBinUpEdge(nbinsX));
+    time_t tHigh(tLow_ + width);
+    int nbinsX(data_->xaxis->nbins);
+    MonitorElement::Kind kind(data_->kind);
 
+    int dtPerBin(width / nbinsX);
     int dBin(0);
-    int conversion(minutely_ ? 60 : 2);
 
-    if(_t >= tLow && _t < tHigh){
-      if(currentBin_ > 0){
-        int thisBin(tAxis->FindBin(_t + 0.5));
-        if(thisBin < currentBin_) return false;
-        else if(thisBin > currentBin_){
-          for(unsigned iME(0); iME < mes_.size(); iME++){
-            MonitorElement* me(mes_[iME]);
-            int nbinsY(me->getTH1()->GetNbinsY());
-            for(int iy(1); iy <= nbinsY; ++iy){
-              int orig(me->getTH1()->GetBin(currentBin_, iy));
-              double currentContent(me->getBinContent(orig));
-              double currentError(me->getBinError(orig));
-              for(int ix(currentBin_); ix <= thisBin; ++ix){
-                int dest(me->getTH1()->GetBin(ix, iy));
-                me->setBinContent(dest, currentContent);
-                me->setBinError(dest, currentError);
-              }
-            }
-          }
-        }
-      }
-
+    if(_t >= tLow_ && _t < tHigh)
       return true;
-    }
-    else if(_t >= tHigh){
-      dBin = (_t - tHigh) / conversion + 1;
-      if(currentBin_ > 0) currentBin_ = nbinsX;
-    }
-    else if(_t < tLow){
-      if(currentBin_ > 0) return false; // no going back in time in case of cumulative history
-
+    else if(_t >= tHigh)
+      dBin = (_t - tHigh) / dtPerBin + 1;
+    else if(_t < tLow_){
       int maxBin(0);
 
       for(unsigned iME(0); iME < mes_.size(); iME++){
@@ -227,7 +106,7 @@ namespace ecaldqm {
 	bool filled(false);
 	int iMax(nbinsX + 1);
 	while(--iMax > 0 && !filled){
-	  switch(kind_){
+	  switch(kind){
 	  case  MonitorElement::DQM_KIND_TH1F:
 	    if(me->getBinContent(iMax) != 0) filled = true;
 	    break;
@@ -235,169 +114,76 @@ namespace ecaldqm {
 	    if(me->getBinEntries(iMax) != 0) filled = true;
 	    break;
 	  case MonitorElement::DQM_KIND_TH2F:
-	    for(int iy(1); iy <= me->getNbinsY(); iy++){
-	      if(me->getBinContent(me->getTH1()->GetBin(iMax, iy)) != 0){
-                filled = true;
-                break;
-              }
-            }
-	    break;
-	  case MonitorElement::DQM_KIND_TPROFILE2D:
-	    for(int iy(1); iy <= me->getNbinsY(); iy++){
-	      if(me->getBinEntries(me->getTH1()->GetBin(iMax, iy)) != 0){
-                filled = true;
-                break;
-              }
-            }
+	    for(int iy(1); iy <= me->getNbinsY(); iy++)
+	      if(me->getBinContent(iMax, iy) != 0) filled = true;
 	    break;
 	  default:
-            break;
+	    return false;
 	  }
 	}
 
 	if(iMax > maxBin) maxBin = iMax;
       }
 
-      if(_t < tLow - (nbinsX - maxBin) * conversion) return false;
+      if(_t < tLow_ - (nbinsX - maxBin) * dtPerBin) return false;
 
-      dBin = (_t - tLow) / conversion - 1;
+      dBin = (_t - dtPerBin - tLow_) / dtPerBin;
     }
 
     int start(dBin > 0 ? dBin + 1 : nbinsX + dBin);
     int end(dBin > 0 ? nbinsX + 1 : 0);
     int step(dBin > 0 ? 1 : -1);
 
-    tLow += dBin * conversion;
-    tHigh += dBin * conversion;
+    tLow_ += dBin * dtPerBin;
+    tHigh += dBin * dtPerBin;
 
     for(unsigned iME(0); iME < mes_.size(); iME++){
       MonitorElement* me(mes_[iME]);
 
-      me->getTH1()->GetXaxis()->SetLimits(tLow, tHigh);
-
-      if((end - start) / step < 0){
-        me->Reset();
-        continue;
-      }
-
       me->setEntries(0.);
+
       double entries(0.);
 
-      switch(kind_){
-      case MonitorElement::DQM_KIND_TH1F:
-        {
-          int ix(start);
-          for(; ix != end; ix += step){
-            double binContent(me->getBinContent(ix));
-            entries += binContent;
-            me->setBinContent(ix - dBin, binContent);
-            me->setBinError(ix - dBin, me->getBinError(ix));
-          }
-          ix = end - dBin - 1 * step;
-          double lastContent(currentBin_ > 0 ? me->getBinContent(ix) : 0.);
-          double lastError(currentBin_ > 0 ? me->getBinContent(ix) : 0.);
-          for(ix += step; ix != end; ix += step){
-            me->setBinContent(ix, lastContent);
-            me->setBinError(ix, lastError);
-          }
-        }
-        break;
-      case MonitorElement::DQM_KIND_TPROFILE:
-        {
-          int ix(start);
-          for(; ix != end; ix += step){
-            double binEntries(me->getBinEntries(ix));
-            double binContent(me->getBinContent(ix));
-            entries += binEntries;
-            me->setBinEntries(ix - dBin, binEntries);
-            me->setBinContent(ix - dBin, binContent * binEntries);
-            if(binEntries > 0){
-              double rms(me->getBinError(ix) * std::sqrt(binEntries));
-              double sumw2((rms * rms + binContent * binContent) * binEntries);
-              me->setBinError(ix - dBin, std::sqrt(sumw2));
-            }
-            else
-              me->setBinError(ix - dBin, 0.);
-          }
-          ix = end - dBin;
-          for(; ix != end; ix += step){
-            me->setBinEntries(ix, 0.);
-            me->setBinContent(ix, 0.);
-            me->setBinError(ix, 0.);
-          }
-        }
-        break;
-      case MonitorElement::DQM_KIND_TH2F:
-        {
-          int ix(start);
-          int nbinsY(me->getNbinsY());
-          for(; ix != end; ix += step){
-            for(int iy(1); iy <= nbinsY; iy++){
-              int orig(me->getTH1()->GetBin(ix, iy));
-              int dest(me->getTH1()->GetBin(ix - dBin, iy));
-              double binContent(me->getBinContent(orig));
-              entries += binContent;
-              me->setBinContent(dest, binContent);
-              me->setBinError(dest, me->getBinError(orig));
-
-              me->setBinContent(orig, 0.);
-              me->setBinError(orig, 0.);
-            }
-          }
-          ix = end - dBin - 1 * step;
-          std::vector<double> lastContent;
-          std::vector<double> lastError;
-          for(int iy(1); iy <= nbinsY; iy++){
-            lastContent.push_back(currentBin_ > 0 ? me->getBinContent(ix, iy) : 0.);
-            lastError.push_back(currentBin_ > 0 ? me->getBinError(ix, iy) : 0.);
-          }
-          for(ix += step; ix != end; ix += step){
-            for(int iy(1); iy <= nbinsY; iy++){
-              int bin(me->getTH1()->GetBin(ix, iy));
-              me->setBinContent(bin, lastContent[iy - 1]);
-              me->setBinError(bin, lastError[iy - 1]);
-            }
-          }
-        }
-        break;
-      case MonitorElement::DQM_KIND_TPROFILE2D:
-        {
-          int ix(start);
-          int nbinsY(me->getNbinsY());
-          for(; ix != end; ix += step){
-            for(int iy(1); iy <= nbinsY; iy++){
-              int orig(me->getTH1()->GetBin(ix, iy));
-              int dest(me->getTH1()->GetBin(ix - dBin, iy));
-              double binEntries(me->getBinEntries(orig));
-              double binContent(me->getBinContent(orig));
-              entries += binEntries;
-              me->setBinEntries(dest, binEntries);
-              me->setBinContent(dest, binContent * binEntries);
-              if(binEntries > 0){
-                double rms(me->getBinError(orig) * std::sqrt(binEntries));
-                double sumw2((rms * rms + binContent * binContent) * binEntries);
-                me->setBinError(dest, std::sqrt(sumw2));
-              }
-              else
-                me->setBinError(dest, 0.);
-            }
-          }
-          ix = end - dBin;
-          for(; ix != end; ix += step){
-            for(int iy(1); iy <= nbinsY; iy++){
-              int bin(me->getTH1()->GetBin(ix, iy));
-              me->setBinEntries(bin, 0.);
-              me->setBinContent(bin, 0.);
-              me->setBinError(bin, 0.);
-            }
-          }
-        }
-        break;
-      default:
-        break;
+      for(int ix(start); (dBin > 0 ? (ix < end) : (ix > end)); ix += step){
+	switch(kind){
+	case  MonitorElement::DQM_KIND_TH1F:
+	  entries += me->getBinContent(ix);
+  	  me->setBinContent(ix - dBin, me->getBinContent(ix));
+	  me->setBinError(ix - dBin, me->getBinError(ix));
+	  me->setBinContent(ix, 0.);
+	  me->setBinError(ix, 0.);
+	  break;
+	case MonitorElement::DQM_KIND_TPROFILE:
+	  entries += me->getBinEntries(ix);
+	  me->setBinEntries(ix - dBin, me->getBinEntries(ix));
+	  me->setBinContent(ix - dBin, me->getBinContent(ix) * me->getBinEntries(ix));
+	  if(me->getBinEntries(ix) > 0){
+	    double rms(me->getBinError(ix) * std::sqrt(me->getBinEntries(ix)));
+	    double sumw2((rms * rms + me->getBinContent(ix) * me->getBinContent(ix)) * me->getBinEntries(ix));
+	    me->setBinError(ix - dBin, std::sqrt(sumw2));
+	  }
+	  me->setBinEntries(ix, 0.);
+	  me->setBinContent(ix, 0.);
+	  me->setBinError(ix, 0.);
+	  break;
+	case MonitorElement::DQM_KIND_TH2F:
+	  for(int iy(1); iy <= me->getNbinsY(); iy++){
+	    int orig(me->getTH1()->GetBin(ix, iy));
+	    int dest(me->getTH1()->GetBin(ix - dBin, iy));
+	    entries += me->getBinContent(orig);
+	    me->setBinContent(dest, me->getBinContent(orig));
+	    me->setBinError(dest, me->getBinError(orig));
+	    me->setBinContent(orig, 0.);
+	    me->setBinError(orig, 0.);
+	  }
+	  break;
+	default:
+	  break;
+	}
       }
 
       me->setEntries(entries);
+      me->getTH1()->GetXaxis()->SetLimits(tLow_, tHigh);
     }
 
     return true;

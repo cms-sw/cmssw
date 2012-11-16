@@ -11,7 +11,6 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 
 
@@ -26,8 +25,7 @@ namespace reco {
   /// Make CaloJet specifics. Assumes PseudoJet is made from CaloTowerCandidates
   bool makeSpecific(std::vector<reco::CandidatePtr> const & towers, 
 		    const CaloSubdetectorGeometry& towerGeometry,
-		    reco::CaloJet::Specific* caloJetSpecific,
-		    const HcalTopology &topology);
+		    reco::CaloJet::Specific* caloJetSpecific);
 
   void writeSpecific(reco::CaloJet & jet,
 		     reco::Particle::LorentzVector const & p4,
@@ -79,7 +77,7 @@ namespace reco {
 		     edm::EventSetup const & c  );
   
   /// converts eta to the corresponding HCAL subdetector.
-  HcalSubdetector hcalSubdetector(int iEta, const HcalTopology &topology);
+  HcalSubdetector hcalSubdetector(int iEta);
 
 
 }

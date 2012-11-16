@@ -6,5 +6,5 @@ import FWCore.ParameterSet.Config as cms
 # are not stored in the event!
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 from RecoParticleFlow.PFProducer.particleFlow_cfi import *
-from RecoParticleFlow.PFProducer.particleFlowPtrs_cfi import *
+from RecoParticleFlow.PFProducer.particleFlowTmpPtrs_cfi import *
 

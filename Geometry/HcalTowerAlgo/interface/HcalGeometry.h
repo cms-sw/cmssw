@@ -27,15 +27,18 @@ public:
   typedef PHcalRcd           PGeometryRecord ;
   typedef HcalDetId          DetIdType       ;
 
-    
+  enum { k_NumberOfCellsForCorners = HcalDetId::kSizeForDenseIndexing } ;
+
+  enum { k_NumberOfShapes = 87 } ;
+
   enum { k_NumberOfParametersPerShape = 5 } ;
 
   static std::string dbString() { return "PHcalRcd" ; }
 
-  virtual unsigned int numberOfShapes() const { return theTopology.getNumberOfShapes() ; }
+  virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
   virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
-  explicit HcalGeometry(const HcalTopology& topology);
+  explicit HcalGeometry(const HcalTopology * topology);
 
   /// The HcalGeometry will delete all its cell geometries at destruction time
   virtual ~HcalGeometry();
@@ -69,21 +72,16 @@ public:
 
   static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-  void localCorners( Pt3DVec&        lc  ,
-		     const CCGFloat* pv  , 
-		     unsigned int    i   ,
-		     Pt3D&           ref   ) ;
-  
+  static void localCorners( Pt3DVec&        lc  ,
+			    const CCGFloat* pv  , 
+			    unsigned int    i   ,
+			    Pt3D&           ref   ) ;
+
   virtual void newCell( const GlobalPoint& f1 ,
 			const GlobalPoint& f2 ,
 			const GlobalPoint& f3 ,
 			const CCGFloat*    parm,
 			const DetId&       detId     ) ;
-
-  virtual const CaloCellGeometry* getGeometry( const DetId& id ) const {
-      return cellGeomPtr( theTopology.detId2denseId( id ) ) ;
-  }
-
 protected:
 
   virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
@@ -99,13 +97,14 @@ private:
   int phiBin(double phi, int etaring) const;
 
 
-  const HcalTopology& theTopology;
+  const HcalTopology * theTopology;
   
   mutable std::vector<DetId> m_hbIds ;
   mutable std::vector<DetId> m_heIds ;
   mutable std::vector<DetId> m_hoIds ;
   mutable std::vector<DetId> m_hfIds ;
   mutable std::vector<DetId> m_emptyIds ;
+  bool m_ownsTopology ;
 
   HBCellVec m_hbCellVec ;
   HECellVec m_heCellVec ;

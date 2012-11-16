@@ -4,8 +4,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2012/02/08 08:40:37 $
- *  $Revision: 1.15 $
+ *  $Date: 2012/02/08 08:16:54 $
+ *  $Revision: 1.14 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -73,7 +73,6 @@ HLTJetTag<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
 template<typename T>
 bool
@@ -92,16 +91,6 @@ HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger
 
   edm::Handle<JetTagCollection> h_JetTags;
   event.getByLabel(m_JetTags, h_JetTags);
-
-  // check if the product this one depends on is available
-  auto const & handle = h_JetTags;
-  auto const & dependent = handle->keyProduct();
-  if (not dependent.hasCache()) {
-    edm::Provenance const & dependent_provenance = event.getProvenance(dependent.id());
-    if (dependent_provenance.constBranchDescription().dropped())
-      // FIXME the error message should be made prettier
-      throw edm::Exception(edm::errors::ProductNotFound) << "Product " << handle.provenance()->branchName() << " requires product " << dependent_provenance.branchName() << ", which has been dropped";
-  }
 
   TRef jetRef;
 

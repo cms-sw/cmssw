@@ -1,4 +1,4 @@
-#include "CommonTools/UtilAlgos/plugins/FwdPtrProducer.h"
+#include "CommonTools/UtilAlgos/interface/FwdPtrProducer.h"
 #include "CommonTools/ParticleFlow/interface/PFCandidateFwdPtrFactory.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"

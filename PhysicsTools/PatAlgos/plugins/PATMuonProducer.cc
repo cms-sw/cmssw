@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.50 2012/08/22 15:02:52 bellan Exp $
+// $Id: PATMuonProducer.cc,v 1.48 2012/03/23 01:25:57 namapane Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -50,7 +50,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
   // input source
   muonSrc_ = iConfig.getParameter<edm::InputTag>( "muonSource" );
   // embedding of tracks
-  embedBestTrack_ = iConfig.getParameter<bool>( "embedMuonBestTrack" );
   embedTrack_ = iConfig.getParameter<bool>( "embedTrack" );
   embedCombinedMuon_ = iConfig.getParameter<bool>( "embedCombinedMuon"   );
   embedStandAloneMuon_ = iConfig.getParameter<bool>( "embedStandAloneMuon" );
@@ -211,19 +210,14 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	// get the tracks
 	reco::TrackRef innerTrack = muonBaseRef->innerTrack();
 	reco::TrackRef globalTrack= muonBaseRef->globalTrack();
-	reco::TrackRef bestTrack  = muonBaseRef->muonBestTrack();
-	reco::TrackRef chosenTrack = innerTrack;
 	// Make sure the collection it points to is there
-	if ( bestTrack.isNonnull() && bestTrack.isAvailable() ) 
-	  chosenTrack = bestTrack;
-
-	if ( chosenTrack.isNonnull() && chosenTrack.isAvailable() ) {
-	  unsigned int nhits = chosenTrack->numberOfValidHits(); // ????
+	if ( innerTrack.isNonnull() && innerTrack.isAvailable() ) {
+	  unsigned int nhits = innerTrack->numberOfValidHits();
 	  aMuon.setNumberOfValidHits( nhits );
 
-	  reco::TransientTrack tt = trackBuilder->build(chosenTrack);
+	  reco::TransientTrack tt = trackBuilder->build(innerTrack);
 	  embedHighLevel( aMuon, 
-			  chosenTrack,
+			  innerTrack,
 			  tt,
 			  primaryVertex,
 			  primaryVertexIsValid,
@@ -232,7 +226,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
 	  // Correct to PV, or beam spot
 	  if ( !usePV_ ) {
-	    double corr_d0 = -1.0 * chosenTrack->dxy( beamPoint );
+	    double corr_d0 = -1.0 * innerTrack->dxy( beamPoint );
 	    aMuon.setDB( corr_d0, -1.0 );
 	  } else {
 	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
@@ -310,18 +304,14 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	// get the tracks
 	reco::TrackRef innerTrack = itMuon->innerTrack();
 	reco::TrackRef globalTrack= itMuon->globalTrack();
-	reco::TrackRef bestTrack  = itMuon->muonBestTrack();
-	reco::TrackRef chosenTrack = innerTrack;
 	// Make sure the collection it points to is there
-	if ( bestTrack.isNonnull() && bestTrack.isAvailable() )
-	  chosenTrack = bestTrack;
-	if ( chosenTrack.isNonnull() && chosenTrack.isAvailable() ) {
-	  unsigned int nhits = chosenTrack->numberOfValidHits(); // ????
+	if ( innerTrack.isNonnull() && innerTrack.isAvailable() ) {
+	  unsigned int nhits = innerTrack->numberOfValidHits();
 	  aMuon.setNumberOfValidHits( nhits );
 
-	  reco::TransientTrack tt = trackBuilder->build(chosenTrack);
+	  reco::TransientTrack tt = trackBuilder->build(innerTrack);
 	  embedHighLevel( aMuon, 
-			  chosenTrack,
+			  innerTrack,
 			  tt,
 			  primaryVertex,
 			  primaryVertexIsValid,
@@ -330,7 +320,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
 	  // Correct to PV, or beam spot
 	  if ( !usePV_ ) {
-	    double corr_d0 = -1.0 * chosenTrack->dxy( beamPoint );
+	    double corr_d0 = -1.0 * innerTrack->dxy( beamPoint );
 	    aMuon.setDB( corr_d0, -1.0 );
 	  } else {
 	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
@@ -374,10 +364,9 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
   // as the pat::Muon momentum
   if (useParticleFlow_) 
     aMuon.setP4( aMuon.pfCandidateRef()->p4() );
-  if (embedBestTrack_)      aMuon.embedMuonBestTrack();
-  if (embedTrack_)          aMuon.embedTrack();
+  if (embedTrack_) aMuon.embedTrack();
   if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
-  if (embedCombinedMuon_)   aMuon.embedCombinedMuon();
+  if (embedCombinedMuon_) aMuon.embedCombinedMuon();
 
   // embed the TeV refit track refs (only available for globalMuons)
   if (aMuon.isGlobalMuon()) {
@@ -448,7 +437,6 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   iDesc.add<edm::InputTag>("muonSource", edm::InputTag("no default"))->setComment("input collection");
 
   // embedding
-  iDesc.add<bool>("embedMuonBestTrack", true)->setComment("embed muon best track");
   iDesc.add<bool>("embedTrack", true)->setComment("embed external track");
   iDesc.add<bool>("embedStandAloneMuon", true)->setComment("embed external stand-alone muon");
   iDesc.add<bool>("embedCombinedMuon", false)->setComment("embed external combined muon");
@@ -577,7 +565,7 @@ void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, co
 // embed various impact parameters with errors
 // embed high level selection
 void PATMuonProducer::embedHighLevel( pat::Muon & aMuon, 
-				      reco::TrackRef track,
+				      reco::TrackRef innerTrack,
 				      reco::TransientTrack & tt,
 				      reco::Vertex & primaryVertex,
 				      bool primaryVertexIsValid,
@@ -590,9 +578,9 @@ void PATMuonProducer::embedHighLevel( pat::Muon & aMuon,
   // PV2D
   std::pair<bool,Measurement1D> result =
     IPTools::signedTransverseImpactParameter(tt,
-					     GlobalVector(track->px(),
-							  track->py(),
-							  track->pz()),
+					     GlobalVector(innerTrack->px(),
+							  innerTrack->py(),
+							  innerTrack->pz()),
 					     primaryVertex); 
   double d0_corr = result.second.value();
   double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
@@ -602,9 +590,9 @@ void PATMuonProducer::embedHighLevel( pat::Muon & aMuon,
   // PV3D
   result =
     IPTools::signedImpactParameter3D(tt,
-				     GlobalVector(track->px(),
-						  track->py(),
-						  track->pz()),
+				     GlobalVector(innerTrack->px(),
+						  innerTrack->py(),
+						  innerTrack->pz()),
 				     primaryVertex);
   d0_corr = result.second.value();
   d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
@@ -618,9 +606,9 @@ void PATMuonProducer::embedHighLevel( pat::Muon & aMuon,
   // BS2D
   result =
     IPTools::signedTransverseImpactParameter(tt,
-					     GlobalVector(track->px(),
-							  track->py(),
-							  track->pz()),
+					     GlobalVector(innerTrack->px(),
+							  innerTrack->py(),
+							  innerTrack->pz()),
 					     vBeamspot);
   d0_corr = result.second.value();
   d0_err = beamspotIsValid ? result.second.error() : -1.0;
@@ -629,9 +617,9 @@ void PATMuonProducer::embedHighLevel( pat::Muon & aMuon,
     // BS3D
   result =
     IPTools::signedImpactParameter3D(tt,
-				     GlobalVector(track->px(),
-						  track->py(),
-						    track->pz()),
+				     GlobalVector(innerTrack->px(),
+						  innerTrack->py(),
+						    innerTrack->pz()),
 				     vBeamspot);
   d0_corr = result.second.value();
   d0_err = beamspotIsValid ? result.second.error() : -1.0;

@@ -5,68 +5,152 @@
 // Institute: IIHE-VUB
 //=============================================================================
 //*****************************************************************************
+//C++ includes
+#include <vector>
+#include <functional>
+#include <math.h>
+
+//ROOT includes
+#include <Math/VectorUtil.h>
+
 
 //CMSSW includes
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include<cassert>
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+using namespace ROOT::Math::VectorUtil ;
+
+EgammaTowerIsolation::EgammaTowerIsolation (double extRadius,
+				      double intRadius,
+				      double etLow,
+				      signed int depth,
+				      const CaloTowerCollection* towercollection)   :
+  extRadius_(extRadius),
+  intRadius_(intRadius),
+  etLow_(etLow),
+  depth_(depth),
+  towercollection_(towercollection)
+{
+}
+
+EgammaTowerIsolation::~EgammaTowerIsolation ()
+{
+}
 
 
-// #include<iostream>
-namespace etiStat {
-  Count::~Count() { 
-    //    std::cout << "\nEgammaTowerIsolationNew " << create << "/" << comp << "/" << float(span)/float(comp)  
-    //	      << std::endl<< std::endl;
+
+
+double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const
+{
+  return getTowerEtSum( photon->get<reco::SuperClusterRef>().get(), detIdToExclude );
+}
+
+double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const
+{
+  double candEta=sc->eta();
+  double candPhi=sc->phi();
+  double ptSum =0.;
+
+  //loop over towers
+  for(CaloTowerCollection::const_iterator trItr = towercollection_->begin(); trItr != towercollection_->end(); ++trItr){
+
+    // skip the towers to exclude
+    if ( detIdToExclude )
+     {
+      std::vector<CaloTowerDetId>::const_iterator itcheck=find(detIdToExclude->begin(),detIdToExclude->end(),trItr->id());
+      if (itcheck != detIdToExclude->end())
+	      continue;
+     }
+
+    double this_pt=0;
+    switch(depth_){
+    case AllDepths: this_pt = trItr->hadEt();break;
+    case Depth1: this_pt = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEt() : trItr->hadEnergyHeInnerLayer()*sin(trItr->p4().theta());break;
+    case Depth2: this_pt = trItr->hadEnergyHeOuterLayer()*sin(trItr->p4().theta());break;
+    default: throw cms::Exception("Configuration Error") << "EgammaTowerIsolation: Depth " << depth_ << " not known. "; break;
     }
 
-  Count Count::count;
-}
+    if ( this_pt < etLow_ )
+      continue ;
+
+    double towerEta=trItr->eta();
+    double towerPhi=trItr->phi();
+    double twoPi= 2*M_PI;
+    if(towerPhi<0) towerPhi+=twoPi;
+    if(candPhi<0) candPhi+=twoPi;
+    double deltaPhi=fabs(towerPhi-candPhi);
+    if(deltaPhi>twoPi) deltaPhi-=twoPi;
+    if(deltaPhi>M_PI) deltaPhi=twoPi-deltaPhi;
+    double deltaEta = towerEta - candEta;
+
+    double dr = deltaEta*deltaEta + deltaPhi*deltaPhi;
+    if( dr < extRadius_*extRadius_ &&
+        dr >= intRadius_*intRadius_ )
+     { ptSum += this_pt ; }
+
+   }//end loop over tracks
+
+  return ptSum ;
+
+ }
 
 
-
-EgammaTowerIsolationNew<1> *EgammaTowerIsolation::newAlgo=nullptr;
-const CaloTowerCollection* EgammaTowerIsolation::oldTowers=nullptr;
-uint32_t EgammaTowerIsolation::id15=0;
-
-EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
-					    float intRadiusI,
-					    float etLow,
-					    signed int depth,
-					    const CaloTowerCollection* towers ) :  
-  depth_(depth), 
-  extRadius(extRadiusI),
-  intRadius(intRadiusI)
+double EgammaTowerIsolation::getTowerESum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const
 {
-  assert(0==etLow);
-
-  // cheating  (test of performance)
-  if (newAlgo==nullptr ||  towers!=oldTowers || towers->size()!=newAlgo->nt || (towers->size()>15 && (*towers)[15].id()!=id15)) {
-    delete newAlgo;
-    newAlgo = new EgammaTowerIsolationNew<1>(&extRadius,&intRadius,*towers);
-    oldTowers=towers;
-    id15 = (*towers)[15].id();
-  }
+  return getTowerESum( photon->get<reco::SuperClusterRef>().get(), detIdToExclude );
 }
 
+double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const
+{
+  double candEta=sc->eta();
+  double candPhi=sc->phi();
+  double eSum =0.;
 
-double  EgammaTowerIsolation::getSum (bool et, reco::SuperCluster const & sc, const std::vector<CaloTowerDetId> * detIdToExclude) const{
+  //loop over towers
+  for(CaloTowerCollection::const_iterator trItr = towercollection_->begin(); trItr != towercollection_->end(); ++trItr){
 
-  if (0!=detIdToExclude) assert(0==intRadius);
+    // skip the towers to exclude
+    if( detIdToExclude ) {
+      std::vector<CaloTowerDetId>::const_iterator itcheck=find(detIdToExclude->begin(),detIdToExclude->end(),trItr->id());
+      if (itcheck != detIdToExclude->end())
+	continue;
+    }
 
-  // hack
-  newAlgo->setRadius(&extRadius,&intRadius);
+    double this_e=0;
+    switch(depth_){
+    case AllDepths: this_e = trItr->hadEnergy();break;
+    case Depth1: this_e = trItr->ietaAbs()<18 || trItr->ietaAbs()>29 ? trItr->hadEnergy() : trItr->hadEnergyHeInnerLayer();break;
+    case Depth2: this_e = trItr->hadEnergyHeOuterLayer();break;
+    default: throw cms::Exception("Configuration Error") << "EgammaTowerIsolation: Depth " << depth_ << " not known. "; break;
+    }
 
-  EgammaTowerIsolationNew<1>::Sum sum;
-  newAlgo->compute(et, sum, sc, 
-		  (detIdToExclude==0) ? nullptr : &((*detIdToExclude).front()),
-		  (detIdToExclude==0) ? nullptr : (&(*detIdToExclude).back())+1
-		  );
-  
-  switch(depth_){
-  case AllDepths: return detIdToExclude==0 ? sum.he[0] : sum.heBC[0]; 
-  case Depth1: return detIdToExclude==0 ? sum.he[0]-sum.h2[0] : sum.heBC[0]-sum.h2BC[0]; 
-  case Depth2:return detIdToExclude==0 ? sum.h2[0] : sum.h2BC[0]; 
-  default: return 0;
-  }
-  return 0;
+    if ( this_e*sin(trItr->p4().theta()) < etLow_ )
+      continue ;
+
+    double towerEta=trItr->eta();
+    double towerPhi=trItr->phi();
+    double twoPi= 2*M_PI;
+    if(towerPhi<0) towerPhi+=twoPi;
+    if(candPhi<0) candPhi+=twoPi;
+    double deltaPhi=fabs(towerPhi-candPhi);
+    if(deltaPhi>twoPi) deltaPhi-=twoPi;
+    if(deltaPhi>M_PI) deltaPhi=twoPi-deltaPhi;
+    double deltaEta = towerEta - candEta;
+
+
+    double dr = deltaEta*deltaEta + deltaPhi*deltaPhi;
+    if( dr < extRadius_*extRadius_ &&
+        dr >= intRadius_*intRadius_ )
+      {
+	eSum += this_e;
+      }
+
+  }//end loop over tracks
+
+  return eSum;
 }
 

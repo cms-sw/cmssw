@@ -17,8 +17,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2012/11/01 13:36:25 $
-$Revision: 1.28 $
+$Date: 2011/06/04 18:58:48 $
+$Revision: 1.27 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -28,8 +28,6 @@ class CaloSubdetectorGeometry {
       typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
       typedef std::set<DetId>       DetIdSet;
-  typedef std::vector<CaloCellGeometry const *> CellSet;
-
 
       typedef CaloCellGeometry::ParMgr    ParMgr ;
       typedef CaloCellGeometry::ParVec    ParVec ;
@@ -73,7 +71,6 @@ class CaloSubdetectorGeometry {
       eta/phi and ieta/iphi and test on the boundaries.
       */
       virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const ;
-  virtual CellSet getCellSet( const GlobalPoint& r, double dR ) const ;
 
       CCGFloat deltaPhi( const DetId& detId ) const ;
 

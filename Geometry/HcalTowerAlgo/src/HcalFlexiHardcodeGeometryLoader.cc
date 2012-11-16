@@ -42,10 +42,11 @@ HcalFlexiHardcodeGeometryLoader::HcalFlexiHardcodeGeometryLoader(const edm::Para
 }
 
 CaloSubdetectorGeometry* HcalFlexiHardcodeGeometryLoader::load(const HcalTopology& fTopology) {
-  CaloSubdetectorGeometry* hcalGeometry = new HcalGeometry (fTopology);
-  if( 0 == hcalGeometry->cornersMgr() ) hcalGeometry->allocateCorners ( fTopology.ncells() );
+  CaloSubdetectorGeometry* hcalGeometry = new HcalGeometry (&fTopology);
+  if( 0 == hcalGeometry->cornersMgr() ) hcalGeometry->allocateCorners ( 
+     HcalGeometry::k_NumberOfCellsForCorners ) ;
   if( 0 == hcalGeometry->parMgr() ) hcalGeometry->allocatePar (
-      hcalGeometry->numberOfShapes(),
+     HcalGeometry::k_NumberOfShapes,
      HcalGeometry::k_NumberOfParametersPerShape ) ;
   if (fTopology.mode() == HcalTopologyMode::H2) {  // TB geometry
     fillHBHO (hcalGeometry, makeHBCells(fTopology), true);

@@ -1,23 +1,21 @@
 #include "DQM/EcalCommon/interface/DQWorker.h"
 
-#include "DQM/EcalCommon/interface/MESetUtils.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "DataFormats/Provenance/interface/EventID.h"
+#include "DQM/EcalCommon/interface/MESet.h"
+#include "DQM/EcalCommon/interface/MESetNonObject.h"
+#include "DQM/EcalCommon/interface/MESetChannel.h"
+#include "DQM/EcalCommon/interface/MESetEcal.h"
+#include "DQM/EcalCommon/interface/MESetDet0D.h"
+#include "DQM/EcalCommon/interface/MESetDet1D.h"
+#include "DQM/EcalCommon/interface/MESetDet2D.h"
+#include "DQM/EcalCommon/interface/MESetTrend.h"
 
 namespace ecaldqm{
 
-  std::map<std::string, std::map<std::string, unsigned> > DQWorker::meOrderingMaps;
-  bool DQWorker::online(false);
-  time_t DQWorker::now(0);
-  edm::RunNumber_t DQWorker::iRun(0);
-  edm::LuminosityBlockNumber_t DQWorker::iLumi(0);
-  edm::EventNumber_t DQWorker::iEvt(0);
+  std::map<std::string, std::vector<MEData> > DQWorker::meData;
 
-  DQWorker::DQWorker(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams, std::string const& _name) :
+  DQWorker::DQWorker(const edm::ParameterSet &, const edm::ParameterSet& _paths, std::string const& _name) :
     name_(_name),
     MEs_(0),
     initialized_(false),
@@ -25,26 +23,18 @@ namespace ecaldqm{
   {
     using namespace std;
 
-    map<string, map<string, unsigned> >::const_iterator mItr(meOrderingMaps.find(name_));
-    if(mItr == meOrderingMaps.end())
-      throw cms::Exception("InvalidConfiguration") << "Cannot find ME ordering for " << name_;
+    map<string, vector<MEData> >::iterator dItr(meData.find(name_));
+    if(dItr == meData.end())
+      throw cms::Exception("InvalidCall") << "MonitorElement setup data not found for " << name_ << std::endl;
 
-    edm::ParameterSet const& MEParams(_workerParams.getUntrackedParameterSet("MEs"));
-    vector<string> const& MENames(MEParams.getParameterNames());
+    vector<MEData> const& vData(dItr->second);
+    MEs_.resize(vData.size());
 
-    MEs_.resize(MENames.size());
+    for(unsigned iME(0); iME < MEs_.size(); iME++){
+      MEData& data(meData[name_].at(iME));
+      string fullpath(_paths.getUntrackedParameter<string>(data.pathName));
 
-    map<string, unsigned> const& nameToIndex(mItr->second);
-
-    for(unsigned iME(0); iME < MENames.size(); iME++){
-      string const& MEName(MENames[iME]);
-
-      map<string, unsigned>::const_iterator nItr(nameToIndex.find(MEName));
-      if(nItr == nameToIndex.end())
-        throw cms::Exception("InvalidConfiguration") << "Cannot find ME index for " << MEName;
-
-      MESet* meSet(createMESet(MEParams.getUntrackedParameterSet(MEName)));
-      if(meSet) MEs_[nItr->second] = meSet;
+      MEs_.at(iME) = createMESet_(fullpath, data);
     }
   }
 
@@ -57,13 +47,8 @@ namespace ecaldqm{
   void
   DQWorker::bookMEs()
   {
-    for(unsigned iME(0); iME < MEs_.size(); iME++){
-      if(MEs_[iME]){
-        if(MEs_[iME]->getBinType() == BinService::kTrend && !online) continue;
-        if(MEs_[iME]->isActive()) continue;
-        MEs_[iME]->book();
-      }
-    }
+    for(unsigned iME(0); iME < MEs_.size(); iME++)
+      if(MEs_[iME]) MEs_[iME]->book();
   }
 
   void
@@ -75,31 +60,75 @@ namespace ecaldqm{
     initialized_ = false;
   }
 
-  void
-  DQWorker::initialize()
-  {
-    initialized_ = true;
-  }
-
   /*static*/
   void
-  DQWorker::setMEOrdering(std::map<std::string, unsigned>&)
+  DQWorker::setMEData(std::vector<MEData>&)
   {
   }
 
-  void
-  DQWorker::print_(std::string const& _message, int _threshold/* = 0*/) const
+  MESet*
+  DQWorker::createMESet_(std::string const& _fullpath, MEData const& _data, bool _readOnly/* = false*/) const
   {
-    if(verbosity_ > _threshold)
-      std::cout << name_ << ": " << _message << std::endl;
+    BinService::ObjectType otype(_data.otype);
+    BinService::BinningType btype(_data.btype);
+    MonitorElement::Kind kind(_data.kind);
+
+    if(otype == BinService::nObjType)
+      return new MESetNonObject(_fullpath, _data, _readOnly);
+
+    if(otype == BinService::kChannel)
+      return new MESetChannel(_fullpath, _data, _readOnly);
+
+    if(btype == BinService::kTrend)
+      return new MESetTrend(_fullpath, _data, _readOnly);
+
+    unsigned logicalDimensions;
+    switch(kind){
+    case MonitorElement::DQM_KIND_REAL:
+      logicalDimensions = 0;
+      break;
+    case MonitorElement::DQM_KIND_TH1F:
+    case MonitorElement::DQM_KIND_TPROFILE:
+      logicalDimensions = 1;
+      break;
+    case MonitorElement::DQM_KIND_TH2F:
+    case MonitorElement::DQM_KIND_TPROFILE2D:
+      logicalDimensions = 2;
+      break;
+    default:
+      throw cms::Exception("InvalidCall") << "Histogram type " << kind << " not supported" << std::endl;
+    }
+
+    // example case: Ecal/TriggerPrimitives/EmulMatching/TrigPrimTask matching index
+    if(logicalDimensions == 2 && _data.yaxis && btype != BinService::kUser) logicalDimensions = 1;
+
+    // for EventInfo summary contents
+    if(btype == BinService::kReport){
+      if(logicalDimensions != 0)
+	throw cms::Exception("InvalidCall") << "Report can only be a DQM_KIND_REAL" << std::endl;
+    }
+
+    if(btype == BinService::kUser)
+      return new MESetEcal(_fullpath, _data, logicalDimensions, _readOnly);
+
+    if(logicalDimensions == 0)
+      return new MESetDet0D(_fullpath, _data, _readOnly);
+
+    if(logicalDimensions == 1)
+      return new MESetDet1D(_fullpath, _data, _readOnly);
+
+    if(logicalDimensions == 2)
+      return new MESetDet2D(_fullpath, _data, _readOnly);
+
+    return 0;
   }
 
 
 
-  std::map<std::string, WorkerFactory> WorkerFactoryHelper::workerFactories_;
+  std::map<std::string, WorkerFactory> SetWorker::workerFactories_;
 
   WorkerFactory
-  WorkerFactoryHelper::findFactory(const std::string &_name)
+  SetWorker::findFactory(const std::string &_name)
   {
     if(workerFactories_.find(_name) != workerFactories_.end()) return workerFactories_[_name];
     return NULL;

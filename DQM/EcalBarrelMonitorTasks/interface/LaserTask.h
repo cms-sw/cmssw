@@ -1,7 +1,7 @@
 #ifndef LaserTask_H
 #define LaserTask_H
 
-#include "DQWorkerTask.h"
+#include "DQM/EcalCommon/interface/DQWorkerTask.h"
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -11,53 +11,58 @@ namespace ecaldqm {
 
   class LaserTask : public DQWorkerTask {
   public:
-    LaserTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~LaserTask() {}
-
-    void setDependencies(DependencySet&);
+    LaserTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    ~LaserTask();
 
     bool filterRunType(const std::vector<short>&);
 
+    void bookMEs();
+
     void beginRun(const edm::Run &, const edm::EventSetup &);
-    void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
-    void beginEvent(const edm::Event &, const edm::EventSetup &);
+    void endEvent(const edm::Event &, const edm::EventSetup &);
 
     void analyze(const void*, Collections);
 
-    void runOnRawData(EcalRawDataCollection const&);
+    void runOnRawData(const EcalRawDataCollection&);
     void runOnDigis(const EcalDigiCollection&);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
-    void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&);
+    void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&, Collections);
+
+    std::vector<int> const& getLaserWavelengths() const { return laserWavelengths_; }
+    std::vector<int> const& getMGPAGainsPN() const { return MGPAGainsPN_; }
+
+    enum Constants {
+      nWL = 4,
+      nPNGain = 2
+    };
 
     enum MESets {
-      kAmplitude,
-      kAmplitudeSummary,
-      kOccupancy,
-      kTiming,
-      kShape,
-      kAOverP,
-      kPNAmplitude,
+      kAmplitudeSummary, // profile2d
+      kAmplitude = kAmplitudeSummary + nWL, // profile2d
+      kOccupancy = kAmplitude + nWL,
+      kTiming = kOccupancy + nWL, // profile2d
+      kShape = kTiming + nWL,
+      kAOverP = kShape + nWL, // profile2d
+      kPNAmplitude = kAOverP + nWL, // profile2d
+      kPNOccupancy = kPNAmplitude + nWL * nPNGain, // profile2d
       nMESets
     };
 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
+    static void setMEData(std::vector<MEData>&);
 
   private:
-    std::map<int, unsigned> wlToME_;
+    std::vector<int> laserWavelengths_;
+    std::vector<int> MGPAGainsPN_;
 
     bool enable_[BinService::nDCC];
-    unsigned wavelength_[BinService::nDCC];
-    unsigned rtHalf_[BinService::nDCC];
-    std::map<uint32_t, float> pnAmp_;
-
-    int emptyLS_;
-    int emptyLSLimit_;
+    int wavelength_[BinService::nDCC];
+    std::map<int, std::vector<float> > pnAmp_;
   };
 
   inline void LaserTask::analyze(const void* _p, Collections _collection){
     switch(_collection){
     case kEcalRawData:
-      runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
+      runOnRawData(*static_cast<const EcalRawDataCollection*>(_p));
       break;
     case kEBDigi:
     case kEEDigi:
@@ -66,9 +71,9 @@ namespace ecaldqm {
     case kPnDiodeDigi:
       runOnPnDigis(*static_cast<const EcalPnDiodeDigiCollection*>(_p));
       break;
-    case kEBLaserLedUncalibRecHit:
-    case kEELaserLedUncalibRecHit:
-      runOnUncalibRecHits(*static_cast<const EcalUncalibratedRecHitCollection*>(_p));
+    case kEBUncalibRecHit:
+    case kEEUncalibRecHit:
+      runOnUncalibRecHits(*static_cast<const EcalUncalibratedRecHitCollection*>(_p), _collection);
       break;
     default:
       break;

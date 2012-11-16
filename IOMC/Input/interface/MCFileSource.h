@@ -7,7 +7,7 @@
  * Joanna Weng & Filip Moortgat 08/2005 
  ***************************************/
 
-#include "FWCore/Sources/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
 
 class HepMCFileReader;
 
@@ -17,16 +17,19 @@ namespace HepMC{
 
 namespace edm {
   class Event;
+  class EventID;
   struct InputSourceDescription;
   class ParameterSet;
+  class Timestamp;
 
-  class MCFileSource : public ExternalInputSource {
+  class MCFileSource : public ProducerSourceBase {
   public:
     MCFileSource(const ParameterSet& pset, const InputSourceDescription& desc);
     virtual ~MCFileSource();
 
   private:
-    virtual bool produce(Event &e);
+    virtual bool setRunAndEventInfo(EventID&, TimeValue_t& time);
+    virtual void produce(Event &e);
     void clear();
     
     HepMCFileReader *reader_;

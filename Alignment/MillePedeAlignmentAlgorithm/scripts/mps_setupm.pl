@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 #     G. Fluck, Uni Hamburg    13-May-2009
-#     $Revision: 1.3 $ by $Author: jbehr $
-#     $Date: 2012/09/10 13:10:37 $
+#     $Revision: 1.1 $ by $Author: flucke $
+#     $Date: 2009/06/24 10:37:45 $
 #
 #  Setup an extra pede
 #
@@ -17,7 +17,6 @@ use Mpslib;
 
 my $chosenMerge = -1;
 my $onlyactivejobs = -1;
-my $ignoredisabledjobs = -1;
 
 ## parse the arguments
 my $i = 0;
@@ -29,9 +28,6 @@ while (@ARGV) {
     }
     elsif ($arg =~ "a") {
       $onlyactivejobs = 1;
-    }
-    elsif ($arg =~ "d") {
-      $ignoredisabledjobs = 1;
     }
     else {
 	print "\nWARNING: Unknown option: ".$arg."\n\n";
@@ -64,8 +60,6 @@ if ( $helpwanted != 0 ) {
   print "\n  Do not forget to edit the configuration file starting the new job.";
   print "\nKnown options:";
   print "\n  -h   This help.\n";
-  print "\n  -a   Use only active jobs (jobs with state = 'ok').\n";
-  print "\n  -d   Ignore disabled jobs.\n";
 
   exit 1;
 }
@@ -127,7 +121,7 @@ system "mps_scriptm.pl${tmpc} $mergeScript jobData/$theJobDir/theScript.sh $theJ
 # Write to DB
 write_db();
 
-if($onlyactivejobs == 1 || $ignoredisabledjobs == 1) {
+if($onlyactivejobs == 1) {
   print "try to open <$theJobData/$theJobDir/alignment_merge.py\n";
   open INFILE,"$theJobData/$theJobDir/alignment_merge.py" || die "error: $!\n";
   undef $/;
@@ -139,26 +133,13 @@ if($onlyactivejobs == 1 || $ignoredisabledjobs == 1) {
   for (my $i=1; $i<=$nJobs; ++$i) {
     my $sep = ",\n                ";
     if ($iIsOk == 1) { $sep = "\n                " ;}
-
-    next if ( $ignoredisabledjobs == 1 && $JOBSTATUS[$i-1] =~ /DISABLED/gi );
-    next if ( $onlyactivejobs == 1 && $JOBSTATUS[$i-1] ne "OK");
+    
+    next if ( $JOBSTATUS[$i-1] ne "OK");
     ++$iIsOk;
-
+    
     my $newName = sprintf "milleBinary%03d.dat",$i;
-    if($JOBSP2[$i-1] ne "" && defined $JOBSP2[$i-1])
-      {
-        my $weight = $JOBSP2[$i-1];
-        print "Adding $newName to list of binary files using weight $weight\n";
-        $binaryList = "$binaryList$sep\'$newName -- $weight\'";
-      }
-    else
-      {
-        print "Adding $newName to list of binary files\n";
-        $binaryList = "$binaryList$sep\'$newName\'";
-      }
-
-   # print "Adding $newName to list of binary files\n";
-   # $binaryList = "$binaryList$sep\'$newName\'";
+    print "a Adding $newName to list of binary files\n";
+    $binaryList = "$binaryList$sep\'$newName\'";
   }
   my $nn  = ($filebody =~ s/mergeBinaryFiles = \[(.|\n)*?\]/mergeBinaryFiles = \[$binaryList\]/);
   $nn += ($filebody =~ s/mergeBinaryFiles = cms.vstring\(\)/mergeBinaryFiles = \[$binaryList\]/);
@@ -168,8 +149,8 @@ if($onlyactivejobs == 1 || $ignoredisabledjobs == 1) {
   for (my $i=1; $i<=$nJobs; ++$i) {
     my $sep = ",\n                ";
     if ($iIsOk == 1) { $sep = "\n                " ;}
-    next if ( $ignoredisabledjobs == 1 && $JOBSTATUS[$i-1] =~ /DISABLED/gi );
-    if ($JOBSTATUS[$i-1] ne "OK" && $onlyactivejobs == 1) {next;}
+    
+    if ($JOBSTATUS[$i-1] ne "OK") {next;}
     ++$iIsOk;
     my $newName = sprintf "treeFile%03d.root",$i;
     $treeList = "$treeList$sep\'$newName\'";
