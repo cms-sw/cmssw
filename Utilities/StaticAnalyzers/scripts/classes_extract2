@@ -3,8 +3,8 @@ eval `scram runtime -sh`
 
 	classes=`cmsglimpse TYPELOOKUP_DATA_REG \
 	| awk 'BEGIN{FS="TYPELOOKUP_DATA_REG\\\(|\\\)";OFS="\n";} {print $2}'\
-	| awk 'BEGIN{FS="::";OFS="\n";} {print $1, $2, $3, $4 , $5 , $6 , $7 , $8 , $9}' \
-	| awk 'BEGIN{FS="<|>";OFS="\n";} {print $1, $2, $3, $4, $5 ,$6, $7, $8, $9}' \
+	| ./extract.pl \
+	| awk 'BEGIN{FS="::";OFS="\n";} {print $NF}' \
 	| tr " " "\n" | sort -u |grep -v -e ^[0-9] `
 	echo $classes | tr " " "\n" >/tmp/classes2.txt
 	paths=`cmsglimpse -G TYPELOOKUP_DATA_REG  \
@@ -12,12 +12,8 @@ eval `scram runtime -sh`
 	echo $paths | tr " " "\n"  >/tmp/paths2.txt
 	pathtmp=""
 	cd  ${CMSSW_RELEASE_BASE}/src
-			tmps2=`cat /tmp/paths2.txt | ctags -f - -L - |awk '/\tc\t|\tc$/ {print $2}'`
-			for tmp2 in $tmps2;do
-				#echo $tmp2
-				tmp3=`basename $tmp2`
-				#echo $tmp3
-				test "$tmp3" != "" && pathtmp=`grep $tmp3 /tmp/paths2.txt`" "$pathtmp
-			done
-	echo  -e $pathtmp | tr " " "\n" | sort -u >/tmp/headers2.txt
-	
+        cat /tmp/paths2.txt | ctags -f - -L - 2>/dev/null | tr "\t" " ">/tmp/ctags2.txt
+        for class in  $classes  ;do
+                grep -e "^$class\ .*\ c$" /tmp/ctags2.txt | awk '/class/ {print $2}'
+        done |  sort -u >/tmp/headers2.txt
+ 

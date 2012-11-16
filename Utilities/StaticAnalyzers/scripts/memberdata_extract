@@ -2,5 +2,8 @@
 [ -e /tmp/headers1.txt ] || ./classes_extract 
 [ -e /tmp/headers2.txt ] || ./classes_extract2
 cd ${CMSSW_RELEASE_BASE}/src
-cat /tmp/headers[12].txt | sort -u | ctags -f - -L - | awk '/\tm\t(class|struct|union):/ {print}' | sort -u >/tmp/class_members.txt 
-for class in `cat /tmp/classes[12].txt | sort -u`;do grep -e ${class} /tmp/class_members.txt |  awk '/\tm\t(class|struct|union):/ {print }' ;done | sort -u >/tmp/members.txt
+cat /tmp/headers1.txt | sort -u | ctags -f - -L - | awk '/\tm\t(class):/ {print}' | sort -u >/tmp/class_members1.txt 
+cat /tmp/headers2.txt | sort -u | ctags -f - -L - | awk '/\tm\t(class):/ {print}' | sort -u >/tmp/class_members2.txt 
+cd - 2>&1 >/dev/null;
+for class in `cat /tmp/classes1.txt | sort -u`;do grep -e "${class}$" /tmp/class_members1.txt |  awk '/\tm\t(class):/ {print }' | awk '{for (i=4; i <= NF-1 ; i++){ printf("%s ", $i)};printf "%s\n", $NF}' | awk 'BEGIN{FS=";"} {print $1, $3}' | awk '{for (i=1;i<=NF;i++) {printf("%s ",$i)};printf "\n"}'|awk 'BEGIN{FS="\" m class:";} {print $1,$2}' ;done |  ./extract.pl | sort -u >/tmp/members1.txt
+for class in `cat /tmp/classes2.txt | sort -u`;do grep -e "${class}$" /tmp/class_members2.txt |  awk '/\tm\t(class):/ {print }' | awk '{for (i=4; i <= NF-1 ; i++){ printf("%s ", $i)};printf "%s\n", $NF}' | awk 'BEGIN{FS=";"} {print $1, $3}' | awk '{for (i=1;i<=NF;i++) {printf("%s ",$i)};printf "\n"}'|awk 'BEGIN{FS="\" m class:";} {print $1,$2}' ;done |  ./extract.pl | sort -u >/tmp/members2.txt
