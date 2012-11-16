@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.5 2011/03/11 20:33:53 kukartse Exp $
+// $Id: ProcTMVA.cc,v 1.6 2012/11/16 20:46:26 kukartse Exp $
 //
 
 #include <sstream>
@@ -113,13 +113,13 @@ ProcTMVA::ProcTMVA(const char *name,
     weight_file.open(weight_file_name.Data());
     weight_file << weight_text;
     weight_file.close();
-    remove(weight_file_name.Data());
     edm::LogInfo("LegacyMVA") << "Building legacy TMVA plugin - "
       << "the weights are being stored in " << weight_file_name << std::endl;
     methodName_t.Append(methodName.c_str());
     method = std::auto_ptr<TMVA::MethodBase>
       ( dynamic_cast<TMVA::MethodBase*>
         ( reader->BookMVA( methodName_t, weight_file_name ) ) );
+    remove(weight_file_name.Data());
   }
 
   /*
