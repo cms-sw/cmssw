@@ -7,7 +7,7 @@
  * Joanna Weng & Filip Moortgat 08/2005 
  ***************************************/
 
-#include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 
 class HepMCFileReader;
 
@@ -22,7 +22,7 @@ namespace edm {
   class ParameterSet;
   class Timestamp;
 
-  class MCFileSource : public ProducerSourceBase {
+  class MCFileSource : public ProducerSourceFromFiles {
   public:
     MCFileSource(const ParameterSet& pset, const InputSourceDescription& desc);
     virtual ~MCFileSource();

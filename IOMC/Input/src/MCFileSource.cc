@@ -2,8 +2,8 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2009/12/01 19:23:11 $
-*  $Revision: 1.16 $
+*  $Date: 2012/11/13 22:50:42 $
+*  $Revision: 1.17 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 *  \author F.Moortgat - CERN, Ph Division
 */
@@ -23,7 +23,7 @@ namespace edm {
 
 //-------------------------------------------------------------------------
 MCFileSource::MCFileSource(const ParameterSet & pset, InputSourceDescription const& desc) :
-  ProducerSourceBase(pset, desc, false),
+  ProducerSourceFromFiles(pset, desc, false),
   reader_(HepMCFileReader::instance()), evt_(0)
 {
   LogInfo("MCFileSource") << "Reading HepMC file:" << fileNames()[0];
