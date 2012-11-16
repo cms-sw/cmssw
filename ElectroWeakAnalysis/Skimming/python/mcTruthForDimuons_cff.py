@@ -7,7 +7,7 @@ goodTrackMCMatch.src = 'selectedPatTracks'
 
 from ElectroWeakAnalysis.Skimming.dimuonsMCMatch_cfi import *
 from ElectroWeakAnalysis.Skimming.dimuonsOneTrackMCMatch_cfi import *
-allDimuonsMCMatch = cms.EDProducer("GenParticleMatchMerger",
+allDimuonsMCMatch = cms.EDFilter("GenParticleMatchMerger",
     src = cms.VInputTag(cms.InputTag("goodMuonMCMatch"), cms.InputTag("goodTrackMCMatch"), cms.InputTag("dimuonsMCMatch"), cms.InputTag("dimuonsOneTrackMCMatch"))
 )
 

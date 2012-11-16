@@ -30,8 +30,4 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
 <use   name="TrackingTools/MaterialEffects"/>
-<use   name="CommonTools/Utils"/>
-<use   name="DataFormats/MuonReco"/>
-<use   name="TrackingTools/PatternTools"/>
-<use   name="TrackingTools/TrackRefitter"/>
 <flags   EDM_PLUGIN="1"/>

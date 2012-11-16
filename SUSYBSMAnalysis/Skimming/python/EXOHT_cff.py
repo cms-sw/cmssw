@@ -1,24 +1,43 @@
+
+
 import FWCore.ParameterSet.Config as cms
 
-#Trigger bit requirement
-import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
+exoticaHTHLT = hltHighLevel
+#Define the HLT path to be used.
+exoticaHTHLT.HLTPaths =['HLT_HT100U']
+exoticaHTHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT8E29")
 
-exoticaHT450 = hlt.hltHighLevel.clone()
-exoticaHT450.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
-exoticaHT450.HLTPaths = ['HLT_HT450_v*']
-exoticaHT450.andOr = cms.bool( True )
-exoticaHT450.throw = cms.bool( False )
+#Define the HLT quality cut 
 
-exoticaHT500 = hlt.hltHighLevel.clone()
-exoticaHT500.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
-exoticaHT500.HLTPaths = ['HLT_HT500_v*']
-exoticaHT500.andOr = cms.bool( True )
-exoticaHT500.throw = cms.bool( False )
+exoticaHLTHTFilter = cms.EDFilter("HLTSummaryFilter",
+    summary = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29"),
+    member  = cms.InputTag("hltJet15UHt","","HLT8E29"),				
+    cut     = cms.string("pt>250"),                     
+    minN    = cms.int32(1)                  
+)
+                               
+#Define the Reco quality cut
+exoticaRecoHTFilter = cms.EDFilter("HLTGlobalSumsMET",
+    inputTag = cms.InputTag("htMetKT4"),
+	saveTag = cms.untracked.bool( True ),							  
+	observable = cms.string( "sumEt" ),							  
+    Min = cms.double(250.0),  
+	Max = cms.double( -1.0 ),							  
+    MinN = cms.int32(1)
+)
+## exoticaRecoHTFilter = cms.EDFilter("PATMETSelector",
+##      src = cms.InputTag("htMetKT4"),
+##      cut = cms.string("sumEt > 250.0"),
+##      filter = cms.bool(True)
+##  )
 
-exoticaHT = hlt.hltHighLevel.clone()
-exoticaHT.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
-exoticaHT.HLTPaths = ['HLT_HT450_v*','HLT_HT500_v*']
-exoticaHT.andOr = cms.bool( True )
-exoticaHT.throw = cms.bool( False )
 
-exoHTSequence = cms.Sequence(exoticaHT)
+#Define group sequence, using HLT bits + either HLT/Reco quality cut. 
+exoticaHTHLTQualitySeq = cms.Sequence(
+   exoticaHTHLT+exoticaHLTHTFilter
+   
+)
+exoticaHTRecoQualitySeq = cms.Sequence(
+	exoticaHTHLT+exoticaRecoHTFilter
+)

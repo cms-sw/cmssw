@@ -1,68 +1,66 @@
 import FWCore.ParameterSet.Config as cms
 
 # Embedding in muons
-somePatMuonsTriggerMatch = cms.EDProducer(
+cleanPatMuonsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchMuonEmbedder"
-, src     = cms.InputTag( "selectedPatMuons" )
+, src     = cms.InputTag( "cleanPatMuons" )
 , matches = cms.VInputTag(
-    'somePatMuonTriggerMatchHLTMu17'
-  , 'somePatMuonTriggerMatchHLTDoubleMu5IsoMu5'
-  , 'somePatMuonTriggerMatchHLTMu8DiJet30' # x-trigger
+    'cleanMuonTriggerMatchHLTMu20'
+  , 'cleanMuonTriggerMatchHLTDoubleMu6'
   )
 )
 
 # Embedding in photons
-somePatPhotonsTriggerMatch = cms.EDProducer(
+cleanPatPhotonsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchPhotonEmbedder"
-, src     = cms.InputTag( "selectedPatPhotons" )
+, src     = cms.InputTag( "cleanPatPhotons" )
 , matches = cms.VInputTag(
-    'somePatPhotonTriggerMatchHLTPhoton26Photon18'
+    'cleanPhotonTriggerMatchHLTPhoton26IsoVLPhoton18'
   )
 )
 
 # Embedding in electrons
-somePatElectronsTriggerMatch = cms.EDProducer(
+cleanPatElectronsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchElectronEmbedder"
-, src     = cms.InputTag( "selectedPatElectrons" )
+, src     = cms.InputTag( "cleanPatElectrons" )
 , matches = cms.VInputTag(
-    'somePatElectronTriggerMatchHLTEle17CaloIdTCaloIsoVLTrkIdVLTrkIsoVL'
+    'cleanElectronTriggerMatchHLTEle27CaloIdVTCaloIsoTTrkIdTTrkIsoT'
   )
 )
 
 # Embedding in taus
-somePatTausTriggerMatch = cms.EDProducer(
+cleanPatTausTriggerMatch = cms.EDProducer(
   "PATTriggerMatchTauEmbedder"
-, src     = cms.InputTag( "selectedPatTaus" )
+, src     = cms.InputTag( "cleanPatTaus" )
 , matches = cms.VInputTag(
-    'somePatTauTriggerMatchHLTDoubleMediumIsoPFTau30Trk1eta2p1'
+    'cleanTauTriggerMatchHLTDoubleIsoPFTau20Trk5'
   )
 )
 
 # Embedding in jets
-somePatJetsTriggerMatch = cms.EDProducer(
+cleanPatJetsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchJetEmbedder"
-, src     = cms.InputTag( "selectedPatJets" )
+, src     = cms.InputTag( "cleanPatJets" )
 , matches = cms.VInputTag(
-    'somePatJetTriggerMatchHLTPFJet40'
-  , 'somePatJetTriggerMatchHLTMu8DiJet30' # x-trigger
+    'cleanJetTriggerMatchHLTJet240'
   )
 )
 
 # Embedding in MET
-somePatMETsTriggerMatch = cms.EDProducer(
+patMETsTriggerMatch = cms.EDProducer(
   "PATTriggerMatchMETEmbedder"
 , src     = cms.InputTag( "patMETs" )
 , matches = cms.VInputTag(
-    'somePatMetTriggerMatchHLTMET120'
+    'metTriggerMatchHLTMET100'
   )
 )
 
 ## Embedding sequences
 patTriggerMatchEmbedderDefaultSequence = cms.Sequence(
-  somePatPhotonsTriggerMatch
-+ somePatElectronsTriggerMatch
-+ somePatMuonsTriggerMatch
-+ somePatTausTriggerMatch
-+ somePatJetsTriggerMatch
-+ somePatMETsTriggerMatch
+  cleanPatPhotonsTriggerMatch
++ cleanPatElectronsTriggerMatch
++ cleanPatMuonsTriggerMatch
++ cleanPatTausTriggerMatch
++ cleanPatJetsTriggerMatch
++ patMETsTriggerMatch
 )

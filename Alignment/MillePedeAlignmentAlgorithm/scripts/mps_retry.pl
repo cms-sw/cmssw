@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     10-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.6 $ by $Author: flucke $
-#     $Date: 2009/06/24 10:13:36 $
+#     $Revision: 1.5 $ by $Author$
+#     $Date: 2009/01/07 18:26:31 $
 #
 #  Re-Setup failed jobs for resubmission
 #  
@@ -76,14 +76,12 @@ if ($retryMerge != 1) {
     # loop over all jobs
 ##    for ($i=0; $i<@JOBID; ++$i) {
     for ($i=0; $i<$nJobs; ++$i) {
-	if (@JOBSTATUS[$i] =~ /ABEND/i
-	    or @JOBSTATUS[$i] =~ /FAIL/i
-	    or @JOBSTATUS[$i] =~ /TIMEL/i
+	if (@JOBSTATUS[$i] eq "ABEND"
+	    or @JOBSTATUS[$i] eq "FAIL"
+	    or @JOBSTATUS[$i] eq "TIMEL"
 	    or $force == 1) {
-          my $cutstatus = $JOBSTATUS[$i];
-          $cutstatus =~ s/DISABLED//gi;
-	    $stateText = "^$cutstatus\$";
-          $theNum = $i + 1;
+	    $stateText = "^@JOBSTATUS[$i]\$";
+	    $theNum = $i + 1;
 	    $jobText = "^$theNum\$";
 	    if ( ( (grep /$stateText/,@MODSTATES) > 0) || (grep /$jobText/,@MODJOBS) > 0) {
 		reSchedule($i,$refresh);
@@ -114,9 +112,7 @@ write_db();
 
 
 sub reSchedule() {
-  my $disabled = "";
-  $disabled = "DISABLED" if($JOBSTATUS[$_[0]] =~ /DISABLED/ig);
-  @JOBSTATUS[$_[0]] = $disabled."SETUP";
+  @JOBSTATUS[$_[0]] = "SETUP";
   @JOBID[$_[0]] = 0;
   @JOBHOST[$_[0]] = "";
   ++@JOBNTRY[$_[0]];

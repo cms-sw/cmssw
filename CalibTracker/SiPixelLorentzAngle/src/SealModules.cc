@@ -4,5 +4,5 @@
 #include "CalibTracker/SiPixelLorentzAngle/interface/SiPixelLorentzAngleDB.h"
 
 
-DEFINE_FWK_MODULE(PixelLorentzAngle);
+DEFINE_FWK_MODULE(SiPixelLorentzAngle);
 DEFINE_FWK_MODULE(SiPixelLorentzAngleDB);

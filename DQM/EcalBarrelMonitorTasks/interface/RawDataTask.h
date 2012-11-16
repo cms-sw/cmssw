@@ -1,7 +1,7 @@
 #ifndef RawDataTask_H
 #define RawDataTask_H
 
-#include "DQWorkerTask.h"
+#include "DQM/EcalCommon/interface/DQWorkerTask.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
@@ -10,10 +10,8 @@ namespace ecaldqm {
 
   class RawDataTask : public DQWorkerTask {
   public:
-    RawDataTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~RawDataTask() {}
-
-    void setDependencies(DependencySet&);
+    RawDataTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    ~RawDataTask();
 
     void bookMEs();
 
@@ -29,7 +27,6 @@ namespace ecaldqm {
       kEventTypePreCalib, // h1f
       kEventTypeCalib, // h1f
       kEventTypePostCalib, // h1f
-      kEntries,
       kCRC, // h1f
       kRunNumber, // h1f
       kOrbit, // h1f
@@ -47,7 +44,6 @@ namespace ecaldqm {
       kDesyncTotal, // h1f
       kFEStatus, // h1f
       kFEByLumi, // h1f
-      kTrendNSyncErrors,
       kFEDEntries,
       kFEDFatal,
       nMESets
@@ -57,7 +53,7 @@ namespace ecaldqm {
       nEventTypes = 25
     };
 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
+    static void setMEData(std::vector<MEData>&);
 
   private:
     int hltTaskMode_; // 0 -> Do not produce FED plots; 1 -> Only produce FED plots; 2 -> Do both

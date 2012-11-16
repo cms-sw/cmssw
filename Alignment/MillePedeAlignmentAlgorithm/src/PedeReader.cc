@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.13 $
- *  $Date: 2011/02/16 13:11:57 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.12 $
+ *  $Date: 2010/09/20 17:25:49 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "PedeReader.h"
@@ -16,8 +16,6 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
-
-#include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
@@ -31,7 +29,7 @@ const unsigned int PedeReader::myMaxNumValPerParam = 5;
 
 //__________________________________________________________________________________________________
 PedeReader::PedeReader(const edm::ParameterSet &config, const PedeSteerer &steerer,
-		       const PedeLabelerBase &labels, const RunRange &runrange)
+		       const PedeLabelerBase &labels, const RunRange &runrange) 
   : mySteerer(steerer), myLabels(labels), myRunRange(runrange)
 {
   std::string pedeResultFile(config.getUntrackedParameter<std::string>("fileDir"));
@@ -62,7 +60,7 @@ bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
 			    << myRunRange.first << " - " << myRunRange.second;
   
   // loop on lines of text file
-  unsigned int nParam = 0, nParamCalib = 0;
+  unsigned int nParam = 0;
   while (myPedeResult.good() && !myPedeResult.eof()) {
     // read label
     unsigned int paramLabel = 0;
@@ -75,23 +73,6 @@ bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
       if (!this->readIfSameLine<float>(myPedeResult, buffer[bufferPos])) break;
     }
     
-    // First check whether parameter is from any calibration (to be done before RunRange check:
-    // run dependence for them is not handled here, but probably inside the calibration).
-    // Double setting by calling read(..) twice for different RunRanges shouldn't harm.
-    std::pair<IntegratedCalibrationBase*, unsigned int> calibParam
-      = myLabels.calibrationParamFromLabel(paramLabel);
-    if (calibParam.first) { // label belongs to a calibration
-      if (this->setCalibrationParameter(calibParam.first, calibParam.second, bufferPos, buffer)) {
-        ++nParamCalib;
-      } else {
-        edm::LogError("Alignment") << "@SUB=PedeReader::read" << "Problems setting results of "
-                                   << "parameter " << calibParam.second << " to calibration '"
-                                   << calibParam.first->name() << "' ("<< calibParam.first << ").";
-        isAllOk = false;
-      }
-      continue; // does not belong to any Alignable, so go to next line of file 
-    }
-    // Now treat Alignables if paramLabel fits to run range, otherwise skip line:
     const RunRange & runRange = myLabels.runRangeFromLabel(paramLabel);
     if (!(runRange.first<=myRunRange.first && myRunRange.second<=runRange.second)) continue;
     
@@ -111,10 +92,9 @@ bool PedeReader::read(std::vector<Alignable*> &alignables, bool setUserVars)
   }
 
   edm::LogInfo("Alignment") << "@SUB=PedeReader::read" << nParam << " parameters for "
-                            << alignables.size() << " alignables and " << nParamCalib
-                            << " for calibrations.";
+                            << alignables.size() << " alignables";
 
-  return isAllOk && (nParam + nParamCalib); // nParam+nParamCalib == 0: empty or bad file
+  return isAllOk && nParam; // nParam == 0: empty or bad file
 }
 
 
@@ -152,8 +132,7 @@ bool PedeReader::readIfSameLine(std::ifstream &aStream, T &outValue) const
 
 //__________________________________________________________________________________________________
 Alignable* PedeReader::setParameter(unsigned int paramLabel,
-                                    unsigned int bufLength, const float *buf,
-                                    bool setUserVars) const
+                                    unsigned int bufLength, float *buf, bool setUserVars) const
 {
   Alignable *alignable = myLabels.alignableFromLabel(paramLabel);
   const unsigned int paramNum = myLabels.paramNumFromLabel(paramLabel);
@@ -225,42 +204,12 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
 }
 
 //__________________________________________________________________________________________________
-bool PedeReader::setCalibrationParameter(IntegratedCalibrationBase* calib, unsigned int paramNum,
-                                         unsigned int bufLength, const float *buf) const
-{
-  if (!calib || !buf) return false;
-
-  // FIXME: Should we attach MillePedeVariables to IntegratedCalibrationBase to store
-  //        'other' results beyond value and error?
-  switch (bufLength) {
-  case 5: // buf[4]: global correlation - not treated yet FIXME // no break;
-  case 4: // uncertainty
-    calib->setParameterError(paramNum, buf[3]); // no break;
-  case 3: // buf[2]: difference to start value - not treated yet // no break;
-  case 2:
-    if (bufLength == 2 && buf[1] >= 0.) { // buf[1]: pre-sigma, < 0 means fixed
-      edm::LogWarning("Alignment") << "@SUB=PedeReader::setCalibrationParameter"
-                                   << "Param " << paramNum << " of calibration '"
-                                   << calib->name() << "' without result!";
-    }
-    return calib->setParameter(paramNum, buf[0] * mySteerer.parameterSign());
-  case 0:
-  case 1:
-  default:
-    edm::LogError("Alignment") << "@SUB=PedeReader::setCalibrationParameter"
-                               << "Expect 2 to 5 values, got " << bufLength << "."; 
-    return false;
-  }
-
-}
-
-//__________________________________________________________________________________________________
 AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable, bool createUserVars) const
 {
   // first check that we have parameters
   AlignmentParameters *params = alignable->alignmentParameters();
   if (!params) {
-    throw cms::Exception("BadConfig") << "PedeReader::checkAliParams: "
+    throw cms::Exception("BadConfig") << "PedeReader::checkAliParams"
 				      << "Alignable without parameters.";
 
   }

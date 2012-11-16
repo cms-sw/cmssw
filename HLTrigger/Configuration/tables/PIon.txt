@@ -27,9 +27,21 @@ HLT_PAL1SingleJet16_v*                             # sr 131577, sr 133528
 HLT_PAL1SingleJet36_v*                             # sr 131577, sr 133528
 HLT_PASingleForJet15_v*                            # sr 131577, sr 133528
 HLT_PASingleForJet25_v*                            # sr 131577, sr 133528
-HLT_PAak5CaloJet20_NoJetID_v*                      # sr 131577
-HLT_PAak5CaloJet40_NoJetID_v*                      # sr 131577
-HLT_PAak5CaloJet60_NoJetID_v*                      # sr 131577
+HLT_PAJet20_NoJetID_v*                             # sr 133388
+HLT_PAJet40_NoJetID_v*                             # sr 133388
+HLT_PAJet60_NoJetID_v*                             # sr 133388
+HLT_PAJet80_NoJetID_v*                             # sr 133388
+HLT_PAJet100_NoJetID_v*                            # sr 133388
+HLT_PAForJet40Eta2_v*                              # sr 133388
+HLT_PAForJet60Eta2_v*                              # sr 133388
+HLT_PAForJet80Eta2_v*                              # sr 133388
+HLT_PAForJet40Eta3_v*                              # sr 133388
+HLT_PAForJet60Eta3_v*                              # sr 133388
+HLT_PAForJet80Eta3_v*                              # sr 133388
+HLT_PATripleJet40_20_20_v*                         # sr 133388
+HLT_PATripleJet60_20_20_v*                         # sr 133388
+HLT_PATripleJet80_20_20_v*                         # sr 133388
+HLT_PAJet40ETM30_v*                                # sr 133388
 HLT_PAL1SingleMuOpen_v*                            # sr 131577
 HLT_PAL1SingleMu3_v*                               # sr 131577
 HLT_PAL1SingleMu7_v*                               # sr 131577

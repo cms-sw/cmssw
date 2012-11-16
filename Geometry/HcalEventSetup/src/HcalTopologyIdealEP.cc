@@ -37,10 +37,7 @@
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
   : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude","")),
     m_pSet( conf )
-{
-  //std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP" << std::endl;
-  edm::LogInfo("HCAL") << "HcalTopologyIdealEP::HcalTopologyIdealEP";
-
+{    
   // copied from HcalHitRelabeller, input like {1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,4}
   m_segmentation.resize(29);
   std::vector<int> segmentation;
@@ -96,9 +93,6 @@ HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descript
 HcalTopologyIdealEP::ReturnType
 HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)
 {
-  //   std::cout << "HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)" << std::endl;
-  edm::LogInfo("HCAL") <<  "HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)";
-    
   using namespace edm::es;
 
   HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
@@ -112,8 +106,6 @@ HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)
     maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
     maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
   }
-  //  std::cout << "mode = " << mode << ", maxDepthHB = " << maxDepthHB << ", maxDepthHE = " << maxDepthHE << std::endl;
-  edm::LogInfo("HCAL") << "mode = " << mode << ", maxDepthHB = " << maxDepthHB << ", maxDepthHE = " << maxDepthHE;
 
   ReturnType myTopo(new HcalTopology( mode, maxDepthHB, maxDepthHE ));
 

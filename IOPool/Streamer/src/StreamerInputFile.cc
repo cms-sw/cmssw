@@ -20,7 +20,6 @@ namespace edm {
   }
 
   StreamerInputFile::StreamerInputFile(std::string const& name,
-                                       int* initialNumberOfEventsToSkip,
                                        boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
     startMsg_(),
     currentEvMsg_(),
@@ -32,7 +31,6 @@ namespace edm {
     currentFileName_(),
     currentFileOpen_(false),
     eventSkipperByID_(eventSkipperByID),
-    initialNumberOfEventsToSkip_(initialNumberOfEventsToSkip),
     currRun_(0),
     currProto_(0),
     newHeader_(false),
@@ -43,7 +41,6 @@ namespace edm {
   }
 
   StreamerInputFile::StreamerInputFile(std::vector<std::string> const& names,
-                                       int* initialNumberOfEventsToSkip,
                                        boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
     startMsg_(),
     currentEvMsg_(),
@@ -55,7 +52,6 @@ namespace edm {
     currentFileName_(),
     currentFileOpen_(false),
     eventSkipperByID_(eventSkipperByID),
-    initialNumberOfEventsToSkip_(initialNumberOfEventsToSkip),
     currRun_(0),
     currProto_(0),
     newHeader_(false),
@@ -264,10 +260,6 @@ namespace edm {
         if(eventSkipperByID_->skipIt(convert32(evh->run_), convert32(evh->lumi_), convert32(evh->event_))) {
           eventRead = false;
         }
-      }
-      if(eventRead && initialNumberOfEventsToSkip_ && *initialNumberOfEventsToSkip_ > 0) {
-        eventRead = false;
-        --(*initialNumberOfEventsToSkip_);
       }
       nWant = eventSize - sizeof(EventHeader);
       if(eventRead) {

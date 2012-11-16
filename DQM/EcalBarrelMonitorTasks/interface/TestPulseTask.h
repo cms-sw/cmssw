@@ -1,9 +1,8 @@
 #ifndef TestPulseTask_H
 #define TestPulseTask_H
 
-#include "DQWorkerTask.h"
+#include "DQM/EcalCommon/interface/DQWorkerTask.h"
 
-#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
@@ -11,41 +10,47 @@ namespace ecaldqm {
 
   class TestPulseTask : public DQWorkerTask {
   public:
-    TestPulseTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~TestPulseTask() {}
+    TestPulseTask(const edm::ParameterSet &, const edm::ParameterSet &);
+    ~TestPulseTask();
+
+    void bookMEs();
 
     bool filterRunType(const std::vector<short>&);
 
+    void beginRun(const edm::Run&, const edm::EventSetup&);
+    void endEvent(const edm::Event&, const edm::EventSetup&);
+
     void analyze(const void*, Collections);
 
-    void runOnRawData(EcalRawDataCollection const&);
     void runOnDigis(const EcalDigiCollection&);
     void runOnPnDigis(const EcalPnDiodeDigiCollection&);
     void runOnUncalibRecHits(const EcalUncalibratedRecHitCollection&);
 
-    enum MESets{
-      kOccupancy,
-      kShape,
-      kAmplitude,
-      kPNAmplitude,
-      nMESets
+    enum Constants {
+      nGain = 3,
+      nPNGain = 2
     };
 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
+    enum MESets{
+      kOccupancy,
+      kShape = kOccupancy + nGain,
+      kAmplitude = kShape + nGain, // profile2d
+      kPNOccupancy = kAmplitude + nGain, // profile2d
+      kPNAmplitude = kPNOccupancy + nPNGain, // profile2d
+      nMESets = kPNAmplitude + nPNGain
+    };
+
+    static void setMEData(std::vector<MEData>&);
 
   protected:
-    std::map<int, unsigned> gainToME_;
-    std::map<int, unsigned> pnGainToME_;
-
-    bool enable_[BinService::nDCC];
-    int gain_[BinService::nDCC];
+    bool enable_[54];
+    int gain_[54];
+    std::vector<int> MGPAGains_;
+    std::vector<int> MGPAGainsPN_;
   };
 
   inline void TestPulseTask::analyze(const void* _p, Collections _collection){
     switch(_collection){
-    case kEcalRawData:
-      runOnRawData(*static_cast<EcalRawDataCollection const*>(_p));
-      break;
     case kEBDigi:
     case kEEDigi:
       runOnDigis(*static_cast<const EcalDigiCollection*>(_p));
@@ -53,8 +58,8 @@ namespace ecaldqm {
     case kPnDiodeDigi:
       runOnPnDigis(*static_cast<const EcalPnDiodeDigiCollection*>(_p));
       break;
-    case kEBTestPulseUncalibRecHit:
-    case kEETestPulseUncalibRecHit:
+    case kEBUncalibRecHit:
+    case kEEUncalibRecHit:
       runOnUncalibRecHits(*static_cast<const EcalUncalibratedRecHitCollection*>(_p));
       break;
     default:

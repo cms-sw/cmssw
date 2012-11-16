@@ -20,12 +20,10 @@ namespace edm {
 
     /**Reads a Streamer file */
     explicit StreamerInputFile(std::string const& name,
-      int* initialNumberOfEventsToSkip = 0,
       boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
 
     /** Multiple Streamer files */
     explicit StreamerInputFile(std::vector<std::string> const& names,
-      int* initialNumberOfEventsToSkip = 0,
       boost::shared_ptr<EventSkipperByID> eventSkipperByID = boost::shared_ptr<EventSkipperByID>());
 
     ~StreamerInputFile();
@@ -75,8 +73,6 @@ namespace edm {
     bool currentFileOpen_;
 
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
-
-    int* initialNumberOfEventsToSkip_;
 
     uint32 currRun_;
     uint32 currProto_;

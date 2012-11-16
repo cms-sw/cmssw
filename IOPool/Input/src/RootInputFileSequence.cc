@@ -450,6 +450,11 @@ namespace edm {
     }
     rewindFile();
     firstFile_ = true;
+    if(rootFile_) {
+      if(initialNumberOfEventsToSkip_ != 0) {
+        skipEvents(initialNumberOfEventsToSkip_);
+      }
+    }
   }
 
   // Rewind to the beginning of the current file
@@ -458,37 +463,15 @@ namespace edm {
     if(rootFile_) rootFile_->rewind();
   }
 
-  void
-  RootInputFileSequence::reset() {
-    //NOTE: Need to handle duplicate checker
-    // Also what if skipBadFiles_==true and the first time we succeeded but after a reset we fail?
-    if(inputType_ != InputType::SecondarySource) {
-      firstFile_ = true;
-      for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_) {
-        initFile(skipBadFiles_);
-        if(rootFile_) break;
-      }
-      if(rootFile_) {
-        if(initialNumberOfEventsToSkip_ != 0) {
-          skipEvents(initialNumberOfEventsToSkip_);
-        }
-      }
-    }
-  }
-
   // Advance "offset" events.  Offset can be positive or negative (or zero).
   bool
   RootInputFileSequence::skipEvents(int offset) {
-    assert (initialNumberOfEventsToSkip_ == 0 || initialNumberOfEventsToSkip_ == offset);
-    initialNumberOfEventsToSkip_ = offset;
-    while(initialNumberOfEventsToSkip_ != 0) {
-      bool atEnd = rootFile_->skipEvents(initialNumberOfEventsToSkip_);
-      if((initialNumberOfEventsToSkip_ > 0 || atEnd) && !nextFile()) {
-        initialNumberOfEventsToSkip_ = 0;
+    while(offset != 0) {
+      bool atEnd = rootFile_->skipEvents(offset);
+      if((offset > 0 || atEnd) && !nextFile()) {
         return false;
       }
-      if(initialNumberOfEventsToSkip_ < 0 && !previousFile()) {
-        initialNumberOfEventsToSkip_ = 0;
+      if(offset < 0 && !previousFile()) {
         fileIter_ = fileIterEnd_;
         return false;
       }

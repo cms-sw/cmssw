@@ -1,14 +1,20 @@
 #ifndef OccupancyClient_H
 #define OccupancyClient_H
 
-#include "DQWorkerClient.h"
+#include "DQM/EcalCommon/interface/DQWorkerClient.h"
+
+class CaloGeometry;
 
 namespace ecaldqm {
 
   class OccupancyClient : public DQWorkerClient {
   public:
-    OccupancyClient(edm::ParameterSet const&, edm::ParameterSet const&);
+    OccupancyClient(const edm::ParameterSet &, const edm::ParameterSet &);
     ~OccupancyClient() {}
+
+    void beginRun(const edm::Run &, const edm::EventSetup &);
+
+    void bookMEs();
 
     void producePlots();
 
@@ -20,16 +26,18 @@ namespace ecaldqm {
       nMESets
     };
 
+    static void setMEData(std::vector<MEData>&);
+
     enum Sources {
-      kDigi,
-      kRecHitThr,
-      kTPDigiThr,
+      sDigi,
+      sRecHitThr,
+      sTPDigiThr,
       nSources
     };
 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
-
   private:
+    const CaloGeometry* geometry_;
+
     int minHits_;
     float deviationThreshold_;
   };

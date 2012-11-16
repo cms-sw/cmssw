@@ -34,7 +34,7 @@ CLHEP::HepRandomEngine* hijRandomEngine;
 
 extern "C"
 {
-  float gen::hijran_(int *idummy)
+  double gen::hijran_(int *idummy)
   {
     return hijRandomEngine->flat(); 
   }
