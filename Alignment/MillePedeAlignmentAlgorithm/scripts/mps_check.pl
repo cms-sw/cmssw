@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.31 $ by $Author: jbehr $
-#     $Date: 2012/09/10 15:11:04 $
+#     $Revision: 1.32 $ by $Author: jbehr $
+#     $Date: 2012/11/16 12:44:37 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -63,8 +63,9 @@ for ($i=0; $i<@JOBID; ++$i) {
     open STDFILE,"$stdOut";
     # scan records in input file
     while ($line = <STDFILE>) {
-      if (($line =~ m/Unable to access quota space/) eq 1) { $quotaspace = 1;}
-      if (($line =~ m/Unable to get quota space/) eq 1) { $quotaspace = 1;}
+      if (($line =~ m/Unable to access quota space/i) eq 1) { $quotaspace = 1;}
+      if (($line =~ m/Unable to get quota space/i) eq 1) { $quotaspace = 1;}
+      if (($line =~ m/Disk quota exceeded/i) eq 1) { $quotaspace = 1;}
       if (($line =~ m/CERN report: Job Killed/) eq 1) { $killed = 1;}
       if (($line =~ m/Job finished/) eq 1)  { $finished = 1; }
       if (($line =~ m/connection timed out/) eq 1)  { $timeout = 1; }
