@@ -3,7 +3,7 @@
   <SpecParSection label="GEMSpecs.xml">
     <SpecPar name="nStrips32" eval="true">
       <PartSelector path="//GHA."/>
-      <Parameter name="nStrips" value="32"/>
+      <Parameter name="nStrips" value="384"/>
     </SpecPar>
   </SpecParSection>
 </DDDefinition>
