@@ -949,7 +949,8 @@ void Analysis_Step3(char* SavePath)
          dEdxTemplates = NULL;
       #else
          if(isData){
-            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_Data_2012.root");
+//            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_Data_2012.root");
+            dEdxTemplates = NULL;
          }else{
             dEdxTemplates = NULL;
          }
