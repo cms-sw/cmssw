@@ -22,6 +22,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test inputSourceTest.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationExternalSource">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test inputExtSourceTest.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationEventSetup">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test eventSetupTest.sh"/>
     <use   name="FWCore/Utilities"/>
@@ -119,6 +123,10 @@
     <use   name="FWCore/ParameterSet"/>
   </library>
   <library   file="ThingSource.cc,ThingAlgorithm.cc" name="TestThingSource">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Sources"/>
+  </library>
+  <library   file="ThingExtSource.cc,ThingAlgorithm.cc" name="TestThingExtSource">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Sources"/>
   </library>
