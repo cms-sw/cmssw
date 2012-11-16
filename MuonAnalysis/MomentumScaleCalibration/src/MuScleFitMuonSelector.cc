@@ -8,16 +8,19 @@ const unsigned int MuScleFitMuonSelector::motherPdgIdArray[] = {23, 100553, 1005
 const reco::Candidate* 
 MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
   const reco::Candidate* tempStatus1Muon = status3Muon;
+  int status = tempStatus1Muon->status();
   while(tempStatus1Muon == 0 || tempStatus1Muon->numberOfDaughters()!=0){
+    if (status == 1) break;
     //std::vector<const reco::Candidate*> daughters;
     for (unsigned int i=0; i<tempStatus1Muon->numberOfDaughters(); ++i){
       if ( tempStatus1Muon->daughter(i)->pdgId()==tempStatus1Muon->pdgId() ){
 	tempStatus1Muon = tempStatus1Muon->daughter(i);
+	status = tempStatus1Muon->daughter(i)->status();
 	break;
       }else continue;
     }//for loop
   }//while loop
-
+  
   return tempStatus1Muon;
 }
 
@@ -396,7 +399,8 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
   //Loop on generated particles
   if( debug_>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
   for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
-    if (fabs(part->pdgId())==13 && part->status()==3) {
+    if (debug_>0) std::cout<<"genParticle has pdgId = "<<fabs(part->pdgId())<<" and status = "<<part->status()<<std::endl;
+    if (fabs(part->pdgId())==13){// && part->status()==3) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();
       if( debug_>0 ) {
@@ -406,17 +410,18 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
 	if( motherPdgId == motherPdgIdArray[ires] && resfind_[ires] ) fromRes = true;
       }
       if(fromRes){
+	if (debug_>0) std::cout<<"fromRes = true, motherPdgId = "<<motherPdgId<<std::endl;
 	const reco::Candidate* status3Muon = &(*part);
-	  const reco::Candidate* status1Muon = getStatus1Muon(status3Muon);
-	  if(part->pdgId()==13) {
+	const reco::Candidate* status1Muon = getStatus1Muon(status3Muon);
+	if(part->pdgId()==13) {
 	  muFromRes.mu1 = status1Muon->p4();
-	  if( debug_>0 ) std::cout << "Found a genMuon + : " << muFromRes.mu1 << std::endl;
+	  if( debug_>0 ) std::cout << "Found a genMuon - : " << muFromRes.mu1 << std::endl;
 	  // 	  muFromRes.first = (lorentzVector(status1Muon->p4().px(),status1Muon->p4().py(),
 	  // 					   status1Muon->p4().pz(),status1Muon->p4().e()));
 	}
 	else {
 	  muFromRes.mu2 = status1Muon->p4();
-	  if( debug_>0 ) std::cout << "Found a genMuon - : " << muFromRes.mu2 << std::endl;
+	  if( debug_>0 ) std::cout << "Found a genMuon + : " << muFromRes.mu2 << std::endl;
 	  // 	  muFromRes.second = (lorentzVector(status1Muon->p4().px(),status1Muon->p4().py(),
 	  // 					    status1Muon->p4().pz(),status1Muon->p4().e()));
 	}
