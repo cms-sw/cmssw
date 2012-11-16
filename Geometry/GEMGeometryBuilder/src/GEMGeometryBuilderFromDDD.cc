@@ -53,35 +53,36 @@ GEMGeometry* GEMGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
-  LogDebug("GEMGeometryBuilderFromDDD") <<"Building the geometry service";
+  std::cout <<" GEM Builder Start "<<std::endl;
+  std::cout << "GEMGeometryBuilderFromDDD" <<"Building the geometry service"<<std::endl;
   GEMGeometry* geometry = new GEMGeometry();
 
-  LogDebug("GEMGeometryBuilderFromDDD") << "About to run through the GEM structure\n" 
-					<<" First logical part "
-					<<fview.logicalPart().name().name();
+  std::cout << "GEMGeometryBuilderFromDDD" << "About to run through the GEM structure\n" 
+	    <<" First logical part "
+	    <<fview.logicalPart().name().name()<<std::endl;
   bool doSubDets = fview.firstChild();
-
-  LogDebug("GEMGeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
+  
+  std::cout << "GEMGeometryBuilderFromDDD" << " doSubDets = " << doSubDets<<std::endl;
   while (doSubDets){
-    LogDebug("GEMGeometryBuilderFromDDD") <<"start the loop"; 
+    std::cout << "GEMGeometryBuilderFromDDD" <<"start the loop"<<std::endl;
 
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum(muonConstants);
-    LogDebug("GEMGeometryBuilderFromDDD") <<"Getting the Muon base Number";
+    std::cout << "GEMGeometryBuilderFromDDD" <<"Getting the Muon base Number"<<std::endl;
     MuonBaseNumber   mbn=mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
-    LogDebug("GEMGeometryBuilderFromDDD") <<"Start the GEM Numbering Schema";
+    std::cout << "GEMGeometryBuilderFromDDD" <<"Start the GEM Numbering Schema"<<std::endl;
     // Get the The GEM det Id 
     GEMNumberingScheme gemnum(muonConstants);
     int detid = 0;
 
-    LogDebug("GEMGeometryBuilderFromDDD") <<"Getting the Unit Number";
+    std::cout << "GEMGeometryBuilderFromDDD" <<"Getting the Unit Number"<<std::endl;
     detid = gemnum.baseNumberToUnitNumber(mbn);
-    LogDebug("GEMGeometryBuilderFromDDD") <<"Getting the GEM det Id "<<detid;
+    std::cout << "GEMGeometryBuilderFromDDD" <<"Getting the GEM det Id "<<detid<<std::endl;
 
     GEMDetId gemmid(detid);
     //    GEMDetId chid(gemmid.region(),gemmid.ring(),gemmid.station(),gemmid.sector(),gemmid.layer(),gemmid.subsector(),0);
 
-    LogDebug("GEMGeometryBuilderFromDDD") <<"The GEMDetid is "<<gemmid;
+    std::cout << "GEMGeometryBuilderFromDDD" <<"The GEMDetid is "<<gemmid<<std::endl;
 
     DDValue numbOfStrips("nStrips");
 
@@ -94,7 +95,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
       }
     }
 
-    LogDebug("GEMGeometryBuilderFromDDD") << ((nStrips == 0 ) ? ("No strip found!!") : (""));
+    std::cout << "GEMGeometryBuilderFromDDD" << ((nStrips == 0 ) ? ("No strip found!!") : (""))<<std::endl;
     
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
     std::string name=fview.logicalPart().name().name();
@@ -130,10 +131,10 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     pars.push_back(dpar[8]/cm); //B/2;
     pars.push_back(dpar[0]/cm); //h/2;
     pars.push_back(numbOfStrips.doubles()[0]); //h/2;      
-    LogDebug("GEMGeometryBuilderFromDDD") <<"GEM "<<name
+    std::cout << "GEMGeometryBuilderFromDDD" <<"GEM "<<name
 					  <<" par "<<dpar[4]/cm
 					  <<" "<<dpar[8]/cm<<" "<<dpar[3]/cm<<" "
-					  <<dpar[0];
+					  <<dpar[0]<<std::endl;
     
     etapartitionspecs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM,name,pars);
 
@@ -145,7 +146,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     Basic3DVector<float> newZ(0.,1.,0.);
     rot.rotateAxes (newX, newY,newZ);
     
-    LogDebug("GEMGeometryBuilderFromDDD") <<"   Number of strips "<<nStrips;    
+    std::cout << "GEMGeometryBuilderFromDDD" <<"   Number of strips "<<nStrips<<std::endl;
     BoundPlane* bp = new BoundPlane(pos,rot,bounds);
     ReferenceCountingPointer<BoundPlane> surf(bp);
     GEMEtaPartition* gep=new GEMEtaPartition(gemmid,surf,etapartitionspecs);
