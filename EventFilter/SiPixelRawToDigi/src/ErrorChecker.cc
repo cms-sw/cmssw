@@ -94,12 +94,12 @@ bool ErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, int nWords, cons
       errors[dummyDetId].push_back(error);
     }
     errorsInEvent = true;
-    LogError("PixelDataFormatter::interpretRawData, fedTrailer.check: ")
+    LogError("FedTrailerCheck")
       <<"fedTrailer.check failed, Fed: " << fedId << ", errorType = 33";
     return false; 
   } 
   if ( fedTrailer.lenght()!= nWords) {
-    LogError("PROBLEM in PixelDataFormatter,  fedTrailer.lenght()!= nWords !!")<< " Fed: " << fedId << ", errorType = 34";
+    LogError("FedTrailerLenght")<< "fedTrailer.lenght()!= nWords !! Fed: " << fedId << ", errorType = 34";
     errorsInEvent = true;
     if(includeErrors) {
       int errorType = 34;

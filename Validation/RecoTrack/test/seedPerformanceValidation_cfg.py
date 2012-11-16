@@ -24,7 +24,8 @@ process.source = source
 
 ### validation-specific includes
 #process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+#process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.TrackerSeedValidator_cff")
 process.load("SimGeneral.TrackingAnalysis.trackingParticles_cfi")
@@ -32,7 +33,8 @@ process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("Validation.Configuration.postValidation_cff")
 
-process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+#process.TrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 ### configuration MultiTrackValidator ###
 process.trackerSeedValidator.outputFile = 'val.SAMPLE.root'

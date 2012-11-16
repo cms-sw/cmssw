@@ -4,6 +4,7 @@ globalTag = {
   'GRun': 'auto:startup',       # use as default
   'data': 'auto:hltonline',
   'HIon': 'auto:starthi',
+  'PIon': 'auto:startup',
 }
 
 
@@ -68,7 +69,7 @@ class HLTProcessOptions(object):
   def __init__(self):
     self.menu       = None        #     hlt menu
     self.name       = 'HLTX'      # (*) if set, override the process name
-    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon' or 'online' menus
+    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon', 'PIon' or 'online' menus
     self.data       = True        #     run on data (true) or mc (false)
     self.online     = False       # (*) run online (true) or offline (false)
     self.globaltag  = None        # (*) if set, override the GlobalTag

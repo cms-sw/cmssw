@@ -48,7 +48,7 @@ class TtEvtBuilder : public edm::EDProducer {
   /// vebosity level
   int verbosity_;
   /// vector of hypothesis class names
-  std::vector<edm::InputTag> hyps_;
+  std::vector<std::string> hyps_;
   /// TtGenEvent
   edm::InputTag genEvt_;
   /// decay channels of the two top decay branches; to be
@@ -87,11 +87,11 @@ class TtEvtBuilder : public edm::EDProducer {
 
 template <typename C>
 TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
-  verbosity_   (cfg.getParameter<int>                        ("verbosity"    )),
-  hyps_        (cfg.getParameter<std::vector<edm::InputTag> >("hypotheses"   )),
-  genEvt_      (cfg.getParameter<edm::InputTag>              ("genEvent"     )),
-  decayChnTop1_(cfg.getParameter<int>                        ("decayChannel1")),
-  decayChnTop2_(cfg.getParameter<int>                        ("decayChannel2"))
+  verbosity_   (cfg.getParameter<int>                      ("verbosity"    )),
+  hyps_        (cfg.getParameter<std::vector<std::string> >("hypotheses"   )),
+  genEvt_      (cfg.getParameter<edm::InputTag>            ("genEvent"     )),
+  decayChnTop1_(cfg.getParameter<int>                      ("decayChannel1")),
+  decayChnTop2_(cfg.getParameter<int>                      ("decayChannel2"))
 {
   // parameter subsets for kKinFit
   if( cfg.exists("kinFit") ) {
@@ -149,10 +149,10 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   // add event hypotheses for all given 
   // hypothesis classes to the TtEvent
-  typedef std::vector<edm::InputTag>::const_iterator EventHypo;
+  typedef std::vector<std::string>::const_iterator EventHypo;
   for(EventHypo h=hyps_.begin(); h!=hyps_.end(); ++h){
     edm::Handle<int> key; 
-    evt.getByLabel(h->label(), "Key", key);
+    evt.getByLabel(*h, "Key", key);
 
     edm::Handle<std::vector<TtEvent::HypoCombPair> > hypMatchVec; 
     evt.getByLabel(*h, hypMatchVec);
@@ -253,19 +253,19 @@ template <>
 void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEvent, const edm::Event& evt)
 {
 
-  typedef std::vector<edm::InputTag>::const_iterator EventHypo;
+  typedef std::vector<std::string>::const_iterator EventHypo;
   for(EventHypo h=hyps_.begin(); h!=hyps_.end(); ++h){
     edm::Handle<int> key; 
-    evt.getByLabel(h->label(), "Key", key);
+    evt.getByLabel(*h, "Key", key);
 
     // set number of real neutrino solutions for all hypotheses
     edm::Handle<int> numberOfRealNeutrinoSolutions;
-    evt.getByLabel(h->label(), "NumberOfRealNeutrinoSolutions", numberOfRealNeutrinoSolutions);
+    evt.getByLabel(*h, "NumberOfRealNeutrinoSolutions", numberOfRealNeutrinoSolutions);
     ttEvent.setNumberOfRealNeutrinoSolutions((TtEvent::HypoClassKey&)*key, *numberOfRealNeutrinoSolutions);
 
     // set number of considered jets for all hypotheses
     edm::Handle<int> numberOfConsideredJets;
-    evt.getByLabel(h->label(), "NumberOfConsideredJets", numberOfConsideredJets);
+    evt.getByLabel(*h, "NumberOfConsideredJets", numberOfConsideredJets);
     ttEvent.setNumberOfConsideredJets((TtEvent::HypoClassKey&)*key, *numberOfConsideredJets);
   }
 

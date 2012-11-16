@@ -2,8 +2,8 @@
  *  
  *  Class to monitor duplication of events
  *
- *  $Date: 2010/05/25 16:50:50 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/12/29 10:53:11 $
+ *  $Revision: 1.2 $
  *
  */
  
@@ -15,7 +15,10 @@ DuplicationChecker::DuplicationChecker(const edm::ParameterSet& iPSet):
   _wmanager(iPSet),
   generatedCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
   searchForLHE_(iPSet.getParameter<bool>("searchForLHE"))
-{    
+{ 
+  if (searchForLHE_) {
+    lheEventProduct_ = iPSet.getParameter<edm::InputTag>("lheEventProduct");
+  }
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
 
@@ -48,7 +51,7 @@ void DuplicationChecker::analyze(const edm::Event& iEvent,const edm::EventSetup&
   if (searchForLHE_) {
 
     Handle<LHEEventProduct> evt;
-    iEvent.getByType( evt );
+    iEvent.getByLabel(lheEventProduct_, evt);
 
     const lhef::HEPEUP hepeup_ = evt->hepeup();
 

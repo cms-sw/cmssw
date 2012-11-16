@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
-
 from Configuration.Generator.PythiaUEZ2starSettings_cfi import *
+
 generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
-    crossSection = cms.untracked.double(79.3e+09),
+    crossSection = cms.untracked.double(79150000000),
     comEnergy = cms.double(14000.0),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
@@ -27,6 +26,12 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters')
     )
+)
+
+configurationMetadata = cms.untracked.PSet(
+    version = cms.untracked.string('$Revision: 1.2 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/GenProduction/python/FourteenTeV/MinBias_TuneZ2star_14TeV_pythia6_cff.py,v $'),
+    annotation = cms.untracked.string('PYTHIA6-MinBias TuneZ2star at 14TeV')
 )
 
 ProductionFilterSequence = cms.Sequence(generator)

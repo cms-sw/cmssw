@@ -1382,5 +1382,68 @@ float CompareToMedian::runTest(const MonitorElement *me){
     }
   return 1 - (float)failed/nbins;
 }
+//----------------------------------------------------------------//
+//------------------------  CompareLastFilledBin -----------------//
+//----------------------------------------------------------------//
+/* 
+Test for TH1F and TH2F
+For the last filled bin the value is compared with specified upper and lower limits. If 
+it is outside the limit the test failed test result is returned
+The parameters used for this comparison are:
+MinRel and MaxRel to check identify outliers wrt the median value
+*/
+float CompareLastFilledBin::runTest(const MonitorElement *me){
+  if (!me)
+    return -1;
+  if (!me->getRootObject())
+    return -1;
+  TH1* h1=0;
+  TH2* h2=0;
+  if (verbose_>1){
+    std::cout << "QTest:" << getAlgoName() << "::runTest called on "
+              << me-> getFullname() << "\n";
+    std::cout << "\tMin = " << _min << "; Max = " << _max << "\n";
+  }
+  if (me->kind()==MonitorElement::DQM_KIND_TH1F)
+    {
+      h1  = me->getTH1F(); // access Test histo
+    }
+  else if (me->kind()==MonitorElement::DQM_KIND_TH2F)
+    {
+      h2  = me->getTH2F(); // access Test histo
+    }
+  else
+    {
+      if (verbose_>0) 
+        std::cout << "QTest:ContentsWithinExpected" 
+	 << " ME does not contain TH1F or TH2F, exiting\n"; 
+      return -1;
+    }
+  int lastBinX = 0;
+  int lastBinY = 0;
+  float lastBinVal; 
 
-
+  //--------- do the quality test for 1D histo ---------------// 
+  if (h1 != NULL) 
+  { 
+    lastBinX = h1->FindLastBinAbove(_average,1);
+    lastBinVal = h1->GetBinContent(lastBinX);
+    if (h1->GetEntries() == 0 || lastBinVal < 0) return 1;
+  } 
+  else if (h2 != NULL) 
+  {   
+    
+    lastBinX = h2->FindLastBinAbove(_average,1);
+    lastBinY = h2->FindLastBinAbove(_average,2);
+    if ( h2->GetEntries() == 0 || lastBinX < 0 || lastBinY < 0 )  return 1;
+    lastBinVal = h2->GetBinContent(h2->GetBin(lastBinX,lastBinY));
+  } else {
+    if (verbose_ > 0) std::cout << "QTest:"<< getAlgoName() << " Histogram does not exist" << std::endl;
+    return 1;
+  } 
+  if (verbose_ > 0) std::cout << "Min and Max values " << _min << " " << _max << " Av value " << _average << " lastBinX " << lastBinX<<  " lastBinY " << lastBinY <<  " lastBinVal " << lastBinVal << std::endl;
+  if (lastBinVal > _min && lastBinVal <= _max)
+    return 1;
+  else
+    return 0;
+} 

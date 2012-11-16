@@ -579,6 +579,17 @@ def cmd_cmsdisttags(cvstags):
 def cmd_cmsdistdiff(cvstags):
   printTags(getCMSDISTs(cvstags, True), 20)
 
+def cmd_deprecaterel(args):
+  usage = "usage: %prog deprecaterel <release1> [<release2> [...]]"
+  parser = optparse.OptionParser(usage=usage)
+  (opts, args) = parser.parse_args(args)
+  if not args:
+    parser.error("Please specify at least one release to deprecate")
+  tc = cmstc.TagCollector()
+  username = tc.signInInteractive()
+  tc.deprecateReleases(*args)
+  tc.signOut()
+
 def cmd_createrel(args):
   usage = "usage: %prog createrel [option1] arg1 [option2] arg2 ... [optionN] argN"
   parser = optparse.OptionParser(usage=usage)
