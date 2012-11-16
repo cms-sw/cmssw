@@ -159,9 +159,6 @@ class TopProjector : public edm::EDProducer {
   /// enable? if not, all candidates in the bottom collection are copied to the output collection
   bool            enable_;
 
-  /// verbose ?
-  bool            verbose_;
-
   /// name of the top projection
   std::string     name_;
  
@@ -179,7 +176,6 @@ template< class Top, class Bottom, class Matcher >
 TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConfig) : 
   match_(iConfig),
   enable_(iConfig.getParameter<bool>("enable")) {
-  verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
   name_ = iConfig.getUntrackedParameter<std::string>("name","No Name");
   inputTagTop_ = iConfig.getParameter<edm::InputTag>("topCollection");
   inputTagBottom_ = iConfig.getParameter<edm::InputTag>("bottomCollection");
@@ -193,10 +189,6 @@ TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConf
 template< class Top, class Bottom, class Matcher >
 void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 					  const edm::EventSetup& iSetup) {
-  
-  if( verbose_)
-    std::cout<<"Event -------------------- "<<iEvent.id().event()<<std::endl;
-  
   // get the various collections
 
   // Access the masking collection
@@ -235,32 +227,32 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 /*   } */
 
  
-  if(verbose_) {
-    const edm::Provenance& topProv = iEvent.getProvenance(tops.id());
-    const edm::Provenance& bottomProv = iEvent.getProvenance(bottoms.id());
+  /* if(verbose_) { */
+  /*   const edm::Provenance& topProv = iEvent.getProvenance(tops.id()); */
+  /*   const edm::Provenance& bottomProv = iEvent.getProvenance(bottoms.id()); */
 
-    std::cout<<"Top projector: event "<<iEvent.id().event()<<std::endl;
-    std::cout<<"Inputs --------------------"<<std::endl;
-    std::cout<<"Top      :  "
-	     <<tops.id()<<"\t"<<tops->size()<<std::endl
-	     <<topProv.branchDescription()<<std::endl;
+  /*   edm::LogDebug("TopProjection")<<"Top projector: event "<<iEvent.id().event()<<std::endl; */
+  /*   edm::LogDebug("TopProjection")<<"Inputs --------------------"<<std::endl; */
+  /*   edm::LogDebug("TopProjection")<<"Top      :  " */
+  /* 	     <<tops.id()<<"\t"<<tops->size()<<std::endl */
+  /* 	     <<topProv.branchDescription()<<std::endl; */
 
-    for(unsigned i=0; i<tops->size(); i++) {
-      TopFwdPtr top = (*tops)[i];
-      std::cout << "< " << i << " " << top.key() << " : " << *top << std::endl;
-    }
+  /*   for(unsigned i=0; i<tops->size(); i++) { */
+  /*     TopFwdPtr top = (*tops)[i]; */
+  /*     edm::LogDebug("TopProjection") << "< " << i << " " << top.key() << " : " << *top << std::endl; */
+  /*   } */
 
 
-    std::cout<<"Bottom   :  "
-	     <<bottoms.id()<<"\t"<<bottoms->size()<<std::endl
-	     <<bottomProv.branchDescription()<<std::endl;
+  /*   edm::LogDebug("TopProjection")<<"Bottom   :  " */
+  /* 	     <<bottoms.id()<<"\t"<<bottoms->size()<<std::endl */
+  /* 	     <<bottomProv.branchDescription()<<std::endl; */
 
-    for(unsigned i=0; i<bottoms->size(); i++) {
-      BottomFwdPtr bottom = (*bottoms)[i];
-      std::cout << "> " << i << " " << bottom.key() << " : " << *bottom << std::endl;
-    }
+  /*   for(unsigned i=0; i<bottoms->size(); i++) { */
+  /*     BottomFwdPtr bottom = (*bottoms)[i]; */
+  /*     edm::LogDebug("TopProjection") << "> " << i << " " << bottom.key() << " : " << *bottom << std::endl; */
+  /*   } */
 
-  }
+  /* } */
 
 
   // output collection of FwdPtrs to objects,
@@ -268,8 +260,7 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
   std::auto_ptr< BottomFwdPtrCollection > 
     pBottomFwdPtrOutput( new BottomFwdPtrCollection );
 
-  if(verbose_)
-    std::cout<<" Remaining candidates in the bottom collection ------ "<<std::endl;
+  edm::LogDebug("TopProjection")<<" Remaining candidates in the bottom collection ------ "<<std::endl;
   
   for(typename BottomFwdPtrCollection::const_iterator i=bottoms->begin(),
 	iend = bottoms->end(), ibegin = i; i != iend; ++i) {
@@ -283,15 +274,13 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 
     // If this is masked in the top projection, we remove it. 
     if( found != topsList.end() ) {
-      /* if(verbose_) */
-      /* 	std::cout<<"X "<<i<<" "<< **found <<std::endl; */
+      edm::LogDebug("TopProjection")<<"X "<<i-ibegin << **i <<std::endl;
       topsList.erase(found);
       continue;
     }
     // otherwise, we keep it. 
     else {
-      /* if(verbose_) */
-      /* 	std::cout<<"O "<<i<<" "<< *bottom <<std::endl; */
+      edm::LogDebug("TopProjection")<<"O "<<i-ibegin << **i <<std::endl;
       pBottomFwdPtrOutput->push_back( bottom );
     }
   }
