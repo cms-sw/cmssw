@@ -65,7 +65,8 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
-   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
+   SelectionPlot(InputPattern, CutIndex);
+
 
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
    Make2DPlot_Core(InputPattern, 0);
@@ -73,22 +74,25 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
    MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
    MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
-   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip");
+   MassPrediction(InputPattern, 1, "Mass_Flip", "8TeV_Loose");
+   MassPrediction(InputPattern, 1, "Mass_Flip", "7TeV_Loose");
+   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", "8TeV_Tight");
+   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", "7TeV_Tight");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
-   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
+   SelectionPlot(InputPattern, CutIndex);
    GetSystematicOnPrediction(InputPattern, "Data7TeV");
    GetSystematicOnPrediction(InputPattern, "Data8TeV");
-//   CheckPrediction(InputPattern, "_Flip", "Data7TeV");
-//   CheckPrediction(InputPattern, "_Flip", "Data8TeV");
+   CheckPrediction(InputPattern, "_Flip", "Data7TeV");
+   CheckPrediction(InputPattern, "_Flip", "Data8TeV");
 
    InputPattern = "Results/Type3/";   CutIndex = 79; CutIndex_Flip=58;
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   CutFlow(InputPattern, CutIndex);
-   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
+   //CutFlow(InputPattern, CutIndex);
+   SelectionPlot(InputPattern, CutIndex);
    CosmicBackgroundSystematic(InputPattern, "8TeV");
    CosmicBackgroundSystematic(InputPattern, "7TeV");
    CheckPrediction(InputPattern, "", "Data8TeV");
@@ -125,8 +129,9 @@ void Analysis_Step5()
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
-   CutFlow(InputPattern);
+   SelectionPlot(InputPattern, CutIndex);
+   //CutFlow(InputPattern);
+
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -174,12 +179,17 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
    }
 
-   //rescale Data7TeV & MC samples to prediction of 2012 data
+   //rescale MC samples to prediction
    if(Data8TeV && Pred8TeV){
-      if(Data7TeV && Pred7TeV)Data7TeV->Scale(Pred8TeV->Integral()/Pred7TeV->Integral());
-      if(Pred7TeV)          Pred7TeV->Scale(Pred8TeV->Integral()/Pred7TeV->Integral());
+     //if(Data7TeV && Pred7TeV)Data7TeV->Scale(Pred8TeV->Integral()/Pred7TeV->Integral());
+     //if(Pred7TeV)          Pred7TeV->Scale(Pred8TeV->Integral()/Pred7TeV->Integral());
       if(MC)              MC    ->Scale(Pred8TeV->Integral()/MCPred->Integral());
       if(MCPred)          MCPred->Scale(Pred8TeV->Integral()/MCPred->Integral());
+   }
+
+   if(Data7TeV && Pred7TeV){
+      if(MC)              MC    ->Scale(Pred7TeV->Integral()/MCPred->Integral());
+      if(MCPred)          MCPred->Scale(Pred7TeV->Integral()/MCPred->Integral());
    }
 
    //compute integral for few mass window
@@ -2302,8 +2312,10 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
     DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
 
     char Title[1024];
-    if(ICut>-1 && PtCut>-1) sprintf(Title,"Pred%s_I%0.2f_Pt%3.0f_",HistoSuffix.c_str(), ICut, PtCut);
-    else if(PtCut>-1) sprintf(Title,"Pred%s_Pt%3.0f_",HistoSuffix.c_str(),PtCut);
+    if(ICut>-1 && PtCut>-1 && PtCut>=100) sprintf(Title,"Pred%s_I%0.2f_Pt%3.0f_",HistoSuffix.c_str(), ICut, PtCut);
+    else if(ICut>-1 && PtCut>-1) sprintf(Title,"Pred%s_I%0.2f_Pt%2.0f_",HistoSuffix.c_str(), ICut, PtCut);
+    else if(PtCut>-1 && PtCut>=100) sprintf(Title,"Pt>%3.0f",PtCut);
+    else if(PtCut>-1 && PtCut>=10) sprintf(Title,"Pt>%2.0f",PtCut);
     else if(ICut>-1) sprintf(Title,"Pred%s_I%0.2f_",HistoSuffix.c_str(),ICut);
     SaveCanvas(c1,SavePath,Title + DataType);
     delete c1;
@@ -2320,7 +2332,8 @@ void CheckPrediction(string InputPattern, string HistoSuffix, string DataType){
     }
     char LegendName[1024];
     if(ICut>-1 && PtCut>-1) sprintf(LegendName,"I>%0.2f Pt>%3.0f",ICut, PtCut);
-    else if(PtCut>-1) sprintf(LegendName,"Pt>%3.0f",PtCut);
+    else if(PtCut>-1 && PtCut>=100) sprintf(LegendName,"Pt>%3.0f",PtCut);
+    else if(PtCut>-1 && PtCut>=10) sprintf(LegendName,"Pt>%2.0f",PtCut);
     else if(ICut>-1) sprintf(LegendName,"I>%0.2f",ICut);
     Histos[i] = Ratio[i];            legend.push_back(LegendName);
   }
