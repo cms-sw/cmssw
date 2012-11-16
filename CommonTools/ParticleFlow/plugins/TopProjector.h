@@ -37,33 +37,37 @@
 
 /// This checks a slew of possible overlaps for FwdPtr<Candidate> and derivatives. 
 template < class Top, class Bottom>
-  class TopProjectorFwdPtrOverlap : public std::binary_function<edm::FwdPtr<Top>, edm::FwdPtr<Bottom>, bool > { 
+  class TopProjectorFwdPtrOverlap : public std::unary_function<edm::FwdPtr<Top>, bool > { 
 
   public:
     typedef edm::FwdPtr<Top> TopFwdPtr;
     typedef edm::FwdPtr<Bottom> BottomFwdPtr;
 
-    explicit TopProjectorFwdPtrOverlap() {}
-    explicit TopProjectorFwdPtrOverlap(edm::ParameterSet const & ) {}
 
-    bool operator() ( TopFwdPtr const & top, BottomFwdPtr const & bottom ) const{
+    explicit TopProjectorFwdPtrOverlap( ){bottom_ = 0;}
+
+    explicit TopProjectorFwdPtrOverlap(edm::ParameterSet const & iConfig ){ bottom_ = 0;}
+
+    inline void setBottom(BottomFwdPtr const & bottom ) { bottom_ = &bottom; }
+
+    bool operator() ( TopFwdPtr const & top ) const{
       bool topFwdGood = top.ptr().isNonnull() && top.ptr().isAvailable();
       bool topBckGood = top.backPtr().isNonnull() && top.backPtr().isAvailable();
-      bool bottomFwdGood = bottom.ptr().isNonnull() && bottom.ptr().isAvailable();
-      bool bottomBckGood = bottom.backPtr().isNonnull() && bottom.backPtr().isAvailable();
+      bool bottomFwdGood = bottom_->ptr().isNonnull() && bottom_->ptr().isAvailable();
+      bool bottomBckGood = bottom_->backPtr().isNonnull() && bottom_->backPtr().isAvailable();
 
       bool matched = 
-	(topFwdGood && bottomFwdGood && top.ptr().refCore() == bottom.ptr().refCore() && top.ptr().key() == bottom.ptr().key()) ||
-	(topFwdGood && bottomBckGood && top.ptr().refCore() == bottom.backPtr().refCore() && top.ptr().key() == bottom.backPtr().key()) ||
-	(topBckGood && bottomFwdGood && top.backPtr().refCore() == bottom.ptr().refCore() && top.backPtr().key() == bottom.ptr().key()) ||
-	(topBckGood && bottomBckGood && top.backPtr().refCore() == bottom.backPtr().refCore() && top.backPtr().key() == bottom.backPtr().key())
+	(topFwdGood && bottomFwdGood && top.ptr().refCore() == bottom_->ptr().refCore() && top.ptr().key() == bottom_->ptr().key()) ||
+	(topFwdGood && bottomBckGood && top.ptr().refCore() == bottom_->backPtr().refCore() && top.ptr().key() == bottom_->backPtr().key()) ||
+	(topBckGood && bottomFwdGood && top.backPtr().refCore() == bottom_->ptr().refCore() && top.backPtr().key() == bottom_->ptr().key()) ||
+	(topBckGood && bottomBckGood && top.backPtr().refCore() == bottom_->backPtr().refCore() && top.backPtr().key() == bottom_->backPtr().key())
 	;
       if ( !matched ) {
 	for ( unsigned isource = 0; isource < top->numberOfSourceCandidatePtrs(); ++isource ) {
 	  reco::CandidatePtr const & topSrcPtr = top->sourceCandidatePtr(isource);
 	  bool topSrcGood = topSrcPtr.isNonnull() && topSrcPtr.isAvailable();
-	  if ( (topSrcGood && bottomFwdGood && topSrcPtr.refCore() == bottom.ptr().refCore() && topSrcPtr.key() == bottom.ptr().key())|| 
-	       (topSrcGood && bottomBckGood && topSrcPtr.refCore() == bottom.backPtr().refCore() && topSrcPtr.key() == bottom.backPtr().key())
+	  if ( (topSrcGood && bottomFwdGood && topSrcPtr.refCore() == bottom_->ptr().refCore() && topSrcPtr.key() == bottom_->ptr().key())|| 
+	       (topSrcGood && bottomBckGood && topSrcPtr.refCore() == bottom_->backPtr().refCore() && topSrcPtr.key() == bottom_->backPtr().key())
 	       ) {
 	    matched = true;
 	    break;
@@ -71,8 +75,8 @@ template < class Top, class Bottom>
 	}
       }
       if ( !matched ) {
-	for ( unsigned isource = 0; isource < bottom->numberOfSourceCandidatePtrs(); ++isource ) {
-	  reco::CandidatePtr const & bottomSrcPtr = bottom->sourceCandidatePtr(isource);
+	for ( unsigned isource = 0; isource < (*bottom_)->numberOfSourceCandidatePtrs(); ++isource ) {
+	  reco::CandidatePtr const & bottomSrcPtr = (*bottom_)->sourceCandidatePtr(isource);
 	  bool bottomSrcGood = bottomSrcPtr.isNonnull() && bottomSrcPtr.isAvailable();
 	  if ( (topFwdGood && bottomSrcGood && bottomSrcPtr.refCore() == top.ptr().refCore() && bottomSrcPtr.key() == top.ptr().key() )|| 
 	       (topBckGood && bottomSrcGood && bottomSrcPtr.refCore() == top.backPtr().refCore() && bottomSrcPtr.key() == top.backPtr().key() )
@@ -86,30 +90,38 @@ template < class Top, class Bottom>
       return matched;
       
     }
+
+ protected :
+    BottomFwdPtr const * bottom_; 
  
 };
 
 
 /// This checks matching based on delta R
 template < class Top, class Bottom>
-  class TopProjectorDeltaROverlap : public std::binary_function<edm::FwdPtr<Top>, edm::FwdPtr<Bottom>, bool > { 
+  class TopProjectorDeltaROverlap : public std::unary_function<edm::FwdPtr<Top>, bool > { 
 
   public:
     typedef edm::FwdPtr<Top> TopFwdPtr;
     typedef edm::FwdPtr<Bottom> BottomFwdPtr;
 
-    explicit TopProjectorDeltaROverlap() {}
+    explicit TopProjectorDeltaROverlap() {bottom_ = 0;}
     explicit TopProjectorDeltaROverlap(edm::ParameterSet const & config ) :
-    deltaR_( config.getParameter<double>("deltaR") )
+    deltaR_( config.getParameter<double>("deltaR") ),
+    bottom_(0)
     {}
 
-    bool operator() ( TopFwdPtr const & top, BottomFwdPtr const & bottom ) const{
-      bool matched = reco::deltaR( top->p4(), bottom->p4() ) < deltaR_;
+
+    inline void setBottom(BottomFwdPtr const & bottom ) { bottom_ = &bottom; }
+
+    bool operator() ( TopFwdPtr const & top ) const{
+      bool matched = reco::deltaR( top->p4(), (*bottom_)->p4() ) < deltaR_;
       return matched;
     }
 
  protected :
     double deltaR_;
+    BottomFwdPtr const * bottom_; 
  
 };
 
@@ -141,7 +153,7 @@ class TopProjector : public edm::EDProducer {
 
 
  private:
-
+  /// Matching method. 
   Matcher         match_;
 
   /// enable? if not, all candidates in the bottom collection are copied to the output collection
@@ -167,7 +179,6 @@ template< class Top, class Bottom, class Matcher >
 TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConfig) : 
   match_(iConfig),
   enable_(iConfig.getParameter<bool>("enable")) {
-
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
   name_ = iConfig.getUntrackedParameter<std::string>("name","No Name");
   inputTagTop_ = iConfig.getParameter<edm::InputTag>("topCollection");
@@ -191,6 +202,12 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
   // Access the masking collection
   TopFwdPtrHandle tops;
   iEvent.getByLabel(  inputTagTop_, tops );
+  std::list<  TopFwdPtr > topsList;
+
+  for ( typename TopFwdPtrCollection::const_iterator ibegin = tops->begin(), 
+	  iend = tops->end(), i = ibegin; i != iend; ++i ) {
+    topsList.push_back( *i );
+  }
 
 
 /*   if( !tops.isValid() ) { */
@@ -254,35 +271,28 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
   if(verbose_)
     std::cout<<" Remaining candidates in the bottom collection ------ "<<std::endl;
   
-  for(unsigned i=0; i<bottoms->size(); i++) {
+  for(typename BottomFwdPtrCollection::const_iterator i=bottoms->begin(),
+	iend = bottoms->end(), ibegin = i; i != iend; ++i) {
 
-    BottomFwdPtr masked;
-    
-    BottomFwdPtr bottom = (*bottoms)[i];
-    
+    BottomFwdPtr const & bottom = *i;
+    match_.setBottom(bottom);
+    typename std::list< TopFwdPtr >::iterator found = topsList.end();
     if ( enable_ ) {
-      // Find any references in the "bottom" collection that match one
-      // in the "top" collection. If that is found, it's masked.
-      for ( unsigned j=0; j<tops->size(); j++ ) {
-	TopFwdPtr top = (*tops)[j];
-	if ( match_(top,bottom) ) {
-	  masked = (*bottoms)[i];
-	  break; 
-	}
-      }
+      found = std::find_if( topsList.begin(), topsList.end(), match_ );
     }
 
     // If this is masked in the top projection, we remove it. 
-    if( enable_ && masked.isNonnull() && masked.isAvailable() ) {
-      if(verbose_)
-	std::cout<<"X "<<i<<" "<< *masked <<std::endl;
+    if( found != topsList.end() ) {
+      /* if(verbose_) */
+      /* 	std::cout<<"X "<<i<<" "<< **found <<std::endl; */
+      topsList.erase(found);
       continue;
     }
     // otherwise, we keep it. 
     else {
-      if(verbose_)
-	std::cout<<"O "<<i<<" "<< *((*bottoms)[i]) <<std::endl;
-      pBottomFwdPtrOutput->push_back( (*bottoms)[i] );
+      /* if(verbose_) */
+      /* 	std::cout<<"O "<<i<<" "<< *bottom <<std::endl; */
+      pBottomFwdPtrOutput->push_back( bottom );
     }
   }
 
