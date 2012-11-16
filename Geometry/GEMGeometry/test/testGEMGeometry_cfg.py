@@ -1,19 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
-process.load('Configuration.Geometry.GeometryExtendedPostLS2_cff')
+process.load('Geometry.GEMGeometry.GeometryExtendedPostLS2plusGEM_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load('Geometry.GEMGeometry.gemGeometry_cfi')
 
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
-#process.MessageLogger = cms.Service("MessageLogger",
-#                                    destinations = cms.untracked.vstring("detailedInfo","critical"),
-#                                    detailedInfo = cms.untracked.PSet(
-#                                                   threshold = cms.untracked.string("DEBUG")),
-#                                    debugModules = cms.untracked.vstring("GEMGeometryAnalyzer","GEMGeometryBuilderFromDDD")
-#)
+
 
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
