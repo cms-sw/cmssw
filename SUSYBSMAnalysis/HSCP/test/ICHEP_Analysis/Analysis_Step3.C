@@ -97,6 +97,9 @@ std::vector< float > TrueDist;
 edm::LumiReWeighting LumiWeightsMC;
 reweight::PoissonMeanShifter PShift(0.6);//0.6 for upshift, -0.6 for downshift
 
+
+TH3F* dEdxTemplates = NULL;
+
 /////////////////////////// CODE PARAMETERS /////////////////////////////
 
 void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdxS_Label, string dEdxMass_=dEdxM_Label, string TOF_Label_=TOF_Label, double CutPt_=-1.0, double CutI_=-1, double CutTOF_=-1, float MinPt_=GlobalMinPt, float MaxEta_=GlobalMaxEta, float MaxDZ_=GlobalMaxDZ, float MaxDXY_=GlobalMaxDXY)
@@ -942,6 +945,18 @@ void Analysis_Step3(char* SavePath)
       bool isMC     = (samples[s].Type==1);
       bool isSignal = (samples[s].Type>=2);
 
+      #ifdef ANALYSIS2011
+         dEdxTemplates = NULL;
+      #else
+         if(isData){
+            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_Data_2012.root");
+         }else{
+            dEdxTemplates = NULL;
+         }
+      #endif
+
+
+
       //check that the plot container exist for this sample, otherwise create it
       if(plotsMap.find(samples[s].Name)==plotsMap.end()){plotsMap[samples[s].Name] = stPlots();}
       //For data and MCTr only initialize prediction histograms
@@ -1150,15 +1165,12 @@ void Analysis_Step3(char* SavePath)
                const reco::MuonTimeExtra* csctof = NULL;
               if(TypeMode>1 && !hscp.muonRef().isNull()){ tof  = &TOFCollH->get(hscp.muonRef().key()); dttof = &TOFDTCollH->get(hscp.muonRef().key());  csctof = &TOFCSCCollH->get(hscp.muonRef().key());}
 
+               //Recompute dE/dx on the fly
+               if(dedxSObj){
+                  dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxTemplates, TypeMode==5);
 
-               //If fractionnal charge analysis: recompute dEdx on the fly, compute cosmic veto and check if it is in dZ side band or no
-               if(TypeMode==5 && dedxSObj){
-                  //for FractionalCharge dEdx discriminator probability is close to 0, just inverse the logic such that it become close to 1 as for other analyses
-//                  dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
-                  dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, true);
-                  OpenAngle = deltaROpositeTrack(hscpColl, hscp); //OpenAngle is a global variable... that's uggly C++, but that's the best I found so far
+                  if(TypeMode==5)OpenAngle = deltaROpositeTrack(hscpColl, hscp); //OpenAngle is a global variable... that's uggly C++, but that's the best I found so far
                }
-
 
                //compute systematic uncertainties on signal
                if(isSignal){

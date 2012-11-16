@@ -541,7 +541,7 @@ bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& I
    return false;
 }
 
-reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, bool reverseProb=false){
+reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, TH3* templateHisto=NULL, bool reverseProb=false){
      fwlite::Handle<HSCPDeDxInfoValueMap> dEdxHitsH;
      dEdxHitsH.getByLabel(ev, "dedxHitInfo");
      if(!dEdxHitsH.isValid()){printf("Invalid dEdxHitInfo\n");return NULL;}
@@ -566,7 +566,17 @@ reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&
         //if(detid.subdetId()==5 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.02 || absDistEdgeYNorm>0.97)) continue;
         //if(detid.subdetId()==6 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.03 || absDistEdgeYNorm>0.8)) continue;
 
-        vect_probs.push_back(reverseProb?1.0-hscpHitsInfo.probability[h]:hscpHitsInfo.probability[h]);
+        double Prob = hscpHitsInfo.probability[h];
+
+        if(templateHisto){
+           int    BinX   = templateHisto->GetXaxis()->FindBin(50.0);//trajState.localMomentum().mag()); //our template does not depends on this variable currently
+           int    BinY   = templateHisto->GetYaxis()->FindBin(hscpHitsInfo.pathlength[h]);
+           int    BinZ   = templateHisto->GetZaxis()->FindBin(hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
+           Prob          = templateHisto->GetBinContent(BinX,BinY,BinZ);
+        }
+
+        if(reverseProb)Prob = 1.0 - Prob;
+        vect_probs.push_back(Prob);
      }
      int size = vect_probs.size();
 
@@ -593,6 +603,37 @@ reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&
 //                  dedxSObj = new DeDxData(1.0-dedxSObj->dEdx(), dedxSObj->numberOfSaturatedMeasurements(), dedxSObj->numberOfMeasurements());
 
      return new DeDxData(P, dedxSObj->numberOfSaturatedMeasurements(), size);
+}
+
+
+TH3F* loadDeDxTemplate(string path){
+   TFile* InputFile = new TFile(path.c_str());
+   TH3F* DeDxMap_ = (TH3F*)GetObjectFromPath(InputFile, "Charge_Vs_Path");
+   if(!DeDxMap_){printf("dEdx templates in file %s can't be open\n", path.c_str()); exit(0);}
+
+   TH3F* Prob_ChargePath  = (TH3F*)(DeDxMap_->Clone("Prob_ChargePath")); 
+   Prob_ChargePath->Reset();
+   Prob_ChargePath->SetDirectory(0); 
+
+   for(int i=0;i<=Prob_ChargePath->GetXaxis()->GetNbins()+1;i++){
+      for(int j=0;j<=Prob_ChargePath->GetYaxis()->GetNbins()+1;j++){
+         double Ni = 0;
+         for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){ Ni+=DeDxMap_->GetBinContent(i,j,k);} 
+
+         for(int k=0;k<=Prob_ChargePath->GetZaxis()->GetNbins()+1;k++){
+            double tmp = 0;
+            for(int l=0;l<=k;l++){ tmp+=DeDxMap_->GetBinContent(i,j,l);}
+
+            if(Ni>0){
+               Prob_ChargePath->SetBinContent (i, j, k, tmp/Ni);
+            }else{
+               Prob_ChargePath->SetBinContent (i, j, k, 0);
+            }
+         }
+      }
+   }
+   InputFile->Close();
+   return Prob_ChargePath;
 }
 
 
