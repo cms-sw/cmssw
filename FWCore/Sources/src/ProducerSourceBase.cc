@@ -16,18 +16,6 @@ namespace edm {
   static unsigned long long const kNanoSecPerSec = 1000000000ULL;
   static unsigned long long const kAveEventPerSec = 200ULL;
   
-  namespace {
-    std::unique_ptr<InputFileCatalog> theCatalog(ParameterSet const& pset) {
-      if(!pset.existsAs<std::vector<std::string> >("fileNames")) {
-        return std::unique_ptr<InputFileCatalog>();
-      }
-      return std::unique_ptr<InputFileCatalog>(
-        new InputFileCatalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
-                             pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())));
-      
-    }
-  }
-
   ProducerSourceBase::ProducerSourceBase(ParameterSet const& pset,
 				       InputSourceDescription const& desc, bool realData) :
       InputSource(pset, desc),
@@ -43,8 +31,7 @@ namespace edm {
       eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1), zerothEvent_),
       origEventID_(eventID_),
       isRealData_(realData),
-      eType_(EventAuxiliary::Undefined),
-      catalog_(theCatalog(pset)) {
+      eType_(EventAuxiliary::Undefined) {
 
     setTimestamp(Timestamp(presentTime_));
     // We need to map this string to the EventAuxiliary::ExperimentType enumeration
@@ -226,9 +213,6 @@ namespace edm {
     desc.addUntracked<unsigned int>("firstEvent", 1)->setComment("Event number of first event to generate.");
     desc.addUntracked<unsigned int>("firstLuminosityBlock", 1)->setComment("Luminosity block number of first lumi to generate.");
     desc.addUntracked<unsigned int>("firstRun", 1)->setComment("Run number of first run to generate.");
-    std::vector<std::string> defaultStrings;
-    desc.addOptionalUntracked<std::vector<std::string> >("fileNames")->setComment("Names of files to be processed.");
-    desc.addOptionalUntracked<std::string>("overrideCatalog", std::string());
     InputSource::fillDescription(desc);
   }
 }

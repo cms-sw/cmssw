@@ -4,7 +4,6 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
@@ -32,10 +31,6 @@ namespace edm {
     RunNumber_t run() const {return eventID_.run();}
     EventNumber_t event() const {return eventID_.event();}
     LuminosityBlockNumber_t luminosityBlock() const {return eventID_.luminosityBlock();}
-
-    std::vector<std::string> const& logicalFileNames() const {return catalog().logicalFileNames();}
-    std::vector<std::string> const& fileNames() const {return catalog().fileNames();}
-    InputFileCatalog const& catalog() const {return *catalog_;}
 
     static void fillDescription(ParameterSetDescription& desc);
 
@@ -72,7 +67,6 @@ namespace edm {
     EventID origEventID_;
     bool isRealData_;
     EventAuxiliary::ExperimentType eType_;
-    std::unique_ptr<InputFileCatalog> catalog_;
   };
 }
 #endif
