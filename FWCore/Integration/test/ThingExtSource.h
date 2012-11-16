@@ -23,7 +23,9 @@ namespace edmtest {
 
     virtual ~ThingExtSource();
 
-    virtual bool produce(edm::Event& e);
+    virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&);
+
+    virtual void produce(edm::Event& e);
 
     virtual void beginRun(edm::Run& r);
 
