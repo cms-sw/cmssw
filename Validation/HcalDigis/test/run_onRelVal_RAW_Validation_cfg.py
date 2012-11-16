@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("DigiValidation")
 process.load("Configuration.Geometry.GeometryHCAL_cff")
 process.load("Configuration.StandardSequences.Simulation_cff")
-#process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
 process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
@@ -38,16 +37,9 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
                             #    fileNames = cms.untracked.vstring("file:RAW.root")
                             fileNames=cms.untracked.vstring(
-       '/store/relval/CMSSW_6_0_0_pre11-START60_V4_g495/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/v2/0000/386F496C-03E4-E111-A2F6-00304867D836.root',
-       '/store/relval/CMSSW_6_0_0_pre11-START60_V4_g495/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/v2/0000/12B74293-11E4-E111-A388-001A92971BDA.root',
-       '/store/relval/CMSSW_6_0_0_pre11-START60_V4_g495/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/v2/0000/3AB456D0-09E4-E111-9B9D-003048678F74.root',
-       '/store/relval/CMSSW_6_0_0_pre11-START60_V4_g495/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/v2/0000/72B42100-FAE3-E111-A3FE-00304867C1BA.root',
-       '/store/relval/CMSSW_6_0_0_pre11-START60_V4_g495/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/v2/0000/5A34575D-FFE3-E111-A7C9-0030486792F0.root',
-       '/store/relval/CMSSW_6_0_0_pre11-START60_V4_g495/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/v2/0000/B44003BE-FAE3-E111-8CE3-00261894392F.root' 
+
                             )
 )
-
-
 
 
 process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
