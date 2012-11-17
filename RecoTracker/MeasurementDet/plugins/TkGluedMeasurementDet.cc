@@ -114,13 +114,14 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Colle
 #include<cstdio>
 namespace {
   struct Stat {
-    unsigned long long totCall=0;
+    double totCall=0;
     double totMono=0;
     double totStereo=0;
     double totComb=0;
     double totMatched=0;
     double filtMono=0;
     double filtStereo=0;
+    double filtComb=0;
 
     void operator()(uint64_t m,uint64_t s, uint64_t t, uint64_t fm, uint64_t fs) {
       ++totCall;
@@ -130,11 +131,12 @@ namespace {
       totComb += m*s;
       filtMono+=fm;
       filtStereo+=fs;
+      filtComb += fm*fs;
     }
     ~Stat() {
-      printf("Matches:/%llu/%f/%f/%f/%f/%f/%f\n",
+      printf("Matches:%f/%f/%f/%f/%f/%f/%f/%f\n",
 	     totCall,totMono/totCall,totStereo/totCall,totComb/totCall,totMatched/totCall,
-	     filtMono/totCall,filtStereo/totCall);
+	     filtMono/totCall,filtStereo/totCall,filtComb/totCall);
     }
   };
 
