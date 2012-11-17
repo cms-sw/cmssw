@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorDumpFromDB.cc,v 1.2 2012/01/17 13:46:51 innocent Exp $
+// $Id: DeDxDiscriminatorDumpFromDB.cc,v 1.1 2012/11/17 07:54:46 querten Exp $
 //
 //
 
@@ -83,7 +83,7 @@ void  DeDxDiscriminatorDumpFromDB::beginRun(edm::Run & run, const edm::EventSetu
    double zmin = DeDxMap_.rangeZ().min;
    double zmax = DeDxMap_.rangeZ().max;
 
-   TH3D* Prob_ChargePath  = new TH3D ("Prob_ChargePath"     , "Prob_ChargePath" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax, DeDxMap_.numberOfBinsZ(), zmin, zmax);
+   TH3D* Prob_ChargePath  = new TH3D ("Charge_Vs_Path"     , "Charge_Vs_Path" , DeDxMap_.numberOfBinsX(), xmin, xmax, DeDxMap_.numberOfBinsY() , ymin, ymax, DeDxMap_.numberOfBinsZ(), zmin, zmax);
 
    for(int i=0;i<=Prob_ChargePath->GetXaxis()->GetNbins()+1;i++){
       for(int j=0;j<=Prob_ChargePath->GetYaxis()->GetNbins()+1;j++){
