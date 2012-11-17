@@ -114,7 +114,7 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Colle
 #include<cstdio>
 namespace {
   struct Stat {
-    uint64_t totCall=0;
+    unsigned long long totCall=0;
     double totMono=0;
     double totStereo=0;
     double totComb=0;
