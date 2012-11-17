@@ -30,6 +30,7 @@ public:
     bool isDT()           const;
     bool isCSC()          const;
     bool isRPC()          const;
+    bool isGEM()          const;
     bool isMuon()         const;
 
 private:
