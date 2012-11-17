@@ -14,6 +14,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -88,18 +89,27 @@ public:
   
   const StripGeomDetUnit& specificGeomDet() const {return static_cast<StripGeomDetUnit const &>(fastGeomDet());}
   
+
+  template<class ClusterRefT>
   TransientTrackingRecHit::RecHitPointer
-  buildRecHit( const SiStripClusterRef&, const TrajectoryStateOnSurface& ltp) const;
+  buildRecHit( const ClusterRefT &cluster, const TrajectoryStateOnSurface& ltp) const {
+    const GeomDetUnit& gdu( specificGeomDet());
+    LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
+    return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe());
+  }
   
-  TransientTrackingRecHit::RecHitPointer
-  buildRecHit( const SiStripRegionalClusterRef&, const TrajectoryStateOnSurface& ltp) const;
   
-  
+  template<class ClusterRefT>
   TkStripMeasurementDet::RecHitContainer 
-  buildRecHits( const SiStripClusterRef&, const TrajectoryStateOnSurface& ltp) const;
+  buildRecHits( const ClusterRefT& cluster, const TrajectoryStateOnSurface& ltp) const {
+    RecHitContainer res;
+    const GeomDetUnit& gdu( specificGeomDet());
+    VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
+    for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it)
+      res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe()));
+    return res;
+  }
   
-  TkStripMeasurementDet::RecHitContainer 
-  buildRecHits( const SiStripRegionalClusterRef&, const TrajectoryStateOnSurface& ltp) const;
   
   
   /** \brief Turn on/off the module for reconstruction, for the full run or lumi (using info from DB, usually).
@@ -163,10 +173,18 @@ private:
     return theDets().isMasked(index(), cluster);
   }
   
+
   template<class ClusterRefT>
   void buildSimpleRecHit( const ClusterRefT& cluster,
 			  const TrajectoryStateOnSurface& ltp,
-			  std::vector<SiStripRecHit2D>& res) const;
+			  std::vector<SiStripRecHit2D>& res) const {
+    const GeomDetUnit& gdu( specificGeomDet());
+    VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
+    for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
+      res.push_back(SiStripRecHit2D( it->first, it->second, rawId(), cluster));
+    }
+  }
+ 
   
   
   

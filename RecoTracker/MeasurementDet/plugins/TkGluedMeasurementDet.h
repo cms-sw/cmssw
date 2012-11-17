@@ -75,6 +75,8 @@ private:
     SiStripRecHitMatcher::Collector & collector() { return collector_; }
     bool hasNewMatchedHits() const { return hasNewHits_;  }
     void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
+    static bool filter() { return false;}
+    size_t size() const { return target_.size();}
   private: 
     const GeomDet              * geomDet_;
     const SiStripRecHitMatcher * matcher_;
@@ -103,6 +105,8 @@ private:
     SiStripRecHitMatcher::Collector & collector() { return collector_; }
     bool hasNewMatchedHits() const { return hasNewHits_;  }
     void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
+    static bool filter() { return true;}
+    size_t size() const { return target_.size();}
   private: 
     const GeomDet              * geomDet_;
     const SiStripRecHitMatcher * matcher_;

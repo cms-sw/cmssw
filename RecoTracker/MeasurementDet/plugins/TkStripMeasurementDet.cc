@@ -3,14 +3,12 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "StripClusterAboveU.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
 #include <typeinfo>
-// #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
@@ -28,7 +26,7 @@ TkStripMeasurementDet::TkStripMeasurementDet( const GeomDet* gdet,
 std::vector<TrajectoryMeasurement> 
 TkStripMeasurementDet::
 fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-		  const TrajectoryStateOnSurface& startingState, 
+		  const TrajectoryStateOnSurface&, 
 		  const Propagator&, 
 		  const MeasurementEstimator& est) const
 { 
@@ -61,53 +59,54 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   }
   
   if(!isRegional()){//old implemetation with DetSet
-    auto rightCluster = 
-      std::find_if( detSet().begin(), detSet().end(), StripClusterAboveU( utraj)); //FIXME
+ 
+   auto rightCluster = 
+     std::find_if( detSet().begin(), detSet().end(), [utraj](const SiStripCluster& hit) { return hit.barycenter() > utraj; });
     
-    if ( rightCluster != detSet().begin()) {
-      // there are hits on the left of the utraj
-      new_const_iterator leftCluster = rightCluster;
-      while ( --leftCluster >=  detSet().begin()) {
-        if (isMasked(*leftCluster)) continue;
-	SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), leftCluster ); 
-	if (accept(clusterref)){
-	  RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
-	  bool isCompatible(false);
-	  for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
-	    std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, **recHit);
-	    if ( diffEst.first ) {
-	      result.push_back( TrajectoryMeasurement( stateOnThisDet, *recHit, 
-						       diffEst.second));
-	      isCompatible = true;
-	    }
-	  }
-	  if(!isCompatible) break; // exit loop on first incompatible hit
-	}
-	else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
-      }
-    }
-    
+   if ( rightCluster != detSet().begin()) {
+     // there are hits on the left of the utraj
+     auto leftCluster = rightCluster;
+     while ( --leftCluster >=  detSet().begin()) {
+       if (isMasked(*leftCluster)) continue;
+       SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), leftCluster ); 
+       if (accept(clusterref)){
+	 RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
+	 bool isCompatible(false);
+	 for( auto const & recHit : recHits){	  
+	   std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
+	   if ( diffEst.first ) {
+	     result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
+						      diffEst.second));
+	     isCompatible = true;
+	   }
+	 }
+	 if(!isCompatible) break; // exit loop on first incompatible hit
+       }
+       else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on"<<rawId()<<" key: "<<clusterref.key();
+     }
+   }
+   for ( ; rightCluster != detSet().end(); rightCluster++) {
+     if (isMasked(*rightCluster)) continue;
+     SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), rightCluster ); 
+     if (accept(clusterref)){
+       RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
+       bool isCompatible(false);
+       for( auto const & recHit : recHits){	
+	 std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, *recHit);
+	 if ( diffEst.first ) {
+	   result.push_back( TrajectoryMeasurement( stateOnThisDet, recHit, 
+						    diffEst.second));
+	   isCompatible = true;
+	 }
+       }
+       if(!isCompatible) break; // exit loop on first incompatible hit
+     }
+     else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on" << rawId()<<" key: "<<clusterref.key();
+   }
 
-    for ( ; rightCluster != detSet().end(); rightCluster++) {
-      if (isMasked(*rightCluster)) continue;
-      SiStripClusterRef clusterref = edmNew::makeRefTo( handle(), rightCluster ); 
-      if (accept(clusterref)){
-	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
-	bool isCompatible(false);
-	for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
-	  std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, **recHit);
-	  if ( diffEst.first ) {
-	    result.push_back( TrajectoryMeasurement( stateOnThisDet, *recHit, 
-						     diffEst.second));
-	    isCompatible = true;
-	  }
-	}
-	if(!isCompatible) break; // exit loop on first incompatible hit
-      }
-      else LogDebug("TkStripMeasurementDet")<<"skipping this str from last iteration on" << rawId()<<" key: "<<clusterref.key();
-    }
   }// end block with DetSet
   else{
+
     LogDebug("TkStripMeasurementDet")<<" finding left/ right";
     result.reserve(size());
     unsigned int rightCluster = beginClusterI();
@@ -185,53 +184,6 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 }
 
 
-TransientTrackingRecHit::RecHitPointer
-TkStripMeasurementDet::buildRecHit( const SiStripClusterRef& cluster,
-				    const TrajectoryStateOnSurface& ltp) const
-{
-  const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe());
-}
-
-TransientTrackingRecHit::RecHitPointer
-TkStripMeasurementDet::buildRecHit( const SiStripRegionalClusterRef& cluster,
-				    const TrajectoryStateOnSurface& ltp) const
-{
-  const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-  return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe());
-}
-
-
-
-TkStripMeasurementDet::RecHitContainer 
-TkStripMeasurementDet::buildRecHits( const SiStripClusterRef& cluster,
-				     const TrajectoryStateOnSurface& ltp) const
-{
-  const GeomDetUnit& gdu( specificGeomDet());
-  VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
-  RecHitContainer res;
-  for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe()));
-  }
-  return res; 
-}
-
-
-TkStripMeasurementDet::RecHitContainer 
-TkStripMeasurementDet::buildRecHits( const SiStripRegionalClusterRef& cluster,
-				     const TrajectoryStateOnSurface& ltp) const
-{
-  const GeomDetUnit& gdu( specificGeomDet());
-  VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
-  RecHitContainer res;
-  for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe()));
-  }
-  return res; 
-}
-
 
 
 TkStripMeasurementDet::RecHitContainer 
@@ -265,18 +217,6 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 
 }
 
-template<class ClusterRefT>
-void
-TkStripMeasurementDet::buildSimpleRecHit( const ClusterRefT& cluster,
-					  const TrajectoryStateOnSurface& ltp,
-					  std::vector<SiStripRecHit2D>& res ) const
-{
-  const GeomDetUnit& gdu( specificGeomDet());
-  VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
-  for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-    res.push_back(SiStripRecHit2D( it->first, it->second, rawId(), cluster));
-  }
-}
 
 
 void 

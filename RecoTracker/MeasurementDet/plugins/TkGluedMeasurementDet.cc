@@ -110,9 +110,34 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, Colle
 }
 #endif
 
+#include<cstdint>
+#include<cstdio>
+namespace {
+  struct Stat {
+    uint64_t totCall=0;
+    double totMono=0;
+    double totStereo=0;
+    double totComb=0;
+    double totMatched=0;
+    void operator()(uint64_t m,uint64_t s, uint64_t t) {
+      ++totCall;
+      totMono+=m;
+      totStereo+=s;
+      totMatched+=t;
+      totComb += m*s;
+    }
+    ~Stat() {
+      printf("Matches:/%llu/%f/%f/%f/%f\n",totCall,totMono/totCall,totStereo/totCall,totComb/totCall,totMatched/totCall);
+    }
+  };
+
+  Stat stat;
+}
+
+
 std::vector<TrajectoryMeasurement> 
 TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-					 const TrajectoryStateOnSurface& startingState, 
+					 const TrajectoryStateOnSurface&, 
 					 const Propagator&, 
 					 const MeasurementEstimator& est) const
 {
@@ -122,6 +147,7 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
       HitCollectorForFastMeasurements collector( &fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
       collectRecHits(stateOnThisDet, collector);
        
+
       if ( result.empty()) {
           //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
           const BoundPlane &gluedPlane = geomDet().surface();

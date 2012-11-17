@@ -33,6 +33,8 @@ namespace {
 
 }
 
+
+
 template<typename Collector>
 void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const {
 
@@ -67,7 +69,11 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 		       simpleSteroHitsByValue.begin(),  simpleSteroHitsByValue.end(), 
 		       gluedDet, trdir, chelper);
  
+  if (collector.filter())
+    stat(monoHits.size(),simpleSteroHitsByValue.size(),collector.size());
+
   simpleSteroHitsByValue.clear();
+  
  
 }
    
