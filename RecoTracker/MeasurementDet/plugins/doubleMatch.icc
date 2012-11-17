@@ -78,7 +78,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   if (collector.filter())
      theStereoDet->recHits(ts,collector.estimator(),stereoHits,diffs);
    else
-     stereoHits= theMonoDet->recHits( ts);
+     stereoHits= theStereoDet->recHits( ts);
 
   if (stereoHits.empty()) {
       // make stereo TTRHs and project them
