@@ -16,7 +16,7 @@ class GluedGeomDet;
 #include "FWCore/Utilities/interface/Visibility.h"
 
 
-class TkGluedMeasurementDet : public MeasurementDet {
+class TkGluedMeasurementDet GCC11_FINAL : public MeasurementDet {
 public:
 
   TkGluedMeasurementDet( const GluedGeomDet* gdet,const SiStripRecHitMatcher* matcher, const StripClusterParameterEstimator* cpe);

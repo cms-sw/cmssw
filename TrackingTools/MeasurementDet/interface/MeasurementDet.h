@@ -6,6 +6,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+
 class TrajectoryStateOnSurface;
 class TrajectoryMeasurement;
 class GeomDet;
@@ -22,6 +25,13 @@ public:
   MeasurementDet( const GeomDet* gdet) : theGeomDet(gdet) {}
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const = 0;
+
+  // use a MeasurementEstimator to filter the hits (same algo as below..)
+  // default as above 
+  virtual void recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&,
+			RecHitContainer & result, std::vector<float> &) const {
+    result = recHits(stateOnThisDet);
+  }
 
   /** faster version in case the TrajectoryState on the surface of the
    *  Det is already available. The first TrajectoryStateOnSurface is on the surface of this 

@@ -70,9 +70,12 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 		       gluedDet, trdir, chelper);
  
   if (collector.filter()) {
-    Propagator * prop=0;
-    auto mf = theMonoDet->fastMeasurements(ts,ts,*prop,collector.estimator()).size();
-    auto sf = theStereoDet->fastMeasurements(ts,ts,*prop,collector.estimator()).size();
+    RecHitContainer rechits;
+    std::vector<float>  diffs;
+    theMonoDet->recHits(ts,collector.estimator(),rechits,diffs);
+    auto mf = rechits.size(); rechits.clear(); diffs.clear();
+    theStereoDet->recHits(ts,collector.estimator(),rechits,diffs);
+    auto sf = rechits.size(); 
     stat(monoHits.size(),simpleSteroHitsByValue.size(),collector.size(),mf,sf);
   }
 
