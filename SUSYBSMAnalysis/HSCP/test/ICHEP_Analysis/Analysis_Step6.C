@@ -182,7 +182,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       Combine(InputPattern, signal7TeV, signal8TeV);
       return;
    }
-
    if(MODE.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
    if(MODE.find("8TeV")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="8TeV"; }
    printf("EXCLUSIONDIR = %s\nData = %s\n",EXCLUSIONDIR.c_str(), Data.c_str());  
@@ -243,6 +242,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    DrawModelLimitWithBand(LQPattern);
 
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
+
    TCanvas* c1;
    TLegend* LEG;
    double LInt = 0;
@@ -264,7 +264,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    fprintf(talkFile, "\\hline\n");
    TGraph** TkGraphs  = new TGraph*[modelVector.size()];
    for(unsigned int k=0; k<modelVector.size(); k++){
-      TkGraphs[k] = MakePlot(pFile,talkFile,TkPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
+     TkGraphs[k] = MakePlot(pFile,talkFile,TkPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
@@ -396,7 +396,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TkSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    TkSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    TkSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   TkSystGraphs->GetYaxis()->SetRangeUser(0., 0.35);
+   TkSystGraphs->GetYaxis()->SetRangeUser(-0.35, 0.05);
    TkSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -439,7 +439,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MuSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MuSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    MuSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   MuSystGraphs->GetYaxis()->SetRangeUser(0., 0.35);
+   MuSystGraphs->GetYaxis()->SetRangeUser(-0.5, 0.05);
    MuSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -482,7 +482,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MOSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MOSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    MOSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   MOSystGraphs->GetYaxis()->SetRangeUser(0., 0.35);
+   MOSystGraphs->GetYaxis()->SetRangeUser(-0.5, 0.05);
    MOSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -525,7 +525,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    LQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    LQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   LQSystGraphs->GetYaxis()->SetRangeUser(0., 0.35);
+   LQSystGraphs->GetYaxis()->SetRangeUser(-0.5, 0.05);
    LQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -539,6 +539,53 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    delete LEG;
    }
 
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* HQSystGraphs = new TMultiGraph();
+
+   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG->SetFillColor(0);
+   LEG->SetFillStyle(0);
+   LEG->SetBorderSize(0);
+
+   fprintf(pFile   ,"\n\n %20s \n\n", LegendFromType(HQPattern).c_str());
+   fprintf(pFile   ,          "%20s    Eff   --> PScale |  DeDxScale | PUScale | TotalUncertainty     \n","Model");
+   fprintf(talkFile, "\\hline\n%20s &  Eff     & PScale &  DeDxScale & PUScale & TotalUncertainty \\\\\n","Model");
+
+   Graphs=0;
+   for(unsigned int k=0; k<modelVector.size(); k++){
+     TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,HQPattern, modelVector[k], modelMap[modelVector[k]]);
+     if(Uncertainty!=NULL && useSample(5, modelVector[k])) {
+       Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
+       HQSystGraphs->Add(Uncertainty,"C");
+       LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
+       Graphs++;
+     }
+   }
+
+   if(Graphs>0) {
+   HQSystGraphs->Draw("A");
+   HQSystGraphs->SetTitle("");
+   HQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
+   HQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
+   HQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
+   HQSystGraphs->GetYaxis()->SetRangeUser(-0.5, 0.05);
+   HQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
+
+   LEG->Draw();
+   c1->SetLogy(false);
+   c1->SetGridy(false);
+
+   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "HQUncertainty");
+   delete c1;
+   delete HQSystGraphs;
+   delete LEG;
+   }
+
+
+
+   return;
    //Get Theoretical xsection and error bands
    TGraph** ThXSec    = new TGraph*[modelVector.size()];
    TCutG ** ThXSecErr = new TCutG* [modelVector.size()];
@@ -1153,12 +1200,14 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       SystI[N]       = (tmp.Eff_SYSTI  - tmp.Eff)/tmp.Eff;
       SystPU[N]      = (tmp.Eff_SYSTPU - tmp.Eff)/tmp.Eff;
       SystT[N]       = (tmp.Eff_SYSTT  - tmp.Eff)/tmp.Eff;
-      SystTr[N]      = 0.05;
-      SystRe[N]      = 0.02;
+      SystRe[N]      = -0.02;
+      if(IsNeutral && SQRTS==8) SystTr[N] = -0.01;
+      else if(SQRTS==7) SystTr[N] = -0.05;
+      else SystTr[N] = -1*sqrt(0.01*0.01 + 0.04*0.04);
 
 //      double Ptemp=max(SystP[N], 0.0), Itemp=max(SystI[N], 0.0), PUtemp=max(SystPU[N], 0.0), Ttemp=max(SystT[N], 0.0);
       double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
-      SystTotal[N] = sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp + SystTr[N]*SystTr[N] + SystRe[N]*SystRe[N]);
+      SystTotal[N] = -1*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp + SystTr[N]*SystTr[N] + SystRe[N]*SystRe[N]);
 
       if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f"        ,modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N]           , SystTotal[N]);  
       else          fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f",modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N], SystT[N], SystTotal[N]);
@@ -1167,8 +1216,8 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       //Check if they are variated samples for this point
       for(unsigned int sv=0;sv<samples.size();sv++){
          if(samples[sv].Type!=3)continue;
-         if(samples[sv].Name.length() != modelSample[s].Name.length()+3)continue; // variated samples are exactly 3char longer
          if(samples[sv].Name.find(modelSample[s].Name)!=0)continue; //we expect to have the beginning of the name being identical
+         if(samples[sv].Name.length()!=modelSample[s].Name.length()+3) continue; // variated samples are exactly 3char longer
          stAllInfo tmpVaried(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR + "/"+samples[sv].Name+".txt");
          if(tmp.Mass<=0) continue;
 //         fprintf(pFile, "%20s%10s    %7.3f --> RelDiff=%7.3f\n", "   Variation --> ",samples[sv].Name.c_str()+modelSample[s].Name.length()+1, tmpVaried.Eff, (tmpVaried.Eff-tmp.Eff)/tmp.Eff);
@@ -1221,10 +1270,10 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      SystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
      SystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
      SystGraphs->GetYaxis()->SetTitleOffset(1.70);
-     SystGraphs->GetYaxis()->SetRangeUser(-0.05, 0.35);
+     SystGraphs->GetYaxis()->SetRangeUser(-0.35, 0.35);
      SystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
-     TLegend* LEG = new TLegend(0.45,0.55,0.80,0.90);
+     TLegend* LEG = new TLegend(0.35,0.3,0.70,0.55);
      LEG->SetFillColor(0);
      LEG->SetFillStyle(0);
      LEG->SetBorderSize(0);
@@ -1536,7 +1585,7 @@ void DrawRatioBands(string InputPattern)
       graphAobs    [k]->SetMarkerColor(kBlack);
       graphAobs    [k]->SetMarkerStyle(23);
       padA[k]->cd();
-
+   
       int masst[2] = {0,1250};
       int xsect[2] = {2, 1};
       TGraph* graph = new TGraph(2,masst,xsect); //fake graph to set xaxis right
@@ -1620,7 +1669,6 @@ void DrawRatioBands(string InputPattern)
    pt->SetBorderSize(0);
    pt->SetFillColor(0);
    pt->Draw();
-
    SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", string(prefix+"LimitsRatio"));
    delete c1;
 }
