@@ -34,7 +34,7 @@ process.GlobalTag.toGet = cms.VPSet(
 
 process.dedxDiscrimDump               = cms.EDProducer("DeDxDiscriminatorDumpFromDB",
     Reccord            = cms.untracked.string("SiStripDeDxMip_3D_Rcd"),
-    ProbabilityMode    = cms.untracked.string("Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.root"),
+    HistoFile          = cms.untracked.string("Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.root"),
 )
 
 process.p        = cms.Path(process.dedxDiscrimDump)
