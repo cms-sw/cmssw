@@ -3,6 +3,7 @@
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "TkMeasurementDetSet.h"
+
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
@@ -18,8 +19,6 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TransientTrackingRecHit;
 

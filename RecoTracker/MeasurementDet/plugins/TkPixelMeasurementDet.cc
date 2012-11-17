@@ -29,7 +29,7 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
 
 std::vector<TrajectoryMeasurement> 
 TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-					 const TrajectoryStateOnSurface& startingState, 
+					 const TrajectoryStateOnSurface& , 
 					 const Propagator&, 
 					 const MeasurementEstimator& est) const
 {
