@@ -45,7 +45,6 @@ void HcalSimHitsClient::endRun(const edm::Run& , const edm::EventSetup& ) {
   runClient_();
 }
 
-//dummy analysis function
 void HcalSimHitsClient::analyze(const edm::Event& , const edm::EventSetup&) { }
 
 void HcalSimHitsClient::endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& ) { }
@@ -86,21 +85,30 @@ void HcalSimHitsClient::runClient_() {
 int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs) {
   
   MonitorElement *Occupancy_map[nTime][nType];
+  MonitorElement *Energy[nType1], *Time_weighteden[nType1];
+  MonitorElement *HitEnergyvsieta[nType], *HitTimevsieta[nType];
   std::string divisions[nType]={"HB0","HB1","HE0+z","HE1+z","HE2+z","HE0-z","HE1-z",
 				"HE2-z","HO0","HFL0+z","HFS0+z","HFL1+z","HFS1+z",
 				"HFL2+z","HFS2+z","HFL3+z","HFS3+z","HFL0-z","HFS0-z",
 				"HFL1-z","HFS1-z","HFL2-z","HFS2-z","HFL3-z","HFS3-z"};
   
   std::string time[nTime]={"25","50","100","250"};
-  char name[40];
-  
-  MonitorElement *E_HB=0;
-  for (unsigned int ih=0; ih<hcalMEs.size(); ih++) {
-    if (strcmp(hcalMEs[ih]->getName().c_str(), "Energy_HB") == 0) {
-      E_HB = hcalMEs[ih];
+  std::string detdivision[nType1]={"HB","HE","HF","HO"};
+  char name[40], name1[40], name2[40], name3[40], name4[40];
+
+  for (int k=0; k<nType1;k++) {
+    for (unsigned int ih=0; ih<hcalMEs.size(); ih++) {
+      sprintf (name1, "Energy_%s", detdivision[k].c_str());
+      sprintf (name2, "Time_Enweighted_%s", detdivision[k].c_str());
+      if (strcmp(hcalMEs[ih]->getName().c_str(), name1) == 0) {
+	Energy[k] = hcalMEs[ih];
+      }
+      if (strcmp(hcalMEs[ih]->getName().c_str(), name2) == 0) {
+	Time_weighteden[k] = hcalMEs[ih];
+      }
     }
   }
-  
+    
   for (int i=0; i<nTime; i++) {
     for (int j=0; j<nType;j++) {
       for (unsigned int ih=0; ih<hcalMEs.size(); ih++) {
@@ -111,30 +119,71 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs
       }
     }
   }
-  
+
+  for (int k=0; k<nType;k++) {
+    for (unsigned int ih=0; ih<hcalMEs.size(); ih++) {
+      sprintf (name3, "HcalHitEta%s",divisions[k].c_str());
+      sprintf (name4, "HcalHitTimeAEta%s",divisions[k].c_str());
+      if (strcmp(hcalMEs[ih]->getName().c_str(), name3) == 0) {
+	HitEnergyvsieta[k]= hcalMEs[ih];
+      }
+      if (strcmp(hcalMEs[ih]->getName().c_str(), name4) == 0) {
+	HitTimevsieta[k]= hcalMEs[ih];
+      }
+    }
+  }
+    
   //mean energy 
-  
-  double nevent = E_HB->getEntries();
+ 
+  double nevent = Energy[0]->getEntries();
   if (verbose_) std::cout<<"nevent : "<<nevent<<std::endl;
 
   float cont[nTime][nType];
+  float en[nType1], tme[nType1];
+  float hitenergy[nType], hittime[nType];
   float fev = float(nevent);
+  
+  for (int dettype=0; dettype<nType1; dettype++) {
+    int nx1=Energy[dettype]->getNbinsX();
+    for (int i=0; i<=nx1; i++) {
+      en[dettype]= Energy[dettype]->getBinContent(i)/fev;
+      Energy[dettype]->setBinContent(i,en[dettype]);
+    }
+    int nx2= Time_weighteden[dettype]->getNbinsX();
+    for (int i=0; i<=nx2; i++) {
+      //std::cout<<" time_eneweighted for bin: "<< i<<"is:"<<Time_weighteden[dettype]->getBinContent(i)<<std::endl;
+      tme[dettype]= Time_weighteden[dettype]->getBinContent(i)/fev;
+      //std::cout<<" averagetime for bin : "<<i<<"is:"<<tme[dettype]<<std::endl;
+      Time_weighteden[dettype]->setBinContent(i,tme[dettype]);
+    }
+  }
+  
+  for (int dettype=0; dettype<nType; dettype++)  {
+    int nx1=HitEnergyvsieta[dettype]->getNbinsX();
+    for (int i=0; i<=nx1; i++) {
+      hitenergy[dettype]= HitEnergyvsieta[dettype]->getBinContent(i)/fev;
+      HitEnergyvsieta[dettype]->setBinContent(i,hitenergy[dettype]);
+    }
+    int nx2= HitTimevsieta[dettype]->getNbinsX();
+    for (int i=0; i<=nx2; i++) {
+      hittime[dettype]= HitTimevsieta[dettype]->getBinContent(i)/fev;
+      HitTimevsieta[dettype]->setBinContent(i,hittime[dettype]);
+    }
+  }
   
   for (int itime=0; itime<nTime; itime++) {
     for (int det=0; det<nType;det++) {
-      
       int ny= Occupancy_map[itime][det]->getNbinsY();
-      int nx= Occupancy_map[itime][det]->getNbinsX();
-      
-      for (int i=0; i<=nx; i++) {
-	for (int j=0; j<=ny; j++) {
-	  
+      int nx= Occupancy_map[itime][det]->getNbinsX(); 
+      for (int i=1; i<nx+1; i++) {
+	for (int j=1; j<ny+1; j++) {
 	  cont[itime][det] = Occupancy_map[itime][det]->getBinContent(i,j)/fev ;
 	  Occupancy_map[itime][det]->setBinContent(i,j,cont[itime][det]);
 	}
       }
     }
   }
+ 
   return 1;
 }
 

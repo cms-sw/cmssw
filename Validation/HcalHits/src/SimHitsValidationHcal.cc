@@ -42,9 +42,9 @@ void SimHitsValidationHcal::beginJob() {
 				   "HFL+z depth3","HFS+z depth3","HFL+z depth4","HFS+z depth4","HFL-z depth1","HFS-z depth1",
 				   "HFL-z depth2","HFS-z depth2","HFL-z depth3","HFS-z depth3 ","HFL-z depth4","HFS-z depth4"};
     
-    double etaLow[nType]={-16,-16,16,16,16,-29,-29,-29,-15,29,29,29,29,29,29,29,29,
+    double etaLow[nType]={-16,-16,16,16,16,-30,-30,-30,-15,29,29,29,29,29,29,29,29,
 			  -41,-41,-41,-41,-41,-41,-41,-41};
-    double etaHigh[nType]={16,16,30,30,30,-30,-30,-30,15,41,41,41,41,41,41,41,41,
+    double etaHigh[nType]={16,16,30,30,30,-16,-16,-16,15,41,41,41,41,41,41,41,41,
 			   -29,-29,-29,-29,-29,-29,-29,-29};
     int etaBins[nType]={32,32,14,14,14,14,14,14,30,12,12,12,12,12,12,12,12,
 			12,12,12,12,12,12,12,12};
@@ -63,15 +63,13 @@ void SimHitsValidationHcal::beginJob() {
       sprintf (title, "Energy in time window 0 to 25 for a tower in %s", divisions1[i].c_str());
       meHcalEnergyl25_[i] = dbe_->book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
       
-      
       sprintf (name, "HcalHitE50%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 50 for a tower in %s", divisions1[i].c_str());
       meHcalEnergyl50_[i] = dbe_->book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
       
-      sprintf (name, "HcalHitE100%s", divisions[i].c_str());
+      sprintf (name, "HalHitE100%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 100 for a tower in %s", divisions1[i].c_str());
       meHcalEnergyl100_[i] = dbe_->book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
-      
       
       sprintf (name, "HcalHitE250%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 250 for a tower in %s", divisions1[i].c_str());
@@ -86,6 +84,24 @@ void SimHitsValidationHcal::beginJob() {
     meEnergy_HO = dbe_->book1D(name, name, 100,0,1);
     sprintf (name, "Energy_HF");
     meEnergy_HF = dbe_->book1D(name, name, 100,0,50);
+    
+    sprintf (name, "Time_HB");
+    metime_HB = dbe_->book1D(name, name, 300,-150,150);
+    sprintf (name, "Time_HE");
+    metime_HE = dbe_->book1D(name, name, 300,-150,150);
+    sprintf (name, "Time_HO");
+    metime_HO = dbe_->book1D(name, name, 300,-150, 150);
+    sprintf (name, "Time_HF");
+    metime_HF = dbe_->book1D(name, name, 300,-150,150);
+
+    sprintf (name, "Time_Enweighted_HB");
+    metime_enweighted_HB = dbe_->book1D(name, name, 300,-150,150);
+    sprintf (name, "Time_Enweighted_HE");
+    metime_enweighted_HE = dbe_->book1D(name, name, 300,-150,150);
+    sprintf (name, "Time_Enweighted_HO");
+    metime_enweighted_HO = dbe_->book1D(name, name, 300,-150, 150);
+    sprintf (name, "Time_Enweighted_HF");
+    metime_enweighted_HF = dbe_->book1D(name, name, 300,-150,150);
   }
 }
 
@@ -118,6 +134,7 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
 
   int nHit = hits.size();
   double entotHB = 0, entotHE = 0, entotHF = 0, entotHO = 0; 
+  double timetotHB = 0, timetotHE = 0, timetotHF = 0, timetotHO = 0; 
   int    nHB=0, nHE=0, nHO=0, nHF=0;
   
   std::map<std::pair<HcalDetId,int>,energysum> map_try;
@@ -141,19 +158,23 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
     int type         =-1;
     if (subdet == static_cast<int>(HcalBarrel)) {
       entotHB += energy;
+      timetotHB += time;
       nHB++;
       type     = depth-1;
     } else if (subdet == static_cast<int>(HcalEndcap)) {
       entotHE += energy;
+      timetotHE += time;
       nHE++;
       type     = depth+1;
       if (eta < 0) type += 3;
     } else if (subdet == static_cast<int>(HcalOuter)) {
       entotHO += energy;
+      timetotHO += time;
       nHO++;
       type = 8;
     } else if (subdet == static_cast<int>(HcalForward)) {
       entotHF += energy;
+      timetotHF += time;
       nHF++;
       type     = depth+8+2*dep;
       if (eta < 0) type += 8;
@@ -191,15 +212,23 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
       meHcalHitTimeEta_[type]->Fill(etax,time);
     }
   }
-
   
   if (dbe_) {
     meEnergy_HB->Fill(entotHB);
     meEnergy_HE->Fill(entotHE);
     meEnergy_HF->Fill(entotHF);
     meEnergy_HO->Fill(entotHO);
+
+    metime_HB->Fill(timetotHB);
+    metime_HE->Fill(timetotHE);
+    metime_HF->Fill(timetotHF);
+    metime_HO->Fill(timetotHO);
+    
+    metime_enweighted_HB->Fill(timetotHB,entotHB);
+    metime_enweighted_HE->Fill(timetotHE,entotHE);
+    metime_enweighted_HF->Fill(timetotHF,entotHF);
+    metime_enweighted_HO->Fill(timetotHO,entotHO);
   }
-  
   
   for ( itr = map_try.begin() ; itr != map_try.end(); ++itr)   {
     if (dbe_ && (*itr).first.second >= 0) {

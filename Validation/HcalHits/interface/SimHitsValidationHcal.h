@@ -64,6 +64,17 @@ private:
   MonitorElement *meEnergy_HE;
   MonitorElement *meEnergy_HO;
   MonitorElement *meEnergy_HF;
+
+
+  MonitorElement *metime_HB;
+  MonitorElement *metime_HE;
+  MonitorElement *metime_HO;
+  MonitorElement *metime_HF;
+
+  MonitorElement *metime_enweighted_HB;
+  MonitorElement *metime_enweighted_HE;
+  MonitorElement *metime_enweighted_HO;
+  MonitorElement *metime_enweighted_HF;
   
 };
 

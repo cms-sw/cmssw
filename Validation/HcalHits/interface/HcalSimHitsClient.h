@@ -45,7 +45,8 @@ class HcalSimHitsClient : public edm::EDAnalyzer {
   bool debug_;
   static const int nType = 25;
   static const int nTime = 4;
-
+  static const int nType1 = 4;
+  
   std::string dirName_;
 
  public:
@@ -63,5 +64,5 @@ class HcalSimHitsClient : public edm::EDAnalyzer {
   int SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs);
 
 };
- 
+
 #endif
