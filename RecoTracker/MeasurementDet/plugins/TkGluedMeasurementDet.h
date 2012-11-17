@@ -77,6 +77,9 @@ private:
     void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
     static bool filter() { return false;}
     size_t size() const { return target_.size();}
+
+    static const MeasurementEstimator  & estimator() { static MeasurementEstimator * dummy=0; return *dummy;}
+
   private: 
     const GeomDet              * geomDet_;
     const SiStripRecHitMatcher * matcher_;
@@ -107,6 +110,7 @@ private:
     void clearNewMatchedHitsFlag() { hasNewHits_ = false; }
     static bool filter() { return true;}
     size_t size() const { return target_.size();}
+    const MeasurementEstimator  & estimator() { return est_;}
   private: 
     const GeomDet              * geomDet_;
     const SiStripRecHitMatcher * matcher_;

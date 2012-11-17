@@ -119,15 +119,22 @@ namespace {
     double totStereo=0;
     double totComb=0;
     double totMatched=0;
-    void operator()(uint64_t m,uint64_t s, uint64_t t) {
+    double filtMono=0;
+    double filtStereo=0;
+
+    void operator()(uint64_t m,uint64_t s, uint64_t t, uint64_t fm, uint64_t fs) {
       ++totCall;
       totMono+=m;
       totStereo+=s;
       totMatched+=t;
       totComb += m*s;
+      filtMono+=fm;
+      filtStereo+=fs;
     }
     ~Stat() {
-      printf("Matches:/%llu/%f/%f/%f/%f\n",totCall,totMono/totCall,totStereo/totCall,totComb/totCall,totMatched/totCall);
+      printf("Matches:/%llu/%f/%f/%f/%f/%f/%f\n",
+	     totCall,totMono/totCall,totStereo/totCall,totComb/totCall,totMatched/totCall,
+	     filtMono/totCall,filtStereo/totCall);
     }
   };
 
