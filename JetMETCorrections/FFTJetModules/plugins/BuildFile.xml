@@ -1,4 +1,4 @@
-<library   file="*.cc" name="JetMETCorrectionsModulesPlugins">
+<library   file="*.cc" name="JetMETCorrectionsFFTJetModulesPlugins">
   <use   name="CondCore/PluginSystem"/>
   <use   name="CondFormats/DataRecord"/>
   <use   name="CondCore/DBCommon"/>
