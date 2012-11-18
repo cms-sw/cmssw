@@ -28,7 +28,10 @@ TrajectoryStateOnSurface fastProp(const TrajectoryStateOnSurface& ts, const Plan
   LocalPoint lPos = tPlane.toLocal( ts.globalPosition());
   LocalPoint projectedPos = lPos - ldir * delta/ldir.z();
   GlobalTrajectoryParameters gp(tPlane.toGlobal(projectedPos),gdir,ts.charge(), &ts.globalParameters().magneticField());
-  return TrajectoryStateOnSurface(gp,ts.curvilinearError(),tPlane);
+  if (ts.hasError())
+    return TrajectoryStateOnSurface(gp,ts.curvilinearError(),tPlane);
+  else
+    return TrajectoryStateOnSurface(gp,tPlane);
 
 
 }
