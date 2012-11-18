@@ -70,11 +70,6 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
   auto mf = monoHits.size();
   auto sf = stereoHits.size();
-
-  const MagneticField& field = ts.globalParameters().magneticField();
-  AnalyticalPropagator prop( &field, anyDirection);
-
-
   
   if (collector.filter()) {
     TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
@@ -103,13 +98,13 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
   if unlikely(stereoHits.empty()) {
       // make mono TTRHs and project them
-      projectOnGluedDet( collector, theMonoDet->recHits(ts), glbDir);
+      projectOnGluedDet( collector, monoHits, glbDir);
       return;
   }
 
   if unlikely(monoHits.empty()) {
       // make stereo TTRHs and project them
-      projectOnGluedDet( collector, theStereoDet->recHits(ts), glbDir);
+      projectOnGluedDet( collector, stereoHits, glbDir);
       return;
   }
 
