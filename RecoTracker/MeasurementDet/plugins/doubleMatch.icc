@@ -99,17 +99,18 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     stat(mh,sh,mf,sf);
   }
 
+  if (stereoHits.empty()&&monoHits.empty()) return;
 
-  if unlikely(stereoHits.empty()) {
-      // make mono TTRHs and project them
-      projectOnGluedDet( collector, monoHits, glbDir);
-      return;
+  if (stereoHits.empty()) {
+    // make mono TTRHs and project them
+    projectOnGluedDet( collector, monoHits, glbDir);
+    return;
   }
-
-  if unlikely(monoHits.empty()) {
-      // make stereo TTRHs and project them
-      projectOnGluedDet( collector, stereoHits, glbDir);
-      return;
+  
+  if (monoHits.empty()) {
+    // make stereo TTRHs and project them
+    projectOnGluedDet( collector, stereoHits, glbDir);
+    return;
   }
 
 
