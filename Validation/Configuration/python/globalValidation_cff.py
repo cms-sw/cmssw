@@ -10,6 +10,7 @@ from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
 from Validation.EcalClusters.ecalClustersValidationSequence_cff import *
+from Validation.HcalHits.SimHitsValidationSequence_cff import *
 from Validation.HcalDigis.hcalDigisValidationSequence_cff import *
 from Validation.HcalHits.HcalSimHitStudy_cfi import *
 from Validation.HcalRecHits.hcalRecHitsValidationSequence_cff import *
@@ -56,6 +57,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + ecalDigisValidationSequence 
                                  + ecalRecHitsValidationSequence 
                                  + ecalClustersValidationSequence
+                                 + hcalSimHitsValidationSequence
                                  + hcaldigisValidationSequence
                                  + hcalSimHitStudy
                                  + hcalRecHitsValidationSequence
