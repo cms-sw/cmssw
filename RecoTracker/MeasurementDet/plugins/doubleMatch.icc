@@ -50,17 +50,32 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   //std::transform(simpleSteroHitsByValue.begin(), simpleSteroHitsByValue.end(), vsStereoHits.begin(), take_address());
 
   RecHitContainer monoHits;
-  std::vector<float>  diffs;
-   if (collector.filter())
-     theMonoDet->recHits(ts,collector.estimator(),monoHits,diffs);
-   else
+  //std::vector<float>  diffs;
+  //  if (collector.filter())
+  //   theMonoDet->recHits(ts,collector.estimator(),monoHits,diffs);
+  // else
      monoHits = theMonoDet->recHits( ts);
 
-  if (monoHits.empty()) {
+  RecHitContainer stereoHits;
+  //diffs.clear();
+  //if (collector.filter())
+  //   theStereoDet->recHits(ts,collector.estimator(),stereoHits,diffs);
+     // else
+     stereoHits= theStereoDet->recHits( ts);
+
+
+  if unlikely(monoHits.empty()) {
       // make stereo TTRHs and project them
       projectOnGluedDet( collector, theStereoDet->recHits(ts), glbDir);
       return;
   }
+
+  if unlikely(stereoHits.empty()) {
+      // make stereo TTRHs and project them
+      projectOnGluedDet( collector, theMonoDet->recHits(ts), glbDir);
+      return;
+  }
+
 
   /*
   // collect simple stereo hits
@@ -73,18 +88,6 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   }
 
   */
-  RecHitContainer stereoHits;
-  diffs.clear();
-  if (collector.filter())
-     theStereoDet->recHits(ts,collector.estimator(),stereoHits,diffs);
-   else
-     stereoHits= theStereoDet->recHits( ts);
-
-  if (stereoHits.empty()) {
-      // make stereo TTRHs and project them
-      projectOnGluedDet( collector, theMonoDet->recHits(ts), glbDir);
-      return;
-  }
 
   const GluedGeomDet* gluedDet = &specificGeomDet();
   LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
