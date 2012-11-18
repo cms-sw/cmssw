@@ -128,7 +128,7 @@ namespace {
     double zeroS=0;
 
     void match(uint64_t t) {
-      ++matchT;
+      if(t!=0) ++matchT;
       totMatched+=t;
     }
     void operator()(uint64_t m,uint64_t s, uint64_t fm, uint64_t fs) {
