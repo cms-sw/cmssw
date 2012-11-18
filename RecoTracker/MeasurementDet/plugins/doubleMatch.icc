@@ -97,7 +97,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   theMatcher->doubleMatch(monoHits.begin(), monoHits.end(),
 			  stereoHits.begin(), stereoHits.end(),
 			  // simpleSteroHitsByValue.begin(),  simpleSteroHitsByValue.end(), 
-		       gluedDet, trdir, chelper);
+			  gluedDet, trdir, chelper);
  
   if (collector.filter()) {
     auto mh = monoHits.size();
@@ -107,11 +107,11 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     const MagneticField& field = ts.globalParameters().magneticField();
     AnalyticalPropagator prop( &field, anyDirection);
     TrajectoryStateOnSurface mts = prop.propagate( ts, theMonoDet->surface());
-    theMonoDet->recHits(ts,collector.estimator(),hits,diffs);
+    theMonoDet->recHits(mts,collector.estimator(),hits,diffs);
     diffs.clear();
     auto mf=hits.size();
     mts = prop.propagate( ts, theStereoDet->surface());
-    theStereoDet->recHits(ts,collector.estimator(),hits,diffs);
+    theStereoDet->recHits(mts,collector.estimator(),hits,diffs);
     auto sf=hits.size();
     //    stat(monoHits.size(),simpleSteroHitsByValue.size(),collector.size(),mf,sf);
     stat(mh,sh,collector.size(),mf,sf);
