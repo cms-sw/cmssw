@@ -78,9 +78,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     // if (mts.isValid()) print("mono", mts,mts2);
     mf = monoHits.size();
   }
-#ifndef MATCH_COUNT
   else
-#endif
     monoHits = theMonoDet->recHits( ts);
 
   diffs.clear();
@@ -91,10 +89,16 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     // if (mts.isValid()) print("stereo", mts,mts2);
     sf = stereoHits.size();
   }
-#ifndef MATCH_COUNT
   else
-#endif
     stereoHits= theStereoDet->recHits( ts);
+
+
+  if (collector.filter()) {
+    auto mh = monoHits.size();
+    auto sh = stereoHits.size();
+    stat(mh,sh,mf,sf);
+  }
+
 
   if unlikely(stereoHits.empty()) {
       // make mono TTRHs and project them
@@ -130,12 +134,10 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 			  // simpleSteroHitsByValue.begin(),  simpleSteroHitsByValue.end(), 
 			  gluedDet, trdir, chelper);
  
-
   if (collector.filter()) {
-    auto mh = monoHits.size();
-    auto sh = stereoHits.size();
-    stat(mh,sh,collector.size(),mf,sf);
+    stat.match(collector.size());
   }
+
 
   //  simpleSteroHitsByValue.clear();
    

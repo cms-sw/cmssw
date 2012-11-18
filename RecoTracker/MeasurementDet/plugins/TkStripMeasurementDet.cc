@@ -131,10 +131,17 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     recHits(stateOnThisDet,est,rechits,diffs);
     assert(rechits.size()==diffs.size());
     // sort i on diffs...
-    for (unsigned int i=0; i!=rechits.size(); ++i)
-      result.push_back( TrajectoryMeasurement( stateOnThisDet, rechits[i],  diffs[i]));
+    int index[rechits.size()];
+    for (unsigned int i=0; i!=rechits.size(); ++i) {
+      index[i]=i; std::push_heap(index,index+i+1,[&](int j,int k){return diffs[j]<diffs[k];});
+    }
+    std::make_heap(index,index+rechits.size(),[&](int j,int k){return diffs[j]<diffs[k];});
+    for (unsigned int i=0; i!=rechits.size(); ++i) {
+      auto j=index[i];
+      result.emplace_back(stateOnThisDet, rechits[j],  diffs[j]);
+    }
   }
-  
+
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
@@ -152,8 +159,6 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     }
   }
 
-  if ( result.size() > 1)
-    std::sort( result.begin(), result.end(), TrajMeasLessEstim());
    
   return result;
 }
