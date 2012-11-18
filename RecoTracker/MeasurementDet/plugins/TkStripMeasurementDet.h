@@ -120,10 +120,10 @@ public:
     if (isMasked(*cluster)) return true;
     const GeomDetUnit& gdu( specificGeomDet());
     if (!accept(cluster)) return true;
-    VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
+    VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     bool isCompatible(false);
-    for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it) {
-      auto && recHit  = TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe()); 
+    for(auto vl : vlv) {
+      auto && recHit  = TSiStripRecHit2DLocalPos::build( vl.first, vl.second, &fastGeomDet(), cluster, cpe()); 
       std::pair<bool,double> diffEst = est.estimate(ltp, *recHit);
       if ( diffEst.first ) {
 	result.push_back(std::move(recHit));
@@ -203,7 +203,7 @@ private:
 			  const TrajectoryStateOnSurface& ltp,
 			  std::vector<SiStripRecHit2D>& res) const {
     const GeomDetUnit& gdu( specificGeomDet());
-    VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
+    VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
       res.push_back(SiStripRecHit2D( it->first, it->second, rawId(), cluster));
     }

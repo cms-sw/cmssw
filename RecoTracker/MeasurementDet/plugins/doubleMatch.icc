@@ -52,18 +52,30 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
   RecHitContainer monoHits;
   std::vector<float>  diffs;
-  //if (collector.filter()) {
-  //   theMonoDet->recHits(ts,collector.estimator(),monoHits,diffs);
-  // else
-     monoHits = theMonoDet->recHits( ts);
+  const MagneticField& field = ts.globalParameters().magneticField();
+  AnalyticalPropagator prop( &field, anyDirection);
+  
+  if (collector.filter()) {
+    TrajectoryStateOnSurface mts = prop.propagate( ts, theMonoDet->surface());
+    if (mts.isValid())
+      theMonoDet->recHits(mts,collector.estimator(),monoHits,diffs);
+  } else
+    monoHits = theMonoDet->recHits( ts);
 
   RecHitContainer stereoHits;
-  //diffs.clear();
-  //if (collector.filter())
-  //   theStereoDet->recHits(ts,collector.estimator(),stereoHits,diffs);
-     // else
-     stereoHits= theStereoDet->recHits( ts);
+  diffs.clear();
+  if (collector.filter()) {
+    TrajectoryStateOnSurface mts = prop.propagate( ts, theStereoDet->surface());
+    if (mts.isValid())
+      theStereoDet->recHits(mts,collector.estimator(),stereoHits,diffs);
+  } else
+    stereoHits= theStereoDet->recHits( ts);
 
+  if unlikely(stereoHits.empty()) {
+      // make mono TTRHs and project them
+      projectOnGluedDet( collector, theMonoDet->recHits(ts), glbDir);
+      return;
+  }
 
   if unlikely(monoHits.empty()) {
       // make stereo TTRHs and project them
@@ -71,11 +83,6 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
       return;
   }
 
-  if unlikely(stereoHits.empty()) {
-      // make stereo TTRHs and project them
-      projectOnGluedDet( collector, theMonoDet->recHits(ts), glbDir);
-      return;
-  }
 
 
   /*
@@ -102,6 +109,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   if (collector.filter()) {
     auto mh = monoHits.size();
     auto sh = stereoHits.size();
+#ifdef MATCH_COUNT 
     RecHitContainer hits; 
     // move to monodet then to stereodet
     const MagneticField& field = ts.globalParameters().magneticField();
@@ -113,7 +121,9 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     mts = prop.propagate( ts, theStereoDet->surface());
     theStereoDet->recHits(mts,collector.estimator(),hits,diffs);
     auto sf=hits.size();
-    //    stat(monoHits.size(),simpleSteroHitsByValue.size(),collector.size(),mf,sf);
+#else
+    int mf=0,sf=0;
+#endif
     stat(mh,sh,collector.size(),mf,sf);
   }
 
