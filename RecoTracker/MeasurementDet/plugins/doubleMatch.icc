@@ -38,6 +38,20 @@ namespace {
 }
 
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "RecHitPropagator.h"
+
+namespace {
+  void print(const char* where, const TrajectoryStateOnSurface& t1,const TrajectoryStateOnSurface& t2) {
+    std::cout << where<< std::endl;
+    std::cout <<  t1.localParameters().vector() << std::endl;
+    std::cout <<  t1.localError().positionError() << std::endl;
+    std::cout <<  t2.localParameters().vector() << std::endl;
+    std::cout <<  t2.localError().positionError() << std::endl;
+
+  }
+
+
+}
 
 
 template<typename Collector>
@@ -64,8 +78,11 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   
   if (collector.filter()) {
     TrajectoryStateOnSurface mts = prop.propagate(ts,theMonoDet->surface());
-    if (mts.isValid())
-      theMonoDet->recHits(mts,collector.estimator(),monoHits,diffs);
+    if (mts.isValid()) {
+      theMonoDet->recHits(mts,collector.estimator(),monoHits,diffs); 
+      TrajectoryStateOnSurface mts2 = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
+      print("mono", mts,mts2);
+    }
     mf = monoHits.size();
   }
 #ifndef MATCH_COUNT
@@ -76,8 +93,11 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   diffs.clear();
   if (collector.filter()) {
     TrajectoryStateOnSurface mts = prop.propagate( ts, theStereoDet->surface());
-    if (mts.isValid())
+    if (mts.isValid()) {
       theStereoDet->recHits(mts,collector.estimator(),stereoHits,diffs);
+      TrajectoryStateOnSurface mts2 = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
+      print("stereo", mts,mts2);
+    }
     sf = stereoHits.size();
   }
 #ifndef MATCH_COUNT
