@@ -77,12 +77,10 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
   
   if (collector.filter()) {
-    TrajectoryStateOnSurface mts = prop.propagate(ts,theMonoDet->surface());
-    if (mts.isValid()) {
-      theMonoDet->recHits(mts,collector.estimator(),monoHits,diffs); 
-      TrajectoryStateOnSurface mts2 = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
-      print("mono", mts,mts2);
-    }
+    TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
+    theMonoDet->recHits(mts,collector.estimator(),monoHits,diffs); 
+    // TrajectoryStateOnSurface mts2 = prop.propagate(ts,theMonoDet->surface());
+    // if (mts.isValid()) print("mono", mts,mts2);
     mf = monoHits.size();
   }
 #ifndef MATCH_COUNT
@@ -92,12 +90,10 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
   diffs.clear();
   if (collector.filter()) {
-    TrajectoryStateOnSurface mts = prop.propagate( ts, theStereoDet->surface());
-    if (mts.isValid()) {
-      theStereoDet->recHits(mts,collector.estimator(),stereoHits,diffs);
-      TrajectoryStateOnSurface mts2 = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
-      print("stereo", mts,mts2);
-    }
+    TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
+    theStereoDet->recHits(mts,collector.estimator(),stereoHits,diffs);
+    // TrajectoryStateOnSurface mts2 = prop.propagate( ts, theStereoDet->surface());
+    // if (mts.isValid()) print("stereo", mts,mts2);
     sf = stereoHits.size();
   }
 #ifndef MATCH_COUNT
