@@ -37,6 +37,7 @@ namespace {
 
 }
 
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 
 template<typename Collector>
@@ -50,8 +51,8 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   //std::transform(simpleSteroHitsByValue.begin(), simpleSteroHitsByValue.end(), vsStereoHits.begin(), take_address());
 
   RecHitContainer monoHits;
-  //std::vector<float>  diffs;
-  //  if (collector.filter())
+  std::vector<float>  diffs;
+  //if (collector.filter()) {
   //   theMonoDet->recHits(ts,collector.estimator(),monoHits,diffs);
   // else
      monoHits = theMonoDet->recHits( ts);
@@ -99,10 +100,21 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 		       gluedDet, trdir, chelper);
  
   if (collector.filter()) {
-    auto mf = monoHits.size();
-    auto sf = stereoHits.size(); 
+    auto mh = monoHits.size();
+    auto sh = stereoHits.size();
+    RecHitContainer hits; 
+    // move to monodet then to stereodet
+    const MagneticField& field = ts.globalParameters().magneticField();
+    AnalyticalPropagator prop( &field, anyDirection);
+    TrajectoryStateOnSurface mts = prop.propagate( ts, theMonoDet->surface());
+    theMonoDet->recHits(ts,collector.estimator(),hits,diffs);
+    diffs.clear();
+    auto mf=hits.size();
+    mts = prop.propagate( ts, theStereoDet->surface());
+    theStereoDet->recHits(ts,collector.estimator(),hits,diffs);
+    auto sf=hits.size();
     //    stat(monoHits.size(),simpleSteroHitsByValue.size(),collector.size(),mf,sf);
-    stat(0,0,collector.size(),mf,sf);
+    stat(mh,sh,collector.size(),mf,sf);
   }
 
   //  simpleSteroHitsByValue.clear();
