@@ -12,6 +12,10 @@
   <class name="reco::PFRecHitFraction" ClassVersion="10">
    <version ClassVersion="10" checksum="3960206"/>
   </class>
+
+  <class name="reco::PFSuperCluster"/>
+  <class name="std::vector<reco::PFSuperCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFSuperCluster> >"/>
   <class name="std::vector<reco::PFRecHitFraction>"/>
 
   <class name="reco::RecoPFClusterRefCandidateBase">
@@ -145,6 +149,8 @@
   <class name="reco::PFNuclearInteraction"  ClassVersion="10">
    <version ClassVersion="10" checksum="1573561360"/>
   </class>
+  <class name="edm::Ref<std::vector<reco::PFSuperCluster>,reco::PFSuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFSuperCluster>,reco::PFSuperCluster> >"/>
+
   <class name="std::vector<reco::PFNuclearInteraction>" />
   <class name="edm::Wrapper<std::vector<reco::PFNuclearInteraction> >" />
   <class name="edm::Ref<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction, edm::refhelper::FindUsingAdvance<std::vector<reco::PFNuclearInteraction>, reco::PFNuclearInteraction> >" />

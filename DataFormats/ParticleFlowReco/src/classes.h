@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSuperCluster.h"
 #include "Math/Cartesian3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "Math/Polar3D.h"
@@ -69,6 +70,9 @@ namespace {
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;
 
+    std::vector<reco::PFSuperCluster>                    dummy481;
+    edm::Wrapper< std::vector<reco::PFSuperCluster> >    dummy482;
+
     std::vector<reco::PFRecHit>                          dummy3;
     edm::Ref< std::vector<reco::PFRecHit> >              dummy4;
     edm::Wrapper< std::vector<reco::PFRecHit> >          dummy5;
@@ -106,6 +110,7 @@ namespace {
     edm::RefVector<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > dummy19d;
     std::vector<edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > > dummy19e;
     edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> > dummy20;
+    edm::Ref<std::vector<reco::PFSuperCluster>,reco::PFSuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFSuperCluster>,reco::PFSuperCluster> > dummy488;
 
     /* NuclearInteraction stuffs  */
     reco::PFNuclearInteraction                                dummy21;

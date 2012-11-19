@@ -241,7 +241,6 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
   const edm::OwnVector< reco::PFBlockElement >& els = block.elements();
   
   block.bookLinkData();
-
   unsigned elsize = els.size();
   unsigned ilStart = 0;
   //First Loop: update all link data
@@ -259,14 +258,13 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
 
       // are these elements already linked ?
       // this can be optimized
-
       unsigned linksize = links.size();
       for( unsigned il = ilStart; il<linksize; ++il ) {
 	// The following three lines exploits the increasing-element2 ordering of links.
 	if ( links[il].element2() < i1 ) ilStart = il;
 	if ( links[il].element2() > i1 ) break;
-	if( (links[il].element1() == i2 && 
-	     links[il].element2() == i1) ) { // yes
+	if( (links[il].element1() == i2 &&
+             links[il].element2() == i1) ) {  // yes
 	  
 	  dist = links[il].dist();
 	  linked = true;
