@@ -6,12 +6,12 @@
 #include <inttypes.h>
 #include <fstream>
 
-#include "FWCore/Framework/interface/ConfigurableInputSource.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-class LmfSource: public edm::ConfigurableInputSource{
+class LmfSource: public edm::ProducerSourceBase{
 private:
   struct IndexRecord{
     int orbit;
@@ -27,13 +27,13 @@ public:
 private:
   /** Called by the framework after setRunAndEventInfo()
    */
-  virtual bool produce(edm::Event &e);
+  virtual void produce(edm::Event &e);
 
   /** Callback funtion to set run and event information
    * (lumi block, run number, event number, timestamp)
    * Called by the framework before produce()
    */
-  virtual void setRunAndEventInfo();
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
 
   bool openFile(int iFile);
   

@@ -1,4 +1,5 @@
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Sources"/>
 <use   name="FWCore/Utilities"/>
 <use   name="IOPool/Streamer"/>
 <use   name="DataFormats/FEDRawData"/>

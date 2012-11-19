@@ -1,6 +1,6 @@
 /*
- *  $Date: 2010/02/12 17:34:05 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/01/13 16:20:33 $
+ *  $Revision: 1.8 $
  *  \author Philippe Gras CEA/Saclay
  */
 
@@ -25,7 +25,7 @@ unsigned LmfSource::fileHeaderSize = 2;
 
 LmfSource::LmfSource(const ParameterSet& pset,
 		     const InputSourceDescription& desc) :
-  ConfigurableInputSource(pset, desc),
+  ProducerSourceBase(pset, desc, true),
   fileNames_(pset.getParameter<vector<string> >("fileNames")),
   iFile_ (-1),
   fedId_(-1),
@@ -116,7 +116,7 @@ bool LmfSource::readFileHeader(){
   return true;
 }
 
-bool LmfSource::produce(edm::Event& evt){
+void LmfSource::produce(edm::Event& evt){
   //   bool rc;
   //   while(!((rc = readFileHeader()) & readEventPayload())){
   //     if(openFile(++iFile_)==false){//no more files
@@ -125,13 +125,10 @@ bool LmfSource::produce(edm::Event& evt){
   //       return false;
   //     }
   //   }
-  if(rcRead_){//readout succeeded
-    auto_ptr<FEDRawDataCollection> coll(new FEDRawDataCollection);
-    coll->swap(fedColl_);
-    if(verbosity_) cout << "[LmfSource] Putting FEDRawDataCollection in event\n";
-    evt.put(coll);
-  }
-  return rcRead_;
+  auto_ptr<FEDRawDataCollection> coll(new FEDRawDataCollection);
+  coll->swap(fedColl_);
+  if(verbosity_) cout << "[LmfSource] Putting FEDRawDataCollection in event\n";
+  evt.put(coll);
 }
 
 bool LmfSource::openFile(int iFile){
@@ -226,7 +223,7 @@ bool LmfSource::readEvent(bool doSkip){
   return rcRead_;
 }
  
-void LmfSource::setRunAndEventInfo(){
+bool LmfSource::setRunAndEventInfo(EventID& id, TimeValue_t& time){
   //empties collection:
   if(fedId_>0){
     fedColl_.FEDData(fedId_).resize(0);
@@ -247,7 +244,7 @@ void LmfSource::setRunAndEventInfo(){
     }
   }
 
-  if(!rc) return; //event readout failed
+  if(!rc) return false; //event readout failed
     
   if(verbosity_) cout << "[LmfSource]"
 		   << "Setting event time to "
@@ -255,10 +252,9 @@ void LmfSource::setRunAndEventInfo(){
 		   << "Run number to " << runNum_ << ","
 		   << "Event number to " << eventNum_ << "\n";
 
-  setTime(timeStamp_);
-  setRunNumber(runNum_);
-  setEventNumber(eventNum_);
-  setLuminosityBlockNumber_t(lumiBlock_);
+  time = timeStamp_;
+  id = EventID(runNum_, lumiBlock_, eventNum_);
+  return true; 
 }
 
 bool LmfSource::readEventWithinFile(bool doSkip){
