@@ -123,8 +123,10 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 			  stereoHits.begin(), stereoHits.end(),
 			  gluedDet, trdir, chelper);
 
-  // if no match found (not event single mono!), try to add stereo...
+  // if no match found try add mon than try to add stereo...
   if (0==collector.size()) 
+    projectOnGluedDet( collector, monoHits, glbDir);
+  if (0==collector.size())
     projectOnGluedDet( collector, stereoHits, glbDir);
   
 
