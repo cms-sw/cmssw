@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.cc,v 1.19 2010/01/26 14:22:14 elmer Exp $
+// $Id: PixelSLinkDataInputSource.cc,v 1.20 2011/10/24 07:04:17 eulisse Exp $
 //
 //
 
@@ -117,7 +117,7 @@ int PixelSLinkDataInputSource::getEventNumberFromFillWords(std::vector<uint64_t>
 // constructor
 PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& pset, 
 						     const edm::InputSourceDescription& desc) :
-  ExternalInputSource(pset,desc),
+  ProducerSourceFromFiles(pset,desc,true),
   m_fedid(pset.getUntrackedParameter<int>("fedid")),
   m_fileindex(0),
   m_runnumber(pset.getUntrackedParameter<int>("runNumber",-1)),
@@ -157,15 +157,12 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
   Storage & temp_file = *storage;
   //  IOSize n =
   temp_file.read((char*)&m_data,8);
-  //  setRunNumber(m_runnumber);
   if((m_data >> 60) != 0x5){ 
     uint32_t runnum = m_data;
     if(m_runnumber!=-1)
       edm::LogInfo("") << "WARNING: observed run number encoded in S-Link dump. Overwriting run number as defined in .cfg file!!! Run number now set to " << runnum << " (was " << m_runnumber << ")";
     m_runnumber=runnum;
   } 
-  if(m_runnumber!=0)
-    setRunNumber(m_runnumber); 
   temp_file.read((char*)&m_data,8);
   m_currenteventnumber = (m_data >> 32)&0x00ffffff ;
 }
@@ -175,12 +172,12 @@ PixelSLinkDataInputSource::~PixelSLinkDataInputSource() {
 
 
 }
-// produce() method. This is the worker method that is called every event.
-bool PixelSLinkDataInputSource::produce(edm::Event& event) {
+
+bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time) {
   Storage & m_file = *storage;
 
   // create product (raw data)
-  std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
+  buffers.reset( new FEDRawDataCollection );
     
   //  uint32_t currenteventnumber = (m_data >> 32)&0x00ffffff;
   uint32_t eventnumber =(m_data >> 32)&0x00ffffff ;
@@ -264,9 +261,17 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
   while( eventnumber == m_currenteventnumber);
   
   uint32_t realeventno = synchronizeEvents();
-  setEventNumber(realeventno);
-  event.put(buffers);
+  if(m_runnumber!=0)
+    id = edm::EventID(m_runnumber, id.luminosityBlock(), realeventno);
+  else
+    id = edm::EventID(id.run(), id.luminosityBlock(), realeventno);
   return true;
+}
+
+// produce() method. This is the worker method that is called every event.
+void PixelSLinkDataInputSource::produce(edm::Event& event) {
+  event.put(buffers);
+  buffers.reset();  
 }
 
 // this function sets the m_globaleventnumber quantity. It uses the m_currenteventnumber and m_currenttriggernumber values as input
