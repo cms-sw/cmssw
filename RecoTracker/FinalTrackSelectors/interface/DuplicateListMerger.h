@@ -23,6 +23,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include <vector>
 #include <algorithm>
 #include <string>
@@ -49,14 +51,18 @@ namespace reco { namespace modules {
        private:
 	 int matchCandidateToTrack(TrackCandidate,edm::Handle<edm::View<reco::Track> >);
 
+	 edm::ProductID clusterProductB( const TrackingRecHit *hit){
+	   return reinterpret_cast<const BaseTrackerRecHit *>(hit)->firstClusterRef().id();
+	 }
 
 	 /// track input collection
 	 edm::InputTag mergedTrackSource_;
 	 edm::InputTag originalTrackSource_;
 	 edm::InputTag candidateSource_;
 	 unsigned int diffHitsCut_;
+	 bool copyExtras_;
+	 bool makeReKeyedSeeds_;
      };
   }
 }
-
 #endif

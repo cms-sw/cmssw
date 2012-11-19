@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-generalTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+preDuplicateMergingGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (cms.InputTag('initialStepTracks'),
                       cms.InputTag('lowPtTripletStepTracks'),
                       cms.InputTag('pixelPairStepTracks'),
@@ -23,6 +23,36 @@ generalTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMer
                              ),
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
+    )
+
+import RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi
+
+duplicateTrackCandidates = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateTrackMerger.clone(
+    source=cms.InputTag("preDuplicateMergingGeneralTracks"),
+    minDeltaR3d = cms.double(-4.0),
+    minBDTG = cms.double(-0.1),
+    useInnermostState  = cms.bool(True),
+    ttrhBuilderName    = cms.string("WithAngleAndTemplate")
+    )
+                                      
+import RecoTracker.TrackProducer.TrackProducer_cfi
+mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = cms.InputTag("duplicateTrackCandidates","candidates"),
+    )
+
+generalTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateListMerger.clone(
+    originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
+    diffHitsCut = cms.int32(5),
+    mergedSource = cms.InputTag("mergedDuplicateTracks"),
+    candidateSource = cms.InputTag("duplicateTrackCandidates","candidateMap")
+    )
+
+
+generalTracksSequence = cms.Sequence(
+    preDuplicateMergingGeneralTracks*
+    duplicateTrackCandidates*
+    mergedDuplicateTracks*
+    generalTracks
     )
 
 conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(

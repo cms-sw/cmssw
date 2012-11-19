@@ -10,3 +10,9 @@ duplicateTrackMerger = cms.EDProducer("DuplicateTrackMerger",
                                       ttrhBuilderName    = cms.string("WithAngleAndTemplate")
                                       )
 
+duplicateListMerger = cms.EDProducer("DuplicateListMerger",
+                                     originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
+                                     diffHitsCut = cms.int32(5),
+                                     mergedSource = cms.InputTag("mergedDuplicateTracks"),
+                                     candidateSource = cms.InputTag("duplicateTrackCandidates","candidateMap")                                     
+                                     )
