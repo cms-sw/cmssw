@@ -25,6 +25,8 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 /**\class TopProjector 
 \brief 
 
@@ -260,7 +262,7 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
   std::auto_ptr< BottomFwdPtrCollection > 
     pBottomFwdPtrOutput( new BottomFwdPtrCollection );
 
-  edm::LogDebug("TopProjection")<<" Remaining candidates in the bottom collection ------ "<<std::endl;
+  LogDebug("TopProjection")<<" Remaining candidates in the bottom collection ------ ";
   
   for(typename BottomFwdPtrCollection::const_iterator i=bottoms->begin(),
 	iend = bottoms->end(), ibegin = i; i != iend; ++i) {
@@ -274,13 +276,13 @@ void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
 
     // If this is masked in the top projection, we remove it. 
     if( found != topsList.end() ) {
-      edm::LogDebug("TopProjection")<<"X "<<i-ibegin << **i <<std::endl;
+      LogDebug("TopProjection")<<"X "<<i-ibegin << **i;
       topsList.erase(found);
       continue;
     }
     // otherwise, we keep it. 
     else {
-      edm::LogDebug("TopProjection")<<"O "<<i-ibegin << **i <<std::endl;
+      LogDebug("TopProjection")<<"O "<<i-ibegin << **i;
       pBottomFwdPtrOutput->push_back( bottom );
     }
   }
