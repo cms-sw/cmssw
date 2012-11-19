@@ -6,8 +6,8 @@
 //                a GMT ascii HW testfile into the Event
 //
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.3 $
+//   $Date: 2007/04/12 13:21:14 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   Tobias Noebauer                 HEPHY Vienna
@@ -38,7 +38,7 @@
 //----------------
 L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps,
                                          edm::InputSourceDescription const& desc) :
-                                         ExternalInputSource(ps, desc) {
+                                         ProducerSourceFromFiles(ps, desc, true) {
 
   produces<std::vector<L1MuRegionalCand> >("DT");
   produces<std::vector<L1MuRegionalCand> >("CSC");
@@ -69,19 +69,19 @@ L1MuGMTHWFileReader::~L1MuGMTHWFileReader() {
 //--------------
 // Operations --
 //--------------
-void L1MuGMTHWFileReader::setRunAndEventInfo() {
+bool L1MuGMTHWFileReader::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time) {
   readNextEvent();
-  setRunNumber(m_evt.getRunNumber());
-  setEventNumber(m_evt.getEventNumber());
+  if(!m_evt.getRunNumber() && !m_evt.getEventNumber()) return false;
+  id = edm::EventID(m_evt.getRunNumber(), id.luminosityBlock(), m_evt.getEventNumber());
 
   edm::LogInfo("GMT_HWFileReader_info") << "run: " << m_evt.getRunNumber() << 
           "   evt: " << m_evt.getEventNumber();
+  return true;
 }
 
-bool L1MuGMTHWFileReader::produce(edm::Event& e) {
+void L1MuGMTHWFileReader::produce(edm::Event& e) {
   L1MuRegionalCand empty_mu;
 
-  if(!m_evt.getRunNumber() && !m_evt.getEventNumber()) return false;
 
   std::auto_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<L1MuRegionalCand>);
   for (unsigned i = 0; i < 4; i++) {
@@ -123,8 +123,6 @@ bool L1MuGMTHWFileReader::produce(edm::Event& e) {
   }
 
   e.put(rctRegions);
-
-  return true;
 }
 
 void L1MuGMTHWFileReader::readNextEvent() {

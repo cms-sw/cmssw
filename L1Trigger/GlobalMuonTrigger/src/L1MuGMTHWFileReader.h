@@ -6,8 +6,8 @@
 //                a GMT ascii HW testfile into the Event   
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2007/05/02 10:15:06 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Tobias Noebauer                 HEPHY Vienna
@@ -25,7 +25,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Sources/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -38,7 +38,7 @@
 //-- Class Interface --
 //---------------------
 
-class L1MuGMTHWFileReader : public edm::ExternalInputSource {
+class L1MuGMTHWFileReader : public edm::ProducerSourceFromFiles {
 
  public:
   explicit L1MuGMTHWFileReader(edm::ParameterSet const&,
@@ -50,10 +50,11 @@ class L1MuGMTHWFileReader : public edm::ExternalInputSource {
   //returns an event with run and event number zero when no more events
   void readNextEvent();
 
-  virtual void setRunAndEventInfo();
-  virtual bool produce(edm::Event&);
 
  private:
+   virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+   virtual void produce(edm::Event&);
+
    std::ifstream m_in;
    L1MuGMTInputEvent m_evt;
 };
