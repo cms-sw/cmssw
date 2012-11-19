@@ -58,7 +58,7 @@ template<typename Collector>
 void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Collector & collector) const {
 
 
-  GlobalVector glbDir = (ts.isValid() ? ts.globalParameters().momentum() : position()-GlobalPoint(0,0,0));
+  GlobalVector glbDir = (ts.isValid() ? ts.globalMomentum() : position()-GlobalPoint(0,0,0));
  
  //  static SiStripRecHitMatcher::SimpleHitCollection vsStereoHits;
   // vsStereoHits.resize(simpleSteroHitsByValue.size());
@@ -122,7 +122,12 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   theMatcher->doubleMatch(monoHits.begin(), monoHits.end(),
 			  stereoHits.begin(), stereoHits.end(),
 			  gluedDet, trdir, chelper);
- 
+
+  // if no match found (not event single mono!), try to add stereo...
+  if (0==collector.size()) 
+    projectOnGluedDet( collector, stereoHits, glbDir);
+  
+
   if (collector.filter()) {
     stat.match(collector.size());
   }
