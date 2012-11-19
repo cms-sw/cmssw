@@ -52,7 +52,7 @@ int main(int argc, char**argv)
     } 
   std::vector<std::string> HistoNamesList; 
   TFile *inf = new TFile(TreeFilename.c_str(),"R");
-  if (inf->IsZombie()) return(0);
+  if (inf->IsZombie()) return 0;
   TFile *outf = new TFile(HistoFilename.c_str(),"RECREATE");
   
   TTree *tr = (TTree*)inf->Get("mcTruthTree");
@@ -161,4 +161,5 @@ int main(int argc, char**argv)
     }
   outf->Write();
   outf->Close();
+  return 0;
 }

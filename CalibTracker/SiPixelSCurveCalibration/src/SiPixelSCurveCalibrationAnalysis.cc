@@ -313,8 +313,8 @@ bool SiPixelSCurveCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixe
    } 
 
    //estimate the S-Curve parameters
-   float thresholdGuess;
-   float sigmaGuess;
+   float thresholdGuess = -1.0;
+   float sigmaGuess = -1.0;
    errorFlag = estimateSCurveParameters(efficiencies_, thresholdGuess, sigmaGuess);
 
    // these -1.0 default values will only be filled if the curve is all zeroes, or doesn't turn on, WHICH INDICATES A SERIOUS PROBLEM

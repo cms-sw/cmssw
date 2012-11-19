@@ -73,7 +73,7 @@ private:
 template <class T>
 T CommandLine::getValue(const std::string& name)
 {
-  T result;
+  T result = T();
   OptionMap_t::iterator it=_options.find(name);
   if (it!=_options.end()) {
     it->second.second = true;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1EmEtScaleOnlineProd.cc,v 1.2 2009/10/06 13:42:13 efron Exp $
+// $Id: L1EmEtScaleOnlineProd.cc,v 1.3 2012/06/18 10:17:56 eulisse Exp $
 //
 //
 
@@ -196,7 +196,7 @@ L1EmEtScaleOnlineProd::newObject( const std::string& objectKey )
 	 return boost::shared_ptr< L1CaloEtScale >() ;
        }
 
-     double m_lsb;
+     double m_lsb = 0.;
      lsbResults.fillVariable(m_lsb);
 
      //     std::cout << " input lsb " << m_lsb <<std::endl;
