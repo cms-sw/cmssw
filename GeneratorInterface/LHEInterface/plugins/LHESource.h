@@ -8,7 +8,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Sources/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
@@ -21,17 +21,18 @@ namespace lhef {
 
 class LHERunInfoProduct;
 
-class LHESource : public edm::ExternalInputSource {
+class LHESource : public edm::ProducerSourceFromFiles {
     public:
 	explicit LHESource(const edm::ParameterSet &params,
 	                   const edm::InputSourceDescription &desc);
 	virtual ~LHESource();
 
-    protected:
+    private:
 	virtual void endJob();
 	virtual void beginRun(edm::Run &run);
 	virtual void endRun(edm::Run &run);
-	virtual bool produce(edm::Event &event);
+	virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&);
+	virtual void produce(edm::Event &event);
 
 	virtual void nextEvent();
 

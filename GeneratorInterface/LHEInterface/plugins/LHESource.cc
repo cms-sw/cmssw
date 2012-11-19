@@ -7,7 +7,6 @@
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_deque.hpp>
 
-#include "FWCore/Sources/interface/ExternalInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,7 +30,7 @@ using namespace lhef;
 
 LHESource::LHESource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
-	ExternalInputSource(params, desc, false),
+	ProducerSourceFromFiles(params, desc, false),
 	reader(new LHEReader(fileNames(), params.getUntrackedParameter<unsigned int>("skipEvents", 0))),
 	wasMerged(false)
 {
@@ -101,12 +100,16 @@ void LHESource::endRun(edm::Run &run)
 	}
 }
 
-bool LHESource::produce(edm::Event &event)
+bool LHESource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
 {
 	nextEvent();
 	if (!partonLevel)
 		return false;
+        return true;
+}
 
+void LHESource::produce(edm::Event &event)
+{
 	std::auto_ptr<LHEEventProduct> product(
 			new LHEEventProduct(*partonLevel->getHEPEUP()));
 	if (partonLevel->getPDF())
@@ -143,7 +146,6 @@ bool LHESource::produce(edm::Event &event)
 	}
 
 	partonLevel.reset();
-	return true;
 }
 
 DEFINE_FWK_INPUT_SOURCE(LHESource);
