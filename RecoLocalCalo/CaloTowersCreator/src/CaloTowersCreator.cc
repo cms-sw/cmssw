@@ -151,7 +151,9 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::ESHandle<HcalChannelQuality> hcalChStatus;    
   c.get<HcalChannelQualityRcd>().get( hcalChStatus );
   const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
- 
+
+  if (!dbHcalChStatus->topo()) dbHcalChStatus->setTopo(htopo.product());
+
   // Assignment of severity levels **********************************
   edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
   c.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
