@@ -15,7 +15,7 @@ using namespace edm;
 using namespace std;
 
 HcalTBSource::HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc) : 
-  edm::ExternalInputSource(pset,desc),
+  edm::ProducerSourceFromFiles(pset,desc, true),
   m_quiet( pset.getUntrackedParameter<bool>("quiet",true)),
   m_onlyRemapped( pset.getUntrackedParameter<bool>("onlyRemapped",false))
 {
@@ -106,7 +106,7 @@ void HcalTBSource::openFile(const std::string& filename) {
   m_i=0;
 }
 
-void HcalTBSource::setRunAndEventInfo() {
+bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time) {
   bool is_new=false;
 
   while (m_tree==0 || m_i==m_tree->GetEntries()) {
@@ -116,12 +116,12 @@ void HcalTBSource::setRunAndEventInfo() {
        m_file=0; 
        m_tree=0;
     }
-    if (m_fileCounter>=int(fileNames().size())) return; // nothing good
+    if (m_fileCounter>=int(fileNames().size())) return false; // nothing good
     openFile(fileNames()[m_fileCounter]);
     is_new=true;
   }
 
-  if (m_tree==0 || m_i==m_tree->GetEntries()) return; //nothing good
+  if (m_tree==0 || m_i==m_tree->GetEntries()) return false; //nothing good
 
   m_tree->GetEntry(m_i);
   m_i++;
@@ -131,28 +131,20 @@ void HcalTBSource::setRunAndEventInfo() {
       if (m_eventInfo->getEventNumber()==0) m_eventNumberOffset=1;
       else m_eventNumberOffset=0;
     }
-    if (m_eventInfo->getRunNumber()==0) setRunNumber(1); // ZERO is unacceptable from a technical point of view
-    else setRunNumber(m_eventInfo->getRunNumber());
-    setEventNumber(m_eventInfo->getEventNumber()+m_eventNumberOffset);
+    // ZERO is unacceptable for a run number from a technical point of view
+    id = EventID((m_eventInfo->getRunNumber()==0 ? 1 : m_eventInfo->getRunNumber()), id.luminosityBlock(), m_eventInfo->getEventNumber()+m_eventNumberOffset); 
   } else {
-    setRunNumber(m_fileCounter+10);
-    setEventNumber(m_i+1);
+    id = EventID(m_fileCounter+10, id.luminosityBlock(), m_i+1);
   }  
   // time is a hack
   edm::TimeValue_t present_time = presentTime();
   unsigned long time_between_events = timeBetweenEvents();
 
-  setTime(present_time + time_between_events);
+  time = present_time + time_between_events;
+  return true;
 }
 
-bool HcalTBSource::produce(edm::Event& e) {
-
-  if (m_fileCounter>=int(fileNames().size())) return false; // all done!
-
-  if (m_tree==0) {
-    edm::LogError("HCAL") << "Null TTree";
-    return false;
-  }
+void HcalTBSource::produce(edm::Event& e) {
 
   std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
   for (int i=0; i<n_chunks; i++) {
@@ -177,8 +169,6 @@ bool HcalTBSource::produce(edm::Event& e) {
   }
 
   e.put(bare_product);
-
-  return true;
 }
 
 

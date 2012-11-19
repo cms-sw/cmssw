@@ -8,7 +8,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Sources/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 
 class TFile;
 class TTree;
@@ -20,18 +20,17 @@ class CDFEventInfo;
 
    \note Notice that there is a hack to renumber events from runs where the first event number was zero.
     
-   $Date: 2008/06/06 11:39:09 $
-   $Revision: 1.6 $
+   $Date: 2008/10/16 08:09:12 $
+   $Revision: 1.7 $
    \author J. Mans - Minnesota
 */
-class HcalTBSource : public edm::ExternalInputSource {
+class HcalTBSource : public edm::ProducerSourceFromFiles {
 public:
 explicit HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc);
 virtual ~HcalTBSource();
-protected:
-    virtual void setRunAndEventInfo();
-    virtual bool produce(edm::Event & e);
 private:
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+  virtual void produce(edm::Event & e);
   void unpackSetup(const std::vector<std::string>& params);
   void openFile(const std::string& filename);
   TTree* m_tree;
