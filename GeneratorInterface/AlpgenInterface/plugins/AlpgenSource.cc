@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Sources/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
@@ -26,7 +26,7 @@
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenHeader.h"
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenEventRecordFixes.h"
 
-class AlpgenSource : public edm::ExternalInputSource {
+class AlpgenSource : public edm::ProducerSourceFromFiles {
 public:
   /// Constructor
   AlpgenSource(const edm::ParameterSet &params,
@@ -36,7 +36,8 @@ public:
   virtual ~AlpgenSource();
 
 private:
-  virtual bool produce(edm::Event &event);
+  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&);
+  virtual void produce(edm::Event &event);
   virtual void beginRun(edm::Run &run);
 
   /// Function to get parameter by name from AlpgenHeader.
@@ -63,7 +64,7 @@ private:
   std::string			fileName_;
 
   /// Pointer to the input file
-  std::auto_ptr<std::ifstream>	inputFile_;
+  std::unique_ptr<std::ifstream> inputFile_;
 
   /// Number of events to skip
   unsigned long			skipEvents_;
@@ -75,6 +76,8 @@ private:
   LHERunInfoProduct::Header	lheAlpgenUnwParHeader;
   /// Alpgen _unw.par file as an AlpgenHeader
   AlpgenHeader			header;
+
+  std::unique_ptr<lhef::HEPEUP> hepeup_;
 
   /// Name of the extra header file
   std::string			extraHeaderFileName_;
@@ -90,7 +93,7 @@ private:
 
 AlpgenSource::AlpgenSource(const edm::ParameterSet &params,
 			   const edm::InputSourceDescription &desc) :
-  edm::ExternalInputSource(params, desc, false), 
+  edm::ProducerSourceFromFiles(params, desc, false), 
   skipEvents_(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
   nEvent_(0), lheAlpgenUnwParHeader("AlpgenUnwParFile"),
   extraHeaderFileName_(params.getUntrackedParameter<std::string>("extraHeaderFileName","")),
@@ -400,10 +403,12 @@ bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup)
   return true;
 }
 
-bool AlpgenSource::produce(edm::Event &event)
+bool AlpgenSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
 {
   // The LHE Event Record
-  lhef::HEPEUP hepeup;
+  hepeup_.reset(new lhef::HEPEUP);
+
+  lhef::HEPEUP& hepeup = *hepeup_;
 
   // Read the .unw file until it is over.
   for(;;) {
@@ -422,11 +427,17 @@ bool AlpgenSource::produce(edm::Event &event)
     else
       break;
   }
+  return true;
+}
+
+void AlpgenSource::produce(edm::Event &event)
+{
 
   // Here are the Alpgen routines for filling up the rest
   // of the LHE Event Record. The .unw file has the information
   // in a compressed way, e.g. it doesn't list the W boson - 
   // one has to reconstruct it from the e nu pair.
+  lhef::HEPEUP& hepeup = *hepeup_;
 
   switch(header.ihrd) {
   case 1:
@@ -468,7 +479,7 @@ bool AlpgenSource::produce(edm::Event &event)
   std::auto_ptr<LHEEventProduct> lheEvent(new LHEEventProduct(hepeup));
   event.put(lheEvent);
 
-  return true;
+  hepeup_.reset();
 }
 
 DEFINE_FWK_INPUT_SOURCE(AlpgenSource);
