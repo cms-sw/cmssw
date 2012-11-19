@@ -467,6 +467,8 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 double HCalSD::getEnergyDeposit(G4Step* aStep) {
   double destep = aStep->GetTotalEnergyDeposit();
   double weight = 1;
+  G4Track* theTrack = aStep->GetTrack();
+
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   int depth = (touch->GetReplicaNumber(0))%10;
   int det   = ((touch->GetReplicaNumber(1))/1000)-3;
@@ -493,7 +495,6 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   }
 
   if (suppressHeavy) {
-    G4Track* theTrack = aStep->GetTrack();
     TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
     if (trkInfo) {
       int pdg = theTrack->GetDefinition()->GetPDGEncoding();
@@ -520,12 +521,14 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
     G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
     if (isItScintillator(mat)) weight *= getAttenuation(aStep, birk1, birk2, birk3);
   }
-  double wt1    = getResponseWt(theTrack);
+  double wt1 = getResponseWt(theTrack);
+  double wt2 = theTrack->GetWeight();
 #ifdef DebugLog
   edm::LogInfo("HcalSim") << "HCalSD: Detector " << det+3 << " Depth " << depth
-                          << " weight " << weight0 << " " << weight << " " << wt1; 
+                          << " weight " << weight0 << " " << weight << " " << wt1 
+			  << " " << wt2; 
 #endif
-  return weight*wt1*destep;
+  return weight*wt1*wt2*destep;
 }
 
 uint32_t HCalSD::setDetUnitId(G4Step * aStep) { 

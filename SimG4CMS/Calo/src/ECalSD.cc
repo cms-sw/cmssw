@@ -135,12 +135,12 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
     return 0;
   } else {
     preStepPoint        = aStep->GetPreStepPoint();
+    G4Track* theTrack   = aStep->GetTrack();
     G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
 
     // take into account light collection curve for crystals
     double weight = 1.;
     if (suppressHeavy) {
-      G4Track* theTrack = aStep->GetTrack();
       TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
       if (trkInfo) {
 	int pdg = theTrack->GetDefinition()->GetPDGEncoding();
@@ -167,8 +167,8 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
 	else           weight *= getAttenuation(aStep, birk1, birk2, birk3);
       }
     }
-    double wt1    = getResponseWt(theTrack);
-    double edep   = aStep->GetTotalEnergyDeposit() * weight * wt1;
+    double wt1  = getResponseWt(theTrack);
+    double edep = aStep->GetTotalEnergyDeposit()*weight*wt1*theTrack->GetWeight();
 #ifdef DebugLog
     LogDebug("EcalSim") << "ECalSD:: " << nameVolume
 			<<" Light Collection Efficiency " <<weight << ":" <<wt1
