@@ -7,7 +7,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Sources/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
@@ -40,17 +40,18 @@ namespace lhef {
   class LHEEvent;
 }
 
-class MCatNLOSource : public edm::ExternalInputSource,
+class MCatNLOSource : public edm::ProducerSourceFromFiles,
                    public gen::Herwig6Instance {
 public:
   explicit MCatNLOSource(const edm::ParameterSet &params,
 		      const edm::InputSourceDescription &desc);
   virtual ~MCatNLOSource();
   
-protected:
+private:
   virtual void endJob();
   virtual void beginRun(edm::Run &run);
-  virtual bool produce(edm::Event &event);
+  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&);
+  virtual void produce(edm::Event &event);
   
   void nextEvent();
 
@@ -60,7 +61,7 @@ protected:
   std::string                   fileName;
   
   /// Pointer to the input file
-  std::auto_ptr<std::ifstream>  inputFile;
+  std::unique_ptr<std::ifstream>  inputFile;
   
   /// Number of events to skip
   unsigned int                  skipEvents;
@@ -68,9 +69,11 @@ protected:
   /// Number of events
   unsigned int                  nEvents;
 
-  int                           processCode;
+  int                           ihpro;
   
-  std::auto_ptr<std::ifstream>          reader;
+  int                           processCode;
+
+  std::unique_ptr<std::ifstream>          reader;
   
   boost::shared_ptr<lhef::LHERunInfo>	runInfo;
   boost::shared_ptr<lhef::LHEEvent>	event;

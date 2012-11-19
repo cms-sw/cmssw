@@ -7,7 +7,6 @@
 
 #include <boost/bind.hpp>
 
-#include "FWCore/Sources/interface/ExternalInputSource.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -40,10 +39,11 @@ using namespace lhef;
 
 MCatNLOSource::MCatNLOSource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
-	ExternalInputSource(params, desc, false),
+	ProducerSourceFromFiles(params, desc, false),
         gen::Herwig6Instance(0),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
         nEvents(0),
+        ihpro(0),
 	processCode(params.getParameter<int>("processCode"))
 {
         std::vector<std::string> allFileNames = fileNames();
@@ -155,12 +155,12 @@ void MCatNLOSource::beginRun(edm::Run &run)
   return;
 }
 
-bool MCatNLOSource::produce(edm::Event &event)
+bool MCatNLOSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&)
 {
   InstanceWrapper wrapper(this);
 
   int lastEventDone=0;
-  int ihpro=0;
+  ihpro=0;
   // skip events if asked to...
 
   while(skipEvents>0) {
@@ -173,6 +173,12 @@ bool MCatNLOSource::produce(edm::Event &event)
   mcatnloupevnt_(&processCode,&lastEventDone,&ihpro);
 
   if(lastEventDone) return false;
+  return true;
+}
+
+void MCatNLOSource::produce(edm::Event &event)
+{
+  InstanceWrapper wrapper(this);
 
   // fill HEPRUP common block and store in edm::Run
   lhef::HEPRUP heprup;
@@ -183,8 +189,6 @@ bool MCatNLOSource::produce(edm::Event &event)
   std::auto_ptr<LHEEventProduct> lhEvent(new LHEEventProduct(hepeup));
   lhEvent->addComment(makeConfigLine("#IHPRO", ihpro));
   event.put(lhEvent);
-
-  return true;
 }
 
 bool MCatNLOSource::hwwarn(const std::string &fn, int code)
