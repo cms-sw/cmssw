@@ -15,6 +15,7 @@
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="MagneticField/Records"/>
+<use   name="DataFormats/HepMCCandidate"/>
 <use   name="clhep"/>
 <use   name="boost"/>
 <use   name="root"/>
