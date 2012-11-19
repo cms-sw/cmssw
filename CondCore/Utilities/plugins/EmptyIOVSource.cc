@@ -1,14 +1,14 @@
-#include "FWCore/Framework/interface/ConfigurableInputSource.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include <string>
 namespace cond {
-  class EmptyIOVSource : public edm::ConfigurableInputSource {
+  class EmptyIOVSource : public edm::ProducerSourceBase {
   public:
     typedef unsigned long long Time_t;
     EmptyIOVSource(edm::ParameterSet const&, edm::InputSourceDescription const&);
     ~EmptyIOVSource();
   private:
-    virtual bool produce(edm::Event & e);
-    virtual void setRunAndEventInfo();
+    virtual void produce(edm::Event & e);
+    virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
   private:
     std::string m_timeType;
     Time_t m_firstValid;
@@ -28,42 +28,38 @@ namespace cond{
   //common paras: timetype,interval
   EmptyIOVSource::EmptyIOVSource(edm::ParameterSet const& pset,
 				 edm::InputSourceDescription const& desc):
-    edm::ConfigurableInputSource(pset,desc),
+    edm::ProducerSourceBase(pset,desc,true),
     m_timeType(pset.getParameter<std::string>("timetype")),
     m_firstValid(pset.getParameter<unsigned long long>("firstValue")),
     m_lastValid(pset.getParameter<unsigned long long>("lastValue")),
     m_interval(pset.getParameter<unsigned long long>("interval")){
     m_current=m_firstValid;
-    setRunAndEventInfo(); 
   }
   EmptyIOVSource::~EmptyIOVSource() {
   }
-  bool EmptyIOVSource::produce( edm::Event & e ) {
-    bool ok = !(m_lastValid<m_current);
-    m_current += m_interval;
-    return ok;
+  void EmptyIOVSource::produce( edm::Event & ) {
   }  
-  void EmptyIOVSource::setRunAndEventInfo(){
+  bool EmptyIOVSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time){
     if(m_current<=m_lastValid){
       if( m_timeType=="runnumber" ){
-	setRunNumber(m_current);
+	id = edm::EventID(m_current, id.luminosityBlock(), 1);
       }else if( m_timeType=="timestamp" ){
-	setTime(m_current);
+	time = m_current;
       }else if( m_timeType=="lumiid" ){
 	edm::LuminosityBlockID l(m_current);
-	setRunNumber(l.run());
+        id = edm::EventID(l.run(), l.luminosityBlock(), 1);
 	//std::cout<<"run "<<l.run()<<std::endl;
 	//std::cout<<"luminosityBlock "<<l.luminosityBlock()<<std::endl;
-	setLuminosityBlockNumber_t(l.luminosityBlock());
       }else{
 	throw edm::Exception(edm::errors::Configuration, std::string("EmptyIOVSource::setRunAndEventInfo: ")+m_timeType+std::string("is not one of the supported types: runnumber,timestamp,lumiid") );
       }
-      setEventNumber(1);
     }
+    bool ok = !(m_lastValid<m_current);
+    m_current += m_interval;
+    return ok;
   }
 }//ns cond
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 using cond::EmptyIOVSource;
 

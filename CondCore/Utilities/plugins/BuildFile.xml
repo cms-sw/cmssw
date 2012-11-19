@@ -8,5 +8,5 @@
   <use   name="rootcintex"/>
 </library>
 <library   file="EmptyIOVSource.cc" name="CondEmptyIOVSource">
-  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/Sources"/>
 </library>
