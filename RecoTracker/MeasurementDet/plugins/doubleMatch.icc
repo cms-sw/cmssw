@@ -71,26 +71,27 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   auto mf = monoHits.size();
   auto sf = stereoHits.size();
   
+  // mono does not require "projection"
   if (collector.filter()) {
-    TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
-    theMonoDet->recHits(mts,collector.estimator(),monoHits,diffs); 
-    // TrajectoryStateOnSurface mts2 = prop.propagate(ts,theMonoDet->surface());
-    // if (mts.isValid()) print("mono", mts,mts2);
+    //TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theMonoDet->geomDet().surface());
+    theMonoDet->recHits(ts,collector.estimator(),monoHits,diffs); 
+    // print("mono", mts,ts);
     mf = monoHits.size();
   }
   else
     monoHits = theMonoDet->recHits( ts);
 
+  // stereo in principle requires "projection"
+  TrajectoryStateOnSurface pts = ts;
   diffs.clear();
   if (collector.filter()) {
-    TrajectoryStateOnSurface mts = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
-    theStereoDet->recHits(mts,collector.estimator(),stereoHits,diffs);
-    // TrajectoryStateOnSurface mts2 = prop.propagate( ts, theStereoDet->surface());
-    // if (mts.isValid()) print("stereo", mts,mts2);
+    TrajectoryStateOnSurface pts = fastProp(ts,geomDet().surface(),theStereoDet->geomDet().surface());
+    theStereoDet->recHits(pts,collector.estimator(),stereoHits,diffs);
+    // print("stereo", pts,ts);
     sf = stereoHits.size();
   }
   else
-    stereoHits= theStereoDet->recHits( ts);
+    stereoHits= theStereoDet->recHits(pts);
 
 
   if (collector.filter()) {
@@ -114,33 +115,17 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   }
 
 
-  /*
-  // collect simple stereo hits
-  static std::vector<SiStripRecHit2D> simpleSteroHitsByValue;
-  simpleSteroHitsByValue.clear();
-  theStereoDet->simpleRecHits(ts, simpleSteroHitsByValue);
-  if (simpleSteroHitsByValue.empty()) {
-    projectOnGluedDet( collector, monoHits, glbDir);
-    return;
-  }
-
-  */
-
   const GluedGeomDet* gluedDet = &specificGeomDet();
   LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
 
   CollectorHelper<Collector> chelper(collector, glbDir);
   theMatcher->doubleMatch(monoHits.begin(), monoHits.end(),
 			  stereoHits.begin(), stereoHits.end(),
-			  // simpleSteroHitsByValue.begin(),  simpleSteroHitsByValue.end(), 
 			  gluedDet, trdir, chelper);
  
   if (collector.filter()) {
     stat.match(collector.size());
   }
-
-
-  //  simpleSteroHitsByValue.clear();
    
 }
    
