@@ -124,6 +124,7 @@ namespace {
     double filtComb=0;
     double matchT=0;
     double matchF=0;
+    double singleF=0;
     double zeroM=0;
     double zeroS=0;
 
@@ -142,10 +143,11 @@ namespace {
       if(fm==0) ++zeroM;
       if(fs==0) ++zeroS;
       if(fm!=0&&fs!=0) ++matchF;
+      if(fm!=0||fs!=0) ++singleF;
     }
     ~Stat() {
-      printf("Matches:%d/%d/%d/%d/%d : %f/%f/%f/%f/%f/%f/%f\n",
-	     int(totCall),int(matchF),int(matchT),int(zeroM),int(zeroS),
+      printf("Matches:%d/%d/%d/%d/%d/%d : %f/%f/%f/%f/%f/%f/%f\n",
+	     int(totCall),int(matchF),int(singleF),int(matchT),int(zeroM),int(zeroS),
 	     totMono/totCall,totStereo/totCall,totComb/totCall,totMatched/matchT,
 	     filtMono/totCall,filtStereo/totCall,filtComb/matchF);
     }
