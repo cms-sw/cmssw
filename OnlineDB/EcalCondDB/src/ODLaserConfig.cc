@@ -173,10 +173,10 @@ void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "LOCAL_OUTPUT_FILE") setLocalOutputFile(ci->second );
     if(ci->first==  "EMTC_NONE") setEMTCNone(atoi(ci->second.c_str()) );
     if(ci->first==  "WTE2_LASER_DELAY") setWTE2LaserDelay(atoi(ci->second.c_str()) );
-    if(ci->first==  "WTE2_IR_LASER") setWTE2IRLaser(atoi(ci->second.c_str()) );
-    if(ci->first==  "WTE2_BLUE_LASER") setWTE2BlueLaser(atoi(ci->second.c_str()) );
-    if(ci->first==  "WTE2_BLUE2_LASER") setWTE2Blue2Laser(atoi(ci->second.c_str()) );
-    if(ci->first==  "WTE2_GREEN_LASER") setWTE2GreenLaser(atoi(ci->second.c_str()) );
+    if(ci->first==  "WTE_2_IR_LASER") setWTE2IRLaser(atoi(ci->second.c_str()) );
+    if(ci->first==  "WTE_2_BLUE_LASER") setWTE2BlueLaser(atoi(ci->second.c_str()) );
+    if(ci->first==  "WTE_2_BLUE2_LASER") setWTE2Blue2Laser(atoi(ci->second.c_str()) );
+    if(ci->first==  "WTE_2_GREEN_LASER") setWTE2GreenLaser(atoi(ci->second.c_str()) );
     if(ci->first==  "LASER_PHASE") setLaserPhase(atoi(ci->second.c_str()) );
     if(ci->first==  "BLUE_LASER_PHASE") setBlueLaserPhase(atoi(ci->second.c_str()) );
     if(ci->first==  "BLUE2_LASER_PHASE") setBlue2LaserPhase(atoi(ci->second.c_str()) );
@@ -197,7 +197,7 @@ void ODLaserConfig::setParameters(std::map<string,string> my_keys_map){
     
     if(ci->first==  "WTE_2_LED_DELAY") setWTE2LedDelay(atoi(ci->second.c_str()) );
     if(ci->first==  "WTE_2_LED_SOAK_DELAY") setWTE2LedSoakDelay(atoi(ci->second.c_str()) );
-    if(ci->first==  "LED_POST_SCALE") setLedPostScale(atoi(ci->second.c_str()) );
+    if(ci->first==  "LED_POSTSCALE") setLedPostScale(atoi(ci->second.c_str()) );
     if(ci->first==  "LED1_ON") setLed1ON(atoi(ci->second.c_str()) );
     if(ci->first==  "LED2_ON") setLed2ON(atoi(ci->second.c_str()) );
     if(ci->first==  "LED3_ON") setLed3ON(atoi(ci->second.c_str()) );
