@@ -10,7 +10,7 @@
         <use name="SimDataFormats/GeneratorProducts"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfaceLHEIO" file="LHESource.cc MCDBSource.cc LHEWriter.cc">
+<library name="GeneratorInterfaceLHEIO" file="LHESource.cc LHEWriter.cc">
 	<use name="FWCore/Framework"/>
 	<use name="FWCore/Sources"/>
         <use name="SimDataFormats/GeneratorProducts"/>
