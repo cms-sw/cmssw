@@ -3,7 +3,7 @@
 
 #include "Alignment/Geners/interface/Reference.hh"
 
-#include "JetMETCorrections/FFTJetModules/interface/loadFFTJetInterpolationTable.h"
+#include "JetMETCorrections/FFTJetObjects/interface/loadFFTJetInterpolationTable.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

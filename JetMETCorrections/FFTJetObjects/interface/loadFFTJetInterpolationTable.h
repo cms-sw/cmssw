@@ -1,5 +1,5 @@
-#ifndef JetMETCorrections_FFTJetModules_loadFFTJetInterpolationTable_h
-#define JetMETCorrections_FFTJetModules_loadFFTJetInterpolationTable_h
+#ifndef JetMETCorrections_FFTJetObjects_loadFFTJetInterpolationTable_h
+#define JetMETCorrections_FFTJetObjects_loadFFTJetInterpolationTable_h
 
 #include "Alignment/Geners/interface/StringArchive.hh"
 #include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
@@ -11,4 +11,4 @@ CPP11_auto_ptr<npstat::StorableMultivariateFunctor>
 loadFFTJetInterpolationTable(const edm::ParameterSet& ps,
                              gs::StringArchive& ar, bool verbose);
 
-#endif // JetMETCorrections_FFTJetModules_loadFFTJetInterpolationTable_h
+#endif // JetMETCorrections_FFTJetObjects_loadFFTJetInterpolationTable_h

@@ -7,9 +7,9 @@
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetAdjusters.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetScaleCalculators.h"
 #include "JetMETCorrections/FFTJetObjects/interface/FFTJetCorrectionsTypemap.h"
-#include "JetMETCorrections/InterpolationTables/interface/CoordinateSelector.h"
+#include "JetMETCorrections/FFTJetObjects/interface/loadFFTJetInterpolationTable.h"
 
-#include "JetMETCorrections/FFTJetModules/interface/loadFFTJetInterpolationTable.h"
+#include "JetMETCorrections/InterpolationTables/interface/CoordinateSelector.h"
 
 
 // Parser for the adjuster of the adjustable :-)
