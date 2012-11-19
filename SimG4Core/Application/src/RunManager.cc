@@ -240,16 +240,15 @@ void RunManager::initG4(const edm::EventSetup & es)
                                                    (m_pPhysics.getParameter<std::string> ("type")));
   if (physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
   m_physicsList = physicsMaker->make(map_,fPDGTable,m_fieldBuilder,m_pPhysics,m_registry);
-  if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
 
-  // adding GFlash on top of any Physics Lists
-  //const edm::ParameterSet gflash = m_pPhysics.getParameter<edm::ParameterSet>("GFlash"); 
-  bool ecal = m_pPhysics.getParameter<bool>("GflashEcal"); 
-  bool hcal = m_pPhysics.getParameter<bool>("GflashHcal"); 
+
   PhysicsList* phys = m_physicsList.get(); 
-  if(ecal || hcal) { 
-    phys->RegisterPhysics(new ParametrisedEMPhysics("GFlash",m_pPhysics));
-  }
+  if (phys==0) throw SimG4Exception("Physics list construction failed!");
+
+  // adding GFlash and Russian Roulette for eletrons and gamma
+  // on top of any Physics Lists
+  phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions",m_pPhysics));
+  
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
 
@@ -431,8 +430,8 @@ void RunManager::initializeUserActions()
         eventManager->SetUserAction(userSteppingAction);
         if (m_Override)
         {
-	   edm::LogInfo("SimG4CoreApplication") << " RunManager: user StackingAction overridden " ;
-            eventManager->SetUserAction(new StackingAction(m_pStackingAction));
+	  edm::LogInfo("SimG4CoreApplication") << " RunManager: user StackingAction overridden " ;
+	  eventManager->SetUserAction(new StackingAction(m_pStackingAction));
         }
     }
     else 

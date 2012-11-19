@@ -19,6 +19,8 @@
 #include "G4IonConstructor.hh"
 #include "G4RegionStore.hh"
 
+#include "G4EmProcessOptions.hh"
+
 ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p) : G4VPhysicsConstructor(name), theParSet(p) 
 {
   theEMShowerModel = 0;
@@ -50,13 +52,14 @@ void ParametrisedEMPhysics::ConstructParticle()
 
 void ParametrisedEMPhysics::ConstructProcess() {
 
+  // GFlash part 
   bool gem  = theParSet.getParameter<bool>("GflashEcal");
   bool ghad = theParSet.getParameter<bool>("GflashHcal");
-  edm::LogInfo("SimG4CoreApplication") 
-    << "ParametrisedEMPhysics::ConstructProcess: GFlash Construct: " 
-    << gem << "  " << ghad;
 
   if(gem || ghad) {
+    edm::LogInfo("SimG4CoreApplication") 
+      << "ParametrisedEMPhysics: GFlash Construct: " 
+      << gem << "  " << ghad;
     G4FastSimulationManagerProcess * theFastSimulationManagerProcess = 
       new G4FastSimulationManagerProcess();
     theParticleIterator->reset();
@@ -99,6 +102,68 @@ void ParametrisedEMPhysics::ConstructProcess() {
 	  new GFlashEMShowerModel("GflashHadShowerModel",aRegion,theParSet);
 	//std::cout << "GFlash is defined for HcalRegion" << std::endl;
       }
+    }
+  }
+  // Russian Roulette part 
+  G4EmProcessOptions opt;
+  double gamEcal = theParSet.getParameter<double>("RusRoEcalGamma");
+  if(gamEcal < 1.0) {
+    double gamEcalLim = theParSet.getParameter<double>("RusRoEcalGammaLimit")
+      *CLHEP::MeV;
+    if(gamEcalLim > 0.0) {
+      opt.ActivateSecondaryBiasing("eBrem","EcalRegion",gamEcal,gamEcalLim);
+      edm::LogInfo("SimG4CoreApplication") 
+	<< "ParametrisedEMPhysics: Russian Roulette "
+	<< " for gamma in ECAL Prob= " 
+	<< gamEcal << "  Elimit(MeV)= " << gamEcalLim/CLHEP::MeV;
+    }
+  }
+  double gamHcal = theParSet.getParameter<double>("RusRoHcalGamma");
+  if(gamHcal < 1.0) {
+    double gamHcalLim = theParSet.getParameter<double>("RusRoHcalGammaLimit")
+      *CLHEP::MeV;
+    if(gamHcalLim > 0.0) {
+      opt.ActivateSecondaryBiasing("eBrem","HcalRegion",gamHcal,gamHcalLim);
+      edm::LogInfo("SimG4CoreApplication") 
+	<< "ParametrisedEMPhysics: Russian Roulette "
+	<< " for gamma in HCAL Prob= " 
+	<< gamHcal << "  Elimit(MeV)= " << gamHcalLim/CLHEP::MeV;
+    }
+  }
+  double eEcal = theParSet.getParameter<double>("RusRoEcalElectron");
+  if(eEcal < 1.0) {
+    double eEcalLim = theParSet.getParameter<double>("RusRoEcalElectronLimit")
+      *CLHEP::MeV;
+    if(eEcalLim > 0.0) {
+      opt.ActivateSecondaryBiasing("eIoni","EcalRegion",eEcal,eEcalLim);
+      opt.ActivateSecondaryBiasing("hIoni","EcalRegion",eEcal,eEcalLim);
+      opt.ActivateSecondaryBiasing("muIoni","EcalRegion",eEcal,eEcalLim);
+      opt.ActivateSecondaryBiasing("ionIoni","EcalRegion",eEcal,eEcalLim);
+      // opt.ActivateSecondaryBiasingForGamma("phot","EcalRegion",eEcal,eEcalLim);
+      // opt.ActivateSecondaryBiasingForGamma("compt","EcalRegion",eEcal,eEcalLim);
+      // opt.ActivateSecondaryBiasingForGamma("conv","EcalRegion",eEcal,eEcalLim);
+      edm::LogInfo("SimG4CoreApplication") 
+	<< "ParametrisedEMPhysics: Russian Roulette "
+	<< " for electrons in ECAL Prob= " 
+	<< eEcal << "  Elimit(MeV)= " << eEcalLim/CLHEP::MeV;
+    }
+  }
+  double eHcal = theParSet.getParameter<double>("RusRoHcalElectron");
+  if(eHcal < 1.0) {
+    double eHcalLim = theParSet.getParameter<double>("RusRoHcalElectronLimit")
+      *CLHEP::MeV;
+    if(eHcalLim > 0.0) {
+      opt.ActivateSecondaryBiasing("eIoni","HcalRegion",eHcal,eHcalLim);
+      opt.ActivateSecondaryBiasing("hIoni","HcalRegion",eHcal,eHcalLim);
+      opt.ActivateSecondaryBiasing("muIoni","HcalRegion",eHcal,eHcalLim);
+      opt.ActivateSecondaryBiasing("ionIoni","HcalRegion",eHcal,eHcalLim);
+      //opt.ActivateSecondaryBiasingForGamma("phot","HcalRegion",eHcal,eHcalLim);
+      // opt.ActivateSecondaryBiasingForGamma("compt","HcalRegion",eHcal,eHcalLim);
+      // opt.ActivateSecondaryBiasingForGamma("conv","HcalRegion",eHcal,eHcalLim);
+      edm::LogInfo("SimG4CoreApplication") 
+	<< "ParametrisedEMPhysics: Russian Roulette "
+	<< " for electrons in HCAL Prob= " 
+	<< eHcal << "  Elimit(MeV)= " << eHcalLim/CLHEP::MeV;
     }
   }
 }

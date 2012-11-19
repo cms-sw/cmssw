@@ -90,17 +90,19 @@ g4SimHits = cms.EDProducer("OscarProducer",
         FlagFTF     = cms.untracked.bool(False),
         FlagGlauber = cms.untracked.bool(False),
         FlagHP      = cms.untracked.bool(False),
-        GflashEcal  = cms.bool(False),
-        bField      = cms.double(3.8),
+        GflashEcal    = cms.bool(False),
+        bField        = cms.double(3.8),
         energyScaleEB = cms.double(1.032),
         energyScaleEE = cms.double(1.024),
-        GflashHcal  = cms.bool(False)
-        #GFlash = cms.PSet(
-        #    GflashHistogram = cms.bool(True),
-        #    GflashEMShowerModel = cms.bool(True),
-        #    GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
-        #    GflashHadronShowerModel = cms.bool(False)
-        #)
+        GflashHcal    = cms.bool(False),
+        RusRoEcalGamma         = cms.double(1.0),
+        RusRoEcalGammaLimit    = cms.double(0.0),
+        RusRoHcalGamma         = cms.double(1.0),
+        RusRoHcalGammaLimit    = cms.double(0.0),
+        RusRoEcalElectron      = cms.double(1.0),
+        RusRoEcalElectronLimit = cms.double(0.0),
+        RusRoHcalElectron      = cms.double(1.0),
+        RusRoHcalElectronLimit = cms.double(0.0)
     ),
     Generator = cms.PSet(
         HectorEtaCut,
@@ -135,7 +137,15 @@ g4SimHits = cms.EDProducer("OscarProducer",
         SaveFirstLevelSecondary = cms.untracked.bool(False),
         SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
         SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
-        SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False)
+        SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
+        RusRoEcalNeutron         = cms.double(1.0),
+        RusRoEcalNeutronLimit    = cms.double(0.0),
+        RusRoHcalNeutron         = cms.double(1.0),
+        RusRoHcalNeutronLimit    = cms.double(0.0),
+        RusRoEcalProton      = cms.double(1.0),
+        RusRoEcalProtonLimit = cms.double(0.0),
+        RusRoHcalProton      = cms.double(1.0),
+        RusRoHcalProtonLimit = cms.double(0.0)
     ),
     TrackingAction = cms.PSet(
         DetailedTiming = cms.untracked.bool(False)

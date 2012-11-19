@@ -36,6 +36,16 @@ private:
   std::vector<std::string>      maxTimeNames;
   std::vector<G4Region*>        maxTimeRegions;
   std::vector<G4LogicalVolume*> tracker, calo, muon;
+  G4Region*                     regionEcal;
+  G4Region*                     regionHcal;
+  double                        nRusRoEcal;
+  double                        nRusRoEcalLim;
+  double                        pRusRoEcal;
+  double                        pRusRoEcalLim;
+  double                        nRusRoHcal;
+  double                        nRusRoHcalLim;
+  double                        pRusRoHcal;
+  double                        pRusRoHcalLim;
 };
 
 #endif

@@ -10,6 +10,7 @@
 #include "G4EmProcessSubType.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4RegionStore.hh"
+#include "Randomize.hh"
 
 #include<algorithm>
 
@@ -32,6 +33,18 @@ StackingAction::StackingAction(const edm::ParameterSet & p) {
   saveFirstSecondary  = p.getUntrackedParameter<bool>("SaveFirstLevelSecondary",false);
   killInCalo = false;
   killInCaloEfH = false;
+
+  // Russian Roulette
+  nRusRoEcal = p.getParameter<double>("RusRoEcalNeutron");
+  nRusRoHcal = p.getParameter<double>("RusRoHcalNeutron");
+  nRusRoEcalLim = p.getParameter<double>("RusRoEcalNeutronLimit");
+  nRusRoHcalLim = p.getParameter<double>("RusRoHcalNeutronLimit");
+  pRusRoEcal = p.getParameter<double>("RusRoEcalProton");
+  pRusRoHcal = p.getParameter<double>("RusRoHcalProton");
+  pRusRoEcalLim = p.getParameter<double>("RusRoEcalProtonLimit");
+  pRusRoHcalLim = p.getParameter<double>("RusRoHcalProtonLimit");
+  regionEcal = 0;
+  regionHcal = 0;
 
   if ( p.exists("TestKillingOptions") ) {
 
@@ -96,7 +109,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
     newTA.secondary(aTrack, *mother, flag);
 
     if (aTrack->GetTrackStatus() == fStopAndKill) classification = fKill;
-    if (killHeavy) {
+    if (killHeavy && classification != fKill) {
       int    pdg = aTrack->GetDefinition()->GetPDGEncoding();
       double ke  = aTrack->GetKineticEnergy()/MeV;
       if (((pdg/1000000000 == 1) && (((pdg/10000)%100) > 0) && 
@@ -104,7 +117,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	  ((pdg == 2212) && (ke < kmaxProton)) ||
 	  ((pdg == 2112) && (ke < kmaxNeutron))) classification = fKill;
     }
-    if (!trackNeutrino) {
+    if (!trackNeutrino  && classification != fKill) {
       int    pdg = std::abs(aTrack->GetDefinition()->GetPDGEncoding());
       if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) 
 	classification = fKill;
@@ -115,12 +128,12 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	  aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation)
 	classification = fKill;
     }
-    if (killInCalo) {
+    if (killInCalo && classification != fKill) {
       if ( isThisVolume(aTrack->GetTouchable(),calo)) { 
         classification = fKill; 
       }
     }
-    if (killInCaloEfH) {
+    if (killInCaloEfH && classification != fKill) {
       int    pdg = aTrack->GetDefinition()->GetPDGEncoding();
       int    pdgMother = mother->GetDefinition()->GetPDGEncoding();
       if ( (pdg == 22 || std::abs(pdg) == 11) && (std::abs(pdgMother) < 11 || std::abs(pdgMother) > 17) && pdgMother != 22  ) {
@@ -128,6 +141,38 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
           classification = fKill; 
         }
       }
+    }
+    if((regionEcal || regionHcal) && classification != fKill) {
+      int    pdg = aTrack->GetDefinition()->GetPDGEncoding();
+      if(2112 == pdg || 2212 == pdg) {
+	G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+        double prob = 1.0;
+        double elim = 0.0;
+	if(reg == regionEcal) {
+          if(2112 == pdg) {
+	    prob = nRusRoEcal;
+            elim = nRusRoEcalLim;
+	  } else {
+	    prob = pRusRoEcal;
+            elim = pRusRoEcalLim;
+	  }
+	} else if(reg == regionHcal) {
+          if(2112 == pdg) {
+	    prob = nRusRoHcal;
+            elim = nRusRoHcalLim;
+	  } else {
+	    prob = pRusRoHcal;
+            elim = pRusRoHcalLim;
+	  }
+	}
+        if(prob < 1.0 && aTrack->GetKineticEnergy() < elim) {
+          if(G4UniformRand() < prob) {
+            const_cast<G4Track*>(aTrack)->SetWeight(aTrack->GetWeight()/prob);
+          } else {
+	    classification = fKill;
+          }
+	}
+      }  
     }
 #ifdef DebugLog
     LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
@@ -188,6 +233,10 @@ void StackingAction::initPointer() {
     if (rs) {
       std::vector<G4Region*>::const_iterator rcite;
       for (rcite = rs->begin(); rcite != rs->end(); rcite++) {
+	if ((nRusRoEcal < 1.0 || pRusRoEcal < 1.0) && 
+	    (*rcite)->GetName() == "EcalRegion") {  regionEcal = (*rcite); }
+	if ((nRusRoHcal < 1.0 || pRusRoHcal < 1.0) && 
+	    (*rcite)->GetName() == "HcalRegion") {  regionHcal = (*rcite); }
 	for (unsigned int i=0; i<num; i++) {
 	  if ((*rcite)->GetName() == (G4String)(maxTimeNames[i])) {
 	    maxTimeRegions.push_back(*rcite);
@@ -207,7 +256,6 @@ void StackingAction::initPointer() {
 					   << maxTrackTimes[i];
     }
   }
-
 }
 
 bool StackingAction::isThisVolume(const G4VTouchable* touch, 
