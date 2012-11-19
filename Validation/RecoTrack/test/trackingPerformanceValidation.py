@@ -11,10 +11,10 @@ import copy
 
 
 ### Reference release
-RefRelease='CMSSW_6_1_0_pre2'
+RefRelease='CMSSW_6_1_0_pre4'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_6_1_0_pre3'
+NewRelease='CMSSW_6_1_0_pre5'
 
 ### sample list 
 
@@ -22,6 +22,7 @@ NewRelease='CMSSW_6_1_0_pre3'
 startupsamples= [
 'RelValMinBias',   ### list of samples to be validated for each pre-release  
 'RelValQCD_Pt_3000_3500',
+'RelValQCD_Pt_600_800',
 'RelValSingleElectronPt35', 
 'RelValSingleElectronPt10', 
 'RelValTTbar', 
@@ -30,7 +31,7 @@ startupsamples= [
 ]
 
 pileupstartupsamples = [
-'RelValTTbar'
+#'RelValTTbar'
 ]
 
 fastsimstartupsamples = [
@@ -38,16 +39,16 @@ fastsimstartupsamples = [
 ]
 
 pileupfastsimstartupsamples = [
-'RelValTTbar'
+#'RelValTTbar'
 ]
 
 ### Sample version: v1,v2,etc..
 Version='v1'
 
 # Global tags
-StartupTag='START61_V1'
+StartupTag='START61_V4'
 
-RefStartupTag='START60_V4'
+RefStartupTag='START61_V1'
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
@@ -134,6 +135,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm, PileUp, samp
     elif(trackalgorithm=='iter2'):
         mineff='0.0'
         maxeff='0.25'
+        maxfake='0.8'
+    elif(trackalgorithm=='iter4'):
+        mineff='0.0'
+        maxeff='0.3'
         maxfake='0.8'
     elif(trackalgorithm=='iter5' or trackalgorithm=='iter6'):
         mineff='0.0'
