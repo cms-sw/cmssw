@@ -16,7 +16,7 @@
 #include "G4eMultipleScattering.hh"
 #include "G4MscStepLimitType.hh"
 #include "G4UrbanMscModel93.hh"
-//#include "CMSUrbanMscModel95.hh"
+//#include "G4UrbanMscModel95.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
