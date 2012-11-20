@@ -20,8 +20,8 @@
 #include "G4eBremsstrahlung.hh"
 #include "G4eplusAnnihilation.hh"
 
-#include "G4SeltzerBergerModel95.hh"
-#include "G4eBremsstrahlungRelModel95.hh"
+//#include "G4SeltzerBergerModel95.hh"
+//#include "G4eBremsstrahlungRelModel95.hh"
 
 #include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
@@ -152,9 +152,9 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
       msc->AddEmModel(0,new G4UrbanMscModel93());
 
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
-      ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
-      ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
-      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
+      //ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
+      //ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
+      //ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
 
       pmanager->AddProcess(msc,                   -1, 1, 1);
       pmanager->AddProcess(eioni,                 -1, 2, 2);
@@ -169,9 +169,9 @@ void CMSEmStandardPhysics95msc93::ConstructProcess()
       msc->AddEmModel(0,new G4UrbanMscModel93());
 
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
-      ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
-      ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
-      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
+      //ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
+      //ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
+      //ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
 
       pmanager->AddProcess(msc,                     -1, 1, 1);
       pmanager->AddProcess(eioni,                   -1, 2, 2);
