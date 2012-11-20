@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.82 2012/07/18 17:15:05 tosi Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.83 2012/07/19 15:46:20 tosi Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -267,17 +267,6 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
       
       if (Mod_On_) {
 	ModMEs mod_single;
-        mod_single.NumberOfClusters = 0;
-        mod_single.ClusterPosition = 0;
-        mod_single.ClusterDigiPosition = 0;
-        mod_single.ClusterWidth = 0;
-        mod_single.ClusterCharge = 0;
-        mod_single.ClusterNoise = 0;
-        mod_single.ClusterSignalOverNoise = 0;
-        mod_single.ClusterSignalOverNoiseVsPos = 0;
-        mod_single.ModuleLocalOccupancy = 0;
-        mod_single.NrOfClusterizedStrips = 0; 
-	
 	// set appropriate folder using SiStripFolderOrganizer
 	folder_organizer.setDetectorFolder(detid); // pass the detid to this method
 	if (reset_each_run) ResetModuleMEs(detid);
