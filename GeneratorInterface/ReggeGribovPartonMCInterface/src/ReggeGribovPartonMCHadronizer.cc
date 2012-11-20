@@ -117,7 +117,20 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   HepMC::GenEvent* evt = new HepMC::GenEvent();
 
   evt->set_event_number(m_NEvent++);
-  evt->set_signal_process_id(c2evt_.typevt); //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
+  int sig_id = -1;
+  switch (int(c2evt_.typevt)) // if negative typevt mini plasma was created by event (except -4)
+    {
+    case  1: sig_id = 101; break;
+    case -1: sig_id = 101; break;
+    case  2: sig_id = 105; break;
+    case -2: sig_id = 105; break;
+    case  3: sig_id = 102; break;
+    case -3: sig_id = 102; break;
+    case  4: sig_id = 103; break;
+    case -4: sig_id = 104; break;
+    default: LogDebug("ReggeGribovPartonMCInterface") << "Signal ID not recognised for setting HEPEVT" << endl;
+    }
+  evt->set_signal_process_id(sig_id); //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
 
   //create event structure;
   HepMC::GenVertex* theVertex = new HepMC::GenVertex();
