@@ -29,7 +29,7 @@ L1GctChannelMaskOnlineProd::newObject( const std::string& objectKey )
     return boost::shared_ptr< L1GctChannelMask >() ;
   }
   
-  int emMask ;
+  int emMask = -1;
   emMaskResults.fillVariable( emMask ) ;
   
   // get region masks
