@@ -6,16 +6,15 @@
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4QStoppingPhysics.hh"
-#include "G4LHEPStoppingPhysics.hh" 
+//#include "G4LHEPStoppingPhysics.hh" 
 
 #include "G4DataQuestionaire.hh"
 #include "G4HadronInelasticQBBC.hh"
-#include "G4HadronInelasticQLHEP.hh"
 #include "G4HadronElasticPhysics.hh"
-#include "G4HadronDElasticPhysics.hh"
-#include "G4HadronHElasticPhysics.hh"
+//#include "G4HadronDElasticPhysics.hh"
+//#include "G4HadronHElasticPhysics.hh"
 #include "G4IonBinaryCascadePhysics.hh"
-#include "G4IonPhysics.hh"
+//#include "G4IonPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
 QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map, 
