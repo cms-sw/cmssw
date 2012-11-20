@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Fri Aug 22 19:51:36 CEST 2008
-// $Id: RCTObjectKeysOnlineProd.cc,v 1.7 2009/10/25 19:29:20 efron Exp $
+// $Id: RCTObjectKeysOnlineProd.cc,v 1.8 2010/05/21 13:36:40 efron Exp $
 //
 //
 
@@ -140,7 +140,7 @@ RCTObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
 	      edm::LogError( "L1-O2O" ) << "bad results from lut_config_id." ;
 	      return ;
 	    }
-	  int ecalScaleTemp;
+	  int ecalScaleTemp = -1;
 	 
 	  ecalScaleKeyResults.fillVariable( ecalScaleTemp );
 
