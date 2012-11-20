@@ -2170,7 +2170,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    double SignalUnc=1.07;
    if(TypeMode==3) {
      if(result.Mass>599) SignalUnc=1.1;
-     else if(result.Mass>199) SignalUnc=1.15;
+     else if(result.Mass>399) SignalUnc=1.15;
      else SignalUnc=1.2;
    }
 
