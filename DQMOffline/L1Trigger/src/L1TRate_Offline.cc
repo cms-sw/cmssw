@@ -1,8 +1,8 @@
  /*
  * \file L1TRate_Offline.cc
  *
- * $Date: 2012/11/15 17:50:03 $
- * $Revision: 1.1 $
+ * $Date: 2012/11/20 15:46:06 $
+ * $Revision: 1.2 $
  * \author J. Pela, P. Musella
  *
  */
@@ -160,24 +160,24 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
     TString tTrigger      = (*i).second;
 
     TString tErrorMessage = "";
-    //TF1*    tTestFunction;
+//     TF1*    tTestFunction;
 
-    if(tTrigger != "Undefined" && m_templateFunctions.find(tTrigger) != m_templateFunctions.end()){
-      tTestFunction = m_templateFunctions[tTrigger];
-    }
-    else if(tTrigger == "Undefined"){
-      TString tFunc = "-1";
-      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
-    }
-    else if(m_templateFunctions.find(tTrigger) == m_templateFunctions.end()){
-      TString tFunc = "-1";
-      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
-      tErrorMessage = " (Undefined Test Function)";
-    }
-    else{
-      TString tFunc = "-1";
-      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
-    }
+//     if(tTrigger != "Undefined" && m_templateFunctions.find(tTrigger) != m_templateFunctions.end()){
+//       tTestFunction = m_templateFunctions[tTrigger];
+//     }
+//     else if(tTrigger == "Undefined"){
+//       TString tFunc = "-1";
+//       tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
+//     }
+//     else if(m_templateFunctions.find(tTrigger) == m_templateFunctions.end()){
+//       TString tFunc = "-1";
+//       tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
+//       tErrorMessage = " (Undefined Test Function)";
+//     }
+//     else{
+//       TString tFunc = "-1";
+//       tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
+//     }
 
     if(tTrigger != "Undefined"){
 
