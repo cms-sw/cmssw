@@ -143,7 +143,7 @@ do
 
 # overwrite destination for tests
 
-#    dest=AndreaTests4
+#    dest=FinalTest
 
 #    ssh cmstacuser@cmstac05 "mkdir -p /storage/data2/SiStrip/event_display/Data2011/${dest}/${nnn}/${Run_numb} 2> /dev/null"
  mkdir -p /data/users/event_display/Data2012/${dest}/${nnn}/${Run_numb}/$1 2> /dev/null
