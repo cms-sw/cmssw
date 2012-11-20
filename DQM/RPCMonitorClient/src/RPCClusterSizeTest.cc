@@ -146,7 +146,6 @@ void RPCClusterSizeTest::clientOperation(edm::EventSetup const& iSetup) {
     float NormCLS = myMe->getBinContent(1)/myMe->getEntries();
     float meanCLS = myMe->getMean();
     
-    std::cout << "setting " << xBin << " " << yBin << " " << CLS << " " << MEAN << std::endl;
     if (CLS)  CLS -> setBinContent(xBin,yBin, NormCLS);
     if(MEAN)   MEAN -> setBinContent(xBin, yBin, meanCLS);
  
