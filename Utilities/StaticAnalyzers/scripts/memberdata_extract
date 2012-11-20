@@ -2,8 +2,135 @@
 [ -e /tmp/headers1.txt ] || ./classes_extract 
 [ -e /tmp/headers2.txt ] || ./classes_extract2
 cd ${CMSSW_RELEASE_BASE}/src
+echo 'int
+long
+double
+char
+float
+short
+unsigned
+void
+Bool_t
+Char_t
+Double32_t
+Int_t
+Long64_t
+UInt_t
+bool
+boost::any
+boost::array<bool,NumBranchTypes>
+boost::int16_t
+boost::int8_t
+boost::uint16_t
+boost::uint32_t
+boost::uint8_t
+boost::unordered_map<uint32_t,double>
+char
+cms_uint16_t
+cms_uint32_t
+cms_uint64_t
+const_edm::EDProductGetter*
+const int
+const_iterator
+const_iterator_imp*
+const_std::type_info
+const_void*
+double
+int
+int32_t
+long
+long_long
+short
+std::map<Long_t,std::string>
+std::map<int,int>
+std::map<std::pair<int,int>,double>
+std::map<std::string,TF1>
+std::map<std::string,int>
+std::map<std::string,std::string>
+std::map<std::string,std::vector<unsigned_int>>
+std::map<std::string,unsigned>
+std::map<uint32_t,uint16_t>
+std::map<uint32_t,uint32_t>
+std::map<unsigned_int,float>
+std::map<unsigned_int,short>
+std::map<unsigned_int,std::string>
+std::pair<float,float>
+std::pair<uint16_t,uint16_t>
+std::pair<unsigned_int,int>
+std::set<std::string>
+std::string
+std::vector<Bool>
+std::vector<Double_t>
+std::vector<Float_t>
+std::vector<Int_t>
+std::vector<Long64_t>
+std::vector<bool>
+std::vector<char>
+std::vector<cms_uint16_t>
+std::vector<double*>
+std::vector<double>
+std::vector<float>
+std::vector<int>
+std::vector<int>*>*
+std::vector<short>
+std::vector<std::pair<int,int>>
+std::vector<std::pair<std::string,float>>
+std::vector<std::pair<std::string,std::string>>
+std::vector<std::pair<unsigned_int,double>>
+std::vector<std::pair<unsigned_int,unsigned_int>>
+std::vector<std::pair<void*,std::vector<Bool_t>>
+std::vector<std::pair<void*,std::vector<Double_t>>
+std::vector<std::pair<void*,std::vector<Float_t>>
+std::vector<std::pair<void*,std::vector<Int_t>>
+std::vector<std::string>
+std::vector<std::vector<double>>
+std::vector<std::vector<float>>
+std::vector<std::vector<int>>
+std::vector<std::vector<short>>
+std::vector<std::vector<unsigned_int>>
+std::vector<uint16_t>
+std::vector<uint32_t>
+std::vector<uint8_t>
+std::vector<unsigned>
+std::vector<unsigned_char>
+std::vector<unsigned_int>
+std::vector<unsigned_long_long>
+std::vector<unsigned_short>
+uint16_t
+uint32_t
+uint8_t
+unsigned
+unsigned_char
+unsigned_int
+unsigned_long
+unsigned_long_long
+unsigned_short
+void*
+'> /tmp/exempt.txt
 cat /tmp/headers1.txt | sort -u | ctags -f - -L - | awk '/\tm\t(class):/ {print}' | sort -u >/tmp/class_members1.txt 
 cat /tmp/headers2.txt | sort -u | ctags -f - -L - | awk '/\tm\t(class):/ {print}' | sort -u >/tmp/class_members2.txt 
 cd - 2>&1 >/dev/null;
-for class in `cat /tmp/classes1.txt | sort -u`;do grep -e "${class}$" /tmp/class_members1.txt |  awk '/\tm\t(class):/ {print }' | awk '{for (i=4; i <= NF-1 ; i++){ printf("%s ", $i)};printf "%s\n", $NF}' | awk 'BEGIN{FS=";"} {print $1, $3}' | awk '{for (i=1;i<=NF;i++) {printf("%s ",$i)};printf "\n"}'|awk 'BEGIN{FS="\" m class:";} {print $1,$2}' ;done |  sort -u >/tmp/members1.txt
-for class in `cat /tmp/classes2.txt | sort -u`;do grep -e "${class}$" /tmp/class_members2.txt |  awk '/\tm\t(class):/ {print }' | awk '{for (i=4; i <= NF-1 ; i++){ printf("%s ", $i)};printf "%s\n", $NF}' | awk 'BEGIN{FS=";"} {print $1, $3}' | awk '{for (i=1;i<=NF;i++) {printf("%s ",$i)};printf "\n"}'|awk 'BEGIN{FS="\" m class:";} {print $1,$2}' ;done | sort -u >/tmp/members2.txt
+for class in `cat /tmp/classes1.txt | sort -u`;do \
+        grep -e "${class}$" /tmp/class_members1.txt |\
+        awk '/\tm\t(class):/ {print }' | \
+        awk '{for (i=4; i <= NF-1 ; i++){ printf("%s ", $i)}}' |\
+        awk 'BEGIN{FS=";"} {print $1}' ;done |\
+awk '{for (i=1;i<NF;i++) {printf("%s ", $i)};printf "\n"}'|\
+./extract.pl |\
+awk 'BEGIN{FS="::|static |const |mutable ";OFS="\n";} {print $NF}' |\
+awk '{print $1}'|\
+sed -e 's/\*//' |\
+grep -v  -e ^[0-9] | \
+sort -u >/tmp/members1.txt
+for class in `cat /tmp/classes2.txt | sort -u`;do \
+        grep -e "${class}$" /tmp/class_members2.txt |\
+        awk '/\tm\t(class):/ {print }' |\
+        awk '{for (i=4; i <= NF-1 ; i++){ printf("%s ", $i)}}' |\
+        awk 'BEGIN{FS=";"} {print $1}' ;done |\
+awk '{for (i=1;i<NF;i++) {printf("%s ", $i)};printf "\n"}'|\
+./extract.pl |\
+awk 'BEGIN{FS="::|const |static |mutable ";OFS="\n";} {print $NF}' |\
+awk '{print $1}' |\
+sed -e 's/\*//'|\
+grep -v  -e ^[0-9] |\
+sort -u>/tmp/members2.txt
