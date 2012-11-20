@@ -11,18 +11,18 @@ L1CaloTriggerSetup = cms.ESProducer("L1CaloTriggerSetupProducer",
                                     )
 
 #UNCOMMENT HERE TO RUN ON DATA - IO
-#L1CaloTowerProducer = cms.EDProducer("L1CaloTowerProducer",
-#    ECALDigis = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),
-#    HCALDigis =  cms.InputTag("hcalDigis"),
-#    UseUpgradeHCAL = cms.bool(False) 
-#)
+L1CaloTowerProducer = cms.EDProducer("L1CaloTowerProducer",
+    ECALDigis = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),
+    HCALDigis =  cms.InputTag("hcalDigis"),
+    UseUpgradeHCAL = cms.bool(False) 
+)
 
 #COMMENT OUT FOLLOWING LINES TO RUN ON DATA  (Data is more useful than simulations anyways)- IO
-L1CaloTowerProducer = cms.EDProducer("L1CaloTowerProducer",
-    ECALDigis = cms.InputTag("simEcalTriggerPrimitiveDigis"),
-    HCALDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
-    UseUpgradeHCAL = cms.bool(False) #added to allow use of Upgrade HCAL - AWR 12/05/2011
-)
+#L1CaloTowerProducer = cms.EDProducer("L1CaloTowerProducer",
+#    ECALDigis = cms.InputTag("simEcalTriggerPrimitiveDigis"),
+#    HCALDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
+#    UseUpgradeHCAL = cms.bool(False) #added to allow use of Upgrade HCAL - AWR 12/05/2011
+#)
 
 L1RingSubtractionProducer = cms.EDProducer("L1RingSubtractionProducer",
     src = cms.InputTag("L1CaloTowerProducer"),
@@ -60,7 +60,7 @@ L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
 
 L1TowerJetProducer = cms.EDProducer("L1TowerJetProducer",
     src = cms.InputTag("L1CaloTowerProducer"),
-	JetDiameter = cms.uint32(9),
+	JetDiameter = cms.uint32(8),
 	JetShape = cms.string("circle") # "circle" or "square"
 )
 
@@ -75,6 +75,9 @@ L1TowerJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
 	ComparisonDirection = cms.string("phi"), # "eta" or "phi"
 	NumOfOutputJets = cms.uint32(12)
 )
+
+
+
 
 rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
                                   Clusters = cms.InputTag("L1CaloClusterIsolator"),
