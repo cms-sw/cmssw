@@ -30,7 +30,7 @@ class stAllInfo{
       NData         = 0;      NPred         = 0;      NPredErr      = 0;      NSign         = 0;      LInt          = 0;
       if(path=="")return;
       FILE* pFile = fopen(path.c_str(),"r");
-      if(!pFile){printf("Can't open %s\n",path.c_str()); return;}
+      if(!pFile){return; printf("Can't open %s\n",path.c_str()); return;}
       fscanf(pFile,"Mass         : %lf\n",&Mass);
       fscanf(pFile,"MassMean     : %lf\n",&MassMean);
       fscanf(pFile,"MassSigma    : %lf\n",&MassSigma);
@@ -117,7 +117,7 @@ void DrawRatioBands(string InputPattern);
 void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSamples);
 
 
-void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, bool Shape);
+void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, double SignalUnc, bool Shape);
 void saveHistoForLimit(TH1* histo, string Name, string Id);
 void saveVariationHistoForLimit(TH1* histo, TH1* vardown, string Name, string variationName);
 void testShapeBasedAnalysis(string InputPattern, string signal);
@@ -230,17 +230,16 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 //   } 
 
    //based on the modelMap
-   DrawRatioBands(TkPattern); 
-   DrawRatioBands(MuPattern);
-   DrawRatioBands(MOPattern); 
-   DrawRatioBands(LQPattern);
+   //DrawRatioBands(TkPattern); 
+   //DrawRatioBands(MuPattern);
+   //DrawRatioBands(MOPattern); 
+   //DrawRatioBands(LQPattern);
 
    //draw the cross section limit for all model
    DrawModelLimitWithBand(TkPattern);
    DrawModelLimitWithBand(MuPattern);
    DrawModelLimitWithBand(MOPattern);
    DrawModelLimitWithBand(LQPattern);
-
    //make plots of the observed limit for all signal model (and mass point) and save the result in a latex table
 
    TCanvas* c1;
@@ -403,7 +402,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(false);
    c1->SetGridy(false);
 
-   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(TkPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "TkUncertainty");
    delete c1;
    delete TkSystGraphs;
@@ -446,7 +445,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(false);
    c1->SetGridy(false);
 
-   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(MuPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "MuUncertainty");
    delete c1;
    delete MuSystGraphs;
@@ -489,7 +488,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(false);
    c1->SetGridy(false);
 
-   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(MOPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "MOUncertainty");
    delete c1;
    delete MOSystGraphs;
@@ -532,7 +531,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(false);
    c1->SetGridy(false);
 
-   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(LQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "LQUncertainty");
    delete c1;
    delete LQSystGraphs;
@@ -576,16 +575,15 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(false);
    c1->SetGridy(false);
 
-   DrawPreliminary(LegendFromType(InputPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", "HQUncertainty");
    delete c1;
    delete HQSystGraphs;
    delete LEG;
    }
-
-
-
    return;
+
+
    //Get Theoretical xsection and error bands
    TGraph** ThXSec    = new TGraph*[modelVector.size()];
    TCutG ** ThXSecErr = new TCutG* [modelVector.size()];
@@ -659,7 +657,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
             ThXSecErr[k] = GetErrorBand(modelVector[k]+"ThErr", ThXSec[k]->GetN(),ThXSec[k]->GetX(),XSecErrLow,XSecErrHigh, PlotMinScale, PlotMaxScale); 
      }
    }
-
    //Print the excluded mass range
    fprintf(pFile,"\n\n\n-----------------------\n Mass range excluded   \n-------------------------\n");
    fprintf(pFile,"-----------------------\n0%% TK-ONLY       \n-------------------------\n");
@@ -746,18 +743,18 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThGraphMap["GMStau"       ]->SetLineColor(1);  ThGraphMap["GMStau"       ]->SetMarkerColor(1);   ThGraphMap["GMStau"       ]->SetLineWidth(1);   ThGraphMap["GMStau"       ]->SetLineStyle(3);  ThGraphMap["GMStau"       ]->SetMarkerStyle(1);
    ThGraphMap["PPStau"       ]->SetLineColor(6);  ThGraphMap["PPStau"       ]->SetMarkerColor(6);   ThGraphMap["PPStau"       ]->SetLineWidth(1);   ThGraphMap["PPStau"       ]->SetLineStyle(4);  ThGraphMap["PPStau"       ]->SetMarkerStyle(1);
 //   ThGraphMap["DCRho08HyperK"]->SetLineColor(4);  ThGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   ThGraphMap["DCRho08HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho08HyperK"]->SetLineStyle(3);  ThGraphMap["DCRho08HyperK"]->SetMarkerStyle(1);
-   ThGraphMap["DCRho12HyperK"]->SetLineColor(2);  ThGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   ThGraphMap["DCRho12HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho12HyperK"]->SetLineStyle(2);  ThGraphMap["DCRho12HyperK"]->SetMarkerStyle(1);
-   ThGraphMap["DCRho16HyperK"]->SetLineColor(1);  ThGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   ThGraphMap["DCRho16HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho16HyperK"]->SetLineStyle(1);  ThGraphMap["DCRho16HyperK"]->SetMarkerStyle(1);
+   //ThGraphMap["DCRho12HyperK"]->SetLineColor(2);  ThGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   ThGraphMap["DCRho12HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho12HyperK"]->SetLineStyle(2);  ThGraphMap["DCRho12HyperK"]->SetMarkerStyle(1);
+   //ThGraphMap["DCRho16HyperK"]->SetLineColor(1);  ThGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   ThGraphMap["DCRho16HyperK"]->SetLineWidth(1);   ThGraphMap["DCRho16HyperK"]->SetLineStyle(1);  ThGraphMap["DCRho16HyperK"]->SetMarkerStyle(1);
    MuGraphMap["GMStau"       ]->SetLineColor(1);  MuGraphMap["GMStau"       ]->SetMarkerColor(1);   MuGraphMap["GMStau"       ]->SetLineWidth(2);   MuGraphMap["GMStau"       ]->SetLineStyle(1);  MuGraphMap["GMStau"       ]->SetMarkerStyle(23);
    MuGraphMap["PPStau"       ]->SetLineColor(6);  MuGraphMap["PPStau"       ]->SetMarkerColor(6);   MuGraphMap["PPStau"       ]->SetLineWidth(2);   MuGraphMap["PPStau"       ]->SetLineStyle(1);  MuGraphMap["PPStau"       ]->SetMarkerStyle(23);
 //   MuGraphMap["DCRho08HyperK"]->SetLineColor(4);  MuGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   MuGraphMap["DCRho08HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho08HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho08HyperK"]->SetMarkerStyle(22);
-   MuGraphMap["DCRho12HyperK"]->SetLineColor(2);  MuGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   MuGraphMap["DCRho12HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho12HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho12HyperK"]->SetMarkerStyle(23);
-   MuGraphMap["DCRho16HyperK"]->SetLineColor(1);  MuGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   MuGraphMap["DCRho16HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho16HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho16HyperK"]->SetMarkerStyle(26);
+   //MuGraphMap["DCRho12HyperK"]->SetLineColor(2);  MuGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   MuGraphMap["DCRho12HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho12HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho12HyperK"]->SetMarkerStyle(23);
+   //MuGraphMap["DCRho16HyperK"]->SetLineColor(1);  MuGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   MuGraphMap["DCRho16HyperK"]->SetLineWidth(2);   MuGraphMap["DCRho16HyperK"]->SetLineStyle(1);  MuGraphMap["DCRho16HyperK"]->SetMarkerStyle(26);
    TkGraphMap["GMStau"       ]->SetLineColor(1);  TkGraphMap["GMStau"       ]->SetMarkerColor(1);   TkGraphMap["GMStau"       ]->SetLineWidth(2);   TkGraphMap["GMStau"       ]->SetLineStyle(1);  TkGraphMap["GMStau"       ]->SetMarkerStyle(20);
    TkGraphMap["PPStau"       ]->SetLineColor(6);  TkGraphMap["PPStau"       ]->SetMarkerColor(6);   TkGraphMap["PPStau"       ]->SetLineWidth(2);   TkGraphMap["PPStau"       ]->SetLineStyle(1);  TkGraphMap["PPStau"       ]->SetMarkerStyle(20);
 //   TkGraphMap["DCRho08HyperK"]->SetLineColor(4);  TkGraphMap["DCRho08HyperK"]->SetMarkerColor(4);   TkGraphMap["DCRho08HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho08HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho08HyperK"]->SetMarkerStyle(22);
-   TkGraphMap["DCRho12HyperK"]->SetLineColor(2);  TkGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   TkGraphMap["DCRho12HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho12HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho12HyperK"]->SetMarkerStyle(23);
-   TkGraphMap["DCRho16HyperK"]->SetLineColor(1);  TkGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   TkGraphMap["DCRho16HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho16HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho16HyperK"]->SetMarkerStyle(26);
+   //TkGraphMap["DCRho12HyperK"]->SetLineColor(2);  TkGraphMap["DCRho12HyperK"]->SetMarkerColor(2);   TkGraphMap["DCRho12HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho12HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho12HyperK"]->SetMarkerStyle(23);
+   //   TkGraphMap["DCRho16HyperK"]->SetLineColor(1);  TkGraphMap["DCRho16HyperK"]->SetMarkerColor(1);   TkGraphMap["DCRho16HyperK"]->SetLineWidth(2);   TkGraphMap["DCRho16HyperK"]->SetLineStyle(1);  TkGraphMap["DCRho16HyperK"]->SetMarkerStyle(26);
 
    ThGraphMap["DY_Q1o3"      ]->SetLineColor(41); ThGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  ThGraphMap["DY_Q1o3"      ]->SetLineWidth(1);   ThGraphMap["DY_Q1o3"      ]->SetLineStyle(9);  ThGraphMap["DY_Q1o3"      ]->SetMarkerStyle(1);
    TkGraphMap["DY_Q1o3"      ]->SetLineColor(41); TkGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  TkGraphMap["DY_Q1o3"      ]->SetLineWidth(2);   TkGraphMap["DY_Q1o3"      ]->SetLineStyle(1);  TkGraphMap["DY_Q1o3"      ]->SetMarkerStyle(33);
@@ -894,17 +891,17 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("TkExclusionLog"));
    delete c1;
-
+   /*
     c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGDCMu = new TMultiGraph();
    if(!Combine) {
 //   MGDCMu->Add(ThGraphMap["DCRho08HyperK"]      ,"L");
-   MGDCMu->Add(ThGraphMap["DCRho12HyperK"]      ,"L");
-   MGDCMu->Add(ThGraphMap["DCRho16HyperK"]      ,"L");
+     //MGDCMu->Add(ThGraphMap["DCRho12HyperK"]      ,"L");
+     //MGDCMu->Add(ThGraphMap["DCRho16HyperK"]      ,"L");
    }
 //   MGDCMu->Add(MuGraphMap["DCRho08HyperK"]      ,"LP");
-   MGDCMu->Add(MuGraphMap["DCRho12HyperK"]      ,"LP");
-   MGDCMu->Add(MuGraphMap["DCRho16HyperK"]      ,"LP");
+   //MGDCMu->Add(MuGraphMap["DCRho12HyperK"]      ,"LP");
+   //MGDCMu->Add(MuGraphMap["DCRho16HyperK"]      ,"LP");
    MGDCMu->Draw("A");
    MGDCMu->Draw("same");
    MGDCMu->SetTitle("");
@@ -983,7 +980,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("TkDCExclusionLog"));
    delete c1;
-
+   */
    /////////////////////////////// LQ Analysis
    TLegend* LQLEGTh = new TLegend(0.15,0.7,0.48,0.9);
    c1 = new TCanvas("c1", "c1",600,600);
@@ -1203,7 +1200,10 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       SystRe[N]      = -0.02;
       if(IsNeutral && SQRTS==8) SystTr[N] = -0.01;
       else if(SQRTS==7) SystTr[N] = -0.05;
-      else SystTr[N] = -1*sqrt(0.01*0.01 + 0.04*0.04);
+      else if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.08*0.08);
+      else if(modelSample[s].ModelName().find("2o3")!=string::npos) SystTr[N] = -1*sqrt(0.03*0.03 + 0.08*0.08);
+      else SystTr[N] = -1*sqrt(0.01*0.01 + 0.08*0.08);
+      cout << "Trigger uncertainty " << SystTr[N] << endl;
 
 //      double Ptemp=max(SystP[N], 0.0), Itemp=max(SystI[N], 0.0), PUtemp=max(SystPU[N], 0.0), Ttemp=max(SystT[N], 0.0);
       double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
@@ -1273,7 +1273,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      SystGraphs->GetYaxis()->SetRangeUser(-0.35, 0.35);
      SystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
-     TLegend* LEG = new TLegend(0.35,0.3,0.70,0.55);
+     TLegend* LEG = new TLegend(0.35,0.9,0.70,0.55);
      LEG->SetFillColor(0);
      LEG->SetFillStyle(0);
      LEG->SetBorderSize(0);
@@ -1422,6 +1422,7 @@ void DrawModelLimitWithBand(string InputPattern){
    for(unsigned int k=0; k<modelVector.size(); k++){
       bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
       if(TypeMode!=0 && isNeutral) continue;
+
       unsigned int N = modelMap[modelVector[k]].size();
       stAllInfo Infos;double Mass[N], XSecTh[N], XSecExp[N],XSecObs[N], XSecExpUp[N],XSecExpDown[N],XSecExp2Up[N],XSecExp2Down[N];
       for(unsigned int i=0;i<N;i++){
@@ -1472,7 +1473,7 @@ void DrawModelLimitWithBand(string InputPattern){
       MG->GetYaxis()->SetTitleOffset(1.70);
       MG->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
       DrawPreliminary(SQRTS, LInt);
-      
+
       TLegend* LEG = !Combine ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.45,0.10,0.65,0.42);
       //TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
       string headerstr = "95% CL Limits (";
@@ -1508,7 +1509,7 @@ void DrawRatioBands(string InputPattern)
       case 5: prefix   = "LQ"; break;
    }
 
-   TCanvas* c1            = new TCanvas("c1", "c1",600,800);
+   TCanvas* c2            = new TCanvas("c2", "c2",600,800);
    TGraph** graphAtheory  = new TGraph*[modelVector.size()];
    TGraph** graphAobs     = new TGraph*[modelVector.size()];
    TGraph** graphAexp     = new TGraph*[modelVector.size()];
@@ -1593,6 +1594,7 @@ void DrawRatioBands(string InputPattern)
       MG->Add(graph      ,"P");
       MG->Add(graphAobs[k]      ,"LP");
       MG->Draw("A");
+
       if(k==0){
 	 TLegend* LEG;
 	 LEG = new TLegend(0.13,0.01,0.32,0.99);
@@ -1657,9 +1659,8 @@ void DrawRatioBands(string InputPattern)
 	MG->GetYaxis()->SetLabelSize(0.15);
       }
    }
-   c1->cd();
+   c2->cd();
    DrawPreliminary(SQRTS, LInt);
-
    TPaveText *pt = new TPaveText(0.1, 0., 0.15, 0.7,"NDC");
    string tmp = "95% CL Limits (Relative to Expected Limit)";
    TText *text = pt->AddText(tmp.c_str()); 
@@ -1669,8 +1670,8 @@ void DrawRatioBands(string InputPattern)
    pt->SetBorderSize(0);
    pt->SetFillColor(0);
    pt->Draw();
-   SaveCanvas(c1,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", string(prefix+"LimitsRatio"));
-   delete c1;
+   SaveCanvas(c2,"Results/"+SHAPESTRING+EXCLUSIONDIR+"/", string(prefix+"LimitsRatio"));
+   delete c2;
 }
 
 //will run on all possible selection and try to identify which is the best one for this sample
@@ -1680,13 +1681,13 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    //get the typeMode from pattern
    TypeMode = TypeFromPattern(InputPattern); 
 
+   if (TypeMode == 3)    RescaleError = 0.0; //Done in step 4
    if (TypeMode == 4)    RescaleError = 0.20;
 
    //Identify the signal sample
    GetSampleDefinition(samples);
    CurrentSampleIndex        = JobIdToIndex(signal,samples); 
    if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
-  
 
    if(Data.find("7TeV")!=string::npos){SQRTS=7.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS); }
    if(Data.find("8TeV")!=string::npos){SQRTS=8.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);  }
@@ -1871,7 +1872,6 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    }//end of selection cut loop
    fclose(pFile);   
  
-std::cout << "TEST4\n";
 
 
    //recompute the limit for the final point and save the output in the final directory (also save some plots for the shape based analysis)
@@ -1884,12 +1884,10 @@ std::cout << "TEST4\n";
 }
 
 // produce the Higgs combine stat tool datacard
-void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, bool Shape){
+void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, double SignalUnc, bool Shape){
 
 
    double LumiUnc   = (SQRTS==7?1.022:1.044);
-   double SignalUnc = 1.07;
-
    
    if(TypeMode==0){
             if(SignalName.find("1o3")!=string::npos){ SignalUnc=1.20;
@@ -2168,9 +2166,17 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       out->Close();
    }
 
+   //Need to set what the systematic uncertainty on signal is
+   double SignalUnc=1.07;
+   if(TypeMode==3) {
+     if(result.Mass>599) SignalUnc=1.1;
+     else if(result.Mass>199) SignalUnc=1.15;
+     else SignalUnc=1.2;
+   }
+
    //build the combine datacard, the same code is used both for cut&count and shape base
    string datacardPath = "/tmp/shape_"+signal+".dat";
-   makeDataCard(datacardPath,string("shape_")+signal+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, Shape);
+   makeDataCard(datacardPath,string("shape_")+signal+".root", CutIndexStr,signal, NData, NPred, 1.0+(Shape?RescaleError:NPredErr/NPred), NSign, SignalUnc, Shape);
 
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
    if(getSignificance && Temporary){

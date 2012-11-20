@@ -1185,7 +1185,7 @@ void Analysis_Step3(char* SavePath)
                   bool   PRescale = true;
                   double IRescale = RNG->Gaus(0, 0.048)-0.07; // added to the Ias value
                   double MRescale = 1.041;
-		  double TRescale = -0.01; // added to the 1/beta value
+		  double TRescale = -0.005; // added to the 1/beta value
 #endif
 		  
 		  double genpT = -1.0;
