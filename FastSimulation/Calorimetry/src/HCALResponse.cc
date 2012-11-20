@@ -16,9 +16,9 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
 			   const RandomEngine* engine) :
   random(engine)
 {
-//switches
-debug = pset.getParameter<bool>("debug");
-usemip = pset.getParameter<bool>("usemip");
+  //switches
+  debug = pset.getParameter<bool>("debug");
+  usemip = pset.getParameter<bool>("usemip");
 
 //values for "old" response parameterizations
 //--------------------------------------------------------------------
@@ -67,6 +67,7 @@ usemip = pset.getParameter<bool>("usemip");
   int maxHDetas[] = {endcapHDeta - barrelHDeta, forwardHDeta - endcapHDeta, maxHDeta - forwardHDeta}; //eta ranges
   
   // additional tuning factor to correct the response
+  useAdHocCorrections_ = pset.getParameter<bool>("useAdHocCorrections");
   barrelCorrection = pset.getParameter<std::vector<double> >("barrelCorrection");
   endcapCorrection = pset.getParameter<std::vector<double> >("endcapCorrection");
   forwardCorrectionEnergyDependent = pset.getParameter<std::vector<double> >("forwardCorrectionEnergyDependent");
@@ -185,10 +186,12 @@ usemip = pset.getParameter<bool>("usemip");
       double factor     = 1.0;
       double factor_s   = 1.0;
 
-      if( j < endcapHDeta)        factor = barrelCorrection[i];  // special HB
-      else if( j < forwardHDeta)  factor = endcapCorrection[i];  // special HE
-      else                        factor = forwardCorrectionEnergyDependent[i]*forwardCorrectionEtaDependent[j-forwardHDeta]; // special HF
-	  
+      if (useAdHocCorrections_) {// these correction factors make no sense when the FullDigitizer is used, and when working in Upgrades scenarios
+	if( j < endcapHDeta)        factor = barrelCorrection[i];  // special HB
+	else if( j < forwardHDeta)  factor = endcapCorrection[i];  // special HE
+	else                        factor = forwardCorrectionEnergyDependent[i]*forwardCorrectionEtaDependent[j-forwardHDeta]; // special HF
+      } else factor = 1.;	  
+
       meanHD[i][j]        =  factor * meanHD[i][j]  / eGridHD[i];
       sigmaHD[i][j]       =  factor_s * sigmaHD[i][j] / eGridHD[i];
 

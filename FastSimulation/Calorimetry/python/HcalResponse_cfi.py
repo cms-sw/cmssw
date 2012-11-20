@@ -10,11 +10,13 @@ import FWCore.ParameterSet.Config as cms
 # these groups of parameters inform the dimensions of the various vectors
 # be careful: any changes must be consistent among all related parameters!!!
 
+
+
 HCALResponseBlock = cms.PSet(
     HCALResponse = cms.PSet(
-	    #misc. switches
-	    debug = cms.bool(False),
-		usemip = cms.bool(True),
+    #misc. switches
+        debug = cms.bool(False),
+        usemip = cms.bool(True),
 	
         #pion values
         etaStep = cms.double(0.1),
@@ -24,7 +26,8 @@ HCALResponseBlock = cms.PSet(
 		endcapHDeta = cms.double(1.6),
 		forwardHDeta = cms.double(3.0),
         eGridHD = cms.vdouble(1., 2., 3., 5., 9., 15., 20., 30., 50., 100., 150., 225., 300., 1000., 3000.),
-        #correction factors
+        #ad-hoc correction factors, only needed for CaloMode=0,1 (i.e. when the FullDigitizer is not used)
+        useAdHocCorrections = cms.bool(True),
         barrelCorrection = cms.vdouble(1.02, 1.01, 1.02, 1.02, 1.02, 1.02, 1.02, 1.03, 1.03, 1.03, 1.03, 1.03, 1.03, 1.03, 1.03),
         endcapCorrection = cms.vdouble(1.12, 1.12, 1.12, 1.12, 1.12, 1.13, 1.13, 1.14, 1.14, 1.15, 1.15, 1.16, 1.16, 1.16, 1.16),
         forwardCorrectionEnergyDependent = cms.vdouble(1.09, 1.09, 1.08, 1.08, 1.07, 1.06, 1.05, 1.05, 1.06, 1.08, 1.09, 1.10, 1.09, 1.08, 1.08),

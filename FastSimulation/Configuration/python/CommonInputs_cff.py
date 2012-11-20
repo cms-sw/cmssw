@@ -35,17 +35,22 @@ from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 # 3: full digi + std local reco in ECAL and HCAL
 from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 from FastSimulation.Calorimetry.Calorimetry_cff import *
+from FastSimulation.Calorimetry.HcalResponse_cfi import *
 if(CaloMode==0):
     FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = False
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = False
+    HCALResponseBlock.HCALResponse.useAdHocCorrections = True
 if(CaloMode==1):
     FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = False
+    HCALResponseBlock.HCALResponse.useAdHocCorrections = True
 if(CaloMode==2):
     FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = False
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
     FamosCalorimetryBlock.Calorimetry.HCAL.smearTimeHF = True
+    HCALResponseBlock.HCALResponse.useAdHocCorrections = False
 if(CaloMode==3):
     FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
     FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
     FamosCalorimetryBlock.Calorimetry.HCAL.smearTimeHF = True
+    HCALResponseBlock.HCALResponse.useAdHocCorrections = False
