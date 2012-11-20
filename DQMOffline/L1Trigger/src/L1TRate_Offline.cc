@@ -1,8 +1,8 @@
  /*
  * \file L1TRate_Offline.cc
  *
- * $Date: 2011/11/15 10:41:00 $
- * $Revision: 1.11 $
+ * $Date: 2012/11/15 17:50:03 $
+ * $Revision: 1.1 $
  * \author J. Pela, P. Musella
  *
  */
@@ -160,7 +160,7 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
     TString tTrigger      = (*i).second;
 
     TString tErrorMessage = "";
-    TF1*    tTestFunction;
+    //TF1*    tTestFunction;
 
     if(tTrigger != "Undefined" && m_templateFunctions.find(tTrigger) != m_templateFunctions.end()){
       tTestFunction = m_templateFunctions[tTrigger];
@@ -261,8 +261,9 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   //eventLS--;
   
   // Checking if all necessary quantities are defined for our calculations
-  bool isDefRate,isDefLumi,isDefPrescaleIndex;
-  map<TString,double>* rates=0;
+  //bool isDefRate,isDefLumi,isDefPrescaleIndex;
+  bool isDefLumi,isDefPrescaleIndex;
+  //map<TString,double>* rates=0;
   double               lumi=0;
   int                  prescalesIndex=0;
 
