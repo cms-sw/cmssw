@@ -33,6 +33,7 @@ c     *,xprh,xmrh
      &,iorprt(ntim),jorprt(ntim),nprtj
       common/emsptl/nppr(npommx,kollmx),npproj(mamx),nptarg(mamx)
       integer icp(2),ict(2),nemis(2)
+      integer icp1(2),icp2(2),icm1(2),icm2(2)
       integer jcp(nflav,2),jct(nflav,2),jcpr(nflav,2),jctr(nflav,2)
       common/cprtx/nprtjx,pprtx(5,2)/ciptl/iptl
 
@@ -56,6 +57,7 @@ c     *,xprh,xmrh
 
       q2finsave=q2fin
       zzzz=zparpro(kcol)+zpartar(kcol)
+      nnn=ltarg3(it)+lproj3(ip)
       zz=1.+zoeinc*zzzz**2               !<-----
       q2fin=q2fin*zz
 
@@ -118,7 +120,7 @@ csp end initialisation
 c      xprh=xpp(ih)
 c      xmrh=xmt(jh)
       rp=r2had(iclpro)+r2had(icltar)+slopom*log(engy**2)
-      z=exp(-bpomr**2/(4.*.0389*rp))
+      z=exp(-bpomr**2/(4.*.0389*rp)) !coef for rejection
 
       if(z.eq.0)then
        write(ifch,*)'psahot : z,ih,jh ! -> ',z,ih,jh
@@ -171,14 +173,16 @@ c      xmrh=xmt(jh)
       smax=(dsqrt(s)-dble(amqpt))**2  !max mass for the hard pomeron
       xmax=smax/s
       !wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
-      if(iqq.ne.3)then     !not for val-val
+      if(iLHC.eq.1.and.iqq.ne.3)then     !not for val-val
 c xmin is the minimum value of zpm which is the fraction of the Pomeron
 c energy going into the hard part. If zpm=1 nothing left is the soft
 c preevolution part (momentum of soft string ends)
+c take into account z (impact parameter) dependence to avoid hard Pom
+c at large b (lot of rejection and not realistic)
 c        print *,xmin,zopinc*fegypp*exp(-bpomr**2/b2xscr),xmax
 c     *,smin,max(xmin,min(0.99*xmax,zzzz*zzsoft))*ss
       xmin=max(xmin,min((sqrt(s)-dble(amqpt+ammsdd))**2/s
-     &  ,dble(max(2.*fegypp*exp(-bpomr**2/b2xscr),zzzz)*zopinc)))
+     &  ,dble(max(nnn*fegypp*exp(-bpomr**2/b2xscr),zzzz)*zopinc*z)))
 c      xmin=max(xmin,1d0-exp(-dble(zzsoft*zzzz**2)))  !???????????????
       smin=xmin*s         
       endif
@@ -225,9 +229,12 @@ c-----------------------------------------------------------------
           if(iabs(idptl(ip)).eq.130)then !proj=Kch
             nquu1=jcp(1,1)+jcp(1,2)
             nqud1=jcp(3,1)+jcp(3,2)
-          else                           !proj=K0
+          elseif(iabs(idptl(ip)).eq.230)then  !proj=K0
             nquu1=jcp(2,1)+jcp(2,2)
             nqud1=jcp(3,1)+jcp(3,2)
+          else    !to avoid flavor problem with exotic projectile (but should not happen (only gg)
+            nquu1=0
+            nqud1=0
           endif
         else                    !charm
           if(iabs(idptl(ip)).eq.140)then
@@ -269,8 +276,7 @@ c-----------------------------------------------------------------
         xmin1=xmin**dble(delh+.4)
         xmax1=xmax**dble(delh+.4)
         zp0=dsqrt(xmin)
-        if(zp0.ge.1.d0)call utstop('zp0 in sem&',
-     +sizeof('zp0 in sem&'))
+        if(zp0.ge.1.d0)call utstop('zp0 in sem&')
       !........ kinematical bounds
         tmax0=dlog((1.d0+dsqrt(1.d0-zp0))/(1.d0-dsqrt(1.d0-zp0)))
         tmin0=dlog((1.d0+dsqrt(1.d0-xpmax0))
@@ -820,12 +826,12 @@ c-------------------------------------------------------------------------
       rrr=rangen()
       jqq=0
 
-      call iddeco(icp,jcp)
+      call iddeco(icp,jcp)     !save valence quarks in jcp and jct
       call iddeco(ict,jct)
       if(iremn.ge.2)then
         do j=1,2
           do n=1,nrflav
-            jcpr(n,j)=jcpref(n,j,ip)
+            jcpr(n,j)=jcpref(n,j,ip)   !remnant sea quarks in jcpr and jctr
             jctr(n,j)=jctref(n,j,it)
           enddo
           do n=nrflav+1,nflav
@@ -834,9 +840,24 @@ c-------------------------------------------------------------------------
           enddo
         enddo
       endif
+      do i=1,2
+        icp1(i)=0
+        icp2(i)=0
+        icm1(i)=0
+        icm2(i)=0
+      enddo
 
       iret1=0
       iret2=0
+
+c if one or 2 of the 2 initial pomeron ends is sea, choose whether the first
+c emitted parton is a gluon or a quark to define the hard interaction
+c  jqq=0 : gg interaction after soft emission
+c  jqq=1 : qg interaction after soft emission
+c  jqq=2 : gq interaction after soft emission
+c  jqq=3 : qq interaction after soft emission
+c If the initial parton is a quark, the flavor has to be defined and the
+c antiflavor remains as string end.
 
       if(iqq.eq.1.or.iqq.eq.2)then
         if(rrr.lt.wwqq/(wwgq+wwqq))jqq=1
@@ -850,13 +871,363 @@ c-------------------------------------------------------------------------
         endif
       endif
 
-      if((iqq-1)*(iqq-3).eq.0)then
+      if(iLHC.eq.1)then
 
+      if((iqq-1)*(iqq-3).eq.0)then    !valence quark on projectile side
+c valence quark used to start space like cascade
         iqc(1)=iq1                                !proj=particle
         if(iabs(idptl(ip)).eq.1220)iqc(1)=3-iq1      !proj=neutron
         if(idptl(ip).lt.0)iqc(1)=-iqc(1)               !proj=antiparticle
-        nj=nj+1
         ifl1=iabs(iqc(1))
+
+c check string ends for mesons : 
+c switch q<->aq if needed (done randomly in ProSeTyp)
+        if(iabs(idptl(ip)).lt.1000)then
+          if(iqc(1).gt.0.and.idp1pr(ncolp,kcol).ne.2)then
+            idp2pr(ncolp,kcol)=idp1pr(ncolp,kcol)
+            idp1pr(ncolp,kcol)=2
+          elseif(iqc(1).lt.0.and.idp2pr(ncolp,kcol).ne.2)then
+            idp1pr(ncolp,kcol)=idp2pr(ncolp,kcol)
+            idp2pr(ncolp,kcol)=2
+          endif
+        endif
+
+c store flavor of used valence quark in icp1(1) (quark) or icp2(2) (antiquark)
+        idsp=100
+        if(iqc(1).gt.0)then
+          icp1(1)=ifl1
+          if(idp1pr(ncolp,kcol).ne.2)
+     &    call utstop("psahot: Problem with SE (1)!&")
+        else
+          icp2(2)=ifl1
+          if(idp2pr(ncolp,kcol).ne.2)
+     &    call utstop("psahot: Problem with SE (2)!&")
+        endif
+      else
+        idsp=idsppr(ncolp,kcol)
+      endif
+
+      if((iqq-2)*(iqq-3).eq.0)then    !valence quark on target side
+c valence quark used to start space like cascade
+        iqc(2)=iq2             !tar=particle (can not be pion or kaon !)
+        if(iabs(idptl(maproj+it)).eq.1220)iqc(2)=3-iq2     !targ=neutron
+        if(idptl(maproj+it).lt.0)iqc(2)=-iqc(2)  !targ=antiparticle
+        ifl2=iabs(iqc(2))
+
+c store flavor of used valence quark in icm1(1) (quark) or icm2(2) (antiquark)
+        idst=100
+        if(iqc(2).gt.0)then
+          icm1(1)=ifl2
+          if(idm1pr(ncolp,kcol).ne.2)
+     &    call utstop("psahot: Problem with SE (3)!&")
+        else
+          icm2(2)=ifl2
+          if(idm2pr(ncolp,kcol).ne.2)
+     &    call utstop("psahot: Problem with SE (4)!&")
+        endif
+      else
+        idst=idstpr(ncolp,kcol)
+      endif
+
+c determine soft string end flavors
+
+      iret=0
+
+      call fstrfl(jcpr,jctr,jcp,jct,icp1,icp2,icm1,icm2
+     *           ,idp1pr(ncolp,kcol),idp2pr(ncolp,kcol)
+     *           ,idm1pr(ncolp,kcol),idm2pr(ncolp,kcol)
+     *                                  ,idsp,idst,iret)
+
+      if(iret.ne.0)goto 16
+
+c put partons in stack for cascades
+
+      if((iqq-1)*(iqq-3).eq.0)then    !valence quark on projectile side
+
+
+c define the second string end from sea
+        if(iqc(1).gt.0)then
+          ifl=idtra(icp2,1,0,2)
+        elseif(iqc(1).lt.0)then
+          ifl=idtra(icp1,1,0,2)
+        else
+          call utstop('No quark for hard Pomeron+ in psahot!&')
+        endif
+
+        if(ish.ge.5)write(ifch,*)'flavor vq+,sqb+',iqc(1)
+     &                                            ,ifl
+
+        nj=nj+1
+c put the sea quark (or diquark) into the parton list as string end
+        if(abs(ifl).eq.3)then
+          iqj(nj)=ifl*4/3
+        elseif(abs(ifl).ge.4)then
+          iqj(nj)=ifl*10
+        else
+          iqj(nj)=ifl
+        endif
+        ioj(nj)=7
+
+        eqj(1,nj)=.5*sngl(wp1+dble(amqt(2))**2/wp1)
+        eqj(2,nj)=wp1-eqj(1,nj)
+        eqj(3,nj)=xxp2pr(ncolp,kcol)
+        eqj(4,nj)=xyp2pr(ncolp,kcol)
+        if(ish.ge.8)write (ifch,*)'q_v+ mass check',(eqj(1,nj)-
+     *    eqj(2,nj))*(eqj(1,nj)+eqj(2,nj))-eqj(3,nj)**2-eqj(4,nj)**2
+        eqj(1,nj)=sqrt(eqj(2,nj)**2+eqj(3,nj)**2+eqj(4,nj)**2)
+        ncc(1,1)=nj
+        ncc(2,1)=0
+
+      else               !gluon (soft sea) parton on projectile side
+
+
+c define the 2 string ends from sea
+
+        iflq=idtra(icp1,1,0,2)
+        iflqb=idtra(icp2,1,0,2)
+
+
+        if(ish.ge.5)write(ifch,*)'flavor sq+,sqb+',iflq,iflqb
+
+        nj=nj+1
+c put the sea quarks (or diquarks) into the parton list as string end
+        if(abs(iflqb).eq.3)then
+          iqj(nj)=iflqb*4/3
+        elseif(abs(iflqb).ge.4)then
+          iqj(nj)=iflqb*10
+        else
+          iqj(nj)=iflqb
+        endif
+        ioj(nj)=7
+        if(abs(iflq).eq.3)then
+          iqj(nj+1)=iflq*4/3
+        elseif(abs(iflq).ge.4)then
+          iqj(nj+1)=iflq*10
+        else
+          iqj(nj+1)=iflq
+        endif
+        ioj(nj+1)=7
+
+        eqj(1,nj)=.5*sngl(wp1+dble(amqt(1))**2/wp1)
+        eqj(2,nj)=wp1-eqj(1,nj)
+        eqj(3,nj)=xxp1pr(ncolp,kcol)
+        eqj(4,nj)=xyp1pr(ncolp,kcol)
+        if(ish.ge.8)write (ifch,*)'q_s1+ mass check',(eqj(1,nj)-
+     *    eqj(2,nj))*(eqj(1,nj)+eqj(2,nj))-eqj(3,nj)**2-eqj(4,nj)**2
+        eqj(1,nj)=sqrt(eqj(2,nj)**2+eqj(3,nj)**2+eqj(4,nj)**2)
+        eqj(1,nj+1)=.5*sngl(wp2+dble(amqt(2))**2/wp2)
+        eqj(2,nj+1)=wp2-eqj(1,nj+1)
+        eqj(3,nj+1)=xxp2pr(ncolp,kcol)
+        eqj(4,nj+1)=xyp2pr(ncolp,kcol)
+        nj=nj+1
+        if(ish.ge.8)write (ifch,*)'q_s2+ mass check',(eqj(1,nj)-
+     *    eqj(2,nj))*(eqj(1,nj)+eqj(2,nj))-eqj(3,nj)**2-eqj(4,nj)**2
+        eqj(1,nj)=sqrt(eqj(2,nj)**2+eqj(3,nj)**2+eqj(4,nj)**2)
+
+c gluon initiate space like cascade
+        if(jqq.eq.0.or.iqq.eq.0.and.jqq.eq.2)then   
+          iqc(1)=0
+          ncc(1,1)=nj-1
+          ncc(2,1)=nj
+c quark initiate space like cascade
+        else
+c choose the first parton for the space like cascade (projectile)
+          iqc(1)=int(3*rangen()+1.)*(2.*int(.5+rangen())-1.) 
+          if(1.-1./(wp0*(wmi1-smin/wpi1)).le.xp)goto 1
+7         zg=1d0-dble(rangen())*(1.d0-xp)
+          if(ish.ge.8)write (ifch,*)'6-zg,xp',zg,xp
+          if(dble(rangen()).gt.zg**dels*((1.d0-xp/zg)/(1.d0-xp))
+     *                                              **betpom)goto 7
+          xg=xp/zg
+          wpq=wp0*(xg-xp)
+          wmq=1.d0/wpq
+          wmi1=wmi1-wmq
+          if(wmi1*wpi1.le.smin)goto 1
+
+
+c add the corresponding anti-parton in the list to compensate the emitted one
+          nj=nj+1
+          if(iabs(iqc(1)).eq.3)then
+            iqj(nj)=-iqc(1)*4/3
+          elseif(iabs(iqc(1)).ge.3)then
+            iqj(nj)=-iqc(1)*10
+          else
+            iqj(nj)=-iqc(1)
+          endif
+          ioj(nj)=-7
+          eqj(1,nj)=.5*wmq
+          eqj(2,nj)=-eqj(1,nj)
+          eqj(3,nj)=0.
+          eqj(4,nj)=0.
+          if(ish.ge.8)write (ifch,*)'q_s3+ mass check',eqj(1,nj)**2-
+     *      eqj(2,nj)**2-eqj(3,nj)**2-eqj(4,nj)**2
+          if(iqc(1).gt.0)then
+            ncj(1,nj)=nj-1
+            ncj(1,nj-1)=nj
+            ncj(2,nj)=0
+            ncj(2,nj-1)=0
+            ncc(1,1)=nj-2
+            ncc(2,1)=0
+          else
+            ncj(1,nj)=nj-2
+            ncj(1,nj-2)=nj
+            ncj(2,nj)=0
+            ncj(2,nj-2)=0
+            ncc(1,1)=nj-1
+            ncc(2,1)=0
+          endif
+        endif
+      endif
+
+
+
+      if((iqq-2)*(iqq-3).eq.0)then    !valence quark on target side
+
+c define the second string end from sea
+        if(iqc(2).gt.0)then
+          ifl=idtra(icm2,1,0,2)
+        elseif(iqc(2).lt.0)then
+          ifl=idtra(icm1,1,0,2)
+        else
+          call utstop('No quark for hard Pomeron- in psahot!&')
+        endif
+
+        if(ish.ge.5)write(ifch,*)'flavor vq-,sqb-',iqc(2)
+     &                                            ,ifl
+
+        nj=nj+1
+c put the sea quark (or diquark) into the parton list as string end
+        if(abs(ifl).eq.3)then
+          iqj(nj)=ifl*4/3
+        elseif(abs(ifl).ge.4)then
+          iqj(nj)=ifl*10
+        else
+          iqj(nj)=ifl
+        endif
+        ioj(nj)=8
+
+        eqj(1,nj)=.5*sngl(wm1+dble(amqt(4))**2/wm1)
+        eqj(2,nj)=eqj(1,nj)-sngl(wm1)
+        eqj(3,nj)=xxm1pr(ncolp,kcol)
+        eqj(4,nj)=xym1pr(ncolp,kcol)
+        if(ish.ge.8)write (ifch,*)'q_v- mass check',(eqj(1,nj)
+     *    +eqj(2,nj))*(eqj(1,nj)-eqj(2,nj))-eqj(3,nj)**2-eqj(4,nj)**2
+        eqj(1,nj)=sqrt(eqj(2,nj)**2+eqj(3,nj)**2+eqj(4,nj)**2)
+        ncc(1,2)=nj
+        ncc(2,2)=0
+
+      else               !gluon (soft sea) parton on target side
+
+c define the 2 string ends from sea
+
+        iflq=idtra(icm1,1,0,2)
+        iflqb=idtra(icm2,1,0,2)
+
+
+        if(ish.ge.5)write(ifch,*)'flavor sq-,sqb-',iflq,iflqb
+
+        nj=nj+1
+c put the sea quarks (or diquarks) into the parton list as string end
+        if(abs(iflqb).eq.3)then
+          iqj(nj)=iflqb*4/3
+        elseif(abs(iflqb).ge.4)then
+          iqj(nj)=iflqb*10
+        else
+          iqj(nj)=iflqb
+        endif
+        ioj(nj)=8
+        if(abs(iflq).eq.3)then
+          iqj(nj+1)=iflq*4/3
+        elseif(abs(iflq).ge.4)then
+          iqj(nj+1)=iflq*10
+        else
+          iqj(nj+1)=iflq
+        endif
+        ioj(nj+1)=8
+
+        eqj(1,nj)=.5*sngl(wm1+dble(amqt(3))**2/wm1)
+        eqj(2,nj)=eqj(1,nj)-sngl(wm1)
+        eqj(3,nj)=xxm2pr(ncolp,kcol)
+        eqj(4,nj)=xym2pr(ncolp,kcol)
+        if(ish.ge.8)write (ifch,*)'q_s1- mass check',(eqj(1,nj)-
+     *    eqj(2,nj))*(eqj(1,nj)+eqj(2,nj))-eqj(3,nj)**2-eqj(4,nj)**2
+        eqj(1,nj)=sqrt(eqj(2,nj)**2+eqj(3,nj)**2+eqj(4,nj)**2)
+        eqj(1,nj+1)=.5*sngl(wm2+dble(amqt(4))**2/wm2)
+        eqj(2,nj+1)=eqj(1,nj+1)-wm2
+        eqj(3,nj+1)=xxm1pr(ncolp,kcol)
+        eqj(4,nj+1)=xym1pr(ncolp,kcol)
+        nj=nj+1
+        if(ish.ge.8)write (ifch,*)'q_s2- mass check',(eqj(1,nj)-
+     *    eqj(2,nj))*(eqj(1,nj)+eqj(2,nj))-eqj(3,nj)**2-eqj(4,nj)**2
+        eqj(1,nj)=sqrt(eqj(2,nj)**2+eqj(3,nj)**2+eqj(4,nj)**2)
+
+c gluon initiate space like cascade
+        if(jqq.eq.0.or.iqq.eq.0.and.jqq.eq.1)then
+          iqc(2)=0
+          ncc(1,2)=nj-1
+          ncc(2,2)=nj
+c quark initiate space like cascade
+        else
+c choose the first parton for the space like cascade (target)
+          iqc(2)=int(3*rangen()+1.)*(2.*int(.5+rangen())-1.)
+          if(1.-1./(wm0*(wpi1-smin/wmi1)).le.xm)goto 1
+8           zg=1.d0-dble(rangen())*(1.d0-xm)
+          if(ish.ge.8)write (ifch,*)'7-zg,xm',zg,xm
+          if(rangen().gt.zg**dels*((1.d0-xm/zg)/(1.d0-xm))**betpom)
+     *      goto 8
+          xg=xm/zg
+          wmq=wm0*(xg-xm)
+          wpq=1.d0/wmq
+          wpi1=wpi1-wpq
+          if(wmi1*wpi1.le.smin)goto 1
+
+c add the corresponding anti-parton in the list to compensate the emitted one
+          nj=nj+1
+          if(iabs(iqc(2)).eq.3)then
+            iqj(nj)=-iqc(2)*4/3
+          elseif(iabs(iqc(2)).ge.4)then
+            iqj(nj)=-iqc(2)*10
+          else
+            iqj(nj)=-iqc(2)
+          endif
+          ioj(nj)=-8
+
+          eqj(1,nj)=.5*sngl(wpq)
+          eqj(2,nj)=eqj(1,nj)
+          eqj(3,nj)=0.
+          eqj(4,nj)=0.
+          if(ish.ge.8)write (ifch,*)'q_s3- mass check',(eqj(1,nj)-
+     *      eqj(2,nj))*(eqj(1,nj)+eqj(2,nj))-eqj(3,nj)**2-eqj(4,nj)**2
+          if(iqc(2).gt.0)then
+            ncj(1,nj)=nj-1
+            ncj(1,nj-1)=nj
+            ncj(2,nj)=0
+            ncj(2,nj-1)=0
+            ncc(1,2)=nj-2
+            ncc(2,2)=0
+          else
+            ncj(1,nj)=nj-2
+            ncj(1,nj-2)=nj
+            ncj(2,nj)=0
+            ncj(2,nj-2)=0
+            ncc(1,2)=nj-1
+            ncc(2,2)=0
+          endif
+        endif
+      endif
+
+      else
+
+c put partons in stack for cascades
+
+      if((iqq-1)*(iqq-3).eq.0)then    !valence quark on projectile side
+c valence quark used to start space like cascade
+        iqc(1)=iq1              !proj=particle
+        if(iabs(idptl(ip)).eq.1220)iqc(1)=3-iq1 !proj=neutron
+        if(idptl(ip).lt.0)iqc(1)=-iqc(1) !proj=antiparticle
+        ifl1=iabs(iqc(1))
+        
+        nj=nj+1
 
         if(iqc(1).gt.0)then
           if(iremn.ne.0)then
@@ -895,8 +1266,7 @@ c-------------------------------------------------------------------------
             ifl=ifl1
           endif
         else
-          call utstop('No quark for hard Pomeron+ in psahot!&',
-     +sizeof('No quark for hard Pomeron+ in psahot!&'))
+          call utstop('No quark for hard Pomeron+ in psahot!&')
         endif
 
         if(iret1.eq.1.or.iret2.eq.1)then
@@ -1003,10 +1373,10 @@ c quark initiate space like cascade
 c choose the first parton for the space like cascade (projectile)
           iqc(1)=int(3*rangen()+1.)*(2.*int(.5+rangen())-1.)
           if(1.-1./(wp0*(wmi1-smin/wpi1)).le.xp)goto 1
-7         zg=1d0-dble(rangen())*(1.d0-xp)
+ 17       zg=1d0-dble(rangen())*(1.d0-xp)
           if(ish.ge.8)write (ifch,*)'6-zg,xp',zg,xp
           if(dble(rangen()).gt.zg**dels*((1.d0-xp/zg)/(1.d0-xp))
-     *                                              **betpom)goto 7
+     *                                              **betpom)goto 17
           xg=xp/zg
           wpq=wp0*(xg-xp)
           wmq=1.d0/wpq
@@ -1047,11 +1417,11 @@ c add the corresponding anti-parton in the list to compensate the emitted one
       endif
 
       if((iqq-2)*(iqq-3).eq.0)then
-        iqc(2)=iq2             !tar=particle (can not be pion or kaon !)
-        if(iabs(idptl(maproj+it)).eq.1220)iqc(2)=3-iq2     !targ=neutron
-        if(idptl(maproj+it).lt.0)iqc(2)=-iqc(2)  !targ=antiparticle
+        iqc(2)=iq2              !tar=particle (can not be pion or kaon !)
+        if(iabs(idptl(maproj+it)).eq.1220)iqc(2)=3-iq2 !targ=neutron
+        if(idptl(maproj+it).lt.0)iqc(2)=-iqc(2) !targ=antiparticle
         ifl2=iabs(iqc(2))
-
+        
         nj=nj+1
         if(iqc(2).gt.0)then
           if(iremn.ne.0)then
@@ -1090,8 +1460,7 @@ c add the corresponding anti-parton in the list to compensate the emitted one
             ifl=ifl2
           endif
         else
-          call utstop('No quark for hard Pomeron- in psahot!&',
-     +sizeof('No quark for hard Pomeron- in psahot!&'))
+          call utstop('No quark for hard Pomeron- in psahot!&')
         endif
 
         if(iret1.eq.1.or.iret2.eq.1)then
@@ -1196,10 +1565,10 @@ c quark initiate space like cascade
 c choose the first parton for the space like cascade (target)
           iqc(2)=int(3*rangen()+1.)*(2.*int(.5+rangen())-1.)
           if(1.-1./(wm0*(wpi1-smin/wmi1)).le.xm)goto 1
-8           zg=1.d0-dble(rangen())*(1.d0-xm)
+ 18       zg=1.d0-dble(rangen())*(1.d0-xm)
           if(ish.ge.8)write (ifch,*)'7-zg,xm',zg,xm
           if(rangen().gt.zg**dels*((1.d0-xm/zg)/(1.d0-xm))**betpom)
-     *      goto 8
+     *      goto 18
           xg=xm/zg
           wmq=wm0*(xg-xm)
           wpq=1.d0/wmq
@@ -1238,6 +1607,9 @@ c add the corresponding anti-parton in the list to compensate the emitted one
           endif
         endif
       endif
+
+      endif        !iLHC
+
       if(jqq.ne.0)then
         if(iqq.ne.0.or.iqq.eq.0.and.jqq.eq.3)then
           if(iclpro.ne.4.or.iqq.ne.1)then
@@ -1298,7 +1670,7 @@ c        si=psnorm(ept)       !4-momentum squared for the hard pomeron
       wwmin=5.*qminn+q2mass-2.*pt*sqrt(q2ini)
       wwmin=(wwmin+sqrt(wwmin**2+4.*(q2mass+pt2)*(qminn-q2ini)))
      */(1.-q2ini/qminn)/2.
-      if(ish.ge.5)write(ifch,*)'qminn,q2mass,pt,wwmin:'
+      if(ish.ge.5)write(ifch,*)'qminn,q2mass,pt,wwmin,iqc(1):'
       if(ish.ge.5)write(ifch,*)qminn,q2mass,pt,wwmin
 
       wpt(1)=ept(1)+ept(2)            !lc+ for the current jet emissi
@@ -1781,12 +2153,10 @@ c --- update remnant flavour ---
 
       iret1=0
       call idenco(jcp,icp,iret1)
-      if(iret1.eq.1)call utstop('Problem with proj rem in psahot !&',
-     +sizeof('Problem with proj rem in psahot !&'))
+      if(iret1.eq.1)call utstop('Problem with proj rem in psahot !&')
       iret2=0
       call idenco(jct,ict,iret2)
-      if(iret2.eq.1)call utstop('Problem with targ rem in psahot !&',
-     +sizeof('Problem with targ rem in psahot !&'))
+      if(iret2.eq.1)call utstop('Problem with targ rem in psahot !&')
 
       do i=1,2
         icproj(i,ip)=icp(i)
@@ -1896,7 +2266,7 @@ c      enddo
         mark(i)=1
       enddo
       nptl0=nptl
-c total energy of hte two half of the Pomeron
+c total energy of the two half of the Pomeron
       eptot(1)=0d0
       eptot(2)=0d0
 
@@ -2029,10 +2399,8 @@ c-----------------------------------------------------------------------
       if(ish.ge.9)write (ifch,*)'nptl,kj (sto)',nptl,kj
       if(nptl.ge.mxptl.or.kj.le.0)then
        write (ifmt,*)'nptl,kj',nptl,kj
-       call alist('Error in pspawr: nptl or kj out of bounds &',
-     +sizeof('Error in pspawr: nptl or kj out of bounds &'),1,nptl)
-       call utstop('nptl or kj out of bounds&',
-     +sizeof('nptl or kj out of bounds&'))
+       call alist('Error in pspawr: nptl or kj out of bounds &',1,nptl)
+       call utstop('nptl or kj out of bounds&')
       endif
 
       if(ifrptl(1,iptl).eq.0)ifrptl(1,iptl)=nptl

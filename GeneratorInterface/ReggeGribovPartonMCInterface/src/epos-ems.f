@@ -59,8 +59,7 @@ c Metropolis
         if(ish.ge.6)write (ifch,*)'after xEmsI1'
         if(nemsi.le.4.and.iemsi2.eq.1)call xEmsI2(1,0)
         if(ish.ge.6)write (ifch,*)'after xEmsI2'
-        if(ish.ge.6)call XPrint('Before Markov:&',
-     +sizeof('Before Markov:&'))
+        if(ish.ge.6)call XPrint('Before Markov:&')
 
 
 c     Markov
@@ -188,8 +187,7 @@ c     ------
 
 c --- Plot Pomeron b-distributions ---
 
-      if(ish.ge.6)call XPrint('After Markov :&',
-     +sizeof('After Markov :&'))
+      if(ish.ge.6)call XPrint('After Markov :&')
 
       if(iemsb.eq.1)then ! plot
        do k=1,koll
@@ -224,6 +222,7 @@ c --- Plot distr of pomeron number ---
 c --- Count all interactions ---
 
       ncol=0
+      ncolh=0
       do k=1,koll
         if(nprt(k).gt.0)then
           ncol=ncol+1
@@ -301,8 +300,7 @@ c random selection
 
         endif
 
-        if(ish.ge.6)call XPrint('After ProNucSpl:&',
-     +sizeof('After ProNucSpl:&'))
+        if(ish.ge.6)call XPrint('After ProNucSpl:&')
 
       endif
 
@@ -407,10 +405,10 @@ c      if(irzptn.eq.1)call recalcZPtn
               anintdiff=anintdiff+1.
               if((iep(1).eq.0.and.iet(1).eq.2).or.
      &           (iet(1).eq.0.and.iep(1).eq.2))anintsdif=anintsdif+1.
-              if((iep(1).eq.0.and.iet(1).eq.2).or.
-     &           (iet(1).eq.0.and.iep(1).eq.2))typevt=3   !SD
+              if(iep(1).eq.0.and.iet(1).eq.2)typevt=-4    !SD tar
+              if(iet(1).eq.0.and.iep(1).eq.2)typevt=4     !SD pro
               if(iep(1).eq.2.and.iet(1).eq.2)typevt=2     !DD
-              if(iep(1).eq.0.and.iet(1).eq.0)typevt=4
+              if(iep(1).eq.0.and.iet(1).eq.0)typevt=3     !CD
             else
               anintine=anintine-1. !diffractive without excitation = elastic
             endif
@@ -427,10 +425,10 @@ c      if(irzptn.eq.1)call recalcZPtn
           ip=iproj(k)
           it=itarg(k)
           if(aidif.ge.0..and.itpr(k).gt.0)then
-            aidifp=aidifp+float(iep(ip)+(2-itpr(k))*1000)
-            aidift=aidift+float(iet(it)+(2-itpr(k))*1000)
+            aidifp=aidifp+iep(ip)+(2-itpr(k))*0.00001
+            aidift=aidift+iet(it)+(2-itpr(k))*0.00001
             if(ionudi.eq.1)then !count all diff as inelastic (to compare to tabulated cs)
-              aidif=aidif+1000.
+              aidif=aidif+1.
             endif
           elseif(itpr(k).eq.-1)then
             aiine=aiine+1.
@@ -447,7 +445,7 @@ c      if(irzptn.eq.1)call recalcZPtn
           anintine=anintine+1.
           if(aidifp.gt.0.5.and.aidift.le.0.5)then
             anintsdif=anintsdif+1.
-            typevt=3                        !SD
+            typevt=4                        !SD pro
           endif
           if(aidifp.gt.0.5.and.aidift.gt.0.5)then
             typevt=2                        !DD
@@ -455,9 +453,9 @@ c      if(irzptn.eq.1)call recalcZPtn
           if(ionudi.ne.2)then
             if(aidifp.le.0.5.and.aidift.gt.0.5)then
               anintsdif=anintsdif+1.
-              typevt=3                      !SD
-            elseif(aidifp.gt.500.and.aidift.gt.500)then
-              typevt=4                      !DPE
+              typevt=-4                      !SD tar
+            elseif(typevt.le.0.5.and.aidifp.gt.0..and.aidift.gt.0.)then
+              typevt=3                      !CD
             endif
           endif
         elseif(aiine.gt.0.)then
@@ -466,8 +464,7 @@ c      if(irzptn.eq.1)call recalcZPtn
         endif
       endif
 
-      if(ish.ge.6)call XPrint('After fixing:&',
-     +sizeof('After fixing:&'))
+      if(ish.ge.6)call XPrint('After fixing:&')
 
 
 c --- Plot MC pomeron number ---
@@ -717,11 +714,14 @@ c --- Write ---
 
 c --- Treat hard Pomeron
 
+      ncolh=0
       do k=1,koll
+        ncolhp=0
         do n=1,nprmx(k)
           if(idpr(n,k).eq.3)then
             if(ishpom.eq.1)then
               call psahot(k,n,iret)
+              if(iret.eq.0)ncolhp=ncolhp+1
               if(iret.eq.1)then
                 if(nbkpr(n,k).ne.0)then
                   nn=nbkpr(n,k)
@@ -777,9 +777,11 @@ c --- Treat hard Pomeron
             endif
           endif
         enddo
+        if(ncolhp.gt.0)ncolh=ncolh+1     !count hard binary collisions
       enddo
+      kohevt=ncolh     !update number of hard collisions
 
-      if(iremn.ge.2)then
+      if(iLHC.eq.0.and.iremn.ge.2)then
 c --- Add valence quark to jcpref and jctref for soft string ends ---
         do ip=1,maproj
           if(iep(ip).ne.-1)then
@@ -880,6 +882,52 @@ c --- Diffractive Pt and check Pomeron status
         goto 1000
       endif
 
+      if(iLHC.eq.1.and.iremn.ge.2)then
+c --- Add valence quark to jcpref and jctref for soft string ends ---
+        do ip=1,maproj
+          if(iep(ip).ne.-1)then
+            call UpdateFlav(ip,jcp,10)
+            do nnn=1,nrflav
+              jcpval(nnn,1,ip)=jcp(nnn,1)
+            enddo
+            do nnn=1,nrflav
+              jcpval(nnn,2,ip)=jcp(nnn,2)
+            enddo
+          else
+            icp(1)=icproj(1,ip)
+            icp(2)=icproj(2,ip)
+            call iddeco(icp,jcp)
+            do nnn=1,nrflav
+              jcpval(nnn,1,ip)=jcp(nnn,1)
+            enddo
+            do nnn=1,nrflav
+              jcpval(nnn,2,ip)=jcp(nnn,2)
+            enddo
+          endif
+        enddo
+        do it=1,matarg
+          if(iet(it).ne.-1)then
+            call UpdateFlav(it,jct,20)
+            do nnn=1,nrflav
+              jctval(nnn,1,it)=jct(nnn,1)
+            enddo
+            do nnn=1,nrflav
+              jctval(nnn,2,it)=jct(nnn,2)
+            enddo
+          else
+            ict(1)=ictarg(1,it)
+            ict(2)=ictarg(2,it)
+            call iddeco(ict,jct)
+            do nnn=1,nrflav
+              jctval(nnn,1,it)=jct(nnn,1)
+            enddo
+            do nnn=1,nrflav
+              jctval(nnn,2,it)=jct(nnn,2)
+            enddo
+          endif
+        enddo
+      endif
+
       do ip=1,maproj
 c Here and later "kolp(ip).ne.0" replaced by "iep(ip).ne.-1" to count
 c projectile and target nucleons which are counted in paires but are not used
@@ -900,8 +948,7 @@ c       if(kolt(it).ne.0)call ProCot(it,maproj+it)
 c ---- Remnant Masses (ProReM)
 
 
-      if(ish.ge.6)call XPrint('Before  ProReM:&',
-     +sizeof('Before  ProReM:&'))
+      if(ish.ge.6)call XPrint('Before  ProReM:&')
       ntry=0
       iret=0
       call StoRe(1)             !Store Remnant configuration
@@ -950,8 +997,7 @@ c random selection
           it=-ishuff(indx,ir)
           call ProReM(-1,it,iret)
         endif
-        if(ish.ge.10)call XPrint('In  ProReM:&',
-     +sizeof('In  ProReM:&'))
+        if(ish.ge.10)call XPrint('In  ProReM:&')
 
         if(iret.eq.1)then
           !----------------------------------------
@@ -993,8 +1039,7 @@ c      enddo
 
 
       iret=0
-      if(ish.ge.6)call XPrint('After ProReM:&',
-     +sizeof('After ProReM:&'))
+      if(ish.ge.6)call XPrint('After ProReM:&')
 
 
 c --- Write Z into zpaptl for connected strings
@@ -1231,8 +1276,7 @@ c----------------------------------------------------------------------
        xmtmn(it)=xmtstx
 
       else
-      call utstop('mode should integer from -2 to 2 (without 0)&',
-     +sizeof('mode should integer from -2 to 2 (without 0)&'))
+      call utstop('mode should integer from -2 to 2 (without 0)&')
       endif
       return
       end
@@ -1777,8 +1821,7 @@ c-------------------------------------------------------------------------
       it=itarg(k)
       if(ish.ge.4)write(ifch,*)'ProPoTy:k,n,idpr,x',k,n,ip,it,nprt(k)
      *                                              ,idpr(n,k),xpr(n,k)
-      if(idpr(n,k).ne.1)call utstop('ProPoTy: should not happen&',
-     +sizeof('ProPoTy: should not happen&'))
+      if(idpr(n,k).ne.1)call utstop('ProPoTy: should not happen&')
 
       cont=.true.
       do i=1,3
@@ -1941,8 +1984,7 @@ c restore x from nuclear splitting
             ivp(ip)=ivp(ip)-1
             ivt(it)=ivt(it)-1
           else
-            call utstop('ems-unknown pomeron&',
-     +sizeof('ems-unknown pomeron&'))
+            call utstop('ems-unknown pomeron&')
           endif
           if(ish.ge.6)write(ifch,*)'ProPoTy:idhpr',idhpr(n,k)
      &         ,' |',ip,ivp(ip),' |',it,ivt(it)
@@ -2218,6 +2260,8 @@ c-------------------------------------------------------------------------
 
       ip=iproj(k)
       it=itarg(k)
+      pt=0.
+      phi=0.
 
 
 c generate p_t for diffractive
@@ -2254,6 +2298,9 @@ c update remnant p_t
        xyp(ip)=xyp(ip)-xye(k)
        xxt(it)=xxt(it)+xxe(k)
        xyt(it)=xyt(it)+xye(k)
+
+       if(ish.ge.8)write(ifch,'(a,i5,3i4,4g13.5)')
+     &                    'ProDiPt',k,ip,it,itpr(k),pt,phi,xxe(k),xye(k)
 
        if(itpr(k).ne.0.and.itpr(k).ne.3)iret=0
 !to simulate the fact that originally we had a Pomeron
@@ -2365,6 +2412,12 @@ c generate p_t for string ends  (proj)
       xym1pr(n,k)=0d0
       xxm2pr(n,k)=0d0
       xym2pr(n,k)=0d0
+      x1p=0d0
+      x2p=0d0
+      x1t=0d0
+      x2t=0d0
+      pt=0.
+      phi=0.
       if(ntry.gt.100)then
         iret=1
         goto 1000               !no pt
@@ -2374,9 +2427,19 @@ c      !---proj-----
         ptsef=ptsend
         if(iep(ip).eq.0)ptsef=ptsendi
         ptsendx = ptsems
-        ptsendy = ptsendx*2
+        ptsendy = ptsendx
+        if(iLHC.eq.0)ptsendy = ptsendx*2
+
+        ipt=1
+
+c 2 step pt : first give pt between remnant and Pomeron and then between 
+c string ends on the same side.
+        if(iLHC.eq.-1)ipt=2
+
+        do ii=1,ipt
 
       if(idp1pr(n,k).gt.0)then
+        if(ii.eq.1)then
          if(idp1pr(n,k).eq.4.or.idp1pr(n,k).eq.5)then   !diquarks
            amk1=amk0*ptsendy+qmass(0) !mass for mt distribution with bounding energy for diquark
          else
@@ -2387,20 +2450,25 @@ c         if(iep(ip).eq.0)amk1=0.
            pt=ranptd()*ptsef
          else
            pt=ranptcut(ptsecut)*ptsef
+c           pt=ranptd()*ptsef
            pt=pt+amk1
          endif
 c         pt=ranptcut(ptsecut)*ptsef
 c         pt=pt+amk1
 c         pt=ranptd()*ptsef
 c         pt=sqrt(pt*pt+amk1*amk1)
+       else
+         pt=ranpt()*ptfraqq
+       endif
          phi=2.*pi*rangen()
-         xxp1pr(n,k)=dble(pt*cos(phi))
-         xyp1pr(n,k)=dble(pt*sin(phi))
+         xxp1pr(n,k)=xxp1pr(n,k)+dble(pt*cos(phi))
+         xyp1pr(n,k)=xyp1pr(n,k)+dble(pt*sin(phi))
       else
          xxp1pr(n,k)=0d0
          xyp1pr(n,k)=0d0
       endif
       if(idp2pr(n,k).gt.0)then
+        if(ii.eq.1)then
          if(idp2pr(n,k).eq.4.or.idp2pr(n,k).eq.5)then
            amk1=amk0*ptsendy+qmass(0) !mass for mt distribution with bounding energy for diquark
          else
@@ -2411,6 +2479,7 @@ c         if(iep(ip).eq.0)amk1=0.
            pt=ranptd()*ptsef
          else
            pt=ranptcut(ptsecut)*ptsef
+c           pt=ranptd()*ptsef
            pt=pt+amk1
          endif
 c         pt=ranptcut(ptsecut)*ptsef
@@ -2418,8 +2487,11 @@ c         pt=pt+amk1
 c         pt=ranptd()*ptsef
 c         pt=sqrt(pt*pt+amk1*amk1)
          phi=2.*pi*rangen()
-         xxp2pr(n,k)=dble(pt*cos(phi))
-         xyp2pr(n,k)=dble(pt*sin(phi))
+       else    !use pt and phi from other string ends
+         pt=-pt
+       endif 
+         xxp2pr(n,k)=xxp2pr(n,k)+dble(pt*cos(phi))
+         xyp2pr(n,k)=xyp2pr(n,k)+dble(pt*sin(phi))
       else
          xxp2pr(n,k)=0d0
          xyp2pr(n,k)=0d0
@@ -2431,9 +2503,11 @@ c      !---targ-----
         ptsef=ptsend
         if(iet(it).eq.0)ptsef=ptsendi
         ptsendx = ptsems
-        ptsendy = ptsendx*2.
+        ptsendy = ptsendx
+        if(iLHC.eq.0)ptsendy = ptsendx*2.
 
       if(idm1pr(n,k).gt.0)then
+        if(ii.eq.1)then
          if(idm1pr(n,k).eq.4.or.idm1pr(n,k).eq.5)then
            amk1=amk0*ptsendy+qmass(0) !mass for mt distribution with bounding energy for diquark
          else
@@ -2444,20 +2518,25 @@ c         if(iet(it).eq.0)amk1=0.
            pt=ranptd()*ptsef
          else
            pt=ranptcut(ptsecut)*ptsef
+c           pt=ranptd()*ptsef
            pt=pt+amk1
          endif
 c         pt=ranptcut(ptsecut)*ptsef
 c         pt=pt+amk1
 c         pt=ranptd()*ptsef
 c         pt=sqrt(pt*pt+amk1*amk1)
+       else
+         pt=ranpt()*ptfraqq
+       endif
          phi=2.*pi*rangen()
-         xxm1pr(n,k)=dble(pt*cos(phi))
-         xym1pr(n,k)=dble(pt*sin(phi))
+         xxm1pr(n,k)=xxm1pr(n,k)+dble(pt*cos(phi))
+         xym1pr(n,k)=xym1pr(n,k)+dble(pt*sin(phi))
       else
          xxm1pr(n,k)=0d0
          xym1pr(n,k)=0d0
       endif
       if(idm2pr(n,k).gt.0)then
+        if(ii.eq.1)then
          if(idm2pr(n,k).eq.4.or.idm2pr(n,k).eq.5)then
            amk1=amk0*ptsendy+qmass(0) !mass for mt distribution with bounding energy for diquark
          else
@@ -2468,6 +2547,7 @@ c         if(iet(it).eq.0)amk1=0.
            pt=ranptd()*ptsef
          else
            pt=ranptcut(ptsecut)*ptsef
+c           pt=ranptd()*ptsef
            pt=pt+amk1
          endif
 c         pt=ranptcut(ptsecut)*ptsef
@@ -2475,22 +2555,38 @@ c         pt=pt+amk1
 c         pt=ranptd()*ptsef
 c         pt=sqrt(pt*pt+amk1*amk1)
          phi=2.*pi*rangen()
-         xxm2pr(n,k)=dble(pt*cos(phi))
-         xym2pr(n,k)=dble(pt*sin(phi))
+       else    !use pt and phi from other string ends
+         pt=-pt
+       endif 
+         xxm2pr(n,k)=xxm2pr(n,k)+dble(pt*cos(phi))
+         xym2pr(n,k)=xym2pr(n,k)+dble(pt*sin(phi))
       else
          xxm2pr(n,k)=0d0
          xym2pr(n,k)=0d0
       endif
 
-      x1p=xxp(ip)-xxp1pr(n,k)-xxp2pr(n,k)
-      x2p=xyp(ip)-xyp1pr(n,k)-xyp2pr(n,k)
-      x1t=xxt(it)-xxm1pr(n,k)-xxm2pr(n,k)
-      x2t=xyt(it)-xym1pr(n,k)-xym2pr(n,k)
+      if(ii.eq.1)then    !balance pt bwteen string ends and remnant
 
-      if(iLHC.eq.1)then    !check energy
-        if(x1p**2+x2p**2+2.*amproj**2.ge.xpp(ip)*s)goto 10
-        if(x1t**2+x2t**2+2.*amtarg**2.ge.xmt(it)*s)goto 10
+        x1p=xxp(ip)-xxp1pr(n,k)-xxp2pr(n,k)
+        x2p=xyp(ip)-xyp1pr(n,k)-xyp2pr(n,k)
+        x1t=xxt(it)-xxm1pr(n,k)-xxm2pr(n,k)
+        x2t=xyt(it)-xym1pr(n,k)-xym2pr(n,k)
+
+        if(iLHC.eq.1)then       !check energy
+          if(x1p**2+x2p**2+2.*amproj**2.ge.xpp(ip)*s)goto 10
+          if(x1t**2+x2t**2+2.*amtarg**2.ge.xmt(it)*s)goto 10
+        endif
+
       endif
+
+      if(ish.ge.8)write(ifch,*) 'ProSePt',ii,n,k
+     *   ,sqrt(xxp1pr(n,k)**2+xyp1pr(n,k)**2)
+     *   ,sqrt(xxp2pr(n,k)**2+xyp2pr(n,k)**2)
+     *   ,sqrt(xxm1pr(n,k)**2+xym1pr(n,k)**2)
+     *   ,sqrt(xxm2pr(n,k)**2+xym2pr(n,k)**2)
+
+      enddo
+
 
 c update remnant p_t (pomeron)
         xxp(ip)=x1p
@@ -2544,8 +2640,7 @@ c-----------------------------------------------------------------------
 
       if(idp1pr(n,k).eq.0.and.idp2pr(n,k).eq.0
      * .and.idm1pr(n,k).eq.0.and.idm2pr(n,k).eq.0)
-     *call utstop('no Pomeron in ProSex&',
-     +sizeof('no Pomeron in ProSex&'))
+     *call utstop('no Pomeron in ProSex&')
 
       xp=xppr(n,k)
       xm=xmpr(n,k)
@@ -2758,6 +2853,12 @@ c restore x from nuclear splitting
         if(idm1pr(n,k).eq.5)idt(it)=idt(it)+1
         if(idp2pr(n,k).eq.5)idp(ip)=idp(ip)+1
         if(idm2pr(n,k).eq.5)idt(it)=idt(it)+1
+        if(iLHC.eq.1)then
+        if(idp1pr(n,k).eq.4)idp(ip)=idp(ip)-1 !update number of diquark
+        if(idm1pr(n,k).eq.4)idt(it)=idt(it)-1
+        if(idp2pr(n,k).eq.4)idp(ip)=idp(ip)-1
+        if(idm2pr(n,k).eq.4)idt(it)=idt(it)-1
+        endif
 
         if(iremn.eq.3)then      !virtual Pomeron (remove unnecessary flavors for string ends)
           do j=1,2
@@ -2811,8 +2912,7 @@ c   second quark
                   id=-1
                   return
                 else
-                  call utstop("Virpom:should not happen (2) !&",
-     +sizeof("Virpom:should not happen (2) !&"))
+                  call utstop("Virpom:should not happen (2) !&")
                 endif
               endif
             else      !if no pair has be found (because quarks already used by other valid string), then redo event to avoid problem in flavor conservation
@@ -2820,8 +2920,7 @@ c   second quark
                 id=-1
                 return
               else
-                call utstop("Virpom:should not happen  (3) !&",
-     +sizeof("Virpom:should not happen  (3) !&"))
+                call utstop("Virpom:should not happen  (3) !&")
               endif
             endif
 
@@ -2845,8 +2944,7 @@ c Projectile quark-antiquark pair
                 id=-1
                 return
               else
-                call utstop("Virpom:should not happen (4) !&",
-     +sizeof("Virpom:should not happen (4) !&"))
+                call utstop("Virpom:should not happen (4) !&")
               endif
             endif
           endif
@@ -2888,8 +2986,7 @@ c    second quark
                   id=-1
                   return
                 else
-                  call utstop("Virpom:should not happen (5) !&",
-     +sizeof("Virpom:should not happen (5) !&"))
+                  call utstop("Virpom:should not happen (5) !&")
                 endif
               endif
             else
@@ -2897,8 +2994,7 @@ c    second quark
                 id=-1
                 return
               else
-                call utstop("Virpom:should not happen (6) !&",
-     +sizeof("Virpom:should not happen (6) !&"))
+                call utstop("Virpom:should not happen (6) !&")
               endif
             endif
 
@@ -2922,8 +3018,7 @@ c Target quark-antiquark pair
                 id=-1
                 return
               else
-                call utstop("Virpom:should not happen (7) !&",
-     +sizeof("Virpom:should not happen (7) !&"))
+                call utstop("Virpom:should not happen (7) !&")
               endif
             endif
           endif
@@ -3024,8 +3119,7 @@ c       restore target
 
       else
 
-        call utstop('Do not know what to do in StoRe.&',
-     +sizeof('Do not know what to do in StoRe.&'))
+        call utstop('Do not know what to do in StoRe.&')
 
       endif
 
@@ -3085,6 +3179,31 @@ c-----------------------------------------------------------------------
         do j=1,2
           do i=1,nrflav
             jcpref(i,j,ir)=jcpref(i,j,ir)+jc(i,j)
+          enddo
+        enddo
+
+c cancel quark and antiquarks to avoid to much remnant excitation
+        do i=1,nrflav
+
+          if(iLHC.eq.1)then
+
+          if(jcpref(i,1,ir).ge.jcpref(i,2,ir))then
+            jcpref(i,1,ir)=jcpref(i,1,ir)-jcpref(i,2,ir)
+            jcpref(i,2,ir)=0
+c update valence quarks (cancel first sea quarks)
+            if(jcpref(i,1,ir)-jc(i,1).lt.0)jc(i,1)=jcpref(i,1,ir)
+            jc(i,2)=0
+          else
+            jcpref(i,2,ir)=jcpref(i,2,ir)-jcpref(i,1,ir)
+            jcpref(i,1,ir)=0
+c update valence quarks (cancel first sea quarks)
+            if(jcpref(i,2,ir)-jc(i,2).lt.0)jc(i,2)=jcpref(i,2,ir)
+            jc(i,1)=0
+          endif
+
+          endif
+
+          do j=1,2
             itest=itest+jcpref(i,j,ir)
             jc2(i,j)=jcpref(i,j,ir)
           enddo
@@ -3107,12 +3226,37 @@ c-----------------------------------------------------------------------
         do j=1,2
           do i=1,nrflav
             jctref(i,j,ir)=jctref(i,j,ir)+jc(i,j)
+          enddo
+        enddo
+
+        do i=1,nrflav
+
+          if(iLHC.eq.1)then
+
+c cancel quark and antiquarks to avoid to much remnant excitation
+          if(jctref(i,1,ir).ge.jctref(i,2,ir))then
+            jctref(i,1,ir)=jctref(i,1,ir)-jctref(i,2,ir)
+            jctref(i,2,ir)=0
+c update valence quarks (cancel first sea quarks)
+            if(jctref(i,1,ir)-jc(i,1).lt.0)jc(i,1)=jctref(i,1,ir)
+            jc(i,2)=0
+          else
+            jctref(i,2,ir)=jctref(i,2,ir)-jctref(i,1,ir)
+            jctref(i,1,ir)=0
+c update valence quarks (cancel first sea quarks)
+            if(jctref(i,2,ir)-jc(i,2).lt.0)jc(i,2)=jctref(i,2,ir)
+            jc(i,1)=0
+          endif
+          
+          endif
+
+          do j=1,2
             itest=itest+jctref(i,j,ir)
             jc2(i,j)=jctref(i,j,ir)
           enddo
         enddo
         if(itest.eq.0)then !do not leave empty remnant
-          idum=idrafl(iclpro,jc2,1,'r',3,iretso)     !create q-qb
+          idum=idrafl(icltar,jc2,1,'r',3,iretso)     !create q-qb
           do j=1,2
             do i=1,nrflav
               jctref(i,j,ir)=jc2(i,j)
@@ -3185,14 +3329,13 @@ c-----------------------------------------------------------------------
         jrem=2
       else
         jrem=0
-        call utstop("Wrong ir in WriteZZ !&",
-     +sizeof("Wrong ir in WriteZZ !&"))
+        call utstop("Wrong ir in WriteZZ !&")
       endif
 
       do li=1,lremn(irem,jrem)
         kkk=kremn(irem,li,jrem)
-        ip=iproj(kkk)
-        it=itarg(kkk)
+c        ip=iproj(kkk)
+c        it=itarg(kkk)
          amtot=0.
          do n=1,nprmx(kkk)
            if(idpr(n,kkk).ne.0)amtot=amtot+sngl(xpr(n,kkk)*s)
@@ -3432,10 +3575,8 @@ c check
           kkk=kremn(irem,li,jrem)
           write(ifch,*)'kkk',kkk
         enddo
-        call XPrint('ProRem :&',
-     +sizeof('ProRem :&'))
-        call utstop('Big problem in ProRem !&',
-     +sizeof('Big problem in ProRem !&'))
+        call XPrint('ProRem :&')
+        call utstop('Big problem in ProRem !&')
       endif
 
 c xtest = xminus-max,  corresponding mostly to a remnant mass 0.2
@@ -3726,6 +3867,7 @@ c-----------------------------------------------------------------------
       common/emsx3/pes(0:3,0:6)
       integer jcp(nflav,2),jct(nflav,2)
      &       ,jcpi(nflavems,2),jcti(nflavems,2)
+      logical go
 
       if(idpr(n,k).eq.2)stop'no Reggeons any more'
 
@@ -3744,6 +3886,434 @@ c-----------------------------------------------------------------------
           enddo
         enddo
       endif
+      
+      idp1pr(n,k)=0
+      idm1pr(n,k)=0
+      idp2pr(n,k)=0
+      idm2pr(n,k)=0
+      idsppr(n,k)=0
+      idstpr(n,k)=0
+      pssp=0.
+      pvsp=0.
+      pvap=0.
+      pddp=0.
+      psvvp=0.
+      paasp=0.
+      psst=0.
+      pvst=0.
+      pvat=0.
+      pddt=0.
+      psvvt=0.
+      paast=0.
+
+      if(iLHC.eq.1)then
+
+c for hard Pomeron, define which string ends are connected to valence quark
+c treat gluon has soft string ends (including diquarks but can not be
+c a "soft" valence like in soft Pomerons) later
+      if(idpr(n,k).eq.3)then
+        go=.false.
+        if(ivp0.eq.iap0.and.rangen().lt.0.5)go=.true.    !meson
+        idsppr(n,k)=5
+        if(idhpr(n,k).eq.3.or.idhpr(n,k).eq.1)then
+          if(iremn.ge.2)ivp(ip)=ivp(ip)-1
+          if(iap0.eq.0.or.go)then !baryon
+            idp1pr(n,k)=2
+          else                    !antibaryon
+            idp2pr(n,k)=2
+          endif
+        endif
+        idstpr(n,k)=5
+        if(idhpr(n,k).eq.3.or.idhpr(n,k).eq.2)then
+          if(iremn.ge.2)ivt(it)=ivp(it)-1
+          if(iat0.eq.0)then     !baryon
+            idm1pr(n,k)=2
+          else                  !antibaryon
+            idm2pr(n,k)=2
+          endif
+        endif
+      endif
+
+      if(idpr(n,k).ne.0)then
+
+c    projectile
+
+       if(idfpr(n,k).eq.1.or.idfpr(n,k).eq.2)then
+
+       ntry=0
+       ivpi=ivp(ip)
+       idpi=idp(ip)
+       idspi=idsppr(n,k)
+       if(iremn.eq.3)then
+         do j=1,2
+           do i=1,nrflav
+             jcpi(i,j)=jcp(i,j)
+           enddo
+         enddo
+       endif
+  1    ntry=ntry+1
+      if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&')
+       ivp(ip)=ivpi
+       idp(ip)=idpi
+       idsppr(n,k)=idspi
+       if(iremn.eq.3)then
+         do j=1,2
+           do i=1,nrflav
+             jcp(i,j)=jcpi(i,j)
+           enddo
+         enddo
+       endif
+       pss=wgtval+wgtsea
+       if(pss.gt.0.)then
+         pss=wgtsea/pss
+       else
+         pss=0.
+       endif
+       if(iremn.ge.2)then
+         if(iap0.eq.0)then
+           pvs=0.
+           if(ivp(ip).ne.0.and.idpr(n,k).ne.3)pvs=1.-pss
+           pva=0.
+           psvv=0.
+           if(idp(ip).ne.0.and.idp2pr(n,k).ne.2)psvv=wgtqqq(iclpro)
+           paas=0.
+         elseif(ivp0.eq.0)then
+           pva=0.
+           if(ivp(ip).ne.0.and.idpr(n,k).ne.3)pva=1.-pss
+           pvs=0.
+           psvv=0.
+           paas=0.
+           if(idp(ip).ne.0.and.idp1pr(n,k).ne.2)paas=wgtqqq(iclpro)
+         else                   !for meson, no soft string with valence quark (we do not know whether the quark or the antiquark will be used by hard string)
+           pvs=0.
+           pva=0.
+c diquark or antidiquark can be created once in meson remnant
+           psvv=0.
+           paas=0.
+           if(1+idp(ip).ne.0)then
+             if(idp2pr(n,k).ne.2)psvv=wgtqqq(iclpro)
+             if(idp1pr(n,k).ne.2)paas=wgtqqq(iclpro)
+           endif
+         endif
+         pdd=wgtdiq/(1.+float(abs(idp(ip))))
+c         if(idpr(n,k).eq.3)then
+c           pdd=0.
+c           psvv=0.
+c           paas=0.
+c         endif
+       elseif(iremn.ne.0)then
+         pvs=0.
+         pva=0.
+         psvv=0.
+         paas=0.
+         if(idp2pr(n,k).ne.2)psvv=wgtqqq(iclpro)
+         if(idp1pr(n,k).ne.2)paas=wgtqqq(iclpro)
+         pdd=wgtdiq/(1.+float(abs(idp(ip))))
+       else
+         pvs=0.
+         pva=0.
+         psvv=0.
+         paas=0.
+         pdd=wgtdiq/(1.+float(abs(idp(ip))))
+       endif
+       if(idp1pr(n,k).eq.2)then  !with valence quark only 1 SE available
+         psd=pdd
+         pds=0.
+         pdd=0.
+       elseif(idp2pr(n,k).eq.2)then  !with valence antiquark only 1 SE available
+         pds=pdd
+         psd=0.
+         pdd=0.
+       else
+         psd=pdd
+         pds=pdd
+         pdd=pdd**2
+       endif
+       su=1.-min(1.,pdd+psd+pds)            !diquark probability
+       pss=(1.-min(1.,pvs+pva))*su        !no more valence quark: take from sea
+       pvs=pvs*su
+       pva=pva*su
+       su=1.-min(1.,psvv+paas)      !stopping probability
+       pss=pss*su
+       pvs=pvs*su
+       pva=pva*su
+       psd=psd*su
+       pds=pds*su
+       pdd=pdd*su
+       su=pss+pvs+pva+pdd+psd+pds+psvv+paas
+       pssp = pss /su
+       pvsp = pvs /su
+       pvap = pva /su
+       psdp = psd /su
+       pdsp = pds /su
+       pddp = pdd /su
+       psvvp= psvv/su
+       paasp= paas/su
+       r=rangen()
+       if(r.gt.(pssp+pvsp+pvap+psdp+pdsp+psvvp+paasp)
+     &                               .and.pddp.gt.eps)then
+        if(idp1pr(n,k).ne.2)idp1pr(n,k)=4
+        if(idp2pr(n,k).ne.2)idp2pr(n,k)=4
+        idsppr(n,k)=idsppr(n,k)+4
+        if(iremn.ge.2)idp(ip)=idp(ip)+2
+        if(iremn.eq.3)then   !add diquark flavor to jcpref for ProSeF later (sea quark)
+          idum=idrafl(iclpro,jcp,1,'s',3,iret)
+          idum=idrafl(iclpro,jcp,1,'d',3,iret)
+          idum=idrafl(iclpro,jcp,1,'s',3,iret)
+          idum=idrafl(iclpro,jcp,1,'d',3,iret)
+        endif
+      elseif(r.gt.(pssp+pvsp+pvap+psdp+psvvp+paasp).and.pdsp.gt.eps)then
+        if(idp1pr(n,k).ne.2)idp1pr(n,k)=4
+        if(idp2pr(n,k).ne.2)idp2pr(n,k)=1
+        idsppr(n,k)=idsppr(n,k)+4
+        if(iremn.ge.2)idp(ip)=idp(ip)+1
+        if(iremn.eq.3)then   !add diquark flavor to jcpref for ProSeF later (sea quark)
+          idum=idrafl(iclpro,jcp,1,'s',3,iret)
+          idum=idrafl(iclpro,jcp,1,'d',3,iret)
+        endif
+       elseif(r.gt.(pssp+pvsp+pvap+psvvp+paasp).and.psdp.gt.eps)then
+        if(idp1pr(n,k).ne.2)idp1pr(n,k)=1
+        if(idp2pr(n,k).ne.2)idp2pr(n,k)=4
+        idsppr(n,k)=idsppr(n,k)+4
+        if(iremn.ge.2)idp(ip)=idp(ip)+1
+        if(iremn.eq.3)then   !add diquark flavor to jcpref for ProSeF later (sea quark)
+          idum=idrafl(iclpro,jcp,1,'s',3,iret)
+          idum=idrafl(iclpro,jcp,1,'d',3,iret)
+        endif
+       elseif(r.gt.(pssp+pvsp+pvap+psvvp).and.paasp.gt.eps)then
+        if(idp1pr(n,k).ne.2)idp1pr(n,k)=5
+        if(idp2pr(n,k).ne.2)idp2pr(n,k)=1
+        idsppr(n,k)=idsppr(n,k)+5
+        if(iremn.ge.2)idp(ip)=idp(ip)-1
+        if(iremn.eq.3)idum=idrafl(iclpro,jcp,1,'s',3,iret) !add flavor to jcpref for ProSeF later (sea quark) (only a q-aq pair because we replace diquark by q-aq (baryon "decay" or "stopping")
+       elseif(r.gt.(pssp+pvsp+pvap+pddp).and.psvvp.gt.eps)then
+        if(idp1pr(n,k).ne.2)idp1pr(n,k)=1
+        if(idp2pr(n,k).ne.2)idp2pr(n,k)=5
+        idsppr(n,k)=idsppr(n,k)+5
+        if(iremn.ge.2)idp(ip)=idp(ip)-1
+        if(iremn.eq.3)idum=idrafl(iclpro,jcp,1,'s',3,iret) !add flavor to jcpref for ProSeF later (sea quark) (only a q-aq pair because we replace diquark by q-aq (baryon "decay" or "stopping")
+       elseif(r.gt.(pssp+pvsp).and.pvap.gt.eps)then
+        if(idp1pr(n,k).ne.2)idp1pr(n,k)=1
+        if(idp2pr(n,k).ne.2)idp2pr(n,k)=2
+        idsppr(n,k)=idsppr(n,k)+2
+        if(iremn.ge.2)ivp(ip)=ivp(ip)-1
+        if(iremn.eq.3)idum=idrafl(iclpro,jcp,1,'s',3,iret) !add flavor to jcpref for ProSeF later (sea quark)
+       elseif(r.gt.pssp.and.pvsp.gt.eps)then
+        if(idp1pr(n,k).ne.2)idp1pr(n,k)=2
+        if(idp2pr(n,k).ne.2)idp2pr(n,k)=1
+        idsppr(n,k)=idsppr(n,k)+2
+        if(iremn.ge.2)ivp(ip)=ivp(ip)-1
+        if(iremn.eq.3)idum=idrafl(iclpro,jcp,2,'s',3,iret) !add flavor to jcpref for ProSeF later (sea quark)
+       elseif(pssp.gt.eps)then
+        if(idp1pr(n,k).ne.2)idp1pr(n,k)=1
+        if(idp2pr(n,k).ne.2)idp2pr(n,k)=1
+        idsppr(n,k)=idsppr(n,k)+1
+        if(iremn.eq.3)idum=idrafl(iclpro,jcp,1,'s',3,iret) !add flavor to jcpref for ProSeF later (sea quark)
+       else
+        goto 1
+       endif
+
+       else
+        idp1pr(n,k)=1
+        idp2pr(n,k)=1
+        idsppr(n,k)=0
+       endif
+
+
+c    target
+
+       if(idfpr(n,k).eq.1.or.idfpr(n,k).eq.3)then
+
+
+       ntry=0
+       ivti=ivt(it)
+       idti=idt(it)
+       idsti=idstpr(n,k)
+       if(iremn.eq.3)then
+         do j=1,2
+           do i=1,nrflav
+             jcti(i,j)=jct(i,j)
+           enddo
+         enddo
+       endif
+  2    ntry=ntry+1
+       if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&')
+       ivt(it)=ivti
+       idt(it)=idti
+       idstpr(n,k)=idsti
+       if(iremn.eq.3)then
+         do j=1,2
+           do i=1,nrflav
+             jct(i,j)=jcti(i,j)
+           enddo
+         enddo
+       endif
+       pss=wgtval+wgtsea
+       if(pss.gt.0.)then
+         pss=wgtsea/pss
+       else
+         pss=0.
+       endif
+       if(iremn.ge.2)then
+         if(iat0.eq.0)then
+           pvs=0.
+           if(ivt(it).ne.0.and.idpr(n,k).ne.3)pvs=1.-pss
+           pva=0.
+           psvv=0.
+           if(idt(it).ne.0.and.idm2pr(n,k).ne.2)psvv=wgtqqq(icltar)
+           paas=0.
+         elseif(ivt0.eq.0)then
+           pva=0.
+           if(ivt(it).ne.0.and.idpr(n,k).ne.3)pva=1.-pss
+           pvs=0.
+           psvv=0.
+           paas=0.
+           if(idt(it).ne.0.and.idm1pr(n,k).ne.2)paas=wgtqqq(icltar)
+         else                   !for meson, no soft string with valence quark (we do not know whether the quark or the antiquark will be used by hard string)
+           pvs=0.
+           pva=0.
+c diquark or antidiquark can be created once in meson remnant
+           psvv=0.
+           paas=0.
+           if(1+idt(it).ne.0)then
+             if(idm2pr(n,k).ne.2)psvv=wgtqqq(icltar)
+             if(idm1pr(n,k).ne.2)paas=wgtqqq(icltar)
+           endif
+         endif
+         pdd=wgtdiq/(1.+float(abs(idt(it))))
+c         if(idpr(n,k).eq.3)then
+c           pdd=0.
+c           psvv=0.
+c           paas=0.
+c         endif
+       elseif(iremn.ne.0)then
+         pvs=0.
+         pva=0.
+         psvv=0.
+         paas=0.
+         if(idm2pr(n,k).ne.2)psvv=wgtqqq(icltar)
+         if(idm1pr(n,k).ne.2)paas=wgtqqq(icltar)
+         pdd=wgtdiq/(1.+float(abs(idt(it))))
+       else
+         pvs=0.
+         pva=0.
+         psvv=0.
+         paas=0.
+         pdd=wgtdiq/(1.+float(abs(idt(it))))
+       endif
+       if(idm1pr(n,k).eq.2)then  !with valence quark only 1 SE available
+         psd=pdd
+         pds=0.
+         pdd=0.
+       elseif(idm2pr(n,k).eq.2)then  !with valence antiquark only 1 SE available
+         pds=pdd
+         psd=0.
+         pdd=0.
+       else
+         psd=pdd
+         pds=pdd
+         pdd=pdd**2
+       endif
+       su=1.-min(1.,pdd+pds+psd)            !diquark probability
+       pss=(1.-min(1.,pvs+pva))*su        !no more valence quark: take from sea
+       pvs=pvs*su
+       pva=pva*su
+       su=1.-min(1.,psvv+paas)      !stopping probability
+       pss=pss*su
+       pvs=pvs*su
+       pva=pva*su
+       pds=pds*su
+       psd=psd*su
+       pdd=pdd*su
+       su=pss+pvs+pva+pdd+psd+pds+psvv+paas
+       psst = pss /su
+       pvst = pvs /su
+       pvat = pva /su
+       psdt = psd /su
+       pdst = pds /su
+       pddt = pdd /su
+       psvvt= psvv/su
+       paast= paas/su
+       r=rangen()
+       if(r.gt.(psst+pvst+pvat+psdt+pdst+psvvt+paast)
+     &                               .and.pddt.gt.eps)then
+        if(idm1pr(n,k).ne.2)idm1pr(n,k)=4
+        if(idm2pr(n,k).ne.2)idm2pr(n,k)=4
+        idstpr(n,k)=idstpr(n,k)+4
+        if(iremn.ge.2)idt(it)=idt(it)+2
+        if(iremn.eq.3)then   !add diquark flavor to jctref for ProSeF later (sea quark)
+          idum=idrafl(icltar,jct,1,'s',3,iret)
+          idum=idrafl(icltar,jct,1,'d',3,iret)
+          idum=idrafl(icltar,jct,1,'s',3,iret)
+          idum=idrafl(icltar,jct,1,'d',3,iret)
+        endif
+      elseif(r.gt.(psst+pvst+pvat+psdt+psvvt+paast).and.pdst.gt.eps)then
+        if(idm1pr(n,k).ne.2)idm1pr(n,k)=4
+        if(idm2pr(n,k).ne.2)idm2pr(n,k)=1
+        idstpr(n,k)=idstpr(n,k)+4
+        if(iremn.ge.2)idt(it)=idt(it)+1
+        if(iremn.eq.3)then   !add diquark flavor to jctref for ProSeF later (sea quark)
+          idum=idrafl(icltar,jct,1,'s',3,iret)
+          idum=idrafl(icltar,jct,1,'d',3,iret)
+        endif
+       elseif(r.gt.(psst+pvst+pvat+psvvt+paast).and.psdt.gt.eps)then
+        if(idm1pr(n,k).ne.2)idm1pr(n,k)=1
+        if(idm2pr(n,k).ne.2)idm2pr(n,k)=4
+        idstpr(n,k)=idstpr(n,k)+4
+        if(iremn.ge.2)idt(it)=idt(it)+1
+        if(iremn.eq.3)then   !add diquark flavor to jctref for ProSeF later (sea quark)
+          idum=idrafl(icltar,jct,1,'s',3,iret)
+          idum=idrafl(icltar,jct,1,'d',3,iret)
+        endif
+       elseif(r.gt.(psst+pvst+pvat+psvvt).and.paast.gt.eps)then
+        if(idm1pr(n,k).ne.2)idm1pr(n,k)=5
+        if(idm2pr(n,k).ne.2)idm2pr(n,k)=1
+        idstpr(n,k)=idstpr(n,k)+5
+        if(iremn.ge.2)idt(it)=idt(it)-1
+        if(iremn.eq.3)idum=idrafl(icltar,jct,1,'s',3,iret) !add flavor to jcpref for ProSeF later (sea quark) (only a q-aq pair because we replace diquark by q-aq (baryon "decay" or "stopping")
+       elseif(r.gt.(psst+pvst+pvat+pddt).and.psvvt.gt.eps)then
+        if(idm1pr(n,k).ne.2)idm1pr(n,k)=1
+        if(idm2pr(n,k).ne.2)idm2pr(n,k)=5
+        idstpr(n,k)=idstpr(n,k)+5
+        if(iremn.ge.2)idt(it)=idt(it)-1
+        if(iremn.eq.3)idum=idrafl(icltar,jct,1,'s',3,iret) !add flavor to jcpref for ProSeF later (sea quark) (only a q-aq pair because we replace diquark by q-aq (baryon "decay" or "stopping")
+       elseif(r.gt.(psst+pvst).and.pvat.gt.eps)then
+        if(idm1pr(n,k).ne.2)idm1pr(n,k)=1
+        if(idm2pr(n,k).ne.2)idm2pr(n,k)=2
+        idstpr(n,k)=idstpr(n,k)+2
+        if(iremn.ge.2)ivt(it)=ivt(it)-1
+        if(iremn.eq.3)idum=idrafl(icltar,jct,1,'s',3,iret) !add flavor to jctref for ProSeF later (sea quark)
+       elseif(r.gt.psst.and.pvst.gt.eps)then
+        if(idm1pr(n,k).ne.2)idm1pr(n,k)=2
+        if(idm2pr(n,k).ne.2)idm2pr(n,k)=1
+        idstpr(n,k)=idstpr(n,k)+2
+        if(iremn.ge.2)ivt(it)=ivt(it)-1
+        if(iremn.eq.3)idum=idrafl(icltar,jct,2,'s',3,iret) !add flavor to jctref for ProSeF later (sea quark)
+       elseif(psst.gt.eps)then
+        if(idm1pr(n,k).ne.2)idm1pr(n,k)=1
+        if(idm2pr(n,k).ne.2)idm2pr(n,k)=1
+        idstpr(n,k)=idstpr(n,k)+1
+        if(iremn.eq.3)idum=idrafl(icltar,jct,1,'s',3,iret) !add flavor to jctref for ProSeF later (sea quark)
+       else
+        goto 2
+       endif
+
+       else
+        idm1pr(n,k)=1
+        idm2pr(n,k)=1
+        idstpr(n,k)=0
+       endif
+
+      else
+
+        idp1pr(n,k)=0
+        idm2pr(n,k)=0
+        idp2pr(n,k)=0
+        idm1pr(n,k)=0
+
+      endif
+
+      else       !iLHC
 
       if(idpr(n,k).eq.3)then
        pssp=0.
@@ -3779,8 +4349,7 @@ c-----------------------------------------------------------------------
         idm1pr(n,k)=1
         idm2pr(n,k)=1
        else
-        call utstop('ProSeTy-idhpr????&',
-     +sizeof('ProSeTy-idhpr????&'))
+        call utstop('ProSeTy-idhpr????&')
        endif
        if(iremn.eq.3)then       !add flavor to jcpref and jctref for psahot and ProSeF later (sea quark)
          idum=idrafl(iclpro,jcp,1,'s',3,iret)
@@ -3804,9 +4373,8 @@ c    projectile
            enddo
          enddo
        endif
-  1    ntry=ntry+1
-       if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&',
-     +sizeof('something goes wrong in sr ProSeTy&'))
+ 3     ntry=ntry+1
+       if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&')
        ivp(ip)=ivpi
        idp(ip)=idpi
        if(iremn.eq.3)then
@@ -3917,7 +4485,7 @@ c diquark or antidiquark can be created once in meson remnant
         idsppr(n,k)=1
         if(iremn.eq.3)idum=idrafl(iclpro,jcp,1,'s',3,iret) !add flavor to jcpref for ProSeF later (sea quark)
        else
-        goto1
+        goto 3
        endif
 
        else
@@ -3942,9 +4510,8 @@ c    target
            enddo
          enddo
        endif
-  2    ntry=ntry+1
-       if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&',
-     +sizeof('something goes wrong in sr ProSeTy&'))
+ 4     ntry=ntry+1
+       if(ntry.gt.10)call utstop('something goes wrong in sr ProSeTy&')
        ivt(it)=ivti
        idt(it)=idti
        if(iremn.eq.3)then
@@ -4056,7 +4623,7 @@ c no more valence quark: take from sea
         idstpr(n,k)=1
         if(iremn.eq.3)idum=idrafl(icltar,jct,1,'s',3,iret) !add flavor to jctref for ProSeF later (sea quark)
        else
-        goto2
+        goto 4
        endif
 
        else
@@ -4074,8 +4641,10 @@ c no more valence quark: take from sea
 
       endif
 
+      endif
+
         if(ish.ge.6)then
-      write(ifch,'(a,2(6(f3.2,1x),2x),$)')'ProSeTy ',
+      write(ifch,'(a,2(6(f4.2,1x),2x),$)')'ProSeTy ',
      * pssp,pvsp,pvap,pddp,psvvp,paasp, psst,pvst,pvat,pddt,psvvt,paast
       write(ifch,'(2x,3i3,2x,2(i2,1x,2i2,1x,i2,i3,2x))')idpr(n,k),n,k
      * ,idsppr(n,k),idp1pr(n,k),idp2pr(n,k),ivp(ip),idp(ip)
@@ -4184,12 +4753,22 @@ c         initialize
           if(ntry.gt.100)goto1001
 
           if(iremn.ge.2)then    !uses precalculated flavors
+            do i=1,2
+              icp(i)=icproj(i,ip)
+              ict(i)=ictarg(i,it)
+            enddo
+            if(iLHC.eq.1)then
+              call iddeco(icp,jcpv)
+              call iddeco(ict,jctv)
+            endif
             do j=1,2
               do i=1,nrflav
                 jcp(i,j)=jcpref(i,j,ip)
                 jct(i,j)=jctref(i,j,it)
+                if(iLHC.eq.0)then
                 jcpv(i,j)=jcpval(i,j,ip)
                 jctv(i,j)=jctval(i,j,it)
+                endif
               enddo
               do i=nrflav+1,nflav
                 jcp(i,j)=0
@@ -4197,10 +4776,6 @@ c         initialize
                 jcpv(i,j)=0
                 jctv(i,j)=0
                enddo
-            enddo
-            do i=1,2
-              icp(i)=icproj(i,ip)
-              ict(i)=ictarg(i,it)
             enddo
           else
             do i=1,2
@@ -4266,8 +4841,13 @@ c         check mass string 1
            if(am.lt.ammns*facmss)then
              goto 777   !avoid virpom
            endif
+           if(iLHC.eq.1)then
+           idend(1)=idtra(icp1,0,0,0)
+           idend(3)=idtra(icm2,0,0,0)
+           else
            idend(1)=idtra(icp1,0,0,3)
            idend(3)=idtra(icm2,0,0,3)
+           endif
            if(ish.ge.7)write(ifch,'(a,2i6)') ' string 1 - SE-ids:'
      *      ,idend(1),idend(3)
           endif
@@ -4286,8 +4866,13 @@ c         check mass string 2
            if(am.lt.ammns*facmss)then
              goto 777  !avoid virpom
            endif
+           if(iLHC.eq.1)then
+           idend(2)=idtra(icp2,0,0,0)
+           idend(4)=idtra(icm1,0,0,0)
+           else
            idend(2)=idtra(icp2,0,0,3)
            idend(4)=idtra(icm1,0,0,3)
+           endif
            if(ish.ge.7)write(ifch,'(a,2i6)') ' string 2 - SE-ids:'
      *      ,idend(2),idend(4)
           endif
@@ -4312,10 +4897,22 @@ c Similar process for hard pomeron in epos-rsh !!!!
               do i=1,nrflav
                 jcpref(i,j,ip)=jcp(i,j)
                 jctref(i,j,it)=jct(i,j)
+                if(iLHC.eq.0)then
                 jcpval(i,j,ip)=jcpv(i,j)
                 jctval(i,j,it)=jctv(i,j)
+                endif
               enddo
             enddo
+            if(iLHC.eq.1)then
+            call idenco(jcpv,icp,iret)
+            if(iret.ne.0)goto 1002
+            call idenco(jctv,ict,iret)
+            if(iret.ne.0)goto 1002
+            do i=1,2
+              icproj(i,ip)=icp(i)
+              ictarg(i,it)=ict(i)
+            enddo
+            endif
             if(ish.ge.5)then
               write(ifch,'(a,6i3,3x,6i3)')' proj:  ',jcp
               write(ifch,'(a,6i3,3x,6i3)')' proj val:  ',jcpv
@@ -4370,6 +4967,9 @@ c-----------------------------------------------------------------------
 c knowing the string end types (idp1,idp2,idm1,idm2)
 c               and remnant flavors (icp,ict)
 c               and remnant link of the string (idsp and idst)
+c   for LHC     (idsp/t=100 with one idp/idm=2 means that the valence quark 
+c                to use is define in the corresponding icp/icm
+c                (using just 1 to 6 for flavor identification (no diquark)))
 c one determines quark flavors of string ends (icp1,icp2,icm1,icm2)
 c               and updates remnant flavors (icp,ict)
 c iret=0   ok
@@ -4406,8 +5006,8 @@ c     -----
 c determine flavors of string ends (u,d,s)
 
       if(ish.ge.7)then
-       write(ifch,'(a,3x,2i3)')' string 1, SE types:',idp1,idm1
-       write(ifch,'(a,3x,2i3)')' string 2, SE types:',idp2,idm2
+       write(ifch,'(a,3x,2i3)')' string 1, SE types:',idp1,idm2
+       write(ifch,'(a,3x,2i3)')' string 2, SE types:',idp2,idm1
       endif
 
 c empty
@@ -4460,6 +5060,20 @@ c count valence quarks properly
 c valence quarks
 
         if(idp1.eq.2)then
+
+          if(iLHC.eq.1)then
+            if(idsp.eq.100)then
+              iq(1,1)=icp1(1)   !flavor of hard quark already defined
+            else
+              iq(1,1)=idrafl(iclpro,jcpv,1,'v',0,idum)
+            endif
+            if(iq(1,1).gt.0)then !if still exist, update jcp and jcpv
+              call idsufl3(iq(1,1),1,jcpv)
+            else                ! if not, use jcp directly and sea
+              iq(1,1)=idrafl(iclpro,jcp,1,'s',1,idum)
+            endif
+          else
+
           iq(1,1)=idrafl(iclpro,jcpv,1,'v',0,idum)
           if(iq(1,1).gt.0)then          !if still exist, update jcp and jcpv
             call idsufl3(iq(1,1),1,jcpv)
@@ -4467,15 +5081,34 @@ c valence quarks
           else                          ! if not, use jcp directly
             iq(1,1)=idrafl(iclpro,jcp,1,'v',1,idum)
           endif
+
+          endif
+
           iq(2,1)=0
         endif
+
         if(idp2.eq.2)then
+
+          if(iLHC.eq.1)then
+            if(idsp.eq.100)then
+              iq(1,2)=icp2(2)   !flavor of hard antiquark already defined
+            else
+              iq(1,2)=idrafl(iclpro,jcpv,2,'v',0,idum)
+            endif
+            if(iq(1,2).gt.0)then !if still exist, update jcp and jcpv
+              call idsufl3(iq(1,2),2,jcpv)
+            else                ! if not, use jcp directly and sea
+              iq(1,2)=idrafl(iclpro,jcp,2,'s',1,idum)
+            endif
+          else
+
           iq(1,2)=idrafl(iclpro,jcpv,2,'v',0,idum)
           if(iq(1,2).gt.0)then          !if still exist, update jcp and jcpv
             call idsufl3(iq(1,2),2,jcpv)
             call idsufl3(iq(1,2),2,jcp)
           else                          ! if not, use jcp directly
             iq(1,2)=idrafl(iclpro,jcp,2,'v',1,idum)
+          endif
           endif
           iq(2,2)=0
         endif
@@ -4488,34 +5121,34 @@ c sea quarks
           j=1                    !quark
           i=idrafl(iclpro,jcp,j,m,1,idum)
           iq(1,1)=i
-          if(jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
+          if(iLHC.eq.0.and.jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
           iq(2,1)=0
         elseif(idp1.ge.4)then
           if(iremn.eq.2)m='d'
           j=2                    !anti-diquark
           i=idrafl(iclpro,jcp,j,m,1,idum)
           iq(1,1)=i
-          if(jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
+          if(iLHC.eq.0.and.jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
           i=idrafl(iclpro,jcp,j,m,1,idum)
           iq(2,1)=i
-          if(jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
+          if(iLHC.eq.0.and.jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
         endif
         if(idp2.eq.1)then
           if(iremn.eq.2)m='s'
           j=2                    !antiquark
           i=idrafl(iclpro,jcp,j,m,1,idum)
           iq(1,2)=i
-          if(jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
+          if(iLHC.eq.0.and.jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
           iq(2,2)=0
         elseif(idp2.ge.4)then
           if(iremn.eq.2)m='d'
           j=1                    !diquark
           i=idrafl(iclpro,jcp,j,m,1,idum)
           iq(1,2)=i
-          if(jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
+          if(iLHC.eq.0.and.jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
           i=idrafl(iclpro,jcp,j,m,1,idum)
           iq(2,2)=i
-          if(jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
+          if(iLHC.eq.0.and.jcp(i,j)-jcpv(i,j).lt.0)jcpv(i,j)=jcpv(i,j)-1
         endif
 
       elseif(iremn.ne.0)then
@@ -4524,11 +5157,19 @@ c free remant content
 c valence quarks
 
         if(idp1.eq.2)then
-          iq(1,1)=idrafl(iclpro,jcp,1,'v',1,iret)
+          if(iLHC.eq.1.and.idsp.eq.100)then
+            iq(1,1)=icp1(1)         !flavor of hard quark already defined
+          else
+            iq(1,1)=idrafl(iclpro,jcp,1,'v',1,iret)
+          endif
           iq(2,1)=0
         endif
         if(idp2.eq.2)then
-          iq(1,2)=idrafl(iclpro,jcp,2,'v',1,iret)
+          if(iLHC.eq.1.and.idsp.eq.100)then
+            iq(1,2)=icp2(1)     !flavor of hard antiquark already defined
+          else
+            iq(1,2)=idrafl(iclpro,jcp,2,'v',1,iret)
+          endif
           iq(2,2)=0
         endif
 
@@ -4613,6 +5254,20 @@ c count valence quarks properly
 c valence quarks
 
         if(idm1.eq.2)then
+
+          if(iLHC.eq.1)then
+            if(idst.eq.100)then
+              iq(1,4)=icm1(1)   !flavor of hard quark already defined
+            else
+              iq(1,4)=idrafl(icltar,jctv,1,'v',0,idum)
+            endif
+            if(iq(1,4).gt.0)then !if still exist, update jct and jctv
+              call idsufl3(iq(1,4),1,jctv)
+            else                ! if not, use jct directly
+              iq(1,4)=idrafl(icltar,jct,1,'s',1,idum)
+            endif
+          else
+
           iq(1,4)=idrafl(icltar,jctv,1,'v',0,idum)
           if(iq(1,4).gt.0)then          !if still exist, update jct and jctv
             call idsufl3(iq(1,4),1,jctv)
@@ -4620,15 +5275,33 @@ c valence quarks
           else                          ! if not, use jct directly
             iq(1,4)=idrafl(icltar,jct,1,'v',1,idum)
           endif
+
+          endif
+
           iq(2,4)=0
         endif
         if(idm2.eq.2)then
+
+          if(iLHC.eq.1)then
+            if(idst.eq.100)then
+              iq(1,3)=icm2(2)   !flavor of hard antiquark already defined
+            else
+              iq(1,3)=idrafl(icltar,jctv,2,'v',0,idum)
+            endif
+            if(iq(1,3).gt.0)then !if still exist, update jct and jctv
+              call idsufl3(iq(1,3),2,jctv)
+            else                ! if not, use jct directly
+              iq(1,3)=idrafl(icltar,jct,2,'s',1,idum)
+            endif
+          else
+
           iq(1,3)=idrafl(icltar,jctv,2,'v',0,idum)
           if(iq(1,3).gt.0)then          !if still exist, update jct and jctv
             call idsufl3(iq(1,3),2,jctv)
             call idsufl3(iq(1,3),2,jct)
           else                          ! if not, use jct directly
             iq(1,3)=idrafl(icltar,jct,2,'v',1,idum)
+          endif
           endif
           iq(2,3)=0
         endif
@@ -4641,34 +5314,34 @@ c sea quarks
           j=1                    !quark
           i=idrafl(icltar,jct,j,m,1,idum)
           iq(1,4)=i
-          if(jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
+          if(iLHC.eq.0.and.jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
           iq(2,4)=0
         elseif(idm1.ge.4)then
           if(iremn.eq.2)m='d'
           j=2                   !anti-diquark
           i=idrafl(icltar,jct,j,m,1,idum)
           iq(1,4)=i
-          if(jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
+          if(iLHC.eq.0.and.jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
           i=idrafl(icltar,jct,j,m,1,idum)
           iq(2,4)=i
-          if(jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
+          if(iLHC.eq.0.and.jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
         endif
         if(idm2.eq.1)then
           if(iremn.eq.2)m='s'
           j=2                    !antiquark
           i=idrafl(icltar,jct,j,m,1,idum)
           iq(1,3)=i
-          if(jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
+          if(iLHC.eq.0.and.jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
           iq(2,3)=0
         elseif(idm2.ge.4)then
           if(iremn.eq.2)m='d'
           j=1                    !diquark
           i=idrafl(icltar,jct,j,m,1,idum)
           iq(1,3)=i
-          if(jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
+          if(iLHC.eq.0.and.jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
           i=idrafl(icltar,jct,j,m,1,idum)
           iq(2,3)=i
-          if(jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
+          if(iLHC.eq.0.and.jct(i,j)-jctv(i,j).lt.0)jctv(i,j)=jctv(i,j)-1
         endif
 
       elseif(iremn.ne.0)then
@@ -4676,11 +5349,19 @@ c sea quarks
 c valence quarks
 
         if(idm1.eq.2)then
-          iq(1,4)=idrafl(icltar,jct,1,'v',1,iret)
+          if(iLHC.eq.1.and.idst.eq.100)then
+            iq(1,4)=icm1(1)         !flavor of hard quark already defined
+          else
+            iq(1,4)=idrafl(icltar,jct,1,'v',1,iret)
+          endif
           iq(2,4)=0
         endif
         if(idm2.eq.2)then
-          iq(1,3)=idrafl(icltar,jct,2,'v',1,iret)
+          if(iLHC.eq.1.and.idst.eq.100)then
+            iq(1,3)=icm2(1)         !flavor of hard antiquark already defined
+          else
+            iq(1,3)=idrafl(icltar,jct,2,'v',1,iret)
+          endif
           iq(2,3)=0
         endif
 
@@ -4804,7 +5485,9 @@ c at string-end
         write(ifch,'(a,2i7,4x,2i7)')
      *  ' SE-back:',icm1(1),icm1(2),icm2(1),icm2(2)
         write(ifch,'(a,3x,6i3,3x,6i3)')' proj:',jcp
+        write(ifch,'(a,3x,6i3,3x,6i3)')' proj val:',jcpv
         write(ifch,'(a,3x,6i3,3x,6i3)')' targ:',jct
+        write(ifch,'(a,3x,6i3,3x,6i3)')' targ val:',jctv
       endif
 
 c     exit
@@ -4863,8 +5546,7 @@ c        ifl=idrafl(jcp,2,'v',iret)
 c        iqp=1      ! subtract antiquark
 c        iqt=2      ! add antiquark
 c       else
-c        call utstop('fremfl&',
-c     +sizeof('fremfl&'))
+c        call utstop('fremfl&')
 c       endif
 c      elseif(iakt.eq.4)then
 c       if(ikt.eq.4.or.ikt.eq.-2)then
@@ -4876,8 +5558,7 @@ c        ifl=idrafl(jct,2,'v',iret)
 c        iqp=2      ! add antiquark
 c        iqt=1      ! subtract antiquark
 c       else
-c        call utstop('fremfl&',
-c     +sizeof('fremfl&'))
+c        call utstop('fremfl&')
 c       endif
 c      elseif(iakp.eq.3)then
 c       if(ikp.gt.0)then
@@ -4940,8 +5621,7 @@ c        iqp=2      ! subtract quark
 c        iqt=1      ! add quark
 c       endif
 c      else
-c       call utstop('fremfl: error&',
-c     +sizeof('fremfl: error&'))
+c       call utstop('fremfl: error&')
 c      endif
 c
 c      if(ish.ge.7)write(ifch,*)'iq_p:',iqp,' iq_t:',iqt,' if:',ifl
@@ -5116,8 +5796,7 @@ c resonance
       elseif(idend(ii).eq.0.and.idend(jj).eq.0)then
        goto1000
       else
-       call utstop('error in fstrwr&',
-     +sizeof('error in fstrwr&'))
+       call utstop('error in fstrwr&')
       endif
 
   100 format(a,4e9.3,i5)
@@ -5239,14 +5918,12 @@ c        if(kolt(m).le.0)goto1000
           enddo
         endif
       else
-        call utstop('ProReF: ir ???&',
-     +sizeof('ProReF: ir ???&'))
+        call utstop('ProReF: ir ???&')
       endif
       if(ish.ge.3)
      &write(ifch,*)'remnant particle index:',mm,m,iclpt,isopt
 
-      if(ish.ge.8)call alist('ProRef&',
-     +sizeof('ProRef&'),1,nptl)
+      if(ish.ge.8)call alist('ProRef&',1,nptl)
       antotre=antotre+1.
 
       mmini=mm
@@ -5429,7 +6106,11 @@ c            Remnant radius to have eps=dens GeV/fm3
         if(gdrop)then
           idx=0
         else
-          idx=idtra(icf,0,0,3)
+          if(iLHC.eq.1)then
+            idx=idtra(icf,0,0,0)
+          else
+            idx=idtra(icf,0,0,3)
+          endif
         endif
         if(abs(idx).gt.100)then
          amx=sngl(ept(5))
@@ -5487,8 +6168,7 @@ c            Remnant radius to have eps=dens GeV/fm3
           enddo
           call iddeco(icf,jcf)
           call idquacjc(jcf,nqu,naq)
-          if(iret.eq.1)call utstop('Pb in ProRef in strg+drop process&',
-     +sizeof('Pb in ProRef in strg+drop process&'))
+          if(iret.eq.1)call utstop('Pb in ProRef in strg+drop process&')
           !!!  print*,'new remnant:',icf,ept(5)    !!!
           nptl=nptl+1
           t=xorptl(4,mm)
@@ -5528,8 +6208,7 @@ c            Remnant radius to have eps=dens GeV/fm3
      &       .or.amasini.le.amasmin*flow)then      !decay here only if no fusion or large mass or mass too low for flow
 
           if(ish.ge.3)write(ifch,*)'Decay remnant droplet...'
-          if(nptlb.gt.mxptl-10)call utstop('ProRef: mxptl too small&',
-     +sizeof('ProRef: mxptl too small&'))
+          if(nptlb.gt.mxptl-10)call utstop('ProRef: mxptl too small&')
 
           if(ifrade.gt.0.and.ispherio.eq.0)then
             if(ioclude.eq.3.or.dble(pptl(5,mm)).lt.xmdrmin)then
@@ -5647,7 +6326,11 @@ c........................ determine idr (0=string, else=resonance).......
       if(icf(1).eq.0.and.icf(2).eq.0)then
         id=110
       else
-        id=idtra(icf,0,0,3)
+        if(iLHC.eq.1)then
+          id=idtra(icf,0,0,0)
+        else
+          id=idtra(icf,0,0,3)
+        endif
       endif
       idr=0
       am=sngl(ept(5))
@@ -5695,7 +6378,17 @@ c        if(zrminc.lt.0.)stop'ProReF: not supported any more.         '
         am2=0.
         ptt1=0d0
         ptt2=0d0
-        ptt3=dble(ir)*0.5d0*ept(5)
+        if(iLHC.eq.1)then
+          pt=ranptcut(1.)*ptfraqq
+          if(pt.lt.0.5d0*ept(5))then
+            phi=2.*pi*rangen()
+            ptt1=dble(pt*cos(phi))
+            ptt2=dble(pt*sin(phi))
+          endif
+          ptt3=dble(ir)*sqrt((0.5d0*ept(5))**2-ptt1*ptt1-ptt2*ptt2)
+        else
+          ptt3=dble(ir)*0.5d0*ept(5)
+        endif
 
         ep(1)=ptt1
         ep(2)=ptt2
@@ -5979,8 +6672,7 @@ c          endif
         !..... forward string end
 
         nptl=nptl+1
-        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&',
-     +sizeof('ProRef: mxptl too small&'))
+        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&')
         pptl(1,nptl)=sngl(ep(1))
         pptl(2,nptl)=sngl(ep(2))
         pptl(3,nptl)=sngl(ep(3))
@@ -5998,7 +6690,11 @@ c          endif
         xorptl(4,nptl)=xorptl(4,mm)
         tivptl(1,nptl)=xorptl(4,nptl)
         tivptl(2,nptl)=xorptl(4,nptl)
-        idptl(nptl)=idtra(icf,0,0,3)
+        if(iLHC.eq.1)then
+          idptl(nptl)=idtra(icf,0,0,0)
+        else
+          idptl(nptl)=idtra(icf,0,0,3)
+        endif
         if(gproj)then
           if(iep(m).lt.1)stop'ProReF: iep(m)<1     '
           ityptl(nptl)=41+iep(m)  ! =42 =43 =44 =46 =47
@@ -6045,8 +6741,7 @@ c          endif
         !....... backward string end
 
         nptl=nptl+1
-        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&',
-     +sizeof('ProRef: mxptl too small&'))
+        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&')
         pptl2=0.
         do i=1,3
          pptl(i,nptl)=sngl(ept(i)-ep(i))
@@ -6077,7 +6772,11 @@ c          endif
         xorptl(4,nptl)=xorptl(4,mm)
         tivptl(1,nptl)=xorptl(4,nptl)
         tivptl(2,nptl)=xorptl(4,nptl)
-        idptl(nptl)=idtra(icb,0,0,3)
+        if(iLHC.eq.1)then
+          idptl(nptl)=idtra(icb,0,0,0)
+        else
+          idptl(nptl)=idtra(icb,0,0,3)
+        endif
         if(gproj)then
           ityptl(nptl)=41+iep(m)  ! =42 =43 =47
           if(iep(m).eq.4)ityptl(nptl)=42
@@ -6108,8 +6807,7 @@ c............................no string = resonance...................
 
         nptl=nptl+1
         if(idr.ne.0)id=idr
-        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&',
-     +sizeof('ProRef: mxptl too small&'))
+        if(nptl.gt.mxptl)call utstop('ProRef: mxptl too small&')
         if(iept.eq.0.or.iept.eq.6)call idmass(id,am)
         idptl(nptl)=id
         pptl(1,nptl)=sngl(ept(1))
@@ -6248,8 +6946,9 @@ c-----------------------------------------------------------------------
           nmes=nmes-1        !string is aq-q
         endif
       else
-        nbar=nqu/3+naq/3
+        nbar=nqu/3
         nmes=nqu-3*nbar
+        nbar=nbar+naq/3
         nbar=nbar-1             !string is qq-q or aqaq-aq
       endif
       if(ish.ge.5)
@@ -6264,8 +6963,7 @@ c  remove mesons
             if(iret.ne.0)goto 1000
               nptl=nptl+1
               if(nptl.gt.mxptl)
-     &             call utstop('RemoveHadrons: mxptl too small&',
-     +sizeof('RemoveHadrons: mxptl too small&'))
+     &             call utstop('RemoveHadrons: mxptl too small&')
               idptl(nptl)=idd
               do i=1,5
                 pptl(i,nptl)=sngl(aa(i))
@@ -6323,8 +7021,7 @@ c remove (anti)baryons
             if(iret.ne.0)goto 1000
               nptl=nptl+1
               if(nptl.gt.mxptl)
-     &             call utstop('RemoveHadron: mxptl too small&',
-     +sizeof('RemoveHadron: mxptl too small&'))
+     &             call utstop('RemoveHadron: mxptl too small&')
               idptl(nptl)=idd
               do i=1,5
                 pptl(i,nptl)=sngl(aa(i))
@@ -6483,6 +7180,7 @@ c  get the id and mass of hadron, the remnant jc is updated
               nqv=nqv-1
             else
               i=idrafl(iclpt,jc,j,'v',1,iret2)
+              if(iLHC.eq.1.and.iret2.ne.0)goto 77
             endif
             ifq=i
             j=2
@@ -6492,6 +7190,7 @@ c  get the id and mass of hadron, the remnant jc is updated
               nav=nav-1
             else
               i=idrafl(iclpt,jc,j,'v',1,iret2)
+              if(iLHC.eq.1.and.iret2.ne.0)goto 77
             endif
             ifa=i
 c            write(ifch,*)'ici',ifq,ifa,jc,'| ',jcv
@@ -6517,6 +7216,7 @@ c            write(ifch,*)'ici',ifq,ifa,jc,'| ',jcv
                 nqv=nqv-1
               else
                 i=idrafl(iclpt,jc,j,'v',1,iret2)
+              if(iLHC.eq.1.and.iret2.ne.0)goto 77
               endif
               ifh(ik)=i
               ic(j)=ic(j)+10**(6-i)
@@ -6541,6 +7241,7 @@ c            write(ifch,*)'ici',ifq,ifa,jc,'| ',jcv
                 nav=nav-1
               else
                 i=idrafl(iclpt,jc,j,'v',1,iret2)
+              if(iLHC.eq.1.and.iret2.ne.0)goto 77
               endif
               ifh(ik)=i
               ic(j)=ic(j)+10**(6-i)
@@ -6557,18 +7258,17 @@ c            write(ifch,*)'ici',ifq,ifa,jc,'| ',jcv
             endif
             call idmass(idf,amss)
            else
-            call utstop('This imb does not exist in gethad !&',
-     +sizeof('This imb does not exist in gethad !&'))
+            call utstop('This imb does not exist in gethad !&')
            endif
 
-          if(iret2.ne.0)then
-c            call utstop('Not enough quark in gethad ???&',
-c     +sizeof('Not enough quark in gethad ???&'))
-            call utmsg('gethad')
-            write(ifch,*)'Not enough quark ??? ... redo event !'
-            call utmsgf
-            iret=1
-            return
+   77     if(iret2.ne.0)then
+          write(ifmt,*)'warning in gethadron: imb=',imb,'  iclpt:',iclpt
+          write(ifmt,*)'   jc: ',jc,'  j: ',j,'   (1=q,2=aq)  --> redo'
+          call utmsg('gethad')
+          write(ifch,*)'Not enough quark ??? ... redo event !'
+          call utmsgf
+          iret=1
+          goto 1000
           endif
 
 c fix pt
@@ -6628,11 +7328,12 @@ c If energy to small, then produce a new particle adding the needed missing ener
             if(iret.eq.0)then
              goto 777
             else
-c              call utstop('Problem with qcm in gethadron !&',
-c     +sizeof('Problem with qcm in gethadron !&'))
-              call utmsg('gethad')
-              write(ifch,*)'Problem with qcm  ... redo event !'
-              call utmsgf
+c              call utstop('Problem with qcm in gethadron !&')
+              if(ish.ge.1)then
+                call utmsg('gethad')
+                write(ifch,*)'Problem with qcm  ... redo event !'
+                call utmsgf
+              endif
               iret=1
               return
             endif
@@ -6752,7 +7453,7 @@ c$$$        endif
 c          write(ifmt,*)'get hadron with id and 5-momentum:',idf, a
 c          write(ifmt,*)'new remnant flavor and 5-momentum:',jc, ep
 
-        call utprix('gethad',ish,ishini,5)
+ 1000 call utprix('gethad',ish,ishini,5)
 
       return
       end
@@ -6851,8 +7552,7 @@ c  get id of string ends, the remnant string jc is updated
              nqu=2
              naq=2
            else
-             call utstop('This should not happen (getdrop) !&',
-     +sizeof('This should not happen (getdrop) !&'))
+             call utstop('This should not happen (getdrop) !&')
            endif
          elseif(nqu.eq.2.and.naq.eq.2)then
            idps=1
@@ -6968,18 +7668,15 @@ c a third one to complete the string
 
           endif      !iremn=3
 
-          if(iret.ne.0)call utstop('Not enough quark in getdro ???&',
-     +sizeof('Not enough quark in getdro ???&'))
+          if(iret.ne.0)call utstop('Not enough quark in getdro ???&')
           if(jcini(4,1)+jcini(4,2).ne.0)
-     &         call utstop('There is sitll charm quark in getdro???&',
-     +sizeof('There is sitll charm quark in getdro???&'))
+     &         call utstop('There is sitll charm quark in getdro???&')
 
 c string id
 
          call idenco(jcfin,icx,iret)
          if(iret.eq.1)then
-           call utstop('Exotic flavor in getdroplet !&',
-     +sizeof('Exotic flavor in getdroplet !&'))
+           call utstop('Exotic flavor in getdroplet !&')
          endif
 
 
@@ -7316,8 +8013,7 @@ c create q-aq from sea (but no charm)
            strcomp=.true.
            valqu=.false.
          elseif(mod(nqu-naq,3).ne.0)then
-           call utstop('This should not happen (getdropx) !&',
-     +sizeof('This should not happen (getdropx) !&'))
+           call utstop('This should not happen (getdropx) !&')
          endif
 
 c  get id of string ends, the remnant string jc is updated
@@ -7330,14 +8026,12 @@ c First remove all charm
              idps=1
              idms=1
            else
-             call utstop('getdropx can not manage more than c-cb !&',
-     +sizeof('getdropx can not manage more than c-cb !&'))
+             call utstop('getdropx can not manage more than c-cb !&')
            endif
 
          elseif(nqc.ne.0.and.jcini(4,1)*jcini(4,2).ne.0)then
 
-           call utstop('getdropx can not manage c quarks this way !&',
-     +sizeof('getdropx can not manage c quarks this way !&'))
+           call utstop('getdropx can not manage c quarks this way !&')
 
          else
 
@@ -7363,8 +8057,7 @@ c First remove all charm
                idps=1
                idms=5
              elseif(jcini(4,1).gt.1.or.jcini(4,2).gt.1)then
-               call utstop('getdropx can not use more than 3 c/cb !&',
-     +sizeof('getdropx can not use more than 3 c/cb !&'))
+               call utstop('getdropx can not use more than 3 c/cb !&')
              endif
            endif
 
@@ -7497,18 +8190,15 @@ c choose flavor with priority to valence quark (after charm)
 
           endif
 
-          if(iret.ne.0)call utstop('Not enough quark in getdropx ???&',
-     +sizeof('Not enough quark in getdropx ???&'))
+          if(iret.ne.0)call utstop('Not enough quark in getdropx ???&')
           if(jcini(4,1)+jcini(4,2).ne.0)
-     &         call utstop('There is sitll charm quark in getdropx???&',
-     +sizeof('There is sitll charm quark in getdropx???&'))
+     &         call utstop('There is sitll charm quark in getdropx???&')
 
 c string id
 
          call idenco(jcfin,icx,iret)
          if(iret.eq.1)then
-           call utstop('Exotic flavor in getdropx !&',
-     +sizeof('Exotic flavor in getdropx !&'))
+           call utstop('Exotic flavor in getdropx !&')
          endif
 
 
@@ -7984,8 +8674,7 @@ c----------------------------------------------------------------------
 c parameter test
 
       if(nflavems.lt.nrflav)
-     &   call utstop("nflavems<nrflav : change it in epos-ems !&",
-     +sizeof("nflavems<nrflav : change it in epos-ems !&"))
+     &   call utstop("nflavems<nrflav : change it in epos-ems !&")
 
 
 c abreviations
@@ -8452,19 +9141,20 @@ c determine ncol
        if(ish.ge.7)write(ifch,*)'k,itpr,ncol,ncolx',k,itpr(k),ncol,ncolx
         if(itpr(k).eq.0)goto 8
         if(abs(itpr(k)).eq.1)ncoli=ncoli+1
-        ncol=ncol+1
-        i=iproj(k)
-        j=itarg(k)
-        istptl(i)=1
-        iorptl(i)=-1
-        tivptl(2,i)=coord(4,k)
-        istptl(maproj+j)=1
-        iorptl(maproj+j)=-1
-        tivptl(2,maproj+j)=coord(4,k)
+          ncol=ncol+1
+          if(itpr(k).ne.3)then          !empty pair, remnant not modified
+            i=iproj(k)
+            j=itarg(k)
+            istptl(i)=1
+            iorptl(i)=-1
+            tivptl(2,i)=coord(4,k)
+            istptl(maproj+j)=1
+            iorptl(maproj+j)=-1
+            tivptl(2,maproj+j)=coord(4,k)
+          endif
 8      continue
        if(ncolx.ne.ncol)write(6,*)'ncolx,ncol:', ncolx,ncol
-       if(ncolx.ne.ncol)call utstop('********ncolx.ne.ncol********&',
-     +sizeof('********ncolx.ne.ncol********&'))
+       if(ncolx.ne.ncol)call utstop('********ncolx.ne.ncol********&')
        if(ncol.eq.0)goto1001
 
 c determine npj, ntg
@@ -8503,11 +9193,12 @@ c     ------------
       phievt=phi
       kolevt=ncol
       koievt=ncoli
+      kohevt=0      !not yet defined
       npjevt=npj
       ntgevt=ntg
       pmxevt=pnll
       egyevt=engy
-      !print*,' ===== ',kolevt,koievt,' ====='
+      !print*,' ===== ',kolevt,koievt' ====='
 
 c     exit
 c     ----
@@ -8584,8 +9275,7 @@ c     determine kolz
       else
         kolz=1
       endif
-c      if(kolz.eq.0)call utstop(' kolz=0 (proj)&',
-c     +sizeof(' kolz=0 (proj)&'))
+c      if(kolz.eq.0)call utstop(' kolz=0 (proj)&')
       if(kolz.eq.0)then
         t=0.
       else
@@ -8602,7 +9292,7 @@ c     +sizeof(' kolz=0 (proj)&'))
       nqu=0
 
       if(iremn.ge.2)then   !update icproj
-        idp(i)=abs(idp(i))
+        idp(i)=min(1,abs(idp(i)))
         k=1
         nqu=0
         do n=1,nrflav
@@ -8622,8 +9312,7 @@ c     +sizeof(' kolz=0 (proj)&'))
           icproj(2,i)=icrmn(2)
         elseif(iremn.eq.3)then
       write(ifch,*)'Problem in projectile flavor :',i,' ->',jc,' :',isum
-          call utstop('Procop: Problem in projectile flavor !&',
-     +sizeof('Procop: Problem in projectile flavor !&'))
+          call utstop('Procop: Problem in projectile flavor !&')
         else     !for iremn=2 and large number of quark define icproj=999999
           icproj(1,i)=999999
           icproj(2,i)=999999
@@ -8734,8 +9423,7 @@ c     determine kolz
       else
         kolz=1
       endif
-c      if(kolz.eq.0)call utstop(' kolz=0 (targ)&',
-c     +sizeof(' kolz=0 (targ)&'))
+c      if(kolz.eq.0)call utstop(' kolz=0 (targ)&')
       if(kolz.eq.0)then
         t=0.
       else
@@ -8752,7 +9440,7 @@ c     +sizeof(' kolz=0 (targ)&'))
       nqu=0
 
       if(iremn.ge.2)then   !update ictarg
-        idt(j)=abs(idt(j))
+        idt(j)=min(1,abs(idt(j)))
         k=1
         nqu=0
         do n=1,nrflav
@@ -8772,8 +9460,7 @@ c     +sizeof(' kolz=0 (targ)&'))
           ictarg(2,j)=icrmn(2)
         elseif(iremn.eq.3)then
       write(ifch,*)'Problem in projectile flavor :',j,' ->',jc,' :',isum
-          call utstop('Procot: Problem in target flavor !&',
-     +sizeof('Procot: Problem in target flavor !&'))
+          call utstop('Procot: Problem in target flavor !&')
         else     !for iremn=2 and large number of quark define ictarg=999999
           ictarg(1,j)=999999
           ictarg(2,j)=999999
@@ -8849,8 +9536,7 @@ c-----------------------------------------------------------------------
 
       if(npproj(i).eq.0)then
         write(*,*)'emswrp i ii',i,ii
-        call utstop('emswrp with npproj=0 should never happen !&',
-     +sizeof('emswrp with npproj=0 should never happen !&'))
+        call utstop('emswrp with npproj=0 should never happen !&')
 
 c        t=xorptl(4,kolp(i))
 c        istptl(ii)=1
@@ -8882,8 +9568,7 @@ c        kolp(i)=1
       pptl(2,mm)=sngl(xyp(i))
       pptl(3,mm)=sngl((xpp(i)-xmp(i))*plc/2d0)
       pptl(4,mm)=sngl((xpp(i)+xmp(i))*plc/2d0)
-      if(pptl(4,mm).lt.-eps)call utstop('E pro<0 !&',
-     +sizeof('E pro<0 !&'))
+      if(pptl(4,mm).lt.-eps)call utstop('E pro<0 !&')
       p5sq=xpp(i)*xmp(i)*s-xxp(i)*xxp(i)-xyp(i)*xyp(i)
       if(p5sq.gt.1.d-10)then
         pptl(5,mm)=sngl(sqrt(p5sq))
@@ -8922,8 +9607,7 @@ c-----------------------------------------------------------------------
       if(nptarg(j).eq.0)then
 
         write(*,*)'emswrt j jj',j,jj
-        call utstop('emswrt with nptarg=0 should never happen !&',
-     +sizeof('emswrt with nptarg=0 should never happen !&'))
+        call utstop('emswrt with nptarg=0 should never happen !&')
 
 c        t=xorptl(4,kolt(j))
 c        istptl(jj)=1
@@ -8955,8 +9639,7 @@ c        kolt(j)=1
       pptl(2,mm)=sngl(xyt(j))
       pptl(3,mm)=sngl((xpt(j)-xmt(j))*plc/2d0)
       pptl(4,mm)=sngl((xpt(j)+xmt(j))*plc/2d0)
-      if(pptl(4,mm).lt.-eps)call utstop('E targ<0 !&',
-     +sizeof('E targ<0 !&'))
+      if(pptl(4,mm).lt.-eps)call utstop('E targ<0 !&')
       p5sq=xpt(j)*xmt(j)*s-xxt(j)*xxt(j)-xyt(j)*xyt(j)
       if(p5sq.gt.1.d-10)then
         pptl(5,mm)=sngl(sqrt(p5sq))
@@ -9025,8 +9708,7 @@ c-----------------------------------------------------------------------
         ityptl(nptl)=30
         if(itpr(k).gt.0)ityptl(nptl)=35
        else
-        call utstop('emswrpom: unknown id&',
-     +sizeof('emswrpom: unknown id&'))
+        call utstop('emswrpom: unknown id&')
        endif
        do l = 1,4
         ibptl(l,nptl)=0
@@ -9103,8 +9785,8 @@ c  compose projectile spectators to remaining nucleus
               endif
             endif
           endif
-        elseif( iorptl(is) .eq. 0  .and.  istptl(is) .eq. 1 ) then
-          jorptl(is)=1
+        elseif( iorptl(is) .le. 0  .and.  istptl(is) .eq. 1 ) then
+          if( iorptl(is) .eq. 0 )jorptl(is)=1
           mapro=mapro-1
         endif
         
@@ -9263,8 +9945,7 @@ c  remaining nucleus is one fragment
               pptl(4,nptl)=pptl(4,nptl)+dble(pptl(4,is))
             endif
           enddo
-          if(inucl.ne.inew/100)call utstop('Pb in emsfrag !&',
-     +sizeof('Pb in emsfrag !&'))
+          if(inucl.ne.inew/100)call utstop('Pb in emsfrag !&')
           idnucl=1000000000+mod(inew,100)*10000+(inew/100)*10
           call idmass(idnucl,am)
           pptl(5,nptl)=am    !mass
@@ -9354,8 +10035,8 @@ c  compose projectile spectators to remaining nucleus
             endif
           endif
           
-        elseif( iorptl(is) .eq. 0  .and.  istptl(is) .eq. 1 ) then
-          jorptl(is)=1
+        elseif( iorptl(is) .le. 0  .and.  istptl(is) .eq. 1 ) then
+          if( iorptl(is) .eq. 0 ) jorptl(is)=1
           matar=matar-1
         endif
         
@@ -9514,8 +10195,7 @@ c  remaining nucleus is one fragment
               pptl(4,nptl)=pptl(4,nptl)+dble(pptl(4,is))
             endif
           enddo
-          if(inucl.ne.inew/100)call utstop('Pb in emsfrag !&',
-     +sizeof('Pb in emsfrag !&'))
+          if(inucl.ne.inew/100)call utstop('Pb in emsfrag !&')
           idnucl=1000000000+mod(inew,100)*10000+(inew/100)*10
           call idmass(idnucl,am)
           pptl(5,nptl)=am    !mass
@@ -9646,8 +10326,7 @@ c-----------------------------------------------------------------------
       double precision plc,s,seedp
       common/cems5/plc,s
 
-c      if(iemsi2.eq.0)call utstop('ERROR in XemsI1: iemsi2 = 0&',
-c     +sizeof('ERROR in XemsI1: iemsi2 = 0&'))
+c      if(iemsi2.eq.0)call utstop('ERROR in XemsI1: iemsi2 = 0&')
 
        if(iii.eq.1)then
 
@@ -9921,8 +10600,7 @@ c-----------------------------------------------------------------------
      *,wxp(nbix,nid),wxm(nbix,nid),wx(nbix,nid),wy(nbiy,nid)
      *,xpu,xpo,xmu,xmo,xu,xo,yu,yo,dy
 
-      if(iemsrx.eq.0)call utstop('ERROR in XemsRx: iemsrx = 0&',
-     +sizeof('ERROR in XemsRx: iemsrx = 0&'))
+      if(iemsrx.eq.0)call utstop('ERROR in XemsRx: iemsrx = 0&')
 
         if(iii.eq.0)then
 
@@ -10113,8 +10791,7 @@ c-----------------------------------------------------------------------
       common/cems5/plc,s
       common/cemspm/sumb(nbib)
 
-      if(iemspm.eq.0)call utstop('ERROR in XemsPm: iemspm = 0&',
-     +sizeof('ERROR in XemsPm: iemspm = 0&'))
+      if(iemspm.eq.0)call utstop('ERROR in XemsPm: iemspm = 0&')
 
         if(iii.eq.0)then
 
@@ -10248,8 +10925,7 @@ c-----------------------------------------------------------------------
       common/geom/rmproj,rmtarg,bmax,bkmx
       dimension uua2(nbib),uuo2(nbib),uu3(nbib)
 
-      if(iemsb.eq.0)call utstop('ERROR in XemsB: iemsB = 0&',
-     +sizeof('ERROR in XemsB: iemsB = 0&'))
+      if(iemsb.eq.0)call utstop('ERROR in XemsB: iemsB = 0&')
 
         if(iii.eq.0)then
 
@@ -10414,8 +11090,7 @@ c-----------------------------------------------------------------------
       double precision seedp,PhiExpo!,PhiExact
       common/geom/rmproj,rmtarg,bmax,bkmx
 
-      if(iemsbg.eq.0)call utstop('ERROR in XemsBg: iemsbg = 0&',
-     +sizeof('ERROR in XemsBg: iemsbg = 0&'))
+      if(iemsbg.eq.0)call utstop('ERROR in XemsBg: iemsbg = 0&')
 
         if(iii.eq.0)then
 
@@ -10567,8 +11242,7 @@ c-----------------------------------------------------------------------
 
       nposi=5
 
-      if(iemspx.eq.0)call utstop('ERROR in XemsPx: iemspx = 0&',
-     +sizeof('ERROR in XemsPx: iemspx = 0&'))
+      if(iemspx.eq.0)call utstop('ERROR in XemsPx: iemspx = 0&')
 
       if(iii.eq.0)then
 
@@ -10991,8 +11665,7 @@ c-----------------------------------------------------------------------
       common/cemspbx/xlub1,xlub2,xlob
 ctp060829      character imod*5
 
-      if(iemspbx.eq.0)call utstop('ERROR in xEmsP2: iemspbx = 0&',
-     +sizeof('ERROR in xEmsP2: iemspbx = 0&'))
+      if(iemspbx.eq.0)call utstop('ERROR in xEmsP2: iemspbx = 0&')
 
       if(iii.eq.0)then
 
@@ -11690,15 +12363,15 @@ c
 c      end
 c
 c------------------------------------------------------------------------
-      subroutine XPrint(text,size)
+      subroutine XPrint(text)
 c------------------------------------------------------------------------
       include 'epos.inc'
       include 'epos.incems'
       double precision xpptot,xmptot,xpttot,xmttot
-      character text(*)
-      integer(8) size,imax
-      imax=size
-      write(ifch,'(1x,a)')text(1:imax-1)
+c      parameter(itext=15)
+      character  text*(*)
+      imax=index(text,'&')
+      if(imax.gt.1)write(ifch,'(1x,a)')text(1:imax-1)
 
       write(ifch,'(a)')
      *' k:     itpr:   npr0: npr1: nprmx:   Pomeron id lattice:'
@@ -11815,7 +12488,7 @@ C...fix compilation warning
 C              k=kproj3(ip,l)
 C              b=bk(k)
 C              i=1+int(b/bkmx*float(mxnucl))
-              i=1+int(bk(kproj3(ip,l))/bkmx*float(mxnucl)) 
+              i=1+int(bk(kproj3(ip,l))/bkmx*float(mxnucl))
               if(i.le.mxnucl)bnucl(i,iii+2)=bnucl(i,iii+2)+1.
             enddo
           endif

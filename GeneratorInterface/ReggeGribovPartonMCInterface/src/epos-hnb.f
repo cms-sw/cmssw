@@ -32,8 +32,7 @@ c----------------------------------------------------------------------
      *'    droplet decay  at tau =',f6.2/
      *' ----------------------------------')
       write(ifch,*)'droplet:'
-      call alist('&',
-     +sizeof('&'),ip,ip)
+      call alist('&',ip,ip)
       endif
 
       iret=0
@@ -52,7 +51,7 @@ c      write(ifch,*)'droplet uds=',keu,ked,kes,'   E=',pptl(5,ip)
 
     !~~~~~redefine energy in case of radial flow
       amin=utamnu(keu,ked,kes,kec,keb,ket,4)   !utamnu(...,4) and not utamnu(...,5)
-      aumin=amuseg+yrmaxi                             !otherwise droplet from remnant decay
+      aumin=amuseg+yrmaxi        !for rad and long flow  
       ipo=ip                                   !could be too light after flow
       if(ityptl(ip).eq.60)ipo=iorptl(ip)
       tecmor=pptl(5,ipo)
@@ -110,7 +109,7 @@ c      write(ifch,*)'droplet uds=',keu,ked,kes,'   E=',pptl(5,ip)
       endif
     !~~~~~redefine energy in case of long coll flow
 ! MANDATORY if RAD FLOW USED BECAUSE IT SMOOTH THE ETA DISTRIBUTION
-! because of the grid structure for the cluster, flucutations in eta
+! because of the grid structure for the cluster, fluctuations in eta
 ! appears if there is no smearing with long flow !
       tecmx=tecm
 c      if(yco.gt.0..and.tecmor.gt.aumin) then
@@ -132,8 +131,9 @@ c      if(yco.gt.0..and.tecmor.gt.aumin) then
       else
         yco=0.
       endif
-c      print*,'===== cluster energy: ',pptl(5,ip),tecmx,tecm,amin
-c     &                               ,delzet,yrmax,yco,ityptl(ip)
+      if(ish.ge.4)write(ifch,*)'===== cluster energy: '
+     &                               ,pptl(5,ip),tecmx,tecm,amin,aumin
+     &                               ,delzet,yrmax,yco,ityptl(ip)
 
     !~~~~~~~~~define volume~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -259,14 +259,34 @@ c     &                               ,delzet,yrmax,yco,ityptl(ip)
           else
             theta=0
           endif
+c          if(dta.ne.0.)then
+c            theta=0.5*atan(abs(xy)/abs(dta))
+c            if(    xy.gt.0..and.dta.gt.0.)then
+c              theta=theta
+c            elseif(xy.lt.0..and.dta.gt.0.)then
+c              theta=-theta
+c            elseif(xy.gt.0..and.dta.lt.0.)then
+c              theta=pi-theta
+c            elseif(xy.lt.0..and.dta.lt.0.)then
+c              theta=theta-pi
+c            endif
+c          else
+c            theta=2.*pi*rangen()
+c          endif
           !eccx=(yy-xx)/(yy+xx)
           yy=ev1
           xx=ev2
           ecc=(yy-xx)/(yy+xx)
-          !print*,eccx,ecc,theta
-          fecc=facecc*ecc
-          fecc=min(1.,fecc)
-          phiclu=phievt+theta
+c          print*,'AA',ecc,theta
+          if(iLHC.eq.1)then
+            fecc=min(facecc,ecc) !be careful : fecc change <pt> since it is the elliptical deformation of the sub cluster(give strength of v2)
+          else
+            fecc=facecc*ecc
+            fecc=min(0.3,fecc) !be careful : fecc change <pt> since it is the 
+          endif
+          phiclu=mod(phievt+theta,2.*pi) !do not change otherwise v2 is gone
+          if(phiclu.lt.-pi)phiclu=phiclu+2*pi
+          if(phiclu.gt.pi)phiclu=phiclu-2*pi
           aa=cos(phiclu)
           bb=sin(phiclu)
           cc=-sin(phiclu)
@@ -280,8 +300,12 @@ c     &                               ,delzet,yrmax,yco,ityptl(ip)
         do i=1,np
           yrad(i)=sqrt(rangen())
           phirad(i)=2.*pi*rangen()
-          bex=dsinh(dble(yrad(i)*yrmax))*cos(phirad(i))*(1+fecc)
-          bey=dsinh(dble(yrad(i)*yrmax))*sin(phirad(i))*(1-fecc)
+          pt2=0.
+          if(iLHC.eq.1)pt2=(pcm(1,i)**2+pcm(2,i)**2) !+amass(i)**2)
+          bex=dsinh(dble(yrad(i)*yrmax))*cos(phirad(i))
+     *       *(1+fecc/(1.+pt2))
+          bey=dsinh(dble(yrad(i)*yrmax))*sin(phirad(i))
+     *       *(1-fecc/(1.+pt2))
           be(1)=aa*bex+cc*bey
           be(2)=bb*bex+dd*bey
           be(3)=-0d0
@@ -313,8 +337,12 @@ c          goto 300
         endif
         energ=0.
         do i=1,np
-          bex=dsinh(dble(yrad(i)*yrmax))*cos(phirad(i))*(1+fecc)
-          bey=dsinh(dble(yrad(i)*yrmax))*sin(phirad(i))*(1-fecc)
+          pt2=0.
+          if(iLHC.eq.1)pt2=(pcm(1,i)**2+pcm(2,i)**2)!+amass(i)**2)
+          bex=dsinh(dble(yrad(i)*yrmax))*cos(phirad(i))
+     *       *(1+fecc/(1.+pt2))
+          bey=dsinh(dble(yrad(i)*yrmax))*sin(phirad(i))
+     *       *(1-fecc/(1.+pt2))
           be(1)=aa*bex+cc*bey
           be(2)=bb*bex+dd*bey
           be(3)=0d0
@@ -358,8 +386,7 @@ c     $         ,ipass,scal,sum,esoll
       nptlb=nptl
       do n=1,np
         nptl=nptl+1
-        if(nptl.gt.mxptl)call utstop('hnbptl: mxptl too small&',
-     +sizeof('hnbptl: mxptl too small&'))
+        if(nptl.gt.mxptl)call utstop('hnbptl: mxptl too small&')
         idptl(nptl)=ident(n)
         do j=1,4
           p(j)=pcm(j,n)
@@ -381,8 +408,7 @@ c     $         ,ipass,scal,sum,esoll
         jorptl(nptl)=ipo
 c protection against very high momentum particle (it can happen very very boosted cluster (which do no really make sense anyway))
         if(iLHC.eq.1.and.p(4).ge.0.5*engy)then
-          if(ish.ge.4)call alist('&',
-     +sizeof('&'),nptlb+1,nptl)
+          if(ish.ge.4)call alist('&',nptlb+1,nptl)
           nptl=nptlb
           iret=1
           if(ish.ge.4)write(ifch,*)'Decay skipped (p4 too high) !', ntry
@@ -417,8 +443,7 @@ c protection against very high momentum particle (it can happen very very booste
 
       if(ish.ge.4)then
         write(ifch,*)'decay products:'
-        call alist('&',
-     +sizeof('&'),nptlb+1,nptl)
+        call alist('&',nptlb+1,nptl)
         if(ish.ge.5)then
           write(ifch,*)'momentum sum:'
           do kk=1,5
@@ -428,8 +453,7 @@ c protection against very high momentum particle (it can happen very very booste
             enddo
             pptl(kk,nptl+2)=c(kk)
           enddo
-          call alist('&',
-     +sizeof('&'),nptl+1,nptl+2)
+          call alist('&',nptl+1,nptl+2)
         endif
       endif
 
@@ -1870,8 +1894,7 @@ c-----------------------------------------------------------------------
 
       nh=nint(ptltot)
       iug=(1+iospec)/2*2-1
-      if(iug.lt.9)call utstop('hgcnbi: iospec < 9&',
-     +sizeof('hgcnbi: iospec < 9&'))
+      if(iug.lt.9)call utstop('hgcnbi: iospec < 9&')
 
 c     determine nlattc
 c     ----------------
@@ -1918,8 +1941,7 @@ c     ------------------
       ammin=2.*aspecs(1)
       if(tecm.lt.ammin)then
       write(ifch,*)'impossible to generate hadron configuration'
-      call utstop('hgcnbi: tecm less than two pi0 masses&',
-     +sizeof('hgcnbi: tecm less than two pi0 masses&'))
+      call utstop('hgcnbi: tecm less than two pi0 masses&')
       endif
 
       kk=1
@@ -3378,8 +3400,7 @@ c      common/cflac/ifok(nflav,mspecs),ifoa(nflav)
 c      common/cspecs/nspecs,ispecs(mspecs),aspecs(mspecs),gspecs(mspecs)
 c      integer ids(mxids),jc(nflav,2),iwts(mxids),jc1mi2(nflav)
 c
-c      if(nspecs+1.gt.mxids)call utstop('hnbids: mxids too small&',
-c     +sizeof('hnbids: mxids too small&'))
+c      if(nspecs+1.gt.mxids)call utstop('hnbids: mxids too small&')
 c
 c      do n=1,nflav
 c      jc1mi2(n)=jc(n,1)-jc(n,2)
@@ -3523,8 +3544,7 @@ c      print *,np,nlattc
       enddo
     1 continue
       if(amass(i).lt.0.)
-     *call utstop('hnbini: invalid particle species&',
-     +sizeof('hnbini: invalid particle species&'))
+     *call utstop('hnbini: invalid particle species&')
            enddo
 
       if(iocova.eq.1)call hnbody    !covariant
@@ -3797,8 +3817,7 @@ c     (double pair method)
       xba=1./iwpais*iozero**nzold
       if(ish.ge.7)write(ifch,*)'asymmetry factor:',xba/xab
            else
-      call utstop('hnbmet: invalid choice for iopair&',
-     +sizeof('hnbmet: invalid choice for iopair&'))
+      call utstop('hnbmet: invalid choice for iopair&')
            endif
 
 c     determine masses/momenta/weight of trial configuration
@@ -3814,8 +3833,7 @@ c     ------------------------------------------------------
       enddo
     1 continue
       if(amass(i).lt.0.)
-     *call utstop('hnbmet: invalid particle species&',
-     +sizeof('hnbmet: invalid particle species&'))
+     *call utstop('hnbmet: invalid particle species&')
            enddo
       keepr=0
 c-c   call hnbolo(1000) !instead of "call hnbody" for testing
@@ -4083,8 +4101,7 @@ c get rid of anti-u (-120, -130)
       goto7
       endif
 
-      if(keu+ked+kes+kec.ne.ke)call utstop('hnbmin: sum_kei /= ke&',
-     +sizeof('hnbmin: sum_kei /= ke&'))
+      if(keu+ked+kes+kec.ne.ke)call utstop('hnbmin: sum_kei /= ke&')
 
       keq=keu+ked
 
@@ -4110,16 +4127,13 @@ c get rid of s (3331, x330, xx30)
       enddo
            endif
       if(wri)write(ifch,f1)keu,ked,kes,kec,nump,ihadro(nump)
-      if(kes.lt.0)call utstop('hnbmin: negative kes&',
-     +sizeof('hnbmin: negative kes&'))
-      if(keq.lt.0)call utstop('hnbmin: negative keq&',
-     +sizeof('hnbmin: negative keq&'))
+      if(kes.lt.0)call utstop('hnbmin: negative kes&')
+      if(keq.lt.0)call utstop('hnbmin: negative keq&')
       goto3
       endif
       if(i.gt.1)goto2
 
-      if(keu+ked.ne.keq)call utstop('hnbmin: keu+ked /= keq&',
-     +sizeof('hnbmin: keu+ked /= keq&'))
+      if(keu+ked.ne.keq)call utstop('hnbmin: keu+ked /= keq&')
 
 c get rid of d (2221, 1220, 1120)
       i=4
@@ -4138,16 +4152,13 @@ c get rid of d (2221, 1220, 1120)
       if(i.eq.1)ihadro(nump)=1120
       endif
       if(wri)write(ifch,f1)keu,ked,kes,kec,nump,ihadro(nump)
-      if(ked.lt.0)call utstop('hnbmin: negative ked&',
-     +sizeof('hnbmin: negative ked&'))
-      if(keu.lt.0)call utstop('hnbmin: negative keu&',
-     +sizeof('hnbmin: negative keu&'))
+      if(ked.lt.0)call utstop('hnbmin: negative ked&')
+      if(keu.lt.0)call utstop('hnbmin: negative keu&')
       goto13
       endif
       if(i.gt.1)goto12
 
-      if(ked.ne.0)call utstop('hnbmin: ked .ne. 0&',
-     +sizeof('hnbmin: ked .ne. 0&'))
+      if(ked.ne.0)call utstop('hnbmin: ked .ne. 0&')
 
 c get rid of u (1111)
     9 continue
@@ -4157,13 +4168,11 @@ c get rid of u (1111)
       ihadro(nump)=1120
       ihadro(nump-1)=120
       if(wri)write(ifch,f1)keu,ked,kes,kec,nump,ihadro(nump)
-      if(keu.lt.0)call utstop('hnbmin: negative keu&',
-     +sizeof('hnbmin: negative keu&'))
+      if(keu.lt.0)call utstop('hnbmin: negative keu&')
       goto9
       endif
 
-      if(keu.ne.0)call utstop('hnbmin: keu .ne. 0&',
-     +sizeof('hnbmin: keu .ne. 0&'))
+      if(keu.ne.0)call utstop('hnbmin: keu .ne. 0&')
 
       if(isi.eq.-1)then
       do i=1,nump
@@ -4853,8 +4862,7 @@ c----------------------------------------------------------------------
 
 c      nflv=nflav
 c      if(nflv.gt.6)
-c     *call utstop('hnbpaj: nflav.gt.6: modify this routine&',
-c     +sizeof('hnbpaj: nflav.gt.6: modify this routine&'))
+c     *call utstop('hnbpaj: nflav.gt.6: modify this routine&')
 
 c     construct possible pairs id1,id2
 c     --------------------------------
@@ -4903,8 +4911,7 @@ c     --------------------------------
 
 c  id1=0:
  1    continue
-      if(nspecs+1.gt.mxids)call utstop('hnbpaj: mxids too small&',
-     +sizeof('hnbpaj: mxids too small&'))
+      if(nspecs+1.gt.mxids)call utstop('hnbpaj: mxids too small&')
 
       jc1mi2(1)=jc(1,1)-jc(1,2)
       jc1mi2(2)=jc(2,1)-jc(2,2)
@@ -4940,8 +4947,7 @@ c  id1=0:
       enddo
 
       if(nids.eq.0)goto2
-      if(nids.gt.mxpair)call utstop('hnbpaj: mxpair too small&',
-     +sizeof('hnbpaj: mxpair too small&'))
+      if(nids.gt.mxpair)call utstop('hnbpaj: mxpair too small&')
       do k=1,nids
       ipair=ipair+1
       idpair(1,ipair)=0
@@ -5029,8 +5035,7 @@ c  222 continue
 c             enddo
 
       if(nids.eq.0)goto3
-      if(ipair+nids.gt.mxpair)call utstop('hnbpaj: mxpair too small&',
-     +sizeof('hnbpaj: mxpair too small&'))
+      if(ipair+nids.gt.mxpair)call utstop('hnbpaj: mxpair too small&')
       do k=1,nids
       ipair=ipair+1
       idpair(1,ipair)=ispecs(i1)
@@ -5053,8 +5058,7 @@ c             enddo
 c     no pair found
 c     -------------
       if(ipair.eq.0)then
-      if(iwpair.ne.0)call utstop('hnbpaj: iwpair.ne.0&',
-     +sizeof('hnbpaj: iwpair.ne.0&'))
+      if(iwpair.ne.0)call utstop('hnbpaj: iwpair.ne.0&')
       return
       endif
 
@@ -5077,8 +5081,7 @@ c     *,' --> chosen pair:',ip
       endif
       enddo
       write(ifmt,*)'hnbpaj:',jc,idx,ipair,iwpair,r,ir
-      call utstop('hnbpaj: no pair selected&',
-     +sizeof('hnbpaj: no pair selected&'))
+      call utstop('hnbpaj: no pair selected&')
 
 1000  continue
 
@@ -5134,8 +5137,7 @@ c     --------------------------------
 
 c  id1=0:
 
-      if(nspecs+1.gt.mxids)call utstop('hnbpajini: mxids too small&',
-     +sizeof('hnbpajini: mxids too small&'))
+      if(nspecs+1.gt.mxids)call utstop('hnbpajini: mxids too small&')
 
       jc1mi2(1)=iqu-iaqu
       jc1mi2(2)=iqd-iaqd
@@ -5162,8 +5164,7 @@ c  id1=0:
       enddo
 
       if(nids.eq.0)goto2
-      if(nids.gt.mxpair)call utstop('hnbpajini: mxpair too small&',
-     +sizeof('hnbpajini: mxpair too small&'))
+      if(nids.gt.mxpair)call utstop('hnbpajini: mxpair too small&')
       do k=1,nids
       ipair=ipair+1
       idpairst(1,ipair,idx)=0
@@ -5245,8 +5246,7 @@ c             enddo
 
       if(nids.eq.0)goto3
       if(ipair+nids.gt.mxpair)
-     &     call utstop('hnbpajini: mxpair too small&',
-     +sizeof('hnbpajini: mxpair too small&'))
+     &     call utstop('hnbpajini: mxpair too small&')
       do k=1,nids
       ipair=ipair+1
       idpairst(1,ipair,idx)=ispecs(i1)
@@ -5262,8 +5262,7 @@ c             enddo
 c     no pair found
 c     -------------
       if(ipair.eq.0)then
-      if(iwtpaist(0,idx).ne.0)call utstop('hnbpajini: iwpair.ne.0&',
-     +sizeof('hnbpajini: iwpair.ne.0&'))
+      if(iwtpaist(0,idx).ne.0)call utstop('hnbpajini: iwpair.ne.0&')
       endif
 
 
@@ -5297,8 +5296,7 @@ c--------------------------------------------------------------------
       if(ish.ge.9)write(ifch,*)('-',i=1,10)
      *,' entry sr hnbraw ',('-',i=1,30)
 
-      if(np.lt.3)call utstop('hnbraw: np must be at least 3&',
-     +sizeof('hnbraw: np must be at least 3&'))
+      if(np.lt.3)call utstop('hnbraw: np must be at least 3&')
 
       kper=5
       pi=3.1415927
@@ -5860,8 +5858,7 @@ c-----------------------------------------------------------------------
      *, 1231,-1231, 2231,-2231, 1331,-1331, 2331,-2331, 3331,-3331
      *, 441 , 30 /
 
-      if(iopt.gt.16)call utstop('hnbspd: invalid option&',
-     +sizeof('hnbspd: invalid option&'))
+      if(iopt.gt.16)call utstop('hnbspd: invalid option&')
       ioptx=(1+iopt)/2*2-1
 
       if(ioptx.eq.1)nspecs=nspe01
@@ -6039,8 +6036,7 @@ c      parameter(mxhh=200)
       if(ish.ge.9)write(ifch,*)'spelog:',spelog
            elseif(k.eq.7)then
       if(ish.ge.9)write(ifch,'(1x,a,i2)')'nspecs:',nspecs
-      if(n.gt.mxfacu)call utstop('hnbspf: mxfacu too small&',
-     +sizeof('hnbspf: mxfacu too small&'))
+      if(n.gt.mxfacu)call utstop('hnbspf: mxfacu too small&')
       do lf=0,n
       faci(lf)=1.d0/utgam2(1d0+lf)
       enddo
@@ -6113,14 +6109,12 @@ c      parameter(mxhh=200)
       if(spe.gt.0.d0)spelog=dlog(spe)
       if(ish.ge.9)write(ifch,*)'spelog:',spelog
            else
-      call utstop('hnbspf: ioflac=2 only for nspecs=3,7&',
-     +sizeof('hnbspf: ioflac=2 only for nspecs=3,7&'))
+      call utstop('hnbspf: ioflac=2 only for nspecs=3,7&')
            endif
 
            elseif(ioflac.eq.3)then
 
-      call utstop('hnbspf: ioflac must be 1 or 2&',
-     +sizeof('hnbspf: ioflac must be 1 or 2&'))
+      call utstop('hnbspf: ioflac must be 1 or 2&')
 
            endif
 
@@ -6205,8 +6199,7 @@ c----------------------------------------------------------------------
       goto1
       endif
       enddo
-      call utstop('hnbspi: id not found&',
-     +sizeof('hnbspi: id not found&'))
+      call utstop('hnbspi: id not found&')
     1 continue
       return
       end

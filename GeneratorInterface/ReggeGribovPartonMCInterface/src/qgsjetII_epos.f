@@ -54,15 +54,13 @@ c QGSJET-II Common
 
 
       if(matarg.gt.iapmax.or.maproj.gt.iapmax)
-     &  call utstop('Nucleus too big for QGSJET-II (Mmax=208) !&',
-     +sizeof('Nucleus too big for QGSJET-II (Mmax=208) !&'))
+     &  call utstop('Nucleus too big for QGSJET-II (Mmax=208) !&')
       call iclass(idproj,iclpro)
       call iclass(idtarg,icltar)
       icp=idtrafo('nxs','qgs',idproj)
       if(icp.eq.0)icp=1-2*int(rangen()+0.5)       !pi0=pi+ or p-
       if(abs(icp).gt.5)
-     &  call utstop('Projectile not allowed in QGSJET-II !&',
-     +sizeof('Projectile not allowed in QGSJET-II !&'))
+     &  call utstop('Projectile not allowed in QGSJET-II !&')
       e0=dble(elab)
       call qgini(e0,icp,maproj,matarg)
       call qgini(e0,icp,maproj,matarg)        !again to set bm properly
@@ -91,7 +89,6 @@ c-----------------------------------------------------------------------
       common /qgsIInex1/xa(iapmax,3),xb(iapmax,3)
      *,bqgs,bmaxqgs,bmaxnex,bminnex
       common/nucl3/phi,bimp
-      common/col3/ncol,kolpt
       common /qgarr12/ nsp
       common /qgarr14/ esp(4,nptmax),ich(nptmax)
 c nsf - number of secondary fragments;
@@ -99,24 +96,22 @@ c iaf(i) - mass of the i-th fragment
       common /qgarr13/ nsf,iaf(iapmax)
       common /qgarr55/ nwt,nwp
 
-      ncol=0
       iret=0
       b1=bminim
       b2=min(bmax,bmaxim)
       a=pi*(b2**2-b1**2)
 
       if(a.gt.0..and.rangen().gt.qgsIIincs/10./a)goto 1001   !no interaction
-      if(ish.ge.3)call alist('Determine QGSJET-II Production&',
-     +sizeof('Determine QGSJET-II Production&'),0,0)
+      if(ish.ge.3)call alist('Determine QGSJET-II Production&',0,0)
 
       nptl=0
       nsp=0
       call qgconf
       
-      ncol=1
       nevt=1
-      kolevt=ncol
-      koievt=0
+      kolevt=-1
+      koievt=-1
+      kohevt=-1
       npjevt=maproj
       ntgevt=matarg
       pmxevt=pnll
@@ -141,6 +136,9 @@ c iaf(i) - mass of the i-th fragment
 
 
 c keep the projectile spectators as fragments
+      npns=0
+      npps=0
+      ns=0
       if(infragm.eq.2)then
 
         if(NSF.gt.0)then
@@ -154,17 +152,27 @@ c keep the projectile spectators as fragments
               pptl(3,nptl)=pptl(3,is)
               pptl(4,nptl)=pptl(4,is)
               pptl(5,nptl)=pptl(5,is)
+              if(id.eq.1120)npps=npps+1
+              if(id.eq.1220)npns=npns+1
             else
               if(IAF(is).eq.2)then
                 id=17
+                npps=npps+1
+                npns=npns+1
               elseif(IAF(is).eq.3)then
                 id=18
+                npps=npps+1
+                npns=npns+2
               elseif(IAF(is).eq.4)then
                 id=19
+                npps=npps+2
+                npns=npns+2
               else
                 inucl=IAF(is)
                 iprot= int(dble(inucl) / 2.15d0 + 0.7d0)
                 id=1000000000+iprot*10000+inucl*10 !code for nuclei
+                npps=npps+iprot
+                npns=npns+inucl-iprot
               endif
               call idmass(id,am)
               pptl(4,nptl)=dble(IAF(is))*pptl(4,is)      !Etot
@@ -222,6 +230,8 @@ c  remaining nucleus is one fragment
             enddo
             iprot= int(dble(inucl) / 2.15d0 + 0.7d0)
             idnucl=1000000000+iprot*10000+inucl*10 !code for nuclei
+            npps=npps+iprot
+            npns=npns+inucl-iprot
             call idmass(idnucl,am)
             pptl(5,nptl)=am  !mass
             ptot=(pptl(4,nptl)+am)*(pptl(4,nptl)-am)
@@ -240,19 +250,48 @@ c  remaining nucleus is one fragment
             tivptl(2,nptl)=tivptl(2,1)
             idptl(nptl)=idnucl
           else
-            do is=1,ns          !make the ns first projectile nucleon actives
-              istptl(is)=0
+            do is=maproj-ns+1,maproj          !make the ns last projectile nucleon final
+              if(idptl(is).eq.1120)npps=npps+1
+              if(idptl(is).eq.1220)npns=npns+1
             enddo
           endif
         endif
       endif
 
+c number of participants
+      if(laproj.gt.1)then
+        npjevt=maproj-npps-npns
+        npppar=max(0,laproj-npps)
+        npnpar=npjevt-npppar
+c set participant projectile as non spectators
+        do i=1,maproj
+          if(idptl(i).eq.1120)then
+            if(npppar.gt.0)then
+              npppar=npppar-1
+            else                !restore spectators
+              iorptl(i)=0
+              if(infragm.eq.0)istptl(i)=0
+            endif
+          endif
+          if(idptl(i).eq.1220)then
+            if(npnpar.gt.0)then
+              npnpar=npnpar-1
+            else                !restore spectators
+              iorptl(i)=0
+              if(infragm.eq.0)istptl(i)=0
+            endif
+          endif
+        enddo
+      endif
+
 c restore target spectators
       ns=0
       if(NWT.lt.matarg)then
-        ns=matarg-NWT
-        do is=maproj+1,maproj+ns  !make the ns first target nucleon actives
-          istptl(is)=0
+c number of participants
+        ntgevt=NWT
+        do is=ntgevt+1,matarg         !make the last target nucleon final
+          iorptl(maproj+is)=0
+          istptl(maproj+is)=0
         enddo
       endif
 
@@ -271,8 +310,7 @@ c k0l
      $     , ' momentum :',(esp(k,is),k=1,4)
 
             nptl=nptl+1
-            if(nptl.gt.mxptl)call utstop('qgsjet: mxptl too small&',
-     +sizeof('qgsjet: mxptl too small&'))
+            if(nptl.gt.mxptl)call utstop('qgsjet: mxptl too small&')
             id=idtrafo('qgs','nxs',ic)
             if(ish.ge.7)write(ifch,'(a,i5,a,i5,a)')
      $       ' epos particle ',nptl,' id :',id,' after conversion'

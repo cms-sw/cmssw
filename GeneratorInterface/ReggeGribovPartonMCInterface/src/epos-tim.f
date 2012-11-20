@@ -181,6 +181,7 @@ c---------------------------------------------------------------------
           enddo
           idptl(nptl)=idprt(i)
           istptl(nptl)=20
+          ityptl(nptl)=30
           iorptl(nptl)=iptl
           jorptl(nptl)=jorprt(i)   !type of mother parton
           qsqptl(nptl)=q2prt(i)

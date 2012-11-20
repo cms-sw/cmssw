@@ -50,8 +50,7 @@ c QGSJet Common
       COMMON /Q_QGSNEX1/ XA,XB,BQGS,BMAXQGS,BMAXNEX,BMINNEX
 
       if(matarg.gt.210.or.maproj.gt.210)
-     &  call utstop('Nucleus too big for QGSJet (Mmax=210) !&',
-     +sizeof('Nucleus too big for QGSJet (Mmax=210) !&'))
+     &  call utstop('Nucleus too big for QGSJet (Mmax=210) !&')
       call iclass(idproj,iclpro)
       call iclass(idtarg,icltar)
       e0=dble(elab)
@@ -81,7 +80,6 @@ c-----------------------------------------------------------------------
       double precision XA(210,3),XB(210,3),BQGS,BMAXQGS,BMAXNEX,BMINNEX
       COMMON /Q_QGSNEX1/ XA,XB,BQGS,BMAXQGS,BMAXNEX,BMINNEX
       common/nucl3/phi,bimp
-      common/col3/ncol,kolpt
       common /q_area12/ nsp
       common /q_area14/ esp(4,95000),ich(95000)
       double precision esp
@@ -90,23 +88,22 @@ c IAF(i) - mass of the i-th fragment
       COMMON /Q_AREA13/ NSF,IAF(210)
       COMMON /Q_AREA99/ NWT
 
-      ncol=0
       iret=0
       b1=bminim
       b2=min(bmax,bmaxim)
       a=pi*(b2**2-b1**2)
 
       if(a.gt.0..and.rangen().gt.qgsincs/10./a)goto 1001   !no interaction
-      if(ish.ge.3)call alist('Determine QGSJet Production&',
-     +sizeof('Determine QGSJet Production&'),0,0)
+      if(ish.ge.3)call alist('Determine QGSJet Production&',0,0)
 
       nptl=0
       nsp=0
       call psconf
 
-      ncol=1
       nevt=1
-      kolevt=ncol
+      kolevt=-1
+      koievt=-1
+      kohevt=-1
       npjevt=maproj
       ntgevt=matarg
       pmxevt=pnll
@@ -124,10 +121,11 @@ c IAF(i) - mass of the i-th fragment
 
       call conre
       call conwr
-      call conqgs
-
       
 c keep the projectile spectators as fragments
+      npns=0
+      npps=0
+      ns=0
       if(infragm.eq.2)then
 
         if(NSF.gt.0)then
@@ -141,17 +139,27 @@ c keep the projectile spectators as fragments
               pptl(3,nptl)=pptl(3,is)
               pptl(4,nptl)=pptl(4,is)
               pptl(5,nptl)=pptl(5,is)
+              if(id.eq.1120)npps=npps+1
+              if(id.eq.1220)npns=npns+1
             else
               if(IAF(is).eq.2)then
                 id=17
+                npps=npps+1
+                npns=npns+1
               elseif(IAF(is).eq.3)then
                 id=18
+                npps=npps+1
+                npns=npns+2
               elseif(IAF(is).eq.4)then
                 id=19
+                npps=npps+2
+                npns=npns+2
               else
                 inucl=IAF(is)
                 iprot= int(dble(inucl) / 2.15d0 + 0.7d0)
                 id=1000000000+iprot*10000+inucl*10 !code for nuclei
+                npps=npps+iprot
+                npns=npns+inucl-iprot
               endif
               call idmass(id,am)
               pptl(4,nptl)=dble(IAF(is))*pptl(4,is)      !Etot
@@ -209,6 +217,8 @@ c  remaining nucleus is one fragment
             enddo
             iprot= int(dble(inucl) / 2.15d0 + 0.7d0)
             idnucl=1000000000+iprot*10000+inucl*10 !code for nuclei
+            npps=npps+iprot
+            npns=npns+inucl-iprot
             call idmass(idnucl,am)
             pptl(5,nptl)=am  !mass
             ptot=(pptl(4,nptl)+am)*(pptl(4,nptl)-am)
@@ -227,19 +237,48 @@ c  remaining nucleus is one fragment
             tivptl(2,nptl)=tivptl(2,1)
             idptl(nptl)=idnucl
           else
-            do is=1,ns          !make the ns first projectile nucleon actives
-              istptl(is)=0
+            do is=maproj-ns+1,maproj          !make the ns last projectile nucleon final
+              if(idptl(is).eq.1120)npps=npps+1
+              if(idptl(is).eq.1220)npns=npns+1
             enddo
           endif
         endif
       endif
 
+c number of participants
+      if(laproj.gt.1)then
+        npjevt=maproj-npps-npns
+        npppar=max(0,laproj-npps)
+        npnpar=npjevt-npppar
+c set participant projectile as non spectators
+        do i=1,maproj
+          if(idptl(i).eq.1120)then
+            if(npppar.gt.0)then
+              npppar=npppar-1
+            else                !restore spectators
+              iorptl(i)=0
+              if(infragm.eq.0)istptl(i)=0
+            endif
+          endif
+          if(idptl(i).eq.1220)then
+            if(npnpar.gt.0)then
+              npnpar=npnpar-1
+            else                !restore spectators
+              iorptl(i)=0
+              if(infragm.eq.0)istptl(i)=0
+            endif
+          endif
+        enddo
+      endif
+
 c restore target spectators
       ns=0
       if(NWT.lt.matarg)then
-        ns=matarg-NWT
-        do is=maproj+1,maproj+ns  !make the ns first target nucleon actives
-          istptl(is)=0
+c number of participants
+        ntgevt=NWT
+        do is=ntgevt+1,matarg         !make the last target nucleon final
+          iorptl(maproj+is)=0
+          istptl(maproj+is)=0
         enddo
       endif
 
@@ -258,8 +297,7 @@ c k0l
      $     , ' momentum :',(esp(k,is),k=1,4)
 
             nptl=nptl+1
-            if(nptl.gt.mxptl)call utstop('qgsjet: mxptl too small&',
-     +sizeof('qgsjet: mxptl too small&'))
+            if(nptl.gt.mxptl)call utstop('qgsjet: mxptl too small&')
             id=idtrafo('qgs','nxs',ic)
             if(ish.ge.7)write(ifch,'(a,i5,a,i5,a)')
      $       ' epos particle ',nptl,' id :',id,' after conversion'
@@ -298,146 +336,6 @@ c k0l
 
 1001  iret=-1 
       goto 1000 
-
-      end
-
-c-----------------------------------------------------------------------
-      subroutine conqgs
-c-----------------------------------------------------------------------
-c  determines interaction configuration
-c-----------------------------------------------------------------------
-
-      include 'epos.inc'
-      include 'epos.incems'
-      common/geom/rmproj,rmtarg,bmax,bkmx
-      common/nucl3/phi,bimp
-      common /cncl/xproj(mamx),yproj(mamx),zproj(mamx)
-     *            ,xtarg(mamx),ytarg(mamx),ztarg(mamx)
-      common/cncl2/diffbpr(mamx,mamx),diffbtg(mamx,mamx)
-      common/cncl3/iactpr(mamx),iacttg(mamx)
-      common/cfacmss/facmss
-
-      call utpri('conqgs ',ish,ishini,4)  
-
-      iret=0
-
-c     initialisations
-c     ---------------
-
-      vel=tanh(ypjtl-yhaha)+tanh(yhaha)
- 
-c     determine phi, bimp, coll, iproj, itarg, x/y/zproj, x/y/ztarg
-c     ---------------------------------------------------------------
-
-      if(maproj.eq.1.and.matarg.eq.1)then
-           
-      koll=1
-      do n=1,4
-        coord(n,1)=0.
-      enddo
-      bk(1)=bimp
-      iproj(1)=1
-      itarg(1)=1
-      phi=phievt
-      xproj(1)=bimp*cos(phi)
-      yproj(1)=bimp*sin(phi)
-      zproj(1)=0
-      xtarg(1)=0
-      ytarg(1)=0
-      ztarg(1)=0
-      lproj(1)=1
-      ltarg(1)=1
-      lproj3(1)=1
-      ltarg3(1)=1
-      kproj(1,1)=1
-      ktarg(1,1)=1
-
-           else
-             
-      bx=0
-      by=0
-      if(maproj.gt.0)then
-        phi=phievt
-        bimp=bimevt
-        bx=cos(phi)*bimp
-        by=sin(phi)*bimp
-      endif
-      if(maproj.eq.0)goto1000
-      koll=0
-      do i=1,maproj
-      lproj(i)=0
-      enddo
-      do j=1,matarg
-      ltarg(j)=0
-      enddo
-      do 12 i=1,maproj
-      do 11 j=1,matarg
-      bij=sqrt((xproj(i)+bx-xtarg(j))**2+(yproj(i)+by-ytarg(j))**2)
-      if(ish.ge.7)write(ifch,*)'i_p:',i,' i_t:',j,' b_ij:',bij,bkmx
-      if(bij.gt.bkmx)goto 11                
-
-      if(koll.ge.kollmx)goto 1000
-      koll=koll+1
-      bk(koll)=bij
-      bkx(koll)=xproj(i)+bx-xtarg(j)
-      bky(koll)=yproj(i)+by-ytarg(j)
-      iproj(koll)=i
-      itarg(koll)=j
-      lproj(i)=lproj(i)+1
-      ltarg(j)=ltarg(j)+1
-      kproj(i,lproj(i))=koll
-      ktarg(j,ltarg(j))=koll
-
-
-11    continue
-12    continue
-
-
-      do k=1,koll
-        do n=1,4
-          coord(n,k)=0.
-        enddo
-      enddo
-
-          endif
-
-      if(ish.ge.3)write(ifch,*)'koll=',koll
-      if(koll.eq.0)goto 1000
-
-
-c     determine coord
-c     --------------- 
-      do kl=1,koll
-      i=iproj(kl)
-      j=itarg(kl)
-      dist=ztarg(j)-zproj(i)
-      coord(1,kl)=(xproj(i)+xtarg(j))*0.5
-      coord(2,kl)=(yproj(i)+ytarg(j))*0.5
-      coord(3,kl)=(zproj(i)+ztarg(j))*0.5
-      coord(4,kl)=dist/vel
-      enddo
-
-c     determine number of collisions according glauber model
-c     ------------
-      nglevt=koll
-
-c     exit
-c     ----
-1000  continue
-      if(ish.ge.5)then
-      write(ifch,*)'ia,x/y/zproj:'
-      do mm=1,maproj
-      write(ifch,*)mm,iactpr(mm),xproj(mm),yproj(mm),zproj(mm)
-      enddo
-      write(ifch,*)'ia,x/y/ztarg:'
-      do mm=1,matarg
-      write(ifch,*)mm,iacttg(mm),xtarg(mm),ytarg(mm),ztarg(mm)
-      enddo
-      write(ifch,*)'iret',iret
-      endif
-      call utprix('conqgs ',ish,ishini,4)
-      return
-
 
       end
 

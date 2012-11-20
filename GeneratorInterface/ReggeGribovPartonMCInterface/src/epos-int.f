@@ -9,7 +9,7 @@ c-----------------------------------------------------------------------
       common/col3/ncol,kolpt
       double precision ttaun,ttau0,rcproj,rctarg
       common/cttaun/ttaun /cttau0/ttau0 /geom1/rcproj,rctarg
-      logical go
+      logical go,lclean
 
       call utpri('bjinta',ish,ishini,4)
 
@@ -42,6 +42,7 @@ c     -------------------------------------------------
       if(iorsce.eq.0.and.iorsdf.eq.0.and.iorshh.eq.0
      &      .or.iorsdf.eq.3)then
         if(iorsdf.eq.3)then
+          lclean=.false.
           if(nclean.gt.0.and.nptl.gt.mxptl/5)then
             ! if nptl already very big, clean up useless particles in cptl list.
             !(do not use it when gakstr() is called (some information lost)
@@ -53,11 +54,11 @@ c     -------------------------------------------------
             enddo
             nptl0=nptl
             call utclea(nptli,nptl0)
+            lclean=.true.
           endif
           nptlbpo=nptl
-          call jintpo(iret)  !parton-ladder-fusion
-         if(ish.ge.2)call alist('parton-ladder-fusion&',
-     +sizeof('parton-ladder-fusion&'),nptlbpo+1,nptl)
+          call jintpo(lclean,iret)  !parton-ladder-fusion
+         if(ish.ge.2)call alist('parton-ladder-fusion&',nptlbpo+1,nptl)
          if(iret.eq.1)goto 1001
         endif
         goto 5000
@@ -75,8 +76,7 @@ c     -------------------------------------------------
       if(idecay.eq.0)goto779  !skip decay
 
 
-      if(ish.ge.2)call alist('final decay&',
-     +sizeof('final decay&'),0,0)
+      if(ish.ge.2)call alist('final decay&',0,0)
       if(iappl.eq.4.or.iappl.eq.7.or.iappl.eq.9)then
         nptli=1
       else
@@ -118,19 +118,16 @@ c remove useless particles if not enough space
       np1=np2+1
       if(np1.le.nptl)then
       if(ish.ge.2)then
-      if(ish.ge.3)call alist('partial list',
-     +sizeof('partial list'),0,0)
+      if(ish.ge.3)call alist('partial list&',0,0)
       do 6 ip=np1,nptl
-        call alist('&',
-     +sizeof('&'),ip,ip)
+        call alist('&',ip,ip)
 6     continue
       endif
       goto 41
       endif
   779 continue
 
-      if(ish.ge.2)call alist('complete list&',
-     +sizeof('complete list&'),1,nptl)
+c      if(ish.ge.2)call alist('complete list&',1,nptl)
 
 c     on shell check
 c     --------------
@@ -1842,8 +1839,7 @@ c      if(jc(nf,ij).ge.10)idr=7*10**8
 c40    continue
 c           if(idr/10**8.ne.7)then
 c      call idenco(jc,ic,ireten)
-c      if(ireten.eq.1)call utstop('jintfu: idenco ret code = 1&',
-c     +sizeof('jintfu: idenco ret code = 1&'))
+c      if(ireten.eq.1)call utstop('jintfu: idenco ret code = 1&')
 c      id=idtra(ic,0,0,3)
 c43    amc=amf
 c      call idres(id,amc,idr,iadj)
@@ -1898,17 +1894,18 @@ c      return
 c      end
 c
 c----------------------------------------------------------------------
-      subroutine jintpo(iret)
+      subroutine jintpo(lclean,iret)
 c----------------------------------------------------------------------
 c  parton-ladder-fusion -- 3D grid -- based on string segments
 c----------------------------------------------------------------------
       include 'epos.inc'
+      include 'epos.incems'
       include 'epos.incico'
       common/cxyzt/xptl(mxptl),yptl(mxptl),zptl(mxptl),tptl(mxptl)
      *,optl(mxptl),uptl(mxptl),sptl(mxptl),rptl(mxptl,3)
       parameter(m1grid=10,kgrid=3,kegrid=3)
       parameter(m3xgrid=21*kgrid*kegrid)
-      parameter(mxcl=2000,mxcli=1000)
+      parameter(mxcl=4000,mxcli=1000)
       integer idropgrid(m1grid,m1grid,m3xgrid)
      &       ,jdropgrid(m1grid,m1grid,m3xgrid)
      &       ,jclu(m3xgrid),nsegp4(mxcl)
@@ -1925,11 +1922,13 @@ c----------------------------------------------------------------------
       common   /cttaus/tpro,zpro,ttar,ztar,ttaus,detap,detat
       common/cdelzet/delzet,delsgr /cvocell/vocell
       common/cranphi/ranphi
-      parameter(maxp=50*mxcl)
+      parameter(maxp=40*mxcl)
       dimension yrad(maxp),phirad(maxp),pe(5),yrad2(maxp),nfrag(mxptl)
       logical first,lnew(m1grid,m1grid),lold(m1grid,m1grid),lcont,lpass
+     &,lclean
       double precision ptest(5),ttest,p52,p4mean(4,mxcl),zor,tor,xmxms
-     &,ppp(5),be(4),energ,bp,rmean(2,mxcl)!,qqq(5),www(5)
+     &,ppp(5),be(4),energ,bp,rmean(2,mxcl)         !,qqq(5),www(5)
+      dimension mpair(mamx,mamx)
       save ncntpo!,ntrr,ntrt
       data ncntpo /0/!,ntrr/0/,ntrt/0/
       ncntpo=ncntpo+1
@@ -1960,7 +1959,6 @@ c      if(iLHC.eq.1)m3grid=min(m3xgrid,int(m3grid*0.75))
       vocell= delxgr * delxgr * delsgr
       delzet=delsgr/ttaus
       nptla=nptl
-      nptlc=nptl
       iflhc=1
       if(iLHC.eq.1)iflhc=min(3,max(1,nsegce-1))
       nsegsuj=max(nsegce,nint(float(nsegsu/iflhc)*fegrid))
@@ -2113,8 +2111,7 @@ c...Start cluster formation
       nsegsuj=max(nsegce,nint(nsegsuj/1.08**ntry))
       ntry=ntry+1
       if(ntry.gt.90)        !do not put more than 100 or change limit for p4mean
-     &call utstop('jintpo: cluster formation impossible ! &',
-     +sizeof('jintpo: cluster formation impossible ! &'))
+     &call utstop('jintpo: cluster formation impossible ! &')
       nptl=nptla
 
       do 1 k=1,m3grid
@@ -2313,6 +2310,7 @@ c create fake particle with energy lost in cluster
                 xorptl(4,nptl)=xorptl(4,n)
                 tivptl(1,nptl)=tivptl(1,n)
                 iorptl(nptl)=n
+                jorptl(nptl)=0
                 idptl(nptl)=idptl(n)*100+sign(99,idptl(n))
                 ityptl(nptl)=ityptl(n)+2
                 xptl(nptl)=xptl(n)
@@ -2686,6 +2684,9 @@ c        if(rangen().gt.0.5)midbin=midbin+1
           enddo
         enddo
       endif
+      do 20 i=1,maproj
+      do 20 j=1,matarg
+ 20   mpair(j,i)=0   
 
 
 c...calculate mean energy of segments going into in clusters
@@ -2704,6 +2705,17 @@ c...calculate mean energy of segments going into in clusters
           jj=jdropgrid(i,j,k)
           if(jj.gt.0)then
             nsegp4(jj)=nsegp4(jj)+1
+            io=iorptl(n)
+            if(iLHC.eq.1.and.ityptl(n).lt.40.and.io.gt.0)then !look for corresponding pair of nucleons
+              if(iorptl(io).gt.0)then
+                do while(iorptl(iorptl(io)).ge.0)
+                  io=iorptl(io)
+                enddo
+                ip=iorptl(io)
+                it=jorptl(io)-maproj
+                if(ip.gt.0.and.it.gt.0)mpair(it,ip)=mpair(it,ip)+1
+              endif
+            endif
             do kk=1,4
               p4mean(kk,jj)=p4mean(kk,jj)+dble(pptl(kk,n))
             enddo
@@ -2731,6 +2743,9 @@ c     & ,pptl(4,n),pptl(3,n),idptl(n),jj,nseg(jj),i,j,k
 
       ectot=0.
       amctot=0.
+      maptot=0
+      mapmax=0
+      npair=0
       do jj=1,jjj
         ectot=ectot+p4mean(4,jj)
         amctot=amctot+(p4mean(4,jj)+p4mean(3,jj))
@@ -2747,12 +2762,18 @@ c     & ,pptl(4,n),pptl(3,n),idptl(n),jj,nseg(jj),i,j,k
       yco=0.
       ycor=1.
       if(iLHC.eq.1.and.amctot.gt.0.)then
-        visco=exp(-min(50.,
-     &               max(0.,rmax**2-abs(fvisco))))    !mix flow 
+        do ip=1,maproj
+          do it=1,matarg
+            if(mpair(it,ip).gt.0)npair=npair+1
+            mapmax=max(mapmax,mpair(it,ip))
+            maptot=maptot+mpair(it,ip)
+          enddo
+        enddo
         amctot=sqrt(amctot)
         if(amctot.gt.amuseg**2)then
+          visco=1.
           yrmaxi=yradmx
-          if(fvisco.gt.0)yrmaxi=yrmaxi*(1.-visco)
+c          if(fvisco.gt.0)yrmaxi=yrmaxi*(1.-visco)
           yrmaxi=yrmaxi*log(exp(yradpi)+amctot**2)
 c          yrmaxi=yrmaxi*amctot**yradpi
           if(yrmaxi.gt.1e-2)then
@@ -2760,22 +2781,25 @@ c          yrmaxi=yrmaxi*amctot**yradpi
             fradflii=sngl(1d0/
      &         ((sinh(yyrmax)*yyrmax-cosh(yyrmax)+1d0)/(yyrmax**2/2d0)))
           else
+            yrmaxi=0.
             fradflii=1.
           endif
-c          print *,bimevt,amctot,fradflii,yrmaxi,visco
         else
           amctot=1.
           visco=0.
+          fradflii=1.
+          yrmaxi=ainfin         !to define ityptl as 19 if mass is too low (aumin=amuseg+yrmaxi in epos-hnb.f)
         endif
         if(ylongmx.lt.0.)then
           delzet=abs(ylongmx)*log(exp(yradmi)+amctot**2)
+c          delzet=abs(ylongmx)*log(exp(yradmi)+amctot)
 c          delzet=abs(ylongmx)*amctot**yradmi
           yco=delzet            !* 1.75
         else
           yco=ylongmx
         endif
-        ycor=yco*visco
-        if(fvisco.gt.0.)ycor=0.!ycor/2.
+        ycor=yco
+        if(fvisco.gt.0.)ycor=0.
         if(ycor.gt.1.e-2)then
           ycor=sqrt(sinh(ycor)/ycor)/fradflii
         else
@@ -2908,10 +2932,9 @@ c Decay Strings not included in clusters taking into account Z
 c do it here to have this particles before the one from cluster 
 c (to define maxfra properly)
       if(ish.ge.6)write(ifch,*)'decay Strings not included in clusters'
-      if(ifrade.ne.0.and.ntry.eq.1)then
+      if(ifrade.ne.0.and.ntry.eq.1.and..not.lclean)then
         nptlx=nptl+1
 c copy decayed strings into new strings if no fragments are used for cluster
-        new=0
         do n=1,nptl
           if(istptl(n).eq.29.and.ityptl(n).lt.40)then   !fragmented central strings
             iused=0
@@ -2945,8 +2968,7 @@ c copy decayed strings into new strings if no fragments are used for cluster
         maxfra=nptl
         nptla=nptl
         if(ish.ge.6.and.nptl.ne.nptlx-1)
-     &      call alist('list after second fragmentation&',
-     +sizeof('list after second fragmentation&'),nptlx,nptl)
+     &      call alist('list after second fragmentation&',nptlx,nptl)
         if(irescl.eq.1)then
           call utghost(iret)
           if(iret.gt.0)goto 1000
@@ -3057,7 +3079,7 @@ c
 c      endif
 c
 
-      nptlb0=nptl
+c      nptlb0=nptl
 
       nptlb=nptl+jjj
 c...prepare /cptl/ for clusters
@@ -3074,6 +3096,8 @@ c...prepare /cptl/ for clusters
           uptl(nptl)=0
           optl(nptl)=0
           desptl(nptl)=0
+          iorptl(nptl)=0
+          jorptl(nptl)=0
 c limit the maximum number of subcluster to half the number of particle
 c (not to have empty subclusters)
           nsegmx(jj)=max(1,nint(float(nseg(jj))/float(nsegsuj)))
@@ -3107,7 +3131,7 @@ c...prepare /cptl/ for subclusters
             jccl(mm,l,2)=0
           enddo
           iorptl(nptl)=nptla+jj
-          jorptl(n)=0
+          jorptl(nptl)=0
           if(ii.eq.1)ifrptl(1,nptla+jj)=nptlb+mm
           ifrptl(2,nptla+jj)=nptlb+mm
         enddo
@@ -3426,9 +3450,9 @@ c...ranphi
         xx=xx/float(mjjsegsum)
         yy=yy/float(mjjsegsum)
         xy=xy/float(mjjsegsum)
-        dta=0.5*(yy-xx)
+        dta=0.5*(xx-yy)
 c        eba=0.5*(xx+yy)
-        ww=-xy
+c        ww=-xy
 c        !-------------------------------------------------------
 c        !    inertia tensor:
 c        !----------------------+-------------------------------+
@@ -3439,45 +3463,90 @@ c        ! Eigenvalues ev1, ev2
 c        !-------------------------------------------------------
 c        ev1=eba+sqrt(dta**2+ww**2)
 c        ev2=eba-sqrt(dta**2+ww**2)
-        if(dta.ne.0.)then
-         ranphi=0.5*atan(abs(ww)/abs(dta))
-         if(    ww.gt.0..and.dta.gt.0.)then
-          ranphi=ranphi
-         elseif(ww.lt.0..and.dta.gt.0.)then
-          ranphi=-ranphi
-         elseif(ww.gt.0..and.dta.lt.0.)then
-          ranphi=pi-ranphi
-         elseif(ww.lt.0..and.dta.lt.0.)then
-          ranphi=ranphi-pi
-         endif
+        if(xy.lt.0..and.dta.ne.0.)then
+          ranphi=0.5*atan(-xy/dta)
+        elseif(xy.gt.0..and.dta.ne.0.)then
+          ranphi=-0.5*atan(xy/dta)
+        else
+          ranphi=0
         endif
+c        if(dta.ne.0.)then
+c         ranphi=0.5*atan(abs(ww)/abs(dta))
+c         if(    ww.gt.0..and.dta.gt.0.)then
+c          ranphi=ranphi
+c         elseif(ww.lt.0..and.dta.gt.0.)then
+c          ranphi=-ranphi
+c         elseif(ww.gt.0..and.dta.lt.0.)then
+c          ranphi=pi-ranphi
+c         elseif(ww.lt.0..and.dta.lt.0.)then
+c          ranphi=ranphi-pi
+c         endif
+c        else
+c          ranphi=2.*pi*rangen()
+c        endif
         rini=max(0.01,sqrt(5./3.*(xx+yy))) !<r**2>=3/5*R**2 for sphere of radius R
         volu=(4./3.*pi*(xx+yy)**1.5)
-        rho=amctot/volu
+c        rho=amctot/volu
+        flowpp=0.
+        flowaa=0.
 
-c        if(iLHC.eq.1.and.amctot.gt.amuseg)then
-c          visco=exp(-min(50.,
-c     &               max(0.,rmax*float(npjevt+ntgevt)-fvisco)**2))    !mix flow with multiplicity conservation (good in pp) and flow taken on mass (better for aa) : different viscosity ?
-c          yrmaxi=yradmx*(1.-visco)
-c          if(yrmaxi.gt.0.)then
-c            yrmaxi=yrmaxi*sqrt(log(amctot))
-c            if(yrmaxi.gt.1e-2)then
-c              yyrmax=dble(yrmaxi)
-c              fradflii=sngl(1d0/
-c     &        ((sinh(yyrmax)*yyrmax-cosh(yyrmax)+1d0)/(yyrmax**2/2d0)))
-c            else
-c              fradflii=1.
-c            endif
+        if(iLHC.eq.1.and.visco.gt.0.)then
+          if(npair.gt.0)then
+            fcorr=min(1.,float(mapmax)*abs(fvisco)/float(maptot))
+            visco=min(1.,2.*float(maptot)/float(npair)/float(mapmax))**2
+c     &                 *abs(fvisco))
+          elseif(lclean)then  !large number of particles, npair can't be calculated
+            visco=1e-6
+            fcorr=1.
+          else          !cluster from remnants only
+            visco=1.
+            fcorr=1.
+          endif
+          if(visco.ge.1.)yrmaxi=0. !yrmaxi*(1.-visco)
+c          visco=exp(-min(50.,max(0.,
+c     &         float(koievt)/log(amctot)-abs(fvisco))**yradpi)) !mix flow 
+c         &               max(0.,rmax**2-abs(fvisco))))    !mix flow 
+c          yrmaxi=log(amctot**2)
+c          yrmaxi=yradmx*yrmaxi*(1.-visco)
+c          if(visco.lt.1.and.yrmaxi.gt.1e-2)then
+c            yyrmax=dble(yrmaxi)
+c            fradflii=sngl(1d0/
+c     &         ((sinh(yyrmax)*yyrmax-cosh(yyrmax)+1d0)/(yyrmax**2/2d0)))
+c          else
+c            visco=1.
+c            yrmaxi=0.
+c            fradflii=1.
 c          endif
-c          if(ylongmx.lt.0)delzet=abs(ylongmx)*log(amctot)!*(1.-visco)
-c          if(ylongmx.lt.0)delzet=abs(ylongmx)*amctot**yradmi
-c        else
-c          if(ylongmx.lt.0)delzet=1.75*delzet
-c        endif
+c          if(visco.gt.1e-5)then
+c            yrmaxi=yradmx*(yrmaxi
+c     &            +visco*(log(amctot)*yradpx/yradmx-yrmaxi))
+c          else
+c            yrmaxi=yradmx*yrmaxi
+c          endif
+          fradflii=1.
+          if(yrmaxi.gt.0)then
+            flowpp=visco*log(fcorr*amctot)*yradpx
+            flowaa=yrmaxi
+            if(rangen().lt.flowaa/flowpp)then
+              visco=0.
+              yrmaxi=flowaa+max(0.,flowpp-flowaa)
+              yyrmax=dble(yrmaxi)
+              fradflii=sngl(1d0/
+     &        ((sinh(yyrmax)*yyrmax-cosh(yyrmax)+1d0)/(yyrmax**2/2d0)))
+            else
+              yrmaxi=0.
+              visco=log(fcorr*amctot)/log(amctot)
+            endif
+          elseif(fcorr.lt.1.)then
+            visco=log(fcorr*amctot)/log(amctot)
+          endif
+        endif
+
         if(ish.ge.3)write(ifch,*)'yrmaxi,delzet=',yrmaxi,delzet
-c        print *,bimevt,yrmaxi,rini,mjjsegsum,log(ectot),visco
-c     &         ,log(amctot),rho,rmax,rmax*float(npjevt+ntgevt)
-c     &         ,npjevt+ntgevt
+c        print *,'->',bimevt,yrmaxi,visco*yradpx*log(amctot),flowaa
+c     &        ,flowpp,maptot,log(ectot),visco,log(amctot),rho
+c     &        ,mapmax,npair
+c     &        ,min(1.,2.*float(maptot)/float(npair)/float(mapmax))**2
       endif
 
 c...print
@@ -3513,7 +3582,7 @@ c           if(kclu(jj).eq.44)print *,tm,pptl(4,n),pptl(3,n),iorptl(n)
 c...decay
       iret=0
       if(jjj.gt.0)then     !decay only if some cluster produced
-      typevt=-typevt
+      if(4-abs(typevt).gt.0.0001)typevt=-typevt    !typevt < 0 if fusion but only if not SD (sign used for something else for SD ... and no fusion produced for SD events)
       if(ish.ge.5)write(ifch,*)'decay ...'
       if(ifrade.eq.0.or.ispherio.gt.0)goto1000
       if(jdecay.eq.0)goto1000
@@ -3610,9 +3679,10 @@ c set angular informations
         ev1=(xx+yy)/2+sqrt(dta**2+xy**2)
         ev2=(xx+yy)/2-sqrt(dta**2+xy**2)
         ecc=(ev1-ev2)/(ev1+ev2)
-        fecc=facecc*ecc
-c       print*,ecc,theta
-        fecc=min(1.,fecc)
+c        fecc=facecc*ecc!/(1.+yrmax)
+c        print*,'pp',ecc,ranphi
+        fecc=min(facecc,ecc)   !be careful : fecc change <pt> since it is the elliptical deformation of the sub cluster (give strength of v2)
+
         phiclu=mod(phievt+ranphi,2.*pi) !do not change otherwise v2 is gone
         if(phiclu.lt.-pi)phiclu=phiclu+2*pi
         if(phiclu.gt.pi)phiclu=phiclu-2*pi
@@ -3631,7 +3701,6 @@ c        lcont=.true.
 c        if(nclu.lt.50)lcont=.false.
         lcont=.false.
         ncl=0
-        npl=0
         nmin=nptlbcf+1
         nmax=nptl
         idrc=-1+2.*int(0.5+rangen())
@@ -3663,7 +3732,7 @@ c initialization for rescaling on ipart particles
         ifi0=0
 
 c        do 900 while (ncl.le.nptlb-1)
-        do 900 while (ntot.gt.0)
+        do while (ntot.gt.0)
           ncl=ncl+1
           if(iLHC.eq.1)then
             yrmax=yradpx*visco
@@ -3762,8 +3831,11 @@ c           print *,bimevt,rini,ppp(5),yrmax,yrmaxi,delzet,np,ptmax,visco
                 i=i+1
                 yrad(i)=sqrt(rangen())
                 phirad(i)=2.*pi*rangen()
-                bex=sinh(yrad(i)*yrmax)*cos(phirad(i))*(1+fecc)
-                bey=sinh(yrad(i)*yrmax)*sin(phirad(i))*(1-fecc)
+                pt2=(pptl(1,ii)**2+pptl(2,ii)**2)!+pptl(5,ii)**2)
+                bex=sinh(yrad(i)*yrmax)*cos(phirad(i))
+     &             *(1+fecc/(1.+pt2))
+                bey=sinh(yrad(i)*yrmax)*sin(phirad(i))
+     &             *(1-fecc/(1.+pt2))
                 be(1)=aa*bex+cc*bey
                 be(2)=bb*bex+dd*bey
                 be(3)=0d0
@@ -3844,9 +3916,9 @@ c                  ntrt=ntrt+1
                       pt2=pptl(1,j)**2+pptl(2,j)**2
                       pz2=pptl(3,j)**2
                       pp2=pt2+pz2
-                      et2=(pp2+pptl(5,j)**2)*pt2/pp2
+c                      et2=(pp2+pptl(5,j)**2)*pt2/pp2
                       pt=sqrt(pt2)
-                      pp=sqrt(pp2)
+c                      pp=sqrt(pp2)
 c base necessary to avoid peak at pt or pl=0
 c epsi change the shape of eta distributions and pt for
 c identified particles (shift the maximum of the distribution)
@@ -3874,7 +3946,7 @@ c     &                   .and.1.+pptl(5,j)**2*(1./pp2-1./pt2).gt.0.)then
 c necessary even with epsi cut to smooth eta distribution
 c and since sumEt has to be conserved, we can constrain scaling for pt
 c and pz :
-                        ytmp=yrad2(i)
+c                        ytmp=yrad2(i)
                         yrad2(i)= yrad2(i)**((1.-(pptl(5,j)
      &    /sqrt((min(1.,yrad2(i)*float(max(1,niter-100))))**2
      &         *(pt**2+pptl(3,j)**2)+pptl(5,j)**2))**1.)
@@ -3883,7 +3955,7 @@ c and pz :
                         yrad2(i)=min(1.,base+yrad2(i)) !should be here to avoid peak at eta=0.
                       else
                         yrad2(i)=1.
-                        ytmp=yrad2(i)
+c                        ytmp=yrad2(i)
                       endif
                       be(1)= pptl(1,j)*yrad2(i)
                       be(2)= pptl(2,j)*yrad2(i)
@@ -3943,6 +4015,7 @@ c      print *,'done',niter,energ/tecm,ipart,ini0,ifi,finc
 
 
  900  continue
+      enddo
 
 c rescale momentum precisely and globaly to avoid artefacts for matrix
 c but only at 10% level to keep dependence of sumEt with eta 
@@ -4123,8 +4196,7 @@ c Decay droplets not included in clusters
         if(istptl(mm).eq.10)then
           if(ish.ge.5)write(ifch,*)'Decay remaining droplet :',mm
           if(nptlb.gt.mxptl-10)
-     &    call utstop('jintpo: mxptl too small (2)&',
-     +sizeof('jintpo: mxptl too small (2)&'))
+     &    call utstop('jintpo: mxptl too small (2)&')
           if(ioclude.eq.3)then
             call hnbaaa(mm,iret)
           else
@@ -4219,8 +4291,7 @@ c         else
 c          write(ifch,*)
 c     *    'i:',i,' id:',idptl(i),' k:',k,' m:',am
 c          write(ifch,*)'jc:',(jc(l,1),l=1,6),(jc(l,2),l=1,6)
-c          call utstop('jrad: meson radius not defined&',
-c     +sizeof('jrad: meson radius not defined&'))
+c          call utstop('jrad: meson radius not defined&')
 c         endif
 c        else                    ! flavor singlet vector mesons
 c         if(am.ge.0.000)then
@@ -4235,8 +4306,7 @@ c         else
 c          write(ifch,*)
 c     *    'i:',i,' id:',idptl(i),' k:',k,' m:',am
 c          write(ifch,*)'jc:',(jc(l,1),l=1,6),(jc(l,2),l=1,6)
-c          call utstop('jrad: meson radius not defined&',
-c     +sizeof('jrad: meson radius not defined&'))
+c          call utstop('jrad: meson radius not defined&')
 c         endif
 c        endif
 c       elseif(kc(3).eq.0.and.kc(4).eq.0)then  ! nonstrange, noncharmed
@@ -4253,16 +4323,14 @@ c         rad=0.68  ! kaon resonances
 c        endif
 c       else                                   ! charmed
 c        write(ifch,*)'i:',i,' id:',idptl(i)
-c        call utstop('jrad: radius of meson not defined&',
-c     +sizeof('jrad: radius of meson not defined&'))
+c        call utstop('jrad: radius of meson not defined&')
 c       endif
 c      else   !baryons
 c       if(kc(4).gt.0)then       ! charmed
 c        write(ifch,*)
 c     *  'i:',i,' id:',idptl(i),' k:',k,' m:',am
 c        write(ifch,*)'i:',i,' id:',idptl(i)
-c        call utstop('jrad: radius of charmed baryon not defined&',
-c     +sizeof('jrad: radius of charmed baryon not defined&'))
+c        call utstop('jrad: radius of charmed baryon not defined&')
 c       elseif(kc(3).eq.0)then   ! nonstrange
 c        if(k.eq.0)then
 c         rad=0.82  !nucleons
@@ -4289,8 +4357,7 @@ c     *  'i:',i,' id:',idptl(i),' k:',k,' m:',am
 c        write(ifch,*)
 c     *  'q:',(jc(l,1),l=1,6),' qbar:',(jc(l,2),l=1,6),
 c     *  ' |q-qbar|:',(kc(l),l=1,6)
-c        call utstop('jrad: should not happen&',
-c     +sizeof('jrad: should not happen&'))
+c        call utstop('jrad: should not happen&')
 c       endif
 cc string fragments with |#q|>3
 c       if(na.gt.3)then
@@ -4541,8 +4608,7 @@ ctp to avoid precision problem, replace abs(p3)/p4 by sqrt(1-(pt2+m2)/E2)
         ti1=dble(xo4)
       else
         ti1=0
-        call utstop("Wrong iopt in jtain !&",
-     +sizeof("Wrong iopt in jtain !&"))
+        call utstop("Wrong iopt in jtain !&")
       endif
       ti2=dble(tivptl(2,i))
 
@@ -5243,7 +5309,7 @@ c
 c------------------------------------------------------------------------------
       subroutine xtauev(iii)
 c------------------------------------------------------------------------------
-      jjj=iii
+      jdum=iii
       end
 c------------------------------------------------------------------------------
       subroutine wimi
@@ -5256,7 +5322,7 @@ c------------------------------------------------------------------------------
 c------------------------------------------------------------------------------
       subroutine xspace(iii)
 c------------------------------------------------------------------------------
-      jjj=iii
+      jdum=iii
       end
 c------------------------------------------------------------------------------
       subroutine wclu
@@ -5269,5 +5335,5 @@ c------------------------------------------------------------------------------
 c------------------------------------------------------------------------------
       subroutine wtime(iii)
 c------------------------------------------------------------------------------
-      jjj=iii
+      jdum=iii
       end

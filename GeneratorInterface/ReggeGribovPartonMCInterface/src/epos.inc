@@ -32,12 +32,12 @@ c---------------------------------------------------------------------------
 
       real        phievt,bimevt,pmxevt,egyevt
      *,xbjevt,qsqevt,zppevt,zptevt
-      integer     nevt,kolevt,koievt,npjevt
+      integer     nevt,kolevt,koievt,kohevt,npjevt
      *,ntgevt,npnevt,nppevt,ntnevt,ntpevt,jpnevt,jppevt,jtnevt,jtpevt
      *,nglevt,minfra,maxfra
       common/cevt/phievt,nevt,bimevt,kolevt,koievt,pmxevt,egyevt,npjevt
      *,ntgevt,npnevt,nppevt,ntnevt,ntpevt,jpnevt,jppevt,jtnevt,jtpevt
-     *,xbjevt,qsqevt,nglevt,zppevt,zptevt,minfra,maxfra
+     *,xbjevt,qsqevt,nglevt,zppevt,zptevt,minfra,maxfra,kohevt
       real         rglevt,sglevt,eglevt,fglevt,typevt
       integer      ng1evt,ng2evt,ikoevt
       common/c2evt/ng1evt,ng2evt,rglevt,sglevt,eglevt,fglevt,ikoevt
@@ -48,6 +48,7 @@ c     bimevt ........ absolute value of impact parameter
 c     phievt ........ angle of impact parameter
 c     kolevt ........ number of collisions
 c     koievt ........ number of inelastic collisions
+c     kohevt ........ number of hard collisions
 c     pmxevt ........ reference momentum
 c     egyevt ........ pp cm energy (hadron) or string energy (lepton)
 c     npjevt ........ number of primary projectile participants
@@ -69,7 +70,7 @@ c     zptevt ........ average Z-parton-targ
 c     ng1evt ........ number of Glauber participants with at least one IAs 
 c     ng2evt ........ number of Glauber participants with at least two IAs 
 c     ikoevt ........ number of elementary parton-parton scatterings
-c     typevt ........ type of event (1=Non Diff, 2=Double Diff, 3=Single Diff)
+c     typevt ........ type of event (1=Non Diff, 2=Double Diff, 3=Central Diff, 4=AB->XB, -4=AB->AX)
 
 c---------------------------------------------------------------------------
 c                   epos particle list common block

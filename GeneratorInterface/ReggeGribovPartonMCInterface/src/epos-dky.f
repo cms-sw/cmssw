@@ -40,10 +40,8 @@ c no last generation -> no decay
       if(istptl(i).ne.0)return
 
       if(nptl.gt.mxptl-10)then
-        call alist('end&',
-     +sizeof('end&'),1,nptl)
-        call utstop('hdecas: mxptl too small&',
-     +sizeof('hdecas: mxptl too small&'))
+        call alist('end&',1,nptl)
+        call utstop('hdecas: mxptl too small&')
       endif
 c entry
 
@@ -66,13 +64,22 @@ c  ordinary decay
       call idmass(111,amrho0)
       call idmass(221,amomeg)
       ioi=iorptl(i)
-      if(ioi.gt.0)then
-      if(.not.(iabs(idptl(ioi)).lt.10000
-     *          .and.jorptl(i).eq.0)
-     *.and..not.(ityptl(i).eq.60))then
-      if(idptl(i).eq.111)idptl(i)=221
-      if(idptl(i).eq.221.and.rangen().gt.0.5)idptl(i)=111
-      endif
+      if(ioi.gt.0.and.(idptl(i).eq.111.or.idptl(i).eq.221))then
+        if(.not.(iabs(idptl(ioi)).lt.10000
+     *       .and.jorptl(i).eq.0))then
+
+          if(iLHC.eq.1.and.((ityptl(i).ge.20.and.ityptl(i).le.39)
+     *        .or.ityptl(i).eq.42.or.ityptl(i).eq.52))then
+c mix rho and omegas only from string production and if not decay product
+            if(idptl(i).eq.111)idptl(i)=221
+            if(idptl(i).eq.221.and.ityptl(i).ge.30.and.ityptl(i).le.39
+     *         .and.rangen().gt.0.5)idptl(i)=111
+          elseif(iLHC.eq.0.and..not.(ityptl(i).eq.60))then
+            if(idptl(i).eq.111)idptl(i)=221
+            if(idptl(i).eq.221.and.rangen().gt.0.5)idptl(i)=111
+          endif
+
+        endif
       endif
 
       if(ctaumin.gt.0.)then
@@ -257,60 +264,60 @@ c     -----------------
 
 c Decay of deuteron
 
-      if(idlv1.eq.17)then
+      if(abs(idlv1).eq.17)then
         amss=1.01*amss
         naddptl=2
         call idmass(1120,amnew)
         pptl(5,nptl+1)=amnew
-        idptl(nptl+1)=1120
+        idptl(nptl+1)=sign(1120,idlv1)
         sum=amnew
         call idmass(1220,amnew)
         pptl(5,nptl+2)=amnew
-        idptl(nptl+2)=1220
+        idptl(nptl+2)=sign(1220,idlv1)
         sum=sum+amnew
         goto 111
       endif
 
 c Decay of triton
 
-      if(idlv1.eq.18)then
+      if(abs(idlv1).eq.18)then
         amss=1.01*amss
         naddptl=3
         call idmass(1120,amnew)
         pptl(5,nptl+1)=amnew
-        idptl(nptl+1)=1120
+        idptl(nptl+1)=sign(1120,idlv1)
         sum=amnew
         call idmass(1220,amnew)
         pptl(5,nptl+2)=amnew
-        idptl(nptl+2)=1220
+        idptl(nptl+2)=sign(1220,idlv1)
         sum=sum+amnew
         call idmass(1220,amnew)
         pptl(5,nptl+3)=amnew
-        idptl(nptl+3)=1220
+        idptl(nptl+3)=sign(1220,idlv1)
         sum=sum+amnew
          goto 111
       endif
 
 c Decay of alpha
 
-      if(idlv1.eq.19)then
+      if(abs(idlv1).eq.19)then
         amss=1.01*amss
         naddptl=4
         call idmass(1120,amnew)
         pptl(5,nptl+1)=amnew
-        idptl(nptl+1)=1120
+        idptl(nptl+1)=sign(1120,idlv1)
         sum=amnew
         call idmass(1220,amnew)
         pptl(5,nptl+2)=amnew
-        idptl(nptl+2)=1220
+        idptl(nptl+2)=sign(1220,idlv1)
         sum=sum+amnew
         call idmass(1120,amnew)
         pptl(5,nptl+3)=amnew
-        idptl(nptl+3)=1120
+        idptl(nptl+3)=sign(1120,idlv1)
         sum=sum+amnew
         call idmass(1220,amnew)
         pptl(5,nptl+4)=amnew
-        idptl(nptl+4)=1220
+        idptl(nptl+4)=sign(1220,idlv1)
         sum=sum+amnew
         goto 111
       endif
@@ -693,12 +700,10 @@ c     -----------------------------------------------
 
  900    continue
         nptl=nptl+naddptl
-        if(nptl.gt.mxptl)call utstop('hdecay: nptl>mxptl&',
-     +sizeof('hdecay: nptl>mxptl&'))
+        if(nptl.gt.mxptl)call utstop('hdecay: nptl>mxptl&')
 c        nqk=0           !???????????????????unused
         if(iabs(idptl(nptl)).lt.10.or.mod(idptl(nptl),100).eq.0)then
-c          call utstop('hdecay: decay ptcl is parton&',
-c     +sizeof('hdecay: decay ptcl is parton&'))
+c          call utstop('hdecay: decay ptcl is parton&')
         endif
 
 c     print
@@ -710,11 +715,9 @@ c     -----
      *'    decay  at tau =',f6.2/
      *' ----------------------------')
       write(ifch,*)'decaying object:'
-      call alist('&',
-     +sizeof('&'),ip,ip)
+      call alist('&',ip,ip)
       write(ifch,*)'decay products:'
-      call alist('&',
-     +sizeof('&'),nptlb+1,nptl)
+      call alist('&',nptlb+1,nptl)
       endif
       if(ish.ge.5)then
       write(ifch,*)'momentum sum:'
@@ -724,8 +727,7 @@ c     -----
       pptl(kk,nptl+1)=pptl(kk,nptl+1)+pptl(kk,ii)
       enddo
       enddo
-      call alist('&',
-     +sizeof('&'),nptl+1,nptl+1)
+      call alist('&',nptl+1,nptl+1)
       endif
 
 c     exit
@@ -740,8 +742,7 @@ c     ----
       call utprix('hdecay',ish,ishini,5)
       return
 
- 9999   call utstop('hdecay: mxptl too small&',
-     +sizeof('hdecay: mxptl too small&'))
+ 9999   call utstop('hdecay: mxptl too small&')
         end
 
 c---------------------------------------------------------------------
@@ -2057,8 +2058,7 @@ c      if(ird.gt.1171)return   ! ??????????????????????????
       if(noeta.and.ires.eq.220) goto220
       if(ires.eq.iold) goto230
       if(ires.lt.0.or.ires.gt.mxlook)
-     *call utstop('hdecin: ires out of range&',
-     +sizeof('hdecin: ires out of range&'))
+     *call utstop('hdecin: ires out of range&')
       look(ires)=loop
 230   iold=ires
       cbr(loop)=br
@@ -2073,8 +2073,7 @@ c      if(ird.gt.1171)return   ! ??????????????????????????
       goto200
 
 9999  write(ifch,*)'loop=', loop
-      call utstop('hdecin: loop > mxdky&',
-     +sizeof('hdecin: loop > mxdky&'))
+      call utstop('hdecin: loop > mxdky&')
 
       end
 

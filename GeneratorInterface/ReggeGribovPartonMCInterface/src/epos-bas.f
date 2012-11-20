@@ -164,7 +164,7 @@ c this parameter is used to fix the increase of baryon and strangeness for Tevat
       diqcut=0.5  !baryon cut factor for diffractive string fragmentation (needed for pi+p->p/ap data (pz/E > diqcut : no diquark for first node)
       pdiqua= 0.1   !qq-qqbar probability in epos-dro/vedi (decazys only)
       ptfra=  0.35 !string break pt
-      ptfraqq=0.35 !string break pt for diquark break
+      ptfraqq=0.35 !string end break pt
       ptfrasr=0.   !string break pt increase for strangeness (disable in epos-fra)
       pbreak=-0.33 !break-parameter (~0.4 to match NA49 data and pi0 spectra for CR)
 c if -1<pb<0, take pb for soft and e+e- parameterization for hard strings
@@ -967,10 +967,12 @@ c remnant excitation
       rexndii(1)=0.65  !remnant excitation probability nondiffractive pion
       rexndii(2)=0.65  !remnant excitation probability nondiffractive proton
       rexndii(3)=0.65  !remnant excitation probability nondiffractive kaon
-      rexres(2)=0.08   !nucleon remnant excitation probability in nucleus
+      rexres(1)=0.     !pion remnant excitation probability in nucleus
+      rexres(2)=0.     !nucleon remnant excitation probability in nucleus
+      rexres(3)=0.15   !kaon remnant excitation probability in nucleus
       alpdif=0.7     !alpha mass diffractive for cross section and metropolis
       alpdi=1.05      !alpha mass diffractive
-      alpndi=1.65       !alpha mass nondiffractive
+      alpndi=2.  !1.65       !alpha mass nondiffractive
       alpdro(3)=2.5  !alpha mass of leading droplet (iept=3)
       alpdro(2)=1.5   !alpha mass of leading droplet (iept=3)
       zmsinc= 0.    !increase of remant minimum mass and decrease alpha (increase remnant mass with iept=3)
@@ -983,43 +985,51 @@ c string fragmentation
       zetacut=1.5  !g->ggq2 cut for special hadronization
       fkappa=0.014  !String tension (GeV2) for quark string
       fkappag=0.014 !String tension (GeV2) for gluon string
+      ptfraqq=0.    !pt for rotation of string in remnant
       ptsend=1.     !string end pt
-      ptsems=0.1
+      ptsems=0.2
       pmqq=0.107 !mass diquark for string fragm (fix number of baryons) 
-      qmass(0)=pmqq           !diquark effective bounding energy (for pt distribtions)
+      qmass(0)=0.           !diquark effective bounding energy (for pt distribtions)
       pmqs=0.074 !mass quark s for string fragm
-      wgtdiq=0.25      !weight for seadiq - antidiq as soft string end 
+      rstras(1)=0.5        !effective ratio of s sea over u sea basis (kaons in pipp250)
+      rstras(2)=0.5        !effective ratio of s sea over u sea basis (lambdas in pp158)
+      rstras(3)=0.5        !effective ratio of s sea over u sea basis (kaons in kpp250)
+      wgtdiq=0.25      !weight for seadiq - antidiq as string end 
+      wgtqqq(1)=0.     !weight for val diq (as soft string ends for one pomeron) for pion
+      wgtqqq(2)=0.     !weight for val diq for nucleon
+      wgtqqq(3)=0.     !weight for val diq for kaon
+      wgtqqq(4)=0.     !weight weight for val diq for J/Psi
       fkainc=0.   !factor for natural increase of string tension with energy
 c energy dependence comes from fit of e+e->had mult in epos-fra
 c this parameter is used to fix the increase of baryon and strangeness for Tevatron
       fkamax=10000.  !limit of effect in hadronic collision on fkappa
-      zopinc= 0.0035                !soft/hard modif factor increase
+      zopinc= 0.007                !soft/hard modif factor increase
       zipinc= 1.35              !inner pt modif factor increase
       zodinc= 0.    !#of pom dependence
       xzcut=3.35     !factor for minimum x for a Pomeron to be used for nuclear splitting
       zoeinc= 0.      !cutoff timelike evol modif factor increase
-      reminv=0.03   !remnant inversion probability (inversion important for forward pi(0) spectra : consequences on Xmax)
+      reminv=0.05   !remnant inversion probability (inversion important for forward pi(0) spectra : consequences on Xmax)
 
 c radial flow (new)
       yradpx=0.55    !increase factor of low mass flow (conserv. mult.)
       yradpp=4.     !mass dependence of low mass flow (attenuation for heavy part)
 
 c radial flow (old)
-      yradmx=0.042   !increase factor of high mass flow (decrease. mult.)    
-      yradpi= 9.75      !minimum for rad flow (min=yradpi*yradmx)
+      yradmx= 0.04   !increase factor of high mass flow (decrease. mult.)    
+      yradpi= 10.7      !minimum for rad flow (min=yradpi*yradmx)
 
 c long flow
-      ylongmx=-0.1  !long collective boost ( < 0 -> factor for mass dependence)
-      yradmi= 9.75  !minimum for long flow (min=yradmi*ylongmx)
+      ylongmx=-0.106 !long collective boost ( < 0 -> factor for mass dependence)
+      yradmi= 9.2  !minimum for long flow (min=yradmi*ylongmx)
       
       ptclu=1.       !maximum pt of particles going into cluster (this change <pt> because the maximum flow will depend on ptclu**yradpp and multiplicity because less particles are inculded in clusters (can be compensated by fploss)
       ioquen=1      !jet quenching option (0=no)
       iohole=0      !hole filling option (0=no)
       fploss=1.75     !parton energy loss (effective)
-      fvisco=11.    !viscosity (effective) : transition from low mass (>0) to high mass (<0) flow
+      fvisco=1.3    !factor to correct # of segment in high density pair vs all
       fplmin=-2.5     !fix the eta shape at high pt
       amuseg=3.    !min mass for radial boost
-      facecc=0.65   !eccentricity parameter
+      facecc=0.5   !max eccentricity parameter
       nsegce=7      !number of segments per cell
 
       facts=0.35    !strangeness suppression in droplet
@@ -1065,11 +1075,10 @@ c  count the number of particles to be stored (--> nptevt)
       end
 
 c-----------------------------------------------------------------------
-      subroutine ustore
+      subroutine hepmcstore
 c-----------------------------------------------------------------------
 c     writes the results of a simulation into the file with unit ifdt
 c     contains a description of the stored variables.
-c     modifiable by the user
 c-----------------------------------------------------------------------
       include 'epos.inc'
       double precision phep2,vhep2
@@ -1079,11 +1088,10 @@ c-----------------------------------------------------------------------
      &,jdahep2(2,nmxhep),phep2(5,nmxhep),vhep2(4,nmxhep)
       integer iepo2hep(mxptl),ihep2epo(nmxhep),ihep2epo2(nmxhep)
 
-      logical lrcore,lrcor0
+      logical lrcore,lrcor0,lclean
 
-c  count the number of particles to be stored (--> nptevt)
+c  count the number of particles to be stored
 
-      nptevt=0
       do i=1,nptl
         iepo2hep(i)=0    !initialize epos index to hep index
       enddo
@@ -1122,6 +1130,8 @@ c     jtpevt ........ number of absolute target proton spectators
       endif
 
       nhep2=0
+      ipro=0
+      itar=0
       do i=1,nptl
 
       if(istptl(i).le.istmaxhep.or.i.le.maproj+matarg)then !store events with istptl < istmax
@@ -1131,6 +1141,11 @@ c  store particle variables:
 
 c     i ............. particle number
       io=iorptl(i)
+      lclean=.false.
+      if(istptl(i).le.1.and.io.eq.0.and.i.gt.maproj+matarg)then
+        lclean=.true.                       !happens only after cleaning
+        io=i
+      endif
       iadd=1
       jm1io=0
       jm2io=0
@@ -1142,16 +1157,25 @@ c     i ............. particle number
       jd2hep=0
       idio=0
       if(io.gt.0)then
-        if(istptl(io).le.1.and.i.gt.maproj+matarg)then  !moher is normal particle (incl. spectators and fragments)
+        if(istptl(io).le.1.and.i.gt.maproj+matarg.and..not.lclean)then!mother is normal particle (incl. spectators and fragments)
           iadd=1
-          jm1hep=iepo2hep(io)
-          if(jorptl(i).gt.0)jm2hep=iepo2hep(jorptl(i))
-        elseif(istmaxhep.gt.0.and.iorptl(io).gt.0)then
+          if(jorptl(i).gt.0)then
+            jm1hep=iepo2hep(io)
+            jm2hep=iepo2hep(jorptl(i))
+          endif
+        elseif(istmaxhep.gt.0.and.(iorptl(io).gt.0.or.lclean))then
 c     create special father/mother to have the complete chain from beam to final particle
-          do while(iorptl(iorptl(io)).gt.0)
-            io=iorptl(io)
-          enddo
-          if(istptl(io).eq.41)then !remnant
+          if(lclean)then
+            istptlio=99       !if cleaning defined: use all remnants
+            iorptlio=io
+          else
+            do while(iorptl(iorptl(io)).gt.0)
+              io=iorptl(io)
+            enddo
+            istptlio=istptl(io)
+            iorptlio=iorptl(io)
+          endif
+          if(istptlio.eq.41)then !remnant
             if(istptl(i).eq.2.and.jdahep2(2,iorptl(io)).eq.0)then  !beam remnant used in core
               ifrptl(1,iorptl(io))=io !no to be used again as core mother
               jmohep2(2,iorptl(io))=1
@@ -1166,20 +1190,9 @@ c              print *,'rcore',i,iorptl(io)
               jdahep2(2,jm1io)=i
 c              print *,'remn',i,iorptl(io)
            endif
-          elseif(istptl(i).le.1.and.istptl(io).eq.31)then !string
+          elseif(istptl(i).le.1.and.istptlio.eq.31)then !string
             iadd=2
             idio=92
-c            if(jorptl(io).ne.0)then
-c              if(rangen().gt.0.5)then !randomly assign father to projectile or target (just not to attach always all strings to projectile)
-c                jm1io=iorptl(io)
-c              else
-c                jm1io=jorptl(io)
-c              endif
-c              iorptl(io)=jm1io
-c              jorptl(io)=0
-c            else
-c              jm1io=iorptl(io)
-c            endif
             if(pptl(3,i).ge.0.)then
               jm1io=iorptl(io)
             else
@@ -1190,79 +1203,54 @@ c            endif
             jdahep2(2,jm1io)=i
             jmohep2(2,jm1io)=-1
 c              print *,'string',i,iorptl(io)
-          elseif(istptl(i).le.1.and.istptl(io).eq.11)then !core
+          elseif(istptl(i).le.1.and.istptlio.eq.11)then !core
             iadd=2
             idio=91
             jm1io=1
             dddmn=1e33
-            if(jorptl(iorptl(io)).eq.0)then
+            if(jorptl(iorptlio).eq.0)then
               jm1io=1
               dddmn=1e33
-c              if(rangen().gt.0.5)then !randomly assign father to projectile or target (just not to attach always all strings to projectile)
-c                do k=1,maproj   !look for closest projectile nucleon
-c                  if(iorptl(k).lt.0)
-c     &              ddd=(xorptl(1,k)-xorptl(1,io))**2
-c     &                   +(xorptl(2,k)-xorptl(2,io))**2
-c                  if(ddd.lt.dddmn)then
-c                    jm1io=k
-c                    dddmn=ddd
-c                  endif
-c                enddo
-c              else
-c                do k=maproj+1,maproj+matarg !look for closest target nucleon
-c                  if(iorptl(k).lt.0)
-c     &              ddd=(xorptl(1,k)-xorptl(1,io))**2
-c     &                 +(xorptl(2,k)-xorptl(2,io))**2
-c                  if(ddd.lt.dddmn)then
-c                    jm1io=k
-c                    dddmn=ddd
-c                  endif
-c                enddo
-c              endif
-c              jorptl(iorptl(io))=jm1io
-c            else
-c              jm1io=jorptl(iorptl(io))
-c            endif
-                do k=1,maproj   !look for closest projectile nucleon
-                  ddd=1e34
-                  if(iorptl(k).lt.0.and.ifrptl(1,k).eq.0)
-     &              ddd=(xorptl(1,k)-xorptl(1,io))**2
-     &                   +(xorptl(2,k)-xorptl(2,io))**2
-                  if(ddd.lt.dddmn)then
-                    jm1io=k
-                    dddmn=ddd
-                  endif
-                enddo
-                jm2io=1
-                dddmn=1e33
-                do k=maproj+1,maproj+matarg !look for closest target nucleon
-                  ddd=1e34
-                  if(iorptl(k).lt.0.and.ifrptl(1,k).eq.0)
-     &              ddd=(xorptl(1,k)-xorptl(1,io))**2
-     &                 +(xorptl(2,k)-xorptl(2,io))**2
-                  if(ddd.lt.dddmn)then
-                    jm2io=k
-                    dddmn=ddd
-                  endif
-                enddo
-                iorptl(io)=jm1io
-                jorptl(io)=jm2io
-                jorptl(iorptl(io))=io
-                jm1io=0
-                jm2io=0
-              endif
-              if(pptl(3,i).ge.0.)then
-                jm1io=iorptl(io)
-              else
-                jm1io=jorptl(io)
-              endif
+              do k=1,maproj     !look for closest projectile nucleon
+                ddd=1e34
+                if(iorptl(k).lt.0.and.ifrptl(1,k).eq.0)
+     &               ddd=(xorptl(1,k)-xorptl(1,io))**2
+     &               +(xorptl(2,k)-xorptl(2,io))**2
+                if(ddd.lt.dddmn)then
+                  jm1io=k
+                  dddmn=ddd
+                endif
+              enddo
+              jm2io=1
+              dddmn=1e33
+              do k=maproj+1,maproj+matarg !look for closest target nucleon
+                ddd=1e34
+                if(iorptl(k).lt.0.and.ifrptl(1,k).eq.0)
+     &               ddd=(xorptl(1,k)-xorptl(1,io))**2
+     &               +(xorptl(2,k)-xorptl(2,io))**2
+                if(ddd.lt.dddmn)then
+                  jm2io=k
+                  dddmn=ddd
+                endif
+              enddo
+              iorptl(io)=jm1io
+              jorptl(io)=jm2io
+              jorptl(iorptl(io))=io
+              jm1io=0
+              jm2io=0
+            endif
+            if(pptl(3,i).ge.0.)then
+              jm1io=iorptl(io)
+            else
+              jm1io=jorptl(io)
+            endif
 
             jd1io=nhep2+2
             jm1hep=nhep2+1
             jdahep2(2,jm1io)=i
             jmohep2(2,jm1io)=-1
 c              print *,'core',i,iorptl(io)
-          elseif(istptl(i).le.1.and.istptl(io).eq.51)then !nuclear fragment
+          elseif(istptl(i).le.1.and.istptlio.eq.51)then !nuclear fragment
             idio=90
             if(jorptl(io).gt.0)then
               iadd=2
@@ -1274,6 +1262,24 @@ c              jm2io=jorptl(io)
               iadd=1
               jm1hep=iepo2hep(io)
             endif
+          elseif(istptlio.eq.99)then !particle after cleaning
+            iadd=2
+            idio=91
+            if(pptl(3,i).ge.0.)then
+              ipro=ipro+1
+              if(ipro.gt.maproj)ipro=1
+              jm1io=ipro
+            else
+              itar=itar+1
+              if(itar.gt.matarg)itar=1
+              jm1io=maproj+itar
+            endif
+
+            jd1io=nhep2+2
+            jm1hep=nhep2+1
+            jdahep2(2,jm1io)=i
+            jmohep2(2,jm1io)=-1
+c            print *,'clean',i,iorptl(io),pptl(3,i),jm1io
           endif
         endif
       else
@@ -1364,8 +1370,12 @@ c       jorptl(i) ..... particle number of mother (if .le. 0 : no mother)
 c copy first list in final list to define daughters of beam particles 
 
       nhep=0
+      nhepio=0
+      if(istmaxhep.ne.0)nhep=maproj+matarg
       lrcor0=.true.   !link spectator remnants to core only once 
       lrcore=.false. 
+
+c start with beam particles (except spectators producing fragments)
 
       do j=1,maproj+matarg
 
@@ -1373,6 +1383,7 @@ c copy first list in final list to define daughters of beam particles
 
 c when no daughter/mother informations, simply copy beam particles
           nhep=nhep+1
+          nhepio=nhepio+1
           idhep(nhep)=idhep2(j)
           phep(1,nhep)=phep2(1,j)
           phep(2,nhep)=phep2(2,j)
@@ -1394,16 +1405,17 @@ c when no daughter/mother informations, simply copy beam particles
 
         else
 
-        nhepio=nhep+1
-        isthep(nhepio)=0
+        nhep0=nhep
+        nhepi0=nhepio+1
+        isthep(nhepi0)=0
         nio=0
 
 c copy all daughters after the mother
         do k=maproj+matarg+1,nhep2
 
           if(jmohep2(1,k).eq.j.and.idhep2(k).ne.90)then
-            if(isthep(nhepio).eq.0)then
-              nhep=nhepio
+            if(isthep(nhepi0).eq.0)then       !first save mother beam particle
+              nhepio=nhepio+1
               idhep(nhepio)=idhep2(j)
               phep(1,nhepio)=phep2(1,j)
               phep(2,nhepio)=phep2(2,j)
@@ -1429,28 +1441,28 @@ c copy all daughters after the mother
                enddo
               endif
             endif
-            if(lrcore)then
+            if(lrcore)then           !save other mothers for same core
               lrcor0=.false.
               do i=1,maproj+matarg
                 if(isthep2(i).gt.0.and.jmohep2(2,i).gt.0)then
+                  nhepio=nhepio+1
                   nio=nio+1
-                  nhep=nhep+1
-                  idhep(nhep)=idhep2(i)
-                  phep(1,nhep)=phep2(1,i)
-                  phep(2,nhep)=phep2(2,i)
-                  phep(3,nhep)=phep2(3,i)
-                  phep(4,nhep)=phep2(4,i)
-                  phep(5,nhep)=phep2(5,i)
-                  isthep(nhep)=4
-                  vhep(1,nhep)=vhep2(1,i)
-                  vhep(2,nhep)=vhep2(2,i)
-                  vhep(3,nhep)=vhep2(3,i)
-                  vhep(4,nhep)=vhep2(4,i)
-                  jmohep(1,nhep)=-1
-                  jmohep(2,nhep)=-1                  
+                  idhep(nhepio)=idhep2(i)
+                  phep(1,nhepio)=phep2(1,i)
+                  phep(2,nhepio)=phep2(2,i)
+                  phep(3,nhepio)=phep2(3,i)
+                  phep(4,nhepio)=phep2(4,i)
+                  phep(5,nhepio)=phep2(5,i)
+                  isthep(nhepio)=4
+                  vhep(1,nhepio)=vhep2(1,i)
+                  vhep(2,nhepio)=vhep2(2,i)
+                  vhep(3,nhepio)=vhep2(3,i)
+                  vhep(4,nhepio)=vhep2(4,i)
+                  jmohep(1,nhepio)=-1
+                  jmohep(2,nhepio)=-1                  
                   isthep2(i)=-isthep2(i) 
-                  iepo2hep(i)=nhep
-                  ihep2epo2(i)=-nhep
+                  iepo2hep(i)=nhepio
+                  ihep2epo2(i)=-nhepio
                 endif
               enddo
             endif
@@ -1470,8 +1482,8 @@ c copy all daughters after the mother
             if(jdahep2(1,k).gt.0)jdahep(1,nhep)=-ihep2epo2(jdahep2(1,k))
             jdahep(2,nhep)=0
             if(jdahep2(2,k).gt.0)jdahep(2,nhep)=-ihep2epo2(jdahep2(2,k))
-            jmohep(1,nhep)=nhepio
-            jmohep(2,nhep)=nhepio+nio
+            jmohep(1,nhep)=nhepi0
+            jmohep(2,nhep)=nhepi0+nio
             isthep2(k)=-isthep2(k)
             if(ihep2epo2(k).le.0)then
               ihep2epo2(k)=-nhep
@@ -1484,9 +1496,9 @@ c copy all daughters after the mother
 
         enddo
 
-        if(nhep.gt.nhepio)then
-          do i=nhepio,nhepio+nio
-            jdahep(1,i)=nhepio+nio+1
+        if(nhepio.ge.nhepi0)then
+          do i=nhepi0,nhepi0+nio
+            jdahep(1,i)=nhep0+1
             jdahep(2,i)=nhep
           enddo
         endif
@@ -1496,39 +1508,41 @@ c copy all daughters after the mother
       enddo
 
 
-c copy all other particles
+c copy all other particles (secondary particles and spectators)
+
       do k=maproj+matarg+1,nhep2
 
           if(isthep2(k).gt.0)then
 
 c look for mother of fragments
-            nhepio=nhep+1
+            nhep0=nhep+1
+            nhepi0=nhepio+1
             if(jmohep2(1,k).gt.0.and.jmohep2(1,k).le.maproj+matarg)then
 c copy all mothers before the daughter
               do j=1,maproj+matarg
 
                 if(isthep2(j).gt.0.and.jdahep2(1,j).eq.ihep2epo2(k))then
-                  nhep=nhep+1
-                  idhep(nhep)=idhep2(j)
-                  phep(1,nhep)=phep2(1,j)
-                  phep(2,nhep)=phep2(2,j)
-                  phep(3,nhep)=phep2(3,j)
-                  phep(4,nhep)=phep2(4,j)
-                  phep(5,nhep)=phep2(5,j)
-                  isthep(nhep)=4
-                  vhep(1,nhep)=vhep2(1,j)
-                  vhep(2,nhep)=vhep2(2,j)
-                  vhep(3,nhep)=vhep2(3,j)
-                  vhep(4,nhep)=vhep2(4,j)
-                  jmohep(1,nhep)=-1
-                  jmohep(2,nhep)=-1
-                  jdahep(1,nhep)=0
-                  if(jdahep2(1,j).gt.0)jdahep(1,nhep)=-jdahep2(1,j)
-                  jdahep(2,nhep)=0
-                  if(jdahep2(2,j).gt.0)jdahep(2,nhep)=-jdahep2(2,j)
+                  nhepio=nhepio+1
+                  idhep(nhepio)=idhep2(j)
+                  phep(1,nhepio)=phep2(1,j)
+                  phep(2,nhepio)=phep2(2,j)
+                  phep(3,nhepio)=phep2(3,j)
+                  phep(4,nhepio)=phep2(4,j)
+                  phep(5,nhepio)=phep2(5,j)
+                  isthep(nhepio)=4
+                  vhep(1,nhepio)=vhep2(1,j)
+                  vhep(2,nhepio)=vhep2(2,j)
+                  vhep(3,nhepio)=vhep2(3,j)
+                  vhep(4,nhepio)=vhep2(4,j)
+                  jmohep(1,nhepio)=-1
+                  jmohep(2,nhepio)=-1
+                  jdahep(1,nhepio)=0
+                  if(jdahep2(1,j).gt.0)jdahep(1,nhepio)=-jdahep2(1,j)
+                  jdahep(2,nhepio)=0
+                  if(jdahep2(2,j).gt.0)jdahep(2,nhepio)=-jdahep2(2,j)
                   isthep2(j)=-isthep2(j) 
-                  iepo2hep(j)=nhep
-                  ihep2epo(nhep)=j
+                  iepo2hep(j)=nhepio
+                  ihep2epo(nhepio)=j
                 endif
 
               enddo
@@ -1553,7 +1567,7 @@ c copy all mothers before the daughter
             if(jdahep2(2,k).gt.0)jdahep(2,nhep)=-ihep2epo2(jdahep2(2,k))
             ihep2epo(nhep)=ihep2epo2(k)
             if(ihep2epo(nhep).gt.0)iepo2hep(ihep2epo(nhep))=nhep
-            if(nhep.eq.nhepio)then
+            if(nhep.eq.nhep0)then
               if(jmohep2(1,k).gt.0)then
                 if(ihep2epo2(jmohep2(1,k)).le.0)then
                   jmohep(1,nhep)=-ihep2epo2(jmohep2(1,k))
@@ -1573,8 +1587,8 @@ c copy all mothers before the daughter
                 jmohep(2,nhep)=0
               endif
             else  !for nuclear fragments
-                jmohep(1,nhep)=nhepio
-                jmohep(2,nhep)=nhep-1              
+                jmohep(1,nhep)=nhepi0
+                jmohep(2,nhep)=nhepio             
             endif
             isthep2(k)=-isthep2(k) 
 
@@ -1582,14 +1596,14 @@ c copy all mothers before the daughter
 
       enddo
 
-      if(nhep.ne.nhep2)then
+      if(nhep.ne.nhep2.or.nhepio.ne.maproj+matarg)then
         print *,'Warning : number of particles changed after copy'
         nrem1=0
         do k=1,nhep2
           if(abs(isthep2(k)).eq.4)then
             nrem1=nrem1+1
           endif
-        print *,'         ',k,idhep2(k),jmohep2(2,k),isthep2(k)
+        print *,'         ',k,idhep2(k),jmohep2(1,k),isthep2(k)
      &         ,'from',ihep2epo2(k)
         enddo
         print *,'         ',nhep2,'->',nhep
@@ -1604,8 +1618,6 @@ c copy all mothers before the daughter
         print *,'         ',nrem1,'->',nrem2
         goto 10000
       endif
-
-      nptevt=nhep
 
 c update daughter list with correct index
 
@@ -1692,7 +1704,7 @@ c  count the number of particles to be stored (--> nptevt)
 
 C...set event info and get number of particles.
       NUP=nhep             !number of particles
-      IDPRUP=nint(typevt)  !type of event (ND,DD,SD)
+      IDPRUP=nint(typevt)  !type of event (ND,DD,CD,SD)
       XWGTUP=1d0           !weight of event
       SCALUP=-1d0          !scale for PDF (not used)
       AQEDUP=-1d0          !alpha QED (not relevant)
@@ -1742,8 +1754,7 @@ c     jorptl(i) ..... particle number of mother (if .le. 0 : no mother)
             write(ifch,*)'ici',VTIMUP(nhep),tivptl(2,i),tivptl(1,i)
      &                        ,i,nptl
             VTIMUP(nhep)=ainfin
-            call utstop("aie&",
-     +sizeof("aie&"))
+            call utstop("aie&")
           endif
           SPINUP(nhep)=9           !polarization (not known)
           write(ifdt,*)IDUP(nhep),ISTUP(nhep),
@@ -1770,6 +1781,151 @@ C...Successfully reached end of event loop: write closing tag
 
 
 c-----------------------------------------------------------------------
+      subroutine ustore
+c-----------------------------------------------------------------------
+c     writes the results of a simulation into the common hepevt
+c     contains a description of the stored variables.
+c     modifiable by the user
+c-----------------------------------------------------------------------
+      include 'epos.inc'
+      integer iepo2hep(mxptl)
+
+
+c  count the number of particles to be stored (--> nptevt)
+
+      nptevt=0
+      do i=1,nptl
+        iepo2hep(i)=-1    !initialize hep index to epos index
+        if(istptl(i).le.istmax)nptevt=nptevt+1
+      enddo
+
+c  store event variables in HEP common :
+
+
+c information available :
+c     nrevt.......... event number
+      nevhep=nrevt
+c     nptevt ........ number of (stored!) particles per event
+c     bimevt ........ absolute value of impact parameter
+c     phievt ........ angle of impact parameter
+c     kolevt ........ number of collisions
+c     pmxevt ........ reference momentum
+c     egyevt ........ pp cm energy (hadron) or string energy (lepton)
+c     npjevt ........ number of primary projectile participants
+c     ntgevt ........ number of primary target participants
+c     npnevt ........ number of primary projectile neutron spectators
+c     nppevt ........ number of primary projectile proton spectators
+c     ntnevt ........ number of primary target neutron spectators
+c     ntpevt ........ number of primary target proton spectators
+c     jpnevt ........ number of absolute projectile neutron spectators
+c     jppevt ........ number of absolute projectile proton spectators
+c     jtnevt ........ number of absolute target neutron spectators
+c     jtpevt ........ number of absolute target proton spectators
+
+      nhep=0
+      do i=1,nptl
+
+      if(istptl(i).le.istmax.or.i.le.maproj+matarg)then !store events with istptl < istmax
+
+        nhep=nhep+1
+        if(nhep.gt.nmxhep)then
+          print *,'Warning : produced number of particles is too high'
+          print *,'          Particle list is truncated'
+          goto 1000
+        endif
+
+c  store particle variables:
+
+c     i ............. particle number
+c     idptl(i) ...... particle id
+      idpdg=idtrafo('nxs','pdg',idptl(i))
+      if(idpdg.ne.99)then
+        idhep(nhep)=idpdg
+        iepo2hep(i)=nhep
+      else
+        print *,'Skip particle',i,idptl(i)
+        nhep=nhep-1
+        goto 100
+      endif
+c     pptl(1,i) ..... x-component of particle momentum (GeV/c)
+      phep(1,nhep)=dble(pptl(1,i))
+c     pptl(2,i) ..... y-component of particle momentum (GeV/c)
+      phep(2,nhep)=dble(pptl(2,i))
+c     pptl(3,i) ..... z-component of particle momentum (GeV/c)
+      phep(3,nhep)=dble(pptl(3,i))
+c     pptl(4,i) ..... particle energy  (GeV)
+      phep(4,nhep)=dble(pptl(4,i))
+c     pptl(5,i) ..... particle mass    (GeV/c2)
+      phep(5,nhep)=dble(pptl(5,i))
+c     iorptl(i) ..... particle number of father (if .le. 0 : no father)
+      if(iorptl(i).gt.0)then
+        jmohep(1,nhep)=iepo2hep(iorptl(i))
+      else
+        jmohep(1,nhep)=-1
+      endif
+c     jorptl(i) ..... particle number of mother (if .le. 0 : no mother)
+      if(jorptl(i).gt.0)then
+        jmohep(2,nhep)=iepo2hep(jorptl(i))
+      else
+        jmohep(2,nhep)=-1
+      endif
+c     ifrptl(1,i) ..... particle number of first daughter (no daughter=0)
+      jdahep(1,nhep)=0  !need a second loop to calculated proper indice
+c     ifrptl(2,i) ..... particle number of last daughter (no daughter=0)
+      jdahep(2,nhep)=0  !need a second loop to calculated proper indice
+c     istptl(i) ..... generation flag: last gen. (0) or not (1)
+      isthep(nhep)=min(2,istptl(i)+1)  !in hep:1=final, 2=decayed
+      if(i.le.maproj+matarg)isthep(nhep)=4     !beam particles
+c     ityptl(i) ..... particle type (string, remnant ...)
+c     xorptl(1,i) ... x-component of formation point (fm)
+      vhep(1,nhep)=xorptl(1,i)*1e-12 !conversion to mm
+c     xorptl(2,i) ... y-component of formation point (fm)
+      vhep(2,nhep)=xorptl(2,i)*1e-12 !conversion to mm
+c     xorptl(3,i) ... z-component of formation point (fm)
+      vhep(3,nhep)=xorptl(3,i)*1e-12 !conversion to mm
+c     xorptl(4,i) ... formation time (fm/c)
+      vhep(4,nhep)=xorptl(4,i)*1E-12 !conversion to mm/c
+c     tivptl(1,i) ... formation time (always in the pp-cms!)
+c     tivptl(2,i) ... destruction time (always in the pp-cms!)
+
+ 100   continue
+
+      endif
+      enddo
+
+ 1000 continue
+c Second list to update daughter list (only if mothers are in list)
+      if(istmax.ge.1)then
+        nhep=0
+        do i=1,nptl
+
+          if(istptl(i).le.istmax)then !store events with istptl < istmax
+
+            nhep=nhep+1
+            if(nhep.gt.nmxhep)return
+
+c           ifrptl(1,i) ..... particle number of first daughter (no daughter=0)
+            if(ifrptl(1,i).gt.0)then
+              jdahep(1,nhep)=iepo2hep(ifrptl(1,i))
+            else
+              jdahep(1,nhep)=0
+            endif
+c           ifrptl(2,i) ..... particle number of last daughter (no daughter=0)
+            if(ifrptl(2,i).gt.0)then
+              jdahep(2,nhep)=iepo2hep(ifrptl(2,i))
+            else
+              jdahep(2,nhep)=0
+            endif
+
+          endif
+        enddo
+      endif
+
+
+      return
+      end
+
+c-----------------------------------------------------------------------
       subroutine bstora
 c-----------------------------------------------------------------------
 c     writes the results of a simulation into the file with unit ifdt
@@ -1788,7 +1944,7 @@ C...User process initialization commonblock.
       common/photrans/phoele(4),ebeam
 
       common/record/maxrec(2),irecty(30,2)
-      character code*8,version*8,frame*4,line*888
+      character code*8,version*8,frame*4,ldum*888
 
       code='EPOS   '
       if(iLHC.eq.1)code= 'EPOSLHC '
@@ -1810,9 +1966,9 @@ C...User process initialization commonblock.
       ntest=1
       if (istore.eq.2) then     ! OSC1997A
         if(iappl.eq.3)then
-          read(ifdt,'(A)')line
-          read(ifdt,'(A)')line
-          read(ifdt,'(A)')line
+          read(ifdt,'(A)')ldum
+          read(ifdt,'(A)')ldum
+          read(ifdt,'(A)')ldum
         else
         write (ifdt,'(a)') 'OSC1997A'
         write (ifdt,'(a)') 'final_id_p_x'
@@ -1840,10 +1996,10 @@ C...User process initialization commonblock.
         endif
       elseif(istore.eq.3) then
         if(iappl.eq.3)then
-          read(ifdt,'(A)')line
-          read(ifdt,'(A)')line
-          read(ifdt,'(A)')line
-          read(ifdt,'(A)')line
+          read(ifdt,'(A)')ldum
+          read(ifdt,'(A)')ldum
+          read(ifdt,'(A)')ldum
+          read(ifdt,'(A)')ldum
         else
  201    format('# ',a)
         write (ifdt,201) 'OSC1999A'
@@ -1936,7 +2092,7 @@ C...Set initialization info and get number of processes.
         endif
         endif
         IDWTUP=3                !weight=1 for all events
-        NPRUP=3                 !number of subprocess (ND,DD,SD)
+        NPRUP=4                 !number of subprocess (ND,DD,CD,SD)
         IPR=1                   !subprocesses (store mon diffractive events)
         XSECUP(IPR)=dble(sigcut)*1d9 !cross section in pb
         XERRUP(IPR)=0d0         !statistical error
@@ -1951,7 +2107,12 @@ C...Set initialization info and get number of processes.
         XSECUP(IPR)=dble(sigsd)*1d9 !cross section in pb
         XERRUP(IPR)=0d0         !statistical error
         XMAXUP(IPR)=1d0         !weight
-        LPRUP(IPR)=3            !SD event (typevt=3)
+        LPRUP(IPR)=3            !CD event (typevt=3)
+        IPR=4                   !subprocesses (store single diffractive events)
+        XSECUP(IPR)=dble(sigsd)*1d9 !cross section in pb
+        XERRUP(IPR)=0d0         !statistical error
+        XMAXUP(IPR)=1d0         !weight
+        LPRUP(IPR)=4            !SD event (typevt=4)
 
 C...Copy initialization lines, omitting trailing blanks. 
 C...Embed in <init> ... </init> block.
@@ -2110,8 +2271,7 @@ c      PARAMETER (MAXNUP=500)
             open(unit=ifin,file=fnin(1:nfnin),status='old')
             ifinp=ifin
           else
-            call utstop('Cannot open file for conversion !&',
-     +sizeof('Cannot open file for conversion !&'))
+            call utstop('Cannot open file for conversion !&')
           endif
         endif
       endif
@@ -2397,8 +2557,7 @@ c-----------------------------------------------------------------------
      .    .and.abs(xorptl(4,i)).le.ainfin
      .    .and.pptl(5,i).le.ainfin
      .    .and.pptl(4,i).gt.0.)then
-c            if(ish.ge.4)call alistc('afinal&',
-c     +sizeof('afinal&'),i,i)
+c            if(ish.ge.4)call alistc('afinal&',i,i)
             t=tivptl(1,i)
             xorptl(1,i)=xorptl(1,i)+pptl(1,i)/pptl(4,i)*(t-xorptl(4,i))
             xorptl(2,i)=xorptl(2,i)+pptl(2,i)/pptl(4,i)*(t-xorptl(4,i))
@@ -2413,8 +2572,7 @@ c     +sizeof('afinal&'),i,i)
      .        '*** warning (afinal): ',
      .        i,idptl(i),idior,ityptl(i),tivptl(1,i), pptl(4,i)
      .        ,pptl(5,i),xorptl(1,i),xorptl(2,i),xorptl(3,i),xorptl(4,i)
-c              call alistc(' ici &',
-c     +sizeof(' ici &'),1,i)
+c              call alistc(' ici &',1,i)
             endif
             tivptl(1,i)=2*ainfin
             tivptl(2,i)=2*ainfin
@@ -2436,15 +2594,6 @@ c  * in case of mod(iframe,10) .ne. 1, these vectors are transformed
 c    (being originally in the "natural frame",
 c    NB : boost of coordinates only if not a non-sense (otherwise put to inf)
 c         always boost of momentum if possible (if not STOP !)
-c  * calculates numbers of spectators:
-c    npnevt (number of primary proj neutron spectators)
-c    nppevt (number of primary proj proton spectators)
-c    ntnevt (number of primary targ neutron spectators)
-c    ntpevt (number of primary targ proton spectators)
-c    jpnevt (number of absolute proj neutron spectators)
-c    jppevt (number of absolute proj proton spectators)
-c    jtnevt (number of absolute targ neutron spectators)
-c    jtpevt (number of absolute targ proton spectators)
 c-----------------------------------------------------------------------
 
       include 'epos.inc'
@@ -2540,8 +2689,7 @@ c boost in lab frame
           lclean=.true.
           istptl(i)=99
         else
-          call utstop("Negative energy in afinal&",
-     +sizeof("Negative energy in afinal&"))
+          call utstop("Negative energy in afinal&")
         endif
       endif
       enddo
@@ -2552,80 +2700,20 @@ c boost in lab frame
       endif
 
       if(ish.ge.2)then
-        if(model.eq.1)call alistf('EPOS&',
-     +sizeof('EPOS&'))
-        if(model.eq.2)call alistf('QGSJET01&',
-     +sizeof('QGSJET01&'))
-        if(model.eq.3)call alistf('GHEISHA&',
-     +sizeof('GHEISHA&'))
-        if(model.eq.4)call alistf('PYTHIA&',
-     +sizeof('PYTHIA&'))
-        if(model.eq.5)call alistf('HIJING&',
-     +sizeof('HIJING&'))
-        if(model.eq.6)call alistf('SIBYLL 2.1&',
-     +sizeof('SIBYLL 2.1&'))
-        if(model.eq.7.or.model.eq.11)call alistf('QGSJET II&',
-     +sizeof('QGSJET II&'))
-        if(model.eq.8)call alistf('PHOJET&',
-     +sizeof('PHOJET&'))
-        if(model.eq.9)call alistf('FLUKA&',
-     +sizeof('FLUKA&'))
-        if(model.eq.10)call alistf('URQMD&',
-     +sizeof('URQMD&'))
+        if(model.eq.1)call alistf('EPOS&')
+        if(model.eq.2)call alistf('QGSJET01&')
+        if(model.eq.3)call alistf('GHEISHA&')
+        if(model.eq.4)call alistf('PYTHIA&')
+        if(model.eq.5)call alistf('HIJING&')
+        if(model.eq.6)call alistf('SIBYLL 2.1&')
+        if(model.eq.7.or.model.eq.11)call alistf('QGSJET II&')
+        if(model.eq.8)call alistf('PHOJET&')
+        if(model.eq.9)call alistf('FLUKA&')
+        if(model.eq.10)call alistf('URQMD&')
       endif
 
 c      if(isto.eq.1)stop
 c$$$      call testconex(2)
-
-      npnevt=0
-      nppevt=0
-      ntnevt=0
-      ntpevt=0
-      jpnevt=0
-      jppevt=0
-      jtnevt=0
-      jtpevt=0
-      if(ish.ge.6)write(ifch,'(/31a1/a/31a1)')('-',l=1,31)
-     *,'primary and absolute spectators',('-',l=1,31)
-      if(ish.ge.6)write(ifch,'(/a//a/)')'projectile nucleons:'
-     *,'     i    id   ior   ist'
-      do i=1,maproj
-      if(ish.ge.6)write(ifch,'(4i6)')i,idptl(i),iorptl(i),istptl(i)
-      io=iorptl(i)
-      id=idptl(i)
-      is=istptl(i)
-      if(io.eq.0.and.id.eq.1220)npnevt=npnevt+1
-      if(io.eq.0.and.id.eq.1120)nppevt=nppevt+1
-      if(io.eq.0.and.is.eq.0.and.id.eq.1220)jpnevt=jpnevt+1
-      if(io.eq.0.and.is.eq.0.and.id.eq.1120)jppevt=jppevt+1
-      enddo
-      if(ish.ge.6)write(ifch,'(/a//a/)')'target nucleons:'
-     *,'     i    id   ior   ist'
-      do i=maproj+1,maproj+matarg
-      if(ish.ge.6)write(ifch,'(4i6)')i,idptl(i),iorptl(i),istptl(i)
-      io=iorptl(i)
-      id=idptl(i)
-      is=istptl(i)
-      if(io.eq.0.and.id.eq.1220)ntnevt=ntnevt+1
-      if(io.eq.0.and.id.eq.1120)ntpevt=ntpevt+1
-      if(io.eq.0.and.is.eq.0.and.id.eq.1220)jtnevt=jtnevt+1
-      if(io.eq.0.and.is.eq.0.and.id.eq.1120)jtpevt=jtpevt+1
-      enddo
-      if(ish.ge.6)then
-      write(ifch,'(/a/)')'numbers of participants and spectators:'
-      write(ifch,'(a,i4,a,i4)')'primary participants:   projectile:'
-     *,npjevt,'   target:',ntgevt
-      write(ifch,'(a,i4,a,i4)')'primary spectators:     projectile:'
-     *,npnevt+nppevt,'   target:',ntnevt+ntpevt
-      write(ifch,'(a,i4,a,i4)')
-     *'primary spectator neutrons:   projectile:',npnevt
-     *,'   target:',ntnevt
-      write(ifch,'(a,i4,a,i4)')
-     *'primary spectator protons:    projectile:',nppevt
-     *,'   target:',ntpevt
-      write(ifch,'(a,i4,a,i4)')'absolute spectators:    projectile:'
-     *,jpnevt+jppevt,'   target:',jtnevt+jtpevt
-      endif
 
       if(ntevt.gt.0)then
         b1=bminim
@@ -2651,8 +2739,7 @@ c$$$      call testconex(2)
       if(iwtime.eq.1)call wtime(1)
       if(iwtime.eq.1.and.nrevt.eq.nevent)call wtime(2)
 
-      if(ish.ge.8)call alistc('afinal&',
-     +sizeof('afinal&'),1,nptl)
+      if(ish.ge.8)call alistc('afinal&',1,nptl)
 
       call utprix('afinal',ish,ishini,4)
       return
@@ -2732,7 +2819,7 @@ c-----------------------------------------------------------------------
       external sptj
 
       call utpri('ainit ',ish,ishini,4)
-
+      
       inicnt=inicnt+1
 
       if(inicnt.eq.1)then
@@ -2874,22 +2961,18 @@ c        if(model.eq.2.or.model.eq.6)idproj=idtarg   !for qgsjet01, projectile a
 
         if((idproj.ne.1120.and.(laproj.ne.-1.or.maproj.ne.1))
      &    .or.maproj.le.0)
-     &  call utstop('Invalid projectile setup !&',
-     +sizeof('Invalid projectile setup !&'))
+     &  call utstop('Invalid projectile setup !&')
 c        if((idtarg.ne.1120.and.(latarg.ne.-1.or.matarg.ne.1))
 c     &    .or.matarg.le.0)
-c     &  call utstop('Invalid target setup !&',
-c     +sizeof('Invalid target setup !&'))
+c     &  call utstop('Invalid target setup !&')
 
       if(iabs(idtarg).ne.1120.and.iabs(idtarg).ne.1220.and.idtarg.ne.0)
-     &  call utstop('Invalid target !&',
-     +sizeof('Invalid target !&'))
+     &  call utstop('Invalid target !&')
       if((((idtarg.eq.-1120.or.iabs(idtarg).eq.1220)
      &    .and.(latarg.ne.-1.or.matarg.ne.1))
      &    .and.(idtarg.ne.1120.or.latarg.lt.0))
      &    .or.matarg.le.0)
-     &  call utstop('Invalid target setup !&',
-     +sizeof('Invalid target setup !&'))
+     &  call utstop('Invalid target setup !&')
 
 
       call idmass(idproj,amproj)
@@ -2960,10 +3043,8 @@ c     &                   -amproj**2) )
            endif
          endif
 
-      if(pnll.le.0.001)call utstop('ainit: energy too low&',
-     +sizeof('ainit: energy too low&'))
-      if(engy.gt.egymax)call utstop('ainit: energy too high&',
-     +sizeof('ainit: energy too high&'))
+      if(pnll.le.0.001)call utstop('ainit: energy too low&')
+      if(engy.gt.egymax)call utstop('ainit: energy too high&')
       s=engy**2
       pnullx=utpcm(engy,amproj,amtarg)
       yhaha=alog((sqrt(pnll**2+s)+pnll)/sqrt(s))
@@ -4473,8 +4554,7 @@ c     *     write(ifmt,'(a)')'kinks: icbac1 icbac2 icfor1 icfor2?'
       elseif(line(i:j).eq.'particle')then
         ir=2
       else
-        call utstop("Wrong definition for record!&",
-     +sizeof("Wrong definition for record!&"))
+        call utstop("Wrong definition for record!&")
       endif
       maxrec(ir)=0
  20   call utworn(line,j,ne)
@@ -4637,6 +4717,7 @@ c      if(line(i:j).eq.'off')iorsce=0
       if(line(i:j).eq.'osc1999a' )  istore=3
       if(line(i:j).eq.'lhef' )      istore=4
       if(line(i:j).eq.'ustore' )    istore=5
+      if(line(i:j).eq.'hepmc' )     istore=6
 
            elseif(line(i:j).eq.'model')then
 
@@ -4655,8 +4736,7 @@ c      if(line(i:j).eq.'off')iorsce=0
       endif
       if(abs(iappl).ne.1.and.iappl.ne.3.and.model.ne.1
      &.and..not.(model.eq.4.and.iappl.eq.7))
-     &call utstop('Application not possible with this model&',
-     +sizeof('Application not possible with this model&'))
+     &call utstop('Application not possible with this model&')
 
            elseif(line(i:j).eq.'trigger')then
 
@@ -4706,8 +4786,7 @@ c      if(line(i:j).eq.'off')iorsce=0
       elseif(line(i:j).eq.'writex')then
         ii=2
       else
-        call utstop("Wrong definition for write!&",
-     +sizeof("Wrong definition for write!&"))
+        call utstop("Wrong definition for write!&")
       endif
       call utword(line,i,j,0)
       idol=0
@@ -5124,6 +5203,17 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine aepos(nin)
 c-----------------------------------------------------------------------
+c Generate event
+c  * calculates numbers of spectators:
+c    npnevt (number of primary proj neutron spectators)
+c    nppevt (number of primary proj proton spectators)
+c    ntnevt (number of primary targ neutron spectators)
+c    ntpevt (number of primary targ proton spectators)
+c    jpnevt (number of absolute proj neutron spectators)
+c    jppevt (number of absolute proj proton spectators)
+c    jtnevt (number of absolute targ neutron spectators)
+c    jtpevt (number of absolute targ proton spectators)
+c-----------------------------------------------------------------------
 
       include 'epos.inc'
       include 'epos.incems'
@@ -5136,8 +5226,7 @@ c      integer iutime(5)
 c      call timer(iutime)
 c      timeini=iutime(3)+float(iutime(4))/1000.
       if(ish.ge.2)then
-          call alist('start event&',
-     +sizeof('start event&'),0,0)
+          call alist('start event&',0,0)
           write(ifch,*)'event number:',nrevt+1
       endif
 
@@ -5160,27 +5249,23 @@ c for Air target, set the target nucleus
       if(ntry.gt.100)stop'in aepos, to many amicro attempts.    '
       call amicro(iret)
       if(iret.ne.0)goto 1
-      if(ish.ge.2)call alist('list before int/decays&',
-     +sizeof('list before int/decays&'),1,nptl)
+      if(ish.ge.2)call alist('list before int/decays&',1,nptl)
       nevt=1
       nbdky=nptl
       call bjinta(ier)
       if(ier.eq.1)stop'error in bjinta'
-      if(ish.ge.2)call alist('list after int/decays&',
-     +sizeof('list after int/decays&'),1,nptl)
+      if(ish.ge.2)call alist('list after int/decays&',1,nptl)
       goto 1000
       endif
 
       if(iappl.eq.9)then
       call ahydro
-      if(ish.ge.2)call alist('list before int/decays&',
-     +sizeof('list before int/decays&'),1,nptl)
+      if(ish.ge.2)call alist('list before int/decays&',1,nptl)
       nevt=1
       nbdky=nptl
       call bjinta(ier)
       if(ier.eq.1)stop'error in bjinta'
-      if(ish.ge.2)call alist('list after int/decays&',
-     +sizeof('list after int/decays&'),1,nptl)
+      if(ish.ge.2)call alist('list after int/decays&',1,nptl)
       goto 1000
       endif
 
@@ -5264,8 +5349,7 @@ c elastic event
       elseif(iappl.eq.3.or.iappl.eq.-1) then
         nevt=1
         call bread
-        if(ish.ge.2)call alist('list after reading&',
-     +sizeof('list after reading&'),1,nptl)
+        if(ish.ge.2)call alist('list after reading&',1,nptl)
         goto 500
 
       elseif(iappl.eq.5) then !---kinky---
@@ -5295,8 +5379,7 @@ c elastic event
 
       if(nevt.eq.0)stop'************ should not be ***************'
 
-      if(ish.ge.2)call alist('list before fragmentation&',
-     +sizeof('list before fragmentation&'),1,nptl)
+      if(ish.ge.2)call alist('list before fragmentation&',1,nptl)
       nptlx=nptl+1
       if(iappl.ne.2.and.iappl.ne.7.and.nevt.eq.1.and.ifrade.ne.0)then
         iclu=0
@@ -5305,8 +5388,7 @@ c elastic event
         if(iret.gt.0)goto 3
         maxfra=nptl
         if(ish.ge.2.and.model.eq.1)
-     &              call alist('list after fragmentation&',
-     +sizeof('list after fragmentation&'),nptlx,nptl)
+     &              call alist('list after fragmentation&',nptlx,nptl)
         if(irescl.eq.1)then
           call utghost(iret)
           if(iret.gt.0)goto 3
@@ -5331,16 +5413,66 @@ c       nptlx=nptl+1
           call utresc(iret)
           if(iret.gt.0)goto 3
         endif
+
+c       calculates numbers of spectators:
+
+        npnevt=0
+        nppevt=0
+        ntnevt=0
+        ntpevt=0
+        jpnevt=0
+        jppevt=0
+        jtnevt=0
+        jtpevt=0
+        if(ish.ge.2)write(ifch,'(/31a1/a/31a1)')('-',l=1,31)
+     *       ,'primary and absolute spectators',('-',l=1,31)
+        if(ish.ge.3)write(ifch,'(/a//a/)')'projectile nucleons:'
+     *       ,'     i    id   ior   ist'
+        do i=1,maproj
+          if(ish.ge.3)write(ifch,'(4i6)')i,idptl(i),iorptl(i),istptl(i)
+          io=iorptl(i)
+          id=idptl(i)
+          is=istptl(i)
+          if(io.eq.0.and.id.eq.1220)npnevt=npnevt+1
+          if(io.eq.0.and.id.eq.1120)nppevt=nppevt+1
+          if(io.eq.0.and.is.eq.0.and.id.eq.1220)jpnevt=jpnevt+1
+          if(io.eq.0.and.is.eq.0.and.id.eq.1120)jppevt=jppevt+1
+        enddo
+        if(ish.ge.3)write(ifch,'(/a//a/)')'target nucleons:'
+     *       ,'     i    id   ior   ist'
+        do i=maproj+1,maproj+matarg
+          if(ish.ge.3)write(ifch,'(4i6)')i,idptl(i),iorptl(i),istptl(i)
+          io=iorptl(i)
+          id=idptl(i)
+          is=istptl(i)
+          if(io.eq.0.and.id.eq.1220)ntnevt=ntnevt+1
+          if(io.eq.0.and.id.eq.1120)ntpevt=ntpevt+1
+          if(io.eq.0.and.is.eq.0.and.id.eq.1220)jtnevt=jtnevt+1
+          if(io.eq.0.and.is.eq.0.and.id.eq.1120)jtpevt=jtpevt+1
+        enddo
+        if(ish.ge.2)then
+          write(ifch,'(/a/)')'numbers of participants and spectators:'
+          write(ifch,'(a,i4,a,i4)')'primary participants:   projectile:'
+     *         ,npjevt,'   target:',ntgevt
+          write(ifch,'(a,i4,a,i4)')'primary spectators:     projectile:'
+     *         ,npnevt+nppevt,'   target:',ntnevt+ntpevt
+          write(ifch,'(a,i4,a,i4)')
+     *         'primary spectator neutrons:   projectile:',npnevt
+     *         ,'   target:',ntnevt
+          write(ifch,'(a,i4,a,i4)')
+     *         'primary spectator protons:    projectile:',nppevt
+     *         ,'   target:',ntpevt
+          write(ifch,'(a,i4,a,i4)')'absolute spectators:    projectile:'
+     *         ,jpnevt+jppevt,'   target:',jtnevt+jtpevt
+        endif
+
 c Form nuclear fragments
-        if(maproj.gt.1.or.matarg.gt.1)then
+        if(model.eq.1.and.(maproj.gt.1.or.matarg.gt.1))then
           call emsfrag(iret)
           if(iret.gt.0)goto 3
         endif
 
         if(ish.ge.1)then
-          !if(ish.ge.2.and.ifrade.ne.0)
-          !&    call alist('list after int/decays&',
-          !+sizeof('list after int/decays&'),1,nptl)
           if(abs(iappl).eq.1.or.iappl.eq.3)then
             numbar=0
             pp4=0.
@@ -5379,6 +5511,8 @@ c Form nuclear fragments
      &                  ,nvio,' -'
 
           endif
+          if(ish.ge.2.and.ifrade.ne.0)
+     *    call alist('list after int/decays&',1,nptl)
         endif
       endif
 
@@ -5399,8 +5533,7 @@ c Form nuclear fragments
        enddo
        nvio=maproj+matarg-numbar
        if(nvio.ne.0)then
-        call alist('complete list&',
-     +sizeof('complete list&'),1,nptl)
+        call alist('complete list&',1,nptl)
         write(6,'(//10x,a,i3//)')'ERROR: baryon number violation:',nvio
         write(6,'(10x,a//)')
      *        'a complete list has been printed into the check-file'
@@ -5425,7 +5558,9 @@ c Form nuclear fragments
 
 1000  continue
       if(iabs(nin).eq.iabs(ninicon))nrevt=nrevt+1
+
       nglacc=nglacc+nglevt
+
 c      call timer(iutime)
 c      timefin=iutime(3)+float(iutime(4))/1000.
       call utprix('aepos',ish,ishini,4)
@@ -5471,8 +5606,7 @@ c-----------------------------------------------------------------------
       common/col3/ncol,kolpt
 
       call utpri('emsaaa',ish,ishini,4)
-      if(ish.ge.3)call alist('Determine Pomeron Configuration&',
-     +sizeof('Determine Pomeron Configuration&'),0,0)
+      if(ish.ge.3)call alist('Determine Pomeron Configuration&',0,0)
 
       iret=0
 
@@ -5503,7 +5637,7 @@ c-----------------------------------------------------------------------
 
 
 c----------------------------------------------------------------------
-      subroutine alist(text,size,n1,n2)
+      subroutine alist(text,n1,n2)
 c----------------------------------------------------------------------
 c    ior  jor  i  ifr1  ifr2     id  ist  ity      pt  m  y
 c----------------------------------------------------------------------
@@ -5519,11 +5653,11 @@ c----------------------------------------------------------------------
       include 'epos.inc'
       common/cxyzt/xptl(mxptl),yptl(mxptl),zptl(mxptl),tptl(mxptl)
      *,optl(mxptl),uptl(mxptl),sptl(mxptl),rptl(mxptl,3)
+c      parameter(itext=40)
+      character  text*(*)
       dimension pp(5)
-      character text(*)
-      integer(8) size,imax
-      imax=size
       if(n1.gt.n2)return
+      imax=index(text,'&')
       if(imax.gt.1)then
       write(ifch,'(/1x,89a1/1x,a,a,a,90a1)')
      *('#',k=1,89),'############  ',text(1:imax-1),'  '
@@ -5590,14 +5724,11 @@ c----------------------------------------------------------------------
       subroutine blist(text,n1,n2)
 c----------------------------------------------------------------------
       include 'epos.inc'
-      parameter(itext=40)
-      character  text*40
+c      parameter(itext=40)
+      character  text*(*)
       dimension pp(5)
       if(n1.gt.n2)return
-      imax=itext+1
-      do i=itext,1,-1
-      if(text(i:i).eq.'&')imax=i
-      enddo
+      imax=index(text,'&')
       if(imax.gt.1)then
       write(ifch,'(/1x,89a1/1x,a,a,a,90a1)')
      *('#',k=1,89),'#############  ',text(1:imax-1),'  '
@@ -5657,14 +5788,11 @@ c----------------------------------------------------------------------
       subroutine clist(text,n1,n2,ity1,ity2)
 c----------------------------------------------------------------------
       include 'epos.inc'
-      parameter(itext=40)
-      character  text*40
+c      parameter(itext=40)
+      character  text*(*)
       dimension pp(5)
       if(n1.gt.n2)return
-      imax=itext+1
-      do i=itext,1,-1
-      if(text(i:i).eq.'&')imax=i
-      enddo
+      imax=index(text,'&')
       if(imax.gt.1)then
       write(ifch,'(/1x,a,a,a,90a1)')
      *'-------------  ',text(1:imax-1),'  ',('-',k=1,74-imax)
@@ -5695,21 +5823,21 @@ c----------------------------------------------------------------------
       write(ifch,127)0,0,0,0
      & ,sqrt(pp(1)**2+pp(2)**2),pp(3),pp(4)
      & ,sqrt(max(0.,pp(4)-pp(3))*max(0.,pp(4)+pp(3))-pp(1)**2-pp(2)**2)
-      write(ifch,*)''
+      write(ifch,*)' '
       end
 
 c----------------------------------------------------------------------
-      subroutine alistf(text,size)
+      subroutine alistf(text)
 c----------------------------------------------------------------------
       include 'epos.inc'
+c      parameter(itext=40)
+      character  text*(*)
       dimension pp(5),erest(5),errp(4)
-      character text(*)
-      integer(8) size,imax
-      imax=size
       n1=1
       if(iframe.eq.21.and.(abs(iappl).eq.1.or.iappl.eq.3))
      *n1=2*(maproj+matarg+1)
       n2=nptl
+      imax=index(text,'&')
       if(imax.gt.1)then
       write(ifch,'(/1x,124a1/1x,a,a,a,108a1)')
      *('#',k=1,124),'#############  ',text(1:imax-1),'  '
@@ -5789,13 +5917,10 @@ c----------------------------------------------------------------------
       subroutine alist2(text,n1,n2,n3,n4)
 c----------------------------------------------------------------------
       include 'epos.inc'
-      parameter(itext=40)
-      character  text*40
+c      parameter(itext=40)
+      character  text*(*)
       if(n1.gt.n2)return
-      imax=itext+1
-      do i=itext,1,-1
-      if(text(i:i).eq.'&')imax=i
-      enddo
+      imax=index(text,'&')
       write(ifch,'(1x,a,a,a)')
      *'--------------- ',text(1:imax-1),' ---------------  '
       do i=n1,n2
@@ -5814,13 +5939,13 @@ c     *,4x,4(e8.2,1x))
       end
 
 c----------------------------------------------------------------------
-      subroutine alistc(text,size,n1,n2)
+      subroutine alistc(text,n1,n2)
 c----------------------------------------------------------------------
       include 'epos.inc'
-      character text(*)
-      integer(8) size,imax
-      imax=size
+c      parameter(itext=40)
+      character  text*(*)
       if(n1.gt.n2)return
+      imax=index(text,'&')
       if(n1.ne.n2)write(ifch,'(1x,a,a,a)')
      *'--------------- ',text(1:imax-1),' ---------------  '
       do i=n1,n2
@@ -5993,8 +6118,8 @@ c simulated cross sections
 c fit to data
         sigtotf=14.5*x**0.21+20.*x**(-0.2)+19.*(x-1.)**(-1)
         sigelaf=35.*(x-1)**(-2.8)+17.*x**(-0.47)+0.31*log(x)**2
-        sigtotfp=sigtotf
-        sigelafp=sigelaf
+c        sigtotfp=sigtotf
+c        sigelafp=sigelaf
         if(iclpro.eq.1)then        !pi+p
           sigtotf=10.*(x-1)**(-3)+16.*x**0.13+40.*x**(-1.2)
           sigelaf=20.*(x-1)**(-3)+6.*x**(-0.4)+0.15*log(x)**2.
@@ -6029,14 +6154,14 @@ c pi or K - p, calculate sigdif for pp
                 iclprosave=iclpro
                 iclpro=2
                 call sigmaint(g0p,gzp,sigdifp)
-                siginep=g0p*gzp(2)
+c                siginep=g0p*gzp(2)
                 sigdifp=sigdifp * g0p
-                sigdelafp=max(0.,(sigelafp+siginep-sigtotfp))
+c                sigdelafp=max(0.,(sigelafp+siginep-sigtotfp))
 c                sigdelap=min(sigdelafp,sigdifp)
                 iclpro=iclprosave
               else
                 sigdifp=sigdif
-                sigdelafp=sigdelaf
+c                sigdelafp=sigdelaf
 c                sigdelap=sigdela
               endif
               if(sigdifp.gt.0.)then

@@ -51,7 +51,10 @@
          model=8
       endif
       if(cmodel(1:n).eq.'fluka' )then
-         stop'wrong choice!!!!' !    model=9
+#ifndef __FLUKA__
+         stop'please compile with requested model'
+#endif
+         model=9
       endif
       end
 
@@ -112,7 +115,13 @@
          call IniPHOJET
 #endif
       endif
-c     if(model.eq.9)call IniFluka
+      if(model.eq.9) then
+#ifndef __FLUKA__
+         stop'please compile with requested model'
+#else
+         call IniFluka
+#endif
+       endif
       end
 
       subroutine IniEvtModel
@@ -180,7 +189,13 @@ c     if(model.eq.9)call IniFluka
          call IniEvtPho
 #endif
       endif
-c     if(model.eq.9)call IniEvtFlu
+      if(model.eq.9)then
+#ifndef __FLUKA__
+         stop'please compile with requested model'
+#else
+         call IniEvtFlu
+#endif
+      endif
       end
 
       subroutine emsaaaModel(model,id,iret)
@@ -244,7 +259,13 @@ c     if(model.eq.9)call IniEvtFlu
          call emspho(iret)
 #endif
       endif
-c     if(model.eq.9)call emsflu(iret)
+      if(model.eq.9) then
+#ifndef __FLUKA__
+         stop'please compile with requested model'
+#else
+         call emsflu(iret)
+#endif
+      endif
       end
 
 
@@ -341,11 +362,15 @@ c     if(model.eq.9)call emsflu(iret)
          sigi=sngl(GPROD)
          sigc=sngl(GABS)
          sige=sigt-sigi
-c     elseif(model.eq.9)then
-c     sigt=0.
-c     sige=0.
-c     sigc=0.
-c     sigi=flucrse(ekin,maproj,matarg,idtarg)
+#endif
+      elseif(model.eq.9)then
+#ifndef __FLUKA__
+         stop'please compile with requested model'
+#else
+         sigt=0.
+         sige=0.
+         sigc=0.
+         sigi=flucrse(ekin,maproj,matarg,idtargin)
 #endif
       else
          sigt=0.
@@ -445,26 +470,29 @@ C     cross sections
       end
 
       subroutine m9SIGMA(stot,sine,sela)
-c     include "epos.inc"
-c     double precision PLA,EKIN1,SHPTOT,SHPINE,ZZ,AA,Sel,Zl
-      stot=0.
-      sine=0.
-      sela=0.
-c     if(iclpro.eq.1)then
-c     IP=13
-c     elseif(iclpro.eq.2)then
-c     IP=1
-c     else
-c     IP=15
-c     endif
-c     PLA=dble(pnll)
-c     EKIN1=dble(ekin)
-c     ZZ=1
-c     AA=1
-c     stot=SHPTOT(IP,PLA)
-c     sine=SHPINE(IP,PLA)
-c     call SIGELH(IP,ZZ,AA,EKIN1,PLA,Sel,Zl)
-c     sela=sngl(Sel)
+      include "epos.inc"
+      double precision PLA,EKIN1,SHPTOT,SHPINE,ZZ,AA,Sel,Zl
+#ifndef __FLUKA__
+         stop'please compile with requested model'
+         print *, stot,sine,sela
+     *          ,PLA,EKIN1,SHPTOT,SHPINE,ZZ,AA,Sel,Zl !get rid of unused warning
+#else
+      if(iclpro.eq.1)then
+      IP=13
+      elseif(iclpro.eq.2)then
+      IP=1
+      else
+      IP=15
+      endif
+      PLA=dble(pnll)
+      EKIN1=dble(ekin)
+      ZZ=1
+      AA=1
+      stot=SHPTOT(IP,PLA)
+      sine=SHPINE(IP,PLA)
+      call SIGELH(IP,ZZ,AA,EKIN1,PLA,Sel,Zl)
+      sela=sngl(Sel)
+#endif
       end
 
       subroutine decaymod(ip,iret)

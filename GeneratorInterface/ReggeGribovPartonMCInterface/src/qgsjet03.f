@@ -1134,7 +1134,7 @@ c Target proton
             WMI=WM0
 c              write (*,*)'difr'
             CALL XXDTG(WPI,WMI,ICP,ICT,0)
-            typevt=3
+            typevt=-4
             goto 21   !so00
           ELSEIF(ABS(JDIFR).EQ.1.AND.PSRAN(B10).LT.GDP)THEN  !so00
             IF(IA(2).NE.1)THEN  !so00
@@ -1151,7 +1151,7 @@ c Target proton
             WMI=WM0  !so00
             LQ=0  !so00
             CALL XXDPR(WPI,WMI,ICP0,ICT,LQ)  !so00
-            typevt=3
+            typevt=4
             goto 21   !so00
           ENDIF
 **************************************************

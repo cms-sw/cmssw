@@ -78,8 +78,7 @@ ccc      if(abs(energ-tecm).gt.0.1) goto50   !uncomment for energy conservation
 
       do n=1,np
         nptl=nptl+1
-        if(nptl.gt.mxptl)call utstop('StaHadShort: mxptl too small&',
-     +sizeof('StaHadShort: mxptl too small&'))
+        if(nptl.gt.mxptl)call utstop('StaHadShort: mxptl too small&')
         idptl(nptl)=ident(n)
         do j=1,4
           pptl(j,nptl)=pcm(j,n)
@@ -183,14 +182,14 @@ c------------------------------------------------------------------------------
 c------------------------------------------------------------------------------
       include 'epos.inc'
       include 'epos.inchy'
-      character txt*40, tabname*550
+      character txtdum*40, tabname*550
       common/ctempcrit/tempcrit,epscrit/ctfo/tfo
       nchar=index(tabname,' ')-1
       write(*,'(a,$)')
      * ' reading table '//tabname(1:nchar)//' ...'
       open(unit=3,file=tabname(1:nchar),status='old'
      * ,err=99)
-      read(3,'(a)')txt
+      read(3,'(a)')txtdum
       read(3,*)maprojx,matargx,engyx,epscrit,tempcrit
       tfo=tempcrit
       if(ichk.eq.1)then
@@ -375,7 +374,7 @@ c-------------------------------------------------------------------------------
 
       do meta=1-netahy,netahy-1
        do nphi=1,nphihy
-        phi=phihy(nphi)
+c        phi=phihy(nphi)
         do ntau=1,ntauhec(ncent,meta,nphi)
           tau=tauhy(ntau)
           rad=raa(ncent,meta,ntau,nphi)
@@ -412,7 +411,7 @@ c-------------------------------------------------------------------------------
       common/cspez4/ffstat(2,0:mspez+2) /ctfo/tfo
       parameter (nlag=15)
       real xlag(nlag),wlag(nlag)
-      parameter (klax=5)
+c      parameter (klax=5)
       common/cspez7/klass(mspez)
       data klass/
      *  0, 1, 1, 2, 2, 4*0
@@ -590,7 +589,7 @@ c-------------------------------------------------------------------------------
       if(bimp.gt.centhy(ncenthy)+0.5)return
       ier=0
       pi=3.1415927
-      hbar=0.197327
+c      hbar=0.197327
       delrax= 2*rapmax   / numiv
       delptv= ptvmax   / numiv
       do i=1,100
@@ -617,7 +616,7 @@ c-------------------------------------------------------------------------------
 
       dphi=phihy(2)-phihy(1)
       dtau=tauhy(2)-tauhy(1)
-      deta=etahy(2)-etahy(1)
+c      deta=etahy(2)-etahy(1)
       dleta=(etahy(2)-etahy(1))/jfac
       dall=dphi*dtau*dleta*0.125
       do nphi=1,nphihy
@@ -779,12 +778,11 @@ c-------------------------------------------------------------------------------
       data ncntfoa/0/
       save ncntfoa
       ncntfoa=ncntfoa+1
-      if(ncntfoa.eq.1)nptlb=nptl
+c      if(ncntfoa.eq.1)nptlb=nptl
       phinull=phievt+ranphi
       nptl=nptl+1
       if(nptl.gt.mxptl)
-     . call utstop('FOStore: mxptl too small&',
-     +sizeof('FOStore: mxptl too small&'))
+     . call utstop('FOStore: mxptl too small&')
       idptl(nptl)=id
       pptl(1,nptl)=ptr*cos(pha+phinull)
       pptl(2,nptl)=ptr*sin(pha+phinull)
@@ -902,7 +900,7 @@ c----------------------------------------------------------------------
       include 'epos.inchy'
       common/cen/ncentr
       parameter (klax=5)
-      parameter(numiv=100,rapmax=5,rapmin=-rapmax)
+      parameter(numiv=100)!,rapmax=5,rapmin=-rapmax)
       common/cana1b/rapar(klax,numiv),v2rapar(klax,numiv)
       common/cana1d/sapar(klax,numiv),v2sapar(klax,numiv)
       common/cstep/netastep /crapi/delrapi
@@ -1167,8 +1165,7 @@ c----------------------------------------------------------------------
      *        '    droplet decay'/
      *        ' ----------------------------------')
       write(ifch,*)'droplet:'
-      call alist('&',
-     +sizeof('&'),ip,ip)
+      call alist('&',ip,ip)
       endif
       call ManiParticles(1,1) !store parameters, to be restored at the end
 
@@ -1418,8 +1415,7 @@ c----------------------------------------------------------------------
       do n=1,np
         nptl=nptl+1
         if(nptl.gt.mxptl)
-     .   call utstop('DropletDecay: mxptl too small&',
-     +sizeof('DropletDecay: mxptl too small&'))
+     .   call utstop('DropletDecay: mxptl too small&')
         idptl(nptl)=ident(n)
         do j=1,4
           p(j)=pcm(j,n)
@@ -1454,8 +1450,8 @@ c----------------------------------------------------------------------
           !zeta=zetaor-0.5*delzet+delzet*rangen()
           z=tau*sinh(zeta)
           t=tau*cosh(zeta)
-          xorptl(1,nptl)=r*cos(phifop(n)+phinull)
-          xorptl(2,nptl)=r*sin(phifop(n)+phinull)
+          xorptl(1,nptl)=r*cos(phi+phinull)
+          xorptl(2,nptl)=r*sin(phi+phinull)
           xorptl(3,nptl)=z
           xorptl(4,nptl)=t
          else
@@ -1468,8 +1464,7 @@ c----------------------------------------------------------------------
       enddo
       if(ish.ge.3)then
         write(ifch,*)'decay products:'
-        call alist('&',
-     +sizeof('&'),nptlb+1,nptl)
+        call alist('&',nptlb+1,nptl)
         if(ish.ge.5)then
           write(ifch,*)'momentum sum:'
           do kk=1,5
@@ -1479,8 +1474,7 @@ c----------------------------------------------------------------------
           enddo
           pptl(kk,nptl+2)=c(kk)
           enddo
-          call alist('&',
-     +sizeof('&'),nptl+1,nptl+2)
+          call alist('&',nptl+1,nptl+2)
         endif
       endif
 
@@ -1948,7 +1942,7 @@ c------------------------------------------------------------------------------
       include 'epos.inchy'
       common/cen/ncentr /ctauhu/ntauhu(ncenthx,1-netahx:netahx-1)
       taumax=tauhoc(ncentr,ntauhu(ncentr,meta))+2
-      netahyxx=netahy
+c      netahyxx=netahy
       write(ifhi,'(a)')    '!----------------------------------------'
       write(ifhi,'(a,i3)') '!   hydro freeze out rate     '
       write(ifhi,'(a)')    '!----------------------------------------'
@@ -1985,7 +1979,7 @@ c------------------------------------------------------------------------------
       include 'epos.inchy'
       common/cen/ncentr /ctauhu/ntauhu(ncenthx,1-netahx:netahx-1)
       taumax=tauhoc(ncentr,ntauhu(ncentr,meta))+2
-      netahyxx=netahy
+c      netahyxx=netahy
       write(ifhi,'(a)')    '!----------------------------------------'
       write(ifhi,'(a,i3)') '!        hydro freeze out radius     '
       write(ifhi,'(a)')    '!----------------------------------------'
@@ -2021,7 +2015,7 @@ c------------------------------------------------------------------------------
       include 'epos.inchy'
       common/cen/ncentr /ctauhu/ntauhu(ncenthx,1-netahx:netahx-1)
       taumax=tauhoc(ncentr,ntauhu(ncentr,meta))+2
-      netahyxx=netahy
+c      netahyxx=netahy
       write(ifhi,'(a)')    '!----------------------------------------'
       write(ifhi,'(a,i3)') '!     hydro freeze out rad velocity      '
       write(ifhi,'(a)')    '!----------------------------------------'
@@ -2056,7 +2050,7 @@ c------------------------------------------------------------------------------
       include 'epos.inchy'
       common/cen/ncentr /ctauhu/ntauhu(ncenthx,1-netahx:netahx-1)
       taumax=tauhoc(ncentr,ntauhu(ncentr,meta))+2
-      netahyxx=netahy
+c      netahyxx=netahy
       write(ifhi,'(a)')    '!----------------------------------------'
       write(ifhi,'(a,i3)') '!    hydro freeze out tang velocity      '
       write(ifhi,'(a)')    '!----------------------------------------'
@@ -2122,12 +2116,12 @@ c-----------------------------------------------------------------------
       if(maproj.gt.1.and.matarg.eq.1)r2=r1
       a=7.8
       b=bimevt/2
-      n1=koievt
+c      n1=koievt
       n2=0
       do k=1,koll
        if(itpr(k).gt.0)n2=n2+1
       enddo
-      n3=nglevt
+c      n3=nglevt
 
       if(jjj.gt.0)then
       multy1=0

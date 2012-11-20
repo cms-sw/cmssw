@@ -460,6 +460,7 @@ c reading cross sections from the file
           close(1)
        endif
 
+       if(debug.ge.0)write (moniou,*)'done'
        goto 10
       elseif(.not.producetables)then
         write(moniou,*) "Missing QGSDAT-II-04 file !"        
@@ -6061,13 +6062,15 @@ ctp define collision type
       if(ia(1).eq.1.and.ia(2).eq.1.and.(nwp.gt.0.or.nwt.gt.0))then !only for h-h
        if(jdiff.eq.0)then                                  !ND (no rap-gaps)
         typevt=1
-       elseif(jdiff.eq.8.or.jdiff.gt.2.and.jdiff.lt.6)then !DD
+       elseif(jdiff.eq.8.or.jdiff.eq.10.or.
+     *       (jdiff.gt.2.and.jdiff.lt.6))then !DD + (CD+LMD)
         typevt=2                           
-       elseif(jdiff.eq.1.or.jdiff.eq.2.or.jdiff.eq.6
-     * .or.jdiff.eq.7.or.jdiff.eq.10)then                  !SD
-        typevt=3  
+       elseif(jdiff.eq.1.or.jdiff.eq.6)then                  !SD pro
+        typevt=4  
+       elseif(jdiff.eq.2.or.jdiff.eq.7)then                  !SD tar
+        typevt=-4  
        elseif(jdiff.eq.9)then                                !CD
-        typevt=4
+        typevt=3
        else
         stop'problem with typevt!'
        endif

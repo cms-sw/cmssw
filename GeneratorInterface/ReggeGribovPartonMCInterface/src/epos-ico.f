@@ -49,7 +49,7 @@ c-----------------------------------------------------------------------
         read(97,*) engyx
         read(97,*) bminimx,bmaximx
         read(97,*) tauicox
-        read(97,*) iabs_ninicon
+        read(97,*) iabs_ninicon_dum
         read(97,*) nxicox,nyicox,nzicox
         read(97,*)xminicox,xmaxicox,yminicox,ymaxicox,zminicox,zmaxicox
         if(laprojx.ne.laproj.or.maprojx.ne.maproj

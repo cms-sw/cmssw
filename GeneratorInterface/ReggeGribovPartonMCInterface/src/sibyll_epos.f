@@ -48,16 +48,13 @@ c-----------------------------------------------------------------------
 
 
       if(matarg.gt.18.or.maproj.gt.64)
-     &  call utstop('Mass too big for Sibyll (Mtrg<18, Mprj<64) !&',
-     +sizeof('Mass too big for Sibyll (Mtrg<18, Mprj<64) !&'))
+     &  call utstop('Mass too big for Sibyll (Mtrg<18, Mprj<64) !&')
       id=idtrafo('nxs','sib',idproj)
       ida=abs(id)
       if(ida.lt.6.or.ida.gt.14)
-     &  call utstop('projectile no allowed in Sibyll !&',
-     +sizeof('projectile no allowed in Sibyll !&'))
+     &  call utstop('projectile no allowed in Sibyll !&')
       if(idtarg.ne.0.and.idtarg.ne.1120)
-     &  call utstop('target no allowed in Sibyll !&',
-     +sizeof('target no allowed in Sibyll !&'))
+     &  call utstop('target no allowed in Sibyll !&')
       if(bminim.gt.0.or.bmaxim.lt.1000)
      &  write(ifmt,*)'Only min bias event in Sibyll ... no b !'
       call iclass(idproj,iclpro)
@@ -142,22 +139,21 @@ C  SIBYLL
      &    JDIF(NW_max),NW,NJET,NSOF
 
       iret=0
-      ncol=0
       b1=bminim
       b2=min(bmax,bmaxim)
       a=pi*(b2**2-b1**2)
 
       if(a.gt.0..and.rangen().gt.sibincs/10./a)goto 1001   !no interaction
-      if(ish.ge.3)call alist('Determine Sibyll Production&',
-     +sizeof('Determine Sibyll Production&'),0,0)
+      if(ish.ge.3)call alist('Determine Sibyll Production&',0,0)
 
       nptl=0
       NP=0
       NPA=0
       
-      ncol=1
       nevt=1
-      kolevt=ncol
+      kolevt=-1
+      koievt=-1
+      kohevt=-1
       npjevt=maproj
       ntgevt=matarg
       pmxevt=pnll
@@ -167,6 +163,9 @@ C  SIBYLL
       phievt=0.
       phi=0.
       anintine=anintine+1.
+      ns=0                      !number of projectile spectators
+      npps=0
+      npns=0
 
       call conre
       call conwr
@@ -185,7 +184,7 @@ c save interaction type
         elseif(JDIF(1).eq.3)then
           typevt=2                !DD
         else
-          typevt=3                !SD
+          typevt=4                !SD
         endif
         do k=1,NP
 
@@ -197,8 +196,7 @@ c LLIST is the code of final particle, P - its 4-momentum and mass.
      $     , ' momentum :',(P(k,i),i=1,5)
 
           nptl=nptl+1
-          if(nptl.gt.mxptl)call utstop('Sibyll: mxptl too small&',
-     +sizeof('Sibyll: mxptl too small&'))
+          if(nptl.gt.mxptl)call utstop('Sibyll: mxptl too small&')
 
           if(abs(ic).ge.10000)then
             ic=ic-sign(10000,ic)
@@ -237,15 +235,14 @@ c LLIST is the code of final particle, P - its 4-momentum and mass.
 
 
         enddo
-        ns=0
         if(NW.lt.matarg)then
-          ns=matarg-NW
-          do is=maproj+1,maproj+ns !make the ns first target nucleon actives
+          ntgevt=NW
+          do is=maproj+1+NW,maproj+matarg !make the ns last target nucleon final
+            iorptl(is)=0
             istptl(is)=0
           enddo
         endif
       else                          !for nucleus projectile
-        ns=0           !number of projectile spectators
         nbar=0
         IAP = maproj
         CALL SIBNUC (IAP, itrg, engy)
@@ -265,25 +262,28 @@ c LLIST is the code of final particle, P - its 4-momentum and mass.
           if(ic.ge.1001) then                !count spectators
             nNuc=ic-1000
             if(infragm.le.1
-     &         .or.dble(PA(4,k))/dble(nNuc).lt.egymin)then   !nuclear interaction only above min energy, otherwise : fragmentation
+     &         .or.PA(4,k).lt.0.5*egymin)then   !nuclear interaction only above min energy, otherwise : fragmentation
               ns=ns+nNuc
               goto 100
             elseif(ic.eq.1001)then
               if(drangen(dummy).lt.0.45d0) then
                 ic = 13
+                npps=npps+1
               else
                 ic = 14
-              endif
+                npns=npns+1
+               endif
               nNuc=0
             else
               ptm=sqrt(PA(1,k)*PA(1,k)+PA(2,k)*PA(2,k)+PA(5,k)*PA(5,k))
               PA(4,k)=PA(4,k)*float(nNuc)            !energy by nucleon
               PA(3,k)=sign(sqrt((PA(4,k)+ptm)*(PA(4,k)-ptm)),PA(3,k))
+              npps=npps+nNuc/2
+              npns=npns+nNuc-nNuc/2
             endif
           endif
           nptl=nptl+1
-          if(nptl.gt.mxptl)call utstop('Sibyll: mxptl too small&',
-     +sizeof('Sibyll: mxptl too small&'))
+          if(nptl.gt.mxptl)call utstop('Sibyll: mxptl too small&')
           id=idtrafo('sib','nxs',ic)
           if(ish.ge.7)write(ifch,'(a,i5,a,i10,a)')
      $         ' epos particle ',nptl,' id :',id,' after conversion'
@@ -320,8 +320,9 @@ c LLIST is the code of final particle, P - its 4-momentum and mass.
         ntw=nbar-(maproj-ns)
         nsf=0
         if(ntw.lt.matarg)then
-          nts=matarg-ntw
-          do is=maproj+1,maproj+nts !make the nts first target nucleon actives (not wounded)
+          ntgevt=ntw
+          do is=maproj+1+ntw,maproj+matarg !make the nts last target nucleon final (not wounded)
+            iorptl(is)=0
             istptl(is)=0
           enddo
         else
@@ -330,8 +331,8 @@ c LLIST is the code of final particle, P - its 4-momentum and mass.
           if(ish.ge.5)write(ifch,'(a,i3,a,i3,a,i2,a)')
      $         ' target spectators :',matarg-ntw
      $        ,' projectile spectators (ns) :',nsf,' (',ns,')'
-        if((infragm.le.1.or.nsf.gt.ns).and.nsf.le.maproj)then
-          if(infragm.eq.2)ns=nsf-ns
+        if((infragm.le.1.or.ns.gt.0).and.nsf.le.maproj)then
+          if(infragm.eq.2)ns=ns-nsf
           if(infragm.eq.1.and.ns.gt.0)then
 c  remaining nucleus is one fragment
             nptl=nptl+1
@@ -346,6 +347,8 @@ c  remaining nucleus is one fragment
             enddo
             iprot= int(dble(inucl) / 2.15d0 + 0.7d0)
             idnucl=1000000000+iprot*10000+inucl*10 !code for nuclei
+            npps=npps+iprot
+            npns=npns+inucl-iprot
             call idmass(idnucl,am)
             pptl(5,nptl)=am  !mass
             ptot=(pptl(4,nptl)+am)*(pptl(4,nptl)-am)
@@ -364,11 +367,39 @@ c  remaining nucleus is one fragment
             tivptl(2,nptl)=tivptl(2,1)
             idptl(nptl)=idnucl
           else
-            do is=1,ns         !make the nsf first projectile nucleon actives (not wounded)
-              istptl(is)=0
+            do is=maproj-ns+1,maproj         !make the nsf first projectile nucleon final (not wounded)
+              if(infragm.eq.2)istptl(is)=0
+              if(idptl(is).eq.1120)npps=npps+1
+              if(idptl(is).eq.1220)npns=npns+1
             enddo
           endif
         endif
+c number of participants
+        if(laproj.gt.1)then
+        npjevt=maproj-npps-npns
+        npppar=max(0,laproj-npps)
+        npnpar=npjevt-npppar
+c set participant projectile as non spectators
+        do i=1,maproj
+          if(idptl(i).eq.1120)then
+            if(npppar.gt.0)then
+              npppar=npppar-1
+            else                !restore spectators
+              iorptl(i)=0
+              if(infragm.eq.0)istptl(i)=0
+            endif
+          endif
+          if(idptl(i).eq.1220)then
+            if(npnpar.gt.0)then
+              npnpar=npnpar-1
+            else                !restore spectators
+              iorptl(i)=0
+              if(infragm.eq.0)istptl(i)=0
+            endif
+          endif
+        enddo
+      endif
+
       endif
 
 

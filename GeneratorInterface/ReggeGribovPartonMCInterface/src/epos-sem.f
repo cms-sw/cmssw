@@ -879,8 +879,7 @@ c        rh=r2hads(iclpro)+.5*alam3p+slopoms*log(max(1.,sy))
         om51p=psvin(sy,xp,xm,zb,19)  
       else
         om51p=0.
-        call utstop("Unknown iqq in om51p !&",
-     +sizeof("Unknown iqq in om51p !&"))
+        call utstop("Unknown iqq in om51p !&")
       endif
 
       return
@@ -1386,8 +1385,7 @@ c-----------------------------------------------------------------------
           fff=sqq*uv1*(uv2+dv2)
         else
           fff=0.
-          call utstop("Projectile not know in psharg !&",
-     +sizeof("Projectile not know in psharg !&"))
+          call utstop("Projectile not know in psharg !&")
         endif
         psharg=fff
      *               *(1.-zh1)**(-1.+alpq-alplea(iclpro))
@@ -1759,8 +1757,7 @@ c-------------------------------------------------------------------------------
           if(bij.gt.bkmx)goto 11
 
           koll=koll+1
-          if(koll.gt.kollmx)call utstop('epogcr: kollmx too small&',
-     +sizeof('epogcr: kollmx too small&'))
+          if(koll.gt.kollmx)call utstop('epogcr: kollmx too small&')
           bk(koll)=bij
           bkx(koll)=xproj(i)+bx-xtarg(j)
           bky(koll)=yproj(i)+by-ytarg(j)
@@ -2833,8 +2830,7 @@ c-----------------------------------------------------------------------
           fff=sqq*uv1*(uv2+dv2)
         else
           fff=0.
-          call utstop("Projectile not know in psharg !&",
-     +sizeof("Projectile not know in psharg !&"))
+          call utstop("Projectile not know in psharg !&")
         endif
         psharf=fff*(1.-zh1)**(-1.+alpq-alplea(iclpro))*
      *  (1.-zh2)**(-1.+alpq-alplea(icltar))
@@ -6174,8 +6170,7 @@ c    ----------------
 
       dels=alppom-1.
       alpqua=(alppar+1.)/2.
-      if(abs(alpqua).lt.1.e-6)call utstop('alpar should not be -1 !&',
-     +sizeof('alpar should not be -1 !&'))
+      if(abs(alpqua).lt.1.e-6)call utstop('alpar should not be -1 !&')
       alpr=-2.+alpqua      !x-exponent for remnant mass
 
 

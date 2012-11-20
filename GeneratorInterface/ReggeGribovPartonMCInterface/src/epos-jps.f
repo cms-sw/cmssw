@@ -43,8 +43,7 @@ c     ------------
       py=pt*sin(phi)
       lo=0
     1 lo=lo+1
-      if(lo.gt.10)call utstop('jpsifo: lo > 10 &',
-     +sizeof('jpsifo: lo > 10 &'))
+      if(lo.gt.10)call utstop('jpsifo: lo > 10 &')
       z=0.19*sqrt(-2*alog(rangen()))*cos(2*pi*rangen()) !1-dim gauss
 
 
@@ -63,8 +62,7 @@ c     -----------
       endif
       if(npjpsi.gt.mxptl)then
         print *,npjpsi,mxptl
-        call utstop('jpsifo: npjpsi>mxptl&',
-     +sizeof('jpsifo: npjpsi>mxptl&'))
+        call utstop('jpsifo: npjpsi>mxptl&')
       endif
       istptl(npjpsi)=1
       idptl(npjpsi)=id
@@ -85,17 +83,14 @@ c     -----------
       ifrptl(1,npjpsi)=0
       ifrptl(2,npjpsi)=0
       if(ish.ge.6) then
-        call alist("&",
-     +sizeof("&"),npjpsi,npjpsi)
+        call alist("&",npjpsi,npjpsi)
         write (ifch,*) xorptl(1,npjpsi)
      $       ,xorptl(2,npjpsi),xorptl(3,npjpsi),xorptl(4,npjpsi)
      $       ,tivptl(1,npjpsi),tivptl(2,npjpsi)
         ii=iproj(kolran)
         jj=maproj+itarg(kolran)
-        call alist("collision&",
-     +sizeof("collision&"),ii,ii)
-        call alist("&",
-     +sizeof("&"),jj,jj)
+        call alist("collision&",ii,ii)
+        call alist("&",jj,jj)
       endif
       a4min=-15.
       a4max= 15.
@@ -257,10 +252,8 @@ c       --------
               if(ish.ge.6)then
                 write (ifch,*) "nucl dist:",dist,' dist(sig)='
      $               ,rad
-                call alist("&",
-     +sizeof("&"),i,i)
-                call alist("&",
-     +sizeof("&"),j,j)
+                call alist("&",i,i)
+                call alist("&",j,j)
               endif
             elseif(dist.le.rad+1)then
               nclose(nbim,nt,2)=nclose(nbim,nt,2)+1
@@ -298,10 +291,8 @@ c     $         -(pptl(2,i)+pptl(2,j))**2-(pptl(1,i)+pptl(1,j))**2
             if(ish.ge.6)then
               write (ifch,*) "dist:",dist,' dist(sig)='
      $             ,sqrt(0.1*sig/pi),' sig=',sig
-              call alist("&",
-     +sizeof("&"),i,i)
-              call alist("&",
-     +sizeof("&"),j,j)
+              call alist("&",i,i)
+              call alist("&",j,j)
             endif
           endif
  8      continue
@@ -638,8 +629,7 @@ c.............text output of changes in time step ...................
               if (mod(im/100,10).gt.0) then
                 if(isch(i).eq.0)then
                   write (ifch,'("> ",$)')
-                  call alist("&",
-     +sizeof("&"),i,i)
+                  call alist("&",i,i)
                   isch(i)=1
                 endif
               endif
@@ -668,8 +658,7 @@ c.............text...................................................
               if(mod(im/100,10).gt.0)then
                 if(isch(i).eq.0)then
                   write (ifch,'("> ",$)')
-                  call alist("&",
-     +sizeof("&"),i,i)
+                  call alist("&",i,i)
                   isch(i)=1
                 endif
               endif
@@ -680,8 +669,7 @@ c.........text................................
           if(mod(im/100,10).gt.0)then
             if(isch(i).eq.1)then
               write (ifch,'("< ",$)')
-              call alist("&",
-     +sizeof("&"),i,i)
+              call alist("&",i,i)
               isch(i)=0
             endif
           endif

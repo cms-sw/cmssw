@@ -483,8 +483,7 @@ c            epsG=epsilongs(k,i)
             do ii=ntymin,ntymx
               write(ifmt,*)ii,atilde(ii,k),btildep(ii,k),btildepp(ii,k)
             enddo
-            call utstop('Error in epos-omg in GfunPark&',
-     +sizeof('Error in epos-omg in GfunPark&'))
+            call utstop('Error in epos-omg in GfunPark&')
           endif
         enddo
 
@@ -648,8 +647,7 @@ c        gamV=gamV
 
         if((dbet+1.d0).lt.-eps.or.(dbetp+1.d0).lt.-eps)then
           write(*,*)'m,i,b,spp,alp,bet,betp',m,i,b,spp,dalp,dbet,dbetp
-          call utstop('Error : beta < -1 in Gfunpar in epos-omg&',
-     +sizeof('Error : beta < -1 in Gfunpar in epos-omg&'))
+          call utstop('Error : beta < -1 in Gfunpar in epos-omg&')
         endif
 
       elseif(m.eq.2)then
@@ -1400,8 +1398,7 @@ c----------------------------------------------------------------------
          write(ifmt,*)i,gamomx(i),deltap(i),deltam(i)
         enddo
         write(ifmt,*)x0,f0,f0t,x1,f1,f1t,r,cint,ntry
-        call utstop('om1xpr (2)&',
-     +sizeof('om1xpr (2)&'))
+        call utstop('om1xpr (2)&')
       endif
       f0=f0t
       f1=f1t
@@ -1464,8 +1461,7 @@ c----------------------------------------------------------------------
         prec=abs(deltx/x)
       else
         prec=0d0
-        call utstop('Problem in om1xpr&',
-     +sizeof('Problem in om1xpr&'))
+        call utstop('Problem in om1xpr&')
       endif
 
       if (prec.gt.1.d-3.and.abs(f1-f0).gt.eps.and.ntry.le.1000) then
@@ -1557,8 +1553,7 @@ c----------------------------------------------------------------------
          write(ifmt,*)i,gamomx(i),deltap(i),deltam(i)
         enddo
         write(ifmt,*)x0,f0,f0t,x1,f1,f1t,r,cint,ntry,bk(k),k
-        call utstop('om1xprk (2)&',
-     +sizeof('om1xprk (2)&'))
+        call utstop('om1xprk (2)&')
       endif
       f0=f0t
       f1=f1t
@@ -1621,8 +1616,7 @@ c----------------------------------------------------------------------
         prec=abs(deltx/x)
       else
         prec=0d0
-        call utstop('Problem in om1xprk&',
-     +sizeof('Problem in om1xprk&'))
+        call utstop('Problem in om1xprk&')
       endif
 
       if (prec.gt.1.d-3.and.abs(f1-f0).gt.eps.and.ntry.le.1000) then
@@ -1706,8 +1700,7 @@ c      if(xp.ge.xpremi)return
       if(f1t*f0t.ge.eps.and.ntry.lt.100)goto 11
       if(f1t*f0t.ge.eps)then
         write(ifmt,*)x0,f0,f0t,x1,f1,f1t,r,cint,ntry
-        call utstop('Error(2) in epos-omg in om1xmrk&',
-     +sizeof('Error(2) in epos-omg in om1xmrk&'))
+        call utstop('Error(2) in epos-omg in om1xmrk&')
       endif
       f0=f0t
       f1=f1t
@@ -1770,8 +1763,7 @@ c      if(xp.ge.xpremi)return
         prec=abs(deltx/x)
       else
         prec=0d0
-        call utstop('Problem in om1xmrk&',
-     +sizeof('Problem in om1xmrk&'))
+        call utstop('Problem in om1xmrk&')
       endif
 
       if (prec.gt.1.d-3.and.abs(f1-f0).gt.eps.and.ntry.le.1000) then
@@ -1999,8 +1991,7 @@ c----------------------------------------------------------------------
          write(ifmt,*)i,gamomx(i),deltap(i),deltam(i),alpp(i),delta(i)
         enddo
         write(ifmt,*)x0,f0,f0t,x1,f1,f1t,r,cint,ntry,bk(k),k
-        call utstop('om1xrk (1)&',
-     +sizeof('om1xrk (1)&'))
+        call utstop('om1xrk (1)&')
       endif
       f0=f0t
       f1=f1t
@@ -2090,8 +2081,7 @@ c      x=(x1+x0)*0.5D0
         prec=deltx/x
       else
         prec=0d0
-        call utstop('Problem in om1xrk&',
-     +sizeof('Problem in om1xrk&'))
+        call utstop('Problem in om1xrk&')
       endif
 
       if (prec.gt.1.d-3.and.abs(f1-f0).gt.eps.and.ntry.le.1000)then
@@ -2485,8 +2475,7 @@ c----------------------------------------------------------------------
           omIgamint=omIgamint+Df
         enddo
       else
-        call utstop('Wrong iqq in omIgamint&',
-     +sizeof('Wrong iqq in omIgamint&'))
+        call utstop('Wrong iqq in omIgamint&')
       endif
 
       omIgamint=omIgamint
