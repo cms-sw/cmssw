@@ -581,7 +581,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    delete HQSystGraphs;
    delete LEG;
    }
-   return;
 
 
    //Get Theoretical xsection and error bands
@@ -1203,7 +1202,6 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       else if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.08*0.08);
       else if(modelSample[s].ModelName().find("2o3")!=string::npos) SystTr[N] = -1*sqrt(0.03*0.03 + 0.08*0.08);
       else SystTr[N] = -1*sqrt(0.01*0.01 + 0.08*0.08);
-      cout << "Trigger uncertainty " << SystTr[N] << endl;
 
 //      double Ptemp=max(SystP[N], 0.0), Itemp=max(SystI[N], 0.0), PUtemp=max(SystPU[N], 0.0), Ttemp=max(SystT[N], 0.0);
       double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
