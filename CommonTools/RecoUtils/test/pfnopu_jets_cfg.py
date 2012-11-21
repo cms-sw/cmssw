@@ -5,19 +5,19 @@ process = cms.Process("PFJETS")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/user/geisler/QCD_Pt-15to3000_TuneZ2star_Flat_8TeV_pythia6_PU_S7_START52-AODSIM.root')
-)
-		
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    fileNames = cms.untracked.vstring('file:/user/geisler/QCD_Pt-15to3000_Tune2C_Flat_8TeV_pythia8_AODSIM.root'),
 )
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'START52_V9::All'
+process.GlobalTag.globaltag = 'START53_V11::All'
+		
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
 
 ### standard includes
-process.load('Configuration.StandardSequences.GeometryPilot2_cff')
+process.load('Configuration.Geometry.GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 		
@@ -40,13 +40,15 @@ from CommonTools.RecoUtils.pfcand_nopu_witham_cfi import FirstVertexPFCandidates
 		
 process.PFCand = FirstVertexPFCandidates.clone(
           VertexPFCandAssociationMap = cms.InputTag('PFCand2VertexAM'),
+          VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
 )
 	
 ### JetProducer-specific includes
 from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets	
 
 process.ak5PFJetsNew = ak5PFJets.clone(
-	src = cms.InputTag("PFCand")
+	src = cms.InputTag("PFCand","P2V")
+	#src = cms.InputTag("PFCand","V2P")
 )
 
 process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
