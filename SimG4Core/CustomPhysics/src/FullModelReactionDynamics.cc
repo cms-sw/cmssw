@@ -186,9 +186,9 @@
       //      forVeryForward = aProton->GetPDGMass();
       veryForward = true;
     }
-    const G4double atomicWeight = targetNucleus.GetN();
+    const G4double atomicWeight = targetNucleus.GetN_asInt();
     //    G4cout <<"Atomic weight is: "<<atomicWeight<<G4endl;
-    const G4double atomicNumber = targetNucleus.GetZ();
+    const G4double atomicNumber = targetNucleus.GetZ_asInt();
     const G4double protonMass = aProton->GetPDGMass()/MeV;
     if( (originalIncident->GetDefinition() == aKaonMinus ||
          originalIncident->GetDefinition() == aKaonZeroL ||
@@ -1390,8 +1390,8 @@
     //
     // suppress charged pions, for various reasons
     //
-    const G4double atomicWeight = targetNucleus.GetN();
-    const G4double atomicNumber = targetNucleus.GetZ();
+    const G4double atomicWeight = targetNucleus.GetN_asInt();
+    const G4double atomicNumber = targetNucleus.GetZ_asInt();
     const G4double pOriginal = modifiedOriginal.GetTotalMomentum()/GeV;
     
     // G4ParticleDefinition *aGamma = G4Gamma::Gamma();
@@ -1520,8 +1520,8 @@
       currentParticle.SetKineticEnergy( ek );
       currentParticle.SetMomentum( m );
     }
-    const G4double atomicWeight = targetNucleus.GetN();
-    const G4double atomicNumber = targetNucleus.GetZ();
+    const G4double atomicWeight = targetNucleus.GetN_asInt();
+    const G4double atomicNumber = targetNucleus.GetZ_asInt();
     //
     // particles have been distributed in forward and backward hemispheres
     // in center of mass system of the hadron nucleon interaction
@@ -2321,7 +2321,7 @@
     G4double targetMass = targetParticle.GetDefinition()->GetPDGMass()/GeV;
 
     targetMass = targetParticle.GetMass()/GeV;
-    const G4double atomicWeight = targetNucleus.GetN();
+    const G4double atomicWeight = targetNucleus.GetN_asInt();
     //    G4cout<<"Atomic weight is found to be: "<<atomicWeight<<G4endl;
     G4double etCurrent = currentParticle.GetTotalEnergy()/GeV;
     G4double pCurrent = currentParticle.GetTotalMomentum()/GeV;
@@ -2956,7 +2956,7 @@
     //   Rotate in direction of z-axis, this does disturb in some way our
     //    inclusive distributions, but it is necessary for momentum conservation
     //
-    const G4double atomicWeight = targetNucleus.GetN();
+    const G4double atomicWeight = targetNucleus.GetN_asInt();
     const G4double logWeight = std::log(atomicWeight);
     
     G4ParticleDefinition *aPiMinus = G4PionMinus::PionMinus();
@@ -3238,8 +3238,8 @@
     G4ParticleDefinition *anAlpha = G4Alpha::Alpha();
     
     const G4double ekOriginal = modifiedOriginal.GetKineticEnergy()/MeV;
-    G4double atomicWeight = targetNucleus.GetN();
-    G4double atomicNumber = targetNucleus.GetZ();
+    G4double atomicWeight = targetNucleus.GetN_asInt();
+    G4double atomicNumber = targetNucleus.GetZ_asInt();
     
     const G4double ika1 = 3.6;
     const G4double ika2 = 35.56;
@@ -3857,7 +3857,7 @@
     
     if( currentParticle.GetDefinition() == aNeutron )
     {
-      const G4double A = targetNucleus.GetN();    // atomic weight
+      const G4double A = targetNucleus.GetN_asInt();    // atomic weight
       if( G4UniformRand() > ((A-1.0)/230.0)*((A-1.0)/230.0) )
         qval[0] = 0.0;
       if( G4UniformRand() >= currentKinetic/7.9254*A )
