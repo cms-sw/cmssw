@@ -12,6 +12,7 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
@@ -109,7 +110,7 @@ namespace{
 
     EcalContainer<EEDetId,float> ec_eeDetId_float;
     EcalContainer<EBDetId,float> ec_ebDetId_float;
-    EcalCondObjectContainer<float> floatCondObjectContainer; //typedefs: EcalFloatCondObjectContainer, EcalIntercalibConstants, EcalIntercalibConstantsMC, EcalIntercalibErrors, EcalLaserAPDPNRatiosRef, EcalLaserAlphas, EcalTimeCalibConstants, EcalTimeCalibErrors
+    EcalCondObjectContainer<float> floatCondObjectContainer; //typedefs: EcalFloatCondObjectContainer, EcalLinearCorrections, EcalIntercalibConstants, EcalIntercalibConstantsMC, EcalIntercalibErrors, EcalLaserAPDPNRatiosRef, EcalLaserAlphas, EcalTimeCalibConstants, EcalTimeCalibErrors
     
     EcalLaserAPDPNRatios laser_map;
     std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> pair_map;

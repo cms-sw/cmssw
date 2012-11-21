@@ -1,5 +1,6 @@
 #include "CondTools/Ecal/interface/EcalADCToGeVXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalIntercalibConstantsXMLTranslator.h"
+#include "CondTools/Ecal/interface/EcalLinearCorrectionsXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalIntercalibErrorsXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalWeightGroupXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalTBWeightsXMLTranslator.h"
@@ -8,10 +9,10 @@
 #include "CondTools/Ecal/interface/EcalTimeCalibErrorsXMLTranslator.h"
 
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
-
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
@@ -80,9 +81,11 @@ int main(){
   // Test Intercalibration
   
   
+  EcalLinearCorrections lin_constants;
   EcalIntercalibConstants intercalib_constants;
   EcalIntercalibErrors    intercalib_errors;
 
+  std::string linfile("/tmp/EcalLinearCorrections.xml");
   std::string intercalibfile("/tmp/EcalIntercalibConstants.xml");
   std::string intercaliberrfile("/tmp/EcalIntercalibErrors.xml");
   std::string intercalibfiledb("/tmp/EcalIntercalibConstantsDB.xml");
@@ -97,8 +100,12 @@ int main(){
     EcalIntercalibConstant intercalib_constant = 
       EBDetId::unhashIndex(cellid).iphi();
 
+    EcalIntercalibConstant lin_constant = 
+      EBDetId::unhashIndex(cellid).iphi();
+
     EcalIntercalibError    intercalib_error    = intercalib_constant +1;
     
+    lin_constants[rawid]=lin_constant;
     intercalib_constants[rawid]=intercalib_constant;
     intercalib_errors[rawid]   =intercalib_error;
   } 
@@ -111,9 +118,11 @@ int main(){
 
     if (EEDetId::validHashIndex(cellid)){  
       uint32_t rawid = EEDetId::unhashIndex(cellid);
+      EcalLinearCorrection lin_constant = EEDetId::unhashIndex(cellid).ix();;
       EcalIntercalibConstant intercalib_constant = EEDetId::unhashIndex(cellid).ix();;
       EcalIntercalibError    intercalib_error    = intercalib_constant +1;
 
+      lin_constants[rawid]=lin_constant;
       intercalib_constants[rawid]=intercalib_constant;
       intercalib_errors[rawid]=intercalib_error;
     } // if
@@ -121,33 +130,44 @@ int main(){
 
 
  
+  EcalLinearCorrectionsXMLTranslator::writeXML(linfile,header,
+						 lin_constants);
+
   EcalIntercalibConstantsXMLTranslator::writeXML(intercalibfile,header,
 						 intercalib_constants);
   
   EcalIntercalibErrorsXMLTranslator::writeXML(intercaliberrfile,header,
                                               intercalib_errors);
 
+  EcalIntercalibConstants lin_constants2;
   EcalIntercalibConstants intercalib_constants2;
   EcalIntercalibErrors    intercalib_errors2;
 
 
+  EcalLinearCorrectionsXMLTranslator::readXML(linfile,header2,
+						lin_constants2);
+
   EcalIntercalibConstantsXMLTranslator::readXML(intercalibfile,header2,
 						intercalib_constants2);
 
-  EcalIntercalibErrorsXMLTranslator::readXML(intercaliberrfile,header,
+  EcalIntercalibErrorsXMLTranslator::readXML(intercaliberrfile,header2,
 					     intercalib_errors2);
 
+  std::string linfile2("/tmp/linfile-2.xml");
   std::string intercalibfile2("/tmp/intercalibfile-2.xml");
   std::string intercaliberrfile2("/tmp/intercaliberrfile-2.xml");
 
+  EcalLinearCorrectionsXMLTranslator::writeXML(linfile2,
+			   header2,
+			   lin_constants2);
   EcalIntercalibConstantsXMLTranslator::writeXML(intercalibfile2,
 			   header2,
 			   intercalib_constants2);
 
-  EcalIntercalibErrorsXMLTranslator::writeXML(intercaliberrfile,header,
+  EcalIntercalibErrorsXMLTranslator::writeXML(intercaliberrfile,header2,
 					     intercalib_errors2);
 
-  cout << "Done testing Intercalib " << endl;
+  cout << "Done testing Intercalib abd Linear Corrections" << endl;
 
   // Test Timing Intercalibration
   

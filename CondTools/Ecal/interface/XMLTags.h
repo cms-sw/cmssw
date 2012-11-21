@@ -40,6 +40,7 @@ namespace xuti{
   const  std::string EcalTBWeight_tag("EcalTBWeight");
   const  std::string EcalXtalGroupId_tag("EcalXtalGroupId");
  
+  const  std::string LinearCorrections_tag("EcalLinearCorrections");
   const  std::string IntercalibConstants_tag("EcalIntercalibConstants");
   const  std::string IntercalibConstant_tag("IntercalibConstant");
   const  std::string IntercalibError_tag("IntercalibError");

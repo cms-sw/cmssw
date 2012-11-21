@@ -133,6 +133,17 @@ void EcalTestDevDB::analyze( const edm::Event& evt, const edm::EventSetup& evtSe
 	  std::cout<<"Old One "<<std::endl;
 	  dbOutput->appendSinceTime<const EcalIntercalibConstants>( condObject, irun , recordName);
 	}
+      } else if (container == "EcalLinearCorrections") {
+	EcalLinearCorrections* condObject= generateEcalLinearCorrections();
+	if(irun==m_firstRun && dbOutput->isNewTagRequest(recordName)) {
+	  // create new
+	  std::cout<<"First One "<<std::endl;
+	  dbOutput->createNewIOV<const EcalLinearCorrections>( condObject, dbOutput->beginOfTime(),dbOutput->endOfTime() ,recordName);
+	} else {
+	  // append
+	  std::cout<<"Old One "<<std::endl;
+	  dbOutput->appendSinceTime<const EcalLinearCorrections>( condObject, irun , recordName);
+	}
 	
       } else if (container == "EcalGainRatios") {
 	EcalGainRatios* condObject= generateEcalGainRatios();
@@ -269,6 +280,27 @@ EcalTestDevDB::generateEcalIntercalibConstants() {
       ical->setValue( ebid.rawId(), 0.85 + r*0.3 );
     } // loop over phi
   } // loop over eta
+  return ical;
+}
+
+//-------------------------------------------------------------
+EcalLinearCorrections*
+EcalTestDevDB::generateEcalLinearCorrections() {
+//-------------------------------------------------------------
+
+  EcalLinearCorrections* ical = new EcalLinearCorrections();
+
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId:: MAX_IPHI; ++iphi) {
+
+      EBDetId ebid(ieta,iphi);
+
+      float x=1.0;
+      ical->setValue( ebid.rawId(), x );
+    } // loop over phi
+  } // loop over eta
+
   return ical;
 }
 

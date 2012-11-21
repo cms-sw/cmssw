@@ -159,6 +159,7 @@
 <!-- typedefs for EcalCondObjectContainer -->
 <class name="EcalFloatCondObjectContainer"/>
 <class name="EcalIntercalibConstants"/>
+<class name="EcalLinearCorrections"/>
 <class name="EcalIntercalibConstantsMC"/>
 <class name="EcalIntercalibErrors"/>
 <class name="EcalLaserAPDPNRatiosRef"/>

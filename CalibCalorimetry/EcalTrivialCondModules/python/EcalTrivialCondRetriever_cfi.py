@@ -22,8 +22,10 @@ EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     # file with intercalib constants - same format used for online and offline DB
     # by default set all inter calib const to 1.0 if no file provided
     intercalibConstantsFile = cms.untracked.string(''),
+    linearCorrectionsFile = cms.untracked.string(''),
     producedEcalWeights = cms.untracked.bool(True),
     EEpedRMSX12 = cms.untracked.double(2.018),
+    producedEcalLinearCorrections = cms.untracked.bool(True),
     producedEcalIntercalibConstants = cms.untracked.bool(True),
     producedEcalIntercalibConstantsMC = cms.untracked.bool(True),
     producedEcalIntercalibErrors = cms.untracked.bool(True),

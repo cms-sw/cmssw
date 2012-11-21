@@ -10,6 +10,8 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
+#include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -46,6 +48,7 @@ class  EcalTestDevDB : public edm::EDAnalyzer {
   EcalPedestals* generateEcalPedestals();
   EcalADCToGeVConstant* generateEcalADCToGeVConstant();
   EcalIntercalibConstants* generateEcalIntercalibConstants();
+  EcalLinearCorrections* generateEcalLinearCorrections();
   EcalGainRatios* generateEcalGainRatios();
   EcalWeightXtalGroups* generateEcalWeightXtalGroups();
   EcalTBWeights* generateEcalTBWeights();

@@ -31,6 +31,8 @@
 
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
 
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
+#include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
@@ -143,6 +145,7 @@ REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalWeightXtalGroups);
 REGISTER_PLUGIN(EcalTBWeightsRcd,EcalTBWeights);
 REGISTER_PLUGIN(EcalGainRatiosRcd,EcalGainRatios);
+REGISTER_PLUGIN(EcalLinearCorrectionsRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalIntercalibConstantsRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalIntercalibConstantsMCRcd,EcalFloatCondObjectContainer);
 REGISTER_PLUGIN(EcalTimeCalibConstantsRcd,EcalFloatCondObjectContainer);

@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.31 2011/11/02 09:35:20 fay Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.32 2012/05/18 13:15:17 fay Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -29,6 +29,9 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/DataRecord/interface/EcalTBWeightsRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
+#include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
@@ -114,6 +117,7 @@ public:
   // ---------- member functions ---------------------------
   virtual std::auto_ptr<EcalPedestals> produceEcalPedestals( const EcalPedestalsRcd& );
   virtual std::auto_ptr<EcalWeightXtalGroups> produceEcalWeightXtalGroups( const EcalWeightXtalGroupsRcd& );
+  virtual std::auto_ptr<EcalLinearCorrections> produceEcalLinearCorrections( const EcalLinearCorrectionsRcd& );
   virtual std::auto_ptr<EcalIntercalibConstants> produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& );
   virtual std::auto_ptr<EcalIntercalibConstantsMC> produceEcalIntercalibConstantsMC( const EcalIntercalibConstantsMCRcd& );
   virtual std::auto_ptr<EcalIntercalibErrors> produceEcalIntercalibErrors( const EcalIntercalibErrorsRcd& );
@@ -122,6 +126,7 @@ public:
   virtual std::auto_ptr<EcalGainRatios> produceEcalGainRatios( const EcalGainRatiosRcd& );
   virtual std::auto_ptr<EcalADCToGeVConstant> produceEcalADCToGeVConstant( const EcalADCToGeVConstantRcd& );
   virtual std::auto_ptr<EcalTBWeights> produceEcalTBWeights( const EcalTBWeightsRcd& );
+  virtual std::auto_ptr<EcalLinearCorrections>  getLinearCorrectionsFromConfiguration ( const EcalLinearCorrectionsRcd& ) ;
   virtual std::auto_ptr<EcalIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const EcalIntercalibConstantsRcd& ) ;
   virtual std::auto_ptr<EcalIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const EcalIntercalibErrorsRcd& ) ;
   virtual std::auto_ptr<EcalTimeCalibConstants>  getTimeCalibConstantsFromConfiguration ( const EcalTimeCalibConstantsRcd& ) ;
@@ -175,6 +180,9 @@ private:
   // data members
   double adcToGeVEBConstant_;      // ADC -> GeV scale for barrel
   double adcToGeVEEConstant_;      // ADC -> GeV scale for endcap
+
+  double linCorrMean_;  // mean of lin corr
+  double linCorrSigma_; // sigma of lin corr
 
   double intercalibConstantMean_;  // mean of intercalib constant. default: 1.0
   double intercalibConstantSigma_; // sigma of intercalib constant
@@ -247,6 +255,7 @@ private:
   std::string jittWeightsAftFile_; 
   std::string chi2MatrixFile_;
   std::string chi2MatrixAftFile_;
+  std::string linearCorrectionsFile_ ;
   std::string intercalibConstantsFile_ ;
   std::string intercalibErrorsFile_ ;
   std::string timeCalibConstantsFile_ ;
@@ -268,6 +277,7 @@ private:
   bool weightsForAsynchronousRunning_;
   bool producedEcalPedestals_;
   bool producedEcalWeights_;
+  bool producedEcalLinearCorrections_;
   bool producedEcalIntercalibConstants_;
   bool producedEcalIntercalibConstantsMC_;
   bool producedEcalIntercalibErrors_;

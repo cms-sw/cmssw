@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.55 2012/05/09 fay Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.55 2012/05/18 13:20:25 fay Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -33,6 +33,8 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   intercalibConstantMeanMC_ = ps.getUntrackedParameter<double>("intercalibConstantMeanMC",1.0);
   intercalibConstantSigmaMC_ = ps.getUntrackedParameter<double>("intercalibConstantSigmaMC",0.0);
 
+  linCorrMean_ = ps.getUntrackedParameter<double>("linCorrMean",1.0);
+  linCorrSigma_ = ps.getUntrackedParameter<double>("linCorrSigma",0.0);
   intercalibConstantMean_ = ps.getUntrackedParameter<double>("intercalibConstantMean",1.0);
   intercalibConstantSigma_ = ps.getUntrackedParameter<double>("intercalibConstantSigma",0.0);
   intercalibErrorMean_ = ps.getUntrackedParameter<double>("IntercalibErrorMean",0.0);
@@ -186,6 +188,21 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalTimeOffsetConstant );
     findingRecord<EcalTimeOffsetConstantRcd>();
   }
+
+  // linear corrections
+  producedEcalLinearCorrections_ = ps.getUntrackedParameter<bool>("producedEcalLinearCorrections",true);
+  linearCorrectionsFile_ = ps.getUntrackedParameter<std::string>("linearCorrectionsFile","") ;
+
+  if (producedEcalLinearCorrections_) { // user asks to produce constants
+    if(linearCorrectionsFile_ != "") {  // if file provided read constants
+        setWhatProduced (this, &EcalTrivialConditionRetriever::getLinearCorrectionsFromConfiguration ) ;
+    } else { // set all constants to 1. or smear as specified by user
+        setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLinearCorrections ) ;
+    }
+    findingRecord<EcalLinearCorrectionsRcd> () ;
+  }
+
+
 
   // intercalibration constants
   producedEcalIntercalibConstants_ = ps.getUntrackedParameter<bool>("producedEcalIntercalibConstants",true);
@@ -482,6 +499,46 @@ EcalTrivialConditionRetriever::produceEcalWeightXtalGroups( const EcalWeightXtal
   }
   return xtalGroups;
 }
+
+std::auto_ptr<EcalLinearCorrections>
+EcalTrivialConditionRetriever::produceEcalLinearCorrections( const EcalLinearCorrectionsRcd& )
+{
+  std::auto_ptr<EcalLinearCorrections>  ical = std::auto_ptr<EcalLinearCorrections>( new EcalLinearCorrections() );
+
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
+    if(ieta==0) continue;
+    for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
+      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
+      if (EBDetId::validDetId(ieta,iphi))
+	{
+	  EBDetId ebid(ieta,iphi);
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  ical->setValue( ebid.rawId(), linCorrMean_ + r*linCorrSigma_ );
+	}
+    }
+  }
+
+  for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+    for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+      // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+      if (EEDetId::validDetId(iX,iY,1))
+	{
+	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidpos(iX,iY,1);
+	  ical->setValue( eedetidpos.rawId(), linCorrMean_ + r*linCorrSigma_ );
+	}
+      if(EEDetId::validDetId(iX,iY,-1))
+        {
+	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
+	  EEDetId eedetidneg(iX,iY,-1);
+	  ical->setValue( eedetidneg.rawId(), linCorrMean_ + r1*linCorrSigma_ );
+	}
+    }
+  }
+  
+  return ical;
+}
+//------------------------------
 
 std::auto_ptr<EcalIntercalibConstants>
 EcalTrivialConditionRetriever::produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& )
@@ -2117,7 +2174,58 @@ EcalTrivialConditionRetriever::produceEcalTrgChannelStatus( const EcalTPGCrystal
 
 
 
-// --------------------------------------------------------------------------------
+std::auto_ptr<EcalLinearCorrections> 
+EcalTrivialConditionRetriever::getLinearCorrectionsFromConfiguration ( const EcalLinearCorrectionsRcd& )
+{
+  std::auto_ptr<EcalLinearCorrections>  ical = std::auto_ptr<EcalLinearCorrections>( new EcalLinearCorrections() );
+  
+  edm::LogInfo("EcalTrivialConditionRetriever") << "Reading linear corrections from file "
+                                                << linearCorrectionsFile_.c_str() ;
+  
+  FILE *inpFile ;
+  inpFile = fopen (linearCorrectionsFile_.c_str (),"r") ;
+  if (!inpFile) 
+    {
+      edm::LogError ("EcalTrivialConditionRetriever") 
+	<< "*** Can not open file: " << linearCorrectionsFile_ ;
+      throw cms::Exception ("Cannot open linear-corrections coefficients txt file") ;
+    }
+  
+  char line[256] ;
+  std::ostringstream str ;
+  fgets (line,255,inpFile) ; // header of the file 
+  
+  
+  edm::LogInfo("EcalTrivialConditionRetriever")
+    << "linear corrections file - " 
+    << str.str () << std::endl ;
+  
+  int ii = 0 ;
+  
+  while (fgets (line,255,inpFile)) 
+    {
+      ii++;
+      int eta = 0 ;
+      int phi = 0. ;
+      int zeta = 0. ;
+      float calib=1.0;
+      sscanf (line, "%d %d %d %f", &eta, &phi, &zeta, &calib);
+      if(zeta==0){
+	EBDetId ebid (eta,phi);
+	ical->setValue (ebid.rawId (), calib) ;
+      } else {
+	EEDetId eeid(eta,phi,zeta);
+	ical->setValue(eeid.rawId(), calib);
+      }
+      
+    }
+  fclose (inpFile) ;           // close inp. file
+  edm::LogInfo ("EcalTrivialConditionRetriever") << "Read intercalibrations for " << ii << " xtals " ; 
+  if (ii!=75648) edm::LogWarning ("StoreEcalCondition") 
+    << "Some crystals missing" << std::endl ;
+
+  return ical;
+}
 
 
 std::auto_ptr<EcalIntercalibConstants> 
@@ -2232,6 +2340,8 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 //  edm::LogInfo ("EcalTrivialConditionRetriever") << "INTERCALIBRATION DONE" ; 
   return ical;
 }
+
+
 
 
 std::auto_ptr<EcalIntercalibErrors> 
@@ -2768,3 +2878,5 @@ EcalTrivialConditionRetriever::produceEcalSampleMask( const EcalSampleMaskRcd& )
 {
   return std::auto_ptr<EcalSampleMask>( new EcalSampleMask(sampleMaskEB_, sampleMaskEE_) );
 }
+
+
