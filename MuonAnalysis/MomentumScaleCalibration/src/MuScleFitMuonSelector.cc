@@ -15,7 +15,7 @@ MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
     for (unsigned int i=0; i<tempStatus1Muon->numberOfDaughters(); ++i){
       if ( tempStatus1Muon->daughter(i)->pdgId()==tempStatus1Muon->pdgId() ){
 	tempStatus1Muon = tempStatus1Muon->daughter(i);
-	status = tempStatus1Muon->daughter(i)->status();
+	status = tempStatus1Muon->status();
 	break;
       }else continue;
     }//for loop
