@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/12 12:25:27 $
-# $Revision: 1.1 $
+# $Date: 2012/07/03 05:38:00 $
+# $Revision: 1.2 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -67,6 +67,8 @@ class Directory(Weighted):
     self.n_fails=0
     self.n_successes=0
     self.n_nulls=0
+    self.n_skiped = 0
+    self.n_comp_skiped = 0
     self.n_comp_fails=0
     self.n_comp_successes=0
     self.n_comp_nulls=0 
@@ -98,21 +100,29 @@ class Directory(Weighted):
     self.n_comp_nulls=0  
     self.weight=0
     
+    self.n_skiped = 0
+    self.n_comp_skiped = 0
+    
     # clean from empty dirs    
     self.subdirs = filter(lambda subdir: not subdir.is_empty(),self.subdirs)    
     
     for comp in self.comparisons:
-      self.rank_histo.Fill(comp.rank)
-      self.weight+=1
-      if comp.status == FAIL:
-        self.n_fails+=1
-        self.n_comp_fails+=1
-      elif comp.status == SUCCESS:
-        self.n_successes+=1
-        self.n_comp_successes+=1
-      else:
-        self.n_nulls+=1
-        self.n_comp_nulls+=1
+      if comp.status == SKIPED: #in case its in black list & skiped 
+          self.n_skiped += 1
+          self.n_comp_skiped += 1
+          self.weight+=1
+      else: #else original code -> to check for Fails and Successes
+          self.rank_histo.Fill(comp.rank)
+          self.weight+=1
+          if comp.status == FAIL:
+              self.n_fails+=1
+              self.n_comp_fails+=1
+          elif comp.status == SUCCESS:
+              self.n_successes+=1
+              self.n_comp_successes+=1
+          else:
+              self.n_nulls+=1
+              self.n_comp_nulls+=1
 
     for subdir in self.subdirs:
       subdir.mother_dir=join(self.mother_dir,self.name)
@@ -122,6 +132,9 @@ class Directory(Weighted):
       self.n_fails+=subdir.n_fails
       self.n_successes+=subdir.n_successes
       self.n_nulls+=subdir.n_nulls
+      
+      self.n_skiped+=subdir.n_skiped
+      
       self.rank_histo.Add(subdir.rank_histo)
 
     self.stats_calculated=True 
@@ -146,10 +159,10 @@ class Directory(Weighted):
     url = "https://chart.googleapis.com/chart?"
     url+= "cht=p3" # Select the 3d chart
     #url+= "&chl=Success|Null|Fail" # give labels
-    url+= "&chco=00FF00|FFFF00|FF0000" # give colours to labels
+    url+= "&chco=00FF00|FFFF00|FF0000|7A7A7A" # give colours to labels
     url+= "&chs=%sx%s" %(w,h)
     #url+= "&chtt=%s" %self.name
-    url+= "&chd=t:%.2f,%.2f,%.2f"%(self.get_success_rate(),self.get_null_rate(),self.get_fail_rate())
+    url+= "&chd=t:%.2f,%.2f,%.2f,%.2f"%(self.get_success_rate(),self.get_null_rate(),self.get_fail_rate(),self.get_skiped_rate())
     
     return url
 
@@ -172,7 +185,11 @@ class Directory(Weighted):
       print " o Failiures: %.2f%% (%s/%s)" %(self.get_fail_rate(),self.n_fails,self.weight)
       print " o Nulls: %.2f%% (%s/%s) " %(self.get_null_rate(),self.n_nulls,self.weight)
       print " o Successes: %.2f%% (%s/%s) " %(self.get_success_rate(),self.n_successes,self.weight)
+      print " o Skipped: %.2f%% (%s/%s) " %(self.get_skiped_rate(),self.n_skiped,self.weight)
 
+  def get_skiped_rate(self):
+    if self.weight == 0: return 0
+    return 100.*self.n_skiped/self.weight
   def get_fail_rate(self):
     if self.weight == 0:return 0
     return 100.*self.n_fails/self.weight
@@ -205,7 +222,7 @@ class Directory(Weighted):
     self.__create_on_disk()
     vals=[]
     colors=[]
-    for n,col in zip((self.n_fails,self.n_nulls,self.n_successes),(kRed,kYellow,kGreen)):
+    for n,col in zip((self.n_fails,self.n_nulls,self.n_successes,self.n_skiped),(kRed,kYellow,kGreen,kBlue)):
       if n!=0:
         vals.append(n)
         colors.append(col)
@@ -222,7 +239,9 @@ class Directory(Weighted):
         pie.SetEntryLabel(label_n, "Null: %.1f(%i)" %(self.get_null_rate(),self.n_nulls) );      
         label_n+=1
       if self.n_successes!=0:
-        pie.SetEntryLabel(label_n, "Success: %.1f(%i)" %(self.get_success_rate(),self.n_successes) );   
+        pie.SetEntryLabel(label_n, "Success: %.1f(%i)" %(self.get_success_rate(),self.n_successes) );
+      if self.n_skiped!=0:
+        pie.SetEntryLabel(label_n, "Skipped: %.1f(%i)" %(self.get_skiped_rate(),self.n_skiped));
       pie.SetY(.52);
       pie.SetAngularOffset(0.);    
       pie.SetLabelsOffset(-.3);
@@ -265,8 +284,13 @@ class Directory(Weighted):
           comp.mother_dir=comp.mother_dir.replace("/"+expandable_dir,"")        
           while "//" in comp.mother_dir:
               comp.mother_dir
-              comp.mother_dir=comp.mother_dir.replace("/")              
-          self.comparisons.append(comp)
+              comp.mother_dir=comp.mother_dir.replace("/")
+          if not comp in self.comparisons:  #in case not to  append same comparisons few times
+              self.comparisons.append(comp)  # add a comparison
+              self.n_comp_fails = exp_dir.n_comp_fails  #copy to-be removed directory
+              self.n_comp_nulls = exp_dir.n_comp_nulls  # numbers to parent directory
+              self.n_comp_successes = exp_dir.n_comp_successes
+              self.n_comp_skiped = exp_dir.n_comp_skiped
         
       del self.subdirs[exp_index]
       self.prune(expandable_dir)
@@ -295,7 +319,7 @@ tcanvas_print_processes=[]
 class Comparison(Weighted):
   canvas_xsize=500
   canvas_ysize=400
-  def __init__(self,name,mother_dir,h1,h2,stat_test,draw_success=False,do_pngs=False):
+  def __init__(self,name,mother_dir,h1,h2,stat_test,draw_success=False,do_pngs=False, skip=False):
     self.name=name
     self.png_name="placeholder.png"
     self.mother_dir=mother_dir
@@ -304,15 +328,22 @@ class Comparison(Weighted):
     Weighted.__init__(self,name)
 
     stat_test.set_operands(h1,h2)
-    self.status=stat_test.get_status()    
-    self.rank=stat_test.get_rank()        
-    self.test_name=stat_test.name    
-    self.test_thr=stat_test.threshold
-    self.do_pngs=do_pngs
-    self.draw_success=draw_success or not do_pngs
-    if ((self.status==FAIL or self.status==NULL or self.draw_success) and self.do_pngs):
-      self.__make_image(h1,h2)      
-    #self.__make_image(h1,h2)
+    if skip:
+        self.status = SKIPED
+        self.test_name=stat_test.name
+        self.test_name=stat_test.name
+        self.test_thr=stat_test.threshold
+        self.rank = 0
+    else:
+        self.status=stat_test.get_status()
+        self.rank=stat_test.get_rank()
+        self.test_name=stat_test.name
+        self.test_thr=stat_test.threshold
+        self.do_pngs=do_pngs
+        self.draw_success=draw_success or not do_pngs
+        if ((self.status==FAIL or self.status==NULL or self.status == SKIPED or self.draw_success) and self.do_pngs):
+            self.__make_image(h1,h2)      
+        #self.__make_image(h1,h2)
 
   def __make_img_dir(self):    
     if not exists(self.mother_dir):
@@ -406,6 +437,8 @@ class Comparison(Weighted):
       color=kRed
     elif self.status==NULL:
       color=kYellow
+    elif self.status==SKIPED:
+      color=kBlue #check if kBlue exists ;)
     
     lat_text="#scale[.7]{#color[%s]{%s: %2.2f}}" %(color,self.test_name,self.rank)
     lat=TLatex(.1,.91,lat_text)

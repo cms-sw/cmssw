@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: agimbuta $
-# $Date: 2012/07/13 15:34:15 $
-# $Revision: 1.3 $
+# $Author: anorkus $
+# $Date: 2012/10/23 15:10:13 $
+# $Revision: 1.4 $
 
 #
 #                                                                              
@@ -84,6 +84,7 @@ def get_page_header(directory=None,additional_header=""):
     style='img.fail {border:1px solid #ff0000;}\n'+\
           'img.succes {border:1px solid #00ff00;}\n'+\
           'img.null {border:1px solid #ffff00;}\n'+\
+          'img.skiped {border:1px solid #7a7a7a;}\n'+\
           'a.black_link:link {color: #333333}\n'+\
           'a.black_link:hover {color: #737373}\n'+\
           'a.black_link:visited {color: #333333}\n'+\
@@ -166,6 +167,8 @@ def get_dir_stats(directory):
     html+='<li><span class="caps">Null: %.1f%% (%s)</span></li>'%(directory.get_null_rate(),directory.n_nulls)
   if directory.n_fails>0:
     html+='<li><span class="caps">Fail: %.1f%% (%s)</span></li>'%(directory.get_fail_rate(),directory.n_fails)
+  if directory.n_skiped>0:
+    html+='<li><span class="caps">Skipped: %.1f%% (%s)</span></li>'%(directory.get_skiped_rate(),directory.n_skiped)
   html+='</ul>'
   return html
 
@@ -275,13 +278,13 @@ def get_comparisons(category,directory):
   
   # get the right ones
   comparisons= filter (lambda comp: comp.status == cat_states[category] , directory.comparisons) 
-  
   n_comparisons=len(comparisons)    
 
   is_reverse=True
   if category == FAIL:
-    is_reverse=False  
+    is_reverse=False
   comparisons=sorted(comparisons, key=lambda comp:comp.rank, reverse=is_reverse)
+
   
   dir_abs_path="%s/%s/" %(directory.mother_dir,directory.name)
   html_comparisons=""
@@ -420,8 +423,10 @@ def directory2html(directory, hashing, depth=0):
 
   for do_cat,cat in ((directory.n_comp_fails >0,FAIL ),
                      (directory.n_comp_nulls >0,NULL ),
-                     (directory.n_comp_successes >0 and directory.draw_success,SUCCESS )):
-    if do_cat:      
+                     
+                     (directory.n_comp_successes >0 and directory.draw_success,SUCCESS ),
+                     (directory.n_comp_skiped >0,SKIPED)):
+    if do_cat:
       page_html+=get_comparisons(cat,directory)
 
   # Distribution of ranks
@@ -615,7 +620,7 @@ def make_twiki_table(dir_dict,aggregation_rules):
 #-------------------------------------------------------------------------------
 
 def get_pie_tooltip(directory):
-  tooltip="%s\nS:%2.1f%% N:%2.1f%% F:%2.1f%%" %(directory.name,directory.get_success_rate(),directory.get_null_rate(),directory.get_fail_rate())
+  tooltip="%s\nS:%2.1f%% N:%2.1f%% F:%2.1f%% Sk:%2.1f%%" %(directory.name,directory.get_success_rate(),directory.get_null_rate(),directory.get_fail_rate(),directory.get_skiped_rate())
   return tooltip
 
 #-------------------------------------------------------------------------------

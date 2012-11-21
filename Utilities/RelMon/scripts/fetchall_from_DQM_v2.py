@@ -116,6 +116,9 @@ base_url = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/'
 filedir_url = base_url + relvaldir + '/' + releasedir + '/'
 filedir_html = auth_wget(filedir_url)
 
+#auth_wget("https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/Run2012/JetHT/0002029xx/DQM_V0001_R000202950__JetHT__Run2012C-PromptReco-v2__DQM.root")
+#auth_wget("https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelValData/CMSSW_5_3_x/DQM_V0001_R000205921__JetHT__CMSSW_5_3_3_patch1-PR_newconditions_RelVal_R205921_121105-v2__DQM.root")
+
 file_list_re = re.compile(r"<a href='[-./\w]*'>([-./\w]*)<")
 all_files = file_list_re.findall(filedir_html)[1:]  # list of file names
 
@@ -123,7 +126,7 @@ options.mthreads = int(options.mthreads)
 if options.mthreads > 3 or options.mthreads < 1:
     options.mthreads = 3
 
-## Fetch the files, using multi-processing
+### Fetch the files, using multi-processing
 file_res = [re.compile(r) for r in options.regexp.split(',') + [options.release]]
 selected_files = [f for f in all_files if all([r.search(f) for r in file_res])]
 
