@@ -611,7 +611,7 @@ void FastTimerService::postEndJob() {
             << std::right << std::setw(10) << m_paths[name].summary_active  / (double) m_summary_events << "  "
             << name << '\n';
     } else if (m_enable_timing_paths and m_enable_timing_modules) {
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active      Pre-    Inter- Post-mods  Overhead     Total  Path" << '\n';
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  Path" << '\n';
       for (auto const & name: tns.getTrigPaths()) {
         out << "FastReport              "
             << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
@@ -623,7 +623,7 @@ void FastTimerService::postEndJob() {
             << name << '\n';
       }
       out << '\n';
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active      Pre-    Inter- Post-mods  Overhead     Total  EndPath" << '\n';
+      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  EndPath" << '\n';
       for (auto const & name: tns.getEndPaths()) {
         out << "FastReport              "
             << std::right << std::setw(10) << m_paths[name].summary_active        / (double) m_summary_events << " "
