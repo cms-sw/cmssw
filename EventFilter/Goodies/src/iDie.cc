@@ -190,7 +190,7 @@ iDie::iDie(xdaq::ApplicationStub *s)
   //umask for setting permissions of created directories
 
   //flashlists
-  flashRunNumber_.value_=0;
+  flashRunNumber_=0;
   cpuLoadLastLs_=0;
   cpuLoadSentLs_=0;
   std::string cpuInfoSpaceName="filterFarmUsageAndTiming";
@@ -1706,10 +1706,10 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
   if (!runNumber_) return;
   try
   {
-    if (runNumber_>flashRunNumber_.value_)
+    if (runNumber_>flashRunNumber_ && flashRunNumber_>0)
     {
       cpuInfoSpace_->lock();
-      flashRunNumber_.value_=runNumber_;
+      flashRunNumber_=runNumber_;
       cpuInfoSpace_->unlock();
     }
 
