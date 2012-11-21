@@ -1,4 +1,8 @@
 2012-11-21 Srecko Morovic <srecko.morovic@cern.ch>
+	* tag V00-02-22
+	* bugfix of V00-02-21 flashlist run number value
+
+2012-11-21 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-21
 	* fixed run number value in flashlist
