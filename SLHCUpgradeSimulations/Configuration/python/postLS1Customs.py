@@ -29,7 +29,6 @@ def digiEventContent(process):
         process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simMuonRPCDigis_*_*')
         process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
     if hasattr(process,'GENRAWoutput'):
-        print 'ok'
         process.GENRAWoutput.outputCommands.append( 'keep *_simMuonCSCDigis_*_*')
         process.GENRAWoutput.outputCommands.append( 'keep *_simMuonRPCDigis_*_*')
         process.GENRAWoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
@@ -82,3 +81,15 @@ def recoCustoms(process):
 
     return process
 
+def recoOutputCustoms(process):
+
+    alist=['AODSIMoutput','RECOSIMoutput','FEVTSIMoutput']
+    for a in alist:
+        if hasattr(process,a):
+            getattr(process,a).outputCommands.append('keep *_simMuonCSCDigis_*_*')
+            getattr(process,a).outputCommands.append('keep *_simMuonRPCDigis_*_*')
+            getattr(process,a).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
+            getattr(process,a).outputCommands.append('keep *_rawDataCollector_*_*')
+    return process
+
+            
