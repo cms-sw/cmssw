@@ -2166,6 +2166,18 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	int fedId = i_fed->first;
 	//	numfed_incrate++;
 	numfed_incrate = slotMap[fedId];
+	// the following piece of code is used to prepare the HTML clickable map
+	/*
+	double boxinitix=(NUMFED_INCOLUMN-1-(numfed_incrate-1)/NUMFED_INROW)*(NUMFEDCH_INCOLUMN+2)+NUMFEDCH_INCOLUMN+0.9;
+	double boxinitiy=(NUMFED_INROW-1-(numfed_incrate-1)%NUMFED_INROW)*(NUMFEDCH_INROW+1)+NUMFEDCH_INROW+0.9;
+	double boxendix=boxinitix-(NUMFEDCH_INCOLUMN-1)-0.9;
+	double boxendiy=boxinitiy-(NUMFEDCH_INROW-1)-0.9;
+
+	std::cout << "<area shape=\"rect\" coords=\" " 
+		  << ydpixelc(boxinitiy) << "," << 3540-xdpixelc(boxinitix) << "," << ydpixelc(boxendiy) << "," << 3540-xdpixelc(boxendix) 
+		  << "\" href=\"\" title=\"crate " << crate << " slot " << numfed_incrate << " FED " << fedId << "\" /> " << std::endl;
+	*/
+	//
 	for (int nconn=0;nconn<96;nconn++){
 	  int key = fedId*1000+nconn; 
 	  TmApvPair *  apvPair= apvMap[key];
@@ -2188,7 +2200,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
      saveAsSingleLayer=false;
       }
       }
-    }
+  }
     if(filetype=="svg"){
     *savefile << "</g> </svg> </svg> " << std::endl;
     savefile->close();delete savefile;
