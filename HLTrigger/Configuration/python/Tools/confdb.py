@@ -821,12 +821,44 @@ if 'GlobalTag' in %%(dict)s:
 # instrument the menu with the modules and EndPath needed for timing studies
 """
 
-      if not 'FastTimerService' in self.data:
-        self.data += '\n'
-        self.data += '# FastTimerService\n'
+      hasFST = False
+      if 'FastTimerService' in self.data:
+        hasFST = True
+
+      self.data += '\n# configure the FastTimerService\n'
+      if not hasFST:
         self.loadCff('HLTrigger.Timer.FastTimerService_cfi')
-      self.data += '%(process)sFastTimerService.enableTimingSummary = True\n'
-      self.data += '%(process)sFastTimerService.dqmPath             = "HLT/TimerService"\n'
+      self.data += """%(process)sFastTimerService.useRealTimeClock          = False
+%(process)sFastTimerService.enableTimingPaths         = True
+%(process)sFastTimerService.enableTimingModules       = True
+%(process)sFastTimerService.enableTimingExclusive     = True
+%(process)sFastTimerService.enableTimingSummary       = True
+%(process)sFastTimerService.skipFirstPath             = True
+%(process)sFastTimerService.enableDQM                 = True
+%(process)sFastTimerService.enableDQMbyPathActive     = True
+%(process)sFastTimerService.enableDQMbyPathTotal      = True
+%(process)sFastTimerService.enableDQMbyPathOverhead   = True
+%(process)sFastTimerService.enableDQMbyPathDetails    = True
+%(process)sFastTimerService.enableDQMbyPathCounters   = True
+%(process)sFastTimerService.enableDQMbyPathExclusive  = True
+%(process)sFastTimerService.enableDQMbyModule         = True
+%(process)sFastTimerService.enableDQMSummary          = True
+%(process)sFastTimerService.enableDQMbyLuminosity     = True
+%(process)sFastTimerService.enableDQMbyLumiSection    = True
+%(process)sFastTimerService.enableDQMbyProcesses      = False
+%(process)sFastTimerService.dqmTimeRange              =  1000. 
+%(process)sFastTimerService.dqmTimeResolution         =     5. 
+%(process)sFastTimerService.dqmPathTimeRange          =   100. 
+%(process)sFastTimerService.dqmPathTimeResolution     =     0.5
+%(process)sFastTimerService.dqmModuleTimeRange        =    40. 
+%(process)sFastTimerService.dqmModuleTimeResolution   =     0.2
+%(process)sFastTimerService.dqmLuminosityRange        = 1e+34
+%(process)sFastTimerService.dqmLuminosityResolution   = 1e+31
+%(process)sFastTimerService.dqmLumiSectionsRange      =  2500
+%(process)sFastTimerService.dqmPath                   = 'HLT/TimerService'
+%(process)sFastTimerService.luminosityProduct         = cms.untracked.InputTag( 'hltScalersRawToDigi' )
+%(process)sFastTimerService.supportedProcesses        = cms.untracked.vuint32( )
+"""
 
       self.data += """
 # FastTimerServiceClient
