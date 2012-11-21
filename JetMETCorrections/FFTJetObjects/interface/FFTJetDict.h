@@ -24,11 +24,12 @@ template<class Key,class T,class Compare,class Allocator>
 T& FFTJetDict<Key,T,Compare,Allocator>::
 operator[](const Key& key) const
 {
-    typename FFTJetDict<Key,T,Compare,Allocator>::iterator it = find(key);
+    typename FFTJetDict<Key,T,Compare,Allocator>::const_iterator it = 
+        this->find(key);
     if (it == std::map<Key,T,Compare,Allocator>::end())
         throw cms::Exception("KeyNotFound")
             << "FFTJetDict: key \"" << key << "\" not found\n";
-    return it->second;
+    return const_cast<T&>(it->second);
 }
 
 #endif // JetMETCorrections_FFTJetObjects_FFTJetDict_h
