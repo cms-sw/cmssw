@@ -799,20 +799,6 @@ if 'GlobalTag' in %%(dict)s:
 """
       self.data = re.sub(r'.*cms\.(End)?Path.*', text + r'\g<0>', self.data, 1)
 
-      # load additional conditions needed by hltGetConditions
-      self.loadAdditionalConditions('add XML geometry to keep hltGetConditions happy',
-        {
-          'record'  : 'GeometryFileRcd',
-          'tag'     : 'XMLFILE_Geometry_311YV1_Ideal_mc',
-          'label'   : 'Ideal',
-          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
-        }, {
-          'record'  : 'GeometryFileRcd',
-          'tag'     : 'XMLFILE_Geometry_311YV1_Extended_mc',
-          'label'   : 'Extended',
-          'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
-        }
-      )
 
     # instrument the menu with the Service, EDProducer and EndPath needed for timing studies
     # FIXME in a cff, should also update the HLTSchedule
