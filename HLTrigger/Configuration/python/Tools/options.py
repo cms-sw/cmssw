@@ -109,13 +109,11 @@ class HLTProcessOptions(object):
       object.__setattr__(self, 'open',       True)
       object.__setattr__(self, 'unprescale', True)
     elif name is 'profiling' and value:
-      # '--profiling' implies implies '--no-output'
+      # '--profiling'
       object.__setattr__(self, 'profiling',  True)
-      object.__setattr__(self, 'output',     'none')
     elif name is 'timing' and value:
-      # '--timing' implies '--profiling' and '--no-output'
+      # '--timing' implies '--profiling'
       object.__setattr__(self, 'timing',     True)
       object.__setattr__(self, 'profiling',  True)
-      object.__setattr__(self, 'output',     'none')
     else:
       object.__setattr__(self, name, value)
