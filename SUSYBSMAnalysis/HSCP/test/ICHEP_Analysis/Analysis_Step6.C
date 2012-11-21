@@ -14,7 +14,7 @@ class stAllInfo{
    public:
    double Mass, MassMean, MassSigma, MassCut;
    double XSec_Th, XSec_Err, XSec_Exp, XSec_ExpUp, XSec_ExpDown, XSec_Exp2Up, XSec_Exp2Down, XSec_Obs;
-   double  Eff, Eff_SYSTP, Eff_SYSTI, Eff_SYSTM, Eff_SYSTT, Eff_SYSTPU;
+  double  Eff, Eff_SYSTP, Eff_SYSTI, Eff_SYSTM, Eff_SYSTT, Eff_SYSTPU, TotalUnc;
    double Significance; double XSec_5Sigma;
    double Index, WP_Pt, WP_I, WP_TOF;
    float  NData, NPred, NPredErr, NSign;
@@ -45,6 +45,7 @@ class stAllInfo{
       fscanf(pFile,"Eff_SystM    : %lf\n",&Eff_SYSTM);
       fscanf(pFile,"Eff_SystT    : %lf\n",&Eff_SYSTT);
       fscanf(pFile,"Eff_SystPU   : %lf\n",&Eff_SYSTPU);
+      fscanf(pFile,"TotalUnc     : %lf\n",&TotalUnc);
       fscanf(pFile,"Signif       : %lf\n",&Significance);
       fscanf(pFile,"XSec_Th      : %lf\n",&XSec_Th);
       fscanf(pFile,"XSec_Exp     : %lf\n",&XSec_Exp);
@@ -79,6 +80,7 @@ class stAllInfo{
       fprintf(pFile,"Eff_SystM    : %f\n",Eff_SYSTM);
       fprintf(pFile,"Eff_SystT    : %f\n",Eff_SYSTT);
       fprintf(pFile,"Eff_SystPU   : %f\n",Eff_SYSTPU);
+      fprintf(pFile,"TotalUnc     : %f\n",TotalUnc);
       fprintf(pFile,"Signif       : %f\n",Significance);
       fprintf(pFile,"XSec_Th      : %f\n",XSec_Th);
       fprintf(pFile,"XSec_Exp     : %f\n",XSec_Exp);
@@ -554,7 +556,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    Graphs=0;
    for(unsigned int k=0; k<modelVector.size(); k++){
      TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,HQPattern, modelVector[k], modelMap[modelVector[k]]);
-     if(Uncertainty!=NULL && useSample(5, modelVector[k])) {
+     if(Uncertainty!=NULL && useSample(4, modelVector[k])) {
        Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
        HQSystGraphs->Add(Uncertainty,"C");
        LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
@@ -1182,6 +1184,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
    double* SystT     = new double   [modelSample.size()];
    double* SystTr    = new double   [modelSample.size()];
    double* SystRe    = new double   [modelSample.size()];
+   double* SystMB    = new double   [modelSample.size()];
    double* SystTotal = new double   [modelSample.size()];
 
    for(unsigned int s=0;s<modelSample.size();s++){
@@ -1194,18 +1197,31 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       Mass[N]        = tmp.Mass;
       SystP[N]       = (tmp.Eff_SYSTP  - tmp.Eff)/tmp.Eff;
       SystI[N]       = (tmp.Eff_SYSTI  - tmp.Eff)/tmp.Eff;
+      if(modelSample[s].ModelName().find("1o3")!=string::npos) SystI[N]=-0.25;
+      if(modelSample[s].ModelName().find("2o3")!=string::npos) SystI[N]=-0.10;
+
       SystPU[N]      = (tmp.Eff_SYSTPU - tmp.Eff)/tmp.Eff;
       SystT[N]       = (tmp.Eff_SYSTT  - tmp.Eff)/tmp.Eff;
       SystRe[N]      = -0.02;
-      if(IsNeutral && SQRTS==8) SystTr[N] = -0.01;
-      else if(SQRTS==7) SystTr[N] = -0.05;
-      else if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.08*0.04);
-      else if(modelSample[s].ModelName().find("2o3")!=string::npos) SystTr[N] = -1*sqrt(0.03*0.03 + 0.08*0.04);
-      else SystTr[N] = -1*sqrt(0.01*0.01 + 0.04*0.04);
+      SystMB[N]=0.;
+      if((modelSample[s].ModelName().find("Q2")!=string::npos && modelSample[s].ModelName().find("Q2o3")==string::npos) || modelSample[s].ModelName().find("Q3")!=string::npos || modelSample[s].ModelName().find("Q4")!=string::npos || modelSample[s].ModelName().find("Q5")!=string::npos) SystMB[N]=-0.2;
+
+      if(SQRTS==7) {
+	if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.02*0.02 + 0.05*0.05);
+	else if(modelSample[s].ModelName().find("2o3")!=string::npos) SystTr[N] = -1*sqrt(0.03*0.03 + 0.02*0.02 + 0.05*0.05);
+	else if(IsNeutral) SystTr[N] = -0.05;
+	else SystTr[N] = -1*sqrt(0.05*0.05 + 0.02*0.02 + 0.02*0.02);
+      }
+      else {
+	if(IsNeutral) SystTr[N] = -0.01;
+	else if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.04*0.04 + 0.05*0.05);
+	else if(modelSample[s].ModelName().find("2o3")!=string::npos) SystTr[N] = -1*sqrt(0.03*0.03 + 0.04*0.04 + 0.05*0.05);
+	else SystTr[N] = -1*sqrt(0.05*0.05 + 0.04*0.04 + 0.01*0.01);
+      }
 
 //      double Ptemp=max(SystP[N], 0.0), Itemp=max(SystI[N], 0.0), PUtemp=max(SystPU[N], 0.0), Ttemp=max(SystT[N], 0.0);
       double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
-      SystTotal[N] = -1*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp + SystTr[N]*SystTr[N] + SystRe[N]*SystRe[N]);
+      SystTotal[N] = -1*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp + SystTr[N]*SystTr[N] + SystRe[N]*SystRe[N] + SystMB[N]*SystMB[N]);
 
       if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f"        ,modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N]           , SystTotal[N]);  
       else          fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f",modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N], SystT[N], SystTotal[N]);
@@ -1232,6 +1248,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
    TGraph* graphSystT = NULL;
    TGraph* graphSystTr = NULL;
    TGraph* graphSystRe = NULL;
+   TGraph* graphSystMB = NULL;
    TGraph* graphSystTotal = NULL;
 
    if(N>0) {
@@ -1243,6 +1260,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      graphSystT = new TGraph(N,Mass,SystT);
      graphSystTr = new TGraph(N,Mass,SystTr);
      graphSystRe = new TGraph(N,Mass,SystRe);
+     graphSystMB = new TGraph(N,Mass,SystMB);
      graphSystTotal = new TGraph(N,Mass,SystTotal);
      TMultiGraph* SystGraphs = new TMultiGraph();
 
@@ -1254,6 +1272,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      graphSystT->SetLineColor(Color[4]);      graphSystT->SetMarkerColor(Color[4]);       graphSystT->SetMarkerStyle(Marker[4]); graphSystT->SetLineWidth(2);
      graphSystTr->SetLineColor(Color[5]);     graphSystTr->SetMarkerColor(Color[5]);      graphSystTr->SetMarkerStyle(Marker[5]);graphSystTr->SetLineWidth(2);
      graphSystRe->SetLineColor(Color[6]);     graphSystRe->SetMarkerColor(Color[6]);      graphSystRe->SetMarkerStyle(Marker[6]);graphSystRe->SetLineWidth(2);
+     graphSystMB->SetLineColor(Color[7]);     graphSystMB->SetMarkerColor(Color[7]);      graphSystMB->SetMarkerStyle(Marker[7]);graphSystMB->SetLineWidth(2);
      SystGraphs->Add(graphSystP,"C");
 
      SystGraphs->Add(graphSystTr,"C");
@@ -1261,6 +1280,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      if(TypeMode!=3)SystGraphs->Add(graphSystI,"C");
      SystGraphs->Add(graphSystPU,"C");
      if(TypeMode!=0 && TypeMode!=5)SystGraphs->Add(graphSystT,"C");
+     if(TypeMode==4) SystGraphs->Add(graphSystMB,"C");
      SystGraphs->Add(graphSystTotal,"P");
 
      SystGraphs->Draw("A");
@@ -1268,7 +1288,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      SystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
      SystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
      SystGraphs->GetYaxis()->SetTitleOffset(1.70);
-     SystGraphs->GetYaxis()->SetRangeUser(-0.35, 0.35);
+     SystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.35);
      SystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
      TLegend* LEG = new TLegend(0.35,0.9,0.70,0.55);
@@ -1277,6 +1297,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      LEG->SetBorderSize(0);
      LEG->AddEntry(graphSystTr,  "Trigger" ,"L");
      LEG->AddEntry(graphSystRe,  "Reconstruction" ,"L");
+     if(TypeMode==4)LEG->AddEntry(graphSystMB,  "MB" ,"L");
      LEG->AddEntry(graphSystP,  "P" ,"L");
      if(TypeMode!=3)LEG->AddEntry(graphSystI,  "dE/dx" ,"L");
      LEG->AddEntry(graphSystPU,  "Pile Up" ,"L");
@@ -1887,17 +1908,6 @@ void makeDataCard(string outpath, string rootPath, string ChannelName, string Si
 
    double LumiUnc   = (SQRTS==7?1.022:1.044);
    
-   if(TypeMode==0){
-            if(SignalName.find("1o3")!=string::npos){ SignalUnc=1.20;
-      }else if(SignalName.find("2o3")!=string::npos){ SignalUnc=1.20;
-      }
-   }else if(TypeMode==5){
-            if(SignalName.find("1o3")!=string::npos){ SignalUnc=1.25;
-      }else if(SignalName.find("2o3")!=string::npos){ SignalUnc=1.10;
-      }
-   }
-
-
    FILE* pFile = fopen(outpath.c_str(), "w");
    fprintf(pFile, "imax 1\n");
    fprintf(pFile, "jmax *\n");
@@ -2165,12 +2175,43 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    }
 
    //Need to set what the systematic uncertainty on signal is
-   double SignalUnc=1.07;
-   if(TypeMode==3) {
-     if(result.Mass>599) SignalUnc=1.1;
-     else if(result.Mass>399) SignalUnc=1.15;
-     else SignalUnc=1.2;
+   bool IsNeutral = (signal.find("N")!=std::string::npos);
+
+   //Reconstruction Efficiency uncertainty
+   double UncEffP=(EffP-Eff)/Eff;
+   double UncEffI=(EffI-Eff)/Eff;
+   double UncEffPU=(EffPU-Eff)/Eff;
+   double UncEffT=(EffT-Eff)/Eff;
+   double UncEffRe  = -0.02;
+   double UncEffTr  = -10;
+   double UncEffMB  = 0.0;
+
+   //Reset Reco and dEdx uncertainty for fractional as dedicated samples for this
+   if(signal.find("1o3")!=string::npos) {UncEffI= -0.25; UncEffRe=0.;}
+   if(signal.find("2o3")!=string::npos) {UncEffI= -0.10; UncEffRe=0.;}
+
+   //Reset MB for mCHAMP
+   if((signal.find("Q2")!=string::npos && signal.find("Q2o3")==string::npos) || signal.find("Q3")!=string::npos || signal.find("Q4")!=string::npos || signal.find("Q5")!=string::npos) UncEffMB=-0.2;
+
+   //Trigger efficiency uncertainty
+   if(SQRTS==7) {
+     //Numbers here are 0.05 for muon reconstruction uncertainty, 0.02 for muon trigger synchronization, 0.05 for MET charge suppresses
+     //and 0.02 for MET non charge suppressed
+     if(signal.find("1o3")!=string::npos) UncEffTr = -1*sqrt(0.15*0.15 + 0.02*0.02 + 0.05*0.05);
+     else if(signal.find("2o3")!=string::npos) UncEffTr = -1*sqrt(0.03*0.03 + 0.02*0.02 + 0.05*0.05);
+     else if(IsNeutral) UncEffTr = -0.05;
+     else UncEffTr = -1*sqrt(0.05*0.05 + 0.02*0.02 + 0.02*0.02);
    }
+   else {
+     //Numbers here are 0.05 for muon reconstruction uncertainty, 0.04 for muon trigger synchronization, 0.01 for MET (charge suppresses or not)
+     if(IsNeutral) UncEffTr = -0.01;
+     else if(signal.find("1o3")!=string::npos) UncEffTr = -1*sqrt(0.15*0.15 + 0.04*0.04 + 0.05*0.05);
+     else if(signal.find("2o3")!=string::npos) UncEffTr = -1*sqrt(0.03*0.03 + 0.04*0.04 + 0.05*0.05);
+     else UncEffTr = -1*sqrt(0.05*0.05 + 0.04*0.04 + 0.01*0.01);
+   }
+
+   double SignalUnc = 1 + sqrt(UncEffP*UncEffP + UncEffI*UncEffI + UncEffPU*UncEffPU + UncEffT*UncEffT + UncEffTr*UncEffTr + UncEffRe*UncEffRe + UncEffMB*UncEffMB);
+   result.TotalUnc = SignalUnc-1;
 
    //build the combine datacard, the same code is used both for cut&count and shape base
    string datacardPath = "/tmp/shape_"+signal+".dat";
