@@ -605,6 +605,52 @@ reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&
      return new DeDxData(P, dedxSObj->numberOfSaturatedMeasurements(), size);
 }
 
+reco::DeDxData* dEdxEstimOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj){
+     fwlite::Handle<HSCPDeDxInfoValueMap> dEdxHitsH;
+     dEdxHitsH.getByLabel(ev, "dedxHitInfo");
+     if(!dEdxHitsH.isValid()){printf("Invalid dEdxHitInfo\n");return NULL;}
+     const ValueMap<HSCPDeDxInfo>& dEdxHitMap = *dEdxHitsH.product();
+
+     const HSCPDeDxInfo& hscpHitsInfo = dEdxHitMap.get((size_t)track.key());
+
+     std::vector<double> vect_charge;
+     for(unsigned int h=0;h<hscpHitsInfo.charge.size();h++){
+        DetId detid(hscpHitsInfo.detIds[h]);  
+        if(detid.subdetId()<3)continue; // skip pixels
+        if(!hscpHitsInfo.shapetest[h])continue;
+
+        double Norm = (detid.subdetId()<3)?3.61e-06:3.61e-06*265;
+        Norm*=10.0; //mm --> cm
+
+        //Remove hits close to the border
+        //for unknown reasons, localx,localy, modwidth,modlength is not saved in all ntuples!
+        //double absDistEdgeXNorm = 1-fabs(hscpHitsInfo.localx[h])/(hscpHitsInfo.modwidth [h]/2.0);
+        //double absDistEdgeYNorm = 1-fabs(hscpHitsInfo.localy[h])/(hscpHitsInfo.modlength[h]/2.0);
+        //if(detid.subdetId()==1 && (absDistEdgeXNorm<0.05  || absDistEdgeYNorm<0.01)) continue;
+        //if(detid.subdetId()==2 && (absDistEdgeXNorm<0.05  || absDistEdgeYNorm<0.01)) continue; 
+        //if(detid.subdetId()==3 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.04)) continue;  
+        //if(detid.subdetId()==4 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.02)) continue;  
+        //if(detid.subdetId()==5 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.02 || absDistEdgeYNorm>0.97)) continue;
+        //if(detid.subdetId()==6 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.03 || absDistEdgeYNorm>0.8)) continue;
+
+        vect_charge.push_back(Norm*hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
+//        printf("%f ", Norm*hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
+     }
+     int size = vect_charge.size();
+
+     double result=0;
+
+     //harmonic 2
+     double expo = -2;
+     for(int i = 0; i< size; i ++){
+        result+=pow(vect_charge[i],expo); 
+     }
+     result = (size>0)?pow(result/size,1./expo):0.;
+//     printf(" : %f\n",result);
+
+     return new DeDxData(result, dedxSObj->numberOfSaturatedMeasurements(), size);
+}
+
 
 TH3F* loadDeDxTemplate(string path){
    TFile* InputFile = new TFile(path.c_str());
