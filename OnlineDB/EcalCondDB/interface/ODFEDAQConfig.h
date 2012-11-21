@@ -39,13 +39,6 @@ class ODFEDAQConfig : public IODConfig {
   inline void setTriggerBadTTId(int x) { m_tbtt = x; }
   inline int getTriggerBadTTId() const { return m_tbtt; }
 
-  inline void setTowersToBypass(int x) { m_tby = x; }
-  inline int getTowersToBypass() const { return m_tby; }
-  inline void setVFEConfig(int x) { m_vfe = x; }
-  inline int getVFEConfig() const { return m_vfe; }
-  inline void setGOLConfig(int x) { m_gol = x; }
-  inline int getGOLConfig() const { return m_gol; }
-
   inline void setComment(std::string x) { m_com = x; }
   inline std::string getComment() const { return m_com; }
 
@@ -76,13 +69,7 @@ class ODFEDAQConfig : public IODConfig {
   int m_tbtt;
   int m_version;
   std::string m_com;
-
-
-
-  int m_tby;
-  int m_vfe;
-  int m_gol;
-
+  
 };
 
 #endif

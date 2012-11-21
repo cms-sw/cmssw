@@ -5,35 +5,14 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripConfigParser.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-
 #include <iostream>
 
 //
 // -- Constructor
 // 
-/*
 SiStripTrackerMapCreator::SiStripTrackerMapCreator() {
-  trackerMap_ = 0;
-  if(!edm::Service<TkDetMap>().isAvailable()){
-    edm::LogError("TkHistoMap") <<
-      "\n------------------------------------------"
-      "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
-      "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")"
-      "\n------------------------------------------";
-  }
-  tkDetMap_=edm::Service<TkDetMap>().operator->();
-}
-*/
-SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): eSetup_(eSetup) {
   trackerMap_ = 0;
   if(!edm::Service<TkDetMap>().isAvailable()){
     edm::LogError("TkHistoMap") <<
@@ -54,10 +33,7 @@ SiStripTrackerMapCreator::~SiStripTrackerMapCreator() {
 // -- Create Geometric and Fed Tracker Map
 //
 void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset, 
-				      DQMStore* dqm_store, std::string& map_type) {
-
-  edm::ESHandle< SiStripFedCabling > fedcabling;
-  eSetup_.get<SiStripFedCablingRcd>().get(fedcabling);
+     const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store, std::string& map_type) {
 
   if (trackerMap_) delete trackerMap_;
   trackerMap_ = new TrackerMap(tkmapPset, fedcabling);
@@ -65,11 +41,9 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   trackerMap_->setTitle(tmap_title);
  
   nDet     = 0;
-  tkMapLog_ = false;
-  tkMapMax_ = 0.0; 
-  tkMapMin_ = 0.0; 
-  useSSQuality_ = false;
-  ssqLabel_ = "";
+  tkMapLog = false;
+  tkMapMax = 0.0; 
+  tkMapMin = 0.0; 
 
   if (map_type == "QTestAlarm") {
     trackerMap_->fillc_all_blank();
@@ -101,21 +75,16 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
 // -- Create Tracker Map for Offline process
 //
 void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapPset, 
+						const edm::ESHandle<SiStripFedCabling>& fedcabling,
 						DQMStore* dqm_store, std::string& map_type){
-
-  edm::ESHandle< SiStripFedCabling > fedcabling;
-  eSetup_.get<SiStripFedCablingRcd>().get(fedcabling);
-
   if (trackerMap_) delete trackerMap_;
   trackerMap_ = new TrackerMap(tkmapPset,fedcabling);
 
-  tkMapLog_ = tkmapPset.getUntrackedParameter<bool>("logScale",false);
-  useSSQuality_ = tkmapPset.getUntrackedParameter<bool>("useSSQuality",false);
-  ssqLabel_ = tkmapPset.getUntrackedParameter<std::string>("ssqLabel","");
+  tkMapLog = tkmapPset.getUntrackedParameter<bool>("logScale",false);
   bool tkMapPSU = tkmapPset.getUntrackedParameter<bool>("psuMap",false);
  
   std::string tmap_title = " Tracker Map from  " + map_type;
-  if(tkMapLog_) tmap_title += ": Log10 scale";
+  if(tkMapLog) tmap_title += ": Log10 scale";
   trackerMap_->setTitle(tmap_title);
 
   setTkMapFromHistogram(dqm_store, map_type);
@@ -124,19 +93,19 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
 
   // check manual setting
   
-  if(tkmapPset.exists("mapMax")) tkMapMax_ = tkmapPset.getUntrackedParameter<double>("mapMax");
-  if(tkmapPset.exists("mapMin")) tkMapMin_ = tkmapPset.getUntrackedParameter<double>("mapMin");
+  if(tkmapPset.exists("mapMax")) tkMapMax = tkmapPset.getUntrackedParameter<double>("mapMax");
+  if(tkmapPset.exists("mapMin")) tkMapMin = tkmapPset.getUntrackedParameter<double>("mapMin");
   
-  std::cout << "Ready to save TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_ << std::endl;
+  std::cout << "Ready to save TkMap " << map_type << " with range set to " << tkMapMin << " - " << tkMapMax << std::endl;
   
-  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+".svg");  
-  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+".png",4500,2400);
+  trackerMap_->save(true, tkMapMin,tkMapMax, map_type+".svg");  
+  trackerMap_->save(true, tkMapMin,tkMapMax, map_type+".png",4500,2400);
 
   if(tkMapPSU) {
 
-    std::cout << "Ready to save PSU TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_ << std::endl;
-    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+"_psu.svg");
-    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+"_psu.png",6000,3200);
+    std::cout << "Ready to save PSU TkMap " << map_type << " with range set to " << tkMapMin << " - " << tkMapMax << std::endl;
+    trackerMap_->save_as_psutrackermap(true, tkMapMin,tkMapMax, map_type+"_psu.svg");
+    trackerMap_->save_as_psutrackermap(true, tkMapMin,tkMapMax, map_type+"_psu.png",6000,3200);
 
   }
 
@@ -176,8 +145,8 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
   subdet_folder.push_back("TID/side_2");
 
   nDet     = 0;
-  tkMapMax_ = 0.0; 
-  tkMapMin_ = 0.0; 
+  tkMapMax = 0.0; 
+  tkMapMin = 0.0; 
 
   for (std::vector<std::string>::const_iterator it = subdet_folder.begin(); it != subdet_folder.end(); it++) {
     std::string dname = mechanicalview_dir + "/" + (*it);
@@ -209,11 +178,6 @@ void SiStripTrackerMapCreator::setTkMapFromHistogram(DQMStore* dqm_store, std::s
   dqm_store->cd();
 }
 void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, MonitorElement* me, std::string& htype) {
-
-  edm::ESHandle<SiStripQuality> ssq;
-
-  if(useSSQuality_) { eSetup_.get<SiStripQualityRcd>().get(ssqLabel_,ssq);  }
-
   std::string name  = me->getName();
   std::string lname = name.substr(name.find("TkHMap_")+7);  
   lname = lname.substr(lname.find("_T")+1);
@@ -223,6 +187,10 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
     uint32_t det_id= (*idet);
     if (det_id <= 0) continue;
     nDet++;
+    std::ostringstream comment;
+    uint32_t flag = 0;
+    flag = getDetectorFlagAndComment(dqm_store, det_id, comment);
+    trackerMap_->setText(det_id, comment.str());
     const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id);
     float fval = 0.0;
     if ( (name.find("NumberOfOfffTrackCluster") != std::string::npos) || 
@@ -234,20 +202,15 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
     } else  fval = me->getBinContent(xyval.ix, xyval.iy);
     if (htype == "QTestAlarm") {
       int rval, gval, bval;
-      std::ostringstream comment;
-      uint32_t flag = 0;
-      flag = getDetectorFlagAndComment(dqm_store, det_id, comment);
       SiStripUtility::getDetectorStatusColor(flag, rval, gval, bval);
-      if(useSSQuality_ && ssq->IsModuleBad(det_id)) { rval=255; gval=255; bval = 0;}
       trackerMap_->fillc(det_id, rval, gval, bval);
-      trackerMap_->setText(det_id, comment.str());
     } else {
       if (fval == 0.0) trackerMap_->fillc(det_id,255, 255, 255);  
       else {
-        if(tkMapLog_) fval = log(fval)/log(10);
+        if(tkMapLog) fval = log(fval)/log(10);
  	trackerMap_->fill_current_val(det_id, fval);
       }
-      tkMapMax_ += fval;
+      tkMapMax += fval;
     }
   }
 } 
@@ -255,27 +218,27 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
 // -- Get Tracker Map Fill Range
 //
 void SiStripTrackerMapCreator::setTkMapRange(std::string& map_type) {
-  tkMapMin_ = 0.0;
-  if (tkMapMax_ == 0.0) { 
-    if (map_type.find("FractionOfBadChannels") != std::string::npos)        tkMapMax_ = 1.0;
-    else if (map_type.find("NumberOfCluster") != std::string::npos)         tkMapMax_ = 0.01;
-    else if (map_type.find("NumberOfDigi") != std::string::npos)            tkMapMax_ = 0.6;
-    else if (map_type.find("NumberOfOffTrackCluster") != std::string::npos) tkMapMax_ = 100.0;
-    else if (map_type.find("NumberOfOnTrackCluster") != std::string::npos)  tkMapMax_ = 50.0;
-    else if (map_type.find("StoNCorrOnTrack") != std::string::npos)         tkMapMax_ = 200.0;
+  tkMapMin = 0.0;
+  if (tkMapMax == 0.0) { 
+    if (map_type.find("FractionOfBadChannels") != std::string::npos)        tkMapMax = 1.0;
+    else if (map_type.find("NumberOfCluster") != std::string::npos)         tkMapMax = 0.01;
+    else if (map_type.find("NumberOfDigi") != std::string::npos)            tkMapMax = 0.6;
+    else if (map_type.find("NumberOfOffTrackCluster") != std::string::npos) tkMapMax = 100.0;
+    else if (map_type.find("NumberOfOnTrackCluster") != std::string::npos)  tkMapMax = 50.0;
+    else if (map_type.find("StoNCorrOnTrack") != std::string::npos)         tkMapMax = 200.0;
   } else {
-    tkMapMax_ = tkMapMax_/nDet*1.0;
-    tkMapMax_ = tkMapMax_ * 2.5;
+    tkMapMax = tkMapMax/nDet*1.0;
+    tkMapMax = tkMapMax * 2.5;
  }
-  trackerMap_->setRange(tkMapMin_, tkMapMax_);
+  trackerMap_->setRange(tkMapMin, tkMapMax);
 }
 void SiStripTrackerMapCreator::setTkMapRangeOffline() {
-  tkMapMin_ = 0.0;
-  if (tkMapMax_ != 0.0) { 
-    tkMapMax_ = tkMapMax_/nDet*1.0;
-    tkMapMax_ = tkMapMax_ * 2.5;
+  tkMapMin = 0.0;
+  if (tkMapMax != 0.0) { 
+    tkMapMax = tkMapMax/nDet*1.0;
+    tkMapMax = tkMapMax * 2.5;
  }
-  trackerMap_->setRange(tkMapMin_, tkMapMax_);
+  trackerMap_->setRange(tkMapMin, tkMapMax);
 }
 //
 // -- Get Flag and status Comment

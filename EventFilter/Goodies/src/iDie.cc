@@ -2,9 +2,6 @@
 
 #include "xdaq/NamespaceURI.h"
 
-#include "xdata/InfoSpaceFactory.h"
-#include "toolbox/task/TimerFactory.h"
-
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
 #include "xoap/domutils.h"
@@ -60,9 +57,6 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , instance_(0)
   , runNumber_(0)
   , lastRunNumberSet_(0)
-  , runActive_(false)
-  , runTS_(0)
-  , latencyTS_(0)
   , dqmCollectorHost_()
   , dqmCollectorPort_()
   , totalCores_(0)
@@ -93,7 +87,6 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , dqmService_(nullptr)
   , dqmStore_(nullptr)
   , dqmEnabled_(false)
-  , debugMode_(false)
   , saveLsInterval_(10)
   , ilumiprev_(0)
   , dqmSaveDir_("")
@@ -142,7 +135,6 @@ iDie::iDie(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("dqmFilesWritableByAll",    &dqmFilesWritable_        );
   ispace->fireItemAvailable("dqmTopLevelFolder",        &topLevelFolder_          );
   ispace->fireItemAvailable("dqmEnabled",               &dqmEnabled_              );
-  ispace->fireItemAvailable("debugMode",                &debugMode_               );
 
   // timestamps
   lastModuleLegendaMessageTimeStamp_.tv_sec=0;
@@ -188,64 +180,8 @@ iDie::iDie(xdaq::ApplicationStub *s)
   nbSubsClasses = epInstances.size();
   lsHistory = new std::deque<lsStat*>[nbSubsClasses];
   //umask for setting permissions of created directories
-
-  //flashlists
-  flashRunNumber_.value_=0;
-  cpuLoadLastLs_=0;
-  cpuLoadSentLs_=0;
-  std::string cpuInfoSpaceName="evf-idie-cpu-load";
-  toolbox::net::URN urn = this->createQualifiedInfoSpace(cpuInfoSpaceName);
-  cpuInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
-  cpuInfoSpace_->fireItemAvailable("run",&flashRunNumber_);
-  cpuInfoSpace_->fireItemAvailable("lumi",&flashLoadLs_);
-  cpuInfoSpace_->fireItemAvailable("load",&flashLoad_);
-  cpuInfoSpace_->fireItemAvailable("loadPS",&flashLoadPS_);
-  cpuInfoSpace_->fireItemAvailable("evttime7",&flashLoadTime7_);
-  cpuInfoSpace_->fireItemAvailable("evttime12",&flashLoadTime12_);
-  cpuInfoSpace_->fireItemAvailable("evttime16",&flashLoadTime16_);
-  cpuInfoSpace_->fireItemAvailable("rate",&flashLoadRate_);
-
-  flashLoadMax_.value_=0;
-  cpuInfoSpaceName="evf-idie-cpu-max-load";
-  urn = this->createQualifiedInfoSpace(cpuInfoSpaceName);
-  cpuInfoSpaceMax_ = xdata::getInfoSpaceFactory()->get(urn.toString());
-  cpuInfoSpaceMax_->fireItemAvailable("run",&flashRunNumber_);
-  cpuInfoSpaceMax_->fireItemAvailable("lumi",&flashLoadMaxLs_);
-  cpuInfoSpaceMax_->fireItemAvailable("load",&flashLoadMax_);
-  cpuInfoSpaceMax_->fireItemAvailable("loadPS",&flashLoadMaxPS_);
-  cpuInfoSpaceMax_->fireItemAvailable("evttime7",&flashLoadMaxTime7_);
-  cpuInfoSpaceMax_->fireItemAvailable("evttime12",&flashLoadMaxTime12_);
-  cpuInfoSpaceMax_->fireItemAvailable("evttime16",&flashLoadMaxTime16_);
-  cpuInfoSpaceMax_->fireItemAvailable("rate",&flashLoadMaxRate_);
-
-
-  monNames_.push_back("run");
-  monNames_.push_back("lumi");
-  monNames_.push_back("load");
-  monNames_.push_back("loadPS");
-  monNames_.push_back("evttime7");
-  monNames_.push_back("evttime12");
-  monNames_.push_back("evttime16");
-  monNames_.push_back("evttimerate");
-
-
-
-  //be permissive for written files
   umask(000);
 
-  //start flashlist updater timer
-  try {
-   toolbox::task::Timer * timer = toolbox::task::getTimerFactory()->createTimer("xmas-iDie-updater");
-   toolbox::TimeInterval timerInterval;
-   timerInterval.fromString("PT15S");
-   toolbox::TimeVal timerStart;
-   timerStart = toolbox::TimeVal::gettimeofday();
-   //timer->start();
-   timer->scheduleAtFixedRate( timerStart, this, timerInterval, 0, "xmas-iDie-producer" );
-  }
-  catch (xdaq::exception::Exception& e) {
-    LOG4CPLUS_WARN(getApplicationLogger(), e.what());
-  }
 }
 
 
@@ -265,8 +201,6 @@ void iDie::actionPerformed(xdata::Event& e)
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "New Run was started - iDie will reset");
       reset();
-      runActive_=true;
-      setRunStartTimeStamp();
 
       dqmState_ = "Prepared";
       if (dqmEnabled_.value_) { 
@@ -318,21 +252,8 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     // generate correct return state string
     std::string state;
     if(commandName == "Configure") {dqmState_ = "Ready"; state = "Ready";}
-    else if(commandName == "Enable" || commandName == "Start") {
-      dqmState_ = "Enabled"; state = "Enabled";
-      setRunStartTimeStamp();
-
-    }
+    else if(commandName == "Enable") {dqmState_ = "Enabled"; state = "Enabled";}
     else if(commandName == "Stop" || commandName == "Halt") {
-      runActive_=false;
-      //EventInfo:reset timestamps
-      runTS_=0.;
-      latencyTS_=0;
-      //cleanup flashlist data
-      loadMaxLs_=0;
-      loadMax_=0.;
-      cpuLoadLastLs_=0;
-      cpuLoadSentLs_=0;
       //remove histograms
       std::cout << " Stopping/Halting iDie. command=" << commandName << " initialized=" << meInitialized_ << std::endl;
       if (meInitialized_) {
@@ -391,7 +312,6 @@ void iDie::defaultWeb(xgi::Input *in,xgi::Output *out)
       run = el1[0].getIntegerValue();
       if(run > runNumber_.value_ || runNumber_.value_==0){
 	runNumber_.value_ = run;
-	runActive_=true;
 	if(runNumber_.value_!=0) 
 	  {
 	    reset();
@@ -846,19 +766,7 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 	  lumisecId_->Fill(currentLs_[nbsIdx]);
 	  struct timeval now;
 	  gettimeofday(&now, 0);
-	  double time_now = now.tv_sec + 1e-6*now.tv_usec;
-	  eventTimeStamp_->Fill( time_now );
-
-	  //check if run timestamp is set
-	  double runTS = runTS_;
-	  if (runTS==0.)
-            runTS_ = time_now;
-
-	  runStartTimeStamp_->Fill(runTS);
-
-	  processLatencyMe_->Fill(time_now-latencyTS_);
-	  latencyTS_=time_now;
-	  processTimeStampMe_->Fill(time_now);
+	  eventTimeStamp_->Fill(  now.tv_sec + 1e-6*now.tv_usec );
 
 	  //do histogram updates for the lumi
 	  lsStat * lst = lsHistory[nbsIdx].back();
@@ -1281,8 +1189,6 @@ void iDie::initMonitorElements()
   eventId_ = dqmStore_->bookInt("iEvent");
   eventId_->Fill(-1);
   eventTimeStamp_ = dqmStore_->bookFloat("eventTimeStamp");
-  runStartTimeStamp_ = dqmStore_->bookFloat("runStartTimeStamp");
-  initDQMEventInfo();
 
   dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
   for (unsigned int i=0;i<nbSubsClasses;i++) {
@@ -1319,7 +1225,6 @@ void iDie::initMonitorElements()
   lastRunNumberSet_ = runNumber_.value_;
   daqBusySummary_ = dqmStore_->book1D("reportSummaryMap",busySummaryTitle.str(),4000,1,4001.);
   daqBusySummary2_ = dqmStore_->book1D("reportSummaryMap_PROCSTAT","DAQ HLT Farm busy (%) from /proc/stat",4000,1,4001.);
-  daqTotalRateSummary_ = dqmStore_->book1D("reportSummaryMap_TOTRATE","DAQ HLT Farm input rate",4000,1,4001.);
 
   for (size_t i=1;i<=ROLL;i++) {
     std::ostringstream ostr;
@@ -1527,63 +1432,11 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   busyFrCPUTheor=fround(busyFrCPUTheor,0.001f);
   busyAvg=fround(busyAvg,0.001f);
 
-  //flashlist peak cpu value
-  double newLoadMax = 0.;
-  double newLoadMaxPS = 0.;
-  double newLoadMaxTime7 = 0.;
-  double newLoadMaxTime12 = 0.;
-  double newLoadMaxTime16 = 0.;
-  double newLoadMaxRate = 0.;
-  if (lsid>7) {//skip ls 1-4
-    for (unsigned int lsb=lsid-3; lsb<lsid; lsb++) {
-      newLoadMax+=daqBusySummary_->getBinContent(lsb)/100.;
-      newLoadMaxPS+=daqBusySummary2_->getBinContent(lsb)/100.;
-      newLoadMaxTime7+=meVecTime_[0]->getBinContent(lsb);
-      newLoadMaxTime12+=meVecTime_[2]->getBinContent(lsb);
-      newLoadMaxTime16+=meVecTime_[3]->getBinContent(lsb);
-      newLoadMaxRate+=daqTotalRateSummary_->getBinContent(lsb);
-    }
-    newLoadMax*=0.3333f;
-    newLoadMaxPS*=0.3333f;
-    newLoadMaxTime7*=0.3333f;
-    newLoadMaxTime12*=0.3333f;
-    newLoadMaxTime16*=0.3333f;
-    newLoadMaxRate*=0.3333f;
-  }
-  else {
-    loadMaxLs_=0;
-    loadMax_=0.;
-  }
-  if (newLoadMax>loadMax_) {
-    loadMaxLs_=lsid-1;
-    loadMax_ = newLoadMax;
-    loadMaxPS_ = newLoadMaxPS;
-    loadMaxTime7_ = newLoadMaxTime7;
-    loadMaxTime12_ = newLoadMaxTime12;
-    loadMaxTime16_ = newLoadMaxTime16;
-    loadMaxRate_ = newLoadMaxRate;
-  }
-  //flashlist per-lumi values
-  if (lsid)
-    while (cpuLoadLastLs_<lsid-1) {
-      if (cpuLoadLastLs_>=4000-1) break;
-      cpuLoad_[cpuLoadLastLs_]=daqBusySummary_->getBinContent(cpuLoadLastLs_+1)/100.;
-      cpuLoadPS_[cpuLoadLastLs_]=daqBusySummary2_->getBinContent(cpuLoadLastLs_+1)/100.;
-      cpuLoadTime7_[cpuLoadLastLs_]=meVecTime_[0]->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadTime12_[cpuLoadLastLs_]=meVecTime_[2]->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadTime16_[cpuLoadLastLs_]=meVecTime_[3]->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadRate_[cpuLoadLastLs_]=daqTotalRateSummary_->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadLastLs_++;
-  }
-
   //filling plots
   daqBusySummary_->setBinContent(lsid,busyAvg*100.);
   daqBusySummary_->setBinError(lsid,0);
   daqBusySummary2_->setBinContent(lsid,busyAvgCPU*100.);
   daqBusySummary2_->setBinError(lsid,0);
-
-  daqTotalRateSummary_->setBinContent(lsid,clst->getTotalRate());
-  daqTotalRateSummary_->setBinError(lsid,0);
 
   //"rolling" histograms
   rateSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getRate());
@@ -1734,93 +1587,6 @@ void iDie::doFlush() {
       dqmService_->flushStandalone();
 }
 
-void iDie::timeExpired(toolbox::task::TimerEvent& e)
-{
-  bool pushUpdate=false;
-  if (debugMode_.value_)
-    std::cout << "debug - runNumber:" << runNumber_ << " run active:" << runActive_ << std::endl;
-  if (!runActive_) return;
-  if (!runNumber_) return;
-  try
-  {
-    if (runNumber_>flashRunNumber_.value_)
-    {
-      cpuInfoSpaceMax_->lock();
-      flashRunNumber_.value_=runNumber_;
-      flashLoadMax_.value_=0.;
-      cpuInfoSpaceMax_->unlock();
-    }
-
-    if (loadMax_>flashLoadMax_.value_)
-    {
-       cpuInfoSpaceMax_->lock();
-       flashLoadMaxLs_.value_=loadMaxLs_;
-       flashLoadMax_=loadMax_;
-       flashLoadMaxPS_=loadMaxPS_;
-       flashLoadMaxTime7_=loadMaxTime7_;
-       flashLoadMaxTime12_=loadMaxTime12_;
-       flashLoadMaxTime16_=loadMaxTime16_;
-       flashLoadMaxRate_=loadMaxRate_;
-       cpuInfoSpaceMax_->unlock();
-
-       if (debugMode_.value_)
-         std::cout << "debug - updated max flashlist with values "
-	           << flashLoadMaxLs_ << " " << flashLoadMax_ << " " << flashLoadMaxPS_
-		   << " " << flashLoadMaxTime7_ << " " << flashLoadMaxTime12_  << " "
-		   << flashLoadMaxTime16_ << " " << flashLoadMaxRate_ << std::endl;
-
-       cpuInfoSpaceMax_->fireItemGroupChanged(monNames_, this);
-    }
-
-    if (debugMode_.value_) std::cout << " checking per-lumi flashlist" << std::endl;
-
-    if (cpuLoadSentLs_>cpuLoadLastLs_) cpuLoadSentLs_=0;
-    if (cpuLoadSentLs_<cpuLoadLastLs_ && cpuLoadLastLs_<=4000)
-    {
-      unsigned int toSend = cpuLoadLastLs_;
-      if (toSend) {
-        toSend--;
-        cpuInfoSpace_->lock();
-        flashLoadLs_=toSend+1;
-        flashLoad_=cpuLoad_[toSend];
-	flashLoadPS_=cpuLoadPS_[toSend];
-	flashLoadTime7_=cpuLoadTime7_[toSend];
-	flashLoadTime12_=cpuLoadTime12_[toSend];
-	flashLoadTime16_=cpuLoadTime16_[toSend];
-	flashLoadRate_=cpuLoadRate_[toSend];
-	cpuLoadSentLs_++;
-	cpuInfoSpace_->unlock();
-	if (cpuLoadSentLs_<=cpuLoadLastLs_) {
-
-	  if (debugMode_.value_)
-	    std::cout << "debug - updated lumi flashlist with values "
-	      << flashLoadLs_ << " " << flashLoad_ << " " << flashLoadPS_
-	      << " " << flashLoadTime7_ << " " << flashLoadTime12_  << " "
-	      << flashLoadTime16_ << " " << flashLoadRate_ << std::endl;
-
-	  cpuInfoSpace_->fireItemGroupChanged(monNames_, this);
-
-	}
-      }
-    }
-  }
-  catch (xdata::exception::Exception& xe)
-  {
-    LOG4CPLUS_WARN(getApplicationLogger(), xe.what() );
-  }
-  catch (std::exception& se)
-  {
-    std::string msg = "Caught standard exception while trying to collect: ";
-    msg += se.what();
-    LOG4CPLUS_WARN(getApplicationLogger(), msg );
-  }
-  catch (...)
-  {
-    std::string msg = "Caught unknown exception while trying to collect";
-    LOG4CPLUS_WARN(getApplicationLogger(), msg );
-  }
-}
-
 void iDie::perLumiFileSaver(unsigned int lsid)
 {
 
@@ -1963,6 +1729,7 @@ void iDie::perTimeFileSaver()
       lastSavedForTime_=dT;
     }
   }
+
   if (willSaveForTime && writeDirectoryPresent_)
   {
     char suffix[64];
@@ -1992,50 +1759,8 @@ void iDie::perTimeFileSaver()
 }
 
 
-void iDie::initDQMEventInfo()
-{
-  struct timeval now;
-  gettimeofday(&now, 0);
-  double time_now = now.tv_sec + 1e-6*now.tv_usec;
 
-  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
-  runId_     = dqmStore_->bookInt("iRun");
-  runId_->Fill(-1);
-  lumisecId_ = dqmStore_->bookInt("iLumiSection");
-  lumisecId_->Fill(-1);
-  eventId_ = dqmStore_->bookInt("iEvent");
-  eventId_->Fill(-1);
-  eventTimeStamp_ = dqmStore_->bookFloat("eventTimeStamp");
 
-  runStartTimeStamp_ = dqmStore_->bookFloat("runStartTimeStamp");
-
-  processTimeStampMe_ = dqmStore_->bookFloat("processTimeStamp");
-  processTimeStampMe_->Fill(time_now);
-  processLatencyMe_ = dqmStore_->bookFloat("processLatency");
-  processLatencyMe_->Fill(-1);
-  processEventsMe_ = dqmStore_->bookInt("processedEvents");
-  processEventsMe_->Fill(0);
-  processEventRateMe_ = dqmStore_->bookFloat("processEventRate");
-  processEventRateMe_->Fill(-1); 
-  nUpdatesMe_= dqmStore_->bookInt("processUpdates");
-  nUpdatesMe_->Fill(-1);
-  processIdMe_= dqmStore_->bookInt("processID"); 
-  processIdMe_->Fill(getpid());
-  processStartTimeStampMe_ = dqmStore_->bookFloat("processStartTimeStamp");
-  processStartTimeStampMe_->Fill(time_now);
-  hostNameMe_= dqmStore_->bookString("hostName","cmsidie");
-  processNameMe_= dqmStore_->bookString("processName","iDie");
-  workingDirMe_= dqmStore_->bookString("workingDir","/tmp");
-  cmsswVerMe_= dqmStore_->bookString("CMSSW_Version",edm::getReleaseVersion());
-}
-
-void iDie::setRunStartTimeStamp()
-{
-  struct timeval now;
-  gettimeofday(&now, 0);
-  double time_now = now.tv_sec + 1e-6*now.tv_usec;
-  runTS_ = time_now;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // xdaq instantiator implementation macro

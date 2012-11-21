@@ -45,7 +45,7 @@ class PFSuperClusterProducer : public edm::EDProducer {
 
   /// clustering algorithm 
   PFSuperClusterAlgo    superClusterAlgo_;
-
+  boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
 
   /// verbose ?
   bool   verbose_;

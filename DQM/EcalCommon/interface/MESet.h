@@ -13,302 +13,127 @@
 
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
 typedef EcalDQMBinningService BinService; // prepare for expansion into more than one binning service
 
 namespace ecaldqm
 {
-  /* class MESet
-     ABC for MonitorElement wrappers
-     Interface between ME bins and DetId
-  */
+  struct MEData {
+    std::string pathName;
+    BinService::ObjectType otype;
+    BinService::BinningType btype;
+    MonitorElement::Kind kind;
+    BinService::AxisSpecs *xaxis;
+    BinService::AxisSpecs *yaxis;
+    BinService::AxisSpecs *zaxis;
+    MEData() :
+      pathName(""), otype(BinService::nObjType), btype(BinService::nBinType), kind(MonitorElement::DQM_KIND_INVALID),
+      xaxis(0), yaxis(0), zaxis(0)
+    {}
+    MEData(std::string const& _pathName, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind,
+	   BinService::AxisSpecs const* _xaxis = 0, BinService::AxisSpecs const* _yaxis = 0, BinService::AxisSpecs const* _zaxis = 0) :
+      pathName(_pathName), otype(_otype), btype(_btype), kind(_kind),
+      xaxis(_xaxis ? new BinService::AxisSpecs(*_xaxis) : 0),
+      yaxis(_yaxis ? new BinService::AxisSpecs(*_yaxis) : 0),
+      zaxis(_zaxis ? new BinService::AxisSpecs(*_zaxis) : 0)
+    {}
+    MEData(MEData const& _orig) :
+      pathName(_orig.pathName), otype(_orig.otype), btype(_orig.btype), kind(_orig.kind),
+      xaxis(_orig.xaxis ? new BinService::AxisSpecs(*_orig.xaxis) : 0),
+      yaxis(_orig.yaxis ? new BinService::AxisSpecs(*_orig.yaxis) : 0),
+      zaxis(_orig.zaxis ? new BinService::AxisSpecs(*_orig.zaxis) : 0)
+    {}
+    ~MEData()
+    {
+      delete xaxis;
+      delete yaxis;
+      delete zaxis;
+    }
+
+    MEData& operator=(MEData const& _rhs)
+    {
+      pathName = _rhs.pathName;
+      otype = _rhs.otype;
+      btype = _rhs.btype;
+      kind = _rhs.kind;
+      xaxis = _rhs.xaxis ? new BinService::AxisSpecs(*_rhs.xaxis) : 0;
+      yaxis = _rhs.yaxis ? new BinService::AxisSpecs(*_rhs.yaxis) : 0;
+      zaxis = _rhs.zaxis ? new BinService::AxisSpecs(*_rhs.zaxis) : 0;
+      return *this;
+    }
+  };
 
   class MESet {
   public :
-    MESet(std::string const&, BinService::ObjectType, BinService::BinningType, MonitorElement::Kind);
-    MESet(MESet const&);
+    MESet(std::string const&, MEData const&, bool _readOnly = false);
     virtual ~MESet();
 
-    virtual MESet& operator=(MESet const&);
-
-    virtual MESet* clone() const = 0;
-
-    virtual void book() = 0;
-    virtual bool retrieve() const = 0;
+    virtual void book();
+    virtual bool retrieve() const;
     virtual void clear() const;
 
-    virtual void fill(DetId const&, double = 1., double = 1., double = 1.) {}
-    virtual void fill(EcalElectronicsId const&, double = 1., double = 1., double = 1.) {}
-    virtual void fill(unsigned, double = 1., double = 1., double = 1.) {}
-    virtual void fill(double, double = 1., double = 1.) {}
+    // default values are necessary (otherwise fill(DetId) will be interpreted as fill(uint32_t)!!)
+    virtual void fill(DetId const&, double _wx = 1., double _wy = 1., double _w = 1.);
+    virtual void fill(EcalElectronicsId const&, double _wx = 1., double _wy = 1., double _w = 1.);
+    virtual void fill(unsigned, double _wx = 1., double _wy = 1., double _w = 1.);
+    virtual void fill(double, double _wy = 1., double _w = 1.);
 
-    virtual void setBinContent(DetId const&, double) {}
-    virtual void setBinContent(EcalElectronicsId const&, double) {}
-    virtual void setBinContent(unsigned, double) {}
-    virtual void setBinContent(DetId const&, int, double) {}
-    virtual void setBinContent(EcalElectronicsId const&, int, double) {}
-    virtual void setBinContent(unsigned, int, double) {}
-    virtual void setBinContent(int, double) {}
+    virtual void setBinContent(DetId const&, double, double _err = 0.);
+    virtual void setBinContent(EcalElectronicsId const&, double, double _err = 0.);
+    virtual void setBinContent(unsigned, double, double _err = 0.);
 
-    virtual void setBinError(DetId const&, double) {}
-    virtual void setBinError(EcalElectronicsId const&, double) {}
-    virtual void setBinError(unsigned, double) {}
-    virtual void setBinError(DetId const&, int, double) {}
-    virtual void setBinError(EcalElectronicsId const&, int, double) {}
-    virtual void setBinError(unsigned, int, double) {}
-    virtual void setBinError(int, double) {}
+    virtual void setBinEntries(DetId const&, double);
+    virtual void setBinEntries(EcalElectronicsId const&, double);
+    virtual void setBinEntries(unsigned, double);
 
-    virtual void setBinEntries(DetId const&, double) {}
-    virtual void setBinEntries(EcalElectronicsId const&, double) {}
-    virtual void setBinEntries(unsigned, double) {}
-    virtual void setBinEntries(DetId const&, int, double) {}
-    virtual void setBinEntries(EcalElectronicsId const&, int, double) {}
-    virtual void setBinEntries(unsigned, int, double) {}
-    virtual void setBinEntries(int, double) {}
+    virtual double getBinContent(DetId const&, int _bin = 0) const;
+    virtual double getBinContent(EcalElectronicsId const&, int _bin = 0) const;
+    virtual double getBinContent(unsigned, int _bin = 0) const;
 
-    virtual double getBinContent(DetId const&, int = 0) const { return 0.; }
-    virtual double getBinContent(EcalElectronicsId const&, int = 0) const { return 0.; }
-    virtual double getBinContent(unsigned, int = 0) const { return 0.; }
-    virtual double getBinContent(int) const { return 0.; }
+    virtual double getBinError(DetId const&, int _bin = 0) const;
+    virtual double getBinError(EcalElectronicsId const&, int _bin = 0) const;
+    virtual double getBinError(unsigned, int _bin = 0) const;
 
-    virtual double getBinError(DetId const&, int = 0) const { return 0.; }
-    virtual double getBinError(EcalElectronicsId const&, int = 0) const { return 0.; }
-    virtual double getBinError(unsigned, int = 0) const { return 0.; }
-    virtual double getBinError(int) const { return 0.; }
+    virtual double getBinEntries(DetId const&, int _bin = 0) const;
+    virtual double getBinEntries(EcalElectronicsId const&, int _bin = 0) const;
+    virtual double getBinEntries(unsigned, int _bin = 0) const;
 
-    virtual double getBinEntries(DetId const&, int = 0) const { return 0.; }
-    virtual double getBinEntries(EcalElectronicsId const&, int = 0) const { return 0.; }
-    virtual double getBinEntries(unsigned, int = 0) const { return 0.; }
-    virtual double getBinEntries(int) const { return 0.; }
+    virtual void setAxisTitle(std::string const&, int _axis = 1);
+    virtual void setBinLabel(unsigned, int, std::string const&, int _axis = 1);
 
-    virtual void setAxisTitle(std::string const&, int = 1);
-    virtual void setBinLabel(unsigned, int, std::string const&, int = 1);
+    virtual void reset(double _content = 0., double _err = 0., double _entries = 0.);
+    virtual void resetAll(double _content = 0., double _err = 0., double _entries = 0.);
 
-    virtual void reset(double = 0., double = 0., double = 0.);
-    virtual void resetAll(double = 0., double = 0., double = 0.);
-
-    virtual void formPath(std::map<std::string, std::string> const&) const;
-
-    virtual std::string const& getPath() const { return path_; }
-    BinService::ObjectType getObjType() const { return otype_; }
-    BinService::BinningType getBinType() const { return btype_; }
-    MonitorElement::Kind getKind() const { return kind_; }
+    std::string const& getDir() const { return dir_; }
+    void setDir(std::string const& _dir) { dir_ = _dir; }
+    std::string const& getName() const { return name_; }
+    void setName(std::string const& _name) { name_ = _name; }
+    void name(std::map<std::string, std::string> const&) const;
+    BinService::ObjectType getObjType() const { return data_->otype; }
+    BinService::BinningType getBinType() const { return data_->btype; }
     bool isActive() const { return active_; }
-    virtual bool isVariableBinning() const { return false; }
-    virtual MonitorElement const* getME(unsigned _iME) const { return (_iME < mes_.size() ? mes_[_iME] : 0); }
-    virtual MonitorElement* getME(unsigned _iME) { return (_iME < mes_.size() ? mes_[_iME] : 0); }
-    virtual void setLumiFlag();
-    virtual void softReset();
-    virtual void recoverStats();
 
-    static MonitorElement::Kind translateKind(std::string const&);
+    virtual MonitorElement const* getME(unsigned _offset) const { return (_offset < mes_.size() ? mes_[_offset] : 0); }
 
   protected:
     virtual void fill_(unsigned, int, double);
-    virtual void fill_(unsigned, int, double, double);
     virtual void fill_(unsigned, double, double, double);
-
-    virtual void checkME_(unsigned _iME) const
-    {
-      if(!getME(_iME)){
-        std::stringstream ss;
-        ss << "ME does not exist at index " << _iME;
-        throw_(ss.str());
-      }
-    }
-
-    void throw_(std::string const& _message) const
-    {
-      throw cms::Exception("EcalDQM") << path_ << ": " << _message;
-    }
+    virtual void setBinContent_(unsigned, int, double, double);
+    virtual void setBinEntries_(unsigned, int, double);
+    virtual double getBinContent_(unsigned, int) const;
+    virtual double getBinError_(unsigned, int) const;
+    virtual double getBinEntries_(unsigned, int) const;
 
     static BinService const* binService_;
     static DQMStore* dqmStore_;
 
     mutable std::vector<MonitorElement*> mes_;
 
-    mutable std::string path_;
-    BinService::ObjectType otype_;
-    BinService::BinningType btype_;
-    MonitorElement::Kind kind_;
+    mutable std::string dir_;
+    mutable std::string name_;
+    MEData const* data_;
 
     mutable bool active_;
-
-  public:
-
-    struct ConstBin {
-      protected:
-      MESet const* meSet_;
-
-      public:
-      unsigned iME;
-      int iBin;
-      BinService::ObjectType otype;
-
-      ConstBin() : meSet_(0), iME(-1), iBin(-1), otype(BinService::nObjType) {}
-      ConstBin(MESet const*, unsigned = 0, int = 1);
-      ConstBin(ConstBin const& _orig) : meSet_(_orig.meSet_), iME(_orig.iME), iBin(_orig.iBin), otype(_orig.otype) {}
-      ConstBin& operator=(ConstBin const&);
-      bool operator==(ConstBin const& _rhs) const
-      {
-        return meSet_ != 0 && meSet_ == _rhs.meSet_ && iME == _rhs.iME && iBin == _rhs.iBin;
-      }
-      bool isChannel() const
-      {
-        if(meSet_) return binService_->isValidIdBin(otype, meSet_->getBinType(), iME, iBin);
-        else return false;
-      }
-      uint32_t getId() const
-      {
-        if(meSet_) return binService_->idFromBin(otype, meSet_->getBinType(), iME, iBin);
-        else return 0;
-      }
-      double getBinContent() const
-      {
-        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME)->getBinContent(iBin);
-        else return 0.;
-      }
-      double getBinError() const
-      {
-        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME)->getBinError(iBin);
-        else return 0.;
-      }
-      double getBinEntries() const
-      {
-        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME)->getBinEntries(iBin);
-        else return 0.;
-      }
-      MonitorElement const* getME() const
-      {
-        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME);
-        else return 0;
-      }
-      void setMESet(MESet const* _meSet) { meSet_ = _meSet; }
-      MESet const* getMESet() const { return meSet_; }
-    };
-
-    struct Bin : public ConstBin {
-      protected:
-      MESet* meSet_;
-
-      public:
-      Bin() : ConstBin(), meSet_(0) {}
-      Bin(MESet* _set, unsigned _iME = 0, int _iBin = 1) : ConstBin(_set, _iME, _iBin), meSet_(_set) {}
-      Bin(Bin const& _orig) : ConstBin(_orig), meSet_(_orig.meSet_) {}
-      ConstBin& operator=(Bin const& _rhs)
-      {
-        bool wasNull(ConstBin::meSet_ == 0);
-        ConstBin::operator=(_rhs);
-        if(wasNull) meSet_ = _rhs.meSet_;
-        return *this;
-      }
-      void fill(double _w = 1.)
-      {
-        if(meSet_) meSet_->fill_(iME, iBin, _w);
-      }
-      void fill(double _y, double _w = 1.)
-      {
-        if(meSet_) meSet_->fill_(iME, iBin, _y, _w);
-      }
-      void setBinContent(double _content)
-      {
-        if(meSet_ && iME != unsigned(-1)) meSet_->getME(iME)->setBinContent(iBin, _content);
-      }
-      void setBinError(double _error)
-      {
-        if(meSet_ && iME != unsigned(-1)) meSet_->getME(iME)->setBinError(iBin, _error);
-      }
-      void setBinEntries(double _entries)
-      {
-        if(meSet_ && iME != unsigned(-1)) meSet_->getME(iME)->setBinEntries(iBin, _entries);
-      }
-      MonitorElement* getME() const
-      {
-        if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME);
-        else return 0;
-      }
-      void setMESet(MESet* _meSet) { ConstBin::meSet_ = _meSet; meSet_ = _meSet; }
-      MESet* getMESet() const { return meSet_; }
-    };
-
-    /* const_iterator
-       iterates over bins
-       supports automatic transition between MEs in the same set
-       underflow -> bin == 0 overflow -> bin == -1
-    */
-    struct const_iterator {
-      const_iterator() : bin_() {}
-      const_iterator(MESet const* _meSet, unsigned _iME = 0, int _iBin = 1) : bin_(_meSet, _iME, _iBin) {}
-      const_iterator(MESet const*, DetId const&);
-      const_iterator(const_iterator const& _orig) : bin_(_orig.bin_) {}
-      const_iterator& operator=(const_iterator const& _rhs) { bin_ = _rhs.bin_; return *this; }
-      bool operator==(const_iterator const& _rhs) const { return bin_ == _rhs.bin_; }
-      bool operator!=(const_iterator const& _rhs) const { return !(bin_ == _rhs.bin_); }
-      ConstBin const* operator->() const { return &bin_; }
-      const_iterator& operator++();
-      const_iterator& toNextChannel();
-      bool up();
-      bool down();
-      bool left();
-      bool right();
-
-      protected:
-      ConstBin bin_;
-    };
-
-    struct iterator : public const_iterator {
-      iterator() : const_iterator(), bin_() {}
-      iterator(MESet* _meSet, unsigned _iME = 0, int _iBin = 1) : const_iterator(_meSet, _iME, _iBin), bin_(_meSet) { bin_.ConstBin::operator=(const_iterator::bin_); }
-      iterator(MESet* _meSet, DetId const& _id) : const_iterator(_meSet, _id), bin_(_meSet) { bin_.ConstBin::operator=(const_iterator::bin_); }
-      iterator(iterator const& _orig) : const_iterator(_orig), bin_(_orig.bin_) {}
-      iterator& operator=(const_iterator const& _rhs) { const_iterator::operator=(_rhs); bin_.ConstBin::operator=(const_iterator::bin_); return *this; }
-      Bin* operator->() { return &bin_; }
-      Bin const* operator->() const { return &bin_; }
-      const_iterator& operator++() { const_iterator::operator++(); bin_.ConstBin::operator=(const_iterator::bin_); return *this; }
-      const_iterator& toNextChannel() { const_iterator::toNextChannel(); bin_.ConstBin::operator=(const_iterator::bin_); return *this; }
-      bool up() { bool res(const_iterator::up()); bin_.ConstBin::operator=(const_iterator::bin_); return res; }
-      bool down() { bool res(const_iterator::down()); bin_.ConstBin::operator=(const_iterator::bin_); return res; }
-      bool left() { bool res(const_iterator::left()); bin_.ConstBin::operator=(const_iterator::bin_); return res; }
-      bool right() { bool res(const_iterator::right()); bin_.ConstBin::operator=(const_iterator::bin_); return res; }
-
-      private:
-      Bin bin_;
-    };
-
-    const_iterator begin() const
-    {
-      return const_iterator(this);
-    }
-
-    const_iterator end() const
-    {
-      return const_iterator(this, -1, -1);
-    }
-
-    const_iterator beginChannel() const
-    {
-      const_iterator itr(this, 0, 0);
-      return itr.toNextChannel();
-    }
-
-    iterator begin()
-    {
-      return iterator(this);
-    }
-
-    iterator end()
-    {
-      return iterator(this, -1, -1);
-    }
-
-    iterator beginChannel()
-    {
-      iterator itr(this, 0, 0);
-      itr.toNextChannel();
-      return itr;
-    }
-  
+    bool readOnly_;
   };
 
 }

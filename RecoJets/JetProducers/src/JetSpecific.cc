@@ -50,12 +50,9 @@ void reco::writeSpecific(reco::CaloJet & jet,
   const CaloSubdetectorGeometry* towerGeometry = 
     geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
 
-  edm::ESHandle<HcalTopology> topology;
-  c.get<IdealGeometryRecord>().get(topology);
-
   // Make the specific
   reco::CaloJet::Specific specific;
-  makeSpecific (constituents, *towerGeometry, &specific, *topology);
+  makeSpecific (constituents, *towerGeometry, &specific);
   // Set the calo jet
   jet = reco::CaloJet( p4, point, specific, constituents);  
 }
@@ -134,8 +131,7 @@ void reco::writeSpecific(reco::PFClusterJet & jet,
 //______________________________________________________________________________
 bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
 			const CaloSubdetectorGeometry& towerGeometry,
-			CaloJet::Specific* caloJetSpecific,
-			const HcalTopology &topology)
+			CaloJet::Specific* caloJetSpecific)
 {
   if (0==caloJetSpecific) return false;
 
@@ -171,7 +167,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
       eInHad += tower->hadEnergy();
       
       //  figure out contributions
-      switch (reco::hcalSubdetector(tower->id().ieta(),topology)) {
+      switch (reco::hcalSubdetector(tower->id().ieta())) {
       case HcalBarrel:
 	eInHB += tower->hadEnergy(); 
 	eInHO += tower->outerEnergy();
@@ -418,8 +414,10 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & mcparticles,
 
 
 //______________________________________________________________________________
-HcalSubdetector reco::hcalSubdetector(int iEta, const HcalTopology &topology)
+HcalSubdetector reco::hcalSubdetector(int iEta)
 {
+  // FIXME for SLHC
+  static const HcalTopology topology(HcalTopologyMode::LHC, 2, 3);
   int eta = std::abs(iEta);
   if      (eta <= topology.lastHBRing()) return HcalBarrel;
   else if (eta <= topology.lastHERing()) return HcalEndcap;

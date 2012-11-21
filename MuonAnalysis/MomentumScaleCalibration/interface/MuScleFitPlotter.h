@@ -4,8 +4,8 @@
 /** \class MuScleFitPlotter
  *  Plotter of the muon info (sim,gen,rec)
  *
- *  $Date: 2010/10/22 17:47:21 $
- *  $Revision: 1.14 $
+ *  $Date: 2010/06/21 15:20:18 $
+ *  $Revision: 1.12 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -37,15 +37,15 @@ class MuScleFitPlotter{
 
   // Operations
   // ----------
-  void fillGen(const reco::GenParticleCollection* genParticles, bool=false);
-  void fillGen(const edm::HepMCProduct* evtMC, bool sherpaFlag_);
+  void fillGen1(const reco::GenParticleCollection* genParticles, bool=false);
+  void fillGen2(const edm::HepMCProduct* evtMC, bool shepaFlag_);
   void fillSim(edm::Handle<edm::SimTrackContainer> simTracks);
   void fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Handle<edm::SimTrackContainer> simTracks);
   void fillRec(std::vector<reco::LeafCandidate>& muons);
 
   // Root tree specific
-  void fillTreeRec( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs );
-  void fillTreeGen( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs );
+  void fillRec( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & savedPairs );
+  void fillGen( const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> > & genPairs );
 
   void fillHistoMap();
   void writeHistoMap();

@@ -1,7 +1,7 @@
 #ifndef PresampleTask_H
 #define PresampleTask_H
 
-#include "DQWorkerTask.h"
+#include "DQM/EcalCommon/interface/DQWorkerTask.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
@@ -9,7 +9,7 @@ namespace ecaldqm {
 
   class PresampleTask : public DQWorkerTask {
   public:
-    PresampleTask(edm::ParameterSet const&, edm::ParameterSet const&);
+    PresampleTask(const edm::ParameterSet &, const edm::ParameterSet&);
     ~PresampleTask();
 
     bool filterRunType(const std::vector<short>&);
@@ -23,7 +23,7 @@ namespace ecaldqm {
       nMESets
     };
 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
+    static void setMEData(std::vector<MEData>&);
   };
 
   inline void PresampleTask::analyze(const void* _p, Collections _collection){

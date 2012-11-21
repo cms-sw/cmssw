@@ -47,9 +47,7 @@ class CSCHitFromStripOnly
     recoConditions_ = reco;
   } 
  
-  bool ganged() { return ganged_;}
-  void setGanged( bool ig ) { ganged_ = ig;}
-
+  
  private:
 	
   /// Store SCA pulseheight information from strips in digis of one layer
@@ -110,8 +108,6 @@ class CSCHitFromStripOnly
   std::vector<float> strips_adc;
   std::vector<float> strips_adcRaw;
   std::vector<int> theStrips;
-
-  bool ganged_; // only True if ME1/1A AND it is ganged
   
 };
 

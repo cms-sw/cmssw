@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2012/04/27 13:46:13 $
- * $Revision: 1.29 $
+ * $Date: 2011/08/30 09:29:05 $
+ * $Revision: 1.26 $
  *
 */
 
@@ -56,8 +56,6 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 
   /// EndRun
   void endRun(const edm::Run & r, const edm::EventSetup & c);
-
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
   /// Reset
   void reset(void);

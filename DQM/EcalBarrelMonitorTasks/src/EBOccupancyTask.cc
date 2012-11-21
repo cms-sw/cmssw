@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2012/04/27 13:46:02 $
- * $Revision: 1.101 $
+ * $Date: 2012/03/18 17:20:55 $
+ * $Revision: 1.96.4.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -119,15 +119,6 @@ void EBOccupancyTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EBOccupancyTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-}
-
-void
-EBOccupancyTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EBOccupancyTask" + (subfolder_.size() == 0 ? "" : "/" + subfolder_))){
-	cleanup();
-	setup();
-  }
 }
 
 void EBOccupancyTask::reset(void) {

@@ -15,16 +15,13 @@
 #include "G4eMultipleScattering.hh"
 #include "G4MuMultipleScattering.hh"
 #include "G4MscStepLimitType.hh"
-#include "CMSUrbanMscModel93.hh"
+#include "G4UrbanMscModel93.hh"
 #include "G4WentzelVIModel.hh"
 #include "G4CoulombScattering.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
 #include "G4eplusAnnihilation.hh"
-
-#include "G4SeltzerBergerModel95.hh"
-#include "G4eBremsstrahlungRelModel95.hh"
 
 #include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
@@ -152,12 +149,12 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      msc->AddEmModel(0,new CMSUrbanMscModel93());
+      msc->AddEmModel(0,new G4UrbanMscModel93());
 
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
-      ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
-      ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
-      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
+      //ebrem->SetEmModel(new G4SeltzerBergerModel(), 1);
+      // ebrem->SetEmModel(new G4eBremsstrahlungRelModel(), 2);
+      //ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
 
       pmanager->AddProcess(msc,                   -1, 1, 1);
       pmanager->AddProcess(eioni,                 -1, 2, 2);
@@ -169,12 +166,12 @@ void CMSEmStandardPhysicsLPM::ConstructProcess()
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      msc->AddEmModel(0,new CMSUrbanMscModel93());
+      msc->AddEmModel(0,new G4UrbanMscModel93());
 
       G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
-      ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
-      ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
-      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
+      //ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
+      //ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
+      //ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
 
       pmanager->AddProcess(msc,                     -1, 1, 1);
       pmanager->AddProcess(eioni,                   -1, 2, 2);

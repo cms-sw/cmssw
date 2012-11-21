@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.35 $
-///  $Date: 2011/09/06 13:46:07 $
-///  (last update by $Author: mussgill $)
+///  $Revision: 1.34 $
+///  $Date: 2011/08/08 21:52:31 $
+///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
@@ -39,8 +39,6 @@ class AlignmentUserVariables;
 
 class AlignmentParameterStore;
 
-class IntegratedCalibrationBase;
-
 class MillePedeMonitor;
 class PedeSteerer;
 class PedeLabelerBase;
@@ -65,9 +63,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 			  AlignableTracker *tracker, AlignableMuon *muon, AlignableExtras *extras,
 			  AlignmentParameterStore *store);
 
-  /// pass integrated calibrations to Millepede (they are not owned by Millepede!)
-  virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals);
-
   /// Call at end of job
   virtual void terminate();
 
@@ -90,13 +85,13 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   /// fill mille for a trajectory, returning number of x/y hits ([0,0] if 'bad' trajectory)
   std::pair<unsigned int, unsigned int>
-    addReferenceTrajectory(const edm::EventSetup &setup, const EventInfo &eventInfo, 
+    addReferenceTrajectory(const EventInfo &eventInfo, 
 			   const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
 
   /// If hit is usable: callMille for x and (probably) y direction.
   /// If globalDerivatives fine: returns 2 if 2D-hit, 1 if 1D-hit, 0 if no Alignable for hit.
   /// Returns -1 if any problem (for params cf. globalDerivativesHierarchy)
-  int addMeasurementData(const edm::EventSetup &setup, const EventInfo &eventInfo, 
+  int addMeasurementData(const EventInfo &eventInfo, 
 			 const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 			 unsigned int iHit, AlignmentParameters *&params);
 
@@ -129,14 +124,6 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 				  std::vector<float> &globalDerivativesY,
 				  std::vector<int> &globalLabels,
 				  AlignmentParameters *&lowestParams) const;
-
-  /// adding derivatives from integrated calibrations
-  void globalDerivativesCalibration(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
-				    const TrajectoryStateOnSurface &tsos,
-				    const edm::EventSetup &setup, const EventInfo &eventInfo,
-				    std::vector<float> &globalDerivativesX,
-				    std::vector<float> &globalDerivativesY,
-				    std::vector<int> &globalLabels) const;
 
   /// calls callMille1D or callMille2D
   int callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
@@ -207,10 +194,9 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   AlignableNavigator       *theAlignableNavigator;
   MillePedeMonitor         *theMonitor;
   Mille                    *theMille;
-  PedeLabelerBase          *thePedeLabels;
+  const PedeLabelerBase    *thePedeLabels;
   PedeSteerer              *thePedeSteer;
   TrajectoryFactoryBase    *theTrajectoryFactory;
-  std::vector<IntegratedCalibrationBase*> theCalibrations;
   unsigned int              theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
                                              /// If larger, the 2D measurement gets diagonalized!!!

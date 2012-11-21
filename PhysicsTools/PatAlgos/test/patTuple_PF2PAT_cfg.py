@@ -12,6 +12,10 @@ from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
 jetAlgo="AK5"
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix)
+
+# to turn on type-1 MET corrections, use the following call
+#usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix, typeIMetCorrections=True)
+
 # to run second PF2PAT+PAT with different postfix uncomment the following lines
 # and add the corresponding sequence to the path
 #postfix2 = "PFlow2"
@@ -58,7 +62,7 @@ getattr(process,"pfNoJet"+postfix).enable = True
 getattr(process,"pfNoMuon"+postfix).verbose = False
 
 # enable delta beta correction for muon selection in PF2PAT?
-getattr(process,"pfIsolatedMuons"+postfix).doDeltaBetaCorrection = False
+getattr(process,"pfIsolatedMuons"+postfix).doDeltaBetaCorrection = cms.bool(False)
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

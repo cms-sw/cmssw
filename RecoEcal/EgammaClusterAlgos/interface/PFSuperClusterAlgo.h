@@ -109,9 +109,6 @@ class PFSuperClusterAlgo {
   std::vector<int> seedCandidateIndex_;
   std::vector<int> pfClusterIndex_;
 
-  std::vector<double> EclustersPS1;
-  std::vector<double> EclustersPS2;
-
   std::vector<std::vector<const reco::PFCluster *> > pfClusters_;
   std::vector< reco::BasicClusterCollection > basicClusters_;
 
@@ -123,14 +120,14 @@ class PFSuperClusterAlgo {
 
   std::vector<reco::PFClusterRef> seedCandidateCollection;
   std::vector<reco::PFClusterRef> pfClusterAboveThresholdCollection;
-  std::vector<reco::PFClusterRef> pfESClusterAboveThresholdCollection;
+  //  std::vector<reco::PFClusterRef> pfESClusterAboveThresholdCollection;
 
-  std::vector<double>** SCBCtoESenergyPS1;
-  std::vector<double>** SCBCtoESenergyPS2;
+  //  std::vector<double>** SCBCtoESenergyPS1;
+  //  std::vector<double>** SCBCtoESenergyPS2;
 
-  int* isSeedUsed;
-  int* isPFclusterUsed;
-  bool* isClusterized;
+  //  std::vector<int> isSeedUsed;
+  //  std::vector<int> isPFclusterUsed;
+  //  std::vector<bool> isClusterized;
 
   std::vector<std::vector<unsigned int>> insideMust_;
   //std::vector<std::vector<unsigned int>> outsideMust_;

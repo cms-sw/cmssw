@@ -1,7 +1,7 @@
 #ifndef IntegrityTask_H
 #define IntegrityTask_H
 
-#include "DQWorkerTask.h"
+#include "DQM/EcalCommon/interface/DQWorkerTask.h"
 
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
@@ -10,7 +10,8 @@ namespace ecaldqm {
 
   class IntegrityTask : public DQWorkerTask {
   public:
-    IntegrityTask(edm::ParameterSet const&, edm::ParameterSet const&);
+    IntegrityTask(const edm::ParameterSet &, const edm::ParameterSet&);
+    ~IntegrityTask();
 
     void bookMEs();
 
@@ -29,12 +30,11 @@ namespace ecaldqm {
       kGainSwitch,
       kBlockSize,
       kTowerId,
-      kTrendNErrors,
       kFEDNonFatal,
       nMESets
     };
 
-    static void setMEOrdering(std::map<std::string, unsigned>&);
+    static void setMEData(std::vector<MEData>&);
 
   private:
     int hltTaskMode_; // 0 -> Do not produce FED plots; 1 -> Only produce FED plots; 2 -> Do both

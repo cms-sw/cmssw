@@ -5,10 +5,10 @@ ecalBarrelOccupancyTask = cms.EDAnalyzer("EBOccupancyTask",
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),
                                          subfolder = cms.untracked.string(''),
-    EcalRawDataCollection = cms.InputTag("ecalDigis"),
-    EBDigiCollection = cms.InputTag("ecalDigis","ebDigis"),
-    EcalTrigPrimDigiCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives"),
-    EcalPnDiodeDigiCollection = cms.InputTag("ecalDigis"),
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+    EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
+    EcalTrigPrimDigiCollection = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
+    EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker"),
     EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )
 

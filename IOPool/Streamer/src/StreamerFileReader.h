@@ -36,7 +36,7 @@ namespace edm {
     virtual void reset_();
 
     std::vector<std::string> streamerNames_; // names of Streamer files
-    std::auto_ptr<StreamerInputFile> streamReader_;
+    std::unique_ptr<StreamerInputFile> streamReader_;
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
     int initialNumberOfEventsToSkip_;
   };

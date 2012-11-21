@@ -17,9 +17,9 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-//#include <iostream>
 
-CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoConditions_(0), calcped_(0), ganged_(0) {
+
+CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoConditions_(0), calcped_(0) {
   
   useCalib                   = ps.getParameter<bool>("CSCUseCalibrations");
   bool useStaticPedestals    = ps.getParameter<bool>("CSCUseStaticPedestals");
@@ -69,29 +69,12 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
   layer_     = layer;
   nstrips_   = layer->chamber()->specs()->nStrips();
 
-  setGanged(false);
-  if ( id_.ring() == 4 && layer_->chamber()->specs()->gangedStrips() ) setGanged(true); //@@ ONLY ME1/1A CAN BE GANGED
-
-  LogTrace("CSCHitFromStripOnly")  << "[CSCHitFromStripOnly::runStrip] id= " << id_ << 
-    " nstrips= " << nstrips_ << " ganged strips? " << ganged();
-
   tmax_cluster = 5;
 
   // Get gain correction weights for all strips in layer, and cache in gainWeight.
   // They're used in fillPulseHeights below.
   if ( useCalib ) {
-    recoConditions_->stripWeights( id, nstrips_, gainWeight );
-
-    // *** START DUMP gainWeight
-    //    std::cout << "gainWeight for id= " << id_ << " nstrips= " << nstrips_ << std::endl;
-    //    for ( size_t i = 0; i!=10; ++i ) {
-    //      for ( size_t j = 0; j!=8; ++j ) {
-    //	std::cout << gainWeight[i*8 + j] << "   ";
-    //      }
-    //      std::cout << std::endl;
-    //    }
-    // *** END DUMP gainWeight
-
+    recoConditions_->stripWeights( id, gainWeight );
   }
   
   // Store pulseheights from SCA and find maxima (potential hits)
@@ -155,6 +138,7 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
         aDeadStrip = theMaxima.at(imax)+1;
       }
     }
+    //std::cout << " Size of theStrips from SCSHitFromStripOnly: " <<  theStrips.size() << std::endl;
     
     /// L1A (Begin looping)
     /// Attempt to redefine theStrips, to encode L1A phase bits
@@ -163,35 +147,35 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
        bool stripMatchCounter=false;
        for ( CSCStripDigiCollection::const_iterator itl1 = rstripd.first; itl1 != rstripd.second; ++itl1 ) {
 	   int stripNproto = (*itl1).getStrip();
-           if( !ganged() ){
-   	     if(theStrips[ila]==stripNproto){
-               stripMatchCounter=true;
-	       std::vector<int> L1AP=(*itl1).getL1APhase();
-	       int L1AbitOnPlace=0;
-	       for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
-	          L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
-	       }
-	       theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
+           if(id_.ring() != 4){
+	   if(theStrips[ila]==stripNproto){
+             stripMatchCounter=true;
+	     std::vector<int> L1AP=(*itl1).getL1APhase();
+	     int L1AbitOnPlace=0;
+	     for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
+	        L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
 	     }
-           }
-           else{
-             for(int tripl=0; tripl<3; ++tripl){
-	       if(theStrips[ila]==(stripNproto+tripl*16)){
-                 stripMatchCounter=true;
-	         std::vector<int> L1AP=(*itl1).getL1APhase();
-	         int L1AbitOnPlace=0;
-	         for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
-	           L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
-	         }
-	         theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
-	       }
-             }
-           }
+	     theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
+	   }
          }
-         if(!stripMatchCounter){
+         else{
+           for(int tripl=0; tripl<3; ++tripl){
+	   if(theStrips[ila]==(stripNproto+tripl*16)){
+             stripMatchCounter=true;
+	     std::vector<int> L1AP=(*itl1).getL1APhase();
+	     int L1AbitOnPlace=0;
+	     for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
+	        L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
+	     }
+	     theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
+	    }
+          }
+        }
+      }
+    if(!stripMatchCounter){
              theL1AStrips.push_back(theStrips[ila]);
-         }
-       }
+           }
+    }
   /// L1A (end Looping)
 
    CSCStripHit striphit( id, strippos, tmax_cluster, theL1AStrips, strips_adc, strips_adcRaw, /// L1A
@@ -199,13 +183,12 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
    hitsInLayer.push_back( striphit ); 
   }
   
-  /// Print statement to check StripHit content w/ LA1
-  /*   
+  /// Print statement (!!!to control StripHit content!!!) LA1
+  /*  
       for(std::vector<CSCStripHit>::const_iterator itSHit=hitsInLayer.begin(); itSHit!=hitsInLayer.end(); ++itSHit){
          (*itSHit).print(); 
          }  
   */
-
   return hitsInLayer;
 }
 
@@ -236,10 +219,7 @@ float CSCHitFromStripOnly::makeCluster( int centerStrip ) {
     theStrips.push_back( centerStrip + i );
   }
   strippos = findHitOnStripPosition( stripDataV, centerStrip );
-
-  LogTrace("CSCHitFromStripOnly")  << "[CSCHitFromStripOnly::makeCluster] centerStrip= " << centerStrip << 
-    " strippos=" << strippos;
-
+  
   return strippos;
 }
 
@@ -389,13 +369,12 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     // (To apply gains use CSCStripData::op*= which scales only the non-raw sca ph's;
     // but note that both sca & scaRaw are pedestal-subtracted.)
 
-    // From StripDigi, thisChannel labels strip channel. Values phmax, tmax, scaRaw, sca belong to thisChannel
-    thePulseHeightMap[thisChannel-1] = CSCStripData( thisChannel, phmax, tmax, scaRaw, sca );
-    if ( useCalib ) thePulseHeightMap[thisChannel-1] *= gainWeight[thisChannel-1];
-
-    // for ganged ME1a need to duplicate values on istrip=thisChannel to iStrip+16 and iStrip+32
-    if ( ganged() ) {
-      for ( int j = 1; j < 3; ++j ) {  
+    if ( id_.ring() != 4 ) { // non-ME1a
+      thePulseHeightMap[thisChannel-1] = CSCStripData( thisChannel, phmax, tmax, scaRaw, sca );
+      if ( useCalib ) thePulseHeightMap[thisChannel-1] *= gainWeight[thisChannel-1];
+    } 
+    else { // ME1a, so unfold its 16 channels to its 48 strips
+      for ( int j = 0; j < 3; ++j ) {
 	thePulseHeightMap[thisChannel-1+16*j] = CSCStripData( thisChannel+16*j, phmax, tmax, scaRaw, sca );
 	if ( useCalib ) thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
       }
@@ -535,8 +514,7 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
     std::copy( wRaw.begin(), wRaw.end(), std::back_inserter(strips_adcRaw));
 
     if ( data[i].strip() < 1 ){
-      LogTrace("CSCRecHit") << "[CSCHitFromStripOnly::findHitOnStripPosition] problem in indexing of strip, strip= " 
-        << data[i].strip();
+      LogTrace("CSCRecHit") << "problem in indexing of strip, strip id is: " << data[i].strip();
     } 
     sum_w += w[1];
     sum   += w[1] * data[i].strip();

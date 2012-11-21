@@ -3,7 +3,6 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
@@ -31,16 +30,17 @@ class SiStripActionExecutor {
 
 
  bool readConfiguration();
- // bool readTkMapConfiguration();
- bool readTkMapConfiguration(const edm::EventSetup& eSetup);
+ bool readTkMapConfiguration();
 
  void saveMEs(DQMStore * dqm_store, std::string fname);
  void createSummary(DQMStore* dqm_store);
  void createSummaryOffline(DQMStore* dqm_store);
  void createTkMap(const edm::ParameterSet & tkmapPset, 
+		  const edm::ESHandle<SiStripFedCabling>& fedcabling, 
                   DQMStore* dqm_store, std::string& map_type);
  void createOfflineTkMap(const edm::ParameterSet & tkmapPset,
-			 DQMStore* dqm_store, std::string& map_type);
+		  const edm::ESHandle<SiStripFedCabling>& fedcabling, 
+                  DQMStore* dqm_store, std::string& map_type);
 
  void createStatus(DQMStore* dqm_store);
  void fillDummyStatus();

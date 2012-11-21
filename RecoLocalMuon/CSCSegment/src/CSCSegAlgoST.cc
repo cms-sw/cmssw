@@ -97,9 +97,6 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
 
   // Store chamber in temp memory
   theChamber = aChamber; 
-
-  LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::run] build segments in chamber " << theChamber->id();
-
   // pre-cluster rechits and loop over all sub clusters seperately
   std::vector<CSCSegment>          segments_temp;
   std::vector<CSCSegment>          segments;
@@ -154,10 +151,7 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
       segments.clear(); // segments_temp needed?!?!
       segments.swap(segments_temp); // segments_temp needed?!?!
     }
-  
-    //@@ Ganged strips in ME1/1A?
-    if ( ("ME1/a" == aChamber->specs()->chamberTypeName()) && aChamber->specs()->gangedStrips() ){
-    //  if ( aChamber->specs()->gangedStrips() ){
+    if ("ME1/a" == aChamber->specs()->chamberTypeName()){
       findDuplicates(segments);
     }
     return segments;
@@ -170,10 +164,7 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, ChamberHit
       segments.clear(); // segments_temp needed?!?!
       segments.swap(segments_temp); // segments_temp needed?!?!
     }
-
-    //@@ Ganged strips in ME1/1A?
-    if ( ("ME1/a" == aChamber->specs()->chamberTypeName()) && aChamber->specs()->gangedStrips() ){
-    //  if ( aChamber->specs()->gangedStrips() ){
+    if ("ME1/a" == aChamber->specs()->chamberTypeName()){
       findDuplicates(segments);
     }
     return segments;
@@ -534,11 +525,9 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
     seeds.push_back(temp);
     usedCluster.push_back(false);
   }
-  //@@ Only ME1/1A can have ganged strips so no need to test name
-  bool gangedME11a = false;
-  if ( ("ME1/a" == aChamber->specs()->chamberTypeName()) && aChamber->specs()->gangedStrips() ){
-  //  if ( aChamber->specs()->gangedStrips() ){
-    gangedME11a = true;
+  bool isME11a = false;
+  if ("ME1/a" == aChamber->specs()->chamberTypeName()){
+    isME11a = true;
   }
   // merge chains that are too close ("touch" each other)
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
@@ -549,15 +538,15 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
       // all is in the way we define "good";
       // try not to "cluster" the hits but to "chain" them;
       // it does the clustering but also does a better job
-      // for inclined tracks (not clustering them together;
+      // for inclined tracks (not clustering them togheter;
       // crossed tracks would be still clustered together) 
       // 22.12.09: In fact it is not much more different 
       // than the "clustering", we just introduce another
-      // variable in the game - Z. And it makes sense 
+      // variable in the game - Z. And it make sense 
       // to re-introduce Y (or actually wire group mumber)
       // in a similar way as for the strip number - see
       // the code below.
-      bool goodToMerge  = isGoodToMerge(gangedME11a, seeds[NNN], seeds[MMM]);
+      bool goodToMerge  = isGoodToMerge(isME11a, seeds[NNN], seeds[MMM]);
       if(goodToMerge){
         // merge chains!
         // merge by adding seed NNN to seed MMM and erasing seed NNN
@@ -589,7 +578,7 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
       return rechits_chains;
 }
 
-bool CSCSegAlgoST::isGoodToMerge(bool gangedME11a, ChamberHitContainer & newChain, ChamberHitContainer & oldChain) {
+bool CSCSegAlgoST::isGoodToMerge(bool isME11a, ChamberHitContainer & newChain, ChamberHitContainer & oldChain) {
   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
     int layer_new = newChain[iRH_new]->cscDetId().layer()-1;     
     int middleStrip_new = newChain[iRH_new]->nStrips()/2;
@@ -634,7 +623,7 @@ bool CSCSegAlgoST::isGoodToMerge(bool gangedME11a, ChamberHitContainer & newChai
         wireRequirementOK = true;
       }
 
-      if(gangedME11a){
+      if(isME11a){
 	if(centralStrip_new==centralStrip_old+1-allStrips || centralStrip_new==centralStrip_old-1-allStrips ||
 	   centralStrip_new==centralStrip_old+2-allStrips || centralStrip_new==centralStrip_old-2-allStrips ||
 	   centralStrip_new==centralStrip_old+1+allStrips || centralStrip_new==centralStrip_old-1+allStrips ||
@@ -1607,9 +1596,6 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
     flipErrors( protoErrors ); 
     //
     CSCSegment temp(protoSegment, protoIntercept, protoDirection, protoErrors, protoChi2);
-
-    LogTrace("CSCSegAlgoST") << "[CSCSegAlgoST::buildSegments] protosegment\n " << temp;
-
     segmentInChamber.push_back(temp); 
   }
   return segmentInChamber;

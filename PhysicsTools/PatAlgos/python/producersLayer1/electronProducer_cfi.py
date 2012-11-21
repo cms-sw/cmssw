@@ -9,10 +9,6 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     pfElectronSource = cms.InputTag("particleFlow"),
     pfCandidateMap = cms.InputTag("particleFlow:electrons"),
 
-    # collections for mva input variables
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
-
     # user data to add
     userData = cms.PSet(
       # add custom classes here
@@ -40,10 +36,8 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     embedGsfElectronCore = cms.bool(True),  ## embed in AOD externally stored gsf electron core
     embedGsfTrack        = cms.bool(True),  ## embed in AOD externally stored gsf track
     embedSuperCluster    = cms.bool(True),  ## embed in AOD externally stored supercluster
-    embedSeedCluster     = cms.bool(True),  ## embed in AOD externally stored the electron's seedcluster 
     embedPFCandidate     = cms.bool(True),  ## embed in AOD externally stored particle flow candidate
-    embedTrack           = cms.bool(True), ## embed in AOD externally stored track (note: gsf electrons don't have a track)
-    embedRecHits         = cms.bool(True),  ## embed in AOD externally stored the RecHits - can be called from the PATElectronProducer 
+    embedTrack           = cms.bool(False), ## embed in AOD externally stored track (note: gsf electrons don't have a track)
 
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(),

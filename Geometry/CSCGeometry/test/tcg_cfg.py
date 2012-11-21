@@ -1,16 +1,16 @@
 # Configuration file to run stubs/CSCGeometryAnalyser
-# I hope geometry comes from xml
-# Tim Cox 18.10.2012
+# to dump CSC geometry information
+# Tim Cox 20.01.2009
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("CSCGeometryTest")
-
+process = cms.Process("GeometryTest")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-
+##process.load("Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff")
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
+##process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "FakeAlignmentSource")
 process.fake2 = process.FakeAlignmentSource
 del process.FakeAlignmentSource
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "fake2")
