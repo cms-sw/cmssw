@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.15 2008/06/25 22:11:15 heltsley Exp $
+   \version $Id: testEcalDetId.cpp,v 1.16 2011/01/12 20:38:57 heltsley Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.15 2008/06/25 22:11:15 heltsley Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.16 2011/01/12 20:38:57 heltsley Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -32,7 +32,8 @@ class testEcalDetId: public CppUnit::TestFixture {
   CPPUNIT_TEST(testEcalTrigTowerDetId);
   // CPPUNIT_TEST(testEcalElectronicsId);
   CPPUNIT_TEST(testPnDiodeDetId);
-
+  CPPUNIT_TEST(testDistancePhi);
+  
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -46,7 +47,7 @@ public:
   void testEcalTrigTowerDetId();
   // void testEcalElectronicsId();
   void testPnDiodeDetId();
- 
+  void testDistancePhi();
 }; 
 
 ///registration of the test so that the runner can find it
@@ -331,4 +332,27 @@ void testEcalDetId::testPnDiodeDetId() {
 	    { 
 	    }
 	}
+}
+
+void testEcalDetId::testDistancePhi(){
+
+  EBDetId a1(1,360);
+  EBDetId b1(1,1);
+  CPPUNIT_ASSERT(EBDetId::distancePhi(a1,b1)==1);
+
+
+  EBDetId  a2(1,1);
+  EBDetId  b2(1,360);
+  CPPUNIT_ASSERT(EBDetId::distancePhi(a2,b2)==1);
+
+  EBDetId  a3(1,175);
+  EBDetId  b3(1,185);
+  CPPUNIT_ASSERT(EBDetId::distancePhi(a3,b3)==10);
+  
+
+  EBDetId  a4(1,350);
+  EBDetId  b4(1,3);
+  CPPUNIT_ASSERT(EBDetId::distancePhi(a4,b4)==13);
+  
+
 }

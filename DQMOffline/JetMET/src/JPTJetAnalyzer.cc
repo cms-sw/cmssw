@@ -107,7 +107,7 @@ JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
   getConfigForHistogram("E",config,pDebugStream);
   getConfigForHistogram("Et",config,pDebugStream);
   getConfigForHistogram("P",config,pDebugStream);
-  /*  getConfigForHistogram("Mass",config,pDebugStream);  */
+  getConfigForHistogram("Mass",config,pDebugStream);
   getConfigForHistogram("Pt",config,pDebugStream);
   getConfigForHistogram("Pt1",config,pDebugStream);
   getConfigForHistogram("Pt2",config,pDebugStream);
@@ -117,33 +117,33 @@ JPTJetAnalyzer::JPTJetAnalyzer(const edm::ParameterSet& config)
   getConfigForHistogram("Pz",config,pDebugStream);
   getConfigForHistogram("Eta",config,pDebugStream);
   getConfigForHistogram("Phi",config,pDebugStream);
-  /*  getConfigForHistogram("deltaEta",config,pDebugStream);
-      getConfigForHistogram("deltaPhi",config,pDebugStream);  */
+  getConfigForHistogram("deltaEta",config,pDebugStream);
+  getConfigForHistogram("deltaPhi",config,pDebugStream);
   getConfigForHistogram("PhiVsEta",config,pDebugStream);
-  /*  getConfigForHistogram("N90Hits",config,pDebugStream);  
+  getConfigForHistogram("N90Hits",config,pDebugStream);
   getConfigForHistogram("fHPD",config,pDebugStream);
-  getConfigForHistogram("ResEMF",config,pDebugStream);   
-  getConfigForHistogram("fRBX",config,pDebugStream); 
-  getConfigForHistogram("TrackSiStripHitStoN",config,pDebugStream); */
+  getConfigForHistogram("ResEMF",config,pDebugStream);
+  getConfigForHistogram("fRBX",config,pDebugStream);
+  getConfigForHistogram("TrackSiStripHitStoN",config,pDebugStream);
   getConfigForHistogram("InCaloTrackDirectionJetDR",config,pDebugStream);
   getConfigForHistogram("OutCaloTrackDirectionJetDR",config,pDebugStream);
   getConfigForHistogram("InVertexTrackImpactPointJetDR",config,pDebugStream);
   getConfigForHistogram("OutVertexTrackImpactPointJetDR",config,pDebugStream);
-  /*  getConfigForHistogram("PtFractionInCone",config,pDebugStream);
+  getConfigForHistogram("PtFractionInCone",config,pDebugStream);
   getConfigForHistogram("PtFractionInConeVsJetRawEt",config,pDebugStream);
-  getConfigForHistogram("PtFractionInConeVsJetEta",config,pDebugStream);  */
+  getConfigForHistogram("PtFractionInConeVsJetEta",config,pDebugStream);
   getConfigForHistogram("nTracks",config,pDebugStream);
   getConfigForHistogram("nTracksVsJetEt",config,pDebugStream);
   getConfigForHistogram("nTracksVsJetEta",config,pDebugStream);
-  /*  getConfigForHistogram("CorrFactor",config,pDebugStream);
+  getConfigForHistogram("CorrFactor",config,pDebugStream);
   getConfigForHistogram("CorrFactorVsJetEt",config,pDebugStream);
-  getConfigForHistogram("CorrFactorVsJetEta",config,pDebugStream);  
+  getConfigForHistogram("CorrFactorVsJetEta",config,pDebugStream);
   getConfigForHistogram("ZSPCorrFactor",config,pDebugStream);
   getConfigForHistogram("ZSPCorrFactorVsJetEt",config,pDebugStream);
   getConfigForHistogram("ZSPCorrFactorVsJetEta",config,pDebugStream);
   getConfigForHistogram("JPTCorrFactor",config,pDebugStream);
   getConfigForHistogram("JPTCorrFactorVsJetEt",config,pDebugStream);
-  getConfigForHistogram("JPTCorrFactorVsJetEta",config,pDebugStream);  */
+  getConfigForHistogram("JPTCorrFactorVsJetEta",config,pDebugStream);
   getConfigForTrackHistograms("AllPions",config,pDebugStream);
   getConfigForTrackHistograms("InCaloInVertexPions",config,pDebugStream);
   getConfigForTrackHistograms("InCaloOutVertexPions",config,pDebugStream);
@@ -201,12 +201,10 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
   trackPropagator_->update(eventSetup);
   sOverNCalculator_->update(eventSetup);
   
-  //make corrected jets 
-  /* */
-  //  const double factorZSP = jptJet.getZSPCor();  
+  //make corrected jets
+  const double factorZSP = jptJet.getZSPCor();
   const reco::Jet& rawJet = *jptJet.getCaloJetRef();
-  /* */ 
-  //  const double factorZSPJPT = jptJet.energy()/rawJet.energy(); 
+  const double factorZSPJPT = jptJet.energy()/rawJet.energy();
   
   //check jet is correctable by JPT
   if ( fabs(rawJet.eta()) > 2.1) return;
@@ -245,18 +243,18 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
     return;
   }
   const bool idPassed = ( (jetID_->n90Hits() >= n90HitsMin_) && (jetID_->fHPD() < fHPDMax_) && (jetID_->restrictedEMF() >= resEMFMin_) );
-  /*  fillHistogram(JetN90Hits_,jetID_->n90Hits());  
+  fillHistogram(JetN90Hits_,jetID_->n90Hits());
   fillHistogram(JetfHPD_,jetID_->fHPD());
-  fillHistogram(JetResEMF_,jetID_->restrictedEMF());  
-  fillHistogram(JetfRBX_,jetID_->fRBX());  */
+  fillHistogram(JetResEMF_,jetID_->restrictedEMF());
+  fillHistogram(JetfRBX_,jetID_->fRBX());
   if (idPassed) {
-    //    const double deltaEta = jptJet.eta() - rawJet.eta();
-    //    const double deltaPhi = jptJet.phi() - rawJet.phi();
+    const double deltaEta = jptJet.eta() - rawJet.eta();
+    const double deltaPhi = jptJet.phi() - rawJet.phi();
     if (jptJet.pt() > correctedPtMin_) {
       fillHistogram(JetE_,jptJet.energy());
       fillHistogram(JetEt_,jptJet.et());
       fillHistogram(JetP_,jptJet.p());
-      /*      fillHistogram(JetMass_,jptJet.mass());  */
+      fillHistogram(JetMass_,jptJet.mass());
       fillHistogram(JetPt_,jptJet.pt());
       fillHistogram(JetPx_,jptJet.px());
       fillHistogram(JetPy_,jptJet.py());
@@ -264,8 +262,8 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
 
       fillHistogram(JetEta_,jptJet.eta());
       fillHistogram(JetPhi_,jptJet.phi());
-      /*      fillHistogram(JetDeltaEta_,deltaEta);
-	      fillHistogram(JetDeltaPhi_,deltaPhi);    */
+      fillHistogram(JetDeltaEta_,deltaEta);
+      fillHistogram(JetDeltaPhi_,deltaPhi);
       fillHistogram(JetPhiVsEta_,jptJet.phi(),jptJet.eta());
 
 
@@ -273,20 +271,20 @@ void JPTJetAnalyzer::analyze(const edm::Event&      event,
       fillHistogram(NTracksPerJetHisto_,totalTracks);
       fillHistogram(NTracksPerJetVsJetEtHisto_,rawJet.et(),totalTracks);
       fillHistogram(NTracksPerJetVsJetEtaHisto_,rawJet.eta(),totalTracks);
-      /*      fillHistogram(CorrFactorHisto_,factorZSPJPT);
+      fillHistogram(CorrFactorHisto_,factorZSPJPT);
       fillHistogram(CorrFactorVsJetEtHisto_,rawJet.et(),factorZSPJPT);
       fillHistogram(CorrFactorVsJetEtaHisto_,rawJet.eta(),factorZSPJPT);
       fillHistogram(ZSPCorrFactorHisto_,factorZSP);
       fillHistogram(ZSPCorrFactorVsJetEtHisto_,rawJet.et(),factorZSP);
-      fillHistogram(ZSPCorrFactorVsJetEtaHisto_,rawJet.eta(),factorZSP); */
-      /*     const double factorJPT = factorZSPJPT / factorZSP;   */
-      /*      fillHistogram(JPTCorrFactorHisto_,factorJPT);
+      fillHistogram(ZSPCorrFactorVsJetEtaHisto_,rawJet.eta(),factorZSP);
+      const double factorJPT = factorZSPJPT / factorZSP;
+      fillHistogram(JPTCorrFactorHisto_,factorJPT);
       fillHistogram(JPTCorrFactorVsJetEtHisto_,rawJet.et(),factorJPT);
-      fillHistogram(JPTCorrFactorVsJetEtaHisto_,rawJet.eta(),factorJPT);  */
-      //      const double ptFractionInCone = findPtFractionInCone(pionsInVertexInCalo,pionsInVertexOutCalo);
-      /*      fillHistogram(PtFractionInConeHisto_,ptFractionInCone);
+      fillHistogram(JPTCorrFactorVsJetEtaHisto_,rawJet.eta(),factorJPT);
+      const double ptFractionInCone = findPtFractionInCone(pionsInVertexInCalo,pionsInVertexOutCalo);
+      fillHistogram(PtFractionInConeHisto_,ptFractionInCone);
       fillHistogram(PtFractionInConeVsJetRawEtHisto_,rawJet.et(),ptFractionInCone);
-      fillHistogram(PtFractionInConeVsJetEtaHisto_,rawJet.eta(),ptFractionInCone); */
+      fillHistogram(PtFractionInConeVsJetEtaHisto_,rawJet.eta(),ptFractionInCone);
       //fill track level histograms
       fillTrackHistograms(allPionHistograms_,inCaloInVertexPionHistograms_,inCaloOutVertexPionHistograms_,outCaloInVertexPionHistograms_,
                           pionsInVertexInCalo,pionsOutVertexInCalo,pionsInVertexOutCalo,rawJet);
@@ -352,12 +350,12 @@ void JPTJetAnalyzer::getConfigForTrackHistograms(const std::string& tag, const e
   getConfigForHistogram(tag+"TrackPt",psetContainingConfigPSet,pDebugStream);
   getConfigForHistogram(tag+"TrackPhi",psetContainingConfigPSet,pDebugStream);
   getConfigForHistogram(tag+"TrackEta",psetContainingConfigPSet,pDebugStream);
-  /*  getConfigForHistogram(tag+"TrackNHits",psetContainingConfigPSet,pDebugStream);
-      getConfigForHistogram(tag+"TrackNLayers",psetContainingConfigPSet,pDebugStream);
-      getConfigForHistogram(tag+"TrackNLayers",psetContainingConfigPSet,pDebugStream);     */
+  getConfigForHistogram(tag+"TrackNHits",psetContainingConfigPSet,pDebugStream);
+  getConfigForHistogram(tag+"TrackNLayers",psetContainingConfigPSet,pDebugStream);
+  getConfigForHistogram(tag+"TrackNLayers",psetContainingConfigPSet,pDebugStream);
   getConfigForHistogram(tag+"TrackPtVsEta",psetContainingConfigPSet,pDebugStream);
-  /*  getConfigForHistogram(tag+"TrackDz",psetContainingConfigPSet,pDebugStream);
-  getConfigForHistogram(tag+"TrackDxy",psetContainingConfigPSet,pDebugStream); */
+  getConfigForHistogram(tag+"TrackDz",psetContainingConfigPSet,pDebugStream);
+  getConfigForHistogram(tag+"TrackDxy",psetContainingConfigPSet,pDebugStream);
 }
 
 MonitorElement* JPTJetAnalyzer::bookHistogram(const std::string& name, const std::string& title, const std::string& xAxisTitle, DQMStore* dqm)
@@ -421,7 +419,7 @@ void JPTJetAnalyzer::bookHistograms(DQMStore* dqm)
   JetE_        = bookHistogram("E","Corrected Jet Energy","E /GeV",dqm);
   JetEt_       = bookHistogram("Et","Corrected Jet E_{T}","E_{T} /GeV",dqm);
   JetP_        = bookHistogram("P","Corrected Jet Momentum","p /GeV/c",dqm);
-  /*  JetMass_     = bookHistogram("Mass","Jet mass","Mass /GeV/c^{2}",dqm);  */
+  JetMass_     = bookHistogram("Mass","Jet mass","Mass /GeV/c^{2}",dqm);
   JetPt_       = bookHistogram("Pt","Jet p_{T}","p_{T} /GeV/c",dqm);
   JetPt1_      = bookHistogram("Pt1","1st Jet p_{T}","p_{T} /GeV/c",dqm);
   JetPt2_      = bookHistogram("Pt2","2nd Jet p_{T}","p_{T} /GeV/c",dqm);
@@ -431,16 +429,16 @@ void JPTJetAnalyzer::bookHistograms(DQMStore* dqm)
   JetPz_       = bookHistogram("Pz","Jet p_{Z}","p_{Z} /GeV/c",dqm);
   JetEta_      = bookHistogram("Eta","Jet #eta","#eta",dqm);
   JetPhi_      = bookHistogram("Phi","Jet #phi","#phi",dqm);
-  /*  JetDeltaEta_ = bookHistogram("deltaEta","Change in #eta","#Delta #eta",dqm);
-      JetDeltaPhi_ = bookHistogram("deltaPhi","Change in #phi","#Delta #phi",dqm);  */
+  JetDeltaEta_ = bookHistogram("deltaEta","Change in #eta","#Delta #eta",dqm);
+  JetDeltaPhi_ = bookHistogram("deltaPhi","Change in #phi","#Delta #phi",dqm);
   JetPhiVsEta_ = book2DHistogram("PhiVsEta","Corrected jet #phi vs #eta","jet #phi","jet #eta",dqm);
-  /*  JetN90Hits_  = bookHistogram("N90Hits","Jet N90Hits","N90 Hits",dqm);  
+  JetN90Hits_  = bookHistogram("N90Hits","Jet N90Hits","N90 Hits",dqm);
   JetfHPD_     = bookHistogram("fHPD","Jet fHPD","fHPD",dqm);
-  JetResEMF_   = bookHistogram("ResEMF","Jet restricted EM fraction","restricted EMF",dqm); 
-  JetfRBX_     = bookHistogram("fRBX","Jet fRBX","fRBX",dqm); 
+  JetResEMF_   = bookHistogram("ResEMF","Jet restricted EM fraction","restricted EMF",dqm);
+  JetfRBX_     = bookHistogram("fRBX","Jet fRBX","fRBX",dqm);
 
 
-  TrackSiStripHitStoNHisto_            = bookHistogram("TrackSiStripHitStoN","Signal to noise of track SiStrip hits","S/N",dqm);  */
+  TrackSiStripHitStoNHisto_            = bookHistogram("TrackSiStripHitStoN","Signal to noise of track SiStrip hits","S/N",dqm);
   InCaloTrackDirectionJetDRHisto_      = bookHistogram("InCaloTrackDirectionJetDR",
                                                        "#Delta R between track direrction at vertex and jet axis (track in cone at calo)","#Delta R",dqm);
   OutCaloTrackDirectionJetDRHisto_     = bookHistogram("OutCaloTrackDirectionJetDR",
@@ -454,8 +452,8 @@ void JPTJetAnalyzer::bookHistograms(DQMStore* dqm)
   NTracksPerJetVsJetEtHisto_  = bookProfile("nTracksVsJetEt","Number of tracks for correction per jet vs jet raw E_{T}","Jet raw E_{T} /GeV","n Tracks",dqm);
   NTracksPerJetVsJetEtaHisto_ = bookProfile("nTracksVsJetEta","Number of tracks for correction per jet vs jet #eta","Jet #eta","n Tracks",dqm);
   
-  /*  PtFractionInConeHisto_           = bookHistogram("PtFractionInCone","#frac{p_{T}^{in-cone}}{p_{T}^{in-cone}+p_{T}^{out-of-cone}}",
-                                                 "#frac{p_{T}^{in-cone}}{p_{T}^{in-cone}+p_{T}^{out-of-cone}}",dqm);   
+  PtFractionInConeHisto_           = bookHistogram("PtFractionInCone","#frac{p_{T}^{in-cone}}{p_{T}^{in-cone}+p_{T}^{out-of-cone}}",
+                                                 "#frac{p_{T}^{in-cone}}{p_{T}^{in-cone}+p_{T}^{out-of-cone}}",dqm);
   PtFractionInConeVsJetRawEtHisto_ = bookProfile("PtFractionInConeVsJetRawEt","#frac{p_{T}^{in-cone}}{p_{T}^{in-cone}+p_{T}^{out-of-cone}} vs jet raw E_{T}",
                                                  "Jet raw E_{T} / GeV","#frac{p_{T}^{in-cone}}{p_{T}^{in-cone}+p_{T}^{out-of-cone}}",dqm);
   PtFractionInConeVsJetEtaHisto_   = bookProfile("PtFractionInConeVsJetEta","#frac{p_{T}^{in-cone}}{p_{T}^{in-cone}+p_{T}^{out-of-cone}} vs jet #eta",
@@ -473,7 +471,7 @@ void JPTJetAnalyzer::bookHistograms(DQMStore* dqm)
   JPTCorrFactorVsJetEtHisto_  = bookProfile("JPTCorrFactorVsJetEt","Correction factor from JPT step vs jet raw E_{T}",
                                             "Jet raw E_{T}","#frac{E_{T}^{corr}}{E_{T}^{raw}}",dqm);
   JPTCorrFactorVsJetEtaHisto_ = bookProfile("JPTCorrFactorVsJetEta","Correction factor from JPT step vs jet #eta",
-  "Jet #eta","#frac{E_{T}^{corr}}{E_{T}^{raw}}",dqm);   */
+                                            "Jet #eta","#frac{E_{T}^{corr}}{E_{T}^{raw}}",dqm);
 
 
   
@@ -509,11 +507,11 @@ void JPTJetAnalyzer::bookTrackHistograms(TrackHistograms* histos, const std::str
   histos->ptHisto = bookHistogram(tag+"TrackPt",titleTag+" p_{T}","p_{T} /GeV/c",dqm);
   histos->phiHisto = bookHistogram(tag+"TrackPhi",titleTag+" track #phi","#phi",dqm);
   histos->etaHisto = bookHistogram(tag+"TrackEta",titleTag+" track #eta","#eta",dqm);
-  /*  histos->nHitsHisto = bookHistogram(tag+"TrackNHits",titleTag+" track N hits","N hits",dqm);
-      histos->nLayersHisto = bookHistogram(tag+"TrackNLayers",titleTag+" track N layers with hits","N layers",dqm);    */
+  histos->nHitsHisto = bookHistogram(tag+"TrackNHits",titleTag+" track N hits","N hits",dqm);
+  histos->nLayersHisto = bookHistogram(tag+"TrackNLayers",titleTag+" track N layers with hits","N layers",dqm);
   histos->ptVsEtaHisto = bookProfile(tag+"TrackPtVsEta",titleTag+" track p_{T} vs #eta","#eta","p_{T} /GeV/c",dqm);
-  /*  histos->dzHisto = bookHistogram(tag+"TrackDz",titleTag+" track dz","dz /cm",dqm);
-  histos->dxyHisto = bookHistogram(tag+"TrackDxy",titleTag+" track dxy","dxy /cm",dqm); */
+  histos->dzHisto = bookHistogram(tag+"TrackDz",titleTag+" track dz","dz /cm",dqm);
+  histos->dxyHisto = bookHistogram(tag+"TrackDxy",titleTag+" track dxy","dxy /cm",dqm);
   histos->trackDirectionJetDRHisto = trackDirectionJetDRHisto;
   histos->trackImpactPointJetDRHisto = trackImpactPointJetDRHisto;
 }
@@ -548,18 +546,18 @@ void JPTJetAnalyzer::fillTrackHistograms(TrackHistograms& histos, const reco::Tr
     const double pt = track.pt();
     const double phi = track.phi();
     const double eta = track.eta();
-    //    const unsigned int nHits = track.found();
-    //    const unsigned int nLayers = track.hitPattern().trackerLayersWithMeasurement();
-    //    const double dz = track.dz();
-    //    const double dxy = track.dxy();  
+    const unsigned int nHits = track.found();
+    const unsigned int nLayers = track.hitPattern().trackerLayersWithMeasurement();
+    const double dz = track.dz();
+    const double dxy = track.dxy();
     fillHistogram(histos.ptHisto,pt);
     fillHistogram(histos.phiHisto,phi);
     fillHistogram(histos.etaHisto,eta);
-    /*    fillHistogram(histos.nHitsHisto,nHits);
-	  fillHistogram(histos.nLayersHisto,nLayers);   */
+    fillHistogram(histos.nHitsHisto,nHits);
+    fillHistogram(histos.nLayersHisto,nLayers);
     fillHistogram(histos.ptVsEtaHisto,eta,pt);
-    /*    fillHistogram(histos.dzHisto,dz);
-    fillHistogram(histos.dxyHisto,dxy);   */
+    fillHistogram(histos.dzHisto,dz);
+    fillHistogram(histos.dxyHisto,dxy);
     const double trackDirectionJetDR = deltaR(rawJet,track);
     fillHistogram(histos.trackDirectionJetDRHisto,trackDirectionJetDR);
     const double impactPointJetDR = deltaR(rawJet,trackPropagator_->impactPoint(track));
@@ -625,9 +623,9 @@ void JPTJetAnalyzer::fillSiStripHitSoNForSingleHit(const SiStripRecHit2D& hit)
     return;
   }
   //calculate signal to noise for cluster
-  //  const double sOverN = (*sOverNCalculator_)(*cluster,hit.geographicalId());
+  const double sOverN = (*sOverNCalculator_)(*cluster,hit.geographicalId());
   //fill histogram
-  /*  fillHistogram(TrackSiStripHitStoNHisto_,sOverN);  */
+  fillHistogram(TrackSiStripHitStoNHisto_,sOverN);
 }
 
 double JPTJetAnalyzer::findPtFractionInCone(const reco::TrackRefVector& inConeTracks, const reco::TrackRefVector& outOfConeTracks)
@@ -687,30 +685,29 @@ JPTJetAnalyzer::TrackHistograms::TrackHistograms()
   : ptHisto(NULL),
     phiHisto(NULL),
     etaHisto(NULL),
-    /*    nHitsHisto(NULL),
-	  nLayersHisto(NULL), */
+    nHitsHisto(NULL),
+    nLayersHisto(NULL),
     ptVsEtaHisto(NULL),
-    /*    dzHisto(NULL),
-    dxyHisto(NULL),  */
+    dzHisto(NULL),
+    dxyHisto(NULL),
     trackDirectionJetDRHisto(NULL),
     trackImpactPointJetDRHisto(NULL)
 {}
 
-JPTJetAnalyzer::TrackHistograms::TrackHistograms(MonitorElement* theNTracksHisto, 
-MonitorElement* thePtHisto, MonitorElement* thePhiHisto, MonitorElement* theEtaHisto, 
-/*  MonitorElement* theNHitsHisto, MonitorElement* theNLayersHisto, */ 
-MonitorElement* thePtVsEtaHisto, 
-/* MonitorElement* theDzHisto, MonitorElement* theDxyHisto, */ 
-MonitorElement* theTrackDirectionJetDRHisto, MonitorElement* theTrackImpactPointJetDRHisto)
+JPTJetAnalyzer::TrackHistograms::TrackHistograms(MonitorElement* theNTracksHisto,
+                                                 MonitorElement* thePtHisto, MonitorElement* thePhiHisto, MonitorElement* theEtaHisto,
+                                                 MonitorElement* theNHitsHisto, MonitorElement* theNLayersHisto, MonitorElement* thePtVsEtaHisto,
+                                                 MonitorElement* theDzHisto, MonitorElement* theDxyHisto,
+                                                 MonitorElement* theTrackDirectionJetDRHisto, MonitorElement* theTrackImpactPointJetDRHisto)
   : nTracksHisto(theNTracksHisto),
     ptHisto(thePtHisto),
     phiHisto(thePhiHisto),
     etaHisto(theEtaHisto),
-    /*    nHitsHisto(theNHitsHisto),
-	  nLayersHisto(theNLayersHisto),  */
+    nHitsHisto(theNHitsHisto),
+    nLayersHisto(theNLayersHisto),
     ptVsEtaHisto(thePtVsEtaHisto),
-    /*    dzHisto(theDzHisto),
-    dxyHisto(theDxyHisto),  */
+    dzHisto(theDzHisto),
+    dxyHisto(theDxyHisto),
     trackDirectionJetDRHisto(theTrackDirectionJetDRHisto),
     trackImpactPointJetDRHisto(theTrackImpactPointJetDRHisto)
 {}

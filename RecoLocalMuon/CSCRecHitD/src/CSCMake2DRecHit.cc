@@ -113,7 +113,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   std::vector<float> adc2;
   std::vector<float> adc2Raw;
 
-  LogTrace("CSCRecHit") << "CSCMake2DRecHit: dump of adc values to be added to rechit follows...";
+  LogTrace("CSCMake2DRecHit") << "[CSCMake2DRecHit] dump of adc values to be added to rechit follows...";
 
   for ( int iStrip = 0; iStrip < nStrip; ++iStrip) {
 
@@ -130,7 +130,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     // Up to CMSSW_5_0, Rechit takes _raw_ adc values
     // adcMap.put( strips[iStrip], adc2Raw.begin(), adc2Raw.end() ); 
 
-    LogTrace("CSCRecHit") << "CSCMake2DRecHit: strip = " << strips[iStrip] << 
+    LogTrace("CSCMake2DRecHit") << "[CSCMake2DRecHit] strip = " << strips[iStrip] << 
       " adcs= " << adc2Raw[0] << " " << adc2Raw[1] << " " << adc2Raw[2] << " " << adc2Raw[3];
 
   }
@@ -145,7 +145,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   tpeak = peakTimeFinder_->peakTime( tmax, adcArray, tpeak ); 
   // Just for completeness, the start time of the pulse is 133 ns earlier, according to Stan :)
   float t_zero = tpeak - 133.;
-  LogTrace("CSCRecHit|CSCMake2DRecHit") << "CSCMake2DRecHit: " << 
+  LogTrace("CSCRecHit") << "[CSCMake2DRecHit] " << 
     id << " strip=" << centerStrip << ", t_zero=" << t_zero << ", tpeak=" << tpeak;
 
 
@@ -266,7 +266,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   /// To see RecHit content (L1A feature included) (to be commented out)
   // rechit.print();
 
-  LogTrace("CSCRecHit") << "CSCMake2DRecHit: rechit created in layer " << id << "... \n" << rechit << "\n";
+  LogTrace("CSCRecHit") << "[CSCMake2DRecHit] rechit created in layer " << id << "... \n" << rechit;
 
   return rechit;
 

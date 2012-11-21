@@ -1,5 +1,5 @@
 /* 
- * $Id: MuonTrackCSCChamberResidual.cc,v 1.2 2011/11/02 07:38:30 mussgill Exp $
+ * $Id: MuonTrackCSCChamberResidual.cc,v 1.1 2011/10/12 23:32:08 khotilov Exp $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackCSCChamberResidual.h"
@@ -33,8 +33,6 @@ void MuonTrackCSCChamberResidual::setSegmentResidual(const reco::MuonChamberMatc
 
   align::LocalPoint l_seg(seg->x, seg->y, 0.);
   align::LocalPoint l_trk(trk->x, trk->y, 0.);
-  //align::GlobalPoint g_seg = m_globalGeometry->idToDet(chamber)->toGlobal(l_seg);
-  //align::GlobalPoint g_trk = m_globalGeometry->idToDet(chamber)->toGlobal(l_trk);
 
   /*
   double dphi = g_trk.phi() - g_seg.phi();

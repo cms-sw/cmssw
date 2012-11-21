@@ -21,7 +21,7 @@ def redoPFTauDiscriminators(process,
         process.patHPSPFTauDiscrimination = process.produceAndDiscriminateHPSPFTaus.copy()
         # remove producers
         for iname in process.patHPSPFTauDiscrimination.moduleNames():
-            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1 or  iname.find("kt6PFJetsForRhoComputationVoronoi") > -1 ):
+            if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1):
                 process.patHPSPFTauDiscrimination.remove(getattr(process,iname) )
         tauDiscriminationSequence = cloneProcessingSnippet(process, process.patHPSPFTauDiscrimination, postfix)
 
@@ -194,21 +194,10 @@ hpsTauIDSources = [
     ("byLooseCombinedIsolationDeltaBetaCorr", "DiscriminationByLooseCombinedIsolationDBSumPtCorr"),
     ("byMediumCombinedIsolationDeltaBetaCorr", "DiscriminationByMediumCombinedIsolationDBSumPtCorr"),
     ("byTightCombinedIsolationDeltaBetaCorr", "DiscriminationByTightCombinedIsolationDBSumPtCorr"),
-    ("byIsolationMVAraw", "DiscriminationByIsolationMVAraw"),
-    ("byLooseIsolationMVA", "DiscriminationByLooseIsolationMVA"),
-    ("byMediumIsolationMVA", "DiscriminationByMediumIsolationMVA"),
-    ("byTightIsolationMVA", "DiscriminationByTightIsolationMVA"),
     ("againstElectronLoose", "DiscriminationByLooseElectronRejection"),
     ("againstElectronMedium", "DiscriminationByMediumElectronRejection"),
     ("againstElectronTight", "DiscriminationByTightElectronRejection"),
     ("againstElectronMVA", "DiscriminationByMVAElectronRejection"),
-    ("againstElectronMVA2raw", "DiscriminationByMVA2rawElectronRejection"),
-    ("againstElectronMVA2category", "DiscriminationByMVA2rawElectronRejection:category"),
-    ("againstElectronVLooseMVA2", "DiscriminationByMVA2VLooseElectronRejection"),
-##    ("againstElectronVLooseMVA2DEBUG", "DiscriminationByMVA2VLooseElectronRejectionDEBUG"),
-    ("againstElectronLooseMVA2", "DiscriminationByMVA2LooseElectronRejection"),
-    ("againstElectronMediumMVA2", "DiscriminationByMVA2MediumElectronRejection"),
-    ("againstElectronTightMVA2", "DiscriminationByMVA2TightElectronRejection"),
     ("againstMuonLoose", "DiscriminationByLooseMuonRejection"),
     ("againstMuonMedium", "DiscriminationByMediumMuonRejection"),
     ("againstMuonTight", "DiscriminationByTightMuonRejection") ]

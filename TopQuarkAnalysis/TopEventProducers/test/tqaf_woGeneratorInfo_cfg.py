@@ -22,11 +22,12 @@ process.options = cms.untracked.PSet(
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = autoCond[ 'com10' ]
+
+from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
+process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:com10')
 
 #-------------------------------------------------
 # PAT and TQAF configuration

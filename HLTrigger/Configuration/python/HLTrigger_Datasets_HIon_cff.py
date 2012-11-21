@@ -30,7 +30,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetHIHighPt_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHIHighPt_selector.l1tResults = cms.InputTag('')
 streamA_datasetHIHighPt_selector.throw      = cms.bool(False)
-streamA_datasetHIHighPt_selector.triggerConditions = cms.vstring('HLT_HIDiJet55_v6', 
+streamA_datasetHIHighPt_selector.triggerConditions = cms.vstring('HLT_HIDiJet55_v7', 
     'HLT_HIDoublePhoton10_v5', 
     'HLT_HIDoublePhoton15_v5', 
     'HLT_HIDoublePhoton20_v5', 
@@ -42,11 +42,11 @@ streamA_datasetHIHighPt_selector.triggerConditions = cms.vstring('HLT_HIDiJet55_
     'HLT_HIFullTrack20_L1Peripheral_v6', 
     'HLT_HIFullTrack25_L1Central_v6', 
     'HLT_HIFullTrack25_L1Peripheral_v6', 
-    'HLT_HIJet55_v6', 
-    'HLT_HIJet65_Jet55_v6', 
-    'HLT_HIJet65_v6', 
-    'HLT_HIJet80_v6', 
-    'HLT_HIJet95_v6', 
+    'HLT_HIJet55_v7', 
+    'HLT_HIJet65_Jet55_v7', 
+    'HLT_HIJet65_v7', 
+    'HLT_HIJet80_v7', 
+    'HLT_HIJet95_v7', 
     'HLT_HIJetE30_NoBPTX_v6', 
     'HLT_HIJetE50_NoBPTX3BX_NoHalo_v6', 
     'HLT_HIMET120_v6', 

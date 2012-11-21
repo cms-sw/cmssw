@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Matches tTrig values for RPhi SL's
  *
- *  $Revision: 1.2 $
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -18,8 +18,6 @@ namespace edm {
 }
 
 class DTTtrig;
-
-namespace dtCalibration {
 
 class DTTTrigMatchRPhi: public DTTTrigBaseCorrection {
 public:
@@ -37,6 +35,4 @@ private:
 
   std::string dbLabel;
 };
-
-} // namespace
 #endif

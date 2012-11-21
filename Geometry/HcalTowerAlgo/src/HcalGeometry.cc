@@ -8,13 +8,6 @@ typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
-HcalGeometry::HcalGeometry() :
-   theTopology    ( new HcalTopology ),
-   m_ownsTopology ( true )
-{
-   init() ;
-}
-
 HcalGeometry::HcalGeometry( const HcalTopology* topology ) :
    theTopology    ( topology ) ,
    m_ownsTopology ( false ) 

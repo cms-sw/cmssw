@@ -13,20 +13,15 @@
 StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p) 
 {
   std::string name = p.getParameter<std::string>("ComponentName");
-  std::string type=name;
-  if (!p.exists("ComponentType"))
-    edm::LogWarning("StripCPEESProducer")<<" the CPE producer should contain a ComponentType, probably identical to ComponentName in the first step of migration. Falling back to:"<<type;
-  else
-    type=p.getParameter<std::string>("ComponentType");
 
   enumMap[std::string("SimpleStripCPE")]=SIMPLE;
   enumMap[std::string("StripCPEfromTrackAngle")]=TRACKANGLE;
   enumMap[std::string("StripCPEgeometric")]=GEOMETRIC;
   enumMap[std::string("StripCPEfromTemplate")]=TEMPLATE;
-  if(enumMap.find(type)==enumMap.end()) 
-    throw cms::Exception("Unknown StripCPE type") << type;
+  if(enumMap.find(name)==enumMap.end()) 
+    throw cms::Exception("Unknown StripCPE type") << name;
 
-  cpeNum = enumMap[type];
+  cpeNum = enumMap[name];
   pset = p;
   setWhatProduced(this,name);
 }

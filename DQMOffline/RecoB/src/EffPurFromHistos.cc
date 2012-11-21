@@ -53,7 +53,7 @@ EffPurFromHistos::EffPurFromHistos
   discrCutEfficScan->SetMinimum(1E-4);
   if (mcPlots_){ 
 
-    if(mcPlots_>1){
+    if(mcPlots_>2){
       effVersusDiscr_d =    discrCutEfficScan->histo_d   ();
       effVersusDiscr_u =    discrCutEfficScan->histo_u   ();
       effVersusDiscr_s =    discrCutEfficScan->histo_s   ();
@@ -73,7 +73,7 @@ EffPurFromHistos::EffPurFromHistos
     effVersusDiscr_dusg = discrCutEfficScan->histo_dusg();
 
   
-    if(mcPlots_>1){
+    if(mcPlots_>2){
       effVersusDiscr_d->SetXTitle ( "Discriminant" );
       effVersusDiscr_d->GetXaxis()->SetTitleOffset ( 0.75 );
       effVersusDiscr_u->SetXTitle ( "Discriminant" );
@@ -245,7 +245,7 @@ void EffPurFromHistos::plot (TPad * plotCanvas /* = 0 */) {
 
 
   // for the moment: plot c,dus,g
-  if(mcPlots_>1){
+  if(mcPlots_>2){
     EffFlavVsBEff_dus ->getTH1F()->GetXaxis()->SetTitle ( "b-jet efficiency" );
     EffFlavVsBEff_dus ->getTH1F()->GetYaxis()->SetTitle ( "non b-jet efficiency" );
     EffFlavVsBEff_dus ->getTH1F()->GetYaxis()->SetTitleOffset ( 0.25 );
@@ -272,7 +272,7 @@ void EffPurFromHistos::plot (TPad * plotCanvas /* = 0 */) {
   EffFlavVsBEff_c   ->getTH1F()->SetStats     ( false );
   EffFlavVsBEff_c   ->getTH1F()->Draw("peSame");
 
-  if(mcPlots_>1){
+  if(mcPlots_>2){
     EffFlavVsBEff_d ->getTH1F()-> SetMinimum(0.01);
     EffFlavVsBEff_u ->getTH1F()-> SetMinimum(0.01);
     EffFlavVsBEff_s ->getTH1F()-> SetMinimum(0.01);
@@ -332,7 +332,7 @@ void EffPurFromHistos::check () {
   int nBins_s    = 0;
   int nBins_g    = 0;
   int nBins_dus  = 0;
-  if(mcPlots_>1){
+  if(mcPlots_>2){
     nBins_d    = effVersusDiscr_d    -> GetNbinsX();
     nBins_u    = effVersusDiscr_u    -> GetNbinsX();
     nBins_s    = effVersusDiscr_s    -> GetNbinsX();
@@ -369,7 +369,7 @@ void EffPurFromHistos::check () {
   float sBin_s    = 0;
   float sBin_g    = 0;
   float sBin_dus  = 0;
-  if(mcPlots_>1){
+  if(mcPlots_>2){
     sBin_d    = effVersusDiscr_d    -> GetBinCenter(1);
     sBin_u    = effVersusDiscr_u    -> GetBinCenter(1);
     sBin_s    = effVersusDiscr_s    -> GetBinCenter(1);
@@ -406,7 +406,7 @@ void EffPurFromHistos::check () {
   float eBin_s    = 0;
   float eBin_g    = 0;
   float eBin_dus  = 0;
-  if(mcPlots_>1){
+  if(mcPlots_>2){
     eBin_d    = effVersusDiscr_d    -> GetBinCenter( nBins_d - 1 );
     eBin_u    = effVersusDiscr_u    -> GetBinCenter( nBins_d - 1 );
     eBin_s    = effVersusDiscr_s    -> GetBinCenter( nBins_d - 1 );
@@ -465,7 +465,7 @@ void EffPurFromHistos::compute ()
   // create histograms from base name and extension as given from user
   // BINNING MUST BE IDENTICAL FOR ALL OF THEM!!
   HistoProviderDQM prov("Btag",label_);
-  if(mcPlots_>1){
+  if(mcPlots_>2){
     EffFlavVsBEff_d    = (prov.book1D ( hB + "D"    + hE , hB + "D"    + hE , nBinOutput , startOutput , endOutput ));
     EffFlavVsBEff_u    = (prov.book1D ( hB + "U"    + hE , hB + "U"    + hE , nBinOutput , startOutput , endOutput )) ;
     EffFlavVsBEff_s    = (prov.book1D ( hB + "S"    + hE , hB + "S"    + hE , nBinOutput , startOutput , endOutput )) ;
@@ -484,7 +484,7 @@ void EffPurFromHistos::compute ()
   EffFlavVsBEff_ni   = (prov.book1D ( hB + "NI"   + hE , hB + "NI"   + hE , nBinOutput , startOutput , endOutput )) ;
   EffFlavVsBEff_dusg = (prov.book1D ( hB + "DUSG" + hE , hB + "DUSG" + hE , nBinOutput , startOutput , endOutput )) ;
 
-  if(mcPlots_>1){
+  if(mcPlots_>2){
     EffFlavVsBEff_d->getTH1F()->SetXTitle ( "b-jet efficiency" );
     EffFlavVsBEff_d->getTH1F()->SetYTitle ( "non b-jet efficiency" );
     EffFlavVsBEff_d->getTH1F()->GetXaxis()->SetTitleOffset ( 0.75 );
@@ -544,7 +544,7 @@ void EffPurFromHistos::compute ()
     //
     if ( binFound ) {
       // fill the histos
-      if(mcPlots_>1){
+      if(mcPlots_>2){
 	EffFlavVsBEff_d    -> Fill ( effBMid , effVersusDiscr_d   ->GetBinContent ( binClosest ) );
 	EffFlavVsBEff_u    -> Fill ( effBMid , effVersusDiscr_u   ->GetBinContent ( binClosest ) );
 	EffFlavVsBEff_s    -> Fill ( effBMid , effVersusDiscr_s   ->GetBinContent ( binClosest ) );
@@ -556,7 +556,7 @@ void EffPurFromHistos::compute ()
       EffFlavVsBEff_ni   -> Fill ( effBMid , effVersusDiscr_ni  ->GetBinContent ( binClosest ) );
       EffFlavVsBEff_dusg -> Fill ( effBMid , effVersusDiscr_dusg->GetBinContent ( binClosest ) );
 
-      if(mcPlots_>1){
+      if(mcPlots_>2){
 	EffFlavVsBEff_d  ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_d   ->GetBinError ( binClosest ) );
 	EffFlavVsBEff_u  ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_u   ->GetBinError ( binClosest ) );
 	EffFlavVsBEff_s  ->getTH1F()  -> SetBinError ( iBinB , effVersusDiscr_s   ->GetBinError ( binClosest ) );
@@ -569,7 +569,7 @@ void EffPurFromHistos::compute ()
       EffFlavVsBEff_dusg->getTH1F() -> SetBinError ( iBinB , effVersusDiscr_dusg->GetBinError ( binClosest ) );
     }
     else {
-      //CW      cout << "Did not find right bin for b-efficiency : " << effBMid << endl;
+      //cout << "Did not find right bin for b-efficiency : " << effBMid << endl;
     }
     
   }

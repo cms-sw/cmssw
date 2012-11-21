@@ -22,6 +22,10 @@ SiStripCalZeroBiasMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
                                      
     TopFolderName = cms.string('AlcaReco/SiStrip'),
                                      
+    BPTXfilter     = cms.PSet(),
+    PixelDCSfilter = cms.PSet(),
+    StripDCSfilter = cms.PSet(),
+                                                  
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(
         Nbins = cms.int32(600),
@@ -138,9 +142,9 @@ SiStripCalZeroBiasMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     ),
 
     TH1TotalNumberOfClusters = cms.PSet(
-        Nbinx          = cms.int32(50),
+        Nbinx          = cms.int32(80),
         xmin           = cms.double(-0.5),
-        xmax           = cms.double(299.5),
+        xmax           = cms.double(15995.5),
         subdetswitchon = cms.bool(True)
     ),
 

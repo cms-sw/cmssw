@@ -5,7 +5,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Version"/>
-<use   name="DataFormats/Luminosity"/>
+<use   name="RecoLuminosity/LumiProducer"/>
 <use   name="boost"/>
 <library   file="*.cc" name="DQMServicesComponentsPlugins">
   <flags   EDM_PLUGIN="1"/>

@@ -100,7 +100,7 @@ private:
   void fillChiSquared(void);
   void fillLocalDirection(void);
   void doSlopesAndChi2(void);
-  // Duplicates are found in ME1/1a only
+  // Duplicates are found in ME1/1a only (i.e. only when ME1/1A is ganged)
   void findDuplicates(std::vector<CSCSegment>  & segments );
 
   bool isGoodToMerge(bool isME11a, ChamberHitContainer & newChain, ChamberHitContainer & oldChain);

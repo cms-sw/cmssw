@@ -1,10 +1,10 @@
 
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="5_3_1">
-<var name="TEST_REF" value="5_3_0">
+<var name="TEST_NEW" value="6_0_0_pre2">
+<var name="TEST_REF" value="6_0_0_pre1">
 
-<var name="TAG_STARTUP" value="START53_V5">
-<var name="TAG_IDEAL" value="MC_53_V5">
+<var name="TAG_STARTUP" value="START52_V9">
+<var name="TAG_IDEAL" value="MC_52_V9">
 <var name="DATA_VERSION" value="v1">
 
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
@@ -202,30 +202,11 @@ FullSim
       <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
   
     </environment>
-
-    <environment name="FullPt1000Startup">
-    
-      <var name="DD_SAMPLE" value="RelValSingleElectronPt1000">
-      <!--var name="DD_SOURCE" value="/castor/cern.ch/cms/store/unmerged/dqm/${DD_SAMPLE}-${DD_RELEASE}-${DD_COND}-DQM-DQMHarvest-OfflineDQM"-->
-      
-      <target name="dqm" cmd="electronDataDiscovery.py castor">
-      <target name="wget" cmd="electronWget.py castor">
-      
-      <target name="dd" cmd="electronDataDiscovery.py">
-      <target name="analyze" cmd="cmsRun ElectronMcSignalPt1000Validation_cfg.py">
-      <target name="finalize" cmd="cmsRun ${VAL_POST_CONFIGURATION}.py">
-      
-      <target name="store" cmd='electronStore.py -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="force" cmd='electronStore.py -f -r ${TEST_NEW} -m "${TEST_COMMENT}" -a ${VAL_ANALYZER}/${VAL_POST_ANALYZER} -c ${VAL_CONFIGURATION}/${VAL_POST_CONFIGURATION} ${TEST_HISTOS_FILE} ${TEST_OUTPUT_LOGS} ${STORE_DIR}'>
-      <target name="publish" cmd='electronCompare.py -c ${VAL_HISTOS} -r ${TEST_NEW} -b ${TEST_REF} -t "${TEST_NEW} vs ${TEST_REF} / ${DD_SAMPLE} / ${DD_COND}" ${STORE_DIR}/${TEST_HISTOS_FILE} ${STORE_REF}/${TEST_HISTOS_FILE} ${WEB_DIR}/${TEST_NEW}/vs${TEST_REF}/${DD_SAMPLE}_Startup'>
-  
-    </environment>
   
   </environment>
 
   <environment name="FullSimStdStatsPileUpStartup">
-    
-    <var name="TAG_STARTUP" value="PU_START53_V5">
+    <var name="TAG_STARTUP" value="PU_START52_V9">
     <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">
     <var name="DD_COND" value="-${TEST_GLOBAL_TAG}-${DATA_VERSION}">

@@ -128,8 +128,6 @@ class EcalDQMBinningService {
   std::pair<unsigned, std::vector<int> > findBinsNoMap(ObjectType, BinningType, const DetId&) const;
   std::pair<unsigned, std::vector<int> > findBinsNoMap(ObjectType, BinningType, const EcalElectronicsId&) const;
 
-  int getBin(ObjectType, BinningType, unsigned) const;
-
   unsigned findOffset(ObjectType, const DetId&) const;
   unsigned findOffset(ObjectType, const EcalElectronicsId&) const;
   unsigned findOffset(ObjectType, BinningType, unsigned) const;
@@ -171,7 +169,7 @@ class EcalDQMBinningService {
   void findBinsProjEta_(const DetId&, ObjectType, const std::vector<int>&, std::vector<int>&) const;
   void findBinsProjPhi_(const DetId&, ObjectType, const std::vector<int>&, std::vector<int>&) const;
 
-  // need to be mutable to allow runtime booking
+  // need to be mutable to allow ad-hoc booking
   mutable std::vector<int> binMaps_[nPlotType][nPresetBinnings];
   /*
     Following dictionaries are created during postBeginRun:

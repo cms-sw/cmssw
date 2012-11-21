@@ -37,6 +37,13 @@ namespace {
      return returnValue;
   }
 
+  inline bool _toBool(XMLCh const* toTranscode) {
+    std::string value = _toString(toTranscode);
+    if ((value == "true") || (value == "1"))
+      return true;
+    return false;
+  }
+
   inline double _toDouble(XMLCh const* toTranscode) {
      std::istringstream iss(_toString(toTranscode));
      double returnValue;
@@ -114,6 +121,8 @@ namespace edm {
           m_timeout(0U),
           m_timeoutPtr(0),
           m_debugLevel(0U),
+          m_enablePrefetching(false),
+          m_enablePrefetchingPtr(0),
           m_nativeProtocols(),
           m_nativeProtocolsPtr(0) {
 
@@ -133,6 +142,7 @@ namespace edm {
         overrideFromPSet("overrideSourceNativeProtocols", pset, m_nativeProtocols, m_nativeProtocolsPtr);
         overrideFromPSet("overrideSourceTTreeCacheSize", pset, m_ttreeCacheSize, m_ttreeCacheSizePtr);
         overrideFromPSet("overrideSourceTimeout", pset, m_timeout, m_timeoutPtr);
+        overrideFromPSet("overridePrefetching", pset, m_enablePrefetching, m_enablePrefetchingPtr);
 
        if(pset.exists("debugLevel")) {
             m_debugLevel = pset.getUntrackedParameter<unsigned int>("debugLevel");
@@ -273,6 +283,11 @@ namespace edm {
     unsigned int const*
     SiteLocalConfigService::sourceTimeout() const {
        return m_timeoutPtr;
+    }
+
+    bool
+    SiteLocalConfigService::enablePrefetching() const {
+       return m_enablePrefetchingPtr ? *m_enablePrefetchingPtr : false;
     }
 
     unsigned int
@@ -427,6 +442,14 @@ namespace edm {
                 m_timeoutPtr = &m_timeout;
               }
 
+              DOMNodeList *prefetchingList = sourceConfig->getElementsByTagName(_toDOMS("prefetching"));
+
+              if (prefetchingList->getLength() > 0) {
+                DOMElement *prefetching = static_cast<DOMElement *>(prefetchingList->item(0));
+                m_enablePrefetching = _toBool(prefetching->getAttribute(_toDOMS("value")));
+                m_enablePrefetchingPtr = &m_enablePrefetching;
+              }
+
               DOMNodeList *nativeProtocolsList = sourceConfig->getElementsByTagName(_toDOMS("native-protocols"));
 
               if (nativeProtocolsList->getLength() > 0) {
@@ -467,6 +490,8 @@ namespace edm {
       desc.addOptionalUntracked<unsigned int>("overrideSourceTTreeCacheSize");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTimeout");
       desc.addOptionalUntracked<unsigned int>("debugLevel");
+      desc.addOptionalUntracked<bool>("overridePrefetching")
+        ->setComment("Request ROOT to asynchronously prefetch I/O during computation.");
 
       descriptions.add("SiteLocalConfigService", desc);
     }

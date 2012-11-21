@@ -1,0 +1,1766 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <ConstantsSection label="ChamberSpecsConstants" eval="true">
+  <!-- ME11 parameters -->
+  <Constant name="ME11GasGap" value="7.0*mm"/>
+  <!-- REB thinks LayerOffset is dist from edge of PolycarbBlock to center of 1st gas gap (ME11Layer); orig value -1.56cm -->
+  <Constant name="ME11LayerOffset" value="-17.0014*mm"/>
+  <Constant name="ME11LayerSpacing" value="2.2*cm"/>
+  <Constant name="ME11AlumFrameHalfThick" value="73.5*mm"/>
+  <Constant name="ME11AlumFrameSubtractionThick" value="8.0*mm"/>
+  <Constant name="ME11FR4BodyHalfThick" value="73.5*mm"/>
+  <Constant name="ME11PolycarbPanelHalfThick" value="72.7*mm"/>
+  <Constant name="ME11FR4SkinHalfThick" value="0.4*mm"/>
+  <Constant name="ME11CuFoilHalfThick" value="0.01*mm"/>
+  <Constant name="ME11ActiveGasVolHalfThick" value="3.5*mm"/>
+  <!-- Non-ME11 parameters -->
+  <Constant name="LayerOffset" value="-1.7252*cm"/>
+  <Constant name="LayerSpacing" value="2.54*cm"/>
+  <Constant name="AlumFrameHalfThick" value="90.2335*mm"/>
+  <Constant name="AlumFrameSubtractionThick" value="6.09600*mm"/>
+  <Constant name="FR4BodyHalfThick" value="84.1375*mm"/>
+  <Constant name="PolycarbPanelHalfThick" value="82.6389*mm"/>
+  <Constant name="FR4SkinHalfThick" value="0.74930*mm"/>
+  <Constant name="CuFoilHalfThick" value="0.01778*mm"/>
+  <Constant name="ActiveGasVolHalfThick" value="4.76250*mm"/>
+  <Constant name="FR4SkinCenter" value="5.54736*mm"/>
+  <Constant name="CuFoilCenter" value="4.78028*mm"/>
+ </ConstantsSection>
+
+ <RotationSection label="csc.xml">
+  <Rotation name="RotYZaroundX90" phiX="0" thetaX="90*deg" phiY="0" thetaY="180*deg" phiZ="90*deg" thetaZ="90*deg"/>
+ </RotationSection>
+
+ <SolidSection label="csc.xml">
+  <Tubs name="ME11SupportDisk" rMin="86*cm " rMax="2455*mm" dz="4*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME11SupportDisk1" rMin="86*cm " rMax="2455*mm" dz="4*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ME11Space" rMin="990*mm" rMax="2725*mm" dz="91.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME11" dz="81*cm " dy1="91.5*mm" dy2="91.5*mm" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME11AlumFrame" dz="810*mm " dy1="[ME11AlumFrameHalfThick]" dy2="[ME11AlumFrameHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME11FR4Body" dz="81*cm " dy1="[ME11FR4BodyHalfThick]" dy2="[ME11FR4BodyHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME11PolycarbPanel" dz="81*cm " dy1="[ME11PolycarbPanelHalfThick]" dy2="[ME11PolycarbPanelHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME11Layer" dz="81*cm " dy1="[ME11FR4SkinHalfThick]" dy2="[ME11FR4SkinHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME11Layer" dz="81*cm " dy1="[ME11FR4SkinHalfThick]" dy2="[ME11FR4SkinHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="MECU_1_ME11Layer" dz="81*cm " dy1="[ME11CuFoilHalfThick]" dy2="[ME11CuFoilHalfThick]" dx1="15.065*cm " dx2="30.45*cm "/>
+  <Trd1 name="MECU_2_ME11Layer" dz="81*cm " dy1="[ME11CuFoilHalfThick]" dy2="[ME11CuFoilHalfThick]" dx1="15.065*cm" dx2="30.45*cm "/>
+  <Trd1 name="ME1A_ActiveGasVol" dz="21.56*cm" dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="9.35*cm" dx2="13.365*cm"/>
+  <Trd1 name="ME11_ActiveGasVol" dz="52.81*cm" dy1="[ME11ActiveGasVolHalfThick]" dy2="[ME11ActiveGasVolHalfThick]" dx1="13.365*cm" dx2="23.31*cm"/>
+  <Box name="MEEQ" dx="15*cm " dy="2.5*cm " dz="30*cm "/>
+  <Tubs name="AlgPinNarrowEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="AlgPinWideEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="AlgPinNarrowEndME1" rMin="0*mm " rMax="4.06*mm " dz="14.99*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="AlgPinWideEndME1" rMin="0*mm " rMax="4.06*mm " dz="14.99*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+
+  <Tubs name="ME12Space" rMin="2.735*m  " rMax="4.685*m  " dz="105.2335*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME12" dz="94.7*cm " dy1="105.2335*mm" dy2="105.2335*mm" dx1="37.614*cm " dx2="53.856*cm "/>
+  <!-- <Trd1 name="ME12AlumFrame" dz="94.7*cm " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="37.614*cm " dx2="53.856*cm " /> -->
+  <Trd1 name="ME12AlumFrameBlock" dz="947*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="376.14*mm" dx2="538.56*mm"/>
+  <!-- REB has not determined ME12 Al frame width but guesses it is approx. 81 mm like the others -->
+  <Trd1 name="ME12AlumFrameSubtraction" dz="947*mm-81*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="376.14*mm-81*mm" dx2="538.56*mm-81*mm"/>
+  <SubtractionSolid name="ME12AlumFrameTempBlock">
+   <rSolid name="ME12AlumFrameBlock"/>
+   <rSolid name="ME12AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME12AlumFrame">
+   <rSolid name="ME12AlumFrameTempBlock"/>
+   <rSolid name="ME12AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME12FR4Body" dz="94.7*cm " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="37.614*cm " dx2="53.856*cm "/>
+  <Trd1 name="ME12PolycarbPanel" dz="92.8*cm " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME12Layer" dz="92.8*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME12Layer" dz="92.8*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="MECU_1_ME12Layer" dz="92.8*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="MECU_2_ME12Layer" dz="92.8*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="34.215*cm " dx2="51.654*cm "/>
+  <Trd1 name="ME12_ActiveGasVol" dz="87.245*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="25.5*cm " dx2="41.87*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME12_ActiveGasVol" dz="1.5*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="36.68*cm " dx2="36.97*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME12_ActiveGasVol" dz="1.5*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="30.52*cm " dx2="30.8*cm "/>
+
+  <Tubs name="ME13Space" rMin="5.055*m  " rMax="6.95*m  " dz="105.2285*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME13" dz="89.65*cm " dy1="105.2285*mm " dy2="105.2285*mm " dx1="43.21*cm " dx2="58.925*cm "/>
+  <Trd1 name="ME13AlumFrameBlock" dz="896.5*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="432.1*mm" dx2="589.25*mm"/>
+  <!-- REB determined ME13 Al frame width to be approx. 81 mm based on eng. drawing -->
+  <Trd1 name="ME13AlumFrameSubtraction" dz="896.5*mm-81*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="432.1*mm-81*mm" dx2="589.25*mm-81*mm"/>
+  <SubtractionSolid name="ME13AlumFrameTempBlock">
+   <rSolid name="ME13AlumFrameBlock"/>
+   <rSolid name="ME13AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME13AlumFrame">
+   <rSolid name="ME13AlumFrameTempBlock"/>
+   <rSolid name="ME13AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME13FR4Body" dz="89.65*cm " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="43.21*cm " dx2="58.925*cm "/>
+  <Trd1 name="ME13PolycarbPanel" dz="87.75*cm " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME13Layer" dz="87.75*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME13Layer" dz="87.75*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="MECU_1_ME13Layer" dz="87.75*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="MECU_2_ME13Layer" dz="87.75*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="40.425*cm " dx2="55.81*cm "/>
+  <Trd1 name="ME13_ActiveGasVol" dz="82.08*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="31.70*cm " dx2="46.05*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME13_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="42.02*cm " dx2="42.24*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME13_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="37.59*cm " dx2="37.81*cm "/>
+
+  <Tubs name="ME21Space" rMin="1.39*m  " rMax="3.554*m  " dz="115.39*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME21" dz="1.023*m  " dy1="115.39*mm" dy2="115.39*mm" dx1="37.405*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME21AlumFrameBlock" dz="1023*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="374.05*mm" dx2="765.45*mm"/>
+  <!-- REB determined ME21 Al frame width to be approx. 83.5 mm based on eng. drawing -->
+  <Trd1 name="ME21AlumFrameSubtraction" dz="1023*mm-83.5*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="374.05*mm-83.5*mm" dx2="765.45*mm-83.5*mm"/>
+  <SubtractionSolid name="ME21AlumFrameTempBlock">
+   <rSolid name="ME21AlumFrameBlock"/>
+   <rSolid name="ME21AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME21AlumFrame">
+   <rSolid name="ME21AlumFrameTempBlock"/>
+   <rSolid name="ME21AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME21FR4Body" dz="1.023*m  " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="37.405*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME21PolycarbPanel" dz="1.00395*m  " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME21Layer" dz="1.00395*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME21Layer" dz="1.00395*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_1_ME21Layer" dz="1.00395*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_2_ME21Layer" dz="1.00395*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="35.045*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME21_ActiveGasVol" dz="94.83*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="27.00*cm " dx2="62.855*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME21_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="51.92*cm " dx2="52.39*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME21_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="40.33*cm " dx2="40.805*cm "/>
+
+  <Tubs name="ME22Space" rMin="3.555*m  " rMax="7.01*m  " dz="115.39*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME22" dz="1.690*m  " dy1="115.39*mm" dy2="115.39*mm" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME22AlumFrameBlock" dz="1690*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm"/>
+  <!-- REB determined ME22 Al frame width to be approx. 81.3 mm based on drawing 400220-B_ME234-2_Integrated_Assy -->
+  <Trd1 name="ME22AlumFrameSubtraction" dz="1690*mm-81.3*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="455.19*mm-81.3*mm" dx2="763.4*mm-81.3*mm"/>
+  <SubtractionSolid name="ME22AlumFrameTempBlock">
+   <rSolid name="ME22AlumFrameBlock"/>
+   <rSolid name="ME22AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME22AlumFrame">
+   <rSolid name="ME22AlumFrameTempBlock"/>
+   <rSolid name="ME22AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME22FR4Body" dz="1.690*m  " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME22PolycarbPanel" dz="1.67095*m  " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME22Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME22Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_1_ME22Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_2_ME22Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME22_ActiveGasVol" dz="1.6153*m  " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="33.230*cm" dx2="63.575*cm"/>
+  <Trd1 name="ME_DeadGas_1_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="57.7*cm " dx2="57.93*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm "/>
+  <Trd1 name="ME_DeadGas_3_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm "/>
+  <Trd1 name="ME_DeadGas_4_ME22_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm "/>
+
+  <Tubs name="ME31Space" rMin="1.59*m  " rMax="3.554*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME31" dz="92.3*cm " dy1="125.3*mm" dy2="125.3*mm" dx1="41.46*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME31AlumFrameBlock" dz="923*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="414.6*mm" dx2="765.45*mm"/>
+  <Trd1 name="ME31AlumFrameSubtraction" dz="923*mm-83.5*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="414.6*mm-83.5*mm" dx2="765.45*mm-83.5*mm"/>
+  <SubtractionSolid name="ME31AlumFrameTempBlock">
+   <rSolid name="ME31AlumFrameBlock"/>
+   <rSolid name="ME31AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME31AlumFrame">
+   <rSolid name="ME31AlumFrameTempBlock"/>
+   <rSolid name="ME31AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME31FR4Body" dz="92.3*cm " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="41.46*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME31PolycarbPanel" dz="90.40*cm " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME31Layer" dz="90.40*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME31Layer" dz="90.40*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_1_ME31Layer" dz="90.40*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_2_ME31Layer" dz="90.40*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="39.105*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME31_ActiveGasVol" dz="84.85*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="30.70*cm " dx2="62.855*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME31_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="51.94*cm " dx2="52.405*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME31_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="40.6*cm " dx2="41.07*cm "/>
+
+  <Tubs name="ME32Space" rMin="3.555*m  " rMax="7.01*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME32" dz="1.690*m  " dy1="125.3*mm" dy2="125.3*mm" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME32AlumFrameBlock" dz="1.690*m  " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm"/>
+  <!-- REB determined ME32 Al frame width to be approx. 81.3 mm based on drawing 400220-B_ME234-2_Integrated_Assy -->
+  <Trd1 name="ME32AlumFrameSubtraction" dz="1607.53*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="455.19*mm-81.3*mm" dx2="763.4*mm-81.3*mm"/>
+  <SubtractionSolid name="ME32AlumFrameTempBlock">
+   <rSolid name="ME32AlumFrameBlock"/>
+   <rSolid name="ME32AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME32AlumFrame">
+   <rSolid name="ME32AlumFrameTempBlock"/>
+   <rSolid name="ME32AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME32FR4Body" dz="1.690*m  " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME32PolycarbPanel" dz="1.67095*m  " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME32Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME32Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_1_ME32Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_2_ME32Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME32_ActiveGasVol" dz="1.6153*m  " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="33.230*cm " dx2="63.575*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="57.7*cm " dx2="57.93*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm "/>
+  <Trd1 name="ME_DeadGas_3_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm "/>
+  <Trd1 name="ME_DeadGas_4_ME32_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm "/>
+
+  <Tubs name="ME41Space" rMin="1.79*m  " rMax="3.554*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME41" dz="833.5*mm" dy1="125.3*mm" dy2="125.3*mm" dx1="44.985*cm " dx2="76.545*cm "/>
+  <!-- 31.5.07 Oleg says ME41 length is 82.35 cm in drawings. Must check all other ME41 length dims. Also, the narrow end alg pin is 34.9 mm from the frame and the wide is 53.9 - 54.3 mm -->
+  <Trd1 name="ME41AlumFrameBlock" dz="833.5*mm" dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="449.85*mm" dx2="765.45*mm"/>
+  <Trd1 name="ME41AlumFrameSubtraction" dz="833.5*mm-83.5*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="449.85*mm-83.5*mm" dx2="765.45*mm-83.5*mm"/>
+  <SubtractionSolid name="ME41AlumFrameTempBlock">
+   <rSolid name="ME41AlumFrameBlock"/>
+   <rSolid name="ME41AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME41AlumFrame">
+   <rSolid name="ME41AlumFrameTempBlock"/>
+   <rSolid name="ME41AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME41FR4Body" dz="83.35*cm " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="44.985*cm " dx2="76.545*cm "/>
+  <Trd1 name="ME41PolycarbPanel" dz="80.43*cm " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME41Layer" dz="80.71*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME41Layer" dz="80.71*cm " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_1_ME41Layer" dz="80.71*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="MECU_2_ME41Layer" dz="80.71*cm " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="42.63*cm " dx2="73.225*cm "/>
+  <Trd1 name="ME41_ActiveGasVol" dz="74.710*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="34.505*cm " dx2="62.825*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME41_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.296*cm " dx2="52.762*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME41_ActiveGasVol" dz="1.25*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="43.32*cm " dx2="43.8*cm "/>
+  <!-- Remove this line and matching comment ending line below to restore ME42 -->
+  <Tubs name="ME42Space" rMin="3.555*m  " rMax="7.01*m  " dz="125.3*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trd1 name="ME42" dz="1.690*m  " dy1="125.3*mm" dy2="125.3*mm" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME42AlumFrameBlock" dz="1.690*m  " dy1="[AlumFrameHalfThick]" dy2="[AlumFrameHalfThick]" dx1="455.19*mm" dx2="763.4*mm"/>
+  <Trd1 name="ME42AlumFrameSubtraction" dz="1607.53*mm" dy1="[AlumFrameSubtractionThick]" dy2="[AlumFrameSubtractionThick]" dx1="455.19*mm-81.3*mm" dx2="763.4*mm-81.3*mm"/>
+  <SubtractionSolid name="ME42AlumFrameTempBlock">
+   <rSolid name="ME42AlumFrameBlock"/>
+   <rSolid name="ME42AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="[AlumFrameHalfThick]-[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="ME42AlumFrame">
+   <rSolid name="ME42AlumFrameTempBlock"/>
+   <rSolid name="ME42AlumFrameSubtraction"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0.0*fm" y="-[AlumFrameHalfThick]+[AlumFrameSubtractionThick]" z="0.0*fm"/>
+  </SubtractionSolid>
+  <Trd1 name="ME42FR4Body" dz="1.690*m  " dy1="[FR4BodyHalfThick]" dy2="[FR4BodyHalfThick]" dx1="45.519*cm " dx2="76.34*cm "/>
+  <Trd1 name="ME42PolycarbPanel" dz="1.67095*m  " dy1="[PolycarbPanelHalfThick]" dy2="[PolycarbPanelHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_1_ME42Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME_FR4Skin_2_ME42Layer" dz="1.67095*m  " dy1="[FR4SkinHalfThick]" dy2="[FR4SkinHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_1_ME42Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="MECU_2_ME42Layer" dz="1.67095*m  " dy1="[CuFoilHalfThick]" dy2="[CuFoilHalfThick]" dx1="41.95*cm " dx2="73.345*cm "/>
+  <Trd1 name="ME42_ActiveGasVol" dz="1.6153*m  " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="33.230*cm " dx2="63.575*cm "/>
+  <Trd1 name="ME_DeadGas_1_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="57.7*cm " dx2="57.93*cm "/>
+  <Trd1 name="ME_DeadGas_2_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="52.18*cm " dx2="52.42*cm "/>
+  <Trd1 name="ME_DeadGas_3_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="46.67*cm " dx2="46.9*cm "/>
+  <Trd1 name="ME_DeadGas_4_ME42_ActiveGasVol" dz="1.265*cm " dy1="[ActiveGasVolHalfThick]" dy2="[ActiveGasVolHalfThick]" dx1="41.16*cm " dx2="41.38*cm "/>
+ </SolidSection>
+
+ <LogicalPartSection label="csc.xml">
+  <LogicalPart name="ME11SupportDisk" category="unspecified">
+   <rSolid name="ME11SupportDisk"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME11Space" category="unspecified">
+   <rSolid name="ME11Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME11" category="unspecified">
+   <rSolid name="ME11"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME11AlumFrame" category="unspecified">
+   <rSolid name="ME11AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME11FR4Body" category="unspecified">
+   <rSolid name="ME11FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME11PolycarbPanel" category="unspecified">
+   <rSolid name="ME11PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME11Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME11Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME11Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME11Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME11Layer" category="unspecified">
+   <rSolid name="MECU_1_ME11Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME11Layer" category="unspecified">
+   <rSolid name="MECU_2_ME11Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME1A_ActiveGasVol" category="unspecified">
+   <rSolid name="ME1A_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME11_ActiveGasVol" category="unspecified">
+   <rSolid name="ME11_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="MEEQ" category="unspecified">
+   <rSolid name="MEEQ"/>
+   <rMaterial name="materials:FrontEnd Electronics"/>
+  </LogicalPart>
+  <LogicalPart name="AlgPinNarrowEnd" category="unspecified">
+   <rSolid name="AlgPinNarrowEnd"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="AlgPinWideEnd" category="unspecified">
+   <rSolid name="AlgPinWideEnd"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="AlgPinNarrowEndME1" category="unspecified">
+   <rSolid name="AlgPinNarrowEndME1"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="AlgPinWideEndME1" category="unspecified">
+   <rSolid name="AlgPinWideEndME1"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+
+  <LogicalPart name="ME12Space" category="unspecified">
+   <rSolid name="ME12Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME12" category="unspecified">
+   <rSolid name="ME12"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME12AlumFrame" category="unspecified">
+   <rSolid name="ME12AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME12FR4Body" category="unspecified">
+   <rSolid name="ME12FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME12PolycarbPanel" category="unspecified">
+   <rSolid name="ME12PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME12Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME12Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME12Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME12Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME12Layer" category="unspecified">
+   <rSolid name="MECU_1_ME12Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME12Layer" category="unspecified">
+   <rSolid name="MECU_2_ME12Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME12_ActiveGasVol" category="unspecified">
+   <rSolid name="ME12_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME12_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME12_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME12_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME12_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+
+  <LogicalPart name="ME13Space" category="unspecified">
+   <rSolid name="ME13Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME13" category="unspecified">
+   <rSolid name="ME13"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME13AlumFrame" category="unspecified">
+   <rSolid name="ME13AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME13FR4Body" category="unspecified">
+   <rSolid name="ME13FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME13PolycarbPanel" category="unspecified">
+   <rSolid name="ME13PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME13Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME13Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME13Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME13Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME13Layer" category="unspecified">
+   <rSolid name="MECU_1_ME13Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME13Layer" category="unspecified">
+   <rSolid name="MECU_2_ME13Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME13_ActiveGasVol" category="unspecified">
+   <rSolid name="ME13_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME13_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME13_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME13_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME13_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+
+  <LogicalPart name="ME21Space" category="unspecified">
+   <rSolid name="ME21Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME21" category="unspecified">
+   <rSolid name="ME21"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME21AlumFrame" category="unspecified">
+   <rSolid name="ME21AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME21FR4Body" category="unspecified">
+   <rSolid name="ME21FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME21PolycarbPanel" category="unspecified">
+   <rSolid name="ME21PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME21Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME21Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME21Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME21Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME21Layer" category="unspecified">
+   <rSolid name="MECU_1_ME21Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME21Layer" category="unspecified">
+   <rSolid name="MECU_2_ME21Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME21_ActiveGasVol" category="unspecified">
+   <rSolid name="ME21_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME21_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME21_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME21_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME21_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+
+  <LogicalPart name="ME22Space" category="unspecified">
+   <rSolid name="ME22Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME22" category="unspecified">
+   <rSolid name="ME22"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME22AlumFrame" category="unspecified">
+   <rSolid name="ME22AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME22FR4Body" category="unspecified">
+   <rSolid name="ME22FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME22PolycarbPanel" category="unspecified">
+   <rSolid name="ME22PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME22Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME22Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME22Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME22Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME22Layer" category="unspecified">
+   <rSolid name="MECU_1_ME22Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME22Layer" category="unspecified">
+   <rSolid name="MECU_2_ME22Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME22_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME22_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME22_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_3_ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_3_ME22_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_4_ME22_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_4_ME22_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+
+  <LogicalPart name="ME31Space" category="unspecified">
+   <rSolid name="ME31Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME31" category="unspecified">
+   <rSolid name="ME31"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME31AlumFrame" category="unspecified">
+   <rSolid name="ME31AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME31FR4Body" category="unspecified">
+   <rSolid name="ME31FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME31PolycarbPanel" category="unspecified">
+   <rSolid name="ME31PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME31Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME31Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME31Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME31Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME31Layer" category="unspecified">
+   <rSolid name="MECU_1_ME31Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME31Layer" category="unspecified">
+   <rSolid name="MECU_2_ME31Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME31_ActiveGasVol" category="unspecified">
+   <rSolid name="ME31_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME31_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME31_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME31_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME31_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+
+  <LogicalPart name="ME32Space" category="unspecified">
+   <rSolid name="ME32Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME32" category="unspecified">
+   <rSolid name="ME32"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME32AlumFrame" category="unspecified">
+   <rSolid name="ME32AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME32FR4Body" category="unspecified">
+   <rSolid name="ME32FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME32PolycarbPanel" category="unspecified">
+   <rSolid name="ME32PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME32Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME32Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME32Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME32Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME32Layer" category="unspecified">
+   <rSolid name="MECU_1_ME32Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME32Layer" category="unspecified">
+   <rSolid name="MECU_2_ME32Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME32_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME32_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME32_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_3_ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_3_ME32_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_4_ME32_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_4_ME32_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+
+  <LogicalPart name="ME41Space" category="unspecified">
+   <rSolid name="ME41Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME41" category="unspecified">
+   <rSolid name="ME41"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME41AlumFrame" category="unspecified">
+   <rSolid name="ME41AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME41FR4Body" category="unspecified">
+   <rSolid name="ME41FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME41PolycarbPanel" category="unspecified">
+   <rSolid name="ME41PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME41Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME41Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME41Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME41Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME41Layer" category="unspecified">
+   <rSolid name="MECU_1_ME41Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME41Layer" category="unspecified">
+   <rSolid name="MECU_2_ME41Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME41_ActiveGasVol" category="unspecified">
+   <rSolid name="ME41_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME41_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME41_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME41_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME41_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <!-- Remove this line and comment ending line below to restore ME42 -->
+  <LogicalPart name="ME42Space" category="unspecified">
+   <rSolid name="ME42Space"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ME42" category="unspecified">
+   <rSolid name="ME42"/>
+   <rMaterial name="materials:M_F_Air"/>
+  </LogicalPart>
+  <LogicalPart name="ME42AlumFrame" category="unspecified">
+   <rSolid name="ME42AlumFrame"/>
+   <rMaterial name="materials:M_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ME42FR4Body" category="unspecified">
+   <rSolid name="ME42FR4Body"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME42PolycarbPanel" category="unspecified">
+   <rSolid name="ME42PolycarbPanel"/>
+   <rMaterial name="materials:Polycarbonate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_1_ME42Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_1_ME42Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="ME_FR4Skin_2_ME42Layer" category="unspecified">
+   <rSolid name="ME_FR4Skin_2_ME42Layer"/>
+   <rMaterial name="materials:M_NEMA FR4 plate"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_1_ME42Layer" category="unspecified">
+   <rSolid name="MECU_1_ME42Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="MECU_2_ME42Layer" category="unspecified">
+   <rSolid name="MECU_2_ME42Layer"/>
+   <rMaterial name="materials:M_Copper"/>
+  </LogicalPart>
+  <LogicalPart name="ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME42_ActiveGasVol"/>
+   <rMaterial name="materials:M_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_1_ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_1_ME42_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_2_ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_2_ME42_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_3_ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_3_ME42_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+  <LogicalPart name="ME_DeadGas_4_ME42_ActiveGasVol" category="unspecified">
+   <rSolid name="ME_DeadGas_4_ME42_ActiveGasVol"/>
+   <rMaterial name="materials:Dead_Argon CF_4 CO_2"/>
+  </LogicalPart>
+ </LogicalPartSection>
+
+ <PosPartSection label="csc.xml">
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="csc:ME11SupportDisk"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6023*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="csc:ME11Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6154.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="csc:ME11Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="5861.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="csc:ME11SupportDisk"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6023*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="csc:ME11Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="6154.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="csc:ME11Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="5861.5*mm"/>
+  </PosPart>
+  <Division name="csc:ME11SpaceDivision" parent="csc:ME11Space" axis="phi" offset="-10*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME11SpaceDivision"/>
+   <rChild name="csc:ME11"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="1.815*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME11"/>
+   <rChild name="csc:ME11AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME11AlumFrame"/>
+   <rChild name="csc:ME11FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME11FR4Body"/>
+   <rChild name="csc:ME11PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="csc:ME11Layer" parent="csc:ME11PolycarbPanel" axis="y" offset="[ME11LayerOffset]" width="[ME11LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME11Layer"/>
+   <rChild name="csc:ME_FR4Skin_1_ME11Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0.5*[ME11GasGap]+2.0*[ME11CuFoilHalfThick]+[ME11FR4SkinHalfThick]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME11Layer"/>
+   <rChild name="csc:ME_FR4Skin_2_ME11Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-0.5*[ME11GasGap]-2.0*[ME11CuFoilHalfThick]-[ME11FR4SkinHalfThick]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME11Layer"/>
+   <rChild name="csc:MECU_1_ME11Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0.5*[ME11GasGap]+[ME11CuFoilHalfThick]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME11Layer"/>
+   <rChild name="csc:MECU_2_ME11Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-0.5*[ME11GasGap]-[ME11CuFoilHalfThick]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME11Layer"/>
+   <rChild name="csc:ME1A_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-53*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME11Layer"/>
+   <rChild name="csc:ME11_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="21.25*cm "/>
+  </PosPart>
+  <!-- REB: remove ME11,12,13,21,22 electronics until they can be made more realistic -->
+  <!-- <PosPart copyNumber="1">
+       <rParent name="csc:ME11"/>
+       <rChild name="csc:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-9.88*cm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="csc:ME12"/>
+       <rChild name="csc:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="csc:ME13"/>
+       <rChild name="csc:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="csc:ME21"/>
+       <rChild name="csc:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-10.0234*cm " z="0*fm " />
+  </PosPart>
+       <PosPart copyNumber="1">
+       <rParent name="csc:ME22"/>
+       <rChild name="csc:MEEQ"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*fm " y="-10.0234*cm " z="0*fm " /> 
+  </PosPart> -->
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31"/>
+   <rChild name="csc:MEEQ"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-10.0234*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32"/>
+   <rChild name="csc:MEEQ"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-10.0234*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41"/>
+   <rChild name="csc:MEEQ"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-10.0234*cm " z="0*fm "/>
+  </PosPart>
+  <!-- Remove this line and comment ending line below to restore ME42 -->
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42"/>
+   <rChild name="csc:MEEQ"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-10.0234*cm " z="0*fm "/>
+  </PosPart>
+  <!-- -->
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12"/>
+   <rChild name="csc:AlgPinNarrowEndME1"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-90.224*mm " z="-912.1*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12"/>
+   <rChild name="csc:AlgPinWideEndME1"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-90.224*mm " z="893.1*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13"/>
+   <rChild name="csc:AlgPinNarrowEndME1"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-90.224*mm " z="-861.6*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13"/>
+   <rChild name="csc:AlgPinWideEndME1"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-90.224*mm " z="842.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21"/>
+   <rChild name="csc:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-988.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21"/>
+   <rChild name="csc:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="969.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22"/>
+   <rChild name="csc:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-1655.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22"/>
+   <rChild name="csc:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31"/>
+   <rChild name="csc:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-888.2*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31"/>
+   <rChild name="csc:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="869.2*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32"/>
+   <rChild name="csc:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-1655.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32"/>
+   <rChild name="csc:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41"/>
+   <rChild name="csc:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-788.4*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41"/>
+   <rChild name="csc:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="769.4*mm"/>
+  </PosPart>
+  <!-- Remove this line and comment ending line below to restore ME42 -->
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42"/>
+   <rChild name="csc:AlgPinNarrowEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="-1655.05*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42"/>
+   <rChild name="csc:AlgPinWideEnd"/>
+   <rRotation name="RotYZaroundX90"/>
+   <Translation x="0*fm " y="-9.4034*cm " z="1636.05*mm"/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12RingP"/>
+   <rChild name="csc:ME12Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="159.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME12RingP"/>
+   <rChild name="csc:ME12Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="-114.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME12RingN"/>
+   <rChild name="csc:ME12Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="159.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME12RingN"/>
+   <rChild name="csc:ME12Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="-114.5*mm"/>
+  </PosPart>
+  <Division name="csc:ME12SpaceDivision" parent="csc:ME12Space" axis="phi" offset="-10*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12SpaceDivision"/>
+   <rChild name="csc:ME12"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="3.697*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12"/>
+   <rChild name="csc:ME12AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12AlumFrame"/>
+   <rChild name="csc:ME12FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12FR4Body"/>
+   <rChild name="csc:ME12PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="csc:ME12Layer" parent="csc:ME12PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12Layer"/>
+   <rChild name="csc:ME_FR4Skin_1_ME12Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME12Layer"/>
+   <rChild name="csc:ME_FR4Skin_2_ME12Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12Layer"/>
+   <rChild name="csc:MECU_1_ME12Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME12Layer"/>
+   <rChild name="csc:MECU_2_ME12Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12Layer"/>
+   <rChild name="csc:ME12_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-0.955*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME12_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_1_ME12_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="34.2*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME12_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_2_ME12_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-31.6*cm "/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13RingP"/>
+   <rChild name="csc:ME13Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6936.5874*mm  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME13RingN"/>
+   <rChild name="csc:ME13Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="6936.5874*mm  "/>
+  </PosPart>
+  <Division name="csc:ME13SpaceDivision" parent="csc:ME13Space" axis="phi" offset="-5*deg" width="10*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13SpaceDivision"/>
+   <rChild name="csc:ME13"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="5.9515*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13"/>
+   <rChild name="csc:ME13AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13AlumFrame"/>
+   <rChild name="csc:ME13FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13FR4Body"/>
+   <rChild name="csc:ME13PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="csc:ME13Layer" parent="csc:ME13PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13Layer"/>
+   <rChild name="csc:ME_FR4Skin_1_ME13Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME13Layer"/>
+   <rChild name="csc:ME_FR4Skin_2_ME13Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13Layer"/>
+   <rChild name="csc:MECU_1_ME13Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME13Layer"/>
+   <rChild name="csc:MECU_2_ME13Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13Layer"/>
+   <rChild name="csc:ME13_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-1.075*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME13_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_1_ME13_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="28.92*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME13_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_2_ME13_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-21.66*cm "/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="csc:ME21Space"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="csc:ME21Space"/>
+   <rRotation name="rotations:R025"/>
+   <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="csc:ME21Space"/>
+   <rRotation name="rotations:R005R"/>
+   <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="csc:ME21Space"/>
+   <rRotation name="rotations:R025R"/>
+   <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m "/>
+  </PosPart>
+  <Division name="csc:ME21SpaceDivision" parent="csc:ME21Space" axis="phi" offset="-20*deg" width="40*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21SpaceDivision"/>
+   <rChild name="csc:ME21"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="2.427*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21"/>
+   <rChild name="csc:ME21AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21AlumFrame"/>
+   <rChild name="csc:ME21FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21FR4Body"/>
+   <rChild name="csc:ME21PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="csc:ME21Layer" parent="csc:ME21PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21Layer"/>
+   <rChild name="csc:ME_FR4Skin_1_ME21Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME21Layer"/>
+   <rChild name="csc:ME_FR4Skin_2_ME21Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21Layer"/>
+   <rChild name="csc:MECU_1_ME21Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME21Layer"/>
+   <rChild name="csc:MECU_2_ME21Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21Layer"/>
+   <rChild name="csc:ME21_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.55*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME21_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_1_ME21_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="34.62*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME21_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_2_ME21_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-26.52*cm "/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="csc:ME22Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="csc:ME22Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="csc:ME22Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="202.1125*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="csc:ME22Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="-45.8875*mm+8.1925*m "/>
+  </PosPart>
+  <Division name="csc:ME22SpaceDivision" parent="csc:ME22Space" axis="phi" offset="-10.*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22SpaceDivision"/>
+   <rChild name="csc:ME22"/>
+   <rRotation name="rotations:90XD"/>
+   <Translation x="5265.0*mm" y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22"/>
+   <rChild name="csc:ME22AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22AlumFrame"/>
+   <rChild name="csc:ME22FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22FR4Body"/>
+   <rChild name="csc:ME22PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="csc:ME22Layer" parent="csc:ME22PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22Layer"/>
+   <rChild name="csc:ME_FR4Skin_1_ME22Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME22Layer"/>
+   <rChild name="csc:ME_FR4Skin_2_ME22Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22Layer"/>
+   <rChild name="csc:MECU_1_ME22Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME22Layer"/>
+   <rChild name="csc:MECU_2_ME22Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22Layer"/>
+   <rChild name="csc:ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME22_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_1_ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="1.0116*m  "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME22_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_2_ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="40.46*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="csc:ME22_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_3_ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-20.23*cm "/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="csc:ME22_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_4_ME22_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-80.92*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="csc:ME31Space"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-202.1125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="csc:ME31Space"/>
+   <rRotation name="rotations:R025"/>
+   <Translation x="0*fm " y="0*fm " z="45.8875*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="csc:ME31Space"/>
+   <rRotation name="rotations:R005R"/>
+   <Translation x="0*fm " y="0*fm " z="-202.1125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="csc:ME31Space"/>
+   <rRotation name="rotations:R025R"/>
+   <Translation x="0*fm " y="0*fm " z="45.8875*mm "/>
+  </PosPart>
+  <Division name="csc:ME31SpaceDivision" parent="csc:ME31Space" axis="phi" offset="-20*deg" width="40*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31SpaceDivision"/>
+   <rChild name="csc:ME31"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="2.527*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31"/>
+   <rChild name="csc:ME31AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31AlumFrame"/>
+   <rChild name="csc:ME31FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31FR4Body"/>
+   <rChild name="csc:ME31PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="csc:ME31Layer" parent="csc:ME31PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31Layer"/>
+   <rChild name="csc:ME_FR4Skin_1_ME31Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME31Layer"/>
+   <rChild name="csc:ME_FR4Skin_2_ME31Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31Layer"/>
+   <rChild name="csc:MECU_1_ME31Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME31Layer"/>
+   <rChild name="csc:MECU_2_ME31Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31Layer"/>
+   <rChild name="csc:ME31_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.65*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME31_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_1_ME31_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="24.685*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME31_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_2_ME31_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-35.205*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="csc:ME32Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-202.1125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="csc:ME32Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="45.8875*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="csc:ME32Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="-202.1125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="csc:ME32Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="45.8875*mm "/>
+  </PosPart>
+  <Division name="csc:ME32SpaceDivision" parent="csc:ME32Space" axis="phi" offset="-10*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32SpaceDivision"/>
+   <rChild name="csc:ME32"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="5265.0*mm" y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32"/>
+   <rChild name="csc:ME32AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32AlumFrame"/>
+   <rChild name="csc:ME32FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32FR4Body"/>
+   <rChild name="csc:ME32PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="csc:ME32Layer" parent="csc:ME32PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32Layer"/>
+   <rChild name="csc:ME_FR4Skin_1_ME32Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME32Layer"/>
+   <rChild name="csc:ME_FR4Skin_2_ME32Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32Layer"/>
+   <rChild name="csc:MECU_1_ME32Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME32Layer"/>
+   <rChild name="csc:MECU_2_ME32Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32Layer"/>
+   <rChild name="csc:ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME32_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_1_ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="1.0116*m  "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME32_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_2_ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="40.46*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="csc:ME32_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_3_ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-20.23*cm "/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="csc:ME32_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_4_ME32_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-80.92*cm "/>
+  </PosPart>
+
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="csc:ME41Space"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="-202.8125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="csc:ME41Space"/>
+   <rRotation name="rotations:R025"/>
+   <Translation x="0*fm " y="0*fm " z="45.1875*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="csc:ME41Space"/>
+   <rRotation name="rotations:R005R"/>
+   <Translation x="0*fm " y="0*fm " z="-202.8125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="csc:ME41Space"/>
+   <rRotation name="rotations:R025R"/>
+   <Translation x="0*fm " y="0*fm " z="45.1875*mm "/>
+  </PosPart>
+  <Division name="csc:ME41SpaceDivision" parent="csc:ME41Space" axis="phi" offset="-20*deg" width="40*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41SpaceDivision"/>
+   <rChild name="csc:ME41"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="2.6265*m  " y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41"/>
+   <rChild name="csc:ME41AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41AlumFrame"/>
+   <rChild name="csc:ME41FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41FR4Body"/>
+   <rChild name="csc:ME41PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="csc:ME41Layer" parent="csc:ME41PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41Layer"/>
+   <rChild name="csc:ME_FR4Skin_1_ME41Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME41Layer"/>
+   <rChild name="csc:ME_FR4Skin_2_ME41Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41Layer"/>
+   <rChild name="csc:MECU_1_ME41Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME41Layer"/>
+   <rChild name="csc:MECU_2_ME41Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41Layer"/>
+   <rChild name="csc:ME41_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.55*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME41_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_1_ME41_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="24.46*cm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME41_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_2_ME41_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-25.45*cm "/>
+  </PosPart>
+  <!-- Remove this line and comment ending line below to restore ME42 -->
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="csc:ME42Space"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-202.8125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="csc:ME42Space"/>
+   <rRotation name="rotations:R010"/>
+   <Translation x="0*fm " y="0*fm " z="45.1875*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="csc:ME42Space"/>
+   <rRotation name="rotations:180RYZ"/>
+   <Translation x="0*fm " y="0*fm " z="-202.8125*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="csc:ME42Space"/>
+   <rRotation name="rotations:R010R"/>
+   <Translation x="0*fm " y="0*fm " z="45.1875*mm "/>
+  </PosPart>
+  <Division name="csc:ME42SpaceDivision" parent="csc:ME42Space" axis="phi" offset="-10*deg" width="20*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42SpaceDivision"/>
+   <rChild name="csc:ME42"/>
+   <rRotation name="rotations:90DX"/>
+   <Translation x="5265.0*mm" y="0*fm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42"/>
+   <rChild name="csc:ME42AlumFrame"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="1.5*cm " z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42AlumFrame"/>
+   <rChild name="csc:ME42FR4Body"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42FR4Body"/>
+   <rChild name="csc:ME42PolycarbPanel"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Division name="csc:ME42Layer" parent="csc:ME42PolycarbPanel" axis="y" offset="[LayerOffset]" width="[LayerSpacing]" nReplicas="6"/>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42Layer"/>
+   <rChild name="csc:ME_FR4Skin_1_ME42Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME42Layer"/>
+   <rChild name="csc:ME_FR4Skin_2_ME42Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[FR4SkinCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42Layer"/>
+   <rChild name="csc:MECU_1_ME42Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME42Layer"/>
+   <rChild name="csc:MECU_2_ME42Layer"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="-[CuFoilCenter]" z="0*fm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42Layer"/>
+   <rChild name="csc:ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-9.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="csc:ME42_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_1_ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="1.0116*m  "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="csc:ME42_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_2_ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="40.46*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="csc:ME42_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_3_ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-20.23*cm "/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="csc:ME42_ActiveGasVol"/>
+   <rChild name="csc:ME_DeadGas_4_ME42_ActiveGasVol"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-80.92*cm "/>
+  </PosPart>
+ </PosPartSection>
+</DDDefinition>

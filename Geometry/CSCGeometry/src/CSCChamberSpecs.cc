@@ -1,3 +1,4 @@
+#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
@@ -13,11 +14,14 @@ CSCChamberSpecs::CSCChamberSpecs(
       const CSCWireGroupPackage& wg )
   : GeomDetType( "CSC", CSC ), theChamberType( iChamberType ), theSpecsValues( fupar ),
     nstrips( static_cast<int>(specsValue(5)) ), stripDeltaPhi( specsValue(29) ), 
-    centreToIntersectionOffset( specsValue(30) )
+    centreToIntersectionOffset( specsValue(30) ), gangedStrips_( false )
   {
    LogTrace("CSCChamberSpecs|CSC") << myName << ": constructing specs for chamber " << 
     theName[iChamberType - 1] << ", type=" << iChamberType << ", this =" << this;
- 
+  
+  // Reset gangedStrips_ for ME1A from config parameter
+  if ( iChamberType == 1 ) gangedStrips_ = geom->gangedStrips(); 
+
   // Most wire info now comes from wire group section of DDD, but this doesn't...
   float wireAngleInDegrees = specsValue(12);
   

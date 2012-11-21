@@ -32,39 +32,45 @@ class CSCRecoConditions
   /// fetch the cond data from the database
   void initializeEvent(const edm::EventSetup & es);
 
-  /// channels count from 1
-  float gain(const CSCDetId & id, int channel) const;
+  /// channels and geomstrips  count from 1
+
+  /// return gain for given strip
+  float gain( const CSCDetId& id, int geomStrip ) const;
 
   /// return average gain over entire CSC system
   float averageGain() const { 
      return theConditions.averageGain(); }
 
-  ///  calculate gain weights for all strips in a CSC layer 
-  /// - filled into C-array which caller must have allocated.
-  void stripWeights( const CSCDetId& id, float* weights ) const;
+  ///  calculate gain weights for all strips in a CSC layer (total in layer = nstrips)
+  ///  this is averageGain()/gain for each strip filled into a C-array which caller must have allocated.
+  ///  values are constrained to be in [0.5, 1.5]
+  void stripWeights( const CSCDetId& id, short int nstrips, float* weights ) const;
 
-  /// static pedestal in ADC counts
-  float pedestal(const CSCDetId & id, int channel) const;
+  /// static pedestal in ADC counts for strip channel (e.g. 1-16 for ganged ME1a, 1-48 for unganged ME1a)
+  float pedestal(const CSCDetId& id, int channel) const;
 
-  /// sigma of static pedestal in ADC counts
-  float pedestalSigma(const CSCDetId & id, int channel) const;
+  /// sigma of static pedestal in ADC counts for strip channel (e.g. 1-16 for ganged ME1a, 1-48 for unganged ME1a)
+  float pedestalSigma(const CSCDetId& id, int channel) const;
 
   /// fill expanded noise matrix for 3 neighbouring strips as linear vector (must be allocated by caller)
   /// Note that centralStrip is a 'geomStrip' and ranges 1-48 in ME1a.
   void noiseMatrix( const CSCDetId& id, int centralStrip, std::vector<float>& nme ) const;
 
   /// fill crosstalk information for 3 neighbouring strips as linear vector (must be allocated by caller)
-  /// Note that centralStrip is a 'geomStrip' and ranges 1-48 in ME1a.
+  /// Note that centralStrip is a 'geomStrip' and e.g. always ranges 1-48 in ME1a.
   void crossTalk( const CSCDetId& id, int centralStrip, std::vector<float>& xtalks) const;
 
-   // returns chip speed correction in ns given detId (w/layer) and strip channel
+   // returns chip speed correction in ns given strio channel
   float chipCorrection( const CSCDetId & detId, int channel ) const;
 
    // returns chamber level timing correction (cable length and extra chamber correction) in ns 
-  float chamberTimingCorrection( const CSCDetId & detId )const;
+  float chamberTimingCorrection( const CSCDetId& id )const;
 
    // returns anode bx off for each chamber, used to correct anode times to 0 for collision muons
   float anodeBXoffset( const CSCDetId & detId )const;
+
+  /// returns gas-gain correction 
+  float gasGainCorrection( const CSCDetId& id, int strip, int wireGroup ) const;
 
   /// Is a neighbour bad?
   bool nearBadStrip( const CSCDetId& id, int geomStrip ) const;
@@ -75,17 +81,11 @@ class CSCRecoConditions
   /// Get bad wiregroup word
   const std::bitset<112>& badWireWord( const CSCDetId& id ) const;
 
-  /// returns gas-gain correction given detId (w/layer), strip, channel.  This converts ME1/4 strips 1-16 to ME1/1 channels 65-80
-  float gasGainCorrection( const CSCDetId & detId, int strip, int wire ) const;
-
  private:
 
   /// return gain weight for given strip channel
-  ///
-  /// WARNING - expects ME11 detId for both ME1b (channels 1-64) AND for ME1a (channels 65-80)
-  /// so this requires 'raw' channel interface.
-  float stripWeight( const CSCDetId& id, int channel ) const;
 
+  float stripWeight( const CSCDetId& id, int geomStrip ) const;
 
   CSCConditions theConditions;
 };

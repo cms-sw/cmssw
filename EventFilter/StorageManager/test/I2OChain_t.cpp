@@ -1934,23 +1934,19 @@ testI2OChain::event_msg_header()
         switch (indexMod) {
         case 0:
           {
-            trigMask = 0x03;
-            break;
+            trigMask = 0x3;
           }
         case 1:
           {
-            trigMask = 0x0c;
-            break;
+            trigMask = 0xc;
           }
         case 2:
           {
             trigMask = 0x30;
-            break;
           }
         case 3:
           {
             trigMask = 0xc0;
-            break;
           }
         }
         CPPUNIT_ASSERT((hltBits2[idx] & trigMask) ==
@@ -2475,23 +2471,19 @@ testI2OChain::split_event_header()
               {
               case 0:
                 {
-                  trigMask = 0x03;
-                  break;
+                  trigMask = 0x3;
                 }
               case 1:
                 {
-                  trigMask = 0x0c;
-                  break;
+                  trigMask = 0xc;
                 }
               case 2:
                 {
                   trigMask = 0x30;
-                  break;
                 }
               case 3:
                 {
                   trigMask = 0xc0;
-                  break;
                 }
               }
             CPPUNIT_ASSERT((hltBits2[idx] & trigMask) ==

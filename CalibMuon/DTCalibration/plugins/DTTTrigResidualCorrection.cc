@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/03/02 19:47:32 $
- *  $Revision: 1.8 $
+ *  $Date: 2010/11/19 15:17:51 $
+ *  $Revision: 1.7 $
  *  \author A. Vilela Pereira
  */
 
@@ -39,8 +39,6 @@
 
 using namespace std;
 using namespace edm;
-
-namespace dtCalibration {
 
 DTTTrigResidualCorrection::DTTTrigResidualCorrection(const ParameterSet& pset) {
   string residualsRootFile = pset.getParameter<string>("residualsRootFile");
@@ -198,5 +196,3 @@ string DTTTrigResidualCorrection::getHistoName(const DTSuperLayerId& slId) {
 
   return histoName;
 }
-
-} // namespace

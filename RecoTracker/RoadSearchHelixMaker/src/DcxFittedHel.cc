@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxFittedHel.cc,v 1.4 2006/04/10 22:06:41 stevew Exp $
+// 	$Id: DcxFittedHel.cc,v 1.5 2011/04/07 21:47:06 stevew Exp $
 //
 // Description:
 //	Class Implementation for |DcxFittedHel|
@@ -313,7 +313,7 @@ int DcxFittedHel::FitPrint(DcxHel &hel){
 int DcxFittedHel::Layer(int hitno)const {
   if(hitno>=nhits) {return 0;}
   //babar  const HepAList<DcxHit> &temp=(HepAList<DcxHit>&)listohits;
-  const std::vector<DcxHit*> &temp=(std::vector<DcxHit*>&)listohits;
+  const std::vector<DcxHit*> &temp=(const std::vector<DcxHit*>&)listohits;
   int layer=temp[hitno]->Layer();
   return layer;
 } // endof Layer
@@ -323,7 +323,7 @@ int DcxFittedHel::SuperLayer(int hitno)const {
   if(hitno>=nhits) {return 0;}
   if(hitno<0) {return 0;}
   //babar    const HepAList<DcxHit> &temp=(HepAList<DcxHit>&)listohits;
-  const std::vector<DcxHit*> &temp=(std::vector<DcxHit*>&)listohits;
+  const std::vector<DcxHit*> &temp=(const std::vector<DcxHit*>&)listohits;
   return temp[hitno]->SuperLayer();
 } // endof SuperLayer
 

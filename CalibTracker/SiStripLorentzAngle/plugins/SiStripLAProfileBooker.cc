@@ -196,7 +196,7 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
       LocalPoint p;
       const GeomDetUnit * stripdet=dynamic_cast<const GeomDetUnit*>(tracker->idToDet(subid));
       if(stripdet==0)continue;
-      const StripTopology& topol=(StripTopology&)stripdet->topology();
+      const StripTopology& topol=(const StripTopology&)stripdet->topology();
       float thickness=stripdet->specificSurface().bounds().thickness();
       
       folder_organizer.setDetectorFolder(Iditer->rawId());

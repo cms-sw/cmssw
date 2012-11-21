@@ -48,7 +48,7 @@ public:
   void setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
-  void accumulateCaloHits(std::vector<PCaloHit> const& hcalHits, std::vector<PCaloHit> const& zdcHits, int bunchCrossing);
+  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHits, edm::Handle<std::vector<PCaloHit> > const& zdcHits, int bunchCrossing);
 
   /// some hits in each subdetector, just for testing purposes
   void fillFakeHits();

@@ -168,6 +168,8 @@ CSCTFSectorProcessor::CSCTFSectorProcessor(const unsigned& endcap,
   //2012 core: 4 station track at |eta|>2.1 -> ME2-ME3-ME4
   firmSP_Map.insert(std::pair<int,int>(20120313,20120313));
   firmSP_Map.insert(std::pair<int,int>(20120319,20120313));
+  //2012 core: 4 station track at |eta|>2.1 -> ME1-ME3-ME4 test
+  firmSP_Map.insert(std::pair<int,int>(20120730,20120730));
 }
 
 
