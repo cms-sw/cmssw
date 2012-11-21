@@ -584,6 +584,13 @@ class OfflineValidation(GenericValidation):
                                  '%(color)s, %(style)s);\n')%repMap
         return validationsSoFar
 
+    def appendToMerge( self, mergesSoFar = "" ):
+        """
+        append all merges here
+        """
+        repMap = self.getRepMap()
+        mergesSoFar += replaceByMap( configTemplates.mergeOfflineParallelResults, repMap )
+        return mergesSoFar
 
 class OfflineValidationParallel(OfflineValidation):
     def __init__(self, valName, alignment,config):
@@ -681,18 +688,19 @@ class OfflineValidationParallel(OfflineValidation):
         else the validation is appended to the list
         """
         repMap = self.getRepMap()
-        if validationsSoFar == "":
-            parameters = ""
-            fileToAdd = ""
-            for index in range(int(self.__NJobs)):
-                fileToAdd = '%(resultFile)s'%repMap
-                fileToAdd = fileToAdd.replace('.root','_'+str(index)+'.root')
-                if index < int( self.general["parallelJobs"] )-1:
-                    parameters = parameters+fileToAdd+','
-                else:
-                    parameters = parameters+fileToAdd                
 
-            validationsSoFar = 'hadd("'+parameters+'");'
+        parameters = ""
+        fileToAdd = ""
+        for index in range(int(self.__NJobs)):
+            fileToAdd = '%(resultFile)s'%repMap
+            fileToAdd = fileToAdd.replace('.root','_'+str(index)+'.root')
+            if index < int( self.general["parallelJobs"] )-1:
+                parameters = parameters+fileToAdd+','
+            else:
+                parameters = parameters+fileToAdd                
+                
+        mergedoutputfile = "AlignmentValidation_" + self.name + "_" + '%(name)s'%repMap + ".root"
+        validationsSoFar += 'hadd("'+parameters+'","'+mergedoutputfile+'");' + "\n"
         return validationsSoFar
 
     def createCrabCfg( self ):
@@ -1214,11 +1222,10 @@ def createParallelMergeScript( path, validations ):
     if "OfflineValidationParallel" in comparisonLists:
         repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
         createExtendedValidationScript( comparisonLists["OfflineValidationParallel"], repMap["extendeValScriptPath"] )
-        # add a script which merges output files from parallel jobs
         repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
         createOfflineJobsMergeScript( comparisonLists["OfflineValidationParallel"], repMap["mergeOfflineParJobsScriptPath"] )
         repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedValidationExecution, repMap)
-        # DownloadData is used to merge output files from parallel jobs
+        # DownloadData is the section which merges output files from parallel jobs
         # it uses the file TkAlOfflineJobsMerge.C
         repMap["DownloadData"] += replaceByMap( configTemplates.mergeOfflineParallelResults, repMap )
 
