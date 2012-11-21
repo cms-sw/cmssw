@@ -395,7 +395,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TkSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    TkSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    TkSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   TkSystGraphs->GetYaxis()->SetRangeUser(-0.35, 0.05);
+   TkSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
    TkSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -438,7 +438,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MuSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MuSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    MuSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   MuSystGraphs->GetYaxis()->SetRangeUser(-0.5, 0.05);
+   MuSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
    MuSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -481,7 +481,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MOSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MOSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    MOSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   MOSystGraphs->GetYaxis()->SetRangeUser(-0.5, 0.05);
+   MOSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
    MOSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -524,7 +524,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    LQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    LQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   LQSystGraphs->GetYaxis()->SetRangeUser(-0.5, 0.05);
+   LQSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
    LQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -568,7 +568,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    HQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    HQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    HQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   HQSystGraphs->GetYaxis()->SetRangeUser(-0.5, 0.05);
+   HQSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
    HQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -1199,9 +1199,9 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       SystRe[N]      = -0.02;
       if(IsNeutral && SQRTS==8) SystTr[N] = -0.01;
       else if(SQRTS==7) SystTr[N] = -0.05;
-      else if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.08*0.08);
-      else if(modelSample[s].ModelName().find("2o3")!=string::npos) SystTr[N] = -1*sqrt(0.03*0.03 + 0.08*0.08);
-      else SystTr[N] = -1*sqrt(0.01*0.01 + 0.08*0.08);
+      else if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.08*0.04);
+      else if(modelSample[s].ModelName().find("2o3")!=string::npos) SystTr[N] = -1*sqrt(0.03*0.03 + 0.08*0.04);
+      else SystTr[N] = -1*sqrt(0.01*0.01 + 0.04*0.04);
 
 //      double Ptemp=max(SystP[N], 0.0), Itemp=max(SystI[N], 0.0), PUtemp=max(SystPU[N], 0.0), Ttemp=max(SystT[N], 0.0);
       double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
