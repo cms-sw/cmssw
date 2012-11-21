@@ -199,6 +199,8 @@ private:
                                      If ==0 the seeding part will remain untouched. */
   unsigned int theMinNrOf2dHitsForRebuild;   
                                 /**< Minimum nr. of non-seed 2D hits required for rebuild. */
+  bool theKeepOriginalIfRebuildFails;   
+                                /**< Keep original trajectory if rebuilding fails. */
 
   /** If the value is greater than zero, the reconstructions for looper is turned on for
       candidates with pt greater than maxPtForLooperReconstruction */

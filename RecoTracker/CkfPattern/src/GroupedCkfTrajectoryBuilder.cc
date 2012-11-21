@@ -134,6 +134,7 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
   theBestHitOnly              = conf.getParameter<bool>("bestHitOnly");
   theMinNrOf2dHitsForRebuild  = 2;
   theRequireSeedHitsInRebuild = conf.getParameter<bool>("requireSeedHitsInRebuild");
+  theKeepOriginalIfRebuildFails = conf.getParameter<bool>("keepOriginalIfRebuildFails");
   theMinNrOfHitsForRebuild    = max(0,conf.getParameter<int>("minNrOfHitsForRebuild"));
   maxPt2ForLooperReconstruction     = conf.existsAs<double>("maxPtForLooperReconstruction") ? 
     conf.getParameter<double>("maxPtForLooperReconstruction") : 0;
@@ -524,6 +525,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	}
       } // last layer... 
     
+    //unsigned int maxCandidates = theMaxCand > 21 ? theMaxCand*2 : 42; //limit the number of returned segments
     TrajectorySegmentBuilder layerBuilder(theMeasurementTracker,
 					  theLayerMeasurements,
 					  **il,*propagator,
@@ -837,7 +839,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
     int nRebuilt =
       rebuildSeedingRegion (seed, seedHits,reFitted,rebuiltTrajectories);
 
-    if ( nRebuilt==0 ) it->invalidate();  // won't use original in-out track
+    if ( nRebuilt==0 && !theKeepOriginalIfRebuildFails ) it->invalidate();  // won't use original in-out track
 
     if ( nRebuilt<0 ) rebuiltTrajectories.push_back(std::move(*it));
 
