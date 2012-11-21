@@ -96,7 +96,8 @@ do
     else
 	cat ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/index_template_TKMap.html | sed -e "s@RunNumber@$Run_numb@g" > index.html
     fi
-    
+    cp ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/fedmap.html fedmap.html
+
     echo " Check TrackerMap on $Run_numb/$1 folder"
 
     nnn=`echo ${Run_numb} | awk '{print substr($0,0,3)}'`

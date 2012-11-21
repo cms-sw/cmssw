@@ -137,6 +137,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   ssqLabel_ = tkmapPset.getUntrackedParameter<std::string>("ssqLabel","");
   bool tkMapPSU = tkmapPset.getUntrackedParameter<bool>("psuMap",false);
   bool tkMapFED = tkmapPset.getUntrackedParameter<bool>("fedMap",false);
+  std::string namesuffix = tkmapPset.getUntrackedParameter<std::string>("mapSuffix",""); 
  
   std::string tmap_title = " Tracker Map from  " + map_type;
   trackerMap_->setTitle(tmap_title);
@@ -155,24 +156,24 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   if(tkmapPset.exists("mapMax")) tkMapMax_ = tkmapPset.getUntrackedParameter<double>("mapMax");
   if(tkmapPset.exists("mapMin")) tkMapMin_ = tkmapPset.getUntrackedParameter<double>("mapMin");
   
-  edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
+  edm::LogInfo("TkMapToBeSaved") << "Ready to save TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
   
-  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+".svg");  
-  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+".png",4500,2400);
+  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".svg");  
+  trackerMap_->save(true, tkMapMin_,tkMapMax_, map_type+namesuffix+".png",4500,2400);
 
   if(tkMapPSU) {
 
-    edm::LogInfo("PSUMapToBeSaved") << "Ready to save PSU TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
-    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+"_psu.svg");
-    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+"_psu.png",6000,3200);
+    edm::LogInfo("PSUMapToBeSaved") << "Ready to save PSU TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
+    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+namesuffix+"_psu.svg");
+    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+namesuffix+"_psu.png",6000,3200);
 
   }
 
   if(tkMapFED) {
 
-    edm::LogInfo("FEDMapToBeSaved") << "Ready to save FED TkMap " << map_type << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
+    edm::LogInfo("FEDMapToBeSaved") << "Ready to save FED TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
     //    trackerMap_->save_as_fedtrackermap(true, tkMapMin_,tkMapMax_, map_type+"_fed.svg");
-    trackerMap_->save_as_fedtrackermap(true, tkMapMin_,tkMapMax_, map_type+"_fed.png");
+    trackerMap_->save_as_fedtrackermap(true, tkMapMin_,tkMapMax_, map_type+namesuffix+"_fed.png");
 
   }
 
@@ -191,31 +192,27 @@ void SiStripTrackerMapCreator::setTkMapFromAlarm(DQMStore* dqm_store) {
 
   if(useSSQuality_) { eSetup_.get<SiStripQualityRcd>().get(ssqLabel_,ssq);  }
 
-  const SiStripFedCabling* fedcabling = detcabling_->fedCabling();
-
   trackerMap_->fillc_all_blank();
 
   std::map<unsigned int,std::string>* badmodmap = new std::map<unsigned int,std::string>;
 
-  if(!fedcabling) return;
-
-  const std::vector<uint16_t>& feds = fedcabling->feds(); 
   // used to avoid multiple checks on the same detid since the loop is done on the FED channels
     uint32_t detId_save = 0;
-    for(std::vector<unsigned short>::const_iterator ifed = feds.begin(); 
-	ifed < feds.end(); ifed++){
-      const std::vector<FedChannelConnection> fedChannels = fedcabling->connections( *ifed );
-      for(std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
-	
-	uint32_t detId = iconn->detId();
-	if (detId == 0 || detId == 0xFFFFFFFF)  continue;
-	if (detId_save != detId) {
-	  detId_save = detId;
-	  bool isBad = useSSQuality_ && ssq->IsModuleBad(detId);
-          paintTkMapFromAlarm(detId, dqm_store,isBad,badmodmap);
-	}
+    // example of loop using SiStripDetCabling
+    for(std::map< uint32_t, std::vector<const FedChannelConnection *> >::const_iterator module = detcabling_->getDetCabling().begin(); 
+	module!=detcabling_->getDetCabling().end();++module) {
+      uint32_t detId = module->first;
+      if (detId == 0 || detId == 0xFFFFFFFF)  continue;
+      if (detId_save != detId) {
+	detId_save = detId;
+	bool isBad = useSSQuality_ && ssq->IsModuleBad(detId);
+	paintTkMapFromAlarm(detId, dqm_store,isBad,badmodmap);
+      } 
+      else {
+	edm::LogWarning("TwiceTheSameDetId") << "The detid " << detId << " was found already in the loop on SiStripDetCabling";
       }
-    } 
+    }
+    //
     printBadModuleList(badmodmap);
     delete badmodmap;
 }
