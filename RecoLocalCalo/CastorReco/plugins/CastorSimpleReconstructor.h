@@ -9,8 +9,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoLocalCalo/CastorReco/interface/CastorSimpleRecAlgo.h"
-#include "CondFormats/CastorObjects/interface/CastorRecoParams.h"
-#include "CondFormats/CastorObjects/interface/CastorSaturationCorrs.h"
 
 class CastorSimpleReconstructor : public edm::EDProducer {
     public:
@@ -28,11 +26,9 @@ class CastorSimpleReconstructor : public edm::EDProducer {
       int firstSample_;
       int samplesToAdd_;
       bool tsFromDB_;
-      CastorRecoParams* paramTS_;
       bool setSaturationFlag_;
       int maxADCvalue_;
       bool doSaturationCorr_;
-      CastorSaturationCorrs* satCorr_;
 };
 
 #endif
