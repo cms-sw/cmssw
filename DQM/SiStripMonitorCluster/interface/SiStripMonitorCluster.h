@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.41 2012/07/18 17:15:04 tosi Exp $
+// $Id: SiStripMonitorCluster.h,v 1.42 2012/07/19 15:46:18 tosi Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -39,42 +39,42 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
 
   struct ModMEs{ // MEs for one single detector module
 
-    MonitorElement* NumberOfClusters;
-    MonitorElement* ClusterPosition;
-    MonitorElement* ClusterDigiPosition;
-    MonitorElement* ClusterWidth;
-    MonitorElement* ClusterCharge;
-    MonitorElement* ClusterNoise;
-    MonitorElement* ClusterSignalOverNoise;
-    MonitorElement* ClusterSignalOverNoiseVsPos;
-    MonitorElement* ModuleLocalOccupancy;
-    MonitorElement* NrOfClusterizedStrips; // can be used at client level for occupancy calculations
+    MonitorElement* NumberOfClusters = 0;
+    MonitorElement* ClusterPosition = 0;
+    MonitorElement* ClusterDigiPosition = 0;
+    MonitorElement* ClusterWidth = 0;
+    MonitorElement* ClusterCharge = 0;
+    MonitorElement* ClusterNoise = 0;
+    MonitorElement* ClusterSignalOverNoise = 0;
+    MonitorElement* ClusterSignalOverNoiseVsPos = 0;
+    MonitorElement* ModuleLocalOccupancy = 0;
+    MonitorElement* NrOfClusterizedStrips = 0; // can be used at client level for occupancy calculations
   };
 
   struct LayerMEs{ // MEs for Layer Level
-    MonitorElement* LayerClusterStoN;
-    MonitorElement* LayerClusterStoNTrend;
-    MonitorElement* LayerClusterCharge;
-    MonitorElement* LayerClusterChargeTrend;
-    MonitorElement* LayerClusterNoise;
-    MonitorElement* LayerClusterNoiseTrend;
-    MonitorElement* LayerClusterWidth;
-    MonitorElement* LayerClusterWidthTrend;
-    MonitorElement* LayerLocalOccupancy;
-    MonitorElement* LayerLocalOccupancyTrend;
-    MonitorElement* LayerNumberOfClusterProfile;
-    MonitorElement* LayerClusterWidthProfile;
+    MonitorElement* LayerClusterStoN = 0;
+    MonitorElement* LayerClusterStoNTrend = 0;
+    MonitorElement* LayerClusterCharge = 0;
+    MonitorElement* LayerClusterChargeTrend = 0;
+    MonitorElement* LayerClusterNoise = 0;
+    MonitorElement* LayerClusterNoiseTrend = 0;
+    MonitorElement* LayerClusterWidth = 0;
+    MonitorElement* LayerClusterWidthTrend = 0;
+    MonitorElement* LayerLocalOccupancy = 0;
+    MonitorElement* LayerLocalOccupancyTrend = 0;
+    MonitorElement* LayerNumberOfClusterProfile = 0;
+    MonitorElement* LayerClusterWidthProfile = 0;
 
   };
 
   struct SubDetMEs{ // MEs for Subdetector Level
-    int totNClusters; 
-    MonitorElement* SubDetTotClusterTH1;
-    MonitorElement* SubDetTotClusterProf;
-    MonitorElement* SubDetClusterApvProf;
-    MonitorElement* SubDetClusterApvTH2;
-    MonitorElement* SubDetClusterDBxCycleProf;
-    MonitorElement* SubDetApvDBxProf2;
+    int totNClusters = 0; 
+    MonitorElement* SubDetTotClusterTH1 = 0;
+    MonitorElement* SubDetTotClusterProf = 0;
+    MonitorElement* SubDetClusterApvProf = 0;
+    MonitorElement* SubDetClusterApvTH2 = 0;
+    MonitorElement* SubDetClusterDBxCycleProf = 0;
+    MonitorElement* SubDetApvDBxProf2 = 0;
   };
 
   struct ClusterProperties { // Cluster Properties
@@ -85,16 +85,16 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
     float noise;
   };
 
-  MonitorElement* GlobalApvCycleDBxTH2; 
-  MonitorElement* GlobalCStripVsCpix;
-  MonitorElement* PixVsStripMultiplicityRegions;
-  MonitorElement* GlobalMainDiagonalPosition;
-  MonitorElement* StripNoise2Cycle;
-  MonitorElement* StripNoise3Cycle;
-  MonitorElement* NumberOfPixelClus;
-  MonitorElement* NumberOfStripClus;
+  MonitorElement* GlobalApvCycleDBxTH2 = 0; 
+  MonitorElement* GlobalCStripVsCpix = 0;
+  MonitorElement* PixVsStripMultiplicityRegions = 0;
+  MonitorElement* GlobalMainDiagonalPosition = 0;
+  MonitorElement* StripNoise2Cycle = 0;
+  MonitorElement* StripNoise3Cycle = 0;
+  MonitorElement* NumberOfPixelClus = 0;
+  MonitorElement* NumberOfStripClus = 0;
 
-  MonitorElement* BPTXrateTrend;
+  MonitorElement* BPTXrateTrend = 0;
 
  private:
 
