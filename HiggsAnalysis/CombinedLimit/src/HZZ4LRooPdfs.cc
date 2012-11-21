@@ -3459,52 +3459,52 @@ Double_t RooRelBW1::evaluate() const
 	return relBW;
 }
 
-/*************RooRelBWUF***********/
-/*
-ClassImp(RooRelBWUF)
 
-RooRelBWUF::RooRelBWUF(const char *name, const char *title,
-					   RooAbsReal& _m4l,
-					   RooAbsReal& _mH) :
-RooAbsPdf(name,title),
-m4l("m4l","m4l",this,_m4l),
-mH("mH","mH",this,_mH)
-{
-}
+ClassImp(RooTsallis) 
+
+RooTsallis::RooTsallis() {}
+
+ RooTsallis::RooTsallis(const char *name, const char *title, 
+				  RooAbsReal& _x,
+				  RooAbsReal& _m,
+				  RooAbsReal& _n,
+                                  RooAbsReal& _n2,
+                                  RooAbsReal& _bb,
+			          RooAbsReal& _bb2,
+			          RooAbsReal& _T,
+                                  RooAbsReal& _fexp):
+   
+   RooAbsPdf(name,title), 
+   x("x","x",this,_x),
+   m("m","m",this,_m),
+   n("n","n",this,_n),
+   n2("n2","n2",this,_n2),
+   bb("bb","bb",this,_bb),
+   bb2("bb2","bb2",this,_bb2),
+   T("T","T",this,_T),
+   fexp("fexp","fexp",this,_fexp)
+ { 
+ } 
 
 
-RooRelBWUF::RooRelBWUF(const RooRelBWUF& other, const char* name) :
-RooAbsPdf(other,name),
-m4l("m4l",this,other.m4l),
-mH("mH",this,other.mH)
-{
-}
+ RooTsallis::RooTsallis(const RooTsallis& other, const char* name) :  
+   RooAbsPdf(other,name), 
+   x("x",this,other.x),
+   m("m",this,other.m),
+   n("n",this,other.n),
+   n2("n2",this,other.n2),
+   bb("bb",this,other.bb),
+   bb2("bb2",this,other.bb2),
+   T("T",this,other.T),
+   fexp("fexp",this,other.fexp)
+ {
+ } 
 
-*/
-/*
-Double_t RooRelBWUF::evaluate() const
-{
-	
-	using namespace RooFit;
-	
-    Double_t Gamma_gg = RooFit::HiggsWidth(7,m4l);
-    Double_t Gamma_ZZ = RooFit::HiggsWidth(11,m4l);
-    Double_t Gamma_TOT = RooFit::HiggsWidth(0,m4l);
-    
-    Double_t ggLum = RooFit::Lgg_7(m4l);
-	
-    Double_t pdf = Gamma_gg*Gamma_ZZ*ggLum/( pow(pow(m4l,2)-pow(mH,2),2 )+pow(m4l,2)*pow(Gamma_TOT,2) );
-	
-	std::cout << "Gamma_gg: " << Gamma_gg << ", Gamma_ZZ: " << Gamma_ZZ << ", Gamma_TOT: " << Gamma_TOT << ", ggLum: " << ggLum << ", pdf: " << pdf << std::endl;
-    
-	Double_t mHreq = mH;
-	Double_t x = m4l;
-	Double_t pdf = RooFit::pdf1(x,mHreq);
-	
-	std::cout << "mH: " << mHreq << ", m4l: " << x << ", pdf: " << pdf << std::endl;
-	
-    return pdf;
-}
-*/
 
+
+ double RooTsallis::evaluate() const 
+ { 
+   // cout<<"In rooTsallis3::evaluate()"<<endl;
+   return pow(x,n2)*exp(-bb*x)*pow(1 + (sqrt(x*x + m*m) - m)/(n*T),-n) + fexp*exp(-bb2*x);
+ } 
 

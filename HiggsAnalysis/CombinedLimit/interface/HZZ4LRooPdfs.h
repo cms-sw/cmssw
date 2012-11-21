@@ -617,6 +617,45 @@ private:
 	ClassDef(RooRelBWHighMass,2) // Your description goes here...                                                                                                    
 };
 
+///////////////////////////////////////////////////
+
+class RooTsallis : public RooAbsPdf {
+public:
+  RooTsallis();
+  RooTsallis(const char *name, const char *title,
+	          RooAbsReal& _x,
+        	  RooAbsReal& _m,
+              	  RooAbsReal& _n,
+	          RooAbsReal& _n2,
+                  RooAbsReal& _bb,
+	          RooAbsReal& _bb2,
+	          RooAbsReal& _T,
+	          RooAbsReal& _fexp);
+
+  RooTsallis(const RooTsallis& other, const char* name=0) ;
+  virtual TObject* clone(const char* newname) const { return new RooTsallis(*this,newname); }
+  inline virtual ~RooTsallis() { }
+  /* Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
+     Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;*/
+
+protected:
+
+  RooRealProxy x ;
+  RooRealProxy m ;
+  RooRealProxy n ;
+  RooRealProxy n2 ;
+  RooRealProxy bb ;
+  RooRealProxy bb2 ;
+  RooRealProxy T ;
+  RooRealProxy fexp ;
+
+  Double_t evaluate() const ;
+
+private:
+
+ ClassDef(RooTsallis,1) // Your description goes here...
+};
+
 
 
 #endif
