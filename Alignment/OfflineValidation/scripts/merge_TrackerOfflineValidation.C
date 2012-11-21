@@ -60,7 +60,7 @@ float getMedian(const TH1 *histo);
 //////////////////////////////////////////////////////////////////////////
 // master method
 //////////////////////////////////////////////////////////////////////////
-void hadd(const char *filesSeparatedByKommaOrEmpty = "") {
+void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile = "") {
 //void merge_TrackerOfflineValidation(const char *filesSeparatedByKommaOrEmpty = "") {
 
   TString fileNames(filesSeparatedByKommaOrEmpty);
@@ -113,8 +113,15 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "") {
     }
   }
   delete names;
+
+  TString outputFileString;
+
+  if (strlen(outputFile)!=0) 
+    outputFileString = TString("$TMPDIR/")+ TString(outputFile);
+  else
+    outputFileString = "$TMPDIR/merge_output.root";
   
-  TFile *Target = TFile::Open( "$TMPDIR/merge_output.root", "RECREATE" );
+  TFile *Target = TFile::Open( outputFileString, "RECREATE" );
   MergeRootfile( Target, FileList);
   std::cout << "Finished merging of histograms." << std::endl;
 
@@ -143,6 +150,8 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "") {
   std::cout << "--- 3) kill the root process ------------------------------------" << std::endl;
   std::cout << "--- 4) continue plotting with fg (only a few minutes left)------ " << std::endl;
   std::cout << "-- ------------------------------------------------------------- " << std::endl;
+
+  //  gROOT->GetListOfFiles()->Remove(Target);
 
   // tested, does not work
   //  Target->cd();
