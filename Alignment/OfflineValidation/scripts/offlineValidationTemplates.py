@@ -407,28 +407,27 @@ process.offlineBeamSpot*process.HighPuritySelector*process.TrackRefitter1*proces
 ######################################################################
 ######################################################################
 mergeOfflineParallelResults="""
-if [ -e .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root ] ; then
-    echo "Output file AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root already exists, now generating plots."
-else
-    if [ .oO[nJobs]Oo. -eq 1 ] ; then
-        echo "A single validation job was used, no merging of results."
-        cp .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo._0.root .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root
-    else
-        echo "Merging results from parallel jobs with TkAlOfflineJobsMerge.C"
-        root -x -b -q .oO[logdir]Oo./TkAlOfflineJobsMerge.C
-        mv /tmp/$USER/merge_output.root .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root
-        ls -al .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo.*.root > .oO[datadir]Oo./log_.oO[nameValidation]Oo._.oO[name]Oo._rootfilelist.txt
-        # if merging has succeeded, remove root files produces by parallel jobs
-        if [ -s .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo..root ] ; then
-            rm -f .oO[datadir]Oo./AlignmentValidation_.oO[nameValidation]Oo._.oO[name]Oo._*.root
-        else
-            echo
-            echo "The merged file has disappeared, cannot continue!!"
-            echo "Please rerun."
-            exit 1
-        fi
-    fi
-fi
+
+# Merging works also if there is only one file to merge
+# if merged file already exists it will be moved to a backup file (~)
+
+# run TkAlOfflinejobs.C
+echo "Merging results from parallel jobs with TkAlOfflineJobsMerge.C"
+root -x -b -q .oO[logdir]Oo./TkAlOfflineJobsMerge.C
+
+# todo do not use /tmp; in case use of /tmp fails, no merged file is obtained
+
+# move output file to datadir, backup existing files
+mv -b /tmp/$USER/AlignmentValidation*.root .oO[datadir]Oo./
+
+# create log file
+ls -al .oO[datadir]Oo./AlignmentValidation*.root > .oO[datadir]Oo./log_rootfilelist.txt
+
+# Remove parallel job files if merged file exists
+for file in .oO[datadir]Oo./AlignmentValidation*root; do
+    rm -f .oO[datadir]Oo./`basename $file .root`_[0-9]*.root;
+done
+
 """
 
 
