@@ -1706,7 +1706,7 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
   if (!runNumber_) return;
   try
   {
-    if (runNumber_>flashRunNumber_ && flashRunNumber_>0)
+    if (runNumber_>flashRunNumber_ && flashRunNumber_.value_>0)
     {
       cpuInfoSpace_->lock();
       flashRunNumber_=runNumber_;
