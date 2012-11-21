@@ -14,6 +14,7 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi        
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi                  import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA_cfi               import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA2_cfi              import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA3_cfi              import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
 
 # Load helper functions to change the source of the discriminants
@@ -35,6 +36,12 @@ requireDecayMode = cms.PSet(
     )
 )
 
+# First apply only charged isolation
+hpsPFTauDiscriminationByLooseChargedIsolation = pfRecoTauDiscriminationByIsolation.clone(
+    PFTauProducer = cms.InputTag("hpsPFTauProducer"),
+    Prediscriminants = requireDecayMode.clone(),
+    ApplyDiscriminationByECALIsolation = False
+)
 
 #Building the prototype for  the Discriminator by Isolation
 hpsPFTauDiscriminationByLooseIsolation = pfRecoTauDiscriminationByIsolation.clone(
@@ -50,7 +57,12 @@ hpsPFTauDiscriminationByLooseIsolation.Prediscriminants.preIso = cms.PSet(
 
 
 # Make an even looser discriminator
-
+hpsPFTauDiscriminationByVLooseChargedIsolation = hpsPFTauDiscriminationByLooseChargedIsolation.clone(
+    customOuterCone = cms.double(0.3),
+    isoConeSizeForDeltaBeta = cms.double(0.3)
+    )
+hpsPFTauDiscriminationByVLooseChargedIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 1.5
+hpsPFTauDiscriminationByVLooseChargedIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 2.0
 
 hpsPFTauDiscriminationByVLooseIsolation = hpsPFTauDiscriminationByLooseIsolation.clone(
     customOuterCone = cms.double(0.3),
@@ -61,16 +73,37 @@ hpsPFTauDiscriminationByVLooseIsolation.qualityCuts.isolationQualityCuts.minGamm
 hpsPFTauDiscriminationByVLooseIsolation.Prediscriminants.preIso.Producer =  cms.InputTag("hpsPFTauDiscriminationByVLooseChargedIsolation")
 
 
+hpsPFTauDiscriminationByMediumChargedIsolation = hpsPFTauDiscriminationByLooseChargedIsolation.clone()
+hpsPFTauDiscriminationByMediumChargedIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 0.8
+hpsPFTauDiscriminationByMediumChargedIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 0.8
+hpsPFTauDiscriminationByMediumChargedIsolation.Prediscriminants.preIso = cms.PSet(
+    Producer = cms.InputTag("hpsPFTauDiscriminationByLooseChargedIsolation"),
+    cut = cms.double(0.5))
+
 hpsPFTauDiscriminationByMediumIsolation = hpsPFTauDiscriminationByLooseIsolation.clone()
 hpsPFTauDiscriminationByMediumIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 0.8
 hpsPFTauDiscriminationByMediumIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 0.8
 hpsPFTauDiscriminationByMediumIsolation.Prediscriminants.preIso.Producer = cms.InputTag("hpsPFTauDiscriminationByMediumChargedIsolation")
 
 
+hpsPFTauDiscriminationByTightChargedIsolation = hpsPFTauDiscriminationByLooseChargedIsolation.clone()
+hpsPFTauDiscriminationByTightChargedIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
+hpsPFTauDiscriminationByTightChargedIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
+hpsPFTauDiscriminationByTightChargedIsolation.Prediscriminants.preIso = cms.PSet(
+    Producer = cms.InputTag("hpsPFTauDiscriminationByMediumChargedIsolation"),
+    cut = cms.double(0.5))
+
 hpsPFTauDiscriminationByTightIsolation = hpsPFTauDiscriminationByLooseIsolation.clone()
 hpsPFTauDiscriminationByTightIsolation.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByTightIsolation.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
 hpsPFTauDiscriminationByTightIsolation.Prediscriminants.preIso.Producer = cms.InputTag("hpsPFTauDiscriminationByTightChargedIsolation")
+
+hpsPFTauDiscriminationByChargedIsolationSeq = cms.Sequence(
+    hpsPFTauDiscriminationByVLooseChargedIsolation*
+    hpsPFTauDiscriminationByLooseChargedIsolation*
+    hpsPFTauDiscriminationByMediumChargedIsolation*
+    hpsPFTauDiscriminationByTightChargedIsolation
+)
 
 hpsPFTauDiscriminationByIsolationSeq = cms.Sequence(
     hpsPFTauDiscriminationByVLooseIsolation*
@@ -137,7 +170,7 @@ hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr = cms.Sequence(
 hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
-    deltaBetaFactor = "%0.4f"%((0.09/0.25)*(0.0772/0.1687)),
+    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 3.0,
@@ -146,36 +179,34 @@ hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminat
 hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
 
-hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.clone(
-        ApplyDiscriminationByTrackerIsolation = True,
-            ApplyDiscriminationByECALIsolation = True,
-            deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
-            applyOccupancyCut = False,
-            applySumPtCut = True,
-            maximumSumPtCut = 2.0,
-            Prediscriminants = requireDecayMode.clone()
-            )
-hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
-hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
-
-
-hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.clone(
+hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.clone(
     applySumPtCut = False,
     storeRawSumPt = cms.bool(True)
 )
 
-hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.clone(
+hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.clone(
     applySumPtCut = False,
     ApplyDiscriminationByECALIsolation = False,
     storeRawSumPt = cms.bool(True)
 )
 
-hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.clone(
+hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.clone(
     applySumPtCut = False,
     ApplyDiscriminationByTrackerIsolation = False,
     storeRawSumPt = cms.bool(True)
 )
 
+hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.clone(
+    ApplyDiscriminationByTrackerIsolation = True,
+    ApplyDiscriminationByECALIsolation = True,
+    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
+    applyOccupancyCut = False,
+    applySumPtCut = True,
+    maximumSumPtCut = 2.0,
+    Prediscriminants = requireDecayMode.clone()
+    )
+hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
+hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
 
 hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
@@ -207,31 +238,6 @@ hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr = cms.Sequence(
     hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr
     )
-
-#Charge isolation based on combined isolation
-hpsPFTauDiscriminationByVLooseChargedIsolation = hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.clone(
-        ApplyDiscriminationByECALIsolation = False
-            )
-
-hpsPFTauDiscriminationByLooseChargedIsolation = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.clone(
-            ApplyDiscriminationByECALIsolation = False
-           )
-
-hpsPFTauDiscriminationByMediumChargedIsolation = hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.clone(
-                ApplyDiscriminationByECALIsolation = False
-                )
-hpsPFTauDiscriminationByTightChargedIsolation = hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr.clone(
-                ApplyDiscriminationByECALIsolation = False
-                           )
-
-
-hpsPFTauDiscriminationByChargedIsolationSeq = cms.Sequence(
-        hpsPFTauDiscriminationByVLooseChargedIsolation*
-            hpsPFTauDiscriminationByLooseChargedIsolation*
-            hpsPFTauDiscriminationByMediumChargedIsolation*
-            hpsPFTauDiscriminationByTightChargedIsolation
-        )
-
 
 # Define MVA based isolation discrimators
 hpsPFTauDiscriminationByIsolationMVAraw = pfRecoTauDiscriminationByMVAIsolation.clone(
@@ -322,16 +328,8 @@ hpsPFTauDiscriminationByMVA2rawElectronRejection = pfRecoTauDiscriminationAgains
     Prediscriminants = requireDecayMode.clone()
 )
 
-requireDecayMode = cms.PSet(
-    BooleanOperator = cms.string("and"),
-    decayMode = cms.PSet(
-        Producer = cms.InputTag('hpsPFTauDiscriminationByDecayModeFinding'),
-        cut = cms.double(0.5)
-    )
-)
-
 from RecoTauTag.RecoTau.RecoTauDiscriminantCutMultiplexer_cfi import recoTauDiscriminantCutMultiplexer
-hpsPFTauDiscriminationByMVA2Loose1ElectronRejection = recoTauDiscriminantCutMultiplexer.clone(
+hpsPFTauDiscriminationByMVA2VLooseElectronRejection = recoTauDiscriminantCutMultiplexer.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),
     toMultiplex = cms.InputTag('hpsPFTauDiscriminationByMVA2rawElectronRejection'),
@@ -339,190 +337,208 @@ hpsPFTauDiscriminationByMVA2Loose1ElectronRejection = recoTauDiscriminantCutMult
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0), # minMVA1prongNoEleMatchBL
-            cut = cms.double(-0.99661791)
+            cut = cms.double(-0.141383)
         ),
         cms.PSet(
             category = cms.uint32(1), # minMVA1prongBL
-            cut = cms.double(-0.83979142)
+            cut = cms.double(-0.122568)
         ),
         cms.PSet(
             category = cms.uint32(2), # minMVA1prongStripsWOgsfBL
-            cut = cms.double(-0.99834895)
+            cut = cms.double(-0.138286)
         ),
         cms.PSet(
             category = cms.uint32(3), # minMVA1prongStripsWgsfWOpfEleMvaBL
-            cut = cms.double(-0.99925435)
+            cut = cms.double(-0.100279)
         ),
         cms.PSet(
             category = cms.uint32(4), # minMVA1prongStripsWgsfWpfEleMvaBL
-            cut = cms.double(-0.87972307)
+            cut = cms.double(-0.116113)
         ),
         cms.PSet(
             category = cms.uint32(5), # minMVA1prongNoEleMatchEC
-            cut = cms.double(-0.99465221)
+            cut = cms.double(-0.191557)
         ),
         cms.PSet(
             category = cms.uint32(6), # minMVA1prongEC
-            cut = cms.double(-0.7369861)
+            cut = cms.double(-0.0921955)
         ),
         cms.PSet(
             category = cms.uint32(7), # minMVA1prongStripsWOgsfEC
-            cut = cms.double(-0.99759883)
+            cut = cms.double(-0.0936173)
         ),
         cms.PSet(
             category = cms.uint32(8), # minMVA1prongStripsWgsfWOpfEleMvaEC
-            cut = cms.double(-0.99703252)
+            cut = cms.double(-0.119732)
         ),
         cms.PSet(
             category = cms.uint32(9), # minMVA1prongStripsWgsfWpfEleMvaEC
-            cut = cms.double(-0.70050365)
+            cut = cms.double(-0.1042)
         )
     )
 )
 
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2Loose1ElectronRejection)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.Prediscriminants = requireDecayMode.clone(
-    decayMode = cms.PSet(
-        Producer = cms.InputTag('hpsPFTauDiscriminationByMVA2Loose1ElectronRejection'),
-        cut = cms.double(0.5)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2VLooseElectronRejection)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[0].cut = cms.double(-0.0639254)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[1].cut = cms.double(-0.0220708)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[2].cut = cms.double(-0.102071)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[3].cut = cms.double(-0.0233814)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[4].cut = cms.double(-0.0391565)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[5].cut = cms.double(-0.142564)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[6].cut = cms.double(+0.00982555)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[7].cut = cms.double(-0.0596019)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[8].cut = cms.double(-0.0381238)
+hpsPFTauDiscriminationByMVA2LooseElectronRejection.mapping[9].cut = cms.double(-0.100381)
+
+hpsPFTauDiscriminationByMVA2MediumElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2VLooseElectronRejection)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[0].cut = cms.double(+0.011729)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[1].cut = cms.double(+0.0203646)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[2].cut = cms.double(+0.177502)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[3].cut = cms.double(+0.0103449)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[4].cut = cms.double(+0.257798)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[5].cut = cms.double(-0.0966083)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[6].cut = cms.double(-0.0466023)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[7].cut = cms.double(+0.0467638)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[8].cut = cms.double(+0.0863876)
+hpsPFTauDiscriminationByMVA2MediumElectronRejection.mapping[9].cut = cms.double(+0.233436)
+
+hpsPFTauDiscriminationByMVA2TightElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2VLooseElectronRejection)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[0].cut = cms.double(+0.0306715)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[1].cut = cms.double(+0.992195)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[2].cut = cms.double(+0.308324)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[3].cut = cms.double(-0.0370998)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[4].cut = cms.double(+0.864643)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[5].cut = cms.double(+0.0832094)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[6].cut = cms.double(+0.791665)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[7].cut = cms.double(+0.675537)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[8].cut = cms.double(+0.87047)
+hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[9].cut = cms.double(+0.233711)
+
+hpsPFTauDiscriminationByMVA3rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA3.clone(
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone()
+)
+
+hpsPFTauDiscriminationByMVA3LooseElectronRejection = recoTauDiscriminantCutMultiplexer.clone(
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = requireDecayMode.clone(),
+    toMultiplex = cms.InputTag('hpsPFTauDiscriminationByMVA3rawElectronRejection'),
+    key = cms.InputTag('hpsPFTauDiscriminationByMVA3rawElectronRejection:category'),
+    mapping = cms.VPSet(
+        cms.PSet(
+            category = cms.uint32(0), # minMVA1prongNoEleMatchWOgWOgsfBL
+            cut = cms.double(0.1816889)
+        ),
+        cms.PSet(
+            category = cms.uint32(1), # minMVA1prongNoEleMatchWOgWgsfBL
+            cut = cms.double(0.1538533)
+        ),
+        cms.PSet(
+            category = cms.uint32(2), # minMVA1prongNoEleMatchWgWOgsfBL
+            cut = cms.double(0.5605197)
+        ),
+        cms.PSet(
+            category = cms.uint32(3), # minMVA1prongNoEleMatchWgWgsfBL
+            cut = cms.double(0.66321647)
+        ),
+         cms.PSet(
+            category = cms.uint32(4), # minMVA1prongWOgWOgsfBL
+            cut = cms.double(0.86337829)
+        ),
+        cms.PSet(
+            category = cms.uint32(5), # minMVA1prongWOgWgsfBL
+            cut = cms.double(0.94084531)
+        ),
+        cms.PSet(
+            category = cms.uint32(6), # minMVA1prongWgWOgsfBL
+            cut = cms.double(0.98025548)
+        ),
+        cms.PSet(
+            category = cms.uint32(7), # minMVA1prongWgWgsfBL
+            cut = cms.double(0.80039471)
+        ),
+        cms.PSet(
+            category = cms.uint32(8), # minMVA1prongNoEleMatchWOgWOgsfEC
+            cut = cms.double(-1.0)
+        ),
+        cms.PSet(
+            category = cms.uint32(9), # minMVA1prongNoEleMatchWOgWgsfEC
+            cut = cms.double(0.49787951)
+        ),
+        cms.PSet(
+            category = cms.uint32(10), # minMVA1prongNoEleMatchWgWOgsfEC
+            cut = cms.double(0.74751109)
+        ),
+        cms.PSet(
+            category = cms.uint32(11), # minMVA1prongNoEleMatchWgWgsfEC
+            cut = cms.double(0.94486511)
+        ),
+         cms.PSet(
+            category = cms.uint32(12), # minMVA1prongWOgWOgsfEC
+            cut = cms.double(0.63645148)
+        ),
+        cms.PSet(
+            category = cms.uint32(13), # minMVA1prongWOgWgsfEC
+            cut = cms.double(0.9575507)
+        ),
+        cms.PSet(
+            category = cms.uint32(14), # minMVA1prongWgWOgsfEC
+            cut = cms.double(0.9549247)
+        ),
+        cms.PSet(
+            category = cms.uint32(15), # minMVA1prongWgWgsfEC
+            cut = cms.double(0.83487612)
+        ),
+        cms.PSet(
+            category = cms.uint32(16), # minMVA3prongMatch
+            cut = cms.double(-1.)
+        ),
+        cms.PSet(
+            category = cms.uint32(17), # minMVA3prongNoMatch
+            cut = cms.double(-1.)
+        )
     )
 )
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[0].cut = cms.double(-0.99661791)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[1].cut = cms.double(-0.67843455)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[2].cut = cms.double(-0.98259228)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[3].cut = cms.double(-0.99925435)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[4].cut = cms.double(-0.63197774)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[5].cut = cms.double(-0.99465221)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[6].cut = cms.double(-0.52862346)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[7].cut = cms.double(-0.89986807)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[8].cut = cms.double(-0.82358503)
-hpsPFTauDiscriminationByMVA2Loose2ElectronRejection.mapping[9].cut = cms.double(-0.37769419)
 
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2Loose1ElectronRejection)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.Prediscriminants = requireDecayMode.clone(
-    decayMode = cms.PSet(
-        Producer = cms.InputTag('hpsPFTauDiscriminationByMVA2Loose2ElectronRejection'),
-        cut = cms.double(0.5)
-    )
-)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[0].cut = cms.double(-0.99661791)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[1].cut = cms.double(-0.26334548)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[2].cut = cms.double(-0.75781053)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[3].cut = cms.double(-0.99925435)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[4].cut = cms.double(-0.032793567)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[5].cut = cms.double(-0.99465221)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[6].cut = cms.double(-0.10370751)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[7].cut = cms.double(-0.31169191)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[8].cut = cms.double(-0.24109723)
-hpsPFTauDiscriminationByMVA2Medium1ElectronRejection.mapping[9].cut = cms.double(+0.19629943)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA3LooseElectronRejection)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[0].cut = cms.double(0.5577119)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[1].cut = cms.double(0.7271899)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[2].cut = cms.double(0.90410149)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[3].cut = cms.double(0.94858187)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[4].cut = cms.double(0.95044029)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[5].cut = cms.double(0.97195327)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[6].cut = cms.double(0.99229473)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[7].cut = cms.double(0.92997772)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[8].cut = cms.double(-0.3049897)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[9].cut = cms.double(0.92191792)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[10].cut = cms.double(0.96017671)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[11].cut = cms.double(0.98126549)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[12].cut = cms.double(0.80912107)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[13].cut = cms.double(0.98326528)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[14].cut = cms.double(0.97490251)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[15].cut = cms.double(0.94708711)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[16].cut = cms.double(-1.)
+hpsPFTauDiscriminationByMVA3MediumElectronRejection.mapping[17].cut = cms.double(-1.)
 
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2Loose1ElectronRejection)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.Prediscriminants = requireDecayMode.clone(
-    decayMode = cms.PSet(
-        Producer = cms.InputTag('hpsPFTauDiscriminationByMVA2Medium1ElectronRejection'),
-        cut = cms.double(0.5)
-    )
-)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[0].cut = cms.double(-0.99661791)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[1].cut = cms.double(+0.62861615)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[2].cut = cms.double(+0.54859632)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[3].cut = cms.double(-0.33699143)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[4].cut = cms.double(+0.67368031)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[5].cut = cms.double(-0.42534944)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[6].cut = cms.double(+0.71575898)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[7].cut = cms.double(+0.77528948)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[8].cut = cms.double(+0.6177476)
-hpsPFTauDiscriminationByMVA2Medium2ElectronRejection.mapping[9].cut = cms.double(+0.75739658)
-
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2Loose1ElectronRejection)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.Prediscriminants = requireDecayMode.clone(
-    decayMode = cms.PSet(
-        Producer = cms.InputTag('hpsPFTauDiscriminationByMVA2Medium2ElectronRejection'),
-        cut = cms.double(0.5)
-    )
-)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[0].cut = cms.double(+0.18199094)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[1].cut = cms.double(+0.99951702)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[2].cut = cms.double(+0.97502345)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[3].cut = cms.double(+0.85220331)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[4].cut = cms.double(+0.96358234)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[5].cut = cms.double(+0.70447916)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[6].cut = cms.double(+0.96727246)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[7].cut = cms.double(+0.98667461)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[8].cut = cms.double(+0.93107212)
-hpsPFTauDiscriminationByMVA2Tight1ElectronRejection.mapping[9].cut = cms.double(+0.91691643)
-
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2Loose1ElectronRejection)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.Prediscriminants = requireDecayMode.clone(
-    decayMode = cms.PSet(
-        Producer = cms.InputTag('hpsPFTauDiscriminationByMVA2Tight1ElectronRejection'),
-        cut = cms.double(0.5)
-    )
-)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[0].cut = cms.double(+0.88839751)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[1].cut = cms.double(+0.99951702)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[2].cut = cms.double(+0.9901818)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[3].cut = cms.double(+0.94295716)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[4].cut = cms.double(+0.98096448)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[5].cut = cms.double(+0.89816976)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[6].cut = cms.double(+0.99304312)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[7].cut = cms.double(+0.98667461)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[8].cut = cms.double(+0.96963817)
-hpsPFTauDiscriminationByMVA2Tight2ElectronRejection.mapping[9].cut = cms.double(+0.91691643)
-
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2Loose1ElectronRejection)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.Prediscriminants = requireDecayMode.clone(
-    decayMode = cms.PSet(
-        Producer = cms.InputTag('hpsPFTauDiscriminationByMVA2Tight2ElectronRejection'),
-        cut = cms.double(0.5)
-    )
-)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[0].cut = cms.double(+0.94070917)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[1].cut = cms.double(+0.99951702)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[2].cut = cms.double(+0.9901818)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[3].cut = cms.double(+0.96234727)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[4].cut = cms.double(+0.98695832)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[5].cut = cms.double(+0.95482075)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[6].cut = cms.double(+0.99424177)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[7].cut = cms.double(+0.98667461)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[8].cut = cms.double(+0.97783101)
-hpsPFTauDiscriminationByMVA2VTight1ElectronRejection.mapping[9].cut = cms.double(+0.91691643)
-
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA2Loose1ElectronRejection)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.Prediscriminants = requireDecayMode.clone(
-    decayMode = cms.PSet(
-        Producer = cms.InputTag('hpsPFTauDiscriminationByMVA2VTight1ElectronRejection'),
-        cut = cms.double(0.5)
-    )
-)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[0].cut = cms.double(+0.95768046)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[1].cut = cms.double(+0.99951702)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[2].cut = cms.double(+0.99097961)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[3].cut = cms.double(+0.97214228)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[4].cut = cms.double(+0.98955566)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[5].cut = cms.double(+0.97397041)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[6].cut = cms.double(+0.99424177)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[7].cut = cms.double(+0.98667461)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[8].cut = cms.double(+0.98542428)
-hpsPFTauDiscriminationByMVA2VTight2ElectronRejection.mapping[9].cut = cms.double(+0.91691643)
-
-#Define new sequence that is using smaller number on hits cut
-
-
-hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.clone()
-hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits = hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.clone()
-hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits = hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr.clone()
-
-hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits.qualityCuts.isolationQualityCuts.minTrackHits = cms.uint32(3)
-hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits.qualityCuts.isolationQualityCuts.minTrackHits = cms.uint32(3)
-hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits.qualityCuts.isolationQualityCuts.minTrackHits = cms.uint32(3)
-
-hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3Hits = cms.Sequence(
-    hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits*
-    hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits*
-    hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits
-            )
-
+hpsPFTauDiscriminationByMVA3TightElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA3LooseElectronRejection)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[0].cut = cms.double(0.78914332)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[1].cut = cms.double(0.91818088)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[2].cut = cms.double(0.96754968)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[3].cut = cms.double(0.98437631)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[4].cut = cms.double(0.96684271)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[5].cut = cms.double(0.99065852)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[6].cut = cms.double(0.99797088)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[7].cut = cms.double(0.96952927)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[8].cut = cms.double(0.1180589)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[9].cut = cms.double(0.9714281)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[10].cut = cms.double(0.98451769)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[11].cut = cms.double(0.99372888)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[12].cut = cms.double(0.84681427)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[13].cut = cms.double(0.98940611)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[14].cut = cms.double(0.98308349)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[15].cut = cms.double(0.97482169)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[16].cut = cms.double(-1.)
+hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[17].cut = cms.double(-1.)
 
 
 # Define the HPS selection discriminator used in cleaning
@@ -536,18 +552,8 @@ hpsPFTauProducerSansRefs = cms.EDProducer(
     cleaners = cms.VPSet(
         # Prefer taus that dont' have charge == 3
         cleaners.unitCharge,
-         # Ignore taus reconstructed in pi0 decay modes in which the highest Pt ("leading") pi0 has pt below 2.5 GeV
-         # (in order to make decay mode reconstruction less sensitive to pile-up)
-         # NOTE: strips are sorted by decreasing pt
-        cms.PSet(
-            name = cms.string("leadStripPtLt2_5"),
-            plugin = cms.string("RecoTauStringCleanerPlugin"),
-            selection = cms.string("signalPiZeroCandidates().size() = 0 | signalPiZeroCandidates()[0].pt > 2.5"),
-            selectionPassFunction = cms.string("0"),
-            selectionFailValue = cms.double(1e3)
-            ),
         # Prefer taus that are within DR<0.1 of the jet axis
-#        cleaners.matchingConeCut,
+        cleaners.matchingConeCut,
         # Prefer taus that pass HPS selections
         cms.PSet(
             name = cms.string("HPS_Select"),
@@ -588,21 +594,19 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr*
 
     hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr*
-    hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3Hits*
-    
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
     hpsPFTauDiscriminationByMVAElectronRejection*
     hpsPFTauDiscriminationByMVA2rawElectronRejection*
-    hpsPFTauDiscriminationByMVA2Loose1ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Loose2ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Medium1ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Medium2ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Tight1ElectronRejection*
-    hpsPFTauDiscriminationByMVA2Tight2ElectronRejection*
-    hpsPFTauDiscriminationByMVA2VTight1ElectronRejection*
-    hpsPFTauDiscriminationByMVA2VTight2ElectronRejection*
+    hpsPFTauDiscriminationByMVA2VLooseElectronRejection*
+    hpsPFTauDiscriminationByMVA2LooseElectronRejection*
+    hpsPFTauDiscriminationByMVA2MediumElectronRejection*
+    hpsPFTauDiscriminationByMVA2TightElectronRejection*
+    hpsPFTauDiscriminationByMVA3rawElectronRejection*
+    hpsPFTauDiscriminationByMVA3LooseElectronRejection*
+    hpsPFTauDiscriminationByMVA3MediumElectronRejection*
+    hpsPFTauDiscriminationByMVA3TightElectronRejection*
     hpsPFTauDiscriminationByLooseMuonRejection*
     hpsPFTauDiscriminationByMediumMuonRejection*
     hpsPFTauDiscriminationByTightMuonRejection
