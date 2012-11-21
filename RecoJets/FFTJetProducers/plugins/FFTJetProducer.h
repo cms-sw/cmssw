@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    FFTJetProducers
+// Package:    RecoJets/FFTJetProducers
 // Class:      FFTJetProducer
 // 
 /**\class FFTJetProducer FFTJetProducer.h RecoJets/FFTJetProducers/plugins/FFTJetProducer.h
@@ -21,7 +21,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.h,v 1.10 2012/07/18 04:18:24 igv Exp $
+// $Id: FFTJetProducer.h,v 1.11 2012/08/06 21:36:54 igv Exp $
 //
 //
 
@@ -208,8 +208,14 @@ private:
     // The following function scans the pile-up density
     // and fills the pile-up grid. Can be overriden if
     // necessary.
-    virtual void determinePileupDensity(
+    virtual void determinePileupDensityFromConfig(
         const edm::Event& iEvent, const edm::InputTag& label,
+        std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
+
+    // Similar function for getting pile-up shape from the database
+    virtual void determinePileupDensityFromDB(
+        const edm::Event& iEvent, const edm::EventSetup& iSetup,
+        const edm::InputTag& label,
         std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
 
     // The following function builds the pile-up estimate
@@ -308,6 +314,13 @@ private:
     // should be one of "fixed", "maximallyStable",
     // "globallyAdaptive", "locallyAdaptive", or "fromGenJets".
     Resolution resolution;
+
+    // Parameters related to the pileup shape stored
+    // in the database
+    std::string pileupTableRecord;
+    std::string pileupTableName;
+    std::string pileupTableCategory;
+    bool loadPileupFromDB;
 
     // Scales used
     std::auto_ptr<std::vector<double> > iniScales;

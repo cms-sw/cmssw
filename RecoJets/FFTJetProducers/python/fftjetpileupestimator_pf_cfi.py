@@ -28,5 +28,13 @@ fftjetPileupEstimatorPf = cms.EDProducer(
     #
     # Calibration and uncertainty curves (don't care for uncalibrated run)
     calibrationCurve = calib_pf.calibrationCurve,
-    uncertaintyCurve = calib_pf.uncertaintyCurve
+    uncertaintyCurve = calib_pf.uncertaintyCurve,
+    #
+    # Parameters related to calibration curve access from DB
+    calibTableRecord = cms.string("calibTableRecord"),
+    calibTableCategory = cms.string("calibTableCategory"),
+    uncertaintyZonesName = cms.string("uncertaintyZonesName"),
+    calibrationCurveName = cms.string("calibrationCurveName"),
+    uncertaintyCurveName = cms.string("uncertaintyCurveName"),
+    loadCalibFromDB = cms.bool(False)
 )

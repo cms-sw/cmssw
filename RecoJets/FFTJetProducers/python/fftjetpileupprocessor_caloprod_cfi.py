@@ -79,5 +79,11 @@ fftjetPileupProcessorCalo = cms.EDProducer(
     # Some parameters inherited from FFTJetInterface which no longer
     # play any role
     insertCompleteEvent = cms.bool(fftjet_insert_complete_event),
-    completeEventScale = cms.double(fftjet_complete_event_scale)
+    completeEventScale = cms.double(fftjet_complete_event_scale),
+    #
+    # Parameters related to accessing the table of flattening factors from DB
+    flatteningTableRecord = cms.string("flatteningTableRecord"),
+    flatteningTableName = cms.string("flatteningTableName"),
+    flatteningTableCategory = cms.string("flatteningTableCategory"),
+    loadFlatteningFactorsFromDB = cms.bool(False)
 )

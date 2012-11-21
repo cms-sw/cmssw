@@ -228,5 +228,11 @@ fftjetJetMaker = cms.EDProducer(
     #
     # Max number of preclusters. Does not take into account the possibility
     # of further precluster removal by setting its membership factor to 0.
-    maxInitialPreclusters = cms.uint32(2147483647)
+    maxInitialPreclusters = cms.uint32(2147483647),
+    #
+    # Parameters related to pileup shape fetching from DB
+    pileupTableRecord = cms.string("pileupTableRecord"),
+    pileupTableName = cms.string("pileupTableName"),
+    pileupTableCategory = cms.string("pileupTableCategory"),
+    loadPileupFromDB = cms.bool(False)
 )

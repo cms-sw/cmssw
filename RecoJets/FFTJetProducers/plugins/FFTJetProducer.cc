@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.cc,v 1.14 2012/07/19 16:42:59 igv Exp $
+// $Id: FFTJetProducer.cc,v 1.15 2012/11/05 16:28:00 igv Exp $
 //
 //
 
@@ -57,6 +57,9 @@
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
+
+// Loader for the lookup tables
+#include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableSequenceLoader.h"
 
 
 #define make_param(type, varname) const \
@@ -165,6 +168,10 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
       init_param(edm::InputTag, genJetsLabel),
       init_param(unsigned, maxInitialPreclusters),
       resolution(parse_resolution(ps.getParameter<std::string>("resolution"))),
+      init_param(std::string, pileupTableRecord),
+      init_param(std::string, pileupTableName),
+      init_param(std::string, pileupTableCategory),
+      init_param(bool, loadPileupFromDB),
 
       minLevel(0),
       maxLevel(0),
@@ -856,7 +863,12 @@ void FFTJetProducer::produce(edm::Event& iEvent,
     // Figure out the pile-up
     if (calculatePileup)
     {
-        determinePileupDensity(iEvent, pileupLabel, pileupEnergyFlow);
+        if (loadPileupFromDB)
+            determinePileupDensityFromDB(iEvent, iSetup,
+                                         pileupLabel, pileupEnergyFlow);
+        else
+            determinePileupDensityFromConfig(iEvent, pileupLabel,
+                                             pileupEnergyFlow);
         determinePileup();
         assert(pileup.size() == recoJets.size());
     }
@@ -1012,8 +1024,11 @@ void FFTJetProducer::beginJob()
             ps.getParameter<edm::ParameterSet>("PileupGridConfiguration"));
         checkConfig(pileupEnergyFlow, "invalid pileup density grid");
 
-        pileupDensityCalc = parse_pileupDensityCalc(ps);
-        checkConfig(pileupDensityCalc, "invalid pile-up density calculator");
+        if (!loadPileupFromDB)
+        {
+            pileupDensityCalc = parse_pileupDensityCalc(ps);
+            checkConfig(pileupDensityCalc, "invalid pile-up density calculator");
+        }
     }
 
     // Parse the calculator of the recombination scale
@@ -1091,7 +1106,7 @@ void FFTJetProducer::setJetStatusBit(RecoFFTJet* jet,
 }
 
 
-void FFTJetProducer::determinePileupDensity(
+void FFTJetProducer::determinePileupDensityFromConfig(
     const edm::Event& iEvent, const edm::InputTag& label,
     std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density)
 {
@@ -1121,6 +1136,56 @@ void FFTJetProducer::determinePileupDensity(
         else
         {
             const double pil = calc(eta, 0.0, s);
+            for (unsigned iphi=0; iphi<nPhi; ++iphi)
+                g.uncheckedSetBin(ieta, iphi, pil);
+        }
+    }
+}
+
+
+void FFTJetProducer::determinePileupDensityFromDB(
+    const edm::Event& iEvent, const edm::EventSetup& iSetup,
+    const edm::InputTag& label,
+    std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density)
+{
+    edm::ESHandle<FFTJetLookupTableSequence> h;
+    StaticFFTJetLookupTableSequenceLoader::instance().load(
+        iSetup, pileupTableRecord, h);
+    boost::shared_ptr<npstat::StorableMultivariateFunctor> f =
+        (*h)[pileupTableCategory][pileupTableName];
+
+    edm::Handle<reco::FFTJetPileupSummary> summary;
+    iEvent.getByLabel(label, summary);
+
+    const float rho = summary->pileupRho();
+    const bool phiDependent = f->minDim() == 3U;
+
+    fftjet::Grid2d<Real>& g(*density);
+    const unsigned nEta = g.nEta();
+    const unsigned nPhi = g.nPhi();
+
+    double functorArg[3] = {0.0, 0.0, 0.0};
+    if (phiDependent)
+        functorArg[2] = rho;
+    else
+        functorArg[1] = rho;
+
+    for (unsigned ieta=0; ieta<nEta; ++ieta)
+    {
+        const double eta(g.etaBinCenter(ieta));
+        functorArg[0] = eta;
+
+        if (phiDependent)
+        {
+            for (unsigned iphi=0; iphi<nPhi; ++iphi)
+            {
+                functorArg[1] = g.phiBinCenter(iphi);
+                g.uncheckedSetBin(ieta, iphi, (*f)(functorArg, 3U));
+            }
+        }
+        else
+        {
+            const double pil = (*f)(functorArg, 2U);
             for (unsigned iphi=0; iphi<nPhi; ++iphi)
                 g.uncheckedSetBin(ieta, iphi, pil);
         }

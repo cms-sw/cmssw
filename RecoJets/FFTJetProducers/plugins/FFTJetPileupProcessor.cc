@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    FFTJetProducers
+// Package:    RecoJets/FFTJetProducers
 // Class:      FFTJetPileupProcessor
 // 
 /**\class FFTJetPileupProcessor FFTJetPileupProcessor.cc RecoJets/FFTJetProducers/plugins/FFTJetPileupProcessor.cc
@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Wed Apr 20 13:52:23 CDT 2011
-// $Id: FFTJetPileupProcessor.cc,v 1.8 2011/07/05 08:24:15 igv Exp $
+// $Id: FFTJetPileupProcessor.cc,v 1.10 2012/06/28 23:05:42 igv Exp $
 //
 //
 
@@ -45,6 +45,10 @@
 // useful utilities collected in the second base
 #include "RecoJets/FFTJetProducers/interface/FFTJetInterface.h"
 
+// Loader for the lookup tables
+#include "JetMETCorrections/FFTJetObjects/interface/FFTJetLookupTableSequenceLoader.h"
+
+
 using namespace fftjetcms;
 
 //
@@ -69,6 +73,7 @@ private:
 
     void buildKernelConvolver(const edm::ParameterSet&);
     void mixExtraGrid();
+    void loadFlatteningFactors(const edm::EventSetup& iSetup);
 
     // The FFT engine
     std::auto_ptr<MyFFTEngine> engine;
@@ -107,6 +112,15 @@ private:
 
     // Some memory to hold the percentiles found
     std::vector<double> percentileData;
+
+    // Variables to load the flattening factors from
+    // the calibration database (this has to be done
+    // in sync with configuring the appropriate event
+    // setup source)
+    std::string flatteningTableRecord;
+    std::string flatteningTableName;
+    std::string flatteningTableCategory;
+    bool loadFlatteningFactorsFromDB;
 };
 
 //
@@ -122,7 +136,11 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
       pileupEtaPhiArea(ps.getParameter<double>("pileupEtaPhiArea")),
       externalGridFiles(ps.getParameter<std::vector<std::string> >("externalGridFiles")),
       externalGridMaxEnergy(ps.getParameter<double>("externalGridMaxEnergy")),
-      currentFileNum(externalGridFiles.size() + 1U)
+      currentFileNum(externalGridFiles.size() + 1U),
+      flatteningTableRecord(ps.getParameter<std::string>("flatteningTableRecord")),
+      flatteningTableName(ps.getParameter<std::string>("flatteningTableName")),
+      flatteningTableCategory(ps.getParameter<std::string>("flatteningTableCategory")),
+      loadFlatteningFactorsFromDB(ps.getParameter<bool>("loadFlatteningFactorsFromDB"))
 {
     // Build the discretization grid
     energyFlow = fftjet_Grid2d_parser(
@@ -140,7 +158,7 @@ FFTJetPileupProcessor::FFTJetPileupProcessor(const edm::ParameterSet& ps)
             throw cms::Exception("FFTJetBadConfig")
                 << "ERROR in FFTJetPileupProcessor constructor:"
                 " number of elements in the \"etaFlatteningFactors\""
-                " vector is inconsistent with the iscretization grid binning"
+                " vector is inconsistent with the discretization grid binning"
                 << std::endl;
     }
 
@@ -236,6 +254,10 @@ void FFTJetPileupProcessor::produce(
     const unsigned dataLen = convolverMaxBin ? 
         (convolverMaxBin - convolverMinBin)*convolvedFlow->nPhi() :
         convolvedFlow->nEta()*convolvedFlow->nPhi();
+
+    // Load flattenning factors from DB (if requested)
+    if (loadFlatteningFactorsFromDB)
+        loadFlatteningFactors(iSetup);
 
     // Go over all scales and perform the convolutions
     convolver->setEventData(g.data(), g.nEta(), g.nPhi());
@@ -360,6 +382,26 @@ void FFTJetPileupProcessor::beginJob()
 // ------------ method called once each job just after ending the event loop
 void FFTJetPileupProcessor::endJob()
 {
+}
+
+
+void FFTJetPileupProcessor::loadFlatteningFactors(const edm::EventSetup& iSetup)
+{
+    edm::ESHandle<FFTJetLookupTableSequence> h;
+    StaticFFTJetLookupTableSequenceLoader::instance().load(
+        iSetup, flatteningTableRecord, h);
+    boost::shared_ptr<npstat::StorableMultivariateFunctor> f =
+        (*h)[flatteningTableCategory][flatteningTableName];
+
+    // Fill out the table of flattening factors as a function of eta
+    const unsigned nEta = energyFlow->nEta();
+    etaFlatteningFactors.clear();
+    etaFlatteningFactors.reserve(nEta);
+    for (unsigned ieta=0; ieta<nEta; ++ieta)
+    {
+        const double eta = energyFlow->etaBinCenter(ieta);
+        etaFlatteningFactors.push_back((*f)(&eta, 1U));
+    }
 }
 
 
