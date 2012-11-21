@@ -378,10 +378,11 @@ if 'hltHfreco' in %(dict)s:
     # add global options
     self.data += """
 # limit the number of events to be processed
-%(process)smaxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32( 100 )
+%%(process)smaxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32( %d )
 )
-"""
+""" % self.config.events
+
     if not self.config.profiling:
       self.data += """
 # enable the TrigReport and TimeReport
