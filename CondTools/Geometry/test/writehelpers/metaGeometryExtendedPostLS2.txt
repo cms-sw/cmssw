@@ -1,0 +1,10 @@
+destDB oracle://cms_orcoff_prep/CMS_COND_GEOMETRY
+tag XMLFILE_Geometry_TagXX_ExtendedPostLS2_mc
+inputtag 
+since 
+Timetype runnumber
+IOVCheck offline
+DuplicateTagHLT 
+DuplicateTagEXPRESS 
+DuplicateTagPROMPT 
+usertext Geometry payload for Full DDD XML Extended config plus post-LS1 upgrades of beampipe (45mm o/d) RPC+CSC ME4 CSC ME1 YE4 and pixel tdr work hcal tdr work. TagXX

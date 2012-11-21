@@ -6,6 +6,9 @@
 <bin   name="testCSCDetId" file="testCSCDetId.cc,testMuonDetId.cpp">
   <use   name="cppunit"/>
 </bin>
+<bin   name="testCSCIndexer" file="testCSCIndexer.cc,testMuonDetId.cpp">
+  <use   name="cppunit"/>
+</bin>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/GeometryVector"/>

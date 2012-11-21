@@ -50,15 +50,12 @@ Sherpa = cms.untracked.bool(False),
 RapidityBinsForZ = cms.untracked.bool(True),
 
 # Set the cuts on muons to be used in the fit
-SeparateRanges = cms.untracked.bool(True),
 MaxMuonPt = cms.untracked.double(100000000.),
 MinMuonPt = cms.untracked.double(0.),
 MinMuonEtaFirstRange = cms.untracked.double(-6.),
 MaxMuonEtaFirstRange = cms.untracked.double(6.),
 MinMuonEtaSecondRange = cms.untracked.double(-100.),
 MaxMuonEtaSecondRange = cms.untracked.double(100.),
-DeltaPhiMinCut = cms.untracked.double(0.),
-DeltaPhiMaxCut = cms.untracked.double(100.),
 
 # Produce additional plots on the mass resolution
 DebugMassResol = cms.untracked.bool(False),

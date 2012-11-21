@@ -12,7 +12,6 @@ def CmdUsage():
 	print "--add (-A): -r [release] -a [arch] -p [path]: adds a reference release into db."
 	print "--erase (-E): -r [release] -a [arch]: remove a reference release from db."
 	print "--list (-L): lists the available reference releases"
-	print "--read (-R): read the content of the results db) db"
 	print "--create_res: creates results db schema"
 	print "--drop_res: drops results db schema."
 	print "--create_ref: creates reference db schema"
@@ -32,7 +31,6 @@ d1flag = False
 aflag = False
 eflag = False
 lflag = False
-rflag = False
 RELEASE = None
 ARCH = None
 PATH = None
@@ -52,8 +50,6 @@ for o, a in opts:
         eflag = True
     elif o in ("--list","-L" ):
         lflag = True
-    elif o in ("--read","-R" ):
-        rflag = True
     elif o == "-r":
         RELEASE = a
     elif o == "-a":
@@ -76,7 +72,6 @@ for o, a in opts:
 
 conn = common_db.createDBConnection()
 refDb = reference_db.ReferenceDB( conn )
-resDb = results_db.ResultsDB( conn ) 
         
 mainOption = False
 if(d0flag == True):
@@ -111,7 +106,4 @@ if(eflag == True and mainOption == False):
 if(lflag == True and mainOption == False ):
     mainOption = True
     refDb.read()
-if(rflag == True and mainOption == False):
-    mainOption = True
-    resDb.read()
 conn.close()

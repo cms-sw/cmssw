@@ -24,8 +24,8 @@
 // ********************************************************************
 //
 //
-// $Id: GflashEMShowerModel.h,v 1.9 2010/04/19 16:21:51 syjun Exp $
-// GEANT4 tag $Name: CMSSW_6_0_0_pre6g495p01 $
+// $Id: GflashEMShowerModel.h,v 1.10 2012/07/13 18:25:05 civanch Exp $
+// GEANT4 tag $Name: CMSSW_6_0_0_pre10 $
 //
 //
 //---------------------------------------------------------------
@@ -59,7 +59,7 @@ class GflashEMShowerModel : public G4VFastSimulationModel {
   
   GflashEMShowerModel (const G4String& name, G4Envelope* env, 
 		       edm::ParameterSet parSet);
-  ~GflashEMShowerModel ();  
+  virtual ~GflashEMShowerModel ();  
 
   G4bool ModelTrigger(const G4FastTrack &); 
   G4bool IsApplicable(const G4ParticleDefinition&);

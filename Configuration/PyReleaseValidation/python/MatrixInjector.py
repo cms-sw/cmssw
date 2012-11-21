@@ -26,7 +26,7 @@ class MatrixInjector(object):
     def __init__(self,mode='init'):
         self.count=1040
         self.testMode=((mode!='submit') and (mode!='force'))
-        self.version ='v1'
+        self.version =1
 
         #wagemt stuff
         self.wmagent=os.getenv('WMAGENT_REQMGR')
@@ -39,7 +39,7 @@ class MatrixInjector(object):
         self.couchCache={} # so that we do not upload like crazy, and recyle cfgs
         self.user = os.getenv('USER')
         self.group = 'ppd'
-        self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_'+self.version
+        self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_v'+str(self.version)
 
 
         if not os.getenv('WMCORE_ROOT'):
@@ -67,7 +67,10 @@ class MatrixInjector(object):
             "nowmTasklist" : [],  #a list of tasks as we put them in
             "unmergedLFNBase" : "/store/unmerged",
             "mergedLFNBase" : "/store/relval",
-            "dashboardActivity" : "relval"
+            "dashboardActivity" : "relval",
+            "Memory" : 2000,
+            "SizePerEvent" : 1234,
+            "TimePerEvent" : 20
             }
 
         self.defaultScratch={

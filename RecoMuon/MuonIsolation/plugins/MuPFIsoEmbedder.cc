@@ -13,7 +13,7 @@
 //
 // Original Author:  Michail Bachtis,32 3-B16,+41227675567,
 //         Created:  Thu Jun  9 01:36:17 CEST 2011
-// $Id$
+// $Id: MuPFIsoEmbedder.cc,v 1.1 2011/06/15 00:33:01 bachtis Exp $
 //
 //
 
@@ -70,7 +70,25 @@ MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig):
   muons_(iConfig.getParameter<edm::InputTag>("src"))
 {
 
-  helper_ = new MuPFIsoHelper(iConfig);
+  //decide what to read
+    //Define a map between the isolation and the PSet for the PFHelper
+    std::map<std::string,edm::ParameterSet> psetMap;
+
+    //First declare what isolation you are going to read
+    std::vector<std::string> isolationLabels;
+    isolationLabels.push_back("pfIsolationR03");
+    isolationLabels.push_back("pfIsoMeanDRProfileR03");
+    isolationLabels.push_back("pfIsoSumDRProfileR03");
+    isolationLabels.push_back("pfIsolationR04");
+    isolationLabels.push_back("pfIsoMeanDRProfileR04");
+    isolationLabels.push_back("pfIsoSumDRProfileR04");
+
+    //Fill the label,pet map and initialize MuPFIsoHelper
+    for( std::vector<std::string>::const_iterator label = isolationLabels.begin();label != isolationLabels.end();++label)
+      psetMap[*label] =iConfig.getParameter<edm::ParameterSet >(*label); 
+
+    helper_ = new MuPFIsoHelper(psetMap);
+
   produces<reco::MuonCollection>();
 }
 

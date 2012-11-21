@@ -13,6 +13,7 @@ workflows[200]=['',['ZEE','DIGIPU1','RECOPU1']]
 workflows[201]=['',['ZmumuJets_Pt_20_300','DIGIPU1','RECOPU1']]
 workflows[202]=['',['TTbar','DIGIPU1','RECOPU1']]
 workflows[203]=['',['H130GGgluonfusion','DIGIPU1','RECOPU1']]
+workflows[204]=['',['QQH1352T_Tauola','DIGIPU1','RECOPU1']]
 
 
 #heavy ions tests

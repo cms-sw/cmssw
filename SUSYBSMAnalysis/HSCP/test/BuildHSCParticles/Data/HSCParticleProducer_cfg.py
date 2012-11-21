@@ -8,45 +8,36 @@ process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
-process.GlobalTag.globaltag = 'GR_P_V32::All'
+process.GlobalTag.globaltag = 'GR_P_V14::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-        '/store/data/Run2012A/SingleMu/RECO/PromptReco-v1/000/191/248/186722DA-5E88-E111-ADFF-003048D2C0F0.root'
+        '/store/data/Run2011B/MET/USER/EXOHSCP-PromptSkim-v1/0000/F6FA7586-9B02-E111-B438-001A92810AEC.root'
+#        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FC150FF5-0FC5-E011-913E-002618943876.root',
+#        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FA8B74F8-0FC5-E011-9EE5-001A928116B4.root',
+#        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FA432D78-CEC5-E011-B4F3-00261894394F.root'
    )
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
-#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('190645:10-190645:110')
-#import FWCore.PythonUtilities.LumiList as LumiList
-#process.source.lumisToProcess = LumiList.LumiList(filename = 'OfficialLumi.json').getVLuminosityBlockRange()
+
+
 
 ########################################################################
-#process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
-process.load('Configuration.Skimming.PDWG_EXOHSCP_cff')
+process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
 process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
 process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 
 ######################################################################## INCREASING HSCP TRIGGER TRESHOLD FOR OLD DATA
 
-process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.HSCPTrigger = process.hltHighLevel.clone()
-process.HSCPTrigger.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
-process.HSCPTrigger.HLTPaths = [
-    "HLT_*_dEdx*",
-    "HLT_Mu40_eta2p1*",
-    "HLT_Mu50_eta2p1*",
-    "HLT_HT650_*",
-    "HLT_MET80_*",
-    "HLT_L2Mu*_eta2p1_PFMET*",
-    "HLT_L2Mu*NoBPTX*",
-]
-process.HSCPTrigger.andOr = cms.bool( True ) #OR
-process.HSCPTrigger.throw = cms.bool( False )
-
+process.HSCPHLTFilter = cms.EDFilter("HSCPHLTFilter",
+   TriggerProcess  = cms.string("HLT"),
+   RemoveDuplicates    = cms.bool(False),
+   MuonTrigger1Mask    = cms.int32(1),  #Activated
+   PFMetTriggerMask    = cms.int32(0),  #Deactivated
+)
 
 ########################################################################  SPECIAL CASE FOR DATA
 
@@ -56,17 +47,26 @@ process.GlobalTag.toGet = cms.VPSet(
             connect = cms.untracked.string("sqlite_file:Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.db")),
 )
 
+process.load("RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi")
+process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxPhi = 1.0
+process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxTheta = 0.9
+process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.segmCleanerMode = 2
+process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.MaxChi2 = 1.0
+process.dt4DSegmentsMT = process.dt4DSegments.clone()
+process.dt4DSegmentsMT.Reco4DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
+process.dt4DSegmentsMT.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True
+
+process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTsegments = "dt4DSegmentsMT"
+process.muontiming.TimingFillerParameters.DTTimingParameters.HitsMin = 3
+process.muontiming.TimingFillerParameters.DTTimingParameters.RequireBothProjections = False
+process.muontiming.TimingFillerParameters.DTTimingParameters.DropTheta = True
+process.muontiming.TimingFillerParameters.DTTimingParameters.DoWireCorr = True
+process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTradius = 1.0
+
+
 ########################################################################
-process.nEventsBefSkim  = cms.EDProducer("EventCountProducer")
 process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")
 ########################################################################
-
-#bug fix in 52
-process.HSCParticleProducer.useBetaFromEcal = cms.bool(False)
-
-#no dE/dx cut from skim:
-#process.DedxFilter.filter = cms.bool(False)
-
 
 process.Out = cms.OutputModule("PoolOutputModule",
      outputCommands = cms.untracked.vstring(
@@ -77,10 +77,9 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
-         "keep *_cscSegments_*_*",
+         #"keep *_cscSegments_*_*",
          #"keep *_rpcRecHits_*_*",
-         "keep *_dt4DSegments_*_*",
-         "keep *_dt4DSegmentsMT_*_*",
+         #"keep *_dt4DSegments_*_*",
          "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
          "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
          #"keep *_reducedHSCPhbhereco_*_*",      #
@@ -89,7 +88,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_TrackRefitter_*_*",
          "drop TrajectorysToOnerecoTracksAssociation_TrackRefitter__",
          "keep *_standAloneMuons_*_*",
-         #"drop recoTracks_standAloneMuons__*",
+         "drop recoTracks_standAloneMuons__*",
          "keep *_globalMuons_*_*",  #
          "keep *_muonsSkim_*_*",
          "keep edmTriggerResults_TriggerResults_*_*",
@@ -102,14 +101,6 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_dedx*_*_HSCPAnalysis",
          "keep *_muontiming_*_HSCPAnalysis",
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
-         "keep *_RefitMTSAMuons_*_*",
-         "keep *_RefitMTMuons_*_*",
-         "keep *_NoRefitMTSAMuons_*_*",
-         "keep *_RefitSAMuons_*_*",
-         "keep *_refittedStandAloneMuons_*_*",
-         "keep *_MTmuontiming_*_*",
-         "keep *_offlineBeamSpot_*_*",
-         "keep *_MuonSegmentProducer_*_*",
     ),
     fileName = cms.untracked.string('HSCP.root'),
     SelectEvents = cms.untracked.PSet(
@@ -150,7 +141,7 @@ process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.HSCParticleProducerSeq)
+process.p1 = cms.Path(process.nEventsBefEDM * process.HSCPHLTFilter * process.dt4DSegmentsMT * process.HSCParticleProducerSeq)
 #process.p1 = cms.Path(process.HSCParticleProducerSeq)
 process.endPath1 = cms.EndPath(process.Out)
 process.schedule = cms.Schedule( process.p1, process.endPath1)

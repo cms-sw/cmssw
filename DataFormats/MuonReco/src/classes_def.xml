@@ -1,6 +1,7 @@
 <lcgdict>
-  <class name="reco::Muon" ClassVersion="11">
+  <class name="reco::Muon" ClassVersion="12">
    <version ClassVersion="11" checksum="199341143"/>
+   <version ClassVersion="12" checksum="1157850969"/>
   </class>
   <class name="std::vector<reco::Muon>"/>
   <class name="edm::Wrapper<std::vector<reco::Muon> >"/>
@@ -52,10 +53,10 @@
   <class name="reco::MuonIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="2078425999"/>
   </class>
-  <class name="reco::MuonPFIsolation" ClassVersion="14">
+  <class name="reco::MuonPFIsolation" ClassVersion="15">
    <version ClassVersion="13" checksum="893633899"/>
    <version ClassVersion="14" checksum="3941472816"/>
-
+   <version ClassVersion="15" checksum="838139830"/>
   </class>
 
   <class name="reco::Muon::MuonTrackRefMap"/>

@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2012/02/24 13:41:10 $
+// last change    : $Date: 2011/08/08 21:55:48 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -11,9 +11,7 @@
 #include <TError.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <TLine.h>
 
-#include <iostream>
 const unsigned int CompareMillePede::kNpar = MillePedeTrees::kNpar; // number of parameters we have...
 
 //_________________________________________________________________________________________________
@@ -733,19 +731,15 @@ void CompareMillePede::DrawAbsPos(Option_t *option)
 }
 
 //_______________________________________________________________________________
-void CompareMillePede::DrawSurfaceDeformations(Option_t *option, unsigned int firstPar,
-					       unsigned int lastPar, const TString &whichOne)
+void CompareMillePede::DrawSurfaceDeformations(Option_t *option, const TString &whichOne,
+ 					       unsigned int firstPar, unsigned int lastPar)
 {
    const TString opt(option);
 
    const Int_t layer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
-   const bool limits = opt.Contains("limit", TString::kIgnoreCase);
-   const bool noVs = opt.Contains("novs", TString::kIgnoreCase);
-   const bool noDiff = opt.Contains("noDiff", TString::kIgnoreCase);
    const TString titleAdd = this->TitleAdd();
    const PlotMillePede *m = fPlotMp1;
 
-   UInt_t nPlot = 0;
    for (UInt_t iPar = firstPar; iPar <= lastPar; ++iPar) { // 
      TString sel("");
      fPlotMp1->AddBasicSelection(sel);
@@ -757,9 +751,8 @@ void CompareMillePede::DrawSurfaceDeformations(Option_t *option, unsigned int fi
      const TString deform2(fPlotMp2->DeformValue(iPar, whichOne));
      const TString diff(m->Parenth(deform2 + m->Min() += deform1)
 			+= m->ToMumMuRadSurfDef(iPar));
-     TString hNameDiff(m->Unique(Form("hSurfDiff%s%u", whichOne.Data(), iPar)));
-     if (limits) hNameDiff += Form("(101,%f,%f)", m->GetMaxDevDown(), m->GetMaxDevUp());
-
+     const TString hNameDiff(m->Unique(Form("hSurf%s%u", whichOne.Data(), iPar))
+			     += Form("(101,-%f,%f)", m->GetMaxDev(), m->GetMaxDev()));
      // delta plot
      TH1 *hDiff = fPlotMp1->CreateHist(diff, sel, hNameDiff);
      if (0. == hDiff->GetEntries()) {
@@ -767,38 +760,24 @@ void CompareMillePede::DrawSurfaceDeformations(Option_t *option, unsigned int fi
        continue;
      }
 
-     if (noDiff) {
-       delete hDiff;
-     } else {
-       // titles
-       const TString diffTit(m->NameSurfDef(iPar) += "_{2}-"
-			     + m->NameSurfDef(iPar) += "_{1}");
-       hDiff->SetTitle(diffTit + titleAdd + ";"
-		       + diffTit + m->UnitSurfDef(iPar) +=";#parameters");
-       fHistManager->AddHist(hDiff, layer);
-     }
+     // 2D vs plot
+     const TString hNameVs(m->Unique(Form("hSurfVs%s%u", whichOne.Data(), iPar)));
+     //                    += Form("(101,-%f,%f)", m->GetMaxDev(), m->GetMaxDev()));
+     TH2 *hVs = fPlotMp1->CreateHist2D(deform1 + m->ToMumMuRadSurfDef(iPar),
+				       deform2 + m->ToMumMuRadSurfDef(iPar), sel,
+				       hNameDiff, "BOX");
+     // titles
+     const TString diffTit(m->NameSurfDef(iPar) += "_{2}-"
+			   + m->NameSurfDef(iPar) += "_{1}");
+     hDiff->SetTitle(diffTit + titleAdd + ";"
+		     + diffTit + m->UnitSurfDef(iPar) +=";#parameters");
 
-     if (!noVs) { // 2D plot
-       TString hNameVs(m->Unique(Form("hSurfVs%s%u", whichOne.Data(), iPar)));
-       if (limits) hNameVs += Form("(101,%f,%f, 101,%f,%f)", m->GetMaxDevDown(),
-				   m->GetMaxDevUp(), m->GetMaxDevDown(), m->GetMaxDevUp());
-       TH2 *hVs = fPlotMp1->CreateHist2D(deform1 + m->ToMumMuRadSurfDef(iPar),
-					 deform2 + m->ToMumMuRadSurfDef(iPar), sel,
-					 hNameVs, "BOX");
-       hVs->SetTitle(m->NameSurfDef(iPar) += titleAdd + ";"
+     hVs->SetTitle(m->NameSurfDef(iPar) += titleAdd + ";"
 		   + m->NameSurfDef(iPar) += "_{1}" + m->UnitSurfDef(iPar) +=";"
 		   + m->NameSurfDef(iPar) += "_{2}" + m->UnitSurfDef(iPar));
-
-       fHistManager->AddHist(hVs, layer + !noDiff);
-       // add a TLine
-       const Double_t xMin = hVs->GetXaxis()->GetXmin();
-       const Double_t xMax = hVs->GetXaxis()->GetXmax();
-       TLine *line = new TLine(xMin, xMin, xMax, xMax);
-       line->SetLineColor(kRed); line->SetLineWidth(2);
-       fHistManager->AddObject(line, layer + !noDiff, nPlot);
-     }
-
-     ++nPlot;
+     
+     fHistManager->AddHist(hDiff, layer);
+     fHistManager->AddHist(hVs, layer + 1);
    }
    
    fHistManager->Draw();
@@ -934,13 +913,6 @@ void CompareMillePede::ClearAdditionalSel ()
 }
 
 //_________________________________________________________________________________________________
-void CompareMillePede::SetSurfDefDeltaBows(bool deltaBows)
-{
-  fPlotMp1->SetSurfDefDeltaBows(deltaBows);
-  fPlotMp2->SetSurfDefDeltaBows(deltaBows);
-}
-
-//_________________________________________________________________________________________________
 Int_t CompareMillePede::PrepareAdd(bool addPlots)
 {
   if (addPlots) {
@@ -954,29 +926,13 @@ Int_t CompareMillePede::PrepareAdd(bool addPlots)
 //_________________________________________________________________________________________________
 TString CompareMillePede::TitleAdd() const
 {
-  // try to avoid duplication of cuts in title
-
-  // get title add from titleAdd for first
-  TString titleAdd1 = fPlotMp1->TitleAdd();
-  const TString title1(fPlotMp1->GetTitle());
-  TString titleAdd1noTitle(titleAdd1);
-  const Ssiz_t tit1pos = titleAdd1.First(title1);
-  if (tit1pos != kNPOS) titleAdd1noTitle.Remove(tit1pos, title1.Length() + 2); //+2: ', '
-  // now for second
-  TString titleAdd2 = fPlotMp2->TitleAdd();
-  const TString title2(fPlotMp2->GetTitle());
-  TString titleAdd2noTitle(titleAdd2);
-  const Ssiz_t tit2pos = titleAdd2.First(title2);
-  if (tit2pos != kNPOS) titleAdd2noTitle.Remove(tit2pos, title2.Length() + 2); //+2: ', '
-
-  if (titleAdd1noTitle != titleAdd2noTitle) {
-    // shortened titleAdds different: keep full length, adding 1/2 info
-    titleAdd1 +=  " (1), ";
-    if (titleAdd2(0, 2) == ": ") titleAdd2.Remove(0, 2); // remove ": "
-    titleAdd1 += titleAdd2 += " (2)";
-    return titleAdd1;
-  } else {
-    // otherwise keep only one, add titles at the end
-    return (titleAdd1noTitle += ", 1: " + title1 + ", 2: " + title2);
+  TString titleAdd = fPlotMp1->TitleAdd();
+  if (titleAdd != fPlotMp2->TitleAdd()) {
+    titleAdd += " (1), ";
+    TString tit2(fPlotMp2->TitleAdd());
+    if (tit2(0, 2) == ": ") tit2.Remove(0, 2); // remove ": "
+    (titleAdd += tit2) += " (2)";
   }
+
+  return titleAdd;
 }

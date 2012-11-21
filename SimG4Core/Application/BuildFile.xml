@@ -12,9 +12,11 @@
 <use   name="SimG4Core/SensitiveDetector"/>
 <use   name="SimG4Core/Watcher"/>
 <use   name="SimGeneral/HepPDTRecord"/>
+<use   name="SimGeneral/GFlash"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/Utilities"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
 <use   name="clhep"/>

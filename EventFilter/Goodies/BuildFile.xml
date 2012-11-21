@@ -1,13 +1,6 @@
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/ServiceRegistry"/>
-<use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/PythonParameterSet"/>
-<use   name="FWCore/PluginManager"/>
 <use   name="EventFilter/Utilities"/>
 <use   name="root"/>
 <use   name="rootgraphics"/>
-<use   name="classlib"/>
-<use   name="DQMServices/Core"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -69,7 +69,7 @@ patType1CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
-        ##cms.InputTag('patPFMETtype0Corr')                    
+        cms.InputTag('patPFMETtype0Corr')                    
     ),
     applyType2Corrections = cms.bool(False)
 )   
@@ -79,7 +79,7 @@ patType1p2CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
-        ##cms.InputTag('patPFMETtype0Corr')             
+        cms.InputTag('patPFMETtype0Corr')             
     ),
     applyType2Corrections = cms.bool(True),
     srcUnclEnergySums = cms.VInputTag(
@@ -104,8 +104,8 @@ producePatPFMETCorrections = cms.Sequence(
    * selectedPatJetsForMETtype2Corr 
    * patPFJetMETtype1p2Corr
    * patPFJetMETtype2Corr
-   ##* type0PFMEtCorrection
-   ##* patPFMETtype0Corr
+   * type0PFMEtCorrection
+   * patPFMETtype0Corr
    * pfCandMETcorr 
    * patType1CorrectedPFMet
    * patType1p2CorrectedPFMet

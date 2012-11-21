@@ -15,8 +15,11 @@ class FillInfo {
   FillInfo( unsigned short const & lhcFill, bool const & fromData = true );
   ~FillInfo();
   
-  //constant static unsigned integer hosting the number of LHC bunch slots
+  //constant static unsigned integer hosting the maximum number of LHC bunch slots
   static size_t const bunchSlots = 3564;
+  
+  //constant static unsigned integer hosting the available number of LHC bunch slots
+  static size_t const availableBunchSlots = 2808;
   
   //reset instance
   void setFill( unsigned short const & lhcFill, bool const & fromData = true );

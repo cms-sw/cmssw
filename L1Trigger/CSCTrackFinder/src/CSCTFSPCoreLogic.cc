@@ -15,6 +15,7 @@ vpp_generated_2010_12_10 CSCTFSPCoreLogic::sp_2010_12_10_;
 vpp_generated_2011_01_18 CSCTFSPCoreLogic::sp_2011_01_18_;
 vpp_generated_2012_01_31 CSCTFSPCoreLogic::sp_2012_01_31_;
 vpp_generated_2012_03_13 CSCTFSPCoreLogic::sp_2012_03_13_;
+vpp_generated_2012_07_30 CSCTFSPCoreLogic::sp_2012_07_30_;
 
 
 // takes a trigger container and loads the first n bx of data into io_
@@ -748,7 +749,61 @@ bool CSCTFSPCoreLogic::run(const unsigned& endcap, const unsigned& sector, const
 	 );
       break;
 
-      
+         case 20120730:
+
+      sp_2012_07_30_.wrap
+      (
+         io->me1aVp, io->me1aQp, io->me1aEtap, io->me1aPhip, io->me1aCSCIdp,  io->me1aCLCTp,
+         io->me1bVp, io->me1bQp, io->me1bEtap, io->me1bPhip, io->me1bCSCIdp,  io->me1bCLCTp,
+         io->me1cVp, io->me1cQp, io->me1cEtap, io->me1cPhip, io->me1cCSCIdp,  io->me1cCLCTp,
+
+         io->me1dVp, io->me1dQp, io->me1dEtap, io->me1dPhip, io->me1dCSCIdp,  io->me1dCLCTp,
+         io->me1eVp, io->me1eQp, io->me1eEtap, io->me1ePhip, io->me1eCSCIdp,  io->me1eCLCTp,
+         io->me1fVp, io->me1fQp, io->me1fEtap, io->me1fPhip, io->me1fCSCIdp,  io->me1fCLCTp,
+
+         io->me2aVp, io->me2aQp, io->me2aEtap, io->me2aPhip,
+         io->me2bVp, io->me2bQp, io->me2bEtap, io->me2bPhip,
+         io->me2cVp, io->me2cQp, io->me2cEtap, io->me2cPhip,
+
+         io->me3aVp, io->me3aQp, io->me3aEtap, io->me3aPhip,
+         io->me3bVp, io->me3bQp, io->me3bEtap, io->me3bPhip,
+         io->me3cVp, io->me3cQp, io->me3cEtap, io->me3cPhip,
+
+         io->me4aVp, io->me4aQp, io->me4aEtap, io->me4aPhip,
+         io->me4bVp, io->me4bQp, io->me4bEtap, io->me4bPhip,
+         io->me4cVp, io->me4cQp, io->me4cEtap, io->me4cPhip,
+
+         io->mb1aVp, io->mb1aQp, io->mb1aPhip, io->mb1aBendp,
+         io->mb1bVp, io->mb1bQp, io->mb1bPhip, io->mb1bBendp,
+         io->mb1cVp, io->mb1cQp, io->mb1cPhip, io->mb1cBendp,
+         io->mb1dVp, io->mb1dQp, io->mb1dPhip, io->mb1dBendp,
+
+         io->ptHp, io->signHp, io->modeMemHp, io->etaPTHp, io->FRHp, io->phiHp, io->phdiff_aHp, io->phdiff_bHp,
+         io->ptMp, io->signMp, io->modeMemMp, io->etaPTMp, io->FRMp, io->phiMp, io->phdiff_aMp, io->phdiff_bMp,
+         io->ptLp, io->signLp, io->modeMemLp, io->etaPTLp, io->FRLp, io->phiLp, io->phdiff_aLp, io->phdiff_bLp,
+
+         io->me1idH, io->me2idH, io->me3idH, io->me4idH, io->mb1idH, io->mb2idH,
+         io->me1idM, io->me2idM, io->me3idM, io->me4idM, io->mb1idM, io->mb2idM,
+         io->me1idL, io->me2idL, io->me3idL, io->me4idL, io->mb1idL, io->mb2idL,
+
+         etamin1, etamin2, etamin3, etamin4, etamin5, /*etamin6,*/ etamin7,etamin8,
+         etamax1, etamax2, etamax3, etamax4, etamax5, /*etamax6,*/ etamax7,etamax8,
+         etawin1, etawin2, etawin3, etawin4, etawin5, /*etawin6,*/ etawin7,
+         mindphip, mindetap,
+
+         mindeta12_accp, maxdeta12_accp, maxdphi12_accp,
+         mindeta13_accp, maxdeta13_accp, maxdphi13_accp,
+
+         mindeta112_accp, maxdeta112_accp, maxdphi112_accp,
+         mindeta113_accp, maxdeta113_accp, maxdphi113_accp,
+         mindphip_halo, mindetap_halo,
+
+         straightp, curvedp,
+         mbaPhiOff, mbbPhiOff,
+         (m_preTrigger<<7)|(m_allowCLCTonly<<5)|(m_allowALCTonly<<4)|(m_extend_length<<1)|(m_widePhi)
+         );
+      break;
+     
   default:
     edm::LogInfo("CSCSTFSPCoreLogic") << "Warning: using the default core is what you want?"
                                       << " Core version is " << this->GetCoreFirmwareVersion();

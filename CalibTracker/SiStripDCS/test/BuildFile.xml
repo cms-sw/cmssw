@@ -12,15 +12,6 @@
   <use   name="root"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="HVMapping/tkmap/myTKAnalyses/PSTools/plugins/*.cc" name="myTKAnalysesPSToolsPlugins">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="DQM/SiStripCommon"/>
-  <use   name="CommonTools/TrackerMap"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <bin   name="TestSiStripDCS" file="UnitTests/TestSiStripDCS.cc, UnitTests/TestSiStripDetVOffBuilder.cc,UnitTests/MasterTestSiStripDCS.cpp">
   <use   name="CalibTracker/SiStripDCS"/>
   <use   name="cppunit"/>

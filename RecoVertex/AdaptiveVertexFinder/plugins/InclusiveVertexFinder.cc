@@ -118,6 +118,9 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 	                                   trackBuilder);
 
 
+        std::auto_ptr<VertexCollection> recoVertices(new VertexCollection);
+        if(primaryVertices->size()!=0) {
+     
 	const reco::Vertex &pv = (*primaryVertices)[0];
         
 	std::vector<TransientTrack> tts;
@@ -148,7 +151,6 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 	BeamSpot bs(pv.position(), 0.0, 0.0, 0.0, 0.0, cov, BeamSpot::Unknown);
 
 
-	std::auto_ptr<VertexCollection> recoVertices(new VertexCollection);
         int i=0;
 #ifdef VTXDEBUG
 
@@ -215,8 +217,8 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 
         std::cout <<  "Final put  " << recoVertices->size() << std::endl;
 #endif  
-
-
+        }
+ 
 	event.put(recoVertices);
 
 }

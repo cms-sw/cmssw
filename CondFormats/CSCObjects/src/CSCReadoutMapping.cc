@@ -35,11 +35,11 @@ CSCDetId CSCReadoutMapping::detId( int endcap, int station, int vme, int dmb, in
       endcap  = CSCDetId::endcap( cid );
       station = CSCDetId::station( cid );
   int chamber = CSCDetId::chamber( cid );
-  int ring    = CSCDetId::ring( cid );
+  int ring    = CSCDetId::ring( cid ); // this is physical cid and physical ring
 
   // Now sort out ME1a from ME11-combined
-  // cfeb =0-3 for ME1b, cfeb=4 for ME1a
-  if ( station == 1  && ring == 1 && cfeb == 4 ) {
+  // cfeb =0-3 for ME1b, cfeb=4 for ME1a (cfeb=4-6 for upgraded ME1a)
+  if ( station == 1  && ring == 1 && cfeb >= 4 && cfeb <=6 ) {
       // This is ME1a region
       ring = 4; // reset from 1 to 4 which flags ME1a
   }

@@ -69,7 +69,7 @@ public:
               char subsector=((theFebs[ifeb].theChamber)/100)%10-2;
               char febZRadOrnt=((theFebs[ifeb].theChamber)/1000)%5;
               char febZOrnt=((theFebs[ifeb].theChamber)/5000)%2;
-              char diskOrWheel=((theFebs[ifeb].theChamber)/10000)%10-3;
+              char diskOrWheel=((theFebs[ifeb].theChamber)/10000)%10-4;
               char layer=((theFebs[ifeb].theChamber)/100000)%10;
               char barrelOrEndcap=(theFebs[ifeb].theChamber)/1000000;
               ChamberLocationSpec chamber={diskOrWheel,layer,sector,subsector,febZOrnt,febZRadOrnt,barrelOrEndcap};

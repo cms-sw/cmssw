@@ -41,7 +41,8 @@ using namespace std;
 using namespace edm;
 
 PFRecHitProducerHO::PFRecHitProducerHO(const edm::ParameterSet& iConfig)
-  : PFRecHitProducer(iConfig) {
+  : PFRecHitProducer(iConfig)
+{
   
   // access to the collections of rechits
   inputTagHORecHits_ = 
@@ -80,11 +81,12 @@ PFRecHitProducerHO::createRecHits(vector<reco::PFRecHit>& rechits,
     geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalOuter);
   
   // get the HO topology
-  HcalTopology hcalBarrelTopology; // (geoHandle);
+  edm::ESHandle<HcalTopology> hcalBarrelTopology;
+  iSetup.get<IdealGeometryRecord>().get(hcalBarrelTopology);
   
   if(!neighbourmapcalculated_)
     hoNeighbArray( *hcalBarrelGeometry,
-		   hcalBarrelTopology);
+		   *hcalBarrelTopology);
 
   // Get Hcal Severity Level Computer, so that the severity of each rechit flag/status may be determined
   edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;

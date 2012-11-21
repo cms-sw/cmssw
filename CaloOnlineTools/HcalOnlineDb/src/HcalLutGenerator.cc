@@ -1,14 +1,12 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutGenerator.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
-//#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
- #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
 
@@ -30,7 +28,6 @@ HcalLutGenerator::~HcalLutGenerator()
 {
 }
 
-
 void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
@@ -41,8 +38,7 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //
   edm::ESHandle<HcalTPGCoder> inputCoder;
   iSetup.get<HcalTPGRecord>().get(inputCoder);
-  HcalTopology theTopo;
-  HcalDetId did;
+
   //
   edm::ESHandle<CaloTPGTranscoder> outTranscoder;
   iSetup.get<CaloTPGRecord>().get(outTranscoder);
