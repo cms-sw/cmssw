@@ -52,7 +52,6 @@ def hltCustoms(process):
     process.CSCGeometryESModule.useGangedStripsInME1a = False
 
     process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-    process.hltCsc2DRecHits.CSCUseTimingCorrections = cms.bool(False)
     process.hltCsc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
 
     # Switch input for CSCRecHitD to  s i m u l a t e d  digis
