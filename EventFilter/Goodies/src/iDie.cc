@@ -1706,12 +1706,6 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
   if (!runNumber_) return;
   try
   {
-    if (runNumber_>flashRunNumber_)
-    {
-      cpuInfoSpace_->lock();
-      flashRunNumber_=runNumber_;
-      cpuInfoSpace_->unlock();
-    }
 
     if (debugMode_.value_) std::cout << " checking per-lumi flashlist" << std::endl;
 
@@ -1722,6 +1716,8 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
       if (toSend) {
         toSend--;
         cpuInfoSpace_->lock();
+        if (runNumber_>flashRunNumber_)
+          flashRunNumber_=runNumber_;
         flashLoadLs_=toSend+1;
         flashLoad_=cpuLoad_[toSend];
 	flashLoadPS_=cpuLoadPS_[toSend];
