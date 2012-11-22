@@ -4,8 +4,6 @@
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/JetMETObjects/interface/FFTJetCorrectorParameters.h"
-
 #include <vector>
  
 JetCorrectorParameters corr;
@@ -17,4 +15,3 @@ JetCorrectorParametersCollection coll;
 JetCorrectorParametersCollection::pair_type pair_type;
 JetCorrectorParametersCollection::collection_type colltype;
 std::vector<JetCorrectorParametersCollection> collv;
-FFTJetCorrectorParameters fftcorr;

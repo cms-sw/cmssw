@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2012/11/02 13:00:23 $
- *  $Revision: 1.14 $
+ *  $Date: 2012/02/10 14:51:48 $
+ *  $Revision: 1.10 $
  *
  */
 
@@ -48,7 +48,7 @@ class TauValidation : public edm::EDAnalyzer
 	       pi1pi0,
                pinpi0,
                tripi,
-               tripinpi0,
+//               tripinpi0,
 	       stable};
 	// tau mother particles 
 	enum  {other,
@@ -74,8 +74,9 @@ class TauValidation : public edm::EDAnalyzer
     private:
 	int tauMother(const HepMC::GenParticle*, double weight);
 	int tauProngs(const HepMC::GenParticle*, double weight);
-	int tauDecayChannel(const HepMC::GenParticle*, double weight=0.0);
+	int tauDecayChannel(const HepMC::GenParticle*, double weight);
 	int findMother(const HepMC::GenParticle*);
+	int findTauDecayChannel(const HepMC::GenParticle*);
 	bool isLastTauinChain(const HepMC::GenParticle* tau);
 	void rtau(const HepMC::GenParticle*,int,int, double weight);
 	void spinEffects(const HepMC::GenParticle*,int,int, double weight);
@@ -84,11 +85,7 @@ class TauValidation : public edm::EDAnalyzer
 	double visibleTauEnergy(const HepMC::GenParticle*);
 	TLorentzVector leadingPionP4(const HepMC::GenParticle*);
 	TLorentzVector motherP4(const HepMC::GenParticle*);
-	void photons(const HepMC::GenParticle*, double weight);
-	void findTauList(const HepMC::GenParticle* tau,std::vector<const HepMC::GenParticle*> &TauList);
-	void findISRandFSR(const HepMC::GenParticle* p, bool doFSR, std::vector<const HepMC::GenParticle*> &ListofISR,
-			   std::vector<const HepMC::GenParticle*> &ListofFSR);
-
+	void photons(const HepMC::GenParticle*, double weight, bool decayonly);
 
         WeightManager _wmanager;
 
@@ -102,11 +99,11 @@ class TauValidation : public edm::EDAnalyzer
   	///ME's "container"
   	DQMStore *dbe;
 
-        MonitorElement *nTaus, *nPrimeTaus;
+        MonitorElement *nEvt;
   	MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, 
 	               *TauRtauW, *TauRtauHpm,
 	               *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
-	  *TauISRPhotonsN,*TauISRPhotonsPt,*TauISRPhotonsPtRatio,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtRatio;
+	               *TauPhotonsBeforeDecay,*TauPhotonsBeforeDecayPt,*TauPhotonsN,*TauPhotonsPt;
 	unsigned int NJAKID;
 	MonitorElement *JAKID;
 	std::vector<std::vector<MonitorElement *> > JAKInvMass;

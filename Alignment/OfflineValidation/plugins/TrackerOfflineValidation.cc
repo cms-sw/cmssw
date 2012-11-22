@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.53 2012/06/30 09:09:47 eulisse Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.52 2011/09/15 08:06:07 mussgill Exp $
 //
 //
 
@@ -733,11 +733,9 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
       histStruct.ResXvsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						     resxvsxprofilename.str().c_str(),resxvsxprofiletitle.str().c_str(),
 						     nbins, xmin, xmax, ymin, ymax);
-      histStruct.ResXvsXProfile->Sumw2(); // to be filled with weights, so uncertainties need sum of square of weights
       histStruct.ResXvsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						     resxvsyprofilename.str().c_str(),resxvsyprofiletitle.str().c_str(),
 						     nbins, xmin, xmax, ymin, ymax);
-      histStruct.ResXvsYProfile->Sumw2(); // to be filled with weights, so uncertainties need sum of square of weights
     }
 
     if( this->isPixel(subdetandlayer.first) || stripYResiduals_ ) {
@@ -762,11 +760,9 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
 	histStruct.ResYvsXProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						       resyvsxprofilename.str().c_str(),resyvsxprofiletitle.str().c_str(),
 						       nbins, xmin, xmax, ymin, ymax);
-	histStruct.ResYvsXProfile->Sumw2(); // to be filled with weights, so uncertainties need sum of square of weights
 	histStruct.ResYvsYProfile = this->bookTProfile(moduleLevelHistsTransient, tfd,
 						       resyvsyprofilename.str().c_str(),resyvsyprofiletitle.str().c_str(),
 						       nbins, xmin, xmax, ymin, ymax);
-	histStruct.ResYvsYProfile->Sumw2(); // to be filled with weights, so uncertainties need sum of square of weights
       }
     }
   }

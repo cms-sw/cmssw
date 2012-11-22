@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2012/06/28 12:14:29 $
- * $Revision: 1.48 $
+ * $Date: 2012/05/14 20:43:15 $
+ * $Revision: 1.47 $
  * \author E. Di Marco
  *
 */
@@ -396,11 +396,6 @@ void EBRawDataTask::cleanup(void){
 }
 
 void EBRawDataTask::endLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) {
-
-  if(init_ && dqmStore_ && !dqmStore_->dirExists(prefixME_ + "/EBRawDataTask" + (subfolder_.size() == 0 ? "" : "/" + subfolder_))){
-	cleanup();
-	setup();
-  }
 
   MonitorElement* me(meEBSynchronizationErrorsTrend_);
   if(!me) return;

@@ -1,10 +1,4 @@
 #! /usr/bin/env python
-'''
-Script prints out histogram names that are in one ROOT file but not in another.
-
-Author:  Albertas Gimbutas,  Vilnius University (LT)
-e-mail:  albertasgim@gmail.com
-'''
 from datetime import datetime, timedelta
 from optparse import OptionParser
 

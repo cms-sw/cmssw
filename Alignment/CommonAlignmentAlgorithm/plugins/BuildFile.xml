@@ -6,17 +6,5 @@
   <use   name="Alignment/CommonAlignmentAlgorithm"/>
   <use   name="Alignment/MuonAlignment"/>
   <use   name="Alignment/TrackerAlignment"/>
-  <use   name="CondCore/DBOutputService"/>
-  <use   name="CondFormats/DataRecord"/>
-  <use   name="CondFormats/SiPixelObjects"/>
-  <use   name="CondFormats/SiStripObjects"/>
-  <use   name="FWCore/ServiceRegistry"/>
-  <use   name="DataFormats/DetId"/>
-  <use   name="DataFormats/SiPixelDetId"/>
-  <use   name="DataFormats/SiStripDetId"/>
-  <use   name="MagneticField/Engine"/>
-  <use   name="MagneticField/Records"/>
-  <use   name="Geometry/CommonDetUnit"/>
-  <use   name="TrackingTools/TransientTrackingRecHit"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

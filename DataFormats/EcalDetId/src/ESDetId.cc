@@ -1,7 +1,7 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <ostream>
+#include <iostream>
 
 ESDetId::ESDetId() : DetId() 
 {

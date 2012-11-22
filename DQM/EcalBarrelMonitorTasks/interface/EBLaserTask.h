@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2012/07/19 22:50:41 $
- * $Revision: 1.41 $
+ * $Date: 2011/08/12 16:01:18 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -43,8 +43,6 @@ void beginRun(const edm::Run & r, const edm::EventSetup & c);
 
 /// EndRun
 void endRun(const edm::Run & r, const edm::EventSetup & c);
-
- void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
 /// Reset
 void reset(void);
@@ -115,10 +113,6 @@ MonitorElement* mePnPedMapG16L4_[36];
  MonitorElement* meAmplSummaryMapL4_;
 
 bool init_;
-
- bool filterEmptyEvents_;
-
- int nEmpty_;
 
 };
 

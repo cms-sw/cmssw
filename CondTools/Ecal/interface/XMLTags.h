@@ -85,13 +85,6 @@ namespace xuti{
   const std::string Laser_t2_tag("t2");
   const std::string Laser_t3_tag("t3");
 
-  const std::string Linearization_tag("EcalTPGLinearizationConts");
-  const std::string Linearization_m12_tag("mult12");
-  const std::string Linearization_m6_tag("mult6");
-  const std::string Linearization_m1_tag("mult1");
-  const std::string Linearization_s12_tag("shift12");
-  const std::string Linearization_s6_tag("shift6");
-  const std::string Linearization_s1_tag("shift1");
 
   const  std::string AlignmentConstant_tag("EcalAlignmentConstant");
   const  std::string subdet_tag("SubDet");

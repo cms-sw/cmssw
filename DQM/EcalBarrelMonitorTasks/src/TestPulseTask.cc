@@ -1,21 +1,19 @@
 #include "../interface/TestPulseTask.h"
 
 #include <algorithm>
-#include <iomanip>
 
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
-#include "DQM/EcalCommon/interface/MESetMulti.h"
 
 namespace ecaldqm {
 
-  TestPulseTask::TestPulseTask(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerTask(_workerParams, _commonParams, "TestPulseTask"),
-    gainToME_(),
-    pnGainToME_()
+  TestPulseTask::TestPulseTask(const edm::ParameterSet &_params, const edm::ParameterSet& _paths) :
+    DQWorkerTask(_params, _paths, "TestPulseTask"),
+    MGPAGains_(),
+    MGPAGainsPN_()
   {
     using namespace std;
 
@@ -23,62 +21,110 @@ namespace ecaldqm {
       (0x1 << kEBDigi) |
       (0x1 << kEEDigi) |
       (0x1 << kPnDiodeDigi) |
-      (0x1 << kEBTestPulseUncalibRecHit) |
-      (0x1 << kEETestPulseUncalibRecHit);
+      (0x1 << kEBUncalibRecHit) |
+      (0x1 << kEEUncalibRecHit);
 
-    for(unsigned iD(0); iD < BinService::nDCC; ++iD){
-      enable_[iD] = false;
-      gain_[iD] = 0;
+    edm::ParameterSet const& commonParams(_params.getUntrackedParameterSet("Common"));
+    MGPAGains_ = commonParams.getUntrackedParameter<std::vector<int> >("MGPAGains");
+    MGPAGainsPN_ = commonParams.getUntrackedParameter<std::vector<int> >("MGPAGainsPN");
+
+    for(int idcc(0); idcc < 54; idcc++){
+      enable_[idcc] = false;
+      gain_[idcc] = 12;
     }
 
-    vector<int> MGPAGains(_commonParams.getUntrackedParameter<vector<int> >("MGPAGains"));
-    vector<int> MGPAGainsPN(_commonParams.getUntrackedParameter<vector<int> >("MGPAGainsPN"));
+    for(std::vector<int>::iterator gainItr(MGPAGains_.begin()); gainItr != MGPAGains_.end(); ++gainItr)
+      if(*gainItr != 1 && *gainItr != 6 && *gainItr != 12) throw cms::Exception("InvalidConfiguration") << "MGPA gain" << std::endl;
 
-    unsigned iMEGain(0);
-    for(vector<int>::iterator gainItr(MGPAGains.begin()); gainItr != MGPAGains.end(); ++gainItr){
-      if(*gainItr != 1 && *gainItr != 6 && *gainItr != 12) throw cms::Exception("InvalidConfiguration") << "MGPA gain" << endl;
-      gainToME_[*gainItr] = iMEGain++;
-    }
-
-    unsigned iMEPNGain(0);
-    for(vector<int>::iterator gainItr(MGPAGainsPN.begin()); gainItr != MGPAGainsPN.end(); ++gainItr){
-      if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << endl;	
-      pnGainToME_[*gainItr] = iMEPNGain++;
-    }
+    for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr)
+      if(*gainItr != 1 && *gainItr != 16) throw cms::Exception("InvalidConfiguration") << "PN diode gain" << std::endl;	
 
     map<string, string> replacements;
     stringstream ss;
 
-    unsigned apdPlots[] = {kShape, kAmplitude};
-    for(unsigned iS(0); iS < sizeof(apdPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(apdPlots[iS]);
-      MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
+    for(vector<int>::iterator gainItr(MGPAGains_.begin()); gainItr != MGPAGains_.end(); ++gainItr){
+      ss.str("");
+      ss << *gainItr;
+      replacements["gain"] = ss.str();
 
-      for(map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr){
-        multi->use(gainItr->second);
-
-        ss.str("");
-        ss << std::setfill('0') << std::setw(2) << gainItr->first;
-        replacements["gain"] = ss.str();
-
-        multi->formPath(replacements);
+      unsigned offset(0);
+      switch(*gainItr){
+      case 1: offset = 0; break;
+      case 6: offset = 1; break;
+      case 12: offset = 2; break;
+      default: break;
       }
+
+      MEs_[kOccupancy + offset]->name(replacements);
+      MEs_[kShape + offset]->name(replacements);
+      MEs_[kAmplitude + offset]->name(replacements);
     }
 
-    unsigned pnPlots[] = {kPNAmplitude};
-    for(unsigned iS(0); iS < sizeof(pnPlots) / sizeof(unsigned); ++iS){
-      unsigned plot(pnPlots[iS]);
-      MESetMulti* multi(static_cast<MESetMulti*>(MEs_[plot]));
+    for(vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
+      ss.str("");
+      ss << *gainItr;
+      replacements["pngain"] = ss.str();
 
-      for(map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr){
-        multi->use(gainItr->second);
-
-        ss.str("");
-        ss << std::setfill('0') << std::setw(2) << gainItr->first;
-        replacements["pngain"] = ss.str();
-
-        multi->formPath(replacements);
+      unsigned offset(0);
+      switch(*gainItr){
+      case 1: offset = 0; break;
+      case 16: offset = 1; break;
+      default: break;
       }
+
+      MEs_[kPNOccupancy + offset]->name(replacements);
+      MEs_[kPNAmplitude + offset]->name(replacements);
+    }
+  }
+
+  TestPulseTask::~TestPulseTask()
+  {
+  }
+
+  void
+  TestPulseTask::bookMEs()
+  {
+    for(std::vector<int>::iterator gainItr(MGPAGains_.begin()); gainItr != MGPAGains_.end(); ++gainItr){
+      unsigned offset(0);
+      switch(*gainItr){
+      case 1: offset = 0; break;
+      case 6: offset = 1; break;
+      case 12: offset = 2; break;
+      default: break;
+      }
+
+      MEs_[kOccupancy + offset]->book();
+      MEs_[kShape + offset]->book();
+      MEs_[kAmplitude + offset]->book();
+    }
+    for(std::vector<int>::iterator gainItr(MGPAGainsPN_.begin()); gainItr != MGPAGainsPN_.end(); ++gainItr){
+      unsigned offset(0);
+      switch(*gainItr){
+      case 1: offset = 0; break;
+      case 16: offset = 1; break;
+      default: break;
+      }
+
+      MEs_[kPNOccupancy + offset]->book();
+      MEs_[kPNAmplitude + offset]->book();
+    }
+  }
+
+  void
+  TestPulseTask::beginRun(const edm::Run&, const edm::EventSetup&)
+  {
+    for(int idcc(0); idcc < 54; idcc++){
+      enable_[idcc] = false;
+      gain_[idcc] = 0;
+    }
+  }
+
+  void
+  TestPulseTask::endEvent(const edm::Event&, const edm::EventSetup&)
+  {
+    for(int idcc(0); idcc < 54; idcc++){
+      enable_[idcc] = false;
+      gain_[idcc] = 0;
     }
   }
 
@@ -93,39 +139,16 @@ namespace ecaldqm {
 	enable = true;
 	enable_[iFED] = true;
       }
-      else
-        enable_[iFED] = false;
     }
 
     return enable;
   }
 
   void
-  TestPulseTask::runOnRawData(EcalRawDataCollection const& _rawData)
-  {
-    for(EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr){
-      unsigned iDCC(rItr->id() - 1);
-
-      if(!enable_[iDCC]){
-        gain_[iDCC] = 0;
-        continue;
-      }
-      gain_[iDCC] = rItr->getMgpaGain();
-
-      if(gainToME_.find(gain_[iDCC]) == gainToME_.end())
-        enable_[iDCC] = false;
-    }
-  }
-
-  void
   TestPulseTask::runOnDigis(const EcalDigiCollection &_digis)
   {
-    unsigned iME(-1);
-
     for(EcalDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       DetId id(digiItr->id());
-
-      MEs_[kOccupancy]->fill(id);
 
       int iDCC(dccId(id) - 1);
 
@@ -134,41 +157,44 @@ namespace ecaldqm {
       // EcalDataFrame is not a derived class of edm::DataFrame, but can take edm::DataFrame in the constructor
       EcalDataFrame dataFrame(*digiItr);
 
-      if(iME != gainToME_[gain_[iDCC]]){
-        iME = gainToME_[gain_[iDCC]];
-        static_cast<MESetMulti*>(MEs_[kShape])->use(iME);
+      unsigned offset(0);
+      switch(dataFrame.sample(0).gainId()){
+      case 1: offset = 2; gain_[iDCC] = 12; break;
+      case 2: offset = 1; gain_[iDCC] = 6; break;
+      case 3: offset = 0; gain_[iDCC] = 1; break;
+      default: continue;
       }
 
+      if(std::find(MGPAGains_.begin(), MGPAGains_.end(), gain_[iDCC]) == MGPAGains_.end()) continue;
+
+      MEs_[kOccupancy + offset]->fill(id);
+
       for(int iSample(0); iSample < 10; iSample++)
-	MEs_[kShape]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
+	MEs_[kShape + offset]->fill(id, iSample + 0.5, float(dataFrame.sample(iSample).adc()));
     }
   }
 
   void
   TestPulseTask::runOnPnDigis(const EcalPnDiodeDigiCollection &_digis)
   {
-    unsigned iME(-1);
-
     for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
-      EcalPnDiodeDetId const& id(digiItr->id());
+      EcalPnDiodeDetId id(digiItr->id());
 
       int iDCC(dccId(id) - 1);
 
       if(!enable_[iDCC]) continue;
 
+      unsigned offset(0);
       int gain(0);
       switch(digiItr->sample(0).gainId()){
-      case 0: gain = 1; break;
-      case 1: gain = 16; break;
+      case 0: offset = 0; gain = 1; break;
+      case 1: offset = 1; gain = 16; break;
       default: continue;
       }
 
-      if(pnGainToME_.find(gain) == pnGainToME_.end()) continue;
+      if(std::find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), gain) == MGPAGainsPN_.end()) continue;
 
-      if(iME != pnGainToME_[gain]){
-        iME = pnGainToME_[gain];
-        static_cast<MESetMulti*>(MEs_[kPNAmplitude])->use(iME);
-      }
+      MEs_[kPNOccupancy + offset]->fill(id);
 
       float pedestal(0.);
       for(int iSample(0); iSample < 4; iSample++)
@@ -179,17 +205,15 @@ namespace ecaldqm {
       for(int iSample(0); iSample < 50; iSample++)
 	if(digiItr->sample(iSample).adc() > max) max = digiItr->sample(iSample).adc();
 
-      double amplitude(max - pedestal);
+      float amplitude(max - pedestal);
 
-      MEs_[kPNAmplitude]->fill(id, amplitude);
+      MEs_[kPNAmplitude + offset]->fill(id, amplitude);
     }
   }
 
   void
   TestPulseTask::runOnUncalibRecHits(const EcalUncalibratedRecHitCollection &_uhits)
   {
-    unsigned iME(-1);
-
     for(EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr){
       DetId id(uhitItr->id());
 
@@ -197,23 +221,36 @@ namespace ecaldqm {
 
       if(!enable_[iDCC]) continue;
 
-      if(iME != gainToME_[gain_[iDCC]]){
-        iME = gainToME_[gain_[iDCC]];
-        static_cast<MESetMulti*>(MEs_[kAmplitude])->use(iME);
+      unsigned offset(0);
+      switch(gain_[iDCC]){
+      case 1: offset = 0; break;
+      case 6: offset = 1; break;
+      case 12: offset = 2; break;
+      default: continue;
       }
 
-      MEs_[kAmplitude]->fill(id, uhitItr->amplitude());
+      MEs_[kAmplitude + offset]->fill(id, uhitItr->amplitude());
     }
   }
 
   /*static*/
   void
-  TestPulseTask::setMEOrdering(std::map<std::string, unsigned>& _nameToIndex)
+  TestPulseTask::setMEData(std::vector<MEData>& _data)
   {
-    _nameToIndex["Occupancy"] = kOccupancy;
-    _nameToIndex["Shape"] = kShape;
-    _nameToIndex["Amplitude"] = kAmplitude;
-    _nameToIndex["PNAmplitude"] = kPNAmplitude;
+    BinService::AxisSpecs axis;
+    axis.nbins = 10;
+    axis.low = 0.;
+    axis.high = 10.;
+
+    for(unsigned iGain(0); iGain < nGain; iGain++){
+      _data[kOccupancy + iGain] = MEData("Occupancy", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
+      _data[kShape + iGain] = MEData("Shape", BinService::kSM, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TPROFILE2D, 0, &axis);
+      _data[kAmplitude + iGain] = MEData("Amplitude", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE2D);
+    }
+    for(unsigned iPNGain(0); iPNGain < nPNGain; iPNGain++){
+      _data[kPNOccupancy + iPNGain] = MEData("PNOccupancy", BinService::kEcalMEM2P, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+      _data[kPNAmplitude + iPNGain] = MEData("PNPedestal", BinService::kSMMEM, BinService::kCrystal, MonitorElement::DQM_KIND_TPROFILE);
+    }
   }
 
   DEFINE_ECALDQM_WORKER(TestPulseTask);

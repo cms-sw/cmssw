@@ -1,7 +1,7 @@
 #ifndef ClusterTask_H
 #define ClusterTask_H
 
-#include "DQWorkerTask.h"
+#include "DQM/EcalCommon/interface/DQWorkerTask.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
@@ -14,12 +14,12 @@ namespace ecaldqm {
 
   class ClusterTask : public DQWorkerTask {
   public:
-    ClusterTask(edm::ParameterSet const&, edm::ParameterSet const&);
-    ~ClusterTask() {}
+    ClusterTask(const edm::ParameterSet &, const edm::ParameterSet&);
+    ~ClusterTask();
+
+    void bookMEs();
 
     bool filterRunType(const std::vector<short>&);
-
-    void setDependencies(DependencySet&);
 
     void beginRun(const edm::Run &, const edm::EventSetup &);
     void beginEvent(const edm::Event &, const edm::EventSetup &);
@@ -53,19 +53,15 @@ namespace ecaldqm {
       kSCNBCs, // h1f
       kSCNcrystals, // h1f
       kSCR9, // h1f
-/*       kPi0, // h1f */
-/*       kJPsi, // h1f */
-/*       kZ, // h1f */
-/*       kHighMass, // h1f */
-      kTrendNBC,
-      kTrendBCSize,
-      kTrendNSC,
-      kTrendSCSize,
+      kPi0, // h1f
+      kJPsi, // h1f
+      kZ, // h1f
+      kHighMass, // h1f
       nMESets
     };
 
     // needs to be declared in each derived class
-    static void setMEOrdering(std::map<std::string, unsigned>&);
+    static void setMEData(std::vector<MEData>&);
 
   private:
     const CaloTopology *topology_;
@@ -73,7 +69,8 @@ namespace ecaldqm {
     const CaloSubdetectorGeometry* eeGeometry_;
     const EcalRecHitCollection *ebHits_, *eeHits_;
     int ievt_;
-    //    int massCalcPrescale_;
+    float lowEMax_;
+    int massCalcPrescale_;
   };
 
   inline void ClusterTask::analyze(const void* _p, Collections _collection){

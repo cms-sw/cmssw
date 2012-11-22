@@ -25,5 +25,6 @@ workflows[1103]=['RR', ['OldTTbarINPUT','RECOFROMRECOSt2']]
 
 workflows[1104]=['',['OldGenSimINPUT','RESIM','DIGIPU','RERECOPU']]
 
-
-
+## special fastsim test
+workflows[1200]=['TTbar',['TTbarSFS','RECOFS','HARVESTFS']]
+workflows[1201]=['TTbar',['TTbarSFSA']]

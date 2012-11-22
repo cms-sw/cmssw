@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2012/04/27 13:45:59 $
- * $Revision: 1.235 $
+ * $Date: 2012/03/18 17:20:51 $
+ * $Revision: 1.232.2.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -763,8 +763,6 @@ void EBIntegrityClient::analyze(void) {
         if ( update0 || update1 || update2 ) {
 
           float val;
-          float threshold(threshCry_);
-          if((ism == 27 || ism == 33) && iet >= 11) threshold *= 10.;
 
           val = 1.;
           // number of events on a channel

@@ -1,4 +1,4 @@
-#include "CommonTools/UtilAlgos/plugins/FwdPtrCollectionFilter.h"
+#include "CommonTools/UtilAlgos/interface/FwdPtrCollectionFilter.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"

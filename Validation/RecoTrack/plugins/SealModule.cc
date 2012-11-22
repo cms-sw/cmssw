@@ -10,7 +10,7 @@
 #include "Validation/RecoTrack/interface/SiPixelTrackingRecHitsValid.h"
 
 DEFINE_FWK_MODULE(MultiTrackValidator);
-DEFINE_FWK_MODULE(TrackerSeedValidator);
+//DEFINE_FWK_MODULE(TrackerSeedValidator);
 DEFINE_FWK_MODULE(SiStripTrackingRecHitsValid);
 DEFINE_FWK_MODULE(SiPixelTrackingRecHitsValid);
 

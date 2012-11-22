@@ -214,7 +214,9 @@ namespace edm {
           differences << "Branch '" << i->second.branchName() << "' is in file '" << fileName << "'\n";
           differences << "    but not in previous files.\n";
         } else {
-          productList_.insert(*i);
+          // We can't do this, because it screws up the indices if we have any lumi or run products
+          // still to be written out from the old file. 
+          // productList_.insert(*i);
         }
         ++i;
       } else if(i == e || (j != s && j->first < i->first)) {

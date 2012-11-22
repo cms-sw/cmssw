@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     07-Jul-2007
 #     A. Parenti, DESY Hamburg    16-Apr-2008
-#     $Revision: 1.3 $
-#     $Date: 2009/01/07 18:25:14 $
+#     $Revision: 1.2 $
+#     $Date: 2008/04/17 16:37:18 $
 #
 #  Fetch jobs that have DONE status
 #  This step is mainly foreseen in case job result files need 
@@ -27,7 +27,7 @@ read_db();
 # loop over DONE jobs
 for ($i=0; $i<@JOBID; ++$i) {
   
-  if (@JOBSTATUS[$i] =~ /DONE/i) {
+  if (@JOBSTATUS[$i] eq "DONE") {
     # move the LSF output
     $theJobDir = "jobData/@JOBDIR[$i]";
     $theBatchDirectory = sprintf "LSFJOB\_%d",@JOBID[$i];
@@ -35,14 +35,7 @@ for ($i=0; $i<@JOBID; ++$i) {
     system "rmdir $theBatchDirectory";
 
     # update the status
-    if(@JOBSTATUS[$i] =~ /DISABLED/gi)
-      {
-        @JOBSTATUS[$i] = "DISABLEDFETCH";
-      }
-    else
-      {
-        @JOBSTATUS[$i] = "FETCH";
-      }
+    @JOBSTATUS[$i] = "FETCH";
   }
 }
 write_db();

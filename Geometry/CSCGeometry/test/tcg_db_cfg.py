@@ -1,26 +1,45 @@
 # Configuration file to run stubs/CSCGeometryAnalyser
-# I hope this reads geometry from db
-# Tim Cox 18.10.2012 for 61X
+# to dump CSC geometry information
+# Tim Cox 08.04.2009 to test geometry-in-db for 31X
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("CSCGeometryTest")
-process.load("Configuration.Geometry.GeometryExtended_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process = cms.Process("GeometryTest")
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
+
+process.PoolDBESSource = cms.ESSource(
+   "PoolDBESSource",
+   process.CondDBSetup,
+   loadAll = cms.bool(True),
+   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+   toGet = cms.VPSet(
+      cms.PSet(
+         record = cms.string('CSCRecoGeometryRcd'), tag = cms.string('CSCRECO_Geometry_Test01')
+      ),
+      cms.PSet(
+         record = cms.string('CSCRecoDigiParametersRcd'), tag = cms.string('CSCRECODIGI_Geometry_Test01')
+      )
+   ),
+   DBParameters = cms.PSet(
+      messageLevel = cms.untracked.int32(9),
+      authenticationPath = cms.untracked.string('.')
+   ),
+   catalog = cms.untracked.string('file:PoolFileCatalog.xml'),
+   timetype = cms.string('runnumber'),
+   connect = cms.string('sqlite_file:myfile.db')
+
+)
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
-process.GlobalTag.globaltag = "MC_61_V2::All"
+process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
-process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource")
-
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-
+process.fake2 = process.FakeAlignmentSource
+del process.FakeAlignmentSource
+process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "fake2")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(1)
-        )
+    input = cms.untracked.int32(1)
+)
 
 process.MessageLogger = cms.Service(
    'MessageLogger',
@@ -29,6 +48,8 @@ process.MessageLogger = cms.Service(
      'CSC',
      'CSCNumbering',
      'CSCGeometryBuilderFromDDD',
+     'CSCGeometryBuilder', 
+     'CSCGeometryParsFromDD', 
      'RadialStripTopology'
    ),
    debugModules = cms.untracked.vstring('*'),
@@ -42,10 +63,16 @@ process.MessageLogger = cms.Service(
          limit = cms.untracked.int32(-1) # all
       ),
       CSCNumbering = cms.untracked.PSet(
-         limit = cms.untracked.int32(0) # none - attempt to match tcg_db.py output
+         limit = cms.untracked.int32(-1) # all
       ),
       CSCGeometryBuilderFromDDD = cms.untracked.PSet(
          limit = cms.untracked.int32(-1) # all
+      ),
+      CSCGeometryBuilder = cms.untracked.PSet(
+         limit = cms.untracked.int32(0) # none - attempt to match tcg.py output
+      ),
+      CSCGeometryParsFromDD = cms.untracked.PSet(
+         limit = cms.untracked.int32(0) # none 
       ),
       RadialStripTopology = cms.untracked.PSet(
          limit = cms.untracked.int32(-1) # all
@@ -55,5 +82,8 @@ process.MessageLogger = cms.Service(
 
 process.producer = cms.EDAnalyzer("CSCGeometryAnalyzer")
 
-process.p1 = cms.Path(process.producer)
 process.CSCGeometryESModule.debugV = True
+process.CSCGeometryESModule.useDDD = False
+
+process.p1 = cms.Path(process.producer)
+
