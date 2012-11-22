@@ -206,15 +206,15 @@ double PFRecoTauDiscriminationAgainstElectronMVA3::discriminate(const PFTauRef& 
   double category = -1.;
   bool isGsfElectronMatched = false;
 
-  float deltaRTestigo = 9.9;
-  float mvaCutTestigo = 999;
+  //float deltaRTestigo = 9.9;
+  //float mvaCutTestigo = 999;
 
   if( (*thePFTauRef).leadPFChargedHadrCand().isNonnull()) {
     for ( reco::GsfElectronCollection::const_iterator theGsfElectron = gsfElectrons_->begin();
 	  theGsfElectron != gsfElectrons_->end(); ++theGsfElectron ) {
       if ( theGsfElectron->pt() > 10. ) { // CV: only take electrons above some minimal energy/Pt into account...
 	double deltaREleTau = deltaR(theGsfElectron->p4(), thePFTauRef->p4());
-	deltaRTestigo = deltaREleTau;
+	//deltaRTestigo = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
 	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
 	  double workingPoint_match = 0.;
@@ -278,7 +278,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA3::discriminate(const PFTauRef& 
 	      }
 	    }
 	    workingPoint_match = (mva_match > mvaCut);
-	    mvaCutTestigo = mvaCut;
+	    //mvaCutTestigo = mvaCut;
 	  } else {
 	    category = 16.;
 	    workingPoint_match = (mva_match > minMVA3prongMatch_);
@@ -351,7 +351,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA3::discriminate(const PFTauRef& 
 	  }
 	}
 	workingPoint = (mva > mvaCut);
-	mvaCutTestigo = mvaCut;
+	//mvaCutTestigo = mvaCut;
       } else {
 	category = 17.; 
 	workingPoint = (mva > minMVA3prongNoMatch_);
@@ -359,14 +359,14 @@ double PFRecoTauDiscriminationAgainstElectronMVA3::discriminate(const PFTauRef& 
     }
   }
 
-//   std::cout<<" Taus : "<<TauProducer_<<std::endl;
-//   std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA3::discriminate>:" << std::endl;
-//   std::cout << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() << std::endl;
-//   std::cout << " mva = " << mva <<  " mvaCut = " << mvaCutTestigo <<" isGsfElectronMatched = "<<isGsfElectronMatched<< std::endl;
-//   std::cout << " category = " << category << " : workingPoint = " << workingPoint << std::endl;
-//   std::cout << " deltaREleTau = " << deltaRTestigo << std::endl;
-//   std::cout << " charged hadron in tau : "<<(*thePFTauRef).leadPFChargedHadrCand().isNonnull()<< std::endl;
-//   std::cout << " Prongs in tau : "<<thePFTauRef->signalPFChargedHadrCands().size()<< std::endl;
+  // std::cout<<" Taus : "<<TauProducer_<<std::endl;
+  // std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA3::discriminate>:" << std::endl;
+  // std::cout << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() << std::endl;
+  // std::cout << " mva = " << mva <<  " mvaCut = " << mvaCutTestigo <<" isGsfElectronMatched = "<<isGsfElectronMatched<< std::endl;
+  // std::cout << " category = " << category << " : workingPoint = " << workingPoint << std::endl;
+  // std::cout << " deltaREleTau = " << deltaRTestigo << std::endl;
+  // std::cout << " charged hadron in tau : "<<(*thePFTauRef).leadPFChargedHadrCand().isNonnull()<< std::endl;
+  // std::cout << " Prongs in tau : "<<thePFTauRef->signalPFChargedHadrCands().size()<< std::endl;
 
   if ( returnMVA_ ) {
     // add category index
