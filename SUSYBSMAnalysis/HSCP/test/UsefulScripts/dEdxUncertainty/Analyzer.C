@@ -92,6 +92,7 @@ void Analyzer(string MODE="COMPILE")
    TFile* OutputHisto = new TFile((string("pictures/") + "/Histos.root").c_str(),"RECREATE");
    TH1D* HdedxMIP          = new TH1D(    (saveName + "_MIP"    ).c_str(), "MIP"    ,  1000, 0, 10);
    TH2D* HdedxVsP          = new TH2D(    (saveName + "_dedxVsP").c_str(), "dedxVsP", 3000, 0, 30,1500,0,15);
+   TH2D* HdedxVsPM         = new TH2D(    (saveName + "_dedxVsPM").c_str(), "dedxVsPM", 3000, 0, 30,1500,0,15);
    TH2D* HdedxVsQP         = new TH2D(    (saveName + "_dedxVsQP").c_str(), "dedxVsQP", 6000, -30, 30,1500,0,25);
    TProfile* HdedxVsPProfile   = new TProfile((saveName + "_Profile").c_str(), "Profile",  100, 0,100);
    TProfile* HdedxVsEtaProfile = new TProfile((saveName + "_Eta"    ).c_str(), "Eta"    ,  100,-3,  3);
@@ -102,17 +103,22 @@ void Analyzer(string MODE="COMPILE")
    TH1D* HMass             = new TH1D(    (saveName + "_Mass"   ).c_str(), "Mass"   ,  500, 0, 10);
    TH1D* HP                = new TH1D(    (saveName + "_P"      ).c_str(), "P"      ,  500, 0, 100);
 
-   TH1D* HHit          = new TH1D(    (saveName + "_Hit"      ).c_str(), "P"      ,  600, 0, 600);
+   TH1D* HHit          = new TH1D(    (saveName + "_Hit"      ).c_str(), "P"      ,  600, 0, 6);
 
    TH2D* HIasVsP          = new TH2D(    (saveName + "_IasVsP").c_str(), "IasVsP", 3000, 0, 30,1500,0,1);
    TH2D* HIasVsPM         = new TH2D(    (saveName + "_IasVsPM").c_str(), "IasVsPM", 3000, 0, 30,1500,0,1);
    TH1D* HIasMIP          = new TH1D(    (saveName + "_IasMIP"    ).c_str(), "IasMIP"    ,  1000, 0, 1);
 
-
    reco::DeDxData* emptyDeDx = new reco::DeDxData(0,0,0);
+//   TH3F* dEdxTemplates = loadDeDxTemplate("../../../data/Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.root");
+//   TH3F* dEdxTemplates = loadDeDxTemplate("../../../data/MC7TeV_Deco_SiStripDeDxMip_3D_Rcd.root");
+   TH3F* dEdxTemplates = loadDeDxTemplate("../../../data/Discrim_Templates_MC_2012b.root");
+   double SF = 1.05; //0.9;
 
    std::vector<string> FileName;
-   FileName.push_back("/tmp/querten/dedx.root");
+//   FileName.push_back("/tmp/querten/dedx.root");
+   FileName.push_back("/tmp/querten/dedx_mc.root");
+//   FileName.push_back("/tmp/querten/dedx_mc_2011.root");
    fwlite::ChainEvent ev(FileName);
 
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
@@ -145,16 +151,17 @@ void Analyzer(string MODE="COMPILE")
         if(detid.subdetId()<3)continue; // skip pixels
         if(!hscpHitsInfo.shapetest[h])continue;
 
-//        double Norm = (detid.subdetId()<3)?3.61e-06:3.61e-06*265;
-//        Norm*=10.0; //mm --> cm
-        HHit->Fill(hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
+        double Norm = (detid.subdetId()<3)?3.61e-06:3.61e-06*265;
+        Norm*=10.0; //mm --> cm
+        Norm*=SF;
+        HHit->Fill(Norm * hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
 
 //        vect_charge.push_back(Norm*hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
      }
 //////////////
 
-          reco::DeDxData* dedxObj = dEdxEstimOnTheFly(ev, track, emptyDeDx);
-          reco::DeDxData* dedxIasObj = dEdxOnTheFly(ev, track, emptyDeDx, NULL, false);
+          reco::DeDxData* dedxObj = dEdxEstimOnTheFly(ev, track, emptyDeDx, SF);
+          reco::DeDxData* dedxIasObj = dEdxOnTheFly(ev, track, emptyDeDx, SF, dEdxTemplates, false);
 
 
           if(track->pt()>20 && track->pt()<40 && dedxObj->numberOfMeasurements()>6 ){
@@ -180,6 +187,7 @@ void Analyzer(string MODE="COMPILE")
           if(dedxObj->dEdx()>4.0 && track->p()<3.0){
              HMass->Fill(Mass);
              if(isnan((float)Mass) || Mass<0.94-0.3 || Mass>0.94+0.3)continue;
+             HdedxVsPM ->Fill(track->p(), dedxObj->dEdx() );
              HIasVsPM ->Fill(track->p(), dedxIasObj->dEdx() );
           }
 

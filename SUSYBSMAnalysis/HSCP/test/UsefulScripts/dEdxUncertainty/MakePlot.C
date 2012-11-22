@@ -29,7 +29,7 @@ using namespace std;
 
 void getScaleFactor(TFile* InputFile, string OutName, string ObjName1, string ObjName2);
 void ExtractConstants(TH2D* input);
-void compareDataMC(TH2D* inputD, TH2D* inputM);
+void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7=NULL, TH2D* inputM7=NULL);
 
 double GetMass(double P, double I){
    const double K = 2.529; //Harm2
@@ -219,12 +219,18 @@ void MakePlot()
 //   getScaleFactor(InputFile, "All_Rescale", "All_SelTrack_Pixel", "All_SelTrack_StripCleaned");
 
 
-   TFile* InputFileD = new TFile("pictures_data/Histos.root");
-   TH2D*       HIasVsPM_D        = (TH2D*)    GetObjectFromPath(InputFileD, "dedx_IasVsPM");
-   TFile* InputFileM = new TFile("pictures_MC/Histos.root");
-   TH2D*       HIasVsPM_M        = (TH2D*)    GetObjectFromPath(InputFileM, "dedx_IasVsPM");
+   TFile* InputFileD8 = new TFile("pictures_data/Histos.root");
+   TH2D*       HIasVsPM_D8        = (TH2D*)    GetObjectFromPath(InputFileD8, "dedx_IasVsPM");
+//   TFile* InputFileM8 = new TFile("pictures_MC_2012_NewTemplates/Histos.root");
+   TFile* InputFileM8 = new TFile("pictures/Histos.root");
+   TH2D*       HIasVsPM_M8        = (TH2D*)    GetObjectFromPath(InputFileM8, "dedx_IasVsPM");
 
-    compareDataMC(HIasVsPM_D, HIasVsPM_M);
+   TFile* InputFileD7 = new TFile("pictures_data_2011/Histos.root");
+   TH2D*       HIasVsPM_D7        = (TH2D*)    GetObjectFromPath(InputFileD7, "dedx_IasVsPM");
+   TFile* InputFileM7 = new TFile("pictures_MC_2011/Histos.root");
+   TH2D*       HIasVsPM_M7        = (TH2D*)    GetObjectFromPath(InputFileM7, "dedx_IasVsPM");
+
+    compareDataMC(HIasVsPM_D8, HIasVsPM_M8, HIasVsPM_D7, HIasVsPM_M7);
 }
 
 
@@ -333,57 +339,82 @@ void getScaleFactor(TFile* InputFile, string OutName, string ObjName1, string Ob
 }
 
 
-void compareDataMC(TH2D* inputD, TH2D* inputM){
-       inputD->Rebin2D(5,10);
-       inputM->Rebin2D(5,10);
+void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
+       inputD8->Rebin2D(5,10);
+       inputM8->Rebin2D(5,10);
+       if(inputD7)inputD7->Rebin2D(5,10);
+       if(inputM7)inputM7->Rebin2D(5,10);
        char buffer[2048];
 
-       TH1D* FitResult = new TH1D("FitResult"       , "FitResult"      ,inputD->GetXaxis()->GetNbins(),inputD->GetXaxis()->GetXmin(),inputD->GetXaxis()->GetXmax());
-       FitResult->SetTitle("");
-       FitResult->SetStats(kFALSE);  
-       FitResult->GetXaxis()->SetTitle("P [GeV/c]");
-       FitResult->GetYaxis()->SetTitle("dE/dx");
-       FitResult->GetYaxis()->SetTitleOffset(1.20);
-       FitResult->Reset();
-       TH1D* FitResultD = (TH1D*)FitResult->Clone("FitResultD");
-       TH1D* FitResultM = (TH1D*)FitResult->Clone("FitResultM");
-       TH1D* FitResultSD = (TH1D*)FitResult->Clone("FitResultSD");
-       TH1D* FitResultSM = (TH1D*)FitResult->Clone("FitResultSM");
-
-       TGraphErrors* GResultD  = new TGraphErrors(100);
-       TGraphErrors* GResultM  = new TGraphErrors(100);
-       TGraphErrors* GResultSD = new TGraphErrors(100);
-       TGraphErrors* GResultSM = new TGraphErrors(100);
+       TGraphErrors* GResultD8  = new TGraphErrors(100);
+       TGraphErrors* GResultM8  = new TGraphErrors(100);
+       TGraphErrors* GResultSD8 = new TGraphErrors(100);
+       TGraphErrors* GResultSM8 = new TGraphErrors(100);
+       TGraphErrors* GResultD7  = new TGraphErrors(100);
+       TGraphErrors* GResultM7  = new TGraphErrors(100);
+       TGraphErrors* GResultSD7 = new TGraphErrors(100);
+       TGraphErrors* GResultSM7 = new TGraphErrors(100);
 
       TCanvas* c1 = new TCanvas("c1", "c1", 600,600);
       c1->SetLogz(true);
-      inputD->SetStats(kFALSE);
-      inputD->GetXaxis()->SetTitle("track momentum (GeV/c)");
-      inputD->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
-      inputD->SetAxisRange(0,5,"X");
-      inputD->SetAxisRange(0,15,"Y");
-      inputD->Draw("COLZ");
-      SaveCanvas(c1, "pictures/", "DataMC_D_dedxVsP");
+      inputD8->SetStats(kFALSE);
+      inputD8->GetXaxis()->SetTitle("track momentum (GeV/c)");
+      inputD8->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
+      inputD8->SetAxisRange(0,5,"X");
+      inputD8->SetAxisRange(0,15,"Y");
+      inputD8->Draw("COLZ");
+      SaveCanvas(c1, "pictures/", "DataMC_D8_dedxVsP");
       delete c1;
 
       c1 = new TCanvas("c1", "c1", 600,600);
       c1->SetLogz(true);
-      inputM->SetStats(kFALSE);
-      inputM->GetXaxis()->SetTitle("track momentum (GeV/c)");
-      inputM->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
-      inputM->SetAxisRange(0,5,"X");
-      inputM->SetAxisRange(0,15,"Y");
-      inputM->Draw("COLZ");
-      SaveCanvas(c1, "pictures/", "DataMC_M_dedxVsP");
+      inputM8->SetStats(kFALSE);
+      inputM8->GetXaxis()->SetTitle("track momentum (GeV/c)");
+      inputM8->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
+      inputM8->SetAxisRange(0,5,"X");
+      inputM8->SetAxisRange(0,15,"Y");
+      inputM8->Draw("COLZ");
+      SaveCanvas(c1, "pictures/", "DataMC_M8_dedxVsP");
       delete c1;
 
-       int NM=0; int ND=0;
-       for(int x=1;x<inputD->GetXaxis()->FindBin(5);x++){
-          double P       = inputD->GetXaxis()->GetBinCenter(x);
-          double PErr    = inputD->GetXaxis()->GetBinWidth(x);
+      if(inputD7){
+      c1 = new TCanvas("c1", "c1", 600,600);
+      c1->SetLogz(true);
+      inputD7->SetStats(kFALSE);
+      inputD7->GetXaxis()->SetTitle("track momentum (GeV/c)");
+      inputD7->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
+      inputD7->SetAxisRange(0,5,"X");
+      inputD7->SetAxisRange(0,15,"Y");
+      inputD7->Draw("COLZ");
+      SaveCanvas(c1, "pictures/", "DataMC_D7_dedxVsP");
+      delete c1;
+      }
 
-    
-          TH1D* Projection = (TH1D*)(inputD->ProjectionY("proj",x,x))->Clone();
+      if(inputM7){
+      c1 = new TCanvas("c1", "c1", 600,600);
+      c1->SetLogz(true);
+      inputM7->SetStats(kFALSE);
+      inputM7->GetXaxis()->SetTitle("track momentum (GeV/c)");
+      inputM7->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
+      inputM7->SetAxisRange(0,5,"X");
+      inputM7->SetAxisRange(0,15,"Y");
+      inputM7->Draw("COLZ");
+      SaveCanvas(c1, "pictures/", "DataMC_M7_dedxVsP");
+      delete c1;
+      }
+
+       int NM8=0; int ND8=0;  int NM7=0; int ND7=0;
+       for(int x=1;x<inputD8->GetXaxis()->FindBin(5);x++){
+          double P       = inputD8->GetXaxis()->GetBinCenter(x);
+          double PErr    = inputD8->GetXaxis()->GetBinWidth(x);
+
+          if(P<0.6) continue;
+          if(P>1.4) continue;
+          
+          c1  = new TCanvas("canvas", "canvas", 600,600);
+          bool PlotOnCanvas = false;
+
+          TH1D* Projection = (TH1D*)(inputD8->ProjectionY("proj",x,x))->Clone();
           if(Projection->Integral()>100){
              Projection->SetAxisRange(0.1,25,"X");
              Projection->Sumw2();
@@ -391,20 +422,14 @@ void compareDataMC(TH2D* inputD, TH2D* inputM){
 
              TF1* mygaus = new TF1("mygaus","gaus", 0, 15);
              Projection->Fit("mygaus","Q0 RME");
-             double chiFromFit  = (mygaus->GetChisquare())/(mygaus->GetNDF());
-             FitResultD->SetBinContent(x, mygaus->GetParameter(1));
-             FitResultD->SetBinError  (x, mygaus->GetParError (1));
-             FitResultSD->SetBinContent(x, mygaus->GetParameter(2));
-             FitResultSD->SetBinError  (x, mygaus->GetParError (2));
-             GResultD->SetPoint(ND, P, mygaus->GetParameter(1));
-             GResultD->SetPointError  (ND, PErr, mygaus->GetParError (1));
-             GResultSD->SetPoint(ND, P, mygaus->GetParameter(2));
-             GResultSD->SetPointError  (ND, PErr, mygaus->GetParError (2));
-             ND++;
-             mygaus->SetLineColor(2);
+             GResultD8->SetPoint(ND8, P, mygaus->GetParameter(1));
+             GResultD8->SetPointError  (ND8, PErr, mygaus->GetParError (1));
+             GResultSD8->SetPoint(ND8, P, mygaus->GetParameter(2));
+             GResultSD8->SetPointError  (ND8, PErr, mygaus->GetParError (2));
+             ND8++;
+             mygaus->SetLineColor(1);
              mygaus->SetLineWidth(2);
 
-             c1  = new TCanvas("canvas", "canvas", 600,600);
              Projection->Draw();
              Projection->SetTitle("");
              Projection->SetStats(kFALSE);
@@ -418,19 +443,16 @@ void compareDataMC(TH2D* inputD, TH2D* inputM){
              TPaveText* stt = new TPaveText(0.55,0.82,0.79,0.92, "NDC");
              stt->SetFillColor(0);
              stt->SetTextAlign(31);
-             sprintf(buffer,"Proton  #mu:%5.1fMeV/cm",mygaus->GetParameter(1));      stt->AddText(buffer);
-             sprintf(buffer,"Proton  #sigma:%5.1fMeV/cm",mygaus->GetParameter(2));      stt->AddText(buffer);
+             stt->AddText("Data 8TeV:");
+             sprintf(buffer,"Proton  #mu:%5.3f",mygaus->GetParameter(1));      stt->AddText(buffer);
+             sprintf(buffer,"Proton  #sigma:%5.3f",mygaus->GetParameter(2));      stt->AddText(buffer);
              stt->Draw("same");
 
              //std::cout << "P = " << P << "  --> Proton dE/dx = " << mygaus->GetParameter(1) << endl;
-
-             c1->SetLogy(true);
-             sprintf(buffer,"%s_ProjectionFit_P%03i_%03i","DataMC_D",(int)(100*FitResult->GetXaxis()->GetBinLowEdge(x)),(int)(100*FitResult->GetXaxis()->GetBinUpEdge(x)) );
-             SaveCanvas(c1,"pictures/",buffer);
-             delete c1;
+             PlotOnCanvas = true;
           }
  
-          Projection = (TH1D*)(inputM->ProjectionY("proj",x,x))->Clone();
+          Projection = (TH1D*)(inputM8->ProjectionY("proj",x,x))->Clone();
           if(Projection->Integral()>100){
              Projection->SetAxisRange(0.1,25,"X");
              Projection->Sumw2();
@@ -438,22 +460,18 @@ void compareDataMC(TH2D* inputD, TH2D* inputM){
 
              TF1* mygaus = new TF1("mygaus","gaus", 0, 15);
              Projection->Fit("mygaus","Q0 RME");
-             double chiFromFit  = (mygaus->GetChisquare())/(mygaus->GetNDF());
-             FitResultM->SetBinContent(x, mygaus->GetParameter(1));
-             FitResultM->SetBinError  (x, mygaus->GetParError (1));
-             FitResultSM->SetBinContent(x, mygaus->GetParameter(2));
-             FitResultSM->SetBinError  (x, mygaus->GetParError (2));
-             GResultM->SetPoint(NM, P, mygaus->GetParameter(1));
-             GResultM->SetPointError  (NM, PErr, mygaus->GetParError (1));
-             GResultSM->SetPoint(NM, P, mygaus->GetParameter(2));
-             GResultSM->SetPointError  (NM, PErr, mygaus->GetParError (2));
-             NM++;
+             GResultM8->SetPoint(NM8, P, mygaus->GetParameter(1));
+             GResultM8->SetPointError  (NM8, PErr, mygaus->GetParError (1));
+             GResultSM8->SetPoint(NM8, P, mygaus->GetParameter(2));
+             GResultSM8->SetPointError  (NM8, PErr, mygaus->GetParError (2));
+             NM8++;
 
-             mygaus->SetLineColor(2);
+             mygaus->SetLineColor(4);
              mygaus->SetLineWidth(2);
 
-             c1  = new TCanvas("canvas", "canvas", 600,600);
-             Projection->Draw();
+             Projection->SetMarkerColor(4);
+             Projection->SetLineColor(4);
+             Projection->Draw(PlotOnCanvas?"same":"");
              Projection->SetTitle("");
              Projection->SetStats(kFALSE);
              Projection->GetXaxis()->SetTitle("dE/dx Estimator [MeV/cm]");
@@ -463,43 +481,138 @@ void compareDataMC(TH2D* inputD, TH2D* inputM){
 
              mygaus->Draw("same");
 
-             TPaveText* stt = new TPaveText(0.55,0.82,0.79,0.92, "NDC");
+             TPaveText* stt = new TPaveText(0.55,0.72,0.79,0.82, "NDC");
              stt->SetFillColor(0);
              stt->SetTextAlign(31);
-             sprintf(buffer,"Proton  #mu:%5.1fMeV/cm",mygaus->GetParameter(1));      stt->AddText(buffer);
-             sprintf(buffer,"Proton  #sigma:%5.1fMeV/cm",mygaus->GetParameter(2));      stt->AddText(buffer);
+             stt->SetTextColor(4);
+             stt->AddText("MC 8TeV:");
+             sprintf(buffer,"Proton  #mu:%5.3f",mygaus->GetParameter(1));      stt->AddText(buffer);
+             sprintf(buffer,"Proton  #sigma:%5.3f",mygaus->GetParameter(2));      stt->AddText(buffer);
              stt->Draw("same");
 
              //std::cout << "P = " << P << "  --> Proton dE/dx = " << mygaus->GetParameter(1) << endl;
-
-             c1->SetLogy(true);
-             sprintf(buffer,"%s_ProjectionFit_P%03i_%03i","DataMC_M",(int)(100*FitResult->GetXaxis()->GetBinLowEdge(x)),(int)(100*FitResult->GetXaxis()->GetBinUpEdge(x)) );
-             SaveCanvas(c1,"pictures/",buffer);
-             delete c1;
+             PlotOnCanvas = true;
           }
-       }
-       c1  = new TCanvas("canvas", "canvas", 600,600);
-       FitResultD->SetAxisRange(0,2.5,"X");
-       FitResultD->SetAxisRange(0,1,"Y");
-       FitResultD->Draw("");
-       FitResultM->SetAxisRange(0,2.5,"X");
-       FitResultM->SetAxisRange(0,1,"Y");
-       FitResultM->Draw("same");
-       SaveCanvas(c1,"pictures/","DataMC_Mean");
-       delete c1;
 
-      GResultD->Set(ND-1);
-      GResultSD->Set(ND-1);
-      GResultM->Set(NM-1);
-      GResultSM->Set(NM-1);
+
+          if(inputD7){
+          Projection = (TH1D*)(inputD7->ProjectionY("proj",x,x))->Clone();
+          if(Projection->Integral()>100){
+             Projection->SetAxisRange(0.1,25,"X");
+             Projection->Sumw2();
+             Projection->Scale(1.0/Projection->Integral());
+
+             TF1* mygaus = new TF1("mygaus","gaus", 0, 15);
+             Projection->Fit("mygaus","Q0 RME");
+             GResultD7->SetPoint(ND7, P, mygaus->GetParameter(1));
+             GResultD7->SetPointError  (ND7, PErr, mygaus->GetParError (1));
+             GResultSD7->SetPoint(ND7, P, mygaus->GetParameter(2));
+             GResultSD7->SetPointError  (ND7, PErr, mygaus->GetParError (2));
+             ND7++;
+             mygaus->SetLineColor(2);
+             mygaus->SetLineWidth(2);
+
+             Projection->SetMarkerColor(2);
+             Projection->SetLineColor(2);
+             Projection->Draw(PlotOnCanvas?"same":"");
+             Projection->SetTitle("");
+             Projection->SetStats(kFALSE);
+             Projection->GetXaxis()->SetTitle("dE/dx Estimator [MeV/cm]");
+             Projection->GetYaxis()->SetTitle("#Entries");
+             Projection->GetYaxis()->SetTitleOffset(1.30);
+             Projection->SetAxisRange(1E-5,1.0,"Y");
+
+             mygaus->Draw("same");
+
+             TPaveText* stt = new TPaveText(0.55,0.62,0.79,0.72, "NDC");
+             stt->SetFillColor(0);
+             stt->SetTextAlign(31);
+             stt->SetTextColor(2);
+             stt->AddText("Data 7TeV:");
+             sprintf(buffer,"Proton  #mu:%5.3f",mygaus->GetParameter(1));      stt->AddText(buffer);
+             sprintf(buffer,"Proton  #sigma:%5.3f",mygaus->GetParameter(2));      stt->AddText(buffer);
+             stt->Draw("same");
+
+             PlotOnCanvas = true;
+          }}
+
+          if(inputM7){ 
+          Projection = (TH1D*)(inputM7->ProjectionY("proj",x,x))->Clone();
+          if(Projection->Integral()>100){
+             Projection->SetAxisRange(0.1,25,"X");
+             Projection->Sumw2();
+             Projection->Scale(1.0/Projection->Integral());
+
+             TF1* mygaus = new TF1("mygaus","gaus", 0, 15);
+             Projection->Fit("mygaus","Q0 RME");
+             GResultM7->SetPoint(NM7, P, mygaus->GetParameter(1));
+             GResultM7->SetPointError  (NM7, PErr, mygaus->GetParError (1));
+             GResultSM7->SetPoint(NM7, P, mygaus->GetParameter(2));
+             GResultSM7->SetPointError  (NM7, PErr, mygaus->GetParError (2));
+             NM7++;
+
+             mygaus->SetLineColor(8);
+             mygaus->SetLineWidth(2);
+
+             Projection->SetMarkerColor(8);
+             Projection->SetLineColor(8);
+             Projection->Draw(PlotOnCanvas?"same":"");
+             Projection->SetTitle("");
+             Projection->SetStats(kFALSE);
+             Projection->GetXaxis()->SetTitle("dE/dx Estimator [MeV/cm]");
+             Projection->GetYaxis()->SetTitle("#Entries");
+             Projection->GetYaxis()->SetTitleOffset(1.30);
+             Projection->SetAxisRange(1E-5,1.0,"Y");
+
+             mygaus->Draw("same");
+
+             TPaveText* stt = new TPaveText(0.55,0.52,0.79,0.62, "NDC");
+             stt->SetFillColor(0);
+             stt->SetTextAlign(31);
+             stt->SetTextColor(8);
+             stt->AddText("MC 7TeV:");
+             sprintf(buffer,"Proton  #mu:%5.3f",mygaus->GetParameter(1));      stt->AddText(buffer);
+             sprintf(buffer,"Proton  #sigma:%5.3f",mygaus->GetParameter(2));      stt->AddText(buffer);
+             stt->Draw("same");
+
+             //std::cout << "P = " << P << "  --> Proton dE/dx = " << mygaus->GetParameter(1) << endl;
+             PlotOnCanvas = true;
+          }}
+
+
+
+
+
+
+          if(PlotOnCanvas){
+             c1->SetLogy(true);
+             sprintf(buffer,"%s_ProjectionFit_P%03i_%03i","DataMC",(int)(100*inputD8->GetXaxis()->GetBinLowEdge(x)),(int)(100*inputD8->GetXaxis()->GetBinUpEdge(x)) );
+             SaveCanvas(c1,"pictures/",buffer);
+          }
+          delete c1;
+
+       }
+
+      GResultD8->Set(ND8-1);
+      GResultSD8->Set(ND8-1);
+      GResultM8->Set(NM8-1);
+      GResultSM8->Set(NM8-1);
+      GResultD7->Set(ND7-1);
+      GResultSD7->Set(ND7-1);
+      GResultM7->Set(NM7-1);
+      GResultSM7->Set(NM7-1);
 
 
       c1 = new TCanvas("c1", "c1",600,600);
       TMultiGraph* GraphM = new TMultiGraph();
-      GResultD->SetLineColor(1);       GResultD->SetMarkerColor(1);
-      GResultM->SetLineColor(4);       GResultM->SetMarkerColor(4);
-      GraphM->Add(GResultD     ,"LP");
-      GraphM->Add(GResultM     ,"LP");
+      GResultD8->SetLineColor(1);       GResultD8->SetMarkerColor(1);
+      GResultM8->SetLineColor(4);       GResultM8->SetMarkerColor(4);
+      GResultD7->SetLineColor(2);       GResultD7->SetMarkerColor(2);
+      GResultM7->SetLineColor(8);       GResultM7->SetMarkerColor(8);
+      GraphM->Add(GResultD8     ,"LP");
+      GraphM->Add(GResultM8     ,"LP");
+      GraphM->Add(GResultD7     ,"LP");
+      GraphM->Add(GResultM7     ,"LP");
       GraphM->Draw("A");
       GraphM->SetTitle("");
       GraphM->GetXaxis()->SetTitle("P");
@@ -512,10 +625,14 @@ void compareDataMC(TH2D* inputD, TH2D* inputM){
 
       c1 = new TCanvas("c1", "c1",600,600);
       TMultiGraph* GraphS = new TMultiGraph();
-      GResultSD->SetLineColor(1);       GResultSD->SetMarkerColor(1);
-      GResultSM->SetLineColor(4);       GResultSM->SetMarkerColor(4);
-      GraphS->Add(GResultSD     ,"LP");
-      GraphS->Add(GResultSM     ,"LP");
+      GResultSD8->SetLineColor(1);       GResultSD8->SetMarkerColor(1);
+      GResultSM8->SetLineColor(4);       GResultSM8->SetMarkerColor(4);
+      GResultSD7->SetLineColor(2);       GResultSD7->SetMarkerColor(2);
+      GResultSM7->SetLineColor(8);       GResultSM7->SetMarkerColor(8);
+      GraphS->Add(GResultSD8     ,"LP");
+      GraphS->Add(GResultSM8     ,"LP");
+      GraphS->Add(GResultSD7     ,"LP");
+      GraphS->Add(GResultSM7     ,"LP");
       GraphS->Draw("A");
       GraphS->SetTitle("");
       GraphS->GetXaxis()->SetTitle("P");
