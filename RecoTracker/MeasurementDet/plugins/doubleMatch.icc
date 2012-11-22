@@ -37,8 +37,9 @@ namespace {
 
 }
 
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "RecHitPropagator.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h" 
 
 namespace {
   void print(const char* where, const TrajectoryStateOnSurface& t1,const TrajectoryStateOnSurface& t2) {
@@ -104,15 +105,15 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
   if(!theStereoDet->isActive()) {
     assert(stereoHits.empty());
-  //if (stereoHits.empty()) {
+    //if (stereoHits.empty()) {
     // make mono TTRHs and project them
     projectOnGluedDet( collector, monoHits, glbDir);
     return;
   }
   
   if (!theMonoDet->isActive()) {
-   assert(monoHits.empty());                             
-  //  if (monoHits.empty()) {
+    assert(monoHits.empty());                             
+    //  if (monoHits.empty()) {
     // make stereo TTRHs and project them
     projectOnGluedDet( collector, stereoHits, glbDir);
     return;
@@ -132,6 +133,18 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 //    projectOnGluedDet( collector, monoHits, glbDir);
 //  if (0==collector.size())
 //    projectOnGluedDet( collector, stereoHits, glbDir);
+  
+  // recover hits outside 
+  if ( collector.filter() && 0==collector.size())  {
+    auto inoutM = reinterpret_cast<RectangularPlaneBounds const&>(theMonoDet->surface().bounds()).inout(ts.localPosition(), 
+													ts.localError().positionError() ,3.f);
+    auto inoutS = reinterpret_cast<RectangularPlaneBounds const&>(theStereoDet->surface().bounds()).inout(ts.localPosition(), 
+													  ts.localError().positionError() ,3.f);
+    if (inoutM.first&&inoutS.second)
+      projectOnGluedDet( collector, monoHits, glbDir);
+    if (inoutM.second&&inoutS.first)
+      projectOnGluedDet( collector, stereoHits, glbDir);
+  }
   
 
   if (collector.filter()) {
