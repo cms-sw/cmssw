@@ -127,13 +127,16 @@ parallelScriptTemplate="""
 #init
 #ulimit -v 3072000
 #export STAGE_SVCCLASS=cmscafuser
+#save path to the LSF batch working directory  (/pool/lsf)
+export LSFWORKDIR=$PWD
+echo LSF working directory is $LSFWORKDIR
 source /afs/cern.ch/cms/caf/setup.sh
 # source /afs/cern.ch/cms/sw/cmsset_default.sh
 cd .oO[CMSSW_BASE]Oo./src
 # export SCRAM_ARCH=slc5_amd64_gcc462
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
-rfmkdir -p .oO[workdir]Oo.
+#rfmkdir -p ${LSFWORKDIR}
 rfmkdir -p .oO[datadir]Oo.
 
 #remove possible result file from previous runs
@@ -142,8 +145,8 @@ if [ -e .oO[datadir]Oo./*.oO[alignmentName]Oo..root ] ; then
     #rm -f  .oO[datadir]Oo./*.oO[alignmentName]Oo..root
 fi    
 
-rm -f .oO[workdir]Oo./*
-cd .oO[workdir]Oo.
+#rm -f ${LSFWORKDIR}/*
+cd ${LSFWORKDIR}
 
 #run
 pwd
@@ -159,11 +162,11 @@ echo ""
 #retrieve
 rfmkdir -p .oO[logdir]Oo.
 gzip LOGFILE_*_.oO[name]Oo..log
-find .oO[workdir]Oo. -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
+find ${LSFWORKDIR} -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
 rfmkdir -p .oO[datadir]Oo.
-find .oO[workdir]Oo. -maxdepth 1 -name "*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
+find ${LSFWORKDIR} -maxdepth 1 -name "*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root" -print | xargs -I {} bash -c "rfcp {} .oO[datadir]Oo."
 #cleanup - do not remove workdir, since another parallel job might be running in the same node
-find .oO[workdir]Oo. -maxdepth 1 -name "*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root" -print | xargs -I {} bash -c "rm {}"
+find ${LSFWORKDIR} -maxdepth 1 -name "*.oO[alignmentName]Oo._.oO[nIndex]Oo.*.root" -print | xargs -I {} bash -c "rm {}"
 echo "done."
 """
 
