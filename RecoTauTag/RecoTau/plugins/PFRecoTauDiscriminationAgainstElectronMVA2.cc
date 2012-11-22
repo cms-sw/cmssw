@@ -20,13 +20,18 @@
 
 using namespace reco;
 
-class PFRecoTauDiscriminationAgainstElectronMVA2 : public PFTauDiscriminationProducerBase  {
-public:
+class PFRecoTauDiscriminationAgainstElectronMVA2 : public PFTauDiscriminationProducerBase  
+{
+ public:
   explicit PFRecoTauDiscriminationAgainstElectronMVA2(const edm::ParameterSet& iConfig)
     : PFTauDiscriminationProducerBase(iConfig),
+      moduleLabel_(iConfig.getParameter<std::string>("@module_label")),
       mva_(0),
       category_output_(0)
   {
+    //std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA2::PFRecoTauDiscriminationAgainstElectronMVA2>:" << std::endl;
+    //std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+ 
     method_                                    = iConfig.getParameter<std::string>("method");
     inputFileName1prongNoEleMatchBL_           = iConfig.getParameter<edm::FileInPath>("inputFileName1prongNoEleMatchBL");
     inputFileName1prongBL_                     = iConfig.getParameter<edm::FileInPath>("inputFileName1prongBL");
@@ -95,7 +100,7 @@ public:
     delete mva_;
   }
 
-private:
+ private:
 
   std::string readZippedFile(const std::string& fileName)
   {
@@ -119,6 +124,7 @@ private:
     return buffer_unzipped.str();
   }
 
+  std::string moduleLabel_;
   std::string method_ ;
   edm::FileInPath inputFileName1prongNoEleMatchBL_;
   edm::FileInPath inputFileName1prongBL_;

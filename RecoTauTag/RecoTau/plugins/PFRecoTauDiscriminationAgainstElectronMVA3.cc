@@ -20,13 +20,18 @@
 
 using namespace reco;
 
-class PFRecoTauDiscriminationAgainstElectronMVA3 : public PFTauDiscriminationProducerBase  {
-public:
+class PFRecoTauDiscriminationAgainstElectronMVA3 : public PFTauDiscriminationProducerBase  
+{
+ public:
   explicit PFRecoTauDiscriminationAgainstElectronMVA3(const edm::ParameterSet& iConfig)
     : PFTauDiscriminationProducerBase(iConfig),
+      moduleLabel_(iConfig.getParameter<std::string>("@module_label")),
       mva_(0),
       category_output_(0)
   {
+    //std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA3::PFRecoTauDiscriminationAgainstElectronMVA3>:" << std::endl;
+    //std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+
     method_                                    = iConfig.getParameter<std::string>("method");
     inputFileName1prongNoEleMatchWOgWOgsfBL_   = iConfig.getParameter<edm::FileInPath>("inputFileName1prongNoEleMatchWOgWOgsfBL");
     inputFileName1prongNoEleMatchWOgWgsfBL_    = iConfig.getParameter<edm::FileInPath>("inputFileName1prongNoEleMatchWOgWgsfBL");
@@ -121,7 +126,7 @@ public:
     delete mva_;
   }
 
-private:
+ private:
   bool isInEcalCrack(double) const;
   std::string readZippedFile(const std::string& fileName)
   {
@@ -145,6 +150,7 @@ private:
     return buffer_unzipped.str();
   }
 
+  std::string moduleLabel_;
   std::string method_ ;
   edm::FileInPath inputFileName1prongNoEleMatchWOgWOgsfBL_;
   edm::FileInPath inputFileName1prongNoEleMatchWOgWgsfBL_;
