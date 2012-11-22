@@ -14,7 +14,6 @@
 #include "../interface/SequentialMinimizer.h"
 #include "../interface/ProcessNormalization.h"
 #include "../interface/RooSpline1D.h"
-#include "../interface/RooDCBShape.h"
 #include "../interface/RooScaleLOSM.h"
 
 #ifdef __CINT__
@@ -69,6 +68,6 @@
 #pragma link C++ class RooScaleHGamGamLOSMPlusX+;
 #pragma link C++ class RooScaleHGluGluLOSMPlusX+;
 #pragma link C++ class RooTsallis;
-#pragma link C++ class RooDCBShape;
+
 
 #endif
