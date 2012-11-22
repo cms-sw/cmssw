@@ -354,7 +354,7 @@ hold=$i;
 Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
 if ( $i==scEAll || $i==phoEAll ) {  
-$i->GetYaxis()->SetRangeUser(0.,2000.);
+$i->GetYaxis()->SetRangeUser(0.,6000.);
 }
 $i->SetStats(0);
 $i->SetMinimum(0.);
