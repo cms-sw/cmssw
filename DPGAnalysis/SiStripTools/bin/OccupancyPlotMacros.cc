@@ -43,6 +43,17 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
     TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
     gStyle->SetNumberContours(NCont);
   }
+  else if(color==3) {
+    // used by Kevin in the TRK-11-001 paper
+    const Int_t NRGBs = 7;
+    const Int_t NCont = 255;
+    Double_t stops[NRGBs] = { 0.00, 0.15, 0.30, 0.45, 0.65, 0.85, 1.00 };
+    Double_t red[NRGBs]   = { 0.60, 0.30, 0.00, 0.00, 0.60, 0.40, 0.00 };
+    Double_t green[NRGBs] = { 1.00, 0.90, 0.80, 0.75, 0.20, 0.00, 0.00 };
+    Double_t blue[NRGBs]  = { 1.00, 1.00, 1.00, 0.30, 0.00, 0.00, 0.00 };
+    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+    gStyle->SetNumberContours(NCont);
+  }
 
   int ncol = gStyle->GetNumberOfColors();
   std::cout << "Number of colors "  << ncol << std::endl;
