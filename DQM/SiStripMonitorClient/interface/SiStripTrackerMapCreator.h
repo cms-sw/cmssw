@@ -49,6 +49,7 @@ class SiStripTrackerMapCreator {
 
   float tkMapMax_;
   float tkMapMin_;
+  float meanToMaxFactor_;
   bool useSSQuality_;
   std::string ssqLabel_;
   int   nDet;

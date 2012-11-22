@@ -93,7 +93,8 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
           loadFedCabling    = cms.untracked.bool(True),
           trackerdatPath    = cms.untracked.string('CommonTools/TrackerMap/data/'),
           trackermaptxtPath = cms.untracked.string('CommonTools/TrackerMap/data/'),
-          mapMin            = cms.untracked.double(0.)
+          mapMin            = cms.untracked.double(0.),
+          meanToMaxFact     = cms.untracked.double(2.5)
        ),
        TkMapOptions             = cms.untracked.VPSet(
     cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string("")),

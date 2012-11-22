@@ -35,7 +35,7 @@ SiStripTrackerMapCreator::SiStripTrackerMapCreator() {
   tkDetMap_=edm::Service<TkDetMap>().operator->();
 }
 */
-SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): eSetup_(eSetup) {
+SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): meanToMaxFactor_(2.5),eSetup_(eSetup) {
   trackerMap_ = 0;
   stripTopLevelDir_="";
   eSetup_.get<SiStripDetCablingRcd>().get(detcabling_);
@@ -72,6 +72,7 @@ void SiStripTrackerMapCreator::create(const edm::ParameterSet & tkmapPset,
   nDet     = 0;
   tkMapMax_ = 0.0; 
   tkMapMin_ = 0.0; 
+  meanToMaxFactor_ = 2.5;
   useSSQuality_ = false;
   ssqLabel_ = "";
   stripTopLevelDir_="SiStrip";
@@ -133,6 +134,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   if (trackerMap_) delete trackerMap_;
   trackerMap_ = new TrackerMap(tkmapPset,fedcabling);
 
+  meanToMaxFactor_ = tkmapPset.getUntrackedParameter<double>("meanToMaxFact",2.5);
   useSSQuality_ = tkmapPset.getUntrackedParameter<bool>("useSSQuality",false);
   ssqLabel_ = tkmapPset.getUntrackedParameter<std::string>("ssqLabel","");
   bool tkMapPSU = tkmapPset.getUntrackedParameter<bool>("psuMap",false);
@@ -148,7 +150,7 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   else {
     setTkMapFromHistogram(dqm_store, map_type);
   }
-  // if not overwitten by manual configuration min=0 and max= mean value * 2.5
+  // if not overwitten by manual configuration min=0 and max= mean value * meanToMaxFactor_
   setTkMapRangeOffline();
 
   // check manual setting
@@ -424,17 +426,18 @@ void SiStripTrackerMapCreator::setTkMapRange(std::string& map_type) {
     else if (map_type.find("StoNCorrOnTrack") != std::string::npos)         tkMapMax_ = 200.0;
   } else {
     tkMapMax_ = tkMapMax_/nDet*1.0;
-    tkMapMax_ = tkMapMax_ * 2.5;
+    tkMapMax_ = tkMapMax_ * meanToMaxFactor_;
  }
   trackerMap_->setRange(tkMapMin_, tkMapMax_);
 }
 void SiStripTrackerMapCreator::setTkMapRangeOffline() {
   tkMapMin_ = 0.0;
   if (tkMapMax_ != 0.0) { 
-    tkMapMax_ = tkMapMax_/nDet*1.0;
-    tkMapMax_ = tkMapMax_ * 2.5;
+    tkMapMax_ = tkMapMax_/(nDet*1.0);
+    tkMapMax_ = tkMapMax_ * meanToMaxFactor_;
  }
-  trackerMap_->setRange(tkMapMin_, tkMapMax_);
+  // the following line seems to be useless and misleading: in the offline map creation the range is set with the save... methods
+  //  trackerMap_->setRange(tkMapMin_, tkMapMax_);
 }
 //
 // -- Get Flag and status Comment
