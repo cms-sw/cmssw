@@ -541,7 +541,7 @@ bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& I
    return false;
 }
 
-reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, TH3* templateHisto=NULL, bool reverseProb=false){
+reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, double scaleFactor=1.0, TH3* templateHisto=NULL, bool reverseProb=false){
      fwlite::Handle<HSCPDeDxInfoValueMap> dEdxHitsH;
      dEdxHitsH.getByLabel(ev, "dedxHitInfo");
      if(!dEdxHitsH.isValid()){printf("Invalid dEdxHitInfo\n");return NULL;}
@@ -571,7 +571,7 @@ reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&
         if(templateHisto){
            int    BinX   = templateHisto->GetXaxis()->FindBin(50.0);//trajState.localMomentum().mag()); //our template does not depends on this variable currently
            int    BinY   = templateHisto->GetYaxis()->FindBin(hscpHitsInfo.pathlength[h]);
-           int    BinZ   = templateHisto->GetZaxis()->FindBin(hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
+           int    BinZ   = templateHisto->GetZaxis()->FindBin(scaleFactor*hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
            Prob          = templateHisto->GetBinContent(BinX,BinY,BinZ);
         }
 
@@ -605,7 +605,7 @@ reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&
      return new DeDxData(P, dedxSObj->numberOfSaturatedMeasurements(), size);
 }
 
-reco::DeDxData* dEdxEstimOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj){
+reco::DeDxData* dEdxEstimOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, double scaleFactor=1.0, bool usePixel=false){
      fwlite::Handle<HSCPDeDxInfoValueMap> dEdxHitsH;
      dEdxHitsH.getByLabel(ev, "dedxHitInfo");
      if(!dEdxHitsH.isValid()){printf("Invalid dEdxHitInfo\n");return NULL;}
@@ -616,7 +616,7 @@ reco::DeDxData* dEdxEstimOnTheFly(const fwlite::ChainEvent& ev, const reco::Trac
      std::vector<double> vect_charge;
      for(unsigned int h=0;h<hscpHitsInfo.charge.size();h++){
         DetId detid(hscpHitsInfo.detIds[h]);  
-        if(detid.subdetId()<3)continue; // skip pixels
+        if(!usePixel && detid.subdetId()<3)continue; // skip pixels
         if(!hscpHitsInfo.shapetest[h])continue;
 
         double Norm = (detid.subdetId()<3)?3.61e-06:3.61e-06*265;
@@ -633,7 +633,7 @@ reco::DeDxData* dEdxEstimOnTheFly(const fwlite::ChainEvent& ev, const reco::Trac
         //if(detid.subdetId()==5 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.02 || absDistEdgeYNorm>0.97)) continue;
         //if(detid.subdetId()==6 && (absDistEdgeXNorm<0.005 || absDistEdgeYNorm<0.03 || absDistEdgeYNorm>0.8)) continue;
 
-        vect_charge.push_back(Norm*hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
+        vect_charge.push_back(scaleFactor*Norm*hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
 //        printf("%f ", Norm*hscpHitsInfo.charge[h]/hscpHitsInfo.pathlength[h]);
      }
      int size = vect_charge.size();

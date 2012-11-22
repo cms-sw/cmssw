@@ -99,6 +99,7 @@ reweight::PoissonMeanShifter PShift(0.6);//0.6 for upshift, -0.6 for downshift
 
 
 TH3F* dEdxTemplates = NULL;
+double dEdxSF = 1.0;
 
 /////////////////////////// CODE PARAMETERS /////////////////////////////
 
@@ -947,12 +948,16 @@ void Analysis_Step3(char* SavePath)
 
       #ifdef ANALYSIS2011
          dEdxTemplates = NULL;
+         dEdxSF = 1.00;
       #else
          if(isData){
 //            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_Data_2012.root");
             dEdxTemplates = NULL;
+            dEdxSF = 1.00;
          }else{
             dEdxTemplates = NULL;
+            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012.root");
+            dEdxSF = 1.05;
          }
       #endif
 
@@ -1168,7 +1173,8 @@ void Analysis_Step3(char* SavePath)
 
                //Recompute dE/dx on the fly
                if(dedxSObj){
-                  dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxTemplates, TypeMode==5);
+                  dedxMObj = dEdxEstimOnTheFly(ev, track, dedxMObj, dEdxSF, true);
+                  dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxSF, dEdxTemplates, TypeMode==5);
 
                   if(TypeMode==5)OpenAngle = deltaROpositeTrack(hscpColl, hscp); //OpenAngle is a global variable... that's uggly C++, but that's the best I found so far
                }
@@ -1183,8 +1189,8 @@ void Analysis_Step3(char* SavePath)
 		  if(tof) if(csctof->nDof()==0) TRescale = -0.003;
 #else
                   bool   PRescale = true;
-                  double IRescale = RNG->Gaus(0, 0.065)+0.020; // added to the Ias value
-                  double MRescale = 1.041;
+                  double IRescale = RNG->Gaus(0, 0.05)+0.005; // added to the Ias value
+                  double MRescale = 1.03;
 		  double TRescale = -0.005; // added to the 1/beta value
 #endif
 		  
