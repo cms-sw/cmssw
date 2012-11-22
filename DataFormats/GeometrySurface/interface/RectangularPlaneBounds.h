@@ -39,7 +39,7 @@ public:
   virtual bool inside( const Local2DPoint& p, const LocalError& err, float scale=1.f) const;
 
   // compatible of being inside or outside...
-  virtual std::pair<bool,bool> inout( const Local3DPoint& p, const LocalError& err, float scale=1.f) const;
+ std::pair<bool,bool> inout( const Local3DPoint& p, const LocalError& err, float scale=1.f) const;
 
 
   virtual Bounds* clone() const;
