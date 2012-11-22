@@ -1,3 +1,19 @@
+2009-11-01 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V08-11-03
+	* Add missing setEventCached() call in DQMHttpSource
+
+2009-10-31 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V08-11-02
+	* Don't fill event principal prematurely in DQMHttpSource and EventStreamHttpReader
+
+2009-10-17 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V08-11-01
+	* Restore makeEvent() for DQMHttpSource
+	* Include fixes from tag V08-10-02
+
 2009-10-17 William Tanenbaum <wmtan@fnal.gov>
 
 	* tag V08-11-00
