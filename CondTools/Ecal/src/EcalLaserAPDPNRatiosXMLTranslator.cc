@@ -1,6 +1,13 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <xercesc/dom/DOMNode.hpp>
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/sax/SAXException.hpp>
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondTools/Ecal/interface/EcalLaserAPDPNRatiosXMLTranslator.h"
