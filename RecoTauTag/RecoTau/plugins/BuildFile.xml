@@ -26,5 +26,10 @@
   <use   name="RecoBTag/SecondaryVertex"/>
   <use   name="DataFormats/VertexReco"/>
   <use   name="CondFormats/EgammaObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/Records"/>
   <use   name="root"/>
 </library>
