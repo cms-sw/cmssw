@@ -452,9 +452,6 @@
 "CMSSW_4_4", 3, "DY_7TeV_M400_Q2o3_MS"               , "HSCP_7TeV_M400_Q2o3_MuonThresh25Dn"    , "MC - Q=2/3 400 GeV/#font[12]{c}^{2}"                       , "S4"    ,   400,  0.001701        , 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 3, "DY_7TeV_M400_Q2o3_TD"               , "HSCP_7TeV_M400_Q2o3_TrkAmp5Dn"         , "MC - Q=2/3 400 GeV/#font[12]{c}^{2}"                       , "S4"    ,   400,  0.001701        , 1, 1.000, 1.000, 1.000
 "CMSSW_4_4", 3, "DY_7TeV_M400_Q2o3_TU"               , "HSCP_7TeV_M400_Q2o3_TrkAmp5Up"         , "MC - Q=2/3 400 GeV/#font[12]{c}^{2}"                       , "S4"    ,   400,  0.001701        , 1, 1.000, 1.000, 1.000
-"CMSSW_4_4", 3, "DY_7TeV_M600_Q2o3_MS"               , "HSCP_7TeV_M600_Q2o3_MuonThresh25Dn"    , "MC - Q=2/3 600 GeV/#font[12]{c}^{2}"                       , "S4"    ,   600,  0.0001589       , 1, 1.000, 1.000, 1.000
-"CMSSW_4_4", 3, "DY_7TeV_M600_Q2o3_TD"               , "HSCP_7TeV_M600_Q2o3_TrkAmp5Dn"         , "MC - Q=2/3 600 GeV/#font[12]{c}^{2}"                       , "S4"    ,   600,  0.0001589       , 1, 1.000, 1.000, 1.000
-"CMSSW_4_4", 3, "DY_7TeV_M600_Q2o3_TU"               , "HSCP_7TeV_M600_Q2o3_TrkAmp5Up"         , "MC - Q=2/3 600 GeV/#font[12]{c}^{2}"                       , "S4"    ,   600,  0.0001589       , 1, 1.000, 1.000, 1.000
 "CMSSW_5_3", 3, "DY_8TeV_M100_Q2o3_MS"               , "HSCP_8TeV_M100_Q2o3_MuonThresh25Dn"    , "MC - Q=2/3 100 GeV/#font[12]{c}^{2}"                       , "S10"   ,   100,  0.8425          , 1, 1.000, 1.000, 1.000
 "CMSSW_5_3", 3, "DY_8TeV_M100_Q2o3_TD"               , "HSCP_8TeV_M100_Q2o3_TrkAmp5Dn"         , "MC - Q=2/3 100 GeV/#font[12]{c}^{2}"                       , "S10"   ,   100,  0.8425          , 1, 1.000, 1.000, 1.000
 "CMSSW_5_3", 3, "DY_8TeV_M100_Q2o3_TU"               , "HSCP_8TeV_M100_Q2o3_TrkAmp5Up"         , "MC - Q=2/3 100 GeV/#font[12]{c}^{2}"                       , "S10"   ,   100,  0.8425          , 1, 1.000, 1.000, 1.000
