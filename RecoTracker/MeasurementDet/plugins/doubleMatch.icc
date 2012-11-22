@@ -138,8 +138,8 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   if ( collector.filter() && 0==collector.size())  {
     auto inoutM = reinterpret_cast<RectangularPlaneBounds const&>(theMonoDet->surface().bounds()).inout(ts.localPosition(), 
 													ts.localError().positionError() ,3.f);
-    auto inoutS = reinterpret_cast<RectangularPlaneBounds const&>(theStereoDet->surface().bounds()).inout(ts.localPosition(), 
-													  ts.localError().positionError() ,3.f);
+    auto inoutS = reinterpret_cast<RectangularPlaneBounds const&>(theStereoDet->surface().bounds()).inout(pts.localPosition(), 
+													  pts.localError().positionError() ,3.f);
     if (inoutM.first&&inoutS.second)
       projectOnGluedDet( collector, monoHits, glbDir);
     if (inoutM.second&&inoutS.first)

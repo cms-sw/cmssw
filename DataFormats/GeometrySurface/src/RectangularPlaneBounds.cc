@@ -63,7 +63,7 @@ std::pair<bool,bool> RectangularPlaneBounds::inout( const Local3DPoint& p, const
   bool  iny = yl<halfLength;
   bool outy = yh>halfLength;
 
-  return std::pair<bool,bool>(inx&&iny,outx&&outy);
+  return std::pair<bool,bool>(inx&&iny,outx||outy);
 
 }
 
