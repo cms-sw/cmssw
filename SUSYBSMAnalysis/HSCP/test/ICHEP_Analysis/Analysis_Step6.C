@@ -369,9 +369,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    //print a table with all uncertainty on signal efficiency
 
    c1 = new TCanvas("c1", "c1",600,600);
+   c1->SetLeftMargin(0.15);
+
    TMultiGraph* TkSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
    LEG->SetBorderSize(0);
@@ -412,9 +415,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    }
 
    c1 = new TCanvas("c1", "c1",600,600);
+   c1->SetLeftMargin(0.15);
    TMultiGraph* MuSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
    LEG->SetBorderSize(0);
@@ -459,9 +464,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    fprintf(talkFile, "\\hline\n%20s &  Eff    & PScale &  DeDxScale & PUScale & TOFScale & TotalUncertainty \\\\\n","Model");
 
    c1 = new TCanvas("c1", "c1",600,600);
+   c1->SetLeftMargin(0.15);
    TMultiGraph* MOSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
    LEG->SetBorderSize(0);
@@ -498,9 +505,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    }
 
    c1 = new TCanvas("c1", "c1",600,600);
+   c1->SetLeftMargin(0.15);
    TMultiGraph* LQSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
    LEG->SetBorderSize(0);
@@ -542,9 +551,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
 
    c1 = new TCanvas("c1", "c1",600,600);
+   c1->SetLeftMargin(0.15);
    TMultiGraph* HQSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.55,0.75,0.80,0.90);
+   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
    LEG->SetBorderSize(0);
@@ -1253,6 +1264,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
 
    if(N>0) {
      TCanvas* c2 = new TCanvas("c2", "c2",600,600);
+     c2->SetLeftMargin(0.15);
 
      graphSystP = new TGraph(N,Mass,SystP);
      graphSystI = new TGraph(N,Mass,SystI);
@@ -1291,7 +1303,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      SystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.35);
      SystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
-     TLegend* LEG = new TLegend(0.35,0.9,0.70,0.55);
+     TLegend* LEG = new TLegend(0.15,0.9,0.80,0.75);
      LEG->SetFillColor(0);
      LEG->SetFillStyle(0);
      LEG->SetBorderSize(0);
@@ -1303,6 +1315,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      LEG->AddEntry(graphSystPU,  "Pile Up" ,"L");
      if(TypeMode!=0 && TypeMode!=5)LEG->AddEntry(graphSystT,  "1/#beta" ,"L");
      LEG->AddEntry(graphSystTotal,  "Total" ,"P");
+     LEG->SetNColumns(2);
      LEG->Draw();
      c2->SetLogy(false);
      c2->SetGridy(false);
