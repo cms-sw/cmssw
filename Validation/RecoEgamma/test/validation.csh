@@ -28,13 +28,13 @@ setenv CMSSWver1 6_1_0
 setenv CMSSWver2 6_1_0
 setenv OLDRELEASE 6_1_0
 setenv NEWRELEASE 6_1_0
-setenv OLDPRERELEASE pre4
-setenv NEWPRERELEASE pre5
+setenv OLDPRERELEASE pre5
+setenv NEWPRERELEASE pre6
 
 
 if ( $STARTUP == True) then
-setenv OLDGLOBALTAG PU_START61_V1-v2
-setenv NEWGLOBALTAG PU_START61_V4-v2
+setenv OLDGLOBALTAG START61_V4-v1
+setenv NEWGLOBALTAG START61_V5-v1
 else 
 setenv OLDGLOBALTAG START53_V6-v1
 setenv NEWGLOBALTAG START53_V6-v1
@@ -63,7 +63,7 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-setenv PU True
+setenv PU False
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
@@ -699,7 +699,6 @@ $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
-$i->Scale(nold/nnew);
 $i->Draw("e1same");
 cc$i->SaveAs("gifs/log$i.gif");
 
