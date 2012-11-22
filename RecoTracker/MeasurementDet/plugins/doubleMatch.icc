@@ -102,13 +102,17 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
   if (stereoHits.empty()&&monoHits.empty()) return;
 
-  if (stereoHits.empty()) {
+  if(!theStereoDet->isActive()) {
+    assert(stereoHits.empty());
+  //if (stereoHits.empty()) {
     // make mono TTRHs and project them
     projectOnGluedDet( collector, monoHits, glbDir);
     return;
   }
   
-  if (monoHits.empty()) {
+  if (!theMonoDet->isActive()) {
+   assert(monoHits.empty());                             
+  //  if (monoHits.empty()) {
     // make stereo TTRHs and project them
     projectOnGluedDet( collector, stereoHits, glbDir);
     return;
@@ -124,10 +128,10 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 			  gluedDet, trdir, chelper);
 
   // if no match found try add mon than try to add stereo...
-  if (0==collector.size()) 
-    projectOnGluedDet( collector, monoHits, glbDir);
-  if (0==collector.size())
-    projectOnGluedDet( collector, stereoHits, glbDir);
+//  if (0==collector.size()) 
+//    projectOnGluedDet( collector, monoHits, glbDir);
+//  if (0==collector.size())
+//    projectOnGluedDet( collector, stereoHits, glbDir);
   
 
   if (collector.filter()) {
