@@ -97,6 +97,8 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs
   char name[40], name1[40], name2[40], name3[40], name4[40];
 
   for (int k=0; k<nType1;k++) {
+    Energy[k] = 0;
+    Time_weighteden[k] = 0;
     for (unsigned int ih=0; ih<hcalMEs.size(); ih++) {
       sprintf (name1, "Energy_%s", detdivision[k].c_str());
       sprintf (name2, "Time_Enweighted_%s", detdivision[k].c_str());
@@ -111,6 +113,7 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs
     
   for (int i=0; i<nTime; i++) {
     for (int j=0; j<nType;j++) {
+      Occupancy_map[i][j]= 0;
       for (unsigned int ih=0; ih<hcalMEs.size(); ih++) {
 	sprintf (name, "HcalHitE%s%s", time[i].c_str(),divisions[j].c_str());
 	if (strcmp(hcalMEs[ih]->getName().c_str(), name) == 0) {
@@ -121,6 +124,8 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs
   }
 
   for (int k=0; k<nType;k++) {
+    HitEnergyvsieta[k]= 0;
+    HitTimevsieta[k]= 0;
     for (unsigned int ih=0; ih<hcalMEs.size(); ih++) {
       sprintf (name3, "HcalHitEta%s",divisions[k].c_str());
       sprintf (name4, "HcalHitTimeAEta%s",divisions[k].c_str());
@@ -159,6 +164,7 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs
   }
   
   for (int dettype=0; dettype<nType; dettype++)  {
+    if (!HitEnergyvsieta[dettype]) continue;
     int nx1=HitEnergyvsieta[dettype]->getNbinsX();
     for (int i=0; i<=nx1; i++) {
       hitenergy[dettype]= HitEnergyvsieta[dettype]->getBinContent(i)/fev;
@@ -173,6 +179,7 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs
   
   for (int itime=0; itime<nTime; itime++) {
     for (int det=0; det<nType;det++) {
+      if (!Occupancy_map[itime][det]) continue;
       int ny= Occupancy_map[itime][det]->getNbinsY();
       int nx= Occupancy_map[itime][det]->getNbinsX(); 
       for (int i=1; i<nx+1; i++) {
