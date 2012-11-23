@@ -105,7 +105,7 @@ def adaptPFMuons(process,module,postfix="" ):
     warningIsolation()
     print
     module.useParticleFlow = True
-    module.pfMuonSource    = cms.InputTag("pfIsolatedMuons" + postfix)
+    module.pfMuonSource    = cms.InputTag("pfIsolatedMuonsClones" + postfix)
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("muPFIsoDepositCharged" + postfix),
@@ -139,7 +139,7 @@ def adaptPFElectrons(process,module, postfix):
     warningIsolation()
     print
     module.useParticleFlow = True
-    module.pfElectronSource = cms.InputTag("pfIsolatedElectrons" + postfix)
+    module.pfElectronSource = cms.InputTag("pfIsolatedElectronsClones" + postfix)
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
         pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" + postfix),
@@ -405,7 +405,7 @@ def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
         getattr(process,'patMETs'+postfix).metSource = jecLabel+'CorMet'+postfix
         getattr(process,'patMETs'+postfix).addMuonCorrections = False
 
-def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative', 'L3Absolute']), type1=False, outputModules=['out']):
+def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK5', postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative', 'L3Absolute']), type1=False, outputModules=['out']):
 
     print "Switching to PFJets,  ", algo
     print "************************ "
@@ -518,7 +518,9 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
         process.load("CommonTools.ParticleFlow.PF2PAT_cff")
         #add Pf2PAT *before* cloning so that overlapping modules are cloned too
         #process.patDefaultSequence.replace( process.patCandidates, process.PF2PAT+process.patCandidates)
-        process.patPF2PATSequence = cms.Sequence( process.PF2PAT + process.patDefaultSequence)
+        #add clones of some stuff here
+        process.patPFClones = cms.Sequence(process.pfNoJetClones+process.pfNoTauClones)
+        process.patPF2PATSequence = cms.Sequence( process.PF2PAT + process.patPFClones + process.patDefaultSequence)
     else:
         process.patPF2PATSequence = cms.Sequence( process.patDefaultSequence )
 
@@ -554,7 +556,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
 
     # Jets
     if runOnMC :
-        switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix,
+        switchToPFJets( process, cms.InputTag('pfNoTauClones'+postfix), jetAlgo, postfix=postfix,
                         jetCorrections=jetCorrections, type1=typeIMetCorrections, outputModules=outputModules )
         applyPostfix(process,"patDefaultSequence",postfix).replace(
             applyPostfix(process,"patJetGenJetMatch",postfix),
@@ -567,7 +569,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
             print 'WARNING! Not using L2L3Residual but this is data.'
             print 'If this is okay with you, disregard this message.'
             print '#################################################'
-        switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix,
+        switchToPFJets( process, cms.InputTag('pfNoTauClones'+postfix), jetAlgo, postfix=postfix,
                         jetCorrections=jetCorrections, type1=typeIMetCorrections, outputModules=outputModules )
 
     # Taus
@@ -579,7 +581,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
     switchToPFMET(process, cms.InputTag('pfMET'+postfix), type1=typeIMetCorrections, postfix=postfix)
 
     # Unmasked PFCandidates
-    addPFCandidates(process,cms.InputTag('pfNoJet'+postfix),patLabel='PFParticles'+postfix,cut="",postfix=postfix)
+    addPFCandidates(process,cms.InputTag('pfNoJetClones'+postfix),patLabel='PFParticles'+postfix,cut="",postfix=postfix)
 
     # adapt primary vertex collection
     adaptPVs(process, pvCollection=pvCollection, postfix=postfix)
