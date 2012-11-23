@@ -217,23 +217,69 @@ namespace evf {
 
     float                           cpuLoad_[4000];
     float                           cpuLoadPS_[4000];
+
     float                           cpuLoadTime7_[4000];
     float                           cpuLoadTime8_[4000];
     float                           cpuLoadTime12_[4000];
     float                           cpuLoadTime16_[4000];
     float                           cpuLoadTime24_[4000];
     float                           cpuLoadTime32_[4000];
+
     float                           cpuLoadRate_[4000];
+
+    float                           cpuLoadRate7_[4000];
+    float                           cpuLoadRate8_[4000];
+    float                           cpuLoadRate12_[4000];
+    float                           cpuLoadRate16_[4000];
+    float                           cpuLoadRate24_[4000];
+    float                           cpuLoadRate32_[4000];
+
+    float                           cpuLoadUc7_[4000];
+    float                           cpuLoadUc8_[4000];
+    float                           cpuLoadUc12_[4000];
+    float                           cpuLoadUc16_[4000];
+    float                           cpuLoadUc24_[4000];
+    float                           cpuLoadUc32_[4000];
+
+    unsigned int                    cpuLoadReports7_[4000];
+    unsigned int                    cpuLoadReports8_[4000];
+    unsigned int                    cpuLoadReports12_[4000];
+    unsigned int                    cpuLoadReports16_[4000];
+    unsigned int                    cpuLoadReports24_[4000];
+    unsigned int                    cpuLoadReports32_[4000];
 
     xdata::Float                    flashLoad_;
     xdata::Float                    flashLoadPS_;
+
     xdata::Float                    flashLoadTime7_;
     xdata::Float                    flashLoadTime8_;
     xdata::Float                    flashLoadTime12_;
     xdata::Float                    flashLoadTime16_;
     xdata::Float                    flashLoadTime24_;
     xdata::Float                    flashLoadTime32_;
+
     xdata::Float                    flashLoadRate_;
+
+    xdata::Float                    flashLoadRate7_;
+    xdata::Float                    flashLoadRate8_;
+    xdata::Float                    flashLoadRate12_;
+    xdata::Float                    flashLoadRate16_;
+    xdata::Float                    flashLoadRate24_;
+    xdata::Float                    flashLoadRate32_;
+
+    xdata::Float                    flashLoadUc7_;
+    xdata::Float                    flashLoadUc8_;
+    xdata::Float                    flashLoadUc12_;
+    xdata::Float                    flashLoadUc16_;
+    xdata::Float                    flashLoadUc24_;
+    xdata::Float                    flashLoadUc32_;
+
+    xdata::UnsignedInteger32        flashReports7_;
+    xdata::UnsignedInteger32        flashReports8_;
+    xdata::UnsignedInteger32        flashReports12_;
+    xdata::UnsignedInteger32        flashReports16_;
+    xdata::UnsignedInteger32        flashReports24_;
+    xdata::UnsignedInteger32        flashReports32_;
 
     //EventInfo
     MonitorElement * runId_;
@@ -615,6 +661,7 @@ namespace evf {
     unsigned int nbSubsClasses;
     std::vector<MonitorElement*> meVecRate_;
     std::vector<MonitorElement*> meVecTime_;
+    std::vector<MonitorElement*> meVecCPU_;
     std::vector<MonitorElement*> meVecOffenders_;
     MonitorElement * rateSummary_;
     MonitorElement * reportPeriodSummary_;

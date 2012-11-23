@@ -206,7 +206,29 @@ iDie::iDie(xdaq::ApplicationStub *s)
   cpuInfoSpace_->fireItemAvailable("eventTime16EP",&flashLoadTime16_);
   cpuInfoSpace_->fireItemAvailable("eventTime24EP",&flashLoadTime24_);
   cpuInfoSpace_->fireItemAvailable("eventTime32EP",&flashLoadTime32_);
+
   cpuInfoSpace_->fireItemAvailable("hltProcessingRate",&flashLoadRate_);
+
+  cpuInfoSpace_->fireItemAvailable("hltProcessingRate7EP",&flashLoadRate7_);
+  cpuInfoSpace_->fireItemAvailable("hltProcessingRate8EP",&flashLoadRate8_);
+  cpuInfoSpace_->fireItemAvailable("hltProcessingRate12EP",&flashLoadRate12_);
+  cpuInfoSpace_->fireItemAvailable("hltProcessingRate16EP",&flashLoadRate16_);
+  cpuInfoSpace_->fireItemAvailable("hltProcessingRate24EP",&flashLoadRate24_);
+  cpuInfoSpace_->fireItemAvailable("hltProcessingRate32EP",&flashLoadRate32_);
+
+  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc7EP",&flashLoadUc7_);
+  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc8EP",&flashLoadUc8_);
+  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc12EP",&flashLoadUc12_);
+  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc16EP",&flashLoadUc16_);
+  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc24EP",&flashLoadUc24_);
+  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc32EP",&flashLoadUc32_);
+
+  cpuInfoSpace_->fireItemAvailable("numReports7EP", &flashReports7_);
+  cpuInfoSpace_->fireItemAvailable("numReports8EP", &flashReports8_);
+  cpuInfoSpace_->fireItemAvailable("numReports12EP",&flashReports12_);
+  cpuInfoSpace_->fireItemAvailable("numReports16EP",&flashReports16_);
+  cpuInfoSpace_->fireItemAvailable("numReports24EP",&flashReports24_);
+  cpuInfoSpace_->fireItemAvailable("numReports32EP",&flashReports32_);
 
   monNames_.push_back("runNumber");
   monNames_.push_back("lumiSection");
@@ -218,7 +240,28 @@ iDie::iDie(xdaq::ApplicationStub *s)
   monNames_.push_back("eventTime16EP");
   monNames_.push_back("eventTime24EP");
   monNames_.push_back("eventTime32EP");
+
   monNames_.push_back("hltProcessingRate");
+  monNames_.push_back("hltProcessingRate7EP");
+  monNames_.push_back("hltProcessingRate8EP");
+  monNames_.push_back("hltProcessingRate12EP");
+  monNames_.push_back("hltProcessingRate16EP");
+  monNames_.push_back("hltProcessingRate24EP");
+  monNames_.push_back("hltProcessingRate32EP");
+
+  monNames_.push_back("hltCPULoadUc7EP");
+  monNames_.push_back("hltCPULoadUc8EP");
+  monNames_.push_back("hltCPULoadUc12EP");
+  monNames_.push_back("hltCPULoadUc16EP");
+  monNames_.push_back("hltCPULoadUc24EP");
+  monNames_.push_back("hltCPULoadUc32EP");
+
+  monNames_.push_back("numReports7EP");
+  monNames_.push_back("numReports8EP");
+  monNames_.push_back("numReports12EP");
+  monNames_.push_back("numReports16EP");
+  monNames_.push_back("numReports24EP");
+  monNames_.push_back("numReports32EP");
 
   //be permissive for written files
   umask(000);
@@ -1256,6 +1299,7 @@ void iDie::initMonitorElements()
 
   meVecRate_.clear();
   meVecTime_.clear();
+  meVecCPU_.clear();
   meVecOffenders_.clear();
   for (unsigned int i=0;i<epInstances.size();i++) {
 	  currentLs_[i]=0;
@@ -1285,6 +1329,9 @@ void iDie::initMonitorElements()
 	  4000,1.,4001));
     meVecTime_.push_back(dqmStore_->book1D("EVENT_TIME_"+TString(str.str().c_str()),
 	  "Average event processing time for nodes with " + TString(str.str().c_str()) + " EP instances",
+	  4000,1.,4001));
+    meVecCPU_.push_back(dqmStore_->book1D("EVENT_CPU_HTCORRECTION_"+TString(str.str().c_str()),
+	  "Average CPU (%) usage for nodes with " + TString(str.str().c_str()) + " EP instances",
 	  4000,1.,4001));
     dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Modules/");
     meVecOffenders_.push_back(dqmStore_->book2D("MODULE_FRACTION_"+TString(str.str().c_str()),
@@ -1417,7 +1464,10 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
       meVecRate_[nbsIdx]->setBinError(forls,lst->getRateErrPerMachine());
       meVecTime_[nbsIdx]->setBinContent(forls>2? forls:0,lst->getEvtTime()*1000);//msec
       meVecTime_[nbsIdx]->setBinError(forls>2? forls:0,lst->getEvtTimeErr()*1000);//msec
+      meVecCPU_[nbsIdx]->setBinContent(forls,lst->getFracBusy()*100.);
+      meVecCPU_[nbsIdx]->setBinError(forls,0.);
       updateRollingHistos(nbsIdx, forls,lst,clst,i==(int)qsize-1);
+      //after correcting
       commonLsStat * prevclst = clsPos>0 ? commonLsHistory[clsPos-1]:nullptr;
       updateStreamHistos(forls,clst,prevclst);
       updateDatasetHistos(forls,clst,prevclst);
@@ -1536,6 +1586,29 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
       cpuLoadTime24_[cpuLoadLastLs_]=meVecTime_[4]->getBinContent(cpuLoadLastLs_+1)*0.001;
       cpuLoadTime32_[cpuLoadLastLs_]=meVecTime_[5]->getBinContent(cpuLoadLastLs_+1)*0.001;
       cpuLoadRate_[cpuLoadLastLs_]=daqTotalRateSummary_->getBinContent(cpuLoadLastLs_+1);
+      cpuLoadRate7_[cpuLoadLastLs_]=meVecRate_[0]->getBinContent(cpuLoadLastLs_+1);
+      cpuLoadRate8_[cpuLoadLastLs_]=meVecRate_[1]->getBinContent(cpuLoadLastLs_+1);
+      cpuLoadRate12_[cpuLoadLastLs_]=meVecRate_[2]->getBinContent(cpuLoadLastLs_+1);
+      cpuLoadRate16_[cpuLoadLastLs_]=meVecRate_[3]->getBinContent(cpuLoadLastLs_+1);
+      cpuLoadRate24_[cpuLoadLastLs_]=meVecRate_[4]->getBinContent(cpuLoadLastLs_+1);
+      cpuLoadRate32_[cpuLoadLastLs_]=meVecRate_[5]->getBinContent(cpuLoadLastLs_+1);
+      unsigned int lsidBinForFlash = lsidBin;
+      if ((lsid-(cpuLoadLastLs_+1)) < lsidBin) lsidBinForFlash-=lsid-(cpuLoadLastLs_+1);
+      else lsidBinForFlash=1;
+      cpuLoadReports7_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,1);
+      cpuLoadReports8_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,2);
+      cpuLoadReports12_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,3);
+      cpuLoadReports16_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,4);
+      cpuLoadReports24_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,5);
+      cpuLoadReports32_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,6);
+
+      cpuLoadUc7_[cpuLoadLastLs_] = meVecCPU_[0]->getBinContent(cpuLoadLastLs_+1)*0.01;
+      cpuLoadUc8_[cpuLoadLastLs_] = meVecCPU_[1]->getBinContent(cpuLoadLastLs_+1)*0.01;
+      cpuLoadUc12_[cpuLoadLastLs_] = meVecCPU_[2]->getBinContent(cpuLoadLastLs_+1)*0.01;
+      cpuLoadUc16_[cpuLoadLastLs_] = meVecCPU_[3]->getBinContent(cpuLoadLastLs_+1)*0.01;
+      cpuLoadUc24_[cpuLoadLastLs_] = meVecCPU_[4]->getBinContent(cpuLoadLastLs_+1)*0.01;
+      cpuLoadUc32_[cpuLoadLastLs_] = meVecCPU_[5]->getBinContent(cpuLoadLastLs_+1)*0.01;
+
       cpuLoadLastLs_++;
   }
 
@@ -1728,6 +1801,28 @@ void iDie::timeExpired(toolbox::task::TimerEvent& e)
 	flashLoadTime24_=cpuLoadTime24_[toSend];
 	flashLoadTime32_=cpuLoadTime32_[toSend];
 	flashLoadRate_=cpuLoadRate_[toSend];
+
+	flashLoadRate7_=cpuLoadRate7_[toSend]*cpuLoadReports7_[toSend];
+	flashLoadRate8_=cpuLoadRate8_[toSend]*cpuLoadReports8_[toSend];
+	flashLoadRate12_=cpuLoadRate12_[toSend]*cpuLoadReports12_[toSend];
+	flashLoadRate16_=cpuLoadRate16_[toSend]*cpuLoadReports16_[toSend];
+	flashLoadRate24_=cpuLoadRate24_[toSend]*cpuLoadReports24_[toSend];
+	flashLoadRate32_=cpuLoadRate32_[toSend]*cpuLoadReports32_[toSend];
+
+	flashLoadUc7_=cpuLoadUc7_[toSend];
+	flashLoadUc8_=cpuLoadUc8_[toSend];
+	flashLoadUc12_=cpuLoadUc12_[toSend];
+	flashLoadUc16_=cpuLoadUc16_[toSend];
+	flashLoadUc24_=cpuLoadUc24_[toSend];
+	flashLoadUc32_=cpuLoadUc32_[toSend];
+
+        flashReports7_ = cpuLoadReports7_[toSend];
+        flashReports8_ = cpuLoadReports8_[toSend];
+        flashReports12_ = cpuLoadReports12_[toSend];
+        flashReports16_ = cpuLoadReports16_[toSend];
+        flashReports24_ = cpuLoadReports24_[toSend];
+        flashReports32_ = cpuLoadReports32_[toSend];
+
 	cpuLoadSentLs_++;
 	cpuInfoSpace_->unlock();
 	if (cpuLoadSentLs_<=cpuLoadLastLs_) {

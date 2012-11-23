@@ -1,14 +1,37 @@
 <?xml version='1.0'?>
-<xmas:flash xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:filterFarmUsageAndTiming" version="$Revision: 1.1 $" key="runNumber,lumiSection">
+<xmas:flash xmlns:xmas="http://xdaq.web.cern.ch/xdaq/xsd/2006/xmas-10" id="urn:xdaq-flashlist:filterFarmUsageAndTiming" version="$Revision: 1.2 $" key="runNumber,lumiSection">
 	<xmas:item name="runNumber"                 infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
         <xmas:item name="lumiSection"               infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
         <xmas:item name="hltCPULoad"                infospace="urn:filterFarmUsageAndTiming" type="float"/>
         <xmas:item name="systemCPULoad"             infospace="urn:filterFarmUsageAndTiming" type="float"/>
+
         <xmas:item name="eventTime7EP"              infospace="urn:filterFarmUsageAndTiming" type="float"/>
         <xmas:item name="eventTime8EP"              infospace="urn:filterFarmUsageAndTiming" type="float"/>
         <xmas:item name="eventTime12EP"             infospace="urn:filterFarmUsageAndTiming" type="float"/>
 	<xmas:item name="eventTime16EP"             infospace="urn:filterFarmUsageAndTiming" type="float"/>
 	<xmas:item name="eventTime24EP"             infospace="urn:filterFarmUsageAndTiming" type="float"/>
 	<xmas:item name="eventTime32EP"             infospace="urn:filterFarmUsageAndTiming" type="float"/>
+
         <xmas:item name="hltProcessingRate"         infospace="urn:filterFarmUsageAndTiming" type="float"/>
-</flash>
+
+        <xmas:item name="hltProcessingRate7EP"      infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltProcessingRate8EP"      infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltProcessingRate12EP"     infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltProcessingRate16EP"     infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltProcessingRate24EP"     infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltProcessingRate32EP"     infospace="urn:filterFarmUsageAndTiming" type="float"/>
+
+        <xmas:item name="hltCPULoadUc7EP"           infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltCPULoadUc8EP"           infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltCPULoadUc12EP"          infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltCPULoadUc16EP"          infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltCPULoadUc24EP"          infospace="urn:filterFarmUsageAndTiming" type="float"/>
+        <xmas:item name="hltCPULoadUc32EP"          infospace="urn:filterFarmUsageAndTiming" type="float"/>
+
+        <xmas:item name="numReports7EP"             infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
+        <xmas:item name="numReports8EP"             infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
+        <xmas:item name="numReports12EP"            infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
+        <xmas:item name="numReports16EP"            infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
+        <xmas:item name="numReports24EP"            infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
+        <xmas:item name="numReports32EP"            infospace="urn:filterFarmUsageAndTiming" type="unsigned int 32"/>
+</xmas:flash>

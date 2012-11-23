@@ -1,3 +1,9 @@
+2012-11-23 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* tag V00-02-24
+	* added more variables to flashlist
+	* uncorrected CPU usage per machine type histogram
+
 2012-11-21 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-02-23
