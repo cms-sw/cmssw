@@ -1330,7 +1330,7 @@ void iDie::initMonitorElements()
     meVecTime_.push_back(dqmStore_->book1D("EVENT_TIME_"+TString(str.str().c_str()),
 	  "Average event processing time for nodes with " + TString(str.str().c_str()) + " EP instances",
 	  4000,1.,4001));
-    meVecCPU_.push_back(dqmStore_->book1D("EVENT_CPU_UNCORR_"+TString(str.str().c_str()),
+    meVecCPU_.push_back(dqmStore_->book1D("UNCORR_CPUUSAGE_"+TString(str.str().c_str())+"_reportSummaryMap",
 	  "Average CPU (%) usage for nodes with " + TString(str.str().c_str()) + " EP instances",
 	  4000,1.,4001));
     dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Modules/");
