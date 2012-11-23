@@ -373,7 +373,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    TMultiGraph* TkSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG = new TLegend(0.20,0.75,0.80,0.90);
    LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
@@ -400,7 +400,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TkSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    TkSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    TkSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   TkSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
+   TkSystGraphs->GetYaxis()->SetRangeUser(-0.45, 0.2);
    TkSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -418,7 +418,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLeftMargin(0.15);
    TMultiGraph* MuSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG = new TLegend(0.20,0.75,0.80,0.90);
    LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
@@ -445,7 +445,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MuSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MuSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    MuSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   MuSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
+   MuSystGraphs->GetYaxis()->SetRangeUser(-0.45, 0.2);
    MuSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -467,7 +467,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLeftMargin(0.15);
    TMultiGraph* MOSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG = new TLegend(0.20,0.75,0.80,0.90);
    LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
@@ -490,7 +490,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MOSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MOSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    MOSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   MOSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
+   MOSystGraphs->GetYaxis()->SetRangeUser(-0.45, 0.2);
    MOSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -508,7 +508,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLeftMargin(0.15);
    TMultiGraph* LQSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG = new TLegend(0.20,0.75,0.80,0.90);
    LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
@@ -535,7 +535,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    LQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    LQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   LQSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
+   LQSystGraphs->GetYaxis()->SetRangeUser(-0.45, 0.2);
    LQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -554,7 +554,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    c1->SetLeftMargin(0.15);
    TMultiGraph* HQSystGraphs = new TMultiGraph();
 
-   LEG = new TLegend(0.15,0.75,0.80,0.90);
+   LEG = new TLegend(0.20,0.75,0.80,0.90);
    LEG->SetNColumns(2) ;
    LEG->SetFillColor(0);
    LEG->SetFillStyle(0);
@@ -581,7 +581,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    HQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    HQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    HQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   HQSystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.2);
+   HQSystGraphs->GetYaxis()->SetRangeUser(-0.45, 0.2);
    HQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -1208,8 +1208,10 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       Mass[N]        = tmp.Mass;
       SystP[N]       = (tmp.Eff_SYSTP  - tmp.Eff)/tmp.Eff;
       SystI[N]       = (tmp.Eff_SYSTI  - tmp.Eff)/tmp.Eff;
-      if(modelSample[s].ModelName().find("1o3")!=string::npos) SystI[N]=-0.25;
-      if(modelSample[s].ModelName().find("2o3")!=string::npos) SystI[N]=-0.10;
+      if(TypeMode==5){
+         if(modelSample[s].ModelName().find("1o3")!=string::npos) SystI[N]=-0.25;
+         if(modelSample[s].ModelName().find("2o3")!=string::npos) SystI[N]=-0.10;
+      }
 
       SystPU[N]      = (tmp.Eff_SYSTPU - tmp.Eff)/tmp.Eff;
       SystT[N]       = (tmp.Eff_SYSTT  - tmp.Eff)/tmp.Eff;
@@ -1300,10 +1302,10 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      SystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
      SystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
      SystGraphs->GetYaxis()->SetTitleOffset(1.70);
-     SystGraphs->GetYaxis()->SetRangeUser(-0.6, 0.35);
+     SystGraphs->GetYaxis()->SetRangeUser(-0.45, 0.35);
      SystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
-     TLegend* LEG = new TLegend(0.15,0.9,0.80,0.75);
+     TLegend* LEG = new TLegend(0.20,0.9,0.80,0.75);
      LEG->SetFillColor(0);
      LEG->SetFillStyle(0);
      LEG->SetBorderSize(0);
@@ -1724,7 +1726,6 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    if(Data.find("7TeV")!=string::npos){SQRTS=7.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS); }
    if(Data.find("8TeV")!=string::npos){SQRTS=8.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);  }
 
- 
    //For muon only don't run on neutral samples as near zero efficiency can make jobs take very long time
    if((signal.find("Gluino")!=string::npos || signal.find("Stop")!=string::npos) && signal.find("N")!=string::npos && TypeMode==3) return;
 
@@ -2200,9 +2201,10 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    double UncEffMB  = 0.0;
 
    //Reset Reco and dEdx uncertainty for fractional as dedicated samples for this
+   if(TypeMode==5){
    if(signal.find("1o3")!=string::npos) {UncEffI= -0.25; UncEffRe=0.;}
    if(signal.find("2o3")!=string::npos) {UncEffI= -0.10; UncEffRe=0.;}
-
+   }
    //Reset MB for mCHAMP
    if((signal.find("Q2")!=string::npos && signal.find("Q2o3")==string::npos) || signal.find("Q3")!=string::npos || signal.find("Q4")!=string::npos || signal.find("Q5")!=string::npos) UncEffMB=-0.2;
 
@@ -2223,8 +2225,13 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
      else UncEffTr = -1*sqrt(0.05*0.05 + 0.04*0.04 + 0.01*0.01);
    }
 
+   printf("uncertainties = %f %f %f %f %f %f %f\n", UncEffP, UncEffI, UncEffPU, UncEffT, UncEffRe, UncEffTr, UncEffMB);
+   if(isnan((float)UncEffPU))UncEffPU=0.0;
+ 
    double SignalUnc = 1 + sqrt(UncEffP*UncEffP + UncEffI*UncEffI + UncEffPU*UncEffPU + UncEffT*UncEffT + UncEffTr*UncEffTr + UncEffRe*UncEffRe + UncEffMB*UncEffMB);
    result.TotalUnc = SignalUnc-1;
+
+   printf("SIGNAL UNCERTAINTY = %f\n",SignalUnc);
 
    //build the combine datacard, the same code is used both for cut&count and shape base
    string datacardPath = "/tmp/shape_"+signal+".dat";
