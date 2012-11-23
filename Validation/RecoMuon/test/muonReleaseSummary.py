@@ -30,9 +30,9 @@ elif (NewCondition=='STARTUP'):
     samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar','RelValZMM','RelValJpsiMM']
     if (NewFastSim|RefFastSim):
         samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
-elif ((NewCondition=="POSTLS1")|(RefCondition=="POSTLS1")):
+if ((NewCondition=="POSTLS1")|(RefCondition=="POSTLS1")):
     samples= ['RelValZMM','RelValJpsiMM']
-elif ((NewCondition=='PILEUP')|(RefCondition=='PILEUP')):
+if ((NewCondition=='PILEUP')|(RefCondition=='PILEUP')):
     samples= ['RelValTTbar']
     if (NewFastSim|RefFastSim):
         samples= ['RelValTTbar']
