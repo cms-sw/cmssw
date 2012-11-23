@@ -5,10 +5,9 @@ import sys
 import fileinput
 import string
 
-NewRelease='CMSSW_6_1_0_pre1'
-RefRelease='CMSSW_6_0_0'
-#NewRelease='Summer09'
-#RefRelease='Summer09_pre1'
+#NewRelease='CMSSW_6_0_1_PostLS1v2'
+NewRelease='CMSSW_6_1_0_pre6'
+RefRelease='CMSSW_6_1_0_pre5'
 
 #NewCondition='MC'
 #RefCondition='MC'
@@ -16,6 +15,9 @@ NewCondition='STARTUP'
 RefCondition='STARTUP'
 #NewCondition='PILEUP'
 #RefCondition='PILEUP'
+#NewCondition='POSTLS1'
+#RefCondition='POSTLS1'
+theGuiPostFixLS1 = "_UPGpostls1_14"
 
 NewFastSim=False
 RefFastSim=False
@@ -28,7 +30,9 @@ elif (NewCondition=='STARTUP'):
     samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar','RelValZMM','RelValJpsiMM']
     if (NewFastSim|RefFastSim):
         samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
-elif (NewCondition=='PILEUP'):
+elif ((NewCondition=="POSTLS1")|(RefCondition=="POSTLS1")):
+    samples= ['RelValZMM','RelValJpsiMM']
+elif ((NewCondition=='PILEUP')|(RefCondition=='PILEUP')):
     samples= ['RelValTTbar']
     if (NewFastSim|RefFastSim):
         samples= ['RelValTTbar']
@@ -51,17 +55,21 @@ GetRefsFrom='GUI'
 DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_6_1_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
-DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_6_0_x/'
+DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_6_1_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='START60_V4'
+NewLabel='START61_V5'
 if (NewCondition=='MC'):
     NewLabel='MC_52_V1'
-#RefLabel='START50_V13'
-RefLabel='START60_V4'
+elif (NewCondition=='POSTLS1'):
+    NewLabel='POSTLS161_V12'
+    
+RefLabel='START61_V4'
 if (RefCondition=='MC'):
     RefLabel='MC_52_V1'
+elif (RefCondition=='POSTLS1'):
+    RefLabel='POSTLS161_V12'
 
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
@@ -106,25 +114,17 @@ if (RefFastSim):
 
 if (NewCondition=='PILEUP'):
     if (NewFastSim):
-#        NewLabel=NewLabel+'_PU_FlatDist10_2011EarlyData_50ns'
-#        NewLabel='PU_'+NewLabel+'_PU_FlatDist10_2011EarlyData_50ns'
-#        NewLabel='PU_'+NewLabel+'_PU_2012_Startup_inTimeOnly'
         NewLabel='PU_'+NewLabel
     else:
-        NewLabel='PU_'+NewLabel   # What about sticking on some kind of default ? 
-#        NewLabel=NewLabel+'_PU'
+        NewLabel='PU_'+NewLabel
 if (RefCondition=='PILEUP'):
     if (RefFastSim):
-#        RefLabel=RefLabel+'_PU_FlatDist10_2011EarlyData_50ns'
-#        RefLabel='PU_'+RefLabel+'_PU_2012_Startup_inTimeOnly'
         RefLabel='PU_'+RefLabel
     else:
         RefLabel='PU_'+RefLabel
-#        RefLabel=RefLabel+'_PU'
 
 NewLabel=NewLabel+'-v1'
 RefLabel=RefLabel+'-v1'
-#RefLabel=RefLabel+'_special_120125-v2'  # This is for the PU ref's in 50X
 
 
 WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
@@ -169,7 +169,15 @@ for sample in samples :
         if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root')==True):
             print "New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetFilesFrom=='GUI'):
-            newGuiFileName='DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
+            theGuiSample = sample
+            # Temporary fix due to the wrong name used for JPsiMM in the DQM GUI
+            if ((sample=="RelValJpsiMM")&(NewCondition=='POSTLS1')):
+                theGuiSample = "RelValJpsiMMM"
+            #
+            if (NewCondition=='POSTLS1'):
+                theGuiSample = theGuiSample+theGuiPostFixLS1
+#            newGuiFileName='DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
+            newGuiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
             print "New file on the GUI: "+DqmGuiNewRepository+newGuiFileName
 #            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+newGuiFileName)
             os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+newGuiFileName)
@@ -187,7 +195,15 @@ for sample in samples :
         if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root')==True):
             print "Reference file found at: "+RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetRefsFrom=='GUI'):
-            refGuiFileName='DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
+            theGuiSample = sample
+            # Temporary fix due to the wrong name used for JPsiMM in the DQM GUI
+            if ((sample=="RelValJpsiMM")&(RefCondition=='POSTLS1')):
+                theGuiSample = "RelValJpsiMMM"
+            #
+            if (RefCondition=='POSTLS1'):
+                theGuiSample = theGuiSample+theGuiPostFixLS1
+#            refGuiFileName='DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
+            refGuiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
             print "Ref file on the GUI: "+DqmGuiRefRepository+refGuiFileName
             print '*** Getting reference file from the DQM GUI server'
 #            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiRefRepository+refGuiFileName)
