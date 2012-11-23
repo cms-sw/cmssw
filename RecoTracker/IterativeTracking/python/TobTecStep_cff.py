@@ -54,7 +54,8 @@ tobTecStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayers'
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0
-   
+tobTecStepSeeds.SeedCreatorPSet.OriginTransverseErrorMultiplier = 2.0
+
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi

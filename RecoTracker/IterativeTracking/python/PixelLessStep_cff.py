@@ -57,6 +57,7 @@ pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLaye
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.7
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
+pixelLessStepSeeds.SeedCreatorPSet.OriginTransverseErrorMultiplier = 2.0
 
 pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
