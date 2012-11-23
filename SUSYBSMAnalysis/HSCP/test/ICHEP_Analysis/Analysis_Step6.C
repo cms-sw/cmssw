@@ -2580,7 +2580,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
 
 
 bool useSample(int TypeMode, string sample) {
-  if(TypeMode==0 && (sample=="Gluino_f10" || sample=="GluinoN_f10" || sample=="StopN" || sample=="Stop" || sample=="DY_Q2o3")) return true;
+  if(TypeMode==0 && (sample=="Gluino_f10" || sample=="GluinoN_f10" || sample=="StopN" || sample=="Stop" || sample=="DY_Q2o3" || sample=="GMStau" || sample=="PPStau")) return true;
   if(TypeMode==2 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Stop" || sample=="GMStau" || sample=="PPStau" || sample=="DY_Q2o3")) return true;
   if(TypeMode==3 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Gluino_f100" || sample=="Stop")) return true;
   if(TypeMode==4) return true;
