@@ -67,8 +67,10 @@ void DrawPreliminary(string Text, double SQRTS_, double Lumi, double X=0.15, dou
    char energy[128];
    if(SQRTS_==78.0 || SQRTS_==87.0){
       sprintf(energy, "#sqrt{s} = %1.0f+%1.0f TeV",7.0,8.0);
-   }else{
+   }else if(SQRTS_>0.0){
       sprintf(energy, "#sqrt{s} = %1.0f TeV",SQRTS_);
+   }else{
+      sprintf(energy, " ");
    }
    
    char LumiText[1024];

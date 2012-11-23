@@ -1189,7 +1189,7 @@ void Analysis_Step3(char* SavePath)
 		  if(tof) if(csctof->nDof()==0) TRescale = -0.003;
 #else
                   bool   PRescale = true;
-                  double IRescale = RNG->Gaus(0, 0.05)+0.005; // added to the Ias value
+                  double IRescale = RNG->Gaus(0, 0.05)+0.05; // added to the Ias value
                   double MRescale = 1.03;
 		  double TRescale = -0.005; // added to the 1/beta value
 #endif
