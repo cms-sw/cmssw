@@ -56,6 +56,7 @@ except ImportError:
 
 # Some global constants. Not nice, but okay.
 DATE_FMT_STR_LUMICALC = "%m/%d/%y %H:%M:%S"
+DATE_FMT_STR_LUMICALC_DAY = "%m/%d/%y"
 DATE_FMT_STR_OUT = "%Y-%m-%d %H:%M"
 DATE_FMT_STR_AXES = "%-d %b"
 DATE_FMT_STR_CFG = "%Y-%m-%d"
@@ -604,10 +605,13 @@ if __name__ == "__main__":
     for day in days:
         print "  %s" % day.isoformat()
         use_cache = (not ignore_cache) and (day <= last_day_from_cache)
+	cache_file_tmp = "cache_file_temp.csv"
         cache_file_path = CacheFilePath(cache_file_dir, day)
         if (not os.path.exists(cache_file_path)) or (not use_cache):
             date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
             date_end_str = (day + datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
+            date_previous_str = (day - datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
+            date_previous_day_str = (day- datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC_DAY)
             if not beam_energy_from_cfg:
                 year = day.isocalendar()[0]
                 beam_energy = beam_energy_defaults[accel_mode][year]
@@ -619,8 +623,10 @@ if __name__ == "__main__":
                              (lumicalc_flags_from_cfg, beam_energy, accel_mode)
             lumicalc_flags = lumicalc_flags.strip()
             lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
+#            cmd = "%s --begin '%s' --end '%s' -o %s" % \
+#                  (lumicalc_cmd, date_begin_str, date_end_str, cache_file_path)
             cmd = "%s --begin '%s' --end '%s' -o %s" % \
-                  (lumicalc_cmd, date_begin_str, date_end_str, cache_file_path)
+                  (lumicalc_cmd, date_previous_str, date_end_str, cache_file_tmp)
             if verbose:
                 print "    running lumicalc as '%s'" % cmd
             (status, output) = commands.getstatusoutput(cmd)
@@ -643,6 +649,13 @@ if __name__ == "__main__":
                     print >> sys.stderr, \
                           "ERROR Problem running lumiCalc: %s" % output
                     sys.exit(1)
+            newfile = open(cache_file_path, 'w')
+	    for line in file(cache_file_tmp, 'r'):
+	        if not date_previous_day_str in line:
+	            newfile.write(line)
+	    newfile.close()
+            if verbose:
+	        print "csv file for the day written to %s" % cache_file_path
         else:
             if verbose:
                 print "    cache file for %s exists" % day.isoformat()
