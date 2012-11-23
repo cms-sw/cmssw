@@ -103,6 +103,9 @@ pfNoJet.bottomCollection = 'pfNoElectronJME'
 pfNoTau.topCollection = 'pfTausPtrs'
 pfNoTau.bottomCollection = 'pfJetsPtrs'
 
+#### MET ####
+pfMetEI = pfMET.clone()
+
 EITopPAG = cms.Sequence(
     pfPileUpEI +
     pfPileUpJMEEI +
@@ -122,6 +125,6 @@ EITopPAG = cms.Sequence(
     pfNoJet + 
     pfTauSequence +
     pfNoTau +
-    pfMET
+    pfMetEI
     )
 
