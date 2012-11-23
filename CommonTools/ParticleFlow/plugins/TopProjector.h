@@ -109,22 +109,28 @@ template < class Top, class Bottom>
 
     explicit TopProjectorDeltaROverlap() {bottom_ = 0;}
     explicit TopProjectorDeltaROverlap(edm::ParameterSet const & config ) :
-    deltaR_( config.getParameter<double>("deltaR") ),
-    bottom_(0)
-    {}
+    deltaR2_( config.getParameter<double>("deltaR") ),
+      bottom_(0),bottomCPtr_(0),botEta_(-999.f),botPhi_(0.f)
+      {deltaR2_*=deltaR2_;}
 
 
-    inline void setBottom(BottomFwdPtr const & bottom ) { bottom_ = &bottom; }
+      inline void setBottom(BottomFwdPtr const & bottom ) { 
+	bottom_ = &bottom; bottomCPtr_=&**bottom_;
+	botEta_ = bottomCPtr_->eta();
+	botPhi_ = bottomCPtr_->phi();
+      }
 
     bool operator() ( TopFwdPtr const & top ) const{
-      bool matched = reco::deltaR( top->p4(), (*bottom_)->p4() ) < deltaR_;
+      const Top& oTop = *top; float topEta = oTop.eta(); float topPhi = oTop.phi();
+      bool matched = reco::deltaR2( topEta, topPhi, botEta_, botPhi_) < deltaR2_;
       return matched;
     }
 
  protected :
-    double deltaR_;
+    double deltaR2_;
     BottomFwdPtr const * bottom_; 
- 
+    const Bottom* bottomCPtr_; 
+    float botEta_,botPhi_;
 };
 
 template< class Top, class Bottom, class Matcher = TopProjectorFwdPtrOverlap<Top,Bottom> >
