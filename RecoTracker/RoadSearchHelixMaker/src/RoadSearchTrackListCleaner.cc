@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: stevew $
-// $Date: 2007/07/15 23:50:39 $
-// $Revision: 1.5 $
+// $Date: 2007/07/16 20:25:35 $
+// $Revision: 1.6 $
 //
 
 #include <memory>
@@ -38,7 +38,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/src/classes.h"
 
 namespace cms
 {
