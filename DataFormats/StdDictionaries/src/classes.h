@@ -44,6 +44,7 @@ namespace {
   std::map<unsigned int,std::vector<std::pair<unsigned int,bool> > > dummywmv2_0;
   std::map<unsigned int,std::vector<std::pair<unsigned int,double> > >dummywmv2_1;
   std::map<unsigned int,std::vector<std::pair<unsigned int,float> > >dummywmv2_2;
+  std::map<unsigned int,std::vector<std::pair<unsigned int,int> > >dummywmv2_3;
   std::map<unsigned int,std::vector<unsigned int> > dummywmv2;
   std::map<unsigned int,unsigned int> dummywm2;
   std::map<unsigned long long,std::basic_string<char> > dummyypwmv5;
