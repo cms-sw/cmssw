@@ -120,13 +120,16 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
   }
 
 
-  const GluedGeomDet* gluedDet = &specificGeomDet();
-  LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
-
-  CollectorHelper<Collector> chelper(collector, glbDir);
-  theMatcher->doubleMatch(monoHits.begin(), monoHits.end(),
-			  stereoHits.begin(), stereoHits.end(),
-			  gluedDet, trdir, chelper);
+  if ((!stereoHits.empty())&&(!monoHits.empty())) {
+    
+    const GluedGeomDet* gluedDet = &specificGeomDet();
+    LocalVector trdir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
+    
+    CollectorHelper<Collector> chelper(collector, glbDir);
+    theMatcher->doubleMatch(monoHits.begin(), monoHits.end(),
+			    stereoHits.begin(), stereoHits.end(),
+			    gluedDet, trdir, chelper);
+  }
 
   // if no match found try add mon than try to add stereo...
 //  if (0==collector.size()) 
@@ -134,6 +137,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 //  if (0==collector.size())
 //    projectOnGluedDet( collector, stereoHits, glbDir);
   
+  /*
   // recover hits outside 
   if ( collector.filter() && 0==collector.size())  {
     auto inoutM = reinterpret_cast<RectangularPlaneBounds const&>(theMonoDet->surface().bounds()).inout(ts.localPosition(), 
@@ -145,7 +149,7 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
     if (inoutM.second&&inoutS.first)
       projectOnGluedDet( collector, stereoHits, glbDir);
   }
-  
+  */
 
   if (collector.filter()) {
     stat.match(collector.size());
