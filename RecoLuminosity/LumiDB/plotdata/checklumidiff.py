@@ -1,7 +1,6 @@
-import sys,os,os.path,glob,csv,math
+import sys,os,os.path,glob,csv,math,datetime
 def parseplotcache(filelist,fillmin,fillmax):
     result={}#{fill:{run:delivered}}
-    tot=0
     for f in filelist:
         fileobj=open(f,'rb')
         plotreader=csv.reader(fileobj,delimiter=',')
@@ -32,7 +31,7 @@ def findlpcdir(lpcdir,fillmin):
     return result
 
 if __name__ == "__main__" :
-    ofile=open('checklumidiff.out','w')
+    ofile=open('checklumi.log','w')
     lpcdir='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/LHCFILES/'
     plotcachedir='/afs/cern.ch/cms/lumi/www/publicplots/public_lumi_plots_cache/pp_all'
     plotfiles=[f for f in glob.glob(os.path.join(plotcachedir,'lumicalc_cache_2012*.csv')) if os.path.getsize(f)>0]
@@ -45,6 +44,8 @@ if __name__ == "__main__" :
     plotfilldata=parseplotcache(plotfiles,min(lpcfill2012),max(lpcfill2012))
 
     ofile.write('checking fills %s\n'%str(lpcfill2012))
+    ofile.write("-----------------------------------------------------------------------------------\n")
+    ofile.write('on %s\n'%str(datetime.datetime.now()) )
     ofile.write("-----------------------------------------------------------------------------------\n")
     tot_lumipplot=0.
     tot_nrunpplot=0
