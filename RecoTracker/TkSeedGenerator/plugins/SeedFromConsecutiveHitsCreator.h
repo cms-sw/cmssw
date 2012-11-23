@@ -12,11 +12,13 @@ public:
 
   SeedFromConsecutiveHitsCreator( const edm::ParameterSet & cfg):
     thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
-    theBOFFMomentum(cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0)
+    theBOFFMomentum(cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0),
+    theOriginTransverseErrorMultiplier(cfg.existsAs<double>("OriginTransverseErrorMultiplier") ? cfg.getParameter<double>("OriginTransverseErrorMultiplier") : 1.0),
+    theMinOneOverPtError(cfg.existsAs<double>("MinOneOverPtError") ? cfg.getParameter<double>("MinOneOverPtError") : 1.0)
       {}
 
   SeedFromConsecutiveHitsCreator( 
-      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0) 
+      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0, double theOriginTransverseErrorMultiplier = 1.0, double theMinOneOverPtError = 1.0) 
    : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF) { }
 
   //dtor
@@ -60,6 +62,8 @@ protected:
 protected:
     std::string thePropagatorLabel;
     double theBOFFMomentum;
+    double theOriginTransverseErrorMultiplier;
+    double theMinOneOverPtError;
 
 };
 #endif 

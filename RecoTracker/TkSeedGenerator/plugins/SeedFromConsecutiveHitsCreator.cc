@@ -84,22 +84,17 @@ CurvilinearTrajectoryError SeedFromConsecutiveHitsCreator::
 {
   // Set initial uncertainty on track parameters, using only P.V. constraint and no hit
   // information.
-  GlobalError vertexErr( sqr(region.originRBound()), 0, sqr(region.originRBound()),
-                   0, 0, sqr(region.originZBound()));
-
-  float ptMin = region.ptMin();
-
-
   AlgebraicSymMatrix55 C = ROOT::Math::SMatrixIdentity();
 
 // FIXME: minC00. Prevent apriori uncertainty in 1/P from being too small, 
 // to avoid instabilities.
 // N.B. This parameter needs optimising ...
+  // Probably OK based on quick study: KS 22/11/12.
   float sin2th = sqr(sinTheta);
-  float minC00 = 1.0;
-  C[0][0] = std::max(sin2th/sqr(ptMin), minC00);
-  float zErr = vertexErr.czz();
-  float transverseErr = vertexErr.cxx(); // assume equal cxx cyy
+  float minC00 = sqr(theMinOneOverPtError);
+  C[0][0] = std::max(sin2th/sqr(region.ptMin()), minC00);
+  float zErr = sqr(region.originZBound());
+  float transverseErr = sqr(theOriginTransverseErrorMultiplier*region.originRBound());
   C[3][3] = transverseErr;
   C[4][4] = zErr*sin2th + transverseErr*(1-sin2th);
 
