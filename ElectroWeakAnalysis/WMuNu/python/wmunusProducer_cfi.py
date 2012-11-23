@@ -5,23 +5,19 @@ import FWCore.ParameterSet.Config as cms
 pfMetWMuNus = cms.EDProducer("WMuNuProducer",
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("pfMet"),
-      OnlyHighestPtCandidate = cms.untracked.bool(True) # Only 1 Candidate saved in the event
+      METTag = cms.untracked.InputTag("pfMet")
 )
 
 tcMetWMuNus = cms.EDProducer("WMuNuProducer",
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("tcMet"), 
-      OnlyHighestPtCandidate = cms.untracked.bool(True) 
-
+      METTag = cms.untracked.InputTag("tcMet")
 )
 
 corMetWMuNus = cms.EDProducer("WMuNuProducer",
       # Input collections ->
       MuonTag = cms.untracked.InputTag("muons"),
-      METTag = cms.untracked.InputTag("corMetGlobalMuons"),
-      OnlyHighestPtCandidate = cms.untracked.bool(True)
+      METTag = cms.untracked.InputTag("corMetGlobalMuons")
 )
 
 allWMuNus = cms.Sequence(corMetWMuNus

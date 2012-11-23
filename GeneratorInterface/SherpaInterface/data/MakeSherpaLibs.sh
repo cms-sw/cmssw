@@ -5,11 +5,9 @@
 #               library production and cross section calculation
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
-#  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        31st January 2012
-#  version:     3.5
-#  changed: 	Martin Niegel, KIT, 2011/06/07
-#		Fix for Sherpa 1.3.0
+#  author:      Markus Merschmeyer, Sebastian Thueer, RWTH Aachen
+#  date:        17th July 2012
+#  version:     4.0
 #
 
 
@@ -20,7 +18,7 @@
 
 print_help() {
     echo "" && \
-    echo "MakeSherpaLibs version 3.5" && echo && \
+    echo "MakeSherpaLibs version 4.0" && echo && \
     echo "options: -d  path       (optional) path to your SHERPA installation (otherwise the SHERPA" && \
     echo "                         package belonging to the release under '\$CMSSW_BASE' is used)" && \
     echo "                         -> ( "${shr}" )" && \
@@ -207,6 +205,8 @@ cd ${shrun}
 
 
 ### set base name for SHERPA output file(s) and directories
+runfile="Run.dat"
+runcardfile=Run.dat_${prc}
 outflbs=sherpa_${prc}
 cardfile=${outflbs}_cards.tgz             # input card file (master -> libraries)
 if [ "${lbo}" = "CRSS" ]; then
@@ -236,6 +236,8 @@ loglfile=${outflbs}_logL.tgz              # output messages (-> from library pro
 logcfile=${outflbs}_logC.tgz              # output messages (-> from cross section calculation)
 logefile=${outflbs}_logE.tgz              # output messages (-> from event generation)
 #
+gridfile=${outflbs}_migr.tgz              # multiple interactions phase-space grid
+#
 dir1="Process"                            # SHERPA process directory name
 dir2="Result"                             # SHERPA results directory name
 dir3="Analysis"                           # SHERPA analysis directory name
@@ -263,13 +265,20 @@ cd ${pth}
 
 
 ### get data card (+ library) tarball(s) from include path
-cp ${inc}/${cardfile} .
+if [ -e ${inc}/${cardfile} ]; then
+  cp ${inc}/${cardfile} ./
+else
+  if [ -e ${inc}/${runcardfile} ]; then
+    cp ${inc}/${runcardfile} ./
+  fi
+fi
 if [ "${lbo}" = "CRSS" ]; then
-  cp ${inc}/${libsfile} .
+  cp ${inc}/${libsfile} ./
 fi
 if [ "${lbo}" = "EVTS" ]; then
-  cp ${inc}/${libsfile} .
-  cp ${inc}/${crssfile} .
+  cp ${inc}/${libsfile} ./
+  cp ${inc}/${crssfile} ./
+  cp ${inc}/${gridfile} ./
 fi
 
 
@@ -279,14 +288,17 @@ if [ -e ${cardfile} ]; then
   echo "  -> unpacking data card file"
   tar -xzf ${cardfile}
 else
-  echo " <E> no data card file found"
-  echo "  -> stopping..."
-  exit
+  if [ -e ${runcardfile} ]; then
+    mv ${runcardfile} ${runfile}
+  else
+    echo " <E> no data card file found"
+    echo "  -> stopping..."
+    exit
+  fi
 fi
 
 
 ### find out whether COMIX or AMEGIC is being used
-runfile="Run.dat"
 if [ -e ${runfile} ]; then
   iamegic=`check_occurence ${runfile} "ME_SIGNAL_GENERATOR" "AMEGIC"`
   if [ ${iamegic} -gt 0 ]; then
@@ -301,7 +313,7 @@ fi
 ###exit
 
 ### reject mixed occurences of Sherpa's "Enhance" options
-runfile="Run.dat"
+#runfile="Run.dat"
 if [ -e ${runfile} ]; then
   nenhfac=0; nenhfac=`check_occurence ${runfile} "enhance_factor"`
   nenhfnc=0; nenhfnc=`check_occurence ${runfile} "enhance_function"`
@@ -372,6 +384,14 @@ if [ "${lbo}" = "EVTS" ]; then
     echo "  -> stopping..."
     exit
   fi
+  if [ -e ${gridfile} ]; then
+    echo " <I> MI grid file '"${gridfile}"' exists,"
+    echo "  -> unpacking phase-space grid"
+    tar -xzf ${gridfile}
+  else
+    echo " <W> no MI grid file found"
+    echo "  -> will be recreated..."
+  fi
 fi
 
 
@@ -380,11 +400,12 @@ fi
 ## first pass
 sherpaexe=`find ${shr} -type f -name Sherpa`
 echo " <I> Sherpa executable is "${sherpaexe}
-cd ${shrun}
+cd ${pth}
+
 if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   echo " <I> creating library code..."
   ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err #Sherpa 1.3.0 needs full path MN 070611
-  cd ${pth}
+###  cd ${pth}
   if [ "${FLGCOMIX}" == "FALSE" ]; then
   testfile=`find ${shr} -type f -name libSherpaMain.so.0.0.0`
   echo "testfile: "${testfile}
@@ -405,7 +426,7 @@ if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   nf=`du -sh | grep -o "\." | grep -c "\."`
   lsize=`du -sh  | cut -f 1-${nf} -d "."`
   echo " <I>  -> clean size: "${lsize}
-  cd ${shrun}
+###  cd ${shrun}
 fi
 
 if [ "${FLGCOMIX}" == "FALSE" ]; then
@@ -455,9 +476,18 @@ if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   mv ${crssfile} ${shrun}/
 fi
 
+####
+ migdir=`find ./ -type d -name MIG\*`
+if [ -d ${migdir} ]; then
+  tar -czf ${gridfile} ${migdir}
+  mv ${gridfile} ${shrun}/
+fi
+####
+
 if [ "${lbo}" = "EVTS" ]; then
   rm ${libsfile}
   rm ${crssfile}
+  rm ${gridfile}
   tar -czf ${evtsfile} *.*
   mv ${evtsfile} ${shrun}/
 fi

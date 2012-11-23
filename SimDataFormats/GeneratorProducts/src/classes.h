@@ -8,6 +8,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEXMLStringProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -59,6 +60,7 @@ namespace {
 
 		edm::Wrapper<LHERunInfoProduct>	wcommon;
 		edm::Wrapper<LHEEventProduct>	wevent;
+                edm::Wrapper<LHEXMLStringProduct> wstring;
 	};
 }
 

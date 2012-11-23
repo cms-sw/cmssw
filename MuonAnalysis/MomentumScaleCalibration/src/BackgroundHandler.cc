@@ -224,23 +224,17 @@ void BackgroundHandler::rescale( std::vector<double> & parBgr, const double * Re
 std::pair<double, double> BackgroundHandler::backgroundFunction( const bool doBackgroundFit,
 								 const double * parval, const int resTotNum, const int ires,
 								 const bool * resConsidered, const double * ResMass, const double ResHalfWidth[],
-								 const int MuonType, const double & mass,
-								 const double & eta1, const double & eta2 )
+								 const int MuonType, const double & mass, const double & resEta )
 {
   if( doBackgroundFit ) {
     // Return the values for the region
     int iReg = resToReg_[ires];
-    // return std::make_pair( parval[parNumsRegions_[iReg]] * backgroundWindow_[iReg].backgroundFunction()->fracVsEta(&(parval[parNumsRegions_[iReg]]), resEta),
-    return std::make_pair( parval[parNumsRegions_[iReg]] * backgroundWindow_[iReg].backgroundFunction()->fracVsEta(&(parval[parNumsRegions_[iReg]]), eta1, eta2 ),
-    			   (*(backgroundWindow_[iReg].backgroundFunction()))( &(parval[parNumsRegions_[iReg]]), mass, eta1, eta2 ) );
-    // return std::make_pair( backgroundWindow_[iReg].backgroundFunction()->fracVsEta(&(parval[parNumsRegions_[iReg]]), eta1, eta2),
-    // 			   (*(backgroundWindow_[iReg].backgroundFunction()))( &(parval[parNumsRegions_[iReg]]), mass, eta1, eta2 ) );
+    return std::make_pair( parval[parNumsRegions_[iReg]] * backgroundWindow_[iReg].backgroundFunction()->fracVsEta(&(parval[parNumsRegions_[iReg]]), resEta),
+			   (*(backgroundWindow_[iReg].backgroundFunction()))( &(parval[parNumsRegions_[iReg]]), mass, resEta ) );
   }
   // Return the values for the resonance
-  // return std::make_pair( parval[parNumsResonances_[ires]] * resonanceWindow_[ires].backgroundFunction()->fracVsEta(&(parval[parNumsResonances_[ires]]), resEta),
-  // 			 (*(resonanceWindow_[ires].backgroundFunction()))( &(parval[parNumsResonances_[ires]]), mass, resEta ) );
-  return std::make_pair( parval[parNumsResonances_[ires]] * resonanceWindow_[ires].backgroundFunction()->fracVsEta(&(parval[parNumsResonances_[ires]]), eta1, eta2),
-			 (*(resonanceWindow_[ires].backgroundFunction()))( &(parval[parNumsResonances_[ires]]), mass, eta1, eta2 ) );
+  return std::make_pair( parval[parNumsResonances_[ires]] * resonanceWindow_[ires].backgroundFunction()->fracVsEta(&(parval[parNumsResonances_[ires]]), resEta),
+			 (*(resonanceWindow_[ires].backgroundFunction()))( &(parval[parNumsResonances_[ires]]), mass, resEta ) );
 }
 
 void BackgroundHandler::countEventsInAllWindows(const std::vector<std::pair<reco::Particle::LorentzVector,reco::Particle::LorentzVector> > & muonPairs,

@@ -700,7 +700,15 @@ class HTMLExport(FileExportPlugin):
                 item['value'] = [self.pset_to_json(vv.parameters_()) for vv in v]
                 item['list'] = True
             elif typename == 'VInputTag':
-                item['value'] = [(vv.moduleLabel, vv.productInstanceLabel, vv.processName) for vv in v]
+                v_it = []
+                for vv in v:
+                   if type(vv) == cms.InputTag:
+                     v_it.append(vv)
+                   elif type(vv) == str:
+                     v_it.append(cms.InputTag(vv))
+                   else:
+                      raise "Unsupported type in VInputTag", type(vv)
+                item['value'] = [(vv.moduleLabel, vv.productInstanceLabel, vv.processName) for vv in v_it]
                 item['list'] = True
             elif typename == 'InputTag':
                 item['value'] = [v.moduleLabel, v.productInstanceLabel, v.processName]

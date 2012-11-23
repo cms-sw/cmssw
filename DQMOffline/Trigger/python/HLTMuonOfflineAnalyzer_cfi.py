@@ -10,10 +10,39 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
 
     ## HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
-        "HLT_(?:HI)?(?:L[12])?(?:Single)?(?:Double)?(?:Iso)?Mu[0-9]*(?:Open)?(?:_NoVertex)?(?:_Core)?(?:_eta2p1)?(?:_v[0-9]*)?$",
-        "HLT_Dimuon0_Jpsi_v10",
-        "HLT_Dimuon13_Jpsi_Barrel_v5",
+      "HLT_IsoMu20_eta2p1_v",
+      "HLT_IsoMu24_eta2p1_v",
+      "HLT_IsoMu24_v",
+      "HLT_IsoMu30_eta2p1_v",
+      "HLT_IsoMu30_v",
+      "HLT_IsoMu34_eta2p1_v",
+      "HLT_IsoMu40_eta2p1_v",
+      "HLT_L1SingleMu12_v",
+      "HLT_Mu12_v",
+      "HLT_Mu15_eta2p1_v",
+      "HLT_Mu17_v",
+      "HLT_Mu24_eta2p1_v",
+      "HLT_Mu30_eta2p1_v",
+      "HLT_Mu40_v",
+      "HLT_Mu40_eta2p1_v",
+      "HLT_Mu50_eta2p1_v",
+      "HLT_Mu5_v",
+      "HLT_Mu8_v", 
+      "HLT_RelIso1p0Mu17_v",
+      "HLT_RelIso1p0Mu5_v",
+      "HLT_DoubleMu5_IsoMu5_v",
+      "HLT_Mu13_Mu8_v",
+      "HLT_Mu17_Mu8_v",
+      "HLT_Mu17_TkMu8_v",
+      "HLT_Mu22_TkMu22_v",
+      "HLT_Mu22_TkMu8_v",
+      "HLT_TripleMu5_v",
+      "HLT_DoubleMu11_Acoplanarity03_v", #Added for forward physics
+      "HLT_Mu40_eta2p1_Track50_dEdx3p6_v", #Exotica
+      "HLT_Mu40_eta2p1_Track60_dEdx3p7_v"
     ),
+
+#HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v
 
     ## All input tags are specified in this pset for convenience
     inputTags = cms.PSet(
@@ -26,6 +55,7 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
     ## Both 1D and 2D plots use the binnings defined here
     binParams = cms.untracked.PSet(
         ## parameters for fixed-width plots
+        NVertex    = cms.untracked.vdouble( 20,  1,   50),
         eta        = cms.untracked.vdouble( 20,  -2.40,   2.40),
         phi        = cms.untracked.vdouble( 20,  -3.14,   3.14),
         z0         = cms.untracked.vdouble( 10, -15.00,  15.00),
@@ -41,6 +71,7 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
         ## parameters for variable-width plots
         etaCoarse = cms.untracked.vdouble(-2.4, -2.1, -1.6, -1.2, -0.8, 0.0,
                                            0.8,  1.2,  1.6,  2.1,  2.4),
+        ptCoarse = cms.untracked.vdouble(10.0, 20.0, 40.0, 60.0, 80.0, 100.0, 200.0),
         pt = cms.untracked.vdouble(  0.0,   2.0,   4.0, 
                                      6.0,   8.0,  10.0, 
                                     20.0,  30.0,  40.0, 
