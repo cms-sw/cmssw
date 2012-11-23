@@ -609,9 +609,9 @@ if __name__ == "__main__":
         cache_file_path = CacheFilePath(cache_file_dir, day)
         if (not os.path.exists(cache_file_path)) or (not use_cache):
             date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
+            date_begin_day_str = day.strftime(DATE_FMT_STR_LUMICALC_DAY)
             date_end_str = (day + datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
             date_previous_str = (day - datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
-            date_previous_day_str = (day- datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC_DAY)
             if not beam_energy_from_cfg:
                 year = day.isocalendar()[0]
                 beam_energy = beam_energy_defaults[accel_mode][year]
@@ -623,8 +623,6 @@ if __name__ == "__main__":
                              (lumicalc_flags_from_cfg, beam_energy, accel_mode)
             lumicalc_flags = lumicalc_flags.strip()
             lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
-#            cmd = "%s --begin '%s' --end '%s' -o %s" % \
-#                  (lumicalc_cmd, date_begin_str, date_end_str, cache_file_path)
             cmd = "%s --begin '%s' --end '%s' -o %s" % \
                   (lumicalc_cmd, date_previous_str, date_end_str, cache_file_tmp)
             if verbose:
@@ -651,7 +649,7 @@ if __name__ == "__main__":
                     sys.exit(1)
             newfile = open(cache_file_path, 'w')
 	    for line in file(cache_file_tmp, 'r'):
-	        if not date_previous_day_str in line:
+	        if( date_begin_day_str in line) or ("Delivered" in line):
 	            newfile.write(line)
 	    newfile.close()
             if verbose:
