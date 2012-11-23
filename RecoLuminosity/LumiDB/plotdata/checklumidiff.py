@@ -87,14 +87,14 @@ if __name__ == "__main__" :
         if lumi_lpc:
             dellumi=1.-math.fabs(lumi_pplot/lumi_lpc)
         if nruns_pplot!=nrun_lpc:
-            ofile.write('fill: %d plot=%10.2f plotrun=%d lpc=%10.2f lpcrun=%d diff=%10.2f rel=%4.2f *\n'%(fill,lumi_pplot,nruns_pplot,lumi_lpc,nrun_lpc,delta,dellumi))            
+            ofile.write('fill: %d plot=%.2f plotrun=%d lpc=%.2f lpcrun=%d diff=%.2f rel=%.3f *\n'%(fill,lumi_pplot,nruns_pplot,lumi_lpc,nrun_lpc,delta,dellumi))            
         else:
-            ofile.write('fill: %d plot=%10.2f plotrun=%d lpc=%10.2f lpcrun=%d diff=%10.2f rel=%4.2f \n'%(fill,lumi_pplot,nruns_pplot,lumi_lpc,nrun_lpc,delta,dellumi))
+            ofile.write('fill: %d plot=%.2f plotrun=%d lpc=%.2f lpcrun=%d diff=%.2f rel=%.3f \n'%(fill,lumi_pplot,nruns_pplot,lumi_lpc,nrun_lpc,delta,dellumi))
     tot_diff=tot_lumipplot-tot_lumilpc
     tot_rel=0.
     if tot_lumilpc!=0:
         tot_rel=1.-tot_lumipplot/tot_lumilpc
     
     ofile.write("-----------------------------------------------------------------------------------\n")
-    ofile.write("tot : plot=%10.2f lpc=%10.2f diff=%10.2f rel=%4.2f\n" % (tot_lumipplot,tot_lumilpc,tot_diff,tot_rel))
+    ofile.write("tot : plot=%.2f lpc=%.2f diff=%.2f rel=%.3f\n" % (tot_lumipplot,tot_lumilpc,tot_diff,tot_rel))
     ofile.write("tot : plotnrun=%d lpcnrun=%d\n"%(tot_nrunpplot,tot_nrunlpc))
