@@ -136,12 +136,12 @@ SiStripCalZeroBiasMonitorCluster.TProfTotalNumberOfClusters = cms.PSet(
     xmax = cms.double(1.0*60*60),
     ymin = cms.double(0.0),
     ymax = cms.double(0.0),
-    subdetswitchon = cms.bool(False)
+    subdetswitchon = cms.bool(True)
 )
 SiStripCalZeroBiasMonitorCluster.TH1TotalNumberOfClusters = cms.PSet(
-    Nbinx          = cms.int32(80),
+    Nbinx          = cms.int32(500),
     xmin           = cms.double(-0.5),
-    xmax           = cms.double(15995.5),
+    xmax           = cms.double(19999.5),
     subdetswitchon = cms.bool(True)
 )
 SiStripCalZeroBiasMonitorCluster.TProfClustersApvCycle = cms.PSet(
@@ -151,15 +151,15 @@ SiStripCalZeroBiasMonitorCluster.TProfClustersApvCycle = cms.PSet(
     Nbinsy = cms.int32(200),
     ymin = cms.double(0.0),
     ymax = cms.double(0.0),
-    subdetswitchon = cms.bool(False)
+    subdetswitchon = cms.bool(True)
     )
 SiStripCalZeroBiasMonitorCluster.TH2ClustersApvCycle = cms.PSet(
     Nbinsx = cms.int32(70),
     xmin = cms.double(-0.5),
     xmax = cms.double(69.5),
-    Nbinsy = cms.int32(200),
+    Nbinsy = cms.int32(400),
     ymin = cms.double(0.0),
-    yfactor = cms.double(0.0002),
+    yfactor = cms.double(0.01),
     subdetswitchon = cms.bool(True)
 )
 SiStripCalZeroBiasMonitorCluster.TProfClustersVsDBxCycle = cms.PSet(
