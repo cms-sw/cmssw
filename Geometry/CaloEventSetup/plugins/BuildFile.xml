@@ -6,6 +6,7 @@
   <use   name="Geometry/CaloGeometry"/>
   <use   name="Geometry/EcalAlgo"/>
   <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/HcalTowerAlgo"/>
   <use   name="CondFormats/Alignment"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
