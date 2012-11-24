@@ -277,7 +277,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        lepW.addDaughter  ( neutrino, "neutrino");
        addFourMomenta.set( lepW );
 
-       bool nuzHasComplex = false;
+       //bool nuzHasComplex = false;
        METzCalculator zcalculator;
        
        zcalculator.SetMET( neutrino );
@@ -286,7 +286,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        else
 	 zcalculator.SetMuon( *electron ); // This name is misleading, should be setLepton
        double neutrinoPz = zcalculator.Calculate(1);// closest to the lepton Pz
-       if (zcalculator.IsComplex()) nuzHasComplex = true;
+       //if (zcalculator.IsComplex()) nuzHasComplex = true;
        // Set the neutrino pz
        neutrino.setPz( neutrinoPz );
 
