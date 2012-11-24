@@ -40,6 +40,8 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
 
@@ -970,6 +972,16 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
       }
       else if (det == DetId::Hcal)
       {
+	 const HcalDetId hcId ( *i ) ;
+
+	 const unsigned int i1 ( HcalGeometry::alignmentTransformIndexLocal( hcId ) ) ;
+
+	 const DetId d1 ( HcalGeometry::detIdFromLocalAlignmentIndex( i1 ) ) ;
+
+	 const unsigned int i2 ( HcalGeometry::alignmentTransformIndexLocal( d1 ) ) ;
+
+	 assert( i1 == i2 ) ;
+
 	 f << "  // " << HcalDetId(*i) << std::endl;
 	    
 	 const GlobalPoint gp ( cell->getPosition() ) ;
