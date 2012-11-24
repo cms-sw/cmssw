@@ -131,6 +131,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   for(matchIter0 = matches.begin(); matchIter0 != matches.end(); matchIter0++){
     out_generalTracks->push_back(mergedHandle->at((*matchIter0).first));
+    reco::TrackRef curTrackRef = reco::TrackRef(refTrks, out_generalTracks->size() - 1);
     edm::RefToBase<TrajectorySeed> origSeedRef;
     if(copyExtras_){
       const reco::Track track = mergedHandle->at((*matchIter0).first);
@@ -201,19 +202,16 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Ref< std::vector<Trajectory> > trajRef(mergedTrajHandle, (*matchIter0).first);
     TrajTrackAssociationCollection::const_iterator match = mergedTrajTrackHandle->find(trajRef);
     if (match != mergedTrajTrackHandle->end()) {
-	reco::TrackRef trackRef = reco::TrackRef(refTrks,(match->val).key());
-	if(trackRef.isNonnull()){
+	if(curTrackRef.isNonnull()){
 	  outputTrajs->push_back( *trajRef );
 	  if (copyExtras_ && makeReKeyedSeeds_)
 	    outputTrajs->back().setSeedRef( origSeedRef );
-	  outputTTAss->insert(edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1),trackRef );
+	  outputTTAss->insert(edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1),curTrackRef );
 	}
     }
     inputTracks.push_back((*matchIter0).second.second.first);
     inputTracks.push_back((*matchIter0).second.second.second);
   }
-
-  refTrajs = iEvent.getRefBeforePut< std::vector<Trajectory> >();
 
   for(int i = 0; i < (int)originalHandle->size(); i++){
     bool good = true;
@@ -229,6 +227,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
     if(good){
       out_generalTracks->push_back(origTrack);
+      reco::TrackRef curTrackRef = reco::TrackRef(refTrks, out_generalTracks->size() - 1);
       edm::RefToBase<TrajectorySeed> origSeedRef;
 
       if(copyExtras_){
@@ -304,12 +303,11 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       edm::Ref< std::vector<Trajectory> > trajRef(originalTrajHandle, i);
       TrajTrackAssociationCollection::const_iterator match = originalTrajTrackHandle->find(trajRef);
       if (match != originalTrajTrackHandle->end()) {
-	reco::TrackRef trackRef = reco::TrackRef(refTrks,(match->val).key());
-	if(trackRef.isNonnull()){
+	if(curTrackRef.isNonnull()){
 	  outputTrajs->push_back( *trajRef );
 	  if (copyExtras_ && makeReKeyedSeeds_)
 	    outputTrajs->back().setSeedRef( origSeedRef );
-	  outputTTAss->insert(edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1),trackRef );
+	  outputTTAss->insert(edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1),curTrackRef );
 	}
       }
     }
