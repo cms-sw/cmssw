@@ -29,58 +29,6 @@ public:
   GeometricSearchDetMeasurements( const MeasurementDetSystem* detSysytem) :
     theDetSystem(detSysytem) {}
 
-
-
-  /*
-  template <class TrajectoryState> 
-  std::vector<DetWithState> getDets( const GeometricSearchDet& det,
-				const TrajectoryState& ts, 
-				const Propagator& prop, 
-				const MeasurementEstimator& est) const {
-    pair<bool, TSOS> compat = det.compatible( ts, prop, est);
-    if ( compat.first) return det.fastCompatibleDets( compat.second, ts, prop, est);
-    else return std::vector<DetWithState>();
-  }
-
-  template <class TrajectoryState> 
-  std::vector<DetWithState> getDets( const GeometricSearchDet& det,
-				const TrajectoryStateOnSurface& stateOnDet,
-				const TrajectoryState& ts, 
-				const Propagator& prop, 
-				const MeasurementEstimator& est) const {
-    return det.fastCompatibleDets( stateOnDet, ts, prop, est);
-  }
-
-  template <class TrajectoryState>
-  std::vector<TrajectoryMeasurement> get( const GeometricSearchDet& det,
-				     const TrajectoryState& ts, 
-				     const Propagator& prop, 
-				     const MeasurementEstimator& est) const {
-    pair<bool, TSOS> compat = det.compatible( ts, prop, est);
-    if ( compat.first) {
-      return det.fastMeasurements( compat.second, ts, prop, est);
-    }
-    else return std::vector<TrajectoryMeasurement>();
-  }
-    
-  template <class TrajectoryState>
-  std::vector<TrajectoryMeasurement> get( const GeometricSearchDet& det,
-				     const TrajectoryStateOnSurface& stateOnDet,
-				     const TrajectoryState& ts, 
-				     const Propagator& prop, 
-				     const MeasurementEstimator& est) const {
-    std::vector<DetWithState> compatDets = det.fastCompatibleDets( stateOnDet, ts, prop, est);
-    if (!compatDets.empty()) {
-      return get( det, compatDets, ts, prop, est);
-    }
-    else {
-      std::vector<TrajectoryMeasurement> result;
-      addInvalidMeas( result, stateOnDet, &det);
-      return result;
-    }
-  }
-  */
-
   /** The std::vector<DetWithState> passed to this method should not be empty.
    *  In case of no compatible dets the result should be either an empty container if 
    *  the det is itself incompatible, or a container with one invalid measurement
@@ -94,20 +42,6 @@ public:
 					  const TrajectoryState& ts, 
 					  const Propagator& prop, 
 					  const MeasurementEstimator& est) const;
-  /*
-  template <class TrajectoryState>
-  std::vector<TMG>
-  getGrouped( const GeometricSearchDet& det, const std::vector<DetWithState>& dg,
-	      const TrajectoryState& ts, const Propagator& prop,
-	      const MeasurementEstimator& est) const {
-    if (!dg.empty()) {
-      std::vector<TMG> result(1);
-      result[0] = TMG( get( det, dg, ts, prop, est), dg);
-      return result;
-    }
-    else return std::vector<TMG>();
-  }
-  */
 
   
   void addInvalidMeas( std::vector<TrajectoryMeasurement>& result, 

@@ -1,30 +1,104 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/MeasurementDet/interface/GeometricSearchDetMeasurements.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
-#include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
+#include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetException.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDetSystem.h"
+#include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
+#include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
+
+#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
+
+#include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
+
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <algorithm>
+
 using namespace std;
 
+
+namespace {
+  typedef GeometricSearchDet::DetWithState DetWithState;
+  inline
+  void addInvalidMeas( std::vector<TrajectoryMeasurement>& result, 
+		       const TrajectoryStateOnSurface& ts, const GeomDet* det) {
+    result.push_back( TrajectoryMeasurement( ts, InvalidTransientRecHit::build(det, TrackingRecHit::missing), 0.F,0));
+  }
+  
+  
+  
+  /** The std::vector<DetWithState> passed to this method should not be empty.
+   *  In case of no compatible dets the result should be either an empty container if 
+   *  the det is itself incompatible, or a container with one invalid measurement
+   *  on the det surface. The method does not have enough information to do
+   *  this efficiently, so it should be done by the caller, or an exception will
+   *  be thrown (DetLogicError).
+   */
+  inline
+  std::vector<TrajectoryMeasurement> 
+  get(const MeasurementDetSystem* theDetSystem, 
+      const DetLayer& layer,
+      const std::vector<DetWithState>& compatDets,
+      const TrajectoryStateOnSurface& ts, 
+      const Propagator& prop, 
+      const MeasurementEstimator& est) {
+    std::vector<TrajectoryMeasurement> result;
+    typedef TrajectoryMeasurement      TM;
+
+    for ( auto const & ds : compatDets) {
+      const MeasurementDet* mdet = theDetSystem->idToDet(ds.first->geographicalId());
+      if (mdet == 0) {
+	throw MeasurementDetException( "MeasurementDet not found");
+      }
+      
+      std::vector<TM> && tmp = mdet->fastMeasurements( ds.second, ts, prop, est);
+     if ( !tmp.empty()) {
+       // only collect valid RecHits
+       if(tmp.back().recHit()->getType() == TrackingRecHit::missing) tmp.pop_back();
+       result.insert( result.end(),std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()));
+     }
+    }
+    // WARNING: we might end up with more than one invalid hit of type 'inactive' in result
+    // to be fixed in order to avoid usless double traj candidates.
+    
+    // sort the final result
+    if ( result.size() > 1) {
+      sort( result.begin(), result.end(), TrajMeasLessEstim());
+    }
+    
+    
+    if ( !result.empty()) {
+      // invalidMeas on Det of most compatible hit
+      addInvalidMeas( result, result.front().predictedState(), result.front().recHit()->det());
+    }
+    else {
+      // invalid state on first compatible Det
+      addInvalidMeas( result, compatDets.front().second, compatDets.front().first);
+    }
+  
+    for (auto & tm : result) tm.setLayer(&layer);
+    return result;
+  }
+
+}
+ 
 vector<TrajectoryMeasurement>
 LayerMeasurements::measurements( const DetLayer& layer, 
 				 const TrajectoryStateOnSurface& startingState,
 				 const Propagator& prop, 
-				 const MeasurementEstimator& est) const
-{
+				 const MeasurementEstimator& est) const {
   typedef DetLayer::DetWithState   DetWithState;
-  vector<DetWithState> compatDets = layer.compatibleDets( startingState, prop, est);
-
-  vector<TrajectoryMeasurement> result;
+  vector<DetWithState> const & compatDets = layer.compatibleDets( startingState, prop, est);
+  
   if (compatDets.empty()) {
-    pair<bool, TrajectoryStateOnSurface> compat =
-      layer.compatible( startingState, prop, est);
+    vector<TrajectoryMeasurement> result;
+    pair<bool, TrajectoryStateOnSurface> compat = layer.compatible( startingState, prop, est);
     
-
     if ( compat.first) {
       result.push_back( TrajectoryMeasurement( compat.second, 
 					       InvalidTransientRecHit::build(0, TrackingRecHit::inactive,&layer), 0.F,
@@ -33,16 +107,9 @@ LayerMeasurements::measurements( const DetLayer& layer,
     }else LogDebug("LayerMeasurements")<<"adding not measurement.";
     return result;
   }
-
-  GeometricSearchDetMeasurements gsdm( theDetSystem);
-  vector<TrajectoryMeasurement> tmpResult = gsdm.get( layer, compatDets, startingState, prop, est);
-
-  for(vector<TrajectoryMeasurement>::const_iterator tmpIt=tmpResult.begin();tmpIt!=tmpResult.end();tmpIt++){
-    LogDebug("LayerMeasurements")<<"adding a measurement which rechit is: "<<(tmpIt->recHit()->isValid()?"valid":"invalid");
-    result.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&layer)  );
-  }
   
-  return result;
+  return get(theDetSystem, layer, compatDets, startingState, prop, est);
+  
 }
 
 
@@ -50,52 +117,37 @@ vector<TrajectoryMeasurementGroup>
 LayerMeasurements::groupedMeasurements( const DetLayer& layer, 
 					const TrajectoryStateOnSurface& startingState,
 					const Propagator& prop, 
-					const MeasurementEstimator& est) const
-{
+					const MeasurementEstimator& est) const {
   vector<TrajectoryMeasurementGroup> result;
-
-  {
-    vector<DetGroup> groups( layer.groupedCompatibleDets( startingState, prop, est));
-    result.reserve(groups.size());
-    for (vector<DetGroup>::const_iterator grp=groups.begin(); grp!=groups.end(); grp++) {
-      if ( grp->empty() )  continue;
-      
-      vector<TrajectoryMeasurement> tmpVec;
-      for (DetGroup::const_iterator idet=grp->begin(); idet!=grp->end(); idet++) {
-	const MeasurementDet* mdet = theDetSystem->idToDet(idet->det()->geographicalId());
-	if (mdet == 0) {
-	  throw MeasurementDetException( "MeasurementDet not found");
-	}      
-	vector<TrajectoryMeasurement> tmp = 
-	  mdet->fastMeasurements( idet->trajectoryState(), startingState, prop, est);
-	if (!tmp.empty()) {
-	  // only collect valid RecHits
-	 
-	  if(tmp.back().recHit()->getType() == TrackingRecHit::missing) tmp.pop_back();
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-	  tmpVec.insert( tmpVec.end(), std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()));
-#else
-	  tmpVec.insert( tmpVec.end(), tmp.begin(), tmp.end());
-#endif
-	}
+  
+  vector<DetGroup> && groups = layer.groupedCompatibleDets( startingState, prop, est);
+  result.reserve(groups.size());
+  for (auto&  grp : groups) {
+    if ( grp.empty() )  continue;
+    
+    vector<TrajectoryMeasurement> tmpVec;
+    for (auto const & det : grp) {
+      const MeasurementDet* mdet = theDetSystem->idToDet(det.det()->geographicalId());
+      if (mdet == 0) {
+	throw MeasurementDetException( "MeasurementDet not found");
+      }      
+      vector<TrajectoryMeasurement> && tmp = 
+	mdet->fastMeasurements( det.trajectoryState(), startingState, prop, est);
+      if (!tmp.empty()) {
+	// only collect valid RecHits
+	if(tmp.back().recHit()->getType() == TrackingRecHit::missing) tmp.pop_back();
+	tmpVec.insert( tmpVec.end(), std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()));
       }
-      
-      for(vector<TrajectoryMeasurement>::iterator tmpIt=tmpVec.begin();tmpIt!=tmpVec.end();tmpIt++){
-	LogDebug("LayerMeasurements")<<"[grouped] temporaryly adding a measurement which rechit is: "<<(tmpIt->recHit()->isValid()?"valid":"invalid");
-	tmpIt->setLayer(&layer);
-      }
-      
-      
-      // sort the final result
-      sort( tmpVec.begin(), tmpVec.end(), TrajMeasLessEstim());
-      addInvalidMeas( tmpVec, *grp,layer); 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-      result.push_back( TrajectoryMeasurementGroup( std::move(tmpVec), std::move(*grp)));
-#else
-      result.push_back( TrajectoryMeasurementGroup( tmpVec, *grp));
-#endif
     }
+    
+    for(auto & tmpIt :tmpVec) tmpIt.setLayer(&layer);
+    
+    // sort the final result
+    sort( tmpVec.begin(), tmpVec.end(), TrajMeasLessEstim());
+    addInvalidMeas( tmpVec, grp,layer); 
+    result.emplace_back(std::move(tmpVec), std::move(grp));
   }
+
 
   // if the result is empty check if the layer is compatible (for invalid measurement)
   if (result.empty()) {
