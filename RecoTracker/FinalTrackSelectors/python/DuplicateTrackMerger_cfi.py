@@ -14,5 +14,6 @@ duplicateListMerger = cms.EDProducer("DuplicateListMerger",
                                      originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
                                      diffHitsCut = cms.int32(5),
                                      mergedSource = cms.InputTag("mergedDuplicateTracks"),
-                                     candidateSource = cms.InputTag("duplicateTrackMerger","candidateMap")                                     
+                                     candidateSource = cms.InputTag("duplicateTrackMerger","candidateMap"),
+                                     newQuality = cms.string('confirmed')
                                      )

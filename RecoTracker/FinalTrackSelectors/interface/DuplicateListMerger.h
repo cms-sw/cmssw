@@ -59,6 +59,7 @@ namespace reco { namespace modules {
 	 edm::InputTag mergedTrackSource_;
 	 edm::InputTag originalTrackSource_;
 	 edm::InputTag candidateSource_;
+	 reco::TrackBase::TrackQuality qualityToSet_;
 	 unsigned int diffHitsCut_;
 	 bool copyExtras_;
 	 bool makeReKeyedSeeds_;

@@ -16,6 +16,13 @@ DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara)
   if(iPara.exists("originalSource"))originalTrackSource_ = iPara.getParameter<edm::InputTag>("originalSource");
   if(iPara.exists("candidateSource"))candidateSource_ = iPara.getParameter<edm::InputTag>("candidateSource");
   copyExtras_ = iPara.getUntrackedParameter<bool>("copyExtras",true);
+  qualityToSet_ = reco::TrackBase::undefQuality;
+  if (iPara.exists("newQuality")) {
+    std::string qualityStr = iPara.getParameter<std::string>("newQuality");
+    if (qualityStr != "") {
+      qualityToSet_ = reco::TrackBase::qualityByName(qualityStr);
+    }
+  }
 
   produces<std::vector<reco::Track> >();
   produces< std::vector<Trajectory> >();
@@ -130,8 +137,17 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   refTrajs = iEvent.getRefBeforePut< std::vector<Trajectory> >();
 
   for(matchIter0 = matches.begin(); matchIter0 != matches.end(); matchIter0++){
+    reco::Track inTrk1 = (*matchIter0).second.second.first;
+    reco::Track inTrk2 = (*matchIter0).second.second.second;
+    reco::TrackBase::TrackAlgorithm newTrkAlgo = std::min(inTrk1.algo(),inTrk2.algo());
+    int combinedQualityMask = (inTrk1.qualityMask() | inTrk2.qualityMask());
+    inputTracks.push_back(inTrk1);
+    inputTracks.push_back(inTrk2);
     out_generalTracks->push_back(mergedHandle->at((*matchIter0).first));
     reco::TrackRef curTrackRef = reco::TrackRef(refTrks, out_generalTracks->size() - 1);
+    out_generalTracks->back().setAlgorithm(newTrkAlgo);
+    out_generalTracks->back().setQualityMask(combinedQualityMask);
+    out_generalTracks->back().setQuality(qualityToSet_);
     edm::RefToBase<TrajectorySeed> origSeedRef;
     if(copyExtras_){
       const reco::Track track = mergedHandle->at((*matchIter0).first);
@@ -209,8 +225,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  outputTTAss->insert(edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1),curTrackRef );
 	}
     }
-    inputTracks.push_back((*matchIter0).second.second.first);
-    inputTracks.push_back((*matchIter0).second.second.second);
   }
 
   for(int i = 0; i < (int)originalHandle->size(); i++){
@@ -312,7 +326,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
   }
-
 
   iEvent.put(out_generalTracks);
   if (copyExtras_) {
