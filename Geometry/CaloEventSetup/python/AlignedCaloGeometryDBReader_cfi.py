@@ -6,7 +6,7 @@ EcalBarrelGeometryFromDBEP.applyAlignment = True
 EcalEndcapGeometryFromDBEP.applyAlignment = True
 EcalPreshowerGeometryFromDBEP.applyAlignment = True
 
-#HcalGeometryFromDBEP.applyAlignment = True
+HcalGeometryFromDBEP.applyAlignment = True
 #CaloTowerGeometryFromDBEP.applyAlignment = True
 #ZdcGeometryFromDBEP.applyAlignment = True
 #CastorGeometryFromDBEP.applyAlignment = True
