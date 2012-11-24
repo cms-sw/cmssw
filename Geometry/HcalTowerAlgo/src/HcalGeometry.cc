@@ -286,47 +286,130 @@ HcalGeometry::getCells( const GlobalPoint& r,
 }
 
 
+
+DetId 
+HcalGeometry::detIdFromBarrelAlignmentIndex( unsigned int i )
+{
+   assert( i < numberOfBarrelAlignments() ) ;
+   const int ieta  ( i < numberOfBarrelAlignments()/2 ? -1 : 1 ) ;
+   const int iphi ( 1 + (4*i)%72 ) ;
+   return HcalDetId( HcalBarrel, ieta, iphi, 1 ) ;
+}
+
+DetId 
+HcalGeometry::detIdFromEndcapAlignmentIndex( unsigned int i )
+{
+   assert( i < numberOfEndcapAlignments() ) ;
+   const int ieta  ( i < numberOfEndcapAlignments()/2 ? -16 : 16 ) ;
+   const int iphi ( 1 + (4*i)%72 ) ;
+   return HcalDetId( HcalEndcap, ieta, iphi, 1 ) ;
+}
+
+DetId 
+HcalGeometry::detIdFromForwardAlignmentIndex(    unsigned int i )
+{
+   assert( i < numberOfForwardAlignments() ) ;
+   const int ieta ( i < numberOfForwardAlignments()/2 ? -29 : 29 ) ;
+   const int iphi ( 1 + (4*i)%72 ) ;
+   return HcalDetId( HcalForward, ieta, iphi, 1 ) ;
+}
+
+DetId 
+HcalGeometry::detIdFromOuterAlignmentIndex( unsigned int i )
+{
+   assert( i < numberOfOuterAlignments() ) ;
+   const int ring ( i/12 ) ;
+   const int ieta ( 0 == ring ? -11 :
+		    1 == ring ? -5  :
+		    2 == ring ?  1  :
+		    3 == ring ?  5  : 11 ) ;
+   const int iphi ( 1 + ( i - ring*12 )*6 ) ;
+   return HcalDetId( HcalOuter, ieta, iphi, 4 ) ;
+}
+
+DetId 
+HcalGeometry::detIdFromLocalAlignmentIndex( unsigned int i )
+{
+   assert( i < numberOfAlignments() ) ;
+
+   const unsigned int nB ( numberOfBarrelAlignments()  ) ;
+   const unsigned int nE ( numberOfEndcapAlignments()  ) ;
+   const unsigned int nF ( numberOfForwardAlignments() ) ;
+//   const unsigned int nO ( numberOfOuterAlignments()   ) ;
+
+   return (  i < nB       ? detIdFromBarrelAlignmentIndex( i ) :
+	     i < nB+nE    ? detIdFromEndcapAlignmentIndex( i - nB ) :
+	     i < nB+nE+nF ? detIdFromForwardAlignmentIndex( i - nB - nE ) :
+	     detIdFromOuterAlignmentIndex( i - nB - nE - nF ) ) ;
+}
+
+unsigned int 
+HcalGeometry::alignmentBarEndForIndexLocal(    const DetId& id ,
+					       unsigned int nD   )
+{
+   const HcalDetId hid ( id ) ;
+   const unsigned int iphi ( hid.iphi() ) ;
+   const int ieta ( hid.ieta() ) ;
+   const unsigned int index ( ( 0 < ieta ? nD/2 : 0 ) + ( iphi + 1 )%72/4 ) ;
+   assert( index < nD ) ;
+   return index ;
+}
+
+unsigned int 
+HcalGeometry::alignmentBarrelIndexLocal(    const DetId& id )
+{
+  return alignmentBarEndForIndexLocal( id, numberOfBarrelAlignments() ) ;
+}
+unsigned int 
+HcalGeometry::alignmentEndcapIndexLocal(    const DetId& id )
+{
+   return alignmentBarEndForIndexLocal( id, numberOfEndcapAlignments() ) ;
+}
+
+unsigned int 
+HcalGeometry::alignmentForwardIndexLocal(   const DetId& id )
+{
+   return alignmentBarEndForIndexLocal( id, numberOfForwardAlignments() ) ;
+}
+
+unsigned int 
+HcalGeometry::alignmentOuterIndexLocal(     const DetId& id )
+{
+   const HcalDetId hid ( id ) ;
+   const int ieta ( hid.ieta() ) ;
+   const int iphi ( hid.iphi() ) ;
+   const int ring ( ieta < -10 ? 0 :
+		    ( ieta < -4 ? 1 :
+		      ( ieta < 5 ? 2 :
+			( ieta < 11 ? 3 : 4 ) ) ) ) ;
+
+   const unsigned int index ( 12*ring + ( iphi - 1 )/6 ) ;
+   assert( index < numberOfOuterAlignments() ) ;
+   return index ;
+}
+
 unsigned int
 HcalGeometry::alignmentTransformIndexLocal( const DetId& id )
 {
-   assert( id.det()==DetId::Hcal ) ;
+   assert(id.det() == DetId::Hcal) ;
 
    const HcalDetId hid ( id ) ;
-   bool isHB=(hid.subdet()==HcalBarrel);
-   bool isHE=(hid.subdet()==HcalEndcap);
-   bool isHF=(hid.subdet()==HcalForward);
-   bool isHO=(hid.subdet()==HcalOuter);
+   bool isHB = (hid.subdet() == HcalBarrel);
+   bool isHE = (hid.subdet() == HcalEndcap);
+   bool isHF = (hid.subdet() == HcalForward);
+   // bool isHO = (hid.subdet() == HcalOuter);
 
-   const int jz ( ( hid.zside() + 1 )/2 ) ;
+   const unsigned int nB ( numberOfBarrelAlignments()  ) ;
+   const unsigned int nE ( numberOfEndcapAlignments()  ) ;
+   const unsigned int nF ( numberOfForwardAlignments() ) ;
+   // const unsigned int nO ( numberOfOuterAlignments()   ) ;
 
-   const int zoff ( jz*numberOfAlignments()/2 ) ;
-
-   const int detoff ( zoff + 
-		      ( isHB ? 0 :
-			(isHE ? numberOfBarrelAlignments()/2 :
-			  ( isHF ? ( numberOfBarrelAlignments() +
-					   numberOfEndcapAlignments() )/2 :
-			    ( numberOfBarrelAlignments() +
-			      numberOfEndcapAlignments() +
-			      numberOfForwardAlignments() )/2 ) ) ) ) ; 
-
-   const int iphi ( hid.iphi() ) ;
-
-   unsigned int index ( numberOfAlignments() ) ;
-   if( isHO )
-   {
-      const int ieta ( hid.ieta() ) ;
-      const int ring ( ieta < -10 ? 0 :
-		       ( ieta < -4 ? 1 :
-			 ( ieta < 5 ? 2 :
-			   ( ieta < 11 ? 3 : 4 ) ) ) ) ;
-
-      index = detoff + 12*ring + ( iphi - 1 )%6 ;
-   }
-   else
-   {
-      index = detoff + ( iphi - 1 )%4 ;
-   }
+   const unsigned int index ( 
+      isHB ? alignmentBarrelIndexLocal(id) :
+      isHE ? alignmentEndcapIndexLocal(id) + nB :
+      isHF ? alignmentForwardIndexLocal( id ) + nB + nE :
+      alignmentOuterIndexLocal(id) + nB + nE + nF
+			      );
 
    assert( index < numberOfAlignments() ) ;
    return index ;

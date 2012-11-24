@@ -55,9 +55,11 @@ public:
 
   static unsigned int numberOfEndcapAlignments() { return 36 ; }
 
-  static unsigned int numberOfOuterAlignments() { return 36 ; }
+  static unsigned int numberOfForwardAlignments() { return 36 ; }
 
-  static unsigned int numberOfForwardAlignments() { return 60 ; }
+  static unsigned int numberOfOuterAlignments() { return 60 ; }
+
+  
 
   static unsigned int numberOfAlignments() 
     { return ( numberOfBarrelAlignments() +
@@ -65,9 +67,21 @@ public:
 	       numberOfOuterAlignments() +
 	       numberOfForwardAlignments() ) ; }
 
+  static unsigned int alignmentBarrelIndexLocal(    const DetId& id ) ;
+  static unsigned int alignmentEndcapIndexLocal(    const DetId& id ) ;
+  static unsigned int alignmentForwardIndexLocal(   const DetId& id ) ;
+  static unsigned int alignmentOuterIndexLocal(     const DetId& id ) ;
   static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
 
+  static unsigned int alignmentBarEndForIndexLocal( const DetId& id,unsigned int nD ) ;
+
   static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
+
+  static DetId detIdFromLocalAlignmentIndex(   unsigned int i ) ;
+  static DetId detIdFromBarrelAlignmentIndex(  unsigned int i ) ;
+  static DetId detIdFromEndcapAlignmentIndex(  unsigned int i ) ;
+  static DetId detIdFromForwardAlignmentIndex( unsigned int i ) ;
+  static DetId detIdFromOuterAlignmentIndex(   unsigned int i ) ;
 
   void localCorners( Pt3DVec&        lc  ,
 		     const CCGFloat* pv  , 
