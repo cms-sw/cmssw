@@ -103,17 +103,17 @@ void TkGluedMeasurementDet::doubleMatch(const TrajectoryStateOnSurface& ts, Coll
 
   if (stereoHits.empty()&&monoHits.empty()) return;
 
-  if(!theStereoDet->isActive()) {
-    assert(stereoHits.empty());
-    //if (stereoHits.empty()) {
+  if( (!theStereoDet->isActive()) ||
+       ((!collector.filter())&&stereoHits.empty())
+      ) {
     // make mono TTRHs and project them
     projectOnGluedDet( collector, monoHits, glbDir);
     return;
   }
   
-  if (!theMonoDet->isActive()) {
-    assert(monoHits.empty());                             
-    //  if (monoHits.empty()) {
+  if (  (!theMonoDet->isActive()) ||
+	((!collector.filter())&&monoHits.empty())
+	) {
     // make stereo TTRHs and project them
     projectOnGluedDet( collector, stereoHits, glbDir);
     return;
