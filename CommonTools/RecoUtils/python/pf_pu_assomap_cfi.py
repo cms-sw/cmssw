@@ -131,3 +131,13 @@ AssociationMapsMuoEgm = cms.EDProducer('PF_PU_AssoMap',
           nTrackWeight = cms.double(0.),
 		  
 )
+
+#Old configuration for imports from other packages
+#to avoid undefined references
+Tracks2Vertex =	AssociationMaps.clone()		
+	 
+	  #Choose which map should be created
+	  #"VertexToTracks", "TracksToVertex" or "Both"
+	  AssociationType = cms.InputTag('TracksToVertex'),
+	 
+)
