@@ -83,7 +83,6 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   vector<TMG> const & measGroups = 
 #endif
     theLayerMeasurements->groupedMeasurements(theLayer,startingState,theFullPropagator,theEstimator);
-    //B.M. theLayer.groupedMeasurements(startingState,theFullPropagator,theEstimator);
 
 #ifdef DBG_TSB
   cout << "TSB: number of measurement groups = " << measGroups.size() << endl;
@@ -124,9 +123,9 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   }  
   //   cout << "Groups / combinations = " << measGroups.size() << " " << ncomb << endl;
   if unlikely( truncate && ngrp>0 )  measGroups.resize(ngrp-1);
-  
 
 #endif
+
 
 #ifdef DBG_TSB
   if ( theDbgFlg ) {
@@ -183,8 +182,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
     addGroup(startingTrajectory,measGroups.begin(),measGroups.end());
 
   if unlikely(theDbgFlg) cout << "TSB: back with " << candidates.size() << " candidates" << endl;
-  // clean
-  //
+
   //
   // add invalid hit - try to get first detector hit by the extrapolation
   //
