@@ -27,11 +27,9 @@ public:
 
   const GluedGeomDet& specificGeomDet() const {return static_cast<GluedGeomDet const&>(fastGeomDet());}
 
-  virtual std::vector<TrajectoryMeasurement> 
-  fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-		    const TrajectoryStateOnSurface& startingState, 
-		    const Propagator&, 
-		    const MeasurementEstimator&) const;
+ virtual void measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+			     const MeasurementEstimator& est,
+			    TempMeasurements & result) const;
 
   const TkStripMeasurementDet* monoDet() const{ return theMonoDet;} 
   const TkStripMeasurementDet* stereoDet() const{ return theStereoDet;} 
@@ -100,7 +98,7 @@ private:
 				    const StripClusterParameterEstimator* cpe,
 				    const TrajectoryStateOnSurface& stateOnThisDet,
 				    const MeasurementEstimator& est,
-				    std::vector<TrajectoryMeasurement> & target) ;
+				    TempMeasurements & target) ;
     void add(SiStripMatchedRecHit2D const& hit) ;
     void addProjected(const TransientTrackingRecHit& hit,
 		      const GlobalVector & gdir) ;
@@ -117,7 +115,7 @@ private:
     const StripClusterParameterEstimator* cpe_;
     const TrajectoryStateOnSurface & stateOnThisDet_;
     const MeasurementEstimator     & est_;
-    std::vector<TrajectoryMeasurement> & target_;
+    TempMeasurements & target_;
     SiStripRecHitMatcher::Collector collector_;       
     bool hasNewHits_;
   };

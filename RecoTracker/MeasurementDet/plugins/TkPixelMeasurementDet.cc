@@ -27,44 +27,29 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
     }
   }
 
-std::vector<TrajectoryMeasurement> 
-TkPixelMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-					 const TrajectoryStateOnSurface& , 
-					 const Propagator&, 
-					 const MeasurementEstimator& est) const
-{
-  std::vector<TrajectoryMeasurement> result;
+void TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+					  const MeasurementEstimator& est,
+					  TempMeasurements & result) const {
 
-  if (isActive() == false) {
-    result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-    		InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 
-		0.F));
-    return result;
+  if (!isActive()) {
+    result.add(InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F);
+    return;
   }
+  
  
-  MeasurementDet::RecHitContainer allHits = recHits( stateOnThisDet);
-  for (RecHitContainer::const_iterator ihit=allHits.begin();
-       ihit != allHits.end(); ihit++) {
-    std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, **ihit);
-    if ( diffEst.first) {
-      result.push_back( TrajectoryMeasurement( stateOnThisDet, *ihit, 
-					       diffEst.second));
-    }
-    //RC else delete *ihit; // we own allHits and have to delete the ones we don't return
+  MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet);
+  for (auto && hit : allHits) {
+    std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, *hit);
+    if ( diffEst.first)
+      result.add(std::move(hit), diffEst.second);
   }
+
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
     TrackingRecHit::Type type = (hasBadComponents(stateOnThisDet) ? TrackingRecHit::inactive : TrackingRecHit::missing);
-    result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-					     InvalidTransientRecHit::build(&fastGeomDet(), type), 0.F)); 
+    result.add(InvalidTransientRecHit::build(&fastGeomDet(), type), 0.F); 
   }
-  else {
-    // sort results according to estimator value
-    if ( result.size() > 1) {
-      sort( result.begin(), result.end(), TrajMeasLessEstim());
-    }
-  }
-  return result;
+
 }
 
 TransientTrackingRecHit::RecHitPointer

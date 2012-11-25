@@ -86,11 +86,9 @@ public:
   virtual void recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est,
 			RecHitContainer & result, std::vector<float> & diffs) const;
 
-  virtual std::vector<TrajectoryMeasurement> 
-  fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-		    const TrajectoryStateOnSurface& startingState, 
-		    const Propagator&, 
-		    const MeasurementEstimator&) const;
+ virtual void measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+			     const MeasurementEstimator& est,
+			    TempMeasurements & result) const;
   
   const StripGeomDetUnit& specificGeomDet() const {return static_cast<StripGeomDetUnit const &>(fastGeomDet());}
   

@@ -107,39 +107,20 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, 
 
 }
 
-std::vector<TrajectoryMeasurement> 
-TkStripMeasurementDet::
-fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-		  const TrajectoryStateOnSurface&, 
-		  const Propagator&, 
-		  const MeasurementEstimator& est) const
-{ 
-  std::vector<TrajectoryMeasurement> result;
+void TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+					  const MeasurementEstimator& est,
+					  TempMeasurements & result) const {
 
   if (!isActive()) {
     LogDebug("TkStripMeasurementDet")<<" found an inactive module "<<rawId();
-    result.push_back( TrajectoryMeasurement( stateOnThisDet, 
-    		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
-		0.F));
-    return result;
+    result.add(InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F);
+    return;
   }
- 
   
   if (!isEmpty()){
     RecHitContainer rechits;
     std::vector<float>  diffs;
-    recHits(stateOnThisDet,est,rechits,diffs);
-    assert(rechits.size()==diffs.size());
-    // sort i on diffs...
-    int index[rechits.size()];
-    for (unsigned int i=0; i!=rechits.size(); ++i) {
-      index[i]=i; std::push_heap(index,index+i+1,[&](int j,int k){return diffs[j]<diffs[k];});
-    }
-    std::make_heap(index,index+rechits.size(),[&](int j,int k){return diffs[j]<diffs[k];});
-    for (unsigned int i=0; i!=rechits.size(); ++i) {
-      auto j=index[i];
-      result.emplace_back(stateOnThisDet, rechits[j],  diffs[j]);
-    }
+    recHits(stateOnThisDet,est,result.hits,result.distances);
   }
 
   if ( result.empty()) {
@@ -149,18 +130,15 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
       float uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
       if (testStrips(utraj,uerr)) {
 	//LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, but active ";
-	result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F));
+	result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F);
       } else { 
 	//LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, and inactive ";
-	result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F));
+	result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F);
       }
     }else{
-      result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F));
+      result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F);
     }
   }
-
-   
-  return result;
 }
 
 

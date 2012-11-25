@@ -1,25 +1,25 @@
 #ifndef MeasurementDet_H
 #define MeasurementDet_H
 
-#include <vector>
+
+
+#include "TrackingTools/MeasurementDet/interface/TempMeasurements.h"
+
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 
 class TrajectoryStateOnSurface;
-class TrajectoryMeasurement;
-class GeomDet;
 class Propagator;
 class MeasurementEstimator;
-class TransientTrackingRecHit;
-class BoundSurface;
 
 class MeasurementDet {
 public:
-
+  typedef tracking::TempMeasurements TempMeasurements;
   typedef TransientTrackingRecHit::ConstRecHitContainer        RecHitContainer;
 
   MeasurementDet( const GeomDet* gdet) : theGeomDet(gdet) {}
@@ -33,18 +33,34 @@ public:
     result = recHits(stateOnThisDet);
   }
 
-  /** faster version in case the TrajectoryState on the surface of the
+  /** obsolete version in case the TrajectoryState on the surface of the
    *  Det is already available. The first TrajectoryStateOnSurface is on the surface of this 
-   *  Det, and the second TrajectoryStateOnSurface is the statrting state, usually
-   *  not on the surface of this Det. The stateOnThisDet should the result of <BR>
+   *  Det, and the second TrajectoryStateOnSurface is not used, as the propagator...
+   * The stateOnThisDet should the result of <BR>
    *  prop.propagate( startingState, this->surface())
    */
-  virtual std::vector<TrajectoryMeasurement> 
+  std::vector<TrajectoryMeasurement> 
   fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-		    const TrajectoryStateOnSurface& startingState, 
+		    const TrajectoryStateOnSurface&, 
 		    const Propagator&, 
-		    const MeasurementEstimator&) const = 0;
-  
+		    const MeasurementEstimator& est) const {
+
+    TempMeasurements tmps;
+    measurements(stateOnThisDet, est, tmps);
+    std::vector<TrajectoryMeasurement> result;
+    result.reserve(tmps.size());
+    int index[tmps.size()];  tmps.sortIndex(index);
+    for (std::size_t i=0; i!=tmps.size(); ++i) {
+       auto j=index[i];
+       result.emplace_back(stateOnThisDet,std::move(tmps.hits[j]),tmps.distances[j]);
+    }
+    return result;
+  }
+
+  virtual void measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+			     const MeasurementEstimator& est,
+			     TempMeasurements & result) const =0;
+
 
   const GeomDet& fastGeomDet() const { return *theGeomDet;}
   virtual const GeomDet& geomDet() const { return *theGeomDet;}

@@ -40,11 +40,10 @@ public:
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface& ) const;
 
-  virtual std::vector<TrajectoryMeasurement> 
-  fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet, 
-		    const TrajectoryStateOnSurface& startingState, 
-		    const Propagator&, 
-		    const MeasurementEstimator&) const;
+ virtual void measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+			    const MeasurementEstimator& est,
+			    TempMeasurements & result) const;
+
 
   const PixelGeomDetUnit& specificGeomDet() const {return static_cast<PixelGeomDetUnit const &>(fastGeomDet());}
 
