@@ -151,9 +151,9 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
   if (result.empty()) {
     pair<bool, TrajectoryStateOnSurface> compat = layer.compatible( startingState, prop, est);
     if ( compat.first) {
-      TrajectoryMeasurement inval( compat.second, InvalidTransientRecHit::build(0, TrackingRecHit::inactive,&layer), 0.F,&layer);
-      vector<TrajectoryMeasurement> tmVec(1,inval);
-      result.push_back( TrajectoryMeasurementGroup( tmVec, DetGroup()));
+      vector<TrajectoryMeasurement> tmVec;
+      tmVec.emplace_back(compat.second, InvalidTransientRecHit::build(nullptr, TrackingRecHit::inactive,&layer), 0.F,&layer);
+      result.emplace_back(std::move(tmVec), DetGroup());
     }
   }
   return result;
