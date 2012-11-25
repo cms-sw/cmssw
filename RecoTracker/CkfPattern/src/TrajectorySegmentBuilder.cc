@@ -360,12 +360,14 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory const& tra
 	   << ibest->recHit()->globalPosition().z() << endl;
 
     assert(ibest==measurements.begin());
+  }
 #endif
 
-
-    if ( theLockHits )  lockMeasurement(*ibest);
-    candidates.push_back(traj);
-    updateTrajectory(candidates.back(),*ibest);
+    if (!measurements.empty()) {
+      if ( theLockHits )  lockMeasurement(*ibest);
+      candidates.push_back(traj);
+      updateTrajectory(candidates.back(),*ibest);
+    }
 
     // keep old trajectorTempy
     candidates.push_back(traj);
