@@ -15,12 +15,18 @@ public:
     return RecHitPointer( new InvalidTransientRecHit( geom, layer, type ));
   }
 
-  const Surface* surface() const ;
+  const Surface* surface() const {
+    return det() ? &(det()->surface()) 
+      : ( layer_ ?  &(layer_->surface()) : nullptr);
+  }
 
 private:
   const DetLayer * layer_;
   /// invalid RecHit - has only GeomDet and Type
-  explicit InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type);
+  InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type) :
+    Base( geom, InvalidTrackingRecHit( geom == 0 ? DetId(0) : geom->geographicalId(), type)), 
+    layer_(layer)
+    {}
 
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
