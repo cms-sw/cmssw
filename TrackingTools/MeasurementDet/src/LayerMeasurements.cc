@@ -122,6 +122,8 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
   
   vector<DetGroup> && groups = layer.groupedCompatibleDets( startingState, prop, est);
   result.reserve(groups.size());
+
+  tracking::TempMeasurements tmps;
   for (auto&  grp : groups) {
     if ( grp.empty() )  continue;
     
@@ -131,16 +133,11 @@ LayerMeasurements::groupedMeasurements( const DetLayer& layer,
       if (mdet == 0) {
 	throw MeasurementDetException( "MeasurementDet not found");
       }      
-      vector<TrajectoryMeasurement> && tmp = 
-	mdet->fastMeasurements( det.trajectoryState(), startingState, prop, est);
-      if (!tmp.empty()) {
-	// only collect valid RecHits
-	if(tmp.back().recHit()->getType() == TrackingRecHit::missing) tmp.pop_back();
-	tmpVec.insert( tmpVec.end(), std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()));
-      }
+      if (mdet->measurements( det.trajectoryState(), est,tmps))
+	for (std::size_t i=0; i!=tmps.size(); ++i)
+	  tmpVec.emplace_back(det.trajectoryState(),std::move(tmps.hits[i]),tmps.distances[i],&layer);
+      tmps.clear();
     }
-    
-    for(auto & tmpIt :tmpVec) tmpIt.setLayer(&layer);
     
     // sort the final result
     sort( tmpVec.begin(), tmpVec.end(), TrajMeasLessEstim());
@@ -167,13 +164,13 @@ void LayerMeasurements::addInvalidMeas( vector<TrajectoryMeasurement>& measVec,
 {
   if (!measVec.empty()) {
     // invalidMeas on Det of most compatible hit
-    measVec.push_back( TrajectoryMeasurement( measVec.front().predictedState(), 
-					      InvalidTransientRecHit::build(measVec.front().recHit()->det(), TrackingRecHit::missing),
-					      0.,&layer));
+    measVec.emplace_back(measVec.front().predictedState(), 
+			 InvalidTransientRecHit::build(measVec.front().recHit()->det(), TrackingRecHit::missing),
+			 0.,&layer);
   }
   else if (!group.empty()) {
     // invalid state on first compatible Det
-    measVec.push_back( TrajectoryMeasurement( group.front().trajectoryState(), 
-					      InvalidTransientRecHit::build(group.front().det(), TrackingRecHit::missing), 0.,&layer));
+    measVec.emplace_back(group.front().trajectoryState(), 
+			 InvalidTransientRecHit::build(group.front().det(), TrackingRecHit::missing), 0.,&layer);
   }
 }

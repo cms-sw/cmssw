@@ -13,7 +13,7 @@ namespace tracking {
     typedef TransientTrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
     typedef std::vector<float> Distances;
 
-
+    void clear() { hits.clear(); distances.clear();}
     bool empty() const {return hits.empty();}
     std::size_t size() const { return hits.size();}
 

@@ -27,13 +27,13 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
     }
   }
 
-void TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 					  const MeasurementEstimator& est,
 					  TempMeasurements & result) const {
 
   if (!isActive()) {
     result.add(InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F);
-    return;
+    return true;
   }
   
  
@@ -44,11 +44,14 @@ void TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
       result.add(std::move(hit), diffEst.second);
   }
 
-  if ( result.empty()) {
-    // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
-    TrackingRecHit::Type type = (hasBadComponents(stateOnThisDet) ? TrackingRecHit::inactive : TrackingRecHit::missing);
-    result.add(InvalidTransientRecHit::build(&fastGeomDet(), type), 0.F); 
-  }
+  if ( !result.empty()) return true;
+
+  // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
+  bool inac = hasBadComponents(stateOnThisDet);
+  TrackingRecHit::Type type = inac ? TrackingRecHit::inactive : TrackingRecHit::missing);
+  result.add(InvalidTransientRecHit::build(&fastGeomDet(), type), 0.F);
+  return inac;
+}
 
 }
 

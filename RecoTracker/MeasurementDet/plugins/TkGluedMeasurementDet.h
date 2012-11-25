@@ -27,7 +27,7 @@ public:
 
   const GluedGeomDet& specificGeomDet() const {return static_cast<GluedGeomDet const&>(fastGeomDet());}
 
- virtual void measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+ virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			     const MeasurementEstimator& est,
 			    TempMeasurements & result) const;
 

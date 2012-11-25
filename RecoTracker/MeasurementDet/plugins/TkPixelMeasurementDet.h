@@ -40,7 +40,7 @@ public:
 
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface& ) const;
 
- virtual void measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+ virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			    const MeasurementEstimator& est,
 			    TempMeasurements & result) const;
 

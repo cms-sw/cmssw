@@ -57,7 +57,8 @@ public:
     return result;
   }
 
-  virtual void measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+  // return false if missing ( if inactive is true and one hit)
+  virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			     const MeasurementEstimator& est,
 			     TempMeasurements & result) const =0;
 

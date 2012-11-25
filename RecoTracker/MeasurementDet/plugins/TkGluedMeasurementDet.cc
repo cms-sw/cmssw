@@ -157,43 +157,45 @@ namespace {
 }
 
 
-void TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 					  const MeasurementEstimator& est,
 					  TempMeasurements & result) const {
 
    if unlikely((!theMonoDet->isActive()) && (!theStereoDet->isActive())) {
        //     LogDebug("TkStripMeasurementDet") << " DetID " << geomDet().geographicalId().rawId() << " (glued) fully inactive";
        result.add (InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive),0.F);
-       return;
+       return true;
      }
 
    HitCollectorForFastMeasurements collector( &fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
    collectRecHits(stateOnThisDet, collector);
    
    
-   if unlikely( result.empty()) {
-       //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
-       const BoundPlane &gluedPlane = geomDet().surface();
-       if (  // sorry for the big IF, but I want to exploit short-circuiting of logic
-	   stateOnThisDet.hasError() && ( /* do this only if the state has uncertainties, otherwise it will throw 
-					     (states without uncertainties are passed to this code from seeding */
-					 (theMonoDet->isActive() && 
-					  (theMonoDet->hasAllGoodChannels() || 
-					   testStrips(stateOnThisDet,gluedPlane,*theMonoDet)
-					   )
-					  ) /*Mono OK*/ || 
-					 (theStereoDet->isActive() && 
-					  (theStereoDet->hasAllGoodChannels() || 
-					   testStrips(stateOnThisDet,gluedPlane,*theStereoDet)
-					   )
-					  ) /*Stereo OK*/ 
-					  ) /* State has errors */
-	     ) {
-	 result.add(InvalidTransientRecHit::build(&fastGeomDet()), 0.F); 
-       } else {
-	 result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F);
-       }
-     }
+   if (!result.empty()) return true;
+
+   //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
+   const BoundPlane &gluedPlane = geomDet().surface();
+   if (  // sorry for the big IF, but I want to exploit short-circuiting of logic
+       stateOnThisDet.hasError() && ( /* do this only if the state has uncertainties, otherwise it will throw 
+					 (states without uncertainties are passed to this code from seeding */
+				     (theMonoDet->isActive() && 
+				      (theMonoDet->hasAllGoodChannels() || 
+				       testStrips(stateOnThisDet,gluedPlane,*theMonoDet)
+				       )
+				      ) /*Mono OK*/ || 
+				     (theStereoDet->isActive() && 
+				      (theStereoDet->hasAllGoodChannels() || 
+				       testStrips(stateOnThisDet,gluedPlane,*theStereoDet)
+				       )
+				      ) /*Stereo OK*/ 
+				      ) /* State has errors */
+	 ) {
+     result.add(InvalidTransientRecHit::build(&fastGeomDet(),TrackingRecHit::missing), 0.F);
+     return false;
+   } 
+   result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F);
+   return true;
+
 }
 
 TkGluedMeasurementDet::RecHitContainer 
