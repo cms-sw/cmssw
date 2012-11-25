@@ -9,6 +9,7 @@
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/MeasurementDet/interface/TrajectoryMeasurementGroup.h"
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -378,45 +379,33 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
   //
   if unlikely(theDbgFlg) cout << "TSB::redoMeasurements : nr. of measurements / group =";
 
-  for (DetGroup::const_iterator idet=detGroup.begin(); 
-       idet!=detGroup.end(); ++idet) {
-    //
-    // ======== ask for measurements ==============       
-    //B.M vector<TM> tmp = idet->det()->measurements(traj.lastMeasurement().updatedState(),
-    //					       theGeomPropagator,theEstimator);
-    
+  tracking::TempMeasurements tmps;
+
+  for (auto const & det : detGroup) {
+
     pair<bool, TrajectoryStateOnSurface> compat = 
-      GeomDetCompatibilityChecker().isCompatible(idet->det(),
+      GeomDetCompatibilityChecker().isCompatible(det.det(),
 						 traj.lastMeasurement().updatedState(),
 						 theGeomPropagator,theEstimator);
     
-    if unlikely(theDbgFlg && !compat.first) cout << " 0";
+    if unlikely(theDbgFlg && !compat.first) std::cout << " 0";
 
     if(!compat.first) continue;
-    const MeasurementDet* mdet = theMeasurementTracker->idToDet(idet->det()->geographicalId());
-    vector<TM> && tmp
-      = mdet->fastMeasurements( compat.second, idet->trajectoryState(), theGeomPropagator, theEstimator);
+
+    const MeasurementDet* mdet = theMeasurementTracker->idToDet(det.det()->geographicalId());
+    // verify also first not be inactive..
+    if (mdet->measurements(det.trajectoryState(), theEstimator,tmps) && tmps.hits[0]->isValid() )
+      for (std::size_t i=0; i!=tmps.size(); ++i)
+	result.emplace_back(det.trajectoryState(),std::move(tmps.hits[i]),tmps.distances[i],&theLayer);
+
+    if unlikely(theDbgFlg) std::cout << " " << tmps.size();
+    tmps.clear();
     
-
-    //perhaps could be enough just:
-    //vector<TM> tmp = mdet->fastMeasurements( idet->trajectoryState(),
-    //					     traj.lastMeasurement().updatedState(),
-    //        				     theGeomPropagator, theEstimator);
-    // ==================================================
-
-    //
-    // only collect valid RecHits
-    //
-    if unlikely(theDbgFlg) cout << " " << tmp.size();
-
-    for(auto & tmpTM : tmp){
-      if ( tmpTM.recHitR().isValid() ) {
-	tmpTM.setLayer(&theLayer); // set layer in TM, because the Det cannot do it
-	result.push_back(std::move(tmpTM));
-      }
-    }
   }
-  if unlikely(theDbgFlg) cout << endl;
+
+  if unlikely(theDbgFlg) cout << endl;  
+
+  std::sort( result.begin(), result.end(), TrajMeasLessEstim());
 
   return result;
 }
