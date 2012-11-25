@@ -18,8 +18,9 @@ public:
       {}
 
   SeedFromConsecutiveHitsCreator( 
-      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0, double theOriginTransverseErrorMultiplier = 1.0, double theMinOneOverPtError = 1.0) 
-   : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF) { }
+      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0, double aOriginTransverseErrorMultiplier = 1.0, double aMinOneOverPtError = 1.0) 
+    : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF), 
+    theOriginTransverseErrorMultiplier(aOriginTransverseErrorMultiplier), theMinOneOverPtError(aMinOneOverPtError) { }
 
   //dtor
   virtual ~SeedFromConsecutiveHitsCreator(){}
