@@ -3,18 +3,12 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
-//RC #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
-
-// make tis default
-#define TTRH_NOGE
-
 
 class GeomDetUnit;
 
@@ -29,28 +23,24 @@ public:
 
   explicit TransientTrackingRecHit(const GeomDet * geom=0) : 
     TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), 
-    globalPosition_(0,0,0),
     geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false), hasGlobalError_(false){}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid) : 
     TrackingRecHit(id, type), 
-    globalPosition_(0,0,0),
     geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false),hasGlobalError_(false){}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid) : 
     TrackingRecHit(id, type),
-    globalPosition_(0,0,0),
     geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false),hasGlobalError_(false){}
   
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh) : 
     TrackingRecHit(rh.geographicalId(), rh.type()),
-    globalPosition_(0,0,0),
     geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false),hasGlobalError_(false){}
@@ -79,7 +69,7 @@ public:
   /// to the TrajectoryStateOnSurface given as argument.
   /// For concrete hits not capable to improve their parameters and errors
   /// this method returns an exact copy, and is equivalent to clone() without arguments.
-  virtual RecHitPointer clone (const TrajectoryStateOnSurface& ts) const;
+  virtual RecHitPointer clone (const TrajectoryStateOnSurface&) const;
 
   /// Returns true if the clone( const TrajectoryStateOnSurface&) method returns an
   /// improved hit, false if it returns an identical copy.
@@ -94,16 +84,13 @@ public:
 
   
 /// cluster probability, overloaded by pixel rechits.
-  virtual float clusterProbability() const { return 1; }
+  virtual float clusterProbability() const { return 1.f; }
 
 private:
   void setPositionErrors() const;
 
   // caching of some variable for fast access
   mutable GlobalPoint globalPosition_;  
-#ifndef TTRH_NOGE
-  mutable GlobalError globalError_;
-#endif
 
   const GeomDet * geom_ ;
 
