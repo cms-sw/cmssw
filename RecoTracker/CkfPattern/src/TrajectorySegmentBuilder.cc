@@ -336,37 +336,39 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory const& tra
 						       const vector<TM>& measurements,
 						       TempTrajectoryContainer& candidates)
 {
-  vector<TM>::const_iterator ibest = measurements.begin();
+  // here we arrive with only valid hits and sorted.
+  //so the best is the first!
+
+  auto ibest = measurements.begin();
+
+#ifdef DBG_TSB
   // get first
   while(ibest!=measurements.end() && !ibest->recHit()->isValid()) ++ibest;
   if ( ibest!=measurements.end() ) {
     // find real best;
-    for ( vector<TM>::const_iterator im=ibest+1;
+    for ( auto im=ibest+1;
 	  im!=measurements.end(); ++im ) {
       if ( im->recHitR().isValid() &&
 	   im->estimate()<ibest->estimate()
 	   )
 	ibest = im;
     } 
+   if unlikely( theDbgFlg )
+      cout << "TSB: found best measurement at " 
+	   << ibest->recHit()->globalPosition().perp() << " "
+	   << ibest->recHit()->globalPosition().phi() << " "
+	   << ibest->recHit()->globalPosition().z() << endl;
+
+    assert(ibest==measurements.begin());
+#endif
 
 
     if ( theLockHits )  lockMeasurement(*ibest);
     candidates.push_back(traj);
     updateTrajectory(candidates.back(),*ibest);
 
-#ifdef DBG_TSB
-    if unlikely( theDbgFlg )
-      cout << "TSB: found best measurement at " 
-	   << ibest->recHit()->globalPosition().perp() << " "
-	   << ibest->recHit()->globalPosition().phi() << " "
-	   << ibest->recHit()->globalPosition().z() << endl;
-#endif    
-  }
-
-  //
-  // keep old trajectorTempy
-  //
-  candidates.push_back(traj);
+    // keep old trajectorTempy
+    candidates.push_back(traj);
 }
 
 vector<TrajectoryMeasurement>
@@ -393,10 +395,10 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
     if(!compat.first) continue;
 
     const MeasurementDet* mdet = theMeasurementTracker->idToDet(det.det()->geographicalId());
-    // verify also first not be inactive..
-    if (mdet->measurements(det.trajectoryState(), theEstimator,tmps) && tmps.hits[0]->isValid() )
+    // verify also that first (and only!) not be inactive..
+    if (mdet->measurements(compat.second, theEstimator,tmps) && tmps.hits[0]->isValid() )
       for (std::size_t i=0; i!=tmps.size(); ++i)
-	result.emplace_back(det.trajectoryState(),std::move(tmps.hits[i]),tmps.distances[i],&theLayer);
+	result.emplace_back(compat.second,std::move(tmps.hits[i]),tmps.distances[i],&theLayer);
 
     if unlikely(theDbgFlg) std::cout << " " << tmps.size();
     tmps.clear();
@@ -519,7 +521,6 @@ TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) 
 {
 //   if ( !theLockHits )  return measurements;
 
-  //========== B.M. to be ported later ===============
   vector<TM> result;
   result.reserve(measurements.size());
 
@@ -540,8 +541,6 @@ TrajectorySegmentBuilder::unlockedMeasurements (const vector<TM>& measurements) 
     if likely( !found )  result.push_back(m);
   }
   return result;
-  //================================= 
-  //return measurements; // temporary solution before RecHitEqualByChannels is ported
 }
 
 void
