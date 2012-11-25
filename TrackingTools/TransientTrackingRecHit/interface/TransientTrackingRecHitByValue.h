@@ -10,17 +10,17 @@ public:
   
   virtual ~TransientTrackingRecHitByValue() {}
   
-  virtual AlgebraicVector parameters() const {return m_trackingRecHit.parameters();}
-  virtual AlgebraicSymMatrix parametersError() const {return m_trackingRecHit.parametersError();}
-  virtual AlgebraicMatrix projectionMatrix() const {return m_trackingRecHit.projectionMatrix();}
-  virtual int dimension() const {return m_trackingRecHit.dimension();}
+  virtual AlgebraicVector parameters() const GCC11_FINAL {return m_trackingRecHit.parameters();}
+  virtual AlgebraicSymMatrix parametersError() const GCC11_FINAL {return m_trackingRecHit.parametersError();}
+  virtual AlgebraicMatrix projectionMatrix() const GCC11_FINAL {return m_trackingRecHit.projectionMatrix();}
+  virtual int dimension() const GCC11_FINAL {return m_trackingRecHit.dimension();}
   
-  virtual LocalPoint localPosition() const {return m_trackingRecHit.localPosition();}
-  virtual LocalError localPositionError() const {return m_trackingRecHit.localPositionError();}
+  virtual LocalPoint localPosition() const GCC11_FINAL {return m_trackingRecHit.localPosition();}
+  virtual LocalError localPositionError() const GCC11_FINAL {return m_trackingRecHit.localPositionError();}
   
   virtual bool canImproveWithTrack() const {return false;}
   
-  virtual const RecHit * hit() const {return &m_trackingRecHit;};
+  virtual const RecHit * hit() const GCC11_FINAL {return &m_trackingRecHit;};
   
   
   virtual std::vector<const TrackingRecHit*> recHits() const {

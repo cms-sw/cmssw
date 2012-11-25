@@ -22,8 +22,6 @@ class TransientTrackingRecHit : public TrackingRecHit,
 				public ReferenceCountedInEvent {
 public:
 
-  //RC typedef edm::OwnVector<const TransientTrackingRecHit>        RecHitContainer;
-
   typedef ReferenceCountingPointer< TransientTrackingRecHit>        RecHitPointer;
   typedef ConstReferenceCountingPointer< TransientTrackingRecHit>   ConstRecHitPointer;
   typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
