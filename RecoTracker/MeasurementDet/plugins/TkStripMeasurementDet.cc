@@ -54,10 +54,12 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 }
 
 
-void 
+bool
 TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, 
 				RecHitContainer & result, std::vector<float> & diffs ) const {
-  if ( (!isActive()) || isEmpty()) return;
+  if ( (!isActive()) || isEmpty()) return false;
+
+  auto oldSize = result.size();
 
   float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
   if(!isRegional()){//old implemetation with DetSet
@@ -104,7 +106,7 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, 
       if(!isCompatible) break; // exit loop on first incompatible hit
     }
   }
-
+  return result.size()>oldSize;
 }
 
 bool TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
@@ -120,10 +122,9 @@ bool TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   if (!isEmpty()){
     RecHitContainer rechits;
     std::vector<float>  diffs;
-    recHits(stateOnThisDet,est,result.hits,result.distances);
+    if (recHits(stateOnThisDet,est,result.hits,result.distances)) return true;
   }
 
-  if (!result.empty()) return true;
 
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
 

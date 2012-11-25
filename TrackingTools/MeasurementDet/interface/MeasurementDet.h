@@ -28,9 +28,10 @@ public:
 
   // use a MeasurementEstimator to filter the hits (same algo as below..)
   // default as above 
-  virtual void recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&,
+  virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&,
 			RecHitContainer & result, std::vector<float> &) const {
     result = recHits(stateOnThisDet);
+    return !result.empty();
   }
 
   /** obsolete version in case the TrajectoryState on the surface of the

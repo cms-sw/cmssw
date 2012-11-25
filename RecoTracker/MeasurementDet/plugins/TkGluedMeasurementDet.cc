@@ -167,11 +167,13 @@ bool TkGluedMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
        return true;
      }
 
+   auto oldSize = result.size();
+
    HitCollectorForFastMeasurements collector( &fastGeomDet(), theMatcher, theCPE, stateOnThisDet, est, result);
    collectRecHits(stateOnThisDet, collector);
    
    
-   if (!result.empty()) return true;
+   if (result.size()>oldSize) return true;
 
    //LogDebug("TkStripMeasurementDet") << "No hit found on TkGlued. Testing strips...  ";
    const BoundPlane &gluedPlane = geomDet().surface();

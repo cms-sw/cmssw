@@ -36,7 +36,7 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
     return true;
   }
   
- 
+  auto oldSize = result.size();
   MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet);
   for (auto && hit : allHits) {
     std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, *hit);
@@ -44,7 +44,7 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
       result.add(std::move(hit), diffEst.second);
   }
 
-  if ( !result.empty()) return true;
+  if (result.size()>oldSize) return true;
 
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
   bool inac = hasBadComponents(stateOnThisDet);

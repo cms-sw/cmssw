@@ -83,7 +83,7 @@ public:
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&) const;
   void simpleRecHits( const TrajectoryStateOnSurface& ts, std::vector<SiStripRecHit2D> &result) const ;
   
-  virtual void recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est,
+  virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est,
 			RecHitContainer & result, std::vector<float> & diffs) const;
 
  virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
