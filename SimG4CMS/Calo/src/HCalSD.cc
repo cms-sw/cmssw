@@ -528,7 +528,9 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
                           << " weight " << weight0 << " " << weight << " " << wt1 
 			  << " " << wt2; 
 #endif
-  return weight*wt1*wt2*destep;
+  double edep = weight*wt1*destep;
+  if(wt2 > 0.0) { edep *= wt2; }
+  return edep;
 }
 
 uint32_t HCalSD::setDetUnitId(G4Step * aStep) { 

@@ -168,7 +168,9 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
       }
     }
     double wt1  = getResponseWt(theTrack);
-    double edep = aStep->GetTotalEnergyDeposit()*weight*wt1*theTrack->GetWeight();
+    double edep = aStep->GetTotalEnergyDeposit()*weight*wt1;
+    double wt2  = theTrack->GetWeight();
+    if(wt2 > 0.0) { edep *= wt2; }
 #ifdef DebugLog
     LogDebug("EcalSim") << "ECalSD:: " << nameVolume
 			<<" Light Collection Efficiency " <<weight << ":" <<wt1
