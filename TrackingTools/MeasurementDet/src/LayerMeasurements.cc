@@ -26,8 +26,8 @@ namespace {
   typedef GeometricSearchDet::DetWithState DetWithState;
   inline
   void addInvalidMeas( std::vector<TrajectoryMeasurement>& result, 
-		       const TrajectoryStateOnSurface& ts, const GeomDet* det) {
-    result.push_back( TrajectoryMeasurement( ts, InvalidTransientRecHit::build(det, TrackingRecHit::missing), 0.F,0));
+		       const TrajectoryStateOnSurface& ts, const GeomDet* det, const DetLayer& layer) {
+    result.emplace_back(ts, InvalidTransientRecHit::build(det, TrackingRecHit::missing), 0.F,&layer);
   }
   
   
@@ -43,25 +43,25 @@ namespace {
   std::vector<TrajectoryMeasurement> 
   get(const MeasurementDetSystem* theDetSystem, 
       const DetLayer& layer,
-      const std::vector<DetWithState>& compatDets,
+      std::vector<DetWithState> const& compatDets,
       const TrajectoryStateOnSurface& ts, 
       const Propagator& prop, 
       const MeasurementEstimator& est) {
     std::vector<TrajectoryMeasurement> result;
     typedef TrajectoryMeasurement      TM;
 
+    tracking::TempMeasurements tmps;
+
     for ( auto const & ds : compatDets) {
       const MeasurementDet* mdet = theDetSystem->idToDet(ds.first->geographicalId());
-      if (mdet == 0) {
+      if unlikely(mdet == nullptr) {
 	throw MeasurementDetException( "MeasurementDet not found");
       }
       
-      std::vector<TM> && tmp = mdet->fastMeasurements( ds.second, ts, prop, est);
-     if ( !tmp.empty()) {
-       // only collect valid RecHits
-       if(tmp.back().recHit()->getType() == TrackingRecHit::missing) tmp.pop_back();
-       result.insert( result.end(),std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()));
-     }
+      if (mdet->measurements(ds.second, est,tmps))
+	for (std::size_t i=0; i!=tmps.size(); ++i)
+	  result.emplace_back(ds.second,std::move(tmps.hits[i]),tmps.distances[i],&layer);
+      tmps.clear();
     }
     // WARNING: we might end up with more than one invalid hit of type 'inactive' in result
     // to be fixed in order to avoid usless double traj candidates.
@@ -74,14 +74,13 @@ namespace {
     
     if ( !result.empty()) {
       // invalidMeas on Det of most compatible hit
-      addInvalidMeas( result, result.front().predictedState(), result.front().recHit()->det());
+      addInvalidMeas( result, result.front().predictedState(), result.front().recHit()->det(),layer);
     }
     else {
       // invalid state on first compatible Det
-      addInvalidMeas( result, compatDets.front().second, compatDets.front().first);
+      addInvalidMeas( result, compatDets.front().second, compatDets.front().first,layer);
     }
   
-    for (auto & tm : result) tm.setLayer(&layer);
     return result;
   }
 
@@ -92,23 +91,25 @@ LayerMeasurements::measurements( const DetLayer& layer,
 				 const TrajectoryStateOnSurface& startingState,
 				 const Propagator& prop, 
 				 const MeasurementEstimator& est) const {
+
   typedef DetLayer::DetWithState   DetWithState;
-  vector<DetWithState> const & compatDets = layer.compatibleDets( startingState, prop, est);
+
+  vector<DetWithState>  const & compatDets = layer.compatibleDets( startingState, prop, est);
   
-  if (compatDets.empty()) {
-    vector<TrajectoryMeasurement> result;
-    pair<bool, TrajectoryStateOnSurface> compat = layer.compatible( startingState, prop, est);
+  if (!compatDets.empty())  return get(theDetSystem, layer, compatDets, startingState, prop, est);
     
-    if ( compat.first) {
-      result.push_back( TrajectoryMeasurement( compat.second, 
-					       InvalidTransientRecHit::build(0, TrackingRecHit::inactive,&layer), 0.F,
-					       &layer));
-      LogDebug("LayerMeasurements")<<"adding a missing hit.";
-    }else LogDebug("LayerMeasurements")<<"adding not measurement.";
-    return result;
-  }
+  vector<TrajectoryMeasurement> result;
+  pair<bool, TrajectoryStateOnSurface> compat = layer.compatible( startingState, prop, est);
   
-  return get(theDetSystem, layer, compatDets, startingState, prop, est);
+  if ( compat.first) {
+    result.push_back( TrajectoryMeasurement( compat.second, 
+					     InvalidTransientRecHit::build(0, TrackingRecHit::inactive,&layer), 0.F,
+					     &layer));
+    LogDebug("LayerMeasurements")<<"adding a missing hit.";
+  }else LogDebug("LayerMeasurements")<<"adding not measurement.";
+
+
+  return result;  
   
 }
 
