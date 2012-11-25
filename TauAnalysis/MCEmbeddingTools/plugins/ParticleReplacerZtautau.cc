@@ -49,16 +49,19 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   : ParticleReplacerBase(cfg),
     generatorMode_(cfg.getParameter<std::string>("generatorMode")),
     beamEnergy_(cfg.getParameter<double>("beamEnergy")),
-    tauola_(cfg.getParameter<edm::ParameterSet>("TauolaOptions")),
-    maxNumberOfAttempts_(cfg.getUntrackedParameter<int>("maxNumberOfAttempts", 1000))
+    tauola_(cfg.getParameter<edm::ParameterSet>("TauolaOptions"))
 {
+  maxNumberOfAttempts_ = ( cfg.exists("maxNumberOfAttempts") ) ?
+    cfg.getParameter<int>("maxNumberOfAttempts") : 1000;
+
   // transformationMode =
   //  0 - no transformation
   //  1 - mumu -> tautau
   //  2 - mumu -> ee
   //  3 - mumu -> taunu
   //  4 - munu -> taunu
-  transformationMode_ = cfg.getUntrackedParameter<int>("transformationMode", 1);
+  transformationMode_ = ( cfg.exists("transformationMode") ) ?
+    cfg.getParameter<int>("transformationMode") : 1;
   if ( verbosity_ ) {
     edm::LogInfo("Replacer") << "generatorMode = " << generatorMode_ << "\n";
     edm::LogInfo("Replacer") << "transformationMode = " << transformationMode_ << "\n";
@@ -66,7 +69,8 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
 
   isFirstInstance_ = (numInstances_ == 0);
 	
-  motherParticleID_ = cfg.getUntrackedParameter<int>("motherParticleID", 23);
+  motherParticleID_ = ( cfg.exists("motherParticleID") ) ?
+    cfg.getParameter<int>("motherParticleID") : 23;
 
   // require generator level visible tau decay products to exceed given transverse momentum.
   // The purpose of this flag is make maximal use of the available Zmumu events statistics
@@ -76,58 +80,61 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   //       than the cuts applied on reconstruction level in physics analyses,
   //       to account for resolution effects 
   //
-  std::string minVisibleTransverseMomentumLine = cfg.getUntrackedParameter<std::string>("minVisibleTransverseMomentum", "");
-  const char* startptr = minVisibleTransverseMomentumLine.c_str();
-  char* endptr;
-  double d = strtod(startptr, &endptr);
-  if ( *endptr == '\0' && endptr != startptr ) {
-    // fallback for backwards compatibility: 
-    // if it's a single number then use this as a threshold for both particles
-    MinVisPtCut cuts[2];
-    cuts[0].type_ = MinVisPtCut::kTAU;
-    cuts[0].threshold_ = d;
-    cuts[0].index_ = 0; 
-    cuts[1].type_ = MinVisPtCut::kTAU;
-    cuts[1].threshold_ = d;
-    cuts[1].index_ = 1;
-    minVisPtCuts_.push_back(MinVisPtCutCollection(cuts, cuts + 2));
-  } else {
-    // string has new format: 
-    // parse the minVisibleTransverseMomentum string
-    for ( std::string::size_type prev = 0, pos = 0; prev < minVisibleTransverseMomentumLine.length(); prev = pos + 1) {
-      pos = minVisibleTransverseMomentumLine.find(';', prev);
-      if ( pos == std::string::npos ) pos = minVisibleTransverseMomentumLine.length();
-
-      std::string sub = minVisibleTransverseMomentumLine.substr(prev, pos - prev);
-      MinVisPtCutCollection cuts;
-      const char* sub_c = sub.c_str();
-      while (*sub_c != '\0' ) {
-	const char* sep = std::strchr(sub_c, '_');
-	if ( sep == NULL ) throw cms::Exception("Configuration") 
-	  << "Minimum transverse parameter string must contain an underscore to separate type from Pt threshold !!\n";
-	std::string type(sub_c, sep);
+  if ( cfg.exists("minVisibleTransverseMomentum") ) {
+    std::string minVisibleTransverseMomentumLine = cfg.getParameter<std::string>("minVisibleTransverseMomentum");
+    const char* startptr = minVisibleTransverseMomentumLine.c_str();
+    char* endptr;
+    double d = strtod(startptr, &endptr);
+    if ( *endptr == '\0' && endptr != startptr ) {
+      // fallback for backwards compatibility: 
+      // if it's a single number then use this as a threshold for both particles
+      MinVisPtCut cuts[2];
+      cuts[0].type_ = MinVisPtCut::kTAU;
+      cuts[0].threshold_ = d;
+      cuts[0].index_ = 0; 
+      cuts[1].type_ = MinVisPtCut::kTAU;
+      cuts[1].threshold_ = d;
+      cuts[1].index_ = 1;
+      minVisPtCuts_.push_back(MinVisPtCutCollection(cuts, cuts + 2));
+    } else {
+      // string has new format: 
+      // parse the minVisibleTransverseMomentum string
+      for ( std::string::size_type prev = 0, pos = 0; prev < minVisibleTransverseMomentumLine.length(); prev = pos + 1) {
+	pos = minVisibleTransverseMomentumLine.find(';', prev);
+	if ( pos == std::string::npos ) pos = minVisibleTransverseMomentumLine.length();
 	
-	MinVisPtCut cut;
-	if      ( type == "elec1" ) { cut.type_ = MinVisPtCut::kELEC; cut.index_ = 0; }
-	else if ( type == "mu1"   ) { cut.type_ = MinVisPtCut::kMU;   cut.index_ = 0; }
-	else if ( type == "had1"  ) { cut.type_ = MinVisPtCut::kHAD;  cut.index_ = 0; }
-	else if ( type == "tau1"  ) { cut.type_ = MinVisPtCut::kTAU;  cut.index_ = 0; }
-	else if ( type == "elec2" ) { cut.type_ = MinVisPtCut::kELEC; cut.index_ = 1; }
-	else if ( type == "mu2"   ) { cut.type_ = MinVisPtCut::kMU;   cut.index_ = 1; }
-	else if ( type == "had2"  ) { cut.type_ = MinVisPtCut::kHAD;  cut.index_ = 1; }
-	else if ( type == "tau2"  ) { cut.type_ = MinVisPtCut::kTAU;  cut.index_ = 1; }
-	else throw cms::Exception("Configuration") 
-	  << "'" << type << "' is not a valid type. Allowed values are { elec1, mu1, had1, tau1, elec2, mu2, had2, tau2 } !!\n";
-	
-	char* endptr;
-	cut.threshold_ = strtod(sep + 1, &endptr);
-	if ( endptr == sep + 1 ) throw cms::Exception("Configuration") 
-	  << "No Pt threshold given !!\n";
-
-	cuts.push_back(cut);
-	sub_c = endptr;
+	std::string sub = minVisibleTransverseMomentumLine.substr(prev, pos - prev);
+	MinVisPtCutCollection cuts;
+	const char* sub_c = sub.c_str();
+	while (*sub_c != '\0' ) {
+	  const char* sep = std::strchr(sub_c, '_');
+	  if ( sep == NULL ) throw cms::Exception("Configuration") 
+	    << "Minimum transverse parameter string must contain an underscore to separate type from Pt threshold !!\n";
+	  std::string type(sub_c, sep);
+	  
+	  MinVisPtCut cut;
+	  if      ( type == "elec1" ) { cut.type_ = MinVisPtCut::kELEC; cut.index_ = 0; }
+	  else if ( type == "mu1"   ) { cut.type_ = MinVisPtCut::kMU;   cut.index_ = 0; }
+	  else if ( type == "had1"  ) { cut.type_ = MinVisPtCut::kHAD;  cut.index_ = 0; }
+	  else if ( type == "tau1"  ) { cut.type_ = MinVisPtCut::kTAU;  cut.index_ = 0; }
+	  else if ( type == "elec2" ) { cut.type_ = MinVisPtCut::kELEC; cut.index_ = 1; }
+	  else if ( type == "mu2"   ) { cut.type_ = MinVisPtCut::kMU;   cut.index_ = 1; }
+	  else if ( type == "had2"  ) { cut.type_ = MinVisPtCut::kHAD;  cut.index_ = 1; }
+	  else if ( type == "tau2"  ) { cut.type_ = MinVisPtCut::kTAU;  cut.index_ = 1; }
+	  else throw cms::Exception("Configuration") 
+	    << "'" << type << "' is not a valid type. Allowed values are { elec1, mu1, had1, tau1, elec2, mu2, had2, tau2 } !!\n";
+	  
+	  char* endptr;
+	  cut.threshold_ = strtod(sep + 1, &endptr);
+	  if ( endptr == sep + 1 ) throw cms::Exception("Configuration") 
+	    << "No Pt threshold given !!\n";
+	  
+	  std::cout << "Adding vis. Pt cut: index = " << cut.index_ << ", type = " << cut.type_ << ", threshold = " << cut.threshold_ << std::endl;
+	  cuts.push_back(cut);
+	  sub_c = endptr;
+	}
+	minVisPtCuts_.push_back(cuts);
       }
-      minVisPtCuts_.push_back(cuts);
     }
   }
 

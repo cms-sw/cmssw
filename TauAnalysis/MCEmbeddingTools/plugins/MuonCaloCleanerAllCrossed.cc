@@ -38,24 +38,20 @@ void MuonCaloCleanerAllCrossed::produce(edm::Event& evt, const edm::EventSetup& 
   std::auto_ptr<detIdToFloatMap> energyDepositsMuPlus(new detIdToFloatMap());
   std::auto_ptr<detIdToFloatMap> energyDepositsMuMinus(new detIdToFloatMap());
   
-  std::vector<reco::CandidateBaseRef > selMuons = getSelMuons(evt, srcSelectedMuons_);
+  std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
   const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
   const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
 
-  fillEnergyDepositMap(evt, es, dynamic_cast<const reco::Muon*>(&*muPlus), *energyDepositsMuPlus);
-  fillEnergyDepositMap(evt, es, dynamic_cast<const reco::Muon*>(&*muMinus), *energyDepositsMuMinus);
+  if ( muPlus.isNonnull()  ) fillEnergyDepositMap(evt, es, &(*muPlus), *energyDepositsMuPlus);
+  if ( muMinus.isNonnull() ) fillEnergyDepositMap(evt, es, &(*muMinus), *energyDepositsMuMinus);
 
   evt.put(energyDepositsMuPlus, "energyDepositsMuPlus");
   evt.put(energyDepositsMuMinus, "energyDepositsMuMinus");
 }
 
-void MuonCaloCleanerAllCrossed::fillEnergyDepositMap(edm::Event& evt, const edm::EventSetup& es, const reco::Muon* muon, detIdToFloatMap& energyDepositMap)
+void MuonCaloCleanerAllCrossed::fillEnergyDepositMap(edm::Event& evt, const edm::EventSetup& es, const reco::Candidate* muon, detIdToFloatMap& energyDepositMap)
 {
-  if ( muon->globalTrack().isNull() ) 
-    throw cms::Exception("InvalidData") 
-      << "Muon is not a global muon: Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << " !!\n";
-  
-  TrackDetMatchInfo trackDetMatchInfo = trackAssociator_.associate(evt, es, *muon->globalTrack(), trackAssociatorParameters_);
+  TrackDetMatchInfo trackDetMatchInfo = getTrackDetMatchInfo(evt, es, trackAssociator_, trackAssociatorParameters_, muon);
   
   for ( std::vector<const EcalRecHit*>::const_iterator rh = trackDetMatchInfo.crossedEcalRecHits.begin();
 	rh != trackDetMatchInfo.crossedEcalRecHits.end(); ++rh ) {

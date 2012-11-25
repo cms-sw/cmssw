@@ -12,7 +12,7 @@ def customise(process):
   from TauAnalysis.MCEmbeddingTools.setDefaults import setDefaults
   setDefaults(process)
    
-  inputProcess = process.customization_options.inputProcess.value()
+  inputProcess = process.customization_options.inputProcessRECO.value()
   print "Input process set to '%s'" % inputProcess
   
   process._Process__name = "EmbeddedRECO"
@@ -20,27 +20,41 @@ def customise(process):
   # DQM store output for muon acceptance histograms
   process.DQMStore = cms.Service("DQMStore")
 
-  # select generator level muons
-  process.genMuonsFromZs = cms.EDProducer("GenParticlesFromZsSelectorForMCEmbedding",
-    src = cms.InputTag("genParticles"),
-    pdgIdsMothers = cms.vint32(23, 22),
-    pdgIdsDaughters = cms.vint32(13),
-    maxDaughters = cms.int32(2),
-    minDaughters = cms.int32(2)
-  )
-  process.ProductionFilterSequence += process.genMuonsFromZs
+  if process.customization_options.isMC.value():
+    print "Input is MC"
+    
+    # select generator level muons
+    process.genMuonsFromZs = cms.EDProducer("GenParticlesFromZsSelectorForMCEmbedding",
+      src = cms.InputTag("genParticles", "", process.customization_options.inputProcessSIM.value()),
+      pdgIdsMothers = cms.vint32(23, 22),
+      pdgIdsDaughters = cms.vint32(13),
+      maxDaughters = cms.int32(2),
+      minDaughters = cms.int32(2)
+    )
+    process.ProductionFilterSequence.replace(process.removedInputMuons, process.genMuonsFromZs*process.removedInputMuons)
 
+    # produce generator level MET (= sum of neutrino momenta)
+    process.genMetTrue = cms.EDProducer("MixedGenMEtProducer",
+      srcGenParticles1 = cms.InputTag("genParticles", "", process.customization_options.inputProcessSIM.value()),
+      srcGenParticles2 = cms.InputTag("genParticles"),
+      srcGenRemovedMuons = cms.InputTag("genMuonsFromZs")
+    )
+    process.ProductionFilterSequence += process.genMetTrue
+  else:
+    print "Input is Data"
+  
   # update InputTags defined in PFEmbeddingSource_cff.py
   print "Setting collection of Z->mumu candidates to '%s'" % process.customization_options.ZmumuCollection.getModuleLabel()
   if not hasattr(process, "removedInputMuons"):
     process.load("TauAnalysis.MCEmbeddingTools.PFEmbeddingSource_cff")
-  process.removedInputMuons.selectedMuons = process.customization_options.ZmumuCollection
   if process.customization_options.replaceGenOrRecMuonMomenta.value() == 'gen':
     print "Taking momenta of generated tau leptons from generator level muons"
     process.generator.src = cms.InputTag('genMuonsFromZs')
+    process.removedInputMuons.selectedMuons = cms.InputTag('genMuonsFromZs')
   elif process.customization_options.replaceGenOrRecMuonMomenta.value() == 'rec':
     print "Taking momenta of generated tau leptons from reconstructed muons"
     process.generator.src = process.customization_options.ZmumuCollection
+    process.removedInputMuons.selectedMuons = process.customization_options.ZmumuCollection
   else:
     raise ValueError("Invalid Configuration parameter 'replaceGenOrRecMuonMomenta' = %s !!" % process.customization_options.replaceGenOrRecMuonMomenta.value())
 
@@ -83,7 +97,7 @@ def customise(process):
   #  o Z -> mumu event selection
   #  o muon -> muon + photon radiation filter
   outputModule.outputCommands.extend(['keep *_goldenZmumuFilterResult_*_*'])
-  outputModule.outputCommands.extend(['keep *_muonRadiationFilterResultt_*_*'])
+  outputModule.outputCommands.extend(['keep *_muonRadiationFilterResult_*_*'])
 
   # replace HLT process name
   # (needed for certain reprocessed Monte Carlo samples)
@@ -109,7 +123,7 @@ def customise(process):
   process.generator.Ztautau.TauolaOptions.InputCards.mdtau = process.customization_options.mdtau 
   process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = process.customization_options.mdtau 
   
-  print "Setting minVisibleTransverseMomentum to ''", process.customization_options.minVisibleTransverseMomentum.value()
+  print "Setting minVisibleTransverseMomentum to '%s'" % process.customization_options.minVisibleTransverseMomentum.value()
   process.generator.Ztautau.minVisibleTransverseMomentum = process.customization_options.minVisibleTransverseMomentum
 
   print "Setting transformationMode to %i" % process.customization_options.transformationMode.value()
@@ -177,6 +191,13 @@ def customise(process):
     pth = getattr(process,p)
     if "trackerDrivenElectronSeeds" in pth.moduleNames():
         pth.replace(process.trackerDrivenElectronSeeds, process.trackerDrivenElectronSeedsORG*process.trackerDrivenElectronSeeds)
+
+  process.gsfConversionTrackProducer.TrackProducer = cms.string('electronGsfTracksORG')
+
+  # CV: need to keep 'generalTracksORG' collection in event-content,
+  #     as (at least electron based) PFCandidates will refer to it,
+  #     causing exception in 'pfNoPileUp' module otherwise
+  outputModule.outputCommands.extend(['keep *_generalTracksORG_*_*'])
   #----------------------------------------------------------------------------------------------------------------------
 
   # mix collections of GSF electron tracks
@@ -302,19 +323,23 @@ def customise(process):
     print "Enabling Zmumu skim"
     process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
     for path in process.paths:
-      getattr(process,path)._seq = process.goldenZmumuSelectionSequence * getattr(process,path)._seq
+      getattr(process,path)._seq = process.goldenZmumuFilterSequence * getattr(process,path)._seq
     process.options = cms.untracked.PSet(
       wantSummary = cms.untracked.bool(True)
     )
   else:
-    print "Zmumu skim not enabled"
+    print "Zmumu skim disabled"
   # CV: keep track of Z->mumu selection efficiency
-  process.goldenZmumuFilterResult = cms.EDProducer("DummyBoolEventSelFlagProducer")
-  process.goldenZmumuFilterEfficiencyPath = cms.Path(process.goldenZmumuSelectionSequence * process.goldenZmumuFilterResult)
+  process.goldenZmumuFilterResult = cms.EDProducer("CandViewCountEventSelFlagProducer",
+    src = process.customization_options.ZmumuCollection,
+    minNumber = cms.uint32(1)
+  )
+  process.goldenZmumuFilterEfficiencyPath = cms.Path(process.goldenZmumuSelectionSequence + process.goldenZmumuFilterResult + process.MEtoEDMConverter)
+  process.schedule.append(process.goldenZmumuFilterEfficiencyPath)
 
   process.load("TauAnalysis/MCEmbeddingTools/muonRadiationFilter_cfi")
   process.muonRadiationFilter.srcSelectedMuons = process.customization_options.ZmumuCollection
-  if process.customization_options.applyMuonRadiationFilter:
+  if process.customization_options.applyMuonRadiationFilter.value():
     print "Muon -> muon + photon radiation filter enabled"
     # CV: add filter at the end of reconstruction path
     #    (filter needs mixed 'pfPileUp' and 'pfNoPileUp' collections)
@@ -323,10 +348,10 @@ def customise(process):
       wantSummary = cms.untracked.bool(True)
     )  
   else:
-    print "Muon -> muon + photon radiation filter not enabled"
+    print "Muon -> muon + photon radiation filter disabled"
   # CV: keep track of which events pass/fail muon -> muon + photon radiation filter
   process.muonRadiationFilterResult = cms.EDProducer("DummyBoolEventSelFlagProducer")
-  process.muonRadiationFilterEfficiencyPath = cms.Path(process.muonRadiationFilterSequence * process.muonRadiationFilterResult)
-  process.schedule += process.muonRadiationFilterEfficiencyPath
+  process.muonRadiationFilterEfficiencyPath = cms.Path(process.goldenZmumuSelectionSequence + process.muonRadiationFilterSequence + process.muonRadiationFilterResult)
+  process.schedule.append(process.muonRadiationFilterEfficiencyPath)
     
   return(process)

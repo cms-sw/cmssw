@@ -3,10 +3,16 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::ParameterSet& cfg)
-  : srcWeights_(cfg.getParameter<vInputTag>("srcWeights")),
+  : srcMuons_(cfg.getParameter<edm::InputTag>("srcMuons")),
+    srcTracks_(cfg.getParameter<edm::InputTag>("srcTracks")),
+    srcWeights_(cfg.getParameter<vInputTag>("srcWeights")),
     dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory"))
 {
 //--- setup electron Pt, eta and phi distributions;
@@ -152,6 +158,16 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   DQMStore& dqmStore = (*edm::Service<DQMStore>());
 
 //--- book all histograms
+  histogramNumTracksPtGt5_     = dqmStore.book1D("numTracksPtGt5",     "numTracksPtGt5",     50, -0.5, 49.5);
+  histogramNumTracksPtGt10_    = dqmStore.book1D("numTracksPtGt10",    "numTracksPtGt10",    50, -0.5, 49.5);
+  histogramNumTracksPtGt20_    = dqmStore.book1D("numTracksPtGt20",    "numTracksPtGt20",    50, -0.5, 49.5);
+  histogramNumTracksPtGt30_    = dqmStore.book1D("numTracksPtGt30",    "numTracksPtGt30",    50, -0.5, 49.5);
+  histogramNumTracksPtGt40_    = dqmStore.book1D("numTracksPtGt40",    "numTracksPtGt40",    50, -0.5, 49.5);
+  
+  histogramNumGlobalMuons_     = dqmStore.book1D("numGlobalMuons",     "numGlobalMuons",     20, -0.5, 19.5);
+  histogramNumStandAloneMuons_ = dqmStore.book1D("numStandAloneMuons", "numStandAloneMuons", 20, -0.5, 19.5);
+  histogramNumPFMuons_         = dqmStore.book1D("numPFMuons",         "numPFMuons",         20, -0.5, 19.5);
+
   bookHistograms(electronDistributions_, dqmStore);
   bookHistograms(electronEfficiencies_, dqmStore);
   bookHistograms(electronL1TriggerEfficiencies_, dqmStore);
@@ -178,6 +194,42 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   if ( evtWeight < 1.e-3 || evtWeight > 1.e+3 || TMath::IsNaN(evtWeight) ) return;
 
 //--- fill all histograms
+  edm::Handle<reco::TrackCollection> tracks;
+  evt.getByLabel(srcTracks_, tracks);
+  int numTracksPtGt5  = 0;
+  int numTracksPtGt10 = 0;
+  int numTracksPtGt20 = 0;
+  int numTracksPtGt30 = 0;
+  int numTracksPtGt40 = 0;
+  for ( reco::TrackCollection::const_iterator track = tracks->begin();
+	track != tracks->end(); ++track ) {
+    if ( track->pt() >  5. ) ++numTracksPtGt5;
+    if ( track->pt() > 10. ) ++numTracksPtGt10;
+    if ( track->pt() > 20. ) ++numTracksPtGt20;
+    if ( track->pt() > 30. ) ++numTracksPtGt30;
+    if ( track->pt() > 40. ) ++numTracksPtGt40;
+  }
+  histogramNumTracksPtGt5_->Fill(numTracksPtGt5, evtWeight);
+  histogramNumTracksPtGt10_->Fill(numTracksPtGt10, evtWeight);
+  histogramNumTracksPtGt20_->Fill(numTracksPtGt20, evtWeight);
+  histogramNumTracksPtGt30_->Fill(numTracksPtGt30, evtWeight);
+  histogramNumTracksPtGt40_->Fill(numTracksPtGt40, evtWeight);
+  
+  edm::Handle<reco::MuonCollection> muons;
+  evt.getByLabel(srcMuons_, muons);
+  int numGlobalMuons     = 0;
+  int numStandAloneMuons = 0;
+  int numPFMuons         = 0;
+  for ( reco::MuonCollection::const_iterator muon = muons->begin();
+	muon != muons->end(); ++muon ) {
+    if ( muon->isGlobalMuon()     ) ++numGlobalMuons;
+    if ( muon->isStandAloneMuon() ) ++numStandAloneMuons;
+    if ( muon->isPFMuon()         ) ++numPFMuons;
+  }
+  histogramNumGlobalMuons_->Fill(numGlobalMuons, evtWeight);
+  histogramNumStandAloneMuons_->Fill(numStandAloneMuons, evtWeight);
+  histogramNumPFMuons_->Fill(numPFMuons, evtWeight);
+
   fillHistograms(electronDistributions_, evt, evtWeight);
   fillHistograms(electronEfficiencies_, evt, evtWeight);
   fillHistograms(electronL1TriggerEfficiencies_, evt, evtWeight);

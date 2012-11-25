@@ -11,7 +11,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: MuonDetCleaner.h,v 1.1 2012/10/24 09:37:14 veelken Exp $
+ * $Id: MuonDetCleaner.h,v 1.1 2012/10/25 13:38:31 veelken Exp $
  *
  */
 
@@ -20,6 +20,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 
 #include <DataFormats/MuonReco/interface/Muon.h>
 
@@ -35,9 +38,12 @@ class MuonDetCleaner : public edm::EDProducer
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   typedef std::map<uint32_t, int> detIdToIntMap;
-  void fillHitMap(const reco::Muon*, detIdToIntMap&);
+  void fillHitMap(edm::Event&, const edm::EventSetup&, const reco::Candidate*, detIdToIntMap&);
       
   edm::InputTag srcSelectedMuons_;
+
+  TrackDetectorAssociator trackAssociator_;
+  TrackAssociatorParameters trackAssociatorParameters_;
 
   int verbosity_;
 };

@@ -33,6 +33,6 @@ removedInputMuons = cms.EDProducer('ZmumuPFEmbedder',
  
 ProductionFilterSequence = cms.Sequence(
   removedInputMuons
- * generator
- * filterEmptyEv
+ + generator
+ + filterEmptyEv
 )

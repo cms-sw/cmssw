@@ -19,7 +19,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: MuonCaloCleanerAllCrossed.h,v 1.1 2012/10/14 12:22:24 veelken Exp $
+ * $Id: MuonCaloCleanerAllCrossed.h,v 1.1 2012/10/24 09:37:14 veelken Exp $
  *
  */
 
@@ -44,7 +44,7 @@ class MuonCaloCleanerAllCrossed : public edm::EDProducer
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   typedef std::map<uint32_t, float> detIdToFloatMap;
-  void fillEnergyDepositMap(edm::Event&, const edm::EventSetup&, const reco::Muon*, detIdToFloatMap&);
+  void fillEnergyDepositMap(edm::Event&, const edm::EventSetup&, const reco::Candidate*, detIdToFloatMap&);
       
   edm::InputTag srcSelectedMuons_;
   edm::InputTag srcESrecHits_;

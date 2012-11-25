@@ -46,8 +46,8 @@ void PFMuonCaloCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<PFCandidateView> pfCandidates;
   evt.getByLabel(srcPFCandidates_, pfCandidates);
 
-  fillEnergyDepositMap(dynamic_cast<const reco::Muon*>(&*muPlus), *pfCandidates, *energyDepositMuPlus);
-  fillEnergyDepositMap(dynamic_cast<const reco::Muon*>(&*muMinus), *pfCandidates, *energyDepositMuMinus);
+  if ( muPlus.isNonnull()  ) fillEnergyDepositMap(dynamic_cast<const reco::Muon*>(&*muPlus), *pfCandidates, *energyDepositMuPlus);
+  if ( muMinus.isNonnull() ) fillEnergyDepositMap(dynamic_cast<const reco::Muon*>(&*muMinus), *pfCandidates, *energyDepositMuMinus);
 
   evt.put(energyDepositMuPlus, "energyDepositsMuPlus");
   evt.put(energyDepositMuMinus, "energyDepositsMuMinus");
@@ -71,6 +71,10 @@ namespace
 
 void PFMuonCaloCleaner::fillEnergyDepositMap(const reco::Muon* muon, const edm::View<reco::PFCandidate>& pfCandidates, detIdToFloatMap& energyDepositMap)
 {
+  if ( !muon )
+    throw cms::Exception("InvalidData") 
+      << "Collection 'selectedMuons' = " << srcSelectedMuons_.label() << " is not of valid type !!\n";
+  
   bool isMatched = false;
   for ( edm::View<reco::PFCandidate>::const_iterator pfCandidate = pfCandidates.begin();
 	pfCandidate != pfCandidates.end(); ++pfCandidate ) {

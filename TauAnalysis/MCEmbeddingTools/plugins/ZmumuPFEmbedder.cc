@@ -7,9 +7,9 @@
  * 
  * \author Tomasz Maciej Frueboes
  *
- * \version $Revision: 1.14 $
+ * \version $Revision: 1.15 $
  *
- * $Id: ZmumuPFEmbedder.cc,v 1.14 2012/10/09 09:00:25 veelken Exp $
+ * $Id: ZmumuPFEmbedder.cc,v 1.15 2012/10/14 12:22:24 veelken Exp $
  *
  */
 
@@ -28,8 +28,9 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
 
 class ZmumuPFEmbedder : public edm::EDProducer 
 {
@@ -43,21 +44,16 @@ class ZmumuPFEmbedder : public edm::EDProducer
   void produceTrackColl(edm::Event&, const std::vector<reco::Particle::LorentzVector>*);
       
   edm::InputTag srcTracks_;
-  edm::InputTag srcTrajectories_;
   edm::InputTag srcPFCandidates_;
   edm::InputTag srcSelectedMuons_;
-
-  typedef std::vector<Trajectory> TrajectoryCollection;
 };
 
 ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& cfg)
   : srcTracks_(cfg.getParameter<edm::InputTag>("tracks")),
-    srcTrajectories_(cfg.getParameter<edm::InputTag>("trajectories")),
     srcPFCandidates_(cfg.getParameter<edm::InputTag>("pfCands")),
     srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons"))
 {
   produces<reco::TrackCollection>("tracks");
-  //produces<TrajectoryCollection>("tracks");
   produces<reco::PFCandidateCollection>("pfCands");
 }
 
@@ -76,30 +72,13 @@ namespace
 void
 ZmumuPFEmbedder::produce(edm::Event& evt, const edm::EventSetup& es)
 {
+  std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
+  const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
+  const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
+
   std::vector<reco::Particle::LorentzVector> selMuonP4s;
-  //   
-  // NOTE: the following logic of finding "the" muon pair needs to be kept in synch
-  //       between ZmumuPFEmbedder and MCParticleReplacer modules
-  //
-  edm::Handle<reco::CompositeCandidateCollection> combCandidatesHandle;
-  if ( evt.getByLabel(srcSelectedMuons_, combCandidatesHandle) ) {
-    if ( combCandidatesHandle->size() >= 1 ) {
-      const reco::CompositeCandidate& combCandidate = combCandidatesHandle->at(0); // TF: use only the first combined candidate
-      for ( size_t idx = 0; idx < combCandidate.numberOfDaughters(); ++idx ) { 
-	selMuonP4s.push_back(combCandidate.daughter(idx)->p4());
-      }
-    }
-  } else {
-    edm::Handle<reco::MuonCollection> selectedMuonsHandle;
-    if ( evt.getByLabel(srcSelectedMuons_, selectedMuonsHandle) ) {
-      for ( size_t idx = 0; idx < selectedMuonsHandle->size(); ++idx ) {
-	selMuonP4s.push_back(selectedMuonsHandle->at(idx).p4());
-      }
-    } else {
-      throw cms::Exception("Configuration") 
-	<< "Invalid input collection 'selectedMuons' = " << srcSelectedMuons_ << " !!\n";
-    }
-  }
+  if ( muPlus.isNonnull()  ) selMuonP4s.push_back(muPlus->p4());
+  if ( muMinus.isNonnull() ) selMuonP4s.push_back(muMinus->p4());
 
   producePFCandColl(evt, &selMuonP4s);
   produceTrackColl(evt, &selMuonP4s);
@@ -140,11 +119,7 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event& evt, const std::vector<reco::
   edm::Handle<reco::TrackCollection> tracks;
   evt.getByLabel(srcTracks_, tracks);
 
-  //edm::Handle<TrajectoryCollection> trajectories;
-  //evt.getByLabel(srcTrajectories_, trajectories);
-
   std::auto_ptr<reco::TrackCollection> tracks_woMuons(new reco::TrackCollection());
-  std::auto_ptr<TrajectoryCollection> trajectories_woMuons(new TrajectoryCollection());
 
   for ( reco::TrackCollection::const_iterator track = tracks->begin();
 	track != tracks->end(); ++track ) {
@@ -154,23 +129,13 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event& evt, const std::vector<reco::
       double dR = reco::deltaR(track->eta(), track->phi(), selMuonP4->eta(), selMuonP4->phi());
       if ( dR < dRmin ) dRmin = dR;
     }
-    bool isMuonTrack = (dRmin < 1.e-4);
+    bool isMuonTrack = (dRmin < 1.e-3);
     if ( !isMuonTrack ) { // track belongs to a selected muon, do not copy
       tracks_woMuons->push_back(*track);
-      //for ( TrajectoryCollection::const_iterator trajectory = trajectories->begin();
-      //       trajectory != trajectories->end(); ++trajectory ) {
-      //  if ( trajectory->seedRef().id()  == track->seedRef().id()  && 
-      //       trajectory->seedRef().key() == track->seedRef().key() ) trajectories_woMuons->push_back(*trajectory);
-      //}
     }
   }
-
-  //if ( tracks_woMuons->size() != trajectories_woMuons->size() )
-  //  edm::LogError ("ZmumuPFEmbedder::produceTrackColl")
-  //    << "Mismatch between number of reco::Track = " << tracks_woMuons->size() << " and Trajectory = " << trajectories_woMuons->size() << " objects !!" << std::endl; 
 	
   evt.put(tracks_woMuons, "tracks");
-  //evt.put(trajectories_woMuons, "tracks");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

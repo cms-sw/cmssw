@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.2 2012/10/14 16:04:03 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.1 2012/11/12 08:02:35 veelken Exp $
  *
  */
 
@@ -60,11 +60,24 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     return dqmDirectory_full.Data();
   }
   
+  edm::InputTag srcMuons_;
+  edm::InputTag srcTracks_;
+
   typedef std::vector<edm::InputTag> vInputTag;
   vInputTag srcWeights_;
 
   std::string dqmDirectory_;
 
+  MonitorElement* histogramNumTracksPtGt5_;
+  MonitorElement* histogramNumTracksPtGt10_;
+  MonitorElement* histogramNumTracksPtGt20_;
+  MonitorElement* histogramNumTracksPtGt30_;
+  MonitorElement* histogramNumTracksPtGt40_;
+
+  MonitorElement* histogramNumGlobalMuons_;
+  MonitorElement* histogramNumStandAloneMuons_;
+  MonitorElement* histogramNumPFMuons_;
+  
   template <typename T>
   struct leptonDistributionT
   {

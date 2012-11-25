@@ -1,24 +1,26 @@
 import FWCore.ParameterSet.Config as cms
+
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import patMuons
-patMuons.addGenMatch = cms.bool(False)
-patMuons.embedCaloMETMuonCorrs = cms.bool(False)
-patMuons.embedTcMETMuonCorrs = cms.bool(False)
+patMuonsForZmumuSelection = patMuons.clone()
+patMuonsForZmumuSelection.addGenMatch = cms.bool(False)
+patMuonsForZmumuSelection.embedCaloMETMuonCorrs = cms.bool(False)
+patMuonsForZmumuSelection.embedTcMETMuonCorrs = cms.bool(False)
 
 goodVertex = cms.EDFilter("VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
     cut = cms.string("(!isFake) & ndof >= 4 & abs(z) < 24 & position.Rho < 2"),
-    filter = cms.bool(True)
+    filter = cms.bool(False)
 )
 
 goodMuons = cms.EDFilter("PATMuonSelector",
-    src = cms.InputTag("patMuons"),
+    src = cms.InputTag("patMuonsForZmumuSelection"),
     cut = cms.string(
         'pt > 10 && abs(eta) < 2.5 && isGlobalMuon && isPFMuon '
         ' && track.hitPattern.trackerLayersWithMeasurement > 5 & innerTrack.hitPattern.numberOfValidPixelHits > 0'
         ' && abs(dB) < 0.2 && globalTrack.normalizedChi2 < 10'
         ' && globalTrack.hitPattern.numberOfValidMuonHits > 0 && numberOfMatchedStations > 1'
     ),
-    filter = cms.bool(True)
+    filter = cms.bool(False)
 )
 
 highestPtMuPlus = cms.EDFilter("UniquePATMuonSelector",
@@ -89,30 +91,35 @@ goldenZmumuFilter = cms.EDFilter("CandViewCountFilter",
 )
 
 goldenZmumuPreFilterHistos = cms.EDAnalyzer("AcceptanceHistoProducer",
-	dqmDir = cms.string('PreFilter'),
-	srcGenParticles = cms.InputTag("genParticles"))
+    dqmDir = cms.string('PreFilter'),
+    srcGenParticles = cms.InputTag("genParticles")
+)
 goldenZmumuPostFilterHistos = goldenZmumuPreFilterHistos.clone(
-	dqmDir = cms.string('PostFilter'))
-
+    dqmDir = cms.string('PostFilter')
+)
 from DQMServices.Components.MEtoEDMConverter_cff import MEtoEDMConverter
 MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)
 
 goldenZmumuSelectionSequence = cms.Sequence(
     goodVertex
-   * patMuons 
-   * goodMuons
-   * highestPtMuPlus
-   * highestPtMuMinus 
-   * goodMuonsPFIso
-   * highestPtMuPlusPFIso
-   * highestPtMuMinusPFIso 
-   * goldenZmumuCandidatesGe0IsoMuons
-   * goldenZmumuCandidatesGe1IsoMuonsComb1
-   * goldenZmumuCandidatesGe1IsoMuonsComb2
-   * goldenZmumuCandidatesGe1IsoMuons
-   * goldenZmumuCandidatesGe2IsoMuons
-   * goldenZmumuPreFilterHistos
-   * goldenZmumuFilter
-   * goldenZmumuPostFilterHistos
-   * MEtoEDMConverter
+   + patMuonsForZmumuSelection 
+   + goodMuons
+   + highestPtMuPlus
+   + highestPtMuMinus 
+   + goodMuonsPFIso
+   + highestPtMuPlusPFIso
+   + highestPtMuMinusPFIso 
+   + goldenZmumuCandidatesGe0IsoMuons
+   + goldenZmumuCandidatesGe1IsoMuonsComb1
+   + goldenZmumuCandidatesGe1IsoMuonsComb2
+   + goldenZmumuCandidatesGe1IsoMuons
+   + goldenZmumuCandidatesGe2IsoMuons
+   + goldenZmumuPreFilterHistos
+)
+
+goldenZmumuFilterSequence = cms.Sequence(
+    goldenZmumuSelectionSequence    
+   + goldenZmumuFilter
+   + goldenZmumuPostFilterHistos
+   + MEtoEDMConverter
 )

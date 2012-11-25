@@ -6,86 +6,220 @@ import string
 import subprocess
 
 samples = {
-    'simDYtoMuMu' : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/Summer12_DR53X-PU_S10_START53_V7A-v2/GEN-SIM-RECO'
+    'simDYtoMuMu' : {
+        'datasetpath' : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/veelken-skimGenZmumuMuPtGt15EtaLt9p9plusMuPtGt5EtaLt9p9-69987cf12dddbc8db709f491408cceae/USER', # (6864801 events)
+        'dbs_url'     : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+        'type'        : 'MC'
+    }
 }
 
-version = "v1_0"
+version = "v1_4_1"
 
 options = {
     # e+tau samples
-    'noEvtSel_embedEqPF_replaceGenMuons_by_etau' : {
+##     'noEvtSel_embedEqPF_replaceGenMuons_by_etau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',
+##         'mdtau'                        : 115,
+##         'minVisibleTransverseMomentum' : "elec1_9had1_15",
+##         'embeddingMode'                : 'PF',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'PF',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqPF_replaceGenMuons_by_etau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',    
+##         'mdtau'                        : 115,
+##         'minVisibleTransverseMomentum' : "elec1_9had1_15",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'PF',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90' : {
+        'ZmumuCollection'              : 'genMuonsFromZs',        
         'mdtau'                        : 115,
-        'minVisibleTransverseMomentum' : "elec1_9_had1_15",
-        'embeddingMode'                : 'PF',
-        'replaceGenOrRecMuonMomenta'   : 'gen',
-        'cleaningMode'                 : 'PF',
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
-    },
-    'noEvtSel_embedEqRH_cleanEqPF_replaceGenMuons_by_etau' : {
-        'mdtau'                        : 115,
-        'minVisibleTransverseMomentum' : "elec1_9_had1_15",
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'gen',
-        'cleaningMode'                 : 'PF',
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
-    },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau' : {
-        'mdtau'                        : 115,
-        'minVisibleTransverseMomentum' : "elec1_9_had1_15",
+        'minVisibleTransverseMomentum' : "elec1_0had1_0",
         'embeddingMode'                : 'RH',
         'replaceGenOrRecMuonMomenta'   : 'gen',
         'cleaningMode'                 : 'DEDX',
         'applyZmumuSkim'               : False,
         'applyMuonRadiationFilter'     : False
     },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau' : {
-        'mdtau'                        : 115,
-        'minVisibleTransverseMomentum' : "elec1_9_had1_15",
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'rec',
-        'cleaningMode'                 : 'DEDX',
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
-    },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq0' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',    
+##         'mdtau'                        : 115,
+##         'minVisibleTransverseMomentum' : "elec1_9had1_15",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_etau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+##         'mdtau'                        : 115,
+##         'minVisibleTransverseMomentum' : "elec1_9had1_15",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'rec',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : True,
+##         'applyMuonRadiationFilter'     : False
+##     },    
     # mu+tau samples
-    'noEvtSel_embedEqPF_replaceGenMuons_by_mutau' : {
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_6_had1_15",
-        'embeddingMode'                : 'PF',
-        'replaceGenOrRecMuonMomenta'   : 'gen',
-        'cleaningMode'                 : 'PF',
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
-    },
-    'noEvtSel_embedEqRH_cleanEqPF_replaceGenMuons_by_mutau' : {
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_6_had1_15",
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'gen',
-        'cleaningMode'                 : 'PF',
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
-    },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau' : {
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_6_had1_15",
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'gen',
-        'cleaningMode'                 : 'DEDX',
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
-    },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau' : {
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_6_had1_15",
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'rec',
-        'cleaningMode'                 : 'DEDX',
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
-    }
+##     'noEvtSel_embedEqPF_replaceGenMuons_by_mutau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
+##         'embeddingMode'                : 'PF',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'PF',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqPF_replaceGenMuons_by_mutau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',    
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'PF',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_0had1_0",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',    
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'rec',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : True,
+##         'applyMuonRadiationFilter'     : False
+##     },
+    # mu+mu samples
+##     'noEvtSel_embedEqPF_replaceGenMuons_by_mumu_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',
+##         'mdtau'                        : 122,
+##         'minVisibleTransverseMomentum' : "mu1_18mu2_8",
+##         'embeddingMode'                : 'PF',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'PF',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqPF_replaceGenMuons_by_mumu_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',    
+##         'mdtau'                        : 122,
+##         'minVisibleTransverseMomentum' : "mu1_18mu2_8",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'PF',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mumu_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',
+##         'mdtau'                        : 122,
+##         'minVisibleTransverseMomentum' : "mu1_0mu2_0",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mumu_embedAngleEq0' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',    
+##         'mdtau'                        : 122,
+##         'minVisibleTransverseMomentum' : "mu1_18mu2_8",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mumu_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',        
+##         'mdtau'                        : 122,
+##         'minVisibleTransverseMomentum' : "mu1_18mu2_8",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'rec',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : True,
+##         'applyMuonRadiationFilter'     : False
+##     },
+    # had+had samples
+##     'noEvtSel_embedEqPF_replaceGenMuons_by_tautau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',    
+##         'mdtau'                        : 132,
+##         'minVisibleTransverseMomentum' : "had1_17had2_17",
+##         'embeddingMode'                : 'PF',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'PF',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqPF_replaceGenMuons_by_tautau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',    
+##         'mdtau'                        : 132,
+##         'minVisibleTransverseMomentum' : "had1_17had2_17",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'PF',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_tautau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',        
+##         'mdtau'                        : 132,
+##         'minVisibleTransverseMomentum' : "had1_0had2_0",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_tautau_embedAngleEq0' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',
+##         'mdtau'                        : 132,
+##         'minVisibleTransverseMomentum' : "had1_17had2_17",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_tautau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',        
+##         'mdtau'                        : 132,
+##         'minVisibleTransverseMomentum' : "had1_17had2_17",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'rec',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : True,
+##         'applyMuonRadiationFilter'     : False
+##     }
 }
 
 crab_template = string.Template('''
@@ -96,11 +230,12 @@ use_server = 1
 
 [CMSSW]
 datasetpath = $datasetpath
+dbs_url = $dbs_url
 pset = $pset
 output_file = embed_AOD.root
 # CV: use for MC
 total_number_of_events = -1
-events_per_job = 20000
+events_per_job = 2500
 # CV: use for Data
 #lumi_mask = /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/DCSOnly/json_DCSONLY.txt
 #total_number_of_lumis = 2
@@ -139,31 +274,41 @@ def runCommand(commandLine):
 crabCommands_create_and_submit = []
 crabCommands_publish           = []
 
-for sampleName, datasetpath in samples.items():
-    for label, option in options.items():
+for sampleName, sampleOption in samples.items():
+    for embeddingName, embeddingOption in options.items():
         # create config file for cmsRun
-        cfgFileName = "embed_%s_%s_cfg.py" % (sampleName, label)
+        cfgFileName = "embed_%s_%s_cfg.py" % (sampleName, embeddingName)
         runCommand('rm -f %s' % cfgFileName)
         sedCommand  = "sed 's/#__//g"
-        sedCommand += ";s/$mdtau/%i/g" % option['mdtau']
-        sedCommand += ";s/$minVisibleTransverseMomentum/%s/g" % option['minVisibleTransverseMomentum'].replace(";", "\;")
-        sedCommand += ";s/$embeddingMode/%s/g" % option['embeddingMode']
-        sedCommand += ";s/$replaceGenOrRecMuonMomenta/%s/g" % option['replaceGenOrRecMuonMomenta']
-        sedCommand += ";s/$cleaningMode/%s/g" % option['cleaningMode']
-        sedCommand += ";s/$applyZmumuSkim/%s/g" % getStringRep_bool(option['applyZmumuSkim'])    
-        sedCommand += ";s/$applyMuonRadiationFilter/%s/g'" % getStringRep_bool(option['applyMuonRadiationFilter'])    
+        isMC = None
+        if sampleOption['type'] == "Data":
+            isMC = False
+        elif sampleOption['type'] == "MC":
+            isMC = True
+        else:
+            raise ValueError ("Sample = %s is of invalid type = %s !!" % (sampleName, sampleOption['type']))
+        sedCommand += ";s/$isMC/%s/g" % getStringRep_bool(isMC)
+        sedCommand += ";s/$ZmumuCollection/%s/g" % embeddingOption['ZmumuCollection']
+        sedCommand += ";s/$mdtau/%i/g" % embeddingOption['mdtau']
+        sedCommand += ";s/$minVisibleTransverseMomentum/%s/g" % embeddingOption['minVisibleTransverseMomentum'].replace(";", "\;")
+        sedCommand += ";s/$embeddingMode/%s/g" % embeddingOption['embeddingMode']
+        sedCommand += ";s/$replaceGenOrRecMuonMomenta/%s/g" % embeddingOption['replaceGenOrRecMuonMomenta']
+        sedCommand += ";s/$cleaningMode/%s/g" % embeddingOption['cleaningMode']
+        sedCommand += ";s/$applyZmumuSkim/%s/g" % getStringRep_bool(embeddingOption['applyZmumuSkim'])    
+        sedCommand += ";s/$applyMuonRadiationFilter/%s/g'" % getStringRep_bool(embeddingOption['applyMuonRadiationFilter'])    
         sedCommand += " %s > %s" % (cfg_template, cfgFileName)
         runCommand(sedCommand)
         
         # create crab config file
         crabOptions = {
-            'datasetpath'       : datasetpath,
+            'datasetpath'       : sampleOption['datasetpath'],
+            'dbs_url'           : sampleOption['dbs_url'],
             'pset'              : cfgFileName,
-            'ui_working_dir'    : os.path.join(submissionDirectory, "crabdir_%s_%s" % (sampleName, label)),
-            'user_remote_dir'   : "CMSSW_5_3_x_embed_%s_%s_%s" % (sampleName, label, version),
-            'publish_data_name' : "embed_%s_%s_%s" % (sampleName, label, version)
+            'ui_working_dir'    : os.path.join(submissionDirectory, "crabdir_%s_%s" % (sampleName, embeddingName)),
+            'user_remote_dir'   : "CMSSW_5_3_x_embed_%s_%s_%s" % (sampleName, embeddingName, version),
+            'publish_data_name' : "embed_%s_%s_%s" % (sampleName, embeddingName, version)
         }
-        crabFileName = "crab_embed_%s_%s_cfg.py" % (sampleName, label)
+        crabFileName = "crab_embed_%s_%s_cfg.py" % (sampleName, embeddingName)
         crabFileName_full = os.path.join(submissionDirectory, crabFileName)
         crabFile = open(crabFileName_full, 'w')
         crabConfig = crab_template.substitute(crabOptions)
@@ -186,6 +331,7 @@ shellFileName_publish = "embed_crab_publish.sh"
 shellFile_publish = open(shellFileName_publish, "w")
 for crabCommand in crabCommands_publish:
     shellFile_publish.write("%s\n" % crabCommand)
+    shellFile_publish.write("sleep 10\n") # CV: wait for 10s to prevent overloading crab with too many commands in too short a time
 shellFile_publish.close()
 
 print("Finished building config files. Now execute 'source %s' to create & submit crab jobs." % shellFileName_create_and_submit)

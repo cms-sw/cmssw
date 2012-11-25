@@ -64,7 +64,7 @@ def customise(process, inputProcess):
       selectedMuons = process.customization_options.ZmumuCollection,
       pfCandidates = cms.InputTag("particleFlowForPFMuonCleaning"),
       dRmatch = cms.double(0.3),
-      verbosity = cms.int32(1)                                                
+      verbosity = cms.int32(0)                                                
     )
     process.ProductionFilterSequence += process.pfMuonCaloEnergyDeposits
     
@@ -166,7 +166,8 @@ def customise(process, inputProcess):
 
   # CV: Compute hits in muon detectors of the two muons produced in Z -> mu+ mu- decay
   process.muonDetHits = cms.EDProducer('MuonDetCleaner',
-    selectedMuons = process.customization_options.ZmumuCollection,
+    trackAssociator = trackAssocParamsForMuonCleaning,
+    selectedMuons = process.customization_options.ZmumuCollection,                                       
     verbosity = cms.int32(0)
   )
   process.ProductionFilterSequence += process.muonDetHits

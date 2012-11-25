@@ -13,6 +13,10 @@
 MuonDetCleaner::MuonDetCleaner(const edm::ParameterSet& cfg)
   : srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons"))
 {
+  edm::ParameterSet cfgTrackAssociator = cfg.getParameter<edm::ParameterSet>("trackAssociator");
+  trackAssociatorParameters_.loadParameters(cfgTrackAssociator);
+  trackAssociator_.useDefaultPropagator();
+
   // maps of detId to number of hits attributed to muon
   produces<detIdToIntMap>("hitsMuPlus");
   produces<detIdToIntMap>("hitsMuMinus");
@@ -31,12 +35,12 @@ void MuonDetCleaner::produce(edm::Event& evt, const edm::EventSetup& es)
   std::auto_ptr<detIdToIntMap> hitsMuPlus(new detIdToIntMap());
   std::auto_ptr<detIdToIntMap> hitsMuMinus(new detIdToIntMap());
   
-  std::vector<reco::CandidateBaseRef > selMuons = getSelMuons(evt, srcSelectedMuons_);
+  std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
   const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
   const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
 
-  fillHitMap(dynamic_cast<const reco::Muon*>(&*muPlus), *hitsMuPlus);
-  fillHitMap(dynamic_cast<const reco::Muon*>(&*muMinus), *hitsMuMinus);
+  if ( muPlus.isNonnull()  ) fillHitMap(evt, es, &(*muPlus), *hitsMuPlus);
+  if ( muMinus.isNonnull() ) fillHitMap(evt, es, &(*muMinus), *hitsMuMinus);
 
   evt.put(hitsMuPlus, "hitsMuPlus");
   evt.put(hitsMuMinus, "hitsMuMinus");
@@ -59,19 +63,28 @@ namespace
   }
 }
 
-void MuonDetCleaner::fillHitMap(const reco::Muon* muon, detIdToIntMap& hitMap)
+void MuonDetCleaner::fillHitMap(edm::Event& evt, const edm::EventSetup& es, const reco::Candidate* muon, detIdToIntMap& hitMap)
 {
-  if ( muon->outerTrack().isNull() ) 
-    throw cms::Exception("InvalidData") 
-      << "Muon has no stand-alone muon track: Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << " !!\n";
-  
-  const reco::TrackRef muonOuterTrack = muon->outerTrack();
   int numHits = 0;
-  for ( trackingRecHit_iterator rh = muonOuterTrack->recHitsBegin();
-	rh != muonOuterTrack->recHitsEnd(); ++rh ) {
-    fillHitMapRH(**rh, hitMap, numHits);
+  
+  const reco::Muon* recoMuon = dynamic_cast<const reco::Muon*>(muon);
+  if ( recoMuon && recoMuon->outerTrack().isNonnull() ) {
+    const reco::TrackRef muonOuterTrack = recoMuon->outerTrack();   
+    for ( trackingRecHit_iterator rh = muonOuterTrack->recHitsBegin();
+	  rh != muonOuterTrack->recHitsEnd(); ++rh ) {
+      fillHitMapRH(**rh, hitMap, numHits);
+    }
+  } else {
+    GlobalVector muonP3(muon->px(), muon->py(), muon->pz()); 
+    GlobalPoint muonVtx(muon->vertex().x(), muon->vertex().y(), muon->vertex().z());
+    TrackDetMatchInfo trackDetMatchInfo = trackAssociator_.associate(evt, es, muonP3, muonVtx, muon->charge(), trackAssociatorParameters_);
+    for ( std::vector<TAMuonChamberMatch>::const_iterator rh = trackDetMatchInfo.chambers.begin();
+	  rh != trackDetMatchInfo.chambers.end(); ++rh ) {
+      ++hitMap[rh->id.rawId()];
+      ++numHits;
+    }
   }
-
+  
   if ( verbosity_ ) {
     std::string muonCharge_string = "";
     if      ( muon->charge() > +0.5 ) muonCharge_string = "+";

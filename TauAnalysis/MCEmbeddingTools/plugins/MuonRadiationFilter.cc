@@ -7,6 +7,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+
 #include <TMath.h>
 
 const double nomMassZ = 91.1876;
@@ -28,41 +30,22 @@ MuonRadiationFilter::MuonRadiationFilter(const edm::ParameterSet& cfg)
   maxRelIso_        = cfg.getParameter<double>("maxRelIso");
 
   maxMass_          = cfg.getParameter<double>("maxMass");
+
+  verbosity_ = ( cfg.exists("verbosity") ) ?
+    cfg.getParameter<int>("verbosity") : 0;
 }
 
 bool MuonRadiationFilter::filter(edm::Event& evt, const edm::EventSetup& es)
 {
+  std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
+  const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
+  const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
+
+  if ( muPlus.isNull() || muMinus.isNull() ) return false; // not selected Z --> mu+ mu- event: reject event
+
   typedef std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> LorentzVectorPair;
   std::vector<LorentzVectorPair> selMuonP4s;
-   
-  edm::Handle<reco::CompositeCandidateCollection> combCandidates;
-  if ( evt.getByLabel(srcSelectedMuons_, combCandidates) ) {
-    for ( reco::CompositeCandidateCollection::const_iterator combCandidate = combCandidates->begin();
-	  combCandidate != combCandidates->end(); ++combCandidate ) {
-      if ( combCandidate->numberOfDaughters() != 2 )
-	throw cms::Exception("Configuration") 
-	  << "Invalid input collection 'selectedMuons' = " << srcSelectedMuons_ << " !!\n";
-      selMuonP4s.push_back(LorentzVectorPair(combCandidate->daughter(0)->p4(), combCandidate->daughter(1)->p4()));
-    }
-  } else {
-    edm::Handle<reco::MuonCollection> selectedMuons;
-    if ( evt.getByLabel(srcSelectedMuons_, selectedMuons) ) {
-      for ( reco::MuonCollection::const_iterator selectedMuon1 = selectedMuons->begin();
-	    selectedMuon1 != selectedMuons->end(); ++selectedMuon1 ) {
-	for ( reco::MuonCollection::const_iterator selectedMuon2 = selectedMuon1 + 1;
-	      selectedMuon2 != selectedMuons->end(); ++selectedMuon2 ) {
-	  if ( selectedMuon1->charge()*selectedMuon2->charge() < 0. ) {
-	    selMuonP4s.push_back(LorentzVectorPair(selectedMuon1->p4(), selectedMuon2->p4()));
-	  }
-	}
-      }
-    } else {
-      throw cms::Exception("Configuration") 
-	<< "Invalid input collection 'selectedMuons' = " << srcSelectedMuons_ << " !!\n";
-    }
-  }
-  
-  if ( selMuonP4s.size() == 0 ) return false; // not selected Z --> mu+ mu- event: reject event
+  selMuonP4s.push_back(LorentzVectorPair(muPlus->p4(), muMinus->p4()));
 
   edm::Handle<PFCandidateView> pfCandidatesNoPU;
   evt.getByLabel(srcPFCandsNoPU_, pfCandidatesNoPU);
@@ -82,12 +65,24 @@ bool MuonRadiationFilter::filter(edm::Event& evt, const edm::EventSetup& es)
 	double dR2 = deltaR(pfCandidate->p4(), selMuonP4->second);
 	if ( dR2 < dRmin ) dRmin = dR2;
       }
+      if ( verbosity_ ) {
+	std::cout << "found PFGamma: Pt = " << pfCandidate->pt() << ", dR = " << dRmin << std::endl;
+      }
+
       if ( (dRmin < dRlowPt_  && pfCandidate->pt() > minPtLow_ ) ||
 	   (dRmin < dRhighPt_ && pfCandidate->pt() > minPtHigh_) ) {
 	for ( std::vector<LorentzVectorPair>::const_iterator selMuonP4 = selMuonP4s.begin();
 	      selMuonP4 != selMuonP4s.end(); ++selMuonP4 ) {
+	  bool selMuon_isMuonRadiation = false;
+
 	  double massWithoutPhoton = (selMuonP4->first + selMuonP4->second).mass();
 	  double massWithPhoton = (selMuonP4->first + selMuonP4->second + pfCandidate->p4()).mass();
+	  if ( verbosity_ ) {
+	    std::cout << "muon #1:" << "Pt = " << selMuonP4->first.pt() << ", eta = " << selMuonP4->first.eta() << ", phi = " << selMuonP4->first.phi() << std::endl;
+	    std::cout << "muon #2:" << "Pt = " << selMuonP4->second.pt() << ", eta = " << selMuonP4->second.eta() << ", phi = " << selMuonP4->second.phi() << std::endl;
+	    std::cout << "M(mu+mu) = " << massWithoutPhoton << ", M(mu+mu+gamma) = " << massWithPhoton << std::endl;
+	  }
+
 	  if ( TMath::Abs(massWithPhoton - nomMassZ) < TMath::Abs(massWithoutPhoton - nomMassZ) && massWithPhoton < maxMass_ ) {
 	    double pfChargedCandIsoSumNoPU, pfGammaIsoSumNoPU, pfNeutralHadronIsoSumNoPU;
 	    compPFIso(pfCandidate->p4(), *pfCandidatesNoPU, pfChargedCandIsoSumNoPU, pfGammaIsoSumNoPU, pfNeutralHadronIsoSumNoPU);
@@ -97,9 +92,14 @@ bool MuonRadiationFilter::filter(edm::Event& evt, const edm::EventSetup& es)
 
 	    // apply delta-beta PU correction to isolation Pt sum
 	    double pfIso = pfChargedCandIsoSumNoPU + TMath::Max(0., pfGammaIsoSumNoPU + pfNeutralHadronIsoSumNoPU - 0.5*pfChargedCandIsoSumPU);
-	    
-	    if ( pfIso < (maxRelIso_*pfCandidate->pt()) ) isMuonRadiation = true;
+	    if ( verbosity_ ) {
+	      std::cout << "isolation of PFGamma = " << pfIso << std::endl;
+	    }
+
+	    if ( pfIso < (maxRelIso_*pfCandidate->pt()) ) selMuon_isMuonRadiation = true;
 	  }
+	  
+	  if ( selMuon_isMuonRadiation ) isMuonRadiation = true;
 	}
       }
     }    

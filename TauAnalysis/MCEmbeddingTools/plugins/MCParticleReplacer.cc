@@ -11,6 +11,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/View.h"
 
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+
 // replacementMode =
 //	0 - remove Muons from existing HepMCProduct and implant taus (and tau decay products)
 //	1 - build new HepMCProduct only with taus (and tau decay products)
@@ -48,39 +50,13 @@ MCParticleReplacer::HepMcMode MCParticleReplacer::stringToHepMcMode(const std::s
 void
 MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
+  std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, src_);
+  const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
+  const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
+
   std::vector<reco::Particle> muons;
-  //   
-  // NOTE: the following logic of finding "the" muon pair needs to be kept in synch
-  //       between ZmumuPFEmbedder and MCParticleReplacer modules
-  //
-  edm::Handle<reco::CompositeCandidateCollection> combCandidatesHandle;
-  if ( evt.getByLabel(src_, combCandidatesHandle) ) {
-    if ( verbosity_ ) std::cout << "<MCParticleReplacer::produce>: #Zs = " << combCandidatesHandle->size() << std::endl;
-    if ( combCandidatesHandle->size() >= 1 ) {
-      const reco::CompositeCandidate& combCandidate = combCandidatesHandle->at(0); // TF: use only the first combined candidate
-      for ( size_t idx = 0; idx < combCandidate.numberOfDaughters(); ++idx ) {
-	int charge = combCandidate.daughter(idx)->charge();
-	reco::Particle::LorentzVector p4 = combCandidate.daughter(idx)->p4();
-	reco::Particle::Point vtx = combCandidate.daughter(idx)->vertex();
-	muons.push_back(reco::Particle(charge, p4, vtx, -15*charge, 0, true));
-      }
-    }
-  } else {
-    typedef edm::View<reco::Candidate> CandidateView;
-    edm::Handle<CandidateView> candsHandle;
-    if ( evt.getByLabel(src_, candsHandle) ) {
-      if ( verbosity_ ) std::cout << "<MCParticleReplacer::produce>: #muons = " << candsHandle->size() << std::endl;
-      for ( size_t idx = 0; idx < candsHandle->size(); ++idx ) {
-	int charge = candsHandle->at(idx).charge();
-	reco::Particle::LorentzVector p4 = candsHandle->at(idx).p4();
-	reco::Particle::Point vtx = candsHandle->at(idx).vertex();
-	muons.push_back(reco::Particle(charge, p4, vtx, -15*charge, 0, true));
-      }
-    } else {
-      throw cms::Exception("Configuration") 
-	<< "Invalid input collection 'src' = " << src_ << " !!\n";
-    }
-  }
+  if ( muPlus.isNonnull()  ) muons.push_back(reco::Particle(muPlus->charge(), muPlus->p4(), muPlus->vertex(), -15, 0, true));
+  if ( muMinus.isNonnull() ) muons.push_back(reco::Particle(muMinus->charge(), muMinus->p4(), muMinus->vertex(), +15, 0, true));
 
   if ( muons.size() == 0 ) {
     edm::LogError("MCParticleReplacer") 

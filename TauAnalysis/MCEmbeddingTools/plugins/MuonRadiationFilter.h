@@ -9,9 +9,9 @@
  * \author Christian Veelken, LLR
  *        (based on python code developed by Mike Bachtis)
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: MuonRadiationFilter.h,v 1.1 2012/10/10 10:05:15 veelken Exp $
+ * $Id: MuonRadiationFilter.h,v 1.2 2012/10/14 16:04:03 veelken Exp $
  *
  */
 
@@ -52,6 +52,8 @@ class MuonRadiationFilter : public edm::EDFilter
   double maxRelIso_;
 
   double maxMass_;
+
+  int verbosity_;
 };
 
 #endif

@@ -43,12 +43,12 @@ void MuonCaloDistanceProducer::produce(edm::Event& evt, const edm::EventSetup& e
   std::auto_ptr<detIdToFloatMap> distanceMuPlus(new detIdToFloatMap());
   std::auto_ptr<detIdToFloatMap> distanceMuMinus(new detIdToFloatMap());
 
-  std::vector<reco::CandidateBaseRef > selMuons = getSelMuons(evt, srcSelectedMuons_);
+  std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
   const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
   const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
   
-  fillDistanceMap(evt, es, dynamic_cast<const reco::Muon*>(&*muPlus), *distanceMuPlus);
-  fillDistanceMap(evt, es, dynamic_cast<const reco::Muon*>(&*muMinus), *distanceMuMinus);
+  if ( muPlus.isNonnull()  ) fillDistanceMap(evt, es, &(*muPlus), *distanceMuPlus);
+  if ( muMinus.isNonnull() ) fillDistanceMap(evt, es, &(*muMinus), *distanceMuMinus);
 
   std::auto_ptr<reco::CandidateCollection> muons(new reco::CandidateCollection);
   muons->push_back(new reco::ShallowCloneCandidate(muPlus));
@@ -62,13 +62,9 @@ void MuonCaloDistanceProducer::produce(edm::Event& evt, const edm::EventSetup& e
   evt.put(distanceMuMinus, "distancesMuMinus");
 }
 
-void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::EventSetup& es, const reco::Muon* muon, detIdToFloatMap& distanceMap)
+void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::EventSetup& es, const reco::Candidate* muon, detIdToFloatMap& distanceMap)
 {
-  if ( muon->globalTrack().isNull() ) 
-    throw cms::Exception("InvalidData") 
-      << "Muon is not a global muon: Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() << " !!\n";
-  
-  TrackDetMatchInfo trackDetMatchInfo = trackAssociator_.associate(evt, es, *muon->globalTrack(), trackAssociatorParameters_);
+  TrackDetMatchInfo trackDetMatchInfo = getTrackDetMatchInfo(evt, es, trackAssociator_, trackAssociatorParameters_, muon);
 
   typedef std::map<std::string, const std::vector<DetId>*> CaloToDetIdMap;
   CaloToDetIdMap caloToDetIdMap;
@@ -84,17 +80,17 @@ void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::Event
 	caloToDetIdEntry != caloToDetIdMap.end(); ++caloToDetIdEntry ) {
     std::vector<SteppingHelixStateInfo>::const_iterator itHelixState_first, itHelixState_last;
     if ( caloToDetIdEntry->first == "ecal" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getEcalTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getEcalTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getEcalTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getEcalTrajectory().end();
     } else if ( caloToDetIdEntry->first == "hcal" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getHcalTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getHcalTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getHcalTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getHcalTrajectory().end();
     } else if ( caloToDetIdEntry->first == "ho" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getHOTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getHOTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getHOTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getHOTrajectory().end();
     } else if ( caloToDetIdEntry->first == "es" ) {
-      itHelixState_first = trackAssociator_.getCachedTrajectory().getPreshowerTrajectory().begin();
-      itHelixState_last  = trackAssociator_.getCachedTrajectory().getPreshowerTrajectory().end();
+      itHelixState_first = trackAssociator_.getCachedTrajector().getPreshowerTrajectory().begin();
+      itHelixState_last  = trackAssociator_.getCachedTrajector().getPreshowerTrajectory().end();
     } else assert(0);
     
     // copy trajectory points
