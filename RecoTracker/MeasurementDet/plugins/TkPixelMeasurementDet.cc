@@ -48,12 +48,12 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
 
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
   bool inac = hasBadComponents(stateOnThisDet);
-  TrackingRecHit::Type type = inac ? TrackingRecHit::inactive : TrackingRecHit::missing);
+  TrackingRecHit::Type type = inac ? TrackingRecHit::inactive : TrackingRecHit::missing;
   result.add(InvalidTransientRecHit::build(&fastGeomDet(), type), 0.F);
   return inac;
-}
 
 }
+
 
 TransientTrackingRecHit::RecHitPointer
 TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,

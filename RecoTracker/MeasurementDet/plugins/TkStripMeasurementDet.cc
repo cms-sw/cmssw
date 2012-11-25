@@ -107,14 +107,14 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, 
 
 }
 
-void TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
+bool TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 					  const MeasurementEstimator& est,
 					  TempMeasurements & result) const {
 
   if (!isActive()) {
     LogDebug("TkStripMeasurementDet")<<" found an inactive module "<<rawId();
     result.add(InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F);
-    return;
+    return true;
   }
   
   if (!isEmpty()){
@@ -123,22 +123,27 @@ void TkStripMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
     recHits(stateOnThisDet,est,result.hits,result.distances);
   }
 
-  if ( result.empty()) {
-    // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
-    float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
-    if (stateOnThisDet.hasError()){
-      float uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
-      if (testStrips(utraj,uerr)) {
-	//LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, but active ";
-	result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F);
-      } else { 
-	//LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, and inactive ";
-	result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F);
-      }
-    }else{
-      result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F);
-    }
+  if (!result.empty()) return true;
+
+  // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
+
+  if (!stateOnThisDet.hasError()) {
+    result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F);
+    return false;
   }
+
+  float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+  float uerr= sqrt(specificGeomDet().specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
+  if (testStrips(utraj,uerr)) {
+    //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, but active ";
+    result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::missing), 0.F);
+    return false;
+  }
+
+  //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, and inactive ";
+  result.add(InvalidTransientRecHit::build(&fastGeomDet(), TrackingRecHit::inactive), 0.F);
+  return true;
+
 }
 
 
