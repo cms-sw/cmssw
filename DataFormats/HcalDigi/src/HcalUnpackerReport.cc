@@ -3,7 +3,8 @@
 HcalUnpackerReport::HcalUnpackerReport() :
   unmappedDigis_(0), unmappedTPDigis_(0),
   spigotFormatErrors_(0), badqualityDigis_(0),
-  totalDigis_(0),totalTPDigis_(0),totalHOTPDigis_(0), unsuppressed_(false)
+  totalDigis_(0),totalTPDigis_(0),totalHOTPDigis_(0), unsuppressed_(false),
+  emptyEventSpigots_(0),ofwSpigots_(0),busySpigots_(0)
 {
 }
 
@@ -40,6 +41,10 @@ void HcalUnpackerReport::countUnmappedTPDigi() {
 void HcalUnpackerReport::countSpigotFormatError() {
   spigotFormatErrors_++;
 }
+void HcalUnpackerReport::countEmptyEventSpigot() { emptyEventSpigots_++; }
+void HcalUnpackerReport::countOFWSpigot() { ofwSpigots_++; }
+void HcalUnpackerReport::countBusySpigot() { busySpigots_++; }
+
 void HcalUnpackerReport::countBadQualityDigi() {
   badqualityDigis_++;
 }

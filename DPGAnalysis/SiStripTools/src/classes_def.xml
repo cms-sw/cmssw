@@ -8,6 +8,8 @@
   <class name="SingleSiStripClusterMultiplicity" persistent="false"/>
   <class name="SingleSiPixelClusterMultiplicity" persistent="false"/>
   <class name="SiPixelClusterSiStripClusterMultiplicityPair" persistent="false"/>
+  <class name="ClusterSummarySingleMultiplicity" persistent="false"/>
+  <class name="ClusterSummaryMultiplicityPair" persistent="false"/>
 
   <class name="edm::Wrapper<std::vector<TinyEvent> >" persistent="false"/>
   <class name="edm::Wrapper<EventWithHistory>" persistent="false"/>

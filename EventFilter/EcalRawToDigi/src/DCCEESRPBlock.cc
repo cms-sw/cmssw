@@ -20,7 +20,7 @@ void DCCEESRPBlock::addSRFlagToCollection(){
   
   // Point to SR flags 
   data_++;
-  uint16_t * my16Bitp_ = reinterpret_cast<uint16_t *> (data_);
+  const uint16_t * my16Bitp_ = reinterpret_cast<const uint16_t *> (data_);
 
   
   for( unsigned int n=0; n<expNumbSrFlags_ ;n++,pSCDetId_++ ){

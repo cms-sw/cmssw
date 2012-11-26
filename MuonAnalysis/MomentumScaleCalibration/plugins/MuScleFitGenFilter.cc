@@ -1,21 +1,13 @@
 //#define DEBUG
-// System include files
-// --------------------
-#include <memory>
-#include <vector>
-#include <string>
 
-// User include files
-// ------------------
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
+#include "MuScleFitGenFilter.h"
 
 // Collaborating Class Header
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -26,23 +18,6 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
-
-// Class declaration
-// -----------------
-
-class MuScleFitGenFilter : public edm::EDFilter {
- public:
-  explicit MuScleFitGenFilter(const edm::ParameterSet&);
-  ~MuScleFitGenFilter();
-
- private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {};
-
-  std::string genParticlesName_;
-  unsigned int totalEvents_;
-  unsigned int eventsPassingTheFilter_;
-};
 
 // Constructor
 // -----------
@@ -98,6 +73,3 @@ bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup
 
   return true;
 }
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(MuScleFitGenFilter);

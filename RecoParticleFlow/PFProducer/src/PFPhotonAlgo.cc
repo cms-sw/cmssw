@@ -771,11 +771,11 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 					   photonEnergy_* photonDirection.Z(),
 					   photonEnergy_           );
 
-    if(sum_track_pt>(sumPtTrackIsoForPhoton_ + sumPtTrackIsoSlopeForPhoton_ * photonMomentum.pt()))
+    if(sum_track_pt>(sumPtTrackIsoForPhoton_ + sumPtTrackIsoSlopeForPhoton_ * photonMomentum.pt()) && AddFromElectron_.size()==0)
       {
-	//cout<<"Hit Continue "<<endl;
-	match_ind.clear(); //release the matched Electron candidates
+	elemsToLock.resize(0);
 	continue;
+	
       }
 
 	//THIS SC is not a Photon it fails track Isolation
@@ -1366,12 +1366,12 @@ void PFPhotonAlgo::EarlyConversion(
     {
       //      bool matched=false;
       int mh=ec->gsfTrackRef()->trackerExpectedHitsInner().numberOfLostHits();
-      if(mh==0)continue;//Case where missing hits greater than zero
+      //if(mh==0)continue;//Case where missing hits greater than zero
       
       reco::GsfTrackRef gsf=ec->gsfTrackRef();
       //some hoopla to get Electron SC ref
       
-      if(gsf->extra().isAvailable() && gsf->extra()->seedRef().isAvailable()) 
+      if(gsf->extra().isAvailable() && gsf->extra()->seedRef().isAvailable() && mh>0) 
 	{
 	  reco::ElectronSeedRef seedRef=  gsf->extra()->seedRef().castTo<reco::ElectronSeedRef>();
 	  if(seedRef.isAvailable() && seedRef->isEcalDriven()) 

@@ -2,13 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 # DQM monitor module for EWK
 ewkDQM = cms.EDAnalyzer("EwkDQM",
-            elecTriggerPathToPass    = cms.string("HLT_Ele10_LW_L1R"),
-            muonTriggerPathToPass    = cms.string("HLT_Mu9"),
+
+            elecTriggerPathToPass    = cms.vstring("HLT_Ele", "HLT_DoubleEle", "HLT_DoublePhoton"),
+            muonTriggerPathToPass    = cms.vstring("HLT_Mu", "HLT_IsoMu", "HLT_DoubleMu"),
             triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),
+
             muonCollection           = cms.InputTag("muons"),
             electronCollection       = cms.InputTag("gsfElectrons"),
-            caloJetCollection        = cms.InputTag("ak5CaloJets"),
+            PFJetCollection          = cms.InputTag("ak5PFJets"),
             caloMETCollection        = cms.InputTag("corMetGlobalMuons"),
-            genParticleCollection    = cms.InputTag("genParticles")
-#           caloJetCollection        = cms.InputTag("L2L3CorJetSC5Calo"),
+            #genParticleCollection    = cms.InputTag("genParticles")
+            EJetMin = cms.untracked.double(15.0)
 )

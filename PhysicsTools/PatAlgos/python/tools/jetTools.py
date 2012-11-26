@@ -8,7 +8,7 @@ class RunBTagging(ConfigToolBase):
     """ Define sequence to run b tagging on AOD input for a given jet
     collection including a JetTracksAssociatorAtVertex module with
     name 'jetTracksAssociatorAtVertex' + 'label'
-    
+
     Return value is a pair of (sequence, labels) where 'sequence' is
     the cms.Sequence, and 'labels' is a vector with the following
     entries:
@@ -16,6 +16,7 @@ class RunBTagging(ConfigToolBase):
      * labels['tagInfos'] = a list of names of the TagInfo modules
      * labels['jetTags '] = a list of names of the JetTag modules
     """
+
     _label='runBTagging'
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
@@ -23,14 +24,15 @@ class RunBTagging(ConfigToolBase):
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue, 'input jet collection',Type=cms.InputTag)
         self.addParameter(self._defaultParameters,'label',self._defaultValue, 'postfix label to identify new sequence/modules', Type=str)
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence (do not confuse with 'label')")
-        self.addParameter(self._defaultParameters,'btagInfo',['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos'],"input btag info",allowedValues=['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos'],Type=list)
-        self.addParameter(self._defaultParameters,'btagdiscriminators',['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags'],"input btag discriminators", allowedValues=['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags'],Type=list)
+        self.addParameter(self._defaultParameters,'btagInfo',['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],"input btag info",allowedValues=['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],Type=list)
+        self.addParameter(self._defaultParameters,'btagdiscriminators',['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],"input btag discriminators", allowedValues=['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],Type=list)
+
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
     def getDefaultParameters(self):
         return self._defaultParameters
- 
+
 
     def __call__(self,process,
                  jetCollection      = None,
@@ -61,8 +63,8 @@ class RunBTagging(ConfigToolBase):
         self.setParameter('btagdiscriminators',btagdiscriminators)
 
 
-        return self.apply(process) 
-        
+        return self.apply(process)
+
     def apply(self, process):
         jetCollection=self._parameters['jetCollection'].value
         label=self._parameters['label'].value
@@ -73,7 +75,7 @@ class RunBTagging(ConfigToolBase):
 
         if hasattr(process, "addAction"):
             process.disableRecording()
-            
+
         try:
             comment=inspect.stack(2)[2][4][0].rstrip("\n")
             if comment.startswith("#"):
@@ -86,33 +88,34 @@ class RunBTagging(ConfigToolBase):
         #############################
         if (label == ''):
         ## label is not allowed to be empty
-            raise ValueError, "label for re-running b tagging is not allowed to be empty"        
+            raise ValueError, "label for re-running b tagging is not allowed to be empty"
 
         ## import track associator & b tag configuration
         process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
         from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
         process.load("RecoBTag.Configuration.RecoBTag_cff")
         import RecoBTag.Configuration.RecoBTag_cff as btag
-        
+
         # add negative tag infos
         import PhysicsTools.PatAlgos.recoLayer0.bTagging_cff as nbtag
-        
+
         ## define jetTracksAssociator; for switchJetCollection
         ## the label is 'AOD' as empty labels will lead to crashes
         ## of crab. In this case the postfix label is skiped,
         ## otherwise a postfix label is added as for the other
         ## labels
         jtaLabel = 'jetTracksAssociatorAtVertex'+postfix
-        
+
         if (not label == 'AOD'):
             jtaLabel  += label
-        ## define tag info labels (compare with jetProducer_cfi.py)        
+        ## define tag info labels (compare with jetProducer_cfi.py)
         ipTILabel = 'impactParameterTagInfos'     + label + postfix
         svTILabel = 'secondaryVertexTagInfos'     + label + postfix
+        ivfTILabel = 'inclusiveSecondaryVertexFinderTagInfos'     + label + postfix
         nvTILabel = 'secondaryVertexNegativeTagInfos'     + label + postfix
-        #seTILabel = 'softElectronTagInfos'        + label + postfix
+        seTILabel = 'softElectronTagInfos'        + label + postfix
         smTILabel = 'softMuonTagInfos'            + label + postfix
-    
+
         ## produce tag infos
         #setattr( process, ipTILabel, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag(jtaLabel)) )
         #setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
@@ -122,9 +125,9 @@ class RunBTagging(ConfigToolBase):
 
         ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
-    
+
         ## produce btags
-        print       
+        print
         print "The btaginfo below will be written to the jet collection in the PATtuple (default is all, see PatAlgos/PhysicsTools/python/tools/jetTools.py)"
         print
         for TagInfo in btagInfo:
@@ -136,9 +139,12 @@ class RunBTagging(ConfigToolBase):
                         setattr( process, svTILabel, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
                 if TagInfo=='softMuonTagInfos':
                         setattr( process, smTILabel, btag.softMuonTagInfos.clone(jets = jetCollection) )
-
+                if TagInfo=='softElectronTagInfos':
+                        setattr( process, seTILabel, btag.softElectronTagInfos.clone(jets = jetCollection) )
                 if TagInfo=='secondaryVertexNegativeTagInfos':
                         setattr( process, nvTILabel, btag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
+                if TagInfo=='inclusiveSecondaryVertexFinderTagInfos':
+                        setattr( process, ivfTILabel, btag.inclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag(ipTILabel)) )
 
         print
         print "The bdiscriminators below will be written to the jet collection in the PATtuple (default is all, see PatAlgos/PhysicsTools/python/tools/jetTools.py)"
@@ -157,20 +163,28 @@ class RunBTagging(ConfigToolBase):
                         tagInfo=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,svTILabel))
                         setattr(process, tag+label+postfix, tagInfo)
 
-                if tag == 'softMuonBJetTags' or tag == 'softMuonByPtBJetTags' or tag == 'softMuonByIP3dBJetTags':
+                if tag == 'softMuonBJetTags' or tag == 'softMuonByPtBJetTags' or tag == 'softMuonByIP3dBJetTags' :
                         tagInfo=getattr(btag,tag).clone(tagInfos = vit(smTILabel))
                         setattr(process, tag+label+postfix, tagInfo)
-
 
                 if tag == 'simpleSecondaryVertexNegativeHighEffBJetTags' or tag == 'simpleSecondaryVertexNegativeHighPurBJetTags':
                         tagInfo=getattr(btag,tag).clone(tagInfos = vit(nvTILabel))
                         setattr(process, tag+label+postfix, tagInfo)
 
+                if tag == 'combinedInclusiveSecondaryVertexBJetTags' :
+                        tagInfo=getattr(btag,tag).clone(tagInfos = vit(ipTILabel,ivfTILabel))
+                        setattr(process, tag+label+postfix, tagInfo)
+
+                if tag == 'combinedMVABJetTags' :
+                        tagInfo=getattr(btag,tag).clone(tagInfos = vit(ipTILabel, ivfTILabel,smTILabel,seTILabel))
+                        setattr(process, tag+label+postfix, tagInfo)
+
+
 
         ## define vector of (output) labels
         labels = { 'jta'      : jtaLabel,
                    #'tagInfos' : (ipTILabel,svTILabel,seTILabel,smTILabel),
-                #'tagInfos' : (ipTILabel,svTILabel,smTILabel), 
+                #'tagInfos' : (ipTILabel,svTILabel,smTILabel),
                 #'tagInfos' : [ for y in btagInfo],
                  'tagInfos' : [(y + label + postfix) for y in btagInfo],
                 #'tagInfos' : (ipTILabel,svTILabel,smTILabel),
@@ -180,7 +194,7 @@ class RunBTagging(ConfigToolBase):
 
 
 
- 
+
         ## extend an existing sequence by otherLabels
         def mkseq(process, firstlabel, *otherlabels):
             seq = getattr(process, firstlabel)
@@ -195,6 +209,12 @@ class RunBTagging(ConfigToolBase):
         seq = mkseq(process, 'btaggingTagInfos'+label+postfix, 'btaggingJetTags' + label + postfix)
         setattr( process, 'btagging'+label+postfix, seq )
         ## return the combined sequence and the labels defined above
+        if seTILabel in seq.moduleNames():
+            setattr( process, 'softElectronCands', btag.softElectronCands )
+            seq.replace( getattr( process, seTILabel ), ( process.softElectronCands * getattr( process, seTILabel ) ) )
+        if ivfTILabel in seq.moduleNames():
+            process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
+            seq.replace( getattr( process, ivfTILabel ), ( process.inclusiveVertexing * getattr( process, ivfTILabel ) ) )
 
         if hasattr(process, "addAction"):
             process.enableRecording()
@@ -220,8 +240,8 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
         self.addParameter(self._defaultParameters,'algoLabel',self._defaultValue, "label to indicate the jet algorithm (e.g.'AK5')",str)
         self.addParameter(self._defaultParameters,'typeLabel',self._defaultValue, "label to indicate the type of constituents (e.g. 'Calo', 'Pflow', 'Jpt', ...)",str)
-        self.addParameter(self._defaultParameters,'btagInfo',['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos'],"input btag info",allowedValues=['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos'],Type=list)
-        self.addParameter(self._defaultParameters,'btagdiscriminators',['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags'],"input btag discriminators", allowedValues=['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags'],Type=list)
+        self.addParameter(self._defaultParameters,'btagInfo',['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],"input btag info",allowedValues=['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],Type=list)
+        self.addParameter(self._defaultParameters,'btagdiscriminators',['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],"input btag discriminators", allowedValues=['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],Type=list)
         self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
         self.addParameter(self._defaultParameters,'doBTagging',True, 'run JetTracksAssociation and JetCharge and add it to the new pat jet collection (will autom. be true if doBTagging is set to true)')
         self.addParameter(self._defaultParameters,'jetCorrLabel',None, "payload and list of new jet correction labels, such as (\'AK5Calo\',[\'L2Relative\', \'L3Absolute\'])", tuple,acceptNoneValue=True )
@@ -289,7 +309,7 @@ class AddJetCollection(ConfigToolBase):
         if jetIdLabel  is None:
             jetIdLabel=self._defaultParameters['jetIdLabel'].value
         if outputModules is None:
-            outputModules=self._defaultParameters['outputModules'].value     
+            outputModules=self._defaultParameters['outputModules'].value
         if  btagInfo is None:
             btagInfo=self._defaultParameters['btagInfo'].value
         if  btagdiscriminators is None:
@@ -310,10 +330,10 @@ class AddJetCollection(ConfigToolBase):
         self.setParameter('outputModules',outputModules)
         self.setParameter('btagInfo',btagInfo)
         self.setParameter('btagdiscriminators',btagdiscriminators)
- 
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+
+        self.apply(process)
+
+    def toolCode(self, process):
 
         jetCollection=self._parameters['jetCollection'].value
         algoLabel=self._parameters['algoLabel'].value
@@ -334,7 +354,7 @@ class AddJetCollection(ConfigToolBase):
 
         ## create old module label from standardAlgo
         ## and standardType and return
-        def oldLabel(prefix=''):        
+        def oldLabel(prefix=''):
             return jetCollectionString(prefix, '', '')
 
         ## create new module label from old module
@@ -364,17 +384,17 @@ class AddJetCollection(ConfigToolBase):
 
         ## add a clone of patJets
         addClone(oldLabel(), jetSource = jetCollection)
-        ## add a clone of selectedPatJets    
+        ## add a clone of selectedPatJets
         addClone(oldLabel('selected'), src=cms.InputTag(newLabel(oldLabel())))
-        ## add a clone of cleanPatJets    
+        ## add a clone of cleanPatJets
         if( doL1Cleaning ):
             addClone(oldLabel('clean'), src=cms.InputTag(newLabel(oldLabel('selected'))))
-        ## add a clone of countPatJets    
+        ## add a clone of countPatJets
         if( doL1Counters ):
             if( doL1Cleaning ):
                 addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('clean'))))
             else:
-                addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('selected'))))            
+                addClone(oldLabel('count'), src=cms.InputTag(newLabel(oldLabel('selected'))))
 
         ## get attributes of new module
         l1Jets = getattr(process, newLabel(oldLabel()))
@@ -397,11 +417,11 @@ class AddJetCollection(ConfigToolBase):
         fixInputTag(l1Jets.genPartonMatch)
         fixInputTag(l1Jets.JetPartonMapSource)
 
-        ## make VInputTag from strings 
+        ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
         if (doJTA or doBTagging):
-            ## add clone of jet track association        
+            ## add clone of jet track association
             process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
             from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
             ## add jet track association module to processes
@@ -413,7 +433,7 @@ class AddJetCollection(ConfigToolBase):
             fixInputTag(l1Jets.jetChargeSource)
         else:
             ## switch embedding of track association and jet
-            ## charge estimate to 'False'        
+            ## charge estimate to 'False'
             l1Jets.addAssociatedTracks = False
             l1Jets.addJetCharge = False
 
@@ -421,7 +441,7 @@ class AddJetCollection(ConfigToolBase):
             ## define postfixLabel
             postfixLabel=algoLabel+typeLabel
             ## add b tagging sequence
-            (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel,"", btagInfo,btagdiscriminators) 
+            (btagSeq, btagLabels) = runBTagging(process, jetCollection, postfixLabel,"", btagInfo,btagdiscriminators)
             ## add b tagging sequence before running the allLayer1Jets modules
             process.patDefaultSequence.replace(getattr(process,jtaLabel), getattr(process,jtaLabel)+btagSeq)
             ## replace corresponding tags for pat jet production
@@ -454,14 +474,14 @@ class AddJetCollection(ConfigToolBase):
             if (jetCorrLabel == "None"):
                 raise ValueError, "In addJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
             ## check for the correct format
-            if type(jetCorrLabel) != type(('AK5Calo',['L2Relative'])): 
-                raise ValueError, "In addJetCollection 'jetCorrLabel' must be 'None', or of type ('payload',['correction1', 'correction2'])"            
+            if type(jetCorrLabel) != type(('AK5Calo',['L2Relative'])):
+                raise ValueError, "In addJetCollection 'jetCorrLabel' must be 'None', or of type ('payload',['correction1', 'correction2'])"
 
             ## add clone of jetCorrFactors
             addClone('patJetCorrFactors', src = jetCollection)
             switchJetCorrLevels(process, jetCorrLabel = jetCorrLabel, postfix=algoLabel+typeLabel)
             getattr(process, newLabel('patJets')).jetCorrFactorsSource = cms.VInputTag(  cms.InputTag(newLabel('patJetCorrFactors')) )
-        
+
             ## find out type of jet collection, switch type1MET corrections off for JPTJets
             jetCollType = ''
             if   ( 'CaloJets' in jetCollection.getModuleLabel() ):
@@ -489,7 +509,7 @@ class AddJetCollection(ConfigToolBase):
                 ## combinded corrections
                 setattr(process, jetCorrLabel[0]+'CombinedCorrector', cms.ESProducer( 'JetCorrectionESChain'
                                                                                   , correctors = cms.vstring() ) )
-                
+
                 for corrLbl in jetCorrLabel[1]:
                     if corrLbl != 'L1FastJet' and corrLbl != 'L1Offset' and corrLbl != 'L2Relative' and corrLbl != 'L3Absolute' and corrLbl != 'L2L3Residual':
                         print '========================================='
@@ -510,11 +530,11 @@ class AddJetCollection(ConfigToolBase):
                 ## configuration of MET corrections
                 if jetCollType == 'Calo':
                     from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloJetMETcorr,caloType1CorrectedMet,caloType1p2CorrectedMet,produceCaloMETCorrections
-                    
+
                     setattr(process,jetCorrLabel[0]+'JetMETcorr',   caloJetMETcorr.clone(srcMET       = "corMetGlobalMuons"))
                     setattr(process,jetCorrLabel[0]+'Type1CorMet',  caloType1CorrectedMet.clone(src   = "corMetGlobalMuons"))
                     setattr(process,jetCorrLabel[0]+'Type1p2CorMet',caloType1p2CorrectedMet.clone(src = "corMetGlobalMuons"))
-                    
+
                     getattr(process,jetCorrLabel[0]+'JetMETcorr'   ).src          = cms.InputTag(jetCollection.getModuleLabel())
                     if ('L1FastJet' in jetCorrLabel[1] or 'L1Fastjet' in jetCorrLabel[1]):
                         getattr(process,jetCorrLabel[0]+'JetMETcorr'   ).offsetCorrLabel = cms.string(jetCorrLabel[0]+'L1FastJet')
@@ -527,7 +547,7 @@ class AddJetCollection(ConfigToolBase):
                     getattr(process,jetCorrLabel[0]+'Type1CorMet'  ).srcType1Corrections = cms.VInputTag(
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'type1')
                         )
-                    
+
                     getattr(process,jetCorrLabel[0]+'Type1p2CorMet').srcType1Corrections = cms.VInputTag(
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'type1')
                         )
@@ -538,15 +558,17 @@ class AddJetCollection(ConfigToolBase):
                         )
 
                     ## add MET corrections to sequence
-                    addClone('patMETs', metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'))
-                    
+                    setattr(process,'patMETs'+jetCorrLabel[0],getattr(process,'patMETs').clone(metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'),addMuonCorrections = False))
+
                     setattr(process,'produce'+jetCorrLabel[0]+'METCorrections',produceCaloMETCorrections.copy())
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'caloJetMETcorr'),         getattr(process,jetCorrLabel[0]+'JetMETcorr'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'caloType1CorrectedMet'),  getattr(process,jetCorrLabel[0]+'Type1CorMet'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'caloType1p2CorrectedMet'),getattr(process,jetCorrLabel[0]+'Type1p2CorMet'))
-                    process.patDefaultSequence.replace( getattr(process,newLabel('patMETs')),
+
+                    process.patDefaultSequence.replace( getattr(process,'patMETs'+jetCorrLabel[0]),
                                                         getattr(process,'produce'+jetCorrLabel[0]+'METCorrections')
-                                                        *getattr(process,newLabel('patMETs')) )                    
+                                                        *getattr(process,'patMETs'+jetCorrLabel[0]))
+
                 elif jetCollType == 'PF':
                     from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfCandsNotInJet,pfJetMETcorr,pfCandMETcorr,pfType1CorrectedMet,pfType1p2CorrectedMet,producePFMETCorrections
                     setattr(process,jetCorrLabel[0]+'CandsNotInJet',pfCandsNotInJet.clone(topCollection = jetCollection))
@@ -563,33 +585,38 @@ class AddJetCollection(ConfigToolBase):
                         getattr(process,jetCorrLabel[0]+'JetMETcorr'   ).offsetCorrLabel = cms.string('')
                     getattr(process,jetCorrLabel[0]+'JetMETcorr').jetCorrLabel    = cms.string(jetCorrLabel[0]+'CombinedCorrector')
 
+                    getattr(process,jetCorrLabel[0]+'Type1CorMet').applyType0Corrections = cms.bool(False)
                     getattr(process,jetCorrLabel[0]+'Type1CorMet').srcType1Corrections = cms.VInputTag(
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'type1')
                         )
                     getattr(process,jetCorrLabel[0]+'Type1p2CorMet').srcType1Corrections = cms.VInputTag(
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'type1')
                         )
+                    getattr(process,jetCorrLabel[0]+'Type1p2CorMet').applyType0Corrections = cms.bool(False)
                     getattr(process,jetCorrLabel[0]+'Type1p2CorMet').srcUnclEnergySums = cms.VInputTag(
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'type2'),
                         cms.InputTag(jetCorrLabel[0]+'JetMETcorr', 'offset'),
-                        cms.InputTag(jetCorrLabel[0]+'CandMETcorr')                                    
+                        cms.InputTag(jetCorrLabel[0]+'CandMETcorr')
                         )
 
                     ## add MET corrections to sequence
-                    addClone('patMETs', metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'), addMuonCorrections = False)
+                    setattr(process,'patMETs'+jetCorrLabel[0],getattr(process,'patMETs').clone(metSource = cms.InputTag(jetCorrLabel[0]+'Type1CorMet'),addMuonCorrections = False))
+
                     setattr(process,'produce'+jetCorrLabel[0]+'METCorrections',producePFMETCorrections.copy())
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfCandsNotInJet'),      getattr(process,jetCorrLabel[0]+'CandsNotInJet'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfJetMETcorr'),         getattr(process,jetCorrLabel[0]+'JetMETcorr'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfCandMETcorr'),        getattr(process,jetCorrLabel[0]+'CandMETcorr'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfType1CorrectedMet'),  getattr(process,jetCorrLabel[0]+'Type1CorMet'))
                     getattr(process,'produce'+jetCorrLabel[0]+'METCorrections').replace(getattr(process,'pfType1p2CorrectedMet'),getattr(process,jetCorrLabel[0]+'Type1p2CorMet'))
-                    process.patDefaultSequence.replace( getattr(process,newLabel('patMETs')),
+
+                    process.patDefaultSequence.replace( getattr(process,'patMETs'+jetCorrLabel[0]),
                                                         getattr(process,'produce'+jetCorrLabel[0]+'METCorrections')
-                                                        *getattr(process,newLabel('patMETs')) )
+                                                        *getattr(process,'patMETs'+jetCorrLabel[0]))
+
         else:
             ## switch jetCorrFactors off
             l1Jets.addJetCorrFactors = False
-               
+
 addJetCollection=AddJetCollection()
 
 
@@ -603,8 +630,8 @@ class SwitchJetCollection(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
-        self.addParameter(self._defaultParameters,'btagInfo',['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos'],"input btag info",allowedValues=['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos'],Type=list)
-        self.addParameter(self._defaultParameters, 'btagdiscriminators',['jetBProbabilityBJetTags','jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags'],"input btag discriminators", allowedValues=['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags'],Type=list)
+        self.addParameter(self._defaultParameters,'btagInfo',['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],"input btag info",allowedValues=['impactParameterTagInfos','secondaryVertexTagInfos','softMuonTagInfos','secondaryVertexNegativeTagInfos','inclusiveSecondaryVertexFinderTagInfos','softElectronTagInfos'],Type=list)
+        self.addParameter(self._defaultParameters,'btagdiscriminators',['jetBProbabilityBJetTags', 'jetProbabilityBJetTags','trackCountingHighPurBJetTags','trackCountingHighEffBJetTags','simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],"input btag discriminators", allowedValues=['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags','simpleSecondaryVertexHighPurBJetTags','combinedSecondaryVertexBJetTags','combinedSecondaryVertexMVABJetTags','softMuonBJetTags','softMuonByPtBJetTags','softMuonByIP3dBJetTags','simpleSecondaryVertexNegativeHighEffBJetTags','simpleSecondaryVertexNegativeHighPurBJetTags','negativeTrackCountingHighEffJetTags','negativeTrackCountingHighPurJetTags','combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags'],Type=list)
 	self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
         self.addParameter(self._defaultParameters,'doBTagging',True, 'run JetTracksAssociation and JetCharge and add it to the new pat jet collection (will autom. be true if doBTagging is set to true)')
         self.addParameter(self._defaultParameters,'jetCorrLabel',None, "payload and list of new jet correction labels, such as (\'AK5Calo\',[\'L2Relative\', \'L3Absolute\'])", tuple,acceptNoneValue=True )
@@ -614,7 +641,7 @@ class SwitchJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'jetIdLabel',"ak5", " specify the label prefix of the xxxJetID object; in general it is the jet collection tag like ak5, kt4 sc5, aso. For more information have a look to SWGuidePATTools#add_JetCollection")
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         self.addParameter(self._defaultParameters, 'outputModules', ['out'], "Output module labels, empty list of label indicates no output, default: ['out']")
-        
+
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -635,11 +662,11 @@ class SwitchJetCollection(ConfigToolBase):
                  outputModules      = None,
                  btagInfo           = None,
                  btagdiscriminators = None
-					):	
-        
+					):
 
 
-         
+
+
         ## stop processing if 'outputModule' exists and show the new alternative
         if  not outputModule is None:
             depricatedOptionOutputModule(self)
@@ -660,7 +687,7 @@ class SwitchJetCollection(ConfigToolBase):
         if jetIdLabel  is None:
             jetIdLabel=self._defaultParameters['jetIdLabel'].value
         if outputModules is None:
-            outputModules=self._defaultParameters['outputModules'].value     
+            outputModules=self._defaultParameters['outputModules'].value
         if postfix  is None:
             postfix=self._defaultParameters['postfix'].value
         if  btagInfo is None:
@@ -683,9 +710,9 @@ class SwitchJetCollection(ConfigToolBase):
         self.setParameter('postfix',postfix)
         self.setParameter('btagInfo',btagInfo)
         self.setParameter('btagdiscriminators',btagdiscriminators)
-        
-        self.apply(process) 
-        
+
+        self.apply(process)
+
     def toolCode(self, process):
         jetCollection=self._parameters['jetCollection'].value
         doJTA=self._parameters['doJTA'].value
@@ -702,7 +729,7 @@ class SwitchJetCollection(ConfigToolBase):
 
         ## save label of old input jet collection
         oldLabel = applyPostfix(process, "patJets", postfix).jetSource;
-    
+
         ## replace input jet collection for generator matches if the
         ## genJetCollection is no empty
         if (process.patJets.addGenPartonMatch):
@@ -712,18 +739,18 @@ class SwitchJetCollection(ConfigToolBase):
             applyPostfix(process, "patJetGenJetMatch", postfix).matched = genJetCollection
         if (process.patJets.getJetMCFlavour):
             applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
-            
+
         ## replace input jet collection for pat jet production
 	applyPostfix(process, "patJets", postfix).jetSource = jetCollection
-    
+
         ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
 
         if (doJTA or doBTagging):
             ## replace jet track association
             process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
-            from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex            
-            setattr(process, "jetTracksAssociatorAtVertex"+postfix, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection)) 
+            from RecoJets.JetAssociationProducers.ak5JTA_cff import ak5JetTracksAssociatorAtVertex
+            setattr(process, "jetTracksAssociatorAtVertex"+postfix, ak5JetTracksAssociatorAtVertex.clone(jets = jetCollection))
             getattr(process, "patDefaultSequence"+postfix).replace(
                 applyPostfix(process, "patJetCharge", postfix),
                 getattr(process, "jetTracksAssociatorAtVertex" + postfix) #module with postfix that is not n patDefaultSequence
@@ -776,7 +803,7 @@ class SwitchJetCollection(ConfigToolBase):
             applyPostfix(process, "patJets", postfix).jetIDMap = cms.InputTag( jetIdLabelNew )
         else:
             applyPostfix(process, "patJets", postfix).addJetID = cms.bool(False)
-            
+
         if (jetCorrLabel!=None):
             ## replace jet energy corrections; catch
             ## a couple of exceptions first
@@ -785,13 +812,13 @@ class SwitchJetCollection(ConfigToolBase):
             if (jetCorrLabel == "None"):
                 raise ValueError, "In switchJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
             ## check for the correct format
-            if type(jetCorrLabel) != type(('AK5Calo',['L2Relative'])): 
+            if type(jetCorrLabel) != type(('AK5Calo',['L2Relative'])):
                 raise ValueError, "In addJetCollection 'jetCorrLabel' must be 'None', or of type ('payload',['correction1', 'correction2'])"
 
             ## switch JEC parameters to the new jet collection
             applyPostfix(process, "patJetCorrFactors", postfix).src = jetCollection
             switchJetCorrLevels(process, jetCorrLabel = jetCorrLabel, postfix=postfix)
-            getattr( process, "patJets" + postfix).jetCorrFactorsSource = cms.VInputTag( cms.InputTag("patJetCorrFactors" + postfix ) )  
+            getattr( process, "patJets" + postfix).jetCorrFactorsSource = cms.VInputTag( cms.InputTag("patJetCorrFactors" + postfix ) )
 
             ## find out type of jet collection, switch type1MET corrections off for JPTJets
             jetCollType = ''
@@ -839,13 +866,9 @@ class SwitchJetCollection(ConfigToolBase):
 
                 ## configuration of MET corrections
                 if jetCollType == 'Calo':
-                    from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloJetMETcorr,caloType1CorrectedMet,caloType1p2CorrectedMet,produceCaloMETCorrections
-                    
-                    setattr(process,'caloJetMETcorr'+         postfix, caloJetMETcorr.clone(srcMET       = "corMetGlobalMuons"))
-                    setattr(process,'caloType1CorrectedMet'+  postfix, caloType1CorrectedMet.clone(src   = "corMetGlobalMuons"))
-                    setattr(process,'caloType1p2CorrectedMet'+postfix, caloType1p2CorrectedMet.clone(src = "corMetGlobalMuons"))
-                    
+                    getattr(process, "patMETCorrections"+postfix).remove(getattr(process,"producePFMETCorrections"+postfix))
                     getattr(process,'caloJetMETcorr'+postfix).src          = cms.InputTag(jetCollection.getModuleLabel())
+
                     if ('L1FastJet' in jetCorrLabel[1] or 'L1Fastjet' in jetCorrLabel[1]):
                         getattr(process,'caloJetMETcorr'+postfix   ).offsetCorrLabel = cms.string(jetCorrLabel[0]+'L1FastJet')
                     elif ('L1Offset' in jetCorrLabel[1]):
@@ -857,7 +880,7 @@ class SwitchJetCollection(ConfigToolBase):
                     getattr(process,'caloType1CorrectedMet'+postfix  ).srcType1Corrections = cms.VInputTag(
                         cms.InputTag('caloJetMETcorr'+postfix, 'type1')
                         )
-                    
+
                     getattr(process,'caloType1p2CorrectedMet'+postfix).srcType1Corrections = cms.VInputTag(
                         cms.InputTag('caloJetMETcorr'+postfix, 'type1')
                         )
@@ -874,11 +897,7 @@ class SwitchJetCollection(ConfigToolBase):
                                                                            getattr(process,'produceCaloMETCorrections'+postfix)
                                                                            *getattr(process,'patMETs'+postfix) )
                 elif jetCollType == 'PF':
-                    from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfCandsNotInJet,pfJetMETcorr,pfCandMETcorr,pfType1CorrectedMet,pfType1p2CorrectedMet,producePFMETCorrections
-                    setattr(process,'producePFMETCorrections'+postfix,producePFMETCorrections.copy())
-                    setattr(process,'pfCandsNotInJet'        +postfix,pfCandsNotInJet.clone(topCollection = jetCollection))
-                    setattr(process,'pfCandMETcorr'          +postfix,pfCandMETcorr.clone(src = cms.InputTag('pfCandsNotInJet'+postfix)))
-                    setattr(process,'pfJetMETcorr'           +postfix,pfJetMETcorr.clone(src = jetCollection))
+                    getattr(process, "patMETCorrections"+postfix).remove(getattr(process,"produceCaloMETCorrections"+postfix))
 
                     if ('L1FastJet' in jetCorrLabel[1] or 'L1Fastjet' in jetCorrLabel[1]):
                         getattr(process,'pfJetMETcorr' +postfix).offsetCorrLabel = cms.string(jetCorrLabel[0]+'L1FastJet')
@@ -888,6 +907,7 @@ class SwitchJetCollection(ConfigToolBase):
                         getattr(process,'pfJetMETcorr'+postfix).offsetCorrLabel = cms.string('')
                     getattr(process,'pfJetMETcorr'+postfix).jetCorrLabel    = cms.string(jetCorrLabel[0]+'CombinedCorrector')
 
+                    getattr(process,'pfType1CorrectedMet'+postfix).applyType0Corrections = cms.bool(False)
                     getattr(process,'pfType1CorrectedMet'+postfix).srcCHSSums = cms.VInputTag(
                         cms.InputTag("pfchsMETcorr"+postfix,"type0")
                         )
@@ -895,6 +915,7 @@ class SwitchJetCollection(ConfigToolBase):
                         cms.InputTag('pfJetMETcorr'+postfix, 'type1')
                         )
 
+                    getattr(process,'pfType1p2CorrectedMet'+postfix).applyType0Corrections = cms.bool(False)
                     getattr(process,'pfType1p2CorrectedMet'+postfix).srcCHSSums = cms.VInputTag(
                         cms.InputTag("pfchsMETcorr"+postfix,"type0")
                         )
@@ -904,35 +925,20 @@ class SwitchJetCollection(ConfigToolBase):
                     getattr(process,'pfType1p2CorrectedMet'+postfix).srcUnclEnergySums = cms.VInputTag(
                         cms.InputTag('pfJetMETcorr' +postfix, 'type2'),
                         cms.InputTag('pfJetMETcorr' +postfix, 'offset'),
-                        cms.InputTag('pfCandMETcorr'+postfix)                                    
+                        cms.InputTag('pfCandMETcorr'+postfix)
                         )
 
                     ## add MET corrections to sequence
                     getattr(process, 'patMETs'+ postfix).metSource = cms.InputTag('pfType1CorrectedMet'+postfix)
                     getattr(process, 'patMETs'+ postfix).addMuonCorrections = False
-                    #getattr(process,'producePFMETCorrections'+postfix).remove(getattr(process,'kt6PFJets'))#,            getattr(process,'kt6PFJets'            +postfix))
-                    #getattr(process,'producePFMETCorrections'+postfix).remove(getattr(process,'ak5PFJets'))#,            getattr(process,'ak5PFJets'            +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfCandsNotInJet'),      getattr(process,'pfCandsNotInJet'      +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfJetMETcorr'),         getattr(process,'pfJetMETcorr'         +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfCandMETcorr'),        getattr(process,'pfCandMETcorr'        +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfchsMETcorr'),         getattr(process,'pfchsMETcorr'         +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfType1CorrectedMet'),  getattr(process,'pfType1CorrectedMet'  +postfix))
-                    getattr(process,'producePFMETCorrections'+postfix).replace(getattr(process,'pfType1p2CorrectedMet'),getattr(process,'pfType1p2CorrectedMet'+postfix))
 
-                    getattr(process,"patDefaultSequence"+postfix).replace( getattr(process,'patMETs'+postfix),
-                                                                           getattr(process,'producePFMETCorrections'+postfix)
-                                                                           *getattr(process,'patMETs'+postfix) )
-
-            getattr(process,'patDefaultSequence'+postfix).replace(getattr(process,'patJetCorrFactors'+postfix),
-                                                                  getattr(process,'kt6PFJets'+postfix)
-                                                                  *getattr(process,'patJetCorrFactors'+postfix))
         else:
             ## remove the jetCorrFactors from the std sequence
             process.patJetMETCorrections.remove(process.patJetCorrFactors)
             ## switch embedding of jetCorrFactors off
             ## for pat jet production
             applyPostfix(process, "patJets", postfix).addJetCorrFactors = False
-            applyPostfix(process, "patJets", postfix).jetCorrFactorsSource=[]        
+            applyPostfix(process, "patJets", postfix).jetCorrFactorsSource=[]
 
         ## adjust output when switching to PFJets
         if ( 'PFJets' in jetCollection.getModuleLabel() or jetCollection.getModuleLabel().startswith("pfNo") or jetCollection.getModuleLabel() == 'particleFlow' ):
@@ -973,20 +979,20 @@ class AddJetID(ConfigToolBase):
             jetIdTag=self._defaultParameters['jetIdTag'].value
         self.setParameter('jetSrc',jetSrc)
         self.setParameter('jetIdTag',jetIdTag)
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+        self.apply(process)
+
+    def toolCode(self, process):
         jetSrc=self._parameters['jetSrc'].value
         jetIdTag=self._parameters['jetIdTag'].value
 
         jetIdLabel = jetIdTag + 'JetID'
         print "Making new jet ID label with label " + jetIdTag
-        
+
         ## replace jet id sequence
         process.load("RecoJets.JetProducers.ak5JetID_cfi")
         setattr( process, jetIdLabel, process.ak5JetID.clone(src = jetSrc))
-        process.makePatJets.replace( process.patJets, getattr(process,jetIdLabel) + process.patJets )    
-           
+        process.makePatJets.replace( process.patJets, getattr(process,jetIdLabel) + process.patJets )
+
 addJetID=AddJetID()
 
 
@@ -1015,9 +1021,9 @@ class SetTagInfos(ConfigToolBase):
             tagInfos=self._defaultParameters['tagInfos'].value
         self.setParameter('coll',coll)
         self.setParameter('tagInfos',tagInfos)
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+        self.apply(process)
+
+    def toolCode(self, process):
         coll=self._parameters['coll'].value
         tagInfos=self._parameters['tagInfos'].value
 
@@ -1030,13 +1036,13 @@ class SetTagInfos(ConfigToolBase):
                 if ( vv.find(k) != -1 ):
                     found = True
                     newTags.append( j )
-                    
+
         if not found:
             raise RuntimeError,"""
             Cannot replace tag infos in jet collection""" % (coll)
         else :
             getattr(process,coll).tagInfoSources = newTags
-                        
+
 setTagInfos=SetTagInfos()
 
 class SwitchJetCorrLevels(ConfigToolBase):
@@ -1066,9 +1072,9 @@ class SwitchJetCorrLevels(ConfigToolBase):
         self.setParameter('jetCorrLabel',jetCorrLabel)
         self.setParameter('postfix',postfix)
 
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+        self.apply(process)
+
+    def toolCode(self, process):
         jetCorrLabel=self._parameters['jetCorrLabel'].value
         postfix=self._parameters['postfix'].value
 
@@ -1080,7 +1086,7 @@ class SwitchJetCorrLevels(ConfigToolBase):
             if (jetCorrLabel == "None"):
                 raise ValueError, "In switchJetCollection 'jetCorrLabel' must be set to 'None' (without quotes)"
             ## check for the correct format
-            if type(jetCorrLabel) != type(('AK5Calo',['L2Relative'])): 
+            if type(jetCorrLabel) != type(('AK5Calo',['L2Relative'])):
                 raise ValueError, "In addJetCollection 'jetCorrLabel' must be 'None', or of type ('payload',['correction1', 'correction2'])"
 
             jetCorrFactorsModule = getattr(process, "patJetCorrFactors"+postfix)
@@ -1108,32 +1114,14 @@ class SwitchJetCorrLevels(ConfigToolBase):
                         jetType=''
                         ## find out which jetType is used (PF or Calo)
                         if jetCorrLabel[0].count('PF') > 0:
-                            ## only add module if it is not already part of the process
-                            ## ATTENTION: this assumes that new jet collection are always added after existing ones !!!
-                            if not hasattr(process,'kt6PFJets'+postfix):
-                                from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
-                                setattr(process,'kt6PFJets'+postfix, kt4PFJets.clone(doAreaFastjet=True, doRhoFastjet=True, rParam=0.6))
                             jetType='PF'
                         elif jetCorrLabel[0].count('Calo') > 0:
-                            ## only add module if it is not already part of the process
-                            ## ATTENTION: this assumes that new jet collection are always added after existing ones !!!
-                            if not hasattr(process,'kt6CaloJets'+postfix):
-                                from RecoJets.JetProducers.kt4CaloJets_cfi import kt4CaloJets
-                                setattr(process,'kt6CaloJets'+postfix, kt4CaloJets.clone(doAreaFastjet=True, doRhoFastjet=True, rParam=0.6))
                             jetType='Calo'
                         else:
                             raise TypeError, "L1FastJet corrections are currently only supported for PF and Calo jets in PAT"
-                        ## check if a modified patDefaultSequence exists and add kt6Jets there (needed for example for usePF2PAT)
-                        if hasattr(process,'patDefaultSequence'+postfix):
-                            if not contains(getattr(process,'patDefaultSequence'+postfix), 'kt6'+jetType+'Jets'+postfix):
-                                getattr(process,'patDefaultSequence'+postfix).replace(jetCorrFactorsModule, getattr(process,'kt6'+jetType+'Jets'+postfix)*jetCorrFactorsModule)
-                        ## if no modified patDefaultSequence exists add kt6Jets to ordinary sequence (needed for example for addJetCollection)
-                        else:
-                            if not contains(getattr(process,'patDefaultSequence'), 'kt6'+jetType+'Jets'+postfix):
-                                getattr(process,'patDefaultSequence').replace(jetCorrFactorsModule, getattr(process,'kt6'+jetType+'Jets'+postfix)*jetCorrFactorsModule)
                         ## configure module
                         jetCorrFactorsModule.useRho = True
-                        jetCorrFactorsModule.rho = cms.InputTag('kt6'+jetType+'Jets'+postfix, 'rho')
+                        jetCorrFactorsModule.rho = cms.InputTag('kt6'+jetType+'Jets', 'rho')
                         ## we set this to True now as a L1 correction type should appear only once
                         ## otherwise levels is miss configured
                         error = True
@@ -1141,7 +1129,7 @@ class SwitchJetCorrLevels(ConfigToolBase):
                         print 'ERROR : you miss configured the levels parameter. A L1 correction'
                         print '        type should appear not more than once in there.'
                         print jetCorrLabel[1]
-                        
+
 switchJetCorrLevels=SwitchJetCorrLevels()
 
 def depricatedOptionOutputModule(obj):

@@ -103,15 +103,11 @@ public:
   void fillmeSignalTimeSlice(double v1, double v2)
   {fillElements(meSignalTimeSlice, v1, v2);}
 
-  void fillmeAll10slices_depth1(double v1, double v2)
-  {fillElements(meAll10slices_depth1, v1, v2);}
-  void fillmeAll10slices_depth2(double v1, double v2)
-  {fillElements(meAll10slices_depth2, v1, v2);}
+  void fillmeAll10slices(double v1, double v2)
+  {fillElements(meAll10slices, v1, v2);}
 
-  void fillmeAll10slices1D_depth1(double v1, double v2)
-  {fillElements(meAll10slices1D_depth1, v1, v2);}
-  void fillmeAll10slices1D_depth2(double v1, double v2)
-  {fillElements(meAll10slices1D_depth2, v1, v2);}
+  void fillmeAll10slices1D(double v1, double v2)
+  {fillElements(meAll10slices1D, v1, v2);}
 
   void fillmeBin5Frac(double v1)
   {fillElement(meBin5Frac, v1);}
@@ -389,10 +385,8 @@ private:
   MonitorElement* meSignalAmp4;
 
   MonitorElement* meSignalTimeSlice;
-  MonitorElement* meAll10slices_depth1;
-  MonitorElement* meAll10slices_depth2;
-  MonitorElement* meAll10slices1D_depth1;
-  MonitorElement* meAll10slices1D_depth2;
+  MonitorElement* meAll10slices;
+  MonitorElement* meAll10slices1D;
   MonitorElement* meBin5Frac;
   MonitorElement* meBin67Frac;
 
