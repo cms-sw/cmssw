@@ -18,8 +18,8 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EBLaserMIN = cms.double(0.5),
     EELaserMIN = cms.double(0.5),
 
-    EBLaserMAX = cms.double(2),
-    EELaserMAX = cms.double(3),
+    EBLaserMAX = cms.double(3.0),
+    EELaserMAX = cms.double(8.0),
 
 
     # apply laser corrections
