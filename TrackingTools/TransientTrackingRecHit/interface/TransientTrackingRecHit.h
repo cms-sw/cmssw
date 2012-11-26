@@ -12,6 +12,13 @@
 
 class GeomDetUnit;
 
+#ifdef COUNT_HITS
+void countTTRH( TrackingRecHit::Type);
+#else
+inline void countTTRH( TrackingRecHit::Type){}
+#endif
+
+
 class TransientTrackingRecHit : public TrackingRecHit, 
 				public ReferenceCountedInEvent {
 public:
@@ -25,25 +32,25 @@ public:
     TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), 
     geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
-    hasGlobalPosition_(false), hasGlobalError_(false){}
+    hasGlobalPosition_(false), hasGlobalError_(false){countTTRH(type());}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid) : 
     TrackingRecHit(id, type), 
     geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
-    hasGlobalPosition_(false),hasGlobalError_(false){}
+    hasGlobalPosition_(false),hasGlobalError_(false){countTTRH(type);}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid) : 
     TrackingRecHit(id, type),
     geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
-    hasGlobalPosition_(false),hasGlobalError_(false){}
+    hasGlobalPosition_(false),hasGlobalError_(false){countTTRH(type);}
   
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh) : 
     TrackingRecHit(rh.geographicalId(), rh.type()),
     geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
-    hasGlobalPosition_(false),hasGlobalError_(false){}
+    hasGlobalPosition_(false),hasGlobalError_(false){countTTRH(type());}
 
 
 
