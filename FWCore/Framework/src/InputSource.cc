@@ -4,6 +4,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -160,7 +161,7 @@ namespace edm {
       receiver_->receive();
       unsigned long toSkip = receiver_->numberToSkip();
       if(0 != toSkip) {
-        skip(toSkip);
+        skipEvents(toSkip);
         decreaseRemainingEventsBy(toSkip);
       }
       numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
@@ -261,8 +262,13 @@ namespace edm {
   InputSource::readFile() {
     assert(state_ == IsFile);
     assert(!limitReached());
+    size_t size = productRegistry_->size();
     boost::shared_ptr<FileBlock> fb = callWithTryCatchAndPrint<boost::shared_ptr<FileBlock> >( [this](){ return readFile_(); },
                                                                                                "Calling InputSource::readFile_" );
+    if(size < productRegistry_->size()) {
+      principalCache_->adjustIndexesAfterProductRegistryAddition();
+    }
+    principalCache_->adjustEventToNewProductRegistry(productRegistry_);
     return fb;
   }
 
@@ -409,7 +415,12 @@ namespace edm {
 
   void
   InputSource::skipEvents(int offset) {
+    size_t size = productRegistry_->size();
     callWithTryCatchAndPrint<void>( [this,&offset](){ skip(offset); }, "Calling InputSource::skip" );
+    if(size < productRegistry_->size()) {
+      principalCache_->adjustIndexesAfterProductRegistryAddition();
+    }
+    principalCache_->adjustEventToNewProductRegistry(productRegistry_);
   }
 
   bool
