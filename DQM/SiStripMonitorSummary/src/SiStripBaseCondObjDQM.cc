@@ -655,8 +655,10 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
 						            hSummaryOfProfile_LowX, 
 						            hSummaryOfProfile_HighX, 
 						            hSummaryOfProfile_NchY, 
-						            hSummaryOfProfile_LowY, 
-						            hSummaryOfProfile_HighY);
+						            0., 
+						            0.);
+  //						            hSummaryOfProfile_LowY, 
+  //						            hSummaryOfProfile_HighY);
   CondObj_ME.SummaryOfProfileDistr->setAxisTitle(hSummaryOfProfile_xTitle,1);
   CondObj_ME.SummaryOfProfileDistr->setAxisTitle(hSummaryOfProfile_yTitle,2);
   CondObj_ME.SummaryOfProfileDistr->setAxisRange(hSummaryOfProfile_LowY, hSummaryOfProfile_HighY,2);
@@ -858,8 +860,10 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
 						   hSummary_LowX, 
 						   hSummary_HighX, 
 						   hSummary_NchY, 
-						   hSummary_LowY, 
-						   hSummary_HighY);
+						   0., 
+						   0.);
+  //						   hSummary_LowY, 
+  //						   hSummary_HighY);
   CondObj_ME.SummaryDistr->setAxisTitle(hSummary_xTitle,1);
   CondObj_ME.SummaryDistr->setAxisTitle(hSummary_yTitle,2);
   CondObj_ME.SummaryDistr->setAxisRange(hSummary_LowY, hSummary_HighY,2);
