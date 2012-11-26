@@ -91,10 +91,10 @@ class AddJetCollection(ConfigToolBase):
         labelName='patJets'+self._parameters['labelName'].value
         jetSource=self._parameters['jetSource'].value
         jetCorrections=self._parameters['jetCorrections'].value
-        btagDiscriminators=self._parameters['btagDiscriminators'].value
-        btagInfos=self._parameters['btagInfos'].value
+        btagDiscriminators=list(self._parameters['btagDiscriminators'].value)
+        btagInfos=list(self._parameters['btagInfos'].value)
         jetTrackAssociation=self._parameters['jetTrackAssociation'].value
-        outputModules=self._parameters['outputModules'].value
+        outputModules=list(self._parameters['outputModules'].value)
         
         ## a list of all producer modules, which are already known to process
         knownModules = process.producerNames().split()
@@ -348,7 +348,7 @@ class AddJetCollection(ConfigToolBase):
                     from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloJetMETcorr
                     from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloType1CorrectedMet
                     from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloType1p2CorrectedMet
-                    setattr(process,jetCorrections[0]+'JetMETcorr', caloJetMETcorr.clone(src=cms.InputTag(jetSource),srcMET = "corMetGlobalMuons",jetCorrections = cms.string(jetCorrections[0]+'CombinedCorrector')))
+                    setattr(process,jetCorrections[0]+'JetMETcorr', caloJetMETcorr.clone(src=jetSource,srcMET = "corMetGlobalMuons",jetCorrections = cms.string(jetCorrections[0]+'CombinedCorrector')))
                     setattr(process,jetCorrections[0]+'Type1CorMet', caloType1CorrectedMet.clone(src = "corMetGlobalMuons",srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+'JetMETcorr', 'type1'))))
                     setattr(process,jetCorrections[0]+'Type1p2CorMet',caloType1p2CorrectedMet.clone(src = "corMetGlobalMuons",srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+'JetMETcorr', 'type1')),srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+'JetMETcorr', 'type2'),cms.InputTag(jetCorrections[0]+'JetMETcorr', 'offset'),cms.InputTag('muonCaloMETcorr'))))
 
@@ -466,6 +466,7 @@ class SwitchJetCollection(ConfigToolBase):
         btagInfos=self._parameters['btagInfos'].value
         jetTrackAssociation=self._parameters['jetTrackAssociation'].value
         outputModules=self._parameters['outputModules'].value
+
         ## call addJetCollections w/o labelName; this will act on the default patJets collection
         addJetCollection(
             process,
