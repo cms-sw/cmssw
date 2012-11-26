@@ -536,6 +536,27 @@ hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[15].cut = cms.double(
 hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[16].cut = cms.double(-1.)
 hpsPFTauDiscriminationByMVA3TightElectronRejection.mapping[17].cut = cms.double(-1.)
 
+hpsPFTauDiscriminationByMVA3VTightElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA3LooseElectronRejection)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[0].cut = cms.double(0.89307231)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[1].cut = cms.double(0.96239871)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[2].cut = cms.double(0.98247749)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[3].cut = cms.double(0.99013329)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[4].cut = cms.double(0.9768821)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[5].cut = cms.double(0.9958095)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[6].cut = cms.double(0.99797088)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[7].cut = cms.double(0.98120493)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[8].cut = cms.double(0.60025311)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[9].cut = cms.double(0.98320472)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[10].cut = cms.double(0.9897899)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[11].cut = cms.double(0.9964357)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[12].cut = cms.double(0.88230568)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[13].cut = cms.double(0.99132508)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[14].cut = cms.double(0.98467928)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[15].cut = cms.double(0.98235631)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[16].cut = cms.double(-1.)
+hpsPFTauDiscriminationByMVA3VTightElectronRejection.mapping[17].cut = cms.double(-1.)
+
+
 hpsPFTauDiscriminationByDeadECALElectronRejection = pfRecoTauDiscriminationAgainstElectronDeadECAL.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone()
@@ -634,6 +655,7 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByMVA3LooseElectronRejection*
     hpsPFTauDiscriminationByMVA3MediumElectronRejection*
     hpsPFTauDiscriminationByMVA3TightElectronRejection*
+    hpsPFTauDiscriminationByMVA3VTightElectronRejection*
     hpsPFTauDiscriminationByDeadECALElectronRejection*
     hpsPFTauDiscriminationByLooseMuonRejection*
     hpsPFTauDiscriminationByMediumMuonRejection*
