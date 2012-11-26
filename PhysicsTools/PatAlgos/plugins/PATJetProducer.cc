@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.54 2012/05/20 20:12:25 rwolf Exp $
+// $Id: PATJetProducer.cc,v 1.55 2012/07/20 21:28:42 wdd Exp $
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -206,9 +206,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ( "pfCandidates" );
   edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ( "tagInfos" );
 
-
-  
-
   bool first=true; // this is introduced to issue warnings only for the first jet
   for (edm::View<reco::Jet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
 
@@ -229,18 +226,17 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
       pat::CaloTowerFwdPtrCollection itowersRef;
       std::vector< CaloTowerPtr > itowers = cj->getCaloConstituents();
-      for ( std::vector<CaloTowerPtr>::const_iterator towBegin = itowers.begin(),
-	      towEnd = itowers.end(), itow = towBegin;
-	    itow != towEnd; ++itow ) {
-	caloTowersOut->push_back( **itow );
-	// set the "forward" ref to the thinned collection
-	edm::Ref<std::vector<CaloTower> > caloTowerRef( h_caloTowersOut, caloTowersOut->size() - 1);
-	edm::Ptr<CaloTower> caloForwardRef ( h_caloTowersOut.id(), caloTowerRef.key(), h_caloTowersOut.productGetter() );
-	// set the "backward" ref to the original collection for association
-	edm::Ptr<CaloTower> caloBackRef ( *itow );	
-	// add to the list of FwdPtr's
-	itowersRef.push_back( pat::CaloTowerFwdPtrCollection::value_type ( caloForwardRef, caloBackRef ) );
-	
+      for ( std::vector<CaloTowerPtr>::const_iterator towBegin = itowers.begin(), towEnd = itowers.end(), itow = towBegin; itow != towEnd; ++itow ) {
+	if( itow->isAvailable() && itow->isNonnull() ){
+	  caloTowersOut->push_back( **itow );
+	  // set the "forward" ref to the thinned collection
+	  edm::Ref<std::vector<CaloTower> > caloTowerRef( h_caloTowersOut, caloTowersOut->size() - 1);
+	  edm::Ptr<CaloTower> caloForwardRef ( h_caloTowersOut.id(), caloTowerRef.key(), h_caloTowersOut.productGetter() );
+	  // set the "backward" ref to the original collection for association
+	  edm::Ptr<CaloTower> caloBackRef ( *itow );	
+	  // add to the list of FwdPtr's
+	  itowersRef.push_back( pat::CaloTowerFwdPtrCollection::value_type ( caloForwardRef, caloBackRef ) );
+	}
       }
       ajet.setCaloTowers( itowersRef );
     }
