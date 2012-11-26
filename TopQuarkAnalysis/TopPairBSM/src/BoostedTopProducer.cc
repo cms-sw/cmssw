@@ -94,7 +94,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // This will hold the prompt W lepton candidate, and a
    // maximum pt decision variable
    double maxWLeptonPt = -1;
-   reco::Candidate const * Wlepton = 0;
+   //reco::Candidate const * Wlepton = 0;
 
    // ----------------------
    // Find isolated muons, and highest pt lepton
