@@ -139,7 +139,11 @@
 </SolidSection>
 
 <LogicalPartSection label="gemf.xml">
-  <LogicalPart name="GE11" category="unspecified">
+  <LogicalPart name="GE11P" category="unspecified">
+    <rSolid name="GE11"/>
+    <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="GE11N" category="unspecified">
     <rSolid name="GE11"/>
     <rMaterial name="materials:ME_free_space"/>
   </LogicalPart>
@@ -365,14 +369,12 @@
  <PosPartSection label="gemf.xml">
   <PosPart copyNumber="1">
     <rParent name="mf:ME1RingP"/>
-    <rChild name="gemf:GE11"/>
-    <rRotation name="rotations:R005"/>
+    <rChild name="gemf:GE11P"/>
     <Translation x="0*fm" y="0*fm" z="5.686*m" />
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="mf:ME1RingN"/>
-    <rChild name="gemf:GE11"/>
-    <rRotation name="rotations:R005"/>
+    <rChild name="gemf:GE11N"/>
     <Translation x="0*fm" y="0*fm" z="5.686*m" />
   </PosPart>
   <PosPart copyNumber="1">
@@ -639,7 +641,7 @@
  </PosPartSection>
 
 <Algorithm name="muon:DDGEMAngular">
-    <rParent name="gemf:GE11"/>
+    <rParent name="gemf:GE11P"/>
     <String name="ChildName" value="GB11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
@@ -652,7 +654,7 @@
     <Numeric name="zoffset"     value="+34.80*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
-    <rParent name="gemf:GE11"/>
+    <rParent name="gemf:GE11P"/>
     <String name="ChildName" value="GA11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
@@ -665,7 +667,7 @@
     <Numeric name="zoffset"     value="+22.70*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
-    <rParent name="gemf:GE11"/>
+    <rParent name="gemf:GE11P"/>
     <String name="ChildName" value="GB11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
@@ -678,7 +680,7 @@
     <Numeric name="zoffset"     value=" -8.60*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
-    <rParent name="gemf:GE11"/>
+    <rParent name="gemf:GE11P"/>
     <String name="ChildName" value="GA11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
@@ -691,7 +693,7 @@
     <Numeric name="zoffset"     value="-20.70*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
-    <rParent name="gemf:GE11"/>
+    <rParent name="gemf:GE11P"/>
     <String name="ChildName" value="GB11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
@@ -704,7 +706,7 @@
     <Numeric name="zoffset"     value=" +8.60*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
-    <rParent name="gemf:GE11"/>
+    <rParent name="gemf:GE11P"/>
     <String name="ChildName" value="GA11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
@@ -717,7 +719,7 @@
     <Numeric name="zoffset"     value="+20.70*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
-    <rParent name="gemf:GE11"/>
+    <rParent name="gemf:GE11P"/>
     <String name="ChildName" value="GB11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
@@ -730,7 +732,7 @@
     <Numeric name="zoffset"     value="-34.80*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
-    <rParent name="gemf:GE11"/>
+    <rParent name="gemf:GE11P"/>
     <String name="ChildName" value="GA11"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
@@ -739,6 +741,110 @@
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-22.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+34.80*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+22.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" -8.60*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-20.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" +8.60*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+20.70*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GB11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-34.80*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gemf:GE11N"/>
+    <String name="ChildName" value="GA11"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
     <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="-22.70*mm"/>
 </Algorithm>

@@ -415,7 +415,7 @@
  </SpecParSection>
  <SpecParSection label="muonGEMnumbering" eval="true">
   <SpecPar name="MuonGEMEndcap">
-   <PartSelector path="//GE11"/>
+   <PartSelector path="//GE11.*"/>
    <Parameter name="CopyNoTag" value="[mg_ring]"/>
    <Parameter name="CopyNoOffset" value="2*[super]"/>
   </SpecPar>
