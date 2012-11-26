@@ -194,10 +194,10 @@ namespace cond {
     }    // side
 
     //canvas.cd(1);
-    float bmin[3] ={0.7, 0.5, 0.4};
-    float bmax[3] ={1.7, 1.0, 0.8};
-    float emin[3] ={1.5, 0.8, 0.4};
-    float emax[3] ={2.5, 1.5, 0.8};
+    //float bmin[3] ={0.7, 0.5, 0.4};
+    //float bmax[3] ={1.7, 1.0, 0.8};
+    //float emin[3] ={1.5, 0.8, 0.4};
+    //float emax[3] ={2.5, 1.5, 0.8};
     TLine* l = new TLine(0., 0., 0., 0.);
     l->SetLineWidth(1);
     int ixSectorsEE[202] = {
