@@ -4,8 +4,8 @@
 /*
  * \file L1TRate_Offline.h
  *
- * $Date: 2011/10/28 13:24:48 $
- * $Revision: 1.4 $
+ * $Date: 2012/11/15 17:50:03 $
+ * $Revision: 1.1 $
  * \author J. Pela
  *
 */
@@ -64,11 +64,11 @@ protected:
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
   virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
-/* // Private methods */
-/* private: */
+// Private methods
+private:
 
-/*   //    bool getXSexFitsOMDS  (const edm::ParameterSet& ps);  */
-/*   bool getXSexFitsPython(const edm::ParameterSet& ps); */
+  //    bool getXSexFitsOMDS  (const edm::ParameterSet& ps);
+  bool getXSexFitsPython(const edm::ParameterSet& ps);
 
 // Private variables
 private:
@@ -92,6 +92,7 @@ private:
   std::map<int,double>                    m_lsLuminosity;           // Map of luminosity recorded for each LS
   std::map<int,std::map<TString,double> > m_lsRates;                // Map of rates (by bit) recorded for each LS
   std::map<TString,int>                   m_algoBit;                // Map of bit associated with a L1 Algo alias
+  std::map<TString,TF1*>                  m_algoFit;                // Map of bit associated with a L1 Algo alias
   std::map<std::string,bool>              m_inputCategories;        // Map of categories to monitor
   std::map<std::string,std::string>       m_selectedTriggers;       // Map of what trigger to monitor for each category
   std::map<TString,MonitorElement*>       m_xSecObservedToExpected; // Monitor Elements for Observed to Expected Algo XSec 

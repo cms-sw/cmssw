@@ -1,8 +1,8 @@
  /*
  * \file L1TRate_Offline.cc
  *
- * $Date: 2012/11/20 15:46:06 $
- * $Revision: 1.2 $
+ * $Date: 2012/11/20 17:02:27 $
+ * $Revision: 1.3 $
  * \author J. Pela, P. Musella
  *
  */
@@ -144,40 +144,43 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 //fn Online-ONLY   int srcAlgoXSecFit = m_parameters.getParameter<int>("srcAlgoXSecFit");
 //fn Online-ONLY      if     (srcAlgoXSecFit == 0){getXSexFitsOMDS  (m_parameters);}
 //fn Online-ONLY      else if(srcAlgoXSecFit == 1){getXSexFitsPython(m_parameters);}
-//fn TO MOVE ON the Harvest  getXSexFitsPython(m_parameters);
+
+  getXSexFitsPython(m_parameters);
 
   for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo){
     m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();    
   }
-
 //   double minRate = m_parameters.getParameter<double>("minRate");
 //   double maxRate = m_parameters.getParameter<double>("maxRate");
+
+  double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
+  double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
 
   // Initializing DQM Monitor Elements
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
 
-    TString tCategory     = (*i).first;
-    TString tTrigger      = (*i).second;
+    TString tCategory = (*i).first;
+    TString tTrigger  = (*i).second;
 
     TString tErrorMessage = "";
-//     TF1*    tTestFunction;
+    TF1*    tTestFunction;
 
-//     if(tTrigger != "Undefined" && m_templateFunctions.find(tTrigger) != m_templateFunctions.end()){
-//       tTestFunction = m_templateFunctions[tTrigger];
-//     }
-//     else if(tTrigger == "Undefined"){
-//       TString tFunc = "-1";
-//       tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
-//     }
-//     else if(m_templateFunctions.find(tTrigger) == m_templateFunctions.end()){
-//       TString tFunc = "-1";
-//       tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
-//       tErrorMessage = " (Undefined Test Function)";
-//     }
-//     else{
-//       TString tFunc = "-1";
-//       tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
-//     }
+    if(tTrigger != "Undefined" && m_templateFunctions.find(tTrigger) != m_templateFunctions.end()){
+      tTestFunction = m_templateFunctions[tTrigger];
+    }
+    else if(tTrigger == "Undefined"){
+      TString tFunc = "-1";
+      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
+    }
+    else if(m_templateFunctions.find(tTrigger) == m_templateFunctions.end()){
+      TString tFunc = "-1";
+      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
+      tErrorMessage = " (Undefined Test Function)";
+    }
+    else{
+      TString tFunc = "-1";
+      tTestFunction = new TF1("FitParametrization_"+tTrigger,tFunc,0,double(m_maxNbins)-0.5);
+    }
 
     if(tTrigger != "Undefined"){
 
@@ -214,22 +217,39 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 //     m_xSecVsInstLumi[tTrigger] ->getTH1()->SetMarkerStyle(23);
 
     dbe->setCurrentFolder("L1T/L1TRate_Offline/TriggerCounts"); // trigger counts...
-    m_CountsVsLS[tTrigger] = dbe->book1D(tCategory,"Counts "+tTrigger+tErrorMessage,m_maxNbins,0.5,m_maxNbins+0.5); 
-    m_CountsVsLS[tTrigger] ->setAxisTitle("Luminosity Section" ,1);
-    m_CountsVsLS[tTrigger] ->setAxisTitle("Counts " ,2);
-    m_CountsVsLS[tTrigger] ->getTH1()->SetMarkerStyle(23);
+    m_CountsVsLS[tTrigger] = dbe->bookProfile(tCategory,
+                                                  "Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,
+                                                  m_maxNbins,
+                                                  minInstantLuminosity,
+                                                  maxInstantLuminosity,0,500); 
+    m_CountsVsLS[tTrigger] ->setAxisTitle("Instantaneous Luminosity [10^{30}cm^{-2}s^{-1}]" ,1);
+    m_CountsVsLS[tTrigger] ->setAxisTitle("Algorithm #sigma [#mu b]" ,2);
+    m_CountsVsLS[tTrigger] ->getTProfile()->GetListOfFunctions()->Add(tTestFunction);
+    m_CountsVsLS[tTrigger] ->getTProfile()->SetMarkerStyle(23);
 
-    dbe->setCurrentFolder("L1T/L1TRate_Offline/InstantLumi"); // Instant Lumi...
-    m_InstLumiVsLS[tTrigger] = dbe->book1D(tCategory,"InstantLumi "+tTrigger+tErrorMessage,m_maxNbins,0.5,m_maxNbins+0.5); 
-    m_InstLumiVsLS[tTrigger] ->setAxisTitle("Luminosity Section" ,1);
-    m_InstLumiVsLS[tTrigger] ->setAxisTitle("Instant Lumi " ,2);
-    m_InstLumiVsLS[tTrigger] ->getTH1()->SetMarkerStyle(23);
+    m_algoFit[tTrigger] = (TF1*) tTestFunction->Clone("Fit_"+tTrigger); // NOTE: Workaround
+    
+//     double TemplateFunctionValue = tTestFunction->Eval(900.);
+//     cout << "beginRun" << TemplateFunctionValue << endl;
+    int Nfuncs = m_CountsVsLS[tTrigger] ->getTProfile()->GetListOfFunctions()->GetEntries();
+    cout << tTrigger << "NfuncsA =" << Nfuncs << endl;
 
-    dbe->setCurrentFolder("L1T/L1TRate_Offline/PrescIndex"); // Prescale Index...
-    m_PrescIndexVsLS[tTrigger] = dbe->book1D(tCategory,"PrescIndex "+tTrigger+tErrorMessage,m_maxNbins,0.5,m_maxNbins+0.5); 
-    m_PrescIndexVsLS[tTrigger] ->setAxisTitle("Luminosity Section" ,1);
-    m_PrescIndexVsLS[tTrigger] ->setAxisTitle("Prescale Index " ,2);
-    m_PrescIndexVsLS[tTrigger] ->getTH1()->SetMarkerStyle(23);
+    dbe->setCurrentFolder("L1T/L1TRate_Offline/Ratio");
+    m_xSecObservedToExpected[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
+    m_xSecObservedToExpected[tTrigger] ->setAxisTitle("Lumi Section" ,1);
+    m_xSecObservedToExpected[tTrigger] ->setAxisTitle("#sigma_{obs} / #sigma_{exp}" ,2);
+
+//     dbe->setCurrentFolder("L1T/L1TRate_Offline/InstantLumi"); // Instant Lumi...
+//     m_InstLumiVsLS[tTrigger] = dbe->book1D(tCategory,"InstantLumi "+tTrigger+tErrorMessage,m_maxNbins,0.5,m_maxNbins+0.5); 
+//     m_InstLumiVsLS[tTrigger] ->setAxisTitle("Luminosity Section" ,1);
+//     m_InstLumiVsLS[tTrigger] ->setAxisTitle("Instant Lumi " ,2);
+//     m_InstLumiVsLS[tTrigger] ->getTH1()->SetMarkerStyle(23);
+
+//     dbe->setCurrentFolder("L1T/L1TRate_Offline/PrescIndex"); // Prescale Index...
+//     m_PrescIndexVsLS[tTrigger] = dbe->book1D(tCategory,"PrescIndex "+tTrigger+tErrorMessage,m_maxNbins,0.5,m_maxNbins+0.5); 
+//     m_PrescIndexVsLS[tTrigger] ->setAxisTitle("Luminosity Section" ,1);
+//     m_PrescIndexVsLS[tTrigger] ->setAxisTitle("Prescale Index " ,2);
+//     m_PrescIndexVsLS[tTrigger] ->getTH1()->SetMarkerStyle(23);
 
   }
 
@@ -253,7 +273,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
 
   int eventLS = lumiBlock.id().luminosityBlock();  
   if (m_verbose) {cout << "[L1TRate_Offline:] Called endLuminosityBlock at LS=" << eventLS << endl;}
-
+  
   // We can certify LS -1 since we should have available:
   // gt rates: (current LS)-1
   // prescale: current LS
@@ -266,38 +286,39 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   //map<TString,double>* rates=0;
   double               lumi=0;
   int                  prescalesIndex=0;
-
+  
   bool isDefCount;
   map<TString,double>* counts=0;
-
-
+  
   // Resetting MonitorElements so we can refill them
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
     string tTrigger      = (*i).second;
     //m_xSecVsInstLumi        [tTrigger]->getTH1()->Reset("ICE");
     m_CountsVsLS            [tTrigger]->getTH1()->Reset("ICE");
-    m_InstLumiVsLS            [tTrigger]->getTH1()->Reset("ICE");
-    m_PrescIndexVsLS            [tTrigger]->getTH1()->Reset("ICE");
-  }
+    m_xSecObservedToExpected[tTrigger]->getTH1()->Reset("ICE");
     
+    //     m_InstLumiVsLS            [tTrigger]->getTH1()->Reset("ICE");
+    //     m_PrescIndexVsLS            [tTrigger]->getTH1()->Reset("ICE");
+  }
+  
   //Trying to do the same with Counts....
   for(map<int,map<TString,double> >::iterator j=m_lsRates.begin() ; j!=m_lsRates.end() ; j++){
-
+    
     unsigned int lsOffline =  (*j).first;
     counts   = &(*j).second;
     isDefCount=true;
-
+    
     unsigned int lsPreInd;
-
+    
     if(m_lsLuminosity.find(lsOffline)==m_lsLuminosity.end()){isDefLumi=false;}
     else{
       isDefLumi=true;
       lumi=m_lsLuminosity[lsOffline];
       cout << "lumi [" << lsOffline << "] =" << m_lsLuminosity[lsOffline] << endl;
     }
-      
+    
     lsPreInd = lsOffline + 1;
-
+    
     if(m_lsPrescaleIndex.find(lsPreInd)==m_lsPrescaleIndex.end()){isDefPrescaleIndex=false;}
     else{
       isDefPrescaleIndex=true;
@@ -306,46 +327,62 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
     }
     
     if(isDefCount && isDefLumi && isDefPrescaleIndex){
-    
-      const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
-     
+      
+      //const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
+      
       for(map<string,string>::const_iterator j=m_selectedTriggers.begin() ; j!=m_selectedTriggers.end() ; j++){
-
+        
         string tTrigger      = (*j).second;
-
+        double trigCount     = (*counts)[tTrigger];
+        
+        //   TF1*   tTestFunction = (TF1*) m_CountsVsLS[tTrigger]->getTProfile()->GetListOfFunctions()->First();
+        TF1* tTestFunction = m_algoFit[tTrigger]; // NOTE: Workaround....
+        
+        int Nfuncs = m_CountsVsLS[tTrigger] ->getTProfile()->GetListOfFunctions()->GetEntries();
+        cout << tTrigger << " NfuncsB=" << Nfuncs << endl;
+        cout << "lumi,count,PreInd = " << lumi<<" | "<< trigCount<<" | "<<prescalesIndex << endl;
+        
         // If trigger name is defined we get the rate fit parameters 
         if(tTrigger != "Undefined"){
-
-          unsigned int   trigBit      = m_algoBit[tTrigger];
-	  double trigPrescale = currentPrescaleFactors[trigBit];
-
-          double trigCount     = (*counts)[tTrigger];
-
-	  cout << "bit =" << tTrigger << " prescalesIndex =" << prescalesIndex << endl;
-	  cout << "bit =" << tTrigger << " trigPrescale =" << trigPrescale << endl;
-
-	  if(lumi!=0 && trigCount!=0){
-	    //as a check          if(trigCount!=0){
-
+          
+          //unsigned int   trigBit      = m_algoBit[tTrigger];
+          //double trigPrescale = currentPrescaleFactors[trigBit];
+          
+          if(lumi!=0 && trigCount!=0 && prescalesIndex!=0){
+            
+            double AlgoXSec              = (prescalesIndex*trigCount)/lumi;
+            double TemplateFunctionValue = tTestFunction->Eval(lumi);
+            
             // Checking against Template function
-            int ibin = m_CountsVsLS[tTrigger]->getTH1()->FindBin(lsOffline);
-            int kbin = m_InstLumiVsLS[tTrigger]->getTH1()->FindBin(lsOffline);
-            int lbin = m_PrescIndexVsLS[tTrigger]->getTH1()->FindBin(lsOffline);
-
-	    //            m_xSecVsInstLumi[tTrigger]->setBinContent(trigCount,ibin);
-            //fn 09-11-12 for checking purpose: m_xSecVsInstLumi[tTrigger]->setBinContent(ibin,trigCount);
-            m_CountsVsLS  [tTrigger]->setBinContent(ibin,trigCount);
-            m_InstLumiVsLS  [tTrigger]->setBinContent(kbin,lumi);
-            m_PrescIndexVsLS  [tTrigger]->setBinContent(lbin,prescalesIndex);
-
+            m_CountsVsLS  [tTrigger]->Fill(lumi,AlgoXSec);
+            
+            int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(lsOffline);
+            m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,AlgoXSec/TemplateFunctionValue);
+            
+            cout << "Results algo:"<<tTrigger<<" prediction:"<<TemplateFunctionValue<<" xsec:"<<AlgoXSec<<" test:"<< AlgoXSec/TemplateFunctionValue<<endl;
+            
           }
-
+          else {
+            m_CountsVsLS  [tTrigger]->Fill(999.,999.);
+            
+            int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(lsOffline);
+            m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,0.000001);
+          }
         }
       }  
     }    
   }
-
 }
+//             int ibin = m_CountsVsLS[tTrigger]->getTH1()->FindBin(lsOffline);
+//             int kbin = m_InstLumiVsLS[tTrigger]->getTH1()->FindBin(lsOffline);
+//             int lbin = m_PrescIndexVsLS[tTrigger]->getTH1()->FindBin(lsOffline);
+
+//             m_xSecVsInstLumi[tTrigger]->setBinContent(trigCount,ibin);
+
+//             m_CountsVsLS  [tTrigger]->setBinContent(ibin,trigCount);
+//             m_InstLumiVsLS  [tTrigger]->setBinContent(kbin,lumi);
+//             m_PrescIndexVsLS  [tTrigger]->setBinContent(lbin,prescalesIndex);
+
 
 //_____________________________________________________________________
 void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetup){
@@ -455,6 +492,74 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 
 
 }
+
+//_____________________________________________________________________
+// function: getXSexFitsPython
+// Imputs: 
+//   * const edm::ParameterSet& ps = ParameterSet contaning the fit
+//     functions and parameters for the selected triggers
+// Outputs:
+//   * int error = Number of algos where you did not find a 
+//     corresponding fit 
+//_____________________________________________________________________
+bool L1TRate_Offline::getXSexFitsPython(const edm::ParameterSet& ps){
+
+  // error meaning
+  bool noError = true;
+
+  // Getting fit parameters
+  std::vector<edm::ParameterSet>  m_fitParameters = ps.getParameter< vector<ParameterSet> >("fitParameters");
+
+  double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
+  double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
+
+  // Getting rate fit parameters for all input triggers
+  for(map<string,string>::const_iterator a=m_selectedTriggers.begin() ; a!=m_selectedTriggers.end() ; a++){
+  
+    string tTrigger = (*a).second;
+
+    // If trigger name is defined we get the rate fit parameters 
+    if(tTrigger != "Undefined"){
+    
+      bool foundFit = false;
+
+      for(unsigned int b=0 ; b<m_fitParameters.size() ; b++){
+	
+        if(tTrigger == m_fitParameters[b].getParameter<string>("AlgoName")){
+	
+          TString        tAlgoName          = m_fitParameters[b].getParameter< string >        ("AlgoName");
+          TString        tTemplateFunction  = m_fitParameters[b].getParameter< string >        ("TemplateFunction");
+          vector<double> tParameters        = m_fitParameters[b].getParameter< vector<double> >("Parameters");
+	  
+          // Retriving and populating the m_templateFunctions array
+          m_templateFunctions[tTrigger] = new TF1("FitParametrization_"+tAlgoName,tTemplateFunction,
+                                                  minInstantLuminosity,maxInstantLuminosity);
+          m_templateFunctions[tTrigger] ->SetParameters(&tParameters[0]);
+          m_templateFunctions[tTrigger] ->SetLineWidth(1);
+          m_templateFunctions[tTrigger] ->SetLineColor(kRed);
+
+          foundFit = true;
+          break;
+        }
+
+        if(!foundFit){
+
+          noError = false;
+
+          int eCount = m_ErrorMonitor->getTH1()->GetBinContent(WARNING_PY_MISSING_FIT);
+          eCount++;
+          m_ErrorMonitor->getTH1()->SetBinContent(WARNING_PY_MISSING_FIT,eCount);
+
+        }
+      }
+    }
+  }
+
+   return noError;
+
+}
+
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TRate_Offline);
