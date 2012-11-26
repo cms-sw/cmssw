@@ -31,6 +31,7 @@ duplicateTrackCandidates = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_
     source=cms.InputTag("preDuplicateMergingGeneralTracks"),
     minDeltaR3d = cms.double(-4.0),
     minBDTG = cms.double(-0.1),
+    minpT = cms.double(0.63),
     useInnermostState  = cms.bool(True),
     ttrhBuilderName    = cms.string("WithAngleAndTemplate")
     )

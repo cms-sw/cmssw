@@ -316,7 +316,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
       edm::Ref< std::vector<Trajectory> > trajRef(originalTrajHandle, i);
       TrajTrackAssociationCollection::const_iterator match = originalTrajTrackHandle->find(trajRef);
-      TrajTrackAssociationCollection::const_iterator match2 = outputTTAss->find(trajRef);
       if (match != originalTrajTrackHandle->end()) {
 	if(curTrackRef.isNonnull()){
 	  outputTrajs->push_back( *trajRef );
