@@ -116,9 +116,8 @@ void Analyzer(string MODE="COMPILE")
    double SF = 1.05; //0.9;
 
    std::vector<string> FileName;
-//   FileName.push_back("/tmp/querten/dedx.root");
-   FileName.push_back("/tmp/querten/dedx_mc.root");
-//   FileName.push_back("/tmp/querten/dedx_mc_2011.root");
+//   FileName.push_back("root://eoscms//eos/cms/store/cmst3/user/querten/12_11_19_MC_dEdx/dedx_data_2012.root");
+   FileName.push_back("root://eoscms//eos/cms/store/cmst3/user/querten/12_11_19_MC_dEdx/dedx_mc_2012.root");
    fwlite::ChainEvent ev(FileName);
 
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");

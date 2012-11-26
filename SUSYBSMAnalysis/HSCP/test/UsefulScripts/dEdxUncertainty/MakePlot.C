@@ -221,16 +221,62 @@ void MakePlot()
 
    TFile* InputFileD8 = new TFile("pictures_data/Histos.root");
    TH2D*       HIasVsPM_D8        = (TH2D*)    GetObjectFromPath(InputFileD8, "dedx_IasVsPM");
-//   TFile* InputFileM8 = new TFile("pictures_MC_2012_NewTemplates/Histos.root");
-   TFile* InputFileM8 = new TFile("pictures/Histos.root");
+   TFile* InputFileM8 = new TFile("pictures_MC_2012_NewTemplates/Histos.root");
+//   TFile* InputFileM8 = new TFile("pictures_MC_2012/Histos.root");
    TH2D*       HIasVsPM_M8        = (TH2D*)    GetObjectFromPath(InputFileM8, "dedx_IasVsPM");
 
    TFile* InputFileD7 = new TFile("pictures_data_2011/Histos.root");
    TH2D*       HIasVsPM_D7        = (TH2D*)    GetObjectFromPath(InputFileD7, "dedx_IasVsPM");
    TFile* InputFileM7 = new TFile("pictures_MC_2011/Histos.root");
    TH2D*       HIasVsPM_M7        = (TH2D*)    GetObjectFromPath(InputFileM7, "dedx_IasVsPM");
+   compareDataMC(HIasVsPM_D8, HIasVsPM_M8, HIasVsPM_D7, HIasVsPM_M7);
 
-    compareDataMC(HIasVsPM_D8, HIasVsPM_M8, HIasVsPM_D7, HIasVsPM_M7);
+
+   TCanvas* c1;
+   TObject** Histos = new TObject*[10];
+   std::vector<string> legend;
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = GetObjectFromPath(InputFileD8, "dedx_IasMIP");                    legend.push_back("Data 8TeV");
+   Histos[1] = GetObjectFromPath(InputFileM8, "dedx_IasMIP");                    legend.push_back("MC 8TeV");
+   Histos[2] = GetObjectFromPath(InputFileD7, "dedx_IasMIP");                    legend.push_back("Data 7TeV");
+   Histos[3] = GetObjectFromPath(InputFileM7, "dedx_IasMIP");                    legend.push_back("MC 7TeV");
+   ((TH1D*)Histos[0])->Rebin(8);   ((TH1D*)Histos[0])->Sumw2();    ((TH1D*)Histos[0])->Scale(1/((TH1D*)Histos[0])->Integral());
+   ((TH1D*)Histos[1])->Rebin(8);   ((TH1D*)Histos[1])->Sumw2();    ((TH1D*)Histos[1])->Scale(1/((TH1D*)Histos[1])->Integral());
+   ((TH1D*)Histos[2])->Rebin(8);   ((TH1D*)Histos[2])->Sumw2();    ((TH1D*)Histos[2])->Scale(1/((TH1D*)Histos[2])->Integral());
+   ((TH1D*)Histos[3])->Rebin(8);   ((TH1D*)Histos[3])->Sumw2();    ((TH1D*)Histos[3])->Scale(1/((TH1D*)Histos[3])->Integral());
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1", "I_{as}", "u.a.", 0,0.4, 0,0);
+   ((TH1D*)Histos[0])->SetMarkerColor(1); ((TH1D*)Histos[0])->SetLineColor(1);
+   ((TH1D*)Histos[1])->SetMarkerColor(4); ((TH1D*)Histos[1])->SetLineColor(4);
+   ((TH1D*)Histos[2])->SetMarkerColor(2); ((TH1D*)Histos[2])->SetLineColor(2);
+   ((TH1D*)Histos[3])->SetMarkerColor(8); ((TH1D*)Histos[3])->SetLineColor(8);
+   DrawLegend(Histos,legend,"","P");
+   DrawPreliminary("",-1.0,-1.0);
+   c1->SetLogy(true);
+   c1->SetBottomMargin(0.15);
+   SaveCanvas(c1,"pictures/","DataMC_MIP_Ias");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = GetObjectFromPath(InputFileD8, "dedx_MIP");                    legend.push_back("Data 8TeV");
+   Histos[1] = GetObjectFromPath(InputFileM8, "dedx_MIP");                    legend.push_back("MC 8TeV");
+   Histos[2] = GetObjectFromPath(InputFileD7, "dedx_MIP");                    legend.push_back("Data 7TeV");
+   Histos[3] = GetObjectFromPath(InputFileM7, "dedx_MIP");                    legend.push_back("MC 7TeV");
+   ((TH1D*)Histos[0])->Rebin(8);   ((TH1D*)Histos[0])->Sumw2();    ((TH1D*)Histos[0])->Scale(1/((TH1D*)Histos[0])->Integral());
+   ((TH1D*)Histos[1])->Rebin(8);   ((TH1D*)Histos[1])->Sumw2();    ((TH1D*)Histos[1])->Scale(1/((TH1D*)Histos[1])->Integral());
+   ((TH1D*)Histos[2])->Rebin(8);   ((TH1D*)Histos[2])->Sumw2();    ((TH1D*)Histos[2])->Scale(1/((TH1D*)Histos[2])->Integral());
+   ((TH1D*)Histos[3])->Rebin(8);   ((TH1D*)Histos[3])->Sumw2();    ((TH1D*)Histos[3])->Scale(1/((TH1D*)Histos[3])->Integral());
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1", "I_{h} (MeV/cm)", "u.a.", 1.5,5.5, 0,0);
+   ((TH1D*)Histos[0])->SetMarkerColor(1); ((TH1D*)Histos[0])->SetLineColor(1);
+   ((TH1D*)Histos[1])->SetMarkerColor(4); ((TH1D*)Histos[1])->SetLineColor(4);
+   ((TH1D*)Histos[2])->SetMarkerColor(2); ((TH1D*)Histos[2])->SetLineColor(2);
+   ((TH1D*)Histos[3])->SetMarkerColor(8); ((TH1D*)Histos[3])->SetLineColor(8);
+   DrawLegend(Histos,legend,"","P");
+   DrawPreliminary("",-1.0,-1.0);
+   c1->SetLogy(true);
+   c1->SetBottomMargin(0.15);
+   SaveCanvas(c1,"pictures/","DataMC_MIP_Ih");
+   delete c1;
+
 }
 
 
@@ -359,7 +405,7 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
       c1->SetLogz(true);
       inputD8->SetStats(kFALSE);
       inputD8->GetXaxis()->SetTitle("track momentum (GeV/c)");
-      inputD8->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
+      inputD8->GetYaxis()->SetTitle("I_{as}");
       inputD8->SetAxisRange(0,5,"X");
       inputD8->SetAxisRange(0,15,"Y");
       inputD8->Draw("COLZ");
@@ -370,7 +416,7 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
       c1->SetLogz(true);
       inputM8->SetStats(kFALSE);
       inputM8->GetXaxis()->SetTitle("track momentum (GeV/c)");
-      inputM8->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
+      inputM8->GetYaxis()->SetTitle("I_{as}");
       inputM8->SetAxisRange(0,5,"X");
       inputM8->SetAxisRange(0,15,"Y");
       inputM8->Draw("COLZ");
@@ -382,7 +428,7 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
       c1->SetLogz(true);
       inputD7->SetStats(kFALSE);
       inputD7->GetXaxis()->SetTitle("track momentum (GeV/c)");
-      inputD7->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
+      inputD7->GetYaxis()->SetTitle("I_{as}");
       inputD7->SetAxisRange(0,5,"X");
       inputD7->SetAxisRange(0,15,"Y");
       inputD7->Draw("COLZ");
@@ -395,7 +441,7 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
       c1->SetLogz(true);
       inputM7->SetStats(kFALSE);
       inputM7->GetXaxis()->SetTitle("track momentum (GeV/c)");
-      inputM7->GetYaxis()->SetTitle("dE/dx (MeV/cm)");
+      inputM7->GetYaxis()->SetTitle("I_{as}");
       inputM7->SetAxisRange(0,5,"X");
       inputM7->SetAxisRange(0,15,"Y");
       inputM7->Draw("COLZ");
@@ -408,8 +454,8 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
           double P       = inputD8->GetXaxis()->GetBinCenter(x);
           double PErr    = inputD8->GetXaxis()->GetBinWidth(x);
 
-          if(P<0.6) continue;
-          if(P>1.4) continue;
+          if(P<0.65) continue;
+          if(P>1.35) continue;
           
           c1  = new TCanvas("canvas", "canvas", 600,600);
           bool PlotOnCanvas = false;
@@ -433,7 +479,7 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
              Projection->Draw();
              Projection->SetTitle("");
              Projection->SetStats(kFALSE);
-             Projection->GetXaxis()->SetTitle("dE/dx Estimator [MeV/cm]");
+             Projection->GetXaxis()->SetTitle("I_{as}");
              Projection->GetYaxis()->SetTitle("#Entries");
              Projection->GetYaxis()->SetTitleOffset(1.30);
              Projection->SetAxisRange(1E-5,1.0,"Y");
@@ -474,7 +520,7 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
              Projection->Draw(PlotOnCanvas?"same":"");
              Projection->SetTitle("");
              Projection->SetStats(kFALSE);
-             Projection->GetXaxis()->SetTitle("dE/dx Estimator [MeV/cm]");
+             Projection->GetXaxis()->SetTitle("I_{as}");
              Projection->GetYaxis()->SetTitle("#Entries");
              Projection->GetYaxis()->SetTitleOffset(1.30);
              Projection->SetAxisRange(1E-5,1.0,"Y");
@@ -517,7 +563,7 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
              Projection->Draw(PlotOnCanvas?"same":"");
              Projection->SetTitle("");
              Projection->SetStats(kFALSE);
-             Projection->GetXaxis()->SetTitle("dE/dx Estimator [MeV/cm]");
+             Projection->GetXaxis()->SetTitle("I_{as}");
              Projection->GetYaxis()->SetTitle("#Entries");
              Projection->GetYaxis()->SetTitleOffset(1.30);
              Projection->SetAxisRange(1E-5,1.0,"Y");
@@ -559,7 +605,7 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
              Projection->Draw(PlotOnCanvas?"same":"");
              Projection->SetTitle("");
              Projection->SetStats(kFALSE);
-             Projection->GetXaxis()->SetTitle("dE/dx Estimator [MeV/cm]");
+             Projection->GetXaxis()->SetTitle("I_{as}");
              Projection->GetYaxis()->SetTitle("#Entries");
              Projection->GetYaxis()->SetTitleOffset(1.30);
              Projection->SetAxisRange(1E-5,1.0,"Y");
@@ -619,6 +665,15 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
       GraphM->GetYaxis()->SetTitle("#mu(I_{as})");
       GraphM->GetYaxis()->SetTitleOffset(1.70);
       GraphM->GetYaxis()->SetRangeUser(0,1);      
+      TLegend* LEG = new TLegend(0.55,0.75,0.80,0.90);
+      LEG->SetFillColor(0);
+      LEG->SetFillStyle(0);
+      LEG->SetBorderSize(0);
+      LEG->AddEntry(GResultD8, "Data 8TeV", "LP");
+      LEG->AddEntry(GResultM8, "MC 8TeV", "LP");
+      LEG->AddEntry(GResultD7, "Data 7TeV", "LP");
+      LEG->AddEntry(GResultM7, "MC 7TeV", "LP");
+      LEG->Draw();
       SaveCanvas(c1,"pictures/","DataMC_MeanG");
       delete c1;
 
@@ -639,6 +694,7 @@ void compareDataMC(TH2D* inputD8, TH2D* inputM8, TH2D* inputD7, TH2D* inputM7){
       GraphS->GetYaxis()->SetTitle("#sigma(I_{as})");
       GraphS->GetYaxis()->SetTitleOffset(1.70);
       GraphS->GetYaxis()->SetRangeUser(0,0.2);
+      LEG->Draw();
       SaveCanvas(c1,"pictures/","DataMC_SigmaG");
       delete c1;
 
