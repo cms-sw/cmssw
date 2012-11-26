@@ -66,6 +66,10 @@ namespace edm {
     void deleteRun(ProcessHistoryID const& phid, RunNumber_t run);
     void deleteLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
+    void adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg);
+
+    void adjustIndexesAfterProductRegistryAddition();
+
   private:
 
     void throwRunMissing() const;
