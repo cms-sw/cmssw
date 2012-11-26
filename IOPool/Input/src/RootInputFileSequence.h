@@ -111,8 +111,6 @@ namespace edm {
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
     bool labelRawDataLikeMC_;
-    bool adjustEventToNewProductRegistry_;
-    bool adjustIndexesAfterProductRegistryAddition_;
     bool usingGoToEvent_;
     bool enablePrefetching_;
   }; // class RootInputFileSequence

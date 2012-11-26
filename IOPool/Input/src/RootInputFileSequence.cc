@@ -63,8 +63,6 @@ namespace edm {
     duplicateChecker_(inputType == InputType::Primary ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", inputType != InputType::SecondarySource)),
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
-    adjustEventToNewProductRegistry_(false),
-    adjustIndexesAfterProductRegistryAddition_(false),
     usingGoToEvent_(false) {
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
@@ -302,7 +300,6 @@ namespace edm {
     initFile(skipBadFiles_);
 
     if(inputType_ == InputType::Primary && rootFile_) {
-      size_t size = productRegistry()->size();
       // make sure the new product registry is compatible with the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
@@ -311,11 +308,6 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::nextFile()") << mergeInfo;
       }
-      // We may need to modify the cached principals due to the new product registry. 
-      if(productRegistry()->size() > size) {
-        adjustIndexesAfterProductRegistryAddition_ = true;
-      }
-      adjustEventToNewProductRegistry_ = true;
     }
     return true;
   }
@@ -333,7 +325,6 @@ namespace edm {
     initFile(false);
 
     if(inputType_ == InputType::Primary && rootFile_) {
-      size_t size = productRegistry()->size();
       // make sure the new product registry is compatible to the main one
       std::string mergeInfo = productRegistryUpdate().merge(*rootFile_->productRegistry(),
                                                             fileIter_->fileName(),
@@ -342,11 +333,6 @@ namespace edm {
       if(!mergeInfo.empty()) {
         throw Exception(errors::MismatchedInputFiles,"RootInputFileSequence::previousEvent()") << mergeInfo;
       }
-      // We may need to modify the cached principals due to the new product registry. 
-      if(productRegistry()->size() > size) {
-        adjustIndexesAfterProductRegistryAddition_ = true;
-      }
-      adjustEventToNewProductRegistry_ = true;
     }
     if(rootFile_) rootFile_->setToLastEntry();
     return true;
@@ -367,25 +353,11 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   RootInputFileSequence::readRun_(boost::shared_ptr<RunPrincipal> runPrincipal) {
-    if(adjustIndexesAfterProductRegistryAddition_) {
-      runPrincipal->adjustIndexesAfterProductRegistryAddition();
-      // We do not reset the adjustIndexesAfterProductRegistryAddition_ flag
-      // because we can have multiple cached RunPrincipals.
-      // adjustIndexesAfterProductRegistryAddition() is a safe no-op
-      //  if the adjustment has already been done.
-    }
     return rootFile_->readRun_(runPrincipal);
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   RootInputFileSequence::readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
-    if(adjustIndexesAfterProductRegistryAddition_) {
-      lumiPrincipal->adjustIndexesAfterProductRegistryAddition();
-      // We do not reset the adjustIndexesAfterProductRegistryAddition_ flag
-      // because we can have multiple cached LumiPrincipals.
-      // adjustIndexesAfterProductRegistryAddition() is a safe no-op
-      // if the adjustment has already been done.
-    }
     return rootFile_->readLumi(lumiPrincipal);
   }
 
@@ -404,12 +376,6 @@ namespace edm {
 
   EventPrincipal*
   RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
-    if(adjustEventToNewProductRegistry_) {
-      eventPrincipal.adjustIndexesAfterProductRegistryAddition();
-      bool eventOK = eventPrincipal.adjustToNewProductRegistry(*productRegistry());
-      assert(eventOK);
-      adjustEventToNewProductRegistry_ = false;
-    }
     return rootFile_->readEvent(eventPrincipal, lb);
   }
 
