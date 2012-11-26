@@ -55,19 +55,7 @@ muonrecoComplete = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTy
 # We need to split the muon sequence above in two, to be able to run the MuonSeeding in the tracker. So muonrecoComplete will 
 # be run no longer...
 
-earlyMuons = muons1stStep.clone(
-    inputCollectionTypes = cms.vstring('inner tracks','outer tracks'),
-    inputCollectionLabels = cms.VInputTag(cms.InputTag("earlyGeneralTracks"),cms.InputTag("standAloneMuons","UpdatedAtVtx")),
-    minP         = 3.0, # was 2.5
-    minPt        = 2.0, # was 0.5
-    minPCaloMuon = 3.0, # was 1.0
-    fillCaloCompatibility = False,
-    fillEnergy = False,
-    fillGlobalTrackQuality = False,
-    fillGlobalTrackRefits  = False,
-    fillIsolation = False,
-    fillTrackerKink = False,
-    )
+#from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyMuons
 
 muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation*muonreco_with_SET)
 
