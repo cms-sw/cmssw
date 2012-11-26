@@ -43,18 +43,29 @@ class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{
   void loop();
   bool inspect(const TrackingRegion & region);
 
+/*  
+  :_conf(conf),seedCollection(0),
+   hitsfactoryPSet(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet")),   
+   creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
+   regfactoryPSet(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet")),
+   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
+   SeedComparitorPSet(conf.getParameter<edm::ParameterSet>("SeedComparitorPSet")),
+   QuadCutPSet(conf.getParameter<edm::ParameterSet>("QuadCutPSet")),
+   theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)){
+*/
   //Data Members
   const edm::ParameterSet _conf;
 
   TrajectorySeedCollection *seedCollection;
+  edm::ParameterSet hitsfactoryPSet,creatorPSet,regfactoryPSet;
+  ClusterChecker theClusterCheck;
+  edm::ParameterSet SeedComparitorPSet,QuadCutPSet;
+  bool theSilentOnClusterCheck;
+
   CombinedHitQuadrupletGeneratorForPhotonConversion * theHitsGenerator;
   SeedForPhotonConversionFromQuadruplets *theSeedCreator;
   GlobalTrackingRegionProducerFromBeamSpot* theRegionProducer;
 
-  edm::ParameterSet hitsfactoryPSet,creatorPSet,regfactoryPSet;
-
-  ClusterChecker theClusterCheck;
-  bool theSilentOnClusterCheck;
 
   typedef std::vector<TrackingRegion* > Regions;
   typedef Regions::const_iterator IR;

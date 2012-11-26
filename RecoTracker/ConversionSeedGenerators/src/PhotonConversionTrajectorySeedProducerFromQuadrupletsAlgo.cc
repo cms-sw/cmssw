@@ -1,7 +1,14 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/Quad.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+// ClusterShapeIncludes:::
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
+#include <TVector3.h>
 /*
 To Do:
 
@@ -10,6 +17,7 @@ assign the parameters to some data member to avoid search at every event
  */
 
 //#define debugTSPFSLA
+//#define mydebug_knuenz
 
 PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSet & conf)
@@ -18,8 +26,10 @@ PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSe
    creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
    regfactoryPSet(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet")),
    theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
+   SeedComparitorPSet(conf.getParameter<edm::ParameterSet>("SeedComparitorPSet")),
+   QuadCutPSet(conf.getParameter<edm::ParameterSet>("QuadCutPSet")),
    theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)){
-  
+
   init();  
 }
      
@@ -69,7 +79,10 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
   //Do the analysis
   loop();
 
- 
+#ifdef mydebug_knuenz
+  std::cout << "Running PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo" <<std::endl;
+#endif
+
 #ifdef debugTSPFSLA 
   std::stringstream ss;
   ss.str("");
@@ -141,6 +154,7 @@ inspect(const TrackingRegion & region ){
   // Vector to store old quad values
   std::vector<Quad> quadVector;
 
+
   for (; iHits < nHitss && jHits < nHitss; iHits+=2 , jHits+=2) { 
 
 #ifdef debugTSPFSLA 
@@ -151,12 +165,11 @@ inspect(const TrackingRegion & region ){
     //mhits is the pair of hits for the electron
     const SeedingHitSet & mhits =  hitss[jHits];
 
-    //if (!theComparitor || theComparitor->compatible( hits, es) ) {
 
     try{
       //FIXME (modify the interface of the seed generator if needed)
       //passing the region, that is centered around the primary vertex
-      theSeedCreator->trajectorySeed(*seedCollection, phits, mhits, region, *myEsetup, ss, quadVector);
+      theSeedCreator->trajectorySeed(*seedCollection, phits, mhits, region, *myEsetup, ss, quadVector, SeedComparitorPSet, QuadCutPSet);
     }catch(cms::Exception& er){
       edm::LogError("SeedingConversion") << " Problem in the Quad Seed creator " <<er.what()<<std::endl;
     }catch(std::exception& er){
@@ -166,5 +179,3 @@ inspect(const TrackingRegion & region ){
   quadVector.clear();
   return true;
 }
-
-

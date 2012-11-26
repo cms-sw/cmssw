@@ -2,34 +2,19 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.ConversionSeedGenerators.PhotonConversionTrajectorySeedProducerFromQuadruplets_cfi import *
 
-from RecoTracker.TrackProducer.TrackRefitters_cff                          import *
-TrackRefitterStd = TrackRefitter.clone(src=cms.InputTag("generalTracks"))
-
-
-convFilter = cms.EDProducer("QualityFilter",
-                          TrackQuality = cms.string('loose'),
-                          recTracks = cms.InputTag("TrackRefitterStd")
-                          )
-
-convClusters = cms.EDProducer("TrackClusterRemover",
-                              trajectories = cms.InputTag("convFilter"),
+conv2Clusters = cms.EDProducer("TrackClusterRemover",
+                              clusterLessSolution = cms.bool(True),
+                              oldClusterRemovalInfo = cms.InputTag("convClusters"),
+                              trajectories = cms.InputTag("convStepTracks"),
+                              overrideTrkQuals = cms.InputTag('convStepSelector','convStep'),
+                              TrackQuality = cms.string('highPurity'),
                               pixelClusters = cms.InputTag("siPixelClusters"),
                               stripClusters = cms.InputTag("siStripClusters"),
                               Common = cms.PSet(maxChi2 = cms.double(30.0))
                               )
 
-import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-convPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
-    src = 'convClusters'
-    )
-
-import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-convStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
-    ClusterProducer = 'convClusters'
-    )
-
-convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
-                                ComponentName = cms.string('convLayerPairs'),
+conv2LayerPairs = cms.ESProducer("SeedingLayersESProducer",
+                                ComponentName = cms.string('conv2LayerPairs'),
                                 layerList = cms.vstring('BPix1+BPix2', 
 
                                                         'BPix2+BPix3', 
@@ -102,124 +87,124 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                                         'TEC7_neg+TEC8_neg'
                                                         #other combinations could be added
                                                         ),
-
+                                
                                 BPix = cms.PSet(
                                     hitErrorRZ = cms.double(0.006),
                                     hitErrorRPhi = cms.double(0.0027),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
-                                    HitProducer = cms.string('convPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True)
+                                    HitProducer = cms.string('siPixelRecHits'),
+                                    useErrorsFromParam = cms.bool(True),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 FPix = cms.PSet(
                                     hitErrorRZ = cms.double(0.0036),
                                     hitErrorRPhi = cms.double(0.0051),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
-                                    HitProducer = cms.string('convPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True)
+                                    HitProducer = cms.string('siPixelRecHits'),
+                                    useErrorsFromParam = cms.bool(True),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TIB1 = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    matchedRecHits = cms.InputTag("convStripRecHits","matchedRecHit"),
-                                    #useSimpleRphiHitsCleaner = cms.bool(False),
-                                    #stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
-                                    #rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched")
+                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TIB2 = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    matchedRecHits = cms.InputTag("convStripRecHits","matchedRecHit"),
-                                    #useSimpleRphiHitsCleaner = cms.bool(False),
-                                    #stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
-                                    #rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched")
+                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TIB3 = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHit")
+                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TIB4 = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHit")
+                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TID1 = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    stereoRecHits = cms.InputTag("convStripRecHits","stereoRecHitUnmatched"),
-                                    matchedRecHits = cms.InputTag("convStripRecHits","matchedRecHit"),
+                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHitUnmatched"),
-                                    maxRing = cms.int32(3),
-                                    minRing = cms.int32(1)
+                                    maxRing = cms.int32(2),
+                                    minRing = cms.int32(1),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TID2 = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    stereoRecHits = cms.InputTag("convStripRecHits","stereoRecHitUnmatched"),
-                                    matchedRecHits = cms.InputTag("convStripRecHits","matchedRecHit"),
+                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHitUnmatched"),
-                                    maxRing = cms.int32(3),
-                                    minRing = cms.int32(1)
+                                    maxRing = cms.int32(2),
+                                    minRing = cms.int32(1),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TID3 = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    stereoRecHits = cms.InputTag("convStripRecHits","stereoRecHitUnmatched"),
-                                    matchedRecHits = cms.InputTag("convStripRecHits","matchedRecHit"),
+                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHitUnmatched"),
                                     maxRing = cms.int32(2),
-                                    minRing = cms.int32(1)
+                                    minRing = cms.int32(1),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TEC = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
                                     minRing = cms.int32(1),
-                                    matchedRecHits = cms.InputTag("convStripRecHits","matchedRecHit"),
+                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHitUnmatched"),
-                                    maxRing = cms.int32(2),
-                                    stereoRecHits = cms.InputTag("convStripRecHits","stereoRecHitUnmatched")
+                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
+                                    maxRing = cms.int32(7),
+                                    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TOB1 = cms.PSet(
-                                    matchedRecHits = cms.InputTag("convStripRecHits","matchedRecHit"),
-                                    TTRHBuilder = cms.string('WithTrackAngle')
+                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TOB2 = cms.PSet(
-                                    matchedRecHits = cms.InputTag("convStripRecHits","matchedRecHit"),
-                                    TTRHBuilder = cms.string('WithTrackAngle')
+                                    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TOB3 = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHit")
+                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TOB4 = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHit")
+                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TOB5 = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHit")
+                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     ),
                                 TOB6 = cms.PSet(
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("convStripRecHits","rphiRecHit")
+                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+                                    skipClusters = cms.InputTag('conv2Clusters'),
                                     )
                                 )
 
 
-photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('TrackRefitterStd')
+photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
+photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
+
 
 # TRACKER DATA CONTROL
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-convMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
-    ComponentName = 'convMeasurementTracker',
-    pixelClusterProducer = 'convClusters',
-    stripClusterProducer = 'convClusters'
-    )
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-convCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'convCkfTrajectoryFilter',
+conv2CkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
+    ComponentName = 'conv2CkfTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
         maxLostHits = 1,
         minimumNumberOfHits = 3,
@@ -229,99 +214,91 @@ convCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESPr
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = 'convCkfTrajectoryBuilder',
-    MeasurementTrackerName = 'convMeasurementTracker',
-    trajectoryFilterName = 'convCkfTrajectoryFilter',
-    minNrOfHitsForRebuild = 3
+conv2CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
+    ComponentName = 'conv2CkfTrajectoryBuilder',
+    trajectoryFilterName = 'conv2CkfTrajectoryFilter',
+    minNrOfHitsForRebuild = 3,
+    clustersToSkip = cms.InputTag('conv2Clusters'),
+    maxCand = 2
     )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src = cms.InputTag('photonConvTrajSeedFromQuadruplets:convSeedCandidates'),
-    TrajectoryBuilder = 'convCkfTrajectoryBuilder'
+conv2TrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag('photonConvTrajSeedFromQuadruplets:conv2SeedCandidates'),
+    TrajectoryBuilder = 'conv2CkfTrajectoryBuilder'
 )
 
-# TRACK FITTING
-import RecoTracker.TrackProducer.TrackProducer_cfi
-convStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = 'convTrackCandidates',
-    clusterRemovalInfo = 'convClusters',
-    AlgorithmName = cms.string('iter9')
+import TrackingTools.TrackFitters.RungeKuttaFitters_cff
+conv2StepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
+    ComponentName = 'conv2StepFitterSmoother',
+    EstimateCut = 30,
+    Smoother = cms.string('conv2StepRKSmoother')
     )
     
-# TRACK SELECTION AND QUALITY FLAG SETTING.
-import RecoTracker.FinalTrackSelectors.selectLoose_cfi
-import RecoTracker.FinalTrackSelectors.selectTight_cfi
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-import RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi
-#since they are equal I comment out the first
-# convStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-#     src = 'convStepTracks',
-#     keepAllTracks = True,
-#     copyExtras = False,
-#     copyTrajectories = True,
-#     chi2n_par = 2.,
-#     res_par = ( 0.003, 0.001 ),
-#     minNumberLayers = 3,
-#     maxNumberLostLayers = 1,
-#     minNumber3DLayers = 1,
-#     d0_par1 = ( 5., 8.0 ),
-#     dz_par1 = ( 5., 8.0 ),
-#     d0_par2 = ( 5., 8.0 ),
-#     dz_par2 = ( 5., 8.0 )
-#     )
-# convStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-#     src = 'convStepLoose',
-#     keepAllTracks = True,
-#     copyExtras = False,
-#     copyTrajectories = True,
-#     chi2n_par = 2.,
-#     res_par = ( 0.003, 0.001 ),
-#     minNumberLayers = 3,
-#     maxNumberLostLayers = 1,
-#     minNumber3DLayers = 1,
-#     d0_par1 = ( 5., 8.0 ),
-#     dz_par1 = ( 5., 8.0 ),
-#     d0_par2 = ( 5., 8.0 ),
-#     dz_par2 = ( 5., 8.0 )
-#     )
-convStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-#    src = 'convStepTight',
-    src = 'convStepTracks',
-    keepAllTracks = True,
-    copyExtras = False,
-    copyTrajectories = True,
-    applyAdaptedPVCuts = False,
-    chi2n_par = 2.,
-    res_par = ( 0.003, 0.001 ),
-    minNumberLayers = 3,
-    maxNumberLostLayers = 1,
-    minNumber3DLayers = 1,
-    d0_par1 = ( 5., 8.0 ),
-    dz_par1 = ( 5., 8.0 ),
-    d0_par2 = ( 5., 8.0 ),
-    dz_par2 = ( 5., 8.0 )
+conv2StepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
+    ComponentName = cms.string('conv2StepRKSmoother'),
+    errorRescaling = 10.0
     )
 
-#import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-#QuadSeedStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-#    TrackProducers = cms.VInputTag(cms.InputTag('convStepTracks')),
-#    hasSelector=cms.vint32(1),
-#    selectedTrackQuals = cms.VInputTag(cms.InputTag("convStep")),
-#    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) )),
-#    writeOnlyTrkQuals=cms.bool(True)
-#)
-
-convSequence = cms.Sequence( TrackRefitterStd * convFilter * convClusters * convPixelRecHits * convStripRecHits 
-                             * photonConvTrajSeedFromQuadruplets 
-                             *convTrackCandidates*convStepTracks
-                             #*convStepLoose*convStepTight
-                             *convStep
-                             #*QuadSeedStep
-                             )
+        
+# TRACK FITTING
+import RecoTracker.TrackProducer.TrackProducer_cfi
+conv2StepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'conv2TrackCandidates',
+    AlgorithmName = cms.string('iter9'),
+    Fitter = 'conv2StepFitterSmoother',
+    )
 
 
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+conv2StepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='conv2StepTracks',
+    trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'conv2StepLoose',
+            applyAdaptedPVCuts = False,
+            chi2n_par = 3.0,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 1,
+            d0_par1 = ( 5., 8.0 ),
+            dz_par1 = ( 5., 8.0 ),
+            d0_par2 = ( 5., 8.0 ),
+            dz_par2 = ( 5., 8.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'conv2StepTight',
+            preFilterName = 'conv2StepLoose',
+            chi2n_par = 2.5,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 1,
+            d0_par1 = ( 5., 8.0 ),
+            dz_par1 = ( 5., 8.0 ),
+            d0_par2 = ( 5., 8.0 ),
+            dz_par2 = ( 5., 8.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'conv2Step',
+            preFilterName = 'conv2StepTight',
+            chi2n_par = 2.0,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 1,
+            d0_par1 = ( 5., 8.0 ),
+            dz_par1 = ( 5., 8.0 ),
+            d0_par2 = ( 5., 8.0 ),
+            dz_par2 = ( 5., 8.0 )
+            ),
+        ) #end of vpset
+    ) #end of clone
 
-
+Conv2Step = cms.Sequence( conv2Clusters 
+                         + photonConvTrajSeedFromQuadruplets 
+                         + conv2TrackCandidates
+                         + conv2StepTracks
+                         + conv2StepSelector)

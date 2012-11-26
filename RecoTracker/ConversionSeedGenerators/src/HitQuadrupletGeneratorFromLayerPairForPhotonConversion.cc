@@ -76,8 +76,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
   vector<RecHitsSortedInPhi::Hit> innerHits;
   //  float outerPhimin, outerPhimax;
   float innerPhimin, innerPhimax;
-  //  float maxDeltaPhi=2.; //sguazz
-  float maxDeltaPhi=1.;
+  float maxDeltaPhi=1.; //sguazz
+  //float maxDeltaPhi=1.;
 
   RecHitsSortedInPhi::Range outerHits = outerHitsMap.all();
 
@@ -175,7 +175,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 
 	if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
-	  edm::LogError("TooManySeeds")<<"number of pairs exceed maximum, no pairs produced";
+	  edm::LogError("TooManyQuads")<<"number of Quad combinations exceed maximum, no quads produced";
 	  delete checkRZ;
 	  delete checkRZb;
 	  delete checkRZc;	  

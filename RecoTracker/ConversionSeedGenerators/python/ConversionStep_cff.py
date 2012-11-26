@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.ConversionSeedGenerators.PhotonConversionTrajectorySeedProducerFromSingleLeg_cfi import *
+from RecoTracker.ConversionSeedGenerators.ConversionStep2_cff import *
 
 convClusters = cms.EDProducer("TrackClusterRemover",
                               clusterLessSolution = cms.bool(True),
@@ -209,6 +210,8 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
 
 photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracks')
 photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('pixelVertices')
+#photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
+#photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
 
 
 # TRACKER DATA CONTROL
@@ -313,4 +316,41 @@ ConvStep = cms.Sequence( convClusters
                          + photonConvTrajSeedFromSingleLeg 
                          + convTrackCandidates
                          + convStepTracks
-                         + convStepSelector)
+                         + convStepSelector
+                         #+ Conv2Step #full quad-seeding sequence
+                         )
+
+
+### Quad-seeding sequence disabled (#+ Conv2Step)
+# if enabled, the quad-seeded tracks have to be merged with the single-leg seeded tracks
+# in RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff change:
+###
+#conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+#    TrackProducers = cms.VInputTag(cms.InputTag('convStepTracks')),
+#    hasSelector=cms.vint32(1),
+#    selectedTrackQuals = cms.VInputTag(cms.InputTag("convStepSelector","convStep")
+#                                       ),
+#    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(1), pQual=cms.bool(True) )
+#                             ),
+#    copyExtras = True,
+#    makeReKeyedSeeds = cms.untracked.bool(False)
+#    )
+###
+# TO this:
+###
+#conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+#    TrackProducers = cms.VInputTag(
+#                                   cms.InputTag('convStepTracks'),
+#                                   cms.InputTag('conv2StepTracks')
+#                                   ),
+#    hasSelector=cms.vint32(1,1),
+#    selectedTrackQuals = cms.VInputTag(
+#                                       cms.InputTag("convStepSelector","convStep"),
+#                                       cms.InputTag("conv2StepSelector","conv2Step")
+#                                       ),
+#    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )
+#                             ),
+#    copyExtras = True,
+#    makeReKeyedSeeds = cms.untracked.bool(False)
+#    )
+###

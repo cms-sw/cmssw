@@ -29,7 +29,9 @@ public:
 						 const SeedingHitSet & mhits,
 						 const TrackingRegion & region,
 						 const edm::EventSetup& es,
-						 std::stringstream& ss, std::vector<Quad> & quadV);
+						 std::stringstream& ss, std::vector<Quad> & quadV,
+						 edm::ParameterSet& SeedComparitorPSet,
+						 edm::ParameterSet& QuadCutPSet);
 
   virtual const TrajectorySeed *trajectorySeed(
 					       TrajectorySeedCollection & seedCollection,
@@ -78,8 +80,19 @@ public:
 					   TrajectorySeedCollection & seedCollection,
 					   const SeedingHitSet & hits,
 					   const FreeTrajectoryState & fts,
-					   const edm::EventSetup& es) const;
+					   const edm::EventSetup& es,
+					   bool apply_dzCut,
+					   const TrackingRegion &region) const;
 
+  virtual bool buildSeedBool(
+      TrajectorySeedCollection & seedCollection,
+      const SeedingHitSet & hits,
+      const FreeTrajectoryState & fts,
+      const edm::EventSetup& es,
+      bool apply_dzCut,
+      const TrackingRegion & region,
+      double dzcut) const;
+  
   virtual TransientTrackingRecHit::RecHitPointer refitHit(
 							  const TransientTrackingRecHit::ConstRecHitPointer &hit, 
 							  const TrajectoryStateOnSurface &state) const;
