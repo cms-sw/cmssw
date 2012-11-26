@@ -10,6 +10,8 @@ autoCond = {
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_P_V42B::All',
+    # GlobalTag for POSTLS1 upgrade studies:
+    'upgradePLS1'       :   'POSTLS161_V12::All',
 }
 
 
