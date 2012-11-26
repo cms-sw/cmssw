@@ -6,11 +6,18 @@ from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cff import *
 # Stand alone muon track producer
 from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
 
+# refitted stand-alone muons.
+refittedStandAloneMuons = standAloneMuons.clone()
+refittedStandAloneMuons.STATrajBuilderParameters.DoRefit = True
+
 # Global muon track producer
 from RecoMuon.GlobalMuonProducer.GlobalMuonProducer_cff import *
 
 # TeV refinement
 from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
+
+# SET Muon tracking
+from RecoMuon.Configuration.SETRecoMuon_cff import *
 
 # Muon Id producer
 from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
@@ -21,43 +28,55 @@ from RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff import *
 
 # Muon Isolation sequence
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
-# Muon Tracking sequence
-muontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*globalMuons)
-muontracking_with_TeVRefinement = cms.Sequence(muontracking*tevMuons)
 
-# sequence with SET standalone muons
-globalSETMuons = RecoMuon.GlobalMuonProducer.GlobalMuonProducer_cff.globalMuons.clone()
-globalSETMuons.MuonCollectionLabel = cms.InputTag("standAloneSETMuons","UpdatedAtVtx")
-from RecoMuon.MuonSeedGenerator.SETMuonSeed_cff import *
-muontracking_with_SET = cms.Sequence(SETMuonSeed*standAloneSETMuons*globalSETMuons)
+# ---------------------------------------------------- #
+################## Make the sequences ##################
+# ---------------------------------------------------- #
+
+# Muon Tracking sequence
+standalonemuontracking = cms.Sequence(standAloneMuonSeeds*standAloneMuons*refittedStandAloneMuons)
+globalmuontracking = cms.Sequence(globalMuons*tevMuons)
+muontracking = cms.Sequence(standalonemuontracking*globalmuontracking)
 
 # Muon Reconstruction
 muonreco = cms.Sequence(muontracking*muonIdProducerSequence)
-muonrecowith_TeVRefinemen = cms.Sequence(muontracking_with_TeVRefinement*muonIdProducerSequence)
-
-muonsWithSET = RecoMuon.MuonIdentification.muons1stStep_cfi.muons1stStep.clone()
-muonsWithSET.inputCollectionLabels = ['generalTracks', 'globalSETMuons', cms.InputTag('standAloneSETMuons','UpdatedAtVtx')] 
-muonsWithSET.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']   
-#muonreco_with_SET = cms.Sequence(muontracking_with_SET*muonsWithSET)
-#run only the tracking part for SET, after that it should be merged with the main ones at some point
-muonreco_with_SET = cms.Sequence(muontracking_with_SET)
 
 # Muon Reconstruction plus Isolation
-muonreco_plus_isolation = cms.Sequence(muonrecowith_TeVRefinemen*muIsolation)
-muonreco_plus_isolation_plus_SET = cms.Sequence(muonrecowith_TeVRefinemen*muonreco_with_SET*muIsolation)
-
-# .. plus muIDmaps
-# this makes me wonder if we should make this a new default name (drop all _plusX)
-muonreco_plus_isolation_plus_SET_plus_muIDmaps = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTypeSequence)
-
-# Add the refitted stand-alone muons.
-refittedStandAloneMuons = standAloneMuons.clone()
-refittedStandAloneMuons.STATrajBuilderParameters.DoRefit = True
-muontracking *= refittedStandAloneMuons
+muonreco_plus_isolation = cms.Sequence(muonreco*muIsolation)
+muonreco_plus_isolation_plus_SET = cms.Sequence(muonreco_plus_isolation*muonreco_with_SET)
 
 muonrecoComplete = cms.Sequence(muonreco_plus_isolation_plus_SET*muonSelectionTypeSequence)
-muonrecoComplete_minus_muIDmaps = cms.Sequence(muonreco_plus_isolation_plus_SET)
-muonrecoComplete_minus_SET_minus_muIDmaps = cms.Sequence(muonrecowith_TeVRefinemen*muIsolation)
 
+
+# _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_- #
+# -_-_-_- Special Sequences for Iterative tracking -_-_-_- #
+# -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_ #
+
+# We need to split the muon sequence above in two, to be able to run the MuonSeeding in the tracker. So muonrecoComplete will 
+# be run no longer...
+
+earlyMuons = muons1stStep.clone(
+    inputCollectionTypes = cms.vstring('inner tracks','outer tracks'),
+    inputCollectionLabels = cms.VInputTag(cms.InputTag("earlyGeneralTracks"),cms.InputTag("standAloneMuons","UpdatedAtVtx")),
+    minP         = 3.0, # was 2.5
+    minPt        = 2.0, # was 0.5
+    minPCaloMuon = 3.0, # was 1.0
+    fillCaloCompatibility = False,
+    fillEnergy = False,
+    fillGlobalTrackQuality = False,
+    fillGlobalTrackRefits  = False,
+    fillIsolation = False,
+    fillTrackerKink = False,
+    )
+
+muonGlobalReco = cms.Sequence(globalmuontracking*muonIdProducerSequence*muonSelectionTypeSequence*muIsolation*muonreco_with_SET)
+
+# ... instead, the sequences will be run in the following order:
+# 1st - standalonemuontracking
+# 2nd - iterative tracking (def in RecoTracker config)
+# 3rd - MuonIDProducer with 1&2 as input, with special replacements; the earlyMuons above. 
+# 4th - MuonSeeded tracks, inside-out and outside-in
+# 5th - Merging of the new TK tracks into the generalTracks collection
+# 6th - Run the remnant part of the muon sequence (muonGlobalReco) 
 
 ########################################################
