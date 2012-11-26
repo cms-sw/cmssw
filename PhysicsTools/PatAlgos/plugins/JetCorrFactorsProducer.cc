@@ -28,7 +28,6 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg):
   useNPV_(cfg.getParameter<bool>("useNPV")),
   useRho_(cfg.getParameter<bool>("useRho"))
 {
-
   std::vector<std::string> levels = cfg.getParameter<std::vector<std::string> >("levels"); 
   // fill the std::map for levels_, which might be flavor dependent or not; 
   // flavor dependency is determined from the fact whether the std::string 
@@ -47,6 +46,23 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg):
   else{
     levels_[JetCorrFactors::NONE  ] = levels;
   }
+  // if the std::string L1JPTOffset can be found in levels an additional 
+  // parameter extraJPTOffset is needed, which should pass on the the usual
+  // L1Offset correction, which is an additional input to the L1JPTOffset
+  // corrector
+  if(std::find(levels.begin(), levels.end(), "L1JPTOffset")!=levels.end()){
+    if(cfg.existsAs<std::string>("extraJPTOffset")){
+      extraJPTOffset_.push_back(cfg.getParameter<std::string>("extraJPTOffset"));
+    }
+    else{
+      throw cms::Exception("No parameter extraJPTOffset specified") 
+	<< "The configured correction levels contain a L1JPTOffset correction, which re- \n"
+	<< "quires the additional parameter extraJPTOffset or type std::string. This     \n"
+	<< "string should correspond to the L1Offset corrections that should be applied  \n"
+	<< "together with the JPTL1Offset corrections. These corrections can be of type  \n"
+	<< "L1Offset or L1FastJet.                                                       \n";
+    }
+  }
   // if the std::string L1Offset can be found in levels an additional para-
   // meter primaryVertices is needed, which should pass on the offline pri-
   // mary vertex collection. The size of this collection is needed for the 
@@ -59,15 +75,15 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg):
       throw cms::Exception("No primaryVertices specified") 
 	<< "The configured correction levels contain an L1Offset or L1FastJet correction, \n"
 	<< "which requires the number of offlinePrimaryVertices. Please specify this col- \n"
-	<< "lection as additional optional parameter primaryVertices in the jetCorrFactors\n"
-	<< "module. \n";
+	<< "lection as additional optional parameter primaryVertices of type edm::InputTag\n"
+	<< "in the jetCorrFactors module.                                                 \n";
     }
   }
   // if the std::string L1FastJet can be found in levels an additional
   // parameter rho is needed, which should pass on the energy density 
   // parameter for the corresponding jet collection.
   if(useRho_){
-    if(std::find(levels.begin(), levels.end(), "L1FastJet")!=levels.end()){
+    if((!extraJPTOffset_.empty() && extraJPTOffset_.front()==std::string("L1FastJet")) || std::find(levels.begin(), levels.end(), "L1FastJet")!=levels.end()){
       if(cfg.existsAs<edm::InputTag>("rho")){
 	rho_=cfg.getParameter<edm::InputTag>("rho");
       }
@@ -75,15 +91,15 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg):
 	throw cms::Exception("No parameter rho specified") 
 	  << "The configured correction levels contain a L1FastJet correction, which re- \n"
 	  << "quires the energy density parameter rho. Please specify this collection as \n"
-	  << "additional optional parameter rho in the jetCorrFactors module. \n";
+	  << "additional optional parameter rho of type edm::InputTag in the jetCorrFac- \n"
+	  << "tors module.                                                               \n";
       }
     }
     else{
       edm::LogWarning message( "Parameter rho not used" );
-      message << "Module is configured to use the parameter rho, but but rho is only used \n"
-	      << "for L1FastJet corrections at the moment. The configuration of levels    \n"
-	      << "does not contain L1FastJet corrections though, so rho will not be used  \n"
-	      << "throughout this module. \n";
+      message << "Module is configured to use the parameter rho, but rho is only used     \n"
+	      << "for L1FastJet corrections. The configuration of levels does not contain \n"
+	      << "L1FastJet corrections though, so rho will not be used by this module.   \n";
     }
   }
   produces<JetCorrFactorsMap>();
@@ -127,12 +143,16 @@ JetCorrFactorsProducer::params(const JetCorrectorParametersCollection& parameter
 }
 
 float
-JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet, boost::shared_ptr<FactorizedJetCorrector>& corrector, int level)
+JetCorrFactorsProducer::evaluate(edm::View<reco::Jet>::const_iterator& jet, boost::shared_ptr<FactorizedJetCorrector>& corrector, boost::shared_ptr<FactorizedJetCorrector>& extraJPTOffset, int level)
 {
   // add parameters for JPT corrections
   const reco::JPTJet* jpt = dynamic_cast<reco::JPTJet const *>( &*jet );
   if( jpt ){
     TLorentzVector p4; p4.SetPtEtaPhiE(jpt->getCaloJetRef()->pt(), jpt->getCaloJetRef()->eta(), jpt->getCaloJetRef()->phi(), jpt->getCaloJetRef()->energy());
+    if( extraJPTOffset ){
+      extraJPTOffset->setJPTrawP4(p4); 
+      corrector->setJPTrawOff(extraJPTOffset->getSubCorrections()[0]);
+    }
     corrector->setJPTrawP4(p4); 
   }
   corrector->setJetEta(jet->eta()); corrector->setJetPt(jet->pt()); corrector->setJetE(jet->energy()); 
@@ -160,7 +180,6 @@ JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup)
   if(!primaryVertices_.label().empty()) event.getByLabel(primaryVertices_, primaryVertices);
 
   // get parameter rho for L1FastJet correction level if needed
-  
   edm::Handle<double> rho;
   if(!rho_.label().empty()) event.getByLabel(rho_, rho);
 
@@ -172,6 +191,12 @@ JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup)
   std::map<JetCorrFactors::Flavor, boost::shared_ptr<FactorizedJetCorrector> > corrector;
   for(FlavorCorrLevelMap::const_iterator flavor=levels_.begin(); flavor!=levels_.end(); ++flavor){
     corrector[flavor->first] = boost::shared_ptr<FactorizedJetCorrector>( new FactorizedJetCorrector(params(*parameters, flavor->second)) );
+  }
+
+  // initialize extra jet corrector for jpt if needed
+  boost::shared_ptr<FactorizedJetCorrector> extraJPTOffset;
+  if(!extraJPTOffset_.empty()){
+    extraJPTOffset = boost::shared_ptr<FactorizedJetCorrector>( new FactorizedJetCorrector(params(*parameters, extraJPTOffset_)) );
   }
 
   // fill the jetCorrFactors
@@ -216,7 +241,7 @@ JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 	    corrector.find(flavor->first)->second->setRho(*rho);
 	    corrector.find(flavor->first)->second->setJetA(jet->jetArea());
 	  }
-	  factors.push_back(evaluate(jet, corrector.find(flavor->first)->second, idx)); 
+	  factors.push_back(evaluate(jet, corrector.find(flavor->first)->second, extraJPTOffset, idx)); 
 	}
       }
       else{
@@ -231,7 +256,7 @@ JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 	  corrector.find(corrLevel->first)->second->setRho(*rho);
 	  corrector.find(corrLevel->first)->second->setJetA(jet->jetArea());
 	}
-	factors.push_back(evaluate(jet, corrector.find(corrLevel->first)->second, idx));
+	factors.push_back(evaluate(jet, corrector.find(corrLevel->first)->second, extraJPTOffset, idx));
       }
       // push back the set of JetCorrFactors: the first entry corresponds to the label 
       // of the correction level, which is taken from the first element in levels_. For
@@ -270,6 +295,7 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   iDesc.add<edm::InputTag>("primaryVertices", edm::InputTag("offlinePrimaryVertices"));
   iDesc.add<bool>("useRho", true);
   iDesc.add<edm::InputTag>("rho", edm::InputTag("kt6PFJets", "rho"));
+  iDesc.add<std::string>("extraJPTOffset", "L1Offset");
 
   std::vector<std::string> levels;
   levels.push_back(std::string("L1Offset"  )); 

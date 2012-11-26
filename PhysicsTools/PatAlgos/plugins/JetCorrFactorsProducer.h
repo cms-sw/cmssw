@@ -83,7 +83,7 @@ namespace pat {
     /// result in an empty string as this correction level is not available
     std::vector<std::string> expand(const std::vector<std::string>& levels, const JetCorrFactors::Flavor& flavor);
     /// evaluate jet correction factor up to a given level
-    float evaluate(edm::View<reco::Jet>::const_iterator& jet, boost::shared_ptr<FactorizedJetCorrector>& corrector, int level);
+    float evaluate(edm::View<reco::Jet>::const_iterator& jet, boost::shared_ptr<FactorizedJetCorrector>& corrector, boost::shared_ptr<FactorizedJetCorrector>& extraJPTOffset, int level);
     /// determines the number of valid primary vertices for the standard L1Offset correction of JetMET
     int numberOf(const edm::Handle<std::vector<reco::Vertex> >& primaryVertices);
     /// map jet algorithm to payload in DB
@@ -100,6 +100,9 @@ namespace pat {
     std::string label_;
     /// label of payload
     std::string payload_;
+    /// label of additional L1Offset corrector for JPT jets; for format reasons this string is
+    /// kept in a vector of strings
+    std::vector<std::string> extraJPTOffset_;
     /// label for L1Offset primaryVertex collection
     edm::InputTag primaryVertices_;
     /// label for L1FastJet energy density parameter rho
