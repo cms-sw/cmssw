@@ -14,6 +14,7 @@ addMETCollection(process, labelName='patMETPF', metSource='pfType1CorrectedMet')
 ## uncomment the following line to add different jet collections
 ## to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
+from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 
 ## uncomment the following lines to add ak5JPTJets to your PAT output
@@ -31,69 +32,71 @@ from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 #                 )
 
 ## uncomment the following lines to add ak7CaloJets to your PAT output
-#addJetCollection(process,cms.InputTag('ak7CaloJets'),
-#                 'AK7', 'Calo',
-#                 doJTA        = True,
-#                 doBTagging   = False,
-#                 jetCorrLabel = ('AK7Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute'])),
-#                 doType1MET   = True,
-#                 doL1Cleaning = True,
-#                 doL1Counters = False,
-#                 genJetCollection=cms.InputTag("ak7GenJets"),
-#                 doJetID      = True,
-#                 jetIdLabel   = "ak7"
-#                 )
-
-## uncomment the following lines to add kt4CaloJets to your PAT output
-#addJetCollection(process,cms.InputTag('kt4CaloJets'),
-#                 'KT4', 'Calo',
-#                 doJTA        = True,
-#                 doBTagging   = True,
-#                 jetCorrLabel = ('KT4Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
-#                 doType1MET   = True,
-#                 doL1Cleaning = True,
-#                 doL1Counters = False,
-#                 genJetCollection=cms.InputTag("kt4GenJets"),
-#                 doJetID      = True,
-#                 jetIdLabel   = "kt4"
-#                 )
+addJetCollection(
+   process,
+   labelName = 'AK7Calo',
+   jetSource = cms.InputTag('ak7CaloJets'),
+   jetCorrections = ('AK7Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   btagDiscriminators = [
+   'combinedSecondaryVertexBJetTags',
+   'combinedSecondaryVertexMVABJetTags',
+   'jetBProbabilityBJetTags',
+   'jetProbabilityBJetTags',
+   'simpleSecondaryVertexHighEffBJetTags',
+   'simpleSecondaryVertexHighPurBJetTags',
+   ],
+   )
+process.patJetsAK7Calo.addJetID=True
+process.patJetsAK7Calo.jetIDMap="ak7JetID"
 
 ## uncomment the following lines to add kt6CaloJets to your PAT output
-addJetCollection(process,
-                 labelName = 'AK5PF',
-                 jetSource = cms.InputTag('ak5PFJets'),
-                 jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-                 #btagDiscriminators = ['None'],
-                 #btagInfos= ['None'],
-                 jetTrackAssociation = True,
-                 #outputModules   = ['out'],
-                 )
+addJetCollection(
+   process,
+   labelName = 'AK5Calo',
+   jetSource = cms.InputTag('ak5CaloJets'),
+   jetCorrections = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   btagDiscriminators = [
+   'combinedSecondaryVertexBJetTags',
+   'combinedSecondaryVertexMVABJetTags',
+   'jetBProbabilityBJetTags',
+   'jetProbabilityBJetTags',
+   'simpleSecondaryVertexHighEffBJetTags',
+   'simpleSecondaryVertexHighPurBJetTags',
+   ],
+   )
+process.patJetsAK5Calo.addJetID=True
+process.patJetsAK5Calo.jetIDMap="ak5JetID"
 
 ## uncomment the following lines to add ak5PFJets to your PAT output
-#switchJetCollection(process,cms.InputTag('ak5PFJets'),
-#                 doJTA        = True,
-#                 doBTagging   = True,
-#                 jetCorrLabel = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute'])),
-#                 doType1MET   = True,
-#                 genJetCollection=cms.InputTag("ak5GenJets"),
-#                 doJetID      = True
-#                 )
+switchJetCollection(
+   process,
+   jetSource = cms.InputTag('ak5PFJets'),
+   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   btagDiscriminators = [
+   'combinedSecondaryVertexBJetTags',
+   'combinedSecondaryVertexMVABJetTags',
+   'jetBProbabilityBJetTags',
+   'jetProbabilityBJetTags',
+   'simpleSecondaryVertexHighEffBJetTags',
+   'simpleSecondaryVertexHighPurBJetTags',
+   ],
+   )
 
 ## let it run
 #process.p = cms.Path(
 #    process.patDefaultSequence
 #)
 
-
 #process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(
     process.selectedPatCandidates
-    *process.selectedPatJetsAK5PF
+    *process.selectedPatJetsAK5Calo
+    *process.selectedPatJetsAK7Calo
     )
 
 
 
-print process.out.outputCommands
+#print process.out.outputCommands
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
@@ -102,7 +105,10 @@ print process.out.outputCommands
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-#   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
+process.source.fileNames = cms.untracked.vstring([
+    '/store/relval/CMSSW_6_1_0_pre6-START61_V5/RelValTTbar/GEN-SIM-RECO/v1/00000/8047474B-B633-E211-B8EF-003048FFD720.root'
+    ])
+#...       ##  (e.g. 'file:AOD.root')
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##
