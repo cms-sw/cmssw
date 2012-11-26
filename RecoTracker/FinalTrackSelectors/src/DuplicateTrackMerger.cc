@@ -14,6 +14,8 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : mer
   weightFileName_ = "RecoTracker/FinalTrackSelectors/data/DuplicateWeights.xml";
   minDeltaR3d_ = -4.0;
   minBDTG_ = -0.96;
+  minpT_ = 0.63;
+  if(iPara.exists("minpT"))minpT_ = iPara.getParameter<double>("minpT");
   if(iPara.exists("source"))trackSource_ = iPara.getParameter<edm::InputTag>("source");
   if(iPara.exists("minDeltaR3d"))minDeltaR3d_ = iPara.getParameter<double>("minDeltaR3d");
   if(iPara.exists("minBDTG"))minBDTG_ = iPara.getParameter<double>("minBDTG");
@@ -64,10 +66,10 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   for(int i = 0; i < (int)handle->size(); i++){
     reco::Track rt1 = (handle->at(i));
-    if(rt1.innerMomentum().Rho() < 1.0)continue;
+    if(rt1.innerMomentum().Rho() < minpT_)continue;
     for(int j = i+1; j < (int)handle->size();j++){
       reco::Track rt2 = (handle->at(j));
-      if(rt2.innerMomentum().Rho() < 1.0)continue;
+      if(rt2.innerMomentum().Rho() < minpT_)continue;
       if(rt1.charge() != rt2.charge())continue;
       reco::Track t1,t2;
       if(rt1.outerPosition().Rho() < rt2.outerPosition().Rho()){

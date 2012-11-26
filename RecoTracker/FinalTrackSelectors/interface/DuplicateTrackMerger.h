@@ -66,7 +66,8 @@ namespace reco { namespace modules {
 	 double minDeltaR3d_;
 	 /// minBDTG cut value
 	 double minBDTG_;
-
+	 ///min pT cut value
+	 double minpT_;
 
 	 edm::ESHandle<MagneticField> magfield_;
 
