@@ -18,11 +18,11 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_addDecayInFlight_cfg.py || die 'Failure using 
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_addJets_cfg.py || die 'Failure using patTuple_addJets_cfg.py' $?
 
-# cmsRun ${LOCAL_TEST_DIR}/patTuple_addTracks_cfg.py || die 'Failure using patTuple_addTracks_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/patTuple_addTracks_cfg.py || die 'Failure using patTuple_addTracks_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_addTriggerInfo_cfg.py || die 'Failure using patTuple_addTriggerInfo_cfg.py' $?
 
-# cmsRun ${LOCAL_TEST_DIR}/patTuple_addVertexInfo_cfg.py || die 'Failure using patTuple_addVertexInfo_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/patTuple_addVertexInfo_cfg.py || die 'Failure using patTuple_addVertexInfo_cfg.py' $?
 
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_caloTaus_cfg.py || die 'Failure using patTuple_caloTaus_cfg.py' $?
 
