@@ -101,7 +101,12 @@
   <class name="pat::Photon"  ClassVersion="10">
    <version ClassVersion="10" checksum="865744757"/>
   </class>
-  <class name="pat::Jet"  ClassVersion="10">
+  <class name="pat::Jet"  ClassVersion="11">
+   <field name="caloTowersTemp_" transient="true"/>
+   <field name="isCaloTowerCached_" transient="true"/>
+   <field name="pfCandidatesTemp_" transient="true"/>
+   <field name="isPFCandidateCached_" transient="true"/>
+   <version ClassVersion="11" checksum="4153489469"/>
    <version ClassVersion="10" checksum="3393361159"/>
   </class>
   <class name="pat::MET"  ClassVersion="10">
