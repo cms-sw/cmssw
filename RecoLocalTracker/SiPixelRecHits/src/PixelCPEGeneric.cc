@@ -153,9 +153,9 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 {
   setTheDet( det, cluster );  //!< Initialize this det unit
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
-  templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
   if ( UseErrorsFromTemplates_ )
     {
+      templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
       /*bool fpix;  //!< barrel(false) or forward(true)
       if ( thePart == GeomDetEnumerators::PixelBarrel )
 	fpix = false;    // no, it's not forward -- it's barrel
@@ -647,7 +647,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	
 	  if ( !edgey )
 	    {
-	      if ( sizey<=yerr_endcap_.size() ) yerr=yerr_endcap_[sizex-1];
+	      if ( sizey<=yerr_endcap_.size() ) yerr=yerr_endcap_[sizey-1];
 	      else yerr=yerr_endcap_def_;
 	    }
 	}
