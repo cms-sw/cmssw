@@ -27,6 +27,7 @@ GroupedCkfTrajectoryBuilder = cms.ESProducer("GroupedCkfTrajectoryBuilderESProdu
     # in a given layer, even if it finds compatible hits there.
     alwaysUseInvalidHits = cms.bool(True),
     requireSeedHitsInRebuild = cms.bool(True),
+    keepOriginalIfRebuildFails = cms.bool(False),
     estimator = cms.string('Chi2'),
     propagatorOpposite = cms.string('PropagatorWithMaterialOpposite'),
     # Out-in tracking will not be attempted unless this many hits
