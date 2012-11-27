@@ -340,13 +340,14 @@ reco::TrackRef PFCandidate::trackRef() const { GETREF(reco::Track, kRefTrackMask
 
 
 void PFCandidate::setMuonRef(reco::MuonRef const & iRef) {
-  if(  trackRef() != iRef->track() ) {
-    string err;
-    err += "PFCandidate::setMuonRef: inconsistent track references!";
-    
-    throw cms::Exception("InconsistentReference",
-			 err.c_str() );
-  }
+  //MIKE: I think we dont need that anymore
+  //  if(  trackRef() != iRef->track() ) {
+  //  string err;
+  //  err += "PFCandidate::setMuonRef: inconsistent track references!";
+  //  
+  //  throw cms::Exception("InconsistentReference",
+  //			 err.c_str() );
+  // }
 
   storeRefInfo(kRefMuonMask, kRefMuonBit, iRef.isNonnull(), 
 	       iRef.refCore(), iRef.key(),iRef.productGetter());
@@ -560,6 +561,13 @@ const math::XYZPoint & PFCandidate::vertex() const {
   case kTrkMuonVertex:
     return muonRef()->track()->vertex();
     break;
+  case kTPFMSMuonVertex:
+    return muonRef()->tpfmsTrack()->vertex();
+    break;
+  case kPickyMuonVertex:
+    return muonRef()->pickyTrack()->vertex();
+    break;
+
   case kGSFVertex:
     return gsfTrackRef()->vertex();
     break;
