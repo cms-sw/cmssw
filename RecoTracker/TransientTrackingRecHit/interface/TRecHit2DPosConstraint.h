@@ -44,9 +44,6 @@ public:
   virtual TrackingRecHit * cloneHit() const { return 0;}
 
   virtual std::vector<const TrackingRecHit*> recHits() const {
-    return hit()->recHits();
-  }
-  virtual std::vector<TrackingRecHit*> recHits() {
     return std::vector<TrackingRecHit*>();
   }
 

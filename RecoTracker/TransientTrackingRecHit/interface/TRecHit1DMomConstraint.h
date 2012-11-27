@@ -64,7 +64,7 @@ class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
 
   virtual const Surface * surface() const {return surface_;}
 
-  virtual GlobalPoint globalPosition() const { return GlobalPoint()  }
+  virtual GlobalPoint globalPosition() const { return GlobalPoint();  }
   virtual GlobalError globalPositionError() const { return GlobalError();}
   virtual float errorGlobalR() const { return 0;}
   virtual float errorGlobalZ() const { return 0; }
