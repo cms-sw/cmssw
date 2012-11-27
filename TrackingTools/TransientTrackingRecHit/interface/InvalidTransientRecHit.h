@@ -45,10 +45,9 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   virtual LocalError localPositionError() const;
   
   virtual std::vector<const TrackingRecHit*> recHits() const;
-  
   virtual std::vector<TrackingRecHit*> recHits();
   
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
   
  private:
   
