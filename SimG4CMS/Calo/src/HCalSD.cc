@@ -23,6 +23,7 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4ParticleTable.hh"
+#include "G4VProcess.hh"
 
 #include <iostream>
 #include <fstream>
@@ -523,6 +524,20 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   }
   double wt1 = getResponseWt(theTrack);
   double wt2 = theTrack->GetWeight();
+  /*
+  if(wt2 != 1.0) { 
+    std::cout << "HCalSD: Detector " << det+3 << " Depth " << depth
+	      << " weight= " << weight << " wt1= " << wt1 
+	      << " wt2= " << wt2 << std::endl;
+    std::cout << theTrack->GetDefinition()->GetParticleName()
+	      << " " << theTrack->GetKineticEnergy()
+	      << " Id=" << theTrack->GetTrackID()
+	      << " IdP=" << theTrack->GetParentID();
+    const G4VProcess* pr = theTrack->GetCreatorProcess();
+    if(pr) std::cout << " from  " << pr->GetProcessName();
+    std::cout << std::endl;
+  }
+  */
 #ifdef DebugLog
   edm::LogInfo("HcalSim") << "HCalSD: Detector " << det+3 << " Depth " << depth
                           << " weight " << weight0 << " " << weight << " " << wt1 
