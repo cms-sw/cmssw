@@ -33,9 +33,9 @@ patAODTrackIsoDepositCalByAssociatorTowers = cms.EDProducer("CandIsoDepositProdu
 
 ## Select isolation labels to use
 patAODTrackIsolationLabels = cms.VInputTag(
-    cms.InputTag("patAODTrackIsoDepositCalByAssociatorTowers","ecal"), 
-    cms.InputTag("patAODTrackIsoDepositCalByAssociatorTowers","hcal"), 
-    cms.InputTag("patAODTrackIsoDepositCalByAssociatorTowers","ho"), 
+   #cms.InputTag("patAODTrackIsoDepositCalByAssociatorTowers","ecal"), 
+   #cms.InputTag("patAODTrackIsoDepositCalByAssociatorTowers","hcal"), 
+   #cms.InputTag("patAODTrackIsoDepositCalByAssociatorTowers","ho"), 
     cms.InputTag("patAODTrackIsoDepositCtfTk")
 )
 
