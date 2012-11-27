@@ -53,9 +53,9 @@ public:
 
   virtual GlobalPoint globalPosition() const { return  surface()->toGlobal(localPosition());}
   virtual GlobalError globalPositionError() const { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
-  virtual float errorGlobalR() const {std::sqrt(globalPositionError().rerr(globalPosition()));}
-  virtual float errorGlobalZ() const {std::sqrt(globalPositionError().czz()); }
-  virtual float errorGlobalRPhi() const {globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+  virtual float errorGlobalR() const { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  virtual float errorGlobalZ() const { return std::sqrt(globalPositionError().czz()); }
+  virtual float errorGlobalRPhi() const { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
 
 
   virtual TransientTrackingRecHit::RecHitPointer clone( const TrajectoryStateOnSurface& tsos ) const {
