@@ -42,8 +42,9 @@ public:
   virtual TrackingRecHit * cloneHit() const { return 0;}
   
   virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
-
   virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
+  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
+
 
   virtual const GeomDetUnit* detUnit() const { return 0; }
 

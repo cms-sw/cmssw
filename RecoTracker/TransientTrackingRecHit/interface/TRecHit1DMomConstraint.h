@@ -43,10 +43,9 @@ class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
   virtual const TrackingRecHit * hit() const {return 0;}//fixme return invalid
   virtual TrackingRecHit * cloneHit() const { return 0;}
 
-
-  virtual std::vector<const TrackingRecHit*> recHits() const {
-    std::vector<TrackingRecHit*>();
-  }
+  virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
+  virtual std::vector<TrackingRecHit*> recHits() { return std::vector<TrackingRecHit*>(); }
+  virtual bool sharesInput( const TrackingRecHit*, SharedInputType) const { return false;}
 
   virtual bool canImproveWithTrack() const {return false;}
 
