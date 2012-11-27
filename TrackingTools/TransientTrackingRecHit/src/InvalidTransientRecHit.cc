@@ -1,6 +1,9 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+
+InvalidTransientRecHit::~InvalidTransientRecHit(){}
+
 void InvalidTransientRecHit::throwError() const {
   throw cms::Exception("Invalid TrackingRecHit used");
 }

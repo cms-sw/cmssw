@@ -4,7 +4,6 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
@@ -17,7 +16,7 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   }
   
 
- ~InvalidTransientRecHit(){}
+  ~InvalidTransientRecHit();
 
   const Surface* surface() const {  return  surface_; }
   
@@ -33,15 +32,11 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   
   // duplicate of persistent class
   virtual AlgebraicVector parameters() const;
-  
   virtual AlgebraicSymMatrix parametersError() const;
-  
   virtual AlgebraicMatrix projectionMatrix() const;
-  
   virtual int dimension() const;
   
   virtual LocalPoint localPosition() const;
-  
   virtual LocalError localPositionError() const;
   
   virtual std::vector<const TrackingRecHit*> recHits() const;
