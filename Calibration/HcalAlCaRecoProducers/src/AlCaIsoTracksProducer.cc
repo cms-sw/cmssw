@@ -261,7 +261,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   ///////////////////////////////
   
   ///vector of used hits:
-  std::vector<HcalDetId> usedHitsHC;
+  std::vector<int> usedHitsHC;
   std::vector<int> usedHitsEC;
   ///
 
@@ -482,12 +482,13 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	  {
 	    //check that this hit was not considered before and push it into usedHits
 	    bool hitIsUsed=false;
+	    int hitHashedIndex=hhit->id().hashed_index();
 	    for (uint32_t i=0; i<usedHitsHC.size(); i++)
 	      {
-		if (usedHitsHC[i]==hhit->id()) hitIsUsed=true;
+		if (usedHitsHC[i]==hitHashedIndex) hitIsUsed=true;
 	      }
 	    if (hitIsUsed) continue;
-	    usedHitsHC.push_back(hhit->id());
+	    usedHitsHC.push_back(hitHashedIndex);
 	    ////////////
 	    
 	    GlobalPoint posH = geo->getPosition((*hhit).detid());

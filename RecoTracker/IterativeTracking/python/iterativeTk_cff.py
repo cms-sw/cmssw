@@ -17,7 +17,7 @@ iterTracking = cms.Sequence(InitialStep*
                             MixedTripletStep*
                             PixelLessStep*
                             TobTecStep*
-                            generalTracksSequence*
+                            generalTracks*
                             ConvStep*
                             conversionStepTracks
                             )

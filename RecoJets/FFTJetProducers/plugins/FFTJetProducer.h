@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    RecoJets/FFTJetProducers
+// Package:    FFTJetProducers
 // Class:      FFTJetProducer
 // 
 /**\class FFTJetProducer FFTJetProducer.h RecoJets/FFTJetProducers/plugins/FFTJetProducer.h
@@ -21,7 +21,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.h,v 1.11 2012/08/06 21:36:54 igv Exp $
+// $Id: FFTJetProducer.h,v 1.7 2011/07/11 19:45:59 igv Exp $
 //
 //
 
@@ -62,9 +62,7 @@ public:
     typedef fftjet::RecombinedJet<fftjetcms::VectorLike> RecoFFTJet;
     typedef fftjet::SparseClusteringTree<fftjet::Peak,long> SparseTree;
 
-    // Masks for the status bits. Do not add anything
-    // here -- higher bits (starting with 0x1000) will be
-    // used to indicate jet correction levels applied.
+    // Masks for the status bits
     enum StatusBits
     {
         RESOLUTION = 0xff,
@@ -79,8 +77,7 @@ public:
         FIXED = 0,
         MAXIMALLY_STABLE,
         GLOBALLY_ADAPTIVE,
-        LOCALLY_ADAPTIVE,
-        FROM_GENJETS
+        LOCALLY_ADAPTIVE
     };
 
     explicit FFTJetProducer(const edm::ParameterSet&);
@@ -102,13 +99,6 @@ protected:
     // your own precluster selection strategy
     virtual void selectPreclusters(
         const SparseTree& tree,
-        const fftjet::Functor1<bool,fftjet::Peak>& peakSelector,
-        std::vector<fftjet::Peak>* preclusters);
-
-    // Precluster maker from GenJets (useful in calibration)
-    virtual void genJetPreclusters(
-        const SparseTree& tree,
-        edm::Event&, const edm::EventSetup&,
         const fftjet::Functor1<bool,fftjet::Peak>& peakSelector,
         std::vector<fftjet::Peak>* preclusters);
 
@@ -208,14 +198,8 @@ private:
     // The following function scans the pile-up density
     // and fills the pile-up grid. Can be overriden if
     // necessary.
-    virtual void determinePileupDensityFromConfig(
+    virtual void determinePileupDensity(
         const edm::Event& iEvent, const edm::InputTag& label,
-        std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
-
-    // Similar function for getting pile-up shape from the database
-    virtual void determinePileupDensityFromDB(
-        const edm::Event& iEvent, const edm::EventSetup& iSetup,
-        const edm::InputTag& label,
         std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
 
     // The following function builds the pile-up estimate
@@ -302,25 +286,10 @@ private:
     const double unlikelyBgWeight;
     const double recombinationDataCutoff;
 
-    // Label for the genJets used as seeds for jets
-    const edm::InputTag genJetsLabel;
-    
-    // Maximum number of preclusters to use as jet seeds.
-    // This does not take into account the preclusters
-    // for which the value of the membership factor is 0.
-    const unsigned maxInitialPreclusters;
-
     // Resolution. The corresponding parameter value
     // should be one of "fixed", "maximallyStable",
-    // "globallyAdaptive", "locallyAdaptive", or "fromGenJets".
+    // "globallyAdaptive", or "locallyAdaptive".
     Resolution resolution;
-
-    // Parameters related to the pileup shape stored
-    // in the database
-    std::string pileupTableRecord;
-    std::string pileupTableName;
-    std::string pileupTableCategory;
-    bool loadPileupFromDB;
 
     // Scales used
     std::auto_ptr<std::vector<double> > iniScales;

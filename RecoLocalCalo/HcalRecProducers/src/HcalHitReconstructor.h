@@ -31,14 +31,11 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2011/11/23 13:54:08 $
-    $Revision: 1.19 $
+    $Date: 2011/07/22 22:11:49 $
+    $Revision: 1.18 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
-
-class HcalTopology;
-
     class HcalHitReconstructor : public edm::EDProducer {
     public:
       explicit HcalHitReconstructor(const edm::ParameterSet& ps);
@@ -86,9 +83,7 @@ class HcalTopology;
       bool useLeakCorrection_;
       
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
-      const HcalFlagHFDigiTimeParams* HFDigiTimeParams; // HF DigiTime parameters
-
-      HcalTopology *theTopology;
+      HcalFlagHFDigiTimeParams* HFDigiTimeParams; // HF DigiTime parameters
     };
 
 #endif

@@ -64,20 +64,20 @@ void ODBadTTDat::writeDB(const ODBadTTDat* item, ODBadTTInfo* iov )
 }
 
 
-void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, ODBadTTInfo* iov)
-  throw(std::runtime_error) {
-  iov->setConnection(m_env, m_conn);
-  int iovID = iov->fetchID();
-  fetchData(p, iovID);
-}
 
-void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, int iovID)
+void ODBadTTDat::fetchData(std::vector< ODBadTTDat >* p, ODBadTTInfo* iov)
   throw(std::runtime_error)
 {
   this->checkConnection();
 
+  iov->setConnection(m_env, m_conn);
+  int iovID = iov->fetchID();
+  if (!iovID) { 
+    //  throw(std::runtime_error("ODBadTTDat::writeDB:  IOV not in DB")); 
+    return;
+  }
+
   try {
-    m_readStmt = m_conn->createStatement();
     m_readStmt->setSQL("SELECT * FROM " + getTable() + " WHERE rec_id = :rec_id order by tr_id, fed_id, tt_id ");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();
@@ -107,7 +107,7 @@ void ODBadTTDat::writeArrayDB(const std::vector< ODBadTTDat > data, ODBadTTInfo*
   this->checkConnection();
 
   int iovID = iov->fetchID();
-  if (!iovID) { throw(std::runtime_error("ODBadTT::writeArrayDB:  ODBadTTInfo not in DB")); }
+  if (!iovID) { throw(std::runtime_error("ODDelays::writeArrayDB:  ODBadTTInfo not in DB")); }
 
 
   int nrows=data.size(); 

@@ -37,6 +37,7 @@
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 
@@ -540,7 +541,7 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
   showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
-  if (!isnan(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
+  if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
   showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
   showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
   showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;

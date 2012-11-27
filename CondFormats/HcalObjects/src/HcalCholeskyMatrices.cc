@@ -1,6 +1,6 @@
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
 
-HcalCholeskyMatrices::HcalCholeskyMatrices(const HcalTopology* topo) : HcalCondObjectContainerBase(topo) 
+HcalCholeskyMatrices::HcalCholeskyMatrices()
 {
 }
 
@@ -9,57 +9,92 @@ HcalCholeskyMatrices::~HcalCholeskyMatrices()
 }
 
 void
-HcalCholeskyMatrices::initContainer(DetId fId)
+HcalCholeskyMatrices::initContainer(int container, bool h2mode_)
 {
-  HcalCholeskyMatrix emptyItem;
+  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
 
-  if (fId.det()==DetId::Hcal) {
-    switch (HcalSubdetector(fId.subdetId())) {
-    case(HcalBarrel) : for (unsigned int i=0; i<sizeFor(fId); i++) HBcontainer.push_back(emptyItem); break;
-    case(HcalEndcap) : for (unsigned int i=0; i<sizeFor(fId); i++) HEcontainer.push_back(emptyItem); break;
-    case(HcalOuter) : for (unsigned int i=0; i<sizeFor(fId); i++) HOcontainer.push_back(emptyItem); break;
-    case(HcalForward) : for (unsigned int i=0; i<sizeFor(fId); i++) HFcontainer.push_back(emptyItem); break;
+  switch (container) 
+    {
+    case HcalGenericDetId::HcalGenBarrel: 
+      for (int i=0; i<(2*HcalGenericDetId::HBhalf); i++) HBcontainer.push_back(emptyHcalCholeskyMatrix); break;
+    case HcalGenericDetId::HcalGenEndcap: 
+      if (!h2mode_) for (int i=0; i<(2*HcalGenericDetId::HEhalf); i++) HEcontainer.push_back(emptyHcalCholeskyMatrix); 
+      else for (int i=0; i<(2*HcalGenericDetId::HEhalfh2mode); i++) HEcontainer.push_back(emptyHcalCholeskyMatrix); 
+      break;
+    case HcalGenericDetId::HcalGenOuter: 
+      for (int i=0; i<(2*HcalGenericDetId::HOhalf); i++) HOcontainer.push_back(emptyHcalCholeskyMatrix); break;
+    case HcalGenericDetId::HcalGenForward: 
+      for (int i=0; i<(2*HcalGenericDetId::HFhalf); i++) HFcontainer.push_back(emptyHcalCholeskyMatrix); break;
     default: break;
     }
-}
 }
 
 
 const HcalCholeskyMatrix*
-HcalCholeskyMatrices::getValues(DetId fId, bool throwOnFail) const
+HcalCholeskyMatrices::getValues(DetId fId) const
 {
-  unsigned int index = indexFor(fId);
+  HcalGenericDetId myId(fId);
+  bool h2mode_ = (HEcontainer.size()==(2*HcalGenericDetId::HEhalfh2mode));
+
+  int index = myId.hashedId(h2mode_);
+  //  std::cout << "::::: getting values at index " << index  << ", DetId " << myId << std::endl;
+  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
+
   const HcalCholeskyMatrix* cell = NULL;
-  if (index<0xFFFFFFFFu) {
-    if (fId.det()==DetId::Hcal) {
-      switch (HcalSubdetector(fId.subdetId())) {
-      case(HcalBarrel) : if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  
-      case(HcalEndcap) : if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  
-      case(HcalForward) : if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );  
-      case(HcalOuter) : if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  
+  if (index >= 0)
+    switch (myId.genericSubdet() ) {
+    case HcalGenericDetId::HcalGenBarrel: 
+      if (index1 < HBcontainer.size()) 
+	cell = &(HBcontainer.at(index1) );  
+      break;
+    case HcalGenericDetId::HcalGenEndcap: 
+      if (index1 < HEcontainer.size()) 
+	cell = &(HEcontainer.at(index1) ); 
+      break;
+    case HcalGenericDetId::HcalGenOuter: 
+      if (index1 < HOcontainer.size())
+	cell = &(HOcontainer.at(index1) ); 
+      break;
+    case HcalGenericDetId::HcalGenForward:
+      if (index1 < HFcontainer.size()) 
+	cell = &(HFcontainer.at(index1) ); 
+      break;
     default: break;
     }
-    }
-  }
   
   //  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
   //  if (cell->rawId() == emptyHcalCholeskyMatrix.rawId() ) 
-  if ((!cell) || (cell->rawId() != fId ) ) {
-    if (throwOnFail) {
+  if ((!cell) || (cell->rawId() != fId ) )
     throw cms::Exception ("Conditions not found") 
-	<< "Unavailable Conditions of type " << myname() << " for cell " << fId.rawId();
-    } else {
-      cell=0;
-    }
-  }
+      << "Unavailable Conditions of type " << myname() << " for cell " << myId;
   return cell;
 }
 
 const bool
 HcalCholeskyMatrices::exists(DetId fId) const
 {
+  HcalGenericDetId myId(fId);
+  bool h2mode_ = (HEcontainer.size()==(2*HcalGenericDetId::HEhalfh2mode));
 
-  const HcalCholeskyMatrix* cell = getValues(fId,false);
+  int index = myId.hashedId(h2mode_);
+  if (index < 0) return false;
+  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
+  const HcalCholeskyMatrix* cell = NULL;
+  switch (myId.genericSubdet() ) {
+  case HcalGenericDetId::HcalGenBarrel: 
+    if (index1 < HBcontainer.size()) cell = &(HBcontainer.at(index1) );  
+    break;
+  case HcalGenericDetId::HcalGenEndcap: 
+    if (index1 < HEcontainer.size()) cell = &(HEcontainer.at(index1) );  
+    break;
+  case HcalGenericDetId::HcalGenOuter: 
+    if (index1 < HOcontainer.size()) cell = &(HOcontainer.at(index1) );  
+    break;
+  case HcalGenericDetId::HcalGenForward: 
+    if (index1 < HFcontainer.size()) cell = &(HFcontainer.at(index1) );  
+    break;
+  default: return false; break;
+  }
   
   //  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
   if (cell)
@@ -71,38 +106,54 @@ HcalCholeskyMatrices::exists(DetId fId) const
 }
 
 bool
-HcalCholeskyMatrices::addValues(const HcalCholeskyMatrix& myItem)
+HcalCholeskyMatrices::addValues(const HcalCholeskyMatrix& myHcalCholeskyMatrix, bool h2mode_)
 {
+  unsigned long myRawId = myHcalCholeskyMatrix.rawId();
+  HcalGenericDetId myId(myRawId);
+  int index = myId.hashedId(h2mode_);
   bool success = false;
-  DetId fId(myItem.rawId());
-  unsigned int index=indexFor(fId);
+  if (index < 0) success = false;
+  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
 
-  HcalCholeskyMatrix* cell = NULL;
-
-  if (index<0xFFFFFFFu) {
-    if (fId.det()==DetId::Hcal) {
-      switch (HcalSubdetector(fId.subdetId())) {
-      case(HcalBarrel) : if (!HBcontainer.size() ) initContainer(fId); 
-	if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  break;
-      case(HcalEndcap) : if (!HEcontainer.size() ) initContainer(fId); 
-	if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  break;
-      case(HcalForward) : if (!HFcontainer.size() ) initContainer(fId); 
-	if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );  break; 
-      case(HcalOuter) : if (!HOcontainer.size() ) initContainer(fId); 
-	if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  break;  
-      default: break;
-      }
-      }
-      }
-
-  if (cell!=0) {
-    (*cell)=myItem;
+  switch (myId.genericSubdet() ) {
+  case HcalGenericDetId::HcalGenBarrel:
+    if (!HBcontainer.size() ) initContainer(myId.genericSubdet() );
+    if (index1 < HBcontainer.size())
+      {
+	HBcontainer.at(index1)  = myHcalCholeskyMatrix;
 	success = true;
       }
+    break;
+  case HcalGenericDetId::HcalGenEndcap: 
+    if (!HEcontainer.size() ) initContainer(myId.genericSubdet(), h2mode_ );
+    if (index1 < HEcontainer.size())
+      {
+	HEcontainer.at(index1)  = myHcalCholeskyMatrix; 
+	success = true;
+      }
+    break;
+  case HcalGenericDetId::HcalGenOuter:  
+    if (!HOcontainer.size() ) initContainer(myId.genericSubdet() );
+    if (index1 < HOcontainer.size())
+      {
+	HOcontainer.at(index1)  = myHcalCholeskyMatrix; 
+	success = true;
+      }
+    break;
+  case HcalGenericDetId::HcalGenForward: 
+    if (!HFcontainer.size() ) initContainer(myId.genericSubdet() );
+    if (index1 < HFcontainer.size())
+      {
+	HFcontainer.at(index1)  = myHcalCholeskyMatrix;
+	success = true;
+      }
+    break;
+  default: break;
+  }
 
   if (!success) 
     throw cms::Exception ("Filling of conditions failed") 
-      << " no valid filling possible for Conditions of type " << myname() << " for DetId " << fId.rawId();
+      << " no valid filling possible for Conditions of type " << myname() << " for DetId " << myId;
   return success;
 }
 

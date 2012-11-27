@@ -10,6 +10,5 @@ castorreco = cms.EDProducer("CastorSimpleReconstructor",
     correctForTimeslew         = cms.bool(False),
     tsFromDB                   = cms.bool(True),
     setSaturationFlag          = cms.bool(True),
-    maxADCvalue                = cms.int32(127),
-    doSaturationCorr           = cms.bool(True)
+    maxADCvalue                = cms.int32(127)
 )

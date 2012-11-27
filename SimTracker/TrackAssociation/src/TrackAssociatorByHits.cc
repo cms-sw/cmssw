@@ -329,8 +329,8 @@ int TrackAssociatorByHits::LayerFromDetid(const DetId& detId ) const
 } 
 
 RecoToSimCollectionSeed  
-TrackAssociatorByHits::associateRecoToSim(const edm::Handle<edm::View<TrajectorySeed> >& seedCollectionH,
-					  const edm::Handle<TrackingParticleCollection>&  TPCollectionH,     
+TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> >& seedCollectionH,
+					  edm::Handle<TrackingParticleCollection>&  TPCollectionH,     
 					  const edm::Event * e,
                                           const edm::EventSetup *setup ) const{
 
@@ -398,8 +398,8 @@ TrackAssociatorByHits::associateRecoToSim(const edm::Handle<edm::View<Trajectory
 
 
 SimToRecoCollectionSeed
-TrackAssociatorByHits::associateSimToReco(const edm::Handle<edm::View<TrajectorySeed> >& seedCollectionH,
-					  const edm::Handle<TrackingParticleCollection>& TPCollectionH, 
+TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> >& seedCollectionH,
+					  edm::Handle<TrackingParticleCollection>& TPCollectionH, 
 					  const edm::Event * e,
                                           const edm::EventSetup *setup ) const{
 

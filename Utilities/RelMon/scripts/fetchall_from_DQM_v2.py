@@ -1,13 +1,13 @@
 #! /usr/bin/env python
-'''
-Script fetches files matching specified RegExps from DQM GUI.
-
-Author:  Albertas Gimbutas,  Vilnius University (LT)
-e-mail:  albertasgim@gmail.com
-'''
 ################################################################################
+#
+# ``fetchfiles_from_DQM``: a script for fetching specified files from DQM
+# system. Its a part of RelMon tool for automatic Relase Comparison.
+#
+# Albertas Gimbutas CERN - albertasgim@gmail.com
+#
+#
 # Change logs:
-# 2012-10-22 11:31 - Checking to Download also files <1MB (like GEN samples)
 # 2012-07-09 16:10 - BugFix: RELEASE has to be in selected file names.
 # 2012-07-09 16:10 - Added How-To examples and command line option
 # explanations for -h option.
@@ -17,6 +17,7 @@ e-mail:  albertasgim@gmail.com
 # 2012-07-06 14:09 - Added new commandline options implmenetation.
 # 2012-07-06 09:48 - fixed ``--data`` commandline option small bug. Now it
 # does not requires to specifie its value.
+#
 ################################################################################
 
 import re
@@ -29,10 +30,10 @@ from os.path import basename, isfile
 from optparse import OptionParser
 from urllib2 import build_opener, Request
 
-try:
-    from Utilities.RelMon.authentication import X509CertOpen
-except ImportError:
+if os.environ.has_key("RELMON_SA"):
     from authentication import X509CertOpen
+else:
+    from Utilities.RelMon.authentication import X509CertOpen
 
 
 def auth_wget(url, chunk_size=1048576):
@@ -43,13 +44,8 @@ def auth_wget(url, chunk_size=1048576):
     url_file = opener.open(Request(url))
     size = int(url_file.headers["Content-Length"])
 
-    if size < 1048576:   # if File size < 1MB
-        filename = basename(url)    #still download
-        readed = url_file.read()    ## and then check if its not an empty dir (parent directory)
-        if filename != '':
-            outfile = open(filename, 'wb')  #then write File to local system
-            outfile.write(readed)
-        return readed
+    if size < 1048576:
+        return url_file.read()
 
     filename = basename(url)
     file_id = selected_files.index(filename)
@@ -116,9 +112,6 @@ base_url = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/'
 filedir_url = base_url + relvaldir + '/' + releasedir + '/'
 filedir_html = auth_wget(filedir_url)
 
-#auth_wget("https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/Run2012/JetHT/0002029xx/DQM_V0001_R000202950__JetHT__Run2012C-PromptReco-v2__DQM.root")
-#auth_wget("https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelValData/CMSSW_5_3_x/DQM_V0001_R000205921__JetHT__CMSSW_5_3_3_patch1-PR_newconditions_RelVal_R205921_121105-v2__DQM.root")
-
 file_list_re = re.compile(r"<a href='[-./\w]*'>([-./\w]*)<")
 all_files = file_list_re.findall(filedir_html)[1:]  # list of file names
 
@@ -126,7 +119,7 @@ options.mthreads = int(options.mthreads)
 if options.mthreads > 3 or options.mthreads < 1:
     options.mthreads = 3
 
-### Fetch the files, using multi-processing
+## Fetch the files, using multi-processing
 file_res = [re.compile(r) for r in options.regexp.split(',') + [options.release]]
 selected_files = [f for f in all_files if all([r.search(f) for r in file_res])]
 

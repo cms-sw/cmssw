@@ -1,5 +1,6 @@
 #include "RecoVertex/KinematicFit/interface/KinematicConstrainedVertexUpdator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 KinematicConstrainedVertexUpdator::KinematicConstrainedVertexUpdator()
 { 
@@ -89,7 +90,7 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
 
   //check for NaN
   for(int i = 1; i<=val.num_row();++i) {
-    if (std::isnan(val(i))) {
+    if (edm::isNotFinite(val(i))) {
       LogDebug("KinematicConstrainedVertexUpdator")
       << "catched NaN.\n";
       return std::pair<std::pair<std::vector<KinematicState>, AlgebraicMatrix>, RefCountedKinematicVertex >(

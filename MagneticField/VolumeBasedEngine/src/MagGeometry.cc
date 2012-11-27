@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/13 15:40:20 $
- *  $Revision: 1.19 $
+ *  $Date: 2012/03/21 23:01:46 $
+ *  $Revision: 1.20 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -15,6 +15,7 @@
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -91,7 +92,7 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
   
   // Fall-back case: no volume found
   
-  if (isnan(gp.mag())) {
+  if (edm::isNotFinite(gp.mag())) {
     LogWarning("InvalidInput") << "Input value invalid (not a number): " << gp << endl;
       
   } else {

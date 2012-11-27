@@ -19,7 +19,7 @@ to the actual calibration code in "endJob()".
 //
 // Original Author:  "Anton Anastassov"
 //         Created:  Tue Sept 24 09:13:48 CDT 2008
-// $Id: HcalCalibrator.cc,v 1.6 2010/11/04 14:09:07 muzaffar Exp $
+// $Id: HcalCalibrator.cc,v 1.5 2010/01/11 16:40:14 kodolova Exp $
 //
 //
 //_________________________________________________________________________________
@@ -122,9 +122,6 @@ HcalCalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<CaloGeometryRecord>().get(pG);
    mTheCaloGeometry = pG.product();
-   edm::ESHandle<HcalTopology> pT;
-   iSetup.get<IdealGeometryRecord>().get(pT);
-   mTheHcalTopology = pT.product();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -212,7 +209,7 @@ HcalCalibrator::endJob() {
 
   calibrator->SetHistoFileName(mHistoFileName); 
 
-  calibrator->SetCaloGeometry(mTheCaloGeometry,mTheHcalTopology);
+  calibrator->SetCaloGeometry(mTheCaloGeometry);
 
  
   ifstream inputFileList;  // contains list of input root files

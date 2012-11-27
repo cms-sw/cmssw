@@ -135,27 +135,7 @@ void PedsFullNoiseSummaryFactory::extract( Iterator iter ) {
   } else if ( mon_ == sistrip::NUM_OF_NOISY ) { 
     value[0][0] = 1. * anal->noisy()[0].size(); 
     value[1][0] = 1. * anal->noisy()[1].size();
-  } else if ( mon_ == sistrip::DEAD_STRIP_NUM ) {
-    all_strips = true;
-    uint16_t bins = anal->dead()[0].size();
-    for ( uint16_t iks = 0; iks < bins; iks++ ) {
-    	value[0][iks] = anal->dead()[0][iks];   
-  	}
-    uint16_t bins1 = anal->dead()[1].size();
-    for ( uint16_t iks = 0; iks < bins1; iks++ ) {
-    	value[1][iks] = anal->dead()[1][iks];   
-  	}
-  }	else if ( mon_ == sistrip::NOISY_STRIP_NUM ) {
-    all_strips = true;
-    uint16_t bins = anal->noisy()[0].size();
-    for ( uint16_t iks = 0; iks < bins; iks++ ) {
-    	value[0][iks] = anal->noisy()[0][iks];   
-  	}
-    uint16_t bins1 = anal->noisy()[1].size();
-    for ( uint16_t iks = 0; iks < bins1; iks++ ) {
-    	value[1][iks] = anal->noisy()[1][iks];   
-  	}
-  }	else { 
+  } else { 
     edm::LogWarning(mlSummaryPlots_)
       << "[SummaryPlotFactory::" << __func__ << "]" 
       << " Unexpected monitorable: "

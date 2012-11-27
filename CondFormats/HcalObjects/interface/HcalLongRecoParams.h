@@ -9,10 +9,7 @@
 class HcalLongRecoParams: public HcalCondObjectContainer<HcalLongRecoParam>
 {
  public:
-#ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalLongRecoParams():HcalCondObjectContainer<HcalLongRecoParam>(0) {}
-#endif
-  HcalLongRecoParams(const HcalTopology* topo):HcalCondObjectContainer<HcalLongRecoParam>(topo) {}
+  HcalLongRecoParams():HcalCondObjectContainer<HcalLongRecoParam>() {}
 
   std::string myname() const {return (std::string)"HcalLongRecoParams";}
 

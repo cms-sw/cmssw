@@ -23,14 +23,11 @@
 
 class HcalCalibrations;
 class HcalCalibrationWidths;
-class HcalTopology;
 
 class HcalDbService {
  public:
   HcalDbService (const edm::ParameterSet&);
 
-  const HcalTopology* getTopologyUsed() const;
-  
   const HcalCalibrations& getHcalCalibrations(const HcalGenericDetId& fId) const;
     const HcalCalibrationWidths& getHcalCalibrationWidths(const HcalGenericDetId& fId) const;
 

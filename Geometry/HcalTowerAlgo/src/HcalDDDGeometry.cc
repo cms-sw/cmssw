@@ -2,20 +2,21 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 
 #include <algorithm>
 
 //#define DebugLog
 
-HcalDDDGeometry::HcalDDDGeometry(const HcalTopology& topo) : topo_(topo),
+HcalDDDGeometry::HcalDDDGeometry() :
    lastReqDet_(DetId::Detector(0)), 
    lastReqSubdet_(0),
    etaMax_(0),
    firstHFQuadRing_(40) ,
-							     m_hbCellVec ( topo.getHBSize() ) ,
-							     m_heCellVec ( topo.getHESize() ) ,
-							     m_hoCellVec ( topo.getHOSize() ) ,
-							     m_hfCellVec ( topo.getHFSize() ) 
+   m_hbCellVec ( HcalDetId::kHBSize ) ,
+   m_heCellVec ( HcalDetId::kHESize ) ,
+   m_hoCellVec ( HcalDetId::kHOSize ) ,
+   m_hfCellVec ( HcalDetId::kHFSize ) 
 {
   twopi = M_PI + M_PI;
   deg   = M_PI/180.;
@@ -146,27 +147,26 @@ HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
 			  const CCGFloat*    parm ,
 			  const DetId&       detId   ) 
 {
+   const CaloGenericDetId cgid ( detId ) ;
 
-   assert( detId.det()==DetId::Hcal );
-  
-   const unsigned int din(topo_.detId2denseId(detId));
+   const unsigned int din ( cgid.denseIndex() ) ;
 
-   HcalDetId hId(detId);
+   assert( cgid.isHcal() ) ;
 
-   if( hId.subdet()==HcalBarrel )
+   if( cgid.isHB() )
    {
       m_hbCellVec[ din ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
    }
    else
    {
-     if( hId.subdet()==HcalEndcap )
+      if( cgid.isHE() )
       {
 	 const unsigned int index ( din - m_hbCellVec.size() ) ;
 	 m_heCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
       }
       else
       {
-	if( hId.subdet()==HcalOuter )
+	 if( cgid.isHO() )
 	 {
 	    const unsigned int index ( din 
 				       - m_hbCellVec.size() 
@@ -174,7 +174,7 @@ HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
 	    m_hoCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
 	 }
 	 else
-	   { // assuming HcalForward here!
+	 {
 	    const unsigned int index ( din 
 				       - m_hbCellVec.size() 
 				       - m_heCellVec.size() 

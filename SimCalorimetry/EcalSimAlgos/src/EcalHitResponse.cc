@@ -13,6 +13,7 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h" 
@@ -145,7 +146,7 @@ EcalHitResponse::blankOutUsedSamples()  // blank out previously used elements
 void 
 EcalHitResponse::add( const PCaloHit& hit ) 
 {
-  if (!isnan( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
+  if (!edm::isNotFinite( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
      putAnalogSignal( hit ) ;
   }
 }
@@ -178,7 +179,7 @@ EcalHitResponse::run( MixCollection<PCaloHit>& hits )
       const PCaloHit& hit ( *hitItr ) ;
       const int bunch ( hitItr.bunch() ) ;
       if( withinBunchRange(bunch)  &&
-	  !isnan( hit.time() ) &&
+	  !edm::isNotFinite( hit.time() ) &&
 	  ( 0 == m_hitFilter ||
 	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit ) ;
    }

@@ -137,7 +137,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
       std::endl;
     } 
     
-    HcalRespCorrs* mycorrections = new HcalRespCorrs(oldRespCorrs->topo()); 
+    HcalRespCorrs* mycorrections = new HcalRespCorrs(); 
     
    for(std::vector<HcalDetId>::iterator it = theVector.begin(); it != theVector.end(); it++)
    {

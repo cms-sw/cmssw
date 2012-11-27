@@ -391,7 +391,10 @@ process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRef
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = .oO[offlineModuleLevelHistsTransient]Oo.
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = .oO[offlineModuleLevelProfiles]Oo.
-.oO[offlineValidationFileOutput]Oo.
+# Create the result file directly to datadir since should not use /tmp/
+# see https://cern.service-now.com/service-portal/article.do?n=KB0000484
+#.oO[offlineValidationFileOutput]Oo.
+process.TFileService.fileName = '.oO[datadir]Oo./AlignmentValidation_.oO[name]Oo._.oO[nIndex]Oo..root'
 
  ##
  ## PATH
@@ -407,27 +410,20 @@ process.offlineBeamSpot*process.HighPuritySelector*process.TrackRefitter1*proces
 ######################################################################
 ######################################################################
 mergeOfflineParallelResults="""
-
-# Merging works also if there is only one file to merge
-# if merged file already exists it will be moved to a backup file (~)
-
-# run TkAlOfflinejobs.C
-echo "Merging results from parallel jobs with TkAlOfflineJobsMerge.C"
-root -x -b -q .oO[logdir]Oo./TkAlOfflineJobsMerge.C
-
-# todo do not use /tmp; in case use of /tmp fails, no merged file is obtained
-
-# move output file to datadir, backup existing files
-mv -b /tmp/$USER/AlignmentValidation*.root .oO[datadir]Oo./
-
-# create log file
-ls -al .oO[datadir]Oo./AlignmentValidation*.root > .oO[datadir]Oo./log_rootfilelist.txt
-
-# Remove parallel job files if merged file exists
-for file in .oO[datadir]Oo./AlignmentValidation*root; do
-    rm -f .oO[datadir]Oo./`basename $file .root`_[0-9]*.root;
-done
-
+if [ -e .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root ] ; then
+    echo "Output file AlignmentValidation_.oO[name]Oo..root already exists, now generating plots."
+else
+    if [ .oO[nJobs]Oo. -eq 1 ] ; then
+        echo "A single validation job was used, no merging of results."
+        cp .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo._0.root .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root
+    else
+        echo "Merging results from parallel jobs with TkAlOfflineJobsMerge.C"
+        root -x -b -q .oO[logdir]Oo./TkAlOfflineJobsMerge.C
+        mv /tmp/$USER/merge_output.root .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root
+        ls -al .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo.*.root > .oO[datadir]Oo./log_rootfilelist.txt
+    fi
+fi
+rm -f .oO[datadir]Oo./AlignmentValidation_.oO[name]Oo._*.root
 """
 
 
@@ -453,11 +449,6 @@ offlineStandaloneFileOutputTemplate = """
 process.TFileService.fileName = '.oO[outputFile]Oo.'
 """
 
-######################################################################
-######################################################################
-offlineParallelFileOutputTemplate = """
-process.TFileService.fileName = '.oO[outputFile]Oo.'
-"""
 
 ######################################################################
 ######################################################################

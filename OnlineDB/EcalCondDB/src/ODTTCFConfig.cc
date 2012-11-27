@@ -148,7 +148,7 @@ void ODTTCFConfig::fetchData(ODTTCFConfig * result)
 
   try {
 
-    m_readStmt->setSQL("SELECT TTCF_CONFIGURATION_ID, TTCF_TAG, RXBC0_DELAY, REG_30, TTCF_CONFIGURATION_FILE, TTCF_CONFIGURATION   "
+    m_readStmt->setSQL("SELECT *   "
 		       "FROM ECAL_TTCF_CONFIGURATION  "
 		       " where (ttcf_configuration_id = :1 or ttcf_tag= :2) " );
     m_readStmt->setInt(1, result->getId());
@@ -159,11 +159,8 @@ void ODTTCFConfig::fetchData(ODTTCFConfig * result)
 
     result->setId(rset->getInt(1));
     result->setConfigTag(rset->getString(2));
-    result->setRxBC0Delay(rset->getInt(3));
-    result->setReg30(rset->getInt(4));
-
-    result->setTTCFConfigurationFile(rset->getString(5));
-    Clob clob = rset->getClob (6);
+    result->setTTCFConfigurationFile(rset->getString(3));
+    Clob clob = rset->getClob (4);
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
     int clobLength=clob.length ();

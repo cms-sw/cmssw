@@ -253,8 +253,10 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
           g4prim->SetMass( g4prim->GetG4code()->GetPDGMass() ) ;
           g4prim->SetCharge( g4prim->GetG4code()->GetPDGCharge() ) ;  
         }
-        
-        g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
+
+	// V.I. do not use SetWeight but the same code
+        // value of the code compute inside TrackWithHistory        
+        //g4prim->SetWeight( 10000*(*vpitr)->barcode() ) ;
         setGenId( g4prim, (*vpitr)->barcode() ) ;
 
         if ( (*vpitr)->status() == 2 ) 
@@ -332,7 +334,9 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, HepMC::GenParti
         g4daught->SetMass( g4daught->GetG4code()->GetPDGMass() ) ;
         g4daught->SetCharge( g4daught->GetG4code()->GetPDGCharge() ) ;  
       }
-    g4daught->SetWeight( 10000*(*vpdec)->barcode() ) ;
+    // V.I. do not use SetWeight but the same code
+    // value of the code compute inside TrackWithHistory        
+    //g4daught->SetWeight( 10000*(*vpdec)->barcode() ) ;
     setGenId( g4daught, (*vpdec)->barcode() ) ;
     if ( verbose > 1 ) LogDebug("SimG4CoreGenerator") <<"Assigning a "<<(*vpdec)->pdg_id()
                                                       <<" as daughter of a " <<vp->pdg_id() ;
@@ -414,7 +418,9 @@ void Generator::nonBeamEvent2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 	      g4p->SetMass(g4p->GetG4code()->GetPDGMass());
 	      g4p->SetCharge(g4p->GetG4code()->GetPDGCharge()) ;
 	    }
-	  g4p->SetWeight(i*10000);
+	  // V.I. do not use SetWeight but the same code
+	  // value of the code compute inside TrackWithHistory        
+	  //g4p->SetWeight(i*10000);
 	  setGenId(g4p,i);
 	  if (particlePassesPrimaryCuts(g4p)) 
 	    {

@@ -2,9 +2,9 @@
 # RelMon: a tool for automatic Release Comparison                              
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
-# $Author: anorkus $
-# $Date: 2012/10/25 16:10:22 $
-# $Revision: 1.4 $
+# $Author: dpiparo $
+# $Date: 2012/06/13 07:25:01 $
+# $Revision: 1.2 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -541,7 +541,7 @@ class DQMRootFile(object):
 #-------------------------------------------------------------------------------
 
 class DirWalkerFile(object):
-  def __init__(self, name, topdirname,rootfilename1, rootfilename2, run=-1, black_list=[], stat_test="KS", test_threshold=.5,draw_success=True,do_pngs=False, black_list_histos=[]):
+  def __init__(self, name, topdirname,rootfilename1, rootfilename2, run=-1, black_list=[], stat_test="KS", test_threshold=.5,draw_success=True,do_pngs=False):
     self.name=name
     self.dqmrootfile1=DQMRootFile(abspath(rootfilename1))
     self.dqmrootfile2=DQMRootFile(abspath(rootfilename2))
@@ -553,36 +553,18 @@ class DirWalkerFile(object):
     #print "DIRWALKERFILE %s %s" %(draw_success,do_pngs)
     self.directory.draw_success=draw_success
     self.directory.do_pngs=do_pngs
-    self.black_list_histos = black_list_histos
 
   def __del__(self):
     chdir(self.workdir)
      
-  def cd(self,directory_name, on_disk=False, regexp=False,):
-    if regexp == True:
-        if len(directory_name)!=0:
-            if on_disk:
-                if not exists(directory_name):
-                    makedirs(directory_name)
-                    chdir(directory_name)  
-            tmp = self.dqmrootfile2.ls().keys()
-            for elem in tmp:
-                if "Run" in elem:
-                    next_dir = elem
-            self.dqmrootfile2.cd(next_dir)
-            tmp = self.dqmrootfile1.ls().keys()
-            for elem in tmp:
-                if "Run" in elem:
-                    next_dir = elem
-            self.dqmrootfile1.cd(next_dir)
-    else:
-        if len(directory_name)!=0:
-            if on_disk:
-                if not exists(directory_name):
-                    makedirs(directory_name)
-                    chdir(directory_name)
-            self.dqmrootfile2.cd(directory_name)
-            self.dqmrootfile1.cd(directory_name)
+  def cd(self,directory_name,on_disk=False):
+    if len(directory_name)!=0:
+      if on_disk:
+        if not exists(directory_name):
+          makedirs(directory_name)
+        chdir(directory_name)  
+      self.dqmrootfile2.cd(directory_name)
+      self.dqmrootfile1.cd(directory_name)
     
   def ls(self,directory_name=""):
     """Return common objects to the 2 files.
@@ -652,23 +634,14 @@ class DirWalkerFile(object):
           continue
         h1,h2=self.getObjs(name)
         #print "COMPARISON : +%s+%s+" %(mother_name,dir_name)
-        path = join(mother_name,dir_name,name)
-        if path in self.black_list_histos:
-          print "  Skipping %s" %(path)
-          directory.comparisons.append(Comparison(name,
+        
+        directory.comparisons.append(Comparison(name,
                               join(mother_name,dir_name),
                               h1,h2,
                               deepcopy(self.stat_test),
                               draw_success=directory.draw_success,
-                              do_pngs=directory.do_pngs, skip=True))
-        else:
-          directory.comparisons.append(Comparison(name,
-                                join(mother_name,dir_name),
-                                h1,h2,
-                                deepcopy(self.stat_test),
-                                draw_success=directory.draw_success,
-                                do_pngs=directory.do_pngs, skip=False))
-
+                              do_pngs=directory.do_pngs))
+        
     self.cd("..")
    
   def walk(self):
@@ -688,7 +661,7 @@ class DirWalkerFile(object):
       rundir="Run %s"%self.run
     
     try:
-      self.cd(rundir, False, True) #True -> for checking the Rundir in case of different runs
+      self.cd(rundir,False)
     except:
       print "\nRundir not there: Is this a generic rootfile?\n"
     

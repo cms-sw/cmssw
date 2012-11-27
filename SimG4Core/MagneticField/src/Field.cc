@@ -9,6 +9,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 using namespace sim;
 
@@ -26,10 +27,10 @@ void Field::GetFieldValue(const double xyz[3],double bfield[3]) const
 
     //
     // this is another trick to check on a NaN, maybe it's even CPU-faster...
-    // but ler's stick to system function isnan(...) for now
+    // but ler's stick to system function edm::isNotFinite(...) for now
     //
     // if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) )
-    if ( std::isnan(xyz[0]+xyz[1]+xyz[2]) != 0 )
+    if ( edm::isNotFinite(xyz[0]+xyz[1]+xyz[2]) != 0 )
     {
        throw SimG4Exception( "SimG4CoreMagneticField: Corrupted Event - NaN detected (position)" ) ;
     }

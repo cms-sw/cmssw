@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.40 2012/11/13 13:07:08 venturia Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.4 2012/04/07 09:40:38 venturia Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 // Cabling
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-//#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
 #include <iostream>
 #include <iomanip>
@@ -60,6 +60,7 @@
 */
 SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) : configPar_(pSet) {
   // Create MessageSender
+  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::Deleting SiStripOfflineDQM ";
 
   // Action Executor
   actionExecutor_ = new SiStripActionExecutor(pSet);
@@ -82,6 +83,7 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) : configPar_
 * 
 */
 SiStripOfflineDQM::~SiStripOfflineDQM() {
+  edm::LogInfo("SiStripOfflineDQM") << "SiStripOfflineDQM::Deleting SiStripOfflineDQM ";
 
 }
 /** 
@@ -97,11 +99,11 @@ void SiStripOfflineDQM::beginJob() {
   // Read the summary configuration file
   if (createSummary_) {  
     if (!actionExecutor_->readConfiguration()) {
-      edm::LogInfo ("ReadConfigurationProblem") <<"SiStripOfflineDQM:: Error to read configuration file!! Summary will not be produced!!!";
+      edm::LogInfo ("SiStripOfflineDQM") <<"SiStripOfflineDQM:: Error to read configuration file!! Summary will not be produced!!!";
       createSummary_ = false;
     }
   }
-  edm::LogInfo("BeginJobDone") << "SiStripOfflineDQM::beginJob done";
+  edm::LogInfo("SiStripOfflineDQM") << "SiStripOfflineDQM::beginJob done";
 }
 /** 
 * @brief 
@@ -113,7 +115,7 @@ void SiStripOfflineDQM::beginJob() {
 *  Event Setup object with Geometry, Magnetic Field, etc.
 */
 void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo ("BeginRun") <<"SiStripOfflineDQM:: Begining of Run";
+  edm::LogInfo ("SiStripOfflineDQM") <<"SiStripOfflineDQM:: Begining of Run";
 
   int nFEDs = 0;
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
@@ -162,7 +164,7 @@ void SiStripOfflineDQM::analyze(edm::Event const& e, edm::EventSetup const& eSet
  *
 */
 void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {
-  edm::LogInfo( "EndLumiBlock") << "SiStripOfflineDQM::endLuminosityBlock";
+  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endLuminosityBlock";
   if (trackerFEDsFound_) {
     if (globalStatusFilling_ > 0) actionExecutor_->fillStatusAtLumi(dqmStore_);
   }
@@ -175,13 +177,13 @@ void SiStripOfflineDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 */
 void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
 
-  edm::LogInfo( "EndOfRun") << "SiStripOfflineDQM::endRun";
+  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endRun";
 
   // Access Cabling
   edm::ESHandle< SiStripDetCabling > det_cabling;
   eSetup.get<SiStripDetCablingRcd>().get(det_cabling);
-  //  edm::ESHandle< SiStripFedCabling > fed_cabling;
-  //  eSetup.get<SiStripFedCablingRcd>().get(fed_cabling);
+  edm::ESHandle< SiStripFedCabling > fed_cabling;
+  eSetup.get<SiStripFedCablingRcd>().get(fed_cabling);
   if (globalStatusFilling_ > 0) actionExecutor_->createStatus(dqmStore_);
 
   if (!trackerFEDsFound_) {
@@ -201,14 +203,14 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
     bool create_tkmap    = configPar_.getUntrackedParameter<bool>("CreateTkMap",false); 
     if (create_tkmap) {
       std::vector<edm::ParameterSet> tkMapOptions = configPar_.getUntrackedParameter< std::vector<edm::ParameterSet> >("TkMapOptions" );
-      if (actionExecutor_->readTkMapConfiguration(eSetup)) {
+      if (actionExecutor_->readTkMapConfiguration()) {
 	
 	for(std::vector<edm::ParameterSet>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
 	  edm::ParameterSet tkMapPSet = *it;
 	  std::string map_type = it->getUntrackedParameter<std::string>("mapName","");
 	  tkMapPSet.augment(configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
-	  edm::LogInfo("TkMapParameters") << tkMapPSet;
-	  actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type); 
+	  std::cout << tkMapPSet << std::endl;
+	  actionExecutor_->createOfflineTkMap(tkMapPSet, fed_cabling, dqmStore_, map_type); 
 	}
       }
     } 
@@ -222,7 +224,7 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
 */
 void SiStripOfflineDQM::endJob() {
 
-  edm::LogInfo( "EndOfJob") << "SiStripOfflineDQM::endJob";
+  edm::LogInfo( "SiStripOfflineDQM") << "SiStripOfflineDQM::endJob";
   if (!usedWithEDMtoMEConverter_) {
     if (printFaultyModuleList_) {
       std::ostringstream str_val;
@@ -242,7 +244,7 @@ void SiStripOfflineDQM::endJob() {
 */
 bool SiStripOfflineDQM::openInputFile() { 
   if (inputFileName_.size() == 0) return false;
-  edm::LogInfo("OpenFile") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
+  edm::LogInfo("SiStripOfflineDQM") <<  "SiStripOfflineDQM::openInputFile: Accessing root File" << inputFileName_;
   dqmStore_->open(inputFileName_, false); 
   return true;
 }

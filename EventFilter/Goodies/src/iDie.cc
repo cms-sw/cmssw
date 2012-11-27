@@ -2,9 +2,6 @@
 
 #include "xdaq/NamespaceURI.h"
 
-#include "xdata/InfoSpaceFactory.h"
-#include "toolbox/task/TimerFactory.h"
-
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
 #include "xoap/domutils.h"
@@ -60,9 +57,6 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , instance_(0)
   , runNumber_(0)
   , lastRunNumberSet_(0)
-  , runActive_(false)
-  , runTS_(0)
-  , latencyTS_(0)
   , dqmCollectorHost_()
   , dqmCollectorPort_()
   , totalCores_(0)
@@ -93,7 +87,6 @@ iDie::iDie(xdaq::ApplicationStub *s)
   , dqmService_(nullptr)
   , dqmStore_(nullptr)
   , dqmEnabled_(false)
-  , debugMode_(false)
   , saveLsInterval_(10)
   , ilumiprev_(0)
   , dqmSaveDir_("")
@@ -142,7 +135,6 @@ iDie::iDie(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("dqmFilesWritableByAll",    &dqmFilesWritable_        );
   ispace->fireItemAvailable("dqmTopLevelFolder",        &topLevelFolder_          );
   ispace->fireItemAvailable("dqmEnabled",               &dqmEnabled_              );
-  ispace->fireItemAvailable("debugMode",                &debugMode_               );
 
   // timestamps
   lastModuleLegendaMessageTimeStamp_.tv_sec=0;
@@ -188,97 +180,8 @@ iDie::iDie(xdaq::ApplicationStub *s)
   nbSubsClasses = epInstances.size();
   lsHistory = new std::deque<lsStat*>[nbSubsClasses];
   //umask for setting permissions of created directories
-
-  //flashlists
-  flashRunNumber_=0;
-  cpuLoadLastLs_=0;
-  cpuLoadSentLs_=0;
-  std::string cpuInfoSpaceName="filterFarmUsageAndTiming";
-  toolbox::net::URN urn = this->createQualifiedInfoSpace(cpuInfoSpaceName);
-  cpuInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn.toString());
-  cpuInfoSpace_->fireItemAvailable("runNumber",&flashRunNumber_);
-  cpuInfoSpace_->fireItemAvailable("lumiSection",&flashLoadLs_);
-  cpuInfoSpace_->fireItemAvailable("hltCPULoad",&flashLoad_);
-  cpuInfoSpace_->fireItemAvailable("systemCPULoad",&flashLoadPS_);
-  cpuInfoSpace_->fireItemAvailable("eventTime7EP",&flashLoadTime7_);
-  cpuInfoSpace_->fireItemAvailable("eventTime8EP",&flashLoadTime8_);
-  cpuInfoSpace_->fireItemAvailable("eventTime12EP",&flashLoadTime12_);
-  cpuInfoSpace_->fireItemAvailable("eventTime16EP",&flashLoadTime16_);
-  cpuInfoSpace_->fireItemAvailable("eventTime24EP",&flashLoadTime24_);
-  cpuInfoSpace_->fireItemAvailable("eventTime32EP",&flashLoadTime32_);
-
-  cpuInfoSpace_->fireItemAvailable("hltProcessingRate",&flashLoadRate_);
-
-  cpuInfoSpace_->fireItemAvailable("hltProcessingRate7EP",&flashLoadRate7_);
-  cpuInfoSpace_->fireItemAvailable("hltProcessingRate8EP",&flashLoadRate8_);
-  cpuInfoSpace_->fireItemAvailable("hltProcessingRate12EP",&flashLoadRate12_);
-  cpuInfoSpace_->fireItemAvailable("hltProcessingRate16EP",&flashLoadRate16_);
-  cpuInfoSpace_->fireItemAvailable("hltProcessingRate24EP",&flashLoadRate24_);
-  cpuInfoSpace_->fireItemAvailable("hltProcessingRate32EP",&flashLoadRate32_);
-
-  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc7EP",&flashLoadUc7_);
-  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc8EP",&flashLoadUc8_);
-  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc12EP",&flashLoadUc12_);
-  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc16EP",&flashLoadUc16_);
-  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc24EP",&flashLoadUc24_);
-  cpuInfoSpace_->fireItemAvailable("hltCPULoadUc32EP",&flashLoadUc32_);
-
-  cpuInfoSpace_->fireItemAvailable("numReports7EP", &flashReports7_);
-  cpuInfoSpace_->fireItemAvailable("numReports8EP", &flashReports8_);
-  cpuInfoSpace_->fireItemAvailable("numReports12EP",&flashReports12_);
-  cpuInfoSpace_->fireItemAvailable("numReports16EP",&flashReports16_);
-  cpuInfoSpace_->fireItemAvailable("numReports24EP",&flashReports24_);
-  cpuInfoSpace_->fireItemAvailable("numReports32EP",&flashReports32_);
-
-  monNames_.push_back("runNumber");
-  monNames_.push_back("lumiSection");
-  monNames_.push_back("hltCPULoad");
-  monNames_.push_back("systemCPULoad");
-  monNames_.push_back("eventTime7EP");
-  monNames_.push_back("eventTime8EP");
-  monNames_.push_back("eventTime12EP");
-  monNames_.push_back("eventTime16EP");
-  monNames_.push_back("eventTime24EP");
-  monNames_.push_back("eventTime32EP");
-
-  monNames_.push_back("hltProcessingRate");
-  monNames_.push_back("hltProcessingRate7EP");
-  monNames_.push_back("hltProcessingRate8EP");
-  monNames_.push_back("hltProcessingRate12EP");
-  monNames_.push_back("hltProcessingRate16EP");
-  monNames_.push_back("hltProcessingRate24EP");
-  monNames_.push_back("hltProcessingRate32EP");
-
-  monNames_.push_back("hltCPULoadUc7EP");
-  monNames_.push_back("hltCPULoadUc8EP");
-  monNames_.push_back("hltCPULoadUc12EP");
-  monNames_.push_back("hltCPULoadUc16EP");
-  monNames_.push_back("hltCPULoadUc24EP");
-  monNames_.push_back("hltCPULoadUc32EP");
-
-  monNames_.push_back("numReports7EP");
-  monNames_.push_back("numReports8EP");
-  monNames_.push_back("numReports12EP");
-  monNames_.push_back("numReports16EP");
-  monNames_.push_back("numReports24EP");
-  monNames_.push_back("numReports32EP");
-
-  //be permissive for written files
   umask(000);
 
-  //start flashlist updater timer
-  try {
-   toolbox::task::Timer * timer = toolbox::task::getTimerFactory()->createTimer("xmas-iDie-updater");
-   toolbox::TimeInterval timerInterval;
-   timerInterval.fromString("PT15S");
-   toolbox::TimeVal timerStart;
-   timerStart = toolbox::TimeVal::gettimeofday();
-   //timer->start();
-   timer->scheduleAtFixedRate( timerStart, this, timerInterval, 0, "xmas-iDie-producer" );
-  }
-  catch (xdaq::exception::Exception& e) {
-    LOG4CPLUS_WARN(getApplicationLogger(), e.what());
-  }
 }
 
 
@@ -298,8 +201,6 @@ void iDie::actionPerformed(xdata::Event& e)
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "New Run was started - iDie will reset");
       reset();
-      runActive_=true;
-      setRunStartTimeStamp();
 
       dqmState_ = "Prepared";
       if (dqmEnabled_.value_) { 
@@ -351,19 +252,8 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
     // generate correct return state string
     std::string state;
     if(commandName == "Configure") {dqmState_ = "Ready"; state = "Ready";}
-    else if(commandName == "Enable" || commandName == "Start") {
-      dqmState_ = "Enabled"; state = "Enabled";
-      setRunStartTimeStamp();
-
-    }
+    else if(commandName == "Enable") {dqmState_ = "Enabled"; state = "Enabled";}
     else if(commandName == "Stop" || commandName == "Halt") {
-      runActive_=false;
-      //EventInfo:reset timestamps
-      runTS_=0.;
-      latencyTS_=0;
-      //cleanup flashlist data
-      cpuLoadLastLs_=0;
-      cpuLoadSentLs_=0;
       //remove histograms
       std::cout << " Stopping/Halting iDie. command=" << commandName << " initialized=" << meInitialized_ << std::endl;
       if (meInitialized_) {
@@ -374,15 +264,11 @@ xoap::MessageReference iDie::fsmCallback(xoap::MessageReference msg)
         meInitializedDatasets_=false;
         sleep(1);//making sure that any running ls update finishes
 
+        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
+        dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Streams/");
         dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Datasets/");
-        dqmStore_->removeContents();
-        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Modules/");
-        dqmStore_->removeContents();
-        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Tables/");
-        dqmStore_->removeContents();
-        dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
         dqmStore_->removeContents();
         dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
         dqmStore_->removeContents();
@@ -426,7 +312,6 @@ void iDie::defaultWeb(xgi::Input *in,xgi::Output *out)
       run = el1[0].getIntegerValue();
       if(run > runNumber_.value_ || runNumber_.value_==0){
 	runNumber_.value_ = run;
-	runActive_=true;
 	if(runNumber_.value_!=0) 
 	  {
 	    reset();
@@ -881,19 +766,7 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 	  lumisecId_->Fill(currentLs_[nbsIdx]);
 	  struct timeval now;
 	  gettimeofday(&now, 0);
-	  double time_now = now.tv_sec + 1e-6*now.tv_usec;
-	  eventTimeStamp_->Fill( time_now );
-
-	  //check if run timestamp is set
-	  double runTS = runTS_;
-	  if (runTS==0.)
-            runTS_ = time_now;
-
-	  runStartTimeStamp_->Fill(runTS);
-
-	  processLatencyMe_->Fill(time_now-latencyTS_);
-	  latencyTS_=time_now;
-	  processTimeStampMe_->Fill(time_now);
+	  eventTimeStamp_->Fill(  now.tv_sec + 1e-6*now.tv_usec );
 
 	  //do histogram updates for the lumi
 	  lsStat * lst = lsHistory[nbsIdx].back();
@@ -1299,7 +1172,6 @@ void iDie::initMonitorElements()
 
   meVecRate_.clear();
   meVecTime_.clear();
-  meVecCPU_.clear();
   meVecOffenders_.clear();
   for (unsigned int i=0;i<epInstances.size();i++) {
 	  currentLs_[i]=0;
@@ -1317,23 +1189,17 @@ void iDie::initMonitorElements()
   eventId_ = dqmStore_->bookInt("iEvent");
   eventId_->Fill(-1);
   eventTimeStamp_ = dqmStore_->bookFloat("eventTimeStamp");
-  runStartTimeStamp_ = dqmStore_->bookFloat("runStartTimeStamp");
-  initDQMEventInfo();
 
+  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
   for (unsigned int i=0;i<nbSubsClasses;i++) {
     std::ostringstream str;
     str << nbSubsListInv[i];
-    dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
     meVecRate_.push_back(dqmStore_->book1D("EVENT_RATE_"+TString(str.str().c_str()),
 	  "Average event rate for nodes with " + TString(str.str().c_str()) + " EP instances",
 	  4000,1.,4001));
     meVecTime_.push_back(dqmStore_->book1D("EVENT_TIME_"+TString(str.str().c_str()),
 	  "Average event processing time for nodes with " + TString(str.str().c_str()) + " EP instances",
 	  4000,1.,4001));
-    meVecCPU_.push_back(dqmStore_->book1D("UNCORR_CPUUSAGE_"+TString(str.str().c_str())+"_reportSummaryMap",
-	  "Average CPU (%) usage for nodes with " + TString(str.str().c_str()) + " EP instances",
-	  4000,1.,4001));
-    dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Modules/");
     meVecOffenders_.push_back(dqmStore_->book2D("MODULE_FRACTION_"+TString(str.str().c_str()),
 	  "Module processing time fraction_"+ TString(str.str().c_str()),
 	  ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES));
@@ -1341,9 +1207,6 @@ void iDie::initMonitorElements()
     meVecOffenders_[i]->Fill(0,1);
     occupancyNameMap[i].clear();
   }
-
-  //tables
-  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/Tables");
   rateSummary_   = dqmStore_->book2D("00_RATE_SUMMARY","Rate Summary (Hz)",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
   reportPeriodSummary_   = dqmStore_->book2D("00_REPORT_PERIOD_SUMMARY","Average report period (s)",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
   timingSummary_ = dqmStore_->book2D("01_TIMING_SUMMARY","Event Time Summary (ms)",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
@@ -1355,14 +1218,13 @@ void iDie::initMonitorElements()
       ROLL,0,ROLL,epInstances.size()+2,0,epInstances.size()+2);
   fuReportsSummary_ = dqmStore_->book2D("06_EP_REPORTS_SUMMARY","Number of reports received",ROLL,0,ROLL,epInstances.size()+1,0,epInstances.size()+1);
 
-  //everything else goes into layouts folder
-  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/Layouts/");
+  //busyModules_  = dqmStore_->book2D("MODULES_BUSY",ROLL,1.,1.+ROLL,MODNAMES,0,MODNAMES);
+  //everything goes into layouts folder
   std::ostringstream busySummaryTitle;
   busySummaryTitle << "DAQ HLT Farm busy (%) for run "<< runNumber_.value_;
   lastRunNumberSet_ = runNumber_.value_;
-  daqBusySummary_ = dqmStore_->book1D("00 reportSummaryMap",busySummaryTitle.str(),4000,1,4001.);
-  daqBusySummary2_ = dqmStore_->book1D("00 reportSummaryMap_PROCSTAT","DAQ HLT Farm busy (%) from /proc/stat",4000,1,4001.);
-  daqTotalRateSummary_ = dqmStore_->book1D("00 reportSummaryMap_TOTALRATE","DAQ HLT Farm input rate",4000,1,4001.);
+  daqBusySummary_ = dqmStore_->book1D("reportSummaryMap",busySummaryTitle.str(),4000,1,4001.);
+  daqBusySummary2_ = dqmStore_->book1D("reportSummaryMap_PROCSTAT","DAQ HLT Farm busy (%) from /proc/stat",4000,1,4001.);
 
   for (size_t i=1;i<=ROLL;i++) {
     std::ostringstream ostr;
@@ -1464,10 +1326,7 @@ void iDie::fillDQMStatHist(unsigned int nbsIdx, unsigned int lsid)
       meVecRate_[nbsIdx]->setBinError(forls,lst->getRateErrPerMachine());
       meVecTime_[nbsIdx]->setBinContent(forls>2? forls:0,lst->getEvtTime()*1000);//msec
       meVecTime_[nbsIdx]->setBinError(forls>2? forls:0,lst->getEvtTimeErr()*1000);//msec
-      meVecCPU_[nbsIdx]->setBinContent(forls,lst->getFracBusy()*100.);
-      meVecCPU_[nbsIdx]->setBinError(forls,0.);
       updateRollingHistos(nbsIdx, forls,lst,clst,i==(int)qsize-1);
-      //after correcting
       commonLsStat * prevclst = clsPos>0 ? commonLsHistory[clsPos-1]:nullptr;
       updateStreamHistos(forls,clst,prevclst);
       updateDatasetHistos(forls,clst,prevclst);
@@ -1573,53 +1432,11 @@ void iDie::updateRollingHistos(unsigned int nbsIdx, unsigned int lsid, lsStat * 
   busyFrCPUTheor=fround(busyFrCPUTheor,0.001f);
   busyAvg=fround(busyAvg,0.001f);
 
-  //flashlist per-lumi values
-  if (lsid>2)
-    while (cpuLoadLastLs_<lsid-2) {
-      if (cpuLoadLastLs_>=4000-1) break;
-      cpuLoad_[cpuLoadLastLs_]=daqBusySummary_->getBinContent(cpuLoadLastLs_+1)*0.01;
-      cpuLoadPS_[cpuLoadLastLs_]=daqBusySummary2_->getBinContent(cpuLoadLastLs_+1)*0.01;
-      cpuLoadTime7_[cpuLoadLastLs_]=meVecTime_[0]->getBinContent(cpuLoadLastLs_+1)*0.001;
-      cpuLoadTime8_[cpuLoadLastLs_]=meVecTime_[1]->getBinContent(cpuLoadLastLs_+1)*0.001;
-      cpuLoadTime12_[cpuLoadLastLs_]=meVecTime_[2]->getBinContent(cpuLoadLastLs_+1)*0.001;
-      cpuLoadTime16_[cpuLoadLastLs_]=meVecTime_[3]->getBinContent(cpuLoadLastLs_+1)*0.001;
-      cpuLoadTime24_[cpuLoadLastLs_]=meVecTime_[4]->getBinContent(cpuLoadLastLs_+1)*0.001;
-      cpuLoadTime32_[cpuLoadLastLs_]=meVecTime_[5]->getBinContent(cpuLoadLastLs_+1)*0.001;
-      cpuLoadRate_[cpuLoadLastLs_]=daqTotalRateSummary_->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadRate7_[cpuLoadLastLs_]=meVecRate_[0]->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadRate8_[cpuLoadLastLs_]=meVecRate_[1]->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadRate12_[cpuLoadLastLs_]=meVecRate_[2]->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadRate16_[cpuLoadLastLs_]=meVecRate_[3]->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadRate24_[cpuLoadLastLs_]=meVecRate_[4]->getBinContent(cpuLoadLastLs_+1);
-      cpuLoadRate32_[cpuLoadLastLs_]=meVecRate_[5]->getBinContent(cpuLoadLastLs_+1);
-      unsigned int lsidBinForFlash = lsidBin;
-      if ((lsid-(cpuLoadLastLs_+1)) < lsidBin) lsidBinForFlash-=lsid-(cpuLoadLastLs_+1);
-      else lsidBinForFlash=1;
-      cpuLoadReports7_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,1);
-      cpuLoadReports8_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,2);
-      cpuLoadReports12_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,3);
-      cpuLoadReports16_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,4);
-      cpuLoadReports24_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,5);
-      cpuLoadReports32_[cpuLoadLastLs_] = fuReportsSummary_->getBinContent(lsidBinForFlash,6);
-
-      cpuLoadUc7_[cpuLoadLastLs_] = meVecCPU_[0]->getBinContent(cpuLoadLastLs_+1)*0.01;
-      cpuLoadUc8_[cpuLoadLastLs_] = meVecCPU_[1]->getBinContent(cpuLoadLastLs_+1)*0.01;
-      cpuLoadUc12_[cpuLoadLastLs_] = meVecCPU_[2]->getBinContent(cpuLoadLastLs_+1)*0.01;
-      cpuLoadUc16_[cpuLoadLastLs_] = meVecCPU_[3]->getBinContent(cpuLoadLastLs_+1)*0.01;
-      cpuLoadUc24_[cpuLoadLastLs_] = meVecCPU_[4]->getBinContent(cpuLoadLastLs_+1)*0.01;
-      cpuLoadUc32_[cpuLoadLastLs_] = meVecCPU_[5]->getBinContent(cpuLoadLastLs_+1)*0.01;
-
-      cpuLoadLastLs_++;
-  }
-
   //filling plots
   daqBusySummary_->setBinContent(lsid,busyAvg*100.);
   daqBusySummary_->setBinError(lsid,0);
   daqBusySummary2_->setBinContent(lsid,busyAvgCPU*100.);
   daqBusySummary2_->setBinError(lsid,0);
-
-  daqTotalRateSummary_->setBinContent(lsid,clst->getTotalRate());
-  daqTotalRateSummary_->setBinError(lsid,0);
 
   //"rolling" histograms
   rateSummary_->setBinContent(lsidBin,nbsIdx+1,lst->getRate());
@@ -1770,92 +1587,6 @@ void iDie::doFlush() {
       dqmService_->flushStandalone();
 }
 
-void iDie::timeExpired(toolbox::task::TimerEvent& e)
-{
-  //bool pushUpdate=false;
-  if (debugMode_.value_)
-    std::cout << "debug - runNumber:" << runNumber_ << " run active:" << runActive_ << std::endl;
-  if (!runActive_) return;
-  if (!runNumber_) return;
-  try
-  {
-
-    if (debugMode_.value_) std::cout << " checking per-lumi flashlist" << std::endl;
-
-    if (cpuLoadSentLs_>cpuLoadLastLs_) cpuLoadSentLs_=0;
-    if (cpuLoadSentLs_<cpuLoadLastLs_ && cpuLoadLastLs_<=4000)
-    {
-      unsigned int toSend = cpuLoadLastLs_;
-      if (toSend) {
-        toSend--;
-        cpuInfoSpace_->lock();
-        if (runNumber_>flashRunNumber_)
-          flashRunNumber_=runNumber_;
-        flashLoadLs_=toSend+1;
-        flashLoad_=cpuLoad_[toSend];
-	flashLoadPS_=cpuLoadPS_[toSend];
-	flashLoadTime7_=cpuLoadTime7_[toSend];
-	flashLoadTime8_=cpuLoadTime8_[toSend];
-	flashLoadTime12_=cpuLoadTime12_[toSend];
-	flashLoadTime16_=cpuLoadTime16_[toSend];
-	flashLoadTime24_=cpuLoadTime24_[toSend];
-	flashLoadTime32_=cpuLoadTime32_[toSend];
-	flashLoadRate_=cpuLoadRate_[toSend];
-
-	flashLoadRate7_=cpuLoadRate7_[toSend]*cpuLoadReports7_[toSend];
-	flashLoadRate8_=cpuLoadRate8_[toSend]*cpuLoadReports8_[toSend];
-	flashLoadRate12_=cpuLoadRate12_[toSend]*cpuLoadReports12_[toSend];
-	flashLoadRate16_=cpuLoadRate16_[toSend]*cpuLoadReports16_[toSend];
-	flashLoadRate24_=cpuLoadRate24_[toSend]*cpuLoadReports24_[toSend];
-	flashLoadRate32_=cpuLoadRate32_[toSend]*cpuLoadReports32_[toSend];
-
-	flashLoadUc7_=cpuLoadUc7_[toSend];
-	flashLoadUc8_=cpuLoadUc8_[toSend];
-	flashLoadUc12_=cpuLoadUc12_[toSend];
-	flashLoadUc16_=cpuLoadUc16_[toSend];
-	flashLoadUc24_=cpuLoadUc24_[toSend];
-	flashLoadUc32_=cpuLoadUc32_[toSend];
-
-        flashReports7_ = cpuLoadReports7_[toSend];
-        flashReports8_ = cpuLoadReports8_[toSend];
-        flashReports12_ = cpuLoadReports12_[toSend];
-        flashReports16_ = cpuLoadReports16_[toSend];
-        flashReports24_ = cpuLoadReports24_[toSend];
-        flashReports32_ = cpuLoadReports32_[toSend];
-
-	cpuLoadSentLs_++;
-	cpuInfoSpace_->unlock();
-	if (cpuLoadSentLs_<=cpuLoadLastLs_) {
-
-	  if (debugMode_.value_)
-	    std::cout << "debug - updated lumi flashlist with values "
-	      << flashLoadLs_ << " " << flashLoad_ << " " << flashLoadPS_
-	      << " t:" << flashLoadTime7_ << " " << flashLoadTime8_ << " " << flashLoadTime12_  << " "
-	      << flashLoadTime16_ << " " << flashLoadTime24_ << flashLoadTime32_ << " r:" << flashLoadRate_ << std::endl;
-
-	  cpuInfoSpace_->fireItemGroupChanged(monNames_, this);
-
-	}
-      }
-    }
-  }
-  catch (xdata::exception::Exception& xe)
-  {
-    LOG4CPLUS_WARN(getApplicationLogger(), xe.what() );
-  }
-  catch (std::exception& se)
-  {
-    std::string msg = "Caught standard exception while trying to collect: ";
-    msg += se.what();
-    LOG4CPLUS_WARN(getApplicationLogger(), msg );
-  }
-  catch (...)
-  {
-    std::string msg = "Caught unknown exception while trying to collect";
-    LOG4CPLUS_WARN(getApplicationLogger(), msg );
-  }
-}
-
 void iDie::perLumiFileSaver(unsigned int lsid)
 {
 
@@ -1998,12 +1729,12 @@ void iDie::perTimeFileSaver()
       lastSavedForTime_=dT;
     }
   }
+
   if (willSaveForTime && writeDirectoryPresent_)
   {
     char suffix[64];
     char rewrite[128];
-    //sprintf(suffix, "_R%09d_T%08d", runNumber_.value_, willSaveForTime);
-    sprintf(suffix, "_R%09d", runNumber_.value_);
+    sprintf(suffix, "_R%09d_T%08d", runNumber_.value_, willSaveForTime);
     sprintf(rewrite, "\\1Run %d/\\2/Run summary", runNumber_.value_);
 
     std::vector<std::string> systems = {topLevelFolder_.value_};
@@ -2028,50 +1759,8 @@ void iDie::perTimeFileSaver()
 }
 
 
-void iDie::initDQMEventInfo()
-{
-  struct timeval now;
-  gettimeofday(&now, 0);
-  double time_now = now.tv_sec + 1e-6*now.tv_usec;
 
-  dqmStore_->setCurrentFolder(topLevelFolder_.value_ + "/EventInfo/");
-  runId_     = dqmStore_->bookInt("iRun");
-  runId_->Fill(-1);
-  lumisecId_ = dqmStore_->bookInt("iLumiSection");
-  lumisecId_->Fill(-1);
-  eventId_ = dqmStore_->bookInt("iEvent");
-  eventId_->Fill(-1);
-  eventTimeStamp_ = dqmStore_->bookFloat("eventTimeStamp");
 
-  runStartTimeStamp_ = dqmStore_->bookFloat("runStartTimeStamp");
-
-  processTimeStampMe_ = dqmStore_->bookFloat("processTimeStamp");
-  processTimeStampMe_->Fill(time_now);
-  processLatencyMe_ = dqmStore_->bookFloat("processLatency");
-  processLatencyMe_->Fill(-1);
-  processEventsMe_ = dqmStore_->bookInt("processedEvents");
-  processEventsMe_->Fill(0);
-  processEventRateMe_ = dqmStore_->bookFloat("processEventRate");
-  processEventRateMe_->Fill(-1); 
-  nUpdatesMe_= dqmStore_->bookInt("processUpdates");
-  nUpdatesMe_->Fill(-1);
-  processIdMe_= dqmStore_->bookInt("processID"); 
-  processIdMe_->Fill(getpid());
-  processStartTimeStampMe_ = dqmStore_->bookFloat("processStartTimeStamp");
-  processStartTimeStampMe_->Fill(time_now);
-  hostNameMe_= dqmStore_->bookString("hostName","cmsidie");
-  processNameMe_= dqmStore_->bookString("processName","iDie");
-  workingDirMe_= dqmStore_->bookString("workingDir","/tmp");
-  cmsswVerMe_= dqmStore_->bookString("CMSSW_Version",edm::getReleaseVersion());
-}
-
-void iDie::setRunStartTimeStamp()
-{
-  struct timeval now;
-  gettimeofday(&now, 0);
-  double time_now = now.tv_sec + 1e-6*now.tv_usec;
-  runTS_ = time_now;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // xdaq instantiator implementation macro

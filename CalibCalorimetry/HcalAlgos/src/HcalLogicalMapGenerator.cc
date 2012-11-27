@@ -2,7 +2,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
+
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 
 #include <string>
@@ -35,7 +35,7 @@ HcalLogicalMapGenerator::~HcalLogicalMapGenerator() {
 
 }
 
-HcalLogicalMap HcalLogicalMapGenerator::createMap( const HcalTopology* topo, unsigned int mapIOV ) {
+HcalLogicalMap HcalLogicalMapGenerator::createMap( unsigned int mapIOV ) {
 
   mapIOV_ = mapIOV;
 
@@ -73,18 +73,17 @@ HcalLogicalMap HcalLogicalMapGenerator::createMap( const HcalTopology* topo, uns
   for (int iHcalib=0;iHcalib<CalibFull;iHcalib++) HxCalibHash2Entry.push_back(illegal_value);
   for (int iZdc=0;iZdc<2*ZdcHalf;iZdc++) ZdcHash2Entry.push_back(illegal_value);
 
-  buildHBEFTMap(topo,HBHEHFEntries,HTEntries,LinearIndex2Entry,HbHash2Entry,HeHash2Entry,HfHash2Entry,HtHash2Entry);
-  buildHOXMap(topo,HOHXEntries,LinearIndex2Entry,HoHash2Entry,HxCalibHash2Entry);
-  buildCALIBMap(topo,CALIBEntries,LinearIndex2Entry,HxCalibHash2Entry);
-  buildZDCMap(topo,ZDCEntries,LinearIndex2Entry,ZdcHash2Entry);
+  buildHBEFTMap(HBHEHFEntries,HTEntries,LinearIndex2Entry,HbHash2Entry,HeHash2Entry,HfHash2Entry,HtHash2Entry);
+  buildHOXMap(HOHXEntries,LinearIndex2Entry,HoHash2Entry,HxCalibHash2Entry);
+  buildCALIBMap(CALIBEntries,LinearIndex2Entry,HxCalibHash2Entry);
+  buildZDCMap(ZDCEntries,LinearIndex2Entry,ZdcHash2Entry);
 
-  return HcalLogicalMap(topo,HBHEHFEntries,HOHXEntries,CALIBEntries,ZDCEntries,HTEntries,
+  return HcalLogicalMap(HBHEHFEntries,HOHXEntries,CALIBEntries,ZDCEntries,HTEntries,
 			LinearIndex2Entry,HbHash2Entry,HeHash2Entry,HfHash2Entry,HtHash2Entry,
 			HoHash2Entry,HxCalibHash2Entry,/*CalibHash2Entry,*/ZdcHash2Entry);
 } 
 
-void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
-					    std::vector <HBHEHFLogicalMapEntry>& HBHEHFEntries,
+void HcalLogicalMapGenerator::buildHBEFTMap(std::vector <HBHEHFLogicalMapEntry>& HBHEHFEntries,
 					    std::vector <HTLogicalMapEntry>& HTEntries,
 					    std::vector <uint32_t>& LinearIndex2Entry,
 					    std::vector <uint32_t>& HbHash2Entry,
@@ -383,21 +382,12 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
 	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,0,HBHEHFEntries.size()-1);
 
 	      const HcalGenericDetId hgdi(hbeflmapentry.getDetId());
-	      unsigned int denseId;
-	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenBarrel) {
-		denseId=topo->detId2denseIdHB(hgdi);
-		HbHash2Entry.at(denseId)=HBHEHFEntries.size();
-	      }
-	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenEndcap) {
-		denseId=topo->detId2denseIdHE(hgdi);
-		HeHash2Entry.at(denseId)=HBHEHFEntries.size();
-	      }
-	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenForward) {
-		denseId=topo->detId2denseIdHF(hgdi);
-		HfHash2Entry.at(denseId)=HBHEHFEntries.size();
-	      }
+	      const int hashedId=hgdi.hashedId(false);
+	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenBarrel) HbHash2Entry.at(hashedId)=HBHEHFEntries.size();
+	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenEndcap) HeHash2Entry.at(hashedId)=HBHEHFEntries.size();
+	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenForward) HfHash2Entry.at(hashedId)=HBHEHFEntries.size();
 
-	      ConstructTriggerTower(topo,
+	      ConstructTriggerTower(
 				    HTEntries,
 				    iside, ieta, iphi, idphi, idepth, det, iwedge, irm,
 				    ipixel, iqie, iadc, irm_fi, ifi_ch, icrate, ihtr, fpga,
@@ -600,21 +590,12 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
 	      LinearIndex2Entry.at(hbeflmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,0,HBHEHFEntries.size()-1);
 
 	      const HcalGenericDetId hgdi(hbeflmapentry.getDetId());
-	      unsigned int denseId;
-	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenBarrel) {
-		denseId=topo->detId2denseIdHB(hgdi);
-		HbHash2Entry.at(denseId)=HBHEHFEntries.size();
-	      }
-	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenEndcap) {
-		denseId=topo->detId2denseIdHE(hgdi);
-		HeHash2Entry.at(denseId)=HBHEHFEntries.size();
-	      }
-	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenForward) {
-		denseId=topo->detId2denseIdHF(hgdi);
-		HfHash2Entry.at(denseId)=HBHEHFEntries.size();
-	      }
+	      const int hashedId=hgdi.hashedId(false);
+	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenBarrel) HbHash2Entry.at(hashedId)=HBHEHFEntries.size();
+	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenEndcap) HeHash2Entry.at(hashedId)=HBHEHFEntries.size();
+	      if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenForward) HfHash2Entry.at(hashedId)=HBHEHFEntries.size();
 
-	      ConstructTriggerTower(topo,
+	      ConstructTriggerTower(
 				    HTEntries,
 				    iside, ieta, iphi, idphi, idepth, det, iwedge, irm,
 				    ipixel, iqie, iadc, irm_fi, ifi_ch, icrate, ihtr, fpga,
@@ -629,8 +610,7 @@ void HcalLogicalMapGenerator::buildHBEFTMap(const HcalTopology* topo,
   }
 } 
 
-void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
-					  std::vector <HOHXLogicalMapEntry>& HOHXEntries,
+void HcalLogicalMapGenerator::buildHOXMap(std::vector <HOHXLogicalMapEntry>& HOHXEntries,
 					  std::vector <uint32_t>& LinearIndex2Entry,
 					  std::vector <uint32_t>& HoHash2Entry,
 					  std::vector <uint32_t>& HxCalibHash2Entry) {
@@ -1147,14 +1127,9 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 	LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,1,HOHXEntries.size()-1);
 
 	const HcalGenericDetId hgdi(hoxlmapentry.getDetId());
-	unsigned int denseId;
-	if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenOuter) {
-	  denseId=topo->detId2denseIdHO(hgdi);
-	  HoHash2Entry.at(denseId)=HOHXEntries.size();
-	} else if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) {
-	  denseId=topo->detId2denseIdCALIB(hgdi);
-	  HxCalibHash2Entry.at(denseId)=HOHXEntries.size();
-	}
+	const int hashedId=hgdi.hashedId(false);
+	if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenOuter) HoHash2Entry.at(hashedId)=HOHXEntries.size();
+	if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=HOHXEntries.size();
 
         if (ring==0){
           if (ipixel==1){
@@ -1173,14 +1148,10 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,1,HOHXEntries.size()-1);
 
 	    const HcalGenericDetId hgdi(hoxlmapentry.getDetId());
-	    unsigned int denseId;
-	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenOuter) {
-	      denseId=topo->detId2denseIdHO(hgdi);
-	      HoHash2Entry.at(denseId)=HOHXEntries.size();
-	    } else if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) {
-	      denseId=topo->detId2denseIdCALIB(hgdi);
-	      HxCalibHash2Entry.at(denseId)=HOHXEntries.size();
-	    }
+	    const int hashedId=hgdi.hashedId(false);
+	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenOuter) HoHash2Entry.at(hashedId)=HOHXEntries.size();
+	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=HOHXEntries.size();
+
           }
           else if (ipixel==17){
             ipixel = 18;
@@ -1198,14 +1169,10 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
 	    LinearIndex2Entry.at(hoxlmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,1,HOHXEntries.size()-1);
 
 	    const HcalGenericDetId hgdi(hoxlmapentry.getDetId());
-	    unsigned int denseId;
-	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenOuter) {
-	      denseId=topo->detId2denseIdHO(hgdi);
-	      HoHash2Entry.at(denseId)=HOHXEntries.size();
-	    } else if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) {
-	      denseId=topo->detId2denseIdCALIB(hgdi);
-	      HxCalibHash2Entry.at(denseId)=HOHXEntries.size();
-	    }
+	    const int hashedId=hgdi.hashedId(false);
+	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenOuter) HoHash2Entry.at(hashedId)=HOHXEntries.size();
+	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=HOHXEntries.size();
+
           }
         }
       }
@@ -1213,8 +1180,7 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
   }
 } 
 
-void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
-					    std::vector <CALIBLogicalMapEntry>& CALIBEntries,
+void HcalLogicalMapGenerator::buildCALIBMap(std::vector <CALIBLogicalMapEntry>& CALIBEntries,
 					    std::vector <uint32_t>& LinearIndex2Entry,
 					    std::vector <uint32_t>& HxCalibHash2Entry) {
   
@@ -1367,8 +1333,8 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 	  CALIBEntries.push_back(caliblmapentry);
 	  LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
 
-	  const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
-	  const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
+	  const HcalGenericDetId hgdi(caliblmapentry.getDetId());
+	  const int hashedId=hgdi.hashedId(false);
 	  if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=CALIBEntries.size();
         }
       }
@@ -1423,10 +1389,9 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 	CALIBEntries.push_back(caliblmapentry);
 	LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
 
-	const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
-	const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
-	if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=CALIBEntries.size();
-
+	const HcalGenericDetId hgdi(caliblmapentry.getDetId());
+	const int hashedId=hgdi.hashedId(false);
+	if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=CALIBEntries.size();  
       }
     }
   }
@@ -1501,8 +1466,8 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 	    CALIBEntries.push_back(caliblmapentry);
 	    LinearIndex2Entry.at(caliblmapentry.getLinearIndex())=HcalLogicalMap::makeEntryNumber(1,2,CALIBEntries.size()-1);
 
-	    const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
-	    const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
+	    const HcalGenericDetId hgdi(caliblmapentry.getDetId());
+	    const int hashedId=hgdi.hashedId(false);
 	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=CALIBEntries.size();
 	  } while (ifb!=ifb);
         }
@@ -1511,7 +1476,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
   }
 } 
 
-void HcalLogicalMapGenerator::buildZDCMap(const HcalTopology* topo, std::vector <ZDCLogicalMapEntry>& ZDCEntries,
+void HcalLogicalMapGenerator::buildZDCMap(std::vector <ZDCLogicalMapEntry>& ZDCEntries,
 					  std::vector <uint32_t>& LinearIndex2Entry,
 					  std::vector <uint32_t>& ZdcHash2Entry) {
   /******************************/
@@ -1598,7 +1563,7 @@ void HcalLogicalMapGenerator::buildZDCMap(const HcalTopology* topo, std::vector 
 
 
 /********************************************************/
-void HcalLogicalMapGenerator::ConstructTriggerTower(const HcalTopology* topo,
+void HcalLogicalMapGenerator::ConstructTriggerTower(
 						    std::vector <HTLogicalMapEntry>& HTEntries,
 						    int iside, int ieta, int iphi, int idphi, int idepth, std::string det, int iwedge, int irm,
 						    int ipixel, int iqie, int iadc, int irm_fi, int ifi_ch, int icrate, int ihtr, std::string fpga,

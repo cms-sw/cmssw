@@ -3,6 +3,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 #include <cfloat>
@@ -112,7 +113,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
     double z_0 = 0; 
     
     //std::cout << " ConversionFastHelix:helixStateAtVertex  flfit.n2() " <<  flfit.n2() << " flfit.c() " << flfit.c() << " flfit.n2() " << flfit.n2() << std::endl;
-    if ( flfit.n2() !=0 && !std::isnan( flfit.c()) && !std::isnan(flfit.n2())   ) {
+    if ( flfit.n2() !=0 && !edm::isNotFinite( flfit.c()) && !edm::isNotFinite(flfit.n2())   ) {
       //  std::cout << " Accepted " << std::endl;
       z_0 = -flfit.c()/flfit.n2();
       double dzdrphi = -flfit.n1()/flfit.n2();
@@ -207,7 +208,7 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
   FastLine flfit(theOuterHit, theMiddleHit);
 
   double z_0 = 0;
-  if (flfit.n2() !=0  && !std::isnan( flfit.c()) && !std::isnan(flfit.n2())   ) {
+  if (flfit.n2() !=0  && !edm::isNotFinite( flfit.c()) && !edm::isNotFinite(flfit.n2())   ) {
     z_0 = -flfit.c()/flfit.n2();
 
     double dzdr = -flfit.n1()/flfit.n2();

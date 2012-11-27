@@ -1,5 +1,6 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexWeightCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include <cfloat>
 
@@ -51,7 +52,7 @@ double GsfVertexWeightCalculator::calculate(const  VertexState & oldVertex,
   double chi = ROOT::Math::Similarity(diff,sigmaM);;  //SigmaM is now inverted !!!
   double weight = pow(2. * M_PI, -0.5 * 5) * sqrt(1./sigmaDet) * exp(-0.5 * chi);
 
-  if (std::isnan(weight) || sigmaDet<=0.) {
+  if (edm::isNotFinite(weight) || sigmaDet<=0.) {
     edm::LogWarning("GsfVertexWeightCalculator") << "Weight is NaN";
     return -1.;
   }

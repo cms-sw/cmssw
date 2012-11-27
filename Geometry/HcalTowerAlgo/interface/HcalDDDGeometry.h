@@ -24,7 +24,7 @@ public:
       typedef std::vector<IdealObliquePrism> HOCellVec ;
       typedef std::vector<IdealZPrism>       HFCellVec ;
 
-  explicit HcalDDDGeometry(const HcalTopology& theTopo);
+  explicit HcalDDDGeometry();
   /// The HcalDDDGeometry will delete all its cell geometries at destruction time
   virtual ~HcalDDDGeometry();
   
@@ -50,8 +50,6 @@ private:
   mutable std::vector<DetId> m_validIds ;
 
   std::vector<HcalCellType> hcalCells_;
-
-  const HcalTopology& topo_;
   mutable DetId::Detector                 lastReqDet_;
   mutable int                             lastReqSubdet_;
 

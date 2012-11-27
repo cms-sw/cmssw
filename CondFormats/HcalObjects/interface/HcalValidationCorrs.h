@@ -15,10 +15,7 @@ POOL object to store HCAL validation corrections
 class HcalValidationCorrs: public HcalCondObjectContainer<HcalValidationCorr>
 {
  public:
-#ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalValidationCorrs():HcalCondObjectContainer<HcalValidationCorr>(0) {}
-#endif
-  HcalValidationCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalValidationCorr>(topo) {}
+  HcalValidationCorrs():HcalCondObjectContainer<HcalValidationCorr>() {}
 
   std::string myname() const {return (std::string)"HcalValidationCorrs";}
 

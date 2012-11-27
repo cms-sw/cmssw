@@ -8,6 +8,7 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 EBHitResponse::EBHitResponse( const CaloVSimParameterMap* parameterMap , 
@@ -211,7 +212,7 @@ EBHitResponse::finalizeHits() {
 void 
 EBHitResponse::add( const PCaloHit& hit ) 
 {
-  if (!isnan( hit.time() ) && ( 0 == hitFilter() || hitFilter()->accepts( hit ) ) ) {
+  if (!edm::isNotFinite( hit.time() ) && ( 0 == hitFilter() || hitFilter()->accepts( hit ) ) ) {
      if( 0 == hit.depth() ) // for now take only nonAPD hits
      {
         if( !m_apdOnly ) putAnalogSignal( hit ) ;
@@ -249,7 +250,7 @@ EBHitResponse::run( MixCollection<PCaloHit>& hits )
       const int bunch ( hitItr.bunch() ) ;
       if( minBunch() <= bunch  &&
 	  maxBunch() >= bunch  &&
-	  !isnan( hit.time() ) &&
+	  !edm::isNotFinite( hit.time() ) &&
 	  ( 0 == hitFilter() ||
 	    hitFilter()->accepts( hit ) ) )
       { 

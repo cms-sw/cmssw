@@ -23,7 +23,6 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapHcal.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "TFile.h"
 #include "TGraph.h"
@@ -183,7 +182,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	    {
 	      HcalDetId myDetId(it->first);
 	      float icalconst=it->second;
-	      miscalib_[topo->detId2denseId(myDetId)]=refactor_mean_+(icalconst-refactor_mean_)*refactor_;
+	      miscalib_[myDetId.hashed_index()]=refactor_mean_+(icalconst-refactor_mean_)*refactor_;
 	    }
 	}
       
@@ -333,7 +332,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 
 // Get the PCaloHits from the event. They have to be stored in a map, because when
 // the pile-up is added thanks to the Mixing Module, the same cell can be present several times
-void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent, const HcalTopology& topo)
+void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 {
   clean();
 
@@ -347,7 +346,7 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent, const HcalTopolo
   for(;it!=itend;++it)
     {
       HcalDetId detid(it->id());
-      int hashedindex=topo.detId2denseId(detid);
+      int hashedindex=detid.hashed_index();
 
       // apply ToF correction
       int time_slice=0; // temporary
@@ -390,9 +389,9 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent, const HcalTopolo
 }
 
 // Fills the collections. 
-void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& topo, HBHERecHitCollection& hbheHits, HBHEDigiCollection& hbheDigis)
+void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& hbheHits, HBHEDigiCollection& hbheDigis)
 {
-  loadPCaloHits(iEvent,topo);
+  loadPCaloHits(iEvent);
   noisify();
   hbheHits.reserve(firedCells_.size());
   if(doDigis_)
@@ -439,9 +438,9 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& to
 
 
 // Fills the collections. 
-void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& topo, HORecHitCollection &hoHits, HODigiCollection & hoDigis)
+void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent, HORecHitCollection &hoHits, HODigiCollection & hoDigis)
 {
-  loadPCaloHits(iEvent,topo);
+  loadPCaloHits(iEvent);
   noisify();
   hoHits.reserve(firedCells_.size());
   if(doDigis_)
@@ -477,9 +476,9 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& to
 }
 
 // Fills the collections. 
-void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& topo,HFRecHitCollection &hfHits, HFDigiCollection& hfDigis)
+void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HFRecHitCollection &hfHits, HFDigiCollection& hfDigis)
 {
-  loadPCaloHits(iEvent,topo);
+  loadPCaloHits(iEvent);
   noisify();
   hfHits.reserve(firedCells_.size());
   if(doDigis_)
@@ -525,19 +524,16 @@ unsigned HcalRecHitsMaker::createVectorsOfCells(const edm::EventSetup &es)
 {
     edm::ESHandle<CaloGeometry> pG;
     es.get<CaloGeometryRecord>().get(pG);     
-    edm::ESHandle<HcalTopology> topo;
-    es.get<IdealGeometryRecord>().get( topo );
-
-    nhbcells_ = createVectorOfSubdetectorCells(*pG, *topo, HcalBarrel,  hbhi_);    
-    nhecells_ = createVectorOfSubdetectorCells(*pG, *topo, HcalEndcap,  hehi_);
-    nhocells_ = createVectorOfSubdetectorCells(*pG, *topo, HcalOuter,   hohi_);
-    nhfcells_ = createVectorOfSubdetectorCells(*pG, *topo, HcalForward, hfhi_);    
+    nhbcells_ = createVectorOfSubdetectorCells(*pG, HcalBarrel,  hbhi_);    
+    nhecells_ = createVectorOfSubdetectorCells(*pG, HcalEndcap,  hehi_);
+    nhocells_ = createVectorOfSubdetectorCells(*pG, HcalOuter,   hohi_);
+    nhfcells_ = createVectorOfSubdetectorCells(*pG, HcalForward, hfhi_);    
 
     return nhbcells_+nhecells_+nhocells_+nhfcells_;
 }
 
 // list of the cellids for a given subdetector
-unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg, const HcalTopology& topo, int subdetn,std::vector<int>& cellsvec ) 
+unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg,int subdetn,std::vector<int>& cellsvec ) 
 {
 
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Hcal,subdetn);  
@@ -548,7 +544,7 @@ unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg
       HcalDetId myDetId(*i);
       //      std::cout << myDetId << myHcalSimParameterMap_->simParameters(myDetId).simHitToPhotoelectrons() << std::endl;;
       //      std::cout << " hi " << hi << " " theDetIds_.size() << std::endl;
-      unsigned int hi=topo.detId2denseId(myDetId);
+      unsigned hi=myDetId.hashed_index();
       theDetIds_[hi]=myDetId;
       //      std::cout << myDetId << " " << hi <<  std::endl;
       cellsvec.push_back(hi);      

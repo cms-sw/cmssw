@@ -15,10 +15,7 @@ POOL container to store GainWidth values 4xCapId
 class HcalGainWidths: public HcalCondObjectContainer<HcalGainWidth>
 {
  public:
-#ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalGainWidths():HcalCondObjectContainer<HcalGainWidth>(0) {}
-#endif
-  HcalGainWidths(const HcalTopology* topo):HcalCondObjectContainer<HcalGainWidth>(topo) {}
+  HcalGainWidths():HcalCondObjectContainer<HcalGainWidth>() {}
 
   std::string myname() const {return (std::string)"HcalGainWidths";}
 

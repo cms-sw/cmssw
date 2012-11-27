@@ -15,12 +15,10 @@
 
     /** \class HcalSimpleReconstructor
 	
-    $Date: 2011/09/02 22:54:20 $
-    $Revision: 1.7 $
+    $Date: 2011/02/25 10:29:33 $
+    $Revision: 1.5 $
     \author J. Mans - Minnesota
     */
-class HcalTopology;
-
     class HcalSimpleReconstructor : public edm::EDProducer {
     public:
       explicit HcalSimpleReconstructor(const edm::ParameterSet& ps);
@@ -45,7 +43,7 @@ class HcalTopology;
       bool tsFromDB_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
-      HcalTopology *theTopology;
+
     };
 
 #endif

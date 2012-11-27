@@ -26,7 +26,7 @@ HcalCholeskyDecomp::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    double sig[4][10][10];
    double c[4][10][10], cikik[4], cikjk[4];
 
-   HcalCholeskyMatrices * outMatrices = new HcalCholeskyMatrices(myCov->topo());
+   HcalCholeskyMatrices * outMatrices = new HcalCholeskyMatrices();
 
    std::vector<DetId> listChan = myCov->getAllChannels();
    std::vector<DetId>::iterator cell;

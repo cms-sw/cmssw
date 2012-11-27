@@ -18,8 +18,8 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EBLaserMIN = cms.double(0.5),
     EELaserMIN = cms.double(0.5),
 
-    EBLaserMAX = cms.double(3.0),
-    EELaserMAX = cms.double(8.0),
+    EBLaserMAX = cms.double(2),
+    EELaserMAX = cms.double(3),
 
 
     # apply laser corrections
@@ -47,15 +47,12 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     recoverEEFE = cms.bool(True),
     #db statuses for which recovery in EE/EB should not be attempted           
     dbStatusToBeExcludedEE = cms.vint32(
-                                        14,  # dead, no TP
-                                        78,  # dead, HV off
-                                        142, # dead,LV off
-                                        ), 
+                                        142
+                                        ), # dead,LV off
     dbStatusToBeExcludedEB = cms.vint32(
-                                        14,  # dead, no TP
-                                        78,  # dead, HV off
-                                        142, # dead,LV off
-                                        ), 
+                                        142
+                                        ), # dead,LV off
+                            
     # --- logWarnings for saturated DeadFEs
     # if the logWarningThreshold is negative the Algo will not try recovery (in EE is not tested we may need negative threshold e.g. -1.e+9)
     # if you want to enable recovery but you don't wish to throw logWarnings put the logWarningThresholds very high e.g +1.e+9

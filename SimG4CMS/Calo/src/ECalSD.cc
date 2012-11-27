@@ -136,6 +136,7 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
   } else {
     preStepPoint        = aStep->GetPreStepPoint();
     G4Track* theTrack   = aStep->GetTrack();
+    double wt2  = theTrack->GetWeight();
     G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
 
     // take into account light collection curve for crystals
@@ -169,7 +170,22 @@ double ECalSD::getEnergyDeposit(G4Step * aStep) {
     }
     double wt1  = getResponseWt(theTrack);
     double edep = aStep->GetTotalEnergyDeposit()*weight*wt1;
-    double wt2  = theTrack->GetWeight();
+    /*
+    if(wt2 != 1.0) { 
+      std::cout << "ECalSD:: " << nameVolume
+		<<" LightWeight= " <<weight << " wt1= " <<wt1
+		<< "  wt2= " << wt2 << "  "
+		<< " Weighted Energy Deposit " << edep/MeV << " MeV" 
+		<< std::endl;
+      std::cout << theTrack->GetDefinition()->GetParticleName()
+		<< " " << theTrack->GetKineticEnergy()
+		<< " Id=" << theTrack->GetTrackID()
+		<< " IdP=" << theTrack->GetParentID();
+      const G4VProcess* pr = theTrack->GetCreatorProcess();
+      if(pr) std::cout << " from  " << pr->GetProcessName();
+      std::cout << std::endl;
+    }
+    */
     if(wt2 > 0.0) { edep *= wt2; }
 #ifdef DebugLog
     LogDebug("EcalSim") << "ECalSD:: " << nameVolume

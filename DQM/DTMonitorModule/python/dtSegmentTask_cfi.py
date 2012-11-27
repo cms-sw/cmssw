@@ -10,7 +10,7 @@ dtSegmentAnalysisMonitor = cms.EDAnalyzer("DTSegmentAnalysisTask",
                                           # switch off uneeded histograms
                                           detailedAnalysis = cms.untracked.bool(False),
                                           # # of bins in the time histos
-                                          nTimeBins = cms.untracked.int32(170),
+                                          nTimeBins = cms.untracked.int32(100),
                                           # # of LS per bin in the time histos
                                           nLSTimeBin = cms.untracked.int32(15),
                                           # switch on/off sliding bins in time histos

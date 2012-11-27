@@ -164,7 +164,7 @@ PFRecHitProducerHO::createRecHits(vector<reco::PFRecHit>& rechits,
   
   // do navigation
   for(unsigned i=0; i<rechits.size(); i++ ) {
-    findRecHitNeighboursHO( rechits[i], *hcalBarrelTopology, idSortedRecHits ); 
+    findRecHitNeighboursHO( rechits[i], idSortedRecHits ); 
   }
   
 } 
@@ -308,20 +308,19 @@ PFRecHitProducerHO::findHORecHitGeometry(const DetId& detid,
 void 
 PFRecHitProducerHO::findRecHitNeighboursHO
 ( reco::PFRecHit& rh, 
-  const HcalTopology& topo, 
   const map<unsigned,unsigned >& sortedHits ) {
   
   DetId center( rh.detId() );
   
   
-  DetId north = move( center, topo, NORTH );
-  DetId northeast = move( center, topo, NORTHEAST );
-  DetId northwest = move( center, topo, NORTHWEST ); 
-  DetId south = move( center, topo, SOUTH );  
-  DetId southeast = move( center, topo, SOUTHEAST );  
-  DetId southwest = move( center, topo, SOUTHWEST );  
-  DetId east  = move( center, topo, EAST );  
-  DetId west  = move( center, topo, WEST );  
+  DetId north = move( center, NORTH );
+  DetId northeast = move( center, NORTHEAST );
+  DetId northwest = move( center, NORTHWEST ); 
+  DetId south = move( center, SOUTH );  
+  DetId southeast = move( center, SOUTHEAST );  
+  DetId southwest = move( center, SOUTHWEST );  
+  DetId east  = move( center, EAST );  
+  DetId west  = move( center, WEST );  
   
   IDH i = sortedHits.find( north.rawId() );
   if(i != sortedHits.end() ) 
@@ -361,7 +360,7 @@ PFRecHitProducerHO::findRecHitNeighboursHO
 void 
 PFRecHitProducerHO::hoNeighbArray(
 				  const CaloSubdetectorGeometry& barrelGeom,
-				  const HcalTopology& barrelTopo){
+				  const CaloSubdetectorTopology& barrelTopo){
   
   static const CaloDirection orderedDir[8]={SOUTHWEST,
 					    SOUTH,
@@ -374,7 +373,7 @@ PFRecHitProducerHO::hoNeighbArray(
   
   const unsigned nbarrel = 2160; //62000;
   // Barrel first. The hashed index runs from 0 to 2199 61199
-  neighboursHO_.resize(barrelTopo.getHOSize());
+  neighboursHO_.resize(nbarrel);
   
   //std::cout << " Building the array of neighbours (barrel) " ;
   
@@ -387,7 +386,7 @@ PFRecHitProducerHO::hoNeighbArray(
       std::vector<DetId> neighbours(barrelTopo.getWindow(vec[ic],3,3));
       unsigned nneighbours=neighbours.size();
       
-      unsigned hashedindex=barrelTopo.detId2denseIdHO(vec[ic]);
+      unsigned hashedindex=HcalDetId(vec[ic]).hashed_index()-5184; //2*( kHBhalf + kHEhalf )
       //           std::cout << " Cell " << ic<<" "<<vec[ic].rawId()<<" "<<HcalDetId(vec[ic]) <<" "<<hashedindex<<" "<<nneighbours<< std::endl;
       if(hashedindex>=nbarrel)
         {
@@ -557,7 +556,6 @@ PFRecHitProducerHO::stdmove(DetId& cell,
 }
 
 DetId PFRecHitProducerHO::move(DetId cell, 
-			       const HcalTopology&topo,
 			       const CaloDirection&dir ) const
 {  
   DetId originalcell = cell; 
@@ -570,7 +568,7 @@ DetId PFRecHitProducerHO::move(DetId cell,
   
   assert(neighbourmapcalculated_);
   
-  DetId result = neighboursHO_[topo.detId2denseIdHO(originalcell)][calodirections[dir]];
+  DetId result = neighboursHO_[HcalDetId(originalcell).hashed_index()-5184][calodirections[dir]];
   return result; 
 }
 

@@ -4,11 +4,10 @@
 // This code runs 1000x faster and produces all outputs from a single run
 // (ADC, fC in .txt plus an .xml file)
 //
-// $Id: HcalPedestalsAnalysis.cc,v 1.24 2012/11/02 14:40:26 dlange Exp $
+// $Id: HcalPedestalsAnalysis.cc,v 1.23 2012/10/09 15:43:33 wdd Exp $
 
 #include <memory>
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalsAnalysis.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps) :
    hbheDigiCollectionTag_(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
@@ -24,10 +23,10 @@ HcalPedestalsAnalysis::HcalPedestalsAnalysis(const edm::ParameterSet& ps) :
    firsttime = true;
    ievt = 0;
 
-   rawPedsItem = 0;
-   rawWidthsItem = 0;
-   rawPedsItemfc = 0;
-   rawWidthsItemfc = 0;
+   rawPedsItem = new HcalPedestals(true);
+   rawWidthsItem = new HcalPedestalWidths(true);
+   rawPedsItemfc = new HcalPedestals(false);
+   rawWidthsItemfc = new HcalPedestalWidths(false);
 }
 
 
@@ -217,16 +216,6 @@ HcalPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSetu
 
    if(firsttime)
    {
-
-     edm::ESHandle<HcalTopology> topology;
-     iSetup.get<IdealGeometryRecord>().get( topology );
-     theTopology=new HcalTopology(*topology);
-
-     rawPedsItem = new HcalPedestals(theTopology,true);
-     rawWidthsItem = new HcalPedestalWidths(theTopology,true);
-     rawPedsItemfc = new HcalPedestals(theTopology,false);
-     rawWidthsItemfc = new HcalPedestalWidths(theTopology,false);
-
       runnum = e.id().run();
       std::string runnum_string;
       std::stringstream tempstringout;

@@ -3,8 +3,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2012/10/30 22:01:24 $
- * $Revision: 1.60 $
+ * $Date: 2011/09/07 10:35:18 $
+ * $Revision: 1.3 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -148,7 +148,7 @@ void SiStripAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetu
     m_cacheID_ = cacheID;       
     edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser::beginRun: " 
 				    << " Change in Cabling, recrated TrackerMap";     
-    if (!actionExecutor_->readTkMapConfiguration(eSetup)) {
+    if (!actionExecutor_->readTkMapConfiguration()) {
       edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! TrackerMap will not be produced!!!";    
       tkMapFrequency_ = -1;
 
@@ -238,7 +238,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     std::cout << " Creating Tracker Map " << std::endl;
     std::string tkmap_type =  sistripWebInterface_->getTkMapType();
-    actionExecutor_->createTkMap(tkMapPSet_, dqmStore_, tkmap_type);
+    actionExecutor_->createTkMap(tkMapPSet_, fedCabling_, dqmStore_, tkmap_type);
   }
   // Create Shift Report
   //  if (shiftReportFrequency_ != -1 && trackerFEDsFound_ && nLumiSecs_%shiftReportFrequency_  == 0) {

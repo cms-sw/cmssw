@@ -16,11 +16,8 @@ class HcalPedestals: public HcalCondObjectContainer<HcalPedestal>
 {
  public:
   //constructor definition: has to contain 
-#ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalPedestals():HcalCondObjectContainer<HcalPedestal>(0), unitIsADC(false) {}
-#endif
-  HcalPedestals(const HcalTopology* topo):HcalCondObjectContainer<HcalPedestal>(topo), unitIsADC(false) {}
-  HcalPedestals(const HcalTopology* topo, bool isADC):HcalCondObjectContainer<HcalPedestal>(topo), unitIsADC(isADC) {}
+  HcalPedestals():HcalCondObjectContainer<HcalPedestal>(), unitIsADC(false) {}
+  HcalPedestals(bool isADC):HcalCondObjectContainer<HcalPedestal>(), unitIsADC(isADC) {}
 
   // are the units ADC ? (true=ADC, false=fC)
   bool isADC() const {return unitIsADC;} 

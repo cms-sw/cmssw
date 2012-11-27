@@ -7,6 +7,7 @@
 #include "G4LogicalVolumeStore.hh"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 using std::string;
 
@@ -91,7 +92,7 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
        NameOfVol = "CorruptedVolumeInfo" ;
     }
     
-    // for simplicity... maybe isnan() will work on the 3-vector directly...
+    // for simplicity... maybe edm::isNotFinite() will work on the 3-vector directly...
     //
     double xyz[3] ;
     xyz[0] = CurrentPos.x() ;
@@ -100,10 +101,10 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
     
     //
     // this is another trick to check on a NaN, maybe it's even CPU-faster...
-    // but ler's stick to system function isnan(...) for now
+    // but ler's stick to system function edm::isNotFinite(...) for now
     //
     // if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) )
-    if( isnan(xyz[0]+xyz[1]+xyz[2]) != 0 )
+    if( edm::isNotFinite(xyz[0]+xyz[1]+xyz[2]) != 0 )
     {
        // std::cout << " NaN detected in volume " << NameOfVol << std::endl ;
        throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (position)" ) ;
@@ -113,7 +114,7 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
     xyz[1] = CurrentMom.y() ;
     xyz[2] = CurrentMom.z() ;
     if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) ||
-         isnan(xyz[0]) != 0 || isnan(xyz[1]) != 0 || isnan(xyz[2]) != 0 )
+         edm::isNotFinite(xyz[0]) != 0 || edm::isNotFinite(xyz[1]) != 0 || edm::isNotFinite(xyz[2]) != 0 )
     {
        std::cout << " NaN detected in volume " << NameOfVol << std::endl ;
        throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (3-momentum)" ) ;

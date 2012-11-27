@@ -1,7 +1,7 @@
 #ifndef HcalCholeskyMatrices_h
 #define HcalCholeskyMatrices_h
 
-#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
+//#include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
 #include <iostream>
 #include <vector>
@@ -11,25 +11,21 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrix.h"
 
-class HcalTopology;
-
-class HcalCholeskyMatrices : public HcalCondObjectContainerBase
+class HcalCholeskyMatrices//: public HcalCondObjectContainer<HcalCholeskyMatrix>
 {
    public:
-#ifndef HCAL_COND_SUPPRESS_DEFAULT
- HcalCholeskyMatrices() : HcalCondObjectContainerBase(0) { }
-#endif
-      HcalCholeskyMatrices(const HcalTopology* topo);
+      HcalCholeskyMatrices();
       ~HcalCholeskyMatrices();
+//      HcalCholeskyMatrices():HcalCondObjectContainer<HcalCholeskyMatrix>() {}
       std::string myname() const {return (std::string)"HcalCholeskyMatrices";}
 
-      const HcalCholeskyMatrix* getValues(DetId fId, bool throwOnFail=true) const;
+      const HcalCholeskyMatrix* getValues(DetId fId) const;
       const bool exists(DetId fId) const;
-      bool addValues(const HcalCholeskyMatrix& myHcalCholeskyMatrix);
+      bool addValues(const HcalCholeskyMatrix& myHcalCholeskyMatrix, bool h2mode_=false);
       std::vector<DetId> getAllChannels() const;
 
    private:
-      void initContainer(DetId fId);
+      void initContainer(int container, bool h2mode_ = false);
       std::vector<HcalCholeskyMatrix> HBcontainer;
       std::vector<HcalCholeskyMatrix> HEcontainer;
       std::vector<HcalCholeskyMatrix> HOcontainer;

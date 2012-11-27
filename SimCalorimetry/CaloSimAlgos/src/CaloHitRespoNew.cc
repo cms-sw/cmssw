@@ -13,6 +13,7 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h" 
@@ -216,7 +217,7 @@ CaloHitRespoNew::run( MixCollection<PCaloHit>& hits )
 void 
 CaloHitRespoNew::add( const PCaloHit& hit ) 
 {
-      if( !isnan( hit.time() ) &&
+      if( !edm::isNotFinite( hit.time() ) &&
 	  ( 0 == m_hitFilter ||
 	    m_hitFilter->accepts( hit ) ) ) putAnalogSignal( hit ) ;
 }

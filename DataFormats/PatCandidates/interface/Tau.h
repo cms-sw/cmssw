@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.33 2011/10/27 16:35:27 wmtan Exp $
+// $Id: Tau.h,v 1.32 2011/09/29 16:34:26 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.33 2011/10/27 16:35:27 wmtan Exp $
+  \version  $Id: Tau.h,v 1.32 2011/09/29 16:34:26 veelken Exp $
 */
 
 
@@ -262,7 +262,6 @@ namespace pat {
       /// in PhysicsTools/PatAlgos/python/producersLayer1/tauProducer_cfi.py .
       /// Note: an exception is thrown if the specified ID is not available
       float tauID(const std::string & name) const;
-      float tauID(const char* name ) const {return tauID( std::string(name) );}
       /// Returns true if a specific ID is available in this pat::Tau
       bool isTauIDAvailable(const std::string & name) const;
       /// Returns all the tau IDs in the form of <name,value> pairs
