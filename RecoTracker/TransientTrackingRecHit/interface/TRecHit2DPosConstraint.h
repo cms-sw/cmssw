@@ -1,12 +1,12 @@
 #ifndef RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit2DPosConstraint_H
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit2DPosConstraint_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 class GeomDetUnit;
 
-class TRecHit2DPosConstraint GCC11_FINAL : public TValidTrackingRecHit {
+class TRecHit2DPosConstraint GCC11_FINAL : public TransientTrackingRecHit {
 public:
 
   virtual ~TRecHit2DPosConstraint() {}
@@ -41,6 +41,7 @@ public:
   virtual LocalError localPositionError() const {return err_;}
 
   virtual const TrackingRecHit * hit() const {return 0;}//fixme return invalid
+  virtual TrackingRecHit * cloneHit() const { return 0;}
 
   virtual std::vector<const TrackingRecHit*> recHits() const {
     return hit()->recHits();

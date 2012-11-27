@@ -39,6 +39,7 @@ public:
   virtual bool canImproveWithTrack() const { return false; }
 
   virtual const TrackingRecHit* hit() const { return 0; }
+  virtual TrackingRecHit * cloneHit() const { return 0;}
   
   virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<const TrackingRecHit*>(); }
 
