@@ -8,6 +8,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -98,9 +99,9 @@ void PixelTrackVal::analyze(
 
     const reco::Track * it= &tracks[idx];
     TH1* h = static_cast<TH1*>(hList.FindObject("h_Nan"));
-    h->Fill(1.,std::isnan(it->momentum().x())*1.);
-    h->Fill(2.,std::isnan(it->momentum().y())*1.);
-    h->Fill(3.,std::isnan(it->momentum().z())*1.);
+    h->Fill(1.,edm::isNotFinite(it->momentum().x())*1.);
+    h->Fill(2.,edm::isNotFinite(it->momentum().y())*1.);
+    h->Fill(3.,edm::isNotFinite(it->momentum().z())*1.);
     
     bool problem = false;
     int index = 3;
@@ -108,8 +109,8 @@ void PixelTrackVal::analyze(
       for (int j = i; j != 3; j++) {
 	  index++;
 	  static_cast<TH1*>(hList.FindObject("h_Nan"))->Fill(
-            index*1., std::isnan(it->covariance(i, j))*1.);
-	  if (std::isnan(it->covariance(i, j))) problem = true;
+            index*1., edm::isNotFinite(it->covariance(i, j))*1.);
+	  if (edm::isNotFinite(it->covariance(i, j))) problem = true;
 	  // in addition, diagonal element must be positive
 	  if (j == i && it->covariance(i, j) < 0) {
 	    static_cast<TH1*>(hList.FindObject("h_Nan"))->Fill(index*1., 1.);
