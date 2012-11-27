@@ -5,7 +5,7 @@
 ######################################################################
 
 # NOTE: Typical way to create the pileup ROOT file from the cached txt
-# files (maintained by Mike Hildredth):
+# files (maintained by Mike Hildreth):
 # pileupCalc.py -i /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/DCSOnly/json_DCSONLY.txt \
 # --inputLumiJSON=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/PileUp/pileup_latest.txt \
 # --calcMode true --maxPileupBin=40 pu2012DCSONLY.root
@@ -42,6 +42,7 @@ from ROOT import TFile
 from RecoLuminosity.LumiDB.public_plots_tools import ColorScheme
 from RecoLuminosity.LumiDB.public_plots_tools import LatexifyUnits
 from RecoLuminosity.LumiDB.public_plots_tools import AddLogo
+from RecoLuminosity.LumiDB.public_plots_tools import InitMatplotlib
 from RecoLuminosity.LumiDB.public_plots_tools import RoundAwayFromZero
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_SUPTITLE
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_TITLE
@@ -53,25 +54,6 @@ try:
     import pdb
 except ImportError:
     pass
-
-######################################################################
-
-# Some hard-coded thingies. Not nice, but no time to do this
-# differently right now.
-particle_type_str = "pp"
-year = 2012
-cms_energy_str = "8 TeV"
-
-######################################################################
-
-def InitMatplotlib():
-    """Just some Matplotlib settings."""
-    matplotlib.rcParams["text.usetex"] = False
-    matplotlib.rcParams["legend.numpoints"] = 1
-    matplotlib.rcParams["figure.figsize"] = (8., 6.)
-    matplotlib.rcParams["figure.dpi"] = 200
-    matplotlib.rcParams["savefig.dpi"] = matplotlib.rcParams["figure.dpi"]
-    # End of InitMatplotlib().
 
 ######################################################################
 
@@ -161,6 +143,11 @@ if __name__ == "__main__":
     input_json = cfg_parser.get("general", "input_json")
     input_lumi_json = cfg_parser.get("general", "input_lumi_json")
 
+    # Some things needed for titles etc.
+    particle_type_str = cfg_parser.get("general", "particle_type_str")
+    year = int(cfg_parser.get("general", "year"))
+    cms_energy_str = cfg_parser.get("general", "cms_energy_str")
+
     ##########
 
     # Tell the user what's going to happen.
@@ -179,7 +166,7 @@ if __name__ == "__main__":
 
     # First run pileupCalc.
     tmp_file_name = os.path.join(cache_file_dir,"pileup_calc_tmp.root")
-    if (not ignore_cache):
+    if ignore_cache:
         cmd = "pileupCalc.py -i %s --inputLumiJSON=%s %s %s" % \
               (input_json, input_lumi_json,
                pileupcalc_flags_from_cfg, tmp_file_name)
