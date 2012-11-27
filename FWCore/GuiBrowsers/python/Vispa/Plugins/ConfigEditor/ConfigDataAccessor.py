@@ -219,6 +219,9 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         else:
             folder_list += [("paths", self.process().paths.itervalues())]
         folder_list += [("endpaths", self.process().endpaths.itervalues())]
+	if hasattr(self.process().options,"allowUnscheduled") and self.process().options.allowUnscheduled:
+	    print "Running in Unscheduled mode"
+            folder_list += [("modules", self._sort_list(self.process().producers.values()+self.process().filters.values()+self.process().analyzers.values()))]
         folder_list += [("services", self._sort_list(self.process().services.values()))]
         folder_list += [("psets", self._sort_list(self.process().psets.values()))]
         folder_list += [("vpsets", self._sort_list(self.process().vpsets.values()))]
