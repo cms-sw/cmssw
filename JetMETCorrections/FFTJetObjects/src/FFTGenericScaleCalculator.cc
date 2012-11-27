@@ -200,11 +200,7 @@ void FFTGenericScaleCalculator::mapFFTJet(
             << "incompatible table dimensionality: expected "
             << m_factors.size() << ", got " << dim << std::endl;
     if (dim)
-    {
         assert(buf);
-        for (unsigned i=0; i<dim; ++i)
-            buf[i] = 0.0;
-    }
     else
         return;
 
