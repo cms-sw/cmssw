@@ -40,6 +40,7 @@ matplotlib.axes.Axes.hist = hist
 from RecoLuminosity.LumiDB.public_plots_tools import ColorScheme
 from RecoLuminosity.LumiDB.public_plots_tools import LatexifyUnits
 from RecoLuminosity.LumiDB.public_plots_tools import AddLogo
+from RecoLuminosity.LumiDB.public_plots_tools import InitMatplotlib
 from RecoLuminosity.LumiDB.public_plots_tools import RoundAwayFromZero
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_SUPTITLE
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_TITLE
@@ -260,17 +261,6 @@ def CacheFilePath(cache_file_dir, day=None):
         cache_file_name = "lumicalc_cache_%s.csv" % day.isoformat()
         cache_file_path = os.path.join(cache_file_path, cache_file_name)
     return cache_file_path
-
-######################################################################
-
-def InitMatplotlib():
-    """Just some Matplotlib settings."""
-    matplotlib.rcParams["text.usetex"] = False
-    matplotlib.rcParams["legend.numpoints"] = 1
-    matplotlib.rcParams["figure.figsize"] = (8., 6.)
-    matplotlib.rcParams["figure.dpi"] = 200
-    matplotlib.rcParams["savefig.dpi"] = matplotlib.rcParams["figure.dpi"]
-    # End of InitMatplotlib().
 
 ######################################################################
 

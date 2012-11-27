@@ -23,6 +23,17 @@ FONT_PROPS_TICK_LABEL = FontProperties(size="large", weight="bold")
 
 ######################################################################
 
+def InitMatplotlib():
+    """Just some Matplotlib settings."""
+    matplotlib.rcParams["text.usetex"] = False
+    matplotlib.rcParams["legend.numpoints"] = 1
+    matplotlib.rcParams["figure.figsize"] = (8., 6.)
+    matplotlib.rcParams["figure.dpi"] = 200
+    matplotlib.rcParams["savefig.dpi"] = matplotlib.rcParams["figure.dpi"]
+    # End of InitMatplotlib().
+
+######################################################################
+
 def AddLogo(logo_name, ax, zoom=1.2):
     """Read logo from PNG file and add it to axes."""
 
