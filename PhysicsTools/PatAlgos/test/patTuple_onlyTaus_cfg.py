@@ -5,6 +5,10 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 process.load("PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi")
 
+## temporary fix until we find a more sustainable solution
+from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
+process.particleFlowPtrs = particleFlowPtrs
+
 ## make sure to keep the created objects
 process.out.outputCommands = ['keep *_selectedPat*_*_*',]
 
