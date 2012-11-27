@@ -400,7 +400,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TkSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    TkSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    TkSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   TkSystGraphs->GetYaxis()->SetRangeUser(-0.55, 0.2);
+   TkSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.60);
    TkSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -445,7 +445,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MuSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MuSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    MuSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   MuSystGraphs->GetYaxis()->SetRangeUser(-0.55, 0.2);
+   MuSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.6);
    MuSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -490,7 +490,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MOSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    MOSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    MOSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   MOSystGraphs->GetYaxis()->SetRangeUser(-0.55, 0.2);
+   MOSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.6);
    MOSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -535,7 +535,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    LQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    LQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   LQSystGraphs->GetYaxis()->SetRangeUser(-0.55, 0.2);
+   LQSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.6);
    LQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -581,7 +581,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    HQSystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
    HQSystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
    HQSystGraphs->GetYaxis()->SetTitleOffset(1.70);
-   HQSystGraphs->GetYaxis()->SetRangeUser(-0.55, 0.2);
+   HQSystGraphs->GetYaxis()->SetRangeUser(0.0, 0.6);
    HQSystGraphs->GetYaxis()->SetNdivisions(520, "X");
 
    LEG->Draw();
@@ -1197,6 +1197,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
    double* SystRe    = new double   [modelSample.size()];
    double* SystMB    = new double   [modelSample.size()];
    double* SystTotal = new double   [modelSample.size()];
+   double* SystTotal2 = new double   [modelSample.size()];
 
    for(unsigned int s=0;s<modelSample.size();s++){
       if(modelSample[s].Type!=2)continue;
@@ -1235,6 +1236,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
 //      double Ptemp=max(SystP[N], 0.0), Itemp=max(SystI[N], 0.0), PUtemp=max(SystPU[N], 0.0), Ttemp=max(SystT[N], 0.0);
       double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
       SystTotal[N] = -1*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp + SystTr[N]*SystTr[N] + SystRe[N]*SystRe[N] + SystMB[N]*SystMB[N]);
+      SystTotal2[N] = -1*SystTotal[N]; 
 
       if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f"        ,modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N]           , SystTotal[N]);  
       else          fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f | %7.3f",modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N], SystT[N], SystTotal[N]);
@@ -1263,6 +1265,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
    TGraph* graphSystRe = NULL;
    TGraph* graphSystMB = NULL;
    TGraph* graphSystTotal = NULL;
+   TGraph* graphSystTotal2 = NULL;
 
    if(N>0) {
      TCanvas* c2 = new TCanvas("c2", "c2",600,600);
@@ -1276,6 +1279,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      graphSystRe = new TGraph(N,Mass,SystRe);
      graphSystMB = new TGraph(N,Mass,SystMB);
      graphSystTotal = new TGraph(N,Mass,SystTotal);
+     graphSystTotal2 = new TGraph(N,Mass,SystTotal2);
      TMultiGraph* SystGraphs = new TMultiGraph();
 
      graphSystTotal->GetYaxis()->SetTitle("CrossSection ( pb )");
@@ -1300,7 +1304,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      SystGraphs->Draw("A");
      SystGraphs->SetTitle("");
      SystGraphs->GetXaxis()->SetTitle("Mass (GeV)");
-     SystGraphs->GetYaxis()->SetTitle("Relative Uncertainty");
+     SystGraphs->GetYaxis()->SetTitle("Relative Change in Efficiency");
      SystGraphs->GetYaxis()->SetTitleOffset(1.70);
      SystGraphs->GetYaxis()->SetRangeUser(-0.55, 0.35);
      SystGraphs->GetYaxis()->SetNdivisions(520, "X");
@@ -1328,7 +1332,7 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
    //delete SystGraphs;
    }
 
-   return graphSystTotal;
+   return graphSystTotal2;
 }
 
 

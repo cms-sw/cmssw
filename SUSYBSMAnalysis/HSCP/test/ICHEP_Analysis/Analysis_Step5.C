@@ -65,7 +65,7 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
-   SelectionPlot(InputPattern, CutIndex);
+   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
 
 
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
@@ -81,7 +81,7 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
-   SelectionPlot(InputPattern, CutIndex);
+   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    GetSystematicOnPrediction(InputPattern, "Data7TeV");
    GetSystematicOnPrediction(InputPattern, "Data8TeV");
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
@@ -92,7 +92,7 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    //CutFlow(InputPattern, CutIndex);
-   SelectionPlot(InputPattern, CutIndex);
+   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    CosmicBackgroundSystematic(InputPattern, "8TeV");
    CosmicBackgroundSystematic(InputPattern, "7TeV");
    CheckPrediction(InputPattern, "", "Data8TeV");
@@ -129,8 +129,8 @@ void Analysis_Step5()
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   SelectionPlot(InputPattern, CutIndex);
-   //CutFlow(InputPattern);
+   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
+   CutFlow(InputPattern);
 
 
      //This function has not yet been reviewed after july's update
@@ -156,8 +156,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    //README: Comments or uncomment lines below in order to decide what you want to see on your plot
    if(DataName.find("8TeV")!=string::npos){
-                    SName="Gluino_7TeV_M600_f10";     SLeg="Gluino (M=600 GeV/#font[12]{c}^{2})";
-      if(!IsTkOnly){SName="GMStau_7TeV_M156";         SLeg="Stau (M=156 GeV/#font[12]{c}^{2})";}
+                    SName="Gluino_7TeV_M1000_f10";     SLeg="Gluino (M=1000 GeV/#font[12]{c}^{2})";
+      if(!IsTkOnly){SName="GMStau_7TeV_M308";         SLeg="Stau (M=308 GeV/#font[12]{c}^{2})";}
 
       Pred8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
       Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
@@ -167,8 +167,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_8TeV/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
       Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
    }else{
-                    SName="Gluino_7TeV_M600_f10";     SLeg="Gluino (M=600 GeV/#font[12]{c}^{2})";
-      if(!IsTkOnly){SName="GMStau_7TeV_M156";         SLeg="Stau (M=156 GeV/#font[12]{c}^{2})";}
+                    SName="Gluino_7TeV_M1000_f10";     SLeg="Gluino (M=1000 GeV/#font[12]{c}^{2})";
+      if(!IsTkOnly){SName="GMStau_7TeV_M308";         SLeg="Stau (M=308 GeV/#font[12]{c}^{2})";}
 
       Pred8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPredMass"   ,CutIndex+1,CutIndex+1,"o");
       Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");

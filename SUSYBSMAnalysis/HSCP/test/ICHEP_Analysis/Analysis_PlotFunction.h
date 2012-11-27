@@ -325,5 +325,53 @@ TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High,
 }
 
 
+std::string toLatexRounded(double value, double error=-1, double systError=-1)
+{
+  using namespace std;
+  if(value==0.0 && error==0.0)return string("");
+
+  double power = floor(log10(value));
+  if(power<=-3)     {power=power+3;
+  }else if(power>=2){power=power-2;
+  }else             {power=0;}
+
+   value = value / pow(10,power);
+   if(error>=0)error = error / pow(10,power);
+   if(systError>=0)systError = systError / pow(10,power);
+   int ValueFloating;
+   if(systError<0){
+      ValueFloating = 1 + std::max(-1*log10(error),0.0);
+   }else{
+      ValueFloating = 1 + std::max(-1*log10(systError), std::max(-1*log10(error),0.0));
+   }
+   int ErrorFloating = ValueFloating;
+
+   char tmpchar[255];
+   if(power!=0){
+     if(systError<0){
+        if(error<0){
+           sprintf(tmpchar,"$(%.*f)\\times 10^{%g}$",ValueFloating,value,power);
+        }else{
+           sprintf(tmpchar,"$(%.*f\\pm%.*f)\\times 10^{%g}$",ValueFloating,value,ErrorFloating,error,power);
+        }
+     }else{
+        sprintf(tmpchar,"$(%.*f\\pm%.*f\\pm%.*f)\\times 10^{%g}$",ValueFloating,value,ErrorFloating,error,ErrorFloating,systError,power);
+     }
+
+   }else{
+     if(systError<0){
+        if(error<0){
+           sprintf(tmpchar,"$%.*f$",ValueFloating,value);
+        }else{
+           sprintf(tmpchar,"$%.*f\\pm%.*f$",ValueFloating,value,ErrorFloating,error);
+        }
+     }else{
+        sprintf(tmpchar,"$%.*f\\pm%.*f\\pm%.*f$",ValueFloating,value,ErrorFloating,error,ErrorFloating,systError);
+     }
+   }
+   return string(tmpchar);
+}
+
+
 
 #endif
