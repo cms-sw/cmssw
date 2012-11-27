@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Mon Oct 27 17:37:53 CET 2008
-// $Id: OccupancyPlots.cc,v 1.5 2012/02/15 11:13:25 venturia Exp $
+// $Id: OccupancyPlots.cc,v 1.1 2012/03/26 17:13:02 venturia Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
-#include "DPGAnalysis/SiStripTools/interface/DetIdSelector.h"
+#include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"

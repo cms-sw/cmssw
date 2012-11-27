@@ -43,7 +43,7 @@
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
-#include "DPGAnalysis/SiStripTools/interface/DetIdSelector.h"
+#include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 //******** Single include for the TkMap *************
