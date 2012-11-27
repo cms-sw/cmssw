@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patJets = cms.EDProducer("PATJetProducer",
     # input
-    jetSource = cms.InputTag("ak5PFJets"),
+    jetSource = cms.InputTag("ak5CaloJets"),
     # add user data
     userData = cms.PSet(
       # add custom classes here
