@@ -35,10 +35,12 @@ TrackWithHistory::TrackWithHistory(const G4Track * g4trk) :
     localTime_  = g4trk->GetLocalTime();
     properTime_  = g4trk->GetProperTime();
     creatorProcess_ = g4trk->GetCreatorProcess();
-    weight_ = g4trk->GetWeight();
     storeTrack_ = extractor(g4trk).storeTrack();
     saved_ = false;
     genParticleID_ = extractGenID( g4trk);
+    // V.I. weight is computed in the same way as before
+    // without usage of G4Track::GetWeight()
+    weight_ = 10000*genParticleID_;
 #ifdef DEBUG	
     LogDebug("TrackInformation") << " TrackWithHistory : created history for " << trackID_
 				 << " with mother " << parentID_;
