@@ -105,7 +105,6 @@ namespace edm {
     // this PrincipalGetAdapter. The friendships required seems gross, but any
     // alternative is not great either.  Putting it into the
     // public interface is asking for trouble
-    friend class ConfigurableInputSource;
     friend class InputSource;
     friend class DaqSource;
     friend class RawInputSource;
