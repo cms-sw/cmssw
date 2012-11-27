@@ -189,8 +189,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	}
       }  
     }
-  double wt2 = aTrack->GetWeight();
   /*
+  double wt2 = aTrack->GetWeight();
   if(wt2 != 1.0) { 
     G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
     std::cout << "StackingAction: weight= " << wt2 << " "
