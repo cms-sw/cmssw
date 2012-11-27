@@ -1,6 +1,7 @@
 #include "DQMOffline/RecoB/plugins/PrimaryVertexMonitor.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
@@ -172,15 +173,15 @@ void PrimaryVertexMonitor::vertexPlots(const Vertex & v, const BeamSpot& beamSpo
       yerrVsTrks[i]->Fill(weight, v.yError()*10000);
       zerrVsTrks[i]->Fill(weight, v.zError()*10000);
 
-      nans[i]->Fill(1.,std::isnan(v.position().x())*1.);
-      nans[i]->Fill(2.,std::isnan(v.position().y())*1.);
-      nans[i]->Fill(3.,std::isnan(v.position().z())*1.);
+      nans[i]->Fill(1.,edm::isNotFinite(v.position().x())*1.);
+      nans[i]->Fill(2.,edm::isNotFinite(v.position().y())*1.);
+      nans[i]->Fill(3.,edm::isNotFinite(v.position().z())*1.);
 
       int index = 3;
       for (int i = 0; i != 3; i++) {
 	for (int j = i; j != 3; j++) {
 	  index++;
-	  nans[i]->Fill(index*1., std::isnan(v.covariance(i, j))*1.);
+	  nans[i]->Fill(index*1., edm::isNotFinite(v.covariance(i, j))*1.);
 	  // in addition, diagonal element must be positive
 	  if (j == i && v.covariance(i, j) < 0) {
 	    nans[i]->Fill(index*1., 1.);
