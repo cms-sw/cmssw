@@ -13,7 +13,7 @@ makeTrackCandidates(process,
     particleType = 'pi+',
     preselection = 'pt > 10',
     selection    = 'pt > 10',
-    isolation    = {'tracker':0.3, 'ecalTowers':0.3, 'hcalTowers':0.3},
+    isolation    = {'tracker':0.3}, ##, 'ecalTowers':0.3, 'hcalTowers':0.3}, ## no caloTowers in the event content any more
     isoDeposits  = [],
     mcAs         = 'muon'
 )
