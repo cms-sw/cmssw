@@ -2,7 +2,7 @@
 
 /*
 TSiTrackerMultiRecHit::TSiTrackerMultiRecHit(const GeomDet * geom, const std::vector<const TrackingRecHit*>& rhs, const SiTrackerMultiRecHitUpdator* updator, const TrajectoryStateOnSurface& tsos):
-TransientTrackingRecHit(geom), theUpdator(updator){
+TValidTrackingRecHit(geom), theUpdator(updator){
         theHitData  = theUpdator->buildMultiRecHit(tsos, rhs, theComponents);
 	setAnnealingFactor(theUpdator->getCurrentAnnealingValue()); 
 }

@@ -3,7 +3,7 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiPixelRecHit_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -11,7 +11,7 @@
 
 // class GeomDetUnit;
 
-class TSiPixelRecHit GCC11_FINAL : public TransientTrackingRecHit {
+class TSiPixelRecHit GCC11_FINAL : public TValidTrackingRecHit {
 public:
 
   typedef SiPixelRecHit::ClusterRef clusterRef;

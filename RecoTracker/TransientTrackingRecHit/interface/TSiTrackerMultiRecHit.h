@@ -1,7 +1,7 @@
 #ifndef TSiTrackerMultiRecHit_h
 #define TSiTrackerMultiRecHit_h
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -10,7 +10,7 @@
 A TransientTrackingRecHit for the SiTrackerMultiRecHit
 */
 
-class TSiTrackerMultiRecHit GCC11_FINAL : public TransientTrackingRecHit {
+class TSiTrackerMultiRecHit GCC11_FINAL : public TValidTrackingRecHit {
 public:
   //virtual ~TSiTrackerMultiRecHit() {delete theHitData;}
   virtual ~TSiTrackerMultiRecHit() {}
@@ -82,7 +82,7 @@ private:
  
   TSiTrackerMultiRecHit(const GeomDet * geom, const SiTrackerMultiRecHit* rh,  
 			const ConstRecHitContainer& components, float annealing):
-    TransientTrackingRecHit(geom), theHitData(*rh), theComponents(components), annealing_(annealing){}
+    TValidTrackingRecHit(geom), theHitData(*rh), theComponents(components), annealing_(annealing){}
   
   virtual TSiTrackerMultiRecHit* clone() const {
     return new TSiTrackerMultiRecHit(*this);

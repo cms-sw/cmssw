@@ -1,12 +1,12 @@
 #ifndef RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit2DPosConstraint_H
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit2DPosConstraint_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 class GeomDetUnit;
 
-class TRecHit2DPosConstraint GCC11_FINAL : public TransientTrackingRecHit {
+class TRecHit2DPosConstraint GCC11_FINAL : public TValidTrackingRecHit {
 public:
 
   virtual ~TRecHit2DPosConstraint() {}

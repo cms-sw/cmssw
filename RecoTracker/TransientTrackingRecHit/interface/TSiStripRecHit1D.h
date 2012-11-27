@@ -2,12 +2,12 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiStripRecHit1D_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 
-class TSiStripRecHit1D GCC11_FINAL : public TransientTrackingRecHit{
+class TSiStripRecHit1D GCC11_FINAL : public TValidTrackingRecHit {
 public:
 
   typedef SiStripRecHit1D::ClusterRef SiStripClusterRef;
@@ -101,7 +101,7 @@ private:
 		    const GeomDet* det,
 		    const OmniClusterRef & clust,
 		    const StripClusterParameterEstimator* cpe) :
-    TransientTrackingRecHit(det), 
+    TValidTrackingRecHit(det), 
     theCPE(cpe), theHitData(pos, err, det->geographicalId(), clust){} 
 
 

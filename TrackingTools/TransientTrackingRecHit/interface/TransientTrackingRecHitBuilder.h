@@ -1,7 +1,7 @@
 #ifndef TRACKINGTOOLS_TRANSIENTRECHITBUILDER_H
 #define TRACKINGTOOLS_TRANSIENTRECHITBUILDER_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 
 class TransientTrackingRecHitBuilder {
 public:

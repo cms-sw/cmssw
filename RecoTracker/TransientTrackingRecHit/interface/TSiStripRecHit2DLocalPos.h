@@ -2,14 +2,14 @@
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TSiStripRecHit2DLocalPos_H
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include "DataFormats/Common/interface/RefGetter.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class TSiStripRecHit2DLocalPos GCC11_FINAL : public TransientTrackingRecHit{
+class TSiStripRecHit2DLocalPos GCC11_FINAL : public TValidTrackingRecHit {
 public:
   
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
@@ -96,7 +96,7 @@ private:
   TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2D* rh,
 			    const StripClusterParameterEstimator* cpe,
 			    bool computeCoarseLocalPosition) : 
-    TransientTrackingRecHit(geom), theCPE(cpe) 
+    TValidTrackingRecHit(geom), theCPE(cpe) 
   {
     if (rh->hasPositionAndError() || !computeCoarseLocalPosition) {
       theHitData = SiStripRecHit2D(*rh);
@@ -125,7 +125,7 @@ private:
 			    const GeomDet* det,
 			    const OmniClusterRef & clust,
 			    const StripClusterParameterEstimator* cpe) :
-    TransientTrackingRecHit(det), 
+    TValidTrackingRecHit(det), 
     theCPE(cpe), theHitData(pos, err, det->geographicalId(), clust) {} 
     
   virtual TSiStripRecHit2DLocalPos* clone() const {

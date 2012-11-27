@@ -13,7 +13,7 @@ class LocalError;
 class GeomDet;
 
 
-class HelpertRecHit2DLocalPos //: public TransientTrackingRecHit 
+class HelpertRecHit2DLocalPos //: public TValidTrackingRecHit 
 {
 public:
 

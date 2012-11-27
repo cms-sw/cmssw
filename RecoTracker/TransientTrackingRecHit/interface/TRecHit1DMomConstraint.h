@@ -1,11 +1,11 @@
 #ifndef RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit1DMomConstraint_H
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit1DMomConstraint_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 
 class GeomDetUnit;
 
-class TRecHit1DMomConstraint GCC11_FINAL : public TransientTrackingRecHit {
+class TRecHit1DMomConstraint GCC11_FINAL : public TValidTrackingRecHit {
  public:
 
   virtual ~TRecHit1DMomConstraint() {}

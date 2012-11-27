@@ -1,10 +1,10 @@
 #ifndef TransientTrackingRecHitByValue_H
 #define TransientTrackingRecHitByValue_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 
 template<typename RecHit>
-class TransientTrackingRecHitByValue: public TransientTrackingRecHit{
+class TransientTrackingRecHitByValue: public TValidTrackingRecHit{
 public:
   typedef TrackingRecHit::Type Type;
   
@@ -21,7 +21,7 @@ public:
   virtual bool canImproveWithTrack() const {return false;}
   
   virtual const RecHit * hit() const GCC11_FINAL {return &m_trackingRecHit;};
-  
+  RecHit * cloneHit() const  GCC11_FINAL { return m_trackingRecHit.clone();}
   
   virtual std::vector<const TrackingRecHit*> recHits() const {
     return hit()->recHits();
@@ -38,12 +38,12 @@ protected:
   
   // private constructors enforce usage of builders
   TransientTrackingRecHitByValue(const GeomDet * geom, const RecHit& rh) :
-    TransientTrackingRecHit(geom,rh), m_trackingRecHit(rh) {
+    TValidTrackingRecHit(geom,rh), m_trackingRecHit(rh) {
   }
   
   
   TransientTrackingRecHitByValue( const TransientTrackingRecHitByValue<RecHit> & other ) :
-    TransientTrackingRecHit( other.det(),other), m_trackingRecHit(*other.hit()) {
+    TValidTrackingRecHit( other.det(),other), m_trackingRecHit(*other.hit()) {
   }
   
 private:

@@ -29,29 +29,21 @@ public:
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
   explicit TransientTrackingRecHit(const GeomDet * geom=0) : 
-    TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), 
-    geom_(geom),
-    errorR_(0),errorZ_(0),errorRPhi_(0),
-    hasGlobalPosition_(false), hasGlobalError_(false){countTTRH(type());}
+    TrackingRecHit(geom ? geom->geographicalId().rawId() : 0){countTTRH(type());}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid) : 
     TrackingRecHit(id, type), 
-    geom_(geom),
-    errorR_(0),errorZ_(0),errorRPhi_(0),
-    hasGlobalPosition_(false),hasGlobalError_(false){countTTRH(type);}
+    geom_(geom){countTTRH(type);}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid) : 
     TrackingRecHit(id, type),
-    geom_(geom),
-    errorR_(0),errorZ_(0),errorRPhi_(0),
-    hasGlobalPosition_(false),hasGlobalError_(false){countTTRH(type);}
+    geom_(geom){countTTRH(type);}
   
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh) : 
     TrackingRecHit(rh.geographicalId(), rh.type()),
-    geom_(geom),
-    errorR_(0),errorZ_(0),errorRPhi_(0),
-    hasGlobalPosition_(false),hasGlobalError_(false){countTTRH(type());}
+    geom_(geom){countTTRH(type());}
 
+  virtual ~TransientTrackingRecHit(){}
 
 
   // Extension of the TrackingRecHit interface
@@ -65,12 +57,12 @@ public:
   /// Always check this pointer before using it!
   virtual const GeomDetUnit * detUnit() const;
 
-  virtual GlobalPoint globalPosition() const ;
-  virtual GlobalError globalPositionError() const ;
+  virtual GlobalPoint globalPosition() const =0;
+  virtual GlobalError globalPositionError() const =0;
 
-  float errorGlobalR() const;
-  float errorGlobalZ() const;
-  float errorGlobalRPhi() const;
+  virtual float errorGlobalR() const=0;
+  virtual float errorGlobalZ() const=0;
+  virtual float errorGlobalRPhi() const=0;
 
   /// Returns a copy of the hit with parameters and errors computed with respect 
   /// to the TrajectoryStateOnSurface given as argument.
@@ -85,6 +77,9 @@ public:
   virtual bool canImproveWithTrack() const {return false;}
 
   virtual const TrackingRecHit * hit() const = 0;
+
+  // clone the corresponding Persistent Hit
+  virtual TrackingRecHit * cloneHit() const = 0;
   
   /// Composite interface: returns the component hits, if any
   virtual ConstRecHitContainer transientHits() const;
@@ -94,17 +89,9 @@ public:
   virtual float clusterProbability() const { return 1.f; }
 
 private:
-  void setPositionErrors() const;
-
-  // caching of some variable for fast access
-  mutable GlobalPoint globalPosition_;  
 
   const GeomDet * geom_ ;
 
-  mutable float errorR_,errorZ_,errorRPhi_;
-  mutable bool hasGlobalPosition_;
-  mutable bool hasGlobalError_;
- 
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
   virtual TransientTrackingRecHit * clone() const = 0;
