@@ -15,6 +15,7 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h" 
@@ -114,7 +115,7 @@ void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
 
 void CaloHitResponse::add( const PCaloHit& hit ) {
   // check the hit time makes sense
-  if ( isnan(hit.time()) ) { return; }
+  if ( edm::isNotFinite(hit.time()) ) { return; }
 
   // maybe it's not from this subdetector
   if(theHitFilter == 0 || theHitFilter->accepts(hit)) {

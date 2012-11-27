@@ -1,4 +1,5 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 TtSemiLRSignalSelObservables::TtSemiLRSignalSelObservables()
 {
@@ -251,11 +252,11 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   double Sphericity = 1.5*(EigValues[1]+EigValues[2]);
   double Aplanarity = 1.5*EigValues[2];
   
-  double Obs15 = (isnan(Sphericity) ? 0 : Sphericity);
+  double Obs15 = (edm::isNotFinite(Sphericity) ? 0 : Sphericity);
   evtselectVarVal.push_back(std::pair<unsigned int,double>(15,Obs15));
   if(DEBUG) std::cout<<"------ LR observable 15 "<<Obs15<<" calculated ------"<<std::endl;
   
-  double Obs16 = (isnan(Aplanarity) ? 0 : Aplanarity);
+  double Obs16 = (edm::isNotFinite(Aplanarity) ? 0 : Aplanarity);
   evtselectVarVal.push_back(std::pair<unsigned int,double>(16,Obs16));
   if(DEBUG) std::cout<<"------ LR observable 16 "<<Obs16<<" calculated ------"<<std::endl;
   
@@ -301,11 +302,11 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   double BOOST_Sphericity = 1.5*(BOOST_EigValues[1]+BOOST_EigValues[2]);
   double BOOST_Aplanarity = 1.5*BOOST_EigValues[2];
   
-  double Obs17 = ( isnan(BOOST_Sphericity) ? 0 : BOOST_Sphericity );
+  double Obs17 = ( edm::isNotFinite(BOOST_Sphericity) ? 0 : BOOST_Sphericity );
   evtselectVarVal.push_back(std::pair<unsigned int,double>(17,Obs17));
   if(DEBUG) std::cout<<"------ LR observable 17 "<<Obs17<<" calculated ------"<<std::endl;
   
-  double Obs18 = ( isnan(BOOST_Aplanarity) ? 0 : BOOST_Aplanarity );
+  double Obs18 = ( edm::isNotFinite(BOOST_Aplanarity) ? 0 : BOOST_Aplanarity );
   evtselectVarVal.push_back(std::pair<unsigned int,double>(18,Obs18));
   if(DEBUG) std::cout<<"------ LR observable 18 "<<Obs18<<" calculated ------"<<std::endl;
   
@@ -524,11 +525,11 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   double Sphericity_NoNu = 1.5*(EigValues_NoNu[1]+EigValues_NoNu[2]);
   double Aplanarity_NoNu = 1.5*EigValues_NoNu[2];
   
-  double Obs35 = (isnan(Sphericity_NoNu) ? 0 : Sphericity_NoNu);
+  double Obs35 = (edm::isNotFinite(Sphericity_NoNu) ? 0 : Sphericity_NoNu);
   evtselectVarVal.push_back(std::pair<unsigned int,double>(35,Obs35));
   if(DEBUG) std::cout<<"------ LR observable 35 "<<Obs35<<" calculated ------"<<std::endl;
   
-  double Obs36 = (isnan(Aplanarity_NoNu) ? 0 : Aplanarity_NoNu);
+  double Obs36 = (edm::isNotFinite(Aplanarity_NoNu) ? 0 : Aplanarity_NoNu);
   evtselectVarVal.push_back(std::pair<unsigned int,double>(36,Obs36));
   if(DEBUG) std::cout<<"------ LR observable 36 "<<Obs36<<" calculated ------"<<std::endl;
   
@@ -564,11 +565,11 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::
   double Sphericity_NoNuNoLep = 1.5*(EigValues_NoNuNoLep[1]+EigValues_NoNuNoLep[2]);
   double Aplanarity_NoNuNoLep = 1.5*EigValues_NoNuNoLep[2];
   
-  double Obs37 = (isnan(Sphericity_NoNuNoLep) ? 0 : Sphericity_NoNuNoLep);
+  double Obs37 = (edm::isNotFinite(Sphericity_NoNuNoLep) ? 0 : Sphericity_NoNuNoLep);
   evtselectVarVal.push_back(std::pair<unsigned int,double>(37,Obs37));
   if(DEBUG) std::cout<<"------ LR observable 37 "<<Obs37<<" calculated ------"<<std::endl;
   
-  double Obs38 = (isnan(Aplanarity_NoNuNoLep) ? 0 : Aplanarity_NoNuNoLep);
+  double Obs38 = (edm::isNotFinite(Aplanarity_NoNuNoLep) ? 0 : Aplanarity_NoNuNoLep);
   evtselectVarVal.push_back(std::pair<unsigned int,double>(38,Obs38));
   if(DEBUG) std::cout<<"------ LR observable 38 "<<Obs38<<" calculated ------"<<std::endl;
   

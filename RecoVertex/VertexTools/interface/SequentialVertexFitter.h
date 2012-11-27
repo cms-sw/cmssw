@@ -8,6 +8,7 @@
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include <cmath>
 // #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 // #include "Vertex/VertexPrimitives/interface/VertexSeedFactory.h"
@@ -242,7 +243,7 @@ private:
    */
   inline bool hasNan(const GlobalPoint& point) const {
     using namespace std;
-    return (isnan(point.x())|| isnan(point.y()) || isnan(point.z()));
+    return (edm::isNotFinite(point.x())|| edm::isNotFinite(point.y()) || edm::isNotFinite(point.z()));
   }
 
 

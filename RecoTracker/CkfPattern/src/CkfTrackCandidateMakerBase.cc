@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -347,7 +348,7 @@ namespace cms{
 	   theInitialState->innerState( *it , doBackFit);
 
 	 // temporary protection againt invalid initial states
-	 if (! initState.first.isValid() || initState.second == 0 || std::isnan(initState.first.globalPosition().x())) {
+	 if (! initState.first.isValid() || initState.second == 0 || edm::isNotFinite(initState.first.globalPosition().x())) {
 	   //cout << "invalid innerState, will not make TrackCandidate" << endl;
 	   continue;
 	 }

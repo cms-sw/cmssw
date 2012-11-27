@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.14 2009/06/03 09:50:14 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.15 2010/01/26 19:40:04 saout Exp $
 //
 
 #include <vector>
@@ -23,6 +23,7 @@
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/Spline.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 using namespace PhysicsTools;
 
@@ -393,10 +394,10 @@ std::vector<double> ProcLikelihood::deriv(ValueIterator iter,
 				signal *= signalProb;
 				background *= backgroundProb;
 				double s = signalDiff / signalProb;
-				if (std::isinf(s) || std::isnan(s))
+				if (edm::isNotFinite(s))
 					s = 0.0;
 				double b = backgroundDiff / backgroundProb;
-				if (std::isinf(b) || std::isnan(b))
+				if (edm::isNotFinite(b))
 					b = 0.0;
 
 				result[j] = s - b;

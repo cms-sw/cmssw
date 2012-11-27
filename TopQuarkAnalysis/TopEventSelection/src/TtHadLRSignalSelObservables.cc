@@ -1,4 +1,5 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtHadLRSignalSelObservables.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 TtHadLRSignalSelObservables::TtHadLRSignalSelObservables()
 {
@@ -198,10 +199,10 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   double Sphericity = 1.5*(EigValues[1]+EigValues[2]);
   double Aplanarity = 1.5*EigValues[2];
   
-  double Obs12 = (isnan(Sphericity) ? -1 : Sphericity);
+  double Obs12 = (edm::isNotFinite(Sphericity) ? -1 : Sphericity);
   evtselectVarVal.push_back(std::pair<unsigned int,double>(12,Obs12));
   
-  double Obs13 = (isnan(Aplanarity) ? -1 : Aplanarity);
+  double Obs13 = (edm::isNotFinite(Aplanarity) ? -1 : Aplanarity);
   evtselectVarVal.push_back(std::pair<unsigned int,double>(13,Obs13));
   
   
@@ -255,10 +256,10 @@ void TtHadLRSignalSelObservables::operator() (TtHadEvtSolution &TS)
   double BOOST_Sphericity = 1.5*(BOOST_EigValues[1]+BOOST_EigValues[2]);
   double BOOST_Aplanarity = 1.5*BOOST_EigValues[2];
   
-  double Obs14 = ( isnan(BOOST_Sphericity) ? -1 : BOOST_Sphericity );
+  double Obs14 = ( edm::isNotFinite(BOOST_Sphericity) ? -1 : BOOST_Sphericity );
   evtselectVarVal.push_back(std::pair<unsigned int,double>(14,Obs14));
   
-  double Obs15 = ( isnan(BOOST_Aplanarity) ? -1 : BOOST_Aplanarity );
+  double Obs15 = ( edm::isNotFinite(BOOST_Aplanarity) ? -1 : BOOST_Aplanarity );
   evtselectVarVal.push_back(std::pair<unsigned int,double>(15,Obs15));
   
   
