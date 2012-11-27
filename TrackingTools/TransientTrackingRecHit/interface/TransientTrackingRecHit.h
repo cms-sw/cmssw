@@ -28,20 +28,15 @@ public:
   typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
-  explicit TransientTrackingRecHit(const GeomDet * geom=0) : 
-    TrackingRecHit(geom ? geom->geographicalId().rawId() : 0){countTTRH(type());}
 
-  explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid) : 
-    TrackingRecHit(id, type), 
-    geom_(geom){countTTRH(type);}
-
-  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid) : 
-    TrackingRecHit(id, type),
-    geom_(geom){countTTRH(type);}
+  TransientTrackingRecHit(){}
+  explicit TransientTrackingRecHit(TrackingRecHit::id_type id, Type type=valid) : 
+    TrackingRecHit(id, type)
+  {countTTRH(type);}
   
-  explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh) : 
-    TrackingRecHit(rh.geographicalId(), rh.type()),
-    geom_(geom){countTTRH(type());}
+  explicit TransientTrackingRecHit(TrackingRecHit const & rh) : 
+    TrackingRecHit(rh.geographicalId(), rh.type())
+  {countTTRH(type());}
 
   virtual ~TransientTrackingRecHit(){}
 
@@ -49,8 +44,9 @@ public:
   // Extension of the TrackingRecHit interface
 
   /// The GomeDet* can be zero for InvalidTransientRecHits and for TConstraintRecHit2Ds
-  const GeomDet * det() const {return geom_;}
-  virtual const Surface * surface() const {return &(geom_->surface());}
+
+  virtual const GeomDet * det() const =0;
+  virtual const Surface * surface() const {return &(det()->surface());}
 
   /// CAUTION: the GeomDetUnit* is zero for composite hits 
   /// (matched hits in the tracker, segments in the muon).
@@ -89,8 +85,6 @@ public:
   virtual float clusterProbability() const { return 1.f; }
 
 private:
-
-  const GeomDet * geom_ ;
 
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!

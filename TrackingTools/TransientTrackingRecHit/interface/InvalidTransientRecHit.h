@@ -18,6 +18,7 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
 
   ~InvalidTransientRecHit();
 
+  const GeomDet * det() const {return geom_;}
   const Surface* surface() const {  return  surface_; }
   
   virtual GlobalPoint globalPosition() const;
@@ -49,6 +50,7 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   void throwError() const;
   
  private:
+  const GeomDet * geom_;
   Surface const * surface_;
   
   // until all clients are migrated...
@@ -56,10 +58,11 @@ class InvalidTransientRecHit GCC11_FINAL : public TransientTrackingRecHit {
   
   /// invalid RecHit - has only GeomDet and Type
   InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type) :
-    Base( geom,  geom == nullptr ? DetId(0) : geom->geographicalId(), type), 
-     surface_(geom ? &(det()->surface()) : ( layer ?  &(layer->surface()) : nullptr)),
+    Base(geom == nullptr ? DetId(0) : geom->geographicalId(), type), 
+    geom_(geom),
+    surface_(geom ? &(det()->surface()) : ( layer ?  &(layer->surface()) : nullptr)),
     me( geom == nullptr ? DetId(0) : geom->geographicalId(), type)
-    {}
+      {}
   
     // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!

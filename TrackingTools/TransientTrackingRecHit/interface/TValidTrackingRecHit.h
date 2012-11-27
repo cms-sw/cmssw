@@ -20,8 +20,8 @@ public:
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
   template<typename... Args>
-  TValidTrackingRecHit(Args && ...args) : 
-    TransientTrackingRecHit(std::forward<Args>(args)...),
+  TValidTrackingRecHit(const GeomDet * geom, Args && ...args) : 
+    TransientTrackingRecHit(std::forward<Args>(args)...), geom_(geom),
     errorR_(0),errorZ_(0),errorRPhi_(0),
     hasGlobalPosition_(false), hasGlobalError_(false){}
 
@@ -29,7 +29,7 @@ public:
   TrackingRecHit * cloneHit() const { return hit()->clone();}
 
   // Extension of the TrackingRecHit interface
-
+  virtual const GeomDet * det() const GCC11_FINAL {return geom_;}
   virtual const Surface * surface() const GCC11_FINAL {return &(det()->surface());}
 
 
@@ -54,11 +54,20 @@ public:
 private:
   void setPositionErrors() const dso_internal;
 
+  // this is an order that must be preserved!
+
+   mutable GlobalPoint globalPosition_;  
+
+  const GeomDet * geom_ ;
+
   // caching of some variable for fast access
-  mutable GlobalPoint globalPosition_;  
   mutable float errorR_,errorZ_,errorRPhi_;
   mutable bool hasGlobalPosition_;
   mutable bool hasGlobalError_;
+
+
+
+ 
  
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
