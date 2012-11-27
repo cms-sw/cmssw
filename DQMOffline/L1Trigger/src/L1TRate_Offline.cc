@@ -1,8 +1,8 @@
  /*
  * \file L1TRate_Offline.cc
  *
- * $Date: 2012/11/20 17:02:27 $
- * $Revision: 1.3 $
+ * $Date: 2012/11/26 14:56:56 $
+ * $Revision: 1.4 $
  * \author J. Pela, P. Musella
  *
  */
@@ -141,17 +141,11 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
   m_selectedTriggers = myMenuHelper.getLUSOTrigger(m_inputCategories,m_refPrescaleSet);
 
   //-> Getting template fits for the algLo cross sections
-//fn Online-ONLY   int srcAlgoXSecFit = m_parameters.getParameter<int>("srcAlgoXSecFit");
-//fn Online-ONLY      if     (srcAlgoXSecFit == 0){getXSexFitsOMDS  (m_parameters);}
-//fn Online-ONLY      else if(srcAlgoXSecFit == 1){getXSexFitsPython(m_parameters);}
-
   getXSexFitsPython(m_parameters);
 
   for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo){
     m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();    
   }
-//   double minRate = m_parameters.getParameter<double>("minRate");
-//   double maxRate = m_parameters.getParameter<double>("maxRate");
 
   double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
   double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
@@ -209,13 +203,6 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 
     }
 
-//     dbe->setCurrentFolder("L1T/L1TRate_Offline/TriggerRates"); // rate of the trigger...
-//     m_xSecVsInstLumi[tTrigger] = dbe->book1D(tCategory,"Rate "+tTrigger+tErrorMessage,m_maxNbins,0.5,m_maxNbins+0.5); 
-//     m_xSecVsInstLumi[tTrigger] ->setAxisTitle("Luminosity Section" ,1);
-//     m_xSecVsInstLumi[tTrigger] ->setAxisTitle("Rate [Hz]" ,2);
-//     //REMOVE: m_xSecVsInstLumi[tTrigger] ->getTProfile()->GetListOfFunctions()->Add(tTestFunction);
-//     m_xSecVsInstLumi[tTrigger] ->getTH1()->SetMarkerStyle(23);
-
     dbe->setCurrentFolder("L1T/L1TRate_Offline/TriggerCounts"); // trigger counts...
     m_CountsVsLS[tTrigger] = dbe->bookProfile(tCategory,
                                                   "Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,
@@ -229,27 +216,11 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 
     m_algoFit[tTrigger] = (TF1*) tTestFunction->Clone("Fit_"+tTrigger); // NOTE: Workaround
     
-//     double TemplateFunctionValue = tTestFunction->Eval(900.);
-//     cout << "beginRun" << TemplateFunctionValue << endl;
-    int Nfuncs = m_CountsVsLS[tTrigger] ->getTProfile()->GetListOfFunctions()->GetEntries();
-    cout << tTrigger << "NfuncsA =" << Nfuncs << endl;
-
     dbe->setCurrentFolder("L1T/L1TRate_Offline/Ratio");
     m_xSecObservedToExpected[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("Lumi Section" ,1);
     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("#sigma_{obs} / #sigma_{exp}" ,2);
 
-//     dbe->setCurrentFolder("L1T/L1TRate_Offline/InstantLumi"); // Instant Lumi...
-//     m_InstLumiVsLS[tTrigger] = dbe->book1D(tCategory,"InstantLumi "+tTrigger+tErrorMessage,m_maxNbins,0.5,m_maxNbins+0.5); 
-//     m_InstLumiVsLS[tTrigger] ->setAxisTitle("Luminosity Section" ,1);
-//     m_InstLumiVsLS[tTrigger] ->setAxisTitle("Instant Lumi " ,2);
-//     m_InstLumiVsLS[tTrigger] ->getTH1()->SetMarkerStyle(23);
-
-//     dbe->setCurrentFolder("L1T/L1TRate_Offline/PrescIndex"); // Prescale Index...
-//     m_PrescIndexVsLS[tTrigger] = dbe->book1D(tCategory,"PrescIndex "+tTrigger+tErrorMessage,m_maxNbins,0.5,m_maxNbins+0.5); 
-//     m_PrescIndexVsLS[tTrigger] ->setAxisTitle("Luminosity Section" ,1);
-//     m_PrescIndexVsLS[tTrigger] ->setAxisTitle("Prescale Index " ,2);
-//     m_PrescIndexVsLS[tTrigger] ->getTH1()->SetMarkerStyle(23);
 
   }
 
@@ -293,12 +264,9 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   // Resetting MonitorElements so we can refill them
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
     string tTrigger      = (*i).second;
-    //m_xSecVsInstLumi        [tTrigger]->getTH1()->Reset("ICE");
     m_CountsVsLS            [tTrigger]->getTH1()->Reset("ICE");
-    m_xSecObservedToExpected[tTrigger]->getTH1()->Reset("ICE");
-    
-    //     m_InstLumiVsLS            [tTrigger]->getTH1()->Reset("ICE");
-    //     m_PrescIndexVsLS            [tTrigger]->getTH1()->Reset("ICE");
+    m_xSecObservedToExpected[tTrigger]->getTH1()->Reset("ICE");    
+
   }
   
   //Trying to do the same with Counts....
@@ -314,16 +282,14 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
     else{
       isDefLumi=true;
       lumi=m_lsLuminosity[lsOffline];
-      cout << "lumi [" << lsOffline << "] =" << m_lsLuminosity[lsOffline] << endl;
     }
     
-    lsPreInd = lsOffline + 1;
+    lsPreInd = lsOffline + 1; // NOTE: Workaround
     
     if(m_lsPrescaleIndex.find(lsPreInd)==m_lsPrescaleIndex.end()){isDefPrescaleIndex=false;}
     else{
       isDefPrescaleIndex=true;
       prescalesIndex=m_lsPrescaleIndex[lsPreInd];
-      cout << "prescalesIndex [" << lsPreInd << "] =" << m_lsPrescaleIndex[lsPreInd] << endl;
     }
     
     if(isDefCount && isDefLumi && isDefPrescaleIndex){
@@ -338,15 +304,10 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
         //   TF1*   tTestFunction = (TF1*) m_CountsVsLS[tTrigger]->getTProfile()->GetListOfFunctions()->First();
         TF1* tTestFunction = m_algoFit[tTrigger]; // NOTE: Workaround....
         
-        int Nfuncs = m_CountsVsLS[tTrigger] ->getTProfile()->GetListOfFunctions()->GetEntries();
-        cout << tTrigger << " NfuncsB=" << Nfuncs << endl;
-        cout << "lumi,count,PreInd = " << lumi<<" | "<< trigCount<<" | "<<prescalesIndex << endl;
         
         // If trigger name is defined we get the rate fit parameters 
         if(tTrigger != "Undefined"){
           
-          //unsigned int   trigBit      = m_algoBit[tTrigger];
-          //double trigPrescale = currentPrescaleFactors[trigBit];
           
           if(lumi!=0 && trigCount!=0 && prescalesIndex!=0){
             
@@ -359,11 +320,10 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
             int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(lsOffline);
             m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,AlgoXSec/TemplateFunctionValue);
             
-            cout << "Results algo:"<<tTrigger<<" prediction:"<<TemplateFunctionValue<<" xsec:"<<AlgoXSec<<" test:"<< AlgoXSec/TemplateFunctionValue<<endl;
             
           }
           else {
-            m_CountsVsLS  [tTrigger]->Fill(999.,999.);
+            m_CountsVsLS  [tTrigger]->Fill(0.000001,0.000001);
             
             int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(lsOffline);
             m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,0.000001);
@@ -373,15 +333,6 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
     }    
   }
 }
-//             int ibin = m_CountsVsLS[tTrigger]->getTH1()->FindBin(lsOffline);
-//             int kbin = m_InstLumiVsLS[tTrigger]->getTH1()->FindBin(lsOffline);
-//             int lbin = m_PrescIndexVsLS[tTrigger]->getTH1()->FindBin(lsOffline);
-
-//             m_xSecVsInstLumi[tTrigger]->setBinContent(trigCount,ibin);
-
-//             m_CountsVsLS  [tTrigger]->setBinContent(ibin,trigCount);
-//             m_InstLumiVsLS  [tTrigger]->setBinContent(kbin,lumi);
-//             m_PrescIndexVsLS  [tTrigger]->setBinContent(lbin,prescalesIndex);
 
 
 //_____________________________________________________________________
@@ -415,10 +366,6 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
       
       map<TString,double> bufferCount;
  
-//     for(unsigned i=0; i<gtAlgoCounts.size(); i++){
-
-//     cout << "bit " << i << " count: " << gtAlgoCounts[i] << endl;
-
       // Buffer the rate informations for all selected bits
       for(map<string,string>::const_iterator i=m_selectedTriggers.begin(); i!=m_selectedTriggers.end() ; i++){
 	
@@ -431,7 +378,6 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
           double trigCount = gtAlgoCounts[trigBit]; 
   
           bufferCount[tTrigger] = trigCount;
-	  //cout << "bit =" << trigBit << " count =" << trigCount << endl;
 
 	}
       }
@@ -485,7 +431,7 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
       
       int CurrentPrescalesIndex  = gtFdlVectorData[indexFDL].gtPrescaleFactorIndexAlgo(); // <###### WE NEED TO STORE THIS  
       m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;
-      cout << "eventLS =" << eventLS << " - CurrentPrescalesIndex =" << CurrentPrescalesIndex << endl;
+
     }
 
   }
