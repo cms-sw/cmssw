@@ -7,6 +7,9 @@ from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
+from RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi import *
+from RecoTracker.IterativeTracking.MuonSeededStep_cff import *
+from RecoTracker.FinalTrackSelectors.preDuplicateMergingGeneralTracks_cfi import *
 from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
@@ -17,6 +20,9 @@ iterTracking = cms.Sequence(InitialStep*
                             MixedTripletStep*
                             PixelLessStep*
                             TobTecStep*
+                            earlyGeneralTracks*
+                            muonSeededStep*
+                            preDuplicateMergingGeneralTracks*
                             generalTracksSequence*
                             ConvStep*
                             conversionStepTracks

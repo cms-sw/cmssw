@@ -1,11 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
+###### Muon reconstruction module #####
+from RecoMuon.MuonIdentification.earlyMuons_cfi import earlyMuons
 
 ###### SEEDER MODELS ######
 import RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi
 import RecoTracker.SpecialSeedGenerators.inOutSeedsFromTrackerMuons_cfi
-muonSeededSeedsOutIn = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone()
-muonSeededSeedsInOut = RecoTracker.SpecialSeedGenerators.inOutSeedsFromTrackerMuons_cfi.inOutSeedsFromTrackerMuons.clone()
+muonSeededSeedsOutIn = RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi.outInSeedsFromStandaloneMuons.clone(
+    src = "earlyMuons",
+)
+muonSeededSeedsInOut = RecoTracker.SpecialSeedGenerators.inOutSeedsFromTrackerMuons_cfi.inOutSeedsFromTrackerMuons.clone(
+    src = "earlyMuons",
+)
 ### This is also needed for seeding
 from RecoTracker.SpecialSeedGenerators.outInSeedsFromStandaloneMuons_cfi import hitCollectorForOutInMuonSeeds
 
@@ -104,12 +110,12 @@ muonSeededTrackCandidatesOutIn = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.c
 import RecoTracker.TrackProducer.TrackProducer_cfi
 muonSeededTracksOutIn = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("muonSeededTrackCandidatesOutIn"),
-    AlgorithmName = cms.string('outInEcalSeededConv'),
+    AlgorithmName = cms.string('iter10'),
     Fitter = cms.string("muonSeededFittingSmootherWithOutliersRejectionAndRK"),
 )
 muonSeededTracksInOut = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("muonSeededTrackCandidatesInOut"),
-    AlgorithmName = cms.string('inOutEcalSeededConv'),
+    AlgorithmName = cms.string('iter9'),
     Fitter = cms.string("muonSeededFittingSmootherWithOutliersRejectionAndRK"),
 )
 
@@ -205,7 +211,7 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
 
 
 
-muonSeededStep = cms.Sequence(
+muonSeededStepCore = cms.Sequence(
     muonSeededSeedsInOut + muonSeededTrackCandidatesInOut + muonSeededTracksInOut +
     muonSeededSeedsOutIn + muonSeededTrackCandidatesOutIn + muonSeededTracksOutIn 
 )
@@ -213,49 +219,12 @@ muonSeededStepExtra = cms.Sequence(
     muonSeededTracksInOutSelector +
     muonSeededTracksOutInSelector
 )
-###### TURN THIS STUFF ON ######
-def insertMuonSeededSteps(process,trackingSequence):
-    process.earlyGeneralTracks = process.generalTracks.clone()
-    process.earlyMuons = process.muons1stStep.clone(
-        inputCollectionTypes = cms.vstring('inner tracks','outer tracks'),
-        inputCollectionLabels = cms.VInputTag(cms.InputTag("earlyGeneralTracks"),cms.InputTag("standAloneMuons","UpdatedAtVtx")),
-        minP         = 3.0, # was 2.5
-        minPt        = 2.0, # was 0.5
-        minPCaloMuon = 3.0, # was 1.0
-        fillCaloCompatibility = False,
-        fillEnergy = False,
-        fillGlobalTrackQuality = False,
-        fillGlobalTrackRefits  = False,
-        fillIsolation = False,
-        fillTrackerKink = False,
-    )
-    process.muonSeededSeedsInOut.src = "earlyMuons"
-    process.muonSeededSeedsOutIn.src = "earlyMuons"
-    process.generalTracks.hasSelector        = cms.vint32(0,1,1)
-    process.generalTracks.selectedTrackQuals = cms.VInputTag(
-        cms.InputTag("muonSeededTracksInOutSelector","muonSeededTracksInOutHighPurity"), 
-        cms.InputTag("muonSeededTracksInOutSelector","muonSeededTracksInOutHighPurity"), 
-        cms.InputTag("muonSeededTracksOutInSelector","muonSeededTracksOutInHighPurity"), 
-    )
-    process.generalTracks.setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(0, 1,2)))
-    process.generalTracks.TrackProducers = cms.VInputTag(
-        cms.InputTag("earlyGeneralTracks"), 
-        cms.InputTag("muonSeededTracksInOut"),
-        cms.InputTag("muonSeededTracksOutIn"),
-    )
-    process.generalTracks.FoundHitBonus  = 100.0
-    process.generalTracks.LostHitPenalty =   1.0
-    process.muonSeededSequenceInReco = cms.Sequence(
-        process.earlyGeneralTracks +
-        process.ancientMuonSeed+process.standAloneMuons +
-        process.earlyMuons +
-        process.muonSeededStep +
-        process.muonSeededStepExtra +
-        process.generalTracks
-    )
-    trackingSequence.remove(process.ancientMuonSeed)
-    trackingSequence.remove(process.standAloneMuons)
-    trackingSequence.replace(process.generalTracks, process.muonSeededSequenceInReco)
+
+muonSeededStep = cms.Sequence(
+    earlyMuons +
+    muonSeededStepCore +
+    muonSeededStepExtra 
+)
     
     
 ##### MODULES FOR DEBUGGING ###############3
