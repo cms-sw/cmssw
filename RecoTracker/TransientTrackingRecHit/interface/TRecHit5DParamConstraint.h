@@ -1,13 +1,13 @@
 #ifndef RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit5DParamConstraint_H
 #define RECOTRACKER_TRANSIENTRACKINGRECHIT_TRecHit5DParamConstraint_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 
 class GeomDetUnit;
 
-class TRecHit5DParamConstraint GCC11_FINAL : public TransientTrackingRecHit
-{
+class TRecHit5DParamConstraint GCC11_FINAL : public TransientTrackingRecHit {
 
 private:
 
@@ -50,6 +50,13 @@ public:
   virtual const GeomDet* det() const { return 0; }
 
   virtual const Surface* surface() const { return &tsos_.surface(); }
+
+  virtual GlobalPoint globalPosition() const { return  surface()->toGlobal(localPosition());}
+  virtual GlobalError globalPositionError() const { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  virtual float errorGlobalR() const {std::sqrt(globalPositionError().rerr(globalPosition()));}
+  virtual float errorGlobalZ() const {std::sqrt(globalPositionError().czz()); }
+  virtual float errorGlobalRPhi() const {globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+
 
   virtual TransientTrackingRecHit::RecHitPointer clone( const TrajectoryStateOnSurface& tsos ) const {
     //return new TRecHit5DParamConstraint( this->trajectoryState() );
