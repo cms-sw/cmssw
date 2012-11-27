@@ -92,7 +92,22 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 
   NewTrackAction newTA;
   if (aTrack->GetCreatorProcess()==0 || aTrack->GetParentID()==0) {
+    /*
+    std::cout << "StackingAction: primary weight= " 
+	      << aTrack->GetWeight() << " "
+	      << aTrack->GetDefinition()->GetParticleName()
+	      << " " << aTrack->GetKineticEnergy()
+	      << " Id=" << aTrack->GetTrackID()
+	      << "  trackInfo " << aTrack->GetUserInformation() 
+	      << std::endl;
+    */
     newTA.primary(aTrack);
+    if (!trackNeutrino) {
+      int    pdg = std::abs(aTrack->GetDefinition()->GetPDGEncoding());
+      if (pdg == 12 || pdg == 14 || pdg == 16 || pdg == 18) {
+	classification = fKill;
+      }
+    }
   } else if (aTrack->GetTouchable() == 0) {
     edm::LogError("SimG4CoreApplication")
       << "StackingAction: no touchable for track " << aTrack->GetTrackID()
@@ -174,6 +189,22 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	}
       }  
     }
+  double wt2 = aTrack->GetWeight();
+  /*
+  if(wt2 != 1.0) { 
+    G4Region* reg = aTrack->GetVolume()->GetLogicalVolume()->GetRegion();
+    std::cout << "StackingAction: weight= " << wt2 << " "
+	      << aTrack->GetDefinition()->GetParticleName()
+	      << " " << aTrack->GetKineticEnergy()
+	      << " Id=" << aTrack->GetTrackID()
+	      << " IdP=" << aTrack->GetParentID();
+    const G4VProcess* pr = aTrack->GetCreatorProcess();
+    if(pr) std::cout << " from  " << pr->GetProcessName();
+    if(reg) std::cout << " in  " << reg->GetName()
+		      << "  trackInfo " << aTrack->GetUserInformation(); 
+    std::cout << std::endl;
+  }
+  */
 #ifdef DebugLog
     LogDebug("SimG4CoreApplication") << "StackingAction:Classify Track "
 				     << aTrack->GetTrackID() << " Parent " 
