@@ -1,4 +1,3 @@
-<use   name="RecoTracker/DuplicateFormats"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/Math"/>
