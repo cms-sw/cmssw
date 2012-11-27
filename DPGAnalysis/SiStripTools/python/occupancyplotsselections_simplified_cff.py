@@ -8,8 +8,8 @@ OccupancyPlotsPixelWantedSubDets = cms.VPSet (
     cms.PSet(detSelection=cms.uint32(115),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x12010014")),      # BPix L1 mod 1
     cms.PSet(detSelection=cms.uint32(116),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x12010018")),      # BPix L1 mod 1
     cms.PSet(detSelection=cms.uint32(117),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x1201001c")),      # BPix L1 mod 1
+    cms.PSet(detSelection=cms.uint32(118),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x12010020")),      # BPix L1 mod 1
 
-    cms.PSet(detSelection=cms.uint32(118),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x12010020")),      # BPix L1 mod 1#
     cms.PSet(detSelection=cms.uint32(121),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x12020004")),      # BPix L1 mod 1
     cms.PSet(detSelection=cms.uint32(122),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x12020008")),      # BPix L1 mod 1
     cms.PSet(detSelection=cms.uint32(123),detLabel=cms.string("Dummy"),selection=cms.untracked.vstring("0x1e0f00fc-0x1202000c")),      # BPix L1 mod 1

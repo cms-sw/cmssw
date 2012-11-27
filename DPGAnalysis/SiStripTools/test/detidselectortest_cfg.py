@@ -33,8 +33,8 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     )
 
 
-#process.detidselectortest = cms.EDAnalyzer("DetIdSelectorTest",
-#                                           selections=cms.VPSet(
+process.detidselectortest = cms.EDAnalyzer("DetIdSelectorTest",
+                                           selections=cms.VPSet(
 #    cms.PSet(selection=cms.untracked.vstring("0x1e0c0000-0x1c040000")),    # TEC minus
 #    cms.PSet(selection=cms.untracked.vstring("0x1e0c0000-0x1c080000")),     # TEC plus
 #    cms.PSet(selection=cms.untracked.vstring("0x1e000000-0x1a000000")),     # TOB
@@ -46,21 +46,21 @@ process.MessageLogger = cms.Service("MessageLogger",
 #    cms.PSet(selection=cms.untracked.vstring("0x1e0f0000-0x12030000")),      # BPix L3
 #    cms.PSet(selection=cms.untracked.vstring("0x1f800000-0x14800000")),      # FPix minus
 #    cms.PSet(selection=cms.untracked.vstring("0x1f800000-0x15000000"))      # FPix plus
-##    cms.PSet(selection=cms.untracked.vstring("504102912-470286336"))
-#    )
-#)
+#    cms.PSet(selection=cms.untracked.vstring("504102912-470286336"))
+    )
+)
 
 from DPGAnalysis.SiStripTools.occupancyplotsselections_simplified_cff import *
 
-process.detidselectortest = cms.EDAnalyzer("DetIdSelectorTest",
-                                           selections=cms.VPSet(
-    cms.PSet(detLabel = cms.string("TIB"),selection=cms.untracked.vstring("0x1e000000-0x16000000")),
-    cms.PSet(detLabel = cms.string("TIBL134"),selection=cms.untracked.vstring("0x1e01c000-0x16010000","0x1e01c000-0x1600c000","0x1e01c000-0x16004000","0x1e01f000-0x1600a000","0x1e01fc00-0x16009800")),
-    cms.PSet(detLabel = cms.string("TIBL2"),selection=cms.untracked.vstring("0x1e01fc00-0x16009400"))
-    )
-)
-#process.detidselectortest.selections.extend(OccupancyPlotsStripWantedSubDets)
-#process.detidselectortest.selections.extend(OccupancyPlotsPixelWantedSubDets)
+#process.detidselectortest = cms.EDAnalyzer("DetIdSelectorTest",
+#                                           selections=cms.VPSet(
+#    cms.PSet(detLabel = cms.string("TIB"),selection=cms.untracked.vstring("0x1e000000-0x16000000")),
+#    cms.PSet(detLabel = cms.string("TIBL134"),selection=cms.untracked.vstring("0x1e01c000-0x16010000","0x1e01c000-0x1600c000","0x1e01c000-0x16004000","0x1e01f000-0x1600a000","0x1e01fc00-0x16009800")),
+#    cms.PSet(detLabel = cms.string("TIBL2"),selection=cms.untracked.vstring("0x1e01fc00-0x16009400"))
+#    )
+#)
+process.detidselectortest.selections.extend(OccupancyPlotsStripWantedSubDets)
+process.detidselectortest.selections.extend(OccupancyPlotsPixelWantedSubDets)
 
 process.DQMStore = cms.Service("DQMStore")
 process.TkDetMap = cms.Service("TkDetMap")
