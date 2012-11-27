@@ -6,6 +6,7 @@
 */
 
 #include "DQMOffline/Trigger/interface/JetMETHLTOfflineSource.h"
+
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -14,21 +15,27 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
+
 #include "TMath.h"
-#include "math.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
 #include "TPRegexp.h"
+
+#include "math.h"
 
 using namespace edm;
 using namespace reco;
@@ -3079,8 +3086,20 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       std::string dirName = dirname_ + "/MonitorAllTriggers/";
       for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
 	//
-	std::string subdirName = dirName + v->getPath();
-	std::string trigPath = "("+v->getPath()+")";
+	std::string trgPathName    = v->getPath();
+	std::string trgPathVersion = "";
+	for(int i=100; i>0; i--){
+	  trgPathVersion  = "_v"+NumberToString(i);
+	  size_t position = trgPathName.find(trgPathVersion);
+	  if(position!=std::string::npos){
+	    //cout<<trgPathVersion<<endl;
+	    trgPathName.replace(position,trgPathVersion.length(),"");
+	    break;
+	  }
+	}
+	
+	std::string subdirName = dirName + trgPathName;
+	std::string trigPath = "("+trgPathName+")";
 	dbe->setCurrentFolder(subdirName);  
 	
 	std::string labelname("ME");
@@ -3546,10 +3565,22 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       
       // Now define histos wrt Muon trigger
       std::string dirName = dirname_ + "/MonitorAllTriggersWrtMuonTrigger/";
-      for(PathInfoCollection::iterator v = hltPathsAllWrtMu_.begin(); v!= hltPathsAllWrtMu_.end(); ++v ){
+      for(PathInfoCollection::iterator v = hltPathsAllWrtMu_.begin(); v!= hltPathsAllWrtMu_.end(); ++v ){	
 	//
-	std::string subdirName = dirName + v->getPath();
-	std::string trigPath = "("+v->getPath()+")";
+	std::string trgPathName    = v->getPath();
+	std::string trgPathVersion = "";
+	for(int i=100; i>0; i--){
+	  trgPathVersion  = "_v"+NumberToString(i);
+	  size_t position = trgPathName.find(trgPathVersion);
+	  if(position!=std::string::npos){
+	    //cout<<trgPathVersion<<endl;
+	    trgPathName.replace(position,trgPathVersion.length(),"");
+	    break;
+	  }
+	}
+	//
+	std::string subdirName = dirName + trgPathName;
+	std::string trigPath = "("+trgPathName+")";
 	dbe->setCurrentFolder(subdirName); 
 	//
 	MonitorElement * dummy;
@@ -4008,8 +4039,34 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       // Now define histos wrt lower threshold trigger
       std::string dirName1 = dirname_ + "/RelativeTriggerEff/";
       for(PathInfoCollection::iterator v = hltPathsEff_.begin(); v!= hltPathsEff_.end(); ++v ){
+	//
+	std::string trgPathName    = v->getPath();
+	std::string trgPathVersion = "";
+	for(int i=100; i>0; i--){
+	  trgPathVersion  = "_v"+NumberToString(i);
+	  size_t position = trgPathName.find(trgPathVersion);
+	  if(position!=std::string::npos){
+	    //cout<<trgPathVersion<<endl;
+	    trgPathName.replace(position,trgPathVersion.length(),"");
+	    break;
+	  }
+	}
+	//
+	std::string trgPathNameD    = v->getDenomPath();
+	trgPathVersion = "";
+	for(int i=100; i>0; i--){
+	  trgPathVersion  = "_v"+NumberToString(i);
+	  size_t position = trgPathNameD.find(trgPathVersion);
+	  if(position!=std::string::npos){
+	    //cout<<trgPathVersion<<endl;
+	    trgPathNameD.replace(position,trgPathVersion.length(),"");
+	    break;
+	  }
+	}
+	
+	//
 	std::string labelname("ME") ;
-	std::string subdirName = dirName1 + v->getPath() + "_wrt_" + v->getDenomPath();
+	std::string subdirName = dirName1 + trgPathName + "_wrt_" + trgPathNameD;
 	dbe->setCurrentFolder(subdirName);
 	std::string histoname(labelname+"");
 	std::string title(labelname+"");
@@ -4713,8 +4770,21 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       if(plotEffwrtMu_){
 	std::string dirName2 = dirname_ + "/EffWrtMuonTrigger/";
 	for(PathInfoCollection::iterator v = hltPathsEffWrtMu_.begin(); v!= hltPathsEffWrtMu_.end(); ++v ){
+	  //
+	  std::string trgPathName    = v->getPath();
+	  std::string trgPathVersion = "";
+	  for(int i=100; i>0; i--){
+	    trgPathVersion  = "_v"+NumberToString(i);
+	    size_t position = trgPathName.find(trgPathVersion);
+	    if(position!=std::string::npos){
+	      //cout<<trgPathVersion<<endl;
+	      trgPathName.replace(position,trgPathVersion.length(),"");
+	      break;
+	    }
+	  }
+	  //
 	  std::string labelname("ME") ;
-	  std::string subdirName = dirName2 + v->getPath();
+	  std::string subdirName = dirName2 + trgPathName;
 	  std::string histoname(labelname+"");
 	  std::string title(labelname+"");
 	  dbe->setCurrentFolder(subdirName);
@@ -5418,8 +5488,21 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       if(plotEffwrtMB_){
 	std::string dirName3  = dirname_ + "/EffWrtMBTrigger/";
 	for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffWrtMB_.end(); ++v ){
+	  //
+	  std::string trgPathName    = v->getPath();
+	  std::string trgPathVersion = "";
+	  for(int i=100; i>0; i--){
+	    trgPathVersion  = "_v"+NumberToString(i);
+	    size_t position = trgPathName.find(trgPathVersion);
+	    if(position!=std::string::npos){
+	      //cout<<trgPathVersion<<endl;
+	      trgPathName.replace(position,trgPathVersion.length(),"");
+	      break;
+	    }
+	  }
+	  //
 	  std::string labelname("ME") ;
-	  std::string subdirName = dirName3 + v->getPath() ;
+	  std::string subdirName = dirName3 + trgPathName ;
 	  std::string histoname(labelname+"");
 	  std::string title(labelname+"");
 	  dbe->setCurrentFolder(subdirName);
@@ -6363,4 +6446,11 @@ bool JetMETHLTOfflineSource::isTriggerObjectFound(std::string objectName){
     if (k.size()) output=true;
   }
   return output;
+}
+
+std::string JetMETHLTOfflineSource::NumberToString ( int Number )
+{
+  ostringstream ss;
+  ss << Number;
+  return ss.str();
 }

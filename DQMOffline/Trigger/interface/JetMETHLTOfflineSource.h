@@ -52,6 +52,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <string>
+#include <sstream> 
 
 class PtSorter {
  public:
@@ -92,6 +94,7 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   virtual void   fillMEforEffWrtMuTrigger(const edm::Event & iEvent, const edm::EventSetup&);
   virtual void   fillMEforEffWrtMBTrigger(const edm::Event & iEvent, const edm::EventSetup&);
   virtual void   fillMEforTriggerNTfired();
+  virtual std::string NumberToString (int Number);
   
   const std::string getL1ConditionModuleName(const std::string& pathname); //ml added
   
