@@ -5,4 +5,3 @@
 using namespace edm;
 DEFINE_FWK_INPUT_SOURCE(DaqSource);
 
-

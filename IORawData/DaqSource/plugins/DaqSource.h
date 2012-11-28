@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2012/10/17 01:32:22 $
- *  $Revision: 1.22 $
+ *  $Date: 2012/10/31 18:52:13 $
+ *  $Revision: 1.23 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -65,7 +65,9 @@ namespace edm {
 
     DaqBaseReader*  reader_;
     unsigned int    lumiSegmentSizeInEvents_; //temporary kludge, LS# will come from L1 Global record
+    unsigned int    lumiSegmentSizeInSeconds_; //temporary kludge, LS# will come from L1 Global record
     bool            useEventCounter_;
+    bool            useTimer_;
     unsigned int    eventCounter_;
     bool            keepUsingPsidFromTrigger_;
     bool            fakeLSid_;
@@ -91,6 +93,7 @@ namespace edm {
     int                              count;
     unsigned int                     thisEventLSid;
     bool                             goToStopping;
+    struct timeval                   startOfLastLumi; 
     bool                             immediateStop;
     evf::moduleweb::ForkInfoObj      *forkInfo_;
     bool                             runFork_;
