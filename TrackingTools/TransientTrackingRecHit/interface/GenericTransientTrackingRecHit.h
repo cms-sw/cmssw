@@ -42,7 +42,7 @@ protected:
 
   // private constructors enforce usage of builders
   GenericTransientTrackingRecHit(const GeomDet * geom, const TrackingRecHit& rh) :
-    TValidTrackingRecHit(geom) {
+    TValidTrackingRecHit(geom,rh) {
     trackingRecHit_ = rh.clone();
   }
   

@@ -19,6 +19,12 @@ public:
   typedef std::vector<ConstRecHitPointer>                           RecHitContainer;
   typedef std::vector<ConstRecHitPointer>                           ConstRecHitContainer;
 
+  TValidTrackingRecHit(const GeomDet * geom) : 
+    TransientTrackingRecHit(geom->geographicalId()), geom_(geom),
+    errorR_(0),errorZ_(0),errorRPhi_(0),
+    hasGlobalPosition_(false), hasGlobalError_(false){}
+
+
   template<typename... Args>
   TValidTrackingRecHit(const GeomDet * geom, Args && ...args) : 
     TransientTrackingRecHit(std::forward<Args>(args)...), geom_(geom),
