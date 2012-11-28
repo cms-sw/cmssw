@@ -1,4 +1,5 @@
 #include "PixelForwardLayerBuilder.h"
+#include "PixelForwardLayerPhase1.h"
 #include "PixelBladeBuilder.h"
 
 using namespace edm;
@@ -30,5 +31,7 @@ PixelForwardLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelFor
 					       theGeomDetGeometry ) );
   }
   
+  if ( aPixelForwardLayer->type()==GeometricDet::PixelEndCapPhase1 ) 
+    return new PixelForwardLayerPhase1(theBlades);
   return new PixelForwardLayer(theBlades);  
 }

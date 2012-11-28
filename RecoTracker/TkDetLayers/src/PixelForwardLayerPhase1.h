@@ -1,21 +1,21 @@
-#ifndef TkDetLayers_PixelForwardLayer_h
-#define TkDetLayers_PixelForwardLayer_h
+#ifndef TkDetLayers_PixelForwardLayerPhase1_h
+#define TkDetLayers_PixelForwardLayerPhase1_h
 
 
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "PixelBlade.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
-
+#include "PixelForwardLayer.h"
 
 /** A concrete implementation for PixelForward layer 
  *  built out of ForwardPixelBlade
  */
 
 #pragma GCC visibility push(hidden)
-class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSearchDetWithGroups {
+class PixelForwardLayerPhase1 : public PixelForwardLayer {
  public:
-  PixelForwardLayer(std::vector<const PixelBlade*>& blades);
-  ~PixelForwardLayer();
+  PixelForwardLayerPhase1(std::vector<const PixelBlade*>& blades);
+  ~PixelForwardLayerPhase1();
   
   // GeometricSearchDet interface
   
@@ -30,18 +30,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}
-
- protected:  
-  // methods for groupedCompatibleDets implementation
-  int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
-
-  float computeWindowSize( const GeomDet* det, 
-			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
-
-  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
-  std::vector<const GeometricSearchDet*> theComps;
-  std::vector<const GeomDet*> theBasicComps;
+  
 
  private:  
 
@@ -61,18 +50,23 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
 			const MeasurementEstimator& est,
 			const SubTurbineCrossings& crossings,
 			float window, 
-			std::vector<DetGroup>& result) const;
+			std::vector<DetGroup>& result,
+                        bool innerDisk) const;
   
   SubTurbineCrossings 
     computeCrossings( const TrajectoryStateOnSurface& startingState,
-		      PropagationDirection propDir) const;
+		      PropagationDirection propDir, bool innerDisk) const;
 
   
  private:
-  BinFinderType    theBinFinder;
-
+  // need separate objects for inner and outer disk
+  // or a smarter bin finder class
+  BinFinderType    theBinFinder_inner;
+  BinFinderType    theBinFinder_outer;
+  unsigned int     _num_innerpanels;
+  unsigned int     _num_outerpanels;
 };
 
-
 #pragma GCC visibility pop
+
 #endif 
