@@ -40,14 +40,14 @@ void AntiElectronIDMVA::Initialize(std::string methodName,
 
   //TMVA::Tools::Instance();
 
-  TMVA::Reader *readerX0BL = new TMVA::Reader( "!Color:!Silent:Error" );
+  TMVA::Reader *readerX0BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerX0BL->AddVariable("HoP",       &TauLeadPFChargedHadrHoP_);
   readerX0BL->AddVariable("EoP",       &TauLeadPFChargedHadrEoP_);
   //readerX0BL->AddVariable("emFraction",&TauEmFraction_);
   readerX0BL->SetVerbose(verbosity_);
   loadTMVAWeights(readerX0BL,  methodName_, oneProng0Pi0_BL );
 
-  TMVA::Reader *reader11BL = new TMVA::Reader( "!Color:!Silent:Error" );
+  TMVA::Reader *reader11BL = new TMVA::Reader( "!Color:Silent:Error" );
   reader11BL->AddVariable("mva",               &TauLeadPFChargedHadrMva_);
   reader11BL->AddVariable("visMass",           &TauVisMass_);
   reader11BL->AddVariable("etaMom2*TMath::Sqrt(gammaFrac)*pt", &GammadEta_);
@@ -56,7 +56,7 @@ void AntiElectronIDMVA::Initialize(std::string methodName,
   reader11BL->SetVerbose(verbosity_);
   loadTMVAWeights(reader11BL,  methodName_, oneProng1pi0wGSF_BL );
 
-  TMVA::Reader *reader01BL = new TMVA::Reader( "!Color:!Silent:Error" );
+  TMVA::Reader *reader01BL = new TMVA::Reader( "!Color:Silent:Error" );
   reader01BL->AddVariable("visMass",           &TauVisMass_);
   reader01BL->AddVariable("etaMom2*TMath::Sqrt(gammaFrac)*pt", &GammadEta_);
   reader01BL->AddVariable("phiMom2*TMath::Sqrt(gammaFrac)*pt", &GammadPhi_);
@@ -66,14 +66,14 @@ void AntiElectronIDMVA::Initialize(std::string methodName,
 
   //////////////////
 
-  TMVA::Reader *readerX0EC = new TMVA::Reader( "!Color:!Silent:Error" );
+  TMVA::Reader *readerX0EC = new TMVA::Reader( "!Color:Silent:Error" );
   readerX0EC->AddVariable("HoP",       &TauLeadPFChargedHadrHoP_);
   readerX0EC->AddVariable("EoP",       &TauLeadPFChargedHadrEoP_);
   //readerX0EC->AddVariable("emFraction",&TauEmFraction_);
   readerX0EC->SetVerbose(verbosity_);
   loadTMVAWeights(readerX0EC,  methodName_, oneProng0Pi0_EC );
 
-  TMVA::Reader *reader11EC = new TMVA::Reader( "!Color:!Silent:Error" );
+  TMVA::Reader *reader11EC = new TMVA::Reader( "!Color:Silent:Error" );
   reader11EC->AddVariable("mva",               &TauLeadPFChargedHadrMva_);
   reader11EC->AddVariable("visMass",           &TauVisMass_);
   reader11EC->AddVariable("etaMom2*TMath::Sqrt(gammaFrac)*pt", &GammadEta_);
@@ -82,7 +82,7 @@ void AntiElectronIDMVA::Initialize(std::string methodName,
   reader11EC->SetVerbose(verbosity_);
   loadTMVAWeights(reader11EC,  methodName_, oneProng1pi0wGSF_EC );
 
-  TMVA::Reader *reader01EC = new TMVA::Reader( "!Color:!Silent:Error" );
+  TMVA::Reader *reader01EC = new TMVA::Reader( "!Color:Silent:Error" );
   reader01EC->AddVariable("visMass",           &TauVisMass_);
   reader01EC->AddVariable("etaMom2*TMath::Sqrt(gammaFrac)*pt", &GammadEta_);
   reader01EC->AddVariable("phiMom2*TMath::Sqrt(gammaFrac)*pt", &GammadPhi_);
