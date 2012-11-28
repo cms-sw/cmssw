@@ -4,7 +4,7 @@ from RecoTauTag.Configuration.updateHPSPFTaus_cff import *
 
 patFixedConePFTauDiscrimination = cms.Sequence()
 
-patHPSPFTauDiscrimination = cms.Sequence(updateHPSPFTaus)
+patHPSPFTauDiscriminationUpdate = cms.Sequence(updateHPSPFTaus)
 
 patShrinkingConePFTauDiscrimination = cms.Sequence()
 

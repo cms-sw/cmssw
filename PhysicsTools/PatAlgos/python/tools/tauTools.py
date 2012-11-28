@@ -18,11 +18,11 @@ def redoPFTauDiscriminators(process,
     tauDiscriminationSequence = None
 
     if tauType == 'hpsPFTau':
-        process.patHPSPFTauDiscrimination = process.produceAndDiscriminateHPSPFTaus.copy()
         if hasattr(process,"updateHPSPFTaus"+postfix):
-            tauDiscriminationSequence = getattr(process,"patHPSPFTauDiscrimination"+postfix)
+            tauDiscriminationSequence = getattr(process,"patHPSPFTauDiscriminationUpdate"+postfix)
         else:
             #        remove producers
+            process.patHPSPFTauDiscrimination = process.produceAndDiscriminateHPSPFTaus.copy()
             for iname in process.patHPSPFTauDiscrimination.moduleNames():
                 if not (iname.find("DiscriminationBy")>-1 or iname.find("DiscriminationAgainst")>-1 or iname.find("kt6PFJetsForRhoComputationVoronoi")>-1):
                     process.patHPSPFTauDiscrimination.remove(getattr(process,iname) )
@@ -203,9 +203,9 @@ hpsTauIDSources = [
     ("byMediumCombinedIsolationDeltaBetaCorr", "DiscriminationByMediumCombinedIsolationDBSumPtCorr"),
     ("byTightCombinedIsolationDeltaBetaCorr", "DiscriminationByTightCombinedIsolationDBSumPtCorr"),
     ("byCombinedIsolationDeltaBetaCorrRaw", "DiscriminationByRawCombinedIsolationDBSumPtCorr"),
-    ("byLooseCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
-    ("byMediumCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"),
-    ("byTightCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"),    
+#    ("byLooseCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
+#    ("byMediumCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"),
+#    ("byTightCombinedIsolationDeltaBetaCorr3Hits", "DiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"),    
     ("byIsolationMVAraw", "DiscriminationByIsolationMVAraw"),
     ("byLooseIsolationMVA", "DiscriminationByLooseIsolationMVA"),
     ("byMediumIsolationMVA", "DiscriminationByMediumIsolationMVA"),
@@ -220,12 +220,12 @@ hpsTauIDSources = [
     ("againstElectronLooseMVA2", "DiscriminationByMVA2LooseElectronRejection"),
     ("againstElectronMediumMVA2", "DiscriminationByMVA2MediumElectronRejection"),
     ("againstElectronTightMVA2", "DiscriminationByMVA2TightElectronRejection"),
-    ("againstElectronMVA3raw", "DiscriminationByMVA3rawElectronRejection"),
-    ("againstElectronMVA3category", "DiscriminationByMVA3rawElectronRejection:category"),
-    ("againstElectronLooseMVA3", "DiscriminationByMVA3LooseElectronRejection"),
-    ("againstElectronMediumMVA3", "DiscriminationByMVA3MediumElectronRejection"),
-    ("againstElectronTightMVA3", "DiscriminationByMVA3TightElectronRejection"),
-    ("againstElectronDeadECAL", "DiscriminationByDeadECALElectronRejection"),
+#    ("againstElectronMVA3raw", "DiscriminationByMVA3rawElectronRejection"),
+#    ("againstElectronMVA3category", "DiscriminationByMVA3rawElectronRejection:category"),
+#    ("againstElectronLooseMVA3", "DiscriminationByMVA3LooseElectronRejection"),
+#    ("againstElectronMediumMVA3", "DiscriminationByMVA3MediumElectronRejection"),
+#    ("againstElectronTightMVA3", "DiscriminationByMVA3TightElectronRejection"),
+#    ("againstElectronDeadECAL", "DiscriminationByDeadECALElectronRejection"),
     ("againstMuonLoose", "DiscriminationByLooseMuonRejection"),
     ("againstMuonMedium", "DiscriminationByMediumMuonRejection"),
     ("againstMuonTight", "DiscriminationByTightMuonRejection") ]
