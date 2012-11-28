@@ -947,16 +947,22 @@ void Analysis_Step3(char* SavePath)
       bool isSignal = (samples[s].Type>=2);
 
       #ifdef ANALYSIS2011
-         dEdxTemplates = NULL;
-         dEdxSF = 1.00;
-      #else
          if(isData){
-//            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_Data_2012.root");
             dEdxTemplates = NULL;
             dEdxSF = 1.00;
          }else{
             dEdxTemplates = NULL;
-            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012.root");
+            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012_new2.root"); //2012 tempaltes can be used after the rescale
+            dEdxSF = 1.14;
+         }
+      #else
+         if(isData){
+            dEdxTemplates = NULL;
+            dEdxSF = 1.00;
+         }else{
+            dEdxTemplates = NULL;
+//            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012.root");
+            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012_new2.root");
             dEdxSF = 1.05;
          }
       #endif
@@ -1183,13 +1189,15 @@ void Analysis_Step3(char* SavePath)
                if(isSignal){
 #ifdef ANALYSIS2011
                   bool   PRescale = true;
-                  double IRescale = RNG->Gaus(0, 0.083)+0.015; // added to the Ias value
+//                  double IRescale = RNG->Gaus(0, 0.083)+0.015; // added to the Ias value
+                  double IRescale = 0.05; // added to the Ias value
                   double MRescale = 1.036;
 		  double TRescale = -0.02; // added to the 1/beta value
 		  if(tof) if(csctof->nDof()==0) TRescale = -0.003;
 #else
                   bool   PRescale = true;
-                  double IRescale = RNG->Gaus(0, 0.05)+0.05; // added to the Ias value
+//                  double IRescale = RNG->Gaus(0, 0.05)+0.05; // added to the Ias value
+                  double IRescale = 0.05; // added to the Ias value
                   double MRescale = 1.03;
 		  double TRescale = -0.005; // added to the 1/beta value
 #endif
