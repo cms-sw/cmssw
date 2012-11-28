@@ -112,7 +112,8 @@ void Analyzer(string MODE="COMPILE")
    reco::DeDxData* emptyDeDx = new reco::DeDxData(0,0,0);
 //   TH3F* dEdxTemplates = loadDeDxTemplate("../../../data/Data7TeV_Deco_SiStripDeDxMip_3D_Rcd.root");
 //   TH3F* dEdxTemplates = loadDeDxTemplate("../../../data/MC7TeV_Deco_SiStripDeDxMip_3D_Rcd.root");
-   TH3F* dEdxTemplates = loadDeDxTemplate("../../../data/Discrim_Templates_MC_2012b.root");
+//   TH3F* dEdxTemplates = loadDeDxTemplate("../../../data/Discrim_Templates_MC_2012b.root");
+   TH3F* dEdxTemplates = loadDeDxTemplate("../../../data/Discrim_Templates_MC_2012_new2.root");
    double SF = 1.05; //0.9;
 
    std::vector<string> FileName;

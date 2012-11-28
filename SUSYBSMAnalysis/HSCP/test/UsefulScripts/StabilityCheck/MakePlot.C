@@ -42,11 +42,11 @@ bool LoadLumiToRun()
    char Line[2048], Tmp1[2048], Tmp2[2048], Tmp3[2048];
    while ( ! feof (pFile) ){
      fscanf(pFile,"%s\n",Line);
-//     printf("%s\n",Line);
+     //printf("%s\n",Line);
      for(unsigned int i=0;Line[i]!='\0';i++){if(Line[i]==',')Line[i]=' ';} 
-     sscanf(Line,"%d %s %s %s %f\n",&Run,Tmp1,Tmp2,Tmp3,&IntLumi);
+     sscanf(Line,"%d:%d %s %s %s %f\n",&Run,Tmp1,&Tmp1,Tmp2,Tmp3,&IntLumi);
      TotalIntLuminosity+= IntLumi/1000000.0;
-//     printf("%6i --> %f/pb   (%s | %s | %s)\n",Run,TotalIntLuminosity,Tmp1,Tmp2,Tmp3);
+     printf("%6i --> %f/pb   (%s | %s | %s)\n",Run,TotalIntLuminosity,Tmp1,Tmp2,Tmp3);
      RunToIntLumi[Run] = TotalIntLuminosity;
    }
    fclose(pFile);
@@ -54,7 +54,7 @@ bool LoadLumiToRun()
 }
 
 
-TGraph* ConvertFromRunToIntLumi(TProfile* Object, const char* DrawOption, string YLabel, double YRange_Min=3.1, double YRange_Max=3.7){
+TGraph* ConvertFromRunToIntLumi(TProfile* Object, const char* DrawOption, string YLabel, double YRange_Min=2.8, double YRange_Max=3.5){
    TGraphErrors* graph = new TGraphErrors(Object->GetXaxis()->GetNbins());
    for(unsigned int i=1;i<Object->GetXaxis()->GetNbins()+1;i++){
       int RunNumber;
@@ -74,6 +74,26 @@ TGraph* ConvertFromRunToIntLumi(TProfile* Object, const char* DrawOption, string
    if(YRange_Min!=YRange_Max)graph->GetYaxis()->SetRangeUser(YRange_Min,YRange_Max);
    return graph;
 }
+
+
+void DrawLines(int color, double ymin=2.8, double ymax=3.5){
+   unsigned int runs[] = {192701, 194552, 198301, 199878, 201820, 202914, 206037};
+//    unsigned int runs[] = {193093, 194619, 198272, 199960};
+   for(unsigned int i=0;i<sizeof(runs)/sizeof(unsigned int);i++){
+      //find the closest processed run
+      int closestRun = 0;
+      for(std::map<unsigned int, double>::iterator it = RunToIntLumi.begin(); it!=RunToIntLumi.end();it++){
+         if(it->first>runs[i] && abs(it->first-runs[i])<abs(closestRun-runs[i]))closestRun = it->first;
+      }
+
+      printf("Draw line for run %i at %f\n",closestRun, RunToIntLumi[closestRun]);
+      TLine* line = new TLine( RunToIntLumi[closestRun], ymin, RunToIntLumi[closestRun], ymax);
+      line->SetLineColor(color);
+      line->SetLineWidth(3);
+      line->Draw("same");
+   }
+}
+
 
 void MakedEdxPlot()
 {
@@ -159,6 +179,7 @@ void MakedEdxPlot()
       leg->AddEntry(graphSC, "dE/dx (Strip) |#eta|<0.5" ,"P");
       leg->AddEntry(graphSF, "dE/dx (Strip) |#eta|>1.5"  ,"P");
       leg->Draw();
+      DrawLines(1);
       SaveCanvas(c1,"pictures/","GraphdEdx_Profile_dEdxMS");
       delete c1; delete leg;
 

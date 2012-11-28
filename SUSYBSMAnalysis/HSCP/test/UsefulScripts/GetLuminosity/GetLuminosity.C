@@ -40,15 +40,18 @@ struct stRun {
    std::vector<unsigned int> lumiId;   
 };
 
+std::map<unsigned int, unsigned int> timeMap;
+
 void GetLumiBlocks_Core(vector<string>& fileNames, std::vector<stRun*>& RunMap);
 void DumpJson(const std::vector<stRun*>& RunMap, string FileName);
+void DumpTime(const std::map<unsigned int, unsigned int>& TimeMap, string FileName);
 void RemoveRunsAfter(unsigned int RunMax, const std::vector<stRun*>& RunMap, std::vector<stRun*>& NewRunMap);
 
 void GetLuminosity()
 {
    std::vector<stSample> samples;
    GetSampleDefinition(samples, "../../ICHEP_Analysis/Analysis_Samples.txt");
-   keepOnlySamplesOfNameX(samples,"Data12");
+   keepOnlySamplesOfNameX(samples,"Data8TeV");
 
    InitBaseDirectory();
 
@@ -60,6 +63,7 @@ void GetLuminosity()
    std::vector<stRun*> RunMap;
    GetLumiBlocks_Core(inputFiles, RunMap);
    DumpJson(RunMap, "out.json");
+   DumpTime(timeMap,"out.time");
 
    //only used in 2011 data to check luminosity before after RPC trigger change
 //   std::vector<stRun*> RunMapBefRPC;
@@ -76,8 +80,8 @@ void GetLumiBlocks_Core(vector<string>& fileNames, std::vector<stRun*>& RunMap)
      TFile *file = TFile::Open(fileNames[f].c_str() );
       fwlite::LuminosityBlock ls( file);
       for(ls.toBegin(); !ls.atEnd(); ++ls){
-  
-//        printf("Run = %i --> Lumi =%lu\n",ls.luminosityBlockAuxiliary().run(), (unsigned long)ls.luminosityBlockAuxiliary().id().value());
+          
+        //printf("Run = %i --> Lumi =%lu\n",ls.luminosityBlockAuxiliary().run(), (unsigned long)ls.luminosityBlockAuxiliary().id().value());
         int RunIndex = -1;
         for(unsigned int r=0;r<RunMap.size();r++){
            if(RunMap[r]->runId==ls.luminosityBlockAuxiliary().run()){
@@ -92,6 +96,8 @@ void GetLumiBlocks_Core(vector<string>& fileNames, std::vector<stRun*>& RunMap)
            tmp->lumiId.push_back(ls.luminosityBlockAuxiliary().id().value());
            RunMap.push_back(tmp);           
            //std::sort(RunMap.begin(), RunMap.end(), stRunLess);
+
+           timeMap[tmp->runId] = ls.luminosityBlockAuxiliary().beginTime().unixTime()/3600;
         }else{
             stRun* tmp = RunMap[RunIndex];
            int LumiIndex = -1;
@@ -139,3 +145,18 @@ void DumpJson(const std::vector<stRun*>& RunMap, string FileName){
    fprintf(json,"}");   
    fclose(json);
 }
+
+
+
+void DumpTime(const std::map<unsigned int, unsigned int>& TimeMap, string FileName){
+   FILE* pFile = fopen(FileName.c_str(),"w");
+   for(std::map<unsigned int, unsigned int>::iterator it = timeMap.begin(); it!=timeMap.end(); it++){
+      fprintf(pFile, "%i,%i\n", it->first, it->second);
+   }
+   fclose(pFile);
+}
+
+
+
+
+

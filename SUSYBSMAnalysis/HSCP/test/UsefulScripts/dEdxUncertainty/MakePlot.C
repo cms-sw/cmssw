@@ -221,13 +221,14 @@ void MakePlot()
 
    TFile* InputFileD8 = new TFile("pictures_data/Histos.root");
    TH2D*       HIasVsPM_D8        = (TH2D*)    GetObjectFromPath(InputFileD8, "dedx_IasVsPM");
-   TFile* InputFileM8 = new TFile("pictures_MC_2012_NewTemplates/Histos.root");
-//   TFile* InputFileM8 = new TFile("pictures_MC_2012/Histos.root");
+//   TFile* InputFileM8 = new TFile("pictures_MC_2012_NewTemplates/Histos.root");
+////   TFile* InputFileM8 = new TFile("pictures_MC_2012/Histos.root");
+   TFile* InputFileM8 = new TFile("pictures/Histos.root");
    TH2D*       HIasVsPM_M8        = (TH2D*)    GetObjectFromPath(InputFileM8, "dedx_IasVsPM");
 
    TFile* InputFileD7 = new TFile("pictures_data_2011/Histos.root");
    TH2D*       HIasVsPM_D7        = (TH2D*)    GetObjectFromPath(InputFileD7, "dedx_IasVsPM");
-   TFile* InputFileM7 = new TFile("pictures_MC_2011/Histos.root");
+   TFile* InputFileM7 = new TFile("pictures_MC_2011_test/Histos.root");
    TH2D*       HIasVsPM_M7        = (TH2D*)    GetObjectFromPath(InputFileM7, "dedx_IasVsPM");
    compareDataMC(HIasVsPM_D8, HIasVsPM_M8, HIasVsPM_D7, HIasVsPM_M7);
 
