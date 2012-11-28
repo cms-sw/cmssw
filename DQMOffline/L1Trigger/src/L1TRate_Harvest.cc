@@ -1,8 +1,8 @@
 /*
  * \file L1TRate_Harvest.cc
  *
- * $Date: 2011/11/15 10:41:00 $
- * $Revision: 1.11 $
+ * $Date: 2012/11/28 13:36:54 $
+ * $Revision: 1.1 $
  * \author J. Pela, P. Musella
  *
  */
@@ -10,7 +10,7 @@
 // L1TMonitor includes
 #include "DQMOffline/L1Trigger/interface/L1TRate_Harvest.h"
 
-#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
+#include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
