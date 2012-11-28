@@ -1,3 +1,8 @@
+2012-11-28 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* V01-13-02 (CMSSW_6_X_X)
+	* integrated per-time LS and standalone execution (cmsRun)
+
 2012-08-18 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* V01-12-05
