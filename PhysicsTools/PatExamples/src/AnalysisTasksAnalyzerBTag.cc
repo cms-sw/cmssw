@@ -11,9 +11,7 @@ AnalysisTasksAnalyzerBTag::AnalysisTasksAnalyzerBTag(const edm::ParameterSet& cf
   bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
   bins_(cfg.getParameter<unsigned int>("bins")),
   lowerbin_(cfg.getParameter<double>("lowerbin")),
-  upperbin_(cfg.getParameter<double>("upperbin")),
-  softMuonTagInfoLabel_(cfg.getParameter<std::string>("softMuonTagInfoLabel")),
-  skip_(cfg.getParameter<bool>("skip"))
+  upperbin_(cfg.getParameter<double>("upperbin"))
 {
   hists_["NumSoftMuons"] = fs.make<TH1F>("NumSoftMuons"  , "NumSoftMuons"  ,4,  -0.5, 3.5);
   hists_["BTag_b"] = fs.make<TH1F>("BTag_b"  , "BTag_b"  ,  bins_,  lowerbin_, upperbin_);
@@ -51,36 +49,36 @@ AnalysisTasksAnalyzerBTag::analyze(const edm::EventBase& event)
 
   // loop Jet collection and fill histograms
   for(std::vector<Jet>::const_iterator Jet_it=Jets->begin(); Jet_it!=Jets->end(); ++Jet_it){
-  
-    pat::Jet Jet(*Jet_it);
+      edm::LogInfo ("hint3") << "\n \n investigate the next jet...\n \n "<<std::endl;
+      pat::Jet Jet(*Jet_it);
 
-    if(!skip_ ){
-         std::cout << "has taginfo: "<<Jet.hasTagInfo(softMuonTagInfoLabel_)<<std::endl;
-         if(Jet.hasTagInfo(softMuonTagInfoLabel_)){
-            hists_["NumSoftMuons"]->Fill(Jet.tagInfoSoftLepton(softMuonTagInfoLabel_)->leptons());
-         }
-    }
-    //Categorize the Jets
-    if( abs(Jet.partonFlavour())==5){
-      hists_["BTag_b"]->Fill(Jet.bDiscriminator(bTagAlgo_));
-    }
-    else{ 
-      if( abs(Jet.partonFlavour())==21 || abs(Jet.partonFlavour())==9 ){
-	hists_["BTag_g"]->Fill(Jet.bDiscriminator(bTagAlgo_));
+      
+      const std::vector< std::pair< std::string, float > > discrPairs = Jet.getPairDiscri();
+      for(uint pair_i = 0;pair_i <discrPairs.size(); ++pair_i ){
+	  edm::LogInfo ("hint3") << "discr name: "<< discrPairs[pair_i].first<<" value: "<< discrPairs[pair_i].second<<std::endl;
       }
-      else{
-	if( abs(Jet.partonFlavour())==4){
-	  hists_["BTag_c"]->Fill(Jet.bDiscriminator(bTagAlgo_));
-	}
-	else{
-	  if( abs(Jet.partonFlavour())==1 || abs(Jet.partonFlavour())==2 || abs(Jet.partonFlavour())==3){
-	    hists_["BTag_uds"]->Fill(Jet.bDiscriminator(bTagAlgo_));
+      
+      //Categorize the Jets
+      if( abs(Jet.partonFlavour())==5){
+	  hists_["BTag_b"]->Fill(Jet.bDiscriminator(bTagAlgo_));
+      }
+      else{ 
+	  if( abs(Jet.partonFlavour())==21 || abs(Jet.partonFlavour())==9 ){
+	      hists_["BTag_g"]->Fill(Jet.bDiscriminator(bTagAlgo_));
 	  }
 	  else{
-	    hists_["BTag_other"]->Fill(Jet.bDiscriminator(bTagAlgo_));
+	      if( abs(Jet.partonFlavour())==4){
+		  hists_["BTag_c"]->Fill(Jet.bDiscriminator(bTagAlgo_));
+	      }
+	      else{
+		  if( abs(Jet.partonFlavour())==1 || abs(Jet.partonFlavour())==2 || abs(Jet.partonFlavour())==3){
+		      hists_["BTag_uds"]->Fill(Jet.bDiscriminator(bTagAlgo_));
+		  }
+		  else{
+		      hists_["BTag_other"]->Fill(Jet.bDiscriminator(bTagAlgo_));
+		  }
+	      }
 	  }
-	}
       }
-    }
   }
 }
