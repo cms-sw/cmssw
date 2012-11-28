@@ -24,14 +24,14 @@ def turnOffXFrame(process):
 
 def digiEventContent(process):
     #extend the event content
-    if hasattr(process,'FEVTDEBUGoutput'):
-        process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simMuonCSCDigis_*_*')
-        process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simMuonRPCDigis_*_*')
-        process.FEVTDEBUGoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
-    if hasattr(process,'GENRAWoutput'):
-        process.GENRAWoutput.outputCommands.append( 'keep *_simMuonCSCDigis_*_*')
-        process.GENRAWoutput.outputCommands.append( 'keep *_simMuonRPCDigis_*_*')
-        process.GENRAWoutput.outputCommands.append( 'keep *_simHcalUnsuppressedDigis_*_*')
+
+    alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
+    for a in alist:
+        b=a+'output'
+        if hasattr(process,b):
+            getattr(process,b).outputCommands.append('keep *_simMuonCSCDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_simMuonRPCDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
 
     return process    
 
@@ -70,7 +70,6 @@ def recoCustoms(process):
     # Turn off some flags for CSCRecHitD that are turned ON in default config
 
     process.csc2DRecHits.readBadChannels = cms.bool(False)
-    process.csc2DRecHits.CSCUseTimingCorrections = cms.bool(False)
     process.csc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
 
     # Switch input for CSCRecHitD to  s i m u l a t e d  digis
@@ -82,13 +81,14 @@ def recoCustoms(process):
 
 def recoOutputCustoms(process):
 
-    alist=['AODSIMoutput','RECOSIMoutput','FEVTSIMoutput']
+    alist=['AODSIM','RECOSIM','FEVTSIM','FEVTDEBUG','FEVTDEBUGHLT','RECODEBUG','RAWRECOSIMHLT','RAWRECODEBUGHLT']
     for a in alist:
-        if hasattr(process,a):
-            getattr(process,a).outputCommands.append('keep *_simMuonCSCDigis_*_*')
-            getattr(process,a).outputCommands.append('keep *_simMuonRPCDigis_*_*')
-            getattr(process,a).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
-            getattr(process,a).outputCommands.append('keep *_rawDataCollector_*_*')
+        b=a+'output'
+        if hasattr(process,b):
+            getattr(process,b).outputCommands.append('keep *_simMuonCSCDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_simMuonRPCDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_rawDataCollector_*_*')
     return process
 
             
