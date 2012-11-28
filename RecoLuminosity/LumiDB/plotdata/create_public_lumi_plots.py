@@ -594,8 +594,9 @@ if __name__ == "__main__":
     print "Running lumiCalc for all requested days"
     for day in days:
         print "  %s" % day.isoformat()
+        print "DEBUG JGH %s" % day.isoformat()
         use_cache = (not ignore_cache) and (day <= last_day_from_cache)
-	cache_file_tmp = "cache_file_temp.csv"
+        cache_file_tmp = "cache_file_temp.csv"
         cache_file_path = CacheFilePath(cache_file_dir, day)
         if (not os.path.exists(cache_file_path)) or (not use_cache):
             date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
@@ -626,27 +627,105 @@ if __name__ == "__main__":
                     # querying the database in vain every time the
                     # script runs. To avoid this we just write a dummy
                     # cache file for such days.
-                    if output.find("[INFO] No qualified data found, do nothing") > -1 or "[INFO] No qualified run found, do nothing"> -1:
-                        if verbose:
-                            print "No lumi data for %s, " \
-                                  "writing dummy cache file to avoid re-querying the DB" % \
-                                  day.isoformat()
-                        dummy_file = open(cache_file_path, "w")
-                        dummy_file.close()
+                    if verbose:
+                        print "No lumi data for %s, " \
+                              "writing dummy cache file to avoid re-querying the DB" % \
+                              day.isoformat()
+                    dummy_file = open(cache_file_path, "w")
+                    dummy_file.close()
                 else:
                     print >> sys.stderr, \
                           "ERROR Problem running lumiCalc: %s" % output
                     sys.exit(1)
+
+            # BUG BUG BUG
+            # Trying to track down where these empty files come
+            # from...
+            num_lines_0 = len(open(cache_file_tmp).readlines())
+            print "DEBUG JGH Straight after calling lumiCalc: " \
+                  "line count in cache file is %d" % num_lines_0
+            # BUG BUG BUG end
+
+            # BUG BUG BUG
+            # This works around a bug in lumiCalc where sometimes not
+            # all data for a given day is returned. The work-around is
+            # to ask for data from two days and then filter out the
+            # unwanted day.
             newfile = open(cache_file_path, 'w')
-	    for line in file(cache_file_tmp, 'r'):
-	        if( date_begin_day_str in line) or ("Delivered" in line):
-	            newfile.write(line)
-	    newfile.close()
+            for line in file(cache_file_tmp, 'r'):
+                if (date_begin_day_str in line) or ("Delivered" in line):
+                    newfile.write(line)
+            newfile.close()
+            # BUG BUG BUG end
+
+            # BUG BUG BUG
+            # Trying to track down where these empty files come
+            # from...
+            num_lines_1 = len(open(cache_file_path).readlines())
+            print "DEBUG JGH After filtering: " \
+                  "line count in cache file is %d" % num_lines_1
+            # BUG BUG BUG end
+
             if verbose:
-	        print "csv file for the day written to %s" % cache_file_path
+                print "    CSV file for the day written to %s" % \
+                      cache_file_path
         else:
             if verbose:
                 print "    cache file for %s exists" % day.isoformat()
+
+            # BUG BUG BUG
+            # Trying to track down where these empty files come
+            # from...
+            num_lines_2 = len(open(cache_file_path).readlines())
+            print "DEBUG JGH From existing cache file: " \
+                  "line count in cache file is %d" % num_lines_2
+
+        # BUG BUG BUG
+        # Still trying to track down where these empty files come from.
+        date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
+        date_begin_day_str = day.strftime(DATE_FMT_STR_LUMICALC_DAY)
+        date_end_str = (day + datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
+        date_previous_str = (day - datetime.timedelta(days=1)).strftime(DATE_FMT_STR_LUMICALC)
+        if not beam_energy_from_cfg:
+            year = day.isocalendar()[0]
+            beam_energy = beam_energy_defaults[accel_mode][year]
+        lumicalc_flags = "%s --without-checkforupdate " \
+                         "--beamenergy %.0f " \
+                         "--beamfluctuation 0.15 " \
+                         "--amodetag %s " \
+                         "lumibyls" % \
+                         (lumicalc_flags_from_cfg, beam_energy, accel_mode)
+        lumicalc_flags = lumicalc_flags.strip()
+        lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
+        cache_file_jgh = "cache_debug.csv"
+        cmd = "%s --begin '%s' --end '%s' -o %s" % \
+              (lumicalc_cmd, date_begin_str, date_end_str, cache_file_jgh)
+        print "DEBUG JGH Re-running lumicalc for a single day as '%s'" % cmd
+        (status, output) = commands.getstatusoutput(cmd)
+        if status != 0:
+            # This means 'no qualified data found'.
+            if ((status >> 8) == 13 or (status >> 8) == 14):
+                dummy_file = open(cache_file_jgh, "w")
+                dummy_file.write("Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n")
+                dummy_file.close()
+            else:
+                print >> sys.stderr, \
+                      "ERROR Problem running lumiCalc: %s" % output
+                sys.exit(1)
+        num_lines_3 = len(open(cache_file_path).readlines())
+        num_lines_4 = len(open(cache_file_jgh).readlines())
+        print "DEBUG JGH Line count in data file: " \
+              "%d" % num_lines_3
+        print "DEBUG JGH Line count in cross-check: " \
+              "%d" % num_lines_4
+        if num_lines_4 != num_lines_3:
+            print "DEBUG JGH   !!! Line count mismatch!!!"
+            if num_lines_4 < num_lines_3:
+                print "DEBUG JGH   !!!  --> found an occurrence of the lumiCalc stoptime bug!!!"
+            else:
+                print "DEBUG JGH   !!!  --> found a problem !!!"
+                #pdb.set_trace()
+        # BUG BUG BUG end
 
     # Now read back all lumiCalc results.
     print "Reading back lumiCalc results"
@@ -895,8 +974,8 @@ if __name__ == "__main__":
                                         bbox_to_anchor=(0.025, 0., 1., .97),
                                         frameon=False)
                     tmp_leg.legendHandles[0].set_visible(False)
-		    for t in tmp_leg.get_texts():
-		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
+                    for t in tmp_leg.get_texts():
+                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Peak Luminosity Per Day, " \
@@ -959,7 +1038,7 @@ if __name__ == "__main__":
                     leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
                     for t in leg.get_texts():
-		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
+                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity Per Day, " \
                                  "%s, %d, $\mathbf{\sqrt{s} =}$ %s" % \
@@ -1021,8 +1100,8 @@ if __name__ == "__main__":
                             (tot_rec, LatexifyUnits(units)))
                     leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
-		    for t in leg.get_texts():
-		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
+                    for t in leg.get_texts():
+                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity, " \
@@ -1155,8 +1234,8 @@ if __name__ == "__main__":
                                         bbox_to_anchor=(0.025, 0., 1., .97),
                                         frameon=False)
                     tmp_leg.legendHandles[0].set_visible(False)
-		    for t in tmp_leg.get_texts():
-		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
+                    for t in tmp_leg.get_texts():
+                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Peak Luminosity Per Week, " \
@@ -1220,7 +1299,7 @@ if __name__ == "__main__":
                     leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
                     for t in leg.get_texts():
-		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
+                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity Per Week, " \
@@ -1284,7 +1363,7 @@ if __name__ == "__main__":
                     leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
                     for t in leg.get_texts():
-		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
+                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity, " \
@@ -1444,7 +1523,7 @@ if __name__ == "__main__":
                     leg = ax.legend(loc="upper left", bbox_to_anchor=(tmp_x, 0., 1., tmp_y),
                               frameon=False, ncol=num_cols)
                     for t in leg.get_texts():
-		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
+                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                     # Set titles and labels.
                     fig.suptitle(r"CMS Integrated Luminosity, %s" % particle_type_str,
@@ -1582,7 +1661,7 @@ if __name__ == "__main__":
                     # BUG BUG BUG end
 
                     num_cols = None
-                    num_cols = len(years) - 2 
+                    num_cols = len(years) - 2
                     tmp_x = .09
                     tmp_y = .97
                     leg = ax.legend(loc="upper left",
@@ -1590,8 +1669,8 @@ if __name__ == "__main__":
                               labelspacing=.2,
                               columnspacing=.2,
                               frameon=False, ncol=num_cols)
-	            for t in leg.get_texts():
-		        t.set_font_properties(FONT_PROPS_TICK_LABEL)    # the legend text font properties
+                    for t in leg.get_texts():
+                        t.set_font_properties(FONT_PROPS_TICK_LABEL)
 
                 # Set titles and labels.
                 fig.suptitle(r"CMS Peak Luminosity Per Day, %s" % particle_type_str,
