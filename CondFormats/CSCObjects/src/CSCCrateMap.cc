@@ -19,8 +19,8 @@ CSCDetId CSCCrateMap::detId( int vme, int dmb, int cfeb, int layer ) const {
   int ic = mitem.chamber;
 
   // Now sort out ME1a from ME11-combined
-  // cfeb =0-3 for ME1b, cfeb=4 for ME1a 
-  if ( is == 1  && ir == 1 && cfeb == 4 ) { 
+  // cfeb =0-3 for ME1b, cfeb=4 for ME1a (cfeb=4-6 for upgraded ME1a) 
+  if ( is == 1  && ir == 1 && cfeb >= 4 && cfeb <=6) { 
     // This is ME1a region  
     ir = 4; // reset from 1 to 4 which flags ME1a 
   }

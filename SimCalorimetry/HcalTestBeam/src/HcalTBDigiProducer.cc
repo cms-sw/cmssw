@@ -102,16 +102,19 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup co
   theHODigitizer->initializeHits();
 }
 
-void HcalTBDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const& hits, int bunchCrossing) {
+void HcalTBDigiProducer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, int bunchCrossing) {
 
   LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate trying to get SimHit";
 
-  if(theHitCorrection != 0) {
-    theHitCorrection->fillChargeSums(hits);
+  if(hcalHandle.isValid()) {
+    std::vector<PCaloHit> const& hits = *hcalHandle.product();
+    if(theHitCorrection != 0) {
+      theHitCorrection->fillChargeSums(hits);
+    }
+    LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate Hits corrected";
+    theHBHEDigitizer->add(hits, bunchCrossing);
+    theHODigitizer->add(hits, bunchCrossing);
   }
-  LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate Hits corrected";
-  theHBHEDigitizer->add(hits, bunchCrossing);
-  theHODigitizer->add(hits, bunchCrossing);
 }
 
 void HcalTBDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&) {
@@ -121,7 +124,7 @@ void HcalTBDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&)
   edm::Handle<std::vector<PCaloHit> > hcalHandle;
   e.getByLabel(hcalTag, hcalHandle);
 
-  accumulateCaloHits(*hcalHandle.product(), 0);
+  accumulateCaloHits(hcalHandle, 0);
 }
 
 void HcalTBDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const&) {
@@ -131,7 +134,7 @@ void HcalTBDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSet
   edm::Handle<std::vector<PCaloHit> > hcalHandle;
   e.getByLabel(hcalTag, hcalHandle);
 
-  accumulateCaloHits(*hcalHandle.product(), e.bunchCrossing());
+  accumulateCaloHits(hcalHandle, e.bunchCrossing());
 }
 
 void HcalTBDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {

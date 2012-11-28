@@ -76,7 +76,7 @@ namespace edmtest
 	  std::cout << "Built CSCDetId for chamber # " << count << " id= " << id << " count " << countall << std::endl;
 
           if ( id.station()==1 && id.ring()==1 ) {
-            jcfeb = 4; // Split off ME1a
+            jcfeb = 4; // Split off ME1a. Beware: cfeb=4-6 for upgraded ME1a!
             CSCDetId id = pcrate->detId( jcrate, jdmb, jcfeb ); // *** TEST THE detId BUILDER FOR CHAMBER ME1a ***
 	    std::cout << "Built CSCDetId for ME1a, id= " << id << " count " << countall << std::endl;
 	  }

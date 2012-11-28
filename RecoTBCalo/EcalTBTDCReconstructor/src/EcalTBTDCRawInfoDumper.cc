@@ -2,7 +2,6 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
 #include "DataFormats/Common/interface/EDCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

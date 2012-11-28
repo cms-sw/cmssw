@@ -6,11 +6,6 @@ from RecoJets.Configuration.CaloTowersRec_cff import *
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 from RecoHI.HiJetAlgos.HiCaloJetParameters_cff import *
 
-## Calo Towers
-CaloTowerConstituentsMapBuilder = cms.ESProducer("CaloTowerConstituentsMapBuilder",
-    MapFile = cms.untracked.string('Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz')
-)
-
 caloTowers = cms.EDProducer("CaloTowerCandidateCreator",
     src = cms.InputTag("towerMaker"),
     e = cms.double(0.0),

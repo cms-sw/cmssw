@@ -536,12 +536,12 @@ HCALResponse::responseHCAL(int mip, double energy, double eta, int partype)
 	  else  ie = i-1;        // back extrapolation with the first interval
 	  break;
 	}
-	
+      }
+
 	if(ie == -1) ie = maxMUe - 2;     // more than maximum - 
 	interMU(energy, ie, ieta);         // extrapolation using the last interv
 	if(mean > energy) mean = energy;  
 	
-      }
     }
   }
   

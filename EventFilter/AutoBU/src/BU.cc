@@ -14,7 +14,6 @@
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "EventFilter/FEDInterface/interface/GlobalEventNumber.icc"
 
 #include "xoap/SOAPEnvelope.h"
 #include "xoap/SOAPBody.h"
@@ -70,9 +69,7 @@ BU::BU(xdaq::ApplicationStub *s)
   , mode_("RANDOM")
   , replay_(false)
   , crc_(true)
-  , overwriteEvtId_(false)
-  , overwriteLsId_(false)
-  , fakeLsUpdateSecs_(23)
+  , overwriteEvtId_(true)
   , firstEvent_(1)
   , queueSize_(32)
   , eventBufferSize_(0x400000)
@@ -82,7 +79,6 @@ BU::BU(xdaq::ApplicationStub *s)
   , fedSizeWidth_(1024)
   , useFixedFedSize_(false)
   , monSleepSec_(1)
-  , fakeLs_(0)
   , gaussianMean_(0.0)
   , gaussianWidth_(1.0)
   , monLastN_(0)
@@ -657,8 +653,6 @@ void BU::exportParameters()
   gui_->addStandardParam("mode",              &mode_);
   gui_->addStandardParam("replay",            &replay_);
   gui_->addStandardParam("overwriteEvtId",    &overwriteEvtId_);
-  gui_->addStandardParam("overwriteLsId",     &overwriteLsId_);
-  gui_->addStandardParam("fakeLsUpdateSecs",   &fakeLsUpdateSecs_);
   gui_->addStandardParam("crc",               &crc_);
   gui_->addStandardParam("firstEvent",        &firstEvent_);
   gui_->addStandardParam("queueSize",         &queueSize_);
@@ -719,7 +713,6 @@ void BU::reset()
     freeIds_.push(i);
   }
   validFedIds_.clear();
-  fakeLs_=0;
 }
 
 //______________________________________________________________________________
@@ -808,58 +801,7 @@ toolbox::mem::Reference *BU::createMsgChain(BUEvent* evt,
   unsigned int msgPayloadSize=msgBufferSize_-msgHeaderSize;
 
   if((msgPayloadSize%4)!=0) LOG4CPLUS_ERROR(log_,"Invalid Payload Size.");
- 
-  /*Overwrite lumisection value stored in the event*/
-  if (overwriteLsId_.value_) {
-    //getting new time and increase LS if past 23 sec
-    struct timezone tz;
-    if (!fakeLs_) {
-      fakeLs_++;
-      gettimeofday(&lastLsUpdate_,&tz);
-    }
-    else {
-      timeval newLsUpdate;
-      gettimeofday(&newLsUpdate,&tz);
-      if ((unsigned long)1000000*newLsUpdate.tv_sec+newLsUpdate.tv_usec 
-	  - (unsigned  long)1000000*lastLsUpdate_.tv_sec+lastLsUpdate_.tv_usec
-	  >= fakeLsUpdateSecs_.value_*1000000) 
-      {
-	fakeLs_++;
-	lastLsUpdate_=newLsUpdate;
-      }
-    }
-
-    int gtpFedPos_=-1;
-    int egtpFedPos_=-1;
-    for (size_t k=0;k<validFedIds_.size();k++) {
-      if (evt->fedId(k)==FEDNumbering::MINTriggerGTPFEDID) {
-      //insert ls value into gtp fed
-	unsigned char * fgtpAddr = evt->fedAddr(k);
-	unsigned int fgtpSize = evt->fedSize(k);
-	if (fgtpAddr && fgtpSize) {
-	  gtpFedPos_=(int)k;
-          evtn::evm_board_sense(fgtpAddr,fgtpSize);
-	  *((unsigned short*)fgtpAddr
-	      +sizeof(fedh_t)/sizeof(unsigned short)
-	      + (evtn::EVM_GTFE_BLOCK*2 + evtn::EVM_TCS_LSBLNR_OFFSET)*evtn::SLINK_HALFWORD_SIZE /sizeof(unsigned short)
-	   ) = (unsigned short)fakeLs_-1;
-	}
-      }
-      if (evt->fedId(k)==FEDNumbering::MINTriggerEGTPFEDID) {
-        //insert orbit value into gtpe fed
-	unsigned char * fegtpAddr = evt->fedAddr(egtpFedPos_);
-	unsigned int fegtpSize = evt->fedSize(egtpFedPos_);
-	if (fegtpAddr && fegtpSize) {
-	  egtpFedPos_=(int)k;
-	  *(  (unsigned int*)fegtpAddr + evtn::GTPE_ORBTNR_OFFSET * evtn::SLINK_HALFWORD_SIZE/sizeof(unsigned int)
-	   ) = (unsigned int)(fakeLs_-1)*0x00100000;
-	}
-      }
-    }
-    if (gtpFedPos_<0) LOG4CPLUS_ERROR(log_,"Unable to find GTP FED in event!");
-    if (egtpFedPos_<0 && gtpFedPos_<0) LOG4CPLUS_ERROR(log_,"Unable to find GTP or GTPE FED in event!");
-  }
-
+  
   toolbox::mem::Reference *head  =0;
   toolbox::mem::Reference *tail  =0;
   toolbox::mem::Reference *bufRef=0;

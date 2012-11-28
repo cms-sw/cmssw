@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: EcalDumpRaw.cc,v 1.9 2012/01/11 20:52:35 davidlt Exp $
+ * $Id: EcalDumpRaw.cc,v 1.8 2010/12/07 00:31:21 wmtan Exp $
  *
  * Author: Ph Gras. CEA/IRFU - Saclay
  *
@@ -393,7 +393,7 @@ EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es){
 
       bool feL1aErr = false;
       for(int i=0; i < nRu_; ++i){
-        if(feL1a_[i] != -1 && feL1a_[i] != ((localL1a-1) & 0xFFF)){
+        if(feL1a_[i]!=-1 && feL1a_[i]!=localL1a-1){
           cerr << "FE L1A error for " << toNth(i+1) << " RU, RU ID "
                << feRuId_[i];
           if((unsigned) feRuId_[i] <= dccChStatus_.size()){

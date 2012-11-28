@@ -7,7 +7,7 @@
  * 
  * \author Tim Cox
  *
- * There are only a small finite number (9) of distinct chamber types 
+ * There are only a small finite number (9, or 10 incl. ME1A as separate) of distinct chamber types 
  * in the hardware, according to physical dimensions and properties. 
  * The individual types currently correspond to each (Station,Ring) pair.
  *
@@ -46,7 +46,7 @@ public:
   CSCChamberSpecs();
 
   /// Usual ctor from supplied params
-  CSCChamberSpecs( const CSCGeometry* geom, int iChamberType , 
+  CSCChamberSpecs( const CSCGeometry* geom, int iChamberType, 
 		   const TrapezoidalPlaneBounds& mediaShape,
                    const CSCSpecsParcel& fupar,
                    const CSCWireGroupPackage& wg 
@@ -191,6 +191,10 @@ public:
   //@@ The following is nonsense to be fixed at some stage
   //  float adcThreshold()        const {return 9.99;}  
 
+  /**
+   * Are strips ganged?
+   */
+   bool gangedStrips() const { return gangedStrips_; }
 
   // STATIC FUNCTION
 
@@ -230,6 +234,8 @@ public:
   int nstrips; // no. of strips per layer
   float stripDeltaPhi;   // Delta-phi width of strip in this chamber type (in mrad)
   float centreToIntersectionOffset; // Possible correction to whereStripsMeet
+
+  bool gangedStrips_;
 
   // Names of chamber types
   static const std::string theName[10];

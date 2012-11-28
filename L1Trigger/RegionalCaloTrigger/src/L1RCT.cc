@@ -43,16 +43,6 @@ void L1RCT::processEvent(){
     crates.at(i).fillJetSummaryCard();
     crates.at(i).processJetSummaryCard();
   }
-  // TEMP output
-  unsigned int totalRegionET = 0;
-  for(int i = 0; i < 18; i++) {
-    std::vector<L1CaloRegion> regions = getRegions(i);
-    for(int j = 0; j < 14; j++) {  // excludes hf
-      totalRegionET += regions.at(j).et();
-    }
-  }
-  std::cout << "Total Region ET excluding HF after RCT = " << totalRegionET << std::endl;
-
 }
 
 void L1RCT::makeCrates()

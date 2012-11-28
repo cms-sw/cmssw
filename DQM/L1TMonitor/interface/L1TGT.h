@@ -10,8 +10,8 @@
  * \author J. Berryhill, I. Mikulec
  * \author Vasile Mihai Ghete - HEPHY Vienna
  *
- * $Date: 2012/04/04 09:56:36 $
- * $Revision: 1.11 $
+ * $Date: 2012/03/29 14:49:30 $
+ * $Revision: 1.10 $
  *
  */
 
@@ -91,11 +91,6 @@ private:
         TCS, FDLEVM
     };
 
-    // count the number of indices per Ls for prescale factor sets
-    // if no errors, it must be 1
-    void countPfsIndicesPerLs();
-
-
 private:
 
     /// input parameters
@@ -106,15 +101,11 @@ private:
     /// input tag for L1 GT EVM readout record
     edm::InputTag gtEvmSource_;
 
-    /// switches to choose the running of various methods
-    bool m_runInEventLoop;
-    bool m_runInEndLumi;
-    bool m_runInEndRun;
-    bool m_runInEndJob;
-
-
     /// verbosity switch
     bool verbose_;
+
+    /// file name for ROOT output
+    std::string outputFile_;
 
 private:
 
@@ -185,6 +176,9 @@ private:
     boost::uint64_t preGps_;
     boost::uint64_t preOrb_;
 
+    ///
+    int m_previousLS;
+    int m_previousPfIndex;
 
     std::vector<std::pair<int,int> > m_pairLsNumberPfIndex;
     typedef std::vector<std::pair<int, int> >::const_iterator CItVecPair;

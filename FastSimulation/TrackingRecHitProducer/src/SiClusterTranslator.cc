@@ -157,7 +157,7 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       
       const GeomDetUnit *  geoDet = tracker.idToDetUnit(det);
       const PixelGeomDetUnit * pixelDet=(const PixelGeomDetUnit*)(geoDet);
-      const PixelTopology& topol=(PixelTopology&)pixelDet->topology();
+      const PixelTopology& topol=(const PixelTopology&)pixelDet->topology();
       
       //Out of pixel is float, but input of pixel is int. Hopeful it works...
       std::pair<float,float> pixelPos_out = topol.pixel(position);
@@ -211,10 +211,10 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       
       //3 = TIB, 4 = TID, 5 = TOB, 6 = TEC
       if((subdet == 3) || (subdet == 5)) {
-	const RectangularStripTopology& topol=(RectangularStripTopology&)stripDet->type().topology();
+	const RectangularStripTopology& topol=(const RectangularStripTopology&)stripDet->type().topology();
 	strip_num = (uint16_t)topol.strip(position);
       } else if ((subdet == 4) || (subdet == 6)) {
-	const RadialStripTopology& topol=(RadialStripTopology&)stripDet->type().topology();
+	const RadialStripTopology& topol=(const RadialStripTopology&)stripDet->type().topology();
 	strip_num = (uint16_t)topol.strip(position);
       }
       

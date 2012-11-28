@@ -24,8 +24,8 @@ l1tRate = cms.EDAnalyzer("L1TRate",
   useHFDeadTimeNormalization = cms.untracked.bool(False),
   
   # Plot Parameters
-  minInstantLuminosity = cms.double ( 100),
-  maxInstantLuminosity = cms.double(10000),
+  minInstantLuminosity = cms.double (100),
+  maxInstantLuminosity = cms.double(5000),
   
   # Index for the prescale set to be used as reference
   refPrescaleSet = cms.int32(0), 
@@ -61,7 +61,7 @@ l1tRate = cms.EDAnalyzer("L1TRate",
   pathCondDB = cms.string("/nfshome0/centraltspro/secure/"),                
 
   ## Offline
-  #oracleDB   = cms.string("oracle://cms_orcon_adg/CMS_COND_31X_L1T"), # For offline
+  #oracleDB   = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T"), # For offline
   #pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb"), 
 
   # if srcAlgoXSecFit = 1 we need to define 

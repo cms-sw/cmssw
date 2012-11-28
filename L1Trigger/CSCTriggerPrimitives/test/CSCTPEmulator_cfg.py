@@ -27,9 +27,9 @@ sys.path.insert(0, os.path.join(os.environ['CMSSW_BASE'],
 process.source = cms.Source("PoolSource",
 ##     fileNames = cms.untracked.vstring('file:/data0/slava/data/run109562/FE316E49-047F-DE11-AC0C-001D09F231B0.root')
      fileNames = cms.untracked.vstring(
-#        '/store/data/CRAFT09/Cosmics/RAW/v1/000/109/562/FE316E49-047F-DE11-AC0C-001D09F231B0.root'
-#        '/store/data/BeamCommissioning09/Cosmics/RAW/v1/000/122/909/F81EA88E-A5DB-DE11-AA71-00304879FBB2.root'
-        '/store/data/Run2010A/Mu/RAW/v1/000/142/135/D6C7EAD8-009E-DF11-AD9D-0030487CBD0A.root'
+#         '/store/data/Commissioning12/MinimumBias/RAW/v1/000/189/778/FC9A951F-977A-E111-9385-001D09F2B30B.root'
+#         '/store/data/Run2012C/SingleMu/RAW/v1/000/199/703/6401E77F-05D7-E111-A310-BCAEC518FF41.root'
+         'rfio:/castor/cern.ch/cms/store/data/Run2012C/SingleMu/RAW/v1/000/200/152/F8871A89-F8DC-E111-BAF2-003048F024FA.root'
      )
 ##        untracked uint32 debugVebosity = 10
 ##        untracked bool   debugFlag     = false
@@ -67,16 +67,17 @@ process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'MC_38Y_V8::All'
-process.GlobalTag.globaltag = 'GR_R_38X_V8::All'
+process.GlobalTag.globaltag = 'GR_R_60_V7::All'
 #process.prefer("GlobalTag")
 
 # magnetic field (do I need it?)
 # ==============================
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 
 # CSC raw --> digi unpacker
 # =========================
 process.load("EventFilter.CSCRawToDigi.cscUnpacker_cfi")
+process.muonCSCDigis.InputObjects = "rawDataCollector"
 # InputObjects = cms.InputTag("cscpacker","CSCRawData")
 # for run 566 and 2008 data
 # ErrorMask = cms.untracked.uint32(0xDFCFEFFF)
@@ -118,9 +119,9 @@ process.lctreader.debug = True
 
 # Output
 # ======
-process.out = cms.OutputModule("PoolOutputModule",
+process.output = cms.OutputModule("PoolOutputModule",
     #fileName = cms.untracked.string("/data0/slava/test/lcts_run122909.root"),
-    fileName = cms.untracked.string("lcts_run142135.root"),
+    fileName = cms.untracked.string("lcts_run200152.root"),
     outputCommands = cms.untracked.vstring("keep *", 
         "drop *_DaqSource_*_*")
 )
@@ -133,4 +134,4 @@ process.TFileService = cms.Service("TFileService",
 # ==============
 #process.p = cms.Path(process.myfilter*process.muonCSCDigis*process.cscTriggerPrimitiveDigis*process.lctreader)
 process.p = cms.Path(process.muonCSCDigis*process.cscTriggerPrimitiveDigis*process.lctreader)
-#process.ep = cms.EndPath(process.out)
+#process.ep = cms.EndPath(process.output)

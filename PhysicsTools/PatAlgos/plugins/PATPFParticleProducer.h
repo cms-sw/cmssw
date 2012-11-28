@@ -1,5 +1,5 @@
 //
-// $Id: PATPFParticleProducer.h,v 1.7 2010/02/20 21:00:26 wmtan Exp $
+// $Id: PATPFParticleProducer.h,v 1.6 2009/06/25 23:49:35 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPFParticleProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::PFCandidate.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATPFParticleProducer.h,v 1.7 2010/02/20 21:00:26 wmtan Exp $
+  \version  $Id: PATPFParticleProducer.h,v 1.6 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
 
@@ -30,9 +30,6 @@
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
-
-#include "DataFormats/PatCandidates/interface/UserData.h"
-#include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 #include <string>
 
@@ -70,9 +67,6 @@ namespace pat {
       
       bool addResolutions_;
       pat::helper::KinResolutionsLoader resolutionLoader_;
-
-      bool useUserData_;
-      pat::PATUserDataHelper<pat::PFParticle> userDataHelper_;
 
  
   };

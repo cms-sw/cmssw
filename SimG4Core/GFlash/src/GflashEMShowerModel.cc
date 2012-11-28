@@ -24,7 +24,7 @@ GflashEMShowerModel::GflashEMShowerModel(const G4String& modelName,
 					 edm::ParameterSet parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
 
-  theWatcherOn = parSet.getParameter<bool>("watcherOn");
+  //theWatcherOn = parSet.getParameter<bool>("watcherOn");
 
   theProfile = new GflashEMShowerProfile(parSet);
   theRegion  = const_cast<const G4Region*>(envelope); 
@@ -39,8 +39,8 @@ GflashEMShowerModel::GflashEMShowerModel(const G4String& modelName,
 
 GflashEMShowerModel::~GflashEMShowerModel() {
 
-  if(theProfile) delete theProfile;
-  if(theGflashStep) delete theGflashStep;
+  delete theProfile;
+  delete theGflashStep;
 }
 
 G4bool GflashEMShowerModel::IsApplicable(const G4ParticleDefinition& particleType) { 
@@ -54,41 +54,35 @@ G4bool GflashEMShowerModel::IsApplicable(const G4ParticleDefinition& particleTyp
 G4bool GflashEMShowerModel::ModelTrigger(const G4FastTrack & fastTrack ) {
 
   // Mininum energy cutoff to parameterize
-  if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < 1.0*GeV) return false;
-  if(excludeDetectorRegion(fastTrack)) return false;
+  if(fastTrack.GetPrimaryTrack()->GetKineticEnergy() < GeV) { return false; }
+  if(excludeDetectorRegion(fastTrack)) { return false; }
 
-  //G4bool trigger = fastTrack.GetPrimaryTrack()->GetDefinition() == G4Electron::ElectronDefinition() || 
-  //  fastTrack.GetPrimaryTrack()->GetDefinition() == G4Positron::PositronDefinition();
-
-  //if(!trigger) return false;
-
-  // This will be changed accordingly when the way dealing with CaloRegion changes later.
-  G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
+  // This will be changed accordingly when the way 
+  // dealing with CaloRegion changes later.
+  G4TouchableHistory* touch = 
+    (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
   G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
-  if( pCurrentVolume == 0) return false;
+  if( pCurrentVolume == 0) { return false; }
 
   G4LogicalVolume* lv = pCurrentVolume->GetLogicalVolume();
+  if(lv->GetRegion() != theRegion) { return false; }
   //std::cout << "GflashEMShowerModel::ModelTrigger: LV " 
   //	    << lv->GetRegion()->GetName() << std::endl;
-  //  if(lv->GetRegion()->GetName() != "CaloRegion") return false;
-  //if(lv->GetRegion()->GetName() != "EcalRegion") return false;
 
   // The parameterization starts inside crystals
-  std::size_t pos1 = lv->GetName().find("EBRY");
-  std::size_t pos2 = lv->GetName().find("EFRY");
-  /*
-  std::size_t pos3 = lv->GetName().find("HVQ");
-  std::size_t pos4 = lv->GetName().find("HF");
-  if(pos1 == std::string::npos && pos2 == std::string::npos &&
-     pos3 == std::string::npos && pos4 == std::string::npos) return false;
-  */
+  //std::size_t pos1 = lv->GetName().find("EBRY");
+  //std::size_t pos2 = lv->GetName().find("EFRY");
+  
+  //std::size_t pos3 = lv->GetName().find("HVQ");
+  //std::size_t pos4 = lv->GetName().find("HF");
+  //if(pos1 == std::string::npos && pos2 == std::string::npos &&
+  //   pos3 == std::string::npos && pos4 == std::string::npos) return false;
   //@@@for now, HF is not a part of Gflash Envelopes
-  if(pos1 == std::string::npos && pos2 == std::string::npos ) return false;
+  //if(pos1 == std::string::npos && pos2 == std::string::npos ) return false;
 
   return true;
 
 }
-
 
 // -----------------------------------------------------------------------------------
 void GflashEMShowerModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
@@ -176,7 +170,7 @@ G4bool GflashEMShowerModel::excludeDetectorRegion(const G4FastTrack& fastTrack) 
   //exclude regions where geometry are complicated
   //+- one supermodule around the EB/EE boundary: 1.479 +- 0.0174*5 
   G4double eta =   fastTrack.GetPrimaryTrack()->GetPosition().pseudoRapidity() ;
-  if(std::fabs(eta) > 1.392 && std::fabs(eta) < 1.566) return true;
+  if(std::fabs(eta) > 1.392 && std::fabs(eta) < 1.566) { return true; }
 
   return isExcluded;
 }

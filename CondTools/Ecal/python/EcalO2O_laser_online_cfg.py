@@ -6,8 +6,8 @@ process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/cond
 #
 # Choose the output database
 #
-process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_42X_ECAL_LASP'
-#process.CondDBCommon.connect = 'sqlite_file:DB.db'
+#process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_311X_ECAL_LAS'
+process.CondDBCommon.connect = 'sqlite_file:DB.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules = cms.untracked.vstring('*'),
@@ -26,7 +26,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
                                       timetype = cms.untracked.string('timestamp'),
                                       toGet = cms.VPSet(cms.PSet(
     record = cms.string('EcalLaserAPDPNRatiosRcd'),
-    tag = cms.string('EcalLaserAPDPNRatios_last')
+    tag = cms.string('EcalLaserAPDPNRatios_v4_online')
     ))
                                       )
 
@@ -36,13 +36,13 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           timetype = cms.untracked.string('timestamp'),
                                           toPut = cms.VPSet(cms.PSet(
     record = cms.string('EcalLaserAPDPNRatiosRcd'),
-    tag = cms.string('EcalLaserAPDPNRatios_last')
+    tag = cms.string('EcalLaserAPDPNRatios_v4_online')
     ))
                                           )
 #
 # Be sure to comment the following line while testing
 #
-#process.PoolDBOutputService.logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG')
+#logconnect = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_POPCONLOG'),
 
 process.Test1 = cms.EDAnalyzer("ExTestEcalLaserAnalyzer",
     SinceAppendMode = cms.bool(True),
@@ -53,15 +53,15 @@ process.Test1 = cms.EDAnalyzer("ExTestEcalLaserAnalyzer",
     # it can be expressed either as an absolute time with format YYYY-MM-DD HH24:MI:SS
     # or as a relative time w.r.t. now, using -N, where N is expressed in units
     # of hours
-#    maxtime = cms.string("-40"),
-       maxtime = cms.string("2012-12-12 23:59:59"),
+        maxtime = cms.string("-40"),
+    #   maxtime = cms.string("2011-12-12 23:59:59"),
         sequences = cms.string("16"),  
         OnlineDBUser = cms.string('CMS_ECAL_LASER_COND'),
     # debug must be False for production
-        debug = cms.bool(False),
+        debug = cms.bool(True),
     # if fake is True, no insertion in the db is performed
         fake = cms.bool(True),
-        OnlineDBPassword = cms.string('0r4cms_3c4l_2011'),
+        OnlineDBPassword = cms.string('XXXX'),
         OnlineDBSID = cms.string('CMS_OMDS_LB')
     )
 )

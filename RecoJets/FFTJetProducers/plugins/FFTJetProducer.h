@@ -21,7 +21,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.h,v 1.8 2011/10/25 00:23:52 igv Exp $
+// $Id: FFTJetProducer.h,v 1.7 2011/07/11 19:45:59 igv Exp $
 //
 //
 
@@ -77,8 +77,7 @@ public:
         FIXED = 0,
         MAXIMALLY_STABLE,
         GLOBALLY_ADAPTIVE,
-        LOCALLY_ADAPTIVE,
-        FROM_GENJETS
+        LOCALLY_ADAPTIVE
     };
 
     explicit FFTJetProducer(const edm::ParameterSet&);
@@ -100,13 +99,6 @@ protected:
     // your own precluster selection strategy
     virtual void selectPreclusters(
         const SparseTree& tree,
-        const fftjet::Functor1<bool,fftjet::Peak>& peakSelector,
-        std::vector<fftjet::Peak>* preclusters);
-
-    // Precluster maker from GenJets (useful in calibration)
-    virtual void genJetPreclusters(
-        const SparseTree& tree,
-        edm::Event&, const edm::EventSetup&,
         const fftjet::Functor1<bool,fftjet::Peak>& peakSelector,
         std::vector<fftjet::Peak>* preclusters);
 
@@ -294,17 +286,9 @@ private:
     const double unlikelyBgWeight;
     const double recombinationDataCutoff;
 
-    // Label for the genJets used as seeds for jets
-    const edm::InputTag genJetsLabel;
-    
-    // Maximum number of preclusters to use as jet seeds.
-    // This does not take into account the preclusters
-    // for which the value of the membership factor is 0.
-    const unsigned maxInitialPreclusters;
-
     // Resolution. The corresponding parameter value
     // should be one of "fixed", "maximallyStable",
-    // "globallyAdaptive", "locallyAdaptive", or "fromGenJets".
+    // "globallyAdaptive", or "locallyAdaptive".
     Resolution resolution;
 
     // Scales used

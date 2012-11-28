@@ -235,6 +235,9 @@ bool TestFunct::DropTables(std::string connStr)
 	exclude.insert("TEST_STATUS");
 	exclude.insert("SEQUENCES");
 	exclude.insert("TEST_RESULTS");
+	exclude.insert("RUN_HEADER");
+	exclude.insert("RUN_RESULT");
+	exclude.insert("RUN_STEP_RESULT");
 	try
 	{
 		ora::SchemaUtils::cleanUp(connStr, exclude); //v4

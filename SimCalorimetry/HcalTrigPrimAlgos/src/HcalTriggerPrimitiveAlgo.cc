@@ -44,8 +44,10 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
                                    const HBHEDigiCollection& hbheDigis,
                                    const HFDigiCollection& hfDigis,
                                    HcalTrigPrimDigiCollection& result,
+				   const HcalTrigTowerGeometry* trigTowerGeometry,
                                    float rctlsb) {
-
+   theTrigTowerGeometry = trigTowerGeometry;
+    
    incoder_=dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
    outcoder_=outcoder;
 
@@ -70,7 +72,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
       result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
       HcalTrigTowerDetId detId(mapItr->second.id());
-      if(detId.ietaAbs() >= theTrigTowerGeometry.firstHFTower())
+      if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower())
          { analyzeHF(mapItr->second, result.back(), rctlsb);}
          else{analyze(mapItr->second, result.back());}
    }
@@ -82,7 +84,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
    //Hack for 300_pre10, should be removed.
    if (frame.id().depth()==5) return;
 
-   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
+   std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(frame.id());
    assert(ids.size() == 1 || ids.size() == 2);
    IntegerCaloSamples samples1(ids[0], int(frame.size()));
 
@@ -111,7 +113,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
 
    if(frame.id().depth() == 1 || frame.id().depth() == 2) {
-      std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(frame.id());
+      std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(frame.id());
       assert(ids.size() == 1);
       IntegerCaloSamples samples(ids[0], frame.size());
       samples.setPresamples(frame.presamples());
@@ -329,7 +331,7 @@ void HcalTriggerPrimitiveAlgo::runFEFormatError(const FEDRawDataCollection* rawr
             if (detId.det()!=4||
               (subdet!=HcalBarrel && subdet!=HcalEndcap &&
               subdet!=HcalForward )) continue;
-            std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry.towerIds(detId);
+            std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
             for (std::vector<HcalTrigTowerDetId>::const_iterator triggerId=ids.begin(); triggerId != ids.end(); ++triggerId) {
               FrontEndErrors.insert(triggerId->rawId());
             }

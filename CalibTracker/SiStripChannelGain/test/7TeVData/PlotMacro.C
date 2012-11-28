@@ -1,3 +1,5 @@
+
+
 #include "TROOT.h"
 #include "TFile.h"
 #include "TDirectory.h"
@@ -230,15 +232,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
    TH1D* ChargeAbsTECM1 = new TH1D("ChargeAbsTECM1","ChargeAbsTECM1",                500, 0,2000);
    TH1D* ChargeAbsTECM2 = new TH1D("ChargeAbsTECM2","ChargeAbsTECM2",                500, 0,2000);
 
-   TH1D* DiffWRTPrevGainTIB      = new TH1D("DiffWRTPrevGainTIB"     ,"DiffWRTPrevGainTIB"     ,               250, 0,2);
-   TH1D* DiffWRTPrevGainTID      = new TH1D("DiffWRTPrevGainTID"     ,"DiffWRTPrevGainTID"     ,               250, 0,2);
-   TH1D* DiffWRTPrevGainTOB      = new TH1D("DiffWRTPrevGainTOB"     ,"DiffWRTPrevGainTOB"     ,               250, 0,2);
-   TH1D* DiffWRTPrevGainTEC      = new TH1D("DiffWRTPrevGainTEC"     ,"DiffWRTPrevGainTEC"     ,               250, 0,2);
 
-   TH2D* GainVsPrevGainTIB      = new TH2D("GainVsPrevGainTIB"     ,"GainVsPrevGainTIB"     ,               100, 0,2, 100, 0,2);
-   TH2D* GainVsPrevGainTID      = new TH2D("GainVsPrevGainTID"     ,"GainVsPrevGainTID"     ,               100, 0,2, 100, 0,2);
-   TH2D* GainVsPrevGainTOB      = new TH2D("GainVsPrevGainTOB"     ,"GainVsPrevGainTOB"     ,               100, 0,2, 100, 0,2);
-   TH2D* GainVsPrevGainTEC      = new TH2D("GainVsPrevGainTEC"     ,"GainVsPrevGainTEC"     ,               100, 0,2, 100, 0,2);
 
 
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
@@ -251,8 +245,6 @@ void PlotMacro_Core(string input, string moduleName, string output)
       TH1D* Proj         = ChargeDistrib ->ProjectionY("proj" ,bin, bin);
       TH1D* ProjAbsolute = ChargeDistribA->ProjectionY("projA",bin, bin);
 
-      if(tree_FitMPV<0                        ) NoMPV         ->Fill(tree_z ,tree_R);
-      if(tree_FitMPV>=0){
 
       if(tree_SubDet==3                       ) MPV_Vs_EtaTIB ->Fill(tree_Eta,tree_FitMPV);
       if(tree_SubDet==4                       ) MPV_Vs_EtaTID ->Fill(tree_Eta,tree_FitMPV);
@@ -287,12 +279,14 @@ void PlotMacro_Core(string input, string moduleName, string output)
       if(tree_SubDet==6 && tree_Thickness<0.04 && tree_Eta<0) MPVsTECM1      ->Fill(         tree_FitMPV);
       if(tree_SubDet==6 && tree_Thickness>0.04 && tree_Eta<0) MPVsTECM2      ->Fill(         tree_FitMPV);
 
+
+      if(tree_FitMPV<0                        ) NoMPV         ->Fill(tree_z ,tree_R);
+
                                                 MPVError      ->Fill(         tree_FitMPVErr);    
                                                 MPVErrorVsMPV ->Fill(tree_FitMPV,tree_FitMPVErr);
                                                 MPVErrorVsEta ->Fill(tree_Eta,tree_FitMPVErr);
                                                 MPVErrorVsPhi ->Fill(tree_Phi,tree_FitMPVErr);
                                                 MPVErrorVsN   ->Fill(tree_NEntries,tree_FitMPVErr);
-      }
 
 
       if(tree_SubDet==3                       ) ChargeTIB  ->Add(Proj,1);
@@ -326,15 +320,7 @@ void PlotMacro_Core(string input, string moduleName, string output)
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness<0.04) ChargeAbsTECP1 ->Add(ProjAbsolute,1);
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness>0.04) ChargeAbsTECP2 ->Add(ProjAbsolute,1);
 
-      if(tree_SubDet==3                       ) DiffWRTPrevGainTIB  ->Fill(tree_Gain/tree_PrevGain);
-      if(tree_SubDet==4                       ) DiffWRTPrevGainTID  ->Fill(tree_Gain/tree_PrevGain);
-      if(tree_SubDet==5                       ) DiffWRTPrevGainTOB  ->Fill(tree_Gain/tree_PrevGain);
-      if(tree_SubDet==6                       ) DiffWRTPrevGainTEC  ->Fill(tree_Gain/tree_PrevGain);
 
-      if(tree_SubDet==3                       ) GainVsPrevGainTIB  ->Fill(tree_PrevGain,tree_Gain);
-      if(tree_SubDet==4                       ) GainVsPrevGainTID  ->Fill(tree_PrevGain,tree_Gain);
-      if(tree_SubDet==5                       ) GainVsPrevGainTOB  ->Fill(tree_PrevGain,tree_Gain);
-      if(tree_SubDet==6                       ) GainVsPrevGainTEC  ->Fill(tree_PrevGain,tree_Gain);
 
       delete Proj;
       delete ProjAbsolute;
@@ -349,25 +335,6 @@ void PlotMacro_Core(string input, string moduleName, string output)
    unsigned int CountAPV_NoGain   = 0;
    unsigned int CountAPV_NoGainU  = 0;
    unsigned int CountAPV_LowGain  = 0;
-   unsigned int CountAPV_DiffGain = 0;
-
-   pFile = fopen((output + "_MAP.txt").c_str(),"w");
-   fprintf(pFile,"#maxValue = 1.5\n");
-   fprintf(pFile,"#minValue = 0.5\n");
-   fprintf(pFile,"#defaultColor = 1.0,1.0,1.0,0.1\n");
-   printf("Looping on the Tree          :");
-   double MaxGain=0;  unsigned int previousMod=0;
-   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
-      if(ientry%TreeStep==0){printf(".");fflush(stdout);}     
-      t1->GetEntry(ientry);
-      if(previousMod>0&&tree_APVId==0){fprintf(pFile,"%i %f\n",previousMod,MaxGain); MaxGain=1;  } 
-      previousMod = tree_DetId;
-      if(fabs(tree_Gain-MaxGain)>fabs(MaxGain-1))MaxGain=tree_Gain;
-   }printf("\n");
-   if(previousMod>0){fprintf(pFile,"%i %f\n",previousMod,MaxGain); }
-   fclose(pFile);
-
-
 
    pFile = fopen((output + "_LowResponseModule.txt").c_str(),"w");
    fprintf(pFile,"\n\nALL APVs WITH NO ENTRIES (NO RECO CLUSTER ON IT)\n--------------------------------------------\n");
@@ -412,19 +379,11 @@ void PlotMacro_Core(string input, string moduleName, string output)
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
       t1->GetEntry(ientry);
-      if(tree_FitMPV>0 && tree_FitMPV<220 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_LowGain++;}
+      if(tree_FitMPV>0 && tree_FitMPV<220){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_LowGain++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_LowGain,CountAPV_Total,(100.0*CountAPV_LowGain)/CountAPV_Total);
-
-   fprintf(pFile,"\n\nUNMASKED APVs WITH SIGNIFICANT CHANGE OF GAIN VALUE\n--------------------------------------------\n");
-   printf("Looping on the Tree          :");
-   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
-      if(ientry%TreeStep==0){printf(".");fflush(stdout);}
-      t1->GetEntry(ientry);
-      if(tree_FitMPV>0 && !tree_isMasked && (tree_Gain/tree_PrevGain<0.7 || tree_Gain/tree_PrevGain>1.3)){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_DiffGain++;}
-   }printf("\n");
-   fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_DiffGain,CountAPV_Total,(100.0*CountAPV_DiffGain)/CountAPV_Total);
    fclose(pFile);
+
 
 
 
@@ -733,37 +692,6 @@ void PlotMacro_Core(string input, string moduleName, string output)
     DrawLegend(Histos,legend,"","L");
     SaveCanvas(c1,output,"MPV_Vs_PathSubDet");
     delete c1;
-
-
-    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-    Histos[0] = DiffWRTPrevGainTIB;                legend.push_back("TIB");
-    Histos[1] = DiffWRTPrevGainTID;                legend.push_back("TID");
-    Histos[2] = DiffWRTPrevGainTOB;                legend.push_back("TOB");
-    Histos[3] = DiffWRTPrevGainTEC;                legend.push_back("TEC");
-    DrawSuperposedHistos((TH1**)Histos, legend, "HIST",  "New Gain / Previous Gain", "Number of APV", 0.0,2.0 ,0,0);
-    DrawLegend(Histos,legend,"","L");
-    c1->SetLogy(true);
-    DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    SaveCanvas(c1,output,"GainDividedPrevGain");
-    delete c1;
-
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = GainVsPrevGainTEC;                 legend.push_back("TEC");
-   Histos[1] = GainVsPrevGainTIB;                 legend.push_back("TIB");
-   Histos[2] = GainVsPrevGainTID;                 legend.push_back("TID");
-   Histos[3] = GainVsPrevGainTOB;                 legend.push_back("TOB");
-   DrawTH2D((TH2D**)Histos,legend, "", "Previous Gain", "New Gain", 0.5,1.8, 0.5,1.8);
-   TLine diagonal(0.5,0.5,1.8,1.8);
-   diagonal.SetLineWidth(3);
-   diagonal.SetLineStyle(2);
-   diagonal.Draw("same");
-   DrawLegend (Histos,legend,"","P");
-   DrawStatBox(Histos,legend,false);
-   SaveCanvas(c1,output,"GainVsPrevGain");
-   delete c1;
-
-
 }
 
 TF1* getLandau(TH1* InputHisto, double* FitResults, double LowRange, double HighRange)

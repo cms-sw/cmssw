@@ -7,6 +7,7 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 
 from EventFilter.DTRawToDigi.dtunpacker_cfi import *
+muonDTDigis.inputLabel = 'rawDataCollector'
 
 dtCalibOfflineReco = cms.Sequence(dt1DRecHits + dt2DSegments + dt4DSegments)
 dtCalibOfflineRecoRAW = cms.Sequence(muonDTDigis + dt1DRecHits + dt2DSegments + dt4DSegments)

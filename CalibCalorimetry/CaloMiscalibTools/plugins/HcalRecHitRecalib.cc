@@ -1,10 +1,9 @@
-
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/HcalRecHitRecalib.h"
 
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,8 +15,6 @@ HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
   hbheLabel_ = iConfig.getParameter<edm::InputTag>("hbheInput");
   hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
   hfLabel_ = iConfig.getParameter<edm::InputTag>("hfInput");
-
-
 
 //   HBHEHitsProducer_ = iConfig.getParameter< std::string > ("HBHERecHitsProducer");
 //   HOHitsProducer_ = iConfig.getParameter< std::string > ("HERecHitsProducer");
@@ -39,18 +36,11 @@ HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
   produces< HORecHitCollection >(RecalibHOHits_);
 
   // here read them from xml (particular to HCAL)
-  mapHcal_.prefillMap();
 
   hcalfileinpath_=iConfig.getUntrackedParameter<std::string> ("fileNameHcal","");
   edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+hcalfileinpath_);
 
   hcalfile_=hcalfiletmp.fullPath();
-
-
-  MiscalibReaderFromXMLHcal hcalreader_(mapHcal_);
-  if(!hcalfile_.empty()) hcalreader_.parseXMLMiscalibFile(hcalfile_);
-  mapHcal_.print();
-
 }
 
 
@@ -60,6 +50,18 @@ HcalRecHitRecalib::~HcalRecHitRecalib()
 
 }
 
+void
+HcalRecHitRecalib::beginRun(edm::Run&, edm::EventSetup const& iSetup)
+{
+  edm::ESHandle<HcalTopology> topology;
+  iSetup.get<IdealGeometryRecord>().get( topology );
+  
+  mapHcal_.prefillMap(*topology);
+
+  MiscalibReaderFromXMLHcal hcalreader_(mapHcal_);
+  if(!hcalfile_.empty()) hcalreader_.parseXMLMiscalibFile(hcalfile_);
+  mapHcal_.print();
+}
 
 // ------------ method called to produce the data  ------------
 void
