@@ -117,6 +117,7 @@ do
 	cat ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/index_template_TKMap.html | sed -e "s@RunNumber@$Run_numb@g" > index.html
     fi
     cp ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/fedmap.html fedmap.html
+    cp ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/psumap.html psumap.html
 
     echo " Check TrackerMap on $Run_numb/$thisDataset folder"
 

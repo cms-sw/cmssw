@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/SiStripDCS/interface/SiStripPsuDetIdMap.h"
 
 #include <fstream>
 #include <map>
@@ -56,5 +57,6 @@ class SiStripTrackerMapCreator {
   TkDetMap* tkDetMap_;
   const edm::EventSetup& eSetup_;
   edm::ESHandle< SiStripDetCabling > detcabling_;
+  SiStripPsuDetIdMap psumap_;
 };
 #endif

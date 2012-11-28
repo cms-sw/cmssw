@@ -8,6 +8,7 @@
 <use   name="CondFormats/RunInfo"/>
 <use   name="CommonTools/TrackerMap"/>
 <use   name="CalibTracker/Records"/>
+<use   name="CalibTracker/SiStripDCS"/>
 <use   name="DQM/TrackerCommon"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="DQM/SiStripMonitorSummary"/>
