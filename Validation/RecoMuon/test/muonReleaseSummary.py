@@ -5,7 +5,7 @@ import sys
 import fileinput
 import string
 
-#NewRelease='CMSSW_6_0_1_PostLS1v2'
+#NewRelease='CMSSW_6_0_1_PostLS1v2_patch2'
 NewRelease='CMSSW_6_1_0_pre6'
 RefRelease='CMSSW_6_1_0_pre5'
 
@@ -17,7 +17,6 @@ RefCondition='STARTUP'
 #RefCondition='PILEUP'
 #NewCondition='POSTLS1'
 #RefCondition='POSTLS1'
-theGuiPostFixLS1 = "_UPGpostls1_14"
 
 NewFastSim=False
 RefFastSim=False
@@ -31,7 +30,7 @@ elif (NewCondition=='STARTUP'):
     if (NewFastSim|RefFastSim):
         samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
 if ((NewCondition=="POSTLS1")|(RefCondition=="POSTLS1")):
-    samples= ['RelValZMM','RelValJpsiMM']
+    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar','RelValZMM','RelValJpsiMM']
 if ((NewCondition=='PILEUP')|(RefCondition=='PILEUP')):
     samples= ['RelValTTbar']
     if (NewFastSim|RefFastSim):
@@ -170,12 +169,19 @@ for sample in samples :
             print "New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetFilesFrom=='GUI'):
             theGuiSample = sample
-            # Temporary fix due to the wrong name used for JPsiMM in the DQM GUI
-            if ((sample=="RelValJpsiMM")&(NewCondition=='POSTLS1')):
-                theGuiSample = "RelValJpsiMMM"
-            #
+            
             if (NewCondition=='POSTLS1'):
+                # Temporary fix due to the different names used for JPsiMM and TTbar samples in the DQM GUI
+                if ((sample=="RelValTTbar")|(sample=="RelValJpsiMM")|(sample=="RelValZMM")):
+                    theGuiPostFixLS1 = "_UPGpostls1_14"
+                else:
+                    theGuiPostFixLS1 = "_UPGpostls1"
+                if (sample=="RelValJpsiMM"):
+                    theGuiSample = "RelValJpsiMMM"
+                elif (sample=="RelValTTbar"):
+                    theGuiSample = "RelValTTbar_Tauola"
                 theGuiSample = theGuiSample+theGuiPostFixLS1
+                
 #            newGuiFileName='DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
             newGuiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
             print "New file on the GUI: "+DqmGuiNewRepository+newGuiFileName
@@ -196,12 +202,19 @@ for sample in samples :
             print "Reference file found at: "+RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetRefsFrom=='GUI'):
             theGuiSample = sample
-            # Temporary fix due to the wrong name used for JPsiMM in the DQM GUI
-            if ((sample=="RelValJpsiMM")&(RefCondition=='POSTLS1')):
-                theGuiSample = "RelValJpsiMMM"
-            #
+
             if (RefCondition=='POSTLS1'):
+                # Temporary fix due to the different names used for JPsiMM and TTbar samples in the DQM GUI
+                if ((sample=="RelValTTbar")|(sample=="RelValJpsiMM")|(sample=="RelValZMM")):
+                    theGuiPostFixLS1 = "_UPGpostls1_14"
+                else:
+                    theGuiPostFixLS1 = "_UPGpostls1"
+                if (sample=="RelValJpsiMM"):
+                    theGuiSample = "RelValJpsiMMM"
+                elif (sample=="RelValTTbar"):
+                    theGuiSample = "RelValTTbar_Tauola"
                 theGuiSample = theGuiSample+theGuiPostFixLS1
+
 #            refGuiFileName='DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
             refGuiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
             print "Ref file on the GUI: "+DqmGuiRefRepository+refGuiFileName
