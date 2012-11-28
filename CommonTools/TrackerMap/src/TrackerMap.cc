@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CommonTools/TrackerMap/interface/TmApvPair.h"
 #include "CommonTools/TrackerMap/interface/TmCcu.h"
 #include "CommonTools/TrackerMap/interface/TmPsu.h"
@@ -219,6 +220,11 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
 //load Psu cabling info
  //load Psu cabling info 
  if(enableLVProcessing || enableHVProcessing){
+
+   SiStripDetCabling* detCabling = 0;
+   if(enableFedProcessing) detCabling = new SiStripDetCabling( *tkFed );
+
+
    int npsu=0; int nmod,nmodHV2,nmodHV3;
    int modId1,modId2, dcuId;
    int dcs,branch,crate,board;
@@ -268,6 +274,8 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
    while(!LVfile.eof()) {
       LVfile >> modId1  >> dcuId >> psIdinfo >> psinfo;
       
+      if(detCabling && detCabling->getConnections(modId1).size()==0) continue;
+
       int length=psinfo.length();
       std::string dcsinfo = psinfo.substr(39,1);
       std::string branchinfo = psinfo.substr(57,2);
@@ -282,7 +290,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
       rack = (branch+1)+(dcs-1)*6; 
       rack = rack_order[rack]; 
       channel = atoi(channelinfo.c_str());
- //     std::cout << dcs << " " << branch<< " " <<crate<< " " << board<<" " << rack << std::endl;
+      //      std::cout << dcs << " " << branch<< " " <<crate<< " " << board<<" " << rack << std::endl;
       int key = rack*1000+crate*100+board;
       
       TmPsu *psu = psuMap[key];
@@ -296,7 +304,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
       psuModuleMap.insert(std::make_pair(psu,imod));
       if(imod!=0){imod->PsuId=psIdinfo;imod->psuIdex=psu->idex;imod->HVchannel=channel;}
        
-      }
+   }
       
    
  //  int nmax=0; 
@@ -688,6 +696,7 @@ if(tkMapLog) {minval=log(minval)/log(10);maxval=log(maxval)/log(10);}
 //print_total = false represent in color the average  
 void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
 
+  printflag=true;
   bool rangefound = true; 
   if(saveGeoTrackerMap){ 
   std::string filetype=s,outputfilename=s;
@@ -736,7 +745,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       }
     }
   }
-  if ((maxvalue == minvalue)||!rangefound) printflag = false;
+  if ((title==" Tracker Map from  QTestAlarm") || (maxvalue == minvalue)||!rangefound) printflag = false;
   if(!temporary_file){
     *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<std::endl;
     *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
@@ -931,7 +940,7 @@ void TrackerMap::drawApvPair(int crate, int numfed_incrate, bool print_total, Tm
   boxinity=boxinity+(NUMFED_INROW-1-(numfed_incrate-1)%NUMFED_INROW)*(NUMFEDCH_INROW+1);
   boxinity=boxinity+NUMFEDCH_INROW-(apvPair->getFedCh()/NUMFEDCH_INCOLUMN);
   boxinitx = boxinitx+NUMFEDCH_INCOLUMN-(int)(apvPair->getFedCh()%NUMFEDCH_INCOLUMN);
-  //std::cout << crate << " " << numfed_incrate << " " << apvPair->getFedCh()<<" "<<boxinitx<< " " << boxinity << std::endl; ;
+  //  std::cout << crate << " " << numfed_incrate << " " << apvPair->getFedCh()<<" "<<boxinitx<< " " << boxinity << std::endl; ;
   xp[0]=boxinitx;yp[0]=boxinity;
   xp[1]=boxinitx+dx;yp[1]=boxinity;
   xp[2]=boxinitx+dx;yp[2]=boxinity + dy;
@@ -1070,11 +1079,11 @@ void TrackerMap::drawPsu(int rack,int numcrate_inrack , bool print_total, TmPsu*
   int blue = 0;
   double xd[4],yd[4];
   int np = 4;
-  double boxinitx=35, boxinity=12; 
-  double dx=3,dy=1.3;
-  
-  boxinitx= boxinitx+(5 - numcrate_inrack)*5;
-  boxinity= boxinity+(18 - psu->getPsuBoard())*1.75;
+  double boxinitx=0., boxinity=0.; 
+  double dx=.9,dy=.9;
+
+  boxinitx=boxinitx+(NUMPSUCRATE_INCOLUMN-psu->getPsuCrate())*1.5;
+  boxinity=boxinity+(NUMPSUCH_INROW-psu->getPsuBoard());
 
   xp[0]=boxinitx;yp[0]=boxinity;
   xp[1]=boxinitx+dx;yp[1]=boxinity;
@@ -1086,6 +1095,17 @@ void TrackerMap::drawPsu(int rack,int numcrate_inrack , bool print_total, TmPsu*
     xd[j]=xdpixelpsu(xp[j]);yd[j]=ydpixelpsu(yp[j]);
     //std::cout << boxinity << " "<< ymax << " "<< yp[j] << std::endl;
   }
+
+  // lines needed to prepare the clickable maps: understand why I get twice the full list of channels (HV1 and HV0?)
+  /*
+  double scalex=2695./2700.;
+  double scaley=1520./1550.;
+  std::cout << "<area shape=\"rect\" coords=\" " 
+	    << int(scalex*yd[2]) << "," << int(1520-scaley*xd[2]) 
+	    << "," << int(scalex*yd[0]) << "," << int(1520-scaley*xd[0]) 
+	    << "\" title=\" " << psu->psId << "\" /> " << std::endl;
+  */
+  //
   
   char buffer [20];
   sprintf(buffer,"%X",psu->idex);
@@ -1139,7 +1159,7 @@ void TrackerMap::drawHV2(int rack,int numcrate_inrack , bool print_total, TmPsu*
   double boxinitx=35, boxinity=12; 
   double dx=1.1,dy=1.3;
   
-  boxinitx= boxinitx+(5 - numcrate_inrack)*5;
+  boxinitx= boxinitx+(5 - psu->getPsuCrate())*5;
   boxinity= boxinity+(18 - psu->getPsuBoard())*1.75;
 
   xp[0]=boxinitx;yp[0]=boxinity;
@@ -1206,7 +1226,7 @@ void TrackerMap::drawHV3(int rack,int numcrate_inrack , bool print_total, TmPsu*
   double boxinitx=36.5, boxinity=12; 
   double dx=1.1,dy=1.3;
   
-  boxinitx= boxinitx+(5 - numcrate_inrack)*5;
+  boxinitx= boxinitx+(5 - psu->getPsuCrate())*5;
   boxinity= boxinity+(18 - psu->getPsuBoard())*1.75;
 
   xp[0]=boxinitx;yp[0]=boxinity;
@@ -1654,8 +1674,8 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     *savefile << "<g id=\"rackhv\" transform=\" translate(150,500) rotate(270) scale(1.,1.)\"  > "<<std::endl;
          }
     
-    nrack=irack;
-    defpsuwindow(nrack);
+    // nrack=irack;
+    defpsuwindow(irack);
     for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
       if(psu->getPsuRack() == irack){
@@ -1804,6 +1824,8 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
 
  if(enableLVProcessing){
   
+  printflag=true;
+  bool rangefound=true;
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
   TGaxis *axis = 0 ;
@@ -1840,34 +1862,37 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
   
   if(!usePsuValue){//store mean of connected modules value{
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
-       TmPsu *  psu= ipsu->second;
-       if(psu!=0) {
-         ret = psuModuleMap.equal_range(psu);
-         int nconn=0;
-         for(it = ret.first; it != ret.second; ++it){
-            if((*it).second->count>0){nconn++;psu->value=psu->value+(*it).second->value;}
-            
-	    }
-         if(nconn>0){ psu->value=psu->value/psu->nmod; psu->count=1;}
-     
-	 }
-       }
+      TmPsu *  psu= ipsu->second;
+      if(psu!=0) {
+	ret = psuModuleMap.equal_range(psu);
+	int nconn=0;
+	for(it = ret.first; it != ret.second; ++it){
+	  if((*it).second->count>0){nconn++;psu->value=psu->value+(*it).second->value;}
+          
+	}
+	if(nconn>0){ psu->value=psu->value/psu->nmod; psu->count=1;}
+	
+      }
     }
+  }
   
   if(title==" Tracker Map from  QTestAlarm"){
-      for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
-          TmPsu *  psu= ipsu->second;
-          if(psu!=0) {
-	    ret = psuModuleMap.equal_range(psu);
-	    psu->red=0;psu->green=255;psu->blue=0;
-	    for (it = ret.first; it != ret.second; ++it) {
-              if( !( (*it).second->red==0 && (*it).second->green==255 && (*it).second->blue==0 ) && !( (*it).second->red==255 && (*it).second->green==255 && (*it).second->blue==255 ) ){
-		psu->red=255;psu->green=0;psu->blue=0;
-		}
-	      }
-	   }
+    for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
+      TmPsu *  psu= ipsu->second;
+      if(psu!=0) {
+	ret = psuModuleMap.equal_range(psu);
+	//	psu->red=255;psu->green=255;psu->blue=255;
+	psu->red=-1;
+	int nconn=0;
+	for (it = ret.first; it != ret.second; ++it) {
+	  if( !( (*it).second->red==0 && (*it).second->green==255 && (*it).second->blue==0 ) && !( (*it).second->red==255 && (*it).second->green==255 && (*it).second->blue==255 ) ){
+	    nconn++;psu->value++;
+	  }
+	}
+	if(nconn>0){ psu->value=psu->value/psu->nmod; psu->count=1;}
       }
-   }
+    }
+  }
   
   
   
@@ -1885,14 +1910,18 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     
     minvalue=9999999.;
     maxvalue=-9999999.;
+    rangefound=false;
     for( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
        TmPsu *  psu= ipsu->second;
        if(psu!=0 && psu->count>0) {
+	 rangefound = true;
 	      if (minvalue > psu->value)minvalue=psu->value;
 	      if (maxvalue < psu->value)maxvalue=psu->value;
 	}
     }
   }
+  if ((maxvalue == minvalue)||!rangefound) printflag = false;
+
   
      if(filetype=="svg"){
       saveAsSingleLayer=false;
@@ -1925,8 +1954,8 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
          }
    
     
-    nrack=irack;
-    defpsuwindow(nrack);
+    // nrack=irack;
+    defpsuwindow(irack);
     for ( ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
       if(psu->getPsuRack() == irack){
@@ -1961,10 +1990,13 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
           }
        }
      }
+
+    int rangex=YPSUOFFSET+(YPSURSIZE+YPSUOFFSET)*NUMPSURACK_INROW+300; 
+    int rangey=XPSUOFFSET+(XPSURSIZE+XPSUOFFSET)*NUMPSURACK_INCOLUMN+300;
   
   
   if(temporary_file){
-  if(printflag&&!saveWebInterface)drawPalette(savefile);
+    if(printflag&&!saveWebInterface)drawPalette(savefile,rangex-140,rangey-100);
     savefile->close(); 
 
   const char * command1;
@@ -1975,7 +2007,10 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    if(saveWebInterface)gPad->Range(0,0,3700,1600); else gPad->Range(0,0,3800,1600);
+    //    if(saveWebInterface)gPad->Range(0,0,3700,1600); else gPad->Range(0,0,3800,1600);
+    std::cout << " range x " <<  rangex << std::endl;
+    std::cout << " range y " <<  rangey << std::endl;
+    gPad->Range(0,0,rangex,rangey);
     
     //First  build palette
     ncolor=0;
@@ -2027,7 +2062,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
         if (printflag&&!saveWebInterface) {
       float lminvalue=minvalue; float lmaxvalue=maxvalue;
       if(tkMapLog) {lminvalue=log(minvalue)/log(10);lmaxvalue=log(maxvalue)/log(10);}
-      axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");
+      axis = new TGaxis(rangex-140,34,rangex-140,rangey-106,lminvalue,lmaxvalue,510,"+L");
       axis->SetLabelSize(0.02);
       axis->Draw();
     }
@@ -2037,7 +2072,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     l.SetTextSize(0.05);
     std::string fulltitle = title;
     if(tkMapLog && (fulltitle.find("Log10 scale") == std::string::npos)) fulltitle += ": Log10 scale";
-    l.DrawLatex(50,1530,fulltitle.c_str());
+    l.DrawLatex(50,rangey-200,fulltitle.c_str());
        }
     MyC->Update();
     std::cout << "Filetype " << filetype << std::endl;
@@ -2069,6 +2104,8 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
 
 void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
  if(enableFedProcessing){
+  printflag=true;
+   bool rangefound = true; 
   std::string filetype=s,outputfilename=s;
   std::vector<TPolyLine*> vp;
   TGaxis *axis = 0 ;
@@ -2113,16 +2150,19 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     
     minvalue=9999999.;
     maxvalue=-9999999.;
+    rangefound=false;
     for(i_apv=apvMap.begin();i_apv !=apvMap.end(); i_apv++){
 	TmApvPair *  apvPair= i_apv->second;
 	if(apvPair!=0 ) {
 	  TmModule * apv_mod = apvPair->mod;
 	  if( apv_mod !=0 && !apv_mod->notInUse() ){
 	    if(useApvPairValue){
+	      rangefound=true;
 	      if (minvalue > apvPair->value)minvalue=apvPair->value;
 	      if (maxvalue < apvPair->value)maxvalue=apvPair->value;
 	    } else {
               if(apv_mod->count>0){
+	      rangefound=true;
 	      if (minvalue > apv_mod->value)minvalue=apv_mod->value;
 	      if (maxvalue < apv_mod->value)maxvalue=apv_mod->value;}
 	    }
@@ -2130,6 +2170,8 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	}
     }
   }
+  if ((title==" Tracker Map from  QTestAlarm") || (maxvalue == minvalue)||!rangefound) printflag = false;
+
      if(filetype=="svg"){
       saveAsSingleLayer=false;
       std::ostringstream outs;
@@ -2167,14 +2209,17 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	//	numfed_incrate++;
 	numfed_incrate = slotMap[fedId];
 	// the following piece of code is used to prepare the HTML clickable map
-	/*
+	/*	
+	double scalex=6285./6290.;
+	double scaley=3510./3540.;
 	double boxinitix=(NUMFED_INCOLUMN-1-(numfed_incrate-1)/NUMFED_INROW)*(NUMFEDCH_INCOLUMN+2)+NUMFEDCH_INCOLUMN+0.9;
 	double boxinitiy=(NUMFED_INROW-1-(numfed_incrate-1)%NUMFED_INROW)*(NUMFEDCH_INROW+1)+NUMFEDCH_INROW+0.9;
 	double boxendix=boxinitix-(NUMFEDCH_INCOLUMN-1)-0.9;
 	double boxendiy=boxinitiy-(NUMFEDCH_INROW-1)-0.9;
 
 	std::cout << "<area shape=\"rect\" coords=\" " 
-		  << ydpixelc(boxinitiy) << "," << 3540-xdpixelc(boxinitix) << "," << ydpixelc(boxendiy) << "," << 3540-xdpixelc(boxendix) 
+		  << int(scalex*ydpixelc(boxinitiy)) << "," << int(3510-scaley*xdpixelc(boxinitix)) 
+		  << "," << int(scalex*ydpixelc(boxendiy)) << "," << int(3510-scaley*xdpixelc(boxendix)) 
 		  << "\" href=\"\" title=\"crate " << crate << " slot " << numfed_incrate << " FED " << fedId << "\" /> " << std::endl;
 	*/
 	//
@@ -2432,6 +2477,7 @@ void TrackerMap::print(bool print_total, float minval, float maxval, std::string
 }
 
 void TrackerMap::drawPalette(std::ofstream * svgfile,int xoffset, int yoffset){
+  std::cout << "preparing the palette" << std::endl;
   int color,red, green, blue;
   float val=minvalue;
   int paletteLength = 250;

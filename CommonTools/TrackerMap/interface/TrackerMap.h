@@ -37,6 +37,15 @@
 #define  YFEDCSIZE  1890 // 9*21 boxes
 */
 
+#define  NUMPSUCH_INROW 18
+#define  NUMPSUCRATE_INCOLUMN 5
+#define  NUMPSURACK_INCOLUMN 6
+#define  NUMPSURACK_INROW 5
+#define  XPSURSIZE  150 // (5)*1.5 boxes
+#define  YPSURSIZE  360 // 18 boxes 
+#define  XPSUOFFSET 50
+#define  YPSUOFFSET 100
+
 #define  NUMFEDCH_INCOLUMN 12
 #define  NUMFEDCH_INROW 8
 #define  NUMFED_INCOLUMN 21
@@ -78,7 +87,9 @@ class TrackerMap {
 			     int width=YFEDOFFSET+(YFEDCSIZE+YFEDOFFSET)*NUMFEDCRATE_INROW+300,
 			     int height=XFEDOFFSET+(XFEDCSIZE+XFEDOFFSET)*NUMFEDCRATE_INCOLUMN+300);
   void save_as_fectrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fec_svgmap.svg",int width=1500, int height=800);
-  void save_as_psutrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="psu_svgmap.svg",int width=1500, int height=800);
+  void save_as_psutrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="psu_svgmap.svg",
+			     int width=YPSUOFFSET+(YPSURSIZE+YPSUOFFSET)*NUMPSURACK_INROW+300, 
+			     int height=XPSUOFFSET+(XPSURSIZE+XPSUOFFSET)*NUMPSURACK_INCOLUMN+300);
   void save_as_HVtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="psu_svgmap.svg",int width=1500, int height=800);
   void drawApvPair( int crate, int numfed_incrate, bool total, TmApvPair* apvPair,std::ofstream * file,bool useApvPairValue);
   void drawCcu( int crate, int numfed_incrate, bool total, TmCcu* ccu,std::ofstream * file,bool useCcuValue);
@@ -269,16 +280,16 @@ class TrackerMap {
   }
   double  xdpixelpsu(double x){
     double res;
-    if(saveAsSingleLayer)res= ((x-xmin)/(xmax-xmin)*xsize);
-    else res= ((x-xmin)/(xmax-xmin)*xsize)+ix;
+    if(saveAsSingleLayer)res= ((x-xmin)/(xmax-xmin)*XPSURSIZE);
+    else res= ((x-xmin)/(xmax-xmin)*XPSURSIZE)+ix;
     return res;
   }
    double  ydpixelpsu(double y){
     double res;
     double y1;
     y1 = (y-ymin)/(ymax-ymin);
-     if(saveAsSingleLayer)res= 2*ysize - (y1*2*ysize);
-     else res= 2*ysize - (y1*2*ysize)+iy;
+     if(saveAsSingleLayer)res=YPSURSIZE - (y1*YPSURSIZE);
+     else res= YPSURSIZE - (y1*YPSURSIZE)+iy;
     return res;
   }
 
@@ -286,13 +297,8 @@ class TrackerMap {
      //    ncrate = num_crate;
      int xoffset=XFEDOFFSET;
     int yoffset=YFEDOFFSET;
-    //    xmin=-1.;xmax=(NUMFEDCH_INCOLUMN+2)*NUMFED_INCOLUMN+1;  ymin = -1.; ymax=(NUMFEDCH_INROW+1)*NUMFED_INROW+1;
     xmin=0.;xmax=(NUMFEDCH_INCOLUMN+2)*NUMFED_INCOLUMN;  ymin = 0.; ymax=(NUMFEDCH_INROW+1)*NUMFED_INROW;
-    /*
-    if((num_crate%3)==2)ix = xoffset+xsize*(NUMFED_INCOLUMN+1)/NUMFED_INCOLUMN;
-    if((num_crate%3)==1)ix = xoffset+2*xsize*(NUMFED_INCOLUMN+1)/NUMFED_INCOLUMN;
-    if((num_crate%3)==0)ix = xoffset;
-    */
+
     ix = xoffset+((NUMFEDCRATE_INCOLUMN-1)-((num_crate-1)%NUMFEDCRATE_INCOLUMN))*(XFEDCSIZE+XFEDOFFSET);
     iy = yoffset+((num_crate-1)/NUMFEDCRATE_INCOLUMN)*(YFEDCSIZE+YFEDOFFSET);
   } 
@@ -306,19 +312,14 @@ class TrackerMap {
     iy = yoffset+((num_crate-1)/2)*ysize*4;
   }
    void defpsuwindow(int num_rack){
-    nrack = num_rack;
-    int xoffset=xsize/5;
-    int yoffset=ysize;
-    xmin=-1.;xmax=63.;  ymin = -1.; ymax=37.;
+     //    nrack = num_rack;
+    int xoffset=XPSUOFFSET;
+    int yoffset=YPSUOFFSET;
+    xmin=0; xmax=(NUMPSUCRATE_INCOLUMN)*1.5;
+    ymin=0; ymax=NUMPSUCH_INROW;
 
-    if((nrack%5)==1)ix = xoffset+4*int(xsize/1.5);
-    if((nrack%5)==2)ix = xoffset+3*int(xsize/1.5);
-    if((nrack%5)==3)ix = xoffset+2*int(xsize/1.5);
-    if((nrack%5)==4)ix = xoffset+int(xsize/1.5);
-    if((nrack%5)==0)ix = xoffset;
-
-    iy = yoffset+((nrack-1)/5)*ysize*2;
-
+    ix = xoffset+((NUMPSURACK_INCOLUMN-1)-((num_rack-1)%NUMPSURACK_INCOLUMN))*(XPSURSIZE+XPSUOFFSET);
+    iy = yoffset+((num_rack-1)/NUMPSURACK_INCOLUMN)*(YPSURSIZE+YPSUOFFSET);
     }
 
 
@@ -476,8 +477,8 @@ void defwindow(int num_lay){
   
  protected:
   int nlay;
-  int ncrate;
-  int nrack;
+  //  int ncrate;
+  //  int nrack;
   int ncrates;
   int firstcrate;
   int nfeccrates;
