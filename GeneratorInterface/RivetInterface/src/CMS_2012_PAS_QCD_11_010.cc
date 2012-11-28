@@ -8,19 +8,14 @@
 
 namespace Rivet {
 
-  class CMS_QCD_11_010 : public Analysis {
+  class CMS_2012_PAS_QCD_11_010 : public Analysis {
   public:
 
-    CMS_QCD_11_010()
-      : Analysis("CMS_QCD_11_010")
+    CMS_2012_PAS_QCD_11_010()
+      : Analysis("CMS_2012_PAS_QCD_11_010")
     {  }
 
     void init() {
-
-      ChargedFinalState bscm(-4.65,-3.23, 0.0*GeV);
-      ChargedFinalState bscp( 3.23, 4.65, 0.0*GeV);
-      addProjection(bscm, "BSCM");
-      addProjection(bscp, "BSCP");
 
       const ChargedFinalState cfs(-2.5, 2.5, 0.5*GeV); // tracks are accepted with pT > 0.5 GeV
       addProjection(cfs, "CFS");
@@ -41,13 +36,6 @@ namespace Rivet {
     void analyze(const Event& event) {
 
       const double weight = event.weight();
-
-      // double-arm trigger requirement 
-      const ChargedFinalState& bscm = applyProjection<ChargedFinalState>(event, "BSCM");
-      const ChargedFinalState& bscp = applyProjection<ChargedFinalState>(event, "BSCP");
-      if (bscm.size()<1 || bscp.size()<1) {
-        vetoEvent;
-      }
 
       Jets jets = applyProjection<FastJets>(event, "Jets").jetsByPt(0.5*GeV);
       if (jets.size() < 1) {
@@ -74,16 +62,14 @@ namespace Rivet {
       
         switch (id) {
 	case 310: // K0s
-	if (((PI/3.0 < dphi) && (dphi < 2.0*PI/3.0)) && (pT > 0.6))  // in fact, we already applied this pt cut in the UFS projection. 
-	{
+	if (((PI/3.0 < dphi) && (dphi < 2.0*PI/3.0)) && (pT > 0.6)) {
 	      ptSumTrans_Kaon += pT;	
 	      numTrans_Kaon += 1.0;
 	}
 	break;
 
 	case 3122: case -3122: // Lambda, Lambdabar 
-	if (((PI/3.0 < dphi) && (dphi < 2.0*PI/3.0)) && (pT > 1.5)) 
-	{
+	if (((PI/3.0 < dphi) && (dphi < 2.0*PI/3.0)) && (pT > 1.5)) {
               ptSumTrans_Lambda += pT;	
               numTrans_Lambda += 1.0;
 	}
@@ -113,7 +99,6 @@ namespace Rivet {
 
   };
 
-  //AK DECLARE_RIVET_PLUGIN(CMS_QCD_11_010);
-  AnalysisBuilder<CMS_QCD_11_010> plugin_CMS_QCD_11_010;
-
+  // AK DECLARE_RIVET_PLUGIN(CMS_2012_PAS_QCD_11_010);
+  AnalysisBuilder<CMS_2012_PAS_QCD_11_010> plugin_CMS_2012_PAS_QCD_11_010;
 }
