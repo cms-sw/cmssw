@@ -2,6 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 ### STEP 0 ###
 
+# seeding layers
+#import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
+#initialLayerList = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
+#    ComponentName = 'initialLayerList'
+#    )
+
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeInitialSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
@@ -22,6 +28,13 @@ iterativeInitialSeeds.originHalfLength = [15.9]
 iterativeInitialSeeds.originpTMin = [0.6] 
 iterativeInitialSeeds.zVertexConstraint = [-1.0]
 iterativeInitialSeeds.primaryVertices = ['none']
+# new (AG)
+iterativeInitialSeeds.newSyntax = False
+iterativeInitialSeeds.layerList = ['BPix1+BPix2+BPix3',
+                                   'BPix1+BPix2+FPix1_pos',
+                                   'BPix1+BPix2+FPix1_neg',
+                                   'BPix1+FPix1_pos+FPix2_pos',
+                                   'BPix1+FPix1_neg+FPix2_neg']
 
 # candidate producer
 import FastSimulation.Tracking.TrackCandidateProducer_cfi

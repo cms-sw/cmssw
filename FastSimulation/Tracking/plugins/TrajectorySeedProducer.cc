@@ -103,107 +103,113 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
       << " WARNING : numberOfHits does not have the proper size "
       << std::endl;
 
-  //
-  firstHitSubDetectorNumber = 
-    conf.getParameter<std::vector<unsigned int> >("firstHitSubDetectorNumber");
-  if ( firstHitSubDetectorNumber.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : firstHitSubDetectorNumber does not have the proper size "
-      << std::endl;
-
-  std::vector<unsigned int> firstSubDets = 
-    conf.getParameter<std::vector<unsigned int> >("firstHitSubDetectors");
-  unsigned isub1 = 0;
-  unsigned check1 = 0;
-  firstHitSubDetectors.resize(seedingAlgo.size());
-  for ( unsigned ialgo=0; ialgo<firstHitSubDetectorNumber.size(); ++ialgo ) { 
-    check1 += firstHitSubDetectorNumber[ialgo];
-    for ( unsigned idet=0; idet<firstHitSubDetectorNumber[ialgo]; ++idet ) { 
-      firstHitSubDetectors[ialgo].push_back(firstSubDets[isub1++]);
+  // Layers
+  newSyntax = conf.getParameter<bool>("newSyntax");
+  if (newSyntax) {
+    layerList = conf.getParameter<std::vector<std::string> >("layerList");
+    // (AG)  for (unsigned i=0; i<layerList.size();i++) std::cout << "------- Layers = " << layerList[i] << std::endl;
+  } else {
+    // TO BE DELETED (AG)
+    firstHitSubDetectorNumber = 
+      conf.getParameter<std::vector<unsigned int> >("firstHitSubDetectorNumber");
+    if ( firstHitSubDetectorNumber.size() != seedingAlgo.size() ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : firstHitSubDetectorNumber does not have the proper size "
+	<< std::endl;
+    
+    std::vector<unsigned int> firstSubDets = 
+      conf.getParameter<std::vector<unsigned int> >("firstHitSubDetectors");
+    unsigned isub1 = 0;
+    unsigned check1 = 0;
+    firstHitSubDetectors.resize(seedingAlgo.size());
+    for ( unsigned ialgo=0; ialgo<firstHitSubDetectorNumber.size(); ++ialgo ) { 
+      check1 += firstHitSubDetectorNumber[ialgo];
+      for ( unsigned idet=0; idet<firstHitSubDetectorNumber[ialgo]; ++idet ) { 
+	firstHitSubDetectors[ialgo].push_back(firstSubDets[isub1++]);
+      }
     }
-  }
-  if ( firstSubDets.size() != check1 ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : firstHitSubDetectors does not have the proper size (should be " << check1 << ")"
-      << std::endl;
-
-
-  secondHitSubDetectorNumber = 
-    conf.getParameter<std::vector<unsigned int> >("secondHitSubDetectorNumber");
-  if ( secondHitSubDetectorNumber.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : secondHitSubDetectorNumber does not have the proper size "
-      << std::endl;
-
-  std::vector<unsigned int> secondSubDets = 
-    conf.getParameter<std::vector<unsigned int> >("secondHitSubDetectors");
-  unsigned isub2 = 0;
-  unsigned check2 = 0;
-  secondHitSubDetectors.resize(seedingAlgo.size());
-  for ( unsigned ialgo=0; ialgo<secondHitSubDetectorNumber.size(); ++ialgo ) { 
-    check2 += secondHitSubDetectorNumber[ialgo];
-    for ( unsigned idet=0; idet<secondHitSubDetectorNumber[ialgo]; ++idet ) { 
-      secondHitSubDetectors[ialgo].push_back(secondSubDets[isub2++]);
+    if ( firstSubDets.size() != check1 ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : firstHitSubDetectors does not have the proper size (should be " << check1 << ")"
+	<< std::endl;
+    
+    
+    secondHitSubDetectorNumber = 
+      conf.getParameter<std::vector<unsigned int> >("secondHitSubDetectorNumber");
+    if ( secondHitSubDetectorNumber.size() != seedingAlgo.size() ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : secondHitSubDetectorNumber does not have the proper size "
+	<< std::endl;
+    
+    std::vector<unsigned int> secondSubDets = 
+      conf.getParameter<std::vector<unsigned int> >("secondHitSubDetectors");
+    unsigned isub2 = 0;
+    unsigned check2 = 0;
+    secondHitSubDetectors.resize(seedingAlgo.size());
+    for ( unsigned ialgo=0; ialgo<secondHitSubDetectorNumber.size(); ++ialgo ) { 
+      check2 += secondHitSubDetectorNumber[ialgo];
+      for ( unsigned idet=0; idet<secondHitSubDetectorNumber[ialgo]; ++idet ) { 
+	secondHitSubDetectors[ialgo].push_back(secondSubDets[isub2++]);
+      }
     }
-  }
-  if ( secondSubDets.size() != check2 ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : secondHitSubDetectors does not have the proper size (should be " << check2 << ")"
-      << std::endl;
-
-  thirdHitSubDetectorNumber = 
-    conf.getParameter<std::vector<unsigned int> >("thirdHitSubDetectorNumber");
-  if ( thirdHitSubDetectorNumber.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : thirdHitSubDetectorNumber does not have the proper size "
-      << std::endl;
-
-  std::vector<unsigned int> thirdSubDets = 
-    conf.getParameter<std::vector<unsigned int> >("thirdHitSubDetectors");
-  unsigned isub3 = 0;
-  unsigned check3 = 0;
-  thirdHitSubDetectors.resize(seedingAlgo.size());
-  for ( unsigned ialgo=0; ialgo<thirdHitSubDetectorNumber.size(); ++ialgo ) { 
-    check3 += thirdHitSubDetectorNumber[ialgo];
-    for ( unsigned idet=0; idet<thirdHitSubDetectorNumber[ialgo]; ++idet ) { 
-      thirdHitSubDetectors[ialgo].push_back(thirdSubDets[isub3++]);
+    if ( secondSubDets.size() != check2 ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : secondHitSubDetectors does not have the proper size (should be " << check2 << ")"
+	<< std::endl;
+    
+    thirdHitSubDetectorNumber = 
+      conf.getParameter<std::vector<unsigned int> >("thirdHitSubDetectorNumber");
+    if ( thirdHitSubDetectorNumber.size() != seedingAlgo.size() ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : thirdHitSubDetectorNumber does not have the proper size "
+	<< std::endl;
+    
+    std::vector<unsigned int> thirdSubDets = 
+      conf.getParameter<std::vector<unsigned int> >("thirdHitSubDetectors");
+    unsigned isub3 = 0;
+    unsigned check3 = 0;
+    thirdHitSubDetectors.resize(seedingAlgo.size());
+    for ( unsigned ialgo=0; ialgo<thirdHitSubDetectorNumber.size(); ++ialgo ) { 
+      check3 += thirdHitSubDetectorNumber[ialgo];
+      for ( unsigned idet=0; idet<thirdHitSubDetectorNumber[ialgo]; ++idet ) { 
+	thirdHitSubDetectors[ialgo].push_back(thirdSubDets[isub3++]);
+      }
     }
+    if ( thirdSubDets.size() != check3 ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : thirdHitSubDetectors does not have the proper size (should be " << check3 << ")"
+	<< std::endl;
+    
+    originRadius = conf.getParameter<std::vector<double> >("originRadius");
+    if ( originRadius.size() != seedingAlgo.size() ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : originRadius does not have the proper size "
+	<< std::endl;
+    
+    originHalfLength = conf.getParameter<std::vector<double> >("originHalfLength");
+    if ( originHalfLength.size() != seedingAlgo.size() ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : originHalfLength does not have the proper size "
+	<< std::endl;
+    
+    originpTMin = conf.getParameter<std::vector<double> >("originpTMin");
+    if ( originpTMin.size() != seedingAlgo.size() ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : originpTMin does not have the proper size "
+	<< std::endl;
+    
+    primaryVertices = conf.getParameter<std::vector<edm::InputTag> >("primaryVertices");
+    if ( primaryVertices.size() != seedingAlgo.size() ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : primaryVertices does not have the proper size "
+	<< std::endl;
+    
+    zVertexConstraint = conf.getParameter<std::vector<double> >("zVertexConstraint");
+    if ( zVertexConstraint.size() != seedingAlgo.size() ) 
+      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+	<< " WARNING : zVertexConstraint does not have the proper size "
+	<< std::endl;
   }
-  if ( thirdSubDets.size() != check3 ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : thirdHitSubDetectors does not have the proper size (should be " << check3 << ")"
-      << std::endl;
-
-  originRadius = conf.getParameter<std::vector<double> >("originRadius");
-  if ( originRadius.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : originRadius does not have the proper size "
-      << std::endl;
-
-  originHalfLength = conf.getParameter<std::vector<double> >("originHalfLength");
-  if ( originHalfLength.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : originHalfLength does not have the proper size "
-      << std::endl;
-
-  originpTMin = conf.getParameter<std::vector<double> >("originpTMin");
-  if ( originpTMin.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : originpTMin does not have the proper size "
-      << std::endl;
-
-  primaryVertices = conf.getParameter<std::vector<edm::InputTag> >("primaryVertices");
-  if ( primaryVertices.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : primaryVertices does not have the proper size "
-      << std::endl;
-
-  zVertexConstraint = conf.getParameter<std::vector<double> >("zVertexConstraint");
-  if ( zVertexConstraint.size() != seedingAlgo.size() ) 
-    throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
-      << " WARNING : zVertexConstraint does not have the proper size "
-      << std::endl;
-
 
 }
 
@@ -432,12 +438,22 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
 
 	// Check if inside the requested detectors
-	bool isInside = theSeedHits0.subDetId() < firstHitSubDetectors[ialgo][0];
+	bool isInside = true;
+	if (newSyntax) 
+	  isInside = true; // AG placeholder
+	else
+	  isInside = theSeedHits0.subDetId() < firstHitSubDetectors[ialgo][0];
+	//	bool isInside = theSeedHits0.subDetId() < firstHitSubDetectors[ialgo][0];
 	if ( isInside ) continue;
 
 	// Check if on requested detectors
 	//	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo]);
-	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	bool isOndet = true;
+	if (newSyntax) 
+	  isOndet = theSeedHits0.isOnRequestedDet(layerList);
+	else
+	  isOndet = theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	//	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
 	//	if ( !isOndet ) break;
 	if ( !isOndet ) continue;
 
@@ -453,11 +469,17 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
 
 	  // Check if inside the requested detectors
-	  isInside = theSeedHits1.subDetId() < secondHitSubDetectors[ialgo][0];
+	  if (newSyntax) 
+	    isInside = true; // AG placeholder
+	  else
+	    isInside = theSeedHits1.subDetId() < secondHitSubDetectors[ialgo][0];
 	  if ( isInside ) continue;
 
 	  // Check if on requested detectors
-	  isOndet =  theSeedHits1.isOnRequestedDet(secondHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	  if (newSyntax) 
+	    isOndet = theSeedHits1.isOnRequestedDet(layerList);
+	  else
+	    isOndet =  theSeedHits1.isOnRequestedDet(secondHitSubDetectors[ialgo], seedingAlgo[ialgo]);
 	  if ( !isOndet ) break;
 
 	  // Check if on the same layer as previous hit
@@ -532,11 +554,17 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
 
 	    // Check if inside the requested detectors
-	    isInside = theSeedHits2.subDetId() < thirdHitSubDetectors[ialgo][0];
+	    if (newSyntax) 
+	      isInside = true; // AG placeholder
+	    else 
+	      isInside = theSeedHits2.subDetId() < thirdHitSubDetectors[ialgo][0];
 	    if ( isInside ) continue;
 	    
 	    // Check if on requested detectors
-	    isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	    if (newSyntax) 
+	      isOndet = theSeedHits2.isOnRequestedDet(layerList);
+	    else 
+	      isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo], seedingAlgo[ialgo]);
 	    //	    if ( !isOndet ) break;
 	    if ( !isOndet ) continue;
 

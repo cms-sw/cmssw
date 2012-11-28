@@ -102,7 +102,8 @@ public:
 
   /// Check if the hit is on one of the requested detector
     //  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
-    bool isOnRequestedDet(const std::vector<unsigned int>& whichDet, const std::string& seedingAlgo) const;
+  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet, const std::string& seedingAlgo) const; 
+  bool isOnRequestedDet(const std::vector<std::string>& layerList) const; // AG
 
   /// Check if a pair is on the proper combination of detectors
   bool makesAPairWith(const TrackerRecHit& anotherHit) const;

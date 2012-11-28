@@ -70,12 +70,16 @@ class TrajectorySeedProducer : public edm::EDProducer
   unsigned int absMinRecHits;
   std::vector<std::string> seedingAlgo;
   std::vector<unsigned int> numberOfHits;
+  ///// TO BE REMOVED (AG)
   std::vector<unsigned int> firstHitSubDetectorNumber;
   std::vector<unsigned int> secondHitSubDetectorNumber;
   std::vector<unsigned int> thirdHitSubDetectorNumber;
   std::vector< std::vector<unsigned int> > firstHitSubDetectors;
   std::vector< std::vector<unsigned int> > secondHitSubDetectors;
   std::vector< std::vector<unsigned int> > thirdHitSubDetectors;
+  /////
+  bool newSyntax;
+  std::vector<std::string> layerList;
 
   std::vector<double> originRadius;
   std::vector<double> originHalfLength;
