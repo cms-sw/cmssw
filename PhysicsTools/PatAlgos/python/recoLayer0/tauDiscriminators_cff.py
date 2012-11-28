@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoTauTag.Configuration.updateHPSPFTaus_cff import *
+try:
+    from RecoTauTag.Configuration.updateHPSPFTaus_cff import *
+    patHPSPFTauDiscriminationUpdate = cms.Sequence(updateHPSPFTaus)
+except ImportError:
+    patHPSPFTauDiscriminationUpdate = cms.Sequence()
 
 patFixedConePFTauDiscrimination = cms.Sequence()
-
-patHPSPFTauDiscriminationUpdate = cms.Sequence(updateHPSPFTaus)
 
 patShrinkingConePFTauDiscrimination = cms.Sequence()
 
