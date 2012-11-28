@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cstdlib>
 
@@ -21,7 +21,7 @@ class CastorCondObjectContainer
   ~CastorCondObjectContainer();
 
   // get the object back
-  const Item* getValues(DetId fId) const;
+  const Item* getValues(DetId fId, bool throwOnFail=true) const;
 
   // does the object exist ?
   const bool exists(DetId fId) const;
@@ -36,8 +36,8 @@ class CastorCondObjectContainer
   std::string myname() const {return (std::string)"Castor Undefined";}
 
  private:
-  //void initContainer(int container, bool h2mode_ = false);
-  void initContainer(int container);
+  void initContainer();
+  unsigned int hashed_id(DetId fId) const;
 
   std::vector<Item> CASTORcontainer;
 };
@@ -55,103 +55,74 @@ CastorCondObjectContainer<Item>::~CastorCondObjectContainer()
 }
 
 template<class Item> void
-//CastorCondObjectContainer<Item>::initContainer(int container, bool h2mode_)
-CastorCondObjectContainer<Item>::initContainer(int container)
+CastorCondObjectContainer<Item>::initContainer()
 {
-  //m_h2mode = h2mode_;
-
   Item emptyItem;
 
-  switch (container) 
-    {
-    case HcalGenericDetId::HcalGenCastor:
-      for (int i=0; i<(2*HcalGenericDetId::CASTORhalf); i++) CASTORcontainer.push_back(emptyItem); break;
-    default: break;
-    }
+  if (CASTORcontainer.empty())
+    for (int i=0; i<HcalCastorDetId:: kSizeForDenseIndexing; i++)
+      CASTORcontainer.push_back(emptyItem);
+  
 }
 
 
 template<class Item> const Item*
-CastorCondObjectContainer<Item>::getValues(DetId fId) const
+CastorCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
 {
-  HcalGenericDetId myId(fId);
-  //int index = myId.hashedId(m_h2mode);
-  int index = myId.hashedId();
-  //  std::cout << "::::: getting values at index " << index  << ", DetId " << myId << std::endl;
-  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
-
   const Item* cell = NULL;
-  if (index >= 0)
-    switch (myId.genericSubdet() ) {
-    case HcalGenericDetId::HcalGenCastor:
-      if (index1 < CASTORcontainer.size()) 
-	cell = &(CASTORcontainer.at(index1) ); 
-      break;
-    default: break;
+  HcalCastorDetId myId(fId);
+
+  if (fId.det()==DetId::Calo && fId.subdetId()==HcalCastorDetId::SubdetectorId) {
+    unsigned int index = hashed_id(fId);
+    
+    if (index < CASTORcontainer.size()) 
+	cell = &(CASTORcontainer.at(index) ); 
+  }
+
+ 
+  if ((!cell) || (cell->rawId() != fId ) ) {
+    if (throwOnFail) {
+      throw cms::Exception ("Conditions not found") 
+	<< "Unavailable Conditions of type " << myname() << " for cell " << myId;
+    } else {
+      cell=0;
     }
-  
-  //  Item emptyItem;
-  //  if (cell->rawId() == emptyItem.rawId() ) 
-  if ((!cell) || (cell->rawId() != fId ) )
-    throw cms::Exception ("Conditions not found") 
-      << "Unavailable Conditions of type " << myname() << " for cell " << myId;
+  }
   return cell;
 }
 
 template<class Item> const bool
 CastorCondObjectContainer<Item>::exists(DetId fId) const
 {
-  HcalGenericDetId myId(fId);
-  //int index = myId.hashedId(m_h2mode);
-  int index = myId.hashedId();
-  if (index < 0) return false;
-  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
-  const Item* cell = NULL;
-  switch (myId.genericSubdet() ) {
-  case HcalGenericDetId::HcalGenCastor: 
-    if (index1 < CASTORcontainer.size()) cell = &(CASTORcontainer.at(index1) );  
-    break;
-  default: return false; break;
-  }
-  
-  //  Item emptyItem;
+  const Item* cell = getValues(fId,false);
   if (cell)
     //    if (cell->rawId() != emptyItem.rawId() ) 
     if (cell->rawId() == fId ) 
       return true;
-
   return false;
 }
 
 template<class Item> bool
-//CastorCondObjectContainer<Item>::addValues(const Item& myItem, bool h2mode_)
 CastorCondObjectContainer<Item>::addValues(const Item& myItem)
 {
   unsigned long myRawId = myItem.rawId();
-  HcalGenericDetId myId(myRawId);
-  //int index = myId.hashedId(h2mode_);
-  int index = myId.hashedId();
+  HcalCastorDetId myId(myRawId);
+  unsigned int index = hashed_id(myId);
   bool success = false;
-  if (index < 0) success = false;
-  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
 
 
-  switch (myId.genericSubdet() ) {
-  case HcalGenericDetId::HcalGenCastor: 
-    if (!CASTORcontainer.size() ) initContainer(myId.genericSubdet() );
-    if (index1 < CASTORcontainer.size())
-      {
-	CASTORcontainer.at(index1)  = myItem; 
-	success = true;
-      }
-    break;
-  default: break;
-  }
+  if (CASTORcontainer.empty() ) initContainer();
+  if (index < CASTORcontainer.size())
+    {
+      CASTORcontainer.at(index)  = myItem; 
+      success = true;
+    }
+  
 
   if (!success) 
     throw cms::Exception ("Filling of conditions failed") 
       << " no valid filling possible for Conditions of type " << myname() << " for DetId " << myId;
-   
+  
   return success;
 }
 
@@ -169,5 +140,20 @@ CastorCondObjectContainer<Item>::getAllChannels() const
   return channels;
 }
 
+
+template<class Item>
+unsigned int CastorCondObjectContainer<Item>::hashed_id(DetId fId) const {
+  // the historical packing from HcalGeneric is different from HcalCastorDetId, so we clone the old packing here.
+  HcalCastorDetId tid(fId); 
+  int zside = tid.zside();
+  int sector = tid.sector();
+  int module = tid.module(); 
+  static const int CASTORhalf=224;
+  
+  int index = 14*(sector-1) + (module-1);
+  if (zside == 1) index += CASTORhalf;
+  
+  return index;
+}
 
 #endif
