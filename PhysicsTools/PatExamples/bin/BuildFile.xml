@@ -18,6 +18,6 @@
   <bin   file="PatBasicFWLiteJetAnalyzer.cc"></bin>
   <bin   file="PatBasicFWLiteJetAnalyzer_Selector.cc"></bin>
   <bin   file="PatBasicFWLiteJetUnitTest.cc"></bin>
-  <bin   file="PatCleaningExercise.cc"></bin>
+  <bin   file="PatCOCExercise.cc"></bin>
   <bin   file="PatAnalysisTasksExercise.cc"></bin>
 </environment>
