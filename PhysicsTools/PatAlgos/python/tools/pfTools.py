@@ -463,7 +463,8 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK5', pos
                                         idx = getattr(process,prefix+'CombinedCorrector'+postfix).correctors.index(essource);
                                         getattr(process,prefix+'CombinedCorrector'+postfix).correctors[idx] = essource+postfix
 
-    applyPostfix(process, "patJets", postfix).embedCaloTowers   = False
+    if hasattr( getattr( process, "patJets" + postfix), 'embedCaloTowers' ): # optional parameter, which defaults to 'False' anyway
+        applyPostfix(process, "patJets", postfix).embedCaloTowers = False
     applyPostfix(process, "patJets", postfix).embedPFCandidates = True
 
 #-- Remove MC dependence ------------------------------------------------------

@@ -26,7 +26,7 @@ patJets = cms.EDProducer("PATJetProducer",
       userFunctionLabels = cms.vstring()
     ),
     # embedding of RECO items (do not use on AOD input!)
-    embedCaloTowers = cms.bool(False),
+    #embedCaloTowers = cms.bool(False), # optional
     # embedding of AOD items
     embedPFCandidates = cms.bool(False),
     # jet energy corrections

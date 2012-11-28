@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.56 2012/11/26 15:04:32 rwolf Exp $
+// $Id: PATJetProducer.cc,v 1.57 2012/11/28 19:30:02 vadler Exp $
 
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -45,7 +45,10 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
 {
   // initialize configurables
   jetsSrc_ = iConfig.getParameter<edm::InputTag>( "jetSource" );
-  embedCaloTowers_ = iConfig.getParameter<bool>( "embedCaloTowers" );
+  embedCaloTowers_ = false; // parameter is optional
+  if ( iConfig.exists("embedCaloTowers") ) {
+    embedCaloTowers_ = iConfig.getParameter<bool>( "embedCaloTowers" );
+  }
   embedPFCandidates_ = iConfig.getParameter<bool>( "embedPFCandidates" );
   getJetMCFlavour_ = iConfig.getParameter<bool>( "getJetMCFlavour" );
   jetPartonMapSource_ = iConfig.getParameter<edm::InputTag>( "JetPartonMapSource" );
@@ -406,7 +409,7 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   iDesc.add<edm::InputTag>("jetSource", edm::InputTag("no default"))->setComment("input collection");
 
   // embedding
-  iDesc.add<bool>("embedCaloTowers", false)->setComment("embed external CaloTowers (not to be used on AOD input)");
+  iDesc.addOptional<bool>("embedCaloTowers", false)->setComment("embed external CaloTowers (not to be used on AOD input)");
   iDesc.add<bool>("embedPFCandidates", true)->setComment("embed external PFCandidates");
 
   // MC matching configurables
