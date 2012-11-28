@@ -9,6 +9,7 @@ namespace edmtest {
 				OtherThingCollection& result,
 				std::string const& thingLabel, 
 				std::string const& instance,
+				bool useRefs,
 				bool refsAreTransient) {
 
     const size_t numToMake = 20;
@@ -21,8 +22,10 @@ namespace edmtest {
 
     for (size_t i = 0; i < numToMake; ++i) {
       OtherThing element;
-      element.a = i;
-      if (refsAreTransient) {
+      if (!useRefs) {
+        element.a = i;
+      } else if (refsAreTransient) {
+        element.a = i;
 	element.refProd = edm::RefProd<ThingCollection>(parent);
 	element.ref = edm::Ref<ThingCollection>(element.refProd, i);
 	element.refVec.push_back(element.ref);
@@ -45,6 +48,7 @@ namespace edmtest {
 	element.refToBaseProd = edm::RefToBaseProd<Thing>(refProd);
 	element.refToBase = edm::RefToBase<Thing>(ref);
       } else {
+        element.a = i;
 	element.refProd = edm::RefProd<ThingCollection>(parentHandle);
 	element.ref = edm::Ref<ThingCollection>(element.refProd, i);
 	element.refVec.push_back(element.ref);

@@ -7,6 +7,7 @@ namespace edmtest {
   OtherThingProducer::OtherThingProducer(edm::ParameterSet const& pset): alg_(), thingLabel_(), refsAreTransient_(false) {
     produces<OtherThingCollection>("testUserTag");
     thingLabel_ = pset.getUntrackedParameter<std::string>("thingLabel", std::string("Thing"));
+    useRefs_ = pset.getUntrackedParameter<bool>("useRefs", true);
     refsAreTransient_ = pset.getUntrackedParameter<bool>("transient", false);
   }
 
@@ -21,7 +22,7 @@ namespace edmtest {
     std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
     // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(e, *result, thingLabel_, std::string(), refsAreTransient_);
+    alg_.run(e, *result, thingLabel_, std::string(), useRefs_, refsAreTransient_);
 
     // Step D: Put outputs into event
     e.put(result, std::string("testUserTag"));

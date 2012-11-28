@@ -16,7 +16,7 @@ namespace edmtest {
     void run(edm::Event const& ev, 
 	     OtherThingCollection& otherThingCollection, 
 	     std::string const& thingLabel = std::string("Thing"),
-	     std::string const& instance = std::string(), bool refsAreTransient = false);
+	     std::string const& instance = std::string(), bool useRefs = true, bool refsAreTransient = false);
   
   private:
     int    theDebugLevel;

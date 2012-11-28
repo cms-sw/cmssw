@@ -9,10 +9,6 @@
 namespace edmtest {
   class OtherThingProducer : public edm::EDProducer {
   public:
-
-    // The following is not yet used, but will be the primary
-    // constructor when the parameter set system is available.
-    //
     explicit OtherThingProducer(edm::ParameterSet const& ps);
 
     virtual ~OtherThingProducer();
@@ -22,6 +18,7 @@ namespace edmtest {
   private:
     OtherThingAlgorithm alg_;
     std::string thingLabel_;
+    bool useRefs_;
     bool refsAreTransient_;
   };
 }
