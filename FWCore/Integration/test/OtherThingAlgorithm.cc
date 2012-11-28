@@ -15,8 +15,10 @@ namespace edmtest {
     const size_t numToMake = 20;
     result.reserve(numToMake);
     edm::Handle<ThingCollection> parentHandle;
-    assert(event.getByLabel(thingLabel, instance, parentHandle));
-    assert(parentHandle.isValid());
+    if(useRefs) {
+      assert(event.getByLabel(thingLabel, instance, parentHandle));
+      assert(parentHandle.isValid());
+    }
     ThingCollection const* parent = parentHandle.product();
     ThingCollection const* null = 0;
 
