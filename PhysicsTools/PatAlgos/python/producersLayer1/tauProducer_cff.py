@@ -18,40 +18,17 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.tauMatch_cfi import *
 # produce object
 from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi import *
 
-#check whether we have defined update or not
-updateDiscriminators=True
-try:
-    from RecoTauTag.Configuration.updateHPSPFTaus_cff import *
-except ImportError:
-    updateDiscriminators=False
-
-if updateDiscriminators:
-    makePatTaus = cms.Sequence(
+makePatTaus = cms.Sequence(
     # reco pre-production
-        patHPSPFTauDiscriminationUpdate *
-        patPFCandidateIsoDepositSelection *
-        patPFTauIsolation *
-        #patTauJetCorrections *
-        # pat specifics
-        tauMatch *
-        tauGenJets *
-        tauGenJetsSelectorAllHadrons *
-        tauGenJetMatch *
-        # object production
-        patTaus
-        )
-else:
-    makePatTaus = cms.Sequence(
-        # reco pre-production
-        patPFCandidateIsoDepositSelection *
-        patPFTauIsolation *
-        #patTauJetCorrections *
-        # pat specifics
-        tauMatch *
-        tauGenJets *
-        tauGenJetsSelectorAllHadrons *
-        tauGenJetMatch *
-        # object production
-        patTaus
-        )
-    
+    patHPSPFTauDiscrimination *
+    patPFCandidateIsoDepositSelection *
+    patPFTauIsolation *
+    #patTauJetCorrections *
+    # pat specifics
+    tauMatch *
+    tauGenJets *
+    tauGenJetsSelectorAllHadrons *
+    tauGenJetMatch *
+    # object production
+    patTaus
+)
