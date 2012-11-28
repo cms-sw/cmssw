@@ -12,10 +12,9 @@
 //#include "FWCore/MessegeLogger/interface/MessegeLogger.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/Conv4HitsReco2.h"
 #include "TMath.h"
-#include <TVector3.h>
 #include <time.h>
 
-Conv4HitsReco2::Conv4HitsReco2(TVector3 &vPhotVertex, TVector3 &h1, TVector3 &h2, TVector3 &h3, TVector3 &h4)
+Conv4HitsReco2::Conv4HitsReco2(math::XYZVector &vPhotVertex, math::XYZVector &h1, math::XYZVector &h2, math::XYZVector &h3, math::XYZVector &h4)
 {
 	Refresh(vPhotVertex, h1, h2, h3, h4);
 }
@@ -23,7 +22,7 @@ Conv4HitsReco2::Conv4HitsReco2(TVector3 &vPhotVertex, TVector3 &h1, TVector3 &h2
 Conv4HitsReco2::~Conv4HitsReco2() { }
 //Conv4HitsReco2::~Conv4HitsReco() { }
 
-void Conv4HitsReco2::Refresh(TVector3 &vPhotVertex, TVector3 &h1, TVector3 &h2, TVector3 &h3, TVector3 &h4)
+void Conv4HitsReco2::Refresh(math::XYZVector &vPhotVertex, math::XYZVector &h1, math::XYZVector &h2, math::XYZVector &h3, math::XYZVector &h4)
 {
 	// Fix 2D plane, make primary vertex the original point
 	fPV = vPhotVertex;	fPV.SetZ(0.);
@@ -54,8 +53,8 @@ void Conv4HitsReco2::Refresh(TVector3 &vPhotVertex, TVector3 &h1, TVector3 &h2, 
 	fPhiE = 0.;
 }
 
-void Conv4HitsReco2::LocalTransformation(TVector3 v11, TVector3 v12, TVector3 v21, TVector3 v22,
-				 	 TVector3 &V11, TVector3 &V12, TVector3 &V21, TVector3 &V22,
+void Conv4HitsReco2::LocalTransformation(math::XYZVector v11, math::XYZVector v12, math::XYZVector v21, math::XYZVector v22,
+				 	 math::XYZVector &V11, math::XYZVector &V12, math::XYZVector &V21, math::XYZVector &V22,
 				 	 double NextPhi) 
 {
 	double x11,x12,x21,x22,y11,y12,y21,y22;
@@ -85,7 +84,7 @@ void Conv4HitsReco2::LocalTransformation(TVector3 v11, TVector3 v12, TVector3 v2
 }
 
 
-int Conv4HitsReco2::ConversionCandidate(TVector3 &vtx, double &ptplus, double &ptminus)
+int Conv4HitsReco2::ConversionCandidate(math::XYZVector &vtx, double &ptplus, double &ptminus)
 {
 	Reconstruct();
 
@@ -242,13 +241,13 @@ void Conv4HitsReco2::Dump()
 	
 }
 
-TVector3 Conv4HitsReco2::GetPlusCenter(double &plusR)
+math::XYZVector Conv4HitsReco2::GetPlusCenter(double &plusR)
 {
 	plusR = fRecR1;
 	return fRecC1;
 	
 }
-TVector3 Conv4HitsReco2::GetMinusCenter(double &minusR)
+math::XYZVector Conv4HitsReco2::GetMinusCenter(double &minusR)
 {
 	minusR = fRecR2;
 	return fRecC2;

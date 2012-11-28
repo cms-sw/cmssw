@@ -13,24 +13,24 @@
 #include <iomanip>
 #include <math.h>
 #include "TMath.h"
-
-#include <TVector3.h>
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 class Conv4HitsReco2 {
 
 	public:
-	Conv4HitsReco2(TVector3 &, TVector3 &, TVector3 &, TVector3 &, TVector3 &);
+	Conv4HitsReco2(math::XYZVector &, math::XYZVector &, math::XYZVector &, math::XYZVector &, math::XYZVector &);
 	Conv4HitsReco2();
 	~Conv4HitsReco2();
 
 	// Main publics
-	int ConversionCandidate(TVector3&, double&, double&);
+	int ConversionCandidate(math::XYZVector&, double&, double&);
 	void Reconstruct(); // Not directly called when in use
 	void Dump();
-	void Refresh(TVector3 &vPhotVertex, TVector3 &h1, TVector3 &h2, TVector3 &h3, TVector3 &h4);
+	void Refresh(math::XYZVector &vPhotVertex, math::XYZVector &h1, math::XYZVector &h2, math::XYZVector &h3, math::XYZVector &h4);
 
-	TVector3 GetPlusCenter(double &);
-	TVector3 GetMinusCenter(double &);
+	math::XYZVector GetPlusCenter(double &);
+	math::XYZVector GetMinusCenter(double &);
 
 	// Optional publics
 	void SetMaxNumberOfIterations(int val) { fMaxNumberOfIterations=val; };
@@ -54,12 +54,12 @@ class Conv4HitsReco2 {
 	bool RegisterBadConverge() { if (fCutSatisfied==1) return true; else return false;};
 
 	private:
-	void LocalTransformation(TVector3 v11, TVector3 v12, TVector3 v21, TVector3 v22,
-				 TVector3 &V11, TVector3 &V12, TVector3 &V21, TVector3 &V22,
+	void LocalTransformation(math::XYZVector v11, math::XYZVector v12, math::XYZVector v21, math::XYZVector v22,
+				 math::XYZVector &V11, math::XYZVector &V12, math::XYZVector &V21, math::XYZVector &V22,
 				 double Phi);
-	TVector3 fHitv11, fHitv12, fHitv21, fHitv22;	
-	TVector3 fPV;
-	TVector3 fRecV, fRecC1, fRecC2;
+	math::XYZVector fHitv11, fHitv12, fHitv21, fHitv22;
+	math::XYZVector fPV;
+	math::XYZVector fRecV, fRecC1, fRecC2;
 	
 	double fRecPhi;
 	double fRecR;

@@ -8,7 +8,6 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
-#include <TVector3.h>
 /*
 To Do:
 

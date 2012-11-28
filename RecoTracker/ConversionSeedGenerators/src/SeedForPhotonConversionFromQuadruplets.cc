@@ -1,6 +1,5 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/SeedForPhotonConversionFromQuadruplets.h"
 
-#include <TVector3.h>
 #include "RecoTracker/ConversionSeedGenerators/interface/Conv4HitsReco2.h"
 
 #include "TRandom3.h"
@@ -65,6 +64,8 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
     double maxLegPt = QuadCutPSet.getParameter<double>("Cut_maxLegPt"); //GeV
     double dzcut=QuadCutPSet.getParameter<double>("Cut_zCA");//cm
 
+    double toleranceFactorOnDeltaPhiCuts=0.1;
+
   //  return 0; //FIXME, remove this line to make the code working.
 
   pss = &ss;
@@ -99,12 +100,12 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
 
   //Photon source vertex primary vertex
   GlobalPoint vgPhotVertex=region.origin();
-  TVector3 vPhotVertex(vgPhotVertex.x(), vgPhotVertex.y(), vgPhotVertex.z());
+  math::XYZVector vPhotVertex(vgPhotVertex.x(), vgPhotVertex.y(), vgPhotVertex.z());
 
-  TVector3 h1(vHit[0].x(),vHit[0].y(),vHit[0].z());
-  TVector3 h2(vHit[1].x(),vHit[1].y(),vHit[1].z());
-  TVector3 h3(vHit[2].x(),vHit[2].y(),vHit[2].z());
-  TVector3 h4(vHit[3].x(),vHit[3].y(),vHit[3].z());
+  math::XYZVector h1(vHit[0].x(),vHit[0].y(),vHit[0].z());
+  math::XYZVector h2(vHit[1].x(),vHit[1].y(),vHit[1].z());
+  math::XYZVector h3(vHit[2].x(),vHit[2].y(),vHit[2].z());
+  math::XYZVector h4(vHit[3].x(),vHit[3].y(),vHit[3].z());
 
 // At this point implement cleaning cuts before building the seed:::
 
@@ -125,10 +126,10 @@ V4=M2
 
 */
 
-  TVector3 P1;
-  TVector3 P2;
-  TVector3 M1;
-  TVector3 M2;
+  math::XYZVector P1;
+  math::XYZVector P2;
+  math::XYZVector M1;
+  math::XYZVector M2;
 
   if(TMath::Sqrt(h1.x()*h1.x()+h1.y()*h1.y()) < TMath::Sqrt(h2.x()*h2.x()+h2.y()*h2.y())){
 	  P1=h1;
@@ -159,7 +160,7 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
 */
 
 
-  TVector3 IP(0,0,0);
+  math::XYZVector IP(0,0,0);
 
   //Line1:
   double kP=(P1.y()-P2.y())/(P1.x()-P2.x());
@@ -181,15 +182,21 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
 	  return 0;
   }
 
+  if(applyDeltaPhiCuts) {
 
-  double fBField = 3.8;//T
+  edm::ESHandle<MagneticField> bfield;
+  es.get<IdealMagneticFieldRecord>().get(bfield);
+  math::XYZVector QuadMean(0,0,0);
+  QuadMean.SetXYZ((M1.x()+M2.x()+P1.x()+P2.x())/4.,(M1.y()+M2.y()+P1.y()+P2.y())/4.,(M1.z()+M2.z()+P1.z()+P2.z())/4.);
+
+  double fBField = bfield->inTesla(GlobalPoint(QuadMean.x(),QuadMean.y(),QuadMean.z())).z();
 
   double rMax=CleaningMinLegPt/(0.01*0.3*fBField);
   double Mx=M1.x();
   double My=M1.y();
 
-  TVector3 B(0,0,0);
-  TVector3 C(0,0,0);
+  math::XYZVector B(0,0,0);
+  math::XYZVector C(0,0,0);
 
   if(rMax>TMath::Sqrt(Mx*Mx+My*My)/2.){
 
@@ -210,16 +217,19 @@ std::cout << "d" << d << std::endl;
 #endif
 
   //Cx1,2 and Cy1,2 are the two points that have a distance of rMax to 0,0
-  double Cx1=(-2*k*d+TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rMax*rMax)))/(2*(1+k*k));
-  double Cx2=(-2*k*d-TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rMax*rMax)))/(2*(1+k*k));
+  double CsolutionPart1=-2*k*d;
+  double CsolutionPart2=TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rMax*rMax));
+  double CsolutionPart3=2*(1+k*k);
+  double Cx1=(CsolutionPart1+CsolutionPart2)/CsolutionPart3;
+  double Cx2=(CsolutionPart1-CsolutionPart2)/CsolutionPart3;
   double Cy1=k*Cx1+d;
   double Cy2=k*Cx2+d;
 
 
   // Decide between solutions: phi(C) > phi(P)
   double Cx,Cy;
-  TVector3 C1(Cx1,Cy1,0);
-  if(C1.DeltaPhi(M1)>0){
+  math::XYZVector C1(Cx1,Cy1,0);
+  if(DeltaPhiManual(C1,M1)>0){
 	  Cx=Cx1;
 	  Cy=Cy1;
   }
@@ -242,7 +252,7 @@ std::cout << "d" << d << std::endl;
   k=-Cx/Cy;
   d=0;
   double Bx1=TMath::Sqrt(Mx*Mx+My*My/(1+k*k));
-  double Bx2=-TMath::Sqrt(Mx*Mx+My*My/(1+k*k));
+  double Bx2=-Bx1;
   double By1=k*Bx1+d;
   double By2=k*Bx2+d;
 
@@ -253,8 +263,8 @@ std::cout << "d" << d << std::endl;
 
 // Decide between solutions: phi(B) < phi(P)
   double Bx,By;
-  TVector3 B1(Bx1,By1,0);
-  if(B1.DeltaPhi(M1)<0){
+  math::XYZVector B1(Bx1,By1,0);
+  if(DeltaPhiManual(B1,M1)<0){
 	  Bx=Bx1;
 	  By=By1;
   }
@@ -273,21 +283,22 @@ std::cout << "d" << d << std::endl;
 	std::cout << "By" << By << std::endl;
 #endif
 
-  double DeltaPhiMaxM1P1=M1.DeltaPhi(B)*2;
+  double DeltaPhiMaxM1P1=DeltaPhiManual(M1,B)*2;
 
 #ifdef mydebug_knuenz
     std::cout << "DeltaPhiMaxM1P1 " << DeltaPhiMaxM1P1 << std::endl;
-	std::cout << "M1.DeltaPhi(P1) " << M1.DeltaPhi(P1) << std::endl;
+	std::cout << "M1.DeltaPhi(P1) " << DeltaPhiManual(M1,P1) << std::endl;
     std::cout << "rho P1: " << TMath::Sqrt(P1.x()*P1.x()+P1.y()*P1.y()) <<  "phi P1: " << P1.Phi() << std::endl;
     std::cout << "rho M1: " << TMath::Sqrt(M1.x()*M1.x()+M1.y()*M1.y()) <<  "phi M1: " << M1.Phi() << std::endl;
 #endif
 
 //Finally Cut on DeltaPhi of P1 and M1
 
-    double tol_DeltaPhiMaxM1P1=DeltaPhiMaxM1P1*0.1;
+    double tol_DeltaPhiMaxM1P1=DeltaPhiMaxM1P1*toleranceFactorOnDeltaPhiCuts;
+    double DeltaPhiManualM1P1=DeltaPhiManual(M1,P1);
 
-if(M1.DeltaPhi(P1)>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || M1.DeltaPhi(P1)<0-tol_DeltaPhiMaxM1P1){
-	if(applyDeltaPhiCuts) return 0;
+if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<0-tol_DeltaPhiMaxM1P1){
+	return 0;
 }
 
   }//if rMax > rLayerM1
@@ -306,23 +317,26 @@ if(M1.DeltaPhi(P1)>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || M1.DeltaPhi(P1)<0-tol_
 		  double k=-C.x()/C.y();
 		  double d=(rM2*rM2-rMax*rMax+C.x()*C.x()+C.y()*C.y())/(2*C.y());
 
-		  double M2xMax1=(-2*k*d+TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rM2*rM2)))/(2+2*k*k);
-		  double M2xMax2=(-2*k*d-TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rM2*rM2)))/(2+2*k*k);
+		  double M2solutionPart1=-2*k*d;
+		  double M2solutionPart2=TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rM2*rM2));
+		  double M2solutionPart3=2+2*k*k;
+		  double M2xMax1=(M2solutionPart1+M2solutionPart2)/M2solutionPart3;
+		  double M2xMax2=(M2solutionPart1-M2solutionPart2)/M2solutionPart3;
 		  double M2yMax1=k*M2xMax1+d;
 		  double M2yMax2=k*M2xMax2+d;
 
 		  //double M2xMax,M2yMax;
-		  TVector3 M2MaxVec1(M2xMax1,M2yMax1,0);
-		  TVector3 M2MaxVec2(M2xMax2,M2yMax2,0);
-		  TVector3 M2MaxVec(0,0,0);
-		  if(M2MaxVec1.DeltaPhi(M2MaxVec2)>0){
+		  math::XYZVector M2MaxVec1(M2xMax1,M2yMax1,0);
+		  math::XYZVector M2MaxVec2(M2xMax2,M2yMax2,0);
+		  math::XYZVector M2MaxVec(0,0,0);
+		  if(DeltaPhiManual(M2MaxVec1,M2MaxVec1)>0){
 			  M2MaxVec.SetXYZ(M2xMax2,M2yMax2,0);
 		  }
 		  else{
 			  M2MaxVec.SetXYZ(M2xMax1,M2yMax1,0);
 		  }
 
-		  double DeltaPhiMaxM2=M2MaxVec.DeltaPhi(M1);
+		  double DeltaPhiMaxM2=DeltaPhiManual(M2MaxVec,M1);
 
 #ifdef mydebug_knuenz
 		  	std::cout << "C.x() " << C.x() << std::endl;
@@ -345,18 +359,22 @@ if(M1.DeltaPhi(P1)>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || M1.DeltaPhi(P1)<0-tol_
 #endif
 
 
-		    double tol_DeltaPhiMaxM2=DeltaPhiMaxM2*0.1;
+		    double tol_DeltaPhiMaxM2=DeltaPhiMaxM2*toleranceFactorOnDeltaPhiCuts;
+		    double DeltaPhiManualM2M1=DeltaPhiManual(M2,M1);
 
-		  if(M2.DeltaPhi(M1)>DeltaPhiMaxM2+tol_DeltaPhiMaxM2 || M2.DeltaPhi(M1)<0-tol_DeltaPhiMaxM2){
-			  if(applyDeltaPhiCuts) return 0;
+		  if(DeltaPhiManualM2M1>DeltaPhiMaxM2+tol_DeltaPhiMaxM2 || DeltaPhiManualM2M1<0-tol_DeltaPhiMaxM2){
+			  return 0;
 		  }
 
 		  //Using the lazy solution for P2: DeltaPhiMaxP2=DeltaPhiMaxM2
-		  if(P1.DeltaPhi(P2)>DeltaPhiMaxM2+tol_DeltaPhiMaxM2 || P1.DeltaPhi(P2)<0-tol_DeltaPhiMaxM2){
-		  	if(applyDeltaPhiCuts) return 0;
+		  double DeltaPhiManualP1P2=DeltaPhiManual(P1,P2);
+		  if(DeltaPhiManualP1P2>DeltaPhiMaxM2+tol_DeltaPhiMaxM2 || DeltaPhiManualP1P2<0-tol_DeltaPhiMaxM2){
+		  	return 0;
 		  }
 
 	  }
+
+}
 
 //  }
 
@@ -373,15 +391,15 @@ if(M1.DeltaPhi(P1)>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || M1.DeltaPhi(P1)<0-tol_
 #ifdef mydebug_sguazz
   quad.Dump();
 #endif
-  TVector3 candVtx;
+  math::XYZVector candVtx;
   double candPtPlus, candPtMinus;
-  double rPlus, rMinus;
+  //double rPlus, rMinus;
   int nite = quad.ConversionCandidate(candVtx, candPtPlus, candPtMinus);
 
   if ( ! (nite && abs(nite) < 25 && nite != -1000 && nite != -2000) ) return 0;
 
-  TVector3 plusCenter = quad.GetPlusCenter(rPlus);
-  TVector3 minusCenter = quad.GetMinusCenter(rMinus);
+//  math::XYZVector plusCenter = quad.GetPlusCenter(rPlus);
+//  math::XYZVector minusCenter = quad.GetMinusCenter(rMinus);
 
 #ifdef mydebug_sguazz
     std::cout << " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << "\n";
@@ -401,8 +419,9 @@ if(M1.DeltaPhi(P1)>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || M1.DeltaPhi(P1)<0-tol_
     if ( candPtMinus > maxLegPt ) return 0;
     //
     // Cut on radial distance between estimated conversion vertex and inner hits
-    if ( (h2.Perp()-candVtx.Perp()) > maxRadialDistance ) return 0;
-    if ( (h3.Perp()-candVtx.Perp()) > maxRadialDistance ) return 0;
+    if ( (TMath::Sqrt(h2.Perp2())-TMath::Sqrt(candVtx.Perp2())) > maxRadialDistance ) return 0;
+    if ( (TMath::Sqrt(h3.Perp2())-TMath::Sqrt(candVtx.Perp2())) > maxRadialDistance ) return 0;
+
 
 // At this point implement cleaning cuts after building the seed
 
@@ -443,9 +462,9 @@ if(M1.DeltaPhi(P1)>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || M1.DeltaPhi(P1)<0-tol_
 
     double quadPhotPhi = (candVtx-vPhotVertex).Phi();
 
-    TVector3 fittedPrimaryVertex(vgPhotVertex.x(), vgPhotVertex.y(),quadZ0);
+    math::XYZVector fittedPrimaryVertex(vgPhotVertex.x(), vgPhotVertex.y(),quadZ0);
 
-    candVtx.SetZ(candVtx.Perp()*quadPhotCotTheta+quadZ0);
+    candVtx.SetZ(TMath::Sqrt(candVtx.Perp2())*quadPhotCotTheta+quadZ0);
     GlobalPoint convVtxGlobalPoint(candVtx.X(),candVtx.Y(),candVtx.Z());
 
     //
@@ -509,8 +528,8 @@ if(M1.DeltaPhi(P1)>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || M1.DeltaPhi(P1)<0-tol_
 	      << vHit[3].x() << " " << vHit[3].y() << " " << vHit[3].z() << " " << sqrt(getSqrEffectiveErrorOnZ(mtth2, region)) << " "
 	      << candVtx.X() << " " << candVtx.Y() << " " << candVtx.Z() << " "
 	      << fittedPrimaryVertex.X() << " " << fittedPrimaryVertex.Y() << " " << fittedPrimaryVertex.Z() << " "
-	      << candPtPlus  << " " << rPlus << " " << plusCenter.X() << " " << plusCenter.Y() << " "
-	      << candPtMinus << " " << rMinus << " " << minusCenter.X() << " " << minusCenter.Y() << " "
+//	      << candPtPlus  << " " << rPlus << " " << plusCenter.X() << " " << plusCenter.Y() << " "
+//	      << candPtMinus << " " << rMinus << " " << minusCenter.X() << " " << minusCenter.Y() << " "
 	      << nite << " " << chi2 << "\n";
 #endif
 #ifdef mydebug_sguazz
@@ -670,22 +689,12 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::buildSeed(
     TrajectoryStateOnSurface state = (iHit==0) ?
       propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
       : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
-    if (!state.isValid()) {
-    	return 0;}
 
     TransientTrackingRecHit::ConstRecHitPointer tth = hits[iHit];
 
     TransientTrackingRecHit::RecHitPointer newtth =  refitHit( tth, state);
 
-
-    if (!checkHit(state,newtth,es)){
-		return 0;
-    }
-    
     updatedState =  updator.update(state, *newtth);
-    if (!updatedState.isValid()){
-    	return 0;
-    }
 
     seedHits.push_back(newtth->hit()->clone());
 #ifdef mydebug_seed
@@ -696,9 +705,6 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::buildSeed(
 	   << " tth " << tth->localPosition() << " newtth " << newtth->localPosition() << " state " << state.globalMomentum().perp();
 #endif
   }
-
-
-
 
   PTrajectoryStateOnDet const &  PTraj =
       trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
@@ -769,11 +775,11 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
 
   double zCA;
 
-  TVector3 EstMomGam(updatedState.globalMomentum().x(),updatedState.globalMomentum().y(),updatedState.globalMomentum().z());
-  TVector3 EstPosGam(updatedState.globalPosition().x(),updatedState.globalPosition().y(),updatedState.globalPosition().z());
+  math::XYZVector EstMomGam(updatedState.globalMomentum().x(),updatedState.globalMomentum().y(),updatedState.globalMomentum().z());
+  math::XYZVector EstPosGam(updatedState.globalPosition().x(),updatedState.globalPosition().y(),updatedState.globalPosition().z());
 
   double EstMomGamLength=TMath::Sqrt(EstMomGam.x()*EstMomGam.x()+EstMomGam.y()*EstMomGam.y()+EstMomGam.z()*EstMomGam.z());
-  TVector3 EstMomGamNorm(EstMomGam.x()/EstMomGamLength,EstMomGam.y()/EstMomGamLength,EstMomGam.z()/EstMomGamLength);
+  math::XYZVector EstMomGamNorm(EstMomGam.x()/EstMomGamLength,EstMomGam.y()/EstMomGamLength,EstMomGam.z()/EstMomGamLength);
 
   //Calculate dz of point of closest approach of the two lines (WA approach) -> cut on dz
   
@@ -1046,5 +1052,18 @@ bool SeedForPhotonConversionFromQuadruplets::similarQuadExist(Quad & thisQuad, s
     }
   quadV.push_back(thisQuad);
   return false;
+
+}
+
+double SeedForPhotonConversionFromQuadruplets::DeltaPhiManual(math::XYZVector v1, math::XYZVector v2){
+
+
+	double  kPI = TMath::Pi();
+	double  kTWOPI     = 2.*kPI;
+	double DeltaPhiMan=v1.Phi()-v2.Phi();
+	while (DeltaPhiMan >= kPI) DeltaPhiMan -= kTWOPI;
+	while (DeltaPhiMan < -kPI) DeltaPhiMan += kTWOPI;
+
+	return DeltaPhiMan;
 
 }

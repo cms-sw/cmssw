@@ -99,7 +99,9 @@ public:
 
   bool similarQuadExist(Quad & thisQuad, std::vector<Quad>& quadV);
 
+  double DeltaPhiManual(math::XYZVector v1, math::XYZVector v2);
   
+
 protected:
   std::string thePropagatorLabel;
   double theBOFFMomentum;

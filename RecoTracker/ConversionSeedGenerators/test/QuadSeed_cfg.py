@@ -17,8 +17,8 @@ process=quadrereco(process)
 
 process.source = cms.Source(
     "PoolSource",
-    #fileNames = cms.untracked.vstring('file:root://eoscms//eos/cms/store/mc/Summer12_DR53X/MinBias_TuneZ2star_8TeV-pythia6/GEN-SIM-RECODEBUG/DEBUG_PU_S10_START53_V7A-v1/0000/04B96853-D1E0-E111-86D0-002618943845.root')
-    fileNames = cms.untracked.vstring('file:root://eoscms//eos/cms/store/relval/CMSSW_6_1_0_pre6-START61_V5/RelValMinBias/GEN-SIM-RECO/v1/00000/642ECE84-E433-E211-ADB0-003048FFD720.root')
+    fileNames = cms.untracked.vstring('file:root://eoscms//eos/cms/store/mc/Summer12_DR53X/MinBias_TuneZ2star_8TeV-pythia6/GEN-SIM-RECODEBUG/DEBUG_PU_S10_START53_V7A-v1/0000/04B96853-D1E0-E111-86D0-002618943845.root')
+    #fileNames = cms.untracked.vstring('file:root://eoscms//eos/cms/store/relval/CMSSW_6_1_0_pre6-START61_V5/RelValMinBias/GEN-SIM-RECO/v1/00000/642ECE84-E433-E211-ADB0-003048FFD720.root')
     )
 
 process.maxEvents = cms.untracked.PSet(
@@ -36,7 +36,8 @@ process.out = cms.OutputModule("PoolOutputModule",
                                )
 
 #process.Tracer = cms.Service("Tracer")
-
+#process.Timing = cms.Service("Timing")
+ 
 process.QuadFinalPath = cms.Path(
                                  #process.convertedPhotonAnalyzer*
                                  process.quadrereco
