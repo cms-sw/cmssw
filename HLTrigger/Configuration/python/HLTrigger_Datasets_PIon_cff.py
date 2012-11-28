@@ -69,6 +69,7 @@ streamA_datasetPAPhysics_selector.triggerConditions = cms.vstring('HLT_PABTagMu_
     'HLT_PAForJet80Eta2_v1', 
     'HLT_PAForJet80Eta3_v1', 
     'HLT_PAFullTrack12_v1', 
+    'HLT_PAFullTrack20_v1', 
     'HLT_PAFullTrack30_v1', 
     'HLT_PAFullTrack50_v1', 
     'HLT_PAHFOR_SingleTrack_v1', 

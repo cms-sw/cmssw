@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V66 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V67 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V66')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V67')
 )
 
 process.streams = cms.PSet( 
@@ -155,6 +155,7 @@ process.datasets = cms.PSet(
     'HLT_PAForJet80Eta2_v1',
     'HLT_PAForJet80Eta3_v1',
     'HLT_PAFullTrack12_v1',
+    'HLT_PAFullTrack20_v1',
     'HLT_PAFullTrack30_v1',
     'HLT_PAFullTrack50_v1',
     'HLT_PAHFOR_SingleTrack_v1',
@@ -4104,6 +4105,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PAFullTrack12_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PAFullTrack20_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PAFullTrack30_v1" ),
@@ -11503,7 +11507,7 @@ process.hltPAGoodPixelTracksForHighMult = cms.EDProducer( "AnalyticalTrackSelect
     keepAllTracks = cms.bool( False ),
     maxNumberLostLayers = cms.uint32( 999 ),
     beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
-    max_relpterr = cms.double( 0.2 ),
+    max_relpterr = cms.double( 999.0 ),
     copyExtras = cms.untracked.bool( False ),
     max_z0NoPV = cms.double( 100.0 ),
     vertexCut = cms.string( "" ),
@@ -11628,7 +11632,7 @@ process.hltPAPixelTracksForHighPt = cms.EDProducer( "PixelTrackProducer",
       nSigmaTipMaxTolerance = cms.double( 0.0 ),
       ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
       nSigmaInvPtTolerance = cms.double( 0.0 ),
-      ptMin = cms.double( 3.0 ),
+      ptMin = cms.double( 0.0 ),
       tipMax = cms.double( 1.0 )
     ),
     useFilterWithES = cms.bool( False ),
@@ -11644,7 +11648,7 @@ process.hltPAPixelTracksForHighPt = cms.EDProducer( "PixelTrackProducer",
         precise = cms.bool( True ),
         originHalfLength = cms.double( 15.1 ),
         originRadius = cms.double( 0.2 ),
-        ptMin = cms.double( 3.0 ),
+        ptMin = cms.double( 6.0 ),
         beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
       )
     ),
@@ -11665,63 +11669,13 @@ process.hltPAPixelTracksForHighPt = cms.EDProducer( "PixelTrackProducer",
       )
     )
 )
-process.hltPAGoodPixelTracksForHighPt = cms.EDProducer( "AnalyticalTrackSelector",
-    max_d0 = cms.double( 100.0 ),
-    minNumber3DLayers = cms.uint32( 0 ),
-    applyAbsCutsIfNoPV = cms.bool( False ),
-    qualityBit = cms.string( "loose" ),
-    minNumberLayers = cms.uint32( 0 ),
-    chi2n_par = cms.double( 9999.0 ),
-    useVtxError = cms.bool( True ),
-    nSigmaZ = cms.double( 100.0 ),
-    dz_par2 = cms.vdouble( 4.0, 0.0 ),
-    applyAdaptedPVCuts = cms.bool( True ),
-    min_eta = cms.double( -9999.0 ),
-    dz_par1 = cms.vdouble( 9999.0, 0.0 ),
-    copyTrajectories = cms.untracked.bool( False ),
-    vtxNumber = cms.int32( 1 ),
-    max_d0NoPV = cms.double( 0.5 ),
-    keepAllTracks = cms.bool( False ),
-    maxNumberLostLayers = cms.uint32( 999 ),
-    beamspot = cms.InputTag( "hltOnlineBeamSpot" ),
-    max_relpterr = cms.double( 9999.0 ),
-    copyExtras = cms.untracked.bool( True ),
-    max_z0NoPV = cms.double( 100.0 ),
-    vertexCut = cms.string( "" ),
-    max_z0 = cms.double( 100.0 ),
-    useVertices = cms.bool( True ),
-    min_nhits = cms.uint32( 0 ),
-    src = cms.InputTag( "hltPAPixelTracksForHighPt" ),
-    chi2n_no1Dmod_par = cms.double( 9999.0 ),
-    vertices = cms.InputTag( "hltPAPixelVerticesForHighMult" ),
-    max_eta = cms.double( 9999.0 ),
-    d0_par2 = cms.vdouble( 9999.0, 0.0 ),
-    d0_par1 = cms.vdouble( 9999.0, 0.0 ),
-    res_par = cms.vdouble( 99999.0, 99999.0 ),
-    minHitsToBypassChecks = cms.uint32( 999 )
-)
-process.hltPAPixelCandsForHighPt = cms.EDProducer( "ConcreteChargedCandidateProducer",
-    src = cms.InputTag( "hltPAGoodPixelTracksForHighPt" ),
-    particleType = cms.string( "pi+" )
-)
-process.hlt1PAHighPt3 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
-    saveTags = cms.bool( False ),
-    MinTrks = cms.int32( 1 ),
-    MinPt = cms.double( 3.0 ),
-    MaxVz = cms.double( 15.0 ),
-    MaxEta = cms.double( 2.4 ),
-    trackCollection = cms.InputTag( "hltPAPixelCandsForHighPt" ),
-    vertexCollection = cms.InputTag( "hltPAPixelVerticesForHighMult" ),
-    MaxPt = cms.double( 9999.0 ),
-    MinSep = cms.double( 5.0 )
-)
 process.hltPAFullTrackPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     useEventsWithNoVertex = cms.bool( True ),
     originHalfLength = cms.double( 15.1 ),
     useProtoTrackKinematics = cms.bool( False ),
     InputVertexCollection = cms.InputTag( "hltPAPixelVerticesForHighMult" ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-    InputCollection = cms.InputTag( "hltPAGoodPixelTracksForHighPt" ),
+    InputCollection = cms.InputTag( "hltPAPixelTracksForHighPt" ),
     originRadius = cms.double( 0.2 )
 )
 process.hltPAFullTrackCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
@@ -11733,10 +11687,10 @@ process.hltPAFullTrackCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMak
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
     TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    useHitsSplitting = cms.bool( False ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
-    doSeedingRegionRebuilding = cms.bool( False ),
+    doSeedingRegionRebuilding = cms.bool( True ),
     maxNSeeds = cms.uint32( 100000 ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     TrajectoryBuilder = cms.string( "hltESPTrajectoryBuilderIT" )
@@ -11777,7 +11731,7 @@ process.hltPAFullTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSele
     max_relpterr = cms.double( 9999.0 ),
     copyExtras = cms.untracked.bool( True ),
     max_z0NoPV = cms.double( 100.0 ),
-    vertexCut = cms.string( "tracksSize>=3" ),
+    vertexCut = cms.string( "tracksSize>=2" ),
     max_z0 = cms.double( 100.0 ),
     useVertices = cms.bool( True ),
     min_nhits = cms.uint32( 0 ),
@@ -11810,7 +11764,7 @@ process.hltPAFullTrackIter1PixelSeeds = cms.EDProducer( "SeedGeneratorFromRegion
         precise = cms.bool( True ),
         originHalfLength = cms.double( 15.1 ),
         originRadius = cms.double( 0.2 ),
-        ptMin = cms.double( 6.0 ),
+        ptMin = cms.double( 8.0 ),
         beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
       )
     ),
@@ -11853,10 +11807,10 @@ process.hltPAFullTrackIter1CkfTrackCandidates = cms.EDProducer( "CkfTrackCandida
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
     TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    useHitsSplitting = cms.bool( False ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
-    doSeedingRegionRebuilding = cms.bool( False ),
+    doSeedingRegionRebuilding = cms.bool( True ),
     maxNSeeds = cms.uint32( 100000 ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     TrajectoryBuilder = cms.string( "hltIter1ESPTrajectoryBuilderITPA" )
@@ -11897,7 +11851,7 @@ process.hltPAFullTrackIter1TrackSelectionHighPurityLoose = cms.EDProducer( "Anal
     max_relpterr = cms.double( 9999.0 ),
     copyExtras = cms.untracked.bool( True ),
     max_z0NoPV = cms.double( 100.0 ),
-    vertexCut = cms.string( "tracksSize>=3" ),
+    vertexCut = cms.string( "tracksSize>=2" ),
     max_z0 = cms.double( 100.0 ),
     useVertices = cms.bool( True ),
     min_nhits = cms.uint32( 0 ),
@@ -11995,7 +11949,7 @@ process.hltPAFullTrackIter2PixelSeeds = cms.EDProducer( "SeedGeneratorFromRegion
         precise = cms.bool( True ),
         originHalfLength = cms.double( 15.1 ),
         originRadius = cms.double( 0.2 ),
-        ptMin = cms.double( 3.0 ),
+        ptMin = cms.double( 6.0 ),
         beamSpot = cms.InputTag( "hltOnlneBeamSpot" )
       )
     ),
@@ -12031,10 +11985,10 @@ process.hltPAFullTrackIter2CkfTrackCandidates = cms.EDProducer( "CkfTrackCandida
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
     TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    useHitsSplitting = cms.bool( False ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
-    doSeedingRegionRebuilding = cms.bool( False ),
+    doSeedingRegionRebuilding = cms.bool( True ),
     maxNSeeds = cms.uint32( 100000 ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     TrajectoryBuilder = cms.string( "hltIter2ESPTrajectoryBuilderITPA" )
@@ -12075,7 +12029,7 @@ process.hltPAFullTrackIter2TrackSelectionHighPurity = cms.EDProducer( "Analytica
     max_relpterr = cms.double( 9999.0 ),
     copyExtras = cms.untracked.bool( True ),
     max_z0NoPV = cms.double( 100.0 ),
-    vertexCut = cms.string( "tracksSize>=3" ),
+    vertexCut = cms.string( "tracksSize>=2" ),
     max_z0 = cms.double( 100.0 ),
     useVertices = cms.bool( True ),
     min_nhits = cms.uint32( 0 ),
@@ -12123,7 +12077,7 @@ process.hltPAFullTrackIter3MixedSeeds = cms.EDProducer( "SeedGeneratorFromRegion
         precise = cms.bool( True ),
         originHalfLength = cms.double( 15.1 ),
         originRadius = cms.double( 0.2 ),
-        ptMin = cms.double( 6.0 ),
+        ptMin = cms.double( 8.0 ),
         beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
       )
     ),
@@ -12166,10 +12120,10 @@ process.hltPAFullTrackIter3CkfTrackCandidates = cms.EDProducer( "CkfTrackCandida
       propagatorOppositeTISE = cms.string( "PropagatorWithMaterialOpposite" )
     ),
     TrajectoryCleaner = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
-    cleanTrajectoryAfterInOut = cms.bool( False ),
-    useHitsSplitting = cms.bool( False ),
+    cleanTrajectoryAfterInOut = cms.bool( True ),
+    useHitsSplitting = cms.bool( True ),
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
-    doSeedingRegionRebuilding = cms.bool( False ),
+    doSeedingRegionRebuilding = cms.bool( True ),
     maxNSeeds = cms.uint32( 100000 ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     TrajectoryBuilder = cms.string( "hltIter3ESPTrajectoryBuilderITPA" )
@@ -12210,7 +12164,7 @@ process.hltPAFullTrackIter3TrackSelectionHighPurityLoose = cms.EDProducer( "Anal
     max_relpterr = cms.double( 9999.0 ),
     copyExtras = cms.untracked.bool( True ),
     max_z0NoPV = cms.double( 100.0 ),
-    vertexCut = cms.string( "tracksSize>=3" ),
+    vertexCut = cms.string( "tracksSize>=2" ),
     max_z0 = cms.double( 100.0 ),
     useVertices = cms.bool( True ),
     min_nhits = cms.uint32( 0 ),
@@ -12245,7 +12199,7 @@ process.hltPAFullTrackIter3TrackSelectionHighPurityTight = cms.EDProducer( "Anal
     max_relpterr = cms.double( 9999.0 ),
     copyExtras = cms.untracked.bool( True ),
     max_z0NoPV = cms.double( 100.0 ),
-    vertexCut = cms.string( "tracksSize>=3" ),
+    vertexCut = cms.string( "tracksSize>=2" ),
     max_z0 = cms.double( 100.0 ),
     useVertices = cms.bool( True ),
     min_nhits = cms.uint32( 0 ),
@@ -12310,7 +12264,7 @@ process.hltPAGoodFullTracks = cms.EDProducer( "AnalyticalTrackSelector",
     max_relpterr = cms.double( 0.15 ),
     copyExtras = cms.untracked.bool( False ),
     max_z0NoPV = cms.double( 100.0 ),
-    vertexCut = cms.string( "" ),
+    vertexCut = cms.string( "tracksSize>=2" ),
     max_z0 = cms.double( 100.0 ),
     useVertices = cms.bool( True ),
     min_nhits = cms.uint32( 0 ),
@@ -12318,7 +12272,7 @@ process.hltPAGoodFullTracks = cms.EDProducer( "AnalyticalTrackSelector",
     chi2n_no1Dmod_par = cms.double( 9999.0 ),
     vertices = cms.InputTag( "hltPAPixelVerticesForHighMult" ),
     max_eta = cms.double( 9999.0 ),
-    d0_par2 = cms.vdouble( 9999.0, 0.0 ),
+    d0_par2 = cms.vdouble( 3.5, 0.0 ),
     d0_par1 = cms.vdouble( 9999.0, 0.0 ),
     res_par = cms.vdouble( 99999.0, 99999.0 ),
     minHitsToBypassChecks = cms.uint32( 999 )
@@ -12361,6 +12315,21 @@ process.hltL1sL1SingleJet12BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
 process.hltPrePAFullTrack12 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
+)
+process.hltPrePAFullTrack20 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hlt1PAFullTrack20 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    saveTags = cms.bool( False ),
+    MinTrks = cms.int32( 1 ),
+    MinPt = cms.double( 20.0 ),
+    MaxVz = cms.double( 15.0 ),
+    MaxEta = cms.double( 2.4 ),
+    trackCollection = cms.InputTag( "hltPAFullCands" ),
+    vertexCollection = cms.InputTag( "hltPAPixelVerticesForHighMult" ),
+    MaxPt = cms.double( 9999.0 ),
+    MinSep = cms.double( 5.0 )
 )
 process.hltPrePAFullTrack30 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -13892,6 +13861,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PAForJet80Eta2_v1',
   'HLT_PAForJet80Eta3_v1',
   'HLT_PAFullTrack12_v1',
+  'HLT_PAFullTrack20_v1',
   'HLT_PAFullTrack30_v1',
   'HLT_PAFullTrack50_v1',
   'HLT_PAHFOR_SingleTrack_v1',
@@ -14382,8 +14352,7 @@ process.HLTDoublePhoton20And20NoCaloIdVLSequence = cms.Sequence( process.HLTDoRe
 process.HLTDoublePhoton30And30NoCaloIdVLSequence = cms.Sequence( process.HLTDoRegionalEgammaEcalSequence + process.HLTL1SeededEcalClustersSequence + process.hltL1SeededRecoEcalCandidate + process.hltEGRegionalL1DoubleEG137 + process.hltEGDouble30And30EtFilter )
 process.HLTRecopixelvertexingForHighMultSequence = cms.Sequence( process.hltPixelTracksForHighMult + process.hltPixelVerticesForHighMult )
 process.HLTRecopixelvertexingForHighMultPASequence = cms.Sequence( process.hltPAPixelTracksForHighMult + process.hltPAPixelVerticesForHighMult )
-process.HLTPAGoodPixelTracksCandsForHighPt = cms.Sequence( process.hltPAPixelTracksForHighPt + process.hltPAGoodPixelTracksForHighPt + process.hltPAPixelCandsForHighPt )
-process.HLTPAIterativeTrackingIteration0 = cms.Sequence( process.hltPAFullTrackPixelSeedsFromPixelTracks + process.hltPAFullTrackCkfTrackCandidates + process.hltPAFullTrackCtfWithMaterialTracks + process.hltPAFullTrackSelectionHighPurity )
+process.HLTPAIterativeTrackingIteration0 = cms.Sequence( process.hltPAPixelTracksForHighPt + process.hltPAFullTrackPixelSeedsFromPixelTracks + process.hltPAFullTrackCkfTrackCandidates + process.hltPAFullTrackCtfWithMaterialTracks + process.hltPAFullTrackSelectionHighPurity )
 process.HLTPAIterativeTrackingIteration1 = cms.Sequence( process.hltPAFullTrackIter1ClustersRefRemoval + process.hltPAFullTrackIter1SiStripClusters + process.hltPAFullTrackIter1PixelSeeds + process.hltPAFullTrackIter1CkfTrackCandidates + process.hltPAFullTrackIter1CtfWithMaterialTracks + process.hltPAFullTrackIter1TrackSelectionHighPurityLoose + process.hltPAFullTrackIter1TrackSelectionHighPurityTight + process.hltPAFullTrackIter1TrackSelectionHighPurity + process.hltPAFullTrackIter1Merged )
 process.HLTPAIterativeTrackingIteration2 = cms.Sequence( process.hltPAFullTrackIter2ClustersRefRemoval + process.hltPAFullTrackIter2SiStripClusters + process.hltPAFullTrackIter2PixelSeeds + process.hltPAFullTrackIter2CkfTrackCandidates + process.hltPAFullTrackIter2CtfWithMaterialTracks + process.hltPAFullTrackIter2TrackSelectionHighPurity + process.hltPAFullTrackIter2Merged )
 process.HLTPAIterativeTrackingIteration3 = cms.Sequence( process.hltPAFullTrackIter3ClustersRefRemoval + process.hltPAFullTrackIter3SiStripClusters + process.hltPAFullTrackIter3MixedSeeds + process.hltPAFullTrackIter3CkfTrackCandidates + process.hltPAFullTrackIter3CtfWithMaterialTracks + process.hltPAFullTrackIter3TrackSelectionHighPurityLoose + process.hltPAFullTrackIter3TrackSelectionHighPurityTight + process.hltPAFullTrackIter3TrackSelectionHighPurity + process.hltPAFullTrackIter3Merged )
@@ -14489,12 +14458,13 @@ process.HLT_PAPixelTracks_Multiplicity130_v1 = cms.Path( process.HLTBeginSequenc
 process.HLT_PAPixelTracks_Multiplicity160_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT40 + process.hltPrePAPixelTracksMultiplicity160 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult160 + process.HLTEndSequence )
 process.HLT_PAPixelTracks_Multiplicity190_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT40 + process.hltPrePAPixelTracksMultiplicity190 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult190 + process.HLTEndSequence )
 process.HLT_PAPixelTracks_Multiplicity220_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT60 + process.hltPrePAPixelTracksMultiplicity220 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult220 + process.HLTEndSequence )
-process.HLT_PAPixelTrackMultiplicity100_FullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePAPixelTrackMultiplicity100FullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult100 + process.HLTPAGoodPixelTracksCandsForHighPt + process.hlt1PAHighPt3 + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
-process.HLT_PAPixelTrackMultiplicity130_FullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePAPixelTrackMultiplicity130FullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult130 + process.HLTPAGoodPixelTracksCandsForHighPt + process.hlt1PAHighPt3 + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
-process.HLT_PAPixelTrackMultiplicity160_FullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT40 + process.hltPrePAPixelTrackMultiplicity160FullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult160 + process.HLTPAGoodPixelTracksCandsForHighPt + process.hlt1PAHighPt3 + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
-process.HLT_PAFullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet12BptxAND + process.hltPrePAFullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTPAGoodPixelTracksCandsForHighPt + process.hlt1PAHighPt3 + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
-process.HLT_PAFullTrack30_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16 + process.hltPrePAFullTrack30 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTPAGoodPixelTracksCandsForHighPt + process.hlt1PAHighPt3 + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack30 + process.HLTEndSequence )
-process.HLT_PAFullTrack50_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36 + process.hltPrePAFullTrack50 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTPAGoodPixelTracksCandsForHighPt + process.hlt1PAHighPt3 + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack50 + process.HLTEndSequence )
+process.HLT_PAPixelTrackMultiplicity100_FullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePAPixelTrackMultiplicity100FullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult100 + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
+process.HLT_PAPixelTrackMultiplicity130_FullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePAPixelTrackMultiplicity130FullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult130 + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
+process.HLT_PAPixelTrackMultiplicity160_FullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT40 + process.hltPrePAPixelTrackMultiplicity160FullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult160 + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
+process.HLT_PAFullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet12BptxAND + process.hltPrePAFullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
+process.HLT_PAFullTrack20_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16 + process.hltPrePAFullTrack20 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack20 + process.HLTEndSequence )
+process.HLT_PAFullTrack30_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16 + process.hltPrePAFullTrack30 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack30 + process.HLTEndSequence )
+process.HLT_PAFullTrack50_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36 + process.hltPrePAFullTrack50 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTDoLocalStripSequence + process.HLTPAIterativeTracking + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack50 + process.HLTEndSequence )
 process.HLT_PARomanPots_Tech52_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sRomanPotsTech52 + process.hltPrePARomanPotsTech52 + process.HLTEndSequence )
 process.HLT_PAL1Tech53_MB_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Tech53MB + process.hltPrePAL1Tech53MB + process.HLTEndSequence )
 process.HLT_PAL1Tech53_MB_SingleTrack_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Tech53MB + process.hltPrePAL1Tech53MBSingleTrack + process.HLTDoLocalPixelSequence + process.HLTPixelTrackingForPAMinBiasSequence + process.hltPAPixelCandsForMinBias + process.hltPAMinBiasPixelFilter1 + process.HLTEndSequence )
