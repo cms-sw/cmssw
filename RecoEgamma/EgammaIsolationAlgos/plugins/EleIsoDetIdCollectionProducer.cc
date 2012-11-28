@@ -151,13 +151,25 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
 
 	      std::vector<int>::const_iterator vit;
 	      if (isBarrel) {
-		vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
-		if (vit != flagsexclEB_.end())
-		  continue;
+		// new rechit flag checks
+		//vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
+		//if (vit != flagsexclEB_.end())
+		//  continue;
+		if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
+		  if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEB_)) {                
+		    continue;
+		  }
+		}
 	      } else {
-		vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
-		if (vit != flagsexclEE_.end())
-		  continue;
+		// new rechit flag checks
+		//vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*recIt))->recoFlag());
+		//if (vit != flagsexclEE_.end())
+		//  continue;
+		if (!((EcalRecHit*)(&*recIt))->checkFlag(EcalRecHit::kGood)) {
+		  if (((EcalRecHit*)(&*recIt))->checkFlags(flagsexclEE_)) {                
+		    continue;
+		  }
+		}
 	      }
 
 	      if(std::find(detIdCollection->begin(),detIdCollection->end(),recIt->detid()) == detIdCollection->end()) 

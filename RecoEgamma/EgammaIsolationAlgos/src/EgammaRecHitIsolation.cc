@@ -146,19 +146,17 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	  if (sit!= severitiesexcl_.end())
 	    continue;
 	  
-	  std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
-							   flags_.end(),
-							   ((const EcalRecHit*)(&*j))->recoFlag());
-	  if (vit != flags_.end()) 
-	    continue;
-	  
-	  
-	  
-	  
-	  
-	  
-	  
-	  
+	  // new rechit flag checks
+	  //std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
+	  //						   flags_.end(),
+	  //						   ((const EcalRecHit*)(&*j))->recoFlag());
+	  //if (vit != flags_.end()) 
+	  //  continue;
+	  if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
+	    if (((EcalRecHit*)(&*j))->checkFlags(flags_)) {                
+	      continue;
+	    }
+	  }
 	  
 	  float et = energy*std::sqrt(cell->getPosition().perp2()/cell->getPosition().mag2());
 	  if ( et > etLow_ && energy > eLow_) { //Changed energy --> fabs(energy) - now changed back to energy
@@ -247,18 +245,17 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
 	  if (sit!= severitiesexcl_.end())
 	    continue;
 	  
-	  
-	  
-	  //if( severitiesexcl_!=-1 && ecalBarHits_ && 
-	  //    sevLevel_->severityLevel(EBDetId(j->detid()), *ecalBarHits_) >= severitiesexcl_) 
-	  //  continue;                    
-	  
-	  std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
-							   flags_.end(),
-							   ((EcalRecHit*)(&*j))->recoFlag());
-	  if (vit != flags_.end()) 
-	    continue;
-	  
+	  // new rechit flag checks
+	  //std::vector<int>::const_iterator vit = std::find(flags_.begin(), 
+	  //						   flags_.end(),
+	  //						   ((EcalRecHit*)(&*j))->recoFlag());
+	  //if (vit != flags_.end()) 
+	  //  continue;
+	  if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
+	    if (((EcalRecHit*)(&*j))->checkFlags(flags_)) {                
+	      continue;
+	    }
+	  }
 	  
 	  
 	  double et = energy*position.perp()/position.mag();

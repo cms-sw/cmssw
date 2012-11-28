@@ -222,13 +222,25 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit &deposit,
       
       std::vector<int>::const_iterator vit;
       if (barrel) {
-	vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*j))->recoFlag());
-	if (vit != flagsexclEB_.end())
-	  continue;
+	// new rechit flag checks 
+	//vit = std::find(flagsexclEB_.begin(), flagsexclEB_.end(), ((EcalRecHit*)(&*j))->recoFlag());
+	//if (vit != flagsexclEB_.end())
+	//  continue;
+	if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
+	  if (((EcalRecHit*)(&*j))->checkFlags(flagsexclEB_)) {                
+	    continue;
+	  }
+	}
       } else {
-	vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*j))->recoFlag());
-	if (vit != flagsexclEE_.end())
-	  continue;
+	// new rechit flag checks 
+	//vit = std::find(flagsexclEE_.begin(), flagsexclEE_.end(), ((EcalRecHit*)(&*j))->recoFlag());
+	//if (vit != flagsexclEE_.end())
+	//  continue;
+	if (!((EcalRecHit*)(&*j))->checkFlag(EcalRecHit::kGood)) {
+	  if (((EcalRecHit*)(&*j))->checkFlags(flagsexclEE_)) {                
+	    continue;
+	  }
+	}
       }
       
       if(et > etMin_ 
