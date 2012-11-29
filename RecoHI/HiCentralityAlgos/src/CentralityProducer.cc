@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.37 2011/07/15 15:45:52 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.38 2011/07/15 15:47:05 yilmaz Exp $
 //
 //
 
@@ -92,6 +92,7 @@ class CentralityProducer : public edm::EDFilter {
   double midRapidityRange_;
   double trackPtCut_;
   double trackEtaCut_;
+  double hfEtaCut_;
 
    edm::InputTag  srcHFhits_;	
    edm::InputTag  srcTowers_;
@@ -146,6 +147,8 @@ class CentralityProducer : public edm::EDFilter {
    midRapidityRange_ = iConfig.getParameter<double>("midRapidityRange");
    trackPtCut_ = iConfig.getParameter<double>("trackPtCut");
    trackEtaCut_ = iConfig.getParameter<double>("trackEtaCut");
+
+   hfEtaCut_ = iConfig.getParameter<double>("hfEtaCut");
 
    if(produceHFhits_)  srcHFhits_ = iConfig.getParameter<edm::InputTag>("srcHFhits");
    if(produceHFtowers_ || produceETmidRap_) srcTowers_ = iConfig.getParameter<edm::InputTag>("srcTowers");
@@ -252,9 +255,11 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if(produceHFtowers_){
 	      if(isHF && eta > 0){
 		 creco->etHFtowerSumPlus_ += tower.pt();
+		 if(eta > hfEtaCut_) creco->etHFtruncatedPlus_ += tower.pt();
 	      }
 	      if(isHF && eta < 0){
 		 creco->etHFtowerSumMinus_ += tower.pt();
+		 if(eta < -hfEtaCut_) creco->etHFtruncatedMinus_ += tower.pt();
 	      }
 	   }
 	   if(produceETmidRap_){
@@ -266,6 +271,8 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(!produceHFtowers_){ 
 	   creco->etHFtowerSumMinus_ = inputCentrality->EtHFtowerSumMinus();
 	   creco->etHFtowerSumPlus_ = inputCentrality->EtHFtowerSumPlus();
+	   creco->etHFtruncatedMinus_ = inputCentrality->EtHFtruncatedMinus();
+	   creco->etHFtruncatedPlus_ = inputCentrality->EtHFtruncatedPlus();
 	}
 	if(!produceETmidRap_) creco->etMidRapiditySum_ = inputCentrality->EtMidRapiditySum();
      }
@@ -360,6 +367,18 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(produceTracks_){
      edm::Handle<reco::TrackCollection> tracks;
      iEvent.getByLabel(srcTracks_,tracks);
+
+     edm::Handle<reco::VertexCollection> vtx;
+     iEvent.getByLabel(srcVertex_,vtx);
+     math::XYZPoint vtxPos(0,0,0);
+     double vzErr =0, vxErr=0, vyErr=0;
+     if(vtx->size() > 0) {
+	vtxPos = vtx->begin()->position();
+	vzErr = vtx->begin()->zError();
+	vxErr = vtx->begin()->xError();
+	vyErr = vtx->begin()->yError();
+     }
+
      int nTracks = 0;
      double trackCounter = 0;
      double trackCounterEta = 0;
@@ -367,13 +386,19 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for(unsigned int i = 0 ; i < tracks->size(); ++i){
        const Track& track = (*tracks)[i];
        if(useQuality_ && !track.quality(trackQuality_)) continue;
-       nTracks++;
 
        if( track.pt() > trackPtCut_)  trackCounter++;
        if(fabs(track.eta())<trackEtaCut_) {
 	 trackCounterEta++;
 	 if (track.pt() > trackPtCut_) trackCounterEtaPt++;
        }
+
+       double d0= -1.*track.dxy(vtxPos);
+       double dz = track.dz(vtxPos);
+       double d0sigma = sqrt(track.d0Error()*track.d0Error()+vxErr*vyErr);
+       double dzsigma = sqrt(track.dzError()*track.dzError()+vzErr*vzErr);    
+       if( track.quality(trackQuality_) && track.pt()>0.4 && fabs(track.eta())<2.4 && track.ptError()/track.pt()<0.1 && fabs(dz/dzsigma)<3.0 && fabs(d0/d0sigma)<3.0) nTracks++;
+
      }
 
      creco->trackMultiplicity_ = nTracks;
