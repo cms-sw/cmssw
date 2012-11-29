@@ -22,6 +22,7 @@ def dumptocsv(fieldnames,result,filename):
         r=csvReporter.csvReporter(filename)
         r.writeRow(fieldnames)
         r.writeRows(result)
+        r.close()
         
 def toScreenHeader(commandname,datatagname,normtag,worktag,updatetag,lumitype,toFile=None):
     '''
