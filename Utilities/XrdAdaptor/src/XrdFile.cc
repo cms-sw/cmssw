@@ -1,11 +1,11 @@
+#include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include <vector>
 #include <sstream>
-
-static const char *kCrabJobIdEnv = "CRAB_UNIQUE_JOB_ID";
 
 XrdFile::XrdFile (void)
   : m_client (0),
@@ -162,7 +162,7 @@ XrdFile::open (const char *name,
 
   // Send the monitoring info, if available.
   // Note: getenv is not reentrant.
-  char * crabJobId = getenv(kCrabJobIdEnv);
+  const char * crabJobId = edm::storage::StatisticsSenderService::getJobID();
   if (crabJobId) {
     kXR_unt32 dictId;
     m_client->SendMonitoringInfo(crabJobId, &dictId);
@@ -173,6 +173,12 @@ XrdFile::open (const char *name,
 
   XrdClientConn *conn = m_client->GetClientConn();
   edm::LogInfo("XrdFileInfo") << "Connection URL " << conn->GetCurrentUrl().GetUrl().c_str();
+
+  const char * host = conn->GetCurrentUrl().Host.c_str();
+  edm::Service<edm::storage::StatisticsSenderService> statsService;
+  if (statsService.isAvailable()) {
+    statsService->setCurrentServer(host);
+  }
 }
 
 void
