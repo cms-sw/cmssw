@@ -10,6 +10,10 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
       tag_ = hiPset.getParameter<edm::InputTag>("centralitySrc");
       centralityVariable_ = hiPset.getParameter<std::string>("centralityVariable");
       if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
+      if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersPlus;
+      if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersMinus;
+      if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersPlusTrunc;
+      if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersMinusTrunc;
       if(centralityVariable_.compare("HFhits") == 0) varType_ = HFhits;
       if(centralityVariable_.compare("PixelHits") == 0) varType_ = PixelHits;
       if(centralityVariable_.compare("PixelTracks") == 0) varType_ = PixelTracks;
@@ -91,6 +95,10 @@ double CentralityProvider::centralityValue() const {
    double var = -99;
    if(varType_ == HFhits) var = chandle_->EtHFhitSum();
    if(varType_ == HFtowers) var = chandle_->EtHFtowerSum();
+   if(varType_ == HFtowersPlus) var = chandle_->EtHFtowerSumPlus();
+   if(varType_ == HFtowersMinus) var = chandle_->EtHFtowerSumMinus();
+   if(varType_ == HFtowersPlusTrunc) var = chandle_->EtHFtruncatedPlus();
+   if(varType_ == HFtowersMinusTrunc) var = chandle_->EtHFtruncatedMinus();
    if(varType_ == PixelHits) var = chandle_->multiplicityPixel();
    if(varType_ == PixelTracks) var = chandle_->NpixelTracks();
    if(varType_ == Tracks) var = chandle_->Ntracks();

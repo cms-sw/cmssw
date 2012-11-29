@@ -15,7 +15,7 @@ class CentralityProvider : public CentralityBins {
   CentralityProvider(const edm::EventSetup& iSetup);
   ~CentralityProvider(){;}
 
-  enum VariableType {HFtowers,HFhits,PixelHits,PixelTracks,Tracks,EB,EE,Missing};
+  enum VariableType {HFtowers, HFtowersPlus, HFtowersMinus, HFtowersPlusTrunc, HFtowersMinusTrunc, HFhits, PixelHits, PixelTracks, Tracks, EB, EE, Missing};
 
   int getNbins() const {return table_.size();}
   double centralityValue() const;
