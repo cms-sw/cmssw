@@ -81,7 +81,7 @@ namespace edm {
       resetLuminosityBlockAuxiliary(newLumi());
     }
     bool another = checkNextEvent();
-    if(!another || !eventCached()) {
+    if(!another || (!newLumi() && !eventCached())) {
       return IsStop;
     } else if(inputFileTransitionsEachEvent_) {
       return IsFile;
