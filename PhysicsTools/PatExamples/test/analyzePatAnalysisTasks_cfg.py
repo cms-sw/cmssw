@@ -23,15 +23,15 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.jecAnalyzer = cms.EDAnalyzer("WrappedEDAnalysisTasksAnalyzerJEC",
   Jets = cms.InputTag("selectedPatJetsPFlow"), 
-  jecLevel=cms.string("L3Absolute"),
-  jecSetLabel= cms.string('patJetCorrFactorsPFlow'),#CorrFactors
+  jecLevel=cms.string("L3"),
+  jecSetLabel= cms.string('CorrFactors'),
   outputFileName=cms.string("jecAnalyzerOutput")
 )
 
 process.p_jec = cms.Path(process.jecAnalyzer)
 
-process.jecAnalyzerRel=process.jecAnalyzer.clone(jecLevel="L2Relative")
-process.p_jec.__iadd__(process.jecAnalyzerRel)
+#process.jecAnalyzerRel=process.jecAnalyzer.clone(jecLevel="L2Relative")
+#process.p_jec.__iadd__(process.jecAnalyzerRel)
 #process.jecAnalyzerNon=process.jecAnalyzer.clone(jecLevel="Uncorrected")
 #process.p_jec.__iadd__(process.jecAnalyzerNon)
 
@@ -48,13 +48,13 @@ process.TFileService = cms.Service("TFileService",
 
 process.btagAnalyzer = cms.EDAnalyzer("WrappedEDAnalysisTasksAnalyzerBTag",
                                       Jets = cms.InputTag("selectedPatJetsPFlow"),    
-                                      bTagAlgo=cms.string('trackCountingHighEffBJetTags'),
+                                      bTagAlgo=cms.string('trackCounting'),
                                       bins=cms.uint32(100),
                                       lowerbin=cms.double(0.),
                                       upperbin=cms.double(10.)
 )
 
-process.p_btag = cms.Path(process.btagAnalyzer)
+#process.p_btag = cms.Path(process.btagAnalyzer)
 #process.btagAnalyzerTCHP=process.btagAnalyzer.clone(bTagAlgo="trackCountingHighPurBJetTags")
 #process.p_btag.__iadd__(process.btagAnalyzerTCHP)
 
