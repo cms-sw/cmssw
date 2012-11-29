@@ -34,6 +34,7 @@ class AnalysisTasksAnalyzerJEC : public edm::BasicAnalyzer {
   /// input tag for mouns
   edm::InputTag Jets_;
   std::string jecLevel_;
+  std::string jecSetLabel_;
   std::string patJetCorrFactors_;
   bool help_;
   std::string outputFileName_;
