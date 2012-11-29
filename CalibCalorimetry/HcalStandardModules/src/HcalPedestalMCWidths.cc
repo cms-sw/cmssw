@@ -33,7 +33,7 @@ HcalPedestalMCWidths::~HcalPedestalMCWidths()
          for(int j = 0; j != 10; j++){
             for(int k = 0; k != 10; k++){            
                bunch_it->sig[i][j][k] = (bunch_it->prod[i][j][k]/bunch_it->num[i][j][k]);//-(bunch_it->cap[i]*bunch_it->cap[(i+j)%4]);
-               if(!std::isnan(bunch_it->sig[i][j][k]))
+               if(!edm::isNotFinite(bunch_it->sig[i][j][k]))
                {
                   item.setValue(i,j,k,bunch_it->sig[i][j][k]);
                }else{
@@ -51,7 +51,7 @@ HcalPedestalMCWidths::~HcalPedestalMCWidths()
          for(int i = 0; i != 4; i++){
             for(int j = 0; j != 10; j++){
                for(int k = j; k != 10; k++)
-               if(!std::isnan(bunch_it->sig[i][j][k])) HBMeans[j]->Fill(k-j,bunch_it->sig[i][j][k]);
+               if(!edm::isNotFinite(bunch_it->sig[i][j][k])) HBMeans[j]->Fill(k-j,bunch_it->sig[i][j][k]);
             }
          }
       }
@@ -59,7 +59,7 @@ HcalPedestalMCWidths::~HcalPedestalMCWidths()
          for(int i = 0; i != 4; i++){
             for(int j = 0; j != 10; j++){
                for(int k = j; k != 10; k++)
-               if(!std::isnan(bunch_it->sig[i][j][k])) HEMeans[j]->Fill(k-j,bunch_it->sig[i][j][k]);
+               if(!edm::isNotFinite(bunch_it->sig[i][j][k])) HEMeans[j]->Fill(k-j,bunch_it->sig[i][j][k]);
             }
          }
       }
@@ -67,7 +67,7 @@ HcalPedestalMCWidths::~HcalPedestalMCWidths()
          for(int i = 0; i != 4; i++){
             for(int j = 0; j != 10; j++){
                for(int k = j; k != 10; k++)
-               if(!std::isnan(bunch_it->sig[i][j][k])) HFMeans[j]->Fill(k-j,bunch_it->sig[i][j][k]);
+               if(!edm::isNotFinite(bunch_it->sig[i][j][k])) HFMeans[j]->Fill(k-j,bunch_it->sig[i][j][k]);
             }
          }
       }
@@ -75,7 +75,7 @@ HcalPedestalMCWidths::~HcalPedestalMCWidths()
          for(int i = 0; i != 4; i++){
             for(int j = 0; j != 10; j++){
                for(int k = j; k != 10; k++)
-               if(!std::isnan(bunch_it->sig[i][j][k])) HOMeans[j]->Fill(k-j,bunch_it->sig[i][j][k]);
+               if(!edm::isNotFinite(bunch_it->sig[i][j][k])) HOMeans[j]->Fill(k-j,bunch_it->sig[i][j][k]);
             }
          }
       }
