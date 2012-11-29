@@ -11,6 +11,7 @@
 #include <xercesc/util/XMLString.hpp>
 #include <sstream>
 #include <memory>
+#include <boost/algorithm/string.hpp>
 
 using namespace xercesc;
 
@@ -101,6 +102,9 @@ namespace {
 
 namespace edm {
   namespace service {
+
+    const std::string SiteLocalConfigService::m_statisticsDefaultPort = "3334";
+
     SiteLocalConfigService::SiteLocalConfigService(ParameterSet const& pset) :
           m_url("/SITECONF/local/JobConfig/site-local-config.xml"),
           m_dataCatalog(),
@@ -109,22 +113,25 @@ namespace edm {
           m_rfioType("castor"),
           m_connected(false),
           m_cacheTempDir(),
-          m_cacheTempDirPtr(0),
+          m_cacheTempDirPtr(nullptr),
           m_cacheMinFree(),
-          m_cacheMinFreePtr(0),
+          m_cacheMinFreePtr(nullptr),
           m_cacheHint(),
-          m_cacheHintPtr(0),
+          m_cacheHintPtr(nullptr),
           m_readHint(),
-          m_readHintPtr(0),
+          m_readHintPtr(nullptr),
           m_ttreeCacheSize(0U),
-          m_ttreeCacheSizePtr(0),
+          m_ttreeCacheSizePtr(nullptr),
           m_timeout(0U),
-          m_timeoutPtr(0),
+          m_timeoutPtr(nullptr),
           m_debugLevel(0U),
           m_enablePrefetching(false),
-          m_enablePrefetchingPtr(0),
+          m_enablePrefetchingPtr(nullptr),
           m_nativeProtocols(),
-          m_nativeProtocolsPtr(0) {
+          m_nativeProtocolsPtr(nullptr),
+          m_statisticsDestination(),
+          m_statisticsAddrInfo(nullptr),
+          m_siteName() {
 
         char* tmp = getenv("CMS_PATH");
 
@@ -143,11 +150,21 @@ namespace edm {
         overrideFromPSet("overrideSourceTTreeCacheSize", pset, m_ttreeCacheSize, m_ttreeCacheSizePtr);
         overrideFromPSet("overrideSourceTimeout", pset, m_timeout, m_timeoutPtr);
         overrideFromPSet("overridePrefetching", pset, m_enablePrefetching, m_enablePrefetchingPtr);
+        const std::string * tmpStringPtr = NULL;
+        overrideFromPSet("overrideStatisticsDestination", pset, m_statisticsDestination, tmpStringPtr);
+        this->computeStatisticsDestination();
 
        if(pset.exists("debugLevel")) {
             m_debugLevel = pset.getUntrackedParameter<unsigned int>("debugLevel");
        }
 
+    }
+
+    SiteLocalConfigService::~SiteLocalConfigService() {
+      if (m_statisticsAddrInfo) {
+        freeaddrinfo(m_statisticsAddrInfo);
+        m_statisticsAddrInfo = nullptr;
+      }
     }
 
     std::string const
@@ -300,6 +317,16 @@ namespace edm {
        return m_nativeProtocolsPtr;
     }
 
+    struct addrinfo const*
+    SiteLocalConfigService::statisticsDestination() const {
+       return m_statisticsAddrInfo;
+    }
+
+    std::string const&
+    SiteLocalConfigService::siteName() const {
+       return m_siteName;
+    }
+
     void
     SiteLocalConfigService::parse(std::string const& url) {
       XMLPlatformUtils::Initialize();
@@ -346,6 +373,9 @@ namespace edm {
         unsigned int numSites = sites->getLength();
         for (unsigned int i = 0; i < numSites; ++i) {
           DOMElement *site = static_cast<DOMElement *>(sites->item(i));
+
+          // Parse the site name
+          m_siteName = _toString(site->getAttribute(_toDOMS("name")));
 
           // Parsing of the event data section
           {
@@ -442,6 +472,13 @@ namespace edm {
                 m_timeoutPtr = &m_timeout;
               }
 
+              DOMNodeList *statsDestList = sourceConfig->getElementsByTagName(_toDOMS("statistics-destination"));
+
+              if (statsDestList->getLength() > 0) {
+                DOMElement *statsDest = static_cast<DOMElement *>(statsDestList->item(0));
+                m_statisticsDestination = _toString(statsDest->getAttribute(_toDOMS("name")));
+              }
+
               DOMNodeList *prefetchingList = sourceConfig->getElementsByTagName(_toDOMS("prefetching"));
 
               if (prefetchingList->getLength() > 0) {
@@ -478,6 +515,26 @@ namespace edm {
     }
 
     void
+    SiteLocalConfigService::computeStatisticsDestination() {
+      std::vector<std::string> inputStrings;
+      boost::split(inputStrings, m_statisticsDestination, boost::is_any_of(":"));
+      const std::string &host=inputStrings[0];
+      const std::string &port = (inputStrings.size() > 1) ? inputStrings[1] : m_statisticsDefaultPort;
+      struct addrinfo *res;
+      struct addrinfo hints;
+      memset(&hints, '\0', sizeof(hints));
+      hints.ai_socktype = SOCK_DGRAM;
+      hints.ai_flags = AI_ADDRCONFIG;
+      hints.ai_family = AF_UNSPEC;
+      int e = getaddrinfo(host.c_str(), port.c_str(), &hints, &res);
+      if (e != 0) {
+        // Silent failure - there's no way to report non-fatal failures from here.
+        return;
+      }
+      m_statisticsAddrInfo = res;
+    }
+
+    void
     SiteLocalConfigService::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
       desc.setComment("Service to translate logical file names to physical file names.");
@@ -492,6 +549,8 @@ namespace edm {
       desc.addOptionalUntracked<unsigned int>("debugLevel");
       desc.addOptionalUntracked<bool>("overridePrefetching")
         ->setComment("Request ROOT to asynchronously prefetch I/O during computation.");
+      desc.addOptionalUntracked<std::string>("overrideStatisticsDestination")
+        ->setComment("Provide an alternate network destination for I/O statistics (must be in the form of host:port).");
 
       descriptions.add("SiteLocalConfigService", desc);
     }

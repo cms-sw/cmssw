@@ -196,8 +196,8 @@ Tracer::postOpenFile () {
 }
 
 void
-Tracer::preCloseFile() {
-  std::cout << indention_ << indention_ << "close input file" << std::endl;
+Tracer::preCloseFile(std::string const & lfn, bool) {
+  std::cout << indention_ << indention_ << "close input file " << lfn << std::endl;
 }
 void
 Tracer::postCloseFile () {

@@ -38,14 +38,18 @@ namespace edm {
             bool                enablePrefetching() const;
             unsigned int        debugLevel() const;
             std::vector<std::string> const* sourceNativeProtocols() const;
+            struct addrinfo const* statisticsDestination() const;
+            std::string const&  siteName() const;
+
             // implicit copy constructor
             // implicit assignment operator
-            // implicit destructor
+            ~SiteLocalConfigService();
 
             static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
         private:
             void parse (std::string const& url);
+            void computeStatisticsDestination();
             std::string const frontierConnect(std::string const& servlet) const;
             std::string         m_url;
             std::string         m_dataCatalog;
@@ -70,6 +74,10 @@ namespace edm {
             bool const        * m_enablePrefetchingPtr;
             std::vector<std::string> m_nativeProtocols;
             std::vector<std::string> const* m_nativeProtocolsPtr;
+            std::string         m_statisticsDestination;
+            struct addrinfo   * m_statisticsAddrInfo;
+            static const std::string m_statisticsDefaultPort;
+            std::string         m_siteName;
          };
 
          inline
