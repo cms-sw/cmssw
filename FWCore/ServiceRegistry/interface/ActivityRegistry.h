@@ -137,6 +137,7 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchPreOpenFile)
 
       /// signal is emitted after the source opens a file
+      //   Note this is only done for a primary file, not a secondary one.
       typedef sigc::signal<void> PostOpenFile;
       PostOpenFile postOpenFileSignal_;
       void watchPostOpenFile(PostOpenFile::slot_type const& iSlot) {
@@ -146,12 +147,14 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchPostOpenFile)
         
       /// signal is emitted before the Closesource closes a file
-      typedef sigc::signal<void> PreCloseFile;
+      //   First argument is the LFN of the file which is being closed.
+      //   Second argument is false if fallback is used; true otherwise.
+      typedef sigc::signal<void, std::string const&, bool> PreCloseFile;
       PreCloseFile preCloseFileSignal_;
       void watchPreCloseFile(PreCloseFile::slot_type const& iSlot) {
         preCloseFileSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPreCloseFile)
+      AR_WATCH_USING_METHOD_2(watchPreCloseFile)
 
       /// signal is emitted after the source opens a file
       typedef sigc::signal<void> PostCloseFile;
