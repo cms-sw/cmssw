@@ -596,8 +596,8 @@ if __name__ == "__main__":
         print "  %s" % day.isoformat()
         print "DEBUG JGH %s" % day.isoformat()
         use_cache = (not ignore_cache) and (day <= last_day_from_cache)
-        cache_file_tmp = "cache_file_temp.csv"
         cache_file_path = CacheFilePath(cache_file_dir, day)
+        cache_file_tmp = cache_file_path.replace(".csv", "_tmp.csv")
         if (not os.path.exists(cache_file_path)) or (not use_cache):
             date_begin_str = day.strftime(DATE_FMT_STR_LUMICALC)
             date_begin_day_str = day.strftime(DATE_FMT_STR_LUMICALC_DAY)
@@ -619,6 +619,10 @@ if __name__ == "__main__":
             if verbose:
                 print "    running lumicalc as '%s'" % cmd
             (status, output) = commands.getstatusoutput(cmd)
+            # BUG BUG BUG
+            # Trying to track down the bad-cache problem.
+            output_0 = copy.deepcopy(output)
+            # BUG BUG BUG end
             if status != 0:
                 # This means 'no qualified data found'.
                 if ((status >> 8) == 13 or (status >> 8) == 14):
@@ -631,7 +635,8 @@ if __name__ == "__main__":
                         print "No lumi data for %s, " \
                               "writing dummy cache file to avoid re-querying the DB" % \
                               day.isoformat()
-                    dummy_file = open(cache_file_path, "w")
+                    dummy_file = open(cache_file_tmp, "w")
+                    dummy_file.write("Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n")
                     dummy_file.close()
                 else:
                     print >> sys.stderr, \
@@ -651,10 +656,13 @@ if __name__ == "__main__":
             # all data for a given day is returned. The work-around is
             # to ask for data from two days and then filter out the
             # unwanted day.
-            newfile = open(cache_file_path, 'w')
-            for line in file(cache_file_tmp, 'r'):
+            lines_to_be_kept = []
+            lines_ori = open(cache_file_tmp).readlines()
+            for line in lines_ori:
                 if (date_begin_day_str in line) or ("Delivered" in line):
-                    newfile.write(line)
+                    lines_to_be_kept.append(line)
+            newfile = open(cache_file_path, "w")
+            newfile.writelines(lines_to_be_kept)
             newfile.close()
             # BUG BUG BUG end
 
@@ -697,15 +705,19 @@ if __name__ == "__main__":
                          (lumicalc_flags_from_cfg, beam_energy, accel_mode)
         lumicalc_flags = lumicalc_flags.strip()
         lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
-        cache_file_jgh = "cache_debug.csv"
+        cache_file_dbg = cache_file_path.replace(".csv", "_dbg.csv")
         cmd = "%s --begin '%s' --end '%s' -o %s" % \
-              (lumicalc_cmd, date_begin_str, date_end_str, cache_file_jgh)
+              (lumicalc_cmd, date_begin_str, date_end_str, cache_file_dbg)
         print "DEBUG JGH Re-running lumicalc for a single day as '%s'" % cmd
         (status, output) = commands.getstatusoutput(cmd)
+        # BUG BUG BUG
+        # Trying to track down the bad-cache problem.
+        output_1 = copy.deepcopy(output)
+        # BUG BUG BUG end
         if status != 0:
             # This means 'no qualified data found'.
             if ((status >> 8) == 13 or (status >> 8) == 14):
-                dummy_file = open(cache_file_jgh, "w")
+                dummy_file = open(cache_file_dbg, "w")
                 dummy_file.write("Run:Fill,LS,UTCTime,Beam Status,E(GeV),Delivered(/ub),Recorded(/ub),avgPU\r\n")
                 dummy_file.close()
             else:
@@ -713,7 +725,7 @@ if __name__ == "__main__":
                       "ERROR Problem running lumiCalc: %s" % output
                 sys.exit(1)
         num_lines_3 = len(open(cache_file_path).readlines())
-        num_lines_4 = len(open(cache_file_jgh).readlines())
+        num_lines_4 = len(open(cache_file_dbg).readlines())
         print "DEBUG JGH Line count in data file: " \
               "%d" % num_lines_3
         print "DEBUG JGH Line count in cross-check: " \
@@ -724,7 +736,14 @@ if __name__ == "__main__":
                 print "DEBUG JGH   !!!  --> found an occurrence of the lumiCalc stoptime bug!!!"
             else:
                 print "DEBUG JGH   !!!  --> found a problem !!!"
-                #pdb.set_trace()
+                print "DEBUG JGH   ----------"
+                print "DEBUG JGH   output from first lumiCalc run:"
+                print "DEBUG JGH   ----------"
+                print output_0
+                print "DEBUG JGH   ----------"
+                print "DEBUG JGH   output from second lumiCalc run:"
+                print "DEBUG JGH   ----------"
+                print output_1
         # BUG BUG BUG end
 
     # Now read back all lumiCalc results.
