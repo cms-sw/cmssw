@@ -94,14 +94,14 @@ process.patJPsiCandidates = cms.EDProducer("PatJPsiProducer",
 
 process.myGoodJPsiCandidates = cms.EDFilter("PATCompositeCandidateSelector",
                                        src = cms.InputTag("patJPsiCandidates"),
-                                       cut = cms.string(" abs( mass() -  3.097) < 100 & userFloat('dR') < 100")
+                                       cut = cms.string(" abs( mass() -  3.097) < 100 ") # "userFloat('dR') < 100"
                                        )
 
-process.selectEventsWithGoodJspiCand = cms.EDFilter("PATCandViewCountFilter",
-                                                minNumber = cms.uint32(1),
-                                                maxNumber = cms.uint32(100000),
-                                                src = cms.InputTag("myGoodJPsiCandidates")
-                                                )
+#process.selectEventsWithGoodJspiCand = cms.EDFilter("PATCandViewCountFilter",
+#                                                minNumber = cms.uint32(1),
+#                                                maxNumber = cms.uint32(100000),
+#                                                src = cms.InputTag("myGoodJPsiCandidates")
+#                                                )
 
-process.p_jspi= cms.Path(process.patJPsiCandidates * process.myGoodJPsiCandidates * process.selectEventsWithGoodJspiCand)
+process.p_jspi= cms.Path(process.patJPsiCandidates )#* process.myGoodJPsiCandidates * process.selectEventsWithGoodJspiCand)
 #process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
