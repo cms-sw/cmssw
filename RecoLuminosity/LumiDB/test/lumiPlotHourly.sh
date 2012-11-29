@@ -40,9 +40,9 @@ eval `scramv1 runtime -sh`
 
 touch $logpath/$logfile
 
-date >> $logpath/$logfile
+date >> $logpath/$logfile 2>&1
 
 cd $outdir
-python -u $macrodir/create_public_lumi_plots.py $cfgfile ${IGNORE_CACHE_FLAG} >> $logpath/$logfile
+python -u $macrodir/create_public_lumi_plots.py $cfgfile ${IGNORE_CACHE_FLAG} >> $logpath/$logfile 2>&1
 
-date >> $logpath/$logfile
+date >> $logpath/$logfile 2>&1
