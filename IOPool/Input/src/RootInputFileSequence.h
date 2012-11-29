@@ -87,6 +87,7 @@ namespace edm {
     InputType::InputType inputType_;
     InputFileCatalog const& catalog_;
     bool firstFile_;
+    std::string lfn_;
     std::vector<FileCatalogItem>::const_iterator fileIterBegin_;
     std::vector<FileCatalogItem>::const_iterator fileIterEnd_;
     std::vector<FileCatalogItem>::const_iterator fileIter_;
@@ -113,6 +114,7 @@ namespace edm {
     bool labelRawDataLikeMC_;
     bool usingGoToEvent_;
     bool enablePrefetching_;
+    bool usedFallback_;
   }; // class RootInputFileSequence
 }
 #endif

@@ -34,6 +34,7 @@ namespace edm {
     inputType_(inputType),
     catalog_(catalog),
     firstFile_(true),
+    lfn_("unknown"),
     fileIterBegin_(fileCatalogItems().begin()),
     fileIterEnd_(fileCatalogItems().end()),
     fileIter_(fileIterEnd_),
@@ -63,7 +64,9 @@ namespace edm {
     duplicateChecker_(inputType == InputType::Primary ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", inputType != InputType::SecondarySource)),
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
-    usingGoToEvent_(false) {
+    usingGoToEvent_(false),
+    enablePrefetching_(false),
+    usedFallback_(false) {
 
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
@@ -138,7 +141,7 @@ namespace edm {
     if(rootFile_) {
       if(inputType_ != InputType::SecondarySource) {
         std::unique_ptr<InputSource::FileCloseSentry>
-        sentry((inputType_ == InputType::Primary) ? new InputSource::FileCloseSentry(input_) : 0);
+        sentry((inputType_ == InputType::Primary) ? new InputSource::FileCloseSentry(input_, lfn_, usedFallback_) : 0);
         rootFile_->close();
         if(duplicateChecker_) duplicateChecker_->inputFileClosed();
       }
@@ -187,6 +190,8 @@ namespace edm {
       return;
     }
 
+    lfn_ = fileIter_->logicalFileName().empty() ? fileIter_->fileName() : fileIter_->logicalFileName();
+
     // Determine whether we have a fallback URL specified; if so, prepare it;
     // Only valid if it is non-empty and differs from the original filename.
     std::string fallbackName = fileIter_->fallbackFileName();
@@ -221,6 +226,7 @@ namespace edm {
         std::unique_ptr<InputSource::FileOpenSentry>
           sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_) : 0);
         filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file "));
+        usedFallback_ = true;
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
