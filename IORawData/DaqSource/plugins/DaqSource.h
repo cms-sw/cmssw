@@ -5,13 +5,15 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2012/10/31 18:52:13 $
- *  $Revision: 1.23 $
+ *  $Date: 2012/11/28 19:17:37 $
+ *  $Revision: 1.24 $
  *  \author N. Amapane - S. Argiro'
  */
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -24,6 +26,7 @@
 #include <pthread.h>
 
 class DaqBaseReader;
+class FEDRawDataCollection;
 
 namespace edm {
   class ParameterSet;
@@ -99,6 +102,11 @@ namespace edm {
     bool                             runFork_;
     timeval                          tvStat_;
     bool                             beginRunTiming_;
+    int                              bunchCrossing_;
+    int                              orbitNumber_;
+    EventAuxiliary::ExperimentType   evttype_; 
+    EventID                          eventID_;
+    FEDRawDataCollection*            fedCollection_;
   };
   
 }

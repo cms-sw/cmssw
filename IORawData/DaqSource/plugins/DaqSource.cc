@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/10/31 18:52:13 $
- *  $Revision: 1.64 $
+ *  $Date: 2012/11/28 19:17:36 $
+ *  $Revision: 1.65 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -18,7 +18,6 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -84,6 +83,11 @@ namespace edm {
     , forkInfo_(nullptr)
     , runFork_(false)
     , beginRunTiming_(false)
+    , bunchCrossing_(EventAuxiliary::invalidBunchXing)
+    , orbitNumber_(EventAuxiliary::invalidBunchXing)
+    , evttype_(EventAuxiliary::Undefined)
+    , eventID_(0,0,0)
+    , fedCollection_(nullptr)
   {
     count = 0;
     pthread_mutex_init(&mutex_,0);
@@ -297,11 +301,11 @@ namespace edm {
       //      std::cout << "read event already cached " << std::endl;
       return IsEvent;
     }
+
     if(reader_ == 0) {
       throw edm::Exception(errors::LogicError)
 	  << "DaqSource is used without a reader. Check your configuration !";
     }
-    EventID eventId;
     TimeValue_t time = 0LL;
     timeval stv;
     gettimeofday(&stv,0);
@@ -309,19 +313,19 @@ namespace edm {
     time = (time << 32) + stv.tv_usec;
     Timestamp tstamp(time);
 
-    int bunchCrossing = EventAuxiliary::invalidBunchXing;
-    int orbitNumber   = EventAuxiliary::invalidBunchXing;
+    bunchCrossing_ = EventAuxiliary::invalidBunchXing;
+    orbitNumber_   = EventAuxiliary::invalidBunchXing;
+    evttype_ = EventAuxiliary::Undefined;
     
-    // pass a 0 pointer to fillRawData()!
-    FEDRawDataCollection* fedCollection(0);
+    // pass a null pointer to fillRawData()!
+    fedCollection_ = nullptr ;
 
-    edm::EventAuxiliary::ExperimentType evttype = EventAuxiliary::Undefined;
   
     // let reader_ fill the fedCollection 
-    int retval = reader_->fillRawData(eventId, tstamp, fedCollection);
+    int retval = reader_->fillRawData(eventID_, tstamp, fedCollection_);
     if(retval==0) {
       // fillRawData() failed, clean up the fedCollection in case it was allocated!
-      if (0 != fedCollection) delete fedCollection;
+      if (nullptr != fedCollection_) delete fedCollection_;
       noMoreEvents_ = true;
       pthread_mutex_lock(&mutex_);
       pthread_cond_signal(&cond_);
@@ -391,7 +395,7 @@ namespace edm {
       }
     else
       {
-	if (eventId.event() == 0) {
+	if (eventID_.event() == 0) {
 	  throw edm::Exception(errors::LogicError)
 	    << "The reader used with DaqSource has returned an invalid (zero) event number!\n"
 	    << "Event numbers must begin at 1, not 0.";
@@ -399,20 +403,20 @@ namespace edm {
 	EventSourceSentry(*this);
 	setTimestamp(tstamp);
     
-	unsigned char *gtpFedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).size()!=0 ? fedCollection->FEDData(daqsource::gtpEvmId_).data() : 0;
+	unsigned char *gtpFedAddr = fedCollection_->FEDData(daqsource::gtpEvmId_).size()!=0 ? fedCollection_->FEDData(daqsource::gtpEvmId_).data() : 0;
 	uint32_t gtpsize = 0;
-	if(gtpFedAddr !=0) gtpsize = fedCollection->FEDData(daqsource::gtpEvmId_).size();
-	unsigned char *gtpeFedAddr = fedCollection->FEDData(daqsource::gtpeId_).size()!=0 ? fedCollection->FEDData(daqsource::gtpeId_).data() : 0; 
+	if(gtpFedAddr !=0) gtpsize = fedCollection_->FEDData(daqsource::gtpEvmId_).size();
+	unsigned char *gtpeFedAddr = fedCollection_->FEDData(daqsource::gtpeId_).size()!=0 ? fedCollection_->FEDData(daqsource::gtpeId_).data() : 0; 
 
 	unsigned int nextFakeLs	= 0;
 	eventCounter_++;
 	if (fakeLSid_)
-	    evttype =  edm::EventAuxiliary::PhysicsTrigger;
+	    evttype_ =  edm::EventAuxiliary::PhysicsTrigger;
 	bool fakeLSFromEventCount = fakeLSid_ && (lumiSegmentSizeInEvents_ != 0);
 	bool fakeLSFromTimer = fakeLSid_ && (lumiSegmentSizeInSeconds_ != 0);
 	if(fakeLSFromEventCount && luminosityBlockNumber_ != 
 	   (nextFakeLs = useEventCounter_ ? ((eventCounter_-1)/lumiSegmentSizeInEvents_ + 1) :
-	    ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1))) {
+	    ((eventID_.event() - 1)/lumiSegmentSizeInEvents_ + 1))) {
 	    if (prescaleSetIndex_ != 0 && lastLumiPrescaleIndex_!= 0) {
 	      lastLumiPrescaleIndex_->value_ = prescaleSetIndex_->value_;
 	      prescaleSetIndex_->value_ = 0; // since we do not know better but we want to be able to run
@@ -465,7 +469,7 @@ namespace edm {
 	    thisEventLSid = evf::evtn::getlbn(gtpFedAddr);
 	    if (prescaleSetIndex_ != 0)
 	      prescaleSetIndex_->value_  = (evf::evtn::getfdlpsc(gtpFedAddr) & 0xffff);
-	    evttype =  edm::EventAuxiliary::ExperimentType(evf::evtn::getevtyp(gtpFedAddr));
+	    evttype_ =  edm::EventAuxiliary::ExperimentType(evf::evtn::getevtyp(gtpFedAddr));
 	    if(luminosityBlockNumber_ > (thisEventLSid + 1))
 	    {
 	      //late event,throw fwk exception
@@ -505,7 +509,7 @@ namespace edm {
 	    thisEventLSid = evf::evtn::gtpe_getlbn(gtpeFedAddr);
 	    if (prescaleSetIndex_ != 0)
 	      prescaleSetIndex_->value_ = 0; //waiting to get a PS index from gtpe
-	    evttype =  edm::EventAuxiliary::PhysicsTrigger; 
+	    evttype_ =  edm::EventAuxiliary::PhysicsTrigger; 
 	    if(luminosityBlockNumber_ != (thisEventLSid + 1)){
 	      if(luminosityBlockNumber_ == thisEventLSid)
 		signalWaitingThreadAndBlock();
@@ -518,16 +522,16 @@ namespace edm {
 	  }
 	}
 	if(gtpFedAddr!=0 && evf::evtn::evm_board_sense(gtpFedAddr,gtpsize)){
-	  bunchCrossing =  int(evf::evtn::getfdlbx(gtpFedAddr));
-	  orbitNumber =  int(evf::evtn::getorbit(gtpFedAddr));
+	  bunchCrossing_ =  int(evf::evtn::getfdlbx(gtpFedAddr));
+	  orbitNumber_ =  int(evf::evtn::getorbit(gtpFedAddr));
 	  TimeValue_t time = evf::evtn::getgpshigh(gtpFedAddr);
 	  time = (time << 32) + evf::evtn::getgpslow(gtpFedAddr);
 	  Timestamp tstamp(time);
 	  setTimestamp(tstamp);      
 	}
 	else if(gtpeFedAddr!=0 && evf::evtn::gtpe_board_sense(gtpeFedAddr)){
-	  bunchCrossing =  int(evf::evtn::gtpe_getbx(gtpeFedAddr));
-	  orbitNumber =  int(evf::evtn::gtpe_getorbit(gtpeFedAddr));
+	  bunchCrossing_ =  int(evf::evtn::gtpe_getbx(gtpeFedAddr));
+	  orbitNumber_ =  int(evf::evtn::gtpe_getorbit(gtpeFedAddr));
 	}
       }    
           
@@ -547,36 +551,10 @@ namespace edm {
       //		<< IsLumi << std::endl;
       if(newLumi()) return IsLumi; else return getNextItemType();
     }
-
-    // make a brand new event principal
-    eventId = EventID(runNumber_,thisEventLSid+1, eventId.event());
-    EventAuxiliary eventAux(eventId, processGUID(),
-			    timestamp(),
-			    true,
-			    evttype,
-			    bunchCrossing,
-			    EventAuxiliary::invalidStoreNumber,
-			    orbitNumber);
-    eventAux.setProcessHistoryID(phid_);
-    eventPrincipalCache()->fillEventPrincipal(eventAux, boost::shared_ptr<LuminosityBlockPrincipal>());
-    setEventCached();
-    
-    // have fedCollection managed by a std::auto_ptr<>
-    std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
-
-    WrapperOwningHolder edp(new Wrapper<FEDRawDataCollection>(bare_product), Wrapper<FEDRawDataCollection>::getInterface());
-    eventPrincipalCache()->put(daqProvenanceHelper_.constBranchDescription_, edp, daqProvenanceHelper_.dummyProvenance_);
-
-/*
-    Event e(*eventPrincipalCache(), md_);
-    // put the fed collection into the transient event store
-    e.put(bare_product);
-    // The commit is needed to complete the "put" transaction.
-    e.commit_();
-*/
     if (newLumi()) {
       return IsLumi;
     }
+    setEventCached();
     return IsEvent;
   }
 
@@ -607,8 +585,6 @@ namespace edm {
     assert(newLumi());
     assert(!noMoreEvents_);
     assert(luminosityBlockAuxiliary());
-    //assert(eventCached()); //the event may or may not be cached - rely on 
-    // the call to getNextItemType to detect that.
     resetNewLumi();
     return luminosityBlockAuxiliary();
   }
@@ -624,7 +600,35 @@ namespace edm {
     //    std::cout << "assert eventCached " << std::endl;
     assert(eventCached());
     //    std::cout << "asserts done " << std::endl;
+
     resetEventCached();
+
+    // make a brand new event principal
+    eventID_ = EventID(runNumber_,thisEventLSid+1, eventID_.event());
+    EventAuxiliary eventAux(eventID_, processGUID(),
+			    timestamp(),
+			    true,
+			    evttype_,
+			    bunchCrossing_,
+			    EventAuxiliary::invalidStoreNumber,
+			    orbitNumber_);
+    eventAux.setProcessHistoryID(phid_);
+    eventPrincipal.fillEventPrincipal(eventAux, boost::shared_ptr<LuminosityBlockPrincipal>());
+    
+    // have fedCollection managed by a std::auto_ptr<>
+    std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection_);
+
+    WrapperOwningHolder edp(new Wrapper<FEDRawDataCollection>(bare_product), Wrapper<FEDRawDataCollection>::getInterface());
+    eventPrincipalCache()->put(daqProvenanceHelper_.constBranchDescription_, edp, daqProvenanceHelper_.dummyProvenance_);
+
+/*
+    Event e(*eventPrincipalCache(), md_);
+    // put the fed collection into the transient event store
+    e.put(bare_product);
+    // The commit is needed to complete the "put" transaction.
+    e.commit_();
+*/
+
     eventPrincipal.setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     return &eventPrincipal;
   }
