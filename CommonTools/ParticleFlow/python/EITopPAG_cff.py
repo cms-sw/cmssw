@@ -96,15 +96,34 @@ pfNoElectronJME.bottomCollection = 'pfNoMuonJME'
 
 
 #### Jets ####
-pfNoJet.topCollection = 'pfJetsPtrs'
-pfNoJet.bottomCollection = 'pfNoElectronJME'
+
+pfJetsEI = pfJets.clone()
+pfJetsPtrsEI = pfJetsPtrs.clone(src=cms.InputTag("pfJetsEI"))
+
+pfJetSequenceEI = cms.Sequence( pfJetsEI+ pfJetsPtrsEI )
+
+pfNoJetEI = pfNoJet.clone(
+    topCollection = 'pfJetsPtrsEI',
+    bottomCollection = 'pfNoElectronJME'
+    )
 
 #### Taus ####
-pfNoTau.topCollection = 'pfTausPtrs'
-pfNoTau.bottomCollection = 'pfJetsPtrs'
+pfTausEI = pfTaus.clone()
+pfTausPtrsEI = pfTausPtrs.clone(src=cms.InputTag("pfTausEI") )
+pfNoTauEI = pfNoTau.clone(
+    topCollection = cms.InputTag('pfTausPtrsEI'),
+    bottomCollection = cms.InputTag('pfJetsPtrsEI')
+    )
+
+pfTauEISequence = cms.Sequence(
+    pfTausPreSequence+
+    pfTausBaseSequence+
+    pfTausEI+
+    pfTausPtrsEI
+    )
 
 #### MET ####
-pfMetEI = pfMET.clone()
+pfMetEI = pfMET.clone(jets=cms.InputTag("pfJetsEI"))
 
 EITopPAG = cms.Sequence(
     pfPileUpEI +
@@ -121,10 +140,10 @@ EITopPAG = cms.Sequence(
     pfIsolatedElectronsEI +    
     pfNoElectron +
     pfNoElectronJME +
-    pfJetSequence +
-    pfNoJet + 
-    pfTauSequence +
-    pfNoTau +
+    pfJetSequenceEI +
+    pfNoJetEI + 
+    pfTauEISequence +
+    pfNoTauEI +
     pfMetEI
     )
 

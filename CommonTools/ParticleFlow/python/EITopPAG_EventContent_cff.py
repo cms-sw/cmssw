@@ -8,9 +8,9 @@ EITopPAGEventContent = cms.PSet(
     'keep *_pfIsolatedElectronsEI_*_*',
     'keep *_pfIsolatedMuonsEI_*_*',
     # jets
-    'keep recoPFJets_pfJets_*_*',
+    'keep recoPFJets_pfJetsEI_*_*',
     # taus 
-    'keep recoPFTaus_pfTaus_*_*',
+    'keep recoPFTaus_pfTausEI_*_*',
     'keep recoPFTauDiscriminator_pfTausDiscrimination*_*_*',
     # MET
     'keep *_pfMetEI_*_*'
