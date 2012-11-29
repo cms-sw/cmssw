@@ -5,7 +5,6 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/JetMETObjects"/>
-<use   name="CondCore/PluginSystem"/>
 <use   name="JetMETCorrections/InterpolationTables"/>
 <export>
   <use   name="JetMETCorrections/InterpolationTables"/>
