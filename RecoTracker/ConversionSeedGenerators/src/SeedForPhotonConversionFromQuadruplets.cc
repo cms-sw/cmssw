@@ -131,7 +131,7 @@ V4=M2
   math::XYZVector M1;
   math::XYZVector M2;
 
-  if(TMath::Sqrt(h1.x()*h1.x()+h1.y()*h1.y()) < TMath::Sqrt(h2.x()*h2.x()+h2.y()*h2.y())){
+  if(h1.x()*h1.x()+h1.y()*h1.y() < h2.x()*h2.x()+h2.y()*h2.y()){
 	  P1=h1;
 	  P2=h2;
   }
@@ -140,7 +140,7 @@ V4=M2
 	  P2=h1;
   }
 
-  if(TMath::Sqrt(h3.x()*h3.x()+h3.y()*h3.y()) < TMath::Sqrt(h4.x()*h4.x()+h4.y()*h4.y())){
+  if(h3.x()*h3.x()+h3.y()*h3.y() < h4.x()*h4.x()+h4.y()*h4.y()){
 	  M1=h3;
 	  M2=h4;
   }
@@ -175,10 +175,11 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
   IP.SetXYZ(IPx,IPy,0);
 
   double IPrho=TMath::Sqrt(IP.x()*IP.x()+IP.y()*IP.y());
-  double P1rho=TMath::Sqrt(P1.x()*P1.x()+P1.y()*P1.y());
-  double M1rho=TMath::Sqrt(M1.x()*M1.x()+M1.y()*M1.y());
+  double P1rho2=P1.x()*P1.x()+P1.y()*P1.y();
+  double M1rho2=M1.x()*M1.x()+M1.y()*M1.y();
+  double maxIPrho2=IPrho+CleaningmaxRadialDistance; maxIPrho2*=maxIPrho2;
 
-  if( IPrho<BeamPipeRadiusCut || (P1rho-IPrho)>CleaningmaxRadialDistance || (M1rho-IPrho)>CleaningmaxRadialDistance){
+  if( IPrho<BeamPipeRadiusCut || P1rho2>maxIPrho2 || M1rho2>maxIPrho2){
 	  return 0;
   }
 
@@ -192,13 +193,14 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
   double fBField = bfield->inTesla(GlobalPoint(QuadMean.x(),QuadMean.y(),QuadMean.z())).z();
 
   double rMax=CleaningMinLegPt/(0.01*0.3*fBField);
+  double rMax_squared=rMax*rMax;
   double Mx=M1.x();
   double My=M1.y();
 
   math::XYZVector B(0,0,0);
   math::XYZVector C(0,0,0);
 
-  if(rMax>TMath::Sqrt(Mx*Mx+My*My)/2.){
+  if(rMax_squared*4. > Mx*Mx+My*My){
 
 ////////////////////////
 // Cleaning P1 points:::
@@ -218,7 +220,7 @@ std::cout << "d" << d << std::endl;
 
   //Cx1,2 and Cy1,2 are the two points that have a distance of rMax to 0,0
   double CsolutionPart1=-2*k*d;
-  double CsolutionPart2=TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rMax*rMax));
+  double CsolutionPart2=TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rMax_squared));
   double CsolutionPart3=2*(1+k*k);
   double Cx1=(CsolutionPart1+CsolutionPart2)/CsolutionPart3;
   double Cx2=(CsolutionPart1-CsolutionPart2)/CsolutionPart3;
@@ -229,7 +231,7 @@ std::cout << "d" << d << std::endl;
   // Decide between solutions: phi(C) > phi(P)
   double Cx,Cy;
   math::XYZVector C1(Cx1,Cy1,0);
-  if(DeltaPhiManual(C1,M1)>0){
+  if(C1.x()*M1.y()-C1.y()*M1.x()<0){
 	  Cx=Cx1;
 	  Cy=Cy1;
   }
@@ -264,7 +266,7 @@ std::cout << "d" << d << std::endl;
 // Decide between solutions: phi(B) < phi(P)
   double Bx,By;
   math::XYZVector B1(Bx1,By1,0);
-  if(DeltaPhiManual(B1,M1)<0){
+  if(M1.x()*B1.y()-M1.y()*B1.x()<0){
 	  Bx=Bx1;
 	  By=By1;
   }
@@ -310,15 +312,15 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 
 //  if(B.DeltaPhi(P1)>0){//normal algo (with minPt circle)
 
-	  double rM2=TMath::Sqrt(M2.x()*M2.x()+M2.y()*M2.y());
-	  if(rMax>rM2/2.){//if minPt circle is smaller than 2*M2-layer radius, algo makes no sense
+	  double rM2_squared=M2.x()*M2.x()+M2.y()*M2.y();
+	  if(rMax_squared*4. > rM2_squared){//if minPt circle is smaller than 2*M2-layer radius, algo makes no sense
 
 		  //Chordales equation (line containing the two intersection points of the two circles)
 		  double k=-C.x()/C.y();
-		  double d=(rM2*rM2-rMax*rMax+C.x()*C.x()+C.y()*C.y())/(2*C.y());
+		  double d=(rM2_squared-rMax_squared+C.x()*C.x()+C.y()*C.y())/(2*C.y());
 
 		  double M2solutionPart1=-2*k*d;
-		  double M2solutionPart2=TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rM2*rM2));
+		  double M2solutionPart2=TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rM2_squared));
 		  double M2solutionPart3=2+2*k*k;
 		  double M2xMax1=(M2solutionPart1+M2solutionPart2)/M2solutionPart3;
 		  double M2xMax2=(M2solutionPart1-M2solutionPart2)/M2solutionPart3;
@@ -329,7 +331,7 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 		  math::XYZVector M2MaxVec1(M2xMax1,M2yMax1,0);
 		  math::XYZVector M2MaxVec2(M2xMax2,M2yMax2,0);
 		  math::XYZVector M2MaxVec(0,0,0);
-		  if(DeltaPhiManual(M2MaxVec1,M2MaxVec1)>0){
+		  if(M2MaxVec1.x()*M2MaxVec2.y()-M2MaxVec1.y()*M2MaxVec2.x()<0){
 			  M2MaxVec.SetXYZ(M2xMax2,M2yMax2,0);
 		  }
 		  else{
@@ -353,7 +355,7 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 		  	std::cout << "M2yMax2 " << M2yMax2 << std::endl;
 		  	std::cout << "M2xMax " << M2MaxVec.x() << std::endl;
 		  	std::cout << "M2yMax " << M2MaxVec.y() << std::endl;
-		  	std::cout << "rM2 " << rM2 << std::endl;
+		  	std::cout << "rM2_squared " << rM2_squared << std::endl;
 		  	std::cout << "rMax " << rMax << std::endl;
 		  	std::cout << "DeltaPhiMaxM2 " << DeltaPhiMaxM2 << std::endl;
 #endif
@@ -419,8 +421,10 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
     if ( candPtMinus > maxLegPt ) return 0;
     //
     // Cut on radial distance between estimated conversion vertex and inner hits
-    if ( (TMath::Sqrt(h2.Perp2())-TMath::Sqrt(candVtx.Perp2())) > maxRadialDistance ) return 0;
-    if ( (TMath::Sqrt(h3.Perp2())-TMath::Sqrt(candVtx.Perp2())) > maxRadialDistance ) return 0;
+    double cr = TMath::Sqrt(candVtx.Perp2());
+    double maxr2 = (maxRadialDistance + cr); maxr2*=maxr2;
+    if (h2.Perp2() > maxr2) return 0;
+    if (h3.Perp2() > maxr2) return 0;
 
 
 // At this point implement cleaning cuts after building the seed
