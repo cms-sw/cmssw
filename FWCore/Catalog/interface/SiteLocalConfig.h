@@ -4,6 +4,7 @@
 // INCLUDES
 # include <string>
 # include <vector>
+# include <netdb.h>
 
 // PUBLIC DEFINES
 // PUBLIC CONSTANTS
@@ -37,6 +38,8 @@ namespace edm {
     virtual bool enablePrefetching() const = 0;
     virtual unsigned int debugLevel() const = 0;
     virtual std::vector<std::string> const* sourceNativeProtocols() const = 0;
+    virtual struct addrinfo const * statisticsDestination() const = 0;
+    virtual std::string const& siteName (void) const = 0;
 
     // implicit copy constructor
     // implicit assignment operator
