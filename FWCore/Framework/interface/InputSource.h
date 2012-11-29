@@ -291,11 +291,14 @@ namespace edm {
       SourceSentry sentry_;
     };
 
-    class FileCloseSentry {
+    class FileCloseSentry : private boost::noncopyable {
     public:
+      typedef sigc::signal<void> Sig;
       explicit FileCloseSentry(InputSource const& source);
+      explicit FileCloseSentry(InputSource const& source, std::string const& lfn, bool primary);
+      ~FileCloseSentry();
     private:
-      SourceSentry sentry_;
+      Sig& post_;
     };
 
   protected:

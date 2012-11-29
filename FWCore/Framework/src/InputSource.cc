@@ -676,6 +676,16 @@ namespace edm {
   }
 
   InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source) :
-     sentry_(source.actReg()->preCloseFileSignal_, source.actReg()->postCloseFileSignal_) {
+     post_(source.actReg()->postCloseFileSignal_) {
+     source.actReg()->preCloseFileSignal_("", false);
+  }
+
+  InputSource::FileCloseSentry::FileCloseSentry(InputSource const& source, std::string const& lfn, bool usedFallback) :
+     post_(source.actReg()->postCloseFileSignal_) {
+     source.actReg()->preCloseFileSignal_(lfn, usedFallback);
+  }
+
+  InputSource::FileCloseSentry::~FileCloseSentry() {
+     post_();
   }
 }

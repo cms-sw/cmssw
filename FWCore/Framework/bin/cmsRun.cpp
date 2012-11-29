@@ -238,7 +238,7 @@ int main(int argc, char* argv[]) {
 
       context = "Initializing default service configurations";
       std::vector<std::string> defaultServices;
-      defaultServices.reserve(6);
+      defaultServices.reserve(7);
       defaultServices.push_back("MessageLogger");
       defaultServices.push_back("InitRootHandlers");
 #ifdef linux
@@ -247,6 +247,7 @@ int main(int argc, char* argv[]) {
       defaultServices.push_back("UnixSignalService");
       defaultServices.push_back("AdaptorConfig");
       defaultServices.push_back("SiteLocalConfigService");
+      defaultServices.push_back("StatisticsSenderService");
 
       // Default parameters will be used for the default services
       // if they are not overridden from the configuration files.
