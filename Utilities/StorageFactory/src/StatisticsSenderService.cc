@@ -171,7 +171,7 @@ StatisticsSenderService::filePreCloseEvent(std::string const& lfn, bool usedFall
   std::string results;
   fillUDP(pSLC->siteName(), usedFallback, results);
 
-  for (const struct addrinfo *address = addresses; address != NULL; address = address->ai_next) {
+  for (const struct addrinfo *address = addresses; address != nullptr; address = address->ai_next) {
     int sock = socket(address->ai_family, address->ai_socktype, address->ai_protocol);
     if (sock < 0) {
       continue;
@@ -257,10 +257,11 @@ StatisticsSenderService::fillUDP(const std::string& siteName, bool usedFallback,
 static X509 * findEEC(STACK_OF(X509) * certstack) {
   int depth = sk_X509_num(certstack);
   if (depth == 0) {
-    return NULL;
+    return nullptr;
   }
   int idx = depth-1;
-  char *priorsubject = NULL, *subject;
+  char *priorsubject = nullptr;
+  char *subject = nullptr;
   X509 *x509cert = sk_X509_value(certstack, idx);
   for (; x509cert && idx>0; idx--) {
     subject = X509_NAME_oneline(X509_get_subject_name(x509cert),0,0);
@@ -270,25 +271,25 @@ static X509 * findEEC(STACK_OF(X509) * certstack) {
     x509cert = sk_X509_value(certstack, idx);
     if (subject) {
       OPENSSL_free(subject);
-      subject = NULL;
+      subject = nullptr;
     }
   }
   if (subject) {
     OPENSSL_free(subject);
-    subject = NULL;
+    subject = nullptr;
   }
   return x509cert;
 }
 
 static bool
 getX509SubjectFromFile(const std::string &filename, std::string &result) {
-  BIO *biof = NULL;
-  STACK_OF(X509) *certs = NULL;
-  char *subject=NULL;
-  unsigned char *data;
-  char *header = NULL;
-  char *name = NULL;
-  long len;
+  BIO *biof = nullptr;
+  STACK_OF(X509) *certs = nullptr;
+  char *subject = nullptr;
+  unsigned char *data = nullptr;
+  char *header = nullptr;
+  char *name = nullptr;
+  long len = 0U;
 
   if((biof = BIO_new_file(filename.c_str(), "r")))  {
 
@@ -296,7 +297,7 @@ getX509SubjectFromFile(const std::string &filename, std::string &result) {
     bool encountered_error = false;
     while ((!encountered_error) && (!BIO_eof(biof)) && PEM_read_bio(biof, &name, &header, &data, &len)) {
       if (strcmp(name, PEM_STRING_X509) == 0 || strcmp(name, PEM_STRING_X509_OLD) == 0) {
-        X509 * tmp_cert = NULL;
+        X509 * tmp_cert = nullptr;
         tmp_cert = d2i_X509(&tmp_cert, const_cast<const unsigned char **>(&data), len);
         if (tmp_cert) {
           sk_X509_push(certs, tmp_cert);
@@ -304,11 +305,11 @@ getX509SubjectFromFile(const std::string &filename, std::string &result) {
           encountered_error = true;
         }
       } // Note we ignore any proxy key in the file.
-      if (data) { OPENSSL_free(data); data = NULL;}
-      if (header) { OPENSSL_free(header); header = NULL;}
-      if (name) { OPENSSL_free(name); name = NULL;}
+      if (data) { OPENSSL_free(data); data = nullptr;}
+      if (header) { OPENSSL_free(header); header = nullptr;}
+      if (name) { OPENSSL_free(name); name = nullptr;}
     }
-    X509 *x509cert = NULL;
+    X509 *x509cert = nullptr;
     if (!encountered_error && sk_X509_num(certs)) {
       x509cert = findEEC(certs);
     }
@@ -318,7 +319,7 @@ getX509SubjectFromFile(const std::string &filename, std::string &result) {
     // Note we do not free x509cert directly, as it's still owned by the certs stack.
     if (certs) {
       sk_X509_pop_free(certs, X509_free);
-      x509cert = NULL;
+      x509cert = nullptr;
     }
     BIO_free(biof);
     if (subject) {
