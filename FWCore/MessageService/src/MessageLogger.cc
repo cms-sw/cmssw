@@ -528,7 +528,7 @@ void MessageLogger::postSource()
 
 void MessageLogger::preFile()
 {  establish("file_open"); }
-void MessageLogger::preFileClose()
+void MessageLogger::preFileClose( std::string const &, bool )
 {  establish("file_close"); }
 void MessageLogger::postFile()
 { unEstablish("AfterFile"); }
