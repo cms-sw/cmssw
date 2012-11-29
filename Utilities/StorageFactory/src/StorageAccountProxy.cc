@@ -45,7 +45,7 @@ StorageAccountProxy::readv (IOBuffer *into, IOSize n)
 {
   StorageAccount::Stamp stats (m_statsReadV);
   IOSize result = m_baseStorage->readv (into, n);
-  stats.tick (result);
+  stats.tick (result, n);
   return result;
 }
 
@@ -54,7 +54,7 @@ StorageAccountProxy::readv (IOPosBuffer *into, IOSize n)
 {
   StorageAccount::Stamp stats (m_statsReadV);
   IOSize result = m_baseStorage->readv (into, n);
-  stats.tick (result);
+  stats.tick (result, n);
   return result;
 }
 
@@ -81,7 +81,7 @@ StorageAccountProxy::writev (const IOBuffer *from, IOSize n)
 {
   StorageAccount::Stamp stats (m_statsWriteV);
   IOSize result = m_baseStorage->writev (from, n);
-  stats.tick (result);
+  stats.tick (result, n);
   return result;
 }
 
@@ -90,7 +90,7 @@ StorageAccountProxy::writev (const IOPosBuffer *from, IOSize n)
 {
   StorageAccount::Stamp stats (m_statsWriteV);
   IOSize result = m_baseStorage->writev (from, n);
-  stats.tick (result);
+  stats.tick (result, n);
   return result;
 }
 

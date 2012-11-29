@@ -100,7 +100,7 @@ StorageAccount::counter (const std::string &storageClass, const std::string &ope
 
   OperationStats::iterator pos = opstats->find (operation);
   if (pos == opstats->end ()) {
-    Counter x = { 0, 0, 0, 0, 0 };
+    Counter x = { 0, 0, 0, 0, 0, 0, 0 };
     pos = opstats->insert (OperationStats::value_type (operation, x)).first;
   }
 
@@ -116,12 +116,17 @@ StorageAccount::Stamp::Stamp (Counter &counter)
 }
 
 void
-StorageAccount::Stamp::tick (double amount) const
+StorageAccount::Stamp::tick (double amount, int64_t count) const
 {
   boost::mutex::scoped_lock lock (s_mutex);
   double elapsed = timeRealNanoSecs () - m_start;
   m_counter.successes++;
+
+  m_counter.vector_count += count;
+  m_counter.vector_square += count*count;
   m_counter.amount += amount;
+  m_counter.amount_square += amount*amount;
+
   m_counter.timeTotal += elapsed;
   if (elapsed < m_counter.timeMin || m_counter.successes == 1)
     m_counter.timeMin = elapsed;
