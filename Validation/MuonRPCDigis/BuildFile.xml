@@ -8,5 +8,8 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="SimDataFormats/CrossingFrame"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="rootcore"/>
 <use   name="root"/>
+<use   name="FWCore/Utilities"/>
 <flags   EDM_PLUGIN="1"/>
