@@ -81,3 +81,27 @@ from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
 #process.shiftedPatJetsEnUp=process.shiftedPatJetsPFlowEnUpForCorrMEt.clone(shiftBy=cms.double(2))
 #process.jecAnalyzerEnUp=process.jecAnalyzer.clone(Jets = cms.InputTag("shiftedPatJetsEnUp"))
 #process.p_jec.__iadd__(process.patJetsPFlowNotOverlappingWithLeptonsForMEtUncertainty *  process.smearedPatJetsPFlow * process.shiftedPatJetsEnUp *  process.jecAnalyzerEnUp)
+
+#################
+#               #
+# EXERCISE 4    #
+#               #
+#################
+
+process.patJPsiCandidates = cms.EDProducer("PatJPsiProducer",
+                                           muonSrc = cms.InputTag("selectedPatMuonsPFlow")
+                                           )
+
+process.myGoodJPsiCandidates = cms.EDFilter("PATCompositeCandidateSelector",
+                                       src = cms.InputTag("patJPsiCandidates"),
+                                       cut = cms.string(" abs( mass() -  3.097) < 100 & userFloat('dR') < 100")
+                                       )
+
+process.selectEventsWithGoodJspiCand = cms.EDFilter("PATCandViewCountFilter",
+                                                minNumber = cms.uint32(1),
+                                                maxNumber = cms.uint32(100000),
+                                                src = cms.InputTag("myGoodJPsiCandidates")
+                                                )
+
+process.p_jspi= cms.Path(process.patJPsiCandidates * process.myGoodJPsiCandidates * process.selectEventsWithGoodJspiCand)
+#process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
