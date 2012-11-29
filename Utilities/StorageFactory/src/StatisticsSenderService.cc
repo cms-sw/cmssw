@@ -19,7 +19,7 @@
     m_ ## x = x;
 
 #define UPDATE_AND_OUTPUT_STATISTIC(x) \
-    os << #x "=" << (x-m_ ## x) << ", "; \
+    os << "\"" #x "\":" << (x-m_ ## x) << ", "; \
     UPDATE_STATISTIC(x)
 
 // Simple hack to define HOST_NAME_MAX on Mac.
@@ -78,25 +78,25 @@ StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
   if (single_op_count > 0) {
     double single_sum = read_single_bytes-m_read_single_bytes;
     double single_average = single_sum/static_cast<double>(single_op_count);
-    os << "read_single_sigma:" << sqrt((static_cast<double>(read_single_square-m_read_single_square) - single_average*single_average*single_op_count)/static_cast<double>(single_op_count)) << ", ";
-    os << "read_single_average:" << single_average << ", ";
+    os << "\"read_single_sigma\":" << sqrt((static_cast<double>(read_single_square-m_read_single_square) - single_average*single_average*single_op_count)/static_cast<double>(single_op_count)) << ", ";
+    os << "\"read_single_average\":" << single_average << ", ";
   }
   m_read_single_square = read_single_square;
   int64_t vector_op_count = read_vector_operations - m_read_vector_operations;
   if (vector_op_count > 0) {
     double vector_average = static_cast<double>(read_vector_bytes-m_read_vector_bytes)/static_cast<double>(vector_op_count);
-    os << "read_vector_average:" << vector_average << ", ";
-    os << "read_vector_sigma:" << sqrt((static_cast<double>(read_vector_square-m_read_vector_square) - vector_average*vector_average*vector_op_count)/static_cast<double>(vector_op_count)) << ", ";
+    os << "\"read_vector_average\":" << vector_average << ", ";
+    os << "\"read_vector_sigma\":" << sqrt((static_cast<double>(read_vector_square-m_read_vector_square) - vector_average*vector_average*vector_op_count)/static_cast<double>(vector_op_count)) << ", ";
     double vector_count_average = static_cast<double>(read_vector_count_sum-m_read_vector_count_sum)/static_cast<double>(vector_op_count);
-    os << "read_vector_count_average:" << vector_count_average << ", ";
-    os << "read_vector_count_sigma:" << sqrt((static_cast<double>(read_vector_count_square-m_read_vector_count_square) - vector_count_average*vector_count_average*vector_op_count)/static_cast<double>(vector_op_count)) << ", ";
+    os << "\"read_vector_count_average\":" << vector_count_average << ", ";
+    os << "\"read_vector_count_sigma\":" << sqrt((static_cast<double>(read_vector_count_square-m_read_vector_count_square) - vector_count_average*vector_count_average*vector_op_count)/static_cast<double>(vector_op_count)) << ", ";
   }
   m_read_vector_square = read_vector_square;
   m_read_vector_count_square = read_vector_count_square;
   m_read_vector_count_sum = read_vector_count_sum;
 
-  os << "read_bytes:" << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes) << ", ";
-  os << "read_bytes_at_close:" << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes) << ", ";
+  os << "\"read_bytes\":" << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes) << ", ";
+  os << "\"read_bytes_at_close\":" << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes) << ", ";
 
   // See top of file for macros; not complex, just avoiding copy/paste
   UPDATE_AND_OUTPUT_STATISTIC(read_single_operations)
@@ -104,10 +104,10 @@ StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
   UPDATE_AND_OUTPUT_STATISTIC(read_vector_operations)
   UPDATE_AND_OUTPUT_STATISTIC(read_vector_bytes)
 
-  os << "start_time:" << m_start_time << ", ";
+  os << "\"start_time\":" << m_start_time << ", ";
   m_start_time = time(NULL);
   // NOTE: last entry doesn't have the trailing comma.
-  os << "end_time:" << m_start_time;
+  os << "\"end_time\":" << m_start_time;
 }
 
 StatisticsSenderService::StatisticsSenderService(edm::ParameterSet const& /*pset*/, edm::ActivityRegistry& ar) :
@@ -209,27 +209,27 @@ StatisticsSenderService::fillUDP(const std::string& siteName, bool usedFallback,
   // Header - same for all IO accesses
   os << "{";
   if (!siteName.empty()) {
-    os << "site_name:\"" << siteName << "\", ";
+    os << "\"site_name\":\"" << siteName << "\", ";
   }
   if (usedFallback) {
-    os << "fallback: true, ";
+    os << "\"fallback\": true, ";
   }
-  os << "user_dn:\"" << m_userdn << "\", ";
-  os << "client_host:\"" << m_clienthost << "\", ";
-  os << "client_domain:\"" << m_clientdomain << "\", ";
-  os << "server_host:\"" << m_serverhost << "\", ";
-  os << "server_domain:\"" << m_serverdomain << "\", ";
-  os << "unique_id:\"" << m_guid << "-" << m_counter << "\", ";
-  os << "file_lfn:\"" << m_filelfn << "\", ";
+  os << "\"user_dn\":\"" << m_userdn << "\", ";
+  os << "\"client_host\":\"" << m_clienthost << "\", ";
+  os << "\"client_domain\":\"" << m_clientdomain << "\", ";
+  os << "\"server_host\":\"" << m_serverhost << "\", ";
+  os << "\"server_domain\":\"" << m_serverdomain << "\", ";
+  os << "\"unique_id\":\"" << m_guid << "-" << m_counter << "\", ";
+  os << "\"file_lfn\":\"" << m_filelfn << "\", ";
   const char * jobId = getJobID();
   if (jobId) {
-    os << "app_info:\"" << jobId << "\", ";
+    os << "\"app_info\":\"" << jobId << "\", ";
   } else {
-    os << "app_info:\"" << m_guid << "\", ";
+    os << "\"app_info\":\"" << m_guid << "\", ";
   }
 
   if (m_size >= 0) {
-    os << "file_size:" << m_size << ", ";
+    os << "\"file_size\":" << m_size << ", ";
   }
 
   m_filestats.fillUDP(os);
