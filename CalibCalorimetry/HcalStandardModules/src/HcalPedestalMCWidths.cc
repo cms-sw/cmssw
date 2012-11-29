@@ -7,6 +7,7 @@
 #include <memory>
 #include "CalibCalorimetry/HcalStandardModules/interface/HcalPedestalMCWidths.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 HcalPedestalMCWidths::HcalPedestalMCWidths(const edm::ParameterSet& ps) :
    hbheDigiCollectionTag_(ps.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
