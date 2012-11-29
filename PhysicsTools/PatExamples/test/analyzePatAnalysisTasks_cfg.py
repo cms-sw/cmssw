@@ -23,18 +23,17 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.jecAnalyzer = cms.EDAnalyzer("WrappedEDAnalysisTasksAnalyzerJEC",
   Jets = cms.InputTag("selectedPatJetsPFlow"), 
-  jecLevel=cms.string("L3"),
-  jecSetLabel= cms.string('CorrFactors'),
+  jecLevel=cms.string("L3Absolute"),
+  jecSetLabel= cms.string('patJetCorrFactorsPFlow'),
   outputFileName=cms.string("jecAnalyzerOutput")
 )
 
-#process.p_jec = cms.Path(process.jecAnalyzer)
+process.p_jec = cms.Path(process.jecAnalyzer)
 
 #process.jecAnalyzerRel=process.jecAnalyzer.clone(jecLevel="L2Relative")
 #process.p_jec.__iadd__(process.jecAnalyzerRel)
 #process.jecAnalyzerNon=process.jecAnalyzer.clone(jecLevel="Uncorrected")
 #process.p_jec.__iadd__(process.jecAnalyzerNon)
-
 
 #################
 #               #
@@ -75,12 +74,12 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 #Applying the MET Uncertainty tools
 from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
-runMEtUncertainties(process, electronCollection = cms.InputTag("selectedPatElectronsPFlow"), jetCollection="selectedPatJetsPFlow" )
+runMEtUncertainties(process, electronCollection = cms.InputTag("selectedPatElectronsPFlow"), jetCollection="selectedPatJetsPFlow", muonCollection = cms.InputTag("selectedPatMuonsPFlow"), tauCollection = cms.InputTag("selectedPatTausPFlow") )
 
 
-#process.shiftedPatJetsEnUp=process.shiftedPatJetsPFlowEnUpForCorrMEt.clone(shiftBy=cms.double(2))
-#process.jecAnalyzerEnUp=process.jecAnalyzer.clone(Jets = cms.InputTag("shiftedPatJetsEnUp"))
-#process.p_jec.__iadd__(process.patJetsPFlowNotOverlappingWithLeptonsForMEtUncertainty *  process.smearedPatJetsPFlow * process.shiftedPatJetsEnUp *  process.jecAnalyzerEnUp)
+process.shiftedPatJetsEnUp=process.shiftedPatJetsPFlowEnUpForCorrMEt.clone(shiftBy=cms.double(2), src="selectedPatJetsPFlow")
+process.jecAnalyzerEnUp=process.jecAnalyzer.clone(Jets = cms.InputTag("shiftedPatJetsEnUp"))
+process.p_jec.__iadd__( process.shiftedPatJetsEnUp *  process.jecAnalyzerEnUp)
 
 #################
 #               #
