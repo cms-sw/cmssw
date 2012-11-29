@@ -28,7 +28,7 @@ process.jecAnalyzer = cms.EDAnalyzer("WrappedEDAnalysisTasksAnalyzerJEC",
   outputFileName=cms.string("jecAnalyzerOutput")
 )
 
-process.p_jec = cms.Path(process.jecAnalyzer)
+#process.p_jec = cms.Path(process.jecAnalyzer)
 
 #process.jecAnalyzerRel=process.jecAnalyzer.clone(jecLevel="L2Relative")
 #process.p_jec.__iadd__(process.jecAnalyzerRel)
@@ -54,7 +54,7 @@ process.btagAnalyzer = cms.EDAnalyzer("WrappedEDAnalysisTasksAnalyzerBTag",
                                       upperbin=cms.double(10.)
 )
 
-#process.p_btag = cms.Path(process.btagAnalyzer)
+process.p_btag = cms.Path(process.btagAnalyzer)
 #process.btagAnalyzerTCHP=process.btagAnalyzer.clone(bTagAlgo="trackCountingHighPurBJetTags")
 #process.p_btag.__iadd__(process.btagAnalyzerTCHP)
 
@@ -75,7 +75,7 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 #Applying the MET Uncertainty tools
 from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
-#runMEtUncertainties(process, electronCollection = cms.InputTag("selectedPatElectronsPFlow"), jetCollection="selectedPatJetsPFlow" )
+runMEtUncertainties(process, electronCollection = cms.InputTag("selectedPatElectronsPFlow"), jetCollection="selectedPatJetsPFlow" )
 
 
 #process.shiftedPatJetsEnUp=process.shiftedPatJetsPFlowEnUpForCorrMEt.clone(shiftBy=cms.double(2))
@@ -97,11 +97,28 @@ process.myGoodJPsiCandidates = cms.EDFilter("PATCompositeCandidateSelector",
                                        cut = cms.string(" abs( mass() -  3.097) < 100 ") # "userFloat('dR') < 100"
                                        )
 
-#process.selectEventsWithGoodJspiCand = cms.EDFilter("PATCandViewCountFilter",
-#                                                minNumber = cms.uint32(1),
-#                                                maxNumber = cms.uint32(100000),
-#                                                src = cms.InputTag("myGoodJPsiCandidates")
-#                                                )
+process.selectEventsWithGoodJspiCand = cms.EDFilter("PATCandViewCountFilter",
+                                                minNumber = cms.uint32(1),
+                                                maxNumber = cms.uint32(100000),
+                                                src = cms.InputTag("myGoodJPsiCandidates")
+                                                )
 
-process.p_jspi= cms.Path(process.patJPsiCandidates )#* process.myGoodJPsiCandidates * process.selectEventsWithGoodJspiCand)
 #process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
+process.DRHisto_JPsiCands= cms.EDAnalyzer( "CandViewHistoAnalyzer",
+                                           src = cms.InputTag("patJPsiCandidates"),
+                                           #weights=cms.untracked.InputTag(pileupweight),
+                                           histograms = cms.VPSet(
+                                                    cms.PSet(
+                                                        min          = cms.untracked.double(       0.),
+                                                        max          = cms.untracked.double(      10.),
+                                                        nbins        = cms.untracked.int32 (       60),
+                                                        name         = cms.untracked.string('DR_JPsi'),
+                                                        description  = cms.untracked.string('DR of JPsi Candidate; DR(#mu1,#mu2); number of JPsi Cands'),
+                                                        lazyParsing  = cms.untracked.bool(True),
+                                                        plotquantity = cms.untracked.string("userFloat('dR')")
+                                                        )   
+                                                    )
+                                           )
+
+#process.p_jspi= cms.Path(process.patJPsiCandidates  * process.DRHisto_JPsiCands * process.myGoodJPsiCandidates * process.selectEventsWithGoodJspiCand)
