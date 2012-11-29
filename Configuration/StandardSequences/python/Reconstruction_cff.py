@@ -47,6 +47,7 @@ from RecoLocalCalo.Castor.Castor_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
 
 globalreco = cms.Sequence(offlineBeamSpot*
+                          standalonemuontracking*
                           recopixelvertexing*
                           trackingGlobalReco*
                           hcalGlobalRecoSequence*
@@ -56,7 +57,7 @@ globalreco = cms.Sequence(offlineBeamSpot*
                           vertexreco*
                           egammaGlobalReco*
                           jetGlobalReco*
-                          muonrecoComplete*
+                          muonGlobalReco*
                           pfTrackingGlobalReco*
                           muoncosmicreco*
                           CastorFullReco)
