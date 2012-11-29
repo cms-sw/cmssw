@@ -97,6 +97,7 @@ double CentralityProvider::centralityValue() const {
    if(varType_ == HFtowers) var = chandle_->EtHFtowerSum();
    if(varType_ == HFtowersPlus) var = chandle_->EtHFtowerSumPlus();
    if(varType_ == HFtowersMinus) var = chandle_->EtHFtowerSumMinus();
+   if(varType_ == HFtowersTrunc) var = chandle_->EtHFtruncated();
    if(varType_ == HFtowersPlusTrunc) var = chandle_->EtHFtruncatedPlus();
    if(varType_ == HFtowersMinusTrunc) var = chandle_->EtHFtruncatedMinus();
    if(varType_ == PixelHits) var = chandle_->multiplicityPixel();
