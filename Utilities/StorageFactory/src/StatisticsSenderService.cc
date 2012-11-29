@@ -94,14 +94,15 @@ StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
   m_read_vector_square = read_vector_square;
   m_read_vector_count_square = read_vector_count_square;
   m_read_vector_count_sum = read_vector_count_sum;
+
+  os << "read_bytes:" << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes) << ", ";
+  os << "read_bytes_at_close:" << (read_vector_bytes + read_single_bytes - m_read_vector_bytes - m_read_single_bytes) << ", ";
+
   // See top of file for macros; not complex, just avoiding copy/paste
   UPDATE_AND_OUTPUT_STATISTIC(read_single_operations)
   UPDATE_AND_OUTPUT_STATISTIC(read_single_bytes)
   UPDATE_AND_OUTPUT_STATISTIC(read_vector_operations)
   UPDATE_AND_OUTPUT_STATISTIC(read_vector_bytes)
-
-  os << "read_bytes:" << (m_read_vector_bytes+m_read_single_bytes) << ", ";
-  os << "read_bytes_at_close:" << (m_read_vector_bytes+m_read_single_bytes) << ", ";
 
   os << "start_time:" << m_start_time << ", ";
   m_start_time = time(NULL);
