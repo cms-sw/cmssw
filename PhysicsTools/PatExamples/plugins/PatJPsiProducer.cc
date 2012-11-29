@@ -13,7 +13,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Mon Sep 28 12:53:57 CDT 2009
-// $Id: PatJPsiProducer.cc,v 1.1 2009/09/29 01:10:49 srappocc Exp $
+// $Id: PatJPsiProducer.cc,v 1.2 2009/10/20 12:24:28 hegner Exp $
 //
 //
 
@@ -101,43 +101,36 @@ PatJPsiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<pat::CompositeCandidate> > jpsiCands( new std::vector<pat::CompositeCandidate> );
   edm::Handle<edm::View<pat::Muon> > h_muons;
   iEvent.getByLabel( muonSrc_, h_muons );
-
-  // const double MUON_MASS = 0.106;
-  const double JPSI_MASS = 3.097;
-
-	
+  std::cout<<"valid?"<< h_muons.isValid()<<" size?"<<  h_muons->size();
   if ( h_muons.isValid() && h_muons->size() > 1 ) {
-    
-    for ( edm::View<pat::Muon>::const_iterator muonsBegin = h_muons->begin(),
-	    muonsEnd = h_muons->end(), imuon = muonsBegin;
-	  imuon != muonsEnd - 1; ++imuon ) {
-      if ( imuon->pt() > 1.0 ) {
 
-
-	for ( edm::View<pat::Muon>::const_iterator jmuon = imuon + 1;
-	      jmuon != muonsEnd; ++jmuon ) {
-	  if ( imuon->charge() * jmuon->charge() < 0 ) {
-
-	    pat::CompositeCandidate jpsi;
-	    jpsi.addDaughter( *imuon, "mu1");
-	    jpsi.addDaughter( *jmuon, "mu2");
-
-	    AddFourMomenta addp4;
-	    addp4.set( jpsi );
-
-	    double dR = reco::deltaR<pat::Muon,pat::Muon>( *imuon, *jmuon );
-
-	    jpsi.addUserFloat("dR", dR );
-
-	    if ( fabs( jpsi.mass() - JPSI_MASS ) < 1.0 ) {
-	      jpsiCands->push_back( jpsi );
-	    }
+      for ( edm::View<pat::Muon>::const_iterator muonsBegin = h_muons->begin(),
+		muonsEnd = h_muons->end(), imuon = muonsBegin;
+	    imuon != muonsEnd - 1; ++imuon ) {
+	  
+	  for ( edm::View<pat::Muon>::const_iterator jmuon = imuon + 1;
+		jmuon != muonsEnd; ++jmuon ) {
+	      if ( imuon->charge() * jmuon->charge() < 0 ) {
+		  
+		  //A composite Candidate is very useful to build event hypothesis and cut on combined object information.
+		  pat::CompositeCandidate jpsi;
+		  jpsi.addDaughter( *imuon, "mu1");
+		  jpsi.addDaughter( *jmuon, "mu2");
+		  
+		  AddFourMomenta addp4;
+		  addp4.set( jpsi );
+		  
+		  double dR = reco::deltaR<pat::Muon,pat::Muon>( *imuon, *jmuon );
+		  
+		  // Analogue to any other PAT object we can add our own information into the object via addUserFloat/Int/Data()
+		  jpsi.addUserFloat("dR", dR );
+		  
+		  jpsiCands->push_back( jpsi );
+		  
+	      }
 	  }
-	}
       }
-    }
   }
-  
   iEvent.put( jpsiCands );
  
 }
