@@ -9,10 +9,10 @@ using namespace std;
 
 CATopJetProducer::CATopJetProducer(edm::ParameterSet const& conf):
        FastjetJetProducer( conf ),
-       verbose_(conf.getParameter<bool>("verbose")),
+       tagAlgo_(conf.getParameter<int>("tagAlgo")),
        ptMin_(conf.getParameter<double>("jetPtMin")),
        centralEtaCut_(conf.getParameter<double>("centralEtaCut")),
-       tagAlgo_(conf.getParameter<int>("tagAlgo"))
+       verbose_(conf.getParameter<bool>("verbose"))
 {
 
 	if (tagAlgo_ == CA_TOPTAGGER ) {
@@ -111,7 +111,6 @@ void CATopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup& 
 
 	vector<fastjet::PseudoJet>::iterator jetIt = centralJets.begin(), centralJetsEnd = centralJets.end();
 	if ( verbose_ )cout<<"Loop over jets"<<endl;
-	int i=0;
 	for ( ; jetIt != centralJetsEnd; ++jetIt ) {
 		
 		if (verbose_) cout << "CMS FJ jet pt: " << (*jetIt).perp() << endl;

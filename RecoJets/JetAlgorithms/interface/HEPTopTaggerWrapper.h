@@ -104,12 +104,14 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
    /// ctor with pieces initialisation
    HEPTopTaggerStructure(std::vector<PseudoJet> pieces_in,
                   const JetDefinition::Recombiner *recombiner = 0) :
-      CompositeJetStructure(pieces_in, recombiner), _cos_theta_w(0.0),W_rec(recombiner) {}
+      CompositeJetStructure(pieces_in, recombiner), _cos_theta_w(0.0),W_rec(recombiner), 
+      rW_()
+	{}
  
    /// returns the W subjet
-      inline const PseudoJet & W() const{ 
-         PseudoJet  rW = join(_pieces[0], _pieces[1], *W_rec);
-         return rW;
+      inline PseudoJet const & W() const{ 
+         rW_ = join(_pieces[0], _pieces[1], *W_rec);
+         return rW_;
       }
  
       
@@ -147,6 +149,8 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
    //PseudoJet _non_W;         ///< the remaining pieces
  //  PseudoJet _original_jet;  ///< the original jet (before tagging)
  
+      mutable PseudoJet rW_;
+
    // allow the tagger to set these
    friend class HEPTopTagger;
  };

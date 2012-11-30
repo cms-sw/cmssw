@@ -40,7 +40,6 @@ public:
   double cos_theta_h() const;
   double dr_bjj() const;
   vector<double> dr_values() const;
-  bool debugg;
 
 private:
   const ClusterSequence * _cs;
@@ -75,16 +74,19 @@ private:
   PseudoJet Sum(const vector<PseudoJet>& );
   double r_max_3jets(const fastjet::PseudoJet & jet1,const fastjet::PseudoJet & jet2,
 		     const fastjet::PseudoJet & jet3) const;
+
+  bool debugg;
+
 };
 //--------------------------------------------------------------------
 double HEPTopTagger::cos_theta_h() const {
   return check_cos_theta(_top_candidate,_top_subjets[1],_top_subjets[2]);// m23 is closest to mW
-};
+}
 
 double HEPTopTagger::dr_bjj() const{
   if(_top_subjets.size()!=3){return -1;}
   return r_max_3jets(_top_subjets[0],_top_subjets[1],_top_subjets[2]);
-};
+}
 
 vector<double> HEPTopTagger::dr_values() const{
   vector<double> dr_values;
@@ -92,7 +94,7 @@ vector<double> HEPTopTagger::dr_values() const{
   dr_values.push_back(sqrt(_top_subjets[0].squared_distance(_top_subjets[2])));
   dr_values.push_back(sqrt(_top_subjets[0].squared_distance(_top_subjets[1])));
   return dr_values;
-};
+}
 
 
 double HEPTopTagger::r_max_3jets(const fastjet::PseudoJet & jet1,const fastjet::PseudoJet & jet2,const fastjet::PseudoJet & jet3) const{
@@ -169,7 +171,7 @@ void HEPTopTagger::store_topsubjets(const vector<PseudoJet>& top_subs){
   double m12=(top_subs[0]+top_subs[1]).m();
   double m13=(top_subs[0]+top_subs[2]).m();
   double m23=(top_subs[1]+top_subs[2]).m();
-  double m123=(top_subs[0]+top_subs[1]+top_subs[2]).m();
+  //double m123=(top_subs[0]+top_subs[1]+top_subs[2]).m();
   double dm12=abs(m12-_mwmass);
   double dm13=abs(m13-_mwmass);
   double dm23=abs(m23-_mwmass);
