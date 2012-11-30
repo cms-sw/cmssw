@@ -75,16 +75,7 @@ ignoreEdmDP = {
   '' : 1
 }
 
-def getReleaseBaseDir ():
-    """ return CMSSW_RELEASE_BASE or CMSSW_BASE depending on the
-    dev area of release area """
-    baseDir = os.environ.get('CMSSW_RELEASE_BASE')
-    if not len (baseDir):
-        baseDir = os.environ.get('CMSSW_BASE')
-    return baseDir
-
-
-def searchClassDefXml (srcDir):
+def searchClassDefXml ():
     """ Searches through the requested directory looking at
     'classes_def.xml' files looking for duplicate Reflex definitions."""
     # compile necessary RE statements
@@ -94,20 +85,13 @@ def searchClassDefXml (srcDir):
     srcClassNameRE = re.compile (r'(\w+)/src/classes_def.xml')
     ignoreSrcRE    = re.compile (r'.*/FWCore/Skeletons/scripts/mkTemplates/.+')
     braketRE       = re.compile (r'<.+>')
-    # get the source directory we want
-    if not len (srcDir):
-        try:
-            srcDir = getReleaseBaseDir() + '/src'
-        except:
-            raise RuntimeError, "$CMSSW_RELEASE_BASE not found."
-    try:
-        os.chdir (srcDir)
-    except:
-        raise RuntimeError, "'%s' is not a valid directory." % srcDir
-    print "Searching for 'classes_def.xml' in '%s'." % srcDir
-    xmlFiles = commands.getoutput ('find . -name "*classes_def.xml" -print').\
-               split ('\n')
-    # print out the XML files, if requested
+    print "Searching for 'classes_def.xml' in '%s'." % os.path.join(os.environ.get('CMSSW_BASE'),'src')
+    xmlFiles = []
+    for srcDir in [os.environ.get('CMSSW_BASE'),os.environ.get('CMSSW_RELEASE_BASE')]:
+      if not len(srcDir): continue
+      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def.xml" -print').split ('\n'):
+        if xml and (not xml in xmlFiles):
+          xmlFiles.append(xml)
     if options.showXMLs:
         pprint.pprint (xmlFiles)
     # try and figure out the names of the packages
@@ -134,7 +118,6 @@ def searchClassDefXml (srcDir):
                     matchString = re.compile(r'\b' + equiv + r'\b')
                     equivList.append( (matchString, equiv) )
             equivList.append( (packagesREs[packageName], packageName) )
-    #pprint.pprint (equivREs, width=109)
     classDict = {}
     ncdict = {'class' : 'className'}
     for filename in xmlFiles:
@@ -158,7 +141,10 @@ def searchClassDefXml (srcDir):
 	if options.verbose:
             print "filename", filename
         try:
-            xmlObj = xml2obj (filename = filename,
+            filepath = os.path.join(os.environ.get('CMSSW_BASE'),'src',filename)
+            if not os.path.exists(filepath):
+              filepath = os.path.join(os.environ.get('CMSSW_RELEASE_BASE'),'src',filename)
+            xmlObj = xml2obj (filename = filepath,
                               filtering = True,
                               nameChangeDict = ncdict)
         except Exception as detail:
@@ -244,9 +230,12 @@ def searchClassDefXml (srcDir):
     #pprint.pprint (classDict)
 
 
-def searchDuplicatePlugins (edmpluginFile):
+def searchDuplicatePlugins ():
     """ Searches the edmpluginFile to find any duplicate
     plugins."""
+    edmpluginFile = os.path.join(os.environ.get('CMSSW_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
+    if len (os.environ.get('CMSSW_RELEASE_BASE')):
+      edmpluginFile = edmpluginFile+ ' ' + os.path.join(os.environ.get('CMSSW_RELEASE_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
     cmd = "cat %s | awk '{print $2\" \"$1}' | sort | uniq | awk '{print $1}' | sort | uniq -c | grep '2 ' | awk '{print $2}'" % edmpluginFile
     output = commands.getoutput (cmd).split('\n')
     for line in output:
@@ -260,127 +249,10 @@ def searchDuplicatePlugins (edmpluginFile):
             print "   **"+plugin+"**"
       print
 
-def searchEdmPluginDump (edmpluginFile, srcDir):
-    """ Searches the edmpluginFile to find any duplicate Reflex
-    definitions."""
-    if not len (edmpluginFile):
-        try:
-            edmpluginFile = getReleaseBaseDir() + '/lib/' + \
-                            os.environ.get('SCRAM_ARCH') + '/.edmplugincache'
-        except:
-            raise RuntimeError,  \
-                  "$CMSSW_RELEASE_BASE or $SCRAM_ARCH not found."
-    if not len (srcDir):
-        try:
-            srcDir = getReleaseBaseDir() + '/src'
-        except:
-            raise RuntimeError, "$CMSSW_RELEASE_BASE not found."
-    try:
-        os.chdir (srcDir)
-    except:
-        raise RuntimeError, "'%s' is not a valid directory." % srcDir
-    searchDuplicatePlugins (edmpluginFile)
-    packageNames = commands.getoutput ('ls -1').split ('\n')
-    global packageREs
-    #print "pN", packageNames
-    for package in packageNames:
-        packageREs.append( re.compile( r'^(' + package + r')(\S+)$') )
-    # read the pipe of the grep command
-    prevLine = ''
-    searchREs = [];
-    doSearch = False
-    if options.searchFor:
-        fixSpacesRE = re.compile (r'\s+');
-        doSearch = True
-        words = options.searchFor.split('|')
-        #print "words:", words
-        for word in words:
-            word = fixSpacesRE.sub (r'.*', word);
-            searchREs.append( re.compile (word) )
-    problemSet = set()
-    cmd = "grep Reflex %s | awk '{print $2}' | sort" % edmpluginFile
-    for line in commands.getoutput (cmd).split('\n'):
-        if doSearch:
-            for regex in searchREs:
-                if regex.search (line):
-                    problemSet.add (line)
-                    break
-        else:
-            if line == prevLine:
-                if not ignoreEdmDP.has_key(line):
-                    problemSet.add (line)
-            # print line
-            prevLine = line
-    # Look up in which libraries the problems are found
-    pluginCapRE = re.compile (r'plugin(\S+?)Capabilities.so')
-    fixStarsRE  = re.compile (r'\*')
-    lcgReflexRE = re.compile (r'^LCGReflex/')
-    percentRE   = re.compile (r'%')
-    problemList = sorted (list (problemSet))    
-    for problem in problemList:
-        # Unbackwhacked stars will mess with the grep command.  So
-        # let's fix them now and not worry about it
-        fixedProblem = fixStarsRE.sub (r'\*', problem)
-        cmd = 'grep "%s" %s | awk \'{print $1}\'' % (fixedProblem,
-                                                     edmpluginFile)
-        # print 'cmd', cmd
-        output = commands.getoutput (cmd).split('\n')
-        problem = lcgReflexRE.sub (r'', problem)
-        problem = percentRE.sub   (r' ', problem)
-        print problem
-        #if doSearch: continue
-        for line in output:
-            match = pluginCapRE.match (line)
-            if match:                          
-                line = match.group(1)
-            print "  ", getXmlName (line)
-        print
-
-def getXmlName (line):
-    """Given a line from EDM plugin dump, try to get XML file name."""
-    global packageMatchDict
-    retval = packageMatchDict.get (line)
-    if retval:
-        return retval
-    for regex in packageREs:
-        match = regex.search (line)
-        if match:
-            xmlFile = "./%s/%s/src/classes_def.xml" % \
-                      (match.group(1), match.group(2))
-            if os.path.exists (xmlFile):
-                packageMatchDict [line] = xmlFile
-                return xmlFile
-            #return "**%s/%s**" % (match.group(1), match.group(2)) If
-    # we're here, then we haven't been successful yet.  Let's try the
-    # brute force approach.
-    # Try 1
-    cmd = 'find . -name classes_def.xml -print | grep %s' % line
-    output = commands.getoutput (cmd).split ('\n')
-    if output and len (output) == 1:
-        retval = output[0];
-        if retval:
-            packageMatchDict [line] = retval
-            return retval
-    # Try 2
-    cmd = 'find . -name "BuildFile" -exec grep -q %s {} \; -print' % line
-    output = commands.getoutput (cmd).split ('\n')
-    if output and len (output) == 1:
-        retval = output[0];
-        if retval:
-            retval = retval + ' (%s)' % line
-            packageMatchDict [line] = retval
-            return retval
-    return "**" +  line + "**"
-    
-
-
-packageREs = [];
-packageMatchDict = {}
-
 if __name__ == "__main__":
     # setup options parser
     parser = optparse.OptionParser ("Usage: %prog [options]\n"\
-                                    "Searches classes_def.xml for duplicate "\
+                                    "Searches classes_def.xml for wrong/duplicate "\
                                     "definitions")
     xmlGroup  = optparse.OptionGroup (parser, "ClassDef XML options")
     dumpGroup = optparse.OptionGroup (parser, "EdmPluginDump options")
@@ -402,20 +274,13 @@ if __name__ == "__main__":
                          default=False,
                          help="Shows all 'classes_def.xml' files")
     xmlGroup.add_option ('--dir', dest='srcdir', type='string', default='',
-                         help="directory to search for 'classes_def.xml'"\
-                         " files (default: $CMSSW_RELEASE_BASE/src)")
+                         help="Obsolete")
     dumpGroup.add_option ('--edmPD', dest='edmPD', action='store_true',
                           default=False,
                           help="Searches EDM Plugin Dump for duplicates")
     dumpGroup.add_option ('--edmFile', dest='edmFile', type='string',
                           default='',
-                          help="EDM Plugin Dump cache file'"\
-                          " (default: $CMSSW_RELEASE_BASE/lib/"\
-                          "$SCRAM_ARCH/.edmplugincache)")
-    dumpGroup.add_option ('--searchFor', dest='searchFor', type='string',
-                          default='',
-                          help="Search EPD for given pipe-separated (|) regexs"
-                          " instead of duplicates")
+                          help="Obsolete")
     parser.add_option_group (xmlGroup)
     parser.add_option_group (dumpGroup)
     (options, args) = parser.parse_args()
@@ -424,6 +289,6 @@ if __name__ == "__main__":
     if options.lazyLostDefs:
         options.lostDefs = True
     if options.showXMLs or options.lostDefs or options.dups:
-        searchClassDefXml (options.srcdir)
+        searchClassDefXml ()
     if options.edmPD:
-        searchEdmPluginDump (options.edmFile, options.srcdir)
+        searchDuplicatePlugins ()
