@@ -1,7 +1,20 @@
+2012-11-30  William Tanenbaum <wmtan@fnal.gov>
+	* V01-13-04 (and V01-13-03)
+	* Fill principal in readEvent_(), not in getNextItemType()
+	* Don't use principal cache, as it is no longer accessible
+
 2012-11-28 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* V01-13-02 (CMSSW_6_X_X)
 	* integrated per-time LS and standalone execution (cmsRun)
+
+2012-10-31  William Tanenbaum <wmtan@fnal.gov>
+	* V01-13-01
+	* Adapt to framework change in readEvent_()
+
+2012-10-17  William Tanenbaum <wmtan@fnal.gov>
+	* V01-13-00
+	* move some common functionality into base class InputSource
 
 2012-08-18 Srecko Morovic <srecko.morovic@cern.ch>
 

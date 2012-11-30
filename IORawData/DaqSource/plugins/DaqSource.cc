@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2012/11/28 19:17:36 $
- *  $Revision: 1.65 $
+ *  $Date: 2012/11/29 01:34:39 $
+ *  $Revision: 1.66 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -613,23 +613,21 @@ namespace edm {
 			    EventAuxiliary::invalidStoreNumber,
 			    orbitNumber_);
     eventAux.setProcessHistoryID(phid_);
-    eventPrincipal.fillEventPrincipal(eventAux, boost::shared_ptr<LuminosityBlockPrincipal>());
+    eventPrincipal.fillEventPrincipal(eventAux);
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection_);
 
     WrapperOwningHolder edp(new Wrapper<FEDRawDataCollection>(bare_product), Wrapper<FEDRawDataCollection>::getInterface());
-    eventPrincipalCache()->put(daqProvenanceHelper_.constBranchDescription_, edp, daqProvenanceHelper_.dummyProvenance_);
+    eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp, daqProvenanceHelper_.dummyProvenance_);
 
 /*
-    Event e(*eventPrincipalCache(), md_);
+    Event e(eventPrincipal, md_);
     // put the fed collection into the transient event store
     e.put(bare_product);
     // The commit is needed to complete the "put" transaction.
     e.commit_();
 */
-
-    eventPrincipal.setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     return &eventPrincipal;
   }
 
