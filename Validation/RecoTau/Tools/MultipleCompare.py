@@ -462,8 +462,11 @@ def drawPlots(testFile, refFile, matchedHists, matchedHistDict, commonLabelDict,
   canvas.Print(options.out)
 
 def determineHistoList(testFile, refFile, plotPattern):
-  """scan all histograms of testFile. returns dictionary of histograms that match to plotPattern.
-     usually key=value, but using plotPattern like [[ref][test]] allows to define different histogram names for ref and test files"""
+  """Scan all histograms of testFile. returns dictionary of histograms that match to plotPattern.
+     Usually key=value, but using plotPattern like [[ref][test]] allows to define different histogram names for ref and test files.
+     Similar patterns can be combined like *{Loose}{Medium}{Tight}commonPattern*. This translates into *LoosecommonPattern* *MediumcommonPattern* *TightcommonPattern*
+     Both special patterns can be combined.
+    """
   #determin pattern
 
   plotListTest = [] # all hists contained in test file
@@ -478,10 +481,20 @@ def determineHistoList(testFile, refFile, plotPattern):
     parseRefFile = True
     #print "two different files"
 
+  #translate pattern like *{Loose}{Medium}{Tight} into multiple explicit patterns
+  explicitPattern = []
+  for pattern in plotPattern:
+    match = re.findall(r'\{\w*\}', pattern)
+    if len(match) > 0:
+      for explicit in match:
+        explicitPattern.append(re.sub(r'\{.*\}', explicit.strip('{}'), pattern))
+    else:
+      explicitPattern.append(pattern)
+
   matchedHists = [] # list of all hists that could be matched to pattern (i.e. test pattern)
   matchedHistDict = {} # dictionary of only these hists (test: ref) that have been matched to individual pattern for test and ref
   commonLabelDict = {} # dictionary of only these labels (test: common label) from hists that have been matched to individual pattern for test and ref
-  for pattern in plotPattern:
+  for pattern in explicitPattern:
     match = re.match(r'(.*)\[\[(.*)\]\[(.*)\]\](.*)', pattern)
     if not match:
       # common histogram names for ref and test files
@@ -521,7 +534,9 @@ def determineHistoList(testFile, refFile, plotPattern):
       print "...added", len(matchedHists)-countMatches, "histogram(s)"
   #print "matchedHists", matchedHists
   #print "matchedHistDict", matchedHistDict
-
+  if len(matchedHists) < 1:
+    print "Your pattern did not match any histograms. STOP!"
+    sys.exit(404)
   return [matchedHists, matchedHistDict, commonLabelDict]
 
 def main(argv=None):
