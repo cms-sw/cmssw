@@ -92,6 +92,8 @@ void ShiftedPFCandidateProducerForNoPileUpPFMEt::produce(edm::Event& evt, const 
     } else {
       shift = unclEnUncertainty_;
     }
+
+    shift *= shiftBy_;
     
     reco::Candidate::LorentzVector shiftedPFCandidateP4 = originalPFCandidate->p4();
     shiftedPFCandidateP4 *= (1. + shift);
