@@ -82,7 +82,10 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(
 }
 
 double
-PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
+PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) 
+{
+  //std::cout << "<PFRecoTauDiscriminationByHPSSelection::discriminate>:" << std::endl;
+
   // Check if we pass the min pt
   if (tau->pt() < minPt_)
     return 0.0;
@@ -98,6 +101,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   const DecayModeCuts &massWindow = massWindowIter->second;
 
   math::XYZTLorentzVector tauP4 = tau->p4();
+  //std::cout << "tau: Pt = " << tauP4.pt() << ", eta = " << tauP4.eta() << ", phi = " << tauP4.phi() << ", mass = " << tauP4.mass() << std::endl;
   // Find the total pizero p4
   reco::Candidate::LorentzVector stripsP4;
   BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
@@ -118,6 +122,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
       stripsP4 += correction;
     }
   }
+  //std::cout << "strips: Pt = " << stripsP4.pt() << ", eta = " << stripsP4.eta() << ", phi = " << stripsP4.phi() << ", mass = " << stripsP4.mass() << std::endl;
 
   // Check if tau fails mass cut
   if (tauP4.M() > massWindow.maxMass_ || tauP4.M() < massWindow.minMass_) {
@@ -131,6 +136,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   }
 
   // Check if tau passes matching cone cut
+  //std::cout << "dR(tau, jet) = " << deltaR(tauP4, tau->jetRef()->p4()) << std::endl;
   if (deltaR(tauP4, tau->jetRef()->p4()) > matchingCone_) {
     return 0.0;
   }
@@ -140,12 +146,14 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) {
   // Check if any charged objects fail the signal cone cut
   BOOST_FOREACH(const reco::PFCandidateRef& cand,
                 tau->signalPFChargedHadrCands()) {
+    //std::cout << "dR(tau, signalPFChargedHadr) = " << deltaR(cand->p4(), tauP4) << std::endl;
     if (deltaR(cand->p4(), tauP4) > cone_size)
       return 0.0;
   }
   // Now check the pizeros
   BOOST_FOREACH(const reco::RecoTauPiZero& cand,
                 tau->signalPiZeroCandidates()) {
+    //std::cout << "dR(tau, signalPiZero) = " << deltaR(cand.p4(), tauP4) << std::endl;
     if (deltaR(cand.p4(), tauP4) > cone_size)
       return 0.0;
   }
