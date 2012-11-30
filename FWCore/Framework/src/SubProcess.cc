@@ -215,11 +215,11 @@ namespace edm {
 
     EventPrincipal& ep = principalCache_.eventPrincipal();
     ep.fillEventPrincipal(aux,
-                          principalCache_.lumiPrincipalPtr(),
                           esids,
                           boost::shared_ptr<BranchListIndexes>(new BranchListIndexes(principal.branchListIndexes())),
                           principal.branchMapperPtr(),
                           principal.reader());
+    ep.setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
     propagateProducts(InEvent, principal, ep);
     typedef OccurrenceTraits<EventPrincipal, BranchActionBegin> Traits;
     schedule_->processOneOccurrence<Traits>(ep, esInfo_->es_);
@@ -306,8 +306,9 @@ namespace edm {
   SubProcess::beginLuminosityBlock(LuminosityBlockPrincipal const& principal) {
     boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
-    boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, principalCache_.runPrincipalPtr(), historyAppender_.get()));
+    boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get()));
     lbpp->fillLuminosityBlockPrincipal(principal.reader());
+    lbpp->setRunPrincipal(principalCache_.runPrincipalPtr());
     principalCache_.insert(lbpp);
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);

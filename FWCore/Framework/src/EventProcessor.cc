@@ -262,7 +262,6 @@ namespace edm {
             CommonParams const& common,
             ProductRegistry& preg,
             boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
-            PrincipalCache& pCache,
             boost::shared_ptr<ActivityRegistry> areg,
             boost::shared_ptr<ProcessConfiguration> processConfiguration) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
@@ -310,7 +309,7 @@ namespace edm {
                          "source",
                          processConfiguration.get());
 
-    InputSourceDescription isdesc(md, preg, branchIDListHelper, pCache, areg, common.maxEventsInput_, common.maxLumisInput_);
+    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_);
     areg->preSourceConstructionSignal_(md);
     boost::shared_ptr<InputSource> input;
     try {
@@ -638,7 +637,7 @@ namespace edm {
     }
 
     // initialize the input source
-    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, principalCache_, items.actReg_, items.processConfiguration_);
+    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get());
@@ -1663,7 +1662,18 @@ namespace edm {
           
           while(true) {
             
-            itemType = input_->nextItemType();
+            bool more = true;
+            if(numberOfForkedChildren_ > 0) {
+              size_t size = preg_->size();
+              more = input_->skipForForking();
+              if(more) {
+                if(size < preg_->size()) {
+                  principalCache_.adjustIndexesAfterProductRegistryAddition();
+                }
+                principalCache_.adjustEventToNewProductRegistry(preg_);
+              }
+            } 
+            itemType = (more ? input_->nextItemType() : InputSource::IsStop);
             
             FDEBUG(1) << "itemType = " << itemType << "\n";
             
@@ -1835,7 +1845,12 @@ namespace edm {
 
   void EventProcessor::readFile() {
     FDEBUG(1) << " \treadFile\n";
+    size_t size = preg_->size();
     fb_ = input_->readFile();
+    if(size < preg_->size()) {
+      principalCache_.adjustIndexesAfterProductRegistryAddition();
+    }
+    principalCache_.adjustEventToNewProductRegistry(preg_);
     if(numberOfForkedChildren_ > 0) {
         fb_->setNotFastClonable(FileBlock::ParallelProcesses);
     }
@@ -2050,26 +2065,44 @@ namespace edm {
   }
 
   statemachine::Run EventProcessor::readAndCacheRun() {
-    input_->readAndCacheRun(*historyAppender_);
-    input_->markRun();
+    if (principalCache_.hasRunPrincipal()) {
+      throw edm::Exception(edm::errors::LogicError)
+        << "EventProcessor::readAndCacheRun\n"
+        << "Illegal attempt to insert run into cache\n"
+        << "Contact a Framework Developer\n";
+    }
+    principalCache_.insert(input_->readAndCacheRun(*historyAppender_));
     return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
   statemachine::Run EventProcessor::readAndMergeRun() {
-    input_->readAndMergeRun();
-    input_->markRun();
+    principalCache_.merge(input_->runAuxiliary(), preg_);
+    input_->readAndMergeRun(principalCache_.runPrincipalPtr());
     return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
   int EventProcessor::readAndCacheLumi() {
-    input_->readAndCacheLumi(*historyAppender_);
-    input_->markLumi();
+    if (principalCache_.hasLumiPrincipal()) {
+      throw edm::Exception(edm::errors::LogicError)
+        << "EventProcessor::readAndCacheRun\n"
+        << "Illegal attempt to insert lumi into cache\n"
+        << "Contact a Framework Developer\n";
+    }
+    if (!principalCache_.hasRunPrincipal()) {
+      throw edm::Exception(edm::errors::LogicError)
+        << "EventProcessor::readAndCacheRun\n"
+        << "Illegal attempt to insert lumi into cache\n"
+        << "Run is invalid\n"
+        << "Contact a Framework Developer\n";
+    }
+    principalCache_.insert(input_->readAndCacheLumi(*historyAppender_));
+    principalCache_.lumiPrincipalPtr()->setRunPrincipal(principalCache_.runPrincipalPtr());
     return input_->luminosityBlock();
   }
 
   int EventProcessor::readAndMergeLumi() {
-    input_->readAndMergeLumi();
-    input_->markLumi();
+    principalCache_.merge(input_->luminosityBlockAuxiliary(), preg_);
+    input_->readAndMergeLumi(principalCache_.lumiPrincipalPtr());
     return input_->luminosityBlock();
   }
 
@@ -2098,9 +2131,13 @@ namespace edm {
   }
 
   void EventProcessor::readAndProcessEvent() {
-    EventPrincipal *pep = input_->readEvent(principalCache_.lumiPrincipalPtr());
+    EventPrincipal *pep = input_->readEvent(principalCache_.eventPrincipal());
     FDEBUG(1) << "\treadEvent\n";
     assert(pep != 0);
+    pep->setLuminosityBlockPrincipal(principalCache_.lumiPrincipalPtr());
+    assert(pep->luminosityBlockPrincipalPtrValid());
+    assert(principalCache_.lumiPrincipalPtr()->run() == pep->run());
+    assert(principalCache_.lumiPrincipalPtr()->luminosityBlock() == pep->luminosityBlock());
 
     IOVSyncValue ts(pep->id(), pep->time());
     espController_->eventSetupForInstance(ts);

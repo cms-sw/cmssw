@@ -35,7 +35,6 @@ namespace edm {
         boost::shared_ptr<LuminosityBlockAuxiliary> aux,
         boost::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
-        boost::shared_ptr<RunPrincipal> rp,
         HistoryAppender* historyAppender = 0);
 
     ~LuminosityBlockPrincipal() {}
@@ -48,6 +47,10 @@ namespace edm {
 
     RunPrincipal& runPrincipal() {
       return *runPrincipal_;
+    }
+
+    void setRunPrincipal(boost::shared_ptr<RunPrincipal> rp) {
+      runPrincipal_ = rp;
     }
 
     LuminosityBlockID id() const {

@@ -103,10 +103,10 @@ namespace edm {
 
     /// Read next event
     /// Indicate inability to get a new event by returning a null ptr.
-    EventPrincipal* readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
+    EventPrincipal* readEvent(EventPrincipal& ep);
 
     /// Read a specific event
-    EventPrincipal* readEvent(EventID const&);
+    EventPrincipal* readEvent(EventPrincipal& ep, EventID const&);
 
     /// Read next luminosity block Auxilary
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary();
@@ -115,22 +115,16 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary();
 
     /// Read next run (new run)
-    void readAndCacheRun(HistoryAppender& historyAppender);
+    boost::shared_ptr<RunPrincipal> readAndCacheRun(HistoryAppender& historyAppender);
 
     /// Read next run (same as a prior run)
-    void readAndMergeRun();
-
-    /// Mark run as read
-    int markRun();
+    void readAndMergeRun(boost::shared_ptr<RunPrincipal> rp);
 
     /// Read next luminosity block (new lumi)
-    void readAndCacheLumi(HistoryAppender& historyAppender);
+    boost::shared_ptr<LuminosityBlockPrincipal> readAndCacheLumi(HistoryAppender& historyAppender);
 
     /// Read next luminosity block (same as a prior lumi)
-    void readAndMergeLumi();
-
-    /// Mark lumi as read
-    int markLumi();
+    void readAndMergeLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
     /// Read next file
     boost::shared_ptr<FileBlock> readFile();
@@ -141,6 +135,10 @@ namespace edm {
     /// Skip the number of events specified.
     /// Offset may be negative.
     void skipEvents(int offset);
+
+    /// Skips the correct number of events if this is a forked process
+    /// returns false if we are out of events
+    bool skipForForking();
 
     bool goToEvent(EventID const& eventID);
 
@@ -330,9 +328,6 @@ namespace edm {
       resetRunAuxiliary();
       state_ = IsInvalid;
     }
-    EventPrincipal* eventPrincipalCache();
-    PrincipalCache const& principalCache() const {return *principalCache_;}
-    PrincipalCache& principalCache() {return *principalCache_;}
     boost::shared_ptr<LuminosityBlockPrincipal> const luminosityBlockPrincipal() const;
     boost::shared_ptr<RunPrincipal> const runPrincipal() const;
     bool newRun() const {return newRun_;}
@@ -342,6 +337,7 @@ namespace edm {
     void setNewLumi() {newLumi_ = true;}
     void resetNewLumi() {newLumi_ = false;}
     bool eventCached() const {return eventCached_;}
+    /// Called by the framework to merge or ached() const {return eventCached_;}
     void setEventCached() {eventCached_ = true;}
     void resetEventCached() {eventCached_ = false;}
 
@@ -384,7 +380,6 @@ namespace edm {
   private:
 
     boost::shared_ptr<ActivityRegistry> actReg_;
-    PrincipalCache* principalCache_;
     int maxEvents_;
     int remainingEvents_;
     int maxLumis_;

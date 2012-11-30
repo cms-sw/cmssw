@@ -56,7 +56,6 @@ namespace edm {
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
       ProductRegistryHelper(),
       actReg_(desc.actReg_),
-      principalCache_(desc.principalCache_),
       maxEvents_(desc.maxEvents_),
       remainingEvents_(maxEvents_),
       maxLumis_(desc.maxLumis_),
@@ -142,9 +141,24 @@ namespace edm {
     desc.addUntracked<bool>("writeStatusFile", false)->setComment("Write a status file. Intended for use by workflow management.");
   }
 
-  EventPrincipal*
-  InputSource::eventPrincipalCache() {
-    return &principalCache().eventPrincipal();
+  bool
+  InputSource::skipForForking() {
+    if(eventLimitReached()) {
+      return false;
+    }
+    if(receiver_ && 0 == numberOfEventsBeforeBigSkip_) {
+      receiver_->receive();
+      unsigned long toSkip = receiver_->numberToSkip();
+      if(0 != toSkip) {
+        skipEvents(toSkip);
+        decreaseRemainingEventsBy(toSkip);
+      }
+      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
+      if(0 == numberOfEventsBeforeBigSkip_ or 0 == remainingEvents() or 0 == remainingLuminosityBlocks()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // This next function is to guarantee that "runs only" mode does not return events or lumis,
@@ -157,23 +171,10 @@ namespace edm {
   // for that source.
   InputSource::ItemType
   InputSource::nextItemType_() {
-    if(receiver_ && 0 == numberOfEventsBeforeBigSkip_) {
-      receiver_->receive();
-      unsigned long toSkip = receiver_->numberToSkip();
-      if(0 != toSkip) {
-        skipEvents(toSkip);
-        decreaseRemainingEventsBy(toSkip);
-      }
-      numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();
-      if(0 == numberOfEventsBeforeBigSkip_ or 0 == remainingEvents() or 0 == remainingLuminosityBlocks()) {
-        return IsStop;
-      }
-    }
     ItemType itemType = callWithTryCatchAndPrint<ItemType>( [this](){ return getNextItemType(); }, "Calling InputSource::getNextItemType" );
 
     if(itemType == IsEvent && processingMode() != RunsLumisAndEvents) {
-      callWithTryCatchAndPrint<EventPrincipal*>( [this](){ return readEvent_(principalCache().eventPrincipal()); },
-                                                 "Calling InputSource::readEvent_" );
+      skipEvents(1);
       return nextItemType_();
     }
     if(itemType == IsLumi && processingMode() == Runs) {
@@ -262,13 +263,8 @@ namespace edm {
   InputSource::readFile() {
     assert(state_ == IsFile);
     assert(!limitReached());
-    size_t size = productRegistry_->size();
     boost::shared_ptr<FileBlock> fb = callWithTryCatchAndPrint<boost::shared_ptr<FileBlock> >( [this](){ return readFile_(); },
                                                                                                "Calling InputSource::readFile_" );
-    if(size < productRegistry_->size()) {
-      principalCache_->adjustIndexesAfterProductRegistryAddition();
-    }
-    principalCache_->adjustEventToNewProductRegistry(productRegistry_);
     return fb;
   }
 
@@ -289,69 +285,44 @@ namespace edm {
     return boost::shared_ptr<FileBlock>(new FileBlock);
   }
 
-  boost::shared_ptr<RunPrincipal> const
-  InputSource::runPrincipal() const {
-    return principalCache_->runPrincipalPtr();
-  }
-
-  boost::shared_ptr<LuminosityBlockPrincipal> const
-  InputSource::luminosityBlockPrincipal() const {
-    return principalCache_->lumiPrincipalPtr();
-  }
-
-  void
+  boost::shared_ptr<RunPrincipal>
   InputSource::readAndCacheRun(HistoryAppender& historyAppender) {
     RunSourceSentry sentry(*this);
     boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration(), &historyAppender));
-    principalCache_->insert(rp);
-    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this](){ return readRun_(principalCache_->runPrincipalPtr()); },
-                                                                "Calling InputSource::readRun_" );
+    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [&](){ return readRun_(rp); }, "Calling InputSource::readRun_" );
+    return rp;
   }
 
   void
-  InputSource::readAndMergeRun() {
+  InputSource::readAndMergeRun(boost::shared_ptr<RunPrincipal> rp) {
     RunSourceSentry sentry(*this);
-    principalCache_->merge(runAuxiliary(), productRegistry_);
-    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this](){ return readRun_(principalCache_->runPrincipalPtr()); },
-                                                                "Calling InputSource::readRun_" );
+    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [&](){ return readRun_(rp); }, "Calling InputSource::readRun_" );
   }
 
-  int
-  InputSource::markRun() {
-    assert(state_ == IsRun);
-    assert(!limitReached());
-    return principalCache_->runPrincipal().run();
-  }
-
-  void
+  boost::shared_ptr<LuminosityBlockPrincipal>
   InputSource::readAndCacheLumi(HistoryAppender& historyAppender) {
     LumiSourceSentry sentry(*this);
-    boost::shared_ptr<LuminosityBlockPrincipal> lb(
+    boost::shared_ptr<LuminosityBlockPrincipal> lbp(
       new LuminosityBlockPrincipal(luminosityBlockAuxiliary(),
                                    productRegistry_,
                                    processConfiguration(),
-                                   principalCache_->runPrincipalPtr(),
                                    &historyAppender));
-    principalCache_->insert(lb);
-    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this](){ return readLuminosityBlock_(principalCache_->lumiPrincipalPtr()); },
+    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [&](){ return readLuminosityBlock_(lbp); },
                                                                             "Calling InputSource::readLuminosityBlock_" );
+    if(remainingLumis_ > 0) {
+      --remainingLumis_;
+    }
+    return lbp;
   }
 
   void
-  InputSource::readAndMergeLumi() {
+  InputSource::readAndMergeLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     LumiSourceSentry sentry(*this);
-    principalCache_->merge(luminosityBlockAuxiliary(), productRegistry_);
-    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this](){ return readLuminosityBlock_(principalCache_->lumiPrincipalPtr()); },
+    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [&](){ return readLuminosityBlock_(lbp); },
                                                                             "Calling InputSource::readLuminosityBlock_" );
-  }
-
-  int
-  InputSource::markLumi() {
-    assert(state_ == IsLumi);
-    assert(!limitReached());
-    --remainingLumis_;
-    assert(principalCache_->lumiPrincipal().luminosityBlock() == luminosityBlockAuxiliary()->luminosityBlock());
-    return principalCache_->lumiPrincipal().luminosityBlock();
+    if(remainingLumis_ > 0) {
+      --remainingLumis_;
+    }
   }
 
   boost::shared_ptr<RunPrincipal>
@@ -370,20 +341,16 @@ namespace edm {
   }
 
   EventPrincipal*
-  InputSource::readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal) {
+  InputSource::readEvent(EventPrincipal& ep) {
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
 
-    EventPrincipal* result = callWithTryCatchAndPrint<EventPrincipal*>( [this](){ return readEvent_(principalCache().eventPrincipal()); },
-                                                                        "Calling InputSource::readEvent_" );
+    EventPrincipal* result = callWithTryCatchAndPrint<EventPrincipal*>( [&](){ return readEvent_(ep); }, "Calling InputSource::readEvent_" );
     if(receiver_) {
       --numberOfEventsBeforeBigSkip_;
     }
 
     if(result != 0) {
-      assert(result->luminosityBlockPrincipalPtrValid());
-      assert(lumiPrincipal->run() == result->run());
-      assert(lumiPrincipal->luminosityBlock() == result->luminosityBlock());
       Event event(*result, moduleDescription());
       postRead(event);
       if(remainingEvents_ > 0) --remainingEvents_;
@@ -395,12 +362,12 @@ namespace edm {
   }
 
   EventPrincipal*
-  InputSource::readEvent(EventID const& eventID) {
+  InputSource::readEvent(EventPrincipal& ep, EventID const& eventID) {
     EventPrincipal* result = 0;
 
     if(!limitReached()) {
-      result = callWithTryCatchAndPrint<EventPrincipal*>( [this,&eventID](){ return readIt(eventID, principalCache().eventPrincipal()); },
-                                                          "Calling InputSource::readIt" );
+      //result = callWithTryCatchAndPrint<EventPrincipal*>( [this,ep,&eventID](){ return readIt(eventID, ep); }, "Calling InputSource::readIt" );
+      result = readIt(eventID, ep);
 
       if(result != 0) {
         Event event(*result, moduleDescription());
@@ -415,12 +382,7 @@ namespace edm {
 
   void
   InputSource::skipEvents(int offset) {
-    size_t size = productRegistry_->size();
     callWithTryCatchAndPrint<void>( [this,&offset](){ skip(offset); }, "Calling InputSource::skip" );
-    if(size < productRegistry_->size()) {
-      principalCache_->adjustIndexesAfterProductRegistryAddition();
-    }
-    principalCache_->adjustEventToNewProductRegistry(productRegistry_);
   }
 
   bool

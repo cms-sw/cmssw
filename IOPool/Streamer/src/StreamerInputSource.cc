@@ -280,7 +280,7 @@ namespace edm {
     boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sendEvent_->eventSelectionIDs()));
     boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sendEvent_->branchListIndexes()));
     branchIDListHelper()->fixBranchListIndexes(*indexes);
-    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), luminosityBlockPrincipal(), ids, indexes);
+    eventPrincipal.fillEventPrincipal(sendEvent_->aux(), ids, indexes);
     productGetter_.setEventPrincipal(&eventPrincipal);
 
     // no process name list handling

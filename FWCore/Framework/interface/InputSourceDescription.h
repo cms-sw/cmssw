@@ -10,7 +10,6 @@ input source that does not come in through the ParameterSet
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 namespace edm {
-  class PrincipalCache;
   class ProductRegistry;
   class ActivityRegistry;
   class BranchIDListHelper;
@@ -19,20 +18,17 @@ namespace edm {
     InputSourceDescription() :
       moduleDescription_(),
       productRegistry_(0),
-      principalCache_(0),
       actReg_(), maxEvents_(-1),
       maxLumis_(-1) {}
     InputSourceDescription(ModuleDescription const& md,
 			   ProductRegistry& preg,
                            boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
-			   PrincipalCache& pCache,
 			   boost::shared_ptr<ActivityRegistry> areg,
 			   int maxEvents,
 			   int maxLumis) :
       moduleDescription_(md),
       productRegistry_(&preg),
       branchIDListHelper_(branchIDListHelper),
-      principalCache_(&pCache),
       actReg_(areg),
       maxEvents_(maxEvents),
       maxLumis_(maxLumis)
@@ -42,7 +38,6 @@ namespace edm {
     ModuleDescription moduleDescription_;
     ProductRegistry* productRegistry_;
     boost::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-    PrincipalCache* principalCache_;
     boost::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int maxLumis_;

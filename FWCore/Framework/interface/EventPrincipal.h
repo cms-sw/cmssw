@@ -54,7 +54,6 @@ namespace edm {
     ~EventPrincipal() {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(),
         boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(),
         boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
@@ -113,8 +112,6 @@ namespace edm {
     }
 
     RunPrincipal const& runPrincipal() const;
-
-    RunPrincipal & runPrincipal();
 
     boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
 

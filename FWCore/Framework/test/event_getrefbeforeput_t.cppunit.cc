@@ -72,10 +72,12 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
+  lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, pc);
-  ep.fillEventPrincipal(eventAux, lbp);
+  ep.fillEventPrincipal(eventAux);
+  ep.setLuminosityBlockPrincipal(lbp);
   try {
      edm::ParameterSet pset;
      pset.registerIt();
@@ -142,10 +144,12 @@ void testEventGetRefBeforePut::getRefTest() {
   boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
+  lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, pc);
-  ep.fillEventPrincipal(eventAux, lbp);
+  ep.fillEventPrincipal(eventAux);
+  ep.setLuminosityBlockPrincipal(lbp);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

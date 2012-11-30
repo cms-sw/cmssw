@@ -83,12 +83,14 @@ void testGenericHandle::failgetbyLabelTest() {
   boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(id.run(), time, time));
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc));
+  lbp->setRunPrincipal(rp);
   boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
   branchIDListHelper->updateRegistries(*preg);
   edm::EventAuxiliary eventAux(id, uuid, time, true);
   edm::EventPrincipal ep(preg, branchIDListHelper, pc);
-  ep.fillEventPrincipal(eventAux, lbp);
+  ep.fillEventPrincipal(eventAux);
+  ep.setLuminosityBlockPrincipal(lbp);
   edm::GenericHandle h("edmtest::DummyProduct");
   bool didThrow=true;
   try {
@@ -173,10 +175,12 @@ void testGenericHandle::getbyLabelTest() {
   boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, rp));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
+  lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, pc);
-  ep.fillEventPrincipal(eventAux, lbp);
+  ep.fillEventPrincipal(eventAux);
+  ep.setLuminosityBlockPrincipal(lbp);
   edm::BranchDescription const& branchFromRegistry = it->second;
   boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
   edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);

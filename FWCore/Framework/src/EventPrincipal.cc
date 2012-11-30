@@ -49,14 +49,12 @@ namespace edm {
 
   void
   EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs,
         boost::shared_ptr<BranchListIndexes> branchListIndexes,
         boost::shared_ptr<BranchMapper> mapper,
         DelayedReader* reader) {
     fillPrincipal(aux.processHistoryID(), reader);
     aux_ = aux;
-    luminosityBlockPrincipal_ = lbp;
     if(eventSelectionIDs) {
       eventSelectionIDs_ = eventSelectionIDs;
     }
@@ -95,11 +93,6 @@ namespace edm {
 
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {
-    return luminosityBlockPrincipal().runPrincipal();
-  }
-
-  RunPrincipal &
-  EventPrincipal::runPrincipal() {
     return luminosityBlockPrincipal().runPrincipal();
   }
 

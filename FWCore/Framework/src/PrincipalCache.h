@@ -48,11 +48,13 @@ namespace edm {
     boost::shared_ptr<RunPrincipal> const& runPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run) const;
     RunPrincipal& runPrincipal() const;
     boost::shared_ptr<RunPrincipal> const& runPrincipalPtr() const;
+    bool hasRunPrincipal() const {return runPrincipal_;}
 
     LuminosityBlockPrincipal& lumiPrincipal(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const;
     boost::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const;
     LuminosityBlockPrincipal& lumiPrincipal() const;
     boost::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr() const;
+    bool hasLumiPrincipal() const {return lumiPrincipal_;}
 
     EventPrincipal& eventPrincipal() const { return *eventPrincipal_; }
 

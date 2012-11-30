@@ -45,7 +45,6 @@ namespace edm {
     assert(!newRun());
     assert(!newLumi());
     assert(eventCached());
-    eventPrincipal.setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     resetEventCached();
     return read(eventPrincipal);
   }
@@ -53,7 +52,7 @@ namespace edm {
   EventPrincipal*
   RawInputSource::makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary) {
     EventSourceSentry sentry(*this);
-    eventPrincipal.fillEventPrincipal(eventAuxiliary, luminosityBlockPrincipal());
+    eventPrincipal.fillEventPrincipal(eventAuxiliary);
     return &eventPrincipal;
   }
 

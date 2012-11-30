@@ -381,8 +381,8 @@ namespace edm {
   //
 
   EventPrincipal*
-  RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
-    return rootFile_->readEvent(eventPrincipal, lb);
+  RootInputFileSequence::readEvent(EventPrincipal& eventPrincipal) {
+    return rootFile_->readEvent(eventPrincipal);
   }
 
   InputSource::ItemType

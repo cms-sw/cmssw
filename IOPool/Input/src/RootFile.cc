@@ -1358,12 +1358,12 @@ namespace edm {
   //  when it is asked to do so.
   //
   EventPrincipal*
-  RootFile::readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb) {
+  RootFile::readEvent(EventPrincipal& cache) {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kEvent);
     // Set the entry in the tree, and read the event at that entry.
     eventTree_.setEntryNumber(indexIntoFileIter_.entry());
-    EventPrincipal* ep = readCurrentEvent(cache, lb);
+    EventPrincipal* ep = readCurrentEvent(cache);
 
     assert(ep != 0);
     assert(eventAux().run() == indexIntoFileIter_.run() + forcedRunOffset_);
@@ -1381,8 +1381,7 @@ namespace edm {
 
   // Reads event at the current entry in the event tree
   EventPrincipal*
-  RootFile::readCurrentEvent(EventPrincipal& cache,
-                             boost::shared_ptr<LuminosityBlockPrincipal> lb) {
+  RootFile::readCurrentEvent(EventPrincipal& cache) {
     if(!eventTree_.current()) {
       return 0;
     }
@@ -1397,7 +1396,6 @@ namespace edm {
 
     // We're not done ... so prepare the EventPrincipal
     cache.fillEventPrincipal(eventAux(),
-                             lb,
                              eventSelectionIDs_,
                              branchListIndexes_,
                              makeBranchMapper(),
@@ -1409,10 +1407,9 @@ namespace edm {
   }
 
   EventPrincipal*
-  RootFile::clearAndReadCurrentEvent(EventPrincipal& cache,
-                             boost::shared_ptr<LuminosityBlockPrincipal> lb) {
+  RootFile::clearAndReadCurrentEvent(EventPrincipal& cache) {
     cache.clearEventPrincipal();
-    return readCurrentEvent(cache, lb);
+    return readCurrentEvent(cache);
   }
 
   void

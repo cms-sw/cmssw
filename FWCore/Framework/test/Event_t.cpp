@@ -331,11 +331,13 @@ void testEvent::setUp() {
   boost::shared_ptr<RunAuxiliary> runAux(new RunAuxiliary(id.run(), time, time));
   boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
   boost::shared_ptr<LuminosityBlockAuxiliary> lumiAux(new LuminosityBlockAuxiliary(rp->run(), 1, time, time));
-  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc, rp));
+  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc));
+  lbp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
   principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, pc));
-  principal_->fillEventPrincipal(eventAux, lbp);
+  principal_->fillEventPrincipal(eventAux);
+  principal_->setLuminosityBlockPrincipal(lbp);
   currentEvent_.reset(new Event(*principal_, *currentModuleDescription_));
 
 }

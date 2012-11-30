@@ -12,10 +12,9 @@ namespace edm {
       boost::shared_ptr<LuminosityBlockAuxiliary> aux,
       boost::shared_ptr<ProductRegistry const> reg,
       ProcessConfiguration const& pc,
-      boost::shared_ptr<RunPrincipal> rp,
       HistoryAppender* historyAppender) :
     Base(reg, pc, InLumi, historyAppender),
-        runPrincipal_(rp),
+        runPrincipal_(),
         aux_(aux) {
   }
 

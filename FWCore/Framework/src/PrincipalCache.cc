@@ -100,7 +100,7 @@ namespace edm {
     if (inputProcessHistoryID_ != aux->processHistoryID()) {
       if (reducedInputProcessHistoryID_ != ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(aux->processHistoryID())) {
         throw edm::Exception(edm::errors::LogicError)
-          << "PrincipalCache::insert\n"
+          << "PrincipalCache::merge\n"
           << "Illegal attempt to merge run into cache\n"
           << "Reduced ProcessHistoryID inconsistent with the one already in cache\n"
           << "Contact a Framework Developer\n";
@@ -109,7 +109,7 @@ namespace edm {
     }
     if (aux->run() != run_) {
       throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::insert\n"
+        << "PrincipalCache::merge\n"
         << "Illegal attempt to merge run into cache\n"
         << "Run number inconsistent with run number already in cache\n"
         << "Contact a Framework Developer\n";
@@ -130,7 +130,7 @@ namespace edm {
     if (inputProcessHistoryID_ != aux->processHistoryID()) {
       if (reducedInputProcessHistoryID_ != ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(aux->processHistoryID())) {
         throw edm::Exception(edm::errors::LogicError)
-          << "PrincipalCache::insert\n"
+          << "PrincipalCache::merge\n"
           << "Illegal attempt to merge run into cache\n"
           << "Reduced ProcessHistoryID inconsistent with the one already in cache\n"
           << "Contact a Framework Developer\n";
@@ -140,7 +140,7 @@ namespace edm {
     if (aux->run() != run_ ||
         aux->luminosityBlock() != lumi_) {
       throw edm::Exception(edm::errors::LogicError)
-        << "PrincipalCache::insert\n"
+        << "PrincipalCache::merge\n"
         << "Illegal attempt to merge lumi into cache\n"
         << "Run and lumi numbers are inconsistent with the ones already in the cache\n"
         << "Contact a Framework Developer\n";

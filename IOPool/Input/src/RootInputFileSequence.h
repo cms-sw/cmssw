@@ -44,7 +44,7 @@ namespace edm {
     RootInputFileSequence& operator=(RootInputFileSequence const&) = delete; // Disallow copying and moving
 
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
-    EventPrincipal* readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb);
+    EventPrincipal* readEvent(EventPrincipal& cache);
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal);
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();

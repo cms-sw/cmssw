@@ -160,7 +160,7 @@ namespace edm {
       if(found) {
         boost::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
         checkConsistency(primaryPrincipal->aux(), *secondaryAuxiliary);
-        boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration(), secondaryRunPrincipal_));
+        boost::shared_ptr<LuminosityBlockPrincipal> lbp(new LuminosityBlockPrincipal(secondaryAuxiliary, secondaryFileSequence_->fileProductRegistry(), processConfiguration()));
         secondaryLumiPrincipal_ = secondaryFileSequence_->readLuminosityBlock_(lbp);
         checkHistoryConsistency(*primaryPrincipal, *secondaryLumiPrincipal_);
         primaryPrincipal->recombine(*secondaryLumiPrincipal_, branchIDsToReplace_[InLumi]);
@@ -178,13 +178,13 @@ namespace edm {
   EventPrincipal*
   PoolSource::readEvent_(EventPrincipal& eventPrincipal) {
     EventSourceSentry(*this);
-    EventPrincipal* primaryPrincipal = primaryFileSequence_->readEvent(eventPrincipal, luminosityBlockPrincipal());
+    EventPrincipal* primaryPrincipal = primaryFileSequence_->readEvent(eventPrincipal);
     if(secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(),
                                                       primaryPrincipal->luminosityBlock(),
                                                       primaryPrincipal->id().event());
       if(found) {
-        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(*secondaryEventPrincipal_, secondaryLumiPrincipal_);
+        EventPrincipal* secondaryPrincipal = secondaryFileSequence_->readEvent(*secondaryEventPrincipal_);
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
