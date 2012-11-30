@@ -161,18 +161,18 @@ PFTau = cms.Sequence(
     # Jet production
     recoTauCommonSequence *
     # Make shrinking cone taus
-    recoTauClassicShrinkingConeSequence *
+#    recoTauClassicShrinkingConeSequence *
     # Make classic HPS taus
     recoTauClassicHPSSequence
 )
 
 # Check if we want to run the MVA dependent stuff.  This is disabled in some
 # versions of 3_11_1 due to a TMVA issue.
-from RecoTauTag.Configuration.RecoTauMVAConfiguration_cfi \
-        import recoTauEnableMVA
-
-if recoTauEnableMVA:
-    # Enable shrinking cone tanc discriminators
-    PFTau += recoTauClassicShrinkingConeMVASequence
-    # Make hybrid algo taus
-    PFTau += recoTauHPSTancSequence
+#from RecoTauTag.Configuration.RecoTauMVAConfiguration_cfi \
+#        import recoTauEnableMVA
+#
+#if recoTauEnableMVA:
+#    # Enable shrinking cone tanc discriminators
+#    PFTau += recoTauClassicShrinkingConeMVASequence
+#    # Make hybrid algo taus
+#    PFTau += recoTauHPSTancSequence
