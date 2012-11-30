@@ -1353,6 +1353,8 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
   if(st6)st.push_back(st6);
   if(st7)st.push_back(st7);
 
+  Color[2]=2;
+
   std::vector<stSample> samples;
   GetSampleDefinition(samples);
   for(unsigned int i=0;i<st.size();i++){
@@ -1363,7 +1365,10 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
      if(st[i]->Name.find("MCTr")!=string::npos){lg.push_back("MC (SM)");}
      else if(st[i]->Name.find("Data7TeV")!=string::npos){lg.push_back("Data #sqrt{s} = 7.0 TeV");}
      else if(st[i]->Name.find("Data8TeV")!=string::npos){lg.push_back("Data #sqrt{s} = 8.0 TeV");}
-     else if(st[i]->Name.find("Cosmic")!=string::npos){lg.push_back("Cosmic");}
+     else if(st[i]->Name.find("Cosmic")!=string::npos){
+       lg.push_back("Cosmic");
+       Color[i]=7;
+     }
      else if(Index==-1){lg.push_back(st[i]->Name);}else{lg.push_back(samples[Index].Legend);}
   }
    
@@ -1412,7 +1417,6 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
       }
 
    }
-
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
@@ -1699,13 +1703,12 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
-//
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_InnerInvPtDiff->Clone(); Histos[i]->Rebin(4);  legend.push_back(lg[i]);
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Inner Inverse Pt Diff", "Fraction of tracks", -3,3, 1E-3,2);
-   DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Inner Inverse Pt Diff", "Fraction of tracks", -3,3, 1E-3,5);
+   DrawLegend((TObject**)Histos,legend,"","P", 0.52, 0.92, 0.38, 0.045);
    c1->SetLogy(true);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"InnerInvPtDiff_BS", false);
