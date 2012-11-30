@@ -85,15 +85,23 @@ namespace cond {
   class IterHelp {
   public:
     typedef IOVElementProxy result_type;
-    IterHelp() : iov(0){}
-    IterHelp( IOVProxyData & in);
+    IterHelp() : lowBound(0),iov(0){}
+    IterHelp( IOVProxyData & in );
+    IterHelp( IOVProxyData & in, cond::Time_t lowBound );
     
     result_type const & operator()(int i) const {
-      if (iov) elem.set(*iov,i);
+      if (iov) {
+	IOVElementProxy tmp;
+        tmp.set(*iov,i);
+	cond::Time_t since = tmp.since();
+	if( since < lowBound ) since = lowBound;
+	elem.set( since, tmp.till(), tmp.token() ); 
+      }
       return elem;
     }
     
   private:
+    cond::Time_t lowBound;
     IOVSequence const * iov;
     mutable IOVElementProxy elem;
   };
@@ -108,7 +116,10 @@ namespace cond {
   public:
     IOVRange();
     
-    IOVRange( const boost::shared_ptr<IOVProxyData>& iov, int low, int high );
+    // selection = 0 for the full sample, +n for the head(n), -n for the tail(n)
+    IOVRange( const boost::shared_ptr<IOVProxyData>& iov, cond::Time_t since, cond::Time_t till, int selection=0 );
+    // selection = 0 for the full sample, +n for the head(n), -n for the tail(n)
+    IOVRange( const boost::shared_ptr<IOVProxyData>& iov, int selection );
     
     IOVRange( const IOVRange& rhs );
     
@@ -116,7 +127,7 @@ namespace cond {
     
     const_iterator begin() const {
       return  boost::make_transform_iterator(boost::counting_iterator<int>(m_low),
-					     IterHelp(*m_iov));
+					     IterHelp(*m_iov, m_lowBound));
     }
     
     const_iterator end() const {
@@ -124,7 +135,7 @@ namespace cond {
       //          m_high + 1 = m_low + size elsewhere (since size = m_high - m_low + 1)
       int index = m_high + 1;
       return  boost::make_transform_iterator(boost::counting_iterator<int>(index),
-					     IterHelp(*m_iov));
+					     IterHelp(*m_iov, m_lowBound));
     }
     
     const_iterator find(cond::Time_t time) const;
@@ -139,6 +150,7 @@ namespace cond {
     boost::shared_ptr<IOVProxyData> m_iov;
     int m_low;
     int m_high;
+    cond::Time_t m_lowBound;
   };
 
   /* IOV as the user wants it
