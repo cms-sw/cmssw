@@ -24,11 +24,12 @@ def LoadCommandlineOptions(argv):
   parser.add_option('--fakeRate','-f',action="store_true", dest="fakeRate", default=False, help="Sets the fake rate options and put the correct label (implies --logScale)")
   parser.add_option('--testLabel','-t',metavar='testLabel', type=str,help='Sets the label to put in the plots for test file',dest='testLabel',default = None)
   parser.add_option('--refLabel','-r',metavar='refLabel', type=str,help='Sets the label to put in the plots for ref file',dest='refLabel',default = None)
-  parser.add_option('--minDiv',metavar='number', type=float, help='Sets the minimum of the scale in the ratio pad',dest='minDiv')
-  parser.add_option('--maxDiv',metavar='number', type=float, help='Sets the maximum of the scale in the ratio pad',dest='maxDiv')
-  parser.add_option('--minMain',metavar='number',type=float, help='Sets the minimum of the scale in the main pad (auto-defined if no user input)', dest='minMain', default=-1)
-  parser.add_option('--maxMain',metavar='number', type=float, help='Sets the maximum of the scale in the main pad in linear scale (auto-defined if no user input)', dest='maxMain', default=-1)
-  parser.add_option('--maxLog', metavar='number', type=float, help='Sets the maximum of the scale in the main pad in log scale (requires --logScale or -f to work)',dest='maxLog')
+  parser.add_option('--maxX', metavar='number', type=float, help='Sets the maximum of the x scale in the ratio pad',dest='maxX')
+  parser.add_option('--minDiv',metavar='number', type=float, help='Sets the minimum of the y scale in the ratio pad',dest='minDiv')
+  parser.add_option('--maxDiv',metavar='number', type=float, help='Sets the maximum of the y scale in the ratio pad',dest='maxDiv')
+  parser.add_option('--minMain',metavar='number',type=float, help='Sets the minimum of the y scale in the main pad (auto-defined if no user input)', dest='minMain', default=-1)
+  parser.add_option('--maxMain',metavar='number', type=float, help='Sets the maximum of the y scale in the main pad in linear scale (auto-defined if no user input)', dest='maxMain', default=-1)
+  parser.add_option('--maxLog', metavar='number', type=float, help='Sets the maximum of the y scale in the main pad in log scale (requires --logScale or -f to work)',dest='maxLog')
   parser.add_option('--logDiv',action="store_true", dest="logDiv", default=False, help="Sets the log scale in the plot")
   parser.add_option('--normalize',action="store_true", dest="normalize", default=False, help="plot normalized")
   parser.add_option('--rebin', dest="rebin", type=int, default=-1, help="Sets the rebinning scale")
@@ -217,6 +218,8 @@ def optimizeRangeMainPad(options, pad, hists):
     if max <= 1.1 and max > 0.7:
       max = 1.2 #prefere fixed range for easy comparison
   hists[0].SetAxisRange(min, max, "Y")
+  if options.maxX:
+    hists[0].SetAxisRange(hists[0].GetXaxis().GetXmin(), options.maxX, "X")
 
 def optimizeRangeSubPad(options, hists):
   min = -1
@@ -229,6 +232,8 @@ def optimizeRangeSubPad(options, hists):
   if max > 2:
     max = 2 #maximal bound
   hists[0].SetAxisRange(min, max, "Y")
+  if options.maxX:
+    hists[0].SetAxisRange(hists[0].GetXaxis().GetXmin(), options.maxX, "X")
 
 
 def getMaximumIncludingErrors(hist):
@@ -509,8 +514,8 @@ def determineHistoList(testFile, refFile, plotPattern):
               #print "insert label", commonLabelDict[path]
               break
           if not path in matchedHistDict.keys():
-            print "ERROR in determineHistoList! Could not find the corresponding reference plot ", refPattern
-            print "test plot is ", path
+            print "ERROR in determineHistoList! Could not find the corresponding reference plot\n", refPattern
+            print "test plot is\n", path
       print "...added", len(matchedHists)-countMatches, "histogram(s)"
   #print "matchedHists", matchedHists
   #print "matchedHistDict", matchedHistDict
