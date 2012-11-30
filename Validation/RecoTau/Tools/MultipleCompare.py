@@ -504,8 +504,8 @@ def determineHistoList(testFile, refFile, plotPattern):
       countMatches = len(matchedHists)
       for path in plotListTest:
         if Match((commonPatternLeft+tPattern+commonPatternRight).lower(), path.lower()):
-          matchedHists.append(path)
           #find corresponding match in refFile to current explicit pattern
+          #refPattern = path.replace(commonPatternLeft.strip('*')+tPattern, commonPatternLeft.strip('*')+rPattern)
           refPattern = path.replace(tPattern, rPattern)
           for pathRef in plotListRef:
             if pathRef == refPattern:
@@ -513,9 +513,11 @@ def determineHistoList(testFile, refFile, plotPattern):
               commonLabelDict[path] = commonPatternLeft.strip('*')
               #print "insert label", commonLabelDict[path]
               break
-          if not path in matchedHistDict.keys():
+          if path in matchedHistDict.keys():
+            matchedHists.append(path)
+          else:
             print "ERROR in determineHistoList! Could not find the corresponding reference plot\n", refPattern
-            print "test plot is\n", path
+            print "    ignore unmatched test plot\n", path
       print "...added", len(matchedHists)-countMatches, "histogram(s)"
   #print "matchedHists", matchedHists
   #print "matchedHistDict", matchedHistDict
