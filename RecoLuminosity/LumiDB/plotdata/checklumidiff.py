@@ -34,7 +34,7 @@ if __name__ == "__main__" :
     ofile=open('checklumi.log','w')
     lpcdir='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_GLOBAL/LHCFILES/'
     plotcachedir='/afs/cern.ch/cms/lumi/www/publicplots/public_lumi_plots_cache/pp_all'
-    plotfiles=[f for f in glob.glob(os.path.join(plotcachedir,'lumicalc_cache_2012*.csv')) if os.path.getsize(f)>0]
+    plotfiles=[f for f in glob.glob(os.path.join(plotcachedir,'lumicalc_cache_2012-??-??.csv')) if os.path.getsize(f)>0]
     fillmin=2450
     lpcfill2012=findlpcdir(lpcdir,fillmin)
     lpcfill2012.sort()
