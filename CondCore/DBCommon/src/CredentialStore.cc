@@ -1160,7 +1160,8 @@ bool cond::CredentialStore::selectForUser( coral_bridge::AuthenticationCredentia
 }
 
 bool cond::CredentialStore::importForPrincipal( const std::string& principal, 
-						const coral_bridge::AuthenticationCredentialSet& dataSource ){
+						const coral_bridge::AuthenticationCredentialSet& dataSource,
+						bool forceUpdateConnection ){
   CSScopedSession session( *this );
   session.start( false  );
   coral::ISchema& schema = m_session->nominalSchema();
@@ -1187,7 +1188,7 @@ bool cond::CredentialStore::importForPrincipal( const std::string& principal,
     std::string userName = iConn->second->valueForItem( coral::IAuthenticationCredentials::userItem() );
     std::string password = iConn->second->valueForItem( coral::IAuthenticationCredentials::passwordItem());
     // first import the connections
-    std::pair<int,std::string> conn = updateConnection( schemaLabel( serviceName, userName ), userName, password, false );
+    std::pair<int,std::string> conn = updateConnection( schemaLabel( serviceName, userName ), userName, password, forceUpdateConnection );
     Cipher cipher( m_principalKey );
     // than set the permission for the specific role
     setPermission( princData.id, princKey, role, connectionString, conn.first, conn.second );
