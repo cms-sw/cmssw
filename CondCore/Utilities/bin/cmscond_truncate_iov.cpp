@@ -19,15 +19,22 @@ namespace cond {
 cond::TruncateIOVUtilities::TruncateIOVUtilities():Utilities("cmscond_truncate_iov"){
   addConnectOption();
   addAuthenticationOptions();
-  addDictionaryOption();
-  addOption<std::string>("tag","t","remove last entry from the specified tag");
-  addOption<bool>("withPayload","w","delete payload data associated with the removed entry (default off)");
+  addOption<std::string>("tag","t","the concerned tag. Mandatory.");
+  addOption<size_t>("numberOfElements","n","number of IOV elements to truncate (default 1)");
+  addOption<cond::Time_t>("lastKeptSince","s","last kept since in the sequence after truncation");
 }
 
 cond::TruncateIOVUtilities::~TruncateIOVUtilities() {}
 
 int cond::TruncateIOVUtilities::execute() {
-  bool withPayload = hasOptionValue("withPayload");
+  size_t nelem = 1;
+  if ( hasOptionValue("numberOfElements") ){
+    nelem = getOptionValue<size_t>("numberOfElements");
+  }
+  cond::Time_t fkSince = cond::invalidTime;
+  if( hasOptionValue("firstKeptSince") ){
+    fkSince = getOptionValue<cond::Time_t>("firstKeptSince");
+  }
   std::string tag = getOptionValue<std::string>("tag");
   cond::DbSession rdbms = openDbSession( "connect", Auth::COND_ADMIN_ROLE );
   cond::DbScopedTransaction transaction( rdbms );
@@ -40,8 +47,22 @@ int cond::TruncateIOVUtilities::execute() {
   }
   
   cond::IOVEditor ioveditor(rdbms,token);
-  ioveditor.truncate(withPayload);
+  if( fkSince != cond::invalidTime ){
+    std::cout <<"Searching for since time="<<fkSince<<" in the IOV sequence."<<std::endl;
+    nelem = 0;
+    IOVProxy iov = ioveditor.proxy();
+    while( iov.iov().iovs()[iov.size()-1-nelem].sinceTime() > fkSince ){
+      nelem++;
+    }
+  }
+  std::cout <<"Truncating "<<nelem<<" element(s) in the IOV sequence."<<std::endl;
+  for(size_t i=0;i<nelem;i++){
+    // truncate removing the payload is no longer supported...
+    ioveditor.truncate(false);
+  }
   transaction.commit();
+  if( nelem )
+    std::cout <<"Update completed. New iov size="<<ioveditor.proxy().size()<<std::endl;
   return 0;
 }
 

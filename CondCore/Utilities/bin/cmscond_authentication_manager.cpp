@@ -76,7 +76,8 @@ cond::AuthenticationManager::AuthenticationManager():Utilities("cmscond_authenti
   addOption<bool>("remove_princ","","[-s a0 -n a1] remove principal");
   addOption<bool>("remove_conn","","[-s a0 -l a1] remove connection");
   addOption<bool>("admin","a","add admin privileges");
-  addOption<std::string>("import","","[a0 -s a1 -n a2] import from the xml file");
+  addOption<bool>("force_update","f","force update");
+  addOption<std::string>("import","","[a0 -s a1 -n a2 (-f)] import from the xml file");
   addOption<std::string>("export","","[a0 -s a1] export to the xml file");
   addOption<std::string>("service","s","service name");
   addOption<std::string>("princ_name","n","the principal");
@@ -210,6 +211,7 @@ int cond::AuthenticationManager::execute(){
 
 
   if( import ){
+    bool forceUp = hasOptionValue("force_update");
     std::string fileName = getOptionValue<std::string>("import");
     std::string principal = getOptionValue<std::string>("princ_name");
     coral_bridge::AuthenticationCredentialSet source;
@@ -218,7 +220,7 @@ int cond::AuthenticationManager::execute(){
       return 1;
     }
     std::cout <<"Importing "<<source.data().size()<<" connection items."<<std::endl;
-    credDb.importForPrincipal( principal, source );
+    credDb.importForPrincipal( principal, source, forceUp );
     return 0;
   }
 
