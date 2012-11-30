@@ -129,19 +129,26 @@ void Conv4HitsReco2::Reconstruct()
 	for (int i=0; i<fLoop; i++) {
 
 		// LOCAL TRANFORMATION & EXTRACTION
-		Double_t TANP = TMath::Tan(NextPhi);
-		Double_t X11 = -TMath::Abs(x11*TANP - y11) / TMath::Sqrt(1 + TANP*TANP);
-		Double_t Y11 = TMath::Abs(y11*TANP + x11) / TMath::Sqrt(1 + TANP*TANP);
+		Double_t SINP = TMath::Sin(NextPhi);
+		Double_t COSP = TMath::Cos(NextPhi);
+		Double_t SignCOSP = TMath::Sign(-1.,COSP);
+		Double_t AbsCOSP = TMath::Abs(COSP);
 
-		Double_t X21 = -TMath::Abs(x21*TANP - y21) / TMath::Sqrt(1 + TANP*TANP);
-		Double_t Y21 = TMath::Abs(y21*TANP + x21) / TMath::Sqrt(1 + TANP*TANP); 
+		Double_t X11 = -TMath::Abs(x11*SINP*SignCOSP - y11*AbsCOSP);
+		Double_t Y11 =  TMath::Abs(y11*SINP*SignCOSP + x11*AbsCOSP);
 
-		Double_t X12 = TMath::Abs(x12*TANP - y12) / TMath::Sqrt(1 + TANP*TANP);
-		Double_t Y12 = TMath::Abs(y12*TANP + x12) / TMath::Sqrt(1 + TANP*TANP);
+		Double_t X21 = -TMath::Abs(x21*SINP*SignCOSP - y21*AbsCOSP);
+		Double_t Y21 =  TMath::Abs(y21*SINP*SignCOSP + x21*AbsCOSP);
 
-		Double_t X22 = TMath::Abs(x22*TANP - y22) / TMath::Sqrt(1 + TANP*TANP);
-		Double_t Y22 = TMath::Abs(y22*TANP + x22) / TMath::Sqrt(1 + TANP*TANP);
+		Double_t X12 =  TMath::Abs(x12*SINP*SignCOSP - y12*AbsCOSP);
+		Double_t Y12 =  TMath::Abs(y12*SINP*SignCOSP + x12*AbsCOSP);
+
+		Double_t X22 =  TMath::Abs(x22*SINP*SignCOSP - y22*AbsCOSP);
+		Double_t Y22 =  TMath::Abs(y22*SINP*SignCOSP + x22*AbsCOSP);
 		// I'm not using LocalTransform() function because this direct way turns out to be faster
+
+
+
 
 		// SOLVING EQUATIONS
 		double d1 = Y21 - Y11;
