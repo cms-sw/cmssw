@@ -12,6 +12,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="CommonTools/TrackerMap"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CommonTools/Utils"/>
 <use   name="RecoMuon/TrackingTools"/>
@@ -22,8 +23,10 @@
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/MuonDetId"/>
-<use   name="Geometry/TrackerNumberingBuilder"/>
+<use   name="Geometry/CommonDetUnit"/> 
+<use   name="Geometry/CommonTopologies"/>
 <use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerNumberingBuilder"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
@@ -36,6 +39,7 @@
 <use   name="DataFormats/BeamSpot"/>
 <use   name="RecoVertex/PrimaryVertexProducer"/>
 <use   name="MagneticField/Records"/>
+<use   name="DQM/SiStripCommon"/> 
 <use   name="DQMServices/Core"/>
 <use   name="CLHEP"/>
 <use   name="root"/>
