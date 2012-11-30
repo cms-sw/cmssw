@@ -611,7 +611,7 @@ double AntiElectronIDMVA3::MVAValue(Float_t TauEtaAtEcalEntrance,
 {
 
   if ( !isInitialized_ ) {
-    std::cout << "Error: AntiElectronMVA not properly initialized.\n";
+    //std::cout << "Error: AntiElectronMVA not properly initialized.\n";
     return -99.;
   }
 
@@ -986,12 +986,12 @@ AntiElectronIDMVA3:: dCrackPhi(double phi, double eta){
     }
     else{
       m=0.;        //if there is a problem, we assum that we are in a crack
-      std::cout<<"Problem in dminphi"<<std::endl;
+      //std::cout<<"Problem in dminphi"<<std::endl;
     }
   }
   else{
     return -99.;       
-    std::cout<<"Encap region"<<std::endl;
+    //std::cout<<"Encap region"<<std::endl;
   }
   
   return TMath::Abs(m);
