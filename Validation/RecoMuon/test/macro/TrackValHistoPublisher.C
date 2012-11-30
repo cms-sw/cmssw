@@ -225,6 +225,17 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 	 }
        }
 
+       if (collname1.Contains("refitted") && !collname2.Contains("refitted")) {
+	 while (collname1.Contains("refitted")) {
+	   if (myKey1 = (TKey*)iter_r())  collname1 = myKey1->GetName();
+	 }
+       }
+       else if (collname2.Contains("refitted") && !collname1.Contains("refitted")) {
+	 while (collname2.Contains("refitted")) {
+	   if (myKey2 = (TKey*)iter_s())  collname2 = myKey2->GetName();
+	 }
+       }
+
        if ( (collname1 != collname2) && (collname1+"FS" != collname2) && (collname1 != collname2+"FS") ) {
 	 cout << " Different collection names, please check: " << collname1 << " : " << collname2 << endl;
 	 continue;
