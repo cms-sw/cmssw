@@ -133,9 +133,9 @@ def main(argv=None):
   plotList = []
   MultipleCompare.MapDirStructure( testFile,'',plotList)
 
-  if len(plotList)<1:
-    print '\tError: Please specify at least one histogram. The following ones are available in the root file.'
-    print plotList
+  if len(toPlot)<1:
+    print '\tSteerMultipleCompare:Error! Please specify at least one histogram. The following ones are available in the root file.'
+    print "\n".join(plotList)
     sys.exit()
 
   histoList = []
