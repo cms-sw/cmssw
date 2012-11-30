@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/src/PrincipalCache.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
