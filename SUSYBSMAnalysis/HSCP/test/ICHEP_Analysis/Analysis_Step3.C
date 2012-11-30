@@ -952,7 +952,7 @@ void Analysis_Step3(char* SavePath)
             dEdxSF = 1.00;
          }else{
             dEdxTemplates = NULL;
-            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012_new2.root"); //2012 tempaltes can be used after the rescale
+            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012.root"); //2012 tempaltes can be used after the rescale
             dEdxSF = 1.14;
          }
       #else
@@ -962,7 +962,7 @@ void Analysis_Step3(char* SavePath)
          }else{
             dEdxTemplates = NULL;
 //            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012.root");
-            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012_new2.root");
+            dEdxTemplates = loadDeDxTemplate("../../data/Discrim_Templates_MC_2012.root");
             dEdxSF = 1.05;
          }
       #endif

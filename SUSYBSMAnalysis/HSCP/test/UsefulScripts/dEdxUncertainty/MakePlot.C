@@ -218,12 +218,24 @@ void MakePlot()
 
 //   getScaleFactor(InputFile, "All_Rescale", "All_SelTrack_Pixel", "All_SelTrack_StripCleaned");
 
-
+/*
    TFile* InputFileD8 = new TFile("pictures_data/Histos.root");
    TH2D*       HIasVsPM_D8        = (TH2D*)    GetObjectFromPath(InputFileD8, "dedx_IasVsPM");
 //   TFile* InputFileM8 = new TFile("pictures_MC_2012_NewTemplates/Histos.root");
-////   TFile* InputFileM8 = new TFile("pictures_MC_2012/Histos.root");
-   TFile* InputFileM8 = new TFile("pictures/Histos.root");
+   TFile* InputFileM8 = new TFile("pictures_MC_2012_NewTemplatesNoScaling/Histos.root");
+   TH2D*       HIasVsPM_M8        = (TH2D*)    GetObjectFromPath(InputFileM8, "dedx_IasVsPM");
+
+   TFile* InputFileD7 = new TFile("pictures_data_2011/Histos.root");
+   TH2D*       HIasVsPM_D7        = (TH2D*)    GetObjectFromPath(InputFileD7, "dedx_IasVsPM");
+   TFile* InputFileM7 = new TFile("pictures_MC_2011/Histos.root");
+   TH2D*       HIasVsPM_M7        = (TH2D*)    GetObjectFromPath(InputFileM7, "dedx_IasVsPM");
+   compareDataMC(HIasVsPM_D8, HIasVsPM_M8, HIasVsPM_D7, HIasVsPM_M7);
+*/
+
+
+   TFile* InputFileD8 = new TFile("pictures_data/Histos.root");
+   TH2D*       HIasVsPM_D8        = (TH2D*)    GetObjectFromPath(InputFileD8, "dedx_IasVsPM");
+   TFile* InputFileM8 = new TFile("pictures_MC_2012_NewTemplates_2/Histos.root");
    TH2D*       HIasVsPM_M8        = (TH2D*)    GetObjectFromPath(InputFileM8, "dedx_IasVsPM");
 
    TFile* InputFileD7 = new TFile("pictures_data_2011/Histos.root");
@@ -231,6 +243,7 @@ void MakePlot()
    TFile* InputFileM7 = new TFile("pictures_MC_2011_test/Histos.root");
    TH2D*       HIasVsPM_M7        = (TH2D*)    GetObjectFromPath(InputFileM7, "dedx_IasVsPM");
    compareDataMC(HIasVsPM_D8, HIasVsPM_M8, HIasVsPM_D7, HIasVsPM_M7);
+
 
 
    TCanvas* c1;
@@ -278,6 +291,27 @@ void MakePlot()
    SaveCanvas(c1,"pictures/","DataMC_MIP_Ih");
    delete c1;
 
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   Histos[0] = GetObjectFromPath(InputFileD8, "dedx_Hit");                    legend.push_back("Data 8TeV");
+   Histos[1] = GetObjectFromPath(InputFileM8, "dedx_Hit");                    legend.push_back("MC 8TeV");
+   Histos[2] = GetObjectFromPath(InputFileD7, "dedx_Hit");                    legend.push_back("Data 7TeV");
+   Histos[3] = GetObjectFromPath(InputFileM7, "dedx_Hit");                    legend.push_back("MC 7TeV");
+   ((TH1D*)Histos[0])->Rebin(8);   ((TH1D*)Histos[0])->Sumw2();    ((TH1D*)Histos[0])->Scale(1/((TH1D*)Histos[0])->Integral());
+   ((TH1D*)Histos[1])->Rebin(8);   ((TH1D*)Histos[1])->Sumw2();    ((TH1D*)Histos[1])->Scale(1/((TH1D*)Histos[1])->Integral());
+   ((TH1D*)Histos[2])->Rebin(8);   ((TH1D*)Histos[2])->Sumw2();    ((TH1D*)Histos[2])->Scale(1/((TH1D*)Histos[2])->Integral());
+   ((TH1D*)Histos[3])->Rebin(8);   ((TH1D*)Histos[3])->Sumw2();    ((TH1D*)Histos[3])->Scale(1/((TH1D*)Histos[3])->Integral());
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1", "#Delta E/#Delta x (MeV/cm)", "u.a.", 0,12, 0,0);
+   ((TH1D*)Histos[0])->SetMarkerColor(1); ((TH1D*)Histos[0])->SetLineColor(1);
+   ((TH1D*)Histos[1])->SetMarkerColor(4); ((TH1D*)Histos[1])->SetLineColor(4);
+   ((TH1D*)Histos[2])->SetMarkerColor(2); ((TH1D*)Histos[2])->SetLineColor(2);
+   ((TH1D*)Histos[3])->SetMarkerColor(8); ((TH1D*)Histos[3])->SetLineColor(8);
+   DrawLegend(Histos,legend,"","P", 0.34, 0.92, 0.20, 0.05);
+   DrawPreliminary("",-1.0,-1.0);
+   c1->SetLogy(true);
+   c1->SetBottomMargin(0.15);
+   SaveCanvas(c1,"pictures/","DataMC_MIP_Hit");
+   delete c1;
 }
 
 
