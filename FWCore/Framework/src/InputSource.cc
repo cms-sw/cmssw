@@ -288,14 +288,14 @@ namespace edm {
   InputSource::readAndCacheRun(HistoryAppender& historyAppender) {
     RunSourceSentry sentry(*this);
     boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAuxiliary(), productRegistry_, processConfiguration(), &historyAppender));
-    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [&](){ return readRun_(rp); }, "Calling InputSource::readRun_" );
+    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this,&rp](){ return readRun_(rp); }, "Calling InputSource::readRun_" );
     return rp;
   }
 
   void
   InputSource::readAndMergeRun(boost::shared_ptr<RunPrincipal> rp) {
     RunSourceSentry sentry(*this);
-    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [&](){ return readRun_(rp); }, "Calling InputSource::readRun_" );
+    callWithTryCatchAndPrint<boost::shared_ptr<RunPrincipal> >( [this,&rp](){ return readRun_(rp); }, "Calling InputSource::readRun_" );
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
@@ -306,7 +306,7 @@ namespace edm {
                                    productRegistry_,
                                    processConfiguration(),
                                    &historyAppender));
-    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [&](){ return readLuminosityBlock_(lbp); },
+    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this,&lbp](){ return readLuminosityBlock_(lbp); },
                                                                             "Calling InputSource::readLuminosityBlock_" );
     if(remainingLumis_ > 0) {
       --remainingLumis_;
@@ -317,7 +317,7 @@ namespace edm {
   void
   InputSource::readAndMergeLumi(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     LumiSourceSentry sentry(*this);
-    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [&](){ return readLuminosityBlock_(lbp); },
+    callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockPrincipal> >( [this,&lbp](){ return readLuminosityBlock_(lbp); },
                                                                             "Calling InputSource::readLuminosityBlock_" );
     if(remainingLumis_ > 0) {
       --remainingLumis_;
@@ -344,7 +344,7 @@ namespace edm {
     assert(state_ == IsEvent);
     assert(!eventLimitReached());
 
-    EventPrincipal* result = callWithTryCatchAndPrint<EventPrincipal*>( [&](){ return readEvent_(ep); }, "Calling InputSource::readEvent_" );
+    EventPrincipal* result = callWithTryCatchAndPrint<EventPrincipal*>( [this,&ep](){ return readEvent_(ep); }, "Calling InputSource::readEvent_" );
     if(receiver_) {
       --numberOfEventsBeforeBigSkip_;
     }
