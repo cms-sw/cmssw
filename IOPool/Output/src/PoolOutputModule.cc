@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "IOPool/Output/src/RootOutputFile.h"
 
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
