@@ -29,6 +29,7 @@
 #endif
 
 #define JOB_UNIQUE_ID_ENV "CRAB_UNIQUE_JOB_ID"
+#define JOB_UNIQUE_ID_ENV_V2 "DashboardJobId"
 
 using namespace edm::storage;
 
@@ -131,7 +132,9 @@ StatisticsSenderService::StatisticsSenderService(edm::ParameterSet const& /*pset
 
 const char *
 StatisticsSenderService::getJobID() {
-  return getenv(JOB_UNIQUE_ID_ENV);
+  const char * id = getenv(JOB_UNIQUE_ID_ENV);
+  // Dashboard developers requested that we migrate to this environment variable.
+  return id ? id : getenv(JOB_UNIQUE_ID_ENV_V2);
 }
 
 void
@@ -221,11 +224,11 @@ StatisticsSenderService::fillUDP(const std::string& siteName, bool usedFallback,
   os << "\"server_domain\":\"" << m_serverdomain << "\", ";
   os << "\"unique_id\":\"" << m_guid << "-" << m_counter << "\", ";
   os << "\"file_lfn\":\"" << m_filelfn << "\", ";
+  // Dashboard devs requested that we send out no app_info if a job ID
+  // is not present in the environment.
   const char * jobId = getJobID();
   if (jobId) {
     os << "\"app_info\":\"" << jobId << "\", ";
-  } else {
-    os << "\"app_info\":\"" << m_guid << "\", ";
   }
 
   if (m_size >= 0) {
