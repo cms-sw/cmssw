@@ -55,16 +55,16 @@ void AntiElectronIDMVA2::Initialize_from_file(const std::string& methodName,
 
   bookMVAs();
 
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatch_BL], methodName_, oneProngNoEleMatch_BL);
-  loadTMVAWeights(fTMVAReader_[k_woG_BL], methodName_, oneProng0Pi0_BL);
-  loadTMVAWeights(fTMVAReader_[k_wGwoGSF_BL], methodName_, oneProng1pi0woGSF_BL);
-  loadTMVAWeights(fTMVAReader_[k_wGwGSFwoPFMVA_BL], methodName_, oneProng1pi0wGSFwoPfEleMva_BL);
-  loadTMVAWeights(fTMVAReader_[k_wGwGSFwPFMVA_BL], methodName_, oneProng1pi0wGSFwPfEleMva_BL);
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatch_EC], methodName_, oneProngNoEleMatch_EC);
-  loadTMVAWeights(fTMVAReader_[k_woG_EC], methodName_, oneProng0Pi0_EC);
-  loadTMVAWeights(fTMVAReader_[k_wGwoGSF_EC], methodName_, oneProng1pi0woGSF_EC);
-  loadTMVAWeights(fTMVAReader_[k_wGwGSFwoPFMVA_EC], methodName_, oneProng1pi0wGSFwoPfEleMva_EC);
-  loadTMVAWeights(fTMVAReader_[k_wGwGSFwPFMVA_EC], methodName_, oneProng1pi0wGSFwPfEleMva_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatch_BL], methodName_, oneProngNoEleMatch_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_woG_BL], methodName_, oneProng0Pi0_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwoGSF_BL], methodName_, oneProng1pi0woGSF_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwGSFwoPFMVA_BL], methodName_, oneProng1pi0wGSFwoPfEleMva_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwGSFwPFMVA_BL], methodName_, oneProng1pi0wGSFwPfEleMva_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatch_EC], methodName_, oneProngNoEleMatch_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_woG_EC], methodName_, oneProng0Pi0_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwoGSF_EC], methodName_, oneProng1pi0woGSF_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwGSFwoPFMVA_EC], methodName_, oneProng1pi0wGSFwoPfEleMva_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwGSFwPFMVA_EC], methodName_, oneProng1pi0wGSFwPfEleMva_EC);
 }
 
 void AntiElectronIDMVA2::Initialize_from_string(const std::string& methodName,

@@ -26,7 +26,15 @@
 #include "TMVA/Reader.h"
 #include <string>
 
-void loadTMVAWeights(TMVA::Reader* reader, const std::string& method,
-    const std::string& weightFile, bool verbose=false);
+namespace reco {
+  namespace details {
+  
+    bool hasEnding(std::string const &fullString, std::string const &ending);
+    char* readGzipFile(const std::string& weightFile);
 
+    void loadTMVAWeights(TMVA::Reader* reader, const std::string& method,
+      const std::string& weightFile, bool verbose=false);
+
+
+}}
 #endif /* end of include guard: TMVAZIPREADER_7RXIGO70 */

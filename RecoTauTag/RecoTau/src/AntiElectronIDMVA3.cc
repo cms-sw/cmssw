@@ -66,22 +66,22 @@ void AntiElectronIDMVA3::Initialize_from_file(const std::string& methodName,
 
   bookMVAs();
 
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatchwoGwoGSF_BL], "BDTG", oneProngNoEleMatch0Pi0woGSF_BL);
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatchwoGwGSF_BL], "BDTG", oneProngNoEleMatch0Pi0wGSF_BL);
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatchwGwoGSF_BL], "BDTG", oneProngNoEleMatch1Pi0woGSF_BL);
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatchwGwGSF_BL], "BDTG", oneProngNoEleMatch1Pi0wGSF_BL);
-  loadTMVAWeights(fTMVAReader_[k_woGwoGSF_BL], "BDTG", oneProng0Pi0woGSF_BL);
-  loadTMVAWeights(fTMVAReader_[k_woGwGSF_BL], "BDTG", oneProng0Pi0wGSF_BL);
-  loadTMVAWeights(fTMVAReader_[k_wGwoGSF_BL], "BDTG", oneProng1Pi0woGSF_BL);
-  loadTMVAWeights(fTMVAReader_[k_wGwGSF_BL], "BDTG", oneProng1Pi0wGSF_BL);
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatchwoGwoGSF_EC], "BDTG", oneProngNoEleMatch0Pi0woGSF_EC);
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatchwoGwGSF_EC], "BDTG", oneProngNoEleMatch0Pi0wGSF_EC);
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatchwGwoGSF_EC], "BDTG", oneProngNoEleMatch1Pi0woGSF_EC);
-  loadTMVAWeights(fTMVAReader_[k_NoEleMatchwGwGSF_EC], "BDTG", oneProngNoEleMatch1Pi0wGSF_EC);
-  loadTMVAWeights(fTMVAReader_[k_woGwoGSF_EC], "BDTG", oneProng0Pi0woGSF_EC);
-  loadTMVAWeights(fTMVAReader_[k_woGwGSF_EC], "BDTG", oneProng0Pi0wGSF_EC);
-  loadTMVAWeights(fTMVAReader_[k_wGwoGSF_EC], "BDTG", oneProng1Pi0woGSF_EC);
-  loadTMVAWeights(fTMVAReader_[k_wGwGSF_EC], "BDTG", oneProng1Pi0wGSF_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatchwoGwoGSF_BL], "BDTG", oneProngNoEleMatch0Pi0woGSF_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatchwoGwGSF_BL], "BDTG", oneProngNoEleMatch0Pi0wGSF_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatchwGwoGSF_BL], "BDTG", oneProngNoEleMatch1Pi0woGSF_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatchwGwGSF_BL], "BDTG", oneProngNoEleMatch1Pi0wGSF_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_woGwoGSF_BL], "BDTG", oneProng0Pi0woGSF_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_woGwGSF_BL], "BDTG", oneProng0Pi0wGSF_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwoGSF_BL], "BDTG", oneProng1Pi0woGSF_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwGSF_BL], "BDTG", oneProng1Pi0wGSF_BL);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatchwoGwoGSF_EC], "BDTG", oneProngNoEleMatch0Pi0woGSF_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatchwoGwGSF_EC], "BDTG", oneProngNoEleMatch0Pi0wGSF_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatchwGwoGSF_EC], "BDTG", oneProngNoEleMatch1Pi0woGSF_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_NoEleMatchwGwGSF_EC], "BDTG", oneProngNoEleMatch1Pi0wGSF_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_woGwoGSF_EC], "BDTG", oneProng0Pi0woGSF_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_woGwGSF_EC], "BDTG", oneProng0Pi0wGSF_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwoGSF_EC], "BDTG", oneProng1Pi0woGSF_EC);
+  reco::details::loadTMVAWeights(fTMVAReader_[k_wGwGSF_EC], "BDTG", oneProng1Pi0wGSF_EC);
 
 }
 
@@ -135,7 +135,7 @@ void AntiElectronIDMVA3::bookMVAs()
 {
   //TMVA::Tools::Instance();
 
-  TMVA::Reader *readerNoEleMatchwoGwoGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );  
+  TMVA::Reader *readerNoEleMatchwoGwoGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerNoEleMatchwoGwoGSF_BL->AddVariable("Tau_EtaAtEcalEntrance",&Tau_EtaAtEcalEntrance_);
   readerNoEleMatchwoGwoGSF_BL->AddVariable("Tau_Pt",&Tau_Pt_);
   readerNoEleMatchwoGwoGSF_BL->AddVariable("Tau_EmFraction",&Tau_EmFraction_);
@@ -145,8 +145,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerNoEleMatchwoGwoGSF_BL->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerNoEleMatchwoGwoGSF_BL->AddVariable("Tau_dCrackPhi",&Tau_dCrackPhi_);
   readerNoEleMatchwoGwoGSF_BL->SetVerbose(verbosity_);
- 
-  TMVA::Reader *readerNoEleMatchwoGwGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerNoEleMatchwoGwGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerNoEleMatchwoGwGSF_BL->AddVariable("Tau_EtaAtEcalEntrance",&Tau_EtaAtEcalEntrance_);
   readerNoEleMatchwoGwGSF_BL->AddVariable("Tau_Pt",&Tau_Pt_);
   readerNoEleMatchwoGwGSF_BL->AddVariable("Tau_EmFraction",&Tau_EmFraction_);
@@ -162,8 +162,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerNoEleMatchwoGwGSF_BL->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerNoEleMatchwoGwGSF_BL->AddVariable("Tau_dCrackPhi",&Tau_dCrackPhi_);
   readerNoEleMatchwoGwGSF_BL->SetVerbose(verbosity_);
- 
-  TMVA::Reader *readerNoEleMatchwGwoGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerNoEleMatchwGwoGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerNoEleMatchwGwoGSF_BL->AddVariable("Tau_EtaAtEcalEntrance",&Tau_EtaAtEcalEntrance_);
   readerNoEleMatchwGwoGSF_BL->AddVariable("Tau_Pt",&Tau_Pt_);
   readerNoEleMatchwGwoGSF_BL->AddVariable("Tau_EmFraction",&Tau_EmFraction_);
@@ -177,8 +177,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerNoEleMatchwGwoGSF_BL->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerNoEleMatchwGwoGSF_BL->AddVariable("Tau_dCrackPhi",&Tau_dCrackPhi_);
   readerNoEleMatchwGwoGSF_BL->SetVerbose(verbosity_);
-  
-  TMVA::Reader *readerNoEleMatchwGwGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerNoEleMatchwGwGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerNoEleMatchwGwGSF_BL->AddVariable("Tau_EtaAtEcalEntrance",&Tau_EtaAtEcalEntrance_);
   readerNoEleMatchwGwGSF_BL->AddVariable("Tau_Pt",&Tau_Pt_);
   readerNoEleMatchwGwGSF_BL->AddVariable("Tau_EmFraction",&Tau_EmFraction_);
@@ -198,7 +198,7 @@ void AntiElectronIDMVA3::bookMVAs()
   readerNoEleMatchwGwGSF_BL->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerNoEleMatchwGwGSF_BL->AddVariable("Tau_dCrackPhi",&Tau_dCrackPhi_);
   readerNoEleMatchwGwGSF_BL->SetVerbose(verbosity_);
-  
+
   TMVA::Reader *readerwoGwoGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerwoGwoGSF_BL->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwoGwoGSF_BL->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
@@ -217,8 +217,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerwoGwoGSF_BL->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerwoGwoGSF_BL->AddVariable("Tau_dCrackPhi",&Tau_dCrackPhi_);
   readerwoGwoGSF_BL->SetVerbose(verbosity_);
- 
-  TMVA::Reader *readerwoGwGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerwoGwGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerwoGwGSF_BL->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwoGwGSF_BL->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
   readerwoGwGSF_BL->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
@@ -242,8 +242,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerwoGwGSF_BL->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerwoGwGSF_BL->AddVariable("Tau_dCrackPhi",&Tau_dCrackPhi_);
   readerwoGwGSF_BL->SetVerbose(verbosity_);
- 
-  TMVA::Reader *readerwGwoGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerwGwoGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerwGwoGSF_BL->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwGwoGSF_BL->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
   readerwGwoGSF_BL->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
@@ -265,8 +265,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerwGwoGSF_BL->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerwGwoGSF_BL->AddVariable("Tau_dCrackPhi",&Tau_dCrackPhi_);
   readerwGwoGSF_BL->SetVerbose(verbosity_);
-  
-  TMVA::Reader *readerwGwGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerwGwGSF_BL = new TMVA::Reader( "!Color:Silent:Error" );
   readerwGwGSF_BL->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwGwGSF_BL->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
   readerwGwGSF_BL->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
@@ -294,10 +294,10 @@ void AntiElectronIDMVA3::bookMVAs()
   readerwGwGSF_BL->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerwGwGSF_BL->AddVariable("Tau_dCrackPhi",&Tau_dCrackPhi_);
   readerwGwGSF_BL->SetVerbose(verbosity_);
-  
+
   ////////////////////////
 
-  TMVA::Reader *readerNoEleMatchwoGwoGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );  
+  TMVA::Reader *readerNoEleMatchwoGwoGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );
   readerNoEleMatchwoGwoGSF_EC->AddVariable("Tau_EtaAtEcalEntrance",&Tau_EtaAtEcalEntrance_);
   readerNoEleMatchwoGwoGSF_EC->AddVariable("Tau_Pt",&Tau_Pt_);
   readerNoEleMatchwoGwoGSF_EC->AddVariable("Tau_EmFraction",&Tau_EmFraction_);
@@ -306,8 +306,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerNoEleMatchwoGwoGSF_EC->AddVariable("Tau_VisMass",&Tau_VisMass_);
   readerNoEleMatchwoGwoGSF_EC->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerNoEleMatchwoGwoGSF_EC->SetVerbose(verbosity_);
-  
-  TMVA::Reader *readerNoEleMatchwoGwGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerNoEleMatchwoGwGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );
   readerNoEleMatchwoGwGSF_EC->AddVariable("Tau_EtaAtEcalEntrance",&Tau_EtaAtEcalEntrance_);
   readerNoEleMatchwoGwGSF_EC->AddVariable("Tau_Pt",&Tau_Pt_);
   readerNoEleMatchwoGwGSF_EC->AddVariable("Tau_EmFraction",&Tau_EmFraction_);
@@ -322,8 +322,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerNoEleMatchwoGwGSF_EC->AddVariable("Tau_GSFTrackEta",&Tau_GSFTrackEta_);
   readerNoEleMatchwoGwGSF_EC->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerNoEleMatchwoGwGSF_EC->SetVerbose(verbosity_);
-  
-  TMVA::Reader *readerNoEleMatchwGwoGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerNoEleMatchwGwoGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );
   readerNoEleMatchwGwoGSF_EC->AddVariable("Tau_EtaAtEcalEntrance",&Tau_EtaAtEcalEntrance_);
   readerNoEleMatchwGwoGSF_EC->AddVariable("Tau_Pt",&Tau_Pt_);
   readerNoEleMatchwGwoGSF_EC->AddVariable("Tau_EmFraction",&Tau_EmFraction_);
@@ -336,8 +336,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerNoEleMatchwGwoGSF_EC->AddVariable("Tau_GammaEnFrac",&Tau_GammaEnFrac_);
   readerNoEleMatchwGwoGSF_EC->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerNoEleMatchwGwoGSF_EC->SetVerbose(verbosity_);
- 
-  TMVA::Reader *readerNoEleMatchwGwGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerNoEleMatchwGwGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );
   readerNoEleMatchwGwGSF_EC->AddVariable("Tau_EtaAtEcalEntrance",&Tau_EtaAtEcalEntrance_);
   readerNoEleMatchwGwGSF_EC->AddVariable("Tau_Pt",&Tau_Pt_);
   readerNoEleMatchwGwGSF_EC->AddVariable("Tau_EmFraction",&Tau_EmFraction_);
@@ -356,7 +356,7 @@ void AntiElectronIDMVA3::bookMVAs()
   readerNoEleMatchwGwGSF_EC->AddVariable("Tau_GSFTrackEta",&Tau_GSFTrackEta_);
   readerNoEleMatchwGwGSF_EC->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerNoEleMatchwGwGSF_EC->SetVerbose(verbosity_);
- 
+
   TMVA::Reader *readerwoGwoGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );
   readerwoGwoGSF_EC->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwoGwoGSF_EC->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
@@ -375,7 +375,7 @@ void AntiElectronIDMVA3::bookMVAs()
   readerwoGwoGSF_EC->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerwoGwoGSF_EC->SetVerbose(verbosity_);
 
-  TMVA::Reader *readerwoGwGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );  
+  TMVA::Reader *readerwoGwGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );
   readerwoGwGSF_EC->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwoGwGSF_EC->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
   readerwoGwGSF_EC->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
@@ -398,8 +398,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerwoGwGSF_EC->AddVariable("Tau_GSFTrackEta",&Tau_GSFTrackEta_);
   readerwoGwGSF_EC->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerwoGwGSF_EC->SetVerbose(verbosity_);
- 
-  TMVA::Reader *readerwGwoGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerwGwoGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );
   readerwGwoGSF_EC->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwGwoGSF_EC->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
   readerwGwoGSF_EC->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
@@ -420,8 +420,8 @@ void AntiElectronIDMVA3::bookMVAs()
   readerwGwoGSF_EC->AddVariable("Tau_GammaEnFrac",&Tau_GammaEnFrac_);
   readerwGwoGSF_EC->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerwGwoGSF_EC->SetVerbose(verbosity_);
-  
-  TMVA::Reader *readerwGwGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );  
+
+  TMVA::Reader *readerwGwGSF_EC = new TMVA::Reader( "!Color:Silent:Error" );
   readerwGwGSF_EC->AddVariable("Elec_EtotOverPin",&Elec_EtotOverPin_);
   readerwGwGSF_EC->AddVariable("Elec_EgammaOverPdif",&Elec_EgammaOverPdif_);
   readerwGwGSF_EC->AddVariable("Elec_Fbrem",&Elec_Fbrem_);
@@ -448,7 +448,7 @@ void AntiElectronIDMVA3::bookMVAs()
   readerwGwGSF_EC->AddVariable("Tau_GSFTrackEta",&Tau_GSFTrackEta_);
   readerwGwGSF_EC->AddVariable("Tau_dCrackEta",&Tau_dCrackEta_);
   readerwGwGSF_EC->SetVerbose(verbosity_);
- 
+
   fTMVAReader_[k_NoEleMatchwoGwoGSF_BL] = readerNoEleMatchwoGwoGSF_BL;
   fTMVAReader_[k_NoEleMatchwoGwGSF_BL] = readerNoEleMatchwoGwGSF_BL;
   fTMVAReader_[k_NoEleMatchwGwoGSF_BL] = readerNoEleMatchwGwoGSF_BL;
@@ -481,9 +481,9 @@ double AntiElectronIDMVA3::MVAValue(Float_t TauEtaAtEcalEntrance,
 				    const std::vector<Float_t>& GammasdEta,
 				    const std::vector<Float_t>& GammasdPhi,
 				    const std::vector<Float_t>& GammasPt,
-				    Float_t TauKFNumHits,				   
-				    Float_t TauGSFNumHits,				   
-				    Float_t TauGSFChi2,				   
+				    Float_t TauKFNumHits,
+				    Float_t TauGSFNumHits,
+				    Float_t TauGSFChi2,
 				    Float_t TauGSFTrackResol,
 				    Float_t TauGSFTracklnPt,
 				    Float_t TauGSFTrackEta,
@@ -541,7 +541,7 @@ double AntiElectronIDMVA3::MVAValue(Float_t TauEtaAtEcalEntrance,
 		  TaudCrackEta,
 		  TaudCrackPhi,
 		  TauEmFraction,
-		  TauSignalPFGammaCands,				    
+		  TauSignalPFGammaCands,
 		  TauLeadPFChargedHadrHoP,
 		  TauLeadPFChargedHadrEoP,
 		  TauVisMass,
@@ -549,9 +549,9 @@ double AntiElectronIDMVA3::MVAValue(Float_t TauEtaAtEcalEntrance,
 		  TauGammaEtaMom,
 		  TauGammaPhiMom,
 		  TauGammaEnFrac,
-		  TauKFNumHits,				   
-		  TauGSFNumHits,				   
-		  TauGSFChi2,				   
+		  TauKFNumHits,
+		  TauGSFNumHits,
+		  TauGSFChi2,
 		  TauGSFTrackResol,
 		  TauGSFTracklnPt,
 		  TauGSFTrackEta,
@@ -578,7 +578,7 @@ double AntiElectronIDMVA3::MVAValue(Float_t TauEtaAtEcalEntrance,
 				    Float_t TaudCrackEta,
 				    Float_t TaudCrackPhi,
 				    Float_t TauEmFraction,
-				    Float_t TauSignalPFGammaCands,				    
+				    Float_t TauSignalPFGammaCands,
 				    Float_t TauLeadPFChargedHadrHoP,
 				    Float_t TauLeadPFChargedHadrEoP,
 				    Float_t TauVisMass,
@@ -586,9 +586,9 @@ double AntiElectronIDMVA3::MVAValue(Float_t TauEtaAtEcalEntrance,
 				    Float_t TauGammaEtaMom,
 				    Float_t TauGammaPhiMom,
 				    Float_t TauGammaEnFrac,
-				    Float_t TauKFNumHits,				   
-				    Float_t TauGSFNumHits,				   
-				    Float_t TauGSFChi2,				   
+				    Float_t TauKFNumHits,
+				    Float_t TauGSFNumHits,
+				    Float_t TauGSFChi2,
 				    Float_t TauGSFTrackResol,
 				    Float_t TauGSFTracklnPt,
 				    Float_t TauGSFTrackEta,
@@ -629,11 +629,11 @@ double AntiElectronIDMVA3::MVAValue(Float_t TauEtaAtEcalEntrance,
   Tau_GammaPhiMom_ = TauGammaPhiMom;
   Tau_GammaEnFrac_ = TauGammaEnFrac;
   Tau_GSFChi2_ = TauGSFChi2;
-  Tau_NumHitsVariable_ = (TauGSFNumHits-TauKFNumHits)/(TauGSFNumHits+TauKFNumHits); 
+  Tau_NumHitsVariable_ = (TauGSFNumHits-TauKFNumHits)/(TauGSFNumHits+TauKFNumHits);
   Tau_GSFTrackResol_ = TauGSFTrackResol;
   Tau_GSFTracklnPt_ = TauGSFTracklnPt;
   Tau_GSFTrackEta_ = TauGSFTrackEta;
-  
+
   Elec_EtotOverPin_ = (ElecEe + ElecEgamma)/ElecPin;
   Elec_EgammaOverPdif_ = ElecEgamma/(ElecPin - ElecPout);
   Elec_Fbrem_ = ElecFbrem;
@@ -648,35 +648,35 @@ double AntiElectronIDMVA3::MVAValue(Float_t TauEtaAtEcalEntrance,
   else if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 &&  TauSignalPFGammaCands == 0 && TauHasGsf < 0.5) {
     if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.5 ) mva = fTMVAReader_[k_NoEleMatchwoGwoGSF_BL]->EvaluateMVA(methodName_);
     else mva = fTMVAReader_[k_NoEleMatchwoGwoGSF_EC]->EvaluateMVA(methodName_);
-  } 
+  }
   else if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 &&  TauSignalPFGammaCands == 0 && TauHasGsf > 0.5) {
     if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.5 ) mva = fTMVAReader_[k_NoEleMatchwoGwGSF_BL]->EvaluateMVA(methodName_);
     else mva = fTMVAReader_[k_NoEleMatchwoGwGSF_EC]->EvaluateMVA(methodName_);
-  } 
+  }
   else if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 &&  TauSignalPFGammaCands > 0 && TauHasGsf < 0.5) {
     if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.5 ) mva = fTMVAReader_[k_NoEleMatchwGwoGSF_BL]->EvaluateMVA(methodName_);
     else mva = fTMVAReader_[k_NoEleMatchwGwoGSF_EC]->EvaluateMVA(methodName_);
-  } 
+  }
   else if ( deltaR(TauEtaAtEcalEntrance, TauPhi, ElecEta, ElecPhi) > 0.3 &&  TauSignalPFGammaCands > 0 && TauHasGsf > 0.5) {
     if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.5 ) mva = fTMVAReader_[k_NoEleMatchwGwGSF_BL]->EvaluateMVA(methodName_);
     else mva = fTMVAReader_[k_NoEleMatchwGwGSF_EC]->EvaluateMVA(methodName_);
-  } 
+  }
   else if ( TauSignalPFGammaCands == 0 && TauHasGsf < 0.5) {
     if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.5 ) mva = fTMVAReader_[k_woGwoGSF_BL]->EvaluateMVA(methodName_);
     else mva = fTMVAReader_[k_woGwoGSF_EC]->EvaluateMVA(methodName_);
-  } 
+  }
   else if ( TauSignalPFGammaCands == 0 && TauHasGsf > 0.5) {
     if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.5 ) mva = fTMVAReader_[k_woGwGSF_BL]->EvaluateMVA(methodName_);
     else mva = fTMVAReader_[k_woGwGSF_EC]->EvaluateMVA(methodName_);
-  } 
+  }
   else if ( TauSignalPFGammaCands > 0 && TauHasGsf < 0.5) {
     if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.5 ) mva = fTMVAReader_[k_wGwoGSF_BL]->EvaluateMVA(methodName_);
     else mva = fTMVAReader_[k_wGwoGSF_EC]->EvaluateMVA(methodName_);
-  } 
+  }
   else if ( TauSignalPFGammaCands > 0 && TauHasGsf > 0.5) {
     if ( TMath::Abs(TauEtaAtEcalEntrance) < 1.5 ) mva = fTMVAReader_[k_wGwGSF_BL]->EvaluateMVA(methodName_);
     else mva = fTMVAReader_[k_wGwGSF_EC]->EvaluateMVA(methodName_);
-  } 
+  }
   return mva;
 }
 
@@ -694,7 +694,7 @@ double AntiElectronIDMVA3::MVAValue(const reco::PFTau& thePFTau,
     sumEnergy += pfcandidate->energy();
   }
   if(sumEnergy>0)TauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
-  
+
   Float_t TauPt = thePFTau.pt();
   Float_t TauEmFraction = TMath::Max(thePFTau.emFraction(), (Float_t)0.);
   Float_t TauSignalPFGammaCands = thePFTau.signalPFGammaCands().size();
@@ -799,9 +799,9 @@ double AntiElectronIDMVA3::MVAValue(const reco::PFTau& thePFTau,
 		  GammasdEta,
 		  GammasdPhi,
 		  GammasPt,
-		  TauKFNumHits,				   
-		  TauGSFNumHits,				   
-		  TauGSFChi2,				   
+		  TauKFNumHits,
+		  TauGSFNumHits,
+		  TauGSFChi2,
 		  TauGSFTrackResol,
 		  TauGSFTracklnPt,
 		  TauGSFTrackEta,
@@ -834,7 +834,7 @@ double AntiElectronIDMVA3::MVAValue(const reco::PFTau& thePFTau)
     sumEnergy += pfcandidate->energy();
   }
   if(sumEnergy>0)TauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
-  
+
   Float_t TauPt = thePFTau.pt();
   Float_t TauEmFraction = TMath::Max(thePFTau.emFraction(), (Float_t)0.);
   Float_t TauSignalPFGammaCands = thePFTau.signalPFGammaCands().size();
@@ -907,9 +907,9 @@ double AntiElectronIDMVA3::MVAValue(const reco::PFTau& thePFTau)
 		  GammasdEta,
 		  GammasdPhi,
 		  GammasPt,
-		  TauKFNumHits,				   
-		  TauGSFNumHits,				   
-		  TauGSFChi2,				   
+		  TauKFNumHits,
+		  TauGSFNumHits,
+		  TauGSFChi2,
 		  TauGSFTrackResol,
 		  TauGSFTracklnPt,
 		  TauGSFTrackEta,
@@ -943,7 +943,7 @@ double
 AntiElectronIDMVA3:: dCrackPhi(double phi, double eta){
 
   double pi= TMath::Pi();// 3.14159265358979323846;
-  
+
   //Location of the 18 phi-cracks
   static std::vector<double> cPhi;
   if(cPhi.size()==0)
@@ -968,7 +968,7 @@ AntiElectronIDMVA3:: dCrackPhi(double phi, double eta){
       //the problem of the extrema
       if (phi<cPhi[17] || phi>=cPhi[0]){
 	if (phi<0) phi+= 2*pi;
-	m = minimum(phi -cPhi[0],phi-cPhi[17]-2*pi);        	
+	m = minimum(phi -cPhi[0],phi-cPhi[17]-2*pi);
       }
 
       //between these extrema...
@@ -990,22 +990,22 @@ AntiElectronIDMVA3:: dCrackPhi(double phi, double eta){
     }
   }
   else{
-    return -99.;       
+    return -99.;
     //std::cout<<"Encap region"<<std::endl;
   }
-  
+
   return TMath::Abs(m);
 }
 
 //compute the unsigned distance to the closest phi-crack in the barrel
 double
 AntiElectronIDMVA3:: dCrackEta(double eta){
-  
+
   //Location of the eta-cracks
   double cracks[5] = {0, 4.44747e-01, 7.92824e-01, 1.14090e+00, 1.47464e+00};
-  
+
   double m=99.; //the result
-  
+
   for(int i=0;i<5;i++){
     double d = minimum(eta-cracks[i], eta+cracks[i]);
     if (TMath::Abs(d)<TMath::Abs(m)){
