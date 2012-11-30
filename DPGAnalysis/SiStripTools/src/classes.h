@@ -13,8 +13,10 @@ namespace {
     TinyEventCollection dummycoll;
     SingleSiStripDigiMultiplicity dummy1;
     SingleSiPixelClusterMultiplicity dummy2;
-    SingleSiPixelClusterMultiplicity dummy3;
+    SingleSiStripClusterMultiplicity dummy3;
     SiPixelClusterSiStripClusterMultiplicityPair dummy4;
+    ClusterSummarySingleMultiplicity dummy5;
+    ClusterSummaryMultiplicityPair dummy6;
 
     edm::Wrapper<TinyEventCollection> dummywrappedcoll;
     edm::Wrapper<EventWithHistory>  dummywrappedEWH;

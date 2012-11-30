@@ -73,8 +73,7 @@
    <version ClassVersion="3" checksum="1175457242"/>
  </class>
  <class name="std::vector<edm::StoredProductProvenance>"/>
- <class name="edm::BranchDescription" ClassVersion="12">
-  <version ClassVersion="12" checksum="1833963582"/>
+ <class name="edm::BranchDescription" ClassVersion="11">
   <version ClassVersion="11" checksum="1571703000"/>
   <field name="transient_" transient="true"/>
   <version ClassVersion="10" checksum="1486343707"/>

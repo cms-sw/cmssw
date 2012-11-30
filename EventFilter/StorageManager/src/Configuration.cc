@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.45 2011/06/01 13:49:02 mommsen Exp $
+// $Id: Configuration.cc,v 1.46 2011/07/05 13:25:43 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/StorageManager/interface/Configuration.h"
@@ -261,6 +261,7 @@ namespace stor
   {
     // set defaults
     alarmParamCopy_.isProductionSystem_ = false;
+    alarmParamCopy_.careAboutUnwantedEvents_ = true;
     alarmParamCopy_.errorEvents_ = 10;
     alarmParamCopy_.unwantedEvents_ = 10000;
   }
@@ -426,11 +427,13 @@ namespace stor
   {
     // copy the initial defaults to the xdata variables
     isProductionSystem_ = alarmParamCopy_.isProductionSystem_;
+    careAboutUnwantedEvents_ = alarmParamCopy_.careAboutUnwantedEvents_;
     errorEvents_ = alarmParamCopy_.errorEvents_;
     unwantedEvents_ = alarmParamCopy_.unwantedEvents_;
  
     // bind the local xdata variables to the infospace
     infoSpace->fireItemAvailable("isProductionSystem", &isProductionSystem_);
+    infoSpace->fireItemAvailable("careAboutUnwantedEvents", &careAboutUnwantedEvents_);
     infoSpace->fireItemAvailable("errorEvents", &errorEvents_);
     infoSpace->fireItemAvailable("unwantedEvents", &unwantedEvents_);
   }
@@ -534,6 +537,7 @@ namespace stor
   void Configuration::updateLocalAlarmData()
   {
     alarmParamCopy_.isProductionSystem_ = isProductionSystem_;
+    alarmParamCopy_.careAboutUnwantedEvents_ = careAboutUnwantedEvents_;
     alarmParamCopy_.errorEvents_ = errorEvents_;
     alarmParamCopy_.unwantedEvents_ = unwantedEvents_;
   }

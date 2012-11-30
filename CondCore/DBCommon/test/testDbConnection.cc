@@ -1,4 +1,6 @@
 #include "CondCore/DBCommon/interface/DbConnection.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include <string>
 #include <iostream>
 
@@ -34,6 +36,7 @@ void dumpConnectionConfiguration( const cond::DbConnectionConfiguration& conf ){
 }
 
 int main(){
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::DbConnection conn0;
   conn0.configure( cond::CmsDefaults );
   std::cout << "## configuration CmsDefaults"<<std::endl;

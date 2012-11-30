@@ -5,9 +5,6 @@
 <bin   file="LaserSeqToDB.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>
-<bin   file="TestODLaserConfig.cpp">
-  <flags NO_TESTRUN="1"/>
-</bin>
 <bin   file="TestLMF2010-temp.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>

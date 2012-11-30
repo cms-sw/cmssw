@@ -91,8 +91,7 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
       if(debug) std::cout<<"CSC \t \t Number of segments in this CSC = "<<CSCSegmentsCounter[CSCId]<<std::endl;
       if(debug) std::cout<<"CSC \t \t Is the only one in this CSC? is not ind the ring 1 or station 4? Are there more than 2 segments in the event?"<<std::endl;
 
-      //if(CSCSegmentsCounter[CSCId]==1 && CSCId.station()!=4 && CSCId.ring()!=1 && allCSCSegments->size()>=2){
-      if(CSCSegmentsCounter[CSCId]==1 && CSCId.station()!=4 && CSCId.ring()!=1){
+      if(CSCSegmentsCounter[CSCId]==1 && CSCId.station()!=4 && CSCId.ring()!=1 && allCSCSegments->size()>=2){
 	if(debug) std::cout<<"CSC \t \t yes"<<std::endl;
 	int cscEndCap = CSCId.endcap();
 	int cscStation = CSCId.station();
@@ -113,7 +112,7 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 		      
 	if(debug) std::cout<<"CSC \t \t Is a good Segment? dim = 4, 4 <= nRecHits <= 10 Incident angle int range 45 < "<<acos(dz)*180/3.1415926<<" < 135? "<<std::endl;
 
-	if(segment->dimension()==4 && segment->nRecHits()>=5){
+	if((segment->dimension()==4) && (segment->nRecHits()<=10 && segment->nRecHits()>=4)){
 	  //&& acos(dz)*180/3.1415926 > 45. && acos(dz)*180/3.1415926 < 135.){ 
 	  //&& segment->chi2()< ??)Add 3 segmentes in the endcaps???
 

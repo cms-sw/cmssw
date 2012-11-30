@@ -31,41 +31,22 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
   if (famos_) {
     for (unsigned int i=0; i<out.size();++i) {
       if (i==binOfMax_-1) {
-	int myFgvb=fgvb[1];
-        int mysFgvb=sfgvb[1];
-
-        // bug fix 091009:
-        myEt=Et[1]; 
-        if (myEt>0xfff) 
-	  myEt=0xfff ;
-        
-	if (isInInnerRings) 
-	  myEt = myEt /2 ;  
-        
-	myEt >>= eTTotShift ;
-        
+	myEt=Et[0]>>eTTotShift;
 	if (myEt>0x3ff) myEt=0x3ff ;
-
-        // Spike killing
-        if((myEt > spikeZeroThresh_) && (mysFgvb == 0))
-        {
-          myEt = 0;
-        }
-
+	if (isInInnerRings) myEt = myEt /2 ;
+	
+	// badTTStatus_ ==0 if the TT works
+	// badTTStatus_ !=0 if there are some problems
 	int lut_out;
 	if (*badTTStatus_!=0){
 	  lut_out = 0;
 	}
 	else
 	  lut_out = (lut_)[myEt] ;
-      
-        int ttFlag = (lut_out & 0x700) >> 8 ;
-        if (tcpFormat_)  {
-	  out2[i]=EcalTriggerPrimitiveSample( ((ttFlag&0x7)<<11) | ((myFgvb & 0x1)<<10) |  (myEt & 0x3ff));
-        }
-        myEt = lut_out & 0xff ;
-        out[i]=EcalTriggerPrimitiveSample( myEt,myFgvb,mysFgvb,ttFlag); 
-
+	
+	int ttFlag = (lut_out & 0x700) >> 8 ;
+	myEt = lut_out & 0xff ;
+	out[i]=EcalTriggerPrimitiveSample( myEt,fgvb[0],sfgvb[0],ttFlag); 
       }
       else out[i]=EcalTriggerPrimitiveSample( );
     }
