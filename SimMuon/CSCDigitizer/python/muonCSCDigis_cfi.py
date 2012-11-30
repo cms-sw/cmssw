@@ -12,15 +12,14 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         signalStartTime = cms.double(-250.0),
         shapingTime = cms.int32(100),
         comparatorTimeOffset = cms.double(15.0),
-        # Vadim's CLCT tuning for 2 pretriiggers
-        bunchTimingOffsets = cms.vdouble(0.0, 20.0+7.53, 20.0+3.83, 
-            45.0+12.13, 45.0+4.2, 45.0+10.18, 45.0+7.78, 45.0+9.38, 45.0+7.95, 45.0+8.48, 45.0+8.03),
-        # from http://indico.cern.ch/getFile.py/access?contribId=5&resId=0&materialId=slides&confId=111101
+        # bunchTimingOffsets
+        # Latest tuning by Vadim Khotilovich 16-Nov-2012 based on SingleMuPt10 relval sample.
+        # Validation plots: http://khotilov.web.cern.ch/khotilov/csc/digiBunchTimingOffsets/
+        # [Previous tuning by Chris Farrell
+        # http://indico.cern.ch/getFile.py/access?contribId=5&resId=0&materialId=slides&confId=111101]
+        bunchTimingOffsets = cms.vdouble(0.00, 40.52, 39.27, 57.28, 49.32, 56.27, 56.23, 54.73, 56.13, 53.65, 53.27),
         signalSpeed = cms.vdouble(0.0, -78, -76, -188, -262, -97, -99, -90, -99, -99, -113),
         timingCalibrationError = cms.vdouble(0., 4.2, 4.2, 0., 0., 0., 0., 0., 0., 0., 0.),
-        # Vadim's tuning for 3 pretriiggers
-        #bunchTimingOffsets = cms.vdouble(0.0, 20.0+13.05, 20.0+8.13, 
-        #      45.0+18.23, 45.0+9.5, 45.0+16.0, 45.0+13.23, 45.0+15.13, 45.0+13.08, 45.0+14.65, 45.0+13.25),
         # parameters for tuning timing
         scaTimingOffsets =  cms.vdouble(0.0, 10., 10., 0.,0.,0.,0.,0.,0.,0.,0.),
         comparatorTimeBinOffset = cms.double(3.0),
@@ -64,8 +63,8 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         readBadChannels = cms.bool(False),
         timeBitForBxZero = cms.int32(6),
         samplingTime = cms.double(5.0),
-        bunchTimingOffsets = cms.vdouble(0.0, 23.0, 23.0, 31.0, 31.0, 
-            31.0, 31.0, 31.0, 31.0, 31.0, 31.0),
+        # bunchTimingOffsets - comments for strips (above) also apply
+        bunchTimingOffsets = cms.vdouble(0.00, 21.64, 21.64, 28.29, 29.36, 29.33, 28.57, 28.61, 28.83, 29.09, 28.22),
         tailShaping = cms.int32(2),
         doNoise = cms.bool(True)
     ),
