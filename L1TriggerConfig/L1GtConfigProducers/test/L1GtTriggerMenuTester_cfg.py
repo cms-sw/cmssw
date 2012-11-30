@@ -10,9 +10,8 @@ import FWCore.ParameterSet.Config as cms
 
 # choose a valid global tag for the release you are using 
 #
-# 5_2_X
-useGlobalTag='GR_H_V30'
-#useGlobalTag='START52_V12'
+# 5_3_X
+useGlobalTag='GR_P_V42B'
 
 # run number to retrieve the menu - irrelevant if menu is overwritten or
 # the global tag is a MC global tag, with infinite IoV
@@ -22,7 +21,8 @@ useRunNumber = 194251
 # and to print the HLT paths using the L1 triggers as seeds
 
 # use the HLT menu given in this configuration 
-useHltMenuOption = True
+#useHltMenuOption = True
+useHltMenuOption = False
 
 ##########################################################################################
 
@@ -33,7 +33,7 @@ process = cms.Process(processName)
 
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuTester_cfi")
 process.l1GtTriggerMenuTester.OverwriteHtmlFile = True
-process.l1GtTriggerMenuTester.HtmlFile = "L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.html"
+process.l1GtTriggerMenuTester.HtmlFile = "L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.html"
 process.l1GtTriggerMenuTester.UseHltMenu = useHltMenuOption
 process.l1GtTriggerMenuTester.HltProcessName = processName
 #process.l1GtTriggerMenuTester.NoThrowIncompatibleMenu = False
@@ -82,11 +82,12 @@ else :
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 
-process.load('HLTrigger.Configuration.HLT_GRun_cff')
+if useHltMenuOption == True :
+    process.load('HLTrigger.Configuration.HLT_GRun_cff')
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -94,8 +95,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = useGlobalTag+'::All'
 # for GR_H_
-process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG' 
-process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/') 
+#process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG' 
+#process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/') 
 
 # path to be run
 

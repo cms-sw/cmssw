@@ -912,8 +912,10 @@ void L1GtTriggerMenuTester::printWiki() {
         std::string aAlias = (itBit->second)->algoAlias();
 
         edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "|" << std::left
-                << aName << "  |" << aAlias << "  |  " << std::right
-                << bitNumber << " |" << std::endl;
+                << "[[" << (m_htmlFile + "#" + aName) << "][ " << aName
+                << "]] " << "  |" << aAlias << "  |  " << bitNumber << "| |"
+                << std::endl;
+
     }
 
     // force a page break
