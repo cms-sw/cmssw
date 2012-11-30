@@ -306,7 +306,6 @@ ora::DatabaseContainer::DatabaseContainer( int contId,
   m_size( containerSize ),
   m_containerUpdateTable( session.containerUpdateTable() ),
   m_lock( false ){
-  Reflex::Type contType = m_schema->type();
 }
 
 ora::DatabaseContainer::DatabaseContainer( int contId,

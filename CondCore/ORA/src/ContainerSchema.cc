@@ -75,7 +75,6 @@ ora::ContainerSchema::ContainerSchema( int containerId,
   m_containerSchemaSequences( session.schema() ),
   m_mapping(),
   m_dependentMappings(){
-  initClassDict();
 }
 
 ora::ContainerSchema::~ContainerSchema(){
@@ -216,6 +215,7 @@ void ora::ContainerSchema::setAccessPermission( const std::string& principal,
 }
 
 const Reflex::Type& ora::ContainerSchema::type(){
+  initClassDict();
   return m_classDict;
 }
 
