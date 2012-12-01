@@ -1,3 +1,4 @@
+<Flags CXXFLAGS="-g"> 
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EgammaObjects"/>
 <use   name="DataFormats/CaloRecHit"/>

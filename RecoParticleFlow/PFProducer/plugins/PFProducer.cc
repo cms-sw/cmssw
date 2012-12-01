@@ -279,47 +279,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   if (usePFNuclearInteractions)
     pfAlgo_->setCandConnectorParameters( iCfgCandConnector );
 
-  // Muon parameters
-  std::vector<double> muonHCAL
-    = iConfig.getParameter<std::vector<double> >("muon_HCAL");  
-  std::vector<double> muonECAL
-    = iConfig.getParameter<std::vector<double> >("muon_ECAL");  
-  std::vector<double> muonHO
-    = iConfig.getParameter<std::vector<double> >("muon_HO");  
-
-  assert ( muonHCAL.size() == 2 && muonECAL.size() == 2 && muonHO.size() == 2);
   
-  // Fake track parameters
-  double nSigmaTRACK
-    = iConfig.getParameter<double>("nsigma_TRACK");  
-  
-  double ptError
-    = iConfig.getParameter<double>("pt_Error");  
-  
-  std::vector<double> factors45
-    = iConfig.getParameter<std::vector<double> >("factors_45");  
-  assert ( factors45.size() == 2 );
-  
-  bool usePFMuonMomAssign
-    = iConfig.getParameter<bool>("usePFMuonMomAssign");
-
-  bool useBestMuonTrack
-    = iConfig.getParameter<bool>("useBestMuonTrack");
 
   // Set muon and fake track parameters
-  pfAlgo_->setPFMuonAndFakeParameters(muonHCAL,
-				      muonECAL,
-				      muonHO,
-				      nSigmaTRACK,
-				      ptError,
-				      factors45,
-				      usePFMuonMomAssign,
-				      useBestMuonTrack);
+  pfAlgo_->setPFMuonAndFakeParameters(iConfig);
   
   //Post cleaning of the HF
   bool postHFCleaning
     = iConfig.getParameter<bool>("postHFCleaning");
-
   double minHFCleaningPt 
     = iConfig.getParameter<double>("minHFCleaningPt");
   double minSignificance
@@ -476,7 +443,7 @@ PFProducer::produce(Event& iEvent,
   }
 
   //Assign the PFAlgo Parameters
-  pfAlgo_->setPFVertexParameters(useVerticesForNeutral_,*vertices);
+  pfAlgo_->setPFVertexParameters(useVerticesForNeutral_,vertices);
 
   // get the collection of blocks 
 
@@ -502,13 +469,14 @@ PFProducer::produce(Event& iEvent,
 
     LogDebug("PFProducer")<<"getting muons"<<endl;
     found = iEvent.getByLabel( inputTagMuons_, muons );  
-
+    pfAlgo_->setMuonHandle(muons);
     if(!found) {
       ostringstream err;
       err<<"cannot find muons: "<<inputTagMuons_;
       LogError("PFProducer")<<err.str()<<endl;
     
       throw cms::Exception( "MissingProduct", err.str());
+
     }
 
   }
@@ -536,7 +504,7 @@ PFProducer::produce(Event& iEvent,
   assert( blocks.isValid() );
 
   pfAlgo_->reconstructParticles( blocks );
-
+  
   if(verbose_) {
     ostringstream  str;
     str<<(*pfAlgo_)<<endl;
@@ -544,9 +512,6 @@ PFProducer::produce(Event& iEvent,
     LogInfo("PFProducer") <<str.str()<<endl;
   }  
 
-
-  if ( postMuonCleaning_ )
-    pfAlgo_->postMuonCleaning( muons, *vertices );
 
   // Florian 5/01/2011
   // Save the PFElectron Extra Collection First as to be able to create valid References  
@@ -571,24 +536,24 @@ PFProducer::produce(Event& iEvent,
   }
 
 
-  // Save cosmic cleaned muon candidates
-  auto_ptr< reco::PFCandidateCollection > 
-    pCosmicsMuonCleanedCandidateCollection( pfAlgo_->transferCosmicsMuonCleanedCandidates() ); 
-  // Save tracker/global cleaned muon candidates
-  auto_ptr< reco::PFCandidateCollection > 
-    pTrackerAndGlobalCleanedMuonCandidateCollection( pfAlgo_->transferCleanedTrackerAndGlobalMuonCandidates() ); 
-  // Save fake cleaned muon candidates
-  auto_ptr< reco::PFCandidateCollection > 
-    pFakeCleanedMuonCandidateCollection( pfAlgo_->transferFakeMuonCleanedCandidates() ); 
-  // Save punch-through cleaned muon candidates
-  auto_ptr< reco::PFCandidateCollection > 
-    pPunchThroughMuonCleanedCandidateCollection( pfAlgo_->transferPunchThroughMuonCleanedCandidates() ); 
-  // Save punch-through cleaned neutral hadron candidates
-  auto_ptr< reco::PFCandidateCollection > 
-    pPunchThroughHadronCleanedCandidateCollection( pfAlgo_->transferPunchThroughHadronCleanedCandidates() ); 
-  // Save added muon candidates
-  auto_ptr< reco::PFCandidateCollection > 
-    pAddedMuonCandidateCollection( pfAlgo_->transferAddedMuonCandidates() ); 
+   // Save cosmic cleaned muon candidates
+    auto_ptr< reco::PFCandidateCollection > 
+      pCosmicsMuonCleanedCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferCleanedCosmicCandidates() ); 
+    // Save tracker/global cleaned muon candidates
+    auto_ptr< reco::PFCandidateCollection > 
+      pTrackerAndGlobalCleanedMuonCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferCleanedTrackerAndGlobalCandidates() ); 
+    // Save fake cleaned muon candidates
+    auto_ptr< reco::PFCandidateCollection > 
+      pFakeCleanedMuonCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferCleanedFakeCandidates() ); 
+    // Save punch-through cleaned muon candidates
+    auto_ptr< reco::PFCandidateCollection > 
+      pPunchThroughMuonCleanedCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferPunchThroughCleanedMuonCandidates() ); 
+    // Save punch-through cleaned neutral hadron candidates
+    auto_ptr< reco::PFCandidateCollection > 
+      pPunchThroughHadronCleanedCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferPunchThroughCleanedHadronCandidates() ); 
+    // Save added muon candidates
+    auto_ptr< reco::PFCandidateCollection > 
+      pAddedMuonCandidateCollection( pfAlgo_->getPFMuonAlgo()->transferAddedMuonCandidates() ); 
 
   // Check HF overcleaning
   reco::PFRecHitCollection hfCopy;
@@ -622,18 +587,20 @@ PFProducer::produce(Event& iEvent,
 
   }
 
+
+
   // Write in the event
   iEvent.put(pOutputCandidateCollection);
   iEvent.put(pCleanedCandidateCollection,"CleanedHF");
 
-  if ( postMuonCleaning_ ) { 
-    iEvent.put(pCosmicsMuonCleanedCandidateCollection,"CleanedCosmicsMuons");
-    iEvent.put(pTrackerAndGlobalCleanedMuonCandidateCollection,"CleanedTrackerAndGlobalMuons");
-    iEvent.put(pFakeCleanedMuonCandidateCollection,"CleanedFakeMuons");
-    iEvent.put(pPunchThroughMuonCleanedCandidateCollection,"CleanedPunchThroughMuons");
-    iEvent.put(pPunchThroughHadronCleanedCandidateCollection,"CleanedPunchThroughNeutralHadrons");
-    iEvent.put(pAddedMuonCandidateCollection,"AddedMuonsAndHadrons");
-  }
+    if ( postMuonCleaning_ ) { 
+      iEvent.put(pCosmicsMuonCleanedCandidateCollection,"CleanedCosmicsMuons");
+      iEvent.put(pTrackerAndGlobalCleanedMuonCandidateCollection,"CleanedTrackerAndGlobalMuons");
+      iEvent.put(pFakeCleanedMuonCandidateCollection,"CleanedFakeMuons");
+      iEvent.put(pPunchThroughMuonCleanedCandidateCollection,"CleanedPunchThroughMuons");
+      iEvent.put(pPunchThroughHadronCleanedCandidateCollection,"CleanedPunchThroughNeutralHadrons");
+      iEvent.put(pAddedMuonCandidateCollection,"AddedMuonsAndHadrons");
+    }
 
   if(usePFElectrons_)
     {

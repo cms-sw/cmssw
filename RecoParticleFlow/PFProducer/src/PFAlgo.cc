@@ -85,6 +85,11 @@ PFAlgo::setParameters(double nSigmaECAL,
 
 }
 
+
+PFMuonAlgo* PFAlgo::getPFMuonAlgo() {
+  return pfmu_;
+}
+
 //PFElectrons: a new method added to set the parameters for electron reconstruction. 
 void 
 PFAlgo::setPFEleParameters(double mvaEleCut,
@@ -222,24 +227,39 @@ void PFAlgo::setPFPhotonRegWeights(
 		       GCorrForestEndcapLr9, PFEcalResolution);
 }
 void 
-PFAlgo::setPFMuonAndFakeParameters(std::vector<double> muonHCAL,
-				   std::vector<double> muonECAL,
-				   std::vector<double> muonHO,
-				   double nSigmaTRACK,
-				   double ptError,
-				   std::vector<double> factors45,
-				   bool usePFMuonMomAssign,
-				   bool useBestMuonTrack) 
+PFAlgo::setPFMuonAndFakeParameters(const edm::ParameterSet& pset) 
+				   //				   std::vector<double> muonHCAL,
+				   //				   std::vector<double> muonECAL,
+				   //				   std::vector<double> muonHO,
+				   //				   double nSigmaTRACK,
+				   //				   double ptError,
+				   //				   std::vector<double> factors45)
 {
-  muonHCAL_ = muonHCAL;
-  muonECAL_ = muonECAL;
-  muonHO_ = muonHO;
-  nSigmaTRACK_ = nSigmaTRACK;
-  ptError_ = ptError;
-  factors45_ = factors45;
-  usePFMuonMomAssign_ = usePFMuonMomAssign;
-  useBestMuonTrack_ = useBestMuonTrack;
+
+
+
+
+  pfmu_ = new PFMuonAlgo();
+  pfmu_->setParameters(pset);
+
+  // Muon parameters
+  muonHCAL_= pset.getParameter<std::vector<double> >("muon_HCAL");  
+  muonECAL_= pset.getParameter<std::vector<double> >("muon_ECAL");  
+  muonHO_= pset.getParameter<std::vector<double> >("muon_HO");  
+  assert ( muonHCAL_.size() == 2 && muonECAL_.size() == 2 && muonHO_.size() == 2);
+  nSigmaTRACK_= pset.getParameter<double>("nsigma_TRACK");  
+  ptError_= pset.getParameter<double>("pt_Error");  
+  factors45_ = pset.getParameter<std::vector<double> >("factors_45");  
+  assert ( factors45_.size() == 2 );
+
 }
+
+
+void 
+PFAlgo::setMuonHandle(const edm::Handle<reco::MuonCollection>& muons) {
+  muonHandle_ = muons;
+}
+
   
 void 
 PFAlgo::setPostHFCleaningParameters(bool postHFCleaning,
@@ -278,19 +298,24 @@ PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
 
 void
 PFAlgo::setPFVertexParameters(bool useVertex,
-			      const reco::VertexCollection& primaryVertices) {
+			      const edm::Handle<reco::VertexCollection>& primaryVertices) {
   useVertices_ = useVertex;
+
+  //Set the vertices for muon cleaning
+  pfmu_->setInputsForCleaning(primaryVertices);
+
+
   //Now find the primary vertex!
   bool primaryVertexFound = false;
-  int nVtx=primaryVertices.size();
+  int nVtx=primaryVertices->size();
   if(usePFPhotons_){
     pfpho_->setnPU(nVtx);
   }
-  for (unsigned short i=0 ;i<primaryVertices.size();++i)
+  for (unsigned short i=0 ;i<primaryVertices->size();++i)
     {
-      if(primaryVertices[i].isValid()&&(!primaryVertices[i].isFake()))
+      if(primaryVertices->at(i).isValid()&&(!primaryVertices->at(i).isFake()))
 	{
-	  primaryVertex_ = primaryVertices[i];
+	  primaryVertex_ = primaryVertices->at(i);
 	  primaryVertexFound = true;
           break;
 	}
@@ -347,36 +372,6 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   else
     pfCleanedCandidates_.reset( new reco::PFCandidateCollection );
   
-  if(pfCosmicsMuonCleanedCandidates_.get() )
-    pfCosmicsMuonCleanedCandidates_->clear();
-  else 
-    pfCosmicsMuonCleanedCandidates_.reset( new reco::PFCandidateCollection );
-
-  if(pfCleanedTrackerAndGlobalMuonCandidates_.get() )
-    pfCleanedTrackerAndGlobalMuonCandidates_->clear();
-  else 
-    pfCleanedTrackerAndGlobalMuonCandidates_.reset( new reco::PFCandidateCollection );
-
-  if(pfFakeMuonCleanedCandidates_.get() )
-    pfFakeMuonCleanedCandidates_->clear();
-  else 
-    pfFakeMuonCleanedCandidates_.reset( new reco::PFCandidateCollection );
-
-  if(pfPunchThroughMuonCleanedCandidates_.get() )
-    pfPunchThroughMuonCleanedCandidates_->clear();
-  else 
-    pfPunchThroughMuonCleanedCandidates_.reset( new reco::PFCandidateCollection );
-
-  if(pfPunchThroughHadronCleanedCandidates_.get() )
-    pfPunchThroughHadronCleanedCandidates_->clear();
-  else 
-    pfPunchThroughHadronCleanedCandidates_.reset( new reco::PFCandidateCollection );
-
-  if(pfAddedMuonCandidates_.get() )
-    pfAddedMuonCandidates_->clear();
-  else 
-    pfAddedMuonCandidates_.reset( new reco::PFCandidateCollection );
-
   // not a auto_ptr; shout not be deleted after transfer
   pfElectronExtra_.clear();
   pfPhotonExtra_.clear();
@@ -458,6 +453,13 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
 
   // Post HF Cleaning
   postCleaning();
+
+  //Muon post cleaning
+  pfmu_->postClean(pfCandidates_.get());
+
+  //Add Missing muons
+   if( muonHandle_.isValid())
+     pfmu_->addMissingMuons(muonHandle_,pfCandidates_.get());
 }
 
 
@@ -651,21 +653,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if(debug_) cout<<"HFHAD, stored index, continue"<<endl;
       }
       continue;
-
-      //COLINFEB16 the following is not used... removing
-      
-      //     case PFBlockElement::PS1:
-      //        if ( active[iEle] ) { 
-      // 	 ps1Is.push_back( iEle );
-      // 	 if(debug_) cout<<"PS1, stored index, continue"<<endl;
-      //        }
-      //        continue;
-      //     case PFBlockElement::PS2:
-      //       if ( active[iEle] ) { 
-      // 	ps2Is.push_back( iEle );
-      // 	if(debug_) cout<<"PS2, stored index, continue"<<endl;
-      //       }
-      //       continue;
     default:
       continue;
     }
@@ -674,11 +661,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     unsigned iTrack = iEle;
     reco::MuonRef muonRef = elements[iTrack].muonRef();    
 
-
+    //Check if the track is a primary track of a secondary interaction
+    //If that is the case reconstruct a charged hadron noly using that
+    //track
     if (active[iTrack] && isFromSecInt(elements[iEle], "primary")){
       bool isPrimaryTrack = elements[iEle].displacedVertexRef(PFBlockElement::T_TO_DISP)->displacedVertexRef()->isTherePrimaryTracks();
       if (isPrimaryTrack) {
 	if (debug_) cout << "Primary Track reconstructed alone" << endl;
+
 	unsigned tmpi = reconstructTrack(elements[iEle]);
 	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iEle );
 	active[iTrack] = false;
@@ -854,11 +844,14 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       if ( debug_ ) 
 	std::cout << elements[iTrack] << std::endl; 
       
-      // Is it a "tight" muon ?
+      // Is it a "tight" muon ? In that case assume no 
+      //Track momentum corresponds to the calorimeter
+      //energy for now
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
       if ( thisIsAMuon ) trackMomentum = 0.;
 
-      // Is it a fake track ?
+      // If it is not a muon check if Is it a fake track ?
+      //Michalis: I wonder if we should convert this to dpt/pt?
       bool rejectFake = false;
       if ( !thisIsAMuon  && elements[iTrack].trackRef()->ptError() > ptError_ ) { 
 
@@ -925,6 +918,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 
       tmpi.push_back(reconstructTrack( elements[iTrack]));
+
       kTrack.push_back(iTrack);
       active[iTrack] = false;
 
@@ -943,6 +937,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       unsigned thisEcal = ecalElems.begin()->second;
       reco::PFClusterRef clusterRef = elements[thisEcal].clusterRef();
       if ( debug_ ) std::cout << " is associated to " << elements[thisEcal] << std::endl;
+
 
       // Set ECAL energy for muons
       if ( thisIsAMuon ) { 
@@ -991,6 +986,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	// Check if this track is a muon
 	bool thatIsAMuon = PFMuonAlgo::isMuon(elements[jTrack]);
 
+
 	// Check if this track is not a fake
 	bool rejectFake = false;
 	reco::TrackRef trackRef = elements[jTrack].trackRef();
@@ -1029,7 +1025,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	}
 
 	// And create a charged particle candidate !
+
 	tmpi.push_back(reconstructTrack( elements[jTrack] ));
+
+
 	kTrack.push_back(jTrack);
 	active[jTrack] = false;
 
@@ -1561,13 +1560,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       
       // Create a PF Candidate right away if the track is a tight muon
       reco::MuonRef muonRef = elements[iTrack].muonRef();
+
+
       bool thisIsAMuon = PFMuonAlgo::isMuon(elements[iTrack]);
       bool thisIsAnIsolatedMuon = PFMuonAlgo::isIsolatedMuon(elements[iTrack]);
       bool thisIsALooseMuon = false;
 
+
       if(!thisIsAMuon ) {
 	thisIsALooseMuon = PFMuonAlgo::isLooseMuon(elements[iTrack]);
       }
+
+
       if ( thisIsAMuon ) {
 	if ( debug_ ) { 
 	  std::cout << "\t\tThis track is identified as a muon - remove it from the stack" << std::endl;
@@ -1575,7 +1579,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	}
 
 	// Create a muon.
+
 	unsigned tmpi = reconstructTrack( elements[iTrack] );
+
+
 	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
 	(*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
 	double muonHcal = std::min(muonHCAL_[0]+muonHCAL_[1],totalHcal);
@@ -1972,7 +1979,6 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  // Only muons
 	  if ( !it->second.second ) continue;
 
-	  bool isTrack = elements[it->second.first].muonRef()->isTrackerMuon();
 	  double trackMomentum = elements[it->second.first].trackRef()->p();
 
 	  // look for ECAL elements associated to iTrack (associated to iHcal)
@@ -1986,8 +1992,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				    sortedHOs,
 				    reco::PFBlockElement::HO,
 				    reco::PFBlock::LINKTEST_ALL );
-	  // Add the muon to the PF candidate list
-	  unsigned tmpi = reconstructTrack( elements[iTrack] );
+
+	  //Here allow for loose muons! 
+	  unsigned tmpi = reconstructTrack( elements[iTrack],true);
+
 	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
 	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
 	  double muonHcal = std::min(muonHCAL_[0]+muonHCAL_[1],totalHcal-totalHO);
@@ -2011,43 +2019,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  reco::PFCandidate::ParticleType particleType = reco::PFCandidate::mu;
 	  (*pfCandidates_)[tmpi].setParticleType(particleType);
 
-	  if(PFMuonAlgo::isGlobalLooseMuon(elements[it->second.first].muonRef())){
-	    // Take the best pt measurement
-	    reco::TrackRef bestMuTrack =  elements[it->second.first].muonRef()->muonBestTrack();
-	    if(!useBestMuonTrack_)
-	      bestMuTrack = elements[it->second.first].muonRef()->combinedMuon();
 
-	    double muonMomentum = bestMuTrack->p();
-	    double muonPtError  = bestMuTrack->ptError();
-
-	    double staMomentum = elements[it->second.first].muonRef()->standAloneMuon()->p();
-	    double staPtError = elements[it->second.first].muonRef()->standAloneMuon()->ptError();
-	    double trackPtError = elements[it->second.first].trackRef()->ptError();
-
-
-	    double globalCorr = 1;
-
-	    // for loose muons we choose whichever fit has the best error, since the track is often mis-recontructed or there are problems with arbitration
-	    if(!isTrack || muonPtError < trackPtError || staPtError < trackPtError){	      
-	      if(muonPtError < staPtError) globalCorr = muonMomentum/trackMomentum;
-	      else globalCorr = staMomentum/trackMomentum;
-	    }
-	    (*pfCandidates_)[tmpi].rescaleMomentum(globalCorr);
-	    
-	    if (debug_){
-	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
-			<< "PFAlgo: particle type set to muon (global, loose), pT = "<<elements[it->second.first].muonRef()->pt()<<std::endl; 
-	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef());
-	    }
-	  }
-	  else{
-	    if (debug_){
-	      std::cout << "\tElement  " << elements[iTrack] << std::endl 
-	                << "PFAlgo: particle type set to muon (tracker, loose), pT = "<<elements[it->second.first].muonRef()->pt()<<std::endl;
-	      PFMuonAlgo::printMuonProperties(elements[it->second.first].muonRef()); 
-	    }
-	  }
-	  
 	  // Remove it from the block
 	  const math::XYZPointF& chargedPosition = 
 	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[it->second.first])->positionAtECALEntrance();	  
@@ -2225,6 +2197,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       double trackMomentum = trackRef->p();
       double Dp = trackRef->qoverpError()*trackMomentum*trackMomentum;
       unsigned tmpi = reconstructTrack( elements[iTrack] );
+
+
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
       std::pair<II,II> myEcals = associatedEcals.equal_range(iTrack);
@@ -2942,137 +2916,22 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 }  // end processBlock
 
-
-
-unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
+/////////////////////////////////////////////////////////////////////
+unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLoose) {
 
   const reco::PFBlockElementTrack* eltTrack 
     = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   reco::TrackRef trackRef = eltTrack->trackRef();
   const reco::Track& track = *trackRef;
-
   reco::MuonRef muonRef = eltTrack->muonRef();
-
   int charge = track.charge()>0 ? 1 : -1;
 
-  // Assign the pion mass to all charged particles
+  // Assume this particle is a charged Hadron
   double px = track.px();
   double py = track.py();
   double pz = track.pz();
   double energy = sqrt(track.p()*track.p() + 0.13957*0.13957);
-
-
-  // Except if it is a muon, of course ! 
-  bool thisIsAMuon = PFMuonAlgo::isMuon(elt);
-  bool thisIsAnIsolatedMuon = PFMuonAlgo::isIsolatedMuon(elt);
-  bool thisIsAGlobalTightMuon = PFMuonAlgo::isGlobalTightMuon(elt);
-  bool thisIsATrackerTightMuon = PFMuonAlgo::isTrackerTightMuon(elt);
-
-  // Or from nuclear inetraction then use the refitted momentum
-  bool isFromDisp = isFromSecInt(elt, "secondary");
-  bool isToDisp  = isFromSecInt(elt, "primary");
-  //isFromNucl = false;
-  bool globalFitUsed = false;
-
-  if ( thisIsAMuon ) { 
-    
-    //By default take muon kinematics directly from the muon object (usually determined by the track) 
-    px = muonRef->px();
-    py = muonRef->py();
-    pz = muonRef->pz();
-    energy = sqrt(muonRef->p()*muonRef->p() + 0.1057*0.1057);
-
-    reco::TrackBase::TrackQuality trackQualityHighPurity = TrackBase::qualityByName("highPurity");
-    if(debug_)if(!trackRef->quality(trackQualityHighPurity))cout<<" Low Purity Track "<<endl;
-
-    if(muonRef->isGlobalMuon() && !usePFMuonMomAssign_){
-      
-      reco::TrackRef bestMuTrack =  muonRef->muonBestTrack();
-      if(!useBestMuonTrack_)
-	bestMuTrack = muonRef->combinedMuon(); 
-
-      // take the global fit instead under special circumstances
-      bool useGlobalFit = false;
-      
-      if(thisIsAnIsolatedMuon && (!muonRef->isTrackerMuon() || (muonRef->pt() > bestMuTrack->pt() && track.ptError() > 5.0*bestMuTrack->ptError()))) useGlobalFit = true;
-      else if(!trackRef->quality(trackQualityHighPurity)) useGlobalFit = true;
-      else if(muonRef->pt() > bestMuTrack->pt() &&
-	      (track.hitPattern().numberOfValidTrackerHits() < 8 || track.hitPattern().numberOfValidPixelHits() == 0 ) &&
-	      track.ptError() > 5.0*bestMuTrack->ptError()) useGlobalFit = true;
-
-      if(useGlobalFit){
-	px = bestMuTrack->px();
-	py = bestMuTrack->py();
-	pz = bestMuTrack->pz();
-	energy = sqrt(bestMuTrack->p()*bestMuTrack->p() + 0.1057*0.1057);   
-	globalFitUsed = true;
-      }
-    }      
-    else if(usePFMuonMomAssign_){
-      // If this option is set we take more liberties choosing the muon kinematics (not advised by the muon POG)
-      if(thisIsAGlobalTightMuon)
-	{
-	  // If the global muon above 10 GeV and is a tracker muon take the global pT	  
-	  if(muonRef->isTrackerMuon()){
-	    if(sqrt(px*px+py*py) > 10){
-
-	      reco::TrackRef bestMuTrack =  muonRef->muonBestTrack();
-	      if(!useBestMuonTrack_)
-		bestMuTrack = muonRef->combinedMuon(); 
-	      
-	      px = bestMuTrack->px();
-	      py = bestMuTrack->py();
-	      pz = bestMuTrack->pz();
-	      energy = sqrt(bestMuTrack->p()*bestMuTrack->p() + 0.1057*0.1057);   
-	      globalFitUsed = true;
-	    }
-	  }   // If it's not a tracker muon, choose between the global pT and the STA pT
-	  else{ 
-	    
-	    reco::TrackRef bestMuTrack = muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
-	      muonRef->muonBestTrack() : 
-	      muonRef->standAloneMuon() ;
-	    
-	    if(!useBestMuonTrack_)
-	      bestMuTrack =
-		muonRef->combinedMuon()->normalizedChi2() < muonRef->standAloneMuon()->normalizedChi2() ?
-		muonRef->combinedMuon() : 
-		muonRef->standAloneMuon() ;
-
-	    px = bestMuTrack->px();
-	    py = bestMuTrack->py();
-	    pz = bestMuTrack->pz();
-	    energy = sqrt(bestMuTrack->p()*bestMuTrack->p() + 0.1057*0.1057);   
-	    globalFitUsed = true;
-	  }
-	} // close else if(thisIsAGlobalTightMuon)
-    } // close (usePFPFMuonMomAssign_)      
-  }// close if(thisIsAMuon)
-  else if (isFromDisp) {
-    double Dpt = trackRef->ptError();
-    double dptRel = Dpt/trackRef->pt()*100;
-    //If the track is ill measured it is better to not refit it, since the track information probably would not be used.
-    //In the PFAlgo we use the trackref information. If the track error is too big the refitted information might be very different
-    // from the not refitted one.
-    if (dptRel < dptRel_DispVtx_){
-
-      if (debug_) 
-	cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
-      //reco::TrackRef trackRef = eltTrack->trackRef();
-      reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP)->displacedVertexRef();
-      reco::Track trackRefit = vRef->refittedTrack(trackRef);
-      px = trackRefit.px();
-      py = trackRefit.py();
-      pz = trackRefit.pz();
-      energy = sqrt(trackRefit.p()*trackRefit.p() + 0.13957*0.13957);
-      if (debug_) 
-	cout << "Refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
-    
-    }
-  }
-  
-  if ((isFromDisp || isToDisp) && debug_) cout << "Final px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
 
   // Create a PF Candidate
   math::XYZTLorentzVector momentum(px,py,pz,energy);
@@ -3083,59 +2942,52 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt ) {
   pfCandidates_->push_back( PFCandidate( charge, 
                                          momentum,
                                          particleType ) );
+  //Set vertex and stuff like this
+  pfCandidates_->back().setVertexSource( PFCandidate::kTrkVertex );
+  pfCandidates_->back().setTrackRef( trackRef );
+  pfCandidates_->back().setPositionAtECALEntrance( eltTrack->positionAtECALEntrance());
+  if( muonRef.isNonnull())
+    pfCandidates_->back().setMuonRef( muonRef );
 
-  // displaced vertices 
-  if( isFromDisp ) {
+
+
+  //OK Now try to reconstruct the particle as a muon
+  bool isMuon=pfmu_->reconstructMuon(pfCandidates_->back(),muonRef,allowLoose);
+  bool isFromDisp = isFromSecInt(elt, "secondary");
+
+
+  if ((!isMuon) && isFromDisp) {
+    double Dpt = trackRef->ptError();
+    double dptRel = Dpt/trackRef->pt()*100;
+    //If the track is ill measured it is better to not refit it, since the track information probably would not be used.
+    //In the PFAlgo we use the trackref information. If the track error is too big the refitted information might be very different
+    // from the not refitted one.
+    if (dptRel < dptRel_DispVtx_){
+      if (debug_) 
+	cout << "Not refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+      //reco::TrackRef trackRef = eltTrack->trackRef();
+      reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP)->displacedVertexRef();
+      reco::Track trackRefit = vRef->refittedTrack(trackRef);
+      //change the momentum with the refitted track
+      math::XYZTLorentzVector momentum(trackRefit.px(),
+				       trackRefit.py(),
+				       trackRefit.pz(),
+				       sqrt(trackRefit.p()*trackRefit.p() + 0.13957*0.13957));
+      if (debug_) 
+	cout << "Refitted px = " << px << " py = " << py << " pz = " << pz << " energy = " << energy << endl; 
+    }
     pfCandidates_->back().setFlag( reco::PFCandidate::T_FROM_DISP, true);
     pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP)->displacedVertexRef(), reco::PFCandidate::T_FROM_DISP);
   }
-  
+
   // do not label as primary a track which would be recognised as a muon. A muon cannot produce NI. It is with high probability a fake
-  if( isToDisp && !thisIsAMuon ) {
+  if(isFromSecInt(elt, "primary") && !isMuon) {
     pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_DISP, true);
     pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(reco::PFBlockElement::T_TO_DISP)->displacedVertexRef(), reco::PFCandidate::T_TO_DISP);
   }
-
-
-
-  if ( thisIsAMuon && globalFitUsed ) 
-    pfCandidates_->back().setVertexSource(  PFCandidate::kComMuonVertex );
-  else
-    pfCandidates_->back().setVertexSource( PFCandidate::kTrkVertex );
-
-  pfCandidates_->back().setTrackRef( trackRef );
-  pfCandidates_->back().setPositionAtECALEntrance( eltTrack->positionAtECALEntrance());
-
-
-
-  // setting the muon ref if there is
-  if (muonRef.isNonnull()) {
-    pfCandidates_->back().setMuonRef( muonRef );
-    // setting the muon particle type if it is a global muon
-    if ( thisIsAMuon) {
-      particleType = reco::PFCandidate::mu;
-      pfCandidates_->back().setParticleType( particleType );
-      if (debug_) {
-	if(thisIsAGlobalTightMuon) cout << "PFAlgo: particle type set to muon (global, tight), pT = " <<muonRef->pt()<< endl; 
-	else if(thisIsATrackerTightMuon) cout << "PFAlgo: particle type set to muon (tracker, tight), pT = " <<muonRef->pt()<< endl;
-	else if(thisIsAnIsolatedMuon) cout << "PFAlgo: particle type set to muon (isolated), pT = " <<muonRef->pt()<< endl; 
-	else cout<<" problem with muon assignment "<<endl;
-	PFMuonAlgo::printMuonProperties( muonRef );
-      }
-    }
-  }  
-
-  // conversion...
-
-  if(debug_) 
-    cout<<"** candidate: "<<pfCandidates_->back()<<endl; 
-  
   // returns index to the newly created PFCandidate
   return pfCandidates_->size()-1;
 }
-
-
-
 
 
 unsigned 
@@ -3618,534 +3470,6 @@ PFAlgo::checkCleaning( const reco::PFRecHitCollection& cleanedHits ) {
 }
 
 
-void 
-PFAlgo::postMuonCleaning( const edm::Handle<reco::MuonCollection>& muonh,
-			  const reco::VertexCollection& primaryVertices) {
-  
-
-  bool printout = false;
-  // Check if the post muon Cleaning was requested - if not, do nothing
-  //if ( !postMuonCleaning_ ) return;
-
-  // Estimate SumEt from pile-up
-  double sumetPU = 0.;
-  for (unsigned short i=1 ;i<primaryVertices.size();++i ) {
-    if ( !primaryVertices[i].isValid() || primaryVertices[i].isFake() ) continue; 
-    primaryVertices[i];
-    for ( reco::Vertex::trackRef_iterator itr = primaryVertices[i].tracks_begin();
-	  itr <  primaryVertices[i].tracks_end(); ++itr ) { 
-      sumetPU += (*itr)->pt();
-    }
-  }
-  sumetPU /= 0.65; // To estimate the neutral contribution from PU
-  // std::cout << "Evaluation of sumetPU from " << primaryVertices.size() << " vertices : " << sumetPU << std::endl;
-
-  //Compute met and met significance (met/sqrt(SumEt))
-  double metX = 0.;
-  double metY = 0.;
-  double sumet = 0;
-  double metXCosmics = 0.;
-  double metYCosmics = 0.;
-  double sumetCosmics = 0.;
-
-  std::map<double,unsigned int> pfMuons;
-  std::map<double,unsigned int> pfCosmics;
-  typedef std::multimap<double, unsigned int>::iterator IE;
-
-  for(unsigned i=0; i<pfCandidates_->size(); i++) {
-    const PFCandidate& pfc = (*pfCandidates_)[i];
-    double origin = 
-      (pfc.vx()-primaryVertex_.x())*(pfc.vx()-primaryVertex_.x()) + 
-      (pfc.vy()-primaryVertex_.y())*(pfc.vy()-primaryVertex_.y());
-
-    // Compute MET
-    metX += pfc.px();
-    metY += pfc.py();
-    sumet += pfc.pt();
-
-    // Remember the muons and order them by decreasing energy
-    // Remember the cosmic muons too 
-    if ( pfc.particleId() == reco::PFCandidate::mu ) { 
-      pfMuons.insert(std::pair<double,unsigned int>(-pfc.pt(),i));
-      if ( origin > 1.0 ) { 
-	pfCosmics.insert(std::pair<double,unsigned int>(-pfc.pt(),i));
-	metXCosmics += pfc.px();
-	metYCosmics += pfc.py();
-	sumetCosmics += pfc.pt();
-      }
-    }
-      
-  }
-
-  double met2 = metX*metX+metY*metY;
-  double met2Cosmics = (metX-metXCosmics)*(metX-metXCosmics)+(metY-metYCosmics)*(metY-metYCosmics);
-
-  // Clean cosmic muons
-  if ( sumetCosmics > (sumet-sumetPU)/10. && met2Cosmics < met2 ) { 
-    if ( printout ) 
-      std::cout << "MEX,MEY,MET Before (Cosmics)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-    for ( IE imu = pfCosmics.begin(); imu != pfCosmics.end(); ++imu ) { 
-      const PFCandidate& pfc = (*pfCandidates_)[imu->second];
-      //const PFCandidate pfcopy = pfc;
-      pfCosmicsMuonCleanedCandidates_->push_back(pfc);
-      if ( printout ) 
-	std::cout << "Muon cleaned (cosmic). pt/d0 = " << pfc.pt() << " " 
-		  << std::sqrt(pfc.vx()*pfc.vx() + pfc.vy()*pfc.vy()) << std::endl; 
-      metX -= pfc.px();
-      metY -= pfc.py();
-      sumet -= pfc.pt();
-      (*pfCandidates_)[imu->second].rescaleMomentum(1E-6);
-    }
-    met2 = metX*metX+metY*metY;
-    if ( printout ) 
-      std::cout << "MEX,MEY,MET After  (Cosmics)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-  }
-
-  // The remaining met
-  // double metInitial = std::sqrt(met2);
-  
-  // Clean mismeasured muons
-  for ( IE imu = pfMuons.begin(); imu != pfMuons.end(); ++imu ) { 
-    const PFCandidate& pfc = (*pfCandidates_)[imu->second];
-
-    // Don't care about low momentum muons
-    if ( pfc.pt() < 20. ) continue;
-
-    double metXNO = metX - pfc.px();
-    double metYNO = metY - pfc.py();
-    double met2NO = metXNO*metXNO + metYNO*metYNO; 
-    double sumetNO = sumet - pfc.pt();
-    double factor = std::max(2.,2000./sumetNO);
-
-    reco::MuonRef muonRef = pfc.muonRef();
-    reco::TrackRef bestMuTrack =  muonRef->muonBestTrack();
-    if(!useBestMuonTrack_)
-      bestMuTrack = muonRef->combinedMuon(); 
-    reco::TrackRef trackerMu = muonRef->track();
-    reco::TrackRef standAloneMu = muonRef->standAloneMuon();
-
-    if ( !bestMuTrack || !trackerMu ) { 
-      if ( sumetNO-sumetPU > 500. && met2NO < met2/4.) { 
-	pfFakeMuonCleanedCandidates_->push_back(pfc);
-	if ( printout ) {
-	  std::cout << "Muon cleaned (NO-bad) " << sumetNO << std::endl;
-	  std::cout << "sumet NO " << sumetNO << std::endl;
-	}
-	(*pfCandidates_)[imu->second].rescaleMomentum(1E-6);
-	if ( printout ) 
-	  std::cout << "MEX,MEY,MET            " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	metX = metXNO;
-	metY = metYNO;
-	met2 = met2NO;
-	sumet = sumetNO;
-	if ( printout ) {
-	  std::cout << "Muon cleaned (NO/TK) ! " << std::endl;
-	  std::cout << "MEX,MEY,MET Now (NO/TK)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	}
-      }
-    } else { 
-      /*
-      std::cout << "PF Muon vx,vy " << pfc.vx() << " " << pfc.vy() << std::endl;
-      std::cout << "PF Muon px,py,pt: " << pfc.px() << " " << pfc.py() << " " << pfc.pt() << std::endl;
-      std::cout << "TK Muon px,py,pt: " << trackerMu->px() << " " << trackerMu->py() << " " << trackerMu->pt() << " " << std::endl;
-      std::cout << "GL Muon px,py,pt: " << bestMuTrack->px() << " " << bestMuTrack->py() << " " << bestMuTrack->pt() << " " << std::endl; 
-      std::cout << "ST Muon px,py,pt: " << standAloneMu->px() << " " << standAloneMu->py() << " " << standAloneMu->pt() << " " << std::endl;
-      std::cout << "isolated ? " << PFMuonAlgo::isIsolatedMuon(muonRef) << std::endl; 
-      */
-      double metXTK = metXNO + trackerMu->px(); 
-      double metYTK = metYNO + trackerMu->py();
-      double met2TK = metXTK*metXTK + metYTK*metYTK;
- 
-      double metXGL = metXNO + bestMuTrack->px();
-      double metYGL = metYNO + bestMuTrack->py();
-      double met2GL = metXGL*metXGL + metYGL*metYGL; 
-
-      /*
-      double metXST = metXNO + standAloneMu->px();
-      double metYST = metYNO + standAloneMu->py();
-      double met2ST = metXST*metXST + metYST*metYST; 
-      */
-
-      /*
-      std::cout << "sumet NO " << sumetNO << std::endl;
-      std::cout << "MEX,MEY,MET NO" << metXNO << " " << metYNO << " " << std::sqrt(met2NO) << std::endl;
-      std::cout << "MEX,MEY,MET TK" << metXTK << " " << metYTK << " " << std::sqrt(met2TK) << std::endl;
-      std::cout << "MEX,MEY,MET GL" << metXGL << " " << metYGL << " " << std::sqrt(met2GL) << std::endl;
-      std::cout << "MEX,MEY,MET ST" << metXST << " " << metYST << " " << std::sqrt(met2ST) << std::endl;
-      */
-
-      //bool fixed = false;
-      if ( ( sumetNO-sumetPU > 250. && met2TK < met2/4. && met2TK < met2GL ) || 
-	   ( met2TK < met2/2. && trackerMu->pt() < bestMuTrack->pt()/4. && met2TK < met2GL ) )  { 
-	pfCleanedTrackerAndGlobalMuonCandidates_->push_back(pfc);
-	math::XYZTLorentzVectorD p4(trackerMu->px(),trackerMu->py(),trackerMu->pz(),
-				    std::sqrt(trackerMu->p()*trackerMu->p()+0.1057*0.1057));
-	if ( printout ) 
-	  std::cout << "Muon cleaned (TK) ! " << met2TK/met2 << " " << trackerMu->pt() / bestMuTrack->pt() << std::endl;
-	(*pfCandidates_)[imu->second].setP4(p4);
-	if ( printout ) 
-	  std::cout << "MEX,MEY,MET Before (TK)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	metX = metXTK;
-	metY = metYTK;
-	met2 = met2TK;
-	//fixed = true;
-	if ( printout ) 
-	  std::cout << "MEX,MEY,MET Now    (TK)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-      } 
-      
-      else if ( ( sumetNO-sumetPU > 250. && met2GL < met2/4. && met2GL < met2TK ) ||  
-		( met2GL < met2/2. && bestMuTrack->pt() < trackerMu->pt()/4.&& met2GL < met2TK ) )  { 
-	pfCleanedTrackerAndGlobalMuonCandidates_->push_back(pfc);
-	math::XYZTLorentzVectorD p4(bestMuTrack->px(),bestMuTrack->py(),bestMuTrack->pz(),
-				    std::sqrt(bestMuTrack->p()*bestMuTrack->p()+0.1057*0.1057));
-	if ( printout ) 
-	  std::cout << "Muon cleaned (GL) ! " << met2GL/met2 << " " << bestMuTrack->pt()/trackerMu->pt() <<  std::endl;
-	(*pfCandidates_)[imu->second].setP4(p4);
-	if ( printout ) 
-	  std::cout << "MEX,MEY,MET before (GL)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	metX = metXGL;
-	metY = metYGL;
-	met2 = met2GL;
-	//fixed = true;
-	if ( printout ) 
-	  std::cout << "MEX,MEY,MET Now    (GL)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-      }
-
-      // Fake muons at large pseudo-rapidity
-      bool fake = 
-	fabs ( pfc.eta() ) > 2.15 && 
-	met2NO < met2/25. && 
-	(met2GL < met2TK/2. || met2TK < met2GL/2.) &&
-	standAloneMu->pt() < bestMuTrack->pt()/10. &&
-	standAloneMu->pt() < trackerMu->pt()/10.; 
-
-      // Fake and/or punch-through candidates
-      bool punchthrough1 =  
-	( sumetNO-sumetPU > 250. && met2NO < met2/4. && (met2GL < met2TK/factor || met2TK < met2GL/factor) );
-
-      // Now look for punch through candidates (i.e., muon with large neutral hadron behind)
-      bool punchthrough2 =  
-	pfc.p() > 100. &&  pfc.rawHcalEnergy() > 100. && 
-	pfc.rawEcalEnergy()+pfc.rawHcalEnergy() > pfc.p()/3. &&
-	!PFMuonAlgo::isIsolatedMuon(muonRef) && met2NO < met2/4.;
-
-      if ( punchthrough1 ||  punchthrough2 || fake ) { 
-	
-	// Find the block of the muon
-	const PFCandidate::ElementsInBlocks& eleInBlocks = pfc.elementsInBlocks();
-	if ( !eleInBlocks.size() ) { 
-	  ostringstream err;
-	  err<<"A muon has no associated elements in block. Cannot proceed with postMuonCleaning()";
-	  edm::LogError("PFAlgo")<<err.str()<<endl;
-	} else { 
-	  PFBlockRef blockRefMuon = eleInBlocks[0].first;
-	  unsigned indexMuon = eleInBlocks[0].second;
-	  for ( unsigned iele = 1; iele < eleInBlocks.size(); ++iele ) { 
-	    indexMuon = eleInBlocks[iele].second;
-	    break;
-	  }
-	  
-	  // Check if the muon gave rise to a neutral hadron
-	  double iHad = 1E9;
-	  bool hadron = false;
-	  for ( unsigned i = imu->second+1; i < pfCandidates_->size(); ++i ) { 
-	    const PFCandidate& pfcn = (*pfCandidates_)[i];
-	    const PFCandidate::ElementsInBlocks& ele = pfcn.elementsInBlocks();
-	    if ( !ele.size() ) { 
-	      ostringstream err2;
-	      err2<<"A pfCandidate has no associated elements in block. Cannot proceed with postMuonCleaning()";
-	      edm::LogError("PFAlgo")<<err2.str()<<endl;
-	      continue;
-	    }
-	    PFBlockRef blockRefHadron = ele[0].first;
-	    unsigned indexHadron = ele[0].second;
-	    // We are out of the block -> exit the loop
-	    if ( blockRefHadron.key() != blockRefMuon.key() ) break;
-	    // Check that this particle is a neutral hadron
-	    if ( indexHadron == indexMuon && 
-		 pfcn.particleId() == reco::PFCandidate::h0 ) {
-	      iHad = i;
-	      hadron = true;
-	    }
-	    if ( hadron ) break;
-	  }
-	  
-	  if ( hadron ) { 
-	    const PFCandidate& pfch = (*pfCandidates_)[iHad];
-	    pfPunchThroughMuonCleanedCandidates_->push_back(pfc);
-	    pfPunchThroughHadronCleanedCandidates_->push_back(pfch);
-	    if ( printout ) {
-	      std::cout << pfc << std::endl;
-	      std::cout << "Raw ecal/hcal : " << pfc.rawEcalEnergy() << " " << pfc.rawHcalEnergy() << std::endl;
-	      std::cout << "Hadron: " << (*pfCandidates_)[iHad] << std::endl;
-	    }
-	    double rescaleFactor = (*pfCandidates_)[iHad].p()/(*pfCandidates_)[imu->second].p();
-	    metX -=  (*pfCandidates_)[imu->second].px() + (*pfCandidates_)[iHad].px();
-	    metY -=  (*pfCandidates_)[imu->second].py() + (*pfCandidates_)[iHad].py();
-	    (*pfCandidates_)[imu->second].rescaleMomentum(rescaleFactor);
-	    (*pfCandidates_)[iHad].rescaleMomentum(1E-6);
-	    (*pfCandidates_)[imu->second].setParticleType(reco::PFCandidate::h);
-	    if ( printout ) 
-	      std::cout << "MEX,MEY,MET Before " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	    metX +=  (*pfCandidates_)[imu->second].px();
-	    metY +=  (*pfCandidates_)[imu->second].py();	  
-	    met2 = metX*metX + metY*metY;
-	    if ( printout ) {
-	      std::cout << "Muon changed to charged hadron" << std::endl;
-	      std::cout << "MEX,MEY,MET Now (NO)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	    }
-	  } else if ( punchthrough1 || fake ) {
-	    const PFCandidate& pfc = (*pfCandidates_)[imu->second];
-	    pfFakeMuonCleanedCandidates_->push_back(pfc);
-	    if ( printout ) 
-	      std::cout << "MEX,MEY,MET Before " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	    metX -=  (*pfCandidates_)[imu->second].px();
-	    metY -=  (*pfCandidates_)[imu->second].py();	  
-	    met2 = metX*metX + metY*metY;
-	    (*pfCandidates_)[imu->second].rescaleMomentum(1E-6);
-	    if ( printout ) {
-	      std::cout << "Muon cleaned (NO)" << std::endl;
-	      std::cout << "MEX,MEY,MET Now (NO)" << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	    }
-	  }
-	}
-      }
-      /*
-      if ( !fixed ) { 
-	std::cout << "TK Muon px,py,pt: " << trackerMu->px() << " " << trackerMu->py() << " " << trackerMu->pt() << " " << std::endl;
-	std::cout << "GL Muon px,py,pt: " << bestMuTrack->px() << " " << bestMuTrack->py() << " " << bestMuTrack->pt() << " " << std::endl;
-	std::cout << "MEX,MEY,MET PF " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	std::cout << "MEX,MEY,MET NO " << metXNO << " " << metYNO << " " << std::sqrt(met2NO) << std::endl;
-	std::cout << "MEX,MEY,MET TK " << metXTK << " " << metYTK << " " << std::sqrt(met2TK) << std::endl;
-	std::cout << "MEX,MEY,MET GL " << metXGL << " " << metYGL << " " << std::sqrt(met2GL) << std::endl;
-      }
-      */
-    }
-
-  }
-
-  // And now, add muons which did not make it for various reasons
-  for ( unsigned imu = 0; imu < muonh->size(); ++imu ) {
-    reco::MuonRef muonRef( muonh, imu );
-    // If not used, check its effect on met
-    reco::TrackRef bestMuTrack =  muonRef->muonBestTrack();
-    if(!useBestMuonTrack_)
-      bestMuTrack = muonRef->combinedMuon(); 
-    reco::TrackRef trackerMu = muonRef->track();
-    reco::TrackRef standAloneMu = muonRef->standAloneMuon();
-
-    // check if the muons has already been taken
-    bool used = false;
-    bool hadron = false;
-    for(unsigned i=0; i<pfCandidates_->size(); i++) {
-      const PFCandidate& pfc = (*pfCandidates_)[i];
-      if ( !pfc.trackRef().isNonnull() ) continue;
-
-      if ( pfc.trackRef().isNonnull() && pfc.trackRef() == trackerMu ) { 
-	hadron = true;
-      }
-
-      // The pf candidate is not associated to a muon
-      // if ( !pfc.muonRef().isNonnull() || pfc.muonRef() != muonRef ) continue; ! This test is buggy !     
-      if ( !pfc.muonRef().isNonnull() ) continue;
-      
-      // Check if the muon is used... 
-      if ( pfc.muonRef()->track() == trackerMu || pfc.muonRef()->combinedMuon() == bestMuTrack ) {
-	if ( printout ) { 
-	  std::cout << "This muon is already used ..." << std::endl;
-	  std::cout << pfc << std::endl;
-	  std::cout << muonRef->p() << " " << muonRef->pt() << " " << muonRef->eta() << " " << muonRef->phi() << std::endl;
-	}
-	used = true;
-      } 
-      else {
-	// Check if the stand-alone muon is not a spurious copy of an existing muon 
-	// (Protection needed for HLT)
-	if ( pfc.muonRef()->isStandAloneMuon() && muonRef->isStandAloneMuon() ) { 
-	  double dEta = pfc.muonRef()->standAloneMuon()->eta() - standAloneMu->eta();
-	  double dPhi = pfc.muonRef()->standAloneMuon()->phi() - standAloneMu->phi();
-	  double dR = sqrt(dEta*dEta + dPhi*dPhi);
-	  if ( printout ) { 
-	    std::cout << "StandAlone to be added ? " << std::endl;
-	    std::cout << " eta = " << pfc.muonRef()->standAloneMuon()->eta() << " " << standAloneMu->eta() << std::endl;
-	    std::cout << " phi = " << pfc.muonRef()->standAloneMuon()->phi() << " " << standAloneMu->phi() << std::endl;
-	    std::cout << " pt = " << pfc.muonRef()->standAloneMuon()->pt() << " " << standAloneMu->pt() << std::endl;
-	    std::cout << " Delta R = " << dR << std::endl;
-	  }
-	  if ( dR < 0.005 ) { 
-	    used = true;
-	    if ( printout ) std::cout << "Not removed !" << std::endl;
-	  }
-	}
-      } 
-      if ( used ) break; 
-
-    }
-
-    if ( used ) continue;
-
-    double ptGL = muonRef->isGlobalMuon() ? bestMuTrack->pt() : 0.;
-    double pxGL = muonRef->isGlobalMuon() ? bestMuTrack->px() : 0.;
-    double pyGL = muonRef->isGlobalMuon() ? bestMuTrack->py() : 0.;
-    double pzGL = muonRef->isGlobalMuon() ? bestMuTrack->pz() : 0.;
-
-    double ptTK = muonRef->isTrackerMuon() ? trackerMu->pt() : 0.;
-    double pxTK = muonRef->isTrackerMuon() ? trackerMu->px() : 0.;
-    double pyTK = muonRef->isTrackerMuon() ? trackerMu->py() : 0.;
-    double pzTK = muonRef->isTrackerMuon() ? trackerMu->pz() : 0.;
-
-    double ptST = muonRef->isStandAloneMuon() ? standAloneMu->pt() : 0.;
-    double pxST = muonRef->isStandAloneMuon() ? standAloneMu->px() : 0.;
-    double pyST = muonRef->isStandAloneMuon() ? standAloneMu->py() : 0.;
-    double pzST = muonRef->isStandAloneMuon() ? standAloneMu->pz() : 0.;
-
-    //std::cout << "pT TK/GL/ST : " << ptTK << " " << ptGL << " " << ptST << std::endl;
-
-    double metXTK = metX + pxTK; 
-    double metYTK = metY + pyTK;
-    double met2TK = metXTK*metXTK + metYTK*metYTK;
-    
-    double metXGL = metX + pxGL;
-    double metYGL = metY + pyGL;
-    double met2GL = metXGL*metXGL + metYGL*metYGL; 
-
-    double metXST = metX + pxST; 
-    double metYST = metY + pyST;
-    double met2ST = metXST*metXST + metYST*metYST;
-
-    //std::cout << "met TK/GL/ST : " << sqrt(met2) << " " << sqrt(met2TK) << " " << sqrt(met2GL) << " " << sqrt(met2ST) << std::endl;
-
-
-    if ( ptTK > 20. && met2TK < met2/4. && met2TK < met2GL && met2TK < met2ST ) { 
-      double energy = std::sqrt(pxTK*pxTK+pyTK*pyTK+pzTK*pzTK+0.1057*0.1057);
-      int charge = trackerMu->charge()>0 ? 1 : -1;
-      math::XYZTLorentzVector momentum(pxTK,pyTK,pzTK,energy);
-      reco::PFCandidate::ParticleType particleType = 
-	 ptGL > 20. ? reco::PFCandidate::mu : reco::PFCandidate::h;
-      double radius = std::sqrt(
-         (trackerMu->vertex().x()-primaryVertex_.x())*(trackerMu->vertex().x()-primaryVertex_.x())+
-	 (trackerMu->vertex().y()-primaryVertex_.y())*(trackerMu->vertex().y()-primaryVertex_.y()));
-      
-      // Add it to the stack ( if not already in the list ) 
-      if ( !hadron && radius < 1.0 ) { 
-	pfCandidates_->push_back( PFCandidate( charge, 
-					       momentum,
-					       particleType ) );
-	
-	pfCandidates_->back().setVertexSource( PFCandidate::kTrkMuonVertex );
-	pfCandidates_->back().setTrackRef( trackerMu );
-	pfCandidates_->back().setMuonRef( muonRef );
-	
-	if ( printout ) {
-	  std::cout << "MEX,MEY,MET before " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	  std::cout << "Muon TK added " << std::endl;
-	  std::cout << "pT TK/GL/ST : " << ptTK << " " << ptGL << " " << ptST << std::endl;
-	}
-	metX +=  pfCandidates_->back().px();
-	metY +=  pfCandidates_->back().py();	  
-	met2 = metX*metX + metY*metY;
-	if ( printout ) {
-	  std::cout <<  pfCandidates_->back() << std::endl;
-	  std::cout << "MEX,MEY,MET   now " << metX << " " << metY << " " << std::sqrt(met2) << std::endl; 
-	}
-
-	const PFCandidate& pfc = pfCandidates_->back();
-	pfAddedMuonCandidates_->push_back(pfc);
-
-      }
-
-    } else  if (  ptGL > 20. && met2GL < met2/4. && met2GL < met2TK && met2GL < met2ST ) { 
-
-      double energy = std::sqrt(pxGL*pxGL+pyGL*pyGL+pzGL*pzGL+0.1057*0.1057);
-      int charge = bestMuTrack->charge()>0 ? 1 : -1;
-      math::XYZTLorentzVector momentum(pxGL,pyGL,pzGL,energy);
-      reco::PFCandidate::ParticleType particleType = reco::PFCandidate::mu;
-      double radius = std::sqrt(
-        (bestMuTrack->vertex().x()-primaryVertex_.x())*(bestMuTrack->vertex().x()-primaryVertex_.x())+
-	(bestMuTrack->vertex().y()-primaryVertex_.y())*(bestMuTrack->vertex().y()-primaryVertex_.y()));
-      
-      // Add it to the stack
-      if ( radius < 1.0 ) { 
-	pfCandidates_->push_back( PFCandidate( charge, 
-					       momentum,
-					       particleType ) );
-	
-	pfCandidates_->back().setVertexSource( PFCandidate::kComMuonVertex );
-	//if ( ptTK > 0. ) 
-	if (trackerMu.isNonnull() ) pfCandidates_->back().setTrackRef( trackerMu );
-	pfCandidates_->back().setMuonRef( muonRef );
-	
-	if ( printout ) {
-	  std::cout << "MEX,MEY,MET before " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	  std::cout << "Muon GL added " << std::endl;
-	  std::cout << "pT TK/GL/ST : " << ptTK << " " << ptGL << " " << ptST << std::endl;
-	}
-	
-	metX +=  pfCandidates_->back().px();
-	metY +=  pfCandidates_->back().py();	  
-	met2 = metX*metX + metY*metY;
-	
-	if ( printout ) {
-	  std::cout <<  pfCandidates_->back() << std::endl;
-	  std::cout << "MEX,MEY,MET   now " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	}
-
-	const PFCandidate& pfc = pfCandidates_->back();
-	pfAddedMuonCandidates_->push_back(pfc);
-
-      }
-	
-    } else  if ( ptST > 20. &&  met2ST < met2/4. && met2ST < met2TK && met2ST < met2GL ) { 
-
-      double energy = std::sqrt(pxST*pxST+pyST*pyST+pzST*pzST+0.1057*0.1057);
-      int charge = standAloneMu->charge()>0 ? 1 : -1;
-      math::XYZTLorentzVector momentum(pxST,pyST,pzST,energy);
-      reco::PFCandidate::ParticleType particleType = reco::PFCandidate::mu;
-      double radius = std::sqrt(
-        (standAloneMu->vertex().x()-primaryVertex_.x())*(standAloneMu->vertex().x()-primaryVertex_.x())+
-	(standAloneMu->vertex().y()-primaryVertex_.y())*(standAloneMu->vertex().y()-primaryVertex_.y()));
-      
-      // Add it to the stack
-      if ( radius < 1.0 ) { 
-	pfCandidates_->push_back( PFCandidate( charge, 
-					       momentum,
-					       particleType ) );
-	
-	pfCandidates_->back().setVertexSource( PFCandidate::kSAMuonVertex);
-	if (trackerMu.isNonnull() ) pfCandidates_->back().setTrackRef( trackerMu );
-	pfCandidates_->back().setMuonRef( muonRef );
-	
-	if ( printout ) {
-	  std::cout << "MEX,MEY,MET before " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	  std::cout << "Muon ST added " << std::endl;
-	  std::cout << "pT TK/GL/ST : " << ptTK << " " << ptGL << " " << ptST << std::endl;
-	}
-
-	metX +=  pfCandidates_->back().px();
-	metY +=  pfCandidates_->back().py();	  
-	met2 = metX*metX + metY*metY;
-	
-	if ( printout ) {
-	  std::cout <<  pfCandidates_->back() << std::endl;
-	  std::cout << "MEX,MEY,MET   now " << metX << " " << metY << " " << std::sqrt(met2) << std::endl;
-	}
-
-	const PFCandidate& pfc = pfCandidates_->back();
-	pfAddedMuonCandidates_->push_back(pfc);
-
-      }
-    }
-
-  }
-
-  /*
-  if ( std::sqrt(met2) > 500. ) { 
-    std::cout << "MET initial : " << metInitial << std::endl;
-    std::cout << "MET final : " << std::sqrt(met2) << std::endl;
-  }
-  */
-
-}
 
 void PFAlgo::setElectronExtraRef(const edm::OrphanHandle<reco::PFCandidateElectronExtraCollection >& extrah) {
   if(!usePFElectrons_) return;

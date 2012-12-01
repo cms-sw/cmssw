@@ -7,7 +7,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
     # reco::muons label and Post Muon cleaning
     muons = cms.InputTag("muons1stStep"),
-    postMuonCleaning = cms.bool(True),
+    postMuonCleaning = cms.bool(False),
 
     # Vertices label
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
@@ -76,7 +76,6 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     nTrackIsoForEgammaSC = cms.uint32(2),                          
     coneTrackIsoForEgammaSC = cms.double(0.3),
     useEGammaElectrons = cms.bool(True),                                 
- #   egammaElectrons = cms.InputTag('electronsCiCLoose'),                             
     egammaElectrons = cms.InputTag('mvaElectrons'),                              
 
     # Input displaced vertices
@@ -109,10 +108,30 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     muon_ECAL = cms.vdouble(0.5,0.5),
     muon_HO = cms.vdouble(0.9,0.9),		
 
-    # Use PF muon momentum assigment instead of default reco muon one
-    usePFMuonMomAssign = cms.bool(False),
-    useBestMuonTrack   = cms.bool(False),                        
-
+    # Muon ID and post cleaning parameters
+    maxDPtOPt      = cms.double(1.),                                 
+    minTrackerHits = cms.int32(8),
+    minPixelHits   = cms.int32(1),
+    trackQuality   = cms.string('highPurity'),
+    dzPV = cms.double(0.2),
+    ptErrorScale   = cms.double(8.),
+    minPtForPostCleaning = cms.double(20.),
+    eventFactorForCosmics =cms.double(10.),
+    metSignificanceForCleaning = cms.double(3.),
+    metSignificanceForRejection = cms.double(4.),
+    metFactorForCleaning = cms.double(4.),
+    eventFractionForCleaning =cms.double(0.8),
+    eventFractionForRejection = cms.double(0.8),
+    metFactorForRejection =cms.double(4.),
+    metFactorForHighEta   = cms.double(25.),
+    ptFactorForHighEta   = cms.double(2.),
+    metFactorForFakes    = cms.double(4.),
+    minMomentumForPunchThrough = cms.double(100.),
+    minEnergyForPunchThrough = cms.double(100.),
+    punchThroughFactor = cms.double(3.),                             
+    punchThroughMETFactor = cms.double(4.),                             
+    cosmicRejectionDistance = cms.double(1.),
+                                 
     # Treatment of potential fake tracks
     # Number of sigmas for fake track detection
     nsigma_TRACK = cms.double(1.0),
