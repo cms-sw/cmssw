@@ -13,11 +13,23 @@ authors: Evan Friis, Wisconsin
 
 ## import for scheduled mode
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByChargedIsolationSeq
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByDecayModeFinding
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseElectronRejection
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumElectronRejection
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightElectronRejection
 ## imports for unscheduled mode
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByVLooseChargedIsolation
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseChargedIsolation
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumChargedIsolation
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightChargedIsolation
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByVLooseIsolation
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseIsolation
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumIsolation
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightIsolation
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightIsolationDBSumPtCorr
 ## import for scheduled mode
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVAIsolationSeq
 ## imports for unscheduled mode
@@ -63,11 +75,20 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTight
 
 
 updateHPSPFTaus = cms.Sequence(
+    hpsPFTauDiscriminationByDecayModeFinding*
     hpsPFTauDiscriminationByChargedIsolationSeq*
     hpsPFTauDiscriminationByMVAIsolationSeq*
     hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr*
+    hpsPFTauDiscriminationByVLooseIsolation*
+    hpsPFTauDiscriminationByLooseIsolation*
+    hpsPFTauDiscriminationByMediumIsolation*
+    hpsPFTauDiscriminationByTightIsolation*
+    hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr*
+    hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr*
+    hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr*
+    hpsPFTauDiscriminationByTightIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr*
@@ -76,7 +97,10 @@ updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits*
-    
+
+    hpsPFTauDiscriminationByLooseElectronRejection*
+    hpsPFTauDiscriminationByMediumElectronRejection*
+    hpsPFTauDiscriminationByTightElectronRejection*
     hpsPFTauDiscriminationByMVAElectronRejection*
     hpsPFTauDiscriminationByMVA2rawElectronRejection*
     hpsPFTauDiscriminationByMVA2LooseElectronRejection*
