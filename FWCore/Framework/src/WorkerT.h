@@ -8,7 +8,6 @@ WorkerT: Code common to all workers.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerParams.h"
@@ -16,6 +15,7 @@ WorkerT: Code common to all workers.
 #include <memory>
 
 namespace edm {
+  UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep);
 
   template<typename T>
   class WorkerT : public Worker {
@@ -95,7 +95,7 @@ namespace edm {
   inline
   bool 
   WorkerT<T>::implDoBegin(EventPrincipal& ep, EventSetup const& c, CurrentProcessingContext const* cpc) {
-    UnscheduledHandlerSentry s(ep.unscheduledHandler().get(), cpc);
+    UnscheduledHandlerSentry s(getUnscheduledHandler(ep), cpc);
     boost::shared_ptr<Worker> sentry(this,[&ep](Worker* obj) {obj->postDoEvent(ep);});
     return module_->doEvent(ep, c, cpc);
   }
