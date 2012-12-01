@@ -629,6 +629,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 	  }
           if(dedxSObj) {
 	    st->BS_PIs  ->Fill(track->p()  ,dedxSObj->dEdx(),Event_Weight);
+            st->BS_PImHD->Fill(track->p()  ,dedxMObj->dEdx(),Event_Weight);
             st->BS_PIm  ->Fill(track->p()  ,dedxMObj->dEdx(),Event_Weight);
             st->BS_PtIs ->Fill(track->pt() ,dedxSObj->dEdx(),Event_Weight);
             st->BS_PtIm ->Fill(track->pt() ,dedxMObj->dEdx(),Event_Weight);
