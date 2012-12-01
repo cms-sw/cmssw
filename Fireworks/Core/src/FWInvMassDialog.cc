@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel
 //         Created:  Mon Nov 22 11:05:57 CET 2010
-// $Id: FWInvMassDialog.cc,v 1.2 2010/12/01 16:47:09 matevz Exp $
+// $Id: FWInvMassDialog.cc,v 1.3 2010/12/06 16:06:44 matevz Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "TClass.h"
 #include "TMath.h"
@@ -135,7 +136,9 @@ void FWInvMassDialog::Calculate()
    double          sum_len = 0;
    double          sum_len_xy = 0;
 
-   for (std::set<FWModelId>::const_iterator i = sted.begin(); i != sted.end(); ++i)
+   math::XYZVector first, second; int n = 0;
+
+   for (std::set<FWModelId>::const_iterator i = sted.begin(); i != sted.end(); ++i, ++n)
    {
       TString line;
 
@@ -181,6 +184,8 @@ void FWInvMassDialog::Calculate()
       line += TString::Format("  | %s[%d]", i->item()->name().c_str(), i->index());
 
       addLine(line);
+
+      if (n == 0) first = v; else if (n == 1) second = v;
    }
 
    addLine("--------------------------------------------------+--------------");
@@ -188,6 +193,13 @@ void FWInvMassDialog::Calculate()
    addLine("");
    addLine(TString::Format("m  = %10.3f", TMath::Sqrt(TMath::Max(0.0, sum_len    * sum_len    - sum.mag2()))));
    addLine(TString::Format("mT = %10.3f", TMath::Sqrt(TMath::Max(0.0, sum_len_xy * sum_len_xy - sum.perp2()))));
+   addLine(TString::Format("HT = %10.3f", sum_len_xy));
+ 
+   if (n == 2) {
+      addLine(TString::Format("deltaPhi  = %+6.4f", deltaPhi(first.Phi(), second.Phi())));
+      addLine(TString::Format("deltaEta  = %+6.4f", first.Eta()- second.Eta()));
+      addLine(TString::Format("deltaR    = % 6.4f", deltaR(first.Eta(), first.Phi(), second.Eta(), second.Phi())));
+   }
 
    endUpdate();
 }
