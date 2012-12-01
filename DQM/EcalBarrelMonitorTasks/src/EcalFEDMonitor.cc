@@ -87,14 +87,14 @@ EcalFEDMonitor::analyze(const edm::Event& _evt, const edm::EventSetup&)
   if(_evt.getByLabel(FEDRawDataTag_, fedHndl)){
     for(unsigned fedId(601); fedId <= 654; fedId++){
       unsigned occupancy(-1);
-      unsigned fatal(-1);
+      //      unsigned fatal(-1);
       if(fedId < 610 || fedId > 645){
         occupancy = kEEOccupancy;
-        fatal = kEEFatal;
+	//        fatal = kEEFatal;
       }
       else{
         occupancy = kEBOccupancy;
-        fatal = kEBFatal;
+	//        fatal = kEBFatal;
       }
 
       const FEDRawData& fedData(fedHndl->FEDData(fedId));
@@ -103,10 +103,10 @@ EcalFEDMonitor::analyze(const edm::Event& _evt, const edm::EventSetup&)
       if(length > 1){ // FED header is one 64 bit word
         MEs_[occupancy]->Fill(fedId + 0.5);
 
- 	const uint64_t* pData(reinterpret_cast<const uint64_t*>(fedData.data()));
- 	bool crcError(((pData[length - 1] >> 2) & 0x1) == 0x1);
+//  	const uint64_t* pData(reinterpret_cast<const uint64_t*>(fedData.data()));
+//  	bool crcError(((pData[length - 1] >> 2) & 0x1) == 0x1);
 
-	if(crcError) MEs_[fatal]->Fill(fedId + 0.5);
+// 	if(crcError) MEs_[fatal]->Fill(fedId + 0.5);
       }
     }
   }

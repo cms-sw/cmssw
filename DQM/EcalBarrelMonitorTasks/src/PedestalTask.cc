@@ -2,7 +2,6 @@
 
 #include <iomanip>
 
-#include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 

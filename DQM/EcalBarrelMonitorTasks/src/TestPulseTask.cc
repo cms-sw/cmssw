@@ -19,6 +19,7 @@ namespace ecaldqm {
   {
     using namespace std;
 
+    collectionMask_[kEcalRawData] = true;
     collectionMask_[kEBDigi] = true;
     collectionMask_[kEEDigi] = true;
     collectionMask_[kPnDiodeDigi] = true;
@@ -81,6 +82,13 @@ namespace ecaldqm {
     }
   }
 
+  void
+  TestPulseTask::setDependencies(DependencySet& _dependencies)
+  {
+    _dependencies.push_back(Dependency(kEBTestPulseUncalibRecHit, kEcalRawData));
+    _dependencies.push_back(Dependency(kEETestPulseUncalibRecHit, kEcalRawData));
+  }
+
   bool
   TestPulseTask::filterRunType(const std::vector<short>& _runType)
   {
@@ -109,7 +117,19 @@ namespace ecaldqm {
         gain_[iDCC] = 0;
         continue;
       }
-      gain_[iDCC] = rItr->getMgpaGain();
+      switch(rItr->getMgpaGain()){
+      case 1:
+	gain_[iDCC] = 12;
+	break;
+      case 2:
+	gain_[iDCC] = 6;
+	break;
+      case 3:
+	gain_[iDCC] = 1;
+	break;
+      default:
+	break;
+      }
 
       if(gainToME_.find(gain_[iDCC]) == gainToME_.end())
         enable_[iDCC] = false;

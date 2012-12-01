@@ -16,6 +16,8 @@ namespace ecaldqm {
 
     bool filterRunType(const std::vector<short>&);
 
+    void setDependencies(DependencySet&);
+
     void analyze(const void*, Collections);
 
     void runOnRawData(EcalRawDataCollection const&);

@@ -1,8 +1,8 @@
 /*
  * \file EBHltTask.cc
  *
- * $Date: 2012/04/27 13:46:02 $
- * $Revision: 1.21 $
+ * $Date: 2012/11/12 23:19:04 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -162,24 +162,24 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   // ECAL barrel FEDs
   int EBFirstFED=610;
 
-  int FedsSizeErrors[36];
-  for ( int i=0; i<36; i++ ) FedsSizeErrors[i]=0;
+//   int FedsSizeErrors[36];
+//   for ( int i=0; i<36; i++ ) FedsSizeErrors[i]=0;
 
-  edm::Handle<EBDetIdCollection> ids0;
+//   edm::Handle<EBDetIdCollection> ids0;
 
-  if ( e.getByLabel(EBDetIdCollection0_, ids0) ) {
+//   if ( e.getByLabel(EBDetIdCollection0_, ids0) ) {
 
-    for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++idItr ) {
+//     for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++idItr ) {
 
-      int ism = iSM( *idItr );
+//       int ism = iSM( *idItr );
 
-      if ( ism > -1 ) FedsSizeErrors[ism-1]++;
+//       if ( ism > -1 ) FedsSizeErrors[ism-1]++;
 
-    }
+//     }
 
-  } else {
+//   } else {
 
-  }
+//   }
 
   edm::Handle<FEDRawDataCollection> allFedRawData;
 
@@ -195,11 +195,11 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 	if ( meEBFedsOccupancy_ ) meEBFedsOccupancy_->Fill( EBFirstFED + ism - 1 );
 
-	uint64_t * pData = (uint64_t *)(fedData.data());
-	uint64_t * fedTrailer = pData + (length - 1);
-	bool crcError = (*fedTrailer >> 2 ) & 0x1;
+// 	uint64_t * pData = (uint64_t *)(fedData.data());
+// 	uint64_t * fedTrailer = pData + (length - 1);
+// 	bool crcError = (*fedTrailer >> 2 ) & 0x1;
 
-	if (crcError) FedsSizeErrors[ism-1]++;
+// 	if (crcError) FedsSizeErrors[ism-1]++;
 
       }
 
@@ -210,15 +210,15 @@ void EBHltTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   }
 
 
-  for( int ism=1; ism<=36; ism++ ) {
+  //  for( int ism=1; ism<=36; ism++ ) {
 
-    if ( FedsSizeErrors[ism-1] != 0 ) {
+    //    if ( FedsSizeErrors[ism-1] != 0 ) {
 
-      if ( meEBFedsSizeErrors_ ) meEBFedsSizeErrors_->Fill( EBFirstFED + ism - 1 );
+      //      if ( meEBFedsSizeErrors_ ) meEBFedsSizeErrors_->Fill( EBFirstFED + ism - 1 );
 
-    }
+    //    }
 
-  }
+  //  }
 
 
   // Integrity errors
