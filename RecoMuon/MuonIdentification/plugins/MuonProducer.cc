@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/11/22 18:01:13 $
- *  $Revision: 1.15 $
+ *  $Date: 2012/07/21 00:38:17 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -38,7 +38,8 @@
 
 using std::endl;
 
-typedef std::map<reco::MuonRef, reco::Candidate::LorentzVector> MuToPFMap;
+typedef std::map<reco::MuonRef, unsigned int> MuToPFMap;
+
 
 namespace reco {
   typedef edm::ValueMap<reco::MuonShower> MuonShowerMap;
@@ -323,10 +324,10 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
    if(fillPFMomentum_){
      dout << "Number of PFCandidates: " << pfCandidates->size() << endl;
-     foreach(const reco::PFCandidate &pfCand, *pfCandidates)
-       if(abs(pfCand.pdgId()) == 13){
-	 muToPFMap[pfCand.muonRef()] = pfCand.p4();     
-	 dout << "MuonRef: " << pfCand.muonRef().id() << " " << pfCand.muonRef().key() << " PF p4: " << pfCand.p4() << endl;
+     for(unsigned int i=0;i< pfCandidates->size();++i)
+       if(abs(pfCandidates->at(i).pdgId()) == 13){
+	 muToPFMap[pfCandidates->at(i).muonRef()] = i;
+	 dout << "MuonRef: " << pfCandidates->at(i).muonRef().id() << " " << pfCandidates->at(i).muonRef().key() << " PF p4: " << pfCandidates->at(i).p4() << endl;
        }
      dout << "Number of PFMuons: " << muToPFMap.size() << endl;
      dout << "Number of Muons in the original collection: " << inputMuons->size() << endl;
@@ -346,7 +347,9 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      // search for the corresponding pf candidate
        MuToPFMap::iterator iter =  muToPFMap.find(muRef);
        if(iter != muToPFMap.end()){
-	 outMuon.setPFP4(iter->second);
+	 outMuon.setPFP4(pfCandidates->at(iter->second).p4());
+	 outMuon.setP4(pfCandidates->at(iter->second).p4());//PF is the default
+	 outMuon.setPFBestTrack(pfCandidates->at(iter->second).bestMuonTrackType());
 	 muToPFMap.erase(iter);
 	 dout << "MuonRef: " << muRef.id() << " " << muRef.key() 
 	      << " Is it PF? " << outMuon.isPFMuon() 
