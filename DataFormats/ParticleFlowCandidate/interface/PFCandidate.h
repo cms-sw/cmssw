@@ -14,6 +14,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtraFwd.h"
@@ -319,6 +320,17 @@ namespace reco {
     /// set the PF Electron Extra Ref
     void setPFElectronExtraRef(const reco::PFCandidateElectronExtraRef& ref);
 
+    /// set the Best Muon Track Ref
+    void setMuonTrackType(const   reco::Muon::MuonTrackType& type) {
+      muonTrackType_ = type;
+    }
+
+    /// get the Best Muon Track Ref
+
+    const   reco::Muon::MuonTrackType bestMuonTrackType() const {
+      return muonTrackType_;
+    }
+
     /// \return position at ECAL entrance
     const math::XYZPointF& positionAtECALEntrance() const {
       return positionAtECALEntrance_;
@@ -398,6 +410,10 @@ namespace reco {
     /*     PFCandidateRef sourceRef_; */
     PFCandidatePtr sourcePtr_;
 
+
+    ///Reference to the best track if it is a muon
+    ///pF is allowed to switch the default muon track
+    reco::Muon::MuonTrackType muonTrackType_;
 
     /// corrected ECAL energy ratio (corrected/raw)
     float       ecalERatio_;
