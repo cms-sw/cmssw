@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.74 2012/08/21 21:28:00 mskim Exp $
+ * \version $Id: Muon.h,v 1.75 2012/09/21 08:37:40 mskim Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -63,6 +63,9 @@ namespace reco {
     virtual TrackBaseRef  bestTrackRef() const      {return reco::TrackBaseRef(muonTrack(bestTrackType_));}
     virtual TrackRef      muonBestTrack() const     {return muonTrack(bestTrackType_);}
     virtual MuonTrackType muonBestTrackType() const {return bestTrackType_;}
+    virtual TrackRef      pfMuonBestTrack() const     {return muonTrack(bestPFTrackType_);}
+    virtual MuonTrackType pfMuonBestTrackType() const {return bestPFTrackType_;}
+
 
 
     bool isAValidMuonTrack(const MuonTrackType& type) const;
@@ -87,6 +90,8 @@ namespace reco {
     virtual void setCombined( const TrackRef & t );
     // set reference to the Best Track
     virtual void setBestTrack(MuonTrackType muonType) {bestTrackType_ = muonType;}
+    // set reference to the Best Track by PF
+    virtual void setPFBestTrack(MuonTrackType muonType) {bestPFTrackType_ = muonType;}
 
     void setMuonTrack(const MuonTrackType&, const TrackRef&);
 
@@ -231,6 +236,8 @@ namespace reco {
     MuonTrackRefMap refittedTrackMap_;
     /// reference to the Track chosen to assign the momentum value to the muon 
     MuonTrackType bestTrackType_;
+    /// reference to the Track chosen to assign the momentum value to the muon by PF 
+    MuonTrackType bestPFTrackType_;
 
     /// energy deposition 
     MuonEnergy calEnergy_;

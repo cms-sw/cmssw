@@ -1,7 +1,9 @@
 <lcgdict>
-  <class name="reco::Muon" ClassVersion="12">
+  <class name="reco::Muon" ClassVersion="13">
    <version ClassVersion="11" checksum="199341143"/>
    <version ClassVersion="12" checksum="1157850969"/>
+   <version ClassVersion="13" checksum="73400658"/>
+
   </class>
   <class name="std::vector<reco::Muon>"/>
   <class name="edm::Wrapper<std::vector<reco::Muon> >"/>
