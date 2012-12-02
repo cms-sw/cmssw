@@ -1020,7 +1020,7 @@ PFMuonAlgo::tracksPointingAtMET(const std::vector<reco::Muon::MuonTrackTypePair>
   
 
   
-void PFMuonAlgo::setInputsForCleaning(const edm::Handle<reco::VertexCollection>& vertices) {
+void PFMuonAlgo::setInputsForCleaning(const reco::VertexCollection*  vertices) {
   vertices_ = vertices;
 }
 
@@ -1121,8 +1121,9 @@ bool PFMuonAlgo::cleanPunchThroughAndFakes(reco::PFCandidate&pfc,reco::PFCandida
 
 void  PFMuonAlgo::removeDeadCandidates(reco::PFCandidateCollection* obj, const std::vector<unsigned int>& indices)
 {
-  for (size_t i = 0 ; i < indices.size() ; ++i)
-    std::swap(obj->at(indices[i]), obj->at(obj->size() - i - 1));
+  size_t N = obj->size();
+  for (size_t i = 0 ; i < N ; ++i)
+    obj->at(indices.at(i)) = obj->at(N-i-1);
 
-  obj->resize(obj->size() - indices.size());
+  obj->resize(N - indices.size());
 }

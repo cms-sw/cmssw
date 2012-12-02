@@ -302,7 +302,7 @@ PFAlgo::setPFVertexParameters(bool useVertex,
   useVertices_ = useVertex;
 
   //Set the vertices for muon cleaning
-  pfmu_->setInputsForCleaning(primaryVertices);
+  pfmu_->setInputsForCleaning(primaryVertices.product());
 
 
   //Now find the primary vertex!

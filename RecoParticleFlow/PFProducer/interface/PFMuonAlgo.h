@@ -6,7 +6,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -75,7 +74,7 @@ class PFMuonAlgo {
   //Assign a different track to the muon
   void changeTrack(reco::PFCandidate&,const MuonTrackTypePair&);
   //PF Post cleaning algorithm
-  void setInputsForCleaning(const edm::Handle<reco::VertexCollection>&); 
+  void setInputsForCleaning(const reco::VertexCollection*); 
   void postClean(reco::PFCandidateCollection *);
   void addMissingMuons(edm::Handle<reco::MuonCollection>, reco::PFCandidateCollection* cands);
 
@@ -143,7 +142,7 @@ class PFMuonAlgo {
 
   
   //////////////////////////////////////////////////////////////////////////////////////
-  edm::Handle<reco::VertexCollection> vertices_;
+  const reco::VertexCollection *  vertices_;
 
 
 
