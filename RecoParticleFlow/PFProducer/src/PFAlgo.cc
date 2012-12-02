@@ -298,11 +298,11 @@ PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
 
 void
 PFAlgo::setPFVertexParameters(bool useVertex,
-			      const edm::Handle<reco::VertexCollection>& primaryVertices) {
+			      const reco::VertexCollection*  primaryVertices) {
   useVertices_ = useVertex;
 
   //Set the vertices for muon cleaning
-  pfmu_->setInputsForCleaning(primaryVertices.product());
+  pfmu_->setInputsForCleaning(primaryVertices);
 
 
   //Now find the primary vertex!

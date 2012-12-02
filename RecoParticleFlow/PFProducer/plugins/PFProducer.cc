@@ -443,7 +443,7 @@ PFProducer::produce(Event& iEvent,
   }
 
   //Assign the PFAlgo Parameters
-  pfAlgo_->setPFVertexParameters(useVerticesForNeutral_,vertices);
+  pfAlgo_->setPFVertexParameters(useVerticesForNeutral_,vertices.product());
 
   // get the collection of blocks 
 

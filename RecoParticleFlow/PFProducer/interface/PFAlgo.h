@@ -144,7 +144,7 @@ class PFAlgo {
   
   //MIKEB : Parameters for the vertices..
   void setPFVertexParameters(bool useVertex,
-			     const edm::Handle<reco::VertexCollection>& primaryVertices);			   
+			     const reco::VertexCollection*  primaryVertices);			   
   
   // FlorianB : Collection of e/g electrons
   void setEGElectronCollection(const reco::GsfElectronCollection & egelectrons);
