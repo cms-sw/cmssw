@@ -12,8 +12,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #include <iostream>
 #include <fstream>
 
@@ -37,9 +36,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
   tsFromDB_(conf.getParameter<bool>("tsFromDB")),
-  useLeakCorrection_( conf.getParameter<bool>("useLeakCorrection")),
-  paramTS(0),
-  theTopology(0)
+  useLeakCorrection_( conf.getParameter<bool>("useLeakCorrection")) 
 {
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -211,8 +208,6 @@ HcalHitReconstructor::~HcalHitReconstructor() {
   if (hbhePulseShapeFlagSetter_) delete hbhePulseShapeFlagSetter_;
   if (hfS9S1_)                delete hfS9S1_;
   if (hfPET_)                 delete hfPET_;
-  if (theTopology)            delete theTopology;
-  if (paramTS)            delete paramTS;
 }
 
 void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
@@ -223,13 +218,6 @@ void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
       es.get<HcalRecoParamsRcd>().get(p);
       paramTS = new HcalRecoParams(*p.product());
 
-      edm::ESHandle<HcalTopology> htopo;
-      es.get<IdealGeometryRecord>().get(htopo);
-      theTopology=new HcalTopology(*htopo);
-      paramTS->setTopo(theTopology);
-      
-
-
       // std::cout<<" skdump in HcalHitReconstructor::beginRun   dupm RecoParams "<<std::endl;
       // std::ofstream skfile("skdumpRecoParamsNewFormat.txt");
       // HcalDbASCIIIO::dumpObject(skfile, (*paramTS) );
@@ -239,15 +227,7 @@ void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
     {
       edm::ESHandle<HcalFlagHFDigiTimeParams> p;
       es.get<HcalFlagHFDigiTimeParamsRcd>().get(p);
-      HFDigiTimeParams = p.product();
-
-      if (theTopology==0) {
-	edm::ESHandle<HcalTopology> htopo;
-	es.get<IdealGeometryRecord>().get(htopo);
-	theTopology=new HcalTopology(*htopo);
-      }
-      HFDigiTimeParams->setTopo(theTopology);
-
+      HFDigiTimeParams = new HcalFlagHFDigiTimeParams(*p.product());
     }
   reco_.beginRun(es);
 }
@@ -255,11 +235,11 @@ void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
 void HcalHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
   if (tsFromDB_==true)
     {
-      if (paramTS) delete paramTS; paramTS=0;
+      if (paramTS) delete paramTS;
     }
   if (digiTimeFromDB_==true)
     {
-      //DLif (HFDigiTimeParams) delete HFDigiTimeParams;
+      if (HFDigiTimeParams) delete HFDigiTimeParams;
     }
   reco_.endRun();
 }
@@ -268,10 +248,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 {
 
   // get conditions
-  edm::ESHandle<HcalTopology> topo;
-  eventSetup.get<IdealGeometryRecord>().get(topo);
-
-
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   // HACK related to HB- corrections
@@ -280,10 +256,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
   edm::ESHandle<HcalChannelQuality> p;
   eventSetup.get<HcalChannelQualityRcd>().get(p);
-  //DLHcalChannelQuality* myqual = new HcalChannelQuality(*p.product());
-  const HcalChannelQuality* myqual = p.product();
-  if (!myqual->topo()) myqual->setTopo(topo.product());
-
+  HcalChannelQuality* myqual = new HcalChannelQuality(*p.product());
 
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
@@ -401,7 +374,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	if (hbheTimingShapedFlagSetter_!=0)
 	  hbheTimingShapedFlagSetter_->SetTimingShapedFlags(rec->back());
 	if (setNoiseFlags_)
-	  hbheFlagSetter_->SetFlagsFromDigi(&(*topo),rec->back(),*i,coder,calibrations,first,toadd);
+	  hbheFlagSetter_->SetFlagsFromDigi(rec->back(),*i,coder,calibrations,first,toadd);
 	if (setPulseShapeFlags_ == true)
 	  hbhePulseShapeFlagSetter_->SetPulseShapeFlags(rec->back(), *i, coder, calibrations);
 	if (setSaturationFlags_)
@@ -422,7 +395,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       } // loop over HBHE digis
 
 
-      if (setNoiseFlags_) hbheFlagSetter_->SetFlagsFromRecHits(&(*topo),*rec);
+      if (setNoiseFlags_) hbheFlagSetter_->SetFlagsFromRecHits(*rec);
       if (setHSCPFlags_)  hbheHSCPFlagSetter_->hbheSetTimeFlagsFromDigi(rec.get(), HBDigis, RecHitIndex);
       // return result
       e.put(rec);
@@ -710,5 +683,5 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       e.put(rec);     
     }
   } 
-  //DL  delete myqual;
+  delete myqual;
 } // void HcalHitReconstructor::produce(...)

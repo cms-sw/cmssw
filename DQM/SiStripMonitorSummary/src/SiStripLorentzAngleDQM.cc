@@ -54,12 +54,12 @@ void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> & select
 	<< std::endl;
     }    
     else if (SummaryOnLayerLevel_On_) {    
-      if( fillNext) { fillMEsForLayer(/*SummaryMEsMap_,*/ selectedDetIds[i]);} 
+      if( fillNext) { fillMEsForLayer(SummaryMEsMap_, selectedDetIds[i]);} 
       if( getLayerNameAndId(selectedDetIds[i+1])==getLayerNameAndId(selectedDetIds[i])){ fillNext=false;}
       else { fillNext=true;}
     } 
     else if (SummaryOnStringLevel_On_) {
-      if( fillNext) { fillMEsForLayer(/*SummaryMEsMap_,*/ selectedDetIds[i]);} 
+      if( fillNext) { fillMEsForLayer(SummaryMEsMap_, selectedDetIds[i]);} 
       if( getStringNameAndId(selectedDetIds[i+1])==getStringNameAndId(selectedDetIds[i])){ fillNext=false;}
       else { fillNext=true;}
     } 
@@ -119,7 +119,7 @@ void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> & select
 
 
 // -----
-void SiStripLorentzAngleDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_){  
+void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){  
 
   SiStripHistoId hidmanager;
 
@@ -148,11 +148,10 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selME
   if (SummaryOnStringLevel_On_) {  //FILLING FOR STRING LEVEL
 
     hSummary_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer", getStringNameAndId(selDetId_).first, "") ;
-    std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = SummaryMEsMap_.find(getStringNameAndId(selDetId_).second);
+    std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = selMEsMap_.find(getStringNameAndId(selDetId_).second);
     
     ModMEs selME_;
-    if ( selMEsMapIter_ != SummaryMEsMap_.end())
-      selME_ =selMEsMapIter_->second;
+    selME_ =selMEsMapIter_->second;
 
     getSummaryMEs(selME_,selDetId_ );
   
@@ -216,11 +215,10 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selME
   
   else { //FILLING FOR LAYER LEVEL
 
-    std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_).second);
+    std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
     
     ModMEs selME_;
-    if ( selMEsMapIter_ != SummaryMEsMap_.end())
-      selME_ =selMEsMapIter_->second;
+    selME_ =selMEsMapIter_->second;
     
     getSummaryMEs(selME_,selDetId_ );
     

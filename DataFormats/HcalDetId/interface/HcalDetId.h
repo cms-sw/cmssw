@@ -9,8 +9,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2012/10/29 20:25:57 $
- *  $Revision: 1.20 $
+ *  $Date: 2012/03/29 16:11:16 $
+ *  $Revision: 1.18 $
  *  \author J. Mans - Minnesota
  *
  *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
@@ -49,7 +49,37 @@ public:
   /// get the largest crystal_iphi of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_iphi_high() const;
 
+  static bool validDetId( HcalSubdetector subdet,
+			  int             tower_ieta,
+			  int             tower_iphi,
+			  int             depth       ) ;
+
+  // get the hashed index
+  int hashed_index() const;
+
+  uint32_t denseIndex() const { return hashed_index() ; }
+
+  static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
+
+  static HcalDetId detIdFromDenseIndex( uint32_t di ) ;
+
   static const HcalDetId Undefined;
+
+private:
+
+  enum { kHBhalf = 1296 ,
+	 kHEhalf = 1296 ,
+	 kHOhalf = 1080 ,
+	 kHFhalf = 864  ,
+	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
+
+public:
+
+  enum { kSizeForDenseIndexing = 2*kHcalhalf } ;
+  enum { kHBSize = 2*kHBhalf } ;
+  enum { kHESize = 2*kHEhalf } ;
+  enum { kHOSize = 2*kHOhalf } ;
+  enum { kHFSize = 2*kHFhalf } ;
 
 };
 

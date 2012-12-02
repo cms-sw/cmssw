@@ -9,9 +9,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
 // #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include <cmath>
 
@@ -20,7 +17,6 @@
 
 HcalPulseShapes::HcalPulseShapes() 
 : theMCParams(0),
-  theTopology(0),
   theRecoParams(0),
   theShapes()
 {
@@ -102,9 +98,8 @@ Reco  MC
 
 
 HcalPulseShapes::~HcalPulseShapes() {
-  if (theMCParams) delete theMCParams;
-  if (theRecoParams) delete theRecoParams;
-  if (theTopology) delete theTopology;
+  delete theMCParams;
+  delete theRecoParams;
 }
 
 
@@ -114,15 +109,9 @@ void HcalPulseShapes::beginRun(edm::EventSetup const & es)
   es.get<HcalMCParamsRcd>().get(p);
   theMCParams = new HcalMCParams(*p.product());
 
-  edm::ESHandle<HcalTopology> htopo;
-  es.get<IdealGeometryRecord>().get(htopo);
-  theTopology=new HcalTopology(*htopo);
-  theMCParams->setTopo(theTopology);
-
   edm::ESHandle<HcalRecoParams> q;
   es.get<HcalRecoParamsRcd>().get(q);
   theRecoParams = new HcalRecoParams(*q.product());
-  theRecoParams->setTopo(theTopology);
 
 //      std::cout<<" skdump in HcalPulseShapes::beginRun   dupm MCParams "<<std::endl;
 //      std::ofstream skfile("skdumpMCParamsNewFormat.txt");
@@ -132,14 +121,11 @@ void HcalPulseShapes::beginRun(edm::EventSetup const & es)
 
 void HcalPulseShapes::endRun()
 {
-  if (theMCParams) delete theMCParams;
-  if (theRecoParams) delete theRecoParams;
-  if (theTopology) delete theTopology;
-
-
+  delete theMCParams;
   theMCParams = 0;
+
+  delete theRecoParams;
   theRecoParams = 0;
-  theTopology = 0;
 }
 
 

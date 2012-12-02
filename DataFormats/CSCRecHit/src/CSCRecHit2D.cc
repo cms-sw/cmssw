@@ -190,21 +190,18 @@ void CSCRecHit2D::print() const {
 
 
 std::ostream& operator<<(std::ostream& os, const CSCRecHit2D& rh) {
-  os << "CSCRecHit2D: " <<
-    "local x: " << rh.localPosition().x() << " +/- " << sqrt( rh.localPositionError().xx() ) <<
-    " y: " << rh.localPosition().y() << " +/- " << sqrt( rh.localPositionError().yy() ) <<
-    " in strip X: " << rh.positionWithinStrip() << " +/- " << rh.errorWithinStrip() <<
-    " quality: " << rh.quality() << " tpeak: " << rh.tpeak() << " wireTime: " << rh.wireTime() << std::endl;
-  os << "strips: ";
+  os << "CSCRecHit2D: local x = " << rh.localPosition().x() << " +/- " << sqrt( rh.localPositionError().xx() ) <<
+    " y = " << rh.localPosition().y() << " +/- " << sqrt( rh.localPositionError().yy() ) <<
+    " in strip X = " << rh.positionWithinStrip() << " +/-  = " << rh.errorWithinStrip()<<" quality = "<<rh.quality()<<"\n";
+  os << "             strip # : ";
   for(size_t iS =0;iS< rh.nStrips();++iS){
     os <<rh.channels(iS)<<"  ";
   }
-  int nwgs = rh.nWireGroups();
-  if ( nwgs == 1 ) {
-    os << "central wire: " << rh.hitWire() << " of " << nwgs << " wiregroup" << std::endl; }
-  else { 
-    os << "central wire: " << rh.hitWire() << " of " << nwgs << " wiregroups" << std::endl; }
-  return os;
+os << "\n             wire # : ";
+
+ os << "nWireGroups " << (int)rh.nWireGroups() << " central wire " << rh.hitWire() <<std::endl;
+ 
+ return os;
 }
 
 

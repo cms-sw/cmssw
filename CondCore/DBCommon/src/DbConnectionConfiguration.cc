@@ -219,14 +219,16 @@ void cond::DbConnectionConfiguration::configure( coral::IConnectionServiceConfig
     } 
   }
   int authSys = m_authSys;
-  // first attempt, look at the env...
-  const char* authSysEnv = ::getenv( Auth::COND_AUTH_SYS );
-  if( authSysEnv ){
-    authSys = ::atoi( authSysEnv );
+  if( authSys != CondDbKey && authSys != CoralXMLFile ){
+    // first attempt, look at the env...
+    const char* authSysEnv = ::getenv( Auth::COND_AUTH_SYS );
+    if( authSysEnv ){
+      authSys = ::atoi( authSysEnv );
+    }
   }
   if( authSys != CondDbKey && authSys != CoralXMLFile ){
     // take the default
-    authSys = CondDbKey;
+    authSys = CoralXMLFile;
   }  
   std::string servName("");
   if( authSys == CondDbKey ){

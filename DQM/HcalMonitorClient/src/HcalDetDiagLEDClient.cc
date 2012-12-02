@@ -6,6 +6,7 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
+#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 
 #include <iostream>
@@ -13,15 +14,14 @@
 /*
  * \file HcalDetDiagLEDClient.cc
  * 
- * $Date: 2012/11/01 11:10:07 $
- * $Revision: 1.10 $
+ * $Date: 2012/06/18 08:23:10 $
+ * $Revision: 1.9 $
  * \author J. Temple
  * \brief Hcal DetDiagLED Client class
  */
 
 HcalDetDiagLEDClient::HcalDetDiagLEDClient(std::string myname){
   name_=myname;  status=0;
-  needLogicalMap_=true;
 }
 
 HcalDetDiagLEDClient::HcalDetDiagLEDClient(std::string myname, const edm::ParameterSet& ps){
@@ -40,7 +40,6 @@ HcalDetDiagLEDClient::HcalDetDiagLEDClient(std::string myname, const edm::Parame
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   badChannelStatusMask_   = ps.getUntrackedParameter<int>("DetDiagLED_BadChannelStatusMask",
                             ps.getUntrackedParameter<int>("BadChannelStatusMask",(1<<HcalChannelStatus::HcalCellDead)));
-  needLogicalMap_=true;
 }
 
 void HcalDetDiagLEDClient::analyze(){
@@ -231,7 +230,9 @@ std::string subdet[4]={"HB","HE","HO","HF"};
 
    if (debug_>0) std::cout << "<HcalDetDiagLEDClient::htmlOutput> Preparing  html output ..." << std::endl;
    if(!dqmStore_) return;
-   HcalElectronicsMap emap=logicalMap_->generateHcalElectronicsMap();
+   HcalLogicalMapGenerator gen;
+   HcalLogicalMap lmap(gen.createMap());
+   HcalElectronicsMap emap=lmap.generateHcalElectronicsMap();
    std::vector<std::string> name = HcalEtaPhiHistNames();
 
    for(int i=0;i<4;++i){
@@ -354,7 +355,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
                if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
                if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
                if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
-	       HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(*detid);
+	       HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(*detid);
 	       HcalElectronicsId emap_entry=emap.lookup(*detid);
                std::string s=" ";
                if(badstatusmap.find(*detid)!=badstatusmap.end()){ s="Known problem"; }	
@@ -387,7 +388,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
                if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
                if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
                if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
-	       HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(*detid);
+	       HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(*detid);
 	       HcalElectronicsId emap_entry=emap.lookup(*detid);
 	       printTableLine(BadTiming,cnt++,*detid,lmap_entry,emap_entry,comment); BadTimingCnt++;
 	       delete detid;
@@ -419,7 +420,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
                if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
                if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
                if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
-	       HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(*detid);
+	       HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(*detid);
 	       HcalElectronicsId emap_entry=emap.lookup(*detid);
 	       printTableLine(Unstable,cnt++,*detid,lmap_entry,emap_entry,comment); UnstableCnt++;
 	       delete detid;
@@ -451,7 +452,7 @@ std::string subdet[4]={"HB","HE","HO","HF"};
                if(sd==1) detid=new HcalDetId(HcalEndcap,eta,phi,depth);
                if(sd==2) detid=new HcalDetId(HcalOuter,eta,phi,depth);
                if(sd==3) detid=new HcalDetId(HcalForward,eta,phi,depth);
-	       HcalFrontEndId    lmap_entry=logicalMap_->getHcalFrontEndId(*detid);
+	       HcalFrontEndId    lmap_entry=lmap.getHcalFrontEndId(*detid);
 	       HcalElectronicsId emap_entry=emap.lookup(*detid);
                std::string s=" ";
                if(badstatusmap.find(*detid)!=badstatusmap.end()){ s="Known problem"; }	

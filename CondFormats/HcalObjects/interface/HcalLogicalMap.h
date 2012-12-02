@@ -3,14 +3,16 @@
 
 #include "CondFormats/HcalObjects/interface/HcalMappingEntry.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
 #include <vector>
-class HcalTopology;
+
 
 class HcalLogicalMap {
+
+    
   public:
          
-  HcalLogicalMap(const HcalTopology*,
-                   std::vector<HBHEHFLogicalMapEntry>&,
+    HcalLogicalMap(std::vector<HBHEHFLogicalMapEntry>&,
 		   std::vector<HOHXLogicalMapEntry>&,
 		   std::vector<CALIBLogicalMapEntry>&,
 		   std::vector<ZDCLogicalMapEntry>&,
@@ -58,8 +60,6 @@ class HcalLogicalMap {
     std::vector<uint32_t> HoHash2Entry_;
     std::vector<uint32_t> HxCalibHash2Entry_;
     std::vector<uint32_t> ZdcHash2Entry_;
-
-    const HcalTopology* topo_;
 };
 
 #endif

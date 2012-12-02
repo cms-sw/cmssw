@@ -75,7 +75,6 @@ ora::ContainerSchema::ContainerSchema( int containerId,
   m_containerSchemaSequences( session.schema() ),
   m_mapping(),
   m_dependentMappings(){
-  initClassDict();
 }
 
 ora::ContainerSchema::~ContainerSchema(){

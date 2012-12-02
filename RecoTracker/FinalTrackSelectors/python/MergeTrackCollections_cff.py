@@ -5,9 +5,6 @@ import RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi
 
 duplicateTrackCandidates = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateTrackMerger.clone(
     source=cms.InputTag("preDuplicateMergingGeneralTracks"),
-    minDeltaR3d = cms.double(-4.0),
-    minBDTG = cms.double(-0.1),
-    minpT = cms.double(0.63),
     useInnermostState  = cms.bool(True),
     ttrhBuilderName    = cms.string("WithAngleAndTemplate")
     )
@@ -19,7 +16,6 @@ mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduce
 
 generalTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateListMerger.clone(
     originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
-    diffHitsCut = cms.int32(5),
     mergedSource = cms.InputTag("mergedDuplicateTracks"),
     candidateSource = cms.InputTag("duplicateTrackCandidates","candidateMap")
     )

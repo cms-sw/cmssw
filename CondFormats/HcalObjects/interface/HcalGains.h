@@ -15,10 +15,7 @@ POOL container to store Gain values 4xCapId
 class HcalGains: public HcalCondObjectContainer<HcalGain>
 {
  public:
-#ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalGains():HcalCondObjectContainer<HcalGain>(0) {}
-#endif
-  HcalGains(const HcalTopology* topo):HcalCondObjectContainer<HcalGain>(topo) {}
+  HcalGains():HcalCondObjectContainer<HcalGain>() {}
 
   std::string myname() const {return (std::string)"HcalGains";}
 

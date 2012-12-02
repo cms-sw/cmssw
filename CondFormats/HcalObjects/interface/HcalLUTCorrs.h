@@ -15,10 +15,7 @@ POOL object to store LUT Corrections
 class HcalLUTCorrs: public HcalCondObjectContainer<HcalLUTCorr>
 {
  public:
-#ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalLUTCorrs():HcalCondObjectContainer<HcalLUTCorr>(0) {}
-#endif
-  HcalLUTCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalLUTCorr>(topo) {}
+  HcalLUTCorrs():HcalCondObjectContainer<HcalLUTCorr>() {}
 
   std::string myname() const {return (std::string)"HcalLUTCorrs";}
 

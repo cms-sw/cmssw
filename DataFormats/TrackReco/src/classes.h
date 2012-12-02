@@ -26,6 +26,7 @@
 #include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 
 #include <vector>
 
@@ -101,6 +102,13 @@ namespace {
 
     std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int> > am5;
     std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int> am6;
+
+    std::pair<reco::Track,reco::Track> trackPair;
+    std::pair<TrackCandidate, std::pair<reco::Track,reco::Track> > ctpair;
+    std::vector<std::pair<TrackCandidate, std::pair<reco::Track,reco::Track> > > candidateMap;
+    edm::Wrapper<std::pair<reco::Track,reco::Track> > w1;
+    edm::Wrapper<std::vector<std::pair<TrackCandidate, std::pair<reco::Track,reco::Track> > > > w2;
+    edm::Wrapper<std::pair<TrackCandidate, std::pair<reco::Track,reco::Track> > > w3;
 
   };
 }

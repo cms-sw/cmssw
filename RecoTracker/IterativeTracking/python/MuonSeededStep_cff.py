@@ -125,41 +125,35 @@ muonSeededTracksInOutSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'muonSeededTracksInOutLoose',
-            chi2n_par = 0.5,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 1.3, 4.0 ),
-            dz_par1 = ( 1.3, 4.0 ),
-            d0_par2 = ( 1.3, 4.0 ),
-            dz_par2 = ( 1.3, 4.0 )
+            applyAdaptedPVCuts = cms.bool(False),
+            chi2n_par = 10.0,
+            minNumberLayers = 3,
+            min_nhits = 5,
+            maxNumberLostLayers = 4,
+            minNumber3DLayers = 0,
+            minHitsToBypassChecks = 7
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'muonSeededTracksInOutTight',
             preFilterName = 'muonSeededTracksInOutLoose',
-            chi2n_par = 0.35,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 0,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 1.1, 4.0 ),
-            dz_par1 = ( 1.1, 4.0 ),
-            d0_par2 = ( 1.1, 4.0 ),
-            dz_par2 = ( 1.1, 4.0 )
+            applyAdaptedPVCuts = cms.bool(False),
+            chi2n_par = 1.0,
+            minNumberLayers = 5,
+            min_nhits = 6,
+            maxNumberLostLayers = 3,
+            minNumber3DLayers = 2,
+            minHitsToBypassChecks = 10
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'muonSeededTracksInOutHighPurity',
             preFilterName = 'muonSeededTracksInOutTight',
-            chi2n_par = 0.2,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 0,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.9, 4.0 ),
-            dz_par1 = ( 0.9, 4.0 ),
-            d0_par2 = ( 0.9, 4.0 ),
-            dz_par2 = ( 0.9, 4.0 )
+            applyAdaptedPVCuts = cms.bool(False),
+            chi2n_par = 0.4,
+            minNumberLayers = 5,
+            min_nhits = 7,
+            maxNumberLostLayers = 2,
+            minNumber3DLayers = 2,
+            minHitsToBypassChecks = 20
             ),
         ) #end of vpset
     ) #end of clone
@@ -169,41 +163,35 @@ muonSeededTracksOutInSelector = RecoTracker.FinalTrackSelectors.multiTrackSelect
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'muonSeededTracksOutInLoose',
-            chi2n_par = 0.5,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 1.3, 4.0 ),
-            dz_par1 = ( 1.3, 4.0 ),
-            d0_par2 = ( 1.3, 4.0 ),
-            dz_par2 = ( 1.3, 4.0 )
+            applyAdaptedPVCuts = cms.bool(False),
+            chi2n_par = 10.0,
+            minNumberLayers = 3,
+            min_nhits = 5,
+            maxNumberLostLayers = 4,
+            minNumber3DLayers = 0,
+            minHitsToBypassChecks = 7
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'muonSeededTracksOutInTight',
             preFilterName = 'muonSeededTracksOutInLoose',
-            chi2n_par = 0.35,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 0,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 1.1, 4.0 ),
-            dz_par1 = ( 1.1, 4.0 ),
-            d0_par2 = ( 1.1, 4.0 ),
-            dz_par2 = ( 1.1, 4.0 )
+            applyAdaptedPVCuts = cms.bool(False),
+            chi2n_par = 1.0,
+            minNumberLayers = 5,
+            min_nhits = 6,
+            maxNumberLostLayers = 3,
+            minNumber3DLayers = 2,
+            minHitsToBypassChecks = 10
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'muonSeededTracksOutInHighPurity',
             preFilterName = 'muonSeededTracksOutInTight',
-            chi2n_par = 0.2,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 0,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 0.9, 4.0 ),
-            dz_par1 = ( 0.9, 4.0 ),
-            d0_par2 = ( 0.9, 4.0 ),
-            dz_par2 = ( 0.9, 4.0 )
+            applyAdaptedPVCuts = cms.bool(False),
+            chi2n_par = 0.4,
+            minNumberLayers = 5,
+            min_nhits = 7,
+            maxNumberLostLayers = 2,
+            minNumber3DLayers = 2,
+            minHitsToBypassChecks = 20
             ),
         ) #end of vpset
     ) #end of clone

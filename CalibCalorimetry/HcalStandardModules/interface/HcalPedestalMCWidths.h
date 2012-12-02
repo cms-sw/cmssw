@@ -90,8 +90,6 @@ class HcalPedestalMCWidths : public edm::EDAnalyzer
    TProfile *HFMeans[10];
    TProfile *HOMeans[10];
 
-   const HcalTopology* theTopology;
-
    TFile *theFile;
    bool firsttime;
    bool histflag;

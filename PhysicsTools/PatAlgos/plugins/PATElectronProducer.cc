@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.71 2012/10/04 12:37:17 beaudett Exp $
+// $Id: PATElectronProducer.cc,v 1.59 2012/05/20 20:12:25 rwolf Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
@@ -31,12 +31,9 @@
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include <vector>
 #include <memory>
@@ -55,24 +52,19 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   embedGsfElectronCore_ = iConfig.getParameter<bool>( "embedGsfElectronCore" );
   embedGsfTrack_ = iConfig.getParameter<bool>( "embedGsfTrack" );
   embedSuperCluster_ = iConfig.getParameter<bool>         ( "embedSuperCluster"    );
-  embedSeedCluster_ = iConfig.getParameter<bool>( "embedSeedCluster" );
   embedTrack_ = iConfig.getParameter<bool>( "embedTrack" );
-  embedRecHits_ = iConfig.getParameter<bool>( "embedRecHits" );
   // pflow configurables
   pfElecSrc_ = iConfig.getParameter<edm::InputTag>( "pfElectronSource" );
   pfCandidateMap_ = iConfig.getParameter<edm::InputTag>( "pfCandidateMap" );
   useParticleFlow_ = iConfig.getParameter<bool>( "useParticleFlow" );
   embedPFCandidate_ = iConfig.getParameter<bool>( "embedPFCandidate" );
-  // mva input variables
-  reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
-  reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
   // MC matching configurables (scheduled mode)
   addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
   if (addGenMatch_) {
     embedGenMatch_ = iConfig.getParameter<bool>( "embedGenMatch" );
     if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
       genMatchSrc_.push_back(iConfig.getParameter<edm::InputTag>( "genParticleMatch" ));
-    }
+    } 
     else {
       genMatchSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "genParticleMatch" );
     }
@@ -92,7 +84,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
     // or there might be many of them
     if (iConfig.existsAs<edm::ParameterSet>("electronIDSources")) {
       // please don't configure me twice
-      if (!elecIDSrcs_.empty()){
+      if (!elecIDSrcs_.empty()){ 
 	throw cms::Exception("Configuration") << "PATElectronProducer: you can't specify both 'electronIDSource' and 'electronIDSources'\n";
       }
       // read the different electron ID names
@@ -103,7 +95,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
       }
     }
     // but in any case at least once
-    if (elecIDSrcs_.empty()){
+    if (elecIDSrcs_.empty()){ 
       throw cms::Exception("Configuration") <<
 	"PATElectronProducer: id addElectronID is true, you must specify either:\n" <<
 	"\tInputTag electronIDSource = <someTag>\n" << "or\n" <<
@@ -149,8 +141,8 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   }
   // embed high level selection variables?
   embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
-  beamLineSrc_ = iConfig.getParameter<edm::InputTag>("beamLineSrc");
   if ( embedHighLevelSelection_ ) {
+    beamLineSrc_ = iConfig.getParameter<edm::InputTag>("beamLineSrc");
     usePV_ = iConfig.getParameter<bool>("usePV");
     pvSrc_ = iConfig.getParameter<edm::InputTag>("pvSrc");
   }
@@ -159,22 +151,18 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   }
 
 
-  PATElectronProducer::~PATElectronProducer()
+  PATElectronProducer::~PATElectronProducer() 
 {
 }
 
 
-void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
+void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) 
 {
   // switch off embedding (in unschedules mode)
   if (iEvent.isRealData()){
     addGenMatch_ = false;
     embedGenMatch_ = false;
   }
-
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  ecalTopology_ = & (*theCaloTopology);
 
   // Get the collection of electrons from the event
   edm::Handle<edm::View<reco::GsfElectron> > electrons;
@@ -183,8 +171,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // for additional mva variables
   edm::InputTag  reducedEBRecHitCollection(string("reducedEcalRecHitsEB"));
   edm::InputTag  reducedEERecHitCollection(string("reducedEcalRecHitsEE"));
-  //EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
-  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedBarrelRecHitCollection_, reducedEndcapRecHitCollection_);
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollection, reducedEERecHitCollection);
 
   // for conversion veto selection
   edm::Handle<reco::ConversionCollection> hConversions;
@@ -247,10 +234,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   iEvent.getByLabel(beamLineSrc_, beamSpotHandle);
 
+  // Get the primary vertex
+  edm::Handle< std::vector<reco::Vertex> > pvHandle;
+  iEvent.getByLabel( pvSrc_, pvHandle );
+
+
   if ( embedHighLevelSelection_ ) {
-    // Get the primary vertex
-    edm::Handle< std::vector<reco::Vertex> > pvHandle;
-    iEvent.getByLabel( pvSrc_, pvHandle );
 
     // This is needed by the IPTools methods from the tracking group
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
@@ -325,9 +314,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  Electron anElectron(elecsRef);
 	  anElectron.setPFCandidateRef( pfRef  );
 
-          //it should be always true when particleFlow electrons are used.
-          anElectron.setIsPF( true );
-
 	  if( embedPFCandidate_ ) anElectron.embedPFCandidate();
 
 	  if ( useUserData_ ) {
@@ -391,44 +377,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
           sigmaIetaIphi = vCov[1];
           anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
 
-	  // get list of EcalDetId within 5x5 around the seed 
-	  bool barrel = itElectron->isEB();
-	  DetId seed = lazyTools.getMaximum(*(itElectron->superCluster()->seed())).first;
-	  std::vector<DetId> selectedCells = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
-	    ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);          
-	  // add the DetId of the SC
-	  std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->hitsAndFractions().begin();
-	  std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->hitsAndFractions().end();
-	  for( ; it!=itend ; ++it) {
-	    DetId id=it->first;
-	    // check if already saved
-	    std::vector<DetId>::const_iterator itcheck = find(selectedCells.begin(),selectedCells.end(),id);
-	    if ( itcheck == selectedCells.end()) {
-	      selectedCells.push_back(id);
-	    }
-	  }
-	  // Retrieve the corresponding RecHits
-
-	  edm::Handle< EcalRecHitCollection > rechitsH ;
-	  if(barrel) 
-	    iEvent.getByLabel(reducedBarrelRecHitCollection_,rechitsH);
-	  else
-	    iEvent.getByLabel(reducedEndcapRecHitCollection_,rechitsH);
-
-	  EcalRecHitCollection selectedRecHits;
-	  const EcalRecHitCollection *recHits = rechitsH.product();
-
-	  unsigned nSelectedCells = selectedCells.size();
-	  for (unsigned icell = 0 ; icell < nSelectedCells ; ++icell) {
-	   EcalRecHitCollection::const_iterator  it = recHits->find( selectedCells[icell] );
-	    if ( it != recHits->end() ) {
-	      selectedRecHits.push_back(*it);
-	    }
-	  }
-	  selectedRecHits.sort();
-	  if (embedRecHits_) anElectron.embedRecHits(& selectedRecHits);
-         
-	    // set conversion veto selection
+          // set conversion veto selection
           bool passconversionveto = false;
           if( hConversions.isValid()){
             // this is recommended method
@@ -486,31 +435,26 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       // Is this GsfElectron also identified as an e- in the particle flow?
       bool pfId = false;
 
-      if ( pfCandsPresent ) {
-	// PF electron collection not available.
-	const reco::GsfTrackRef& trkRef = itElectron->gsfTrack();
-	int index = 0;
-	for( reco::PFCandidateConstIterator ie = pfElectrons->begin();
-	     ie != pfElectrons->end(); ++ie, ++index) {
-	  if(ie->particleId()!=reco::PFCandidate::e) continue;
-	  const reco::GsfTrackRef& pfTrkRef= ie->gsfTrackRef();
-	  if( trkRef == pfTrkRef ) {
-	    pfId = true;
-	    reco::PFCandidateRef pfRef(pfElectrons, index);
-	    anElectron.setPFCandidateRef( pfRef );
-	    break;
-	  }
-	}
-      }
-      else if( valMapPresent ) {
-        // use value map if PF collection not available
+      if( valMapPresent ) {
 	const edm::ValueMap<reco::PFCandidatePtr> & myValMap(*ValMapH);
+
 	// Get the PFCandidate
 	const reco::PFCandidatePtr& pfElePtr(myValMap[elecsRef]);
 	pfId= pfElePtr.isNonnull();
       }
-      // set PFId function
-      anElectron.setIsPF( pfId );
+      else if ( pfCandsPresent ) {
+	// PF electron collection not available.
+	const reco::GsfTrackRef& trkRef = itElectron->gsfTrack();
+	for( reco::PFCandidateConstIterator ie = pfElectrons->begin();
+	     ie != pfElectrons->end(); ++ie) {
+	  if(ie->particleId()!=reco::PFCandidate::e) continue;
+	  const reco::GsfTrackRef& pfTrkRef= ie->gsfTrackRef();
+	  if( trkRef == pfTrkRef ) {
+	    pfId = true;
+	    break;
+	  }
+	}
+      }
 
       // add resolution info
 
@@ -586,44 +530,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       sigmaIetaIphi = vCov[1];
       anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
 
-      // get list of EcalDetId within 5x5 around the seed 
-      bool barrel= itElectron->isEB();
-      DetId seed=lazyTools.getMaximum(*(itElectron->superCluster()->seed())).first;
-      std::vector<DetId> selectedCells = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
-	ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
-      // add the DetId of the SC
-
-      std::vector< std::pair<DetId, float> >::const_iterator it=itElectron->superCluster()->hitsAndFractions().begin();
-      std::vector< std::pair<DetId, float> >::const_iterator itend=itElectron->superCluster()->hitsAndFractions().end();
-      for( ; it!=itend ; ++it) {
-	DetId id=it->first;
-	// check if already saved
-	std::vector<DetId>::const_iterator itcheck = find(selectedCells.begin(),selectedCells.end(),id);
-	if ( itcheck == selectedCells.end()) {
-	  selectedCells.push_back(id);
-	}
-      }
-      // Retrieve the corresponding RecHits
-
-      edm::Handle< EcalRecHitCollection > rechitsH ;
-      if(barrel)
-	iEvent.getByLabel(reducedBarrelRecHitCollection_,rechitsH);
-      else
-	iEvent.getByLabel(reducedEndcapRecHitCollection_,rechitsH);
-
-      EcalRecHitCollection selectedRecHits;
-      const EcalRecHitCollection *recHits = rechitsH.product();
-
-      unsigned nSelectedCells = selectedCells.size();
-      for (unsigned icell = 0 ; icell < nSelectedCells ; ++icell) {
-        EcalRecHitCollection::const_iterator  it = recHits->find( selectedCells[icell] );
-	if ( it != recHits->end() ) {
-	  selectedRecHits.push_back(*it);
-	}
-      }
-      selectedRecHits.sort();
-      if (embedRecHits_) anElectron.embedRecHits(& selectedRecHits);
-
       // set conversion veto selection
       bool passconversionveto = false;
       if( hConversions.isValid()){
@@ -684,7 +590,6 @@ void PATElectronProducer::fillElectron(Electron& anElectron,
   if (embedGsfElectronCore_) anElectron.embedGsfElectronCore();
   if (embedGsfTrack_) anElectron.embedGsfTrack();
   if (embedSuperCluster_) anElectron.embedSuperCluster();
-  if (embedSeedCluster_) anElectron.embedSeedCluster();
   if (embedTrack_) anElectron.embedTrack();
 
   // store the match to the generated final state muons
@@ -733,14 +638,9 @@ void PATElectronProducer::fillElectron(Electron& anElectron,
     else
       if(pfId){
         anElectron.setIsolation(isolationValueLabels_[j].first,(*isolationValues[j])[elecRef]);
+      }else{
+        anElectron.setIsolation(isolationValueLabelsNoPFId_[j].first,(*isolationValuesNoPFId[j])[elecRef]);
       }
-  }
-
-  //for electrons not identified as PF electrons
-  for (size_t j = 0; j<isolationValuesNoPFId.size(); ++j) {
-    if( !pfId) {
-      anElectron.setIsolation(isolationValueLabelsNoPFId_[j].first,(*isolationValuesNoPFId[j])[elecRef]);
-    }
   }
 
 }
@@ -764,7 +664,6 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
   if (embedGsfElectronCore_) anElectron.embedGsfElectronCore();
   if (embedGsfTrack_) anElectron.embedGsfTrack();
   if (embedSuperCluster_) anElectron.embedSuperCluster();
-  if (embedSeedCluster_) anElectron.embedSeedCluster();
   if (embedTrack_) anElectron.embedTrack();
 
   // store the match to the generated final state muons
@@ -838,9 +737,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions & desc
   iDesc.add<bool>("embedGsfElectronCore", true)->setComment("embed external gsf electron core");
   iDesc.add<bool>("embedGsfTrack", true)->setComment("embed external gsf track");
   iDesc.add<bool>("embedSuperCluster", true)->setComment("embed external super cluster");
-  iDesc.add<bool>("embedSeedCluster", true)->setComment("embed external seed cluster");
   iDesc.add<bool>("embedTrack", false)->setComment("embed external track");
-  iDesc.add<bool>("embedRecHits", true)->setComment("embed external RecHits");
 
   // pf specific parameters
   iDesc.add<edm::InputTag>("pfElectronSource", edm::InputTag("pfElectrons"))->setComment("particle flow input collection");

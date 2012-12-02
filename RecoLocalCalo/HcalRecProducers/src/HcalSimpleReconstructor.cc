@@ -9,7 +9,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <iostream>
     
@@ -21,9 +20,7 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
-  tsFromDB_(conf.getParameter<bool>("tsFromDB")),
-  paramTS(0),
-  theTopology(0)
+  tsFromDB_(conf.getParameter<bool>("tsFromDB"))
 {
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -42,22 +39,13 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   
 }
 
-HcalSimpleReconstructor::~HcalSimpleReconstructor() { 
-  delete paramTS;
-  delete theTopology;
-}
+HcalSimpleReconstructor::~HcalSimpleReconstructor() { }
 
 void HcalSimpleReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
   if(tsFromDB_) {
     edm::ESHandle<HcalRecoParams> p;
     es.get<HcalRecoParamsRcd>().get(p);
     paramTS = new HcalRecoParams(*p.product());
-
-    edm::ESHandle<HcalTopology> htopo;
-    es.get<IdealGeometryRecord>().get(htopo);
-    theTopology=new HcalTopology(*htopo);
-    paramTS->setTopo(theTopology);
-
   }
   reco_.beginRun(es);
 }

@@ -5,6 +5,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
@@ -31,8 +32,12 @@ class CaloGenericDetId : public DetId
       bool isEB()        const { return isEcal() && subdetId() == EBDetId::Subdet ; }
       bool isEE()        const { return isEcal() && subdetId() == EEDetId::Subdet ; }
       bool isES()        const { return isEcal() && subdetId() == ESDetId::Subdet ; }
-      bool isCalo()      const { return det() == DetId::Calo ; }
       bool isHcal()      const { return det() == DetId::Hcal ; }
+      bool isHB()        const { return isHcal() && subdetId() == HcalBarrel ; }
+      bool isHE()        const { return isHcal() && subdetId() == HcalEndcap ; }
+      bool isHO()        const { return isHcal() && subdetId() == HcalOuter ; }
+      bool isHF()        const { return isHcal() && subdetId() == HcalForward ; }
+      bool isCalo()      const { return det() == DetId::Calo ; }
       bool isZDC()       const { return isCalo() && subdetId() == HcalZDCDetId::SubdetectorId ; }
       bool isCastor()    const { return isCalo() && subdetId() == HcalCastorDetId::SubdetectorId ; }
       bool isCaloTower() const { return isCalo() && subdetId() == CaloTowerDetId::SubdetId ; } 

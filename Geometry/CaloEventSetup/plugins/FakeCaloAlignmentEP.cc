@@ -171,7 +171,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 vtr.reserve( nA ) ;
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
-	    const HcalDetId id ( HcalGeometry::detIdFromBarrelAlignmentIndex( i ) ) ;
+	    const HcalDetId id ( HcalBarrel, 1, 1, 1 ) ;
 	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
@@ -194,7 +194,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 vtr.reserve( nA ) ;
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
-	    const HcalDetId id ( HcalGeometry::detIdFromEndcapAlignmentIndex( i ) ) ;
+	    const HcalDetId id ( HcalEndcap, 21, 1, 1 ) ;
 	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
@@ -217,7 +217,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 vtr.reserve( nA ) ;
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
-	    const HcalDetId id ( HcalGeometry::detIdFromOuterAlignmentIndex( i ) ) ;
+	    const HcalDetId id ( HcalOuter, 1, 1, 4 ) ;
 	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;
@@ -240,7 +240,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 vtr.reserve( nA ) ;
 	 for( unsigned int i ( 0 ) ; i != nA ; ++i )
 	 {
-	    const HcalDetId id ( HcalGeometry::detIdFromForwardAlignmentIndex( i ) ) ;
+	    const HcalDetId id ( HcalForward, 29, 1, 1 ) ;
 	    vtr.push_back( AlignTransform( Trl( 0, 0, 0 ), 
 					   Rot(),
 					   id           ) ) ;

@@ -41,7 +41,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
-#include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
+#include "DPGAnalysis/SiStripTools/interface/DetIdSelector.h"
 
 //
 // class declaration

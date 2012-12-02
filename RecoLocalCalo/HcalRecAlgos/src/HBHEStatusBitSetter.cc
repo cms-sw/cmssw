@@ -5,7 +5,8 @@
 
 HBHEStatusBitSetter::HBHEStatusBitSetter()
 {
-  logicalMap_=0;
+  HcalLogicalMapGenerator gen;
+  logicalMap_=new HcalLogicalMap(gen.createMap());
 
   for (int iRm=0;iRm<HcalFrontEndId::maxRmIndex;iRm++) {
     hpdMultiplicity_.push_back(0);
@@ -22,7 +23,9 @@ HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
 					 std::vector<edm::ParameterSet> pulseShapeParameterSets
 					 )
 {
-  logicalMap_=0;
+  HcalLogicalMapGenerator gen;
+  logicalMap_=new HcalLogicalMap(gen.createMap());
+  
   for (int iRm=0;iRm<HcalFrontEndId::maxRmIndex;iRm++) {
     hpdMultiplicity_.push_back(0);
   }
@@ -40,7 +43,7 @@ HBHEStatusBitSetter::HBHEStatusBitSetter(double nominalPedestal,
 }
 
 HBHEStatusBitSetter::~HBHEStatusBitSetter() {
-  if (logicalMap_!=0) delete logicalMap_;
+  delete logicalMap_;
 }
 
 void HBHEStatusBitSetter::Clear()
@@ -48,7 +51,7 @@ void HBHEStatusBitSetter::Clear()
   for (unsigned int i=0;i<hpdMultiplicity_.size();i++) hpdMultiplicity_[i]=0;
 }
 
-void HBHEStatusBitSetter::SetFlagsFromDigi(const HcalTopology* topo, HBHERecHit& hbhe, 
+void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe, 
 					   const HBHEDataFrame& digi,
 					   const HcalCoder& coder,
 					   const HcalCalibrations& calib,
@@ -56,12 +59,6 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(const HcalTopology* topo, HBHERecHit&
 					   int samplesToAdd
 					   )
 {
-  if (logicalMap_==0) {
-    HcalLogicalMapGenerator gen;
-    logicalMap_=new HcalLogicalMap(gen.createMap(topo));
-  }
-  
-
   // get firstSample, samplesToAdd from database for each hit
   firstSample_ = firstSample;
   samplesToAdd_ = samplesToAdd;
@@ -115,14 +112,7 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(const HcalTopology* topo, HBHERecHit&
   
 }
 
-void HBHEStatusBitSetter::SetFlagsFromRecHits(const HcalTopology* topo, HBHERecHitCollection& rec) {
-
-  if (logicalMap_==0) {
-    HcalLogicalMapGenerator gen;
-    logicalMap_=new HcalLogicalMap(gen.createMap(topo));
-  }
-
-
+void HBHEStatusBitSetter::SetFlagsFromRecHits(HBHERecHitCollection& rec) {
   for (HBHERecHitCollection::iterator iHBHE=rec.begin();iHBHE!=rec.end();++iHBHE) {
     int index=logicalMap_->getHcalFrontEndId(iHBHE->detid()).rmIndex();
     if (hpdMultiplicity_.at(index)<hitMultiplicityThreshold_) continue;

@@ -3,8 +3,8 @@
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/RelMon
 #
 # $Author: dpiparo $
-# $Date: 2012/06/12 12:25:27 $
-# $Revision: 1.1 $
+# $Date: 2012/03/09 13:55:23 $
+# $Revision: 1.16 $
 #
 #                                                                              
 # Danilo Piparo CERN - danilo.piparo@cern.ch                                   
@@ -16,7 +16,6 @@ FAIL=-1
 NULL=0
 SUCCESS=1
 NONE=-2
-SKIPED=-3
 #-------------------------------------------------------------------------------  
 #Error Codes
 test_codes={"EMPTY":-101,
@@ -41,18 +40,15 @@ url_encode_dict={"/":"%2F",
 # Names displayed on the HTML pages  
 cat_names={FAIL:"Failing",
             NULL:"Null",
-            SUCCESS:"Successful",
-            SKIPED: "Skiped"}
+            SUCCESS:"Successful"}
 # Names used internally
 cat_states={FAIL:-1,
             NULL:0,
-            SUCCESS:1,
-            SKIPED:-3}
+            SUCCESS:1}   
 # Names used for the different classes of images to obtain the coloured border
 cat_classes={FAIL:"fail",
              NULL:"null",
-             SUCCESS:"succes",
-             SKIPED: "skiped"}     # 1s to avoid conflicts with blueoprint
+             SUCCESS:"succes"}     # 1s to avoid conflicts with blueoprint
 
 #-------------------------------------------------------------------------------                                 
 # Aggregation of names for the global directory

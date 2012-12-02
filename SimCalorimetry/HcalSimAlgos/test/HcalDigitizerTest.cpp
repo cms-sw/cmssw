@@ -31,7 +31,6 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalDigitizerTraits.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalHitCorrection.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include <vector>
@@ -101,8 +100,6 @@ int main() {
     hits.push_back(barrelHit);
   }
 
-
-  HcalTopology topology(HcalTopologyMode::LHC,2,3);
 
   hoDetIds.push_back(outerDetId);
   vector<HcalDetId> outerhcalDetIds;
@@ -187,10 +184,10 @@ int main() {
   hfResponse.setHitFilter(&hfHitFilter);
   zdcResponse.setHitFilter(&zdcHitFilter);
 
-  HcalPedestals pedestals(&topology);
-  HcalPedestalWidths pedestalWidths(&topology);
-  HcalGains gains(&topology);
-  HcalGainWidths gainWidths(&topology);
+  HcalPedestals pedestals;
+  HcalPedestalWidths pedestalWidths;
+  HcalGains gains;
+  HcalGainWidths gainWidths;
   // make a calibration service by hand
   for(vector<DetId>::const_iterator detItr = allDetIds.begin(); detItr != allDetIds.end(); ++detItr) {
     pedestals.addValues(HcalDbHardcode::makePedestal(*detItr));

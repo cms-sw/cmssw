@@ -27,15 +27,18 @@ public:
   typedef PHcalRcd           PGeometryRecord ;
   typedef HcalDetId          DetIdType       ;
 
-    
+  enum { k_NumberOfCellsForCorners = HcalDetId::kSizeForDenseIndexing } ;
+
+  enum { k_NumberOfShapes = 87 } ;
+
   enum { k_NumberOfParametersPerShape = 5 } ;
 
   static std::string dbString() { return "PHcalRcd" ; }
 
-  virtual unsigned int numberOfShapes() const { return theTopology.getNumberOfShapes() ; }
+  virtual unsigned int numberOfShapes() const { return k_NumberOfShapes ; }
   virtual unsigned int numberOfParametersPerShape() const { return k_NumberOfParametersPerShape ; }
 
-  explicit HcalGeometry(const HcalTopology& topology);
+  explicit HcalGeometry(const HcalTopology * topology);
 
   /// The HcalGeometry will delete all its cell geometries at destruction time
   virtual ~HcalGeometry();
@@ -55,11 +58,9 @@ public:
 
   static unsigned int numberOfEndcapAlignments() { return 36 ; }
 
-  static unsigned int numberOfForwardAlignments() { return 36 ; }
+  static unsigned int numberOfOuterAlignments() { return 36 ; }
 
-  static unsigned int numberOfOuterAlignments() { return 60 ; }
-
-  
+  static unsigned int numberOfForwardAlignments() { return 60 ; }
 
   static unsigned int numberOfAlignments() 
     { return ( numberOfBarrelAlignments() +
@@ -67,43 +68,23 @@ public:
 	       numberOfOuterAlignments() +
 	       numberOfForwardAlignments() ) ; }
 
-  static unsigned int alignmentBarrelIndexLocal(    const DetId& id ) ;
-  static unsigned int alignmentEndcapIndexLocal(    const DetId& id ) ;
-  static unsigned int alignmentForwardIndexLocal(   const DetId& id ) ;
-  static unsigned int alignmentOuterIndexLocal(     const DetId& id ) ;
   static unsigned int alignmentTransformIndexLocal( const DetId& id ) ;
-
-  static unsigned int alignmentBarEndForIndexLocal( const DetId& id,unsigned int nD ) ;
 
   static unsigned int alignmentTransformIndexGlobal( const DetId& id ) ;
 
-  static DetId detIdFromLocalAlignmentIndex(   unsigned int i ) ;
-  static DetId detIdFromBarrelAlignmentIndex(  unsigned int i ) ;
-  static DetId detIdFromEndcapAlignmentIndex(  unsigned int i ) ;
-  static DetId detIdFromForwardAlignmentIndex( unsigned int i ) ;
-  static DetId detIdFromOuterAlignmentIndex(   unsigned int i ) ;
+  static void localCorners( Pt3DVec&        lc  ,
+			    const CCGFloat* pv  , 
+			    unsigned int    i   ,
+			    Pt3D&           ref   ) ;
 
-  void localCorners( Pt3DVec&        lc  ,
-		     const CCGFloat* pv  , 
-		     unsigned int    i   ,
-		     Pt3D&           ref   ) ;
-  
   virtual void newCell( const GlobalPoint& f1 ,
 			const GlobalPoint& f2 ,
 			const GlobalPoint& f3 ,
 			const CCGFloat*    parm,
 			const DetId&       detId     ) ;
-
-  virtual const CaloCellGeometry* getGeometry( const DetId& id ) const {
-      return cellGeomPtr( theTopology.detId2denseId( id ) ) ;
-  }
-
 protected:
 
   virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
-
-  virtual unsigned int indexFor(const DetId& id) const { return  theTopology.detId2denseId(id); }
-  virtual unsigned int sizeForDenseIndex(const DetId& id) const { return theTopology.ncells(); }
 
 private:
 
@@ -116,13 +97,14 @@ private:
   int phiBin(double phi, int etaring) const;
 
 
-  const HcalTopology& theTopology;
+  const HcalTopology * theTopology;
   
   mutable std::vector<DetId> m_hbIds ;
   mutable std::vector<DetId> m_heIds ;
   mutable std::vector<DetId> m_hoIds ;
   mutable std::vector<DetId> m_hfIds ;
   mutable std::vector<DetId> m_emptyIds ;
+  bool m_ownsTopology ;
 
   HBCellVec m_hbCellVec ;
   HECellVec m_heCellVec ;

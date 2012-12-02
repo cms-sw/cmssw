@@ -1,9 +1,6 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
-# load the PAT config
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
 ## add track candidates
 from PhysicsTools.PatAlgos.tools.trackTools import *
 
@@ -13,7 +10,7 @@ makeTrackCandidates(process,
     particleType = 'pi+',
     preselection = 'pt > 10',
     selection    = 'pt > 10',
-    isolation    = {'tracker':0.3}, ##, 'ecalTowers':0.3, 'hcalTowers':0.3}, ## no caloTowers in the event content any more
+    isolation    = {'tracker':0.3, 'ecalTowers':0.3, 'hcalTowers':0.3},
     isoDeposits  = [],
     mcAs         = 'muon'
 )

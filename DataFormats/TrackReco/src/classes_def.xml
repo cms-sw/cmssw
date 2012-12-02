@@ -133,4 +133,13 @@
      <class name="std::vector<std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int> >" />
      <class name="std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,int>" />
 
+
+     <class name="std::pair<reco::Track,reco::Track>"/>
+     <class name="edm::Wrapper<std::pair<reco::Track,reco::Track> > "/>
+     <class name="std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> >" />
+     <class name="edm::Wrapper<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > >" />
+     <class name="std::vector<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > >"/>
+     <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<reco::Track,reco::Track> > > >"/>
+
+
   </lcgdict>

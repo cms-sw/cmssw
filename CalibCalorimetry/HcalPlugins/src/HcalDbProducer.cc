@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.27 2009/10/16 22:12:57 kukartse Exp $
+// $Id: HcalDbProducer.cc,v 1.26 2009/05/20 15:54:18 rofierzy Exp $
 //
 //
 
@@ -96,14 +96,6 @@ boost::shared_ptr<HcalDbService> HcalDbProducer::produce( const HcalDbRecord&)
 void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
   edm::ESHandle <HcalPedestals> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Pedestals")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL Pedestals set" << std::endl;
@@ -114,14 +106,6 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
 void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
   edm::ESHandle <HcalPedestalWidths> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PedestalWidths")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL PedestalWidths set" << std::endl;
@@ -133,14 +117,6 @@ void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecor
 void HcalDbProducer::gainsCallback (const HcalGainsRcd& fRecord) {
   edm::ESHandle <HcalGains> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("Gains")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL Gains set" << std::endl;
@@ -152,14 +128,6 @@ void HcalDbProducer::gainsCallback (const HcalGainsRcd& fRecord) {
 void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
   edm::ESHandle <HcalGainWidths> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("GainWidths")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL GainWidths set" << std::endl;
@@ -170,14 +138,6 @@ void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
 void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
   edm::ESHandle <HcalQIEData> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL QIEData set" << std::endl;
@@ -188,14 +148,6 @@ void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
 void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecord) {
   edm::ESHandle <HcalChannelQuality> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ChannelQuality")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL ChannelQuality set" << std::endl;
@@ -206,14 +158,6 @@ void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecor
 void HcalDbProducer::respCorrsCallback (const HcalRespCorrsRcd& fRecord) {
   edm::ESHandle <HcalRespCorrs> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RespCorrs")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL RespCorrs set" << std::endl;
@@ -224,14 +168,6 @@ void HcalDbProducer::respCorrsCallback (const HcalRespCorrsRcd& fRecord) {
 void HcalDbProducer::LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord) {
   edm::ESHandle <HcalLUTCorrs> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LUTCorrs")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL LUTCorrs set" << std::endl;
@@ -242,14 +178,6 @@ void HcalDbProducer::LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord) {
 void HcalDbProducer::PFCorrsCallback (const HcalPFCorrsRcd& fRecord) {
   edm::ESHandle <HcalPFCorrs> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("PFCorrs")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL PFCorrs set" << std::endl;
@@ -260,14 +188,6 @@ void HcalDbProducer::PFCorrsCallback (const HcalPFCorrsRcd& fRecord) {
 void HcalDbProducer::timeCorrsCallback (const HcalTimeCorrsRcd& fRecord) {
   edm::ESHandle <HcalTimeCorrs> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TimeCorrs")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL TimeCorrs set" << std::endl;
@@ -278,14 +198,6 @@ void HcalDbProducer::timeCorrsCallback (const HcalTimeCorrsRcd& fRecord) {
 void HcalDbProducer::zsThresholdsCallback (const HcalZSThresholdsRcd& fRecord) {
   edm::ESHandle <HcalZSThresholds> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZSThresholds")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL ZSThresholds set" << std::endl;
@@ -296,14 +208,6 @@ void HcalDbProducer::zsThresholdsCallback (const HcalZSThresholdsRcd& fRecord) {
 void HcalDbProducer::L1triggerObjectsCallback (const HcalL1TriggerObjectsRcd& fRecord) {
   edm::ESHandle <HcalL1TriggerObjects> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("L1TriggerObjects")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL L1TriggerObjects set" << std::endl;
@@ -324,14 +228,6 @@ void HcalDbProducer::electronicsMapCallback (const HcalElectronicsMapRcd& fRecor
 void HcalDbProducer::lutMetadataCallback (const HcalLutMetadataRcd& fRecord) {
   edm::ESHandle <HcalLutMetadata> item;
   fRecord.get (item);
-
-  if (item->topo()==0) {
-    edm::ESHandle<HcalTopology> htopo;
-    fRecord.getRecord<IdealGeometryRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-    item->setTopo(topo);
-  }
-
   mService->setData (item.product ());
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LutMetadata")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL LUT Metadata set" << std::endl;

@@ -15,10 +15,7 @@ POOL object to store Zero Suppression Thresholds
 class HcalZSThresholds: public HcalCondObjectContainer<HcalZSThreshold>
 {
  public:
-#ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalZSThresholds():HcalCondObjectContainer<HcalZSThreshold>(0) {}
-#endif
-  HcalZSThresholds(const HcalTopology* topo):HcalCondObjectContainer<HcalZSThreshold>(topo) {}
+  HcalZSThresholds():HcalCondObjectContainer<HcalZSThreshold>() {}
 
   std::string myname() const {return (std::string)"HcalZSThresholds";}
 

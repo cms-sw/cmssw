@@ -14,8 +14,22 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : mer
   weightFileName_ = "RecoTracker/FinalTrackSelectors/data/DuplicateWeights.xml";
   minDeltaR3d_ = -4.0;
   minBDTG_ = -0.96;
-  minpT_ = 0.63;
+  minpT_ = 0.2;
+  minP_ = 0.4;
+  maxDCA_ = 50.0;
+  maxDPhi_ = 0.35;
+  maxDLambda_ = 0.35;
+  maxDdsz_ = 20.0;
+  maxDdxy_ = 20.0;
+  maxDQoP_ = 0.25;
   if(iPara.exists("minpT"))minpT_ = iPara.getParameter<double>("minpT");
+  if(iPara.exists("minP"))minP_ = iPara.getParameter<double>("minP");
+  if(iPara.exists("maxDCA"))maxDCA_ = iPara.getParameter<double>("maxDCA");
+  if(iPara.exists("maxDPhi"))maxDPhi_ = iPara.getParameter<double>("maxDPhi");
+  if(iPara.exists("maxDLambda"))maxDLambda_ = iPara.getParameter<double>("maxDLambda");
+  if(iPara.exists("maxDdsz"))maxDdsz_ = iPara.getParameter<double>("maxDdsz");
+  if(iPara.exists("maxDdxy"))maxDdxy_ = iPara.getParameter<double>("maxDdxy");
+  if(iPara.exists("maxDQoP"))maxDQoP_ = iPara.getParameter<double>("maxDQoP");
   if(iPara.exists("source"))trackSource_ = iPara.getParameter<edm::InputTag>("source");
   if(iPara.exists("minDeltaR3d"))minDeltaR3d_ = iPara.getParameter<double>("minDeltaR3d");
   if(iPara.exists("minBDTG"))minBDTG_ = iPara.getParameter<double>("minBDTG");
@@ -65,62 +79,78 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
   std::auto_ptr<CandidateToDuplicate> out_candidateMap(new CandidateToDuplicate());
 
   for(int i = 0; i < (int)handle->size(); i++){
-    reco::Track rt1 = (handle->at(i));
-    if(rt1.innerMomentum().Rho() < minpT_)continue;
+    const reco::Track *rt1 = &(handle->at(i));
+    if(rt1->innerMomentum().Rho() < minpT_)continue;
+    if(rt1->innerMomentum().R() < minP_)continue;
     for(int j = i+1; j < (int)handle->size();j++){
-      reco::Track rt2 = (handle->at(j));
-      if(rt2.innerMomentum().Rho() < minpT_)continue;
-      if(rt1.charge() != rt2.charge())continue;
-      reco::Track t1,t2;
-      if(rt1.outerPosition().Rho() < rt2.outerPosition().Rho()){
+      const reco::Track *rt2 = &(handle->at(j));
+      if(rt2->innerMomentum().Rho() < minpT_)continue;
+      if(rt2->innerMomentum().R() < minP_)continue;
+      if(rt1->charge() != rt2->charge())continue;
+      const reco::Track* t1,*t2;
+      if(rt1->outerPosition().Rho() < rt2->outerPosition().Rho()){
 	t1 = rt1;
 	t2 = rt2;
       }else{
 	t1 = rt2;
 	t2 = rt1;
       }
-      double deltaR3d = sqrt(pow(t1.outerPosition().x()-t2.innerPosition().x(),2) + pow(t1.outerPosition().y()-t2.innerPosition().y(),2) + pow(t1.outerPosition().z()-t2.innerPosition().z(),2));
+      double deltaR3d = sqrt(pow(t1->outerPosition().x()-t2->innerPosition().x(),2) + pow(t1->outerPosition().y()-t2->innerPosition().y(),2) + pow(t1->outerPosition().z()-t2->innerPosition().z(),2));
 
-      if(t1.outerPosition().Rho() > t2.innerPosition().Rho())deltaR3d *= -1.0;
+      if(t1->outerPosition().Rho() > t2->innerPosition().Rho())deltaR3d *= -1.0;
       if(deltaR3d < minDeltaR3d_)continue;
       
-      FreeTrajectoryState fts1 = trajectoryStateTransform::initialFreeState(t1, &*magfield_);
-      FreeTrajectoryState fts2 = trajectoryStateTransform::initialFreeState(t2, &*magfield_);
-      GlobalPoint avgPoint((t1.outerPosition().x()+t2.innerPosition().x())*0.5,(t1.outerPosition().y()+t2.innerPosition().y())*0.5,(t1.outerPosition().z()+t2.innerPosition().z())*0.5);
+      FreeTrajectoryState fts1 = trajectoryStateTransform::initialFreeState(*t1, &*magfield_);
+      FreeTrajectoryState fts2 = trajectoryStateTransform::initialFreeState(*t2, &*magfield_);
+      GlobalPoint avgPoint((t1->outerPosition().x()+t2->innerPosition().x())*0.5,(t1->outerPosition().y()+t2->innerPosition().y())*0.5,(t1->outerPosition().z()+t2->innerPosition().z())*0.5);
       TrajectoryStateClosestToPoint TSCP1 = tscpBuilder(fts1, avgPoint);
       TrajectoryStateClosestToPoint TSCP2 = tscpBuilder(fts2, avgPoint);
       if(!TSCP1.isValid())continue;
       if(!TSCP2.isValid())continue;
-              
-      double qoverp1 = TSCP1.theState().signedInverseMomentum();
-      double phi1 = TSCP1.theState().momentum().phi();
-      double lambda1 =  M_PI/2 - TSCP1.theState().momentum().theta();
-      double dxy1 = (-TSCP1.theState().position().x() * TSCP1.theState().momentum().y() + TSCP1.theState().position().y() * TSCP1.theState().momentum().x())/TSCP1.pt();
-      double dsz1 = TSCP1.theState().position().z() * TSCP1.pt() / TSCP1.momentum().mag() - (TSCP1.theState().position().x() * TSCP1.theState().momentum().y() + TSCP1.theState().position().y() * TSCP1.theState().momentum().x())/TSCP1.pt() * TSCP1.theState().momentum().z()/TSCP1.theState().momentum().mag();
-      
-      double qoverp2 = TSCP2.theState().signedInverseMomentum();
-      double phi2 = TSCP2.theState().momentum().phi();
-      double lambda2 =  M_PI/2 - TSCP2.theState().momentum().theta();
-      double dxy2 = (-TSCP2.theState().position().x() * TSCP2.theState().momentum().y() + TSCP2.theState().position().y() * TSCP2.theState().momentum().x())/TSCP2.pt();
-      double dsz2 = TSCP2.theState().position().z() * TSCP2.pt() / TSCP2.momentum().mag() - (TSCP2.theState().position().x() * TSCP2.theState().momentum().y() + TSCP2.theState().position().y() * TSCP2.theState().momentum().x())/TSCP2.pt() * TSCP2.theState().momentum().z()/TSCP2.theState().momentum().mag();
-      tmva_ddsz_ = dsz1-dsz2;
-      tmva_ddxy_ = dxy1-dxy2;
+
+      const FreeTrajectoryState ftsn1 = TSCP1.theState();
+      const FreeTrajectoryState ftsn2 = TSCP2.theState();
+ 
+      if ( (ftsn2.position()-ftsn1.position()).mag() > maxDCA_ ) continue;
+
+      double qoverp1 = ftsn1.signedInverseMomentum();
+      double qoverp2 = ftsn2.signedInverseMomentum();
+      tmva_dqoverp_ = qoverp1-qoverp2;
+      if ( fabs(tmva_dqoverp_) > maxDQoP_ ) continue;
+
+      double lambda1 =  M_PI/2 - ftsn1.momentum().theta();
+      double lambda2 =  M_PI/2 - ftsn2.momentum().theta();
+      tmva_dlambda_ = lambda1-lambda2;
+      if ( fabs(tmva_dlambda_) > maxDLambda_ ) continue;
+
+      double phi1 = ftsn1.momentum().phi();
+      double phi2 = ftsn2.momentum().phi();
       tmva_dphi_ = phi1-phi2;
       if(fabs(tmva_dphi_) > M_PI) tmva_dphi_ = 2*M_PI - fabs(tmva_dphi_);
-      tmva_dlambda_ = lambda1-lambda2;
-      tmva_dqoverp_ = qoverp1-qoverp2;
+      if ( fabs(tmva_dphi_) > maxDPhi_ ) continue;
+
+      double dxy1 = (-ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt();
+      double dxy2 = (-ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt();
+      tmva_ddxy_ = dxy1-dxy2;
+      if ( fabs(tmva_ddxy_) > maxDdxy_ ) continue;
+
+      double dsz1 = ftsn1.position().z() * TSCP1.pt() / TSCP1.momentum().mag() - (ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt() * ftsn1.momentum().z()/ftsn1.momentum().mag();
+      double dsz2 = ftsn2.position().z() * TSCP2.pt() / TSCP2.momentum().mag() - (ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt() * ftsn2.momentum().z()/ftsn2.momentum().mag();
+      tmva_ddsz_ = dsz1-dsz2;
+      if ( fabs(tmva_ddsz_) > maxDdsz_ ) continue;
+
       tmva_d3dr_ = avgPoint.perp();
       tmva_d3dz_ = avgPoint.z();
-      tmva_outer_nMissingInner_ = t2.trackerExpectedHitsInner().numberOfLostHits();
-      tmva_inner_nMissingOuter_ = t1.trackerExpectedHitsOuter().numberOfLostHits();
+      tmva_outer_nMissingInner_ = t2->trackerExpectedHitsInner().numberOfLostHits();
+      tmva_inner_nMissingOuter_ = t1->trackerExpectedHitsOuter().numberOfLostHits();
       
       double mvaBDTG = tmvaReader_->EvaluateMVA("BDTG");
       if(mvaBDTG < minBDTG_)continue;
       
       
-      TrackCandidate mergedTrack = merger_.merge(t1,t2);
+      TrackCandidate mergedTrack = merger_.merge(*t1,*t2);
       out_duplicateCandidates->push_back(mergedTrack);
-      std::pair<Track,Track> trackPair(t1,t2);
+      std::pair<Track,Track> trackPair(*t1,*t2);
       std::pair<TrackCandidate, std::pair<Track,Track> > cp(mergedTrack,trackPair);
       out_candidateMap->push_back(cp);
     }

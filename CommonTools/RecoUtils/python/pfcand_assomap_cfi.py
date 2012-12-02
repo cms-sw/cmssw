@@ -1,17 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-PFCandAssoMap = cms.EDProducer('PFCand_AssoMap',			
-	 
-	  #Choose which map should be created
-	  # "VertexToPFCands", "PFCandsToVertex" or "Both"
-	  AssociationType = cms.InputTag('Both'),		
-	 
-	  #Set the number of associations per track/vertex		   	    
-          MaxNumberOfAssociations = cms.int32(1),	
+PFCandAssoMap = cms.EDProducer('PFCand_AssoMap',		
 	 
 	  #Set the Input Collections
           PFCandidateCollection = cms.InputTag('particleFlow'),
           VertexCollection = cms.InputTag('offlinePrimaryVertices'),
+		 
+	  #Step 0: If track-pt() is smaler the track will 
+	  #always be associated to the first vertex
+          TrackPtCut = cms.double(1000.),
 	    
 	  #Set the BeamSpot
 	  BeamSpot = cms.InputTag('offlineBeamSpot'),
@@ -29,6 +26,10 @@ PFCandAssoMap = cms.EDProducer('PFCand_AssoMap',
 	   
 	  #Configuration for the reassociation of particles from nuclear interactions
           NIVertexCollection = cms.InputTag('particleFlowDisplacedVertex'),
+	   	   
+	  #Configuration to check if a secondary is compatible with the BeamSpot
+	  UseBeamSpotCompatibility = cms.untracked.bool(False), 
+          BeamSpotCompatibilityCut = cms.double(3.), 
 		  
 	  #Configuration for the final association
 	  # 0 == always first vertex (default)
@@ -44,18 +45,15 @@ PFCandAssoMap = cms.EDProducer('PFCand_AssoMap',
 		  
 )
 
-PFCandAssoMapJJetMet = cms.EDProducer('PFCand_AssoMap',			
-	 
-	  #Choose which map should be created
-	  # "VertexToTracks", "TracksToVertex" or "Both"
-	  AssociationType = cms.InputTag('Both'),		
-	 
-	  #Set the number of associations per track/vertex		   	    
-          MaxNumberOfAssociations = cms.int32(1),	
+PFCandAssoMapJme = cms.EDProducer('PFCand_AssoMap',		
 	 
 	  #Set the Input Collections
           PFCandidateCollection = cms.InputTag('particleFlow'),
           VertexCollection = cms.InputTag('offlinePrimaryVertices'),
+		 
+	  #Step 0: If track-pt() is smaler the track will 
+	  #always be associated to the first vertex
+          TrackPtCut = cms.double(1000.),
 	    
 	  #Set the BeamSpot
 	  BeamSpot = cms.InputTag('offlineBeamSpot'),
@@ -73,6 +71,10 @@ PFCandAssoMapJJetMet = cms.EDProducer('PFCand_AssoMap',
 	   
 	  #Configuration for the reassociation of particles from nuclear interactions
           NIVertexCollection = cms.InputTag('particleFlowDisplacedVertex'),
+	   	   
+	  #Configuration to check if a secondary is compatible with the BeamSpot
+	  UseBeamSpotCompatibility = cms.untracked.bool(False), 
+          BeamSpotCompatibilityCut = cms.double(5.), 
 		  
 	  #Configuration for the final association
 	  # 0 == always first vertex (default)
@@ -90,16 +92,13 @@ PFCandAssoMapJJetMet = cms.EDProducer('PFCand_AssoMap',
 
 PFCandAssoMapMuoEgm = cms.EDProducer('PFCand_AssoMap',			
 	 
-	  #Choose which map should be created
-	  # "VertexToTracks", "TracksToVertex" or "Both"
-	  AssociationType = cms.InputTag('Both'),		
-	 
-	  #Set the number of associations per track/vertex		   	    
-          MaxNumberOfAssociations = cms.int32(1),		
-	 
 	  #Set the Input Collections
           PFCandidateCollection = cms.InputTag('particleFlow'),
           VertexCollection = cms.InputTag('offlinePrimaryVertices'),
+		 
+	  #Step 0: If track-pt() is smaler the track will 
+	  #always be associated to the first vertex
+          TrackPtCut = cms.double(1000.),
 	    
 	  #Set the BeamSpot
 	  BeamSpot = cms.InputTag('offlineBeamSpot'),
@@ -117,6 +116,10 @@ PFCandAssoMapMuoEgm = cms.EDProducer('PFCand_AssoMap',
 	   
 	  #Configuration for the reassociation of particles from nuclear interactions
           NIVertexCollection = cms.InputTag('particleFlowDisplacedVertex'),
+	   	   
+	  #Configuration to check if a secondary is compatible with the BeamSpot
+	  UseBeamSpotCompatibility = cms.untracked.bool(False), 
+          BeamSpotCompatibilityCut = cms.double(5.), 
 		  
 	  #Configuration for the final association
 	  # 0 == always first vertex (default)

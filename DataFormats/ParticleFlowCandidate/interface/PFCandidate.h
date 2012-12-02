@@ -73,9 +73,7 @@ namespace reco {
       kComMuonVertex=2,
       kSAMuonVertex=3,
       kTrkMuonVertex=4,
-      kGSFVertex=5,
-      kTPFMSMuonVertex=6,
-      kPickyMuonVertex=7
+      kGSFVertex=5
     };
 
 
@@ -157,9 +155,6 @@ namespace reco {
     /// return a reference to the corresponding muon, if a muon. 
     /// otherwise, return a null reference
     reco::MuonRef muonRef() const;
-
-
-
 
     /// set displaced vertex reference
     void setDisplacedVertexRef(const reco::PFDisplacedVertexRef& ref, Flags flag);

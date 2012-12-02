@@ -1,15 +1,12 @@
 #ifndef EVENTFILTER_GOODIES_IDIE_H
 #define EVENTFILTER_GOODIES_IDIE_H
 
-//XDAQ
-#include "xdaq/Application.h"
+#include "EventFilter/Utilities/interface/Exception.h"
+#include "EventFilter/Utilities/interface/TriggerReportDef.h"
 
 #include "xdata/String.h"
-#include "xdata/Double.h"
-#include "xdata/Float.h"
 #include "xdata/UnsignedInteger32.h"
 #include "xdata/Boolean.h"
-#include "xdata/TimeVal.h"
 #include "xdata/ActionListener.h"
 
 #include "xoap/MessageReference.h"
@@ -21,36 +18,25 @@
 #include "xgi/Output.h"
 #include "xgi/Method.h"
 
+#include "xdaq/Application.h"
+
 #include "toolbox/net/URN.h"
 #include "toolbox/fsm/exception/Exception.h"
-#include "toolbox/task/TimerListener.h"
 
-//C++2011
-#include <atomic>
 
-//C++
-#include <list>
 #include <vector>
 #include <deque>
 
-//C
 #include <sys/time.h>
 #include <math.h>
 
-//ROOT
 #include "TFile.h"
 #include "TTree.h"
 
-//framework
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "DQMServices/Core/src/DQMService.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
-
-//CMSSW EventFilter
-#include "EventFilter/Utilities/interface/Exception.h"
-#include "EventFilter/Utilities/interface/TriggerReportDef.h"
 
 #define MODNAMES 25
 
@@ -90,10 +76,8 @@ namespace evf {
   typedef std::map<std::string,internal::fu> fmap;
   typedef fmap::iterator ifmap;
   
-  class iDie :
-    public xdaq::Application,
-    public xdata::ActionListener,
-    public toolbox::task::TimerListener
+  class iDie : public xdaq::Application,
+    public xdata::ActionListener
   {
   public:
     //
@@ -101,6 +85,7 @@ namespace evf {
     //
     XDAQ_INSTANTIATOR();
   
+    
     //
     // construction/destruction
     //
@@ -136,8 +121,6 @@ namespace evf {
     // xdata:ActionListener interface
     void actionPerformed(xdata::Event& e);
 
-    //toolbox::Task::TimerListener interface
-    void timeExpired(toolbox::task::TimerEvent& e);
 
   private:
 
@@ -186,9 +169,6 @@ namespace evf {
     void doFlush();
     void perLumiFileSaver(unsigned int lsid);
     void perTimeFileSaver();
-    void initDQMEventInfo();
-    void setRunStartTimeStamp();
-
     //
     // member data
     //
@@ -204,104 +184,12 @@ namespace evf {
 
     xdata::UnsignedInteger32        runNumber_;
     unsigned int                    lastRunNumberSet_;
-    bool                            runActive_;
 
-    xdata::UnsignedInteger32        flashRunNumber_;
-
-    //CPU load flashlist
-    std::list<std::string>          monNames_;
-    xdata::InfoSpace                *cpuInfoSpace_;
-    xdata::UnsignedInteger32        flashLoadLs_;
-    std::atomic<unsigned int>       cpuLoadLastLs_;
-    std::atomic<unsigned int>       cpuLoadSentLs_;
-
-    float                           cpuLoad_[4000];
-    float                           cpuLoadPS_[4000];
-
-    float                           cpuLoadTime7_[4000];
-    float                           cpuLoadTime8_[4000];
-    float                           cpuLoadTime12_[4000];
-    float                           cpuLoadTime16_[4000];
-    float                           cpuLoadTime24_[4000];
-    float                           cpuLoadTime32_[4000];
-
-    float                           cpuLoadRate_[4000];
-
-    float                           cpuLoadRate7_[4000];
-    float                           cpuLoadRate8_[4000];
-    float                           cpuLoadRate12_[4000];
-    float                           cpuLoadRate16_[4000];
-    float                           cpuLoadRate24_[4000];
-    float                           cpuLoadRate32_[4000];
-
-    float                           cpuLoadUc7_[4000];
-    float                           cpuLoadUc8_[4000];
-    float                           cpuLoadUc12_[4000];
-    float                           cpuLoadUc16_[4000];
-    float                           cpuLoadUc24_[4000];
-    float                           cpuLoadUc32_[4000];
-
-    unsigned int                    cpuLoadReports7_[4000];
-    unsigned int                    cpuLoadReports8_[4000];
-    unsigned int                    cpuLoadReports12_[4000];
-    unsigned int                    cpuLoadReports16_[4000];
-    unsigned int                    cpuLoadReports24_[4000];
-    unsigned int                    cpuLoadReports32_[4000];
-
-    xdata::Float                    flashLoad_;
-    xdata::Float                    flashLoadPS_;
-
-    xdata::Float                    flashLoadTime7_;
-    xdata::Float                    flashLoadTime8_;
-    xdata::Float                    flashLoadTime12_;
-    xdata::Float                    flashLoadTime16_;
-    xdata::Float                    flashLoadTime24_;
-    xdata::Float                    flashLoadTime32_;
-
-    xdata::Float                    flashLoadRate_;
-
-    xdata::Float                    flashLoadRate7_;
-    xdata::Float                    flashLoadRate8_;
-    xdata::Float                    flashLoadRate12_;
-    xdata::Float                    flashLoadRate16_;
-    xdata::Float                    flashLoadRate24_;
-    xdata::Float                    flashLoadRate32_;
-
-    xdata::Float                    flashLoadUc7_;
-    xdata::Float                    flashLoadUc8_;
-    xdata::Float                    flashLoadUc12_;
-    xdata::Float                    flashLoadUc16_;
-    xdata::Float                    flashLoadUc24_;
-    xdata::Float                    flashLoadUc32_;
-
-    xdata::UnsignedInteger32        flashReports7_;
-    xdata::UnsignedInteger32        flashReports8_;
-    xdata::UnsignedInteger32        flashReports12_;
-    xdata::UnsignedInteger32        flashReports16_;
-    xdata::UnsignedInteger32        flashReports24_;
-    xdata::UnsignedInteger32        flashReports32_;
-
-    //EventInfo
+    //run info
     MonitorElement * runId_;
     MonitorElement * lumisecId_;
     MonitorElement * eventId_;
     MonitorElement * eventTimeStamp_;
-    MonitorElement * runStartTimeStamp_;
-
-    MonitorElement * processTimeStampMe_;
-    MonitorElement * processLatencyMe_;
-    MonitorElement * processEventsMe_;
-    MonitorElement * processEventRateMe_;
-    MonitorElement * nUpdatesMe_;
-    MonitorElement * processIdMe_;
-    MonitorElement * processStartTimeStampMe_;
-    MonitorElement * hostNameMe_;
-    MonitorElement * processNameMe_;
-    MonitorElement * workingDirMe_;
-    MonitorElement * cmsswVerMe_;
-
-    float runTS_;
-    float latencyTS_;
 
     xdata::String                   dqmCollectorHost_;
     xdata::String                   dqmCollectorPort_;
@@ -654,14 +542,12 @@ namespace evf {
     DQMStore                        *dqmStore_;
     std::string                     configString_;
     xdata::Boolean                  dqmEnabled_;
-    xdata::Boolean                  debugMode_;
 
     std::map<unsigned int,int> nbSubsList;
     std::map<int,unsigned int> nbSubsListInv;
     unsigned int nbSubsClasses;
     std::vector<MonitorElement*> meVecRate_;
     std::vector<MonitorElement*> meVecTime_;
-    std::vector<MonitorElement*> meVecCPU_;
     std::vector<MonitorElement*> meVecOffenders_;
     MonitorElement * rateSummary_;
     MonitorElement * reportPeriodSummary_;
@@ -673,7 +559,6 @@ namespace evf {
     MonitorElement * fuReportsSummary_;
     MonitorElement * daqBusySummary_;
     MonitorElement * daqBusySummary2_;
-    MonitorElement * daqTotalRateSummary_;
     MonitorElement * busyModules_;
     unsigned int summaryLastLs_;
     std::vector<std::map<unsigned int, unsigned int> > occupancyNameMap;

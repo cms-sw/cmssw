@@ -35,6 +35,10 @@ cleanedHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
     # recHit flags to be excluded from seeding
     RecHitFlagToBeExcluded = cms.vstring(
         'kFaultyHardware',
+        'kPoorCalib',
+        #'kSaturated',
+        #'kLeadingEdgeRecovered',
+        #'kNeighboursRecovered',
         'kTowerRecovered',
         'kDead'
         ),

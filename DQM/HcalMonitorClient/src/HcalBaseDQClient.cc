@@ -4,11 +4,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <iostream>
 #include <fstream>
-#include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 
 HcalBaseDQClient::HcalBaseDQClient(std::string s, const edm::ParameterSet& ps)
 {
@@ -33,9 +28,6 @@ HcalBaseDQClient::HcalBaseDQClient(std::string s, const edm::ParameterSet& ps)
 
   ProblemCells=0;
   ProblemCellsByDepth=0;
-
-  logicalMap_=0;
-  needLogicalMap_=false;
 }
 
 HcalBaseDQClient::~HcalBaseDQClient()
@@ -210,12 +202,4 @@ void HcalBaseDQClient::htmlOutput(std::string htmlDir)
   htmlFile << "</html> " << std::endl;
   htmlFile.close();
   return;
-}
-void HcalBaseDQClient::getLogicalMap(const edm::EventSetup& c) {
-  if (needLogicalMap_ && logicalMap_==0) {
-    edm::ESHandle<HcalTopology> pT;
-    c.get<IdealGeometryRecord>().get(pT);   
-    HcalLogicalMapGenerator gen;
-    logicalMap_=new HcalLogicalMap(gen.createMap(&(*pT)));
-  }
 }

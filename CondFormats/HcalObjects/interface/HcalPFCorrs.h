@@ -15,10 +15,7 @@ POOL object to store PF Corrections
 class HcalPFCorrs: public HcalCondObjectContainer<HcalPFCorr>
 {
  public:
-#ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalPFCorrs():HcalCondObjectContainer<HcalPFCorr>(0) {}
-#endif
-  HcalPFCorrs(const HcalTopology* topo):HcalCondObjectContainer<HcalPFCorr>(topo) {}
+  HcalPFCorrs():HcalCondObjectContainer<HcalPFCorr>() {}
 
   std::string myname() const {return (std::string)"HcalPFCorrs";}
 

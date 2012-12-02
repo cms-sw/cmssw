@@ -32,6 +32,9 @@ multi5x5BasicClustersCleaned = cms.EDProducer("Multi5x5ClusterProducer",
 
     RecHitFlagToBeExcluded = cms.vstring(
         'kFaultyHardware',
+        'kPoorCalib',
+        'kSaturated',
+        'kLeadingEdgeRecovered',
         'kNeighboursRecovered',
         'kTowerRecovered',
         'kDead',

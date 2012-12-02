@@ -5,13 +5,16 @@
 #include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 using reco::modules::DuplicateListMerger;
 
 DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara) 
 {
   diffHitsCut_ = 9999;
+  minTrkProbCut_ = 0.0;
   if(iPara.exists("diffHitsCut"))diffHitsCut_ = iPara.getParameter<int>("diffHitsCut");
+  if(iPara.exists("minTrkProbCut"))minTrkProbCut_ = iPara.getParameter<double>("minTrkProbCut");
   if(iPara.exists("mergedSource"))mergedTrackSource_ = iPara.getParameter<edm::InputTag>("mergedSource");
   if(iPara.exists("originalSource"))originalTrackSource_ = iPara.getParameter<edm::InputTag>("originalSource");
   if(iPara.exists("candidateSource"))candidateSource_ = iPara.getParameter<edm::InputTag>("candidateSource");
@@ -105,6 +108,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     DuplicateRecord duplicateRecord = candidateHandle->at(i);
     int matchTrack = matchCandidateToTrack(duplicateRecord.first,mergedHandle);
     if(matchTrack < 0)continue;
+    if( ChiSquaredProbability(mergedHandle->at(matchTrack).chi2(),mergedHandle->at(matchTrack).ndof()) < minTrkProbCut_)continue;
     unsigned int dHits = (duplicateRecord.first.recHits().second - duplicateRecord.first.recHits().first) - mergedHandle->at(matchTrack).recHitsSize();
     if(dHits > diffHitsCut_)continue;
     matches.push_back(std::pair<int,DuplicateRecord>(matchTrack,duplicateRecord));

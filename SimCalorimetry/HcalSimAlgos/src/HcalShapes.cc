@@ -7,7 +7,6 @@
 #include "CondFormats/DataRecord/interface/HcalMCParamsRcd.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 HcalShapes::HcalShapes()
 : theMCParams(0),
@@ -82,8 +81,6 @@ HcalShapes::HcalShapes()
   theShapes[3] = theShapes[HF];
   theShapes[4] = theShapes[ZDC];
 
-  theMCParams=0;
-  theTopology=0;
 }
 
 
@@ -95,8 +92,7 @@ HcalShapes::~HcalShapes()
     delete shapeItr->second;
   }
   theShapes.clear();
-  if (theMCParams!=0) delete theMCParams;
-  if (theTopology!=0) delete theTopology;
+  delete theMCParams;
 }
 
 
@@ -105,22 +101,13 @@ void HcalShapes::beginRun(edm::EventSetup const & es)
   edm::ESHandle<HcalMCParams> p;
   es.get<HcalMCParamsRcd>().get(p);
   theMCParams = new HcalMCParams(*p.product()); 
-
-// here we are making a _copy_ so we need to add a copy of the topology...
-  
-  edm::ESHandle<HcalTopology> htopo;
-  es.get<IdealGeometryRecord>().get(htopo);
-  theTopology=new HcalTopology(*htopo);
-  theMCParams->setTopo(theTopology);
 }
 
 
 void HcalShapes::endRun()
 {
-  if (theMCParams) delete theMCParams;
+  delete theMCParams;
   theMCParams = 0;
-  if (theTopology) delete theTopology;
-  theTopology = 0;
 }
 
 

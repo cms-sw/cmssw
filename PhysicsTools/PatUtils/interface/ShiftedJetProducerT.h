@@ -10,9 +10,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.2 $
  *
- * $Id: ShiftedJetProducerT.h,v 1.3 2012/02/13 14:12:12 veelken Exp $
+ * $Id: ShiftedJetProducerT.h,v 1.2 2012/02/02 11:00:20 veelken Exp $
  *
  */
 
@@ -80,9 +80,6 @@ class ShiftedJetProducerT : public edm::EDProducer
 
     shiftBy_ = cfg.getParameter<double>("shiftBy");
 
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
-
     produces<JetCollection>();
   }
   ~ShiftedJetProducerT()
@@ -95,12 +92,6 @@ class ShiftedJetProducerT : public edm::EDProducer
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
-    if ( verbosity_ ) {
-      std::cout << "<ShiftedJetProducerT::produce>:" << std::endl;
-      std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
-      std::cout << " src = " << src_.label() << std::endl;
-    }
-
     edm::Handle<JetCollection> originalJets;
     evt.getByLabel(src_, originalJets);
 
@@ -116,22 +107,16 @@ class ShiftedJetProducerT : public edm::EDProducer
 
     for ( typename JetCollection::const_iterator originalJet = originalJets->begin();
 	  originalJet != originalJets->end(); ++originalJet ) {
-      reco::Candidate::LorentzVector originalJetP4 = originalJet->p4();
-      if ( verbosity_ ) {
-	std::cout << "originalJet: Pt = " << originalJetP4.pt() << ", eta = " << originalJetP4.eta() << ", phi = " << originalJetP4.phi() << std::endl;
-      }
+      T shiftedJet(*originalJet);
 
       double shift = 0.;
       if ( jecUncertaintyValue_ != -1. ) {
 	shift = jecUncertaintyValue_;
       } else {
-	jecUncertainty_->setJetEta(originalJetP4.eta());
-	jecUncertainty_->setJetPt(originalJetP4.pt());
+	jecUncertainty_->setJetEta(originalJet->eta());
+	jecUncertainty_->setJetPt(originalJet->pt());
 	
 	shift = jecUncertainty_->getUncertainty(true);
-      }
-      if ( verbosity_ ) {
-	std::cout << "shift = " << shift << std::endl;
       }
 
       if ( addResidualJES_ ) {
@@ -150,15 +135,9 @@ class ShiftedJetProducerT : public edm::EDProducer
       }
 
       shift *= shiftBy_;
-      if ( verbosity_ ) {
-	std::cout << "shift*shiftBy = " << shift << std::endl;
-      }
 
-      T shiftedJet(*originalJet);
+      reco::Candidate::LorentzVector originalJetP4 = originalJet->p4();
       shiftedJet.setP4((1. + shift)*originalJetP4);
-      if ( verbosity_ ) {
-	std::cout << "shiftedJet: Pt = " << shiftedJet.pt() << ", eta = " << shiftedJet.eta() << ", phi = " << shiftedJet.phi() << std::endl;
-      }
     
       shiftedJets->push_back(shiftedJet);
     }
@@ -189,8 +168,6 @@ class ShiftedJetProducerT : public edm::EDProducer
   double jecUncertaintyValue_;
 
   double shiftBy_; // set to +1.0/-1.0 for up/down variation of energy scale
-
-  int verbosity_; // flag to enabled/disable debug output
 };
 
 #endif

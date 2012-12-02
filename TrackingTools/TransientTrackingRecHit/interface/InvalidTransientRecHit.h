@@ -11,19 +11,16 @@ public:
   typedef TransientTrackingRecHitByValue<InvalidTrackingRecHit> Base;
   typedef TrackingRecHit::Type Type;
 
-  static RecHitPointer build( const GeomDet * geom, Type type=TrackingRecHit::missing, const DetLayer * layer=nullptr) {
+  static RecHitPointer build( const GeomDet * geom, Type type=TrackingRecHit::missing, const DetLayer * layer=0) {
     return RecHitPointer( new InvalidTransientRecHit( geom, layer, type ));
   }
 
-  const Surface* surface() const {  return  surface_; }
+  const Surface* surface() const ;
 
 private:
-   Surface const * surface_;
+  const DetLayer * layer_;
   /// invalid RecHit - has only GeomDet and Type
-  InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type) :
-    Base( geom, InvalidTrackingRecHit( geom == nullptr ? DetId(0) : geom->geographicalId(), type)), 
-    surface_(geom ? &(det()->surface()) : ( layer ?  &(layer->surface()) : nullptr))
-    {}
+  explicit InvalidTransientRecHit( const GeomDet* geom, const DetLayer * layer, Type type);
 
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!

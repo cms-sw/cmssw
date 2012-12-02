@@ -9,8 +9,8 @@
 #include <vector>
 /** \class CaloSubdetectorTopology
       
-$Date: 2012/10/29 07:28:55 $
-$Revision: 1.5 $
+$Date: 2010/03/22 18:43:28 $
+$Revision: 1.3 $
 \author P.Meridiani INFN Roma1
 \author J. Mans - Minnesota
 */
@@ -23,17 +23,6 @@ public:
   virtual ~CaloSubdetectorTopology() { }
   /// is this detid present in the Topology?
   virtual bool valid(const DetId& /*id*/) const { return false; };
-  /// return a linear packed id
-  virtual unsigned int detId2denseId(const DetId& /*id*/) const { return 0; }
-  /// return a linear packed id
-  virtual DetId denseId2detId(unsigned int /*denseid*/) const { return DetId(0); }
-  /// return a count of valid cells (for dense indexing use)
-  virtual unsigned int ncells() const { return 1; }
-  /// return a version which identifies the given topology
-  virtual int topoVersion() const { return 0; }
-  /// return whether this topology is consistent with the numbering in the given topology
-  virtual bool denseIdConsistent(int topoVer) const { return topoVer==topoVersion(); }
-
   /** Get the neighbors of the given cell in east direction*/
   virtual std::vector<DetId> east(const DetId& id) const = 0;
   /** Get the neighbors of the given cell in west direction*/

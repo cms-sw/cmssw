@@ -41,7 +41,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
-#include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
+#include "DPGAnalysis/SiStripTools/interface/DetIdSelector.h"
 //
 // class decleration
 //

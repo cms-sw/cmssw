@@ -18,5 +18,4 @@
    <use   name="RecoJets/JetProducers"/>
    <use   name="RecoJets/FFTJetAlgorithms"/>
    <use   name="RecoJets/FFTJetProducers"/>
-   <use   name="JetMETCorrections/FFTJetObjects"/>
 </library>

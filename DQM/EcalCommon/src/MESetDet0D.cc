@@ -1,21 +1,12 @@
 #include "DQM/EcalCommon/interface/MESetDet0D.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 namespace ecaldqm
 {
 
-  MESetDet0D::MESetDet0D(std::string const& _fullPath, BinService::ObjectType _otype, BinService::BinningType _btype, MonitorElement::Kind _kind) :
-    MESetEcal(_fullPath, _otype, _btype, _kind, 0)
-  {
-    switch(kind_){
-    case MonitorElement::DQM_KIND_REAL:
-      break;
-    default:
-      throw_("Unsupported MonitorElement kind");
-    }
-  }
-
-  MESetDet0D::MESetDet0D(MESetDet0D const& _orig) :
-    MESetEcal(_orig)
+  MESetDet0D::MESetDet0D(std::string const& _fullpath, MEData const& _data, bool _readOnly/* = false*/) :
+    MESetEcal(_fullpath, _data, 0, _readOnly)
   {
   }
 
@@ -23,83 +14,33 @@ namespace ecaldqm
   {
   }
 
-  MESet*
-  MESetDet0D::clone() const
-  {
-    return new MESetDet0D(*this);
-  }
-
   void
   MESetDet0D::fill(DetId const& _id, double _value, double, double)
   {
-    if(!active_) return;
+    unsigned offset(binService_->findOffset(data_->otype, _id));
+    if(offset >= mes_.size() || !mes_[offset])
+      throw cms::Exception("InvalidCall") << "ME array index overflow" << std::endl;
 
-    unsigned iME(binService_->findPlot(otype_, _id));
-    checkME_(iME);
-
-    mes_[iME]->Fill(_value);
-  }
-
-  void
-  MESetDet0D::fill(EcalElectronicsId const& _id, double _value, double, double)
-  {
-    if(!active_) return;
-
-    unsigned iME(binService_->findPlot(otype_, _id));
-    checkME_(iME);
-
-    mes_[iME]->Fill(_value);
+    mes_[offset]->Fill(_value);
   }
 
   void
   MESetDet0D::fill(unsigned _dcctccid, double _value, double, double)
   {
-    if(!active_) return;
+    unsigned offset(binService_->findOffset(data_->otype, data_->btype, _dcctccid));
+    if(offset >= mes_.size() || !mes_[offset])
+      throw cms::Exception("InvalidCall") << "ME array index overflow" << offset << std::endl;
 
-    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
-    checkME_(iME);
-
-    mes_[iME]->Fill(_value);
-  }
-
-  double
-  MESetDet0D::getBinContent(DetId const& _id, int) const
-  {
-    if(!active_) return 0.;
-
-    unsigned iME(binService_->findPlot(otype_, _id));
-    checkME_(iME);
-
-    return mes_[iME]->getFloatValue();
-  }
-
-  double
-  MESetDet0D::getBinContent(EcalElectronicsId const& _id, int) const
-  {
-    if(!active_) return 0.;
-
-    unsigned iME(binService_->findPlot(otype_, _id));
-    checkME_(iME);
-
-    return mes_[iME]->getFloatValue();
-  }
-
-  double
-  MESetDet0D::getBinContent(unsigned _dcctccid, int) const
-  {
-    if(!active_) return 0.;
-
-    unsigned iME(binService_->findPlot(otype_, _dcctccid, btype_));
-    checkME_(iME);
-
-    return mes_[iME]->getFloatValue();
+    mes_[offset]->Fill(_value);
   }
 
   void
-  MESetDet0D::reset(double _value/* = 0.*/, double, double)
+  MESetDet0D::fill(double _value, double, double)
   {
-    unsigned nME(mes_.size());
-    for(unsigned iME(0); iME < nME; iME++)
-      mes_[iME]->Fill(_value);
+    if(!(data_->otype == BinService::kEcal && mes_.size() == 1))
+      throw cms::Exception("InvalidCall") << "ME type incompatible";
+
+    mes_[0]->Fill(_value);
   }
+
 }

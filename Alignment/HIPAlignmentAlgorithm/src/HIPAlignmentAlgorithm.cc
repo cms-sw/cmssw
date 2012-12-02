@@ -78,8 +78,12 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   theEventPrescale = cfg.getParameter<int>("eventPrescale");
   theCurrentPrescale = theEventPrescale;
 	
-  for (std::string &s : cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals")) {
-    theLevels.push_back(AlignableObjectId::stringToId(s) );
+  AlignableObjectId dummy;
+	
+  const std::vector<std::string>& levels = cfg.getUntrackedParameter<std::vector<std::string> >("surveyResiduals");
+	
+  for (unsigned int l = 0; l < levels.size(); ++l) {
+    theLevels.push_back( dummy.nameToType(levels[l]) );
   }
 	
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] constructed.";
@@ -177,7 +181,7 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
   // try to read in alignment parameters from a previous iteration
   AlignablePositions theAlignablePositionsFromFile =
     theIO.readAlignableAbsolutePositions(theAlignables,
-					 salignedfile.c_str(),-1,ioerr);
+					 (char*)salignedfile.c_str(),-1,ioerr);
 	
   int numAlignablesFromFile = theAlignablePositionsFromFile.size();
 	
@@ -191,12 +195,12 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
     // get true (de-misaligned positions) and write to root file
     // hardcoded iteration=1
     theIO.writeAlignableOriginalPositions(theAlignables,
-					  struefile.c_str(),1,false,ioerr);
+					  (char*)struefile.c_str(),1,false,ioerr);
 		
     // get misaligned positions and write to root file
     // hardcoded iteration=1
     theIO.writeAlignableAbsolutePositions(theAlignables,
-					  smisalignedfile.c_str(),1,false,ioerr);
+					  (char*)smisalignedfile.c_str(),1,false,ioerr);
 		
   }
 	
@@ -361,7 +365,7 @@ void HIPAlignmentAlgorithm::terminate(void)
 	
   // write user variables
   HIPUserVariablesIORoot HIPIO;
-  HIPIO.writeHIPUserVariables (theAlignables,suvarfile.c_str(),
+  HIPIO.writeHIPUserVariables (theAlignables,(char*)suvarfile.c_str(),
 			       theIteration,false,ioerr);
 	
   // now calculate alignment corrections ...
@@ -396,11 +400,11 @@ void HIPAlignmentAlgorithm::terminate(void)
 	
   // write new absolute positions to disk
   theIO.writeAlignableAbsolutePositions(theAlignables,
-					salignedfile.c_str(),theIteration,false,ioerr);
+					(char*)salignedfile.c_str(),theIteration,false,ioerr);
 	
   // write alignment parameters to disk
   theIO.writeAlignmentParameters(theAlignables, 
-				 sparameterfile.c_str(),theIteration,false,ioerr);
+				 (char*)sparameterfile.c_str(),theIteration,false,ioerr);
 	
   // write iteration number to file
   writeIterationFile(siterationfile,theIteration);
@@ -906,7 +910,7 @@ int HIPAlignmentAlgorithm::readIterationFile(string filename)
 {
   int result;
   
-  ifstream inIterFile(filename.c_str(), ios::in);
+  ifstream inIterFile((char*)filename.c_str(), ios::in);
   if (!inIterFile) {
     edm::LogError("Alignment") << "[HIPAlignmentAlgorithm::readIterationFile] ERROR! "
 			       << "Unable to open Iteration file";
@@ -926,7 +930,7 @@ int HIPAlignmentAlgorithm::readIterationFile(string filename)
 
 void HIPAlignmentAlgorithm::writeIterationFile(string filename,int iter)
 {
-  ofstream outIterFile((filename.c_str()), ios::out);
+  ofstream outIterFile((char*)(filename.c_str()), ios::out);
   if (!outIterFile) {
     edm::LogError("Alignment") << "[HIPAlignmentAlgorithm::writeIterationFile] ERROR: Unable to write Iteration file";
   }
@@ -1299,7 +1303,7 @@ void HIPAlignmentAlgorithm::collector(void)
     string uvfile = theCollectorPath+"/job"+str+"/IOUserVariables.root";
 		
     vector<AlignmentUserVariables*> uvarvec = 
-      HIPIO.readHIPUserVariables(theAlignables, uvfile.c_str(),
+      HIPIO.readHIPUserVariables(theAlignables, (char*)uvfile.c_str(),
 				 theIteration, ioerr);
     
     if (ioerr!=0) { 

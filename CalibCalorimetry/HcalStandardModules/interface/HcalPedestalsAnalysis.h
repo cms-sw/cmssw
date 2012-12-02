@@ -1,4 +1,4 @@
-// $Id: HcalPedestalsAnalysis.h,v 1.14 2012/10/09 15:43:32 wdd Exp $
+// $Id: HcalPedestalsAnalysis.h,v 1.12 2011/03/10 17:55:46 andrey Exp $
 
 #ifndef HcalPedestalsAnalysis_H
 #define HcalPedestalsAnalysis_H
@@ -68,8 +68,6 @@ namespace edm {
       int num[4][4];
    };
 
-class HcalTopology;
-
 class HcalPedestalsAnalysis : public edm::EDAnalyzer
 {
    public:
@@ -115,7 +113,6 @@ class HcalPedestalsAnalysis : public edm::EDAnalyzer
    HcalPedestalWidths* rawWidthsItem;
    HcalPedestals* rawPedsItemfc;
    HcalPedestalWidths* rawWidthsItemfc;
-   HcalTopology *theTopology;
 
    edm::InputTag hbheDigiCollectionTag_;
    edm::InputTag hoDigiCollectionTag_;

@@ -103,8 +103,6 @@ namespace {
     edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::PFCandidate>,std::vector<reco::Vertex>,int,unsigned int> > mp2;
     edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQuality<std::vector<reco::PFCandidate>,std::vector<reco::Vertex>,int,unsigned int> > > mp3;
     std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,std::vector<std::pair<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,int> > > > mp4;
-    std::vector<std::pair<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,int> > mp5;
-    std::pair<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,int> mp6;
 
   };
 }

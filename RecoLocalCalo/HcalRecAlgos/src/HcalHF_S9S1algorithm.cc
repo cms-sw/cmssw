@@ -85,7 +85,7 @@ HcalHF_S9S1algorithm::~HcalHF_S9S1algorithm(){}
 
 void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 					     HFRecHitCollection& rec,
-					     const HcalChannelQuality* myqual,
+					     HcalChannelQuality* myqual,
 					     const HcalSeverityLevelComputer* mySeverity)
 
 {

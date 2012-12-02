@@ -15,7 +15,6 @@
 class CaloVShape;
 class DetId;
 class HcalMCParams;
-class HcalTopology;
 
 class HcalShapes : public CaloShapes
 {
@@ -33,7 +32,6 @@ private:
   // hardcoded, if we can't figure it out form the DB
   const CaloVShape * defaultShape(const DetId & detId) const;
   const HcalMCParams * theMCParams;
-  const HcalTopology * theTopology;
   typedef std::map<int, const CaloVShape *> ShapeMap;
   ShapeMap theShapes;
   // HcalShape theHcalShape;
