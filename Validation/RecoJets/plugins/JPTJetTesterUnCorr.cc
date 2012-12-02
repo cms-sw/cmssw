@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTesterUnCorr.cc,v 1.6 2011/09/18 21:01:00 kovitang Exp $
+// $Id: JPTJetTesterUnCorr.cc,v 1.7 2011/09/20 22:56:36 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -424,7 +424,7 @@ if (!mEvent.isRealData()){
   // ***********************************
   // *** Get CaloMET
   // ***********************************
-
+/*
   const CaloMET *calomet;
   edm::Handle<CaloMETCollection> calo;
   mEvent.getByLabel("met", calo);
@@ -434,7 +434,7 @@ if (!mEvent.isRealData()){
   } else {
     const CaloMETCollection *calometcol = calo.product();
     calomet = &(calometcol->front());
-    /*
+    
     double caloSumET = calomet->sumEt();
     double caloMETSig = calomet->mEtSig();
     double caloMET = calomet->pt();
@@ -453,9 +453,9 @@ if (!mEvent.isRealData()){
     mCaloSumET_3000->Fill(caloSumET);
     mCaloMETSig->Fill(caloMETSig);
     mCaloMETSig_3000->Fill(caloMETSig);
-    */
+    
   }
-
+*/
   // ***********************************
   // *** Get the CaloTower collection
   // ***********************************

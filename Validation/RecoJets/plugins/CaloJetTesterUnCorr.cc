@@ -417,7 +417,7 @@ if (!mEvent.isRealData()){
   // ***********************************
   // *** Get CaloMET
   // ***********************************
-
+/*
   const CaloMET *calomet;
   edm::Handle<CaloMETCollection> calo;
   mEvent.getByLabel("met", calo);
@@ -427,7 +427,7 @@ if (!mEvent.isRealData()){
   } else {
     const CaloMETCollection *calometcol = calo.product();
     calomet = &(calometcol->front());
-    /*
+    
     double caloSumET = calomet->sumEt();
     double caloMETSig = calomet->mEtSig();
     double caloMET = calomet->pt();
@@ -446,9 +446,9 @@ if (!mEvent.isRealData()){
     mCaloSumET_3000->Fill(caloSumET);
     mCaloMETSig->Fill(caloMETSig);
     mCaloMETSig_3000->Fill(caloMETSig);
-    */
+    
   }
-
+*/
   // ***********************************
   // *** Get the CaloTower collection
   // ***********************************
