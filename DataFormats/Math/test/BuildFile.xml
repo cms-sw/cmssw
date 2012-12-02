@@ -26,6 +26,8 @@
   <flags REM_CXXFLAGS="-Wformat"/>
   <flags REM_CXXFLAGS="-ansi"/>
 </bin>
+#<bin   file="ExtVec_t.cpp" name="DataFormatsExtVec_t">
+#</bin>
 <bin   file="SSEVec_t.cpp" name="DataFormatsSSEVec_t">
 </bin>
 <bin   file="SSEMathFun_t.cpp" name="DataFormatsSSEMathFun_t">
