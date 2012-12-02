@@ -68,6 +68,20 @@ namespace reco { namespace modules {
 	 double minBDTG_;
 	 ///min pT cut value
 	 double minpT_;
+	 ///min p cut value
+	 double minP_;
+	 ///max distance between two tracks at closest approach
+	 double maxDCA_;
+	 ///max difference in phi between two tracks
+	 double maxDPhi_;
+	 ///max difference in Lambda between two tracks
+	 double maxDLambda_;
+	 ///max difference in transverse impact parameter between two tracks
+	 double maxDdxy_;
+	 ///max difference in longitudinal impact parameter between two tracks
+	 double maxDdsz_;
+	 ///max difference in q/p between two tracks
+	 double maxDQoP_;
 
 	 edm::ESHandle<MagneticField> magfield_;
 

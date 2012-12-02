@@ -24,6 +24,7 @@
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="RecoTracker/TrackProducer"/>
 <use   name="CommonTools/Utils"/>
+<use   name="CommonTools/Statistics"/>
 <use   name="clhep"/>
 <use   name="roottmva"/>
 <flags   EDM_PLUGIN="1"/>

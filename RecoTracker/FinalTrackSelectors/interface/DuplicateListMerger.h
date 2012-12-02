@@ -61,6 +61,7 @@ namespace reco { namespace modules {
 	 edm::InputTag candidateSource_;
 	 reco::TrackBase::TrackQuality qualityToSet_;
 	 unsigned int diffHitsCut_;
+	 float minTrkProbCut_;
 	 bool copyExtras_;
 	 bool makeReKeyedSeeds_;
      };
