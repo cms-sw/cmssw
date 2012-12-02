@@ -89,6 +89,30 @@ TrackMonStep6.NClusStrBin   = cms.int32(500)
 TrackMonStep6.NClusStrMax   = cms.double(100000)
 TrackMonStep6.ClusterLabels = cms.vstring('Strip')
 
+TrackMonStep9 = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone()
+TrackMonStep9.TrackProducer = cms.InputTag("generalTracks")
+TrackMonStep9.SeedProducer  = cms.InputTag("muonSeededSeedsInOut")
+TrackMonStep9.TCProducer    = cms.InputTag("muonSeededTrackCandidatesInOut")
+TrackMonStep9.AlgoName      = cms.string('iter9')
+TrackMonStep9.TkSeedSizeBin = cms.int32(400)
+TrackMonStep9.TkSeedSizeMax = cms.double(100000)                         
+TrackMonStep9.TkSeedSizeMin = cms.double(0)
+TrackMonStep9.NClusStrBin   = cms.int32(500)
+TrackMonStep9.NClusStrMax   = cms.double(100000)
+TrackMonStep9.ClusterLabels = cms.vstring('Strip')
+
+TrackMonStep10 = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone()
+TrackMonStep10.TrackProducer = cms.InputTag("generalTracks")
+TrackMonStep10.SeedProducer  = cms.InputTag("muonSeededSeedsOutIn")
+TrackMonStep10.TCProducer    = cms.InputTag("muonSeededTrackCandidatesOutIn")
+TrackMonStep10.AlgoName      = cms.string('iter10')
+TrackMonStep10.TkSeedSizeBin = cms.int32(400)
+TrackMonStep10.TkSeedSizeMax = cms.double(100000)                         
+TrackMonStep10.TkSeedSizeMin = cms.double(0)
+TrackMonStep10.NClusStrBin   = cms.int32(500)
+TrackMonStep10.NClusStrMax   = cms.double(100000)
+TrackMonStep10.ClusterLabels = cms.vstring('Strip')
+
 # out of the box
 trkmonootb = cms.Sequence(
      TrackMonStep0
@@ -98,6 +122,8 @@ trkmonootb = cms.Sequence(
     * TrackMonStep4
     * TrackMonStep5
     * TrackMonStep6
+    * TrackMonStep9
+    * TrackMonStep10
 )
 
 
