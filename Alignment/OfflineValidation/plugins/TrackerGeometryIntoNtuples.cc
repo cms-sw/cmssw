@@ -14,7 +14,7 @@
 // Original class TrackerGeometryIntoNtuples.cc 
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.8 2011/12/20 15:11:41 mussgill Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.13 2012/11/05 10:58:06 devdatta Exp $
 //
 // 26 May 2012 
 // ***********
@@ -80,6 +80,7 @@ private:
 	void addBranches();
 	
 	// ----------member data ---------------------------
+	const edm::ParameterSet theParameterSet; 
 	//std::vector<AlignTransform> m_align;
 	AlignableTracker* theCurrentTracker ;
 	
@@ -119,6 +120,7 @@ private:
 // constructors and destructor
 //
 TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig) :
+  theParameterSet( iConfig ), 	
   theCurrentTracker(0),
   m_rawid(0),
   m_x(0.), m_y(0.), m_z(0.),
@@ -163,7 +165,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	iSetup.get<IdealGeometryRecord>().get(theGeometricDet);
 	TrackerGeomBuilderFromGeometricDet trackerBuilder;
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet); 
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,theParameterSet); 
 	
 	//build the tracker
 	edm::ESHandle<Alignments> alignments;

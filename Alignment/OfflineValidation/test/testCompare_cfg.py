@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "CRAFT0831X_V4::All"
+process.GlobalTag.globaltag = "FT_R_53_V6C::All" 
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cff")
@@ -21,15 +21,30 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("EmptySource")
 
+process.DQMStore=cms.Service("DQMStore")
+process.TkDetMap = cms.Service("TkDetMap")
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 process.p = cms.Path(process.TrackerGeometryCompare)
-process.TrackerGeometryCompare.inputROOTFile1 = 'CRAFT08_vs_IDEAL.Comparison_commonLasSubDets.root'
-process.TrackerGeometryCompare.inputROOTFile2 = 'MillePede_LAS_CRAFT08_vs_IDEAL.Comparison_commonLasSubDets.root'
-process.TrackerGeometryCompare.outputFile = 'outputComparison.root'
-process.TrackerGeometryCompare.levels = ['Tracker','TOBBarrel','TIBBarrel','TECEndcap','TECDisk']
-#process.TrackerGeometryCompare.levels = ['DetUnit']
+
+process.TrackerGeometryCompare.inputROOTFile1 = 'myInputGeometry_mp1260m2.root' 
+
+process.TrackerGeometryCompare.inputROOTFile2 = 'myInputGeometry_2012AB.root'
+#process.TrackerGeometryCompare.inputROOTFile2 = 'IDEAL' 
+
+process.TrackerGeometryCompare.outputFile = 'outputComparison_mp1260m2_2012AB.root'
+
+process.TFileService = cms.Service("TFileService",
+		fileName = cms.string('TkSurfDeform_mp1260m2_2012AB.root') 
+		)
+
+process.TrackerGeometryCompare.levels = ['DetUnit']  
+#process.TrackerGeometryCompare.levels = ['Tracker','DetUnit'] 
+#process.TrackerGeometryCompare.levels = ['Tracker','TOBBarrel','TIBBarrel','TECEndcap','TECDisk']
+#process.TrackerGeometryCompare.levels = ["TPBBarrel","TPEEndcap","TIBBarrel","TIDEndcap","TOBBarrel","TECEndcap"] 
 
 """
 process.TrackerGeometryCompare.writeToDB = True
