@@ -87,11 +87,12 @@ T dot(ExtVec<T,N>  x, ExtVec<T,N>  y) {
 }
 */
 
-template<typename T>
+template<typename V>
 inline
-auto dot(T  x, T  y) ->typename  std::remove_reference<decltype(x[0])>::type {
-  auto N = sizeof(T)/sizeof(x[0]);
-  auto ret=x[0]; ret=0;
+auto dot(V  x, V y) ->typename  std::remove_reference<decltype(x[0])>::type {
+  typedef typename std::remove_reference<decltype(x[0])>::type T;
+  constexpr int N = sizeof(V)/sizeof(T);
+  T ret=0;
   for (int i=0;i!=N;++i) ret+=x[i]*y[i];
   return ret;
 }
