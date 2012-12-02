@@ -244,7 +244,6 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	reco::Track* matchedTrackPointer = 0;
 	if (matchedSeedPointer) {
 	  TSCBLBuilderNoMaterial tscblBuilder;
-	  PerigeeConversions tspConverter;
 	  TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(matchedSeedPointer->recHits().second-1));
 	  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( matchedSeedPointer->startingState(), recHit->surface(), theMF.product());
 	  TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
@@ -259,7 +258,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 					      tsAtClosestApproachSeed.trackStateAtPCA().momentum().y(),
 					      tsAtClosestApproachSeed.trackStateAtPCA().momentum().z());
 	  //GlobalPoint vSeed(vSeed1.x()-bs.x0(),vSeed1.y()-bs.y0(),vSeed1.z()-bs.z0());
-	  PerigeeTrajectoryError seedPerigeeErrors = tspConverter.ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
+	  PerigeeTrajectoryError seedPerigeeErrors = PerigeeConversions::ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
 	  matchedTrackPointer = new reco::Track(0.,0., vSeed1, pSeed, 1, seedPerigeeErrors.covarianceMatrix());
 	  matchedTrackPointer->setHitPattern(matchedSeedPointer->recHits().first,matchedSeedPointer->recHits().second);
 	}
@@ -285,7 +284,6 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
       int rT(0); //This counter counts the number of recoTracks in general
       
       TSCBLBuilderNoMaterial tscblBuilder;
-      PerigeeConversions tspConverter;
       for(TrajectorySeedCollection::size_type i=0; i<seedCollection->size(); ++i){
 	edm::RefToBase<TrajectorySeed> seed(seedCollection, i);
 	rT++;
@@ -305,7 +303,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 					    tsAtClosestApproachSeed.trackStateAtPCA().momentum().y(),
 					    tsAtClosestApproachSeed.trackStateAtPCA().momentum().z());
 	//GlobalPoint vSeed(vSeed1.x()-bs.x0(),vSeed1.y()-bs.y0(),vSeed1.z()-bs.z0());
-	PerigeeTrajectoryError seedPerigeeErrors = tspConverter.ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
+	PerigeeTrajectoryError seedPerigeeErrors = PerigeeConversions::ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
 
 	//fixme
 	reco::Track* trackFromSeed = new reco::Track(0.,0., vSeed1, pSeed, 1, seedPerigeeErrors.covarianceMatrix());
