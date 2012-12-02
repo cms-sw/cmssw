@@ -1191,23 +1191,108 @@ void PFRootEventManager::readOptions(const char* file,
   std::vector<double> factors45;
   options_->GetOpt("particle_flow", "factors_45", factors45);
   assert ( factors45.size() == 2 );
+
+  edm::ParameterSet iConfig;
+
+
+  double maxDPtOPt;
+  options_->GetOpt("particle_flow", "maxDPtOPt", maxDPtOPt);
+  iConfig.addParameter<double>("maxDPtOPt",maxDPtOPt);
+
+  int minTrackerHits;
+  options_->GetOpt("particle_flow", "minTrackerHits", minTrackerHits);
+  iConfig.addParameter<int>("minTrackerHits",minTrackerHits);
+
+  int minPixelHits;
+  options_->GetOpt("particle_flow", "minPixelHits", minPixelHits);
+  iConfig.addParameter<int>("minPixelHits",minPixelHits);
+
+  std::string trackQuality;
+  options_->GetOpt("particle_flow", "trackQuality", trackQuality);
+  iConfig.addParameter<std::string>("trackQuality",trackQuality);
+
+  double ptErrorScale;
+  options_->GetOpt("particle_flow", "ptErrorScale", ptErrorScale);
+  iConfig.addParameter<double>("ptErrorScale",ptErrorScale);
+
+  double eventFractionForCleaning;
+  options_->GetOpt("particle_flow", "eventFractionForCleaning", eventFractionForCleaning);
+  iConfig.addParameter<double>("eventFractionForCleaning",eventFractionForCleaning);
+
+  double dzpv;
+  options_->GetOpt("particle_flow", "dzPV", dzpv);
+  iConfig.addParameter<double>("dzPV",dzpv);
+
+  bool postMuonCleaning;
+  options_->GetOpt("particle_flow", "postMuonCleaning", postMuonCleaning);
+  iConfig.addParameter<bool>("postMuonCleaning",postMuonCleaning);
+
+  double minPtForPostCleaning;
+  options_->GetOpt("particle_flow", "minPtForPostCleaning", minPtForPostCleaning);
+  iConfig.addParameter<double>("minPtForPostCleaning",minPtForPostCleaning);
+
+  double eventFactorForCosmics;
+  options_->GetOpt("particle_flow", "eventFactorForCosmics", eventFactorForCosmics);
+  iConfig.addParameter<double>("eventFactorForCosmics",eventFactorForCosmics);
   
-  bool usePFMuonMomAssign = false;
-  options_->GetOpt("particle_flow", "usePFMuonMomAssign", usePFMuonMomAssign);
- 
-  bool useBestMuonTrack = false;
-  options_->GetOpt("particle_flow", "useBestMuonTrack", useBestMuonTrack);
+  double minSignificanceForCleaning;
+  options_->GetOpt("particle_flow", "metSignificanceForCleaning", minSignificanceForCleaning);
+  iConfig.addParameter<double>("metSignificanceForCleaning",minSignificanceForCleaning);
+
+  double minSignificanceForRejection;
+  options_->GetOpt("particle_flow", "metSignificanceForRejection", minSignificanceForRejection);
+  iConfig.addParameter<double>("metSignificanceForRejection",minSignificanceForRejection);
+
+  double metFactorForCleaning;
+  options_->GetOpt("particle_flow", "metFactorForCleaning", metFactorForCleaning);
+  iConfig.addParameter<double>("metFactorForCleaning",metFactorForCleaning);
+
+  double eventFractionForRejection;
+  options_->GetOpt("particle_flow", "eventFractionForRejection", eventFractionForRejection);
+  iConfig.addParameter<double>("eventFractionForRejection",eventFractionForRejection);
+
+  double metFactorForRejection;
+  options_->GetOpt("particle_flow", "metFactorForRejection", metFactorForRejection);
+  iConfig.addParameter<double>("metFactorForRejection",metFactorForRejection);
+
+  double metFactorForHighEta;
+  options_->GetOpt("particle_flow", "metFactorForHighEta", metFactorForHighEta);
+  iConfig.addParameter<double>("metFactorForHighEta",metFactorForHighEta);
+
+  double ptFactorForHighEta;
+  options_->GetOpt("particle_flow", "ptFactorForHighEta", ptFactorForHighEta);
+  iConfig.addParameter<double>("ptFactorForHighEta",ptFactorForHighEta);
+
+
+  double metFactorForFakes;
+  options_->GetOpt("particle_flow", "metFactorForFakes", metFactorForFakes);
+  iConfig.addParameter<double>("metFactorForFakes",metFactorForFakes);
+
+  double minMomentumForPunchThrough;
+  options_->GetOpt("particle_flow", "minMomentumForPunchThrough", minMomentumForPunchThrough);
+  iConfig.addParameter<double>("minMomentumForPunchThrough",minMomentumForPunchThrough);
+
+  double minEnergyForPunchThrough;
+  options_->GetOpt("particle_flow", "minEnergyForPunchThrough", minEnergyForPunchThrough);
+  iConfig.addParameter<double>("minEnergyForPunchThrough",minEnergyForPunchThrough);
+
+
+  double punchThroughFactor;
+  options_->GetOpt("particle_flow", "punchThroughFactor", punchThroughFactor);
+  iConfig.addParameter<double>("punchThroughFactor",punchThroughFactor);
+
+  double punchThroughMETFactor;
+  options_->GetOpt("particle_flow", "punchThroughMETFactor", punchThroughMETFactor);
+  iConfig.addParameter<double>("punchThroughMETFactor",punchThroughMETFactor);
+
+
+  double cosmicRejectionDistance;
+  options_->GetOpt("particle_flow", "cosmicRejectionDistance", cosmicRejectionDistance);
+  iConfig.addParameter<double>("cosmicRejectionDistance",cosmicRejectionDistance);
 
   try { 
-    pfAlgo_.setPFMuonAndFakeParameters(muonHCAL,
-				       muonECAL,
-				       muonHO,
-				       nSigmaTRACK,
-				       ptError,
-				       factors45,
-				       usePFMuonMomAssign,
-				       useBestMuonTrack);
-  }
+    pfAlgo_.setPFMuonAndFakeParameters(iConfig);  
+}
   catch( std::exception& err ) {
     cerr<<"exception setting PFAlgo Muon and Fake parameters: "
         <<err.what()<<". terminating."<<endl;
@@ -3092,14 +3177,15 @@ void PFRootEventManager::particleFlow() {
 
   pfBlocks_ = pfBlockAlgo_.transferBlocks();
 
-  pfAlgo_.setPFVertexParameters(true, primaryVertices_); 
+  pfAlgo_.setPFVertexParameters(true, primaryVerticesHandle_.product()); 
   if(useEGElectrons_)
     pfAlgo_.setEGElectronCollection(egammaElectrons_);
 
   pfAlgo_.reconstructParticles( *pfBlocks_.get() );
   //   pfAlgoOther_.reconstructParticles( blockh );
 
-  pfAlgo_.postMuonCleaning(muonsHandle_, *vertexh);
+  //  pfAlgo_.postMuonCleaning(muonsHandle_, *vertexh);
+
   
   if(usePFElectrons_) {
     pfCandidateElectronExtras_= pfAlgo_.transferElectronExtra();

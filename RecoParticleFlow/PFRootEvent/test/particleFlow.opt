@@ -521,6 +521,30 @@ particle_flow   useBestMuonTrack	0
 //Use tracking at HLT
 particle_flow   useAtHLT                0
 
+//-------- Parameters of Muon ID ------------
+particle_flow maxDPtOPt                   1
+particle_flow minTrackerHits              8
+particle_flow minPixelHits                1
+particle_flow trackQuality                'highPurity'
+particle_flow dzPV                        0.2
+particle_flow ptErrorScale                8.
+particle_flow minPtForPostCleaning        20.
+particle_flow eventFactorForCosmics       10.
+particle_flow metSignificanceForCleaning  3.
+particle_flow metSignificanceForRejection 4.
+particle_flow metFactorForCleaning        4.
+particle_flow eventFractionForCleaning    0.8
+particle_flow eventFractionForRejection   0.8
+particle_flow metFactorForRejection       4.
+particle_flow metFactorForHighEta         25.
+particle_flow ptFactorForHighEta          2.
+particle_flow metFactorForFakes           4.
+particle_flow minMomentumForPunchThrough  100.
+particle_flow minEnergyForPunchThrough    100.
+particle_flow punchThroughFactor          3.                             
+particle_flow punchThroughMETFactor       4.                             
+particle_flow cosmicRejectionDistance     1.
+
 
 
 //-------- Parameters of Displaced Vertices ------------
