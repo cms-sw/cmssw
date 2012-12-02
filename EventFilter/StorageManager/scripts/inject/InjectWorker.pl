@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.89 2012/10/07 21:56:25 babar Exp $
+# $Id: InjectWorker.pl,v 1.90 2012/11/13 15:23:49 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -1115,11 +1115,11 @@ sub save_offsets {
     $kernel->call( 'logger', info => "Saving offsets" );
     $kernel->delay( save_offsets => $savedelay );
 
-    # First ensure all tailors have offset sets
+    # First, build a list of what needs saving
     for my $tailor ( grep { /^[0-9]+$/ } keys %{ $heap->{watchlist} } ) {
         my $file  = $heap->{watchlist}->{$tailor};
         my $wheel = $heap->{watchlist}->{$file};
-        $offset{$file} = $heap->{offset}->{$tailor} || $wheel->tell;
+        $offset{$file} = $heap->{offset}->{$tailor};
     }
 
     return unless keys %offset;    # Nothing to do
