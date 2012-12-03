@@ -192,6 +192,7 @@ struct stPlots {
 
 
    TH2F*  BS_PIs;	   TH3F*  AS_PIs;
+   TH2F*  BS_PImHD; 
    TH2F*  BS_PIm;          TH3F*  AS_PIm;
    TH2F*  BS_PtIs;         TH3F*  AS_PtIs;
    TH2F*  BS_PtIm;         TH3F*  AS_PtIm;
@@ -495,6 +496,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_EtaTOF" ; st.BS_EtaTOF  = new TH2F(Name.c_str(), Name.c_str(),               50,-3, 3, 50, 0, 3);
    Name = "BS_EtaDz"; st.BS_EtaDz  = new TH2F(Name.c_str(), Name.c_str(),                 50,-3, 3, 50, -IPbound, IPbound);
    Name = "BS_PIs"  ; st.BS_PIs   = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
+   Name = "BS_PImHD"; st.BS_PImHD = new TH2F(Name.c_str(), Name.c_str(),                  500, 0, PtHistoUpperBound,500, 0, dEdxM_UpLim);
    Name = "BS_PIm"  ; st.BS_PIm   = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
    Name = "BS_PtIs" ; st.BS_PtIs  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
    Name = "BS_PtIm" ; st.BS_PtIm  = new TH2F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
@@ -808,6 +810,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    //st.AS_EtaTOF  = (TH3F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_EtaTOF");
    st.BS_PIs    = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PIs");
    st.AS_PIs    = (TH3F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_PIs");
+   st.BS_PImHD  = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PImHD");
    st.BS_PIm    = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PIm");
    st.AS_PIm    = (TH3F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_PIm");
    st.BS_PtIs   = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PtIs");

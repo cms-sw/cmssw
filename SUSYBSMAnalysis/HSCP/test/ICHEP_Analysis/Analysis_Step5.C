@@ -2906,7 +2906,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int 
 
    string S1 = "DY_8TeV_M400_Q1o3"; double Q1=1;
    string S2 = "DY_8TeV_M400_Q1"; double Q2=1;
-   string S3 = "DY_8TeV_M400_Q2"; double Q3=1;
+   string S3 = "DY_8TeV_M400_Q3"; double Q3=1;
 
    string Da = "Data8TeV";
    string outName = "2DPlotsS";
@@ -2917,17 +2917,23 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int 
 
 
    TFile* InputFile  = new TFile((InputPattern + "Histos.root").c_str());
-   TH2D* Signal1PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_PIm"  ), CutIndex, "S1PIm_zy" );
-   TH2D* Signal2PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_PIm"  ), CutIndex, "S2PIm_zy" );
-   TH2D* Signal3PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_PIm"  ), CutIndex, "S3PIm_zy" );
-   TH2D* Data_PIm    = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_PIm"  ), CutIndex);
+//   TH2D* Signal1PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S1+"/AS_PIm"  ), CutIndex, "S1PIm_zy" );
+//   TH2D* Signal2PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S2+"/AS_PIm"  ), CutIndex, "S2PIm_zy" );
+//   TH2D* Signal3PIm  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, S3+"/AS_PIm"  ), CutIndex, "S3PIm_zy" );
+//   TH2D* Data_PIm    = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile, Da+"/AS_PIm"  ), CutIndex);
+   TH2D* Signal1PIm  = (TH2D*)GetObjectFromPath(InputFile, S1+"/BS_PImHD"  );
+   TH2D* Signal2PIm  = (TH2D*)GetObjectFromPath(InputFile, S2+"/BS_PImHD"  );
+   TH2D* Signal3PIm  = (TH2D*)GetObjectFromPath(InputFile, S3+"/BS_PImHD"  );
+   TH2D* Data_PIm    = (TH2D*)GetObjectFromPath(InputFile, Da+"/BS_PImHD"  );
 
 
    TFile* InputFile2  = new TFile((InputPattern2 + "Histos.root").c_str());
-   TH2D* Signal1PIm2  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, S1+"/AS_PIm"  ), CutIndex, "S1PIm_zy" );
-//   TH2D* Signal2PIm2  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, S2+"/AS_PIm"  ), CutIndex, "S2PIm_zy" );
-//   TH2D* Signal3PIm2  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, S3+"/AS_PIm"  ), CutIndex, "S3PIm_zy" );
-   TH2D* Data_PIm2    = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, Da+"/AS_PIm"  ), CutIndex);
+//   TH2D* Signal1PIm2  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, S1+"/AS_PIm"  ), CutIndex, "S1PIm_zy" );
+////   TH2D* Signal2PIm2  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, S2+"/AS_PIm"  ), CutIndex, "S2PIm_zy" );
+////   TH2D* Signal3PIm2  = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, S3+"/AS_PIm"  ), CutIndex, "S3PIm_zy" );
+//   TH2D* Data_PIm2    = GetCutIndexSliceFromTH3((TH3D*)GetObjectFromPath(InputFile2, Da+"/AS_PIm"  ), CutIndex);
+   TH2D* Signal1PIm2  = (TH2D*)GetObjectFromPath(InputFile2, S1+"/BS_PImHD");
+   TH2D* Data_PIm2    = (TH2D*)GetObjectFromPath(InputFile2, Da+"/BS_PImHD");
 
    Signal1PIm->Add(Signal1PIm2);
 //   Signal2PIm->Add(Signal2PIm2);
@@ -2990,13 +2996,22 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int 
 //   MassLine300->SetLineWidth(2);
 //   MassLine300->Draw("same");
 
+
+
+
+   TBox* box = new TBox(50.0, 2.8, 1200.0, 3.0);
+   box->SetFillColor(1);
+   box->SetFillStyle(3004);
+   box->Draw("same");
+
    leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
-   leg->SetFillColor(0);
+   leg->SetFillStyle(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_PIm,    "Data (#sqrt{s}=8 TeV)"       ,"F");
    leg->AddEntry(Signal3PIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal2PIm,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal1PIm,  samples[S1i].Legend.c_str()   ,"F");
+   leg->AddEntry(box,         "skimmed out"                 ,"F");
    leg->Draw();
    DrawPreliminary(NULL, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, outName + "_PIm", false);
