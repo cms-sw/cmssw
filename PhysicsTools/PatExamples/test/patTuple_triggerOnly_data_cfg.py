@@ -102,7 +102,8 @@ process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange( '196364:1-1
                                                                    , '196364:1203-196364:1302'
                                                                    )
 # use the correct conditions
-process.GlobalTag.globaltag = 'GR_R_52_V9D::All' # s. https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions#Global_tags_for_collision_da_AN3
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:com10_7E33v2' ) # 2012B
 # use a sufficient number of events
 process.maxEvents.input = 25000
 # have a proper output file name
