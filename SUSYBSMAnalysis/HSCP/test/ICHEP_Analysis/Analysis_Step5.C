@@ -54,7 +54,7 @@ void Analysis_Step5()
    string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
-//   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);
+//   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);return;
 
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
@@ -2914,7 +2914,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int 
    TypeMode = TypeFromPattern(InputPattern);
    string LegendTitle = LegendFromType(InputPattern);;
 
-   string S1 = "DY_8TeV_M400_Q1o3"; double Q1=1;
+   string S1 = "DY_8TeV_M400_Q2o3"; double Q1=1;
    string S2 = "DY_8TeV_M400_Q1"; double Q2=1;
    string S3 = "DY_8TeV_M400_Q3"; double Q3=1;
 
@@ -2971,27 +2971,27 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int 
 
 //   c1 = new TCanvas("c1","c1", 600, 600);
 //   c1->SetLogz(true);
-   Signal1PIm->SetTitle("");
-   Signal1PIm->SetStats(kFALSE);
-   Signal1PIm->GetXaxis()->SetTitle("p (GeV/c)");
-   Signal1PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
-   Signal1PIm->SetAxisRange(50,1750,"X");
-   Signal1PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
-   Signal1PIm->Scale(100/Signal1PIm->Integral());
-   Signal1PIm->SetMarkerStyle (6);
-   Signal1PIm->SetMarkerColor(Color[2]);
-   Signal1PIm->SetFillColor(Color[2]);
-   Signal1PIm->Draw("BOX same");
-   Signal2PIm->Scale(100/Signal2PIm->Integral());
-   Signal2PIm->SetMarkerStyle (6);
-   Signal2PIm->SetMarkerColor(Color[3]);
-   Signal2PIm->SetFillColor(Color[3]);
-   Signal2PIm->Draw("BOX same");
-   Signal3PIm->Scale(100/Signal3PIm->Integral());
-   Signal3PIm->SetMarkerStyle(6);
+   Signal3PIm->SetTitle("");
+   Signal3PIm->SetStats(kFALSE);
+   Signal3PIm->GetXaxis()->SetTitle("p (GeV/c)");
+   Signal3PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
+   Signal3PIm->SetAxisRange(50,1750,"X");
+   Signal3PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
+   Signal3PIm->Scale(5000/Signal3PIm->Integral());
+   Signal3PIm->SetMarkerStyle (1);
    Signal3PIm->SetMarkerColor(Color[4]);
    Signal3PIm->SetFillColor(Color[4]);
-   Signal3PIm->Draw("BOX same");
+   Signal3PIm->Draw("SCAT same");
+   Signal2PIm->Scale(5000/Signal2PIm->Integral());
+   Signal2PIm->SetMarkerStyle (1);
+   Signal2PIm->SetMarkerColor(Color[3]);
+   Signal2PIm->SetFillColor(Color[3]);
+   Signal2PIm->Draw("SCAT same");
+   Signal1PIm->Scale(5000/Signal1PIm->Integral());
+   Signal1PIm->SetMarkerStyle(1);
+   Signal1PIm->SetMarkerColor(Color[2]);
+   Signal1PIm->SetFillColor(Color[2]);
+   Signal1PIm->Draw("SCAT same");
 
 //   TF1* MassLine800 = GetMassLineQ(samples[S3i].Mass, Q3, true);
 //   MassLine800->SetLineColor(kGray+3);
@@ -3021,7 +3021,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int 
    leg->AddEntry(Signal3PIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal2PIm,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal1PIm,  samples[S1i].Legend.c_str()   ,"F");
-   leg->AddEntry(box,         "skimmed out"                 ,"F");
+   leg->AddEntry(box,         "Excluded"                    ,"F");
    leg->Draw();
    DrawPreliminary(NULL, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, outName + "_PIm", false);
