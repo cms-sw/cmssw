@@ -7,8 +7,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -210,9 +208,10 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(const edm::RefToBa
 	
       //skip tps with a very small pt
       //if (sqrt(tp->momentum().perp2())<0.5) continue;
+      int charge = tp->charge();
+      if (charge==0) continue;
       Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
       Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
-      int charge = tp->charge();
 
       double chi2 = getChi2(rParameters,recoTrackCovMatrix,momAtVtx,vert,charge,bs);
       
@@ -246,6 +245,8 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(const edm::RefToBa
     
     //skip tps with a very small pt
     //if (sqrt(tp->momentum().perp2())<0.5) continue;
+    int charge = tp->charge();
+    if (charge==0) continue;
     
     LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
 				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt(tp->momentum().perp2()) << "\n"
@@ -253,7 +254,6 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(const edm::RefToBa
     
     Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
     Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
-    int charge = tp->charge();
       
     int tindex=0;
     for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
@@ -323,9 +323,10 @@ RecoToGenCollection TrackAssociatorByChi2::associateRecoToGen(const edm::RefToBa
 	
       //skip tps with a very small pt
       //if (sqrt(tp->momentum().perp2())<0.5) continue;
+      int charge = tp->charge();
+      if (charge==0) continue;
       Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
       Basic3DVector<double> vert=(Basic3DVector<double>) tp->vertex();
-      int charge = tp->charge();
 
       double chi2 = getChi2(rParameters,recoTrackCovMatrix,momAtVtx,vert,charge,bs);
       
@@ -360,6 +361,8 @@ GenToRecoCollection TrackAssociatorByChi2::associateGenToReco(const edm::RefToBa
     
     //skip tps with a very small pt
     //if (sqrt(tp->momentum().perp2())<0.5) continue;
+    int charge = tp->charge();
+    if (charge==0) continue;
     
     LogDebug("TrackAssociator") << "=========LOOKING FOR ASSOCIATION===========" << "\n"
 				<< "TrackingParticle #"<<tpindex<<" with pt=" << sqrt(tp->momentum().perp2()) << "\n"
@@ -367,7 +370,6 @@ GenToRecoCollection TrackAssociatorByChi2::associateGenToReco(const edm::RefToBa
     
     Basic3DVector<double> momAtVtx(tp->momentum().x(),tp->momentum().y(),tp->momentum().z());
     Basic3DVector<double> vert(tp->vertex().x(),tp->vertex().y(),tp->vertex().z());
-    int charge = tp->charge();
       
     int tindex=0;
     for (RefToBaseVector<reco::Track>::const_iterator rt=tC.begin(); rt!=tC.end(); rt++, tindex++){
