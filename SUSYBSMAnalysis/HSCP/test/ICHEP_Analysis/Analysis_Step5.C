@@ -15,7 +15,7 @@ using namespace std;
 
 /////////////////////////// FUNCTION DECLARATION /////////////////////////////
 
-void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass", string Data="Data8TeV");
+void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass", bool showMC=true, string Data="Data8TeV");
 void PredictionAndControlPlot(string InputPattern, string Data, unsigned int CutIndex, unsigned int CutIndex_Flip);
 void CutFlow(string InputPattern, unsigned int CutIndex=0);
 void SelectionPlot (string InputPattern, unsigned int CutIndex, unsigned int CutIndexTight);
@@ -58,10 +58,12 @@ void Analysis_Step5()
 
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
-   MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
-   MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
-   MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
-   MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
+   MassPrediction(InputPattern, CutIndex,      "Mass",  true, "8TeV_Loose");
+   MassPrediction(InputPattern, CutIndex,      "Mass",  true, "7TeV_Loose");
+   MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "8TeV_Tight");
+   MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "7TeV_Tight");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", false, "8TeV_TightNoSMMC");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", false, "7TeV_TightNoSMMC");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
@@ -70,14 +72,18 @@ void Analysis_Step5()
 
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
    Make2DPlot_Core(InputPattern, 0);
-   MassPrediction(InputPattern, CutIndex,      "Mass", "8TeV_Loose");
-   MassPrediction(InputPattern, CutIndex,      "Mass", "7TeV_Loose");
-   MassPrediction(InputPattern, CutIndexTight, "Mass", "8TeV_Tight");
-   MassPrediction(InputPattern, CutIndexTight, "Mass", "7TeV_Tight");
-   MassPrediction(InputPattern, 1, "Mass_Flip", "8TeV_Loose");
-   MassPrediction(InputPattern, 1, "Mass_Flip", "7TeV_Loose");
-   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", "8TeV_Tight");
-   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", "7TeV_Tight");
+   MassPrediction(InputPattern, CutIndex,      "Mass",  true, "8TeV_Loose");
+   MassPrediction(InputPattern, CutIndex,      "Mass",  true, "7TeV_Loose");
+   MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "8TeV_Tight");
+   MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "7TeV_Tight");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", false, "8TeV_TightNoSMMC");
+   MassPrediction(InputPattern, CutIndexTight, "Mass", false, "7TeV_TightNoSMMC");
+   MassPrediction(InputPattern, 1, "Mass_Flip", true, "8TeV_Loose");
+   MassPrediction(InputPattern, 1, "Mass_Flip", true, "7TeV_Loose");
+   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip",  true, "8TeV_Tight");
+   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip",  true, "7TeV_Tight");
+   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", false, "8TeV_TightNoSMMC");
+   MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip", false, "7TeV_TightNoSMMC");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
@@ -111,16 +117,16 @@ void Analysis_Step5()
    //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "5");
    
    InputPattern = "Results/Type4/";   CutIndex = 21; CutIndexTight = 240; CutIndex_Flip=21;
-   Make2DPlot_Core(InputPattern, 0);
-    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
-    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+//   Make2DPlot_Core(InputPattern, 0);
+//    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+//    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    // CheckPrediction(InputPattern, "", "Data7TeV");
    // CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    // CheckPrediction(InputPattern, "", "Data8TeV");
    // CheckPrediction(InputPattern, "_Flip", "Data8TeV");
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
-   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
+//   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    //    CutFlow(InputPattern);
    //   CompareRecoAndGenPt(InputPattern);
 
@@ -143,7 +149,7 @@ void Analysis_Step5()
 
 
 // Make the plot of the mass distibution: Observed, data-driven prediciton and signal expectation
-void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix, string DataName){
+void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix, bool showMC, string DataName){
    if(DataName.find("7TeV")!=string::npos){SQRTS=7.0;}else{SQRTS=8.0;}
    bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
    double SystError     = 0.05;
@@ -163,8 +169,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data8TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
 //    Pred7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPred7TeVMass" ,CutIndex+1,CutIndex+1,"o");
 //    Data7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpData7TeVMass" ,CutIndex+1,CutIndex+1,"o");
-      MCPred    = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_8TeV/Pred_"  ) + HistoSuffix   ))->ProjectionY("TmpMCPred"     ,CutIndex+1,CutIndex+1,"o");
-      MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_8TeV/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
+      if(showMC)MCPred    = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_8TeV/Pred_"  ) + HistoSuffix   ))->ProjectionY("TmpMCPred"     ,CutIndex+1,CutIndex+1,"o");
+      if(showMC)MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_8TeV/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
       Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
    }else{
                     SName="Gluino_7TeV_M1000_f10";     SLeg="Gluino (M=1000 GeV/#font[12]{c}^{2})";
@@ -174,8 +180,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Data8TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpDataMass"   ,CutIndex+1,CutIndex+1,"o");
 //    Pred7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/Pred_") + HistoSuffix   ))->ProjectionY("TmpPred7TeVMass" ,CutIndex+1,CutIndex+1,"o");
 //    Data7TeV    = ((TH2D*)GetObjectFromPath(InputFile, string("Data7TeV/"     ) + HistoSuffix   ))->ProjectionY("TmpData7TeVMass" ,CutIndex+1,CutIndex+1,"o");
-      MCPred    = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_7TeV/Pred_"  ) + HistoSuffix   ))->ProjectionY("TmpMCPred"     ,CutIndex+1,CutIndex+1,"o");
-      MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_7TeV/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
+      if(showMC)MCPred    = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_7TeV/Pred_"  ) + HistoSuffix   ))->ProjectionY("TmpMCPred"     ,CutIndex+1,CutIndex+1,"o");
+      if(showMC)MC        = ((TH2D*)GetObjectFromPath(InputFile, string("MCTr_7TeV/"       ) + HistoSuffix   ))->ProjectionY("TmpMCMass"     ,CutIndex+1,CutIndex+1,"o");
       Signal    = ((TH2D*)GetObjectFromPath(InputFile, string(SName+"/"     ) + HistoSuffix   ))->ProjectionY("TmpSignalMass" ,CutIndex+1,CutIndex+1,"o");
    }
 
@@ -284,7 +290,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    }
 
    if(MC){
-      MC->SetFillStyle(3002);
+      MC->SetFillStyle(3004);
       MC->SetLineColor(22);
       MC->SetFillColor(11);
       MC->SetMarkerStyle(0);
@@ -346,8 +352,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    }
 
    //Fill the legend
-   if(IsTkOnly) leg = new TLegend(0.82,0.93,0.25,0.66);
-   else         leg = new TLegend(0.79,0.93,0.25,0.66);
+   if(IsTkOnly) leg = new TLegend(0.82,0.93,0.25,showMC?0.66:0.75);
+   else         leg = new TLegend(0.79,0.93,0.25,showMC?0.66:0.75);
 //   leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillStyle(0);
    leg->SetBorderSize(0);
