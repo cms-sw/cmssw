@@ -1,5 +1,6 @@
-## Dump  100  events in CSC rechit builder - Tim Cox - 01.11.2012
-## This version runs in 610pre4 on a real data RelVal RAW sample.
+## Dump  100  events in CSC rechit builder - Tim Cox - 03.12.2012
+## This version runs in 610preX on a real data RelVal RAW sample,
+## and uses indexer and mapper algos.
 
 import FWCore.ParameterSet.Config as cms
 
@@ -27,6 +28,24 @@ process.source    = cms.Source("PoolSource",
         '/store/relval/CMSSW_6_1_0_pre4-GR_P_V42_RelVal_mu2012C/SingleMu/RAW/v1/00000/F6AA1146-4F15-E211-8EE1-001A92810AD8.root'
     )
 )
+
+# Algorithm selection for Indexer & ChannelMapper
+
+process.dummy1 = cms.ESSource("EmptyESSource",
+                                  recordName = cms.string("CSCIndexerRecord"),
+                                  firstValid = cms.vuint32(1),
+                                  iovIsRunNotTime = cms.bool(True)
+                              )
+
+process.dummy2 = cms.ESSource("EmptyESSource",
+                                  recordName = cms.string("CSCChannelMapperRecord"),
+                                  firstValid = cms.vuint32(1),
+                                  iovIsRunNotTime = cms.bool(True)
+                              )
+
+process.CSCIndexerESProducer = cms.ESProducer("CSCIndexerESProducer", AlgoName = cms.string("CSCIndexerStartup") )
+process.CSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer", AlgoName = cms.string("CSCChannelMapperStartup") )
+
 
 # --- ACTIVATE LogTrace IN CSCRecHitD BUT NEED TO COMPILE IT WITH scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"
 # LogTrace output goes to cout; all other output to "junk.log"
