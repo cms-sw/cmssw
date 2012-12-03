@@ -1,14 +1,25 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="CondFormats/EgammaObjects"/>
+<use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="RecoEgamma/EgammaTools"/>
-<use   name=" RecoEcal/EgammaCoreTools"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/PatCandidates"/>
+<use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="TrackingTools/IPTools"/>
+<use   name="PhysicsTools/UtilAlgos"/>
 <use   name="clhep"/>
+<use   name="root"/>
+<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>
