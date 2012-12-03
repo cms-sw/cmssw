@@ -13,6 +13,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "CommonTools/RecoAlgos/interface/GenParticleSelector.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <TH1F.h>
@@ -41,7 +42,14 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 					   ParticleBase::Vector momentumTP,ParticleBase::Point vertexTP,
 					   double dxy, double dz, int nSimHits,
 					   const reco::Track* track,
-                       int numVertices, double vertz);
+					   int numVertices, double vertz);
+
+  void fill_recoAssociated_simTrack_histos(int count,
+					   const reco::GenParticle& tp,
+					   ParticleBase::Vector momentumTP,ParticleBase::Point vertexTP,
+					   double dxy, double dz, int nSimHits,
+					   const reco::Track* track,
+					   int numVertices, double vertz);
 
 
   void fill_generic_recoTrack_histos(int count,
@@ -50,9 +58,9 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 				     bool isMatched,
 				     bool isSigMatched,
 				     bool isChargeMatched,
-                     int numAssocRecoTracks,
-                     int numVertices,
-	                 int tpbunchcrossing,
+				     int numAssocRecoTracks,
+				     int numVertices,
+				     int tpbunchcrossing,
 				     int nSimHits,
 				     double sharedFraction);
 
@@ -110,6 +118,14 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   TrackingParticleSelector* TpSelectorForEfficiencyVsPt;
   TrackingParticleSelector* TpSelectorForEfficiencyVsVTXR;
   TrackingParticleSelector* TpSelectorForEfficiencyVsVTXZ;
+
+  GenParticleSelector* generalGpSelector;
+  GenParticleSelector* GpSelectorForEfficiencyVsEta;
+  GenParticleSelector* GpSelectorForEfficiencyVsCon;
+  GenParticleSelector* GpSelectorForEfficiencyVsPhi;
+  GenParticleSelector* GpSelectorForEfficiencyVsPt;
+  GenParticleSelector* GpSelectorForEfficiencyVsVTXR;
+  GenParticleSelector* GpSelectorForEfficiencyVsVTXZ;
 
   double minEta, maxEta;  int nintEta;  bool useFabsEta;
   double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;

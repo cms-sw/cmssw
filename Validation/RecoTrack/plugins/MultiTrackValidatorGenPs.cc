@@ -270,7 +270,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 					 << label[www].instance()
 					 << ": " << trackCollection->size() << "\n";
 
-      int sat(0); //This counter counts the number of recoTracks that are associated to GenTracks from Signal only
+      //int sat(0); //This counter counts the number of recoTracks that are associated to GenTracks from Signal only
       int at(0); //This counter counts the number of recoTracks that are associated to GenTracks
       int rT(0); //This counter counts the number of recoTracks in general
 

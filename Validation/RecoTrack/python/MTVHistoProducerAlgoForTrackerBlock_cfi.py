@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Validation.RecoTrack.TrackingParticleSelectionsForEfficiency_cff import *
+from Validation.RecoTrack.GenParticleSelectionsForEfficiency_cff import *
 
 MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     ComponentName = cms.string('MTVHistoProducerAlgoForTracker'),
@@ -11,6 +12,14 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     TpSelectorForEfficiencyVsPt   = TpSelectorForEfficiencyVsPtBlock,
     TpSelectorForEfficiencyVsVTXR = TpSelectorForEfficiencyVsVTXRBlock,
     TpSelectorForEfficiencyVsVTXZ = TpSelectorForEfficiencyVsVTXZBlock,
+
+    ### gp selectors for efficiency
+    generalGpSelector             = generalGpSelectorBlock,
+    GpSelectorForEfficiencyVsEta  = GpSelectorForEfficiencyVsEtaBlock,
+    GpSelectorForEfficiencyVsPhi  = GpSelectorForEfficiencyVsPhiBlock,
+    GpSelectorForEfficiencyVsPt   = GpSelectorForEfficiencyVsPtBlock,
+    GpSelectorForEfficiencyVsVTXR = GpSelectorForEfficiencyVsVTXRBlock,
+    GpSelectorForEfficiencyVsVTXZ = GpSelectorForEfficiencyVsVTXZBlock,
 
     # to be added here all the other histogram settings
 

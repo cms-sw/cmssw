@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2010/09/13 14:56:48 $
- *  $Revision: 1.28 $
+ *  $Date: 2011/06/22 09:51:38 $
+ *  $Revision: 1.29 $
  *  \author cerati
  */
 
@@ -18,8 +18,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h" 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 

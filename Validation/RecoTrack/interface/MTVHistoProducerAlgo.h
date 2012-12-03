@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -43,7 +44,14 @@ class MTVHistoProducerAlgo{
 						   ParticleBase::Vector momentumTP,ParticleBase::Point vertexTP,
 						   double dxy, double dz, int nSimHits,
 						   const reco::Track* track,
-                           int numVertices, double vertz)=0;
+						   int numVertices, double vertz)=0;
+
+  virtual void fill_recoAssociated_simTrack_histos(int count,
+						   const reco::GenParticle& tp,
+						   ParticleBase::Vector momentumTP,ParticleBase::Point vertexTP,
+						   double dxy, double dz, int nSimHits,
+						   const reco::Track* track,
+						   int numVertices, double vertz)=0;
 
   virtual void fill_generic_recoTrack_histos(int count,
 				     	     const reco::Track& track,
@@ -51,7 +59,7 @@ class MTVHistoProducerAlgo{
 				     	     bool isMatched,
 				     	     bool isSigMatched,
 				     	     bool isChargeMatched,
-                             int numAssocRecoTracks,
+					     int numAssocRecoTracks,
                          	             int numVertices, 
                          		     int tpbunchcrossing,
 				             int nSimHits,

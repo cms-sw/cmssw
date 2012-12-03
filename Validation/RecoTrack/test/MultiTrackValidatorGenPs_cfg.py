@@ -17,10 +17,6 @@ secFiles = cms.untracked.vstring()
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 #readFiles.extend( [
-##    '/store/mc/Summer12_DR53X/TTJets_FullLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v2/00000/2A1DD8C6-111A-E211-84D7-00215E228A66.root',
-##    '/store/mc/Summer12_DR53X/TTJets_FullLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v2/00000/009C9559-E019-E211-8998-00215E21D750.root',
-##    '/store/mc/Summer12_DR53X/TTJets_FullLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v2/00000/0082B26C-DE19-E211-8677-00215E21DC72.root',
-##    '/store/mc/Summer12_DR53X/TTJets_FullLeptMGDecays_8TeV-madgraph/AODSIM/PU_S10_START53_V7A-v2/00000/006FF315-DF19-E211-825A-001A645CAC06.root'
 #    '/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V9-v1/0000/0A962BB7-7290-E111-ABF6-003048FFD720.root',
 #    '/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V9-v1/0000/0A8181A3-B890-E111-BEC7-003048FFCB84.root',
 #    '/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V9-v1/0000/0A7E802E-6E90-E111-B850-0018F3D0962E.root',
@@ -48,7 +44,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(250) )
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'START53_V7A::All'
+process.GlobalTag.globaltag = 'START61_V4::All'
 
 ### standard includes
 process.load('Configuration/StandardSequences/Services_cff')
@@ -72,8 +68,7 @@ process.TrackAssociatorByPullESProducer = process.TrackAssociatorByChi2ESProduce
 
 
 ########### configuration MultiTrackValidatorGenPs ########
-#process.multiTrackValidatorGenPs.outputFile = 'multitrackvalidatorgenps_ttbar_aod_tkvtxsel.root'
-process.multiTrackValidatorGenPs.outputFile = 'multitrackvalidatorgenps_ttbarpu_trksel.root'
+process.multiTrackValidatorGenPs.outputFile = 'multitrackvalidatorgenps.root'
 process.multiTrackValidatorGenPs.associators = ['TrackAssociatorByChi2','TrackAssociatorByPull']
 process.multiTrackValidatorGenPs.skipHistoFit=cms.untracked.bool(False)
 process.multiTrackValidatorGenPs.UseAssociators = cms.bool(True)
@@ -137,9 +132,9 @@ process.trackWithVertexSelector = cms.EDProducer("TrackWithVertexSelector",
 )
 
 
-process.multiTrackValidatorGenPs.label = ['cutsRecoTracks']
+#process.multiTrackValidatorGenPs.label = ['cutsRecoTracks']
 #process.multiTrackValidatorGenPs.label = ['generalTracks']
-#process.multiTrackValidatorGenPs.label = ['trackWithVertexSelector']
+process.multiTrackValidatorGenPs.label = ['trackWithVertexSelector']
 
 process.tracking = cms.Sequence(
     process.siPixelRecHits
@@ -153,7 +148,7 @@ process.refit = cms.Sequence(
 )
 
 process.validation = cms.Sequence(
-    process.cutsRecoTracks *
+    #process.cutsRecoTracks *
     process.selectedVertices*process.selectedFirstPrimaryVertex*process.trackWithVertexSelector *
     process.multiTrackValidatorGenPs
 )

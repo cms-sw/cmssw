@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2010/03/24 00:56:08 $
- *  $Revision: 1.50 $
+ *  $Date: 2011/02/02 11:41:16 $
+ *  $Revision: 1.51 $
  *  \author cerati
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,15 +30,15 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
   /// Method called at the end of the event loop
   void endRun(edm::Run const&, edm::EventSetup const&);
 
-private:
+
+ protected:
+  //these are used by MTVGenPs
+  edm::InputTag associatormap;
+  bool UseAssociators;
+  MTVHistoProducerAlgo* histoProducerAlgo_;
 
  private:
   std::string dirName_;
-  edm::InputTag associatormap;
-  bool UseAssociators;
-
-  // B.M. why these lines are here again? They were already in MTVBase.h file
-  //double minPhi, maxPhi;  int nintPhi;
 
   bool useGsf;
   bool runStandalone;
@@ -46,7 +46,6 @@ private:
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
-  MTVHistoProducerAlgo* histoProducerAlgo_;
 };
 
 

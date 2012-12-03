@@ -101,6 +101,13 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   ParameterSet TpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXR");
   ParameterSet TpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXZ");
 
+  ParameterSet generalGpSelectorPSet = pset.getParameter<ParameterSet>("generalGpSelector");
+  ParameterSet GpSelectorForEfficiencyVsEtaPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsEta");
+  ParameterSet GpSelectorForEfficiencyVsPhiPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsPhi");
+  ParameterSet GpSelectorForEfficiencyVsPtPSet  = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsPt");
+  ParameterSet GpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXR");
+  ParameterSet GpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXZ");
+
   ParameterSet TpSelectorForEfficiencyVsConPSet = TpSelectorForEfficiencyVsEtaPSet;
   Entry name("signalOnly",false,true);
   TpSelectorForEfficiencyVsConPSet.insert(true,"signalOnly",name);
@@ -113,6 +120,14 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   TpSelectorForEfficiencyVsPt     = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet));
   TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet));
   TpSelectorForEfficiencyVsVTXZ   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet));
+  
+  generalGpSelector               = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(generalGpSelectorPSet));
+  GpSelectorForEfficiencyVsEta    = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsEtaPSet));
+  GpSelectorForEfficiencyVsCon    = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsEtaPSet));
+  GpSelectorForEfficiencyVsPhi    = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsPhiPSet));
+  GpSelectorForEfficiencyVsPt     = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsPtPSet));
+  GpSelectorForEfficiencyVsVTXR   = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsVTXRPSet));
+  GpSelectorForEfficiencyVsVTXZ   = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsVTXZPSet));
 
   // fix for the LogScale by Ryan
   if(useLogPt){
@@ -133,10 +148,19 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
   delete generalTpSelector;
   delete TpSelectorForEfficiencyVsEta;
+  delete TpSelectorForEfficiencyVsCon;
   delete TpSelectorForEfficiencyVsPhi;
   delete TpSelectorForEfficiencyVsPt;
   delete TpSelectorForEfficiencyVsVTXR;
   delete TpSelectorForEfficiencyVsVTXZ;
+
+  delete generalGpSelector;
+  delete GpSelectorForEfficiencyVsEta;
+  delete GpSelectorForEfficiencyVsCon;
+  delete GpSelectorForEfficiencyVsPhi;
+  delete GpSelectorForEfficiencyVsPt;
+  delete GpSelectorForEfficiencyVsVTXR;
+  delete GpSelectorForEfficiencyVsVTXZ;
 }
 
 
@@ -810,7 +834,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 ParticleBase::Point vertexTP,
 									 double dxySim, double dzSim, int nSimHits,
 									 const reco::Track* track,
-                                     int numVertices, double vertz){
+									 int numVertices, double vertz){
   bool isMatched = track;
 
   if((*TpSelectorForEfficiencyVsEta)(tp)){
@@ -1634,4 +1658,179 @@ void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   fillPlotFromVector(h_con_vertcount[counter],totCONvertcount[counter]);
   fillPlotFromVector(h_con_zpos[counter],totCONzpos[counter]);
   
+}
+
+
+
+
+
+
+void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int count,
+									 const reco::GenParticle& tp,
+									 ParticleBase::Vector momentumTP,
+									 ParticleBase::Point vertexTP,
+									 double dxySim, double dzSim, int nSimHits,
+									 const reco::Track* track,
+									 int numVertices, double vertz){
+  bool isMatched = track;
+
+  if((*GpSelectorForEfficiencyVsEta)(tp)){
+    //effic vs hits
+    int nSimHitsInBounds = std::min((int)nSimHits,int(maxHit-1));
+    totSIM_hit[count][nSimHitsInBounds]++;
+    if(isMatched) {
+      totASS_hit[count][nSimHitsInBounds]++;
+      nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
+    }
+
+    //effic vs eta
+    for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
+      if (getEta(momentumTP.eta())>etaintervals[count][f]&&
+	  getEta(momentumTP.eta())<etaintervals[count][f+1]) {
+	totSIMeta[count][f]++;
+	if (isMatched) {
+	  totASSeta[count][f]++;
+	}
+      }
+
+    } // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
+
+    //effic vs num pileup vertices
+    for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
+      if (numVertices == vertcountintervals[count][f]) {
+        totSIM_vertcount_entire[count][f]++;
+        if (isMatched) {
+          totASS_vertcount_entire[count][f]++;
+        }
+      }
+      if (numVertices == vertcountintervals[count][f] && momentumTP.eta() <= 0.9 && momentumTP.eta() >= -0.9) {
+        totSIM_vertcount_barrel[count][f]++;
+        if (isMatched) {
+          totASS_vertcount_barrel[count][f]++;
+        }
+      }
+      if (numVertices == vertcountintervals[count][f] && momentumTP.eta() > 0.9) {
+        totSIM_vertcount_fwdpos[count][f]++;
+        if (isMatched) {
+          totASS_vertcount_fwdpos[count][f]++;
+        }
+      }
+      if (numVertices == vertcountintervals[count][f] && momentumTP.eta() < -0.9) {
+        totSIM_vertcount_fwdneg[count][f]++;
+        if (isMatched) {
+          totASS_vertcount_fwdneg[count][f]++;
+        }
+      }
+    }
+
+  }
+
+  if((*GpSelectorForEfficiencyVsPhi)(tp)){
+    for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
+      if (momentumTP.phi() > phiintervals[count][f]&&
+	  momentumTP.phi() <phiintervals[count][f+1]) {
+	totSIM_phi[count][f]++;
+	if (isMatched) {
+	  totASS_phi[count][f]++;
+	}
+      }
+    } // END for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
+  }
+	
+  if((*GpSelectorForEfficiencyVsPt)(tp)){
+    for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
+      if (getPt(sqrt(momentumTP.perp2()))>pTintervals[count][f]&&
+	  getPt(sqrt(momentumTP.perp2()))<pTintervals[count][f+1]) {
+	totSIMpT[count][f]++;
+	if (isMatched) {
+	  totASSpT[count][f]++;
+	}
+      }
+    } // END for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
+  }	
+
+  if((*GpSelectorForEfficiencyVsVTXR)(tp)){
+    for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
+      if (dxySim>dxyintervals[count][f]&&
+	  dxySim<dxyintervals[count][f+1]) {
+	totSIM_dxy[count][f]++;
+	if (isMatched) {
+	  totASS_dxy[count][f]++;
+	}
+      }
+    } // END for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
+
+    for (unsigned int f=0; f<vertposintervals[count].size()-1; f++){
+      if (sqrt(vertexTP.perp2())>vertposintervals[count][f]&&
+	  sqrt(vertexTP.perp2())<vertposintervals[count][f+1]) {
+	totSIM_vertpos[count][f]++;
+	if (isMatched) {
+	  totASS_vertpos[count][f]++;
+	}
+      }
+    } // END for (unsigned int f=0; f<vertposintervals[count].size()-1; f++){
+  }
+
+  if((*GpSelectorForEfficiencyVsVTXZ)(tp)){
+    for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
+      if (dzSim>dzintervals[count][f]&&
+	  dzSim<dzintervals[count][f+1]) {
+	totSIM_dz[count][f]++;
+	if (isMatched) {
+	  totASS_dz[count][f]++;
+	}
+      }
+    } // END for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
+
+  
+    for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
+        if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<zposintervals[count][f+1]) {
+	        totSIM_zpos[count][f]++;
+	        if (isMatched) totASS_zpos[count][f]++;
+        }
+        if (vertz>zposintervals[count][f]&&vertz<zposintervals[count][f+1]) {
+	        totSIM_vertz_entire[count][f]++;
+	        if (isMatched) totASS_vertz_entire[count][f]++;
+        }
+        if (vertz>zposintervals[count][f]&&vertz<zposintervals[count][f+1] && fabs(momentumTP.eta())<0.9) {
+	        totSIM_vertz_barrel[count][f]++;
+	        if (isMatched) totASS_vertz_barrel[count][f]++;
+        }
+        if (vertz>zposintervals[count][f]&&vertz<zposintervals[count][f+1] && momentumTP.eta()>0.9) {
+	        totSIM_vertz_fwdpos[count][f]++;
+	        if (isMatched) totASS_vertz_fwdpos[count][f]++;
+        }
+        if (vertz>zposintervals[count][f]&&vertz<zposintervals[count][f+1] && momentumTP.eta()<-0.9) {
+	        totSIM_vertz_fwdneg[count][f]++;
+	        if (isMatched) totASS_vertz_fwdneg[count][f]++;
+        }
+    } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
+  }
+
+  //Special investigations for PU  
+  if(((*GpSelectorForEfficiencyVsCon)(tp)) && (!((*GpSelectorForEfficiencyVsEta)(tp)))){
+
+   //efficPU vs eta
+    for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
+      if (getEta(momentumTP.eta())>etaintervals[count][f]&&
+	  getEta(momentumTP.eta())<etaintervals[count][f+1]) {
+	totCONeta[count][f]++;
+      }
+    } // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
+
+    //efficPU vs num pileup vertices
+    for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
+      if (numVertices == vertcountintervals[count][f]) {
+	totCONvertcount[count][f]++;
+      }
+    } // END for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
+  
+    for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
+      if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<zposintervals[count][f+1]) {
+	totCONzpos[count][f]++;
+      }
+    } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
+
+  }
+
 }
