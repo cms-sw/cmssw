@@ -12,7 +12,7 @@
 class TrajectoryStateClosestToBeamLineBuilder;
 
 ParticleBase::Vector
-ParametersDefinerForTP::momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const{
+ParametersDefinerForTP::momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const ParticleBase& tp) const{
   // to add a new implementation for cosmic. For the moment, it is just as for the base class:
 
   using namespace edm;
@@ -39,7 +39,7 @@ ParametersDefinerForTP::momentum(const edm::Event& iEvent, const edm::EventSetup
   return momentum;
 }
 
-ParticleBase::Point ParametersDefinerForTP::vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const{
+ParticleBase::Point ParametersDefinerForTP::vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const ParticleBase& tp) const{
   // to add a new implementation for cosmic. For the moment, it is just as for the base class:
   using namespace edm;
 
