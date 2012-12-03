@@ -1,13 +1,11 @@
 #include "CondFormats/CSCObjects/interface/CSCDBGasGainCorrection.h"
-#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
+#include <iostream>
 
-CSCDBGasGainCorrection::CSCDBGasGainCorrection(){}
-CSCDBGasGainCorrection::~CSCDBGasGainCorrection(){}
-
-const CSCDBGasGainCorrection::Item & CSCDBGasGainCorrection::item(const CSCDetId & cscId, int strip, int wire) const
- {
-  CSCIndexer indexer;
-  //note the transformation here from database index (starting from 1) to c++ indexing (starting from 0)
-  return gasGainCorr[ indexer.gasGainIndex(cscId, strip, wire)-1 ]; // no worries about range!
- }
-
+std::ostream & operator<<(std::ostream & os, const CSCDBGasGainCorrection & cscdb)
+{
+  for ( size_t i = 0; i < cscdb.gasGainCorr.size(); ++i )
+  {
+    os <<  "elem: " << i << " gas gain corr: " << cscdb.gasGainCorr[i].gainCorr << "\n";
+  }
+  return os;
+}

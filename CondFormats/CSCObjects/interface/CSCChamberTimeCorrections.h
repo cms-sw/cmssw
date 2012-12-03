@@ -1,15 +1,14 @@
 #ifndef CSCChamberTimeCorrections_h
 #define CSCChamberTimeCorrections_h
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include <iosfwd>
 #include <vector>
-#include <string>
 
 class CSCChamberTimeCorrections{
  public:
-  CSCChamberTimeCorrections();
-  ~CSCChamberTimeCorrections();
-  
+  CSCChamberTimeCorrections() {}
+  ~CSCChamberTimeCorrections(){}
+
   struct ChamberTimeCorrections{
     short int cfeb_length;
     char cfeb_rev;
@@ -24,12 +23,13 @@ class CSCChamberTimeCorrections{
 
   enum factors{FCORR=100};
 
-  // accessor to appropriate element ->should be chamber
-  const ChamberTimeCorrections & item(const CSCDetId & cscId) const;
-  
   typedef std::vector<ChamberTimeCorrections> ChamberContainer;
-
   ChamberContainer chamberCorrections;
+
+  const ChamberTimeCorrections & item( int index ) const { return chamberCorrections[index]; }
+  int precision() const { return factor_precision; }
 };
+
+std::ostream & operator<<(std::ostream & os, const CSCChamberTimeCorrections & cscdb);
 
 #endif

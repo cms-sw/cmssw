@@ -1,8 +1,6 @@
 #ifndef CSCBadChambers_h
 #define CSCBadChambers_h
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-
 #include <vector>
 
 class CSCBadChambers{
@@ -17,8 +15,8 @@ class CSCBadChambers{
   /// Return the container of bad chambers
   std::vector<int> container() const { return chambers; }
 
-  /// Is the gven chamber flagged as bad?
-  bool isInBadChamber( const CSCDetId& id ) const;
+  /// Is the chamber  with index 'ichamber' flagged as bad?
+  bool isInBadChamber( int ichamber ) const;
 
  private:
   int numberOfBadChambers;

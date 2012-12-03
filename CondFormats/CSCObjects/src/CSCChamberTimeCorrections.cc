@@ -1,11 +1,19 @@
 #include "CondFormats/CSCObjects/interface/CSCChamberTimeCorrections.h"
-#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
+#include <iostream>
 
-CSCChamberTimeCorrections::CSCChamberTimeCorrections(){}
-CSCChamberTimeCorrections::~CSCChamberTimeCorrections(){}
-
-const CSCChamberTimeCorrections::ChamberTimeCorrections & CSCChamberTimeCorrections::item(const CSCDetId & cscId) const
- {
-  CSCIndexer indexer;
-  return chamberCorrections[ indexer.chamberIndex(cscId)-1 ]; // no worries about range!
- }
+std::ostream & operator<<(std::ostream & os, const CSCChamberTimeCorrections & cscdb)
+{
+  for ( size_t i = 0; i < cscdb.chamberCorrections.size(); ++i )
+  {
+    os <<  "elem: " << i << " csc time corrections: " <<
+    cscdb.chamberCorrections[i].cfeb_length         << " " <<
+    cscdb.chamberCorrections[i].cfeb_rev            << " " <<
+    cscdb.chamberCorrections[i].alct_length         << " " <<
+    cscdb.chamberCorrections[i].alct_rev            << " " <<
+    cscdb.chamberCorrections[i].cfeb_tmb_skew_delay << " " <<
+    cscdb.chamberCorrections[i].cfeb_timing_corr    << " " <<
+    cscdb.chamberCorrections[i].cfeb_cable_delay    << " " <<
+    cscdb.chamberCorrections[i].anode_bx_offset     << "\n";
+  }
+  return os;
+}

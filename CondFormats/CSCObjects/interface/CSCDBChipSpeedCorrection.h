@@ -1,28 +1,29 @@
 #ifndef CSCDBChipSpeedCorrection_h
 #define CSCDBChipSpeedCorrection_h
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include <iosfwd>
 #include <vector>
 
 class CSCDBChipSpeedCorrection{
  public:
-  CSCDBChipSpeedCorrection();
-  ~CSCDBChipSpeedCorrection();
-  
+  CSCDBChipSpeedCorrection(){}
+  ~CSCDBChipSpeedCorrection(){}
+
   struct Item{
     short int speedCorr;
   };
   int factor_speedCorr;
 
-  /////change to the correct factor for you!
   enum factors{FCORR=100};
 
-  // accessor to appropriate element ->should be chip !!!!
-  const Item & item(const CSCDetId & cscId, int chip) const;
-
   typedef std::vector<Item> ChipSpeedContainer;
-
   ChipSpeedContainer chipSpeedCorr;
+
+  const Item & item( int index) const { return chipSpeedCorr[index]; }
+  short int value( int index ) const { return chipSpeedCorr[index].speedCorr; }
+  int scale() const { return factor_speedCorr; }
 };
+
+std::ostream & operator<<(std::ostream & os, const CSCDBChipSpeedCorrection & cscdb);
 
 #endif
