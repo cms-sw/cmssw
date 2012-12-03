@@ -51,3 +51,21 @@
 <library   name="Compare" file="stubs/Compare.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/Records"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CalibMuon/CSCCalibration"/>
+<library   file="stubs/CSCIndexerAnalyzer.cc" name="testCSCIndexerAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCIndexerAnalyzer2.cc" name="testCSCIndexerAnalyzer2">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCMapperTestStartup.cc" name="testCSCMapperTestStartup">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="stubs/CSCMapperTestPostls1.cc" name="testCSCMapperTestPostls1">
+  <flags   EDM_PLUGIN="1"/>
+</library>
