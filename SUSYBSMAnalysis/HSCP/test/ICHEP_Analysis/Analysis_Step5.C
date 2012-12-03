@@ -60,6 +60,8 @@ void Analysis_Step5()
    Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "7TeV_Loose");
+   MassPrediction(InputPattern, CutIndex,      "Mass", false, "8TeV_LooseNoSMMC");
+   MassPrediction(InputPattern, CutIndex,      "Mass", false, "7TeV_LooseNoSMMC");
    MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "8TeV_Tight");
    MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "7TeV_Tight");
    MassPrediction(InputPattern, CutIndexTight, "Mass", false, "8TeV_TightNoSMMC");
@@ -74,6 +76,8 @@ void Analysis_Step5()
    Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "7TeV_Loose");
+   MassPrediction(InputPattern, CutIndex,      "Mass", false, "8TeV_LooseNoSMMC");
+   MassPrediction(InputPattern, CutIndex,      "Mass", false, "7TeV_LooseNoSMMC");
    MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "8TeV_Tight");
    MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "7TeV_Tight");
    MassPrediction(InputPattern, CutIndexTight, "Mass", false, "8TeV_TightNoSMMC");
@@ -361,13 +365,13 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(Pred8TeV){TH1D* PredLeg8TeV = (TH1D*)Pred8TeV->Clone("RescLeg12");
       PredLeg8TeV->SetFillColor(Pred8TeVErr->GetFillColor());
       PredLeg8TeV->SetFillStyle(Pred8TeVErr->GetFillStyle());
-      leg->AddEntry(PredLeg8TeV, "Data8TeV-based SM prediction"  ,"PF");
+      leg->AddEntry(PredLeg8TeV, "Data-based SM prediction"  ,"PF");
    }
    if(Data7TeV){leg->AddEntry(Data7TeV, "Observed (2011)"     ,"P");}
    if(Pred7TeV){TH1D* PredLeg7TeV = (TH1D*)Pred7TeV->Clone("RescLeg11");
       PredLeg7TeV->SetFillColor(Pred7TeVErr->GetFillColor());
       PredLeg7TeV->SetFillStyle(Pred7TeVErr->GetFillStyle());
-      leg->AddEntry(PredLeg7TeV, "Data7TeV-based SM prediction"  ,"PF");
+      leg->AddEntry(PredLeg7TeV, "Data-based SM prediction (2011)"  ,"PF");
    }
    if(MC    ){leg->AddEntry(MC, "Simulation"     ,"LF");}
    if(MCPred){TH1D* MCPredLeg = (TH1D*) MCPred->Clone("RescMCLeg");
