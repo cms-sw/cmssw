@@ -55,6 +55,7 @@ namespace Rivet {
       const FinalState fs(-7.0,-4.0,0.0*GeV);    
       addProjection(fs, "FS"); 
       VetoedFinalState fsv(fs);
+      
       // skip Neutrinos and Muons
       fsv.vetoNeutrinos();	
       fsv.addVetoPairDetail(MUON, 0.0*GeV, 99999.9*GeV);
@@ -74,10 +75,6 @@ namespace Rivet {
       inclEflow_counter_276 =0;
       inclEflow_counter_7 =0;
 
-      // pt binning    
-      // int  NptBins = 7;
-      // double ptbinning[8] = {1.,2.,3.,5.,7.5,10,15,25};
-	
       if(fuzzyEquals(sqrtS()/GeV, 900, 1E-3)){
 
         // temporary histograms to fill the energy flow for leading jet events
@@ -152,7 +149,7 @@ namespace Rivet {
 	  }
 	}
         myRapiditySortedParticles.push_back(myTempParticles[min_y_pos]);
-	myTempParticles.erase(myTempParticles.begin()+min_y_pos);
+	myTempParticles.erase(myTempParticles.begin() + min_y_pos);
       }
 
   			
