@@ -1,8 +1,8 @@
  /*
  * \file L1TRate_Offline.cc
  *
- * $Date: 2012/11/26 14:56:56 $
- * $Revision: 1.4 $
+ * $Date: 2012/11/27 15:36:22 $
+ * $Revision: 1.5 $
  * \author J. Pela, P. Musella
  *
  */
@@ -47,29 +47,29 @@ L1TRate_Offline::L1TRate_Offline(const ParameterSet & ps){
   m_scalersSource       = m_parameters.getParameter         <InputTag>("inputTagScalersResults");
   m_l1GtDataDaqInputTag = m_parameters.getParameter         <InputTag>("inputTagL1GtDataDaq");
   m_verbose             = m_parameters.getUntrackedParameter<bool>    ("verbose",false);
-  m_refPrescaleSet      = m_parameters.getParameter         <int>     ("refPrescaleSet");  
+  m_refPrescaleSet      = m_parameters.getParameter         <int>     ("refPrescaleSet");
   m_lsShiftGTRates      = m_parameters.getUntrackedParameter<int>     ("lsShiftGTRates",0);
-  
+
   // Getting which categories to monitor
-  ParameterSet Categories     = ps.getParameter<ParameterSet>("categories");  
-  m_inputCategories["Mu"]     = Categories.getUntrackedParameter<bool>("Mu"); 
-  m_inputCategories["EG"]     = Categories.getUntrackedParameter<bool>("EG"); 
-  m_inputCategories["IsoEG"]  = Categories.getUntrackedParameter<bool>("IsoEG"); 
-  m_inputCategories["Jet"]    = Categories.getUntrackedParameter<bool>("Jet"); 
-  m_inputCategories["CenJet"] = Categories.getUntrackedParameter<bool>("CenJet"); 
-  m_inputCategories["ForJet"] = Categories.getUntrackedParameter<bool>("ForJet"); 
-  m_inputCategories["TauJet"] = Categories.getUntrackedParameter<bool>("TauJet"); 
-  m_inputCategories["ETM"]    = Categories.getUntrackedParameter<bool>("ETM"); 
-  m_inputCategories["ETT"]    = Categories.getUntrackedParameter<bool>("ETT"); 
-  m_inputCategories["HTT"]    = Categories.getUntrackedParameter<bool>("HTT"); 
-  m_inputCategories["HTM"]    = Categories.getUntrackedParameter<bool>("HTM"); 
+  ParameterSet Categories     = ps.getParameter<ParameterSet>("categories");
+  m_inputCategories["Mu"]     = Categories.getUntrackedParameter<bool>("Mu");
+  m_inputCategories["EG"]     = Categories.getUntrackedParameter<bool>("EG");
+  m_inputCategories["IsoEG"]  = Categories.getUntrackedParameter<bool>("IsoEG");
+  m_inputCategories["Jet"]    = Categories.getUntrackedParameter<bool>("Jet");
+  m_inputCategories["CenJet"] = Categories.getUntrackedParameter<bool>("CenJet");
+  m_inputCategories["ForJet"] = Categories.getUntrackedParameter<bool>("ForJet");
+  m_inputCategories["TauJet"] = Categories.getUntrackedParameter<bool>("TauJet");
+  m_inputCategories["ETM"]    = Categories.getUntrackedParameter<bool>("ETM");
+  m_inputCategories["ETT"]    = Categories.getUntrackedParameter<bool>("ETT");
+  m_inputCategories["HTT"]    = Categories.getUntrackedParameter<bool>("HTT");
+  m_inputCategories["HTM"]    = Categories.getUntrackedParameter<bool>("HTM");
 
   // Inicializing Variables
   if (m_verbose) {
     cout << "[L1TRate_Offline:] ____________ Storage inicialization ____________ " << endl;
     cout << "[L1TRate_Offline:] Setting up dbe folder: L1T/L1TRate_Offline" << endl;
   }
-  
+
   dbe = Service < DQMStore > ().operator->();
   dbe->setVerbose(0);
   dbe->setCurrentFolder("L1T/L1TRate_Offline");
@@ -94,7 +94,7 @@ void L1TRate_Offline::beginJob(void){
     dbe->setCurrentFolder("L1T/L1TRate_Offline");
     dbe->rmdir("L1T/L1TRate_Offline");
   }
- 
+
 }
 
 //_____________________________________________________________________
@@ -134,8 +134,8 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
   cout << "[L1TRate_Offline:] m_ErrorMonitor: " << m_ErrorMonitor << endl;
 
   // Retriving the list of prescale sets
-  m_listsPrescaleFactors = &(m_l1GtPfAlgo->gtPrescaleFactors()); 
- 
+  m_listsPrescaleFactors = &(m_l1GtPfAlgo->gtPrescaleFactors());
+
   // Getting Lowest Prescale Single Object Triggers from the menu
   L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);
   m_selectedTriggers = myMenuHelper.getLUSOTrigger(m_inputCategories,m_refPrescaleSet);
@@ -144,7 +144,7 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
   getXSexFitsPython(m_parameters);
 
   for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo){
-    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();    
+    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
   }
 
   double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
@@ -198,7 +198,7 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 
       if(tCategory == "Mu" && myMenuHelper.getQualityAlias(tCategory,tTrigger) != 240){
         tErrorMessage += " WARNING: Quality = ";
-        tErrorMessage += myMenuHelper.getQualityAlias(tCategory,tTrigger);      
+        tErrorMessage += myMenuHelper.getQualityAlias(tCategory,tTrigger);
       }
 
     }
@@ -208,14 +208,14 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
                                                   "Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,
                                                   m_maxNbins,
                                                   minInstantLuminosity,
-                                                  maxInstantLuminosity,0,500); 
+                                                  maxInstantLuminosity,0,500);
     m_CountsVsLS[tTrigger] ->setAxisTitle("Instantaneous Luminosity [10^{30}cm^{-2}s^{-1}]" ,1);
     m_CountsVsLS[tTrigger] ->setAxisTitle("Algorithm #sigma [#mu b]" ,2);
     m_CountsVsLS[tTrigger] ->getTProfile()->GetListOfFunctions()->Add(tTestFunction);
     m_CountsVsLS[tTrigger] ->getTProfile()->SetMarkerStyle(23);
 
     m_algoFit[tTrigger] = (TF1*) tTestFunction->Clone("Fit_"+tTrigger); // NOTE: Workaround
-    
+
     dbe->setCurrentFolder("L1T/L1TRate_Offline/Ratio");
     m_xSecObservedToExpected[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("Lumi Section" ,1);
@@ -242,95 +242,95 @@ void L1TRate_Offline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, Eve
 //_____________________________________________________________________
 void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
 
-  int eventLS = lumiBlock.id().luminosityBlock();  
+  int eventLS = lumiBlock.id().luminosityBlock();
   if (m_verbose) {cout << "[L1TRate_Offline:] Called endLuminosityBlock at LS=" << eventLS << endl;}
-  
+
   // We can certify LS -1 since we should have available:
   // gt rates: (current LS)-1
   // prescale: current LS
   // lumi    : current LS
   //eventLS--;
-  
+
   // Checking if all necessary quantities are defined for our calculations
   //bool isDefRate,isDefLumi,isDefPrescaleIndex;
   bool isDefLumi,isDefPrescaleIndex;
   //map<TString,double>* rates=0;
   double               lumi=0;
   int                  prescalesIndex=0;
-  
+
   bool isDefCount;
   map<TString,double>* counts=0;
-  
+
   // Resetting MonitorElements so we can refill them
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
     string tTrigger      = (*i).second;
     m_CountsVsLS            [tTrigger]->getTH1()->Reset("ICE");
-    m_xSecObservedToExpected[tTrigger]->getTH1()->Reset("ICE");    
+    m_xSecObservedToExpected[tTrigger]->getTH1()->Reset("ICE");
 
   }
-  
+
   //Trying to do the same with Counts....
   for(map<int,map<TString,double> >::iterator j=m_lsRates.begin() ; j!=m_lsRates.end() ; j++){
-    
+
     unsigned int lsOffline =  (*j).first;
     counts   = &(*j).second;
     isDefCount=true;
-    
+
     unsigned int lsPreInd;
-    
+
     if(m_lsLuminosity.find(lsOffline)==m_lsLuminosity.end()){isDefLumi=false;}
     else{
       isDefLumi=true;
       lumi=m_lsLuminosity[lsOffline];
     }
-    
+
     lsPreInd = lsOffline + 1; // NOTE: Workaround
-    
+
     if(m_lsPrescaleIndex.find(lsPreInd)==m_lsPrescaleIndex.end()){isDefPrescaleIndex=false;}
     else{
       isDefPrescaleIndex=true;
       prescalesIndex=m_lsPrescaleIndex[lsPreInd];
     }
-    
+
     if(isDefCount && isDefLumi && isDefPrescaleIndex){
-      
+
       //const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
-      
+
       for(map<string,string>::const_iterator j=m_selectedTriggers.begin() ; j!=m_selectedTriggers.end() ; j++){
-        
+
         string tTrigger      = (*j).second;
         double trigCount     = (*counts)[tTrigger];
-        
+
         //   TF1*   tTestFunction = (TF1*) m_CountsVsLS[tTrigger]->getTProfile()->GetListOfFunctions()->First();
         TF1* tTestFunction = m_algoFit[tTrigger]; // NOTE: Workaround....
-        
-        
-        // If trigger name is defined we get the rate fit parameters 
+
+
+        // If trigger name is defined we get the rate fit parameters
         if(tTrigger != "Undefined"){
-          
-          
+
+
           if(lumi!=0 && trigCount!=0 && prescalesIndex!=0){
-            
+
             double AlgoXSec              = (prescalesIndex*trigCount)/lumi;
             double TemplateFunctionValue = tTestFunction->Eval(lumi);
-            
+
             // Checking against Template function
             m_CountsVsLS  [tTrigger]->Fill(lumi,AlgoXSec);
-            
+
             int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(lsOffline);
             m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,AlgoXSec/TemplateFunctionValue);
-            
-            
+
+
           }
           else {
             m_CountsVsLS  [tTrigger]->Fill(0.000001,0.000001);
-            
+
             int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(lsOffline);
             m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,0.000001);
           }
         }
-      }  
-    }    
+      }
+    }
   }
 }
 
@@ -341,42 +341,42 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
   edm::Handle<L1GlobalTriggerReadoutRecord>   gtReadoutRecordData;
   edm::Handle<Level1TriggerScalersCollection> triggerScalers;
   edm::Handle<LumiScalersCollection>          colLScal;
- 
+
   iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
   iEvent.getByLabel(m_scalersSource      , colLScal);
   iEvent.getByLabel(m_scalersSource      , triggerScalers);
 
   // Integers
-  int  EventRun = iEvent.id().run();
+  //int  EventRun = iEvent.id().run();
   unsigned int eventLS  = iEvent.id().luminosityBlock();
 
   // Getting the trigger trigger rates from GT and buffering it
-  if(triggerScalers.isValid()){
-    
+  if(triggerScalers.isValid() && triggerScalers->size()){
+
     Level1TriggerScalersCollection::const_iterator itL1TScalers = triggerScalers->begin();
-    Level1TriggerRates trigRates(*itL1TScalers,EventRun);
-    
+    //Level1TriggerRates trigRates(*itL1TScalers,EventRun);
+
     // Trying to get the trigger counts
     const std::vector<unsigned int> gtAlgoCounts =  itL1TScalers->gtAlgoCounts();
 
     int gtLS = (*itL1TScalers).lumiSegmentNr()+m_lsShiftGTRates;
-    
+
     // If we haven't got the data from this LS yet get it
     if(m_lsRates.find(gtLS)==m_lsRates.end()){
-      
+
       map<TString,double> bufferCount;
- 
+
       // Buffer the rate informations for all selected bits
       for(map<string,string>::const_iterator i=m_selectedTriggers.begin(); i!=m_selectedTriggers.end() ; i++){
-	
+
         string tTrigger = (*i).second;
 
         // If trigger name is defined we store the rate
         if(tTrigger != "Undefined"){
 
           unsigned int   trigBit  = m_algoBit[tTrigger];
-          double trigCount = gtAlgoCounts[trigBit]; 
-  
+          double trigCount = gtAlgoCounts[trigBit];
+
           bufferCount[tTrigger] = trigCount;
 
 	}
@@ -388,17 +388,17 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 
   // Getting from the SCAL the luminosity information and buffering it
   if(colLScal.isValid() && colLScal->size()){
-    
+
     LumiScalersCollection::const_iterator itLScal = colLScal->begin();
     unsigned int scalLS  = itLScal->sectionNumber();
-    
+
     // If we haven't got the data from this SCAL LS yet get it
     if(m_lsLuminosity.find(scalLS)==m_lsLuminosity.end()){
-    
+
       if (m_verbose) {cout << "[L1TRate_Offline:] Buffering SCAL-HF Lumi for LS=" << scalLS << endl;}
-      double instLumi       = itLScal->instantLumi();           // Getting Instant Lumi from HF (via SCAL) // <###### WE NEED TO STORE THIS  
+      double instLumi       = itLScal->instantLumi();           // Getting Instant Lumi from HF (via SCAL) // <###### WE NEED TO STORE THIS
       double deadTimeNormHF = itLScal->deadTimeNormalization(); // Getting Dead Time Normalization from HF (via SCAL)
-       
+
       // If HF Dead Time Corrections is requested we apply it
       // NOTE: By default this is assumed false since for now WbM fits do NOT assume this correction
       if(m_parameters.getUntrackedParameter<bool>("useHFDeadTimeNormalization",false)){
@@ -414,10 +414,10 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 
   // Getting the prescale index used when this event was triggered
   if(gtReadoutRecordData.isValid()){
-    
+
     // If we haven't got the data from this LS yet get it
     if(m_lsPrescaleIndex.find(eventLS)==m_lsPrescaleIndex.end()){
-      
+
       if (m_verbose) {cout << "[L1TRate_Offline:] Buffering Prescale Index for LS=" << eventLS << endl;}
 
       // Getting Final Decision Logic (FDL) Data from GT
@@ -428,8 +428,8 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
       for(unsigned int i=0; i<gtFdlVectorData.size(); i++){
         if(gtFdlVectorData[i].bxInEvent()==0){indexFDL=i; break;}
       }
-      
-      int CurrentPrescalesIndex  = gtFdlVectorData[indexFDL].gtPrescaleFactorIndexAlgo(); // <###### WE NEED TO STORE THIS  
+
+      int CurrentPrescalesIndex  = gtFdlVectorData[indexFDL].gtPrescaleFactorIndexAlgo(); // <###### WE NEED TO STORE THIS
       m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;
 
     }
@@ -441,12 +441,12 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 
 //_____________________________________________________________________
 // function: getXSexFitsPython
-// Imputs: 
+// Imputs:
 //   * const edm::ParameterSet& ps = ParameterSet contaning the fit
 //     functions and parameters for the selected triggers
 // Outputs:
-//   * int error = Number of algos where you did not find a 
-//     corresponding fit 
+//   * int error = Number of algos where you did not find a
+//     corresponding fit
 //_____________________________________________________________________
 bool L1TRate_Offline::getXSexFitsPython(const edm::ParameterSet& ps){
 
@@ -461,22 +461,22 @@ bool L1TRate_Offline::getXSexFitsPython(const edm::ParameterSet& ps){
 
   // Getting rate fit parameters for all input triggers
   for(map<string,string>::const_iterator a=m_selectedTriggers.begin() ; a!=m_selectedTriggers.end() ; a++){
-  
+
     string tTrigger = (*a).second;
 
-    // If trigger name is defined we get the rate fit parameters 
+    // If trigger name is defined we get the rate fit parameters
     if(tTrigger != "Undefined"){
-    
+
       bool foundFit = false;
 
       for(unsigned int b=0 ; b<m_fitParameters.size() ; b++){
-	
+
         if(tTrigger == m_fitParameters[b].getParameter<string>("AlgoName")){
-	
+
           TString        tAlgoName          = m_fitParameters[b].getParameter< string >        ("AlgoName");
           TString        tTemplateFunction  = m_fitParameters[b].getParameter< string >        ("TemplateFunction");
           vector<double> tParameters        = m_fitParameters[b].getParameter< vector<double> >("Parameters");
-	  
+
           // Retriving and populating the m_templateFunctions array
           m_templateFunctions[tTrigger] = new TF1("FitParametrization_"+tAlgoName,tTemplateFunction,
                                                   minInstantLuminosity,maxInstantLuminosity);
