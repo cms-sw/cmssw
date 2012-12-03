@@ -17,10 +17,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/InputSourceMacros.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 using namespace edm;
 using namespace pftools;
 using namespace reco;

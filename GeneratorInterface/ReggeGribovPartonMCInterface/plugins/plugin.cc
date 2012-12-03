@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/ReggeGribovPartonMCInterface/interface/ReggeGribovPartonMCGeneratorFilter.h"
 
