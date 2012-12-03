@@ -21,7 +21,7 @@
 #include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
-class CSCRecoConditions 
+class CSCRecoConditions
 {
  public:
 
@@ -38,7 +38,7 @@ class CSCRecoConditions
   float gain( const CSCDetId& id, int geomStrip ) const;
 
   /// return average gain over entire CSC system
-  float averageGain() const { 
+  float averageGain() const {
      return theConditions.averageGain(); }
 
   ///  calculate gain weights for all strips in a CSC layer (total in layer = nstrips)
@@ -63,13 +63,13 @@ class CSCRecoConditions
    // returns chip speed correction in ns given strio channel
   float chipCorrection( const CSCDetId & detId, int channel ) const;
 
-   // returns chamber level timing correction (cable length and extra chamber correction) in ns 
+   // returns chamber level timing correction (cable length and extra chamber correction) in ns
   float chamberTimingCorrection( const CSCDetId& id )const;
 
    // returns anode bx off for each chamber, used to correct anode times to 0 for collision muons
   float anodeBXoffset( const CSCDetId & detId )const;
 
-  /// returns gas-gain correction 
+  /// returns gas-gain correction
   float gasGainCorrection( const CSCDetId& id, int strip, int wireGroup ) const;
 
   /// Is a neighbour bad?
