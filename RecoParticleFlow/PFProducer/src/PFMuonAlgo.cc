@@ -28,29 +28,122 @@ PFMuonAlgo::PFMuonAlgo() {
 
 void PFMuonAlgo::setParameters(const edm::ParameterSet& iConfig )
 {
-  maxDPtOPt_ = iConfig.getParameter<double>("maxDPtOPt");
-  minTrackerHits_ = iConfig.getParameter<int>("minTrackerHits");
-  minPixelHits_ = iConfig.getParameter<int>("minPixelHits");
-  trackQuality_  = reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"));
-  errorCompScale_ = iConfig.getParameter<double>("ptErrorScale");
-  eventFractionCleaning_ = iConfig.getParameter<double>("eventFractionForCleaning");
-  dzPV_ = iConfig.getParameter<double>("dzPV");
-  postCleaning_ = iConfig.getParameter<bool>("postMuonCleaning");
-  minPostCleaningPt_ = iConfig.getParameter<double>("minPtForPostCleaning");
-  eventFactorCosmics_ = iConfig.getParameter<double>("eventFactorForCosmics");
-  metSigForCleaning_ = iConfig.getParameter<double>("metSignificanceForCleaning");
-  metSigForRejection_ = iConfig.getParameter<double>("metSignificanceForRejection");
-  metFactorCleaning_ = iConfig.getParameter<double>("metFactorForCleaning");
-  eventFractionRejection_ = iConfig.getParameter<double>("eventFractionForRejection");
-  metFactorRejection_ = iConfig.getParameter<double>("metFactorForRejection");
-  metFactorHighEta_ = iConfig.getParameter<double>("metFactorForHighEta");
-  ptFactorHighEta_ = iConfig.getParameter<double>("ptFactorForHighEta");
-  metFactorFake_ = iConfig.getParameter<double>("metFactorForFakes");
-  minPunchThroughMomentum_ = iConfig.getParameter<double>("minMomentumForPunchThrough");
-  minPunchThroughEnergy_ = iConfig.getParameter<double>("minEnergyForPunchThrough");
-  punchThroughFactor_ = iConfig.getParameter<double>("punchThroughFactor");
-  punchThroughMETFactor_ = iConfig.getParameter<double>("punchThroughMETFactor");
-  cosmicRejDistance_ = iConfig.getParameter<double>("cosmicRejectionDistance");
+
+  if(iConfig.exists("maxDPtOPt"))
+    maxDPtOPt_ = iConfig.getParameter<double>("maxDPtOPt");
+  else
+    maxDPtOPt_=1.0;
+
+  if(iConfig.exists("minTrackerHits"))
+    minTrackerHits_ = iConfig.getParameter<int>("minTrackerHits");
+  else
+    minTrackerHits_ = 8;
+
+  if(iConfig.exists("minPixelHits"))
+    minPixelHits_ = iConfig.getParameter<int>("minPixelHits");
+  else
+    minPixelHits_ = 1;
+
+  if(iConfig.exists("trackQuality"))
+    trackQuality_  = reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("trackQuality"));
+  else
+    trackQuality_  = reco::TrackBase::qualityByName("highPurity");
+
+  if(iConfig.exists("ptErrorScale"))
+    errorCompScale_ = iConfig.getParameter<double>("ptErrorScale");
+  else
+    errorCompScale_ = 4.;
+
+  if(iConfig.exists("eventFractionForCleaning"))
+    eventFractionCleaning_ = iConfig.getParameter<double>("eventFractionForCleaning");
+  else
+    eventFractionCleaning_ = 0.75;
+
+  if(iConfig.exists("dzPV"))
+    dzPV_ = iConfig.getParameter<double>("dzPV");
+  else
+    dzPV_ = 0.2;
+
+  if(iConfig.exists("postMuonCleaning"))
+    postCleaning_ = iConfig.getParameter<bool>("postMuonCleaning");
+  else
+    postCleaning_ = false; //Disable by default (for HLT)
+
+  if(iConfig.exists("minPtForPostCleaning"))
+    minPostCleaningPt_ = iConfig.getParameter<double>("minPtForPostCleaning");
+  else
+    minPostCleaningPt_ = 20.;
+
+  if(iConfig.exists("eventFactorForCosmics"))
+    eventFactorCosmics_ = iConfig.getParameter<double>("eventFactorForCosmics");
+  else
+    eventFactorCosmics_ = 10.;
+
+
+  if(iConfig.exists("metSignificanceForCleaning"))
+    metSigForCleaning_ = iConfig.getParameter<double>("metSignificanceForCleaning");
+  else
+    metSigForCleaning_ = 3.;
+
+  if(iConfig.exists("metSignificanceForRejection"))
+    metSigForRejection_ = iConfig.getParameter<double>("metSignificanceForRejection");
+  else
+    metSigForRejection_ = 4.;
+
+  if(iConfig.exists("metFactorForCleaning"))
+    metFactorCleaning_ = iConfig.getParameter<double>("metFactorForCleaning");
+  else
+    metFactorCleaning_ = 4.;
+
+  if(iConfig.exists("eventFractionForRejection"))
+    eventFractionRejection_ = iConfig.getParameter<double>("eventFractionForRejection");
+  else
+    eventFractionRejection_ = 0.75;
+
+  if(iConfig.exists("metFactorForRejection"))
+    metFactorRejection_ = iConfig.getParameter<double>("metFactorForRejection");
+  else
+    metFactorRejection_ =4.;
+
+  if(iConfig.exists("metFactorForHighEta"))
+    metFactorHighEta_ = iConfig.getParameter<double>("metFactorForHighEta");
+  else
+    metFactorHighEta_=4;
+
+  if(iConfig.exists("ptFactorForHighEta"))
+    ptFactorHighEta_ = iConfig.getParameter<double>("ptFactorForHighEta");
+  else
+    ptFactorHighEta_ = 2.;
+
+  if(iConfig.exists("metFactorForFakes"))
+    metFactorFake_ = iConfig.getParameter<double>("metFactorForFakes");
+  else
+    metFactorFake_ = 4.;
+
+  if(iConfig.exists("minMomentumForPunchThrough"))
+    minPunchThroughMomentum_ = iConfig.getParameter<double>("minMomentumForPunchThrough");
+  else
+    minPunchThroughMomentum_=100.;
+
+  if(iConfig.exists("minEnergyForPunchThrough"))
+    minPunchThroughEnergy_ = iConfig.getParameter<double>("minEnergyForPunchThrough");
+  else
+    minPunchThroughEnergy_ = 100.;
+
+  if(iConfig.exists("punchThroughFactor"))
+    punchThroughFactor_ = iConfig.getParameter<double>("punchThroughFactor");
+  else
+    punchThroughFactor_ = 3.;
+
+  if(iConfig.exists("punchThroughMETFactor"))
+    punchThroughMETFactor_ = iConfig.getParameter<double>("punchThroughMETFactor");
+  else
+    punchThroughMETFactor_ = 4.;
+
+  if(iConfig.exists("cosmicRejectionDistance"))
+    cosmicRejDistance_ = iConfig.getParameter<double>("cosmicRejectionDistance");
+  else
+    cosmicRejDistance_ = 1.0;
 }
 
 
