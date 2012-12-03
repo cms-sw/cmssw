@@ -140,36 +140,28 @@ def DrawBranding(options, label=''):
     text.DrawLatex(rightMargin+.01, topMargin+0.025, label+options.branding);
 
 
-def FindParents(histoPath):
-    root = histoPath[:histoPath.find('_')]
-    par = histoPath[histoPath.find('Eff')+3:]
-    validationPlots = validation.proc.efficiencies.plots._Parameterizable__parameterNames
-    found =0
-    num = ''
-    den = ''
-    for efficiency in validationPlots:
-        effpset = getattr(validation.proc.efficiencies.plots,efficiency)
-        effName = effpset.efficiency.value()
-        effNameCut = effName[effName.find('_'):effName.find('#')]
-        if effNameCut in histoPath:
-            if found == 1:
-                print 'More than one pair of parents found for ' + histopath + ':'
-                assert(False)
-            num = root + effpset.numerator.value()[effName.find('_'):].replace('#PAR#',par)
-            den = root + effpset.denominator.value()[effName.find('_'):].replace('#PAR#',par)
-            found += 1
-    return [num,den]
+def FindParents(histoPath, tfile):
+    root    = histoPath[:histoPath.find('_')]
+    par     = '_vs_'+histoPath[histoPath.find('Eff')+3:]+'TauVisible'
+    dirname = histoPath[:histoPath.rfind('/')]
+    tdir    = tfile.Get(dirname)
+    hists   = []
+    MapDirStructure( tdir, dirname, hists )
+    num     = filter(lambda x: par in x, hists)[0] #otherwise raises error
+    den     = histoPath[:histoPath.find('_')]+'_ReferenceCollection/nRef_Taus'+par
+    return (num,den)
 
 def Rebin(tfile, histoPath, rebinVal):
-    parents = FindParents(histoPath)
-    num = tfile.Get(parents[0])
+    numpath, denpath = FindParents(histoPath, tfile)
+    print (numpath, denpath)
+    num = tfile.Get(numpath)
     if type(num) != TH1F:
-        print 'Looking for '+num
+        print 'Looking for '+numpath
         print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
-    denSingle = tfile.Get(parents[1])
+    denSingle = tfile.Get(denpath)
     if type(denSingle) != TH1F:
-        print 'Looking for '+denSingle
+        print 'Looking for '+denpath
         print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
     num.Rebin(rebinVal)
