@@ -78,6 +78,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+process.DQMStore=cms.Service("DQMStore")
+process.TkDetMap = cms.Service("TkDetMap")
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+
   # configuration of the Tracker Geometry Comparison Tool
   # Tracker Geometry Comparison
 process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
@@ -86,6 +90,11 @@ process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
 process.TrackerGeometryCompare.inputROOTFile1 = '.oO[comparedGeometry]Oo.'
 process.TrackerGeometryCompare.inputROOTFile2 = '.oO[referenceGeometry]Oo.'
 process.TrackerGeometryCompare.outputFile = ".oO[workdir]Oo./.oO[name]Oo..Comparison_common.oO[common]Oo..root"
+
+process.TFileService = cms.Service("TFileService",
+		fileName = cms.string('TkSurfDeform.root') 
+		)
+
 process.TrackerGeometryCompare.levels = [ .oO[levels]Oo. ]
 
   ##FIXME!!!!!!!!!
