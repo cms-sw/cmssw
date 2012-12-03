@@ -79,6 +79,9 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
 
   // Get gain correction weights for all strips in layer, and cache in gainWeight.
   // They're used in fillPulseHeights below.
+  // When ME11a is ganged we only need the first 16 values of the 48 filled,  
+  // but 17-48 are just duplicates of 1-16 anyway
+
   if ( useCalib ) {
     recoConditions_->stripWeights( id, nstrips_, gainWeight );
 
@@ -86,7 +89,7 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     //    std::cout << "gainWeight for id= " << id_ << " nstrips= " << nstrips_ << std::endl;
     //    for ( size_t i = 0; i!=10; ++i ) {
     //      for ( size_t j = 0; j!=8; ++j ) {
-    //	std::cout << gainWeight[i*8 + j] << "   ";
+    // 	      std::cout << gainWeight[i*8 + j] << "   ";
     //      }
     //      std::cout << std::endl;
     //    }
