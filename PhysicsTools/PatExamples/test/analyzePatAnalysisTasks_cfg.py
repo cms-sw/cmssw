@@ -23,8 +23,8 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.jecAnalyzer = cms.EDAnalyzer("WrappedEDAnalysisTasksAnalyzerJEC",
   Jets = cms.InputTag("selectedPatJetsPFlow"), 
-  jecLevel=cms.string("L3Absolute"),
-  jecSetLabel= cms.string('patJetCorrFactorsPFlow'),
+  jecLevel=cms.string("L3Abs"),
+  jecSetLabel= cms.string('patJetCorrFactors'),
   outputFileName=cms.string("jecAnalyzerOutput")
 )
 
@@ -77,9 +77,9 @@ from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
 runMEtUncertainties(process, electronCollection = cms.InputTag("selectedPatElectronsPFlow"), jetCollection="selectedPatJetsPFlow", muonCollection = cms.InputTag("selectedPatMuonsPFlow"), tauCollection = cms.InputTag("selectedPatTausPFlow") )
 
 
-process.shiftedPatJetsEnUp=process.shiftedPatJetsPFlowEnUpForCorrMEt.clone(shiftBy=cms.double(2), src="selectedPatJetsPFlow")
-process.jecAnalyzerEnUp=process.jecAnalyzer.clone(Jets = cms.InputTag("shiftedPatJetsEnUp"))
-process.p_jec.__iadd__( process.shiftedPatJetsEnUp *  process.jecAnalyzerEnUp)
+#process.shiftedPatJetsEnUp=process.shiftedPatJetsPFlowEnUpForCorrMEt.clone(shiftBy=cms.double(2), src="selectedPatJetsPFlow")
+#process.jecAnalyzerEnUp=process.jecAnalyzer.clone(Jets = cms.InputTag("shiftedPatJetsEnUp"))
+#process.p_jec.__iadd__( process.shiftedPatJetsEnUp *  process.jecAnalyzerEnUp)
 
 #################
 #               #
@@ -120,4 +120,4 @@ process.DRHisto_JPsiCands= cms.EDAnalyzer( "CandViewHistoAnalyzer",
                                                     )
                                            )
 
-#process.p_jspi= cms.Path(process.patJPsiCandidates  * process.DRHisto_JPsiCands * process.myGoodJPsiCandidates * process.selectEventsWithGoodJspiCand)
+#process.p_jpsi= cms.Path(process.patJPsiCandidates  * process.DRHisto_JPsiCands * process.myGoodJPsiCandidates * process.selectEventsWithGoodJspiCand)
