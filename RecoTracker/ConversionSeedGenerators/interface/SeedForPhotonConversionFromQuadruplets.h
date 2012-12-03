@@ -105,6 +105,7 @@ public:
 protected:
   std::string thePropagatorLabel;
   double theBOFFMomentum;
+  double  kPI_;
 
   std::stringstream * pss;
   PrintRecoObjects po;

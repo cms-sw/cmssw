@@ -2,7 +2,6 @@
 
 #include "RecoTracker/ConversionSeedGenerators/interface/Conv4HitsReco2.h"
 
-#include "TRandom3.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
@@ -174,7 +173,7 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
 
   IP.SetXYZ(IPx,IPy,0);
 
-  double IPrho=TMath::Sqrt(IP.x()*IP.x()+IP.y()*IP.y());
+  double IPrho=std::sqrt(IP.x()*IP.x()+IP.y()*IP.y());
   double P1rho2=P1.x()*P1.x()+P1.y()*P1.y();
   double M1rho2=M1.x()*M1.x()+M1.y()*M1.y();
   double maxIPrho2=IPrho+CleaningmaxRadialDistance; maxIPrho2*=maxIPrho2;
@@ -185,6 +184,8 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
 
   if(applyDeltaPhiCuts) {
 
+  kPI_ = std::atan(1.0)*4;
+  
   edm::ESHandle<MagneticField> bfield;
   es.get<IdealMagneticFieldRecord>().get(bfield);
   math::XYZVector QuadMean(0,0,0);
@@ -220,7 +221,7 @@ std::cout << "d" << d << std::endl;
 
   //Cx1,2 and Cy1,2 are the two points that have a distance of rMax to 0,0
   double CsolutionPart1=-2*k*d;
-  double CsolutionPart2=TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rMax_squared));
+  double CsolutionPart2=std::sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rMax_squared));
   double CsolutionPart3=2*(1+k*k);
   double Cx1=(CsolutionPart1+CsolutionPart2)/CsolutionPart3;
   double Cx2=(CsolutionPart1-CsolutionPart2)/CsolutionPart3;
@@ -253,7 +254,7 @@ std::cout << "d" << d << std::endl;
 // Find Tangent at 0,0 to minPtCircle and point (Bx,By) on the first layer which bisects the allowed angle
   k=-Cx/Cy;
   d=0;
-  double Bx1=TMath::Sqrt(Mx*Mx+My*My/(1+k*k));
+  double Bx1=std::sqrt(Mx*Mx+My*My/(1+k*k));
   double Bx2=-Bx1;
   double By1=k*Bx1+d;
   double By2=k*Bx2+d;
@@ -290,8 +291,8 @@ std::cout << "d" << d << std::endl;
 #ifdef mydebug_knuenz
     std::cout << "DeltaPhiMaxM1P1 " << DeltaPhiMaxM1P1 << std::endl;
 	std::cout << "M1.DeltaPhi(P1) " << DeltaPhiManual(M1,P1) << std::endl;
-    std::cout << "rho P1: " << TMath::Sqrt(P1.x()*P1.x()+P1.y()*P1.y()) <<  "phi P1: " << P1.Phi() << std::endl;
-    std::cout << "rho M1: " << TMath::Sqrt(M1.x()*M1.x()+M1.y()*M1.y()) <<  "phi M1: " << M1.Phi() << std::endl;
+    std::cout << "rho P1: " << std::sqrt(P1.x()*P1.x()+P1.y()*P1.y()) <<  "phi P1: " << P1.Phi() << std::endl;
+    std::cout << "rho M1: " << std::sqrt(M1.x()*M1.x()+M1.y()*M1.y()) <<  "phi M1: " << M1.Phi() << std::endl;
 #endif
 
 //Finally Cut on DeltaPhi of P1 and M1
@@ -320,7 +321,7 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 		  double d=(rM2_squared-rMax_squared+C.x()*C.x()+C.y()*C.y())/(2*C.y());
 
 		  double M2solutionPart1=-2*k*d;
-		  double M2solutionPart2=TMath::Sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rM2_squared));
+		  double M2solutionPart2=std::sqrt(4*k*k*d*d-4*(1+k*k)*(d*d-rM2_squared));
 		  double M2solutionPart3=2+2*k*k;
 		  double M2xMax1=(M2solutionPart1+M2solutionPart2)/M2solutionPart3;
 		  double M2xMax2=(M2solutionPart1-M2solutionPart2)/M2solutionPart3;
@@ -421,7 +422,7 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
     if ( candPtMinus > maxLegPt ) return 0;
     //
     // Cut on radial distance between estimated conversion vertex and inner hits
-    double cr = TMath::Sqrt(candVtx.Perp2());
+    double cr = std::sqrt(candVtx.Perp2());
     double maxr2 = (maxRadialDistance + cr); maxr2*=maxr2;
     if (h2.Perp2() > maxr2) return 0;
     if (h3.Perp2() > maxr2) return 0;
@@ -468,7 +469,7 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 
     math::XYZVector fittedPrimaryVertex(vgPhotVertex.x(), vgPhotVertex.y(),quadZ0);
 
-    candVtx.SetZ(TMath::Sqrt(candVtx.Perp2())*quadPhotCotTheta+quadZ0);
+    candVtx.SetZ(std::sqrt(candVtx.Perp2())*quadPhotCotTheta+quadZ0);
     GlobalPoint convVtxGlobalPoint(candVtx.X(),candVtx.Y(),candVtx.Z());
 
     //
@@ -782,7 +783,7 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
   math::XYZVector EstMomGam(updatedState.globalMomentum().x(),updatedState.globalMomentum().y(),updatedState.globalMomentum().z());
   math::XYZVector EstPosGam(updatedState.globalPosition().x(),updatedState.globalPosition().y(),updatedState.globalPosition().z());
 
-  double EstMomGamLength=TMath::Sqrt(EstMomGam.x()*EstMomGam.x()+EstMomGam.y()*EstMomGam.y()+EstMomGam.z()*EstMomGam.z());
+  double EstMomGamLength=std::sqrt(EstMomGam.x()*EstMomGam.x()+EstMomGam.y()*EstMomGam.y()+EstMomGam.z()*EstMomGam.z());
   math::XYZVector EstMomGamNorm(EstMomGam.x()/EstMomGamLength,EstMomGam.y()/EstMomGamLength,EstMomGam.z()/EstMomGamLength);
 
   //Calculate dz of point of closest approach of the two lines (WA approach) -> cut on dz
@@ -836,7 +837,7 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
 /*  //Calculate dz of point of closest approach of the two lines -> cut on dz
 
   double newX,newY,newR;
-  double Rbuff=TMath::Sqrt(EstPosGam.x()*EstPosGam.x()+EstPosGam.y()*EstPosGam.y());
+  double Rbuff=std::sqrt(EstPosGam.x()*EstPosGam.x()+EstPosGam.y()*EstPosGam.y());
   double deltas,s,sbuff;
   double rMin=1e9;
 
@@ -853,7 +854,7 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
   for (int i_dz=0;i_dz<1000;i_dz++){
   newX=EstPosGam.x()+s*EstMomGamNorm.x();
   newY=EstPosGam.y()+s*EstMomGamNorm.y();
-  newR=TMath::Sqrt(newX*newX+newY*newY);
+  newR=std::sqrt(newX*newX+newY*newY);
   if(newR>Rbuff) {deltas=-1*deltas/10;nTurns++;}
   else {Rbuff=newR;}
   if(newR<rMin) {rMin=newR; sbuff=s;}
@@ -869,7 +870,7 @@ bool SeedForPhotonConversionFromQuadruplets::buildSeedBool(
   std::cout<< "zCA: " << zCA <<std::endl;
 #endif
 
-  if(TMath::Abs(zCA)>dzcut) return false;
+  if(std::fabs(zCA)>dzcut) return false;
 
 
   }
@@ -1061,12 +1062,10 @@ bool SeedForPhotonConversionFromQuadruplets::similarQuadExist(Quad & thisQuad, s
 
 double SeedForPhotonConversionFromQuadruplets::DeltaPhiManual(math::XYZVector v1, math::XYZVector v2){
 
-
-	double  kPI = TMath::Pi();
-	double  kTWOPI     = 2.*kPI;
+	double  kTWOPI     = 2.*kPI_;
 	double DeltaPhiMan=v1.Phi()-v2.Phi();
-	while (DeltaPhiMan >= kPI) DeltaPhiMan -= kTWOPI;
-	while (DeltaPhiMan < -kPI) DeltaPhiMan += kTWOPI;
+	while (DeltaPhiMan >= kPI_) DeltaPhiMan -= kTWOPI;
+	while (DeltaPhiMan < -kPI_) DeltaPhiMan += kTWOPI;
 
 	return DeltaPhiMan;
 

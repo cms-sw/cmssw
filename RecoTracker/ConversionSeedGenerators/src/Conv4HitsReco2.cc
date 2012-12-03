@@ -11,7 +11,6 @@
 //#include "RecoTracker/ConversionSeedGenerators/interface/Conv4HitsReco2.h"
 //#include "FWCore/MessegeLogger/interface/MessegeLogger.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/Conv4HitsReco2.h"
-#include "TMath.h"
 #include <time.h>
 
 Conv4HitsReco2::Conv4HitsReco2(math::XYZVector &vPhotVertex, math::XYZVector &h1, math::XYZVector &h2, math::XYZVector &h3, math::XYZVector &h4)
@@ -64,18 +63,18 @@ void Conv4HitsReco2::LocalTransformation(math::XYZVector v11, math::XYZVector v1
 	x21 = v21.X(); y21 = v21.Y();
 	x22 = v22.X(); y22 = v22.Y();
 
-	Double_t TANP = TMath::Tan(NextPhi);
-	Double_t X11 = -TMath::Abs(x11*TANP - y11) / TMath::Sqrt(1 + TANP*TANP);
-	Double_t Y11 = TMath::Abs(y11*TANP + x11) / TMath::Sqrt(1 + TANP*TANP);
+	double TANP = std::tan(NextPhi);
+	double X11 = -std::fabs(x11*TANP - y11) / std::sqrt(1 + TANP*TANP);
+	double Y11 = std::fabs(y11*TANP + x11) / std::sqrt(1 + TANP*TANP);
 
-	Double_t X21 = -TMath::Abs(x21*TANP - y21) / TMath::Sqrt(1 + TANP*TANP);
-	Double_t Y21 = TMath::Abs(y21*TANP + x21) / TMath::Sqrt(1 + TANP*TANP); 
+	double X21 = -std::fabs(x21*TANP - y21) / std::sqrt(1 + TANP*TANP);
+	double Y21 = std::fabs(y21*TANP + x21) / std::sqrt(1 + TANP*TANP);
 
-	Double_t X12 = TMath::Abs(x12*TANP - y12) / TMath::Sqrt(1 + TANP*TANP);
-	Double_t Y12 = TMath::Abs(y12*TANP + x12) / TMath::Sqrt(1 + TANP*TANP);
+	double X12 = std::fabs(x12*TANP - y12) / std::sqrt(1 + TANP*TANP);
+	double Y12 = std::fabs(y12*TANP + x12) / std::sqrt(1 + TANP*TANP);
 
-	Double_t X22 = TMath::Abs(x22*TANP - y22) / TMath::Sqrt(1 + TANP*TANP);
-	Double_t Y22 = TMath::Abs(y22*TANP + x22) / TMath::Sqrt(1 + TANP*TANP);
+	double X22 = std::fabs(x22*TANP - y22) / std::sqrt(1 + TANP*TANP);
+	double Y22 = std::fabs(y22*TANP + x22) / std::sqrt(1 + TANP*TANP);
 
 	V11.SetXYZ(X11,Y11,0.);
 	V12.SetXYZ(X12,Y12,0.);
@@ -110,18 +109,18 @@ void Conv4HitsReco2::Reconstruct()
 	else fLoop = fFixedNumberOfIterations;
 
 	// Setting Phi1, Phi2 initial guess range, and first guess
-	double tempr1 = TMath::Sqrt(y11*y11 + x11*x11);
-	double tempr2 = TMath::Sqrt(y12*y12 + x12*x12);
+	double tempr1 = std::sqrt(y11*y11 + x11*x11);
+	double tempr2 = std::sqrt(y12*y12 + x12*x12);
 
-	double Phi1 = 2.0 * TMath::ATan(y11 / (x11+tempr1));
-	double Phi2 = 2.0 * TMath::ATan(y12 / (x12+tempr2));
+	double Phi1 = 2.0 * std::atan(y11 / (x11+tempr1));
+	double Phi2 = 2.0 * std::atan(y12 / (x12+tempr2));
 
 	if (Phi1<Phi2) Phi1 += 2.0 * 3.141592653;	// stupid Atan correction
 
-	fPhiE = TMath::Abs((Phi1-Phi2)) / TMath::Power(2.0, fLoop + 1);
+	fPhiE = std::fabs((Phi1-Phi2)) / std::pow(2.0, fLoop + 1);
 
-	Double_t NextPhi = ( Phi1 + Phi2 ) / 2.0;	// first guess
-	Double_t D1, D2 = 0.0;
+	double NextPhi = ( Phi1 + Phi2 ) / 2.0;	// first guess
+	double D1, D2 = 0.0;
 	double prevR1 = 0; double prevR2 = 0;
 	double R1 = 0; double R2 = 0;
 
@@ -129,22 +128,22 @@ void Conv4HitsReco2::Reconstruct()
 	for (int i=0; i<fLoop; i++) {
 
 		// LOCAL TRANFORMATION & EXTRACTION
-		Double_t SINP = TMath::Sin(NextPhi);
-		Double_t COSP = TMath::Cos(NextPhi);
-		Double_t SignCOSP = TMath::Sign(-1.,COSP);
-		Double_t AbsCOSP = TMath::Abs(COSP);
+		double SINP = std::sin(NextPhi);
+		double COSP = std::cos(NextPhi);
+		double SignCOSP = 1.; if(COSP < 0.) SignCOSP = -1.;
+ 		double AbsCOSP = std::fabs(COSP);
 
-		Double_t X11 = -TMath::Abs(x11*SINP*SignCOSP - y11*AbsCOSP);
-		Double_t Y11 =  TMath::Abs(y11*SINP*SignCOSP + x11*AbsCOSP);
+		double X11 = -std::fabs(x11*SINP*SignCOSP - y11*AbsCOSP);
+		double Y11 =  std::fabs(y11*SINP*SignCOSP + x11*AbsCOSP);
 
-		Double_t X21 = -TMath::Abs(x21*SINP*SignCOSP - y21*AbsCOSP);
-		Double_t Y21 =  TMath::Abs(y21*SINP*SignCOSP + x21*AbsCOSP);
+		double X21 = -std::fabs(x21*SINP*SignCOSP - y21*AbsCOSP);
+		double Y21 =  std::fabs(y21*SINP*SignCOSP + x21*AbsCOSP);
 
-		Double_t X12 =  TMath::Abs(x12*SINP*SignCOSP - y12*AbsCOSP);
-		Double_t Y12 =  TMath::Abs(y12*SINP*SignCOSP + x12*AbsCOSP);
+		double X12 =  std::fabs(x12*SINP*SignCOSP - y12*AbsCOSP);
+		double Y12 =  std::fabs(y12*SINP*SignCOSP + x12*AbsCOSP);
 
-		Double_t X22 =  TMath::Abs(x22*SINP*SignCOSP - y22*AbsCOSP);
-		Double_t Y22 =  TMath::Abs(y22*SINP*SignCOSP + x22*AbsCOSP);
+		double X22 =  std::fabs(x22*SINP*SignCOSP - y22*AbsCOSP);
+		double Y22 =  std::fabs(y22*SINP*SignCOSP + x22*AbsCOSP);
 		// I'm not using LocalTransform() function because this direct way turns out to be faster
 
 
@@ -161,12 +160,12 @@ void Conv4HitsReco2::Reconstruct()
 		else {
 			fSolved = 1;
 			D1 = X11*d1/(X21-X11);
-			D1 = D1 + TMath::Sqrt(X11*X11*d1*d1/(X21-X11)/(X21-X11) + X11*X21 + X11*d1*d1/(X21-X11));
+			D1 = D1 + std::sqrt(X11*X11*d1*d1/(X21-X11)/(X21-X11) + X11*X21 + X11*d1*d1/(X21-X11));
 			D2 = X12*d2/(X22-X12);
-			D2 = D2 + TMath::Sqrt(X12*X12*d2*d2/(X22-X12)/(X22-X12) + X12*X22 + X12*d2*d2/(X22-X12));
+			D2 = D2 + std::sqrt(X12*X12*d2*d2/(X22-X12)/(X22-X12) + X12*X22 + X12*d2*d2/(X22-X12));
 	
-			R1 = TMath::Abs((X11+X21)/2.0+(D1+d1/2.0)*d1/(X21-X11));
-			R2 = TMath::Abs((X12+X22)/2.0+(D2+d2/2.0)*d2/(X22-X12));
+			R1 = std::fabs((X11+X21)/2.0+(D1+d1/2.0)*d1/(X21-X11));
+			R2 = std::fabs((X12+X22)/2.0+(D2+d2/2.0)*d2/(X22-X12));
 
 			if ((Y11-D1)>=(Y12-D2)) {  // Moving RIGHT
 				Phi1 = NextPhi;
@@ -180,9 +179,9 @@ void Conv4HitsReco2::Reconstruct()
 			} 
 			
 			// CHECK STOP CONDITION
-			double tmpPhiE = TMath::Abs(Phi1-Phi2);
-			double tmpRE = TMath::Abs( (Y11 - D1) - (Y12 - D2) );
-			double tmpRadiusE = ( TMath::Abs(R1-prevR1) + TMath::Abs(R2-prevR2) ) / 2.;
+			double tmpPhiE = std::fabs(Phi1-Phi2);
+			double tmpRE = std::fabs( (Y11 - D1) - (Y12 - D2) );
+			double tmpRadiusE = ( std::fabs(R1-prevR1) + std::fabs(R2-prevR2) ) / 2.;
 			
 			// A. Cut threshold satisfied - STOP - record
 			if (( tmpPhiE <= fPhiECut ) && ( tmpRE <= fRECut ) && ( tmpRadiusE <= fRadiusECut ) && ( fFixedNumberOfIterations ==0 ))
