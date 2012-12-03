@@ -120,6 +120,7 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   int sig_id = -1;
   switch (int(c2evt_.typevt)) // if negative typevt mini plasma was created by event (except -4)
     {
+    case  0: break; //unknown for qgsjetII
     case  1: sig_id = 101; break;
     case -1: sig_id = 101; break;
     case  2: sig_id = 105; break;
@@ -131,6 +132,13 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
     default: LogDebug("ReggeGribovPartonMCInterface") << "Signal ID not recognised for setting HEPEVT" << endl;
     }
   evt->set_signal_process_id(sig_id); //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
+
+#ifdef HEPMC_HAS_CROSS_SECTION
+  // set cross section information for this event
+  HepMC::GenCrossSection theCrossSection;
+  theCrossSection.set_cross_section(double(hadr5_.sigineaa)*1e9); //required in pB
+  evt->set_cross_section(theCrossSection);
+#endif
 
   //create event structure;
   HepMC::GenVertex* theVertex = new HepMC::GenVertex();
@@ -161,19 +169,19 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
 
   if (m_TargetID + m_BeamID > 2) //other than pp
     {
-      HepMC::HeavyIon ion(-1, //cevt_.koievt, // FIXME // Number of hard scatterings
+      HepMC::HeavyIon ion(cevt_.kohevt,                // Number of hard scatterings
                           cevt_.npjevt,                // Number of projectile participants
                           cevt_.ntgevt,                // Number of target participants
                           cevt_.kolevt,                // Number of NN (nucleon-nucleon) collisions
                           cevt_.npnevt + cevt_.ntnevt, // Number of spectator neutrons
                           cevt_.nppevt + cevt_.ntpevt, // Number of spectator protons
-                          -1, //c2evt_.ng1evt, //FIXME // Number of N-Nwounded collisions
-                          -1, //c2evt_.ng2evt, //FIXME // Number of Nwounded-N collisons
-                          -1, //c2evt_.ikoevt, //FIXME // Number of Nwounded-Nwounded collisions
+                          -1,                          // Number of N-Nwounded collisions
+                          -1,                          // Number of Nwounded-N collisons
+                          -1,                          // Number of Nwounded-Nwounded collisions
                           cevt_.bimevt,                // Impact Parameter(fm) of collision
                           cevt_.phievt,                // Azimuthal angle of event plane
                           c2evt_.fglevt,               // eccentricity of participating nucleons
-                          hadr5_.sigineaa);            // nucleon-nucleon inelastic
+                          hadr5_.sigine*1e9);        // nucleon-nucleon inelastic (in pB)
       evt->set_heavy_ion(ion);
     }
   LogDebug("ReggeGribovPartonMCInterface") << "HepEvt and vertex constructed" << endl;
