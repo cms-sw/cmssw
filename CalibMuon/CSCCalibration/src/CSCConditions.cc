@@ -1,54 +1,65 @@
 #include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
+
+#include "CalibMuon/CSCCalibration/interface/CSCChannelMapperRecord.h"
+#include "CalibMuon/CSCCalibration/interface/CSCIndexerRecord.h"
+
+#include "CalibMuon/CSCCalibration/interface/CSCChannelMapperBase.h"
+#include "CalibMuon/CSCCalibration/interface/CSCIndexerBase.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "CondFormats/DataRecord/interface/CSCDBChipSpeedCorrectionRcd.h"
+#include "CondFormats/DataRecord/interface/CSCChamberTimeCorrectionsRcd.h"
+#include "CondFormats/DataRecord/interface/CSCDBGasGainCorrectionRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include "CondFormats/DataRecord/interface/CSCDBCrosstalkRcd.h"
+
 #include "CondFormats/CSCObjects/interface/CSCDBGains.h"
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
-#include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
-#include "CondFormats/CSCObjects/interface/CSCBadWires.h"
-#include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include "CondFormats/CSCObjects/interface/CSCDBChipSpeedCorrection.h"
 #include "CondFormats/CSCObjects/interface/CSCChamberTimeCorrections.h"
 #include "CondFormats/CSCObjects/interface/CSCDBGasGainCorrection.h"
-#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
-CSCConditions::CSCConditions( const edm::ParameterSet& ps ) 
-: theGains(),
-  theCrosstalk(),
-  thePedestals(),
-  theNoiseMatrix(),
-  theBadStrips(),
-  theBadWires(),
-  theBadChambers(),
-  theChipCorrections(),
-  theChamberTimingCorrections(),
-  theGasGainCorrections(),
-  readBadChannels_(false), readBadChambers_(false),useTimingCorrections_(false),useGasGainCorrections_(false),
-  theAverageGain( -1.0 )
+#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
+
+#include "CondFormats/CSCObjects/interface/CSCBadStrips.h"
+#include "CondFormats/CSCObjects/interface/CSCBadWires.h"
+#include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
+
+CSCConditions::CSCConditions( const edm::ParameterSet& ps )
+: theGains(), theCrosstalk(), thePedestals(), theNoiseMatrix(),
+  theBadStrips(), theBadWires(), theBadChambers(),
+  theChipCorrections(), theChamberTimingCorrections(), theGasGainCorrections(),
+  indexer_(0), mapper_(0),
+  readBadChannels_(false), readBadChambers_(false),
+  useTimingCorrections_(false), useGasGainCorrections_(false), theAverageGain( -1.0 )
 {
   readBadChannels_ = ps.getParameter<bool>("readBadChannels");
   readBadChambers_ = ps.getParameter<bool>("readBadChambers");
   useTimingCorrections_ = ps.getParameter<bool>("CSCUseTimingCorrections");
   useGasGainCorrections_ = ps.getParameter<bool>("CSCUseGasGainCorrections");
+
   // set size to hold all layers, using enum defined in .h
   badStripWords.resize( MAX_LAYERS, 0 );
   badWireWords.resize( MAX_LAYERS, 0 );
 }
 
 
-CSCConditions::~CSCConditions()
-{
-}
+CSCConditions::~CSCConditions(){}
 
 void CSCConditions::initializeEvent(const edm::EventSetup & es)
 {
+  // Algorithms
+  es.get<CSCIndexerRecord>().get( indexer_ );
+  es.get<CSCChannelMapperRecord>().get( mapper_ );
+
   // Strip gains
   es.get<CSCDBGainsRcd>().get( theGains );
   // Strip X-talk
@@ -56,7 +67,7 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
   // Strip pedestals
   es.get<CSCDBPedestalsRcd>().get( thePedestals );
   // Strip autocorrelation noise matrix
-  es.get<CSCDBNoiseMatrixRcd>().get(theNoiseMatrix);
+  es.get<CSCDBNoiseMatrixRcd>().get( theNoiseMatrix );
 
   if ( useTimingCorrections()){
     // Buckeye chip speeds
@@ -71,10 +82,10 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
   // Bad wiregroup channels
     es.get<CSCBadWiresRcd>().get( theBadWires );
 
-    //@@    if( badStripsWatcher_.check( es ) ) { 
+    //@@    if( badStripsWatcher_.check( es ) ) {
       fillBadStripWords();
     //@@    }
-    //@@    if( badWiresWatcher_.check( es ) ) { 
+    //@@    if( badWiresWatcher_.check( es ) ) {
       fillBadWireWords();
     //@    }
 
@@ -84,7 +95,7 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
   if( gainsWatcher_.check( es ) ) { // Yes...
     theAverageGain = -1.0; // ...reset, so next access will recalculate it
   }
- 
+
   if ( readBadChambers() ) {
   // Entire bad chambers
     es.get<CSCBadChambersRcd>().get( theBadChambers );
@@ -98,6 +109,8 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
 }
 
 void CSCConditions::fillBadStripWords(){
+  //@@ NOT YET THOUGHT THROUGH FOR UNGANGED ME11A
+
   // reset existing values
   badStripWords.assign( MAX_LAYERS, 0 );
   if ( readBadChannels() ) {
@@ -105,17 +118,15 @@ void CSCConditions::fillBadStripWords(){
 
     // chambers is a vector<BadChamber>
     // channels is a vector<BadChannel>
-    // Each BadChamber contains its index (1-468 or 540 w. ME42), the no. of bad channels, 
+    // Each BadChamber contains its index (1-468 or 540 w. ME42), the no. of bad channels,
     // and the index within vector<BadChannel> where this chamber's bad channels start.
-
-    CSCIndexer indexer;
 
     for ( size_t i=0; i<theBadStrips->chambers.size(); ++i ) { // loop over bad chambers
       int indexc = theBadStrips->chambers[i].chamber_index;
       int start =  theBadStrips->chambers[i].pointer;  // where this chamber's bad channels start in vector<BadChannel>
       int nbad  =  theBadStrips->chambers[i].bad_channels;
 
-      CSCDetId id = indexer.detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
+      CSCDetId id = indexer_->detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
 
       for ( int j=start-1; j<start-1+nbad; ++j ) { // bad channels in this chamber
         short lay  = theBadStrips->channels[j].layer;    // value 1-6
@@ -123,12 +134,12 @@ void CSCConditions::fillBadStripWords(){
     //    short f1 = theBadStrips->channels[j].flag1;
     //    short f2 = theBadStrips->channels[j].flag2;
     //    short f3 = theBadStrips->channels[j].flag3;
-        int indexl = indexer.layerIndex( id.endcap(), id.station(), id.ring(), id.chamber(), lay );
+        int indexl = indexer_->layerIndex( id.endcap(), id.station(), id.ring(), id.chamber(), lay );
         badStripWords[indexl-1].set( chan-1, 1 ); // set bit 0-79 in 80-bit bitset representing this layer
       } // j
     } // i
 
-  } 
+  }
 }
 
 void CSCConditions::fillBadWireWords(){
@@ -136,14 +147,13 @@ void CSCConditions::fillBadWireWords(){
   badWireWords.assign( MAX_LAYERS, 0 );
   if ( readBadChannels() ) {
     // unpack what we've read from theBadWires
-    CSCIndexer indexer;
 
     for ( size_t i=0; i<theBadWires->chambers.size(); ++i ) { // loop over bad chambers
       int indexc = theBadWires->chambers[i].chamber_index;
       int start =  theBadWires->chambers[i].pointer;  // where this chamber's bad channels start in vector<BadChannel>
       int nbad  =  theBadWires->chambers[i].bad_channels;
 
-      CSCDetId id = indexer.detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
+      CSCDetId id = indexer_->detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
 
       for ( int j=start-1; j<start-1+nbad; ++j ) { // bad channels in this chamber
         short lay  = theBadWires->channels[j].layer;    // value 1-6
@@ -151,180 +161,171 @@ void CSCConditions::fillBadWireWords(){
     //    short f1 = theBadWires->channels[j].flag1;
     //    short f2 = theBadWires->channels[j].flag2;
     //    short f3 = theBadWires->channels[j].flag3;
-        int indexl = indexer.layerIndex( id.endcap(), id.station(), id.ring(), id.chamber(), lay );
+        int indexl = indexer_->layerIndex( id.endcap(), id.station(), id.ring(), id.chamber(), lay );
         badWireWords[indexl-1].set( chan-1, 1 ); // set bit 0-111 in 112-bit bitset representing this layer
       } // j
     } // i
 
-  } 
+  }
 }
 
 bool CSCConditions::isInBadChamber( const CSCDetId& id ) const {
-  if ( readBadChambers() )  return theBadChambers->isInBadChamber( id );
+  //@@ NOT YET THOUGHT THROUGH FOR UNGANGED ME11A
+
+  if ( readBadChambers() )  {
+    CSCDetId idraw  = mapper_->rawCSCDetId( id );
+    int index = indexer_->chamberIndex( idraw );
+    return theBadChambers->isInBadChamber( index );
+  }
   else return false;
 }
 
-void CSCConditions::print() const
-  //@@ NEEDS THOROUGH UPDATING
-{
-/*
-  std::cout << "SIZES: GAINS: " << theGains->gains.size()
-            << "   PEDESTALS: " << thePedestals->pedestals.size()
-            << "   NOISES "  << theNoiseMatrix->matrix.size() << std::endl;;
-
-  std::map< int,std::vector<CSCDBGains::Item> >::const_iterator layerGainsItr = theGains->gains.begin(), 
-      lastGain = theGains->gains.end();
-  for( ; layerGainsItr != lastGain; ++layerGainsItr)
-  {
-    std::cout << "GAIN " << layerGainsItr->first 
-              << " STRIPS " << layerGainsItr->second.size() << " "
-              << layerGainsItr->second[0].gain_slope 
-              << " " << layerGainsItr->second[0].gain_intercept << std::endl;
-  }
-
-  std::map< int,std::vector<CSCDBPedestals::Item> >::const_iterator pedestalItr = thePedestals->pedestals.begin(), 
-                                                                  lastPedestal = thePedestals->pedestals.end();
-  for( ; pedestalItr != lastPedestal; ++pedestalItr)
-  {
-    std::cout << "PEDS " << pedestalItr->first << " " 
-              << " STRIPS " << pedestalItr->second.size() << " ";
-    for(int i = 1; i < 80; ++i)
-    {
-       std::cout << pedestalItr->second[i-1].rms << " " ;
-     }
-     std::cout << std::endl;
-  }
-
-  std::map< int,std::vector<CSCDBCrosstalk::Item> >::const_iterator crosstalkItr = theCrosstalk->crosstalk.begin(),
-                                                                  lastCrosstalk = theCrosstalk->crosstalk.end();
-  for( ; crosstalkItr != lastCrosstalk; ++crosstalkItr)
-  {
-    std::cout << "XTALKS " << crosstalkItr->first 
-      << " STRIPS " << crosstalkItr->second.size() << " "  
-     << crosstalkItr->second[5].xtalk_slope_left << " " 
-     << crosstalkItr->second[5].xtalk_slope_right << " " 
-     << crosstalkItr->second[5].xtalk_intercept_left << " " 
-     << crosstalkItr->second[5].xtalk_intercept_right << std::endl;
-  }
-*/
-}
-
-float CSCConditions::gain(const CSCDetId & detId, int channel) const
+float CSCConditions::gain(const CSCDetId & id, int geomChannel) const
 {
   assert(theGains.isValid());
-  return float( theGains->item(detId, channel).gain_slope )/theGains->factor_gain;
+  CSCDetId idraw  = mapper_->rawCSCDetId( id );
+  int iraw        = mapper_->rawStripChannel( id, geomChannel );
+  int index       = indexer_->stripChannelIndex( idraw, iraw ) - 1; // NOTE THE MINUS ONE!
+  return float( theGains->gain(index) ) /theGains->scale();
 }
 
-
-float CSCConditions::pedestal(const CSCDetId & detId, int channel) const
+float CSCConditions::pedestal(const CSCDetId & id, int geomChannel) const
 {
   assert(thePedestals.isValid());
-  return float ( thePedestals->item(detId, channel).ped )/thePedestals->factor_ped;
+  CSCDetId idraw  = mapper_->rawCSCDetId( id );
+  int iraw        = mapper_->rawStripChannel( id, geomChannel );
+  int index       = indexer_->stripChannelIndex( idraw, iraw ) - 1; // NOTE THE MINUS ONE!
+  return float( thePedestals->pedestal(index) )/thePedestals->scale_ped();
 }
 
 
-float CSCConditions::pedestalSigma(const CSCDetId&detId, int channel) const
+float CSCConditions::pedestalSigma(const CSCDetId& id, int geomChannel) const
 {
   assert(thePedestals.isValid());
-  return float ( thePedestals->item(detId, channel).rms )/thePedestals->factor_rms;
+  CSCDetId idraw  = mapper_->rawCSCDetId( id );
+  int iraw        = mapper_->rawStripChannel( id, geomChannel );
+  int index       = indexer_->stripChannelIndex( idraw, iraw ) - 1; // NOTE THE MINUS ONE!
+  return float( thePedestals->pedestal_rms(index) )/thePedestals->scale_rms();
 }
 
 
-float CSCConditions::crosstalkIntercept(const CSCDetId&detId, int channel, bool leftRight) const
+float CSCConditions::crosstalkIntercept(const CSCDetId& id, int geomChannel, bool leftRight) const
 {
   assert(theCrosstalk.isValid());
-  const CSCDBCrosstalk::Item & item = theCrosstalk->item(detId, channel);
-
+  CSCDetId idraw  = mapper_->rawCSCDetId( id );
+  int iraw        = mapper_->rawStripChannel( id, geomChannel );
+  int index       = indexer_->stripChannelIndex( idraw, iraw ) - 1; // NOTE THE MINUS ONE!
   // resistive fraction is at the peak, where t=0
-  return leftRight ? float ( item.xtalk_intercept_right )/theCrosstalk->factor_intercept 
-                   : float ( item.xtalk_intercept_left )/theCrosstalk->factor_intercept ;
+  return leftRight ? float ( theCrosstalk->rinter(index) )/theCrosstalk->iscale()
+                   : float ( theCrosstalk->linter(index) )/theCrosstalk->iscale() ;
 }
 
 
-float CSCConditions::crosstalkSlope(const CSCDetId&detId, int channel, bool leftRight) const
+float CSCConditions::crosstalkSlope(const CSCDetId& id, int geomChannel, bool leftRight) const
 {
   assert(theCrosstalk.isValid());
-  const CSCDBCrosstalk::Item & item = theCrosstalk->item(detId, channel);
-
+  CSCDetId idraw  = mapper_->rawCSCDetId( id );
+  int iraw        = mapper_->rawStripChannel( id, geomChannel );
+  int index       = indexer_->stripChannelIndex( idraw, iraw ) - 1; // NOTE THE MINUS ONE!
   // resistive fraction is at the peak, where t=0
-  return leftRight ? float ( item.xtalk_slope_right )/theCrosstalk->factor_slope
-                   : float ( item.xtalk_slope_left )/theCrosstalk->factor_slope ;
+  return leftRight ? float ( theCrosstalk->rslope(index) )/theCrosstalk->sscale()
+                   : float ( theCrosstalk->lslope(index) )/theCrosstalk->sscale() ;
 }
 
-const CSCDBNoiseMatrix::Item & CSCConditions::noiseMatrix(const CSCDetId& detId, int channel) const
+const CSCDBNoiseMatrix::Item & CSCConditions::noiseMatrix(const CSCDetId& id, int geomChannel) const
 {
+  //@@ BEWARE - THIS FUNCTION DOES NOT APPLy SCALE FACTOR USED IN PACKING VALUES IN CONDITIONS DATA
+  //@@ MAY BE AN ERROR? WHO WOULD WANT ACCESS WITHOUT IT?
+
   assert(theNoiseMatrix.isValid());
-  return theNoiseMatrix->item(detId, channel);
+  CSCDetId idraw  = mapper_->rawCSCDetId( id );
+  int iraw        = mapper_->rawStripChannel( id, geomChannel );
+  int index       = indexer_->stripChannelIndex( idraw, iraw ) - 1; // NOTE THE MINUS ONE!
+  return theNoiseMatrix->item(index);
 }
 
-void CSCConditions::noiseMatrixElements( const CSCDetId& id, int channel, std::vector<float>& me ) const {
-  assert(me.size()>11);
-  const CSCDBNoiseMatrix::Item& item = noiseMatrix(id, channel);
-  me[0] = float ( item.elem33 )/theNoiseMatrix->factor_noise;
-  me[1] = float ( item.elem34 )/theNoiseMatrix->factor_noise;
-  me[2] = float ( item.elem35 )/theNoiseMatrix->factor_noise;
-  me[3] = float ( item.elem44 )/theNoiseMatrix->factor_noise;
-  me[4] = float ( item.elem45 )/theNoiseMatrix->factor_noise;
-  me[5] = float ( item.elem46 )/theNoiseMatrix->factor_noise;
-  me[6] = float ( item.elem55 )/theNoiseMatrix->factor_noise;
-  me[7] = float ( item.elem56 )/theNoiseMatrix->factor_noise;
-  me[8] = float ( item.elem57 )/theNoiseMatrix->factor_noise;
-  me[9] = float ( item.elem66 )/theNoiseMatrix->factor_noise;
-  me[10] = float ( item.elem67 )/theNoiseMatrix->factor_noise;
-  me[11] = float ( item.elem77 )/theNoiseMatrix->factor_noise;
+void CSCConditions::noiseMatrixElements( const CSCDetId& id, int geomChannel, std::vector<float>& me ) const {
+  assert(me.size() > 11 );
+  const CSCDBNoiseMatrix::Item& item = noiseMatrix(id, geomChannel); // i.e. the function above
+  me[0] = float ( item.elem33 )/theNoiseMatrix->scale();
+  me[1] = float ( item.elem34 )/theNoiseMatrix->scale();
+  me[2] = float ( item.elem35 )/theNoiseMatrix->scale();
+  me[3] = float ( item.elem44 )/theNoiseMatrix->scale();
+  me[4] = float ( item.elem45 )/theNoiseMatrix->scale();
+  me[5] = float ( item.elem46 )/theNoiseMatrix->scale();
+  me[6] = float ( item.elem55 )/theNoiseMatrix->scale();
+  me[7] = float ( item.elem56 )/theNoiseMatrix->scale();
+  me[8] = float ( item.elem57 )/theNoiseMatrix->scale();
+  me[9] = float ( item.elem66 )/theNoiseMatrix->scale();
+  me[10] = float ( item.elem67 )/theNoiseMatrix->scale();
+  me[11] = float ( item.elem77 )/theNoiseMatrix->scale();
 }
 
-void CSCConditions::crossTalk( const CSCDetId& id, int channel, std::vector<float>& ct ) const {
+void CSCConditions::crossTalk( const CSCDetId& id, int geomChannel, std::vector<float>& ct ) const {
   assert(theCrosstalk.isValid());
-  const CSCDBCrosstalk::Item & item = theCrosstalk->item(id, channel);
-  ct[0] = float ( item.xtalk_slope_left )/theCrosstalk->factor_slope;
-  ct[1] = float ( item.xtalk_intercept_left )/theCrosstalk->factor_intercept;
-  ct[2] = float ( item.xtalk_slope_right )/theCrosstalk->factor_slope;
-  ct[3] = float ( item.xtalk_intercept_right )/theCrosstalk->factor_intercept;
+  CSCDetId idraw  = mapper_->rawCSCDetId( id );
+  int iraw        = mapper_->rawStripChannel( id, geomChannel );
+  int index       = indexer_->stripChannelIndex( idraw, iraw ) - 1; // NOTE THE MINUS ONE!
+
+  ct[0] = float ( theCrosstalk->lslope(index) )/theCrosstalk->sscale();
+  ct[1] = float ( theCrosstalk->linter(index) )/theCrosstalk->iscale();
+  ct[2] = float ( theCrosstalk->rslope(index) )/theCrosstalk->sscale();
+  ct[3] = float ( theCrosstalk->rinter(index) )/theCrosstalk->iscale();
 }
 
-float CSCConditions::chipCorrection(const CSCDetId & detId, int stripChannel) const
+float CSCConditions::chipCorrection(const CSCDetId & id, int geomChannel) const
 {
   if ( useTimingCorrections() ){
     assert(theChipCorrections.isValid());
-    CSCIndexer indexer;
-    int chip = indexer.chipIndex(stripChannel); //Converts 1-80(64) in a layer to 1-5(4), expects ME1/1a to be channel 65-80
-    //printf("CSCCondition  e:%d s:%d r:%d c:%d l:%d strip:%d chip: %d\n",detId.endcap(),detId.station(), detId.ring(),detId.chamber(),detId.layer(),stripChannel,chip);
-    return float ( theChipCorrections->item(detId,chip).speedCorr )/theChipCorrections->factor_speedCorr;
+    CSCDetId idraw  = mapper_->rawCSCDetId( id );
+    int iraw        = mapper_->rawStripChannel( id, geomChannel);
+    int ichip       = indexer_->chipIndex(iraw); // converts 1-80 to 1-5 (chip#, CFEB#)
+    int index       = indexer_->chipIndex(idraw, ichip) - 1; // NOTE THE MINUS ONE!
+    return float ( theChipCorrections->value(index) )/theChipCorrections->scale();
   }
   else
     return 0;
 }
-float CSCConditions::chamberTimingCorrection(const CSCDetId & detId) const
+float CSCConditions::chamberTimingCorrection(const CSCDetId & id) const
 {
   if ( useTimingCorrections() ){
     assert(theChamberTimingCorrections.isValid());
-    return float ( theChamberTimingCorrections->item(detId).cfeb_tmb_skew_delay*1./theChamberTimingCorrections->factor_precision
-		   + theChamberTimingCorrections->item(detId).cfeb_timing_corr*1./theChamberTimingCorrections->factor_precision
-		   + (theChamberTimingCorrections->item(detId).cfeb_cable_delay*25.)
+    CSCDetId idraw  = mapper_->rawCSCDetId( id );
+    int index = indexer_->chamberIndex(idraw) - 1; // NOTE THE MINUS ONE!
+    return float (
+      theChamberTimingCorrections->item(index).cfeb_tmb_skew_delay*1./theChamberTimingCorrections->precision()
+		   + theChamberTimingCorrections->item(index).cfeb_timing_corr*1./theChamberTimingCorrections->precision()
+		   + (theChamberTimingCorrections->item(index).cfeb_cable_delay*25. )
 );
   }
   else
     return 0;
 }
-float CSCConditions::anodeBXoffset(const CSCDetId & detId) const
+float CSCConditions::anodeBXoffset(const CSCDetId & id) const
 {
   if ( useTimingCorrections() ){
     assert(theChamberTimingCorrections.isValid());
-    return float ( theChamberTimingCorrections->item(detId).anode_bx_offset*1./theChamberTimingCorrections->factor_precision);
+    CSCDetId idraw  = mapper_->rawCSCDetId( id );
+    int index = indexer_->chamberIndex(idraw) - 1; // NOTE THE MINUS ONE!
+    return float ( theChamberTimingCorrections->item(index).anode_bx_offset*1./theChamberTimingCorrections->precision() );
   }
   else
     return 0;
 }
 
 const std::bitset<80>& CSCConditions::badStripWord( const CSCDetId& id ) const {
-  CSCIndexer indexer;
-  return badStripWords[indexer.layerIndex(id) - 1];
+  //@@ NOT YET THOUGHT THROUGH FOR UNGANGED ME11A
+
+  CSCDetId idraw  = mapper_->rawCSCDetId( id );
+  return badStripWords[indexer_->layerIndex(idraw) - 1];
 }
 
 const std::bitset<112>& CSCConditions::badWireWord( const CSCDetId& id ) const {
-  CSCIndexer indexer;
-  return badWireWords[indexer.layerIndex(id) - 1]; 
+  //@@ NEED TO THINK ABOUT THIS SINCE ME11A & ME11B SHARE A COMMON WIRE PLANE
+  //@@ SHOULD WE JUST USE ME11B?
+
+  CSCDetId idraw  = mapper_->rawCSCDetId( id );
+  return badWireWords[indexer_->layerIndex(idraw) - 1];
 }
 
 /// Return average strip gain for full CSC system. Lazy evaluation.
@@ -346,7 +347,7 @@ float CSCConditions::averageGain() const {
 
   CSCDBGains::GainContainer::const_iterator it;
   for ( it=theGains->gains.begin(); it!=theGains->gains.end(); ++it ) {
-    float the_gain = float( it->gain_slope )/theGains->factor_gain;
+    float the_gain = float( it->gain_slope )/theGains->scale();
     if (the_gain > loEdge && the_gain < hiEdge ) {
       gain_tot += the_gain;
       ++n_strip;
@@ -368,14 +369,67 @@ float CSCConditions::averageGain() const {
   return theAverageGain;
 }
 //
-float CSCConditions::gasGainCorrection(const CSCDetId & detId, int strip, int wiregroup) const
+float CSCConditions::gasGainCorrection( const CSCDetId & id, int geomChannel, int iwiregroup ) const
 {
   if ( useGasGainCorrections() ){
     assert(theGasGainCorrections.isValid());
-    //printf("CSCCondition  e:%d s:%d r:%d c:%d l:%d strip:%d wire:%d\n",detId.endcap(),detId.station(),detId.ring(),detId.chamber(),detId.layer(),strip,wiregroup);
-    return float ( theGasGainCorrections->item(detId,strip,wiregroup).gainCorr );
-
+    CSCDetId idraw  = mapper_->rawCSCDetId( id );
+    int iraw        = mapper_->rawStripChannel( id, geomChannel );
+    int index       = indexer_->gasGainIndex(idraw, iraw, iwiregroup) - 1; // NOTE THE MINUS ONE!
+    return float ( theGasGainCorrections->value(index) );
   } else {
     return 1.;
   }
+}
+
+int CSCConditions::channelFromStrip( const CSCDetId& id, int geomStrip) const
+{ return mapper_->channelFromStrip(id, geomStrip); }
+
+int CSCConditions::rawStripChannel( const CSCDetId& id, int geomChannel) const
+{ return mapper_->rawStripChannel( id, geomChannel); }
+
+
+void CSCConditions::print() const
+  //@@ HAS NOT BEEN UPDATED THROUGH SEVERAL VERSIONS OF THE CONDITIONS DATA
+{
+/*
+  std::cout << "SIZES: GAINS: " << theGains->gains.size()
+            << "   PEDESTALS: " << thePedestals->pedestals.size()
+            << "   NOISES "  << theNoiseMatrix->matrix.size() << std::endl;;
+
+  std::map< int,std::vector<CSCDBGains::Item> >::const_iterator layerGainsItr = theGains->gains.begin(),
+      lastGain = theGains->gains.end();
+  for( ; layerGainsItr != lastGain; ++layerGainsItr)
+  {
+    std::cout << "GAIN " << layerGainsItr->first
+              << " STRIPS " << layerGainsItr->second.size() << " "
+              << layerGainsItr->second[0].gain_slope
+              << " " << layerGainsItr->second[0].gain_intercept << std::endl;
+  }
+
+  std::map< int,std::vector<CSCDBPedestals::Item> >::const_iterator pedestalItr = thePedestals->pedestals.begin(),
+                                                                  lastPedestal = thePedestals->pedestals.end();
+  for( ; pedestalItr != lastPedestal; ++pedestalItr)
+  {
+    std::cout << "PEDS " << pedestalItr->first << " "
+              << " STRIPS " << pedestalItr->second.size() << " ";
+    for(int i = 1; i < 80; ++i)
+    {
+       std::cout << pedestalItr->second[i-1].rms << " " ;
+     }
+     std::cout << std::endl;
+  }
+
+  std::map< int,std::vector<CSCDBCrosstalk::Item> >::const_iterator crosstalkItr = theCrosstalk->crosstalk.begin(),
+                                                                  lastCrosstalk = theCrosstalk->crosstalk.end();
+  for( ; crosstalkItr != lastCrosstalk; ++crosstalkItr)
+  {
+    std::cout << "XTALKS " << crosstalkItr->first
+      << " STRIPS " << crosstalkItr->second.size() << " "
+     << crosstalkItr->second[5].xtalk_slope_left << " "
+     << crosstalkItr->second[5].xtalk_slope_right << " "
+     << crosstalkItr->second[5].xtalk_intercept_left << " "
+     << crosstalkItr->second[5].xtalk_intercept_right << std::endl;
+  }
+*/
 }
