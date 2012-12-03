@@ -16,4 +16,5 @@
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
+<use   name="RecoJets/JetProducers"/>
 <flags   EDM_PLUGIN="1"/> 
