@@ -1,5 +1,3 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CommonTools/ParticleFlow/plugins/PFMET.h"
