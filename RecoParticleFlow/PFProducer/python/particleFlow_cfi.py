@@ -7,7 +7,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
     # reco::muons label and Post Muon cleaning
     muons = cms.InputTag("muons1stStep"),
-    postMuonCleaning = cms.bool(False),
+    postMuonCleaning = cms.bool(True),
 
     # Vertices label
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),

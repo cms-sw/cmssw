@@ -846,10 +846,35 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
     return;
 
   //Initialize vectors
-  pfCosmicsMuonCleanedCandidates_->clear();
-  pfCleanedTrackerAndGlobalMuonCandidates_->clear();
-  pfFakeMuonCleanedCandidates_->clear();
-  pfPunchThroughMuonCleanedCandidates_->clear();
+
+  if(pfCosmicsMuonCleanedCandidates_.get() )
+    pfCosmicsMuonCleanedCandidates_->clear();
+  else 
+    pfCosmicsMuonCleanedCandidates_.reset( new reco::PFCandidateCollection );
+
+  if(pfCleanedTrackerAndGlobalMuonCandidates_.get() )
+    pfCleanedTrackerAndGlobalMuonCandidates_->clear();
+  else 
+    pfCleanedTrackerAndGlobalMuonCandidates_.reset( new reco::PFCandidateCollection );
+
+  if( pfFakeMuonCleanedCandidates_.get() )
+     pfFakeMuonCleanedCandidates_->clear();
+  else 
+     pfFakeMuonCleanedCandidates_.reset( new reco::PFCandidateCollection );
+
+
+  if( pfPunchThroughMuonCleanedCandidates_.get() )
+     pfPunchThroughMuonCleanedCandidates_->clear();
+  else 
+     pfPunchThroughMuonCleanedCandidates_.reset( new reco::PFCandidateCollection );
+
+  if( pfPunchThroughHadronCleanedCandidates_.get() )
+     pfPunchThroughHadronCleanedCandidates_->clear();
+  else 
+     pfPunchThroughHadronCleanedCandidates_.reset( new reco::PFCandidateCollection );
+
+
+
   pfPunchThroughHadronCleanedCandidates_->clear();
   
   maskedIndices_.clear();
@@ -914,7 +939,13 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
   if(!postCleaning_)
     return;
 
-  pfAddedMuonCandidates_->clear();
+
+  if( pfAddedMuonCandidates_.get() )
+     pfAddedMuonCandidates_->clear();
+  else 
+     pfAddedMuonCandidates_.reset( new reco::PFCandidateCollection );
+
+
 
   for ( unsigned imu = 0; imu < muons->size(); ++imu ) {
     reco::MuonRef muonRef( muons, imu );
@@ -976,10 +1007,11 @@ void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::
 				      reco::PFCandidate::mu ) );
 
 	changeTrack(cands->back(),bestTrackType);
-	cands->back().setMuonRef(muonRef);
 
 	if (muonRef->track().isNonnull() ) 
 	  cands->back().setTrackRef( muonRef->track() );
+
+	cands->back().setMuonRef(muonRef);
 
 
 	pfAddedMuonCandidates_->push_back(cands->back());
@@ -1214,7 +1246,7 @@ bool PFMuonAlgo::cleanPunchThroughAndFakes(reco::PFCandidate&pfc,reco::PFCandida
 
 void  PFMuonAlgo::removeDeadCandidates(reco::PFCandidateCollection* obj, const std::vector<unsigned int>& indices)
 {
-  size_t N = obj->size();
+  size_t N = indices.size();
   for (size_t i = 0 ; i < N ; ++i)
     obj->at(indices.at(i)) = obj->at(N-i-1);
 
