@@ -82,6 +82,21 @@ conditions_L1_HIRun2011 = (
     'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
 )
 
+# L1 configuration used during PARun2013
+conditions_L1_PARun2013 = (
+    # L1 GT menu 2012_v3, used during Run2012D (to be replaced by CollisionsHeavyIons2013)
+    'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
+    # L1 GCT configuration with 5 GeV jet seed threshold, used since Run2012C
+    'L1GctJetFinderParams_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1GctJetFinderParamsRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
+    'L1HfRingEtScale_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1HfRingEtScaleRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
+    'L1HtMissScale_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1HtMissScaleRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
+    'L1JetEtScale_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1JetEtScaleRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
+    # L1 CSCTF configuration used since Run2012B
+    'L1MuCSCPtLut_key-11_mc,L1MuCSCPtLutRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
+    # L1 DTTF settings used since Run2012C
+    'L1MuDTTFParameters_dttf12_TSC_03_csc_col_mc,L1MuDTTFParametersRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
+)
+
 # HLT Jet Energy Corrections
 conditions_HLT_JECs = (
     # HLT 2012 jet energy corrections
@@ -114,6 +129,11 @@ autoCond['starthi_HIon']     = ( autoCond['starthi'], ) \
                              + conditions_HLT_JECs \
                              + conditions_L1_HIRun2011
 
+autoCond['startup_PIon']     = ( autoCond['startup'], ) \
+                             + conditions_L1_PARun2013 \
+                             + conditions_HLT_JECs
+
+
 # dedicated GlobalTags for running the frozen HLT menus on data
 autoCond['hltonline_5E33v4'] = ( autoCond['hltonline'], ) \
                              + conditions_L1_Run2012A
@@ -136,6 +156,10 @@ autoCond['hltonline_GRun']   = ( autoCond['hltonline'], ) \
 autoCond['hltonline_HIon']   = ( autoCond['hltonline'], ) \
                              + conditions_L1_HIRun2011
 
+autoCond['hltonline_PIon']   = ( autoCond['hltonline'], ) \
+                             + conditions_L1_PARun2013 \
+                             + conditions_HLT_JECs
+
 # dedicated GlobalTags for running RECO and the frozen HLT menus on data
 autoCond['com10_5E33v4']     = ( autoCond['com10'], ) \
                              + conditions_L1_Run2012A
@@ -157,3 +181,7 @@ autoCond['com10_GRun']       = ( autoCond['com10'], ) \
 
 autoCond['com10_HIon']       = ( autoCond['com10'], ) \
                              + conditions_L1_HIRun2011
+
+autoCond['com10_PIon']       = ( autoCond['com10'], ) \
+                             + conditions_L1_PARun2013 \
+                             + conditions_HLT_JECs
