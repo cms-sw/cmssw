@@ -16,11 +16,12 @@ from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 # Muon Reco
 from RecoHI.HiMuonAlgos.HiRecoMuon_cff import * 
 
+# Regit Muon Reco
+from RecoHI.HiMuonAlgos.HiReRecoMuon_cff import *
+
 # Heavy Ion Event Characterization
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import *
-from RecoHI.HiCentralityAlgos.CentralityBin_cfi import *
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
-from RecoHI.HiEvtPlaneAlgos.hievtplaneflatproducer_cfi import *
 
 # HCAL noise producer
 from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
@@ -37,9 +38,6 @@ globalRecoPbPb = cms.Sequence(heavyIonTracking
                               * hcalnoise
                               )
 
-globalRecoExtra = cms.Sequence( centralityBin *
-                                hiEvtPlaneFlat
-                               )
 
 #--------------------------------------------------------------------------
 # Full sequence (LOCAL RECO + HIGH LEVEL RECO) 
