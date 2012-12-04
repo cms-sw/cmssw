@@ -23,7 +23,6 @@ hiRegitMuLowPtTripletStepClusters = RecoHI.HiTracking.hiRegitLowPtTripletStep_cf
 )
 
 # SEEDING LAYERS
-
 hiRegitMuLowPtTripletStepSeedLayers = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepSeedLayers.clone(
     ComponentName = 'hiRegitMuLowPtTripletStepSeedLayers'
     )
@@ -44,16 +43,10 @@ hiRegitMuLowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparit
 
 
 # building: feed the new-named seeds
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-hiRegitMuLowPtTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'hiRegitMuLowPtTripletStepTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
-    maxLostHits = 1,
-    minimumNumberOfHits = 3,
-    minPt = 0.8
+hiRegitMuLowPtTripletStepTrajectoryFilter = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrajectoryFilter.clone(
+    ComponentName = 'hiRegitMuLowPtTripletStepTrajectoryFilter'
     )
-    )
-
+hiRegitMuLowPtTripletStepTrajectoryFilter.filterPset.minPt              = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 
 hiRegitMuLowPtTripletStepTrajectoryBuilder = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepTrajectoryBuilder.clone(
