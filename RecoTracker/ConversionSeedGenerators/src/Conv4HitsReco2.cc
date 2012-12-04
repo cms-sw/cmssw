@@ -63,18 +63,22 @@ void Conv4HitsReco2::LocalTransformation(math::XYZVector v11, math::XYZVector v1
 	x21 = v21.X(); y21 = v21.Y();
 	x22 = v22.X(); y22 = v22.Y();
 
-	double TANP = std::tan(NextPhi);
-	double X11 = -std::fabs(x11*TANP - y11) / std::sqrt(1 + TANP*TANP);
-	double Y11 = std::fabs(y11*TANP + x11) / std::sqrt(1 + TANP*TANP);
+	double SINP = std::sin(NextPhi);
+	double COSP = std::cos(NextPhi);
+	double SignCOSP = 1.; if(COSP < 0.) SignCOSP = -1.;
+ 	double AbsCOSP = std::fabs(COSP);
 
-	double X21 = -std::fabs(x21*TANP - y21) / std::sqrt(1 + TANP*TANP);
-	double Y21 = std::fabs(y21*TANP + x21) / std::sqrt(1 + TANP*TANP);
+	double X11 = -std::fabs(x11*SINP*SignCOSP - y11*AbsCOSP);
+	double Y11 =  std::fabs(y11*SINP*SignCOSP + x11*AbsCOSP);
 
-	double X12 = std::fabs(x12*TANP - y12) / std::sqrt(1 + TANP*TANP);
-	double Y12 = std::fabs(y12*TANP + x12) / std::sqrt(1 + TANP*TANP);
+	double X21 = -std::fabs(x21*SINP*SignCOSP - y21*AbsCOSP);
+	double Y21 =  std::fabs(y21*SINP*SignCOSP + x21*AbsCOSP);
 
-	double X22 = std::fabs(x22*TANP - y22) / std::sqrt(1 + TANP*TANP);
-	double Y22 = std::fabs(y22*TANP + x22) / std::sqrt(1 + TANP*TANP);
+	double X12 =  std::fabs(x12*SINP*SignCOSP - y12*AbsCOSP);
+	double Y12 =  std::fabs(y12*SINP*SignCOSP + x12*AbsCOSP);
+
+	double X22 =  std::fabs(x22*SINP*SignCOSP - y22*AbsCOSP);
+	double Y22 =  std::fabs(y22*SINP*SignCOSP + x22*AbsCOSP);
 
 	V11.SetXYZ(X11,Y11,0.);
 	V12.SetXYZ(X12,Y12,0.);
