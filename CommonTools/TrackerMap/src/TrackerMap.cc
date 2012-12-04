@@ -226,7 +226,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
 
 
    int npsu=0; int nmod,nmodHV2,nmodHV3;
-   int modId1,modId2, dcuId;
+   int modId1, dcuId; // ,modId2;
    int dcs,branch,crate,board;
    int rack=0;
    std::string channelstr1;
@@ -276,7 +276,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
       
       if(detCabling && detCabling->getConnections(modId1).size()==0) continue;
 
-      int length=psinfo.length();
+      //      int length=psinfo.length();
       std::string dcsinfo = psinfo.substr(39,1);
       std::string branchinfo = psinfo.substr(57,2);
       std::string crateinfo= psinfo.substr(69,1);
