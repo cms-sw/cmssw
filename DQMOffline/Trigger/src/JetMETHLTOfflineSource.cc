@@ -3086,20 +3086,9 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       std::string dirName = dirname_ + "/MonitorAllTriggers/";
       for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
 	//
-	std::string trgPathName    = v->getPath();
-	std::string trgPathVersion = "";
-	for(int i=100; i>0; i--){
-	  trgPathVersion  = "_v"+NumberToString(i);
-	  size_t position = trgPathName.find(trgPathVersion);
-	  if(position!=std::string::npos){
-	    //cout<<trgPathVersion<<endl;
-	    trgPathName.replace(position,trgPathVersion.length(),"");
-	    break;
-	  }
-	}
-	
-	std::string subdirName = dirName + trgPathName;
-	std::string trigPath = "("+trgPathName+")";
+	std::string trgPathName = HLTConfigProvider::removeVersion(v->getPath());
+	std::string subdirName  = dirName + trgPathName;
+	std::string trigPath    = "("+trgPathName+")";
 	dbe->setCurrentFolder(subdirName);  
 	
 	std::string labelname("ME");
@@ -3567,18 +3556,7 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       std::string dirName = dirname_ + "/MonitorAllTriggersWrtMuonTrigger/";
       for(PathInfoCollection::iterator v = hltPathsAllWrtMu_.begin(); v!= hltPathsAllWrtMu_.end(); ++v ){	
 	//
-	std::string trgPathName    = v->getPath();
-	std::string trgPathVersion = "";
-	for(int i=100; i>0; i--){
-	  trgPathVersion  = "_v"+NumberToString(i);
-	  size_t position = trgPathName.find(trgPathVersion);
-	  if(position!=std::string::npos){
-	    //cout<<trgPathVersion<<endl;
-	    trgPathName.replace(position,trgPathVersion.length(),"");
-	    break;
-	  }
-	}
-	//
+	std::string trgPathName    = HLTConfigProvider::removeVersion(v->getPath());
 	std::string subdirName = dirName + trgPathName;
 	std::string trigPath = "("+trgPathName+")";
 	dbe->setCurrentFolder(subdirName); 
@@ -4040,30 +4018,8 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       std::string dirName1 = dirname_ + "/RelativeTriggerEff/";
       for(PathInfoCollection::iterator v = hltPathsEff_.begin(); v!= hltPathsEff_.end(); ++v ){
 	//
-	std::string trgPathName    = v->getPath();
-	std::string trgPathVersion = "";
-	for(int i=100; i>0; i--){
-	  trgPathVersion  = "_v"+NumberToString(i);
-	  size_t position = trgPathName.find(trgPathVersion);
-	  if(position!=std::string::npos){
-	    //cout<<trgPathVersion<<endl;
-	    trgPathName.replace(position,trgPathVersion.length(),"");
-	    break;
-	  }
-	}
-	//
-	std::string trgPathNameD    = v->getDenomPath();
-	trgPathVersion = "";
-	for(int i=100; i>0; i--){
-	  trgPathVersion  = "_v"+NumberToString(i);
-	  size_t position = trgPathNameD.find(trgPathVersion);
-	  if(position!=std::string::npos){
-	    //cout<<trgPathVersion<<endl;
-	    trgPathNameD.replace(position,trgPathVersion.length(),"");
-	    break;
-	  }
-	}
-	
+	std::string trgPathName    = HLTConfigProvider::removeVersion(v->getPath());
+	std::string trgPathNameD   = HLTConfigProvider::removeVersion(v->getDenomPath());
 	//
 	std::string labelname("ME") ;
 	std::string subdirName = dirName1 + trgPathName + "_wrt_" + trgPathNameD;
@@ -4771,17 +4727,7 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	std::string dirName2 = dirname_ + "/EffWrtMuonTrigger/";
 	for(PathInfoCollection::iterator v = hltPathsEffWrtMu_.begin(); v!= hltPathsEffWrtMu_.end(); ++v ){
 	  //
-	  std::string trgPathName    = v->getPath();
-	  std::string trgPathVersion = "";
-	  for(int i=100; i>0; i--){
-	    trgPathVersion  = "_v"+NumberToString(i);
-	    size_t position = trgPathName.find(trgPathVersion);
-	    if(position!=std::string::npos){
-	      //cout<<trgPathVersion<<endl;
-	      trgPathName.replace(position,trgPathVersion.length(),"");
-	      break;
-	    }
-	  }
+	  std::string trgPathName    = HLTConfigProvider::removeVersion(v->getPath());
 	  //
 	  std::string labelname("ME") ;
 	  std::string subdirName = dirName2 + trgPathName;
@@ -5489,17 +5435,7 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	std::string dirName3  = dirname_ + "/EffWrtMBTrigger/";
 	for(PathInfoCollection::iterator v = hltPathsEffWrtMB_.begin(); v!= hltPathsEffWrtMB_.end(); ++v ){
 	  //
-	  std::string trgPathName    = v->getPath();
-	  std::string trgPathVersion = "";
-	  for(int i=100; i>0; i--){
-	    trgPathVersion  = "_v"+NumberToString(i);
-	    size_t position = trgPathName.find(trgPathVersion);
-	    if(position!=std::string::npos){
-	      //cout<<trgPathVersion<<endl;
-	      trgPathName.replace(position,trgPathVersion.length(),"");
-	      break;
-	    }
-	  }
+	  std::string trgPathName    = HLTConfigProvider::removeVersion(v->getPath());
 	  //
 	  std::string labelname("ME") ;
 	  std::string subdirName = dirName3 + trgPathName ;
