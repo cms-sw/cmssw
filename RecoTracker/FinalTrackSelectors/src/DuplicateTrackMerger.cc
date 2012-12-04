@@ -16,11 +16,11 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : mer
   minBDTG_ = -0.96;
   minpT_ = 0.2;
   minP_ = 0.4;
-  maxDCA_ = 50.0;
-  maxDPhi_ = 0.35;
-  maxDLambda_ = 0.35;
-  maxDdsz_ = 20.0;
-  maxDdxy_ = 20.0;
+  maxDCA_ = 30.0;
+  maxDPhi_ = 0.30;
+  maxDLambda_ = 0.30;
+  maxDdsz_ = 10.0;
+  maxDdxy_ = 10.0;
   maxDQoP_ = 0.25;
   if(iPara.exists("minpT"))minpT_ = iPara.getParameter<double>("minpT");
   if(iPara.exists("minP"))minP_ = iPara.getParameter<double>("minP");
@@ -100,8 +100,8 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       if(t1->outerPosition().Rho() > t2->innerPosition().Rho())deltaR3d *= -1.0;
       if(deltaR3d < minDeltaR3d_)continue;
       
-      FreeTrajectoryState fts1 = trajectoryStateTransform::initialFreeState(*t1, &*magfield_);
-      FreeTrajectoryState fts2 = trajectoryStateTransform::initialFreeState(*t2, &*magfield_);
+      FreeTrajectoryState fts1 = trajectoryStateTransform::outerFreeState(*t1, &*magfield_);
+      FreeTrajectoryState fts2 = trajectoryStateTransform::innerFreeState(*t2, &*magfield_);
       GlobalPoint avgPoint((t1->outerPosition().x()+t2->innerPosition().x())*0.5,(t1->outerPosition().y()+t2->innerPosition().y())*0.5,(t1->outerPosition().z()+t2->innerPosition().z())*0.5);
       TrajectoryStateClosestToPoint TSCP1 = tscpBuilder(fts1, avgPoint);
       TrajectoryStateClosestToPoint TSCP2 = tscpBuilder(fts2, avgPoint);
