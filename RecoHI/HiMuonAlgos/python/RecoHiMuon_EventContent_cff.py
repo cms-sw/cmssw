@@ -29,8 +29,8 @@ reRecoMuonAOD = cms.PSet(
                                            'keep recoTrackExtras_reglobalMuons_*_*', 
                                            'keep recoTracks_retevMuons_*_*', 
                                            'keep recoTrackExtras_retevMuons_*_*', 
-                                           'keep recoTrackExtras_hiRegitMuGeneralTracks_*_*', 
-                                           'keep recoTracks_hiRegitMuGeneralTracks_*_*',
+                                           'keep recoTrackExtras_hiGeneralAndRegitMuTracks_*_*', 
+                                           'keep recoTracks_hiGeneralAndRegitMuTracks_*_*',
                                            'keep recoTracksToOnerecoTracksAssociation_retevMuons_*_*'
                                            )
 )
