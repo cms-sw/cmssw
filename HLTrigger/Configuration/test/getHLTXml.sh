@@ -84,6 +84,8 @@ function getConfigForOnline() {
 # local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc"
 # local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
   local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
+  local L1TPI="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db"
+# local L1TPI="L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc"
 
   local L1Xml="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
 
@@ -96,8 +98,8 @@ function getConfigForOnline() {
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline_HIon     > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi_HIon       > OnLine_HLT_$NAME.py
   elif [ "$NAME" == "PIon" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline_PIon     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi_PIon       > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:hltonline_PIon     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:starthi_PIon       > OnLine_HLT_$NAME.py
   else
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME             --globaltag auto:hltonline     > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                            > OnLine_HLT_$NAME.py
