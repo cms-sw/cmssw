@@ -15,7 +15,7 @@
 class PixelForwardLayerBuilder {  
  public:
   PixelForwardLayerBuilder(){};
-  PixelForwardLayer* build(const GeometricDet* aPixelForwardLayer,
+  ForwardDetLayer* build(const GeometricDet* aPixelForwardLayer,
 			   const TrackerGeometry* theGeomDetGeometry);
 
   

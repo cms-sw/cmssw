@@ -5,7 +5,7 @@
 using namespace edm;
 using namespace std;
 
-PixelForwardLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwardLayer,
+ForwardDetLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwardLayer,
 						   const TrackerGeometry* theGeomDetGeometry){
   vector<const GeometricDet*>  theGeometricPanels = aPixelForwardLayer->components();
   int panelsSize = theGeometricPanels.size();

@@ -23,8 +23,20 @@ using namespace std;
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const PixelBlade*>& blades):
-  PixelForwardLayer(blades)
+  theComps(blades.begin(),blades.end())
 {
+  for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
+      it!=theComps.end();it++){  
+    theBasicComps.insert(theBasicComps.end(),   
+                         (**it).basicComponents().begin(),
+                         (**it).basicComponents().end());
+  }
+
+  //They should be already phi-ordered. TO BE CHECKED!!
+  //sort( theBlades.begin(), theBlades.end(), PhiLess());
+  setSurface( computeSurface() );
+  
+
   // Assumes blades are ordered inner first then outer; and within each by phi
   // where we go 0 -> pi, and then -pi -> 0
   // we also need the number of inner blades for the offset in theComps vector
@@ -58,6 +70,10 @@ PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const PixelBlade*>& blad
 }
 
 PixelForwardLayerPhase1::~PixelForwardLayerPhase1(){
+  vector<const GeometricSearchDet*>::const_iterator i;
+  for (i=theComps.begin(); i!=theComps.end(); i++) {
+    delete *i;
+  }
 } 
 
 void
@@ -165,12 +181,12 @@ PixelForwardLayerPhase1::groupedCompatibleDetsV( const TrajectoryStateOnSurface&
 
 void 
 PixelForwardLayerPhase1::searchNeighbors( const TrajectoryStateOnSurface& tsos,
-				    const Propagator& prop,
-				    const MeasurementEstimator& est,
-				    const SubTurbineCrossings& crossings,
-				    float window, 
-				    vector<DetGroup>& result,
-                                    bool innerDisk) const
+					    const Propagator& prop,
+					    const MeasurementEstimator& est,
+					    const SubTurbineCrossings& crossings,
+					    float window, 
+					    vector<DetGroup>& result,
+					    bool innerDisk) const
 {
   typedef CompatibleDetToGroupAdder Adder;
   int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
@@ -231,10 +247,16 @@ PixelForwardLayerPhase1::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   }
 }
 
+int 
+PixelForwardLayerPhase1::computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const
+{  
+  if( fabs(firstBlade->position().z()) < fabs(secondBlade->position().z()) ) return 0;
+  return 1;
+}
 
 PixelForwardLayerPhase1::SubTurbineCrossings 
 PixelForwardLayerPhase1::computeCrossings( const TrajectoryStateOnSurface& startingState,
-				     PropagationDirection propDir, bool innerDisk) const
+					   PropagationDirection propDir, bool innerDisk) const
 {  
   typedef MeasurementEstimator::Local2DVector Local2DVector;
 
@@ -312,4 +334,12 @@ PixelForwardLayerPhase1::computeCrossings( const TrajectoryStateOnSurface& start
 }
 
 
+
+float 
+PixelForwardLayerPhase1::computeWindowSize( const GeomDet* det, 
+                                      const TrajectoryStateOnSurface& tsos, 
+                                      const MeasurementEstimator& est) const
+{
+  return est.maximalLocalDisplacement(tsos, det->surface()).x();
+}
 

@@ -30,20 +30,11 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}
-
- protected:  
-  // methods for groupedCompatibleDets implementation
-  int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
-
-  float computeWindowSize( const GeomDet* det, 
-			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
-
-  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
-  std::vector<const GeometricSearchDet*> theComps;
-  std::vector<const GeomDet*> theBasicComps;
+  
 
  private:  
+  // methods for groupedCompatibleDets implementation
+  int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
 
   struct SubTurbineCrossings {
     SubTurbineCrossings(): isValid(false){};
@@ -67,10 +58,16 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
     computeCrossings( const TrajectoryStateOnSurface& startingState,
 		      PropagationDirection propDir) const;
 
+  float computeWindowSize( const GeomDet* det, 
+			   const TrajectoryStateOnSurface& tsos, 
+			   const MeasurementEstimator& est) const;
   
  private:
+  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
   BinFinderType    theBinFinder;
 
+  std::vector<const GeometricSearchDet*> theComps;
+  std::vector<const GeomDet*> theBasicComps;
 };
 
 

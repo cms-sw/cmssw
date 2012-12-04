@@ -12,7 +12,8 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelForwardLayerPhase1 : public PixelForwardLayer {
+class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer, public GeometricSearchDetWithGroups {
+
  public:
   PixelForwardLayerPhase1(std::vector<const PixelBlade*>& blades);
   ~PixelForwardLayerPhase1();
@@ -27,12 +28,15 @@ class PixelForwardLayerPhase1 : public PixelForwardLayer {
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
 			       std::vector<DetGroup> & result) const;
-
+  
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}
   
 
  private:  
+
+  // methods for groupedCompatibleDets implementation
+  int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
 
   struct SubTurbineCrossings {
     SubTurbineCrossings(): isValid(false){};
@@ -44,6 +48,8 @@ class PixelForwardLayerPhase1 : public PixelForwardLayer {
     int   nextIndex;
     float nextDistance;
   };
+
+
   
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -51,20 +57,29 @@ class PixelForwardLayerPhase1 : public PixelForwardLayer {
 			const SubTurbineCrossings& crossings,
 			float window, 
 			std::vector<DetGroup>& result,
-                        bool innerDisk) const;
+			bool innerDisk) const;
   
   SubTurbineCrossings 
     computeCrossings( const TrajectoryStateOnSurface& startingState,
 		      PropagationDirection propDir, bool innerDisk) const;
-
+  
+  float computeWindowSize( const GeomDet* det, 
+                           const TrajectoryStateOnSurface& tsos, 
+                           const MeasurementEstimator& est) const;
   
  private:
   // need separate objects for inner and outer disk
   // or a smarter bin finder class
+  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
+
   BinFinderType    theBinFinder_inner;
   BinFinderType    theBinFinder_outer;
   unsigned int     _num_innerpanels;
   unsigned int     _num_outerpanels;
+
+  std::vector<const GeometricSearchDet*> theComps;
+  std::vector<const GeomDet*> theBasicComps;
+
 };
 
 #pragma GCC visibility pop
