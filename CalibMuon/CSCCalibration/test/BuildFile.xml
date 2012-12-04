@@ -69,3 +69,6 @@
 <library   file="stubs/CSCMapperTestPostls1.cc" name="testCSCMapperTestPostls1">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<bin   name="testIndexer" file="testCSCIndexer.cc,old_indexers/CSCIndexerOldStartup.cc,old_indexers/CSCIndexerOldPostls1.cc">
+  <use   name="cppunit"/>
+</bin>
