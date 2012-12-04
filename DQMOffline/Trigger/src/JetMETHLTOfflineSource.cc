@@ -6383,10 +6383,3 @@ bool JetMETHLTOfflineSource::isTriggerObjectFound(std::string objectName){
   }
   return output;
 }
-
-std::string JetMETHLTOfflineSource::NumberToString ( int Number )
-{
-  ostringstream ss;
-  ss << Number;
-  return ss.str();
-}
