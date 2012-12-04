@@ -215,9 +215,13 @@ c-----------------------------------------------------------------------
                                 ! qgsjetII.03 = 11
       if(iModel.eq.0)then
         call LHCparameters      !LHC tune for EPOS
+        isigma=1                !use analytic cross section for nuclear xs
+        ionudi=1
         lhct=".lhc"
         iadd=4
       else
+        isigma=2                !use pseudo-MC cross section for nuclear xs (slow)
+        ionudi=3
         lhct=""
         iadd=0
       endif
@@ -307,7 +311,6 @@ c$$$      nody(nrnody)=14      !mu-
 c      nrnody=nrnody+1
 c      nody(nrnody)=idtrafo('pdg','nxs',3122)    !lambda using pdg code
 
-      isigma=0                  !do not print out the cross section on screen
       iecho=0                   !"silent" reading mode
 
 c     Debug

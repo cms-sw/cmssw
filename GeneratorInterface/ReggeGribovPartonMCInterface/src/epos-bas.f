@@ -1159,10 +1159,8 @@ c     i ............. particle number
       if(io.gt.0)then
         if(istptl(io).le.1.and.i.gt.maproj+matarg.and..not.lclean)then!mother is normal particle (incl. spectators and fragments)
           iadd=1
-          if(jorptl(i).gt.0)then
-            jm1hep=iepo2hep(io)
-            jm2hep=iepo2hep(jorptl(i))
-          endif
+          jm1hep=iepo2hep(io)
+          if(jorptl(i).gt.0)jm2hep=iepo2hep(jorptl(i))
         elseif(istmaxhep.gt.0.and.(iorptl(io).gt.0.or.lclean))then
 c     create special father/mother to have the complete chain from beam to final particle
           if(lclean)then
@@ -1567,7 +1565,7 @@ c copy all mothers before the daughter
             if(jdahep2(2,k).gt.0)jdahep(2,nhep)=-ihep2epo2(jdahep2(2,k))
             ihep2epo(nhep)=ihep2epo2(k)
             if(ihep2epo(nhep).gt.0)iepo2hep(ihep2epo(nhep))=nhep
-            if(nhep.eq.nhep0)then
+            if(nhepio.lt.nhepi0)then
               if(jmohep2(1,k).gt.0)then
                 if(ihep2epo2(jmohep2(1,k)).le.0)then
                   jmohep(1,nhep)=-ihep2epo2(jmohep2(1,k))
@@ -1600,19 +1598,21 @@ c copy all mothers before the daughter
         print *,'Warning : number of particles changed after copy'
         nrem1=0
         do k=1,nhep2
-          if(abs(isthep2(k)).eq.4)then
+          if(isthep2(k).eq.-4)then
             nrem1=nrem1+1
           endif
-        print *,'         ',k,idhep2(k),jmohep2(1,k),isthep2(k)
+        if(isthep2(k).gt.0)
+     &  print *,'         ',k,idhep2(k),jmohep2(1,k),isthep2(k)            jm1hep=iepo2hep(io)
+
      &         ,'from',ihep2epo2(k)
         enddo
         print *,'         ',nhep2,'->',nhep
         nrem2=0
         do k=1,nhep
-          if(abs(isthep(k)).eq.4)then
+          if(isthep(k).eq.4)then
             nrem2=nrem2+1
           endif
-        print *,'         ',k,idhep(k),isthep(k),'from',ihep2epo(k)
+c        print *,'         ',k,idhep(k),isthep(k),'from',ihep2epo(k)
         enddo
         print *,'          Particle list not consistent, skip event !'
         print *,'         ',nrem1,'->',nrem2
@@ -1651,7 +1651,7 @@ c         ifrptl(2,i) ..... particle number of last daughter (no daughter=0)
 
         endif
 
-c      write(ifmt,130)jmohep(1,j),jmohep(2,j),j,jdahep(1,j),jdahep(2,j)
+c      write(ifdt,130)jmohep(1,j),jmohep(2,j),j,jdahep(1,j),jdahep(2,j)
 c     &,idhep(j),isthep(j),(phep(k,j),k=1,5),(vhep(k,j),k=1,4)
 c 130  format (1x,i6,i6,3x,i6,3x,i6,i6,i12,i4,8x,5(e8.2,1x)
 c     *,4x,4(e8.2,1x))
@@ -1704,7 +1704,7 @@ c  count the number of particles to be stored (--> nptevt)
 
 C...set event info and get number of particles.
       NUP=nhep             !number of particles
-      IDPRUP=nint(typevt)  !type of event (ND,DD,CD,SD)
+      IDPRUP=nint(abs(typevt))  !type of event (ND,DD,CD,SD)
       XWGTUP=1d0           !weight of event
       SCALUP=-1d0          !scale for PDF (not used)
       AQEDUP=-1d0          !alpha QED (not relevant)
@@ -2053,10 +2053,15 @@ C...Write header info.
      *                           ,version
         write(ifdt,'(A,I9)')'# Total number of min. bias events : '
      *                      ,nevent
-        write(ifdt,'(A)') '# 3 types of subprocess are defined : '
-        write(ifdt,'(A)') '#  -> 1 : Non Diffractive events'
-        write(ifdt,'(A)') '#  -> 2 : Double Diffractive events'
-        write(ifdt,'(A)') '#  -> 3 : Single Diffractive events'
+        write(ifdt,'(A)') '# 4 types of subprocess are defined : '
+        write(ifdt,'(A)') 
+     *  '#  ->  1 : Non Diffractive events AB-->X'
+        write(ifdt,'(A)') 
+     *  '#  ->  2 : Double Diffractive events AB-->XX'
+        write(ifdt,'(A)') 
+     *  '#  ->  3 : Central Diffractive events AB-->AXB'
+        write(ifdt,'(A)') 
+     *  '#  ->  4 : Single Diffractive events AB-->XB or AB-->AX'
         write(ifdt,'(A)') 
      *  '#geometry gives impact parameter (fm) and phi (rad) of events'
         write(ifdt,'(A)') '-->'       
@@ -2093,18 +2098,18 @@ C...Set initialization info and get number of processes.
         endif
         IDWTUP=3                !weight=1 for all events
         NPRUP=4                 !number of subprocess (ND,DD,CD,SD)
-        IPR=1                   !subprocesses (store mon diffractive events)
+        IPR=1                   !subprocesses (store non diffractive events)
         XSECUP(IPR)=dble(sigcut)*1d9 !cross section in pb
         XERRUP(IPR)=0d0         !statistical error
         XMAXUP(IPR)=1d0         !weight
         LPRUP(IPR)=1            !ND event (typevt=1)
         IPR=2                   !subprocesses (store double diffractive events)
-        XSECUP(IPR)=dble(sigine-sigcut-sigsd)*1d9 !cross section in pb
+        XSECUP(IPR)=dble(sigdd)*1d9 !cross section in pb
         XERRUP(IPR)=0d0         !statistical error
         XMAXUP(IPR)=1d0         !weight
         LPRUP(IPR)=2            !DD event (typevt=2)
         IPR=3                   !subprocesses (store single diffractive events)
-        XSECUP(IPR)=dble(sigsd)*1d9 !cross section in pb
+        XSECUP(IPR)=dble(sigdif-sigdd-sigsd)*1d9 !cross section in pb
         XERRUP(IPR)=0d0         !statistical error
         XMAXUP(IPR)=1d0         !weight
         LPRUP(IPR)=3            !CD event (typevt=3)
@@ -2335,7 +2340,7 @@ c skip intro
        if(line(1:7).ne."<event>")goto 10
 
 c      write(ifdt,'(A)') '<event>' 
-      read(ifdt,*)NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP
+      read(ifdt,*)NUP,typevt,XWGTUP,SCALUP,AQEDUP,AQCDUP
       nhep=0
       nptl=0
       DO 220 i=1,nup
