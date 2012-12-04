@@ -56,7 +56,7 @@
 #include <sstream> 
 
 TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
-  m_params( cfg ), 	
+  m_params( cfg ), //DM_61X??  	
   referenceTracker(0),
   dummyTracker(0),
   currentTracker(0),
@@ -104,7 +104,7 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 		m_theLevels.push_back(AlignableObjectId::stringToId(levels[l])) ; //DM_61X?? 
 		//DM_534?? m_theLevels.push_back( dummy.nameToType(levels[l])); 
 		edm::LogInfo("TrackerGeometryCompare") << "level: " << levels[l];
-		edm::LogInfo("TrackerGeometryCompare") << "structure type: " << AlignableObjectId::stringToId(levels[l]) ; 
+		edm::LogInfo("TrackerGeometryCompare") << "structure type: " << AlignableObjectId::stringToId(levels[l]) ; //DM_61X?? 
 		//DM_534?? edm::LogInfo("TrackerGeometryCompare") << "structure type: " << dummy.typeToName(m_theLevels.at(l)); 
 	}
 	
@@ -213,11 +213,11 @@ void TrackerGeometryCompare::endJob(){
   int iname(0) ;
   for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
     std::stringstream mapname ;
-    mapname << "TkMap_Pix_SurfDeform" << iname << ".png" ; 
+    mapname << "TkMap_SurfDeform" << iname << ".png" ; 
     it->save(true,0,0,mapname.str());
     mapname.str( std::string() ); 
     mapname.clear() ; 
-    mapname << "TkMap_Pix_SurfDeform" << iname << ".pdf" ; 
+    mapname << "TkMap_SurfDeform" << iname << ".pdf" ; 
     it->save(true,0,0,mapname.str());
     ++iname ; 
   }
@@ -355,7 +355,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	iSetup.get<TrackerDigiGeometryRecord>().getRecord<GlobalPositionRcd>().get(globalPositionRcd);
 	
 	//reference tracker
-	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, m_params); 
+	TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, m_params); //DM_61X?? 
 	if (_inputFilename1 != "IDEAL"){
 		GeometryAligner aligner1;
 		aligner1.applyAlignments<TrackerGeometry>( &(*theRefTracker), &(*alignments1), &(*alignmentErrors1),
@@ -396,7 +396,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 		
 	//currernt tracker
-	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,m_params); 
+	TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet,m_params); //DM_61X?? 
 	if (_inputFilename2 != "IDEAL"){
 		GeometryAligner aligner2;
 		aligner2.applyAlignments<TrackerGeometry>( &(*theCurTracker), &(*alignments2), &(*alignmentErrors2),
