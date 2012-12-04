@@ -59,5 +59,5 @@ reconstructionHeavyIons_withPF *= hiElectronSequence*HiParticleFlowReco
 reconstructionHeavyIons_HcalNZS_withPF *= hiElectronSequence*HiParticleFlowReco
 
 
-
+reconstructionHeavyIons_withRegitMu = cms.Sequence(reconstructionHeavyIons*reMuonRecoPbPb)
 #--------------------------------------------------------------------------
