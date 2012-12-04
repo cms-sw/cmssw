@@ -21,9 +21,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.source = cms.Source("EmptySource")
 
-process.DQMStore=cms.Service("DQMStore")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cfi")
+#process.TkDetMap = cms.Service("TkDetMap")
+#process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+
+process.load("DQMServices.Core.DQMStore_cfg") 
+#process.DQMStore=cms.Service("DQMStore")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -31,15 +34,16 @@ process.maxEvents = cms.untracked.PSet(
 process.p = cms.Path(process.TrackerGeometryCompare)
 
 process.TrackerGeometryCompare.inputROOTFile1 = 'myInputGeometry_mp1260m2.root' 
-
 process.TrackerGeometryCompare.inputROOTFile2 = 'myInputGeometry_2012AB.root'
 #process.TrackerGeometryCompare.inputROOTFile2 = 'IDEAL' 
 
 process.TrackerGeometryCompare.outputFile = 'outputComparison_mp1260m2_2012AB.root'
 
-process.TFileService = cms.Service("TFileService",
-		fileName = cms.string('TkSurfDeform_mp1260m2_2012AB.root') 
-		)
+process.load("CommonTools.UtilAlgos.TFileService_cfi")  
+#process.TFileService = cms.Service("TFileService",
+#		fileName = cms.string('TkSurfDeform_mp1260m2_2012AB.root') 
+#		)
+process.TFileService.fileName = cms.string('TkSurfDeform_mp1260m2_2012AB.root') 
 
 process.TrackerGeometryCompare.levels = ['DetUnit']  
 #process.TrackerGeometryCompare.levels = ['Tracker','DetUnit'] 
