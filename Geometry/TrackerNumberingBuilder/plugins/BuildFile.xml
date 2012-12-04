@@ -4,6 +4,7 @@
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/DetId"/>
 <use   name="Geometry/CommonTopologies"/>
+<use   name="DataFormats/TrackerCommon"/>
 <library   file="*.cc" name="GeometryTrackerNumberingBuilderPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
