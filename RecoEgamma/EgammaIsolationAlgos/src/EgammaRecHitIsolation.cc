@@ -214,10 +214,12 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
 	  if(useNumCrystals_) {
 	    if( fabs(etaclus) < 1.479 ) {  // Barrel num crystals, crystal width = 0.0174
 	      if ( fabs(etaDiff) < 0.0174*etaSlice_) continue;  
-	      if ( sqrt(etaDiff*etaDiff + phiDiff*phiDiff) < 0.0174*intRadius_) continue; 
+	      // if ( sqrt(etaDiff*etaDiff + phiDiff*phiDiff) < 0.0174*intRadius_) continue; 
+	      if ((etaDiff*etaDiff + phiDiff*phiDiff) < 0.00030276*r2) continue
 	    } else {                       // Endcap num crystals, crystal width = 0.00864*fabs(sinh(eta))
 	      if ( fabs(etaDiff) < 0.00864*fabs(sinh(eta))*etaSlice_) continue;  
-	      if ( sqrt(etaDiff*etaDiff + phiDiff*phiDiff) < 0.00864*fabs(sinh(eta))*intRadius_) continue; 
+	      // if ( sqrt(etaDiff*etaDiff + phiDiff*phiDiff) < 0.00864*fabs(sinh(eta))*intRadius_) continue; 
+	      if ((etaDiff*etaDiff + phiDiff*phiDiff) < (0.000037325*(cosh(2*eta)-1)*r2)) continue;
 	    }
 	  } else {
 	    if ( fabs(etaDiff) < etaSlice_) continue;  // jurassic strip cut
