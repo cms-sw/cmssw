@@ -156,7 +156,7 @@ void CSCIndexerAnalyzer2::analyze( const edm::Event& iEvent, const edm::EventSet
       std::cout << std::setw(12) << lind << std::setw(12) << lind2 << std::setw(12)<< scind << std::setw(12) <<  theIndexer->chamberLabelFromChamberIndex(scind) << "     " ;
 
       // Index a few strips
-      unsigned short nchan = theIndexer->stripChannelsPerLayer(is,ir);
+      unsigned short nchan = theIndexer->stripChannelsPerOnlineLayer(is,ir);
       unsigned int sc1 = theIndexer->stripChannelIndex(ie, is, ir, ic, il, 1);
       unsigned int scm = theIndexer->stripChannelIndex(ie, is, ir, ic, il, nchan/2);
       unsigned int scn = theIndexer->stripChannelIndex(ie, is, ir, ic, il, nchan);
