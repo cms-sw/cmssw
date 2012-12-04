@@ -15,11 +15,10 @@ typedef double __attribute__( ( vector_size( 64 ) ) ) float64x8_t;
 
 template<typename T, int N>
 struct ExtVecTraits {
-typedef T __attribute__( ( vector_size( N*sizeof(T) ) ) ) type;
+  typedef T __attribute__( ( vector_size( N*sizeof(T) ) ) ) type;
 };
 
 template<typename T, int N> using ExtVec =  typename ExtVecTraits<T,N>::type;
-
 
 template<typename T> using Vec4 = ExtVec<T,4>;
 template<typename T> using Vec2 = ExtVec<T,2>;
@@ -29,7 +28,7 @@ inline
 auto xy(V v)-> Vec2<typename  std::remove_reference<decltype(v[0])>::type> 
 { 
   typedef typename std::remove_reference<decltype(v[0])>::type T;
-return Vec2<T>{v[0],v[1]};
+  return Vec2<T>{v[0],v[1]};
 }
 template<typename V> 
 inline
@@ -39,11 +38,20 @@ auto zw(V v) -> Vec2<typename  std::remove_reference<decltype(v[0])>::type>
   return Vec2<T>{v[2],v[3]};
 }
 
+template<typename Vec, typename F> 
+inline
+Vec apply(Vec v, F f) {
+  typedef typename std::remove_reference<decltype(v[0])>::type T;
+  constexpr int N = sizeof(Vec)/sizeof(T);
+  Vec ret;
+  for (int i=0;i!=N;++i) ret[i] = f(v[i]);
+  return ret;
+}
 
 
 template<typename Vec> 
 inline
-Vec cross(Vec x, Vec y) {
+Vec cross3(Vec x, Vec y) {
   //  typedef Vec4<T> Vec;
   // yz - zy, zx - xz, xy - yx, 0
   Vec x1200 = (Vec){ x[1], x[2], x[0], x[0] };
@@ -131,43 +139,40 @@ struct Rot3 {
   typedef Vec4<T> Vec;
   Vec  axis[3];
   
-  Rot3() {
-    axis[0] = (Vec){T(1),0,0};
-    axis[1] = (Vec){0,T(1),0};
-    axis[2] = (Vec){0,0,T(1)};
-    }
+  constexpr Rot3() :
+    axis{ (Vec){T(1),0,0,0},
+      (Vec){0,T(1),0,0},
+	(Vec){0,0,T(1),0}
+  }{}
     
-    Rot3( Vec4<T> ix,  Vec4<T> iy,  Vec4<T> iz) {
-      axis[0] =ix;
-      axis[1] =iy;
-      axis[2] =iz;
-    }
+  constexpr Rot3( Vec4<T> ix,  Vec4<T> iy,  Vec4<T> iz) :
+    axis{ix,iy,iz}{}
 
-    Rot3( T xx, T xy, T xz, T yx, T yy, T yz, T zx, T zy, T zz) {
-      axis[0]= (Vec){xx,xy,xz};
-      axis[1]= (Vec){yx,yy,yz};
-      axis[2]= (Vec){zx,zy,zz};
-    }
-
-    Rot3 transpose() const {
-      return Rot3( axis[0][0], axis[1][0], axis[2][0],
-		   axis[0][1], axis[1][1], axis[2][1],
-		   axis[0][2], axis[1][2], axis[2][2]
-		   );
-    }
-
-    Vec4<T> x() { return axis[0];}
-    Vec4<T> y() { return axis[1];}
-    Vec4<T> z() { return axis[2];}
+  constexpr Rot3( T xx, T xy, T xz, T yx, T yy, T yz, T zx, T zy, T zz) :
+    axis{ (Vec){xx,xy,xz,0},
+      (Vec){yx,yy,yz,0},
+	(Vec){zx,zy,zz,0}
+  }{}
+  
+  constexpr Rot3 transpose() const {
+    return Rot3( axis[0][0], axis[1][0], axis[2][0],
+		 axis[0][1], axis[1][1], axis[2][1],
+		 axis[0][2], axis[1][2], axis[2][2]
+		 );
+  }
+  
+  constexpr Vec4<T> x() const { return axis[0];}
+  constexpr Vec4<T> y() const { return axis[1];}
+  constexpr Vec4<T> z() const { return axis[2];}
 
     // toLocal...
-    Vec4<T> rotate(Vec4<T> v) const {
+    constexpr Vec4<T> rotate(Vec4<T> v) const {
       return transpose().rotateBack(v);
     }
 
 
     // toGlobal...
-    Vec4<T> rotateBack(Vec4<T> v) const {
+    constexpr Vec4<T> rotateBack(Vec4<T> v) const {
       return v[0]*axis[0] +  v[1]*axis[1] + v[2]*axis[2];
     }
 
@@ -176,7 +181,7 @@ struct Rot3 {
       return Rot3(tr.rotateBack(r.axis[0]),tr.rotateBack(r.axis[1]),tr.rotateBack(r.axis[2]));
     }
 
-    Rot3 rotateBack(Rot3 const& r) const {
+    constexpr Rot3 rotateBack(Rot3 const& r) const {
       return Rot3(rotateBack(r.axis[0]),rotateBack(r.axis[1]),rotateBack(r.axis[2]));
     }
 
@@ -188,7 +193,7 @@ typedef Rot3<float> Rot3F;
 typedef Rot3<double> Rot3D;
 
 template<typename T>
-inline  Rot3<T>  operator *(Rot3<T> const & rh, Rot3<T> const & lh) {
+inline constexpr Rot3<T>  operator *(Rot3<T> const & rh, Rot3<T> const & lh) {
   return lh.rotateBack(rh);
 }
 
@@ -198,52 +203,50 @@ struct Rot2 {
   typedef Vec2<T> Vec;
   Vec2<T>  axis[2];
   
-    Rot2() {
-      axis[0] = (Vec){T(1),0};
-      axis[1] = (Vec){0,T(1)};
-    }
+  constexpr Rot2() :
+    axis{ (Vec){T(1),0},
+      (Vec){0,T(1)}
+  }{}
     
-    Rot2( Vec2<T> ix,  Vec2<T> iy) {
-      axis[0] =ix;
-      axis[1] =iy;
-    }
+  constexpr Rot2( Vec2<T> ix,  Vec2<T> iy) :
+    axis{ix, iy}{}
 
-    Rot2( T xx, T xy, T yx, T yy) {
-      axis[0] = (Vec){xx,xy};
-      axis[1] = (Vec){yx,yy};
-    }
+  constexpr Rot2( T xx, T xy, T yx, T yy) :
+    Rot2( (Vec){xx,xy},
+	  (Vec){yx,yy}
+	  ){}
 
-    Rot2 transpose() const {
-      return Rot2( axis[0][0], axis[1][0],
-		   axis[0][1], axis[1][1]
-		   );
-    }
+  constexpr Rot2 transpose() const {
+    return Rot2( axis[0][0], axis[1][0],
+		 axis[0][1], axis[1][1]
+		 );
+  }
 
-    Vec2<T> x() { return axis[0];}
-    Vec2<T> y() { return axis[1];}
-
-    // toLocal...
-    Vec2<T> rotate(Vec2<T> v) const {
-      return transpose().rotateBack(v);
-    }
-
+  constexpr Vec2<T> x() { return axis[0];}
+  constexpr Vec2<T> y() { return axis[1];}
+  
+  // toLocal...
+  constexpr Vec2<T> rotate(Vec2<T> v) const {
+    return transpose().rotateBack(v);
+  }
+  
 
     // toGlobal...
-    Vec2<T> rotateBack(Vec2<T> v) const {
-      return v[0]*axis[0] +  v[1]*axis[1];
-    }
-
-    Rot2 rotate(Rot2 const& r) const {
-      Rot2 tr = transpose();
-      return Rot2(tr.rotateBack(r.axis[0]),tr.rotateBack(r.axis[1]));
-    }
-
-    Rot2 rotateBack(Rot2 const& r) const {
-      return Rot2(rotateBack(r.axis[0]),rotateBack(r.axis[1]));
-    }
-
-
-  };
+  constexpr  Vec2<T> rotateBack(Vec2<T> v) const {
+    return v[0]*axis[0] +  v[1]*axis[1];
+  }
+  
+  Rot2 rotate(Rot2 const& r) const {
+    Rot2 tr = transpose();
+    return Rot2(tr.rotateBack(r.axis[0]),tr.rotateBack(r.axis[1]));
+  }
+  
+  constexpr Rot2 rotateBack(Rot2 const& r) const {
+    return Rot2(rotateBack(r.axis[0]),rotateBack(r.axis[1]));
+  }
+  
+  
+};
 
   typedef Rot2<float> Rot2F;
 
@@ -252,7 +255,7 @@ struct Rot2 {
 
 
 template<typename T>
-inline  Rot2<T>  operator *(Rot2<T> const & rh, Rot2<T> const & lh) {
+inline  constexpr Rot2<T>  operator *(Rot2<T> const & rh, Rot2<T> const & lh) {
   return lh.rotateBack(rh);
 }
 

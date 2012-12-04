@@ -106,7 +106,7 @@ void go2d() {
   std::cout << "\n2d" << std::endl;
   std::cout << sizeof(Vec2d) << std::endl;
 
-  Vec2d k{-2.0,3.14};
+  constexpr Vec2d k{-2.0,3.14};
   std::cout << k << std::endl;  
   std::cout << k+k << std::endl;
   std::cout << k*k << std::endl;
@@ -126,7 +126,7 @@ void go2d() {
   std::cout << Vec2d(T(3.)*x2) << std::endl;
   std::cout << Vec2d(y2*T(0.1)) << std::endl;
   std::cout << Vec2d(T(0.5)*(x2+y2)) << std::endl;
-  //  std::cout << mathSSE::sqrt(x2) << std::endl;
+  std::cout << apply(x2, [](T x) { return std::sqrt(x);}) << std::endl;
 
 
   std::cout << dot(x2,y2) << " = 2?"<< std::endl; 
@@ -153,8 +153,8 @@ void go() {
   std::vector<Vec> vec3; vec3.reserve(50234);
 
 
-  Vec x{2.0,4.0,5.0};
-  Vec y{-3.0,2.0,-5.0};
+  constexpr Vec x{2.0,4.0,5.0};
+  constexpr Vec y{-3.0,2.0,-5.0};
   std::cout << x << std::endl;
   std::cout << (Vec4<float>){x[0],x[1],x[2],x[3]} << std::endl;
   std::cout << (Vec4<double>){x[0],x[1],x[2],x[3]} << std::endl;
@@ -164,7 +164,7 @@ void go() {
   std::cout << T(3.)*x << std::endl;
   std::cout << y*T(0.1) << std::endl;
   std::cout << ( (Vec){1} - y*T(0.1)) << std::endl;
-  //std::cout <<  mathSSE::sqrt(x) << std::endl;
+  std::cout << apply(x,[](T x) { return std::sqrt(x);}) << std::endl;
 
 
   std::cout << dot(x,y) << std::endl; 
@@ -173,29 +173,30 @@ void go() {
   //  std::cout << "equal" << (x==x ? " " : " not ") << "ok" << std::endl;
   // std::cout << "not equal" << (x==y ? " not " : " ") << "ok" << std::endl;
  
-  Vec z = cross(x,y);
+  Vec z = cross3(x,y);
   std::cout << z << std::endl;
+  std::cout << cross2(x,y) << std::endl;
 
 
   std::cout << "rotations" << std::endl;
 
-  T a = 0.01;
-  T ca = std::cos(a);
-  T sa = std::sin(a);
+  constexpr T a = 0.01;
+  constexpr T ca = std::cos(a);
+  constexpr T sa = std::sin(a);
 
-  Rot3<T> r1( ca, sa, 0,
-	      -sa, ca, 0,
-	      0,  0, 1);
+  constexpr Rot3<T> r1( ca, sa, 0,
+			-sa, ca, 0,
+			0,  0, 1);
 
-  Rot2<T> r21( ca, sa,
-	       -sa, ca);
-
-  Rot3<T> r2( (Vec){0, 1 ,0,0}, (Vec){0, 0, 1,0},(Vec){1, 0, 0,0});
-  Rot2<T> r22( (Vec2D){0, 1}, (Vec2D){1, 0});
+  constexpr Rot2<T> r21( ca, sa,
+			 -sa, ca);
+  
+  constexpr Rot3<T> r2( (Vec){0, 1 ,0,0}, (Vec){0, 0, 1,0}, (Vec){1, 0, 0,0});
+  constexpr Rot2<T> r22( (Vec2D){0, 1}, (Vec2D){1, 0});
 
   {
     std::cout << "\n3D rot" << std::endl;
-    Vec xr = r1.rotate(x);
+    /* constexpr */ Vec xr = r1.rotate(x);
     std::cout << x << std::endl;
     std::cout << xr << std::endl;
     std::cout << r1.rotateBack(xr) << std::endl;
