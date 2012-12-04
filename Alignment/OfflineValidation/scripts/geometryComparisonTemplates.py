@@ -78,9 +78,14 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
+process.load("DQM.SiStripCommon.TkHistoMap_cfi")
+
 process.DQMStore=cms.Service("DQMStore")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+#process.TkDetMap = cms.Service("TkDetMap")
+#process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+
+process.load("DQMServices.Core.DQMStore_cfg") 
+#process.DQMStore=cms.Service("DQMStore")
 
   # configuration of the Tracker Geometry Comparison Tool
   # Tracker Geometry Comparison
@@ -91,9 +96,11 @@ process.TrackerGeometryCompare.inputROOTFile1 = '.oO[comparedGeometry]Oo.'
 process.TrackerGeometryCompare.inputROOTFile2 = '.oO[referenceGeometry]Oo.'
 process.TrackerGeometryCompare.outputFile = ".oO[workdir]Oo./.oO[name]Oo..Comparison_common.oO[common]Oo..root"
 
-process.TFileService = cms.Service("TFileService",
-		fileName = cms.string('TkSurfDeform.root') 
-		)
+process.load("CommonTools.UtilAlgos.TFileService_cfi")  
+#process.TFileService = cms.Service("TFileService",
+#		fileName = cms.string('TkSurfDeform.root') 
+#		)
+process.TFileService.fileName = cms.string("TkSurfDeform_.oO[name]Oo..Comparison_common.oO[common]Oo..root") 
 
 process.TrackerGeometryCompare.levels = [ .oO[levels]Oo. ]
 
