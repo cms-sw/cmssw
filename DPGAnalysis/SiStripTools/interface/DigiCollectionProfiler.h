@@ -2,7 +2,7 @@
 #define DPGAnalysis_SiStripTools_DigiCollectionProfile_H
 
 #include <vector>
-#include "DPGAnalysis/SiStripTools/interface/DetIdSelector.h"
+#include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
