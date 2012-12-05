@@ -1,7 +1,7 @@
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 #include <algorithm>
 
-bool CSCBadChambers::isInBadChamber( int ichamber ) const {
+bool CSCBadChambers::isInBadChamber( IndexType ichamber ) const {
 
   if ( numberOfChambers() == 0 ) return false;
 
@@ -12,3 +12,9 @@ bool CSCBadChambers::isInBadChamber( int ichamber ) const {
   else return false;
 }
 
+bool CSCBadChambers::isInBadChamber( const CSCDetId& id ) const {
+
+  if ( numberOfChambers() == 0 ) return false;
+
+  return isInBadChamber( chamberIndex( id.endcap(), id.station(), id.ring(), id.chamber() ) );
+}
