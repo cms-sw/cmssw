@@ -279,8 +279,8 @@ def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
 	SendCluster_Create(FarmDirectory, JobName)
 	NJobs = SendCluster_LoadInputFiles(InputFiles, NJobs)
 	for i in range(NJobs):
-        	LaunchOnCondor.SendCluster_Push  (["CMSSW", ConfigFile])
-	LaunchOnCondor.SendCluster_Submit()
+        	SendCluster_Push  (["CMSSW", ConfigFile])
+	SendCluster_Submit()
 
 
 
@@ -303,6 +303,7 @@ def GetListOfFiles(Prefix, InputPattern, Suffix):
          List = glob.glob(InputPattern)
 
       List = sorted(List)
+
       for i in range(len(List)):
          List[i] = Prefix + List[i] + Suffix
       return List

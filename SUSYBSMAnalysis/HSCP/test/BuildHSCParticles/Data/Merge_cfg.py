@@ -128,6 +128,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep recoTrackExtras_TrackRefitter_*_*",
          "drop TrackingRecHitsOwned_*Muon*_*_*",
     ),
+    #fileName = cms.untracked.string('/uscmst1b_scratch/lpc1/3DayLifetime/farrell/HSCPEDMUpdateData2012_30Nov2012/XXX_OUTPUT_XXX.root'),
     fileName = cms.untracked.string('XXX_SAVEPATH_XXX/XXX_OUTPUT_XXX.root'),
     SelectEvents = cms.untracked.PSet(
        SelectEvents = cms.vstring('DuplicateFilter')

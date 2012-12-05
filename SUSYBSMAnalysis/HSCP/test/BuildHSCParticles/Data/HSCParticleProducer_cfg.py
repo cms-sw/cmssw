@@ -14,7 +14,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 if   CMSSW4_4: process.GlobalTag.globaltag = 'FT_R_44_V11::All'
 elif CMSSW4_2: process.GlobalTag.globaltag = 'GR_P_V14::All'
@@ -179,8 +179,8 @@ if CMSSW4_2:
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
 #The module ak5PFJetsPt15 does not exist in CMSSW4
-#if CMSSW4_2 or CMSSW4_4:  process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM *                         process.HSCParticleProducerSeq)
-#else:         process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
+if CMSSW4_2 or CMSSW4_4:  process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM *                         process.HSCParticleProducerSeq)
+else:         process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
 
 #If you are not running from the HSCP skim you need to redo the skim
 #process.p1 = cms.Path(process.nEventsBefSkim * process.HSCPTrigger * process.exoticaHSCPSeq * process.nEventsBefEDM * process.ak5PFJetsPt15 * process.HSCParticleProducerSeq)
