@@ -103,6 +103,9 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
       << " WARNING : numberOfHits does not have the proper size "
       << std::endl;
 
+  // Seeding based on muons
+  selectMuons = conf.getParameter<bool>("selectMuons");
+
   // Layers
   newSyntax = conf.getParameter<bool>("newSyntax");
   if (newSyntax) {
@@ -354,8 +357,12 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
     std::cout << "Pt = " << std::sqrt(theSimTrack.momentum().Perp2()) 
 	      << " eta " << theSimTrack.momentum().Eta()
+	      << " pdg ID " << theSimTrack.type()
 	      << std::endl;
 #endif
+
+    // Select only muons, if requested
+    if (selectMuons && abs(theSimTrack.type()) != 13) continue;
     
     // Check that the sim track comes from the main vertex (loose cut)
     int vertexIndex = theSimTrack.vertIndex();
@@ -439,23 +446,27 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
 	// Check if inside the requested detectors
 	bool isInside = true;
-	if (newSyntax) 
-	  isInside = true; // AG placeholder
-	else
-	  isInside = theSeedHits0.subDetId() < firstHitSubDetectors[ialgo][0];
-	//	bool isInside = theSeedHits0.subDetId() < firstHitSubDetectors[ialgo][0];
-	if ( isInside ) continue;
+	if (!selectMuons) {
+	  if (newSyntax) 
+	    isInside = true; // AG placeholder
+	  else
+	    isInside = theSeedHits0.subDetId() < firstHitSubDetectors[ialgo][0];
+	  //	bool isInside = theSeedHits0.subDetId() < firstHitSubDetectors[ialgo][0];
+	  if ( isInside ) continue;
+	}
 
 	// Check if on requested detectors
 	//	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo]);
 	bool isOndet = true;
-	if (newSyntax) 
-	  isOndet = theSeedHits0.isOnRequestedDet(layerList);
-	else
-	  isOndet = theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
-	//	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
-	//	if ( !isOndet ) break;
-	if ( !isOndet ) continue;
+	if (!selectMuons) {
+	  if (newSyntax) 
+	    isOndet = theSeedHits0.isOnRequestedDet(layerList);
+	  else
+	    isOndet = theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	  //	bool isOndet =  theSeedHits0.isOnRequestedDet(firstHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	  //	if ( !isOndet ) break;
+	  if ( !isOndet ) continue;
+	}
 
 #ifdef FAMOS_DEBUG
 	std::cout << "Apparently the first hit is on the requested detector! " << std::endl;
@@ -468,19 +479,21 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  std::cout << "The second hit layer    = " << theSeedHits1.layerNumber() << std::endl;
 #endif
 
-	  // Check if inside the requested detectors
-	  if (newSyntax) 
-	    isInside = true; // AG placeholder
-	  else
-	    isInside = theSeedHits1.subDetId() < secondHitSubDetectors[ialgo][0];
-	  if ( isInside ) continue;
+	  if (!selectMuons) {
+	    // Check if inside the requested detectors
+	    if (newSyntax) 
+	      isInside = true; // AG placeholder
+	    else
+	      isInside = theSeedHits1.subDetId() < secondHitSubDetectors[ialgo][0];
+	    if ( isInside ) continue;
 
-	  // Check if on requested detectors
-	  if (newSyntax) 
-	    isOndet = theSeedHits1.isOnRequestedDet(layerList);
-	  else
-	    isOndet =  theSeedHits1.isOnRequestedDet(secondHitSubDetectors[ialgo], seedingAlgo[ialgo]);
-	  if ( !isOndet ) break;
+	    // Check if on requested detectors
+	    if (newSyntax) 
+	      isOndet = theSeedHits1.isOnRequestedDet(layerList);
+	    else
+	      isOndet =  theSeedHits1.isOnRequestedDet(secondHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	    if ( !isOndet ) break;
+	  }
 
 	  // Check if on the same layer as previous hit
 	  if ( theSeedHits1.isOnTheSameLayer(theSeedHits0) ) continue;
@@ -504,34 +517,25 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
 	  std::cout << "Algo" << seedingAlgo[0] << "\t Are the two hits compatible with the PV? " << compatible << std::endl;
 #endif
-	  
-	  // Check if the pair is on the requested dets
-	  if ( numberOfHits[ialgo] == 2 ) {
-	    
-	    if ( seedingAlgo[0] ==  "ThirdMixedPairs" ){
-	      compatible = compatible && theSeedHits[0].makesAPairWith3rd(theSeedHits[1]);
-	      /*
-	      if(compatible) {
-		std::cout << "Seed producer in 3rd iteration" << std::endl;
-		std::cout << "The first hit position = " << theSeedHits0.globalPosition() << std::endl;
-		std::cout << "The first hit subDetId = " << theSeedHits0.subDetId() << std::endl;
-		std::cout << "The first hit layer    = " << theSeedHits0.layerNumber() << std::endl;
-		std::cout << "The second hit position = " << theSeedHits1.globalPosition() << std::endl;
-		std::cout << "The second hit subDetId = " << theSeedHits1.subDetId() << std::endl;
-		std::cout << "The second hit layer    = " << theSeedHits1.layerNumber() << std::endl;
+
+	  if (!selectMuons) {
+	    // Check if the pair is on the requested dets
+	    if ( numberOfHits[ialgo] == 2 ) {
+	      
+	      if ( seedingAlgo[0] ==  "ThirdMixedPairs" ){
+		compatible = compatible && theSeedHits[0].makesAPairWith3rd(theSeedHits[1]);
+	      } else {
+		compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
+		//check
+		/*
+		  if((seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs") && !compatible) 
+		  std::cout << "NOT Compatible " <<  seedingAlgo[0] 
+		  <<  "Hit 1 Det/layer/ring = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << "/" << theSeedHits0.ringNumber() 
+		  <<  "\tHit 2 Det/layer/ring = " << theSeedHits1.subDetId() << "/" <<  theSeedHits1.layerNumber() << "/" << theSeedHits1.ringNumber() <<  std::endl;
+		*/
 	      }
-	      */
-	    } else {
-	      compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
-	      //check
-	      /*
-		if((seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs") && !compatible) 
-		std::cout << "NOT Compatible " <<  seedingAlgo[0] 
-		<<  "Hit 1 Det/layer/ring = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << "/" << theSeedHits0.ringNumber() 
-		<<  "\tHit 2 Det/layer/ring = " << theSeedHits1.subDetId() << "/" <<  theSeedHits1.layerNumber() << "/" << theSeedHits1.ringNumber() <<  std::endl;
-	      */
-	    }
-	  }	    
+	    }	
+	  }    
 	  
 	  // Reject non suited pairs
 	  if ( !compatible ) continue;
@@ -553,26 +557,28 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    std::cout << "The third hit layer    = " << theSeedHits2.layerNumber() << std::endl;
 #endif
 
-	    // Check if inside the requested detectors
-	    if (newSyntax) 
-	      isInside = true; // AG placeholder
-	    else 
-	      isInside = theSeedHits2.subDetId() < thirdHitSubDetectors[ialgo][0];
-	    if ( isInside ) continue;
+	    if (!selectMuons) {
+	      // Check if inside the requested detectors
+	      if (newSyntax) 
+		isInside = true; // AG placeholder
+	      else 
+		isInside = theSeedHits2.subDetId() < thirdHitSubDetectors[ialgo][0];
+	      if ( isInside ) continue;
 	    
-	    // Check if on requested detectors
-	    if (newSyntax) 
-	      isOndet = theSeedHits2.isOnRequestedDet(layerList);
-	    else 
-	      isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo], seedingAlgo[ialgo]);
-	    //	    if ( !isOndet ) break;
-	    if ( !isOndet ) continue;
+	      // Check if on requested detectors
+	      if (newSyntax) 
+		isOndet = theSeedHits2.isOnRequestedDet(layerList);
+	      else 
+		isOndet =  theSeedHits2.isOnRequestedDet(thirdHitSubDetectors[ialgo], seedingAlgo[ialgo]);
+	      //	    if ( !isOndet ) break;
+	      if ( !isOndet ) continue;
+	    }
 
 	    // Check if on the same layer as previous hit
 	    compatible = !(theSeedHits2.isOnTheSameLayer(theSeedHits1));
 
 	    // Check if the triplet is on the requested det combination
-	    compatible = compatible && theSeedHits[0].makesATripletWith(theSeedHits[1],theSeedHits[2]);
+	    if (!selectMuons) compatible = compatible && theSeedHits[0].makesATripletWith(theSeedHits[1],theSeedHits[2]);
 
 #ifdef FAMOS_DEBUG
 	    if ( compatible ) 
@@ -594,6 +600,13 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       // There is no compatible seed for this track with this seeding algorithm 
       // Go to next algo
       if ( !compatible ) continue;
+#ifdef FAMOS_DEBUG
+      if ( compatible ) 
+	std::cout << "@@@ There is at least a compatible seed" << std::endl;
+      else
+	std::cout << "@@@ There is no compatible seed" << std::endl;
+#endif
+      
 
 #ifdef FAMOS_DEBUG
       std::cout << "Preparing to create the TrajectorySeed" << std::endl;

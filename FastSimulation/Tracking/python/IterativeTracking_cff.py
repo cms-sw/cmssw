@@ -13,6 +13,8 @@ from FastSimulation.Tracking.IterativeDetachedTripletStep_cff import *
 from FastSimulation.Tracking.IterativeMixedTripletStep_cff import *
 from FastSimulation.Tracking.IterativePixelLessStep_cff import *
 from FastSimulation.Tracking.IterativeTobTecStep_cff import *
+from FastSimulation.Tracking.MuonSeededStep_cff import *
+
 iterativeTracking = cms.Sequence(pixelTracking+pixelVertexing
                                  +iterativeInitialStep
                                  +iterativeLowPtTripletStep
@@ -21,6 +23,7 @@ iterativeTracking = cms.Sequence(pixelTracking+pixelVertexing
                                  +iterativeMixedTripletStep
                                  +iterativePixelLessStep
                                  +iterativeTobTecStep
+# not validated yet:                                 +muonSeededStep 
                                  +generalTracks
                                  +trackExtrapolator)
 

@@ -88,6 +88,8 @@ class TrajectorySeedProducer : public edm::EDProducer
   std::vector<edm::InputTag> primaryVertices;
   std::vector<double> zVertexConstraint;
 
+  bool selectMuons;
+
   std::vector<const reco::VertexCollection*> vertices;
   double x0, y0, z0;
 
