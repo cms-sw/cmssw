@@ -20,7 +20,7 @@ setenv TYPE Photons
 setenv RUNTYPE Central
 #setenv RUNTYPE Local
 setenv STARTUP True
-
+setenv FASTSIM True
 
 
 setenv CMSSWver1 6_1_0
@@ -31,9 +31,12 @@ setenv OLDPRERELEASE pre5
 setenv NEWPRERELEASE pre7
 
 
-if ( $STARTUP == True) then
+if ( $STARTUP == True &&  FASTSIM == False) then
 setenv OLDGLOBALTAG START61_V4-v1
 setenv NEWGLOBALTAG START61_V5A-v1
+else if (  $STARTUP == True  && $FASTSIM == True) then
+setenv OLDGLOBALTAG START61_V4_FastSim-v1
+setenv NEWGLOBALTAG START61_V5A_FastSim-v1
 else 
 setenv OLDGLOBALTAG START53_V6-v1
 setenv NEWGLOBALTAG START53_V6-v1
@@ -137,8 +140,8 @@ setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_H130GGgluonfusion
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion.root
 else if ( $RUNTYPE == Central ) then
 
-
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-DIGI-RECO.root
+#setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
 
 endif
@@ -194,11 +197,22 @@ if (! -d vs${OLDRELEASE}) then
 endif
 setenv OUTPATH $OUTPATH/vs${OLDRELEASE}
 
-if ( $PU == True) then
+
+if ( $FASTSIM == True) then 
+setenv OUTDIR $OUTPATH/${SAMPLE}FastSim
+else if ( $FASTSIM == False && $PU == True ) then 
 setenv OUTDIR $OUTPATH/${SAMPLE}PU
-else if ( $PU == False) then
+else if ( $FASTSIM == False && $PU == False ) then 
 setenv OUTDIR $OUTPATH/${SAMPLE}
 endif
+
+
+#if ( $PU == True) then
+#setenv OUTDIR $OUTPATH/${SAMPLE}PU
+#else if ( $PU == False) then
+#setenv OUTDIR $OUTPATH/${SAMPLE}
+#endif
+
 
 
 if (! -d $OUTDIR) then
@@ -1181,8 +1195,10 @@ else if ( $TYPE == Photons ) then
   setenv CFG PhotonValidator_cfg
 endif
 
-if ( $PU == True) then
+if  ( $PU == True &&  $FASTSIM == False ) then
 setenv SAMPLE ${SAMPLE}PU
+else if ( $PU == False && $FASTSIM == True) then
+setenv SAMPLE ${SAMPLE}FastSim
 endif
 
 
