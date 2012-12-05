@@ -13,15 +13,14 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## ---
 # general
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
-process.source.fileNames = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
+process.source.fileNames = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_3_6'
                                                , relVal        = 'RelValProdTTbar'
-                                               , globalTag     = 'START52_V9'
+                                               , globalTag     = 'START53_V14'
                                                , dataTier      = 'AODSIM'
-                                               , maxVersions   = 1
+                                               , maxVersions   = 2
                                                , numberOfFiles = -1
                                                )
 process.maxEvents.input     = -1 # reduce number of events for testing.
-process.maxEvents.input     = 1000
 process.options.wantSummary = False # to suppress the long output at the end of the job
 # specific
 process.selectedPatMuons.cut = 'isGlobalMuon && pt > 20. && abs(eta) < 2.1 && globalTrack.normalizedChi2 < 10. && track.hitPattern.trackerLayersWithMeasurement > 5 && globalTrack.hitPattern.numberOfValidMuonHits > 0 && abs(dB) < 0.2 && innerTrack.hitPattern.numberOfValidPixelHits > 0 && numberOfMatchedStations > 1 && (trackIso+caloIso)/pt<0.2'

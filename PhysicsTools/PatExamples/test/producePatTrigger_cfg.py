@@ -13,11 +13,11 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## ---
 # general
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
-process.source.fileNames = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_2_5_cand1'
+process.source.fileNames = pickRelValInputFiles( cmsswVersion  = 'CMSSW_5_3_6'
                                                , relVal        = 'RelValProdTTbar'
-                                               , globalTag     = 'START52_V9'
+                                               , globalTag     = 'START53_V14'
                                                , dataTier      = 'AODSIM'
-                                               , maxVersions   = 1
+                                               , maxVersions   = 2
                                                , numberOfFiles = -1
                                                )
 process.maxEvents.input     = -1 # reduce number of events for testing.
