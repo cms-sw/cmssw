@@ -21,7 +21,8 @@ electronMcSignalHistosCfg = cms.PSet(
   Eopmaxsht = cms.double(3.0),
   Nbinmee = cms.int32(100), Meemin = cms.double(0.0), Meemax = cms.double(150.),
   Nbinhoe = cms.int32(100), Hoemin = cms.double(0.0), Hoemax = cms.double(0.5),
-  Nbinpoptrue = cms.int32(75), Poptruemin = cms.double(0.0), Poptruemax = cms.double(1.5)
+  Nbinpoptrue = cms.int32(75), Poptruemin = cms.double(0.0), Poptruemax = cms.double(1.5),
+  Nbinerror = cms.int32(60), Energyerrormax = cms.double(150.0)
 )
 
 electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
