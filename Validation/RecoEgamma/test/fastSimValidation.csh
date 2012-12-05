@@ -171,26 +171,33 @@ cat > scaledhistosForPhotons <<EOF
   eResconvAll
   eResconvBarrel
   eResconvEndcap
-  r9All
-  r9Barrel
-  r9Endcap
-  r1All
-  r1Barrel
-  r1Endcap
-  r2All
-  r2Barrel
-  r2Endcap
-  sigmaIetaIetaAll
-  sigmaIetaIetaBarrel
-  sigmaIetaIetaEndcap
-  ecalRecHitSumEtConeDR04Barrel
-  ecalRecHitSumEtConeDR04Endcap
   isoTrkSolidConeDR04All
   isoTrkSolidConeDR04Barrel
   isoTrkSolidConeDR04Endcap
   nTrkSolidConeDR04All
   nTrkSolidConeDR04Barrel
   nTrkSolidConeDR04Endcap
+  r9Barrel
+  r9Endcap
+  r1Barrel
+  r1Endcap
+  r2Barrel
+  r2Endcap
+  sigmaIetaIetaBarrel
+  sigmaIetaIetaEndcap
+  hOverEAll
+  hOverEBarrel
+  hOverEEndcap
+  newhOverEAll
+  newhOverEBarrel
+  newhOverEEndcap
+  hcalTowerSumEtConeDR04Barrel
+  hcalTowerSumEtConeDR04Endcap
+  hcalTowerBcSumEtConeDR04Barrel
+  hcalTowerBcSumEtConeDR04Endcap
+  ecalRecHitSumEtConeDR04Barrel
+  ecalRecHitSumEtConeDR04Endcap
+ 
 
 
 
@@ -207,6 +214,18 @@ cat > scaledhistosForPhotonsLogScale <<EOF
   hcalTowerSumEtConeDR04Endcap
   hcalTowerBcSumEtConeDR04Barrel
   hcalTowerBcSumEtConeDR04Endcap
+  ecalRecHitSumEtConeDR04Barrel
+  ecalRecHitSumEtConeDR04Endcap
+  r9Barrel
+  r9Endcap
+  r1Barrel
+  r1Endcap
+  r2Barrel
+  r2Endcap
+  sigmaIetaIetaAll
+  sigmaIetaIetaBarrel
+  sigmaIetaIetaEndcap
+
 
 
 EOF
@@ -414,9 +433,10 @@ end
 
 foreach i (`cat scaledhistosForPhotonsLogScale`)
   cat > temp$N.C <<EOF
-TCanvas *c$i = new TCanvas("c$i");
-c$i->SetFillColor(10);
-c$i->SetLogy(1);
+TCanvas *cc$i = new TCanvas("cc$i");
+cc$i->cd();
+cc$i->SetFillColor(10);
+cc$i->SetLogy();
 file_new->cd("$HISTOPATHNAME_Photons");
 Double_t nnew=$i->GetEntries();
 file_old->cd("$HISTOPATHNAME_Photons");
@@ -425,6 +445,7 @@ $i->GetXaxis()->SetRangeUser(0.,10.);
 }
 Double_t nold=$i->GetEntries();
 $i->SetStats(0);
+$i->SetMinimum(1);
 $i->SetLineColor(kPink+8);
 $i->SetFillColor(kPink+8);
 $i->Draw();
@@ -435,9 +456,8 @@ $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
 $i->SetMarkerSize(1);
-$i->Scale(nold/nnew);
 $i->Draw("e1same");
-c$i->SaveAs("gifs/$i.gif");
+cc$i->SaveAs("gifs/log$i.gif");
 
 EOF
   setenv N `expr $N + 1`

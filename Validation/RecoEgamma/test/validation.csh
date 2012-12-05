@@ -6,8 +6,7 @@
 #by running one of:
 #
 #  
-#  
-#  "Validation/RecoEgamma/test/PhotonValidator_cfg.py
+#  #  "Validation/RecoEgamma/test/PhotonValidator_cfg.py
 #
 # The default list of histograms (configurable) is based on version VXX-XX-XX
 # of Validation/RecoEgamma
