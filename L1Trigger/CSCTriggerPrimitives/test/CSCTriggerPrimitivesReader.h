@@ -8,8 +8,7 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2010/05/05 13:28:11 $
- * $Revision: 1.17 $
+ * $Id: CSCTriggerPrimitivesReader.h,v 1.18.2.1 2012/05/16 00:31:26 khotilov Exp $
  *
  */
 
@@ -93,6 +92,16 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   edm::InputTag simHitProducer_;
   edm::InputTag wireDigiProducer_;
   edm::InputTag compDigiProducer_;
+
+  // a prefix for results ps files
+  std::string   resultsFileNamesPrefix_;
+
+  // whether to perform check against known "bad chambers" list
+  bool checkBadChambers_;
+
+  // not data vs. mc, but mc vs mc
+  bool dataIsAnotherMC_;
+
 
   // The file which will store the histos
   // TFile *theFile;
@@ -189,6 +198,7 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
 		      const CSCCLCTDigiCollection* clcts,
 		      const edm::PSimHitContainer* allSimHits);
 
+  int maxRing(int station);
 
 
   // Histograms
@@ -324,6 +334,13 @@ class CSCTriggerPrimitivesReader : public edm::EDAnalyzer
   TH1F *hEfficALCTEta[MAX_STATIONS], *hEfficCLCTEta[MAX_STATIONS];
   TH1F *hEfficHitsEtaCsc[CSC_TYPES];
   TH1F *hEfficALCTEtaCsc[CSC_TYPES], *hEfficCLCTEtaCsc[CSC_TYPES];
+
+  TH1F *hAlctKeyGroupME11;
+  TH1F *hClctKeyStripME11;
+  TH1F *hLctTMBKeyGroupME11;
+  TH1F *hLctTMBKeyStripME11;
+  TH1F *hLctMPCKeyGroupME11;
+  TH1F *hLctMPCKeyStripME11;
 };
 
 #endif

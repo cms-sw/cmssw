@@ -4,8 +4,7 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2010/02/12 15:05:14 $
- * $Revision: 1.15 $
+ * $Id: CSCCathodeLCTAnalyzer.cc,v 1.16.2.1 2012/05/16 00:31:26 khotilov Exp $
  *
  */
 
@@ -46,12 +45,13 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::getSimInfo(
       << "+++ Number of CSCCathodeLayerInfo objects, " << clctInfo.size()
       << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
-  if (clctInfo.size() != (unsigned)clct.getQuality()) {
-    edm::LogWarning("L1CSCTPEmulatorWrongValues")
-      << "+++ Warning: mismatch between CLCT quality, " << clct.getQuality()
-      << ", and the number of layers with digis, " << clctInfo.size()
-      << ", in clctInfo! +++\n";
-  }
+  //  not a good check for high PU
+  //if (clctInfo.size() != (unsigned)clct.getQuality()) {
+  //  edm::LogWarning("L1CSCTPEmulatorWrongValues")
+  //    << "+++ Warning: mismatch between CLCT quality, " << clct.getQuality()
+  //    << ", and the number of layers with digis, " << clctInfo.size()
+  //    << ", in clctInfo! +++\n";
+  //}
 
   // Find the closest SimHit to each Digi.
   vector<CSCCathodeLayerInfo>::iterator pcli;

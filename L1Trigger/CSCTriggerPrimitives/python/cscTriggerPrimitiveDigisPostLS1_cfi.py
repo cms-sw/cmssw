@@ -3,19 +3,19 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
 # =====================================================
-cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
+cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
     CSCCommonTrigger,
 
     # if False, parameters will be read in from DB using EventSetup mechanism
     # else will use parameters from this config
-    debugParameters = cms.untracked.bool(False),
+    debugParameters = cms.untracked.bool(True),
     
     # Name of digi producer module(s)
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
 
     # for SLHC studies we don't want bad chambers checks so far
-    checkBadChambers_ = cms.untracked.bool(True),
+    checkBadChambers_ = cms.untracked.bool(False),
 
     # Parameters common for all boards
     commonParam = cms.PSet(
@@ -24,7 +24,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         
         # Flag for SLHC studies (upgraded ME11, MPC)
         # (if true, isTMB07 should be true as well)
-        isSLHC = cms.untracked.bool(False),
+        isSLHC = cms.untracked.bool(True),
 
         # ME1a configuration:
         # smartME1aME1b=f, gangedME1a=t
@@ -36,8 +36,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # smartME1aME1b=t, gangedME1a=t
         #   the previous case with ME1a still being ganged
         # Note: gangedME1a has effect only if smartME1aME1b=t
-        smartME1aME1b = cms.untracked.bool(False),
-        gangedME1a = cms.untracked.bool(True),
+        smartME1aME1b = cms.untracked.bool(True),
+        gangedME1a = cms.untracked.bool(False),
         
         # flagis to optionally disable finding stubs in ME42 or ME1a
         disableME1a = cms.untracked.bool(False),
@@ -92,10 +92,22 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         alctEarlyTbins = cms.untracked.int32(4),
 
         # Use narrow pattern mask for ring 1 chambers
-        alctNarrowMaskForR1 = cms.untracked.bool(False),
+        alctNarrowMaskForR1 = cms.untracked.bool(True),
 
         # configured, not hardcoded, hit persistency
-        alctHitPersist  = cms.untracked.uint32(6)
+        alctHitPersist  = cms.untracked.uint32(6),
+        
+        # configure, not hardcode, up to how many BXs in the past
+        # ghost cancellation in neighboring WGs may happen
+        alctGhostCancellationBxDepth = cms.untracked.int32(1),
+        
+        # whether to compare the quality of stubs in neighboring WGs in the past
+        # to the quality of a stub in current WG 
+        # when doing ghost cancellation 
+        alctGhostCancellationSideQuality = cms.untracked.bool(True),
+        
+        # how soon after pretrigger and alctDriftDelay can next pretrigger happen?
+        alctPretrigDeadtime = cms.untracked.uint32(4)
     ),
 
     # Parameters for ALCT processors: SLHC studies
@@ -121,7 +133,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # configured, not hardcoded, hit persistency
         alctHitPersist  = cms.untracked.uint32(6),
 
-        # configure, not hardcode, up to how many BXs in the past
+                # configure, not hardcode, up to how many BXs in the past
         # ghost cancellation in neighboring WGs may happen
         alctGhostCancellationBxDepth = cms.untracked.int32(1),
         
@@ -176,8 +188,10 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         clctDriftDelay  = cms.uint32(2),
         clctNplanesHitPretrig = cms.uint32(3),
         clctNplanesHitPattern = cms.uint32(4),
-        clctPidThreshPretrig  = cms.uint32(2),
-        clctMinSeparation     = cms.uint32(10),
+        # increase pattern ID threshold from 2 to 4 to trigger higher pt tracks  
+        clctPidThreshPretrig  = cms.uint32(4),
+        # decrease possible minimal #HS distance between two CLCTs in a BX from 10 to 5:
+        clctMinSeparation     = cms.uint32(5),
         # Debug
         verbosity = cms.untracked.int32(0),
 
@@ -230,7 +244,8 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         alctTrigEnable  = cms.uint32(0),
         clctTrigEnable  = cms.uint32(0),
         matchTrigEnable = cms.uint32(1),
-        matchTrigWindowSize = cms.uint32(7),
+        # reduce ALCT-CLCT matching window size from 7 to 3
+        matchTrigWindowSize = cms.uint32(3),
         tmbL1aWindowSize = cms.uint32(7),
         # Debug
         verbosity = cms.untracked.int32(0),

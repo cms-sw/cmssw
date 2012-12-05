@@ -8,7 +8,7 @@ cscTriggerPrimitiveDigis.tmbParam.mpcBlockMe1a = 0
 cscTriggerPrimitiveDigis.alctParam07.verbosity = 2
 cscTriggerPrimitiveDigis.clctParam07.verbosity = 2
 cscTriggerPrimitiveDigis.tmbParam.verbosity = 2
-cscTriggerPrimitiveDigis.skipbadchambers = cms.untracked.bool(True)
+cscTriggerPrimitiveDigis.checkBadChambers = cms.untracked.bool(True)
 
 from L1TriggerConfig.L1CSCTPConfigProducers.L1CSCTriggerPrimitivesConfig_cff import *
 l1csctpconf.alctParamMTCC2.alctNplanesHitPretrig = 3

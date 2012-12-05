@@ -11,8 +11,8 @@
 //   Author List: Benn Tannenbaum 30 August 1999.
 //                Based on code by Nick Wisniewski.
 //
-//   $Date: 2007/06/13 14:45:02 $
-//   $Revision: 1.5 $
+//   $Date: 2012/05/16 00:31:25 $
+//   $Revision: 1.6.4.1 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -23,6 +23,23 @@
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include <algorithm>
+
+CSCMuonPortCard::CSCMuonPortCard()
+{
+  max_stubs_ = CSCConstants::maxStubs;
+}
+
+CSCMuonPortCard::CSCMuonPortCard(const edm::ParameterSet& conf)
+{
+  max_stubs_ = CSCConstants::maxStubs;
+
+  edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
+  if (commonParams.getUntrackedParameter<bool>("isSLHC",false))
+  {
+    edm::ParameterSet mpcParams = conf.getParameter<edm::ParameterSet>("mpcSLHC");
+    max_stubs_ = mpcParams.getUntrackedParameter<unsigned int>("mpcMaxStubs", CSCConstants::maxStubs);
+  }
+}
 
 void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
 {
@@ -38,7 +55,7 @@ void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
 
     for (; Diter != Dend; Diter++) {
       csctf::TrackStub theStub((*Diter), (*Citer).first);
-      _stubs.push_back(theStub);
+      stubs_.push_back(theStub);
     }
   }
 }
@@ -49,7 +66,7 @@ std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const
   std::vector<csctf::TrackStub> result;
   std::vector<csctf::TrackStub>::iterator LCT;
 
-  result = _stubs.get(endcap, station, sector, subsector, bx);
+  result = stubs_.get(endcap, station, sector, subsector, bx);
 
   // Make sure no Quality 0 or non-valid LCTs come through the portcard.
   for (LCT = result.begin(); LCT != result.end(); LCT++) {
@@ -60,8 +77,8 @@ std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const
   if (result.size()) {
     std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
     // Can only return maxStubs or less LCTs per bunch crossing.
-    if (result.size() > CSCConstants::maxStubs)
-      result.erase(result.begin() + CSCConstants::maxStubs, result.end());
+    if (result.size() > max_stubs_)
+      result.erase(result.begin() + max_stubs_, result.end());
 
 
     // Go through the sorted list and label the LCTs with a sorting number.

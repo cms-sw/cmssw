@@ -8,8 +8,7 @@
  * \author Slava Valuev  26 May 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2007/10/08 14:30:03 $
- * $Revision: 1.2 $
+ * $Id: CSCAnodeLCTAnalyzer.h,v 1.3.4.1 2012/05/16 00:31:26 khotilov Exp $
  *
  */
 

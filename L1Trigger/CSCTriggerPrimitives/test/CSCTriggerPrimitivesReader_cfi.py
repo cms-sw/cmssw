@@ -22,5 +22,7 @@ lctreader = cms.EDAnalyzer("CSCTriggerPrimitivesReader",
     CSCSimHitProducer = cms.InputTag("g4SimHits", "MuonCSCHits"),  # Full sim.
     #CSCSimHitProducer = cms.InputTag("MuonSimHits", "MuonCSCHits"), # Fast sim.
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
-    CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+    CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    checkBadChambers = cms.untracked.bool(True),
+    dataIsAnotherMC = cms.untracked.bool(False)
 )

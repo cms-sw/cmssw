@@ -7,8 +7,7 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2010/08/04 14:48:27 $
-//   $Revision: 1.14 $
+//   $Id: CSCTriggerPrimitivesProducer.cc,v 1.15.2.1 2012/05/16 00:31:23 khotilov Exp $
 //
 //   Modifications:
 //
@@ -38,9 +37,13 @@
 
 CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf) : iev(0) {
 
+  // if false, parameters will be read in from DB using EventSetup mechanism
+  // else will use all parameters from the config file
+  debugParameters_ = conf.getUntrackedParameter<bool>("debugParameters",false);
+
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
-  skipbadchambers = conf.getUntrackedParameter<bool>("skipbadchambers",false);
+  checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
 
@@ -78,19 +81,21 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   edm::ESHandle<CSCBadChambers> pBadChambers;
   setup.get<CSCBadChambersRcd>().get(pBadChambers);
 
-  // Get config. parameters using EventSetup mechanism.  This must be done
-  // in produce() for every event and not in beginJob() (see mail from
-  // Jim Brooke sent to hn-cms-L1TrigEmulator on July 30, 2007).
-  edm::ESHandle<CSCDBL1TPParameters> conf;
-  setup.get<CSCDBL1TPParametersRcd>().get(conf);
-  if (conf.product() == 0) {
-    edm::LogError("L1CSCTPEmulatorConfigError")
-      << "+++ Failed to find a CSCDBL1TPParametersRcd in EventSetup! +++\n"
-      << "+++ Cannot continue emulation without these parameters +++\n";
-    return;
+  // If !debugParameters then get config parameters using EventSetup mechanism.
+  // This must be done in produce() for every event and not in beginJob() 
+  // (see mail from Jim Brooke sent to hn-cms-L1TrigEmulator on July 30, 2007).
+  if (!debugParameters_) {
+    edm::ESHandle<CSCDBL1TPParameters> conf;
+    setup.get<CSCDBL1TPParametersRcd>().get(conf);
+    if (conf.product() == 0) {
+      edm::LogError("L1CSCTPEmulatorConfigError")
+        << "+++ Failed to find a CSCDBL1TPParametersRcd in EventSetup! +++\n"
+        << "+++ Cannot continue emulation without these parameters +++\n";
+      return;
+    }
+    lctBuilder_->setConfigParameters(conf.product());
   }
-  lctBuilder_->setConfigParameters(conf.product());
-
+  
   // Get the collections of comparator & wire digis from event.
   edm::Handle<CSCComparatorDigiCollection> compDigis;
   edm::Handle<CSCWireDigiCollection>       wireDigis;
@@ -121,11 +126,11 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   }
   // Fill output collections if valid input collections are available.
   if (wireDigis.isValid() && compDigis.isValid()) {   
-    const CSCBadChambers* temp = skipbadchambers ? new CSCBadChambers : pBadChambers.product();
+    const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
     lctBuilder_->build(temp,
 		       wireDigis.product(), compDigis.product(),
 		       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct);
-    if (skipbadchambers)
+    if (!checkBadChambers_)
       delete temp;
   }
 

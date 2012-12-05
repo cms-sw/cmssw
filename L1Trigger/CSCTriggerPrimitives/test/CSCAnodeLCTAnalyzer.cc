@@ -4,8 +4,7 @@
  * Slava Valuev  May 26, 2004.
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2009/03/27 17:14:31 $
- * $Revision: 1.12 $
+ * $Id: CSCAnodeLCTAnalyzer.cc,v 1.13.2.1 2012/05/16 00:31:25 khotilov Exp $
  *
  */
 
@@ -46,12 +45,13 @@ vector<CSCAnodeLayerInfo> CSCAnodeLCTAnalyzer::getSimInfo(
       << "+++ Number of CSCAnodeLayerInfo objects, " << alctInfo.size()
       << ", exceeds max expected, " << CSCConstants::NUM_LAYERS << " +++\n";
   }
-  if (alctInfo.size() != (unsigned)alct.getQuality()+3) {
-    edm::LogWarning("L1CSCTPEmulatorWrongValues")
-      << "+++ Warning: mismatch between ALCT quality, " << alct.getQuality()
-      << ", and the number of layers with digis, " << alctInfo.size()
-      << ", in alctInfo! +++\n";
-  }
+  // not a good check for high PU
+  //if (alctInfo.size() != (unsigned)alct.getQuality()+3) {
+  //  edm::LogWarning("L1CSCTPEmulatorWrongValues")
+  //    << "+++ Warning: mismatch between ALCT quality, " << alct.getQuality()
+  //    << ", and the number of layers with digis, " << alctInfo.size()
+  //    << ", in alctInfo! +++\n";
+  //}
 
   // Find the closest SimHit to each Digi.
   vector<CSCAnodeLayerInfo>::iterator pali;

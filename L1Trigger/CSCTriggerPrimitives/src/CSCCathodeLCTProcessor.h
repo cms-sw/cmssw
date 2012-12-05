@@ -23,8 +23,7 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2010/04/23 21:06:11 $
- * $Revision: 1.24 $
+ * $Id: CSCCathodeLCTProcessor.h,v 1.25.2.3 2012/10/18 04:51:49 khotilov Exp $
  *
  */
 
@@ -42,7 +41,8 @@ class CSCCathodeLCTProcessor
   CSCCathodeLCTProcessor(unsigned endcap, unsigned station, unsigned sector,
 			 unsigned subsector, unsigned chamber,
 			 const edm::ParameterSet& conf,
-			 const edm::ParameterSet& comm);
+			 const edm::ParameterSet& comm,
+			 const edm::ParameterSet& ctmb);
 
   /** Default constructor. Used for testing. */
   CSCCathodeLCTProcessor();
@@ -88,6 +88,11 @@ class CSCCathodeLCTProcessor
 			     int stag_digi[CSCConstants::MAX_NUM_STRIPS],
 			     int i_distrip, bool debug = false);
 
+  /** Set ring number
+   * Has to be done for upgrade ME1a!
+   **/
+  void setRing(unsigned r) {theRing = r;}
+
   /** Pre-defined patterns. */
   enum {NUM_PATTERN_STRIPS = 26};
   static const int pre_hit_pattern[2][NUM_PATTERN_STRIPS];
@@ -95,7 +100,7 @@ class CSCCathodeLCTProcessor
 
   enum {NUM_PATTERN_HALFSTRIPS = 42};
   static const int pattern2007_offset[NUM_PATTERN_HALFSTRIPS];
-  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_HALFSTRIPS+1];
+  static const int pattern2007[CSCConstants::NUM_CLCT_PATTERNS][NUM_PATTERN_HALFSTRIPS+2];
 
   /** Maximum number of cathode front-end boards (move to CSCConstants?). */
   enum {MAX_CFEBS = 5};
@@ -118,7 +123,12 @@ class CSCCathodeLCTProcessor
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
-
+  
+  // holders for easy access:
+  unsigned int theRing;
+  unsigned int theChamber;
+  bool isME11;
+  
   int numStrips;
   int stagger[CSCConstants::NUM_LAYERS];
 
@@ -131,11 +141,38 @@ class CSCCathodeLCTProcessor
   /** Flag for 2007 firmware version. */
   bool isTMB07;
 
+  /** Flag for SLHC studies. */
+  bool isSLHC;
+
   /** Configuration parameters. */
   unsigned int fifo_tbins,  fifo_pretrig; // only for test beam mode.
   unsigned int hit_persist, drift_delay;
   unsigned int nplanes_hit_pretrig, nplanes_hit_pattern;
   unsigned int pid_thresh_pretrig,  min_separation;
+  unsigned int tmb_l1a_window_size;
+
+  /** VK: some quick and dirty fix to reduce CLCT deadtime */
+  int start_bx_shift;
+
+  /** VK: special configuration parameters for ME1a treatment */
+  bool smartME1aME1b, disableME1a, gangedME1a;
+
+  /** VK: separate handle for early time bins */
+  int early_tbins;
+
+  /** VK: use of localized dead-time zones */
+  bool use_dead_time_zoning;
+  unsigned int clct_state_machine_zone; // +- around a keystrip
+  bool dynamic_state_machine_zone;  //use a pattern dependent zone
+
+  /** VK: allow triggers only in +-pretrig_trig_zone around pretriggers */
+  unsigned int pretrig_trig_zone;
+
+  /** VK: whether to use corrected_bx instead of pretrigger BX */
+  bool use_corrected_bx;
+
+  /** VK: whether to readout only the earliest two LCTs in readout window */
+  bool readout_earliest_2;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_fifo_tbins,  def_fifo_pretrig;
@@ -143,6 +180,7 @@ class CSCCathodeLCTProcessor
   static const unsigned int def_nplanes_hit_pretrig;
   static const unsigned int def_nplanes_hit_pattern;
   static const unsigned int def_pid_thresh_pretrig, def_min_separation;
+  static const unsigned int def_tmb_l1a_window_size;
 
   /** Set default values for configuration parameters. */
   void setDefaultConfigParameters();
@@ -218,6 +256,14 @@ class CSCCathodeLCTProcessor
 
   unsigned int best_pid[CSCConstants::NUM_HALF_STRIPS];
   unsigned int nhits[CSCConstants::NUM_HALF_STRIPS];
+  int first_bx_corrected[CSCConstants::NUM_HALF_STRIPS];
+
+  //--------------- Functions for SLHC studies ----------------
+
+  std::vector<CSCCLCTDigi> findLCTsSLHC(
+    const std::vector<int>  halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS]);
+
+  bool ispretrig[CSCConstants::NUM_HALF_STRIPS];
 
   //--------------------------- Auxiliary methods -----------------------------
   /** Dump CLCT configuration parameters. */

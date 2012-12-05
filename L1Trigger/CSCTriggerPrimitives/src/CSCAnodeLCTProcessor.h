@@ -13,8 +13,7 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2010/08/03 13:18:19 $
- * $Revision: 1.21 $
+ * $Id: CSCAnodeLCTProcessor.h,v 1.22.2.4 2012/10/18 04:50:36 khotilov Exp $
  *
  */
 
@@ -74,11 +73,16 @@ class CSCAnodeLCTProcessor
   /** Returns vector of all found ALCTs, if any. */
   std::vector<CSCALCTDigi> getALCTs();
 
+  /** set ring number. Important only for ME1a */
+  void setRing(unsigned r) {theRing = r;}
+
   /** Pre-defined patterns. */
   enum {NUM_PATTERN_WIRES = 14};
   static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
   static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
   static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
+  static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
+  static const int time_weights[NUM_PATTERN_WIRES];
 
  private:
   /** Verbosity level: 0: no print (default).
@@ -94,10 +98,18 @@ class CSCAnodeLCTProcessor
   const unsigned theSubsector;
   const unsigned theTrigChamber;
 
+  /** ring number. Only matters for ME1a */
+  unsigned theRing;
+
+  unsigned theChamber;
+
+  bool isME11;
+
   int numWireGroups;
   int MESelection;
 
   int first_bx[CSCConstants::MAX_NUM_WIRES];
+  int first_bx_corrected[CSCConstants::MAX_NUM_WIRES];
   int quality[CSCConstants::MAX_NUM_WIRES][3];
   std::vector<CSCWireDigi> digiV[CSCConstants::NUM_LAYERS];
   unsigned int pulse[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES];
@@ -108,11 +120,39 @@ class CSCAnodeLCTProcessor
   /** Use TMB07 flag for DAQ-2006 version (implemented in late 2007). */
   bool isTMB07;
 
+  /** Flag for SLHC studies. */
+  bool isSLHC;
+
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, drift_delay;
   unsigned int nplanes_hit_pretrig, nplanes_hit_accel_pretrig;
   unsigned int nplanes_hit_pattern, nplanes_hit_accel_pattern;
   unsigned int trig_mode, accel_mode, l1a_window_width;
+
+  /** SLHC: hit persistency length */
+  unsigned int hit_persist;
+
+  /** SLHC: special configuration parameters for ME1a treatment */
+  bool disableME1a;
+
+  /** SLHC: separate handle for early time bins */
+  int early_tbins;
+
+  /** SLHC: delta BX time depth for ghostCancellationLogic */
+  int ghost_cancellation_bx_depth;
+
+  /** SLHC: whether to consider ALCT candidates' qualities 
+      while doing ghostCancellationLogic on +-1 wire groups */
+  bool ghost_cancellation_side_quality;
+
+  /** SLHC: deadtime clocks after pretrigger (extra in addition to drift_delay) */
+  unsigned int pretrig_extra_deadtime;
+
+  /** SLHC: whether to use corrected_bx instead of pretrigger BX */
+  bool use_corrected_bx;
+
+  /** SLHC: whether to use narrow pattern mask for the rings close to the beam */
+  bool narrow_mask_r1;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_fifo_tbins, def_fifo_pretrig;
@@ -125,6 +165,9 @@ class CSCAnodeLCTProcessor
 
   /** Chosen pattern mask. */
   int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
+
+  /** Load pattern mask defined by configuration into pattern_mask */
+  void loadPatternMask();
 
   /** Set default values for configuration parameters. */
   void setDefaultConfigParameters();
@@ -141,6 +184,7 @@ class CSCAnodeLCTProcessor
   bool preTrigger(const int key_wire, const int start_bx);
   bool patternDetection(const int key_wire);
   void ghostCancellationLogic();
+  void ghostCancellationLogicSLHC();
   void lctSearch();
   void trigMode(const int key_wire);
   void accelMode(const int key_wire);

@@ -27,8 +27,7 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2010/08/04 10:20:42 $
-//   $Revision: 1.32 $
+//   $Id: CSCMotherboard.cc,v 1.33.2.3 2012/10/18 04:59:25 khotilov Exp $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -49,9 +48,9 @@ const unsigned int CSCMotherboard::def_match_trig_window_size = 7;
 const unsigned int CSCMotherboard::def_tmb_l1a_window_size = 7;
 
 CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
-			       unsigned sector, unsigned subsector,
-			       unsigned chamber,
-			       const edm::ParameterSet& conf) :
+                               unsigned sector, unsigned subsector,
+                               unsigned chamber,
+                               const edm::ParameterSet& conf) :
                    theEndcap(endcap), theStation(station), theSector(sector),
                    theSubsector(subsector), theTrigChamber(chamber) {
   // Normal constructor.  -JM
@@ -68,6 +67,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
 
   // Switch for a new (2007) version of the TMB firmware.
   isTMB07 = commonParams.getParameter<bool>("isTMB07");
+
+  // is it (non-upgrade algorithm) run along with upgrade one?
+  isSLHC = commonParams.getUntrackedParameter<bool>("isSLHC");
 
   // Choose the appropriate set of configuration parameters depending on
   // isTMB07 and isMTCC flags.
@@ -86,14 +88,17 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
     alctParams = conf.getParameter<edm::ParameterSet>("alctParamOldMC");
     clctParams = conf.getParameter<edm::ParameterSet>("clctParamOldMC");
   }
-  alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector,
-				  chamber, alctParams, commonParams);
-  clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector,
-				    chamber, clctParams, commonParams);
 
-  // Motherboard parameters: common for all configurations.
-  edm::ParameterSet tmbParams  =
-    conf.getParameter<edm::ParameterSet>("tmbParam");
+  // Motherboard parameters:
+  edm::ParameterSet tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbParam");
+
+  if (isSLHC && theStation == 1 &&
+      CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
+    alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
+    clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
+    tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbSLHC");
+  }
+
   mpc_block_me1a    = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
   alct_trig_enable  = tmbParams.getParameter<unsigned int>("alctTrigEnable");
   clct_trig_enable  = tmbParams.getParameter<unsigned int>("clctTrigEnable");
@@ -103,7 +108,21 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   tmb_l1a_window_size = // Common to CLCT and TMB
     tmbParams.getParameter<unsigned int>("tmbL1aWindowSize");
 
+  // configuration handle for number of early time bins
+  early_tbins = tmbParams.getUntrackedParameter<int>("tmbEarlyTbins",4);
+
+  // whether to not reuse ALCTs that were used by previous matching CLCTs
+  drop_used_alcts = tmbParams.getUntrackedParameter<bool>("tmbDropUsedAlcts",true);
+
+  // whether to readout only the earliest two LCTs in readout window
+  readout_earliest_2 = tmbParams.getUntrackedParameter<bool>("tmbReadoutEarliest2",false);
+
   infoV = tmbParams.getUntrackedParameter<int>("verbosity", 0);
+
+  alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, alctParams, commonParams);
+  clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams);
+
+  //if (theStation==1 && CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber)==2) infoV = 3;
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -125,6 +144,8 @@ CSCMotherboard::CSCMotherboard() :
 
   isMTCC  = false;
   isTMB07 = true;
+
+  early_tbins = 4;
 
   alct = new CSCAnodeLCTProcessor();
   clct = new CSCCathodeLCTProcessor();
@@ -260,44 +281,44 @@ void CSCMotherboard::run(
     if (clct->bestCLCT[bx_clct].isValid()) {
       bool is_matched = false;
       int bx_alct_start = bx_clct - match_trig_window_size/2;
-      // int bx_alct_stop  = bx_clct + match_trig_window_size/2;
+      int bx_alct_stop  = bx_clct + match_trig_window_size/2;
       // Empirical correction to match 2009 collision data (firmware change?)
-      int bx_alct_stop  = bx_clct + match_trig_window_size/2 + 
-	match_trig_window_size%2;
+      if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
+      
       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
-	if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
-	  continue;
-	if (alct->bestALCT[bx_alct].isValid()) {
-	  correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-			clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-	  is_matched = true;
-	  bx_alct_matched = bx_alct;
-	  break;
-	}
+        if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
+          continue;
+        if (alct->bestALCT[bx_alct].isValid()) {
+          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+          is_matched = true;
+          bx_alct_matched = bx_alct;
+          break;
+        }
       }
       // No ALCT within the match time interval found: report CLCT-only LCT
       // (use dummy ALCTs).
       if (!is_matched) {
-	correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
-		      clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+        correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
+                      clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
       }
     }
     // No valid CLCTs; attempt to make ALCT-only LCT (use dummy CLCTs).
     else {
       int bx_alct = bx_clct - match_trig_window_size/2;
       if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-	if (alct->bestALCT[bx_alct].isValid()) {
-	  correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-			clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-	}
+        if (alct->bestALCT[bx_alct].isValid()) {
+          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+        }
       }
     }
   }
 }
 
-std::vector<CSCCorrelatedLCTDigi>
+void
 CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
-		    const CSCComparatorDigiCollection* compdc) {
+                    const CSCComparatorDigiCollection* compdc) {
   clear();
   if (alct && clct) {
     {
@@ -307,78 +328,85 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
       std::vector<CSCCLCTDigi> clctV = clct->run(compdc); // run cathodeLCT
     }
 
+    int used_alct_mask[20];
+    for (int a=0;a<20;++a) used_alct_mask[a]=0;
+
     int bx_alct_matched = 0; // bx of last matched ALCT
     for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS;
-	 bx_clct++) {
+         bx_clct++) {
       // There should be at least one valid ALCT or CLCT for a
       // correlated LCT to be formed.  Decision on whether to reject
       // non-complete LCTs (and if yes of which type) is made further
       // upstream.
       if (clct->bestCLCT[bx_clct].isValid()) {
-	// Look for ALCTs within the match-time window.  The window is
-	// centered at the CLCT bx; therefore, we make an assumption
-	// that anode and cathode hits are perfectly synchronized.  This
-	// is always true for MC, but only an approximation when the
-	// data is analyzed (which works fairly good as long as wide
-	// windows are used).  To get rid of this assumption, one would
-	// need to access "full BX" words, which are not readily
-	// available.
-	bool is_matched = false;
-	int bx_alct_start = bx_clct - match_trig_window_size/2;
-	// int bx_alct_stop  = bx_clct + match_trig_window_size/2;
-	// Empirical correction to match 2009 collision data (firmware change?)
-	int bx_alct_stop  = bx_clct + match_trig_window_size/2 +
-	  match_trig_window_size%2;
-	for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
-	  if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
-	    continue;
-	  if (alct->bestALCT[bx_alct].isValid()) {
-	    if (infoV > 1) LogTrace("CSCMotherboard")
-	      << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
-	      << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
-	      << "]; bx_alct = " << bx_alct;
-	    correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-			  clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-	    is_matched = true;
-	    bx_alct_matched = bx_alct;
-	    break;
-	  }
-	}
-	// No ALCT within the match time interval found: report CLCT-only LCT
-	// (use dummy ALCTs).
-	if (!is_matched) {
-	  if (infoV > 1) LogTrace("CSCMotherboard")
-	    << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
-	    << bx_clct << "; match window: [" << bx_alct_start
-	    << "; " << bx_alct_stop << "]";
-	  correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
-			clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-	}
+        // Look for ALCTs within the match-time window.  The window is
+        // centered at the CLCT bx; therefore, we make an assumption
+        // that anode and cathode hits are perfectly synchronized.  This
+        // is always true for MC, but only an approximation when the
+        // data is analyzed (which works fairly good as long as wide
+        // windows are used).  To get rid of this assumption, one would
+        // need to access "full BX" words, which are not readily
+        // available.
+        bool is_matched = false;
+        int bx_alct_start = bx_clct - match_trig_window_size/2;
+        int bx_alct_stop  = bx_clct + match_trig_window_size/2;
+        // Empirical correction to match 2009 collision data (firmware change?)
+        // (but don't do it for SLHC case, assume it would not be there)
+        if (!isSLHC) bx_alct_stop += match_trig_window_size%2;
+
+        for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++) {
+          if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS)
+            continue;
+          // default: do not reuse ALCTs that were used with previous CLCTs
+          if (drop_used_alcts && used_alct_mask[bx_alct]) continue;
+          if (alct->bestALCT[bx_alct].isValid()) {
+            if (infoV > 1) LogTrace("CSCMotherboard")
+              << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
+                << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
+                << "]; bx_alct = " << bx_alct;
+            correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+                          clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+            used_alct_mask[bx_alct] += 1;
+            is_matched = true;
+            bx_alct_matched = bx_alct;
+            break;
+          }
+        }
+        // No ALCT within the match time interval found: report CLCT-only LCT
+        // (use dummy ALCTs).
+        if (!is_matched) {
+          if (infoV > 1) LogTrace("CSCMotherboard")
+            << "Unsuccessful ALCT-CLCT match (CLCT only): bx_clct = "
+            << bx_clct << "; match window: [" << bx_alct_start
+            << "; " << bx_alct_stop << "]";
+          correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
+                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+        }
       }
       // No valid CLCTs; attempt to make ALCT-only LCT.  Use only ALCTs
       // which have zeroth chance to be matched at later cathode times.
       // (I am not entirely sure this perfectly matches the firmware logic.)
       // Use dummy CLCTs.
       else {
-	int bx_alct = bx_clct - match_trig_window_size/2;
-	if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
-	  if (alct->bestALCT[bx_alct].isValid()) {
-	    if (infoV > 1) LogTrace("CSCMotherboard")
-	      << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
-	      << bx_alct;
-	    correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-			  clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
-	  }
-	}
+        int bx_alct = bx_clct - match_trig_window_size/2;
+        if (bx_alct >= 0 && bx_alct > bx_alct_matched) {
+          if (alct->bestALCT[bx_alct].isValid()) {
+            if (infoV > 1) LogTrace("CSCMotherboard")
+              << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
+              << bx_alct;
+            correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+                          clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+          }
+        }
       }
     }
 
     if (infoV > 0) {
       for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
-	if (firstLCT[bx].isValid())
-	  LogDebug("CSCMotherboard") << firstLCT[bx];
-	if (secondLCT[bx].isValid())
-	  LogDebug("CSCMotherboard") << secondLCT[bx];
+        if (firstLCT[bx].isValid())
+          LogDebug("CSCMotherboard") << firstLCT[bx];
+        if (secondLCT[bx].isValid())
+          LogDebug("CSCMotherboard") << secondLCT[bx];
       }
     }
   }
@@ -386,9 +414,6 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
     if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
       << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
   }
-
-  std::vector<CSCCorrelatedLCTDigi> tmpV = readoutLCTs();
-  return tmpV;
 }
 
 // Returns vector of read-out correlated LCTs, if any.  Starts with
@@ -401,12 +426,8 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() {
   // to the fifo_pretrig parameter, but I am not completely sure how.
   // Just choose it such that the window is centered at bx=7.  This may
   // need further tweaking if the value of tmb_l1a_window_size changes.
-  static int early_tbins = 4;
-  // The number of LCT bins in the read-out is given by the
-  // tmb_l1a_window_size parameter, but made even by setting the LSB
-  // of tmb_l1a_window_size to 0.
-  // static int lct_bins =
-  //   (tmb_l1a_window_size%2 == 0) ? tmb_l1a_window_size : tmb_l1a_window_size-1;
+  //static int early_tbins = 4;
+  
   // Empirical correction to match 2009 collision data (firmware change?)
   static int lct_bins   = tmb_l1a_window_size;
   static int late_tbins = early_tbins + lct_bins;
@@ -415,15 +436,15 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() {
   if (ifois == 0) {
     if (infoV >= 0 && early_tbins < 0) {
       edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
-	<< "+++ early_tbins = " << early_tbins
-	<< "; in-time LCTs are not getting read-out!!! +++" << "\n";
+        << "+++ early_tbins = " << early_tbins
+        << "; in-time LCTs are not getting read-out!!! +++" << "\n";
     }
 
     if (late_tbins > MAX_LCT_BINS-1) {
       if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorSuspiciousParameters")
-	<< "+++ Allowed range of time bins, [0-" << late_tbins
-	<< "] exceeds max allowed, " << MAX_LCT_BINS-1 << " +++\n"
-	<< "+++ Set late_tbins to max allowed +++\n";
+        << "+++ Allowed range of time bins, [0-" << late_tbins
+        << "] exceeds max allowed, " << MAX_LCT_BINS-1 << " +++\n"
+        << "+++ Set late_tbins to max allowed +++\n";
       late_tbins = MAX_LCT_BINS-1;
     }
     ifois = 1;
@@ -434,37 +455,41 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() {
   int bx_readout = -1;
   std::vector<CSCCorrelatedLCTDigi> all_lcts = getLCTs();
   for (std::vector <CSCCorrelatedLCTDigi>::const_iterator plct =
-	 all_lcts.begin(); plct != all_lcts.end(); plct++) {
+       all_lcts.begin(); plct != all_lcts.end(); plct++) {
     if (!plct->isValid()) continue;
 
     int bx = (*plct).getBX();
     // Skip LCTs found too early relative to L1Accept.
     if (bx <= early_tbins) {
       if (infoV > 1) LogDebug("CSCMotherboard")
-	<< " Do not report correlated LCT on key halfstrip "
-	<< plct->getStrip() << " and key wire " << plct->getKeyWG()
-	<< ": found at bx " << bx << ", whereas the earliest allowed bx is "
-	<< early_tbins+1;
+        << " Do not report correlated LCT on key halfstrip "
+        << plct->getStrip() << " and key wire " << plct->getKeyWG()
+        << ": found at bx " << bx << ", whereas the earliest allowed bx is "
+        << early_tbins+1;
       continue;
     }
 
     // Skip LCTs found too late relative to L1Accept.
     if (bx > late_tbins) {
       if (infoV > 1) LogDebug("CSCMotherboard")
-	<< " Do not report correlated LCT on key halfstrip "
-	<< plct->getStrip() << " and key wire " << plct->getKeyWG()
-	<< ": found at bx " << bx << ", whereas the latest allowed bx is "
-	<< late_tbins;
+        << " Do not report correlated LCT on key halfstrip "
+        << plct->getStrip() << " and key wire " << plct->getKeyWG()
+        << ": found at bx " << bx << ", whereas the latest allowed bx is "
+        << late_tbins;
       continue;
     }
 
-    // For now, take only LCTs in the earliest bx in the read-out window:
+    // If (readout_earliest_2) take only LCTs in the earliest bx in the read-out window:
     // in digi->raw step, LCTs have to be packed into the TMB header, and
-    // there is room just for two.
-    if (bx_readout == -1 || bx == bx_readout) {
-      tmpV.push_back(*plct);
-      if (bx_readout == -1) bx_readout = bx;
+    // currently there is room just for two.
+    if (readout_earliest_2) {
+      if (bx_readout == -1 || bx == bx_readout) {
+        tmpV.push_back(*plct);
+        if (bx_readout == -1) bx_readout = bx;
+      }
     }
+    // if readout_earliest_2 == false, save all LCTs
+    else tmpV.push_back(*plct);
   }
   return tmpV;
 }
@@ -474,25 +499,25 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
   bool me11 = (theStation == 1 &&
-	       CSCTriggerNumbering::ringFromTriggerLabels(theStation,
-							  theTrigChamber)==1);
+               CSCTriggerNumbering::ringFromTriggerLabels(theStation,
+                                                          theTrigChamber)==1);
 
   // Do not report LCTs found in ME1/A if mpc_block_me1/a is set.
   for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
     if (firstLCT[bx].isValid())
       if (!mpc_block_me1a || (!me11 || firstLCT[bx].getStrip() <= 127))
-	tmpV.push_back(firstLCT[bx]);
+        tmpV.push_back(firstLCT[bx]);
     if (secondLCT[bx].isValid())
       if (!mpc_block_me1a || (!me11 || secondLCT[bx].getStrip() <= 127))
-	tmpV.push_back(secondLCT[bx]);
+        tmpV.push_back(secondLCT[bx]);
   }
   return tmpV;
 }
 
 void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
-				   CSCALCTDigi secondALCT,
-				   CSCCLCTDigi bestCLCT,
-				   CSCCLCTDigi secondCLCT) {
+                                   CSCALCTDigi secondALCT,
+                                   CSCCLCTDigi bestCLCT,
+                                   CSCCLCTDigi secondCLCT) {
 
   bool anodeBestValid     = bestALCT.isValid();
   bool anodeSecondValid   = secondALCT.isValid();
@@ -517,9 +542,9 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
     }
     else {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
-	<< "+++ Bx of first LCT candidate, " << bx
-	<< ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
-	<< "); skipping it... +++\n";
+        << "+++ Bx of first LCT candidate, " << bx
+        << ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
+        << "); skipping it... +++\n";
     }
   }
 
@@ -535,9 +560,9 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
     }
     else {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
-	<< "+++ Bx of second LCT candidate, " << bx
-	<< ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
-	<< "); skipping it... +++\n";
+        << "+++ Bx of second LCT candidate, " << bx
+        << ", is not within the allowed range, [0-" << MAX_LCT_BINS-1
+        << "); skipping it... +++\n";
     }
   }
 }
@@ -545,7 +570,7 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi bestALCT,
 // This method calculates all the TMB words and then passes them to the
 // constructor of correlated LCTs.
 CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
-						   const CSCCLCTDigi& cLCT) {
+                                                   const CSCCLCTDigi& cLCT) {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
@@ -558,15 +583,15 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // construct correlated LCT; temporarily assign track number of 0.
   int trknmb = 0;
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
-			       cLCT.getKeyStrip(), pattern, cLCT.getBend(),
-			       bx, 0, 0, 0, theTrigChamber);
+                               cLCT.getKeyStrip(), pattern, cLCT.getBend(),
+                               bx, 0, 0, 0, theTrigChamber);
   return thisLCT;
 }
 
 // CLCT pattern number: encodes the pattern number itself and
 // whether the pattern consists of half-strips or di-strips.
 unsigned int CSCMotherboard::encodePattern(const int ptn,
-					   const int stripType) {
+                                           const int stripType) {
   const int kPatternBitWidth = 4;
   unsigned int pattern;
 
@@ -592,7 +617,7 @@ unsigned int CSCMotherboard::encodePattern(const int ptn,
 // http://www.phys.ufl.edu/~acosta/tb/tmb_quality.txt.  Made by TMB lookup
 // tables and used for MPC sorting.
 unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
-					 const CSCCLCTDigi& cLCT) {
+                                         const CSCCLCTDigi& cLCT) {
   unsigned int quality = 0;
 
   if (!isTMB07) {
@@ -609,27 +634,27 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
     else if (aLCT.isValid() && cLCT.isValid()) { // both ALCT and CLCT
       if (aLCT.getAccelerator()) {quality =  2;} // accelerator muon
       else {                                     // collision muon
-	// CLCT quality is, in fact, the number of layers hit, so subtract 3
-	// to get quality analogous to ALCT one.
-	int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
-	if (sumQual < 1 || sumQual > 6) {
-	  if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
-	    << "+++ findQuality: sumQual = " << sumQual << "+++ \n";
-	}
-	if (isDistrip) { // distrip pattern
-	  if (sumQual == 2)      {quality =  6;}
-	  else if (sumQual == 3) {quality =  7;}
-	  else if (sumQual == 4) {quality =  8;}
-	  else if (sumQual == 5) {quality =  9;}
-	  else if (sumQual == 6) {quality = 10;}
-	}
-	else {            // halfstrip pattern
-	  if (sumQual == 2)      {quality = 11;}
-	  else if (sumQual == 3) {quality = 12;}
-	  else if (sumQual == 4) {quality = 13;}
-	  else if (sumQual == 5) {quality = 14;}
-	  else if (sumQual == 6) {quality = 15;}
-	}
+        // CLCT quality is, in fact, the number of layers hit, so subtract 3
+        // to get quality analogous to ALCT one.
+        int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
+        if (sumQual < 1 || sumQual > 6) {
+          if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
+            << "+++ findQuality: sumQual = " << sumQual << "+++ \n";
+        }
+        if (isDistrip) { // distrip pattern
+          if (sumQual == 2)      {quality =  6;}
+          else if (sumQual == 3) {quality =  7;}
+          else if (sumQual == 4) {quality =  8;}
+          else if (sumQual == 5) {quality =  9;}
+          else if (sumQual == 6) {quality = 10;}
+        }
+        else {            // halfstrip pattern
+          if (sumQual == 2)      {quality = 11;}
+          else if (sumQual == 3) {quality = 12;}
+          else if (sumQual == 4) {quality = 13;}
+          else if (sumQual == 5) {quality = 14;}
+          else if (sumQual == 6) {quality = 15;}
+        }
       }
     }
   }
@@ -650,8 +675,8 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
       // the ALCT quality.
       int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
       if (sumQual < 1 || sumQual > 6) {
-	if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
-	  << "+++ findQuality: Unexpected sumQual = " << sumQual << "+++\n";
+        if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
+          << "+++ findQuality: Unexpected sumQual = " << sumQual << "+++\n";
       }
 
       // LCT quality is basically the sum of ALCT and CLCT qualities, but split
@@ -675,31 +700,31 @@ unsigned int CSCMotherboard::findQuality(const CSCALCTDigi& aLCT,
       int pattern = cLCT.getPattern();
       if (pattern == 1) quality = 3; // layer-trigger in CLCT
       else {
-	// CLCT quality is the number of layers hit minus 3.
-	// CLCT quality is the number of layers hit.
-	bool a4 = (aLCT.getQuality() >= 1);
-	bool c4 = (cLCT.getQuality() >= 4);
-	//              quality = 4; "reserved for low-quality muons in future"
-	if      (!a4 && !c4) quality = 5; // marginal anode and cathode
-	else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode
-	else if (!a4 &&  c4) quality = 7; // HQ cathode, but marginal anode
-	else if ( a4 &&  c4) {
-	  if (aLCT.getAccelerator()) quality = 8; // HQ muon, but accel ALCT
-	  else {
-	    // quality =  9; "reserved for HQ muons with future patterns
-	    // quality = 10; "reserved for HQ muons with future patterns
-	    if (pattern == 2 || pattern == 3)      quality = 11;
-	    else if (pattern == 4 || pattern == 5) quality = 12;
-	    else if (pattern == 6 || pattern == 7) quality = 13;
-	    else if (pattern == 8 || pattern == 9) quality = 14;
-	    else if (pattern == 10)                quality = 15;
-	    else {
-	      if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
-		<< "+++ findQuality: Unexpected CLCT pattern id = "
-		<< pattern << "+++\n";
-	    }
-	  }
-	}
+        // CLCT quality is the number of layers hit minus 3.
+        // CLCT quality is the number of layers hit.
+        bool a4 = (aLCT.getQuality() >= 1);
+        bool c4 = (cLCT.getQuality() >= 4);
+        //              quality = 4; "reserved for low-quality muons in future"
+        if      (!a4 && !c4) quality = 5; // marginal anode and cathode
+        else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode
+        else if (!a4 &&  c4) quality = 7; // HQ cathode, but marginal anode
+        else if ( a4 &&  c4) {
+          if (aLCT.getAccelerator()) quality = 8; // HQ muon, but accel ALCT
+          else {
+            // quality =  9; "reserved for HQ muons with future patterns
+            // quality = 10; "reserved for HQ muons with future patterns
+            if (pattern == 2 || pattern == 3)      quality = 11;
+            else if (pattern == 4 || pattern == 5) quality = 12;
+            else if (pattern == 6 || pattern == 7) quality = 13;
+            else if (pattern == 8 || pattern == 9) quality = 14;
+            else if (pattern == 10)                quality = 15;
+            else {
+              if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
+                << "+++ findQuality: Unexpected CLCT pattern id = "
+                << pattern << "+++\n";
+            }
+          }
+        }
       }
     }
   }
@@ -711,54 +736,54 @@ void CSCMotherboard::testLCT() {
   for (int pattern = 0; pattern < 8; pattern++) {
     for (int bend = 0; bend < 2; bend++) {
       for (int cfeb = 0; cfeb < 5; cfeb++) {
-	for (int strip = 0; strip < 32; strip++) {
-	  for (int bx = 0; bx < 7; bx++) {
-	    for (int stripType = 0; stripType < 2; stripType++) {
-	      for (int quality = 3; quality < 7; quality++) {
-		CSCCLCTDigi cLCT(1, quality, pattern, stripType, bend,
-				 strip, cfeb, bx);
-		lctPattern = encodePattern(cLCT.getPattern(),
-					   cLCT.getStripType());
-		for (int aQuality = 0; aQuality < 4; aQuality++) {
-		  for (int wireGroup = 0; wireGroup < 120; wireGroup++) {
-		    for (int abx = 0; abx < 7; abx++) {
-		      CSCALCTDigi aLCT(1, aQuality, 0, 1, wireGroup, abx);
-		      lctQuality = findQuality(aLCT, cLCT);
-		      CSCCorrelatedLCTDigi
-			thisLCT(0, 1, lctQuality, aLCT.getKeyWG(),
-				cLCT.getKeyStrip(), lctPattern, cLCT.getBend(),
-				aLCT.getBX());
-		      if (lctPattern != static_cast<unsigned int>(thisLCT.getPattern()) )
-			LogTrace("CSCMotherboard")
-			  << "pattern mismatch: " << lctPattern
-			  << " " << thisLCT.getPattern();
-		      if (bend != thisLCT.getBend()) 
-			LogTrace("CSCMotherboard")
-			  << "bend mismatch: " << bend
-			  << " " << thisLCT.getBend();
-		      int key_strip = 32*cfeb + strip;
-		      if (key_strip != thisLCT.getStrip()) 
-			LogTrace("CSCMotherboard")
-			  << "strip mismatch: " << key_strip
-			  << " " << thisLCT.getStrip();
-		      if (wireGroup != thisLCT.getKeyWG()) 
-			LogTrace("CSCMotherboard")
-			  << "wire group mismatch: " << wireGroup
-			  << " " << thisLCT.getKeyWG();
-		      if (abx != thisLCT.getBX()) 
-			LogTrace("CSCMotherboard")
-			  << "bx mismatch: " << abx << " " << thisLCT.getBX();
-		      if (lctQuality != static_cast<unsigned int>(thisLCT.getQuality())) 
-			LogTrace("CSCMotherboard")
-			  << "quality mismatch: " << lctQuality
-			  << " " << thisLCT.getQuality();
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	}
+        for (int strip = 0; strip < 32; strip++) {
+          for (int bx = 0; bx < 7; bx++) {
+            for (int stripType = 0; stripType < 2; stripType++) {
+              for (int quality = 3; quality < 7; quality++) {
+                CSCCLCTDigi cLCT(1, quality, pattern, stripType, bend,
+                                 strip, cfeb, bx);
+                lctPattern = encodePattern(cLCT.getPattern(),
+                                           cLCT.getStripType());
+                for (int aQuality = 0; aQuality < 4; aQuality++) {
+                  for (int wireGroup = 0; wireGroup < 120; wireGroup++) {
+                    for (int abx = 0; abx < 7; abx++) {
+                      CSCALCTDigi aLCT(1, aQuality, 0, 1, wireGroup, abx);
+                      lctQuality = findQuality(aLCT, cLCT);
+                      CSCCorrelatedLCTDigi
+                        thisLCT(0, 1, lctQuality, aLCT.getKeyWG(),
+                                cLCT.getKeyStrip(), lctPattern, cLCT.getBend(),
+                                aLCT.getBX());
+                      if (lctPattern != static_cast<unsigned int>(thisLCT.getPattern()) )
+                        LogTrace("CSCMotherboard")
+                          << "pattern mismatch: " << lctPattern
+                          << " " << thisLCT.getPattern();
+                      if (bend != thisLCT.getBend()) 
+                        LogTrace("CSCMotherboard")
+                          << "bend mismatch: " << bend
+                          << " " << thisLCT.getBend();
+                      int key_strip = 32*cfeb + strip;
+                      if (key_strip != thisLCT.getStrip()) 
+                        LogTrace("CSCMotherboard")
+                          << "strip mismatch: " << key_strip
+                          << " " << thisLCT.getStrip();
+                      if (wireGroup != thisLCT.getKeyWG()) 
+                        LogTrace("CSCMotherboard")
+                          << "wire group mismatch: " << wireGroup
+                          << " " << thisLCT.getKeyWG();
+                      if (abx != thisLCT.getBX()) 
+                        LogTrace("CSCMotherboard")
+                          << "bx mismatch: " << abx << " " << thisLCT.getBX();
+                      if (lctQuality != static_cast<unsigned int>(thisLCT.getQuality())) 
+                        LogTrace("CSCMotherboard")
+                          << "quality mismatch: " << lctQuality
+                          << " " << thisLCT.getQuality();
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -784,4 +809,5 @@ void CSCMotherboard::dumpConfigParams() const {
        << tmb_l1a_window_size << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCMotherboard") << strm.str();
+  //std::cerr << strm.str()<<std::endl;
 }
