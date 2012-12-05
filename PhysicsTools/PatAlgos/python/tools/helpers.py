@@ -130,14 +130,31 @@ class CloneSequenceVisitor(object):
     All modules and sequences are cloned and a postfix is added"""
     def __init__(self, process, label, postfix, removePostfix=""):
         self._process = process
+        self._label = label
         self._postfix = postfix
         self._removePostfix = removePostfix
+        self._sequenceLabels = []
         self._moduleLabels = []
         self._clonedSequence = cms.Sequence()
         setattr(process, self._newLabel(label), self._clonedSequence)
 
     def enter(self, visitee):
-        if isinstance(visitee, cms._Module):
+        if isinstance(visitee, cms.Sequence):
+            label = visitee.label()
+            newSequence = None
+            if label in self._sequenceLabels: # has the sequence already been cloned ?
+                newSequence = getattr(self._process, self._newLabel(label), self._postfix, self._removePostfix)
+            else:                
+                self._sequenceLabels.append(label)
+                oldSequence = getattr(self._process, label)
+                visitor = CloneSequenceVisitor(self._process, label, self._postfix, self._removePostfix)
+                oldSequence.visit(visitor)
+                self._moduleLabels.extend(visitor.moduleLabels())
+                newSequence = visitor.clonedSequence()
+                self._moduleLabels.extend(visitor.moduleLabels())
+                self._sequenceLabels.extend(visitor.sequenceLabels())
+                self.__appendToTopSequence(newSequence)
+        elif isinstance(visitee, cms._Module):
             label = visitee.label()
             newModule = None
             if label in self._moduleLabels: # has the module already been cloned ?
@@ -146,7 +163,7 @@ class CloneSequenceVisitor(object):
                 self._moduleLabels.append(label)                
                 newModule = visitee.clone()
                 setattr(self._process, self._newLabel(label), newModule)
-            self.__appendToTopSequence(newModule)
+                self.__appendToTopSequence(newModule)
 
     def leave(self, visitee):
         pass
@@ -167,6 +184,12 @@ class CloneSequenceVisitor(object):
 
     def __appendToTopSequence(self, visitee):
         self._clonedSequence += visitee
+
+    def moduleLabels(self):
+        return self._moduleLabels
+    
+    def sequenceLabels(self):
+        return self._sequenceLabels
         
 class MassSearchParamVisitor(object):
     """Visitor that travels within a cms.Sequence, looks for a parameter and returns a list of modules that have it"""
