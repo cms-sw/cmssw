@@ -56,6 +56,7 @@ class MatrixInjector(object):
             "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
+            "Campaign": os.getenv('CMSSW_VERSION'),           # only for wmstat purpose
             "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
             "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
             "GlobalTag": None,                                #Global Tag (overridden per task)
@@ -68,11 +69,17 @@ class MatrixInjector(object):
             "unmergedLFNBase" : "/store/unmerged",
             "mergedLFNBase" : "/store/relval",
             "dashboardActivity" : "relval",
-            "Memory" : 2000,
+            "Memory" : 2400,
             "SizePerEvent" : 1234,
             "TimePerEvent" : 20
             }
 
+        self.defaultHarvest={
+            "EnableDQMHarvest" : 1,
+            "DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/relval",
+            "DQMConfigCacheID" : None
+            }
+        
         self.defaultScratch={
             "TaskName" : None,                            #Task Name
             "ConfigCacheID" : None,                   #Generator Config id
@@ -108,6 +115,11 @@ class MatrixInjector(object):
 
 
     def prepare(self,mReader, directories, mode='init'):
+        try:
+            from Configuration.PyReleaseValidation.relval_steps import wmsplit
+            print "Not set up for step splitting"
+        except:
+            wmsplit={}
         
         for (n,dir) in directories.items():
             chainDict=copy.deepcopy(self.defaultChain)
@@ -149,6 +161,8 @@ class MatrixInjector(object):
                                 chainDict['nowmTasklist'][-1]['InputDataset']=nextHasDSInput.dataSet
                                 splitForThisWf=nextHasDSInput.split
                                 chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=splitForThisWf
+                                if step in wmsplit:
+                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=wmsplit[step]
                                 # get the run numbers or #events
                                 if len(nextHasDSInput.run):
                                     chainDict['nowmTasklist'][-1]['RunWhitelist']=nextHasDSInput.run
