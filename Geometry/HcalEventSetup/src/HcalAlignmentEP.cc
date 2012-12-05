@@ -36,8 +36,8 @@ HcalAlignmentEP::ReturnAli HcalAlignmentEP::produceHcalAli( const HcalAlignmentR
 	  ( hb->m_align.size() == HcalGeometry::numberOfBarrelAlignments() ) ) ;
   assert( he.isValid() && // require valid alignments and expected size
 	  ( he->m_align.size() == HcalGeometry::numberOfEndcapAlignments() ) ) ;
-  assert( ho.isValid() && // require valid alignments and expected size
-	  ( ho->m_align.size() == HcalGeometry::numberOfForwardAlignments() ) ) ;
+  assert( hf.isValid() && // require valid alignments and expected size
+	  ( hf->m_align.size() == HcalGeometry::numberOfForwardAlignments() ) ) ;
   assert( ho.isValid() && // require valid alignments and expected size
 	  ( ho->m_align.size() == HcalGeometry::numberOfOuterAlignments() ) ) ;
   const std::vector<AlignTransform>& hbt = hb->m_align ;
