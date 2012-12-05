@@ -39,14 +39,14 @@ using namespace edm;
 
 MultiTrackValidatorGenPs::MultiTrackValidatorGenPs(const edm::ParameterSet& pset):MultiTrackValidator(pset){
 
-  gpSelector = GenParticleSelector(pset.getParameter<double>("ptMinGP"),
-				   pset.getParameter<double>("minRapidityGP"),
-				   pset.getParameter<double>("maxRapidityGP"),
-				   pset.getParameter<double>("tipGP"),
-				   pset.getParameter<double>("lipGP"),
-				   pset.getParameter<bool>("chargedOnlyGP"),
-				   pset.getParameter<int>("statusGP"),
-				   pset.getParameter<std::vector<int> >("pdgIdGP"));
+  gpSelector = GenParticleCustomSelector(pset.getParameter<double>("ptMinGP"),
+					 pset.getParameter<double>("minRapidityGP"),
+					 pset.getParameter<double>("maxRapidityGP"),
+					 pset.getParameter<double>("tipGP"),
+					 pset.getParameter<double>("lipGP"),
+					 pset.getParameter<bool>("chargedOnlyGP"),
+					 pset.getParameter<int>("statusGP"),
+					 pset.getParameter<std::vector<int> >("pdgIdGP"));
 
 }
 

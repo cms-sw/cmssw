@@ -4,14 +4,14 @@
 /** \class MultiTrackValidatorGenPs
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2011/02/02 11:41:16 $
- *  $Revision: 1.51 $
+ *  $Date: 2012/12/03 10:53:20 $
+ *  $Revision: 1.1 $
  *  \author cerati
  */
 
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "CommonTools/RecoAlgos/interface/GenParticleSelector.h"
+#include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
 
 class MultiTrackValidatorGenPs : public MultiTrackValidator {
  public:
@@ -27,7 +27,7 @@ class MultiTrackValidatorGenPs : public MultiTrackValidator {
 private:
 
   const TrackAssociatorByChi2* associatorByChi2;
-  GenParticleSelector gpSelector;				      
+  GenParticleCustomSelector gpSelector;				      
 
 };
 

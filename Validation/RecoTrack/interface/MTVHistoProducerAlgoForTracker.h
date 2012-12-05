@@ -13,7 +13,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
-#include "CommonTools/RecoAlgos/interface/GenParticleSelector.h"
+#include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <TH1F.h>
@@ -119,13 +119,13 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   TrackingParticleSelector* TpSelectorForEfficiencyVsVTXR;
   TrackingParticleSelector* TpSelectorForEfficiencyVsVTXZ;
 
-  GenParticleSelector* generalGpSelector;
-  GenParticleSelector* GpSelectorForEfficiencyVsEta;
-  GenParticleSelector* GpSelectorForEfficiencyVsCon;
-  GenParticleSelector* GpSelectorForEfficiencyVsPhi;
-  GenParticleSelector* GpSelectorForEfficiencyVsPt;
-  GenParticleSelector* GpSelectorForEfficiencyVsVTXR;
-  GenParticleSelector* GpSelectorForEfficiencyVsVTXZ;
+  GenParticleCustomSelector* generalGpSelector;
+  GenParticleCustomSelector* GpSelectorForEfficiencyVsEta;
+  GenParticleCustomSelector* GpSelectorForEfficiencyVsCon;
+  GenParticleCustomSelector* GpSelectorForEfficiencyVsPhi;
+  GenParticleCustomSelector* GpSelectorForEfficiencyVsPt;
+  GenParticleCustomSelector* GpSelectorForEfficiencyVsVTXR;
+  GenParticleCustomSelector* GpSelectorForEfficiencyVsVTXZ;
 
   double minEta, maxEta;  int nintEta;  bool useFabsEta;
   double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;

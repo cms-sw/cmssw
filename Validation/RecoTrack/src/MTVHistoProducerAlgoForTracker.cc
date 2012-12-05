@@ -121,13 +121,13 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet));
   TpSelectorForEfficiencyVsVTXZ   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet));
   
-  generalGpSelector               = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(generalGpSelectorPSet));
-  GpSelectorForEfficiencyVsEta    = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsEtaPSet));
-  GpSelectorForEfficiencyVsCon    = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsEtaPSet));
-  GpSelectorForEfficiencyVsPhi    = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsPhiPSet));
-  GpSelectorForEfficiencyVsPt     = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsPtPSet));
-  GpSelectorForEfficiencyVsVTXR   = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsVTXRPSet));
-  GpSelectorForEfficiencyVsVTXZ   = new GenParticleSelector(ParameterAdapter<GenParticleSelector>::make(GpSelectorForEfficiencyVsVTXZPSet));
+  generalGpSelector               = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(generalGpSelectorPSet));
+  GpSelectorForEfficiencyVsEta    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet));
+  GpSelectorForEfficiencyVsCon    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet));
+  GpSelectorForEfficiencyVsPhi    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPhiPSet));
+  GpSelectorForEfficiencyVsPt     = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPtPSet));
+  GpSelectorForEfficiencyVsVTXR   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXRPSet));
+  GpSelectorForEfficiencyVsVTXZ   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXZPSet));
 
   // fix for the LogScale by Ryan
   if(useLogPt){
