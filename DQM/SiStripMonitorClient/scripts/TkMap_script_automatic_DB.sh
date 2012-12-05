@@ -91,13 +91,17 @@ do
 
 # Determine the GlobalTag name used to process the data and the DQM
 
-    GLOBALTAG=`getGTscript.sh $dqmFileName $Run_numb` 
-#    GLOBALTAG="GR_P_V40::All"
-    echo "The GlobalTag is $GLOBALTAG"
+    GLOBALTAG=`python ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/getGTfromDQMFile.py ${file_path}/$dqmFileName $Run_numb globalTag_Step1`
+    if [[ "${GLOBALTAG}" == "" ]]
+        then
+        GLOBALTAG=`getGTscript.sh $dqmFileName $Run_numb`
+        fi
     if [[ "${GLOBALTAG}" == "" ]]
     then
-       GLOBALTAG="GR_P_V42::All"
+        echo " No GlobalTag found: skipping this run.... "
+        continue
     fi
+    echo "The GlobalTag is $GLOBALTAG"
 
     echo " Creating the TrackerMap.... "
 
