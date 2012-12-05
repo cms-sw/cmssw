@@ -19,10 +19,10 @@
 setenv TYPE Photons
 setenv CMSSWver1 6_1_0
 setenv RELEASE 6_1_0
-setenv PRERELEASE pre5
+setenv PRERELEASE pre7
 
-setenv FULLGLOBALTAG START61_V4-v1
-setenv FASTGLOBALTAG START61_V4_FastSim-v1
+setenv FULLGLOBALTAG START61_V5A-v1
+setenv FASTGLOBALTAG START61_V5A_FastSim-v1
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
 #setenv RELEASE ${RELEASE}
@@ -68,7 +68,7 @@ setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/PhotonVali
 setenv HISTOPATHNAME_Photons DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Photons
 setenv HISTOPATHNAME_Conversions DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/ConversionInfo
 setenv FULLSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
-setenv FASTSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FASTGLOBALTAG}__GEN-SIM-DIGI-RECO.root
+setenv FASTSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FASTGLOBALTAG}__DQM.root
 
 
 
