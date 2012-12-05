@@ -27,7 +27,7 @@ HLT_PAL1SingleJet16_v*                             # sr 131577, sr 133528
 HLT_PAL1SingleJet36_v*                             # sr 131577, sr 133528
 HLT_PASingleForJet15_v*                            # sr 131577, sr 133528
 HLT_PASingleForJet25_v*                            # sr 131577, sr 133528
-HLT_PAJet20_NoJetID_v*                             # sr 133388
+#HLT_PAJet20_NoJetID_v*                            # sr 133388, removed by #134379
 HLT_PAJet40_NoJetID_v*                             # sr 133388
 HLT_PAJet60_NoJetID_v*                             # sr 133388
 HLT_PAJet80_NoJetID_v*                             # sr 133388
@@ -42,18 +42,18 @@ HLT_PATripleJet40_20_20_v*                         # sr 133388
 HLT_PATripleJet60_20_20_v*                         # sr 133388
 HLT_PATripleJet80_20_20_v*                         # sr 133388
 HLT_PAJet40ETM30_v*                                # sr 133388
-HLT_PAL1SingleMuOpen_v*                            # sr 131577
-HLT_PAL1SingleMu3_v*                               # sr 131577
-HLT_PAL1SingleMu7_v*                               # sr 131577
-HLT_PAL1SingleMu12_v*                              # sr 131577
+#HLT_PAL1SingleMuOpen_v*                           # sr 131577, removed by #134379
+#HLT_PAL1SingleMu3_v*                              # sr 131577, removed by #134379
+#HLT_PAL1SingleMu7_v*                              # sr 131577, removed by #134379
+#HLT_PAL1SingleMu12_v*                             # sr 131577, removed by #134379
 HLT_PAL1DoubleMu0_v*                               # sr 131577, sr 133528
 HLT_PADimuon0_NoVertexing_v*                       # sr 131577, sr 133528
-HLT_PAMu5_v*                                       # sr 131577
-HLT_PAMu8_v*                                       # sr 131577
+#HLT_PAMu5_v*                                      # sr 131577, removed by #134379
+#HLT_PAMu8_v*                                      # sr 131577, removed by #134379
 HLT_PAL1DoubleMuOpen_v*                            # sr 133325
 HLT_PAL1DoubleMu0_HighQ_v*                         # sr 133325
-HLT_PAMu1_Track1_Mass2_v*                          # sr 133325
-HLT_PAMu3_Track1_Mass2_v*                          # sr 133325
+#HLT_PAMu1_Track1_Mass2_v*                         # sr 133325, removed by #134379
+#HLT_PAMu3_Track1_Mass2_v*                         # sr 133325, removed by #134379
 HLT_PAL2DoubleMu3_v*                               # sr 133325
 HLT_PAMu3_v*                                       # sr 133325
 HLT_PAMu7_v*                                       # sr 133325
@@ -62,13 +62,13 @@ HLT_PABTagMu_Jet20_Mu4_v*                          # sr 133325
 HLT_PAMu3PFJet20_v*                                # sr 133325
 HLT_PAMu3PFJet40_v*                                # sr 133325
 HLT_PAMu7PFJet20_v*                                # sr 133325
-HLT_PAL1SingleEG5_v*                               # sr 131577
-HLT_PAL1SingleEG7_v*                               # sr 131577
-HLT_PAL1SingleEG12_v*                              # sr 131577
-HLT_PAPhoton10_CaloIdVL_v*                         # sr 131577
-HLT_PAPhoton15_CaloIdVL_v*                         # sr 131577
-HLT_PAPhoton20_CaloIdVL_v*                         # sr 131577
-HLT_PAPhoton30_CaloIdVL_v*                         # sr 131577
+#HLT_PAL1SingleEG5_v*                              # sr 131577, removed by #134379
+#HLT_PAL1SingleEG7_v*                              # sr 131577, removed by #134379
+#HLT_PAL1SingleEG12_v*                             # sr 131577, removed by #134379
+#HLT_PAPhoton10_CaloIdVL_v*                        # sr 131577, removed by #134379
+#HLT_PAPhoton15_CaloIdVL_v*                        # sr 131577, removed by #134379
+#HLT_PAPhoton20_CaloIdVL_v*                        # sr 131577, removed by #134379
+#HLT_PAPhoton30_CaloIdVL_v*                        # sr 131577, removed by #134379
 HLT_PAPhoton10_NoCaloIdVL_v*			   # sr 133321
 HLT_PAPhoton20_NoCaloIdVL_v*			   # sr 133321
 HLT_PAPhoton30_NoCaloIdVL_v*			   # sr 133321
@@ -79,8 +79,8 @@ HLT_PAPhoton15_Photon10_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton20_Photon15_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton20_Photon20_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton30_Photon30_NoCaloIdVL_v*		   # sr 133321 
-HLT_PAL1ETM30_v*                                   # sr 131577
-HLT_PAL1ETM70_v*                                   # sr 131577
+#HLT_PAL1ETM30_v*                                  # sr 131577, removed by #134379
+#HLT_PAL1ETM70_v*                                  # sr 131577, removed by #134379
 HLT_PAPixelTracks_Multiplicity70_v*                # sr 131577
 HLT_PAPixelTracks_Multiplicity90_v*                # sr 131577
 HLT_PAPixelTracks_Multiplicity100_v*               # sr 132927

@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/GRun/V67 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/GRun/V68 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V67')
+  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V68')
 )
 
 process.streams = cms.PSet( 
@@ -48281,5 +48281,4 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
-    process.MessageLogger.categories.append('FastReport')
 
