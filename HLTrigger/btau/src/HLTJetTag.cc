@@ -4,8 +4,8 @@
  *  tagged multi-jet trigger for b and tau. 
  *  It should be run after the normal multi-jet trigger.
  *
- *  $Date: 2012/02/08 08:40:37 $
- *  $Revision: 1.15 $
+ *  $Date: 2012/11/11 18:03:25 $
+ *  $Revision: 1.16 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *  \maintainer Andrea Bocci
@@ -96,7 +96,8 @@ HLTJetTag<T>::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger
   // check if the product this one depends on is available
   auto const & handle = h_JetTags;
   auto const & dependent = handle->keyProduct();
-  if (not dependent.hasCache()) {
+  if (not dependent.isNull() and not dependent.hasCache()) {
+    // only an empty AssociationVector can have a invalid dependent collection
     edm::Provenance const & dependent_provenance = event.getProvenance(dependent.id());
     if (dependent_provenance.constBranchDescription().dropped())
       // FIXME the error message should be made prettier
