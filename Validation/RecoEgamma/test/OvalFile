@@ -1,10 +1,10 @@
 
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="6_1_0_pre1">
-<var name="TEST_REF" value="6_0_0_pre11">
+<var name="TEST_NEW" value="6_1_0_pre7">
+<var name="TEST_REF" value="6_1_0_pre5">
 
-<var name="TAG_STARTUP" value="START60_V4">
-<var name="TAG_IDEAL" value="MC_60_V4">
+<var name="TAG_STARTUP" value="START61_V5A">
+<var name="TAG_IDEAL" value="MC_61_V5A">
 <var name="DATA_VERSION" value="v1">
 
 <var name="STORE_DIR" value="/afs/cern.ch/cms/Physics/egamma/www/validation/Electrons/Store/${TEST_NEW}">
