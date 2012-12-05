@@ -1182,6 +1182,11 @@ else if ( $TYPE == Photons ) then
   setenv CFG PhotonValidator_cfg
 endif
 
+if ( $PU == True) then
+setenv SAMPLE ${SAMPLE}PU
+endif
+
+
 if (-e validation.html) rm validation.html
 if (-e validationPlotsTemplate.html) rm validationPlotsTemplate.html
 cp ${CURRENTDIR}/validationPlotsTemplate.html validationPlotsTemplate.html
