@@ -61,6 +61,12 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
     HcalRecHitFlagsToBeExcluded_.resize(0);
   }
 
+  // Digi threshold and time slices to use for HBHE and HF calibration digis
+  calibdigiHBHEthreshold_   = iConfig.getParameter<double>("calibdigiHBHEthreshold");
+  calibdigiHBHEtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHBHEtimeslices");
+  calibdigiHFthreshold_   = iConfig.getParameter<double>("calibdigiHFthreshold");
+  calibdigiHFtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHFtimeslices");
+
   TS4TS5EnergyThreshold_ = iConfig.getParameter<double>("TS4TS5EnergyThreshold");
 
   std::vector<double> TS4TS5UpperThresholdTemp = iConfig.getParameter<std::vector<double> >("TS4TS5UpperThreshold");
@@ -308,8 +314,12 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 {
   // Some initialization
   TotalCalibCharge = 0;
+
+  // Starting with this version (updated by Jeff Temple on Dec. 6, 2012), the "TS45" names in the variables are mis-nomers.  The actual time slices used are determined from the digiTimeSlices_ variable, which may not be limited to only time slices 4 and 5.  For now, "TS45" name kept, because that is what is used in HcalNoiseSummary object (in GetCalibCountTS45, etc.).  Likewise, the charge value in 'gt15' is now configurable, though the name remains the same.  For HBHE, we track both the number of calibration channels (NcalibTS45) and the number of calibration channels above threshold (NcalibTS45gt15).  For HF, we track only the number of channels above the given threshold in the given time window (NcalibHFgtX).  Default for HF in 2012 is to use the full time sample with effectively no threshold (threshold=-999)
   int NcalibTS45=0;
   int NcalibTS45gt15=0;
+  int NcalibHFgtX=0;
+
   double chargecalibTS45=0;
   double chargecalibgt15TS45=0;
 
@@ -428,34 +438,61 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
            TotalCalibCharge = TotalCalibCharge + tool[i];
         */
 
-        for(int i = 0; i < (int)digi->size(); i++)
-           TotalCalibCharge = TotalCalibCharge + adc2fC[digi->sample(i).adc()&0xff];
+	// Original code computes total calib charge over all digis.  While I think it would be more useful to skip
+	// zs mark-and-pass channels, I keep this computation as is.  Individual HBHE and HF variables do skip
+	// the m-p channels.  -- Jeff Temple, 6 December 2012
 
+	for(int i = 0; i < (int)digi->size(); i++)
+	  TotalCalibCharge = TotalCalibCharge + adc2fC[digi->sample(i).adc()&0xff];
+	
 
 	HcalCalibDetId myid=(HcalCalibDetId)digi->id();
 	if ( myid.calibFlavor()==HcalCalibDetId::HOCrosstalk)
 	  continue; // ignore HOCrosstalk channels
-	if (digi->size()>5)
-	  {
-	    double sumCharge=adc2fC[digi->sample(4).adc()&0xff]+adc2fC[digi->sample(5).adc()&0xff];
+	if(digi->zsMarkAndPass()) continue;  // skip "mark-and-pass" channels when computing charge in calib channels
 
+
+
+	if (digi->id().hcalSubdet()==HcalForward) // check HF
+	  {
+	    double sumChargeHF=0;
+	    for (uint i=0;i<calibdigiHFtimeslices_.size();++i)
+	      {
+		// skip unphysical time slices
+		if (calibdigiHFtimeslices_[i]<0 || calibdigiHFtimeslices_[i]>digi->size())
+		  continue;
+		sumChargeHF+=adc2fC[digi->sample(calibdigiHFtimeslices_[i]).adc()&0xff];
+	      }
+	    if (sumChargeHF>calibdigiHFthreshold_) ++NcalibHFgtX;
+	  } // end of HF check
+	else if (digi->id().hcalSubdet()==HcalBarrel || digi->id().hcalSubdet()==HcalEndcap) // now check HBHE
+	  {
+            double sumChargeHBHE=0;
+            for (uint i=0;i<calibdigiHBHEtimeslices_.size();++i)
+              {
+                // skip unphysical time slices
+                if (calibdigiHBHEtimeslices_[i]<0 || calibdigiHBHEtimeslices_[i]>digi->size())
+                  continue;
+                sumChargeHBHE+=adc2fC[digi->sample(calibdigiHBHEtimeslices_[i]).adc()&0xff];
+              }
 	    ++NcalibTS45;
-	    chargecalibTS45+=sumCharge;
-	    if (sumCharge>15)
+	    chargecalibTS45+=sumChargeHBHE;
+            if (sumChargeHBHE>calibdigiHBHEthreshold_) 
 	      {
 		++NcalibTS45gt15;
-		chargecalibgt15TS45+=sumCharge;
+		chargecalibgt15TS45+=sumChargeHBHE;
 	      }
-	  }
-
-     }
-  }
-
+          } // end of HBHE check
+     } // loop on HcalCalibDigiCollection
+  } // if (hCalib.isValid()==true)
+  
   summary.calibCharge_ = TotalCalibCharge;
   summary.calibCountTS45_=NcalibTS45;
   summary.calibCountgt15TS45_=NcalibTS45gt15;
   summary.calibChargeTS45_=chargecalibTS45;
   summary.calibChargegt15TS45_=chargecalibgt15TS45;
+  summary.calibCountHF_=NcalibHFgtX;
+
   return;
 }
 

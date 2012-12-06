@@ -59,6 +59,13 @@ HcalNoiseParameterSet = cms.PSet(
     hlMaxHPDEMF = cms.double(-9999.0),
     hlMaxRBXEMF = cms.double(0.01),
 
+    # Calibration digi noise variables (used for finding laser noise events)
+    calibdigiHBHEthreshold = cms.double(15), # minimum threshold in fC of any HBHE calib digi to be counted in summary
+    calibdigiHBHEtimeslices=cms.vint32(3,4,5,6),  # time slices to use when determining charge of HBHE calib digis
+    calibdigiHFthreshold = cms.double(-999), # minimum threshold in fC of any HF calib digi to be counted in summary
+    calibdigiHFtimeslices=cms.vint32(0,1,2,3,4,5,6,7,8,9),  # time slices to use when determining charge of HF calib digis
+    
+
     # RBX-wide TS4TS5 variable
     TS4TS5EnergyThreshold = cms.double(50),
     TS4TS5UpperThreshold = cms.vdouble(70, 90, 100, 400, 4000),
