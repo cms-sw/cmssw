@@ -120,7 +120,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		    #"HLT_LooseIsoPFTau35_Trk20_MET75_v",
 		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
 		    ),
-	    recPFTauLabel   = cms.string("hpsTancTaus"),
+	    recPFTauLabel   = cms.string("hpsPFTauProducer"),
 	    recCaloMETLabel = cms.string("met"),
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(2), 
@@ -130,7 +130,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		    "HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v",
 		    "HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v"
 		    ),
-	    recPFTauLabel  = cms.string("hpsTancTaus"),
+	    recPFTauLabel  = cms.string("hpsPFTauProducer"),
 	    recMuonLabel   = cms.string("muons"),
 	    recElecLabel   = cms.string("gsfElectrons"),
 	    # -- Analysis specific cuts
