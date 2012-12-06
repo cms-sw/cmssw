@@ -3,13 +3,10 @@
 /**
  * Author: Shahram Rahatlou, University of Rome & INFN
  * Created: 22 Feb 2006
- * $Id: EcalLinearCorrection.h,v 1.4 2007/11/06 17:46:49 meridian Exp $
+ * $Id: EcalLinearCorrections.h,v 1.1 2012/11/21 16:58:24 fra Exp $
  **/
-#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeDependentCorrections.h"
 
-typedef float EcalLinearCorrection;
-typedef EcalFloatCondObjectContainer EcalLinearCorrectionsMap;
-typedef EcalLinearCorrectionsMap EcalLinearCorrections;
-
+typedef EcalTimeDependentCorrections EcalLinearCorrections;
 
 #endif

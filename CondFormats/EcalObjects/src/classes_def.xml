@@ -159,7 +159,6 @@
 <!-- typedefs for EcalCondObjectContainer -->
 <class name="EcalFloatCondObjectContainer"/>
 <class name="EcalIntercalibConstants"/>
-<class name="EcalLinearCorrections"/>
 <class name="EcalIntercalibConstantsMC"/>
 <class name="EcalIntercalibErrors"/>
 <class name="EcalLaserAPDPNRatiosRef"/>
@@ -184,6 +183,28 @@
 </class>
 <!-- typedefs for EcalCondObjectContainer -->
 <class name="EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap"/>
+
+<!-- base class -->
+<class name="EcalTimeDependentCorrections::Values"/>
+<class name="EcalTimeDependentCorrections::Times"/>
+<class name="EcalTimeDependentCorrections">
+   <field name="value_map" mapping="blob" />
+</class>
+<!-- templates for EcalCondObjectContainer having the class as template parameter -->
+<class name="std::vector<EcalTimeDependentCorrections::Values>"/>
+<class name="std::vector<EcalTimeDependentCorrections::Times>"/>
+<class name="EcalContainer<EEDetId,EcalTimeDependentCorrections::Values>"/>
+<class name="EcalContainer<EBDetId,EcalTimeDependentCorrections::Values>"/>
+<class name="EcalCondObjectContainer<EcalTimeDependentCorrections::Values>">
+   <field name = "eb_" mapping = "blob"/>
+   <field name = "ee_" mapping = "blob"/>
+</class>
+<!-- typedefs for EcalCondObjectContainer -->
+<class name="EcalTimeDependentCorrections::EcalValueMap"/>
+
+<!-- typedefs for EcalTimeDependentCorrections -->
+<class name="EcalLinearCorrections"/>
+
 
 <class name="EcalWeightSet"/>
 

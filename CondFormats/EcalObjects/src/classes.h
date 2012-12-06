@@ -12,7 +12,6 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
@@ -29,7 +28,9 @@
 #include "CondFormats/EcalObjects/interface/EcalChannelStatusCode.h"
 #include "CondFormats/EcalObjects/interface/EcalDAQStatusCode.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeDependentCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
@@ -113,12 +114,21 @@ namespace{
     EcalCondObjectContainer<float> floatCondObjectContainer; //typedefs: EcalFloatCondObjectContainer, EcalLinearCorrections, EcalIntercalibConstants, EcalIntercalibConstantsMC, EcalIntercalibErrors, EcalLaserAPDPNRatiosRef, EcalLaserAlphas, EcalTimeCalibConstants, EcalTimeCalibErrors
     
     EcalLaserAPDPNRatios laser_map;
-    std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> pair_map;
-    std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp> time_map;
-    EcalContainer<EEDetId,EcalLaserAPDPNRatios::EcalLaserAPDPNpair> ec_eeDetId_pair;
-    EcalContainer<EBDetId,EcalLaserAPDPNRatios::EcalLaserAPDPNpair> ec_ebDetId_pair;
+    std::vector<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_pair_map;
+    std::vector<EcalLaserAPDPNRatios::EcalLaserTimeStamp> laser_time_map;
+    EcalContainer<EEDetId,EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_ec_eeDetId_pair;
+    EcalContainer<EBDetId,EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_ec_ebDetId_pair;
     EcalCondObjectContainer<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_map_dm;
     
+    EcalTimeDependentCorrections correction_map;
+    std::vector<EcalTimeDependentCorrections::Values> value_map;
+    std::vector<EcalTimeDependentCorrections::Times> time_map;
+    EcalContainer<EEDetId,EcalTimeDependentCorrections::Values> ec_eeDetId_pair;
+    EcalContainer<EBDetId,EcalTimeDependentCorrections::Values> ec_ebDetId_pair;
+    EcalCondObjectContainer<EcalTimeDependentCorrections::Values> correction_map_dm;
+
+    EcalLinearCorrections linear_correction_map;
+
     EcalContainer<EcalTrigTowerDetId,EcalChannelStatusCode> ec_ettDetId_ecalChannelStatusCode;
     EcalContainer<EcalScDetId,EcalChannelStatusCode> ec_esDetId_ecalChannelStatusCode;
     EcalCondTowerObjectContainer<EcalChannelStatusCode> dcsTowerStatus; //typedef EcalDCSTowerStatus
