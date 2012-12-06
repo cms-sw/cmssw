@@ -9,6 +9,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
 					 const CaloShapes * shapes) :
@@ -29,7 +30,7 @@ void HcalSiPMHitResponse::finalizeHits() {
 
 
 void HcalSiPMHitResponse::add(const PCaloHit& hit) {
-    if (!isnan(hit.time()) &&
+    if (!edm::isNotFinite(hit.time()) &&
 	((theHitFilter == 0) || (theHitFilter->accepts(hit)))) {
       DetId id(hit.id());
       if (pixelHistory.find(id)==pixelHistory.end()) {
@@ -50,7 +51,7 @@ void HcalSiPMHitResponse::run(MixCollection<PCaloHit> & hits) {
   for (MixCollection<PCaloHit>::MixItr hitItr = hits.begin();
        hitItr != hits.end(); ++hitItr) {
     if (!((hitItr.bunch() < theMinBunch) || (hitItr.bunch() > theMaxBunch)) &&
-        !(isnan(hitItr->time())) &&
+        !(edm::isNotFinite(hitItr->time())) &&
         ((theHitFilter == 0) || (theHitFilter->accepts(*hitItr)))) {
       DetId id(hitItr->id());
       if (sortedhits.find(id)==sortedhits.end())

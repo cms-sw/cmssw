@@ -13,13 +13,14 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.25 2011/04/07 09:09:21 innocent Exp $
+// $Id: DetIdAssociator.cc,v 1.26 2011/04/07 09:18:47 innocent Exp $
 //
 //
 
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "DetIdInfo.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include <map>
 
 DetIdAssociator::DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
@@ -171,7 +172,7 @@ void DetIdAssociator::buildMap()
 	     LogTrace("TrackAssociatorVerbose")<< "\tpoint (rho,phi,z): " << iter->perp() << ", " <<
 	       iter->phi() << ", " << iter->z();
 	     // FIX ME: this should be a fatal error
-	     if(std::isnan(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
+	     if(edm::isNotFinite(iter->mag())||iter->mag()>1e5) { //Detector parts cannot be 1 km away or be NaN
 	       edm::LogWarning("TrackAssociator") << "Critical error! Bad detector unit geometry:\n\tDetId:" 
 						  << id_itr->rawId() << "\t mag(): " << iter->mag() << "\n" << DetIdInfo::info( *id_itr )
 						  << "\nSkipped the element";

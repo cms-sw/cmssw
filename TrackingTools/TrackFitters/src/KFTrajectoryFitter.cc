@@ -13,6 +13,7 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 const DetLayerGeometry KFTrajectoryFitter::dummyGeometry;
@@ -177,11 +178,11 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
               (std::abs(currTsos.localParameters().qbp())>100
                || std::abs(currTsos.localParameters().position().y()) > 1000
                || std::abs(currTsos.localParameters().position().x()) > 1000
-               ) ) || std::isnan(currTsos.localParameters().qbp());
+               ) ) || edm::isNotFinite(currTsos.localParameters().qbp());
 	  if unlikely(badState){
 	    if (!currTsos.isValid()) edm::LogError("FailedUpdate")
 	     <<"updating with the hit failed. Not updating the trajectory with the hit";
-	    else if (std::isnan(currTsos.localParameters().qbp())) edm::LogError("TrajectoryNaN")<<"Trajectory has NaN";
+	    else if (edm::isNotFinite(currTsos.localParameters().qbp())) edm::LogError("TrajectoryNaN")<<"Trajectory has NaN";
 	    else LogTrace("FailedUpdate")<<"updated state is valid but pretty bad, skipping. currTsos "
 	    				 <<currTsos<<"\n predTsos "<<predTsos;
 	    myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));

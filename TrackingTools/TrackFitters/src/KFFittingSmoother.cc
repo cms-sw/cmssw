@@ -5,6 +5,7 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 
 // ggiurgiu@fnal.gov: Add headers needed to cut on pixel hit probability
@@ -27,15 +28,15 @@ Trajectory KFFittingSmoother::fitOne(const Trajectory& t, fitType type) const {
 
 bool KFFittingSmoother::checkForNans(const Trajectory & theTraj) const
 {
-  if (std::isnan(theTraj.chiSquared ())) return false;
+  if (edm::isNotFinite(theTraj.chiSquared ())) return false;
   const std::vector<TrajectoryMeasurement> & vtm = theTraj.measurements();
   for (std::vector<TrajectoryMeasurement>::const_iterator tm=vtm.begin(); tm!=vtm.end();tm++) {
-    if (std::isnan(tm->estimate())) return false;
+    if (edm::isNotFinite(tm->estimate())) return false;
     AlgebraicVector5 v = tm->updatedState ().localParameters ().vector();
-    for (int i=0;i<5;++i) if (std::isnan(v[i])) return false;
+    for (int i=0;i<5;++i) if (edm::isNotFinite(v[i])) return false;
     const AlgebraicSymMatrix55 & m = tm->updatedState ().curvilinearError ().matrix();
     for (int i=0;i<5;++i) 
-      for (int j=0;j<(i+1);++j) if (std::isnan(m(i,j))) return false;
+      for (int j=0;j<(i+1);++j) if (edm::isNotFinite(m(i,j))) return false;
   }
   return true;
 }
