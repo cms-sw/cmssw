@@ -12,11 +12,12 @@
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+#include "CondFormats/DataRecord/interface/EcalLinearCorrectionsRcd.h"
 
 // class EcalLaserDbRecord : public edm::eventsetup::EventSetupRecordImplementation<EcalLaserDbRecord> {};
 
 class EcalLaserDbRecord : public edm::eventsetup::DependentRecordImplementation <EcalLaserDbRecord,  
-  boost::mpl::vector<EcalLaserAlphasRcd, EcalLaserAPDPNRatiosRefRcd, EcalLaserAPDPNRatiosRcd> > {}; 
+  boost::mpl::vector<EcalLaserAlphasRcd, EcalLaserAPDPNRatiosRefRcd, EcalLaserAPDPNRatiosRcd, EcalLinearCorrectionsRcd> > {}; 
 
 #endif /* ECALLASERCORRECTION_ECALLASERDBRECORD_H */
 

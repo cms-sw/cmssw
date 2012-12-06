@@ -19,6 +19,7 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 
 
 class EcalLaserDbService {
@@ -29,17 +30,20 @@ class EcalLaserDbService {
   const EcalLaserAlphas* getAlphas () const;
   const EcalLaserAPDPNRatiosRef* getAPDPNRatiosRef () const;
   const EcalLaserAPDPNRatios* getAPDPNRatios () const;
+  const EcalLinearCorrections* getLinearCorrections () const;
   float getLaserCorrection (DetId const & xid, edm::Timestamp const & iTime) const;
 
   void setAlphaData (const EcalLaserAlphas* fItem) {mAlphas_ = fItem;}
   void setAPDPNRefData (const EcalLaserAPDPNRatiosRef* fItem) {mAPDPNRatiosRef_ = fItem;}
   void setAPDPNData (const EcalLaserAPDPNRatios* fItem) {mAPDPNRatios_ = fItem;}
+  void setLinearCorrectionsData (const EcalLinearCorrections* fItem) {mLinearCorrections_ = fItem;}
 
  private:
 
   const EcalLaserAlphas* mAlphas_;
   const EcalLaserAPDPNRatiosRef* mAPDPNRatiosRef_;
   const EcalLaserAPDPNRatios* mAPDPNRatios_;  
+  const EcalLinearCorrections* mLinearCorrections_;  
 
 };
 
