@@ -13,11 +13,12 @@
 //
 // Original Author:  Piotr Traczyk
 //         Created:  Wed Sep 27 14:54:28 EDT 2006
-// $Id: MuonTimingValidator.cc,v 1.8 2010/02/11 00:14:30 wmtan Exp $
+// $Id: MuonTimingValidator.cc,v 1.9 2010/03/25 14:08:50 jribnik Exp $
 //
 //
 
 #include "RecoMuon/MuonIdentification/test/MuonTimingValidator.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 // system include files
 #include <memory>
@@ -580,7 +581,7 @@ TH1F* MuonTimingValidator::divideErr(TH1F* h1, TH1F* h2, TH1F* hout) {
     Float_t eff = hout->GetBinContent(i) ;
     Float_t Err = 0.;
     if (tot > 0) Err = tot_e / tot * sqrt( eff* (1-eff) );
-    if (eff == 1. || isnan(Err) || !std::isfinite(Err) ) Err=1.e-3;
+    if (eff == 1. || edm::isNotFinite(Err)) Err=1.e-3;
     hout->SetBinError(i, Err);
   }
   return hout;

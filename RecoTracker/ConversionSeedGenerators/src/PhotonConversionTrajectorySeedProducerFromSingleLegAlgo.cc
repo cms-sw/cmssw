@@ -1,5 +1,6 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 //#define debugTSPFSLA
 
@@ -300,7 +301,7 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
 
   _IdealHelixParameters.setData(track,primaryVertexPoint);   
     
-  if (std::isnan(_IdealHelixParameters.GetTangentPoint().r()) || 
+  if (edm::isNotFinite(_IdealHelixParameters.GetTangentPoint().r()) || 
 	(_IdealHelixParameters.GetTangentPoint().r()==0)){
     //this case means a null results on the _IdealHelixParameters side
     return false;
