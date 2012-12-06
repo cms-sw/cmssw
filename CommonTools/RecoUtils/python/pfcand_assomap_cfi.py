@@ -131,3 +131,13 @@ PFCandAssoMapMuoEgm = cms.EDProducer('PFCand_AssoMap',
           nTrackWeight = cms.double(0.),
 		  
 )
+
+#Old configuration for imports from other packages
+#to avoid undefined references
+PFCands2Vertex = PFCandAssoMap.clone(					
+	 
+	  #Choose which map should be created
+	  # "VertexToPFCands", "PFCandsToVertex" or "Both"
+	  AssociationType = cms.InputTag('PFCandsToVertex'),
+	 	 
+)
