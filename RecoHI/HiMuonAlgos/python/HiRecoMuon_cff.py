@@ -21,7 +21,9 @@ muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag("muons:
 
 muonShowerInformation.muonCollection = "muons"
 
-muonreco_plus_isolation.replace(muons1stStep, muons)
+#don't modify somebody else's sequence, create a new one if needed
+muonreco_plus_isolation_PbPb = muonreco_plus_isolation.expandAndClone()
+muonreco_plus_isolation_PbPb.replace(muons1stStep, muons)
 
 globalMuons.TrackerCollectionLabel = hiTracks
 
@@ -33,5 +35,5 @@ muons.JetExtractorPSet.JetCollectionLabel = cms.InputTag("iterativeConePu5CaloJe
 
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
 
-muonRecoPbPb = cms.Sequence(muonreco_plus_isolation)
+muonRecoPbPb = cms.Sequence(muonreco_plus_isolation_PbPb)
 
