@@ -1,6 +1,7 @@
 #include "Calibration/EcalCalibAlgos/interface/ClusterFillMap.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 	ClusterFillMap::ClusterFillMap (int WindowX,
 			int WindowY,
@@ -48,7 +49,7 @@ ClusterFillMap::fillMap (const std::vector<std::pair<DetId,float> > & v1,
      dummy*= (*m_endcapMap)[idsIt->first];
    }
    int ID=idsIt->first.rawId();
-   if (std::isnan(dummy)) {
+   if (edm::isNotFinite(dummy)) {
      dummy=0;
    }
    if ( dummy < m_minEnergyPerCrystal ) continue; //return 1; 

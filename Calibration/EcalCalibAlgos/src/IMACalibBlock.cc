@@ -1,13 +1,14 @@
 /**
-    $Date: 2010/09/07 16:53:35 $
-    $Revision: 1.10 $
-    $Id: IMACalibBlock.cc,v 1.10 2010/09/07 16:53:35 govoni Exp $ 
-    \author $Author: govoni $
+    $Date: 2011/06/30 10:10:52 $
+    $Revision: 1.11 $
+    $Id: IMACalibBlock.cc,v 1.11 2011/06/30 10:10:52 muzaffar Exp $ 
+    \author $Author: muzaffar $
 */
 
 #include "Calibration/EcalCalibAlgos/interface/IMACalibBlock.h"
 #include "Calibration/Tools/interface/BlockSolver.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "TH1F.h"
 #include "TFile.h"
 #include <cassert>
@@ -165,7 +166,7 @@ IMACalibBlock::riempiMtr (const std::vector<double> & piena,
     assert (vuota.num_col () == int(max)) ;
     for (unsigned int i = 0 ; i < max ; ++i)
      for (unsigned int j = 0 ; j < max ; ++j)
-       if (std::isnan (piena[i*max + j])) vuota[i][j] = 0. ;
+       if (edm::isNotFinite (piena[i*max + j])) vuota[i][j] = 0. ;
          else vuota[i][j] = piena[i*max + j] ; 
 
     return ;
@@ -182,7 +183,7 @@ IMACalibBlock::riempiVtr (const std::vector<double> & pieno,
     int max = m_numberOfElements ;
     assert (vuoto.num_row () == max) ;
     for (int i = 0 ; i < max ; ++i)
-      if (std::isnan (pieno[i])) vuoto[i] = 0. ;
+      if (edm::isNotFinite (pieno[i])) vuoto[i] = 0. ;
       else vuoto[i] = pieno[i] ; 
 
     return ;

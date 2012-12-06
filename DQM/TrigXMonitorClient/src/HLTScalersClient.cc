@@ -1,6 +1,9 @@
-// $Id: HLTScalersClient.cc,v 1.18 2010/04/02 20:48:12 wittich Exp $
+// $Id: HLTScalersClient.cc,v 1.19 2010/07/20 02:58:27 wmtan Exp $
 // 
 // $Log: HLTScalersClient.cc,v $
+// Revision 1.19  2010/07/20 02:58:27  wmtan
+// Add missing #include files
+//
 // Revision 1.18  2010/04/02 20:48:12  wittich
 // updates to scale entries by received number of FU's
 //
@@ -45,6 +48,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -389,7 +393,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     double slope = sl.first; double slope_err = sl.second;
     if ( slope > 0 ) {
       hltRate_->setBinContent(nL,slope);
-      if ( ! std::isnan(slope_err ) && (slope_err >= 0 )  )
+      if ( ! edm::isNotFinite(slope_err ) && (slope_err >= 0 )  )
 	hltRate_->setBinError(nL,slope_err);
     }
   } // found  histo
@@ -426,7 +430,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 	// set the current rate(s)
 	hltCurrentRate_[(i-1)/kPerHisto]->setBinContent(i%kPerHisto, slope);
 	currentRate_->setBinContent(i, slope);
-	if ( ! std::isnan(slope_err ) && (slope_err >= 0 ) ) {
+	if ( ! edm::isNotFinite(slope_err ) && (slope_err >= 0 ) ) {
 	  currentRate_->setBinError(i, slope_err);
 	  hltCurrentRate_[(i-1)/kPerHisto]->setBinError(i%kPerHisto, slope_err);
 	  rateHistories_[i-1]->setBinError(nL,slope_err);
@@ -448,7 +452,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       double slope = sl.first; double slope_err = sl.second;
       if ( slope >= 0 ) {
 	hltRate_->setBinContent(nL,slope);
-	if ( ! std::isnan(slope_err ) && (slope_err >= 0 )  )
+	if ( ! edm::isNotFinite(slope_err ) && (slope_err >= 0 )  )
 	  hltRate_->setBinError(nL,slope_err);
       }
     } // found  histo
@@ -531,7 +535,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     if ( slope > 0 ) {
       hltNormRate_->setBinContent(nL,slope);
       if ( cnt > 0 ) slope_err = slope*sqrt( 2./num_fu + 2./cnt);
-      if ( ! std::isnan(slope_err ) && (slope_err >= 0 )  )
+      if ( ! edm::isNotFinite(slope_err ) && (slope_err >= 0 )  )
 	hltNormRate_->setBinError(nL,slope_err);
     }
   }
@@ -557,7 +561,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
             std::cout << "Slope err " << i << " = " << slope_err << std::endl;
           }
 	}
-	if ( ! std::isnan(slope_err ) && (slope_err >= 0 )  ) {
+	if ( ! edm::isNotFinite(slope_err ) && (slope_err >= 0 )  ) {
 	  rateNormHistories_[i-1]->setBinError(nL,slope_err);
 	  // set the current rate(s)
 	  hltCurrentNormRate_[(i-1)/kPerHisto]->setBinError(i%kPerHisto, slope_err);

@@ -16,6 +16,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -731,7 +732,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
 	continue;
       }
       
-      if (std::isnan(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;} 	  
+      if (edm::isNotFinite(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;} 	  
       energy.push_back(itrechit->energy());
       energy5x5 += itrechit->energy();
       
@@ -752,7 +753,7 @@ for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = sc.hitsAndFrac
  	continue;
       }
       
-      if (std::isnan(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;}
+      if (edm::isNotFinite(itrechit->energy())){std::cout<<" nan energy "<<std::endl; return;}
       energy.push_back(itrechit->energy());
       energy5x5 += itrechit->energy();
       
