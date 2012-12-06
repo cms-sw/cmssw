@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
+from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
 
 process = cms.Process("HcalGeometryTest")
 
 process.load("Configuration.Geometry.GeometryExtendedPostLS2_cff")
 process.load("Geometry.HcalEventSetup.HcalTopology_cfi")
 
-from Geometry.HcalEventSetup.HcalRelabel_cfi import HcalReLabel
- 
 process.HcalHardcodeGeometryEP = cms.ESProducer( "HcalHardcodeGeometryEP" ,
                                                  appendToDataLabel = cms.string("_master"),
                                                  HcalReLabel = HcalReLabel
@@ -22,7 +21,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
     )
 
-process.hga = cms.EDAnalyzer("HcalGeometryAnalyzer")
+process.hga = cms.EDAnalyzer("HcalGeometryAnalyzer",
+                             HcalReLabel = HcalReLabel )
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
