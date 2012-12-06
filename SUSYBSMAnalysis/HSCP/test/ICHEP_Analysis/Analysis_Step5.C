@@ -57,7 +57,7 @@ void Analysis_Step5()
 //   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);return;
 
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
-   Make2DPlot_Core(InputPattern, 0);
+//   Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "7TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass", false, "8TeV_LooseNoSMMC");
@@ -68,8 +68,8 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndexTight, "Mass", false, "7TeV_TightNoSMMC");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   CutFlow(InputPattern, CutIndex);
-   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
+//   CutFlow(InputPattern, CutIndex);
+//   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
 
 
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
@@ -97,11 +97,12 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
 
+
    InputPattern = "Results/Type3/";   CutIndex = 79; CutIndex_Flip=58;
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   //CutFlow(InputPattern, CutIndex);
+   CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    CosmicBackgroundSystematic(InputPattern, "8TeV");
    CosmicBackgroundSystematic(InputPattern, "7TeV");
@@ -119,19 +120,19 @@ void Analysis_Step5()
    //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "3");
    //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "4");
    //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "5");
-   
+  
    InputPattern = "Results/Type4/";   CutIndex = 21; CutIndexTight = 240; CutIndex_Flip=21;
-//   Make2DPlot_Core(InputPattern, 0);
-//    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
-//    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-   // CheckPrediction(InputPattern, "", "Data7TeV");
-   // CheckPrediction(InputPattern, "_Flip", "Data7TeV");
-   // CheckPrediction(InputPattern, "", "Data8TeV");
-   // CheckPrediction(InputPattern, "_Flip", "Data8TeV");
-   //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
-   //   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
-//   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
-   //    CutFlow(InputPattern);
+   Make2DPlot_Core(InputPattern, 0);
+   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
+   CheckPrediction(InputPattern, "", "Data7TeV");
+   CheckPrediction(InputPattern, "_Flip", "Data7TeV");
+   CheckPrediction(InputPattern, "", "Data8TeV");
+   CheckPrediction(InputPattern, "_Flip", "Data8TeV");
+   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
+   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
+   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
+   CutFlow(InputPattern);
    //   CompareRecoAndGenPt(InputPattern);
 
    InputPattern = "Results/Type5/";   CutIndex = 48; CutIndexTight = 48; CutIndex_Flip=2;
@@ -879,6 +880,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          mapRatio[P3]->Draw("3C");
 
          c1->cd();
+         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
          SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObs"+suffix);
          delete c1;
       }      
