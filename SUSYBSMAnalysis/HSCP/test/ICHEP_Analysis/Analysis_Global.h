@@ -35,7 +35,7 @@
 //#define ANALYSIS2011
 
 double IntegratedLuminosity7TeV = 5003;
-double IntegratedLuminosity8TeV = 11564;
+double IntegratedLuminosity8TeV = 16319;//11564;
 
 #ifdef ANALYSIS2011
 double               SQRTS          = 7;
