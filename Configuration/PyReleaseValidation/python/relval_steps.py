@@ -225,10 +225,10 @@ steps['SingleMuPt10_ID']=identitySim(steps['SingleMuPt10'])
 steps['TTbar_ID']=identitySim(steps['TTbar'])
 
 baseDataSetRelease=[
-    'CMSSW_6_0_0-START60_V4-v1',
-    'CMSSW_6_0_0-STARTHI60_V4-v1',
-    'CMSSW_6_0_0-PU_START60_V4-v1',
-    'CMSSW_6_0_0-START60_V4_FastSim-v1'
+    'CMSSW_6_1_0_pre6-START61_V5',#'CMSSW_6_0_0-START60_V4-v1',
+    'CMSSW_6_1_0_pre6-STARTHI61_V6-v1',#'CMSSW_6_0_0-STARTHI60_V4-v1',
+    'CMSSW_6_1_0_pre6-START61_V5',#'CMSSW_6_0_0-PU_START60_V4-v1',
+    'CMSSW_6_1_0_pre6-START61_V5_FastSim-v1'#'CMSSW_6_0_0-START60_V4_FastSim-v1'
     ]
 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
