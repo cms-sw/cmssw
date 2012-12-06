@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2011/07/01 09:42:52 $ by $Author: mussgill $
+# last update: $Date: 2012/02/11 15:22:32 $ by $Author: demattia $
 
 # AlCaReco sequence definitions:
 
@@ -111,7 +111,10 @@ pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
-pathALCARECOEcalCalElectron = cms.Path(seqALCARECOEcalCalElectron*ALCARECOEcalCalElectronCalibDQM)
+
+pathALCARECOEcalCalZElectron = cms.Path(seqALCARECOEcalCalZElectron)
+pathALCARECOEcalCalWElectron = cms.Path(seqALCARECOEcalCalWElectron)
+
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets*ALCARECOHcalCalDiJetsDQM)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO*ALCARECOHcalCalHODQM)
@@ -225,9 +228,9 @@ ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
 	)
 
 ALCARECOStreamEcalCalElectron = cms.FilteredStream(
-	responsible = 'Pietro Govoni',
+	responsible = 'Shervin Nourbakhsh',
 	name = 'EcalCalElectron',
-	paths  = (pathALCARECOEcalCalElectron),
+	paths  = (pathALCARECOEcalCalZElectron, pathALCARECOEcalCalWElectron),
 	content = OutALCARECOEcalCalElectron.outputCommands,
 	selectEvents = OutALCARECOEcalCalElectron.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')

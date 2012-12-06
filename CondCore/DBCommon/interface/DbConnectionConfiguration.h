@@ -26,6 +26,8 @@ namespace cond{
   class CoralServiceManager;
 
   enum DbConfigurationDefaults { CoralDefaults, CmsDefaults, ProdDefaults, ToolDefaults, WebDefaults};
+
+  enum DbAuthenticationSystem { UndefinedAuthentication=0,CondDbKey, CoralXMLFile };
   
   class DbConnectionConfiguration{
   public:
@@ -58,6 +60,7 @@ namespace cond{
     void setPoolAutomaticCleanUp( bool flag );
     // authentication 
     void setAuthenticationPath( const std::string& p );
+    void setAuthenticationSystem( int authSysCode );
     // transaction Id for multijob (used by frontier)
     void setTransactionId( std::string const & tid);
     // message level
@@ -87,6 +90,7 @@ namespace cond{
     std::pair<bool,int> m_connectionRetrialTimeOut;
     std::pair<bool,bool> m_poolAutomaticCleanUp;
     std::string m_authPath;
+    int m_authSys;
     std::string m_transactionId;
     coral::MsgLevel m_messageLevel;
     coral::monitor::Level m_monitoringLevel;  

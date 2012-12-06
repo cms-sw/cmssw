@@ -5,8 +5,8 @@
 #include "TString.h"
 #include "TROOT.h"
 
-#include "FitResolSlices.cc"
-#include "FitMassSlices.cc"
+#include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/FitResolSlices.cc"
+#include "/home/destroyar/Desktop/MuScleFit/RooFitTest/Macros/FitMassSlices.cc"
 #include "TLegend.h"
 
 TH1 * getHisto(TDirectory * dir)

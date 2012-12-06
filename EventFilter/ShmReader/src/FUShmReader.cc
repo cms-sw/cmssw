@@ -45,8 +45,12 @@ FUShmReader::~FUShmReader()
   if (0!=shmBuffer_) {
     edm::LogInfo("FUShmReader")<<"detach from shared memory segment."<<endl;
     if (lastCellIndex_<0xffffffff) {
-      shmBuffer_->writeErrorEventData(runNumber_,getpid(),lastCellIndex_);
-      shmBuffer_->removeClientPrcId(getpid());
+      edm::LogWarning("FUShmReader") << "Class destructor called without received STOP event!"<<endl;
+      if (lastCellIndex_<0xfffffffe)//not sending lumi cell to the error stream
+        shmBuffer_->writeErrorEventData(runNumber_,getpid(),lastCellIndex_,true);
+      bool success = shmBuffer_->removeClientPrcId(getpid());
+      if (!success)
+        edm::LogWarning("ShmMissingPID")<<"Destructor: did not find pid in shared memory index"<<endl;
     }
     shmdt(shmBuffer_);
   }
@@ -86,12 +90,17 @@ int FUShmReader::fillRawData(EventID& eID,
     edm::LogInfo("ShutDown")<<"Received STOP event, shut down."<<endl;
     std::cout << getpid() << " Received STOP event, shut down." << std::endl;
     if(newCell->getEventType() != evt::STOPPER){
-      edm::LogError("InconsistentLsCell") << getpid() 
+      edm::LogError("InconsistentStopCell") << getpid() 
 					  << " GOT what claims to be a STOPPER event but eventType is " 
 					  <<  newCell->getEventType()
 					  << std::endl;
     }
-    shmBuffer_->scheduleRawEmptyCellForDiscard(newCell);
+    bool pidstatus=true;
+    bool success = shmBuffer_->scheduleRawEmptyCellForDiscard(newCell,pidstatus);
+    if (!success) //should not happen for STOPPER cell
+        edm::LogError("InconsistentStopCell")<<"fillRawData:STOP: failed to discard STOP event raw cell!"<<endl;
+    else if (!pidstatus) 
+        edm::LogWarning("ShmMissingPID")<<"fillRawData:STOP: did not find pid in shared memory pid index"<<endl;
     shmdt(shmBuffer_);
     shmBuffer_=0;
     event_=0;
@@ -109,8 +118,7 @@ int FUShmReader::fillRawData(EventID& eID,
       shmBuffer_->sem_print();
     }
     shmBuffer_->scheduleRawCellForDiscard(newCell->index());
-    //write process ID for raw cell to shm
-    shmBuffer_->setEvtPrcId(newCell->index(),getpid());
+    lastCellIndex_=0xfffffffe;
     if(ls==0){
       edm::LogError("ZeroLsCell") << getpid() 
 				  << " GOT an EOL event for ls 0!!!" 
@@ -131,8 +139,6 @@ int FUShmReader::fillRawData(EventID& eID,
   // read the event data into the fwk raw data format
   evtNumber_    =newCell->evtNumber();
   lastCellIndex_=newCell->index();
-  //write process ID for the current raw cell to shm
-  shmBuffer_->setEvtPrcId(lastCellIndex_,getpid());
   event_        =new FEDRawDataCollection();
   for (unsigned int i=0;i<newCell->nFed();i++) {
     unsigned int fedSize=newCell->fedSize(i);

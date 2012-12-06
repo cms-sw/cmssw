@@ -92,7 +92,7 @@ DTTSCand::setBitsTss() {
   int itk=_dataword.element(14); // first tracks 0, second tracks 1
  
    clearBits();
-   if(_tctrig->pvK()>32 || _tctrig->pvK()<0){ // Check K within 5 bits range
+      if(_tctrig->pvK()>32|| _tctrig->pvK()<0){ // Check K within 5 bits range
      std::cout << "DTTSCand::setBitsTss() pvK outside valid range: " << _tctrig->pvK();
      std::cout << " deltaPsiR set to 31" << std::endl;
    }
@@ -189,7 +189,7 @@ DTTSCand::setBitsTsm() {
 
   clearBits();
 
-  if(_tctrig->pvK()>31 || _tctrig->pvK()<0){ // Check K within 5 bits range
+  if(_tctrig->pvK()>31|| _tctrig->pvK()<0){ // Check K within 5 bits range
     std::cout << "DTTSCand::setBitsTsm pvK outside valid range: " << _tctrig->pvK();
     std::cout << " deltaPsiR set to 31" << std::endl;
   }

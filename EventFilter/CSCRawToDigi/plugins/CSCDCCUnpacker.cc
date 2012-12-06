@@ -915,7 +915,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	         std::cout << tempbuf1 << std::endl; w=0;
 		 }
 
-		 ///ALCT Header 1,2		
+		 //ALCT Header 1,2		
           else if(alct_h1_check[1]){
 	         alct_start=word_numbering;
 	         alct_inst_l1a=(buf[i+2]&0x0FFF);
@@ -1200,11 +1200,8 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	        std::cout << sign << std::endl;
           */
            std::cout << "Line: " << "    " << alct_t1_coll[k] << " " << sign1 << " " << alct_common << " " << 
-	        alct_common_wcnt1 << " " << alct_wcnt1_coll[k] << " " << alct_common_wcnt2 << " "; 
-                if(alct_wcnt2_coll.size()>0){
-                std::cout << alct_wcnt2_coll[k] << std::endl;}
-                else {
-                std::cout << "Undefined (ALCT Header is not found) " << std::endl;} 
+	        alct_common_wcnt1 << " " << alct_wcnt1_coll[k] << " " << alct_common_wcnt2 << " " << 
+                alct_wcnt2_coll[k] << std::endl;
 	   }
 	   
 	std::cout << std::endl << std::endl;

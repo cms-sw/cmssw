@@ -15,6 +15,7 @@ process.source = cms.Source("PoolSource",
 process.dummy = cms.EDAnalyzer("DummyHepMCAnalyzer",
     src = cms.InputTag("generator"),
     dumpHepMC = cms.untracked.bool(True),
+    dumpPDF = cms.untracked.bool(False),
     checkPDG = cms.untracked.bool(False)
 )
 

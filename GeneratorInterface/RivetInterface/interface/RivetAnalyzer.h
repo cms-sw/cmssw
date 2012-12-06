@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Rivet/RivetAIDA.fhh"
+
 #include "Rivet/AnalysisHandler.hh"
 
 namespace edm{
@@ -32,15 +32,10 @@ class RivetAnalyzer : public edm::EDAnalyzer
   
   private:
 
-  void normalizeTree(AIDA::ITree& tree);
-
   edm::InputTag            _hepmcCollection;
-  bool                     _useExternalWeight;
-  edm::InputTag            _genEventInfoCollection;
   Rivet::AnalysisHandler   _analysisHandler;   
   bool                     _isFirstEvent;
-  std::string              _outFileName;
-  bool                     _doFinalize;
+  std::string              _outFileName; 
 };
 
 #endif
