@@ -11,7 +11,7 @@
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
 //         Created:  Thu Dec  1 16:07:41 CET 2011
-// $Id: PFCand_NoPU_WithAM.cc,v 1.3 2012/05/15 08:25:34 mgeisler Exp $
+// $Id: PFCand_NoPU_WithAM.cc,v 1.4 2012/11/21 09:54:56 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_NoPU_WithAM.h"
@@ -97,19 +97,19 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	bool p2vassmap = false;
 	bool v2passmap = false;
   
-	//get the input vertex<->general track association map
+	//get the input vertex<->pf-candidate association map
   	Handle<PFCandToVertexAssMap> p2vAM;
   	Handle<VertexToPFCandAssMap> v2pAM;
 	
 	string asstype = input_AssociationType_.label();
 
-	if ( ( asstype == "TracksToVertex" ) || ( asstype == "Both" ) ) {
+	if ( ( asstype == "PFCandsToVertex" ) || ( asstype == "Both" ) ) {
           if ( iEvent.getByLabel(input_VertexPFCandAssociationMap_, p2vAM ) ) {
 	    p2vassmap = true;
 	  }
 	}
 
-	if ( ( asstype == "VertexToTracks" ) || ( asstype == "Both" ) ) {
+	if ( ( asstype == "VertexToPFCands" ) || ( asstype == "Both" ) ) {
           if ( iEvent.getByLabel(input_VertexPFCandAssociationMap_, v2pAM ) ) {
 	    v2passmap = true;
 	  }
@@ -135,7 +135,7 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  const PFCandQualityPairVector pfccoll = p2vAM->begin()->val;
 
-	  //get the tracks associated to the first vertex and store them in a track collection
+	  //get the candidates associated to the first vertex and store them in a pf-candidate collection
 	  for (unsigned int pfccoll_ite = 0; pfccoll_ite < pfccoll.size(); pfccoll_ite++){
      
             PFCandidateRef pfcand = pfccoll[pfccoll_ite].first;
