@@ -101,6 +101,7 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 
 	  }
 
+	  delete vtxColl_help;	  
        	}
 
 	return pfcand2vertex;
@@ -166,6 +167,7 @@ PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollec
 
 	  }
 
+	  delete vtxColl_help;
        	}
 
 	return vertex2pfcand;
