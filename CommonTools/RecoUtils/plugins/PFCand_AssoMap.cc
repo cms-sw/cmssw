@@ -10,7 +10,7 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id: PFCand_AssoMap.cc,v 1.4 2012/08/28 14:16:51 mgeisler Exp $
+// $Id: PFCand_AssoMap.cc,v 1.5 2012/11/21 09:52:27 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMap.h"
@@ -41,10 +41,10 @@ PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig):PFCand_AssoMapA
 
    //register your products
 
-	if ( input_AssociationType_.label() == "TracksToVertex" ) {
+	if ( input_AssociationType_.label() == "PFCandsToVertex" ) {
   	  produces<PFCandToVertexAssMap>();
 	} else {
-	  if ( input_AssociationType_.label() == "VertexToTracks" ) {
+	  if ( input_AssociationType_.label() == "VertexToPFCands" ) {
   	    produces<VertexToPFCandAssMap>();
 	  } else {
 	    if ( input_AssociationType_.label() == "Both" ) {
