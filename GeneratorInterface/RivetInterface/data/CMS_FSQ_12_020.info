@@ -17,12 +17,3 @@ Energies: [900, 7000]
 pT Cuts: pT > 0.5 GeV (all tracks).
 Description: 
 A measurement of the underlying event activity is performed on proton-proton collisions for sqrt(s) = 0.9 TeV and 7 TeV at CMS. The charged particles in the azimuthal region transverse to the leading track with pT > 0.5 GeV/c and within |eta| < 0.8 are studied. The aim of the study is to compare the measurements with various MC predictions to get extra constraints for the tuning parameters, as well as getting a better understanding for the underlying event phenomena. A significant increase in the average multiplicity and the scalar SumpT in the transverse region is observed up to a leading track pT of few GeV/c followed by a slower rate of increase. Both quantities are observed to increase with sqrt(s).  
-
-@article{CMS-PAS-FSQ-12-020,
-      title        = "Measurement of the Underlying Event Activity
-at the LHC at
-                      7 TeV
-and Comparison with 0.9 TeV",
-      year         = "2012",
-	eprint = " http://cdsweb.cern.ch/record/1478982?ln=en"
-}
