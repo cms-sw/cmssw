@@ -6,6 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 AlignmentExtendedCorrelationsStore::AlignmentExtendedCorrelationsStore( const edm::ParameterSet& config )
@@ -233,7 +234,7 @@ AlignmentExtendedCorrelationsStore::fillCovariance( Alignable* ap1, Alignable* a
   for ( int iRow = 0; iRow < nRow; ++iRow )
   {
     double factor = sqrt(cov[row+iRow][row+iRow]);
-    if ( std::isnan(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovariance] "
+    if ( edm::isNotFinite(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovariance] "
 							    << "NaN-factor: sqrt(" << cov[row+iRow][row+iRow] << ")";
 
     for ( int jCol = 0; jCol < nCol; ++jCol )
@@ -243,7 +244,7 @@ AlignmentExtendedCorrelationsStore::fillCovariance( Alignable* ap1, Alignable* a
   for ( int jCol = 0; jCol < nCol; ++jCol )
   {
     double factor = sqrt(cov[col+jCol][col+jCol]);
-    if ( std::isnan(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovariance] "
+    if ( edm::isNotFinite(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovariance] "
 							    << "NaN-factor: sqrt(" << cov[col+jCol][col+jCol] << ")";
 
     for ( int iRow = 0; iRow < nRow; ++iRow )
@@ -262,7 +263,7 @@ AlignmentExtendedCorrelationsStore::fillCovarianceT( Alignable* ap1, Alignable* 
   for ( int iRow = 0; iRow < nRow; ++iRow )
   {
     double factor = sqrt(cov[col+iRow][col+iRow]);
-    if ( std::isnan(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovarianceT] "
+    if ( edm::isNotFinite(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovarianceT] "
 							    << "NaN-factor: sqrt(" << cov[col+iRow][col+iRow] << ")";
     for ( int jCol = 0; jCol < nCol; ++jCol )
       cov[row+jCol][col+iRow] = entry( iRow, jCol )*factor;
@@ -271,7 +272,7 @@ AlignmentExtendedCorrelationsStore::fillCovarianceT( Alignable* ap1, Alignable* 
   for ( int jCol = 0; jCol < nCol; ++jCol )
   {
     double factor = sqrt(cov[row+jCol][row+jCol]);
-    if ( std::isnan(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovarianceT] "
+    if ( edm::isNotFinite(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovarianceT] "
 							    << "NaN-factor: sqrt(" << cov[row+jCol][row+jCol] << ")";
     for ( int iRow = 0; iRow < nRow; ++iRow )
       cov[row+jCol][col+iRow] *= factor;

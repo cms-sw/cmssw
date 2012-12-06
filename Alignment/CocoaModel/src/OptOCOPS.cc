@@ -17,11 +17,12 @@
 #include "Alignment/CocoaModel/interface/ALIPlane.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 #include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <math.h>     		// I have added a new library for isnan() function
+#include <math.h>     		// I have added a new library for edm::isNotFinite() function
 #include <cstdlib>
 
 using namespace CLHEP;
@@ -265,8 +266,8 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   for( ii = 0; ii < 4; ii++ ) {
     if (ALIUtils::debug >= 2) std::cout << "\tmeas CCD " << measNames[ii] << " ii=(" << ii << ") \t Values: "
      //<< (fabs( measv[ii][0] ) <  fabs( measv[ii][1]) 
-       << " " << fabs( measv[ii][0] ) << " " <<  fabs( measv[ii][1] ) << "  isnan() = " <<
-       std::isnan(measv[ii][1]) << std::endl;
+       << " " << fabs( measv[ii][0] ) << " " <<  fabs( measv[ii][1] ) << "  edm::isNotFinite() = " <<
+       edm::isNotFinite(measv[ii][1]) << std::endl;
 
     if( meas.xlaserLine( ii ) != -1 ) { 
       laserLine = ALIbool( meas.xlaserLine( ii ) );
@@ -277,7 +278,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
     //  Somehow measv[][1] can occasionally return value of 'nan'
     //  which is interpretted as less than any real value
     //
-      if(std::isnan(measv[ii][1]) != 0){
+      if(edm::isNotFinite(measv[ii][1]) != 0){
       		measv[ii][1] = 1e99;
 		if (ALIUtils::debug >= 2) std::cout << "  --> Swapping for " << measv[ii][1] << "(inf)" << std::endl;
 				  }
