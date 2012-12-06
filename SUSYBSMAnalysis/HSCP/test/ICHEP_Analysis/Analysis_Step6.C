@@ -793,7 +793,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->Add(ThGraphMap["Stop"       ]      ,"L");
    MGMu->Add(ThGraphMap["GMStau"     ]      ,"L");
    MGMu->Add(ThGraphMap["PPStau"     ]      ,"L");
-   }
+   }   
    MGMu->Add(MuGraphMap["Gluino_f10" ]      ,"LP");
    MGMu->Add(MuGraphMap["Gluino_f50" ]      ,"LP");
    MGMu->Add(MuGraphMap["Stop"       ]      ,"LP");
@@ -806,7 +806,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThErrorMap["Stop"      ]->Draw("f");
    ThErrorMap["GMStau"    ]->Draw("f");
    ThErrorMap["PPStau"    ]->Draw("f");
+   }else{
+      TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
+
    MGMu->Draw("same");
    MGMu->SetTitle("");
    MGMu->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
@@ -875,7 +878,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThErrorMap["Stop"      ]->Draw("f");
    ThErrorMap["GMStau"    ]->Draw("f");
    ThErrorMap["PPStau"    ]->Draw("f");
+   }else{
+      TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
+
    MGTk->Draw("same");
    MGTk->SetTitle("");
    MGTk->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
@@ -993,6 +999,60 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    SaveCanvas(c1, outpath, string("TkDCExclusionLog"));
    delete c1;
    */
+
+
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* MGMO = new TMultiGraph();
+   if(!Combine) {
+   MGMO->Add(ThGraphMap["Gluino_f10" ]     ,"L");
+   MGMO->Add(ThGraphMap["Stop"       ]     ,"L");
+   }
+
+   MGMO->Add(MOGraphMap["Gluino_f10" ]     ,"LP");
+   MGMO->Add(MOGraphMap["Gluino_f50" ]     ,"LP");
+   MGMO->Add(MOGraphMap["Gluino_f100"]     ,"LP");
+   MGMO->Add(MOGraphMap["Stop"       ]     ,"LP");
+
+   MGMO->Draw("A");
+   if(!Combine) {
+   ThErrorMap["Gluino_f10"]->Draw("f");
+   ThErrorMap["Stop"      ]->Draw("f");
+   }else{
+      TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
+   }
+
+   MGMO->Draw("same");
+   MGMO->SetTitle("");
+   MGMO->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+   MGMO->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
+   MGMO->GetYaxis()->SetTitleOffset(1.70);
+   MGMO->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   MGMO->GetXaxis()->SetRangeUser(50,1550);
+   
+   DrawPreliminary("Muon - Only", SQRTS, LInt);
+   
+   TLegend* LEGMO = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.10,0.795,0.42);
+   LEGMO->SetFillColor(0); 
+   LEGMO->SetFillStyle(0);
+   LEGMO->SetBorderSize(0);
+   LEGMO->AddEntry(MOGraphMap["Gluino_f100" ], "gluino; 100% #tilde{g}g"            ,"LP");
+   LEGMO->AddEntry(MOGraphMap["Gluino_f50" ], "gluino; 50% #tilde{g}g"            ,"LP");
+   LEGMO->AddEntry(MOGraphMap["Gluino_f10" ], "gluino; 10% #tilde{g}g"            ,"LP");
+   LEGMO->AddEntry(MOGraphMap["Stop"       ], "stop"                              ,"LP");
+   if(!Combine) LEGTh->Draw();
+   LEGMO->Draw();
+   c1->SetLogy(true);
+   SaveCanvas(c1, outpath, string("MOExclusionLog"));
+   delete c1;
+
+
+
+
+
+
+
+
    /////////////////////////////// LQ Analysis
    TLegend* LQLEGTh = new TLegend(0.15,0.7,0.48,0.9);
    c1 = new TCanvas("c1", "c1",600,600);
@@ -1024,7 +1084,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(!Combine) {
    ThErrorMap["DY_Q1o3"   ]->Draw("f");
    ThErrorMap["DY_Q2o3"   ]->Draw("f");
+   }else{
+      TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
+
    MGLQ->Draw("same");
    MGLQ->SetTitle("");
    MGLQ->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
@@ -1047,47 +1110,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGLQ->Draw();
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("LQExclusionLog"));
-   delete c1;
-
-   c1 = new TCanvas("c1", "c1",600,600);
-   TMultiGraph* MGMO = new TMultiGraph();
-   if(!Combine) {
-   MGMO->Add(ThGraphMap["Gluino_f10" ]     ,"L");
-   MGMO->Add(ThGraphMap["Stop"       ]     ,"L");
-   }
-
-   MGMO->Add(MOGraphMap["Gluino_f10" ]     ,"LP");
-   MGMO->Add(MOGraphMap["Gluino_f50" ]     ,"LP");
-   MGMO->Add(MOGraphMap["Gluino_f100"]     ,"LP");
-   MGMO->Add(MOGraphMap["Stop"       ]     ,"LP");
-
-   MGMO->Draw("A");
-   if(!Combine) {
-   ThErrorMap["Gluino_f10"]->Draw("f");
-   ThErrorMap["Stop"      ]->Draw("f");
-   }
-   MGMO->Draw("same");
-   MGMO->SetTitle("");
-   MGMO->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   MGMO->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
-   MGMO->GetYaxis()->SetTitleOffset(1.70);
-   MGMO->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   MGMO->GetXaxis()->SetRangeUser(50,1550);
-   
-   DrawPreliminary("Muon - Only", SQRTS, LInt);
-   
-   TLegend* LEGMO = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.10,0.795,0.42);
-   LEGMO->SetFillColor(0); 
-   LEGMO->SetFillStyle(0);
-   LEGMO->SetBorderSize(0);
-   LEGMO->AddEntry(MOGraphMap["Gluino_f100" ], "gluino; 100% #tilde{g}g"            ,"LP");
-   LEGMO->AddEntry(MOGraphMap["Gluino_f50" ], "gluino; 50% #tilde{g}g"            ,"LP");
-   LEGMO->AddEntry(MOGraphMap["Gluino_f10" ], "gluino; 10% #tilde{g}g"            ,"LP");
-   LEGMO->AddEntry(MOGraphMap["Stop"       ], "stop"                              ,"LP");
-   if(!Combine) LEGTh->Draw();
-   LEGMO->Draw();
-   c1->SetLogy(true);
-   SaveCanvas(c1, outpath, string("MOExclusionLog"));
    delete c1;
 
 
@@ -1114,7 +1136,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      ThErrorMap["DY_Q3"]->Draw("f");
      ThErrorMap["DY_Q4"]->Draw("f");
      ThErrorMap["DY_Q5"]->Draw("f");
+   }else{
+      TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
+
    
    MGHQ->Draw("same");
    MGHQ->SetTitle("");

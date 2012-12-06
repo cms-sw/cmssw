@@ -57,7 +57,7 @@ void Analysis_Step5()
 //   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);return;
 
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
-//   Make2DPlot_Core(InputPattern, 0);
+   Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "8TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "7TeV_Loose");
    MassPrediction(InputPattern, CutIndex,      "Mass", false, "8TeV_LooseNoSMMC");
@@ -68,8 +68,8 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndexTight, "Mass", false, "7TeV_TightNoSMMC");
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
-//   CutFlow(InputPattern, CutIndex);
-//   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
+   CutFlow(InputPattern, CutIndex);
+   SelectionPlot(InputPattern, CutIndex, CutIndexTight);
 
 
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
@@ -112,7 +112,6 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
-
    
    //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "0");
    //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "1");
@@ -123,6 +122,7 @@ void Analysis_Step5()
   
    InputPattern = "Results/Type4/";   CutIndex = 21; CutIndexTight = 240; CutIndex_Flip=21;
    Make2DPlot_Core(InputPattern, 0);
+   //this crash if we first run analysis 0+2+3 --> very strange
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CheckPrediction(InputPattern, "", "Data7TeV");
@@ -782,6 +782,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          t1->Draw();
          t1->cd();
          t1->SetLogy(true);
+         t1->SetTopMargin(0.06);
 
          TH1D* frame = new TH1D("frame", "frame", 1,std::max(xmin,0.02),xmax);
          frame->GetXaxis()->SetNdivisions(505);
@@ -819,6 +820,12 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          frameR->SetMinimum(0.60);
          frameR->Draw("AXIS");
 
+         frameR->GetYaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
+         frameR->GetYaxis()->SetTitleSize(15); //font size
+
+//         T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
+//         T->SetTextSize(15);  //font size
+
          t1->cd();
 
          std::pair<float, float> P1, P2, P3;
@@ -845,7 +852,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          mapPred[P1]->SetLineWidth(2.0);   mapRatio[P1]->SetLineWidth(2.0);
          mapPred[P1]->SetFillColor(2);     mapRatio[P1]->SetFillColor(2);
          mapPred[P1]->SetFillStyle(3004);  mapRatio[P1]->SetFillStyle(3004);
-         mapPred[P1]->Draw("3C");
+         mapPred[P1]->Draw("3L");
 
          mapObs[P2]->SetMarkerColor(4);
          mapObs[P2]->SetMarkerStyle(20);
@@ -854,7 +861,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          mapPred[P2]->SetLineWidth(2.0);   mapRatio[P2]->SetLineWidth(2.0);
          mapPred[P2]->SetFillColor(4);     mapRatio[P2]->SetFillColor(4);
          mapPred[P2]->SetFillStyle(3005);  mapRatio[P2]->SetFillStyle(3005);
-         mapPred[P2]->Draw("3C");
+         mapPred[P2]->Draw("3L");
 
          mapObs[P3]->SetMarkerColor(8);
          mapObs[P3]->SetMarkerStyle(20);
@@ -863,7 +870,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          mapPred[P3]->SetLineWidth(2.0);   mapRatio[P3]->SetLineWidth(2.0);
          mapPred[P3]->SetFillColor(8);     mapRatio[P3]->SetFillColor(8);
          mapPred[P3]->SetFillStyle(3007);  mapRatio[P3]->SetFillStyle(3007);
-         mapPred[P3]->Draw("3C");
+         mapPred[P3]->Draw("3L");
 
          TH1D* obsLeg = (TH1D*)mapObs [P1]->Clone("ObsLeg");
          obsLeg->SetMarkerColor(1);
@@ -873,6 +880,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          LEG->AddEntry(mapPred[P3], L3.c_str(),"FL");
          LEG->Draw("same");
 
+         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
          t2->cd();
          
          mapRatio[P1]->Draw("3C");
@@ -880,7 +888,6 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          mapRatio[P3]->Draw("3C");
 
          c1->cd();
-         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
          SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObs"+suffix);
          delete c1;
       }      
@@ -1022,7 +1029,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int CutI
     if(TypeMode<=2){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Gluino", LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_8TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);}
     if(TypeMode==3){ 
       //SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_7TeV", LegendTitle, CutIndex, CutIndexTight, &Data7TeVPlots,&SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);
-      SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_8TeV", LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_8TeV_M1200_f100",samples)]);
+      SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Cosmic", LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_8TeV_M1200_f100",samples)]);
       //SQRTS=78; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_78TeV", LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);
     }
     if(TypeMode==0 || TypeMode==4){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_DY_QG"    , LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M400_Q1",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M400_Q3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M400_Q5",samples)]);}
@@ -1707,7 +1714,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2Mass,  samples[S2i].Legend.c_str()   ,"P");
    leg->AddEntry(Signal3Mass,  samples[S3i].Legend.c_str()   ,"P");
    leg->Draw();
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
    SaveCanvas(c1, outpath, outName + "_Mass");
    delete c1;
 
@@ -1819,7 +1826,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2PtIs,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3PtIs,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
    SaveCanvas(c1, outpath, outName + "_PtIs", true);
    delete c1;
 
@@ -1867,7 +1874,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2PIm,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3PIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
    SaveCanvas(c1, outpath, outName + "_PIm", true);
    delete c1;
 
@@ -1900,7 +1907,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2TOFIs,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3TOFIs,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
    SaveCanvas(c1, outpath, outName + "_TOFIs", true);
    delete c1;
 
@@ -1934,7 +1941,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2TOFIm,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3TOFIm,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
    SaveCanvas(c1, outpath, outName + "_TOFIm", true);
    delete c1;
 
@@ -1967,7 +1974,7 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    leg->AddEntry(Signal2PtTOF,  samples[S2i].Legend.c_str()   ,"F");
    leg->AddEntry(Signal3PtTOF,  samples[S3i].Legend.c_str()   ,"F");
    leg->Draw();
-   DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary(LegendTitle + " - Simulation", SQRTS, -1);
    SaveCanvas(c1, outpath, outName + "_PtTOF", false);
    delete c1;
 
