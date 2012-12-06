@@ -17,6 +17,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecAbsAlgo.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include <vector>
 #include <string>
@@ -333,7 +334,7 @@ template<class C> float EcalUncalibRecHitFixedAlphaBetaAlgo<C>::PerformAnalyticF
     // Probably the fastest way to protect against
     // +-inf value in the matrix DM1_ after inversion
     // (which is nevertheless flagged as successfull...)
-    if ( std::isnan( PROD[0] ) ) {
+    if ( edm::isNotFinite( PROD[0] ) ) {
             InitFitParameters(samples,max_sample);
             return -103 ;
     }
