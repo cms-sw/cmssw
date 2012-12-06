@@ -7,6 +7,7 @@
 
 #include "EventFilter/StorageManager/interface/MonitoredQuantity.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 /////////////////////////////////////////////////////////////
 //
@@ -70,7 +71,7 @@ void testMonitoredQuantity::accumulateSamples
   double &squareSum
 )
 {
-  assert(!std::isnan(squareSum));
+  assert(edm::isFinite(squareSum));
   for (
     unsigned int i = 1;
     i <= sampleCount;
