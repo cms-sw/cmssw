@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/plugins/SubEventGenJetProducer.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -51,7 +52,7 @@ void SubEventGenJetProducer::inputTowers( )
       inEnd = inputs_.end(), i = inBegin;
    for (; i != inEnd; ++i ) {
       reco::CandidatePtr input = inputs_[i - inBegin];
-      if (std::isnan(input->pt()))           continue;
+      if (edm::isNotFinite(input->pt()))           continue;
       if (input->et()    <inputEtMin_)  continue;
       if (input->energy()<inputEMin_)   continue;
       if (isAnomalousTower(input))      continue;

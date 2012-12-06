@@ -3,6 +3,7 @@
 #include "RecoJets/FFTJetProducers/interface/FFTJetInterface.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -76,7 +77,7 @@ void FFTJetInterface::loadInputCollection(const edm::Event& iEvent)
         const reco::Candidate& item(*it);
         if (anomalous(item))
             continue;
-        if (std::isnan(item.pt()))
+        if (edm::isNotFinite(item.pt()))
             continue;
 
         if (adjustForVertex)

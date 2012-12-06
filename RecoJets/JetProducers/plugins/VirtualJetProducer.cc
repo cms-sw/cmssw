@@ -17,6 +17,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -409,7 +410,7 @@ void VirtualJetProducer::inputTowers( )
     inEnd = inputs_.end(), i = inBegin;
   for (; i != inEnd; ++i ) {
     reco::CandidatePtr input = *i;
-    if (std::isnan(input->pt()))           continue;
+    if (edm::isNotFinite(input->pt()))           continue;
     if (input->et()    <inputEtMin_)  continue;
     if (input->energy()<inputEMin_)   continue;
     if (isAnomalousTower(input))      continue;
@@ -588,7 +589,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 	}
       */
       clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
-      if((*rho < 0)|| (std::isnan(*rho))) {
+      if((*rho < 0)|| (edm::isNotFinite(*rho))) {
 	edm::LogError("BadRho") << "rho value is " << *rho << " area:" << mean_area << " and n_empty_jets: " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description()
 				<<". Setting rho to rezo.";
 	*rho = 0;
