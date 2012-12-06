@@ -1,10 +1,11 @@
 //
-// $Id: PATElectronProducer.cc,v 1.71 2012/10/04 12:37:17 beaudett Exp $
+// $Id: PATElectronProducer.cc,v 1.72 2012/10/05 09:44:33 beaudett Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -386,7 +387,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
           double sigmaIphiIphi;
           double sigmaIetaIphi;
           std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-          if( !isnan(vCov[2])) sigmaIphiIphi = sqrt(vCov[2]);
+          if( !edm::isNotFinite(vCov[2])) sigmaIphiIphi = sqrt(vCov[2]);
           else sigmaIphiIphi = 0;
           sigmaIetaIphi = vCov[1];
           anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
@@ -581,7 +582,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       double sigmaIphiIphi;
       double sigmaIetaIphi;
       std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-      if( !isnan(vCov[2])) sigmaIphiIphi = sqrt(vCov[2]);
+      if( !edm::isNotFinite(vCov[2])) sigmaIphiIphi = sqrt(vCov[2]);
       else sigmaIphiIphi = 0;
       sigmaIetaIphi = vCov[1];
       anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
