@@ -2,3 +2,8 @@
 <use   name="boost"/>
 <bin   file="HcalGeometryTest.cpp">
 </bin>
+<library   file="HcalGeometryAnalyzer.cc" name="testHcalGeometryESProducer">
+ <use   name="FWCore/Framework"/>
+ <use   name="Geometry/Records"/>
+ <flags   EDM_PLUGIN="1"/>
+</library>
