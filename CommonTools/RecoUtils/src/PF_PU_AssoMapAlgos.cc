@@ -146,6 +146,8 @@ PF_PU_AssoMapAlgos::CreateTrackToVertexMap(edm::Handle<reco::TrackCollection> tr
 
 	  }
 
+	  delete vtxColl_help;
+
   	}
 
 	return track2vertex;
@@ -194,6 +196,8 @@ PF_PU_AssoMapAlgos::CreateVertexToTrackMap(edm::Handle<reco::TrackCollection> tr
 	    PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, assocVtx.first);
 
 	  }
+
+	  delete vtxColl_help;
   
 	}
 
