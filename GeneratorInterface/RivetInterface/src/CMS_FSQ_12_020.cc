@@ -51,11 +51,6 @@ namespace Rivet {
       _hist_profile_Nch_pT_09TeV = bookProfile1D(3, 1, 1);
       _hist_profile_SumpT_pT_09TeV = bookProfile1D(4, 1, 1);
 
-    int  _j = 0;
-    int  _jj = 0;
-    int  _jjj = 0;
-
-
       /// @todo Initialise and register projections here
 
       /// @todo Book histograms here, e.g.:
@@ -88,9 +83,7 @@ namespace Rivet {
       ParticleVector particles500 = charged500.particlesByPt();
       Particle p_lead = particles500[0];
       const double philead = p_lead.momentum().phi();
-      const double etalead = p_lead.momentum().eta();
       const double pTlead  = p_lead.momentum().perp();
-      //MSG_INFO("Leading track: pT = " << pTlead << ", eta = " << etalead << ", phi = " << philead);
 
    vector<double> num500(3, 0), ptSum500(3, 0.0);
 

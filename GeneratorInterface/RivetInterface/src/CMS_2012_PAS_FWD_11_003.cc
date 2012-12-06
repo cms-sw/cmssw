@@ -123,7 +123,6 @@ namespace Rivet {
       double xix    = 10;
       double xiy    = 10;
       double xidd   = 10e10;
-      double Rapiditymax = -1;
     
       // calculate xi of the event
       // sort Particles in rapidity, from rapidity_min to rapidity_max
@@ -163,7 +162,6 @@ namespace Rivet {
 	  deltaymax_pos = ipart;
         }
       }
-      Rapiditymax = deltaymax;
     
       // calculate Mx2 and My2 
       FourMomentum Xfourmom;
