@@ -5,6 +5,7 @@
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayEstimator.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayDerivatives.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 //#include "DataFormats/CLHEP/interface/Migration.h"
 
 TwoBodyDecayEstimator::TwoBodyDecayEstimator( const edm::ParameterSet & config )
@@ -222,14 +223,10 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
 
 bool TwoBodyDecayEstimator::checkValues( const AlgebraicVector & vec ) const
 {
-  bool isNan = false;
-  bool isInf = false;
+  bool isNotFinite = false;
 
   for ( int i = 0; i < vec.num_col(); ++i )
-  {
-    isNan = isNan || std::isnan( vec[i] );
-    isInf = isInf || std::isinf( vec[i] );
-  }
+    isNotFinite |= edm::isNotFinite( vec[i] );
 
-  return ( isNan || isInf );
+  return isNotFinite;
 }
