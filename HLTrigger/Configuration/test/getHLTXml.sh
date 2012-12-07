@@ -86,7 +86,7 @@ function getConfigForOnline() {
 # local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc"
 # local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
   local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
-  local L1TPI="L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.xml,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db"
+  local L1TPI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db"
 # local L1TPI="L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc"
 
   local L1XmlPP="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
