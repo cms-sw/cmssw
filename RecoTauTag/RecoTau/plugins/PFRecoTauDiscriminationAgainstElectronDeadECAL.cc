@@ -10,9 +10,9 @@
  * \authors Lauri Andreas Wendland,
  *          Christian Veelken
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.1 $
  *
- * $Id: PFRecoTauDiscriminationAgainstElectronDeadECAL.h,v 1.5 2012/04/24 07:21:49 veelken Exp $
+ * $Id: PFRecoTauDiscriminationAgainstElectronDeadECAL.cc,v 1.1 2012/11/22 18:02:15 veelken Exp $
  *
  */
 
@@ -75,7 +75,7 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
     const uint32_t caloGeometryId  = es.get<CaloGeometryRecord>().cacheIdentifier();
     const uint32_t idealGeometryId = es.get<IdealGeometryRecord>().cacheIdentifier();
     
-    if ( channelStatusId == channelStatusId_cache_ && caloGeometryId == caloGeometryId_cache_ && idealGeometryId == idealGeometryId_cache_ && !isFirstEvent_ ) return;
+    if ( !isFirstEvent_ && channelStatusId == channelStatusId_cache_ && caloGeometryId == caloGeometryId_cache_ && idealGeometryId == idealGeometryId_cache_  ) return;
 
     edm::ESHandle<EcalChannelStatus> channelStatus;    
     es.get<EcalChannelStatusRcd>().get(channelStatus);
