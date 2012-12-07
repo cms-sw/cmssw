@@ -12392,19 +12392,6 @@ HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT_BeamGas_HF_Beam1_v5, HLT_BeamGas_HF_Beam2_v5, HLT_BeamHalo_v13, HLT_PAHcalPhiSym_v1, HLT_PAHcalNZS_v1, HLT_GlobalRunHPDNoise_v8, HLT_Physics_v5, DST_Physics_v5, HLT_DTCalibration_v2, HLT_EcalCalibration_v3, HLT_HcalCalibration_v3, HLT_TrackerCalibration_v3, HLT_L1SingleMuOpen_AntiBPTX_v7, HLT_L1TrackerCosmics_v7, AlCa_PAEcalPi0EBonly_v1, AlCa_PAEcalPi0EEonly_v1, AlCa_PAEcalEtaEEonly_v1, AlCa_EcalPhiSym_v13, AlCa_RPCMuonNoTriggers_v9, AlCa_RPCMuonNoHits_v9, AlCa_RPCMuonNormalisation_v9, AlCa_LumiPixels_v8, AlCa_LumiPixels_ZeroBias_v4, AlCa_LumiPixels_Random_v1, HLT_PAL1SingleJet16_v1, HLT_PAL1SingleJet36_v1, HLT_PASingleForJet15_v1, HLT_PASingleForJet25_v1, HLT_PAJet40_NoJetID_v1, HLT_PAJet60_NoJetID_v1, HLT_PAJet80_NoJetID_v1, HLT_PAJet100_NoJetID_v1, HLT_PAForJet40Eta2_v1, HLT_PAForJet60Eta2_v1, HLT_PAForJet80Eta2_v1, HLT_PAForJet40Eta3_v1, HLT_PAForJet60Eta3_v1, HLT_PAForJet80Eta3_v1, HLT_PATripleJet40_20_20_v1, HLT_PATripleJet60_20_20_v1, HLT_PATripleJet80_20_20_v1, HLT_PAJet40ETM30_v1, HLT_PAL1DoubleMu0_v1, HLT_PADimuon0_NoVertexing_v1, HLT_PAL1DoubleMu0_HighQ_v1, HLT_PAL1DoubleMuOpen_v1, HLT_PAL2DoubleMu3_v1, HLT_PAMu3_v1, HLT_PAMu7_v1, HLT_PAMu12_v1, HLT_PABTagMu_Jet20_Mu4_v1, HLT_PAMu3PFJet20_v1, HLT_PAMu3PFJet40_v1, HLT_PAMu7PFJet20_v1, HLT_PAPhoton10_NoCaloIdVL_v1, HLT_PAPhoton20_NoCaloIdVL_v1, HLT_PAPhoton30_NoCaloIdVL_v1, HLT_PAPhoton40_NoCaloIdVL_v1, HLT_PAPhoton60_NoCaloIdVL_v1, HLT_PAPhoton10_Photon10_NoCaloIdVL_v1, HLT_PAPhoton15_Photon10_NoCaloIdVL_v1, HLT_PAPhoton20_Photon15_NoCaloIdVL_v1, HLT_PAPhoton20_Photon20_NoCaloIdVL_v1, HLT_PAPhoton30_Photon30_NoCaloIdVL_v1, HLT_PAPixelTracks_Multiplicity70_v1, HLT_PAPixelTracks_Multiplicity90_v1, HLT_PAPixelTracks_Multiplicity100_v1, HLT_PAPixelTracks_Multiplicity130_v1, HLT_PAPixelTracks_Multiplicity160_v1, HLT_PAPixelTracks_Multiplicity190_v1, HLT_PAPixelTracks_Multiplicity220_v1, HLT_PAPixelTrackMultiplicity100_FullTrack12_v1, HLT_PAPixelTrackMultiplicity130_FullTrack12_v1, HLT_PAPixelTrackMultiplicity160_FullTrack12_v1, HLT_PAFullTrack12_v1, HLT_PAFullTrack20_v1, HLT_PAFullTrack30_v1, HLT_PAFullTrack50_v1, HLT_PARomanPots_Tech52_v1, HLT_PAL1Tech53_MB_v1, HLT_PAL1Tech53_MB_SingleTrack_v1, HLT_PAL1Tech54_ZeroBias_v1, HLT_PAT1minbias_Tech55_v1, HLT_PAL1Tech_HBHEHO_totalOR_v1, HLT_PAMinBiasHF_v1, HLT_PAMinBiasHF_OR_v1, HLT_PAMinBiasBSC_v1, HLT_PAMinBiasBSC_OR_v1, HLT_PAMinBiasHfOrBSC_v1, HLT_PAZeroBias_v1, HLT_PAZeroBiasPixel_SingleTrack_v1, HLT_PAHFOR_SingleTrack_v1, HLT_PAZeroBiasPixel_DoubleTrack_v1, HLT_PADoubleMu4_Acoplanarity03_v1, HLT_PAExclDijet35_HFAND_v1, HLT_PAL1DoubleEG3_FwdVeto_v1, HLT_PAL1DoubleJet20_TotemDiffractive_v1, HLT_PADoubleJet20_ForwardBackward_v1, HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1, HLT_PAUpcSingleEG5Pixel_TrackVeto_v1, HLT_PAUpcSingleMuOpenPixel_TrackVeto_v1, HLT_PAUpcSingleMuOpenTkMu_Onia_v1, HLT_PARandom_v1, DQM_FEDIntegrity_v11, HLT_LogMonitor_v4, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
-# override the L1 menu from an Xml file
-l1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-  TriggerMenuLuminosity = cms.string('startup'),
-  DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.xml'),
-  VmeXmlFile = cms.string('')
-)
-L1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-  recordName = cms.string('L1GtTriggerMenuRcd'),
-  iovIsRunNotTime = cms.bool(True),
-  firstValid = cms.vuint32(1)
-)
-es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
-
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']

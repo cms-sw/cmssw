@@ -13697,19 +13697,6 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-# override the L1 menu from an Xml file
-process.l1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-  TriggerMenuLuminosity = cms.string('startup'),
-  DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.xml'),
-  VmeXmlFile = cms.string('')
-)
-process.L1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-  recordName = cms.string('L1GtTriggerMenuRcd'),
-  iovIsRunNotTime = cms.bool(True),
-  firstValid = cms.vuint32(1)
-)
-process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml') 
-
 # remove the HLT prescales
 if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1DefaultLabel = cms.string( '0' )
@@ -13821,7 +13808,7 @@ if 'GlobalTag' in process.__dict__:
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
-    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:hltonline_PIon')
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:hltonline_PIon', conditions = 'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,L1GtTriggerMenuRcd,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2013_v0/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db')
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
