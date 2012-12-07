@@ -31,8 +31,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
-streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v10', 
-    'HLT_HcalPhiSym_v11')
+streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_PAHcalNZS_v1', 
+    'HLT_PAHcalPhiSym_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMon_selector
 streamA_datasetJetMon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -106,7 +106,7 @@ streamA_datasetPAMinBiasUPC_selector.triggerConditions = cms.vstring('HLT_PADimu
     'HLT_PAExclDijet35_HFAND_v1', 
     'HLT_PAHFOR_SingleTrack_v1', 
     'HLT_PAL1DoubleEG3_FwdVeto_v1', 
-    'HLT_PAL1DoubleJet20_RomanPotsOR_v1', 
+    'HLT_PAL1DoubleJet20_TotemDiffractive_v1', 
     'HLT_PAL1DoubleMu0_v1', 
     'HLT_PAL1SingleJet16_v1', 
     'HLT_PAL1SingleJet36_v1', 

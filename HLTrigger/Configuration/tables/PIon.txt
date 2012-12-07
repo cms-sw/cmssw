@@ -3,8 +3,10 @@ HLT_Activity_Ecal_SC7_v*                           # sr 131577
 HLT_BeamGas_HF_Beam1_v*                            # sr 131577
 HLT_BeamGas_HF_Beam2_v*                            # sr 131577
 HLT_BeamHalo_v*                                    # sr 131577
-HLT_HcalPhiSym_v*                                  # sr 131577
-HLT_HcalNZS_v*                                     # sr 131577
+#HLT_HcalPhiSym_v*                                 # sr 131577
+#HLT_HcalNZS_v*                                    # sr 131577
+HLT_PAHcalPhiSym_v*                                # renamed
+HLT_PAHcalNZS_v*                                   # renamed
 HLT_GlobalRunHPDNoise_v*                           # sr 131577
 HLT_Physics_v*                                     # sr 131577
 DST_Physics_v*                                     # sr 131577
@@ -12,10 +14,14 @@ HLT_DTCalibration_v*                               # sr 131577
 HLT_EcalCalibration_v*                             # sr 131577
 HLT_HcalCalibration_v*                             # sr 131577
 HLT_TrackerCalibration_v*                          # sr 131577
-AlCa_EcalPi0EBonly_v*                              # sr 131577
-AlCa_EcalPi0EEonly_v*                              # sr 131577
-AlCa_EcalEtaEBonly_v*                              # sr 131577
-AlCa_EcalEtaEEonly_v*                              # sr 131577
+#AlCa_EcalPi0EBonly_v*                             # sr 131577
+#AlCa_EcalPi0EEonly_v*                             # sr 131577
+#AlCa_EcalEtaEBonly_v*                             # sr 131577
+#AlCa_EcalEtaEEonly_v*                             # sr 131577
+AlCa_PAEcalPi0EBonly_v*                            # renamed
+AlCa_PAEcalPi0EEonly_v*                            # renamed
+AlCa_PaEcalEtaEBonly_v*                            # renamed
+AlCa_PAEcalEtaEEonly_v*                            # renamed
 AlCa_EcalPhiSym_v*                                 # sr 131577
 AlCa_RPCMuonNoTriggers_v*                          # sr 131577
 AlCa_RPCMuonNoHits_v*                              # sr 131577
@@ -115,7 +121,8 @@ HLT_PAZeroBiasPixel_DoubleTrack_v*                 # sr 131577
 HLT_PADoubleMu4_Acoplanarity03_v*                  # sr 131577, sr 133528
 HLT_PAExclDijet35_HFAND_v*                         # sr 131577, sr 133528
 HLT_PAL1DoubleEG3_FwdVeto_v*                       # sr 131577, sr 133528
-HLT_PAL1DoubleJet20_RomanPotsOR_v*                 # sr 131577, sr 133528
+#HLT_PAL1DoubleJet20_RomanPotsOR_v*                # sr 131577, sr 133528
+HLT_PAL1DoubleJet20_TotemDiffractive_v*            # renamed
 HLT_PADoubleJet20_ForwardBackward_v*               # sr 131577, sr 133528
 HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v*                # sr 133528
 HLT_PAUpcSingleEG5Pixel_TrackVeto_v*               # sr 133308

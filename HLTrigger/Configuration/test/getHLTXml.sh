@@ -3,7 +3,8 @@
 # ConfDB configurations to use
 MASTER="/dev/CMSSW_5_2_6/HLT"        # no explicit version, take te most recent
 TARGET="/dev/CMSSW_5_2_6/\$TABLE"    # no explicit version, take te most recent
-TABLES="GRun HIon PIon"              # $TABLE in the above variable will be expanded to these TABLES
+#TABLES="GRun HIon PIon"              # $TABLE in the above variable will be expanded to these TABLES
+TABLES="PIon"              # $TABLE in the above variable will be expanded to these TABLES
 
 # print extra messages ?
 VERBOSE=false
@@ -40,18 +41,19 @@ function getConfigForCVS() {
 
   # do not use any L1 override
   if [ "$NAME" == "GRun" ]; then
-    local L1Xml="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
-    hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_cff.py
-    hltGetConfiguration --cff --offline --data $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_data_cff.py
-    hltGetConfiguration --fastsim              $CONFIG --type $NAME --l1Xml $L1Xml > HLT_${NAME}_Famos_cff.py
+    local L1XmlPP="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
+    hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME --l1Xml $L1XmlPP > HLT_${NAME}_cff.py
+    hltGetConfiguration --cff --offline --data $CONFIG --type $NAME --l1Xml $L1XmlPP > HLT_${NAME}_data_cff.py
+    hltGetConfiguration --fastsim              $CONFIG --type $NAME --l1Xml $L1XmlPP > HLT_${NAME}_Famos_cff.py
   elif [ "$NAME" == "HIon" ]; then
     hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME                > HLT_${NAME}_cff.py
     hltGetConfiguration --cff --offline --data $CONFIG --type $NAME                > HLT_${NAME}_data_cff.py
     hltGetConfiguration --fastsim              $CONFIG --type $NAME                > HLT_${NAME}_Famos_cff.py
   elif [ "$NAME" == "PIon" ]; then
-    hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME                > HLT_${NAME}_cff.py
-    hltGetConfiguration --cff --offline --data $CONFIG --type $NAME                > HLT_${NAME}_data_cff.py
-    hltGetConfiguration --fastsim              $CONFIG --type $NAME                > HLT_${NAME}_Famos_cff.py
+    local L1XmlPI="L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.xml"
+    hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME  --l1Xml $L1XmlPI > HLT_${NAME}_cff.py
+    hltGetConfiguration --cff --offline --data $CONFIG --type $NAME  --l1Xml $L1XmlPI > HLT_${NAME}_data_cff.py
+    hltGetConfiguration --fastsim              $CONFIG --type $NAME  --l1Xml $L1XmlPI > HLT_${NAME}_Famos_cff.py
   else
     hltGetConfiguration --cff --offline --mc   $CONFIG --type $NAME                > HLT_${NAME}_cff.py
     hltGetConfiguration --cff --offline --data $CONFIG --type $NAME                > HLT_${NAME}_data_cff.py
@@ -84,22 +86,23 @@ function getConfigForOnline() {
 # local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc"
 # local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
   local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc"
-  local L1TPI="L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_Collisions2012_v3_mc.db"
+  local L1TPI="L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.xml,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2012_v3/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db"
 # local L1TPI="L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc"
 
-  local L1Xml="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
+  local L1XmlPP="L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml"
+  local L1XmlPI="L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.xml"
 
   log "    dumping full HLT for $NAME"
   # override L1 menus
   if [ "$NAME" == "GRun" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --l1-emulator --globaltag auto:hltonline_GRun     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1Xml --l1-emulator --globaltag auto:startup_GRun       > OnLine_HLT_$NAME.py 
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1XmlPP --l1-emulator --globaltag auto:hltonline_GRun     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1XmlPP --l1-emulator --globaltag auto:startup_GRun       > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "HIon" ]; then
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline_HIon     > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi_HIon       > OnLine_HLT_$NAME.py
   elif [ "$NAME" == "PIon" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:hltonline_PIon     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPI --globaltag auto:starthi_PIon       > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1XmlPI --globaltag auto:hltonline_PIon     > OnData_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1Xml $L1XmlPI --globaltag auto:startup_PIon       > OnLine_HLT_$NAME.py
   else
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME             --globaltag auto:hltonline     > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                            > OnLine_HLT_$NAME.py
