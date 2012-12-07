@@ -358,8 +358,8 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      }
    }
 
-   bool PUA = (vertexColl.size()>=10 && vertexColl.size()<=15);
-   bool PUB = (vertexColl.size()>=15 && vertexColl.size()<=20);
+   bool PUA = (vertexColl.size()<15);
+   bool PUB = (vertexColl.size()>=15);
 
    if(st){st->BS_TNOH->Fill(track->found(),Event_Weight);
           if(PUA)st->BS_TNOH_PUA->Fill(track->found(),Event_Weight);
@@ -1237,6 +1237,7 @@ void Analysis_Step3(char* SavePath)
 		  
                   // compute systematic due to momentum scale
                   if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
+                     if(TypeMode==5 && isSemiCosmicSB)continue;
  		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p()*PRescale,dedxMObj->dEdx(),!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p()*PRescale,tof->inverseBeta());
 		     double MassComb = -1;
@@ -1259,6 +1260,7 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to dEdx (both Ias and Ih)
                   if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, IRescale, 0)){
+                     if(TypeMode==5 && isSemiCosmicSB)continue;
 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx()*MRescale,!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 		     double MassComb = -1;
@@ -1281,6 +1283,7 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to Mass shift
                   if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, 0)){
+                     if(TypeMode==5 && isSemiCosmicSB)continue;
 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx()*MRescale,!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 		     double MassComb = -1;
@@ -1303,6 +1306,7 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematic due to TOF
                   if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, TRescale)){
+                     if(TypeMode==5 && isSemiCosmicSB)continue;
  		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx(),!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),(tof->inverseBeta()+TRescale));
 		     double MassComb = -1;
@@ -1325,6 +1329,7 @@ void Analysis_Step3(char* SavePath)
 
                   // compute systematics due to PU
                   if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
+                     if(TypeMode==5 && isSemiCosmicSB)continue;
 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx(),!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
 		     double MassComb = -1;
@@ -1355,7 +1360,6 @@ void Analysis_Step3(char* SavePath)
                //fill the ABCD histograms and a few other control plots
                if(isData)Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, SamplePlots);
 	       else if(isMC) Analysis_FillControlAndPredictionHist(hscp, dedxSObj, dedxMObj, tof, MCTrPlots);
-
                if(TypeMode==5 && isCosmicSB)continue; 
 
 	       //Find the number of tracks passing selection for TOF<1 that will be used to check the background prediction

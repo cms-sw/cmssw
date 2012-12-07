@@ -760,10 +760,14 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_Chi2   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Chi2");
    st.BS_Qual   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Qual");
    st.BS_TNOH   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOH");
+   st.BS_TNOH_PUA  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOH_PUA");
+   st.BS_TNOH_PUB  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOH_PUB");
    st.BS_TNOHFraction   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOHFraction");
    st.BS_TNOPH   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOPH");
    st.BS_Eta    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Eta");
    st.BS_TNOM   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOM");
+   st.BS_TNOM_PUA   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOM_PUA");
+   st.BS_TNOM_PUB   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TNOM_PUB");
    st.BS_nDof   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_nDof");
    st.BS_TOFError   = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOFError");
    st.BS_Pterr  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PtErr");
@@ -810,16 +814,24 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_P      = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_P");
    st.AS_P      = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_P");
    st.BS_Pt     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt");
+   st.BS_Pt_PUA     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_PUA");
+   st.BS_Pt_PUB     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_PUB");
    st.BS_Pt_Cosmic     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_Cosmic");
    st.BS_Pt_DT  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_DT");
    st.BS_Pt_CSC = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Pt_CSC");
    st.AS_Pt     = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_Pt");
    st.BS_Im     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Im");
+   st.BS_Im_PUA     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Im_PUA");
+   st.BS_Im_PUB     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Im_PUB");
    st.AS_Im     = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_Im");
    st.BS_Is     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Is");
+   st.BS_Is_PUA     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Is_PUA");
+   st.BS_Is_PUB     = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Is_PUB");
    st.BS_Is_Cosmic  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_Is_Cosmic");
    st.AS_Is     = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_Is");
    st.BS_TOF    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF");
+   st.BS_TOF_PUA    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_PUA");
+   st.BS_TOF_PUB    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_PUB");
    st.BS_TOF_DT    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_DT");
    st.BS_TOF_CSC    = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_TOF_CSC");
    st.AS_TOF    = (TH2F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/AS_TOF");
@@ -939,6 +951,7 @@ void stPlots_Dump(stPlots& st, FILE* pFile, int CutIndex){
 void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, unsigned int CutIndex)
 {
    TypeMode = TypeFromPattern(SavePath);
+   char YAxisTitle[2048];
 
    TObject** Histos = new TObject*[10];
    std::vector<std::string> legend;
@@ -1218,6 +1231,60 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    delete c1;
 
 
+   if(st.BS_Pt_PUA!=NULL)     {
+      c1 = new TCanvas("c1","c1,",600,600);                                               legend.clear();
+      Histos1D[0] = (TH1*)st.BS_Pt_PUA->Clone(); Histos1D[0]->Rebin(1);            legend.push_back("NVtx<15");
+      if(Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1)>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1));
+      Histos1D[1] = (TH1*)st.BS_Pt_PUB->Clone();  Histos1D[1]->Rebin(1);               legend.push_back("NVtx>15");
+      if(Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1)>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1));
+      sprintf(YAxisTitle,"Fraction of tracks/%0.2f",((TH1D*)Histos1D[0])->GetBinWidth(1));
+      DrawSuperposedHistos((TH1**)Histos1D, legend,"E1",  "Pt [GeV]", YAxisTitle, 0,1250, 1E-6, 1);
+      DrawLegend((TObject**)Histos1D,legend,"","P", 0.69, 0.92, 0.2, 0.1);
+      c1->SetLogy(true);
+      DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+      SaveCanvas(c1,SavePath,"Pt_PU", false);
+      delete c1;
+
+      c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+      Histos1D[0] = (TH1*)st.BS_TOF_PUA->Clone(); Histos1D[0]->Rebin(1);            legend.push_back("NVtx<15");
+      if(Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1)>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1));
+      Histos1D[1] = (TH1*)st.BS_TOF_PUB->Clone();  Histos1D[1]->Rebin(1);               legend.push_back("NVtx>15");
+      if(Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1)>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1));
+      sprintf(YAxisTitle,"Fraction of tracks/%0.2f",((TH1D*)Histos1D[0])->GetBinWidth(1));
+      DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  "1/#beta", YAxisTitle, 0, 4, 1E-6, 2);
+      DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);//,0.35);
+      c1->SetLogy(true);
+      DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+      SaveCanvas(c1,SavePath,"TOF_PU");
+      delete c1;
+
+      c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+      Histos1D[0] = (TH1*)st.BS_Is_PUA->Clone(); Histos1D[0]->Rebin(1);            legend.push_back("NVtx<15");
+      if(Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1)>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1));
+      Histos1D[1] = (TH1*)st.BS_Is_PUB->Clone();  Histos1D[1]->Rebin(1);               legend.push_back("NVtx>15");
+      if(Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1)>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1));
+      sprintf(YAxisTitle,"Fraction of tracks/%0.2f",((TH1D*)Histos1D[0])->GetBinWidth(1));
+      DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  dEdxS_Legend.c_str(), YAxisTitle, 0,0, 1E-6,2);
+      DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+      c1->SetLogy(true);
+      DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+      SaveCanvas(c1,SavePath,"Is_BS");
+      delete c1;
+
+      c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+      Histos1D[0] = (TH1*)st.BS_Im_PUA->Clone(); Histos1D[0]->Rebin(1);            legend.push_back("NVtx<15");
+      if(Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1)>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1));
+      Histos1D[1] = (TH1*)st.BS_Im_PUB->Clone();  Histos1D[1]->Rebin(1);               legend.push_back("NVtx>15");
+      if(Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1)>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1));
+      DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  dEdxM_Legend.c_str(), "Fraction of tracks", 0,20, 1E-6,2);
+      DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+      c1->SetLogy(true);
+      DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+      SaveCanvas(c1,SavePath,"Im_BS");
+      delete c1;
+   }
+
+
 
    if(st.Name.find("Cosmic")!=string::npos) {
      c1 = new TCanvas("c1","c1,",600,600);                                               legend.clear();
@@ -1401,6 +1468,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
   }
    
    TH1** Histos = new TH1*[10];
+   TH1** Histos1D = new TH1*[10];
    std::vector<std::string> legend;
    TCanvas* c1;
 
@@ -1443,8 +1511,64 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
          //for(int l=0;l<legend.size();l++){delete Histos[l];}
          delete c1;
       }
+  }
 
+
+   for(unsigned int i=0;i<st.size();i++){
+      if(st[i]->BS_Pt_PUA!=NULL)     {
+         c1 = new TCanvas("c1","c1,",600,600);                                               legend.clear();
+         Histos1D[0] = (TH1*)st[i]->BS_Pt_PUA->Clone(); Histos1D[0]->Rebin(1);            legend.push_back("NVtx<15");
+         if(Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1)>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1));
+         Histos1D[1] = (TH1*)st[i]->BS_Pt_PUB->Clone();  Histos1D[1]->Rebin(1);               legend.push_back("NVtx>15");
+         if(Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1)>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1));
+         sprintf(YAxisTitle,"Fraction of tracks/%0.2f",((TH1D*)Histos1D[0])->GetBinWidth(1));
+         DrawSuperposedHistos((TH1**)Histos1D, legend,"E1",  "Pt [GeV]", YAxisTitle, 0,1250, 1E-6, 1);
+         DrawLegend((TObject**)Histos1D,legend,"","P", 0.69, 0.92, 0.2, 0.1);
+         c1->SetLogy(true);
+         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+         SaveCanvas(c1,SavePath,st[i]->Name + "_Pt_PU", false);
+         delete c1;
+
+         c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+         Histos1D[0] = (TH1*)st[i]->BS_TOF_PUA->Clone(); Histos1D[0]->Rebin(1);            legend.push_back("NVtx<15");
+         if(Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1)>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1));
+         Histos1D[1] = (TH1*)st[i]->BS_TOF_PUB->Clone();  Histos1D[1]->Rebin(1);               legend.push_back("NVtx>15");
+         if(Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1)>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1));
+         sprintf(YAxisTitle,"Fraction of tracks/%0.2f",((TH1D*)Histos1D[0])->GetBinWidth(1));
+         DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  "1/#beta", YAxisTitle, 0, 4, 1E-6, 2);
+         DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);//,0.35);
+         c1->SetLogy(true);
+         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+         SaveCanvas(c1,SavePath,st[i]->Name + "_TOF_PU");
+         delete c1;
+
+         c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+         Histos1D[0] = (TH1*)st[i]->BS_Is_PUA->Clone(); Histos1D[0]->Rebin(1);            legend.push_back("NVtx<15");
+         if(Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1)>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1));
+         Histos1D[1] = (TH1*)st[i]->BS_Is_PUB->Clone();  Histos1D[1]->Rebin(1);               legend.push_back("NVtx>15");
+         if(Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1)>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1));
+         sprintf(YAxisTitle,"Fraction of tracks/%0.2f",((TH1D*)Histos1D[0])->GetBinWidth(1));
+         DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  dEdxS_Legend.c_str(), YAxisTitle, 0,0, 1E-6,2);
+         DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+         c1->SetLogy(true);
+         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+         SaveCanvas(c1,SavePath,st[i]->Name + "_Is_BS");
+         delete c1;
+
+         c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+         Histos1D[0] = (TH1*)st[i]->BS_Im_PUA->Clone(); Histos1D[0]->Rebin(1);            legend.push_back("NVtx<15");
+         if(Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1)>0) Histos1D[0]->Scale(1.0/Histos1D[0]->Integral(0, Histos1D[0]->GetNbinsX()+1));
+         Histos1D[1] = (TH1*)st[i]->BS_Im_PUB->Clone();  Histos1D[1]->Rebin(1);               legend.push_back("NVtx>15");
+         if(Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1)>0) Histos1D[1]->Scale(1.0/Histos1D[1]->Integral(0, Histos1D[1]->GetNbinsX()+1));
+         DrawSuperposedHistos((TH1**)Histos1D, legend, "E1",  dEdxM_Legend.c_str(), "Fraction of tracks", 0,20, 1E-6,2);
+         DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);
+         c1->SetLogy(true);
+         DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
+         SaveCanvas(c1,SavePath,st[i]->Name + "_Im_BS");
+         delete c1;
+      }
    }
+
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    for(unsigned int i=0;i<st.size();i++){
