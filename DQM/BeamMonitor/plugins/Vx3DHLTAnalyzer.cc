@@ -13,13 +13,14 @@
 //
 // Original Author:  Mauro Dinardo,28 S-020,+41227673777,
 //         Created:  Tue Feb 23 13:15:31 CET 2010
-// $Id: Vx3DHLTAnalyzer.cc,v 1.103 2012/05/09 12:57:17 dinardo Exp $
+// $Id: Vx3DHLTAnalyzer.cc,v 1.105 2012/09/14 07:50:15 davidlt Exp $
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -116,7 +117,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 		  for (j = 0; j < DIM; j++)
 		    {
 		      MyVertex.Covariance[i][j] = it3DVx->covariance(i,j);
-		      if (std::isnan(MyVertex.Covariance[i][j]) == true) break;
+		      if (edm::isNotFinite(MyVertex.Covariance[i][j]) == true) break;
 		    }
 		  if (j != DIM) break;
 		}
@@ -321,8 +322,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (std::isnan(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (std::isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  else if (edm::isNotFinite(edm) == true) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
 	      covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
@@ -376,8 +377,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (std::isnan(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (std::isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  else if (edm::isNotFinite(edm) == true) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
 	      covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
@@ -432,8 +433,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	  Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (std::isnan(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (std::isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	  else if (edm::isNotFinite(edm) == true) goodData = -1;
+	  else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	  if (goodData == 0)
 	    {
 	      covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
@@ -477,8 +478,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
       Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
       if (counterVx < minNentries) goodData = -2;
-      else if (std::isnan(edm) == true) goodData = -1;
-      else for (unsigned int j = 0; j < nParams; j++) if (std::isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+      else if (edm::isNotFinite(edm) == true) goodData = -1;
+      else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
       if (goodData == 0)
 	{
 	  covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
@@ -524,8 +525,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals)
 	      Gauss3D->GetStats(amin, edm, errdef, nvpar, nparx);
       
 	      if (counterVx < minNentries) goodData = -2;
-	      else if (std::isnan(edm) == true) goodData = -1;
-	      else for (unsigned int j = 0; j < nParams; j++) if (std::isnan(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
+	      else if (edm::isNotFinite(edm) == true) goodData = -1;
+	      else for (unsigned int j = 0; j < nParams; j++) if (edm::isNotFinite(Gauss3D->GetParError(j)) == true) { goodData = -1; break; }
 	      if (goodData == 0)
 		{
 		  covyz = Gauss3D->GetParameter(4)*(std::fabs(Gauss3D->GetParameter(2))-std::fabs(Gauss3D->GetParameter(1))) - Gauss3D->GetParameter(5)*Gauss3D->GetParameter(3);
