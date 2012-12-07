@@ -110,10 +110,14 @@ struct stPlots {
    TH1F*  BS_Chi2;
    TH1F*  BS_Qual;
    TH1F*  BS_TNOH;
+   TH1F*  BS_TNOH_PUA;
+   TH1F*  BS_TNOH_PUB;
    TH1F*  BS_TNOHFraction;
    TH1F*  BS_TNOPH;
    TH1F*  BS_Eta;
    TH1F*  BS_TNOM;
+   TH1F*  BS_TNOM_PUA;
+   TH1F*  BS_TNOM_PUB;
    TH1F*  BS_nDof;
    TH1F*  BS_TOFError;
    TH1F*  BS_Pterr;
@@ -172,15 +176,24 @@ struct stPlots {
 
    TH1F*  BS_P; 	   TH2F*  AS_P;
    TH1F*  BS_Pt;	   TH2F*  AS_Pt;
+   TH1F*  BS_Pt_PUA;
+   TH1F*  BS_Pt_PUB;
    TH1F*  BS_Pt_DT;
    TH1F*  BS_Pt_CSC;
    TH1F*  BS_Is;	   TH2F*  AS_Is;
+   TH1F*  BS_Is_PUA;
+   TH1F*  BS_Is_PUB;
    TH1F*  BS_Im;           TH2F*  AS_Im;
+   TH1F*  BS_Im_PUA;
+   TH1F*  BS_Im_PUB;
    TH1F*  BS_TOF;          TH2F*  AS_TOF;
+   TH1F*  BS_TOF_PUA;
+   TH1F*  BS_TOF_PUB;
    TH1F*  BS_TOF_DT;
    TH1F*  BS_TOF_CSC;
    TH1F*  BS_Is_Cosmic;
    TH1F*  BS_Pt_Cosmic;
+
 
 
    TH2F*  BS_EtaIs;        //TH3F*  AS_EtaIs;
@@ -401,10 +414,14 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_Chi2" ; st.BS_Chi2  = new TH1F(Name.c_str(), Name.c_str(),  20,  0,  20);                st.BS_Chi2->Sumw2();
    Name = "BS_Qual" ; st.BS_Qual  = new TH1F(Name.c_str(), Name.c_str(),  20,  0, 20);                st.BS_Qual->Sumw2();
    Name = "BS_TNOH" ; st.BS_TNOH  = new TH1F(Name.c_str(), Name.c_str(),  50,  0,  40);                st.BS_TNOH->Sumw2();
+   Name = "BS_TNOH_PUA" ; st.BS_TNOH_PUA  = new TH1F(Name.c_str(), Name.c_str(),  50,  0,  40);                st.BS_TNOH_PUA->Sumw2();
+   Name = "BS_TNOH_PUB" ; st.BS_TNOH_PUB  = new TH1F(Name.c_str(), Name.c_str(),  50,  0,  40);                st.BS_TNOH_PUB->Sumw2();
    Name = "BS_TNOHFraction" ; st.BS_TNOHFraction  = new TH1F(Name.c_str(), Name.c_str(),  50,  0,  1);                st.BS_TNOHFraction->Sumw2();
    Name = "BS_TNOPH" ; st.BS_TNOPH  = new TH1F(Name.c_str(), Name.c_str(),  16,  0,  8);                st.BS_TNOPH->Sumw2();
    Name = "BS_Eta" ; st.BS_Eta  = new TH1F(Name.c_str(), Name.c_str(),  50,  -2.6,  2.6);                st.BS_Eta->Sumw2();
    Name = "BS_TNOM" ; st.BS_TNOM  = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 40);                st.BS_TNOM->Sumw2();
+   Name = "BS_TNOM_PUA" ; st.BS_TNOM_PUA  = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 40);                st.BS_TNOM_PUA->Sumw2();
+   Name = "BS_TNOM_PUB" ; st.BS_TNOM_PUB  = new TH1F(Name.c_str(), Name.c_str(),  40,  0, 40);                st.BS_TNOM_PUB->Sumw2();
    Name = "BS_nDof" ; st.BS_nDof  = new TH1F(Name.c_str(), Name.c_str(),  20,  0, 40);                st.BS_nDof->Sumw2();
    Name = "BS_TOFError" ; st.BS_TOFError  = new TH1F(Name.c_str(), Name.c_str(),  25,  0, 0.25);                st.BS_TOFError->Sumw2();
    Name = "BS_PtErr"; st.BS_Pterr = new TH1F(Name.c_str(), Name.c_str(),  40,  0,  1);                st.BS_Pterr->Sumw2();
@@ -417,13 +434,21 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_SumpTOverpT";  st.BS_SumpTOverpT = new TH1F(Name.c_str(), Name.c_str(), 80, 0.0,  2.0);  st.BS_SumpTOverpT    ->Sumw2();
    Name = "BS_P"    ; st.BS_P     = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_P->Sumw2();
    Name = "BS_Pt"   ; st.BS_Pt    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt->Sumw2();
+   Name = "BS_Pt_PUA"   ; st.BS_Pt_PUA    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_PUA->Sumw2();
+   Name = "BS_Pt_PUB"   ; st.BS_Pt_PUB    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_PUB->Sumw2();
    Name = "BS_Pt_Cosmic"   ; st.BS_Pt_Cosmic    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_Cosmic->Sumw2();
    Name = "BS_Pt_DT"   ; st.BS_Pt_DT    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_DT->Sumw2();
    Name = "BS_Pt_CSC"   ; st.BS_Pt_CSC    = new TH1F(Name.c_str(), Name.c_str(),                   50, 0, PtHistoUpperBound); st.BS_Pt_CSC->Sumw2();
    Name = "BS_Is"   ; st.BS_Is    = new TH1F(Name.c_str(), Name.c_str(),                   100, 0, dEdxS_UpLim);       st.BS_Is->Sumw2();
+   Name = "BS_Is_PUA"   ; st.BS_Is_PUA    = new TH1F(Name.c_str(), Name.c_str(),                   100, 0, dEdxS_UpLim);       st.BS_Is_PUA->Sumw2();
+   Name = "BS_Is_PUB"   ; st.BS_Is_PUB    = new TH1F(Name.c_str(), Name.c_str(),                   100, 0, dEdxS_UpLim);       st.BS_Is_PUB->Sumw2();
    Name = "BS_Is_Cosmic"   ; st.BS_Is_Cosmic    = new TH1F(Name.c_str(), Name.c_str(),                   100, 0, dEdxS_UpLim);       st.BS_Is_Cosmic->Sumw2();
    Name = "BS_Im"   ; st.BS_Im    = new TH1F(Name.c_str(), Name.c_str(),                   100, 3, dEdxM_UpLim);       st.BS_Im->Sumw2();
+   Name = "BS_Im_PUA"   ; st.BS_Im_PUA    = new TH1F(Name.c_str(), Name.c_str(),                   100, 3, dEdxM_UpLim);       st.BS_Im_PUA->Sumw2();
+   Name = "BS_Im_PUB"   ; st.BS_Im_PUB    = new TH1F(Name.c_str(), Name.c_str(),                   100, 3, dEdxM_UpLim);       st.BS_Im_PUB->Sumw2();
    Name = "BS_TOF"  ; st.BS_TOF   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF->Sumw2();
+   Name = "BS_TOF_PUA"  ; st.BS_TOF_PUA   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF_PUA->Sumw2();
+   Name = "BS_TOF_PUB"  ; st.BS_TOF_PUB   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF_PUB->Sumw2();
    Name = "BS_TOF_DT"  ; st.BS_TOF_DT   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF_DT->Sumw2();
    Name = "BS_TOF_CSC"  ; st.BS_TOF_CSC   = new TH1F(Name.c_str(), Name.c_str(),                   150, -1, 5);                 st.BS_TOF_CSC->Sumw2();
    Name = "BS_dR_NVTrack"  ; st.BS_dR_NVTrack = new TH1F(Name.c_str(), Name.c_str(), 40, 0, 1); st.BS_dR_NVTrack->Sumw2();

@@ -335,7 +335,35 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(TypeMode==3 && count<minMuStations) return false;
    if(st) st->Stations->Fill(0.0, Event_Weight);
 
+
+   fwlite::Handle< std::vector<reco::Vertex> > vertexCollHandle;
+   vertexCollHandle.getByLabel(ev,"offlinePrimaryVertices");
+   if(!vertexCollHandle.isValid()){printf("Vertex Collection NotFound\n");return false;}
+   const std::vector<reco::Vertex>& vertexColl = *vertexCollHandle;
+   if(st){st->BS_NVertex->Fill(vertexColl.size(), Event_Weight);
+     st->BS_NVertex_NoEventWeight->Fill(vertexColl.size());
+   }
+   if(vertexColl.size()<1){printf("NO VERTEX\n"); return false;}
+
+   double dz  = track->dz (vertexColl[0].position());
+   double dxy = track->dxy(vertexColl[0].position());
+   int goodVerts=0;
+   for(unsigned int i=0;i<vertexColl.size();i++){
+     if(st) st->BS_dzAll->Fill( track->dz (vertexColl[i].position()),Event_Weight);
+     if(st) st->BS_dxyAll->Fill(track->dxy(vertexColl[i].position()),Event_Weight);
+     if(fabs(vertexColl[i].z())<15 && sqrt(vertexColl[i].x()*vertexColl[i].x()+vertexColl[i].y()*vertexColl[i].y())<2 && vertexColl[i].ndof()>3){ goodVerts++;}else{continue;} //only consider good vertex
+     if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
+       dz  = track->dz (vertexColl[i].position());
+       dxy = track->dxy(vertexColl[i].position());
+     }
+   }
+
+   bool PUA = (vertexColl.size()>=10 && vertexColl.size()<=15);
+   bool PUB = (vertexColl.size()>=15 && vertexColl.size()<=20);
+
    if(st){st->BS_TNOH->Fill(track->found(),Event_Weight);
+          if(PUA)st->BS_TNOH_PUA->Fill(track->found(),Event_Weight);
+          if(PUB)st->BS_TNOH_PUB->Fill(track->found(),Event_Weight);
           st->BS_TNOHFraction->Fill(track->validFraction(),Event_Weight);
 	  st->BS_TNOPH->Fill(track->hitPattern().numberOfValidPixelHits(),Event_Weight);
    }
@@ -346,7 +374,11 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(TypeMode!=3 && track->validFraction()<GlobalMinFOVH)return false;
 
    if(st){st->TNOH  ->Fill(0.0,Event_Weight);
-     if(dedxSObj) st->BS_TNOM->Fill(dedxSObj->numberOfMeasurements(),Event_Weight);
+     if(dedxSObj){
+         st->BS_TNOM->Fill(dedxSObj->numberOfMeasurements(),Event_Weight);
+         if(PUA)st->BS_TNOM_PUA->Fill(dedxSObj->numberOfMeasurements(),Event_Weight);
+         if(PUB)st->BS_TNOM_PUB->Fill(dedxSObj->numberOfMeasurements(),Event_Weight);
+     }
    }
    if(dedxSObj) if(dedxSObj->numberOfMeasurements()<GlobalMinNOM)return false;
    if(st){st->TNOM  ->Fill(0.0,Event_Weight);}
@@ -397,28 +429,6 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(st){st->MTOF ->Fill(0.0,Event_Weight);
       if(GenBeta>=0)st->Beta_PreselectedB->Fill(GenBeta, Event_Weight);
-   }
-
-   fwlite::Handle< std::vector<reco::Vertex> > vertexCollHandle;
-   vertexCollHandle.getByLabel(ev,"offlinePrimaryVertices");
-   if(!vertexCollHandle.isValid()){printf("Vertex Collection NotFound\n");return false;}
-   const std::vector<reco::Vertex>& vertexColl = *vertexCollHandle;
-   if(st){st->BS_NVertex->Fill(vertexColl.size(), Event_Weight);
-     st->BS_NVertex_NoEventWeight->Fill(vertexColl.size());
-   }
-   if(vertexColl.size()<1){printf("NO VERTEX\n"); return false;}
-
-   double dz  = track->dz (vertexColl[0].position());
-   double dxy = track->dxy(vertexColl[0].position());
-   int goodVerts=0;
-   for(unsigned int i=0;i<vertexColl.size();i++){
-     if(st) st->BS_dzAll->Fill( track->dz (vertexColl[i].position()),Event_Weight);
-     if(st) st->BS_dxyAll->Fill(track->dxy(vertexColl[i].position()),Event_Weight);
-     if(fabs(vertexColl[i].z())<15 && sqrt(vertexColl[i].x()*vertexColl[i].x()+vertexColl[i].y()*vertexColl[i].y())<2 && vertexColl[i].ndof()>3){ goodVerts++;}else{continue;} //only consider good vertex
-     if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
-       dz  = track->dz (vertexColl[i].position());
-       dxy = track->dxy(vertexColl[i].position());
-     }
    }
 
    if(st) st->BS_dzMinv3d->Fill(dz,Event_Weight);
@@ -607,6 +617,8 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
           st->BS_P  ->Fill(track->p(),Event_Weight);
           st->BS_Pt ->Fill(track->pt(),Event_Weight);
+          if(PUA)st->BS_Pt_PUA ->Fill(track->pt(),Event_Weight);
+          if(PUB)st->BS_Pt_PUA ->Fill(track->pt(),Event_Weight);
           if(DXYSB && DZSB && OASB) st->BS_Pt_Cosmic->Fill(track->pt(),Event_Weight);
 
 	  if(fabs(track->eta())<DTRegion) st->BS_Pt_DT->Fill(track->pt(),Event_Weight);
@@ -619,10 +631,16 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
           }
 
           if(dedxSObj) st->BS_Is ->Fill(dedxSObj->dEdx(),Event_Weight);
+          if(dedxSObj && PUA) st->BS_Is_PUA ->Fill(dedxSObj->dEdx(),Event_Weight);
+          if(dedxSObj && PUB) st->BS_Is_PUB ->Fill(dedxSObj->dEdx(),Event_Weight);
           if(dedxSObj && DXYSB && DZSB && OASB) st->BS_Is_Cosmic->Fill(dedxSObj->dEdx(),Event_Weight);
           if(dedxSObj) st->BS_Im ->Fill(dedxMObj->dEdx(),Event_Weight);
+          if(dedxSObj && PUA) st->BS_Im_PUA ->Fill(dedxMObj->dEdx(),Event_Weight);
+          if(dedxSObj && PUB) st->BS_Im_PUB ->Fill(dedxMObj->dEdx(),Event_Weight);
           if(tof) {
 	    st->BS_TOF->Fill(tof->inverseBeta(),Event_Weight);
+            if(PUA)st->BS_TOF_PUA->Fill(tof->inverseBeta(),Event_Weight);
+            if(PUB)st->BS_TOF_PUB->Fill(tof->inverseBeta(),Event_Weight);
 	    if(dttof->nDof()>6) st->BS_TOF_DT->Fill(dttof->inverseBeta(),Event_Weight);
             if(csctof->nDof()>6) st->BS_TOF_CSC->Fill(csctof->inverseBeta(),Event_Weight);
             st->BS_PtTOF->Fill(track->pt() ,tof->inverseBeta(),Event_Weight);
