@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Segala
 //         Created:  Wed Feb 23 17:36:23 CST 2011
-// $Id: ClusterSummary.h,v 1.5 2012/10/03 13:29:02 msegala Exp $
+// $Id: ClusterSummary.h,v 1.6 2012/10/04 13:25:29 venturia Exp $
 //
 //
 
@@ -39,7 +39,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 
-#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
 #include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
@@ -53,8 +52,6 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 /*****************************************************************************************
 
