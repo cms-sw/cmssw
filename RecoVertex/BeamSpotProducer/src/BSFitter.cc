@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.23 2010/11/15 14:35:48 rovere Exp $
+ version $Id: BSFitter.cc,v 1.24 2011/02/18 22:16:38 burkett Exp $
 
 ________________________________________________________________**/
 
@@ -27,6 +27,7 @@ ________________________________________________________________**/
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 // ROOT
 #include "TMatrixD.h"
@@ -210,7 +211,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
                 
                 reco::BeamSpot tmp_lh = Fit_d_z_likelihood(tmp_par,tmp_error_par);
                 
-                if ( isnan(ff_minimum) || std::isinf(ff_minimum) ) {
+                if (edm::isNotFinite(ff_minimum)) {
                     edm::LogWarning("BSFitter") << "BSFitter: Result is non physical. Log-Likelihood fit to extract beam width did not converge." << std::endl;
                     tmp_lh.setType(reco::BeamSpot::Unknown);
                     return tmp_lh;                    
@@ -244,7 +245,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			
 			reco::BeamSpot tmp_lh = Fit_dres_z_likelihood(tmp_par2);
 
-			if ( isnan(ff_minimum) || std::isinf(ff_minimum) ) {
+			if (edm::isNotFinite(ff_minimum)) {
 			
                 edm::LogWarning("BSFitter") << "Result is non physical. Log-Likelihood fit did not converge." << std::endl;
 				tmp_lh.setType(reco::BeamSpot::Unknown);
