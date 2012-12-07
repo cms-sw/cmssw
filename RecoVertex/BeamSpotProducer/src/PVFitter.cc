@@ -7,7 +7,7 @@
    author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
            Geng-Yuan Jeng, UC Riverside (Geng-Yuan.Jeng@cern.ch)
 
-   version $Id: PVFitter.cc,v 1.19 2011/12/05 23:14:31 burkett Exp $
+   version $Id: PVFitter.cc,v 1.20 2012/05/14 17:15:46 schauhan Exp $
 
 ________________________________________________________________**/
 
@@ -30,6 +30,7 @@ ________________________________________________________________**/
 #include "TFitterMinuit.h"
 #include "Minuit2/FCNBase.h"
 #include "RecoVertex/BeamSpotProducer/interface/FcnBeamSpotFitPV.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "TF1.h"
 
@@ -442,7 +443,7 @@ bool PVFitter::runFitter() {
       fwidthZerr = minuitx.GetParError(8);
 
       // check errors on widths and sigmaZ for nan
-      if ( isnan(fwidthXerr) || isnan(fwidthYerr) || isnan(fwidthZerr) ) {
+      if ( edm::isNotFinite(fwidthXerr) || edm::isNotFinite(fwidthYerr) || edm::isNotFinite(fwidthZerr) ) {
           edm::LogWarning("PVFitter") << "3D beam spot fit returns nan in 3rd iteration" << std::endl;
           return false;
       }
