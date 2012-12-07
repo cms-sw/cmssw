@@ -41,7 +41,7 @@ class WF(list):
     
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,split=8,location='CAF') :
+    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,split=10,location='CAF') :
         self.run = run
         self.files = files
         self.events = events
