@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.12 2011/08/24 12:28:53 eulisse Exp $
+// $Id: PluginManager.cc,v 1.13 2012/06/20 07:42:45 innocent Exp $
 //
 
 // system include files
@@ -168,7 +168,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
   if(range.first == range.second) {
     if(throwIfFail) {
       throw cms::Exception("PluginNotFound")<<"Unable to find plugin '"<<iPlugin
-      <<"'. Please check spelling of name.";
+      <<"' in category '"<<iCategory<<"'. Please check spelling of name.";
     } else {
       ioThrowIfFailElseSucceedStatus = false;
       static boost::filesystem::path s_path;
