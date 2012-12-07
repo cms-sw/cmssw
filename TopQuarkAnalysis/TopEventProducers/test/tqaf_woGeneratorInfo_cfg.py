@@ -7,7 +7,6 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 
 ## define input
-from Configuration.AlCa.autoCond import autoCond
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring( filesSingleMuRECO )
@@ -27,8 +26,8 @@ process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:com10')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag,'auto:com10')
 
 #-------------------------------------------------
 # PAT and TQAF configuration
@@ -63,9 +62,34 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 process.outpath = cms.EndPath(process.out)
 
-## remove MC specific stuff in PAT
-from PhysicsTools.PatAlgos.tools.coreTools import *
-removeMCMatching(process, ["All"])
+### remove MC specific stuff in PAT
+#from PhysicsTools.PatAlgos.tools.coreTools import *
+#removeMCMatching(process, ["All"])
+# FIXME: very (too) simple to replace functionality from removed coreTools.py
+from PhysicsTools.PatAlgos.tools.helpers import removeIfInSequence
+process.patElectrons.addGenMatch  = False
+removeIfInSequence(process, 'electronMatch', "patDefaultSequence")
+process.patJets.addGenPartonMatch = False
+removeIfInSequence(process, 'patJetPartons', "patDefaultSequence")
+removeIfInSequence(process, 'patJetPartonAssociation', "patDefaultSequence")
+removeIfInSequence(process, 'patJetPartonMatch', "patDefaultSequence")
+process.patJets.addGenJetMatch    = False
+removeIfInSequence(process, 'patJetGenJetMatch', "patDefaultSequence")
+process.patJets.getJetMCFlavour   = False
+removeIfInSequence(process, 'patJetFlavourId', "patDefaultSequence")
+removeIfInSequence(process, 'patJetFlavourAssociation', "patDefaultSequence")
+process.patMETs.addGenMET         = False
+process.patMuons.addGenMatch      = False
+removeIfInSequence(process, 'muonMatch', "patDefaultSequence")
+process.patPhotons.addGenMatch    = False
+removeIfInSequence(process, 'photonMatch', "patDefaultSequence")
+process.patTaus.addGenMatch       = False
+removeIfInSequence(process, 'tauMatch', "patDefaultSequence")
+process.patTaus.addGenJetMatch    = False
+removeIfInSequence(process, 'tauGenJets', "patDefaultSequence")
+removeIfInSequence(process, 'tauGenJetsSelectorAllHadrons', "patDefaultSequence")
+removeIfInSequence(process, 'tauGenJetMatch', "patDefaultSequence")
+process.patJetCorrFactors.levels.append( 'L2L3Residual' )
 
 ## PAT content
 from PhysicsTools.PatAlgos.patEventContent_cff import *
