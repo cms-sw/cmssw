@@ -90,7 +90,7 @@ void reco::details::loadTMVAWeights(TMVA::Reader* reader, const std::string& met
     if (verbose) {
       std::cout << "Reader booked" << std::endl;
     }
-    delete c;
+    free(c);
   } else {
     throw cms::Exception("BadTMVAWeightFilename")
       << "I don't understand the extension on the filename: "
