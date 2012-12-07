@@ -618,7 +618,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
           st->BS_P  ->Fill(track->p(),Event_Weight);
           st->BS_Pt ->Fill(track->pt(),Event_Weight);
           if(PUA)st->BS_Pt_PUA ->Fill(track->pt(),Event_Weight);
-          if(PUB)st->BS_Pt_PUA ->Fill(track->pt(),Event_Weight);
+          if(PUB)st->BS_Pt_PUB ->Fill(track->pt(),Event_Weight);
           if(DXYSB && DZSB && OASB) st->BS_Pt_Cosmic->Fill(track->pt(),Event_Weight);
 
 	  if(fabs(track->eta())<DTRegion) st->BS_Pt_DT->Fill(track->pt(),Event_Weight);

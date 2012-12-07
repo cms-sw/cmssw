@@ -55,7 +55,7 @@ void Analysis_Step5()
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
 //   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);return;
-
+/*
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "8TeV_Loose");
@@ -70,7 +70,6 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
-
 
    InputPattern = "Results/Type2/";   CutIndex = 16; CutIndexTight = 905; CutIndex_Flip=16;
    Make2DPlot_Core(InputPattern, 0);
@@ -111,14 +110,14 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
-   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
-   
-   //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "0");
-   //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "1");
-   //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "2");
-   //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "3");
-   //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "4");
-   //CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "5");
+   CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");  
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "0");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "1");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "2");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "3");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "4");
+   CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "5");
+*/
   
    InputPattern = "Results/Type4/";   CutIndex = 21; CutIndexTight = 240; CutIndex_Flip=21;
    Make2DPlot_Core(InputPattern, 0);
