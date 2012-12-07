@@ -1552,7 +1552,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
          DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);
          c1->SetLogy(true);
          DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-         SaveCanvas(c1,SavePath,st[i]->Name + "_Is_BS");
+         SaveCanvas(c1,SavePath,st[i]->Name + "_Is_PU");
          delete c1;
 
          c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -1564,7 +1564,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
          DrawLegend((TObject**)Histos1D,legend,"","P", 0.78, 0.92, 0.38, 0.045);
          c1->SetLogy(true);
          DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-         SaveCanvas(c1,SavePath,st[i]->Name + "_Im_BS");
+         SaveCanvas(c1,SavePath,st[i]->Name + "_Im_PU");
          delete c1;
       }
    }
