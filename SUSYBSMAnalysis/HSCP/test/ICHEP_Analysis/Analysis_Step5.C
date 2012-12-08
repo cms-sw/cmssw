@@ -29,7 +29,7 @@ void CheckPrediction(string InputPattern, string HistoSuffix="_Flip", string Dat
 void CheckPredictionBin(string InputPattern, string HistoSuffix="_Flip", string DataType="Data8TeV", string bin="");
 void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType="Data8TeV");
 
-void Make2DPlot_Special(string ResultPattern,string ResultPattern2, unsigned int CutIndex);
+void Make2DPlot_Special(string ResultPattern,string ResultPattern2); //, unsigned int CutIndex);
 void CompareRecoAndGenPt(string ResultPattern);
 
 std::vector<stSample> samples;
@@ -51,11 +51,11 @@ void Analysis_Step5()
    GetSampleDefinition(samples);
 
 
-   string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip;  unsigned int CutIndexTight;
+   string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip=1;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
 //   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);return;
-/*
+
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
    MassPrediction(InputPattern, CutIndex,      "Mass",  true, "8TeV_Loose");
@@ -96,20 +96,19 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
 
-
    InputPattern = "Results/Type3/";   CutIndex = 79; CutIndex_Flip=58;
    Make2DPlot_Core(InputPattern, 0);
-   PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
+   //PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    CosmicBackgroundSystematic(InputPattern, "8TeV");
-   CosmicBackgroundSystematic(InputPattern, "7TeV");
+   //CosmicBackgroundSystematic(InputPattern, "7TeV");
    CheckPrediction(InputPattern, "", "Data8TeV");
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
-   CheckPrediction(InputPattern, "", "Data7TeV");
-   CheckPrediction(InputPattern, "_Flip", "Data7TeV");
-   CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
+   //CheckPrediction(InputPattern, "", "Data7TeV");
+   //CheckPrediction(InputPattern, "_Flip", "Data7TeV");
+   //CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");  
    CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "0");
    CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "1");
@@ -117,11 +116,9 @@ void Analysis_Step5()
    CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "3");
    CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "4");
    CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "5");
-*/
   
    InputPattern = "Results/Type4/";   CutIndex = 21; CutIndexTight = 240; CutIndex_Flip=21;
    Make2DPlot_Core(InputPattern, 0);
-   //this crash if we first run analysis 0+2+3 --> very strange
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CheckPrediction(InputPattern, "", "Data7TeV");
@@ -141,7 +138,6 @@ void Analysis_Step5()
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    CutFlow(InputPattern);
-
 
      //This function has not yet been reviewed after july's update
 //   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
@@ -415,7 +411,6 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    TH1D* CtrlPt_S4_Is         = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S4_Is" ); CtrlPt_S4_Is ->Rebin(5);
    TH1D* CtrlPt_S4_Im         = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S4_Im" ); CtrlPt_S4_Im ->Rebin(1);
    TH1D* CtrlPt_S4_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S4_TOF"); CtrlPt_S4_TOF->Rebin(1);
-
    TH1D* CtrlIs_S1_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIs_S1_TOF"); CtrlIs_S1_TOF->Rebin(1);
    TH1D* CtrlIs_S2_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIs_S2_TOF"); CtrlIs_S2_TOF->Rebin(1);
    TH1D* CtrlIs_S3_TOF        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlIs_S3_TOF"); CtrlIs_S3_TOF->Rebin(1);
@@ -432,11 +427,12 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    TH1D* CtrlPt_S4_TOF_Binned[MaxPredBins];
 
    if(TypeMode==3) PredBins=6;
+   else PredBins=0;
+
    for(int i=0; i<PredBins; i++) {
      char Suffix[1024];
      sprintf(Suffix,"_%i",i);
      string Bin=Suffix;
-
      CtrlPt_S1_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S1_TOF_Binned"+Bin); CtrlPt_S1_TOF_Binned[i]->Rebin(1);
      CtrlPt_S2_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S2_TOF_Binned"+Bin); CtrlPt_S2_TOF_Binned[i]->Rebin(1);
      CtrlPt_S3_TOF_Binned[i]        = (TH1D*)GetObjectFromPath(InputFile, Data+"/CtrlPt_S3_TOF_Binned"+Bin); CtrlPt_S3_TOF_Binned[i]->Rebin(1);
@@ -472,7 +468,6 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1,InputPattern,string("Control_")+Data+"_Pt_IsSpectrum");
    delete c1;
-
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    if(CtrlPt_S1_Im->Integral()>0)CtrlPt_S1_Im->Scale(1/CtrlPt_S1_Im->Integral());
@@ -740,7 +735,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          double xmin=100; double xmax=0;
          for(int CutIndex_=1;CutIndex_<H_P->GetNbinsX();CutIndex_++){
             float PtCut   = HCuts_Pt ->GetBinContent(CutIndex_+1);
-            float ICut    = HCuts_I  ->GetBinContent(CutIndex_+1);
+            //float ICut    = HCuts_I  ->GetBinContent(CutIndex_+1);
             float TCut    = HCuts_TOF->GetBinContent(CutIndex_+1);
             if(mapPred.find(std::make_pair(PtCut, TCut))!=mapPred.end())continue;
 
@@ -1013,16 +1008,15 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int CutI
        //stPlots_Draw(SignPlots[s], InputPattern + "/Selection_" +  samples[s].Name, LegendTitle, CutIndex);
     }
     SQRTS=8; stPlots_Draw(Data8TeVPlots, InputPattern + "/Selection_Data8TeV", LegendTitle, CutIndex);
-    SQRTS=7; stPlots_Draw(Data7TeVPlots, InputPattern + "/Selection_Data7TeV", LegendTitle, CutIndex);
+    if(TypeMode!=3) {SQRTS=7; stPlots_Draw(Data7TeVPlots, InputPattern + "/Selection_Data7TeV", LegendTitle, CutIndex);}
     SQRTS=8; stPlots_Draw(MCTr8TeVPlots  , InputPattern + "/Selection_MCTr_8TeV"  , LegendTitle, CutIndex);
-    SQRTS=7; stPlots_Draw(MCTr7TeVPlots  , InputPattern + "/Selection_MCTr_7TeV"  , LegendTitle, CutIndex);
-
+    if(TypeMode!=3) {SQRTS=7; stPlots_Draw(MCTr7TeVPlots  , InputPattern + "/Selection_MCTr_7TeV"  , LegendTitle, CutIndex);}
     if(TypeMode==3) {
       stPlots_Draw(Cosmic8TeVPlots, InputPattern + "/Selection_Cosmic8TeV", LegendTitle, CutIndex);
       //stPlots_Draw(Cosmic11Plots, InputPattern + "/Selection_Cosmic11", LegendTitle, CutIndex);
     }
 
-    stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &Data7TeVPlots, &MCTr8TeVPlots, &MCTr7TeVPlots);
+    if(TypeMode!=3) stPlots_DrawComparison(InputPattern + "/Selection_Comp_Data"  , LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &Data7TeVPlots, &MCTr8TeVPlots, &MCTr7TeVPlots);
 
     if(TypeMode<=2){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_Gluino", LegendTitle, CutIndex, CutIndexTight, &Data7TeVPlots, &MCTr7TeVPlots,     &SignPlots[JobIdToIndex("Gluino_7TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)]);}
     if(TypeMode<=2){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Gluino", LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots,     &SignPlots[JobIdToIndex("Gluino_8TeV_M300_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M600_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);}
@@ -1031,14 +1025,22 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int CutI
       SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_Cosmic", LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_8TeV_M1200_f100",samples)]);
       //SQRTS=78; stPlots_DrawComparison(InputPattern + "/Selection_Comp_Cosmic_78TeV", LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &Data7TeVPlots, &Cosmic8TeVPlots, &SignPlots[JobIdToIndex("Gluino_7TeV_M800_f10",samples)], &SignPlots[JobIdToIndex("Gluino_8TeV_M800_f10",samples)]);
     }
+
     if(TypeMode==0 || TypeMode==4){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_DY_QG"    , LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M400_Q1",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M400_Q3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M400_Q5",samples)]);}
-    if(TypeMode==0){ SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, CutIndexTight, &Data7TeVPlots, &MCTr7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M600_Q2o3",samples)]);}
-    if(TypeMode==0 || TypeMode==5){ SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_DY"    , LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M600_Q2o3",samples)]);}
+    if(TypeMode==0){ 
+      SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, CutIndexTight, &Data7TeVPlots, &MCTr7TeVPlots,  &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M600_Q2o3",samples)]);
+      SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_DY"    , LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots,  &SignPlots[JobIdToIndex("DY_8TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M600_Q2o3",samples)]);
+    }
+
+    if(TypeMode==5 || TypeMode==3){ 
+      if(TypeMode==5) {SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, CutIndexTight, &Data7TeVPlots, &MCTr7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M600_Q2o3",samples)]);}
+      SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_DY"    , LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots,   &SignPlots[JobIdToIndex("DY_8TeV_M100_Q1o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M600_Q2o3",samples)]);
+    }
 
     stPlots_Clear(&Data8TeVPlots);
-    stPlots_Clear(&Data7TeVPlots);
+    if(TypeMode!=3) stPlots_Clear(&Data7TeVPlots);
     stPlots_Clear(&MCTr8TeVPlots);
-    stPlots_Clear(&MCTr7TeVPlots);
+    if(TypeMode!=3) stPlots_Clear(&MCTr7TeVPlots);
 
     for(unsigned int s=0;s<samples.size();s++){
        if (samples[s].Name!="Gluino_7TeV_M300_f10" && samples[s].Name!="Gluino_7TeV_M600_f10" && samples[s].Name!="Gluino_7TeV_M800_f10" && "Gluino_8TeV_M300_f10" && samples[s].Name!="Gluino_8TeV_M600_f10" && samples[s].Name!="Gluino_8TeV_M800_f10" && samples[s].Name!="GMStau_7TeV_M247" && samples[s].Name!="GMStau_7TeV_M370" && samples[s].Name!="GMStau_7TeV_M494" && samples[s].Name!="GMStau_8TeV_M247" && samples[s].Name!="GMStau_8TeV_M370" && samples[s].Name!="GMStau_8TeV_M494" && samples[s].Name!="DY_7TeV_M100_Q1o3" &&  samples[s].Name!="DY_7TeV_M600_Q1o3" && samples[s].Name!="DY_7TeV_M100_Q2o3" &&  samples[s].Name!="DY_7TeV_M600_Q2o3" && samples[s].Name!="DY_8TeV_M100_Q1o3" &&  samples[s].Name!="DY_8TeV_M600_Q1o3" && samples[s].Name!="DY_8TeV_M100_Q2o3" &&  samples[s].Name!="DY_8TeV_M600_Q2o3" && samples[s].Name!="DY_8TeV_M400_Q1" && samples[s].Name!="DY_8TeV_M400_Q3" &&  samples[s].Name!="DY_8TeV_M400_Q5") continue;
@@ -1256,7 +1258,6 @@ void GetSystematicOnPrediction(string InputPattern, string DataName){
       }
    }
 
-std::cout << "TESTB\n";
    TGraphErrors* graph_T0 = new TGraphErrors(ArrPredN[0][0],ArrT [0],ArrPred[0][0],0,ArrErr[0][0]);   graph_T0->SetLineColor(1);  graph_T0->SetMarkerColor(1);   graph_T0->SetMarkerStyle(20);
    TGraphErrors* graph_T1 = new TGraphErrors(ArrPredN[1][0],ArrT [0],ArrPred[1][0],0,ArrErr[1][0]);   graph_T1->SetLineColor(2);  graph_T1->SetMarkerColor(2);   graph_T1->SetMarkerStyle(21); 
    TGraphErrors* graph_T2 = new TGraphErrors(ArrPredN[2][0],ArrT [0],ArrPred[2][0],0,ArrErr[2][0]);   graph_T2->SetLineColor(4);  graph_T2->SetMarkerColor(4);   graph_T2->SetMarkerStyle(22);
@@ -1269,7 +1270,6 @@ std::cout << "TESTB\n";
    TGraphErrors* graph_P1 = new TGraphErrors(ArrPredN[1][6],ArrPt[6],ArrPred[1][6],0,ArrErr[1][6]);   graph_P1->SetLineColor(2);  graph_P1->SetMarkerColor(2);   graph_P1->SetMarkerStyle(21);
    TGraphErrors* graph_P2 = new TGraphErrors(ArrPredN[2][6],ArrPt[6],ArrPred[2][6],0,ArrErr[2][6]);   graph_P2->SetLineColor(4);  graph_P2->SetMarkerColor(4);   graph_P2->SetMarkerStyle(22);
    TGraphErrors* graph_P3 = new TGraphErrors(ArrPredN[3][6],ArrPt[6],ArrPred[3][6],0,ArrErr[3][6]);   graph_P3->SetLineColor(8);  graph_P3->SetMarkerColor(8);   graph_P3->SetMarkerStyle(23);
-std::cout << "TESTC\n"; 
 
    TLegend* LEG = NULL;
    LEG = new TLegend(0.50,0.65,0.80,0.90);
@@ -1583,9 +1583,9 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    TypeMode = TypeFromPattern(InputPattern);
    string LegendTitle = LegendFromType(InputPattern);;
 
-   string S1 = "Gluino_8TeV_M300_f10"; double Q1=1;
-   string S2 = "Gluino_8TeV_M600_f10"; double Q2=1;
-   string S3 = "Gluino_8TeV_M900_f10"; double Q3=1;
+   string S1 = "Gluino_8TeV_M300_f10"; //double Q1=1;
+   string S2 = "Gluino_8TeV_M600_f10"; //double Q2=1;
+   string S3 = "Gluino_8TeV_M900_f10"; //double Q3=1;
    string Da = "Data8TeV";
    string outName = "2DPlots";
 
@@ -1596,15 +1596,15 @@ void Make2DPlot_Core(string InputPattern, unsigned int CutIndex){
    }
 
    if(TypeMode==4){
-      S1 = "DY_8TeV_M400_Q1"; double Q1=1;
-      S2 = "DY_8TeV_M400_Q2"; double Q2=2;
-      S3 = "DY_8TeV_M400_Q3"; double Q3=3;
+     S1 = "DY_8TeV_M400_Q1"; //Q1=1;
+     S2 = "DY_8TeV_M400_Q2"; //Q2=2;
+     S3 = "DY_8TeV_M400_Q3"; //Q3=3;
    }
 
    if(TypeMode==5){
-      S1 = "DY_8TeV_M300_Q1o3"; double Q1=1/3.0;
-      S2 = "DY_8TeV_M300_Q2o3"; double Q2=2/3.0;
-      S3 = "DY_8TeV_M600_Q2o3"; double Q3=2/3.0;
+     S1 = "DY_8TeV_M300_Q1o3"; //Q1=1/3.0;
+     S2 = "DY_8TeV_M300_Q2o3"; //Q2=2/3.0;
+     S3 = "DY_8TeV_M600_Q2o3"; //Q3=2/3.0;
    }
 
    int S1i   = JobIdToIndex(S1,samples);    if(S1i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
@@ -2103,7 +2103,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
   for(int CutIndex=0; CutIndex<HCuts_Pt->GetNbinsX(); CutIndex++) {
     if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.25)<0.001) {Index.push_back(CutIndex); Plot.push_back(0);}
     if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.3)<0.001) {Index.push_back(CutIndex); Plot.push_back(1);}
-    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.35)<0.001) {Index.push_back(CutIndex); Plot.push_back(2);}
+    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.375)<0.001) {Index.push_back(CutIndex); Plot.push_back(2);}
   }
 
   const int TimeRegions=3;
@@ -2156,7 +2156,7 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
       Mean+=NPred/pow(NPredErr,2);
       Sigma+=1/pow(NPredErr,2);
       N++;
-      if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.3)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001) {
+      if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.375)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001) {
 	cout << endl << "D Sideband " << D_Sideband << " D_Cosmic " << D_Cosmic << " D_Sideband_Cosmic " << D_Sideband_Cosmic << endl;
 	cout << "For Dz region " << LegendNames[Region] << " NPred " << NPred << " +- " << NPredErr << endl;
       }
@@ -2167,16 +2167,20 @@ void CosmicBackgroundSystematic(string InputPattern, string DataType){
 
     double SUM=0, STAT=0, SYST=0;
 
+    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.375)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001) cout << endl << "Stat before " << STAT << endl;
     for(int p=0;p<DzRegions;p++){
       SUM   += pow(Pred[Plot[i]*DzRegions + p]->GetBinContent(Bin)-Mean,2);
       STAT  += pow(Pred[Plot[i]*DzRegions + p]->GetBinError(Bin),2);
+      if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.375)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001) cout <<  "STAT with " << p << " Preds " << STAT << endl;
     }
-    
+    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.375)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001) cout << "Sum of stat " << STAT << endl;
     SUM  = sqrt(SUM/(N-1));
     STAT = sqrt(STAT/(N));
     SYST = sqrt(SUM*SUM - STAT*STAT);
-    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.3)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001)
-      cout << "Mean " << Mean << " Sigma " << Sigma << " Stat " << STAT/Mean << " StatSyst " << SUM/Mean << "Syst " << SYST/Mean << endl;
+
+    if(fabs(HCuts_TOF->GetBinContent(CutIndex+1)-1.375)<0.001 && fabs(HCuts_Pt->GetBinContent(CutIndex+1)-230)<0.001) {
+      cout << "Average " << STAT << endl;
+      cout << "Mean " << Mean << " Sigma " << Sigma << " Stat " << STAT/Mean << " StatSyst " << SUM/Mean << "Syst " << SYST/Mean << endl;}
     Stat[Plot[i]]->SetBinContent(Bin, STAT/Mean);
     StatSyst[Plot[i]]->SetBinContent(Bin, SUM/Mean);
     Syst[Plot[i]]->SetBinContent(Bin, SYST/Mean);
@@ -2390,7 +2394,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
   TH1D*  HCuts_I_Flip        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I_Flip");
 
    TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_A");
-   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_B");
+   //TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_B");
    TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_C");
    //TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_D");
    TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, DataType + "/H_E");
@@ -2505,7 +2509,7 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType)
     int N=0;
 
     double A = H_A->GetBinContent(Index[i]);
-    double B = H_B->GetBinContent(Index[i]);
+    //double B = H_B->GetBinContent(Index[i]);
     double C = H_C->GetBinContent(Index[i]);
     //double D = H_D->GetBinContent(Index[i]);
     double E = H_E->GetBinContent(Index[i]);
@@ -2798,7 +2802,6 @@ void CheckPredictionBin(string InputPattern, string HistoSuffix, string DataType
   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_Pt") + HistoSuffix);
   TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_I") + HistoSuffix);
   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, string("HCuts_TOF") + HistoSuffix);
-  cout << "Data histo " << string(DataType+"/H_D_Binned_" + HistoSuffix + "_" + bin) << " P Name " << string(DataType+"/H_P_Binned_" + HistoSuffix + "_" + bin) << endl;
   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, string(DataType+"/H_D_Binned" + HistoSuffix + "_" + bin));
   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, string(DataType+"/H_P_Binned" + HistoSuffix + "_" + bin));
 
@@ -2912,7 +2915,8 @@ void CheckPredictionBin(string InputPattern, string HistoSuffix, string DataType
 
 
 
-void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int CutIndex){
+void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned int CutIndex){
+
    TCanvas* c1;
    TLegend* leg;
 
@@ -2922,9 +2926,9 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int 
    TypeMode = TypeFromPattern(InputPattern);
    string LegendTitle = LegendFromType(InputPattern);;
 
-   string S1 = "DY_8TeV_M400_Q2o3"; double Q1=1;
-   string S2 = "DY_8TeV_M400_Q1"; double Q2=1;
-   string S3 = "DY_8TeV_M400_Q3"; double Q3=1;
+   string S1 = "DY_8TeV_M400_Q2o3"; //double Q1=1;
+   string S2 = "DY_8TeV_M400_Q1"; //double Q2=1;
+   string S3 = "DY_8TeV_M400_Q3"; //double Q3=1;
 
    string Da = "Data8TeV";
    string outName = "2DPlotsS";
@@ -3031,7 +3035,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2, unsigned int 
    leg->AddEntry(Signal1PIm,  samples[S1i].Legend.c_str()   ,"F");
    leg->AddEntry(box,         "Excluded"                    ,"F");
    leg->Draw();
-   DrawPreliminary(NULL, SQRTS, IntegratedLuminosityFromE(SQRTS));
+   DrawPreliminary("", SQRTS, IntegratedLuminosityFromE(SQRTS));
    SaveCanvas(c1, outpath, outName + "_PIm", false);
    delete c1;
 
@@ -3049,9 +3053,9 @@ void CompareRecoAndGenPt(string InputPattern){
   TypeMode = TypeFromPattern(InputPattern);
   string LegendTitle = LegendFromType(InputPattern);;
   
-  string S1 = "DY_7TeV_M400_Q1o3";   double Q1=1/3.0;
-  string S2 = "DY_7TeV_M400_Q1";     double Q2=1;
-  string S3 = "DY_7TeV_M400_Q3";     double Q3=1;  
+  string S1 = "DY_7TeV_M400_Q1o3";   //double Q1=1/3.0;
+  string S2 = "DY_7TeV_M400_Q1";     //double Q2=1;
+  string S3 = "DY_7TeV_M400_Q3";     //double Q3=1;  
   
   int S1i   = JobIdToIndex(S1,samples);    if(S1i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
   int S2i   = JobIdToIndex(S2,samples);    if(S2i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }                
