@@ -823,7 +823,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    DrawPreliminary("Tracker + TOF", SQRTS, LInt);
    TLegend* LEGMu = !Combine ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.45,0.10,0.65,0.42);
    LEGMu->SetFillColor(0); 
-   LEGMu->SetFillStyle(0);
+   //LEGMu->SetFillStyle(0);
    LEGMu->SetBorderSize(0);
    LEGMu->AddEntry(MuGraphMap["Gluino_f50"] , "gluino; 50% #tilde{g}g"    ,"LP");
    LEGMu->AddEntry(MuGraphMap["Gluino_f10"] , "gluino; 10% #tilde{g}g"    ,"LP");
@@ -831,11 +831,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGMu->AddEntry(MuGraphMap["PPStau"    ] , "Pair Prod. stau"           ,"LP");
    LEGMu->AddEntry(MuGraphMap["GMStau"    ] , "GMSB stau"                 ,"LP");
 
-   TLegend* LEGTh = new TLegend(0.15,0.7,0.48,0.9);
+   TLegend* LEGTh = new TLegend(0.15,0.7,0.45,0.9);
    if(!Combine) {
    LEGTh->SetHeader("Theoretical Prediction");
    LEGTh->SetFillColor(0);
-   LEGTh->SetFillStyle(0);
+   //LEGTh->SetFillStyle(0);
    LEGTh->SetBorderSize(0);
    TGraph* GlThLeg = (TGraph*) ThGraphMap["Gluino_f10"]->Clone("GluinoThLeg");
    GlThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
@@ -896,7 +896,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    TLegend* LEGTk = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.10,0.795,0.42);
    LEGTk->SetFillColor(0); 
-   LEGTk->SetFillStyle(0);
+   //LEGTk->SetFillStyle(0);
    LEGTk->SetBorderSize(0);
    LEGTk->AddEntry(TkGraphMap["Gluino_f50" ], "gluino; 50% #tilde{g}g"            ,"LP");
    LEGTk->AddEntry(TkGraphMap["Gluino_f10" ], "gluino; 10% #tilde{g}g"            ,"LP");
@@ -1005,6 +1005,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
 
    c1 = new TCanvas("c1", "c1",600,600);
+
    TMultiGraph* MGMO = new TMultiGraph();
    if(!Combine) {
    MGMO->Add(ThGraphMap["Gluino_f10" ]     ,"L");
@@ -1026,8 +1027,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMO->Add(MOGraphMap["Gluino_f50" ]     ,"LP");
    MGMO->Add(MOGraphMap["Gluino_f100"]     ,"LP");
    MGMO->Add(MOGraphMap["Stop"       ]     ,"LP");
-   MGMO->Add(LQGraphMap["DY_Q1o3"    ]     ,"LP");
-   MGMO->Add(LQGraphMap["DY_Q2o3"    ]     ,"LP");
+   MGMO->Add(MOGraphMap["DY_Q1o3"    ]     ,"LP");
+   MGMO->Add(MOGraphMap["DY_Q2o3"    ]     ,"LP");
 
    MGMO->Draw("A");
    if(!Combine) {
@@ -1051,14 +1052,38 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    
    TLegend* LEGMO = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.10,0.795,0.42);
    LEGMO->SetFillColor(0); 
-   LEGMO->SetFillStyle(0);
+   //LEGMO->SetFillStyle(0);
    LEGMO->SetBorderSize(0);
    LEGMO->AddEntry(MOGraphMap["Gluino_f100" ], "gluino; 100% #tilde{g}g"            ,"LP");
    LEGMO->AddEntry(MOGraphMap["Gluino_f50" ], "gluino; 50% #tilde{g}g"            ,"LP");
    LEGMO->AddEntry(MOGraphMap["Gluino_f10" ], "gluino; 10% #tilde{g}g"            ,"LP");
    LEGMO->AddEntry(MOGraphMap["Stop"       ], "stop"                              ,"LP");
-   if(!Combine) LEGTh->Draw();
+   LEGMO->AddEntry(TkGraphMap["DY_Q1o3"    ], "Q=1/3"            ,"LP");
+   LEGMO->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2/3"            ,"LP");
    LEGMO->Draw();
+
+   TLegend* MOLEGTh = new TLegend(0.15,0.7,0.45,0.9);
+   if(!Combine) {
+     MOLEGTh->SetHeader("Theoretical Prediction");
+     MOLEGTh->SetFillColor(0);
+     //MOLEGTh->SetFillStyle(0);
+     MOLEGTh->SetBorderSize(0);
+
+     TGraph* GlThLeg = (TGraph*) ThGraphMap["Gluino_f10"]->Clone("GluinoThLeg");
+     GlThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
+     MOLEGTh->AddEntry(GlThLeg, "gluino (NLO+NLL)" ,"LF");
+     TGraph* StThLeg = (TGraph*) ThGraphMap["Stop"      ]->Clone("StopThLeg");
+     StThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
+     MOLEGTh->AddEntry(StThLeg   ,"stop (NLO+NLL)" ,"LF");
+     TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
+     DYQ1o3ThLeg->SetFillColor(ThErrorMap["DY_Q1o3"]->GetFillColor());
+     MOLEGTh->AddEntry(DYQ1o3ThLeg   ,"Q=1/3 (LO)" ,"LF");
+     TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
+     DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
+     MOLEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2/3 (LO)" ,"LF");
+     MOLEGTh->Draw();
+   }
+
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("MOExclusionLog"));
    delete c1;
@@ -1071,12 +1096,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
 
    /////////////////////////////// LQ Analysis
-   TLegend* LQLEGTh = new TLegend(0.15,0.7,0.48,0.9);
+   TLegend* LQLEGTh = new TLegend(0.15,0.7,0.45,0.9);
    c1 = new TCanvas("c1", "c1",600,600);
    if(!Combine) {
    LQLEGTh->SetHeader("Theoretical Prediction");
    LQLEGTh->SetFillColor(0);
-   LQLEGTh->SetFillStyle(0);
+   //LQLEGTh->SetFillStyle(0);
    LQLEGTh->SetBorderSize(0);
 
    TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
@@ -1118,7 +1143,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TLegend* LEGLQ = !Combine ? new TLegend(0.55,0.80,0.795,0.9) : new TLegend(0.55,0.15,0.795,0.25);
 //   LEGLQ->SetHeader("Q<1");
    LEGLQ->SetFillColor(0); 
-   LEGLQ->SetFillStyle(0);
+   //LEGLQ->SetFillStyle(0);
    LEGLQ->SetBorderSize(0);
    LEGLQ->AddEntry(TkGraphMap["DY_Q1o3"    ], "Q=1/3"            ,"LP");
    LEGLQ->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2/3"            ,"LP");
@@ -1171,7 +1196,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.64,0.82,0.84) : new TLegend(0.50,0.20,0.70,0.52);
 
    LEGHQ->SetFillColor(0); 
-   LEGHQ->SetFillStyle(0);
+   //LEGHQ->SetFillStyle(0);
    LEGHQ->SetBorderSize(0);
    LEGHQ->AddEntry(HQGraphMap["DY_Q1"] , "MC - Q=1 "    ,"LP");
    LEGHQ->AddEntry(HQGraphMap["DY_Q2"] , "MC - Q=2 "    ,"LP");
@@ -1183,7 +1208,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(!Combine){
    HQLEGTh->SetHeader("Theoretical Prediction");
    HQLEGTh->SetFillColor(0);
-   HQLEGTh->SetFillStyle(0);
+   //HQLEGTh->SetFillStyle(0);
    HQLEGTh->SetBorderSize(0);
    
    TGraph* Q1ThLeg = (TGraph*) ThGraphMap["DY_Q1"]->Clone("HSCPQ1ThLeg");
