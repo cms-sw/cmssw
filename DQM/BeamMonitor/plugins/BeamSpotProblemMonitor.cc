@@ -2,8 +2,8 @@
  * \file BeamSpotProblemMonitor.cc
  * \author Sushil S. Chauhan/UC Davis
  *        
- * $Date: 2012/05/17 13:27:28 $
- * $Revision: 1.76 $
+ * $Date: 2012/05/22 19:44:12 $
+ * $Revision: 1.1 $
  */
 
 
@@ -52,7 +52,7 @@ using namespace edm;
 // constructors and destructor
 //
 BeamSpotProblemMonitor::BeamSpotProblemMonitor( const ParameterSet& ps ) :
-  BeamSpotStatus_(0),ALARM_ON_(false), BeamSpotFromDB_(0), fitNLumi_(0), Ntracks_(0){
+  Ntracks_(0), fitNLumi_(0), ALARM_ON_(false), BeamSpotStatus_(0), BeamSpotFromDB_(0){
 
   parameters_     = ps;
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
