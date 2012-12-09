@@ -155,6 +155,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    string Data;
    if(MODE.find("SHAPE")!=string::npos){SHAPESTRING="SHAPE";}else{SHAPESTRING="";}
+
    if(MODE.find("COMPUTELIMIT")!=string::npos || MODE.find("OPTIMIZE")!=string::npos){
       if(signal.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
       if(signal.find("8TeV")!=string::npos){Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR+="8TeV"; }
@@ -1786,7 +1787,7 @@ void DrawRatioBands(string InputPattern)
 //will run on all possible selection and try to identify which is the best one for this sample
 void Optimize(string InputPattern, string Data, string signal, bool shape, bool cutFromFile){
    printf("Optimize selection for %s in %s\n",signal.c_str(), InputPattern.c_str());fflush(stdout);
-  
+
    //get the typeMode from pattern
    TypeMode = TypeFromPattern(InputPattern); 
 
@@ -1893,7 +1894,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
 
    //Compute mass range for the cut&count search
    double Mean=-1,Width=-1;
-   if(!shape){
+   if(!shape && TypeMode<=2){
       TH1D* tmpMassSignProj = MassSign->ProjectionY("MassSignProj0",1,1);
       Mean  = tmpMassSignProj->GetMean();
       Width = tmpMassSignProj->GetRMS();
@@ -1959,8 +1960,8 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       //if(OptimCutIndex<0){
          //best significance --> is actually best reach
          if(TypeMode<=2){if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
-         }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
-         }
+  	   }else          {if(!runCombine(true, false, true, InputPattern, signal, CutIndex, shape, true, result, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU)){printf("runCombine did not converge\n"); continue;}
+	   }
 	 //}else{
          //result.XSec_5Sigma=0.0001;//Dummy number --> will be recomputed later on... but it must be >0
 	 //}
@@ -1980,8 +1981,6 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    }//end of selection cut loop
    fclose(pFile);   
  
-
-
    //recompute the limit for the final point and save the output in the final directory (also save some plots for the shape based analysis)
    if(TypeMode<=2){runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, MassData, MassPred, MassSign, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
    }else          {runCombine(false, true, true, InputPattern, signal, toReturn.Index, shape, false, toReturn, H_D, H_P, H_S, MassSignP, MassSignI, MassSignM, MassSignT, MassSignPU);
