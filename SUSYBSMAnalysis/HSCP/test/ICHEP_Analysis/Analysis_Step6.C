@@ -1541,7 +1541,7 @@ void DrawModelLimitWithBand(string InputPattern){
       MG->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
       DrawPreliminary(SQRTS, LInt);
 
-      TLegend* LEG = !Combine ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.45,0.10,0.65,0.42);
+      TLegend* LEG = EXCLUSIONDIR.find("COMB")==string::npos ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.45,0.10,0.65,0.42);
       //TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
       string headerstr = "95% CL Limits (";
       headerstr += LegendFromType(InputPattern) + string(")");
