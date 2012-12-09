@@ -770,9 +770,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    ThGraphMap["DY_Q1o3"      ]->SetLineColor(41); ThGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  ThGraphMap["DY_Q1o3"      ]->SetLineWidth(1);   ThGraphMap["DY_Q1o3"      ]->SetLineStyle(9);  ThGraphMap["DY_Q1o3"      ]->SetMarkerStyle(1);
    TkGraphMap["DY_Q1o3"      ]->SetLineColor(41); TkGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  TkGraphMap["DY_Q1o3"      ]->SetLineWidth(2);   TkGraphMap["DY_Q1o3"      ]->SetLineStyle(1);  TkGraphMap["DY_Q1o3"      ]->SetMarkerStyle(33);
+   MOGraphMap["DY_Q1o3"      ]->SetLineColor(41); MOGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  MOGraphMap["DY_Q1o3"      ]->SetLineWidth(2);   MOGraphMap["DY_Q1o3"      ]->SetLineStyle(1);  MOGraphMap["DY_Q1o3"      ]->SetMarkerStyle(33);
    LQGraphMap["DY_Q1o3"      ]->SetLineColor(41); LQGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  LQGraphMap["DY_Q1o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q1o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q1o3"      ]->SetMarkerStyle(33);
    ThGraphMap["DY_Q2o3"      ]->SetLineColor(43); ThGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  ThGraphMap["DY_Q2o3"      ]->SetLineWidth(1);   ThGraphMap["DY_Q2o3"      ]->SetLineStyle(10); ThGraphMap["DY_Q2o3"      ]->SetMarkerStyle(1);
    TkGraphMap["DY_Q2o3"      ]->SetLineColor(43); TkGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  TkGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   TkGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  TkGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
+   MOGraphMap["DY_Q2o3"      ]->SetLineColor(43); MOGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  MOGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   MOGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  MOGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
    LQGraphMap["DY_Q2o3"      ]->SetLineColor(43); LQGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  LQGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
 
    ThGraphMap["DY_Q1"        ]->SetLineColor(46); ThGraphMap["DY_Q1"        ]->SetMarkerColor(46);  ThGraphMap["DY_Q1"        ]->SetLineWidth(1);   ThGraphMap["DY_Q1"        ]->SetLineStyle(1);  ThGraphMap["DY_Q1"        ]->SetMarkerStyle(1);
@@ -1007,17 +1009,32 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(!Combine) {
    MGMO->Add(ThGraphMap["Gluino_f10" ]     ,"L");
    MGMO->Add(ThGraphMap["Stop"       ]     ,"L");
+   MGMO->Add(ThGraphMap["DY_Q1o3"    ]     ,"L");
+   MGMO->Add(ThGraphMap["DY_Q2o3"    ]     ,"L");
    }
+
+   //TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
+   //DYQ1o3ThLeg->SetFillColor(ThErrorMap["DY_Q1o3"]->GetFillColor());
+   //LQLEGTh->AddEntry(DYQ1o3ThLeg   ,"Q=1/3   (LO)" ,"LF");
+   //TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
+   //DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
+   //LQLEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2/3   (LO)" ,"LF");
+   //LQLEGTh->Draw();
+
 
    MGMO->Add(MOGraphMap["Gluino_f10" ]     ,"LP");
    MGMO->Add(MOGraphMap["Gluino_f50" ]     ,"LP");
    MGMO->Add(MOGraphMap["Gluino_f100"]     ,"LP");
    MGMO->Add(MOGraphMap["Stop"       ]     ,"LP");
+   MGMO->Add(LQGraphMap["DY_Q1o3"    ]     ,"LP");
+   MGMO->Add(LQGraphMap["DY_Q2o3"    ]     ,"LP");
 
    MGMO->Draw("A");
    if(!Combine) {
-   ThErrorMap["Gluino_f10"]->Draw("f");
-   ThErrorMap["Stop"      ]->Draw("f");
+     ThErrorMap["Gluino_f10"]->Draw("f");
+     ThErrorMap["Stop"      ]->Draw("f");
+     ThErrorMap["DY_Q1o3"   ]->Draw("f");
+     ThErrorMap["DY_Q2o3"   ]->Draw("f");
    }else{
       TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
