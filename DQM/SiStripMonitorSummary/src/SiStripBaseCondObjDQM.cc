@@ -168,7 +168,12 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
   ModulesToBeExcluded_     = fPSet_.getParameter< std::vector<unsigned int> >("ModulesToBeExcluded");
   ModulesToBeIncluded_     = fPSet_.getParameter< std::vector<unsigned int> >("ModulesToBeIncluded");
   SubDetectorsToBeExcluded_= fPSet_.getParameter< std::vector<std::string> >("SubDetectorsToBeExcluded");  
- 
+
+  // vectors to be sorted otherwise the intersection is non computed properly
+
+  std::sort(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end());
+  std::sort(ModulesToBeIncluded_.begin(),ModulesToBeIncluded_.end());
+
   if(fPSet_.getParameter<bool>("restrictModules") 
      && ModulesToBeExcluded_.size()==0 
      && ModulesToBeIncluded_.size()==0 ){
