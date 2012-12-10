@@ -99,6 +99,12 @@ HLT_PAPhoton10_Photon10_TightCaloIdVL_v*	   # sr 134440
 HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v*	   # sr 134440
 HLT_PAPhoton15_Photon10_TightCaloIdVL_v*	   # sr 134440
 HLT_PAPhoton20_Photon15_TightCaloIdVL_v*	   # sr 134440
+HLT_PASingleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440
+HLT_PASingleEle6_CaloIdNone_TrkIdVL_v*		   # sr 134440
+HLT_PASingleEle8_CaloIdNone_TrkIdVL_v*		   # sr 134440
+HLT_PAL1DoubleEG5DoubleEle6_CaloIdT_TrkIdVL_v*	   # sr 134440
+HLT_PADoubleEle6_CaloIdT_TrkIdVL_v*		   # sr 134440
+HLT_PADoubleEle8_CaloIdT_TrkIdVL_v*		   # sr 134440
 #HLT_PAL1ETM30_v*                                  # sr 131577, removed by #134379
 #HLT_PAL1ETM70_v*                                  # sr 131577, removed by #134379
 #HLT_PAPixelTracks_Multiplicity70_v*               # sr 131577, removed by #134440
