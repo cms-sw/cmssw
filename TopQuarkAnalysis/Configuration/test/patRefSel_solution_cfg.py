@@ -24,6 +24,8 @@ scram b -j 9
 # Load existing PAT skeleton configuration
 
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+process.source.fileNames = filesRelValProdTTbarAODSIM
 process.options.wantSummary = True
 process.out.fileName        = 'patRefSel_solution.root'
 
