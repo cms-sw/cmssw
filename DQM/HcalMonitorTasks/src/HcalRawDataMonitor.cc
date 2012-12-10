@@ -611,6 +611,14 @@ void HcalRawDataMonitor::processEvent(const FEDRawDataCollection& rawraw,
   for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
     const FEDRawData& fed = rawraw.FEDData(i);
     if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.
+
+    int value = (int)((const HcalDCCHeader*)(fed.data()))->getCalibType() ;
+    if(value>7) 
+      {
+	edm::LogWarning("HcalMonitorModule::CalibTypeFilter") << "Unexpected Calibration type: "<< value << " in FED: "<<i<<" (should be 0-7). I am bailing out...";
+	return;
+      }
+
     unpack(fed); //Interpret data, fill histograms, everything.
   }
   
