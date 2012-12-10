@@ -143,12 +143,10 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
 #endif
 
   //create event structure;
-  HepMC::GenVertex* thePrimaryVertex = new HepMC::GenVertex();
-  evt->set_signal_process_vertex(thePrimaryVertex);
 
   vector<HepMC::GenParticle*> vecGenParticles;
   vecGenParticles.resize(m_NParticles);
-  
+
   for(int i = 0; i < m_NParticles; i++)
     {
       //add particle. do not delete. not stored as a copy
@@ -165,6 +163,7 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
   //number of beam particles
   for(int i = 0; i < m_NParticles; i++)
     {
+      HepMC::GenParticle* p = vecGenParticles[i];
       HepMC::FourVector pos(hepcom_.vhep[0][i],hepcom_.vhep[1][i],hepcom_.vhep[2][i],0);
       int firstMother = hepcom_.jmohep[1][i];
       int secondMother = hepcom_.jmohep[2][i];
@@ -172,16 +171,16 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
         LogError("ReggeGribovPartonMCInterface") << "First mother: " << firstMother << " second mother: " << secondMother << " (max: " << m_NParticles << ")" << endl;
 
       //Check if production vertex exists
-      HepMC::GenVertex* vertex = vecGenParticles[i]->production_vertex();
+      HepMC::GenVertex* vertex = p->production_vertex();
       if (!vertex && vecGenParticles[firstMother]->production_vertex ())
         {
           vertex = vecGenParticles[firstMother]->production_vertex ();
-          vertex->add_particle_out(vecGenParticles[i]);
+          vertex->add_particle_out(p);
         }
       if (!vertex && vecGenParticles[secondMother]->production_vertex ())
         {
           vertex = vecGenParticles[secondMother]->production_vertex ();
-          vertex->add_particle_out(vecGenParticles[i]);
+          vertex->add_particle_out(p);
         }
 
       //no vertex found
@@ -190,8 +189,10 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
           vertex = new HepMC::GenVertex(pos);
           if(!vertex)
             LogError("ReggeGribovPartonMCInterface") << "Could not create new vertex" << endl;
-          vertex->add_particle_out(vecGenParticles[i]);
+          vertex->add_particle_out(p);
           evt->add_vertex(vertex);
+          if(p->status() == 4)
+            evt->set_signal_process_vertex(vertex); // beam particle. set signal vertex
         }
     }
 
