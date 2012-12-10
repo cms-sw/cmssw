@@ -8,7 +8,7 @@ import datetime
 from pprint import pprint
 import shutil
 
-import configTemplates #BETA as configTemplates
+import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates as configTemplates
 
 ####################--- Helpers ---############################
 #replaces .oO[id]Oo. by map[id] in target
