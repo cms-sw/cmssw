@@ -101,6 +101,8 @@ class JetCorrectorParametersCollection {
   //---------------- JetCorrectorParametersCollection class ----------------
   //-- Adds several JetCorrectorParameters together by algorithm type ---
   //--     to reduce the number of payloads in the Database ---
+  //-- NB: The enum is listed in "human-logical" order, but the actual
+  //       enum value is in order of appearance when people thought of them.
  public:
   enum Level_t { L1Offset=0,
 		 L1JPTOffset=7,
@@ -115,22 +117,32 @@ class JetCorrectorParametersCollection {
 		 Uncertainty=9,
 		 UncertaintyAbsolute=11, 
 		 UncertaintyHighPtExtra=12, 
-		 UncertaintySinglePion=13, 
+		 UncertaintySinglePionECAL=13, 
+		 UncertaintySinglePionHCAL=27, 
 		 UncertaintyFlavor=14, 
 		 UncertaintyTime=15,
 		 UncertaintyRelativeJEREC1=16, 
 		 UncertaintyRelativeJEREC2=17, 
 		 UncertaintyRelativeJERHF=18,
+		 UncertaintyRelativePtEC1=28,
+		 UncertaintyRelativePtEC2=29,
+		 UncertaintyRelativePtHF=30,
 		 UncertaintyRelativeStatEC2=19, 
 		 UncertaintyRelativeStatHF=20, 
 		 UncertaintyRelativeFSR=21,
+		 UncertaintyRelativeSample=31,
 		 UncertaintyPileUpDataMC=22, 
 		 UncertaintyPileUpOOT=23, 
-		 UncertaintyPileUpPt=24, 
+		 UncertaintyPileUpPtBB=24,
+		 UncertaintyPileUpPtEC=32, 
+		 UncertaintyPileUpPtHF=33, 
 		 UncertaintyPileUpBias=25, 
 		 UncertaintyPileUpJetRate=26,
-		 L1Residual=27,
-		 N_LEVELS=28
+		 UncertaintyAux1=34,
+		 UncertaintyAux2=35,
+		 UncertaintyAux3=36,
+		 UncertaintyAux4=37,
+		 N_LEVELS=38
   };
 
 

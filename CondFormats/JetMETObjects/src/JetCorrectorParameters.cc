@@ -344,7 +344,7 @@ JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection:
     "L1FastJet",
     "UncertaintyAbsolute", 
     "UncertaintyHighPtExtra", 
-    "UncertaintySinglePion", 
+    "UncertaintySinglePionECAL", 
     "UncertaintyFlavor", 
     "UncertaintyTime",
     "UncertaintyRelativeJEREC1", 
@@ -355,10 +355,20 @@ JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection:
     "UncertaintyRelativeFSR",
     "UncertaintyPileUpDataMC", 
     "UncertaintyPileUpOOT", 
-    "UncertaintyPileUpPt", 
+    "UncertaintyPileUpPtBB", 
     "UncertaintyPileUpBias", 
     "UncertaintyPileUpJetRate",
-    "L1Residual"
+    "UncertaintySinglePionHCAL",
+    "UncertaintyRelativePtEC1",
+    "UncertaintyRelativePtEC2",
+    "UncertaintyRelativePtHF",
+    "UncertaintyRelativeSample",
+    "UncertaintyPileUpPtEC", 
+    "UncertaintyPileUpPtHF",
+    "UncertaintyAux1", 
+    "UncertaintyAux2", 
+    "UncertaintyAux3", 
+    "UncertaintyAux4", 
   }; 
 
 const char *
