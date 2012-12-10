@@ -423,7 +423,7 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
   for ( auto id : rawInactiveDetIds) {
     if (id==idp) continue; // skip multiple id
     idp=id;
-    int i=theStDets.find(id,i);
+    i=theStDets.find(id,i);
     assert(i!=endDet && id == theStDets.id(i));
     theStDets.setActiveThisEvent(i,false);
   }
