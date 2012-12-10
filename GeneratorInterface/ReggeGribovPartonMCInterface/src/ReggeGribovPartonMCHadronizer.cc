@@ -1,4 +1,4 @@
-#include <iostream>
+ #include <iostream>
 #include <cmath>
 #include <string>
 
@@ -12,6 +12,8 @@
 
 #include <HepMC/GenCrossSection.h>
 #include <HepMC/GenEvent.h>
+#include <HepMC/GenVertex.h>
+#include <HepMC/GenParticle.h>
 #include <HepMC/HeavyIon.h>
 #include <HepMC/PdfInfo.h>
 #include <HepMC/Units.h>
@@ -141,22 +143,14 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
 #endif
 
   //create event structure;
-  HepMC::GenVertex* theVertex = new HepMC::GenVertex();
-  evt->add_vertex(theVertex);
+  HepMC::GenVertex* thePrimaryVertex = new HepMC::GenVertex();
+  evt->set_signal_process_vertex(thePrimaryVertex);
 
-  //number of beam particles
+  vector<HepMC::GenParticle*> vecGenParticles;
+  vecGenParticles.resize(m_NParticles);
+  
   for(int i = 0; i < m_NParticles; i++)
     {
-      //consistency check
-      const double e2 = m_PartEnergy[i] * m_PartEnergy[i];
-      const double pc2 = m_PartPy[i]*m_PartPy[i] + m_PartPx[i]*m_PartPx[i] + m_PartPz[i]*m_PartPz[i];
-      if (e2 + 1e-9 < pc2 )
-        LogWarning("ReggeGribovPartonMCInterface")
-          << "momentum off  Id:" << m_PartID[i]
-          << "(" << i << ") "
-          << sqrt(fabs(e2 - pc2))
-          << endl;
-
       //add particle. do not delete. not stored as a copy
       HepMC::GenParticle* p = new HepMC::GenParticle(HepMC::FourVector(m_PartPx[i],
                                                                        m_PartPy[i],
@@ -164,7 +158,41 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
                                                                        m_PartEnergy[i]),
                                                      m_PartID[i],
                                                      m_PartStatus[i]);
-      theVertex->add_particle_out(p);
+      vecGenParticles[i] = p;
+    }
+
+
+  //number of beam particles
+  for(int i = 0; i < m_NParticles; i++)
+    {
+      HepMC::FourVector pos(hepcom_.vhep[0][i],hepcom_.vhep[1][i],hepcom_.vhep[2][i],0);
+      int firstMother = hepcom_.jmohep[1][i];
+      int secondMother = hepcom_.jmohep[2][i];
+      if (firstMother < 0 || secondMother < 0 || firstMother > m_NParticles || secondMother > m_NParticles)
+        LogError("ReggeGribovPartonMCInterface") << "First mother: " << firstMother << " second mother: " << secondMother << " (max: " << m_NParticles << ")" << endl;
+
+      //Check if production vertex exists
+      HepMC::GenVertex* vertex = vecGenParticles[i]->production_vertex();
+      if (!vertex && vecGenParticles[firstMother]->production_vertex ())
+        {
+          vertex = vecGenParticles[firstMother]->production_vertex ();
+          vertex->add_particle_out(vecGenParticles[i]);
+        }
+      if (!vertex && vecGenParticles[secondMother]->production_vertex ())
+        {
+          vertex = vecGenParticles[secondMother]->production_vertex ();
+          vertex->add_particle_out(vecGenParticles[i]);
+        }
+
+      //no vertex found
+      if(!vertex)
+        {
+          vertex = new HepMC::GenVertex(pos);
+          if(!vertex)
+            LogError("ReggeGribovPartonMCInterface") << "Could not create new vertex" << endl;
+          vertex->add_particle_out(vecGenParticles[i]);
+          evt->add_vertex(vertex);
+        }
     }
 
   if (m_TargetID + m_BeamID > 2) //other than pp

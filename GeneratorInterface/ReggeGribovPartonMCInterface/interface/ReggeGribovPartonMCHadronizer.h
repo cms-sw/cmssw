@@ -37,8 +37,23 @@ extern "C"
   void crmc_init_f_();
 }
 
+#define nmxhep 99990
+
 extern "C"
 {
+  extern struct
+  {
+    int nevhep;
+    int nhep;
+
+    int isthep[nmxhep];
+    int idhep[nmxhep];
+    int jmohep[nmxhep][2];
+    int jdahep[nmxhep][2];
+    double phep[nmxhep][5]; 
+    double vhep[nmxhep][5];
+  } hepcom_; //epos.inc
+  
   extern struct
   {
     float sigtot; // ........ total cross section
@@ -52,7 +67,7 @@ extern "C"
     float sigtotaa;
     float sigelaaa;
     float sigcutaa;
-  } hadr5_; //crmc-aaa.f
+  } hadr5_; //epos.inc
 
   extern struct
   {
@@ -219,13 +234,13 @@ namespace gen
 
     int     m_NParticles;
     double  m_ImpactParameter;
-    int     m_PartID[99990];
-    double  m_PartPx[99990];
-    double  m_PartPy[99990];
-    double  m_PartPz[99990];
-    double  m_PartEnergy[99990];
-    double  m_PartMass[99990];
-    int     m_PartStatus[99990];
+    int     m_PartID[nmxhep];
+    double  m_PartPx[nmxhep];
+    double  m_PartPy[nmxhep];
+    double  m_PartPz[nmxhep];
+    double  m_PartEnergy[nmxhep];
+    double  m_PartMass[nmxhep];
+    int     m_PartStatus[nmxhep];
   };
 
 } /*end namespace*/
