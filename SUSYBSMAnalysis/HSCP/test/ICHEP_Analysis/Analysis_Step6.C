@@ -1011,8 +1011,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    if(!Combine) {
    MGMO->Add(ThGraphMap["Gluino_f10" ]     ,"L");
    MGMO->Add(ThGraphMap["Stop"       ]     ,"L");
-   MGMO->Add(ThGraphMap["DY_Q1o3"    ]     ,"L");
-   MGMO->Add(ThGraphMap["DY_Q2o3"    ]     ,"L");
+   //MGMO->Add(ThGraphMap["DY_Q1o3"    ]     ,"L");
+   //MGMO->Add(ThGraphMap["DY_Q2o3"    ]     ,"L");
    }
 
    //TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
@@ -1028,15 +1028,15 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMO->Add(MOGraphMap["Gluino_f50" ]     ,"LP");
    MGMO->Add(MOGraphMap["Gluino_f100"]     ,"LP");
    MGMO->Add(MOGraphMap["Stop"       ]     ,"LP");
-   MGMO->Add(MOGraphMap["DY_Q1o3"    ]     ,"LP");
-   MGMO->Add(MOGraphMap["DY_Q2o3"    ]     ,"LP");
+   //MGMO->Add(MOGraphMap["DY_Q1o3"    ]     ,"LP");
+   //MGMO->Add(MOGraphMap["DY_Q2o3"    ]     ,"LP");
 
    MGMO->Draw("A");
    if(!Combine) {
      ThErrorMap["Gluino_f10"]->Draw("f");
      ThErrorMap["Stop"      ]->Draw("f");
-     ThErrorMap["DY_Q1o3"   ]->Draw("f");
-     ThErrorMap["DY_Q2o3"   ]->Draw("f");
+     //ThErrorMap["DY_Q1o3"   ]->Draw("f");
+     //ThErrorMap["DY_Q2o3"   ]->Draw("f");
    }else{
       TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
@@ -1059,8 +1059,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGMO->AddEntry(MOGraphMap["Gluino_f50" ], "gluino; 50% #tilde{g}g"            ,"LP");
    LEGMO->AddEntry(MOGraphMap["Gluino_f10" ], "gluino; 10% #tilde{g}g"            ,"LP");
    LEGMO->AddEntry(MOGraphMap["Stop"       ], "stop"                              ,"LP");
-   LEGMO->AddEntry(TkGraphMap["DY_Q1o3"    ], "Q=1/3"            ,"LP");
-   LEGMO->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2/3"            ,"LP");
+   //LEGMO->AddEntry(TkGraphMap["DY_Q1o3"    ], "Q=1/3"            ,"LP");
+   //LEGMO->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2/3"            ,"LP");
    LEGMO->Draw();
 
    TLegend* MOLEGTh = new TLegend(0.15,0.7,0.45,0.9);
@@ -1076,12 +1076,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      TGraph* StThLeg = (TGraph*) ThGraphMap["Stop"      ]->Clone("StopThLeg");
      StThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
      MOLEGTh->AddEntry(StThLeg   ,"stop (NLO+NLL)" ,"LF");
-     TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
-     DYQ1o3ThLeg->SetFillColor(ThErrorMap["DY_Q1o3"]->GetFillColor());
-     MOLEGTh->AddEntry(DYQ1o3ThLeg   ,"Q=1/3 (LO)" ,"LF");
-     TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
-     DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
-     MOLEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2/3 (LO)" ,"LF");
+     //TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
+     //DYQ1o3ThLeg->SetFillColor(ThErrorMap["DY_Q1o3"]->GetFillColor());
+     //MOLEGTh->AddEntry(DYQ1o3ThLeg   ,"Q=1/3 (LO)" ,"LF");
+     //TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
+     //DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
+     //MOLEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2/3 (LO)" ,"LF");
      MOLEGTh->Draw();
    }
 
@@ -2663,7 +2663,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
 bool useSample(int TypeMode, string sample) {
   if(TypeMode==0 && (sample=="Gluino_f10" || sample=="GluinoN_f10" || sample=="StopN" || sample=="Stop" || sample=="DY_Q2o3" || sample=="GMStau" || sample=="PPStau")) return true;
   if(TypeMode==2 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Stop" || sample=="GMStau" || sample=="PPStau" || sample=="DY_Q2o3")) return true;
-  if(TypeMode==3 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Gluino_f100" || sample=="Stop")) return true;
+  if(TypeMode==3 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Gluino_f100" || sample=="Stop" || sample.find("o3"))) return true;
   if(TypeMode==4) return true;
   if(TypeMode==5) return true;
   return false;
