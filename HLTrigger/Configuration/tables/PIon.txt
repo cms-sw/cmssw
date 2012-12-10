@@ -76,7 +76,7 @@ HLT_PAMu7PFJet20_v*                                # sr 133325
 #HLT_PAPhoton20_CaloIdVL_v*                        # sr 131577, removed by #134379
 #HLT_PAPhoton30_CaloIdVL_v*                        # sr 131577, removed by #134379
 HLT_PAPhoton10_NoCaloIdVL_v*			   # sr 133321
-HLT_PAPhoton20_NoCaloIdVL_v*			   # sr 133321
+HLT_PAPhoton20_NoCaloIdVL_v*			   # sr 133321, modified by #134440
 HLT_PAPhoton30_NoCaloIdVL_v*			   # sr 133321
 HLT_PAPhoton40_NoCaloIdVL_v*			   # sr 133321
 HLT_PAPhoton60_NoCaloIdVL_v*			   # sr 133321
@@ -85,6 +85,20 @@ HLT_PAPhoton15_Photon10_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton20_Photon15_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton20_Photon20_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton30_Photon30_NoCaloIdVL_v*		   # sr 133321 
+HLT_PAPhoton10_TightCaloIdVL_v*			   # sr 134440
+HLT_PAPhoton10_TightCaloIdVL_Iso50_v*		   # sr 134440
+HLT_PAPhoton15_NoCaloIdVL_v*			   # sr 134440
+HLT_PAPhoton15_TightCaloIdVL_v*			   # sr 134440
+HLT_PAPhoton15_TightCaloIdVL_Iso50_v*		   # sr 134440
+HLT_PAPhoton20_TightCaloIdVL_v*			   # sr 134440
+HLT_PAPhoton20_TightCaloIdVL_Iso50_v*		   # sr 134440
+HLT_PAPhoton30_TightCaloIdVL_v*			   # sr 134440
+HLT_PAPhoton30_TightCaloIdVL_Iso50_v*		   # sr 134440
+HLT_PAPhoton40_TightCaloIdVL_v*			   # sr 134440
+HLT_PAPhoton10_Photon10_TightCaloIdVL_v*	   # sr 134440
+HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v*	   # sr 134440
+HLT_PAPhoton15_Photon10_TightCaloIdVL_v*	   # sr 134440
+HLT_PAPhoton20_Photon15_TightCaloIdVL_v*	   # sr 134440
 #HLT_PAL1ETM30_v*                                  # sr 131577, removed by #134379
 #HLT_PAL1ETM70_v*                                  # sr 131577, removed by #134379
 #HLT_PAPixelTracks_Multiplicity70_v*               # sr 131577, removed by #134440
