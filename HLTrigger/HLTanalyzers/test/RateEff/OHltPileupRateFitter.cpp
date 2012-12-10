@@ -49,6 +49,7 @@ void OHltPileupRateFitter::fitForPileup(
   int nPaths = themenu->GetTriggerSize();
   double targetLumi = thecfg->iLumi/1E30;
   TString model = thecfg->nonlinearPileupFit;
+  int lsPerBin = thecfg->lumiBinsForPileupFit;
   double minLumi = 999999999.0;
   double maxLumi = 0.0;
   float lumiMagicNumber = 1.0;
@@ -128,9 +129,8 @@ void OHltPileupRateFitter::fitForPileup(
   vector <double> vTotalLumiRebinned;
   vector <double> vTotalLumiRebinnedError;
 
-  int lsPerBin = 150;
   int lsInBin = 0;
-  int rebinnedBins = RunLSn/150.0;
+  int rebinnedBins = RunLSn/(lsPerBin*1.0);
   double lumiBin = 0;  
   double rateBin = 0;  
   double rateerrBin = 0;  

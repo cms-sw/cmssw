@@ -45,6 +45,8 @@ public:
    bool useNonIntegerPrescales; // default is integer prescales
    bool readRefPrescalesFromNtuple; // default is read prescales from config
    TString nonlinearPileupFit; // default is to do a linear extrapolation
+   int lumiBinsForPileupFit; // default is 150 LS per bin
+
    TString dsList;
    /*************************/
 
