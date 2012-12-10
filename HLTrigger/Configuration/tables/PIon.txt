@@ -87,8 +87,8 @@ HLT_PAPhoton20_Photon20_NoCaloIdVL_v*		   # sr 133321
 HLT_PAPhoton30_Photon30_NoCaloIdVL_v*		   # sr 133321 
 #HLT_PAL1ETM30_v*                                  # sr 131577, removed by #134379
 #HLT_PAL1ETM70_v*                                  # sr 131577, removed by #134379
-HLT_PAPixelTracks_Multiplicity70_v*                # sr 131577
-HLT_PAPixelTracks_Multiplicity90_v*                # sr 131577
+#HLT_PAPixelTracks_Multiplicity70_v*               # sr 131577, removed by #134440
+#HLT_PAPixelTracks_Multiplicity90_v*               # sr 131577, removed by #134440
 HLT_PAPixelTracks_Multiplicity100_v*               # sr 132927
 HLT_PAPixelTracks_Multiplicity130_v*               # sr 132927
 HLT_PAPixelTracks_Multiplicity160_v*               # sr 132927
