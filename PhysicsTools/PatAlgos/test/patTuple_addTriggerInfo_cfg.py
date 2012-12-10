@@ -55,7 +55,8 @@ process.out.outputCommands += patTriggerEventContent
 #
 #   process.GlobalTag.globaltag =  ...                # according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 #                                                     #
-#   process.source.fileNames =  ...                   # name of the input EDM file
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+process.source.fileNames = filesRelValProdTTbarAODSIM
 #                                                     #
 process.maxEvents.input = 10                          # number of events to process
 #                                                     #

@@ -9,9 +9,8 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 ## Source
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source = cms.Source("PoolSource",
-    fileNames = filesRelValProdTTbarAODSIM
+    fileNames = cms.untracked.vstring()
 )
 ## Maximal Number of Events
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )

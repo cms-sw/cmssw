@@ -105,10 +105,8 @@ process.p = cms.Path(
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-process.source.fileNames = cms.untracked.vstring([
-    '/store/relval/CMSSW_6_1_0_pre6-START61_V5/RelValTTbar/GEN-SIM-RECO/v1/00000/8047474B-B633-E211-B8EF-003048FFD720.root'
-    ])
-#...       ##  (e.g. 'file:AOD.root')
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
+process.source.fileNames = filesRelValProdTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##

@@ -3,7 +3,10 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 runOnMC = True
 
-if not runOnMC:
+if runOnMC:
+    from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+    process.source.fileNames = filesRelValProdTTbarAODSIM
+else:
     from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO
     process.source.fileNames = filesSingleMuRECO
     process.GlobalTag.globaltag = cms.string( autoCond[ 'com10' ] )

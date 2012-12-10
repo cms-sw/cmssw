@@ -4,9 +4,6 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 # load the PAT config
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
-## switch to RECO input
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
-process.source.fileNames = filesRelValProdTTbarGENSIMRECO
 
 ## add inFlightMuons
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -59,7 +56,9 @@ process.p = cms.Path(
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-#   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
+## switch to RECO input
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
+process.source.fileNames = filesRelValProdTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##
