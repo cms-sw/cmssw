@@ -90,8 +90,6 @@ streamA_datasetPAHighPt_selector.triggerConditions = cms.vstring('HLT_PAForJet40
     'HLT_PAPixelTracks_Multiplicity160_v1', 
     'HLT_PAPixelTracks_Multiplicity190_v1', 
     'HLT_PAPixelTracks_Multiplicity220_v1', 
-    'HLT_PAPixelTracks_Multiplicity70_v1', 
-    'HLT_PAPixelTracks_Multiplicity90_v1', 
     'HLT_PATripleJet40_20_20_v1', 
     'HLT_PATripleJet60_20_20_v1', 
     'HLT_PATripleJet80_20_20_v1')
@@ -100,7 +98,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetPAMinBiasUPC_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetPAMinBiasUPC_selector.l1tResults = cms.InputTag('')
 streamA_datasetPAMinBiasUPC_selector.throw      = cms.bool(False)
-streamA_datasetPAMinBiasUPC_selector.triggerConditions = cms.vstring('HLT_PADimuon0_NoVertexing_v1', 
+streamA_datasetPAMinBiasUPC_selector.triggerConditions = cms.vstring('HLT_PABptxMinusNotBptxPlus_v1', 
+    'HLT_PABptxPlusNotBptxMinus_v1', 
+    'HLT_PADimuon0_NoVertexing_v1', 
     'HLT_PADoubleJet20_ForwardBackward_v1', 
     'HLT_PADoubleMu4_Acoplanarity03_v1', 
     'HLT_PAExclDijet35_HFAND_v1', 
