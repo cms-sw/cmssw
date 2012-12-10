@@ -2,8 +2,8 @@
  * \file BeamSpotProblemMonitor.cc
  * \author Sushil S. Chauhan/UC Davis
  *        
- * $Date: 2012/05/22 19:44:12 $
- * $Revision: 1.1 $
+ * $Date: 2012/12/09 11:36:56 $
+ * $Revision: 1.2 $
  */
 
 
@@ -88,12 +88,14 @@ void BeamSpotProblemMonitor::beginJob() {
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"FitFromScalars");
 
-  int nbins = alarmOFFThreshold_;
-  double hiRange = (alarmOFFThreshold_+0.5);  
+  /* S.Dutta : Commenting out these variables are not used and giving error with "-Werror=unused-variable" option
+  int nbins = alarmOFFThreshold_; 
+  double hiRange = (alarmOFFThreshold_+0.5);*/
 
   const int nvar_ = 1;
   string coord[nvar_] = {"BeamSpotStatus"};
-  string label[nvar_] = {"BeamSpotStatus "};
+  /* S.Dutta : Commenting out these variables are not used and giving error with "-Werror=unused-variable" option
+  string label[nvar_] = {"BeamSpotStatus "};*/
 
   for (int i = 0; i < 1; i++) {
     dbe_->setCurrentFolder(monitorName_+"FitFromScalars");
@@ -331,9 +333,10 @@ void BeamSpotProblemMonitor::FillPlots(const LuminosityBlock& lumiSeg,int &lastl
      const QReport * BeamSpotQReport = myQReport->getQReport("BeamSpotOnlineTest");  
 
     if(BeamSpotQReport){  
-                         float qtresult = BeamSpotQReport->getQTresult();
-                         int qtstatus   = BeamSpotQReport->getStatus() ; // get QT status value (see table below)
-                         std::string qtmessage = BeamSpotQReport->getMessage() ; // get the whole QT result message
+    		          /* S.Dutta : Commenting out these variables are not used and giving error with "-Werror=unused-variable" option
+    	                   float qtresult = BeamSpotQReport->getQTresult();
+                           int qtstatus   = BeamSpotQReport->getStatus() ; // get QT status value (see table below) */
+               	           std::string qtmessage = BeamSpotQReport->getMessage() ; // get the whole QT result message
                       }
 
 
