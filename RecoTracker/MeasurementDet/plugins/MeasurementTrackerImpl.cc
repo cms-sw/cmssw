@@ -414,6 +414,19 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
 
   if( !stripClusterProducer.compare("") )  return;  //clusters have not been produced
 
+  const int endDet = theStDets.id_.size();
+ 
+
+  // mark as inactive if in rawInactiveDetIds
+  int i=0;
+  unsigned int idp=0;
+  for ( auto id : rawInactiveDetIds) {
+    if (id==idp) continue; // skip multiple id
+    idp=id;
+    int i=theStDets.find(id,i);
+    assert(i!=endDet && id == theStDets.id(i));
+    theStDets.setActiveThisEvent(i,false);
+  }
 
   //=========  actually load cluster =============
   if(!theStDets.isRegional()){
@@ -436,24 +449,20 @@ void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
     
     theStDets.handle_ = clusterHandle;
     int i=0;
-    const int endDet = theStDets.id_.size();
     edmNew::DetSetVector<SiStripCluster>::const_iterator it = (*clusterCollection).begin();
     edmNew::DetSetVector<SiStripCluster>::const_iterator endColl = (*clusterCollection).end();
     // cluster and det and in order (both) and unique so let's use set intersection
     for (;it!=endColl; ++it) {
       StripDetSet detSet = *it;
       unsigned int id = detSet.id();
-      while ( id != theStDets.id(i)) { // eventually change to lower_range
+      while ( id != theStDets.id(i)) { // eventually change to lower_bound
 	++i;
 	if (endDet==i) throw "we have a problem!!!!";
       }
       
-      if (!rawInactiveDetIds.empty() && std::binary_search(rawInactiveDetIds.begin(), rawInactiveDetIds.end(), id)) {
-	theStDets.setActiveThisEvent(i,false); continue;
-      }
       // push cluster range in det
-      
-      theStDets.update(i,detSet);
+      if ( theStDets.isActive(i) )
+	theStDets.update(i,detSet);
     }
 
   }else{   // regional
