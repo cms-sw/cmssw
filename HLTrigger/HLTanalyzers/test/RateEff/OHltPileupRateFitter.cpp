@@ -120,12 +120,13 @@ void OHltPileupRateFitter::fitForPileup(
   TGraphErrors* vTotalRateGraph = new TGraphErrors(RunLSn, &LumiPerLS[0], &vTotalRate[0], &vLumiError[0], &vTotalRateError[0]);
   vTotalRateGraph->SetTitle("Total rate");
 
-  // JH -testing rebinning
-  // Now for total/PD rate 
+  /* Rebin before fitting */
+
+  // Total rate 
   vector <double> vTotalRateRebinned; //temp vector containing rates 
   vector <double> vTotalRateRebinnedError; 
-  vector <double> vLumiRebinned;
-  vector <double> vLumiRebinnedError;
+  vector <double> vTotalLumiRebinned;
+  vector <double> vTotalLumiRebinnedError;
 
   int lsPerBin = 150;
   int lsInBin = 0;
@@ -151,15 +152,11 @@ void OHltPileupRateFitter::fitForPileup(
 	  lumiBin = lumiMagicNumber * 1.0 * lumiBin/lsPerBin;
 	  rateerrBin = (double) rateBin * sqrt(totalCountsBin) / (totalCountsBin);  
 
-	  cout << "Finished bin after " << lsInBin << " LS" << endl
-	       << "\tRate average = " << rateBin << endl
-	       << "\tTotal counts = " << totalCountsBin << endl
-	       << "\tAverage lumi = " << lumiBin << endl;
-
 	  vTotalRateRebinned.push_back(rateBin);  
 	  vTotalRateRebinnedError.push_back(rateerrBin);  
-	  vLumiRebinned.push_back(lumiBin);
-	  vLumiRebinnedError.push_back(lumierrBin);  
+	  vTotalLumiRebinned.push_back(lumiBin);
+	  vTotalLumiRebinnedError.push_back(lumierrBin);  
+
 	  totalCountsBin=0;
 	  rateBin=0;
 	  rateerrBin=0;
@@ -170,10 +167,61 @@ void OHltPileupRateFitter::fitForPileup(
     }
 
 
-  TGraphErrors* vTotalRebinnedRateGraph = new TGraphErrors(rebinnedBins,&vLumiRebinned[0], &vTotalRateRebinned[0], &vLumiRebinnedError[0], &vTotalRateRebinnedError[0]); 
+  TGraphErrors* vTotalRebinnedRateGraph = new TGraphErrors(rebinnedBins,&vTotalLumiRebinned[0], 
+							   &vTotalRateRebinned[0], &vTotalLumiRebinnedError[0], 
+							   &vTotalRateRebinnedError[0]); 
   vTotalRebinnedRateGraph->SetTitle("Total rate (rebinned)"); 
-  // end JH 
-  
+
+  // Individual rates
+  vector <TGraphErrors*> vGraphRebinned;
+  for (int iPath=0; iPath<nPaths; iPath++)
+    {
+      vector <double> vRatesRebinned; //temp vector containing rates
+      vector <double> vRatesRebinnedError;
+      vector <double> vLumiRebinned;
+      vector <double> vLumiRebinnedError;
+
+      lsInBin = 0;
+      lumiBin = 0;
+      rateBin = 0;
+      rateerrBin = 0;
+      lumierrBin = 0;
+      totalCountsBin = 0;
+
+      for (int iLS=0; iLS<RunLSn; iLS++)
+	{
+	  // Inst lumi
+	  lumiBin += LumiPerLS[iLS];
+	  rateBin += (double) (RatePerLS[iLS][iPath]) / (thecfg->lumiScaleFactor);
+	  totalCountsBin += CountPerLS[iLS][iPath];
+	  lumierrBin = 0.0;
+
+	  lsInBin++;
+	  if(lsInBin == lsPerBin)
+	    {
+	      rateBin = 1.0 * rateBin/lsPerBin;
+	      lumiBin = lumiMagicNumber * 1.0 * lumiBin/lsPerBin;
+	      rateerrBin = (double) rateBin * sqrt(totalCountsBin) / (totalCountsBin);
+
+	      vRatesRebinned.push_back(rateBin);
+	      vRatesRebinnedError.push_back(rateerrBin);
+	      vLumiRebinned.push_back(lumiBin);
+	      vLumiRebinnedError.push_back(lumierrBin);
+
+	      totalCountsBin=0;
+	      rateBin=0;
+	      rateerrBin=0;
+	      lumiBin=0;
+	      lumierrBin=0;
+	      lsInBin = 0;
+	    }      
+	}
+
+      TGraphErrors* g = new TGraphErrors(rebinnedBins, &vLumiRebinned[0], &vRatesRebinned[0], &vLumiRebinnedError[0], &vRatesRebinnedError[0]);
+      g->SetTitle(themenu->GetTriggerName(iPath));
+      vGraphRebinned.push_back(g);
+    }
+
   // Fitting w/ quadratic and cubic
   // User should check the Chi2/Ndof
   TF1* fp1     = new TF1("fp1", model, 0, 9000);
@@ -192,26 +240,23 @@ void OHltPileupRateFitter::fitForPileup(
   cout << "\n";
   cout << "Pileup corrected Trigger Rates [Hz], using " << model << " fit extrapolation to L=" << targetLumi << ": " << "\n";
   cout << "\t(Warning: always check fit qualities!)" << endl; 
-  /*
-   cout
-     << "         Name                       Indiv.                                 Notes \n";
-   cout
-     << "----------------------------------------------------------------------------------------------\n";
-  */
+  cout
+    << "         Name                       Indiv.                                 Notes \n";
+  cout
+    << "----------------------------------------------------------------------------------------------\n";
 
-  // Rate per path
+  // Rate per path - rebinned
   for (int jPath=0; jPath<nPaths; ++jPath) 
     {//looping over paths
       cIndividualRateFits->cd(jPath+1);
-      vGraph.at(jPath)->SetMarkerColor(4);
-      vGraph.at(jPath)->SetMarkerStyle(20);
-      vGraph.at(jPath)->Draw("ap");
+      vGraphRebinned.at(jPath)->SetMarkerColor(4);
+      vGraphRebinned.at(jPath)->SetMarkerStyle(20);
+      vGraphRebinned.at(jPath)->Draw("ap");
       fp1->SetParLimits(2,0,1000000);
       fp1->SetParLimits(3,0,1000000);
-      vGraph.at(jPath)->Fit("fp1","QR","",minLumi, maxLumi); 
+      vGraphRebinned.at(jPath)->Fit("fp1","QR","",minLumi, maxLumi); 
       fp1->SetLineColor(2);
       fp1->DrawCopy("same");
-      /*
       cout<<setw(50)<<themenu->GetTriggerName(jPath)<<" " <<setw(8)
 	  <<setw(8)<<fp1->Eval(targetLumi)<<"  " <<setw(8);
       double pchi2 = TMath::Prob(fp1->GetChisquare(),fp1->GetNDF());
@@ -222,29 +267,11 @@ void OHltPileupRateFitter::fitForPileup(
 	  cout << " chi2/ndof = " << fp1->GetChisquare() << "/" << fp1->GetNDF() << endl;
 	else
 	  cout << " chi2/ndof = 0/0" << endl;
-      */
     }
 
   // Total rate
-  TCanvas* cTotalRateFit = new TCanvas("cTotalRateFit","cTotalRateFit",0,0,1200,800);
-  vTotalRateGraph->SetMarkerColor(4);
-  vTotalRateGraph->SetMarkerStyle(20);
-  vTotalRateGraph->Draw("ap");
-  fp1->SetParLimits(3,0.000000001,0.1);
-  vTotalRateGraph->Fit("fp1","QR","",minLumi, maxLumi);
-  fp1->SetLineColor(2);
-  fp1->DrawCopy("same");
-  cout << "\n";
-  cout << setw(60) << "TOTAL RATE : " << setw(5) << fp1->Eval(targetLumi) << " Hz";
-
-  double pchi2total = TMath::Prob(fp1->GetChisquare(),fp1->GetNDF());
-  if(pchi2total>0.01)
-    cout<<endl;
-  else
-    cout << " chi2/ndof = " << fp1->GetChisquare() << "/" << fp1->GetNDF() << endl;
-
-   cout
-     << "----------------------------------------------------------------------------------------------\n";
+  cout
+    << "----------------------------------------------------------------------------------------------\n";
 
    TF1* fp2     = new TF1("fp2", model, 0, 9000); 
 
@@ -272,7 +299,6 @@ void OHltPileupRateFitter::fitForPileup(
 
  
   cIndividualRateFits->Write();
-  cTotalRateFit->Write();
   cTotalRebinnedRateFit->Write(); 
 }
 
