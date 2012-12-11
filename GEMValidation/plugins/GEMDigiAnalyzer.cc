@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id$
+// $Id: GEMDigiAnalyzer.cc,v 1.1 2012/11/27 03:58:35 khotilov Exp $
 //
 //
 
