@@ -664,13 +664,11 @@ step4Defaults = {
 
 steps['RERECOPU']=steps['RERECOPU1']
 
-steps['ALCATT']=merge([step4Defaults])
-steps['ALCAMIN']=merge([{'-s':'ALCA:TkAlMinBias'},stCond,step4Defaults])
-#steps['ALCAQCD']=merge([{'-s':'ALCA:HcalCalIsoTrk+HcalCalDijets'},stCond,step4Defaults])
-#steps['ALCAMU']=merge([{'-s':'ALCA:@Mu'},stCond,step4Defaults])
+steps['ALCATT']=merge([{'--filein':'file:step3.root'},step4Defaults])
+steps['ALCAMIN']=merge([{'-s':'ALCA:TkAlMinBias','--filein':'file:step3.root'},stCond,step4Defaults])
 steps['ALCACOS']=merge([{'-s':'ALCA:TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics'},stCond,step4Defaults])
 steps['ALCABH']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHalo'},stCond,step4Defaults])
-steps['ALCAELE']=merge([{'-s':'ALCA:EcalCalElectron'},stCond,step4Defaults])
+steps['ALCAELE']=merge([{'-s':'ALCA:EcalCalElectron','--filein':'file:step3.root'},stCond,step4Defaults])
 
 steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
                     '--conditions':'auto:com10',
