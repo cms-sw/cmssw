@@ -76,8 +76,7 @@ class MatrixInjector(object):
 
         self.defaultHarvest={
             "EnableDQMHarvest" : 1,
-            #"DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/relval",
-            "DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/dev",
+            "DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/relval",
             "DQMConfigCacheID" : None
             }
         
