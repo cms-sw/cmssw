@@ -17,8 +17,8 @@
  *  - implement the module in offline
  *  - check if there are user includes specific for offline/online that should be changed
  *
- * $Date: 2012/08/10 11:01:01 $
- * $Revision: 0.0 $
+ * $Date: 2012/11/27 14:56:17 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -414,10 +414,10 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
     if(m_verbose){cout << "[L1TSync_Offline] -> m_currentLSValid=" << m_currentLSValid << endl;}
   }
 
-
-  for(size_t l=0; l<m_beamConfig.beam1.size(); l++){
+  // Commenting out un-necessary  print outs (S.Dutta)
+  /*  for(size_t l=0; l<m_beamConfig.beam1.size(); l++){
     cout << "Beam 1: element " << l << " is in state " << m_beamConfig.beam1[l] << " --- Beam 2: element " << l << " is in state " << m_beamConfig.beam2[l] << endl;
-  }
+    }*/
   //------------------------------------------------------------------------------
   // If current LS is valid and Beam Configuration is Valid we analyse this event
   //------------------------------------------------------------------------------
@@ -441,7 +441,7 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 
           bool beamSingleConfig = false; // Single beam configured for this event
           bool firedAlgo        = false; // Algo fired in this event
-          int  eventBx          = -1;      
+          unsigned int  eventBx = ~0;      
 
           // Running over FDL results to get which bits fired
           for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
@@ -454,9 +454,10 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
           }
 
           // Checking beam configuration
-          if( m_beamConfig.beam1[eventBx] && !m_beamConfig.beam2[eventBx]){beamSingleConfig = true;}
-          if(!m_beamConfig.beam1[eventBx] &&  m_beamConfig.beam2[eventBx]){beamSingleConfig = true;}
-
+          if ( m_beamConfig.beam1.size() > eventBx && m_beamConfig.beam2.size() > eventBx) {
+	    if( m_beamConfig.beam1[eventBx] && !m_beamConfig.beam2[eventBx]){beamSingleConfig = true;}
+	    if(!m_beamConfig.beam1[eventBx] &&  m_beamConfig.beam2[eventBx]){beamSingleConfig = true;}
+          } 
           // Analyse only if this trigger fired in this event
           // NOTE: Veto cases where a single beam is configured since
           //       for this cases this could be a real-satelite bunch collision

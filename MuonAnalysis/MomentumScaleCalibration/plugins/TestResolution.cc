@@ -94,7 +94,7 @@ void TestResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   for ( ; recMuon!=muons.end(); ++recMuon ) {  
 
     // Fill the histogram with uncorrected pt values
-    sigmaPt_->Fill(resolutionFunction_->sigmaPt(*recMuon, 0), recMuon->pt());
+    sigmaPt_->Fill(resolutionFunction_->sigmaPt(*recMuon), recMuon->pt());
 
   }
 }

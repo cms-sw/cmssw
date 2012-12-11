@@ -3,7 +3,7 @@
  *
  *
  * Description: offline DQM class for acquiring beam configuration
- * 
+ *
  * Implementation:
  *   <TODO: enter implementation details>
  *
@@ -14,12 +14,12 @@
  *
  * Todo: see header file
  *
- * $Date: 2012/11/22 12:01:01 $
- * $Revision: 0.0 $
+ * $Date: 2012/11/27 14:56:17 $
+ * $Revision: 1.1 $
  *
  */
 
-// 
+//
 
 // This class header
 #include "DQMOffline/L1Trigger/interface/L1TBeamConfiguration.h"
@@ -61,5 +61,22 @@ using namespace std;
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 
+L1TBeamConfiguration::L1TBeamConfiguration(){
 
+
+  m_valid = false;
+
+}
+
+bool L1TBeamConfiguration::bxConfig(unsigned iBx){
+
+  if(m_valid && beam1.size()>iBx && beam2.size()>iBx){
+
+    if(beam1[iBx] && beam2[iBx]){return true;}
+    else                        {return false;}
+
+  }else{
+    return false;
+  }
+}
 

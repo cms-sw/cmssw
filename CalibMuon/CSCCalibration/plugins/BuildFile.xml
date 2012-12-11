@@ -1,4 +1,3 @@
-<use   name="CalibMuon/CSCCalibration"/>
 <use   name="CondFormats/CSCObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/MuonDetId"/>

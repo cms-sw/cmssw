@@ -10,8 +10,9 @@ import FWCore.ParameterSet.Config as cms
 
 # choose a valid global tag for the release you are using 
 #
-# 5_3_X
-useGlobalTag='GR_P_V42B'
+# 5_2_X
+#useGlobalTag='GR_R_52_V9'
+useGlobalTag='START52_V10'
 
 # run number to retrieve the menu - irrelevant if menu is overwritten or
 # the global tag is a MC global tag, with infinite IoV
@@ -21,8 +22,7 @@ useRunNumber = 194251
 # and to print the HLT paths using the L1 triggers as seeds
 
 # use the HLT menu given in this configuration 
-#useHltMenuOption = True
-useHltMenuOption = False
+useHltMenuOption = True
 
 ##########################################################################################
 
@@ -33,7 +33,7 @@ process = cms.Process(processName)
 
 process.load("L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuTester_cfi")
 process.l1GtTriggerMenuTester.OverwriteHtmlFile = True
-process.l1GtTriggerMenuTester.HtmlFile = "L1Menu_CollisionsHeavyIons2013_v0_L1T_Scales_20101224_Imp0_0x102c.html"
+process.l1GtTriggerMenuTester.HtmlFile = "L1Menu_Collisions2012_v2_L1T_Scales_20101224_Imp0_0x102a.html"
 process.l1GtTriggerMenuTester.UseHltMenu = useHltMenuOption
 process.l1GtTriggerMenuTester.HltProcessName = processName
 #process.l1GtTriggerMenuTester.NoThrowIncompatibleMenu = False
@@ -57,7 +57,10 @@ if useHltMenuOption == True :
 
     # files are used only to run HLT on an event - the HLT menu is overwritten with the menu from HLT_GRun_cff
     readFiles.extend( [
-                 'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/MinimumBias__RAW__v1__165633__1CC420EE-B686-E011-A788-0030487CD6E8.root'
+                 '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/28C65E11-E584-E011-AED9-0030487CD700.root',
+                 '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/44C0FC26-EE84-E011-B657-003048F1C424.root',
+                 '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/48379944-F084-E011-8022-0030487CD178.root',
+                 '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/4A1297CC-EC84-E011-BCF8-0030487CD6E6.root'
                 ] );
 
     process.source = cms.Source ('PoolSource', 
@@ -86,17 +89,12 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 
-if useHltMenuOption == True :
-    process.load('HLTrigger.Configuration.HLT_GRun_cff')
+process.load('HLTrigger.Configuration.HLT_GRun_cff')
 
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-
 process.GlobalTag.globaltag = useGlobalTag+'::All'
-# for GR_H_
-#process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG' 
-#process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/') 
 
 # path to be run
 

@@ -80,7 +80,6 @@ extern "C"
     float zptevt; // ........ average Z-parton-targ
     int   minfra; //
     int   maxfra; //
-    int   kohevt; // ........ number of hard collisions
   } cevt_; //epos.inc
 
   extern struct

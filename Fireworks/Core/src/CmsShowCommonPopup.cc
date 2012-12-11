@@ -50,7 +50,19 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    fTextGC = gClient->GetGC(&gval, kTRUE);
 
    
-   
+   TGFont* smallFont = 0;
+   FontStruct_t defaultFontStruct = m_backgroundButton->GetDefaultFontStruct();
+   try
+   { 
+      TGFontPool *pool = gClient->GetFontPool();
+      TGFont* defaultFont = pool->GetFont(defaultFontStruct);
+      FontAttributes_t attributes = defaultFont->GetFontAttributes();
+      smallFont = pool->GetFont(attributes.fFamily, 8,  attributes.fWeight, attributes.fSlant);                                      
+   } 
+   catch(...)
+   {
+      // Ignore exceptions.
+   }
    
    TGCompositeFrame* vf2 = new TGVerticalFrame(this);
    AddFrame(vf2, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
@@ -88,20 +100,6 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
    vf2->AddFrame(m_backgroundButton);
    makeSetter(vf2, &m_common->m_gamma);
 
-   TGFont* smallFont = 0;
-   FontStruct_t defaultFontStruct = m_backgroundButton->GetDefaultFontStruct();
-   try
-   { 
-      TGFontPool *pool = gClient->GetFontPool();
-      TGFont* defaultFont = pool->GetFont(defaultFontStruct);
-      FontAttributes_t attributes = defaultFont->GetFontAttributes();
-      smallFont = pool->GetFont(attributes.fFamily, 8,  attributes.fWeight, attributes.fSlant);                                      
-   } 
-   catch(...)
-   {
-      // Ignore exceptions.
-   }
-   
    // rnrCtx colorset
    {
       int hci, sci;
@@ -117,10 +115,9 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
          m_colorRnrCtxHighlightWidget->SetColorByIndex(hci , kFALSE);
          m_colorRnrCtxHighlightWidget->Connect("ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeSelectionColorSet(Color_t)");
          
-         TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
+         TGFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
          TGLabel* label = new TGLabel(lf, "Higlight");
          label->SetTextFont(smallFont);
-         lf->AddFrame(label);
          hf->AddFrame(lf, new TGLayoutHints(kLHintsLeft |kLHintsCenterY , 0, 0, 0,0)); 
       }
       
@@ -133,10 +130,9 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
          m_colorRnrCtxSelectWidget->SetColorByIndex(sci , kFALSE);
          m_colorRnrCtxSelectWidget->Connect("ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeSelectionColorSet(Color_t)");
          
-         TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
+         TGFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
          TGLabel* label = new TGLabel(lf, "Selection");
          label->SetTextFont(smallFont);
-         lf->AddFrame(label);
          hf->AddFrame(lf, new TGLayoutHints(kLHintsLeft |kLHintsCenterY , 0, 0, 0,0)); 
       }
    }
@@ -191,10 +187,9 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
          m_colorSelectWidget[i]->SetColorByIndex(m_common->colorManager()->geomColor(FWGeomColorIndex(i)), kFALSE);
          m_colorSelectWidget[i]->Connect("ColorChosen(Color_t)", "CmsShowCommonPopup", this, "changeGeomColor(Color_t)");
 
-         TGHorizontalFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
+         TGFrame* lf = new TGHorizontalFrame(hf, 100, 16, kFixedSize);
          TGLabel* label = new TGLabel(lf, m_colorSelectWidget[i]->label().c_str());
          label->SetTextFont(smallFont);
-         lf->AddFrame(label);
          hf->AddFrame(lf, new TGLayoutHints(kLHintsLeft |kLHintsCenterY , 0, 0, 0,0)); 
 
          ++i;

@@ -6,7 +6,7 @@
  *
  *
  * Description: offline DQM class for acquiring beam configuration
- * 
+ *
  * Implementation:
  *   <TODO: enter implementation details>
  *
@@ -16,11 +16,11 @@
  *    2012/11/22 12:01:01: Creation, infrastructure and generic crap
  *
  * Todo:
- *  - 
- *  - 
+ *  -
+ *  -
  *
- * $Date: 2012/11/22 11:01:01 $
- * $Revision: 0.0 $
+ * $Date: 2012/11/27 14:56:18 $
+ * $Revision: 1.1 $
  *
  */
 
@@ -63,22 +63,19 @@
 
 
 class L1TBeamConfiguration{
-  
+
  public:
-  
-  L1TBeamConfiguration(){m_valid = false;}
-  
-  bool bxConfig(int iBx){
-    if(beam1[iBx] && beam2[iBx]){return true;}
-    else {return false;}
-  }
-  
+
+  L1TBeamConfiguration();
+
+  bool bxConfig(unsigned iBx);
+
   bool isValid(){return m_valid;}
-  
+
   bool m_valid;           // Bit Name for which the fit refers to
   std::vector<bool> beam1;
   std::vector<bool> beam2;
-  
+
 };
 
 

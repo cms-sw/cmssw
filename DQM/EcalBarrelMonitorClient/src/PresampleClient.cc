@@ -1,114 +1,150 @@
 #include "../interface/PresampleClient.h"
-#include "../interface/EcalDQMClientUtils.h"
+
+#include "DQM/EcalBarrelMonitorTasks/interface/PresampleTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
-
-#include "CondFormats/EcalObjects/interface/EcalDQMStatusHelper.h"
 
 #include <cmath>
 
 namespace ecaldqm {
 
-  PresampleClient::PresampleClient(edm::ParameterSet const& _workerParams, edm::ParameterSet const& _commonParams) :
-    DQWorkerClient(_workerParams, _commonParams, "PresampleClient"),
-    minChannelEntries_(_workerParams.getUntrackedParameter<int>("minChannelEntries")),
-    expectedMean_(_workerParams.getUntrackedParameter<double>("expectedMean")),
-    toleranceMean_(_workerParams.getUntrackedParameter<double>("toleranceMean")),
-    toleranceRMS_(_workerParams.getUntrackedParameter<double>("toleranceRMS")),
-    toleranceRMSFwd_(_workerParams.getUntrackedParameter<double>("toleranceRMSFwd"))
+  PresampleClient::PresampleClient(const edm::ParameterSet& _params, const edm::ParameterSet& _paths) :
+    DQWorkerClient(_params, _paths, "PresampleClient"),
+    minChannelEntries_(0),
+    minTowerEntries_(0),
+    expectedMean_(0.),
+    meanThreshold_(0.),
+    rmsThreshold_(0.),
+    rmsThresholdHighEta_(0.),
+    noisyFracThreshold_(0.)
   {
-    qualitySummaries_.insert("Quality");
-    qualitySummaries_.insert("QualitySummary");
+    edm::ParameterSet const& taskParams(_params.getUntrackedParameterSet(name_));
+    minChannelEntries_ = taskParams.getUntrackedParameter<int>("minChannelEntries");
+    minTowerEntries_ = taskParams.getUntrackedParameter<int>("minTowerEntries");
+    expectedMean_ = taskParams.getUntrackedParameter<double>("expectedMean");
+    meanThreshold_ = taskParams.getUntrackedParameter<double>("meanThreshold");
+    rmsThreshold_ = taskParams.getUntrackedParameter<double>("rmsThreshold");
+    rmsThresholdHighEta_ = taskParams.getUntrackedParameter<double>("rmsThresholdHighEta");
+    noisyFracThreshold_ = taskParams.getUntrackedParameter<double>("noisyFracThreshold");
+
+    edm::ParameterSet const& sources(_params.getUntrackedParameterSet("sources"));
+    source_(sPedestal, "PresampleTask", PresampleTask::kPedestal, sources);
+  }
+
+  void
+  PresampleClient::bookMEs()
+  {
+    DQWorker::bookMEs();
+
+    MEs_[kQuality]->resetAll(-1.);
+    MEs_[kRMSMap]->resetAll(-1.);
+    MEs_[kRMSMapSummary]->resetAll(-1.);
+    MEs_[kQualitySummary]->resetAll(-1.);
   }
 
   void
   PresampleClient::producePlots()
   {
-    MESet* meQualitySummary(MEs_["QualitySummary"]);
-    MESet* meQuality(MEs_["Quality"]);
-    MESet* meMean(MEs_["Mean"]);
-    MESet* meRMS(MEs_["RMS"]);
-    MESet* meRMSMap(MEs_["RMSMap"]);
-    MESet* meRMSMapAll(MEs_["RMSMapAll"]);
-    MESet* meTrendMean(online ? MEs_["TrendMean"] : 0);
-    MESet* meTrendRMS(online ? MEs_["TrendRMS"] : 0);
-
-    MESet const* sPedestal(sources_["Pedestal"]);
-
-    meMean->reset();
-    meRMS->reset();
-    meRMSMapAll->reset(-1.);
+    MEs_[kMean]->reset();
+    MEs_[kMeanDCC]->reset();
+    MEs_[kRMS]->reset();
+    MEs_[kRMSMap]->reset(-1.);
+    MEs_[kRMSMapSummary]->reset(-1.);
 
     uint32_t mask(1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR |
 		  1 << EcalDQMStatusHelper::PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR);
 
-    MESet::iterator qEnd(meQuality->end());
+    for(unsigned dccid(1); dccid <= 54; dccid++){
 
-    MESet::const_iterator pItr(sPedestal);
-    double maxEB(0.), minEB(0.), maxEE(0.), minEE(0.);
-    double rmsMaxEB(0.), rmsMaxEE(0.);
-    for(MESet::iterator qItr(meQuality->beginChannel()); qItr != qEnd; qItr.toNextChannel()){
+      for(unsigned tower(1); tower <= getNSuperCrystals(dccid); tower++){
+	std::vector<DetId> ids(getElectronicsMap()->dccTowerConstituents(dccid, tower));
 
-      pItr = qItr;
+	if(ids.size() == 0) continue;
 
-      DetId id(qItr->getId());
+	unsigned iSM(dccid - 1);
+	float rmsThresh(rmsThreshold_);
+	if(iSM <= kEEmHigh || iSM >= kEEpLow || tower > 48) rmsThresh = rmsThresholdHighEta_;
 
-      bool doMask(applyMask(meQuality->getBinType(), id, mask));
+	float nNoisy(0.);
+	float towerEntries(0.);
+	float towerMean(0.);
+	float towerRMS(0.);
 
-      double rmsThresh(toleranceRMS_);
+	for(std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr){
+	  float entries(sources_[sPedestal]->getBinEntries(*idItr));
+	  float mean(sources_[sPedestal]->getBinContent(*idItr));
+	  float rms(sources_[sPedestal]->getBinError(*idItr) * std::sqrt(entries));
+	  towerEntries += entries;
+	  towerMean += mean * entries;
+	  towerRMS += (rms * rms + mean * mean) * entries;
 
-      if(isForward(id)) rmsThresh = toleranceRMSFwd_;
+	  if(entries < minChannelEntries_){
+	    fillQuality_(kQuality, *idItr, mask, 2.);
+	    continue;
+	  }
 
-      double entries(pItr->getBinEntries());
+	  MEs_[kMean]->fill(*idItr, mean);
+	  MEs_[kMeanDCC]->fill(*idItr, mean);
+	  MEs_[kRMS]->fill(*idItr, rms);
+	  MEs_[kRMSMap]->fill(*idItr, rms);
 
-      if(entries < minChannelEntries_){
-        qItr->setBinContent(doMask ? kMUnknown : kUnknown);
-        meQualitySummary->setBinContent(id, doMask ? kMUnknown : kUnknown);
-        meRMSMap->setBinContent(id, -1.);
-        continue;
-      }
+	  if(std::abs(mean - expectedMean_) > meanThreshold_ || rms > rmsThresh){
+	    fillQuality_(kQuality, *idItr, mask, 0.);
+	    nNoisy += 1.;
+	  }
+	  else
+	    fillQuality_(kQuality, *idItr, mask, 1.);
+	}
 
-      double mean(pItr->getBinContent());
-      double rms(pItr->getBinError() * std::sqrt(entries));
+	towerMean /= towerEntries;
+	towerRMS = std::sqrt(towerRMS / towerEntries - towerMean * towerMean);
 
-      unsigned dccid(dccId(id));
+	float quality(-1.);
 
-      meMean->fill(dccid, mean);
-      meRMS->fill(dccid, rms);
-      meRMSMap->setBinContent(id, rms);
+	if(towerEntries > minTowerEntries_)
+	  quality = nNoisy / ids.size() > noisyFracThreshold_ ? 0. : 1.;
+	else
+	  quality = 2.;
 
-      if(std::abs(mean - expectedMean_) > toleranceMean_ || rms > rmsThresh){
-        qItr->setBinContent(doMask ? kMBad : kBad);
-        meQualitySummary->setBinContent(id, doMask ? kMBad : kBad);
-      }
-      else{
-        qItr->setBinContent(doMask ? kMGood : kGood);
-        meQualitySummary->setBinContent(id, doMask ? kMGood : kGood);
-      }
-
-      if(id.subdetId() == EcalBarrel){
-        if(mean > maxEB) maxEB = mean;
-        if(mean < minEB) minEB = mean;
-        if(rms > rmsMaxEB) rmsMaxEB = rms;
-      }
-      else{
-        if(mean > maxEE) maxEE = mean;
-        if(mean < minEE) minEE = mean;
-        if(rms > rmsMaxEE) rmsMaxEE = rms;
+	if(dccid <= 9 || dccid >= 46){
+	  std::vector<EcalScDetId> scs(getElectronicsMap()->getEcalScDetId(dccid, tower));
+	  for(std::vector<EcalScDetId>::iterator scItr(scs.begin()); scItr != scs.end(); ++scItr){
+	    fillQuality_(kQualitySummary, *scItr, mask, quality);
+	    MEs_[kRMSMapSummary]->setBinContent(*scItr, towerRMS);
+	  }
+	}
+	else{
+	  fillQuality_(kQualitySummary, ids[0], mask, quality);
+	  MEs_[kRMSMapSummary]->setBinContent(ids[0], towerRMS);
+	}
       }
     }
+  }
 
-    towerAverage_(meRMSMapAll, meRMSMap, -1.);
+  /*static*/
+  void
+  PresampleClient::setMEData(std::vector<MEData>& _data)
+  {
+    BinService::AxisSpecs axis;
 
-    if(online){
-      meTrendMean->fill(unsigned(BinService::kEB + 1), double(iLumi), maxEB - minEB);
-      meTrendMean->fill(unsigned(BinService::kEE + 1), double(iLumi), maxEE - minEE);
-      meTrendRMS->fill(unsigned(BinService::kEB + 1), double(iLumi), rmsMaxEB);
-      meTrendRMS->fill(unsigned(BinService::kEE + 1), double(iLumi), rmsMaxEE);
-    }
+    _data[kQuality] = MEData("Quality", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F);
+
+    axis.nbins = 120;
+    axis.low = 170.;
+    axis.high = 230.;
+    _data[kMean] = MEData("Mean", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
+    _data[kMeanDCC] = MEData("MeanDCC", BinService::kEcal2P, BinService::kDCC, MonitorElement::DQM_KIND_TPROFILE, 0, &axis);
+
+    axis.nbins = 100;
+    axis.low = 0.;
+    axis.high = 10.;
+    _data[kRMS] = MEData("RMS", BinService::kSM, BinService::kUser, MonitorElement::DQM_KIND_TH1F, &axis);
+    _data[kRMSMap] = MEData("RMSMap", BinService::kSM, BinService::kCrystal, MonitorElement::DQM_KIND_TH2F, 0, 0, &axis);
+    _data[kRMSMapSummary] = MEData("RMSMap", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F, 0, 0, &axis);
+
+    _data[kQualitySummary] = MEData("QualitySummary", BinService::kEcal2P, BinService::kSuperCrystal, MonitorElement::DQM_KIND_TH2F);
   }
 
   DEFINE_ECALDQM_WORKER(PresampleClient);
 }
-
 
