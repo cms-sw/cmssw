@@ -1940,7 +1940,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
       result = toReturn;
       result.MassMean  = Mean;
       result.MassSigma = Width;
-      result.MassCut   = MinRange;
+      result.MassCut   = TypeMode<=2?MinRange:0;
       result.Mass      = samples[JobIdToIndex(signal,samples)].Mass;
       result.XSec_Th   = samples[JobIdToIndex(signal,samples)].XSec;
       result.XSec_Err  = samples[JobIdToIndex(signal,samples)].XSec * 0.15;
