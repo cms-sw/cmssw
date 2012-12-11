@@ -76,7 +76,8 @@ class MatrixInjector(object):
 
         self.defaultHarvest={
             "EnableDQMHarvest" : 1,
-            "DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/relval",
+            #"DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/relval",
+            "DQMUploadUrl" : "https://cmsweb.cern.ch/dqm/dev",
             "DQMConfigCacheID" : None
             }
         
@@ -117,10 +118,13 @@ class MatrixInjector(object):
     def prepare(self,mReader, directories, mode='init'):
         try:
             from Configuration.PyReleaseValidation.relval_steps import wmsplit
-            print "Not set up for step splitting"
+            import pprint
+            pprint.pprint(wmsplit)
         except:
+            print "Not set up for step splitting"
             wmsplit={}
-        
+
+        acqEra=False
         for (n,dir) in directories.items():
             chainDict=copy.deepcopy(self.defaultChain)
             print "inspecting",dir
@@ -139,8 +143,7 @@ class MatrixInjector(object):
                             nextHasDSInput=s[2][index]
 
                         else:
-                            if 'HARVEST' in step:
-                                continue
+                            #if 'HARVEST' in step:                                continue
                             if (index==0):
                                 #first step and not input -> gen part
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultScratch))
@@ -166,7 +169,7 @@ class MatrixInjector(object):
                                 # get the run numbers or #events
                                 if len(nextHasDSInput.run):
                                     chainDict['nowmTasklist'][-1]['RunWhitelist']=nextHasDSInput.run
-                                print "what is s",s[2][index]
+                                #print "what is s",s[2][index]
                                 if '--data' in s[2][index] and nextHasDSInput.label:
                                     thisLabel='_RelVal_%s'%nextHasDSInput.label
                                 nextHasDSInput=None
@@ -175,7 +178,8 @@ class MatrixInjector(object):
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultTask))
                                 if splitForThisWf:
                                     chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=splitForThisWf
-
+                                if step in wmsplit:
+                                    chainDict['nowmTasklist'][-1]['SplittingArguments']['lumis_per_job']=wmsplit[step]
 
                             #print step
                             chainDict['nowmTasklist'][-1]['TaskName']=step
@@ -189,24 +193,30 @@ class MatrixInjector(object):
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
                             if 'pileup' in chainDict['nowmTasklist'][-1]['nowmIO']:
                                 chainDict['nowmTasklist'][-1]['MCPileup']=chainDict['nowmTasklist'][-1]['nowmIO']['pileup']
-                                chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
+                                if acqEra:
+                                    chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
+                                else:
+                                    chainDict['nowmTasklist'][-1]['AcquisitionEra']=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
+                                
                             else:
-                                chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
+                                if acqEra:
+                                    chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
+                                else:
+                                    chainDict['nowmTasklist'][-1]['AcquisitionEra']=(chainDict['CMSSWVersion']+'-'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
 
                         index+=1
                         
             #wrap up for this one
+            import pprint
             #print 'wrapping up'
-            chainDict['TaskChain']=len(chainDict['nowmTasklist'])
+            #pprint.pprint(chainDict)
             #loop on the task list
             for i_second in reversed(range(len(chainDict['nowmTasklist']))):
-            #for t_second in reversed(chainDict['nowmTasklist']):
                 t_second=chainDict['nowmTasklist'][i_second]
                 #print "t_second taskname", t_second['TaskName']
                 if 'primary' in t_second['nowmIO']:
                     #print t_second['nowmIO']['primary']
                     primary=t_second['nowmIO']['primary'][0].replace('file:','')
-                    #for t_input in reversed(chainDict['nowmTasklist']):
                     for i_input in reversed(range(0,i_second)):
                         t_input=chainDict['nowmTasklist'][i_input]
                         for (om,o) in t_input['nowmIO'].items():
@@ -214,18 +224,33 @@ class MatrixInjector(object):
                                 #print "found",primary,"procuced by",om,"of",t_input['TaskName']
                                 t_second['InputTask'] = t_input['TaskName']
                                 t_second['InputFromOutputModule'] = om
-                                #print 't_second',t_second
+                                #print 't_second',pprint.pformat(t_second)
+                                if t_second['TaskName'].startswith('HARVEST'):
+                                    chainDict.update(copy.deepcopy(self.defaultHarvest))
+                                    chainDict['DQMConfigCacheID']=t_second['ConfigCacheID']
+                                    ## the info are not in the task specific dict but in the general dict
+                                    #t_input.update(copy.deepcopy(self.defaultHarvest))
+                                    #t_input['DQMConfigCacheID']=t_second['ConfigCacheID']
                                 break
 
             ## there is in fact only one acquisition era
-            ## until this is allowed, just make it a string   if len(set(chainDict['AcquisitionEra'].values()))==1:
-            chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
+            #if len(set(chainDict['AcquisitionEra'].values()))==1:
+            #    print "setting only one acq"
+            if acqEra:
+                chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0]
                 
             ## clean things up now
+            itask=0
             for (i,t) in enumerate(chainDict['nowmTasklist']):
+                if t['TaskName'].startswith('HARVEST'): continue
                 t.pop('nowmIO')
-                chainDict['Task%d'%(i+1)]=t
+                itask+=1
+                chainDict['Task%d'%(itask)]=t
 
+
+            ## provide the number of tasks
+            chainDict['TaskChain']=itask#len(chainDict['nowmTasklist'])
+            
             chainDict.pop('nowmTasklist')
             self.chainDicts[n]=chainDict
 
@@ -237,7 +262,7 @@ class MatrixInjector(object):
         cacheName=filePath.split('/')[-1]
         if self.testMode:
             self.count+=1
-            print '\tFake upload to couch with label',labelInCouch
+            print '\tFake upload of',filePath,'to couch with label',labelInCouch
             return self.count
         else:
             try:
@@ -272,6 +297,14 @@ class MatrixInjector(object):
                                             )
                     print d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID
                     d[it]['ConfigCacheID']=couchID
+                if it =='DQMConfigCacheID':
+                    couchID=self.uploadConf(d['DQMConfigCacheID'],
+                                            str(n)+'harvesting',
+                                            d['CouchURL']
+                                            )
+                    print d['DQMConfigCacheID'],"uploaded to couchDB for",str(n),"with ID",couchID
+                    d['DQMConfigCacheID']=couchID
+                        
             
     def submit(self):
         try:
