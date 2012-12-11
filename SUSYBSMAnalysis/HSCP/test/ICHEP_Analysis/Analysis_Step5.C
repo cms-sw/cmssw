@@ -54,7 +54,8 @@ void Analysis_Step5()
    string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip=1;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
-//   Make2DPlot_Special("Results/Type0/", "Results/Type5/", 0);return;
+   Make2DPlot_Special("Results/Type0/", "Results/Type5/");
+   //return;
 
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
@@ -3026,7 +3027,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    box->SetFillStyle(3004);
    box->Draw("same");
 
-   leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
+   leg = new TLegend(0.80,0.63,0.80 - 0.40,0.63 - 6*0.03);
    leg->SetFillStyle(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_PIm,    "Data (#sqrt{s}=8 TeV)"       ,"F");

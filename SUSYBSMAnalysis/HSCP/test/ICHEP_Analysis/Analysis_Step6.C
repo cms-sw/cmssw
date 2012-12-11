@@ -108,7 +108,7 @@ double RescaleError  = 0.1;
 
 //final Plot y-axis range
 double PlotMinScale = 0.0001;
-double PlotMaxScale = 3;
+double PlotMaxScale = 20;
 
 void Optimize(string InputPattern, string Data, string signal, bool shape, bool cutFromFile);
 double GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, double MinRange, double MaxRange);
@@ -183,6 +183,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       //Combined Limits
       EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
       Combine(InputPattern, signal7TeV, signal8TeV);
+
       return;
    }
    if(MODE.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
@@ -198,6 +199,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    bool Combine = (MODE.find("COMB")!=string::npos);
    if(Combine){EXCLUSIONDIR+="COMB"; SQRTS=78.0;}
+   if(Combine) {PlotMinScale=1E-6; PlotMaxScale=50;}
 
    string outpath = string("Results/"+SHAPESTRING+EXCLUSIONDIR+"/");
    MakeDirectories(outpath);
@@ -775,6 +777,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQGraphMap["DY_Q1o3"      ]->SetLineColor(41); LQGraphMap["DY_Q1o3"      ]->SetMarkerColor(41);  LQGraphMap["DY_Q1o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q1o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q1o3"      ]->SetMarkerStyle(33);
    ThGraphMap["DY_Q2o3"      ]->SetLineColor(43); ThGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  ThGraphMap["DY_Q2o3"      ]->SetLineWidth(1);   ThGraphMap["DY_Q2o3"      ]->SetLineStyle(10); ThGraphMap["DY_Q2o3"      ]->SetMarkerStyle(1);
    TkGraphMap["DY_Q2o3"      ]->SetLineColor(43); TkGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  TkGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   TkGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  TkGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
+   MuGraphMap["DY_Q2o3"      ]->SetLineColor(43); MuGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  MuGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   MuGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  MuGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
    MOGraphMap["DY_Q2o3"      ]->SetLineColor(43); MOGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  MOGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   MOGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  MOGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
    LQGraphMap["DY_Q2o3"      ]->SetLineColor(43); LQGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  LQGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
 
@@ -796,12 +799,14 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->Add(ThGraphMap["Stop"       ]      ,"L");
    MGMu->Add(ThGraphMap["GMStau"     ]      ,"L");
    MGMu->Add(ThGraphMap["PPStau"     ]      ,"L");
+   MGMu->Add(ThGraphMap["DY_Q2o3"    ]     ,"L");
    }   
    MGMu->Add(MuGraphMap["Gluino_f10" ]      ,"LP");
    MGMu->Add(MuGraphMap["Gluino_f50" ]      ,"LP");
    MGMu->Add(MuGraphMap["Stop"       ]      ,"LP");
    MGMu->Add(MuGraphMap["GMStau"     ]      ,"LP");
    MGMu->Add(MuGraphMap["PPStau"     ]      ,"LP");
+   MGMu->Add(MuGraphMap["DY_Q2o3"    ]     ,"LP");
    MGMu->Draw("A");
 
    if(!Combine) {
@@ -809,6 +814,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThErrorMap["Stop"      ]->Draw("f");
    ThErrorMap["GMStau"    ]->Draw("f");
    ThErrorMap["PPStau"    ]->Draw("f");
+   ThErrorMap["DY_Q2o3"   ]->Draw("f");
    }else{
       TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
@@ -822,7 +828,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->GetXaxis()->SetRangeUser(50,1550);
 
    DrawPreliminary("Tracker + TOF", SQRTS, LInt);
-   TLegend* LEGMu = !Combine ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.45,0.10,0.65,0.42);
+   TLegend* LEGMu = !Combine ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.55,0.15,0.75,0.47);
    LEGMu->SetFillColor(0); 
    //LEGMu->SetFillStyle(0);
    LEGMu->SetBorderSize(0);
@@ -831,8 +837,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGMu->AddEntry(MuGraphMap["Stop"      ] , "stop"                      ,"LP");
    LEGMu->AddEntry(MuGraphMap["PPStau"    ] , "Pair Prod. stau"           ,"LP");
    LEGMu->AddEntry(MuGraphMap["GMStau"    ] , "GMSB stau"                 ,"LP");
+   LEGMu->AddEntry(MuGraphMap["DY_Q2o3"   ], "frac. Q=2o3"                ,"LP");
 
-   TLegend* LEGTh = new TLegend(0.15,0.7,0.45,0.9);
+   TLegend* LEGTh = new TLegend(0.15,0.71,0.45,0.91);
    if(!Combine) {
    LEGTh->SetHeader("Theoretical Prediction");
    LEGTh->SetFillColor(0);
@@ -850,6 +857,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TGraph* StauThLeg = (TGraph*) ThGraphMap["GMStau"        ]->Clone("StauThLeg");
    StauThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
    LEGTh->AddEntry(StauThLeg   ,"GMSB stau   (NLO)" ,"LF");
+   TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
+   DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
+   LEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2/3   (LO)" ,"LF");
    LEGTh->Draw();
    }
    LEGMu->Draw();
@@ -864,6 +874,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->Add(ThGraphMap["Stop"       ]     ,"L");
    MGTk->Add(ThGraphMap["GMStau"     ]     ,"L");
    MGTk->Add(ThGraphMap["PPStau"     ]     ,"L");
+   MGTk->Add(ThGraphMap["DY_Q2o3"    ]     ,"L");
    }
 
    MGTk->Add(TkGraphMap["Gluino_f10" ]     ,"LP");
@@ -881,6 +892,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThErrorMap["Stop"      ]->Draw("f");
    ThErrorMap["GMStau"    ]->Draw("f");
    ThErrorMap["PPStau"    ]->Draw("f");
+   ThErrorMap["DY_Q2o3"   ]->Draw("f");
    }else{
       TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
@@ -895,7 +907,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    
    DrawPreliminary("Tracker - Only", SQRTS, LInt);
 
-   TLegend* LEGTk = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.10,0.795,0.42);
+   TLegend* LEGTk = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.15,0.795,0.45);
    LEGTk->SetFillColor(0); 
    //LEGTk->SetFillStyle(0);
    LEGTk->SetBorderSize(0);
@@ -1194,7 +1206,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->GetXaxis()->SetRangeUser(50,1200);
 
    DrawPreliminary("multi-charged", SQRTS, LInt);
-   TLegend* LEGHQ = !Combine ? new TLegend(0.62,0.64,0.82,0.84) : new TLegend(0.50,0.20,0.70,0.52);
+   TLegend* LEGHQ = !Combine ? new TLegend(0.57,0.71,0.8,0.91) : new TLegend(0.50,0.20,0.70,0.52);
 
    LEGHQ->SetFillColor(0); 
    //LEGHQ->SetFillStyle(0);
@@ -1205,7 +1217,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGHQ->AddEntry(HQGraphMap["DY_Q4"] , "MC - Q=4 "    ,"LP");
    LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "MC - Q=5 "    ,"LP");
 
-   TLegend* HQLEGTh = new TLegend(0.32,0.64,0.72,0.88);
+   TLegend* HQLEGTh = new TLegend(0.3,0.71,0.57,0.91);
    if(!Combine){
    HQLEGTh->SetHeader("Theoretical Prediction");
    HQLEGTh->SetFillColor(0);
@@ -2216,7 +2228,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    result.NPredErr  = NPredErr;
    result.NSign     = NSign;
 //   NSign/=(result.XSec_Th*1000.0); //normalize xsection to 1fb
-   NSign/=(1000.0); //normalize xsection to 1fb
+   NSign/=(100.0); //normalize xsection to 10fb
 
    //for shape based analysis we need to save all histograms into a root file
    char CutIndexStr[255];sprintf(CutIndexStr, "SQRTS%02.0fCut%03.0f",SQRTS, result.Index);
@@ -2331,7 +2343,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
          //we found the signal strength that lead to a significance close enough to the 5sigma to stop the loop 
          //OR we know that this point is not going to be a good one --> can do a coarse approximation since the begining
          if(fabs(SignifValue-5)<0.75 || (fastOptimization && Strength>=previousXSec_5Sigma && SignifValue<5)){
-            result.XSec_5Sigma  = Strength * (5/SignifValue) * (result.XSec_Th/1000.0);//xsection in pb
+            result.XSec_5Sigma  = Strength * (5/SignifValue) * (result.XSec_Th/100.0);//xsection in pb
             break;
          }
 
@@ -2369,12 +2381,12 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
-              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/1000.0);
-        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/1000.0);
-        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/1000.0);
-        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/1000.0);
-        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/1000.0);
-        }else if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/1000.0); //will be overwritten afterward
+              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/100.0);
+        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/100.0);
+        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/100.0);
+        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/100.0);
+        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/100.0);
+        }else if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/100.0); //will be overwritten afterward
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
@@ -2399,13 +2411,13 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
-//              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/1000.0);
-//        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/1000.0);
-//        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/1000.0);
-//        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/1000.0);
-//        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/1000.0);
+//              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/100.0);
+//        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/100.0);
+//        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/100.0);
+//        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/100.0);
+//        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/100.0);
 //        }else
-        if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/1000.0);
+        if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/100.0);
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
@@ -2579,7 +2591,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
    result.NPredErr = sqrt(pow(result11.NPredErr,2) + pow(result12.NPredErr,2));
    result.XSec_Th = 1.0;
    double NPred = result.NPred;
-   double NSign = result.NSign / 1000.0;
+   double NSign = result.NSign / 100.0;
 
 
    //ALL CODE BELOW IS A BIT DIFFERENT THAN THE ONE USED IN runCombined, BECAUSE HERE WE KEEP THE RESULTS ON LIMIT IN TERMS OF SIGNAL STRENGTH (r=SigmaObs/SigmaTH)
@@ -2609,12 +2621,12 @@ bool Combine(string InputPattern, string signal7, string signal8){
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
-              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit/1000.0;
-        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit/1000.0;
-        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit/1000.0;
-        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit/1000.0;
-        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit/1000.0;
-        }else if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit/1000.0;
+              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit/100.0;
+        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit/100.0;
+        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit/100.0;
+        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit/100.0;
+        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit/100.0;
+        }else if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit/100.0;
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
@@ -2639,13 +2651,13 @@ bool Combine(string InputPattern, string signal7, string signal8){
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
-//              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/1000.0);
-//        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/1000.0);
-//        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/1000.0);
-//        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/1000.0);
-//        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/1000.0);
+//              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/100.0);
+//        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/100.0);
+//        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/100.0);
+//        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/100.0);
+//        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/100.0);
 //        }else
-        if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/1000.0);
+        if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/100.0);
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
@@ -2661,8 +2673,8 @@ bool Combine(string InputPattern, string signal7, string signal8){
 
 
 bool useSample(int TypeMode, string sample) {
-  if(TypeMode==0 && (sample=="Gluino_f10" || sample=="GluinoN_f10" || sample=="StopN" || sample=="Stop" || sample=="DY_Q2o3" || sample=="GMStau" || sample=="PPStau")) return true;
-  if(TypeMode==2 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Stop" || sample=="GMStau" || sample=="PPStau" || sample=="DY_Q2o3")) return true;
+  if(TypeMode==0 && (sample=="Gluino_f10" || sample=="GluinoN_f10" || sample=="StopN" || sample=="Stop" || sample=="DY_Q2o3" || sample=="GMStau" || sample=="PPStau" || sample=="DY_Q1o3")) return true;
+  if(TypeMode==2 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Stop" || sample=="GMStau" || sample=="PPStau" || sample=="DY_Q2o3" || sample=="DY_Q1o3")) return true;
   if(TypeMode==3 && (sample=="Gluino_f10" || sample=="Gluino_f50" || sample=="Gluino_f100" || sample=="Stop" || sample.find("o3"))) return true;
   if(TypeMode==4) return true;
   if(TypeMode==5) return true;
