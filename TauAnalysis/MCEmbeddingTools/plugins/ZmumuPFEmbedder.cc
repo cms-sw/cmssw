@@ -7,9 +7,9 @@
  * 
  * \author Tomasz Maciej Frueboes
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.16 $
  *
- * $Id: ZmumuPFEmbedder.cc,v 1.15 2012/10/14 12:22:24 veelken Exp $
+ * $Id: ZmumuPFEmbedder.cc,v 1.16 2012/11/25 15:43:13 veelken Exp $
  *
  */
 
@@ -46,12 +46,15 @@ class ZmumuPFEmbedder : public edm::EDProducer
   edm::InputTag srcTracks_;
   edm::InputTag srcPFCandidates_;
   edm::InputTag srcSelectedMuons_;
+
+  double dRmatch_;
 };
 
 ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& cfg)
   : srcTracks_(cfg.getParameter<edm::InputTag>("tracks")),
     srcPFCandidates_(cfg.getParameter<edm::InputTag>("pfCands")),
-    srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons"))
+    srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons")),
+    dRmatch_(cfg.getParameter<double>("dRmatch"))
 {
   produces<reco::TrackCollection>("tracks");
   produces<reco::PFCandidateCollection>("pfCands");
@@ -104,7 +107,7 @@ void ZmumuPFEmbedder::producePFCandColl(edm::Event& evt, const std::vector<reco:
       if ( dR < dRmin ) dRmin = dR;
     }
 
-    if ( dRmin < 1.e-3 ) continue; // it is a selected muon, do not copy
+    if ( dRmin < dRmatch_ ) continue; // it is a selected muon, do not copy
        
     pfCandidates_woMuons->push_back(*pfCandidate);
   }
@@ -129,7 +132,7 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event& evt, const std::vector<reco::
       double dR = reco::deltaR(track->eta(), track->phi(), selMuonP4->eta(), selMuonP4->phi());
       if ( dR < dRmin ) dRmin = dR;
     }
-    bool isMuonTrack = (dRmin < 1.e-3);
+    bool isMuonTrack = (dRmin < dRmatch_);
     if ( !isMuonTrack ) { // track belongs to a selected muon, do not copy
       tracks_woMuons->push_back(*track);
     }
