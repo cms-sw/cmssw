@@ -48,6 +48,14 @@ HLT_PATripleJet40_20_20_v*                         # sr 133388
 HLT_PATripleJet60_20_20_v*                         # sr 133388
 HLT_PATripleJet80_20_20_v*                         # sr 133388
 HLT_PAJet40ETM30_v*                                # sr 133388
+HLT_PAJet120_NoJetID_v*				   # sr 134483
+HLT_PAForJet20Eta2_v*				   # sr 134483
+HLT_PAForJet100Eta2_v*				   # sr 134483
+HLT_PAForJet20Eta3_v*				   # sr 134483
+HLT_PAForJet100Eta3_v*				   # sr 134483
+HLT_PATripleJet20_20_20_v*			   # sr 134483
+HLT_PATripleJet100_20_20_v*			   # sr 134483
+HLT_PAJet60ETM30_v*				   # sr 134483
 #HLT_PAL1SingleMuOpen_v*                           # sr 131577, removed by #134379
 #HLT_PAL1SingleMu3_v*                              # sr 131577, removed by #134379
 #HLT_PAL1SingleMu7_v*                              # sr 131577, removed by #134379

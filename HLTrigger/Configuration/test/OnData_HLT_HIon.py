@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/HIon/V72 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/HIon/V75 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V72')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V75')
 )
 
 process.streams = cms.PSet( 
@@ -6906,7 +6906,7 @@ process.hltHIDimuonL3FilteredMg2OSnoCowboy = cms.EDFilter( "HLTMuonDimuonL3Filte
     CutCowboys = cms.bool( True ),
     MinInvMass = cms.vdouble( 2.0 )
 )
-process.hltL1sL1SingleEG5BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
+process.hltL1sL1SingleEG5BptxANDOrETT2000 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG5_BptxAND OR L1_ETT2000" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
@@ -9087,10 +9087,10 @@ process.HLT_HIL3DoubleMuOpen_Mgt2_v7 = cms.Path( process.HLTBeginSequence + proc
 process.HLT_HIL3DoubleMuOpen_Mgt2_SS_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenMgt2SS + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilteredMgt2SS + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIL3DoubleMuOpen_Mgt2_OS_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenMgt2OS + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilteredMg2OS + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMuOpenBptxAND + process.hltPreHIL3DoubleMuOpenMgt2OSNoCowboy + process.hltHIDoubleMuLevel1PathL1OpenFiltered + process.HLTL2muonrecoSequence + process.hltHIDimuonL2PreFiltered0 + process.HLTHIL3muonrecoSequence + process.hltHIDimuonL3FilteredMg2OSnoCowboy + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HISinglePhoton15_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxAND + process.hltPreHISinglePhoton15 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIPhoton15 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HISinglePhoton20_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxAND + process.hltPreHISinglePhoton20 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIPhoton20 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HISinglePhoton30_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxAND + process.hltPreHISinglePhoton30 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIPhoton30 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HISinglePhoton40_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxAND + process.hltPreHISinglePhoton40 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIPhoton40 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HISinglePhoton15_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxANDOrETT2000 + process.hltPreHISinglePhoton15 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIPhoton15 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HISinglePhoton20_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxANDOrETT2000 + process.hltPreHISinglePhoton20 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIPhoton20 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HISinglePhoton30_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxANDOrETT2000 + process.hltPreHISinglePhoton30 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIPhoton30 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HISinglePhoton40_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxANDOrETT2000 + process.hltPreHISinglePhoton40 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIPhoton40 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIPhoton10_Photon15_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleEG5BptxAND + process.hltPreHIPhoton10Photon15 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIDoublePhoton1015Filter1 + process.hltHIDoublePhoton1015Filter2 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIPhoton15_Photon20_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleEG5BptxAND + process.hltPreHIPhoton15Photon20 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIDoublePhoton1520Filter1 + process.hltHIDoublePhoton1520Filter2 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIDoublePhoton10_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleEG5BptxAND + process.hltPreHIDoublePhoton10 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIDoublePhoton10 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )

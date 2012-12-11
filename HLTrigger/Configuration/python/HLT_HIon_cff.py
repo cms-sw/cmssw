@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HIon/V72 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/HIon/V75 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V72')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HIon/V75')
 )
 
 streams = cms.PSet( 
@@ -6201,7 +6201,7 @@ hltHIDimuonL3FilteredMg2OSnoCowboy = cms.EDFilter( "HLTMuonDimuonL3Filter",
     CutCowboys = cms.bool( True ),
     MinInvMass = cms.vdouble( 2.0 )
 )
-hltL1sL1SingleEG5BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
+hltL1sL1SingleEG5BptxANDOrETT2000 = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1_SingleEG5_BptxAND OR L1_ETT2000" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
@@ -7726,10 +7726,10 @@ HLT_HIL3DoubleMuOpen_Mgt2_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpen
 HLT_HIL3DoubleMuOpen_Mgt2_SS_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2SS + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMgt2SS + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIL3DoubleMuOpen_Mgt2_OS_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2OS + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMg2OS + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v7 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMuOpenBptxAND + hltPreHIL3DoubleMuOpenMgt2OSNoCowboy + hltHIDoubleMuLevel1PathL1OpenFiltered + HLTL2muonrecoSequence + hltHIDimuonL2PreFiltered0 + HLTHIL3muonrecoSequence + hltHIDimuonL3FilteredMg2OSnoCowboy + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HISinglePhoton15_v5 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxAND + hltPreHISinglePhoton15 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton15 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HISinglePhoton20_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxAND + hltPreHISinglePhoton20 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton20 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HISinglePhoton30_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxAND + hltPreHISinglePhoton30 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton30 + HLTDoHIStripZeroSuppression + HLTEndSequence )
-HLT_HISinglePhoton40_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxAND + hltPreHISinglePhoton40 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton40 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HISinglePhoton15_v5 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxANDOrETT2000 + hltPreHISinglePhoton15 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton15 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HISinglePhoton20_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxANDOrETT2000 + hltPreHISinglePhoton20 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton20 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HISinglePhoton30_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxANDOrETT2000 + hltPreHISinglePhoton30 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton30 + HLTDoHIStripZeroSuppression + HLTEndSequence )
+HLT_HISinglePhoton40_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleEG5BptxANDOrETT2000 + hltPreHISinglePhoton40 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIPhoton40 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIPhoton10_Photon15_v5 = cms.Path( HLTBeginSequence + hltL1sL1DoubleEG5BptxAND + hltPreHIPhoton10Photon15 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIDoublePhoton1015Filter1 + hltHIDoublePhoton1015Filter2 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIPhoton15_Photon20_v5 = cms.Path( HLTBeginSequence + hltL1sL1DoubleEG5BptxAND + hltPreHIPhoton15Photon20 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIDoublePhoton1520Filter1 + hltHIDoublePhoton1520Filter2 + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIDoublePhoton10_v5 = cms.Path( HLTBeginSequence + hltL1sL1DoubleEG5BptxAND + hltPreHIDoublePhoton10 + HLTDoCaloSequence + HLTDoHIEcalClusWithCleaningSequence + hltHIDoublePhoton10 + HLTDoHIStripZeroSuppression + HLTEndSequence )
