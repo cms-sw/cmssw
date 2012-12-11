@@ -37,12 +37,10 @@ namespace Rivet {
 
       const double weight = event.weight();
 
-      Jets jets = applyProjection<FastJets>(event, "Jets").jetsByPt(0.5*GeV);
-      if (jets.size() < 1) {
-	vetoEvent;
-      }
+      Jets jets = applyProjection<FastJets>(event, "Jets").jetsByPt(1.0*GeV);
+      if (jets.size() < 1) vetoEvent;
 
-      if (fabs(jets[0].momentum().eta()) >= 2 || jets[0].momentum().pT() < 1.) { // leading jet must be pt > 1 GeV
+      if (fabs(jets[0].momentum().eta()) >= 2 || jets[0].momentum().pT() < 1.) { // cuts on leading jets
 	vetoEvent;
       }
 
