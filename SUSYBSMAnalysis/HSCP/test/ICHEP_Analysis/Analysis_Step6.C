@@ -138,6 +138,7 @@ std::map<std::string, std::vector<stSample> > modelMap;
 
 string SHAPESTRING="";
 
+
 void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal=""){
    setTDRStyle();
    gStyle->SetPadTopMargin   (0.06);
@@ -183,7 +184,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       //Combined Limits
       EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
       Combine(InputPattern, signal7TeV, signal8TeV);
-
       return;
    }
    if(MODE.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
@@ -1140,7 +1140,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThErrorMap["DY_Q1o3"   ]->Draw("f");
    ThErrorMap["DY_Q2o3"   ]->Draw("f");
    }else{
-      TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
+      TLine* LineAtOne = new TLine(75,1,625,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
 
    MGLQ->Draw("same");
@@ -1149,7 +1149,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGLQ->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
    MGLQ->GetYaxis()->SetTitleOffset(1.70);
    MGLQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
-   MGLQ->GetXaxis()->SetRangeUser(50,1550);
+   MGLQ->GetXaxis()->SetRangeUser(75,625);
 
    DrawPreliminary("frac. charge", SQRTS, LInt);
 
@@ -1192,7 +1192,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      ThErrorMap["DY_Q4"]->Draw("f");
      ThErrorMap["DY_Q5"]->Draw("f");
    }else{
-      TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
+      TLine* LineAtOne = new TLine(50,1,1050,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
 
    
@@ -1203,7 +1203,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->GetYaxis()->SetTitleOffset(1.40);
    //   MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,100);
-   MGHQ->GetXaxis()->SetRangeUser(50,1200);
+   MGHQ->GetXaxis()->SetRangeUser(50,1050);
 
    DrawPreliminary("multi-charged", SQRTS, LInt);
    TLegend* LEGHQ = !Combine ? new TLegend(0.57,0.71,0.8,0.91) : new TLegend(0.50,0.20,0.70,0.52);
@@ -1253,7 +1253,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    return;
 }
-
 
 TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSample){
   int TypeMode = TypeFromPattern(InputPattern);
@@ -2227,20 +2226,20 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    result.NPred     = NPred;
    result.NPredErr  = NPredErr;
    result.NSign     = NSign;
-//   NSign/=(result.XSec_Th*1000.0); //normalize xsection to 1fb
+//   NSign/=(result.XSec_Th*100.0); //normalize xsection to 10fb
    NSign/=(100.0); //normalize xsection to 10fb
 
    //for shape based analysis we need to save all histograms into a root file
    char CutIndexStr[255];sprintf(CutIndexStr, "SQRTS%02.0fCut%03.0f",SQRTS, result.Index);
    if(Shape){
       //prepare the histograms and variation
-      //scale to 1fb xsection and to observed events instead of observed tracks
-      MassSignProj  ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*1000));
-      MassSignProjP ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*1000));
-      MassSignProjI ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*1000));
-      MassSignProjM ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*1000));
-      MassSignProjT ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*1000));
-      MassSignProjPU->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*1000));
+      //scale to 10fb xsection and to observed events instead of observed tracks
+      MassSignProj  ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*100));
+      MassSignProjP ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*100));
+      MassSignProjI ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*100));
+      MassSignProjM ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*100));
+      MassSignProjT ->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*100));
+      MassSignProjPU->Scale(1.0/(result.XSec_Th*signalsMeanHSCPPerEvent*100));
 
       //Rebin --> keep CPU time reasonable and error small
       MassDataProj  ->Rebin(2);
@@ -2326,7 +2325,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    char massStr[255]; sprintf(massStr,"%.0f",result.Mass);
    if(getSignificance && Temporary){
       if(NPred<0.001) NPred=0.001;
-      double SignifValue=0.0; double PrevSignifValue=0; double Strength=0.1*(3*sqrt(NPred)/NSign);  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/result.XSec_Th;
+      double SignifValue=0.0; double PrevSignifValue=0; double Strength=0.1*(3*sqrt(NPred)/NSign);  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E48)Strength=result.XSec_5Sigma/result.XSec_Th;
 //      double SignifValue=0.0;double Strength=0.0005;  if(result.XSec_5Sigma>0 && result.XSec_5Sigma<1E50)Strength=result.XSec_5Sigma/result.XSec_Th;
       double previousXSec_5Sigma=result.XSec_5Sigma; result.XSec_5Sigma = -1;
       //find signal strength needed to get a 5sigma significance
@@ -2335,15 +2334,19 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       for(l=0;l<10 && pointMayBeOptimal;l++){
          PrevSignifValue = SignifValue;
          SignifValue = computeSignificance(datacardPath, true, signal, massStr, Strength);
-         printf("SIGNAL STRENGTH = %E --> SIGNIFICANCE=%E\n",Strength,SignifValue);
+         printf("SIGNAL STRENGTH = %E --> SIGNIFICANCE=%E\n",Strength,SignifValue);fflush(stdout);
 
          if(SignifValue<=PrevSignifValue || SignifValue<=0){CountDecrease++;}else{CountDecrease=0;}
          if(CountDecrease>=2){result.XSec_5Sigma  = 1E49; break;}
 
          //we found the signal strength that lead to a significance close enough to the 5sigma to stop the loop 
          //OR we know that this point is not going to be a good one --> can do a coarse approximation since the begining
-         if(fabs(SignifValue-5)<0.75 || (fastOptimization && Strength>=previousXSec_5Sigma && SignifValue<5)){
+//         if(fabs(SignifValue-5)<0.75 || (fastOptimization && Strength>=previousXSec_5Sigma && SignifValue<5)){
+           if(fabs(SignifValue-5)<1.00 || (fastOptimization && previousXSec_5Sigma>=0 && Strength>=previousXSec_5Sigma/(result.XSec_Th/100.0) && SignifValue<5 && SignifValue>=0)){
+            if(fabs(SignifValue-5)<1.00){printf("Full Converge\n");
+            }else{printf("Fast Converge\n");}
             result.XSec_5Sigma  = Strength * (5/SignifValue) * (result.XSec_Th/100.0);//xsection in pb
+            printf("XSection for 5sigma discovery = %f = %f * %f * %f\n",result.XSec_5Sigma, Strength,  (5/SignifValue), (result.XSec_Th/100.0));
             break;
          }
 
