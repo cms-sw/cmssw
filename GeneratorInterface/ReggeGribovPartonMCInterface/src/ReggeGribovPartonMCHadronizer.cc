@@ -1,4 +1,4 @@
- #include <iostream>
+#include <iostream>
 #include <cmath>
 #include <string>
 
@@ -161,37 +161,58 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
 
 
   //number of beam particles
+  HepMC::FourVector primaryPos(hepcom_.vhep[0][0],hepcom_.vhep[1][0],hepcom_.vhep[2][0],0);
   for(int i = 0; i < m_NParticles; i++)
     {
       HepMC::GenParticle* p = vecGenParticles[i];
-      HepMC::FourVector pos(hepcom_.vhep[0][i],hepcom_.vhep[1][i],hepcom_.vhep[2][i],0);
+      HepMC::FourVector pos(hepcom_.vhep[0][i]-primaryPos.x(),hepcom_.vhep[1][i]-primaryPos.y(),hepcom_.vhep[2][i]-primaryPos.z(),0);
       int firstMother = hepcom_.jmohep[1][i];
       int secondMother = hepcom_.jmohep[2][i];
-      if (firstMother < 0 || secondMother < 0 || firstMother > m_NParticles || secondMother > m_NParticles)
-        LogError("ReggeGribovPartonMCInterface") << "First mother: " << firstMother << " second mother: " << secondMother << " (max: " << m_NParticles << ")" << endl;
 
+      p->print();
+      cout << firstMother << " " << secondMother << " -> " << i << endl;
+      if (firstMother == -1)
+        firstMother = 0;
+      if (secondMother == -1)
+        secondMother = 0; //heavy ion fix
+      if (firstMother < 0 || secondMother < 0 || firstMother > m_NParticles || secondMother > m_NParticles)
+        {
+          LogError("ReggeGribovPartonMCInterface") << "First mother: " << firstMother << " second mother: " << secondMother << " (max: " << m_NParticles << "). Exiting ..." << endl;
+          exit(1);
+        }
       //Check if production vertex exists
       HepMC::GenVertex* vertex = p->production_vertex();
-      if (!vertex && vecGenParticles[firstMother]->production_vertex ())
+      if (!vertex && vecGenParticles[firstMother]->end_vertex ())
         {
-          vertex = vecGenParticles[firstMother]->production_vertex ();
+          vertex = vecGenParticles[firstMother]->end_vertex ();
           vertex->add_particle_out(p);
+          if (vertex != vecGenParticles[secondMother]->end_vertex ())
+            vertex->add_particle_in(vecGenParticles[secondMother]);
+          cout << "mother 1 vtx " << firstMother << " " << vecGenParticles[firstMother]->production_vertex () << " " << secondMother << " " << vecGenParticles[secondMother]->production_vertex () << endl;
         }
-      if (!vertex && vecGenParticles[secondMother]->production_vertex ())
+      if (!vertex && vecGenParticles[secondMother]->end_vertex ())
         {
-          vertex = vecGenParticles[secondMother]->production_vertex ();
+          vertex = vecGenParticles[secondMother]->end_vertex ();
           vertex->add_particle_out(p);
+          if (vertex != vecGenParticles[firstMother]->end_vertex ())
+            vertex->add_particle_in(vecGenParticles[firstMother]);
+          cout << "mother 2 vtx " << secondMother << " " << vecGenParticles[secondMother]->production_vertex () << endl;
         }
 
       //no vertex found
       if(!vertex)
-        {
+        {          cout << "mother new vtx" << endl;
+
           vertex = new HepMC::GenVertex(pos);
           if(!vertex)
             LogError("ReggeGribovPartonMCInterface") << "Could not create new vertex" << endl;
-          vertex->add_particle_out(p);
-          evt->add_vertex(vertex);
+
           if(p->status() == 4)
+            vertex->add_particle_in(p);
+          else
+            vertex->add_particle_out(p);
+          evt->add_vertex(vertex);
+          if(0 &&p->status() == 4)
             evt->set_signal_process_vertex(vertex); // beam particle. set signal vertex
         }
     }
@@ -214,7 +235,7 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
       evt->set_heavy_ion(ion);
     }
   LogDebug("ReggeGribovPartonMCInterface") << "HepEvt and vertex constructed" << endl;
-  //evt->print();
+  evt->print();
   event().reset(evt);
   return true;
 }
