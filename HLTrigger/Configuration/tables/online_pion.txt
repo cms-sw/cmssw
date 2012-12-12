@@ -33,7 +33,7 @@ HLT_PAL1SingleJet16_v*                             # sr 131577, sr 133528
 HLT_PAL1SingleJet36_v*                             # sr 131577, sr 133528
 HLT_PASingleForJet15_v*                            # sr 131577, sr 133528
 HLT_PASingleForJet25_v*                            # sr 131577, sr 133528
-#HLT_PAJet20_NoJetID_v*                            # sr 133388, removed by #134379
+HLT_PAJet20_NoJetID_v*                             # sr 133388, removed by #134379, recovered by sr #134483
 HLT_PAJet40_NoJetID_v*                             # sr 133388
 HLT_PAJet60_NoJetID_v*                             # sr 133388
 HLT_PAJet80_NoJetID_v*                             # sr 133388

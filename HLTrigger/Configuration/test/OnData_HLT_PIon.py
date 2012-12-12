@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V75 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V76 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V75')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V76')
 )
 
 process.streams = cms.PSet( 
@@ -145,6 +145,7 @@ process.datasets = cms.PSet(
     'HLT_PAFullTrack50_v1',
     'HLT_PAJet100_NoJetID_v1',
     'HLT_PAJet120_NoJetID_v1',
+    'HLT_PAJet20_NoJetID_v1',
     'HLT_PAJet40ETM30_v1',
     'HLT_PAJet40_NoJetID_v1',
     'HLT_PAJet60ETM30_v1',
@@ -3940,6 +3941,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_PASingleForJet25_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 )
       ),
+      cms.PSet(  pathName = cms.string( "HLT_PAJet20_NoJetID_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10, 1, 10, 0, 0 )
+      ),
       cms.PSet(  pathName = cms.string( "HLT_PAJet40_NoJetID_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0 )
       ),
@@ -6145,7 +6149,7 @@ process.hltSingleForJet25 = cms.EDFilter( "HLTForwardBackwardCaloJetsFilter",
     triggerType = cms.int32( 85 ),
     nNeg = cms.uint32( 0 )
 )
-process.hltPrePAJet40NoJetID = cms.EDFilter( "HLTPrescaler",
+process.hltPrePAJet20NoJetID = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -6322,6 +6326,20 @@ process.hltCaloJetL1MatchedRegional = cms.EDProducer( "HLTCaloJetL1MatchProducer
 process.hltCaloJetCorrectedRegionalNoJetID = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltCaloJetL1MatchedRegional" ),
     correctors = cms.vstring( 'hltESPAK5CaloL2L3' )
+)
+process.hltSingleJet20RegionalNoJetID = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 20.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 5.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltCaloJetCorrectedRegionalNoJetID" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+process.hltPrePAJet40NoJetID = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
 )
 process.hltSingleJet40RegionalNoJetID = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
@@ -14626,6 +14644,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PAHcalPhiSym_v1',
   'HLT_PAJet100_NoJetID_v1',
   'HLT_PAJet120_NoJetID_v1',
+  'HLT_PAJet20_NoJetID_v1',
   'HLT_PAJet40ETM30_v1',
   'HLT_PAJet40_NoJetID_v1',
   'HLT_PAJet60ETM30_v1',
@@ -15157,6 +15176,7 @@ process.HLT_PAL1SingleJet16_v1 = cms.Path( process.HLTBeginSequenceBPTX + proces
 process.HLT_PAL1SingleJet36_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet36 + process.hltPrePAL1SingleJet36 + process.HLTEndSequence )
 process.HLT_PASingleForJet15_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1ZeroBias + process.hltPrePASingleForJet15 + process.HLTRecoJetSequenceAK5Corrected + process.hltSingleForJet15 + process.HLTEndSequence )
 process.HLT_PASingleForJet25_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleForJet16 + process.hltPrePASingleForJet25 + process.HLTRecoJetSequenceAK5Corrected + process.hltSingleForJet25 + process.HLTEndSequence )
+process.HLT_PAJet20_NoJetID_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet16BptxAND + process.hltPrePAJet20NoJetID + process.HLTRegionalTowerMakerForJetsSequence + process.hltAntiKT5CaloJetsRegional + process.hltCaloJetL1MatchedRegional + process.hltCaloJetCorrectedRegionalNoJetID + process.hltSingleJet20RegionalNoJetID + process.HLTEndSequence )
 process.HLT_PAJet40_NoJetID_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet16BptxAND + process.hltPrePAJet40NoJetID + process.HLTRegionalTowerMakerForJetsSequence + process.hltAntiKT5CaloJetsRegional + process.hltCaloJetL1MatchedRegional + process.hltCaloJetCorrectedRegionalNoJetID + process.hltSingleJet40RegionalNoJetID + process.HLTEndSequence )
 process.HLT_PAJet60_NoJetID_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet36 + process.hltPrePAJet60NoJetID + process.HLTRegionalTowerMakerForJetsSequence + process.hltAntiKT5CaloJetsRegional + process.hltCaloJetL1MatchedRegional + process.hltCaloJetCorrectedRegionalNoJetID + process.hltSingleJet60RegionalNoJetID + process.HLTEndSequence )
 process.HLT_PAJet80_NoJetID_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet36 + process.hltPrePAJet80NoJetID + process.HLTRegionalTowerMakerForJetsSequence + process.hltAntiKT5CaloJetsRegional + process.hltCaloJetL1MatchedRegional + process.hltCaloJetCorrectedRegionalNoJetID + process.hltSingleJet80RegionalNoJetID + process.HLTEndSequence )

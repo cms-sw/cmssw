@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/PIon/V75 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V76 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V75')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V76')
 )
 
 streams = cms.PSet( 
@@ -144,6 +144,7 @@ datasets = cms.PSet(
     'HLT_PAFullTrack50_v1',
     'HLT_PAJet100_NoJetID_v1',
     'HLT_PAJet120_NoJetID_v1',
+    'HLT_PAJet20_NoJetID_v1',
     'HLT_PAJet40ETM30_v1',
     'HLT_PAJet40_NoJetID_v1',
     'HLT_PAJet60ETM30_v1',
@@ -5263,7 +5264,7 @@ hltSingleForJet25 = cms.EDFilter( "HLTForwardBackwardCaloJetsFilter",
     triggerType = cms.int32( 85 ),
     nNeg = cms.uint32( 0 )
 )
-hltPrePAJet40NoJetID = cms.EDFilter( "HLTPrescaler",
+hltPrePAJet20NoJetID = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -5440,6 +5441,20 @@ hltCaloJetL1MatchedRegional = cms.EDProducer( "HLTCaloJetL1MatchProducer",
 hltCaloJetCorrectedRegionalNoJetID = cms.EDProducer( "CaloJetCorrectionProducer",
     src = cms.InputTag( "hltCaloJetL1MatchedRegional" ),
     correctors = cms.vstring( 'hltESPAK5CaloL2L3' )
+)
+hltSingleJet20RegionalNoJetID = cms.EDFilter( "HLT1CaloJet",
+    saveTags = cms.bool( True ),
+    MinPt = cms.double( 20.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 5.0 ),
+    MinMass = cms.double( -1.0 ),
+    inputTag = cms.InputTag( "hltCaloJetCorrectedRegionalNoJetID" ),
+    MinE = cms.double( -1.0 ),
+    triggerType = cms.int32( 85 )
+)
+hltPrePAJet40NoJetID = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
 )
 hltSingleJet40RegionalNoJetID = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
@@ -13715,6 +13730,7 @@ HLT_PAL1SingleJet16_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet16Bpt
 HLT_PAL1SingleJet36_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet36 + hltPrePAL1SingleJet36 + HLTEndSequence )
 HLT_PASingleForJet15_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1ZeroBias + hltPrePASingleForJet15 + HLTRecoJetSequenceAK5Corrected + hltSingleForJet15 + HLTEndSequence )
 HLT_PASingleForJet25_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleForJet16 + hltPrePASingleForJet25 + HLTRecoJetSequenceAK5Corrected + hltSingleForJet25 + HLTEndSequence )
+HLT_PAJet20_NoJetID_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet16BptxAND + hltPrePAJet20NoJetID + HLTRegionalTowerMakerForJetsSequence + hltAntiKT5CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetCorrectedRegionalNoJetID + hltSingleJet20RegionalNoJetID + HLTEndSequence )
 HLT_PAJet40_NoJetID_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet16BptxAND + hltPrePAJet40NoJetID + HLTRegionalTowerMakerForJetsSequence + hltAntiKT5CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetCorrectedRegionalNoJetID + hltSingleJet40RegionalNoJetID + HLTEndSequence )
 HLT_PAJet60_NoJetID_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet36 + hltPrePAJet60NoJetID + HLTRegionalTowerMakerForJetsSequence + hltAntiKT5CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetCorrectedRegionalNoJetID + hltSingleJet60RegionalNoJetID + HLTEndSequence )
 HLT_PAJet80_NoJetID_v1 = cms.Path( HLTBeginSequenceBPTX + hltL1sL1SingleJet36 + hltPrePAJet80NoJetID + HLTRegionalTowerMakerForJetsSequence + hltAntiKT5CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetCorrectedRegionalNoJetID + hltSingleJet80RegionalNoJetID + HLTEndSequence )
@@ -13824,7 +13840,7 @@ HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT_BeamGas_HF_Beam1_v5, HLT_BeamGas_HF_Beam2_v5, HLT_BeamHalo_v13, HLT_PAHcalPhiSym_v1, HLT_PAHcalNZS_v1, HLT_GlobalRunHPDNoise_v8, HLT_Physics_v5, DST_Physics_v5, HLT_DTCalibration_v2, HLT_EcalCalibration_v3, HLT_HcalCalibration_v3, HLT_TrackerCalibration_v3, HLT_L1SingleMuOpen_AntiBPTX_v7, HLT_L1TrackerCosmics_v7, AlCa_PAEcalPi0EBonly_v1, AlCa_PAEcalPi0EEonly_v1, AlCa_PAEcalEtaEBonly_v1, AlCa_PAEcalEtaEEonly_v1, AlCa_EcalPhiSym_v13, AlCa_RPCMuonNoTriggers_v9, AlCa_RPCMuonNoHits_v9, AlCa_RPCMuonNormalisation_v9, AlCa_LumiPixels_v8, AlCa_LumiPixels_ZeroBias_v4, AlCa_LumiPixels_Random_v1, HLT_PAL1SingleJet16_v1, HLT_PAL1SingleJet36_v1, HLT_PASingleForJet15_v1, HLT_PASingleForJet25_v1, HLT_PAJet40_NoJetID_v1, HLT_PAJet60_NoJetID_v1, HLT_PAJet80_NoJetID_v1, HLT_PAJet100_NoJetID_v1, HLT_PAJet120_NoJetID_v1, HLT_PAForJet20Eta2_v1, HLT_PAForJet40Eta2_v1, HLT_PAForJet60Eta2_v1, HLT_PAForJet80Eta2_v1, HLT_PAForJet100Eta2_v1, HLT_PAForJet20Eta3_v1, HLT_PAForJet40Eta3_v1, HLT_PAForJet60Eta3_v1, HLT_PAForJet80Eta3_v1, HLT_PAForJet100Eta3_v1, HLT_PATripleJet20_20_20_v1, HLT_PATripleJet40_20_20_v1, HLT_PATripleJet60_20_20_v1, HLT_PATripleJet80_20_20_v1, HLT_PATripleJet100_20_20_v1, HLT_PAJet40ETM30_v1, HLT_PAJet60ETM30_v1, HLT_PAL1DoubleMu0_v1, HLT_PADimuon0_NoVertexing_v1, HLT_PAL1DoubleMu0_HighQ_v1, HLT_PAL1DoubleMuOpen_v1, HLT_PAL2DoubleMu3_v1, HLT_PAMu3_v1, HLT_PAMu7_v1, HLT_PAMu12_v1, HLT_PABTagMu_Jet20_Mu4_v1, HLT_PAMu3PFJet20_v1, HLT_PAMu3PFJet40_v1, HLT_PAMu7PFJet20_v1, HLT_PAPhoton10_NoCaloIdVL_v1, HLT_PAPhoton15_NoCaloIdVL_v1, HLT_PAPhoton20_NoCaloIdVL_v1, HLT_PAPhoton30_NoCaloIdVL_v1, HLT_PAPhoton40_NoCaloIdVL_v1, HLT_PAPhoton60_NoCaloIdVL_v1, HLT_PAPhoton10_TightCaloIdVL_v1, HLT_PAPhoton15_TightCaloIdVL_v1, HLT_PAPhoton20_TightCaloIdVL_v1, HLT_PAPhoton30_TightCaloIdVL_v1, HLT_PAPhoton40_TightCaloIdVL_v1, HLT_PAPhoton10_TightCaloIdVL_Iso50_v1, HLT_PAPhoton15_TightCaloIdVL_Iso50_v1, HLT_PAPhoton20_TightCaloIdVL_Iso50_v1, HLT_PAPhoton30_TightCaloIdVL_Iso50_v1, HLT_PAPhoton10_Photon10_NoCaloIdVL_v1, HLT_PAPhoton15_Photon10_NoCaloIdVL_v1, HLT_PAPhoton20_Photon15_NoCaloIdVL_v1, HLT_PAPhoton20_Photon20_NoCaloIdVL_v1, HLT_PAPhoton30_Photon30_NoCaloIdVL_v1, HLT_PAPhoton10_Photon10_TightCaloIdVL_v1, HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v1, HLT_PAPhoton15_Photon10_TightCaloIdVL_v1, HLT_PAPhoton20_Photon15_TightCaloIdVL_v1, HLT_PASingleEle6_CaloIdT_TrkIdVL_v1, HLT_PASingleEle6_CaloIdNone_TrkIdVL_v1, HLT_PASingleEle8_CaloIdNone_TrkIdVL_v1, HLT_PAL1DoubleEG5DoubleEle6_CaloIdT_TrkIdVL_v1, HLT_PADoubleEle6_CaloIdT_TrkIdVL_v1, HLT_PADoubleEle8_CaloIdT_TrkIdVL_v1, HLT_PAPixelTracks_Multiplicity100_v1, HLT_PAPixelTracks_Multiplicity130_v1, HLT_PAPixelTracks_Multiplicity160_v1, HLT_PAPixelTracks_Multiplicity190_v1, HLT_PAPixelTracks_Multiplicity220_v1, HLT_PAPixelTrackMultiplicity100_FullTrack12_v1, HLT_PAPixelTrackMultiplicity130_FullTrack12_v1, HLT_PAPixelTrackMultiplicity160_FullTrack12_v1, HLT_PAFullTrack12_v1, HLT_PAFullTrack20_v1, HLT_PAFullTrack30_v1, HLT_PAFullTrack50_v1, HLT_PARomanPots_Tech52_v1, HLT_PAL1Tech53_MB_v1, HLT_PAL1Tech53_MB_SingleTrack_v1, HLT_PAL1Tech54_ZeroBias_v1, HLT_PAT1minbias_Tech55_v1, HLT_PAL1Tech_HBHEHO_totalOR_v1, HLT_PAMinBiasHF_v1, HLT_PAMinBiasHF_OR_v1, HLT_PAMinBiasBSC_v1, HLT_PAMinBiasBSC_OR_v1, HLT_PAMinBiasHfOrBSC_v1, HLT_PABptxPlusNotBptxMinus_v1, HLT_PABptxMinusNotBptxPlus_v1, HLT_PAZeroBias_v1, HLT_PAZeroBiasPixel_SingleTrack_v1, HLT_PAHFOR_SingleTrack_v1, HLT_PAZeroBiasPixel_DoubleTrack_v1, HLT_PADoubleMu4_Acoplanarity03_v1, HLT_PAExclDijet35_HFAND_v1, HLT_PAL1DoubleEG3_FwdVeto_v1, HLT_PAL1DoubleJet20_TotemDiffractive_v1, HLT_PADoubleJet20_ForwardBackward_v1, HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1, HLT_PAUpcSingleEG5Pixel_TrackVeto_v1, HLT_PAUpcSingleMuOpenPixel_TrackVeto_v1, HLT_PAUpcSingleMuOpenTkMu_Onia_v1, HLT_PARandom_v1, DQM_FEDIntegrity_v11, HLT_LogMonitor_v4, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v13, HLT_BeamGas_HF_Beam1_v5, HLT_BeamGas_HF_Beam2_v5, HLT_BeamHalo_v13, HLT_PAHcalPhiSym_v1, HLT_PAHcalNZS_v1, HLT_GlobalRunHPDNoise_v8, HLT_Physics_v5, DST_Physics_v5, HLT_DTCalibration_v2, HLT_EcalCalibration_v3, HLT_HcalCalibration_v3, HLT_TrackerCalibration_v3, HLT_L1SingleMuOpen_AntiBPTX_v7, HLT_L1TrackerCosmics_v7, AlCa_PAEcalPi0EBonly_v1, AlCa_PAEcalPi0EEonly_v1, AlCa_PAEcalEtaEBonly_v1, AlCa_PAEcalEtaEEonly_v1, AlCa_EcalPhiSym_v13, AlCa_RPCMuonNoTriggers_v9, AlCa_RPCMuonNoHits_v9, AlCa_RPCMuonNormalisation_v9, AlCa_LumiPixels_v8, AlCa_LumiPixels_ZeroBias_v4, AlCa_LumiPixels_Random_v1, HLT_PAL1SingleJet16_v1, HLT_PAL1SingleJet36_v1, HLT_PASingleForJet15_v1, HLT_PASingleForJet25_v1, HLT_PAJet20_NoJetID_v1, HLT_PAJet40_NoJetID_v1, HLT_PAJet60_NoJetID_v1, HLT_PAJet80_NoJetID_v1, HLT_PAJet100_NoJetID_v1, HLT_PAJet120_NoJetID_v1, HLT_PAForJet20Eta2_v1, HLT_PAForJet40Eta2_v1, HLT_PAForJet60Eta2_v1, HLT_PAForJet80Eta2_v1, HLT_PAForJet100Eta2_v1, HLT_PAForJet20Eta3_v1, HLT_PAForJet40Eta3_v1, HLT_PAForJet60Eta3_v1, HLT_PAForJet80Eta3_v1, HLT_PAForJet100Eta3_v1, HLT_PATripleJet20_20_20_v1, HLT_PATripleJet40_20_20_v1, HLT_PATripleJet60_20_20_v1, HLT_PATripleJet80_20_20_v1, HLT_PATripleJet100_20_20_v1, HLT_PAJet40ETM30_v1, HLT_PAJet60ETM30_v1, HLT_PAL1DoubleMu0_v1, HLT_PADimuon0_NoVertexing_v1, HLT_PAL1DoubleMu0_HighQ_v1, HLT_PAL1DoubleMuOpen_v1, HLT_PAL2DoubleMu3_v1, HLT_PAMu3_v1, HLT_PAMu7_v1, HLT_PAMu12_v1, HLT_PABTagMu_Jet20_Mu4_v1, HLT_PAMu3PFJet20_v1, HLT_PAMu3PFJet40_v1, HLT_PAMu7PFJet20_v1, HLT_PAPhoton10_NoCaloIdVL_v1, HLT_PAPhoton15_NoCaloIdVL_v1, HLT_PAPhoton20_NoCaloIdVL_v1, HLT_PAPhoton30_NoCaloIdVL_v1, HLT_PAPhoton40_NoCaloIdVL_v1, HLT_PAPhoton60_NoCaloIdVL_v1, HLT_PAPhoton10_TightCaloIdVL_v1, HLT_PAPhoton15_TightCaloIdVL_v1, HLT_PAPhoton20_TightCaloIdVL_v1, HLT_PAPhoton30_TightCaloIdVL_v1, HLT_PAPhoton40_TightCaloIdVL_v1, HLT_PAPhoton10_TightCaloIdVL_Iso50_v1, HLT_PAPhoton15_TightCaloIdVL_Iso50_v1, HLT_PAPhoton20_TightCaloIdVL_Iso50_v1, HLT_PAPhoton30_TightCaloIdVL_Iso50_v1, HLT_PAPhoton10_Photon10_NoCaloIdVL_v1, HLT_PAPhoton15_Photon10_NoCaloIdVL_v1, HLT_PAPhoton20_Photon15_NoCaloIdVL_v1, HLT_PAPhoton20_Photon20_NoCaloIdVL_v1, HLT_PAPhoton30_Photon30_NoCaloIdVL_v1, HLT_PAPhoton10_Photon10_TightCaloIdVL_v1, HLT_PAPhoton10_Photon10_TightCaloIdVL_Iso50_v1, HLT_PAPhoton15_Photon10_TightCaloIdVL_v1, HLT_PAPhoton20_Photon15_TightCaloIdVL_v1, HLT_PASingleEle6_CaloIdT_TrkIdVL_v1, HLT_PASingleEle6_CaloIdNone_TrkIdVL_v1, HLT_PASingleEle8_CaloIdNone_TrkIdVL_v1, HLT_PAL1DoubleEG5DoubleEle6_CaloIdT_TrkIdVL_v1, HLT_PADoubleEle6_CaloIdT_TrkIdVL_v1, HLT_PADoubleEle8_CaloIdT_TrkIdVL_v1, HLT_PAPixelTracks_Multiplicity100_v1, HLT_PAPixelTracks_Multiplicity130_v1, HLT_PAPixelTracks_Multiplicity160_v1, HLT_PAPixelTracks_Multiplicity190_v1, HLT_PAPixelTracks_Multiplicity220_v1, HLT_PAPixelTrackMultiplicity100_FullTrack12_v1, HLT_PAPixelTrackMultiplicity130_FullTrack12_v1, HLT_PAPixelTrackMultiplicity160_FullTrack12_v1, HLT_PAFullTrack12_v1, HLT_PAFullTrack20_v1, HLT_PAFullTrack30_v1, HLT_PAFullTrack50_v1, HLT_PARomanPots_Tech52_v1, HLT_PAL1Tech53_MB_v1, HLT_PAL1Tech53_MB_SingleTrack_v1, HLT_PAL1Tech54_ZeroBias_v1, HLT_PAT1minbias_Tech55_v1, HLT_PAL1Tech_HBHEHO_totalOR_v1, HLT_PAMinBiasHF_v1, HLT_PAMinBiasHF_OR_v1, HLT_PAMinBiasBSC_v1, HLT_PAMinBiasBSC_OR_v1, HLT_PAMinBiasHfOrBSC_v1, HLT_PABptxPlusNotBptxMinus_v1, HLT_PABptxMinusNotBptxPlus_v1, HLT_PAZeroBias_v1, HLT_PAZeroBiasPixel_SingleTrack_v1, HLT_PAHFOR_SingleTrack_v1, HLT_PAZeroBiasPixel_DoubleTrack_v1, HLT_PADoubleMu4_Acoplanarity03_v1, HLT_PAExclDijet35_HFAND_v1, HLT_PAL1DoubleEG3_FwdVeto_v1, HLT_PAL1DoubleJet20_TotemDiffractive_v1, HLT_PADoubleJet20_ForwardBackward_v1, HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1, HLT_PAUpcSingleEG5Pixel_TrackVeto_v1, HLT_PAUpcSingleMuOpenPixel_TrackVeto_v1, HLT_PAUpcSingleMuOpenTkMu_Onia_v1, HLT_PARandom_v1, DQM_FEDIntegrity_v11, HLT_LogMonitor_v4, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 # CMSSW version specific customizations
 import os

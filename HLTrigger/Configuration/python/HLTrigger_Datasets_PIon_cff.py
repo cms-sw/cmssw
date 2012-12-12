@@ -75,6 +75,7 @@ streamA_datasetPAHighPt_selector.triggerConditions = cms.vstring('HLT_PADoubleEl
     'HLT_PAFullTrack50_v1', 
     'HLT_PAJet100_NoJetID_v1', 
     'HLT_PAJet120_NoJetID_v1', 
+    'HLT_PAJet20_NoJetID_v1', 
     'HLT_PAJet40ETM30_v1', 
     'HLT_PAJet40_NoJetID_v1', 
     'HLT_PAJet60ETM30_v1', 
