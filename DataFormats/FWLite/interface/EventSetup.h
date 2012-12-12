@@ -102,7 +102,6 @@ namespace fwlite
       const EventSetup& operator=(const EventSetup&); // stop default
 
       // ---------- member data --------------------------------
-      const edm::EventBase* m_event;
       edm::EventID m_syncedEvent;
       edm::Timestamp m_syncedTimestamp;
       

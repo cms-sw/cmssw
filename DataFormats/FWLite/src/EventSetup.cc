@@ -37,7 +37,6 @@ static const char* const kRecordAuxiliaryBranchName="ESRecordAuxiliary";
 // constructors and destructor
 //
 EventSetup::EventSetup(TFile* iFile):
-m_event(0),
 m_file(iFile)
 {
 }
