@@ -5,8 +5,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include <utility>
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
 class Plane;

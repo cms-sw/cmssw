@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.4 2011/03/05 06:37:19 kukartse Exp $
+// $Id: ProcTMVA.cc,v 1.6 2012/11/16 20:46:26 kukartse Exp $
 //
 
 #include <sstream>
@@ -20,6 +20,7 @@
 #include <vector>
 #include <memory>
 #include <iostream>
+#include <cstdio>
 
 // ROOT version magic to support TMVA interface changes in newer ROOT
 #include <RVersion.h>
@@ -118,6 +119,7 @@ ProcTMVA::ProcTMVA(const char *name,
     method = std::auto_ptr<TMVA::MethodBase>
       ( dynamic_cast<TMVA::MethodBase*>
         ( reader->BookMVA( methodName_t, weight_file_name ) ) );
+    remove(weight_file_name.Data());
   }
 
   /*

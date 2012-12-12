@@ -29,7 +29,6 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
   makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
   digiLabel_             = ps.getUntrackedParameter<edm::InputTag>("digiLabel");
-  FEDRawDataCollection_  = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
   hfRechitLabel_        = ps.getUntrackedParameter<edm::InputTag>("hfRechitLabel");
   shapeThresh_           = ps.getUntrackedParameter<int>("shapeThresh",20);
   //shapeThresh_ is used for plotting pulse shapes for all digis with pedestal-subtracted ADC sum > shapeThresh_;
@@ -42,7 +41,6 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps)
   MinBiasHLTBits_        = ps.getUntrackedParameter<std::vector<std::string> >("MinBiasHLTBits");
   excludeHORing2_       = ps.getUntrackedParameter<bool>("excludeHORing2",false);
   excludeHO1P02_        = ps.getUntrackedParameter<bool>("excludeHO1P02",false);
-  excludeBadQPLLs_      = ps.getUntrackedParameter<bool>("excludeBadQPLL",false);
 
   if (debug_>0)
     std::cout <<"<HcalDigiMonitor> Digi shape ADC threshold set to: >" << shapeThresh_ <<" counts above nominal pedestal (3*10)"<< std::endl;
@@ -244,13 +242,6 @@ void HcalDigiMonitor::setup()
   DigiSize->setBinLabel(4,"HF",1);
   DigiSize->setAxisTitle("Subdetector",1);
   DigiSize->setAxisTitle("Digi Size",2);
-  
-  DigiExpectedSize = dbe_->book2D("Digi Expected Size", "Digi Expected Size",3,0,3,20,-0.5,19.5);
-  DigiExpectedSize->setBinLabel(1,"HBHE",1);
-  DigiExpectedSize->setBinLabel(2,"HO",1);
-  DigiExpectedSize->setBinLabel(3,"HF",1);
-  DigiExpectedSize->setAxisTitle("Subdetector",1);
-  DigiExpectedSize->setAxisTitle("Digi Expected Size from HTR",2);
   
   dbe_->setCurrentFolder(subdir_+"bad_digis/badfibBCNoff");
   SetupEtaPhiHists(DigiErrorsBadFibBCNOff," Digis with non-zero Fiber Orbit Msg Idle BCN Offsets", "");
@@ -543,47 +534,6 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" unpacker report not available";
       return;
     }
-  // try to get Raw Data
-  edm::Handle<FEDRawDataCollection> rawraw;
-  if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
-    {
-      edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_<<" not available";
-      return;
-    }
-
-  // get the DCC header & trailer (or bail out)
-  // this needs to be done better, for now basically getting only one number per HBHE/HO/HF
-  // will create a map (dccid, spigot) -> DetID to be used in process_Digi later
-  for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
-    const FEDRawData& fed = rawraw->FEDData(i);
-    if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.    
-
-    const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
-    if(!dccHeader) return;
-
-    HcalHTRData htr;  
-    for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
-      if (!dccHeader->getSpigotPresent(spigot)) continue;
-      
-      // Load the given decoder with the pointer and length from this spigot.
-      // i.e.     initialize htr, within dcc raw data size.
-      dccHeader->getSpigotData(spigot, htr, fed.size()); 
-      
-      int NTS = htr.getNDD(); //number time slices, in precision channels
-      int dccid=dccHeader->getSourceId();
-      
-      if(dccid==720 && (spigot==12 || spigot==13)) continue; // calibration HTR
-      if(dccid==722 && (spigot==12 || spigot==13)) continue; // ZDC HTR
-
-      int subdet = -1;
-      
-      if(dccid >= 700 && dccid<=717)  { subdet = 0; mindigisizeHBHE_ = NTS; maxdigisizeHBHE_ = NTS; } // HBHE
-      if(dccid >= 718 && dccid<=723)  { subdet = 2; mindigisizeHF_ = NTS; maxdigisizeHF_ = NTS; }     // HF
-      if(dccid >= 724 && dccid<=731)  { subdet = 1; mindigisizeHO_ = NTS; maxdigisizeHO_ = NTS; }     // HO
-      
-      DigiExpectedSize->Fill(subdet,int(NTS),1);
-    }
-  }
 
   // all objects grabbed; event is good
   if (debug_>1) std::cout <<"\t<HcalDigiMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
@@ -615,16 +565,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   DigiUnpackerErrorCount->Fill(report.badQualityDigis());
   
   unsigned int allgooddigis= hbhe.size()+ho.size()+hf.size();
-
-  // new data format in HCAL marks idle messages in the abort gap as bad capid. 
-  // ignore this events. Also, sometimes there are many corrupted digis left 
-  // from the QIE reset: ignore if in abort gap
-  if(bcN>=3446 && bcN<=3564)
-    if( (report.badQualityDigis()>100 && hbhe.size()==0) || (report.badQualityDigis()>1000) )
-      return;
-
   // bad threshold:  ignore events in which bad outnumber good by more than 100:1
-  // (one RBX in HBHE seems to send valid data occasionally even on QIE resets, which is why we can't just require allgooddigis==0 when looking for events to skip)    
+  // (one RBX in HBHE seems to send valid data occasionally even on QIE resets, which is why we can't just require allgooddigis==0 when looking for events to skip)
   if ((allgooddigis==0) ||
       (1.*report.badQualityDigis()>100*allgooddigis))
     {
@@ -633,7 +575,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	h_invalid_bcn->Fill(bcN);
       if (orN>-1)
 	h_invalid_orbitnumMod103->Fill(orN%103);
-      
+
       return;
     }
   
@@ -665,72 +607,58 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       int rPhi   = id.iphi();
       int rEta   = id.ieta();
       int binEta = CalcEtaBin(id.subdet(), rEta, rDepth); // why is this here?
-      
+      if (id.subdet()==HcalBarrel) ++hbHists.count_bad;
+      else if (id.subdet()==HcalEndcap) ++heHists.count_bad;
+      else if (id.subdet()==HcalForward) 
+	{
+	  ++hfHists.count_bad;
+	  if (rDepth==1 && (abs(rEta)==33 || abs(rEta)==34)) ++HFlumibad;
+	  else if (rDepth==2 && (abs(rEta)==35 || abs(rEta)==36)) ++HFlumibad;
+	}
+      else if (id.subdet()==HcalOuter) 
+	{
+	  // Mark HORing+/-2 channels as present, HO/YB+/-2 has HV off (at 100V).
+	  if (excludeHORing2_==true && rDepth==4)
+	    if (abs(rEta)>=11 && abs(rEta)<=15 && !isSiPM(rEta,rPhi,rDepth)) continue;
+
+	  if (excludeHO1P02_==true)
+	    if( (rEta>4 && rEta<10) && (rPhi<=10 || rPhi>70) ) continue;
+	  
+	  if (KnownBadCells_.find(id)!=KnownBadCells_.end()) continue;
+
+	  ++hoHists.count_bad;
+	  if (abs(rEta)<5) ++HO0bad;
+	  else ++HO12bad;
+	}
+      else 
+	continue; // skip anything that isn't HB, HE, HO, HF
+      // extra protection against nonsensical values -- prevents occasional crashes
       if (binEta < 85 && binEta >= 0 
 	  && (rPhi-1) >= 0 && (rPhi-1)<72 
 	  && (rDepth-1) >= 0 && (rDepth-1)<4)
-	if(uniqcounter2[binEta][rPhi-1][rDepth-1]<1)  	
-	  {
-	    if (id.subdet()==HcalBarrel) ++hbHists.count_bad;	  
-	    else if (id.subdet()==HcalEndcap) ++heHists.count_bad;
-	    else if (id.subdet()==HcalForward) 
-	      {
-		++hfHists.count_bad;
-		if (rDepth==1 && (abs(rEta)==33 || abs(rEta)==34)) ++HFlumibad;
-		else if (rDepth==2 && (abs(rEta)==35 || abs(rEta)==36)) ++HFlumibad;
-	      }
-	    else if (id.subdet()==HcalOuter) 
-	      {
-		// Mark HORing+/-2 channels as present, HO/YB+/-2 has HV off (at 100V).
-		if (excludeHORing2_==true && rDepth==4)
-		  if (abs(rEta)>=11 && abs(rEta)<=15 && !isSiPM(rEta,rPhi,rDepth)) continue;
-		
-		if (excludeHO1P02_==true)
-		  if( (rEta>4 && rEta<10) && (rPhi<=10 || rPhi>70) ) continue;
-		
-		if (KnownBadCells_.find(id)!=KnownBadCells_.end()) continue;
-		
-		++hoHists.count_bad;
-		if (abs(rEta)<5) ++HO0bad;
-		else ++HO12bad;
-	      }
-	    else 
-	      continue; // skip anything that isn't HB, HE, HO, HF
-	    // extra protection against nonsensical values -- prevents occasional crashes
-	    
-	    ++badunpackerreport[binEta][rPhi-1][rDepth-1];
-	    ++baddigis[binEta][rPhi-1][rDepth-1];  
-	    
-	    // QPLL unlocking channels, have to ignore unpacker errors (fix requires opening CMS)
-	    bool HEM15A = true ? (id.subdet()==HcalEndcap && (rPhi>56 && rPhi<59 && rEta<0)) : false;
-	    bool HEM15B = true ? (id.subdet()==HcalEndcap && (rPhi>54 && rPhi<57 && rEta<0)) : false;
-	    bool HBP14A = true ? (id.subdet()==HcalBarrel && (rPhi>50 && rPhi<53 && rEta>0)) : false;
-
-	    if(excludeBadQPLLs_ && rDepth==1)
-	      if( HEM15A || HEM15B || HBP14A )
-		++knownbadQPLLs;
-		
-	    uniqcounter2[binEta][rPhi-1][rDepth-1]++;
-	  }
+	{
+	  ++badunpackerreport[binEta][rPhi-1][rDepth-1];
+	  ++baddigis[binEta][rPhi-1][rDepth-1];  
+	}
     }
+
  ///////////////////////////////////////// Loop over HBHE
 
   int firsthbcap=-1;
   int firsthecap=-1;
   int firsthocap=-1;
   int firsthfcap=-1;
-  
+
   for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j)
     {
 	const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-	
+	  
 	if (digi.id().subdet()==HcalBarrel)
 	  {
 	    if (!HBpresent_) continue;
 	    if (KnownBadCells_.find(digi.id())!=KnownBadCells_.end()) continue;
-	    
+	  
 	    process_Digi(digi, hbHists, firsthbcap);
-
 	  }
 	else if (digi.id().subdet()==HcalEndcap)
 	  {
@@ -865,7 +793,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   DigiOccupancyVME->update();
   DigiOccupancySpigot->update();
   DigiSize->update();
-  DigiExpectedSize->update();
 
   // // Fill problems vs. lumi block plots
   // ProblemsVsLB->Fill(currentLS,count_bad);
@@ -932,7 +859,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   int iEta = digi.id().ieta();
   int iPhi = digi.id().iphi();
   int iDepth = digi.id().depth();
-  int calcEta = CalcEtaBin(digi.id().subdet(),iEta,iDepth);  
+  int calcEta = CalcEtaBin(digi.id().subdet(),iEta,iDepth);
 
   // Check that digi size is correct
   if (digi.size()<mindigisize || digi.size()>maxdigisize)
@@ -1047,17 +974,16 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       ++badcapID[calcEta][iPhi-1][iDepth-1];
     }
 
-
   // These plots generally don't get filled, unless we turn off the suppression of bad digis
   if (err>0)
     {
       if(uniqcounter[calcEta][iPhi-1][iDepth-1]<1)  
-      	{
-      	  ++h.count_bad;
-      	  ++baddigis[calcEta][iPhi-1][iDepth-1];
-      	  ++errorVME[static_cast<int>(2*(digi.elecId().htrSlot()+0.5*digi.elecId().htrTopBottom()))][static_cast<int>(digi.elecId().readoutVMECrateId())];
-      	  ++errorSpigot[static_cast<int>(digi.elecId().spigot())][static_cast<int>(digi.elecId().dccid())];
-      	}
+	{
+	  ++h.count_bad;
+	  ++baddigis[calcEta][iPhi-1][iDepth-1];
+	  ++errorVME[static_cast<int>(2*(digi.elecId().htrSlot()+0.5*digi.elecId().htrTopBottom()))][static_cast<int>(digi.elecId().readoutVMECrateId())];
+	  ++errorSpigot[static_cast<int>(digi.elecId().spigot())][static_cast<int>(digi.elecId().dccid())];
+	}
       uniqcounter[calcEta][iPhi-1][iDepth-1]++; 
 
       return err;
@@ -1190,9 +1116,9 @@ void HcalDigiMonitor::fill_Nevents()
   ProblemsVsLB_HF->Fill(currentLS,hfHists.count_bad);
   ProblemsVsLB_HBHEHF->Fill(currentLS,hbHists.count_bad+heHists.count_bad+hfHists.count_bad);
 
-  if( hbHists.count_bad+heHists.count_bad+hfHists.count_bad-knownbadQPLLs< 50 )
+  if( hbHists.count_bad+heHists.count_bad+hfHists.count_bad < 50 )
     alarmer_counter_ = 0;
-      
+    
   if( alarmer_counter_ >= 5 )
     ProblemDigisInLastNLB_HBHEHF_alarm->Fill( std::min(int(hbHists.count_bad+heHists.count_bad+hfHists.count_bad), 99) );
 
@@ -1519,7 +1445,6 @@ void HcalDigiMonitor::zeroCounters()
     for (int eta=0; eta<ETABINS; eta++) {
       for (int phi=0; phi<PHIBINS; phi++){
 	uniqcounter[eta][phi][d] = 0.0;
-	uniqcounter2[eta][phi][d] = 0.0;
       }
     }
   }
@@ -1532,8 +1457,6 @@ void HcalDigiMonitor::zeroCounters()
   hoHists.count_good=0;
   hfHists.count_bad=0;
   hfHists.count_good=0;
-
-  knownbadQPLLs = 0;
 
   HO0bad=0;
   HO12bad=0;
@@ -1709,8 +1632,7 @@ void HcalDigiMonitor::reset()
 
   ProblemDigisInLastNLB_HBHEHF_alarm->Reset();
   alarmer_counter_ = 0;
-  knownbadQPLLs    = 0; 
-
+ 
   hbhedcsON = true; hfdcsON = true;
 
   DigiErrorsByDepth.Reset();

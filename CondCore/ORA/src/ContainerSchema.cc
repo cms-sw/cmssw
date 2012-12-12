@@ -215,6 +215,7 @@ void ora::ContainerSchema::setAccessPermission( const std::string& principal,
 }
 
 const Reflex::Type& ora::ContainerSchema::type(){
+  initClassDict();
   return m_classDict;
 }
 

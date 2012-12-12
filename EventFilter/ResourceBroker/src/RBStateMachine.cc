@@ -54,6 +54,10 @@ BaseState const& RBStateMachine::getCurrentState() const throw (std::bad_cast) {
 	return state_cast<BaseState const&> ();
 }
 
+BaseState & RBStateMachine::getCurrentStateNC() const throw (std::bad_cast) {
+	return const_cast<BaseState &> (state_cast<BaseState const&> ());
+}
+
 void RBStateMachine::setExternallyVisibleState(const std::string& s) {
 	visibleStateName_ = s;
 	updateWebGUIExternalState(visibleStateName_);

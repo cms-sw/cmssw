@@ -57,6 +57,59 @@ void DCCEventBlock::enableFeIdChecks(){
 
 
 
+unsigned int DCCEventBlock::next_tower_search(const unsigned int current_tower_id)
+{
+  const uint64_t* const prev_data = data_;
+  const unsigned int prev_dwToEnd = dwToEnd_;
+  
+  // expected LV1, BX, #TS
+  const uint32_t lv1 = ((l1_ - 1) & 0xFFF);
+  const uint32_t bx = (bx_ != 3564) ? bx_ : 0;
+  const uint32_t ts = mapper_->numbXtalTSamples();
+  
+  // construct tower header and mask
+  const uint64_t s_hi = 0xC0000000 + lv1;
+  const uint64_t s_lo = 0xC0000000 + (bx << 16) + (ts << 8);
+  
+  const uint64_t sign = (s_hi << 32) + s_lo;
+  const uint64_t mask = 0xC0001FFFDFFF7F00;
+  
+  // step forward to skip header word of problematic tower
+  data_++;
+  dwToEnd_--;
+  
+  //std::cerr << "header of bad tower = " << current_tower_id << " #" << dwToEnd_ << " 0x" << std::hex << *data_ << std::dec << std::endl;
+  //std::cerr << "mask and sign = 0x" << std::hex << mask << " 0x" << sign << std::dec << std::endl;
+  
+  // navigate through tower data blocks to find tower block header
+  while (dwToEnd_ > 0) {
+    data_++;
+    dwToEnd_--;
+    
+    //std::cerr << current_tower_id << " #" << dwToEnd_ << " 0x" << std::hex << *data_ << " 0x" << (*data_ & mask) << std::dec << std::endl;
+    
+    if ((*data_ & mask) == sign) {
+      const unsigned int next_tower_id = (*data_) & 0xFF;
+      
+      if (next_tower_id <= current_tower_id) continue;
+      
+      //std::cerr << "next tower = " << next_tower_id << std::endl;
+      
+      // step back one word of the next tower header
+      data_--;
+      dwToEnd_++;
+      
+      return next_tower_id;
+    }
+  }
+  
+  // can't find next tower header
+  // restore data pointer
+  data_ = prev_data;
+  dwToEnd_ = prev_dwToEnd;
+  return 1000;
+}
+
 void DCCEventBlock::updateCollectors(){
 
   dccHeaders_  = unpacker_->dccHeadersCollection();

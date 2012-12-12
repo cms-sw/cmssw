@@ -523,40 +523,31 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def dumpPython(self, options=PrintOptions()):
         result = self.pythonTypeName()+"("
         n = len(self)
-        if n<255:
-            indented = False
-            for i, v in enumerate(self):
-                if i == 0:
-                    if hasattr(self, "_nPerLine"):
-                        nPerLine = self._nPerLine
-                    else:
-                        nPerLine = 5
+        if n>=256:
+            #wrap in a tuple since they don't have a size constraint
+            result+=" ("
+        indented = False
+        for i, v in enumerate(self):
+            if i == 0:
+                if hasattr(self, "_nPerLine"):
+                    nPerLine = self._nPerLine
                 else:
-                    if not indented:
-                        indented = True
-                        options.indent()
-
-                    result += ', '
-                    if i % nPerLine == 0:
-                        result += '\n'+options.indentation()
-                result += self.pythonValueForItem(v,options)
-            if indented:
-                options.unindent()
-            #result+=', '.join((self.pythonValueForItem(v,options) for v in iter(self)))
-        else:
-            result = '('
-            start = 0
-            l=list()
-            while(start < len(self)):
-                v=self.pythonTypeName()+'('
-                v+=', '.join((self.pythonValueForItem(v,options) for v in self[start:start+255]))
-                v+=')'
-                l.append(v)
-                start+=255
-            result+='+'.join(l)
-            pass
+                    nPerLine = 5
+            else:
+                if not indented:
+                    indented = True
+                    options.indent()
+                result += ', '
+                if i % nPerLine == 0:
+                    result += '\n'+options.indentation()
+            result += self.pythonValueForItem(v,options)
+        if indented:
+            options.unindent()
+        #result+=', '.join((self.pythonValueForItem(v,options) for v in iter(self)))
+        if n>=256:
+            result +=' ) '
         result += ')'
-        return result
+        return result            
     @staticmethod
     def _itemsFromStrings(strings,converter):
         return (converter(x).value() for x in strings)

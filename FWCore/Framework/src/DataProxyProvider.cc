@@ -179,7 +179,7 @@ DataProxyProvider::prevalidate(ConfigurationDescriptions& iDesc)
        iDesc.defaultDescription()->add<std::string>(kAppendToDataLabel, std::string(""));
      }
    }
-   for(auto v: iDesc) {
+   for(auto& v: iDesc) {
      if (v.second.isLabelUnused(kAppendToDataLabel)) {
        v.second.add<std::string>(kAppendToDataLabel, std::string(""));
      }
