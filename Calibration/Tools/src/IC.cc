@@ -288,7 +288,7 @@ void IC::dump(const IC & a, const char * fileName, DS & selector)
 
 
 
-void IC::dumpEtaScale(const IC & a, const char * fileName)
+void IC::dumpEtaScale(const IC & a, const char * fileName, bool allIC)
 {
         FILE * fd = fopen(fileName, "w");
         if (fd == NULL) {
@@ -296,7 +296,8 @@ void IC::dumpEtaScale(const IC & a, const char * fileName)
                 exit(-1);
         }
         fprintf(fd, "#eta scale dump\n");
-        fprintf(fd, "#iring  scale  rms_on_the_mean\n");
+        if (!allIC) fprintf(fd, "#iring  scale  rms_on_the_mean\n");
+        else        fprintf(fd, "#ieta/ix iphi/iy 0/zside  scale  rms_on_the_mean\n");
         float etasum[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
         float etasum2[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
         int n[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
@@ -315,9 +316,25 @@ void IC::dumpEtaScale(const IC & a, const char * fileName)
                 etasum2[idx] += v * v;
                 n[idx]++;
         }
-        for (int i = 0; i < DRings::nHalfIEta * 2 + 1; ++i) {
-                int ir = i - DRings::nHalfIEta;
-                if (ir != 0) fprintf(fd, "%d %f %f\n", ir, etasum[i] / n[i], sqrt(etasum2[i] * etasum2[i] / n[i] - etasum[i] * etasum[i] / n[i] / n[i]) / n[i]);
+        if (!allIC) {
+                for (int i = 0; i < DRings::nHalfIEta * 2 + 1; ++i) {
+                        int ir = i - DRings::nHalfIEta;
+                        if (ir != 0) fprintf(fd, "%d %f %f\n", ir, etasum[i] / n[i], sqrt(etasum2[i] * etasum2[i] / n[i] - etasum[i] * etasum[i] / n[i] / n[i]) / n[i]);
+                }
+        } else {
+                for (size_t i = 0; i < a.ids().size(); ++i) {
+                        DetId id(a.ids()[i]);
+                        int idx = dr_.ieta(id) + DRings::nHalfIEta;
+                        float v = etasum[idx] / n[idx];
+                        float e = sqrt(etasum2[idx] * etasum2[idx] / n[idx] - etasum[idx] * etasum[idx] / n[idx] / n[idx]) / n[idx];
+                        if (id.subdetId() == EcalBarrel) {
+                                EBDetId eid(id);
+                                fprintf(fd, "%d %d %d %f %f\n", eid.ieta(), eid.iphi(), 0, v, e);
+                        } else if (id.subdetId() == EcalEndcap) {
+                                EEDetId eid(id);
+                                fprintf(fd, "%d %d %d %f %f\n", eid.ix(), eid.iy(), eid.zside(), v, e);
+                        }
+                }
         }
         fclose(fd);
 }
@@ -765,6 +782,7 @@ void IC::setToUnit(IC & ic)
         for (size_t i = 0; i < ic.ids().size(); ++i) {
                 DetId id(ic.ids()[i]);
                 ic.ic().setValue(id, 1.);
+                ic.eic().setValue(id, 998);
         }
 }
 

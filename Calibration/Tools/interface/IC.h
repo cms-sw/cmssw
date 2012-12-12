@@ -87,7 +87,7 @@ class IC {
                 static void makeRootTree(TTree & t, const IC & ic);
 
                 // dumps for checking
-                static void dumpEtaScale(const IC & a, const char * fileName);
+                static void dumpEtaScale(const IC & a, const char * fileName, bool allIC = false);
                 static void dumpOutliers(const IC & a, float min = 0.4, float max = 2.5);
 
                 static float average(const IC & a, DS & d, bool errors = false);
