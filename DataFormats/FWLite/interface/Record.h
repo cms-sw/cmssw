@@ -70,6 +70,7 @@ namespace fwlite
       const Record& operator=(const Record&); // stop default
 
       cms::Exception* get(const edm::TypeID&, const char* iLabel, const void*&) const;
+      void resetCaches();
       // ---------- member data --------------------------------
       std::string m_name;
       TTree* m_tree;
@@ -78,7 +79,7 @@ namespace fwlite
       IOVSyncValue m_start;
       IOVSyncValue m_end;
       
-      mutable std::map<std::pair<edm::TypeID,std::string>, TBranch*> m_branches;
+      mutable std::map<std::pair<edm::TypeID,std::string>, std::pair<TBranch*,void*>> m_branches;
    };
 
    template <typename HANDLE>

@@ -68,6 +68,7 @@ m_end(IOVSyncValue::invalidIOVSyncValue())
 
 Record::~Record()
 {
+  resetCaches();
 }
 
 //
@@ -131,6 +132,25 @@ Record::syncTo(const edm::EventID& iEvent, const edm::Timestamp& iTime)
    } else {
       m_end = range.second->first;
    }
+   resetCaches();
+}
+
+void
+Record::resetCaches()
+{
+  for(auto&b : m_branches){
+    TClass* cls=0;
+    EDataType dt;
+    if(0==b.second.first or 0==b.second.second) continue;
+    if(0==b.second.first->GetExpectedType(cls,dt)) {
+      cls->Destructor(b.second.second);
+      b.second.second=0;
+    }
+  }
+  for(auto&b : m_branches){
+    if(0==b.second.first) continue;
+    assert(b.second.second==0);
+  }
 }
 
 //
@@ -158,10 +178,11 @@ Record::get(const edm::TypeID& iType,
             const char* iLabel, 
             const void*& iData) const
 {
-   cms::Exception* returnValue = 0;
+   cms::Exception* returnValue = nullptr;
    
-   TBranch*& branch = m_branches[std::make_pair(iType,iLabel)];
-   if(0==branch){
+   std::pair<TBranch*,void*>& branch = m_branches[std::make_pair(iType,iLabel)];
+   if(0==branch.first){
+      branch.second=0;
       if(!edm::TypeWithDict(iType.typeInfo()).hasDictionary()){
          returnValue = new cms::Exception("UnknownType");
          (*returnValue)<<"The type "
@@ -171,15 +192,27 @@ Record::get(const edm::TypeID& iType,
       }
       //build branch name
       std::string branchName = fwlite::format_type_to_mangled(iType.className())+"__"+iLabel;
-      branch = m_tree->FindBranch(branchName.c_str());
+      branch.first = m_tree->FindBranch(branchName.c_str());
       
-      if(0==branch){
+      if(0==branch.first){
          returnValue = new cms::Exception("NoDataAvailable");
          (*returnValue)<<"The data of type "
                        <<iType.className()
                        <<" with label '"<<iLabel<<"' for Record "<<name()<<" is not in this file.";
          return returnValue;
       }
+      //We need GetExpectedType to work in order to delete objects
+      TClass* cls;
+      EDataType dt;
+      if(0!=branch.first->GetExpectedType(cls,dt)) {
+        returnValue = new cms::Exception("UnknownType");
+        (*returnValue)<<"The type "
+        <<iType.typeInfo().name()<<" was requested from Record "<<name()
+        <<" but the TBranch does not know what Type it holds.";
+        return returnValue;
+      }
+
+      branch.first->SetAutoDelete(kFALSE);
    }
    if(m_entry<0) {
       returnValue = new cms::Exception("NoValidIOV");
@@ -187,8 +220,15 @@ Record::get(const edm::TypeID& iType,
          <<name()<<" was asked to get data for a 'time' for which it has no data";
       return returnValue;
    }
-   branch->SetAddress(&iData);
-   branch->GetEntry(m_entry);
+   if(0!=branch.second) {
+     iData=branch.second;
+     return nullptr;
+   }
+
+   assert(0==branch.second);
+   branch.first->SetAddress(&branch.second);
+   iData = branch.second;
+   branch.first->GetEntry(m_entry);
    return returnValue;
 }
 
