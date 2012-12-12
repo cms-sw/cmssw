@@ -276,30 +276,6 @@ queue = .oO[queue]Oo.
 """
 
 
-######################################################################
-######################################################################
-crabShellScriptTemplate="""
-cd .oO[crabBaseDir]Oo.
-
-# source the needed environment for crab in the right order
-source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env..oO[useCshell]Oo.sh
-cmsenv
-source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab..oO[useCshell]Oo.sh
-
-# Create and submit parallel jobs
-.oO[crabCommand]Oo.
-
-cd -
-"""
-
-
-######################################################################
-######################################################################
-crabCommandTemplate="""
-crab -create -cfg .oO[crabCfgName]Oo.
-crab -submit -c .oO[crabWorkingDir]Oo.
-"""
-
 
 
 ######################################################################
