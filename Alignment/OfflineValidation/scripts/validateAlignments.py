@@ -7,8 +7,11 @@ import optparse
 import datetime
 from pprint import pprint
 import shutil
+import fnmatch
 
 import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates as configTemplates
+import Alignment.OfflineValidation.TkAlAllInOneTool.crabWrapper as crabWrapper
+from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions import AllInOneError
 
 ####################--- Helpers ---############################
 #replaces .oO[id]Oo. by map[id] in target
@@ -1091,7 +1094,15 @@ class ValidationJob:
                                        "%(logDir)s/%(jobName)s.stderr "
                                        "%(script)s"%repMap)
             elif self.validation.jobmode.split( "," )[0] == "crab":
-                pass
+                os.chdir( general["logdir"] )
+                crabName = "crab." + os.path.basename( script )[:-3]
+                theCrab = crabWrapper.CrabWrapper()
+                options = { "-create": "",
+                            "-cfg": crabName + ".cfg"}
+                theCrab.run( options )
+                options = { "-submit": "",
+                            "-c": crabName }
+                theCrab.run( options )
             else:
                 raise StandardError, ("Unknown 'jobmode'!\n"
                                       "Please change this parameter either in "
@@ -1106,33 +1117,6 @@ class ValidationJob:
     def getValidation( self ):
         return self.validation
 
-
-def createCrabScript( path, validations ):
-    repMap = {"crabCommand": "",
-              "crabBaseDir": path,
-              "useCshell": ""
-              }
-    for validation in validations:
-        if validation.jobmode.split( ',' )[0] == 'crab':
-            valRepMap = {"crabWorkingDir": validation.crabWorkingDir,
-                         "crabCfgName": validation.crabWorkingDir + ".cfg"
-                      }
-            repMap["crabCommand"] += replaceByMap( configTemplates.crabCommandTemplate,
-                                                   valRepMap )
-    if len( repMap["crabCommand"] ) == 0:
-        return None
-    crabShScriptPath = os.path.join( path, 'TkAlRunCrab.sh' )
-    crabShScript = open( crabShScriptPath, 'w' )
-    crabShScript.write( replaceByMap( configTemplates.crabShellScriptTemplate,
-                                      repMap ) )
-    crabShScript.close()
-    repMap["useCshell"] = "c"
-    crabCshScriptPath = os.path.join( path, 'TkAlRunCrab.csh' )
-    crabCshScript = open( crabCshScriptPath, 'w' )
-    crabCshScript.write( replaceByMap( configTemplates.crabShellScriptTemplate,
-                                       repMap ) )
-    crabCshScript.close()
-    return crabShScriptPath, crabCshScriptPath
 
 def createOfflineJobsMergeScript(offlineValidationList, outFilePath):
     repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
@@ -1271,32 +1255,94 @@ def main(argv = None):
                          help="create all scripts and cfg File but do not start jobs (default=False)")
     optParser.add_option( "--getImages", dest="getImages", action="store_true", default=False,
                           help="get all Images created during the process (default= False)")
-    optParser.add_option("-c", "--config", dest="config",
-                         help="configuration to use (default compareConfig.ini) this can be a comma-seperated list of all .ini file you want to merge", metavar="CONFIG")
+    defaultConfig = "TkAlConfig.ini"
+    optParser.add_option("-c", "--config", dest="config", default = defaultConfig,
+                         help="configuration to use (default TkAlConfig.ini) this can be a comma-seperated list of all .ini file you want to merge", metavar="CONFIG")
     optParser.add_option("-N", "--Name", dest="Name",
                          help="Name of this validation (default: alignmentValidation_DATE_TIME)", metavar="NAME")
     optParser.add_option("-r", "--restrictTo", dest="restrictTo",
                          help="restrict validations to given modes (comma seperated) (default: no restriction)", metavar="RESTRICTTO")
+    optParser.add_option("-s", "--status", dest="crabStatus", action="store_true", default = False,
+                         help="get the status of the crab jobs", metavar="STATUS")
 
     (options, args) = optParser.parse_args(argv)
 
     if not options.restrictTo == None:
         options.restrictTo = options.restrictTo.split(",")
-    if options.config == None:
-        options.config = "compareConfig.ini"
-    else:
-        options.config = options.config.split(",")
-        result = []
-        for iniFile in options.config:
-            result.append( os.path.abspath(iniFile) )
-        options.config = result
+    
+    options.config = [ os.path.abspath( iniFile ) for iniFile in \
+                       options.config.split( "," ) ]
     config = BetterConfigParser()
-    config.read( options.config )
+    outputIniFileSet = set( config.read( options.config ) )
+    failedIniFiles = [ iniFile for iniFile in options.config if iniFile not in outputIniFileSet ]
 
+    # Check for missing ini file
+    if options.config == [ os.path.abspath( defaultConfig ) ]:
+        if ( not options.crabStatus ) and \
+               ( not os.path.exists( defaultConfig ) ):
+                raise StandardError, ( "Default 'ini' file '%s' not found!\n"
+                                       "You can specify another name with the "
+                                       "command line option '-c'/'--config'."
+                                       %( defaultConfig ))
+    else:
+        for iniFile in failedIniFiles:
+            if not os.path.exists( iniFile ):
+                raise StandardError, ( "'%s' does not exist. Please check for "
+                                       "typos in the filename passed to the "
+                                       "'-c'/'--config' option!"
+                                       %( iniFile ) )
+            else:
+                raise StandardError, ( "'%s' does exist, but parsing of the "
+                                       "content failed!" )
+
+    # get the job name
     if options.Name == None:
-        options.Name = "alignmentValidation_%s"%(datetime.datetime.now().strftime("%y%m%d_%H%M%S"))
+        if not options.crabStatus:
+            options.Name = "alignmentValidation_%s"%(datetime.datetime.now().strftime("%y%m%d_%H%M%S"))
+        else:
+            existingValDirs = fnmatch.filter( os.walk( '.' ).next()[1],
+                                              "alignmentValidation_*" )
+            if len( existingValDirs ) > 0:
+                options.Name = existingValDirs[-1]
+            else:
+                print "Cannot guess last working directory!"
+                print ( "Please use the parameter '-N' or '--Name' to specify "
+                        "the task for which you want a status report." )
+                return 1
 
+    # set output path
     outPath = os.path.abspath( options.Name )
+
+    # Check status of submitted jobs and return
+    if options.crabStatus:
+        os.chdir( outPath )
+        crabLogDirs = fnmatch.filter( os.walk('.').next()[1], "crab.*" )
+        print len( crabLogDirs )
+        if len( crabLogDirs ) == 0:
+            print "Found no crab tasks for job name '%s'"%( options.Name )
+            return 1
+        theCrab = crabWrapper.CrabWrapper()
+        for crabLogDir in crabLogDirs:
+            print
+            print "*" + "=" * 78 + "*"
+            print ( "| Status report and output retrieval for:"
+                    + " " * (77 - len( "Status report and output retrieval for:" ) )
+                    + "|" )
+            taskName = crabLogDir.replace( "crab.", "" )
+            print "| " + taskName + " " * (77 - len( taskName ) ) + "|"
+            print "*" + "=" * 78 + "*"
+            print
+            crabOptions = { "-getoutput":"",
+                            "-c": crabLogDir }
+            try:
+                theCrab.run( crabOptions )
+            except AllInOneError, e:
+                print "crab:  No output retrieved for this task."
+            crabOptions = { "-status": "",
+                            "-c": crabLogDir }
+            theCrab.run( crabOptions )
+        return
+
     general = config.getGeneral()
     config.set("general","workdir",os.path.join(general["workdir"],options.Name) )
     config.set("general","datadir",os.path.join(general["datadir"],options.Name) )
@@ -1304,15 +1350,15 @@ def main(argv = None):
 
     # clean up of log directory to avoid cluttering with files with different
     # random numbers for geometry comparison
-    if os.path.isdir( config.getGeneral()["logdir"] ):
-        shutil.rmtree( config.getGeneral()["logdir"] )
+    if os.path.isdir( outPath ):
+        shutil.rmtree( outPath )
     
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
     elif not os.path.isdir( outPath ):
         raise StandardError,"the file %s is in the way rename the Job or move it away"%outPath
 
-    #replace default templates by the once specified in the "alternateTemplates" section
+    # replace default templates by the ones specified in the "alternateTemplates" section
     loadTemplates( config )
 
     #save backup configuration file
@@ -1328,18 +1374,8 @@ def main(argv = None):
         createMergeScript( outPath, validations )
     else:
         createParallelMergeScript( outPath, validations )
-    crabScript = createCrabScript( outPath, validations )
     
     map( lambda job: job.runJob(), jobs )
-    if crabScript != None:
-        print
-        print "="*80
-        print "To start parallel validation please type:"
-        print "source "+outPath+"/TkAlRunCrab.sh"
-        print "\t<or>"
-        print "source "+outPath+"/TkAlRunCrab.csh"
-        print "="*80
-        print
     
 
 if __name__ == "__main__":        

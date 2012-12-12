@@ -1,7 +1,7 @@
 import sys
 import os
 import subprocess
-import optparse
+from TkAlExceptions import AllInOneError
 
 # script which needs to be sourced for use of crab
 crabSourceScript = '/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh'
@@ -10,7 +10,7 @@ crabSourceScript = '/afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh'
 sourceStr = ( 'cd $CMSSW_BASE/src;'
               'source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh;'
               'eval `scramv1 runtime -sh`;'
-              'source '+crabSourceScript+' && env' )
+              'source ' + crabSourceScript + ' && env' )
 sourceCmd = ['bash', '-c', sourceStr ]
 sourceProc = subprocess.Popen(sourceCmd, stdout = subprocess.PIPE)
 for line in sourceProc.stdout:
@@ -53,7 +53,10 @@ class CrabWrapper:
     def run( self, options ):
         theCrab = crab.Crab()
         theCrab.initialize_( options )
-        theCrab.run()
+        try:
+            theCrab.run()
+        except crab_exceptions.CrabException, e:
+            raise AllInOneError( str( e ) )
         del theCrab
 
 
@@ -72,5 +75,5 @@ if __name__ == "__main__":
     theCrabOptions = {"-getoutput":""}
     try:
         theCrab.run( theCrabOptions )
-    except crab_exceptions.CrabException, e:
-        print "crab:", e
+    except AllInOneError, e:
+        print "crab: ", e
