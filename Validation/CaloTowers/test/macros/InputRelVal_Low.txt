@@ -25,9 +25,9 @@ HcalDigiTask_signal_amplitude_HE	1	HcalDigiTask_signal_amplitude_HE.gif	1	-10	40
 HcalDigiTask_signal_amplitude_depth1_HE	1	HcalDigiTask_signal_amplitude_depth1_HE.gif	1	-10	400	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HE
 HcalDigiTask_signal_amplitude_depth2_HE	1	HcalDigiTask_signal_amplitude_depth2_HE.gif	1	-10	200	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HE
 HcalDigiTask_signal_amplitude_depth3_HE	1	HcalDigiTask_signal_amplitude_depth3_HE.gif	1	-10	200	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth3_HE
-HcalDigiTask_signal_amplitude_HF	1	HcalDigiTask_signal_amplitude_HF.gif	10	-10	2500	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HF
-HcalDigiTask_signal_amplitude_depth1_HF	1	HcalDigiTask_signal_amplitude_depth1_HF.gif	10	-10	2500	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HF
-HcalDigiTask_signal_amplitude_depth2_HF	1	HcalDigiTask_signal_amplitude_depth2_HF.gif	10	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HF
+HcalDigiTask_signal_amplitude_HF	1	HcalDigiTask_signal_amplitude_HF.gif	1	-10	2500	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HF
+HcalDigiTask_signal_amplitude_depth1_HF	1	HcalDigiTask_signal_amplitude_depth1_HF.gif	1	-10	2500	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth1_HF
+HcalDigiTask_signal_amplitude_depth2_HF	1	HcalDigiTask_signal_amplitude_depth2_HF.gif	1	-10	2000	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_depth2_HF
 HcalDigiTask_signal_amplitude_HO	1	HcalDigiTask_signal_amplitude_HO.gif	1	-10	50	0	-1	1D	Statrv	Chi2	Log	2	1	HcalDigiTask_signal_amplitude_HO
 
 
