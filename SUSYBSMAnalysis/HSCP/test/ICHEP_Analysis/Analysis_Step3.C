@@ -1328,7 +1328,7 @@ void Analysis_Step3(char* SavePath)
                   }
 
                   // compute systematics due to PU
-                  if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   PRescale, 0, 0)){
+                  if(PassPreselection( hscp,  dedxSObj, dedxMObj, tof, dttof, csctof, ev,  NULL, -1,   0, 0, 0)){
                      if(TypeMode==5 && isSemiCosmicSB)continue;
 		     double Mass     = -1; if(dedxMObj) Mass=GetMass(track->p(),dedxMObj->dEdx(),!isData);
 		     double MassTOF  = -1; if(tof)MassTOF = GetTOFMass(track->p(),tof->inverseBeta());
@@ -1338,7 +1338,7 @@ void Analysis_Step3(char* SavePath)
 		     if(tof) MassComb=MassTOF;
 
                      for(unsigned int CutIndex=0;CutIndex<CutPt.size();CutIndex++){
-		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   PRescale, 0, 0)){
+		       if(PassSelection(hscp,  dedxSObj, dedxMObj, tof, ev, CutIndex, NULL, false, -1,   0, 0, 0)){
                            HSCPTk_SystPU[CutIndex] = true;
                            if(Mass>MaxMass_SystPU[CutIndex]) MaxMass_SystPU[CutIndex]=Mass;
                            SamplePlots->Mass_SystPU->Fill(CutIndex, Mass,Event_Weight*PUSystFactor);
@@ -1447,8 +1447,8 @@ void Analysis_Step3(char* SavePath)
                  SamplePlots->MaxEventMass_SystT->Fill(CutIndex,MaxMass_SystT[CutIndex], Event_Weight);
               }
               if(HSCPTk_SystPU[CutIndex]){
-                 SamplePlots->HSCPE_SystPU       ->Fill(CutIndex,Event_Weight);
-                 SamplePlots->MaxEventMass_SystPU->Fill(CutIndex,MaxMass_SystPU[CutIndex], Event_Weight);
+                 SamplePlots->HSCPE_SystPU       ->Fill(CutIndex,Event_Weight*PUSystFactor);
+                 SamplePlots->MaxEventMass_SystPU->Fill(CutIndex,MaxMass_SystPU[CutIndex], Event_Weight*PUSystFactor);
               }
            }
          }printf("\n");// end of Event Loop
