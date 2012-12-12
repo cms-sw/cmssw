@@ -541,7 +541,7 @@ bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& I
    return false;
 }
 
-reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, double scaleFactor=1.0, TH3* templateHisto=NULL, bool reverseProb=false){
+reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, double scaleFactor=1.0, TH3* templateHisto=NULL, bool reverseProb=false, bool useClusterCleaning=true){
      fwlite::Handle<HSCPDeDxInfoValueMap> dEdxHitsH;
      dEdxHitsH.getByLabel(ev, "dedxHitInfo");
      if(!dEdxHitsH.isValid()){printf("Invalid dEdxHitInfo\n");return NULL;}
@@ -553,7 +553,7 @@ reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&
      for(unsigned int h=0;h<hscpHitsInfo.charge.size();h++){
         DetId detid(hscpHitsInfo.detIds[h]);  
         if(detid.subdetId()<3)continue; // skip pixels
-        if(!hscpHitsInfo.shapetest[h])continue;
+        if(useClusterCleaning && !hscpHitsInfo.shapetest[h])continue;
 
         //Remove hits close to the border
         //for unknown reasons, localx,localy, modwidth,modlength is not saved in all ntuples!
@@ -605,7 +605,7 @@ reco::DeDxData* dEdxOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&
      return new DeDxData(P, dedxSObj->numberOfSaturatedMeasurements(), size);
 }
 
-reco::DeDxData* dEdxEstimOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, double scaleFactor=1.0, bool usePixel=false){
+reco::DeDxData* dEdxEstimOnTheFly(const fwlite::ChainEvent& ev, const reco::TrackRef&   track, const reco::DeDxData* dedxSObj, double scaleFactor=1.0, bool usePixel=false, bool useClusterCleaning=true){
      fwlite::Handle<HSCPDeDxInfoValueMap> dEdxHitsH;
      dEdxHitsH.getByLabel(ev, "dedxHitInfo");
      if(!dEdxHitsH.isValid()){printf("Invalid dEdxHitInfo\n");return NULL;}
@@ -617,7 +617,7 @@ reco::DeDxData* dEdxEstimOnTheFly(const fwlite::ChainEvent& ev, const reco::Trac
      for(unsigned int h=0;h<hscpHitsInfo.charge.size();h++){
         DetId detid(hscpHitsInfo.detIds[h]);  
         if(!usePixel && detid.subdetId()<3)continue; // skip pixels
-        if(!hscpHitsInfo.shapetest[h])continue;
+        if(useClusterCleaning && !hscpHitsInfo.shapetest[h])continue;
 
         double Norm = (detid.subdetId()<3)?3.61e-06:3.61e-06*265;
         Norm*=10.0; //mm --> cm

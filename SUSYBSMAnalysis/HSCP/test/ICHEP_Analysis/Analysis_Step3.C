@@ -100,7 +100,7 @@ reweight::PoissonMeanShifter PShift(0.6);//0.6 for upshift, -0.6 for downshift
 
 TH3F* dEdxTemplates = NULL;
 double dEdxSF = 1.0;
-
+bool useClusterCleaning = true;
 /////////////////////////// CODE PARAMETERS /////////////////////////////
 
 void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdxS_Label, string dEdxMass_=dEdxM_Label, string TOF_Label_=TOF_Label, double CutPt_=-1.0, double CutI_=-1, double CutTOF_=-1, float MinPt_=GlobalMinPt, float MaxEta_=GlobalMaxEta, float MaxDZ_=GlobalMaxDZ, float MaxDXY_=GlobalMaxDXY)
@@ -149,6 +149,7 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 //         GlobalMaxTIsol   =  999999;      // cut on tracker isolation (SumPt)
 //         GlobalMaxRelTIsol   =  0.10; // cut on relative tracker isolation (SumPt/Pt)
          GlobalMaxEIsol   =  999999;   // cut on calorimeter isolation (E/P)
+         useClusterCleaning = false; //switch off cluster cleaning for mCHAMPs
    } else if(TypeMode==5){
      IPbound=4.5;
      GlobalMinIm   = 2.8; //is actually dEdx max at skim level (reverse logic for type5)
@@ -1198,8 +1199,8 @@ void Analysis_Step3(char* SavePath)
 
                //Recompute dE/dx on the fly
                if(dedxSObj){
-                  dedxMObj = dEdxEstimOnTheFly(ev, track, dedxMObj, dEdxSF, true);
-                  dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxSF, dEdxTemplates, TypeMode==5);
+                  dedxMObj = dEdxEstimOnTheFly(ev, track, dedxMObj, dEdxSF, true, useClusterCleaning);
+                  dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxSF, dEdxTemplates, TypeMode==5, useClusterCleaning);
 
                   if(TypeMode==5)OpenAngle = deltaROpositeTrack(hscpColl, hscp); //OpenAngle is a global variable... that's uggly C++, but that's the best I found so far
                }
