@@ -19,7 +19,7 @@ autoCond = {
 
 # L1 configuration used during Run2012A
 conditions_L1_Run2012A = (
-    # L1 GT menu 2012_v0, used during Run2012A
+    # L1 GT menu 2012 v0, used during Run2012A
     'L1GtTriggerMenu_L1Menu_Collisions2012_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
     # L1 GCT configuration without jet seed threshold, used up to Run2012B
     'L1GctJetFinderParams_GCTPhysics_2011_09_01_B_mc,L1GctJetFinderParamsRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
@@ -34,7 +34,7 @@ conditions_L1_Run2012A = (
 
 # L1 configuration used during Run2012B
 conditions_L1_Run2012B = (
-    # L1 GT menu 2012_v1, used during Run2012B
+    # L1 GT menu 2012 v1, used during Run2012B
     'L1GtTriggerMenu_L1Menu_Collisions2012_v1a_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
     # L1 GCT configuration without jet seed threshold, used up to Run2012B
     'L1GctJetFinderParams_GCTPhysics_2011_09_01_B_mc,L1GctJetFinderParamsRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
@@ -49,7 +49,7 @@ conditions_L1_Run2012B = (
 
 # L1 configuration used during Run2012C
 conditions_L1_Run2012C = (
-    # L1 GT menu 2012_v2, used during Run2012C
+    # L1 GT menu 2012 v2, used during Run2012C
     'L1GtTriggerMenu_L1Menu_Collisions2012_v2_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
     # L1 GCT configuration with 5 GeV jet seed threshold, used since Run2012C
     'L1GctJetFinderParams_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1GctJetFinderParamsRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
@@ -65,7 +65,7 @@ conditions_L1_Run2012C = (
 
 # L1 configuration used during Run2012D
 conditions_L1_Run2012D = (
-    # L1 GT menu 2012_v3, used during Run2012D
+    # L1 GT menu 2012 v3, used during Run2012D
     'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
     # L1 GCT configuration with 5 GeV jet seed threshold, used since Run2012C
     'L1GctJetFinderParams_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1GctJetFinderParamsRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
@@ -86,7 +86,7 @@ conditions_L1_HIRun2011 = (
 
 # L1 configuration used during PARun2013
 conditions_L1_PARun2013 = (
-    # L1 pPb menu 2013 v0
+    # L1 GT menu HI 2013 v0, used for the p-Pb run 2013
     'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
     # L1 GCT configuration without jet seed threshold (same as 2012B)
     'L1GctJetFinderParams_GCTPhysics_2011_09_01_B_mc,L1GctJetFinderParamsRcd,frontier://FrontierProd/CMS_COND_31X_L1T',
@@ -128,8 +128,8 @@ autoCond['startup_GRun']     = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012D
 
 autoCond['starthi_HIon']     = ( autoCond['starthi'], ) \
-                             + conditions_HLT_JECs \
-                             + conditions_L1_HIRun2011
+                             + conditions_L1_HIRun2011 \
+                             + conditions_HLT_JECs
 
 autoCond['startup_PIon']     = ( autoCond['startpa'], )
 
