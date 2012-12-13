@@ -66,7 +66,7 @@ class IC {
                 static void multiply(const IC & a, float c, IC & res, DS & d);
                 static void multiply(const IC & a, const IC & b, IC & res);
                 static void add(const IC & a, const IC & b, IC & res);
-                static void combine(const IC & a, const IC & b, IC & res);
+                static void combine(const IC & a, const IC & b, IC & res, bool arithmetic = false); // N.B. arithmetic average is for value and errrors
                 static void fillHoles(const IC & a, const IC & b, IC & res);
                 static void removeOutliers(const IC & a, IC & res, float min = 0.4, float max = 2.5);
                 static void smear(const IC & a, float sigma, IC & res);

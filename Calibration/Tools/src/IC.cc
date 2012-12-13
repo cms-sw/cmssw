@@ -164,7 +164,7 @@ void IC::reciprocal(const IC & a, IC & res)
                 float e = a.eic()[id];
                 if (!isValid(v, e)) continue;
                 res.ic().setValue(id, 1. / v);
-                res.eic().setValue(id, e / v / v);
+                res.eic().setValue(id, e / v / v); // FIXME
         }
 }
 
@@ -208,7 +208,7 @@ void IC::add(const IC & a, const IC & b, IC & res)
 }
 
 
-void IC::combine(const IC & a, const IC & b, IC & res)
+void IC::combine(const IC & a, const IC & b, IC & res, bool arithmetic)
 {
         for (size_t i = 0; i < a.ids().size(); ++i) {
                 DetId id(a.ids()[i]);
@@ -219,8 +219,13 @@ void IC::combine(const IC & a, const IC & b, IC & res)
                 if (isValid(va, ea) && isValid(vb, eb)) {
                         float wa = 1. / ea / ea;
                         float wb = 1. / eb / eb;
-                        res.ic().setValue(id, (wa * va + wb * vb) / (wa + wb));
-                        res.eic().setValue(id, 1. / sqrt(wa + wb));
+                        if (arithmetic) {
+                                res.ic().setValue(id, 0.5 * (va + vb));
+                                res.eic().setValue(id, 0.5 * (ea + eb));
+                        } else {
+                                res.ic().setValue(id, (wa * va + wb * vb) / (wa + wb));
+                                res.eic().setValue(id, 1. / sqrt(wa + wb));
+                        }
                 } else if (isValid(va, ea)) {
                         res.ic().setValue(id, va);
                         res.eic().setValue(id, ea);
