@@ -24,8 +24,7 @@ public:
   typedef std::vector<ForwardDetLayer*>             FDLC;
 
   SimpleNavigableLayer( const MagneticField* field,float eps,bool checkCrossingSide=true) :
-    theSelfSearch(false),
-    theEpsilon(eps),thePropagator(field),theCheckCrossingSide(checkCrossingSide) {}
+    thePropagator(field), theEpsilon(eps),theCheckCrossingSide(checkCrossingSide),theSelfSearch(false) {}
 
   virtual void setInwardLinks(const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn)) = 0;
   
@@ -33,25 +32,26 @@ public:
 
   void setCheckCrossingSide(bool docheck) {theCheckCrossingSide = docheck;}
 
-  bool theSelfSearch;
 
   virtual std::vector< const DetLayer * > compatibleLayers (const FreeTrajectoryState &fts, 
 							    PropagationDirection timeDirection,
 							    int& counter) const  GCC11_FINAL;
-
+  
 protected:
-
-  typedef BDLC::iterator                       BDLI;
+  
+  mutable AnalyticalPropagator     thePropagator;
+  float                     theEpsilon;
+  bool theCheckCrossingSide;
+public:
+  bool theSelfSearch;
+protected:
+ 
+ typedef BDLC::iterator                       BDLI;
   typedef FDLC::iterator                       FDLI;
   typedef BDLC::const_iterator                 ConstBDLI;
   typedef FDLC::const_iterator                 ConstFDLI;
   typedef TrajectoryStateOnSurface             TSOS;
 
-  float                     theEpsilon;
-
-  mutable AnalyticalPropagator     thePropagator;
-  
-  bool theCheckCrossingSide;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
 		   const BarrelDetLayer* bl, DLC& result) const;
@@ -68,7 +68,10 @@ protected:
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
 		   ConstFDLI begin, ConstFDLI end, DLC& result) const;
 
-  Propagator& propagator( PropagationDirection dir) const;
+  Propagator& propagator( PropagationDirection dir) const{
+    thePropagator.setPropagationDirection(dir);
+    return thePropagator;
+  }
 
   void pushResult( DLC& result, const FDLC& tmp) const;
   void pushResult( DLC& result, const BDLC& tmp) const;

@@ -218,17 +218,6 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
   return false;
 }
 
-Propagator& SimpleNavigableLayer::propagator( PropagationDirection dir) const
-{
-#ifndef CMS_NO_MUTABLE
-  thePropagator.setPropagationDirection(dir);
-  return thePropagator;
-#else
-  SimpleNavigableLayer* mthis = const_cast<SimpleNavigableLayer*>(this);
-  mthis->thePropagator.setPropagationDirection(dir);
-  return mthis->thePropagator;
-#endif
-}
 
 void SimpleNavigableLayer::pushResult( DLC& result, const BDLC& tmp) const 
 {
@@ -250,13 +239,13 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
   typedef std::vector<const DetLayer*> Lvect;
   typedef std::set<const DetLayer *> Lset;  
 
-  Lvect empty,result;
-  result.reserve(15); //that's a max
-  Lset collect; //a container of unique instances. to avoid duplicates
-  
-  Lset layerToTry,nextLayerToTry;//set used for iterations
   //initiate the first iteration
-  Lvect someLayers(nextLayers(fts,timeDirection));
+  Lvect && someLayers = nextLayers(fts,timeDirection);
+  if (someLayers.empty()) return someLayers;
+
+
+  Lset collect; //a container of unique instances. to avoid duplicates
+  Lset layerToTry, nextLayerToTry;//set used for iterations
   layerToTry.insert(someLayers.begin(),someLayers.end());
   
   while (!layerToTry.empty() && (counter++)<=150){
@@ -264,53 +253,48 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
       <<counter<<"] going to check on : "<<layerToTry.size()<<" next layers.";
     //clear this set first, it will be swaped with layerToTry
     nextLayerToTry.clear();
-    for (Lset::iterator toTry=layerToTry.begin();toTry!=layerToTry.end();++toTry){
+    for (auto toTry : layerToTry){
       //add the layer you tried.
       LogDebug("SimpleNavigableLayer")
-	<<counter<<"] adding layer with pointer: "<<(*toTry)
-	<<" first detid: "<<DetIdInfo::info((*toTry)->basicComponents().front()->geographicalId());
-      collect.insert( (*toTry) );
+	<<counter<<"] adding layer with pointer: "<<(toTry)
+	<<" first detid: "<<DetIdInfo::info((toTry)->basicComponents().front()->geographicalId());
+      if (!collect.insert(toTry).second) continue;
       
       //find the next layers from it
-      Lvect nextLayers( (*toTry)->nextLayers(fts,timeDirection) );
+      Lvect && nextLayers = (toTry)->nextLayers(fts,timeDirection);
       LogDebug("SimpleNavigableLayer")
 	<<counter<<"] this layer has : "<<nextLayers.size()<<" next layers.";
-      for (Lvect::iterator next=nextLayers.begin();next!=nextLayers.end();++next){
+      for (auto next : nextLayers){
 	//if the next layer is not already in the collected layers, add it for next round.
-	bool alreadyTested=false;
-	for (Lset::iterator testMe=collect.begin();testMe!=collect.end();++testMe){ //find method does not work well!
-	  if ((*testMe) == (*next))
-	    {alreadyTested=true;break;}
-	}
-	//	if ( collect.find(*next)!=collect.end()){ //find method does not work it seems...
-	if (!alreadyTested){
-	  nextLayerToTry.insert( *next );
+	if (0==collect.count(next)) {
+	  nextLayerToTry.insert(next );
+	  
 	  LogDebug("SimpleNavigableLayer")
-	    <<counter<<"] to try next, layer with pointer: "<<(*next)
-	    <<" first detid: "<<DetIdInfo::info((*next)->basicComponents().front()->geographicalId());
+	    <<counter<<"] to try next, layer with pointer: "<<(next)
+	    <<" first detid: "<<DetIdInfo::info(next->basicComponents().front()->geographicalId());
 	}
 	else{
 	  LogDebug("SimpleNavigableLayer")
 	    <<counter<<"] skipping for next tryout, layer with pointer: "<<(*next)
-	    <<" first detid: "<<DetIdInfo::info((*next)->basicComponents().front()->geographicalId());
+	    <<" first detid: "<<DetIdInfo::info(next->basicComponents().front()->geographicalId());
 	  //for (Lset::iterator testMe=collect.begin();testMe!=collect.end();++testMe){  LogTrace("SimpleNavigableLayer") <<"pointer collected:" <<(*testMe); }
 	}
       }
       LogDebug("SimpleNavigableLayer")
 	<<counter<<"] "<<nextLayerToTry.size()<<" layers to try next so far.";
-    }
+    } // layerToTry
     //swap now that you where to go next.
     layerToTry.swap(nextLayerToTry);
   }
   if(counter>=150) {
     edm::LogWarning("SimpleNavigableLayer") << "WARNING: compatibleLayers() more than 150 iterations!!! Bailing out..";
-    counter = -1;return empty;
+    counter = -1;
+    return Lvect();
   }
 
-  result.insert(result.end(),collect.begin(),collect.end()); //cannot do a swap it seems
-  LogDebug("SimpleNavigableLayer")
-      <<"Number of compatible layers: "<<result.size();
-  return result;
-
+  // LogDebug("SimpleNavigableLayer")
+  std::cout    <<"Number of compatible layers: "<< collect.size() << std::endl;
+  
+  return Lvect(collect.begin(),collect.end());
 
 }
