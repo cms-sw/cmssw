@@ -297,7 +297,7 @@ void IC::dumpEtaScale(const IC & a, const char * fileName, bool allIC)
         }
         fprintf(fd, "#eta scale dump\n");
         if (!allIC) fprintf(fd, "#iring  scale  rms_on_the_mean\n");
-        else        fprintf(fd, "#ieta/ix iphi/iy 0/zside  scale  rms_on_the_mean\n");
+        else        fprintf(fd, "#ieta/ix iphi/iy 0/zside  scale  0\n");
         float etasum[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
         float etasum2[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
         int n[DRings::nHalfIEta * 2 + 1]; // ieta = 0 does not exist
@@ -326,7 +326,8 @@ void IC::dumpEtaScale(const IC & a, const char * fileName, bool allIC)
                         DetId id(a.ids()[i]);
                         int idx = dr_.ieta(id) + DRings::nHalfIEta;
                         float v = etasum[idx] / n[idx];
-                        float e = sqrt(etasum2[idx] * etasum2[idx] / n[idx] - etasum[idx] * etasum[idx] / n[idx] / n[idx]) / n[idx];
+                        //float e = sqrt(etasum2[idx] * etasum2[idx] / n[idx] - etasum[idx] * etasum[idx] / n[idx] / n[idx]) / n[idx];
+                        float e = 0;
                         if (id.subdetId() == EcalBarrel) {
                                 EBDetId eid(id);
                                 fprintf(fd, "%d %d %d %f %f\n", eid.ieta(), eid.iphi(), 0, v, e);
