@@ -87,7 +87,7 @@ elif sys.argv[1]=='3':
         f= open('Analysis_Samples.txt','r')
         for line in f :
            vals=line.split(',')
-           if(int(vals[1])<2):continue
+           if(int(vals[1])!=2):continue
            for Type in AnalysesToRun:
               if(int(vals[1])>=2 and skipSamples(Type, vals[2])==True):continue
               if(vals[2].find("8TeV")<0):continue

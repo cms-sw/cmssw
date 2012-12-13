@@ -129,7 +129,7 @@ void Analysis_Step5()
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data7TeV");
    CollisionBackgroundSystematicFromFlip(InputPattern, "Data8TeV");
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
-   CutFlow(InputPattern);
+   CutFlow(InputPattern, CutIndexTight);
    //   CompareRecoAndGenPt(InputPattern);
 
    InputPattern = "Results/Type5/";   CutIndex = 48; CutIndexTight = 48; CutIndex_Flip=2;
