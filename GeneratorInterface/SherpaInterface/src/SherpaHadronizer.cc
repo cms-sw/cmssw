@@ -13,8 +13,11 @@
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
 #include "ATOOLS/Org/MyStrStream.H"
-#include "SHERPA/Tools/Input_Output_Handler.H"
-#include "SHERPA/Tools/HepMC2_Interface.H"
+//#include "SHERPA/Tools/Input_Output_Handler.H"
+//#include "SHERPA/Tools/HepMC2_Interface.H"
+#include "ATOOLS/Org/Library_Loader.H"
+#include "SHERPA/Single_Events/Event_Handler.H"
+#include "AddOns/HepMC/HepMC2_Interface.H"
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
@@ -137,7 +140,7 @@ SherpaHadronizer::~SherpaHadronizer()
 
 bool SherpaHadronizer::initializeForInternalPartons()
 {
-  
+  ATOOLS::s_loader->LoadLibrary("SherpaHepMCOutput");
   //initialize Sherpa
   Generator.InitializeTheEventHandler();
   
@@ -189,26 +192,27 @@ bool SherpaHadronizer::generatePartonsAndHadronize()
   //get the next event and check if it produced
   if (Generator.GenerateOneEvent()) { 
     //convert it to HepMC2
-    SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
-    SHERPA::HepMC2_Interface* hm2i = ioh->GetHepMC2Interface();
+    //SHERPA::Input_Output_Handler* ioh = Generator.GetIOHandler();
     //get the event weight from blobs
     ATOOLS::Blob_List* blobs = Generator.GetEventHandler()-> GetBlobs();
     ATOOLS::Blob* sp(blobs->FindFirst(ATOOLS::btp::Signal_Process));
     double weight((*sp)["Weight"]->Get<double>());
     double ef((*sp)["Enhance"]->Get<double>());
+    double weight_norm((*sp)["Weight_Norm"]->Get<double>());
     // in case of unweighted events sherpa puts the max weight as event weight. 
     // this is not optimal, we want 1 for unweighted events, so we check 
     // whether we are producing unweighted events ("EVENT_GENERATION_MODE" == "1")
     if ( ATOOLS::ToType<int>( ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE") ) == 1 ) {
       if (ef > 0.) {
-        weight = SherpaDefaultWeight/ef;
+        weight = SherpaDefaultWeight/ef/weight_norm;
       } else {
         weight = -1234.;
       }
     }
     //create and empty event and then hand it to SherpaIOHandler to fill it
+    SHERPA::HepMC2_Interface hm2i;
     HepMC::GenEvent* evt = new HepMC::GenEvent();
-    hm2i->Sherpa2HepMC(blobs, *evt, weight);
+    hm2i.Sherpa2HepMC(blobs, *evt, weight);
     resetEvent(evt);         
     return true;
   }
