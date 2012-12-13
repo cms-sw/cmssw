@@ -273,7 +273,6 @@ INITIALGEOM = sys.argv[3]
 INPUTFILES = sys.argv[4]
 
 options, args = parser.parse_args(sys.argv[5:])
-user_mail = options.user_mail
 mapplots_ingeneral = options.mapplots
 segdiffplots_ingeneral = options.segdiffplots
 curvatureplots_ingeneral = options.curvatureplots
@@ -314,6 +313,9 @@ peakNSigma = options.peakNSigma
 preFilter = not not options.preFilter
 extraPlots = options.extraPlots
 useResiduals = options.useResiduals
+
+user_mail_opt = ""
+if options.user_mail: user_mail_opt = "-u %s" % options.user_mail
 
 
 #print "check: ", allowTIDTEC, combineME11, preFilter
@@ -703,8 +705,7 @@ for iteration in range(1, ITERATIONS+1):
             if options.big: queue = "cmscaf1nd"
             else: queue = "cmscaf1nh"
 
-            if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" -u %s %s gather%03d.sh" % (queue, director, jobnumber, user_mail, waiter, jobnumber))
-	    else: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
+            bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s %s gather%03d.sh" % (queue, director, jobnumber, user_mail_opt, waiter, jobnumber))
 
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
 
@@ -712,23 +713,22 @@ for iteration in range(1, ITERATIONS+1):
     ### align.sh
     if SUPER_SPECIAL_XY_AND_DXDZ_ITERATIONS:
         if ( iteration == 1 or iteration == 3 or iteration == 5 or iteration == 7 or iteration == 9):
-            tmp = station123params, station123params, useResiduals 
-            station123params, station123params, useResiduals = "000010", "000010", "0010"
+            tmp = station123params, station4params, useResiduals 
+            station123params, station4params, useResiduals = "000010", "000010", "0010"
             writeAlignCfg("%salign.sh" % directory, vars())
-            station123params, station123params, useResiduals = tmp
+            station123params, station4params, useResiduals = tmp
         elif ( iteration == 2 or iteration == 4 or iteration == 6 or iteration == 8 or iteration == 10):
-            tmp = station123params, station123params, useResiduals 
-            station123params, station123params, useResiduals = "110001", "100001", "1100"
+            tmp = station123params, station4params, useResiduals 
+            station123params, station4params, useResiduals = "110001", "100001", "1100"
             writeAlignCfg("%salign.sh" % directory, vars())
-            station123params, station123params, useResiduals = tmp
+            station123params, station4params, useResiduals = tmp
     else:
         writeAlignCfg("%salign.sh" % directory, vars())
     
     os.system("chmod +x %salign.sh" % directory)
 
     bsubfile.append("echo %salign.sh" % directory)
-    if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -u %s -w \"%s\" align.sh" % (director, user_mail, " && ".join(bsubnames)))
-    else: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
+    bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" %s -w \"%s\" align.sh" % (director, user_mail_opt, " && ".join(bsubnames)))
     
     #bsubfile.append("cd ..")
     bsubnames = []
@@ -745,8 +745,7 @@ for iteration in range(1, ITERATIONS+1):
         os.system("chmod +x %svalidation.sh" % directory)
         
         bsubfile.append("echo %svalidation.sh" % directory)
-        if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -u %s -w \"ended(%s)\" validation.sh" % (director, user_mail, last_align))
-	else: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -w \"ended(%s)\" validation.sh" % (director, last_align))
+        bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" %s -w \"ended(%s)\" validation.sh" % (director, user_mail_opt, last_align))
 
     bsubfile.append("cd ..")
     bsubfile.append("")
