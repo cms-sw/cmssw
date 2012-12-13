@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: 2011/04/15 21:51:13 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/10/12 23:45:21 $
+ *  $Revision: 1.11 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -26,7 +26,13 @@ public:
   int npar() { assert(m_pos->npar() == m_neg->npar());  return m_pos->npar(); };
   int ndata() { assert(m_pos->ndata() == m_neg->ndata());  return m_pos->ndata(); };
   int type() const { assert(m_pos->type() == m_neg->type());  return m_pos->type(); };
-  int useRes() const { return m_pos->useRes(); };
+  int useRes(int pattern = -1)
+  {
+    int useres_p = m_pos->useRes(pattern);
+    int useres_n = m_neg->useRes(pattern);
+    assert(useres_p == useres_n);
+    return useres_p;
+  }
 
   void fix(int parNum, bool value=true) {
     m_pos->fix(parNum, value);
@@ -36,6 +42,12 @@ public:
   bool fixed(int parNum) {
     return m_pos->fixed(parNum)  &&  m_neg->fixed(parNum);
   };
+
+  void setInitialValue(int parNum, double value)
+  {
+    m_pos->setInitialValue(parNum, value);
+    m_neg->setInitialValue(parNum, value);
+  }
 
   void setPrintLevel(int printLevel) const {
     m_pos->setPrintLevel(printLevel);
@@ -50,29 +62,40 @@ public:
   void fill(char charge, double *residual) {
     if (!m_twoBin  ||  charge > 0) m_pos->fill(residual);
     else m_neg->fill(residual);
-  };
+  }
 
   bool fit(Alignable *ali) {
     return (m_twoBin ? (m_pos->fit(ali)  &&  m_neg->fit(ali)) : m_pos->fit(ali));
-  };
+  }
+
+  bool fitSpecial(const std::string &fit_type, Alignable *ali = 0)
+  {
+    return (m_twoBin ? (m_pos->fitSpecial(fit_type, ali)  &&  m_neg->fitSpecial(fit_type, ali)) : m_pos->fitSpecial(fit_type, ali));
+  }
+
   double value(int parNum) {
     return (m_twoBin ? ((m_pos->value(parNum) + m_neg->value(parNum)) / 2.) : m_pos->value(parNum));
-  };
+  }
+
   double errorerror(int parNum) {
     return (m_twoBin ? (sqrt(pow(m_pos->errorerror(parNum), 2.) + pow(m_neg->errorerror(parNum), 2.)) / 2.) : m_pos->errorerror(parNum));
-  };
+  }
+
   double antisym(int parNum) {
     return (m_twoBin ? ((m_pos->value(parNum) - m_neg->value(parNum)) / 2.) : 0.);
-  };
+  }
+
   double loglikelihood() {
     return (m_twoBin ? (m_pos->loglikelihood() + m_neg->loglikelihood()) : m_pos->loglikelihood());
-  };
+  }
+
   double numsegments() {
     return (m_twoBin ? (m_pos->numsegments() + m_neg->numsegments()) : m_pos->numsegments());
-  };
+  }
+
   double sumofweights() {
     return (m_twoBin ? (m_pos->sumofweights() + m_neg->sumofweights()) : m_pos->sumofweights());
-  };
+  }
 
   // demonstration plots
   double plot(std::string name, TFileDirectory *dir, Alignable *ali) {
@@ -87,7 +110,7 @@ public:
     else {
       return m_pos->plot(name, dir, ali);
     }
-  };
+  }
 
   // I/O of temporary files for collect mode
   void write(FILE *file, int which=0) {
@@ -98,7 +121,8 @@ public:
     else {
       m_pos->write(file, which);
     }
-  };
+  }
+
   void read(FILE *file, int which=0) {
     if (m_twoBin) {
       m_pos->read(file, 2*which);
@@ -107,22 +131,37 @@ public:
     else {
       m_pos->read(file, which);
     }
-  };
+  }
 
-  double median(int which) {
+
+  double median(int which)
+  {
     std::vector<double> residuals;
-    for (std::vector<double*>::const_iterator r = residualsPos_begin();  r != residualsPos_end();  ++r) {
-      residuals.push_back((*r)[which]);
-    }
+    for (std::vector<double*>::const_iterator r = residualsPos_begin();  r != residualsPos_end();  ++r) residuals.push_back((*r)[which]);
     if (m_twoBin) {
-      for (std::vector<double*>::const_iterator r = residualsNeg_begin();  r != residualsNeg_end();  ++r) {
-	residuals.push_back((*r)[which]);
-      }
+      for (std::vector<double*>::const_iterator r = residualsNeg_begin();  r != residualsNeg_end();  ++r) residuals.push_back((*r)[which]);
     }
     std::sort(residuals.begin(), residuals.end());
     int length = residuals.size();
     return residuals[length/2];
+  }
+
+
+  double peak(int which)
+  {
+    double peak_err_p;
+    double peak_p = m_pos->getPeak(which, peak_err_p);
+    if (m_twoBin) // in two-bin case returns weighted mean of two peaks
+    {
+      double peak_err_n;
+      double peak_n = m_neg->getPeak(which, peak_err_n);
+      assert(peak_err_p != 0);
+      assert(peak_err_n != 0);
+      peak_p = (peak_p/peak_err_p + peak_n/peak_err_n)/(1./peak_err_p + 1./peak_err_n);
+    }
+    return peak_p;
   };
+
 
   double mean(int which, double truncate) {
     double sum = 0.;
@@ -144,7 +183,7 @@ public:
       }
     }
     return sum/n;
-  };
+  }
 
   double wmean(int which, int whichredchi2, double truncate) {
     double sum = 0.;
@@ -172,7 +211,7 @@ public:
       }
     }
     return sum/n;
-  };
+  }
 
   double stdev(int which, double truncate) {
     double sum2 = 0.;
@@ -197,7 +236,7 @@ public:
       }
     }
     return sqrt(sum2/n - pow(sum/n, 2));
-  };
+  }
 
   void plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier) {
     if (m_twoBin) {
@@ -209,7 +248,7 @@ public:
     else {
       m_pos->plotsimple(name, dir, which, multiplier);
     }
-  };
+  }
 
   void plotweighted(std::string name, TFileDirectory *dir, int which, int whichredchi2, double multiplier) {
     if (m_twoBin) {
@@ -221,7 +260,7 @@ public:
     else {
       m_pos->plotweighted(name, dir, which, whichredchi2, multiplier);
     }
-  };
+  }
 
   void selectPeakResiduals(double nsigma, int nvar, int *vars)
   {
@@ -251,15 +290,15 @@ public:
     }
   }
 
-  std::vector<double*>::const_iterator residualsPos_begin() const { return m_pos->residuals_begin(); };
-  std::vector<double*>::const_iterator residualsPos_end() const { return m_pos->residuals_end(); };
-  std::vector<double*>::const_iterator residualsNeg_begin() const { return m_neg->residuals_begin(); };
-  std::vector<double*>::const_iterator residualsNeg_end() const { return m_neg->residuals_end(); };
+  std::vector<double*>::const_iterator residualsPos_begin() const { return m_pos->residuals_begin(); }
+  std::vector<double*>::const_iterator residualsPos_end() const { return m_pos->residuals_end(); }
+  std::vector<double*>::const_iterator residualsNeg_begin() const { return m_neg->residuals_begin(); }
+  std::vector<double*>::const_iterator residualsNeg_end() const { return m_neg->residuals_end(); }
 
-  std::vector<bool>::const_iterator residualsPos_ok_begin() const { return m_pos->selectedResidualsFlags().begin(); };
-  std::vector<bool>::const_iterator residualsPos_ok_end() const { return m_pos->selectedResidualsFlags().end(); };
-  std::vector<bool>::const_iterator residualsNeg_ok_begin() const { return m_neg->selectedResidualsFlags().begin(); };
-  std::vector<bool>::const_iterator residualsNeg_ok_end() const { return m_neg->selectedResidualsFlags().end(); };
+  std::vector<bool>::const_iterator residualsPos_ok_begin() const { return m_pos->selectedResidualsFlags().begin(); }
+  std::vector<bool>::const_iterator residualsPos_ok_end() const { return m_pos->selectedResidualsFlags().end(); }
+  std::vector<bool>::const_iterator residualsNeg_ok_begin() const { return m_neg->selectedResidualsFlags().begin(); }
+  std::vector<bool>::const_iterator residualsNeg_ok_end() const { return m_neg->selectedResidualsFlags().end(); }
 
 protected:
   bool m_twoBin;
