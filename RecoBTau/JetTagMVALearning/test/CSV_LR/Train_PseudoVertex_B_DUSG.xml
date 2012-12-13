@@ -60,9 +60,13 @@
                         <group><box><range min="90" max="150"/><range min="-1.2" max="1.2"/></box></group>
                         <group><box><range min="90" max="150"/><range min="-2.1" max="2.1"/></box></group>
                         <group><box><range min="90" max="150"/><range/></box></group>
-                        <group><box><range/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range/><range min="-2.1" max="2.1"/></box></group>
-                        <group><box><range/><range/></box></group>
+												<group><box><range min="150" max="400"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="150" max="400"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="150" max="400"/><range/></box></group>
+                        <group><box><range min="400" max="600"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="400" max="600"/><range/></box></group>
+												<group><box><range/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range/><range/></box></group> 
                 </config>
                 <output>
                         <var name="category"/>
@@ -145,7 +149,7 @@
                 </input>
 	        <config>
                         <general strict="true"/>
-                        <category count="15"/>
+                        <category count="19"/>
                         <sigbkg smooth="3"/> <!-- trackEtaRel -->
                         <sigbkg smooth="3"/> <!-- vertexMass -->
                         <sigbkg/> <!-- vertexNTracks -->
@@ -178,24 +182,28 @@
                 </input>
                 <config>
 								        <general strict="true"/>
-        	              <category count="15"/>
+        	              <category count="19"/>
 	                      <sigbkg smooth="3"/>
                         <bias_table><!--B_DUSG-->
-<bias>34.0545</bias>
-<bias>35.7139</bias>
-<bias>31.1097</bias>
-<bias>7.90632</bias>
-<bias>8.66074</bias>
-<bias>7.34475</bias>
-<bias>4.72065</bias>
-<bias>4.8999</bias>
-<bias>4.45065</bias>
-<bias>3.66017</bias>
-<bias>3.41379</bias>
-<bias>3.20336</bias>
-<bias>2.63789</bias>
-<bias>2.14673</bias>
-<bias>2.40237</bias>
+<bias>18.5468</bias>
+<bias>21.888</bias>
+<bias>18.1633</bias>
+<bias>8.10557</bias>
+<bias>8.80751</bias>
+<bias>7.9743</bias>
+<bias>5.71543</bias>
+<bias>5.7881</bias>
+<bias>5.07858</bias>
+<bias>4.7494</bias>
+<bias>4.444</bias>
+<bias>3.25207</bias>
+<bias>3.83275</bias>
+<bias>3.14798</bias>
+<bias>2.67958</bias>
+<bias>2.82239</bias>
+<bias>3.16372</bias>
+<bias>2.49336</bias>
+<bias>3.22615</bias>
                         </bias_table><!--B_DUSG-->
                 </config>
                 <output>
@@ -218,6 +226,8 @@
 		<var source="opt1" name="optdiscr1"/>
 	</output>
 </MVATrainer>
+
+
 
 
 

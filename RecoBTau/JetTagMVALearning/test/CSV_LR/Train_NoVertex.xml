@@ -60,8 +60,12 @@
                         <group><box><range min="90" max="150"/><range min="-1.2" max="1.2"/></box></group>
                         <group><box><range min="90" max="150"/><range min="-2.1" max="2.1"/></box></group>
                         <group><box><range min="90" max="150"/><range/></box></group>
-                        <group><box><range/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range/><range min="-2.1" max="2.1"/></box></group>
+												<group><box><range min="150" max="400"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="150" max="400"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="150" max="400"/><range/></box></group>
+                        <group><box><range min="400" max="600"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="400" max="600"/><range/></box></group>
+												<group><box><range/><range min="-1.2" max="1.2"/></box></group>
                         <group><box><range/><range/></box></group>
                 </config>
                 <output>
@@ -131,7 +135,7 @@
                 </input>
                 <config>
                         <general strict="true"/>
-                        <category count="15"/>
+                        <category count="19"/>
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_1 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_2 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_3 -->
@@ -159,24 +163,28 @@
                 </input>
                 <config>
 								        <general strict="true"/>
-        	              <category count="15"/>
+        	              <category count="19"/>
 	                      <sigbkg smooth="3"/>
                         <bias_table><!--B_DUSG-->
-<bias>0.671719</bias>
-<bias>0.761058</bias>
-<bias>0.842832</bias>
-<bias>0.375269</bias>
-<bias>0.470248</bias>
-<bias>0.620866</bias>
-<bias>0.263517</bias>
-<bias>0.347034</bias>
-<bias>0.508594</bias>
-<bias>0.214863</bias>
-<bias>0.289992</bias>
-<bias>0.448799</bias>
-<bias>0.248117</bias>
-<bias>0.31979</bias>
-<bias>0.480846</bias>
+<bias>0.518387</bias>
+<bias>0.624787</bias>
+<bias>0.74276</bias>
+<bias>0.319291</bias>
+<bias>0.418037</bias>
+<bias>0.565618</bias>
+<bias>0.249259</bias>
+<bias>0.336566</bias>
+<bias>0.487929</bias>
+<bias>0.216957</bias>
+<bias>0.299958</bias>
+<bias>0.456097</bias>
+<bias>0.236058</bias>
+<bias>0.324002</bias>
+<bias>0.466251</bias>
+<bias>0.390233</bias>
+<bias>0.468578</bias>
+<bias>0.458683</bias>
+<bias>0.526626</bias>
                         </bias_table><!--B_DUSG-->
                 </config>
                 <output>
@@ -257,7 +265,7 @@
                 </input>
                 <config>
 												<general strict="true"/>
-                        <category count="15"/>
+                        <category count="19"/>
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_1 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_2 -->
                         <sigbkg smooth="3"/> <!-- vartrackSip3dSig_3 -->
@@ -285,24 +293,28 @@
                 </input>
                 <config>
 								        <general strict="true"/>
-        	              <category count="15"/>
+        	              <category count="19"/>
 	                      <sigbkg smooth="3"/>
                         <bias_table><!--B_C-->
-<bias>0.728464</bias>
-<bias>0.800217</bias>
-<bias>0.869003</bias>
-<bias>0.464005</bias>
-<bias>0.54678</bias>
-<bias>0.677409</bias>
-<bias>0.349333</bias>
-<bias>0.428114</bias>
-<bias>0.578582</bias>
-<bias>0.300714</bias>
-<bias>0.378426</bias>
-<bias>0.530827</bias>
-<bias>0.360274</bias>
-<bias>0.43358</bias>
-<bias>0.590759</bias>
+<bias>0.597457</bias>
+<bias>0.684823</bias>
+<bias>0.787733</bias>
+<bias>0.407366</bias>
+<bias>0.499014</bias>
+<bias>0.633325</bias>
+<bias>0.335048</bias>
+<bias>0.41976</bias>
+<bias>0.565401</bias>
+<bias>0.301622</bias>
+<bias>0.388725</bias>
+<bias>0.539766</bias>
+<bias>0.326665</bias>
+<bias>0.420431</bias>
+<bias>0.553671</bias>
+<bias>0.503648</bias>
+<bias>0.606484</bias>
+<bias>0.61236</bias>
+<bias>0.633438</bias>
                         </bias_table><!--B_C-->
                 </config>
                 <output>
@@ -338,9 +350,4 @@
         </output>
 
 </MVATrainer>
-
-
-
-
-
 

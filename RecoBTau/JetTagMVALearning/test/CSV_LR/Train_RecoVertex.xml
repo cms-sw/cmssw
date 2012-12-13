@@ -52,21 +52,25 @@
 			<var source="input" name="jetEta"/>
 		</input>
 		<config>
-			<group><box><range max="40"/><range min="-1.2" max="1.2"/></box></group>
-			<group><box><range max="40"/><range min="-2.1" max="2.1"/></box></group>
-			<group><box><range max="40"/><range/></box></group>
-			<group><box><range min="40" max="60"/><range min="-1.2" max="1.2"/></box></group>
-			<group><box><range min="40" max="60"/><range min="-2.1" max="2.1"/></box></group>
-			<group><box><range min="40" max="60"/><range/></box></group>
-			<group><box><range min="60" max="90"/><range min="-1.2" max="1.2"/></box></group>
-			<group><box><range min="60" max="90"/><range min="-2.1" max="2.1"/></box></group>
-			<group><box><range min="60" max="90"/><range/></box></group>
-			<group><box><range min="90" max="150"/><range min="-1.2" max="1.2"/></box></group>
-			<group><box><range min="90" max="150"/><range min="-2.1" max="2.1"/></box></group>
-			<group><box><range min="90" max="150"/><range/></box></group>
-			<group><box><range/><range min="-1.2" max="1.2"/></box></group>
-			<group><box><range/><range min="-2.1" max="2.1"/></box></group>
-			<group><box><range/><range/></box></group>
+                        <group><box><range max="40"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range max="40"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range max="40"/><range/></box></group>
+                        <group><box><range min="40" max="60"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="40" max="60"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="40" max="60"/><range/></box></group>
+                        <group><box><range min="60" max="90"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="60" max="90"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="60" max="90"/><range/></box></group>
+                        <group><box><range min="90" max="150"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="90" max="150"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="90" max="150"/><range/></box></group>
+												<group><box><range min="150" max="400"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="150" max="400"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="150" max="400"/><range/></box></group>
+                        <group><box><range min="400" max="600"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="400" max="600"/><range/></box></group>
+												<group><box><range/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range/><range/></box></group> 			
 		</config>
 		<output>
 			<var name="category"/>
@@ -164,7 +168,7 @@
 		</input>
 		<config>
                         <general strict="true"/>
-                        <category count="15"/>
+                        <category count="19"/>
                         <sigbkg smooth="3"/> <!-- vartrackEtaRel -->
                         <sigbkg smooth="3"/> <!-- varvertexMass -->
                         <sigbkg/> <!-- varvertexNTracks -->
@@ -199,24 +203,28 @@
 		</input>
 		<config>
 			 <general strict="true"/>
-       <category count="15"/>
+       <category count="19"/>
 	     <sigbkg smooth="3"/>			 
        <bias_table><!--B_DUSG-->
-<bias>92.8037</bias>
-<bias>56.853</bias>
-<bias>33.5422</bias>
-<bias>42.6861</bias>
-<bias>28.2062</bias>
-<bias>19.653</bias>
-<bias>32.862</bias>
-<bias>22.2676</bias>
-<bias>15.5035</bias>
-<bias>25.5533</bias>
-<bias>16.8065</bias>
-<bias>11.7648</bias>
-<bias>15.5947</bias>
-<bias>9.46802</bias>
-<bias>6.89747</bias>
+<bias>63.7152</bias>
+<bias>46.4696</bias>
+<bias>30.0772</bias>
+<bias>42.7671</bias>
+<bias>30.8956</bias>
+<bias>20.7596</bias>
+<bias>35.5407</bias>
+<bias>25.6944</bias>
+<bias>17.3897</bias>
+<bias>28.6057</bias>
+<bias>20.335</bias>
+<bias>13.2094</bias>
+<bias>20.9432</bias>
+<bias>13.9977</bias>
+<bias>9.06977</bias>
+<bias>11.3267</bias>
+<bias>6.77222</bias>
+<bias>8.01444</bias>
+<bias>5.13726</bias>
        </bias_table><!--B_DUSG-->
 		</config>
 		<output>
@@ -328,7 +336,7 @@
 		</input>
 		<config>
                         <general strict="true"/>
-                        <category count="15"/>
+                        <category count="19"/>
                         <sigbkg smooth="3"/> <!-- trackEtaRel -->
                         <sigbkg smooth="3"/> <!-- vertexMass -->
                         <sigbkg/> <!-- vertexNTracks -->
@@ -363,24 +371,28 @@
 		</input>
 		<config>
        <general strict="true"/>
-       <category count="15"/>
+       <category count="19"/>
 	     <sigbkg smooth="3"/>
        <bias_table><!--B_C-->
-<bias>4.1973</bias>
-<bias>4.66459</bias>
-<bias>4.68545</bias>
-<bias>3.29556</bias>
-<bias>3.58796</bias>
-<bias>4.01026</bias>
-<bias>3.0835</bias>
-<bias>3.31211</bias>
-<bias>3.62215</bias>
-<bias>2.87272</bias>
-<bias>2.93904</bias>
-<bias>3.18516</bias>
-<bias>2.64672</bias>
-<bias>2.57673</bias>
-<bias>2.47583</bias>
+<bias>3.6321</bias>
+<bias>4.09951</bias>
+<bias>4.10019</bias>
+<bias>3.17093</bias>
+<bias>3.44871</bias>
+<bias>3.6968</bias>
+<bias>2.98549</bias>
+<bias>3.22756</bias>
+<bias>3.35043</bias>
+<bias>2.86468</bias>
+<bias>2.96515</bias>
+<bias>3.10996</bias>
+<bias>2.86159</bias>
+<bias>2.84639</bias>
+<bias>2.91854</bias>
+<bias>2.889</bias>
+<bias>2.43796</bias>
+<bias>2.68901</bias>
+<bias>2.86275</bias>
        </bias_table><!--B_C-->
 		</config>
 		<output>
@@ -416,6 +428,8 @@
 	</output>
 
 </MVATrainer>
+
+
 
 
 

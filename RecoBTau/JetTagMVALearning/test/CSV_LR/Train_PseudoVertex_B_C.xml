@@ -60,9 +60,13 @@
                         <group><box><range min="90" max="150"/><range min="-1.2" max="1.2"/></box></group>
                         <group><box><range min="90" max="150"/><range min="-2.1" max="2.1"/></box></group>
                         <group><box><range min="90" max="150"/><range/></box></group>
-                        <group><box><range/><range min="-1.2" max="1.2"/></box></group>
-                        <group><box><range/><range min="-2.1" max="2.1"/></box></group>
-                        <group><box><range/><range/></box></group>
+												<group><box><range min="150" max="400"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="150" max="400"/><range min="-2.1" max="2.1"/></box></group>
+                        <group><box><range min="150" max="400"/><range/></box></group>
+                        <group><box><range min="400" max="600"/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range min="400" max="600"/><range/></box></group>
+												<group><box><range/><range min="-1.2" max="1.2"/></box></group>
+                        <group><box><range/><range/></box></group> 
                 </config>
                 <output>
                         <var name="category"/>
@@ -145,7 +149,7 @@
                 </input>
 	        <config>
                         <general strict="true"/>
-                        <category count="15"/>
+                        <category count="19"/>
                         <sigbkg smooth="3"/> <!-- trackEtaRel -->
                         <sigbkg smooth="3"/> <!-- vertexMass -->
                         <sigbkg/> <!-- vertexNTracks -->
@@ -178,24 +182,28 @@
                 </input>
                 <config>
 								        <general strict="true"/>
-        	              <category count="15"/>
+        	              <category count="19"/>
 	                      <sigbkg smooth="3"/>
                         <bias_table><!--B_C-->
-<bias>2.9439</bias>
-<bias>3.65091</bias>
-<bias>4.18672</bias>
-<bias>1.497</bias>
-<bias>1.98911</bias>
-<bias>2.15139</bias>
-<bias>1.12264</bias>
-<bias>1.39136</bias>
-<bias>1.48552</bias>
-<bias>1.07071</bias>
-<bias>1.17713</bias>
-<bias>1.20675</bias>
-<bias>1.037</bias>
-<bias>0.952618</bias>
-<bias>1.01498</bias>
+<bias>2.2104</bias>
+<bias>2.90079</bias>
+<bias>3.26328</bias>
+<bias>1.48438</bias>
+<bias>1.85428</bias>
+<bias>2.00578</bias>
+<bias>1.24135</bias>
+<bias>1.50169</bias>
+<bias>1.75456</bias>
+<bias>1.20768</bias>
+<bias>1.31433</bias>
+<bias>1.32881</bias>
+<bias>1.25047</bias>
+<bias>1.18936</bias>
+<bias>1.16735</bias>
+<bias>1.25429</bias>
+<bias>1.11296</bias>
+<bias>1.04277</bias>
+<bias>1.2421</bias>
                         </bias_table><!--B_C-->
                 </config>
                 <output>
@@ -217,6 +225,8 @@
 		<var source="opt2" name="optdiscr2"/>
 	</output>
 </MVATrainer>
+
+
 
 
 
