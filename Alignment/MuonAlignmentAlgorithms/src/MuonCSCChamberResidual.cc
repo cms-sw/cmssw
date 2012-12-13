@@ -1,5 +1,5 @@
 /* 
- * $Id: $
+ * $Id: MuonCSCChamberResidual.cc,v 1.3 2011/10/12 23:40:24 khotilov Exp $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonCSCChamberResidual.h"
@@ -22,8 +22,11 @@ void MuonCSCChamberResidual::addResidual(const TrajectoryStateOnSurface *tsos, c
   const CSCGeometry *cscGeometry = dynamic_cast<const CSCGeometry*>(m_globalGeometry->slaveGeometry(id));
   assert(cscGeometry);
 
-  align::LocalPoint hitChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(hit->localPosition()));
-  align::LocalPoint tsosChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(tsos->localPosition()));
+  //align::LocalPoint hitChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(hit->localPosition()));
+  //align::LocalPoint tsosChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(tsos->localPosition()));
+  AlignableDetOrUnitPtr layerAlignable = m_navigator->alignableFromDetId(id);
+  align::LocalPoint hitChamberPos  = m_chamberAlignable->surface().toLocal(layerAlignable->surface().toGlobal(hit->localPosition()));
+  align::LocalPoint tsosChamberPos = m_chamberAlignable->surface().toLocal(layerAlignable->surface().toGlobal(tsos->localPosition()));
 
   int strip = cscGeometry->layer(id)->geometry()->nearestStrip(hit->localPosition());
   double angle = cscGeometry->layer(id)->geometry()->stripAngle(strip) - M_PI/2.;
