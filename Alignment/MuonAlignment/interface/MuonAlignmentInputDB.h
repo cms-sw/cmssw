@@ -1,55 +1,41 @@
 #ifndef Alignment_MuonAlignment_MuonAlignmentInputDB_h
 #define Alignment_MuonAlignment_MuonAlignmentInputDB_h
-// -*- C++ -*-
-//
-// Package:     MuonAlignment
-// Class  :     MuonAlignmentInputDB
-// 
-/**\class MuonAlignmentInputDB MuonAlignmentInputDB.h Alignment/MuonAlignment/interface/MuonAlignmentInputDB.h
 
- Description: <one line class summary>
+/**\class MuonAlignmentInputDB
 
- Usage:
-    <usage>
+ Class for using database as an input for muon alignment
 
 */
+
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 17:30:40 CST 2008
-// $Id: MuonAlignmentInputDB.h,v 1.1 2008/03/15 20:26:46 pivarski Exp $
+//
+// $Id: MuonAlignmentInputDB.h,v 1.2 2009/10/07 20:46:38 pivarski Exp $
 //
 
-// system include files
-
-// user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputMethod.h"
 
-// forward declarations
 
-class MuonAlignmentInputDB: public MuonAlignmentInputMethod {
-   public:
-      MuonAlignmentInputDB();
-      MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs);
-      virtual ~MuonAlignmentInputDB();
+class MuonAlignmentInputDB: public MuonAlignmentInputMethod
+{
+public:
 
-      // ---------- const member functions ---------------------
+  MuonAlignmentInputDB();
+  MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs);
 
-      // ---------- static member functions --------------------
+  virtual ~MuonAlignmentInputDB();
 
-      // ---------- member functions ---------------------------
+  virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
 
-      virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
+private:
 
-   private:
-      MuonAlignmentInputDB(const MuonAlignmentInputDB&); // stop default
+  MuonAlignmentInputDB(const MuonAlignmentInputDB&); // stop default
 
-      const MuonAlignmentInputDB& operator=(const MuonAlignmentInputDB&); // stop default
+  const MuonAlignmentInputDB& operator=(const MuonAlignmentInputDB&); // stop default
 
-      // ---------- member data --------------------------------
-
-      std::string m_dtLabel, m_cscLabel;
-      bool m_getAPEs;
+  std::string m_dtLabel, m_cscLabel;
+  bool m_getAPEs;
 };
-
 
 #endif
