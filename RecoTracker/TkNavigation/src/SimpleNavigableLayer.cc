@@ -267,24 +267,7 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
       Lvect && nextLayers = (toTry)->nextLayers(fts,timeDirection);
       LogDebug("SimpleNavigableLayer")
 	<<counter<<"] this layer has : "<<nextLayers.size()<<" next layers.";
-      for (auto next : nextLayers){
-	//if the next layer is not already in the collected layers, add it for next round.
-	if (0==collect.count(next)) {
-	  nextLayerToTry.insert(next );
-	  
-	  LogDebug("SimpleNavigableLayer")
-	    <<counter<<"] to try next, layer with pointer: "<<(next)
-	    <<" first detid: "<<DetIdInfo::info(next->basicComponents().front()->geographicalId());
-	}
-	else{
-	  LogDebug("SimpleNavigableLayer")
-	    <<counter<<"] skipping for next tryout, layer with pointer: "<<(*next)
-	    <<" first detid: "<<DetIdInfo::info(next->basicComponents().front()->geographicalId());
-	  //for (Lset::iterator testMe=collect.begin();testMe!=collect.end();++testMe){  LogTrace("SimpleNavigableLayer") <<"pointer collected:" <<(*testMe); }
-	}
-      }
-      LogDebug("SimpleNavigableLayer")
-	<<counter<<"] "<<nextLayerToTry.size()<<" layers to try next so far.";
+      nextLayerToTry.insert(nextLayers.begin(),nextLayers.end());
     } // layerToTry
     //swap now that you where to go next.
     layerToTry.swap(nextLayerToTry);
