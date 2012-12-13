@@ -378,7 +378,7 @@ cacheutils::CachingAddNLL::evaluate() const
         if (!isnormal(*its) || *its <= 0) {
             std::cerr << "WARNING: underflow to " << *its << " in " << GetName() << std::endl; 
             if (!CachingSimNLL::noDeepLEE_) logEvalError("Number of events is negative or error"); else CachingSimNLL::hasError_ = true;
-            if (fastExit) break;
+            if (fastExit) { ret += -9e9; break; }
         }
         double thispiece = (*itw) * (*its <= 0 ? -9e9 : log( ((*its) / sumCoeff) ));
         #ifdef ADDNLL_KAHAN_SUM
