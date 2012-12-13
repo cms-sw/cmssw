@@ -45,7 +45,7 @@ class ShapeBuilder(ModelBuilder):
                 (pdf,coeff) = (self.getPdf(b,p), self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                 extranorm = self.getExtraNorm(b,p)
                 if extranorm:
-                    prodset = ROOT.RooArgSet(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
+                    prodset = ROOT.RooArgList(self.out.function("n_exp_bin%s_proc_%s" % (b,p)))
                     for X in extranorm: prodset.add(self.out.function(X))
                     prodfunc = ROOT.RooProduct("n_exp_final_bin%s_proc_%s" % (b,p), "", prodset)
                     self.out._import(prodfunc)
