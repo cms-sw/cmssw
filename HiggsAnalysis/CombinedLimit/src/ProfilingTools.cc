@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <cassert>
 #include <boost/unordered_map.hpp>
 
 void (*igProfRequestDump_)(const char *);
