@@ -2,11 +2,11 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFitter_H
 
 /** \class MuonResidualsFitter
- *  $Date: 2011/10/12 23:44:10 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/11/02 19:59:46 $
+ *  $Revision: 1.18 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  *
- *  $Id: MuonResidualsFitter.h,v 1.17 2011/10/12 23:44:10 khotilov Exp $
+ *  $Id: MuonResidualsFitter.h,v 1.18 2011/11/02 19:59:46 khotilov Exp $
  */
 
 #ifndef STANDALONE_FITTER
@@ -157,6 +157,9 @@ public:
   // also gamma is only valid if the model is kPowerLawTails or kROOTVoigt
   virtual bool fit(Alignable *ali) = 0;
 
+  // simply runs fit() unless further redefined
+  virtual bool fitSpecial(const std::string &fit_type, Alignable *ali = 0) { return fit(ali); }
+
   double value(int parNum) { assert(0 <= parNum  &&  parNum < npar());  return m_value[parNum]; }
   double errorerror(int parNum) { assert(0 <= parNum  &&  parNum < npar());  return m_error[parNum]; }
 
@@ -198,7 +201,9 @@ public:
   std::vector<double*>::const_iterator residuals_end() const { return m_residuals.end(); }
 
   void computeHistogramRangeAndBinning(int which, int &nbins, double &a, double &b); 
-  void histogramChi2GaussianFit(int which, double &fit_mean, double &fit_sigma);
+  void histogramChi2GaussianFit(int which, double &fit_mean, double &fit_mean_err, double &fit_sigma);
+  double getPeak(int which);
+  double getPeak(int which, double &peak_err);
   void selectPeakResiduals_simple(double nsigma, int nvar, int *vars);
   void selectPeakResiduals(double nsigma, int nvar, int *vars);
 
