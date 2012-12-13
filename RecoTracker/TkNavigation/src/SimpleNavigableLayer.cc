@@ -99,11 +99,17 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
     }}
 
   const Bounds& bounds( bl->specificSurface().bounds());
-  float length = bounds.length() / 2.f;
+  float length = bounds.length()*0.5f;
 
   // take into account the thickness of the layer
   float deltaZ = bounds.thickness()/2. / 
     fabs( tan( propState.globalDirection().theta()));
+
+  float deltaZ2 = 0.5f*bounds.thickness() *
+    propState.localDirection().perp()/std::abs(propState.localDirection().z());
+					     
+  std::cout << "deltaZ " << deltaZ << " " << deltaZ2 << std::endl;
+
 
   // take into account the error on the predicted state
   const float nSigma = theEpsilon;  // temporary reuse of epsilon
@@ -157,6 +163,11 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
   // take into account the thickness of the layer
   float deltaR = fl->surface().bounds().thickness()/2. *
     fabs( tan( propState.localDirection().theta()));
+
+  float deltaR2 = 0.5f*fl->surface().bounds().thickness() *
+    std::abs(propState.localDirection().z())/propState.localDirection().perp();
+					     
+  std::cout << "deltaR " << deltaR << " " << deltaR2 << std::endl;
 
   // take into account the error on the predicted state
   const float nSigma = theEpsilon;
@@ -242,7 +253,7 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
   //initiate the first iteration
   Lvect && someLayers = nextLayers(fts,timeDirection);
   if (someLayers.empty()) {
-    std::cout    <<"Number of compatible layers: "<< 0 << std::endl;
+    LogDebug("SimpleNavigableLayer")  <<"Number of compatible layers: "<< 0;
     return someLayers;
   }
 
@@ -278,8 +289,8 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
     return Lvect();
   }
 
-  // LogDebug("SimpleNavigableLayer")
-  std::cout    <<"Number of compatible layers: "<< collect.size() << std::endl;
+  LogDebug("SimpleNavigableLayer")
+   <<"Number of compatible layers: "<< collect.size();
   
   return Lvect(collect.begin(),collect.end());
 
