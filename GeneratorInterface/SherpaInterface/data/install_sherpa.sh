@@ -146,6 +146,7 @@ shlhifile="install_lhapdf.sh"        # script for LHAPDF installation
 va=`echo ${SHERPAVER} | cut -f1 -d"."`
 vb=`echo ${SHERPAVER} | cut -f2 -d"."`
 vc=`echo ${SHERPAVER} | cut -f3 -d"."`
+#echo " <D> version breakdown: "$va" "$vb" "$vc
 
 #http://www.hepforge.org/archive/sherpa/SHERPA-MC-1.2.0.tar.gz
 # set SHERPA (HepMC2,LHAPDF) download location
@@ -164,6 +165,8 @@ fi
 if [ "$SHERPAFILE" = "" ]; then
   SHERPAFILE="Sherpa-"${SHERPAVER}".tar.gz"
   if [ $va -ge 1 ] && [ $vb -ge 2 ]; then
+    SHERPAFILE="SHERPA-MC-"${SHERPAVER}".tar.gz"
+  elif [ $va -ge 2 ]; then
     SHERPAFILE="SHERPA-MC-"${SHERPAVER}".tar.gz"
   fi
 fi

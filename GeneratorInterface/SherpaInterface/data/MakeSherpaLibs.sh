@@ -6,8 +6,8 @@
 #  uses:        the required SHERPA data cards (+ libraries) [see below]
 #
 #  author:      Markus Merschmeyer, Sebastian Thueer, RWTH Aachen
-#  date:        17th July 2012
-#  version:     4.0
+#  date:        13th December 2012
+#  version:     4.1
 #
 
 
@@ -82,26 +82,6 @@ clean_libs() {
   done
 }
 
-fix_makelibs() {
-# fix 'makelibs' script for 32-bit compatibility
-  echo " <W> setting 32bit flags in 'makelibs' script !!!"
-
-  CNFFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32"
-  MKEFLG="CFLAGS=-m32 FFLAGS=-m32 CXXFLAGS=\"-O2 -m32\" LDFLAGS=-m32"
-
-  if [ -e ${SHERPA_SHARE_PATH} ]; then
-    sed -e "s/configure/configure ${CNFFLG}/" < ${SHERPA_SHARE_PATH}/makelibs > ./makelibs.tmp
-    sed -e "s/-j2 \"CXXFLAGS=-O2\"/-j2 ${MKEFLG}/" < ./makelibs.tmp > ./makelibs
-    rm ./makelibs.tmp
-    chmod 755 ./makelibs
-  else
-    echo " <E> SHERPA_SHARE_PATH does not exist, stopping..."
-    exit
-  fi
-
-}
-
-
 
 
 
@@ -113,7 +93,7 @@ fix_makelibs() {
 HDIR=`pwd`
 
 # dummy setup (if all options are missing)
-shr=${HDIR}/SHERPA-MC-1.1.2        # path to SHERPA installation
+shr=${HDIR}/SHERPA_1.4.2        # path to SHERPA installation
 scrloc=`which scramv1 &> tmp.tmp; cat tmp.tmp | cut -f1 -d"/"; rm tmp.tmp`
 if [ "${scrloc}" = "" ]; then
   shr=`scramv1 tool info sherpa | grep "SHERPA_BASE" | cut -f2 -d"="`
@@ -128,6 +108,7 @@ cflb=""                            # custom library file name
 cfcr=""                            # custom cross section file name
 fin=${HDIR}                        # output path for SHERPA libraries & cross sections
 FLGAMISIC="FALSE"                  # switch on multiple interactions for production
+FLGAMEGIC="FALSE"                  # flag to indicate the usage of AMEGIC -> library compilation required
 
 # get & evaluate options
 while getopts :d:i:p:o:f:D:L:C:Ah OPT
@@ -199,6 +180,22 @@ echo "  -> custom library file name: '"${cflb}"'"
 echo "  -> custom cross section file name: '"${cfcr}"'"
 echo "  -> output path: '"${fin}"'"
 
+# get the number of CPU cores
+FLGMCORE="TRUE"
+POPTS=""
+if [ "$FLGMCORE" = "TRUE" ]; then
+    nprc=`cat /proc/cpuinfo | grep  -c processor`
+    let nprc=$nprc+1
+    if [ $nprc -gt 2 ]; then
+      echo " <I> multiple CPU cores detected: "$nprc"-1"
+      POPTS=" -j"$nprc" "
+    fi
+fi
+
+
+
+
+
 
 ### go to 'Run' subdirectory of SHERPA
 cd ${shrun}
@@ -239,7 +236,7 @@ logefile=${outflbs}_logE.tgz              # output messages (-> from event gener
 gridfile=${outflbs}_migr.tgz              # multiple interactions phase-space grid
 #
 dir1="Process"                            # SHERPA process directory name
-dir2="Result"                             # SHERPA results directory name
+dir2="Results"                            # SHERPA results directory name
 dir3="Analysis"                           # SHERPA analysis directory name
 
 ### clean up existing xsection files
@@ -302,11 +299,11 @@ fi
 if [ -e ${runfile} ]; then
   iamegic=`check_occurence ${runfile} "ME_SIGNAL_GENERATOR" "AMEGIC"`
   if [ ${iamegic} -gt 0 ]; then
-    FLGCOMIX="FALSE"                   # use AMEGIC
+    FLGAMEGIC="TRUE"                   # using AMEGIC
     echo " <I> using AMEGIC ME generator"
   else
-    FLGCOMIX="TRUE"                    # use COMIX
-    echo " <I> using COMIX ME generator"
+#    FLGAMEGIC="FALSE"                  # using no AMEGIC
+    echo " <I> using COMIX/internal ME generator"
     lbo="LBCR"
   fi
 fi
@@ -351,7 +348,7 @@ else
   echo " cleaning '"${dir1}"' subdirectory"
   rm -rf ${dir1}/*
 fi
-## generate/clean 'Result' subdirectory
+## generate/clean 'Results' subdirectory
 if [ ! -e ${dir2} ]; then
   echo " '"${dir2}"' subdirectory does not exist and will be created"
   mkdir ${dir2}
@@ -397,54 +394,86 @@ fi
 
 
 ### generate process-specific libraries -> redirect output (stdout, stderr) to files
-## first pass
 sherpaexe=`find ${shr} -type f -name Sherpa`
 echo " <I> Sherpa executable is "${sherpaexe}
 cd ${pth}
 
+# create logfiles
+touch ${shrun}/${outflbs}_passLC.out
+touch ${shrun}/${outflbs}_passLC.err
+if [ "${FLGAMEGIC}" == "TRUE" ]; then
+  touch ${shrun}/${outflbs}_mklib.out
+  touch ${shrun}/${outflbs}_mklib.err
+  touch ${shrun}/${outflbs}_cllib.out
+  touch ${shrun}/${outflbs}_cllib.err
+fi
+
+## first pass (loop if AMEGIC + NLO loop generators are used)
 if [ "${lbo}" = "LIBS" ] || [ "${lbo}" = "LBCR" ]; then
   echo " <I> creating library code..."
-  ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass1.out 2>${shrun}/${outflbs}_pass1.err #Sherpa 1.3.0 needs full path MN 070611
+  ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>>${shrun}/${outflbs}_passLC.out 2>>${shrun}/${outflbs}_passLC.err
 ###  cd ${pth}
-  if [ "${FLGCOMIX}" == "FALSE" ]; then
-  testfile=`find ${shr} -type f -name libSherpaMain.so.0.0.0`
-  echo "testfile: "${testfile}
-  testbit=`file ${testfile} | grep -i -c "ELF 32"`
-  echo "testbit: "${testbit}
-  if [ ${testbit} -ge 1 ]; then
-##  cp ${shr}/share/SHERPA-MC/makelibs .
-    fix_makelibs
-    fi
-    echo " <I> compiling libraries..."
-    ./makelibs 1>${shrun}/${outflbs}_mklib.out 2>${shrun}/${outflbs}_mklib.err
-    nf=`du -sh | grep -o "\." | grep -c "\."`
-    lsize=`du -sh  | cut -f 1-${nf} -d "."`
-    echo " <I>  -> raw size: "${lsize}
-    echo " <I> cleaning libraries..."
-    clean_libs 1>${shrun}/${outflbs}_cllib.out 2>${shrun}/${outflbs}_cllib.err
+
+  if [ "${FLGAMEGIC}" == "TRUE" ]; then
+
+    FLGNEWCODE="TRUE"
+    FLGWRITLIB="TRUE"
+
+    while [ "${FLGNEWCODE}" = "TRUE" ] || [ "${FLGWRITLIB}" = "TRUE" ]; do
+
+# compile created library code
+      echo " <I> compiling libraries..."
+      ./makelibs ${POPTS} 1>>${shrun}/${outflbs}_mklib.out 2>>${shrun}/${outflbs}_mklib.err
+# get gross size of created libraries
+      nf=`du -sh | grep -o "\." | grep -c "\."`
+      lsize=`du -sh  | cut -f 1-${nf} -d "."`
+      echo " <I>  -> raw size: "${lsize}
+      echo " <I> cleaning libraries..."
+      clean_libs 1>>${shrun}/${outflbs}_cllib.out 2>>${shrun}/${outflbs}_cllib.err
+# get net size of created libraries
+      nf=`du -sh | grep -o "\." | grep -c "\."`
+      lsize=`du -sh  | cut -f 1-${nf} -d "."`
+      echo " <I>  -> clean size: "${lsize}
+
+# reinvoke Sherpa
+      echo " <I> re-invoking Sherpa for futher library/cross section calculation"
+      ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>>${shrun}/${outflbs}_passLC.out 2>>${shrun}/${outflbs}_passLC.err
+
+# newly created process code by AMEGIC?
+      cd ${dir1}
+      lastdir=`ls -C1 -drt * | tail -1`
+      npdir=`echo ${lastdir} | grep -c "P2"`
+      if [ ${npdir} -gt 0 ]; then
+        echo " <I> (AMEGIC) library code was created in (at least) "${lastdir}
+        FLGNEWCODE="TRUE"
+      else
+        FLGNEWCODE="FALSE"
+      fi
+      cd ${pth}
+
+# mentioning of "" in last 100 lines output file?
+      nlines=200
+      nphbw=`tail -${nlines} ${shrun}/${outflbs}_passLC.out | grep -c "has been written"`
+      npasw=`tail -${nlines} ${shrun}/${outflbs}_passLC.out | grep -c "AMEGIC::Single_Process::WriteLibrary"`
+      if [ ${nphbw} -gt 0 ] || [ ${npasw} -gt 0 ]; then
+        echo "<I> (AMEGIC) detected library writing: "${nphbw}" (HBW), "${npasw}" (ASW)"
+        FLGWRITLIB="TRUE"
+      else
+        FLGWRITLIB="FALSE"
+      fi
+
+    done
+
   fi
-  nf=`du -sh | grep -o "\." | grep -c "\."`
-  lsize=`du -sh  | cut -f 1-${nf} -d "."`
-  echo " <I>  -> clean size: "${lsize}
+
 ###  cd ${shrun}
 fi
 
-if [ "${FLGCOMIX}" == "FALSE" ]; then
-## second pass (save integration results)
-  if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
-    echo " <I> calculating cross sections..."
-    ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err #Sherpa 1.3.0 needs full path MN 070611
-#    ${sherpaexe} -p ${pth} -g -r ${pth}/${dir2} 1>${shrun}/${outflbs}_pass2.out 2>${shrun}/${outflbs}_pass2.err
-    if [ -d ${dir3} ]; then
-      mv ${dir3} ${pth}/
-    else
-      mkdir ${pth}/${dir3}
-    fi
-  fi
-## third pass (event generation)
+if [ "${FLGAMEGIC}" == "TRUE" ]; then
+## last pass (event generation)
   if [ "${lbo}" = "EVTS" ]; then
     echo " <I> generating events..."
-    ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_pass3.out 2>${shrun}/${outflbs}_pass3.err #Sherpa 1.3.0 needs full path MN 070611
+    ${sherpaexe} "PATH="${pth} "PATH_PIECE="${pth} "RESULT_DIRECTORY="${dir2} 1>${shrun}/${outflbs}_passE.out 2>${shrun}/${outflbs}_passE.err
   fi
 fi
 
@@ -476,10 +505,17 @@ if [ "${lbo}" = "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   mv ${crssfile} ${shrun}/
 fi
 
-####
- migdir=`find ./ -type d -name MIG\*`
-if [ -d ${migdir} ]; then
-  tar -czf ${gridfile} ${migdir}
+#### create tarball with multiple interactions grid files
+migdir=`find ./ -type d -name MIG\*`
+echo " <I> MPI grid located in "${migdir}
+migfil=`find ./ -type f -name MPI\*.dat`
+echo " <I> MPI file found: "${migfil}
+if [ -d "${migdir}" ]; then
+  if [ -e "${migfil}" ]; then
+    tar -czf ${gridfile} ${migdir} ${migfil}
+  else
+    tar -czf ${gridfile} ${migdir}
+  fi
   mv ${gridfile} ${shrun}/
 fi
 ####
