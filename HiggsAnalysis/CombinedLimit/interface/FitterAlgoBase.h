@@ -37,6 +37,9 @@ protected:
   static float stepSize_;
   static int   maxFailedSteps_;
 
+  enum ProfilingMode { ProfileAll, ProfileNonNuisances, ProfilePOI, NoProfiling };
+  static ProfilingMode profileMode_;
+
   static bool  saveNLL_, keepFailures_, protectUnbinnedChannels_;
   static float nllValue_;
   std::auto_ptr<RooAbsReal> nll;

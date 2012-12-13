@@ -31,13 +31,12 @@
 #include <Math/MinimizerOptions.h>
 #include <Math/QuantFuncMathCore.h>
 #include <Math/ProbFunc.h>
+#include <RooStats/RooStatsUtils.h>
 
 using namespace RooStats;
 
 std::string FitterAlgoBase::minimizerAlgo_ = "Minuit2";
 std::string FitterAlgoBase::minimizerAlgoForMinos_ = "Minuit2,simplex";
-#include <Math/QuantFuncMathCore.h>
-#include <Math/ProbFunc.h>
 float       FitterAlgoBase::minimizerTolerance_ = 1e-2;
 float       FitterAlgoBase::minimizerToleranceForMinos_ = 1e-4;
 int         FitterAlgoBase::minimizerStrategy_  = 1;
@@ -51,6 +50,7 @@ bool        FitterAlgoBase::saveNLL_ = false;
 bool        FitterAlgoBase::keepFailures_ = false;
 bool        FitterAlgoBase::protectUnbinnedChannels_ = false;
 float       FitterAlgoBase::nllValue_ = std::numeric_limits<float>::quiet_NaN();
+FitterAlgoBase::ProfilingMode FitterAlgoBase::profileMode_ = ProfileAll;
 
 FitterAlgoBase::FitterAlgoBase(const char *title) :
     LimitAlgo(title)
@@ -67,6 +67,7 @@ FitterAlgoBase::FitterAlgoBase(const char *title) :
         ("minimizerAlgoForMinos",      boost::program_options::value<std::string>(&minimizerAlgoForMinos_)->default_value(minimizerAlgoForMinos_), "Choice of minimizer (Minuit vs Minuit2) for profiling in robust fits")
         ("minimizerStrategyForMinos",  boost::program_options::value<int>(&minimizerStrategyForMinos_)->default_value(minimizerStrategyForMinos_),      "Stragegy for minimizer for profiling in robust fits")
         ("minimizerToleranceForMinos",  boost::program_options::value<float>(&minimizerToleranceForMinos_)->default_value(minimizerToleranceForMinos_),      "Tolerance for minimizer for profiling in robust fits")
+        ("profilingMode", boost::program_options::value<std::string>()->default_value("all"), "What to profile when computing uncertainties: all, none (at least for now).")
         ("saveNLL",  "Save the negative log-likelihood at the minimum in the output tree (note: value is relative to the pre-fit state)")
         ("keepFailures",  "Save the results even if the fit is declared as failed (for NLL studies)")
         ("protectUnbinnedChannels", "Protect PDF from going negative in unbinned channels")
@@ -78,6 +79,12 @@ void FitterAlgoBase::applyOptionsBase(const boost::program_options::variables_ma
     saveNLL_ = vm.count("saveNLL");
     keepFailures_ = vm.count("keepFailures");
     protectUnbinnedChannels_ = vm.count("protectUnbinnedChannels");
+    std::string profileMode = vm["profilingMode"].as<std::string>();
+    if      (profileMode == "all")          profileMode_ = ProfileAll;
+    //else if (profileMode == "nonNuisances") profileMode_ = ProfileNonNuisances;
+    //else if (profileMode == "poi")          profileMode_ = ProfilePOI;
+    else if (profileMode == "none")         profileMode_ = NoProfiling;
+    else throw std::invalid_argument("option 'profilingMode' can only take as values 'all', 'none' (at least for now)\n");
 }
 
 bool FitterAlgoBase::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -144,19 +151,44 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
 
     std::auto_ptr<RooArgSet> allpars(pdf.getParameters(data));
 
+    RooArgSet frozenParameters;
+    switch (profileMode_) {
+        case ProfileNonNuisances:
+            throw std::logic_error("ProfileNonNuisances not implemented\n");
+        case ProfilePOI:
+            throw std::logic_error("ProfilePOI not implemented\n");
+        case NoProfiling:
+            if (verbose > 1) fprintf(sentry.trueStdOut(), "Will not profile any parameters.\n");
+            frozenParameters.add(*allpars);
+            RooStats::RemoveConstantParameters(&frozenParameters);
+            frozenParameters.remove(rs);
+            break;
+        case ProfileAll:
+            if (verbose > 1) fprintf(sentry.trueStdOut(), "Will profile all parameters.\n");
+            break;
+    }
+
+    //If I have frozen some parameters, then the easiest thing is to just repeat the fit once again
+    if (frozenParameters.getSize()) {
+        utils::setAllConstant(frozenParameters, true);
+        ret = doFit(pdf,data,rs,constrain,doHesse,ndim,reuseNLL,saveFitResult);
+        utils::setAllConstant(frozenParameters, false);
+        return ret;
+    }
+ 
     for (int i = 0, n = rs.getSize(); i < n; ++i) {
         // if this is not the first fit, reset parameters  
         if (i) {
             RooArgSet oldparams(ret->floatParsFinal());
             *allpars = oldparams;
         }
-    
+   
         // get the parameter to scan, amd output variable in fit result
         RooRealVar &r = dynamic_cast<RooRealVar &>(*rs.at(i));
         RooRealVar &rf = dynamic_cast<RooRealVar &>(*ret->floatParsFinal().find(r.GetName()));
         double r0 = r.getVal(), rMin = r.getMin(), rMax = r.getMax();
 
-        if (!robustFit_) {
+       if (!robustFit_) {
             if (do95_) {
                 throw std::runtime_error("95% CL errors with Minos are not working at the moment.");
                 minim.setErrorLevel(delta95);
@@ -178,7 +210,7 @@ RooFitResult *FitterAlgoBase::doFit(RooAbsPdf &pdf, RooAbsData &data, const RooA
             }
        } else {
             r.setVal(r0); r.setConstant(true);
-            
+ 
             CascadeMinimizer minim2(*nll, CascadeMinimizer::Constrained);
             minim2.setStrategy(minimizerStrategyForMinos_);
 
