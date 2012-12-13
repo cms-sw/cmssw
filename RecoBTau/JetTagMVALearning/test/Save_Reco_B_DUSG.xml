@@ -62,8 +62,12 @@
 			<group><box><range max="150"/><range min="-1.2" max="1.2"/></box></group>
 			<group><box><range max="150"/><range min="-2.1" max="2.1"/></box></group>
 			<group><box><range max="150"/><range/></box></group>
+			<group><box><range max="400"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range max="400"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range max="400"/><range/></box></group>
+			<group><box><range max="600"/><range min="-1.2" max="1.2"/></box></group>
+      <group><box><range max="600"/><range/></box></group>
 			<group><box><range/><range min="-1.2" max="1.2"/></box></group>
-			<group><box><range/><range min="-2.1" max="2.1"/></box></group>
 			<group><box><range/><range/></box></group>
 		</config>
 		<output>
