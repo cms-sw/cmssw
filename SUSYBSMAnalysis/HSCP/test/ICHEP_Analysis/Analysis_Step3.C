@@ -1199,7 +1199,7 @@ void Analysis_Step3(char* SavePath)
 
                //Recompute dE/dx on the fly
                if(dedxSObj){
-                  dedxMObj = dEdxEstimOnTheFly(ev, track, dedxMObj, dEdxSF, true, useClusterCleaning);
+                  dedxMObj = dEdxEstimOnTheFly(ev, track, dedxMObj, dEdxSF, false, useClusterCleaning);
                   dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxSF, dEdxTemplates, TypeMode==5, useClusterCleaning);
 
                   if(TypeMode==5)OpenAngle = deltaROpositeTrack(hscpColl, hscp); //OpenAngle is a global variable... that's uggly C++, but that's the best I found so far

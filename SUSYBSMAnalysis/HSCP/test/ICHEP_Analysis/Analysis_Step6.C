@@ -14,7 +14,8 @@ class stAllInfo{
    public:
    double Mass, MassMean, MassSigma, MassCut;
    double XSec_Th, XSec_Err, XSec_Exp, XSec_ExpUp, XSec_ExpDown, XSec_Exp2Up, XSec_Exp2Down, XSec_Obs;
-  double  Eff, Eff_SYSTP, Eff_SYSTI, Eff_SYSTM, Eff_SYSTT, Eff_SYSTPU, TotalUnc;
+   double  Eff, Eff_SYSTP, Eff_SYSTI, Eff_SYSTM, Eff_SYSTT, Eff_SYSTPU, TotalUnc;
+   double  EffE, EffE_SYSTP, EffE_SYSTI, EffE_SYSTM, EffE_SYSTT, EffE_SYSTPU;
    double Significance; double XSec_5Sigma;
    double Index, WP_Pt, WP_I, WP_TOF;
    float  NData, NPred, NPredErr, NSign;
@@ -26,7 +27,8 @@ class stAllInfo{
       Index         = 0;      WP_Pt         = 0;      WP_I          = 0;      WP_TOF        = 0;
       XSec_Th       = 0;      XSec_Err      = 0;      XSec_Exp      = 1E50;   XSec_ExpUp    = 1E50;   XSec_ExpDown  = 1E50;    XSec_Exp2Up   = 1E50;    XSec_Exp2Down = 1E50;    XSec_Obs    = 1E50;
       Significance  = 1E50;   XSec_5Sigma   = 1E50;
-      Eff           = 0;      Eff_SYSTP     = 0;      Eff_SYSTI     = 0;      Eff_SYSTM     = 0;      Eff_SYSTT     = 0;
+      Eff           = 0;      Eff_SYSTP     = 0;      Eff_SYSTI     = 0;      Eff_SYSTM     = 0;      Eff_SYSTT     = 0;   Eff_SYSTPU  = 0;
+      EffE          = 0;      EffE_SYSTP    = 0;      EffE_SYSTI    = 0;      EffE_SYSTM    = 0;      EffE_SYSTT    = 0;   EffE_SYSTPU = 0;
       NData         = 0;      NPred         = 0;      NPredErr      = 0;      NSign         = 0;      LInt          = 0;
       if(path=="")return;
       FILE* pFile = fopen(path.c_str(),"r");
@@ -39,12 +41,12 @@ class stAllInfo{
       fscanf(pFile,"WP_Pt        : %lf\n",&WP_Pt);
       fscanf(pFile,"WP_I         : %lf\n",&WP_I);
       fscanf(pFile,"WP_TOF       : %lf\n",&WP_TOF);
-      fscanf(pFile,"Eff          : %lf\n",&Eff);
-      fscanf(pFile,"Eff_SystP    : %lf\n",&Eff_SYSTP);
-      fscanf(pFile,"Eff_SystI    : %lf\n",&Eff_SYSTI);
-      fscanf(pFile,"Eff_SystM    : %lf\n",&Eff_SYSTM);
-      fscanf(pFile,"Eff_SystT    : %lf\n",&Eff_SYSTT);
-      fscanf(pFile,"Eff_SystPU   : %lf\n",&Eff_SYSTPU);
+      fscanf(pFile,"Eff          : %lf +- %lf\n",&Eff       , &EffE );
+      fscanf(pFile,"Eff_SystP    : %lf +- %lf\n",&Eff_SYSTP , &EffE_SYSTP );
+      fscanf(pFile,"Eff_SystI    : %lf +- %lf\n",&Eff_SYSTI , &EffE_SYSTI );
+      fscanf(pFile,"Eff_SystM    : %lf +- %lf\n",&Eff_SYSTM , &EffE_SYSTM );
+      fscanf(pFile,"Eff_SystT    : %lf +- %lf\n",&Eff_SYSTT , &EffE_SYSTT );
+      fscanf(pFile,"Eff_SystPU   : %lf +- %lf\n",&Eff_SYSTPU, &EffE_SYSTPU);
       fscanf(pFile,"TotalUnc     : %lf\n",&TotalUnc);
       fscanf(pFile,"Signif       : %lf\n",&Significance);
       fscanf(pFile,"XSec_Th      : %lf\n",&XSec_Th);
@@ -74,12 +76,12 @@ class stAllInfo{
       fprintf(pFile,"WP_Pt        : %f\n",WP_Pt);
       fprintf(pFile,"WP_I         : %f\n",WP_I);
       fprintf(pFile,"WP_TOF       : %f\n",WP_TOF);
-      fprintf(pFile,"Eff          : %f\n",Eff);
-      fprintf(pFile,"Eff_SystP    : %f\n",Eff_SYSTP);
-      fprintf(pFile,"Eff_SystI    : %f\n",Eff_SYSTI);
-      fprintf(pFile,"Eff_SystM    : %f\n",Eff_SYSTM);
-      fprintf(pFile,"Eff_SystT    : %f\n",Eff_SYSTT);
-      fprintf(pFile,"Eff_SystPU   : %f\n",Eff_SYSTPU);
+      fprintf(pFile,"Eff          : %f +- %f\n",Eff       , EffE);
+      fprintf(pFile,"Eff_SystP    : %f +- %f\n",Eff_SYSTP , EffE_SYSTP);
+      fprintf(pFile,"Eff_SystI    : %f +- %f\n",Eff_SYSTI , EffE_SYSTI);
+      fprintf(pFile,"Eff_SystM    : %f +- %f\n",Eff_SYSTM , EffE_SYSTM);
+      fprintf(pFile,"Eff_SystT    : %f +- %f\n",Eff_SYSTT , EffE_SYSTT);
+      fprintf(pFile,"Eff_SystPU   : %f +- %f\n",Eff_SYSTPU, EffE_SYSTPU);
       fprintf(pFile,"TotalUnc     : %f\n",TotalUnc);
       fprintf(pFile,"Signif       : %f\n",Significance);
       fprintf(pFile,"XSec_Th      : %f\n",XSec_Th);
@@ -2148,6 +2150,7 @@ double computeSignificance(string datacard, bool expected, string& signal, strin
 bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, string& InputPattern, string& signal, unsigned int CutIndex, bool Shape, bool Temporary, stAllInfo& result, TH1* MassData, TH1* MassPred, TH1* MassSign, TH1* MassSignP, TH1* MassSignI, TH1* MassSignM, TH1* MassSignT, TH1* MassSignPU){
    TH1D *MassDataProj=NULL, *MassPredProj=NULL, *MassSignProj=NULL, *MassSignProjP=NULL, *MassSignProjI=NULL, *MassSignProjM=NULL, *MassSignProjT=NULL, *MassSignProjPU=NULL;
    double NData, NPredErr, NPred, NSign, NSignP, NSignI, NSignM, NSignT, NSignPU;
+   double NSignErr, NSignPErr, NSignIErr, NSignMErr, NSignTErr, NSignPUErr;
    double signalsMeanHSCPPerEvent = GetSignalMeanHSCPPerEvent(InputPattern,CutIndex, MinRange, MaxRange);
 
    //IF 2D histograms --> we get all the information from there (and we can do shape based analysis AND/OR cut on mass)
@@ -2167,13 +2170,12 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       NPred       = MassPredProj->Integral(MassPredProj->GetXaxis()->FindBin(MinRange), MassPredProj->GetXaxis()->FindBin(MaxRange));
       NPredErr    = pow(NPred*RescaleError,2);
       for(int i=MassPredProj->GetXaxis()->FindBin(MinRange); i<=MassPredProj->GetXaxis()->FindBin(MaxRange) ;i++){NPredErr+=pow(MassPredProj->GetBinError(i),2);}NPredErr=sqrt(NPredErr);
-      NSign       = (MassSignProj  ->Integral(MassSignProj  ->GetXaxis()->FindBin(MinRange), MassSignProj  ->GetXaxis()->FindBin(MaxRange))) / signalsMeanHSCPPerEvent;
-      NSignP      = (MassSignProjP ->Integral(MassSignProjP ->GetXaxis()->FindBin(MinRange), MassSignProjP ->GetXaxis()->FindBin(MaxRange))) / signalsMeanHSCPPerEvent;
-      NSignI      = (MassSignProjI ->Integral(MassSignProjI ->GetXaxis()->FindBin(MinRange), MassSignProjI ->GetXaxis()->FindBin(MaxRange))) / signalsMeanHSCPPerEvent;
-      NSignM      = (MassSignProjM ->Integral(MassSignProjM ->GetXaxis()->FindBin(MinRange), MassSignProjM ->GetXaxis()->FindBin(MaxRange))) / signalsMeanHSCPPerEvent;
-      NSignT      = (MassSignProjT ->Integral(MassSignProjT ->GetXaxis()->FindBin(MinRange), MassSignProjT ->GetXaxis()->FindBin(MaxRange))) / signalsMeanHSCPPerEvent;
-      NSignPU     = (MassSignProjPU->Integral(MassSignProjPU->GetXaxis()->FindBin(MinRange), MassSignProjPU->GetXaxis()->FindBin(MaxRange))) / signalsMeanHSCPPerEvent;
-
+      NSign       = (MassSignProj  ->IntegralAndError(MassSignProj  ->GetXaxis()->FindBin(MinRange), MassSignProj  ->GetXaxis()->FindBin(MaxRange), NSignErr  )) / signalsMeanHSCPPerEvent;  NSignErr  /= signalsMeanHSCPPerEvent;
+      NSignP      = (MassSignProjP ->IntegralAndError(MassSignProjP ->GetXaxis()->FindBin(MinRange), MassSignProjP ->GetXaxis()->FindBin(MaxRange), NSignPErr )) / signalsMeanHSCPPerEvent;  NSignPErr /= signalsMeanHSCPPerEvent;
+      NSignI      = (MassSignProjI ->IntegralAndError(MassSignProjI ->GetXaxis()->FindBin(MinRange), MassSignProjI ->GetXaxis()->FindBin(MaxRange), NSignIErr )) / signalsMeanHSCPPerEvent;  NSignIErr /= signalsMeanHSCPPerEvent;
+      NSignM      = (MassSignProjM ->IntegralAndError(MassSignProjM ->GetXaxis()->FindBin(MinRange), MassSignProjM ->GetXaxis()->FindBin(MaxRange), NSignMErr )) / signalsMeanHSCPPerEvent;  NSignMErr /= signalsMeanHSCPPerEvent;
+      NSignT      = (MassSignProjT ->IntegralAndError(MassSignProjT ->GetXaxis()->FindBin(MinRange), MassSignProjT ->GetXaxis()->FindBin(MaxRange), NSignTErr )) / signalsMeanHSCPPerEvent;  NSignTErr /= signalsMeanHSCPPerEvent;
+      NSignPU     = (MassSignProjPU->IntegralAndError(MassSignProjPU->GetXaxis()->FindBin(MinRange), MassSignProjPU->GetXaxis()->FindBin(MaxRange), NSignPUErr)) / signalsMeanHSCPPerEvent;  NSignPUErr/= signalsMeanHSCPPerEvent;
    //IF 1D histograms --> we get all the information from the ABCD method output 
    }else{
       Shape=false; //can not do shape based if we don't get the shapes
@@ -2181,6 +2183,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       NPredErr    = MassPred  ->GetBinError  (CutIndex+1);
       NPred       = MassPred  ->GetBinContent(CutIndex+1);
       NSign       = MassSign  ->GetBinContent(CutIndex+1) / signalsMeanHSCPPerEvent;
+      NSignErr    = MassSign  ->GetBinError  (CutIndex+1) / signalsMeanHSCPPerEvent;
 
       MassSignProjP      = ((TH2D*)MassSignP )->ProjectionY("MassSignProP"  ,CutIndex+1,CutIndex+1);
       MassSignProjI      = ((TH2D*)MassSignI )->ProjectionY("MassSignProI"  ,CutIndex+1,CutIndex+1);
@@ -2188,11 +2191,11 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       MassSignProjT      = ((TH2D*)MassSignT )->ProjectionY("MassSignProT"  ,CutIndex+1,CutIndex+1);
       MassSignProjPU     = ((TH2D*)MassSignPU)->ProjectionY("MassSignProPU" ,CutIndex+1,CutIndex+1);
 
-      NSignP      = MassSignProjP ->Integral(0, MassSignProjP ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
-      NSignI      = MassSignProjI ->Integral(0, MassSignProjI ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
-      NSignM      = MassSignProjM ->Integral(0, MassSignProjM ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
-      NSignT      = MassSignProjT ->Integral(0, MassSignProjT ->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
-      NSignPU     = MassSignProjPU->Integral(0, MassSignProjPU->GetNbinsX()+1) / signalsMeanHSCPPerEvent;
+      NSignP      = MassSignProjP ->IntegralAndError(0, MassSignProjP ->GetNbinsX()+1, NSignPErr)  / signalsMeanHSCPPerEvent;  NSignPErr /= signalsMeanHSCPPerEvent;
+      NSignI      = MassSignProjI ->IntegralAndError(0, MassSignProjI ->GetNbinsX()+1, NSignIErr)  / signalsMeanHSCPPerEvent;  NSignIErr /= signalsMeanHSCPPerEvent;
+      NSignM      = MassSignProjM ->IntegralAndError(0, MassSignProjM ->GetNbinsX()+1, NSignMErr)  / signalsMeanHSCPPerEvent;  NSignMErr /= signalsMeanHSCPPerEvent;
+      NSignT      = MassSignProjT ->IntegralAndError(0, MassSignProjT ->GetNbinsX()+1, NSignTErr)  / signalsMeanHSCPPerEvent;  NSignTErr /= signalsMeanHSCPPerEvent;
+      NSignPU     = MassSignProjPU->IntegralAndError(0, MassSignProjPU->GetNbinsX()+1, NSignPUErr) / signalsMeanHSCPPerEvent;  NSignPUErr/= signalsMeanHSCPPerEvent;
 
       NPredErr = sqrt(pow((NPred* RescaleError), 2) + pow(NPredErr,2));      // incorporate background uncertainty
    }
@@ -2209,6 +2212,15 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    double EffM        = NSignM  / (result.XSec_Th*result.LInt);
    double EffT        = NSignT  / (result.XSec_Th*result.LInt);
    double EffPU       = NSignPU / (result.XSec_Th*result.LInt);
+
+   double EffErr      = NSignErr   / (result.XSec_Th*result.LInt);
+   double EffPErr     = NSignPErr  / (result.XSec_Th*result.LInt);
+   double EffIErr     = NSignIErr  / (result.XSec_Th*result.LInt);
+   double EffMErr     = NSignMErr  / (result.XSec_Th*result.LInt);
+   double EffTErr     = NSignTErr  / (result.XSec_Th*result.LInt);
+   double EffPUErr    = NSignPUErr / (result.XSec_Th*result.LInt);
+
+
    if(Eff==0)return false;
 //   if(Eff<=1E-5)return false; // if Eff<0.001% -> limit will hardly converge and we are probably not interested by this point anyway
 
@@ -2222,6 +2234,12 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    result.Eff_SYSTM = EffM;
    result.Eff_SYSTT = EffT;
    result.Eff_SYSTPU= EffPU;
+   result.EffE       = EffErr;
+   result.EffE_SYSTP = EffPErr;
+   result.EffE_SYSTI = EffIErr;
+   result.EffE_SYSTM = EffMErr;
+   result.EffE_SYSTT = EffTErr;
+   result.EffE_SYSTPU= EffPUErr;
    result.NData     = NData;
    result.NPred     = NPred;
    result.NPredErr  = NPredErr;
