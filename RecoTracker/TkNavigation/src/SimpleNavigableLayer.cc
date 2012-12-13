@@ -241,7 +241,10 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
 
   //initiate the first iteration
   Lvect && someLayers = nextLayers(fts,timeDirection);
-  if (someLayers.empty()) return someLayers;
+  if (someLayers.empty()) {
+    std::cout    <<"Number of compatible layers: "<< 0 << std::endl;
+    return someLayers;
+  }
 
 
   Lset collect; //a container of unique instances. to avoid duplicates
