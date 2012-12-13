@@ -9,6 +9,8 @@
 #include <memory>
 #include <boost/foreach.hpp>
 
+#include <TFormula.h>
+
 #include <iostream>
 
 struct PFTauSelectorDefinition {
@@ -18,21 +20,31 @@ struct PFTauSelectorDefinition {
   typedef std::vector< const reco::PFTau *> container;
   typedef container::const_iterator const_iterator;
 
-  struct DiscCutPair {
-    edm::Handle<reco::PFTauDiscriminator> handle;
-    edm::InputTag inputTag;
-    double cut;
+  struct DiscCutPair 
+  {
+    DiscCutPair() 
+      : cutFormula_(0)
+    {}
+    ~DiscCutPair() 
+    {
+      delete cutFormula_;
+    }
+    edm::Handle<reco::PFTauDiscriminator> handle_;
+    edm::InputTag inputTag_;
+    double cut_;
+    TFormula* cutFormula_;
   };
-  typedef std::vector<DiscCutPair> DiscCutPairVec;
+  typedef std::vector<DiscCutPair*> DiscCutPairVec;
 
   PFTauSelectorDefinition (const edm::ParameterSet &cfg) {
     std::vector<edm::ParameterSet> discriminators =
       cfg.getParameter<std::vector<edm::ParameterSet> >("discriminators");
     // Build each of our cuts
-    BOOST_FOREACH(const edm::ParameterSet &pset, discriminators) {
-      DiscCutPair newCut;
-      newCut.inputTag = pset.getParameter<edm::InputTag>("discriminator");
-      newCut.cut = pset.getParameter<double>("selectionCut");
+    BOOST_FOREACH(const edm::ParameterSet& pset, discriminators) {
+      DiscCutPair* newCut = new DiscCutPair();
+      newCut->inputTag_ = pset.getParameter<edm::InputTag>("discriminator");
+      if ( pset.existsAs<std::string>("selectionCut") ) newCut->cutFormula_ = new TFormula("selectionCut", pset.getParameter<std::string>("selectionCut").data());
+      else newCut->cut_ = pset.getParameter<double>("selectionCut");
       discriminators_.push_back(newCut);
     }
 
@@ -40,6 +52,13 @@ struct PFTauSelectorDefinition {
     if (cfg.exists("cut")) {
       cut_.reset(new StringCutObjectSelector<reco::PFTau>(
             cfg.getParameter<std::string>( "cut" )));
+    }
+  }
+
+  ~PFTauSelectorDefinition()
+  {
+    BOOST_FOREACH(DiscCutPair* disc, discriminators_) {
+      delete disc;
     }
   }
 
@@ -57,18 +76,26 @@ struct PFTauSelectorDefinition {
     }
 
     // Load each discriminator
-    BOOST_FOREACH(DiscCutPair &disc, discriminators_) {
-      e.getByLabel(disc.inputTag, disc.handle);
+    BOOST_FOREACH(DiscCutPair* disc, discriminators_) {
+      e.getByLabel(disc->inputTag_, disc->handle_);
     }
 
     const size_t nTaus = hc->size();
     for (size_t iTau = 0; iTau < nTaus; ++iTau) {
       bool passed = true;
       reco::PFTauRef tau(hc, iTau);
+      //std::cout << "PFTauSelector: Pt = " << tau->pt() << ", eta = " << tau->eta() << ", phi = " << tau->phi() << std::endl;
       // Check if it passed all the discrimiantors
-      BOOST_FOREACH(const DiscCutPair &disc, discriminators_) {
+      BOOST_FOREACH(const DiscCutPair* disc, discriminators_) {
         // Check this discriminator passes
-        if (!(*disc.handle)[tau] > disc.cut) {
+	bool passedDisc = true;
+	if ( disc->cutFormula_ ) {
+	  passedDisc = (disc->cutFormula_->Eval((*disc->handle_)[tau]) > 0.5);
+	  //std::cout << "formula = " << disc->cutFormula_->GetTitle() << ", discr = " << (*disc->handle_)[tau] << ": passedDisc = " << passedDisc << std::endl;
+	} else {
+	  passedDisc = ((*disc->handle_)[tau] > disc->cut_);
+	}
+        if ( !passedDisc ) {
           passed = false;
           break;
         }
