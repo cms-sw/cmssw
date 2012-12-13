@@ -132,6 +132,9 @@ def customise(process):
   print "Setting transformationMode to %i" % process.customization_options.transformationMode.value()
   process.generator.Ztautau.transformationMode = process.customization_options.transformationMode
 
+  print "Setting rfRotationAngle to %1.0f" % process.customization_options.rfRotationAngle.value()
+  process.generator.Ztautau.rfRotationAngle = process.customization_options.rfRotationAngle
+  
   if process.customization_options.overrideBeamSpot.value():
     bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") 
     process.GlobalTag.toGet = cms.VPSet(

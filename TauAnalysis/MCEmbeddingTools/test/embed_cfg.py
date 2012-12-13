@@ -49,7 +49,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.2 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -253,6 +253,7 @@ process.customization_options = cms.PSet(
     cleaningMode                 = cms.string("DEDX"), # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
     mdtau                        = cms.int32(0),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection
     transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
+    rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus
     embeddingMode                = cms.string("RH"),   # embedding mode: 'PF'=particle flow embedding, 'RH'=recHit embedding
     replaceGenOrRecMuonMomenta   = cms.string("rec"),  # take momenta of generated tau leptons from: 'rec'=reconstructed muons, 'gen'=generator level muons
     minVisibleTransverseMomentum = cms.string(""),     # generator level cut on visible transverse momentum (typeN:pT,[...];[...])
@@ -268,6 +269,7 @@ process.customization_options = cms.PSet(
 #__process.customization_options.ZmumuCollection = cms.InputTag('$ZmumuCollection')
 #__process.customization_options.mdtau = cms.int32($mdtau)
 #__process.customization_options.minVisibleTransverseMomentum = cms.string("$minVisibleTransverseMomentum")
+#__process.customization_options.rfRotationAngle = cms.double($rfRotationAngle)
 #__process.customization_options.embeddingMode = cms.string("$embeddingMode")
 #__process.customization_options.replaceGenOrRecMuonMomenta = cms.string("$replaceGenOrRecMuonMomenta")  
 #__process.customization_options.cleaningMode = cms.string("$cleaningMode")
