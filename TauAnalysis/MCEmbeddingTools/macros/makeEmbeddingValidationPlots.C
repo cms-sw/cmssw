@@ -708,6 +708,8 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType("numTracksPtGt5", "numTracksPtGt5", "numTracksPtGt5", -0.5, +49.5, 50, "Num. Tracks of P_{T} > 5 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType("numTracksPtGt10", "numTracksPtGt10", "numTracksPtGt10", -0.5, +34.5, 50, "Num. Tracks of P_{T} > 10 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType("numTracksPtGt20", "numTracksPtGt20", "numTracksPtGt20", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 20 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType("numTracksPtGt30", "numTracksPtGt30", "numTracksPtGt30", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 30 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType("numTracksPtGt40", "numTracksPtGt40", "numTracksPtGt40", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 40 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   
   distributionsToPlot.push_back(plotEntryType("genMuonEta", "genMuonEta", "validationAnalyzer_mutau/goodMuonDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType("genMuonPt",  "genMuonPt",  "validationAnalyzer_mutau/goodMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
@@ -738,7 +740,11 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType("recPFMEt", "recPFMEt", "validationAnalyzer_mutau/rawPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrected", "recPFMEtTypeIcorrected", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrected", "recPFMEtTypeIcorrected", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-
+  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrectedMinusGenMEtParlZ", "recPFMEtTypeIcorrectedMinusGenMEtParlZ", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtParlZ", -100., +100., 50, "#DeltaE_{#parallel}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrectedMinusGenMEtParlZ", "recPFMEtTypeIcorrectedMinusGenMEtParlZ", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtParlZ", -100., +100., 50, "#DeltaE_{#parallel}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtPerpZ", 0., 100., 50, "#DeltaE_{#perp}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtPerpZ", 0., 100., 50, "#DeltaE_{#perp}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  
   TFile* inputFile_simDYtoTauTau = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoTauTau).data());
   TFile* inputFile_simDYtoMuMu_genEmbedding = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoMuMu_genEmbedding).data());
   TFile* inputFile_simDYtoMuMu_recEmbedding = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoMuMu_recEmbedding).data());

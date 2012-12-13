@@ -61,6 +61,15 @@ namespace
       }
     }
   }
+
+  void printHitMapRH(const edm::EventSetup& es, const std::map<uint32_t, int>& hitMap)
+  {
+    std::cout << "detIds:";
+    for ( std::map<uint32_t, int>::const_iterator rh = hitMap.begin();
+	  rh != hitMap.end(); ++rh ) {
+      printMuonDetId(es, rh->first);
+    }
+  }
 }
 
 void MuonDetCleaner::fillHitMap(edm::Event& evt, const edm::EventSetup& es, const reco::Candidate* muon, detIdToIntMap& hitMap)
@@ -70,6 +79,12 @@ void MuonDetCleaner::fillHitMap(edm::Event& evt, const edm::EventSetup& es, cons
   const reco::Muon* recoMuon = dynamic_cast<const reco::Muon*>(muon);
   if ( recoMuon && recoMuon->outerTrack().isNonnull() ) {
     const reco::TrackRef muonOuterTrack = recoMuon->outerTrack();   
+    TrackDetMatchInfo trackDetMatchInfo = trackAssociator_.associate(evt, es, *muonOuterTrack, trackAssociatorParameters_, TrackDetectorAssociator::Any);
+    for ( std::vector<TAMuonChamberMatch>::const_iterator rh = trackDetMatchInfo.chambers.begin();
+	  rh != trackDetMatchInfo.chambers.end(); ++rh ) {
+      ++hitMap[rh->id.rawId()];
+      ++numHits;
+    }
     for ( trackingRecHit_iterator rh = muonOuterTrack->recHitsBegin();
 	  rh != muonOuterTrack->recHitsEnd(); ++rh ) {
       fillHitMapRH(**rh, hitMap, numHits);
@@ -91,6 +106,7 @@ void MuonDetCleaner::fillHitMap(edm::Event& evt, const edm::EventSetup& es, cons
     else if ( muon->charge() < -0.5 ) muonCharge_string = "-";
     std::cout << "Mu" << muonCharge_string << ": Pt = " << muon->pt() << ", eta = " << muon->eta() << ", phi = " << muon->phi() 
 	      << " --> #Hits = " << numHits << std::endl;
+    if ( verbosity_ >= 2 ) printHitMapRH(es, hitMap);    
   }
 }
 

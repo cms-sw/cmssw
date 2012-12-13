@@ -6,9 +6,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.1 $
  *
- * $Id: MuonDetRecHitMixer.h,v 1.5 2012/10/24 09:37:14 veelken Exp $
+ * $Id: MuonDetRecHitMixer.h,v 1.1 2012/10/25 13:38:31 veelken Exp $
  *
  */
 
@@ -19,6 +19,8 @@
 
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
 
 #include <string>
 #include <vector>
@@ -39,6 +41,8 @@ class MuonDetRecHitMixer : public edm::EDProducer
   typedef std::map<uint32_t, int> detIdToIntMap;
 
   void addRecHits(std::map<T1, std::vector<T2> >&, const RecHitCollection&, bool, const detIdToIntMap&, const detIdToIntMap&, int&);
+
+  void printHitMapRH(const edm::EventSetup&, const RecHitCollection&);
 
   uint32_t getRawDetId(const T2&);
 
@@ -131,12 +135,29 @@ void MuonDetRecHitMixer<T1,T2>::produce(edm::Event& evt, const edm::EventSetup& 
       recHitCollection_output->put(recHit->first, recHit->second.begin(), recHit->second.end());
     }
     std::string instanceLabel = todoItem->srcCollection1_.instance(); 
-    evt.put(recHitCollection_output, instanceLabel);
-
     if ( verbosity_ ) {
-      std::cout << "<MuonDetRecHitMixer::produce> (" << moduleLabel_ << ":" << instanceLabel << "):" 
-		<< " #Hits = " << numHits_cleaned << " removed during cleaning." << std::endl;   
+      std::cout << "<MuonDetRecHitMixer::produce>:" << std::endl;   
+      std::cout << " #Hits(input1 = " << todoItem->srcCollection1_.label() << ":" << todoItem->srcCollection1_.instance() << ") = " << recHitCollection1->size() << std::endl;
+      if ( verbosity_ >= 2 ) printHitMapRH(es, *recHitCollection1);
+      std::cout << " #Hits(input2 = " << todoItem->srcCollection2_.label() << ":" << todoItem->srcCollection2_.instance() << ") = " << recHitCollection2->size() << std::endl;
+      if ( verbosity_ >= 2 ) printHitMapRH(es, *recHitCollection2);
+      std::cout << " #Hits(output = " << moduleLabel_ << ":" << instanceLabel << ") = " << recHitCollection_output->size() << std::endl;
+      if ( verbosity_ >= 2 ) printHitMapRH(es, *recHitCollection_output);
+      std::cout << " #Hits = " << numHits_cleaned << " removed during cleaning." << std::endl;   
+    }    
+    evt.put(recHitCollection_output, instanceLabel);
+  }
+}
+
+namespace
+{
+  bool matchHitMapRH(uint32_t rawDetId, const std::map<uint32_t, int>& hitMap)
+  {
+    for ( std::map<uint32_t, int>::const_iterator rh = hitMap.begin();
+	  rh != hitMap.end(); ++rh ) {
+      if ( matchMuonDetId(rawDetId, rh->first) && rh->second > 0 ) return true;
     }
+    return false;
   }
 }
 
@@ -150,8 +171,8 @@ void MuonDetRecHitMixer<T1,T2>::addRecHits(std::map<T1, std::vector<T2> >& recHi
 
     bool isToBeCleaned = false;
     if ( applyCleaning ) {      
-      isToBeCleaned |= (hitMapMuPlus.find(rawDetId)  != hitMapMuPlus.end()  && hitMapMuPlus.find(rawDetId)->second  > 0);
-      isToBeCleaned |= (hitMapMuMinus.find(rawDetId) != hitMapMuMinus.end() && hitMapMuMinus.find(rawDetId)->second > 0);
+      isToBeCleaned |= matchHitMapRH(rawDetId, hitMapMuPlus);
+      isToBeCleaned |= matchHitMapRH(rawDetId, hitMapMuMinus);
     }
       
     if ( !isToBeCleaned ) {
@@ -163,3 +184,12 @@ void MuonDetRecHitMixer<T1,T2>::addRecHits(std::map<T1, std::vector<T2> >& recHi
   }
 }
 
+template <typename T1, typename T2>
+void MuonDetRecHitMixer<T1,T2>::printHitMapRH(const edm::EventSetup& es, const RecHitCollection& recHits)
+{
+  std::cout << "detIds:";
+  for ( typename RecHitCollection::const_iterator rh = recHits.begin();
+	rh != recHits.end(); ++rh ) {
+    printMuonDetId(es, getRawDetId(*rh));
+  }
+}

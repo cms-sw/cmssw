@@ -170,6 +170,10 @@ def customise(process, inputProcess):
     selectedMuons = process.customization_options.ZmumuCollection,                                       
     verbosity = cms.int32(0)
   )
+  if process.customization_options.replaceGenOrRecMuonMomenta.value() == "gen":
+    process.muonDetHits.trackAssociator.muonMaxDistanceX = cms.double(1.e+3)
+    process.muonDetHits.trackAssociator.muonMaxDistanceX = cms.double(1.e+3)
+    process.muonDetHits.trackAssociator.dRMuonPreselection = cms.double(0.5)    
   process.ProductionFilterSequence += process.muonDetHits
 
   recHitMuonDetCleanerConfig = cms.PSet(

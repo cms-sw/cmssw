@@ -39,7 +39,10 @@ def customise(process):
       srcGenParticles2 = cms.InputTag("genParticles"),
       srcGenRemovedMuons = cms.InputTag("genMuonsFromZs")
     )
-    process.ProductionFilterSequence += process.genMetTrue
+    for p in process.paths:
+      pth = getattr(process, p)
+      if "genParticles" in pth.moduleNames():
+        pth.replace(process.genParticles, process.genParticles*process.genMetTrue)
   else:
     print "Input is Data"
   
@@ -197,7 +200,7 @@ def customise(process):
   # CV: need to keep 'generalTracksORG' collection in event-content,
   #     as (at least electron based) PFCandidates will refer to it,
   #     causing exception in 'pfNoPileUp' module otherwise
-  outputModule.outputCommands.extend(['keep *_generalTracksORG_*_*'])
+  outputModule.outputCommands.extend(['keep recoTracks_generalTracksORG_*_*'])
   #----------------------------------------------------------------------------------------------------------------------
 
   # mix collections of GSF electron tracks

@@ -7,9 +7,9 @@
  * 
  * \author Tomasz Maciej Frueboes
  *
- * \version $Revision: 1.16 $
+ * \version $Revision: 1.17 $
  *
- * $Id: ZmumuPFEmbedder.cc,v 1.16 2012/11/25 15:43:13 veelken Exp $
+ * $Id: ZmumuPFEmbedder.cc,v 1.17 2012/12/11 16:29:27 veelken Exp $
  *
  */
 
@@ -31,6 +31,9 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+
+#include <vector>
+#include <algorithm>
 
 class ZmumuPFEmbedder : public edm::EDProducer 
 {
@@ -62,12 +65,38 @@ ZmumuPFEmbedder::ZmumuPFEmbedder(const edm::ParameterSet& cfg)
 
 namespace
 {
-  template <typename T>
-  struct higherPtT
+  template<typename T>
+  struct muonMatchInfoType
   {
-    bool operator() (const T& t1, const T& t2)
+    muonMatchInfoType(const reco::Particle::LorentzVector& muonP4, const T* pfCandidate_or_track, double dR)
+      : muonPt_(muonP4.pt()),
+	pfCandidate_or_trackPt_(pfCandidate_or_track->pt()),
+	pfCandidate_or_trackCharge_(pfCandidate_or_track->charge()),
+	dR_(dR),
+	pfCandidate_or_track_(pfCandidate_or_track)
+    {}
+    ~muonMatchInfoType() {}
+    double muonPt_;
+    double pfCandidate_or_trackPt_;    
+    int pfCandidate_or_trackCharge_;
+    double dR_;
+    const T* pfCandidate_or_track_;
+  };
+
+  template <typename T>
+  struct SortMuonMatchInfosDescendingMatchQuality
+  {
+    bool operator() (const muonMatchInfoType<T>& m1, const muonMatchInfoType<T>& m2)
     {
-      return (t1.pt() > t2.pt());
+      // 1st criterion: prefer matches of high Pt
+      if ( m1.pfCandidate_or_trackPt_ > (0.5*m1.muonPt_) && m2.pfCandidate_or_trackPt_ < (0.5*m2.muonPt_) ) return true;  // m1 has higher rank than m2
+      if ( m1.pfCandidate_or_trackPt_ < (0.5*m1.muonPt_) && m2.pfCandidate_or_trackPt_ > (0.5*m2.muonPt_) ) return false; // m2 has higher rank than m1
+      // 2nd criterion: prefer matches to charged particles
+      if ( m1.pfCandidate_or_trackCharge_ != 0 && m2.pfCandidate_or_trackCharge_ == 0 ) return true;
+      if ( m1.pfCandidate_or_trackCharge_ == 0 && m2.pfCandidate_or_trackCharge_ != 0 ) return false;
+      // 3rd criterion: in case multiple matches to high Pt, charged particles exist, 
+      //                take particle matched most closely in dR
+      return (m1.dR_ < m2.dR_); 
     }
   };
 }
@@ -98,18 +127,29 @@ void ZmumuPFEmbedder::producePFCandColl(edm::Event& evt, const std::vector<reco:
    
 //--- iterate over list of reconstructed PFCandidates, 
 //    add PFCandidate to output collection in case it does not correspond to any selected muon
+  typedef muonMatchInfoType<reco::PFCandidate> muonToPFCandMatchInfoType;
+  std::vector<muonToPFCandMatchInfoType> selMuonToPFCandMatches;
+  for ( std::vector<reco::Particle::LorentzVector>::const_iterator selMuonP4 = selMuonP4s->begin();
+	selMuonP4 != selMuonP4s->end(); ++selMuonP4 ) {
+    std::vector<muonToPFCandMatchInfoType> tmpMatches;
+    for ( reco::PFCandidateCollection::const_iterator pfCandidate = pfCandidates->begin();
+	  pfCandidate != pfCandidates->end(); ++pfCandidate ) {
+      double dR = reco::deltaR(pfCandidate->p4(), *selMuonP4);
+      if ( dR < dRmatch_ ) tmpMatches.push_back(muonToPFCandMatchInfoType(*selMuonP4, &(*pfCandidate), dR));
+    }
+    // rank muon-to-pfCandidate matches by quality
+    std::sort(tmpMatches.begin(), tmpMatches.end(), SortMuonMatchInfosDescendingMatchQuality<reco::PFCandidate>());
+    if ( tmpMatches.size() > 0 ) selMuonToPFCandMatches.push_back(tmpMatches.front());
+  }
+
   for ( reco::PFCandidateCollection::const_iterator pfCandidate = pfCandidates->begin();
 	pfCandidate != pfCandidates->end(); ++pfCandidate ) {
-    double dRmin = 1.e+3;
-    for ( std::vector<reco::Particle::LorentzVector>::const_iterator selMuonP4 = selMuonP4s->begin();
-	  selMuonP4 != selMuonP4s->end(); ++selMuonP4 ) {
-      double dR = reco::deltaR(pfCandidate->p4(), *selMuonP4);
-      if ( dR < dRmin ) dRmin = dR;
+    bool isMuon = false;
+    for ( std::vector<muonToPFCandMatchInfoType>::const_iterator muonMatchInfo = selMuonToPFCandMatches.begin();
+	  muonMatchInfo != selMuonToPFCandMatches.end(); ++muonMatchInfo ) {
+      if ( muonMatchInfo->pfCandidate_or_track_ == &(*pfCandidate) ) isMuon = true;
     }
-
-    if ( dRmin < dRmatch_ ) continue; // it is a selected muon, do not copy
-       
-    pfCandidates_woMuons->push_back(*pfCandidate);
+    if ( !isMuon ) pfCandidates_woMuons->push_back(*pfCandidate); // pfCandidate belongs to a selected muon, do not copy
   }
 
   evt.put(pfCandidates_woMuons, "pfCands");
@@ -124,20 +164,31 @@ void ZmumuPFEmbedder::produceTrackColl(edm::Event& evt, const std::vector<reco::
 
   std::auto_ptr<reco::TrackCollection> tracks_woMuons(new reco::TrackCollection());
 
+  typedef muonMatchInfoType<reco::Track> muonToTrackMatchInfoType;
+  std::vector<muonToTrackMatchInfoType> selMuonToTrackMatches;
+  for ( std::vector<reco::Particle::LorentzVector>::const_iterator selMuonP4 = selMuonP4s->begin();
+	selMuonP4 != selMuonP4s->end(); ++selMuonP4 ) {
+    std::vector<muonToTrackMatchInfoType> tmpMatches;
+    for ( reco::TrackCollection::const_iterator track = tracks->begin();
+	track != tracks->end(); ++track ) {
+      double dR = reco::deltaR(track->eta(), track->phi(), selMuonP4->eta(), selMuonP4->phi());
+      if ( dR < dRmatch_ ) tmpMatches.push_back(muonToTrackMatchInfoType(*selMuonP4, &(*track), dR));
+    }
+    // rank muon-to-track matches by quality
+    std::sort(tmpMatches.begin(), tmpMatches.end(), SortMuonMatchInfosDescendingMatchQuality<reco::Track>());
+    if ( tmpMatches.size() > 0 ) selMuonToTrackMatches.push_back(tmpMatches.front());
+  }
+
   for ( reco::TrackCollection::const_iterator track = tracks->begin();
 	track != tracks->end(); ++track ) {
-    double dRmin = 1.e+3;
-    for ( std::vector<reco::Particle::LorentzVector>::const_iterator selMuonP4 = selMuonP4s->begin();
-	  selMuonP4 != selMuonP4s->end(); ++selMuonP4 ) {
-      double dR = reco::deltaR(track->eta(), track->phi(), selMuonP4->eta(), selMuonP4->phi());
-      if ( dR < dRmin ) dRmin = dR;
+    bool isMuon = false;
+    for ( std::vector<muonToTrackMatchInfoType>::const_iterator muonMatchInfo = selMuonToTrackMatches.begin();
+	  muonMatchInfo != selMuonToTrackMatches.end(); ++muonMatchInfo ) {
+      if ( muonMatchInfo->pfCandidate_or_track_ == &(*track) ) isMuon = true;
     }
-    bool isMuonTrack = (dRmin < dRmatch_);
-    if ( !isMuonTrack ) { // track belongs to a selected muon, do not copy
-      tracks_woMuons->push_back(*track);
-    }
+    if ( !isMuon ) tracks_woMuons->push_back(*track); // track belongs to a selected muon, do not copy
   }
-	
+
   evt.put(tracks_woMuons, "tracks");
 }
 

@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.1 2012/11/12 08:02:35 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.2 2012/11/25 15:43:12 veelken Exp $
  *
  */
 
@@ -60,13 +60,23 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     return dqmDirectory_full.Data();
   }
   
-  edm::InputTag srcMuons_;
-  edm::InputTag srcTracks_;
+  edm::InputTag srcRecMuons_;
+  edm::InputTag srcRecTracks_;
+  edm::InputTag srcRecPFCandidates_;
+  edm::InputTag srcRecVertex_;
+  edm::InputTag srcGenDiTaus_;
+  edm::InputTag srcGenLeg1_;
+  edm::InputTag srcRecLeg1_;
+  edm::InputTag srcGenLeg2_;
+  edm::InputTag srcRecLeg2_;
 
   typedef std::vector<edm::InputTag> vInputTag;
   vInputTag srcWeights_;
+  edm::InputTag srcGenFilterInfo_;
 
   std::string dqmDirectory_;
+
+  MonitorElement* histogramGenFilterEfficiency_;
 
   MonitorElement* histogramNumTracksPtGt5_;
   MonitorElement* histogramNumTracksPtGt10_;
@@ -77,7 +87,38 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramNumGlobalMuons_;
   MonitorElement* histogramNumStandAloneMuons_;
   MonitorElement* histogramNumPFMuons_;
+
+  MonitorElement* histogramNumChargedPFCandsPtGt5_;
+  MonitorElement* histogramNumChargedPFCandsPtGt10_;
+  MonitorElement* histogramNumChargedPFCandsPtGt20_;
+  MonitorElement* histogramNumChargedPFCandsPtGt30_;
+  MonitorElement* histogramNumChargedPFCandsPtGt40_;
+
+  MonitorElement* histogramNumNeutralPFCandsPtGt5_;
+  MonitorElement* histogramNumNeutralPFCandsPtGt10_;
+  MonitorElement* histogramNumNeutralPFCandsPtGt20_;
+  MonitorElement* histogramNumNeutralPFCandsPtGt30_;
+  MonitorElement* histogramNumNeutralPFCandsPtGt40_;
+    
+  MonitorElement* histogramRecVertexX_;
+  MonitorElement* histogramRecVertexY_;
+  MonitorElement* histogramRecVertexZ_;
+
+  MonitorElement* histogramGenDiTauPt_;
+  MonitorElement* histogramGenDiTauEta_;
+  MonitorElement* histogramGenDiTauPhi_;
+  MonitorElement* histogramGenDiTauMass_;
+
+  MonitorElement* histogramGenVisDiTauPt_;
+  MonitorElement* histogramGenVisDiTauEta_;
+  MonitorElement* histogramGenVisDiTauPhi_;
+  MonitorElement* histogramGenVisDiTauMass_;
   
+  MonitorElement* histogramRecVisDiTauPt_;
+  MonitorElement* histogramRecVisDiTauEta_;
+  MonitorElement* histogramRecVisDiTauPhi_;
+  MonitorElement* histogramRecVisDiTauMass_;
+
   template <typename T>
   struct leptonDistributionT
   {
@@ -334,8 +375,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
       histogramGenMEtPhi_ = dqmStore.book1D("genMEtPhi", "genMEtPhi", 72, -TMath::Pi(), +TMath::Pi());
       histogramRecMEtPt_  = dqmStore.book1D("recMEtPt", "recMEtPt", 250, 0., 250.);
       histogramRecMEtPhi_ = dqmStore.book1D("recMEtPhi", "recMEtPhi", 72, -TMath::Pi(), +TMath::Pi());
-      histogramRecMinusGenMEtParlZ_ = dqmStore.book1D("histogramRecMinusGenMEtParlZ", "histogramRecMinusGenMEtParlZ", 200, -100., +100.);
-      histogramRecMinusGenMEtPerpZ_ = dqmStore.book1D("histogramRecMinusGenMEtPerpZ", "histogramRecMinusGenMEtPerpZ", 100, 0., 100.);
+      histogramRecMinusGenMEtParlZ_ = dqmStore.book1D("recMinusGenMEtParlZ", "recMinusGenMEtParlZ", 200, -100., +100.);
+      histogramRecMinusGenMEtPerpZ_ = dqmStore.book1D("recMinusGenMEtPerpZ", "recMinusGenMEtPerpZ", 100, 0., 100.);
     }
     void fillHistograms(const edm::Event& evt, double evtWeight)
     {

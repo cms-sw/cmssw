@@ -7,12 +7,25 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::ParameterSet& cfg)
-  : srcMuons_(cfg.getParameter<edm::InputTag>("srcMuons")),
-    srcTracks_(cfg.getParameter<edm::InputTag>("srcTracks")),
+  : srcRecMuons_(cfg.getParameter<edm::InputTag>("srcRecMuons")),
+    srcRecTracks_(cfg.getParameter<edm::InputTag>("srcRecTracks")),
+    srcRecPFCandidates_(cfg.getParameter<edm::InputTag>("srcRecPFCandidates")),
+    srcRecVertex_(cfg.getParameter<edm::InputTag>("srcRecVertex")),
+    srcGenDiTaus_(cfg.getParameter<edm::InputTag>("srcGenDiTaus")),
+    srcGenLeg1_(cfg.getParameter<edm::InputTag>("srcGenLeg1")),
+    srcRecLeg1_(cfg.getParameter<edm::InputTag>("srcRecLeg1")),
+    srcGenLeg2_(cfg.getParameter<edm::InputTag>("srcGenLeg2")),
+    srcRecLeg2_(cfg.getParameter<edm::InputTag>("srcRecLeg2")),
     srcWeights_(cfg.getParameter<vInputTag>("srcWeights")),
+    srcGenFilterInfo_(cfg.getParameter<edm::InputTag>("srcGenFilterInfo")),
     dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory"))
 {
 //--- setup electron Pt, eta and phi distributions;
@@ -158,15 +171,48 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   DQMStore& dqmStore = (*edm::Service<DQMStore>());
 
 //--- book all histograms
-  histogramNumTracksPtGt5_     = dqmStore.book1D("numTracksPtGt5",     "numTracksPtGt5",     50, -0.5, 49.5);
-  histogramNumTracksPtGt10_    = dqmStore.book1D("numTracksPtGt10",    "numTracksPtGt10",    50, -0.5, 49.5);
-  histogramNumTracksPtGt20_    = dqmStore.book1D("numTracksPtGt20",    "numTracksPtGt20",    50, -0.5, 49.5);
-  histogramNumTracksPtGt30_    = dqmStore.book1D("numTracksPtGt30",    "numTracksPtGt30",    50, -0.5, 49.5);
-  histogramNumTracksPtGt40_    = dqmStore.book1D("numTracksPtGt40",    "numTracksPtGt40",    50, -0.5, 49.5);
+  histogramGenFilterEfficiency_     = dqmStore.book1D("genFilterEfficiency",    "genFilterEfficiency",    102,     -0.01,         1.01);
+
+  histogramNumTracksPtGt5_          = dqmStore.book1D("numTracksPtGt5",         "numTracksPtGt5",          50,     -0.5,         49.5);
+  histogramNumTracksPtGt10_         = dqmStore.book1D("numTracksPtGt10",        "numTracksPtGt10",         50,     -0.5,         49.5);
+  histogramNumTracksPtGt20_         = dqmStore.book1D("numTracksPtGt20",        "numTracksPtGt20",         50,     -0.5,         49.5);
+  histogramNumTracksPtGt30_         = dqmStore.book1D("numTracksPtGt30",        "numTracksPtGt30",         50,     -0.5,         49.5);
+  histogramNumTracksPtGt40_         = dqmStore.book1D("numTracksPtGt40",        "numTracksPtGt40",         50,     -0.5,         49.5);
+      
+  histogramNumGlobalMuons_          = dqmStore.book1D("numGlobalMuons",         "numGlobalMuons",          20,     -0.5,         19.5);
+  histogramNumStandAloneMuons_      = dqmStore.book1D("numStandAloneMuons",     "numStandAloneMuons",      20,     -0.5,         19.5);
+  histogramNumPFMuons_              = dqmStore.book1D("numPFMuons",             "numPFMuons",              20,     -0.5,         19.5);
+
+  histogramNumChargedPFCandsPtGt5_  = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt10_ = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt20_ = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt30_ = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt40_ = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
+
+  histogramNumNeutralPFCandsPtGt5_  = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt10_ = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt20_ = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt30_ = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt40_ = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
+    
+  histogramRecVertexX_              = dqmStore.book1D("recVertexX",             "recVertexX",            2000,     -1.,          +1.);
+  histogramRecVertexY_              = dqmStore.book1D("recVertexY",             "recVertexY",            2000,     -1.,          +1.);
+  histogramRecVertexZ_              = dqmStore.book1D("recVertexZ",             "recVertexZ",             500,    -25.,         +25.);
   
-  histogramNumGlobalMuons_     = dqmStore.book1D("numGlobalMuons",     "numGlobalMuons",     20, -0.5, 19.5);
-  histogramNumStandAloneMuons_ = dqmStore.book1D("numStandAloneMuons", "numStandAloneMuons", 20, -0.5, 19.5);
-  histogramNumPFMuons_         = dqmStore.book1D("numPFMuons",         "numPFMuons",         20, -0.5, 19.5);
+  histogramGenDiTauPt_              = dqmStore.book1D("genDiTauPt",             "genDiTauPt",             250,      0.,         250.);
+  histogramGenDiTauEta_             = dqmStore.book1D("genDiTauEta",            "genDiTauEta",            198,     -9.9,         +9.9);
+  histogramGenDiTauPhi_             = dqmStore.book1D("genDiTauPhi",            "genDiTauPhi",             72, -TMath::Pi(), +TMath::Pi());
+  histogramGenDiTauMass_            = dqmStore.book1D("genDiTauMass",           "genDiTauMass",           500,      0.,         500.);
+
+  histogramGenVisDiTauPt_           = dqmStore.book1D("genVisDiTauPt",          "genVisDiTauPt",          250,      0.,         250.);
+  histogramGenVisDiTauEta_          = dqmStore.book1D("genVisDiTauEta",         "genVisDiTauEta",         198,     -9.9,         +9.9);
+  histogramGenVisDiTauPhi_          = dqmStore.book1D("genVisDiTauPhi",         "genVisDiTauPhi",          72, -TMath::Pi(), +TMath::Pi());
+  histogramGenVisDiTauMass_         = dqmStore.book1D("genVisDiTauMass",        "genVisDiTauMass",        500,      0.,         500.);
+
+  histogramRecVisDiTauPt_           = dqmStore.book1D("recVisDiTauPt",          "recVisDiTauPt",          250,      0.,         250.);
+  histogramRecVisDiTauEta_          = dqmStore.book1D("recVisDiTauEta",         "recVisDiTauEta",         198,     -9.9,         +9.9);
+  histogramRecVisDiTauPhi_          = dqmStore.book1D("recVisDiTauPhi",         "recVisDiTauPhi",          72, -TMath::Pi(), +TMath::Pi());
+  histogramRecVisDiTauMass_         = dqmStore.book1D("recVisDiTauMass",        "recVisDiTauMass",        500,      0.,         500.);
 
   bookHistograms(electronDistributions_, dqmStore);
   bookHistograms(electronEfficiencies_, dqmStore);
@@ -180,6 +226,35 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   bookHistograms(metL1TriggerEfficiencies_, dqmStore);
 }
 
+namespace
+{
+  void fillVisPtEtaPhiMassDistributions(const edm::Event& evt, 
+					const edm::InputTag& srcLeg1, const edm::InputTag& srcLeg2, 
+					MonitorElement* histogram_visDiTauPt, MonitorElement* histogram_visDiTauEta, MonitorElement* histogram_visDiTauPhi, MonitorElement* histogram_visDiTauMass,
+					double evtWeight)
+  {
+    typedef edm::View<reco::Candidate> CandidateView;
+    edm::Handle<CandidateView> visDecayProducts1;
+    evt.getByLabel(srcLeg1, visDecayProducts1);
+    edm::Handle<CandidateView> visDecayProducts2;
+    evt.getByLabel(srcLeg2, visDecayProducts2);
+    for ( edm::View<reco::Candidate>::const_iterator visDecayProduct1 = visDecayProducts1->begin();
+	  visDecayProduct1 != visDecayProducts1->end(); ++visDecayProduct1 ) {
+      for ( edm::View<reco::Candidate>::const_iterator visDecayProduct2 = visDecayProducts2->begin();
+	  visDecayProduct2 != visDecayProducts2->end(); ++visDecayProduct2 ) {
+	double dR = deltaR(visDecayProduct1->p4(), visDecayProduct2->p4());
+	if ( dR > 0.3 ) { // protection in case srcLeg1 and srcLeg2 refer to same collection (e.g. both hadronic tau decays)
+	  reco::Candidate::LorentzVector visDiTauP4 = visDecayProduct1->p4() + visDecayProduct2->p4();
+	  histogram_visDiTauPt->Fill(visDiTauP4.pt(), evtWeight);
+	  histogram_visDiTauEta->Fill(visDiTauP4.eta(), evtWeight);
+	  histogram_visDiTauPhi->Fill(visDiTauP4.phi(), evtWeight);
+	  histogram_visDiTauMass->Fill(visDiTauP4.mass(), evtWeight);
+	}
+      }
+    }
+  }
+}
+
 void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 {
 //--- compute event weight
@@ -190,12 +265,23 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     evt.getByLabel(*srcWeight, weight);
     evtWeight *= (*weight);
   }
+  if ( srcGenFilterInfo_.label() != "" ) {
+    edm::Handle<GenFilterInfo> genFilterInfo;
+    evt.getByLabel(srcGenFilterInfo_, genFilterInfo);
+    //std::cout << "genFilterInfo: numEventsTried = " << genFilterInfo->numEventsTried() << ", numEventsPassed = " << genFilterInfo->numEventsPassed() << std::endl;
+    if ( genFilterInfo->numEventsTried() > 0 ) {
+      double weight = genFilterInfo->filterEfficiency();
+      //std::cout << "weight(genFilterInfo) = " << weight << std::endl;
+      histogramGenFilterEfficiency_->Fill(weight, evtWeight);
+      evtWeight *= weight;
+    }
+  }
 
   if ( evtWeight < 1.e-3 || evtWeight > 1.e+3 || TMath::IsNaN(evtWeight) ) return;
 
 //--- fill all histograms
   edm::Handle<reco::TrackCollection> tracks;
-  evt.getByLabel(srcTracks_, tracks);
+  evt.getByLabel(srcRecTracks_, tracks);
   int numTracksPtGt5  = 0;
   int numTracksPtGt10 = 0;
   int numTracksPtGt20 = 0;
@@ -215,8 +301,47 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   histogramNumTracksPtGt30_->Fill(numTracksPtGt30, evtWeight);
   histogramNumTracksPtGt40_->Fill(numTracksPtGt40, evtWeight);
   
+ edm::Handle<reco::PFCandidateCollection> pfCandidates;
+  evt.getByLabel(srcRecPFCandidates_, pfCandidates);
+  int numChargedPFCandsPtGt5  = 0;
+  int numChargedPFCandsPtGt10 = 0;
+  int numChargedPFCandsPtGt20 = 0;
+  int numChargedPFCandsPtGt30 = 0;
+  int numChargedPFCandsPtGt40 = 0;
+  int numNeutralPFCandsPtGt5  = 0;
+  int numNeutralPFCandsPtGt10 = 0;
+  int numNeutralPFCandsPtGt20 = 0;
+  int numNeutralPFCandsPtGt30 = 0;
+  int numNeutralPFCandsPtGt40 = 0;
+  for ( reco::PFCandidateCollection::const_iterator pfCandidate = pfCandidates->begin();
+	pfCandidate != pfCandidates->end(); ++pfCandidate ) {
+    if ( TMath::Abs(pfCandidate->charge()) > 0.5 ) {
+      if ( pfCandidate->pt() >  5. ) ++numChargedPFCandsPtGt5;
+      if ( pfCandidate->pt() > 10. ) ++numChargedPFCandsPtGt10;
+      if ( pfCandidate->pt() > 20. ) ++numChargedPFCandsPtGt20;
+      if ( pfCandidate->pt() > 30. ) ++numChargedPFCandsPtGt30;
+      if ( pfCandidate->pt() > 40. ) ++numChargedPFCandsPtGt40;
+    } else {
+      if ( pfCandidate->pt() >  5. ) ++numNeutralPFCandsPtGt5;
+      if ( pfCandidate->pt() > 10. ) ++numNeutralPFCandsPtGt10;
+      if ( pfCandidate->pt() > 20. ) ++numNeutralPFCandsPtGt20;
+      if ( pfCandidate->pt() > 30. ) ++numNeutralPFCandsPtGt30;
+      if ( pfCandidate->pt() > 40. ) ++numNeutralPFCandsPtGt40;
+    }
+  }
+  histogramNumChargedPFCandsPtGt5_->Fill(numChargedPFCandsPtGt5, evtWeight);
+  histogramNumChargedPFCandsPtGt10_->Fill(numChargedPFCandsPtGt10, evtWeight);
+  histogramNumChargedPFCandsPtGt20_->Fill(numChargedPFCandsPtGt20, evtWeight);
+  histogramNumChargedPFCandsPtGt30_->Fill(numChargedPFCandsPtGt30, evtWeight);
+  histogramNumChargedPFCandsPtGt40_->Fill(numChargedPFCandsPtGt40, evtWeight);
+  histogramNumNeutralPFCandsPtGt5_->Fill(numNeutralPFCandsPtGt5, evtWeight);
+  histogramNumNeutralPFCandsPtGt10_->Fill(numNeutralPFCandsPtGt10, evtWeight);
+  histogramNumNeutralPFCandsPtGt20_->Fill(numNeutralPFCandsPtGt20, evtWeight);
+  histogramNumNeutralPFCandsPtGt30_->Fill(numNeutralPFCandsPtGt30, evtWeight);
+  histogramNumNeutralPFCandsPtGt40_->Fill(numNeutralPFCandsPtGt40, evtWeight);
+
   edm::Handle<reco::MuonCollection> muons;
-  evt.getByLabel(srcMuons_, muons);
+  evt.getByLabel(srcRecMuons_, muons);
   int numGlobalMuons     = 0;
   int numStandAloneMuons = 0;
   int numPFMuons         = 0;
@@ -230,6 +355,29 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   histogramNumStandAloneMuons_->Fill(numStandAloneMuons, evtWeight);
   histogramNumPFMuons_->Fill(numPFMuons, evtWeight);
 
+  edm::Handle<reco::VertexCollection> vertices;
+  evt.getByLabel(srcRecVertex_, vertices);
+  for ( reco::VertexCollection::const_iterator vertex = vertices->begin();
+	vertex != vertices->end(); ++vertex ) {
+    histogramRecVertexX_->Fill(vertex->position().x(), evtWeight);
+    histogramRecVertexY_->Fill(vertex->position().y(), evtWeight);
+    histogramRecVertexZ_->Fill(vertex->position().z(), evtWeight);
+  }
+
+  typedef edm::View<reco::Candidate> CandidateView;
+  edm::Handle<CandidateView> genDiTaus;
+  evt.getByLabel(srcGenDiTaus_, genDiTaus);
+  for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
+	genDiTau != genDiTaus->end(); ++genDiTau ) {
+    histogramGenDiTauPt_->Fill(genDiTau->pt(), evtWeight);
+    histogramGenDiTauEta_->Fill(genDiTau->eta(), evtWeight);
+    histogramGenDiTauPhi_->Fill(genDiTau->phi(), evtWeight);
+    histogramGenDiTauMass_->Fill(genDiTau->mass(), evtWeight);
+  }
+
+  fillVisPtEtaPhiMassDistributions(evt, srcGenLeg1_, srcGenLeg2_, histogramGenVisDiTauPt_, histogramGenVisDiTauEta_, histogramGenVisDiTauPhi_, histogramGenVisDiTauMass_, evtWeight);
+  fillVisPtEtaPhiMassDistributions(evt, srcRecLeg1_, srcRecLeg2_, histogramRecVisDiTauPt_, histogramRecVisDiTauEta_, histogramRecVisDiTauPhi_, histogramRecVisDiTauMass_, evtWeight);
+  
   fillHistograms(electronDistributions_, evt, evtWeight);
   fillHistograms(electronEfficiencies_, evt, evtWeight);
   fillHistograms(electronL1TriggerEfficiencies_, evt, evtWeight);

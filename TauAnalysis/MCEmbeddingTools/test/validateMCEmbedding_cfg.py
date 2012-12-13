@@ -19,22 +19,33 @@ NOTE: You need to checkout the full set of TauAnalysis packages in order to run 
 #--------------------------------------------------------------------------------
 # define configuration parameter default values
 
-#channel = 'eleTau'
-channel = 'muTau'
+isMC = True
+#channel = 'etau'
+channel = 'mutau'
+srcWeights = []
+srcGenFilterInfo = "generator:minVisPtFilter"
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
 # define "hooks" for replacing configuration parameters
 # in case running jobs on the CERN batch system/grid
 #
+#__isMC = $isMC
 #__channel = "$channel"
+#__srcWeights = $srcWeights
+#__srcGenFilterInfo = "$srcGenFilterInfo"
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_allDecayModes_2012Nov13_AOD.root'
+        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2012Dec12_AOD.root'
+        #'file:/data1/veelken/CMSSW_5_3_x/skims/simZplusJets_madgraph_AOD_1_1_txi.root'
+        #'file:/tmp/veelken/rhembTauTau_data_Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RECEmbed_2825_embed_AOD.root'                        
     ),
+    ##eventsToProcess = cms.untracked.VEventRange(
+    ##    '1:154452:61731259'
+    ##)
     skipEvents = cms.untracked.uint32(0)            
 )
 
@@ -77,11 +88,11 @@ process.selectedElectronsConversionVeto = cms.EDFilter("NPATElectronConversionFi
 process.goodElectrons = cms.EDFilter("PATElectronSelector",
     src = cms.InputTag("selectedElectronsConversionVeto"),
     cut = cms.string(
-        'pt > 24 && abs(eta) < 2.1'
+        'pt > 24 & abs(eta) < 2.1'
     ),
-    filter = cms.bool(True)
+    filter = cms.bool(False)
 )
-process.goodIsoElectrons = cms.EDFilter("PATElectronSelector",
+process.goodElectronsPFIso = cms.EDFilter("PATElectronSelector",
     src = cms.InputTag("goodElectrons"),
     cut = cms.string(
         '(chargedHadronIso()' + \
@@ -98,16 +109,16 @@ process.recElectronSelectionSequence = cms.Sequence(
    + process.selectedElectronsIdMVA
    + process.selectedElectronsConversionVeto
    + process.goodElectrons
-   + process.goodIsoElectrons
+   + process.goodElectronsPFIso
 )
 
 # define muon id & isolation selection
 process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandaloneSelection_cff")
 process.goodMuons.cut = cms.string(
-    'pt > 20 && abs(eta) < 2.1 && isGlobalMuon && isPFMuon '
-    ' && track.hitPattern.trackerLayersWithMeasurement > 5 & innerTrack.hitPattern.numberOfValidPixelHits > 0'
-    ' && abs(dB) < 0.2 && globalTrack.normalizedChi2 < 10'
-    ' && globalTrack.hitPattern.numberOfValidMuonHits > 0 && numberOfMatchedStations > 1'
+    'pt > 20 & abs(eta) < 2.1 & isGlobalMuon & isPFMuon '
+    ' & track.hitPattern.trackerLayersWithMeasurement > 5 & innerTrack.hitPattern.numberOfValidPixelHits > 0'
+    ' & abs(dB) < 0.2 & globalTrack.normalizedChi2 < 10'
+    ' & globalTrack.hitPattern.numberOfValidMuonHits > 0 & numberOfMatchedStations > 1'
 )
 process.goodMuonsPFIso = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("goodMuons"),
@@ -127,18 +138,19 @@ process.recMuonSelectionSequence = cms.Sequence(
 
 # define hadronic tau id selection
 process.load("RecoTauTag/Configuration/RecoPFTauTag_cff")
+switchToPFTauHPS(process)
 process.load("PhysicsTools/PatAlgos/producersLayer1/tauProducer_cfi")
 process.patTaus.addGenMatch = cms.bool(False)
 process.patTaus.addGenJetMatch = cms.bool(False)
 process.patTaus.isoDeposits = cms.PSet()
 process.patTaus.userIsolation = cms.PSet()
-tauDiscrByIsolation = "tauID('byLooseIsolationMVAtauID') > 0.5"
+tauDiscrByIsolation = "tauID('byLooseIsolationMVA') > 0.5"
 tauDiscrAgainstElectrons = None
 tauDiscrAgainstMuons = None
-if channel == "elecTau":
+if channel == "etau":
     tauDiscrAgainstElectrons = "tauID('againstElectronMVA') > 0.5 & tauID('againstElectronTightMVA2') > 0.5 & "
     tauDiscrAgainstMuons = "tauID('againstMuonLoose') > 0.5"
-elif channel == "muTau":
+elif channel == "mutau":
     tauDiscrAgainstElectrons = "tauID('againstElectronLoose') > 0.5"
     tauDiscrAgainstMuons = "tauID('againstMuonTight') > 0.5"
 else:
@@ -151,7 +163,8 @@ process.selectedTaus = cms.EDFilter("PATTauSelector",
     )
 )
 process.recTauSelectionSequence = cms.Sequence(
-    process.PFTau
+    process.recoTauCommonSequence
+   + process.recoTauClassicHPSSequence
    + process.patTaus
    + process.selectedTaus
 )
@@ -162,6 +175,31 @@ process.recLeptonSelectionSequence = cms.Sequence(
    + process.recMuonSelectionSequence
    + process.recTauSelectionSequence
 )
+#--------------------------------------------------------------------------------
+
+#--------------------------------------------------------------------------------
+# produce collections of jets
+
+# configure pat::Jet production
+# (enable L2L3Residual corrections in case running on Data)
+jetCorrections = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
+if not isMC:
+    jetCorrections.append('L2L3Residual')
+
+from PhysicsTools.PatAlgos.tools.jetTools import *
+switchJetCollection(
+    process,
+    cms.InputTag('ak5PFJets'),
+    doJTA = True,
+    doBTagging = True,
+    jetCorrLabel = ( 'AK5PF', cms.vstring(jetCorrections) ),
+    doType1MET = False,
+    doJetID = True,
+    jetIdLabel = "ak5",
+    outputModules = []
+)
+
+process.recJetSequence = cms.Sequence(process.jetTracksAssociatorAtVertex + process.btaggingAOD + process.makePatJets)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -248,6 +286,8 @@ process.genZdecayToTaus = cms.EDProducer("CandViewShallowCloneCombiner",
     cut = cms.string('charge = 0'),
     decay = cms.string("genTausFromZs@+ genTausFromZs@-")
 )
+if not hasattr(process, "tauGenJets"):
+    process.load("PhysicsTools.JetMCAlgos.TauGenJets_cfi")
 process.genTauJetsFromZs = cms.EDProducer("TauGenJetMatchSelector",
     srcGenTauLeptons = cms.InputTag("genTausFromZs"),
     srcGenParticles = cms.InputTag("genParticles"),
@@ -289,6 +329,7 @@ process.genLeptonSelectionSequence = cms.Sequence(
     process.genParticlesFromZs
    + process.genTausFromZs
    + process.genZdecayToTaus
+   + process.tauGenJets
    + process.genTauJetsFromZs
    + process.genElectronsFromZtautauDecays
    + process.genMuonsFromZtautauDecays
@@ -296,10 +337,108 @@ process.genLeptonSelectionSequence = cms.Sequence(
 )
 #--------------------------------------------------------------------------------
 
+#--------------------------------------------------------------------------------
+# require event to contain generator level tau lepton pair,
+# decaying in the sprecified channel
+numElectrons = None
+numMuons     = None
+numTauJets   = None
+if channel == 'mutau':
+    numElectrons = 0
+    numMuons     = 1
+    numTauJets   = 1
+elif channel == 'etau':
+    numElectrons = 1
+    numMuons     = 0
+    numTauJets   = 1
+elif channel == 'emu':
+    numElectrons = 1
+    numMuons     = 1
+    numTauJets   = 0
+elif channel == 'tautau':
+    numElectrons = 0
+    numMuons     = 0
+    numTauJets   = 2  
+else:
+    raise ValueError("Invalid Configuration parameter 'channel' = %s !!" % channel)
+
+if numElectrons > 0:
+    process.genElectronsFromZtautauDecaysWithinAcc = cms.EDFilter("GenJetSelector",
+        src = cms.InputTag('genElectronsFromZtautauDecays'),
+        cut = cms.string('pt > 12. && abs(eta) < 2.1')
+    )
+    process.genLeptonSelectionSequence += process.genElectronsFromZtautauDecaysWithinAcc
+    process.electronFilter = cms.EDFilter("CandViewCountFilter",
+        src = cms.InputTag('genElectronsFromZtautauDecaysWithinAcc'),
+        minNumber = cms.uint32(numElectrons),
+        maxNumber = cms.uint32(numElectrons)                      
+    ) 
+    process.genLeptonSelectionSequence += process.electronFilter
+
+if numMuons > 0:
+    process.genMuonsFromZtautauDecaysWithinAcc = cms.EDFilter("GenJetSelector",
+        src = cms.InputTag('genMuonsFromZtautauDecays'),
+        cut = cms.string('pt > 8. && abs(eta) < 2.1')
+    )
+    process.genLeptonSelectionSequence += process.genMuonsFromZtautauDecaysWithinAcc
+    process.muonFilter = cms.EDFilter("CandViewCountFilter",
+        src = cms.InputTag('genMuonsFromZtautauDecaysWithinAcc'),
+        minNumber = cms.uint32(numMuons),
+        maxNumber = cms.uint32(numMuons)                      
+    )
+    process.genLeptonSelectionSequence += process.muonFilter
+
+if numTauJets > 0:
+    process.genHadronsFromZtautauDecaysWithinAcc = cms.EDFilter("GenJetSelector",
+        src = cms.InputTag('genHadronsFromZtautauDecays'),
+        cut = cms.string('pt > 20. && abs(eta) < 2.3')
+    )
+    process.genLeptonSelectionSequence += process.genHadronsFromZtautauDecaysWithinAcc
+    process.tauFilter = cms.EDFilter("CandViewCountFilter",
+        src = cms.InputTag('genHadronsFromZtautauDecaysWithinAcc'),
+        minNumber = cms.uint32(numTauJets),
+        maxNumber = cms.uint32(numTauJets)                      
+    )
+    process.genLeptonSelectionSequence += process.tauFilter
+#--------------------------------------------------------------------------------
+
+srcGenLeg1 = None
+srcRecLeg1 = None
+srcGenLeg2 = None
+srcRecLeg2 = None
+if channel == 'mutau':
+    srcGenLeg1 = 'genMuonsFromZtautauDecays'
+    srcRecLeg1 = 'goodMuonsPFIso'
+    srcGenLeg2 = 'genHadronsFromZtautauDecays'
+    srcRecLeg2 = 'selectedTaus'
+elif channel == 'etau':
+    srcGenLeg1 = 'genElectronsFromZtautauDecays'
+    srcRecLeg1 = 'goodElectronsPFIso'
+    srcGenLeg2 = 'genHadronsFromZtautauDecays'
+    srcRecLeg2 = 'selectedTaus'
+elif channel == 'emu':
+    srcGenLeg1 = 'genElectronsFromZtautauDecays'
+    srcRecLeg1 = 'goodElectronsPFIso'
+    srcGenLeg2 = 'genHadronsFromZtautauDecays'
+    srcRecLeg2 = 'selectedTaus'
+elif channel == 'tautau':
+    srcGenLeg1 = 'genHadronsFromZtautauDecays'
+    srcRecLeg1 = 'selectedTaus'
+    srcGenLeg2 = 'genHadronsFromZtautauDecays'
+    srcRecLeg2 = 'selectedTaus'
+
 process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
-    srcMuons = cms.InputTag('muons'),
-    srcTracks = cms.InputTag('generalTracks'),                       
-    srcWeights = cms.VInputTag(),
+    srcRecMuons = cms.InputTag('muons'),
+    srcRecTracks = cms.InputTag('generalTracks'),
+    srcRecPFCandidates = cms.InputTag('particleFlow'),
+    srcRecVertex = cms.InputTag('goodVertex'),                                        
+    srcGenDiTaus = cms.InputTag('genZdecayToTaus'),
+    srcGenLeg1 = cms.InputTag(srcGenLeg1),
+    srcRecLeg1 = cms.InputTag(srcRecLeg1),                                        
+    srcGenLeg2 = cms.InputTag(srcGenLeg2),
+    srcRecLeg2 = cms.InputTag(srcRecLeg2),
+    srcWeights = cms.VInputTag(srcWeights),
+    srcGenFilterInfo = cms.InputTag(srcGenFilterInfo),                                        
     dqmDirectory = cms.string("validationAnalyzer_%s" % channel),                                        
                                             
     # electron Pt, eta and phi distributions;
@@ -312,7 +451,7 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecays'),
-	    srcRec = cms.InputTag('goodIsoElectrons'),
+	    srcRec = cms.InputTag('goodElectronsPFIso'),
             dqmDirectory = cms.string('goodIsoElectronDistributions')
         )
     ),
@@ -324,7 +463,7 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         ),
         cms.PSet(
             srcGen = cms.InputTag('genElectronsFromZtautauDecays'),
-	    srcRec = cms.InputTag('goodIsoElectrons'),
+	    srcRec = cms.InputTag('goodElectronsPFIso'),
             dqmDirectory = cms.string('goodIsoElectronEfficiencies')
         )
     ),		
@@ -337,7 +476,7 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
             dqmDirectory = cms.string('electronTriggerEfficiencyL1_Elec12wrtGoodElectrons')
         ),
         cms.PSet(
-	    srcRef = cms.InputTag('goodIsoElectrons'),
+	    srcRef = cms.InputTag('goodElectronsPFIso'),
             cutRef = cms.string("pt > 13. & abs(eta) < 2.1"),
             srcL1 = cms.InputTag('l1extraParticles', 'Isolated'),
             cutL1 = cms.string("pt > 12. & abs(eta) < 2.1"),	    
@@ -355,7 +494,7 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         ),
         cms.PSet(
             srcGen = cms.InputTag('genMuonsFromZtautauDecays'),
-	    srcRec = cms.InputTag('goodIsoMuons'),
+	    srcRec = cms.InputTag('goodMuonsPFIso'),
             dqmDirectory = cms.string('goodIsoMuonDistributions')
         )
     ),
@@ -367,7 +506,7 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         ),
         cms.PSet(
             srcGen = cms.InputTag('genMuonsFromZtautauDecays'),
-	    srcRec = cms.InputTag('goodIsoMuons'),
+	    srcRec = cms.InputTag('goodMuonsPFIso'),
             dqmDirectory = cms.string('goodIsoMuonEfficiencies')
         )
     ),	
@@ -380,7 +519,7 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
             dqmDirectory = cms.string('muonTriggerEfficiencyL1_Mu8wrtGoodMuons')
         ),
         cms.PSet(            
-	    srcRef = cms.InputTag('goodIsoMuons'),
+	    srcRef = cms.InputTag('goodMuonsPFIso'),
             cutRef = cms.string("pt > 9. & abs(eta) < 2.1"),
 	    srcL1 = cms.InputTag('l1extraParticles'),
             cutL1 = cms.string("pt > 8. & abs(eta) < 2.1"),
@@ -487,6 +626,7 @@ process.savePlots = cms.EDAnalyzer("DQMSimpleFileSaver",
 
 process.p = cms.Path(
     process.recLeptonSelectionSequence
+   + process.recJetSequence
    + process.recMetSequence
    + process.genLeptonSelectionSequence
    + process.validationAnalyzer
@@ -501,6 +641,10 @@ process.filterFirstEvent = cms.EDFilter("EventCountFilter",
 process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
 
 process.schedule = cms.Schedule(process.printFirstEventContentPath, process.p)
+
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True)
+)
 
 processDumpFile = open('validateMCEmbedding.dump', 'w')
 print >> processDumpFile, process.dumpPython()

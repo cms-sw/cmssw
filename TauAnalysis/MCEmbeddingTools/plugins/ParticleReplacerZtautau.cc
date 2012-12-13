@@ -385,10 +385,17 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   }
   
   std::auto_ptr<HepMC::GenEvent> passedEvt_output_ptr(passedEvt_output);    
-  if ( verbosity_ ) passedEvt_output_ptr->print(std::cout);
-  
+  if ( verbosity_ ) {
+    passedEvt_output_ptr->print(std::cout);
+    std::cout << " numEvents: tried = " << numEvents_tried << ", passed = " << numEvents_passed << std::endl;
+  }
+
+  tried_ = numEvents_tried;
+  passed_ = numEvents_passed;
+
   delete genVtx_output;
   delete genEvt_output;
+
   return passedEvt_output_ptr;
 }
 

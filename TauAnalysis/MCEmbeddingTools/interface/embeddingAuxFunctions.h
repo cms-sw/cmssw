@@ -8,9 +8,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: embeddingAuxFunctions.h,v 1.2 2012/10/25 14:41:38 aburgmei Exp $
+ * $Id: embeddingAuxFunctions.h,v 1.3 2012/11/25 15:43:12 veelken Exp $
  *
  */
 
@@ -30,5 +30,8 @@ reco::CandidateBaseRef getTheMuPlus(const std::vector<reco::CandidateBaseRef>&);
 reco::CandidateBaseRef getTheMuMinus(const std::vector<reco::CandidateBaseRef>&);
 
 TrackDetMatchInfo getTrackDetMatchInfo(const edm::Event&, const edm::EventSetup&, TrackDetectorAssociator&, const TrackAssociatorParameters&, const reco::Candidate*);
+
+bool matchMuonDetId(uint32_t, uint32_t);
+void printMuonDetId(const edm::EventSetup&, uint32_t);
 
 #endif

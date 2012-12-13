@@ -28,7 +28,8 @@ removedInputMuons = cms.EDProducer('ZmumuPFEmbedder',
   tracks = cms.InputTag("generalTracks"),
   trajectories = cms.InputTag("generalTracks"),
   pfCands = cms.InputTag("particleFlow"),
-  selectedMuons = cms.InputTag("") # CV: replaced in embeddingCustomizeAll.py
+  selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
+  dRmatch = cms.double(1.e-1)                                 
 )
  
 ProductionFilterSequence = cms.Sequence(

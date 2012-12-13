@@ -13,7 +13,7 @@ samples = {
     }
 }
 
-version = "v1_4_1"
+version = "v1_5_0"
 
 options = {
     # e+tau samples
@@ -37,16 +37,16 @@ options = {
 ##         'applyZmumuSkim'               : False,
 ##         'applyMuonRadiationFilter'     : False
 ##     },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90' : {
-        'ZmumuCollection'              : 'genMuonsFromZs',        
-        'mdtau'                        : 115,
-        'minVisibleTransverseMomentum' : "elec1_0had1_0",
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'gen',
-        'cleaningMode'                 : 'DEDX',
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
-    },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq90' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',        
+##         'mdtau'                        : 115,
+##         'minVisibleTransverseMomentum' : "elec1_0had1_0",
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
 ##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_etau_embedAngleEq0' : {
 ##         'ZmumuCollection'              : 'genMuonsFromZs',    
 ##         'mdtau'                        : 115,
@@ -88,36 +88,46 @@ options = {
 ##         'applyZmumuSkim'               : False,
 ##         'applyMuonRadiationFilter'     : False
 ##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',
-##         'mdtau'                        : 116,
-##         'minVisibleTransverseMomentum' : "mu1_0had1_0",
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0' : {
-##         'ZmumuCollection'              : 'genMuonsFromZs',    
-##         'mdtau'                        : 116,
-##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'gen',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : False,
-##         'applyMuonRadiationFilter'     : False
-##     },
-##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90' : {
-##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-##         'mdtau'                        : 116,
-##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
-##         'embeddingMode'                : 'RH',
-##         'replaceGenOrRecMuonMomenta'   : 'rec',
-##         'cleaningMode'                 : 'DEDX',
-##         'applyZmumuSkim'               : True,
-##         'applyMuonRadiationFilter'     : False
-##     },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90' : {
+        'ZmumuCollection'              : 'genMuonsFromZs',
+        'mdtau'                        : 116,
+        'minVisibleTransverseMomentum' : "mu1_7had1_15",
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'gen',
+        'cleaningMode'                 : 'DEDX',
+        'applyZmumuSkim'               : False,
+        'applyMuonRadiationFilter'     : False
+    },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noVisPtCuts' : {
+        'ZmumuCollection'              : 'genMuonsFromZs',
+        'mdtau'                        : 116,
+        'minVisibleTransverseMomentum' : "mu1_0had1_0",
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'gen',
+        'cleaningMode'                 : 'DEDX',
+        'applyZmumuSkim'               : False,
+        'applyMuonRadiationFilter'     : False
+    },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq0' : {
+        'ZmumuCollection'              : 'genMuonsFromZs',    
+        'mdtau'                        : 116,
+        'minVisibleTransverseMomentum' : "mu1_7had1_15",
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'gen',
+        'cleaningMode'                 : 'DEDX',
+        'applyZmumuSkim'               : False,
+        'applyMuonRadiationFilter'     : False
+    },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90' : {
+        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+        'mdtau'                        : 116,
+        'minVisibleTransverseMomentum' : "mu1_7had1_15",
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'rec',
+        'cleaningMode'                 : 'DEDX',
+        'applyZmumuSkim'               : True,
+        'applyMuonRadiationFilter'     : False
+    },
     # mu+mu samples
 ##     'noEvtSel_embedEqPF_replaceGenMuons_by_mumu_embedAngleEq90' : {
 ##         'ZmumuCollection'              : 'genMuonsFromZs',
@@ -295,7 +305,8 @@ for sampleName, sampleOption in samples.items():
         sedCommand += ";s/$replaceGenOrRecMuonMomenta/%s/g" % embeddingOption['replaceGenOrRecMuonMomenta']
         sedCommand += ";s/$cleaningMode/%s/g" % embeddingOption['cleaningMode']
         sedCommand += ";s/$applyZmumuSkim/%s/g" % getStringRep_bool(embeddingOption['applyZmumuSkim'])    
-        sedCommand += ";s/$applyMuonRadiationFilter/%s/g'" % getStringRep_bool(embeddingOption['applyMuonRadiationFilter'])    
+        sedCommand += ";s/$applyMuonRadiationFilter/%s/g" % getStringRep_bool(embeddingOption['applyMuonRadiationFilter'])
+        sedCommand += "'"
         sedCommand += " %s > %s" % (cfg_template, cfgFileName)
         runCommand(sedCommand)
         

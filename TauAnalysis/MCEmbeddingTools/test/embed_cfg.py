@@ -11,6 +11,7 @@ process = cms.Process('HLT')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+##process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -38,20 +39,17 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
-        #'file:/data1/veelken/CMSSW_5_3_x/skims/ZmumuTF_RECO_2012Oct03.root'
-        '/store/user/veelken/CMSSW_5_3_x/skims/Embedding/goldenZmumuEvents_ZplusJets_madgraph_RECO_205_1_XhE.root',
-        #'/store/user/veelken/CMSSW_5_3_x/skims/Embedding/goldenZmumuEvents_ZplusJets_madgraph_RECO_206_1_OHz.root',
-        #'/store/user/veelken/CMSSW_5_3_x/skims/Embedding/goldenZmumuEvents_ZplusJets_madgraph_RECO_207_1_bgM.root',
-        #'/store/user/veelken/CMSSW_5_3_x/skims/Embedding/goldenZmumuEvents_ZplusJets_madgraph_RECO_208_1_szL.root',
-        #'/store/user/veelken/CMSSW_5_3_x/skims/Embedding/goldenZmumuEvents_ZplusJets_madgraph_RECO_209_1_Jqv.root'			    
-    )
+        'file:/data1/veelken/CMSSW_5_3_x/skims/ZmumuTF_RECO_2012Oct03.root'
+        #'/store/user/veelken/CMSSW_5_3_x/skims/simZmumu_madgraph_RECO.root'			    
+    ),
+    ##eventsToProcess = cms.untracked.VEventRange('1:1:6')
 )
 
 process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.381.2.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -61,7 +59,6 @@ process.outputFiles = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
-    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_allDecayModes_2012Nov13_AOD.root'),
     fileName = cms.untracked.string('embed_AOD.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
@@ -84,10 +81,11 @@ process.filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
 )
 
 process.removedInputMuons = cms.EDProducer("ZmumuPFEmbedder",
-    selectedMuons = cms.InputTag(""),
+    selectedMuons = cms.InputTag(""), # CV: replaced in embeddingCustomizeAll.py
     pfCands = cms.InputTag("particleFlow"),
     tracks = cms.InputTag("generalTracks"),
-    trajectories = cms.InputTag("generalTracks")
+    trajectories = cms.InputTag("generalTracks"),
+    dRmatch = cms.double(1.e-1)            
 )
 
 process.generator = cms.EDProducer("MCParticleReplacer",
@@ -248,17 +246,19 @@ process.customization_options = cms.PSet(
     parseCommandLine             = cms.bool(False),    # enable reading of configuration parameter values by parsing command-line
     isMC                         = cms.bool(True),     # set to true for MC/false for data
     ZmumuCollection              = cms.InputTag('goldenZmumuCandidatesGe2IsoMuons'), # collection of selected Z->mumu candidates
+    # CV: use inputProcessRECO = "RECO" and inputProcessSIM = "SIM" for samples from official production;
+    #         inputProcessRECO = inputProcessSIM = "HLT" for test samples produced privately, using cmsDriver
     inputProcessRECO             = cms.string("RECO"), # instanceLabel to be used for retrieving collections of reconstructed objects reconstructed in original Z->mumu event
-    inputProcessSIM              = cms.string("SIM"),  # instanceLabel to be used for retrieving collections of generator level objects in original Z->mumu event
-    cleaningMode                 = cms.string("PF"),   # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
+    inputProcessSIM              = cms.string("SIM"),  # instanceLabel to be used for retrieving collections of generator level objects in original Z->mumu event 
+    cleaningMode                 = cms.string("DEDX"), # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
     mdtau                        = cms.int32(0),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection
     transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
     embeddingMode                = cms.string("RH"),   # embedding mode: 'PF'=particle flow embedding, 'RH'=recHit embedding
-    replaceGenOrRecMuonMomenta   = cms.string("rec"),  # take momenta of generated tau leptons from: 'rec'=reconstructed muons, 'gen'=generator level muons 
+    replaceGenOrRecMuonMomenta   = cms.string("rec"),  # take momenta of generated tau leptons from: 'rec'=reconstructed muons, 'gen'=generator level muons
     minVisibleTransverseMomentum = cms.string(""),     # generator level cut on visible transverse momentum (typeN:pT,[...];[...])
     useJson                      = cms.bool(False),    # should I enable event selection by JSON file ?
     overrideBeamSpot             = cms.bool(False),    # should I override beamspot in globaltag ?
-    applyZmumuSkim               = cms.bool(False),    # should I apply the Z->mumu event selection cuts ?
+    applyZmumuSkim               = cms.bool(True),    # should I apply the Z->mumu event selection cuts ?
     applyMuonRadiationFilter     = cms.bool(False)     # should I apply the filter to reject events with muon -> muon + photon radiation ?
 )
 
@@ -281,13 +281,13 @@ process = customise(process)
 #--------------------------------------------------------------------------------
 
 # after processing RECO sequence for 1st event, print event content
-process.printEventContent = cms.EDAnalyzer("EventContentAnalyzer")
-process.filterFirstEvent = cms.EDFilter("EventCountFilter",
-    numEvents = cms.int32(1)
-)
-process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
-
-process.schedule.extend([process.printFirstEventContentPath])
+##process.printEventContent = cms.EDAnalyzer("EventContentAnalyzer")
+##process.filterFirstEvent = cms.EDFilter("EventCountFilter",
+##    numEvents = cms.int32(1)
+##)
+##process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
+##
+##process.schedule.extend([process.printFirstEventContentPath])
 
 processDumpFile = open('embed.dump', 'w')
 print >> processDumpFile, process.dumpPython()
