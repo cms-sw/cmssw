@@ -14,7 +14,7 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi        
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi                  import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA_cfi               import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA2_cfi              import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA3_cfi              import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA3GBR_cfi           import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronDeadECAL_cfi          import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
 
@@ -410,7 +410,7 @@ hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[7].cut = cms.double(+
 hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[8].cut = cms.double(+0.87047)
 hpsPFTauDiscriminationByMVA2TightElectronRejection.mapping[9].cut = cms.double(+0.233711)
 
-hpsPFTauDiscriminationByMVA3rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA3.clone(
+hpsPFTauDiscriminationByMVA3rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA3GBR.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone()
 )
