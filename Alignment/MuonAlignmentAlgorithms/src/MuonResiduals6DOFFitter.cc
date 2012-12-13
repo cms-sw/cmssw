@@ -1,4 +1,4 @@
-// $Id: MuonResiduals6DOFFitter.cc,v 1.9 2011/10/12 23:44:11 khotilov Exp $
+// $Id: MuonResiduals6DOFFitter.cc,v 1.10 2011/11/02 19:55:26 khotilov Exp $
 
 #ifdef STANDALONE_FITTER
 #include "MuonResiduals6DOFFitter.h"
@@ -375,6 +375,127 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali)
   }
 
   return dofit(&MuonResiduals6DOFFitter_FCN, num, name, start, step, low, high);
+}
+
+
+bool MuonResiduals6DOFFitter::fitSpecial(const std::string &fit_type, Alignable *ali)
+{
+  if      (fit_type == "1000-100001_0100-010000") return fit_xphiz_y();
+  else if (fit_type == "1000-100011_0100-010000") return fit_xphiyphiz_y();
+
+  if (!fit_type.empty())
+  {
+    std::cout<<"Non-supported special fit type string given in MuonResiduals6DOFFitter: "<<fit_type<<std::endl<<"Aborting!"<<std::endl;
+    abort();
+  }
+
+  return fit(ali);
+}
+
+
+bool MuonResiduals6DOFFitter::fit_xphiz_y()
+{
+  // 1st fit is just 0100 010000:
+  useRes(k0100);
+  fix(kAlignX);
+  fix(kAlignY, 0);
+  fix(kAlignZ);
+  fix(kAlignPhiX);
+  fix(kAlignPhiY);
+  fix(kAlignPhiZ);
+  fix(kResidXSigma);
+  fix(kResidYSigma, 0);
+  bool ok = fit(0);
+
+  // save the results
+  double y_010000 = value(kAlignY);
+  double ey_010000 = errorerror(kAlignY);
+  double sigy_010000 = value(kResidYSigma);
+  double esigy_010000 = errorerror(kResidYSigma);
+
+  // 2nd fit is 1000 100001:
+  useRes(k1000);
+  fix(kAlignX, 0);
+  fix(kAlignY);
+  fix(kAlignZ);
+  fix(kAlignPhiX);
+  fix(kAlignPhiY);
+  fix(kAlignPhiZ, 0);
+  fix(kResidXSigma, 0);
+  fix(kResidYSigma);
+  ok &= fit(0);
+
+  // set up variables as if it was a 1100 110001 fit:
+  useRes(k1100);
+  fix(kAlignX, 0);
+  fix(kAlignY, 0);
+  fix(kAlignZ);
+  fix(kAlignPhiX);
+  fix(kAlignPhiY);
+  fix(kAlignPhiZ, 0);
+  fix(kResidXSigma, 0);
+  fix(kResidYSigma, 0);
+
+  // do not run the fitting now, but set the saved y values
+  m_value[kAlignY] = y_010000;
+  m_error[kAlignY] = ey_010000;
+  m_value[kResidYSigma] = sigy_010000;
+  m_error[kResidYSigma] = esigy_010000;
+
+  return ok;
+}
+
+
+bool MuonResiduals6DOFFitter::fit_xphiyphiz_y()
+{
+  // 1st fit is just 0100 010000:
+  useRes(k0100);
+  fix(kAlignX);
+  fix(kAlignY, 0);
+  fix(kAlignZ);
+  fix(kAlignPhiX);
+  fix(kAlignPhiY);
+  fix(kAlignPhiZ);
+  fix(kResidXSigma);
+  fix(kResidYSigma, 0);
+  bool ok = fit(0);
+
+  // save the results
+  double y_010000 = value(kAlignY);
+  double ey_010000 = errorerror(kAlignY);
+  double sigy_010000 = value(kResidYSigma);
+  double esigy_010000 = errorerror(kResidYSigma);
+
+  // 2nd fit is 1000 100011:
+  useRes(k1000);
+  fix(kAlignX, 0);
+  fix(kAlignY);
+  fix(kAlignZ);
+  fix(kAlignPhiX);
+  fix(kAlignPhiY, 0);
+  fix(kAlignPhiZ, 0);
+  fix(kResidXSigma, 0);
+  fix(kResidYSigma);
+  ok &= fit(0);
+
+  // set up variables as if it was a 1100 110011 fit:
+  useRes(k1100);
+  fix(kAlignX, 0);
+  fix(kAlignY, 0);
+  fix(kAlignZ);
+  fix(kAlignPhiX);
+  fix(kAlignPhiY, 0);
+  fix(kAlignPhiZ, 0);
+  fix(kResidXSigma, 0);
+  fix(kResidYSigma, 0);
+
+  // do not run the fitting now, but set the saved y values
+  m_value[kAlignY] = y_010000;
+  m_error[kAlignY] = ey_010000;
+  m_value[kResidYSigma] = sigy_010000;
+  m_error[kResidYSigma] = esigy_010000;
+
+  return ok;
 }
 
 
