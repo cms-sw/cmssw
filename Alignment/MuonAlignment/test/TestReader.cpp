@@ -20,9 +20,11 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
@@ -35,12 +37,19 @@
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "Alignment/MuonAlignment/interface/MuonAlignment.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h" 
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
 //
 //
@@ -52,7 +61,7 @@ public:
   explicit TestMuonReader( const edm::ParameterSet& );
   ~TestMuonReader();
 
-  void recursiveGetMuChambers(std::vector<Alignable*> &composite, std::vector<Alignable*> &chambers, int kind);
+  void recursiveGetMuComponents(std::vector<Alignable*> &composite, std::vector<Alignable*> &chambers, int kind);
   align::EulerAngles toPhiXYZ(const align::RotationType &);
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
@@ -80,7 +89,7 @@ TestMuonReader::~TestMuonReader()
 { 
 }
 
-void TestMuonReader::recursiveGetMuChambers(std::vector<Alignable*> &composites, std::vector<Alignable*> &chambers, int kind)
+void TestMuonReader::recursiveGetMuComponents(std::vector<Alignable*> &composites, std::vector<Alignable*> &chambers, int kind)
 {
   for (std::vector<Alignable*>::const_iterator cit = composites.begin(); cit != composites.end(); cit++)
   {
@@ -92,7 +101,7 @@ void TestMuonReader::recursiveGetMuChambers(std::vector<Alignable*> &composites,
     else 
     {
       std::vector<Alignable*> components = (*cit)->components();
-      recursiveGetMuChambers(components, chambers, kind);
+      recursiveGetMuComponents(components, chambers, kind);
     }
   }
 }
@@ -100,9 +109,9 @@ void TestMuonReader::recursiveGetMuChambers(std::vector<Alignable*> &composites,
 align::EulerAngles TestMuonReader::toPhiXYZ(const align::RotationType& rot)
 {
   align::EulerAngles angles(3);
-  angles(1) = std::atan2(rot.yz(), rot.zz());
-  angles(2) = std::asin(-rot.xz());
-  angles(3) = std::atan2(rot.xy(), rot.xx());
+  angles(1) = reco::deltaPhi(std::atan2(rot.yz(), rot.zz()),0.);
+  angles(2) = reco::deltaPhi(std::asin(-rot.xz()),0.);
+  angles(3) = reco::deltaPhi(std::atan2(rot.xy(), rot.xx()),0.);
   return angles;
 }
 
@@ -110,86 +119,210 @@ align::EulerAngles TestMuonReader::toPhiXYZ(const align::RotationType& rot)
 void
 TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  // first, get chamber alignables from ideal geometry:
+  using namespace std;
 
+  // get chamber alignables from ideal geometry:
   edm::ESTransientHandle<DDCompactView> cpv;
   iSetup.get<IdealGeometryRecord>().get(cpv);
-
   edm::ESHandle<MuonDDDConstants> mdc;
   iSetup.get<MuonNumberingRecord>().get(mdc);
-
   DTGeometryBuilderFromDDD DTGeometryBuilder;
   CSCGeometryBuilderFromDDD CSCGeometryBuilder;
+  boost::shared_ptr<DTGeometry> ideal_dtGeometry(new DTGeometry );
+  DTGeometryBuilder.build(ideal_dtGeometry, &(*cpv), *mdc);
+  boost::shared_ptr<CSCGeometry> ideal_cscGeometry(new CSCGeometry);
+  CSCGeometryBuilder.build(ideal_cscGeometry, &(*cpv), *mdc);
+  AlignableMuon ideal_alignableMuon(&(*ideal_dtGeometry), &(*ideal_cscGeometry));
+  AlignableNavigator ideal_navigator(ideal_alignableMuon.components());
 
-  boost::shared_ptr<DTGeometry> dtGeometry(new DTGeometry );
-  DTGeometryBuilder.build(dtGeometry, &(*cpv), *mdc);
-  boost::shared_ptr<CSCGeometry> cscGeometry(new CSCGeometry);
-  CSCGeometryBuilder.build(cscGeometry, &(*cpv), *mdc);
+  // read in Alignables through MuonAlignment
+  MuonAlignment real_align( iSetup );
+  AlignableMuon* real_alignableMuon = real_align.getAlignableMuon();
+  AlignableNavigator real_navigator(real_alignableMuon->components());
 
-  AlignableMuon ideal_alignableMuon(&(*dtGeometry), &(*cscGeometry));
+  //edm::LogInfo("MuonAlignment") << "Starting!";
 
-  std::vector<Alignable*> ideal_barrels = ideal_alignableMuon.DTBarrel();
-  std::vector<Alignable*> ideal_endcaps = ideal_alignableMuon.CSCEndcaps();
-
-  std::vector<Alignable*> ideal_mb_chambers, ideal_me_chambers;
-  recursiveGetMuChambers(ideal_barrels, ideal_mb_chambers, align::AlignableDTChamber);
-  recursiveGetMuChambers(ideal_endcaps, ideal_me_chambers, align::AlignableCSCChamber);
-  //std::cout<<" #ideals dts="<<ideal_mb_chambers.size()<<" cscs="<<ideal_me_chambers.size()<<std::endl;
-
-
-/*   
-  edm::LogInfo("MuonAlignment") << "Starting!";
-
-  // Retrieve DT alignment[Error]s from DBase
+  // Read in alignments constants from DBase
   edm::ESHandle<Alignments> dtAlignments;
-  iSetup.get<DTAlignmentRcd>().get( dtAlignments );
-  edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
-  iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
-
-  for ( std::vector<AlignTransform>::const_iterator it = dtAlignments->m_align.begin();
-		it != dtAlignments->m_align.end(); it++ )
-	{
-	  CLHEP::HepRotation rot( (*it).rotation() );
-	  align::RotationType rotation( rot.xx(), rot.xy(), rot.xz(),
-					rot.yx(), rot.yy(), rot.yz(),
-					rot.zx(), rot.zy(), rot.zz() );
-
-	  std::cout << (*it).rawId()
-				<< "  " << (*it).translation().x()
-				<< " " << (*it).translation().y()
-				<< " " << (*it).translation().z()
-				<< "  " << rotation.xx() << " " << rotation.xy() << " " << rotation.xz()
-				<< " " << rotation.yx() << " " << rotation.yy() << " " << rotation.yz()
-				<< " " << rotation.zx() << " " << rotation.zy() << " " << rotation.zz()
-				<< std::endl;
-
-	}
-  std::cout << std::endl << "----------------------" << std::endl;
-
-  for ( std::vector<AlignTransformError>::const_iterator it = dtAlignmentErrors->m_alignError.begin();
-		it != dtAlignmentErrors->m_alignError.end(); it++ )
-	{
-	  CLHEP::HepSymMatrix error = (*it).matrix();
-	  std::cout << (*it).rawId() << " ";
-	  for ( int i=0; i<error.num_row(); i++ )
-		for ( int j=0; j<=i; j++ ) 
-		  std::cout << " " << error[i][j];
-	  std::cout << std::endl;
-	}
-*/
-
-
-  // Retrieve CSC alignment[Error]s from DBase
+  iSetup.get<DTAlignmentRcd>().get(dtAlignments);
   edm::ESHandle<Alignments> cscAlignments;
   iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
+  //edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
+  //iSetup.get<DTAlignmentErrorRcd>().get(dtAlignmentErrors);
   //edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
   //iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
 
-  //std::vector<Alignable*>::const_iterator csc_ideal = ideal_endcaps.begin();
-  std::cout<<std::setprecision(3)<<std::fixed;
-  //std::cout<<" lens : "<<ideal_me_chambers.size()<<" "<<cscAlignments->m_align.size()<<std::endl;
+  // read in GlobalTrackingGeometry, which is supposed to have the alignments applied
+  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
-  for ( std::vector<AlignTransform>::const_iterator it = cscAlignments->m_align.begin(); it != cscAlignments->m_align.end(); it++ )
+  // read muon GPR
+  edm::ESHandle<Alignments> globalPositionRcd;
+  iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
+  const AlignTransform & globalCoordinates = align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon));
+  //const AlignTransform::Translation &globalShift = globalCoordinates.translation();
+  const AlignTransform::Rotation globalRotation = globalCoordinates.rotation(); // by value!
+  const AlignTransform::Rotation inverseGlobalRotation = globalRotation.inverse();
+
+  /*
+  cout << "label id wheel station sector SL layer r_x r_y r_z r_phix r_phiy r_phiz c_x c_y c_z c_phix c_phiy c_phiz g_x g_y g_z g_phix g_phiy g_phiz"<<endl;
+  for (vector<AlignTransform>::const_iterator it = dtAlignments->m_align.begin(); it != dtAlignments->m_align.end(); it++)
+  {
+    DTLayerId id((*it).rawId());
+
+    //find this in ideal alignment:
+    AlignableDetOrUnitPtr ideal_al = ideal_navigator.alignableFromDetId((*it).rawId());
+    if (ideal_al.isNull()) { cout<<" no ideal alignable for "<<id<<endl; continue;}
+
+    if (ideal_al->alignableObjectId() != align::AlignableDTSuperLayer) continue; // only SL
+
+    //find this in real alignment:
+    AlignableDetOrUnitPtr real_al = real_navigator.alignableFromDetId((*it).rawId());
+    if (real_al.isNull()) { cout<<" no real alignable for "<<id<<endl; continue;}
+
+    // find this in geometry
+    DetId did((*it).rawId());
+    const GeomDet* geomDet = theTrackingGeometry->idToDet(did);
+
+
+    char nme[100];
+    sprintf(nme,"mbb%+d_%d_%02d_%d",id.station(),id.station(),id.sector(),id.superlayer());
+
+
+    // ideal alignment transformation
+    align::PositionType ideal_position = ideal_al->globalPosition();
+    align::RotationType ideal_rotation = ideal_al->globalRotation();
+    //align::rectify(ideal_rotation);
+    //cout << nme <<" "<< (*it).rawId()<<"  "<<ideal_position.basicVector()<<" "<<align::toAngles(ideal_rotation)<<endl;continue;
+
+    // "real" alignment transformation
+    align::PositionType real_position = real_al->globalPosition();
+    align::RotationType real_rotation = real_al->globalRotation();
+    //cout << nme <<" "<< (*it).rawId()<<"  "<<ideal_position.basicVector()<<" "<<align::toAngles(real_rotation)<<endl;continue;
+    //WRT ideal:
+    align::PositionType i_real_position = align::PositionType( ideal_rotation * (real_position.basicVector() - ideal_position.basicVector()) );
+    align::RotationType i_real_rotation = real_rotation * ideal_rotation.transposed();
+    //align::rectify(i_real_rotation);
+    align::EulerAngles i_real_abg = align::toAngles(i_real_rotation);
+    align::EulerAngles i_real_xyz = toPhiXYZ(i_real_rotation);
+
+    // "real" alignment transformations that are read directly from DB
+    // (first need to apply global correction)
+    CLHEP::Hep3Vector pos = globalRotation * CLHEP::Hep3Vector( (*it).translation() ) + globalShift;
+    CLHEP::HepRotation rot = CLHEP::HepRotation( (*it).rotation() )  * inverseGlobalRotation;
+    align::PositionType position( pos.x(), pos.y(), pos.z());
+    align::RotationType rotation( rot.xx(), rot.xy(), rot.xz(),
+                                  rot.yx(), rot.yy(), rot.yz(),
+                                  rot.zx(), rot.zy(), rot.zz() );
+    // WRT ideal
+    align::PositionType i_position = align::PositionType( ideal_rotation * (position.basicVector() - ideal_position.basicVector()) );
+    align::RotationType i_rotation = rotation * ideal_rotation.transposed();
+    //align::rectify(i_rotation);
+    align::EulerAngles i_abg = align::toAngles(i_rotation);
+    align::EulerAngles i_xyz = toPhiXYZ(i_rotation);
+
+    // alignment transformation from geometry:
+    const Surface::PositionType& gpos = geomDet->position();
+    const Surface::RotationType& grot = geomDet->rotation();
+    align::PositionType gposition( gpos.x(), gpos.y(), gpos.z());
+    align::RotationType grotation( grot.xx(), grot.xy(), grot.xz(),
+                                   grot.yx(), grot.yy(), grot.yz(),
+                                   grot.zx(), grot.zy(), grot.zz() );
+    // WRT ideal
+    align::PositionType i_gposition = align::PositionType( ideal_rotation * (gposition.basicVector() - ideal_position.basicVector()) );
+    align::RotationType i_grotation = grotation * ideal_rotation.transposed();
+    //align::rectify(i_grotation);
+    align::EulerAngles i_gabg = align::toAngles(i_grotation);
+    align::EulerAngles i_gxyz = toPhiXYZ(i_grotation);
+
+    cout<<setprecision(8)<<fixed;
+    cout <<nme<<" "<<(*it).rawId()<<" "<<id.wheel()<<" "<<id.station()<<" "<<id.sector()<<" "<<id.superlayer()<<" "<<id.layer()
+        <<"  "<<i_real_position.x()*10.<<" "<<i_real_position.y()*10.<<" "<<i_real_position.z()*10.
+        <<"  "<<i_real_xyz[0]*1000.<<" "<<i_real_xyz[1]*1000.<<" "<<i_real_xyz[2]*1000.
+        <<"  "<<i_position.x()*10.<<" "<<i_position.y()*10.<<" "<<i_position.z()*10.
+        <<"  "<<i_xyz[0]*1000.<<" "<<i_xyz[1]*1000.<<" "<<i_xyz[2]*1000.
+        <<"  "<<i_gposition.x()*10.<<" "<<i_gposition.y()*10.<<" "<<i_gposition.z()*10.
+        <<"  "<<i_gxyz[0]*1000.<<" "<<i_gxyz[1]*1000.<<" "<<i_gxyz[2]*1000. << endl;
+  }
+  //cout << endl << "----------------------" << endl;
+  */
+
+  cout << "label id wheel station sector SL layer gl_x gl_y gl_z ch_x ch_y ch_z r_x r_y r_z r_ch_x r_ch_y r_ch_z g_x g_y g_z g_ch_x g_ch_y g_ch_z"<<endl;
+  for (vector<AlignTransform>::const_iterator it = dtAlignments->m_align.begin(); it != dtAlignments->m_align.end(); it++)
+  {
+    DTLayerId id((*it).rawId());
+    DTChamberId cid(id.wheel(), id.station(), id.sector());
+
+    //find this in ideal alignment:
+    AlignableDetOrUnitPtr ideal_al = ideal_navigator.alignableFromDetId((*it).rawId());
+    if (ideal_al.isNull()) { cout<<" no ideal alignable for "<<id<<endl; continue;}
+
+    if (ideal_al->alignableObjectId() != align::AlignableDetUnit) continue; // only layers #2
+    if (id.layer() != 2) continue;
+
+    AlignableDetOrUnitPtr ideal_al_ch = ideal_navigator.alignableFromDetId(cid.rawId());
+    if (ideal_al_ch.isNull()) { cout<<" no ideal alignable for "<<cid<<endl; continue;}
+
+    //find them in real alignment:
+    AlignableDetOrUnitPtr real_al = real_navigator.alignableFromDetId((*it).rawId());
+    if (real_al.isNull()) { cout<<" no real alignable for "<<id<<endl; continue;}
+    AlignableDetOrUnitPtr real_al_ch = real_navigator.alignableFromDetId(cid.rawId());
+    if (real_al_ch.isNull()) { cout<<" no real alignable for "<<cid<<endl; continue;}
+
+    // find them in geometry
+    DetId did((*it).rawId());
+    const GeomDet* geom_det = theTrackingGeometry->idToDet(did);
+    DetId cdid(cid.rawId());
+    const GeomDet* geom_det_ch = theTrackingGeometry->idToDet(cdid);
+
+
+    char nme[100];
+    sprintf(nme,"mbb%+d_%d_%02d_%d",id.station(),id.station(),id.sector(),id.superlayer());
+
+    // get the global position of the ideal local point (0,100,0):
+    align::LocalPoint lp(0,100.,0);
+    align::GlobalPoint gp = ideal_al->surface().toGlobal(lp);
+    // local in chamber's frame
+    align::LocalPoint lp_ch = ideal_al_ch->surface().toLocal(gp);
+
+    // find local position of this gp in "real" alignment in layer and chamber frame of ref.
+    align::LocalPoint real_lp = real_al->surface().toLocal(gp);
+    align::LocalPoint real_lp_ch = real_al_ch->surface().toLocal(gp);
+
+    // alignment transformation from geometry:
+    LocalPoint geo_lp = geom_det->toLocal(gp);
+    LocalPoint geo_lp_ch = geom_det_ch->toLocal(gp);
+
+    cout<<setprecision(8)<<fixed;
+    cout <<nme<<" "<<(*it).rawId()<<" "<<id.wheel()<<" "<<id.station()<<" "<<id.sector()<<" "<<id.superlayer()<<" "<<id.layer()
+        <<"  "<<gp.x()*10.<<" "<<gp.y()*10.<<" "<<gp.z()*10.
+        <<"  "<<lp_ch.x()*10.<<" "<<lp_ch.y()*10.<<" "<<lp_ch.z()*10.
+        <<"  "<<real_lp.x()*10.<<" "<<real_lp.y()*10.<<" "<<real_lp.z()*10.
+        <<"  "<<real_lp_ch.x()*10.<<" "<<real_lp_ch.y()*10.<<" "<<real_lp_ch.z()*10.
+        <<"  "<<geo_lp.x()*10.<<" "<<geo_lp.y()*10.<<" "<<geo_lp.z()*10.
+        <<"  "<<geo_lp_ch.x()*10.<<" "<<geo_lp_ch.y()*10.<<" "<<geo_lp_ch.z()*10.<< endl;
+  }
+
+
+  /*
+  for ( vector<AlignTransformError>::const_iterator it = dtAlignmentErrors->m_alignError.begin();
+		it != dtAlignmentErrors->m_alignError.end(); it++ )
+	{
+	  CLHEP::HepSymMatrix error = (*it).matrix();
+	  cout << (*it).rawId() << " ";
+	  for ( int i=0; i<error.num_row(); i++ )
+		for ( int j=0; j<=i; j++ ) 
+		  cout << " " << error[i][j];
+	  cout << endl;
+	}
+  */
+
+/*
+  //vector<Alignable*>::const_iterator csc_ideal = ideal_endcaps.begin();
+  cout<<setprecision(3)<<fixed;
+  //cout<<" lens : "<<ideal_me_chambers.size()<<" "<<cscAlignments->m_align.size()<<endl;
+
+  for ( vector<AlignTransform>::const_iterator it = cscAlignments->m_align.begin(); it != cscAlignments->m_align.end(); it++ )
   {
     CSCDetId id((*it).rawId());
     if (id.layer()>0) continue; // look at chambers only, skip layers
@@ -198,20 +331,20 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     char nme[100];
     sprintf(nme,"%d/%d/%02d",id.station(),id.ring(),id.chamber());
-    std::string me = "ME+";
+    string me = "ME+";
     if (id.endcap()==2) me = "ME-";
     me += nme;
     
     // find this chamber in ideal geometry
     const Alignable* ideal=0;
-    for (std::vector<Alignable*>::const_iterator cideal = ideal_me_chambers.begin(); cideal != ideal_me_chambers.end(); cideal++)
+    for (vector<Alignable*>::const_iterator cideal = ideal_me_chambers.begin(); cideal != ideal_me_chambers.end(); cideal++)
       if ((*cideal)->geomDetId().rawId() == (*it).rawId()) { ideal = *cideal; break; }
     if (ideal==0) {
-      std::cout<<" no ideal chamber for "<<id<<std::endl;
+      cout<<" no ideal chamber for "<<id<<endl;
       continue;
     }
 
-    //if (ideal->geomDetId().rawId() != (*it).rawId()) std::cout<<" badid : "<<(*csc_ideal)->geomDetId().rawId()<<" "<<(*it).rawId()<<std::endl;
+    //if (ideal->geomDetId().rawId() != (*it).rawId()) cout<<" badid : "<<(*csc_ideal)->geomDetId().rawId()<<" "<<(*it).rawId()<<endl;
 
     align::PositionType position((*it).translation().x(), (*it).translation().y(), (*it).translation().z());
 
@@ -224,7 +357,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     align::PositionType idealPosition = ideal->globalPosition();
     align::RotationType idealRotation = ideal->globalRotation();
     //align::EulerAngles abg = align::toAngles(idealRotation);
-    //std::cout << me <<" "<< (*it).rawId()<<"  "<<idealPosition.basicVector()<<" "<<abg<<std::endl;continue;
+    //cout << me <<" "<< (*it).rawId()<<"  "<<idealPosition.basicVector()<<" "<<abg<<endl;continue;
 
     // compute transformations relative to ideal
     align::PositionType rposition = align::PositionType( idealRotation * (position.basicVector() - idealPosition.basicVector()) );
@@ -233,10 +366,10 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     
     //align::EulerAngles rxyz = toPhiXYZ(rrotation);
     //if (fabs(rabg[0]-rxyz[0])>0.00001 || fabs(rabg[1]-rxyz[1])>0.00001 ||fabs(rabg[1]-rxyz[1])>0.00001)
-    //  std::cout << me <<" large angle diff = "<<fabs(rabg[0]-rxyz[0])*1000.<<" "<<fabs(rabg[1]-rxyz[1])*1000.<<" "<<fabs(rabg[2]-rxyz[2])*1000.<<" = "
-    //        << 1000.*rabg[0] <<" "<< 1000.*rabg[1] <<" "<< 1000.*rabg[2] <<" - " << 1000.*rxyz[0] <<" "<< 1000.*rxyz[1] <<" "<< 1000.*rxyz[2]<<std::endl;
+    //  cout << me <<" large angle diff = "<<fabs(rabg[0]-rxyz[0])*1000.<<" "<<fabs(rabg[1]-rxyz[1])*1000.<<" "<<fabs(rabg[2]-rxyz[2])*1000.<<" = "
+    //        << 1000.*rabg[0] <<" "<< 1000.*rabg[1] <<" "<< 1000.*rabg[2] <<" - " << 1000.*rxyz[0] <<" "<< 1000.*rxyz[1] <<" "<< 1000.*rxyz[2]<<endl;
 
-    std::cout << me <<" "<< (*it).rawId()
+    cout << me <<" "<< (*it).rawId()
       //<< "  " << (*it).translation().x() << " " << (*it).translation().y() << " " << (*it).translation().z()
       //<< "  " << abg[0] << " " << abg[1] << " " << abg[2] 
       //<< "  " << rotation.xx() << " " << rotation.xy() << " " << rotation.xz()
@@ -245,20 +378,22 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 
       <<"  "<< 10.*rposition.x() <<" "<< 10.*rposition.y() <<" "<< 10.*rposition.z()
       <<"  "<< 1000.*rabg[0] <<" "<< 1000.*rabg[1] <<" "<< 1000.*rabg[2]
-      << std::endl;
+      << endl;
   }
-/*
-  std::cout << std::endl << "----------------------" << std::endl;
+*/
 
-  for ( std::vector<AlignTransformError>::const_iterator it = cscAlignmentErrors->m_alignError.begin();
+/*
+  cout << endl << "----------------------" << endl;
+
+  for ( vector<AlignTransformError>::const_iterator it = cscAlignmentErrors->m_alignError.begin();
 		it != cscAlignmentErrors->m_alignError.end(); it++ )
 	{
 	  CLHEP::HepSymMatrix error = (*it).matrix();
-	  std::cout << (*it).rawId() << " ";
+	  cout << (*it).rawId() << " ";
 	  for ( int i=0; i<error.num_row(); i++ )
 		for ( int j=0; j<=i; j++ ) 
-		  std::cout << " " << error[i][j];
-	  std::cout << std::endl;
+		  cout << " " << error[i][j];
+	  cout << endl;
 	}
 
 
