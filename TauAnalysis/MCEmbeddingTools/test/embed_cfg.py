@@ -11,7 +11,7 @@ process = cms.Process('HLT')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-##process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -39,8 +39,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
-        'file:/data1/veelken/CMSSW_5_3_x/skims/ZmumuTF_RECO_2012Oct03.root'
-        #'/store/user/veelken/CMSSW_5_3_x/skims/simZmumu_madgraph_RECO.root'			    
+        '/store/user/veelken/CMSSW_5_3_x/skims/simZmumu_madgraph_RECO_1_1_lTW.root'
+        ##'file:/data1/veelken/CMSSW_5_3_x/skims/ZmumuTF_RECO_2012Oct03.root'
     ),
     ##eventsToProcess = cms.untracked.VEventRange('1:1:6')
 )
@@ -49,7 +49,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
