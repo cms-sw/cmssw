@@ -473,9 +473,8 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   }
 
   canvas->Update();
-  std::string outputFileName_plot = "plots/";
   size_t idx = outputFileName.find_last_of('.');
-  outputFileName_plot.append(std::string(outputFileName, 0, idx));
+  std::string outputFileName_plot = std::string(outputFileName, 0, idx);
   if ( idx != std::string::npos ) canvas->Print(std::string(outputFileName_plot).append(std::string(outputFileName, idx)).data());
   canvas->Print(std::string(outputFileName_plot).append(".png").data());
   canvas->Print(std::string(outputFileName_plot).append(".pdf").data());
@@ -652,14 +651,13 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
 }
 //-------------------------------------------------------------------------------
 
-struct plotEntryType
+struct plotEntryTypeBase
 {
-  plotEntryType(const std::string& name, const std::string& title, const std::string& meName, 
-		double xMin, double xMax, unsigned numBinsMin_rebinned, const std::string& xAxisTitle, double xAxisOffset,
-		double yMin, double yMax, const std::string& yAxisTitle, double yAxisOffset, bool useLogScale)
+  plotEntryTypeBase(const std::string& name, const std::string& title, 
+		    double xMin, double xMax, unsigned numBinsMin_rebinned, const std::string& xAxisTitle, double xAxisOffset,
+		    double yMin, double yMax, const std::string& yAxisTitle, double yAxisOffset, bool useLogScale)
     : name_(name),
       title_(title),
-      meName_(meName),
       xMin_(xMin),
       xMax_(xMax),
       numBinsMin_rebinned_(numBinsMin_rebinned),
@@ -671,10 +669,9 @@ struct plotEntryType
       yAxisOffset_(yAxisOffset),
       useLogScale_(useLogScale)
   {}
-  ~plotEntryType() {}
+  ~plotEntryTypeBase() {}
   std::string name_;
   std::string title_;
-  std::string meName_;
   double xMin_;
   double xMax_;
   unsigned numBinsMin_rebinned_;
@@ -685,6 +682,36 @@ struct plotEntryType
   std::string yAxisTitle_;
   double yAxisOffset_;
   bool useLogScale_;
+};
+
+struct plotEntryType_distribution : public plotEntryTypeBase
+{
+  plotEntryType_distribution(const std::string& name, const std::string& title, const std::string& meName, 
+			     double xMin, double xMax, unsigned numBinsMin_rebinned, const std::string& xAxisTitle, double xAxisOffset,
+			     double yMin, double yMax, const std::string& yAxisTitle, double yAxisOffset, bool useLogScale)
+    : plotEntryTypeBase(name, title, 
+			xMin, xMax, numBinsMin_rebinned, xAxisTitle, xAxisOffset, 
+			yMin, yMax, yAxisTitle, yAxisOffset, useLogScale),
+      meName_(meName)
+  {}
+  ~plotEntryType_distribution() {}
+  std::string meName_;  
+};
+
+struct plotEntryType_efficiency : public plotEntryTypeBase
+{
+  plotEntryType_efficiency(const std::string& name, const std::string& title, const std::string& meName_numerator, const std::string& meName_denominator, 
+			   double xMin, double xMax, unsigned numBinsMin_rebinned, const std::string& xAxisTitle, double xAxisOffset,
+			   double yMin, double yMax, const std::string& yAxisTitle, double yAxisOffset, bool useLogScale)
+    : plotEntryTypeBase(name, title, 
+			xMin, xMax, numBinsMin_rebinned, xAxisTitle, xAxisOffset, 
+			yMin, yMax, yAxisTitle, yAxisOffset, useLogScale),
+      meName_numerator_(meName_numerator),
+      meName_denominator_(meName_denominator)
+  {}
+  ~plotEntryType_efficiency() {}
+  std::string meName_numerator_;
+  std::string meName_denominator_;
 };
 
 void makeEmbeddingValidationPlots()
@@ -701,55 +728,130 @@ void makeEmbeddingValidationPlots()
   std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_all_v1_4_8.root";
   std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_simDYtoMuMu_recEmbedding_all_v1_4_8.root";
 
-  std::vector<plotEntryType> distributionsToPlot;
-  distributionsToPlot.push_back(plotEntryType("numGlobalMuons", "numGlobalMuons", "numGlobalMuons", -0.5, +9.5, 10, "Num. global Muons", 1.2, 0., 1., "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("numStandAloneMuons", "numStandAloneMuons", "numStandAloneMuons", -0.5, +9.5, 10, "Num. stand-alone Muons", 1.2, 0., 1., "a.u.", 1.2, false));
+  std::vector<plotEntryType_distribution> distributionsToPlot;
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "numGlobalMuons", 
+    "numGlobalMuons", "numGlobalMuons", -0.5, +9.5, 10, "Num. global Muons", 1.2, 0., 1., "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "numStandAloneMuons", 
+    "numStandAloneMuons", "numStandAloneMuons", -0.5, +9.5, 10, "Num. stand-alone Muons", 1.2, 0., 1., "a.u.", 1.2, false));
 
-  distributionsToPlot.push_back(plotEntryType("numTracksPtGt5", "numTracksPtGt5", "numTracksPtGt5", -0.5, +49.5, 50, "Num. Tracks of P_{T} > 5 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("numTracksPtGt10", "numTracksPtGt10", "numTracksPtGt10", -0.5, +34.5, 50, "Num. Tracks of P_{T} > 10 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("numTracksPtGt20", "numTracksPtGt20", "numTracksPtGt20", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 20 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("numTracksPtGt30", "numTracksPtGt30", "numTracksPtGt30", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 30 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("numTracksPtGt40", "numTracksPtGt40", "numTracksPtGt40", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 40 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "numTracksPtGt5", "numTracksPtGt5", 
+    "numTracksPtGt5", -0.5, +49.5, 50, "Num. Tracks of P_{T} > 5 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "numTracksPtGt10", "numTracksPtGt10", 
+    "numTracksPtGt10", -0.5, +34.5, 50, "Num. Tracks of P_{T} > 10 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "numTracksPtGt20", "numTracksPtGt20", 
+    "numTracksPtGt20", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 20 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "numTracksPtGt30", "numTracksPtGt30", 
+    "numTracksPtGt30", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 30 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "numTracksPtGt40", "numTracksPtGt40", 
+    "numTracksPtGt40", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 40 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   
-  distributionsToPlot.push_back(plotEntryType("genMuonEta", "genMuonEta", "validationAnalyzer_mutau/goodMuonDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("genMuonPt",  "genMuonPt",  "validationAnalyzer_mutau/goodMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("genMuonPt",  "genMuonPt",  "validationAnalyzer_mutau/goodMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("recMuonEta", "recMuonEta", "validationAnalyzer_mutau/goodMuonDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recMuonPt",  "recMuonPt",  "validationAnalyzer_mutau/goodMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recMuonPt",  "recMuonPt",  "validationAnalyzer_mutau/goodMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genMuonEta", "genMuonEta", 
+    "validationAnalyzer_mutau/goodMuonDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genMuonPt", "genMuonPt",  
+    "validationAnalyzer_mutau/goodMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genMuonPt", "genMuonPt",  
+    "validationAnalyzer_mutau/goodMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recMuonEta", "recMuonEta", 
+    "validationAnalyzer_mutau/goodMuonDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recMuonPt", "recMuonPt",  
+    "validationAnalyzer_mutau/goodMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recMuonPt", "recMuonPt",  
+    "validationAnalyzer_mutau/goodMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
 
-  distributionsToPlot.push_back(plotEntryType("genIsoMuonEta", "genIsoMuonEta", "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("genIsoMuonPt",  "genIsoMuonPt",  "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("genIsoMuonPt",  "genIsoMuonPt",  "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("recIsoMuonEta", "recIsoMuonEta", "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recIsoMuonPt",  "recIsoMuonPt",  "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recIsoMuonPt",  "recIsoMuonPt",  "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genIsoMuonEta", "genIsoMuonEta", 
+    "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genIsoMuonPt", "genIsoMuonPt",  
+    "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genIsoMuonPt", "genIsoMuonPt",  
+    "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recIsoMuonEta", "recIsoMuonEta", 
+    "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recIsoMuonPt", "recIsoMuonPt",  
+    "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recIsoMuonPt", "recIsoMuonPt",  
+    "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
 
-  distributionsToPlot.push_back(plotEntryType("genTauEta", "genTauEta", "validationAnalyzer_mutau/selectedTauDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#tau}", 1.2, 0., 0.1, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("genTauPt",  "genTauPt",  "validationAnalyzer_mutau/selectedTauDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("genTauPt",  "genTauPt",  "validationAnalyzer_mutau/selectedTauDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("recTauEta", "recTauEta", "validationAnalyzer_mutau/selectedTauDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#tau}", 1.2, 0., 0.1, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recTauPt",  "recTauPt",  "validationAnalyzer_mutau/selectedTauDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recTauPt",  "recTauPt",  "validationAnalyzer_mutau/selectedTauDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genTauEta", "genTauEta", 
+    "validationAnalyzer_mutau/selectedTauDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#tau}", 1.2, 0., 0.1, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genTauPt", "genTauPt",  
+    "validationAnalyzer_mutau/selectedTauDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genTauPt", "genTauPt",  
+    "validationAnalyzer_mutau/selectedTauDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recTauEta", "recTauEta", 
+    "validationAnalyzer_mutau/selectedTauDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#tau}", 1.2, 0., 0.1, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recTauPt", "recTauPt",  
+    "validationAnalyzer_mutau/selectedTauDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recTauPt",  "recTauPt",  
+    "validationAnalyzer_mutau/selectedTauDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   
-  distributionsToPlot.push_back(plotEntryType("genMEt", "genMEt", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/genMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("genMEt", "genMEt", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/genMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("recCaloMEtNoHF", "recCaloMEtNoHF", "validationAnalyzer_mutau/rawCaloMEtNoHFdistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recCaloMEtNoHF", "recCaloMEtNoHF", "validationAnalyzer_mutau/rawCaloMEtNoHFdistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("recPFMEt", "recPFMEt", "validationAnalyzer_mutau/rawPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recPFMEt", "recPFMEt", "validationAnalyzer_mutau/rawPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrected", "recPFMEtTypeIcorrected", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrected", "recPFMEtTypeIcorrected", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrectedMinusGenMEtParlZ", "recPFMEtTypeIcorrectedMinusGenMEtParlZ", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtParlZ", -100., +100., 50, "#DeltaE_{#parallel}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrectedMinusGenMEtParlZ", "recPFMEtTypeIcorrectedMinusGenMEtParlZ", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtParlZ", -100., +100., 50, "#DeltaE_{#parallel}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtPerpZ", 0., 100., 50, "#DeltaE_{#perp}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
-  distributionsToPlot.push_back(plotEntryType("recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtPerpZ", 0., 100., 50, "#DeltaE_{#perp}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genMEt", "genMEt", 
+    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/genMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genMEt", "genMEt", 
+    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/genMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recCaloMEtNoHF", "recCaloMEtNoHF", 
+    "validationAnalyzer_mutau/rawCaloMEtNoHFdistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recCaloMEtNoHF", "recCaloMEtNoHF", 
+    "validationAnalyzer_mutau/rawCaloMEtNoHFdistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recPFMEt", "recPFMEt", 
+    "validationAnalyzer_mutau/rawPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recPFMEt", "recPFMEt", 
+    "validationAnalyzer_mutau/rawPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recPFMEtTypeIcorrected", "recPFMEtTypeIcorrected", 
+    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recPFMEtTypeIcorrected", "recPFMEtTypeIcorrected", 
+    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+/*
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recPFMEtTypeIcorrectedMinusGenMEtParlZ", "recPFMEtTypeIcorrectedMinusGenMEtParlZ", 
+    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtParlZ", -100., +100., 50, "#DeltaE_{#parallel}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recPFMEtTypeIcorrectedMinusGenMEtParlZ", "recPFMEtTypeIcorrectedMinusGenMEtParlZ", 
+    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtParlZ", -100., +100., 50, "#DeltaE_{#parallel}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", 
+    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtPerpZ", 0., 100., 50, "#DeltaE_{#perp}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+   "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", 
+   "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtPerpZ", 0., 100., 50, "#DeltaE_{#perp}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+ */  
   TFile* inputFile_simDYtoTauTau = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoTauTau).data());
   TFile* inputFile_simDYtoMuMu_genEmbedding = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoMuMu_genEmbedding).data());
   TFile* inputFile_simDYtoMuMu_recEmbedding = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoMuMu_recEmbedding).data());
 
-  for ( std::vector<plotEntryType>::const_iterator plot = distributionsToPlot.begin();
+  for ( std::vector<plotEntryType_distribution>::const_iterator plot = distributionsToPlot.begin();
 	plot != distributionsToPlot.end(); ++plot ) {
     TH1* histogram_simDYtoTauTau = getHistogram(inputFile_simDYtoTauTau, "", plot->meName_);
     TH1* histogram_simDYtoMuMu_genEmbedding = getHistogram(inputFile_simDYtoMuMu_genEmbedding, "", plot->meName_);
@@ -762,6 +864,97 @@ void makeEmbeddingValidationPlots()
 		     plot->xMin_, plot->xMax_, plot->numBinsMin_rebinned_, plot->xAxisTitle_, plot->xAxisOffset_,
 		     plot->useLogScale_, plot->yMin_, plot->yMax_, plot->yAxisTitle_, plot->yAxisOffset_,
 		     outputFileName);
+  }
+
+  std::vector<plotEntryType_efficiency> efficienciesToPlot;
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "electronIdEfficiency", "Electron Id Efficiency", 
+    "validationAnalyzer_mutau/goodElectronEfficiencies/numeratorPt", 
+    "validationAnalyzer_mutau/goodElectronEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{e} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "electronIdEfficiency", "Electron Id Efficiency", 
+    "validationAnalyzer_mutau/goodElectronEfficiencies/numeratorEta", 
+    "validationAnalyzer_mutau/goodElectronEfficiencies/denominatorEta", -2.5, +2.5, 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "electronIdAndIsoEfficiency", "Electron Id & Iso Efficiency", 
+    "validationAnalyzer_mutau/goodElectronEfficiencies/numeratorPt", 
+    "validationAnalyzer_mutau/goodElectronEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{e} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "electronIdAndIsoEfficiency", "Electron Id & Iso Efficiency", 
+    "validationAnalyzer_mutau/goodIsoElectronEfficiencies/numeratorEta", 
+    "validationAnalyzer_mutau/goodIsoElectronEfficiencies/denominatorEta", -2.5, +2.5, 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "muonIdEfficiency", "Muon Id Efficiency", 
+    "validationAnalyzer_mutau/goodMuonEfficiencies/numeratorPt", 
+    "validationAnalyzer_mutau/goodMuonEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{#mu} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "muonIdEfficiency", "Muon Id Efficiency", 
+    "validationAnalyzer_mutau/goodMuonEfficiencies/numeratorEta", 
+    "validationAnalyzer_mutau/goodMuonEfficiencies/denominatorEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "muonIdAndIsoEfficiency", "Muon Id & Iso Efficiency", 
+    "validationAnalyzer_mutau/goodMuonEfficiencies/numeratorPt", 
+    "validationAnalyzer_mutau/goodMuonEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{#mu} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "muonIdAndIsoEfficiency", "Muon Id & Iso Efficiency", 
+    "validationAnalyzer_mutau/goodIsoMuonEfficiencies/numeratorEta", 
+    "validationAnalyzer_mutau/goodIsoMuonEfficiencies/denominatorEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "muonTriggerEfficiency", "HLT_Mu8 Efficiency", 
+    "validationAnalyzer_mutau/muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/numeratorPt", 
+    "validationAnalyzer_mutau/muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/denominatorPt", 0., 250., 50, "P_{T}^{#mu} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "muonTriggerEfficiency", "HLT_Mu8 Efficiency", 
+    "validationAnalyzer_mutau/muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/numeratorEta", 
+    "validationAnalyzer_mutau/muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/denominatorEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "tauIdEfficiency", "Tau Id Efficiency", 
+    "validationAnalyzer_mutau/selectedTauEfficiencies/numeratorPt", 
+    "validationAnalyzer_mutau/selectedTauEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{#tau} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "tauIdEfficiency", "Tau Id Efficiency", 
+    "validationAnalyzer_mutau/selectedTauEfficiencies/numeratorEta", 
+    "validationAnalyzer_mutau/selectedTauEfficiencies/denominatorEta", -2.3, +2.3, 46, "#eta_{#tau}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "met20TriggerEfficiency", "L1_ETM20 Efficiency", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM20/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM20/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "met26TriggerEfficiency", "L1_ETM26 Efficiency", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM26/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM26/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "met30TriggerEfficiency", "L1_ETM30 Efficiency", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM30/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM30/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "met36TriggerEfficiency", "L1_ETM36 Efficiency", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM36/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM36/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+   efficienciesToPlot.push_back(plotEntryType_efficiency(
+    "met40TriggerEfficiency", "L1_ETM40 Efficiency", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM40/numeratorPt", 
+    "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM40/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
+
+  for ( std::vector<plotEntryType_efficiency>::const_iterator plot = efficienciesToPlot.begin();
+	plot != efficienciesToPlot.end(); ++plot ) {
+    TH1* histogram_simDYtoTauTau_numerator = getHistogram(inputFile_simDYtoTauTau, "", plot->meName_numerator_);
+    TH1* histogram_simDYtoTauTau_denominator = getHistogram(inputFile_simDYtoTauTau, "", plot->meName_denominator_);
+    TH1* histogram_simDYtoMuMu_genEmbedding_numerator = getHistogram(inputFile_simDYtoMuMu_genEmbedding, "", plot->meName_numerator_);
+    TH1* histogram_simDYtoMuMu_genEmbedding_denominator = getHistogram(inputFile_simDYtoMuMu_genEmbedding, "", plot->meName_denominator_);
+    TH1* histogram_simDYtoMuMu_recEmbedding_numerator = getHistogram(inputFile_simDYtoMuMu_recEmbedding, "", plot->meName_numerator_);
+    TH1* histogram_simDYtoMuMu_recEmbedding_denominator = getHistogram(inputFile_simDYtoMuMu_recEmbedding, "", plot->meName_denominator_);
+    std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_%s.pdf", plot->name_.data());
+    showEfficiency(plot->title_, 800, 900,
+		   histogram_simDYtoTauTau_numerator, histogram_simDYtoTauTau_denominator, 
+		   histogram_simDYtoMuMu_genEmbedding_numerator, histogram_simDYtoMuMu_genEmbedding_denominator, 
+		   histogram_simDYtoMuMu_recEmbedding_numerator, histogram_simDYtoMuMu_recEmbedding_denominator,
+		   plot->xMin_, plot->xMax_, plot->numBinsMin_rebinned_, plot->xAxisTitle_, plot->xAxisOffset_,
+		   plot->yMin_, plot->yMax_, plot->yAxisOffset_,
+		   outputFileName);
   }
 
   delete inputFile_simDYtoTauTau;
