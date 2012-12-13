@@ -1,5 +1,5 @@
 /* 
- * $Id: $
+ * $Id: MuonDT2ChamberResidual.cc,v 1.3 2011/10/12 23:40:24 khotilov Exp $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonDT2ChamberResidual.h"
@@ -17,8 +17,16 @@ void MuonDT2ChamberResidual::addResidual(const TrajectoryStateOnSurface *tsos, c
 {
   DetId id = hit->geographicalId();
 
-  align::LocalPoint hitChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(hit->localPosition()));
-  align::LocalPoint tsosChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(tsos->localPosition()));
+  //align::LocalPoint hitChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(hit->localPosition()));
+  //align::LocalPoint tsosChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(tsos->localPosition()));
+
+  AlignableDetOrUnitPtr layerAlignable = m_navigator->alignableFromDetId(id);
+
+  // replace the non-directly measured coordinate with track's
+  align::LocalPoint l_h(hit->localPosition().x(), tsos->localPosition().y(), 0.);
+
+  align::LocalPoint hitChamberPos  = m_chamberAlignable->surface().toLocal(layerAlignable->surface().toGlobal(l_h));
+  align::LocalPoint tsosChamberPos = m_chamberAlignable->surface().toLocal(layerAlignable->surface().toGlobal(tsos->localPosition()));
 
   double residual = tsosChamberPos.y() - hitChamberPos.y();  // residual is track minus hit
   double weight = 1. / hit->localPositionError().xx();  // weight linear fit by hit-only local error (yes, xx: layer x is chamber y)
@@ -61,7 +69,7 @@ void MuonDT2ChamberResidual::addResidual(const TrajectoryStateOnSurface *tsos, c
   m_hity_xy += weight * layerHitPos * hitChamberPos.y();
 
   m_localIDs.push_back(id);
-  m_localResids.push_back(tsos->localPosition().x() - hit->localPosition().x());
+  m_localResids.push_back(tsos->localPosition().x() - l_h.x());
   m_individual_x.push_back(layerPosition);
   m_individual_y.push_back(residual);
   m_individual_weight.push_back(weight);

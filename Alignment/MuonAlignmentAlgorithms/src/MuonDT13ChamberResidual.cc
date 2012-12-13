@@ -1,9 +1,8 @@
 /*
- * $Id: $
+ * $Id: MuonDT13ChamberResidual.cc,v 1.3 2011/10/12 23:40:24 khotilov Exp $
  */
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonDT13ChamberResidual.h"
-
 
 MuonDT13ChamberResidual::MuonDT13ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
                                                  DetId chamberId, AlignableDetOrUnitPtr chamberAlignable)
@@ -18,10 +17,24 @@ MuonDT13ChamberResidual::MuonDT13ChamberResidual(edm::ESHandle<GlobalTrackingGeo
 
 void MuonDT13ChamberResidual::addResidual(const TrajectoryStateOnSurface *tsos, const TransientTrackingRecHit *hit)
 {
-  DetId id = hit->geographicalId();
+  using namespace std;
 
-  align::LocalPoint hitChamberPos  = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(hit->localPosition()));
-  align::LocalPoint tsosChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(tsos->localPosition()));
+  DetId id = hit->geographicalId();
+  const DTLayerId muid(id.rawId());
+
+  //align::LocalPoint hitChamberPos  = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(hit->localPosition()));
+  //align::LocalPoint tsosChamberPos = m_chamberAlignable->surface().toLocal(m_globalGeometry->idToDet(id)->toGlobal(tsos->localPosition()));
+
+  // for station4 hits assume their y position the tame as for track
+  //LocalPoint l_h = hit->localPosition();
+  //if (muid.station()==4) l_h = LocalPoint(l_h.x(), tsos->localPosition().y(), l_h.z());
+
+  // replace the non-directly measured coordinate with track's
+  align::LocalPoint l_h(hit->localPosition().x(), tsos->localPosition().y(), 0.);
+
+  AlignableDetOrUnitPtr layerAlignable = m_navigator->alignableFromDetId(id);
+  align::LocalPoint hitChamberPos  = m_chamberAlignable->surface().toLocal(layerAlignable->surface().toGlobal(l_h));
+  align::LocalPoint tsosChamberPos = m_chamberAlignable->surface().toLocal(layerAlignable->surface().toGlobal(tsos->localPosition()));
 
   double residual = tsosChamberPos.x() - hitChamberPos.x();  // residual is hit minus hit
   double weight = 1. / hit->localPositionError().xx();  // weight linear fit by hit-only local error
@@ -64,7 +77,7 @@ void MuonDT13ChamberResidual::addResidual(const TrajectoryStateOnSurface *tsos, 
   m_hity_xy += weight * layerHitPos * hitChamberPos.y();
 
   m_localIDs.push_back(id);
-  m_localResids.push_back(tsos->localPosition().x() - hit->localPosition().x());
+  m_localResids.push_back(tsos->localPosition().x() - l_h.x());
   m_individual_x.push_back(layerPosition);
   m_individual_y.push_back(residual);
   m_individual_weight.push_back(weight);
