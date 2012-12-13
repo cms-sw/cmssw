@@ -318,17 +318,16 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             favorite_capid = k;
       }
 
-      int first = firstSample_;
-      int toadd = samplesToAdd_;
-
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
 
         if(tsFromDB_ || recoParamsFromDB_) {
           const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-          firstSample_ = param_ts->firstSample();
-          samplesToAdd_ = param_ts->samplesToAdd();
+	  if(tsFromDB_) {
+	    firstSample_  = param_ts->firstSample();
+	    samplesToAdd_ = param_ts->samplesToAdd();
+	  }
           if(recoParamsFromDB_) {
              bool correctForTimeslew=param_ts->correctForTimeslew();
              bool correctForPhaseContainment= param_ts->correctForPhaseContainment();
@@ -367,8 +366,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
           }
         }
 
-        first = firstSample_;
-        toadd = samplesToAdd_;
+        int first = firstSample_;
+        int toadd = samplesToAdd_;
 
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
@@ -450,17 +449,16 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             favorite_capid = k;
       }
 
-      int first = firstSample_;
-      int toadd = samplesToAdd_;
-
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
         // firstSample & samplesToAdd
         if(tsFromDB_ || recoParamsFromDB_) {
           const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-          firstSample_ = param_ts->firstSample();
-          samplesToAdd_ = param_ts->samplesToAdd();
+	  if(tsFromDB_) {
+	    firstSample_  = param_ts->firstSample();
+	    samplesToAdd_ = param_ts->samplesToAdd();
+	  }
           if(recoParamsFromDB_) {
              bool correctForTimeslew=param_ts->correctForTimeslew();
              bool correctForPhaseContainment= param_ts->correctForPhaseContainment();
@@ -473,8 +471,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
           }
         }
 
-        first = firstSample_;
-        toadd = samplesToAdd_;
+        int first = firstSample_;
+        int toadd = samplesToAdd_;
 
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
@@ -537,17 +535,16 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
             favorite_capid = k;
       }
 
-      int first = firstSample_;
-      int toadd = samplesToAdd_;
-
       for (i=digi->begin(); i!=digi->end(); i++) {
 	HcalDetId cell = i->id();
 	DetId detcell=(DetId)cell;
 
         if(tsFromDB_ || recoParamsFromDB_) {
           const HcalRecoParam* param_ts = paramTS->getValues(detcell.rawId());
-          firstSample_ = param_ts->firstSample();
-          samplesToAdd_ = param_ts->samplesToAdd();
+	  if(tsFromDB_) {
+	    firstSample_  = param_ts->firstSample();
+	    samplesToAdd_ = param_ts->samplesToAdd();
+	  }
           if(recoParamsFromDB_) {
              bool correctForTimeslew=param_ts->correctForTimeslew();
              bool correctForPhaseContainment= param_ts->correctForPhaseContainment();
@@ -560,8 +557,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
           }
         }
 
-        first = firstSample_;
-        toadd = samplesToAdd_;
+        int first = firstSample_;
+        int toadd = samplesToAdd_;
 
 	// check on cells to be ignored and dropped: (rof,20.Feb.09)
 	const HcalChannelStatus* mydigistatus=myqual->getValues(detcell.rawId());
