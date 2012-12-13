@@ -17,4 +17,5 @@
   <use   name="CommonTools/CandUtils"/>
   <use   name="RecoTauTag/TauTagTools"/>
   <use   name="RecoTauTag/RecoTau"/>
+  <use   name="root"/>
 </library>
