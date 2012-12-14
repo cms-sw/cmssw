@@ -22,21 +22,24 @@ TrajectoryStateOnSurface SimpleNavigableLayer::crossingState(const FreeTrajector
   
   FreeTrajectoryState & dest = *propState.freeState();
   GlobalPoint middlePoint = dest.position();
-  const double toCloseToEachOther=1e-4;
-  if ( (middlePoint-initialPoint).mag() < toCloseToEachOther){
+  const float toCloseToEachOther2 = 1e-4*1e-4;
+  if unlikely( (middlePoint-initialPoint).mag2() < toCloseToEachOther2){
     LogDebug("SimpleNavigableLayer")<<"initial state and PCA are identical. Things are bound to fail. Do not add the link.";
     return TrajectoryStateOnSurface();
   }
   
+ 
+  /*
   std::string dirS;
   if (dir==alongMomentum) dirS = "alongMomentum";
   else if (dir==oppositeToMomentum) dirS = "oppositeToMomentum";
   else dirS = "anyDirection";
-  
+  */
+
   LogDebug("SimpleNavigableLayer")<<"self propagating("<< dir <<") from:\n"
 				  <<fts<<"\n"
 				  <<dest<<"\n"
-				  <<" and the direction is: "<<dir<<" = "<<dirS;
+				  <<" and the direction is: "<<dir;
   
   //second propagation to go on the other side of the barrel
   //propState = propagator(dir).propagate( dest, detLayer()->specificSurface());
@@ -48,7 +51,7 @@ TrajectoryStateOnSurface SimpleNavigableLayer::crossingState(const FreeTrajector
   LogDebug("SimpleNavigableLayer")<<"second propagation("<< dir <<") to: \n"
 				  <<dest2;
   double finalDot = (middlePoint - initialPoint).basicVector().dot((finalPoint-middlePoint).basicVector());
-  if (finalDot<0){ // check that before and after are in different side.
+  if unlikely(finalDot<0){ // check that before and after are in different side.
     LogDebug("SimpleNavigableLayer")<<"switch side back: ABORT.";
     return TrajectoryStateOnSurface();
   }
@@ -168,7 +171,6 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
   // cout << "SimpleNavigableLayer BarrelDetLayer deltaR = " << deltaR << endl;
 
   if ( innerR-deltaR < rpos && rpos < outerR+deltaR) result.push_back( fl);
-  
   return ( innerR+deltaR < rpos && rpos < outerR-deltaR);
 }
 
