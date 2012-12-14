@@ -60,14 +60,11 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 				       const BarrelDetLayer* bl,
 				       DLC& result) const
 {
-  TSOS propState ;
 
-  if (bl==detLayer()){
-    propState = crossingState(fts,dir);
-    if (!propState.isValid()) return false;
-  }else{
-    propState= propagator(dir).propagate( fts, bl->specificSurface());
-  }
+  TSOS propState = (bl==detLayer()) ?
+    crossingState(fts,dir)
+    :
+    propagator(dir).propagate( fts, bl->specificSurface());
 
   if ( !propState.isValid()) return false;
  
@@ -80,7 +77,8 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
       LogTrace("TkNavigation") << "Crossing over prevented!\nStaring from (x,y,z,r) (" 
 			       << fts.position().x()<<","<< fts.position().y()<<","<< fts.position().z()<<","<<fts.position().perp()
 			       << ") going to TSOS (x,y,z,r)" 
-			       << propState.globalPosition().x()<<","<< propState.globalPosition().y()<<","<< propState.globalPosition().z()<<","<<propState.globalPosition().perp()<<")";
+			       << propState.globalPosition().x()<<","<< propState.globalPosition().y()
+			       <<","<< propState.globalPosition().z()<<","<<propState.globalPosition().perp()<<")";
       return false;
     
     /*
@@ -143,7 +141,8 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
       LogTrace("TkNavigation") << "Crossing over prevented!\nStaring from (x,y,z,r) (" 
 			       << fts.position().x()<<","<< fts.position().y()<<","<< fts.position().z()<<","<<fts.position().perp()
 			       << ") going to TSOS (x,y,z,r)" 
-			       << propState.globalPosition().x()<<","<< propState.globalPosition().y()<<","<< propState.globalPosition().z()<<","<<propState.globalPosition().perp()<<")";; 
+			       << propState.globalPosition().x()<<","<< propState.globalPosition().y()
+			       <<","<< propState.globalPosition().z()<<","<<propState.globalPosition().perp()<<")";; 
       return false;
     
   //	if (fts.position().z()*propState.globalPosition().z() < 0) return false;
