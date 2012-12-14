@@ -127,6 +127,9 @@ SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
   sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(outsideIn));
   sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(outsideIn));
 
+
+
+
 }
 
 
@@ -237,8 +240,9 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   LogDebug("SimpleBarrelNavigableLayer") << "goingIntoTheBarrel: " << goingIntoTheBarrel;
 
 
-  if (theSelfSearch && result.size()==0){
-    if (!goingIntoTheBarrel){     LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
+  if unlikely(theSelfSearch && result.size()==0){
+    if (!goingIntoTheBarrel){     
+      LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
     else{
       const BarrelDetLayer * bl = reinterpret_cast<const BarrelDetLayer *>(detLayer());      unsigned int before=result.size();
       LogDebug("SimpleBarrelNavigableLayer")<<" I am trying to added myself as a next layer.";
@@ -256,7 +260,7 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
 vector<const DetLayer*> 
 SimpleBarrelNavigableLayer::compatibleLayers( NavigationDirection dir) const
 {
-  if( !areAllReachableLayersSet ){
+  if unlikely( !areAllReachableLayersSet ){
     edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
     throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
   }
@@ -304,7 +308,7 @@ vector<const DetLayer*>
 SimpleBarrelNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts, 
 					      PropagationDirection dir) const
 {
-  if( !areAllReachableLayersSet ){
+  if likely( !areAllReachableLayersSet ){
     int counter = 0;
     return SimpleNavigableLayer::compatibleLayers(fts,dir,counter);
     //    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
