@@ -102,13 +102,8 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
   float length = bounds.length()*0.5f;
 
   // take into account the thickness of the layer
-  float deltaZ = bounds.thickness()/2. / 
-    fabs( tan( propState.globalDirection().theta()));
-
-  float deltaZ2 = 0.5f*bounds.thickness() *
+  float deltaZ = 0.5f*bounds.thickness() *
     std::abs(propState.globalDirection().z())/propState.globalDirection().perp();
-					     
-  std::cout << "deltaZ " << deltaZ << " " << deltaZ2 << std::endl;
 
 
   // take into account the error on the predicted state
@@ -120,10 +115,9 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
   // cout << "SimpleNavigableLayer BarrelDetLayer deltaZ = " << deltaZ << endl;
 
   float zpos = propState.globalPosition().z();
-  if ( fabs( zpos) < length + deltaZ) result.push_back( bl);
+  if ( std::abs( zpos) < length + deltaZ) result.push_back( bl);
 
-  if ( fabs( zpos) < length - deltaZ) return true;
-  else return false;
+  return std::abs( zpos) < length - deltaZ;
 }
 
 bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
@@ -161,14 +155,8 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
   float outerR = fl->specificSurface().outerRadius();
  
   // take into account the thickness of the layer
-  float deltaR = fl->surface().bounds().thickness()/2. *
-    fabs( tan( propState.localDirection().theta()));
-
-  float deltaR2 = 0.5f*fl->surface().bounds().thickness() *
+  float deltaR = 0.5f*fl->surface().bounds().thickness() *
     propState.localDirection().perp()/std::abs(propState.localDirection().z());
-					     
-  std::cout << "deltaR " << deltaR << " " << deltaR2 
-	    << " "<< rpos << " " << propState.localDirection().perp() << std::endl;
 
   // take into account the error on the predicted state
   const float nSigma = theEpsilon;
@@ -182,8 +170,7 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 
   if ( innerR-deltaR < rpos && rpos < outerR+deltaR) result.push_back( fl);
   
-  if ( innerR+deltaR < rpos && rpos < outerR-deltaR) return true;
-  else return false;
+  return ( innerR+deltaR < rpos && rpos < outerR-deltaR);
 }
 
 bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
