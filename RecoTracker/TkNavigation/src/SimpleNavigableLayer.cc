@@ -106,7 +106,7 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
     fabs( tan( propState.globalDirection().theta()));
 
   float deltaZ2 = 0.5f*bounds.thickness() *
-    propState.localDirection().perp()/std::abs(propState.localDirection().z());
+    std::abs(propState.localDirection().z())/propState.localDirection().perp();
 					     
   std::cout << "deltaZ " << deltaZ << " " << deltaZ2 << std::endl;
 
@@ -165,7 +165,7 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
     fabs( tan( propState.localDirection().theta()));
 
   float deltaR2 = 0.5f*fl->surface().bounds().thickness() *
-    std::abs(propState.localDirection().z())/propState.localDirection().perp();
+    propState.localDirection().perp()/std::abs(propState.localDirection().z());
 					     
   std::cout << "deltaR " << deltaR << " " << deltaR2 << std::endl;
 
