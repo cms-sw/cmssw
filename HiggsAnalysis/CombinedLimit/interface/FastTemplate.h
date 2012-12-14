@@ -10,7 +10,7 @@ class FastTemplate {
         typedef double T;
         FastTemplate() : size_(0), values_(0) {}
         FastTemplate(unsigned int size) : size_(size), values_(new T[size_]) {}
-        FastTemplate(const FastTemplate &other) : size_(other.size_), values_(new T[size_]) { CopyValues(other); }
+        FastTemplate(const FastTemplate &other) : size_(other.size_), values_(size_ ? new T[size_] :  0) { if (size_) CopyValues(other); }
         FastTemplate(const TH1 &other) : size_(other.GetNbinsX()), values_(new T[size_]) { CopyValues(other); }
         FastTemplate(const TH2 &other) : size_(other.GetNbinsX()*other.GetNbinsY()), values_(new T[size_]) { CopyValues(other); }
         FastTemplate & operator=(const FastTemplate &other) { 

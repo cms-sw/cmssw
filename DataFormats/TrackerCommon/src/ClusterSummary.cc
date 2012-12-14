@@ -1,4 +1,5 @@
 #include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 int ClusterSummary::GetModuleLocation ( int mod ) const {
 
@@ -20,33 +21,28 @@ int ClusterSummary::GetModuleLocation ( int mod ) const {
       mod_tmp /= 10;
     }
      
-    if ( mod_tmp < 6 ){
-      
+    if ( mod_tmp < 5 ){
+
       if ( mod == (*it) ) { 
 	placeInModsVector = cnt; 
 	break;
       }
       else ++cnt;
-      
     }
-    else{
-      
+    else{      
       if ( mod == (*it) ) { 
 	placeInModsVector = pixelcnt; 
 	break;
       }
       else ++pixelcnt;
-
-    }
-
-   
+    }   
   }
 
   if (placeInModsVector == -1){
-    std::ostringstream err;
-    err<<"No information for requested module "<<mod<<". Please check in the Provinence Infomation for proper modules.";
+
+    edm::LogWarning("NoModule") << "No information for requested module "<<mod<<". Please check in the Provinence Infomation for proper modules.";
       
-    throw cms::Exception( "Missing Module", err.str());
+    return -1;
 
   }
 
@@ -60,6 +56,7 @@ int ClusterSummary::GetVariableLocation ( std::string var ) const {
 
   int placeInUserVector = -1;
     
+
   int cnt = 0;
   for(std::vector<std::string>::const_iterator it = userContent.begin(); it != userContent.end(); ++it) {
 
@@ -71,18 +68,33 @@ int ClusterSummary::GetVariableLocation ( std::string var ) const {
       
   }
 
+
+  /*
+  if ( var == "cHits" )
+    placeInUserVector = NMODULES;
+  else if (var == "cSize" )
+    placeInUserVector = CLUSTERSIZE;
+  else if (var == "cCharge" )
+    placeInUserVector = CLUSTERCHARGE;
+  else if (var == "pHits" )
+    placeInUserVector = NMODULESPIXELS;
+  else if (var == "pSize" )
+    placeInUserVector = CLUSTERSIZEPIXELS;
+  else if (var == "pCharge" )
+    placeInUserVector = CLUSTERCHARGEPIXELS;
+  else
+    placeInUserVector = -1;
+  */
   if (placeInUserVector == -1){
     std::ostringstream err;
-    err<<"No information for requested var "<<var<<". Please check in the Provinence Infomation for proper variables.";
+    err<<"No information for requested var "<<var<<". Please check if you have chosen a proper variable.";
       
     throw cms::Exception( "Missing Variable", err.str());
-
   }
 
   return placeInUserVector;
 
 }
-
 
 
 

@@ -4,8 +4,8 @@ process = cms.Process("AnalyzeTracks")
 #keep the logging output to a nice level
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 process.source = cms.Source("PoolSource",
+    maxEvents = cms.untracked.int32(-1),
     fileNames = cms.untracked.vstring('file:pv_reco.root')
 )
 

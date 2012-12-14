@@ -21,8 +21,6 @@ class TrackProbabilityTagPlotter : public BaseTagInfoPlotter {
 
   void analyzeTag (const reco::BaseTagInfo * tagInfo, const int & jetFlavour);
 
-  void analyzeTag (const reco::BaseTagInfo * tagInfo, const int & jetFlavour, const float & w);
-
   virtual void createPlotsForFinalize ();
   virtual void finalize ();
 

@@ -76,11 +76,16 @@ class SiStripBaseCondObjDQM {
   protected:
     
     struct ModMEs{ 
+      ModMEs():ProfileDistr(0),	    
+	       CumulDistr(0),	    
+	       SummaryOfProfileDistr(0),
+	       SummaryOfCumulDistr(0),  
+	       SummaryDistr(0){;}
       MonitorElement* ProfileDistr;
       MonitorElement* CumulDistr;
       MonitorElement* SummaryOfProfileDistr;
       MonitorElement* SummaryOfCumulDistr;
-      MonitorElement* SummaryDistr;
+      MonitorElement* SummaryDistr;         
     }; 
 
 
@@ -94,7 +99,7 @@ class SiStripBaseCondObjDQM {
     virtual void fillModMEs(const std::vector<uint32_t> & selectedDetIds);
     virtual void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds);
     virtual void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_)=0;
-    virtual void fillMEsForLayer( std::map<uint32_t, ModMEs> selModMEsMap_, uint32_t selDetId_)=0;
+    virtual void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_)=0;
 
 
     void fillTkMap(const uint32_t& detid, const float& value);

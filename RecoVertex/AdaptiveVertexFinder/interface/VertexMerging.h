@@ -14,7 +14,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 
-using namespace reco;
 class VertexMerging {
     public:
 	VertexMerging(const edm::ParameterSet &params);

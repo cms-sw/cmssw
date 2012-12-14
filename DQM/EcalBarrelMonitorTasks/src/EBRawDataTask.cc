@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2012/05/14 20:36:37 $
- * $Revision: 1.46 $
+ * $Date: 2012/05/14 20:43:15 $
+ * $Revision: 1.47 $
  * \author E. Di Marco
  *
 */
@@ -600,8 +600,8 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       BxSynchStatus.reserve((int)feBxs.size());
 
       for(int fe=0; fe<(int)feBxs.size(); fe++) {
-        // do not consider desynch errors if the DCC detected them
-        if( ( status[fe] == 10 || status[fe] == 11 )) continue;
+        // look for ACTIVE towers only
+        if(status[fe] != 0) continue;
         if(feBxs[fe] != ECALDCC_BunchCrossing && feBxs[fe] != -1 && ECALDCC_BunchCrossing != -1) {
           meEBBunchCrossingFEErrors_->Fill( xism, 1/(float)feBxs.size() );
           BxSynchStatus[fe] = 0;
@@ -625,8 +625,8 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int feLv1Offset = ( e.isRealData() ) ? 1 : 0; // in MC FE Lv1A counter starts from 1, in data from 0
 
       for(int fe=0; fe<(int)feLv1.size(); fe++) {
-        // do not consider desynch errors if the DCC detected them
-        if( ( status[fe] == 9 || status[fe] == 11 )) continue;
+        // look for ACTIVE towers only
+        if(status[fe] != 0) continue;
         if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
           meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size() );
           meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );

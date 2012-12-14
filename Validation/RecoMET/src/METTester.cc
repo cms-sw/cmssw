@@ -983,7 +983,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		unsigned int nCorrTracks = 0;
 		unsigned int trackCount = 0;
 		for( reco::TrackCollection::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
-			++trackCount;
 			me["htrkPt"]->Fill( trkit->pt() );
 			me["htrkEta"]->Fill( trkit->eta() );
 			me["htrkNhits"]->Fill( trkit->numberOfValidHits() );
@@ -1000,6 +999,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 			reco::TrackRef trkref( track_h, trackCount );
 
 			if( isGoodTrack( trkref, d0) ) ++nCorrTracks;
+			++trackCount;
 		}
 
 		const float frac = (float)nCorrTracks / (float)nTracks;

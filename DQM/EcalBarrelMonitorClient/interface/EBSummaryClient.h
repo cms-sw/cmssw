@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2012/04/13 17:59:42 $
- * $Revision: 1.57.8.5 $
+ * $Date: 2012/04/27 13:45:58 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -169,6 +169,8 @@ MonitorElement* meTriggerTowerTiming_;
 MonitorElement* meTriggerTowerNonSingleTiming_;
 
 MonitorElement* meGlobalSummary_;
+
+ MonitorElement* meSummaryErr_;
 
 TProfile2D* hot01_[36];
 TProfile2D* hpot01_[36];

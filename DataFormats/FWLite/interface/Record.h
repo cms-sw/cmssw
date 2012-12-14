@@ -4,18 +4,18 @@
 //
 // Package:     FWLite
 // Class  :     Record
-// 
+//
 /**\class Record Record.h DataFormats/FWLite/interface/Record.h
 
  Description: Contains conditions data which are related by life-time (i.e. IOV)
 
  Usage:
-    Records are obtained from the fwlite::EventSetup.  
+    Records are obtained from the fwlite::EventSetup.
     See DataFormats/FWLite/interface/EventSetup.h for full usage.
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec 10 15:58:15 CST 2009
 //
 
@@ -43,7 +43,7 @@ namespace cms {
 
 namespace fwlite
 {
-   
+
    class Record {
       class TypeID : public edm::TypeIDBase {
       public:
@@ -57,13 +57,13 @@ namespace fwlite
 
       // ---------- const member functions ---------------------
       const std::string& name() const;
-      
+
       template< typename HANDLE>
       bool get(HANDLE&,const char* iLabel="")const;
-      
+
       const IOVSyncValue& startSyncValue() const;
       const IOVSyncValue& endSyncValue() const;
-   
+
       std::vector<std::pair<std::string,std::string> > typeAndLabelOfAvailableData() const;
       // ---------- static member functions --------------------
 
@@ -76,6 +76,8 @@ namespace fwlite
       const Record& operator=(const Record&); // stop default
 
       cms::Exception* get(const TypeID&, const char* iLabel, const void*&) const;
+
+      void resetCaches();
       // ---------- member data --------------------------------
       std::string m_name;
       TTree* m_tree;
@@ -83,8 +85,8 @@ namespace fwlite
       long m_entry;
       IOVSyncValue m_start;
       IOVSyncValue m_end;
-      
-      mutable std::map<std::pair<TypeID,std::string>, TBranch*> m_branches;
+
+      mutable std::map<std::pair<TypeID,std::string>, std::pair<TBranch*,void*>> m_branches;
    };
 
    template <typename HANDLE>
@@ -102,6 +104,5 @@ namespace fwlite
    }
 
 } /* fwlite */
-
 
 #endif
