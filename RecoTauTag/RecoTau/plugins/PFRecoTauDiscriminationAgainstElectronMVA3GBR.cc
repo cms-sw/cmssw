@@ -325,7 +325,11 @@ double PFRecoTauDiscriminationAgainstElectronMVA3GBR::discriminate(const PFTauRe
 //   std::cout << " deltaREleTau = " << deltaRTestigo << std::endl;
 //   std::cout << " charged hadron in tau : "<<(*thePFTauRef).leadPFChargedHadrCand().isNonnull()<< std::endl;
 //   std::cout << " Prongs in tau : "<<thePFTauRef->signalPFChargedHadrCands().size()<< std::endl;
+<<<<<<< PFRecoTauDiscriminationAgainstElectronMVA3GBR.cc
+//    std::cout<<"MVA GBR :"<<mva<<std::endl;
+=======
 //     std::cout<<"MVA GBR :"<<mva<<std::endl;
+>>>>>>> 1.2
 
   if ( returnMVA_ ) {
     // add category index
