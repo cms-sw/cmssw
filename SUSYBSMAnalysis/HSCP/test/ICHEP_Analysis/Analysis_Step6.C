@@ -1896,7 +1896,7 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    //normalise the signal samples to XSection * IntLuminosity
    double LInt  = H_Lumi->GetBinContent(1);
    double norm  = samples[CurrentSampleIndex].XSec*LInt/TotalE  ->Integral(); //normalize the samples to the actual lumi used for limits
-   double normPU= samples[CurrentSampleIndex].XSec*LInt/TotalEPU->Integral();
+   double normPU= samples[CurrentSampleIndex].XSec*LInt/(TotalEPU->Integral()>0?TotalEPU->Integral():TotalE->Integral());
 
    MassSign  ->Scale(norm);
    MassSignP ->Scale(norm);

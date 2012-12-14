@@ -55,6 +55,8 @@ void Analysis_Step5()
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
    Make2DPlot_Special("Results/Type0/", "Results/Type5/");
+   CompareRecoAndGenPt("Results/Type0/");
+   return;
 
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
@@ -864,9 +866,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
               mapObs [std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), H_D->GetBinContent(i+1)); 
               mapObs [std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , H_D->GetBinError  (i+1));
             
-              mapRatio[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), H_D->GetBinContent(i+1)<=0 ? 0 : P    / H_D->GetBinContent(i+1));
-              mapRatio[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , H_D->GetBinContent(i+1)<=0 ? 0 : sqrt(pow(Perr * H_D->GetBinContent(i+1),2) + pow(P * H_D->GetBinError  (i+1),2) ) / pow(H_D->GetBinContent(i+1),2) );
-
+              mapRatio[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), (H_D->GetBinContent(i+1)<=0  || P<=0) ? 0 : H_D->GetBinContent(i+1) / P);
+              mapRatio[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , H_D->GetBinContent(i+1)<=0 ? 0 : sqrt(pow(Perr * H_D->GetBinContent(i+1),2) + pow(P * H_D->GetBinError  (i+1),2) ) / pow(P,2) );
               N_i++;
             }
          }
@@ -909,18 +910,20 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          frameR->SetTitle("");
          frameR->SetStats(kFALSE);
          frameR->GetXaxis()->SetTitle("");//dEdxS_Legend.c_str());
-         frameR->GetYaxis()->SetTitle("Pred / Obs");
-         //frameR->GetYaxis()->SetTitleOffset(1.50);
+         frameR->GetYaxis()->SetTitle("Obs / Pred");
+         frameR->GetYaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
+         frameR->GetYaxis()->SetLabelSize(15); //font size
+         frameR->GetYaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
+         frameR->GetYaxis()->SetTitleSize(15); //font size
+         frameR->GetYaxis()->SetNdivisions(505);
+         frameR->GetXaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
+         frameR->GetXaxis()->SetLabelSize(15); //font size
+         frameR->GetXaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
+         frameR->GetXaxis()->SetTitleSize(15); //font size
+         frameR->GetXaxis()->SetTitleOffset(3.75);
          frameR->SetMaximum(1.40);
          frameR->SetMinimum(0.60);
          frameR->Draw("AXIS");
-
-         frameR->GetYaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
-         frameR->GetYaxis()->SetTitleSize(15); //font size
-
-//         T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
-//         T->SetTextSize(15);  //font size
-
          t1->cd();
 
          std::pair<float, float> P1, P2, P3;
@@ -981,6 +984,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          mapRatio[P1]->Draw("3C");
          mapRatio[P2]->Draw("3C");
          mapRatio[P3]->Draw("3C");
+         TLine* LineAtOne = new TLine(xmin,1,xmax,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
 
          c1->cd();
          SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObs"+suffix);
@@ -3154,9 +3158,9 @@ void CompareRecoAndGenPt(string InputPattern){
   TypeMode = TypeFromPattern(InputPattern);
   string LegendTitle = LegendFromType(InputPattern);;
   
-  string S1 = "DY_7TeV_M400_Q1o3";   //double Q1=1/3.0;
+  string S1 = "DY_7TeV_M400_Q2o3";   //double Q1=1/3.0;
   string S2 = "DY_7TeV_M400_Q1";     //double Q2=1;
-  string S3 = "DY_7TeV_M400_Q3";     //double Q3=1;  
+  string S3 = "DY_7TeV_M400_Q2";     //double Q3=1;  
   
   int S1i   = JobIdToIndex(S1,samples);    if(S1i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
   int S2i   = JobIdToIndex(S2,samples);    if(S2i<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  }                
@@ -3200,6 +3204,19 @@ void CompareRecoAndGenPt(string InputPattern){
   diagonal->SetLineStyle(2);
   diagonal->Draw("same");
 
+  TLine* diagonalf = new TLine(0, 0, 800, 1200);
+  diagonalf->SetLineWidth(2);
+  diagonalf->SetLineColor(Color[0]);
+  diagonalf->SetLineStyle(2);
+  diagonalf->Draw("same");
+
+  TLine* diagonalm = new TLine(0, 0, 1200, 600);
+  diagonalm->SetLineWidth(2);
+  diagonalm->SetLineColor(Color[0]);
+  diagonalm->SetLineStyle(2);
+  diagonalm->Draw("same");
+
+
   leg = new TLegend(0.80,0.93,0.80 - 0.40,0.93 - 6*0.03);
   leg->SetFillColor(0);
   leg->SetBorderSize(0);
@@ -3208,8 +3225,8 @@ void CompareRecoAndGenPt(string InputPattern){
   leg->AddEntry(Signal3genrecopt,  samples[S3i].Legend.c_str()   ,"F");
   
   leg->Draw();
-  DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
-  SaveCanvas(c1, outpath,  "SIM_Validation_Pt", true);
+  DrawPreliminary("Simulation", SQRTS, -1);
+  SaveCanvas(c1, outpath,  "SIM_Validation_Pt", false);
   delete c1;
   return;
 }
