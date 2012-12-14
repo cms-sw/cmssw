@@ -107,11 +107,27 @@ addMixingScenario("SLHC_LowLumiPileUp_Phase1_R30F12_HCal",{'file':'SLHCUpgradeSi
 addMixingScenario("SLHC_LowLumiPileUp_Phase1_R34F16_HCal",{'file':'SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R34F16_HCal_cff'})
 
 #scenarios for L1 tdr work
+addMixingScenario("AVE_25_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 25})
 addMixingScenario("AVE_25_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 25})
 addMixingScenario("AVE_35_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 35})
+addMixingScenario("AVE_35_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 35})
 addMixingScenario("AVE_50_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 50})
 addMixingScenario("AVE_50_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 50})
+addMixingScenario("AVE_75_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 75})
+addMixingScenario("AVE_75_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 75})
 addMixingScenario("AVE_100_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 100})
+addMixingScenario("AVE_100_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 100})
+addMixingScenario("AVE_125_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 125})
+addMixingScenario("AVE_125_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 125})
+addMixingScenario("AVE_150_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 150})
+addMixingScenario("AVE_150_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 150})
+addMixingScenario("AVE_175_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 175})
+addMixingScenario("AVE_175_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 175})
+addMixingScenario("AVE_200_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 200})
+addMixingScenario("AVE_200_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 200})
+addMixingScenario("AVE_140_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':50, 'B': (-5,3), 'N': 140})
+addMixingScenario("AVE_140_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_AVE_16_BX_25ns_cfi','BX':25, 'B': (-5,3), 'N': 140})
+
 
 MixingDefaultKey = '2012_Summer_50ns_PoissonOOTPU'
 MixingFSDefaultKey = '2012_Summer_inTimeOnly'
