@@ -54,29 +54,29 @@ protected:
 
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   const BarrelDetLayer* bl, DLC& result) const;
+		   const BarrelDetLayer* bl, DLC& result) const dso_internal;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   const ForwardDetLayer* bl, DLC& result) const;
+		   const ForwardDetLayer* bl, DLC& result) const dso_internal;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   ConstBDLI begin, ConstBDLI end, DLC& result) const;
+		   ConstBDLI begin, ConstBDLI end, DLC& result) const dso_internal;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   const DLC& layers, DLC& result) const;
+		   const DLC& layers, DLC& result) const dso_internal;
 
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
-		   ConstFDLI begin, ConstFDLI end, DLC& result) const;
+		   ConstFDLI begin, ConstFDLI end, DLC& result) const dso_internal;
 
   Propagator& propagator( PropagationDirection dir) const{
     thePropagator.setPropagationDirection(dir);
     return thePropagator;
   }
 
-  void pushResult( DLC& result, const FDLC& tmp) const;
-  void pushResult( DLC& result, const BDLC& tmp) const;
+  void pushResult( DLC& result, const FDLC& tmp) const dso_internal;
+  void pushResult( DLC& result, const BDLC& tmp) const dso_internal;
 
-  TSOS crossingState(const FreeTrajectoryState& fts,PropagationDirection dir) const;
+  TSOS crossingState(const FreeTrajectoryState& fts,PropagationDirection dir) const dso_internal;
   
 };
 
