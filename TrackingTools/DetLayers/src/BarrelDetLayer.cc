@@ -73,18 +73,18 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
 pair<bool, TrajectoryStateOnSurface>
 BarrelDetLayer::compatible( const TrajectoryStateOnSurface& ts, 
 			    const Propagator& prop, 
-			    const MeasurementEstimator& est) const
+			    const MeasurementEstimator&) const
 {
-  if(theCylinder == 0)  edm::LogError("DetLayers") 
+  if unlikely(theCylinder == 0)  edm::LogError("DetLayers") 
     << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized" ;
   // throw an exception? which one?
 
   TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
-  if ( !myState.isValid()) return make_pair( false, myState);
-
+  if unlikely(!myState.isValid()) return make_pair( false, myState);
+  
   // take into account the thickness of the layer
-  float deltaZ = surface().bounds().thickness()/2. / 
-    fabs( tan( myState.globalDirection().theta()));
+  float deltaZ = 0.5f* surface().bounds().thickness() *
+    std::abs(myState.globalDirection().z())/myState.globalDirection().perp();
 
   // take into account the error on the predicted state
   const float nSigma = 3.;
@@ -94,7 +94,7 @@ BarrelDetLayer::compatible( const TrajectoryStateOnSurface& ts,
   //
   // check z assuming symmetric bounds around position().z()
   //
-  deltaZ += surface().bounds().length()/2;
+  deltaZ += 0.5f*surface().bounds().length();
   return make_pair(fabs(myState.globalPosition().z()-surface().position().z())<deltaZ,
 		   myState);  
 }

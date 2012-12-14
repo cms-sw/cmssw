@@ -20,7 +20,7 @@
 class ForwardDetLayer : public DetLayer {
 public:
 
-  ForwardDetLayer();
+  ForwardDetLayer(): DetLayer(false),  theDisk(0){}
 
   virtual ~ForwardDetLayer();
 
@@ -32,10 +32,10 @@ public:
 	      const MeasurementEstimator&) const;
 
   // DetLayer interface
-  virtual Location   location()   const  GCC11_FINAL {return GeomDetEnumerators::endcap;}
+  virtual Location location() const  GCC11_FINAL {return GeomDetEnumerators::endcap;}
 
   // Extension of the interface
-  virtual const BoundDisk&    specificSurface() const  GCC11_FINAL { return *theDisk;}
+  virtual const BoundDisk& specificSurface() const  GCC11_FINAL { return *theDisk;}
 
   bool contains( const Local3DPoint& p) const;  
   
@@ -46,15 +46,14 @@ public:
 
   float rmin() const { return theDisk->innerRadius();}
   float rmax() const { return theDisk->outerRadius();}
-  float zmin() const { return (theDisk->position().z() - theDisk->bounds().thickness()/2);}
-  float zmax() const { return (theDisk->position().z() + theDisk->bounds().thickness()/2);}
+  float zmin() const { return (theDisk->position().z() - theDisk->bounds().thickness()*0.5f);}
+  float zmax() const { return (theDisk->position().z() + theDisk->bounds().thickness()*0.5f);}
 
 
   virtual BoundDisk* computeSurface();
 
 
  private:
-  //float theRmin, theRmax, theZmin, theZmax;
   ReferenceCountingPointer<BoundDisk> theDisk;
 
 

@@ -9,8 +9,8 @@
  *  are implemented in this class,
  *  but some methods are left abstract.
  *
- *  $Date: 2007/08/21 20:48:46 $
- *  $Revision: 1.8 $
+ *  $Date: 2012/05/05 13:49:41 $
+ *  $Revision: 1.9 $
  */
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -25,7 +25,7 @@
 class BarrelDetLayer : public DetLayer {
  public:
 
-  BarrelDetLayer() : 
+  BarrelDetLayer() : DetLayer(true),
     theCylinder(0){}
   
   virtual ~BarrelDetLayer();
@@ -38,7 +38,7 @@ class BarrelDetLayer : public DetLayer {
 	      const MeasurementEstimator&) const GCC11_FINAL;
 
   /// DetLayer interface
-  virtual Location location()   const GCC11_FINAL {return GeomDetEnumerators::barrel;}
+  virtual Location location() const GCC11_FINAL {return GeomDetEnumerators::barrel;}
 
 
   /// Extension of the interface

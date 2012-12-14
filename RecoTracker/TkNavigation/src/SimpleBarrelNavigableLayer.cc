@@ -240,7 +240,7 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   if (theSelfSearch && result.size()==0){
     if (!goingIntoTheBarrel){     LogDebug("SimpleBarrelNavigableLayer")<<" state is not going toward the center of the barrel. not adding self search.";}
     else{
-      const BarrelDetLayer * bl = dynamic_cast<const BarrelDetLayer *>(detLayer());      unsigned int before=result.size();
+      const BarrelDetLayer * bl = reinterpret_cast<const BarrelDetLayer *>(detLayer());      unsigned int before=result.size();
       LogDebug("SimpleBarrelNavigableLayer")<<" I am trying to added myself as a next layer.";
       wellInside(ftsWithoutErrors, dir, bl, result);
       unsigned int after=result.size();

@@ -178,17 +178,13 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 				       const DLC& layers,
 				       DLC& result) const
 {
-
-  // cout << "Entering SimpleNavigableLayer::wellInside" << endl;
-
-  for (DLC::const_iterator i = layers.begin(); i != layers.end(); i++) {
-    const BarrelDetLayer* bl = dynamic_cast<const BarrelDetLayer*>(*i);
-    if ( bl != 0) {
-      if (wellInside( fts, dir, bl, result)) return true;
-    }
+  for (auto l : layers) {
+    if (l->isBarrel()) {
+	const BarrelDetLayer * bl = reinterpret_cast<const BarrelDetLayer *>(l);
+	if (wellInside( fts, dir, bl, result)) return true;
+      }
     else {
-      const ForwardDetLayer* fl = dynamic_cast<const ForwardDetLayer*>(*i);
-      if ( fl == 0) edm::LogError("TkNavigation") << "dynamic_cast<const ForwardDetLayer*> failed" ;
+      const ForwardDetLayer* fl = reinterpret_cast<const ForwardDetLayer*>(l);
       if (wellInside( fts, dir, fl, result)) return true;
     }
   }

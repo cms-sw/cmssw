@@ -6,11 +6,6 @@
 
 using namespace std;
 
-ForwardDetLayer::ForwardDetLayer() : 
-  theDisk(0)
-  //theRmin(0), theRmax(0), theZmin(0), theZmax(0)
-{}
-
 
 ForwardDetLayer::~ForwardDetLayer() {
 }
@@ -108,18 +103,18 @@ BoundDisk* ForwardDetLayer::computeSurface() {
 pair<bool, TrajectoryStateOnSurface>
 ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts, 
 			     const Propagator& prop, 
-			     const MeasurementEstimator& est) const
+			     const MeasurementEstimator&) const
 {
-  if(theDisk == 0)  edm::LogError("DetLayers") 
+  if unlikely(theDisk == 0)  edm::LogError("DetLayers") 
     << "ERROR: BarrelDetLayer::compatible() is used before the layer surface is initialized" ;
   // throw an exception? which one?
 
   TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
-  if ( !myState.isValid()) return make_pair( false, myState);
+  if unlikely( !myState.isValid()) return make_pair( false, myState);
 
   // take into account the thickness of the layer
-  float deltaR = surface().bounds().thickness()/2. *
-    fabs( tan( myState.localDirection().theta()));
+  float deltaR = 0.5f*surface().bounds().thickness() *
+    myState.localDirection().perp()/std::abs(myState.localDirection().z());
 
   // take into account the error on the predicted state
   const float nSigma = 3.;
@@ -129,7 +124,7 @@ ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts,
     deltaR += nSigma * sqrt(err.xx() + err.yy());
   }
 
-  float zPos = (zmax()+zmin())/2.;
+  float zPos = 0.5f*(zmax()+zmin());
   SimpleDiskBounds tmp( rmin()-deltaR, rmax()+deltaR, 
 			zmin()-zPos, zmax()-zPos);
 
