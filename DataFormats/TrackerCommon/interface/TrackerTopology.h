@@ -229,15 +229,74 @@ class TrackerTopology {
   bool tidIsZPlusSide(const DetId &id) const {return !tidIsZMinusSide(id);}
   bool tidIsZMinusSide(const DetId &id) const { return tidSide(id)==1;}
 
-  bool tobIsStereo(const DetId &id) const {return SiStripDetId(id).stereo()!=0 && !tobIsDoubleSide(id);}
-  bool tecIsStereo(const DetId &id) const {return SiStripDetId(id).stereo()!=0 && !tecIsDoubleSide(id);}
-  bool tibIsStereo(const DetId &id) const {return SiStripDetId(id).stereo()!=0 && !tibIsDoubleSide(id);}
-  bool tidIsStereo(const DetId &id) const {return SiStripDetId(id).stereo()!=0 && !tidIsDoubleSide(id);}
+  //these are from the old TOB/TEC/TID/TIB DetId
+  bool tobIsStereo(const DetId &id) const {return tobStereo(id)!=0 && !tobIsDoubleSide(id);}
+  bool tecIsStereo(const DetId &id) const {return tecStereo(id)!=0 && !tecIsDoubleSide(id);}
+  bool tibIsStereo(const DetId &id) const {return tibStereo(id)!=0 && !tibIsDoubleSide(id);}
+  bool tidIsStereo(const DetId &id) const {return tidStereo(id)!=0 && !tidIsDoubleSide(id);}
+
+  //these are clones of the old SiStripDetId
+  uint32_t tobStereo(const DetId &id) const {
+    if ( ((id.rawId() >>tobVals_.sterStartBit_ ) & tobVals_.sterMask_ ) == 1 ) {
+      return ( (id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_ );
+    } else { return 0; }
+  }
+
+  uint32_t tibStereo(const DetId &id) const {
+    if ( ((id.rawId() >>tibVals_.sterStartBit_ ) & tibVals_.sterMask_ ) == 1 ) {
+      return ( (id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ );
+    } else { return 0; }
+  }
+
+  uint32_t tidStereo(const DetId &id) const {
+    if ( ((id.rawId() >>tidVals_.sterStartBit_ ) & tidVals_.sterMask_ ) == 1 ) {
+      return ( (id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_ );
+    } else { return 0; }
+  }
+
+  uint32_t tecStereo(const DetId &id) const {
+    if ( ((id.rawId() >>tecVals_.sterStartBit_ ) & tecVals_.sterMask_ ) == 1 ) {
+      return ( (id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_ );
+    } else { return 0; }
+  }
+
+  uint32_t tibGlued(const DetId &id) const {
+    if ( ((id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ ) == 1 ) {
+      return ( id.rawId() - 1 );
+    } else if ( ((id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_ ) == 2 ) {
+      return ( id.rawId() - 2 );
+    } else { return 0; }
+  }
+
+  uint32_t tecGlued(const DetId &id) const {
+    if ( ((id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_ ) == 1 ) {
+      return ( id.rawId() - 1 );
+    } else if ( ((id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_ ) == 2 ) {
+      return ( id.rawId() - 2 );
+    } else { return 0; }
+  }
+
+  uint32_t tobGlued(const DetId &id) const {
+    if ( ((id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_ ) == 1 ) {
+      return ( id.rawId() - 1 );
+    } else if ( ((id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_ ) == 2 ) {
+      return ( id.rawId() - 2 );
+    } else { return 0; }
+  }
+
+  uint32_t tidGlued(const DetId &id) const {
+    if ( ((id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_ ) == 1 ) {
+      return ( id.rawId() - 1 );
+    } else if ( ((id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_ ) == 2 ) {
+      return ( id.rawId() - 2 );
+    } else { return 0; }
+  }
 
   bool tobIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tobIsDoubleSide(id);}
   bool tecIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tecIsDoubleSide(id);}
   bool tibIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tibIsDoubleSide(id);}
   bool tidIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tidIsDoubleSide(id);}
+
 
   //misc tec
   std::vector<unsigned int> tecPetalInfo(const DetId &id) const {
