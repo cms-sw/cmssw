@@ -28,35 +28,35 @@ class MuPFIsoHelper {
    public:
   typedef edm::ValueMap<double> CandDoubleMap;
   
-  MuPFIsoHelper(const edm::ParameterSet& iConfig);
+  MuPFIsoHelper(const std::map<std::string,edm::ParameterSet>&);
+
   void beginEvent(const edm::Event& iEvent);
 
   int  embedPFIsolation(reco::Muon&,reco::MuonRef& );
+  reco::MuonPFIsolation makeIsoDeposit(reco::MuonRef&, 
+				       const edm::Handle<CandDoubleMap>&,
+				       const edm::Handle<CandDoubleMap>&,
+				       const edm::Handle<CandDoubleMap>&,
+				       const edm::Handle<CandDoubleMap>&,
+				       const edm::Handle<CandDoubleMap>&,
+				       const edm::Handle<CandDoubleMap>&,
+				       const edm::Handle<CandDoubleMap>&);
+
 
   ~MuPFIsoHelper(); 
 
 
    private:
-  edm::ParameterSet isoCfg03_;
-  edm::ParameterSet isoCfg04_;
 
+  std::map<std::string,edm::ParameterSet> labelMap_;
 
-  edm::Handle<CandDoubleMap> chargedParticle03_;
-  edm::Handle<CandDoubleMap> chargedHadron03_;
-  edm::Handle<CandDoubleMap> neutralHadron03_;
-  edm::Handle<CandDoubleMap> photon03_;
-  edm::Handle<CandDoubleMap> neutralHadronHighThreshold03_;
-  edm::Handle<CandDoubleMap> photonHighThreshold03_;
-  edm::Handle<CandDoubleMap> pu03_;
-  ///////////////////////////////////////////////
-  edm::Handle<CandDoubleMap> chargedParticle04_;
-  edm::Handle<CandDoubleMap> chargedHadron04_;
-  edm::Handle<CandDoubleMap> neutralHadron04_;
-  edm::Handle<CandDoubleMap> photon04_;
-  edm::Handle<CandDoubleMap> neutralHadronHighThreshold04_;
-  edm::Handle<CandDoubleMap> photonHighThreshold04_;
-  edm::Handle<CandDoubleMap> pu04_;
-  
+  std::vector<edm::Handle<CandDoubleMap> > chargedParticle_;
+  std::vector<edm::Handle<CandDoubleMap> > chargedHadron_;
+  std::vector<edm::Handle<CandDoubleMap> > neutralHadron_;
+  std::vector<edm::Handle<CandDoubleMap> > neutralHadronHighThreshold_;
+  std::vector<edm::Handle<CandDoubleMap> > photon_;
+  std::vector<edm::Handle<CandDoubleMap> > photonHighThreshold_;
+  std::vector<edm::Handle<CandDoubleMap> > pu_;
 
 };
 #endif

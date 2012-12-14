@@ -20,8 +20,6 @@ process.source = cms.Source ("PoolSource",
 from RecoEgamma.Examples.mcAnalyzerStdBiningParameters_cff import *
 from RecoEgamma.Examples.mcAnalyzerFineBiningParameters_cff import *
 
-process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
-
 process.gsfElectronAnalysis = cms.EDAnalyzer("GsfElectronMCAnalyzer",
   electronCollection = cms.InputTag("gsfElectrons"),
   mcTruthCollection = cms.InputTag("genParticles"),

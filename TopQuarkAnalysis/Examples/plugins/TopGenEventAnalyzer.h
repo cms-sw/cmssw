@@ -36,7 +36,6 @@ class TopGenEventAnalyzer : public edm::EDAnalyzer {
   TH1F *ttbarPt_;
   TH1F *ttbarEta_;
   TH1F *ttbarPhi_;
-  TH1F *prodChan_;
-};
+};  
 
 #endif  

@@ -9,8 +9,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2011/05/29 18:43:20 $
- *  $Revision: 1.15 $
+ *  $Date: 2012/03/29 16:11:16 $
+ *  $Revision: 1.18 $
  *  \author J. Mans - Minnesota
  *
  *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
@@ -64,8 +64,6 @@ public:
   static HcalDetId detIdFromDenseIndex( uint32_t di ) ;
 
   static const HcalDetId Undefined;
-
-  static const int maxDepthHB=2, maxDepthHE=3;
 
 private:
 

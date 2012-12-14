@@ -298,7 +298,6 @@ namespace evf
 
     unsigned long long               idleProcStats_;
     unsigned long long               allProcStats_;
-    timeval                          lastProcReport_;
   };
 
   

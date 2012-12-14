@@ -9,10 +9,6 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     pfElectronSource = cms.InputTag("particleFlow"),
     pfCandidateMap = cms.InputTag("particleFlow:electrons"),
 
-    # collections for mva input variables
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
-
     # user data to add
     userData = cms.PSet(
       # add custom classes here

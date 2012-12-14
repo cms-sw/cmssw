@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2012/06/11 22:57:16 $
- * $Revision: 1.224 $
+ * $Date: 2012/05/18 09:11:59 $
+ * $Revision: 1.223 $
  * \author G. Della Ricca
  *
 */
@@ -3091,9 +3091,8 @@ void EESummaryClient::analyze(void) {
       // make the whole Dee red if more than 2 towers within a 2x2 matrix fails
 
       for(int iside(0); iside < 2; iside++){
-	for(int jy(1); jy < 20; jy++){
-	  for(int jx(1); jx < 20; jx++){
-            if(jy > 6 && jy < 14 && jx > 6 && jx < 14) continue;
+	for(int jy(1); jy <= 20; jy++){
+	  for(int jx(1); jx <= 20; jx++){
 	    int nErr(0);
 	    if(nValidChannelsSC[iside][jx - 1][jy - 1] > 0 && nGlobalErrorsSC[iside][jx - 1][jy - 1] == nValidChannelsSC[iside][jx - 1][jy - 1]) nErr += 1;
 	    if(nValidChannelsSC[iside][jx][jy - 1] > 0 && nGlobalErrorsSC[iside][jx][jy - 1] == nValidChannelsSC[iside][jx][jy - 1]) nErr += 1;

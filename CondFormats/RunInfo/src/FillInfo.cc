@@ -370,10 +370,10 @@ void FillInfo::print( std::stringstream & ss ) const {
      << "Injection scheme as given by LPC: " << m_injectionScheme << std::endl;
   std::vector<unsigned short> bunchVector1 = this->bunchConfigurationForBeam1();
   std::vector<unsigned short> bunchVector2 = this->bunchConfigurationForBeam2();
-  ss << "Bunches filled for Beam 1 (total " << m_bunchConfiguration1.count() << ", " << bunchVector1.size() << "): ";
+  ss << "Bunches filled for Beam 1 (total " << bunchVector1.size() << "): ";
   std::copy( bunchVector1.begin(), bunchVector1.end(), std::ostream_iterator<unsigned short>( ss, ", " ) );
   ss << std::endl;
-  ss << "Bunches filled for Beam 2 (total " << m_bunchConfiguration2.count() << ", " << bunchVector2.size() << "): ";
+  ss << "Bunches filled for Beam 2 (total " << bunchVector2.size() << "): ";
   std::copy( bunchVector2.begin(), bunchVector2.end(), std::ostream_iterator<unsigned short>( ss, ", " ) );
   ss << std::endl;
 }

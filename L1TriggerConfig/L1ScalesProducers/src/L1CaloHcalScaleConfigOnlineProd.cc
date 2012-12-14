@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.5 2010/07/20 04:16:38 wmtan Exp $
+// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.6 2010/12/24 18:20:29 efron Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class L1CaloHcalScaleConfigOnlineProd :
    private:
  
   L1CaloHcalScale* hcalScale;
-  HcalTrigTowerGeometry theTrigTowerGeometry;
+  HcalTrigTowerGeometry* theTrigTowerGeometry;
   CaloTPGTranscoderULUT* caloTPG;
   typedef std::vector<double> RCTdecompression;
   std::vector<RCTdecompression> hcaluncomp;
@@ -79,23 +79,30 @@ L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
 {
   hcalScale = new L1CaloHcalScale(0);
   caloTPG = new CaloTPGTranscoderULUT();
+  
+  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
+  int maxDepthHB = 2;
+  int maxDepthHE = 3;
+  if( iConfig.exists( "hcalTopologyConstants" ))
+  {
+    const edm::ParameterSet hcalTopoConsts = iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" );
+    StringToEnumParser<HcalTopologyMode::Mode> parser;
+    mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
+    maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
+    maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+  }
+  
+  theTrigTowerGeometry = new HcalTrigTowerGeometry( new HcalTopology( mode, maxDepthHB, maxDepthHE ));
 }
 
 
 L1CaloHcalScaleConfigOnlineProd::~L1CaloHcalScaleConfigOnlineProd()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 
   if(caloTPG != 0)
     delete caloTPG;
-
-
-
-
-
-
 }
 
 boost::shared_ptr< L1CaloHcalScale >
@@ -263,13 +270,13 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	 uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
 
 	 double eta_low = 0., eta_high = 0.;
-	 theTrigTowerGeometry.towerEtaBounds(ieta,eta_low,eta_high); 
+	 theTrigTowerGeometry->towerEtaBounds(ieta,eta_low,eta_high); 
 	 double cosh_ieta = fabs(cosh((eta_low + eta_high)/2.));
 
 
 	 if (!caloTPG->HTvalid(ieta, iphi)) continue;
 	 double factor = 0.;
-	 if (abs(ieta) >= theTrigTowerGeometry.firstHFTower())
+	 if (abs(ieta) >= theTrigTowerGeometry->firstHFTower())
 	   factor = rctlsb;
 	 else 
 	   factor = nominal_gain / cosh_ieta * lutGranularity;
@@ -277,7 +284,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   outputLut[k] = 0;
 	 
          for (unsigned int k = threshold; k < 1024; ++k)
-	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry.firstHFTower()) ? analyticalLUT[k] : identityLUT[k];
+	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry->firstHFTower()) ? analyticalLUT[k] : identityLUT[k];
 	 
 
 	   // tpg - compressed value

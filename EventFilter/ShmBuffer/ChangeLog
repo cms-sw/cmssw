@@ -1,15 +1,3 @@
-
-	* holding shm lock during update of raw cell state and change of discard counter
-	  (after seeing related crash in the production system)
-	* assert message cleanup (avoiding unecessary string building
-	  if there is no exception)
-
-2012-07-12 Srecko Morovic <srecko.morovic@cern.ch>
-
-	* tag V00-08-24
-	* properly unlock shmBuffer before throwing assert, and in removing
-	  client prc id (when it is not found)
-
 2012-07-10 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* tag V00-08-23

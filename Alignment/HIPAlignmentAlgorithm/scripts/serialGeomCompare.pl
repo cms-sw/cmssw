@@ -40,9 +40,9 @@ for ($j = 1; $j <= $iter; $j++){
 	print "Loop $j \n";	
 	
 	if ($createDBs == 1){
-		# 1. configure the upload_serial_tpl_py.txt
+		# 1. configure the upload_serial_tpl.py
 		system("
-		cp python/upload_serial_tpl_py.txt $dir/upload_serial_cfg.py
+		cp python/upload_serial_tpl.py $dir/upload_serial_cfg.py
 		");
 		replace( "$dir/upload_serial_cfg.py", "<PATH>", "$dir" );
 		replace( "$dir/upload_serial_cfg.py", "<OUTPATH>", "$odir" );

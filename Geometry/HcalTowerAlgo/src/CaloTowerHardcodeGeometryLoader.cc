@@ -7,7 +7,9 @@
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
-std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
+std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const HcalTopology *limits) {
+    m_limits = limits;
+    
   CaloTowerGeometry* geom=new CaloTowerGeometry();
 
   if( 0 == geom->cornersMgr() ) geom->allocateCorners ( 
@@ -18,11 +20,11 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
 
   int nnn=0;
   // simple loop
-  for (int ieta=-limits.lastHFRing(); ieta<=limits.lastHFRing(); ieta++) {
+  for (int ieta=-m_limits->lastHFRing(); ieta<=m_limits->lastHFRing(); ieta++) {
     if (ieta==0) continue; // skip not existing eta=0 ring
     for (int iphi=1; iphi<=72; iphi++) {
-      if (abs(ieta)>=limits.firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
-      if (abs(ieta)>=limits.firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
+      if (abs(ieta)>=m_limits->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
+      if (abs(ieta)>=m_limits->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
       ++nnn;
     }
   }
@@ -31,11 +33,11 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load() {
 
   int n=0;
   // simple loop
-  for (int ieta=-limits.lastHFRing(); ieta<=limits.lastHFRing(); ieta++) {
+  for (int ieta=-m_limits->lastHFRing(); ieta<=m_limits->lastHFRing(); ieta++) {
     if (ieta==0) continue; // skip not existing eta=0 ring
     for (int iphi=1; iphi<=72; iphi++) {
-      if (abs(ieta)>=limits.firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
-      if (abs(ieta)>=limits.firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
+      if (abs(ieta)>=m_limits->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
+      if (abs(ieta)>=m_limits->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
       makeCell(ieta,iphi, geom);
       n++;
     }
@@ -59,9 +61,9 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   int etaRing=abs(ieta);
   int sign=(ieta>0)?(1):(-1);
   double eta1, eta2;
-  if (etaRing>limits.lastHERing()) {
-    eta1 = theHFEtaBounds[etaRing-limits.firstHFRing()];
-    eta2 = theHFEtaBounds[etaRing-limits.firstHFRing()+1];
+  if (etaRing>m_limits->lastHERing()) {
+    eta1 = theHFEtaBounds[etaRing-m_limits->firstHFRing()];
+    eta2 = theHFEtaBounds[etaRing-m_limits->firstHFRing()+1];
   } else {
     eta1 = theHBHEEtaBounds[etaRing-1];
     eta2 = theHBHEEtaBounds[etaRing];
@@ -70,15 +72,15 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   double deta = (eta2-eta1);  
 
   // in radians
-  double dphi_nominal = 2.0*M_PI / limits.nPhiBins(1); // always the same
-  double dphi_half = M_PI / limits.nPhiBins(etaRing); // half-width
+  double dphi_nominal = 2.0*M_PI / m_limits->nPhiBins(1); // always the same
+  double dphi_half = M_PI / m_limits->nPhiBins(etaRing); // half-width
   
   double phi_low = dphi_nominal*(iphi-1); // low-edge boundaries are constant...
   double phi = phi_low+dphi_half;
 
   double x,y,z,thickness;
   bool alongZ=true;
-  if (etaRing>limits.lastHERing()) { // forward
+  if (etaRing>m_limits->lastHERing()) { // forward
     z=HFz;
     double r=z/sinh(eta);
     x=r * cos(phi);

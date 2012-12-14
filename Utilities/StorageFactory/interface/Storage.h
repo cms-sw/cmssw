@@ -5,6 +5,18 @@
 # include "Utilities/StorageFactory/interface/IOOutput.h"
 # include "Utilities/StorageFactory/interface/IOPosBuffer.h"
 
+//
+// ROOT will probe for prefetching support by calling
+// ReadBufferAsync(0, 0)
+// Storage turns this into:
+// prefetch(0, PREFETCH_PROBE_LENGTH)
+//
+// For example, if the Storage implementation wants to provide a prefetch
+// implementation, but prefers it not to be used by default, it
+// should detect the probe and return true.
+//
+# define PREFETCH_PROBE_LENGTH 4096
+
 class Storage : public virtual IOInput, public virtual IOOutput
 {
 public:

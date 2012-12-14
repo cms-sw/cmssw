@@ -34,7 +34,7 @@ public:
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
 
 private:
-  void accumulateCaloHits(std::vector<PCaloHit> const& hits, int bunchCrossing);
+  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hits, int bunchCrossing);
 
   /// fills the vectors for each subdetector
   void sortHits(const edm::PCaloHitContainer & hits);

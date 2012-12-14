@@ -239,9 +239,6 @@ process.saveTauEff = cms.EDAnalyzer("TauDQMSimpleFileSaver",
 )
 
 process.load("Validation.RecoTau.dataTypes.ValidateTausOn%s_cff" % options.eventType)
-getattr(process,"efficiencies%s"%options.eventType).fill1D = cms.bool(True)
-#getattr(process,"efficiencies%s"%options.eventType).fill2D = cms.bool(True)
-
 process.validation = cms.Path( process.produceDenominator )#getattr(process,'produceDenominator'+options.eventType) )
 
 if options.batchNumber >= 0 or options.gridJob:

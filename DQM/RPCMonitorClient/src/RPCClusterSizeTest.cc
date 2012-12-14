@@ -16,6 +16,8 @@ RPCClusterSizeTest::RPCClusterSizeTest(const edm::ParameterSet& ps ){
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
   testMode_ = ps.getUntrackedParameter<bool>("testMode", false);
   useRollInfo_ = ps.getUntrackedParameter<bool>("useRollInfo", false);
+
+  resetMEArrays();
 }
 
 RPCClusterSizeTest::~RPCClusterSizeTest(){ dbe_=0;}
@@ -71,10 +73,10 @@ void RPCClusterSizeTest::clientOperation(edm::EventSetup const& iSetup) {
   //check some statements and prescale Factor
   if(myClusterMe_.size()==0 || myDetIds_.size()==0)return;
         
-  MonitorElement * CLS =NULL;          // ClusterSize in 1 bin, Roll vs Sector
-  MonitorElement * CLSD =NULL;         // ClusterSize in 1 bin, Distribution
-  MonitorElement * MEAN =NULL;         // Mean ClusterSize, Roll vs Sector
-  MonitorElement * MEAND =NULL;        // Mean ClusterSize, Distribution
+  MonitorElement * CLS   = NULL;  // ClusterSize in 1 bin, Roll vs Sector
+  MonitorElement * CLSD  = NULL;  // ClusterSize in 1 bin, Distribution
+  MonitorElement * MEAN  = NULL;  // Mean ClusterSize, Roll vs Sector
+  MonitorElement * MEAND = NULL;  // Mean ClusterSize, Distribution
   
   
   std::stringstream meName;
@@ -94,11 +96,11 @@ void RPCClusterSizeTest::clientOperation(edm::EventSetup const& iSetup) {
     
     if (detId.region()==0){
 
-      CLS=CLSWheel[detId.ring()+2];
-      MEAN= MEANWheel[detId.ring()+2];
+      CLS = CLSWheel[detId.ring()+2];
+      MEAN = MEANWheel[detId.ring()+2];
       if(testMode_){
-	CLSD=CLSDWheel[detId.ring()+2];
-      	MEAND=MEANDWheel[detId.ring()+2];
+	CLSD = CLSDWheel[detId.ring()+2];
+      	MEAND = MEANDWheel[detId.ring()+2];
       }
     }else {
       
@@ -156,17 +158,33 @@ void RPCClusterSizeTest::clientOperation(edm::EventSetup const& iSetup) {
 } 
 
 void  RPCClusterSizeTest::endJob(void) {}
+
+void RPCClusterSizeTest::resetMEArrays(void) {
+  memset((void*) CLSWheel, 0, sizeof(MonitorElement*)*kWheels);
+  memset((void*) CLSDWheel, 0, sizeof(MonitorElement*)*kWheels);
+  memset((void*) MEANWheel, 0, sizeof(MonitorElement*)*kWheels);
+  memset((void*) MEANDWheel, 0, sizeof(MonitorElement*)*kWheels);
+
+  memset((void*) CLSDisk, 0, sizeof(MonitorElement*)*kDisks);
+  memset((void*) CLSDDisk, 0, sizeof(MonitorElement*)*kDisks);
+  memset((void*) MEANDisk, 0, sizeof(MonitorElement*)*kDisks);
+  memset((void*) MEANDDisk, 0, sizeof(MonitorElement*)*kDisks);
+}
+
+
 void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) {
- MonitorElement* me;
+
+  resetMEArrays();
+  
+  MonitorElement* me;
   dbe_->setCurrentFolder(globalFolder_);
 
   std::stringstream histoName;
 
   rpcdqm::utils rpcUtils;
 
-  
-  for (int w = -2; w<=2;w++ ){//loop on wheels 
-  
+  // Loop over wheels
+  for (int w = -2; w <= 2; w++) {
     histoName.str("");   
     histoName<<"ClusterSizeIn1Bin_Roll_vs_Sector_Wheel"<<w;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)       
     me = 0;
@@ -216,11 +234,12 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
   }//end loop on wheels
 
 
-  for(int d = -numberOfDisks_;  d<=numberOfDisks_; d++ ){
-    if (d == 0 )continue;
+  for (int d = -numberOfDisks_;  d <= numberOfDisks_; d++) {
+    if (d == 0)
+      continue;
   //Endcap
     int offset = numberOfDisks_;
-    if (d>0) offset --;
+    if (d>0) offset--;
 
     histoName.str("");   
     histoName<<"ClusterSizeIn1Bin_Ring_vs_Segment_Disk"<<d;       // ClusterSize in first bin norm. by Entries (2D Roll vs Sector)   
@@ -266,9 +285,5 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
     MEANDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     rpcUtils.labelXAxisSegment(MEANDisk[d+offset]);
     rpcUtils.labelYAxisRing(MEANDisk[d+offset], numberOfRings_ ,useRollInfo_);
- 
  }
-
-
-
 }

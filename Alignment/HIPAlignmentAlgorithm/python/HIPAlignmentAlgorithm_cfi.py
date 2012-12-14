@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # parameters for HIPAlignmentAlgorithm
 HIPAlignmentAlgorithm = cms.PSet(
-    applyAPE = cms.bool(False),
+    applyAPE = cms.bool(True),
     maxRelParameterError = cms.double(1.0),
     outpath = cms.string('./'),
     collectorNJobs = cms.int32(0),
@@ -35,6 +35,6 @@ HIPAlignmentAlgorithm = cms.PSet(
     # Dump tracks before and after refit
     debug = cms.bool(False),
     alignedFile = cms.string('IOAlignedPositions.root'),
-    fillTrackMonitoring = cms.untracked.bool(False)
+	fillTrackMonitoring = cms.untracked.bool(False)
 )
 

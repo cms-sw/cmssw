@@ -4,19 +4,27 @@
 #include "G4ProcessManager.hh"
 #include "G4LossTableManager.hh"
 #include "G4EmProcessOptions.hh"
+#include "G4RegionStore.hh"
 
 #include "G4ComptonScattering.hh"
 #include "G4GammaConversion.hh"
 #include "G4PhotoElectricEffect.hh"
+#include "G4PairProductionRelModel.hh"
 
-#include "G4eMultipleScattering.hh"
 #include "G4hMultipleScattering.hh"
+#include "G4eMultipleScattering.hh"
+#include "G4MuMultipleScattering.hh"
 #include "G4MscStepLimitType.hh"
+#include "CMSUrbanMscModel93.hh"
+#include "G4WentzelVIModel.hh"
+#include "G4CoulombScattering.hh"
 
 #include "G4eIonisation.hh"
 #include "G4eBremsstrahlung.hh"
-#include "G4eBremsstrahlungRelModel.hh"
 #include "G4eplusAnnihilation.hh"
+
+#include "G4SeltzerBergerModel95.hh"
+#include "G4eBremsstrahlungRelModel95.hh"
 
 #include "G4MuIonisation.hh"
 #include "G4MuBremsstrahlung.hh"
@@ -62,7 +70,7 @@
 #include "G4Alpha.hh"
 #include "G4GenericIon.hh"
 
-CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(const G4String& name, G4int ver) :
+CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(const G4String& name, G4int ver):
   G4VPhysicsConstructor(name), verbose(ver) {
   G4LossTableManager::Instance();
 }
@@ -115,7 +123,8 @@ void CMSEmStandardPhysicsLPM::ConstructParticle() {
   G4GenericIon::GenericIonDefinition();
 }
 
-void CMSEmStandardPhysicsLPM::ConstructProcess() {
+void CMSEmStandardPhysicsLPM::ConstructProcess() 
+{
   // Add standard EM Processes
 
   theParticleIterator->reset();
@@ -125,13 +134,17 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
     G4String particleName = particle->GetParticleName();
     if(verbose > 1)
       G4cout << "### " << GetPhysicsName() << " instantiates for " 
-	     << particleName << G4endl;
+	     << particleName << " at " << particle << G4endl;
 
     if (particleName == "gamma") {
 
       pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
       pmanager->AddDiscreteProcess(new G4ComptonScattering);
-      pmanager->AddDiscreteProcess(new G4GammaConversion);
+      G4GammaConversion* conv = new G4GammaConversion();
+      G4PairProductionRelModel* mod = new G4PairProductionRelModel();
+      mod->SetLowEnergyLimit(100*GeV);
+      conv->AddEmModel(0, mod);
+      pmanager->AddDiscreteProcess(conv);
 
     } else if (particleName == "e-") {
 
@@ -139,14 +152,16 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      G4eBremsstrahlung* brem = new G4eBremsstrahlung();
-      G4VEmModel* lpm = new G4eBremsstrahlungRelModel();
-      lpm->SetLowEnergyLimit(GeV);
-      lpm->SetHighEnergyLimit(100.*TeV);
-      brem->AddEmModel(0,lpm);
-      pmanager->AddProcess(msc,                       -1, 1, 1);
-      pmanager->AddProcess(eioni,                     -1, 2, 2);
-      pmanager->AddProcess(brem,                      -1,-3, 3);
+      msc->AddEmModel(0,new CMSUrbanMscModel93());
+
+      G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
+      ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
+      ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
+      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
+
+      pmanager->AddProcess(msc,                   -1, 1, 1);
+      pmanager->AddProcess(eioni,                 -1, 2, 2);
+      pmanager->AddProcess(ebrem,                 -1,-3, 3);
 
     } else if (particleName == "e+") {
 
@@ -154,23 +169,28 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       eioni->SetStepFunction(0.8, 1.0*mm);
       G4eMultipleScattering* msc = new G4eMultipleScattering;
       msc->SetStepLimitType(fMinimal);
-      G4eBremsstrahlung* brem = new G4eBremsstrahlung();
-      G4VEmModel* lpm = new G4eBremsstrahlungRelModel();
-      lpm->SetLowEnergyLimit(GeV);
-      lpm->SetHighEnergyLimit(100.*TeV);
-      brem->AddEmModel(0,lpm);
-      pmanager->AddProcess(msc,                       -1, 1, 1);
-      pmanager->AddProcess(eioni,                     -1, 2, 2);
-      pmanager->AddProcess(brem,                      -1,-3, 3);
-      pmanager->AddProcess(new G4eplusAnnihilation,    0,-1, 4);
+      msc->AddEmModel(0,new CMSUrbanMscModel93());
+
+      G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
+      ebrem->SetEmModel(new G4SeltzerBergerModel95(), 1);
+      ebrem->SetEmModel(new G4eBremsstrahlungRelModel95(), 2);
+      ebrem->EmModel(2)->SetLowEnergyLimit(GeV);
+
+      pmanager->AddProcess(msc,                     -1, 1, 1);
+      pmanager->AddProcess(eioni,                   -1, 2, 2);
+      pmanager->AddProcess(ebrem,                   -1,-3, 3);
+      pmanager->AddProcess(new G4eplusAnnihilation,  0,-1, 4);
 
     } else if (particleName == "mu+" ||
                particleName == "mu-"    ) {
 
-      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
+      G4MuMultipleScattering* mumsc = new G4MuMultipleScattering();
+      mumsc->AddEmModel(0, new G4WentzelVIModel());
+      pmanager->AddProcess(mumsc,                     -1, 1, 1);
       pmanager->AddProcess(new G4MuIonisation,        -1, 2, 2);
       pmanager->AddProcess(new G4MuBremsstrahlung,    -1,-3, 3);
       pmanager->AddProcess(new G4MuPairProduction,    -1,-4, 4);
+      pmanager->AddProcess(new G4CoulombScattering,   -1,-4, 5);
 
     } else if (particleName == "alpha" ||
                particleName == "He3" ||
@@ -179,12 +199,23 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4ionIonisation,       -1, 2, 2);
 
+    } else if (particleName == "pi+" ||
+	       particleName == "kaon+" ||
+	       particleName == "kaon-" ||
+	       particleName == "proton" ||
+	       particleName == "pi-" ) {
+
+      pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
+      pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
+      pmanager->AddProcess(new G4hBremsstrahlung(),   -1,-3, 3);
+      pmanager->AddProcess(new G4hPairProduction(),   -1,-4, 4);
+
     } else if (particleName == "B+" ||
-               particleName == "B-" ||
-               particleName == "D+" ||
-               particleName == "D-" ||
-               particleName == "Ds+" ||
-               particleName == "Ds-" ||
+	       particleName == "B-" ||
+	       particleName == "D+" ||
+	       particleName == "D-" ||
+	       particleName == "Ds+" ||
+	       particleName == "Ds-" ||
                particleName == "anti_lambda_c+" ||
                particleName == "anti_omega-" ||
                particleName == "anti_proton" ||
@@ -195,13 +226,8 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
                particleName == "anti_xi_c+" ||
                particleName == "anti_xi-" ||
                particleName == "deuteron" ||
-               particleName == "kaon+" ||
-               particleName == "kaon-" ||
-               particleName == "lambda_c+" ||
+	       particleName == "lambda_c+" ||
                particleName == "omega-" ||
-               particleName == "pi+" ||
-               particleName == "pi-" ||
-               particleName == "proton" ||
                particleName == "sigma_c+" ||
                particleName == "sigma_c++" ||
                particleName == "sigma+" ||
@@ -214,16 +240,6 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
 
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, 1);
       pmanager->AddProcess(new G4hIonisation,         -1, 2, 2);
-
-      if (particleName == "pi+" ||
-	  particleName == "kaon+" ||
-	  particleName == "kaon-" ||
-	  particleName == "proton" ||
-	  particleName == "pi-" ) {
-	pmanager->AddProcess(new G4hBremsstrahlung(), -1,-3, 3);
-	pmanager->AddProcess(new G4hPairProduction(), -1,-4, 4);
-      }
-
     }
   }
 
@@ -231,8 +247,13 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   //
   G4EmProcessOptions opt;
   opt.SetVerbose(verbose);
+
+  // muon scattering
+  opt.SetPolarAngleLimit(CLHEP::pi);
+
+  // ApplyCuts
+  //
   opt.SetApplyCuts(true);
-  opt.SetLPMFlag(false);
 
   // Physics tables
   //
@@ -240,4 +261,5 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
   opt.SetMaxEnergy(10.*TeV);
   opt.SetDEDXBinning(77);
   opt.SetLambdaBinning(77);
+
 }

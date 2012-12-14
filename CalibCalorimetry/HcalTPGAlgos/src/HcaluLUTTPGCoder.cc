@@ -159,8 +159,8 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB){
    }// for nCol
 }
 
-void HcaluLUTTPGCoder::updateXML(const char* filename) {
-   HcalTopology theTopo;
+void HcaluLUTTPGCoder::updateXML(const char* filename, HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE) {
+   HcalTopology theTopo(mode, maxDepthHB, maxDepthHE);
    LutXml * _xml = new LutXml(filename);
    _xml->create_lut_map();
    HcalSubdetector subdet[3] = {HcalBarrel, HcalEndcap, HcalForward};

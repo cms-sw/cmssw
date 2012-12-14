@@ -9,18 +9,17 @@
 
 class FillInfoPopConSourceHandler : public popcon::PopConSourceHandler<FillInfo>{
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
+  FillInfoPopConSourceHandler( const edm::ParameterSet& pset ); 
   ~FillInfoPopConSourceHandler();
-  FillInfoPopConSourceHandler(const edm::ParameterSet& pset); 
+  void getNewObjects();
+  std::string id() const;
   
  private:
   bool m_debug;
-  unsigned short m_fill;
+  unsigned short m_firstFill, m_lastFill;
   std::string m_name;  
-  // for reading from omds 
-  std::string m_connectionString; 
-  std::string m_authpath;
+  //for reading from relational database source 
+  std::string m_connectionString, m_dipSchema, m_authpath;
 };
 
 #endif 

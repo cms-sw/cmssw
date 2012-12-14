@@ -13,6 +13,7 @@
  *  Ported with an alternative interface to CMSSW by J. Alcaraz
  *  AbsVetos added by G. Petrucciani
  *  Moved to RecoCandidate  by S. Krutelyov
+ *  Adding more generic Algos  and radial Algorithms by M.Bachtis
  */
 
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
@@ -48,6 +49,10 @@ namespace reco {
     typedef isodeposit::Direction Direction;
     typedef isodeposit::AbsVeto AbsVeto;
     typedef isodeposit::AbsVetos AbsVetos;
+    typedef Direction::Distance Distance;
+    typedef std::multimap<Distance, float> DepositsMultimap;
+    typedef DepositsMultimap::const_iterator  DepIterator;
+
 
     // old style vetos
     struct Veto  { 
@@ -161,7 +166,8 @@ namespace reco {
     class SumAlgo {
       public: 
         SumAlgo() : sum_(0) {}
-        void operator+=(float deposit) { sum_ += deposit; }  
+        void operator+=(DepIterator deposit) { sum_ += deposit->second; }  
+        void operator+=(double deposit) { sum_ += deposit; }  
         double result() const { return sum_; }
       private:
         double sum_;
@@ -169,7 +175,8 @@ namespace reco {
     class CountAlgo {
       public: 
         CountAlgo() : count_(0) {}
-        void operator+=(double deposit) { count_++; }  
+        void operator+=(DepIterator deposit) { count_++; }  
+        void operator+=(double deposit) { count_ ++; }  
         double result() const { return count_; }
       private:
         size_t count_;
@@ -177,6 +184,7 @@ namespace reco {
     class Sum2Algo {
       public: 
         Sum2Algo() : sum2_(0) {}
+        void operator+=(DepIterator deposit) { sum2_ += deposit->second*deposit->second; }  
         void operator+=(double deposit) { sum2_ += deposit*deposit; }  
         double result() const { return sum2_; }
       private:
@@ -185,11 +193,32 @@ namespace reco {
     class MaxAlgo {
       public: 
         MaxAlgo() : max_(0) {}
+        void operator+=(DepIterator deposit) { if (deposit->second > max_) max_ = deposit->second; }  
         void operator+=(double deposit) { if (deposit > max_) max_ = deposit; }  
         double result() const { return max_; }
       private:
         double max_;
     };
+
+    class MeanDRAlgo {
+      public: 
+      MeanDRAlgo() : sum_(0.),count_(0.) {}
+        void operator+=(DepIterator deposit) {sum_ +=deposit->first.deltaR; count_+=1.0;   }  
+        double result() const { return sum_/std::max(1.,count_); }
+      private:
+        double sum_;
+        double count_;
+    };
+
+    class SumDRAlgo {
+      public: 
+      SumDRAlgo() : sum_(0.){}
+        void operator+=(DepIterator deposit) {sum_ +=deposit->first.deltaR;}  
+        double result() const { return sum_; }
+      private:
+        double sum_;
+    };
+
     //! Get some info about the deposit (e.g. sum, max, sum2, count)
     template<typename Algo>
     double algoWithin(   double coneSize,                            //dR in which deposit is computed
@@ -249,8 +278,6 @@ namespace reco {
     float theCandTag; 
 
     //! the deposits identifed by relative position to center of cone and deposit value
-    typedef Direction::Distance Distance;
-    typedef std::multimap<Distance, float> DepositsMultimap;
 
     DepositsMultimap theDeposits;
   };
@@ -276,7 +303,7 @@ double reco::IsoDeposit::algoWithin(double coneSize, const AbsVetos& vetos, bool
     }
     if (!vetoed) {
       if (skipDepositVeto || (dirDep.deltaR(theVeto.vetoDir) > theVeto.dR)) {
-	algo += im->second;
+	algo += im;
       }
     }
   }
@@ -303,11 +330,14 @@ double reco::IsoDeposit::algoWithin(const Direction& dir, double coneSize,
     }
     if (!vetoed) {
       if (skipDepositVeto || (dirDep.deltaR(theVeto.vetoDir) > theVeto.dR)) {
-	algo += im->second;
+	algo += im;
       }
     }
   }
   return algo.result();
 }
+
+
+
 
 #endif

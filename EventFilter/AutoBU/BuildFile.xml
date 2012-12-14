@@ -1,9 +1,9 @@
 <use   name="EventFilter/Utilities"/>
 <use   name="EventFilter/Playback"/>
 <use   name="DataFormats/FEDRawData"/>
-<use   name="root"/>
-<use   name="CLHEP"/>
 <use   name="xdaq"/>
+<use   name="CLHEP"/>
+<use   name="root"/>
 <export>
   <lib   name="1"/>
 </export>

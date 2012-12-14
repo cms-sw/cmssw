@@ -80,7 +80,7 @@ class Alignment:
         self.dbpath = config.get(section, "dbpath")
         self.__testDbExist( self.dbpath )
  
-        self.errordbpath = "frontier://FrontierProd/CMS_COND_31X_FROM21X"
+        self.errordbpath = "frontier://FrontierProd/CMS_COND_21X_ALIGNMENT"
         self.errortag = "TrackerIdealGeometryErrors210_mc"
         if config.has_option(section,"errordbpath") and config.has_option(section,"errortag"):
             self.errordbpath = config.get(section, "errordbpath")
@@ -93,31 +93,6 @@ class Alignment:
         
         self.color = config.get(section,"color")
         self.style = config.get(section,"style")
-        if "compare" in self.mode:
-            if config.has_option(section,"rungeomcomp"):
-                self.runGeomComp = config.get(section,"rungeomcomp")
-            else:
-                raise StandardError, "in alignment:%s you have to provide rungeomcomp in compare mode."%(name)
-        else:
-            self.runGeomComp = "1"
-
-        self.kinksAndBows = ""
-        self.kbdbpath = ""
-        self.kbtag = ""
-        if config.has_option(section,"kbdbpath") and config.has_option(section,"kbtag"):
-            self.kinksAndBows = configTemplates.kinksAndBowsTemplate
-            self.kbdbpath = config.get(section, "kbdbpath")
-            self.__testDbExist( self.kbdbpath )
-            self.kbtag = config.get(section,"kbtag")
-        else:
-            if config.has_option(section,"kbdbpath") or config.has_option(section,"kbtag"):
-                raise StandardError, "in alignment:%s you have to provide either both kbdbpath _and_ kbtag or none of both."%name
-
-#         if config.has_option(section,"DMROptions"):
-#             self.DMROptions = config.get(section,"DMROptions")
-#         else:
-#             self.DMROptions = ""
-            
         self.compareTo = {}
         for option in config.options( section ):
             if option.startswith("compare|"):
@@ -156,12 +131,8 @@ class Alignment:
             "tag": self.tag,
             "errortag": self.errortag,
             "color": self.color,
-            "style": self.style,
-            "runGeomComp": self.runGeomComp,
-            "kinksAndBows": self.kinksAndBows,
-            "kbdbpath": self.kbdbpath,
-            "kbtag": self.kbtag# ,
-#             "DMROptions": self.DMROptions
+            "style": self.style
+            
             }
         return result  
 
@@ -189,7 +160,7 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
                                 foundAlignment = True
                         if not foundAlignment:
                             raise StandardError, " could not find alignment called '%s'"%alignmentName
-                    result.append( GeometryComparison( self, referenceAlignment, config, options.getImages, randomWorkdirPart ) )
+                    result.append( GeometryComparision( self, referenceAlignment, config, options.getImages, randomWorkdirPart ) )
                     if randomWorkdirPart == None:
                         randomWorkdirPart = result[-1].randomWorkdirPart
             elif validationName == "offline":
@@ -200,8 +171,6 @@ allAlignemts is a list of Alignment objects the is used to generate Alignment_vs
                 result.append( MonteCarloValidation( self, config ) )
             elif validationName == "split":
                 result.append( TrackSplittingValidation( self, config ) )
-            elif validationName == "zmumu":
-                result.append( ZMuMuValidation( self, config ) )
             else:
                 raise StandardError, "unknown validation mode '%s'"%validationName
         return result
@@ -237,7 +206,6 @@ cmsRun %(cfgFile)s
 %(postProcess)s """,
                 "GlobalTag": self.__general["globaltag"],
                 "CMSSW_BASE": os.environ['CMSSW_BASE'],
-                "SCRAM_ARCH": os.environ['SCRAM_ARCH'],
                 "alignmentName": alignment.name,
                 "offlineModuleLevelHistsTransient":  self.__general["offlineModuleLevelHistsTransient"]
                 })
@@ -292,7 +260,7 @@ cmsRun %(cfgFile)s
         return self.scriptFiles
 
     
-class GeometryComparison(GenericValidation):
+class GeometryComparision(GenericValidation):
     """
 object representing a geometry comparison job
 alignemnt is the alignment to analyse
@@ -406,7 +374,6 @@ class OfflineValidation(GenericValidation):
         general = readGeneral( config )
         self.__DMRMethod = general["DMRMethod"]
         self.__DMRMinimum = general["DMRMinimum"]
-        self.__DMROptions = general["DMROptions"]
         self.__OfflineTreeBaseDir = general["OfflineTreeBaseDir"]
     
     def createConfiguration(self, path, configBaseName = "TkAlOfflineValidation" ):
@@ -434,7 +401,6 @@ class OfflineValidation(GenericValidation):
                 "OfflineTreeBaseDir": self.__OfflineTreeBaseDir,
                 "DMRMethod":self.__DMRMethod,
                 "DMRMinimum":self.__DMRMinimum,
-                "DMROptions":self.__DMROptions,
                 "APE": configTemplates.APETemplate,
                 "outputFile": replaceByMap( ".oO[workdir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
                 "resultFile": replaceByMap( ".oO[datadir]Oo./AlignmentValidation_.oO[name]Oo..root", repMap ),
@@ -553,51 +519,6 @@ class TrackSplittingValidation(GenericValidation):
 
         scripts = {scriptName: replaceByMap( configTemplates.scriptTemplate, repMap ) }
         return GenericValidation.createScript(self, scripts, path)
-    
-class ZMuMuValidation(GenericValidation):
-    def __init__(self, alignment,config):
-        GenericValidation.__init__(self, alignment, config)
-        general = readGeneral( config )
-        for key in ("zmumureference","etamax1","etamin1","etamax2","etamin2"):
-            if not general.has_key(key):
-                raise StandardError, "missing parameter '%s' in general section. This parameter is mandatory for the ZMuMuValidation."%(key)
-        
-        self.__zmumureference = general["zmumureference"]
-        self.__etamax1 = general["etamax1"]
-        self.__etamin1 = general["etamin1"]
-        self.__etamax2 = general["etamax2"]
-        self.__etamin2 = general["etamin2"]
-    
-    def createConfiguration(self, path, configBaseName = "TkAlZMuMuValidation" ):
-        cfgName = "%s.%s_cfg.py"%( configBaseName, self.alignmentToValidate.name )
-        repMap = self.getRepMap()
-        cfgs = {cfgName:replaceByMap( configTemplates.ZMuMuValidationTemplate, repMap)}
-        GenericValidation.createConfiguration(self, cfgs, path)
-        
-    def createScript(self, path, scriptBaseName = "TkAlZMuMuValidation"):
-        scriptName = "%s.%s.sh"%(scriptBaseName, self.alignmentToValidate.name )
-        repMap = self.getRepMap()
-        repMap["CommandLine"]=""
-        for cfg in self.configFiles:
-            repMap["CommandLine"]+= repMap["CommandLineTemplate"]%{"cfgFile":cfg,
-                                                  "postProcess":""
-                                                  }
-        scripts = {scriptName: replaceByMap( configTemplates.zMuMuScriptTemplate, repMap ) }
-        return GenericValidation.createScript(self, scripts, path)
-
-    def getRepMap(self, alignment = None):
-        repMap = GenericValidation.getRepMap(self, alignment) 
-        repMap.update({
-                "APE": configTemplates.APETemplate,
-                "zmumureference":self.__zmumureference,
-                "etamax1":self.__etamax1,
-                "etamin1":self.__etamin1,
-                "etamax2":self.__etamax2,
-                "etamin2":self.__etamin2
-                })
-       
-        return repMap
-
 
 ####################--- Read Configfiles ---############################
 def readAlignments( config ):
@@ -626,8 +547,7 @@ def readGeneral( config ):
         "offlineModuleLevelHistsTransient":"False",
         "OfflineTreeBaseDir":"TrackHitFilter",
         "DMRMethod":"medianX",
-        "DMRMinimum":"30",
-        "DMROptions":""
+        "DMRMinimum":"30"
         }
     try:
        for option in config.options("general"):
@@ -667,7 +587,7 @@ def createExtendedValidationScript(offlineValidationList, outFilePath):
         repMap[ "extendedInstantiation" ] = validation.appendToExtendedValidation( repMap[ "extendedInstantiation" ] )
     
     theFile = open( outFilePath, "w" )
-    theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
+    theFile.write( replaceByMap( configTemplates.extendedVaidationTemplate ,repMap ) )
     theFile.close()
     
 def createMergeScript( path, validations ):
@@ -694,7 +614,7 @@ def createMergeScript( path, validations ):
     if "OfflineValidation" in comparisonLists:
         repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
         createExtendedValidationScript( comparisonLists["OfflineValidation"], repMap["extendeValScriptPath"] )
-        repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedValidationExecution, repMap)
+        repMap["RunExtendedOfflineValidation"] = replaceByMap(configTemplates.extendedVaidationExecution, repMap)
 
     repMap["CompareAllignments"] = "#run comparisons"
     for validationId in comparisonLists:

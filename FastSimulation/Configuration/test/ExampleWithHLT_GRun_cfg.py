@@ -49,8 +49,10 @@ process.load("Configuration.Generator.TTbar_cfi")
 #process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['startup']
+
+# Get frontier conditions
+from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
+process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
 
 # L1 Emulator and HLT Setup
 process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")

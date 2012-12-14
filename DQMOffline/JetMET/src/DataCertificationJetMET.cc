@@ -5,7 +5,7 @@
 // 
 // Original Author:  "Frank Chlebana"
 //         Created:  Sun Oct  5 13:57:25 CDT 2008
-// $Id: DataCertificationJetMET.cc,v 1.52 2012/03/23 11:36:14 piedra Exp $
+// $Id: DataCertificationJetMET.cc,v 1.51 2012/02/27 15:54:59 piedra Exp $
 //
 
 #include "DQMOffline/JetMET/interface/DataCertificationJetMET.h"
@@ -312,36 +312,30 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   //--- Look at Kolmogorov result for Eta, Phi, and Pt
   //------------------------------------------------------------------------------
 
-
-  // Five types of jets {AK5 Barrel, AK5 EndCap, AK5 Forward, PF, JPT}
-  //----------------------------------------------------------------------------
-  // Kolmogorov (KS) tests
-  const QReport* QReport_JetEta[5] = {0, 0, 0, 0, 0};
-  const QReport* QReport_JetPhi[5] = {0, 0, 0, 0, 0};
-
-  // Mean and KS tests for Calo and PF jets
-  const QReport* QReport_JetConstituents[4][2] = {{0,0}, {0,0}, {0,0}, {0,0}};
-  const QReport* QReport_JetEFrac[4][2]        = {{0,0}, {0,0}, {0,0}, {0,0}};
-  const QReport* QReport_JetPt[5][2]           = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}};
-
-  // Mean and KS tests for JPT jets
-  const QReport* QReport_JetNTracks[2] = {0, 0};
-
-  float qr_Jet_NTracks[2] = {-1, -1};
-  float qr_Jet_Eta[5]     = {-1, -1, -1, -1, -1};
-  float qr_Jet_Phi[5]     = {-1, -1, -1, -1, -1};
-  float dc_Jet[5]         = {-1, -1, -1, -1, -1};
-
-  float qr_Jet_Constituents[4][2] = {{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}};
-  float qr_Jet_EFrac[4][2]        = {{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}};
-  float qr_Jet_Pt[5][2]           = {{-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1}};
+  //5 types of Jets {AK5 Barrel, AK5 EndCap, AK5 Forward, PF, JPT}
+  //--- Method 1
+  //--Kolmogorov test
+  const QReport * QReport_JetEta[5];
+  const QReport * QReport_JetPhi[5];
+  //--Mean and KS tests
+  //for Calo and PF jets
+  const QReport * QReport_JetConstituents[4][2];
+  const QReport * QReport_JetEFrac[4][2];
+  const QReport * QReport_JetPt[5][2];
+  //for JPT jets
+  const QReport * QReport_JetNTracks[2];
 
 
-  // Loop
-  //----------------------------------------------------------------------------
-  for (int jtyp=0; jtyp<5; ++jtyp) {
+  float qr_Jet_NTracks[2]         = {-1.};
+  float qr_Jet_Constituents[4][2] = {{-1.}};
+  float qr_Jet_EFrac[4][2]        = {{-1.}};
+  float qr_Jet_Eta[5]             = {-1.};
+  float qr_Jet_Phi[5]             = {-1.};
+  float qr_Jet_Pt[5][2]           = {{-1.}};
+  float dc_Jet[5]                 = {-1.};
 
-    // Mean test results
+  for (int jtyp = 0; jtyp < 5; ++jtyp){
+    //Mean test results
     if (jtyp < 4){
       if (meJetConstituents[jtyp]) {
 	  QReport_JetConstituents[jtyp][0] = meJetConstituents[jtyp]->getQReport("meanJetConstituentsTest");

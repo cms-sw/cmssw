@@ -4,7 +4,7 @@ these are corrections including unit conversion /mb to /ub
 if unit is already /ub, use e-03
 **/
 LumiCorrector::LumiCorrector(){
-  Occ1Norm_=6.36e3; // For 2.76TeV 1.34e3, for HI 2.214e6
+  Occ1Norm_=7.13e3; // For 2.76TeV 1.34e3, for HI 2.214e6
   Occ2Norm_=7.97e3;
   ETNorm_=1.59e3;
   PUNorm_=6.37e3;
