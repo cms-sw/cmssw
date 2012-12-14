@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2011/11/29 07:50:12 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/12/20 15:29:05 $
+ *  $Revision: 1.12 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -25,8 +25,6 @@
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "RecoMuon/GlobalTrackingTools/interface/MuonTkNavigationSchool.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"

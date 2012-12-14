@@ -14,13 +14,14 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/DTGeometry"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="RecoMuon/Navigation"/>
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="RecoMuon/TransientTrackingRecHit"/>
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="RecoTracker/TkMSParametrization"/>
-<use   name="RecoTracker/TkNavigation"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="TrackingTools/DetLayers"/>
