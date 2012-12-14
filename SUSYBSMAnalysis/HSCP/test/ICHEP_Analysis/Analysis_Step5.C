@@ -55,7 +55,6 @@ void Analysis_Step5()
    std::vector<string> Legends;                 std::vector<string> Inputs;
 
    Make2DPlot_Special("Results/Type0/", "Results/Type5/");
-   //return;
 
    InputPattern = "Results/Type0/";   CutIndex = 4; CutIndexTight = 84; //set of cuts from the array, 0 means no cut
    Make2DPlot_Core(InputPattern, 0);
@@ -118,7 +117,7 @@ void Analysis_Step5()
    CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "4");
    CheckPredictionBin(InputPattern, "_Flip", "Data8TeV", "5");
   
-   InputPattern = "Results/Type4/";   CutIndex = 21; CutIndexTight = 240; CutIndex_Flip=21;
+   InputPattern = "Results/Type4/";   CutIndex = 21; CutIndexTight = 263; CutIndex_Flip=21;
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data7TeV", CutIndex, CutIndex_Flip);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
@@ -245,11 +244,49 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       if(PredMCErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredMCErr->GetNbinsX();j++)PredMCErr->SetBinContent(j,0);}
    }}
 
+
+   TH1D *Pred8TeVR=NULL, *Pred7TeVR=NULL, *PredMCR=NULL;
+   if(Pred8TeV){
+      Pred8TeVR = (TH1D*)Pred8TeV->Clone("Pred8TeVR"); Pred8TeVR->Reset();
+      for(unsigned int i=0;i<(unsigned int)Pred8TeV->GetNbinsX();i++){
+      double Perr=0; double P = Pred8TeV->IntegralAndError(i,Pred8TeV->GetNbinsX()+1, Perr);   if(P<=0)continue;
+      double Derr=0; double D = Data8TeV->IntegralAndError(i,Data8TeV->GetNbinsX()+1, Derr);
+      Perr = sqrt(Perr*Perr + pow(P*(2*SystError),2));
+      Pred8TeVR->SetBinContent(i, D/P);  Pred8TeVR->SetBinError (i, sqrt(pow(Derr*P,2) +pow(Perr*D,2))/pow(P,2));      
+   }}
+
+
+   if(Pred7TeV){
+      Pred7TeVR = (TH1D*)Pred7TeV->Clone("Pred7TeVR"); Pred7TeVR->Reset();
+      for(unsigned int i=0;i<(unsigned int)Pred7TeV->GetNbinsX();i++){
+      double Perr=0; double P = Pred7TeV->IntegralAndError(i,Pred7TeV->GetNbinsX()+1, Perr);   if(P<=0)continue;
+      double Derr=0; double D = Data7TeV->IntegralAndError(i,Data7TeV->GetNbinsX()+1, Derr);
+      Perr = sqrt(Perr*Perr + pow(P*(2*SystError),2));
+      Pred7TeVR->SetBinContent(i, D/P);  Pred7TeVR->SetBinError (i,  sqrt(pow(Derr*P,2) +pow(Perr*D,2))/pow(P,2));      
+   }}
+
+   if(MCPred){
+      PredMCR = (TH1D*)Pred8TeV->Clone("PredMCR"); PredMCR->Reset();
+      for(unsigned int i=0;i<(unsigned int)MCPred->GetNbinsX();i++){
+      double Perr=0; double P = MCPred->IntegralAndError(i,MCPred->GetNbinsX()+1, Perr);   if(P<=0)continue;
+      double Derr=0; double D = MC    ->IntegralAndError(i,MC    ->GetNbinsX()+1, Derr);
+      Perr = sqrt(Perr*Perr + pow(P*(2*SystError),2));
+      PredMCR->SetBinContent(i, D/P);  PredMCR->SetBinError (i, sqrt(pow(Derr*P,2) +pow(Perr*D,2))/pow(P,2));      
+   }}
+
+
+
    //Prepare the canvas for drawing and draw everything on it
    std::vector<string> legend;
    TLegend* leg;
-   TCanvas* c1 = new TCanvas("c1","c1,",600,600);
+   TCanvas* c1 = new TCanvas("c1","c1,",600,700);
    char YAxisLegend[1024]; sprintf(YAxisLegend,"Tracks / %2.0f GeV/#font[12]{c}^{2}",(Data8TeV!=NULL?Data8TeV:Data7TeV)->GetXaxis()->GetBinWidth(1));
+
+   TPad* t1 = new TPad("t1","t1", 0.0, 0.20, 1.0, 1.0);
+   t1->Draw();
+   t1->cd();
+   t1->SetLogy(true);
+   t1->SetTopMargin(0.06);
 
    TH1D* frame = new TH1D("frame", "frame", 1,0,1400);
    frame->GetXaxis()->SetNdivisions(505);
@@ -274,8 +311,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    if(MCPred){
 //      PredMCErr->SetLineStyle(0);
-      PredMCErr->SetLineColor(9);
-      PredMCErr->SetFillColor(9);
+      PredMCErr->SetLineColor(38);
+      PredMCErr->SetFillColor(38);
       PredMCErr->SetFillStyle(1001);
       PredMCErr->SetMarkerStyle(23);
       PredMCErr->SetMarkerColor(9);
@@ -353,8 +390,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    }
 
    //Fill the legend
-   if(IsTkOnly) leg = new TLegend(0.82,0.93,0.25,showMC?0.66:0.75);
-   else         leg = new TLegend(0.79,0.93,0.25,showMC?0.66:0.75);
+   if(IsTkOnly) leg = new TLegend(0.79,0.93,0.35,showMC?0.66:0.75);
+   else         leg = new TLegend(0.79,0.93,0.35,showMC?0.66:0.75);
 //   leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillStyle(0);
    leg->SetBorderSize(0);
@@ -382,9 +419,72 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    //add CMS label and save
    DrawPreliminary(LegendFromType(InputPattern), SQRTS, IntegratedLuminosityFromE(SQRTS));
    c1->SetLogy(true);
+   
+
+
+
+
+   c1->cd();
+   TPad* t2 = new TPad("t2","t2", 0.0, 0.0, 1.0, 0.2); 
+   t2->Draw();
+   t2->cd();
+   t2->SetGridy(true);
+   t2->SetPad(0,0.0,1.0,0.2);
+   t2->SetTopMargin(0);
+   t2->SetBottomMargin(0.5);
+
+   TH1D* frameR = new TH1D("frameR", "frameR", 1,0, 1400);
+   frameR->GetXaxis()->SetNdivisions(505);
+   frameR->SetTitle("");
+   frameR->SetStats(kFALSE);
+   frameR->GetXaxis()->SetTitle("");
+   frameR->GetXaxis()->SetTitle("Cumulative Mass (GeV/#font[12]{c}^{2})");
+   frameR->GetYaxis()->SetTitle("Obs / Pred");
+   frameR->SetMaximum(1.50);
+   frameR->SetMinimum(0.50);
+   frameR->GetYaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
+   frameR->GetYaxis()->SetLabelSize(15); //font size
+   frameR->GetYaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
+   frameR->GetYaxis()->SetTitleSize(15); //font size
+   frameR->GetYaxis()->SetNdivisions(505);
+   frameR->GetXaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
+   frameR->GetXaxis()->SetLabelSize(15); //font size
+   frameR->GetXaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
+   frameR->GetXaxis()->SetTitleSize(15); //font size
+   frameR->GetXaxis()->SetTitleOffset(3.75);
+   frameR->Draw("AXIS");
+
+   if(MCPred){
+      PredMCR->SetMarkerStyle(29);
+      PredMCR->SetMarkerColor(9);
+      PredMCR->SetMarkerSize(1.5);
+      PredMCR->SetLineColor(9);
+      PredMCR->SetFillColor(0);
+      PredMCR->Draw("same E1");
+   }
+
+   if(Pred7TeV){
+      Pred7TeVR->SetMarkerStyle(26);
+      Pred7TeVR->SetMarkerColor(2);
+      Pred7TeVR->SetMarkerSize(1.5);
+      Pred7TeVR->SetLineColor(2);
+      Pred7TeVR->SetFillColor(0);
+      Pred7TeVR->Draw("same E1");
+  }
+
+   if(Pred8TeV){
+      Pred8TeVR->SetMarkerStyle(22);
+      Pred8TeVR->SetMarkerColor(2);
+      Pred8TeVR->SetMarkerSize(1.5);
+      Pred8TeVR->SetLineColor(2);
+      Pred8TeVR->SetFillColor(0);
+      Pred8TeVR->Draw("same E1");
+   }
+
+   TLine* LineAtOne = new TLine(0,1,1400,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
+
+   c1->cd();
    SaveCanvas(c1, InputPattern, string("Rescale_") + HistoSuffix + "_" + DataName);
-
-
    delete c1;
    InputFile->Close();
 }
