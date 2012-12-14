@@ -35,10 +35,17 @@ def parserunlength(filename):
     fileobj.close()
     return result
 
-def updatedb(schema,runmap):
+def updatedb(schema,runmap,lumitype):
     '''
     update lumidata set starttime=:rstart,stoptime=:rstop,nls=:nls where runnum=:runnum and data_id=:lumidataid
     '''
+    lumidatatableName=''
+    if lumitype=='HF':
+        lumitableName=nameDealer.lumidataTableName()
+    elif lumitype == 'PIXEL':
+        lumitableName = nameDealer.pixellumidataTableName()
+    else:
+        assert False, "ERROR Unknown lumitype '%s'" % lumitype
     t=lumiTime.lumiTime()
     setClause='STARTTIME=:runstarttime,STOPTIME=:runstoptime,NLS=:nls'
     updateCondition='RUNNUM=:runnum AND DATA_ID=:lumidataid'
@@ -51,7 +58,6 @@ def updatedb(schema,runmap):
     db=dbUtil.dbUtil(schema)
     for (run,lumidataid) in runmap.keys():
         [runstarttime,runstoptime,nls]=runmap[(run,lumidataid)]
-        print run,lumidataid,t.DatetimeToStr(runstarttime,'%m/%d/%y %H:%M:%S'),t.DatetimeToStr(runstoptime,'%m/%d/%y %H:%M:%S'),nls
         runstartT=coral.TimeStamp(runstarttime.year,runstarttime.month,runstarttime.day,runstarttime.hour,runstarttime.minute,runstarttime.second,runstarttime.microsecond*1000)
         runstopT=coral.TimeStamp(runstoptime.year,runstoptime.month,runstoptime.day,runstoptime.hour,runstoptime.minute,runstoptime.second,runstoptime.microsecond*1000)
         inputData['runstarttime'].setData(runstartT)
@@ -59,13 +65,13 @@ def updatedb(schema,runmap):
         inputData['nls'].setData(nls)
         inputData['runnum'].setData(int(run))
         inputData['lumidataid'].setData(int(lumidataid))
-        db.singleUpdate(nameDealer.lumidataTableName(),setClause,updateCondition,inputData)
+        db.singleUpdate(lumitableName,setClause,updateCondition,inputData)
         
 if __name__ == "__main__" :
-    dbstr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
-    authpath='/afs/cern.ch/cms/lumi/DB'
+    dbstr='oracle://cms_orcon_prod/cms_lumi_prod'
+    authpath='/nfshome0/xiezhen/authwriter'
     f='runstarttime.dat'
-    runlengthfile='nlsperrun.dat'
+    runlengthfile='nlsperrun-pixel.dat'
     dfmt='%d-%m-%Y %H:%M:%S'
     t=parsetimefile(f,dfmt)
     timedrunlist=t.keys()
@@ -81,7 +87,7 @@ if __name__ == "__main__" :
         lumisvc=sessionManager.sessionManager(dbstr,authpath=authpath,debugON=False)
         lumisession=lumisvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         lumisession.transaction().start(False)
-        updatedb(lumisession.nominalSchema(),output)
+        updatedb(lumisession.nominalSchema(),output,'PIXEL')
         lumisession.transaction().commit()
         del lumisession
         del lumisvc
