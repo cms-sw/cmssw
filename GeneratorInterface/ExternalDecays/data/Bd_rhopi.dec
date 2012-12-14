@@ -7,7 +7,7 @@ Alias      Myanti-B0   anti-B0
 ChargeConj Myanti-B0   MyB0 
 #
 Decay MyB0
-1.000      rho+  pi-                        PHSP;
+1.000      rho-  pi+                        PHSP;
 Enddecay
 CDecay Myanti-B0
 #
