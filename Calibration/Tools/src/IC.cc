@@ -783,10 +783,11 @@ void IC::dumpOutliers(const IC & a, float min, float max)
 }
 
 
-void IC::setToUnit(IC & ic)
+void IC::setToUnit(IC & ic, DS & selector)
 {
         for (size_t i = 0; i < ic.ids().size(); ++i) {
                 DetId id(ic.ids()[i]);
+                if (!selector(id)) continue;
                 ic.ic().setValue(id, 1.);
                 ic.eic().setValue(id, 998);
         }

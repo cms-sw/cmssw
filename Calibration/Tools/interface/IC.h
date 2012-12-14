@@ -76,7 +76,7 @@ class IC {
                 static void applyEtaScale(IC & ic);
                 static void scaleEta(IC & ic, const IC & ic_scale, bool reciprocalScale = false);
                 static void applyTwoCrystalEffect(IC & ic);
-                static void setToUnit(IC & ic);
+                static void setToUnit(IC & ic, DS & selector);
                 static void dump(const IC & a, const char * fileName, DS & d);
                 static void dumpXML(const IC & a, const char * fileName, DS & d, bool errors = false);
                 static void readSimpleTextFile(const char * fileName, IC & ic);
