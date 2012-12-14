@@ -1,8 +1,5 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <algorithm>
-
-using namespace std;
 
 DetLayer::~DetLayer() { delete theNavigableLayer;}
 
