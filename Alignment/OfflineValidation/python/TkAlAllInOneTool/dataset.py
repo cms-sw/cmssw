@@ -13,10 +13,113 @@ class Dataset:
     def __init__( self, datasetName, dasLimit = 0 ):
         self.__name = datasetName
         self.__dasLimit = dasLimit
-        self.__fileList = None
         self.__dataType = self.__getDataType()
+        self.__fileList = None
         self.__fileInfoList = None
         self.__runList = None
+
+    def __chunks( self, theList, n ):
+        """ Yield successive n-sized chunks from theList.
+        """
+        for i in xrange( 0, len( theList ), n ):
+            yield theList[i:i+n]
+
+    def __createSnippet( self, jsonPath = None, begin = None, end = None,
+                         firstRun = None, lastRun = None, repMap = None ):
+        if firstRun:
+            firstRun = int( firstRun )
+        if lastRun:
+            lastRun = int( lastRun )
+        if ( begin and firstRun ) or ( end and lastRun ):
+            msg = ( "The Usage of "
+                    + "'begin' & 'firstRun' " * int( bool( begin and
+                                                           firstRun ) )
+                    + "and " * int( bool( ( begin and firstRun ) and
+                                         ( end and lastRun ) ) )
+                    + "'end' & 'lastRun' " * int( bool( end and lastRun ) )
+                    + "is ambigous." )
+            raise AllInOneError( msg )
+        if begin or end:
+            ( firstRun, lastRun ) = self.convertTimeToRun(
+                begin = begin, end = end, firstRun = firstRun,
+                lastRun = lastRun )
+        if ( firstRun and lastRun ) and ( firstRun > lastRun ):
+            msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
+                    "chosen is greater than the upper time/runrange limit "
+                    "('end'/'lastRun').")
+            raise AllInOneError( msg )
+        goodLumiSecStr = ""
+        lumiStr = ""
+        lumiSecExtend = ""
+        if firstRun or lastRun:
+            goodLumiSecStr = ( "lumiSecs = cms.untracked."
+                               "VLuminosityBlockRange()\n" )
+            lumiStr = "                    lumisToProcess = lumiSecs,\n"
+            if jsonPath == None:
+                selectedRunList = self.__getRunList()
+                if firstRun:
+                    selectedRunList = [ run for run in selectedRunList \
+                                        if run["run_number"] >= firstRun ]
+                if lastRun:
+                    selectedRunList = [ run for run in selectedRunList \
+                                        if run["run_number"] <= lastRun ]
+                lumiList = [ str( run["run_number"] ) + ":1-" \
+                             + str( run["run_number"] ) + ":max" \
+                             for run in selectedRunList ]
+                splitLumiList = list( self.__chunks( lumiList, 255 ) )
+            else:
+                theLumiList = LumiList ( filename = jsonPath )
+                allRuns = theLumiList.getRuns()
+                runsToRemove = []
+                for run in allRuns:
+                    if firstRun and int( run ) < firstRun:
+                        runsToRemove.append( run )
+                    if lastRun and int( run ) > lastRun:
+                        runsToRemove.append( run )
+                theLumiList.removeRuns( runsToRemove )
+                splitLumiList = list( self.__chunks(
+                    theLumiList.getCMSSWString().split(','), 255 ) )
+            if not len(splitLumiList[0][0]) == 0:
+                lumiSecStr = [ "',\n'".join( lumis ) \
+                               for lumis in splitLumiList ]
+                lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
+                               for lumis in lumiSecStr ]
+                lumiSecExtend = "\n".join( lumiSecStr )
+        else:
+            goodLumiSecStr = ( "goodLumiSecs = LumiList.LumiList(filename"
+                               "= '%(json)s').getCMSSWString().split(',')\n"
+                               "lumiSecs = cms.untracked"
+                               ".VLuminosityBlockRange()\n"
+                               )
+            lumiStr = "                    lumisToProcess = lumiSecs,\n"
+            lumiSecExtend = "lumiSecs.extend(goodLumiSecs)\n"
+        splitFileList = list( self.__chunks( self.fileList(), 255 ) )
+        fileStr = [ "',\n'".join( files ) for files in splitFileList ]
+        fileStr = [ "readFiles.extend( [\n'" + files + "'\n] )" \
+                    for files in fileStr ]
+        files = "\n".join( fileStr )
+        theMap = repMap
+        theMap["files"] = files
+        theMap["json"] = jsonPath
+        theMap["lumiStr"] = lumiStr
+        theMap["goodLumiSecStr"] = goodLumiSecStr%( theMap )
+        theMap["lumiSecExtend"] = lumiSecExtend
+        dataset_snippet = self.__source_template%( theMap )
+        return dataset_snippet
+        
+    def __find_lt( self, a, x ):
+        'Find rightmost value less than x'
+        i = bisect.bisect_left( a, x )
+        if i:
+            return i-1
+        raise ValueError
+
+    def __find_ge( self, a, x):
+        'Find leftmost item greater than or equal to x'
+        i = bisect.bisect_left( a, x )
+        if i != len( a ):
+            return i
+        raise ValueError
 
     def __getData( self, dasQuery, dasLimit = 0 ):
         dasData = das_client.get_data( 'https://cmsweb.cern.ch',
@@ -37,7 +140,6 @@ class Dataset:
     def __getFileInfoList( self, dasLimit ):
         if self.__fileInfoList:
             return self.__fileInfoList
-
         dasQuery_files = ( 'file dataset=%s | grep file.name, file.nevents, '
                            'file.creation_time, '
                            'file.modification_time'%( self.__name ) )
@@ -75,36 +177,61 @@ class Dataset:
         self.__runList = data
         return data
 
+    __source_template= ("%(importCms)s"
+                        "import FWCore.PythonUtilities.LumiList as LumiList\n\n"
+                        "%(goodLumiSecStr)s"
+                        "maxEvents = cms.untracked.PSet( "
+                        "input = cms.untracked.int32(%(nEvents)s) )\n"
+                        "readFiles = cms.untracked.vstring()\n"
+                        "secFiles = cms.untracked.vstring()\n"
+                        "%(process)ssource = cms.Source(\"PoolSource\",\n"
+                        "%(lumiStr)s"
+                        "%(tab)s                    secondaryFileNames ="
+                        "secFiles,\n"
+                        "%(tab)s                    fileNames = readFiles\n"
+                        ")\n"
+                        "%(files)s\n"
+                        "%(lumiSecExtend)s\n")
+
+    def convertTimeToRun( self, begin = None, end = None,
+                          firstRun = None, lastRun = None ):
+        runList = [ run["run_number"] for run in self.__getRunList() ]
+        runTimeList = [ run["creation_time"] for run in self.__getRunList() ]
+        if begin:
+            try:
+                runIndex = self.__find_ge( runTimeList, begin )
+            except ValueError:
+                msg = ( "Your 'begin' is after the creation time of the last "
+                        "run in the dataset\n'%s'"%( self.__name ) )
+                raise AllInOneError( msg )
+            firstRun = runList[runIndex]
+        if end:
+            try:
+                runIndex = self.__find_lt( runTimeList, end )
+            except ValueError:
+                msg = ( "Your 'end' is before the creation time of the first "
+                        "run in the dataset\n'%s'"%( self.__name ) )
+                raise AllInOneError( msg )
+            lastRun = runList[runIndex]
+        return firstRun, lastRun
+
     def dataType( self ):
         return self.__dataType
-
-    def fileList( self ):
-        if self.__fileList:
-            return self.__fileList
-        fileList = [ fileInfo["name"] \
-                     for fileInfo in self.fileInfoList() ]
-        self.__fileList = fileList  # store list of files for 'dump_cff' method
-        return fileList
-
-    __cff_template= ("import FWCore.ParameterSet.Config as cms\n"
-                     "import FWCore.PythonUtilities.LumiList as LumiList\n\n"
-                     "%(goodLumiSecStr)s"
-                     "maxEvents = cms.untracked.PSet( "
-                     "input = cms.untracked.int32(-1) )\n"
-                     "readFiles = cms.untracked.vstring()\n"
-                     "secFiles = cms.untracked.vstring()\n"
-                     "source = cms.Source(\"PoolSource\",\n%(lumiStr)s"
-                     "                    secondaryFileNames = secFiles,\n"
-                     "                    fileNames = readFiles\n"
-                     ")\n"
-                     "%(files)s\n"
-                     "%(lumiSecExtend)s\n")
-
-    def __chunks( self, theList, n ):
-        """ Yield successive n-sized chunks from theList.
-        """
-        for i in xrange( 0, len( theList ), n ):
-            yield theList[i:i+n]
+    
+    def datasetSnippet( self, jsonPath = None, begin = None, end = None,
+                        firstRun = None, lastRun = None, nEvents = None ):
+        theMap = { "process": "process.",
+                   "tab": " " * len( "process." ),
+                   "nEvents": str( nEvents ),
+                   "importCms": ""
+                   }
+        datasetSnippet = self.__createSnippet( jsonPath = jsonPath,
+                                               begin = begin,
+                                               end = end,
+                                               firstRun = firstRun,
+                                               lastRun = lastRun,
+                                               repMap = theMap)
+        return datasetSnippet
 
     def dump_cff( self, outName = None, jsonPath = None, begin = None,
                   end = None, firstRun = None, lastRun = None ):
@@ -152,114 +279,13 @@ class Dataset:
         theFile.close()
         return
 
-    __source_template= ("%(importCms)s"
-                        "import FWCore.PythonUtilities.LumiList as LumiList\n\n"
-                        "%(goodLumiSecStr)s"
-                        "maxEvents = cms.untracked.PSet( "
-                        "input = cms.untracked.int32(%(nEvents)s) )\n"
-                        "readFiles = cms.untracked.vstring()\n"
-                        "secFiles = cms.untracked.vstring()\n"
-                        "%(process)ssource = cms.Source(\"PoolSource\",\n"
-                        "%(lumiStr)s"
-                        "%(tab)s                    secondaryFileNames ="
-                        "secFiles,\n"
-                        "%(tab)s                    fileNames = readFiles\n"
-                        ")\n"
-                        "%(files)s\n"
-                        "%(lumiSecExtend)s\n")
-
-    def __createSnippet( self, jsonPath = None, begin = None, end = None,
-                         firstRun = None, lastRun = None, repMap = None ):
-        if ( begin or end ) and (firstRun or lastRun ):
-            msg = ( "Don't mix time-based limits (begin/end) with run-based "
-                    "limits (firstRun/lastRun)!" )
-            raise AllInOneError( msg )
-        if jsonPath == None:
-            if ( begin or end ) or (firstRun or lastRun):
-                msg = ("Specifying 'firstRun'/'lastRun' or 'begin'/'end' "
-                       "without specifying a JSON file is not supported.")
-                raise AllInOneError( msg )
-            goodLumiSecStr = ""
-            lumiStr = ""
-            lumiSecExtend = ""
-        else:
-            if begin or end:
-                runList = [ run["run_number"] for run in self.__getRunList() ]
-                runTimeList = [ run["creation_time"] for run in self.__getRunList() ]
-            if begin:
-                runIndex = bisect.bisect_left( runTimeList, begin )
-                firstRun = runList[runIndex]
-                print "Wanted start time:", begin
-                print "Run before:", runList[runIndex - 1], runTimeList[runIndex - 1]
-                print "Run taken: ", runList[runIndex], runTimeList[runIndex]
-                print "Run after: ", runList[runIndex + 1], runTimeList[runIndex + 1]
-            if end:
-                runIndex = bisect.bisect_left( runTimeList, begin )
-                lastRun = runList[runIndex]
-                print "Wanted start time:", end
-                print "Run before:", runList[runIndex - 1], runTimeList[runIndex - 1]
-                print "Run taken: ", runList[runIndex], runTimeList[runIndex]
-                print "Run after: ", runList[runIndex + 1], runTimeList[runIndex + 1]
-            if firstRun or lastRun:
-                goodLumiSecStr = ( "lumiSecs = cms.untracked."
-                                   "VLuminosityBlockRange()\n" )
-                lumiStr = "                    lumisToProcess = lumiSecs,\n"
-                theLumiList = LumiList ( filename = jsonPath )
-                allRuns = theLumiList.getRuns()
-                runsToRemove = []
-                for run in allRuns:
-                    if firstRun and int( run ) < firstRun:
-                        runsToRemove.append( run )
-                    if lastRun and int( run ) > lastRun:
-                        runsToRemove.append( run )
-                theLumiList.removeRuns( runsToRemove )
-                splitLumiList = list( self.__chunks(
-                    theLumiList.getCMSSWString().split(','), 255 ) )
-                if len(splitLumiList[0][0]) == 0:
-                    lumiSecExtend = ""
-                else:
-                    lumiSecStr = [ "',\n'".join( lumis ) \
-                                   for lumis in splitLumiList ]
-                    lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
-                                   for lumis in lumiSecStr ]
-                    lumiSecExtend = "\n".join( lumiSecStr )
-            else:
-                goodLumiSecStr = ( "goodLumiSecs = LumiList.LumiList(filename"
-                                   "= '%(json)s').getCMSSWString().split(',')\n"
-                                   "lumiSecs = cms.untracked"
-                                   ".VLuminosityBlockRange()\n"
-                                   )
-                lumiStr = "                    lumisToProcess = lumiSecs,\n"
-                lumiSecExtend = "lumiSecs.extend(goodLumiSecs)\n"
-        splitFileList = list( self.__chunks( self.fileList(), 255 ) )
-        fileStr = [ "',\n'".join( files ) for files in splitFileList ]
-        fileStr = [ "readFiles.extend( [\n'" + files + "'\n] )" \
-                    for files in fileStr ]
-        files = "\n".join( fileStr )
-        theMap = repMap
-        theMap["files"] = files
-        theMap["json"] = jsonPath
-        theMap["lumiStr"] = lumiStr
-        theMap["goodLumiSecStr"] = goodLumiSecStr%( theMap )
-        theMap["lumiSecExtend"] = lumiSecExtend
-        dataset_snippet = self.__source_template%( theMap )
-        return dataset_snippet
-
-    
-    def datasetSnippet( self, jsonPath = None, begin = None, end = None,
-                        firstRun = None, lastRun = None, nEvents = None ):
-        theMap = { "process": "process.",
-                   "tab": " " * len( "process." ),
-                   "nEvents": str( nEvents ),
-                   "importCms": ""
-                   }
-        datasetSnippet = self.__createSnippet( jsonPath = jsonPath,
-                                               begin = begin,
-                                               end = end,
-                                               firstRun = firstRun,
-                                               lastRun = lastRun,
-                                               repMap = theMap)
-        return datasetSnippet
+    def fileList( self ):
+        if self.__fileList:
+            return self.__fileList
+        fileList = [ fileInfo["name"] \
+                     for fileInfo in self.fileInfoList() ]
+        self.__fileList = fileList
+        return fileList
     
     def fileInfoList( self ):
         return self.__getFileInfoList( self.__dasLimit )
@@ -269,25 +295,16 @@ class Dataset:
 
 
 if __name__ == '__main__':
+    print "Start testing..."
     datasetName = '/MinimumBias/Run2012D-TkAlMinBias-v1/ALCARECO'
     jsonFile = ( '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/'
                  'Collisions12/8TeV/Prompt/'
                  'Cert_190456-207898_8TeV_PromptReco_Collisions12_JSON.txt' )
     dataset = Dataset( datasetName )
-    dataset.dump_cff( outName = "Dataset_1", jsonPath = jsonFile, firstRun = 1 )
-    dataset.dump_cff( outName = "Dataset_2", jsonPath = jsonFile )
-    dataset.dump_cff( outName = "Dataset_3" )
-    print dataset.datasetSnippet( nEvents = 100, jsonPath = jsonFile, firstRun = 1 )
-    print dataset.datasetSnippet( nEvents = 100, jsonPath = jsonFile )
-    print dataset.datasetSnippet( nEvents = 100 )
-    print dataset.datasetSnippet( nEvents = 100, jsonPath = jsonFile,
-                                  begin = "2012-11-27 00:00:00" )
-    print dataset.datasetSnippet( nEvents = 100, jsonPath = jsonFile,
-                                  begin = "2012-12-01 12:47:13" )
-    print dataset.datasetSnippet( nEvents = 100, jsonPath = jsonFile,
-                                  begin = "2012-10-30 12:47:13" )
-    print dataset.datasetSnippet( nEvents = 100, jsonPath = jsonFile,
+    print dataset.datasetSnippet( nEvents = 100,jsonPath = jsonFile,
+                                  firstRun = "207983",
                                   end = "2012-11-28 00:00:00" )
-    print dataset.datasetSnippet( nEvents = 100, jsonPath = jsonFile,
-                                  begin = "2012-11-27 00:00:00",
-                                  end = "2012-11-28 00:00:00" )
+    dataset.dump_cff( outName = "Dataset_Test_TkAlMinBias_Run2012D",
+                      jsonPath = jsonFile,
+                      firstRun = "207983",
+                      end = "2012-11-28 00:00:00" )
