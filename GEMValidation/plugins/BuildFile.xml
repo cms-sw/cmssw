@@ -9,6 +9,7 @@
   <use name="DataFormats/MuonDetId"/>
   <use name="DataFormats/GEMDigi"/>
   <use name="DataFormats/RPCDigi"/>
+  <use name="DataFormats/Math"/>
   <use name="Geometry/CommonDetUnit"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/RPCGeometry"/>
@@ -20,8 +21,6 @@
   <use name="SimGeneral/HepPDTRecord"/>
   <use name="CommonTools/UtilAlgos"/>
   <use name="Utilities/General"/>
+  <use name="RPCGEM/GEMValidation"/>
+  <flags EDM_PLUGIN="1" />
 </library>
-
-
-
-
