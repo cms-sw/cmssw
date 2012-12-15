@@ -653,8 +653,8 @@ C     Check for inconsistency -- no string line found
                       IERRSTAT=2
                       RETURN
                    ENDIF
-C     MODIFIED BY KURT JUNG - 12/14/12. Should be 91,93
-		   IF(K(N_ST,2).LT.92.OR.K(N_ST,2).GT.92) GO TO  351
+
+		   IF(K(N_ST,2).LT.91.OR.K(N_ST,2).GT.93) GO TO  351
 		   IDSTR=K(N_ST,2)
 		   N_ST=N_ST+1
 		ENDIF
@@ -731,7 +731,7 @@ C     Check for inconsistency -- no string line found
                       IERRSTAT=2
                       RETURN
                    ENDIF
-		   IF(K(N_ST,2).LT.92.OR.K(N_ST,2).GT.92) GO TO  381
+		   IF(K(N_ST,2).LT.91.OR.K(N_ST,2).GT.93) GO TO  381
 		   IDSTR=K(N_ST,2)
 		   N_ST=N_ST+1
 		ENDIF
