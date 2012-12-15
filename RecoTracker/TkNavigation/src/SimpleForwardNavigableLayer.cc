@@ -78,13 +78,16 @@ SimpleForwardNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   FreeTrajectoryState ftsWithoutErrors = (fts.hasError()) ?
     FreeTrajectoryState(fts.parameters()) : fts;
 
+  auto const position = fts.position();
+  auto const momentum = fts.momentum();
+
+
   //establish whether the tracks is crossing the tracker from outer layers to inner ones 
   //or from inner to outer
-  //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-  float zpos = fts.position().z();
-  bool isInOutTrackFWD = fts.momentum().z()*zpos>0;
-  GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
-  bool isInOutTrackBarrel  = (transversePosition.dot(fts.momentum())>0);	
+  float zpos = position.z();
+  bool isInOutTrackFWD =  momentum.z()*zpos>0;
+  GlobalVector transversePosition(position.x(), position.y(), 0);
+  bool isInOutTrackBarrel  = (transversePosition.dot(momentum)>0);	
 
   //establish whether inner or outer layers are crossed after propagation, according
   //to BOTH propagationDirection AND track momentum
@@ -92,25 +95,17 @@ SimpleForwardNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   bool dirOppositeXORisInOutTrackFWD = ( !(dir == oppositeToMomentum) && isInOutTrackFWD) || ( (dir == oppositeToMomentum) && !isInOutTrackFWD);
   //bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ( (dir == oppositeToMomentum) && !isInOutTrack);
 
-  if ( dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel ) { //standard tracks
-
-    //wellInside(ftsWithoutErrors, dir, theOuterForwardLayers.begin(), theOuterForwardLayers.end(), result);
+  if likely( dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel ) { //standard tracks
     wellInside(ftsWithoutErrors, dir, theOuterLayers, result);
-
   }
   else if (!dirOppositeXORisInOutTrackFWD && !dirOppositeXORisInOutTrackBarrel){ // !dirOppositeXORisInOutTrack
-
-    //wellInside(ftsWithoutErrors, dir, theInnerForwardLayers.begin(), theInnerForwardLayers.end(), result);
     wellInside(ftsWithoutErrors, dir, theInnerLayers, result);
-
   } else if (!dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel ) {
     wellInside(ftsWithoutErrors, dir, theInnerForwardLayers.begin(), theInnerForwardLayers.end(), result);
     wellInside(ftsWithoutErrors, dir, theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), result);		
-
   } else {
     wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
     wellInside(ftsWithoutErrors, dir, theOuterForwardLayers.begin(), theOuterForwardLayers.end(), result);
-
   }
 
   return result;

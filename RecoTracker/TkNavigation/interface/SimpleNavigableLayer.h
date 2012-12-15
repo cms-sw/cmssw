@@ -73,9 +73,6 @@ protected:
     return thePropagator;
   }
 
-  void pushResult( DLC& result, const FDLC& tmp) const dso_internal;
-  void pushResult( DLC& result, const BDLC& tmp) const dso_internal;
-
   TSOS crossingState(const FreeTrajectoryState& fts,PropagationDirection dir) const dso_internal;
   
 };

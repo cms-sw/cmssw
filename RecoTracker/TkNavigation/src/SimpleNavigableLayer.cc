@@ -215,20 +215,6 @@ bool SimpleNavigableLayer::wellInside( const FreeTrajectoryState& fts,
 }
 
 
-void SimpleNavigableLayer::pushResult( DLC& result, const BDLC& tmp) const 
-{
-  for ( ConstBDLI i = tmp.begin(); i != tmp.end(); i++) {
-    result.push_back(*i);
-  }
-}
-
-void SimpleNavigableLayer::pushResult( DLC& result, const FDLC& tmp) const 
-{
-  for ( ConstFDLI i = tmp.begin(); i != tmp.end(); i++) {
-    result.push_back(*i);
-  }
-}
-
 std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const FreeTrajectoryState &fts, 
 									PropagationDirection timeDirection,
 									int& counter) const {

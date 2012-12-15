@@ -98,16 +98,16 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
     FreeTrajectoryState( fts.parameters()) :
     fts;
 
+  auto const position = fts.position();
+  auto const momentum = fts.momentum();
+
   //establish whether the tracks is crossing the tracker from outer layers to inner ones 
   //or from inner to outer.
-  GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
-  //GlobalVector transverseMomentum(fts.momentum().x(), fts.momentum().y(), 0);
-  //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-  bool isInOutTrackBarrel  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
-  //cout << "dot: " << transversePosition.dot(fts.momentum()) << endl;
+  GlobalVector transversePosition(position.x(), position.y(), 0);
+  bool isInOutTrackBarrel  = (transversePosition.dot(momentum)>0);
 
-  float zpos = fts.position().z();
-  bool isInOutTrackFWD = fts.momentum().z()*zpos>0;
+  float zpos = position.z();
+  bool isInOutTrackFWD = momentum.z()*zpos>0;
   
 
   //establish whether inner or outer layers are crossed after propagation, according
@@ -121,19 +121,18 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
 					 << "dirOppositeXORisInOutTrackFWD: " << dirOppositeXORisInOutTrackFWD << endl
 					 << "dirOppositeXORisInOutTrackBarrel: "<< dirOppositeXORisInOutTrackBarrel << endl;
 
-  bool signZmomentumXORdir = (( (fts.momentum().z() > 0) && !(dir == alongMomentum) ) ||
-			      (!(fts.momentum().z() > 0) &&  (dir == alongMomentum) )   );
+  bool signZmomentumXORdir = (( (momentum.z() > 0) && !(dir == alongMomentum) ) ||
+			      (!(momentum.z() > 0) &&  (dir == alongMomentum) )   );
 
 
-  if ( dirOppositeXORisInOutTrackBarrel &&  dirOppositeXORisInOutTrackFWD) {
-
-    if ( signZmomentumXORdir   ) {
-      wellInside( ftsWithoutErrors, dir, theNegOuterLayers, result);
-    }
-    else {
-      wellInside( ftsWithoutErrors, dir, thePosOuterLayers, result);
-    }
-  } else if (!dirOppositeXORisInOutTrackBarrel &&  !dirOppositeXORisInOutTrackFWD){
+  if likely( dirOppositeXORisInOutTrackBarrel &&  dirOppositeXORisInOutTrackFWD) {
+      if ( signZmomentumXORdir   ) {
+	wellInside( ftsWithoutErrors, dir, theNegOuterLayers, result);
+      }
+      else {
+	wellInside( ftsWithoutErrors, dir, thePosOuterLayers, result);
+      }
+    } else if (!dirOppositeXORisInOutTrackBarrel &&  !dirOppositeXORisInOutTrackFWD){
     if ( signZmomentumXORdir ) {
       wellInside( ftsWithoutErrors, dir, thePosInnerLayers, result);
     }
@@ -142,7 +141,7 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
     }
   } else if (!dirOppositeXORisInOutTrackBarrel && dirOppositeXORisInOutTrackFWD){
     wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
-
+    
     if (signZmomentumXORdir){	
       wellInside(ftsWithoutErrors, dir, theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(), result);
       wellInside(ftsWithoutErrors, dir, theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), result);	
