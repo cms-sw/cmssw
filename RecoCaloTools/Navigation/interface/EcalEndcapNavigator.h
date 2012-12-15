@@ -4,12 +4,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-class EcalEndcapNavigator : public CaloNavigator<EEDetId> {
- public:
-  EcalEndcapNavigator(const EEDetId& home,const CaloSubdetectorTopology* ebTopology) :
-    CaloNavigator<EEDetId>(home,ebTopology)
-    {
-    };
-};
+using EcalEndcapNavigator = CaloNavigator<EEDetId>;
 
 #endif

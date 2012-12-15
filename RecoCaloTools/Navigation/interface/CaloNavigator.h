@@ -2,35 +2,22 @@
 #define RECOCALOTOOLS_NAVIGATION_CALONAVIGATOR_H 1
 
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 template <class T>
-class CaloNavigator {
+class CaloNavigator GCC11_FINAL {
  public:
-
-  /// Default constructor
-  CaloNavigator() : myTopology_(0)
-    {
-    }
-
-  CaloNavigator(const T& home) : myTopology_(0)
-    {
-      setHome(home);
-    };
-
 
   CaloNavigator(const T& home, const CaloSubdetectorTopology* topology) : myTopology_(topology) 
     {
       setHome(home);
     };
 
-  /// Default constructor
-  virtual ~CaloNavigator(){};
+  /// set the starting position
+  inline void setHome(const T& startingPoint);
 
   /// set the starting position
-  void setHome(const T& startingPoint);
-
-  /// set the starting position
-  void setTopology(const CaloSubdetectorTopology*);
+  inline void setTopology(const CaloSubdetectorTopology*);
 
   /// set the starting position
   const CaloSubdetectorTopology* getTopology() const
@@ -48,7 +35,7 @@ class CaloNavigator {
   T operator*() const { return currentPoint_; } 
 
   /// move the navigator north
-  virtual T north() const 
+  T north() const 
     { 
       if ((myTopology_->north(currentPoint_)).size()==1)
 	currentPoint_=(myTopology_->north(currentPoint_))[0];
@@ -58,7 +45,7 @@ class CaloNavigator {
     } ;
 
   /// move the navigator south
-  virtual T south()  const 
+  T south()  const 
     { 
       if ((myTopology_->south(currentPoint_)).size()==1)
 	currentPoint_=(myTopology_->south(currentPoint_))[0];
@@ -68,7 +55,7 @@ class CaloNavigator {
     } ;
 
   /// move the navigator east
-  virtual T east() const
+  T east() const
     { 
       if ((myTopology_->east(currentPoint_)).size()==1)
 	currentPoint_=(myTopology_->east(currentPoint_))[0];
@@ -78,7 +65,7 @@ class CaloNavigator {
     } ;
 
   /// move the navigator west
-  virtual T west() const
+  T west() const
     { 
       if ((myTopology_->west(currentPoint_)).size()==1)
 	currentPoint_=(myTopology_->west(currentPoint_))[0];
@@ -88,7 +75,7 @@ class CaloNavigator {
     } ;
 
   /// move the navigator west
-  virtual T up() const
+  T up() const
     { 
       if ((myTopology_->up(currentPoint_)).size()==1)
 	currentPoint_=(myTopology_->up(currentPoint_))[0];
@@ -98,7 +85,7 @@ class CaloNavigator {
     } ;
 
   /// move the navigator west
-  virtual T down() const
+  T down() const
     { 
       if ((myTopology_->down(currentPoint_)).size()==1)
 	currentPoint_=(myTopology_->down(currentPoint_))[0];
@@ -108,7 +95,7 @@ class CaloNavigator {
     } ;
 
   /// Free movement of arbitray steps
-  virtual T offsetBy(int deltaX, int deltaY) const
+  T offsetBy(int deltaX, int deltaY) const
     {
       for(int x=0; x < abs(deltaX) && currentPoint_ != T(0); x++)
 	{
@@ -140,12 +127,14 @@ void CaloNavigator<T>::setHome(const T& startingPoint)
 }
 
 template <class T>
+inline
 void CaloNavigator<T>::home() const
 {
   currentPoint_=startingPoint_;
 }
 
 template <class T>
+inline
 void CaloNavigator<T>::setTopology(const CaloSubdetectorTopology* topology) 
 {
   if (myTopology_ == 0)
