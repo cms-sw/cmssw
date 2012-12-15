@@ -140,7 +140,7 @@ C       Last modification on March 23, 1994 (an error is corrected
 C       in the impact parameter dependence of the jet cross section)
 C
 C       Last modification Oct. 1993 to comply with non-vax
-C       machines' compiler 
+C       machines compiler 
 C
 C*********************************************
 C	LAST MODIFICATION April 5, 1991
@@ -189,19 +189,17 @@ C
 C	SUBROUTINE HIJING
 C
 C****************************************************************
-
 	SUBROUTINE HIJING(FRAME,BMIN0,BMAX0)
-c	CHARACTER FRAME*3
-        CHARACTER*(*) FRAME
-        DOUBLE PRECISION BMIN0,BMAX0,BMIN,BMAX 
+	CHARACTER FRAME*8
 	DIMENSION SCIP(300,300),RNIP(300,300),SJIP(300,300),JTP(3),
      &			IPCOL(90000),ITCOL(90000)
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
 C
 	COMMON/HIJCRDN/YP(3,300),YT(3,300)
         COMMON/HIJGLBR/NELT,NINT,NELP,NINP
+c	COMMON/HIMAIN1/NATT,EATT,JATT,NT,NP,N0,N01,N10,N11,IERRSTAT -man
 	COMMON/HIMAIN1/NATT,EATT,JATT,NT,NP,N0,N01,N10,N11
-	COMMON/HIMAIN2/KATT(130000,4),PATT(130000,4)
+	COMMON/HIMAIN2/KATT(130000,4),PATT(130000,4),VATT(130000,4)
 	COMMON/HISTRNG/NFP(300,15),PP(300,15),NFT(300,15),PT(300,15)
 	COMMON/HIJJET1/NPJ(300),KFPJ(300,500),PJPX(300,500),
      &                PJPY(300,500),PJPZ(300,500),PJPE(300,500),
@@ -211,14 +209,15 @@ C
 	COMMON/HIJJET2/NSG,NJSG(900),IASG(900,3),K1SG(900,100),
      &		K2SG(900,100),PXSG(900,100),PYSG(900,100),
      &		PZSG(900,100),PESG(900,100),PMSG(900,100)
-	COMMON/HIJJET4/NDR,IADR(900,2),KFDR(900),PDR(900,5)
+	COMMON/HIJJET4/NDR,IADR(900,2),KFDR(900),PDR(900,5),VDR(900,4)
 	COMMON/RANSEED/NSEED
 C
 	COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)   
 	COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
-        DOUBLE PRECISION PATT 
-	SAVE  
+        SAVE
 
+C     Initialize error return code        
+        IERRSTAT = 0
 	BMAX=MIN(BMAX0,HIPR1(34)+HIPR1(35))
 	BMIN=MIN(BMIN0,BMAX)
 	IF(IHNT2(1).LE.1 .AND. IHNT2(3).LE.1) THEN
@@ -237,18 +236,18 @@ C
 5	R=HIRND(1)
 c
         if(IHNT2(1).EQ.2) then
-           rnd1=max(HIJRAN(NSEED),1.0e-20)
-           rnd2=max(HIJRAN(NSEED),1.0e-20)
-           rnd3=max(HIJRAN(NSEED),1.0e-20)
+           rnd1=max(RLU(NSEED),1.0e-20)
+           rnd2=max(RLU(NSEED),1.0e-20)
+           rnd3=max(RLU(NSEED),1.0e-20)
            R=-0.5*(log(rnd1)*4.38/2.0+log(rnd2)*0.85/2.0
      &          +4.38*0.85*log(rnd3)/(4.38+0.85))
         endif
 c
-	X=HIJRAN(NSEED)
+	X=RLU(NSEED)
 	CX=2.0*X-1.0
 	SX=SQRT(1.0-CX*CX)
 C		********choose theta from uniform cos(theta) distr
-	PHI=HIJRAN(NSEED)*2.0*HIPR1(40)
+	PHI=RLU(NSEED)*2.0*HIPR1(40)
 C		********choose phi form uniform phi distr 0 to 2*pi
 	YP(1,KP)=R*SX*COS(PHI)
 	YP(2,KP)=R*SX*SIN(PHI)
@@ -294,18 +293,18 @@ C******************************
 15	R=HIRND(2)
 c
         if(IHNT2(3).EQ.2) then
-           rnd1=max(HIJRAN(NSEED),1.0e-20)
-           rnd2=max(HIJRAN(NSEED),1.0e-20)
-           rnd3=max(HIJRAN(NSEED),1.0e-20)
+           rnd1=max(RLU(NSEED),1.0e-20)
+           rnd2=max(RLU(NSEED),1.0e-20)
+           rnd3=max(RLU(NSEED),1.0e-20)
            R=-0.5*(log(rnd1)*4.38/2.0+log(rnd2)*0.85/2.0
      &          +4.38*0.85*log(rnd3)/(4.38+0.85))
         endif
 c
-	X=HIJRAN(NSEED)
+	X=RLU(NSEED)
 	CX=2.0*X-1.0
 	SX=SQRT(1.0-CX*CX)
 C		********choose theta from uniform cos(theta) distr
-	PHI=HIJRAN(NSEED)*2.0*HIPR1(40)
+	PHI=RLU(NSEED)*2.0*HIPR1(40)
 C		********chose phi form uniform phi distr 0 to 2*pi
 	YT(1,KT)=R*SX*COS(PHI)
 	YT(2,KT)=R*SX*SIN(PHI)
@@ -353,7 +352,6 @@ C********************
 	NATT=0
 	JATT=0
 	EATT=0.0
-
 	CALL HIJINI
         NLOP=0
 C			********Initialize for a new event
@@ -374,8 +372,8 @@ C****	BB IS THE ABSOLUTE VALUE OF IMPACT PARAMETER,BB**2 IS
 C       RANDOMLY GENERATED AND ITS ORIENTATION IS RANDOMLY SET 
 C       BY THE ANGLE PHI  FOR EACH COLLISION.******************
 C
-	BB=SQRT(BMIN**2+HIJRAN(NSEED)*(BMAX**2-BMIN**2))
-	PHI=2.0*HIPR1(40)*HIJRAN(NSEED)
+	BB=SQRT(BMIN**2+RLU(NSEED)*(BMAX**2-BMIN**2))
+	PHI=2.0*HIPR1(40)*RLU(NSEED)
 	BBX=BB*COS(PHI)
 	BBY=BB*SIN(PHI)
 	HINT1(19)=BB
@@ -400,7 +398,7 @@ C		********mb=0.1*fm, YP is in fm,HIPR1(31) is in mb
 	   IF(IHPR2(14).EQ.0.OR.
      &          (IHNT2(1).EQ.1.AND.IHNT2(3).EQ.1)) THEN
 	      GS=1.0-EXP(-(HIPR1(30)+HINT1(18))*ROMG(R2)/HIPR1(31))
-	      RANTOT=HIJRAN(NSEED)
+	      RANTOT=RLU(NSEED)
 	      IF(RANTOT.GT.GS) GO TO 70
 	      GO TO 65
 	   ENDIF
@@ -409,7 +407,7 @@ C		********mb=0.1*fm, YP is in fm,HIPR1(31) is in mb
 	   R2=R2/GSTOT_0
 	   GS=1.0-EXP(-(HIPR1(30)+HINT1(18))/HIPR1(31)*ROMG(R2))
 	   GSTOT=2.0*(1.0-SQRT(1.0-GS))
-	   RANTOT=HIJRAN(NSEED)*GSTOT_0
+	   RANTOT=RLU(NSEED)*GSTOT_0
 	   IF(RANTOT.GT.GSTOT) GO TO 70
 	   IF(RANTOT.GT.GS) THEN
 	      CALL HIJCSC(JP,JT)
@@ -436,14 +434,14 @@ C                       interaction at all. For NN collision
 C                       repeat the event until interaction happens
 C
 	IF(IHPR2(3).NE.0) THEN
-	   NHARD=1+INT(HIJRAN(NSEED)*(NCOLT-1)+0.5)
+	   NHARD=1+INT(RLU(NSEED)*(NCOLT-1)+0.5)
 	   NHARD=MIN(NHARD,NCOLT)
 	   JPHARD=IPCOL(NHARD)
 	   JTHARD=ITCOL(NHARD)
 	ENDIF
 C
 	IF(IHPR2(9).EQ.1) THEN
-		NMINI=1+INT(HIJRAN(NSEED)*(NCOLT-1)+0.5)
+		NMINI=1+INT(RLU(NSEED)*(NCOLT-1)+0.5)
 		NMINI=MIN(NMINI,NCOLT)
 		JPMINI=IPCOL(NMINI)
 		JTMINI=ITCOL(NMINI)
@@ -524,13 +522,13 @@ C
 C		********subtract the trigger jet from total number
 C			of jet production  to be done since it has
 C				already been produced here
-	   XR1=-ALOG(EXP(-TTRIG)+HIJRAN(NSEED)*(1.0-EXP(-TTRIG)))
+	   XR1=-ALOG(EXP(-TTRIG)+RLU(NSEED)*(1.0-EXP(-TTRIG)))
  106	   NJET=NJET+1
-	   XR1=XR1-ALOG(max(HIJRAN(NSEED),1.0e-20))
+	   XR1=XR1-ALOG(max(RLU(NSEED),1.0e-20))
 	   IF(XR1.LT.TTRIG) GO TO 106
 	   XR=0.0
  107	   NJET=NJET+1
-	   XR=XR-ALOG(max(HIJRAN(NSEED),1.0e-20))
+	   XR=XR-ALOG(max(RLU(NSEED),1.0e-20))
 	   IF(XR.LT.TT-TTRIG) GO TO 107
 	   NJET=NJET-1
 	   GO TO 112
@@ -544,10 +542,10 @@ C
 	IF(IHPR2(8).GT.0 .AND.RNIP(JP,JT).LT.EXP(-TT)*
      &		(1.0-EXP(-TTS))) GO TO 160
 C		********this is the probability for no jet production
-110     XTMP=EXP(-TT)
+ 110    XTMP=EXP(-TT)
         XR=-ALOG(XTMP+HIJRAN(NSEED)*(1.0-XTMP))
 111	NJET=NJET+1
-	XR=XR-ALOG(max(HIJRAN(NSEED),1.0e-20))
+	XR=XR-ALOG(max(RLU(NSEED),1.0e-20))
 	IF(XR.LT.TT) GO TO 111
 112	NJET=MIN(NJET,IHPR2(8))
 	IF(IHPR2(8).LT.0)  NJET=ABS(IHPR2(8))
@@ -646,9 +644,17 @@ C
 		IDSTR=92
 		IF(IHPR2(21).EQ.0) THEN
 		   CALL LUEDIT(2)
-		ELSE
+C     Dont perform the search for string if N=1 because it will search
+C     beyond the end of the valid particle list
+                ELSE IF(N.GT.1) THEN
 351		   N_ST=N_ST+1
-		   IF(K(N_ST,2).LT.91.OR.K(N_ST,2).GT.93) GO TO  351
+C     Check for inconsistency -- no string line found
+                   IF(N_ST.GT.N) THEN
+                      IERRSTAT=2
+                      RETURN
+                   ENDIF
+C     MODIFIED BY KURT JUNG - 12/14/12. Should be 91,93
+		   IF(K(N_ST,2).LT.92.OR.K(N_ST,2).GT.92) GO TO  351
 		   IDSTR=K(N_ST,2)
 		   N_ST=N_ST+1
 		ENDIF
@@ -661,15 +667,24 @@ C
 		N_STR=0
 		DO 360 I=N_ST,N
 		   IF(K(I,2).EQ.IDSTR) THEN
-		      N_STR=N_STR+1
-		      GO TO 360
+                      IF(K(I,3).LT.N_ST) THEN
+                         N_STR=N_STR+1
+                         GO TO 360
+                      ENDIF 
 		   ENDIF
 		   K(I,4)=N_STR
 		   NATT=NATT+1
+C     Add a check on array overflow
+                   IF(NATT.GT.130000) THEN
+                      IERRSTAT=1
+                      RETURN
+                   ENDIF
 		   KATT(NATT,1)=K(I,2)
 		   KATT(NATT,2)=20
 		   KATT(NATT,4)=K(I,1)
-		   IF(K(I,3).EQ.0 .OR. K(K(I,3),2).EQ.IDSTR) THEN
+		   IF(K(I,3).EQ.0 .OR. K(I,3).LT.N_ST .OR.
+     &                  (K(K(I,3),2).EQ.IDSTR .AND. 
+     &                  K(K(I,3),3).LT.N_ST)) THEN
 		      KATT(NATT,3)=0
 		   ELSE
 		      KATT(NATT,3)=NATT-I+K(I,3)+N_STR-K(K(I,3),4)
@@ -680,6 +695,10 @@ C       ****** identify the mother particle
 		   PATT(NATT,3)=P(I,3)
 		   PATT(NATT,4)=P(I,4)
 		   EATT=EATT+P(I,4)
+                   VATT(NATT,1)=V(I,1)
+                   VATT(NATT,2)=V(I,2)
+                   VATT(NATT,3)=V(I,3)
+                   VATT(NATT,4)=V(I,4)
 360	   CONTINUE
 C		********Fragment the q-qbar jets systems *****
 C
@@ -703,9 +722,16 @@ C
 		IDSTR=92
 		IF(IHPR2(21).EQ.0) THEN
 		   CALL LUEDIT(2)
-		ELSE
+C     Dont perform the search for string if N=1 because it will search
+C     beyond the end of the valid particle list
+                ELSE IF(N.GT.1) THEN
 381		   N_ST=N_ST+1
-		   IF(K(N_ST,2).LT.91.OR.K(N_ST,2).GT.93) GO TO  381
+C     Check for inconsistency -- no string line found
+                   IF(N_ST.GT.N) THEN
+                      IERRSTAT=2
+                      RETURN
+                   ENDIF
+		   IF(K(N_ST,2).LT.92.OR.K(N_ST,2).GT.92) GO TO  381
 		   IDSTR=K(N_ST,2)
 		   N_ST=N_ST+1
 		ENDIF
@@ -719,15 +745,24 @@ C
 		N_STR=0
 		DO 390 I=N_ST,N
 		   IF(K(I,2).EQ.IDSTR) THEN
-		      N_STR=N_STR+1
-		      GO TO 390
+                      IF(K(I,3).LT.N_ST) THEN
+                         N_STR=N_STR+1
+                         GO TO 390
+                      ENDIF
 		   ENDIF
 		   K(I,4)=N_STR
 		   NATT=NATT+1
+C     Add a check on array overflow
+                   IF(NATT.GT.130000) THEN
+                      IERRSTAT=1
+                      RETURN
+                   ENDIF
 		   KATT(NATT,1)=K(I,2)
 		   KATT(NATT,2)=NFTP
 		   KATT(NATT,4)=K(I,1)
-		   IF(K(I,3).EQ.0 .OR. K(K(I,3),2).EQ.IDSTR) THEN
+		   IF(K(I,3).EQ.0 .OR. K(I,3).LT.N_ST .OR.
+     &                  (K(K(I,3),2).EQ.IDSTR .AND. 
+     &                  K(K(I,3),3).LT.N_ST)) THEN
 		      KATT(NATT,3)=0
 		   ELSE
 		      KATT(NATT,3)=NATT-I+K(I,3)+N_STR-K(K(I,3),4)
@@ -738,6 +773,10 @@ C       ****** identify the mother particle
 		   PATT(NATT,3)=P(I,3)
 		   PATT(NATT,4)=P(I,4)
 		   EATT=EATT+P(I,4)
+                   VATT(NATT,1)=V(I,1)
+                   VATT(NATT,2)=V(I,2)
+                   VATT(NATT,3)=V(I,3)
+                   VATT(NATT,4)=V(I,4)
 390		CONTINUE 
 400	   CONTINUE
 C		********Fragment the q-qq related string systems
@@ -745,6 +784,11 @@ C		********Fragment the q-qq related string systems
 
 	DO 450 I=1,NDR
 		NATT=NATT+1
+C   Add a check on array overflow
+                IF(NATT.GT.130000) THEN
+                   IERRSTAT=1
+                   RETURN
+                ENDIF
 		KATT(NATT,1)=KFDR(I)
 		KATT(NATT,2)=40
 		KATT(NATT,3)=0
@@ -753,15 +797,18 @@ C		********Fragment the q-qq related string systems
 		PATT(NATT,3)=PDR(I,3)
 		PATT(NATT,4)=PDR(I,4)
 		EATT=EATT+PDR(I,4)
+                VATT(NATT,1)=VDR(I,1)
+                VATT(NATT,2)=VDR(I,2)
+                VATT(NATT,3)=VDR(I,3)
+                VATT(NATT,4)=VDR(I,4)
 450	CONTINUE
 C			********store the direct-produced particles
 C
 	DENGY=EATT/(IHNT2(1)*HINT1(6)+IHNT2(3)*HINT1(7))-1.0
 	IF(ABS(DENGY).GT.HIPR1(43).AND.IHPR2(20).NE.0
      &     .AND.IHPR2(21).EQ.0) THEN
-	IF(IHPR2(10).NE.0) THEN 
-          WRITE(6,*) 'Energy not conserved, repeat the event'
-        ENDIF
+	IF(IHPR2(10).NE.0) WRITE(6,*) 'Energy not conserved, '//
+     &          'repeat the event'
 C		call lulist(1)
 		GO TO 50
 	ENDIF
@@ -771,10 +818,8 @@ C
 C
 C
 	SUBROUTINE HIJSET(EFRM,FRAME,PROJ,TARG,IAP,IZP,IAT,IZT)
-c	CHARACTER FRAME*6,PROJ*6,TARG*6,EFRAME*6
-        CHARACTER*(*) FRAME,PROJ,TARG
-        CHARACTER EFRAME*6
-	DOUBLE PRECISION  DD1,DD2,DD3,DD4,EFRM
+	CHARACTER FRAME*4,PROJ*4,TARG*4,EFRAME*4
+	DOUBLE PRECISION  DD1,DD2,DD3,DD4
 	COMMON/HISTRNG/NFP(300,15),PP(300,15),NFT(300,15),PT(300,15)
 	COMMON/HIJCRDN/YP(3,300),YT(3,300)
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
@@ -812,7 +857,7 @@ C
 		ELSE IF(PROJ.EQ.'NBAR') THEN
 		    IHNT2(5)=-2112
 		ELSE
-		    WRITE(6,*) PROJ, ' wrong or unavailable proj name'
+		    WRITE(6,*) PROJ, 'wrong or unavailable proj name'
 		    STOP
 		ENDIF
 		HINT1(8)=ULMASS(IHNT2(5))
@@ -842,22 +887,23 @@ C
 	ENDIF
 
 C...Switch off decay of pi0, K0S, Lambda, Sigma+-, Xi0-, Omega-.
+C... Does nothing because we changed pyset, to do this there - Matt Nguyen, Dec 15 2012
 	IF(IHPR2(12).GT.0) THEN
-	CALL LUGIVE('MDCY(C111,1)=0')
-	CALL LUGIVE('MDCY(C310,1)=0')
-	   CALL LUGIVE('MDCY(C411,1)=0;MDCY(C-411,1)=0')
-	   CALL LUGIVE('MDCY(C421,1)=0;MDCY(C-421,1)=0')
-	   CALL LUGIVE('MDCY(C431,1)=0;MDCY(C-431,1)=0')
-	   CALL LUGIVE('MDCY(C511,1)=0;MDCY(C-511,1)=0')
-	   CALL LUGIVE('MDCY(C521,1)=0;MDCY(C-521,1)=0')
-	   CALL LUGIVE('MDCY(C531,1)=0;MDCY(C-531,1)=0')
-        CALL LUGIVE('MDCY(C3122,1)=0;MDCY(C-3122,1)=0')
-        CALL LUGIVE('MDCY(C3112,1)=0;MDCY(C-3112,1)=0')
-        CALL LUGIVE('MDCY(C3212,1)=0;MDCY(C-3212,1)=0')
-        CALL LUGIVE('MDCY(C3222,1)=0;MDCY(C-3222,1)=0')
-        CALL LUGIVE('MDCY(C3312,1)=0;MDCY(C-3312,1)=0')
-        CALL LUGIVE('MDCY(C3322,1)=0;MDCY(C-3322,1)=0')
-        CALL LUGIVE('MDCY(C3334,1)=0;MDCY(C-3334,1)=0')
+           CALL LUGIVE('MDCY(C111,1)=0')
+           CALL LUGIVE('MDCY(C310,1)=0')
+           CALL LUGIVE('MDCY(C411,1)=0;MDCY(C-411,1)=0')
+           CALL LUGIVE('MDCY(C421,1)=0;MDCY(C-421,1)=0')
+           CALL LUGIVE('MDCY(C431,1)=0;MDCY(C-431,1)=0')
+           CALL LUGIVE('MDCY(C511,1)=0;MDCY(C-511,1)=0')
+           CALL LUGIVE('MDCY(C521,1)=0;MDCY(C-521,1)=0')
+           CALL LUGIVE('MDCY(C531,1)=0;MDCY(C-531,1)=0')
+           CALL LUGIVE('MDCY(C3122,1)=0;MDCY(C-3122,1)=0')
+           CALL LUGIVE('MDCY(C3112,1)=0;MDCY(C-3112,1)=0')
+           CALL LUGIVE('MDCY(C3212,1)=0;MDCY(C-3212,1)=0')
+           CALL LUGIVE('MDCY(C3222,1)=0;MDCY(C-3222,1)=0')
+           CALL LUGIVE('MDCY(C3312,1)=0;MDCY(C-3312,1)=0')
+           CALL LUGIVE('MDCY(C3322,1)=0;MDCY(C-3322,1)=0')
+           CALL LUGIVE('MDCY(C3334,1)=0;MDCY(C-3334,1)=0')
 	ENDIF
 	MSTU(12)=0
 	MSTU(21)=1
@@ -951,8 +997,8 @@ C		********booking for x distribution of valence quarks
      &  10X,'*',8X,'for ',
      &  A4,'(',I3,',',I3,')',' + ',A4,'(',I3,',',I3,')',7X,'*'/
      &  10X,'**************************************************')
-	RETURN
-	END
+        RETURN
+        END
 C
 C
 C
@@ -976,7 +1022,7 @@ C
 C
 	FUNCTION FNSTRU(X)
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
-	SAVE 
+	SAVE  
 	FNSTRU=(1.0-X)**HIPR1(44)/
      &		(X**2+HIPR1(45)**2/HINT1(1)**2)**HIPR1(46)
 	RETURN
@@ -1139,7 +1185,7 @@ C*******	rearrange according decending rd************
 		 V2=PJPY(JP,I)/PTOT
 		 V3=PJPZ(JP,I)/PTOT
 
- 200		 RN=HIJRAN(NSEED)
+ 200		 RN=RLU(NSEED)
  210		 IF(MT.GE.KT .AND. MP.GE.KP) GO TO 290
 		 IF(MT.GE.KT) GO TO 220
 		 IF(MP.GE.KP) GO TO 240
@@ -1307,7 +1353,7 @@ C*******	rearrange according to decending rd************
 		V2=PJTY(JT,I)/PTOT
 		V3=PJTZ(JT,I)/PTOT
 
- 600		RN=HIJRAN(NSEED)
+ 600		RN=RLU(NSEED)
  610		IF(MT.GE.KT .AND. MP.GE.KP) GO TO 690
 		IF(MT.GE.KT) GO TO 620
 		IF(MP.GE.KP) GO TO 640
@@ -1478,7 +1524,7 @@ C*******	rearrange according to decending rd************
 		 V2=PYSG(ISG,I)/PTOT
 		 V3=PZSG(ISG,I)/PTOT
 
- 2600		 RN=HIJRAN(NSEED)
+ 2600		 RN=RLU(NSEED)
  2610		 IF(MT.GE.KT .AND. MP.GE.KP) GO TO 2690
 		 IF(MT.GE.KT) GO TO 2620
 		 IF(MP.GE.KP) GO TO 2640
@@ -1595,7 +1641,6 @@ C
         COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
 	COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
 	COMMON/RANSEED/NSEED
-	SAVE  
 	
 	IERROR=0
 	CALL LUEDIT(0)
@@ -1612,6 +1657,12 @@ C			********initialize the document lines
 			P(I,3)=PZSG(ISG,I)
 			P(I,4)=PESG(ISG,I)
 			P(I,5)=PMSG(ISG,I)
+C       Clear the starting point information in the Pythia arrays
+                        V(I,1)=0
+                        V(I,2)=0
+                        V(I,3)=0
+                        V(I,4)=0
+                        V(I,5)=0
 100		CONTINUE
 C		IF(IHPR2(1).GT.0) CALL ATTRAD(IERROR)
 c		IF(IERROR.NE.0) RETURN
@@ -1714,6 +1765,17 @@ C		*******PZ of end-partons in c.m. frame of the string
 	P(2,3)=-PZCM
 	P(2,4)=SQRT(AMT2+PZCM**2)
 	P(2,5)=AM2
+C       Clear the starting point information in the Pythia arrays
+        V(1,1)=0
+        V(1,2)=0
+        V(1,3)=0
+        V(1,4)=0
+        V(1,5)=0
+        V(2,1)=0
+        V(2,2)=0
+        V(2,3)=0
+        V(2,4)=0
+        V(2,5)=0
 	N=2
 C*****
 	CALL HIROBO(0.0,0.0,0.0,0.0,BTZ)
@@ -1806,7 +1868,7 @@ C				********reverse the order of jets
 580		CONTINUE
 		N=N+NTJ(JTP)
 	ENDIF
-	IF(IHPR2(1).GT.0.AND.HIJRAN(NSEED).LE.HIDAT(3)) THEN
+	IF(IHPR2(1).GT.0.AND.RLU(NSEED).LE.HIDAT(3)) THEN
 	     HIDAT20=HIDAT(2)
 	     HIPR150=HIPR1(5)
 	     IF(IHPR2(8).EQ.0.AND.IHPR2(3).EQ.0.AND.IHPR2(9).EQ.0)
@@ -1820,7 +1882,7 @@ C				********reverse the order of jets
 	     HIPR1(5)=HIPR150
 	ELSE IF(JETOT.EQ.0.AND.IHPR2(1).GT.0.AND.
      &                       HINT1(1).GE.1000.0.AND.
-     &		HIJRAN(NSEED).LE.0.8) THEN
+     &		RLU(NSEED).LE.0.8) THEN
 		HIDAT20=HIDAT(2)
 		HIPR150=HIPR1(5)
 		HIDAT(2)=3.0
@@ -1845,6 +1907,8 @@ C	CALL LULIST(1)
        	K(1,2)=NFP(JTP,3)
 	DO 1100 JJ=1,5
        		P(1,JJ)=PP(JTP,JJ)
+C       Clear the starting point information in the Pythia arrays
+                V(1,JJ)=0
 1100		CONTINUE
 C			********proj remain as a nucleon or delta
 	CALL LUEXEC
@@ -1856,6 +1920,8 @@ C
 	K(1,2)=NFT(JTP,3)
 	DO 1300 JJ=1,5
 		P(1,JJ)=PT(JTP,JJ)
+C       Clear the starting point information in the Pythia arrays
+                V(1,JJ)=0
 1300	CONTINUE
 C			********targ remain as a nucleon or delta
 	CALL LUEXEC
@@ -1877,7 +1943,7 @@ C********************************************************************
      &                PJPM(300,500),NTJ(300),KFTJ(300,500),
      &                PJTX(300,500),PJTY(300,500),PJTZ(300,500),
      &                PJTE(300,500),PJTM(300,500)
-	SAVE  
+	SAVE
 	IF(NPT.EQ.2) GO TO 500
 	JP=JPJT
 	IQ=0
@@ -2012,7 +2078,8 @@ C
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
         COMMON/HIJDAT/HIDAT0(10,10),HIDAT(10)
 	COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
-	SAVE 
+	COMMON/RANSEED/NSEED
+	SAVE  
 	IERROR=0
 
 C.....S INVARIANT MASS-SQUARED BETWEEN PARTONS I AND I+1......
@@ -2082,7 +2149,7 @@ C.....CREATE ONE GLUON AND ORIENTATE.....
 	   PTG=MAX(PTG1,PTG2,PTG3)
 	   IF(PTG.GT.HIDAT(2)) THEN
 	      FMFACT=EXP(-(PTG**2-HIDAT(2)**2)/HIPR1(2)**2)
-	      IF(HIJRAN(NSEED).GT.FMFACT) GO TO 1
+	      IF(RLU(NSEED).GT.FMFACT) GO TO 1
 	   ENDIF
 	ENDIF
 C.....ROTATE AND BOOST BACK.....
@@ -2130,7 +2197,7 @@ C-----
 
 
 	SUBROUTINE AR3JET(S,X1,X3,JL)
-C 
+C     
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
 	COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
 	COMMON/RANSEED/NSEED
@@ -2157,10 +2224,10 @@ C
       	ENDIF
       	NTRY=NTRY+1
      
-      	XT2=A*(XT2M/A)**(HIJRAN(NSEED)**(1./D))
+      	XT2=A*(XT2M/A)**(RLU(NSEED)**(1./D))
      
       	YMAX=ALOG(.5/SQRT(XT2)+SQRT(.25/XT2-1.))
-      	Y=(2.*HIJRAN(NSEED)-1.)*YMAX
+      	Y=(2.*RLU(NSEED)-1.)*YMAX
       	X1=1.-SQRT(XT2)*EXP(Y)
       	X3=1.-SQRT(XT2)*EXP(-Y)
       	X2=2.-X1-X3
@@ -2176,7 +2243,7 @@ C
      
       	FG=2.*YMAX*C*(X1**EXP1+X3**EXP3)/D
       	XT2M=XT2
-      	IF(FG.LT.HIJRAN(NSEED)) GOTO 1
+      	IF(FG.LT.RLU(NSEED)) GOTO 1
      
       	RETURN
       	END
@@ -2217,7 +2284,7 @@ C.....MINIMIZE PT1-SQUARED PLUS PT3-SQUARED.....
 	   PZ3=-P3*COS(PSI)
       	ENDIF
      
-      	DEL=2.0*HIPR1(40)*HIJRAN(NSEED)
+      	DEL=2.0*HIPR1(40)*RLU(NSEED)
       	P(JL,4)=E1
       	P(JL,1)=PT1*SIN(DEL)
       	P(JL,2)=-PT1*COS(DEL)
@@ -2322,7 +2389,7 @@ C*******************************************************************
 	COMMON/HIJJET2/NSG,NJSG(900),IASG(900,3),K1SG(900,100),
      &		K2SG(900,100),PXSG(900,100),PYSG(900,100),
      &		PZSG(900,100),PESG(900,100),PMSG(900,100)
-	COMMON/HIJJET4/NDR,IADR(900,2),KFDR(900),PDR(900,5)
+	COMMON/HIJJET4/NDR,IADR(900,2),KFDR(900),PDR(900,5),VDR(900,4)
 	COMMON/RANSEED/NSEED
 C************************************ HIJING common block
         COMMON/LUJETS/N,K(9000,5),P(9000,5),V(9000,5)
@@ -2334,7 +2401,7 @@ C************************************ HIJING common block
         COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3)
         COMMON/HIPYINT/MINT4,MINT5,ATCO(200,20),ATXS(0:200)
 	SAVE  
-C*********************************** LU common block
+C********************************** LU common block
 	MXJT=500
 C		SIZE OF COMMON BLOCK FOR # OF PARTON PER STRING
 	MXSG=900
@@ -2491,7 +2558,7 @@ C
 	PINIRAD=(1.0-EXP(-2.0*(VINT(47)-HIDAT(1))))
      &		/(1.0+EXP(-2.0*(VINT(47)-HIDAT(1))))
 	I_INIRAD=0
-	IF(HIJRAN(NSEED).LE.PINIRAD) I_INIRAD=1
+	IF(RLU(NSEED).LE.PINIRAD) I_INIRAD=1
 	IF(K(7,2).EQ.-K(8,2)) GO TO 190
 	IF(K(7,2).EQ.21.AND.K(8,2).EQ.21.AND.IOPJET.EQ.1) GO TO 190
 C*******************************************************************
@@ -2542,6 +2609,10 @@ C************************modifcation made on Apr 10. 1996*****
 	      PDR(NDR,3)=P(I,3)
 	      PDR(NDR,4)=P(I,4)
 	      PDR(NDR,5)=P(I,5)
+              VDR(NDR,1)=V(I,1)
+              VDR(NDR,2)=V(I,2)
+              VDR(NDR,3)=V(I,3)
+              VDR(NDR,4)=V(I,4)
 C************************************************************
 	      GO TO 180
 C************************correction made on Oct. 14,1994*****
@@ -2748,6 +2819,10 @@ C****************************************************************
 			PDR(NDR,3)=P(I,3)
 			PDR(NDR,4)=P(I,4)
 			PDR(NDR,5)=P(I,5)
+                        VDR(NDR,1)=V(I,1)
+                        VDR(NDR,2)=V(I,2)
+                        VDR(NDR,3)=V(I,3)
+                        VDR(NDR,4)=V(I,4)
 C************************************************************
 			GO TO 200
 C************************correction made on Oct. 14,1994*****
@@ -2960,7 +3035,7 @@ C     h+A: h+p (I_TYPE=1), h+n (I_TYPE=2)
 C     A+h: p+h (I_TYPE=1), n+h (I_TYPE=2)
 C     A+A: p+p (I_TYPE=1), p+n (I_TYPE=2), n+p (I_TYPE=3), n+n (I_TYPE=4)
 C*****************************************************************
-	CHARACTER BEAM*6,TARG*6
+	CHARACTER BEAM*16,TARG*16
 	DIMENSION XSEC0(8,0:200),COEF0(8,200,20),INI(8),
      &		MINT44(8),MINT45(8)
 	COMMON/HIJCRDN/YP(3,300),YT(3,300)
@@ -2975,8 +3050,8 @@ C
         COMMON/PYINT1/MINT(400),VINT(400)
         COMMON/PYINT2/ISET(200),KFPR(200,2),COEF(200,20),ICOL(40,4,2)
         COMMON/PYINT5/NGEN(0:200,3),XSEC(0:200,3)
-	SAVE  
-	DATA INI/8*0/,I_LAST/-1/
+        SAVE
+	DATA INI/8*0/I_LAST/-1/
 C
         IHNT2(11)=JP
         IHNT2(12)=JT
@@ -3000,7 +3075,6 @@ C
            ENDIF
         ENDIF
 c
-
 	IF(I_TRIG.NE.0) GO TO 160
         IF(I_TRIG.EQ.I_LAST) GO TO 150
         MSTP(2)=2
@@ -3053,13 +3127,8 @@ C			********QCD subprocesses
         MSUB(14)=1
         MSUB(18)=1
         MSUB(29)=1
-
 C                       ******* direct photon production
- 150    IF(ISUB.EQ.82) THEN 
-           WRITE(*,*) "I_TYPE=",I_TYPE
-           WRITE(*,*) "INI(I_TYPE)=",INI(I_TYPE)
-        ENDIF
-        IF(INI(I_TYPE).NE.0) GO TO 800
+ 150    IF(INI(I_TYPE).NE.0) GO TO 800
 	GO TO 400
 C
 C	*****triggered subprocesses, jet, photon, heavy quark and DY
@@ -3113,10 +3182,8 @@ c		q+qbar->g+gamma,q+qbar->gamma+gamma, q+g->q+gamma
            MDME(MDCY(21,2)+ISEL-1,1)=1
 C             **********Heavy quark production
         ENDIF
-
 260	IF(INI(I_TYPE).NE.0) GO TO 800
 C
-
 C
 400	INI(I_TYPE)=1
 	IF(IHPR2(10).EQ.0) MSTP(122)=0
@@ -3164,7 +3231,6 @@ C       ******************indicate for initialization use when
 C                         structure functions are called in PYTHIA
 C
 	CALL PYINIT('CMS',BEAM,TARG,HINT1(1))
-
 	MINT4=MINT(44)
 	MINT5=MINT(45)
 	MINT44(I_TYPE)=MINT(44)
@@ -3179,6 +3245,7 @@ C
 			COEF0(I_TYPE,I,J)=COEF(I,J)
 500	CONTINUE
 C
+	I_LAST=I_TRIG
 	IHNT2(16)=0
 C
 	RETURN
@@ -3186,7 +3253,7 @@ C		********Store the initialization information for
 C				late use
 C
 C
-800     MINT(44)=MINT44(I_TYPE)
+800	MINT(44)=MINT44(I_TYPE)
 	MINT(45)=MINT45(I_TYPE)
 	MINT4=MINT(44)
 	MINT5=MINT(45)
@@ -3198,7 +3265,7 @@ C
 	DO 900 J=1,20
 		COEF(I,J)=COEF0(I_TYPE,I,J)
 		ATCO(I,J)=COEF(I,J)
-900     CONTINUE
+900	CONTINUE
         I_LAST=I_TRIG
         MINT(11)=NFP(JP,4)
         MINT(12)=NFT(JT,4)
@@ -3218,7 +3285,7 @@ C
 	COMMON/HIJJET2/NSG,NJSG(900),IASG(900,3),K1SG(900,100),
      &		K2SG(900,100),PXSG(900,100),PYSG(900,100),
      &		PZSG(900,100),PESG(900,100),PMSG(900,100)
-	COMMON/HIJJET4/NDR,IADR(900,2),KFDR(900),PDR(900,5)
+	COMMON/HIJJET4/NDR,IADR(900,2),KFDR(900),PDR(900,5),VDR(900,4)
 	COMMON/RANSEED/NSEED
 	SAVE  
 C****************Reset the momentum of initial particles************
@@ -3259,7 +3326,7 @@ C
 	NFP(I,2)=IDQQ
 	NFP(I,15)=-1
 	IF(ABS(IDQ).GT.1000.OR.(ABS(IDQ*IDQQ).LT.100.AND.
-     &		HIJRAN(NSEED).LT.0.5)) NFP(I,15)=1
+     &		RLU(NSEED).LT.0.5)) NFP(I,15)=1
 	PP(I,14)=ULMASS(IDQ)
 	PP(I,15)=ULMASS(IDQQ)
 100	CONTINUE
@@ -3291,7 +3358,7 @@ C
 	NFT(I,2)=IDQQ
 	NFT(I,15)=1
 	IF(ABS(IDQ).GT.1000.OR.(ABS(IDQ*IDQQ).LT.100.AND.
-     &			HIJRAN(NSEED).LT.0.5)) NFT(I,15)=-1
+     &			RLU(NSEED).LT.0.5)) NFT(I,15)=-1
 	PT(I,14)=ULMASS(IDQ)
 	PT(I,15)=ULMASS(IDQQ)
 200	CONTINUE
@@ -3331,7 +3398,7 @@ C
 	IDQ=2
 	IF(ABS(ID).EQ.2112) IDQ=1
 	IDQQ=2101
-	X=HIJRAN(NSEED)
+	X=RLU(NSEED)
 	IF(X.LE.0.5) GO TO 30
 	IF(X.GT.0.666667) GO TO 10
 	IDQQ=2103
@@ -3408,7 +3475,7 @@ C		********mb=0.1*fm, YP is in fm,HIPR1(31) is in mb
      &			*ROMG(R2))**2
 		GS0=1.0-EXP(-(HIPR1(30)+HINT1(11))/HIPR1(31)/2.0
      &			*ROMG(0.0))**2
-		IF(HIJRAN(NSEED).GT.GS/GS0) GO TO 40
+		IF(RLU(NSEED).GT.GS/GS0) GO TO 40
 		DO 30 K=1,5
 			PSC1(K)=PP(JP,K)
 			PSC2(K)=PP(I,K)
@@ -3434,7 +3501,7 @@ C		********mb=0.1*fm, YP is in fm,HIPR1(31) is in mb
 		GO TO 45
 40	CONTINUE
 45	IF(JT.EQ.0) GO TO 80
-        PABS=SQRT(PT(JT,1)**2+PT(JT,2)**2+PT(JT,3)**2)
+	PABS=SQRT(PT(JT,1)**2+PT(JT,2)**2+PT(JT,3)**2)
 	BX=PT(JT,1)/PABS
 	BY=PT(JT,2)/PABS
 	BZ=PT(JT,3)/PABS
@@ -3452,7 +3519,7 @@ C		********mb=0.1*fm, YP is in fm,HIPR1(31) is in mb
      &			*ROMG(R2)))**2
 		GS0=(1.0-EXP(-(HIPR1(30)+HINT1(11))/HIPR1(31)/2.0
      &			*ROMG(0.0)))**2
-		IF(HIJRAN(NSEED).GT.GS/GS0) GO TO 70
+		IF(RLU(NSEED).GT.GS/GS0) GO TO 70
 		DO 60 K=1,5
 			PSC1(K)=PT(JT,K)
 			PSC2(K)=PT(I,K)
@@ -3512,11 +3579,11 @@ C				to each other
 	PMAX=(AMM**2+AM1**2+AM2**2-2.0*AMM*AM1-2.0*AMM*AM2
      &			-2.0*AM1*AM2)/4.0/AMM
 	PMAX=ABS(PMAX)
-20	TT=HIJRAN(NSEED)*MIN(PMAX,1.5)
+20	TT=RLU(NSEED)*MIN(PMAX,1.5)
 	ELS=98.0*EXP(-2.8*TT)/EP
      &		+52.0*EXP(-9.2*TT)*(1.0+RR*EXP(-4.6*(BB-1.0)*TT))**2
-	IF(HIJRAN(NSEED).GT.ELS/ELS0) GO TO 20
-	PHI=2.0*HIPR1(40)*HIJRAN(NSEED)
+	IF(RLU(NSEED).GT.ELS/ELS0) GO TO 20
+	PHI=2.0*HIPR1(40)*RLU(NSEED)
 C
 	DBX=PCM1/ECM
 	DBY=PCM2/ECM
@@ -3594,6 +3661,7 @@ C*******************************************************************
 	NDPM=0
 	IOPMAIN=0
 	IF(JP.GT.IHNT2(1) .OR. JT.GT.IHNT2(3)) RETURN
+	I_SNG=0
 
 	EPP=PP(JP,4)+PP(JP,3)
 	EPM=PP(JP,4)-PP(JP,3)
@@ -3855,14 +3923,14 @@ C
 C		********If the valence quarks had a hard-collision
 C			the pt kick is the pt from hard-collision.
 	I_SNG=0
-	IF(IHPR2(13).NE.0 .AND. HIJRAN(NSEED).LE.HIDAT(4)) I_SNG=1
+	IF(IHPR2(13).NE.0 .AND. RLU(NSEED).LE.HIDAT(4)) I_SNG=1
 	IF((NFP(JP,5).EQ.3 .OR.NFT(JT,5).EQ.3).OR.
      &		(NPJ(JP).NE.0.OR.NFP(JP,10).NE.0).OR.
      &		(NTJ(JT).NE.0.OR.NFT(JT,10).NE.0)) I_SNG=0
 C
 C               ********decite whether to have single-diffractive
 	IF(IHPR2(5).EQ.0) THEN
-		PKC=HIPR1(2)*SQRT(-ALOG(1.0-HIJRAN(NSEED)
+		PKC=HIPR1(2)*SQRT(-ALOG(1.0-RLU(NSEED)
      &			*(1.0-EXP(-PKCMX**2/HIPR1(2)**2))))
 		GO TO 30
 	ENDIF
@@ -3870,13 +3938,13 @@ C               ********decite whether to have single-diffractive
 	PKC=SQRT(PKC)
 	IF(PKC.GT.HIPR1(20)) 
      &	   PKC=HIPR1(2)*SQRT(-ALOG(EXP(-HIPR1(20)**2/HIPR1(2)**2)
-     &	       -HIJRAN(NSEED)*(EXP(-HIPR1(20)**2/HIPR1(2)**2)-
+     &	       -RLU(NSEED)*(EXP(-HIPR1(20)**2/HIPR1(2)**2)-
      &	       EXP(-PKCMX**2/HIPR1(2)**2))))
 C
 	IF(I_SNG.EQ.1) PKC=0.65*SQRT(
-     &		-ALOG(1.0-HIJRAN(NSEED)*(1.0-EXP(-PKCMX**2/0.65**2))))
+     &		-ALOG(1.0-RLU(NSEED)*(1.0-EXP(-PKCMX**2/0.65**2))))
 C			********select PT kick
-30	PHI0=2.0*HIPR1(40)*HIJRAN(NSEED)
+30	PHI0=2.0*HIPR1(40)*RLU(NSEED)
 	PKC11=PKC*SIN(PHI0)
 	PKC12=PKC*COS(PHI0)
 	PKC21=-PKC11
@@ -3941,7 +4009,7 @@ c	IF(IHPR2(15).EQ.1) GO TO 500
 C
 C		********to have DPM type soft interactions
 C
- 	CONTINUE
+	CONTINUE
 	IF(SW.GT.SXX+0.001) THEN
 	   IF(I_SNG.EQ.0) THEN
  	      D1=DPX
@@ -3963,7 +4031,7 @@ c**** avoid questional branching to block.
               ENDIF
 C		********do not allow excited strings to have 
 C			single-diffr 
-	      IF(HIJRAN(NSEED).GT.0.5.OR.(NFT(JT,5).GT.2.OR.
+	      IF(RLU(NSEED).GT.0.5.OR.(NFT(JT,5).GT.2.OR.
      &		      NTJ(JT).NE.0.OR.NFT(JT,10).NE.0)) THEN
 		 D1=DPN
 		 D2=DTX
@@ -3982,7 +4050,7 @@ C		********have single diffractive collision
 	ELSE IF(SW.GT.MAX(SPDTX,SPXTD)+0.001 .AND.
      &				SW.LE.SXX+0.001) THEN
 	   IF(((NPJ(JP).EQ.0.AND.NTJ(JT).EQ.0.AND.
-     &         HIJRAN(NSEED).GT.0.5).OR.(NPJ(JP).EQ.0
+     &         RLU(NSEED).GT.0.5).OR.(NPJ(JP).EQ.0
      &         .AND.NTJ(JT).NE.0)).AND.NFP(JP,5).LE.2) THEN
 	      D1=DPD
 	      D2=DTX
@@ -4017,7 +4085,7 @@ C		********have single diffractive collision
 c*** 5/30/1998 added to avoid questional branching to another block
 c*** this is identical to the statement following the next ELSE IF
 	   IF(((NPJ(JP).EQ.0.AND.NTJ(JT).EQ.0
-     &       .AND.HIJRAN(NSEED).GT.0.5).OR.(NPJ(JP).EQ.0
+     &       .AND.RLU(NSEED).GT.0.5).OR.(NPJ(JP).EQ.0
      &        .AND.NTJ(JT).NE.0)).AND.NFP(JP,5).LE.2) THEN
 	      D1=DPN
 	      D2=DTX
@@ -4035,7 +4103,7 @@ c*** this is identical to the statement following the next ELSE IF
 	ELSE IF(SW.GT.MAX(SPNTX,SPXTN)+0.001 .AND.
      &			SW.LE.MIN(SPDTX,SPXTD)+0.001) THEN
 	   IF(((NPJ(JP).EQ.0.AND.NTJ(JT).EQ.0
-     &       .AND.HIJRAN(NSEED).GT.0.5).OR.(NPJ(JP).EQ.0
+     &       .AND.RLU(NSEED).GT.0.5).OR.(NPJ(JP).EQ.0
      &        .AND.NTJ(JT).NE.0)).AND.NFP(JP,5).LE.2) THEN
 	      D1=DPN
 	      D2=DTX
@@ -4083,7 +4151,7 @@ c*** this is identical to the statement following the next ELSE IF
 	   GO TO 100
 	ELSE IF(SW.GT.MAX(SPNTD,SPDTN)+0.001 
      &                      .AND. SW.LE.SDD+0.001) THEN
-	   IF(HIJRAN(NSEED).GT.0.5) THEN
+	   IF(RLU(NSEED).GT.0.5) THEN
 	      D1=DPD
 	      D2=DTN
 	      NFP3=NFDP
@@ -4135,7 +4203,7 @@ C***************************************************
 		PKC=PKC*0.5
 		GO TO 30
 	ENDIF
-	IF(HIJRAN(NSEED).LT.0.5) THEN
+	IF(RLU(NSEED).LT.0.5) THEN
 		X1=(BB1-SQRT(BB1**2-4.0*D1))/2.0
 		X2=(BB2-SQRT(BB2**2-4.0*D2))/2.0
 	ELSE
@@ -4287,8 +4355,8 @@ C       so that pt=p1+p2
      &			ABS(NFT(JT,1)*NFT(JT,2)).LT.100) THEN
 		KICKDIT=0
 	ENDIF
-	IF((KICKDIP.EQ.0.AND.HIJRAN(NSEED).LT.0.5)
-     &     .OR.(KICKDIP.NE.0.AND.HIJRAN(NSEED)
+	IF((KICKDIP.EQ.0.AND.RLU(NSEED).LT.0.5)
+     &     .OR.(KICKDIP.NE.0.AND.RLU(NSEED)
      &     .LT.0.5/(1.0+(PKC11**2+PKC12**2)/HIPR1(22)**2))) THEN
 	   PP(JP,6)=(PP(JP,1)-PP(JP,6)-PP(JP,8)-DPKC1)/2.0+PP(JP,6)
 	   PP(JP,7)=(PP(JP,2)-PP(JP,7)-PP(JP,9)-DPKC2)/2.0+PP(JP,7)
@@ -4309,8 +4377,8 @@ C       so that pt=p1+p2
 C				********pt kick for proj
 	PT(JT,1)=PT11-PKC21
 	PT(JT,2)=PT12-PKC22
-	IF((KICKDIT.EQ.0.AND.HIJRAN(NSEED).LT.0.5)
-     &     .OR.(KICKDIT.NE.0.AND.HIJRAN(NSEED)
+	IF((KICKDIT.EQ.0.AND.RLU(NSEED).LT.0.5)
+     &     .OR.(KICKDIT.NE.0.AND.RLU(NSEED)
      &     .LT.0.5/(1.0+(PKC21**2+PKC22**2)/HIPR1(22)**2))) THEN
 	   PT(JT,6)=(PT(JT,1)-PT(JT,6)-PT(JT,8)-DPKC1)/2.0+PT(JT,6)
 	   PT(JT,7)=(PT(JT,2)-PT(JT,7)-PT(JT,9)-DPKC2)/2.0+PT(JT,7)
@@ -4406,7 +4474,7 @@ C***************************************
 	COMMON/RANSEED/NSEED
 	SAVE  
 	ID=1
-	RNID=HIJRAN(NSEED)
+	RNID=RLU(NSEED)
 	IF(RNID.GT.0.43478) THEN
 		ID=2
 		IF(RNID.GT.0.86956) ID=3
@@ -4424,11 +4492,11 @@ C
 		PT=HIRND2(7,0.0,PTMAX)
 		IF(PT.GT.HIPR1(8)) 
      &		PT=HIPR1(2)*SQRT(-ALOG(EXP(-HIPR1(8)**2/HIPR1(2)**2)
-     &			-HIJRAN(NSEED)*(EXP(-HIPR1(8)**2/HIPR1(2)**2)-
+     &			-RLU(NSEED)*(EXP(-HIPR1(8)**2/HIPR1(2)**2)-
      &			EXP(-PTMAX**2/HIPR1(2)**2))))
 
 	ELSE
-		PT=HIPR1(2)*SQRT(-ALOG(1.0-HIJRAN(NSEED)*
+		PT=HIPR1(2)*SQRT(-ALOG(1.0-RLU(NSEED)*
      &			(1.0-EXP(-PTMAX**2/HIPR1(2)**2))))
 	ENDIF
 	PTMAX0=MAX(PTMAX,0.01)
@@ -4446,7 +4514,7 @@ C ************************              WOOD-SAX
 C     SETS UP HISTOGRAM IDH WITH RADII FOR
 C     NUCLEUS IA DISTRIBUTED ACCORDING TO THREE PARAM WOOD SAXON
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
-        COMMON/WOOD/R,D,FNORM,W
+        COMMON/WOOD/R,D,FNORM,W        
         DIMENSION IAA(20),RR(20),DD(20),WW(20),RMS(20)
         EXTERNAL RWDSAX,WDSAX
         SAVE
@@ -4513,7 +4581,7 @@ C
 	FUNCTION WDSAX(X)
 C     			********THREE PARAMETER WOOD SAXON
       	COMMON/WOOD/R,D,FNORM,W
-	SAVE  
+	SAVE
       	WDSAX=FNORM*(1.+W*(X/R)**2)/(1+EXP((X-R)/D))
        	IF (W.LT.0.) THEN
        		IF (X.GE.R/SQRT(ABS(W))) WDSAX=0.
@@ -4536,7 +4604,7 @@ C                               FOR  PROJECTILE
 C       HINT1(72)=R, HINT1(73)=D, HINT1(74)=W, HINT1(75)=FNORM
 C
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
-	SAVE  
+	SAVE
       	WDSAX1=HINT1(75)*(1.+HINT1(74)*(X/HINT1(72))**2)/
      &       (1+EXP((X-HINT1(72))/HINT1(73)))
        	IF (HINT1(74).LT.0.) THEN
@@ -4552,7 +4620,7 @@ C                               FOR  TARGET
 C       HINT1(76)=R,HINT1(77)=D, HINT1(78)=W, HINT1(79)=FNORM
 C
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
-	SAVE 
+	SAVE  
       	WDSAX2=HINT1(79)*(1.+HINT1(78)*(X/HINT1(76))**2)/
      &       (1+EXP((X-HINT1(76))/HINT1(77)))
        	IF (HINT1(78).LT.0.) THEN
@@ -4569,7 +4637,7 @@ C
         COMMON/PACT/BB,B1,PHI,Z1
         COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
 	EXTERNAL FLAP, FLAP1, FLAP2
-        SAVE 
+        SAVE
 C
         BB=XB
         PROFILE=1.0
@@ -4619,7 +4687,7 @@ C
 C
         FUNCTION FGP3(X)
         COMMON/PACT/BB,B1,PHI,Z1
-        SAVE
+        SAVE  
         R1=SQRT(B1**2+Z1**2)
         R2=SQRT(BB**2+B1**2-2.0*B1*BB*COS(PHI)+X**2)
         FGP3=B1*WDSAX1(R1)*WDSAX2(R2)
@@ -4652,12 +4720,12 @@ C generate the distribution one can call HIRND(I) which gives
 C you a random number generated according to the given function.
 C 
 	SUBROUTINE HIFUN(I,XMIN,XMAX,FHB)
-	COMMON/HIJHB/RR(10,201),XX(10,201)
+	COMMON/HIJHB/RR(10,4097),XX(10,4097)
 	EXTERNAL FHB
         SAVE
 	FNORM=GAUSS1(FHB,XMIN,XMAX,0.001)
-	DO 100 J=1,201
-		XX(I,J)=XMIN+(XMAX-XMIN)*(J-1)/200.0
+	DO 100 J=1,4097
+		XX(I,J)=XMIN+(XMAX-XMIN)*(J-1)/4096.0
 		XDD=XX(I,J)
 		RR(I,J)=GAUSS1(FHB,XMIN,XDD,0.001)/FNORM
 100	CONTINUE
@@ -4667,15 +4735,15 @@ C
 C
 C
 	FUNCTION HIRND(I)
-	COMMON/HIJHB/RR(10,201),XX(10,201)
+	COMMON/HIJHB/RR(10,4097),XX(10,4097)
 	COMMON/RANSEED/NSEED
 	SAVE  
-	RX=HIJRAN(NSEED)
+	RX=RLU(NSEED)
 	JL=0
-	JU=202
+	JU=4098
 10	IF(JU-JL.GT.1) THEN
 	   JM=(JU+JL)/2
-	   IF((RR(I,201).GT.RR(I,1)).EQV.(RX.GT.RR(I,JM))) THEN
+	   IF((RR(I,4097).GT.RR(I,1)).EQV.(RX.GT.RR(I,JM))) THEN
 	      JL=JM
 	   ELSE
 	      JU=JM
@@ -4684,8 +4752,11 @@ C
 	ENDIF
 	J=JL
 	IF(J.LT.1) J=1
-	IF(J.GE.201) J=200
-	HIRND=(XX(I,J)+XX(I,J+1))/2.0
+	IF(J.GE.4097) J=4096
+C     Fix problem with taking average of adjacent values instead of
+C     interpolating
+	FRAC=(RX-RR(I,J))/(RR(I,J+1)-RR(I,J))
+	HIRND=XX(I,J)+FRAC*(XX(I,J+1)-XX(I,J))
 	RETURN
 	END	
 C
@@ -4694,19 +4765,19 @@ C
 C
 C	This generate random number between XMIN and XMAX
 	FUNCTION HIRND2(I,XMIN,XMAX)
-	COMMON/HIJHB/RR(10,201),XX(10,201)
+	COMMON/HIJHB/RR(10,4097),XX(10,4097)
 	COMMON/RANSEED/NSEED
 	SAVE  
 	IF(XMIN.LT.XX(I,1)) XMIN=XX(I,1)
-	IF(XMAX.GT.XX(I,201)) XMAX=XX(I,201)
-	JMIN=1+200*(XMIN-XX(I,1))/(XX(I,201)-XX(I,1))
-	JMAX=1+200*(XMAX-XX(I,1))/(XX(I,201)-XX(I,1))
-	RX=RR(I,JMIN)+(RR(I,JMAX)-RR(I,JMIN))*HIJRAN(NSEED)
+	IF(XMAX.GT.XX(I,4097)) XMAX=XX(I,4097)
+	JMIN=1+4096*(XMIN-XX(I,1))/(XX(I,4097)-XX(I,1))
+	JMAX=1+4096*(XMAX-XX(I,1))/(XX(I,4097)-XX(I,1))
+	RX=RR(I,JMIN)+(RR(I,JMAX)-RR(I,JMIN))*RLU(NSEED)
 	JL=0
-	JU=202
+	JU=4098
 10	IF(JU-JL.GT.1) THEN
 	   JM=(JU+JL)/2
-	   IF((RR(I,201).GT.RR(I,1)).EQV.(RX.GT.RR(I,JM))) THEN
+	   IF((RR(I,4097).GT.RR(I,1)).EQV.(RX.GT.RR(I,JM))) THEN
 	      JL=JM
 	   ELSE
 	      JU=JM
@@ -4715,8 +4786,11 @@ C	This generate random number between XMIN and XMAX
 	ENDIF
 	J=JL
 	IF(J.LT.1) J=1
-	IF(J.GE.201) J=200
-	HIRND2=(XX(I,J)+XX(I,J+1))/2.0
+	IF(J.GE.4097) J=4096
+C     Fix problem with taking average of adjacent values instead of
+C     interpolating
+	FRAC=(RX-RR(I,J))/(RR(I,J+1)-RR(I,J))
+	HIRND2=XX(I,J)+FRAC*(XX(I,J+1)-XX(I,J))
 	RETURN
 	END	
 C
@@ -4781,7 +4855,7 @@ C
 C
 	FUNCTION FHIN(X)
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
-	SAVE 
+	SAVE  
 	OMG=OMG0(X)*(HIPR1(30)+HINT1(11))/HIPR1(31)/2.0
 	FHIN=1.0-EXP(-2.0*OMG)
 	RETURN
@@ -4791,7 +4865,7 @@ C
 C
 	FUNCTION FTOTJET(X)
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
-	SAVE
+	SAVE  
 	OMG=OMG0(X)*HINT1(11)/HIPR1(31)/2.0
 	FTOTJET=1.0-EXP(-2.0*OMG)
 	RETURN
@@ -4813,7 +4887,7 @@ C
         FUNCTION FNJET(X)
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
         COMMON/NJET/N,IP_CRS
-	SAVE 
+	SAVE  
         OMG1=OMG0(X)*HINT1(11)/HIPR1(31)
         C0=EXP(N*ALOG(OMG1)-SGMIN(N+1))
         IF(N.EQ.0) C0=1.0-EXP(-2.0*OMG0(X)*HIPR1(30)/HIPR1(31)/2.0)
@@ -4842,7 +4916,7 @@ C
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
 	COMMON /BESEL/X4
 	EXTERNAL BK
-        SAVE
+	SAVE   
 	X4=HIPR1(32)*SQRT(X)
 	OMG0=HIPR1(32)**2*GAUSS2(BK,X4,X4+20.0,0.01)/96.0
 	RETURN
@@ -4854,7 +4928,7 @@ C
 C		********This gives the eikonal function from a table
 C			calculated in the first call
 	DIMENSION FR(0:1000)
-        SAVE
+	SAVE 
 	DATA I0/0/
 	IF(I0.NE.0) GO TO 100
 	DO 50 I=1,1001
@@ -4875,7 +4949,7 @@ C
 C
 	FUNCTION BK(X)
 	COMMON /BESEL/X4
-	SAVE   
+	SAVE  
 	BK=EXP(-X)*(X**2-X4**2)**2.50/15.0
 	RETURN
 	END
@@ -4975,8 +5049,7 @@ C
 	REAL HIPR1(100),HINT1(100),PTMAX,PTMIN
         COMMON/HIPARNT/HIPR1,IHPR2(50),HINT1,IHNT2(50)
 	DIMENSION X(10)
-        SAVE
-        WGT=WGT
+        SAVE 
 	PTMIN=ABS(HIPR1(10))-0.25
 	PTMIN=MAX(PTMIN,HIPR1(8))
 	AM2=0.D0
@@ -5014,7 +5087,7 @@ C
 	REAL HIPR1(100),HINT1(100)
         COMMON/HIPARNT/HIPR1,IHPR2(50),HINT1,IHNT2(50)
 	DIMENSION F(2,7)
-        SAVE
+        SAVE  
 	XT=2.0*DSQRT(AMT2)/HINT1(1)
 	X1=0.50*XT*(DEXP(Y1)+DEXP(Y2))
 	X2=0.50*XT*(DEXP(-Y1)+DEXP(-Y2))
@@ -5044,7 +5117,7 @@ C
 	REAL HIPR1(100),HINT1(100)
         COMMON/HIPARNT/HIPR1,IHPR2(50),HINT1,IHNT2(50)
 	DIMENSION F(2,7)
-        SAVE
+        SAVE  
 	XT=2.0*DSQRT(PT2)/HINT1(1)
 	X1=0.50*XT*(DEXP(Y1)+DEXP(Y2))
 	X2=0.50*XT*(DEXP(-Y1)+DEXP(-Y2))
@@ -5079,7 +5152,7 @@ C
 	REAL HIPR1(100),HINT1(100)
         COMMON/HIPARNT/HIPR1,IHPR2(50),HINT1,IHNT2(50)
 	DIMENSION F(2,7)
-        SAVE
+        SAVE 
 	XT=2.0*DSQRT(PT2)/HINT1(1)
 	X1=0.50*XT*(DEXP(Y1)+DEXP(Y2))
 	X2=0.50*XT*(DEXP(-Y1)+DEXP(-Y2))
@@ -5130,7 +5203,6 @@ C
 C
 	FUNCTION SUBCRS1(T,U)
 	IMPLICIT REAL*8(A-H,O-Z)
-        SAVE   
 	SUBCRS1=4.D0/9.D0*(1.D0+U**2)/T**2
 	RETURN
 	END
@@ -5138,7 +5210,6 @@ C
 C
 	FUNCTION SUBCRS2(T,U)
 	IMPLICIT REAL*8(A-H,O-Z)
-        SAVE
 	SUBCRS2=4.D0/9.D0*(T**2+U**2)
 	RETURN
 	END
@@ -5146,7 +5217,6 @@ C
 C
 	FUNCTION SUBCRS3(T,U)
 	IMPLICIT REAL*8(A-H,O-Z)
-        SAVE
 	SUBCRS3=4.D0/9.D0*(T**2+U**2+(1.D0+U**2)/T**2
      1	-2.D0*U**2/3.D0/T)
 	RETURN
@@ -5155,7 +5225,6 @@ C
 C
 	FUNCTION SUBCRS4(T,U)
 	IMPLICIT REAL*8(A-H,O-Z)
-        SAVE
 	SUBCRS4=8.D0/3.D0*(T**2+U**2)*(4.D0/9.D0/T/U-1.D0)
 	RETURN
 	END
@@ -5164,7 +5233,6 @@ C
 C
 	FUNCTION SUBCRS5(T,U)
 	IMPLICIT REAL*8(A-H,O-Z)
-        SAVE
 	SUBCRS5=3.D0/8.D0*(T**2+U**2)*(4.D0/9.D0/T/U-1.D0)
 	RETURN
 	END
@@ -5172,7 +5240,6 @@ C
 C
 	FUNCTION SUBCRS6(T,U)
 	IMPLICIT REAL*8(A-H,O-Z)
-        SAVE
 	SUBCRS6=(1.D0+U**2)*(1.D0/T**2-4.D0/U/9.D0)
 	RETURN
 	END
@@ -5180,7 +5247,6 @@ C
 C
 	FUNCTION SUBCRS7(T,U)
 	IMPLICIT REAL*8(A-H,O-Z)
-        SAVE
 	SUBCRS7=9.D0/2.D0*(3.D0-T*U-U/T**2-T/U**2)
 	RETURN
 	END
@@ -5192,8 +5258,8 @@ C
 	REAL HIPR1(100),HINT1(100)
         COMMON/HIPARNT/HIPR1,IHPR2(50),HINT1,IHNT2(50)
 	COMMON/NJET/N,IP_CRS
-	DIMENSION F(2,7)
-        SAVE 
+	DIMENSION F(2,7) 
+        SAVE
 	DLAM=HIPR1(15)
 	Q0=HIPR1(16)
 	S=DLOG(DLOG(QQ/DLAM**2)/DLOG(Q0**2/DLAM**2))
@@ -5317,7 +5383,6 @@ C
 C
         FUNCTION GMRE(X)
         IMPLICIT REAL*8(A-H,O-Z)
-        SAVE
         Z=X
         IF(X.GT.3.0D0) GO TO 10
         Z=X+3.D0
@@ -5334,7 +5399,6 @@ C
 C
 	FUNCTION GMIN(N)
 	IMPLICIT REAL*8(A-H,O-Z)
-        SAVE
 	GA=0.
 	IF(N.LE.2) GO TO 20
 	DO 10 I=1,N-1
@@ -5355,7 +5419,7 @@ C***************************************************************
 	COMMON/HIPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
 	COMMON/RANSEED/NSEED
 	COMMON/HIMAIN1/ NATT,EATT,JATT,NT,NP,N0,N01,N10,N11
-	COMMON/HIMAIN2/KATT(130000,4),PATT(130000,4)
+	COMMON/HIMAIN2/KATT(130000,4),PATT(130000,4),VATT(130000,4)
 	COMMON/HISTRNG/NFP(300,15),PP(300,15),NFT(300,15),PT(300,15)
 	COMMON/HIJCRDN/YP(3,300),YT(3,300)
 	COMMON/HIJJET1/NPJ(300),KFPJ(300,500),PJPX(300,500),
@@ -5368,8 +5432,7 @@ C***************************************************************
      &		PZSG(900,100),PESG(900,100),PMSG(900,100)
 	COMMON/HIJDAT/HIDAT0(10,10),HIDAT(10)
 	COMMON/HIPYINT/MINT4,MINT5,ATCO(200,20),ATXS(0:200)
-        DOUBLE PRECISION PATT
-	SAVE  
+        SAVE
 	DATA NUM1/30123984/,XL/10*0.D0/,XU/10*1.D0/
 	DATA NCALL/1000/ITMX/100/ACC/0.01/NPRN/0/
 C...give all the switchs and parameters the default values
@@ -5385,8 +5448,8 @@ C...give all the switchs and parameters the default values
 
 	DATA IHPR2/
      &	1,    3,    0,    1,    1,    1,    1,    10,    0,    0,
-     &	1,    1,    1,    1,    0,    0,    1,     0,    0,    1,
-     &	30*0/
+     &	1,    0,    1,    1,    0,    0,    1,     0,    0,    1,
+     &  1,    29*0/
 
 	DATA HINT1/100*0/
 	DATA IHNT2/50*0/
@@ -5662,9 +5725,8 @@ C
       SUBROUTINE ARAN9(QRAN,NDIM)
       DIMENSION QRAN(10)
       COMMON/SEEDVAX/NUM1
-      SAVE
       DO 1 I=1,NDIM
-    1 QRAN(I)=HIJRAN(NUM1)
+    1 QRAN(I)=RLU(NUM1)
       RETURN
       END
 
@@ -5675,7 +5737,6 @@ C
 	FUNCTION GAUSS1(F,A,B,EPS)
 	EXTERNAL F
 	DIMENSION W(12),X(12)
-        SAVE
 	DATA CONST/1.0E-12/
 	DATA W/0.1012285,.2223810,.3137067,.3623838,.0271525,
      &         .0622535,0.0951585,.1246290,.1495960,.1691565,
@@ -5718,7 +5779,6 @@ C
 	FUNCTION GAUSS2(F,A,B,EPS)
 	EXTERNAL F
 	DIMENSION W(12),X(12)
-        SAVE
 	DATA CONST/1.0E-12/
 	DATA W/0.1012285,.2223810,.3137067,.3623838,.0271525,
      &         .0622535,0.0951585,.1246290,.1495960,.1691565,
@@ -5761,7 +5821,6 @@ C
 	FUNCTION GAUSS3(F,A,B,EPS)
 	EXTERNAL F
 	DIMENSION W(12),X(12)
-        SAVE
 	DATA CONST/1.0E-12/
 	DATA W/0.1012285,.2223810,.3137067,.3623838,.0271525,
      &         .0622535,0.0951585,.1246290,.1495960,.1691565,
@@ -5805,7 +5864,6 @@ C
 	FUNCTION GAUSS4(F,A,B,EPS)
 	EXTERNAL F
 	DIMENSION W(12),X(12)
-        SAVE
 	DATA CONST/1.0E-12/
 	DATA W/0.1012285,.2223810,.3137067,.3623838,.0271525,
      &         .0622535,0.0951585,.1246290,.1495960,.1691565,
@@ -5849,7 +5907,7 @@ C
 C
 	SUBROUTINE TITLE
 	WRITE(6,200)
-200     FORMAT(//10X,
+200	FORMAT(//10X,
      &  '**************************************************'/10X,
      &  '*     |      \\       _______      /  ------/     *'/10X,
      &  '*   ----- ------     |_____|     /_/     /       *'/10X,

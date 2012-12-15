@@ -30,15 +30,6 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
-CLHEP::HepRandomEngine* hijRandomEngine;
-
-extern "C"
-{
-  float gen::hijran_(int *idummy)
-  {
-    return hijRandomEngine->flat(); 
-  }
-}
 
 HijingHadronizer::HijingHadronizer(const ParameterSet &pset) :
     BaseHadronizer(pset),
@@ -117,15 +108,22 @@ HepMC::GenParticle* HijingHadronizer::build_hijing(int index, int barcode)
                                                   himain2.katt[3][index] // status                                                          
                                                   );
    p->suggest_barcode(barcode);
-
+   
    return p;
 }
 
 //___________________________________________________________________     
 HepMC::GenVertex* HijingHadronizer::build_hijing_vertex(int i,int id)
 {
-   // build verteces for the hijing stored events                        
-   HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),id);
+  // build verteces for the hijing stored events                        
+   double x0=himain2.vatt[0][i];
+   double y0=himain2.vatt[1][i];
+   double x = x0*cosphi0_-y0*sinphi0_;
+   double y = y0*cosphi0_+x0*sinphi0_;
+   double z=himain2.vatt[2][i];
+   double t=himain2.vatt[3][i];
+
+   HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(x,y,z,t),id);
    return vertex;
 }
 
@@ -135,7 +133,10 @@ bool HijingHadronizer::generatePartonsAndHadronize()
    if(rotate_) rotateEvtPlane();
 
    // generate a HIJING event
-   HIJING(frame_.data(), bmin_, bmax_, strlen(frame_.data()));
+   
+   float f_bmin = bmin_;
+   float f_bmax = bmax_;
+   HIJING(frame_.data(), f_bmin, f_bmax, strlen(frame_.data()));
 
    // event information
    HepMC::GenEvent *evt = new HepMC::GenEvent();
@@ -146,7 +147,6 @@ bool HijingHadronizer::generatePartonsAndHadronize()
    add_heavy_ion_rec(evt);
 
    event().reset(evt);
-
 
    return true;
 }
@@ -165,14 +165,21 @@ bool HijingHadronizer::get_particles(HepMC::GenEvent *evt )
       if(!evt->signal_process_vertex()) evt->set_signal_process_vertex(vertice);
 
       const unsigned int knumpart = himain1.natt;
+      //cout << "Nparticles: " << himain1.natt << endl;
       for (unsigned int ipart = 0; ipart<knumpart; ipart++) {
-
-         int mid = himain2.katt[2][ipart];
-         particles.push_back(build_hijing(ipart,ipart+1));
-         prods.push_back(build_hijing_vertex(ipart,0));
-         mother_ids.push_back(mid);
-         LogDebug("DecayChain")<<"Mother index : "<<mid;
-      }
+	
+	int mid = himain2.katt[2][ipart] - 1;  // careful of fortan to c++ array index
+	/*
+	if(mid>0){
+	  cout<<" pdgid "<<himain2.katt[0][ipart]<<endl;
+	  cout<<" mother pdgid "<<himain2.katt[0][mid]<<endl;
+	}
+	*/
+	particles.push_back(build_hijing(ipart,ipart+1));
+	prods.push_back(build_hijing_vertex(ipart,0));
+	mother_ids.push_back(mid);
+	LogDebug("DecayChain")<<"Mother index : "<<mid;
+      }	
       
       LogDebug("Hijing")<<"Number of particles in vector "<<particles.size();
 
@@ -183,23 +190,29 @@ bool HijingHadronizer::get_particles(HepMC::GenEvent *evt )
 	 LogDebug("DecayChain")<<"Particle "<<ipart;
 	 LogDebug("DecayChain")<<"Mother's ID "<<mid;
 	 LogDebug("DecayChain")<<"Particle's PDG ID "<<part->pdg_id();
-
+	 
+	 // remove zero pT particles from list, protection for fastJet against pt=0 jets
+	 if(part->status()==1&&sqrt(part->momentum().px()*part->momentum().px()+part->momentum().py()*part->momentum().py())==0) 
+	   continue;
+	 
          if(mid <= 0){
-            vertice->add_particle_out(part);
+	   vertice->add_particle_out(part);
             continue;
          }
 
          if(mid > 0){
 	    HepMC::GenParticle* mother = particles[mid];
 	    LogDebug("DecayChain")<<"Mother's PDG ID "<<mother->pdg_id();
-
 	    HepMC::GenVertex* prod_vertex = mother->end_vertex();
             if(!prod_vertex){
                prod_vertex = prods[ipart];
-               prod_vertex->add_particle_in(mother);
+	       prod_vertex->add_particle_in(mother);
+	       //if(mother->pdg_id()!=part->pdg_id() || mother->momentum().pz() != part->momentum().pz() )
+	       //else cout<<"particle is it's own mother id: "<<part->pdg_id()<<" pz "<<part->momentum().pz()<< " px "<<part->momentum().px()<<endl;
+	       
                evt->add_vertex(prod_vertex);
                prods[ipart]=0; // mark to protect deletion                                                                                                   
-
+	       
             }
             prod_vertex->add_particle_out(part);
          }
@@ -210,14 +223,19 @@ bool HijingHadronizer::get_particles(HepMC::GenEvent *evt )
          if(prods[i]) delete prods[i];
       }
 
+      //cout << "Npart from Hijing: " << himain1.natt << endl;
+      //cout << "Nstatus1 parts: " << noStatus1 << endl;
+      //cout << "Nstatus11 parts: " << noStatus11 << endl; 
    return true;
 }
 
 //_____________________________________________________________________
 bool HijingHadronizer::call_hijset(double efrm, std::string frame, std::string proj, std::string targ, int iap, int izp, int iat, int izt)
 {
+
+   float ef = efrm;
   // initialize hydjet  
-   HIJSET(efrm,frame.data(),proj.data(),targ.data(),iap,izp,iat,izt,strlen(frame.data()),strlen(proj.data()),strlen(targ.data()));
+   HIJSET(ef,frame.data(),proj.data(),targ.data(),iap,izp,iat,izt,strlen(frame.data()),strlen(proj.data()),strlen(targ.data()));
    return true;
 }
 
