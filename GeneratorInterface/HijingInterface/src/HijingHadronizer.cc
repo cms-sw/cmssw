@@ -165,16 +165,11 @@ bool HijingHadronizer::get_particles(HepMC::GenEvent *evt )
       if(!evt->signal_process_vertex()) evt->set_signal_process_vertex(vertice);
 
       const unsigned int knumpart = himain1.natt;
-      //cout << "Nparticles: " << himain1.natt << endl;
+
       for (unsigned int ipart = 0; ipart<knumpart; ipart++) {
 	
 	int mid = himain2.katt[2][ipart] - 1;  // careful of fortan to c++ array index
-	/*
-	if(mid>0){
-	  cout<<" pdgid "<<himain2.katt[0][ipart]<<endl;
-	  cout<<" mother pdgid "<<himain2.katt[0][mid]<<endl;
-	}
-	*/
+
 	particles.push_back(build_hijing(ipart,ipart+1));
 	prods.push_back(build_hijing_vertex(ipart,0));
 	mother_ids.push_back(mid);
@@ -207,8 +202,6 @@ bool HijingHadronizer::get_particles(HepMC::GenEvent *evt )
             if(!prod_vertex){
                prod_vertex = prods[ipart];
 	       prod_vertex->add_particle_in(mother);
-	       //if(mother->pdg_id()!=part->pdg_id() || mother->momentum().pz() != part->momentum().pz() )
-	       //else cout<<"particle is it's own mother id: "<<part->pdg_id()<<" pz "<<part->momentum().pz()<< " px "<<part->momentum().px()<<endl;
 	       
                evt->add_vertex(prod_vertex);
                prods[ipart]=0; // mark to protect deletion                                                                                                   
@@ -223,9 +216,6 @@ bool HijingHadronizer::get_particles(HepMC::GenEvent *evt )
          if(prods[i]) delete prods[i];
       }
 
-      //cout << "Npart from Hijing: " << himain1.natt << endl;
-      //cout << "Nstatus1 parts: " << noStatus1 << endl;
-      //cout << "Nstatus11 parts: " << noStatus11 << endl; 
    return true;
 }
 
