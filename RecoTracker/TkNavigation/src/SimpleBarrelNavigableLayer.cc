@@ -28,7 +28,6 @@ SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
 			    float epsilon,
 			    bool checkCrossingSide) :
   SimpleNavigableLayer(field,epsilon,checkCrossingSide),
-  areAllReachableLayersSet(false),
   theDetLayer( detLayer), 
   theOuterBarrelLayers( outerBLC),
   theOuterLeftForwardLayers( outerLeftFL),
@@ -183,86 +182,13 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
 
 
 vector<const DetLayer*> 
-SimpleBarrelNavigableLayer::compatibleLayers( NavigationDirection dir) const
-{
-  if unlikely( !areAllReachableLayersSet ){
-    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
-    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
-  }
-
-  vector<const DetLayer*> result;
-  if ( dir == insideOut) {
-    for ( BDLC::const_iterator i=theAllOuterBarrelLayers.begin();
-          i!=theAllOuterBarrelLayers.end(); i++) {
-          result.push_back(*i);
-    }
-//    result = theAllOuterBarrelLayers;
-    for ( FDLC::const_iterator i=theAllOuterLeftForwardLayers.begin();
-          i!=theAllOuterLeftForwardLayers.end(); i++) {
-          // avoid duplication of barrel layers
-          result.push_back(*i);
-    }
-    for ( FDLC::const_iterator i=theAllOuterRightForwardLayers.begin();
-          i!=theAllOuterRightForwardLayers.end(); i++) {
-          // avoid duplication of barrel layers
-          result.push_back(*i);
-    }
-  }
-  else {
-    for ( BDLC::const_iterator i=theAllInnerBarrelLayers.begin();
-          i!=theAllInnerBarrelLayers.end(); i++) {
-          result.push_back(*i);
-    }
-    for ( FDLC::const_iterator i=theAllInnerLeftForwardLayers.begin();
-          i!=theAllInnerLeftForwardLayers.end(); i++) {
-          // avoid duplication of barrel layers
-          result.push_back(*i);
-    }
-    for ( FDLC::const_iterator i=theAllInnerRightForwardLayers.begin();
-          i!=theAllInnerRightForwardLayers.end(); i++) {
-          // avoid duplication of barrel layers
-          result.push_back(*i);
-    }
-
-   }
-
-  return result;
-}
-
-vector<const DetLayer*> 
-SimpleBarrelNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts, 
-					      PropagationDirection dir) const
-{
-  if likely( !areAllReachableLayersSet ){
-    int counter = 0;
-    return SimpleNavigableLayer::compatibleLayers(fts,dir,counter);
-    //    edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
-    //    throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
-  }
-
-  vector<const DetLayer*> result;
-  FreeTrajectoryState ftsWithoutErrors = (fts.hasError()) ?
-  FreeTrajectoryState( fts.parameters()) : fts;
-
-  //establish whether the tracks is crossing the tracker from outer layers to inner ones 
-  //or from inner to outer.
-  GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
-  //GlobalVector transverseMomentum(fts.momentum().x(), fts.momentum().y(), 0);
-  //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-  bool isInOutTrack  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
-  //establish whether inner or outer layers are crossed after propagation, according
-  //to BOTH propagationDirection AND track momentum
-  bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ((dir == oppositeToMomentum) && !isInOutTrack);
-
-  vector<const DetLayer*> temp = dirOppositeXORisInOutTrack ? compatibleLayers(insideOut) : compatibleLayers(outsideIn);
-  wellInside( ftsWithoutErrors, dir, temp, result);
-
-  return result;
-
+SimpleBarrelNavigableLayer::compatibleLayers( NavigationDirection dir) const {
+  edm::LogError("TkNavigation") << "ERROR: compatibleLayers() method used without all reachableLayers are set" ;
+  throw DetLayerException("compatibleLayers() method used without all reachableLayers are set"); 
+  return vector<const DetLayer*>();
 }
 
 
-DetLayer* SimpleBarrelNavigableLayer::detLayer() const { return theDetLayer;}
 
 void   SimpleBarrelNavigableLayer::setDetLayer( DetLayer* dl) {
   cerr << "Warniong: SimpleBarrelNavigableLayer::setDetLayer called."
@@ -316,13 +242,11 @@ void SimpleBarrelNavigableLayer::setAdditionalLink(DetLayer* additional, Navigat
   BarrelDetLayer*  badditional = dynamic_cast<BarrelDetLayer*>(additional);
   if (badditional){	
   	if (direction==insideOut){
-		theAllOuterBarrelLayers.push_back(badditional);
 		theOuterBarrelLayers.push_back(badditional);
 		theNegOuterLayers.push_back(badditional);
 		thePosOuterLayers.push_back(badditional);
 		return;	
   	}
-        theAllInnerBarrelLayers.push_back(badditional);	 
   	theInnerBarrelLayers.push_back(badditional);
 	theNegInnerLayers.push_back(badditional);
         thePosInnerLayers.push_back(badditional);	
@@ -332,23 +256,19 @@ void SimpleBarrelNavigableLayer::setAdditionalLink(DetLayer* additional, Navigat
 	if (direction==insideOut){
 		if (zpos>0){
 			theOuterRightForwardLayers.push_back(fadditional);
-			theAllOuterRightForwardLayers.push_back(fadditional);
 			thePosOuterLayers.push_back(fadditional);
 			return;	
 		}
 		theOuterLeftForwardLayers.push_back(fadditional);
-		theAllOuterLeftForwardLayers.push_back(fadditional);
 		theNegOuterLayers.push_back(fadditional);
 		return;
 	}
 	if (zpos>0){
         	theInnerRightForwardLayers.push_back(fadditional);
-		theAllInnerRightForwardLayers.push_back(fadditional);
 		thePosInnerLayers.push_back(fadditional);
                 return;
         }
         theInnerLeftForwardLayers.push_back(fadditional);
-	theAllInnerLeftForwardLayers.push_back(fadditional);
 	theNegInnerLayers.push_back(fadditional);
         return;
   }

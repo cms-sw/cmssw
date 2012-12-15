@@ -17,19 +17,6 @@ public:
 			       float epsilon,
 			       bool checkCrossingSide=true);
 
-  SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
-			       const BDLC& outerBL, 
-			       const BDLC& allOuterBL,
-			       const BDLC& innerBL,
-			       const BDLC& allInnerBL,
-			       const FDLC& outerFL, 
-			       const FDLC& allOuterFL,
-			       const FDLC& innerFL,
-			       const FDLC& allInnerFL,
-			       const MagneticField* field,
-			       float epsilon,
-			       bool checkCrossingSide=true);
-
   // NavigableLayer interface
   virtual std::vector<const DetLayer*> 
   nextLayers( NavigationDirection direction) const;
@@ -43,31 +30,28 @@ public:
 
   virtual std::vector<const DetLayer*> 
   compatibleLayers( const FreeTrajectoryState& fts, 
-		    PropagationDirection timeDirection) const;
+		    PropagationDirection dir) const {
+    int counter=0;
+    return SimpleNavigableLayer::compatibleLayers(fts,dir,counter);
+  }
 
   virtual void setAdditionalLink(DetLayer*, NavigationDirection direction=insideOut);
 
-  virtual DetLayer* detLayer() const;
+  virtual DetLayer* detLayer() const { return theDetLayer;}
   virtual void   setDetLayer( DetLayer* dl);
 
   virtual void setInwardLinks( const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn));
 
 private:
-  bool areAllReachableLayersSet;
-
   ForwardDetLayer*  theDetLayer;
   BDLC              theOuterBarrelLayers;
-  BDLC              theAllOuterBarrelLayers;
   BDLC              theInnerBarrelLayers;
-  BDLC              theAllInnerBarrelLayers;
+
   FDLC              theOuterForwardLayers;
-  FDLC              theAllOuterForwardLayers;
   FDLC              theInnerForwardLayers;
-  FDLC              theAllInnerForwardLayers;
+
   DLC               theOuterLayers;
   DLC               theInnerLayers;
-  DLC               theAllOuterLayers;
-  DLC               theAllInnerLayers;
 
 };
 
