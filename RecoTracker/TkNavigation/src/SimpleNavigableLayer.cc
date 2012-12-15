@@ -6,21 +6,19 @@
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include <set>
-#include <TrackingTools/TrackAssociator/interface/DetIdInfo.h>
 
 using namespace std;
 
 TrajectoryStateOnSurface SimpleNavigableLayer::crossingState(const FreeTrajectoryState& fts,
 							     PropagationDirection dir) const{
-  TSOS propState;
   //self propagating. step one: go close to the center
   GlobalPoint initialPoint = fts.position();
   TransverseImpactPointExtrapolator middle;
   GlobalPoint center(0,0,0);
-  propState = middle.extrapolate(fts, center, propagator(dir));
+  TSOS propState = middle.extrapolate(fts, center, propagator(dir));
   if ( !propState.isValid()) return TrajectoryStateOnSurface();
   
-  FreeTrajectoryState & dest = *propState.freeState();
+  FreeTrajectoryState const & dest = *propState.freeState();
   GlobalPoint middlePoint = dest.position();
   const float toCloseToEachOther2 = 1e-4*1e-4;
   if unlikely( (middlePoint-initialPoint).mag2() < toCloseToEachOther2){
@@ -242,7 +240,7 @@ std::vector< const DetLayer * > SimpleNavigableLayer::compatibleLayers (const Fr
       //add the layer you tried.
       LogDebug("SimpleNavigableLayer")
 	<<counter<<"] adding layer with pointer: "<<(toTry)
-	<<" first detid: "<<DetIdInfo::info((toTry)->basicComponents().front()->geographicalId());
+	<<" first detid: "<< (toTry)->basicComponents().front()->geographicalId();
       if (!collect.insert(toTry).second) continue;
       
       //find the next layers from it
