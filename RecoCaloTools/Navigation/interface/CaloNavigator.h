@@ -4,29 +4,29 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-template <class T>
+template <class T, class TOPO=CaloSubdetectorTopology>
 class CaloNavigator GCC11_FINAL {
  public:
 
-  CaloNavigator(const T& home, const CaloSubdetectorTopology* topology) : myTopology_(topology) 
+  CaloNavigator(const T& home, const TOPO * topology) : myTopology_(topology) 
     {
       setHome(home);
-    };
+    }
 
   /// set the starting position
   inline void setHome(const T& startingPoint);
 
   /// set the starting position
-  inline void setTopology(const CaloSubdetectorTopology*);
+  inline void setTopology(const TOPO *);
 
   /// set the starting position
-  const CaloSubdetectorTopology* getTopology() const
+  const TOPO * getTopology() const
     {
       return myTopology_;
     }
 
   /// move the navigator back to the starting point
-  void home() const ;
+  inline void home() const ;
 
   /// get the current position
   T pos() const { return currentPoint_; }
@@ -115,27 +115,28 @@ class CaloNavigator GCC11_FINAL {
 
  protected:
   
-  const CaloSubdetectorTopology* myTopology_;
+  const TOPO * myTopology_;
   mutable T startingPoint_, currentPoint_;
 };
 
-template <class T>
-void CaloNavigator<T>::setHome(const T& startingPoint)
+template <class T, class TOPO>
+inline
+void CaloNavigator<T,TOPO>::setHome(const T& startingPoint)
 {
   startingPoint_=startingPoint;
   home();
 }
 
-template <class T>
+template <class T, class TOPO>
 inline
-void CaloNavigator<T>::home() const
+void CaloNavigator<T,TOPO>::home() const
 {
   currentPoint_=startingPoint_;
 }
 
-template <class T>
+template <class T, class TOPO>
 inline
-void CaloNavigator<T>::setTopology(const CaloSubdetectorTopology* topology) 
+void CaloNavigator<T,TOPO>::setTopology(const TOPO * topology) 
 {
   if (myTopology_ == 0)
     myTopology_=topology;
