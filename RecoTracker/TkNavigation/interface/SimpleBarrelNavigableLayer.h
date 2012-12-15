@@ -21,22 +21,6 @@ public:
 			      float epsilon,
 			      bool checkCrossingSide=true);
 
-  SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
-			      const BDLC& outerBLC, 
-			      const BDLC& innerBLC,
-			      const BDLC& allOuterBLC,
-			      const BDLC& allInnerBLC,
-			      const FDLC& outerLeftFL, 
-			      const FDLC& outerRightFL,
-			      const FDLC& allOuterLeftFL,
-			      const FDLC& allOuterRightFL,
-			      const FDLC& innerLeftFL,
-			      const FDLC& innerRightFL,
-			      const FDLC& allInnerLeftFL,
-			      const FDLC& allInnerRightFL,
-			      const MagneticField* field,
-			      float epsilon,
-			      bool checkCrossingSide=true);
   
   // NavigableLayer interface
   virtual std::vector<const DetLayer*> 
