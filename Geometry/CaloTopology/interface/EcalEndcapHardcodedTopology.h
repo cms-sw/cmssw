@@ -6,7 +6,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
-class EcalEndcapHardcodedTopology : public CaloSubdetectorTopology
+class EcalEndcapHardcodedTopology GCC11_FINAL : public CaloSubdetectorTopology
 {
 
  public:

@@ -8,7 +8,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-class EcalBarrelTopology : public CaloSubdetectorTopology
+class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
 {
 
  public:

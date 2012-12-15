@@ -6,7 +6,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
-class EcalBarrelHardcodedTopology : public CaloSubdetectorTopology
+class EcalBarrelHardcodedTopology GCC11_FINAL : public CaloSubdetectorTopology
 {
 
  public:

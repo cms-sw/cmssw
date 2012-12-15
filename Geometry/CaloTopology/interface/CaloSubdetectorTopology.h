@@ -7,10 +7,13 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <vector>
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 /** \class CaloSubdetectorTopology
       
-$Date: 2012/10/29 07:28:55 $
-$Revision: 1.5 $
+$Date: 2012/11/12 21:38:35 $
+$Revision: 1.6 $
 \author P.Meridiani INFN Roma1
 \author J. Mans - Minnesota
 */
