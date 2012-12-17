@@ -4,6 +4,7 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
+#include "CondCore/DBCommon/interface/DbConnection.h"
 #include "CondFormats/Common/interface/IOVSequence.h"
 
 //
@@ -23,6 +24,26 @@ namespace cond{
   class IOVElement;
   class IOVSequence;
 
+  class ExportRegistry {
+  public:
+    explicit ExportRegistry( DbConnection& conn );
+    ExportRegistry();
+
+    void open( const std::string& connectionString, bool readOnly=false );
+
+    void addMapping( const std::string& oId, const std::string& newOid );
+
+    std::string getMapping( const std::string& oId );
+
+    void close();
+  private:
+    std::string lookup( const std::string& oId );
+  private:
+    cond::DbConnection m_conn;
+    cond::DbSession m_session;
+
+  };
+
   class IOVImportIterator {
   public:
     explicit IOVImportIterator( boost::shared_ptr<cond::IOVProxyData>& destIov );
@@ -38,11 +59,16 @@ namespace cond{
 
     void setUp( cond::DbSession& sourceSess, const std::string& sourceIovToken, size_t bulkSize = 1 );
 
+    void setUp( cond::IOVProxy& sourceIov, cond::ExportRegistry& registry, size_t bulkSize = 1 );
+
     bool hasMoreElements();
 
     size_t importMoreElements();
 
     size_t importAll();
+
+  private:
+    std::string importPayload( const std::string& payloadToken );
 
   private:
     cond::IOVProxy m_sourceIov;
@@ -51,6 +77,7 @@ namespace cond{
     size_t m_bulkSize;
     IOVSequence::const_iterator m_cursor;
     IOVSequence::const_iterator m_till;
+    ExportRegistry* m_registry;
   };
 
   class IOVEditor{

@@ -1,8 +1,21 @@
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/IOVService/interface/IOVSchemaUtility.h"
 #include "CondCore/IOVService/interface/IOVNames.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/IOVInfo.h"
+
+#include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ITable.h"
+#include "RelationalAccess/TableDescription.h"
+#include "RelationalAccess/ITablePrivilegeManager.h"
+#include "RelationalAccess/ITableDataEditor.h"
+#include "RelationalAccess/IQuery.h"
+#include "RelationalAccess/ICursor.h"
+#include "CoralBase/AttributeSpecification.h"
+#include "CoralBase/AttributeList.h"
+#include "CoralBase/Attribute.h"
 
 namespace cond {
 
@@ -47,13 +60,98 @@ namespace cond {
     dbSess.updateObject( data.get(), token );
   }
 
+  std::string EXPORT_REGISTRY_TABLE("COND_EXPORT_REGISTRY");
+
+  ExportRegistry::ExportRegistry( DbConnection& conn ):
+    m_conn( conn ){
+    m_session = m_conn.createSession();
+  }
+  ExportRegistry::ExportRegistry():
+    m_conn(){
+    m_session = m_conn.createSession();
+  }
+
+  void ExportRegistry::open( const std::string& connectionString, 
+			     bool readOnly ){
+    m_session.open( connectionString, readOnly );
+    cond::DbScopedTransaction trans( m_session );
+    trans.start();
+    coral::ISchema& schema = m_session.nominalSchema();
+    if( !schema.existsTable( EXPORT_REGISTRY_TABLE ) ){
+      coral::TableDescription descr( "CondDb" );
+      descr.setName( EXPORT_REGISTRY_TABLE );
+      descr.insertColumn( "OID",
+			  coral::AttributeSpecification::typeNameForType<std::string>() );
+      descr.setNotNullConstraint( "OID" );
+      descr.setPrimaryKey( std::vector<std::string>( 1, "OID" ) );
+      descr.insertColumn( "MAPPED_OID",
+			  coral::AttributeSpecification::typeNameForType<std::string>() );
+      descr.setNotNullConstraint( "MAPPED_OID" );
+      coral::ITable& table = schema.createTable( descr );
+      table.privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
+    }
+    trans.commit();
+  
+  }
+  
+  std::string ExportRegistry::lookup( const std::string& oId ){
+    coral::ISchema& schema = m_session.nominalSchema();
+    coral::ITable& table = schema.tableHandle( EXPORT_REGISTRY_TABLE );
+    std::auto_ptr<coral::IQuery> query( table.newQuery() );
+    query->addToOutputList( "MAPPED_OID" );
+    query->defineOutputType( "MAPPED_OID", coral::AttributeSpecification::typeNameForType<std::string>());
+    coral::AttributeList condData;
+    condData.extend<std::string>("OID");
+    condData[ "OID" ].data<std::string>() = oId;
+    std::string condition = "OID =:OID";
+    query->setCondition( condition, condData );
+    coral::ICursor& cursor = query->execute();
+    std::string ret("");
+    if( cursor.next() ){
+      ret = cursor.currentRow()["MAPPED_OID"].data<std::string>();
+    }
+    return ret;
+  }
+
+  void ExportRegistry::addMapping( const std::string& oId, 
+				   const std::string& newOid ){
+    cond::DbScopedTransaction trans( m_session );
+    trans.start();
+    std::string mapped = lookup( oId );
+    if( !mapped.empty() ){
+      throw cond::Exception("ExportRegistry::addMapping: specified oId:\""+oId+"\" has been mapped already.");
+    }
+    coral::ISchema& schema = m_session.nominalSchema();
+    coral::ITable& table = schema.tableHandle( EXPORT_REGISTRY_TABLE );
+    coral::AttributeList dataToInsert;
+    dataToInsert.extend<std::string>( "OID");
+    dataToInsert.extend<std::string>( "MAPPED_OID" );
+    dataToInsert[ "OID" ].data<std::string>() = oId;
+    dataToInsert[ "MAPPED_OID" ].data<std::string>() = newOid;
+    table.dataEditor().insertRow( dataToInsert );
+    trans.commit();
+  }
+
+  std::string ExportRegistry::getMapping( const std::string& oId ){
+    std::string ret("");
+    m_session.transaction().start( true );
+    ret = lookup( oId );
+    m_session.transaction().commit();
+    return ret;
+  }
+
+  void ExportRegistry::close(){
+    m_session.close();
+  }
+
   IOVImportIterator::IOVImportIterator( boost::shared_ptr<cond::IOVProxyData>& destIov ):
     m_sourceIov(),
     m_destIov( destIov ),
     m_lastSince( 0 ),
     m_bulkSize( 0 ),
     m_cursor(),
-    m_till()
+    m_till(),
+    m_registry( 0 )
   {
   }
   
@@ -138,15 +236,33 @@ namespace cond {
     setUp( sourceIov, bulkSize );
   }
 
+  void IOVImportIterator::setUp( cond::IOVProxy& sourceIov, 
+				 cond::ExportRegistry& registry, 
+				 size_t bulkSize ){
+    m_registry = &registry;
+    setUp( sourceIov, bulkSize );
+  }
+
   bool IOVImportIterator::hasMoreElements(){
     return m_cursor != m_till;
+  }
+
+  std::string IOVImportIterator::importPayload( const std::string& payloadToken ){
+    std::string newPayTok("");
+    if( m_registry ){
+      newPayTok = m_registry->getMapping( payloadToken );
+      if(!newPayTok.empty() ) return newPayTok;
+    }
+    newPayTok = m_destIov->dbSession.importObject( m_sourceIov.db(),payloadToken );
+    if( m_registry ) m_registry->addMapping( payloadToken, newPayTok );
+    return newPayTok;
   }
 
   size_t IOVImportIterator::importMoreElements(){
     size_t i = 0;    
     boost::shared_ptr<IOVSequence>& diov = m_destIov->data;
     for( ; i<m_bulkSize && m_cursor != m_till; ++i, ++m_cursor, m_lastSince=m_cursor->sinceTime() ){
-      std::string newPtoken = m_destIov->dbSession.importObject( m_sourceIov.db(),m_cursor->token());
+      std::string newPtoken = importPayload( m_cursor->token() );
       ora::OId poid;
       poid.fromString( newPtoken );
       ora::Container cont = m_destIov->dbSession.storage().containerHandle( poid.containerId() );
