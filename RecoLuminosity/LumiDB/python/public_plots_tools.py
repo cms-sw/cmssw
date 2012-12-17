@@ -158,7 +158,7 @@ class ColorScheme(object):
             }
         self.color_line_pileup = "black"
         self.color_fill_pileup = "blue"
-        self.logo_name = "cms_logo_1.png"
+        self.logo_name = "cms_logo.png"
         self.file_suffix = "_%s" % self.name.lower()
 
         tmp_name = self.name.lower()
@@ -172,7 +172,7 @@ class ColorScheme(object):
             self.color_line_peak = DarkenColor(self.color_fill_peak)
             self.color_line_pileup = "black"
             self.color_fill_pileup = ColorScheme.cms_blue
-            self.logo_name = "cms_logo_2.png"
+            self.logo_name = "cms_logo.png"
             self.file_suffix = ""
         elif tmp_name == "joe":
             # Color scheme 'Joe'.
@@ -184,7 +184,7 @@ class ColorScheme(object):
             self.color_line_peak = DarkenColor(self.color_fill_peak)
             self.color_line_pileup = "black"
             self.color_fill_pileup = ColorScheme.cms_yellow
-            self.logo_name = "cms_logo_3.png"
+            self.logo_name = "cms_logo_alt.png"
             self.file_suffix = "_alt"
         else:
             print >> sys.stderr, \
@@ -200,5 +200,32 @@ class ColorScheme(object):
         # End of __init__().
 
     # End of class ColorScheme.
+
+######################################################################
+
+def SavePlot(fig, file_name_base):
+    """Little helper to save plots in various formats."""
+
+    # DEBUG DEBUG DEBUG
+    # Check some assumptions.
+    assert len(fig.axes) == 2
+    assert len(fig.axes[0].artists) == 1
+    assert file_name_base.find(".") < 0
+    # DEBUG DEBUG DEBUG end
+
+    # First save as PNG.
+    fig.savefig("%s.png" % file_name_base)
+
+    # Then rescale and reposition the logo (which is assumed to be the
+    # only artist in the first pair of axes) and save as PDF.
+    tmp_annbox = fig.axes[0].artists[0]
+    tmp_offsetbox = tmp_annbox.offsetbox
+    fig_dpi = fig.dpi
+    tmp_offsetbox.set_zoom(tmp_offsetbox.get_zoom() * 72. / fig_dpi)
+    tmp = tmp_annbox.xytext
+    tmp_annbox.xytext = (tmp[0] + 1., tmp[1] - 1.)
+    fig.savefig("%s.pdf" % file_name_base, dpi=600)
+
+    # End of SavePlot().
 
 ######################################################################

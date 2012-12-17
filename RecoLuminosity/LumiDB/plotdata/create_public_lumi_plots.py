@@ -4,10 +4,6 @@
 ## File: create_public_lumi_plots.py
 ######################################################################
 
-# TODO TODO TODO
-# - Split the building of the cache and the plotting steps(?).
-# TODO TODO TODO end
-
 import sys
 import os
 import commands
@@ -42,6 +38,7 @@ from RecoLuminosity.LumiDB.public_plots_tools import LatexifyUnits
 from RecoLuminosity.LumiDB.public_plots_tools import AddLogo
 from RecoLuminosity.LumiDB.public_plots_tools import InitMatplotlib
 from RecoLuminosity.LumiDB.public_plots_tools import RoundAwayFromZero
+from RecoLuminosity.LumiDB.public_plots_tools import SavePlot
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_SUPTITLE
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_TITLE
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_AX_TITLE
@@ -736,14 +733,15 @@ if __name__ == "__main__":
                 print "DEBUG JGH   !!!  --> found an occurrence of the lumiCalc stoptime bug!!!"
             else:
                 print "DEBUG JGH   !!!  --> found a problem !!!"
-                print "DEBUG JGH   ----------"
-                print "DEBUG JGH   output from first lumiCalc run:"
-                print "DEBUG JGH   ----------"
-                print output_0
-                print "DEBUG JGH   ----------"
-                print "DEBUG JGH   output from second lumiCalc run:"
-                print "DEBUG JGH   ----------"
-                print output_1
+#                 if output_0:
+#                 print "DEBUG JGH   ----------"
+#                 print "DEBUG JGH   output from first lumiCalc run:"
+#                 print "DEBUG JGH   ----------"
+#                 print output_0
+#                 print "DEBUG JGH   ----------"
+#                 print "DEBUG JGH   output from second lumiCalc run:"
+#                 print "DEBUG JGH   ----------"
+#                 print output_1
         # BUG BUG BUG end
 
     # Now read back all lumiCalc results.
@@ -1016,9 +1014,9 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                fig.savefig("peak_lumi_per_day_%s_%d%s%s.png" % \
-                            (particle_type_str.lower(), year,
-                             log_suffix, file_suffix))
+                SavePlot(fig, "peak_lumi_per_day_%s_%d%s%s" % \
+                         (particle_type_str.lower(), year,
+                          log_suffix, file_suffix))
 
             #----------
 
@@ -1078,9 +1076,9 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                fig.savefig("int_lumi_per_day_%s_%d%s%s.png" % \
-                            (particle_type_str.lower(), year,
-                             log_suffix, file_suffix))
+                SavePlot(fig, "int_lumi_per_day_%s_%d%s%s" % \
+                         (particle_type_str.lower(), year,
+                          log_suffix, file_suffix))
 
             #----------
 
@@ -1143,9 +1141,9 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                fig.savefig("int_lumi_per_day_cumulative_%s_%d%s%s.png" % \
-                            (particle_type_str.lower(), year,
-                             log_suffix, file_suffix))
+                SavePlot(fig, "int_lumi_per_day_cumulative_%s_%d%s%s" % \
+                         (particle_type_str.lower(), year,
+                          log_suffix, file_suffix))
 
     #------------------------------
     # Create the per-week delivered-lumi plots.
@@ -1277,9 +1275,9 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                fig.savefig("peak_lumi_per_week_%s_%d%s%s.png" % \
-                            (particle_type_str.lower(), year,
-                             log_suffix, file_suffix))
+                SavePlot(fig, "peak_lumi_per_week_%s_%d%s%s" % \
+                         (particle_type_str.lower(), year,
+                          log_suffix, file_suffix))
 
             #----------
 
@@ -1340,9 +1338,9 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                fig.savefig("int_lumi_per_week_%s_%d%s%s.png" % \
-                            (particle_type_str.lower(), year,
-                             log_suffix, file_suffix))
+                SavePlot(fig, "int_lumi_per_week_%s_%d%s%s" % \
+                         (particle_type_str.lower(), year,
+                          log_suffix, file_suffix))
 
             #----------
 
@@ -1405,7 +1403,7 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                fig.savefig("int_lumi_per_week_cumulative_%s_%d%s%s.png" % \
+                SavePlot(fig, "int_lumi_per_week_cumulative_%s_%d%s%s" % \
                             (particle_type_str.lower(), year,
                              log_suffix, file_suffix))
 
@@ -1574,9 +1572,9 @@ if __name__ == "__main__":
                     log_suffix = ""
                     if is_log:
                         log_suffix = "_log"
-                    fig.savefig("int_lumi_cumulative_%s_%d%s%s.png" % \
-                                (particle_type_str.lower(), mode,
-                                 log_suffix, file_suffix))
+                    SavePlot(fig, "int_lumi_cumulative_%s_%d%s%s" % \
+                             (particle_type_str.lower(), mode,
+                              log_suffix, file_suffix))
 
         for mode in [1, 2]:
             print "    mode %d" % mode
@@ -1716,9 +1714,9 @@ if __name__ == "__main__":
                 log_suffix = ""
                 if is_log:
                     log_suffix = "_log"
-                fig.savefig("peak_lumi_%s%s%s.png" % \
-                            (particle_type_str.lower(),
-                             log_suffix, file_suffix))
+                SavePlot(fig, "peak_lumi_%s%s%s" % \
+                         (particle_type_str.lower(),
+                          log_suffix, file_suffix))
 
     #----------
 

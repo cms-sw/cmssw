@@ -44,6 +44,7 @@ from RecoLuminosity.LumiDB.public_plots_tools import LatexifyUnits
 from RecoLuminosity.LumiDB.public_plots_tools import AddLogo
 from RecoLuminosity.LumiDB.public_plots_tools import InitMatplotlib
 from RecoLuminosity.LumiDB.public_plots_tools import RoundAwayFromZero
+from RecoLuminosity.LumiDB.public_plots_tools import SavePlot
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_SUPTITLE
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_TITLE
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_AX_TITLE
@@ -261,9 +262,9 @@ if __name__ == "__main__":
             log_suffix = ""
             if is_log:
                 log_suffix = "_log"
-            fig.savefig("pileup_%s_%d%s%s.png" % \
-                        (particle_type_str, year,
-                         log_suffix, file_suffix))
+            SavePlot(fig, "pileup_%s_%d%s%s" % \
+                     (particle_type_str, year,
+                      log_suffix, file_suffix))
 
         plt.close()
 
