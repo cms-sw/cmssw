@@ -76,9 +76,25 @@ struct MyGEMSimHit
 
 struct MySimTrack
 {
-  Int_t particleId, trackId;
-  Float_t globalX, globalY, globalZ, globalR, globalEta, globalPhi;
-  Float_t  localX,  localY,  localZ,  localR,  localEta,  localPhi;
+  Int_t particleId, trackId; // FIXME - not yet written to tree
+  Float_t meanSimHitRhoGEMl1Even, meanSimHitEtaGEMl1Even, meanSimHitPhiGEMl1Even;
+  Float_t meanSimHitRhoGEMl2Even, meanSimHitEtaGEMl2Even, meanSimHitPhiGEMl2Even;
+  Float_t meanSimHitRhoCSCEven, meanSimHitEtaCSCEven, meanSimHitPhiCSCEven;
+  Float_t meanSimHitRhoGEMl1Odd, meanSimHitEtaGEMl1Odd, meanSimHitPhiGEMl1Odd;
+  Float_t meanSimHitRhoGEMl2Odd, meanSimHitEtaGEMl2Odd, meanSimHitPhiGEMl2Odd;
+  Float_t meanSimHitRhoCSCOdd, meanSimHitEtaCSCOdd, meanSimHitPhiCSCOdd;
+  Float_t meanSimHitRhoGEMl1Both, meanSimHitEtaGEMl1Both, meanSimHitPhiGEMl1Both;
+  Float_t meanSimHitRhoGEMl2Both, meanSimHitEtaGEMl2Both, meanSimHitPhiGEMl2Both;
+  Float_t meanSimHitRhoCSCBoth, meanSimHitEtaCSCBoth, meanSimHitPhiCSCBoth;
+  Float_t propagatedSimHitRhoGEMl1Even, propagatedSimHitEtaGEMl1Even, propagatedSimHitPhiGEMl1Even;
+  Float_t propagatedSimHitRhoGEMl2Even, propagatedSimHitEtaGEMl2Even, propagatedSimHitPhiGEMl2Even;
+  Float_t propagatedSimHitRhoCSCEven, propagatedSimHitEtaCSCEven, propagatedSimHitPhiCSCEven;
+  Float_t propagatedSimHitRhoGEMl1Odd, propagatedSimHitEtaGEMl1Odd, propagatedSimHitPhiGEMl1Odd;
+  Float_t propagatedSimHitRhoGEMl2Odd, propagatedSimHitEtaGEMl2Odd, propagatedSimHitPhiGEMl2Odd;
+  Float_t propagatedSimHitRhoCSCOdd, propagatedSimHitEtaCSCOdd, propagatedSimHitPhiCSCOdd;
+  Float_t propagatedSimHitRhoGEMl1Both, propagatedSimHitEtaGEMl1Both, propagatedSimHitPhiGEMl1Both;
+  Float_t propagatedSimHitRhoGEMl2Both, propagatedSimHitEtaGEMl2Both, propagatedSimHitPhiGEMl2Both;
+  Float_t propagatedSimHitRhoCSCBoth, propagatedSimHitEtaCSCBoth, propagatedSimHitPhiCSCBoth;
 };
 
 
@@ -259,6 +275,7 @@ void GEMSimHitAnalyzer::bookGEMSimHitsTree()
   gem_sh_tree->Branch("station", &gem_sh.station);
   gem_sh_tree->Branch("chamber", &gem_sh.chamber);
   gem_sh_tree->Branch("layer", &gem_sh.layer);
+  gem_sh_tree->Branch("roll", &gem_sh.roll);
   gem_sh_tree->Branch("globalR", &gem_sh.globalR);
   gem_sh_tree->Branch("globalEta", &gem_sh.globalEta);
   gem_sh_tree->Branch("globalPhi", &gem_sh.globalPhi);
@@ -274,18 +291,62 @@ void GEMSimHitAnalyzer::bookSimTracksTree()
   track_tree = fs->make< TTree >("Tracks", "Tracks");
   track_tree->Branch("particleId", &track.particleId);
   track_tree->Branch("trackId", &track.trackId);
-  track_tree->Branch("globalX", &track.globalX);
-  track_tree->Branch("globalY", &track.globalY);
-  track_tree->Branch("globalZ", &track.globalZ);
-  track_tree->Branch("globalR", &track.globalR);
-  track_tree->Branch("globalEta", &track.globalEta);
-  track_tree->Branch("globalPhi", &track.globalPhi);
-  track_tree->Branch("localX", &track.localX);
-  track_tree->Branch("localY", &track.localY);
-  track_tree->Branch("localZ", &track.localZ);
-  track_tree->Branch("localR", &track.localR);
-  track_tree->Branch("localEta", &track.localEta);
-  track_tree->Branch("localPhi", &track.localPhi);
+  track_tree->Branch("meanSimHitRhoGEMl1Even",&track.meanSimHitRhoGEMl1Even);
+  track_tree->Branch("meanSimHitEtaGEMl1Even",&track.meanSimHitEtaGEMl1Even);
+  track_tree->Branch("meanSimHitPhiGEMl1Even",&track.meanSimHitPhiGEMl1Even);
+  track_tree->Branch("meanSimHitRhoGEMl2Even",&track. meanSimHitRhoGEMl2Even);
+  track_tree->Branch("meanSimHitEtaGEMl2Even",&track.meanSimHitEtaGEMl2Even);
+  track_tree->Branch("meanSimHitPhiGEMl2Even",&track.meanSimHitPhiGEMl2Even);
+  track_tree->Branch("meanSimHitRhoCSCEven",&track. meanSimHitRhoCSCEven);
+  track_tree->Branch("meanSimHitEtaCSCEven",&track.meanSimHitEtaCSCEven);
+  track_tree->Branch("meanSimHitPhiCSCEven",&track.meanSimHitPhiCSCEven);
+  track_tree->Branch("propagatedSimHitRhoGEMl1Even",&track. propagatedSimHitRhoGEMl1Even);
+  track_tree->Branch("propagatedSimHitEtaGEMl1Even",&track.propagatedSimHitEtaGEMl1Even);
+  track_tree->Branch("propagatedSimHitPhiGEMl1Even",&track.propagatedSimHitPhiGEMl1Even);
+  track_tree->Branch("propagatedSimHitRhoGEMl2Even",&track. propagatedSimHitRhoGEMl2Even);
+  track_tree->Branch("propagatedSimHitEtaGEMl2Even",&track.propagatedSimHitEtaGEMl2Even);
+  track_tree->Branch("propagatedSimHitPhiGEMl2Even",&track.propagatedSimHitPhiGEMl2Even);
+  track_tree->Branch("propagatedSimHitRhoCSCEven",&track. propagatedSimHitRhoCSCEven);
+  track_tree->Branch("propagatedSimHitEtaCSCEven",&track.propagatedSimHitEtaCSCEven);
+  track_tree->Branch("propagatedSimHitPhiCSCEven",&track.propagatedSimHitPhiCSCEven);
+
+  track_tree->Branch("meanSimHitRhoGEMl1Odd",&track. meanSimHitRhoGEMl1Odd);
+  track_tree->Branch("meanSimHitEtaGEMl1Odd",&track.meanSimHitEtaGEMl1Odd);
+  track_tree->Branch("meanSimHitPhiGEMl1Odd",&track.meanSimHitPhiGEMl1Odd);
+  track_tree->Branch("meanSimHitRhoGEMl2Odd",&track. meanSimHitRhoGEMl2Odd);
+  track_tree->Branch("meanSimHitEtaGEMl2Odd",&track.meanSimHitEtaGEMl2Odd);
+  track_tree->Branch("meanSimHitPhiGEMl2Odd",&track.meanSimHitPhiGEMl2Odd);
+  track_tree->Branch("meanSimHitRhoCSCOdd",&track. meanSimHitRhoCSCOdd);
+  track_tree->Branch("meanSimHitEtaCSCOdd",&track.meanSimHitEtaCSCOdd);
+  track_tree->Branch("meanSimHitPhiCSCOdd",&track.meanSimHitPhiCSCOdd);
+  track_tree->Branch("propagatedSimHitRhoGEMl1Odd",&track. propagatedSimHitRhoGEMl1Odd);
+  track_tree->Branch("propagatedSimHitEtaGEMl1Odd",&track.propagatedSimHitEtaGEMl1Odd);
+  track_tree->Branch("propagatedSimHitPhiGEMl1Odd",&track.propagatedSimHitPhiGEMl1Odd);
+  track_tree->Branch("propagatedSimHitRhoGEMl2Odd",&track. propagatedSimHitRhoGEMl2Odd);
+  track_tree->Branch("propagatedSimHitEtaGEMl2Odd",&track.propagatedSimHitEtaGEMl2Odd);
+  track_tree->Branch("propagatedSimHitPhiGEMl2Odd",&track.propagatedSimHitPhiGEMl2Odd);
+  track_tree->Branch("propagatedSimHitRhoCSCOdd",&track. propagatedSimHitRhoCSCOdd);
+  track_tree->Branch("propagatedSimHitEtaCSCOdd",&track.propagatedSimHitEtaCSCOdd);
+  track_tree->Branch("propagatedSimHitPhiCSCOdd",&track.propagatedSimHitPhiCSCOdd);
+
+  track_tree->Branch("meanSimHitRhoGEMl1Both",&track. meanSimHitRhoGEMl1Both);
+  track_tree->Branch("meanSimHitEtaGEMl1Both",&track.meanSimHitEtaGEMl1Both);
+  track_tree->Branch("meanSimHitPhiGEMl1Both",&track.meanSimHitPhiGEMl1Both);
+  track_tree->Branch("meanSimHitRhoGEMl2Both",&track. meanSimHitRhoGEMl2Both);
+  track_tree->Branch("meanSimHitEtaGEMl2Both",&track.meanSimHitEtaGEMl2Both);
+  track_tree->Branch("meanSimHitPhiGEMl2Both",&track.meanSimHitPhiGEMl2Both);
+  track_tree->Branch("meanSimHitRhoCSCBoth",&track. meanSimHitRhoCSCBoth);
+  track_tree->Branch("meanSimHitEtaCSCBoth",&track.meanSimHitEtaCSCBoth);
+  track_tree->Branch("meanSimHitPhiCSCBoth",&track.meanSimHitPhiCSCBoth);
+  track_tree->Branch("propagatedSimHitRhoGEMl1Both",&track. propagatedSimHitRhoGEMl1Both);
+  track_tree->Branch("propagatedSimHitEtaGEMl1Both",&track.propagatedSimHitEtaGEMl1Both);
+  track_tree->Branch("propagatedSimHitPhiGEMl1Both",&track.propagatedSimHitPhiGEMl1Both);
+  track_tree->Branch("propagatedSimHitRhoGEMl2Both",&track. propagatedSimHitRhoGEMl2Both);
+  track_tree->Branch("propagatedSimHitEtaGEMl2Both",&track.propagatedSimHitEtaGEMl2Both);
+  track_tree->Branch("propagatedSimHitPhiGEMl2Both",&track.propagatedSimHitPhiGEMl2Both);
+  track_tree->Branch("propagatedSimHitRhoCSCBoth",&track. propagatedSimHitRhoCSCBoth);
+  track_tree->Branch("propagatedSimHitEtaCSCBoth",&track.propagatedSimHitEtaCSCBoth);
+  track_tree->Branch("propagatedSimHitPhiCSCBoth",&track.propagatedSimHitPhiCSCBoth);
 }
 
 
@@ -414,69 +475,104 @@ void GEMSimHitAnalyzer::analyzeTracks()
     GEMSimTracksProcessor::ChamberType has_gem_l2 = simTrkProcessor.chamberTypesHitGEM(itrk, 2);
     GEMSimTracksProcessor::ChamberType has_csc    = simTrkProcessor.chamberTypesHitCSC(itrk);
 
-    // want only to look at tracks that have hits in both GEM & CSC
+    // we want only to look at tracks that have hits in both GEM & CSC
     if ( !( has_csc && (has_gem_l1 || has_gem_l2) ) ) continue;
 
     cout<<"======== simtrack "<<itrk<<" ========="<<endl;
     cout<<"has gem1 gem2 csc "<<has_gem_l1<<" "<<has_gem_l2<<" "<<has_csc<<endl;
 
-    std::set<uint32_t> gem_ids = simTrkProcessor.getDetIdsGEM(itrk, GEMSimTracksProcessor::BOTH);
-    std::set<uint32_t> csc_ids = simTrkProcessor.getDetIdsCSC(itrk, GEMSimTracksProcessor::BOTH);
-    std::set<uint32_t> gem_ids_odd = simTrkProcessor.getDetIdsGEM(itrk, GEMSimTracksProcessor::ODD);
-    std::set<uint32_t> csc_ids_odd = simTrkProcessor.getDetIdsCSC(itrk, GEMSimTracksProcessor::ODD);
+    std::set<uint32_t> gem_ids =      simTrkProcessor.getDetIdsGEM(itrk, GEMSimTracksProcessor::BOTH);
+    std::set<uint32_t> csc_ids =      simTrkProcessor.getDetIdsCSC(itrk, GEMSimTracksProcessor::BOTH);
+    std::set<uint32_t> gem_ids_odd =  simTrkProcessor.getDetIdsGEM(itrk, GEMSimTracksProcessor::ODD);
+    std::set<uint32_t> csc_ids_odd =  simTrkProcessor.getDetIdsCSC(itrk, GEMSimTracksProcessor::ODD);
     std::set<uint32_t> gem_ids_even = simTrkProcessor.getDetIdsGEM(itrk, GEMSimTracksProcessor::EVEN);
     std::set<uint32_t> csc_ids_even = simTrkProcessor.getDetIdsCSC(itrk, GEMSimTracksProcessor::EVEN);
 
     cout<<"#detids: gem "<<gem_ids.size()<<" = "<<gem_ids_odd.size()<<"+"<<gem_ids_even.size()<<"   csc "<<csc_ids.size()<<" = "<<csc_ids_odd.size()<<"+"<<csc_ids_even.size()<<endl;
 
-    GlobalPoint sh_gem_l1 = simTrkProcessor.meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::BOTH);
-    GlobalPoint sh_gem_l2 = simTrkProcessor.meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::BOTH);
-    GlobalPoint sh_csc = simTrkProcessor.meanSimHitsPositionCSC(itrk, GEMSimTracksProcessor::BOTH);
+    // Important note: the global point is given by (0,0,0) by default when the track does not leave any SimHits in GEM layer 1. Exclusion of these points is done by requiring rho>0
+    GlobalPoint sh_gem_l1_even =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::EVEN);
+    GlobalPoint sh_gem_l2_even =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::EVEN);
+    GlobalPoint sh_csc_even =     simTrkProcessor.meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::EVEN);
+    GlobalPoint trk_gem_l1_even = simTrkProcessor.propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::EVEN);
+    GlobalPoint trk_gem_l2_even = simTrkProcessor.propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::EVEN);
+    GlobalPoint trk_csc_even =    simTrkProcessor.propagatedPositionCSC(itrk,     GEMSimTracksProcessor::EVEN);
 
-    GlobalPoint trk_gem_l1 = simTrkProcessor.propagatedPositionGEM(itrk, 1, GEMSimTracksProcessor::BOTH);
-    GlobalPoint trk_gem_l2 = simTrkProcessor.propagatedPositionGEM(itrk, 2, GEMSimTracksProcessor::BOTH);
-    GlobalPoint trk_csc = simTrkProcessor.propagatedPositionCSC(itrk, GEMSimTracksProcessor::BOTH);
+    GlobalPoint sh_gem_l1_odd =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::ODD);
+    GlobalPoint sh_gem_l2_odd =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::ODD);
+    GlobalPoint sh_csc_odd =     simTrkProcessor.meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::ODD);
+    GlobalPoint trk_gem_l1_odd = simTrkProcessor.propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::ODD);
+    GlobalPoint trk_gem_l2_odd = simTrkProcessor.propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::ODD);
+    GlobalPoint trk_csc_odd =    simTrkProcessor.propagatedPositionCSC(itrk,     GEMSimTracksProcessor::ODD);
 
-    if (!(sh_gem_l1 == p0))
-      cout<<"SH-TRK GEM L1  "<<sh_gem_l1<<" \t "<<trk_gem_l1<<" \t delta_r= "<<trk_gem_l1.perp() - sh_gem_l1.perp()
-        <<" \t delta_phi*r= "<<trk_gem_l1.perp() * reco::deltaPhi<GlobalPoint,GlobalPoint>(trk_gem_l1, sh_gem_l1)<<endl;
-    if (!(sh_gem_l2 == p0))
-      cout<<"SH-TRK GEM L2  "<<sh_gem_l2<<" \t "<<trk_gem_l2<<" \t delta_r= "<<trk_gem_l2.perp() - sh_gem_l2.perp()
-        <<" \t delta_phi*r= "<<trk_gem_l2.perp() * reco::deltaPhi<GlobalPoint,GlobalPoint>(trk_gem_l2, sh_gem_l2)<<endl;
-    if (!(sh_csc == p0))
-      cout<<"SH-TRK CSC     "<<sh_csc<<" \t "<<trk_csc<<" \t delta_r= "<<trk_csc.perp() - sh_csc.perp()
-        <<" \t delta_phi*r= "<<trk_csc.perp() * reco::deltaPhi<GlobalPoint,GlobalPoint>(trk_csc, sh_csc)<<endl;
+    GlobalPoint sh_gem_l1_both =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 1, GEMSimTracksProcessor::BOTH);
+    GlobalPoint sh_gem_l2_both =  simTrkProcessor.meanSimHitsPositionGEM(itrk, 2, GEMSimTracksProcessor::BOTH);
+    GlobalPoint sh_csc_both =     simTrkProcessor.meanSimHitsPositionCSC(itrk,    GEMSimTracksProcessor::BOTH);
+    GlobalPoint trk_gem_l1_both = simTrkProcessor.propagatedPositionGEM(itrk, 1,  GEMSimTracksProcessor::BOTH);
+    GlobalPoint trk_gem_l2_both = simTrkProcessor.propagatedPositionGEM(itrk, 2,  GEMSimTracksProcessor::BOTH);
+    GlobalPoint trk_csc_both =    simTrkProcessor.propagatedPositionCSC(itrk,     GEMSimTracksProcessor::BOTH);
 
-    if (!(sh_gem_l1 == p0 || sh_csc == p0))
-      cout<<"SH CSC-GEM L1   delta_eta= "<<trk_gem_l1.eta() - sh_csc.eta()
-        <<" \t delta_phi= "<<reco::deltaPhi<GlobalPoint,GlobalPoint>(trk_gem_l1, sh_csc)<<endl;
-    if (!(sh_gem_l2 == p0 || sh_csc == p0))
-      cout<<"SH CSC-GEM L2   delta_eta= "<<trk_gem_l2.eta() - sh_csc.eta()
-        <<" \t delta_phi= "<<reco::deltaPhi<GlobalPoint,GlobalPoint>(trk_gem_l2, sh_csc)<<endl;
+    track.meanSimHitRhoGEMl1Even = sh_gem_l1_even.perp();
+    track.meanSimHitEtaGEMl1Even = sh_gem_l1_even.eta();
+    track.meanSimHitPhiGEMl1Even = sh_gem_l1_even.phi();
+    track.meanSimHitRhoGEMl2Even = sh_gem_l2_even.perp();
+    track.meanSimHitEtaGEMl2Even = sh_gem_l2_even.eta();
+    track.meanSimHitPhiGEMl2Even = sh_gem_l2_even.phi();
+    track.meanSimHitRhoCSCEven = sh_csc_even.perp();
+    track.meanSimHitEtaCSCEven = sh_csc_even.eta();
+    track.meanSimHitPhiCSCEven = sh_csc_even.phi();
+    track.propagatedSimHitRhoGEMl1Even = trk_gem_l1_even.perp();
+    track.propagatedSimHitEtaGEMl1Even = trk_gem_l1_even.eta();
+    track.propagatedSimHitPhiGEMl1Even = trk_gem_l1_even.phi();
+    track.propagatedSimHitRhoGEMl2Even = trk_gem_l2_even.perp();
+    track.propagatedSimHitEtaGEMl2Even = trk_gem_l2_even.eta();
+    track.propagatedSimHitPhiGEMl2Even = trk_gem_l2_even.phi();
+    track.propagatedSimHitRhoCSCEven = trk_csc_even.perp();
+    track.propagatedSimHitEtaCSCEven = trk_csc_even.eta();
+    track.propagatedSimHitPhiCSCEven = trk_csc_even.phi();
 
+    track.meanSimHitRhoGEMl1Odd = sh_gem_l1_odd.perp();
+    track.meanSimHitEtaGEMl1Odd = sh_gem_l1_odd.eta();
+    track.meanSimHitPhiGEMl1Odd = sh_gem_l1_odd.phi();
+    track.meanSimHitRhoGEMl2Odd = sh_gem_l2_odd.perp();
+    track.meanSimHitEtaGEMl2Odd = sh_gem_l2_odd.eta();
+    track.meanSimHitPhiGEMl2Odd = sh_gem_l2_odd.phi();
+    track.meanSimHitRhoCSCOdd = sh_csc_odd.perp();
+    track.meanSimHitEtaCSCOdd = sh_csc_odd.eta();
+    track.meanSimHitPhiCSCOdd = sh_csc_odd.phi();
+    track.propagatedSimHitRhoGEMl1Odd = trk_gem_l1_odd.perp();
+    track.propagatedSimHitEtaGEMl1Odd = trk_gem_l1_odd.eta();
+    track.propagatedSimHitPhiGEMl1Odd = trk_gem_l1_odd.phi();
+    track.propagatedSimHitRhoGEMl2Odd = trk_gem_l2_odd.perp();
+    track.propagatedSimHitEtaGEMl2Odd = trk_gem_l2_odd.eta();
+    track.propagatedSimHitPhiGEMl2Odd = trk_gem_l2_odd.phi();
+    track.propagatedSimHitRhoCSCOdd = trk_csc_odd.perp();
+    track.propagatedSimHitEtaCSCOdd = trk_csc_odd.eta();
+    track.propagatedSimHitPhiCSCOdd = trk_csc_odd.phi();
+
+    track.meanSimHitRhoGEMl1Both = sh_gem_l1_both.perp();
+    track.meanSimHitEtaGEMl1Both = sh_gem_l1_both.eta();
+    track.meanSimHitPhiGEMl1Both = sh_gem_l1_both.phi();
+    track.meanSimHitRhoGEMl2Both = sh_gem_l2_both.perp();
+    track.meanSimHitEtaGEMl2Both = sh_gem_l2_both.eta();
+    track.meanSimHitPhiGEMl2Both = sh_gem_l2_both.phi();
+    track.meanSimHitRhoCSCBoth = sh_csc_both.perp();
+    track.meanSimHitEtaCSCBoth = sh_csc_both.eta();
+    track.meanSimHitPhiCSCBoth = sh_csc_both.phi();
+    track.propagatedSimHitRhoGEMl1Both = trk_gem_l1_both.perp();
+    track.propagatedSimHitEtaGEMl1Both = trk_gem_l1_both.eta();
+    track.propagatedSimHitPhiGEMl1Both = trk_gem_l1_both.phi();
+    track.propagatedSimHitRhoGEMl2Both = trk_gem_l2_both.perp();
+    track.propagatedSimHitEtaGEMl2Both = trk_gem_l2_both.eta();
+    track.propagatedSimHitPhiGEMl2Both = trk_gem_l2_both.phi();
+    track.propagatedSimHitRhoCSCBoth = trk_csc_both.perp();
+    track.propagatedSimHitEtaCSCBoth = trk_csc_both.eta();
+    track.propagatedSimHitPhiCSCBoth = trk_csc_both.phi();
+    
     cout<<"========="<<endl;
-  }
 
-  /*
-  for (edm::SimTrackContainer::const_iterator iTrack = simTracks->begin(); iTrack != simTracks->end(); ++iTrack) {
-    track.particleId = iTrack->type();
-    track.trackId = iTrack->trackId();
-    track.globalX = iTrack->trackerSurfacePosition().X();
-    track.globalY = iTrack->trackerSurfacePosition().Y();
-    track.globalZ = iTrack->trackerSurfacePosition().Z();
-    track.globalR = iTrack->trackerSurfaceMomentum().R();
-    track.globalEta = iTrack->trackerSurfaceMomentum().Eta();
-    tracks.globalPhi = iTrack->trackerSurfaceMomentum().Phi();
-//     tracks.localX = iTrack.trackerSurfacePosition().x();
-//     tracks.localY = iTrack.trackerSurfacePosition().y();
-//     tracks.localZ = iTrack.trackerSurfacePosition().z();
-//     tracks.localR = iTrack.trackerSurfacePosition().R();
-//     tracks.localEta = iTrack.trackerSurfacePosition().Eta();
-//     track.localPhi = iTrack.trackerSurfacePosition().Phi();
     track_tree->Fill();    
- }
- */
-
+  }
 }
 
 
