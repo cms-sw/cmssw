@@ -28,7 +28,7 @@ def InitMatplotlib():
     matplotlib.rcParams["text.usetex"] = False
     matplotlib.rcParams["legend.numpoints"] = 1
     matplotlib.rcParams["figure.figsize"] = (8., 6.)
-    matplotlib.rcParams["figure.dpi"] = 200
+    matplotlib.rcParams["figure.dpi"] = 300
     matplotlib.rcParams["savefig.dpi"] = matplotlib.rcParams["figure.dpi"]
     # End of InitMatplotlib().
 
