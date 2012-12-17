@@ -20,7 +20,7 @@ setenv TYPE Photons
 setenv RUNTYPE Central
 #setenv RUNTYPE Local
 setenv STARTUP True
-setenv FASTSIM False
+setenv FASTSIM True
 
 setenv CMSSWver1 6_1_0
 setenv CMSSWver2 6_1_0
@@ -34,8 +34,8 @@ if ( $STARTUP == True &&  $FASTSIM == False) then
 setenv OLDGLOBALTAG START61_V5A-v1
 setenv NEWGLOBALTAG START61_V8-v1
 else if (  $STARTUP == True  && $FASTSIM == True) then
-setenv OLDGLOBALTAG START61_V4_FastSim-v1
-setenv NEWGLOBALTAG START61_V5A_FastSim-v1
+setenv OLDGLOBALTAG START61_V5A_FastSim-v1
+setenv NEWGLOBALTAG START61_V8_FastSim-v1
 endif
 
 
@@ -65,8 +65,8 @@ setenv PU False
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
-#setenv SAMPLE H130GGgluonfusion
-setenv SAMPLE PhotonJets_Pt_10
+setenv SAMPLE H130GGgluonfusion
+#setenv SAMPLE PhotonJets_Pt_10
 #setenv SAMPLE GammaJets_Pt_80_120
 #setenv SAMPLE QCD_Pt_80_120
 
