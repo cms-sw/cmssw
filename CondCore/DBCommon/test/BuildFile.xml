@@ -43,3 +43,6 @@
   <use   name="rootcintex"/>
   <use   name="zlib"/>
 </bin>
+<bin   file="testFullDbAccess.cc" name="testFullDbAccess">
+  <lib   name="testDict"/>
+</bin>
