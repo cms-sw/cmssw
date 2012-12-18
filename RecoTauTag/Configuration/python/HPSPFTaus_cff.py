@@ -236,6 +236,7 @@ hpsPFTauDiscriminationByChargedIsolationSeq = cms.Sequence(
 
 
 # Define MVA based isolation discrimators
+#   MVA Isolation Version 1
 hpsPFTauDiscriminationByIsolationMVAraw = pfRecoTauDiscriminationByMVAIsolation.clone(
     PFTauProducer = cms.InputTag("hpsPFTauProducer"),
     Prediscriminants = requireDecayMode.clone(),
@@ -255,6 +256,27 @@ hpsPFTauDiscriminationByMediumIsolationMVA.Prediscriminants.mva.cut = cms.double
 hpsPFTauDiscriminationByTightIsolationMVA = copy.deepcopy(hpsPFTauDiscriminationByLooseIsolationMVA)
 hpsPFTauDiscriminationByTightIsolationMVA.Prediscriminants.mva.cut = cms.double(0.921)
 
+#   MVA Isolation Version 2
+hpsPFTauDiscriminationByIsolationMVA2raw = pfRecoTauDiscriminationByMVAIsolation.clone(
+    PFTauProducer = cms.InputTag("hpsPFTauProducer"),
+    Prediscriminants = requireDecayMode.clone(),
+    returnMVA = cms.bool(True),
+    gbrfFilePath = cms.FileInPath('RecoTauTag/RecoTau/data/gbrfTauIso_v2.root')
+    )
+
+hpsPFTauDiscriminationByLooseIsolationMVA2 = hpsPFTauDiscriminationByDecayModeFinding.clone(
+    Prediscriminants = cms.PSet(
+        BooleanOperator = cms.string("and"),
+        mva = cms.PSet(
+            Producer = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA2raw'),
+            cut = cms.double(0.85)
+        )
+    ))
+hpsPFTauDiscriminationByMediumIsolationMVA2 = copy.deepcopy(hpsPFTauDiscriminationByLooseIsolationMVA2)
+hpsPFTauDiscriminationByMediumIsolationMVA2.Prediscriminants.mva.cut = cms.double(0.90)
+hpsPFTauDiscriminationByTightIsolationMVA2 = copy.deepcopy(hpsPFTauDiscriminationByLooseIsolationMVA2)
+hpsPFTauDiscriminationByTightIsolationMVA2.Prediscriminants.mva.cut = cms.double(0.94)
+
 from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets as dummy
 kt6PFJetsForRhoComputationVoronoi = dummy.clone(
     doRhoFastjet = True,
@@ -266,7 +288,11 @@ hpsPFTauDiscriminationByMVAIsolationSeq = cms.Sequence(
     hpsPFTauDiscriminationByIsolationMVAraw*
     hpsPFTauDiscriminationByLooseIsolationMVA*
     hpsPFTauDiscriminationByMediumIsolationMVA*
-    hpsPFTauDiscriminationByTightIsolationMVA
+    hpsPFTauDiscriminationByTightIsolationMVA*
+    hpsPFTauDiscriminationByIsolationMVA2raw*
+    hpsPFTauDiscriminationByLooseIsolationMVA2*
+    hpsPFTauDiscriminationByMediumIsolationMVA2*
+    hpsPFTauDiscriminationByTightIsolationMVA2
     )
 
 #copying discriminator against electrons and muons
