@@ -35,13 +35,13 @@ namespace cond{
 
     std::string getMapping( const std::string& oId );
 
+    void flush();
+
     void close();
-  private:
-    std::string lookup( const std::string& oId );
   private:
     cond::DbConnection m_conn;
     cond::DbSession m_session;
-
+    std::map<std::string,std::string> m_buffer;
   };
 
   class IOVImportIterator {

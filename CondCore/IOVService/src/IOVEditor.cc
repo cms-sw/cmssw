@@ -63,11 +63,15 @@ namespace cond {
   std::string EXPORT_REGISTRY_TABLE("COND_EXPORT_REGISTRY");
 
   ExportRegistry::ExportRegistry( DbConnection& conn ):
-    m_conn( conn ){
+    m_conn( conn ),
+    m_session(),
+    m_buffer(){
     m_session = m_conn.createSession();
   }
   ExportRegistry::ExportRegistry():
-    m_conn(){
+    m_conn(),
+    m_session(),
+    m_buffer(){
     m_session = m_conn.createSession();
   }
 
@@ -94,7 +98,21 @@ namespace cond {
   
   }
   
-  std::string ExportRegistry::lookup( const std::string& oId ){
+  void ExportRegistry::addMapping( const std::string& oId, 
+				   const std::string& newOid ){
+    std::map<std::string,std::string>::const_iterator iM = m_buffer.find( oId );
+    if( iM != m_buffer.end() ){
+      throw cond::Exception("ExportRegistry::addMapping: specified oId:\""+oId+"\" has been mapped already.");
+    }
+    m_buffer.insert( std::make_pair( oId, newOid ) );
+  }
+
+  std::string ExportRegistry::getMapping( const std::string& oId ){
+    std::map<std::string,std::string>::const_iterator iM = m_buffer.find( oId );
+    if( iM != m_buffer.end() ){
+      return iM->second;
+    }
+    m_session.transaction().start( true );
     coral::ISchema& schema = m_session.nominalSchema();
     coral::ITable& table = schema.tableHandle( EXPORT_REGISTRY_TABLE );
     std::auto_ptr<coral::IQuery> query( table.newQuery() );
@@ -110,37 +128,32 @@ namespace cond {
     if( cursor.next() ){
       ret = cursor.currentRow()["MAPPED_OID"].data<std::string>();
     }
-    return ret;
-  }
-
-  void ExportRegistry::addMapping( const std::string& oId, 
-				   const std::string& newOid ){
-    cond::DbScopedTransaction trans( m_session );
-    trans.start();
-    std::string mapped = lookup( oId );
-    if( !mapped.empty() ){
-      throw cond::Exception("ExportRegistry::addMapping: specified oId:\""+oId+"\" has been mapped already.");
-    }
-    coral::ISchema& schema = m_session.nominalSchema();
-    coral::ITable& table = schema.tableHandle( EXPORT_REGISTRY_TABLE );
-    coral::AttributeList dataToInsert;
-    dataToInsert.extend<std::string>( "OID");
-    dataToInsert.extend<std::string>( "MAPPED_OID" );
-    dataToInsert[ "OID" ].data<std::string>() = oId;
-    dataToInsert[ "MAPPED_OID" ].data<std::string>() = newOid;
-    table.dataEditor().insertRow( dataToInsert );
-    trans.commit();
-  }
-
-  std::string ExportRegistry::getMapping( const std::string& oId ){
-    std::string ret("");
-    m_session.transaction().start( true );
-    ret = lookup( oId );
     m_session.transaction().commit();
     return ret;
   }
 
+  void ExportRegistry::flush(){
+    if( m_buffer.size() ){
+      cond::DbScopedTransaction trans( m_session );
+      trans.start();
+      coral::ISchema& schema = m_session.nominalSchema();
+      coral::ITable& table = schema.tableHandle( EXPORT_REGISTRY_TABLE );
+      for( std::map<std::string,std::string>::const_iterator iM = m_buffer.begin();
+	 iM !=  m_buffer.end(); iM++ ){
+	coral::AttributeList dataToInsert;
+	dataToInsert.extend<std::string>( "OID");
+	dataToInsert.extend<std::string>( "MAPPED_OID" );
+	dataToInsert[ "OID" ].data<std::string>() = iM->first;
+	dataToInsert[ "MAPPED_OID" ].data<std::string>() = iM->second;
+	table.dataEditor().insertRow( dataToInsert );
+      }
+      trans.commit();
+      m_buffer.clear();
+    }
+  }
+
   void ExportRegistry::close(){
+    m_buffer.clear();
     m_session.close();
   }
 
