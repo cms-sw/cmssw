@@ -20,7 +20,7 @@ namespace ora {
     virtual ~Test10(){
     }
 
-    void execute( const std::string& connStr ){
+    int execute( const std::string& connStr ){
       ora::Database db;
       //db.configuration().setMessageVerbosity( coral::Debug );
       db.connect( connStr );
@@ -144,12 +144,13 @@ namespace ora {
       db.drop();
       db.transaction().commit();
       db.disconnect();
+      return 0;
     }
   };
 }
 
 int main( int argc, char** argv ){
   ora::Test10 test;
-  test.run();
+  return test.run();
 }
 

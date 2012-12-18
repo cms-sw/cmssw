@@ -174,7 +174,7 @@ class TestORABasicException : public ora::TestBase {
     virtual ~TestORABasicException(){
     }
 
-    void execute( const std::string& connStr ){
+    int execute( const std::string& connStr ){
       ora::Database db;
       std::cout <<"####### Case0: Database NOT connected."<<std::endl; 
       bool connected = db.isConnected();
@@ -218,11 +218,12 @@ class TestORABasicException : public ora::TestBase {
       std::cout << "# Transaction committed\n# Closing session" << std::endl;
       db.disconnect();
       std::cout << "# Session closed" << std::endl;
+      return 0;
     }
 };
 
 int main(int argc, char** argv){
   TestORABasicException test;
-  test.run();
+  return test.run();
 }
 

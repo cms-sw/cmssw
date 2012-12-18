@@ -19,7 +19,7 @@ namespace ora {
     virtual ~TestORAIO(){
     }
 
-    void execute( const std::string& connStr ){
+    int execute( const std::string& connStr ){
       ora::Database db;
       //db.configuration().setMessageVerbosity( coral::Debug );
       std::vector<int> oids;
@@ -99,12 +99,13 @@ namespace ora {
       trans0.commit();
       std::cout << "** disconnecting source db"<<std::endl;
       db.disconnect();
+      return 0;
     }
   };
 }
 
 int main(int argc, char** argv){
   ora::TestORAIO test;
-  test.run();
+  return test.run();
 }
 

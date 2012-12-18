@@ -18,7 +18,7 @@ namespace ora {
     virtual ~Test5(){
     }
 
-    void execute( const std::string& connStr ){
+    int execute( const std::string& connStr ){
       ora::Database db;
       //db.configuration().setMessageVerbosity( coral::Debug );
       db.connect( connStr );
@@ -148,12 +148,13 @@ namespace ora {
       db.drop();
       trans0.commit();
       db.disconnect();
+      return 0;
     }
   };
 }
 
 int main(  int argc, char** argv ){
   ora::Test5 test;
-  test.run();
+  return test.run();
 }
 

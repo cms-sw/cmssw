@@ -18,7 +18,7 @@ namespace ora {
     virtual ~Test1(){
     }
 
-    void execute( const std::string& connStr ){
+    int execute( const std::string& connStr ){
       ora::Database db;
       // writing...
       db.connect( connStr );
@@ -65,7 +65,7 @@ namespace ora {
 	boost::shared_ptr<MixingModuleConfigV> sr = contH0.fetch<MixingModuleConfigV>( iO->first );
         if( *sr != *iO->second ){
 	  std::cout <<"Vector Data read on oid="<<iO->first<<" different from expected."<<std::endl;
-	  return;
+	  return 1;
         } 
       }
       std::cout << "Vector Data read are correct."<<std::endl;
@@ -74,7 +74,7 @@ namespace ora {
 	boost::shared_ptr<MixingModuleConfigA> sr = contH1.fetch<MixingModuleConfigA>( iO->first );
         if( *sr != *iO->second ){
 	  std::cout <<"Array Data read on oid="<<iO->first<<" different from expected."<<std::endl;
-	  return;
+	  return 1;
         } 
       }
       std::cout << "Array Data read are correct."<<std::endl;
@@ -83,7 +83,7 @@ namespace ora {
 	boost::shared_ptr<MixingModuleConfigIA> sr = contH2.fetch<MixingModuleConfigIA>( iO->first );
         if( *sr != *iO->second ){
 	  std::cout <<"Inline Array Data read on oid="<<iO->first<<" different from expected."<<std::endl;
-	  return;
+	  return 1;
         } 
       }
       std::cout << "Inline Array Data read are correct."<<std::endl;
@@ -92,12 +92,13 @@ namespace ora {
       db.drop();
       trans.commit();
       db.disconnect();
+      return 0;
     }
   };
 }
 
 int main( int argc, char** argv ){
   ora::Test1 test;
-  test.run( );
+  return test.run( );
 }
 

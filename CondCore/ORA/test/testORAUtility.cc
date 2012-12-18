@@ -18,7 +18,7 @@ namespace ora {
     virtual ~TestORAUtilities(){
     }
 
-    void execute( const std::string& connStr0 ){
+    int execute( const std::string& connStr0 ){
       ora::Database db;
       std::string connStr1( "sqlite_file:test1.db" );
       std::string connStr2( "sqlite_file:test2.db" );
@@ -142,12 +142,13 @@ namespace ora {
       db.drop();
       trans.commit();
       db.disconnect();
+      return 0;
     }
   };
 }
 
 int main( int argc, char** argv ){
   ora::TestORAUtilities test;
-  test.run();
+  return test.run();
 }
 

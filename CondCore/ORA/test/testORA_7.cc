@@ -169,7 +169,7 @@ namespace ora {
     virtual ~Test7(){
     }
 
-    void execute( const std::string& connStr ){
+    int execute( const std::string& connStr ){
       ora::Database db;
       //db.configuration().setMessageVerbosity( coral::Debug );
       PrimitiveContainerStreamingService* blobServ = new PrimitiveContainerStreamingService;
@@ -248,12 +248,13 @@ namespace ora {
       db.drop();
       trans.commit();
       db.disconnect();
+      return 0;
     }
   };
 }
 
 int main( int argc, char** argv ){
   ora::Test7 test;
-  test.run();
+  return test.run();
 }
 

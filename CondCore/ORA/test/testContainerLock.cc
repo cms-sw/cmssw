@@ -15,7 +15,7 @@ namespace ora {
     virtual ~TestContainerLock(){
     }
 
-    void execute( const std::string& connStr ){
+    int execute( const std::string& connStr ){
       ora::Database db0;
       //db0.configuration().setMessageVerbosity( coral::Debug );
       db0.connect( connStr );
@@ -34,8 +34,7 @@ namespace ora {
       trans0.start( false );
       ora::Container contH0 = db0.containerHandle( "Cont0" );
       if( contH0.isLocked() ){
-	std::cout <<"### Test ERROR: container should not be locked."<<std::endl;
-	return;
+	ora::throwException( "Container should not be locked.","testContainerLock");
       }
       std::cout << "#### locking..."<<std::endl;
       contH0.lock();
@@ -62,12 +61,13 @@ namespace ora {
       db0.drop();
       trans1.commit();
       db0.disconnect();
+      return 0;
     }
   };
 }
 
 int main(int argc, char** argv){
   ora::TestContainerLock test;
-  test.run();
+  return test.run();
 }
 

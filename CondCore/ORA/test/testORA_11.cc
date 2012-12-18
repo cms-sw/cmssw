@@ -20,7 +20,7 @@ namespace ora {
     virtual ~Test11(){
     }
 
-    void execute( const std::string& connStr ){
+    int execute( const std::string& connStr ){
       ora::Database db;
       //db.configuration().setMessageVerbosity( coral::Debug );
       db.connect( connStr );
@@ -218,13 +218,13 @@ namespace ora {
       
       ora::QueryableVector<int> mq;
       std::sort( mq.begin(),mq.end());
-      
+      return 0;
     }
   };
 }
 
 int main(  int argc, char** argv  ){
   ora::Test11 test;
-  test.run();
+  return test.run();
 }
 

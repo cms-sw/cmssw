@@ -23,9 +23,9 @@ namespace ora {
     virtual ~TestBase(){
     }    
 
-    virtual void execute( const std::string& connectionString ) = 0;
+    virtual int execute( const std::string& connectionString ) = 0;
 
-    void run( const std::string& connectionString ){
+    int run( const std::string& connectionString ){
       const char* authEnv = ::getenv( "CORAL_AUTH_PATH" );
       std::string defaultPath("/afs/cern.ch/cms/DB/conddb/int9r");
       std::string pathEnv(std::string("CORAL_AUTH_PATH=")+defaultPath);
@@ -40,20 +40,28 @@ namespace ora {
 	std::set<std::string> exclude;
 	exclude.insert( Serializer::tableName());
 	SchemaUtils::cleanUp( connectionString, exclude );
-	execute( connectionString );
+	int ret = 1;
+	try {
+	  ret = execute( connectionString );
+	}catch ( const std::exception& exc ){
+	  std::cout << "### TEST "<<m_testName<<" ERROR: "<<exc.what()<<std::endl;  
+	  return 1;
+	}
 	serializer.release();
+	return  ret;
       }catch ( const std::exception& exc ){
-	std::cout << "### TEST "<<m_testName<<" ERROR: "<<exc.what()<<std::endl;      
+	std::cout << "### TEST SETUP "<<m_testName<<" ERROR: "<<exc.what()<<std::endl;  
+	return 1;
       }
     }
 
-    void run(){
+    int run(){
       std::string connStr("oracle://cms_orcoff_int/CMS_COND_UNIT_TESTS");
       const char* envVar = ::getenv( "ORA_TEST_DB" );
       if( envVar ){
         connStr = std::string(envVar);
       }
-      run( connStr );
+      return run( connStr );
     }
 
   protected:
