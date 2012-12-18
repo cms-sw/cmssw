@@ -15,7 +15,7 @@ goodVertex = cms.EDFilter("VertexSelector",
 goodMuons = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("patMuonsForZmumuSelection"),
     cut = cms.string(
-        'pt > 10 && abs(eta) < 2.5 && isGlobalMuon && isPFMuon '
+        'pt > 8 && abs(eta) < 2.5 && isGlobalMuon && isPFMuon '
         ' && track.hitPattern.trackerLayersWithMeasurement > 5 & innerTrack.hitPattern.numberOfValidPixelHits > 0'
         ' && abs(dB) < 0.2 && globalTrack.normalizedChi2 < 10'
         ' && globalTrack.hitPattern.numberOfValidMuonHits > 0 && numberOfMatchedStations > 1'
@@ -59,8 +59,8 @@ highestPtMuMinusPFIso = cms.EDFilter("UniquePATMuonSelector",
 
 goldenZmumuCandidatesGe0IsoMuons = cms.EDProducer("CandViewShallowCloneCombiner",
     checkCharge = cms.bool(True),
-    # require one of the muons with pT > 20
-    cut = cms.string('charge = 0 & max(daughter(0).pt, daughter(1).pt) > 20'),
+    # require one of the muons with pT > 17 GeV
+    cut = cms.string('charge = 0 & max(daughter(0).pt, daughter(1).pt) > 17'),
     decay = cms.string("highestPtMuPlus@+ highestPtMuMinus@-")
 )
 

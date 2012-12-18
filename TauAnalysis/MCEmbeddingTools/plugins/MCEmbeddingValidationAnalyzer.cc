@@ -12,10 +12,14 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+
 MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::ParameterSet& cfg)
-  : srcRecMuons_(cfg.getParameter<edm::InputTag>("srcRecMuons")),
+  : srcReplacedMuons_(cfg.getParameter<edm::InputTag>("srcReplacedMuons")),
+    srcRecMuons_(cfg.getParameter<edm::InputTag>("srcRecMuons")),
     srcRecTracks_(cfg.getParameter<edm::InputTag>("srcRecTracks")),
     srcRecPFCandidates_(cfg.getParameter<edm::InputTag>("srcRecPFCandidates")),
     srcRecVertex_(cfg.getParameter<edm::InputTag>("srcRecVertex")),
@@ -26,7 +30,9 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcRecLeg2_(cfg.getParameter<edm::InputTag>("srcRecLeg2")),
     srcWeights_(cfg.getParameter<vInputTag>("srcWeights")),
     srcGenFilterInfo_(cfg.getParameter<edm::InputTag>("srcGenFilterInfo")),
-    dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory"))
+    dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
+    replacedMuonPtThresholdHigh_(cfg.getParameter<double>("replacedMuonPtThresholdHigh")),
+    replacedMuonPtThresholdLow_(cfg.getParameter<double>("replacedMuonPtThresholdLow"))
 {
 //--- setup electron Pt, eta and phi distributions;
 //    electron id & isolation and trigger efficiencies
@@ -43,6 +49,7 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
 //--- setup tau Pt, eta and phi distributions;
 //    tau id efficiency
   setupLeptonDistribution(cfg, "tauDistributions", tauDistributions_);
+  setupTauDistributionExtra(cfg, "tauExtraDistributions", tauDistributionsExtra_);
   setupLeptonEfficiency(cfg, "tauEfficiencies", tauEfficiencies_);
 
 //--- setup MET Pt and phi distributions;
@@ -60,6 +67,7 @@ MCEmbeddingValidationAnalyzer::~MCEmbeddingValidationAnalyzer()
   cleanCollection(muonEfficiencies_);
   cleanCollection(muonL1TriggerEfficiencies_);
   cleanCollection(tauDistributions_);
+  cleanCollection(tauDistributionsExtra_);
   cleanCollection(tauEfficiencies_);
   cleanCollection(metDistributions_);
   cleanCollection(metL1TriggerEfficiencies_);
@@ -83,6 +91,27 @@ void MCEmbeddingValidationAnalyzer::setupLeptonDistribution(const edm::Parameter
       std::string dqmDirectory = dqmDirectory_full(cfgLeptonDistribution->getParameter<std::string>("dqmDirectory"));
       leptonDistributionT<T>* leptonDistribution = new leptonDistributionT<T>(srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory);
       leptonDistributions.push_back(leptonDistribution);
+    }
+  }
+}
+
+void MCEmbeddingValidationAnalyzer::setupTauDistributionExtra(const edm::ParameterSet& cfg, const std::string& keyword, std::vector<tauDistributionExtra*>& tauDistributionsExtra)
+{
+  if ( cfg.exists(keyword) ) {
+    edm::VParameterSet cfgLeptonDistributions = cfg.getParameter<edm::VParameterSet>(keyword);
+    for ( edm::VParameterSet::const_iterator cfgLeptonDistribution = cfgLeptonDistributions.begin();
+	  cfgLeptonDistribution != cfgLeptonDistributions.end(); ++cfgLeptonDistribution ) {
+      edm::InputTag srcGen = cfgLeptonDistribution->getParameter<edm::InputTag>("srcGen");
+      std::string cutGen = cfgLeptonDistribution->exists("cutGen") ? 
+	cfgLeptonDistribution->getParameter<std::string>("cutGen") : "";
+      edm::InputTag srcRec = cfgLeptonDistribution->getParameter<edm::InputTag>("srcRec");
+      std::string cutRec = cfgLeptonDistribution->exists("cutRec") ? 
+	cfgLeptonDistribution->getParameter<std::string>("cutRec") : "";
+      double dRmatch = cfgLeptonDistribution->exists("dRmatch") ? 
+	cfgLeptonDistribution->getParameter<double>("dRmatch") : 0.3;
+      std::string dqmDirectory = dqmDirectory_full(cfgLeptonDistribution->getParameter<std::string>("dqmDirectory"));
+      tauDistributionExtra* tauDistribution = new tauDistributionExtra(srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory);
+      tauDistributionsExtra.push_back(tauDistribution);
     }
   }
 }
@@ -173,6 +202,8 @@ void MCEmbeddingValidationAnalyzer::beginJob()
 //--- book all histograms
   histogramGenFilterEfficiency_     = dqmStore.book1D("genFilterEfficiency",    "genFilterEfficiency",    102,     -0.01,         1.01);
 
+  histogramRotationAngleMatrix_     = dqmStore.book2D("rfRotationAngleMatrix",  "rfRotationAngleMatrix",    2,     -0.5,          1.5, 2, -0.5, 1.5);
+
   histogramNumTracksPtGt5_          = dqmStore.book1D("numTracksPtGt5",         "numTracksPtGt5",          50,     -0.5,         49.5);
   histogramNumTracksPtGt10_         = dqmStore.book1D("numTracksPtGt10",        "numTracksPtGt10",         50,     -0.5,         49.5);
   histogramNumTracksPtGt20_         = dqmStore.book1D("numTracksPtGt20",        "numTracksPtGt20",         50,     -0.5,         49.5);
@@ -214,6 +245,17 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   histogramRecVisDiTauPhi_          = dqmStore.book1D("recVisDiTauPhi",         "recVisDiTauPhi",          72, -TMath::Pi(), +TMath::Pi());
   histogramRecVisDiTauMass_         = dqmStore.book1D("recVisDiTauMass",        "recVisDiTauMass",        500,      0.,         500.);
 
+  histogramGenLeg1Pt_               = dqmStore.book1D("genLeg1Pt",              "genLeg1Pt",              250,      0.,         250.);
+  histogramGenLeg1Eta_              = dqmStore.book1D("genLeg1Eta",             "genLeg1Eta",             198,     -9.9,         +9.9);
+  histogramGenLeg1Phi_              = dqmStore.book1D("genLeg1Phi",             "genLeg1Phi",              72, -TMath::Pi(), +TMath::Pi());
+  histogramGenLeg1X_                = dqmStore.book1D("genLeg1X",               "genLeg1X",               102,     -0.01,         1.01);
+  histogramRecLeg1X_                = dqmStore.book1D("recLeg1X",               "recLeg1X",               102,     -0.01,         1.01);
+  histogramGenLeg2Pt_               = dqmStore.book1D("genLeg2Pt",              "genLeg2Pt",              250,      0.,         250.);
+  histogramGenLeg2Eta_              = dqmStore.book1D("genLeg2Eta",             "genLeg2Eta",             198,     -9.9,         +9.9);
+  histogramGenLeg2Phi_              = dqmStore.book1D("genLeg2Phi",             "genLeg2Phi",              72, -TMath::Pi(), +TMath::Pi());
+  histogramGenLeg2X_                = dqmStore.book1D("genLeg2X",               "genLeg2X",               102,     -0.01,         1.01);
+  histogramRecLeg2X_                = dqmStore.book1D("recLeg2X",               "recLeg2X",               102,     -0.01,         1.01);
+
   bookHistograms(electronDistributions_, dqmStore);
   bookHistograms(electronEfficiencies_, dqmStore);
   bookHistograms(electronL1TriggerEfficiencies_, dqmStore);
@@ -221,6 +263,7 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   bookHistograms(muonEfficiencies_, dqmStore);
   bookHistograms(muonL1TriggerEfficiencies_, dqmStore);
   bookHistograms(tauDistributions_, dqmStore);
+  bookHistograms(tauDistributionsExtra_, dqmStore);
   bookHistograms(tauEfficiencies_, dqmStore);
   bookHistograms(metDistributions_, dqmStore);
   bookHistograms(metL1TriggerEfficiencies_, dqmStore);
@@ -252,6 +295,83 @@ namespace
 	}
       }
     }
+  }
+
+  void fillX1andX2Distributions(const edm::Event& evt, 
+				const edm::InputTag& srcGenDiTau, const edm::InputTag& srcLeg1, const edm::InputTag& srcLeg2, 
+				MonitorElement* histogram_leg1Pt, MonitorElement* histogram_leg1Eta, MonitorElement* histogram_leg1Phi, MonitorElement* histogram_leg1X, 
+				MonitorElement* histogram_leg2Pt, MonitorElement* histogram_leg2Eta, MonitorElement* histogram_leg2Phi, MonitorElement* histogram_leg2X, 
+				double evtWeight)
+  {
+    //std::cout << "<fillX1andX2Distributions>:" << std::endl;
+    //std::cout << " srcLeg1 = " << srcLeg1.label() << std::endl;
+    //std::cout << " srcLeg2 = " << srcLeg2.label() << std::endl;
+    typedef edm::View<reco::Candidate> CandidateView;
+    edm::Handle<CandidateView> genDiTaus;
+    evt.getByLabel(srcGenDiTau, genDiTaus);
+    edm::Handle<CandidateView> visDecayProducts1;    
+    evt.getByLabel(srcLeg1, visDecayProducts1);
+    //std::cout << "#visDecayProducts1 = " << visDecayProducts1->size() << std::endl;
+    edm::Handle<CandidateView> visDecayProducts2;    
+    evt.getByLabel(srcLeg2, visDecayProducts2);
+    //std::cout << "#visDecayProducts2 = " << visDecayProducts2->size() << std::endl;
+    for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
+	  genDiTau != genDiTaus->end(); ++genDiTau ) {
+      const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
+      if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
+      const reco::Candidate* genLeg1 = genDiTau_composite->daughter(0);
+      const reco::Candidate* genLeg2 = genDiTau_composite->daughter(1);
+      //std::cout << "genLeg1: Pt = " << genLeg1->pt() << ", eta = " << genLeg1->eta() << ", phi = " << genLeg1->phi() << std::endl;
+      //std::cout << "genLeg2: Pt = " << genLeg2->pt() << ", eta = " << genLeg2->eta() << ", phi = " << genLeg2->phi() << std::endl;
+      //std::cout << "genLeg1+2: mass = " << (genLeg1->p4() + genLeg2->p4()).mass() << std::endl;
+      if ( !(genLeg1 && genLeg1->energy() > 0. && 
+	     genLeg2 && genLeg2->energy() > 0.) ) continue;
+      for ( edm::View<reco::Candidate>::const_iterator visDecayProduct1 = visDecayProducts1->begin();
+	    visDecayProduct1 != visDecayProducts1->end(); ++visDecayProduct1 ) {
+	double dR1matchedTo1 = deltaR(visDecayProduct1->p4(), genLeg1->p4());
+	double dR1matchedTo2 = deltaR(visDecayProduct1->p4(), genLeg2->p4());
+	for ( edm::View<reco::Candidate>::const_iterator visDecayProduct2 = visDecayProducts2->begin();
+	      visDecayProduct2 != visDecayProducts2->end(); ++visDecayProduct2 ) {
+	  double dR2matchedTo1 = deltaR(visDecayProduct2->p4(), genLeg1->p4());
+	  double dR2matchedTo2 = deltaR(visDecayProduct2->p4(), genLeg2->p4());
+	  reco::Candidate::LorentzVector leg1P4;
+	  double X1 = 0.;
+	  reco::Candidate::LorentzVector leg2P4;
+	  double X2 = 0.;
+	  bool matched = false;
+	  if        ( dR1matchedTo1 < 0.3 && dR2matchedTo1 > 0.5 &&
+		      dR2matchedTo2 < 0.3 && dR1matchedTo2 > 0.5 ) {
+	    leg1P4 = genLeg1->p4();
+	    X1 = visDecayProduct1->energy()/genLeg1->energy();
+	    leg2P4 = genLeg2->p4();
+	    X2 = visDecayProduct2->energy()/genLeg2->energy();
+	    matched = true;
+	  } else if ( dR1matchedTo2 < 0.3 && dR2matchedTo2 > 0.5 &&
+		      dR2matchedTo1 < 0.3 && dR1matchedTo1 > 0.5 ) {
+	    leg1P4 = genLeg2->p4();
+	    X1 = visDecayProduct1->energy()/genLeg2->energy();
+	    leg2P4 = genLeg1->p4();
+	    X2 = visDecayProduct2->energy()/genLeg1->energy();
+	    matched = true;
+	  } 
+	  if ( matched ) {
+	    //std::cout << "leg2(" << srcLeg2.label() << "): Pt = " << visDecayProduct2->pt() << ", eta = " << visDecayProduct2->eta() << ", phi = " << visDecayProduct2->phi() << std::endl;
+	    if ( histogram_leg1Pt && histogram_leg1Eta && histogram_leg1Phi ) {
+	      histogram_leg1Pt->Fill(visDecayProduct1->pt(), evtWeight);
+	      histogram_leg1Eta->Fill(visDecayProduct1->eta(), evtWeight);
+	      histogram_leg1Phi->Fill(visDecayProduct1->phi(), evtWeight);
+	    }
+	    histogram_leg1X->Fill(X1, evtWeight);
+	    if ( histogram_leg2Pt && histogram_leg2Eta && histogram_leg2Phi ) {
+	      histogram_leg2Pt->Fill(visDecayProduct2->pt(), evtWeight);
+	      histogram_leg2Eta->Fill(visDecayProduct2->eta(), evtWeight);
+	      histogram_leg2Phi->Fill(visDecayProduct2->phi(), evtWeight);
+	    }
+	    histogram_leg2X->Fill(X2, evtWeight);
+	  }
+	}
+      }
+    }  
   }
 }
 
@@ -375,8 +495,34 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     histogramGenDiTauMass_->Fill(genDiTau->mass(), evtWeight);
   }
 
+  std::vector<reco::CandidateBaseRef> replacedMuons = getSelMuons(evt, srcReplacedMuons_);
+  // CV: replacedMuons collection is sorted by decreasing Pt
+  bool passesCutsBeforeRotation = false;
+  if ( replacedMuons.size() >= 1 && replacedMuons[0]->pt() > replacedMuonPtThresholdHigh_ &&
+       replacedMuons.size() >= 2 && replacedMuons[1]->pt() > replacedMuonPtThresholdLow_  ) passesCutsBeforeRotation = true;
+  bool passesCutsAfterRotation = false;
+  for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
+	genDiTau != genDiTaus->end(); ++genDiTau ) {
+    const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
+    if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
+    const reco::Candidate* genLeg1 = genDiTau_composite->daughter(0);
+    const reco::Candidate* genLeg2 = genDiTau_composite->daughter(1);
+    if ( !(genLeg1 && genLeg2) ) continue;
+    if ( (genLeg1->pt() > replacedMuonPtThresholdHigh_ && genLeg2->pt() > replacedMuonPtThresholdLow_ ) ||
+	 (genLeg1->pt() > replacedMuonPtThresholdLow_  && genLeg2->pt() > replacedMuonPtThresholdHigh_) ) {
+      passesCutsAfterRotation = true;
+      break;
+    }
+  }
+  histogramRotationAngleMatrix_->Fill(passesCutsBeforeRotation, passesCutsAfterRotation, evtWeight);
+
   fillVisPtEtaPhiMassDistributions(evt, srcGenLeg1_, srcGenLeg2_, histogramGenVisDiTauPt_, histogramGenVisDiTauEta_, histogramGenVisDiTauPhi_, histogramGenVisDiTauMass_, evtWeight);
   fillVisPtEtaPhiMassDistributions(evt, srcRecLeg1_, srcRecLeg2_, histogramRecVisDiTauPt_, histogramRecVisDiTauEta_, histogramRecVisDiTauPhi_, histogramRecVisDiTauMass_, evtWeight);
+
+  fillX1andX2Distributions(evt, srcGenDiTaus_, srcGenLeg1_, srcGenLeg2_, 
+			   histogramGenLeg1Pt_, histogramGenLeg1Eta_, histogramGenLeg1Phi_, histogramGenLeg1X_, 
+			   histogramGenLeg2Pt_, histogramGenLeg2Eta_, histogramGenLeg2Phi_, histogramGenLeg2X_, evtWeight);
+  fillX1andX2Distributions(evt, srcGenDiTaus_, srcRecLeg1_, srcRecLeg2_, 0, 0, 0, histogramRecLeg1X_, 0, 0, 0, histogramRecLeg2X_, evtWeight);
   
   fillHistograms(electronDistributions_, evt, evtWeight);
   fillHistograms(electronEfficiencies_, evt, evtWeight);
@@ -385,6 +531,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   fillHistograms(muonEfficiencies_, evt, evtWeight);
   fillHistograms(muonL1TriggerEfficiencies_, evt, evtWeight);
   fillHistograms(tauDistributions_, evt, evtWeight);
+  fillHistograms(tauDistributionsExtra_, evt, evtWeight);
   fillHistograms(tauEfficiencies_, evt, evtWeight);
   fillHistograms(metDistributions_, evt, evtWeight);
   fillHistograms(metL1TriggerEfficiencies_, evt, evtWeight);

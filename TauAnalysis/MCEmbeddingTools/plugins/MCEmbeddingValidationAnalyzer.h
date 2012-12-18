@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.2 2012/11/25 15:43:12 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.3 2012/12/13 09:52:06 veelken Exp $
  *
  */
 
@@ -36,6 +36,8 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
+#include "DataFormats/TauReco/interface/PFTauDecayMode.h"
 
 #include <TString.h>
 
@@ -60,6 +62,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     return dqmDirectory_full.Data();
   }
   
+  edm::InputTag srcReplacedMuons_;
   edm::InputTag srcRecMuons_;
   edm::InputTag srcRecTracks_;
   edm::InputTag srcRecPFCandidates_;
@@ -77,6 +80,10 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   std::string dqmDirectory_;
 
   MonitorElement* histogramGenFilterEfficiency_;
+
+  MonitorElement* histogramRotationAngleMatrix_;
+  double replacedMuonPtThresholdHigh_;
+  double replacedMuonPtThresholdLow_;
 
   MonitorElement* histogramNumTracksPtGt5_;
   MonitorElement* histogramNumTracksPtGt10_;
@@ -108,7 +115,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramGenDiTauEta_;
   MonitorElement* histogramGenDiTauPhi_;
   MonitorElement* histogramGenDiTauMass_;
-
+  
   MonitorElement* histogramGenVisDiTauPt_;
   MonitorElement* histogramGenVisDiTauEta_;
   MonitorElement* histogramGenVisDiTauPhi_;
@@ -118,6 +125,17 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramRecVisDiTauEta_;
   MonitorElement* histogramRecVisDiTauPhi_;
   MonitorElement* histogramRecVisDiTauMass_;
+
+  MonitorElement* histogramGenLeg1Pt_;
+  MonitorElement* histogramGenLeg1Eta_;
+  MonitorElement* histogramGenLeg1Phi_;
+  MonitorElement* histogramGenLeg1X_;
+  MonitorElement* histogramRecLeg1X_;
+  MonitorElement* histogramGenLeg2Pt_;
+  MonitorElement* histogramGenLeg2Eta_;
+  MonitorElement* histogramGenLeg2Phi_;
+  MonitorElement* histogramGenLeg2X_;
+  MonitorElement* histogramRecLeg2X_;
 
   template <typename T>
   struct leptonDistributionT
@@ -141,9 +159,11 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     void bookHistograms(DQMStore& dqmStore)
     {
       dqmStore.setCurrentFolder(dqmDirectory_.data());
+      histogramNumGenLeptons_ = dqmStore.book1D("numGenLeptons", "numGenLeptons", 10, -0.5, 9.5);      
       histogramGenLeptonPt_ = dqmStore.book1D("genLeptonPt", "genLeptonPt", 250, 0., 250.);
       histogramGenLeptonEta_ = dqmStore.book1D("genLeptonEta", "genLeptonEta", 198, -9.9, +9.9);
       histogramGenLeptonPhi_ = dqmStore.book1D("genLeptonPhi", "genLeptonPhi", 72, -TMath::Pi(), +TMath::Pi());
+      histogramNumRecLeptons_ = dqmStore.book1D("numRecLeptons", "numRecLeptons", 10, -0.5, 9.5);
       histogramRecLeptonPt_ = dqmStore.book1D("recLeptonPt", "recLeptonPt", 250, 0., 250.);
       histogramRecLeptonEta_ = dqmStore.book1D("recLeptonEta", "recLeptonEta", 198, -9.9, +9.9);
       histogramRecLeptonPhi_ = dqmStore.book1D("recLeptonPhi", "recLeptonPhi", 72, -TMath::Pi(), +TMath::Pi());
@@ -156,9 +176,11 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
       typedef edm::View<reco::Candidate> CandidateView;
       edm::Handle<CandidateView> genLeptons;
       evt.getByLabel(srcGen_, genLeptons);
+      histogramNumGenLeptons_->Fill(genLeptons->size(), evtWeight);
       typedef std::vector<T> recLeptonCollection;
       edm::Handle<recLeptonCollection> recLeptons;
       evt.getByLabel(srcRec_, recLeptons);
+      histogramNumRecLeptons_->Fill(recLeptons->size(), evtWeight);
       for ( CandidateView::const_iterator genLepton = genLeptons->begin();
 	    genLepton != genLeptons->end(); ++genLepton ) {
 	if ( cutGen_ && !(*cutGen_)(*genLepton) ) continue;
@@ -186,9 +208,11 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     StringCutObjectSelector<T>* cutRec_;
     double dRmatch_;
     std::string dqmDirectory_;
+    MonitorElement* histogramNumGenLeptons_;
     MonitorElement* histogramGenLeptonPt_;
     MonitorElement* histogramGenLeptonEta_;
     MonitorElement* histogramGenLeptonPhi_;
+    MonitorElement* histogramNumRecLeptons_;
     MonitorElement* histogramRecLeptonPt_;
     MonitorElement* histogramRecLeptonEta_;
     MonitorElement* histogramRecLeptonPhi_;
@@ -197,12 +221,84 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     MonitorElement* histogramRecMinusGenLeptonPhi_;
   };
 
+  struct tauDistributionExtra
+  {
+    tauDistributionExtra(const edm::InputTag& srcGen, const std::string& cutGen, const edm::InputTag& srcRec, const std::string& cutRec, double dRmatch, const std::string& dqmDirectory)
+      : srcGen_(srcGen),
+	cutGen_(0),
+	srcRec_(srcRec),
+	cutRec_(0),
+	dRmatch_(dRmatch),
+	dqmDirectory_(dqmDirectory)
+    {
+      if ( cutGen != "" ) cutGen_ = new StringCutObjectSelector<reco::Candidate>(cutGen);
+      if ( cutRec != "" ) cutRec_ = new StringCutObjectSelector<pat::Tau>(cutRec);
+    }
+    ~tauDistributionExtra() 
+    {
+      delete cutGen_;
+      delete cutRec_;
+    }
+    void bookHistograms(DQMStore& dqmStore)
+    {
+      dqmStore.setCurrentFolder(dqmDirectory_.data());
+      histogramGenTauDecayMode_ = dqmStore.book1D("genTauDecayMode", "genTauDecayMode", 21, -1.5, 19.5);      
+      histogramRecTauDecayMode_ = dqmStore.book1D("recTauDecayMode", "recTauDecayMode", 21, -1.5, 19.5);  
+    }
+    void fillHistograms(const edm::Event& evt, double evtWeight)
+    {
+      typedef edm::View<reco::Candidate> CandidateView;
+      edm::Handle<CandidateView> genLeptons;
+      evt.getByLabel(srcGen_, genLeptons);
+      typedef std::vector<pat::Tau> recLeptonCollection;
+      edm::Handle<recLeptonCollection> recLeptons;
+      evt.getByLabel(srcRec_, recLeptons);
+      for ( CandidateView::const_iterator genLepton = genLeptons->begin();
+	    genLepton != genLeptons->end(); ++genLepton ) {
+	if ( cutGen_ && !(*cutGen_)(*genLepton) ) continue;
+	const reco::CompositePtrCandidate* genLepton_composite = dynamic_cast<const reco::CompositePtrCandidate*>(&(*genLepton));
+	for ( recLeptonCollection::const_iterator recLepton = recLeptons->begin();
+	      recLepton != recLeptons->end(); ++recLepton ) {
+	  if ( cutRec_ && !(*cutRec_)(*recLepton) ) continue;
+	  double dR = deltaR(genLepton->p4(), recLepton->p4());
+	  if ( dR < dRmatch_ ) {
+	    std::string genTauDecayMode_string = JetMCTagUtils::genTauDecayMode(*genLepton_composite);
+	    int genTauDecayMode = -1;
+	    if      ( genTauDecayMode_string == "electron"        ) genTauDecayMode = reco::PFTauDecayMode::tauDecaysElectron;
+	    else if ( genTauDecayMode_string == "muon"            ) genTauDecayMode = reco::PFTauDecayMode::tauDecayMuon;
+	    else if ( genTauDecayMode_string == "oneProng0Pi0"    ) genTauDecayMode = reco::PFTauDecayMode::tauDecay1ChargedPion0PiZero;
+	    else if ( genTauDecayMode_string == "oneProng1Pi0"    ) genTauDecayMode = reco::PFTauDecayMode::tauDecay1ChargedPion1PiZero;
+	    else if ( genTauDecayMode_string == "oneProng2Pi0"    ) genTauDecayMode = reco::PFTauDecayMode::tauDecay1ChargedPion2PiZero;
+	    else if ( genTauDecayMode_string == "oneProngOther"   ) genTauDecayMode = reco::PFTauDecayMode::tauDecay1ChargedPion3PiZero;
+	    else if ( genTauDecayMode_string == "threeProng0Pi0"  ) genTauDecayMode = reco::PFTauDecayMode::tauDecay3ChargedPion0PiZero;
+	    else if ( genTauDecayMode_string == "threeProng1Pi0"  ) genTauDecayMode = reco::PFTauDecayMode::tauDecay3ChargedPion1PiZero;
+	    else if ( genTauDecayMode_string == "threeProngOther" ) genTauDecayMode = reco::PFTauDecayMode::tauDecay3ChargedPion2PiZero;
+	    else if ( genTauDecayMode_string == "rare"            ) genTauDecayMode = reco::PFTauDecayMode::tauDecayOther;
+	    histogramGenTauDecayMode_->Fill(genTauDecayMode, evtWeight);
+	    int recTauDecayMode = recLepton->decayMode();
+	    histogramRecTauDecayMode_->Fill(recTauDecayMode, evtWeight);
+	  }
+	}
+      }
+    }
+    edm::InputTag srcGen_;
+    StringCutObjectSelector<reco::Candidate>* cutGen_;
+    edm::InputTag srcRec_;
+    StringCutObjectSelector<pat::Tau>* cutRec_;
+    double dRmatch_;
+    std::string dqmDirectory_;
+    MonitorElement* histogramGenTauDecayMode_;
+    MonitorElement* histogramRecTauDecayMode_;
+  };
+
   template <typename T>
   void setupLeptonDistribution(const edm::ParameterSet&, const std::string&, std::vector<leptonDistributionT<T>*>&);
+  void setupTauDistributionExtra(const edm::ParameterSet&, const std::string&, std::vector<tauDistributionExtra*>&);
 
   std::vector<leptonDistributionT<pat::Electron>*> electronDistributions_;
   std::vector<leptonDistributionT<pat::Muon>*> muonDistributions_;
   std::vector<leptonDistributionT<pat::Tau>*> tauDistributions_;
+  std::vector<tauDistributionExtra*> tauDistributionsExtra_;
 
   template <typename T>
   struct leptonEfficiencyT
@@ -226,6 +322,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     void bookHistograms(DQMStore& dqmStore)
     {
       dqmStore.setCurrentFolder(dqmDirectory_.data());
+      histogramNumGenLeptons_ = dqmStore.book1D("numGenLeptons", "numGenLeptons", 10, -0.5, 9.5);
+      histogramNumRecLeptons_ = dqmStore.book1D("numRecLeptons", "numRecLeptons", 10, -0.5, 9.5);
       histogramNumeratorPt_ = dqmStore.book1D("numeratorPt", "numeratorPt", 250, 0., 250.);
       histogramDenominatorPt_ = dqmStore.book1D("denominatorPt", "denominatorPt", 250, 0., 250.);
       histogramNumeratorEta_ = dqmStore.book1D("numeratorEta", "numeratorEta", 198, -9.9, +9.9);
@@ -238,9 +336,11 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
       typedef edm::View<reco::Candidate> CandidateView;
       edm::Handle<CandidateView> genLeptons;
       evt.getByLabel(srcGen_, genLeptons);
+      histogramNumGenLeptons_->Fill(genLeptons->size(), evtWeight);
       typedef std::vector<T> recLeptonCollection;
       edm::Handle<recLeptonCollection> recLeptons;
       evt.getByLabel(srcRec_, recLeptons);
+      histogramNumRecLeptons_->Fill(recLeptons->size(), evtWeight);
       for ( CandidateView::const_iterator genLepton = genLeptons->begin();
 	    genLepton != genLeptons->end(); ++genLepton ) {
 	if ( cutGen_ && !(*cutGen_)(*genLepton) ) continue;	
@@ -267,6 +367,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     StringCutObjectSelector<T>* cutRec_;
     double dRmatch_;
     std::string dqmDirectory_;
+    MonitorElement* histogramNumGenLeptons_;
+    MonitorElement* histogramNumRecLeptons_;
     MonitorElement* histogramNumeratorPt_;
     MonitorElement* histogramDenominatorPt_;
     MonitorElement* histogramNumeratorEta_;

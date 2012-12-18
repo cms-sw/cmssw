@@ -39,7 +39,7 @@ TH1* getHistogram(TFile* inputFile, const std::string& dqmDirectory, const std::
 
   //if ( histogram->GetDimension() == 1 ) histogram->Rebin(5);
 
-  histogram->Scale(1./histogram->Integral());
+  //histogram->Scale(1./histogram->Integral());
 
   return histogram;
 }
@@ -49,7 +49,7 @@ double square(double x)
   return x*x;
 }
 
-TH1* rebinHistogram(const TH1* histogram, unsigned numBinsMin_rebinned, double xMin, double xMax)
+TH1* rebinHistogram(const TH1* histogram, unsigned numBinsMin_rebinned, double xMin, double xMax, bool normalize)
 {
   TH1* histogram_rebinned = 0;
 
@@ -99,6 +99,11 @@ TH1* rebinHistogram(const TH1* histogram, unsigned numBinsMin_rebinned, double x
 
       histogram_rebinned->SetBinContent(iBin_rebinned, binContent_rebinned);
       histogram_rebinned->SetBinError(iBin_rebinned, TMath::Sqrt(binError2_rebinned));
+    }
+
+    if ( normalize ) {
+      if ( !histogram_rebinned->GetSumw2N() ) histogram_rebinned->Sumw2();
+      histogram_rebinned->Scale(1./histogram_rebinned->Integral());
     }
 
     std::cout << "histogram(rebinned) = " << histogram_rebinned->GetName() << ":" 
@@ -339,16 +344,16 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   topPad->Draw();
   topPad->cd();
 
-  TH1* histogram_simDYtoTauTau_numerator_rebinned = rebinHistogram(histogram_simDYtoTauTau_numerator, numBinsMin_rebinned, xMin, xMax);
-  TH1* histogram_simDYtoTauTau_denominator_rebinned = rebinHistogram(histogram_simDYtoTauTau_denominator, numBinsMin_rebinned, xMin, xMax);
+  TH1* histogram_simDYtoTauTau_numerator_rebinned = rebinHistogram(histogram_simDYtoTauTau_numerator, numBinsMin_rebinned, xMin, xMax, false);
+  TH1* histogram_simDYtoTauTau_denominator_rebinned = rebinHistogram(histogram_simDYtoTauTau_denominator, numBinsMin_rebinned, xMin, xMax, false);
   TGraphAsymmErrors* graph_simDYtoTauTau = getEfficiency(histogram_simDYtoTauTau_numerator_rebinned, histogram_simDYtoTauTau_denominator_rebinned);
 
-  TH1* histogram_simDYtoMuMu_genEmbedding_numerator_rebinned = rebinHistogram(histogram_simDYtoMuMu_genEmbedding_numerator, numBinsMin_rebinned, xMin, xMax);
-  TH1* histogram_simDYtoMuMu_genEmbedding_denominator_rebinned = rebinHistogram(histogram_simDYtoMuMu_genEmbedding_denominator, numBinsMin_rebinned, xMin, xMax);
+  TH1* histogram_simDYtoMuMu_genEmbedding_numerator_rebinned = rebinHistogram(histogram_simDYtoMuMu_genEmbedding_numerator, numBinsMin_rebinned, xMin, xMax, false);
+  TH1* histogram_simDYtoMuMu_genEmbedding_denominator_rebinned = rebinHistogram(histogram_simDYtoMuMu_genEmbedding_denominator, numBinsMin_rebinned, xMin, xMax, false);
   TGraphAsymmErrors* graph_simDYtoMuMu_genEmbedding = getEfficiency(histogram_simDYtoMuMu_genEmbedding_numerator_rebinned, histogram_simDYtoMuMu_genEmbedding_denominator_rebinned);
 
-  TH1* histogram_simDYtoMuMu_recEmbedding_numerator_rebinned = rebinHistogram(histogram_simDYtoMuMu_recEmbedding_numerator, numBinsMin_rebinned, xMin, xMax);
-  TH1* histogram_simDYtoMuMu_recEmbedding_denominator_rebinned = rebinHistogram(histogram_simDYtoMuMu_recEmbedding_denominator, numBinsMin_rebinned, xMin, xMax);
+  TH1* histogram_simDYtoMuMu_recEmbedding_numerator_rebinned = rebinHistogram(histogram_simDYtoMuMu_recEmbedding_numerator, numBinsMin_rebinned, xMin, xMax, false);
+  TH1* histogram_simDYtoMuMu_recEmbedding_denominator_rebinned = rebinHistogram(histogram_simDYtoMuMu_recEmbedding_denominator, numBinsMin_rebinned, xMin, xMax, false);
   TGraphAsymmErrors* graph_simDYtoMuMu_recEmbedding = getEfficiency(histogram_simDYtoMuMu_recEmbedding_numerator_rebinned, histogram_simDYtoMuMu_recEmbedding_denominator_rebinned);
   
   TH1* dummyHistogram_top = new TH1D("dummyHistogram_top", "dummyHistogram_top", 10, xMin, xMax);
@@ -367,7 +372,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   yAxis_top->SetTitle("#varepsilon");
   yAxis_top->SetTitleOffset(yAxisOffset);
 
-  TLegend* legend = new TLegend(0.61, 0.16, 0.89, 0.47, "", "brNDC"); 
+  TLegend* legend = new TLegend(0.51, 0.16, 0.94, 0.47, "", "brNDC"); 
   legend->SetBorderSize(0);
   legend->SetFillColor(0);
 
@@ -548,9 +553,9 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   topPad->Draw();
   topPad->cd();
 
-  TH1* histogram_simDYtoTauTau_rebinned = rebinHistogram(histogram_simDYtoTauTau, numBinsMin_rebinned, xMin, xMax);
-  TH1* histogram_simDYtoMuMu_genEmbedding_rebinned = rebinHistogram(histogram_simDYtoMuMu_genEmbedding, numBinsMin_rebinned, xMin, xMax);
-  TH1* histogram_simDYtoMuMu_recEmbedding_rebinned = rebinHistogram(histogram_simDYtoMuMu_recEmbedding, numBinsMin_rebinned, xMin, xMax);
+  TH1* histogram_simDYtoTauTau_rebinned = rebinHistogram(histogram_simDYtoTauTau, numBinsMin_rebinned, xMin, xMax, true);
+  TH1* histogram_simDYtoMuMu_genEmbedding_rebinned = rebinHistogram(histogram_simDYtoMuMu_genEmbedding, numBinsMin_rebinned, xMin, xMax, true);
+  TH1* histogram_simDYtoMuMu_recEmbedding_rebinned = rebinHistogram(histogram_simDYtoMuMu_recEmbedding, numBinsMin_rebinned, xMin, xMax, true);
   
   histogram_simDYtoTauTau_rebinned->SetTitle("");
   histogram_simDYtoTauTau_rebinned->SetStats(false);
@@ -724,9 +729,9 @@ void makeEmbeddingValidationPlots()
 
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
-  std::string inputFileName_simDYtoTauTau            = "validateMCEmbedding_simDYtoTauTau_all_v1_4_8.root";
-  std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_all_v1_4_8.root";
-  std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_simDYtoMuMu_recEmbedding_all_v1_4_8.root";
+  std::string inputFileName_simDYtoTauTau            = "validateMCEmbedding_simDYtoTauTau_all_v1_5_1.root";
+  std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_all_v1_5_1.root";
+  std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_simDYtoMuMu_recEmbedding_all_v1_5_1.root";
 
   std::vector<plotEntryType_distribution> distributionsToPlot;
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -868,53 +873,53 @@ void makeEmbeddingValidationPlots()
 
   std::vector<plotEntryType_efficiency> efficienciesToPlot;
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "electronIdEfficiency", "Electron Id Efficiency", 
+    "electronIdEfficiency_vs_Pt", "Electron Id Efficiency", 
     "validationAnalyzer_mutau/goodElectronEfficiencies/numeratorPt", 
     "validationAnalyzer_mutau/goodElectronEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{e} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "electronIdEfficiency", "Electron Id Efficiency", 
+    "electronIdEfficiency_vs_eta", "Electron Id Efficiency", 
     "validationAnalyzer_mutau/goodElectronEfficiencies/numeratorEta", 
     "validationAnalyzer_mutau/goodElectronEfficiencies/denominatorEta", -2.5, +2.5, 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "electronIdAndIsoEfficiency", "Electron Id & Iso Efficiency", 
+    "electronIdAndIsoEfficiency_vs_Pt", "Electron Id & Iso Efficiency", 
     "validationAnalyzer_mutau/goodElectronEfficiencies/numeratorPt", 
     "validationAnalyzer_mutau/goodElectronEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{e} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "electronIdAndIsoEfficiency", "Electron Id & Iso Efficiency", 
+    "electronIdAndIsoEfficiency_vs_eta", "Electron Id & Iso Efficiency", 
     "validationAnalyzer_mutau/goodIsoElectronEfficiencies/numeratorEta", 
     "validationAnalyzer_mutau/goodIsoElectronEfficiencies/denominatorEta", -2.5, +2.5, 50, "#eta_{e}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
 
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "muonIdEfficiency", "Muon Id Efficiency", 
+    "muonIdEfficiency_vs_Pt", "Muon Id Efficiency", 
     "validationAnalyzer_mutau/goodMuonEfficiencies/numeratorPt", 
     "validationAnalyzer_mutau/goodMuonEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{#mu} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "muonIdEfficiency", "Muon Id Efficiency", 
+    "muonIdEfficiency_vs_eta", "Muon Id Efficiency", 
     "validationAnalyzer_mutau/goodMuonEfficiencies/numeratorEta", 
     "validationAnalyzer_mutau/goodMuonEfficiencies/denominatorEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "muonIdAndIsoEfficiency", "Muon Id & Iso Efficiency", 
+    "muonIdAndIsoEfficiency_vs_Pt", "Muon Id & Iso Efficiency", 
     "validationAnalyzer_mutau/goodMuonEfficiencies/numeratorPt", 
     "validationAnalyzer_mutau/goodMuonEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{#mu} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "muonIdAndIsoEfficiency", "Muon Id & Iso Efficiency", 
+    "muonIdAndIsoEfficiency_vs_eta", "Muon Id & Iso Efficiency", 
     "validationAnalyzer_mutau/goodIsoMuonEfficiencies/numeratorEta", 
     "validationAnalyzer_mutau/goodIsoMuonEfficiencies/denominatorEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "muonTriggerEfficiency", "HLT_Mu8 Efficiency", 
+    "muonTriggerEfficiency_vs_Pt", "HLT_Mu8 Efficiency", 
     "validationAnalyzer_mutau/muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/numeratorPt", 
     "validationAnalyzer_mutau/muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/denominatorPt", 0., 250., 50, "P_{T}^{#mu} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "muonTriggerEfficiency", "HLT_Mu8 Efficiency", 
+    "muonTriggerEfficiency_vs_eta", "HLT_Mu8 Efficiency", 
     "validationAnalyzer_mutau/muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/numeratorEta", 
     "validationAnalyzer_mutau/muonTriggerEfficiencyL1_Mu8wrtGoodIsoMuons/denominatorEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
 
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "tauIdEfficiency", "Tau Id Efficiency", 
+    "tauIdEfficiency_vs_Pt", "Tau Id Efficiency", 
     "validationAnalyzer_mutau/selectedTauEfficiencies/numeratorPt", 
     "validationAnalyzer_mutau/selectedTauEfficiencies/denominatorPt", 0., 250., 50, "P_{T}^{#tau} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
   efficienciesToPlot.push_back(plotEntryType_efficiency(
-    "tauIdEfficiency", "Tau Id Efficiency", 
+    "tauIdEfficiency_vs_eta", "Tau Id Efficiency", 
     "validationAnalyzer_mutau/selectedTauEfficiencies/numeratorEta", 
     "validationAnalyzer_mutau/selectedTauEfficiencies/denominatorEta", -2.3, +2.3, 46, "#eta_{#tau}", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
 

@@ -18,6 +18,7 @@
   <use   name="DataFormats/RPCRecHit"/>  
   <use   name="GeneratorInterface/Core"/>
   <use   name="GeneratorInterface/Pythia6Interface"/>
+  <use   name="PhysicsTools/JetMCUtils"/>
   <use   name="RecoMuon/MuonIsolation"/>
   <use   name="SimDataFormats/GeneratorProducts"/>
   <use   name="DQMServices/Core"/>

@@ -60,7 +60,7 @@ MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   if ( muons.size() == 0 ) {
     edm::LogError("MCParticleReplacer") 
-      << "No Z -> mumu candidates or muons found !!" << std::endl;
+      << "No Z->mumu candidates or muons found !!" << std::endl;
     return;
   }
 	
@@ -78,9 +78,9 @@ MCParticleReplacer::produce(edm::Event& evt, const edm::EventSetup& es)
   if ( hepMC.get() != 0 ) {
     std::auto_ptr<edm::HepMCProduct> bare_product(new edm::HepMCProduct());  
     bare_product->addHepMCData(hepMC.release()); // transfer ownership of the HepMC:GenEvent to bare_product
-
+    
     evt.put(bare_product);
-
+    
     std::auto_ptr<GenFilterInfo> info(new GenFilterInfo(replacer_->tried_, replacer_->passed_));
     evt.put(info, std::string("minVisPtFilter"));
   }

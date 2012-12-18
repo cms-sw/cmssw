@@ -26,7 +26,7 @@ namespace
   }
 }
 
-std::vector<reco::CandidateBaseRef> getSelMuons(edm::Event& evt, const edm::InputTag& srcSelMuons)
+std::vector<reco::CandidateBaseRef> getSelMuons(const edm::Event& evt, const edm::InputTag& srcSelMuons)
 {
   std::vector<reco::CandidateBaseRef> selMuons;
 

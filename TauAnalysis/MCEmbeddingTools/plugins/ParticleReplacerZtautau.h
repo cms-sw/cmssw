@@ -16,9 +16,9 @@
  * 
  * \author Manuel Zeise 
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: ParticleReplacerZtautau.h,v 1.2 2012/11/03 15:33:24 veelken Exp $
+ * $Id: ParticleReplacerZtautau.h,v 1.3 2012/11/07 17:27:30 aburgmei Exp $
  *
  */
 
@@ -90,9 +90,32 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
     int type_; 
     unsigned index_; 
     double threshold_; 
+    void print(std::ostream& stream) const
+    {
+      std::string type_string = "";
+      if      ( type_ == kELEC ) type_string = "elec";
+      else if ( type_ == kMU   ) type_string = "mu";
+      else if ( type_ == kHAD  ) type_string = "had";
+      else if ( type_ == kTAU  ) type_string = "tau";
+      stream << type_string << " #" << index_ << ": threshold = " << threshold_ << std::endl;
+    }
   };
-  typedef std::vector<MinVisPtCut> MinVisPtCutCollection;
-  std::vector<MinVisPtCutCollection> minVisPtCuts_;
+  struct MinVisPtCutCombination
+  {
+    std::string cut_string_;
+    std::vector<MinVisPtCut> cuts_;
+    void print(std::ostream& stream) const
+    {
+      stream << "<MinVisPtCutCombination::print>:" << std::endl;
+      stream << " cut = " << cut_string_ << std::endl;
+      stream << "elements:" << std::endl;
+      for ( std::vector<MinVisPtCut>::const_iterator cut = cuts_.begin();
+	    cut != cuts_.end(); ++cut ) {
+	cut->print(stream);
+      }
+    }
+  };
+  std::vector<MinVisPtCutCombination> minVisPtCuts_;
 	
   double targetParticle1Mass_;
   int targetParticle1AbsPdgID_;

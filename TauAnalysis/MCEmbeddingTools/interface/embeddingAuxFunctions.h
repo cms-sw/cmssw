@@ -8,9 +8,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: embeddingAuxFunctions.h,v 1.3 2012/11/25 15:43:12 veelken Exp $
+ * $Id: embeddingAuxFunctions.h,v 1.4 2012/12/13 09:52:05 veelken Exp $
  *
  */
 
@@ -24,7 +24,7 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h"
 
-std::vector<reco::CandidateBaseRef> getSelMuons(edm::Event&, const edm::InputTag&);
+std::vector<reco::CandidateBaseRef> getSelMuons(const edm::Event&, const edm::InputTag&);
 
 reco::CandidateBaseRef getTheMuPlus(const std::vector<reco::CandidateBaseRef>&);
 reco::CandidateBaseRef getTheMuMinus(const std::vector<reco::CandidateBaseRef>&);

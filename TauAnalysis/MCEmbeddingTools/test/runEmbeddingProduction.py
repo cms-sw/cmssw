@@ -117,28 +117,28 @@ options = {
         'applyZmumuSkim'               : False,
         'applyMuonRadiationFilter'     : False
     },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noVisPtCuts' : {
-        'ZmumuCollection'              : 'genMuonsFromZs',
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_0had1_0",
-        'rfRotationAngle'              : 90.,
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'gen',
-        'cleaningMode'                 : 'DEDX',
-        'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
-    },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq0' : {
-        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_7had1_15",
-        'rfRotationAngle'              : 0.,
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'rec',
-        'cleaningMode'                 : 'DEDX',
-        'applyZmumuSkim'               : True,
-        'applyMuonRadiationFilter'     : False
-    },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noVisPtCuts' : {
+##         'ZmumuCollection'              : 'genMuonsFromZs',
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_0had1_0",
+##         'rfRotationAngle'              : 90.,
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'gen',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : False,
+##         'applyMuonRadiationFilter'     : False
+##     },
+##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq0' : {
+##         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+##         'mdtau'                        : 116,
+##         'minVisibleTransverseMomentum' : "mu1_7had1_15",
+##         'rfRotationAngle'              : 0.,
+##         'embeddingMode'                : 'RH',
+##         'replaceGenOrRecMuonMomenta'   : 'rec',
+##         'cleaningMode'                 : 'DEDX',
+##         'applyZmumuSkim'               : True,
+##         'applyMuonRadiationFilter'     : False
+##     },
     'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90' : {
         'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
         'mdtau'                        : 116,

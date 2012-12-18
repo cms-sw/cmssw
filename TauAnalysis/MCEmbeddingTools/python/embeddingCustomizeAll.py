@@ -136,7 +136,8 @@ def customise(process):
   process.generator.Ztautau.rfRotationAngle = process.customization_options.rfRotationAngle
   
   if process.customization_options.overrideBeamSpot.value():
-    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") 
+    bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v26_offline") # 52x data
+    ##bs = cms.string("BeamSpotObjects_2009_LumiBased_SigmaZ_v21_offline") # 42x data
     process.GlobalTag.toGet = cms.VPSet(
       cms.PSet(
         record = cms.string("BeamSpotObjectsRcd"),
@@ -147,6 +148,20 @@ def customise(process):
     print "BeamSpot in globaltag set to '%s'" % bs 
   else:
     print "BeamSpot in globaltag not changed"
+
+  # CV: disable gen. vertex smearing
+  #    (embed tau leptons exactly at Z->mumu event vertex)
+  print "Disabling gen. vertex smearing"
+  process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator", 
+    MaxZ = cms.double(0.0),
+    MaxX = cms.double(0.0),
+    MaxY = cms.double(0.0),
+    MinX = cms.double(0.0),
+    MinY = cms.double(0.0),
+    MinZ = cms.double(0.0),
+    TimeOffset = cms.double(0.0),
+    src = cms.InputTag("generator")
+  )  
 
   if process.customization_options.useJson.value():
     print "Enabling event selection by JSON file"

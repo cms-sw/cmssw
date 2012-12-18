@@ -88,14 +88,19 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
     if ( *endptr == '\0' && endptr != startptr ) {
       // fallback for backwards compatibility: 
       // if it's a single number then use this as a threshold for both particles
-      MinVisPtCut cuts[2];
-      cuts[0].type_ = MinVisPtCut::kTAU;
-      cuts[0].threshold_ = d;
-      cuts[0].index_ = 0; 
-      cuts[1].type_ = MinVisPtCut::kTAU;
-      cuts[1].threshold_ = d;
-      cuts[1].index_ = 1;
-      minVisPtCuts_.push_back(MinVisPtCutCollection(cuts, cuts + 2));
+      MinVisPtCut cutLeg1;
+      cutLeg1.type_ = MinVisPtCut::kTAU;
+      cutLeg1.threshold_ = d;
+      cutLeg1.index_ = 0; 
+      MinVisPtCut cutLeg2;
+      cutLeg2.type_ = MinVisPtCut::kTAU;
+      cutLeg2.threshold_ = d;
+      cutLeg2.index_ = 1;
+      MinVisPtCutCombination minVisPtCut;
+      minVisPtCut.cut_string_ = minVisibleTransverseMomentumLine;
+      minVisPtCut.cuts_.push_back(cutLeg1);
+      minVisPtCut.cuts_.push_back(cutLeg2);
+      minVisPtCuts_.push_back(minVisPtCut);
     } else {
       // string has new format: 
       // parse the minVisibleTransverseMomentum string
@@ -104,7 +109,8 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
 	if ( pos == std::string::npos ) pos = minVisibleTransverseMomentumLine.length();
 	
 	std::string sub = minVisibleTransverseMomentumLine.substr(prev, pos - prev);
-	MinVisPtCutCollection cuts;
+	MinVisPtCutCombination minVisPtCut;
+	minVisPtCut.cut_string_ = minVisibleTransverseMomentumLine;
 	const char* sub_c = sub.c_str();
 	while (*sub_c != '\0' ) {
 	  const char* sep = std::strchr(sub_c, '_');
@@ -130,10 +136,10 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
 	    << "No Pt threshold given !!\n";
 	  
 	  std::cout << "Adding vis. Pt cut: index = " << cut.index_ << ", type = " << cut.type_ << ", threshold = " << cut.threshold_ << std::endl;
-	  cuts.push_back(cut);
+	  minVisPtCut.cuts_.push_back(cut);
 	  sub_c = endptr;
 	}
-	minVisPtCuts_.push_back(cuts);
+	minVisPtCuts_.push_back(minVisPtCut);
       }
     }
   }
@@ -308,12 +314,30 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     }
   } else { // embed gen. leptons into new (empty) HepMC event
     reco::Particle::LorentzVector genMotherP4;
+    double ppCollisionPosX = 0.;
+    double ppCollisionPosY = 0.;
+    double ppCollisionPosZ = 0.;
+    int idx = 0;
     for ( std::vector<reco::Particle>::const_iterator embedParticle = embedParticles.begin();
 	  embedParticle != embedParticles.end(); ++embedParticle ) {
+      //std::cout << "embedParticle #" << idx << ": Pt = " << embedParticle->pt() << "," 
+      //	  << " eta = " << embedParticle->eta() << ", phi = " << embedParticle->phi() << ", mass = " << embedParticle->mass() << std::endl;
+      //std::cout << "(production vertex: x = " << embedParticle->vertex().x() << ", y = " << embedParticle->vertex().y() << ", z = " << embedParticle->vertex().z() << ")" << std::endl;
       genMotherP4 += embedParticle->p4();
+      const reco::Particle::Point& embedParticleVertex = embedParticle->vertex();
+      ppCollisionPosX += embedParticleVertex.x();
+      ppCollisionPosY += embedParticleVertex.y();
+      ppCollisionPosZ += embedParticleVertex.z();
     }
     
-    reco::Particle::Point ppCollisionPos = embedParticles.begin()->vertex();
+    int numEmbedParticles = embedParticles.size();
+    if ( numEmbedParticles > 0 ) {
+      ppCollisionPosX /= numEmbedParticles;
+      ppCollisionPosY /= numEmbedParticles;
+      ppCollisionPosZ /= numEmbedParticles;
+    }
+    
+    reco::Particle::Point ppCollisionPos(ppCollisionPosX, ppCollisionPosY, ppCollisionPosZ);
 
     HepMC::GenVertex* ppCollisionVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPos.x()*10., ppCollisionPos.y()*10., ppCollisionPos.z()*10., 0.)); // convert from cm to mm
     ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0.,  beamEnergy_, beamEnergy_), 2212, 3 ));
@@ -347,6 +371,8 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   unsigned int numEvents_tried  = 0;
   unsigned int numEvents_passed = 0;
 	
+  int verbosity_backup = verbosity_;
+
   HepMC::IO_HEPEVT conv;
   for ( int iTrial = 0; iTrial < maxNumberOfAttempts_; ++iTrial ) {
     ++numEvents_tried;
@@ -354,7 +380,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       throw cms::Exception("Configuration") 
 	<< "Pythia is currently not supported !!\n";
     } else if ( generatorMode_ == "Tauola" ) { // TAUOLA
-      conv.write_event(genEvt_output);
+      conv.write_event(genEvt_output);      
       tempEvt = tauola_.decay(genEvt_output);
     }
     
@@ -363,10 +389,15 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       if ( !passedEvt_output ) passedEvt_output = tempEvt; // store first HepMC event passing visible Pt cuts in output file
       else delete tempEvt;
       ++numEvents_passed;
+      verbosity_ = 0;
     } else {
       delete tempEvt;
     }
   }
+
+  tried_ = numEvents_tried;
+  passed_ = numEvents_passed;
+  verbosity_ = verbosity_backup;
   
   if ( !passedEvt_output ) {
     edm::LogError ("Replacer") 
@@ -390,12 +421,19 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     std::cout << " numEvents: tried = " << numEvents_tried << ", passed = " << numEvents_passed << std::endl;
   }
 
-  tried_ = numEvents_tried;
-  passed_ = numEvents_passed;
-
   delete genVtx_output;
   delete genEvt_output;
 
+  //if ( passedEvt_output_ptr.get() != 0 ) {
+  //  std::cout << "passedEvt_output_ptr:" << std::endl;
+  //  int idx = 0;
+  //  for ( HepMC::GenEvent::vertex_const_iterator vertex = passedEvt_output_ptr->vertices_begin();
+  //	  vertex != passedEvt_output_ptr->vertices_end(); ++vertex ) {
+  //    std::cout << "vertex #" << idx << ": x = " << (*vertex)->position().x() << ", y = " << (*vertex)->position().y() << ", z = " << (*vertex)->position().z() << std::endl;
+  //    ++idx;
+  //  }
+  //}
+  
   return passedEvt_output_ptr;
 }
 
@@ -411,6 +449,8 @@ void ParticleReplacerZtautau::endJob()
 
 bool ParticleReplacerZtautau::testEvent(HepMC::GenEvent* genEvt)
 {
+  //if ( verbosity_ ) std::cout << "<ParticleReplacerZtautau::testEvent>:" << std::endl;
+
   if ( minVisPtCuts_.empty() ) return true; // no visible Pt cuts applied
 
   std::vector<double> muonPts;
@@ -418,6 +458,7 @@ bool ParticleReplacerZtautau::testEvent(HepMC::GenEvent* genEvt)
   std::vector<double> tauJetPts;
   std::vector<double> tauPts;
 
+  int genParticleIdx = 0;
   for ( HepMC::GenEvent::particle_iterator genParticle = genEvt->particles_begin();
 	genParticle != genEvt->particles_end(); ++genParticle ) {
     if ( abs((*genParticle)->pdg_id()) == 15 && (*genParticle)->end_vertex() ) {
@@ -426,8 +467,8 @@ bool ParticleReplacerZtautau::testEvent(HepMC::GenEvent* genEvt)
       decayProducts.push(*genParticle);
       enum { kELEC, kMU, kHAD };
       int type = kHAD;
-      int idx = 0;
-      while ( !decayProducts.empty() && idx < 100 ) { // CV: protection against entering infinite loop in case of corrupt particle relations
+      int decayProductIdx = 0;
+      while ( !decayProducts.empty() && decayProductIdx < 100 ) { // CV: protection against entering infinite loop in case of corrupt particle relations
 	const HepMC::GenParticle* decayProduct = decayProducts.front();
 	decayProducts.pop();
 	if ( !decayProduct->end_vertex() ) { // stable decay product
@@ -442,6 +483,7 @@ bool ParticleReplacerZtautau::testEvent(HepMC::GenEvent* genEvt)
 	    decayProducts.push(*daughter);
 	  }
 	}
+	++decayProductIdx;
       }
 
       double visPt = visP4.pt();
@@ -449,50 +491,63 @@ bool ParticleReplacerZtautau::testEvent(HepMC::GenEvent* genEvt)
       if      ( type == kMU   ) muonPts.push_back(visPt);
       else if ( type == kELEC ) electronPts.push_back(visPt);
       else if ( type == kHAD  ) tauJetPts.push_back(visPt);
+      //if ( verbosity_ ) {
+      //  std::string type_string = "";
+      //  if      ( type == kMU   ) type_string = "mu";
+      //  else if ( type == kELEC ) type_string = "elec";
+      //  else if ( type == kHAD  ) type_string = "had";
+      //  std::cout << "visLeg #" << (genParticleIdx + 1) << " (type = " << type_string << "):" 
+      //	    << " Pt = " << visP4.pt() << ", eta = " << visP4.eta() << ", phi = " << visP4.phi() << std::endl;
+      //}
+      ++genParticleIdx;
     }
+  }
 
-    std::sort(tauPts.begin(), tauPts.end(), std::greater<double>());
-    std::sort(electronPts.begin(), electronPts.end(), std::greater<double>());
-    std::sort(muonPts.begin(), muonPts.end(), std::greater<double>());
-    std::sort(tauJetPts.begin(), tauJetPts.end(), std::greater<double>());
+  std::sort(tauPts.begin(), tauPts.end(), std::greater<double>());
+  std::sort(electronPts.begin(), electronPts.end(), std::greater<double>());
+  std::sort(muonPts.begin(), muonPts.end(), std::greater<double>());
+  std::sort(tauJetPts.begin(), tauJetPts.end(), std::greater<double>());
     
-    // check if visible decay products pass Pt cuts
-    //
-    // NOTE: return value = True if leg1 > threshold[i] && leg2 > threshold[i] for **any** path i
-    //      (e.g. (leg1Pt > 10 && leg2Pt > 20) || (leg1Pt > 20 && leg2Pt > 10), consistent with logic used by HLT)
-    //
-    for ( std::vector<MinVisPtCutCollection>::const_iterator minVisPtCut_combination = minVisPtCuts_.begin(); 
-	  minVisPtCut_combination != minVisPtCuts_.end(); ++minVisPtCut_combination ) {
-      bool passesCuts_path = true;
-      for ( MinVisPtCutCollection::const_iterator minVisPtCut = minVisPtCut_combination->begin();
-	    minVisPtCut != minVisPtCut_combination->end(); ++minVisPtCut ) {
-	std::vector<double>* collection = 0;
-	switch ( minVisPtCut->type_ ) {
-	case MinVisPtCut::kELEC:
-	  collection = &electronPts; 
-	  break;
-	case MinVisPtCut::kMU: 
-	  collection = &muonPts; 
-	  break;
-	case MinVisPtCut::kHAD: 
-	  collection = &tauJetPts; 
-	  break;
-	case MinVisPtCut::kTAU: 
-	  collection = &tauPts; 
-	  break;
-	}
-	assert(collection);
-
-	// j-th tau decay product fails visible Pt cut
-	if ( minVisPtCut->index_ >= collection->size() || (*collection)[minVisPtCut->index_] < minVisPtCut->threshold_ ) {
-	  passesCuts_path = false;
-	  break;
-	}
+  // check if visible decay products pass Pt cuts
+  //
+  // NOTE: return value = True if leg1 > threshold[i] && leg2 > threshold[i] for **any** path i
+  //      (e.g. (leg1Pt > 10 && leg2Pt > 20) || (leg1Pt > 20 && leg2Pt > 10), consistent with logic used by HLT)
+  //
+  for ( std::vector<MinVisPtCutCombination>::const_iterator minVisPtCut = minVisPtCuts_.begin();
+	minVisPtCut != minVisPtCuts_.end(); ++minVisPtCut ) {
+    //if ( verbosity_ ) minVisPtCut->print(std::cout);
+    
+    bool passesMinVisCut = true;
+    
+    for ( std::vector<MinVisPtCut>::const_iterator cut = minVisPtCut->cuts_.begin();
+	  cut != minVisPtCut->cuts_.end(); ++cut ) {
+      std::vector<double>* collection = 0;
+      switch ( cut->type_ ) {
+      case MinVisPtCut::kELEC:
+	collection = &electronPts; 
+	break;
+      case MinVisPtCut::kMU: 
+	collection = &muonPts; 
+	break;
+      case MinVisPtCut::kHAD: 
+	collection = &tauJetPts; 
+	break;
+      case MinVisPtCut::kTAU: 
+	collection = &tauPts; 
+	break;
       }
-
-      // all tau decay products satisfy visible Pt cuts for i-th path 
-      if ( passesCuts_path ) return true;
+      assert(collection);
+      
+      // j-th tau decay product fails visible Pt cut
+      if ( cut->index_ >= collection->size() || (*collection)[cut->index_] < cut->threshold_ ) {
+	passesMinVisCut = false;
+	break;
+      }
     }
+
+    // all tau decay products satisfy visible Pt cuts for i-th path 
+    //if ( verbosity_ ) std::cout << "passes vis. Pt cuts = " << passesMinVisCut << std::endl;
+    if ( passesMinVisCut ) return true;
   }
 
   // visible Pt cuts failed for all paths
@@ -570,7 +625,7 @@ namespace
 
   void print(const std::string& label, const reco::Particle::LorentzVector& p4, const reco::Particle::LorentzVector* p4_ref = 0)
   {
-    std::cout << label << ": En = " << p4.E() << ", P = " << p4.P() << ", theta = " << p4.theta() << ", phi = " << p4.phi();
+    std::cout << label << ": En = " << p4.E() << ", Pt = " << p4.pt() << ", theta = " << p4.theta() << " (eta = " << p4.eta() << "), phi = " << p4.phi() << ", mass = " << p4.mass();
     if ( p4_ref ) {
       double angle = TMath::ACos((p4.px()*p4_ref->px() + p4.py()*p4_ref->py() + p4.pz()*p4_ref->pz())/(p4.P()*p4_ref->P()));
       std::cout << " (angle wrt. ref = " << angle << ")";
