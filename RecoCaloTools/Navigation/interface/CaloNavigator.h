@@ -37,61 +37,43 @@ class CaloNavigator GCC11_FINAL {
   /// move the navigator north
   T north() const 
     { 
-      if ((myTopology_->north(currentPoint_)).size()==1)
-	currentPoint_=(myTopology_->north(currentPoint_))[0];
-      else
-	currentPoint_=T(0);
-      return currentPoint_;
+     currentPoint_=myTopology_->goNorth(currentPoint_);
+     return currentPoint_;
     } ;
 
   /// move the navigator south
   T south()  const 
     { 
-      if ((myTopology_->south(currentPoint_)).size()==1)
-	currentPoint_=(myTopology_->south(currentPoint_))[0];
-      else
-	currentPoint_=T(0);
+     currentPoint_=myTopology_->goSouth(currentPoint_);
       return currentPoint_;
     } ;
 
   /// move the navigator east
   T east() const
     { 
-      if ((myTopology_->east(currentPoint_)).size()==1)
-	currentPoint_=(myTopology_->east(currentPoint_))[0];
-      else
-	currentPoint_=T(0);
-      return currentPoint_;
+     currentPoint_=myTopology_->goEast(currentPoint_);
+     return currentPoint_;
     } ;
 
   /// move the navigator west
   T west() const
     { 
-      if ((myTopology_->west(currentPoint_)).size()==1)
-	currentPoint_=(myTopology_->west(currentPoint_))[0];
-      else
-	currentPoint_=T(0);
-      return currentPoint_;
+     currentPoint_=myTopology_->goWest(currentPoint_);
+     return currentPoint_;
     } ;
 
   /// move the navigator west
   T up() const
     { 
-      if ((myTopology_->up(currentPoint_)).size()==1)
-	currentPoint_=(myTopology_->up(currentPoint_))[0];
-      else
-	currentPoint_=T(0);
+      currentPoint_=myTopology_->goUp(currentPoint_);
       return currentPoint_;
     } ;
 
   /// move the navigator west
   T down() const
     { 
-      if ((myTopology_->down(currentPoint_)).size()==1)
-	currentPoint_=(myTopology_->down(currentPoint_))[0];
-      else
-	currentPoint_=T(0);
-      return currentPoint_;
+     currentPoint_=myTopology_->goDown(currentPoint_);
+     return currentPoint_;
     } ;
 
   /// Free movement of arbitray steps

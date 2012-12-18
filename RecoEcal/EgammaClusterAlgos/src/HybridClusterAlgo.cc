@@ -202,7 +202,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 		
 
 		//Make a navigator, and set it to the seed cell.
-		EcalBarrelNavigator navigator(itID, topo_);
+		EcalBarrelNavigatorHT navigator(itID, topo_);
 
 		//Now use the navigator to start building dominoes.
 
@@ -242,7 +242,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 			if (centerD.null())
 				continue;
                         LogTrace("EcalClusters") << "Step ++" << i << " @ " << EBDetId(centerD) ;
-			EcalBarrelNavigator dominoNav(centerD, topo_);
+			EcalBarrelNavigatorHT dominoNav(centerD, topo_);
 
 			//Go get the new domino.
 			std::vector <EcalRecHit> dcells;
@@ -264,7 +264,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 				continue;
 
 			LogTrace("EcalClusters") << "Step --" << i << " @ " << EBDetId(centerD) ;
-			EcalBarrelNavigator dominoNav(centerD, topo_);
+			EcalBarrelNavigatorHT dominoNav(centerD, topo_);
 
 			//Go get the new domino.
 			std::vector <EcalRecHit> dcells;
@@ -539,7 +539,7 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ca
 	return SCcoll;
 }
 
-double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector <EcalRecHit> &cells)
+double HybridClusterAlgo::makeDomino(EcalBarrelNavigatorHT &navigator, std::vector <EcalRecHit> &cells)
 {
 	//At the beginning of this function, the navigator starts at the middle of the domino,
 	//and that's where EcalBarrelNavigator::home() should send it.
@@ -623,7 +623,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigator &navigator, std::vector
 	return Etot;
 }
 
-double HybridClusterAlgo::et25(EcalBarrelNavigator &navigator, 
+double HybridClusterAlgo::et25(EcalBarrelNavigatorHT &navigator, 
 		const EcalRecHitCollection *hits, 
 		const CaloSubdetectorGeometry *geometry)
 {
@@ -663,7 +663,7 @@ double HybridClusterAlgo::et25(EcalBarrelNavigator &navigator,
 }
 
 
-double HybridClusterAlgo::e2Et(EcalBarrelNavigator &navigator, 
+double HybridClusterAlgo::e2Et(EcalBarrelNavigatorHT &navigator, 
 				const EcalRecHitCollection *hits, 
 				const CaloSubdetectorGeometry *geometry)
 {

@@ -45,11 +45,11 @@ class HybridClusterAlgo
   int phiSteps_;
 
   // et in 25
-  double et25(EcalBarrelNavigator &navigator,
+  double et25(EcalBarrelNavigatorHT &navigator,
                 const EcalRecHitCollection *hits,
                 const CaloSubdetectorGeometry *geometry);
   // ratio Et/e
-  double e2Et(EcalBarrelNavigator &navigator,
+  double e2Et(EcalBarrelNavigatorHT &navigator,
                 const EcalRecHitCollection *hits,
                 const CaloSubdetectorGeometry *geometry);
 
@@ -173,7 +173,7 @@ class HybridClusterAlgo
   void mainSearch(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry * geometry);
   
   //Make dominos for the hybrid method.
-  double makeDomino(EcalBarrelNavigator &navigator, std::vector <EcalRecHit> &cells);
+  double makeDomino(EcalBarrelNavigatorHT &navigator, std::vector <EcalRecHit> &cells);
 
 };
 

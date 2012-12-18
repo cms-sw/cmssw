@@ -152,18 +152,24 @@ void go() {
   std::vector<Vec> vec2(53);
   std::vector<Vec> vec3; vec3.reserve(50234);
 
-
-  constexpr Vec x{2.0,4.0,5.0};
-  constexpr Vec y{-3.0,2.0,-5.0};
+  constexpr Vec zero{0,0,0,0};
+  constexpr Vec x{2.0f,4.0f,5.0f};
+  constexpr Vec y{-3.0f,2.0f,-5.0f};
+  Vec x0 = x[0] + zero;
+  constexpr Vec xx = T(3.3) + zero;
   std::cout << x << std::endl;
   std::cout << (Vec4<float>){x[0],x[1],x[2],x[3]} << std::endl;
   std::cout << (Vec4<double>){x[0],x[1],x[2],x[3]} << std::endl;
   std::cout << -x << std::endl;
   std::cout <<  Vec{x[2]} << std::endl;
+  //std::cout <<  Vec(x[2]) << std::endl;
+  std::cout <<  x0 << std::endl;
+  std::cout <<  xx << std::endl;
+  std::cout <<  Vec{}+x[2] << std::endl;
   std::cout << y << std::endl;
   std::cout << T(3.)*x << std::endl;
   std::cout << y*T(0.1) << std::endl;
-  std::cout << ( (Vec){1} - y*T(0.1)) << std::endl;
+  std::cout << ( T(1) - y*T(0.1)) << std::endl;
   std::cout << apply(x,[](T x) { return std::sqrt(x);}) << std::endl;
 
 
@@ -178,7 +184,7 @@ void go() {
   std::cout << cross2(x,y) << std::endl;
 
 
-  std::cout << "rotations" << std::endl;
+  std::cout << "\nrotations" << std::endl;
 
   constexpr T a = 0.01;
   constexpr T ca = std::cos(a);

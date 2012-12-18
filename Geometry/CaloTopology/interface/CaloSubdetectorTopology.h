@@ -12,8 +12,8 @@
 
 /** \class CaloSubdetectorTopology
       
-$Date: 2012/11/12 21:38:35 $
-$Revision: 1.6 $
+$Date: 2012/12/15 17:18:10 $
+$Revision: 1.7 $
 \author P.Meridiani INFN Roma1
 \author J. Mans - Minnesota
 */
@@ -49,6 +49,35 @@ public:
   virtual std::vector<DetId> up(const DetId& id) const = 0;
   /** Get the neighbors of the given cell in down direction (inward)*/
   virtual std::vector<DetId> down(const DetId& id) const = 0;
+
+  // interface valid for most subdetectors
+  // see for instance RecoCaloTools/Navigation/interface/CaloNavigator.h
+  virtual DetId goEast(const DetId& id) const {
+    std::vector<DetId> ids = east(id);
+    return ids.empty() ? DetId() : ids[0];    
+  }
+  virtual DetId goWest(const DetId& id) const {
+    std::vector<DetId> ids = west(id);
+    return ids.empty() ? DetId() : ids[0];    
+  }
+  virtual DetId goNorth(const DetId& id) const {
+    std::vector<DetId> ids = north(id);
+    return ids.empty() ? DetId() : ids[0];    
+  }
+  virtual DetId goSouth(const DetId& id) const {
+    std::vector<DetId> ids = south(id);
+    return ids.empty() ? DetId() : ids[0];    
+  }
+  virtual DetId goUp(const DetId& id) const {
+    std::vector<DetId> ids = up(id);
+    return ids.empty() ? DetId() : ids[0];    
+  }
+  virtual DetId goDown(const DetId& id) const {
+    std::vector<DetId> ids = down(id);
+    return ids.empty() ? DetId() : ids[0];    
+  }
+
+
   /** Get the neighbors of the given cell given direction*/
   virtual std::vector<DetId> getNeighbours(const DetId& id, const CaloDirection& dir) const
     {

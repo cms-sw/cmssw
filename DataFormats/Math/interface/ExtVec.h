@@ -30,6 +30,7 @@ auto xy(V v)-> Vec2<typename  std::remove_reference<decltype(v[0])>::type>
   typedef typename std::remove_reference<decltype(v[0])>::type T;
   return Vec2<T>{v[0],v[1]};
 }
+
 template<typename V> 
 inline
 auto zw(V v) -> Vec2<typename  std::remove_reference<decltype(v[0])>::type> 
