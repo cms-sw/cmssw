@@ -211,16 +211,6 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
    //   for (int CutIndex = 0; CutIndex < CutPt.size(); ++CutIndex)      printf("%4.0i  %3.0f   %3.3f   %3.3f\n", CutIndex+1, CutPt[CutIndex], CutI[CutIndex],  CutTOF[CutIndex]);
    //   for (int CutIndex = 0; CutIndex < CutPt_Flip.size(); ++CutIndex) printf("%4.0i  %3.0f   %3.3f   %3.3f\n", CutIndex+1, CutPt_Flip[CutIndex], CutI_Flip[CutIndex],  CutTOF_Flip[CutIndex]);
 
-   //initialize LumiReWeighting
-#ifdef ANALYSIS2011
-   for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
-   for(int i=0; i<35; ++i) TrueDist.push_back(TrueDist2011_f[i]);
-#else
-   for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
-   for(int i=0; i<60; ++i) TrueDist.push_back(TrueDist2012_f[i]);
-#endif
-   LumiWeightsMC = edm::LumiReWeighting(BgLumiMC, TrueDist);
-
    //make the directory structure corresponding to this analysis (depends on dEdx/TOF estimator being used, Eta/Pt cuts and Mode of the analysis)
    char Buffer[2048], Command[2048];
    //sprintf(Buffer,"Results/%s/%s/Eta%02.0f/PtMin%02.0f/Type%i/", dEdxS_Label.c_str(), TOF_Label.c_str(), 10.0*GlobalMaxEta, GlobalMinPt, TypeMode);
@@ -242,6 +232,20 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
       printf("MODE='ANALYSE_X_to_Y'   : Will run the analysis on the samples with index in the range [X,Y]\n"); 
       return;
    }
+
+   //initialize LumiReWeighting
+#ifdef ANALYSIS2011
+   for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
+   for(int i=0; i<35; ++i) TrueDist.push_back(TrueDist2011_f[i]);
+#else
+   if(samples[0].Pileup=="S10"){
+      for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
+   }else{
+      for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
+   }
+   for(int i=0; i<60; ++i) TrueDist.push_back(TrueDist2012_f[i]);
+#endif
+   LumiWeightsMC = edm::LumiReWeighting(BgLumiMC, TrueDist);
 
    //create histogram file and run the analyis
    HistoFile = new TFile((string(Buffer)+"/Histos_"+samples[0].Name+"_"+samples[0].FileName+".root").c_str(),"RECREATE");
