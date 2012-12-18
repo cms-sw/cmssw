@@ -31,6 +31,8 @@ void CollisionBackgroundSystematicFromFlip(string InputPattern, string DataType=
 
 void Make2DPlot_Special(string ResultPattern,string ResultPattern2); //, unsigned int CutIndex);
 void CompareRecoAndGenPt(string ResultPattern);
+void CheckPUDistribution(string InputPattern, unsigned int CutIndex);
+
 
 std::vector<stSample> samples;
 
@@ -53,6 +55,11 @@ void Analysis_Step5()
 
    string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip=1;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
+    
+   CheckPUDistribution("Results/Type0/", 0);
+//   CheckPUDistribution("Results/Type4/", 0);
+//   return;
+
 
    Make2DPlot_Special("Results/Type0/", "Results/Type5/");
    CompareRecoAndGenPt("Results/Type0/");
@@ -3229,4 +3236,85 @@ void CompareRecoAndGenPt(string InputPattern){
   delete c1;
   return;
 }
+
+
+void CheckPUDistribution(string InputPattern, unsigned int CutIndex){
+   TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
+   if(!InputFile)std::cout << "FileProblem\n";
+
+   TCanvas* c1 = new TCanvas("c1","c1",600, 600);
+
+   TH1F* frame = new TH1F("frame", "frame", 1,0,55);
+   frame->GetXaxis()->SetNdivisions(505);
+   frame->SetTitle("");
+   frame->SetStats(kFALSE);
+   frame->GetXaxis()->SetTitle("#Vertices");
+   //frame->GetYaxis()->SetTitle(YAxisLegend);
+   frame->GetYaxis()->SetTitleOffset(1.50);
+   frame->SetMaximum(1);
+   frame->SetMinimum(1E-3);
+   frame->SetAxisRange(0,45,"X");
+   frame->Draw("AXIS");
+
+   for(unsigned int s=0;s<samples.size();s++){
+      if(samples[s].Type!=2)continue;
+       stPlots plots;
+       if(stPlots_InitFromFile(InputFile, plots, samples[s].Name)){
+          TH1F* plot = (TH1F*)plots.BS_NVertex_NoEventWeight->Clone((samples[s].Name + "_plot").c_str());
+          plot->Scale(1.0/plot->Integral());
+          if(samples[s].Pileup=="S10"){ plot->SetLineColor(2);   plot->SetMarkerColor(2);}
+          if(samples[s].Pileup=="S3") { plot->SetLineColor(8);   plot->SetMarkerColor(8);}
+          if(samples[s].Pileup=="S4") { plot->SetLineColor(4);   plot->SetMarkerColor(4);}
+          plot->Draw("E1 same");
+          printf("%30s --> %5s <--> %f\n", samples[s].Name.c_str(), samples[s].Pileup.c_str(), plot->GetMean());
+          stPlots_Clear(&plots);
+       }
+   }
+
+   TLegend* leg = new TLegend(0.79,0.93,0.35,0.75);
+   leg->SetHeader("Pileup Scenario:");
+   leg->SetFillStyle(0);
+   leg->SetBorderSize(0);
+   TLegendEntry* entry = NULL;
+   entry = leg->AddEntry("", "S4"        ,"P"); entry->SetMarkerColor(4);
+   entry = leg->AddEntry("", "S10"       ,"P"); entry->SetMarkerColor(2);
+   leg->Draw("same");
+
+   c1->SetLogy(true);
+   SaveCanvas(c1, "test/", "pileup");
+   delete c1;
+
+   InputFile->Close();
+}
+
+
+/*
+void CheckPUDistribution(string InputPattern, unsigned int CutIndex){
+   TFile* InputFile = new TFile((InputPattern + "Histos.root").c_str());
+   if(!InputFile)std::cout << "FileProblem\n";
+
+   for(unsigned int s=0;s<samples.size();s++){
+      if(samples[s].Type!=2)continue;
+      if(samples[s].Name.find("DY")==string::npos || samples[s].Name.find("o3")!=string::npos)continue;
+
+       stPlots plots;
+       if(stPlots_InitFromFile(InputFile, plots, samples[s].Name)){
+
+          TCanvas* c1 = new TCanvas("c1","c1",600, 600);
+          TH2F* plot = (TH2F*)plots.BS_PImHD->Clone((samples[s].Name + "_plot").c_str());
+          plot->Rebin2D(4,4);
+          plot->Draw("COLZ");
+
+          c1->SetLogz(true);
+          SaveCanvas(c1, "test/",  samples[s].Name);
+          delete c1;
+
+          stPlots_Clear(&plots);
+       }
+   }
+
+   InputFile->Close();
+}
+*/
+
 
