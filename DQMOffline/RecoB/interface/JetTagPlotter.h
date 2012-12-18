@@ -21,12 +21,8 @@ class JetTagPlotter : public BaseBTagPlotter {
 
   virtual ~JetTagPlotter () ;
 
-  void analyzeTag (const int & jetFlavour); //added to fill the jet multiplicity 
-  void analyzeTag (const int & jetFlavour, const float & w); //added to fill the jet multiplicity 
   void analyzeTag (const reco::JetTag & jetTag, const int & jetFlavour);
-  void analyzeTag (const reco::JetTag & jetTag, const int & jetFlavour, const float & w);
   void analyzeTag (const reco::Jet & jet, const float& discriminator, const int& jetFlavour);
-  void analyzeTag (const reco::Jet & jet, const float& discriminator, const int& jetFlavour, const float & w);
 
   // final computation, plotting, printing .......
   void createPlotsForFinalize();
@@ -59,17 +55,13 @@ class JetTagPlotter : public BaseBTagPlotter {
   bool mcPlots_;
   bool willFinalize_;
 
-  int nJets;
-  // jet multiplicity
-  FlavourHistograms<int> * JetMultiplicity;
-
   // for the misid vs. eff plots
   EffPurFromHistos * effPurFromHistos ;
 
   FlavourHistograms<int> * dJetFlav;
 
   // track multiplicity in jet
-  //FlavourHistograms<int> * dJetTrackMultiplicity;
+  FlavourHistograms<int> * dJetMultiplicity;
   
   // Discriminator: again with reasonable binning
   FlavourHistograms<double> * dDiscriminator;
@@ -87,13 +79,13 @@ class JetTagPlotter : public BaseBTagPlotter {
   FlavourHistograms<double> * dJetRecPhi;
 
   // associated parton momentum
-  //FlavourHistograms<double> * dJetPartonMomentum;
+  FlavourHistograms<double> * dJetPartonMomentum;
 
   // associated parton pt
-  //FlavourHistograms<double> * dJetPartonPt;
+  FlavourHistograms<double> * dJetPartonPt;
 
   // associated parton eta
-  //FlavourHistograms<double> * dJetPartonPseudoRapidity;
+  FlavourHistograms<double> * dJetPartonPseudoRapidity;
 } ;
 
 #endif

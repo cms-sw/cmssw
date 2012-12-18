@@ -41,6 +41,10 @@
  <class name="CastorRecoParam"/>
  <class name="std::vector<CastorRecoParam>"/>
  <class name="CastorRecoParams" class_version="0"/>
+ 
+ <class name="CastorSaturationCorr"/>
+ <class name="std::vector<CastorSaturationCorr>"/>
+ <class name="CastorSaturationCorrs"/>
 
  <class pattern="*CastorCondObjectContainer*">
   <field name="CASTORcontainer" mapping="blob" />

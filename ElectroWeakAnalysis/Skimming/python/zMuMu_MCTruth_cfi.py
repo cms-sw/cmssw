@@ -19,12 +19,12 @@ from ElectroWeakAnalysis.Skimming.dimuonsOneTrackMCMatch_cfi import *
 #   filter = cms.bool(False) 
 #)
 
-allDimuonsMCMatch = cms.EDProducer("GenParticleMatchMerger",
+allDimuonsMCMatch = cms.EDFilter("GenParticleMatchMerger",
    src = cms.VInputTag(cms.InputTag("goodMuonMCMatch"), cms.InputTag("dimuonsMCMatch")),
    filter = cms.bool(False)
 )
 
-allDimuonsOneTrackMCMatch = cms.EDProducer("GenParticleMatchMerger",
+allDimuonsOneTrackMCMatch = cms.EDFilter("GenParticleMatchMerger",
    src = cms.VInputTag(cms.InputTag("goodMuonMCMatch"), cms.InputTag("goodTrackMCMatch"), cms.InputTag("dimuonsOneTrackMCMatch")),
    filter = cms.bool(False)
 )

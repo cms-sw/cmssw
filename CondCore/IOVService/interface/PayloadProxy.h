@@ -33,6 +33,8 @@ namespace cond {
       int nProxy;
       int nRefresh;
       int nArefresh;
+      int nReconnect;
+      int nAreconnect;
       int nMake;
       int nLoad;
       ObjIds ids;
@@ -84,6 +86,7 @@ namespace cond {
 
     // reload the iov return true if size has changed
     bool refresh();
+    bool refresh( cond::DbSession& newSession );
 
 
   private:

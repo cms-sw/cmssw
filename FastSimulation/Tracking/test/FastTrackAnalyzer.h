@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
@@ -43,7 +44,7 @@ class FastTrackAnalyzer : public edm::EDAnalyzer {
   virtual void beginRun(edm::Run const& , edm::EventSetup const& );
   virtual void endJob();
  private:
-  void makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, PSimHit * simHit, int numpartners);
+  void makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, const PSimHit * simHit, int numpartners);
   
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
 						const BoundPlane& plane, int thesign) ;
@@ -93,6 +94,9 @@ class FastTrackAnalyzer : public edm::EDAnalyzer {
   int iEventCounter;
   TString outfilename;
   std::string trackProducer;
+
+  edm::InputTag simVertexContainerTag;
+  edm::InputTag siTrackerGSRecHit2DCollectionTag;
 };
 
 #endif

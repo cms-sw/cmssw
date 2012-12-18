@@ -1,9 +1,15 @@
 #!/usr/bin/env python
-VERSION='2.00'
-import os,sys,time
-from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,lumiTime
 
-def parseInputFiles(inputfilename,dbrunlist,optaction):
+###############################################################################
+# Command to display runsummary, L1,HLT and beam data used in lumi caculation #
+#                                                                             #
+# Author:      Zhen Xie                                                       #
+###############################################################################
+
+import os,sys,time
+from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,RegexValidator,lumiTime,revisionDML
+
+def parseInputFiles(inputfilename):
     '''
     output ({run:[cmsls,cmsls,...]},[[resultlines]])
     '''
@@ -15,11 +21,8 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
     selectedNonProcessedRuns=p.selectedRunsWithoutresult()
     resultlines=p.resultlines()
     for runinfile in selectedNonProcessedRuns:
-        if runinfile not in dbrunlist:
-            continue
         selectedrunlsInDB[runinfile]=runlsbyfile[runinfile]
     return (selectedrunlsInDB,resultlines)
-
 
 ##############################
 ## ######################## ##
@@ -31,14 +34,16 @@ def parseInputFiles(inputfilename,dbrunlist,optaction):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Additional information needed in the lumi calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    allowedActions = ['hltbyls','hltconf','trgconf','trgbyls', 'beambyls','runsummary']
-    amodetagChoices = [ "PROTPHYS","IONPHYS" ]
+    allowedActions = ['hltbyls','hltmenu','trgbyls', 'beambyls','runsummary']
+    amodetagChoices = [ "PROTPHYS","IONPHYS","PAPHYS" ]
     beamModeChoices = ["stable"]
     #
     # parse arguments
     #  
     #
+    ################################################
     # basic arguments
+    ################################################
     #
     parser.add_argument('action',choices=allowedActions,
                         help='command actions')
@@ -56,9 +61,9 @@ if __name__ == '__main__':
     parser.add_argument('-o',dest='outputfile',action='store',
                         required=False,
                         help='output to csv file (optional)')
-    #
-    #optional arg to select exact run and ls
-    #
+    #################################################
+    #arg to select exact run and ls
+    #################################################
     parser.add_argument('-i',dest='inputfile',action='store',
                         required=False,
                         help='run/ls selection file (optional)')
@@ -72,7 +77,7 @@ if __name__ == '__main__':
                         choices=beamModeChoices,
                         required=False,
                         help='beam mode choices [stable] (optional)')
-    parser.add_argument('--fill',dest='fillnum',action='store',
+    parser.add_argument('-f','--fill',dest='fillnum',action='store',
                         default=None,required=False,
                         help='fill number (optional) ')
     parser.add_argument('--amodetag',dest='amodetag',action='store',
@@ -96,12 +101,22 @@ if __name__ == '__main__':
     parser.add_argument('--begin',dest='begin',action='store',
                         default=None,
                         required=False,
-                        help='min run start time, mm/dd/yy hh:mm:ss (optional)')
+                        type=RegexValidator.RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
+                        help='min run start time, mm/dd/yy hh:mm:ss)'
+                        )
     parser.add_argument('--end',dest='end',action='store',
-                        default=None,required=False,
-                        help='max run start time, mm/dd/yy hh:mm:ss (optional)')
-    
-
+                        default=None,
+                        required=False,
+                        type=RegexValidator.RegexValidator("^\d\d/\d\d/\d\d \d\d:\d\d:\d\d$","must be form mm/dd/yy hh:mm:ss"),
+                        help='max run start time, mm/dd/yy hh:mm:ss'
+                        )
+    #################################################
+    #versions control
+    #################################################
+    parser.add_argument('--datatag',dest='datatag',action='store',
+                        required=False,
+                        help='version of lumi/trg/hlt data'
+                        )
     #
     #command configuration 
     #
@@ -109,17 +124,31 @@ if __name__ == '__main__':
                         default=None,
                         required=False,
                         help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
-    #
+    #################################################
     #switches
-    #
-    parser.add_argument('--with-beamintensity',dest='withbeamintensity',action='store_true',
+    #################################################                    
+    parser.add_argument('--with-beamintensity',
+                        dest='withbeamintensity',
+                        action='store_true',
                         help='dump beam intensity' )
-    parser.add_argument('--verbose',dest='verbose',action='store_true',
+    parser.add_argument('--verbose',
+                        dest='verbose',
+                        action='store_true',
                         help='verbose mode for printing' )
-    parser.add_argument('--debug',dest='debug',action='store_true',
+    parser.add_argument('--nowarning',
+                        dest='nowarning',
+                        action='store_true',
+                        help='suppress bad for lumi warnings'
+                        )
+    parser.add_argument('--debug',
+                        dest='debug',
+                        action='store_true',
                         help='debug')
     
     options=parser.parse_args()
+    #
+    # check DB environment
+    #                        
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
         
@@ -139,105 +168,97 @@ if __name__ == '__main__':
         options.outputfile='beamintensity.csv'
     if options.beammode=='stable':
         pbeammode    = 'STABLE BEAMS'
-    if options.verbose:
-        print 'General configuration'
-        print '\tconnect: ',options.connect
-        print '\tauthpath: ',options.authpath
-        print '\tsiteconfpath: ',options.siteconfpath
-        print '\toutputfile: ',options.outputfile
-        print '\tname: ',sname
-        print '\tnamepattern: ',spattern
-        if options.runnumber: # if runnumber specified, do not go through other run selection criteria
-            print '\tselect specific run== ',options.runnumber
-        else:
-            print '\trun selections == '
-            print '\tinput selection file: ',options.inputfile
-            print '\tbeam mode: ',options.beammode 
-            print '\tfill: ',options.fillnum
-            print '\tamodetag: ',options.amodetag
-            print '\tbegin: ',options.begin
-            print '\tend: ',options.end
-            print '\tbeamenergy: ',options.beamenergy 
-            if options.beamenergy:
-                print '\tbeam energy: ',str(options.beamenergy)+'+/-'+str(options.beamfluctuation*options.beamenergy)+'(GeV)'
-    svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
+    svc=sessionManager.sessionManager(options.connect,
+                                      authpath=options.authpath,
+                                      siteconfpath=options.siteconfpath,
+                                      debugON=options.debug)
     session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    
+    session.transaction().start(True)
     irunlsdict={}
+    rruns=[]
     iresults=[]
+    reqTrg=False
+    reqHlt=False
+    if options.action=='trgbyls':
+        reqTrg=True
+    if options.action=='hltbyls':
+        reqHlt=True
     if options.runnumber: # if runnumber specified, do not go through other run selection criteria
         irunlsdict[options.runnumber]=None
+        rruns=irunlsdict.keys()
     else:
-        reqTrg=False
-        reqHlt=False
-        if options.action=='trgbyls':
-            reqTrg=True
-        if options.action=='hltbyls':
-            reqHlt=True
-        session.transaction().start(True)
-        schema=session.nominalSchema()
-        runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
-        session.transaction().commit()
         if options.inputfile:
-            (irunlsdict,iresults)=parseInputFiles(options.inputfile,runlist,options.action)
+            (irunlsdict,iresults)=parseInputFiles(options.inputfile)
+            if options.fillnum or options.begin or options.end or options.amodetag or options.beamenergy:      
+                runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
+                rruns=[val for val in runlist if val in irunlsdict.keys()]
+                for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
+                    if selectedrun not in rruns:
+                        del irunlsdict[selectedrun]
+            else:
+                rruns=irunlsdict.keys()
         else:
+            runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
             for run in runlist:
                 irunlsdict[run]=None
-    if options.verbose:  
-        print 'Selected run:ls'
-        for run in sorted(irunlsdict):
-            if irunlsdict[run] is not None:
-                print '\t%d : %s'%(run,','.join([str(ls) for ls in irunlsdict[run]]))
-            else:
-                print '\t%d : all'%run
+            rruns=irunlsdict.keys()
+    datatagname=options.datatag
+    if not datatagname:
+        (datatagid,datatagname)=revisionDML.currentDataTag(session.nominalSchema())
+        dataidmap=revisionDML.dataIdsByTagId(session.nominalSchema(),datatagid,runlist=rruns,withcomment=False)
+        #{run:(lumidataid,trgdataid,hltdataid,())}
+    else:
+        dataidmap=revisionDML.dataIdsByTagName(session.nominalSchema(),datatagname,runlist=rruns,withcomment=False)
+    session.transaction().commit()
+    thiscmmd=sys.argv[0]
+    lumiReport.toScreenHeader(thiscmmd,datatagname,'n/a','n/a','n/a','n/a')
+    if not dataidmap:
+        print '[INFO] No qualified data found, do nothing'
+        sys.exit(0)
+    
     if options.action == 'trgbyls':
         session.transaction().start(True)
-        result=lumiCalcAPI.trgForRange(session.nominalSchema(),irunlsdict,trgbitname=sname,trgbitnamepattern=spattern,withL1Count=True,withPrescale=True)
+        result=lumiCalcAPI.trgForIds(session.nominalSchema(),irunlsdict,dataidmap,trgbitname=sname,trgbitnamepattern=spattern,withL1Count=True,withPrescale=True)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenLSTrg(result,iresults=iresults,isverbose=isdetail)
+            lumiReport.toScreenLSTrg(result,iresults=iresults,irunlsdict=irunlsdict,noWarning=options.nowarning)
         else:
-            lumiReport.toCSVLSTrg(result,options.outputfile,iresults=iresults,isverbose=isdetail)
+            lumiReport.toScreenLSTrg(result,iresults=iresults,irunlsdict=irunlsdict,noWarning=options.nowarning,toFile=options.outputfile)
+    #print result
+        sys.exit(0)
     if options.action == 'hltbyls':
-        withL1Pass=False
-        withHLTAccept=False
-        if options.verbose:
-            withL1Pass=True
-            withHLTAccept=True
+        if not options.name:
+            print '[ERROR] --name option is required by hltbyls, do nothing'
+            sys.exit(0)
+        withL1Pass=True
+        withHLTAccept=True
         session.transaction().start(True)
-        result=lumiCalcAPI.hltForRange(session.nominalSchema(),irunlsdict,hltpathname=sname,hltpathpattern=spattern,withL1Pass=withL1Pass,withHLTAccept=withHLTAccept)
+        result=lumiCalcAPI.hltForIds(session.nominalSchema(),irunlsdict,dataidmap,hltpathname=sname,hltpathpattern=spattern,withL1Pass=withL1Pass,withHLTAccept=withHLTAccept)
         session.transaction().commit()
         if not options.outputfile:
-            lumiReport.toScreenLSHlt(result,iresults=iresults,isverbose=options.verbose)
+            lumiReport.toScreenLSHlt(result,iresults=iresults)
         else:
-            lumiReport.toCSVLSHlt(result,options.outputfile,iresults,options.verbose)
-    if options.action == 'trgconf':
-        session.transaction().start(True)
-        result=lumiCalcAPI.trgbitsForRange(session.nominalSchema(),irunlsdict,datatag=None)        
-        session.transaction().commit()
-        if not options.outputfile:
-            lumiReport.toScreenConfTrg(result,iresults,options.verbose)
-        else:
-            lumiReport.toCSVConfTrg(result,options.outputfile,iresults,options.verbose)
-    if options.action == 'hltconf':
+            lumiReport.toScreenLSHlt(result,iresults=iresults,toFile=options.outputfile)
+    if options.action == 'hltmenu':
         session.transaction().start(True)
         result=lumiCalcAPI.hltpathsForRange(session.nominalSchema(),irunlsdict,hltpathname=sname,hltpathpattern=spattern)
         session.transaction().commit()
+        #print result
         if not options.outputfile:
-            lumiReport.toScreenConfHlt(result,iresults,options.verbose)
+            lumiReport.toScreenConfHlt(result,iresults)
         else:
-            lumiReport.toCSVConfHlt(result,options.outputfile,iresults,options.verbose)
+            lumiReport.toScreenConfHlt(result,iresults,toFile=options.outputfile)
     if options.action == 'beambyls':
         session.transaction().start(True)
         dumpbeamintensity=False
         if options.outputfile and options.verbose:
             dumpbeamintensity=True
-        result=lumiCalcAPI.beamForRange(session.nominalSchema(),irunlsdict,withBeamIntensity=options.withbeamintensity,minIntensity=options.minintensity)
+        result=lumiCalcAPI.beamForIds(session.nominalSchema(),irunlsdict,dataidmap,withBeamIntensity=options.withbeamintensity,minIntensity=options.minintensity)
         session.transaction().commit()
         if not options.outputfile:
             lumiReport.toScreenLSBeam(result,iresults=iresults,dumpIntensity=False)
         else:
-            lumiReport.toCSVLSBeam(result,options.outputfile,resultlines=iresults,dumpIntensity=options.withbeamintensity,isverbose=options.verbose)
+            lumiReport.toScreenLSBeam(result,iresults=iresults,dumpIntensity=options.withbeamintensity,toFile=options.outputfile)
     if options.action == 'runsummary':
         session.transaction().start(True)
         result=lumiCalcAPI.runsummary(session.nominalSchema(),irunlsdict)
@@ -259,6 +280,7 @@ if __name__ == '__main__':
             if r[3]:
                 egev=str(r[3])
             sequence=r[6]
+            print '==='
             print 'Run ',str(run),' Fill ',fill,' Amodetag ',amodetag,' egev ',egev
             print '\tStart '+starttime,'                  ',' Stop ',stoptime
             print '\tL1key ',l1key,' HLTkey ',hltkey

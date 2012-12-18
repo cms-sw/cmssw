@@ -9,7 +9,7 @@ process.source = cms.Source("PoolSource",
 )
 		
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(10)
 )
 
 ### conditions
@@ -32,8 +32,6 @@ from CommonTools.RecoUtils.pf_pu_assomap_cfi import Tracks2Vertex
 		
 process.Tracks2VertexAM = Tracks2Vertex.clone(
         VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
-	VertexAssOneDim = cms.untracked.bool(False),
-	VertexAssUseAbsDistance = cms.untracked.bool(True),
 )
 		
 ### PFCandidate AssociationMap-specific includes
@@ -41,7 +39,6 @@ from CommonTools.RecoUtils.pfcand_assomap_cfi import PFCandAssoMap
 		
 process.PFCand2VertexAM = PFCandAssoMap.clone(
           VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
-          VertexTrackAssociationMap = cms.InputTag('Tracks2VertexAM'),
 )
 		
 ### PFCandidateCollection-specific includes

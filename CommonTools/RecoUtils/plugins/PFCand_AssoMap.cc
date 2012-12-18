@@ -10,10 +10,62 @@
 //
 // Original Author:  Matthias Geisler
 //         Created:  Wed Apr 18 14:48:37 CEST 2012
-// $Id: PFCand_AssoMap.cc,v 1.1 2012/04/18 15:16:18 mgeisler Exp $
+// $Id: PFCand_AssoMap.cc,v 1.3 2012/06/06 09:02:22 mgeisler Exp $
 //
 //
 #include "CommonTools/RecoUtils/interface/PFCand_AssoMap.h"
+
+// system include files
+#include <memory>
+#include <vector>
+#include <string>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OneToManyWithQuality.h"
+#include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
+#include "DataFormats/Common/interface/View.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include <DataFormats/EgammaReco/interface/SuperCluster.h>
+#include <DataFormats/EgammaReco/interface/SuperClusterFwd.h>
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexFwd.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 //
 // constants, enums and typedefs
@@ -23,15 +75,17 @@ using namespace edm;
 using namespace std;
 using namespace reco;
 
-  typedef AssociationMap<OneToManyWithQuality< VertexCollection, TrackCollection, float> > TrackVertexAssMap;
-  typedef AssociationMap<OneToManyWithQuality< VertexCollection, PFCandidateCollection, float> > PFCandVertexAssMap;
+typedef AssociationMap<OneToManyWithQuality< VertexCollection, PFCandidateCollection, float> > PFCandVertexAssMap;
 
-  typedef vector<pair<TrackRef, float> > TrackQualityPairVector;
+typedef pair<PFCandidateRef, float> PFCandQualityPair;
+typedef vector< PFCandQualityPair > PFCandQualityPairVector;
 
-  typedef pair<PFCandidateRef, float> PFCandQualityPair;
-  typedef vector< PFCandQualityPair > PFCandQualityPairVector;
+typedef pair<VertexRef, PFCandQualityPair> VertexPfcQuality;
 
-  typedef pair<VertexRef, PFCandQualityPair> VertexPfcQuality;
+
+typedef pair<TrackRef, float> TrackQualityPair;
+
+typedef pair<VertexRef, TrackQualityPair> VertexTrackQuality;
 
 
 //
@@ -41,9 +95,7 @@ using namespace reco;
 //
 // constructors and destructor
 //
-PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig)
-  : maxNumWarnings_(3),
-    numWarnings_(0)
+PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig):PF_PU_AssoMapAlgos(iConfig)
 {
    //register your products
 
@@ -52,17 +104,6 @@ PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig)
    //now do what ever other initialization is needed
 
   	input_PFCandidates_ = iConfig.getParameter<InputTag>("PFCandidateCollection");
-  	input_VertexCollection_ = iConfig.getParameter<InputTag>("VertexCollection");
-  	input_VertexTrackAssociationMap_ = iConfig.getParameter<InputTag>("VertexTrackAssociationMap");
-
-  	ConversionsCollection_= iConfig.getParameter<InputTag>("ConversionsCollection");
-
-  	KshortCollection_= iConfig.getParameter<InputTag>("V0KshortCollection");
-  	LambdaCollection_= iConfig.getParameter<InputTag>("V0LambdaCollection");
-
-  	NIVertexCollection_= iConfig.getParameter<InputTag>("NIVertexCollection");
-
-        ignoremissingpfcollection_ = iConfig.getParameter<bool>("ignoreMissingCollection");
 
   
 }
@@ -82,163 +123,55 @@ void
 PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  	//std::cout << "<PFCand_AssoMap::produce>:" << std::endl;
+
 	auto_ptr<PFCandVertexAssMap> pfCandAM(new PFCandVertexAssMap() );
   
 	//get the input pfCandidateCollection
   	Handle<PFCandidateCollection> pfCandInH;
   	iEvent.getByLabel(input_PFCandidates_,pfCandInH);
-  
-	//get the input vertex<->general track association map
-  	Handle<TrackVertexAssMap> GTassomapH;
-  	iEvent.getByLabel(input_VertexTrackAssociationMap_,GTassomapH);
 
-	//get the input vertex collection
-  	Handle<VertexCollection> vtxcollH;
-  	iEvent.getByLabel(input_VertexCollection_,vtxcollH);
+   	if ( !PF_PU_AssoMapAlgos::GetInputCollections(iEvent,iSetup) ) return;
 
-	if(vtxcollH->size()==0) return;	
-
-	//get the conversion collection for the gamma conversions
-	Handle<ConversionCollection> convCollH;
-	iEvent.getByLabel(ConversionsCollection_, convCollH);
-
-	//get the vertex composite candidate collection for the Kshort's
-	Handle<VertexCompositeCandidateCollection> vertCompCandCollKshortH;
-	iEvent.getByLabel(KshortCollection_, vertCompCandCollKshortH);
-
-	//get the vertex composite candidate collection for the Lambda's
-	Handle<VertexCompositeCandidateCollection> vertCompCandCollLambdaH;
-	iEvent.getByLabel(LambdaCollection_, vertCompCandCollLambdaH);
-
-	//get the displaced vertex collection for nuclear interactions
-  	//create a new bool, false if no displaced vertex collection is in the event, mostly for AOD
-  	bool displVtxColl = true;
-  	Handle<PFDisplacedVertexCollection> displVertexCollH;
-  	if(!iEvent.getByLabel(NIVertexCollection_,displVertexCollH) && ignoremissingpfcollection_){
-    	  displVtxColl = false;
-  	}
+	VertexRef FirstVtxRef = PF_PU_AssoMapAlgos::GetFirstVertex();
    
 	for( unsigned i=0; i<pfCandInH->size(); i++ ) {
      
-          PFCandidateRef candref(pfCandInH,i);
+          PFCandidateRef candref(pfCandInH, i);
 
 	  float weight;
 
+          VertexPfcQuality VtxPfcQual;
+
 	  TrackRef PFCtrackref = candref->trackRef();
 
-          VertexPfcQuality VtxPfcQualAss;
-
-	  if(PFCtrackref.isNull()){
+	  if ( PFCtrackref.isNull() ){
      
             //the pfcand has no reference to a general track, therefore its mostly uncharged
-
-	    VertexRef vtxref_tmp;
-
+            //it will allways be associated to the first vertex,
+            //this was found out to be the best solution w.r.t. jet-pt response
             //weight set to -3.
-            weight = -3.;   
- 	  
-	    Conversion gamma;
-	    VertexCompositeCandidate V0;
-	    PFDisplacedVertex displVtx;  
 
-            if(PFCand_NoPU_WithAM_Algos::ComesFromV0Decay(candref,vertCompCandCollKshortH,vertCompCandCollLambdaH,vtxcollH,&vtxref_tmp)){
+            weight = -3.;              
+	    VtxPfcQual = make_pair(FirstVtxRef, make_pair(candref, weight));         
 
-              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-              break;
+          } else {
 
-            }   
-	  
-	    if(displVtxColl){
-
-              if(PFCand_NoPU_WithAM_Algos::ComesFromNI(candref,displVertexCollH,&displVtx,iSetup)){
-
-                vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindNIVertex(candref,displVtx,vtxcollH,true,iSetup);
-                VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-                break;
-
-	      }
-
-            }else if ( numWarnings_ < maxNumWarnings_ ){
-	      edm::LogWarning("PFCand_AssoMap::produce")
-	        << "No PFDisplacedVertex Collection available in input file --> skipping check for nuclear interaction !!" << std::endl;
-	      ++numWarnings_;
-            } 
-
-            if(PFCand_NoPU_WithAM_Algos::ComesFromConversion(candref,convCollH,vtxcollH,&vtxref_tmp)){
-
-              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-              break;
-
-            }
-
-            //the uncharged particle does not come from a V0 decay, gamma conversion or a nuclear interaction
-            //association to the closest vertex in z to the pfcand's vertex
-            //weight is set to -4.
-            weight = -4.;   
-            vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindPFCandVertex(candref,vtxcollH);
-            VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-
-          }else{
-     
-            //the pfcand has a reference to a general track
-            //look for association in the general track association map
-
-            TrackVertexAssMap::const_iterator assomap_ite;
-
-	    bool isAssoc = false;
-
-            for(assomap_ite=GTassomapH->begin(); assomap_ite!=GTassomapH->end(); assomap_ite++){
-
-              VertexRef vertexref = assomap_ite->key;
-	      TrackQualityPairVector GTtrckcoll = assomap_ite->val;
-  
-  	      for(unsigned index_GTtrck=0; index_GTtrck<GTtrckcoll.size(); index_GTtrck++){
- 
-	        TrackRef GTtrackref = GTtrckcoll.at(index_GTtrck).first;
-                weight = GTtrckcoll.at(index_GTtrck).second;
-
-   	        if(TrackMatch(GTtrackref,PFCtrackref)){
-
-	          VtxPfcQualAss = make_pair(vertexref,make_pair(candref,weight));
-                  isAssoc = true;
-                  break;
-	 	   	      
-	        } 
-
-	      }
-
-            }
-
-            if(!isAssoc){
-
-              //weight is set to -4.
-              weight = -4.;   
-              VertexRef vtxref_tmp = PFCand_NoPU_WithAM_Algos::FindPFCandVertex(candref,vtxcollH);
-              VtxPfcQualAss = make_pair(vtxref_tmp,make_pair(candref,weight));
-
-            }
+    	    VertexTrackQuality VtxTrkQual = PF_PU_AssoMapAlgos::DoTrackAssociation(PFCtrackref, iSetup);
+	    VtxPfcQual = make_pair(VtxTrkQual.first, make_pair(candref, VtxTrkQual.second.second)); 
 
 	  }
 
-          pfCandAM->insert(VtxPfcQualAss.first,VtxPfcQualAss.second);
+    	  //std::cout << "associating candidate: Pt = " << VtxPfcQual.second.first->pt() << "," 
+    	  //	        << " eta = " << VtxPfcQual.second.first->eta() << ", phi = " << VtxPfcQual.second.first->phi() 
+    	  //	        << " to vertex: z = " << VtxPfcQual.first->position().z() << " with quality q = " << VtxPfcQual.second.second << std::endl;
+    
+    	  // Insert the best vertex and the pair of candidate and the quality of this association in the map
+    	  pfCandAM->insert(VtxPfcQual.first, VtxPfcQual.second);
 
        	}
 
-   	iEvent.put( PFCand_NoPU_WithAM_Algos::SortAssociationMap(&(*pfCandAM)) );
-
-}
-
-bool 
-PFCand_AssoMap::TrackMatch(reco::TrackRef trackref1,reco::TrackRef trackref2)
-{
-
-	return (
-	  (*trackref1).eta() == (*trackref2).eta() &&
-	  (*trackref1).phi() == (*trackref2).phi() &&
-	  (*trackref1).chi2() == (*trackref2).chi2() &&
-	  (*trackref1).ndof() == (*trackref2).ndof() &&
-	  (*trackref1).p() == (*trackref2).p()
-	);
+   	iEvent.put( PFCand_NoPU_WithAM_Algos::SortAssociationMap( &(*pfCandAM) ) );
 
 }
 

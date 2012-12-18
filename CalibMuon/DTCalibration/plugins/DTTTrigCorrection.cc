@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/17 17:54:23 $
- *  $Revision: 1.10 $
+ *  $Date: 2010/02/16 10:03:23 $
+ *  $Revision: 1.9 $
  *  \author S. Maselli - INFN Torino
  *          A. Vilela Pereira
  */
@@ -74,7 +74,7 @@ void DTTTrigCorrection::endJob() {
 
     //Compute new ttrig
     try{
-      dtCalibration::DTTTrigData tTrigCorr = correctionAlgo_->correction((*sl)->id());
+      DTTTrigData tTrigCorr = correctionAlgo_->correction((*sl)->id());
       float tTrigMeanNew = tTrigCorr.mean;
       float tTrigSigmaNew = tTrigCorr.sigma; 
       float kFactorNew = tTrigCorr.kFactor;
@@ -103,3 +103,6 @@ void DTTTrigCorrection::endJob() {
   string record = "DTTtrigRcd";
   DTCalibDBUtils::writeToDB<DTTtrig>(record, tTrigNewMap);
 } 
+
+
+

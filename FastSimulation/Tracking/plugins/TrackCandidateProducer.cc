@@ -629,14 +629,9 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 				      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().z()    
 				      << std::endl
 				      << "\t\t error  = ";
-    //<<  newTrackCandidate.trajectoryStateOnDet().errorMatrix()<<std::endl;
-    //    for(std::vector< float >::const_iterator iElement = newTrackCandidate.trajectoryStateOnDet().errorMatrix().begin();
-    //	iElement < newTrackCandidate.trajectoryStateOnDet().errorMatrix().end();
-    //	++iElement) {
-    //      std::cout << "\t" << *iElement;
-    //    }
-    
-    output->push_back(newTrackCandidate);
+
+    bool newTrackCandidateIsDuplicate = isDuplicateCandidate(*output,newTrackCandidate);
+    if (!newTrackCandidateIsDuplicate) output->push_back(newTrackCandidate);
     LogDebug("FastTracking")<<"filling a track candidate into the collection, now having: "<<output->size();
     
     }//loop over possible simtrack associated.
@@ -746,4 +741,44 @@ TrackCandidateProducer::addSplitHits(const TrackerRecHit& theCurrentRecHit,
     
   }
 
+}
+
+bool TrackCandidateProducer::isDuplicateCandidate(const TrackCandidateCollection& candidates, const TrackCandidate& newCand) const{
+  typedef TrackCandidateCollection::const_iterator TCCI;
+  
+  TCCI candsEnd = candidates.end();
+  double newQbp = newCand.trajectoryStateOnDet().parameters().qbp();
+  double newDxdz = newCand.trajectoryStateOnDet().parameters().dxdz();
+  TrackCandidate::range newHits = newCand.recHits();
+
+  for (TCCI iCand = candidates.begin(); iCand!= candsEnd; ++iCand){
+    //pick some first traits of duplication: qbp and dxdz
+    double iQbp = iCand->trajectoryStateOnDet().parameters().qbp();
+    double iDxdz = iCand->trajectoryStateOnDet().parameters().dxdz();
+    if (newQbp == iQbp && newDxdz == iDxdz){
+      LogDebug("isDuplicateCandidate")<<"Probably a duplicate "<<iQbp <<" : "<<iDxdz;
+      TrackCandidate::range iHits = iCand->recHits();
+      unsigned int nHits = 0;
+      unsigned int nShared = 0;
+      unsigned int nnewHits = 0;
+      for (TrackCandidate::const_iterator iiHit = iHits.first; iiHit != iHits.second; ++iiHit){
+	nHits++;
+	for (TrackCandidate::const_iterator inewHit = newHits.first; inewHit != newHits.second; ++inewHit){
+	  if (iiHit == iHits.first) nnewHits++;
+	  if (sameLocalParameters(&*iiHit,&*inewHit)) nShared++;
+	}
+      }
+      LogDebug("isDuplicateCandidate") <<"nHits  "<<nHits<<" nnewHits "<< nnewHits<< " nShared "<<nShared;
+      if (nHits == nShared && nHits == nnewHits) return true;
+    }
+  }
+  return false;
+}
+
+bool TrackCandidateProducer::sameLocalParameters(const TrackingRecHit* aH, const TrackingRecHit* bH) const {
+  bool localPointSame = aH->localPosition() == bH->localPosition();
+  bool localErrorSame = aH->localPositionError().xx() == bH->localPositionError().xx();
+  localErrorSame &= aH->localPositionError().yy() == bH->localPositionError().yy();
+  localErrorSame &= aH->localPositionError().xy() == bH->localPositionError().xy();
+  return localPointSame && localErrorSame;
 }

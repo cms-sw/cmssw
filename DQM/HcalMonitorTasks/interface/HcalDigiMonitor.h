@@ -5,12 +5,6 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 
@@ -24,8 +18,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2012/04/09 12:57:31 $
-  * $Revision: 1.69 $
+  * $Date: 2011/06/28 21:46:08 $
+  * $Revision: 1.67 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -100,7 +94,6 @@ private:  ///Methods, variables accessible only within class code
   bool passedMinBiasHLT_;
   bool excludeHORing2_;
   bool excludeHO1P02_;
-  bool excludeBadQPLLs_;
  
   void fill_Nevents();
   void zeroCounters();
@@ -120,7 +113,6 @@ private:  ///Methods, variables accessible only within class code
   int shapeThreshHO_;
 
   int alarmer_counter_;
-  int knownbadQPLLs;
   bool hbhedcsON, hfdcsON;
 
   int mindigisizeHBHE_, maxdigisizeHBHE_;
@@ -138,7 +130,6 @@ private:  ///Methods, variables accessible only within class code
   int DigiMonitor_ExpectedOrbitMessageTime_;
   int hbcount_, hecount_, hocount_, hfcount_;  // Counter # of good digis each event
   uint64_t uniqcounter[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
-  uint64_t uniqcounter2[ETABINS][PHIBINS][DEPTHBINS]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
 
   // Monitoring elements
 
@@ -151,7 +142,6 @@ private:  ///Methods, variables accessible only within class code
   EtaPhiHists DigiErrorsBadFibBCNOff;
 
   MonitorElement* DigiSize;
-  MonitorElement* DigiExpectedSize;
   int baddigis[85][72][4]; // sum of individual digi problems
   int badcapID[85][72][4];
   int baddigisize[85][72][4];
@@ -215,7 +205,6 @@ private:  ///Methods, variables accessible only within class code
   DigiHists hbHists, heHists, hfHists, hoHists;
 
   edm::InputTag digiLabel_;
-  edm::InputTag FEDRawDataCollection_;
 
   edm::ESHandle<HcalDbService> conditions_;
 

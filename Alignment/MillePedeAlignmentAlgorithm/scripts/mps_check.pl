@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 #     R. Mankel, DESY Hamburg     09-Jul-2007
 #     A. Parenti, DESY Hamburg    24-Apr-2008
-#     $Revision: 1.29 $ by $Author: jbehr $
-#     $Date: 2012/03/06 08:36:53 $
+#     $Revision: 1.27 $ by $Author: jbehr $
+#     $Date: 2012/01/20 10:19:27 $
 #
 #  Check output from jobs that have FETCH status
 #  
@@ -17,9 +17,6 @@ unshift(@INC, dirname($0)."/mpslib");
 use Mpslib;
 
 read_db();
-
-my @cmslsoutput = `cmsLs -l $mssDir`;
-
 # loop over FETCH jobs
 for ($i=0; $i<@JOBID; ++$i) {
   $batchSuccess = 0;
@@ -151,18 +148,9 @@ for ($i=0; $i<@JOBID; ++$i) {
 
     # for mille jobs checks that milleBinary file is not empty
     if ( $i < $nJobs ) { # mille job!
-      my $milleOut = sprintf("milleBinary%03d.dat",$i+1);
+      $milleOut = sprintf("milleBinary%03d.dat",$i+1);
       #$mOutSize = `nsls -l $mssDir | grep $milleOut | head -1 | awk '{print \$5}'`;
-      #$mOutSize = `cmsLs -l $mssDir | grep $milleOut | head -1 | awk '{print \$2}'`;
-      my $mOutSize = 0;
-      foreach my $line (@cmslsoutput)
-        {
-          if($line =~ /$milleOut/)
-            {
-              my @columns = split " ", $line;
-              $mOutSize = $columns[1];
-            }
-        }
+      $mOutSize = `cmsLs -l $mssDir | grep $milleOut | head -1 | awk '{print \$2}'`;
       if ( !($mOutSize>0) ) {
 	$emptyDatErr = 1;
       }
@@ -229,7 +217,6 @@ for ($i=0; $i<@JOBID; ++$i) {
     if ($quotaspace eq 1) {
       print "@JOBDIR[$i] @JOBID[$i] had quota space problem\n";
       $okStatus = "FAIL";
-      $remark = "eos quota space problem";
     }
     if ($ioprob eq 1) {
       print "@JOBDIR[$i] @JOBID[$i] had I/O problem\n";

@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2011/11/08 10:59:06 $
- *  $Revision: 1.20 $
+ *  $Date: 2011/11/02 02:22:16 $
+ *  $Revision: 1.19 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -243,7 +243,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
       // here we use the single thr per subdetector (better performance can be obtained using thr as function of eta)
 	
       DynamicTruncation dytRefit(*theEvent,*theService);
-      dytRefit.setThr(theDYTthrs.at(0),theDYTthrs.at(1),theDYTthrs.at(2));                                
+      dytRefit.setThr(theDYTthrs.at(0),theDYTthrs.at(1));                                
       DYTRecHits = dytRefit.filter(globalTraj.front());
       //vector<double> est = dytRefit.getEstimators();
       if ((DYTRecHits.size() > 1) && (DYTRecHits.front()->globalPosition().mag() > DYTRecHits.back()->globalPosition().mag()))
