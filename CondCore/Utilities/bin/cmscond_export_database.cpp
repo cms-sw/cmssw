@@ -64,6 +64,10 @@ int cond::ExportAccountUtilities::exportTags( const std::vector<std::string>& in
   bool check = hasOptionValue("check");
 
   MetaData sourceMetadata( m_sourceDb );
+  cond::ExportRegistry registry;
+
+  registry.open( "sqlite_file:export_registry.db" );
+
   for( std::vector<std::string>::const_iterator iT = inputTags.begin(); iT!= inputTags.end(); ++iT ){
     std::string sourceIovToken=sourceMetadata.getToken( *iT );
       
@@ -83,15 +87,14 @@ int cond::ExportAccountUtilities::exportTags( const std::vector<std::string>& in
 
     cond::MetaData  destMetadata( m_destDb );
     if( destMetadata.hasTag( *iT ) ){
-      std::cout <<"ERROR: Tag \""<<*iT<<"\" already exists in destination database."<<std::endl;
-      throw std::runtime_error("Destination account is not clean.");
+      throw cond::Exception(" Tag \""+*iT+"\" already exists in destination database.");
     }
     std::string destIovToken=destIov.create( sourceIovType, sourceIov.iov().lastTill(),sourceIov.iov().metadata() );
     destMetadata.addMapping( *iT ,destIovToken,sourceIovType);
     destIov.setScope( cond::IOVSequence::Tag );
 
     boost::shared_ptr<IOVImportIterator> importIterator = destIov.importIterator();
-    importIterator->setUp( sourceIov, bunchSize );
+    importIterator->setUp( sourceIov, registry, bunchSize );
 
     size_t totalImported = 0;
     if( bunchSize>1 ){
@@ -99,6 +102,7 @@ int cond::ExportAccountUtilities::exportTags( const std::vector<std::string>& in
       while( importIterator->hasMoreElements() ){
 	if(iter>0){
 	  transaction.commit();
+	  registry.flush();
 	  transaction.start();
 	  destIov.reload();
 	}
@@ -112,6 +116,7 @@ int cond::ExportAccountUtilities::exportTags( const std::vector<std::string>& in
     }    
     std::cout <<">> Tag \""<<*iT<<"\": "<<totalImported<<" element(s) exported."<<std::endl;
     transaction.commit();
+    registry.flush();
 
     if( check ){
       std::cout<<">> Checking exported iov..."<<std::endl;
@@ -157,6 +162,7 @@ int cond::ExportAccountUtilities::exportTags( const std::vector<std::string>& in
       std::cout << ">> All of the tests passed. Tag \""<<*iT<<"\" successfully exported."<<std::endl; 
     }
   }
+  registry.close();
   return 0;
 }
 
@@ -212,7 +218,7 @@ int cond::ExportAccountUtilities::execute(){
 
   // listing tag in source
   cond::DbScopedTransaction transaction(m_sourceDb);
-  transaction.start(false);
+  transaction.start(true);
   std::vector<std::string> allTags;
   MetaData sourceMetadata( m_sourceDb );
   sourceMetadata.listAllTags( allTags );

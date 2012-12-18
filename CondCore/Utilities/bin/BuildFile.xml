@@ -41,3 +41,5 @@
 </bin>
 <bin   file="cmscond_safe_import.cpp" name="cmscond_safe_import">
 </bin>
+<bin   file="cmscond_key_manager.cpp" name="cmscond_key_manager">
+</bin>
