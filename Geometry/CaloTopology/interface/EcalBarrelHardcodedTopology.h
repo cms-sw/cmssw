@@ -19,7 +19,6 @@ class EcalBarrelHardcodedTopology GCC11_FINAL : public CaloSubdetectorTopology
   virtual DetId  goNorth(const DetId& id) const {
     return incrementIphi(EBDetId(id));
   }
-
   virtual std::vector<DetId> north(const DetId& id) const
     { 
       EBDetId nextId=goNorth(id);

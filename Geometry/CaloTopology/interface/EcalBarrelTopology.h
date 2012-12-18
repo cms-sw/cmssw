@@ -23,10 +23,13 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
     {
     }
   
-  /// move the Topology north (increment iphi)
+ /// move the Topology north (increment iphi)
+  virtual DetId  goNorth(const DetId& id) const {
+    return incrementIphi(EBDetId(id));
+  }
   virtual std::vector<DetId> north(const DetId& id) const
     { 
-      EBDetId nextId(incrementIphi(EBDetId(id)));
+      EBDetId nextId=goNorth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
 	vNeighborsDetId.push_back(DetId(nextId.rawId()));
@@ -34,9 +37,12 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
     }
 
   /// move the Topology south (decrement iphi)
+  virtual DetId goSouth(const DetId& id) const {
+    return decrementIphi(EBDetId(id));
+  }
   virtual std::vector<DetId> south(const DetId& id) const
     { 
-      EBDetId nextId(decrementIphi(EBDetId(id)));
+      EBDetId nextId=goSouth(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
 	vNeighborsDetId.push_back(DetId(nextId.rawId()));
@@ -44,9 +50,12 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
     }
 
   /// move the Topology east (negative ieta)
+  virtual DetId  goEast(const DetId& id) const {
+    return decrementIeta(EBDetId(id));
+  }
   virtual std::vector<DetId> east(const DetId& id) const
     { 
-      EBDetId nextId(decrementIeta(EBDetId(id)));
+      EBDetId nextId=goEast(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
 	vNeighborsDetId.push_back(DetId(nextId.rawId()));
@@ -54,14 +63,18 @@ class EcalBarrelTopology GCC11_FINAL : public CaloSubdetectorTopology
     }
 
   /// move the Topology west (positive ieta)
+  virtual DetId  goWest(const DetId& id) const {
+    return incrementIeta(EBDetId(id));
+  }
   virtual std::vector<DetId> west(const DetId& id) const
     { 
-      EBDetId nextId(incrementIeta(EBDetId(id)));
+      EBDetId nextId=goWest(id);
       std::vector<DetId> vNeighborsDetId;
       if (! (nextId==EBDetId(0)))
 	vNeighborsDetId.push_back(DetId(nextId.rawId()));
       return vNeighborsDetId;
     }
+  
   
   virtual std::vector<DetId> up(const DetId& /*id*/) const
     {
