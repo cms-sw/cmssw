@@ -9,7 +9,7 @@ void drawHisto(TString type, TFile * outputFile,
 	       const double & minX, const double & maxX,
 	       const double & minY, const double & maxY)
 {
-  TFile * inputFileData = new TFile("/home/demattia/MuScleFit/Collisions/JPsi/UpTo143201/OniaSelection/ScaleFit/NoCombinedFit/AdjustedLimit/test.root", "READ");
+  TFile * inputFileData = new TFile("data.root", "READ");
   TCanvas * canvasData = (TCanvas*)inputFileData->Get("canvassigmaPtVs"+type);
   TGraphAsymmErrors * graphData = (TGraphAsymmErrors*)canvasData->GetPrimitive("Graph_from_sigmaPtVs"+type);
 
@@ -90,33 +90,30 @@ void drawHisto(TString type, TFile * outputFile,
   newGraph->SetTitle("TGraphAsymmErrors Example");
   // TGraphAsymmErrors * newGraph = graph;
 
+  TLegend * legend = new TLegend(0.7,0.71,0.98,1.);
+  legend->SetTextSize(0.02);
+  legend->SetFillColor(0); // Have a white background
+  legend->AddEntry(histo, "resolution from fit on MC");
+  legend->AddEntry(newGraphData, "resolution from fit on Data");
+
   newGraph->GetXaxis()->SetRangeUser(minX, maxX);
   newGraph->GetYaxis()->SetRangeUser(minY, maxY);
   // canvas->Draw();
   TCanvas * newCanvas = new TCanvas("newCanvas", "newCanvas", 1000, 800);
   newCanvas->Draw();
   newGraphData->SetFillColor(kGray);
-  newGraphData->GetXaxis()->SetRangeUser(-2.4,2.4);
-  //  gStyle->SetOptTitle(0);
   newGraphData->Draw("A2");
   newGraph->Draw("P");
   // histo->Draw("SAME");
   // graph->Draw("SAME");
   lineGraph->Draw("SAME");
-
-  TLegend * legend = new TLegend(0.7,0.71,0.98,1.);
-  legend->SetTextSize(0.02);
-  legend->SetFillColor(0); // Have a white background
-  legend->AddEntry(newGraph, "resolution from fit on MC", "lep");
-  legend->AddEntry(newGraphData, "resolution from fit on Data");
-
   legend->Draw("SAME");
 
   outputFile->cd();
   canvas->Write();
 }
 
-void CompareWithSystematicError()
+void CompareErrorResol()
 {
   TFile * outputFile = new TFile("output.root", "RECREATE");
   drawHisto("Pt", outputFile, 0., 20., 0., 0.06);

@@ -143,6 +143,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
 
 void test_ep::setUp() {
   edm::RootAutoLibraryLoader::enable();
+  edm::BranchIDListHelper::clearRegistries();
 
   // Making a functional EventPrincipal is not trivial, so we do it
   // all here.
@@ -156,8 +157,7 @@ void test_ep::setUp() {
   pProductRegistry_->addProduct(*fake_single_process_branch("user", "USER"));
   pProductRegistry_->addProduct(*fake_single_process_branch("rick", "USER2", "rick"));
   pProductRegistry_->setFrozen();
-  boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
-  branchIDListHelper->updateRegistries(*pProductRegistry_);
+  edm::BranchIDListHelper::updateRegistries(*pProductRegistry_);
 
   // Put products we'll look for into the EventPrincipal.
   {
@@ -191,7 +191,7 @@ void test_ep::setUp() {
     boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, now, now));
     boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pProductRegistry_, *process, rp));
     edm::EventAuxiliary eventAux(eventID_, uuid, now, true);
-    pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, branchIDListHelper, *process));
+    pEvent_.reset(new edm::EventPrincipal(pProductRegistry_, *process));
     pEvent_->fillEventPrincipal(eventAux, lbp);
     pEvent_->put(branchFromRegistry, product, prov);
   }

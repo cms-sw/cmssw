@@ -166,7 +166,10 @@ checkRemoteConnection
 parseOptions $@
 
 if [ "X$softflag" = "Xon" ] ; then
+  export LIBGL_ALWAYS_INDIRECT=1 
   export LIBGL_DRIVERS_PATH=/tmp/
+  export LIBGL_DEBUG=verbose
+  export MESA_DEBUG=1
 fi
 
 

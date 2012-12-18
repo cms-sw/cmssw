@@ -26,18 +26,10 @@ TagCorrelationPlotter::~TagCorrelationPlotter() {
   delete correlationHisto_;
 }
 
-void TagCorrelationPlotter::analyzeTags(const reco::JetTag& jetTag1, const reco::JetTag& jetTag2, const int& jetFlavour, const float & w) {
-  correlationHisto_->fill(jetFlavour, jetTag1.second, jetTag2.second, w);
-}
-
 void TagCorrelationPlotter::analyzeTags(const reco::JetTag& jetTag1, const reco::JetTag& jetTag2, const int& jetFlavour) {
-  analyzeTags(jetTag1, jetTag2, jetFlavour, 1.0);
-}
-
-void TagCorrelationPlotter::analyzeTags(const float& discr1, const float& discr2, const int& jetFlavour, const float & w) {
-  correlationHisto_->fill(jetFlavour, discr1, discr2, w);
+  correlationHisto_->fill(jetFlavour, jetTag1.second, jetTag2.second);
 }
 
 void TagCorrelationPlotter::analyzeTags(const float& discr1, const float& discr2, const int& jetFlavour) {
-  analyzeTags(discr1, discr2, jetFlavour, 1.0);
+  correlationHisto_->fill(jetFlavour, discr1, discr2);
 }

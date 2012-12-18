@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.h,v 1.6 2011/04/20 09:17:15 querten Exp $
+// $Id: HSCParticleProducer.h,v 1.5 2010/12/16 17:08:02 querten Exp $
 
 
 // system include files
@@ -63,7 +63,7 @@ class HSCParticleProducer : public edm::EDFilter {
     virtual bool filter(edm::Event&, const edm::EventSetup&);
     virtual void endJob() ;
 
-   std::vector<susybsm::HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle, edm::Handle<reco::MuonCollection>& MTmuonCollectionHandle);
+    std::vector<susybsm::HSCParticle> getHSCPSeedCollection(edm::Handle<reco::TrackCollection>& trackCollectionHandle,  edm::Handle<reco::MuonCollection>& muonCollectionHandle);
 
     // ----------member data ---------------------------
     bool          Filter_;
@@ -71,7 +71,6 @@ class HSCParticleProducer : public edm::EDFilter {
     edm::InputTag m_trackTag;
     edm::InputTag m_trackIsoTag;
     edm::InputTag m_muonsTag;
-   edm::InputTag m_MTmuonsTag;
 
     bool         useBetaFromTk;
     bool         useBetaFromMuon;
@@ -82,9 +81,7 @@ class HSCParticleProducer : public edm::EDFilter {
     float        maxTkChi2;
     unsigned int minTkHits;
     float        minMuP;
-    float        minMTMuPt;
     float        minDR;
-    float        minMTDR;
     float        maxInvPtDiff;
 
     BetaCalculatorTK*   beta_calculator_TK;

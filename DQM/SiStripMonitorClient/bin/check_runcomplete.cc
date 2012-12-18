@@ -27,51 +27,61 @@
 
 int main(int argc , char *argv[]) {
 
-  if(argc==3) {
-    char* crun = argv[1];
-    char* repro_type = argv[2];
+  if(argc==2) {
+    char* cfile = argv[1];
 
-    int run = 0;
-    sscanf(crun,"%d",&run);
+    std::cout << "ready to check file " << cfile << std::endl;
 
-    std::cout << "ready to check run " << run << " repro type " << repro_type << std::endl;
+    int returncode = check_runcomplete(cfile);
+    if(returncode==0) std::cout << "DQM file is ok" << std::endl;
 
-    check_runcomplete(run,repro_type);
+    return  returncode;
 
   }
   else {std::cout << "Too few arguments: " << argc << std::endl; return -1; }
-  return 0;
+
+  return -9;
 
 }
 
-void check_runcomplete ( int run , std::string repro_type )
+int check_runcomplete (std::string filename )
 {
-  int runflag = read_runflag ( run , repro_type );
-  if ( runflag == 0 )
+  int runflag = read_runflag ( filename );
+  if ( runflag == 1 )
     {
       printf("************************************\n");
       printf("**\n");
-      printf("** W A R N I N G: the DQM file with run %i (%s) is not fully archived yet on /afs,\n" , run , repro_type.c_str() );
-      printf("** it is strongly recommended that you analyze it later.\n" );
+      printf("** W A R N I N G: the DQM file %s does not exist" , filename.c_str() );
       printf("**\n");
       printf("************************************\n");
     }
+  else if ( runflag == 2 )
+    {
+      printf("************************************\n");
+      printf("**\n");
+      printf("** W A R N I N G: the DQM file %s is incomplete" , filename.c_str() );
+      printf("**\n");
+      printf("************************************\n");
+    }
+  else if ( runflag != 0 )
+    {
+      printf("************************************\n");
+      printf("**\n");
+      printf("** W A R N I N G: problems found in the DQM file %s"  , filename.c_str() );
+      printf("**\n");
+      printf("************************************\n");
+    }
+  return runflag;
 }
 
-int read_runflag ( int run , std::string repro_type )
+int read_runflag (std::string filename )
 {
-  std::string filename;
-  int flag = get_filename ( run , repro_type , filename );
-  
-  if ( flag < 0 )
-    {
-      //cout << "reading problem" << endl;
-      return -1; 
-    }
-
   std::string nrun = filename.substr ( filename.find( "_R000" ) + 5 , 6 );
 
   TFile *dqmfile = TFile::Open ( filename.c_str() , "READ" );
+
+  if(dqmfile==0) return 1;
+
   std::string infodir = "DQMData/Run " + nrun + "/Info/Run summary/ProvInfo";
   gDirectory->cd(infodir.c_str());
 
@@ -93,58 +103,14 @@ int read_runflag ( int run , std::string repro_type )
     }
 
   dqmfile->Close();
-  return isruncomplete;
+
+  if(isruncomplete == -1) return 3;
+  if(isruncomplete == 0) return 2;
+  if(isruncomplete == 1) return 0;
+
+  return -8;
 }
 
 
-int get_filename  ( int run , std::string repro_type , std::string& filename )
-{
-  std::stringstream runstr;
-  runstr << run;
-  
-  std::stringstream rundirprefix;
-  rundirprefix << "000" << run / 100 << "xx/";
-
-  std::stringstream thisdir;
-  thisdir << "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/OfflineData/Run2011/" << repro_type.c_str() << "/" << rundirprefix.str();
-  
-  std::string thisdir2 = thisdir.str();
-  DIR *dp;
-  
-  if ( ( dp = opendir( thisdir2.c_str() ) ) == NULL )
-    {
-      //cout << "dir " << thisdir2.c_str() << " not found" << endl;
-      return -1;
-    }
-
-  struct dirent *dirp;
-
-  std::string dqmfile;
-
-  while ( ( dirp = readdir ( dp ) ) != NULL )
-    {
-      std::string dirfile = std::string ( dirp->d_name );
-      if ( 
-	  dirfile.find ( "__DQM" ) != std::string::npos &&
-	  dirfile.find ( runstr.str() ) != std::string::npos
-	  )
-	{
-	  dqmfile = dirfile;
-	  break;
-	}
-    }
-
-  closedir( dp );
-
-  if ( dqmfile.size() < 10 )
-    {
-      //cout << "file " << dqmfile << " not found" << endl;
-      return -1;
-    }
-  
-  filename = thisdir.str() + dqmfile;
-  
-  return 0;
-}
 
 

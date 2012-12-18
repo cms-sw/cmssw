@@ -77,7 +77,7 @@ namespace pf2pat {
 	  const IsoMap& isoMap = *dBetaH;
 	  double dBetaVal = isoMap[candidate];
 	  double dBetaCorIsoSumNeutral = isoSumNeutral + deltaBetaFactor_*dBetaVal; 
-	  isoSumNeutral = dBetaCorIsoSumNeutral>0 ? dBetaCorIsoSumNeutral : isoSumNeutral;
+	  isoSumNeutral = dBetaCorIsoSumNeutral>0 ? dBetaCorIsoSumNeutral : 0; //follow muon POG definition in 2012
 	}
 
 	double isoSum=isoSumCharged+isoSumNeutral;

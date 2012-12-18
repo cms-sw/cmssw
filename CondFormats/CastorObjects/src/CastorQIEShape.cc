@@ -6,18 +6,12 @@ POOL object to store pedestal values 4xCapId
 #include "CondFormats/CastorObjects/interface/CastorQIEShape.h"
 
 namespace {
-  /*const float binMin [32] = {-1,  0,  1,  2,  3,  4,  5,  6,  7,  8,
+  const float binMin [32] = {-1,  0,  1,  2,  3,  4,  5,  6,  7,  8,
 			     9, 10, 11, 12, 13, 14, 16, 18, 20, 22,
 			     24, 26, 28, 31, 34, 37, 40, 44, 48, 52,
-			     57, 62}; */
-			     
-const float binMin [32] = {-3, -0.4,  2.2,  4.8,  7.4,  10,  12.6, 15.2, 
-                           17.8,  20.4, 23, 25.6, 28.2, 30.8 ,33.4, 36,
-			   41.2, 46.4, 51.6, 56.8, 62, 67.2, 73, 80.8, 
-			   88.6, 96.4, 104, 114.4, 124.8, 135, 148, 161}; 
-			     
-			   }
-			   
+			     57, 62};
+}
+
 CastorQIEShape::CastorQIEShape() 
 {
   for (int i = 0; i < 32; i++) mValues [i] = binMin [i];

@@ -282,6 +282,9 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if hasattr(object, "label_") and (not hasattr(object,"hasLabel_") or object.hasLabel_()):
             text = str(object.label_())
         if text == "":
+            if hasattr(object, "_name"):
+                text = str(object._name)
+        if text == "":
             if hasattr(object, "type_"):
                 text = str(object.type_())
         if text == "":
@@ -296,7 +299,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             return ()
         
     def isContainer(self, object):
-        return isinstance(object, (ConfigFolder, list, cms.Path, cms.EndPath, cms.Sequence, cms.SequencePlaceholder))
+        return isinstance(object, (ConfigFolder, list, cms.Path, cms.EndPath, cms.Sequence)) # cms.SequencePlaceholder assumed to be a module
 
     def nonSequenceChildren(self, object):
         objects=[]
