@@ -3,7 +3,7 @@
  *
  *  Created on: Dec 13, 2012
  *      Author: khotilov
- * $Id:$
+ * $Id: GEMSimTracksProcessor.cc,v 1.1 2012/12/14 10:51:31 dildick Exp $
  */
 
 #include "RPCGEM/GEMValidation/interface/GEMSimTracksProcessor.h"
@@ -54,6 +54,7 @@ void GEMSimTracksProcessor::addSimTrack(const SimTrack * trk, const SimVertex * 
   trackid_to_trackextra_[trk->trackId()] = SimTrackExtra(trk, vtx);
 }
 
+
 void GEMSimTracksProcessor::addSimHit(const PSimHit &hit, GlobalPoint &hit_gp)
 {
   // first check if we know the SimTrack that this hit belongs to
@@ -81,6 +82,17 @@ void GEMSimTracksProcessor::addSimHit(const PSimHit &hit, GlobalPoint &hit_gp)
   }
   // don't want RPC simhits
 }
+
+
+const SimTrack * GEMSimTracksProcessor::track(size_t itrk)
+{
+  if (itrk >= size()) return nullptr;
+  
+  unsigned int trkid = trackids_[itrk];
+  SimTrackExtra & trkx = trackid_to_trackextra_[trkid];
+  return trkx.trk_;
+}
+
 
 set< uint32_t > GEMSimTracksProcessor::getDetIdsGEM(size_t itrk, ChamberType odd_even)
 {

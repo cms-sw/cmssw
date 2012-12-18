@@ -49,6 +49,9 @@ public:
   /// number of simtracks
   size_t size() {return trackids_.size();}
 
+  /// access SimTrack number itrk
+  const SimTrack * track(size_t itrk);
+
   /// for SimTrack number itrk, return list of GEM detector ids in which it left hits
   std::set<uint32_t> getDetIdsGEM(size_t itrk, ChamberType odd_even = BOTH);
 
