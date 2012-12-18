@@ -62,6 +62,7 @@ struct MyRPCSimHit
   Float_t x, y, energyLoss, pabs, timeOfFlight;
   Int_t region, ring, station, sector, layer, subsector, roll;
   Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
+  Int_t strip;
 };
 
 
@@ -72,6 +73,7 @@ struct MyGEMSimHit
   Float_t x, y, energyLoss, pabs, timeOfFlight;
   Int_t region, ring, station, layer, chamber, roll;
   Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
+  Int_t strip;
 };
 
 struct MySimTrack
@@ -255,6 +257,7 @@ void GEMSimHitAnalyzer::bookRPCSimHitsTree()
   rpc_sh_tree->Branch("globalX", &rpc_sh.globalX);
   rpc_sh_tree->Branch("globalY", &rpc_sh.globalY);
   rpc_sh_tree->Branch("globalZ", &rpc_sh.globalZ);
+  rpc_sh_tree->Branch("strip", &rpc_sh.strip);
 }
 
 
@@ -282,6 +285,7 @@ void GEMSimHitAnalyzer::bookGEMSimHitsTree()
   gem_sh_tree->Branch("globalX", &gem_sh.globalX);
   gem_sh_tree->Branch("globalY", &gem_sh.globalY);
   gem_sh_tree->Branch("globalZ", &gem_sh.globalZ);
+  gem_sh_tree->Branch("strip", &gem_sh.strip);
 }
 
 
@@ -414,7 +418,7 @@ void GEMSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
     
     LocalPoint hitLP = itHit->localPosition();
     hitGP = rpc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP);
-    
+
     rpc_sh.globalR = hitGP.perp();
     rpc_sh.globalEta = hitGP.eta();
     rpc_sh.globalPhi = hitGP.phi();
@@ -422,6 +426,8 @@ void GEMSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
     rpc_sh.globalY = hitGP.y();
     rpc_sh.globalZ = hitGP.z();
     
+    rpc_sh.strip=rpc_geometry->roll(itHit->detUnitId())->strip(hitLP);
+
     rpc_sh_tree->Fill();
   }
 }
@@ -458,6 +464,9 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
     gem_sh.globalX = hitGP.x();
     gem_sh.globalY = hitGP.y();
     gem_sh.globalZ = hitGP.z();
+
+    gem_sh.strip=gem_geometry->etaPartition(itHit->detUnitId())->strip(hitLP);
+
     gem_sh_tree->Fill();
 
     simTrkProcessor.addSimHit(*itHit, hitGP);
