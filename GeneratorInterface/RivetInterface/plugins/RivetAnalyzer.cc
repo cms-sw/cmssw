@@ -28,7 +28,8 @@ _isFirstEvent(true),
 _outFileName(pset.getParameter<std::string>("OutputFile")),
 //decide whether to finlaize tthe plots or not.
 //deciding not to finalize them can be useful for further harvesting of many jobs
-_doFinalize(pset.getParameter<bool>("DoFinalize"))
+_doFinalize(pset.getParameter<bool>("DoFinalize")),
+_produceDQM(pset.getParameter<bool>("ProduceDQMOutput"))
 {
   //retrive the analysis name from paarmeter set
   std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
@@ -58,10 +59,12 @@ _doFinalize(pset.getParameter<bool>("DoFinalize"))
     if ((*iana)->needsCrossSection())
       (*iana)->setCrossSection(xsection);
   }
-  // book stuff needed for DQM
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(50);
+  if (_produceDQM){
+    // book stuff needed for DQM
+    dbe = 0;
+    dbe = edm::Service<DQMStore>().operator->();
+    dbe->setVerbose(50);
+  }  
 
 }
 
@@ -144,12 +147,14 @@ void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
   const string tmpdir = "/RivetNormalizeTmp";
   tree.mkdir(tmpdir);
   foreach (const string& analysis, analyses) {
-    dbe->setCurrentFolder(("Rivet/"+analysis).c_str());
-    //global variables that are always present
-    //sumOfWeights
-    TH1F nevent("nEvt", "n analyzed Events", 1, 0., 1.);
-    nevent.SetBinContent(1,_analysisHandler.sumOfWeights());
-    _mes.push_back(dbe->book1D("nEvt",&nevent));
+    if (_produceDQM){
+      dbe->setCurrentFolder(("Rivet/"+analysis).c_str());
+      //global variables that are always present
+      //sumOfWeights
+      TH1F nevent("nEvt", "n analyzed Events", 1, 0., 1.);
+      nevent.SetBinContent(1,_analysisHandler.sumOfWeights());
+      _mes.push_back(dbe->book1D("nEvt",&nevent));
+    }  
     //cross section
     //TH1F xsection("xSection", "Cross Section", 1, 0., 1.);
     //xsection.SetBinContent(1,_analysisHandler.crossSection());
@@ -180,7 +185,8 @@ void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
           }
           //now convert to root and then ME
           TH1F* h = aida2root<IHistogram1D, TH1F>(histo, basename);
-          _mes.push_back(dbe->book1D(h->GetName(), h));
+          if (_produceDQM)
+            _mes.push_back(dbe->book1D(h->GetName(), h));
           delete h;
           tree.rm(tmppath);
         }
@@ -192,7 +198,8 @@ void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
           }
           //now convert to root and then ME
           TProfile* p = aida2root<IProfile1D, TProfile>(prof, basename);
-          _mes.push_back(dbe->bookProfile(p->GetName(), p));
+          if (_produceDQM)
+            _mes.push_back(dbe->bookProfile(p->GetName(), p));
           delete p;
           tree.rm(tmppath);
         }

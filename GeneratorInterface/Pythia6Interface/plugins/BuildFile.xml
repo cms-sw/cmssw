@@ -1,5 +1,10 @@
 <use   name="GeneratorInterface/Pythia6Interface"/>
+<architecture name="slc5">
 <use   name="pydata"/>
+</architecture>
+<architecture name="osx">
+<use   name="pydata"/>
+</architecture>
 <library   file="*Filter.cc,Pythia6Hadronizer.cc,*hadron.f" name="GeneratorInterfacePythia6Filters">
   <use   name="GeneratorInterface/PartonShowerVeto"/>
   <use   name="GeneratorInterface/ExternalDecays"/>

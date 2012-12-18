@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.40 2012/08/09 16:02:05 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.38 2011/05/27 14:37:14 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -205,24 +205,12 @@ class EcalCondDBInterface : public EcalDBConnection {
     throw(std::runtime_error);
 
   /**
-   * Return a list of bad TT associated with a given run
-   */
- 
-  std::list<ODBadTTDat> fetchBadTTForRun(RunIOV *iov)
-    throw(std::runtime_error);
-
-  /**
    *  Return a run IOV object for a given tag
    */
   RunIOV fetchRunIOV(RunTag* tag, run_t run)
     throw(std::runtime_error);
 
-  /**
-   *  Return a run IOV given the run number (valid only if the run number
-   *  is unique in the database)
-   */
-  RunIOV fetchRunIOV(run_t run)
-    throw(std::runtime_error);
+
 
   /**
    *  Return a run IOV object for a given location.
@@ -235,7 +223,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   RunIOV fetchRunIOV(std::string location, const Tm &t)
     throw(std::runtime_error);
 
-  
+
 
   /**
    *  Insert a monitoring run object.  Nothing is committed in the event of an exception

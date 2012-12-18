@@ -1,5 +1,10 @@
 <use   name="GeneratorInterface/CascadeInterface"/>
+<architecture name="slc5">
 <use   name="pydata"/>
+</architecture>
+<architecture name="osx">
+<use   name="pydata"/>
+</architecture>
 <library   file="Cascade2GeneratorFilter.cc,Cascade2Hadronizer.cc" name="GeneratorInterfaceCascadeInterface">
 <use   name="GeneratorInterface/PartonShowerVeto"/>
 <use   name="GeneratorInterface/ExternalDecays"/>

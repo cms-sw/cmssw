@@ -65,7 +65,8 @@ public:
   void setLazyGetter( edm::Handle<LazyGetter> const & lg) { regionalHandle_=lg;}
  
   void update(int i,const StripDetset & detSet ) { 
-    detSet_[i] = detSet;     
+    detSet_[i] = detSet; 
+    
     empty_[i] = false;
   }
   
@@ -87,9 +88,7 @@ public:
   unsigned int id(int i) const { return id_[i]; }
   unsigned char subId(int i) const { return subId_[i];}
 
-  int find(unsigned int jd, int i=0) {
-    return std::lower_bound(id_.begin()+i,id_.end(),jd)-id_.begin();
-  }
+
   
   bool isRegional() const { return regional_;}
   bool empty(int i) const { return empty_[i];}  

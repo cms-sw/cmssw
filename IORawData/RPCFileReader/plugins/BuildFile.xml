@@ -1,4 +1,0 @@
-<use   name="IORawData/RPCFileReader"/>
-<library   file="*.cc" name="IORawDataRPCFileReaderPlugins">
-  <flags   EDM_PLUGIN="1"/>
-</library>

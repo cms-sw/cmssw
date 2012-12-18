@@ -44,7 +44,7 @@ do
 
     curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/Run2012/'$thisDataset'/000'${nnn}'xx/' > index.html
 #    wget --no-check-certificate 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/HIRun2011/'${1}'/000'${nnn}'xx/' -O index.html
-    dqmFileNames=`cat index.html | grep ${Run_numb} | grep "_DQM.root" | egrep "Prompt|Express" | sed 's/.*>\(.*\)<\/a.*/\1/' `
+    dqmFileNames=`cat index.html | grep ${Run_numb} | grep "_DQM.root" | sed 's/.*>\(.*\)<\/a.*/\1/' `
     dqmFileName=`expr "$dqmFileNames" : '\(DQM[A-Za-z0-9_/.\-]*root\)'`
     echo ' dqmFileNames = '$dqmFileNames
     echo ' dqmFileName = ['$dqmFileName']'
@@ -91,17 +91,13 @@ do
 
 # Determine the GlobalTag name used to process the data and the DQM
 
-    GLOBALTAG=`python ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/getGTfromDQMFile.py ${file_path}/$dqmFileName $Run_numb globalTag_Step1`
-    if [[ "${GLOBALTAG}" == "" ]]
-        then
-        GLOBALTAG=`getGTscript.sh $dqmFileName $Run_numb`
-        fi
+    GLOBALTAG=`getGTscript.sh $dqmFileName $Run_numb` 
+#    GLOBALTAG="GR_P_V40::All"
+    echo "The GlobalTag is $GLOBALTAG"
     if [[ "${GLOBALTAG}" == "" ]]
     then
-        echo " No GlobalTag found: skipping this run.... "
-        continue
+       GLOBALTAG="GR_P_V42::All"
     fi
-    echo "The GlobalTag is $GLOBALTAG"
 
     echo " Creating the TrackerMap.... "
 
@@ -121,7 +117,6 @@ do
 	cat ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/index_template_TKMap.html | sed -e "s@RunNumber@$Run_numb@g" > index.html
     fi
     cp ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/fedmap.html fedmap.html
-    cp ${CMSSW_BASE}/src/DQM/SiStripMonitorClient/data/psumap.html psumap.html
 
     echo " Check TrackerMap on $Run_numb/$thisDataset folder"
 

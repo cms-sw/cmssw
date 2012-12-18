@@ -1,15 +1,10 @@
 #include "CondFormats/CSCObjects/interface/CSCDBCrosstalk.h"
-#include <iostream>
+#include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
-std::ostream & operator<<(std::ostream & os, const CSCDBCrosstalk & cscdb)
+const CSCDBCrosstalk::Item & CSCDBCrosstalk::item(const CSCDetId & cscId, int strip) const
 {
-  for ( size_t i = 0; i < cscdb.crosstalk.size(); ++i )
-  {
-    os <<  "elem: " << i <<
-    " R slope: "   << cscdb.crosstalk[i].xtalk_slope_right     <<
-    " intercept: " << cscdb.crosstalk[i].xtalk_intercept_right <<
-    " L slope: "   << cscdb.crosstalk[i].xtalk_slope_left      <<
-    " intercept: " << cscdb.crosstalk[i].xtalk_intercept_left  << "\n";
-  }
-  return os;
+  CSCIndexer indexer;
+  //  return crosstalk.at( indexer.stripChannelIndex(cscId, strip)-1 ); // if we worry about range
+  return crosstalk[ indexer.stripChannelIndex(cscId, strip)-1 ]; // no worries about range!
 }
+

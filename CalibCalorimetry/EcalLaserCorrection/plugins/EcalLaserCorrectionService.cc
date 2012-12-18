@@ -27,9 +27,7 @@ EcalLaserCorrectionService::EcalLaserCorrectionService( const edm::ParameterSet&
 
   setWhatProduced (this, (dependsOn (&EcalLaserCorrectionService::alphaCallback) &
      			  (&EcalLaserCorrectionService::apdpnRefCallback) &
-     			  (&EcalLaserCorrectionService::apdpnCallback) &
-                          (&EcalLaserCorrectionService::linearCallback)
-                          )
+     			  (&EcalLaserCorrectionService::apdpnCallback) )
      		   );
 
   //now do what ever other initialization is needed
@@ -77,10 +75,4 @@ void EcalLaserCorrectionService::apdpnCallback (const EcalLaserAPDPNRatiosRcd& f
   edm::ESHandle <EcalLaserAPDPNRatios> item;
   fRecord.get (item);
   mService_->setAPDPNData (item.product ());
-}
-
-void EcalLaserCorrectionService::linearCallback (const EcalLinearCorrectionsRcd& fRecord) {
-  edm::ESHandle <EcalLinearCorrections> item;
-  fRecord.get (item);
-  mService_->setLinearCorrectionsData (item.product ());
 }
