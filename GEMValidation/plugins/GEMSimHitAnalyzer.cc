@@ -97,7 +97,7 @@ struct MySimTrack
   Float_t propagatedSimHitRhoGEMl2Both, propagatedSimHitEtaGEMl2Both, propagatedSimHitPhiGEMl2Both;
   Float_t propagatedSimHitRhoCSCBoth, propagatedSimHitEtaCSCBoth, propagatedSimHitPhiCSCBoth;
   Float_t charge;
-  GEMSimTracksProcessor::ChamberType hasGEMl1, hasGEMl2, hasCSC;
+  Int_t hasGEMl1, hasGEMl2, hasCSC;
 };
 
 
@@ -583,9 +583,9 @@ void GEMSimHitAnalyzer::analyzeTracks()
     track.propagatedSimHitPhiCSCBoth = trk_csc_both.phi();
 
     track.charge = simTrkProcessor.track(itrk)->charge();
-    track.hasGEMl1 = has_gem_l1;
-    track.hasGEMl2 = has_gem_l2;
-    track.hasCSC = has_csc;
+    track.hasGEMl1 = static_cast<int>(has_gem_l1);
+    track.hasGEMl2 = static_cast<int>(has_gem_l2);
+    track.hasCSC = static_cast<int>(has_csc);
     
     cout<<"========="<<endl;
 
