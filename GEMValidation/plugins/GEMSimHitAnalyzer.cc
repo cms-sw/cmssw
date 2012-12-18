@@ -1,4 +1,4 @@
-// -*- C++ -*- 
+// -*- C++ -*-
 //
 // Package:    GEMSimHitAnalyzer
 // Class:      GEMSimHitAnalyzer
@@ -78,7 +78,6 @@ struct MyGEMSimHit
 
 struct MySimTrack
 {
-  Int_t particleId, trackId; // FIXME - not yet written to tree
   Float_t meanSimHitRhoGEMl1Even, meanSimHitEtaGEMl1Even, meanSimHitPhiGEMl1Even;
   Float_t meanSimHitRhoGEMl2Even, meanSimHitEtaGEMl2Even, meanSimHitPhiGEMl2Even;
   Float_t meanSimHitRhoCSCEven, meanSimHitEtaCSCEven, meanSimHitPhiCSCEven;
@@ -97,6 +96,8 @@ struct MySimTrack
   Float_t propagatedSimHitRhoGEMl1Both, propagatedSimHitEtaGEMl1Both, propagatedSimHitPhiGEMl1Both;
   Float_t propagatedSimHitRhoGEMl2Both, propagatedSimHitEtaGEMl2Both, propagatedSimHitPhiGEMl2Both;
   Float_t propagatedSimHitRhoCSCBoth, propagatedSimHitEtaCSCBoth, propagatedSimHitPhiCSCBoth;
+  Float_t charge;
+  GEMSimTracksProcessor::ChamberType hasGEMl1, hasGEMl2, hasCSC;
 };
 
 
@@ -293,8 +294,6 @@ void GEMSimHitAnalyzer::bookSimTracksTree()
 {
   edm::Service< TFileService > fs;
   track_tree = fs->make< TTree >("Tracks", "Tracks");
-  track_tree->Branch("particleId", &track.particleId);
-  track_tree->Branch("trackId", &track.trackId);
   track_tree->Branch("meanSimHitRhoGEMl1Even",&track.meanSimHitRhoGEMl1Even);
   track_tree->Branch("meanSimHitEtaGEMl1Even",&track.meanSimHitEtaGEMl1Even);
   track_tree->Branch("meanSimHitPhiGEMl1Even",&track.meanSimHitPhiGEMl1Even);
@@ -351,6 +350,11 @@ void GEMSimHitAnalyzer::bookSimTracksTree()
   track_tree->Branch("propagatedSimHitRhoCSCBoth",&track. propagatedSimHitRhoCSCBoth);
   track_tree->Branch("propagatedSimHitEtaCSCBoth",&track.propagatedSimHitEtaCSCBoth);
   track_tree->Branch("propagatedSimHitPhiCSCBoth",&track.propagatedSimHitPhiCSCBoth);
+
+  track_tree->Branch("charge",&track.charge);
+  track_tree->Branch("hasGEMl1",&track.hasGEMl1);
+  track_tree->Branch("hasGEMl2",&track.hasGEMl2);
+  track_tree->Branch("hasCSC",&track.hasCSC);
 }
 
 
@@ -577,6 +581,11 @@ void GEMSimHitAnalyzer::analyzeTracks()
     track.propagatedSimHitRhoCSCBoth = trk_csc_both.perp();
     track.propagatedSimHitEtaCSCBoth = trk_csc_both.eta();
     track.propagatedSimHitPhiCSCBoth = trk_csc_both.phi();
+
+    track.charge = simTrkProcessor.track(itrk)->charge();
+    track.hasGEMl1 = has_gem_l1;
+    track.hasGEMl2 = has_gem_l2;
+    track.hasCSC = has_csc;
     
     cout<<"========="<<endl;
 
