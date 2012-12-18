@@ -1,4 +1,4 @@
-// -*- C++ -*-
+// -*- C++ -*- 
 //
 // Package:    GEMSimHitAnalyzer
 // Class:      GEMSimHitAnalyzer
