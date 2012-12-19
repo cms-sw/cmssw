@@ -1,0 +1,339 @@
+\documentclass[11pt,a4paper]{beamer}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[english]{babel}
+\usepackage{verbatim}
+\usepackage[absolute,overlay]{textpos}
+
+\author[S. Dildick]{
+Yasser~Assran\inst{5}, 
+Othmane~Bouhali\inst{1}, 
+\underline{Sven~Dildick}\inst{2}, 
+Will~Flanagan\inst{3}, 
+Vadim~Khotilovich\inst{3}, 
+Marcello~Maggi\inst{4},
+Alexei~Safonov\inst{3}
+}
+\institute[ASRT-ENHEP]{
+\inst{1}
+	Texas A\&M University at Qatar
+\inst{2}%
+	Ghent University
+	\and
+\inst{3}%
+	Texas A\&M University
+\inst{4}%
+	INFN Bari
+\inst{5}
+	ASRT-ENHEP Cairo-Egypt
+}
+
+\date[19-12-2012]{19-12-2012}
+\title{GEM Validation update}
+
+\usetheme{Boadilla} 
+%albatross beaver beetle crane dolphin dove fly
+\usecolortheme{dolphin} 
+\beamertemplatenavigationsymbolsempty
+\newcounter{pagenumber}
+\renewcommand{\rmdefault}{phv} % Arial
+\renewcommand{\sfdefault}{phv} % Arial
+
+% Directory containing valiation plots  - double braces are required!!
+\graphicspath{{./validationPlots_gem_ana/}}
+\begin{document}
+
+\begin{frame}[plain]
+\maketitle
+\end{frame}
+
+\begin{frame}[fragile]{GEM Validation Group status}
+\begin{itemize}
+\item Storage of samples is now directory-based to account for very large productions
+\begin{itemize}
+\item SingleMuPt40Fwd
+\item MinBias\_TuneZ2star\_14TeV\_pythia6 
+\end{itemize}
+\item Yasser started a Pilot MinBias production, but it was not successful. We are looking into the issue and we will try setup a new MinBias production before the end of the year. 
+\item SimTrackProcessor class was added to RPCGEM/GEMValidation which holds SimTrack information
+\item The script that produces validation plots is being rewritten to a seperate class. Code and instructions will be added soon
+\item In this presentation validation plots are shown for the production SingleMuPt40Fwd\_20121205\_FixedGeometry
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Latest GEN-SIM recipe}
+\begin{itemize}
+\item Packages used for this production
+{\tiny
+\begin{verbatim}
+cmsrel CMSSW_6_0_1_PostLS1v2_patch2
+cd CMSSW_6_0_1_PostLS1v2_patch2/src/
+cmsenv
+cvs co -r V01-03-04-91   DataFormats/MuonDetId
+cvs co -r V01-09-07      Geometry/CMSCommonData
+cvs co -r V01-05-03      Geometry/ForwardCommonData
+cvs co -r V01-05-01      Geometry/HcalCommonData
+cvs co -r V01-07-09      Geometry/MuonCommonData
+cvs co -r V01-00-01      Geometry/MuonNumbering
+cvs co -r V01-03-01      Geometry/MuonSimData
+cvs co -r V02-08-09      SimG4CMS/Calo
+cvs co -r V01-01-08      SimG4CMS/Muon
+cvs co -r V01-04-07      SimG4CMS/ShowerLibraryProducer
+cvs co -r V05-16-05      SimG4Core/Application
+cvs co -r V00-09-01      Geometry/CommonDetUnit
+cvs co -r V00-01-03      Geometry/GEMGeometry
+cvs co -r V00-01-02      Geometry/GEMGeometryBuilder
+cvs co -r V02-04-00      Geometry/Records
+cvs co -r V00-02-06   -d RPCGEM/GEMValidation UserCode/RPCGEM/GEMValidation
+cvs co -r V00-00-01      SimMuon/GEMDigitizer
+cvs co -r V00-00-01      DataFormats/GEMDigi
+scram b -j 8
+\end{verbatim}
+}
+%tar xzf /afs/cern.ch/user/k/khotilov/public/GEM/gemdigi_20121127.tgz
+\item Detailed instructions about the code can be found at
+{\tiny
+\begin{verbatim}
+https://twiki.cern.ch/twiki/bin/view/MPGD/GemSimulationsInstructionsCMSSW
+\end{verbatim}
+}
+\item Location of the usercode
+{\tiny
+\begin{verbatim}
+http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/RPCGEM/GEMValidation
+\end{verbatim}
+}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Outlook for 2013}
+\begin{itemize}
+\item A
+\item B
+\item C
+\end{itemize}
+\end{frame}
+
+\begin{frame}{x-y Plots for Region -1 and Layer 1 (more in backup)}
+\begin{figure}[htbp]
+\hill
+\includegraphics[width=0.5\textwidth]{globalxy_region-1_layer1_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region-1_layer1_all_digi.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region-1_layer1_muon_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region-1_layer1_nonmuon_simhit.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{z-r Plots for Region -1 (more in backup)}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{globalzr_region-1_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalzr_region-1_digi.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{globalzr_region-1_muon_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalzr_region-1_nonmuon_simhit.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{Momentum and Energy Loss}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{energyLoss_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{momentum_all_simhit.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{momentum_muon_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{momentum_nonmuon_simhit.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{ToF Plots for Region -1 and Layer 1 (more in backup)}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region-1_layer1_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region-1_layer1_muon_simhit.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region-1_layer1_nonmuon_simhit.pdf} 
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{Digi Strip Occupancy}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{phiStrip_region-1_digi.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{phiStrip_region1_digi.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{Low Digi Occupancy in the Center of GEMs (under investigation)}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{strip_region-1_digi.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{strip_region-1_digi.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{strip_layer1_digi.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{strip_layer2_digi.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{Global Position from Layer 1 to 2}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{delta_meanSimHitRhoGEMl1Both-meanSimHitRhoGEMl2Both_simtrack.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{delta_meanSimHitEtaGEMl1Both-meanSimHitEtaGEMl2Both_simtrack.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{delta_meanSimHitPhiGEMl1Both-meanSimHitPhiGEMl2Both_simtrack.pdf} 
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{Global Position from GEM11 to CSC11}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{delta_meanSimHitRhoGEMl1Both-meanSimHitRhoCSCBoth_simtrack.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{delta_meanSimHitEtaGEMl1Both-meanSimHitEtaCSCBoth_simtrack.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{delta_meanSimHitPhiGEMl1Both-meanSimHitPhiCSCBoth_simtrack.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{Global Simhits vs Propagated SimTracks}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{delta_meanSimHitRhoGEMl1Both_propagatedSimHitRhoGEMl1Both_simtrack.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{delta_meanSimHitEtaGEMl1Both_propagatedSimHitEtaGEMl1Both_simtrack.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{delta_meanSimHitPhiGEMl1Both_propagatedSimHitPhiGEMl1Both_simtrack.pdf} 
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{Backup}
+\end{frame}
+
+\begin{frame}{Miscellaneous}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{globalEta_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{bx_digi.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{x-y Plots for Region 1 and Layer 1}
+\begin{figure}[htbp]
+\hill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer1_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer1_all_digi.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer1_muon_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer1_nonmuon_simhit.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{x-y Plots for Region -1 and Layer 2}
+\begin{figure}[htbp]
+\hill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer2_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer2_all_digi.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer2_muon_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer2_nonmuon_simhit.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{x-y Plots for Region 1 and Layer 2}
+\begin{figure}[htbp]
+\hill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer2_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer2_all_digi.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer2_muon_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalxy_region1_layer2_nonmuon_simhit.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{z-r Plots for Region 1}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{globalzr_region1_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalzr_region1_digi.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{globalzr_region1_muon_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{globalzr_region1_nonmuon_simhit.pdf}
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{ToF Plots for Region 1 and Layer 1}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region1_layer1_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region1_layer1_muon_simhit.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region1_layer1_nonmuon_simhit.pdf} 
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{ToF Plots for Region -1 and Layer 2}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region-1_layer2_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region-1_layer2_muon_simhit.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region-1_layer2_nonmuon_simhit.pdf} 
+\hfill
+\end{figure}
+\end{frame}
+
+\begin{frame}{ToF Plots for Region 1 and Layer 2}
+\begin{figure}[htbp]
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region1_layer2_all_simhit.pdf} 
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region1_layer2_muon_simhit.pdf}
+\hfill
+\includegraphics[width=0.5\textwidth]{timeOfFlight_region1_layer2_nonmuon_simhit.pdf} 
+\hfill
+\end{figure}
+\end{frame}
+
+\end{document}
