@@ -1269,16 +1269,17 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
 
    unsigned int N   = 0;
 
-   double* Mass      = new double   [modelSample.size()];
-   double* SystP     = new double   [modelSample.size()];
-   double* SystI     = new double   [modelSample.size()];
-   double* SystPU    = new double   [modelSample.size()];
-   double* SystT     = new double   [modelSample.size()];
-   double* SystTr    = new double   [modelSample.size()];
-   double* SystRe    = new double   [modelSample.size()];
-   double* SystMB    = new double   [modelSample.size()];
-   double* SystTotal = new double   [modelSample.size()];
-   double* SystTotal2 = new double   [modelSample.size()];
+   double* Mass      = new double   [modelSample.size()];  double* MassErr      = new double   [modelSample.size()];
+   double* SystP     = new double   [modelSample.size()];  double* SystErrP     = new double   [modelSample.size()];
+   double* SystI     = new double   [modelSample.size()];  double* SystErrI     = new double   [modelSample.size()];
+   double* SystPU    = new double   [modelSample.size()];  double* SystErrPU    = new double   [modelSample.size()];
+   double* SystT     = new double   [modelSample.size()];  double* SystErrT     = new double   [modelSample.size()];
+   double* SystTr    = new double   [modelSample.size()];  double* SystErrTr    = new double   [modelSample.size()];
+   double* SystRe    = new double   [modelSample.size()];  double* SystErrRe    = new double   [modelSample.size()];
+   double* SystMB    = new double   [modelSample.size()];  double* SystErrMB    = new double   [modelSample.size()];
+   double* SystTotal = new double   [modelSample.size()];  double* SystErrTotal = new double   [modelSample.size()];
+   double* SystTotal2 = new double   [modelSample.size()]; 
+
 
    for(unsigned int s=0;s<modelSample.size();s++){
       if(modelSample[s].Type!=2)continue;
@@ -1287,36 +1288,38 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
       stAllInfo tmp(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR + "/"+modelSample[s].Name+".txt");
       if(tmp.Eff==0) continue;
 
-      Mass[N]        = tmp.Mass;
-      SystP[N]       = (tmp.Eff_SYSTP  - tmp.Eff)/tmp.Eff;
-      SystI[N]       = (tmp.Eff_SYSTI  - tmp.Eff)/tmp.Eff;
+      Mass[N]        = tmp.Mass;                            MassErr[N]        = 0.0;
+      SystP[N]       = (tmp.Eff_SYSTP  - tmp.Eff)/tmp.Eff;  SystErrP[N]       = (tmp.EffE_SYSTP)/tmp.Eff;
+      SystI[N]       = (tmp.Eff_SYSTI  - tmp.Eff)/tmp.Eff;  SystErrI[N]       = (tmp.EffE_SYSTI)/tmp.Eff;
       if(TypeMode==5){
-         if(modelSample[s].ModelName().find("1o3")!=string::npos) SystI[N]=-0.25;
-         if(modelSample[s].ModelName().find("2o3")!=string::npos) SystI[N]=-0.10;
+         if(modelSample[s].ModelName().find("1o3")!=string::npos) SystI[N]=-0.25; SystErrP[N]       = 0;
+         if(modelSample[s].ModelName().find("2o3")!=string::npos) SystI[N]=-0.10; SystErrI[N]       = 0;
       }
 
-      SystPU[N]      = (tmp.Eff_SYSTPU - tmp.Eff)/tmp.Eff;
-      SystT[N]       = (tmp.Eff_SYSTT  - tmp.Eff)/tmp.Eff;
-      SystRe[N]      = -0.02;
-      SystMB[N]=0.;
+      SystPU[N]      = (tmp.Eff_SYSTPU - tmp.Eff)/tmp.Eff;  SystErrPU[N]      = (tmp.EffE_SYSTPU)/tmp.Eff;
+      SystT[N]       = (tmp.Eff_SYSTT  - tmp.Eff)/tmp.Eff;  SystErrT[N]       = (tmp.EffE_SYSTT )/tmp.Eff;
+      SystRe[N]      = -0.02; SystErrRe[N]      = 0.0;
+      SystMB[N]=0.;  SystErrMB[N]=0.0;
       if((modelSample[s].ModelName().find("Q2")!=string::npos && modelSample[s].ModelName().find("Q2o3")==string::npos) || modelSample[s].ModelName().find("Q3")!=string::npos || modelSample[s].ModelName().find("Q4")!=string::npos || modelSample[s].ModelName().find("Q5")!=string::npos) SystMB[N]=-0.2;
 
       if(SQRTS==7) {
 	if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.02*0.02 + 0.05*0.05);
 	else if(modelSample[s].ModelName().find("2o3")!=string::npos) SystTr[N] = -1*sqrt(0.03*0.03 + 0.02*0.02 + 0.05*0.05);
 	else if(IsNeutral) SystTr[N] = -0.05;
-	else SystTr[N] = -1*sqrt(0.05*0.05 + 0.02*0.02 + 0.02*0.02);
-      }
-      else {
+	else SystTr[N] = -1*sqrt(0.05*0.05 + 0.02*0.02 + 0.02*0.02); 
+        SystErrTr[N] = 0.0;
+      }else {
 	if(IsNeutral) SystTr[N] = -0.01;
 	else if(modelSample[s].ModelName().find("1o3")!=string::npos) SystTr[N] = -1*sqrt(0.15*0.15 + 0.04*0.04 + 0.05*0.05);
 	else if(modelSample[s].ModelName().find("2o3")!=string::npos) SystTr[N] = -1*sqrt(0.03*0.03 + 0.04*0.04 + 0.05*0.05);
 	else SystTr[N] = -1*sqrt(0.05*0.05 + 0.04*0.04 + 0.01*0.01);
+        SystErrTr[N] = 0.0;
       }
 
 //      double Ptemp=max(SystP[N], 0.0), Itemp=max(SystI[N], 0.0), PUtemp=max(SystPU[N], 0.0), Ttemp=max(SystT[N], 0.0);
       double Ptemp=SystP[N], Itemp=SystI[N], PUtemp=SystPU[N], Ttemp=SystT[N];
       SystTotal[N] = -1*sqrt(Ptemp*Ptemp + Itemp*Itemp + PUtemp*PUtemp + Ttemp*Ttemp + SystTr[N]*SystTr[N] + SystRe[N]*SystRe[N] + SystMB[N]*SystMB[N]);
+      SystErrTotal[N] = sqrt(pow(SystErrP[N],2) + pow(SystErrI[N],2) + pow(SystErrPU[N],2) + pow(SystErrT[N],2) + pow(SystErrTr[N],2) + pow(SystErrRe[N],2) + pow(SystErrMB[N],2) );
       SystTotal2[N] = -1*SystTotal[N]; 
 
       if(TypeMode==0 || TypeMode==5)fprintf(pFile, "%30s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f"        ,modelSample[N].Name.c_str(), tmp.Eff, SystP[N], SystI[N], SystPU[N]           , SystTotal[N]);  
@@ -1352,15 +1355,15 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      TCanvas* c2 = new TCanvas("c2", "c2",600,600);
      c2->SetLeftMargin(0.15);
 
-     graphSystP = new TGraph(N,Mass,SystP);
-     graphSystI = new TGraph(N,Mass,SystI);
-     graphSystPU = new TGraph(N,Mass,SystPU);
-     graphSystT = new TGraph(N,Mass,SystT);
-     graphSystTr = new TGraph(N,Mass,SystTr);
-     graphSystRe = new TGraph(N,Mass,SystRe);
-     graphSystMB = new TGraph(N,Mass,SystMB);
-     graphSystTotal = new TGraph(N,Mass,SystTotal);
-     graphSystTotal2 = new TGraph(N,Mass,SystTotal2);
+     graphSystP = new TGraphErrors(N,Mass,SystP, MassErr, SystErrP);
+     graphSystI = new TGraphErrors(N,Mass,SystI, MassErr,SystErrI);
+     graphSystPU = new TGraphErrors(N,Mass,SystPU, MassErr,SystErrPU);
+     graphSystT = new TGraphErrors(N,Mass,SystT, MassErr,SystErrT);
+     graphSystTr = new TGraphErrors(N,Mass,SystTr, MassErr,SystErrTr);
+     graphSystRe = new TGraphErrors(N,Mass,SystRe, MassErr,SystErrRe);
+     graphSystMB = new TGraphErrors(N,Mass,SystMB, MassErr,SystErrMB);
+     graphSystTotal = new TGraphErrors(N,Mass,SystTotal, MassErr, SystErrTotal);
+     graphSystTotal2 = new TGraph(N,Mass,SystTotal2);//, MassErr, SystErrTotal);
      TMultiGraph* SystGraphs = new TMultiGraph();
 
      graphSystTotal->GetYaxis()->SetTitle("CrossSection ( pb )");
@@ -1372,13 +1375,13 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      graphSystTr->SetLineColor(Color[5]);     graphSystTr->SetMarkerColor(Color[5]);      graphSystTr->SetMarkerStyle(Marker[5]);graphSystTr->SetLineWidth(2);
      graphSystRe->SetLineColor(Color[6]);     graphSystRe->SetMarkerColor(Color[6]);      graphSystRe->SetMarkerStyle(Marker[6]);graphSystRe->SetLineWidth(2);
      graphSystMB->SetLineColor(Color[7]);     graphSystMB->SetMarkerColor(Color[7]);      graphSystMB->SetMarkerStyle(Marker[7]);graphSystMB->SetLineWidth(2);
-     SystGraphs->Add(graphSystP,"C");
 
+     SystGraphs->Add(graphSystP,"C0");
      SystGraphs->Add(graphSystTr,"C");
      SystGraphs->Add(graphSystRe,"C");
-     if(TypeMode!=3)SystGraphs->Add(graphSystI,"C");
-     SystGraphs->Add(graphSystPU,"C");
-     if(TypeMode!=0 && TypeMode!=5)SystGraphs->Add(graphSystT,"C");
+     if(TypeMode!=3)SystGraphs->Add(graphSystI,"C0");
+     SystGraphs->Add(graphSystPU,"C0");
+     if(TypeMode!=0 && TypeMode!=5)SystGraphs->Add(graphSystT,"C0");
      if(TypeMode==4) SystGraphs->Add(graphSystMB,"C");
      SystGraphs->Add(graphSystTotal,"P");
 
