@@ -88,6 +88,7 @@ struct stPlots {
    TH1F* Dz;
    TH1F* SegSep;
    TH1F* FailDz;
+   TH1F* Basic;
 
    TH1F* HSCPE_SystP;
    TH1F* HSCPE_SystI;
@@ -357,6 +358,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "Dz";       st.Dz      = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
    Name = "SegSep";   st.SegSep  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
    Name = "FailDz";   st.FailDz  = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
+   Name = "Basic";    st.Basic   = new TH1F(Name.c_str(), Name.c_str(),  1    , 0,  1);
 
    Name = "HSCPE_SystP";    st.HSCPE_SystP  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);    st.HSCPE_SystP    ->Sumw2();
    Name = "HSCPE_SystI";    st.HSCPE_SystI  = new TH1F(Name.c_str(), Name.c_str(),  NCuts, 0,  NCuts);    st.HSCPE_SystI    ->Sumw2();
@@ -698,6 +700,8 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.TotalTE           = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/TotalTE");
    st.Total             = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/Total");
    st.V3D               = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/V3D");
+   st.Dxy               = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/Dxy");
+   st.Dz                = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/Dz");
    st.Chi2              = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/Chi2");
    st.Qual              = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/Qual");
    st.TNOH              = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/TNOH");
@@ -709,6 +713,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.MPt               = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/MPt");
    st.MI                = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/MI");
    st.MTOF              = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/MTOF");
+   st.Basic             = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/Basic");
    st.Pt                = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/Pt");
    st.I                 = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/I");
    st.TOF               = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/TOF");
@@ -917,7 +922,6 @@ void stPlots_FillTree(stPlots* st, unsigned int Run, unsigned int Event, unsigne
 
 // dump a full preselection and selection cut flow table
 void stPlots_Dump(stPlots& st, FILE* pFile, int CutIndex){
-
    fprintf(pFile,"#################### %20s ####################\n",st.Name.c_str());
    fprintf(pFile,"#Events                       = %4.2E\n",st.TotalE->GetBinContent(1       ));
    fprintf(pFile,"#Triggered Events             = %4.2E Eff=%4.3E\n",st.TotalTE->GetBinContent(1     ),st.TotalTE->GetBinContent(1      )/st.TotalE->GetBinContent(1       ));
@@ -930,11 +934,12 @@ void stPlots_Dump(stPlots& st, FILE* pFile, int CutIndex){
    fprintf(pFile,"#Tracks passing Min Pt cuts   = %4.2E Eff=%4.3E\n",st.MPt  ->GetBinContent(1       ), st.MPt  ->GetBinContent(1       ) /st.Chi2 ->GetBinContent(1       ));
    fprintf(pFile,"#Tracks passing Min I  cuts   = %4.2E Eff=%4.3E\n",st.MI   ->GetBinContent(1       ), st.MI   ->GetBinContent(1       ) /st.MPt  ->GetBinContent(1       ));
    fprintf(pFile,"#Tracks passing Min TOFcuts   = %4.2E Eff=%4.3E\n",st.MTOF ->GetBinContent(1       ), st.MTOF ->GetBinContent(1       ) /st.MI   ->GetBinContent(1       ));
-   fprintf(pFile,"#Tracks passing V3D    cuts   = %4.2E Eff=%4.3E\n",st.V3D  ->GetBinContent(1       ), st.V3D  ->GetBinContent(1       ) /st.MI   ->GetBinContent(1       ));
-   fprintf(pFile,"#Tracks passing TIsol  cuts   = %4.2E Eff=%4.3E\n",st.TIsol->GetBinContent(1       ), st.TIsol->GetBinContent(1       ) /st.V3D  ->GetBinContent(1       ));
+   fprintf(pFile,"#Tracks passing Dxy    cuts   = %4.2E Eff=%4.3E\n",st.Dxy  ->GetBinContent(1       ), st.Dxy  ->GetBinContent(1       ) /st.MTOF   ->GetBinContent(1       ));
+   fprintf(pFile,"#Tracks passing TIsol  cuts   = %4.2E Eff=%4.3E\n",st.TIsol->GetBinContent(1       ), st.TIsol->GetBinContent(1       ) /st.Dxy  ->GetBinContent(1       ));
    fprintf(pFile,"#Tracks passing EIsol  cuts   = %4.2E Eff=%4.3E\n",st.EIsol->GetBinContent(1       ), st.EIsol->GetBinContent(1       ) /st.TIsol->GetBinContent(1       ));
    fprintf(pFile,"#Tracks passing PtErr  cuts   = %4.2E Eff=%4.3E\n",st.Pterr->GetBinContent(1       ), st.Pterr->GetBinContent(1       ) /st.EIsol->GetBinContent(1       ));
-   fprintf(pFile,"#Tracks passing Basic  cuts   = %4.2E Eff=%4.3E\n",st.Pterr->GetBinContent(1       ), st.Pterr->GetBinContent(1       ) /st.Total->GetBinContent(1       ));
+   fprintf(pFile,"#Tracks passing Dz  cuts      = %4.2E Eff=%4.3E\n",st.Dz   ->GetBinContent(1       ), st.Dz   ->GetBinContent(1       ) /st.Pterr->GetBinContent(1       ));
+   fprintf(pFile,"#Tracks passing Basic  cuts   = %4.2E Eff=%4.3E\n",st.Basic->GetBinContent(1       ), st.Basic->GetBinContent(1       ) /st.Total->GetBinContent(1       ));
    fprintf(pFile,"#Tracks passing Pt     cuts   = %4.2E Eff=%4.3E\n",st.Pt   ->GetBinContent(CutIndex+1), st.Pt   ->GetBinContent(CutIndex+1) /st.Pterr->GetBinContent(1       ));
    fprintf(pFile,"#Tracks passing I      cuts   = %4.2E Eff=%4.3E\n",st.I    ->GetBinContent(CutIndex+1), st.I    ->GetBinContent(CutIndex+1) /st.Pt   ->GetBinContent(CutIndex+1));
    fprintf(pFile,"#Tracks passing TOF    cuts   = %4.2E Eff=%4.3E\n",st.TOF  ->GetBinContent(CutIndex+1), st.TOF  ->GetBinContent(CutIndex+1) /st.I    ->GetBinContent(CutIndex+1));
@@ -1847,9 +1852,9 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    for(unsigned int i=0;i<st.size();i++){
      Histos[i] = (TH1*)st[i]->BS_PV->Clone(); Histos[i]->Rebin(1);  legend.push_back(lg[i]);  
      if(Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)>0) Histos[i]->Scale(1.0/Histos[i]->Integral(0, Histos[i]->GetNbinsX()+1)); }
-   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Primary Vertices", "Fraction of tracks", 0,0, 1E-3,2);
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Primary Vertices", "Fraction of tracks", 0,0, 0,0);
    DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
-   c1->SetLogy(true);
+   c1->SetLogy(false);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
    SaveCanvas(c1,SavePath,"PV_BS", true);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}

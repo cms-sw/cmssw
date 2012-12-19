@@ -429,11 +429,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if((TypeMode>1  && TypeMode!=5) && tof->inverseBetaErr()>GlobalMaxTOFErr)return false;
 
    if(st) st->BS_TimeAtIP->Fill(tof->timeAtIpInOut(),Event_Weight);
-   if(min(min(fabs(tof->timeAtIpInOut()-100), fabs(tof->timeAtIpInOut()-50)), min(fabs(tof->timeAtIpInOut()+100), fabs(tof->timeAtIpInOut()+50)))<5) return false;
-   }
-
-   if(st){st->MTOF ->Fill(0.0,Event_Weight);
-      if(GenBeta>=0)st->Beta_PreselectedB->Fill(GenBeta, Event_Weight);
+   if(TypeMode==3 && min(min(fabs(tof->timeAtIpInOut()-100), fabs(tof->timeAtIpInOut()-50)), min(fabs(tof->timeAtIpInOut()+100), fabs(tof->timeAtIpInOut()+50)))<5) return false;
    }
 
    if(st) st->BS_dzMinv3d->Fill(dz,Event_Weight);
@@ -473,10 +469,15 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
      if(muonStations(NVTrack.hitPattern())<minMuStations) return false;
    }
 
+   if(st){st->MTOF ->Fill(0.0,Event_Weight);
+     if(GenBeta>=0)st->Beta_PreselectedB->Fill(GenBeta, Event_Weight);
+   }
+
    double v3d = sqrt(dz*dz+dxy*dxy);
 
    if(st){st->BS_V3D->Fill(v3d,Event_Weight);}
    if(v3d>GlobalMaxV3D )return false;
+   if(st){st->V3D  ->Fill(0.0,Event_Weight);}
 
    if(st)st->BS_Dxy->Fill(dxy, Event_Weight);
 
@@ -486,7 +487,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(TypeMode==5 && fabs(dxy)>4)return false;
    if(TypeMode==5 && fabs(dxy)>GlobalMaxDXY) DXYSB = true;
 
-   if(st){st->V3D  ->Fill(0.0,Event_Weight);}
+   if(st){st->Dxy  ->Fill(0.0,Event_Weight);}
 
    if(TypeMode!=3) {
      fwlite::Handle<HSCPIsolationValueMap> IsolationH;
@@ -593,7 +594,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
    if(TypeMode!=5 && fabs(dz)>GlobalMaxDZ) return false;
    if(TypeMode==5 && fabs(dz)>4) return false;
    if(TypeMode==5 && fabs(dz)>GlobalMaxDZ) DZSB = true;
-
+   if(st){st->Dz  ->Fill(0.0,Event_Weight);}
 
    if(TypeMode==3 && fabs(minEta)<minSegEtaSep) return false;
    if(st)st->BS_Phi->Fill(track->phi(),Event_Weight);
@@ -670,7 +671,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 	    if(tof) st->BS_TOF_Binned[bin]->Fill(tof->inverseBeta(),Event_Weight);
 	  }
    }
-
+   if(st){st->Basic  ->Fill(0.0,Event_Weight);}
    return true;
 }
 
@@ -1068,6 +1069,7 @@ void Analysis_Step3(char* SavePath)
          printf("Progressing Bar                   :0%%       20%%       40%%       60%%       80%%       100%%\n");
          printf("Building Mass for %10s (%1i/%1i) :",samples[s].Name.c_str(),period+1,(samples[s].Type>=2?RunningPeriods:1));
          int TreeStep = ev.size()/50;if(TreeStep==0)TreeStep=1;
+
          for(Long64_t ientry=0;ientry<ev.size();ientry++){
             ev.to(ientry);
             if(MaxEntry>0 && ientry>MaxEntry)break;

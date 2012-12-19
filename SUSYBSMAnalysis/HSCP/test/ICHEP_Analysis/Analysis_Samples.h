@@ -291,7 +291,9 @@ double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, doub
      PUWeight_thisevent = LumiWeightsMC.weight( Tnpv );
      PUSystFactor = PShift.ShiftWeight( Tnpv );
    }
-
+   else {
+     printf("Can not find pile up scenario");
+   }
    return PUWeight_thisevent;
 }
 
