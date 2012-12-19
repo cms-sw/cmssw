@@ -7,7 +7,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.h,v 1.1 2012/10/14 12:22:24 veelken Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.1 2012/12/18 10:29:25 veelken Exp $
  *
  */
 
@@ -94,9 +94,9 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
   }
   
   double discriminatorValue = 0.;
-  if      ( discriminatorOption_ == kLoose  && numMatches               == 0                       ) discriminatorValue = 1.;
-  else if ( discriminatorOption_ == kMedium && numLast2StationsWithHits == 0                       ) discriminatorValue = 1.;
-  else if ( discriminatorOption_ == kTight  && numLast2StationsWithHits == 0 && passesCaloMuonVeto ) discriminatorValue = 1.;
+  if      ( discriminatorOption_ == kLoose  && numMatches == 0                                                        ) discriminatorValue = 1.;
+  else if ( discriminatorOption_ == kMedium && numMatches == 0 && numLast2StationsWithHits == 0                       ) discriminatorValue = 1.;
+  else if ( discriminatorOption_ == kTight  && numMatches == 0 && numLast2StationsWithHits == 0 && passesCaloMuonVeto ) discriminatorValue = 1.;
 
   return discriminatorValue;
 } 
