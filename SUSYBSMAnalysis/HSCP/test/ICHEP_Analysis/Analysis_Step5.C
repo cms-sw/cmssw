@@ -56,7 +56,7 @@ void Analysis_Step5()
    string InputPattern;				unsigned int CutIndex;     unsigned int CutIndex_Flip=1;  unsigned int CutIndexTight;
    std::vector<string> Legends;                 std::vector<string> Inputs;
     
-   CheckPUDistribution("Results/Type0/", 0);
+//   CheckPUDistribution("Results/Type0/", 0);
 //   CheckPUDistribution("Results/Type4/", 0);
 //   return;
 
@@ -160,7 +160,7 @@ void Analysis_Step5()
 void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix, bool showMC, string DataName){
    if(DataName.find("7TeV")!=string::npos){SQRTS=7.0;}else{SQRTS=8.0;}
    bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
-   double SystError     = 0.05;
+   double SystError     = 0.20;
 
    TH1D *Pred8TeV=NULL, *Data8TeV=NULL, *Pred7TeV=NULL, *Data7TeV=NULL, *MCPred=NULL, *MC=NULL, *Signal=NULL;
    TFile* InputFile = new TFile((InputPattern + "/Histos.root").c_str());
@@ -213,7 +213,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
          double D = Data8TeV->Integral( Data8TeV->GetXaxis()->FindBin(M),  Data8TeV->GetXaxis()->FindBin(2000.0));
          double P = Pred8TeV->Integral( Pred8TeV->GetXaxis()->FindBin(M),  Pred8TeV->GetXaxis()->FindBin(2000.0));
          double Perr = 0; for(int i=Pred8TeV->GetXaxis()->FindBin(M);i<Pred8TeV->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred8TeV->GetBinError(i),2); }  Perr = sqrt(Perr);
-         printf("%4.0f<M<2000 --> Obs=%9.3f Data-Pred = %9.3f +- %8.3f(syst+stat) %9.3f (syst) %9.3f (stat)\n", M, D, P, sqrt(Perr*Perr + pow(P*(2*SystError),2)), P*(2*SystError), Perr);
+         printf("%4.0f<M<2000 --> Obs=%9.3f Data-Pred = %9.3f +- %8.3f(syst+stat) %9.3f (syst) %9.3f (stat)\n", M, D, P, sqrt(Perr*Perr + pow(P*SystError,2)), P*SystError, Perr);
       }
    }
 
@@ -235,19 +235,19 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(MCPred)PredMCErr = (TH1D*) MCPred->Clone("PredMCErr");
 
    if(Pred8TeV){for(unsigned int i=0;i<(unsigned int)Pred8TeV->GetNbinsX();i++){
-      double error = sqrt(pow(Pred8TeVErr->GetBinError(i),2) + pow(Pred8TeVErr->GetBinContent(i)*2*SystError,2));
+      double error = sqrt(pow(Pred8TeVErr->GetBinError(i),2) + pow(Pred8TeVErr->GetBinContent(i)*SystError,2));
       Pred8TeVErr->SetBinError(i,error);       
       if(Pred8TeVErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)Pred8TeVErr->GetNbinsX();j++)Pred8TeVErr->SetBinContent(j,0);}
    }}
 
    if(Pred7TeV){for(unsigned int i=0;i<(unsigned int)Pred7TeV->GetNbinsX();i++){
-      double error = sqrt(pow(Pred7TeVErr->GetBinError(i),2) + pow(Pred7TeVErr->GetBinContent(i)*2*SystError,2));
+      double error = sqrt(pow(Pred7TeVErr->GetBinError(i),2) + pow(Pred7TeVErr->GetBinContent(i)*SystError,2));
       Pred7TeVErr->SetBinError(i,error);
       if(Pred7TeVErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)Pred7TeVErr->GetNbinsX();j++)Pred7TeVErr->SetBinContent(j,0);}      
    }}
 
    if(MCPred){for(unsigned int i=0;i<(unsigned int)MCPred->GetNbinsX();i++){
-      double error = sqrt(pow(PredMCErr->GetBinError(i),2) + pow(PredMCErr->GetBinContent(i)*2*SystError,2));
+      double error = sqrt(pow(PredMCErr->GetBinError(i),2) + pow(PredMCErr->GetBinContent(i)*SystError,2));
       PredMCErr->SetBinError(i,error);
       if(PredMCErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredMCErr->GetNbinsX();j++)PredMCErr->SetBinContent(j,0);}
    }}
@@ -259,7 +259,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       for(unsigned int i=0;i<(unsigned int)Pred8TeV->GetNbinsX();i++){
       double Perr=0; double P = Pred8TeV->IntegralAndError(i,Pred8TeV->GetNbinsX()+1, Perr);   if(P<=0)continue;
       double Derr=0; double D = Data8TeV->IntegralAndError(i,Data8TeV->GetNbinsX()+1, Derr);
-      Perr = sqrt(Perr*Perr + pow(P*(2*SystError),2));
+      Perr = sqrt(Perr*Perr + pow(P*SystError,2));
       Pred8TeVR->SetBinContent(i, D/P);  Pred8TeVR->SetBinError (i, sqrt(pow(Derr*P,2) +pow(Perr*D,2))/pow(P,2));      
    }}
 
@@ -269,7 +269,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       for(unsigned int i=0;i<(unsigned int)Pred7TeV->GetNbinsX();i++){
       double Perr=0; double P = Pred7TeV->IntegralAndError(i,Pred7TeV->GetNbinsX()+1, Perr);   if(P<=0)continue;
       double Derr=0; double D = Data7TeV->IntegralAndError(i,Data7TeV->GetNbinsX()+1, Derr);
-      Perr = sqrt(Perr*Perr + pow(P*(2*SystError),2));
+      Perr = sqrt(Perr*Perr + pow(P*SystError,2));
       Pred7TeVR->SetBinContent(i, D/P);  Pred7TeVR->SetBinError (i,  sqrt(pow(Derr*P,2) +pow(Perr*D,2))/pow(P,2));      
    }}
 
@@ -278,7 +278,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       for(unsigned int i=0;i<(unsigned int)MCPred->GetNbinsX();i++){
       double Perr=0; double P = MCPred->IntegralAndError(i,MCPred->GetNbinsX()+1, Perr);   if(P<=0)continue;
       double Derr=0; double D = MC    ->IntegralAndError(i,MC    ->GetNbinsX()+1, Derr);
-      Perr = sqrt(Perr*Perr + pow(P*(2*SystError),2));
+      Perr = sqrt(Perr*Perr + pow(P*SystError,2));
       PredMCR->SetBinContent(i, D/P);  PredMCR->SetBinError (i, sqrt(pow(Derr*P,2) +pow(Perr*D,2))/pow(P,2));      
    }}
 
@@ -448,8 +448,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    frameR->GetXaxis()->SetTitle("");
    frameR->GetXaxis()->SetTitle("Cumulative Mass (GeV/#font[12]{c}^{2})");
    frameR->GetYaxis()->SetTitle("Obs / Pred");
-   frameR->SetMaximum(1.50);
-   frameR->SetMinimum(0.50);
+   frameR->SetMaximum(2.00);
+   frameR->SetMinimum(0.00);
    frameR->GetYaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
    frameR->GetYaxis()->SetLabelSize(15); //font size
    frameR->GetYaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
@@ -856,6 +856,9 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
             int N_i = 0;
             for(int i=CutIndex_;i<H_P->GetNbinsX();i++){
               if(float(HCuts_Pt->GetBinContent(i+1))!=PtCut || float(HCuts_TOF->GetBinContent(i+1))!=TCut)continue;
+              if(isnan((float)H_P->GetBinContent(i+1)))continue;
+              if(S!=1 && H_P->GetBinContent(i+1)<=0)continue;
+
               xmin = std::min(xmin, HCuts_I->GetBinContent(i+1));
               xmax = std::max(xmax, HCuts_I->GetBinContent(i+1));
 
@@ -866,14 +869,17 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
               if(S==1 && P<=0){P = 3/2.0; Perr=3/2.0;  max = std::max(max, 3.0);}
               mapPred[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), P);
               mapPred[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , sqrt(pow(Perr,2) + pow(0.1*H_P->GetBinContent(i+1),2) ) );
+              mapPred[std::make_pair(PtCut, TCut)]->Set(N_i+1);
 
               max = std::max(max, H_D->GetBinContent(CutIndex_+i+1));
               min = std::min(min, std::max(H_D->GetBinContent(CutIndex_+i+1), 0.1));
               mapObs [std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), H_D->GetBinContent(i+1)); 
               mapObs [std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , H_D->GetBinError  (i+1));
+              mapObs [std::make_pair(PtCut, TCut)]->Set(N_i+1);
             
               mapRatio[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), (H_D->GetBinContent(i+1)<=0  || P<=0) ? 0 : H_D->GetBinContent(i+1) / P);
               mapRatio[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , H_D->GetBinContent(i+1)<=0 ? 0 : sqrt(pow(Perr * H_D->GetBinContent(i+1),2) + pow(P * H_D->GetBinError  (i+1),2) ) / pow(P,2) );
+              mapRatio[std::make_pair(PtCut, TCut)]->Set(N_i+1);
               N_i++;
             }
          }
@@ -910,7 +916,6 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          t2->SetPad(0,0.0,1.0,0.2);
          t2->SetTopMargin(0);
          t2->SetBottomMargin(0.5);
-
          TH1D* frameR = new TH1D("frameR", "frameR", 1,std::max(xmin,0.02),xmax);
          frameR->GetXaxis()->SetNdivisions(505);
          frameR->SetTitle("");
@@ -3083,7 +3088,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    Data_PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
    Data_PIm->GetYaxis()->SetTitleOffset(1.60);
    Data_PIm->SetAxisRange(50,1750,"X");
-//   Data_PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
+   Data_PIm->SetAxisRange(0,20,"Y");
    Data_PIm->SetMarkerSize (0.2);
    Data_PIm->SetMarkerColor(Color[1]);
    Data_PIm->SetFillColor(Color[1]);
@@ -3099,7 +3104,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    Signal3PIm->GetXaxis()->SetTitle("p (GeV/c)");
    Signal3PIm->GetYaxis()->SetTitle(dEdxM_Legend.c_str());
    Signal3PIm->SetAxisRange(50,1750,"X");
-   Signal3PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
+//   Signal3PIm->SetAxisRange(0,TypeMode==5?3:15,"Y");
    Signal3PIm->Scale(5000/Signal3PIm->Integral());
    Signal3PIm->SetMarkerStyle (1);
    Signal3PIm->SetMarkerColor(Color[4]);
@@ -3137,7 +3142,7 @@ void Make2DPlot_Special(string InputPattern, string InputPattern2){//, unsigned 
    box->SetFillStyle(3004);
    box->Draw("same");
 
-   leg = new TLegend(0.80,0.63,0.80 - 0.40,0.63 - 6*0.03);
+   leg = new TLegend(0.80,0.92,0.80 - 0.40,0.92 - 6*0.03);
    leg->SetFillStyle(0);
    leg->SetBorderSize(0);
    leg->AddEntry(Data_PIm,    "Data (#sqrt{s}=8 TeV)"       ,"F");

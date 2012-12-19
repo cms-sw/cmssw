@@ -106,7 +106,7 @@ string EXCLUSIONDIR = "EXCLUSION";
 
 //Background prediction rescale and uncertainty
 double RescaleFactor = 1.0;
-double RescaleError  = 0.1;
+double RescaleError  = 0.2;
 
 //final Plot y-axis range
 double PlotMinScale = 0.0001;
