@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2012/11/05 14:37:53 $
- *  $Revision: 1.55 $
+ *  $Date: 2012/11/09 11:10:56 $
+ *  $Revision: 1.56 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -177,11 +177,11 @@ double MuScleFitUtils::x[][10000];
 
 // Probability matrices and normalization values
 // ---------------------------------------------
-int MuScleFitUtils::nbins = 1001;
-double MuScleFitUtils::GLZValue[][1002][1002];
-double MuScleFitUtils::GLZNorm[][1002];
-double MuScleFitUtils::GLValue[][1002][1002];
-double MuScleFitUtils::GLNorm[][1002];
+int MuScleFitUtils::nbins = 1000;
+double MuScleFitUtils::GLZValue[][1001][1001];
+double MuScleFitUtils::GLZNorm[][1001];
+double MuScleFitUtils::GLValue[][1001][1001];
+double MuScleFitUtils::GLNorm[][1001];
 double MuScleFitUtils::ResMaxSigma[];
 
 // Masses and widths from PDG 2006, half widths to be revised
@@ -727,7 +727,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
  * - if passing iRes != 0, iY is used to select the resonance
  */
 double MuScleFitUtils::probability( const double & mass, const double & massResol,
-                                    const double GLvalue[][1002][1002], const double GLnorm[][1002],
+                                    const double GLvalue[][1001][1001], const double GLnorm[][1001],
                                     const int iRes, const int iY )
 {
   if( iRes == 0 && iY > 23 ) {
@@ -874,7 +874,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
   //   GL(m,s) = Int(M-10H,M+10H) [ L(x-M,H) * G(x-m,s) ] dx
   //
   // The above convolution is computed numerically by an independent root macro, Probs.C, which outputs
-  // the values in six 1002x1002 grids, one per resonance.
+  // the values in six 1001x1001 grids, one per resonance.
   //
   // NB THe following block of explanations for background models is outdated, see detailed
   // explanations where the code computes PB.

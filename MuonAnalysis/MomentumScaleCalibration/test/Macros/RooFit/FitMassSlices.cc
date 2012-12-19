@@ -18,7 +18,7 @@ class FitMassSlices : public FitSlices
 	   const double & xMean = 3.1,  const double & xMin = 3.,     const double & xMax = 3.2,
 	   const double & sigma = 0.03, const double & sigmaMin = 0., const double & sigmaMax = 0.1,
 	   // change 0 if you want to rebin phi distributions
-	   const int rebinXphi = 0, 
+	   const int rebinXphi = 4, const int rebinXetadiff = 2, const int rebinXeta = 3, //(24 bin in eta, 64 bin in phi, 16 bin in deltaEta)
 	   TDirectory * externalDir = 0,
 	   const TString & histoBaseName = "hRecBestResVSMu", const TString & histoBaseTitle = "MassVs")
   {
@@ -38,12 +38,12 @@ class FitMassSlices : public FitSlices
     	     signalType, backgroundType,
     	     inputFile, dir);
 
-    fitSlice(histoBaseName+"_MassVSEta", histoBaseTitle+"Eta",
-	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-	     signalType, backgroundType,
-	     inputFile, dir);
+//     fitSlice(histoBaseName+"_MassVSEta", histoBaseTitle+"Eta",
+// 	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+// 	     signalType, backgroundType,
+// 	     inputFile, dir);
 
-
+    if( rebinXeta != 0 ) rebinX = rebinXeta;
     fitSlice(histoBaseName+"_MassVSEtaPlus", histoBaseTitle+"EtaPlus",
              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
              signalType, backgroundType,
@@ -53,6 +53,7 @@ class FitMassSlices : public FitSlices
              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
              signalType, backgroundType,
              inputFile, dir);
+
 
     fitSlice(histoBaseName+"_MassVSEtaPhiPlus", histoBaseTitle+"EtaPhiPlus",
              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
@@ -64,16 +65,16 @@ class FitMassSlices : public FitSlices
              signalType, backgroundType,
              inputFile, dir);
 
-    // New entries...        
-    fitSlice(histoBaseName+"_MassVSCosThetaCS", histoBaseTitle+"CosThetaCS",
-             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-	     signalType, backgroundType,
-	     inputFile, dir);
+    //    //    New entries...        
+//     fitSlice(histoBaseName+"_MassVSCosThetaCS", histoBaseTitle+"CosThetaCS",
+//              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+// 	     signalType, backgroundType,
+// 	     inputFile, dir);
 
-    fitSlice(histoBaseName+"_MassVSPhiCS", histoBaseTitle+"PhiCS",
-             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-	     signalType, backgroundType,
-	     inputFile, dir);
+//     fitSlice(histoBaseName+"_MassVSPhiCS", histoBaseTitle+"PhiCS",
+//              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+// 	     signalType, backgroundType,
+// 	     inputFile, dir);
 
     if( rebinXphi != 0 ) rebinX = rebinXphi;
     fitSlice(histoBaseName+"_MassVSPhiPlus", histoBaseTitle+"PhiPlus",
@@ -86,20 +87,22 @@ class FitMassSlices : public FitSlices
     	     signalType, backgroundType,
     	     inputFile, dir);
 
-    fitSlice(histoBaseName+"_MassVSPhiPlusPhiMinus", histoBaseTitle+"PhiPlusPhiMinus",
-             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-             signalType, backgroundType,
-             inputFile, dir);
+//     fitSlice(histoBaseName+"_MassVSPhiPlusPhiMinus", histoBaseTitle+"PhiPlusPhiMinus",
+//              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+//              signalType, backgroundType,
+//              inputFile, dir);
 
-    fitSlice(histoBaseName+"_MassVSEtaPlusEtaMinus", histoBaseTitle+"EtaPlusEtaMinus",
-             xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
-             signalType, backgroundType,
-             inputFile, dir);
+//     fitSlice(histoBaseName+"_MassVSEtaPlusEtaMinus", histoBaseTitle+"EtaPlusEtaMinus",
+//              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+//              signalType, backgroundType,
+//              inputFile, dir);
 
+    if( rebinXetadiff != 0 ) rebinX = rebinXetadiff;
     fitSlice(histoBaseName+"_MassVSEtaPlusMinusDiff", histoBaseTitle+"EtaPlusMinusDiff",
 	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
              signalType, backgroundType,
              inputFile, dir);
+   
 
 
 
