@@ -5,9 +5,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.1 2012/12/18 10:29:25 veelken Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.2 2012/12/19 15:08:23 veelken Exp $
  *
  */
 
@@ -68,7 +68,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 	  uint32_t hit = muonHitPattern.getHitPattern(iHit);
 	  if ( hit == 0 ) break;	    
 	  if ( muonHitPattern.muonHitFilter(hit) && muonHitPattern.getHitType(hit) == TrackingRecHit::valid ) {
-	    int muonStation = muonHitPattern.getMuonStation(hit);
+	    int muonStation = muonHitPattern.getMuonStation(hit) - 1; // CV: map into range 0..3
 	    if ( muonStation >= 0 && muonStation < 4 ) {
 	      if      ( muonHitPattern.muonDTHitFilter(hit)  ) ++numHitsDT[muonStation];
 	      else if ( muonHitPattern.muonCSCHitFilter(hit) ) ++numHitsCSC[muonStation];
