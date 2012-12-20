@@ -122,7 +122,7 @@ void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std:
 	if(!hostTmp)return;
 	string host   (hostTmp);
 	if(host.find("fnal.gov")!=std::string::npos){
-	  string fileName = BaseDirectory_.substr(7, string::npos) + fileNames[f] + ".rootsdf";
+	  string fileName = BaseDirectory_.substr(7, string::npos) + fileNames[f] + ".root";
 	  ifstream ifile(fileName);
 	  if(!ifile) {
 	    BaseDirectory_="dcache:/pnfs/cms/WAX/11/store/user/venkat12/HSCPEDMFiles/20120901/";
