@@ -114,9 +114,20 @@ void GetInputFiles(stSample sample, std::string BaseDirectory_, std::vector<std:
            if (period==0) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX0.root");
            if (period==1) inputFiles.push_back(BaseDirectory_ + fileNames[f] + "_BX1.root");
          }else{ //8TeV
-            inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
+	  inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
          }
       }else{ //Data or MC Background
+	//Not enough file storage to hold all files at FNAL. Split between two directories
+	char* hostTmp   =getenv("HOSTNAME");
+	if(!hostTmp)return;
+	string host   (hostTmp);
+	if(host.find("fnal.gov")!=std::string::npos){
+	  string fileName = BaseDirectory_.substr(7, string::npos) + fileNames[f] + ".rootsdf";
+	  ifstream ifile(fileName);
+	  if(!ifile) {
+	    BaseDirectory_="dcache:/pnfs/cms/WAX/11/store/user/venkat12/HSCPEDMFiles/20120901/";
+	  }
+	}
         inputFiles.push_back(BaseDirectory_ + fileNames[f] + ".root");
       }
    }
