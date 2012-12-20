@@ -98,8 +98,10 @@ L1TowerFwdJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
 rawSLHCL1ExtraParticles = cms.EDProducer("L1ExtraTranslator",
                                   Clusters = cms.InputTag("L1CaloClusterIsolator"),
                                   Jets = cms.InputTag("L1CaloJetExpander"),
+                                  Towers = cms.InputTag("L1CaloTowerProducer"),                                         
                                   NParticles = cms.uint32(8),
-                                  NJets      = cms.uint32(12)
+                                  NJets      = cms.uint32(12),
+                                  maxJetTowerEta = cms.double(3.0)
                               
 )
 
@@ -152,6 +154,7 @@ l1extraParticlesCalibrated = cms.EDProducer("L1ExtraCalibrator",
                                             taus = cms.InputTag("l1extraParticles","Tau"),
                                             isoTaus = cms.InputTag("l1extraParticles","isoTau"), #comment out?
                                             jets = cms.InputTag("l1extraParticles","Central"), #no forward jets in SLHC, so only considering centra LHC jets
+                                            
                                             ##How to calibrate
                                             ##Scale factor = MC/RAW = a+b |eta| +c|eta|^2
                                             ##Give the coeffs for egamma and taus
