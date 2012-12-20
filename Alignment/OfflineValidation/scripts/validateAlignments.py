@@ -11,6 +11,7 @@ import fnmatch
 
 import Alignment.OfflineValidation.TkAlAllInOneTool.configTemplates as configTemplates
 import Alignment.OfflineValidation.TkAlAllInOneTool.crabWrapper as crabWrapper
+import Alignment.OfflineValidation.TkAlAllInOneTool.dataset as datasetModule
 from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions import AllInOneError
 
 ####################--- Helpers ---############################
@@ -58,6 +59,15 @@ def castorDirExists(path):
             if line.split()[8] == dirInQuestion:
                 return True
     return False
+
+
+####################--- global dictionaries ---############################
+# Needed for more than one geometry comparison for one alignment
+alignRandDict = {}
+
+# Store used datasets, to avoid making the same DAS query multiple times
+usedDatasets = {}
+
 
 ####################--- Classes ---############################
 class BetterConfigParser(ConfigParser.ConfigParser):
@@ -283,6 +293,8 @@ class GenericValidation:
         self.configFiles = []
         self.filesToCompare = {}
         self.jobmode = self.general["jobmode"]
+        # check, if it has advantages to include the config as validation member
+        self.config = config
 
     def getRepMap(self, alignment = None):
         if alignment == None:
@@ -493,6 +505,10 @@ class OfflineValidation(GenericValidation):
             "SurfaceShapes":"none",
             "jobmode":self.jobmode,
             "runRange":"",
+            "firstRun":"",
+            "lastRun":"",
+            "begin":"",
+            "end":"",
             "JSON":""
             }
         mandatories = [ "dataset", "maxevents", "trackcollection" ]
@@ -506,6 +522,10 @@ class OfflineValidation(GenericValidation):
                                                   demandPars = mandatories )
         self.general.update( offline )
         self.jobmode = self.general["jobmode"]
+        if self.general["dataset"] not in usedDatasets:
+            usedDatasets[self.general["dataset"]] = datasetModule.Dataset(
+                self.general["dataset"] )
+        self.dataset = usedDatasets[self.general["dataset"]]
     
     def createConfiguration(self, path,
                             configBaseName = "TkAlOfflineValidation" ):
@@ -543,6 +563,13 @@ class OfflineValidation(GenericValidation):
         repMap["numberOfJobs"] = self.general["parallelJobs"]
         repMap["cfgFile"] = self.configFiles[0]
         repMap["queue"] = self.jobmode.split( ',' )[1].split( '-q' )[1]
+        if self.dataset.dataType() == "mc":
+            repMap["McOrData"] = "events = .oO[nEvents]Oo."
+        elif self.dataset.dataType() == "data":
+            repMap["McOrData"] = "lumis = -1"
+            if self.jobmode.split( ',' )[0] == "crab":
+                print ("For jobmode 'crab' the parameter 'maxevents' will be "
+                       "ignored and all events will be processed.")
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
         return GenericValidation.createCrabCfg( self, crabCfg, path )
@@ -569,10 +596,63 @@ class OfflineValidation(GenericValidation):
         repMap["outputFile"] = os.path.abspath( repMap["outputFile"] )
         repMap["resultFile"] = os.path.expandvars( repMap["resultFile"] )
         repMap["resultFile"] = os.path.abspath( repMap["resultFile"] )
-        if self.jobmode.split( ',' )[0] == "crab":
+        if not self.jobmode.split( ',' )[0] == "crab":
+            try:
+                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
+                    jsonPath = self.general["JSON"],
+                    nEvents = self.general["maxevents"],
+                    firstRun = self.general["firstRun"],
+                    lastRun = self.general["lastRun"],
+                    begin = self.general["begin"],
+                    end = self.general["end"] )
+            except AllInOneError, e:
+                msg = "In section [offline:%s]: "%( self.name )
+                msg += str( e )
+                raise AllInOneError( msg )
+        else:
+            if self.dataset.predefined():
+                msg = ("For jobmode 'crab' you cannot use predefined datasets "
+                       "(in your case: '%s')."%( self.dataset.name() ))
+                raise AllInOneError( msg )
+            if self.general["begin"] or self.general["end"]:
+                ( self.general["firstRun"],
+                  self.general["lastRun"] ) = self.dataset.convertTimeToRun(
+                    firstRun = self.general["firstRun"],
+                    lastRun = self.general["lastRun"],
+                    begin = self.general["begin"],
+                    end = self.general["end"] )
+                self.general["firstRun"] = str( self.general["firstRun"] )
+                self.general["lastRun"] = str( self.general["lastRun"] )
+            if ( not self.general["firstRun"] ) and \
+                   ( self.general["end"] or self.general["lastRun"] ):
+                self.general["firstRun"] = str( self.dataset.runList()[0]["run_number"] )
+            if ( not self.general["lastRun"] ) and \
+                   ( self.general["begin"] or self.general["firstRun"] ):
+                self.general["lastRun"] = str( self.dataset.runList()[-1]["run_number"] )
+            if self.general["firstRun"] and self.general["lastRun"]:
+                if int( self.general["firstRun"] ) > int( self.general["lastRun"] ):
+                    msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
+                            "chosen is greater than the upper time/runrange limit "
+                            "('end'/'lastRun').")
+                    raise AllInOneError( msg )
+                self.general["runRange"] = (self.general["firstRun"]
+                                            + '-' + self.general["lastRun"])
+            
             repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
             repMap["resultFile"] = os.path.basename( repMap["resultFile"] )
-
+            try:
+                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
+                    jsonPath = self.general["JSON"],
+                    nEvents = self.general["maxevents"],
+                    firstRun = self.general["firstRun"],
+                    lastRun = self.general["lastRun"],
+                    begin = self.general["begin"],
+                    end = self.general["end"],
+                    crab = True )
+            except AllInOneError, e:
+                msg = "In section [offline:%s]: "%( self.name )
+                msg += str( e )
+                raise AllInOneError( msg )
         return repMap
 
     def appendToExtendedValidation( self, validationsSoFar = "" ):
@@ -748,9 +828,7 @@ class MonteCarloValidation(GenericValidation):
     def __init__(self, valName, alignment, config):
         GenericValidation.__init__(self, valName, alignment, config)
         defaults = {
-            "jobmode":self.jobmode,
-            "runRange":"",
-            "JSON":""
+            "jobmode":self.jobmode
             }
         mandatories = [ "relvalsample", "maxevents" ]
         if not config.has_section( "mcValidate:"+self.name ):
@@ -826,6 +904,10 @@ class TrackSplittingValidation(GenericValidation):
         defaults = {
             "jobmode":self.jobmode,
             "runRange":"",
+            "firstRun":"",
+            "lastRun":"",
+            "begin":"",
+            "end":"",
             "JSON":""
             }
         mandatories = [ "trackcollection", "maxevents" ]
@@ -906,10 +988,15 @@ class ZMuMuValidation(GenericValidation):
                                "11_TkAlZMuMu_IDEAL.root"),
             "jobmode":self.jobmode,
             "runRange":"",
+            "firstRun":"",
+            "lastRun":"",
+            "begin":"",
+            "end":"",
             "JSON":""
             }
-        mandatories = [ "dataset", "maxevents", "etamax1", "etamin1", "etamax2",
-                        "etamin2" ]
+        mandatories = [ "dataset", "maxevents",
+#                         "etamax1", "etamin1", "etamax2", "etamin2" ]
+                        "etamaxneg", "etaminneg", "etamaxpos", "etaminpos" ]
         if not config.has_section( "zmumu:"+self.name ):
             zmumu = config.getResultingSection( "general",
                                                   defaultDict = defaults,
@@ -920,6 +1007,10 @@ class ZMuMuValidation(GenericValidation):
                                                   demandPars = mandatories )
         self.general.update( zmumu )
         self.jobmode = self.general["jobmode"]
+        if self.general["dataset"] not in usedDatasets:
+            usedDatasets[self.general["dataset"]] = datasetModule.Dataset(
+                self.general["dataset"] )
+        self.dataset = usedDatasets[self.general["dataset"]]
     
     def createConfiguration(self, path, configBaseName = "TkAlZMuMuValidation" ):
         cfgName = "%s.%s.%s_cfg.py"%( configBaseName, self.name,
@@ -952,6 +1043,13 @@ class ZMuMuValidation(GenericValidation):
         repMap["numberOfJobs"] = self.general["parallelJobs"]
         repMap["cfgFile"] = self.configFiles[0]
         repMap["queue"] = self.jobmode.split( ',' )[1].split( '-q' )[1]
+        if self.dataset.dataType() == "mc":
+            repMap["McOrData"] = "events = .oO[nEvents]Oo."
+        elif self.dataset.dataType() == "data":
+            repMap["McOrData"] = "lumis = -1"
+            if self.jobmode.split( ',' )[0] == "crab":
+                print ("For jobmode 'crab' the parameter 'maxevents' will be "
+                       "ignored and all events will be processed.")
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
         return GenericValidation.createCrabCfg( self, crabCfg, path )
@@ -959,12 +1057,67 @@ class ZMuMuValidation(GenericValidation):
     def getRepMap(self, alignment = None):
         repMap = GenericValidation.getRepMap(self, alignment) 
         repMap.update({
-            "nEvents": self.general["maxevents"]
+            "nEvents": self.general["maxevents"],
+#             "outputFile": "zmumuHisto.root"
+            "outputFile": ("0_zmumuHisto.root"
+                           ",genSimRecoPlots.root"
+                           ",FitParameters.txt")
                 })
+        if not self.jobmode.split( ',' )[0] == "crab":
+            try:
+                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
+                    jsonPath = self.general["JSON"],
+                    nEvents = self.general["maxevents"],
+                    firstRun = self.general["firstRun"],
+                    lastRun = self.general["lastRun"],
+                    begin = self.general["begin"],
+                    end = self.general["end"] )
+            except AllInOneError, e:
+                msg = "In section [zmumu:%s]: "%( self.name )
+                msg += str( e )
+                raise AllInOneError( msg )
+        else:
+            if self.dataset.predefined():
+                msg = ("For jobmode 'crab' you cannot use predefined datasets "
+                       "(in your case: '%s')."%( self.dataset.name() ))
+                raise AllInOneError( msg )
+            if self.general["begin"] or self.general["end"]:
+                ( self.general["firstRun"],
+                  self.general["lastRun"] ) = self.dataset.convertTimeToRun(
+                    firstRun = self.general["firstRun"],
+                    lastRun = self.general["lastRun"],
+                    begin = self.general["begin"],
+                    end = self.general["end"] )
+                self.general["firstRun"] = str( self.general["firstRun"] )
+                self.general["lastRun"] = str( self.general["lastRun"] )
+            if ( not self.general["firstRun"] ) and \
+                   ( self.general["end"] or self.general["lastRun"] ):
+                self.general["firstRun"] = str( self.dataset.runList()[0]["run_number"] )
+            if ( not self.general["lastRun"] ) and \
+                   ( self.general["begin"] or self.general["firstRun"] ):
+                self.general["lastRun"] = str( self.dataset.runList()[-1]["run_number"] )
+            if self.general["firstRun"] and self.general["lastRun"]:
+                if int( self.general["firstRun"] ) > int( self.general["lastRun"] ):
+                    msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
+                            "chosen is greater than the upper time/runrange limit "
+                            "('end'/'lastRun').")
+                    raise AllInOneError( msg )
+                self.general["runRange"] = (self.general["firstRun"]
+                                            + '-' + self.general["lastRun"])
+            try:
+                repMap["datasetDefinition"] = self.dataset.datasetSnippet(
+                    jsonPath = self.general["JSON"],
+                    nEvents = self.general["maxevents"],
+                    firstRun = self.general["firstRun"],
+                    lastRun = self.general["lastRun"],
+                    begin = self.general["begin"],
+                    end = self.general["end"],
+                    crab = True )
+            except AllInOneError, e:
+                msg = "In section [zmumu:%s]: "%( self.name )
+                msg += str( e )
+                raise AllInOneError( msg )
         return repMap
-
-# Needed for more than one geometry comparison for one alignment
-alignRandDict = {}
 
 class ValidationJob:
     def __init__( self, validation, config, options ):
@@ -1317,7 +1470,6 @@ def main(argv = None):
     if options.crabStatus:
         os.chdir( outPath )
         crabLogDirs = fnmatch.filter( os.walk('.').next()[1], "crab.*" )
-        print len( crabLogDirs )
         if len( crabLogDirs ) == 0:
             print "Found no crab tasks for job name '%s'"%( options.Name )
             return 1

@@ -5,6 +5,7 @@ import das_client
 import json
 import os
 import bisect
+import re
 from FWCore.PythonUtilities.LumiList import LumiList
 from TkAlExceptions import AllInOneError
 
@@ -12,8 +13,38 @@ from TkAlExceptions import AllInOneError
 class Dataset:
     def __init__( self, datasetName, dasLimit = 0 ):
         self.__name = datasetName
+        # check, if dataset name matches CMS dataset naming scheme
+        if re.match( r'/.+/.+/.+', self.__name ):
+            self.__dataType = self.__getDataType()
+            self.__predefined = False
+        else:
+            fileName = self.__name + "_cff.py"
+            searchPath1 = os.path.join( os.environ["CMSSW_BASE"], "python",
+                                        "Alignment", "OfflineValidation",
+                                        fileName )
+            searchPath1 = os.path.join( os.environ["CMSSW_BASE"], "src",
+                                        "Alignment", "OfflineValidation",
+                                        "python", fileName )
+            searchPath3 = os.path.join( os.environ["CMSSW_RELEASE_BASE"],
+                                        "python", "Alignment",
+                                        "OfflineValidation", fileName )
+            if os.path.exists( searchPath1 ):
+                pass
+            elif os.path.exists( searchPath2 ):
+                msg = ("The predefined dataset '%s' does exist in '%s', but "
+                       "you need to run 'scram b' first."
+                       %( self.__name, searchPath2 ))
+                raise AllInOneError( msg )
+            elif os.path.exists( searchPath3 ):
+                pass
+            else:
+                msg = ("The predefined dataset '%s' does not exist. Please "
+                       "create it first or check for typos in the value of "
+                       "the parameter 'dataset'"%( self.__name ))
+                raise AllInOneError( msg )
+            self.__dataType = "unknown"
+            self.__predefined = True
         self.__dasLimit = dasLimit
-        self.__dataType = self.__getDataType()
         self.__fileList = None
         self.__fileInfoList = None
         self.__runList = None
@@ -25,7 +56,8 @@ class Dataset:
             yield theList[i:i+n]
 
     def __createSnippet( self, jsonPath = None, begin = None, end = None,
-                         firstRun = None, lastRun = None, repMap = None ):
+                         firstRun = None, lastRun = None, repMap = None,
+                         crab = False ):
         if firstRun:
             firstRun = int( firstRun )
         if lastRun:
@@ -55,7 +87,7 @@ class Dataset:
             goodLumiSecStr = ( "lumiSecs = cms.untracked."
                                "VLuminosityBlockRange()\n" )
             lumiStr = "                    lumisToProcess = lumiSecs,\n"
-            if jsonPath == None:
+            if not jsonPath:
                 selectedRunList = self.__getRunList()
                 if firstRun:
                     selectedRunList = [ run for run in selectedRunList \
@@ -85,27 +117,44 @@ class Dataset:
                 lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
                                for lumis in lumiSecStr ]
                 lumiSecExtend = "\n".join( lumiSecStr )
+        elif jsonPath:
+                goodLumiSecStr = ( "goodLumiSecs = LumiList.LumiList(filename"
+                                   "= '%(json)s').getCMSSWString().split(',')\n"
+                                   "lumiSecs = cms.untracked"
+                                   ".VLuminosityBlockRange()\n"
+                                   )
+                lumiStr = "                    lumisToProcess = lumiSecs,\n"
+                lumiSecExtend = "lumiSecs.extend(goodLumiSecs)\n"
+        if crab:
+            files = ""
         else:
-            goodLumiSecStr = ( "goodLumiSecs = LumiList.LumiList(filename"
-                               "= '%(json)s').getCMSSWString().split(',')\n"
-                               "lumiSecs = cms.untracked"
-                               ".VLuminosityBlockRange()\n"
-                               )
-            lumiStr = "                    lumisToProcess = lumiSecs,\n"
-            lumiSecExtend = "lumiSecs.extend(goodLumiSecs)\n"
-        splitFileList = list( self.__chunks( self.fileList(), 255 ) )
-        fileStr = [ "',\n'".join( files ) for files in splitFileList ]
-        fileStr = [ "readFiles.extend( [\n'" + files + "'\n] )" \
-                    for files in fileStr ]
-        files = "\n".join( fileStr )
+            splitFileList = list( self.__chunks( self.fileList(), 255 ) )
+            fileStr = [ "',\n'".join( files ) for files in splitFileList ]
+            fileStr = [ "readFiles.extend( [\n'" + files + "'\n] )" \
+                        for files in fileStr ]
+            files = "\n".join( fileStr )
         theMap = repMap
         theMap["files"] = files
         theMap["json"] = jsonPath
         theMap["lumiStr"] = lumiStr
         theMap["goodLumiSecStr"] = goodLumiSecStr%( theMap )
         theMap["lumiSecExtend"] = lumiSecExtend
-        dataset_snippet = self.__source_template%( theMap )
+        if crab:
+            dataset_snippet = self.__dummy_source_template%( theMap )
+        else:
+            dataset_snippet = self.__source_template%( theMap )
         return dataset_snippet
+
+    __dummy_source_template = ("%(process)smaxEvents = cms.untracked.PSet( "
+                               "input = cms.untracked.int32(%(nEvents)s) )\n"
+                               "readFiles = cms.untracked.vstring()\n"
+                               "secFiles = cms.untracked.vstring()\n"
+                               "%(process)ssource = cms.Source(\"PoolSource\",\n"
+                               "%(tab)s                    secondaryFileNames ="
+                               "secFiles,\n"
+                               "%(tab)s                    fileNames = readFiles\n"
+                               ")\n"
+                               "readFiles.extend(['dummy_File.root'])\n")
         
     def __find_lt( self, a, x ):
         'Find rightmost value less than x'
@@ -145,6 +194,12 @@ class Dataset:
                            'file.modification_time'%( self.__name ) )
         data = self.__getData( dasQuery_files, dasLimit )
         data = [ entry["file"] for entry in data ]
+        if len( data ) == 0:
+            msg = ("No files are available for the dataset '%s'. This can be "
+                   "due to a typo or due to a DAS problem. Please check the "
+                   "spelling of the dataset and/or retry to run "
+                   "'validateAlignments.py'."%( self.name() ))
+            raise AllInOneError( msg )
         fileInformationList = []
         for file in data:
             fileName = file[0]["name"]
@@ -180,7 +235,7 @@ class Dataset:
     __source_template= ("%(importCms)s"
                         "import FWCore.PythonUtilities.LumiList as LumiList\n\n"
                         "%(goodLumiSecStr)s"
-                        "maxEvents = cms.untracked.PSet( "
+                        "%(process)smaxEvents = cms.untracked.PSet( "
                         "input = cms.untracked.int32(%(nEvents)s) )\n"
                         "readFiles = cms.untracked.vstring()\n"
                         "secFiles = cms.untracked.vstring()\n"
@@ -219,7 +274,14 @@ class Dataset:
         return self.__dataType
     
     def datasetSnippet( self, jsonPath = None, begin = None, end = None,
-                        firstRun = None, lastRun = None, nEvents = None ):
+                        firstRun = None, lastRun = None, nEvents = None,
+                        crab = False ):
+        if self.__predefined:
+            return ("process.load(\"Alignment.OfflineValidation.%s_cff\")\n"
+                    "process.maxEvents = cms.untracked.PSet(\n"
+                    "    input = cms.untracked.int32(%s)\n"
+                    ")"
+                    %( self.__name, nEvents ))
         theMap = { "process": "process.",
                    "tab": " " * len( "process." ),
                    "nEvents": str( nEvents ),
@@ -230,7 +292,8 @@ class Dataset:
                                                end = end,
                                                firstRun = firstRun,
                                                lastRun = lastRun,
-                                               repMap = theMap)
+                                               repMap = theMap,
+                                               crab = crab )
         return datasetSnippet
 
     def dump_cff( self, outName = None, jsonPath = None, begin = None,
@@ -292,6 +355,14 @@ class Dataset:
 
     def name( self ):
         return self.__name
+
+    def predefined( self ):
+        return self.__predefined
+
+    def runList( self ):
+        if self.__runList:
+            return self.__runList
+        return self.__getRunList()
 
 
 if __name__ == '__main__':
