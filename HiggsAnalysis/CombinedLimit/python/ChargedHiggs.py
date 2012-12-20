@@ -15,15 +15,15 @@ class BRChargedHiggs(PhysicsModel):
         #self.modelBuilder.factory_('expr::Scaling_tt("(1-@0)*(1-@0)", BR)')
         self.modelBuilder.factory_('expr::Scaling_tt("1 - (@0+@1)", Scaling_HH, Scaling_WH)')
 
-        self.processScaling = [ 'HH', 'WH', 'tt' ]
+        self.processScaling = { 'HH':'HH', 'WH':'WH', 'HW':'WH', 'tt':'tt' }
 
         self.modelBuilder.out.Print()
         
     def getYieldScale(self,bin,process):
 
-        for s in self.processScaling:
-            if process.startswith(s):
-                return 'Scaling_'+s
+        for prefix, model in self.processScaling.iteritems():
+            if process.startswith(prefix):
+                return 'Scaling_'+model
             
         return 1
 
