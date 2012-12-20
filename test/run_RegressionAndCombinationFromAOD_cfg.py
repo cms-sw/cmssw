@@ -21,7 +21,7 @@ process.load("EgammaAnalysis.ElectronTools.calibratedElectrons_cfi")
 process.calibratedElectrons.isMC = cms.bool(True)
 process.calibratedElectrons.inputDataset = cms.string("Summer12_DR53X_HCP2012")
 process.calibratedElectrons.updateEnergyError = cms.bool(True)
-process.calibratedElectrons.applyCorrections = cms.int32(10)
+process.calibratedElectrons.applyCorrections = cms.int32(1)
 process.calibratedElectrons.verbose = cms.bool(True)
 process.calibratedElectrons.synchronization = cms.bool(True)
 
@@ -34,7 +34,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_5_3_4_cand1/RelValZEE/GEN-SIM-RECO/PU_START53_V10-v1/0003/0CBBC6C2-42F7-E111-B1C8-0030486780B4.root'
+    #'/store/relval/CMSSW_5_3_4_cand1/RelValZEE/GEN-SIM-RECO/PU_START53_V10-v1/0003/0CBBC6C2-42F7-E111-B1C8-0030486780B4.root'
+    '/store/relval/CMSSW_5_3_6/RelValZEE/GEN-SIM-RECO/PU_START53_V14-v1/0003/2C92DB85-E82C-E211-B8DE-003048D37560.root' 
         ))
 
 

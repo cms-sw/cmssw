@@ -55,7 +55,6 @@ void ElectronEnergyCalibrator::correct
                   if (verbose_) std::cout << "[ElectronEnergCorrector] R9 " << r9 << std::endl;
                   if (verbose_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum " << electron.p4(reco::GsfElectron::P4_COMBINATION).t() << std::endl;
                   if (verbose_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum error " << electron.p4Error(reco::GsfElectron::P4_COMBINATION) << std::endl;
-                  if (verbose_) std::cout << "[ElectronEnergCorrector] PFlow energy " << electron.pflowSuperCluster()->rawEnergy()  << std::endl;
 		//====================================================================================================
 		//TAKE THE SCALE CORRECTIONS FROM SHERVIN
 		//====================================================================================================
@@ -75,7 +74,6 @@ void ElectronEnergyCalibrator::correct
                   if (verbose_) std::cout << "[ElectronEnergCorrector] R9 " << r9 << std::endl;
                   if (verbose_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum " << electron.p4(reco::GsfElectron::P4_COMBINATION).t() << std::endl;
                   if (verbose_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum error " << electron.p4Error(reco::GsfElectron::P4_COMBINATION) << std::endl;
-                  if (verbose_) std::cout << "[ElectronEnergCorrector] PFlow energy " << electron.pflowSuperCluster()->rawEnergy()  << std::endl;
 		//====================================================================================================
 		//TAKE THE SCALE CORRECTIONS FROM SHERVIN
 		//====================================================================================================
@@ -102,7 +100,6 @@ void ElectronEnergyCalibrator::correct
                   if (verbose_) std::cout << "[ElectronEnergCorrector] BEFORE R9, class " << r9 << " " << 
                           electron.classification() << std::endl;
                   if (verbose_) std::cout << "[ElectronEnergCorrector] BEFORE comb momentum error " << electron.p4Error(reco::GsfElectron::P4_COMBINATION) << std::endl;
-                  if (verbose_) std::cout << "[ElectronEnergCorrector] PFlow energy " << electron.pflowSuperCluster()->rawEnergy()  << std::endl;
 		//====================================================================================================
 		  
 		  // newEnery will be overwritten in computeNewEnergy
