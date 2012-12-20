@@ -250,14 +250,9 @@ scheduler = caf
 use_server = 0
 
 [CMSSW]
-datasetpath = .oO[datasetCrab]Oo.
+datasetpath = .oO[dataset]Oo.
 pset = .oO[cfgFile]Oo.
-## for MC
-# total_number_of_events = .oO[nEvents]Oo.
-# events_per_job = 5000
-## for real Data
-##Data
-total_number_of_lumis = -1
+total_number_of_.oO[McOrData]Oo.
 number_of_jobs = .oO[numberOfJobs]Oo.
 output_file = .oO[outputFile]Oo.
 runselection = .oO[runRange]Oo.

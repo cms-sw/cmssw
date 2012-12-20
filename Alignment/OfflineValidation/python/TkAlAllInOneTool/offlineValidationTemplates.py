@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("OfflineValidator") 
    
-process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
+# process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
+.oO[datasetDefinition]Oo.
 
 process.options = cms.untracked.PSet(
    wantSummary = cms.untracked.bool(False),
@@ -13,12 +14,12 @@ process.options = cms.untracked.PSet(
    fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
 )
 
- ##
- ## Maximum number of Events
- ## 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(.oO[nEvents]Oo.)
- )
+#  ##
+#  ## Maximum number of Events
+#  ## 
+# process.maxEvents = cms.untracked.PSet(
+#     input = cms.untracked.int32(.oO[nEvents]Oo.)
+#  )
 
  ##   
  ## Messages & Convenience
