@@ -1,7 +1,7 @@
 #ifndef MUSCLEFITBASE_C
 #define MUSCLEFITBASE_C
 
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitBase.h"
+#include "MuScleFitBase.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
@@ -102,7 +102,7 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
   mapHisto_["hDeltaMassOverGenMassVsEta"] = new HTH2D( outputFile, "DeltaMassOverGenMassVsEta", "DeltaMassOverGenMassVsEta", "DeltaMassOverGenMass", 200, -3., 3., 200, -0.2, 0.2 );
 
   // Square of mass resolution vs (pt, eta) of the muons from MC
-  mapHisto_["hMassResolutionVsPtEta"] = new HCovarianceVSxy( "Mass", "Mass", 100, 0., maxPt, 60, -3, 3, outputFile->mkdir("MassCovariance") );
+  // EM 2012.12.19  mapHisto_["hMassResolutionVsPtEta"] = new HCovarianceVSxy( "Mass", "Mass", 100, 0., maxPt, 60, -3, 3, outputFile->mkdir("MassCovariance") );
   // Mass resolution vs (pt, eta) from resolution function
   mapHisto_["hFunctionResolMass"] = new HFunctionResolution( outputFile, "hFunctionResolMass", maxPt );
 }

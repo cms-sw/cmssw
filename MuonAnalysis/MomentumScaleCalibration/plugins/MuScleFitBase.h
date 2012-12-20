@@ -8,8 +8,8 @@
 #include <map>
 #include <string>
 #include "TFile.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
+#include "Histograms.h"
+#include "MuScleFitUtils.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MuonPair.h"

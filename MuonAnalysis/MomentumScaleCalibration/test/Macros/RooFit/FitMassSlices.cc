@@ -87,6 +87,13 @@ class FitMassSlices : public FitSlices
     	     signalType, backgroundType,
     	     inputFile, dir);
 
+
+//     fitSlice(histoBaseName+"_MassVSPhiPlusMinusDiff", histoBaseTitle+"PhiPlusMinusDiff",
+// 	     xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
+//              signalType, backgroundType,
+//              inputFile, dir);
+
+
 //     fitSlice(histoBaseName+"_MassVSPhiPlusPhiMinus", histoBaseTitle+"PhiPlusPhiMinus",
 //              xMean, xMin, xMax, sigma, sigmaMin, sigmaMax,
 //              signalType, backgroundType,

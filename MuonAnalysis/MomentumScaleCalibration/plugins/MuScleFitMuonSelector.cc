@@ -1,4 +1,4 @@
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitMuonSelector.h"
+#include "MuScleFitMuonSelector.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 

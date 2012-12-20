@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2012/11/09 11:10:56 $
- *  $Revision: 1.56 $
+ *  $Date: 2012/12/19 10:59:25 $
+ *  $Revision: 1.57 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -25,7 +25,7 @@
 //   - changed parametrization of resolution in cotgth: from sigma_cotgth = f(eta) to f(cotgth)
 // --------------------------------------------------------------------------------------------
 
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
+#include "MuScleFitUtils.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"

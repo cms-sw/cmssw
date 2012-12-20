@@ -4,8 +4,8 @@
 /** \class MuScleFitPlotter
  *  Plotter of the muon info (sim,gen,rec)
  *
- *  $Date: 2010/10/22 17:47:21 $
- *  $Revision: 1.14 $
+ *  $Date: 2012/05/07 10:03:36 $
+ *  $Revision: 1.15 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -13,7 +13,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
+#include "Histograms.h"
 
 namespace edm {
   class ParameterSet;

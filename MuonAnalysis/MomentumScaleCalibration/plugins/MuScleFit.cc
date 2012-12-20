@@ -1,16 +1,16 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2012/11/05 14:36:23 $
- *  $Revision: 1.110 $
+ *  $Date: 2012/12/19 11:29:15 $
+ *  $Revision: 1.111 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 //  \class MuScleFit
 //  Fitter of momentum scale and resolution from resonance decays to muon track pairs
 //
-//  $Date: 2012/11/05 14:36:23 $
-//  $Revision: 1.110 $
+//  $Date: 2012/12/19 11:29:15 $
+//  $Revision: 1.111 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions:
@@ -123,12 +123,12 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitBase.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/Histograms.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitPlotter.h"
+#include "MuScleFitBase.h"
+#include "Histograms.h"
+#include "MuScleFitPlotter.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitMuonSelector.h"
+#include "MuScleFitMuonSelector.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"

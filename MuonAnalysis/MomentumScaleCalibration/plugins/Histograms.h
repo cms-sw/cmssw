@@ -4,15 +4,15 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2012/05/07 10:03:38 $
- *  $Revision: 1.35 $
+ *  $Date: 2012/09/07 07:46:16 $
+ *  $Revision: 1.36 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitUtils.h"
+#include "MuScleFitUtils.h"
 
 #include "TH1D.h"
 #include "TH1F.h"
@@ -816,6 +816,7 @@ class HMassVSPart : public Histograms
     hMassVSEtaPhiPlus_      = new TH3F( name+"_MassVSEtaPhiPlus",  "resonance mass vs muon+ phi/pseudorapidity", 16, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
     hMassVSEtaPhiMinus_     = new TH3F( name+"_MassVSEtaPhiMinus", "resonance mass vs muon- phi/pseudorapidity", 16, -3.2, 3.2, 20, -2.4, 2.4, 300, minMass, maxMass );
 
+
     hMassVSCosThetaCS_      = new TH2F( name+"_MassVSCosThetaCS", "resonance mass vs cos(theta) (CS frame)", 40, -1., 1., 6000, minMass, maxMass );
     hMassVSPhiCS_           = new TH2F( name+"_MassVSPhiCS", "resonance mass vs phi (CS frame)", 64, -3.2, 3.2, 6000, minMass, maxMass );
 
@@ -824,6 +825,7 @@ class HMassVSPart : public Histograms
     hMassVSEtaPlusEtaMinus_ = new TH3F( name+"_MassVSEtaPlusEtaMinus", "resonance mass vs muon+ eta/muon- eta",16, -3.2, 3.2,16, -3.2, 3.2, 6000, minMass, maxMass );
 
    
+    hMassVSPhiPlusMinusDiff_ = new TH2F( name+"_MassVSPhiPlusMinusDiff", "resonance mass vs delta phi between mu+/mu-", 64, -6.4, 6.4, 6000, minMass, maxMass );
     hMassVSEtaPlusMinusDiff_ = new TH2F( name+"_MassVSEtaPlusMinusDiff", "resonance mass vs delta pseudorapidity between mu+/mu-", 32, -4.4, 4.4, 6000, minMass, maxMass );
     hMassVSCosThetaCS_prof   = new TProfile (name+"_MassVScosTheta_prof", "resonance mass vs cosTheta", 40, -1., 1., 85., 95.);   
 
@@ -843,6 +845,7 @@ class HMassVSPart : public Histograms
     hMassVSEtaPlus_      = (TH2F *) file->Get(name+"_MassVSEtaPlus");
     hMassVSEtaMinus_      = (TH2F *) file->Get(name+"_MassVSEtaMinus");
 
+    hMassVSPhiPlusMinusDiff_ = (TH2F *) file->Get(name+"_MassVSPhiPlusMinusDiff");
     hMassVSEtaPlusMinusDiff_ = (TH2F *) file->Get(name+"_MassVSEtaPlusMinusDiff");
     
     hMassVSPhiPlus_  = (TH2F *) file->Get(name+"_MassVSPhiPlus");
@@ -868,6 +871,7 @@ class HMassVSPart : public Histograms
     delete hMassVSEtaPlusEtaMinus_;
     delete hMassVSCosThetaCS_;
     delete hMassVSPhiCS_;
+    delete hMassVSPhiPlusMinusDiff_;
     delete hMassVSEtaPlusMinusDiff_;
     delete hMassVSCosThetaCS_prof;  
   }
@@ -951,7 +955,8 @@ class HMassVSPart : public Histograms
     hMassVSPhiPlusPhiMinus_->Fill(momentum1.phi(), momentum2.phi(), momentumRes.m(), weight);
     hMassVSEtaPlusEtaMinus_->Fill(momentum1.eta(), momentum2.eta(), momentumRes.m(), weight);
 
-     hMassVSEtaPlusMinusDiff_->Fill( (momentum1.eta()-momentum2.eta()), momentumRes.m(), weight);
+    hMassVSPhiPlusMinusDiff_->Fill( (momentum1.phi()-momentum2.phi()), momentumRes.m(), weight);
+    hMassVSEtaPlusMinusDiff_->Fill( (momentum1.eta()-momentum2.eta()), momentumRes.m(), weight);
   }
   
   virtual void Fill(const CLHEP::HepLorentzVector & momentum1, const CLHEP::HepLorentzVector & momentum2, const int charge, const double & weight = 1.)
@@ -995,6 +1000,7 @@ class HMassVSPart : public Histograms
     hMassVSCosThetaCS_->Write();
     hMassVSPhiCS_->Write();
 
+    hMassVSPhiPlusMinusDiff_->Write();
     hMassVSEtaPlusMinusDiff_->Write();
     hMassVSCosThetaCS_prof->Write();
 
@@ -1019,6 +1025,7 @@ class HMassVSPart : public Histograms
     hMassVSEtaPlusEtaMinus_->Clear();
     hMassVSCosThetaCS_->Clear();
     hMassVSPhiCS_->Clear();
+    hMassVSPhiPlusMinusDiff_->Clear();
     hMassVSEtaPlusMinusDiff_->Clear();
     hMassVSCosThetaCS_prof->Clear();
 
@@ -1040,6 +1047,8 @@ class HMassVSPart : public Histograms
   TH3F* hMassVSEtaPhiMinus_;
   TH2F* hMassVSEtaPlus_;
   TH2F* hMassVSEtaMinus_; 
+
+  TH2F* hMassVSPhiPlusMinusDiff_;
   TH2F* hMassVSEtaPlusMinusDiff_;
 
   TH3F* hMassVSPhiPlusPhiMinus_;

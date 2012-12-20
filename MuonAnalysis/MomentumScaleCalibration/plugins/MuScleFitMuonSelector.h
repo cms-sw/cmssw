@@ -15,7 +15,7 @@
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenEvent.h"
 
-#include "MuonAnalysis/MomentumScaleCalibration/interface/MuScleFitPlotter.h"
+#include "MuScleFitPlotter.h"
 
 #include <vector>
 
