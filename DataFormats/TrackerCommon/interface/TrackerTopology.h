@@ -313,9 +313,17 @@ class TrackerTopology {
   bool tecIsFrontPetal(const DetId &id) const {return !tecIsBackPetal(id);}
 
   //misc tib
-  unsigned int tibStringNumber(const DetId &id) const {
+  unsigned int tibString(const DetId &id) const {
     return (id.rawId()>>tibVals_.strStartBit_)&tibVals_.strMask_;
   }
+
+  std::vector<unsigned int> tibStringInfo(const DetId &id) const
+    { std::vector<unsigned int> num;
+      num.push_back( tibSide(id) );
+      num.push_back( tibOrder(id) );
+      num.push_back(tibString(id));
+      return num ;
+    }
 
   bool tibIsInternalString(const DetId &id) const {
     return (tibOrder(id)==1);
