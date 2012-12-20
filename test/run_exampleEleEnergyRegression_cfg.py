@@ -19,11 +19,12 @@ process.source = cms.Source("PoolSource",
 
 
 process.load('EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi')
+process.eleRegressionEnergy.debug = cms.untracked.bool(True)
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring('drop *',
                                                                       'keep *_*_*_ExREG'),
-                               fileName = cms.untracked.string('electrons.root')
+                               fileName = cms.untracked.string('electrons_event400912970_regression.root')
                                                               )
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 

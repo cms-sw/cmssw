@@ -66,7 +66,8 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
   isAOD = cfg.getParameter<bool>("isAOD");
   updateEnergyError = cfg.getParameter<bool>("updateEnergyError");
   applyCorrections = cfg.getParameter<int>("applyCorrections");
-  debug = cfg.getParameter<bool>("debug");
+  verbose = cfg.getParameter<bool>("verbose");
+  synchronization = cfg.getParameter<bool>("synchronization");
   
   //basic checks
   if (isMC&&(dataset!="Summer11"&&dataset!="Fall11"&&dataset!="Summer12"&&dataset!="Summer12_DR53X_HCP2012"))
@@ -131,7 +132,7 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
     electrons->push_back((*oldElectronsH)[iele]);
   }
 
-  ElectronEnergyCalibrator theEnCorrector(dataset, isAOD, isMC, updateEnergyError, applyCorrections, debug);
+  ElectronEnergyCalibrator theEnCorrector(dataset, isAOD, isMC, updateEnergyError, applyCorrections, verbose, synchronization);
 
   std::vector<double> regressionValues;
   std::vector<double> regressionErrorValues;

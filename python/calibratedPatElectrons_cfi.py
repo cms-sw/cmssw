@@ -19,8 +19,11 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
     # set to True to read AOD format
     isAOD = cms.bool(False),
     
-    # set to True to get debugging printout   
-    debug = cms.bool(False),
+    # set to True to get more printout   
+    verbose = cms.bool(False),
+
+    # set to True to get special "fake" smearing for synchronization. Use JUST in case of synchronization
+    synchronization = cms.bool(False),
  
     updateEnergyError = cms.bool(True),
 

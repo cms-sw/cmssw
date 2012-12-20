@@ -16,8 +16,8 @@ class ElectronEnergyCalibrator
 {
  public:
 
-  ElectronEnergyCalibrator(std::string dataset, bool isAOD, bool isMC, bool updateEnergyError, int applyCorrections, bool debug) : dataset_(dataset),
-   isAOD_(isAOD), isMC_(isMC), updateEnergyError_(updateEnergyError), applyCorrections_(applyCorrections), debug_(debug) {}
+  ElectronEnergyCalibrator(std::string dataset, bool isAOD, bool isMC, bool updateEnergyError, int applyCorrections, bool verbose, bool synchronization) : dataset_(dataset),
+   isAOD_(isAOD), isMC_(isMC), updateEnergyError_(updateEnergyError), applyCorrections_(applyCorrections), verbose_(verbose), synchronization_(synchronization) {}
 
     //  void correct(pat::Electron &, const edm::Event&, const edm::EventSetup&);
   void correct(reco::GsfElectron &, double r9,  const edm::Event&, const edm::EventSetup&, double newRegEnergy = -9999. , double newRegEnergyError = -9999. );
@@ -43,7 +43,8 @@ class ElectronEnergyCalibrator
   bool isMC_;
   bool updateEnergyError_;
   int applyCorrections_;
-  bool debug_;
+  bool verbose_;
+  bool synchronization_;
    
 };
 

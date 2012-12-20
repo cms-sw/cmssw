@@ -42,7 +42,8 @@ class CalibratedElectronProducer: public edm::EDProducer
     bool isMC ;
     bool updateEnergyError ;
     int applyCorrections ;
-    bool debug ;
+    bool verbose ;
+    bool synchronization ;
 
     const CaloTopology * ecalTopology_;
     const CaloGeometry * caloGeometry_;

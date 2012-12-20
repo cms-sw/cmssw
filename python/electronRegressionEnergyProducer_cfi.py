@@ -11,6 +11,7 @@ eleRegressionEnergy = cms.EDProducer("RegressionEnergyPatElectronProducer",
                                    produceValueMaps = cms.bool(False),
                                    regressionInputFile = cms.string("EGamma/EGammaAnalysisTools/data/eleEnergyRegWeights_V1.root"),
                                    energyRegressionType = cms.uint32(1),
+
                                    rhoCollection = cms.InputTag('kt6PFJets:rho:RECO'),
                                    vertexCollection = cms.InputTag('offlinePrimaryVertices'),
                                      # Not used if inputCollectionType is set to 1                                         

@@ -28,7 +28,8 @@ class CalibratedPatElectronProducer: public edm::EDProducer
     bool isMC ;
     bool updateEnergyError ;
     int applyCorrections ;
-    bool debug ;
+    bool verbose ;
+    bool synchronization ;
     
  } ;
 

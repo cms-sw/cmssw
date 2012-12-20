@@ -18,11 +18,12 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
 
 # dataset to correct
-process.calibratedPatElectrons.isMC = cms.bool(True)
-process.calibratedPatElectrons.inputDataset = cms.string("Summer12_DR53X_HCP2012")
+process.calibratedPatElectrons.isMC = cms.bool(False)
+process.calibratedPatElectrons.inputDataset = cms.string("2012Jul13ReReco")
 process.calibratedPatElectrons.updateEnergyError = cms.bool(True)
 process.calibratedPatElectrons.applyCorrections = cms.int32(10)
-process.calibratedPatElectrons.debug = cms.bool(True)
+process.calibratedPatElectrons.verbose = cms.bool(True)
+process.calibratedPatElectrons.synchronization = cms.bool(True)
 
 
 
@@ -32,8 +33,8 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:../../../PhysicsTools/PatAlgos/test/patTuple_standard.root')
-#fileNames = cms.untracked.vstring('file:patTuple_standard.root')
+    #fileNames = cms.untracked.vstring('file:../../../PhysicsTools/PatAlgos/test/patTuple_standard.root')
+     fileNames = cms.untracked.vstring('file:patTuple_standard.root')
     )
 
 
@@ -42,7 +43,7 @@ process.load('EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi'
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring('drop *',
                                                                       'keep *_*_*_ExREG'),
-                               fileName = cms.untracked.string('electrons.root')
+                               fileName = cms.untracked.string('electrons_tmp.root')
                                                               )
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 

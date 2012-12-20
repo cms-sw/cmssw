@@ -22,7 +22,8 @@ process.calibratedElectrons.isMC = cms.bool(True)
 process.calibratedElectrons.inputDataset = cms.string("Summer12_DR53X_HCP2012")
 process.calibratedElectrons.updateEnergyError = cms.bool(True)
 process.calibratedElectrons.applyCorrections = cms.int32(10)
-process.calibratedElectrons.debug = cms.bool(True)
+process.calibratedElectrons.verbose = cms.bool(True)
+process.calibratedElectrons.synchronization = cms.bool(True)
 
 
 
