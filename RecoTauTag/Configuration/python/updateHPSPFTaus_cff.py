@@ -38,6 +38,12 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByIsola
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseIsolationMVA
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumIsolationMVA
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightIsolationMVA
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByIsolationMVA2raw
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseIsolationMVA2
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumIsolationMVA2
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightIsolationMVA2
+
+
 ## import for (un-)scheduled mode
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr
@@ -72,7 +78,11 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTight
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr3Hits
 
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseMuonRejection2
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumMuonRejection2
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightMuonRejection2
 
 updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByDecayModeFinding*
@@ -97,7 +107,8 @@ updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits*
-
+    hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr3Hits*
+    
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
@@ -110,6 +121,10 @@ updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseMuonRejection*
     hpsPFTauDiscriminationByMediumMuonRejection*
     hpsPFTauDiscriminationByTightMuonRejection*
+    hpsPFTauDiscriminationByLooseMuonRejection2*
+    hpsPFTauDiscriminationByMediumMuonRejection2*
+    hpsPFTauDiscriminationByTightMuonRejection2*
+    
 
     hpsPFTauDiscriminationByMVA3rawElectronRejection*
     hpsPFTauDiscriminationByMVA3LooseElectronRejection*
