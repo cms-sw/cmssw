@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/PIon/V79 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V80 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V79')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V80')
 )
 
 streams = cms.PSet( 
@@ -47,7 +47,9 @@ datasets = cms.PSet(
     'HLT_L1SingleMuOpen_AntiBPTX_v7',
     'HLT_L1TrackerCosmics_v7' ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v3' ),
-  ExpressPhysics = cms.vstring( 'HLT_PAZeroBiasPixel_SingleTrack_v1' ),
+  ExpressPhysics = cms.vstring( 'HLT_PARandom_v1',
+    'HLT_PAZeroBiasPixel_SingleTrack_v1',
+    'HLT_PAZeroBias_v1' ),
   HcalHPDNoise = cms.vstring( 'HLT_GlobalRunHPDNoise_v8' ),
   HcalNZS = cms.vstring( 'HLT_PAHcalNZS_v1',
     'HLT_PAHcalPhiSym_v1' ),

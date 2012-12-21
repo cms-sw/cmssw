@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V79 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V80 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V79')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V80')
 )
 
 process.streams = cms.PSet( 
@@ -48,7 +48,9 @@ process.datasets = cms.PSet(
     'HLT_L1SingleMuOpen_AntiBPTX_v7',
     'HLT_L1TrackerCosmics_v7' ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v3' ),
-  ExpressPhysics = cms.vstring( 'HLT_PAZeroBiasPixel_SingleTrack_v1' ),
+  ExpressPhysics = cms.vstring( 'HLT_PARandom_v1',
+    'HLT_PAZeroBiasPixel_SingleTrack_v1',
+    'HLT_PAZeroBias_v1' ),
   HcalHPDNoise = cms.vstring( 'HLT_GlobalRunHPDNoise_v8' ),
   HcalNZS = cms.vstring( 'HLT_PAHcalNZS_v1',
     'HLT_PAHcalPhiSym_v1' ),
@@ -14529,7 +14531,9 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_PAZeroBiasPixel_SingleTrack_v1 / 3' ),
+    triggerConditions = cms.vstring( 'HLT_PAZeroBias_v1',
+      'HLT_PAZeroBiasPixel_SingleTrack_v1 / 3',
+      'HLT_PARandom_v1' ),
     throw = cms.bool( True ),
     daqPartitions = cms.uint32( 1 )
 )
@@ -14865,7 +14869,9 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PAZeroBiasPixel_SingleTrack_v1' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PARandom_v1',
+  'HLT_PAZeroBiasPixel_SingleTrack_v1',
+  'HLT_PAZeroBias_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',

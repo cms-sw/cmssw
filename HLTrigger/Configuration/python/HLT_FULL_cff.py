@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HLT/V126 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/HLT/V128 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V126')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V128')
 )
 
 streams = cms.PSet( 
@@ -269,7 +269,9 @@ datasets = cms.PSet(
     'HLT_MET400_v7',
     'HLT_Mu17_Mu8_v22',
     'HLT_Mu200_eta2p1_v8',
+    'HLT_PARandom_v1',
     'HLT_PAZeroBiasPixel_SingleTrack_v1',
+    'HLT_PAZeroBias_v1',
     'HLT_Photon300_NoHE_v5',
     'HLT_ZeroBias_v7' ),
   FEDMonitor = cms.vstring( 'HLT_DTErrors_v3' ),
