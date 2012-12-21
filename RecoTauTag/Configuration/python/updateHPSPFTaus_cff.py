@@ -78,7 +78,7 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTight
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr3Hits
+from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits
 
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseMuonRejection2
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumMuonRejection2
@@ -107,7 +107,7 @@ updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits*
     hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits*
-    hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr3Hits*
+    hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits*
     
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
