@@ -196,8 +196,8 @@ namespace EPOS {
         // b. if no suitable production vertex exists - and the particle
         // has atleast one mother or position information to store - 
         // make one
-        HepMC::FourVector prod_pos( EPOS_Wrapper::x(i)/10., EPOS_Wrapper::y(i)/10., 
-                                   EPOS_Wrapper::z(i)/10., EPOS_Wrapper::t(i)/10. 
+        HepMC::FourVector prod_pos( EPOS_Wrapper::x(i), EPOS_Wrapper::y(i), 
+                                   EPOS_Wrapper::z(i), EPOS_Wrapper::t(i) 
                                  ); 
         if ( !prod_vtx && (EPOS_Wrapper::number_parents(i)>0 
                            || prod_pos!=FourVector(0,0,0,0)) )
@@ -273,10 +273,10 @@ namespace EPOS {
                 // 2001-03-29 M.Dobbs, fill vertex the position.
                 if ( end_vtx->position()==FourVector(0,0,0,0) ) {
 		  // again mm to cm conversion 
-                    FourVector prod_pos( EPOS_Wrapper::x(daughter)/10., 
-                                               EPOS_Wrapper::y(daughter)/10., 
-                                               EPOS_Wrapper::z(daughter)/10., 
-                                               EPOS_Wrapper::t(daughter)/10. 
+                    FourVector prod_pos( EPOS_Wrapper::x(daughter), 
+                                               EPOS_Wrapper::y(daughter), 
+                                               EPOS_Wrapper::z(daughter), 
+                                               EPOS_Wrapper::t(daughter) 
                         );
                     if ( prod_pos != FourVector(0,0,0,0) ) {
                         end_vtx->set_position( prod_pos );
