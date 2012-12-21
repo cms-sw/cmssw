@@ -50,19 +50,25 @@ namespace EPOS {
         std::vector<HepMC::GenParticle*> hepevt_particle( 
                                         EPOS_Wrapper::number_entries()+1 );
         hepevt_particle[0] = 0;
-        for ( int i1 = 1; i1 <= EPOS_Wrapper::number_entries(); ++i1 ) {
+	//intentionally skipping last particle in event record which is the nucleus
+        for ( int i1 = 1; i1 < EPOS_Wrapper::number_entries(); ++i1 ) {
             hepevt_particle[i1] = build_particle(i1);
         }
+
+	HepMC::GenVertex*  primaryVertex = new HepMC::GenVertex(HepMC::FourVector(0,0,0,0),0);
+	evt->add_vertex(primaryVertex);
+	if(!evt->signal_process_vertex()) evt->set_signal_process_vertex(primaryVertex);
+	
         std::set<HepMC::GenVertex*> new_vertices;
         //
         // Here we assume that the first two particles in the list 
         // are the incoming beam particles.
         if( trust_beam_particles() ) {
-        evt->set_beam_particles( hepevt_particle[1], hepevt_particle[2] );
+	  evt->set_beam_particles( hepevt_particle[1], hepevt_particle[2] );
         }
         //
         // 3.+4. loop over EPOS particles AGAIN, this time creating vertices
-        for ( int i = 1; i <= EPOS_Wrapper::number_entries(); ++i ) {
+        for ( int i = 1; i < EPOS_Wrapper::number_entries(); ++i ) {
             // We go through and build EITHER the production or decay 
             // vertex for each entry in hepevt, depending on the switch
             // m_trust_mothers_before_daughters (new 2001-02-28)
@@ -86,7 +92,7 @@ namespace EPOS {
         //  i.e. particles without mothers or daughters.
         //  These particles need to be attached to a vertex, or else they
         //  will never become part of the event. check for this situation
-        for ( int i3 = 1; i3 <= EPOS_Wrapper::number_entries(); ++i3 ) {
+        for ( int i3 = 1; i3 < EPOS_Wrapper::number_entries(); ++i3 ) {
             if ( !hepevt_particle[i3]->end_vertex() && 
                         !hepevt_particle[i3]->production_vertex() ) {
                 HepMC::GenVertex* prod_vtx = new GenVertex();
@@ -190,8 +196,8 @@ namespace EPOS {
         // b. if no suitable production vertex exists - and the particle
         // has atleast one mother or position information to store - 
         // make one
-        HepMC::FourVector prod_pos( EPOS_Wrapper::x(i), EPOS_Wrapper::y(i), 
-                                   EPOS_Wrapper::z(i), EPOS_Wrapper::t(i) 
+        HepMC::FourVector prod_pos( EPOS_Wrapper::x(i)/10., EPOS_Wrapper::y(i)/10., 
+                                   EPOS_Wrapper::z(i)/10., EPOS_Wrapper::t(i)/10. 
                                  ); 
         if ( !prod_vtx && (EPOS_Wrapper::number_parents(i)>0 
                            || prod_pos!=FourVector(0,0,0,0)) )
@@ -266,10 +272,11 @@ namespace EPOS {
                 // 
                 // 2001-03-29 M.Dobbs, fill vertex the position.
                 if ( end_vtx->position()==FourVector(0,0,0,0) ) {
-                    FourVector prod_pos( EPOS_Wrapper::x(daughter), 
-                                               EPOS_Wrapper::y(daughter), 
-                                               EPOS_Wrapper::z(daughter), 
-                                               EPOS_Wrapper::t(daughter) 
+		  // again mm to cm conversion 
+                    FourVector prod_pos( EPOS_Wrapper::x(daughter)/10., 
+                                               EPOS_Wrapper::y(daughter)/10., 
+                                               EPOS_Wrapper::z(daughter)/10., 
+                                               EPOS_Wrapper::t(daughter)/10. 
                         );
                     if ( prod_pos != FourVector(0,0,0,0) ) {
                         end_vtx->set_position( prod_pos );
