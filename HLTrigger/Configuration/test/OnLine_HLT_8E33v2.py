@@ -48027,8 +48027,8 @@ if cmsswVersion.startswith('CMSSW_5_3_'):
     pass
 
 
-# customization for CMSSW_6_1_X
-if cmsswVersion.startswith('CMSSW_6_1_'):
+# customization for CMSSW_6_1_X / 6_2_X
+if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'):
 
     # force the use of the correct calo jet energy corrections
     if 'hltESPL1FastJetCorrectionESProducer' in process.__dict__:
@@ -48113,4 +48113,5 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
     process.MessageLogger.categories.append('HLTrigReport')
+    process.MessageLogger.categories.append('FastReport')
 

@@ -44010,8 +44010,8 @@ if cmsswVersion.startswith('CMSSW_5_3_'):
     pass
 
 
-# customization for CMSSW_6_1_X
-if cmsswVersion.startswith('CMSSW_6_1_'):
+# customization for CMSSW_6_1_X / 6_2_X
+if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'):
 
     # force the use of the correct calo jet energy corrections
     if 'hltESPL1FastJetCorrectionESProducer' in locals():
