@@ -41,7 +41,7 @@ extern "C"
 
 extern "C"
 {
-  extern struct
+/*  extern struct
   {
     int nevhep;
     int nhep;
@@ -52,7 +52,7 @@ extern "C"
     int jdahep[nmxhep][2];
     double phep[nmxhep][5]; 
     double vhep[nmxhep][5];
-  } hepcom_; //epos.inc
+  } hepcom_; //epos.inc*/
   
   extern struct
   {

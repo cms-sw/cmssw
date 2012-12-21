@@ -39,6 +39,11 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
+#include "GeneratorInterface/ReggeGribovPartonMCInterface/interface/IO_EPOS.h"
+#include "GeneratorInterface/ReggeGribovPartonMCInterface/interface/EPOS_Wrapper.h"
+
+EPOS::IO_EPOS conv;
+
 extern "C"
 {
   float gen::rangen_()
@@ -143,7 +148,7 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
 #endif
 
   //create event structure;
-
+/*
   vector<HepMC::GenParticle*> vecGenParticles;
   vecGenParticles.resize(m_NParticles);
 
@@ -236,7 +241,10 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
     }
   LogDebug("ReggeGribovPartonMCInterface") << "HepEvt and vertex constructed" << endl;
   evt->print();
-  event().reset(evt);
+  event().reset(evt);*/
+  event().reset(conv.read_next_event());
+  //EPOS::EPOS_Wrapper::print_hepcom();
+
   return true;
 }
 
