@@ -5,9 +5,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.2 2012/12/19 15:08:23 veelken Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.3 2012/12/20 10:50:00 veelken Exp $
  *
  */
 
@@ -18,6 +18,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 
 #include <string>
 

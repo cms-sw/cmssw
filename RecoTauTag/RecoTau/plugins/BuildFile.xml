@@ -5,6 +5,7 @@
   <use   name="CommonTools/CandUtils"/>
   <use   name="DataFormats/Candidate"/>
   <use   name="DataFormats/MuonReco"/>
+  <use   name="DataFormats/TrackReco"/>
   <use   name="TrackingTools/TransientTrack"/>
   <use   name="RecoVertex/VertexPrimitives"/>
   <use   name="PhysicsTools/IsolationUtils"/>
