@@ -186,8 +186,9 @@ if (visitingCallExpr)
 //	llvm::errs()<<"\n";
 //	llvm::errs()<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 //	if (support::isConst(qual_vce))
-	if ( (OCE) || (CE && CE->getCastKind()==clang::CK_LValueToRValue && CE->getSubExpr()->getType().isVolatileQualified()) ||
-		( BO && BO->isAssignmentOp()) || ( UO && UO->isIncrementDecrementOp()) )
+//	if ( (OCE) || (CE && CE->getCastKind()==clang::CK_LValueToRValue && CE->getSubExpr()->getType().isVolatileQualified()) ||
+//		( BO && BO->isAssignmentOp()) || ( UO && UO->isIncrementDecrementOp()) )
+	if (PE->HasSideEffects(AC->getASTContext()))
 		ReportMember(ME);
 }
 
@@ -290,6 +291,7 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   llvm::raw_svector_ostream os(buf);
   CmsException m_exception;
   clang::ValueDecl * VD = ME->getMemberDecl();
+  clang::QualType qual_expr = ME->getType();
 	os << " Member data ";
 	VD->printName(os);
 	os << " is directly or indirectly modified"; 
@@ -310,6 +312,7 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
 	(*WList.begin())->getMethodDecl()->getParent()->printName(os);
       	os << "::";
 	(*WList.begin())->getMethodDecl()->printName(os);
+//	os << ". Member is type " << qual_expr.getTypePtr()->getTypeClassName();
 	os << ".\n";
 	
   clang::ento::PathDiagnosticLocation CELoc =
@@ -518,6 +521,8 @@ void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ent
 //        				}
 //    				}
 
+
+
 // Check the class methods (member methods).
 	for (clang::CXXRecordDecl::method_iterator
 		I = RD->method_begin(), E = RD->method_end(); I != E; ++I)  
@@ -563,7 +568,52 @@ void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ent
 
 } //end of class
 
+void ClassCheckerRDeclD::checkASTDecl(const clang::CXXRecordDecl *CRD,clang::ento::AnalysisManager& mgr,
+                    clang::ento::BugReporter &BR ) const {
+// Dump the class members.
+	const clang::CXXRecordDecl *RD=CRD;
+	const clang::SourceManager &SM = BR.getSourceManager();
+	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
+	if (  !m_exception.reportClass( DLoc, BR ) ) return;
+	llvm::errs() <<"\nClass Name " <<RD->getQualifiedNameAsString()<<"\n";
+	for (clang::RecordDecl::field_iterator I = RD->field_begin(), E = RD->field_end(); I != E; ++I)
+	{
+		clang::QualType qual;
+		if (I->getType().getTypePtr()->isAnyPointerType()) 
+			qual = I->getType().getTypePtr()->getPointeeType();
+		else 
+			qual = I->getType().getNonReferenceType();
 
-}
+		llvm::errs() <<"Class Member ";
+		if (I->getType() == qual)
+			{
+			llvm::errs() <<"; "<<I->getType().getCanonicalType().getTypePtr()->getTypeClassName();
+			}
+		else
+			{
+			llvm::errs() <<"; "<<qual.getCanonicalType().getTypePtr()->getTypeClassName()<<" "<<I->getType().getCanonicalType().getTypePtr()->getTypeClassName();
+			}
+		llvm::errs() <<"; "<<I->getType().getAsString();
+		llvm::errs() <<"; "<< I->getQualifiedNameAsString();
+
+		if (const CXXRecordDecl * TRD = I->getType().getTypePtr()->getAsCXXRecordDecl()) 
+			{
+			checkASTDecl( TRD, mgr, BR );
+			}
+
+		if (const clang::TemplateSpecializationType *TST = I->getType().getTypePtr()->getAs<clang::TemplateSpecializationType>() )
+			{
+			for ( clang::TemplateSpecializationType::iterator J = TST->begin(), F = TST->end(); J !=F; ++J)
+				{
+				clang::Decl * AD = J->getAsDecl();
+				}
+			}
+		llvm::errs() <<"\n";
+	}
+
+} //end class
+
+
+}//end namespace
 
 
