@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/GRun/V76 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/GRun/V78 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V76')
+  tableName = cms.string('/dev/CMSSW_5_2_6/GRun/V78')
 )
 
 hltESSBTagRecord = cms.ESSource( "EmptyESSource",
@@ -34716,8 +34716,8 @@ if cmsswVersion.startswith('CMSSW_5_3_'):
     pass
 
 
-# customization for CMSSW_6_1_X
-if cmsswVersion.startswith('CMSSW_6_1_'):
+# customization for CMSSW_6_1_X / 6_2_X
+if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'):
 
     # force the use of the correct calo jet energy corrections
     if 'hltESPL1FastJetCorrectionESProducer' in locals():

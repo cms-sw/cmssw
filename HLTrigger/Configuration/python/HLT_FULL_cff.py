@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HLT/V123 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/HLT/V126 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V123')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V126')
 )
 
 streams = cms.PSet( 
@@ -60580,8 +60580,8 @@ if cmsswVersion.startswith('CMSSW_5_3_'):
     pass
 
 
-# customization for CMSSW_6_1_X
-if cmsswVersion.startswith('CMSSW_6_1_'):
+# customization for CMSSW_6_1_X / 6_2_X
+if cmsswVersion.startswith('CMSSW_6_1_') or cmsswVersion.startswith('CMSSW_6_2_'):
 
     # force the use of the correct calo jet energy corrections
     if 'hltESPL1FastJetCorrectionESProducer' in locals():
