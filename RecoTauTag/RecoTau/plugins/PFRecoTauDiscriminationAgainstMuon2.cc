@@ -5,9 +5,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.3 2012/12/20 10:50:00 veelken Exp $
+ * $Id: PFRecoTauDiscriminationAgainstMuon2.cc,v 1.4 2012/12/21 13:08:59 veelken Exp $
  *
  */
 
@@ -19,6 +19,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include <string>
 
@@ -64,7 +65,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     if ( muonRef.isNonnull() ) {
       numMatches = muonRef->numberOfMatches(reco::Muon::NoArbitration);
       if ( muonRef->outerTrack().isNonnull() ) {
-	const reco::HitPattern& muonHitPattern = muonRef->outerTrack()->hitPattern();
+	const reco::HitPattern & muonHitPattern = muonRef->outerTrack()->hitPattern();
 	for ( int iHit = 0; iHit < muonHitPattern.numberOfHits(); ++iHit ) {
 	  uint32_t hit = muonHitPattern.getHitPattern(iHit);
 	  if ( hit == 0 ) break;	    
