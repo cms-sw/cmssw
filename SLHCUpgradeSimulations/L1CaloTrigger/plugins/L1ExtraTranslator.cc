@@ -43,7 +43,8 @@ class L1ExtraTranslator:public edm::EDProducer
   private:
 
 	virtual void produce( edm::Event &, const edm::EventSetup & );
-	virtual void endJob(  );
+        double calculateTowerEtaPosition( int );
+  	virtual void endJob(  );
 
   edm::InputTag mClusters;
   edm::InputTag mJets;
@@ -203,10 +204,11 @@ void L1ExtraTranslator::produce( edm::Event & iEvent, const edm::EventSetup & iS
 	    
 	    for( l1slhc::L1CaloTowerCollection::const_iterator i = lTowers.begin() ; i != lTowers.end() ; ++i ){
 	      
-	      if ( fabs(0.087*i->iEta())< maxJetTowerEta ) {
+	      //	      if ( fabs(0.087*i->iEta())< maxJetTowerEta ) {
+	      if ( calculateTowerEtaPosition(i->iEta())< maxJetTowerEta ) {
 	      LorentzVector twr4v(0,0,0,0);
 
-	      twr4v.SetCoordinates((i->E()+i->H())/cosh(0.087*i->iEta()), 0.0, 0.087*i->iPhi(), 0.0);
+	      twr4v.SetCoordinates(i->E()+i->H(), 0.0, 0.087*i->iPhi(), 0.0);
 	      Etvec += twr4v;      
 	      }
 	    }
@@ -225,6 +227,45 @@ void L1ExtraTranslator::produce( edm::Event & iEvent, const edm::EventSetup & iS
 	  }
 	
 }
+
+
+double L1ExtraTranslator::calculateTowerEtaPosition( int iEta )
+{
+
+  double eta;
+  double halfTowerOffset = 0.0435;
+
+
+  int abs_ieta =abs(iEta);
+
+  if ( abs_ieta < 21 )
+    eta = ( abs_ieta * 0.0870 ) - halfTowerOffset;   
+
+  else
+
+  {
+    const double endcapEta[8] = { 0.09, 0.1, 0.113, 0.129, 0.15, 0.178, 0.15, 0.35 };
+ 
+    abs_ieta -= 21;
+
+    eta = 1.74 ;
+
+    for ( int i = 0; i <= abs_ieta; i++ ) eta += endcapEta[i];
+    
+    eta -= endcapEta[abs_ieta]/2.0;
+   
+  }
+
+  if (iEta<0) eta=-eta;
+
+  //  std::cout<<"ieta = "<<iEta<<"   eta = "<<eta<<"\n";
+  
+  return eta;
+
+
+} 
+
+
 
 
 // ------------ method called once each job just after ending the event loop ------------
