@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.1 2012/11/27 03:58:35 khotilov Exp $
+// $Id: GEMDigiAnalyzer.cc,v 1.1 2012/12/11 16:16:26 dildick Exp $
 //
 //
 
@@ -78,6 +78,7 @@ struct MyRPCDigi
    Int_t detId;
    Short_t region, ring, station, sector, layer, subsector, roll;
    Short_t strip, bx;
+   Float_t x, y;
    Float_t g_r, g_eta, g_phi, g_x, g_y, g_z;
 };
 
@@ -86,6 +87,7 @@ struct MyGEMDigi
    Int_t detId;
    Short_t region, ring, station, layer, chamber, roll;
    Short_t strip, bx;
+   Float_t x, y;
    Float_t g_r, g_eta, g_phi, g_x, g_y, g_z;
 };
 
@@ -174,6 +176,8 @@ GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet&iConfig)
   rpc_tree_->Branch("roll", &rpc_digi_.roll);
   rpc_tree_->Branch("strip", &rpc_digi_.strip);
   rpc_tree_->Branch("bx", &rpc_digi_.bx);
+  rpc_tree_->Branch("x", &rpc_digi_.x);
+  rpc_tree_->Branch("y", &rpc_digi_.y);
   rpc_tree_->Branch("g_r", &rpc_digi_.g_r);
   rpc_tree_->Branch("g_eta", &rpc_digi_.g_eta);
   rpc_tree_->Branch("g_phi", &rpc_digi_.g_phi);
@@ -195,6 +199,8 @@ GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet&iConfig)
   gem_tree_->Branch("roll", &gem_digi_.roll);
   gem_tree_->Branch("strip", &gem_digi_.strip);
   gem_tree_->Branch("bx", &gem_digi_.bx);
+  gem_tree_->Branch("x", &gem_digi_.x);
+  gem_tree_->Branch("y", &gem_digi_.y);
   gem_tree_->Branch("g_r", &gem_digi_.g_r);
   gem_tree_->Branch("g_eta", &gem_digi_.g_eta);
   gem_tree_->Branch("g_phi", &gem_digi_.g_phi);
@@ -288,6 +294,10 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       rpc_digi_.bx = (Short_t) digiItr->bx();
 
       LocalPoint lp = roll->centreOfStrip(digiItr->strip());
+
+      rpc_digi_.x = (Float_t) lp.x();
+      rpc_digi_.y = (Float_t) lp.y();
+
       GlobalPoint gp = surface.toGlobal(lp);
       rpc_digi_.g_r = (Float_t) gp.perp();
       rpc_digi_.g_eta = (Float_t) gp.eta();
@@ -339,6 +349,10 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       gem_digi_.bx = (Short_t) digiItr->bx();
 
       LocalPoint lp = roll->centreOfStrip(digiItr->strip());
+
+      gem_digi_.x = (Float_t) lp.x();
+      gem_digi_.y = (Float_t) lp.y();
+
       GlobalPoint gp = surface.toGlobal(lp);
       gem_digi_.g_r = (Float_t) gp.perp();
       gem_digi_.g_eta = (Float_t) gp.eta();
