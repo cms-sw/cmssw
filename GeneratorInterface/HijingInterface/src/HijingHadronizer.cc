@@ -99,8 +99,10 @@ HepMC::GenParticle* HijingHadronizer::build_hijing(int index, int barcode)
    double x = x0*cosphi0_-y0*sinphi0_;
    double y = y0*cosphi0_+x0*sinphi0_;
 
-   // Hijing gives V0's status=4, they need to have status=1 to be decayed in geant 
-   if(himain2.katt[3][index]==4) himain2.katt[3][index]=1;
+   // Hijing gives V0's status=4, they need to have status=1 to be decayed in geant
+   // also change status=11 to status=2
+   if(himain2.katt[3][index]<=10 && himain2.katt[3][index]>0) himain2.katt[3][index]=1;
+   if(himain2.katt[3][index]<=20 && himain2.katt[3][index]>10) himain2.katt[3][index]=2;
 
    HepMC::GenParticle* p = new HepMC::GenParticle(
                                                   HepMC::FourVector(x,  // px                                                                            
