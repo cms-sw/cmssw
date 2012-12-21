@@ -469,7 +469,11 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
     gem_sh.globalY = hitGP.y();
     gem_sh.globalZ = hitGP.z();
 
-    gem_sh.strip=gem_geometry->etaPartition(itHit->detUnitId())->strip(hitLP);
+//  Now filling strip info using entry point rather than local position to be
+//  consistent with digi strips. To change back, just switch the comments - WHF
+//    gem_sh.strip=gem_geometry->etaPartition(itHit->detUnitId())->strip(hitLP);
+    LocalPoint hitEP = itHit->entryPoint();
+    gem_sh.strip=gem_geometry->etaPartition(itHit->detUnitId())->strip(hitEP);
 
     gem_sh_tree->Fill();
 
