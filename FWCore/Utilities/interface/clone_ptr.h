@@ -9,7 +9,7 @@ namespace extstd {
   struct clone_ptr : public std::unique_ptr<T> {
     
     template<typename... Args>
-    explicit clone_ptr(Args&& ... args)  noexcept : std::unique_ptr<T>(std::forward(args)...){}
+    explicit clone_ptr(Args&& ... args)  noexcept : std::unique_ptr<T>(std::forward<Args>(args)...){}
     
     clone_ptr(clone_ptr const & rh) : std::unique_ptr<T>(rh? rh->clone() : nullptr){}
     clone_ptr(clone_ptr && rh) noexcept : std::unique_ptr<T>(std::move(rh)) {}
