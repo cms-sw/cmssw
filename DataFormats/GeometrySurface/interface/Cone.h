@@ -10,8 +10,8 @@
  *  using the static build() method. 
  *  (The normal constructors will become private in the future).
  *
- *  $Date: 2007/07/31 15:20:07 $
- *  $Revision: 1.2 $
+ *  $Date: 2012/12/23 16:33:37 $
+ *  $Revision: 1.3 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
@@ -20,9 +20,9 @@ class Cone  GCC11_FINAL  : public Surface {
 public:
 
   template<typename... Args>
-  Cone(Args&& ... args,
-       const PositionType& vert,
-       Geom::Theta<Scalar> angle) :
+  Cone(const PositionType& vert,
+       Geom::Theta<Scalar> angle, 
+       Args&& ... args) :
     Surface(std::forward<Args>(args)...), 
     theVertex(vert), theAngle(angle) {}
 
@@ -37,7 +37,7 @@ public:
 			   const RotationType& rot,
 			   const PositionType& vert,
 			   Geom::Theta<Scalar> angle) {
-    return ConePointer(new Cone(pos, rot, vert, angle));
+    return ConePointer(new Cone(vert, angle, pos, rot));
   }
 
 
