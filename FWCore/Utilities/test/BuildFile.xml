@@ -26,6 +26,10 @@
 </bin>
 <bin   file="isFinite_t.cpp">
 </bin>
+
+<bin   file="clone_ptr_t.cpp">
+</bin>
+
 <bin   file="MallocOpts_t.cpp">
   <use   name="cppunit"/>
 </bin>
