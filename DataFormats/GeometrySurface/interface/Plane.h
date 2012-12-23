@@ -14,34 +14,29 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "boost/intrusive_ptr.hpp" 
 
-class Plane : public virtual Surface {
+class Plane : public Surface {
 public:
+
+ template<typename... Args>
+  Plane(Args&& ... args) :
+    Surface(std::forward<Args>(args)...){}
+  
+
   typedef ReferenceCountingPointer<Plane> PlanePointer;
   typedef ConstReferenceCountingPointer<Plane> ConstPlanePointer;
+  typedef ReferenceCountingPointer<Plane> BoundPlanePointer;
+  typedef ConstReferenceCountingPointer<Plane> ConstBoundPlanePointer;
+
 
   /// Construct a Plane.
   /// The reference frame is defined by pos and rot; the plane is
   /// orthogonal to the local Z axis.
-  static PlanePointer build(const PositionType& pos,
-				    const RotationType& rot,
-				    MediumProperties* mp=0) {
-    return PlanePointer(new Plane(pos, rot, mp));
+ template<typename... Args>
+  static PlanePointer build(Args&& ... args) {
+    return PlanePointer(new Plane(std::forward<Args>(args)...));
   }
 
-  // -- DEPRECATED CONSTRUCTORS
-
-  /// Do not use this constructor directly; use the static build method,
-  /// which returns a ReferenceCountingPointer.
-  /// This constructor will soon become private
-  Plane( const PositionType& pos, const RotationType& rot) :
-    Surface( pos, rot) {}
-
-  /// Do not use this constructor directly; use the static build method,
-  /// which returns a ReferenceCountingPointer.
-  /// This constructor will soon become private
-  Plane( const PositionType& pos, const RotationType& rot, MediumProperties* mp) : 
-    Surface( pos, rot, mp) {}
-
+ 
   ~Plane(){}
 
 // extension of Surface interface for planes

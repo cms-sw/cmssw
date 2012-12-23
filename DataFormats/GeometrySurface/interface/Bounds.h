@@ -5,6 +5,8 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h" 
 
+#include "DataFormats/GeometrySurface/interface/BoundSpan.h"
+
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 
@@ -64,6 +66,16 @@ public:
   }
 
   virtual Bounds* clone() const = 0;
+  
+  std::pair<float,float> const & phiSpan() const { return m_span.phiSpan(); }
+  std::pair<float,float> const & zSpan()   const { return m_span.zSpan(); }
+  std::pair<float,float> const & rSpan()   const { return m_span.rSpan(); }
+
+  void computeSpan(Surface const & plane) { m_span.compute(plane);}
+
+private:  
+  
+  BoundSpan m_span;
 
 };
 

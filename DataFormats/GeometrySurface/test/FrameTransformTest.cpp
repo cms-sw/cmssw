@@ -9,7 +9,7 @@
 
 using namespace std;
 template<typename T>
-int  go() {
+void  go() {
 
     typedef TkRotation<T>                   Rotation;
     typedef GloballyPositioned<T>           Frame;
@@ -87,31 +87,45 @@ int  go() {
     cout << "p_in3p " << p_in3p << endl;
 */
 
-    // cylinder
-    {
-      std::cout << " Trivial Cylinder" << std::endl;
-      Rotation ll( GlobalVector( 1, 0, 0), GlobalVector( 0, 1, 0));
-      Cylinder cyl(Position(0,0,0),ll, 5.);
-      Plane t = cyl.fastTangent(GlobalPoint(3.,4.,1.));
-      std::cout << t.position() << '\n' << t.rotation() << std::endl;
-      std::cout << t.rotation().x()*cyl.rotation().z().cross( (t.position()-cyl.position()).basicVector() ).unit() << std::endl;
-    }
 
-    {
-      std::cout << " rotated, displaced Cylinder" << std::endl;
-      Rotation ll( Basic3DVector<T>( 1, 1, 1), .3);
-      Cylinder cyl(Position(2,-1,3),ll, 5.);
-      Plane t = cyl.fastTangent(LocalPoint(3.,4.,1.));
-      std::cout << t.position() << '\n' << t.rotation() << std::endl;
-      std::cout << t.rotation().x()*cyl.rotation().z().cross( (t.position()-cyl.position()).basicVector() ).unit() << std::endl;
-    }
+}
 
-    return 0;
+void cyl() {
+  using T = float;
+  typedef TkRotation<T>                   Rotation;
+  typedef GloballyPositioned<T>           Frame;
+  typedef typename Frame::PositionType             Position;
+  typedef typename Frame::GlobalVector             GlobalVector;
+  typedef typename Frame::GlobalPoint              GlobalPoint;
+  typedef typename Frame::LocalVector              LocalVector;
+  typedef typename Frame::LocalPoint               LocalPoint;
+  
+  // cylinder
+  {
+    std::cout << " Trivial Cylinder" << std::endl;
+    Rotation ll( GlobalVector( 1, 0, 0), GlobalVector( 0, 1, 0));
+    Position p0(0,0,0);
+    Cylinder cyl(5.,p0, ll);
+    Plane t = cyl.fastTangent(GlobalPoint(3.,4.,1.));
+    std::cout << t.position() << '\n' << t.rotation() << std::endl;
+    std::cout << t.rotation().x()*cyl.rotation().z().cross( (t.position()-cyl.position()).basicVector() ).unit() << std::endl;
+  }
+  
+  {
+    std::cout << " rotated, displaced Cylinder" << std::endl;
+    Rotation ll( Basic3DVector<T>( 1, 1, 1), .3);
+    Cylinder cyl(5.f, Position(2,-1,3), ll);
+    Plane t = cyl.fastTangent(LocalPoint(3.,4.,1.));
+    std::cout << t.position() << '\n' << t.rotation() << std::endl;
+    std::cout << t.rotation().x()*cyl.rotation().z().cross( (t.position()-cyl.position()).basicVector() ).unit() << std::endl;
+  }
+  
 }
 
 int main() {
-
+  
   go<float>();
+  cyl();
   std::cout << std::endl;
   go<double>();
 

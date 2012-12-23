@@ -5,16 +5,16 @@
 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
-
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
+
+#include "FWCore/Utilities/interface/clone_ptr.h"
+#include <algorithm>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 
-/*
-#include "DataFormats/GeometrySurface/interface/GlobalError.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
-*/
+
 
 /** Collection of enums to specify orientation of the surface wrt the
  *  volume it a bound of.
@@ -31,41 +31,63 @@ class TangentPlane;
 
 /** Base class for 2D surfaces in 3D space.
  *  May have MediumProperties.
+ * may have bounds
+ *  The Bounds define a region AROUND the surface.
+ *  Surfaces which differ only by the shape of their bounds are of the
+ *  same "surface" type  
+ *  (e.g. Plane or Cylinder).
  */
 
 class Surface : public GloballyPositioned<float> 
-		, public ReferenceCountedInConditions 
+	      , public ReferenceCountedInConditions 
 {
 public:
   typedef SurfaceOrientation::Side Side;
 
   typedef GloballyPositioned<float>       Base;
 
-  Surface( const PositionType& pos, const RotationType& rot) :
-    Base( pos, rot), theMediumProperties(0.,0.), m_mpSet(false) {}
+  virtual ~Surface(){}
 
-  Surface( const PositionType& pos, const RotationType& rot, 
-	   MediumProperties* mp) : 
-    Base( pos, rot), 
-    theMediumProperties(mp? *mp : MediumProperties(0.,0.)),
-    m_mpSet(mp)
-  {}
+protected:
+  Surface( const PositionType& pos, const RotationType& rot) :
+    Base( pos, rot) {}
  
- Surface( const PositionType& pos, const RotationType& rot,
+  Surface( const PositionType& pos, const RotationType& rot,
+	   Bounds* bounds) :
+    Base( pos, rot),
+    theBounds(bounds)
+  {computeSpan();}
+
+ 
+  Surface( const PositionType& pos, const RotationType& rot,
            MediumProperties mp) :
     Base( pos, rot),
-    theMediumProperties(mp),
-    m_mpSet(true)
+    theMediumProperties(mp)
   {}
- 
+
+  Surface( const PositionType& pos, const RotationType& rot,
+           MediumProperties mp,
+	   Bounds* bounds) :
+    Base( pos, rot),
+    theMediumProperties(mp),
+    theBounds(bounds)
+  {computeSpan();}
+
+  
   Surface( const Surface& iSurface ) : 
   Base( iSurface), 
   theMediumProperties(iSurface.theMediumProperties),
-  m_mpSet(iSurface.m_mpSet)
+  theBounds(iSurface.theBounds)
+  {}
+  
+  Surface(Surface&& iSurface ) : 
+  Base(iSurface), 
+  theMediumProperties(iSurface.theMediumProperties),
+  theBounds(std::move(iSurface.theBounds))
   {}
 
-  // pure virtual destructor - makes base classs abstract
-  virtual ~Surface() = 0;
+
+public:
 
   /** Returns the side of the surface on which the point is.
    *  Not defined for 1-sided surfaces (Moebius leaf etc.)
@@ -84,34 +106,24 @@ public:
 			position().basicVector());
   }
 
-  /*
-  GlobalError toGlobal( const LocalError& le) const {
-    return rotation().transform(le);
-  }
 
-  LocalError toLocal( const GlobalError& ge) const {
-    return rotation().transform(ge);
-  }
-  */
-
-  const MediumProperties* mediumProperties() const { 
-    return  m_mpSet ? &theMediumProperties : 0;
+  const MediumProperties & mediumProperties() const { 
+    return theMediumProperties;
   }
 
   void setMediumProperties( const MediumProperties & mp ) {
     theMediumProperties = mp;
-    m_mpSet = true;
   }
 
-  void setMediumProperties( MediumProperties* mp ) {
-    if (mp) {
-      theMediumProperties = *mp;
-      m_mpSet = true;
-    } else {
-      theMediumProperties = MediumProperties(0.,0.);
-      m_mpSet = false;
-    }
-  }
+  const Bounds& bounds() const { return *theBounds; }
+  
+
+  std::pair<float,float> const & phiSpan() const { return bounds().phiSpan(); }
+  std::pair<float,float> const & zSpan()   const { return bounds().zSpan(); }
+  std::pair<float,float> const & rSpan()   const { return bounds().rSpan(); }
+
+  void computeSpan() { theBounds->computeSpan(*this);}
+
 
   /** Tangent plane to surface from global point.
    * Returns a new plane, tangent to the Surface at a point.
@@ -125,11 +137,10 @@ public:
   virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const = 0;
 
 private:
-
   MediumProperties theMediumProperties;
-  bool m_mpSet;
+  extstd::clone_ptr<Bounds> theBounds;
+
 };
   
-inline Surface::~Surface() {}
 
 #endif // Geom_Surface_H

@@ -10,46 +10,43 @@
  *  using the static build() methods. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2010/12/22 11:06:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2012/10/21 09:08:13 $
+ *  $Revision: 1.7 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
-class Cylinder : public virtual Surface {
+class Cylinder GCC11_FINAL  : public Surface {
 public:
+
+  template<typename... Args>
+    Cylinder(Scalar radius, Args&& ... args) :
+    Surface(std::forward<Args>(args)...), theRadius(radius){}
+  
+  // average Rmin Rmax...
+  static float computeRadius(Bounds const & bounds) {
+    return  0.5f*(bounds.width() - bounds.thickness());
+  }
+
+
   typedef ReferenceCountingPointer<Cylinder> CylinderPointer;
   typedef ConstReferenceCountingPointer<Cylinder> ConstCylinderPointer;
+  typedef ReferenceCountingPointer<Cylinder> BoundCylinderPointer;
+  typedef ConstReferenceCountingPointer<Cylinder> ConstBoundCylinderPointer;
 
 
   /// Construct a cylinder with the specified radius.
   /// The reference frame is defined by pos and rot;
   /// the cylinder axis is parallel to the local Z axis.
-  static CylinderPointer build(const PositionType& pos,
-			       const RotationType& rot,
-			       Scalar radius,
-			       MediumProperties* mp=0) {
-    return CylinderPointer(new Cylinder(pos, rot, radius, mp));
+  template<typename... Args>
+  static CylinderPointer build(Args&& ... args) {
+    return CylinderPointer(new Cylinder(std::forward<Args>(args)...));
   }
 
 
   ~Cylinder(){}
 
-  // -- DEPRECATED CONSTRUCTORS
-
-  /// Do not use this constructor directly; use the static build method,
-  /// which returns a ReferenceCountingPointer.
-  /// This constructor will soon become private
-  Cylinder( const PositionType& pos, const RotationType& rot, Scalar radius) :
-    Surface( pos, rot), theRadius(radius) {}
-
-  /// Do not use this constructor directly; use the static build method,
-  /// which returns a ReferenceCountingPointer.
-  /// This constructor will soon become private
-  Cylinder( const PositionType& pos, const RotationType& rot, Scalar radius,
-	 MediumProperties* mp) : 
-    Surface( pos, rot, mp), theRadius(radius) {}
 
   // -- Extension of Surface interface for cylinder
 

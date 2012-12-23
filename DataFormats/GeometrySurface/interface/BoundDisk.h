@@ -1,7 +1,7 @@
 #ifndef Geom_BoundDisk_H
 #define Geom_BoundDisk_H
 
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
 /** \class BoundDisk
@@ -14,56 +14,35 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2012/01/02 17:04:36 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/05/05 13:32:09 $
+ *  $Revision: 1.4 $
  */
 
-class BoundDisk GCC11_FINAL : public BoundPlane {
+class Disk GCC11_FINAL : public Plane {
 public:
 
-  typedef ReferenceCountingPointer<BoundDisk> BoundDiskPointer;
-  typedef ConstReferenceCountingPointer<BoundDisk> ConstBoundDiskPointer;
-
-
-  /// Construct a disk with origin at pos and with rotation matrix rot,
-  /// with bounds. The bounds you provide are cloned.
-  static BoundDiskPointer build(const PositionType& pos, 
-				const RotationType& rot, 
-				Bounds* bounds,
-				MediumProperties* mp=0) {
-    return BoundDiskPointer(new BoundDisk(pos, rot, bounds, mp));
-  }
+  template<typename... Args>
+    Disk(Args&& ... args,
+	   Scalar radius) :
+    Plane(std::forward<Args>(args)...){}
   
 
-  /// Construct a disk with origin at pos and with rotation matrix rot,
-  /// with bounds. The bounds you provide are cloned.
-  static BoundDiskPointer build(const PositionType& pos, 
-				const RotationType& rot, 
-				Bounds& bounds,
-				MediumProperties* mp=0) {
-    return BoundDiskPointer(new BoundDisk(pos, rot, &bounds, mp));
+  typedef ReferenceCountingPointer<Disk> DiskPointer;
+  typedef ConstReferenceCountingPointer<Disk> ConstDiskPointer;
+  typedef ReferenceCountingPointer<Disk> BoundDiskPointer;
+  typedef ConstReferenceCountingPointer<Disk> ConstBoundDiskPointer;
+
+ template<typename... Args>
+  static DiskPointer build(Args&& ... args) {
+    return DiskPointer(new Disk(std::forward<Args>(args)...));
   }
 
-  virtual ~BoundDisk() {}
+
+  virtual ~Disk() {}
 
 
   // -- DEPRECATED CONSTRUCTORS
 
-  /// Do not use this constructor directly; use the static build method,
-  /// which returns a ReferenceCountingPointer.
-  /// This constructor will soon become private
-  BoundDisk(const PositionType& pos, 
-	    const RotationType& rot, 
-	    Bounds* bounds) :
-    Surface(pos,rot), BoundPlane( pos, rot, bounds) {}
-
-  /// Do not use this constructor directly; use the static build method,
-  /// which returns a ReferenceCountingPointer.
-  /// This constructor will soon become private
-  BoundDisk(const PositionType& pos, 
-	    const RotationType& rot, 
-	    const Bounds& bounds) :
-    Surface(pos,rot), BoundPlane( pos, rot, bounds) {}
 
 
   // -- Extension of the Surface interface for disk
@@ -74,15 +53,8 @@ public:
   /// The outer radius of the disk
   float outerRadius() const  { return static_cast<const SimpleDiskBounds&>(bounds()).outerRadius();}
 
- protected:
-  // Private constructor - use build() instead
-  BoundDisk(const PositionType& pos, 
-	    const RotationType& rot, 
-	    Bounds* bounds,
-	    MediumProperties* mp=0) :
-    Surface(pos, rot, mp), BoundPlane(pos, rot, bounds, mp) {}
 
 };
-
+using BoundDisk=Disk;
 
 #endif // Geom_BoundDisk_H

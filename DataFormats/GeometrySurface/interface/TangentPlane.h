@@ -12,7 +12,7 @@ public:
   TangentPlane (const PositionType& pos, 
 		const RotationType& rot, 
 		const Surface* parent) :
-    Surface(pos,rot), Plane(pos,rot),
+    Plane(pos,rot),
     theParent(parent) {}
 
   /// access to original surface
