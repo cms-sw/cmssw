@@ -74,6 +74,7 @@ struct MyGEMSimHit
   Int_t region, ring, station, layer, chamber, roll;
   Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
   Int_t strip;
+  Float_t Phi_0, DeltaPhi, R_0;
 };
 
 struct MySimTrack
@@ -287,6 +288,9 @@ void GEMSimHitAnalyzer::bookGEMSimHitsTree()
   gem_sh_tree->Branch("globalY", &gem_sh.globalY);
   gem_sh_tree->Branch("globalZ", &gem_sh.globalZ);
   gem_sh_tree->Branch("strip", &gem_sh.strip);
+  gem_sh_tree->Branch("Phi_0", &gem_sh.Phi_0);
+  gem_sh_tree->Branch("DeltaPhi", &gem_sh.DeltaPhi);
+  gem_sh_tree->Branch("R_0", &gem_sh.R_0);
 }
 
 
@@ -458,6 +462,14 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
     gem_sh.layer = id.layer();
     gem_sh.chamber = id.chamber();
     gem_sh.roll = id.roll();
+
+    LocalPoint p0(0., 0., 0.);
+    GlobalPoint Gp0 = gem_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(p0);
+    gem_sh.Phi_0 = Gp0.phi();
+    gem_sh.R_0 = Gp0.perp();
+
+    if(id.region()*pow(-1,id.chamber()) == 1) gem_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
+    if(id.region()*pow(-1,id.chamber()) == -1) gem_sh.DeltaPhi = atan(itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
     
     LocalPoint hitLP = itHit->localPosition();
     hitGP = gem_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP);
