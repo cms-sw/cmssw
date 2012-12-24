@@ -142,6 +142,7 @@ private:
   extstd::clone_ptr<Bounds> theBounds;
 #else
   Bounds * theBounds;
+#endif
 };
   
 
