@@ -138,8 +138,10 @@ public:
 
 private:
   MediumProperties theMediumProperties;
+#ifndef CMS_NOCXX11
   extstd::clone_ptr<Bounds> theBounds;
-
+#else
+  Bounds * theBounds;
 };
   
 
