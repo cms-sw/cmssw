@@ -14,16 +14,15 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2012/05/05 13:32:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2012/12/23 16:33:37 $
+ *  $Revision: 1.5 $
  */
 
 class Disk GCC11_FINAL : public Plane {
 public:
 
   template<typename... Args>
-    Disk(Args&& ... args,
-	   Scalar radius) :
+    Disk(Args&& ... args) :
     Plane(std::forward<Args>(args)...){}
   
 
