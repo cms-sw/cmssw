@@ -23,8 +23,8 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : November 2010
-///  $Revision: 1.5 $
-///  $Date: 2012/09/19 15:47:48 $
+///  $Revision: 1.6 $
+///  $Date: 2012/09/22 08:09:45 $
 ///  (last update by $Author: innocent $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
@@ -32,12 +32,12 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-class BoundPlane;
+class Plane;
 
 class ProxyStripTopology GCC11_FINAL : public StripTopology {
 public:
 
-  ProxyStripTopology(StripGeomDetType* type, BoundPlane * bp);
+  ProxyStripTopology(StripGeomDetType* type, Plane * bp);
 
   virtual LocalPoint localPosition( const MeasurementPoint& mp ) const { return specificTopology().localPosition(mp);}
   /// conversion taking also the predicted track state 

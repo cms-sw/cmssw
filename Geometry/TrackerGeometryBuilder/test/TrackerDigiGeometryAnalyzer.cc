@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.10 2007/03/09 00:41:03 wmtan Exp $
+// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.11 2012/08/03 16:07:42 yana Exp $
 //
 //
 
@@ -117,14 +117,14 @@ TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
    for(TrackingGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
        if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
 	const BoundPlane& p = (dynamic_cast<PixelGeomDetUnit*>((*it)))->specificSurface();
-	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Pixel "<<p.mediumProperties()->radLen();
-	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Pixel "<<p.mediumProperties()->xi();
+	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Pixel "<<p.mediumProperties().radLen();
+	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Pixel "<<p.mediumProperties().xi();
        } 
 
        if(dynamic_cast<StripGeomDetUnit*>((*it))!=0){
 	const BoundPlane& s = (dynamic_cast<StripGeomDetUnit*>((*it)))->specificSurface();
-	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Strip "<<s.mediumProperties()->radLen();
-	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Strip "<<s.mediumProperties()->xi();
+	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Strip "<<s.mediumProperties().radLen();
+	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Strip "<<s.mediumProperties().xi();
        }
        
        //analyseTrapezoidal(**it);

@@ -1,7 +1,7 @@
 #ifndef ModifiedSurfaceGenerator_h_
 #define ModifiedSurfaceGenerator_h_
 
-#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 
 /** Creates a new instance of a BoundSurface at 
  *  a new location (using the copy constructor). */
@@ -25,9 +25,8 @@ public:
    *  identical Bounds and MediumProperties */
   SurfacePointer atNewPosition (const Surface::PositionType& position,
 				const Surface::RotationType& rotation) const {
-    const MediumProperties* mp(theSurface->mediumProperties());
-    SurfacePointer newSurface(new T(position, rotation,theSurface->bounds()));
-    if ( mp ) newSurface->setMediumProperties(const_cast<MediumProperties*>(mp));
+    const MediumProperties &  mp = theSurface->mediumProperties();
+    SurfacePointer newSurface(new T(position, rotation,mp, theSurface->bounds().clone()));
     return newSurface;
   }
 

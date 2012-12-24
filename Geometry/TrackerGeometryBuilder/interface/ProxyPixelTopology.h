@@ -18,9 +18,9 @@
 ///
 ///  \author    : Andreas Mussgiller
 ///  date       : December 2010
-///  $Revision: 1.8 $
-///  $Date: 2012/07/05 13:32:03 $
-///  (last update by $Author: yana $)
+///  $Revision: 1.9 $
+///  $Date: 2012/09/15 16:31:43 $
+///  (last update by $Author: innocent $)
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
@@ -28,12 +28,12 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
-class BoundPlane;
+class Plane;
 
 class ProxyPixelTopology GCC11_FINAL : public PixelTopology {
 public:
 
-  ProxyPixelTopology( PixelGeomDetType* type, BoundPlane * bp );
+  ProxyPixelTopology( PixelGeomDetType* type, Plane * bp );
 
   virtual LocalPoint localPosition( const MeasurementPoint& ) const;
   /// conversion taking also the predicted track state 

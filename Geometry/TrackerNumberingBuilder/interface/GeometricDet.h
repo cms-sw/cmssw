@@ -214,7 +214,7 @@ class GeometricDet {
   /**
    *bounds() returns the Bounds.
    */
-  const Bounds * bounds() const; 
+   Bounds * bounds() const; 
 #ifdef GEOMETRICDETDEBUG
   int copyno() const {
     //std::cout<<"copyno"<<std::endl;

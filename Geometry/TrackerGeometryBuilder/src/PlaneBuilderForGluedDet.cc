@@ -21,27 +21,26 @@ PlaneBuilderForGluedDet::plane( const std::vector<const GeomDetUnit*>& dets ) co
   
   Surface::RotationType rotation =  dets.front()->surface().rotation();
   //  Surface::RotationType rotation = computeRotation( dets, meanPos);
-  BoundPlane::BoundPlanePointer tmpPlane = BoundPlane::build( meanPos, rotation, OpenBounds());
+  Plane tmpPlane = Plane( meanPos, rotation);
 
   // Take the medium properties from the first DetUnit 
-  const MediumProperties* mp = dets.front()->surface().mediumProperties();
-  MediumProperties newmp( 0, 0 );
-  if( mp != 0 ) newmp = MediumProperties( mp->radLen() * 2.0, mp->xi() * 2.0 );
+  const MediumProperties &  mp = dets.front()->surface().mediumProperties();
+  MediumProperties newmp( mp.radLen() * 2.0, mp.xi() * 2.0 );
 
-  std::pair<RectangularPlaneBounds, GlobalVector> bo = computeRectBounds( dets, *tmpPlane);
-  return new BoundPlane( meanPos+bo.second, rotation, bo.first, &newmp);
+  std::pair<RectangularPlaneBounds*, GlobalVector> bo = computeRectBounds( dets, tmpPlane);
+  return new Plane( meanPos+bo.second, rotation, newmp, bo.first);
 }
 
 
-std::pair<RectangularPlaneBounds, GlobalVector>
-PlaneBuilderForGluedDet::computeRectBounds( const std::vector<const GeomDetUnit*>& dets, const BoundPlane& plane ) const
+std::pair<RectangularPlaneBounds*, GlobalVector>
+PlaneBuilderForGluedDet::computeRectBounds( const std::vector<const GeomDetUnit*>& dets, const Plane& plane ) const
 {
   // go over all corners and compute maximum deviations from mean pos.
   std::vector<GlobalPoint> corners;
   for( std::vector<const GeomDetUnit*>::const_iterator idet = dets.begin(), dend = dets.end();
        idet != dend; ++idet )
   {
-    const BoundPlane& bplane = dynamic_cast<const BoundPlane&>(( *idet )->surface());
+    const Plane& bplane = dynamic_cast<const Plane&>(( *idet )->surface());
     std::vector<GlobalPoint> dc = BoundingBox().corners( bplane );
     corners.insert( corners.end(), dc.begin(), dc.end());
   }
@@ -62,7 +61,7 @@ PlaneBuilderForGluedDet::computeRectBounds( const std::vector<const GeomDetUnit*
   LocalVector localOffset(( xmin + xmax ) / 2., ( ymin + ymax ) / 2., ( zmin + zmax ) / 2. );
   GlobalVector offset( plane.toGlobal( localOffset ));
 
-  std::pair<RectangularPlaneBounds, GlobalVector> result( RectangularPlaneBounds(( xmax - xmin ) / 2, ( ymax - ymin ) / 2, ( zmax - zmin ) / 2 ), offset );
+  std::pair<RectangularPlaneBounds*, GlobalVector> result(new RectangularPlaneBounds(( xmax - xmin ) / 2, ( ymax - ymin ) / 2, ( zmax - zmin ) / 2 ), offset );
 
   return result;
 }
