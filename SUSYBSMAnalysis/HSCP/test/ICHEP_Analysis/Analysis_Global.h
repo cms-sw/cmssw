@@ -177,7 +177,7 @@ void InitBaseDirectory(){
       //BaseDirectory = "rfio:/castor/cern.ch/user/r/rybinska/HSCPEDMFiles/";
       BaseDirectory = "root://eoscms//eos/cms/store/cmst3/user/querten/12_08_30_HSCP_EDMFiles/";
    }else if(host.find("fnal.gov")!=std::string::npos){
-     BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/farrell3/HSCPEDMFiles7and8TeV/";
+     BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/lpchscp/2012HSCPEDMFiles/";
    }else{
       BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/venkat12/2012Data/";
       printf("YOUR MACHINE (%s) IS NOT KNOW --> please add your machine to the 'InitBaseDirectory' function of 'Analysis_Global.h'\n", host.c_str());
