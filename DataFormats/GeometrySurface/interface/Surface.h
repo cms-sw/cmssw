@@ -8,10 +8,12 @@
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
-#include "FWCore/Utilities/interface/clone_ptr.h"
-#include <algorithm>
-
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+ 
+#ifndef CMS_NOCXX11
+#include "FWCore/Utilities/interface/clone_ptr.h"
+#endif
+#include <algorithm>
 
 
 

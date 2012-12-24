@@ -1,7 +1,7 @@
 #ifndef Geom_PlaneBuilder_H
 #define Geom_PlaneBuilder_H
 
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 class Bounds;
 
@@ -15,12 +15,12 @@ public:
 
   typedef Surface::PositionType                  PositionType;
   typedef Surface::RotationType                  RotationType;
-  typedef ReferenceCountingPointer<BoundPlane>   ReturnType;
+  typedef ReferenceCountingPointer<Plane>        ReturnType;
 
   /** Builds a plane with origin at pos and with rotation matrix rot
    */
   ReturnType plane( const PositionType& pos, const RotationType& rot) const {
-    return ReturnType( new BoundPlane( pos, rot));
+    return ReturnType( new Plane( pos, rot));
   }
 
   /** Same as above, with bounds. The bounds are cloned, and a new 
@@ -28,8 +28,8 @@ public:
    *  and if you do, don't forget to delete them.
    */
   ReturnType plane( const PositionType& pos, const RotationType& rot, 
-		    const Bounds& bounds) const {
-    return ReturnType( new BoundPlane( pos, rot, bounds));
+		    Bounds * bounds) const {
+    return ReturnType( new Plane( pos, rot, bounds));
   }
 
 };
