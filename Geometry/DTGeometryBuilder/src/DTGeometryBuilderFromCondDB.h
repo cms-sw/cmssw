@@ -23,7 +23,7 @@ class DTChamber;
 class DTSuperLayer;
 class DTLayer;
 class DetId;
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 /* C++ Headers */
 #include <boost/shared_ptr.hpp>
@@ -63,11 +63,11 @@ class DTGeometryBuilderFromCondDB{
 			size_t idt) const ;
 
 
-    typedef ReferenceCountingPointer<BoundPlane> RCPPlane;
+    typedef ReferenceCountingPointer<Plane> RCPPlane;
 
     RCPPlane plane(const std::vector<double>::const_iterator tranStart,
                    const std::vector<double>::const_iterator rotStart,
-                   const Bounds& bounds) const ;
+                   Bounds * bounds) const ;
 
   protected:
 

@@ -116,7 +116,7 @@ void
 	// What's its surface?
 	// The surface knows how to transform local <-> global
 
-	const BoundSurface& bSurface = chamber->surface();
+	const Surface& bSurface = chamber->surface();
 
 	//	std::cout << " length=" << bSurface.bounds().length() << 
 	//       	             ", width=" << bSurface.bounds().width() << 

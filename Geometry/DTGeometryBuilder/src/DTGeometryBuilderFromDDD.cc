@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/03/10 14:57:01 $
- *  $Revision: 1.12 $
+ *  $Date: 2009/05/25 09:17:01 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -133,9 +133,8 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
   // width is along local X
   // length is along local Y
   // thickness is long local Z
-  RectangularPlaneBounds bound(width, length, thickness);
 
-  RCPPlane surf(plane(fv,bound));
+  RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
 
   DTChamber* chamber = new DTChamber(detId, surf);
 
@@ -159,10 +158,8 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   float length = par[1]/cm;    // z      dimension - constant 126.8 cm
   float thickness = par[2]/cm; // radial thickness - almost constant about 20 cm
 
-  RectangularPlaneBounds bound(width, length, thickness);
-
   // Ok this is the slayer position...
-  RCPPlane surf(plane(fv,bound));
+  RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
 
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
@@ -191,10 +188,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   float length = par[1]/cm;    // z      dimension - constant 126.8 cm
   float thickness = par[2]/cm; // radial thickness - almost constant about 20 cm
 
-  // define Bounds
-  RectangularPlaneBounds bound(width, length, thickness);
-
-  RCPPlane surf(plane(fv,bound));
+  RCPPlane surf(plane(fv, new RectangularPlaneBounds(width, length, thickness) ));
 
   // Loop on wires
   bool doWire = fv.firstChild();
@@ -236,7 +230,7 @@ DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
 
 DTGeometryBuilderFromDDD::RCPPlane 
 DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
-                                const Bounds& bounds) const {
+                                Bounds * bounds) const {
   // extract the position
   const DDTranslation & trans(fv.translation());
 
@@ -270,5 +264,5 @@ DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
 // 	    << ty.X() << ", " << ty.Y() << ", " << ty.Z() << std::endl
 // 	    << tz.X() << ", " << tz.Y() << ", " << tz.Z() << std::endl;
 
-  return RCPPlane( new BoundPlane( posResult, rotResult, bounds));
+  return RCPPlane( new Plane( posResult, rotResult, bounds));
 }

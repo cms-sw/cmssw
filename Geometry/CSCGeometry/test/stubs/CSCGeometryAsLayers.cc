@@ -99,7 +99,7 @@ void
 	// What's its surface?
 	// The surface knows how to transform local <-> global
 
-	const BoundSurface& bSurface = layer->surface();
+	const Surface& bSurface = layer->surface();
 
 	// Check global coordinates of centre of CSCLayer, and how
 	// local z direction relates to global z direction

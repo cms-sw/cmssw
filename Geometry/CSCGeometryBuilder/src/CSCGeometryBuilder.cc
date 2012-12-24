@@ -204,9 +204,9 @@ void CSCGeometryBuilder::buildChamber (
    // The corresponding transformation from global to local is
    //         (grmat)*(global - gtran)
  
-    BoundSurface::RotationType aRot( grmat[0], grmat[1], grmat[2], 
-                                     grmat[3], grmat[4], grmat[5],
-                                     grmat[6], grmat[7], grmat[8] );
+    Surface::RotationType aRot( grmat[0], grmat[1], grmat[2], 
+                                grmat[3], grmat[4], grmat[5],
+                                grmat[6], grmat[7], grmat[8] );
 
    // This rotation from GEANT considers the detector face as the x-z plane.
    // We want this to be the local x-y plane.
@@ -265,8 +265,7 @@ void CSCGeometryBuilder::buildChamber (
    // Centre of chamber in z is specified in DDD
     Surface::PositionType aVec( gtran[0], gtran[1], gtran[2] ); 
 
-    BoundPlane::BoundPlanePointer plane = BoundPlane::build(aVec, aRot, bounds); 
-    delete bounds; // bounds cloned by BoundPlane, so we can delete it
+    Plane::PlanePointer plane = Plane::build(aVec, aRot, bounds); 
 
     CSCChamber* chamber = new CSCChamber( plane, chamberId, aSpecs );
     theGeometry->addChamber( chamber ); 
@@ -316,13 +315,12 @@ void CSCGeometryBuilder::buildChamber (
 	// centre of chamber is at global z = gtran[2]
         float zlayer = gtran[2] - globalZ*zAverageAGVtoAF + localZwrtGlobalZ*(3.5-j)*layerSeparation;
 
-        BoundSurface::RotationType chamberRotation = chamber->surface().rotation();
-        BoundPlane::PositionType layerPosition( gtran[0], gtran[1], zlayer );
+        Surface::RotationType chamberRotation = chamber->surface().rotation();
+        Surface::PositionType layerPosition( gtran[0], gtran[1], zlayer );
 	std::array<const float, 4> const & dims = geom->parameters(); // returns hb, ht, d, a
         // dims[2] = layerThickness/2.; // half-thickness required and note it is 3rd value in vector
         TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], layerThickness/2. );
-        BoundPlane::BoundPlanePointer plane = BoundPlane::build(layerPosition, chamberRotation, bounds);
-	delete bounds;
+        Plane::PlanePointer plane = Plane::build(layerPosition, chamberRotation, bounds);
 
         CSCLayer* layer = new CSCLayer( plane, layerId, chamber, geom );
 
