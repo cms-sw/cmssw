@@ -64,9 +64,9 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
   PositionType pos(0.,0.,0.);
   RotationType rot;
 
-  return new BoundCylinder( pos, rot, 
-			    SimpleCylinderBounds( theRmin, theRmax, 
-						  theZmin, theZmax));
+  auto scp = new SimpleCylinderBounds( theRmin, theRmax,
+                                       theZmin, theZmax);
+  return new Cylinder(Cylinder::computeRadius(*scp), pos, rot, scp);
 }  
 
 

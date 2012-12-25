@@ -20,7 +20,7 @@ public:
   /// Should be changed to return a ReferenceCountingPointer<Plane>
   Plane* operator()( const std::vector<const Det*>& dets) const;
 
-  std::pair<RectangularPlaneBounds, GlobalVector>
+  std::pair<RectangularPlaneBounds*, GlobalVector>
   computeBounds( const std::vector<const Det*>& dets, const Plane& plane) const;
 
   Surface::RotationType 

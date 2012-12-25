@@ -21,8 +21,7 @@ RodPlaneBuilderFromDet::operator()( const vector<const Det*>& dets) const
   // temporary plane - for the computation of bounds
   Surface::RotationType rotation = computeRotation( dets, meanPos);
   Plane tmpPlane( meanPos, rotation);
-  pair<RectangularPlaneBounds,GlobalVector> bo = 
-    computeBounds( dets, tmpPlane);
+  auto bo = computeBounds( dets, tmpPlane);
 
 //   LogDebug("DetLayers") << "Creating plane at position " << meanPos 
 //        << " displaced by " << bo.second ;
@@ -33,7 +32,7 @@ RodPlaneBuilderFromDet::operator()( const vector<const Det*>& dets) const
   return new Plane( meanPos+bo.second, rotation, bo.first);
 }
 
-pair<RectangularPlaneBounds, GlobalVector>
+pair<RectangularPlaneBounds*, GlobalVector>
 RodPlaneBuilderFromDet::computeBounds( const vector<const Det*>& dets,
 				       const Plane& plane) const
 {
@@ -73,7 +72,7 @@ RodPlaneBuilderFromDet::computeBounds( const vector<const Det*>& dets,
   LocalVector localOffset( (xmin+xmax)/2., (ymin+ymax)/2., (zmin+zmax)/2.);
   GlobalVector offset( plane.toGlobal(localOffset));
   
-  pair<RectangularPlaneBounds, GlobalVector> result(RectangularPlaneBounds((xmax-xmin)/2, (ymax-ymin)/2, (zmax-zmin)/2), offset);
+  pair<RectangularPlaneBounds*, GlobalVector> result(new RectangularPlaneBounds((xmax-xmin)/2, (ymax-ymin)/2, (zmax-zmin)/2), offset);
 
   return result;
 }

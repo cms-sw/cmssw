@@ -56,9 +56,10 @@ CylinderBuilderFromDet::operator()( vector<const Det*>::const_iterator first,
   PositionType pos( 0, 0, 0.5*(zmin+zmax));
   RotationType rot;      // only "barrel" orientation supported
   
-  return new BoundCylinder( pos, rot, 
-			    SimpleCylinderBounds( rmin, rmax, 
-						  zmin-pos.z(), zmax-pos.z()));
+  auto scp = new SimpleCylinderBounds( rmin, rmax, 
+       				       zmin-pos.z(), zmax-pos.z());
+  return new Cylinder(Cylinder::computeRadius(*scp), pos, rot, scp);
+
 }
 
 void CylinderBuilderFromDet::operator()(const Det& det) {
@@ -84,8 +85,9 @@ BoundCylinder* CylinderBuilderFromDet::build() const {
   
   PositionType pos( 0, 0, 0.5*(zmin+zmax));
   RotationType rot;      // only "barrel" orientation supported
-  
-  return new BoundCylinder( pos, rot, 
-			    SimpleCylinderBounds( rmin, rmax, 
-						  zmin-pos.z(), zmax-pos.z()));
+
+  auto scp = new SimpleCylinderBounds( rmin, rmax,
+                                       zmin-pos.z(), zmax-pos.z());
+  return new Cylinder(Cylinder::computeRadius(*scp), pos, rot, scp);
+
 }

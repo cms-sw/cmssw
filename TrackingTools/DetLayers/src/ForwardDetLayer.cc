@@ -95,8 +95,8 @@ BoundDisk* ForwardDetLayer::computeSurface() {
   RotationType rot;
 
   return new BoundDisk( pos, rot, 
-			SimpleDiskBounds( theRmin, theRmax, 
-					  theZmin-zPos, theZmax-zPos));
+			new SimpleDiskBounds( theRmin, theRmax, 
+			      		      theZmin-zPos, theZmax-zPos));
 }  
 
 
