@@ -7,7 +7,7 @@
 
 /** A Chi2 Measurement Estimator. 
  *  Computhes the Chi^2 of a TrajectoryState with a RecHit or a 
- *  BoundPlane. The TrajectoryState must have errors.
+ *  Plane. The TrajectoryState must have errors.
  *  Works for any RecHit dimension.
  */
 
@@ -18,7 +18,7 @@ public:
   /** Construct with cuts on chi2 and nSigma.
    *  The cut on Chi2 is used to define the acceptance of RecHits.
    *  The errors of the trajectory state are multiplied by nSigma 
-   *  to define acceptance of BoundPlane and maximalLocalDisplacement.
+   *  to define acceptance of Plane and maximalLocalDisplacement.
    */
   explicit Chi2MeasurementEstimatorForTrackerHits(double maxChi2, double nSigma = 3.) : 
     Chi2MeasurementEstimatorBase( maxChi2, nSigma), cacheUpToDate_(false) {}

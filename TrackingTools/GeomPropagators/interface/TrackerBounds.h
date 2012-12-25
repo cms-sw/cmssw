@@ -4,8 +4,8 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-class BoundCylinder;
-class BoundDisk;
+class Cylinder;
+class Disk;
 
 /** A definition of the envelope that contains the tracker
  *  sensitive detectors.
@@ -19,16 +19,16 @@ class BoundDisk;
  *  Outside of this volume use some kind of geane.
 
  *  Ported from ORCA
- *  $Date: 2007/03/06 14:34:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/07 16:28:40 $
+ *  $Revision: 1.4 $
  */
 
 class TrackerBounds {
 public:
 
-  static const BoundCylinder& barrelBound()    {check(); return *theCylinder;}
-  static const BoundDisk& negativeEndcapDisk() {check(); return *theNegativeDisk;}
-  static const BoundDisk& positiveEndcapDisk() {check(); return *thePositiveDisk;}
+  static const Cylinder& barrelBound()    {check(); return *theCylinder;}
+  static const Disk& negativeEndcapDisk() {check(); return *theNegativeDisk;}
+  static const Disk& positiveEndcapDisk() {check(); return *thePositiveDisk;}
 
   /** Hard-wired numbers defining the envelope of the sensitive volumes.
    */
@@ -38,9 +38,9 @@ public:
 
 private:
 
-  static ReferenceCountingPointer<BoundCylinder>  theCylinder;
-  static ReferenceCountingPointer<BoundDisk>      theNegativeDisk;
-  static ReferenceCountingPointer<BoundDisk>      thePositiveDisk;
+  static ReferenceCountingPointer<Cylinder>  theCylinder;
+  static ReferenceCountingPointer<Disk>      theNegativeDisk;
+  static ReferenceCountingPointer<Disk>      thePositiveDisk;
   static bool theInit;
 
   static void check() {if (!theInit) initialize();}

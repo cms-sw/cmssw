@@ -39,7 +39,7 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
   for ( vector< const GeomDet*>::const_iterator deti = comps.begin(); 
 	deti != comps.end(); deti++) {
     vector<GlobalPoint> corners = 
-      BoundingBox().corners( dynamic_cast<const BoundPlane&>((*deti)->surface()));
+      BoundingBox().corners( dynamic_cast<const Plane&>((*deti)->surface()));
     for (vector<GlobalPoint>::const_iterator ic = corners.begin();
 	 ic != corners.end(); ic++) {
       float r = ic->perp();

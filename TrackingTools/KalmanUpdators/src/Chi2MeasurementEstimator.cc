@@ -1,7 +1,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
 std::pair<bool,double> 

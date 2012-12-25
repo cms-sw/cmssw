@@ -47,7 +47,7 @@ ForwardRingDiskBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets
     for (vector<DetUnit*>::const_iterator detu=detUnits.begin();
     detu!=detUnits.end(); detu++) {
     vector<GlobalPoint> corners = BoundingBox().corners(
-    dynamic_cast<const BoundPlane&>((**detu).surface()));
+    dynamic_cast<const Plane&>((**detu).surface()));
     }
     ----- */
     vector<GlobalPoint> corners = BoundingBox().corners( (**idet).specificSurface() );

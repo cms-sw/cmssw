@@ -11,7 +11,7 @@ public:
   /** Construct with cuts on chi2 and nSigma.
    *  The cut on Chi2 is used to define the acceptance of RecHits.
    *  The errors of the trajectory state are multiplied by nSigma 
-   *  to define acceptance of BoundPlane and maximalLocalDisplacement.
+   *  to define acceptance of Plane and maximalLocalDisplacement.
    */
 
   explicit MRHChi2MeasurementEstimator(double maxChi2, double nSigma = 3.) : 

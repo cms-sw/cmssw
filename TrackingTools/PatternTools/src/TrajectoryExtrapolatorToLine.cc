@@ -36,7 +36,7 @@ TrajectoryStateOnSurface TrajectoryExtrapolatorToLine::extrapolate(const FreeTra
      GlobalVector XX(T1.y(),-T1.x(),0.);
      GlobalVector YY(T1.cross(XX));
      Surface::RotationType rot(XX,YY);
-     ReferenceCountingPointer<BoundPlane> surface = BoundPlane::build(pos, rot,OpenBounds());
+     ReferenceCountingPointer<Plane> surface = Plane::build(pos, rot);
 
      // extrapolate fastFts to target surface
      TrajectoryStateOnSurface tsos = p->propagate(fastFts, *surface);
@@ -74,7 +74,7 @@ TrajectoryStateOnSurface TrajectoryExtrapolatorToLine::extrapolate(const FreeTra
    GlobalVector YY(ZZ.cross(T0-origin).unit());
    GlobalVector XX(YY.cross(ZZ));
    Surface::RotationType rot(XX,YY,ZZ);
-   ReferenceCountingPointer<BoundPlane> surface = BoundPlane::build(origin, rot,OpenBounds());
+   ReferenceCountingPointer<Plane> surface = Plane::build(origin, rot);
    TrajectoryStateOnSurface tsos = p->propagate(fts, *surface);
  
    return tsos;

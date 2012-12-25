@@ -24,7 +24,7 @@ EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 }
 
 bool EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
-				   const BoundPlane& plane) const {
+				   const Plane& plane) const {
 
   double dEta = fabs(tsos.globalPosition().eta() - plane.position().eta());
   double dPhi = deltaPhi< double > (tsos.globalPosition().phi(), plane.position().phi());
@@ -41,7 +41,7 @@ bool EtaPhiMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 }
 
 MeasurementEstimator::Local2DVector EtaPhiMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
-					const BoundPlane& plane) const {
+					const Plane& plane) const {
 
   return  Local2DVector(30., 30.);
 }

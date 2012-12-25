@@ -86,11 +86,11 @@ TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurfa
 
     Surface::PositionType origin(vtx);
     Surface::RotationType rotation(xLocal,yLocal,zLocal);
-    ReferenceCountingPointer<BoundPlane> surface =  PlaneBuilder().plane(origin,rotation);
+    ReferenceCountingPointer<Plane> surface =  PlaneBuilder().plane(origin,rotation);
     
     return p.propagate(*tsos.freeState(),*surface);
   }else{
-  ReferenceCountingPointer<BoundPlane> surface = 
+  ReferenceCountingPointer<Plane> surface = 
     tipSurface(tsos.globalPosition(),tsos.globalMomentum(),
 	       1./tsos.transverseCurvature(),vtx);
   //
@@ -121,11 +121,11 @@ TransverseImpactPointExtrapolator::doExtrapolation (const FreeTrajectoryState& f
 
     Surface::PositionType origin(vtx);
     Surface::RotationType rotation(xLocal,yLocal,zLocal);
-    ReferenceCountingPointer<BoundPlane> surface =  PlaneBuilder().plane(origin,rotation);
+    ReferenceCountingPointer<Plane> surface =  PlaneBuilder().plane(origin,rotation);
     
     return p.propagate(fts,*surface);
   }else{
-  ReferenceCountingPointer<BoundPlane> surface = 
+  ReferenceCountingPointer<Plane> surface = 
     tipSurface(fts.position(),fts.momentum(),
 	       1./fts.transverseCurvature(),vtx);
   //
@@ -135,7 +135,7 @@ TransverseImpactPointExtrapolator::doExtrapolation (const FreeTrajectoryState& f
   }
 }
 
-ReferenceCountingPointer<BoundPlane>
+ReferenceCountingPointer<Plane>
 TransverseImpactPointExtrapolator::tipSurface (const GlobalPoint& position,
 					       const GlobalVector& momentum,
 					       const double& signedTransverseRadius,

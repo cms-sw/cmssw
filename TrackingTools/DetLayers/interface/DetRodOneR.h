@@ -2,7 +2,7 @@
 #define DetLayers_DetRodOneR_H
 
 /** \class DetRodOneR
- *  A rod of detectors, all having the same BoundPlane.
+ *  A rod of detectors, all having the same Plane.
  */
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"

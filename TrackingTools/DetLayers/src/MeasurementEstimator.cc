@@ -3,7 +3,7 @@
 
 MeasurementEstimator::Local2DVector 
 MeasurementEstimator::maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-						const BoundPlane& plane) const
+						const Plane& plane) const
 {
    throw cms::Exception("TrackingTools/PatternTools","MeasurementEstimator: base class maximalLocalDisplacement called");
 }

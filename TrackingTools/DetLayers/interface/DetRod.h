@@ -2,11 +2,11 @@
 #define DetLayers_DetRod_H
 
 /** \class DetRod
- *  Abstract interface for a rod of detectors sitting on a BoundPlane.
+ *  Abstract interface for a rod of detectors sitting on a Plane.
  */
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 class MeasurementEstimator;
 
@@ -21,13 +21,13 @@ class DetRod : public virtual GeometricSearchDet   {
 
   //--- Extension of the interface
   
-  /// Return the rod surface as a BoundPlane
-  virtual const BoundPlane& specificSurface() const GCC11_FINAL {return *thePlane;}
+  /// Return the rod surface as a Plane
+  virtual const Plane& specificSurface() const GCC11_FINAL {return *thePlane;}
 
 
 protected:
   /// Set the rod's plane
-  void setPlane( BoundPlane* plane) { thePlane = plane;}
+  void setPlane( Plane* plane) { thePlane = plane;}
 
   //obsolete?
   // Return the range in Z to be checked for compatibility
@@ -35,7 +35,7 @@ protected:
   //		const MeasurementEstimator& est) const;
 
  private:
-  ReferenceCountingPointer<BoundPlane>  thePlane;
+  ReferenceCountingPointer<Plane>  thePlane;
 
 };
 

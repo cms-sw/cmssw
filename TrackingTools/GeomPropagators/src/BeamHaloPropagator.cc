@@ -13,10 +13,10 @@
 
 /* Collaborating Class Header */
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 
-#include <DataFormats/GeometrySurface/interface/BoundCylinder.h>
+#include <DataFormats/GeometrySurface/interface/Cylinder.h>
 
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -9,6 +9,7 @@
 #include <cmath>
 #include<sstream>
 
+void bPoint(){}
 
 void FreeTrajectoryState::missingError() const {
   std::stringstream form;
@@ -17,6 +18,7 @@ void FreeTrajectoryState::missingError() const {
       <<  theCurvilinearError.matrix();
     edm::LogWarning("FreeTrajectoryState") << "(was exception) " << form.str();
 //  throw TrajectoryStateException(form.str());
+  bPoint();
 }
 
 // implementation of non-trivial methods of FreeTrajectoryState

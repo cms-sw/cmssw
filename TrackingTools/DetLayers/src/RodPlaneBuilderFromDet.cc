@@ -7,7 +7,7 @@
 using namespace std;
 
 // Warning, remember to assign this pointer to a ReferenceCountingPointer!
-BoundPlane* 
+Plane* 
 RodPlaneBuilderFromDet::operator()( const vector<const Det*>& dets) const
 {
   // find mean position
@@ -20,7 +20,7 @@ RodPlaneBuilderFromDet::operator()( const vector<const Det*>& dets) const
   
   // temporary plane - for the computation of bounds
   Surface::RotationType rotation = computeRotation( dets, meanPos);
-  BoundPlane tmpPlane( meanPos, rotation);
+  Plane tmpPlane( meanPos, rotation);
   pair<RectangularPlaneBounds,GlobalVector> bo = 
     computeBounds( dets, tmpPlane);
 
@@ -30,12 +30,12 @@ RodPlaneBuilderFromDet::operator()( const vector<const Det*>& dets) const
 //        << " / " <<  bo.first.length() 
 //        << " / " <<  bo.first.thickness() ;
 
-  return new BoundPlane( meanPos+bo.second, rotation, bo.first);
+  return new Plane( meanPos+bo.second, rotation, bo.first);
 }
 
 pair<RectangularPlaneBounds, GlobalVector>
 RodPlaneBuilderFromDet::computeBounds( const vector<const Det*>& dets,
-				       const BoundPlane& plane) const
+				       const Plane& plane) const
 {
   // go over all corners and compute maximum deviations from mean pos.
   vector<GlobalPoint> corners;
@@ -87,8 +87,8 @@ computeRotation( const vector<const Det*>& dets,
   // the rotations of GluedDets coincide with the mono part
   // Simply take the x,y of the first Det if z points out,
   // or -x, y if it doesn't
-  const BoundPlane& plane =
-    dynamic_cast<const BoundPlane&>(dets.front()->surface());
+  const Plane& plane =
+    dynamic_cast<const Plane&>(dets.front()->surface());
   //GlobalVector n = plane.normalVector();
 
   GlobalVector xAxis;

@@ -9,8 +9,7 @@
 
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
-// class Propagator;
-class BoundPlane;
+class Plane;
 template <class T> class ReferenceCountingPointer;
 
 /** Extrapolate to impact point with respect to vtx,
@@ -61,7 +60,7 @@ private:
 					    const GlobalPoint& vtx, 
 					    const Propagator& u) const;
   /// computation of the TIP surface
-  ReferenceCountingPointer<BoundPlane> tipSurface (const GlobalPoint& position,
+  ReferenceCountingPointer<Plane> tipSurface (const GlobalPoint& position,
 						   const GlobalVector& momentum,
 						   const double& signedTransverseRadius,
 						   const GlobalPoint& vtx) const;

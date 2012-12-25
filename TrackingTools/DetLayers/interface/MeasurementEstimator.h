@@ -5,14 +5,14 @@
 #include "DataFormats/GeometryVector/interface/LocalTag.h"
 #include <utility>
 
-class BoundPlane;
+class Plane;
 class TrajectoryStateOnSurface;
 class Surface;
 class TransientTrackingRecHit;
 
 /** The MeasurementEstimator defines the compatibility of a 
  *  TrajectoryStateOnSurface and a RecHit, and of a 
- *  TrajectoryStateOnSurface and a BoundPlane.
+ *  TrajectoryStateOnSurface and a Plane.
  *  It is used in the Det interface to obtain compatible measurements.
  */
 
@@ -25,7 +25,7 @@ public:
   virtual ~MeasurementEstimator() {}
 
   typedef std::pair<bool,double>     HitReturnType;
-  typedef bool                  SurfaceReturnType;
+  typedef bool                   SurfaceReturnType;
 
   /** Returns pair( true, value) if the TrajectoryStateOnSurface is compatible
    *  with the RecHit, and pair( false, value) if it is not compatible.
@@ -37,14 +37,14 @@ public:
 				  const TransientTrackingRecHit& hit) const = 0;
 
   /** Returns true if the TrajectoryStateOnSurface is compatible with the
-   *  BoundPlane, false otherwise.
+   *  Plane, false otherwise.
    *  The TrajectoryStateOnSurface must be on the plane.
    */
   virtual SurfaceReturnType estimate( const TrajectoryStateOnSurface& ts, 
-				      const BoundPlane& plane) const = 0;
+				      const Plane& plane) const = 0;
 
 /*   virtual SurfaceReturnType estimate( const TrajectoryStateOnSurface& ts,  */
-/* 				      const BoundSurface& plane) const; */
+/* 				      const Surface& plane) const; */
 
   virtual MeasurementEstimator* clone() const = 0;
 
@@ -53,12 +53,12 @@ public:
    *  The TrajectoryStateOnSurface must be on the plane.
    *  This method allows to limit the search for compatible detectors or RecHits.
    *  The MeasurementEstimator should not return "true" for any RecHit or
-   *  BoundPlane which is entirely outside of the compatibility region defined 
+   *  Plane which is entirely outside of the compatibility region defined 
    *  by maximalLocalDisplacement().
    */
   virtual Local2DVector 
   maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-			    const BoundPlane& plane) const;
+			    const Plane& plane) const;
 };
 
 #endif // Tracker_MeasurementEstimator_H
