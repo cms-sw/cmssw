@@ -20,7 +20,7 @@ public:
   BoundDiskSector* operator()( const std::vector<const TECWedge*>& wedges) const;
 
 private:  
-  std::pair<DiskSectorBounds, GlobalVector>
+  std::pair<DiskSectorBounds*, GlobalVector>
   computeBounds( const std::vector<const TECWedge*>& wedges) const;
 
   Surface::RotationType

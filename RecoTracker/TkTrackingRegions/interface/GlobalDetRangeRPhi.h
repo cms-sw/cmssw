@@ -3,7 +3,7 @@
 
 #include <utility>
 
-class BoundPlane;
+class Plane;
 
 /** Keep R and Phi range for detunit */
 
@@ -12,7 +12,7 @@ public:
 
   typedef std::pair<float,float> Range;
 
-  GlobalDetRangeRPhi( const BoundPlane& det);
+  GlobalDetRangeRPhi( const Plane& det);
 
   Range rRange() const { return theRRange;}
   Range phiRange() const { return thePhiRange;}

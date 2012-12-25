@@ -75,8 +75,8 @@ class TOBRod GCC11_FINAL : public DetRod, public GeometricSearchDetWithGroups{
   std::vector<const GeomDet*> theInnerDets;
   std::vector<const GeomDet*> theOuterDets;
 
-  ReferenceCountingPointer<BoundPlane> theInnerPlane;
-  ReferenceCountingPointer<BoundPlane> theOuterPlane;
+  ReferenceCountingPointer<Plane> theInnerPlane;
+  ReferenceCountingPointer<Plane> theOuterPlane;
 
   BinFinderType theInnerBinFinder;
   BinFinderType theOuterBinFinder;

@@ -26,15 +26,14 @@ ForwardDiskSectorBuilderFromDet::operator()( const vector<const GeomDet*>& dets)
 				   << "Dets at different z positions !! Delta_z = " << zdiff ;
   }
 
-  pair<DiskSectorBounds,GlobalVector> bo = 
-    computeBounds( dets );
+  auto bo = computeBounds( dets );
 
   Surface::PositionType pos( bo.second.x(), bo.second.y(), bo.second.z() );
   Surface::RotationType rot = computeRotation( dets, pos);
   return new BoundDiskSector( pos, rot, bo.first);
 }
 
-pair<DiskSectorBounds, GlobalVector>
+pair<DiskSectorBounds*, GlobalVector>
 ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets) const
 {
   // go over all corners and compute maximum deviations 
@@ -145,7 +144,7 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
     phiPos += Geom::pi(); 
   }
   GlobalVector pos( rmed*cos(phiPos), rmed*sin(phiPos), zPos);
-  return make_pair(DiskSectorBounds(rmin,rmax,zmin-zPos,zmax-zPos,phiWin), pos);
+  return make_pair(new DiskSectorBounds(rmin,rmax,zmin-zPos,zmax-zPos,phiWin), pos);
 }
 
 Surface::RotationType 
@@ -165,7 +164,7 @@ vector<GlobalPoint>
 ForwardDiskSectorBuilderFromDet::computeTrapezoidalCorners( const GeomDet* det) const {
 
 
-  const BoundPlane& plane( det->specificSurface());
+  const Plane& plane( det->specificSurface());
   
   const TrapezoidalPlaneBounds* myBounds( static_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
   

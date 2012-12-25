@@ -3,7 +3,7 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 
@@ -32,7 +32,7 @@ namespace tkDetUtil {
 			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est)
   {
-    const BoundPlane& startPlane = det->surface();  
+    const Plane& startPlane = det->surface();  
     MeasurementEstimator::Local2DVector maxDistance = 
       est.maximalLocalDisplacement( tsos, startPlane);
     return calculatePhiWindow( maxDistance, tsos, startPlane);
@@ -43,7 +43,7 @@ namespace tkDetUtil {
   float 
   calculatePhiWindow( const MeasurementEstimator::Local2DVector& maxDistance, 
 		      const TrajectoryStateOnSurface& ts, 
-		      const BoundPlane& plane)
+		      const Plane& plane)
   {
     
     LocalPoint start = ts.localPosition();

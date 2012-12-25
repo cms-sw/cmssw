@@ -1,17 +1,13 @@
 #ifndef MeasurementDet_H
 #define MeasurementDet_H
 
-
-
 #include "TrackingTools/MeasurementDet/interface/TempMeasurements.h"
-
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 
 class TrajectoryStateOnSurface;
 class Propagator;
@@ -67,7 +63,7 @@ public:
   const GeomDet& fastGeomDet() const { return *theGeomDet;}
   virtual const GeomDet& geomDet() const { return *theGeomDet;}
 
-  const BoundSurface& surface() const {return  geomDet().surface();}
+  const Surface& surface() const {return  geomDet().surface();}
 
   const Surface::PositionType& position() const {return geomDet().position();}
 

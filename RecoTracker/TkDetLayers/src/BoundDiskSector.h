@@ -1,11 +1,11 @@
 #ifndef RecoTracker_TkDetLayers_BoundDiskSector_h
 #define RecoTracker_TkDetLayers_BoundDiskSector_h
  
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DiskSectorBounds.h"
 
 #pragma GCC visibility push(hidden)
-class BoundDiskSector GCC11_FINAL : public BoundPlane {
+class BoundDiskSector GCC11_FINAL : public Plane {
  public:
  
  
@@ -13,13 +13,9 @@ class BoundDiskSector GCC11_FINAL : public BoundPlane {
  
   BoundDiskSector( const PositionType& pos, 
 		   const RotationType& rot, 
-		   Bounds* bounds) : Surface( pos,rot),
-    BoundPlane( pos, rot, bounds) {}
+		   Bounds* bounds) :
+    Plane( pos, rot, bounds) {}
   
-  BoundDiskSector( const PositionType& pos, 
-		   const RotationType& rot, 
-		   const Bounds& bounds) : Surface( pos,rot),
-    BoundPlane( pos, rot, bounds) {}
   
   float innerRadius() const { return bounds().innerRadius();}
   float outerRadius() const  { return bounds().outerRadius();}
@@ -27,7 +23,7 @@ class BoundDiskSector GCC11_FINAL : public BoundPlane {
 
   // hide
   DiskSectorBounds const & bounds() const {
-    return static_cast<DiskSectorBounds const &>(BoundPlane::bounds());
+    return static_cast<DiskSectorBounds const &>(Plane::bounds());
   }
 
 };

@@ -162,8 +162,8 @@ TIDLayer::computeDisk( const vector<const TIDRing*>& rings) const
   PositionType pos(0.,0.,zPos);
   RotationType rot;
 
-  return new BoundDisk( pos, rot,SimpleDiskBounds(theRmin, theRmax,    
-				 theZmin-zPos, theZmax-zPos));
+  return new BoundDisk( pos, rot, new SimpleDiskBounds(theRmin, theRmax,    
+				      theZmin-zPos, theZmax-zPos));
 
 }
 
@@ -291,7 +291,7 @@ TIDLayer::computeWindowSize( const GeomDet* det,
 			     const TrajectoryStateOnSurface& tsos, 
 			     const MeasurementEstimator& est) const
 {
-  const BoundPlane& startPlane = det->surface();  
+  const Plane& startPlane = det->surface();  
   MeasurementEstimator::Local2DVector maxDistance = 
     est.maximalLocalDisplacement( tsos, startPlane);
   return maxDistance.y();

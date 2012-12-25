@@ -287,7 +287,7 @@ PixelForwardLayerPhase1::computeCrossings( const TrajectoryStateOnSurface& start
   float closestDist = 0;
   int nextIndex = 0;
   if(innerDisk) {
-    const BoundPlane& closestPlane( static_cast<const BoundPlane&>( 
+    const Plane& closestPlane( static_cast<const Plane&>( 
       theComps[closestIndex]->surface()));
 
     pair<bool,double> theClosestBladePath = theBladeCrossing.pathLength( closestPlane );
@@ -298,7 +298,7 @@ PixelForwardLayerPhase1::computeCrossings( const TrajectoryStateOnSurface& start
     nextIndex = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ? 
       closestIndex+1 : closestIndex-1;
   } else {
-    const BoundPlane& closestPlane( static_cast<const BoundPlane&>( 
+    const Plane& closestPlane( static_cast<const Plane&>( 
       theComps[closestIndex + _num_innerpanels]->surface()));
 
     pair<bool,double> theClosestBladePath = theBladeCrossing.pathLength( closestPlane );
@@ -312,13 +312,13 @@ PixelForwardLayerPhase1::computeCrossings( const TrajectoryStateOnSurface& start
 
   float nextDist = 0;
   if(innerDisk) {
-    const BoundPlane& nextPlane( static_cast<const BoundPlane&>( 
+    const Plane& nextPlane( static_cast<const Plane&>( 
       theComps[ theBinFinder_inner.binIndex(nextIndex)]->surface()));
     pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
     LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );
     nextDist = nextPos.x();
   } else {
-    const BoundPlane& nextPlane( static_cast<const BoundPlane&>( 
+    const Plane& nextPlane( static_cast<const Plane&>( 
       theComps[ theBinFinder_outer.binIndex(nextIndex) + _num_innerpanels]->surface()));
     pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
     LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );

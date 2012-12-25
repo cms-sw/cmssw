@@ -22,19 +22,19 @@ BladeShapeBuilderFromDet::operator()( const vector<const GeomDet*>& dets) const
 
   // temporary plane - for the computation of bounds
   Surface::RotationType rotation = computeRotation( dets, meanPos);
-  BoundPlane tmpPlane( meanPos, rotation);
+  Plane tmpPlane( meanPos, rotation);
 
 
-  pair<DiskSectorBounds,GlobalVector> bo = 
+  auto bo = 
     computeBounds( dets,tmpPlane );
   GlobalPoint pos = meanPos+bo.second;
   //edm::LogInfo(TkDetLayers) << "global pos in operator: " << pos ;
   return new BoundDiskSector( pos, rotation, bo.first);
 }
 
-pair<DiskSectorBounds, GlobalVector>
+pair<DiskSectorBounds *, GlobalVector>
 BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
-					 const BoundPlane& plane) const
+					 const Plane& plane) const
 {
   Surface::PositionType tmpPos = dets.front()->surface().position();
 
@@ -100,7 +100,7 @@ BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
 			  << "zmax:   " << zmax << "\n"
 			  << "phiWin: " << phiWin ;
 
-  return make_pair(DiskSectorBounds(rmin,rmax,zmin,zmax,phiWin),
+  return make_pair(new DiskSectorBounds(rmin,rmax,zmin,zmax,phiWin),
 		   plane.toGlobal(localPos) );
 
 }
@@ -110,7 +110,7 @@ Surface::RotationType
 BladeShapeBuilderFromDet::computeRotation( const vector<const GeomDet*>& dets,
 					   const Surface::PositionType& meanPos) const
 {
-  const BoundPlane& plane = dets.front()->surface();
+  const Plane& plane = dets.front()->surface();
   
   GlobalVector xAxis;
   GlobalVector yAxis;

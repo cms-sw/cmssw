@@ -202,7 +202,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   HelixPlaneCrossing::DirectionType turbineDir( turbineCrossing.direction(thePath.second));
   int closestIndex = theBinFinder.binIndex(turbinePoint.phi());
 
-  const BoundPlane& closestPlane( static_cast<const BoundPlane&>( 
+  const Plane& closestPlane( static_cast<const Plane&>( 
     theComps[closestIndex]->surface()));
 
 
@@ -217,7 +217,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   int nextIndex = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ? 
     closestIndex+1 : closestIndex-1;
 
-  const BoundPlane& nextPlane( static_cast<const BoundPlane&>( 
+  const Plane& nextPlane( static_cast<const Plane&>( 
     theComps[ theBinFinder.binIndex(nextIndex)]->surface()));
 
   pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );

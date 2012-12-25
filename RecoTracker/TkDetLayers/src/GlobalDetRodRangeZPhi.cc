@@ -1,5 +1,5 @@
 #include "GlobalDetRodRangeZPhi.h"
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
@@ -7,7 +7,7 @@
 
 using namespace std;
 
-GlobalDetRodRangeZPhi::GlobalDetRodRangeZPhi( const BoundPlane& plane) {
+GlobalDetRodRangeZPhi::GlobalDetRodRangeZPhi( const Plane& plane) {
 
   float dx = plane.bounds().width()/2.;
   float dy = plane.bounds().length()/2.;

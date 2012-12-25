@@ -121,10 +121,10 @@ TIBLayer::cylinder( const vector<const GeometricSearchDet*>& rings)
   float rmax = r+thick;
   float zpos = 0.5*(leftPos+rightPos);
 
-  return new BoundCylinder( Surface::PositionType( 0, 0, zpos), 
-			    rings.front()->surface().rotation(),
-			    SimpleCylinderBounds( rmin, rmax,
-						  zmin-zpos, zmax-zpos));
+  auto scp = new SimpleCylinderBounds(rmin, rmax, zmin-zpos, zmax-zpos);
+  return new Cylinder(r, Surface::PositionType( 0, 0, zpos),
+                         rings.front()->surface().rotation(), scp);
+
 }
 
 

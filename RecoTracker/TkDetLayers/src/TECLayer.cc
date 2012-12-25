@@ -285,7 +285,7 @@ TECLayer::computeDisk( vector<const GeometricSearchDet*>& petals) const
   PositionType pos(0.,0.,zPos);
   RotationType rot;
 
-  return new BoundDisk( pos, rot,SimpleDiskBounds(rmin, rmax,    
-						  theZmin-zPos, theZmax-zPos));
+  return new BoundDisk( pos, rot, new SimpleDiskBounds(rmin, rmax,    
+				       		       theZmin-zPos, theZmax-zPos));
 }
 

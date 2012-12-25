@@ -22,7 +22,7 @@ public:
   /// Should be changed to return a ReferenceCountingPointer<BoundDisk>
   BoundDiskSector* operator()( const std::vector<const GeomDet*>& dets) const;
   
-  std::pair<DiskSectorBounds, GlobalVector>
+  std::pair<DiskSectorBounds *, GlobalVector>
   computeBounds( const std::vector<const GeomDet*>& dets) const;
 
 private:
