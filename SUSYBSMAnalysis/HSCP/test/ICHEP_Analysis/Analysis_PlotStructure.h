@@ -1856,7 +1856,7 @@ void stPlots_DrawComparison(std::string SavePath, std::string LegendTitle, unsig
    DrawLegend((TObject**)Histos,legend,"","P", 0.78, 0.92, 0.38, 0.045);
    c1->SetLogy(false);
    DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,"PV_BS", true);
+   SaveCanvas(c1,SavePath,"PV_BS", false);
    for(unsigned int i=0;i<st.size();i++){delete Histos[i];}
    delete c1;
 
