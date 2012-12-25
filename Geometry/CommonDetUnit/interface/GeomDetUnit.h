@@ -1,7 +1,7 @@
 #ifndef CommonDet_GeomDetUnit_H
 #define CommonDet_GeomDetUnit_H
 
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
@@ -13,8 +13,8 @@ class SurfaceDeformation;
 class GeomDetUnit : public GeomDet {
 public:
 
-  explicit GeomDetUnit( BoundPlane* sp);
-  explicit GeomDetUnit( const ReferenceCountingPointer<BoundPlane>& plane);
+  explicit GeomDetUnit( Plane* sp);
+  explicit GeomDetUnit( const ReferenceCountingPointer<Plane>& plane);
 
   virtual ~GeomDetUnit();
   

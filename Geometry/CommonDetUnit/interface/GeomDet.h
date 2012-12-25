@@ -7,7 +7,7 @@
  */
 
 
-#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -25,17 +25,17 @@ class GeomDet {
 public:
   typedef GeomDetEnumerators::SubDetector SubDetector;
 
-  explicit GeomDet(BoundPlane* plane);
+  explicit GeomDet(Plane* plane);
 
-  explicit GeomDet(const ReferenceCountingPointer<BoundPlane>& plane);
+  explicit GeomDet(const ReferenceCountingPointer<Plane>& plane);
 
   virtual ~GeomDet();
 
   /// The nominal surface of the GeomDet
-  const BoundPlane& surface() const {return *thePlane;}
+  const Plane& surface() const {return *thePlane;}
 
   /// Same as surface(), kept for backward compatibility
-  const BoundPlane& specificSurface() const {return *thePlane;}
+  const Plane& specificSurface() const {return *thePlane;}
   
   /// The position (origin of the R.F.)
   const Surface::PositionType& position() const {return surface().position();} 
@@ -100,7 +100,7 @@ public:
 
 private:
 
-  ReferenceCountingPointer<BoundPlane>  thePlane;
+  ReferenceCountingPointer<Plane>  thePlane;
   AlignmentPositionError*               theAlignmentPositionError;
   LocalError                            theLocalAlignmentError;
   DetId m_detId;
