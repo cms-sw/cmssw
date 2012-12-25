@@ -74,9 +74,7 @@ public:
   /// tangent plane to surface from local point
   virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const GCC11_FINAL;
 
-
-
-
 };
+using BoundPlane = Plane;
 
 #endif
