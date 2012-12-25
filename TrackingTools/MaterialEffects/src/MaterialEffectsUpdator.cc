@@ -36,7 +36,7 @@ bool MaterialEffectsUpdator::updateStateInPlace (TrajectoryStateOnSurface& TSoS,
   // - side of surface is not atCenterOfSurface (could be handled with 50% material?)
   //
   const Surface& surface = TSoS.surface();
-  if ( !surface.mediumProperties() || propDir==anyDirection || 
+  if ( !surface.mediumProperties().isValid() || propDir==anyDirection || 
        TSoS.surfaceSide()==atCenterOfSurface )  return true;
   //
   // Check, if already on right side of surface

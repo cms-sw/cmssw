@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.29 2011/10/24 13:24:05 eulisse Exp $
+// $Id: CachedTrajectory.cc,v 1.30 2012/03/10 21:40:27 dmytro Exp $
 //
 //
 
@@ -414,7 +414,7 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
 
    if (firstPointInside != closestPointOnLeft) {
       if ( dR > 0 ) {
-	 Cylinder::CylinderPointer barrel = Cylinder::build( Cylinder::PositionType (0, 0, 0), Cylinder::RotationType (), volume.minR());
+	 Cylinder::CylinderPointer barrel = Cylinder::build( volume.minR(), Cylinder::PositionType (0, 0, 0), Cylinder::RotationType () );
 	 propagate(currentState, *barrel);
       } else {
 	 Plane::PlanePointer endcap = Plane::build( Plane::PositionType (0, 0, 

@@ -111,13 +111,13 @@ void oldMUcompute (const TrajectoryStateOnSurface& TSoS,
   //
   // Now get information on medium
   //
-  if (surface.mediumProperties()) {
+  if (surface.mediumProperties().isValid()) {
     // Momentum vector
     LocalVector d = TSoS.localMomentum();
     float p = d.mag();
     d *= 1./p;
     // MediumProperties mp(0.02, .5e-4);
-    const MediumProperties& mp = *surface.mediumProperties();
+    const MediumProperties& mp = surface.mediumProperties();
     float xf = 1./fabs(d.z());         // increase of path due to angle of incidence
     // calculate general physics things
     const float amscon = 1.8496e-4;    // (13.6MeV)**2
