@@ -16,11 +16,11 @@
 
 class Plane : public Surface {
 public:
-
+#ifndef CMS_NOCXX11
  template<typename... Args>
   Plane(Args&& ... args) :
     Surface(std::forward<Args>(args)...){}
-  
+#endif  
 
   typedef ReferenceCountingPointer<Plane> PlanePointer;
   typedef ConstReferenceCountingPointer<Plane> ConstPlanePointer;
@@ -28,6 +28,7 @@ public:
   typedef ConstReferenceCountingPointer<Plane> ConstBoundPlanePointer;
 
 
+#ifndef CMS_NOCXX11
   /// Construct a Plane.
   /// The reference frame is defined by pos and rot; the plane is
   /// orthogonal to the local Z axis.
@@ -35,7 +36,7 @@ public:
   static PlanePointer build(Args&& ... args) {
     return PlanePointer(new Plane(std::forward<Args>(args)...));
   }
-
+#endif
  
   ~Plane(){}
 
@@ -75,6 +76,8 @@ public:
   virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const GCC11_FINAL;
 
 };
+#ifndef CMS_NOCXX11
 using BoundPlane = Plane;
+#endif
 
 #endif
