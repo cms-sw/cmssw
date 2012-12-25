@@ -82,12 +82,13 @@ protected:
   theBounds(iSurface.theBounds)
   {}
   
+#ifndef CMS_NOCXX11
   Surface(Surface&& iSurface ) : 
   Base(iSurface), 
   theMediumProperties(iSurface.theMediumProperties),
   theBounds(std::move(iSurface.theBounds))
   {}
-
+#endif
 
 public:
 
