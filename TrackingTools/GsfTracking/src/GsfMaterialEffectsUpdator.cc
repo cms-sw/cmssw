@@ -18,7 +18,7 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
   // get components of input state and check if material is associated to surface
   //
   const Surface& surface = TSoS.surface();
-  if ( !surface.mediumProperties() )  return TSoS;
+  if ( !surface.mediumProperties().isValid() )  return TSoS;
   SurfaceSide side = propDir==alongMomentum ? afterSurface : beforeSurface;
   // single input state?
   if ( TSoS.components().size()>1 )

@@ -30,18 +30,18 @@ void EnergyLossUpdator::compute (const TrajectoryStateOnSurface& TSoS,
   //
   // Now get information on medium
   //
-  if (surface.mediumProperties()) {
+  if (surface.mediumProperties().isValid()) {
     //
     // Bethe-Bloch
     //
     if ( mass()>0.001 )
-      computeBetheBloch(TSoS.localMomentum(),*surface.mediumProperties(),effect);
+      computeBetheBloch(TSoS.localMomentum(),surface.mediumProperties(),effect);
     //
     // Special treatment for electrons (currently rather crude
     // distinction using mass)
     //
     else
-      computeElectrons(TSoS.localMomentum(),*surface.mediumProperties(),
+      computeElectrons(TSoS.localMomentum(),surface.mediumProperties(),
 		       propDir,effect);
     if (propDir != alongMomentum) effect.deltaP *= -1.;
   }
