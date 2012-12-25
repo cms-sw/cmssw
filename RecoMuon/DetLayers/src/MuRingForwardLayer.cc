@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/06/14 17:22:48 $
- *  $Revision: 1.19 $
+ *  $Date: 2012/05/29 08:23:54 $
+ *  $Revision: 1.20 $
  *  \author N. Amapane - CERN
  */
 
@@ -64,8 +64,8 @@ MuRingForwardLayer::MuRingForwardLayer(const vector<const ForwardDetRing*>& ring
   RotationType rot;
 
   setSurface(new BoundDisk( pos, rot, 
-			    SimpleDiskBounds( theRmin, theRmax, 
-					      theZmin-zPos, theZmax-zPos)));
+			    new SimpleDiskBounds( theRmin, theRmax, 
+					          theZmin-zPos, theZmax-zPos)));
 
 
    
