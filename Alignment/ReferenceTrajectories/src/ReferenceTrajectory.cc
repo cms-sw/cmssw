@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2011/11/24 14:33:37 $
-//  by         : $Author: mussgill $
+//  last update: $Date: 2012/06/20 12:07:28 $
+//  by         : $Author: flucke $
 
 #include <memory>
 
@@ -9,7 +9,6 @@
 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DataFormats/GeometrySurface/interface/OpenBounds.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -170,9 +169,9 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     
     GlobalVector momDir(pcaFts.momentum());
     GlobalVector perpDir(bd.cross(momDir));
-    BoundPlane::RotationType rotation(perpDir, bd);
+    Plane::RotationType rotation(perpDir, bd);
     
-    BeamSpotGeomDet * bsGeom = new BeamSpotGeomDet(BoundPlane::build(bs, rotation, OpenBounds()));
+    BeamSpotGeomDet * bsGeom = new BeamSpotGeomDet(Plane::build(bs, rotation));
 
     // There is also a constructor taking the magentic field. Use this one instead?
     theRefTsos = TrajectoryStateOnSurface(pcaFts, bsGeom->surface());
@@ -353,8 +352,8 @@ ReferenceTrajectory::createUpdator(MaterialEffects materialEffects, double mass)
 
 //__________________________________________________________________________________
 
-bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
-				    const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
+bool ReferenceTrajectory::propagate(const Plane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
+				    const Plane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
 				    AlgebraicMatrix &newCurvlinJacobian, double &nextStep,
 				    const PropagationDirection propDir, const MagneticField *magField) const
 {

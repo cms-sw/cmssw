@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2011/09/14 15:48:19 $
- * by         : $Author: mussgill $
+ * last update: $Date: 2012/06/20 12:07:28 $
+ * by         : $Author: flucke $
  *
  *  Class implementing the reference trajectory of a single charged
  *  particle, i.e. a helix with 5 parameters. Given the
@@ -43,7 +43,7 @@
 class TrajectoryStateOnSurface;
 class MagneticField;
 class MaterialEffectsUpdator;
-class BoundPlane;
+class Plane;
 class BeamSpotTransientTrackingRecHit;
 
 namespace reco { class BeamSpot; }
@@ -94,8 +94,8 @@ protected:
 
   /** internal method to calculate jacobian
    */
-  virtual bool propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
-			 const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
+  virtual bool propagate(const Plane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
+			 const Plane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
 			 AlgebraicMatrix &newCurvlinJacobian, double &nextStep,
 			 const PropagationDirection propDir, const MagneticField *magField) const;
   
