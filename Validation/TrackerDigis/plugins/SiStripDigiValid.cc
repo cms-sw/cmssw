@@ -2,10 +2,8 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -339,6 +337,11 @@ void SiStripDigiValid::endJob() {
 
 
 void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  c.get<IdealGeometryRecord>().get(tTopo);
+
+
 
  int ndigilayertibzp[4];
  int ndigilayertibzm[4];
@@ -390,98 +393,98 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
          edm::DetSet<SiStripDigi>::const_iterator  iter;
 
         if(detId.subdetId()==StripSubdetector::TIB){
-             TIBDetId tibid(id);
+             
              for ( iter = begin ; iter != end; iter++ ) { // loop digis
-               if( tibid.string()[0] == 1) {
-                 ++ndigilayertibzm[tibid.layer()-1];
-                 if( tibid.layer() == 1 ) { 
-                    if ( tibid.string()[1] == 1 ) {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer1Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer1Intzm_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer1Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer1Intzm_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer1Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer1Intzm_[2] ->Fill((*iter).strip()); }
+               if( tTopo->tibStringInfo(id)[0] == 1) {
+                 ++ndigilayertibzm[tTopo->tibLayer(id)-1];
+                 if( tTopo->tibLayer(id) == 1 ) { 
+                    if ( tTopo->tibStringInfo(id)[1] == 1 ) {
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer1Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer1Intzm_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer1Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer1Intzm_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer1Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer1Intzm_[2] ->Fill((*iter).strip()); }
                     }else {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer1Extzm_[0] -> Fill((*iter).adc()); meStripTIBLayer1Extzm_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer1Extzm_[1] -> Fill((*iter).adc()); meStripTIBLayer1Extzm_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer1Extzm_[2] -> Fill((*iter).adc()); meStripTIBLayer1Extzm_[2] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer1Extzm_[0] -> Fill((*iter).adc()); meStripTIBLayer1Extzm_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer1Extzm_[1] -> Fill((*iter).adc()); meStripTIBLayer1Extzm_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer1Extzm_[2] -> Fill((*iter).adc()); meStripTIBLayer1Extzm_[2] ->Fill((*iter).strip()); }
                    } 
                  }
-                 if( tibid.layer() == 2 ) {
-                    if ( tibid.string()[1] == 1 ) {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer2Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer2Intzm_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer2Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer2Intzm_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer2Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer2Intzm_[2] ->Fill((*iter).strip()); }
+                 if( tTopo->tibLayer(id) == 2 ) {
+                    if ( tTopo->tibStringInfo(id)[1] == 1 ) {
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer2Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer2Intzm_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer2Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer2Intzm_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer2Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer2Intzm_[2] ->Fill((*iter).strip()); }
                     }else {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer2Extzm_[0] -> Fill((*iter).adc()); meStripTIBLayer2Extzm_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer2Extzm_[1] -> Fill((*iter).adc()); meStripTIBLayer2Extzm_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer2Extzm_[2] -> Fill((*iter).adc()); meStripTIBLayer2Extzm_[2] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer2Extzm_[0] -> Fill((*iter).adc()); meStripTIBLayer2Extzm_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer2Extzm_[1] -> Fill((*iter).adc()); meStripTIBLayer2Extzm_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer2Extzm_[2] -> Fill((*iter).adc()); meStripTIBLayer2Extzm_[2] ->Fill((*iter).strip()); }
                    }
                  }
-                 if( tibid.layer() == 3 ) {
-                    if ( tibid.string()[1] == 1 ) {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer3Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer3Intzm_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer3Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer3Intzm_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer3Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer3Intzm_[2] ->Fill((*iter).strip()); }
+                 if( tTopo->tibLayer(id) == 3 ) {
+                    if ( tTopo->tibStringInfo(id)[1] == 1 ) {
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer3Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer3Intzm_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer3Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer3Intzm_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer3Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer3Intzm_[2] ->Fill((*iter).strip()); }
                     }else {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer3Extzm_[0] -> Fill((*iter).adc()); meStripTIBLayer3Extzm_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer3Extzm_[1] -> Fill((*iter).adc()); meStripTIBLayer3Extzm_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer3Extzm_[2] -> Fill((*iter).adc()); meStripTIBLayer3Extzm_[2] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer3Extzm_[0] -> Fill((*iter).adc()); meStripTIBLayer3Extzm_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer3Extzm_[1] -> Fill((*iter).adc()); meStripTIBLayer3Extzm_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer3Extzm_[2] -> Fill((*iter).adc()); meStripTIBLayer3Extzm_[2] ->Fill((*iter).strip()); }
                    }
                  }
-                 if( tibid.layer() == 4 ) {
-                    if ( tibid.string()[1] == 1 ) {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer4Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer4Intzm_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer4Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer4Intzm_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer4Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer4Intzm_[2] ->Fill((*iter).strip()); }
+                 if( tTopo->tibLayer(id) == 4 ) {
+                    if ( tTopo->tibStringInfo(id)[1] == 1 ) {
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer4Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer4Intzm_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer4Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer4Intzm_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer4Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer4Intzm_[2] ->Fill((*iter).strip()); }
                     }else {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer4Extzm_[0] -> Fill((*iter).adc()); meStripTIBLayer4Extzm_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer4Extzm_[1] -> Fill((*iter).adc()); meStripTIBLayer4Extzm_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer4Extzm_[2] -> Fill((*iter).adc()); meStripTIBLayer4Extzm_[2] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer4Extzm_[0] -> Fill((*iter).adc()); meStripTIBLayer4Extzm_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer4Extzm_[1] -> Fill((*iter).adc()); meStripTIBLayer4Extzm_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer4Extzm_[2] -> Fill((*iter).adc()); meStripTIBLayer4Extzm_[2] ->Fill((*iter).strip()); }
                    }
                  }
                }else {
-                 ++ndigilayertibzp[tibid.layer()-1];
-                 if( tibid.layer() == 1 ) {
-                    if ( tibid.string()[1] == 1 ) {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer1Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer1Intzp_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer1Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer1Intzp_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer1Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer1Intzp_[2] ->Fill((*iter).strip()); }
+                 ++ndigilayertibzp[tTopo->tibLayer(id)-1];
+                 if( tTopo->tibLayer(id) == 1 ) {
+                    if ( tTopo->tibStringInfo(id)[1] == 1 ) {
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer1Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer1Intzp_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer1Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer1Intzp_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer1Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer1Intzp_[2] ->Fill((*iter).strip()); }
                     }else {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer1Extzp_[0] -> Fill((*iter).adc()); meStripTIBLayer1Extzp_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer1Extzp_[1] -> Fill((*iter).adc()); meStripTIBLayer1Extzp_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer1Extzp_[2] -> Fill((*iter).adc()); meStripTIBLayer1Extzp_[2] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer1Extzp_[0] -> Fill((*iter).adc()); meStripTIBLayer1Extzp_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer1Extzp_[1] -> Fill((*iter).adc()); meStripTIBLayer1Extzp_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer1Extzp_[2] -> Fill((*iter).adc()); meStripTIBLayer1Extzp_[2] ->Fill((*iter).strip()); }
                    } 
                  }
-                 if( tibid.layer() == 2 ) {
-                    if ( tibid.string()[1] == 1 ) {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer2Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer2Intzp_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer2Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer2Intzp_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer2Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer2Intzp_[2] ->Fill((*iter).strip()); }
+                 if( tTopo->tibLayer(id) == 2 ) {
+                    if ( tTopo->tibStringInfo(id)[1] == 1 ) {
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer2Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer2Intzp_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer2Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer2Intzp_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer2Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer2Intzp_[2] ->Fill((*iter).strip()); }
                     }else {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer2Extzp_[0] -> Fill((*iter).adc()); meStripTIBLayer2Extzp_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer2Extzp_[1] -> Fill((*iter).adc()); meStripTIBLayer2Extzp_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer2Extzp_[2] -> Fill((*iter).adc()); meStripTIBLayer2Extzp_[2] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer2Extzp_[0] -> Fill((*iter).adc()); meStripTIBLayer2Extzp_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer2Extzp_[1] -> Fill((*iter).adc()); meStripTIBLayer2Extzp_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer2Extzp_[2] -> Fill((*iter).adc()); meStripTIBLayer2Extzp_[2] ->Fill((*iter).strip()); }
                    }
                  }
-                 if( tibid.layer() == 3 ) {
-                    if ( tibid.string()[1] == 1 ) {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer3Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer3Intzp_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer3Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer3Intzp_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer3Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer3Intzp_[2] ->Fill((*iter).strip()); }
+                 if( tTopo->tibLayer(id) == 3 ) {
+                    if ( tTopo->tibStringInfo(id)[1] == 1 ) {
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer3Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer3Intzp_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer3Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer3Intzp_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer3Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer3Intzp_[2] ->Fill((*iter).strip()); }
                     }else {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer3Extzp_[0] -> Fill((*iter).adc()); meStripTIBLayer3Extzp_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer3Extzp_[1] -> Fill((*iter).adc()); meStripTIBLayer3Extzp_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer3Extzp_[2] -> Fill((*iter).adc()); meStripTIBLayer3Extzp_[2] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer3Extzp_[0] -> Fill((*iter).adc()); meStripTIBLayer3Extzp_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer3Extzp_[1] -> Fill((*iter).adc()); meStripTIBLayer3Extzp_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer3Extzp_[2] -> Fill((*iter).adc()); meStripTIBLayer3Extzp_[2] ->Fill((*iter).strip()); }
                    }
                  }
-                 if( tibid.layer() == 4 ) {
-                    if ( tibid.string()[1] == 1) {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer4Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer4Intzp_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer4Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer4Intzp_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer4Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer4Intzp_[2] ->Fill((*iter).strip()); }
+                 if( tTopo->tibLayer(id) == 4 ) {
+                    if ( tTopo->tibStringInfo(id)[1] == 1) {
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer4Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer4Intzp_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer4Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer4Intzp_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer4Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer4Intzp_[2] ->Fill((*iter).strip()); }
                     }else {
-                       if( tibid.module() == 1 ) { meAdcTIBLayer4Extzp_[0] -> Fill((*iter).adc()); meStripTIBLayer4Extzp_[0] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 2 ) { meAdcTIBLayer4Extzp_[1] -> Fill((*iter).adc()); meStripTIBLayer4Extzp_[1] ->Fill((*iter).strip()); }
-                       if( tibid.module() == 3 ) { meAdcTIBLayer4Extzp_[2] -> Fill((*iter).adc()); meStripTIBLayer4Extzp_[2] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 1 ) { meAdcTIBLayer4Extzp_[0] -> Fill((*iter).adc()); meStripTIBLayer4Extzp_[0] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 2 ) { meAdcTIBLayer4Extzp_[1] -> Fill((*iter).adc()); meStripTIBLayer4Extzp_[1] ->Fill((*iter).strip()); }
+                       if( tTopo->tibModule(id) == 3 ) { meAdcTIBLayer4Extzp_[2] -> Fill((*iter).adc()); meStripTIBLayer4Extzp_[2] ->Fill((*iter).strip()); }
                    }
                  }
 
@@ -489,108 +492,108 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
             } 
         } 
         if(detId.subdetId()==StripSubdetector::TOB){
-             TOBDetId tobid(id); 
+              
              for ( iter = begin ; iter != end; iter++ ) { // loop digis
-               if( tobid.rod()[0] == 1) {
-                 ++ndigilayertobzm[tobid.layer()-1];  
-                 if( tobid.layer() == 1 ) { 
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer1zm_[0] -> Fill((*iter).adc()); meStripTOBLayer1zm_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer1zm_[1] -> Fill((*iter).adc()); meStripTOBLayer1zm_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer1zm_[2] -> Fill((*iter).adc()); meStripTOBLayer1zm_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer1zm_[3] -> Fill((*iter).adc()); meStripTOBLayer1zm_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer1zm_[4] -> Fill((*iter).adc()); meStripTOBLayer1zm_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer1zm_[5] -> Fill((*iter).adc()); meStripTOBLayer1zm_[5] ->Fill((*iter).strip()); }
+               if( tTopo->tobRodInfo(id)[0] == 1) {
+                 ++ndigilayertobzm[tTopo->tobLayer(id)-1];  
+                 if( tTopo->tobLayer(id) == 1 ) { 
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer1zm_[0] -> Fill((*iter).adc()); meStripTOBLayer1zm_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer1zm_[1] -> Fill((*iter).adc()); meStripTOBLayer1zm_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer1zm_[2] -> Fill((*iter).adc()); meStripTOBLayer1zm_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer1zm_[3] -> Fill((*iter).adc()); meStripTOBLayer1zm_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer1zm_[4] -> Fill((*iter).adc()); meStripTOBLayer1zm_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer1zm_[5] -> Fill((*iter).adc()); meStripTOBLayer1zm_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 2 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer2zm_[0] -> Fill((*iter).adc()); meStripTOBLayer2zm_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer2zm_[1] -> Fill((*iter).adc()); meStripTOBLayer2zm_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer2zm_[2] -> Fill((*iter).adc()); meStripTOBLayer2zm_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer2zm_[3] -> Fill((*iter).adc()); meStripTOBLayer2zm_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer2zm_[4] -> Fill((*iter).adc()); meStripTOBLayer2zm_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer2zm_[5] -> Fill((*iter).adc()); meStripTOBLayer2zm_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 2 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer2zm_[0] -> Fill((*iter).adc()); meStripTOBLayer2zm_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer2zm_[1] -> Fill((*iter).adc()); meStripTOBLayer2zm_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer2zm_[2] -> Fill((*iter).adc()); meStripTOBLayer2zm_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer2zm_[3] -> Fill((*iter).adc()); meStripTOBLayer2zm_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer2zm_[4] -> Fill((*iter).adc()); meStripTOBLayer2zm_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer2zm_[5] -> Fill((*iter).adc()); meStripTOBLayer2zm_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 3 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer3zm_[0] -> Fill((*iter).adc()); meStripTOBLayer3zm_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer3zm_[1] -> Fill((*iter).adc()); meStripTOBLayer3zm_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer3zm_[2] -> Fill((*iter).adc()); meStripTOBLayer3zm_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer3zm_[3] -> Fill((*iter).adc()); meStripTOBLayer3zm_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer3zm_[4] -> Fill((*iter).adc()); meStripTOBLayer3zm_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer3zm_[5] -> Fill((*iter).adc()); meStripTOBLayer3zm_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 3 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer3zm_[0] -> Fill((*iter).adc()); meStripTOBLayer3zm_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer3zm_[1] -> Fill((*iter).adc()); meStripTOBLayer3zm_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer3zm_[2] -> Fill((*iter).adc()); meStripTOBLayer3zm_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer3zm_[3] -> Fill((*iter).adc()); meStripTOBLayer3zm_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer3zm_[4] -> Fill((*iter).adc()); meStripTOBLayer3zm_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer3zm_[5] -> Fill((*iter).adc()); meStripTOBLayer3zm_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 4 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer4zm_[0] -> Fill((*iter).adc()); meStripTOBLayer4zm_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer4zm_[1] -> Fill((*iter).adc()); meStripTOBLayer4zm_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer4zm_[2] -> Fill((*iter).adc()); meStripTOBLayer4zm_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer4zm_[3] -> Fill((*iter).adc()); meStripTOBLayer4zm_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer4zm_[4] -> Fill((*iter).adc()); meStripTOBLayer4zm_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer4zm_[5] -> Fill((*iter).adc()); meStripTOBLayer4zm_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 4 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer4zm_[0] -> Fill((*iter).adc()); meStripTOBLayer4zm_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer4zm_[1] -> Fill((*iter).adc()); meStripTOBLayer4zm_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer4zm_[2] -> Fill((*iter).adc()); meStripTOBLayer4zm_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer4zm_[3] -> Fill((*iter).adc()); meStripTOBLayer4zm_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer4zm_[4] -> Fill((*iter).adc()); meStripTOBLayer4zm_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer4zm_[5] -> Fill((*iter).adc()); meStripTOBLayer4zm_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 5 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer5zm_[0] -> Fill((*iter).adc()); meStripTOBLayer5zm_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer5zm_[1] -> Fill((*iter).adc()); meStripTOBLayer5zm_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer5zm_[2] -> Fill((*iter).adc()); meStripTOBLayer5zm_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer5zm_[3] -> Fill((*iter).adc()); meStripTOBLayer5zm_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer5zm_[4] -> Fill((*iter).adc()); meStripTOBLayer5zm_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer5zm_[5] -> Fill((*iter).adc()); meStripTOBLayer5zm_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 5 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer5zm_[0] -> Fill((*iter).adc()); meStripTOBLayer5zm_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer5zm_[1] -> Fill((*iter).adc()); meStripTOBLayer5zm_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer5zm_[2] -> Fill((*iter).adc()); meStripTOBLayer5zm_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer5zm_[3] -> Fill((*iter).adc()); meStripTOBLayer5zm_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer5zm_[4] -> Fill((*iter).adc()); meStripTOBLayer5zm_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer5zm_[5] -> Fill((*iter).adc()); meStripTOBLayer5zm_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 6 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer6zm_[0] -> Fill((*iter).adc()); meStripTOBLayer6zm_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer6zm_[1] -> Fill((*iter).adc()); meStripTOBLayer6zm_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer6zm_[2] -> Fill((*iter).adc()); meStripTOBLayer6zm_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer6zm_[3] -> Fill((*iter).adc()); meStripTOBLayer6zm_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer6zm_[4] -> Fill((*iter).adc()); meStripTOBLayer6zm_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer6zm_[5] -> Fill((*iter).adc()); meStripTOBLayer6zm_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 6 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer6zm_[0] -> Fill((*iter).adc()); meStripTOBLayer6zm_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer6zm_[1] -> Fill((*iter).adc()); meStripTOBLayer6zm_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer6zm_[2] -> Fill((*iter).adc()); meStripTOBLayer6zm_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer6zm_[3] -> Fill((*iter).adc()); meStripTOBLayer6zm_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer6zm_[4] -> Fill((*iter).adc()); meStripTOBLayer6zm_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer6zm_[5] -> Fill((*iter).adc()); meStripTOBLayer6zm_[5] ->Fill((*iter).strip()); }
                  }
 
                }else {
-                 ++ndigilayertobzp[tobid.layer()-1];
-                 if( tobid.layer() == 1 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer1zp_[0] -> Fill((*iter).adc()); meStripTOBLayer1zp_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer1zp_[1] -> Fill((*iter).adc()); meStripTOBLayer1zp_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer1zp_[2] -> Fill((*iter).adc()); meStripTOBLayer1zp_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer1zp_[3] -> Fill((*iter).adc()); meStripTOBLayer1zp_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer1zp_[4] -> Fill((*iter).adc()); meStripTOBLayer1zp_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer1zp_[5] -> Fill((*iter).adc()); meStripTOBLayer1zp_[5] ->Fill((*iter).strip()); }
+                 ++ndigilayertobzp[tTopo->tobLayer(id)-1];
+                 if( tTopo->tobLayer(id) == 1 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer1zp_[0] -> Fill((*iter).adc()); meStripTOBLayer1zp_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer1zp_[1] -> Fill((*iter).adc()); meStripTOBLayer1zp_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer1zp_[2] -> Fill((*iter).adc()); meStripTOBLayer1zp_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer1zp_[3] -> Fill((*iter).adc()); meStripTOBLayer1zp_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer1zp_[4] -> Fill((*iter).adc()); meStripTOBLayer1zp_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer1zp_[5] -> Fill((*iter).adc()); meStripTOBLayer1zp_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 2 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer2zp_[0] -> Fill((*iter).adc()); meStripTOBLayer2zp_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer2zp_[1] -> Fill((*iter).adc()); meStripTOBLayer2zp_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer2zp_[2] -> Fill((*iter).adc()); meStripTOBLayer2zp_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer2zp_[3] -> Fill((*iter).adc()); meStripTOBLayer2zp_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer2zp_[4] -> Fill((*iter).adc()); meStripTOBLayer2zp_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer2zp_[5] -> Fill((*iter).adc()); meStripTOBLayer2zp_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 2 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer2zp_[0] -> Fill((*iter).adc()); meStripTOBLayer2zp_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer2zp_[1] -> Fill((*iter).adc()); meStripTOBLayer2zp_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer2zp_[2] -> Fill((*iter).adc()); meStripTOBLayer2zp_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer2zp_[3] -> Fill((*iter).adc()); meStripTOBLayer2zp_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer2zp_[4] -> Fill((*iter).adc()); meStripTOBLayer2zp_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer2zp_[5] -> Fill((*iter).adc()); meStripTOBLayer2zp_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 3 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer3zp_[0] -> Fill((*iter).adc()); meStripTOBLayer3zp_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer3zp_[1] -> Fill((*iter).adc()); meStripTOBLayer3zp_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer3zp_[2] -> Fill((*iter).adc()); meStripTOBLayer3zp_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer3zp_[3] -> Fill((*iter).adc()); meStripTOBLayer3zp_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer3zp_[4] -> Fill((*iter).adc()); meStripTOBLayer3zp_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer3zp_[5] -> Fill((*iter).adc()); meStripTOBLayer3zp_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 3 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer3zp_[0] -> Fill((*iter).adc()); meStripTOBLayer3zp_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer3zp_[1] -> Fill((*iter).adc()); meStripTOBLayer3zp_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer3zp_[2] -> Fill((*iter).adc()); meStripTOBLayer3zp_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer3zp_[3] -> Fill((*iter).adc()); meStripTOBLayer3zp_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer3zp_[4] -> Fill((*iter).adc()); meStripTOBLayer3zp_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer3zp_[5] -> Fill((*iter).adc()); meStripTOBLayer3zp_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 4 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer4zp_[0] -> Fill((*iter).adc()); meStripTOBLayer4zp_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer4zp_[1] -> Fill((*iter).adc()); meStripTOBLayer4zp_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer4zp_[2] -> Fill((*iter).adc()); meStripTOBLayer4zp_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer4zp_[3] -> Fill((*iter).adc()); meStripTOBLayer4zp_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer4zp_[4] -> Fill((*iter).adc()); meStripTOBLayer4zp_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer4zp_[5] -> Fill((*iter).adc()); meStripTOBLayer4zp_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 4 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer4zp_[0] -> Fill((*iter).adc()); meStripTOBLayer4zp_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer4zp_[1] -> Fill((*iter).adc()); meStripTOBLayer4zp_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer4zp_[2] -> Fill((*iter).adc()); meStripTOBLayer4zp_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer4zp_[3] -> Fill((*iter).adc()); meStripTOBLayer4zp_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer4zp_[4] -> Fill((*iter).adc()); meStripTOBLayer4zp_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer4zp_[5] -> Fill((*iter).adc()); meStripTOBLayer4zp_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 5 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer5zp_[0] -> Fill((*iter).adc()); meStripTOBLayer5zp_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer5zp_[1] -> Fill((*iter).adc()); meStripTOBLayer5zp_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer5zp_[2] -> Fill((*iter).adc()); meStripTOBLayer5zp_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer5zp_[3] -> Fill((*iter).adc()); meStripTOBLayer5zp_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer5zp_[4] -> Fill((*iter).adc()); meStripTOBLayer5zp_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer5zp_[5] -> Fill((*iter).adc()); meStripTOBLayer5zp_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 5 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer5zp_[0] -> Fill((*iter).adc()); meStripTOBLayer5zp_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer5zp_[1] -> Fill((*iter).adc()); meStripTOBLayer5zp_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer5zp_[2] -> Fill((*iter).adc()); meStripTOBLayer5zp_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer5zp_[3] -> Fill((*iter).adc()); meStripTOBLayer5zp_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer5zp_[4] -> Fill((*iter).adc()); meStripTOBLayer5zp_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer5zp_[5] -> Fill((*iter).adc()); meStripTOBLayer5zp_[5] ->Fill((*iter).strip()); }
                  }
-                 if( tobid.layer() == 6 ) {
-                     if ( tobid.module() == 1 ) { meAdcTOBLayer6zp_[0] -> Fill((*iter).adc()); meStripTOBLayer6zp_[0] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 2 ) { meAdcTOBLayer6zp_[1] -> Fill((*iter).adc()); meStripTOBLayer6zp_[1] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 3 ) { meAdcTOBLayer6zp_[2] -> Fill((*iter).adc()); meStripTOBLayer6zp_[2] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 4 ) { meAdcTOBLayer6zp_[3] -> Fill((*iter).adc()); meStripTOBLayer6zp_[3] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 5 ) { meAdcTOBLayer6zp_[4] -> Fill((*iter).adc()); meStripTOBLayer6zp_[4] ->Fill((*iter).strip()); }
-                     if ( tobid.module() == 6 ) { meAdcTOBLayer6zp_[5] -> Fill((*iter).adc()); meStripTOBLayer6zp_[5] ->Fill((*iter).strip()); }
+                 if( tTopo->tobLayer(id) == 6 ) {
+                     if ( tTopo->tobModule(id) == 1 ) { meAdcTOBLayer6zp_[0] -> Fill((*iter).adc()); meStripTOBLayer6zp_[0] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 2 ) { meAdcTOBLayer6zp_[1] -> Fill((*iter).adc()); meStripTOBLayer6zp_[1] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 3 ) { meAdcTOBLayer6zp_[2] -> Fill((*iter).adc()); meStripTOBLayer6zp_[2] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 4 ) { meAdcTOBLayer6zp_[3] -> Fill((*iter).adc()); meStripTOBLayer6zp_[3] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 5 ) { meAdcTOBLayer6zp_[4] -> Fill((*iter).adc()); meStripTOBLayer6zp_[4] ->Fill((*iter).strip()); }
+                     if ( tTopo->tobModule(id) == 6 ) { meAdcTOBLayer6zp_[5] -> Fill((*iter).adc()); meStripTOBLayer6zp_[5] ->Fill((*iter).strip()); }
                  }
 
 
@@ -599,195 +602,195 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
         }
    
         if (detId.subdetId()==StripSubdetector::TID) {
-            TIDDetId tidid(id);  
+              
             for ( iter = begin ; iter != end; iter++ ) {
-              if( tidid.side() == 1){
-                 ++ndigiwheeltidzm[tidid.wheel()-1];
-                if( tidid.wheel() == 1 ) {
-                   if(tidid.ring()== 1) { meAdcTIDWheel1zm_[0] -> Fill((*iter).adc()); meStripTIDWheel1zm_[0] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 2) { meAdcTIDWheel1zm_[1] -> Fill((*iter).adc()); meStripTIDWheel1zm_[1] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 3) { meAdcTIDWheel1zm_[2] -> Fill((*iter).adc()); meStripTIDWheel1zm_[2] ->Fill((*iter).strip());}
+              if( tTopo->tidSide(id) == 1){
+                 ++ndigiwheeltidzm[tTopo->tidWheel(id)-1];
+                if( tTopo->tidWheel(id) == 1 ) {
+                   if(tTopo->tidRing(id)== 1) { meAdcTIDWheel1zm_[0] -> Fill((*iter).adc()); meStripTIDWheel1zm_[0] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 2) { meAdcTIDWheel1zm_[1] -> Fill((*iter).adc()); meStripTIDWheel1zm_[1] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 3) { meAdcTIDWheel1zm_[2] -> Fill((*iter).adc()); meStripTIDWheel1zm_[2] ->Fill((*iter).strip());}
                 }
-                if( tidid.wheel() == 2 ) {
-                   if(tidid.ring()== 1) { meAdcTIDWheel2zm_[0] -> Fill((*iter).adc()); meStripTIDWheel2zm_[0] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 2) { meAdcTIDWheel2zm_[1] -> Fill((*iter).adc()); meStripTIDWheel2zm_[1] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 3) { meAdcTIDWheel2zm_[2] -> Fill((*iter).adc()); meStripTIDWheel2zm_[2] ->Fill((*iter).strip());}
+                if( tTopo->tidWheel(id) == 2 ) {
+                   if(tTopo->tidRing(id)== 1) { meAdcTIDWheel2zm_[0] -> Fill((*iter).adc()); meStripTIDWheel2zm_[0] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 2) { meAdcTIDWheel2zm_[1] -> Fill((*iter).adc()); meStripTIDWheel2zm_[1] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 3) { meAdcTIDWheel2zm_[2] -> Fill((*iter).adc()); meStripTIDWheel2zm_[2] ->Fill((*iter).strip());}
                 }
-                if( tidid.wheel() == 3 ) {
-                   if(tidid.ring()== 1) { meAdcTIDWheel3zm_[0] -> Fill((*iter).adc()); meStripTIDWheel3zm_[0] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 2) { meAdcTIDWheel3zm_[1] -> Fill((*iter).adc()); meStripTIDWheel3zm_[1] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 3) { meAdcTIDWheel3zm_[2] -> Fill((*iter).adc()); meStripTIDWheel3zm_[2] ->Fill((*iter).strip());}
+                if( tTopo->tidWheel(id) == 3 ) {
+                   if(tTopo->tidRing(id)== 1) { meAdcTIDWheel3zm_[0] -> Fill((*iter).adc()); meStripTIDWheel3zm_[0] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 2) { meAdcTIDWheel3zm_[1] -> Fill((*iter).adc()); meStripTIDWheel3zm_[1] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 3) { meAdcTIDWheel3zm_[2] -> Fill((*iter).adc()); meStripTIDWheel3zm_[2] ->Fill((*iter).strip());}
                 }
 
               }else{
-                ++ndigiwheeltidzp[tidid.wheel()-1];
-                if( tidid.wheel() == 1 ) { 
-                   if(tidid.ring()== 1) { meAdcTIDWheel1zp_[0] -> Fill((*iter).adc()); meStripTIDWheel1zp_[0] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 2) { meAdcTIDWheel1zp_[1] -> Fill((*iter).adc()); meStripTIDWheel1zp_[1] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 3) { meAdcTIDWheel1zp_[2] -> Fill((*iter).adc()); meStripTIDWheel1zp_[2] ->Fill((*iter).strip());}
+                ++ndigiwheeltidzp[tTopo->tidWheel(id)-1];
+                if( tTopo->tidWheel(id) == 1 ) { 
+                   if(tTopo->tidRing(id)== 1) { meAdcTIDWheel1zp_[0] -> Fill((*iter).adc()); meStripTIDWheel1zp_[0] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 2) { meAdcTIDWheel1zp_[1] -> Fill((*iter).adc()); meStripTIDWheel1zp_[1] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 3) { meAdcTIDWheel1zp_[2] -> Fill((*iter).adc()); meStripTIDWheel1zp_[2] ->Fill((*iter).strip());}
                 }  
-                if( tidid.wheel() == 2 ) {
-                   if(tidid.ring()== 1) { meAdcTIDWheel2zp_[0] -> Fill((*iter).adc()); meStripTIDWheel2zp_[0] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 2) { meAdcTIDWheel2zp_[1] -> Fill((*iter).adc()); meStripTIDWheel2zp_[1] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 3) { meAdcTIDWheel2zp_[2] -> Fill((*iter).adc()); meStripTIDWheel2zp_[2] ->Fill((*iter).strip());}
+                if( tTopo->tidWheel(id) == 2 ) {
+                   if(tTopo->tidRing(id)== 1) { meAdcTIDWheel2zp_[0] -> Fill((*iter).adc()); meStripTIDWheel2zp_[0] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 2) { meAdcTIDWheel2zp_[1] -> Fill((*iter).adc()); meStripTIDWheel2zp_[1] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 3) { meAdcTIDWheel2zp_[2] -> Fill((*iter).adc()); meStripTIDWheel2zp_[2] ->Fill((*iter).strip());}
                 }
-                if( tidid.wheel() == 3 ) {
-                   if(tidid.ring()== 1) { meAdcTIDWheel3zp_[0] -> Fill((*iter).adc()); meStripTIDWheel3zp_[0] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 2) { meAdcTIDWheel3zp_[1] -> Fill((*iter).adc()); meStripTIDWheel3zp_[1] ->Fill((*iter).strip());}
-                   if(tidid.ring()== 3) { meAdcTIDWheel3zp_[2] -> Fill((*iter).adc()); meStripTIDWheel3zp_[2] ->Fill((*iter).strip());}
+                if( tTopo->tidWheel(id) == 3 ) {
+                   if(tTopo->tidRing(id)== 1) { meAdcTIDWheel3zp_[0] -> Fill((*iter).adc()); meStripTIDWheel3zp_[0] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 2) { meAdcTIDWheel3zp_[1] -> Fill((*iter).adc()); meStripTIDWheel3zp_[1] ->Fill((*iter).strip());}
+                   if(tTopo->tidRing(id)== 3) { meAdcTIDWheel3zp_[2] -> Fill((*iter).adc()); meStripTIDWheel3zp_[2] ->Fill((*iter).strip());}
                 }
     
               } 
             }
        }
         if (detId.subdetId()==StripSubdetector::TEC) {
-            TECDetId tecid(id);
+            
             for ( iter = begin ; iter != end; iter++ ) {
-              if(tecid.side() == 1) {
-                ++ndigiwheelteczm[tecid.wheel()-1];
-                if( tecid.wheel() == 1 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel1zm_[0] -> Fill((*iter).adc()); meStripTECWheel1zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel1zm_[1] -> Fill((*iter).adc()); meStripTECWheel1zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel1zm_[2] -> Fill((*iter).adc()); meStripTECWheel1zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel1zm_[3] -> Fill((*iter).adc()); meStripTECWheel1zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel1zm_[4] -> Fill((*iter).adc()); meStripTECWheel1zm_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel1zm_[5] -> Fill((*iter).adc()); meStripTECWheel1zm_[5] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel1zm_[6] -> Fill((*iter).adc()); meStripTECWheel1zm_[6] ->Fill((*iter).strip()); }
+              if(tTopo->tecSide(id) == 1) {
+                ++ndigiwheelteczm[tTopo->tecWheel(id)-1];
+                if( tTopo->tecWheel(id) == 1 ) {
+                   if ( tTopo->tecRing(id) == 1 ) { meAdcTECWheel1zm_[0] -> Fill((*iter).adc()); meStripTECWheel1zm_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel1zm_[1] -> Fill((*iter).adc()); meStripTECWheel1zm_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel1zm_[2] -> Fill((*iter).adc()); meStripTECWheel1zm_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel1zm_[3] -> Fill((*iter).adc()); meStripTECWheel1zm_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel1zm_[4] -> Fill((*iter).adc()); meStripTECWheel1zm_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel1zm_[5] -> Fill((*iter).adc()); meStripTECWheel1zm_[5] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel1zm_[6] -> Fill((*iter).adc()); meStripTECWheel1zm_[6] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 2 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel2zm_[0] -> Fill((*iter).adc()); meStripTECWheel2zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel2zm_[1] -> Fill((*iter).adc()); meStripTECWheel2zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel2zm_[2] -> Fill((*iter).adc()); meStripTECWheel2zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel2zm_[3] -> Fill((*iter).adc()); meStripTECWheel2zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel2zm_[4] -> Fill((*iter).adc()); meStripTECWheel2zm_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel2zm_[5] -> Fill((*iter).adc()); meStripTECWheel2zm_[5] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel2zm_[6] -> Fill((*iter).adc()); meStripTECWheel2zm_[6] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 2 ) {
+                   if ( tTopo->tecRing(id) == 1 ) { meAdcTECWheel2zm_[0] -> Fill((*iter).adc()); meStripTECWheel2zm_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel2zm_[1] -> Fill((*iter).adc()); meStripTECWheel2zm_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel2zm_[2] -> Fill((*iter).adc()); meStripTECWheel2zm_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel2zm_[3] -> Fill((*iter).adc()); meStripTECWheel2zm_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel2zm_[4] -> Fill((*iter).adc()); meStripTECWheel2zm_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel2zm_[5] -> Fill((*iter).adc()); meStripTECWheel2zm_[5] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel2zm_[6] -> Fill((*iter).adc()); meStripTECWheel2zm_[6] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 3 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel3zm_[0] -> Fill((*iter).adc()); meStripTECWheel3zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel3zm_[1] -> Fill((*iter).adc()); meStripTECWheel3zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel3zm_[2] -> Fill((*iter).adc()); meStripTECWheel3zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel3zm_[3] -> Fill((*iter).adc()); meStripTECWheel3zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel3zm_[4] -> Fill((*iter).adc()); meStripTECWheel3zm_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel3zm_[5] -> Fill((*iter).adc()); meStripTECWheel3zm_[5] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel3zm_[6] -> Fill((*iter).adc()); meStripTECWheel3zm_[6] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 3 ) {
+                   if ( tTopo->tecRing(id) == 1 ) { meAdcTECWheel3zm_[0] -> Fill((*iter).adc()); meStripTECWheel3zm_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel3zm_[1] -> Fill((*iter).adc()); meStripTECWheel3zm_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel3zm_[2] -> Fill((*iter).adc()); meStripTECWheel3zm_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel3zm_[3] -> Fill((*iter).adc()); meStripTECWheel3zm_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel3zm_[4] -> Fill((*iter).adc()); meStripTECWheel3zm_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel3zm_[5] -> Fill((*iter).adc()); meStripTECWheel3zm_[5] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel3zm_[6] -> Fill((*iter).adc()); meStripTECWheel3zm_[6] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 4 ) {
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel4zm_[0] -> Fill((*iter).adc()); meStripTECWheel4zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel4zm_[1] -> Fill((*iter).adc()); meStripTECWheel4zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel4zm_[2] -> Fill((*iter).adc()); meStripTECWheel4zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel4zm_[3] -> Fill((*iter).adc()); meStripTECWheel4zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel4zm_[4] -> Fill((*iter).adc()); meStripTECWheel4zm_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel4zm_[5] -> Fill((*iter).adc()); meStripTECWheel4zm_[5] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 4 ) {
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel4zm_[0] -> Fill((*iter).adc()); meStripTECWheel4zm_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel4zm_[1] -> Fill((*iter).adc()); meStripTECWheel4zm_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel4zm_[2] -> Fill((*iter).adc()); meStripTECWheel4zm_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel4zm_[3] -> Fill((*iter).adc()); meStripTECWheel4zm_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel4zm_[4] -> Fill((*iter).adc()); meStripTECWheel4zm_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel4zm_[5] -> Fill((*iter).adc()); meStripTECWheel4zm_[5] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 5 ) {
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel5zm_[0] -> Fill((*iter).adc()); meStripTECWheel5zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel5zm_[1] -> Fill((*iter).adc()); meStripTECWheel5zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel5zm_[2] -> Fill((*iter).adc()); meStripTECWheel5zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel5zm_[3] -> Fill((*iter).adc()); meStripTECWheel5zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel5zm_[4] -> Fill((*iter).adc()); meStripTECWheel5zm_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel5zm_[5] -> Fill((*iter).adc()); meStripTECWheel5zm_[5] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 5 ) {
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel5zm_[0] -> Fill((*iter).adc()); meStripTECWheel5zm_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel5zm_[1] -> Fill((*iter).adc()); meStripTECWheel5zm_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel5zm_[2] -> Fill((*iter).adc()); meStripTECWheel5zm_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel5zm_[3] -> Fill((*iter).adc()); meStripTECWheel5zm_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel5zm_[4] -> Fill((*iter).adc()); meStripTECWheel5zm_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel5zm_[5] -> Fill((*iter).adc()); meStripTECWheel5zm_[5] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 6 ) {
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel6zm_[0] -> Fill((*iter).adc()); meStripTECWheel6zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel6zm_[1] -> Fill((*iter).adc()); meStripTECWheel6zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel6zm_[2] -> Fill((*iter).adc()); meStripTECWheel6zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel6zm_[3] -> Fill((*iter).adc()); meStripTECWheel6zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel6zm_[4] -> Fill((*iter).adc()); meStripTECWheel6zm_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel6zm_[5] -> Fill((*iter).adc()); meStripTECWheel6zm_[5] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 6 ) {
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel6zm_[0] -> Fill((*iter).adc()); meStripTECWheel6zm_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel6zm_[1] -> Fill((*iter).adc()); meStripTECWheel6zm_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel6zm_[2] -> Fill((*iter).adc()); meStripTECWheel6zm_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel6zm_[3] -> Fill((*iter).adc()); meStripTECWheel6zm_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel6zm_[4] -> Fill((*iter).adc()); meStripTECWheel6zm_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel6zm_[5] -> Fill((*iter).adc()); meStripTECWheel6zm_[5] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 7 ) {
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel7zm_[0] -> Fill((*iter).adc()); meStripTECWheel7zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel7zm_[1] -> Fill((*iter).adc()); meStripTECWheel7zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel7zm_[2] -> Fill((*iter).adc()); meStripTECWheel7zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel7zm_[3] -> Fill((*iter).adc()); meStripTECWheel7zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel7zm_[4] -> Fill((*iter).adc()); meStripTECWheel7zm_[4] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 7 ) {
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel7zm_[0] -> Fill((*iter).adc()); meStripTECWheel7zm_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel7zm_[1] -> Fill((*iter).adc()); meStripTECWheel7zm_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel7zm_[2] -> Fill((*iter).adc()); meStripTECWheel7zm_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel7zm_[3] -> Fill((*iter).adc()); meStripTECWheel7zm_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel7zm_[4] -> Fill((*iter).adc()); meStripTECWheel7zm_[4] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 8 ) {
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel8zm_[0] -> Fill((*iter).adc()); meStripTECWheel8zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel8zm_[1] -> Fill((*iter).adc()); meStripTECWheel8zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel8zm_[2] -> Fill((*iter).adc()); meStripTECWheel8zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel8zm_[3] -> Fill((*iter).adc()); meStripTECWheel8zm_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel8zm_[4] -> Fill((*iter).adc()); meStripTECWheel8zm_[4] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 8 ) {
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel8zm_[0] -> Fill((*iter).adc()); meStripTECWheel8zm_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel8zm_[1] -> Fill((*iter).adc()); meStripTECWheel8zm_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel8zm_[2] -> Fill((*iter).adc()); meStripTECWheel8zm_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel8zm_[3] -> Fill((*iter).adc()); meStripTECWheel8zm_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel8zm_[4] -> Fill((*iter).adc()); meStripTECWheel8zm_[4] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 9 ) {
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel9zm_[0] -> Fill((*iter).adc()); meStripTECWheel9zm_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel9zm_[1] -> Fill((*iter).adc()); meStripTECWheel9zm_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel9zm_[2] -> Fill((*iter).adc()); meStripTECWheel9zm_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel9zm_[3] -> Fill((*iter).adc()); meStripTECWheel9zm_[3] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 9 ) {
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel9zm_[0] -> Fill((*iter).adc()); meStripTECWheel9zm_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel9zm_[1] -> Fill((*iter).adc()); meStripTECWheel9zm_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel9zm_[2] -> Fill((*iter).adc()); meStripTECWheel9zm_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel9zm_[3] -> Fill((*iter).adc()); meStripTECWheel9zm_[3] ->Fill((*iter).strip()); }
                 }
               }else {
-                ++ndigiwheelteczp[tecid.wheel()-1];
-                if( tecid.wheel() == 1 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel1zp_[0] -> Fill((*iter).adc()); meStripTECWheel1zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel1zp_[1] -> Fill((*iter).adc()); meStripTECWheel1zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel1zp_[2] -> Fill((*iter).adc()); meStripTECWheel1zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel1zp_[3] -> Fill((*iter).adc()); meStripTECWheel1zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel1zp_[4] -> Fill((*iter).adc()); meStripTECWheel1zp_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel1zp_[5] -> Fill((*iter).adc()); meStripTECWheel1zp_[5] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel1zp_[6] -> Fill((*iter).adc()); meStripTECWheel1zp_[6] ->Fill((*iter).strip()); }
+                ++ndigiwheelteczp[tTopo->tecWheel(id)-1];
+                if( tTopo->tecWheel(id) == 1 ) {
+                   if ( tTopo->tecRing(id) == 1 ) { meAdcTECWheel1zp_[0] -> Fill((*iter).adc()); meStripTECWheel1zp_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel1zp_[1] -> Fill((*iter).adc()); meStripTECWheel1zp_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel1zp_[2] -> Fill((*iter).adc()); meStripTECWheel1zp_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel1zp_[3] -> Fill((*iter).adc()); meStripTECWheel1zp_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel1zp_[4] -> Fill((*iter).adc()); meStripTECWheel1zp_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel1zp_[5] -> Fill((*iter).adc()); meStripTECWheel1zp_[5] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel1zp_[6] -> Fill((*iter).adc()); meStripTECWheel1zp_[6] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 2 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel2zp_[0] -> Fill((*iter).adc()); meStripTECWheel2zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel2zp_[1] -> Fill((*iter).adc()); meStripTECWheel2zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel2zp_[2] -> Fill((*iter).adc()); meStripTECWheel2zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel2zp_[3] -> Fill((*iter).adc()); meStripTECWheel2zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel2zp_[4] -> Fill((*iter).adc()); meStripTECWheel2zp_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel2zp_[5] -> Fill((*iter).adc()); meStripTECWheel2zp_[5] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel2zp_[6] -> Fill((*iter).adc()); meStripTECWheel2zp_[6] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 2 ) {
+                   if ( tTopo->tecRing(id) == 1 ) { meAdcTECWheel2zp_[0] -> Fill((*iter).adc()); meStripTECWheel2zp_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel2zp_[1] -> Fill((*iter).adc()); meStripTECWheel2zp_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel2zp_[2] -> Fill((*iter).adc()); meStripTECWheel2zp_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel2zp_[3] -> Fill((*iter).adc()); meStripTECWheel2zp_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel2zp_[4] -> Fill((*iter).adc()); meStripTECWheel2zp_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel2zp_[5] -> Fill((*iter).adc()); meStripTECWheel2zp_[5] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel2zp_[6] -> Fill((*iter).adc()); meStripTECWheel2zp_[6] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 3 ) {
-                   if ( tecid.ring() == 1 ) { meAdcTECWheel3zp_[0] -> Fill((*iter).adc()); meStripTECWheel3zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel3zp_[1] -> Fill((*iter).adc()); meStripTECWheel3zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel3zp_[2] -> Fill((*iter).adc()); meStripTECWheel3zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel3zp_[3] -> Fill((*iter).adc()); meStripTECWheel3zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel3zp_[4] -> Fill((*iter).adc()); meStripTECWheel3zp_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel3zp_[5] -> Fill((*iter).adc()); meStripTECWheel3zp_[5] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel3zp_[6] -> Fill((*iter).adc()); meStripTECWheel3zp_[6] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 3 ) {
+                   if ( tTopo->tecRing(id) == 1 ) { meAdcTECWheel3zp_[0] -> Fill((*iter).adc()); meStripTECWheel3zp_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel3zp_[1] -> Fill((*iter).adc()); meStripTECWheel3zp_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel3zp_[2] -> Fill((*iter).adc()); meStripTECWheel3zp_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel3zp_[3] -> Fill((*iter).adc()); meStripTECWheel3zp_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel3zp_[4] -> Fill((*iter).adc()); meStripTECWheel3zp_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel3zp_[5] -> Fill((*iter).adc()); meStripTECWheel3zp_[5] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel3zp_[6] -> Fill((*iter).adc()); meStripTECWheel3zp_[6] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 4 ) {
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel4zp_[0] -> Fill((*iter).adc()); meStripTECWheel4zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel4zp_[1] -> Fill((*iter).adc()); meStripTECWheel4zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel4zp_[2] -> Fill((*iter).adc()); meStripTECWheel4zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel4zp_[3] -> Fill((*iter).adc()); meStripTECWheel4zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel4zp_[4] -> Fill((*iter).adc()); meStripTECWheel4zp_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel4zp_[5] -> Fill((*iter).adc()); meStripTECWheel4zp_[5] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 4 ) {
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel4zp_[0] -> Fill((*iter).adc()); meStripTECWheel4zp_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel4zp_[1] -> Fill((*iter).adc()); meStripTECWheel4zp_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel4zp_[2] -> Fill((*iter).adc()); meStripTECWheel4zp_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel4zp_[3] -> Fill((*iter).adc()); meStripTECWheel4zp_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel4zp_[4] -> Fill((*iter).adc()); meStripTECWheel4zp_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel4zp_[5] -> Fill((*iter).adc()); meStripTECWheel4zp_[5] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 5 ) {
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel5zp_[0] -> Fill((*iter).adc()); meStripTECWheel5zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel5zp_[1] -> Fill((*iter).adc()); meStripTECWheel5zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel5zp_[2] -> Fill((*iter).adc()); meStripTECWheel5zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel5zp_[3] -> Fill((*iter).adc()); meStripTECWheel5zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel5zp_[4] -> Fill((*iter).adc()); meStripTECWheel5zp_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel5zp_[5] -> Fill((*iter).adc()); meStripTECWheel5zp_[5] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 5 ) {
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel5zp_[0] -> Fill((*iter).adc()); meStripTECWheel5zp_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel5zp_[1] -> Fill((*iter).adc()); meStripTECWheel5zp_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel5zp_[2] -> Fill((*iter).adc()); meStripTECWheel5zp_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel5zp_[3] -> Fill((*iter).adc()); meStripTECWheel5zp_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel5zp_[4] -> Fill((*iter).adc()); meStripTECWheel5zp_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel5zp_[5] -> Fill((*iter).adc()); meStripTECWheel5zp_[5] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 6 ) {
-                   if ( tecid.ring() == 2 ) { meAdcTECWheel6zp_[0] -> Fill((*iter).adc()); meStripTECWheel6zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel6zp_[1] -> Fill((*iter).adc()); meStripTECWheel6zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel6zp_[2] -> Fill((*iter).adc()); meStripTECWheel6zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel6zp_[3] -> Fill((*iter).adc()); meStripTECWheel6zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel6zp_[4] -> Fill((*iter).adc()); meStripTECWheel6zp_[4] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel6zp_[5] -> Fill((*iter).adc()); meStripTECWheel6zp_[5] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 6 ) {
+                   if ( tTopo->tecRing(id) == 2 ) { meAdcTECWheel6zp_[0] -> Fill((*iter).adc()); meStripTECWheel6zp_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel6zp_[1] -> Fill((*iter).adc()); meStripTECWheel6zp_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel6zp_[2] -> Fill((*iter).adc()); meStripTECWheel6zp_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel6zp_[3] -> Fill((*iter).adc()); meStripTECWheel6zp_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel6zp_[4] -> Fill((*iter).adc()); meStripTECWheel6zp_[4] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel6zp_[5] -> Fill((*iter).adc()); meStripTECWheel6zp_[5] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 7 ) {
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel7zp_[0] -> Fill((*iter).adc()); meStripTECWheel7zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel7zp_[1] -> Fill((*iter).adc()); meStripTECWheel7zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel7zp_[2] -> Fill((*iter).adc()); meStripTECWheel7zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel7zp_[3] -> Fill((*iter).adc()); meStripTECWheel7zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel7zp_[4] -> Fill((*iter).adc()); meStripTECWheel7zp_[4] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 7 ) {
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel7zp_[0] -> Fill((*iter).adc()); meStripTECWheel7zp_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel7zp_[1] -> Fill((*iter).adc()); meStripTECWheel7zp_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel7zp_[2] -> Fill((*iter).adc()); meStripTECWheel7zp_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel7zp_[3] -> Fill((*iter).adc()); meStripTECWheel7zp_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel7zp_[4] -> Fill((*iter).adc()); meStripTECWheel7zp_[4] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 8 ) {
-                   if ( tecid.ring() == 3 ) { meAdcTECWheel8zp_[0] -> Fill((*iter).adc()); meStripTECWheel8zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel8zp_[1] -> Fill((*iter).adc()); meStripTECWheel8zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel8zp_[2] -> Fill((*iter).adc()); meStripTECWheel8zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel8zp_[3] -> Fill((*iter).adc()); meStripTECWheel8zp_[3] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel8zp_[4] -> Fill((*iter).adc()); meStripTECWheel8zp_[4] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 8 ) {
+                   if ( tTopo->tecRing(id) == 3 ) { meAdcTECWheel8zp_[0] -> Fill((*iter).adc()); meStripTECWheel8zp_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel8zp_[1] -> Fill((*iter).adc()); meStripTECWheel8zp_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel8zp_[2] -> Fill((*iter).adc()); meStripTECWheel8zp_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel8zp_[3] -> Fill((*iter).adc()); meStripTECWheel8zp_[3] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel8zp_[4] -> Fill((*iter).adc()); meStripTECWheel8zp_[4] ->Fill((*iter).strip()); }
                 }
-                if( tecid.wheel() == 9 ) {
-                   if ( tecid.ring() == 4 ) { meAdcTECWheel9zp_[0] -> Fill((*iter).adc()); meStripTECWheel9zp_[0] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 5 ) { meAdcTECWheel9zp_[1] -> Fill((*iter).adc()); meStripTECWheel9zp_[1] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 6 ) { meAdcTECWheel9zp_[2] -> Fill((*iter).adc()); meStripTECWheel9zp_[2] ->Fill((*iter).strip()); }
-                   if ( tecid.ring() == 7 ) { meAdcTECWheel9zp_[3] -> Fill((*iter).adc()); meStripTECWheel9zp_[3] ->Fill((*iter).strip()); }
+                if( tTopo->tecWheel(id) == 9 ) {
+                   if ( tTopo->tecRing(id) == 4 ) { meAdcTECWheel9zp_[0] -> Fill((*iter).adc()); meStripTECWheel9zp_[0] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 5 ) { meAdcTECWheel9zp_[1] -> Fill((*iter).adc()); meStripTECWheel9zp_[1] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 6 ) { meAdcTECWheel9zp_[2] -> Fill((*iter).adc()); meStripTECWheel9zp_[2] ->Fill((*iter).strip()); }
+                   if ( tTopo->tecRing(id) == 7 ) { meAdcTECWheel9zp_[3] -> Fill((*iter).adc()); meStripTECWheel9zp_[3] ->Fill((*iter).strip()); }
                 }
              }
            }

@@ -2,13 +2,15 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2009/12/18 20:45:12 $
- *  $Revision: 1.15 $
+ *  $Date: 2012/02/01 16:27:22 $
+ *  $Revision: 1.16 $
  *  \author M. Strang SUNY-Buffalo
  */
 
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -853,6 +855,11 @@ void GlobalRecHitsProducer::storeHCal(PGlobalRecHit& product)
 void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, 
 				   const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   std::string MsgLoggerCat = "GlobalRecHitsProducer_fillTrk";
 
   TString eventout;
@@ -941,28 +948,28 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	  // get TIB
 	  if (detid.subdetId() == sdSiTIB) {
 
-	    TIBDetId tibid(myid);
+	    
 	    ++nStripBrl;
 
-	    if (tibid.layer() == 1) {
+	    if (tTopo->tibLayer(myid) == 1) {
 	      TIBL1RX.push_back(rechitmatchedx);
 	      TIBL1RY.push_back(rechitmatchedy);
 	      TIBL1SX.push_back(closestPair.first.x());
 	      TIBL1SY.push_back(closestPair.first.y());
 	    }
-	    if (tibid.layer() == 2) {
+	    if (tTopo->tibLayer(myid) == 2) {
 	      TIBL2RX.push_back(rechitmatchedx);
 	      TIBL2RY.push_back(rechitmatchedy);
 	      TIBL2SX.push_back(closestPair.first.x());
 	      TIBL2SY.push_back(closestPair.first.y());
 	    }	
-	    if (tibid.layer() == 3) {
+	    if (tTopo->tibLayer(myid) == 3) {
 	      TIBL3RX.push_back(rechitmatchedx);
 	      TIBL3RY.push_back(rechitmatchedy);
 	      TIBL3SX.push_back(closestPair.first.x());
 	      TIBL3SY.push_back(closestPair.first.y());
 	    }
-	    if (tibid.layer() == 4) {
+	    if (tTopo->tibLayer(myid) == 4) {
 	      TIBL4RX.push_back(rechitmatchedx);
 	      TIBL4RY.push_back(rechitmatchedy);
 	      TIBL4SX.push_back(closestPair.first.x());
@@ -973,28 +980,28 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	  // get TOB
 	  if (detid.subdetId() == sdSiTOB) {
 
-	    TOBDetId tobid(myid);
+	    
 	    ++nStripBrl;
 
-	    if (tobid.layer() == 1) {
+	    if (tTopo->tobLayer(myid) == 1) {
 	      TOBL1RX.push_back(rechitmatchedx);
 	      TOBL1RY.push_back(rechitmatchedy);
 	      TOBL1SX.push_back(closestPair.first.x());
 	      TOBL1SY.push_back(closestPair.first.y());
 	    }
-	    if (tobid.layer() == 2) {
+	    if (tTopo->tobLayer(myid) == 2) {
 	      TOBL2RX.push_back(rechitmatchedx);
 	      TOBL2RY.push_back(rechitmatchedy);
 	      TOBL2SX.push_back(closestPair.first.x());
 	      TOBL2SY.push_back(closestPair.first.y());
 	    }	
-	    if (tobid.layer() == 3) {
+	    if (tTopo->tobLayer(myid) == 3) {
 	      TOBL3RX.push_back(rechitmatchedx);
 	      TOBL3RY.push_back(rechitmatchedy);
 	      TOBL3SX.push_back(closestPair.first.x());
 	      TOBL3SY.push_back(closestPair.first.y());
 	    }
-	    if (tobid.layer() == 4) {
+	    if (tTopo->tobLayer(myid) == 4) {
 	      TOBL4RX.push_back(rechitmatchedx);
 	      TOBL4RY.push_back(rechitmatchedy);
 	      TOBL4SX.push_back(closestPair.first.x());
@@ -1005,22 +1012,22 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	  // get TID
 	  if (detid.subdetId() == sdSiTID) {
 
-	    TIDDetId tidid(myid);
+	    
 	    ++nStripFwd;
 
-	    if (tidid.wheel() == 1) {
+	    if (tTopo->tidWheel(myid) == 1) {
 	      TIDW1RX.push_back(rechitmatchedx);
 	      TIDW1RY.push_back(rechitmatchedy);
 	      TIDW1SX.push_back(closestPair.first.x());
 	      TIDW1SY.push_back(closestPair.first.y());
 	    }
-	    if (tidid.wheel() == 2) {
+	    if (tTopo->tidWheel(myid) == 2) {
 	      TIDW2RX.push_back(rechitmatchedx);
 	      TIDW2RY.push_back(rechitmatchedy);
 	      TIDW2SX.push_back(closestPair.first.x());
 	      TIDW2SY.push_back(closestPair.first.y());
 	    }	
-	    if (tidid.wheel() == 3) {
+	    if (tTopo->tidWheel(myid) == 3) {
 	      TIDW3RX.push_back(rechitmatchedx);
 	      TIDW3RY.push_back(rechitmatchedy);
 	      TIDW3SX.push_back(closestPair.first.x());
@@ -1031,52 +1038,52 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	  // get TEC
 	  if (detid.subdetId() == sdSiTEC) {
 
-	    TECDetId tecid(myid);
+	    
 	    ++nStripFwd;
 
-	    if (tecid.wheel() == 1) {
+	    if (tTopo->tecWheel(myid) == 1) {
 	      TECW1RX.push_back(rechitmatchedx);
 	      TECW1RY.push_back(rechitmatchedy);
 	      TECW1SX.push_back(closestPair.first.x());
 	      TECW1SY.push_back(closestPair.first.y());
 	    }
-	    if (tecid.wheel() == 2) {
+	    if (tTopo->tecWheel(myid) == 2) {
 	      TECW2RX.push_back(rechitmatchedx);
 	      TECW2RY.push_back(rechitmatchedy);
 	      TECW2SX.push_back(closestPair.first.x());
 	      TECW2SY.push_back(closestPair.first.y());
 	    }	
-	    if (tecid.wheel() == 3) {
+	    if (tTopo->tecWheel(myid) == 3) {
 	      TECW3RX.push_back(rechitmatchedx);
 	      TECW3RY.push_back(rechitmatchedy);
 	      TECW3SX.push_back(closestPair.first.x());
 	      TECW3SY.push_back(closestPair.first.y());
 	    }
-	    if (tecid.wheel() == 4) {
+	    if (tTopo->tecWheel(myid) == 4) {
 	      TECW4RX.push_back(rechitmatchedx);
 	      TECW4RY.push_back(rechitmatchedy);
 	      TECW4SX.push_back(closestPair.first.x());
 	      TECW4SY.push_back(closestPair.first.y());
 	    }
-	    if (tecid.wheel() == 5) {
+	    if (tTopo->tecWheel(myid) == 5) {
 	      TECW5RX.push_back(rechitmatchedx);
 	      TECW5RY.push_back(rechitmatchedy);
 	      TECW5SX.push_back(closestPair.first.x());
 	      TECW5SY.push_back(closestPair.first.y());
 	    }	
-	    if (tecid.wheel() == 6) {
+	    if (tTopo->tecWheel(myid) == 6) {
 	      TECW6RX.push_back(rechitmatchedx);
 	      TECW6RY.push_back(rechitmatchedy);
 	      TECW6SX.push_back(closestPair.first.x());
 	      TECW6SY.push_back(closestPair.first.y());
 	    }
-	    if (tecid.wheel() == 7) {
+	    if (tTopo->tecWheel(myid) == 7) {
 	      TECW7RX.push_back(rechitmatchedx);
 	      TECW7RY.push_back(rechitmatchedy);
 	      TECW7SX.push_back(closestPair.first.x());
 	      TECW7SY.push_back(closestPair.first.y());
 	    }	
-	    if (tecid.wheel() == 8) {
+	    if (tTopo->tecWheel(myid) == 8) {
 	      TECW8RX.push_back(rechitmatchedx);
 	      TECW8RY.push_back(rechitmatchedy);
 	      TECW8SX.push_back(closestPair.first.x());
@@ -1184,22 +1191,22 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 	
 	// get Barrel pixels
 	if (subid == sdPxlBrl) {
-	  PXBDetId bdetid(myid);
+	  
 	  ++nPxlBrl;
 
-	  if (bdetid.layer() == 1) {
+	  if (tTopo->pxbLayer(myid) == 1) {
 	    BRL1RX.push_back(rechit_x);
 	    BRL1RY.push_back(rechit_y);
 	    BRL1SX.push_back(sim_x);
 	    BRL1SY.push_back(sim_y);	  
 	  }
-	  if (bdetid.layer() == 2) {
+	  if (tTopo->pxbLayer(myid) == 2) {
 	    BRL2RX.push_back(rechit_x);
 	    BRL2RY.push_back(rechit_y);
 	    BRL2SX.push_back(sim_x);
 	    BRL2SY.push_back(sim_y);	  	  
 	  }
-	  if (bdetid.layer() == 3) {
+	  if (tTopo->pxbLayer(myid) == 3) {
 	    BRL3RX.push_back(rechit_x);
 	    BRL3RY.push_back(rechit_y);
 	    BRL3SX.push_back(sim_x);
@@ -1209,31 +1216,31 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 
 	// get Forward pixels
 	if (subid == sdPxlFwd) {
-	  PXFDetId fdetid(myid);
+	  
 	  ++nPxlFwd;
 
-	  if (fdetid.disk() == 1) {
-	    if (fdetid.side() == 1) {
+	  if (tTopo->pxfDisk(myid) == 1) {
+	    if (tTopo->pxfSide(myid) == 1) {
 	      FWD1nRX.push_back(rechit_x);
 	      FWD1nRY.push_back(rechit_y);
 	      FWD1nSX.push_back(sim_x);
 	      FWD1nSY.push_back(sim_y);	  
 	    }
-	    if (fdetid.side() == 2) {
+	    if (tTopo->pxfSide(myid) == 2) {
 	      FWD1pRX.push_back(rechit_x);
 	      FWD1pRY.push_back(rechit_y);
 	      FWD1pSX.push_back(sim_x);
 	      FWD1pSY.push_back(sim_y);
 	    }
 	  }
-	  if (fdetid.disk() == 2) {
-	    if (fdetid.side() == 1) {
+	  if (tTopo->pxfDisk(myid) == 2) {
+	    if (tTopo->pxfSide(myid) == 1) {
 	      FWD2nRX.push_back(rechit_x);
 	      FWD2nRY.push_back(rechit_y);
 	      FWD2nSX.push_back(sim_x);
 	      FWD2nSY.push_back(sim_y);
 	    }
-	    if (fdetid.side() == 2) {
+	    if (tTopo->pxfSide(myid) == 2) {
 	      FWD2pRX.push_back(rechit_x);
 	      FWD2pRY.push_back(rechit_y);
 	      FWD2pSX.push_back(sim_x);

@@ -8,8 +8,8 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
@@ -273,6 +273,11 @@ void SiPixelDigiValid::endJob() {
 
 
 void SiPixelDigiValid::analyze(const Event& e, const EventSetup& c){
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  c.get<IdealGeometryRecord>().get(tTopo);
+
+
 
  int ndigiperRingLayer1[8];
  int ndigiperRingLayer2[8];
@@ -337,10 +342,10 @@ for ( int i =0 ; i< 44; i++) {
           edm::DetSet<PixelDigi>::const_iterator  iter;          
 
           if(detId.subdetId()==PixelSubdetector::PixelBarrel ) {
-             PXBDetId  bdetid(id);
-             unsigned int layer  = bdetid.layer();   // Layer:1,2,3.
-             unsigned int ladder = bdetid.ladder();  // Ladeer: 1-20, 32, 44. 
-             unsigned int zindex = bdetid.module();  // Z-index: 1-8.
+             
+             unsigned int layer  = tTopo->pxbLayer(id);   // Layer:1,2,3.
+             unsigned int ladder = tTopo->pxbLadder(id);  // Ladeer: 1-20, 32, 44. 
+             unsigned int zindex = tTopo->pxbModule(id);  // Z-index: 1-8.
              //LogInfo("SiPixelDigiValid")<<"Barrel:: Layer="<<layer<<" Ladder="<<ladder<<" zindex="<<zindex;
              for ( iter = begin ; iter != end; iter++ ) {
                 if( layer == 1 ) {
@@ -498,12 +503,12 @@ for ( int i =0 ; i< 44; i++) {
           }
  
          if(detId.subdetId()==PixelSubdetector::PixelEndcap ){ //Endcap
-           PXFDetId  fdetid(id);
-           unsigned int side  = fdetid.side();
-           unsigned int disk  = fdetid.disk();
-           unsigned int blade = fdetid.blade();
-           unsigned int panel = fdetid.panel();
-           unsigned int mod   = fdetid.module();
+           
+           unsigned int side  = tTopo->pxfSide(id);
+           unsigned int disk  = tTopo->pxfDisk(id);
+           unsigned int blade = tTopo->pxfBlade(id);
+           unsigned int panel = tTopo->pxfPanel(id);
+           unsigned int mod   = tTopo->pxfModule(id);
            //LogInfo("SiPixelDigiValid")<<"EndcaP="<<side<<" Disk="<<disk<<" Blade="<<blade<<" Panel="<<panel<<" Module="<<mod;
            for ( iter = begin ; iter != end; iter++ ) {
              if(side == 1 && disk == 1 && panel ==1 ){

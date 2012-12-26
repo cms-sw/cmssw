@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2011/08/09 08:25:25 $
- *  $Revision: 1.17 $
+ *  $Date: 2012/02/01 16:27:22 $
+ *  $Revision: 1.18 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -12,6 +12,8 @@ using namespace std;
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -899,6 +901,11 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent, 
 				    const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   std::string MsgLoggerCat = "GlobalRecHitsAnalyzer_fillTrk";
   
   TString eventout;
@@ -990,23 +997,23 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
 	    // get TIB
 	    if (detid.subdetId() == sdSiTIB) {
 	      
-	      TIBDetId tibid(myid);
+	      
 	      ++nStripBrl;
 	      
-	      if (tibid.layer() == 1) {
+	      if (tTopo->tibLayer(myid) == 1) {
 		mehSiStripResX[8]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[8]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
-	      if (tibid.layer() == 2) {
+	      if (tTopo->tibLayer(myid) == 2) {
 		mehSiStripResX[9]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[9]->Fill(rechitmatchedy-closestPair.first.y());
 	      }	
-	      if (tibid.layer() == 3) {
+	      if (tTopo->tibLayer(myid) == 3) {
 		mehSiStripResX[10]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[10]->Fill(rechitmatchedy-closestPair.first.y());
 		
 	      }
-	      if (tibid.layer() == 4) {
+	      if (tTopo->tibLayer(myid) == 4) {
 		mehSiStripResX[11]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[11]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
@@ -1015,22 +1022,22 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
 	    // get TOB
 	    if (detid.subdetId() == sdSiTOB) {
 	      
-	      TOBDetId tobid(myid);
+	      
 	      ++nStripBrl;
 	      
-	      if (tobid.layer() == 1) {
+	      if (tTopo->tobLayer(myid) == 1) {
 		mehSiStripResX[15]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[15]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
-	      if (tobid.layer() == 2) {
+	      if (tTopo->tobLayer(myid) == 2) {
 		mehSiStripResX[16]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[16]->Fill(rechitmatchedy-closestPair.first.y());
 	      }	
-	      if (tobid.layer() == 3) {
+	      if (tTopo->tobLayer(myid) == 3) {
 		mehSiStripResX[17]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[17]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
-	      if (tobid.layer() == 4) {
+	      if (tTopo->tobLayer(myid) == 4) {
 		mehSiStripResX[18]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[18]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
@@ -1039,18 +1046,18 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
 	    // get TID
 	    if (detid.subdetId() == sdSiTID) {
 	      
-	      TIDDetId tidid(myid);
+	      
 	      ++nStripFwd;
 	      
-	      if (tidid.wheel() == 1) {
+	      if (tTopo->tidWheel(myid) == 1) {
 		mehSiStripResX[12]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[12]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
-	      if (tidid.wheel() == 2) {
+	      if (tTopo->tidWheel(myid) == 2) {
 		mehSiStripResX[13]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[13]->Fill(rechitmatchedy-closestPair.first.y());
 	      }	
-	      if (tidid.wheel() == 3) {
+	      if (tTopo->tidWheel(myid) == 3) {
 		mehSiStripResX[14]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[14]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
@@ -1059,39 +1066,39 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
 	    // get TEC
 	    if (detid.subdetId() == sdSiTEC) {
 	      
-	      TECDetId tecid(myid);
+	      
 	      ++nStripFwd;
 	      
-	      if (tecid.wheel() == 1) {
+	      if (tTopo->tecWheel(myid) == 1) {
 		mehSiStripResX[0]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[0]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
-	      if (tecid.wheel() == 2) {
+	      if (tTopo->tecWheel(myid) == 2) {
 		mehSiStripResX[1]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[1]->Fill(rechitmatchedy-closestPair.first.y());
 	      }	
-	      if (tecid.wheel() == 3) {
+	      if (tTopo->tecWheel(myid) == 3) {
 		mehSiStripResX[2]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[2]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
-	      if (tecid.wheel() == 4) {
+	      if (tTopo->tecWheel(myid) == 4) {
 		mehSiStripResX[3]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[3]->Fill(rechitmatchedy-closestPair.first.y());
 		
 	      }
-	      if (tecid.wheel() == 5) {
+	      if (tTopo->tecWheel(myid) == 5) {
 		mehSiStripResX[4]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[4]->Fill(rechitmatchedy-closestPair.first.y());
 	      }	
-	      if (tecid.wheel() == 6) {
+	      if (tTopo->tecWheel(myid) == 6) {
 		mehSiStripResX[5]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[5]->Fill(rechitmatchedy-closestPair.first.y());
 	      }
-	      if (tecid.wheel() == 7) {
+	      if (tTopo->tecWheel(myid) == 7) {
 		mehSiStripResX[6]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[6]->Fill(rechitmatchedy-closestPair.first.y());
 	      }	
-	      if (tecid.wheel() == 8) {
+	      if (tTopo->tecWheel(myid) == 8) {
 		mehSiStripResX[7]->Fill(rechitmatchedx-closestPair.first.x());
 		mehSiStripResY[7]->Fill(rechitmatchedy-closestPair.first.y()); 
 	      }
@@ -1207,19 +1214,19 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
 	  
 	  // get Barrel pixels ***************Pixel STuff******************
 	  if (subid == sdPxlBrl) {
-	    PXBDetId bdetid(myid);
+	    
 	    ++nPxlBrl;
 	    
-	    if (bdetid.layer() == 1) {
+	    if (tTopo->pxbLayer(myid) == 1) {
 	      mehSiPixelResX[0]->Fill(rechit_x-sim_x);
 	      mehSiPixelResY[0]->Fill(rechit_y-sim_y); 
 	      
 	    }
-	    if (bdetid.layer() == 2) {
+	    if (tTopo->pxbLayer(myid) == 2) {
 	      mehSiPixelResX[1]->Fill(rechit_x-sim_x);
 	      mehSiPixelResY[1]->Fill(rechit_y-sim_y); 
 	    }
-	    if (bdetid.layer() == 3) {
+	    if (tTopo->pxbLayer(myid) == 3) {
 	      mehSiPixelResX[2]->Fill(rechit_x-sim_x);
 	      mehSiPixelResY[2]->Fill(rechit_y-sim_y); 
 	    }
@@ -1227,25 +1234,25 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
 	  
 	  // get Forward pixels
 	  if (subid == sdPxlFwd) {
-	    PXFDetId fdetid(myid);
+	    
 	    ++nPxlFwd;
 	    
-	    if (fdetid.disk() == 1) {
-	      if (fdetid.side() == 1) {
+	    if (tTopo->pxfDisk(myid) == 1) {
+	      if (tTopo->pxfSide(myid) == 1) {
 		mehSiPixelResX[3]->Fill(rechit_x-sim_x);
 		mehSiPixelResY[3]->Fill(rechit_y-sim_y);
 	      }
-	      if (fdetid.side() == 2) {
+	      if (tTopo->pxfSide(myid) == 2) {
 		mehSiPixelResX[4]->Fill(rechit_x-sim_x);
 		mehSiPixelResY[4]->Fill(rechit_y-sim_y); 
 	      }
 	    }
-	    if (fdetid.disk() == 2) {
-	      if (fdetid.side() == 1) {
+	    if (tTopo->pxfDisk(myid) == 2) {
+	      if (tTopo->pxfSide(myid) == 1) {
 		mehSiPixelResX[5]->Fill(rechit_x-sim_x);
 		mehSiPixelResY[5]->Fill(rechit_y-sim_y);
 	      }
-	      if (fdetid.side() == 2) {
+	      if (tTopo->pxfSide(myid) == 2) {
 		mehSiPixelResX[6]->Fill(rechit_x-sim_x);
 		mehSiPixelResY[6]->Fill(rechit_y-sim_y); 
 	      }
