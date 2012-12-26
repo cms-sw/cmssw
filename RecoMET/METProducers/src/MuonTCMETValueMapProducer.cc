@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Frank Golf
 //         Created:  Sun Mar 15 11:33:20 CDT 2009
-// $Id: MuonTCMETValueMapProducer.cc,v 1.9 2011/02/21 10:09:21 benhoob Exp $
+// $Id: MuonTCMETValueMapProducer.cc,v 1.10 2012/01/28 16:01:24 eulisse Exp $
 //
 //
 
@@ -416,7 +416,7 @@ namespace cms {
     Plane::PlanePointer lendcap = Plane::build( Plane::PositionType (0, 0, -zdist), Plane::RotationType () );
     Plane::PlanePointer rendcap = Plane::build( Plane::PositionType (0, 0, zdist),  Plane::RotationType () );
 
-    Cylinder::CylinderPointer barrel = Cylinder::build( Cylinder::PositionType (0, 0, 0), Cylinder::RotationType (), radius);
+    Cylinder::CylinderPointer barrel = Cylinder::build(radius, Cylinder::PositionType (0, 0, 0), Cylinder::RotationType () );
 
     AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
 
