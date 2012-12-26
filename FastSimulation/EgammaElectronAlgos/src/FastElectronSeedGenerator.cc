@@ -33,8 +33,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
