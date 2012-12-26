@@ -286,8 +286,7 @@ void STAnalyzer::analyzeSATrack(const Event & event,
     float radiusECAL = 129.0; // radius in centimeter
     Cylinder::PositionType pos0;
     Cylinder::RotationType rot0;
-    const Cylinder::CylinderPointer ecal = Cylinder::build(pos0, rot0,
-                                                           radiusECAL);
+    const Cylinder::CylinderPointer ecal = Cylinder::build(radiusECAL,pos0, rot0);
     //cout << "Cyl " << ecal->radius() << endl;
 
     TrajectoryStateOnSurface tsosAtEcal =
@@ -300,8 +299,7 @@ void STAnalyzer::analyzeSATrack(const Event & event,
 
     // Get a surface (here a cylinder of radius 1811 mm) HCAL
     float radiusHCAL = 181.1; // radius in centimeter
-    const Cylinder::CylinderPointer hcal = Cylinder::build(pos0, rot0,
-                                                           radiusHCAL);
+    const Cylinder::CylinderPointer hcal = Cylinder::build(radiusHCAL,pos0, rot0);
     //cout << "Cyl " << hcal->radius() << endl;
 
     TrajectoryStateOnSurface tsosAtHcal =

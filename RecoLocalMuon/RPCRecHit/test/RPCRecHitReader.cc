@@ -129,7 +129,7 @@ void RPCRecHitReader::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
       RPCRoll* ir = dynamic_cast<RPCRoll*>(*it);
       RPCDetId id = ir->id();
       
-      const BoundSurface& bSurface = ir->surface();
+      const Surface& bSurface = ir->surface();
       
       if(id.region() == region && id.ring() == wheel && id.sector() == 10 && id.station() == 1 && id.layer() == 1){
 	LocalPoint orgn(0,0,0);
@@ -211,7 +211,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
     // Find chamber with rechits in RPC 
     RPCDetId id = (RPCDetId)(*recIt).rpcId();
     const RPCRoll* roll = dynamic_cast<const RPCRoll* >( rpcGeom->roll(id));
-    const BoundSurface& bSurface = roll->surface();	
+    const Surface& bSurface = roll->surface();	
 
     if((roll->isForward())) return;
    
