@@ -40,12 +40,8 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
@@ -169,6 +165,11 @@ double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double ph
 void
 ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   
   edm::LogInfo("ModuleNumbering") << "begins";
   
@@ -197,7 +198,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
   //
-  
+ 
   std::vector<const GeometricDet*> modules =  (*rDD).deepComponents();
   std::map< uint32_t , const GeometricDet* > mapDetIdToGeometricDet;
   
@@ -317,11 +318,11 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  Output << "\t R = " << polarRadius << "\t phi = " << phiRad << "\t z = " << z << std::endl;
 		  
 		  // Module Info
-		  TIBDetId module(rawid);
+		  
 		  std::string name = mapDetIdToGeometricDet[myDetId]->name().name();
-		  unsigned int         theLayer  = module.layer();
-		  std::vector<unsigned int> theString = module.string();
-		  unsigned int         theModule = module.module();
+		  unsigned int         theLayer  = tTopo->tibLayer(rawid);
+		  std::vector<unsigned int> theString = tTopo->tibStringInfo(rawid);
+		  unsigned int         theModule = tTopo->tibModule(rawid);
 		  std::string side;
 		  std::string part;
 		  side = (theString[0] == 1 ) ? "-" : "+";
@@ -501,14 +502,14 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  Output << "\t R = " << polarRadius << "\t phi = " << phiRad << "\t z = " << z << std::endl;
 		  
 		  // Module Info
-		  TIDDetId module(rawid);
+		  
 		  std::string name = mapDetIdToGeometricDet[myDetId]->name().name();
-		  unsigned int         theDisk   = module.wheel();
-		  unsigned int         theRing   = module.ring();
-		  std::vector<unsigned int> theModule = module.module();
+		  unsigned int         theDisk   = tTopo->tidWheel(rawid);
+		  unsigned int         theRing   = tTopo->tidRing(rawid);
+		  std::vector<unsigned int> theModule = tTopo->tidModuleInfo(rawid);
 		  std::string side;
 		  std::string part;
-		  side = (module.side() == 1 ) ? "-" : "+";
+		  side = (tTopo->tidSide(rawid) == 1 ) ? "-" : "+";
 		  part = (theModule[0] == 1 ) ? "back" : "front";
 		  Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
 			 << "\t" << " module " << theModule[1] << "\t" << name << std::endl;
@@ -677,11 +678,11 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  Output << "\t R = " << polarRadius << "\t phi = " << phiRad << "\t z = " << z << std::endl;
 		  
 		  // Module Info
-		  TOBDetId module(rawid);
+		  
 		  std::string name = mapDetIdToGeometricDet[myDetId]->name().name();
-		  unsigned int         theLayer  = module.layer();
-		  std::vector<unsigned int> theRod    = module.rod();
-		  unsigned int         theModule = module.module();
+		  unsigned int         theLayer  = tTopo->tobLayer(rawid);
+		  std::vector<unsigned int> theRod    = tTopo->tobRodInfo(rawid);
+		  unsigned int         theModule = tTopo->tobModule(rawid);
 		  std::string side;
 		  std::string part;
 		  side = (theRod[0] == 1 ) ? "-" : "+";
@@ -959,15 +960,15 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		      Output << "\t R = " << polarRadius << "\t phi = " << phiRad << "\t z = " << z << std::endl;
 		      
 		      // Module Info
-		      TECDetId module(rawid);
+		      
 		      std::string name = mapDetIdToGeometricDet[myDetId]->name().name();
-		      unsigned int theWheel = module.wheel();
-		      unsigned int         theModule = module.module();
-		      std::vector<unsigned int> thePetal  = module.petal();
-		      unsigned int         theRing   = module.ring();
+		      unsigned int theWheel = tTopo->tecWheel(rawid);
+		      unsigned int         theModule = tTopo->tecModule(rawid);
+		      std::vector<unsigned int> thePetal  = tTopo->tecPetalInfo(rawid);
+		      unsigned int         theRing   = tTopo->tecRing(rawid);
 		      std::string side;
 		      std::string petal;
-		      side  = (module.side() == 1 ) ? "-" : "+";
+		      side  = (tTopo->tecSide(rawid) == 1 ) ? "-" : "+";
 		      petal = (thePetal[0] == 1 ) ? "back" : "front";
 		      Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 			     << "\t" << " module " << theModule << "\t" << name << std::endl;
