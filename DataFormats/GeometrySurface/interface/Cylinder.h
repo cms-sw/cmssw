@@ -10,12 +10,13 @@
  *  using the static build() methods. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2012/12/26 11:05:27 $
- *  $Revision: 1.10 $
+ *  $Date: 2012/12/26 16:18:51 $
+ *  $Revision: 1.11 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 
 class Cylinder GCC11_FINAL  : public Surface {
 public:
@@ -23,6 +24,9 @@ public:
   template<typename... Args>
     Cylinder(Scalar radius, Args&& ... args) :
     Surface(std::forward<Args>(args)...), theRadius(radius){}
+
+  Cylinder(const PositionType& pos, const RotationType& rot, SimpleCylinderBounds const & bounds) :
+    Surface(pos,rot, bounds.clone()),  theRadius(computeRadius(bounds)){}
   
   // average Rmin Rmax...
   static float computeRadius(Bounds const & bounds) {
