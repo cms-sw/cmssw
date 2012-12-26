@@ -29,17 +29,13 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 // Geometry
@@ -123,6 +119,11 @@ void StdHitNtuplizer::beginJob()
 // Functions that gets called by framework every event
 void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
+
   // geometry setup
   edm::ESHandle<TrackerGeometry>        geometry;
 
@@ -203,35 +204,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	int stereo = 0;
 	if ( subdetId == StripSubdetector::TIB) {
 	  detname = "TIB";
-	  TIBDetId tibid(detId.rawId());
-	  layerNumber = tibid.layer();
-	  stereo = tibid.stereo();
+	  
+	  layerNumber = tTopo->tibLayer(detId.rawId);
+	  stereo = tTopo->tibStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TOB ) {
 	  detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-	  layerNumber = tobid.layer();
-	  stereo = tobid.stereo();
+	  
+	  layerNumber = tTopo->tobLayer(detId.rawId);
+	  stereo = tTopo->tobStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TID) {
 	  detname = "TID";
-	  TIDDetId tidid(detId.rawId());
-	  layerNumber = tidid.wheel();
-	  ringNumber = tidid.ring();
-	  stereo = tidid.stereo();
+	  
+	  layerNumber = tTopo->tidWheel(detId.rawId);
+	  ringNumber = tTopo->tidRing(detId.rawId);
+	  stereo = tTopo->tidStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TEC ) {
 	  detname = "TEC";
-	  TECDetId tecid(detId.rawId());
-	  layerNumber = tecid.wheel();
-	  ringNumber = tecid.ring();
-	  stereo = tecid.stereo();
+	  
+	  layerNumber = tTopo->tecWheel(detId.rawId);
+	  ringNumber = tTopo->tecRing(detId.rawId);
+	  stereo = tTopo->tecStereo(detId.rawId);
 	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
 	  detname = "PXB";
-	  PXBDetId pxbid(detId.rawId());
-	  layerNumber = pxbid.layer();
+	  
+	  layerNumber = tTopo->pxbLayer(detId.rawId);
 	  stereo = 1;
 	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
 	  detname = "PXF";
-	  PXFDetId pxfid(detId.rawId());
-	  layerNumber = pxfid.disk();
+	  
+	  layerNumber = tTopo->pxfDisk(detId.rawId);
 	  stereo = 1;
 	}
 	
@@ -252,11 +253,11 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
         if ( (subid==1)||(subid==2) ) {
           // 1 = PXB, 2 = PXF
           if ( subid ==  PixelSubdetector::PixelBarrel ) {
-            PXBDetId pxbid(detId.rawId());
-            layer_num   = pxbid.layer();
+            
+            layer_num   = tTopo->pxbLayer(detId.rawId());
           } else if ( subid ==  PixelSubdetector::PixelEndcap ) {
-            PXFDetId pxfid(detId.rawId());
-            layer_num   = pxfid.disk();
+            
+            layer_num   = tTopo->pxfDisk(detId.rawId());
           }
           int num_simhit = matched.size();
           fillPRecHit(subid, layer_num, iterRecHit, num_simhit, closest_simhit, geomDet);
@@ -316,35 +317,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
         std::string detname;
         if ( subdetId == StripSubdetector::TIB) {
           detname = "TIB";
-          TIBDetId tibid(detId.rawId());
-          layerNumber = tibid.layer();
-          stereo = tibid.stereo();
+          
+          layerNumber = tTopo->tibLayer(detId.rawId);
+          stereo = tTopo->tibStereo(detId.rawId);
         } else if ( subdetId ==  StripSubdetector::TOB ) {
           detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-          layerNumber = tobid.layer();
-          stereo = tobid.stereo();
+	  
+          layerNumber = tTopo->tobLayer(detId.rawId);
+          stereo = tTopo->tobStereo(detId.rawId);
         } else if ( subdetId ==  StripSubdetector::TID) {
           detname = "TID";
-          TIDDetId tidid(detId.rawId());
-          layerNumber = tidid.wheel();
-          ringNumber = tidid.ring();
-          stereo = tidid.stereo();
+          
+          layerNumber = tTopo->tidWheel(detId.rawId);
+          ringNumber = tTopo->tidRing(detId.rawId);
+          stereo = tTopo->tidStereo(detId.rawId);
         } else if ( subdetId ==  StripSubdetector::TEC ) {
           detname = "TEC";
-          TECDetId tecid(detId.rawId());
-          layerNumber = tecid.wheel();
-          ringNumber = tecid.ring();
-          stereo = tecid.stereo();
+          
+          layerNumber = tTopo->tecWheel(detId.rawId);
+          ringNumber = tTopo->tecRing(detId.rawId);
+          stereo = tTopo->tecStereo(detId.rawId);
         } else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
           detname = "PXB";
-          PXBDetId pxbid(detId.rawId());
-          layerNumber = pxbid.layer();
+          
+          layerNumber = tTopo->pxbLayer(detId.rawId);
           stereo = 1;
         } else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
           detname = "PXF";
-          PXFDetId pxfid(detId.rawId());
-          layerNumber = pxfid.disk();
+          
+          layerNumber = tTopo->pxfDisk(detId.rawId);
           stereo = 1;
         }
 */
@@ -432,35 +433,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	int stereo = 0;
 	if ( subdetId == StripSubdetector::TIB) {
 	  detname = "TIB";
-	  TIBDetId tibid(detId.rawId());
-	  layerNumber = tibid.layer();
-	  stereo = tibid.stereo();
+	  
+	  layerNumber = tTopo->tibLayer(detId.rawId);
+	  stereo = tTopo->tibStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TOB ) {
 	  detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-	  layerNumber = tobid.layer();
-	  stereo = tobid.stereo();
+	  
+	  layerNumber = tTopo->tobLayer(detId.rawId);
+	  stereo = tTopo->tobStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TID) {
 	  detname = "TID";
-	  TIDDetId tidid(detId.rawId());
-	  layerNumber = tidid.wheel();
-	  ringNumber = tidid.ring();
-	  stereo = tidid.stereo();
+	  
+	  layerNumber = tTopo->tidWheel(detId.rawId);
+	  ringNumber = tTopo->tidRing(detId.rawId);
+	  stereo = tTopo->tidStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TEC ) {
 	  detname = "TEC";
-	  TECDetId tecid(detId.rawId());
-	  layerNumber = tecid.wheel();
-	  ringNumber = tecid.ring();
-	  stereo = tecid.stereo();
+	  
+	  layerNumber = tTopo->tecWheel(detId.rawId);
+	  ringNumber = tTopo->tecRing(detId.rawId);
+	  stereo = tTopo->tecStereo(detId.rawId);
 	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
 	  detname = "PXB";
-	  PXBDetId pxbid(detId.rawId());
-	  layerNumber = pxbid.layer();
+	  
+	  layerNumber = tTopo->pxbLayer(detId.rawId);
 	  stereo = 1;
 	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
 	  detname = "PXF";
-	  PXFDetId pxfid(detId.rawId());
-	  layerNumber = pxfid.disk();
+	  
+	  layerNumber = tTopo->pxfDisk(detId.rawId);
 	  stereo = 1;
 	}
 */	
@@ -521,35 +522,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	int stereo = 0;
 	if ( subdetId == StripSubdetector::TIB) {
 	  detname = "TIB";
-	  TIBDetId tibid(detId.rawId());
-	  layerNumber = tibid.layer();
-	  stereo = tibid.stereo();
+	  
+	  layerNumber = tTopo->tibLayer(detId.rawId);
+	  stereo = tTopo->tibStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TOB ) {
 	  detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-	  layerNumber = tobid.layer();
-	  stereo = tobid.stereo();
+	  
+	  layerNumber = tTopo->tobLayer(detId.rawId);
+	  stereo = tTopo->tobStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TID) {
 	  detname = "TID";
-	  TIDDetId tidid(detId.rawId());
-	  layerNumber = tidid.wheel();
-	  ringNumber = tidid.ring();
-	  stereo = tidid.stereo();
+	  
+	  layerNumber = tTopo->tidWheel(detId.rawId);
+	  ringNumber = tTopo->tidRing(detId.rawId);
+	  stereo = tTopo->tidStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TEC ) {
 	  detname = "TEC";
-	  TECDetId tecid(detId.rawId());
-	  layerNumber = tecid.wheel();
-	  ringNumber = tecid.ring();
-	  stereo = tecid.stereo();
+	  
+	  layerNumber = tTopo->tecWheel(detId.rawId);
+	  ringNumber = tTopo->tecRing(detId.rawId);
+	  stereo = tTopo->tecStereo(detId.rawId);
 	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
 	  detname = "PXB";
-	  PXBDetId pxbid(detId.rawId());
-	  layerNumber = pxbid.layer();
+	  
+	  layerNumber = tTopo->pxbLayer(detId.rawId);
 	  stereo = 1;
 	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
 	  detname = "PXF";
-	  PXFDetId pxfid(detId.rawId());
-	  layerNumber = pxfid.disk();
+	  
+	  layerNumber = tTopo->pxfDisk(detId.rawId);
 	  stereo = 1;
 	}
 */
@@ -611,35 +612,35 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	int stereo = 0;
 	if ( subdetId == StripSubdetector::TIB) {
 	  detname = "TIB";
-	  TIBDetId tibid(detId.rawId());
-	  layerNumber = tibid.layer();
-	  stereo = tibid.stereo();
+	  
+	  layerNumber = tTopo->tibLayer(detId.rawId);
+	  stereo = tTopo->tibStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TOB ) {
 	  detname = "TOB";
-	  TOBDetId tobid(detId.rawId());
-	  layerNumber = tobid.layer();
-	  stereo = tobid.stereo();
+	  
+	  layerNumber = tTopo->tobLayer(detId.rawId);
+	  stereo = tTopo->tobStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TID) {
 	  detname = "TID";
-	  TIDDetId tidid(detId.rawId());
-	  layerNumber = tidid.wheel();
-	  ringNumber = tidid.ring();
-	  stereo = tidid.stereo();
+	  
+	  layerNumber = tTopo->tidWheel(detId.rawId);
+	  ringNumber = tTopo->tidRing(detId.rawId);
+	  stereo = tTopo->tidStereo(detId.rawId);
 	} else if ( subdetId ==  StripSubdetector::TEC ) {
 	  detname = "TEC";
-	  TECDetId tecid(detId.rawId());
-	  layerNumber = tecid.wheel();
-	  ringNumber = tecid.ring();
-	  stereo = tecid.stereo();
+	  
+	  layerNumber = tTopo->tecWheel(detId.rawId);
+	  ringNumber = tTopo->tecRing(detId.rawId);
+	  stereo = tTopo->tecStereo(detId.rawId);
 	} else if ( subdetId ==  PixelSubdetector::PixelBarrel ) {
 	  detname = "PXB";
-	  PXBDetId pxbid(detId.rawId());
-	  layerNumber = pxbid.layer();
+	  
+	  layerNumber = tTopo->pxbLayer(detId.rawId);
 	  stereo = 1;
 	} else if ( subdetId ==  PixelSubdetector::PixelEndcap ) {
 	  detname = "PXF";
-	  PXFDetId pxfid(detId.rawId());
-	  layerNumber = pxfid.disk();
+	  
+	  layerNumber = tTopo->pxfDisk(detId.rawId);
 	  stereo = 1;
 	}
 	
