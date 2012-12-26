@@ -97,8 +97,8 @@
  **
  **
  **  $Id: TkConvValidator
- **  $Date: 2011/12/22 20:44:37 $
- **  $Revision: 1.4 $
+ **  $Date: 2012/02/01 21:27:39 $
+ **  $Revision: 1.5 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -1796,14 +1796,16 @@ math::XYZVector TkConvValidator::recalculateMomentumAtFittedVertex ( const Magne
 
   math::XYZVector result;
   Surface::RotationType rot;
-  ReferenceCountingPointer<BoundCylinder>  theBarrel_(new BoundCylinder( Surface::PositionType(0,0,0), rot,
-									 SimpleCylinderBounds(  sqrt(vtx.position().perp2())-0.001,
-												sqrt(vtx.position().perp2())+0.001,
-												-fabs(vtx.position().z()),
-												fabs(vtx.position().z()))));
+  auto scp = new SimpleCylinderBounds(  sqrt(vtx.position().perp2())-0.001f,
+					sqrt(vtx.position().perp2())+0.001f,
+					-fabs(vtx.position().z()),
+					 fabs(vtx.position().z())
+                                     );
+  ReferenceCountingPointer<Cylinder>  theBarrel_(new Cylinder(Cylinder::computeRadius(*scp), Surface::PositionType(0,0,0), rot,scp));
 
-  ReferenceCountingPointer<BoundDisk>      theDisk_(new BoundDisk( Surface::PositionType( 0, 0, vtx.position().z()), rot,
-								   SimpleDiskBounds( 0,  sqrt(vtx.position().perp2()), -0.001, 0.001)));
+  ReferenceCountingPointer<Disk>      theDisk_(new Disk( Surface::PositionType( 0, 0, vtx.position().z()), rot,
+								   new SimpleDiskBounds( 0,  sqrt(vtx.position().perp2()), -0.001, 0.001) )
+                                              );
 
   
   const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::innerStateOnSurface(*tk, trackerGeom, &mf);
