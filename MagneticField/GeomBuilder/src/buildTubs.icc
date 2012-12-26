@@ -24,17 +24,17 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
   theRN = rCentr;
 
   // FIXME: use builder
-  surfaces[outer] = new Cylinder(Surface::PositionType(0,0,center_.z()),
-				    Surface::RotationType(),
-				    rOut);
+  surfaces[outer] = new Cylinder(rOut,Surface::PositionType(0,0,center_.z()),
+				    Surface::RotationType());
+				    
   
 
   // The inner cylider may be degenreate. Not easy to have a null surface
   // in the current implementation (surfaces[inner] is a RCP!)
 
-  surfaces[inner] = new Cylinder(Surface::PositionType(0,0,center_.z()),
-				    Surface::RotationType(),
-				    rIn);
+  surfaces[inner] = new Cylinder(rIn, Surface::PositionType(0,0,center_.z()),
+				    Surface::RotationType());
+				  
   
   // All other surfaces
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);

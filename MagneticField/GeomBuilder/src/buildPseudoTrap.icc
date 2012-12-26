@@ -7,8 +7,8 @@
  *  +phi(-X)                   +X
  *  +Z                         +Y
  *
- *  $Date: 2008/04/23 14:00:37 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/04/07 15:09:45 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -133,9 +133,9 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPseudoTrap(const DDExpandedView &f
     
   // FIXME: use builder
   surfaces[plane_side] = new Plane(pos_Rplane, rot_R);
-  surfaces[cyl_side] = new Cylinder(Surface::PositionType(0,0,center_.z()),
-				       Surface::RotationType(),
-				       fR);
+  surfaces[cyl_side] = new Cylinder(fR,Surface::PositionType(0,0,center_.z()),
+				       Surface::RotationType());
+				       
 
   surfaces[zplus]    = new Plane(pos_zplus, rot_Z);
   surfaces[zminus]   = new Plane(pos_zminus, rot_Z);
