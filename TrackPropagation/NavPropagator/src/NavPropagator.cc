@@ -264,7 +264,7 @@ NavPropagator::propagateInVolume( const NavVolume* currentVolume,
   bool isReflected = false;
   TSOS okState = startingState;
   PlaneBuilder::ReturnType ReflectedPlane;
-  Plane okPlane = targetPlane;
+  Plane const * okPlane = &targetPlane;
   
   if (startingState.globalPosition().z()>0 || 
       (fabs(startingState.globalPosition().z())<1.e-4 && startingState.globalMomentum().z()>1.e-4)) {
@@ -292,14 +292,14 @@ NavPropagator::propagateInVolume( const NavVolume* currentVolume,
     PlaneBuilder pb;
     ReflectedPlane = pb.plane( gpSym, rot);
     
-    okPlane =  *ReflectedPlane;
+    okPlane =  ReflectedPlane.get();
     isReflected = true;    
   }
   
   // Done Reflecting
 
 
-  TsosWP res = prop.propagateWithPath( okState, okPlane);
+  TsosWP res = prop.propagateWithPath( okState, *okPlane);
 
   // Now reflect back the result if necessary...
   if (isReflected && res.first.isValid()) { // reflect back... nobody should know we secretely z-reflected the tsos 
