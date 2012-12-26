@@ -4,8 +4,8 @@
  * \class ConversionBarrelEstimator
  *  Defines the search area in the barrel 
  *
- *   $Date: 2012/05/29 08:23:53 $
- *   $Revision: 1.5 $
+ *   $Date: 2012/12/26 09:54:02 $
+ *   $Revision: 1.6 $
  *   \author Nancy Marinelli, U. of Notre Dame, US
  */
 
@@ -42,7 +42,7 @@ public:
 
 
 
-  virtual Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const;
+  virtual Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& ts, const Plane& plane) const;
 
 
   double nSigmaCut() const {return theNSigma;}
