@@ -10,8 +10,8 @@
  *  using the static build() methods. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2012/12/25 17:28:37 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/12/26 11:05:27 $
+ *  $Revision: 1.10 $
  */
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
@@ -39,11 +39,22 @@ public:
   /// Construct a cylinder with the specified radius.
   /// The reference frame is defined by pos and rot;
   /// the cylinder axis is parallel to the local Z axis.
+  /*
   template<typename... Args>
   static CylinderPointer build(Args&& ... args) {
     return CylinderPointer(new Cylinder(std::forward<Args>(args)...));
   }
+  */
 
+  static CylinderPointer build(const PositionType& pos, const RotationType& rot,
+			       Scalar radius, Bounds* bounds=0) {
+    return CylinderPointer(new Cylinder(radius,pos,rot,bounds));
+  }
+
+  static CylinderPointer build(Scalar radius, const PositionType& pos, const RotationType& rot,
+			       Bounds* bounds=0) {
+    return CylinderPointer(new Cylinder(radius,pos,rot,bounds));
+  }
 
   ~Cylinder(){}
 
