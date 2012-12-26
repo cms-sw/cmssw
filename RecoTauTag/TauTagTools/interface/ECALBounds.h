@@ -8,8 +8,6 @@
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
-class BoundCylinder;
-class BoundDisk;
 class Cylinder;
 class Disk;
 

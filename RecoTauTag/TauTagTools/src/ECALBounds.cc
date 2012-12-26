@@ -3,19 +3,19 @@
 void ECALBounds::initialize(){
   const float epsilon = 0.001; // should not matter at all
   Surface::RotationType rot; // unit rotation matrix
-  theCylinder=new BoundCylinder(Surface::PositionType(0,0,0),rot, 
-				   SimpleCylinderBounds(barrel_innerradius()-epsilon, 
-							 barrel_innerradius()+epsilon, 
+  theCylinder=new BoundCylinder(barrel_innerradius(), Surface::PositionType(0,0,0),rot, 
+				 new SimpleCylinderBounds(barrel_innerradius()-epsilon, 
+						       	  barrel_innerradius()+epsilon, 
 							 -barrel_halfLength(), 
-							 barrel_halfLength()));
+							  barrel_halfLength()));
 
 
   theNegativeDisk=new BoundDisk(Surface::PositionType(0,0,-endcap_innerZ()),rot, 
-		   SimpleDiskBounds(0,endcap_outerradius(),-epsilon,epsilon));
+		   new SimpleDiskBounds(0,endcap_outerradius(),-epsilon,epsilon));
 
   thePositiveDisk = 
     new BoundDisk( Surface::PositionType(0,0,endcap_innerZ()),rot, 
-		   SimpleDiskBounds(0,endcap_outerradius(),-epsilon,epsilon));
+		   new SimpleDiskBounds(0,endcap_outerradius(),-epsilon,epsilon));
 
 
   theInit = true;
