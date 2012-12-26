@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.13 2011/08/17 16:59:16 nancy Exp $
+// $Id: ConversionProducer.cc,v 1.14 2011/12/23 08:13:35 innocent Exp $
 //
 //
 
@@ -623,30 +623,31 @@ bool ConversionProducer::getTrackImpactPosition(const reco::Track* tk_ref,
   PropagatorWithMaterial propag( alongMomentum, 0.000511, magField );
   
   ReferenceCountingPointer<Surface> ecalWall(
-                                             new  BoundCylinder( GlobalPoint(0.,0.,0.), TkRotation<float>(),
-                                                                 SimpleCylinderBounds( 129, 129, -320.5, 320.5 ) ) );
+                                             new  BoundCylinder(129.f, GlobalPoint(0.,0.,0.), TkRotation<float>(),
+                                                                 new SimpleCylinderBounds( 129, 129, -320.5, 320.5 ) ) );
   const float epsilon = 0.001;
   Surface::RotationType rot; // unit rotation matrix
   const float barrelRadius = 129.f;
   const float barrelHalfLength = 270.9f;
   const float endcapRadius = 171.1f;
   const float endcapZ = 320.5f;
-  ReferenceCountingPointer<BoundCylinder>  theBarrel_(new BoundCylinder( Surface::PositionType(0,0,0), rot,
-                                                                         SimpleCylinderBounds( barrelRadius-epsilon, barrelRadius+epsilon, -barrelHalfLength, barrelHalfLength)));
+  ReferenceCountingPointer<BoundCylinder>  theBarrel_(new BoundCylinder(barrelRadius, Surface::PositionType(0,0,0), rot,
+                                                                         new SimpleCylinderBounds( barrelRadius-epsilon, barrelRadius+epsilon, 
+-barrelHalfLength, barrelHalfLength)));
   ReferenceCountingPointer<BoundDisk>      theNegativeEtaEndcap_(
                                                                  new BoundDisk( Surface::PositionType( 0, 0, -endcapZ), rot,
-                                                                                SimpleDiskBounds( 0, endcapRadius, -epsilon, epsilon)));
+                                                                                new SimpleDiskBounds( 0, endcapRadius, -epsilon, epsilon)));
   ReferenceCountingPointer<BoundDisk>      thePositiveEtaEndcap_(
                                                                  new BoundDisk( Surface::PositionType( 0, 0, endcapZ), rot,
-                                                                                SimpleDiskBounds( 0, endcapRadius, -epsilon, epsilon)));
+                                                                                new SimpleDiskBounds( 0, endcapRadius, -epsilon, epsilon)));
 
   //const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::innerStateOnSurface(*(*ref), *trackerGeom, magField);
   const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::outerStateOnSurface(*tk_ref, *trackerGeom, magField);
   TrajectoryStateOnSurface  stateAtECAL;
   stateAtECAL = propag.propagate(myTSOS, *theBarrel_);
-  if (!stateAtECAL.isValid() || ( stateAtECAL.isValid() && fabs(stateAtECAL.globalPosition().eta() ) >1.479 )  ) {
+  if (!stateAtECAL.isValid() || ( stateAtECAL.isValid() && fabs(stateAtECAL.globalPosition().eta() ) >1.479f )  ) {
     //endcap propagator
-    if (myTSOS.globalPosition().eta() > 0.) {
+    if (myTSOS.globalPosition().z() > 0.) {
 	    stateAtECAL = propag.propagate(myTSOS, *thePositiveEtaEndcap_);
     } else {
 	    stateAtECAL = propag.propagate(myTSOS, *theNegativeEtaEndcap_);
@@ -743,11 +744,12 @@ bool ConversionProducer::checkPhi(const edm::RefToBase<reco::Track>& tk_l, const
 	    
 	    double recoPhoR = vtx.position().Rho();
 	    Surface::RotationType rot;
-	    ReferenceCountingPointer<BoundCylinder>  theBarrel_(new BoundCylinder( Surface::PositionType(0,0,0), rot,
-                                                                             SimpleCylinderBounds( recoPhoR-0.001, recoPhoR+0.001, -fabs(vtx.position().z()), fabs(vtx.position().z()))));
+	    ReferenceCountingPointer<BoundCylinder>  theBarrel_(new BoundCylinder(recoPhoR, Surface::PositionType(0,0,0), rot,
+                                                                 new SimpleCylinderBounds( recoPhoR-0.001, recoPhoR+0.001, 
+                                                                 -fabs(vtx.position().z()), fabs(vtx.position().z()))));
 	    ReferenceCountingPointer<BoundDisk>      theDisk_(
                                                         new BoundDisk( Surface::PositionType( 0, 0, vtx.position().z()), rot,
-                                                                       SimpleDiskBounds( 0, recoPhoR, -0.001, 0.001)));
+                                                                       new SimpleDiskBounds( 0, recoPhoR, -0.001, 0.001)));
 
 	    const TrajectoryStateOnSurface myTSOS1 = trajectoryStateTransform::innerStateOnSurface(*tk_l, *trackerGeom, magField);
 	    const TrajectoryStateOnSurface myTSOS2 = trajectoryStateTransform::innerStateOnSurface(*tk_r, *trackerGeom, magField);
