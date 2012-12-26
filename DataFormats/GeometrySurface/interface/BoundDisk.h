@@ -14,16 +14,21 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2012/12/26 18:17:33 $
- *  $Revision: 1.7 $
+ *  $Date: 2012/12/26 18:19:39 $
+ *  $Revision: 1.8 $
  */
 
 class Disk GCC11_FINAL : public Plane {
 public:
 
+  /*
   template<typename... Args>
     Disk(Args&& ... args) :
     Plane(std::forward<Args>(args)...){}
+  */
+
+  Disk(const PositionType& pos, const RotationType& rot, SimpleDiskBounds * bounds) :
+    Plane(pos,rot, bounds){}
 
   Disk(const PositionType& pos, const RotationType& rot, SimpleDiskBounds const & bounds) :
     Plane(pos,rot, bounds.clone()){}
