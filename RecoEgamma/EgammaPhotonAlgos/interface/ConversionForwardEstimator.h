@@ -5,8 +5,8 @@
  * \class ConversionForwardEstimator
  *  Defines the search area in the  forward 
  *
- *   $Date: 2007/05/10 13:26:08 $ 
- *   $Revision: 1.4 $
+ *   $Date: 2012/05/29 08:23:53 $ 
+ *   $Revision: 1.5 $
  *  \author Nancy Marinelli, U. of Notre Dame, US
  */
 
@@ -18,7 +18,7 @@
 #include <iostream> 
 class RecHit;
 class TrajectoryStateOnSurface;
-class BoundPlane;
+class Plane;
 
 class ConversionForwardEstimator : public MeasurementEstimator {
 public:
@@ -32,7 +32,7 @@ public:
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 			   const TransientTrackingRecHit& hit) const;
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
-			   const BoundPlane& plane) const;
+			   const Plane& plane) const;
   virtual ConversionForwardEstimator* clone() const {
     return new ConversionForwardEstimator(*this);
   } 

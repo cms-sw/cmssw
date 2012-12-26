@@ -4,8 +4,8 @@
  * \class ConversionBarrelEstimator
  *  Defines the search area in the barrel 
  *
- *   $Date: 2007/03/07 16:48:42 $
- *   $Revision: 1.4 $
+ *   $Date: 2012/05/29 08:23:53 $
+ *   $Revision: 1.5 $
  *   \author Nancy Marinelli, U. of Notre Dame, US
  */
 
@@ -16,7 +16,7 @@
 
 class TrajectoryStateOnSurface;
 class RecHit;
-class BoundPlane;
+class Plane;
 
 class ConversionBarrelEstimator : public MeasurementEstimator {
 public:
@@ -33,7 +33,7 @@ public:
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
                                const TransientTrackingRecHit& hit	) const;
   virtual bool  estimate( const TrajectoryStateOnSurface& ts, 
-				       const BoundPlane& plane) const;
+				       const Plane& plane) const;
   virtual ConversionBarrelEstimator* clone() const {
     return new ConversionBarrelEstimator(*this);
   } 

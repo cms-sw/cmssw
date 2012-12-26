@@ -22,7 +22,7 @@
 #include <vector>
 
 class RecHit;
-class BoundPlane;
+class Plane;
 class GeomDet;
 class MagneticField;
 class MuonTransientTrackingRecHit;

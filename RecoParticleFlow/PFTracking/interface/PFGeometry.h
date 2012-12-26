@@ -16,9 +16,9 @@ All methods and members are static
 \todo   Move this class out of here, or modify it so that it does not use the Geometry/Surface package anymore.
 */
 
-class BoundCylinder;
-class BoundDisk;
-class BoundPlane;
+class Cylinder;
+class Disk;
+class Plane;
 
 class PFGeometry {
  public:
@@ -69,15 +69,15 @@ class PFGeometry {
     { return outerZ_[layer]; }
 
   /// return cylinder used to propagate to barrel
-  static const BoundCylinder& barrelBound(PFGeometry::Surface_t iSurf)
+  static const Cylinder& barrelBound(PFGeometry::Surface_t iSurf)
   { return *(cylinder_[unsigned(iSurf)]); }
 
   /// return disk used to propagate to negative endcap 
-  static const BoundPlane& negativeEndcapDisk(PFGeometry::Surface_t iSurf)
+  static const Plane& negativeEndcapDisk(PFGeometry::Surface_t iSurf)
   { return *(negativeDisk_[unsigned(iSurf)]); }
 
   /// return disk used to propagate to positive endcap
-  static const BoundPlane& positiveEndcapDisk(PFGeometry::Surface_t iSurf)
+  static const Plane& positiveEndcapDisk(PFGeometry::Surface_t iSurf)
   { return *(positiveDisk_[unsigned(iSurf)]); }
 
   /// return tan(theta) of the cylinder corner
@@ -90,9 +90,9 @@ class PFGeometry {
   static std::vector< float > innerZ_;
   static std::vector< float > outerZ_;
 
-  static std::vector< ReferenceCountingPointer<BoundCylinder> > cylinder_;
-  static std::vector< ReferenceCountingPointer<BoundPlane> > negativeDisk_;
-  static std::vector< ReferenceCountingPointer<BoundPlane> > positiveDisk_;
+  static std::vector< ReferenceCountingPointer<Cylinder> > cylinder_;
+  static std::vector< ReferenceCountingPointer<Plane> > negativeDisk_;
+  static std::vector< ReferenceCountingPointer<Plane> > positiveDisk_;
   static std::vector< float > tanTh_;
 };
 
