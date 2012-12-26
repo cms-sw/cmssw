@@ -8,6 +8,7 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/HcalDigi"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/SiStripDetId"/>
@@ -19,6 +20,7 @@
 <use   name="DataFormats/RPCDigi"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="SimDataFormats/ValidationFormats"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/CaloHit"/>
@@ -26,3 +28,4 @@
 <use   name="DQMServices/Core"/>
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
+
