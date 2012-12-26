@@ -4,7 +4,7 @@
  *
  *  Description: class for muon shower identification
  *
- *  $Date: 2011/01/15 12:44:08 $
+ *  $Date: 2011/03/21 22:41:25 $
  *  $Revision: 1.3 $
  *
  *  \author: A. Svyatkovskiy, Purdue University
@@ -45,7 +45,7 @@ namespace reco {class TransientTrack; class MuonShower;}
 class MuonServiceProxy;
 class Trajectory;
 class Cylinder;
-class BoundDisk;
+class Disk;
 class BarrelDetLayer;
 class ForwardDetLayer;
 class TransientTrackingRecHitBuilder;
@@ -99,7 +99,7 @@ class MuonShowerInformationFiller {
     GlobalPoint crossingPoint(const GlobalPoint&, const GlobalPoint&, const BarrelDetLayer* ) const;
     GlobalPoint crossingPoint(const GlobalPoint&, const GlobalPoint&, const Cylinder& ) const;
     GlobalPoint crossingPoint(const GlobalPoint&, const GlobalPoint&, const ForwardDetLayer* ) const;
-    GlobalPoint crossingPoint(const GlobalPoint&, const GlobalPoint&, const BoundDisk& ) const;
+    GlobalPoint crossingPoint(const GlobalPoint&, const GlobalPoint&, const Disk& ) const;
     std::vector<const GeomDet*> dtPositionToDets(const GlobalPoint&) const;
     std::vector<const GeomDet*> cscPositionToDets(const GlobalPoint&) const;
     MuonRecHitContainer findPerpCluster(MuonRecHitContainer& muonRecHits) const;
