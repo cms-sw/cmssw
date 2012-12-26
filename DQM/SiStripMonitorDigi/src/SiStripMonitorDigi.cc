@@ -3,7 +3,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.67 2012/07/13 15:32:52 threus Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.70 2012/09/05 18:39:14 threus Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -90,9 +90,6 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   edm::ParameterSet ParametersTotDigiProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
   subdetswitchtotdigiprofon = ParametersTotDigiProf.getParameter<bool>("subdetswitchon");
 
-  edm::ParameterSet ParametersTotDigisProfVsLS = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigisVsLS");
-  subdetswitchtotdigiproflson = ParametersTotDigisProfVsLS.getParameter<bool>("subdetswitchon");
-
   edm::ParameterSet ParametersTotDigiFailure = conf_.getParameter<edm::ParameterSet>("TotalNumberOfDigisFailure");
   subdetswitchtotdigifailureon = ParametersTotDigiFailure.getParameter<bool>("subdetswitchon");
 
@@ -147,7 +144,6 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
 
   createTrendMEs = conf_.getParameter<bool>("CreateTrendMEs");
   Mod_On_ = conf_.getParameter<bool>("Mod_On");
-  xLumiProf = conf_.getParameter<int>("xLumiProf");
   // Event History Producer
   historyProducer_ = conf_.getParameter<edm::InputTag>("HistoryProducer");
 
@@ -159,8 +155,13 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dqmSt
   if (checkDCS) dcsStatus_ = new SiStripDCSStatus();
   else dcsStatus_ = 0; 
 
-  //initialize boolean for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
+  //initialize vars for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
   isStableBeams = false;
+  SBTransitionDone = false;
+  SBDeclaredAt = 0;
+  ignoreFirstNLumisections_ = TMath::Max ( 0 , ParametersTotDigiFailure.getParameter<int32_t>("ignoreFirstNLumisections") );
+  integrateNLumisections_ = TMath::Max ( 1 , ParametersTotDigiFailure.getParameter<int32_t>("integrateNLumisections") );
+
 }
 //------------------------------------------------------------------------------------------
 
@@ -196,9 +197,16 @@ void SiStripMonitorDigi::beginRun(const edm::Run& run, const edm::EventSetup& es
     edm::ESHandle< SiStripDetCabling > detCabling_;
     es.get<SiStripDetCablingRcd>().get(detCabling_);
     
-    nFEDConnected = 0;
-    const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-    const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
+    //nFEDConnected = 0;
+    nFedTIB = 0;
+    nFedTIDm = 0;
+    nFedTIDp = 0;
+    nFedTECm = 0;
+    nFedTECp = 0;
+    nFedTOB = 0;
+    
+    //const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
+    //const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
     
     edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
     if( es.find( recordKey ) != 0) {
@@ -210,7 +218,14 @@ void SiStripMonitorDigi::beginRun(const edm::Run& run, const edm::EventSetup& es
 	std::vector<int> FedsInIds= sumFED->m_fed_in;   
 	for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
 	  int fedID = FedsInIds[it];     
-	  if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected;
+	  //if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected;
+
+	  if ( fedID >= 50  && fedID <= 133 ) ++nFedTIB;
+	  if ( fedID >= 134 && fedID <= 148 ) ++nFedTIDm;
+	  if ( fedID >= 149 && fedID <= 163 ) ++nFedTIDp;
+	  if ( fedID >= 164 && fedID <= 259 ) ++nFedTECm;
+	  if ( fedID >= 260 && fedID <= 355 ) ++nFedTECp;
+	  if ( fedID >= 356 && fedID <= 489 ) ++nFedTOB;
 	}
       }
     }
@@ -224,29 +239,47 @@ void SiStripMonitorDigi::endRun(const edm::Run&, const edm::EventSetup&){
 
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::beginLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es){
-  if (subdetswitchtotdigiproflson){
-    if (digiFailureMEs.SubDetTotDigiProfLS) digiFailureMEs.SubDetTotDigiProfLS->Reset();
-  }
-  if (subdetswitchtotdigifailureon) 
+  if (subdetswitchtotdigifailureon){
     isStableBeams = false;
+    //integrate stats over several LS to prevent eventual low trigger rates
+    if (digiFailureMEs.SubDetTotDigiProfLS && lb.id().luminosityBlock() % integrateNLumisections_ == 0 ) digiFailureMEs.SubDetTotDigiProfLS->Reset();
+  }
 }
 
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
 
-  if (subdetswitchtotdigifailureon){
+  if ( subdetswitchtotdigifailureon && isStableBeams && !SBTransitionDone )
+    {
+      SBDeclaredAt = (int)lb.id().luminosityBlock();
+      SBTransitionDone = true;
+    }
+
+  if (subdetswitchtotdigifailureon && lb.id().luminosityBlock() % integrateNLumisections_ == 0 ){
+
+    int nFeds [6] = { 96 , 96 , 84 , 15 , 15 , 134 }; // tec- , tec+ , tib , tid- , tid+ , tob
+    int nFedsConnected [6] = { nFedTECm , nFedTECp , nFedTIB , nFedTIDm , nFedTIDp , nFedTOB };
+
     MonitorElement * me = dqmStore_->get("SiStrip/MechanicalView/NumberOfDigisInLastLS");     
     if (me) {
       
       for (int ibin = 1; ibin<7;ibin++){
 	
 	float value = me->getBinContent(ibin);
-	if ( isStableBeams && nFEDConnected > 100 && value < 50. ){
-	  digiFailureMEs.SubDetDigiFailures2D -> Fill(lb.id().luminosityBlock() , ibin-1 , 0.01);
+
+	float fillvalue = 2;
+	if ( isStableBeams 
+	     //	     && (int)lb.id().luminosityBlock() > ignoreFirstNLumisections_     //ignore first X lumisections for HV rampup
+	     && ( (int)lb.id().luminosityBlock() - SBDeclaredAt ) > ignoreFirstNLumisections_
+	     && (float)nFedsConnected[ibin-1] / nFeds[ibin-1] > 0.5 
+	     && value < 50. ){
+
+	  fillvalue = 1.01;
 	}
-	else{
-	  digiFailureMEs.SubDetDigiFailures2D -> Fill(lb.id().luminosityBlock() , ibin-1 , 1);
-	}
+	
+	//account for integrated LS: fill previous bins as well
+	for ( int fillbin = (int)lb.id().luminosityBlock() - integrateNLumisections_ + 1 ; fillbin <= (int)lb.id().luminosityBlock() ; fillbin++ )
+	  digiFailureMEs.SubDetDigiFailures2D -> Fill( fillbin , ibin-1 , fillvalue );
       }
     }
   }
@@ -447,16 +480,16 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     folder_organizer.getLayerFolderName(ss, 0);
     dqmStore_->setCurrentFolder(ss.str().c_str());
 
-    if (subdetswitchtotdigiproflson) {
+    if (subdetswitchtotdigifailureon) {
       const char* HistoName = "NumberOfDigisInLastLS";
       digiFailureMEs.SubDetTotDigiProfLS= dqmStore_->bookProfile(HistoName, HistoName,
-							       6,0.5,6.5,
-                                          100, 0., 10000., "" );
-      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(1, std::string("TECB"));
-      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(2, std::string("TECF"));
+								 6,0.5,6.5,
+								 0., 0., "" );
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(1, std::string("TEC-"));
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(2, std::string("TEC+"));
       digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(3, std::string("TIB"));
-      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(4, std::string("TIDB"));
-      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(5, std::string("TIDF"));
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(4, std::string("TID-"));
+      digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(5, std::string("TID+"));
       digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(6, std::string("TOB"));
     }
 
@@ -479,6 +512,10 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       digiFailureMEs.SubDetDigiFailures2D->setBinLabel(5, std::string("TID+") , 2 );
       digiFailureMEs.SubDetDigiFailures2D->setBinLabel(6, std::string("TOB")  , 2 );
       digiFailureMEs.SubDetDigiFailures2D->setAxisTitle("Luminosity Section");
+      for (int xbin = 1; xbin <= digiFailureMEs.SubDetDigiFailures2D->getNbinsX(); xbin++) {
+	for (int ybin = 0; ybin < digiFailureMEs.SubDetDigiFailures2D->getNbinsY(); ybin++)
+	  digiFailureMEs.SubDetDigiFailures2D->Fill(xbin, ybin, -1.0);
+      }
     }
   }//end of if
 
@@ -680,12 +717,13 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     
     if ( gtfeEvmExtWord.beamMode() == 11 )
       isStableBeams = true;
+    
   }
 
   for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
        it != SubDetMEsMap.end(); it++) {
 
-      if (subdetswitchtotdigiproflson) {
+      if (subdetswitchtotdigifailureon) {
         if (strcmp(it->first.c_str(),"TEC__side__1")==0){
           digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it->second.totNDigis);
 	}else if (strcmp(it->first.c_str(),"TEC__side__2")==0){
