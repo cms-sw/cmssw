@@ -1,8 +1,8 @@
 /** \file LaserDQMStatistics.cc
  *  Fill the DQM Monitors
  *
- *  $Date: 2007/03/20 12:02:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/12/04 23:54:44 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -20,12 +20,16 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 void LaserDQM::trackerStatistics(edm::Event const& theEvent,edm::EventSetup const& theSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  theSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   // access the tracker
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   theSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
@@ -67,26 +71,26 @@ void LaserDQM::trackerStatistics(edm::Event const& theEvent,edm::EventSetup cons
 	    {
 	    case StripSubdetector::TIB:
 	      {
-		TIBDetId theTIBDetId(theDetUnitID.rawId());
+		
 		thePart = "TIB";
-		theTIBLayer = theTIBDetId.layer();
+		theTIBLayer = tTopo->tibLayer(theDetUnitID.rawId());
 		break;
 	      }
 	    case StripSubdetector::TOB:
 	      {
-		TOBDetId theTOBDetId(theDetUnitID.rawId());
+		
 		thePart = "TOB";
-		theTOBLayer = theTOBDetId.layer();
-		theTOBStereoDet = theTOBDetId.stereo();
+		theTOBLayer = tTopo->tobLayer(theDetUnitID.rawId());
+		theTOBStereoDet = tTopo->tobStereo(theDetUnitID.rawId());
 		break;
 	      }
 	    case StripSubdetector::TEC:
 	      {
-		TECDetId theTECDetId(theDetUnitID.rawId());
+		
 	    
 		// is this module in TEC+ or TEC-?
-		if (theTECDetId.side() == 1) { thePart = "TEC-"; }
-		else if (theTECDetId.side() == 2) { thePart = "TEC+"; }
+		if (tTopo->tecSide(theDetUnitID.rawId()) == 1) { thePart = "TEC-"; }
+		else if (tTopo->tecSide(theDetUnitID.rawId()) == 2) { thePart = "TEC+"; }
 	    
 		// in which ring is this module?
 		if ( theStripDet->surface().position().perp() > 55.0 && theStripDet->surface().position().perp() < 59.0 )
@@ -97,7 +101,7 @@ void LaserDQM::trackerStatistics(edm::Event const& theEvent,edm::EventSetup cons
 		  { theRing = -1; } // probably not a Laser Hit!
 	    
 		// on which disk is this module
-		theTECWheel = theTECDetId.wheel();
+		theTECWheel = tTopo->tecWheel(theDetUnitID.rawId());
 		break;
 	      }
 	    }

@@ -1,8 +1,8 @@
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentSetup.h"
 
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+//#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+//#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <algorithm>
 #include <iostream>
@@ -80,13 +80,13 @@ bool KalmanAlignmentSetup::useForTracking( const ConstRecHitPointer& recHit ) co
 //   bool doubleSided = false;
 //   if ( subdetId == 3 ) 
 //   { 
-//     TIBDetId tibid( detId.rawId() ); 
-//     if ( tibid.layer() < 3 ) doubleSided = true;
+//      
+//     if ( tTopo->tibLayer( detId.rawId) < 3 ) doubleSided = true;
 //   }
 //   else if ( subdetId == 5 )
 //   { 
-//     TOBDetId tobid( detId.rawId() ); 
-//     if ( tobid.layer() < 3 ) doubleSided = true;
+//      
+//     if ( tTopo->tobLayer( detId.rawId) < 3 ) doubleSided = true;
 //   }
 
   return ( itFindSubDetId != theTrackingSubDetIds.end() );// && doubleSided;
@@ -109,13 +109,13 @@ bool KalmanAlignmentSetup::useForExternalTracking( const ConstRecHitPointer& rec
 //   bool doubleSided = false;
 //   if ( subdetId == 3 ) 
 //   { 
-//     TIBDetId tibid( detId.rawId() ); 
-//     if ( tibid.layer() < 3 ) doubleSided = true;
+//      
+//     if ( tTopo->tibLayer( detId.rawId) < 3 ) doubleSided = true;
 //   }
 //   else if ( subdetId == 5 )
 //   { 
-//     TOBDetId tobid( detId.rawId() ); 
-//     if ( tobid.layer() < 3 ) doubleSided = true;
+//      
+//     if ( tTopo->tobLayer( detId.rawId) < 3 ) doubleSided = true;
 //   }
 
   return ( itFindSubDetId != theExternalTrackingSubDetIds.end() );// && !doubleSided;

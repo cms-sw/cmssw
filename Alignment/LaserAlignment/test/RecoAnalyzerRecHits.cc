@@ -1,8 +1,8 @@
 /** \file RecoAnalyzerRecHits.cc
 *  plots for RecHits
   *
-  *  $Date: 2008/01/22 19:18:04 $
-  *  $Revision: 1.9 $
+  *  $Date: 2008/11/07 11:04:19 $
+  *  $Revision: 1.10 $
   *  \author Maarten Thomas
  */
 
@@ -15,13 +15,17 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h" 
 #include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 
   void RecoAnalyzer::trackerRecHits(edm::Event const& theEvent, edm::EventSetup const& theSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  #include.get<IdealGeometryRecord>().get(tTopo);
+
+
   // access the Tracker
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
   theSetup.get<TrackerDigiGeometryRecord>().get(theTrackerGeometry);
@@ -62,26 +66,26 @@
     {
       case StripSubdetector::TIB:
       {
-        TIBDetId theTIBDetId(detid.rawId());
+        
         thePart = "TIB";
-        theTIBLayer = theTIBDetId.layer();
+        theTIBLayer = tTopo->tibLayer(detid.rawId);
         break;
       }
       case StripSubdetector::TOB:
       {
-        TOBDetId theTOBDetId(detid.rawId());
+        
         thePart = "TOB";
-        theTOBLayer = theTOBDetId.layer();
-        theTOBStereoDet = theTOBDetId.stereo();
+        theTOBLayer = tTopo->tobLayer(detid.rawId);
+        theTOBStereoDet = tTopo->tobStereo(detid.rawId);
         break;
       }
       case StripSubdetector::TEC:
       {
-        TECDetId theTECDetId(detid.rawId());
+        
 
       // is this module in TEC+ or TEC-?
-        if (theTECDetId.side() == 1) { thePart = "TEC-"; }
-        else if (theTECDetId.side() == 2) { thePart = "TEC+"; }
+        if (tTopo->tecSide(detid.rawId) == 1) { thePart = "TEC-"; }
+        else if (tTopo->tecSide(detid.rawId) == 2) { thePart = "TEC+"; }
 
       // in which ring is this module?
         if ( theStripDet->surface().position().perp() > 55.0 && theStripDet->surface().position().perp() < 59.0 )
@@ -92,7 +96,7 @@
           { theRing = -1; } // probably not a Laser Hit!
 
       // on which disk is this module
-        theTECWheel = theTECDetId.wheel();
+        theTECWheel = tTopo->tecWheel(detid.rawId);
         break;
       }
     }
@@ -245,26 +249,26 @@
       {
         case StripSubdetector::TIB:
         {
-          TIBDetId theTIBDetId(detid.rawId());
+          
           thePart = "TIB";
-          theTIBLayer = theTIBDetId.layer();
+          theTIBLayer = tTopo->tibLayer(detid.rawId);
           break;
         }
         case StripSubdetector::TOB:
         {
-          TOBDetId theTOBDetId(detid.rawId());
+          
           thePart = "TOB";
-          theTOBLayer = theTOBDetId.layer();
-          theTOBStereoDet = theTOBDetId.stereo();
+          theTOBLayer = tTopo->tobLayer(detid.rawId);
+          theTOBStereoDet = tTopo->tobStereo(detid.rawId);
           break;
         }
         case StripSubdetector::TEC:
         {
-          TECDetId theTECDetId(detid.rawId());
+          
 
         // is this module in TEC+ or TEC-?
-          if (theTECDetId.side() == 1) { thePart = "TEC-"; }
-          else if (theTECDetId.side() == 2) { thePart = "TEC+"; }
+          if (tTopo->tecSide(detid.rawId) == 1) { thePart = "TEC-"; }
+          else if (tTopo->tecSide(detid.rawId) == 2) { thePart = "TEC+"; }
 
         // in which ring is this module?
           if ( theStripDet->surface().position().perp() > 55.0 && theStripDet->surface().position().perp() < 59.0 )
@@ -275,7 +279,7 @@
             { theRing = -1; } // probably not a Laser Hit!
 
         // on which disk is this module
-          theTECWheel = theTECDetId.wheel();
+          theTECWheel = tTopo->tecWheel(detid.rawId);
           break;
         }
       }
@@ -428,26 +432,26 @@
       {
         case StripSubdetector::TIB:
         {
-          TIBDetId theTIBDetId(detid.rawId());
+          
           thePart = "TIB";
-          theTIBLayer = theTIBDetId.layer();
+          theTIBLayer = tTopo->tibLayer(detid.rawId);
           break;
         }
         case StripSubdetector::TOB:
         {
-          TOBDetId theTOBDetId(detid.rawId());
+          
           thePart = "TOB";
-          theTOBLayer = theTOBDetId.layer();
-          theTOBStereoDet = theTOBDetId.stereo();
+          theTOBLayer = tTopo->tobLayer(detid.rawId);
+          theTOBStereoDet = tTopo->tobStereo(detid.rawId);
           break;
         }
         case StripSubdetector::TEC:
         {
-          TECDetId theTECDetId(detid.rawId());
+          
 
         // is this module in TEC+ or TEC-?
-          if (theTECDetId.side() == 1) { thePart = "TEC-"; }
-          else if (theTECDetId.side() == 2) { thePart = "TEC+"; }
+          if (tTopo->tecSide(detid.rawId) == 1) { thePart = "TEC-"; }
+          else if (tTopo->tecSide(detid.rawId) == 2) { thePart = "TEC+"; }
 
         // in which ring is this module?
           if ( theStripDet->surface().position().perp() > 55.0 && theStripDet->surface().position().perp() < 59.0 )
@@ -458,7 +462,7 @@
             { theRing = -1; } // probably not a Laser Hit!
 
         // on which disk is this module
-          theTECWheel = theTECDetId.wheel();
+          theTECWheel = tTopo->tecWheel(detid.rawId);
           break;
         }
       }
