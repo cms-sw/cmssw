@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/07 22:04:03 $
-// $Revision: 1.10 $
+// $Author: gpetrucc $
+// $Date: 2010/12/14 15:50:20 $
+// $Revision: 1.11 $
 //
 
 #include <vector>
@@ -49,8 +49,6 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 
 RoadSearchHelixMakerAlgorithm::RoadSearchHelixMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
 }

@@ -2,8 +2,6 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
