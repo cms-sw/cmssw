@@ -1,6 +1,6 @@
 // Associate jets with tracks by simple "dR" criteria
 // Fedor Ratnikov (UMd), Aug. 28, 2007
-// $Id: JetTracksAssociationDRCalo.cc,v 1.7 2009/03/03 15:20:26 srappocc Exp $
+// $Id: JetTracksAssociationDRCalo.cc,v 1.9 2010/03/18 12:17:58 bainbrid Exp $
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 
@@ -54,9 +54,8 @@ namespace {
     // first propagate to barrel
     TrajectoryStateOnSurface 
       propagatedInfo = fPropagator.propagate (trackState, 
-					      *Cylinder::build (Surface::PositionType (0,0,0),
-								Surface::RotationType(),
-								rBarrel)
+					      *Cylinder::build (rBarrel, Surface::PositionType (0,0,0),
+								Surface::RotationType())
 					      );
     if (propagatedInfo.isValid()) {
       GlobalPoint result (propagatedInfo.globalPosition ());
