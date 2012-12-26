@@ -14,8 +14,8 @@
  *  using the static build() method. 
  *  (The normal constructor will become private in the future).
  *
- *  $Date: 2012/12/23 16:33:37 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/12/24 18:54:40 $
+ *  $Revision: 1.6 $
  */
 
 class Disk GCC11_FINAL : public Plane {
@@ -24,7 +24,9 @@ public:
   template<typename... Args>
     Disk(Args&& ... args) :
     Plane(std::forward<Args>(args)...){}
-  
+
+  Disk(const PositionType& pos, const RotationType& rot, SimpleDiskBounds const & bounds) :
+    Surface(pos,rot, bounds.clone()){}
 
   typedef ReferenceCountingPointer<Disk> DiskPointer;
   typedef ConstReferenceCountingPointer<Disk> ConstDiskPointer;
