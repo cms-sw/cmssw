@@ -60,7 +60,7 @@ MuonErrorMatrixAnalyzer::MuonErrorMatrixAnalyzer(const edm::ParameterSet& iConfi
   if (theRadius!=0){
     GlobalPoint O(0,0,0);
     Surface::RotationType R;
-    refRSurface = Cylinder::build(O,R,theRadius);
+    refRSurface = Cylinder::build(theRadius,O,R);
     thePropagatorName = iConfig.getParameter<std::string>("propagatorName");
     theZ = iConfig.getParameter<double>("z");
     if (theZ!=0){
