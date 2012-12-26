@@ -214,7 +214,7 @@ reco::Track* KFBasedPixelFitter::run(
   if (theUseBeamSpot) {
     edm::Handle<reco::BeamSpot> beamSpot;
     ev.getByLabel( "offlineBeamSpot", beamSpot);
-    MyBeamSpotGeomDet bsgd(BoundPlane::build(impactPointState.surface().position(), impactPointState.surface().rotation(),OpenBounds()));
+    MyBeamSpotGeomDet bsgd(Plane::build(impactPointState.surface().position(), impactPointState.surface().rotation()));
     MyBeamSpotHit     bsrh(*beamSpot, &bsgd);
     impactPointState = updator.update(impactPointState, bsrh); //update
     impactPointState = TransverseImpactPointExtrapolator(&*field).extrapolate( impactPointState, vertexPos); //reextrapolate
