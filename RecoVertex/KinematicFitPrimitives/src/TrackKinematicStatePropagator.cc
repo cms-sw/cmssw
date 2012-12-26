@@ -41,12 +41,12 @@ TrackKinematicStatePropagator::planeCrossing(const FreeTrajectoryState& state,
  GlobalVector X(ndeltax.x(), ndeltax.y(), ndeltax.z());
  GlobalVector Y(0.,0.,1.);
  Surface::RotationType rot(X,Y);
- BoundPlane::BoundPlanePointer plane = BoundPlane::build(pos,rot,OpenBounds());
+ Plane::PlanePointer plane = Plane::build(pos,rot);
  HelixBarrelPlaneCrossingByCircle 
    planeCrossing(HelixPlaneCrossing::PositionType(inPos.x(), inPos.y(), inPos.z()),
 		 HelixPlaneCrossing::DirectionType(inMom.x(), inMom.y(), inMom.z()), 
 		 kappa, direction);
- return std::pair<HelixBarrelPlaneCrossingByCircle,BoundPlane::BoundPlanePointer>(planeCrossing,plane);
+ return std::pair<HelixBarrelPlaneCrossingByCircle,Plane::PlanePointer>(planeCrossing,plane);
 }
 
 
