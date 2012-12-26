@@ -2,8 +2,6 @@
 // Original Author: Gavril Giurgiu (JHU) 
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "DPGAnalysis/Skims/interface/FilterScrapingPixelProbability.h"
