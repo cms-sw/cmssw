@@ -434,7 +434,7 @@ namespace spr{
 
     FreeTrajectoryState fts (vertex, momentum, charge, bField);
     Plane::PlanePointer endcap = Plane::build(Plane::PositionType (0, 0, zdist), Plane::RotationType());
-    Cylinder::CylinderPointer barrel = Cylinder::build(Cylinder::PositionType (0, 0, 0), Cylinder::RotationType (), radius);
+    Cylinder::CylinderPointer barrel = Cylinder::build(radius, Cylinder::PositionType (0, 0, 0), Cylinder::RotationType ());
 
     AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
 
@@ -479,7 +479,7 @@ namespace spr{
     Plane::PlanePointer lendcap = Plane::build(Plane::PositionType (0, 0, -zdist), Plane::RotationType());
     Plane::PlanePointer rendcap = Plane::build(Plane::PositionType (0, 0,  zdist), Plane::RotationType());
     
-    Cylinder::CylinderPointer barrel = Cylinder::build(Cylinder::PositionType (0, 0, 0), Cylinder::RotationType (), radius);
+    Cylinder::CylinderPointer barrel = Cylinder::build(radius, Cylinder::PositionType (0, 0, 0), Cylinder::RotationType ());
   
     AnalyticalPropagator myAP (bField, alongMomentum, 2*M_PI);
 

@@ -1,4 +1,4 @@
-// $Id: HcalCorrPFCalculation.cc,v 1.28 2012/07/20 22:14:21 wdd Exp $
+// $Id: HcalCorrPFCalculation.cc,v 1.29 2012/09/28 16:27:32 wdd Exp $
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -310,8 +310,8 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 
 
       if(fabs(etaParticle)<1.392) {
-	Cylinder *cylinder = new Cylinder(Surface::PositionType(0,0,0),
-					  Surface::RotationType(), 181.1);
+	Cylinder *cylinder = new Cylinder(181.1, Surface::PositionType(0,0,0),
+					  Surface::RotationType());
 	
 	TrajectoryStateOnSurface steppingHelixstateinfo_ = stepPropF->propagate(*freetrajectorystate_, (*cylinder));
 	if(steppingHelixstateinfo_.isValid() ) 

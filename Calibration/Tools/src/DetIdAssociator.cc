@@ -14,7 +14,7 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.5 2009/02/06 10:18:33 elmer Exp $
+// $Id: DetIdAssociator.cc,v 1.6 2009/04/08 12:34:29 argiro Exp $
 //
 //
 
@@ -34,9 +34,9 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
    for(std::vector<GlobalPoint>::const_iterator surface_iter = surfaces.begin(); 
        surface_iter != surfaces.end(); surface_iter++) {
       // this stuff is some weird pointer, which destroy itself
-      Cylinder *cylinder = new Cylinder(Surface::PositionType(0,0,0),
-					Surface::RotationType(), 
-					double (surface_iter->perp()) );
+      Cylinder *cylinder = new Cylinder(surface_iter->perp(), 
+                                        Surface::PositionType(0,0,0),
+					Surface::RotationType() ); 
       Plane *forwardEndcap = new Plane(Surface::PositionType(0,0,surface_iter->z()),
 				       Surface::RotationType());
       Plane *backwardEndcap = new Plane(Surface::PositionType(0,0,-surface_iter->z()),
