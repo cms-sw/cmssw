@@ -4,7 +4,9 @@ from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.IterativeTracking.ElectronSeeds_cff import *
 
 def phase1Mods(process):
-
+    # Next line is only in for the moment for debugging
+    #process.load('Configuration.StandardSequences.Reconstruction_cff')
+    #
     process.load("RecoTracker.IterativeTracking.HighPtTripletStep_cff")
 
     # new layer list (3/4 pixel seeding) in stepZero
@@ -93,14 +95,14 @@ def phase1Mods(process):
     process.pixelPairStepTrackCandidates.maxNSeeds    = cms.uint32(150000)
     
     # quadruplets in step0
-    process.initialStepSeeds.SeedMergerPSet.mergeTriplets       = cms.bool(True)
+    #process.initialStepSeeds.SeedMergerPSet.mergeTriplets       = cms.bool(True)
 
     # disconnect merger for stepOne and step 2 to have triplets merged
-    process.highPtTripletStepSeeds.SeedMergerPSet.mergeTriplets = cms.bool(False)
-    process.lowPtTripletStepSeeds.SeedMergerPSet.mergeTriplets  = cms.bool(False)
-    process.pixelPairStepSeeds.SeedMergerPSet.mergeTriplets     = cms.bool(False)
-    process.mixedTripletStepSeedsA.SeedMergerPSet.mergeTriplets = cms.bool(False)
-    process.mixedTripletStepSeedsB.SeedMergerPSet.mergeTriplets = cms.bool(False)
+    #process.highPtTripletStepSeeds.SeedMergerPSet.mergeTriplets = cms.bool(False)
+    #process.lowPtTripletStepSeeds.SeedMergerPSet.mergeTriplets  = cms.bool(False)
+    #process.pixelPairStepSeeds.SeedMergerPSet.mergeTriplets     = cms.bool(False)
+    #process.mixedTripletStepSeedsA.SeedMergerPSet.mergeTriplets = cms.bool(False)
+    #process.mixedTripletStepSeedsB.SeedMergerPSet.mergeTriplets = cms.bool(False)
 
     # to avoid 'too many clusters'
     process.initialStepSeeds.ClusterCheckPSet.doClusterCheck       = cms.bool(False)
@@ -166,13 +168,13 @@ def phase1Mods(process):
     process.iterTracking.remove(process.TobTecStep)
 
     #modify the track merger accordingly
-    process.generalTracks.TrackProducers.remove(cms.InputTag('detachedTripletStepTracks'))
-    process.generalTracks.TrackProducers.remove(cms.InputTag('pixelLessStepTracks'))
-    process.generalTracks.TrackProducers.remove(cms.InputTag('tobTecStepTracks'))
+    #process.generalTracks.TrackProducers.remove(cms.InputTag('detachedTripletStepTracks'))
+    #process.generalTracks.TrackProducers.remove(cms.InputTag('pixelLessStepTracks'))
+    #process.generalTracks.TrackProducers.remove(cms.InputTag('tobTecStepTracks'))
 
-    process.generalTracks.selectedTrackQuals.remove(cms.InputTag("detachedTripletStep"))
-    process.generalTracks.selectedTrackQuals.remove(cms.InputTag("pixelLessStepSelector","pixelLessStep"))
-    process.generalTracks.selectedTrackQuals.remove(cms.InputTag("tobTecStepSelector","tobTecStep"))
+    #process.generalTracks.selectedTrackQuals.remove(cms.InputTag("detachedTripletStep"))
+    #process.generalTracks.selectedTrackQuals.remove(cms.InputTag("pixelLessStepSelector","pixelLessStep"))
+    #process.generalTracks.selectedTrackQuals.remove(cms.InputTag("tobTecStepSelector","tobTecStep"))
 
     # Corrections for IterativeTracking adding HigPtTripletStep for Phase 1 # Sequence and  Tags #
 
@@ -189,10 +191,10 @@ def phase1Mods(process):
     ## REMOVED BEFORE ##process.detachedTripletStepTracks.AlgorithmName = cms.string('iter4')
 
     # MergeTrackCollections #    
-    process.generalTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4), pQual=cms.bool(True) ))
-    process.generalTracks.hasSelector=cms.vint32(1,1,1,1,1)
+    process.earlyGeneralTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4), pQual=cms.bool(True) ))
+    process.earlyGeneralTracks.hasSelector=cms.vint32(1,1,1,1,1)
     
-    process.generalTracks.selectedTrackQuals = cms.VInputTag(
+    process.earlyGeneralTracks.selectedTrackQuals = cms.VInputTag(
 	 cms.InputTag("initialStepSelector","initialStep"), 
 	 cms.InputTag("highPtTripletStepSelector","highPtTripletStep"), 
 	 cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"), 
@@ -200,7 +202,7 @@ def phase1Mods(process):
 	 cms.InputTag("mixedTripletStep")
     )
 
-    process.generalTracks.TrackProducers = cms.VInputTag(
+    process.earlyGeneralTracks.TrackProducers = cms.VInputTag(
          cms.InputTag("initialStepTracks"), 
 	 cms.InputTag("highPtTripletStepTracks"), 
 	 cms.InputTag("lowPtTripletStepTracks"), 
@@ -215,17 +217,27 @@ def phase1Mods(process):
 					 LowPtTripletStep*
 					 PixelPairStep*
 					 MixedTripletStep*
-					 generalTracks*
+		                         earlyGeneralTracks* # Adjust
+					 preDuplicateMergingGeneralTracks* # Adjust
+					 #generalTracks* # Adjust
+					 generalTracksSequence*
 					 ConvStep*
 					 conversionStepTracks )  
-
+    process.preDuplicateMergingGeneralTracks.TrackProducers = cms.VInputTag(cms.InputTag("earlyGeneralTracks"))
+    process.preDuplicateMergingGeneralTracks.selectedTrackQuals = cms.VInputTag(cms.InputTag("muonSeededTracksOutInSelector","muonSeededTracksOutInHighPurity"))
+    process.preDuplicateMergingGeneralTracks.setsToMerge = cms.VPSet(cms.PSet(
+        pQual = cms.bool(False),
+        tLists = cms.vint32(0)
+    ))
+    process.preDuplicateMergingGeneralTracks.hasSelector = cms.vint32(0)
+    process.mergedDuplicateTracks.TTRHBuilder  = 'WithTrackAngle'
     # PixelCPEGeneric #
     process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
     process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
     process.PixelCPEGenericESProducer.TruncatePixelCharge = cms.bool(False)
     process.PixelCPEGenericESProducer.LoadTemplatesFromDB = cms.bool(False)
     process.PixelCPEGenericESProducer.Upgrade = cms.bool(True)
-    process.PixelCPEGenericESProducer.SmallPitch = False
+    #process.PixelCPEGenericESProducer.SmallPitch = False
     process.PixelCPEGenericESProducer.IrradiationBiasCorrection = False
     process.PixelCPEGenericESProducer.DoCosmics = False
 
@@ -314,15 +326,18 @@ def phase1Mods(process):
     process.cosmicsVetoTracksRaw.TTRHBuilder=cms.string('WithTrackAngle')
 
     #well, this needs to move input the default configs
-    SeedMergerPSet = cms.PSet(
-        layerListName = cms.string('PixelSeedMergerQuadruplets'),
-        addRemainingTriplets = cms.bool(False),
-        mergeTriplets = cms.bool(False),
-        ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
-        )
+    #SeedMergerPSet = cms.PSet(
+    #    layerListName = cms.string('PixelSeedMergerQuadruplets'),
+    #    addRemainingTriplets = cms.bool(False),
+    #    mergeTriplets = cms.bool(False),
+    #    ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
+    #    )
 
-    process.regionalCosmicTrackerSeeds.SeedMergerPSet=SeedMergerPSet
+    #process.regionalCosmicTrackerSeeds.SeedMergerPSet=SeedMergerPSet
     
+    process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(0.999)
+    process.mix.digitizers.pixel.thePixelEfficiency_BPix4 = cms.double(0.999)
+    process.mix.digitizers.pixel.thePixelChipEfficiency_BPix4 = cms.double(0.999)
     #done
     return process
 

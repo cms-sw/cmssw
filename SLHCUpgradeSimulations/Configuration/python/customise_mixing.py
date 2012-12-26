@@ -18,6 +18,9 @@ def customise_NoCrossing(process):
     process.mix.mixObjects.mixHepMC.makeCrossingFrame = cms.untracked.bool(False)
     process.digitisation_step.remove(process.simSiStripDigiSimLink)
     process.digitisation_step.remove(process.mergedtruth)
+    process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(0.999)
+    process.mix.digitizers.pixel.thePixelEfficiency_BPix4 = cms.double(0.999)
+    process.mix.digitizers.pixel.thePixelChipEfficiency_BPix4 = cms.double(0.999)
 
     return (process)
 
