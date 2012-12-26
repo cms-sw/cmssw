@@ -278,7 +278,7 @@ pair<double,double> EcalShowerProperties::processTrack
     if(*subDet == EcalBarrel)
     { 
       Surface::PositionType pos(0,0,0);
-      Cylinder::CylinderPointer theBarrel = Cylinder::build(pos, rot, radius);
+      Cylinder::CylinderPointer theBarrel = Cylinder::build(radius, pos, rot);
       tsosBeforeEcal = thePropagator->propagate(ftsAtLastPoint, *theBarrel);
 
       if(!tsosBeforeEcal.isValid())                     continue;

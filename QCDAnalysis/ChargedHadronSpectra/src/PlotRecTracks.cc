@@ -364,7 +364,7 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
 
     // Ecal Barrel
     Cylinder::ConstCylinderPointer theCylinder =
-        Cylinder::build(Surface::PositionType(0.,0.,0), rot, 129.);
+        Cylinder::build(129.f, Surface::PositionType(0.,0.,0), rot);
     tsos = thePropagator->propagate(fts,*theCylinder);
 
     if(tsos.isValid() &&
