@@ -10,7 +10,7 @@
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
 //         Updated by Lukas Wehrli (plots for clusters on/off track added)
-// $Id: SiPixelTrackResidualSource.cc,v 1.23 2012/01/28 08:10:14 slava77 Exp $
+// $Id: SiPixelTrackResidualSource.cc,v 1.25 2012/09/11 09:37:41 clseitz Exp $
 
 
 #include <iostream>
@@ -25,8 +25,8 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
@@ -513,6 +513,11 @@ void SiPixelTrackResidualSource::endJob(void) {
 
 
 void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   
   // retrieve TrackerGeometry again and MagneticField for use in transforming 
   // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
@@ -662,7 +667,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      
 	      if( subDet == PixelSubdetector::PixelBarrel ) {
 
-		int ilay = PXBDetId(detId).layer();
+		int ilay = tTopo->pxbLayer(detId);
 		
 		if( ilay == 1 ){
 		  n1++;
@@ -704,7 +709,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      
 	      if( GoodPixBarrelHits[i]->isValid() ){
 		DetId detId = GoodPixBarrelHits[i]->geographicalId().rawId();
-		int ilay = PXBDetId(detId).layer();
+		int ilay = tTopo->pxbLayer(detId);
 		if(pt > ptminres_){   
 		  
 		  double dca2 = 0.0, dz2=0.0;
