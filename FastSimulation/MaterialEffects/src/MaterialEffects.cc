@@ -415,7 +415,7 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
 			    ParticlePropagator& myTrack) {
 
   // Thickness of layer
-  theThickness = layer.surface().mediumProperties()->radLen();
+  theThickness = layer.surface().mediumProperties().radLen();
 
   GlobalVector P(myTrack.Px(),myTrack.Py(),myTrack.Pz());
   

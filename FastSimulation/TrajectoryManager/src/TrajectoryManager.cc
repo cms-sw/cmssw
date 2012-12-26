@@ -213,7 +213,7 @@ TrajectoryManager::reconstruct()
 	    mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex())) { // The particle decayed
 
       // Skip layers with no material (kept just for historical reasons)
-      if ( cyliter->surface().mediumProperties()->radLen() < 1E-10 ) { 
+      if ( cyliter->surface().mediumProperties().radLen() < 1E-10 ) { 
 	++cyliter; ++cyl;
 	continue;
       }
