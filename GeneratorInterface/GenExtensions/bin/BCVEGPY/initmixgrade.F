@@ -17,6 +17,7 @@ c*
       common/loggrade/ievntdis,igenerate,ivegasopen,igrade
       logical usegrade,usevegas
 	common/vegcross/vegsec,vegerr,iveggrade
+  	common/vegaspar/si,si2,swgt,schi,itime
 	character*1 pfile
 	logical unwght
 	common/unweight/unwght
@@ -95,7 +96,7 @@ c**********************************************************
 	           read(36,*) pfile
 	           if(pfile.eq.'+') exit
 	          enddo
-	          read(36,*) vegsec,vegerr,crossmax
+	          read(36,*) vegsec,vegerr,crossmax,si,si2,swgt,schi,itime
 	          rewind(36)
 	          if(unwght) call gen(totfun,ndim,xmax,0)
 	      end if
@@ -116,7 +117,7 @@ c***************************************
 	           read(37,*) pfile
 	           if(pfile.eq.'+') exit
 	          enddo
-	          read(37,*) vegsec,vegerr,crossmax
+	          read(37,*) vegsec,vegerr,crossmax,si,si2,swgt,schi,itime
 	          rewind(37)
 	          if(unwght) call gen(totfun,ndim,xmax,0)
 	       end if
@@ -137,7 +138,7 @@ c***************************************
 	           read(38,*) pfile
 	           if(pfile.eq.'+') exit
 	          enddo
-	          read(38,*) vegsec,vegerr,crossmax
+	          read(38,*) vegsec,vegerr,crossmax,si,si2,swgt,schi,itime
 	          rewind(38)
 	          if(unwght) call gen(totfun,ndim,xmax,0)
 	      end if
@@ -158,7 +159,7 @@ c***************************************
 	           read(39,*) pfile
 	           if(pfile.eq.'+') exit
 	          enddo
-	          read(39,*) vegsec,vegerr,crossmax
+	          read(39,*) vegsec,vegerr,crossmax,si,si2,swgt,schi,itime
 	          rewind(39)
 	          if(unwght) call gen(totfun,ndim,xmax,0)
 	        end if
@@ -179,7 +180,7 @@ c***************************************
 	           read(46,*) pfile
 	           if(pfile.eq.'+') exit
 	          enddo
-	          read(46,*) vegsec,vegerr,crossmax
+	          read(46,*) vegsec,vegerr,crossmax,si,si2,swgt,schi,itime
 	          rewind(46)
 	          if(unwght) call gen(totfun,ndim,xmax,0)
 	       end if
@@ -200,7 +201,7 @@ c***************************************
 	           read(47,*) pfile
 	           if(pfile.eq.'+') exit
 	          enddo
-	          read(47,*) vegsec,vegerr,crossmax
+	          read(47,*) vegsec,vegerr,crossmax,si,si2,swgt,schi,itime
 	          rewind(47)
 	          if(unwght) call gen(totfun,ndim,xmax,0)
 	        end if
@@ -222,7 +223,7 @@ c***************************************
 	           read(48,*) pfile
 	           if(pfile.eq.'+') exit
 	          enddo
-	          read(48,*) vegsec,vegerr,crossmax
+	          read(48,*) vegsec,vegerr,crossmax,si,si2,swgt,schi,itime
 	          rewind(48)
 	          if(unwght) call gen(totfun,ndim,xmax,0)
 	       end if
@@ -244,7 +245,7 @@ c***************************************
 	           read(49,*) pfile
 	           if(pfile.eq.'+') exit
 	          enddo
-	          read(49,*) vegsec,vegerr,crossmax
+	          read(49,*) vegsec,vegerr,crossmax,si,si2,swgt,schi,itime
 	          rewind(49)
 	          if(unwght) call gen(totfun,ndim,xmax,0)
 	        end if

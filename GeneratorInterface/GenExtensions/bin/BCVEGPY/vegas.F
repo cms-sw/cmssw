@@ -43,7 +43,7 @@ c...user process event common block.
 	common/ptpass/ptmin,ptmax,crossmax,etamin,etamax,
      &	smin,smax,ymin,ymax,psetamin,psetamax
 	common/vegcross/vegsec,vegerr,iveggrade
-
+	common/vegaspar/si,si2,swgt,schi,itime
 c	character*8 begin_time,end_time
 
 	dimension x(ndim),xin(NVEGBIN),r(NVEGBIN),ia(ndim),
@@ -56,11 +56,16 @@ c...number of bins.
 c===============================================================
 c a))   initializing some variables
 c===============================================================
+      if(iveggrade.eq.0.and.(imode.eq.0)) then
       si    =0.0d0
       si2   =0.0d0
       swgt  =0.0d0
       schi  =0.0d0
-      scalls=0.0d0
+	  itime =0
+	  else
+	  itime =itime+1
+	  end if
+	  
 	calls =ncall
       xnd   =nd
       ndm   =nd-1
@@ -157,10 +162,9 @@ c...............................................................
         si2=si2+ti2
         swgt=swgt+wgta
         schi=schi+ti2*wgta
-        scalls=scalls+calls
         avgi=si/swgt
-        sd=swgt*it/si2
         chi2a=0.0d0
+        sd=swgt*(it+itmx*itime)/si2
         if(it.gt.1)chi2a=sd*(schi/swgt-avgi*avgi)/(it-1)
         sd=1.0d0/dsqrt(sd)
         err=sd*100.0d0/avgi
@@ -174,8 +178,8 @@ c  printing
 c...............................................................        
 c...cross unit pb.
 	  if(nprn.ge.2) then
-	    print 201,it,avgi,sd,err
-		write(3,201) it,avgi,sd,err
+	   write(*,201) it+itmx*itime,avgi,sd,err
+		write(3,201) it+itmx*itime,avgi,sd,err
 c	    call time(end_time)
 c		write(*,'(a)') end_time
 c		write(3,'(a)') end_time
@@ -341,7 +345,7 @@ c               write(*,*), xmmm(ibin,idm)
        mcalls=mcalls+1
  10   continue
       do idm=1,ndim
-         r=rand(0)
+         r=pyr(0)
          do ibin=1,nd
             if(r.lt.xmmm(ibin,idm)) then
                ncell(idm)=ibin
@@ -372,7 +376,7 @@ c       write(*,*),'The ubound is ',ubound
          call increasecnt 
      #    ('upper bound failure')
       endif
-      ubound=ubound*rand(0)
+      ubound=ubound*pyr(0)
        icalls=icalls+1
       if(ubound.gt.fun) then
          call increasecnt

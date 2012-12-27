@@ -6,7 +6,7 @@
    naccel       = 2 
    i_mix        = 1
    mix_type     = 1
-   mix_method   = 1
+   igentype     = 1
    NUMOFEVENTS  = 50000
    NVEGCALL     = 50000
    NVEGITMX     = 20
