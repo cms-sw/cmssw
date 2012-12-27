@@ -6,9 +6,9 @@
    naccel       = 2 
    i_mix        = 1
    mix_type     = 1
-   mix_method   = 1
-   NUMOFEVENTS  = 50000
+   igentype     = 1
+   NUMOFEVENTS  = 1000
    NVEGCALL     = 50000
-   NVEGITMX     = 20
+   NVEGITMX     = 15
    ibcrandom    = 35349925
  $End
