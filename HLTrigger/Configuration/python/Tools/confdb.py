@@ -678,11 +678,12 @@ process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( proce
     if self.config.name is None:
       return
 
-# the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
-    self.data += """
-# override the process name
-%%(process)ssetName_('%(name)s')
+    # override the process name
+    quote = '[\'\"]'
+    self.data = re.compile(r'^(process\s*=\s*cms\.Process\(\s*' + quote + r')\w+(' + quote + r'\s*\).*)$', re.MULTILINE).sub(r'\1%s\2' % self.config.name, self.data, 1)
 
+    # the following was stolen and adapted from HLTrigger.Configuration.customL1THLT_Options
+    self.data += """
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in %%(dict)s:
     %%(process)shltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', '%(name)s' )
