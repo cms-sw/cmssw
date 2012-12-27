@@ -262,6 +262,10 @@ bool PassTrigger(const fwlite::ChainEvent& ev, bool isData, bool isCosmic)
       edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT");
       if(!tr.isValid())return false;
 
+      //for(unsigned int i=0;i<tr.size();i++){
+      //printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+      //}fflush(stdout);
+
       #ifdef ANALYSIS2011
           if(tr.accept(tr.triggerIndex("HSCPHLTTriggerMuFilter")))return true;
           else if(tr.accept(tr.triggerIndex("HSCPHLTTriggerPFMetFilter"))){

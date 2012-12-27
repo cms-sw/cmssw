@@ -36,6 +36,7 @@
 "CMSSW_5_3", 0, "Data8TeV"                           , "Run2012D_207501_207800"                , "Data #sqrt{s}=8 TeV"                                       , "N/A"   ,     0, -1.0000000000E+00, 1, 0.000, 0.000, 0.000
 "CMSSW_5_3", 0, "Data8TeV"                           , "Run2012D_207801_208100"                , "Data #sqrt{s}=8 TeV"                                       , "N/A"   ,     0, -1.0000000000E+00, 1, 0.000, 0.000, 0.000
 "CMSSW_5_3", 0, "Data8TeV"                           , "Run2012D_208101_208357"                , "Data #sqrt{s}=8 TeV"                                       , "N/A"   ,     0, -1.0000000000E+00, 1, 0.000, 0.000, 0.000
+"CMSSW_5_3", 0, "Data8TeV"                           , "Run2012D_208358_208686"                , "Data #sqrt{s}=8 TeV"                                       , "N/A"   ,     0, -1.0000000000E+00, 1, 0.000, 0.000, 0.000
 "CMSSW_4_4", 1, "MC_7TeV_DYToTauTau"                 , "MC_7TeV_DYToTauTau"                    , "MC - DYToTauTau"                                           , "S3"    ,     0, +1.3000000000E+03, 0, 0.000, 0.000, 0.000
 "CMSSW_4_4", 1, "MC_7TeV_DYToMuMu"                   , "MC_7TeV_DYToMuMu"                      , "MC - DYToMuMu"                                             , "S3"    ,     0, +1.3000000000E+03, 0, 0.000, 0.000, 0.000
 "CMSSW_4_4", 1, "MC_7TeV_WJetsToLNu"                 , "MC_7TeV_WJetsToLNu"                    , "MC - WJetsToLNu"                                           , "S4"    ,     0, +2.7770000000E+04, 0, 0.000, 0.000, 0.000
