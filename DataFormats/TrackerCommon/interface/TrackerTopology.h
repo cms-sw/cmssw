@@ -229,6 +229,9 @@ class TrackerTopology {
   bool tidIsZPlusSide(const DetId &id) const {return !tidIsZMinusSide(id);}
   bool tidIsZMinusSide(const DetId &id) const { return tidSide(id)==1;}
 
+  bool tecIsZPlusSide(const DetId &id) const {return !tecIsZMinusSide(id);}
+  bool tecIsZMinusSide(const DetId &id) const { return tecSide(id)==1;}
+
   //these are from the old TOB/TEC/TID/TIB DetId
   bool tobIsStereo(const DetId &id) const {return tobStereo(id)!=0 && !tobIsDoubleSide(id);}
   bool tecIsStereo(const DetId &id) const {return tecStereo(id)!=0 && !tecIsDoubleSide(id);}
