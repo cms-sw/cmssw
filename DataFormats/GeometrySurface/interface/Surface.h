@@ -58,7 +58,7 @@ protected:
 	   Bounds* bounds) :
     Base( pos, rot),
     theBounds(bounds)
-  {computeSpan();}
+  {}
 
  
   Surface( const PositionType& pos, const RotationType& rot,
@@ -73,7 +73,7 @@ protected:
     Base( pos, rot),
     theMediumProperties(mp),
     theBounds(bounds)
-  {computeSpan();}
+  {}
 
   
   Surface( const Surface& iSurface ) : 
@@ -125,7 +125,7 @@ public:
   std::pair<float,float> const & zSpan()   const { return bounds().zSpan(); }
   std::pair<float,float> const & rSpan()   const { return bounds().rSpan(); }
 
-  void computeSpan() { theBounds->computeSpan(*this);}
+  void computeSpan() { if(theBounds) theBounds->computeSpan(*this);}
 
 
   /** Tangent plane to surface from global point.

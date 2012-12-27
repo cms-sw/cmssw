@@ -19,7 +19,7 @@ public:
 #ifndef CMS_NOCXX11
  template<typename... Args>
   Plane(Args&& ... args) :
-    Surface(std::forward<Args>(args)...){}
+    Surface(std::forward<Args>(args)...){computeSpan();}
 #endif  
 
   typedef ReferenceCountingPointer<Plane> PlanePointer;
