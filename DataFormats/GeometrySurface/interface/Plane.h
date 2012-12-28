@@ -56,6 +56,10 @@ public:
     return normalVector().dot(gv);
   }
 
+
+  void computeSpan() { if(theBounds) theBounds->computeSpan(*this);}
+
+
 // implementation of Surface interface    
 
   virtual SurfaceOrientation::Side side( const LocalPoint& p, Scalar toler) const GCC11_FINAL {

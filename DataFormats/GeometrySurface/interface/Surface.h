@@ -29,7 +29,12 @@ namespace SurfaceOrientation {
 
 //template <class T> class ReferenceCountingPointer;
 
-class TangentPlane;
+class Plane;
+#ifndef CMS_NOCXX11
+using TangentPlane = Plane;
+#else
+typedef Plane TangentPlane;
+#endif
 
 /** Base class for 2D surfaces in 3D space.
  *  May have MediumProperties.
@@ -60,7 +65,7 @@ protected:
     theBounds(bounds)
   {}
 
- 
+  
   Surface( const PositionType& pos, const RotationType& rot,
            MediumProperties mp) :
     Base( pos, rot),
@@ -76,6 +81,7 @@ protected:
   {}
 
   
+
   Surface( const Surface& iSurface ) : 
   Base( iSurface), 
   theMediumProperties(iSurface.theMediumProperties),
@@ -119,17 +125,15 @@ public:
   }
 
   const Bounds& bounds() const { return *theBounds; }
-  
 
+  // here and not in plane because of PixelBarrelLayer::overlap
   std::pair<float,float> const & phiSpan() const { return bounds().phiSpan(); }
   std::pair<float,float> const & zSpan()   const { return bounds().zSpan(); }
   std::pair<float,float> const & rSpan()   const { return bounds().rSpan(); }
-
-  void computeSpan() { if(theBounds) theBounds->computeSpan(*this);}
-
+  
 
   /** Tangent plane to surface from global point.
-   * Returns a new plane, tangent to the Surface at a point.
+   * Returns a plane, tangent to the Surface at a point.
    * The point must be on the surface.
    * The return type is a ReferenceCountingPointer, so the plane 
    * will be deleted automatically when no longer needed.
@@ -139,7 +143,7 @@ public:
    */
   virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const = 0;
 
-private:
+protected:
   MediumProperties theMediumProperties;
 #ifndef CMS_NOCXX11
   extstd::clone_ptr<Bounds> theBounds;

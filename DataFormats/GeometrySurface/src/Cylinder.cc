@@ -40,6 +40,6 @@ Cylinder::tangentPlane (const GlobalPoint& aPoint) const
   // rotation constructor will normalize...
   return ReferenceCountingPointer<TangentPlane>(new TangentPlane(aPoint,
 								 RotationType(xPlane,
-									      yPlane),
-								 this));
+									      yPlane)
+								 ));
 }
