@@ -243,6 +243,7 @@ void printCluster(FILE* pFile, const SiStripCluster*   Cluster)
 
 void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, FILE* pFile)
 {
+
    reco::MuonRef  muon  = hscp.muonRef();
    reco::TrackRef track = hscp.trackRef();
    if(TypeMode!=3 && track.isNull()) return;
@@ -367,8 +368,11 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
       if(TypeMode!=3) TOFMass = GetTOFMass(track->p(),tofComb.inverseBeta());
       else TOFMass = GetTOFMass(SAtrack->p(),tofComb.inverseBeta());
       fprintf(pFile,"MassTOF = %7.2fGeV\n",TOFMass);
-
+#ifdef ANALYSIS2011
+      fprintf(pFile,"Quality=%i type=%i P=%7.2f  Pt=%7.2f Eta=%+6.2f Phi=%+6.2f\n" ,muon->isQualityValid(),muon->type(),muon->p(),muon->pt(),muon->eta(),muon->phi());
+#else
       fprintf(pFile,"Quality=%i type=%i P=%7.2f  Pt=%7.2f Eta=%+6.2f Phi=%+6.2f #Chambers=%i\n" ,muon->isQualityValid(),muon->type(),muon->p(),muon->pt(),muon->eta(),muon->phi(),muon->numberOfChambersNoRPC());
+#endif
       if(!SAtrack.isNull())fprintf(pFile,"SA track P=%7.2f  Pt=%7.2f Eta=%+6.2f Phi=%+6.2f #Chambers=%i\n" ,SAtrack->p(),SAtrack->pt(),SAtrack->eta(),SAtrack->phi(),muon->numberOfMatchedStations());
 
       for (int i=0; i<SAtrack->hitPattern().numberOfHits(); i++) {
@@ -459,37 +463,42 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
 
    TypeMode = TypeFromPattern(Pattern);
 
+   string Data="Data8TeV";
+#ifdef ANALYSIS2011
+   Data="Data7TeV";
+#endif
+
    TFile* InputFile      = new TFile((Pattern + "/Histos.root").c_str());
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
    TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
-   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_A");
-   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_B");
-   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_C");
-   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_D");
-   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_E");
-   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_F");
-   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_G");
-   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_H");
-   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "Data8TeV/H_P");
+   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, Data + "/H_A");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, Data + "/H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, Data + "/H_C");
+   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, Data + "/H_D");
+   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, Data + "/H_E");
+   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, Data + "/H_F");
+   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, Data + "/H_G");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, Data + "/H_H");
+   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, Data + "/H_P");
    CutPt  = HCuts_Pt ->GetBinContent(CutIndex+1);
    CutI   = HCuts_I  ->GetBinContent(CutIndex+1);
    CutTOF = HCuts_TOF->GetBinContent(CutIndex+1);
 
 
 
-   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, "Data8TeV/HscpCandidates");
+   TTree* tree           = (TTree*)GetObjectFromPath(InputFile, Data + "/HscpCandidates");
    printf("Tree Entries=%lli\n",tree->GetEntries());
 
 
    std::vector<string> FileName;
-   for(unsigned int s=0;s<samples.size();s++){if(samples[s].Name == "Data8TeV")GetInputFiles(samples[s], BaseDirectory, FileName);}
+   for(unsigned int s=0;s<samples.size();s++){if(samples[s].Name == Data) GetInputFiles(samples[s], BaseDirectory, FileName);}
    fwlite::ChainEvent ev(FileName);
 
 
    unsigned int    Run, Event, HscpI;
    float  Pt,  I,    TOF;
-
+  
    tree->SetBranchAddress("Run"  ,&Run);
    tree->SetBranchAddress("Event",&Event);
    tree->SetBranchAddress("Hscp" ,&HscpI);
@@ -508,7 +517,7 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
    fprintf(pFile, "H = %6.2E\n",H_H->GetBinContent(CutIndex+1));
    fprintf(pFile, "OBSERVED  EVENTS = %6.2E\n",H_D->GetBinContent(CutIndex+1));
    fprintf(pFile, "PREDICTED EVENTS = %6.2E+-%6.2E\n",H_P->GetBinContent(CutIndex+1), H_P->GetBinError(CutIndex+1));
-
+   FILE* pickEvent = fopen("PickEvent.txt","w");
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Scanning D                   :");
    int TreeStep = tree->GetEntries()/50;if(TreeStep==0)TreeStep=1;
@@ -521,6 +530,8 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
       //if(Pt<=CutPt || (CutI>-1 && I>=CutI) || (CutTOF>-1 && TOF<=CutTOF))continue;
 
       ev.to(Run, Event);
+      fprintf(pickEvent, "%i:%i:%i,\n",Run,ev.eventAuxiliary().luminosityBlock(), Event);
+
       fwlite::Handle<susybsm::HSCParticleCollection> hscpCollHandle;
       hscpCollHandle.getByLabel(ev,"HSCParticleProducer");
       if(!hscpCollHandle.isValid()){printf("HSCP Collection NotFound\n");continue;}
@@ -541,10 +552,9 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
              fprintf(pFile,"other tracks muontracks\n");
          }
       }
-
    }printf("\n");
    fclose(pFile);
-
+   fclose(pickEvent);
 
 
 
