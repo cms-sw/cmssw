@@ -46,7 +46,7 @@ public:
     m_eventNumber()
   { }
 
-  // explicit c'tor from a PArameterSet
+  // explicit c'tor from a ParameterSet
   explicit Data(const edm::ParameterSet & config) :
     // configuration
     m_hltResultsTag(config.getParameter<edm::InputTag>("hltResults")),
