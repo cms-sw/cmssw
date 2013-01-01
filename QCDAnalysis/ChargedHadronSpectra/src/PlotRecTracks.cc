@@ -19,9 +19,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -78,8 +75,7 @@ PlotRecTracks::~PlotRecTracks()
 }
 
 /*****************************************************************************/
-string PlotRecTracks::getPixelInfo
-  (const TrackingRecHit* recHit, const ostringstream& o, const ostringstream& d)
+string PlotRecTracks::getPixelInfo(const TrackingRecHit* recHit, edm::ESHandle<TrackerTopology>& tTopo, const ostringstream& o, const ostringstream& d)
 {
   const SiPixelRecHit* pixelRecHit =
     dynamic_cast<const SiPixelRecHit *>(recHit);
@@ -112,7 +108,7 @@ string PlotRecTracks::getPixelInfo
   info += " | " + o.str();
   }
 
-  info += HitInfo::getInfo(*recHit);
+  info += HitInfo::getInfo(*recHit, tTopo);
 
   info += "\"]";
 
@@ -129,7 +125,7 @@ string PlotRecTracks::getPixelInfo
 
 /*****************************************************************************/
 string PlotRecTracks::getStripInfo
-  (const TrackingRecHit* recHit, const ostringstream& o, const ostringstream& d)
+  (const TrackingRecHit* recHit, edm::ESHandle<TrackerTopology>& tTopo, const ostringstream& o, const ostringstream& d)
 {
   DetId id = recHit->geographicalId();
   LocalPoint lpos = recHit->localPosition();
@@ -159,7 +155,7 @@ string PlotRecTracks::getStripInfo
   info += " | " + o.str();
   }
 
-  info += HitInfo::getInfo(*recHit);
+  info += HitInfo::getInfo(*recHit, tTopo);
 
   if(stripMatchedRecHit != 0)   info += " matched";
   if(stripProjectedRecHit != 0) info += " projected";
@@ -200,8 +196,11 @@ FreeTrajectoryState PlotRecTracks::getTrajectoryAtOuterPoint
 }
 
 /*****************************************************************************/
-void PlotRecTracks::printRecTracks(const edm::Event& ev)
+void PlotRecTracks::printRecTracks(const edm::Event& ev, const edm::EventSetup& es)
 {
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
   theHitAssociator = new TrackerHitAssociator(ev);
 
   file << ", If[rt, {AbsolutePointSize[6]";
@@ -266,7 +265,7 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
         if(pixelRecHit != 0)
         {
           theRecHits.printPixelRecHit(pixelRecHit);
-          file << getPixelInfo(recHit, o,d);
+          file << getPixelInfo(recHit, tTopo, o, d);
         }
       }
       else
@@ -302,7 +301,7 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
         if(stripMatchedRecHit != 0 ||
            stripProjectedRecHit != 0 ||
            stripRecHit != 0)
-          file << getStripInfo(recHit, o,d);
+          file << getStripInfo(recHit, tTopo, o,d);
       }
       }
     }

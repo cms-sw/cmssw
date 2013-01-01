@@ -1,8 +1,9 @@
 // !!
 #include "QCDAnalysis/ChargedHadronSpectra/interface/HitInfo.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -21,27 +22,27 @@ HitInfo::~HitInfo()
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(const DetId & id)
+string HitInfo::getInfo(const DetId & id, edm::ESHandle<TrackerTopology>& tTopo)
 {
   std::string info;
 
   if(id.subdetId() == int(PixelSubdetector::PixelBarrel))
   {
     // 0 + (layer-1)<<1 + (ladder-1)%2 : 0-5
-    PXBDetId pid(id);
+    
     ostringstream o;
-    o << " (" << pid.layer()  << "|" << pid.ladder()
-      <<  "|" << pid.module() << ")";
+    o << " (" << tTopo->pxbLayer(id)  << "|" << tTopo->pxbLadder(id)
+      <<  "|" << tTopo->pxbModule(id) << ")";
     info += o.str();
   }
   else
   {
     // 6 + (disk-1)<<1 + (panel-1)%2
-    PXFDetId pid(id);
+    
     ostringstream o;
-    o << " (" << pid.side()   << "|" << pid.disk()
-      <<  "|" << pid.blade()  << "|" << pid.panel()
-      <<  "|" << pid.module() << ")";
+    o << " (" << tTopo->pxfSide(id)   << "|" << tTopo->pxfDisk(id)
+      <<  "|" << tTopo->pxfBlade(id)  << "|" << tTopo->pxfPanel(id)
+      <<  "|" << tTopo->pxfModule(id) << ")";
     info += o.str();
   }
 
@@ -49,28 +50,28 @@ string HitInfo::getInfo(const DetId & id)
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(const TrackingRecHit & recHit)
+string HitInfo::getInfo(const TrackingRecHit & recHit, edm::ESHandle<TrackerTopology>& tTopo)
 {
   DetId id(recHit.geographicalId());
 
-  return getInfo(id);
+  return getInfo(id, tTopo);
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(std::vector<const TrackingRecHit *> recHits)
+string HitInfo::getInfo(std::vector<const TrackingRecHit *> recHits, edm::ESHandle<TrackerTopology>& tTopo)
 {
   std::string info;
 
   for(std::vector<const TrackingRecHit *>::const_iterator
         recHit = recHits.begin();
         recHit!= recHits.end(); recHit++)
-     info += getInfo(**recHit);
+     info += getInfo(**recHit, tTopo);
 
   return info;
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(const PSimHit & simHit)
+string HitInfo::getInfo(const PSimHit & simHit, edm::ESHandle<TrackerTopology>& tTopo)
 {
   std::string info;
 
@@ -91,6 +92,6 @@ string HitInfo::getInfo(const PSimHit & simHit)
     info += " | " + o.str();
   }
 
-  return info + getInfo(id);;
+  return info + getInfo(id, tTopo);
 }
 

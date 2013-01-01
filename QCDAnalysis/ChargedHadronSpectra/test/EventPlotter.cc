@@ -157,10 +157,10 @@ void EventPlotter::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
 //  PlotRecTracks theRecTracks(es,trackCollections,file);
   PlotRecTracks theRecTracks(es,trackProducer,file);
-  theRecTracks.printRecTracks(ev);
+  theRecTracks.printRecTracks(ev, es);
 
   PlotSimTracks theSimTracks(es,file);
-  theSimTracks.printSimTracks(ev);
+  theSimTracks.printSimTracks(ev, es);
 
   PlotEcalRecHits theEcalRecHits(es,file);
   theEcalRecHits.printEcalRecHits(ev);

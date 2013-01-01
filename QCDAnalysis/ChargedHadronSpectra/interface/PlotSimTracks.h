@@ -14,7 +14,7 @@ class PlotSimTracks
   public:
     explicit PlotSimTracks(const edm::EventSetup& es, std::ofstream& file_);
     ~PlotSimTracks();
-    void printSimTracks(const edm::Event& ev);
+    void printSimTracks(const edm::Event& ev, const edm::EventSetup& es);
 
   private:
     std::ofstream& file;
