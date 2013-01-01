@@ -2,14 +2,17 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 //#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include <iostream>
 #include <string>
@@ -48,6 +51,9 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
 
     using namespace reco;
 
+    edm::ESHandle<TrackerTopology> tTopo;
+    setup.get<IdealGeometryRecord>().get(tTopo);
+
     //std::cout << "\nEvent ID = "<< event.id() << std::endl ;
     edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("TrackInfo");
     edm::Handle<reco::TrackInfoCollection> trackCollection;
@@ -70,24 +76,23 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
 	DetId id= (*iter).first->geographicalId();
 	unsigned int iSubDet = StripSubdetector(id).subdetId();
         if (iSubDet == StripSubdetector::TIB){
-	  TIBDetId* tibId = new TIBDetId(id);
-	  int layer = tibId->layer();
-	  std::vector<unsigned int> string = tibId->string();
-	  if(layer==1){
-	    if(string[1]==0)tib1int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(string[1]==1)tib1ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+          int layer = tTopo->tibLayer(id);
+          unsigned int order = tTopo->tibOrder(id);
+          if(layer==1){
+            if(order==0)tib1int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	      else if(order==1)tib1ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	  else if(layer==2){
-	    if(string[1]==0)tib2int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(string[1]==1)tib2ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(order==0)tib2int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(order==1)tib2ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	  else if(layer==3){
-	    if(string[1]==0)tib3int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(string[1]==1)tib3ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(order==0)tib3int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(order==1)tib3ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	  else if(layer==4){
-	    if(string[1]==0)tib4int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(string[1]==1)tib4ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(order==0)tib4int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(order==1)tib4ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	}
       }
