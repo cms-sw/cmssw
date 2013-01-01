@@ -10,12 +10,8 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 //#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -27,6 +23,9 @@
 CheckHitPattern::RZrangeMap CheckHitPattern::rangeRorZ_;
 
 void CheckHitPattern::init(const edm::EventSetup& iSetup) {
+
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
 
   //
   // Note min/max radius (z) of each barrel layer (endcap disk).
@@ -43,7 +42,7 @@ void CheckHitPattern::init(const edm::EventSetup& iSetup) {
   for (unsigned int i = 0; i < dets.size(); i++) {    
 
     // Get subdet and layer of this module
-    DetInfo detInfo = this->interpretDetId(dets[i]->geographicalId());
+    DetInfo detInfo = this->interpretDetId(dets[i]->geographicalId(), tTopo);
     uint32_t subDet = detInfo.first;
 
     // Note r (or z) of module if barrel (or endcap).
@@ -79,21 +78,21 @@ void CheckHitPattern::init(const edm::EventSetup& iSetup) {
 #endif
 }
 
-CheckHitPattern::DetInfo CheckHitPattern::interpretDetId(DetId detId) {
+CheckHitPattern::DetInfo CheckHitPattern::interpretDetId(DetId detId, edm::ESHandle<TrackerTopology>& tTopo) {
   // Convert detId to a pair<uint32, uint32> consisting of the numbers used by HitPattern 
   // to identify subdetector and layer number respectively.
   if (detId.subdetId() == StripSubdetector::TIB) {
-    return DetInfo( detId.subdetId() , TIBDetId(detId).layer() );
+    return DetInfo( detId.subdetId(), tTopo->tibLayer(detId) );
   } else if (detId.subdetId() == StripSubdetector::TOB) {
-    return DetInfo( detId.subdetId() , TOBDetId(detId).layer() );
+    return DetInfo( detId.subdetId(), tTopo->tobLayer(detId) );
   } else if (detId.subdetId() == StripSubdetector::TID) {
-    return DetInfo( detId.subdetId() , TIDDetId(detId).wheel() );
+    return DetInfo( detId.subdetId(), tTopo->tidWheel(detId) );
   } else if (detId.subdetId() == StripSubdetector::TEC) {
-    return DetInfo( detId.subdetId() , TECDetId(detId).wheel() );
+    return DetInfo( detId.subdetId(), tTopo->tecWheel(detId) );
   } else if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
-    return DetInfo( detId.subdetId() , PXBDetId(detId).layer() );
+    return DetInfo( detId.subdetId(), tTopo->pxbLayer(detId) );
   } else if (detId.subdetId() == PixelSubdetector::PixelEndcap) {
-    return DetInfo( detId.subdetId() , PXFDetId(detId).disk() );
+    return DetInfo( detId.subdetId(), tTopo->pxfDisk(detId) );
   } else {
     throw cms::Exception("NotFound","Found DetId that is not in Tracker");
   }   
