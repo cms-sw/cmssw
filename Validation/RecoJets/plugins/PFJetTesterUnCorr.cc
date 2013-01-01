@@ -278,7 +278,7 @@ PFJetTesterUnCorr::PFJetTesterUnCorr(const edm::ParameterSet& iConfig)
     //double linPtMax = 155;
     //int linPtBins = 15;
 
-    int log10PtFineBins = 50;
+    //int log10PtFineBins = 50;
     /*
     mAllGenJetsPt = dbe->book1D("GenJetLOGpT", "GenJet LOG(pT_gen)", 
 				log10PtBins, log10PtMin, log10PtMax);

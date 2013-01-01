@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: PFJetTester.cc,v 1.30 2012/02/21 18:59:38 kovitang Exp $
+// $Id: PFJetTester.cc,v 1.31 2012/12/02 23:38:40 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -338,7 +338,7 @@ PFJetTester::PFJetTester(const edm::ParameterSet& iConfig)
     //double linPtMax = 155;
     //int linPtBins = 15;
 
-    int log10PtFineBins = 50;
+    //int log10PtFineBins = 50;
     /*
     mAllGenJetsPt = dbe->book1D("GenJetLOGpT", "GenJet LOG(pT_gen)", 
 				log10PtBins, log10PtMin, log10PtMax);
