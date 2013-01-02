@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.h,v 1.9 2009/11/19 22:33:15 loizides Exp $
+// $Id: QcdLowPtDQM.h,v 1.10 2010/03/03 09:32:40 olzem Exp $
 
 #ifndef QcdLowPtDQM_H
 #define QcdLowPtDQM_H
@@ -129,7 +129,7 @@ class QcdLowPtDQM : public edm::EDAnalyzer
                                              std::vector<MonitorElement*> &hdNdEtaSubTrkl,
                                              std::vector<MonitorElement*> &hdNdEtaTrklets);
     void                          fillHltBits(const edm::Event &iEvent);
-    void                          fillPixels(const edm::Event &iEvent);
+    void                          fillPixels(const edm::Event &iEvent, const edm::EventSetup& iSetup);
     void                          fillPixelClusterInfos(const edm::Event &iEvent, int which=12);
     void                          fillPixelClusterInfos(const double vz,
                                                         const std::vector<Pixel> &pix, 

@@ -1,11 +1,11 @@
-// $Id: QcdLowPtDQM.cc,v 1.18 2011/12/21 14:24:21 olzem Exp $
+// $Id: QcdLowPtDQM.cc,v 1.19 2012/01/11 13:53:29 olzem Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -122,7 +122,7 @@ void QcdLowPtDQM::analyze(const Event &iEvent, const EventSetup &iSetup)
   }
 
   fillHltBits(iEvent);
-  fillPixels(iEvent);
+  fillPixels(iEvent, iSetup);
   trackletVertexUnbinned(iEvent, pixLayers_);
   fillTracklets(iEvent, pixLayers_);
   fillPixelClusterInfos(iEvent, clusLayers_);
@@ -804,7 +804,7 @@ void QcdLowPtDQM::fillHltBits(const Event &iEvent)
 }
 
 //--------------------------------------------------------------------------------------------------
-void QcdLowPtDQM::fillPixels(const Event &iEvent) 
+void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup& iSetup) 
 {
   // Fill pixel hit collections.
 
@@ -817,6 +817,9 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent)
     CP(2) print(2,Form("Can not obtain pixel hit collection with name %s", pixelName_.c_str()));
     return;
   }
+
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
 
   const SiPixelRecHitCollection *hits = hRecHits.product();
   for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 
@@ -863,8 +866,8 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent)
 
     Pixel pix(gpos, adc, sizex, sizey);
 
-    PXBDetId pid(id);
-    int layer = pid.layer();
+    
+    int layer = tTopo->pxbLayer(id);
 
     if (layer==1) {
       bpix1_.push_back(pix);     
