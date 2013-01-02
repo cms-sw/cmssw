@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDMonitor.cc,v 1.44 2012/06/27 16:33:59 threus Exp $
+// $Id: SiStripFEDMonitor.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
 //
 //Modified        :  Anne-Marie Magnan
 //   ---- 2009/04/21 : histogram management put in separate class
@@ -40,6 +40,8 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -186,6 +188,9 @@ void
 SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup)
 {
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
   //update cabling
   updateCabling(iSetup);
   
@@ -237,7 +242,7 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
-    fedErrors_.initialiseFED(fedId,cabling_);
+    fedErrors_.initialiseFED(fedId,cabling_,tTopo);
     bool lFullDebug = false;
  
     //Do detailed check

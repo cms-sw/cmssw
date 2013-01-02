@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.20 2011/10/04 17:25:59 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
 //
 
 #include <sstream>
@@ -49,10 +49,8 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DQM/SiStripMonitorHardware/interface/CMHistograms.hh"
 
@@ -190,6 +188,9 @@ void
 SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
 
   //static bool firstEvent = true;
   //static bool isBeingFilled = false;
@@ -211,7 +212,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
-    lFedErrors.initialiseFED(fedId,cabling_);
+    lFedErrors.initialiseFED(fedId,cabling_,tTopo);
 
     //Do detailed check
     //first check if data exists
@@ -279,20 +280,20 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 //       if (firstEvent){
 // 	infoStream << "Subdet " << lSubDet << ", " ;
 // 	if (lSubDet == 3) {
-// 	  TIBDetId lId(lDetId);
-// 	  infoStream << "TIB layer " << lId.layer()  << ", fedID " << fedId << ", channel " << iCh << std::endl;
+// 	  
+// 	  infoStream << "TIB layer " << tTopo->tibLayer(lDetId)  << ", fedID " << fedId << ", channel " << iCh << std::endl;
 // 	}
 // 	else if (lSubDet == 4) {
-// 	  TIDDetId lId(lDetId);
-// 	  infoStream << "TID side " << lId.side()  << " wheel " << lId.wheel() << ", ring " << lId.ring() << ", fedID " << fedId << ", channel " << iCh << std::endl;
+// 	  
+// 	  infoStream << "TID side " << tTopo->tibSide(lDetId)  << " wheel " << tTopo->tibWheel(lDetId) << ", ring " << tTopo->tibRing(lDetId) << ", fedID " << fedId << ", channel " << iCh << std::endl;
 // 	}
 // 	else if (lSubDet == 5) {
-// 	  TOBDetId lId(lDetId);
-// 	  infoStream << "TOB side " << lId.rod()[0]  << " layer " << lId.layer() << ", rod " << lId.rodNumber() << ", fedID " << fedId << ", channel " << iCh << std::endl;
+// 	  
+// 	  infoStream << "TOB side " << tTopo->tibRod(lDetId)[0]  << " layer " << tTopo->tibLayer(lDetId) << ", rod " << tTopo->tibRodNumber(lDetId) << ", fedID " << fedId << ", channel " << iCh << std::endl;
 // 	}
 // 	else if (lSubDet == 6) {
-// 	  TECDetId lId(lDetId);
-// 	  infoStream << "TEC side " << lId.side()  << " wheel " << lId.wheel() << ", petal " << lId.petalNumber() << ", ring " << lId.ring() << ", fedID " << fedId << ", channel " << iCh << std::endl;
+// 	  
+// 	  infoStream << "TEC side " << tTopo->tibSide(lDetId)  << " wheel " << tTopo->tibWheel(lDetId) << ", petal " << tTopo->tibPetalNumber(lDetId) << ", ring " << tTopo->tibRing(lDetId) << ", fedID " << fedId << ", channel " << iCh << std::endl;
 // 	}
 // 	isBeingFilled=true;
 //       }
