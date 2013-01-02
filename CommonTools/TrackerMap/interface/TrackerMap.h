@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "TColor.h"
+#include <cassert>
 
 /*
 #define  NUMFEDCH_INCOLUMN 12
@@ -432,6 +433,7 @@ void defwindow(int num_lay){
     if(subdet==1)return(layer+30);
     if(subdet==3)return(layer+33);
     if(subdet==5)return(layer+37);
+    assert(false);
   }
   
   static bool isRingStereo(int key){
