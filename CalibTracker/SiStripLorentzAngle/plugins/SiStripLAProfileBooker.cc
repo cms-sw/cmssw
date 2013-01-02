@@ -72,6 +72,8 @@ SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf) :
 
 void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
 
+  edm::ESHandle<TrackerTopology> tTopo;
+  c.get<IdealGeometryRecord>().get(tTopo);
  
   //get magnetic field and geometry from ES
   edm::ESHandle<MagneticField> esmagfield;
@@ -199,7 +201,7 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
       const StripTopology& topol=(const StripTopology&)stripdet->topology();
       float thickness=stripdet->specificSurface().bounds().thickness();
       
-      folder_organizer.setDetectorFolder(Iditer->rawId());
+      folder_organizer.setDetectorFolder(Iditer->rawId(), tTopo);
       hid = hidmanager.createHistoId(TkTag.label().c_str(),"det",Iditer->rawId());
       MonitorElement * profile=dbe_->bookProfile(hid,hid,module_bin,ModuleRangeMin,ModuleRangeMax,20,0,5,"");
       detparameters *param=new detparameters;
