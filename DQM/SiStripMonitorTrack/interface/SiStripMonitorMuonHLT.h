@@ -50,10 +50,8 @@
 	//needed for normalisation
 //Id
 #include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
-#include <DataFormats/SiStripDetId/interface/TECDetId.h>
-#include <DataFormats/SiStripDetId/interface/TIDDetId.h>
-#include <DataFormats/SiStripDetId/interface/TOBDetId.h>
-#include <DataFormats/SiStripDetId/interface/TIBDetId.h>
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //BoundPlane
 #include <DataFormats/GeometrySurface/interface/BoundPlane.h>
 #include <DataFormats/GeometrySurface/interface/BoundSurface.h>
@@ -104,7 +102,7 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
       //methods needed for normalisation
       float GetEtaWeight(std::string label, GlobalPoint gp);
       float GetPhiWeight(std::string label, GlobalPoint gp);
-      void GeometryFromTrackGeom (std::vector<DetId> Dets,const TrackerGeometry & theTracker,
+      void GeometryFromTrackGeom (std::vector<DetId> Dets,const TrackerGeometry & theTracker, const edm::EventSetup& iSetup,
                                   std::map<std::string,std::vector<float> > & m_PhiStripMod_Eta,std::map<std::string,std::vector<float> > & m_PhiStripMod_Nb);
       void Normalizer (std::vector<DetId> Dets,const TrackerGeometry & theTracker);
       void PrintNormalization (std::vector<std::string> v_LabelHisto);

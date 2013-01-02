@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.13 2011/10/26 13:52:43 borrell Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.14 2012/01/17 10:31:50 innocent Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -472,7 +472,7 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
 
 
   //CALL GEOMETRY METHOD
-  GeometryFromTrackGeom(Dets,theTracker,m_PhiStripMod_Eta,m_PhiStripMod_Nb);
+  GeometryFromTrackGeom(Dets,theTracker,es,m_PhiStripMod_Eta,m_PhiStripMod_Nb);
 
 
   ////////////////////////////////////////////////////
@@ -639,15 +639,17 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
 
 
 void
-SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const TrackerGeometry & theTracker,
+SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const TrackerGeometry & theTracker, const edm::EventSetup& es,
                                               std::map< std::string,std::vector<float> > & m_PhiStripMod_Eta,std::map< std::string,std::vector<float> > & m_PhiStripMod_Nb){
 
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
 
   std::vector<std::string> v_LabelHisto;
 
   //Loop over DetIds
   //-----------------------------------------
-  for(std::vector<DetId>::iterator detid_iterator =  Dets.begin(); detid_iterator!=Dets.end(); detid_iterator++){
+  for(std::vector<DetId>::iterator detid_iterator =  Dets.begin(); detid_iterator!=Dets.end(); ++detid_iterator){
     uint32_t detid = (*detid_iterator)();
 
     if ( (*detid_iterator).null() == true) break;
@@ -705,22 +707,22 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const Trac
       //TEC
       if (detector == GeomDetEnumerators::TEC ){
 
-        TECDetId id = TECDetId(detid);
+        
 
         //PHI BINNING
         //Select 7th ring
-        if (id.ringNumber() == 7){
+        if (tTopo->tecRing(detid) == 7){
           //SELECT FP
-          if (id.moduleNumber() == 1 && id.isFrontPetal() == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+          if (tTopo->tecModule(detid) == 1 && tTopo->tecIsFrontPetal(detid) == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
           //SELECT BP
-          if (id.moduleNumber() == 1 && id.isBackPetal() == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+          if (tTopo->tecModule(detid) == 1 && tTopo->tecIsBackPetal(detid) == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
         }
 
         //ETA BINNING
         //Select arbitrary petal
-        if (id.petalNumber() == 1 ){
-          m_PhiStripMod_Eta[mylabelHisto][id.ringNumber()-1] = m_PhiStripMod_Eta[mylabelHisto][id.ringNumber()-1] + clustgp.eta();
-          m_PhiStripMod_Nb[mylabelHisto][id.ringNumber()-1]++;
+        if (tTopo->tecPetalNumber(detid) == 1 ){
+          m_PhiStripMod_Eta[mylabelHisto][tTopo->tecRing(detid)-1] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tecRing(detid)-1] + clustgp.eta();
+          m_PhiStripMod_Nb[mylabelHisto][tTopo->tecRing(detid)-1]++;
         }
 
       } //END TEC
@@ -728,22 +730,22 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const Trac
       //TID
       if (detector == GeomDetEnumerators::TID ){
 
-        TIDDetId id = TIDDetId(detid);
+        
 
         //PHI BINNING
         //Select 1st ring
-        if (id.ringNumber() == 1){
+        if (tTopo->tecRing(detid) == 1){
           //SELECT MONO
-          if (id.isFrontRing() == true && id.isStereo() == false) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+          if (tTopo->tecIsFrontPetal(detid) == true && tTopo->tecIsStereo(detid) == false) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
           //SELECT STEREO
-          if (id.isFrontRing() == true && id.isStereo() == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+          if (tTopo->tecIsFrontPetal(detid) == true && tTopo->tecIsStereo(detid) == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
         }
 
         //ETA BINNING
         //Select arbitrary line in eta (phi fixed)
-        if (id.moduleNumber() == 1){
-          m_PhiStripMod_Eta[mylabelHisto][id.ringNumber()-1] = m_PhiStripMod_Eta[mylabelHisto][id.ringNumber()-1] + clustgp.eta();
-          m_PhiStripMod_Nb[mylabelHisto][id.ringNumber()-1]++;
+        if (tTopo->tecModule(detid) == 1){
+          m_PhiStripMod_Eta[mylabelHisto][tTopo->tecRing(detid)-1] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tecRing(detid)-1] + clustgp.eta();
+          m_PhiStripMod_Nb[mylabelHisto][tTopo->tecRing(detid)-1]++;
         }
 
       } //END TID
@@ -751,26 +753,26 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const Trac
       //TOB
       if (detector == GeomDetEnumerators::TOB ){
 
-        TOBDetId id = TOBDetId(detid);
+        
         //PHI BINNING
-        //Select arbitrary line in phi (eta fixed)
-        if (id.moduleNumber() == 1 && id.isZMinusSide() == true){
+        //Select arbitrary line in phi (detid)ta fixed)
+        if (tTopo->tecModule(detid) == 1 && tTopo->tecIsZMinusSide(detid) == true){
           //SELECT MONO
-          if (id.isStereo() == false) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+          if (tTopo->tecIsStereo(detid) == false) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
         }
 
         //ETA BINNING
         //Select arbitrary rod
-        if ( (id.rodNumber() == 2 && id.isStereo() == false)
-             || (id.rodNumber() == 1 && id.isStereo() == true)
+        if ( (tTopo->tobRod(detid) == 2 && tTopo->tobIsStereo(detid) == false)
+             || (tTopo->tobRod(detid) == 1 && tTopo->tobIsStereo(detid) == true)
              ){
-          if (id.isZMinusSide() == true){
-            m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()-1] = m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()-1] + clustgp.eta();
-            m_PhiStripMod_Nb[mylabelHisto][id.moduleNumber()-1]++;
+          if (tTopo->tobIsZMinusSide(detid) == true){
+            m_PhiStripMod_Eta[mylabelHisto][tTopo->tobModule(detid)-1] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tobModule(detid)-1] + clustgp.eta();
+            m_PhiStripMod_Nb[mylabelHisto][tTopo->tobModule(detid)-1]++;
           }
-          if (id.isZMinusSide() == false){
-            m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()+5] = m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()+5] + clustgp.eta();
-            m_PhiStripMod_Nb[mylabelHisto][id.moduleNumber()+5]++;
+          if (tTopo->tobIsZMinusSide(detid) == false){
+            m_PhiStripMod_Eta[mylabelHisto][tTopo->tobModule(detid)+5] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tobModule(detid)+5] + clustgp.eta();
+            m_PhiStripMod_Nb[mylabelHisto][tTopo->tobModule(detid)+5]++;
           }
         }
 
@@ -779,38 +781,38 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const Trac
       //TIB
       if (detector == GeomDetEnumerators::TIB ){
 
-        TIBDetId id = TIBDetId(detid);
+        
 
         //PHI BINNING
         //Select arbitrary line in phi (eta fixed)
-        if (id.moduleNumber() == 1 && id.isZMinusSide() == true){
+        if (tTopo->tibModule(detid) == 1 && tTopo->tibIsZMinusSide(detid) == true){
           //SELECT MONO
-          if (id.isInternalString() == true && id.isStereo() == false) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+          if (tTopo->tibIsInternalString(detid) == true && tTopo->tibIsStereo(detid) == false) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
         }
 
         //ETA BINNING
         //Select arbitrary string
-        if ( (id.stringNumber() == 2 && id.isStereo() == false)
-             || (id.stringNumber() == 1 && id.isStereo() == true)
+        if ( (tTopo->tibString(detid) == 2 && tTopo->tibIsStereo(detid) == false)
+             || (tTopo->tibString(detid) == 1 && tTopo->tibIsStereo(detid) == true)
              ){
-          if (id.isZMinusSide() == true){
-            if (id.isInternalString() == true){
-              m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()-1] = m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()-1] + clustgp.eta();
-              m_PhiStripMod_Nb[mylabelHisto][id.moduleNumber()-1]++;
+          if (tTopo->tibIsZMinusSide(detid) == true){
+            if (tTopo->tibIsInternalString(detid) == true){
+              m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)-1] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)-1] + clustgp.eta();
+              m_PhiStripMod_Nb[mylabelHisto][tTopo->tibModule(detid)-1]++;
             }
-            if (id.isInternalString() == false){
-              m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()+2] = m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()+2] + clustgp.eta();
-              m_PhiStripMod_Nb[mylabelHisto][id.moduleNumber()+2]++;
+            if (tTopo->tibIsInternalString(detid) == false){
+              m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+2] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+2] + clustgp.eta();
+              m_PhiStripMod_Nb[mylabelHisto][tTopo->tibModule(detid)+2]++;
             }
           }
-          if (id.isZMinusSide() == false){
-            if (id.isInternalString() == true){
-              m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()+5] = m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()+5] + clustgp.eta();
-              m_PhiStripMod_Nb[mylabelHisto][id.moduleNumber()+5]++;
+          if (tTopo->tibIsZMinusSide(detid) == false){
+            if (tTopo->tibIsInternalString(detid) == true){
+              m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+5] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+5] + clustgp.eta();
+              m_PhiStripMod_Nb[mylabelHisto][tTopo->tibModule(detid)+5]++;
             }
-            if (id.isInternalString() == false){
-              m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()+8] = m_PhiStripMod_Eta[mylabelHisto][id.moduleNumber()+8] + clustgp.eta();
-              m_PhiStripMod_Nb[mylabelHisto][id.moduleNumber()+8]++;
+            if (tTopo->tibIsInternalString(detid) == false){
+              m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+8] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+8] + clustgp.eta();
+              m_PhiStripMod_Nb[mylabelHisto][tTopo->tibModule(detid)+8]++;
             }
           }
         }
