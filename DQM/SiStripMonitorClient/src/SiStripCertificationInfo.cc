@@ -13,10 +13,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -214,7 +212,7 @@ void SiStripCertificationInfo::endLuminosityBlock(edm::LuminosityBlock const& lu
 
   if (nFEDConnected_ > 0) {
     fillSiStripCertificationMEsAtLumi();  
-    fillTrackingCertificationMEs();
+    fillTrackingCertificationMEs(iSetup);
   }
 }
 
@@ -225,14 +223,14 @@ void SiStripCertificationInfo::endRun(edm::Run const& run, edm::EventSetup const
   edm::LogInfo ("SiStripCertificationInfo") <<"SiStripCertificationInfo:: End Run";
 
   if (nFEDConnected_ > 0) {
-    fillSiStripCertificationMEs();
-    fillTrackingCertificationMEs();
+    fillSiStripCertificationMEs(eSetup);
+    fillTrackingCertificationMEs(eSetup);
   }
 }
 //
 // --Fill Tracking Certification 
 //
-void SiStripCertificationInfo::fillTrackingCertificationMEs() {
+void SiStripCertificationInfo::fillTrackingCertificationMEs(edm::EventSetup const& eSetup) {
   if (!trackingCertificationBooked_) {
     edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillTrackingCertificationMEs : MEs missing ";
     return;
@@ -269,11 +267,15 @@ void SiStripCertificationInfo::fillTrackingCertificationMEs() {
 //
 // --Fill SiStrip Certification 
 //
-void SiStripCertificationInfo::fillSiStripCertificationMEs() {
+void SiStripCertificationInfo::fillSiStripCertificationMEs(edm::EventSetup const& eSetup) {
   if (!sistripCertificationBooked_) {
     edm::LogError("SiStripCertificationInfo") << " SiStripCertificationInfo::fillSiStripCertificationMEs : MEs missing ";
     return;
   }
+
+  edm::ESHandle<TrackerTopology> tTopo;
+  eSetup.get<IdealGeometryRecord>().get(tTopo);
+
   resetSiStripCertificationMEs();
   std::string mdir = "MechanicalView";
   dqmStore_->cd();
@@ -308,7 +310,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs() {
         if ((*im)->kind() != MonitorElement::DQM_KIND_INT ) continue;
 	if ((*im)->getIntValue() == 0) continue; 
         uint32_t detId = atoi((*im)->getName().c_str()); 
-        std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detId, false);
+        std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detId, tTopo, false);
         if (abs(det_layer_pair.second) == ilayer+1) nfaulty_layer++; 
       }
       

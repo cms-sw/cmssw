@@ -9,10 +9,8 @@
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
@@ -287,7 +285,7 @@ void SiStripQualityChecker::resetStatus() {
 //
 // -- Fill Status
 //
-void SiStripQualityChecker::fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling) {
+void SiStripQualityChecker::fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling, const edm::EventSetup& eSetup) {
   if (!bookedStripStatus_ || !bookedTrackingStatus_) bookStatus(dqm_store);
 
   fillDummyStatus();
@@ -295,7 +293,7 @@ void SiStripQualityChecker::fillStatus(DQMStore* dqm_store, const edm::ESHandle<
   fillTrackingStatus(dqm_store);
 
   int faulty_moduleflag  = pSet_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
-  if (faulty_moduleflag) fillFaultyModuleStatus(dqm_store);   
+  if (faulty_moduleflag) fillFaultyModuleStatus(dqm_store, eSetup);   
 }
 //
 // Fill Detector Status
@@ -553,8 +551,12 @@ void SiStripQualityChecker::getModuleStatus(std::vector<MonitorElement*>& layer_
 //
 // -- Create Monitor Elements for Modules
 //
-void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
+void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store, const edm::EventSetup& eSetup) {
   if (badModuleList.size() == 0) return;
+
+  edm::ESHandle<TrackerTopology> tTopo;
+  eSetup.get<IdealGeometryRecord>().get(tTopo);
+
   dqm_store->cd();
   std::string mdir = "MechanicalView";
   if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
@@ -564,7 +566,7 @@ void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store) {
   for (std::map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
     uint32_t detId =  it->first;
     std::string subdet_folder ;
-    folder_organizer.getSubDetFolder(detId,subdet_folder);
+    folder_organizer.getSubDetFolder(detId,tTopo,subdet_folder);
     if (!dqm_store->dirExists(subdet_folder)) {
       subdet_folder = mechanical_dir + subdet_folder.substr(subdet_folder.find("MechanicalView")+14);
       if (!dqm_store->dirExists(subdet_folder)) continue;

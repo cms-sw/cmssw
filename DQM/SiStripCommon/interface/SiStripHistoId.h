@@ -16,13 +16,15 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:51 CET 2006
-// $Id: SiStripHistoId.h,v 1.3 2009/02/18 14:28:02 maborgia Exp $
+// $Id: SiStripHistoId.h,v 1.4 2011/05/31 10:38:46 eulisse Exp $
 //
 
 #include <string>
 #include <boost/cstdint.hpp>
+#include "FWCore/Framework/interface/ESHandle.h"
 
 
+class TrackerTopology;
 class SiStripHistoId
 {
    public:
@@ -31,7 +33,7 @@ class SiStripHistoId
       // generally: histoid = description + separator1 + id_type + separator2 + component_id
       std::string createHistoId(std::string description, std::string id_type, uint32_t component_id);
       std::string createHistoLayer(std::string description, std::string id_type,std::string path, std::string flag);
-      std::string getSubdetid(uint32_t id,bool flag_ring);
+      std::string getSubdetid(uint32_t id, edm::ESHandle<TrackerTopology>& tTopo, bool flag_ring);
       // extract the component_id and the id_type from a histogram id
       uint32_t    getComponentId(std::string histoid);
       std::string getComponentType(std::string histoid);

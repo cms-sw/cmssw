@@ -38,13 +38,13 @@ class SiStripActionExecutor {
  void createSummary(DQMStore* dqm_store);
  void createSummaryOffline(DQMStore* dqm_store);
  void createTkMap(const edm::ParameterSet & tkmapPset, 
-                  DQMStore* dqm_store, std::string& map_type);
+                  DQMStore* dqm_store, std::string& map_type, const edm::EventSetup& eSetup);
  void createOfflineTkMap(const edm::ParameterSet & tkmapPset,
-			 DQMStore* dqm_store, std::string& map_type);
+			 DQMStore* dqm_store, std::string& map_type, const edm::EventSetup& eSetup);
 
  void createStatus(DQMStore* dqm_store);
  void fillDummyStatus();
- void fillStatus(DQMStore* dqm_store, const edm::ESHandle<SiStripDetCabling>& fedcabling);
+ void fillStatus(DQMStore* dqm_store, const edm::ESHandle<SiStripDetCabling>& fedcabling, const edm::EventSetup& eSetup);
  void fillStatusAtLumi(DQMStore* dqm_store);
 
  void createDummyShiftReport();

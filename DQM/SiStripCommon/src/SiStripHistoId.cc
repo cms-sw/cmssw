@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.15 2010/03/27 11:03:34 dutta Exp $
+// $Id: SiStripHistoId.cc,v 1.16 2011/05/31 10:38:46 eulisse Exp $
 //
 
 #include<iostream>
@@ -18,10 +18,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 SiStripHistoId::SiStripHistoId()
 {
@@ -84,7 +82,8 @@ std::string SiStripHistoId::createHistoLayer(std::string description, std::strin
   return local_histo_id;
 }
 
-std::string SiStripHistoId::getSubdetid(uint32_t id,bool flag_ring){  std::string rest1;
+std::string SiStripHistoId::getSubdetid(uint32_t id, edm::ESHandle<TrackerTopology>& tTopo, bool flag_ring){
+  std::string rest1;
   
   const int buf_len = 50;
   char temp_str[buf_len];
@@ -92,22 +91,22 @@ std::string SiStripHistoId::getSubdetid(uint32_t id,bool flag_ring){  std::strin
   StripSubdetector subdet(id);
   if( subdet.subdetId() == StripSubdetector::TIB){
     // ---------------------------  TIB  --------------------------- //
-    TIBDetId tib1 = TIBDetId(id);
-    snprintf(temp_str, buf_len, "TIB__layer__%i", tib1.layer());
+    
+    snprintf(temp_str, buf_len, "TIB__layer__%i", tTopo->tibLayer(id));
   }else if( subdet.subdetId() == StripSubdetector::TID){
     // ---------------------------  TID  --------------------------- //
-    TIDDetId tid1 = TIDDetId(id);
-    if (flag_ring) snprintf(temp_str, buf_len, "TID__side__%i__ring__%i", tid1.side(), tid1.ring());
-    else snprintf(temp_str, buf_len, "TID__side__%i__wheel__%i", tid1.side(), tid1.wheel());
+    
+    if (flag_ring) snprintf(temp_str, buf_len, "TID__side__%i__ring__%i", tTopo->tidSide(id), tTopo->tidRing(id));
+    else snprintf(temp_str, buf_len, "TID__side__%i__wheel__%i", tTopo->tidSide(id), tTopo->tidWheel(id));
   }else if(subdet.subdetId() == StripSubdetector::TOB){ 
     // ---------------------------  TOB  --------------------------- //
-    TOBDetId tob1 = TOBDetId(id);
-    snprintf(temp_str, buf_len, "TOB__layer__%i",tob1.layer()); 
+    
+    snprintf(temp_str, buf_len, "TOB__layer__%i",tTopo->tobLayer(id)); 
   }else if(subdet.subdetId() == StripSubdetector::TEC){
     // ---------------------------  TEC  --------------------------- //
-    TECDetId tec1 = TECDetId(id);
-    if (flag_ring) snprintf(temp_str, buf_len, "TEC__side__%i__ring__%i", tec1.side(), tec1.ring());
-    else snprintf(temp_str, buf_len, "TEC__side__%i__wheel__%i", tec1.side(), tec1.wheel()); 
+    
+    if (flag_ring) snprintf(temp_str, buf_len, "TEC__side__%i__ring__%i", tTopo->tecSide(id), tTopo->tecRing(id));
+    else snprintf(temp_str, buf_len, "TEC__side__%i__wheel__%i", tTopo->tecSide(id), tTopo->tecWheel(id)); 
   }else{
     // ---------------------------  ???  --------------------------- //
     edm::LogError("SiStripTkDQM|WrongInput")<<"no such subdetector type :"<<subdet.subdetId()<<" no folder set!"<<std::endl;

@@ -70,11 +70,11 @@ private:
 
   void bookSiStripCertificationMEs();
   void resetSiStripCertificationMEs();
-  void fillSiStripCertificationMEs();
+  void fillSiStripCertificationMEs(edm::EventSetup const& eSetup);
 
   void bookTrackingCertificationMEs();
   void resetTrackingCertificationMEs();
-  void fillTrackingCertificationMEs();
+  void fillTrackingCertificationMEs(edm::EventSetup const& eSetup);
 
   void fillDummySiStripCertification();
   void fillDummyTrackingCertification();

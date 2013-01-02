@@ -36,6 +36,7 @@
 class DQMStore;
 class MonitorElement;
 class SiStripFedCabling;
+class TrackerTopology;
 
 class SiStripDaqInfo: public edm::EDAnalyzer {
 
@@ -66,11 +67,12 @@ class SiStripDaqInfo: public edm::EDAnalyzer {
 
 
 private:
-  void readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabling);
-  void readSubdetFedFractions(std::vector<int>& fed_ids);
+  void readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabling, edm::EventSetup const& iSetup);
+  void readSubdetFedFractions(std::vector<int>& fed_ids, edm::EventSetup const& iSetup);
   void bookStatus();
   void fillDummyStatus();
-  void findExcludedModule(unsigned short fed_id);
+  void findExcludedModule(unsigned short fed_id, edm::ESHandle<TrackerTopology>& tTopo
+);
 
   std::map<std::string,std::vector<unsigned short> > subDetFedMap;
 

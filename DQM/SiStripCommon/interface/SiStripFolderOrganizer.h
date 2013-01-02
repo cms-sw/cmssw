@@ -17,15 +17,16 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
 
-// $Id: SiStripFolderOrganizer.h,v 1.14 2010/05/06 06:55:40 dutta Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.15 2011/05/31 10:38:46 eulisse Exp $
 
 //
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <string>
 
 class DQMStore;
-
+class TrackerTopology;
 class SiStripFolderOrganizer
 {
 
@@ -60,18 +61,19 @@ class SiStripFolderOrganizer
               // unsigned short i2c
       );
 
-      std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid, bool ring_flag = 0);
+      std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo, bool ring_flag = 0);
       // detector folders
-      void setDetectorFolder(uint32_t rawdetid=0);
-      void getFolderName(int32_t rawdetid, std::string& lokal_folder);
+      void setDetectorFolder(uint32_t rawdetid, edm::ESHandle<TrackerTopology>& tTopo);
+      void getFolderName(int32_t rawdetid, edm::ESHandle<TrackerTopology>& tTopo, std::string& lokal_folder);
+      void getFolderName(int32_t rawdetid, std::string& lokal_folder);  // deprecated version, still needed for now
 
       // layer folders
-      void setLayerFolder(uint32_t rawdetid=0,int32_t layer=0,bool ring_flag = 0);
-      void getLayerFolderName(std::stringstream& ss, uint32_t rawdetid,bool ring_flag = 0);
+      void setLayerFolder(uint32_t rawdetid,edm::ESHandle<TrackerTopology>& tTopo,int32_t layer=0,bool ring_flag = 0);
+      void getLayerFolderName(std::stringstream& ss, uint32_t rawdetid, edm::ESHandle<TrackerTopology>& tTopo, bool ring_flag = 0);
       void getSubDetLayerFolderName(std::stringstream& ss, SiStripDetId::SubDetector subDet, uint32_t layer, uint32_t side=0);
       // SubDetector Folder
-      void getSubDetFolder(const uint32_t& detid, std::string& folder_name);
-      std::pair<std::string, std::string> getSubDetFolderAndTag(const uint32_t& detid);
+      void getSubDetFolder(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo, std::string& folder_name);
+      std::pair<std::string, std::string> getSubDetFolderAndTag(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo);
    private:
       SiStripFolderOrganizer(const SiStripFolderOrganizer&); // stop default
       const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&); // stop default

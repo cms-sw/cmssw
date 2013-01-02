@@ -3,8 +3,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2012/10/30 22:01:24 $
- * $Revision: 1.60 $
+ * $Date: 2012/11/20 11:28:25 $
+ * $Revision: 1.61 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -26,10 +26,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -176,7 +174,7 @@ void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup
       actionExecutor_->fillDummyStatus();
       actionExecutor_->createDummyShiftReport();
     } else {
-      actionExecutor_->fillStatus(dqmStore_, detCabling_);
+      actionExecutor_->fillStatus(dqmStore_, detCabling_, eSetup);
       if (shiftReportFrequency_ != -1) actionExecutor_->createShiftReport(dqmStore_);
     }
   }
@@ -227,7 +225,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   }
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
-    actionExecutor_->fillStatus(dqmStore_, detCabling_);
+    actionExecutor_->fillStatus(dqmStore_, detCabling_, eSetup);
   }
   // -- Create summary monitor elements according to the frequency
   if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%summaryFrequency_ == 0) {
@@ -238,7 +236,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
   if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
     std::cout << " Creating Tracker Map " << std::endl;
     std::string tkmap_type =  sistripWebInterface_->getTkMapType();
-    actionExecutor_->createTkMap(tkMapPSet_, dqmStore_, tkmap_type);
+    actionExecutor_->createTkMap(tkMapPSet_, dqmStore_, tkmap_type, eSetup);
   }
   // Create Shift Report
   //  if (shiftReportFrequency_ != -1 && trackerFEDsFound_ && nLumiSecs_%shiftReportFrequency_  == 0) {

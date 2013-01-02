@@ -3,10 +3,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //
 // Get a list of MEs in a folder
 //
@@ -235,7 +233,7 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
 //
 // -- Get Sub Detector tag from DetId
 //
-void SiStripUtility::getSubDetectorTag(uint32_t det_id, std::string& subdet_tag) {
+void SiStripUtility::getSubDetectorTag(uint32_t det_id, std::string& subdet_tag, edm::ESHandle<TrackerTopology>& tTopo) {
   StripSubdetector subdet(det_id);
   subdet_tag = "";
   switch (subdet.subdetId()) 
@@ -247,10 +245,10 @@ void SiStripUtility::getSubDetectorTag(uint32_t det_id, std::string& subdet_tag)
       }
     case StripSubdetector::TID:
       {
-	TIDDetId tidId(det_id);
-	if (tidId.side() == 2) {
+	
+	if (tTopo->tidSide(det_id) == 2) {
 	  subdet_tag = "TIDF";
-	}  else if (tidId.side() == 1) {
+	}  else if (tTopo->tidSide(det_id) == 1) {
 	  subdet_tag = "TIDB";
 	}
 	break;       
@@ -262,10 +260,10 @@ void SiStripUtility::getSubDetectorTag(uint32_t det_id, std::string& subdet_tag)
       }
     case StripSubdetector::TEC:
       {
-	TECDetId tecId(det_id);
-	if (tecId.side() == 2) {
+	
+	if (tTopo->tecSide(det_id) == 2) {
 	  subdet_tag = "TECF";
-	}  else if (tecId.side() == 1) {
+	}  else if (tTopo->tecSide(det_id) == 1) {
 	  subdet_tag = "TECB";	
 	}
 	break;       

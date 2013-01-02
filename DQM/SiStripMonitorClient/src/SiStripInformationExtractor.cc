@@ -862,3 +862,4 @@ void SiStripInformationExtractor::printNonGeomHistoList(DQMStore * dqm_store, st
   str_val << "</ul> "<< std::endl;  
   str_val << "</li> "<< std::endl;  
 }
+
