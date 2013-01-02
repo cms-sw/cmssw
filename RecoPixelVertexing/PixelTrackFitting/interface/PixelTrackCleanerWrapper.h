@@ -3,6 +3,8 @@
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include  "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 #include <map>
 #include <cassert>
 
@@ -10,7 +12,8 @@ class PixelTrackCleanerWrapper {
 public: 
   PixelTrackCleanerWrapper(PixelTrackCleaner * tc) : theCleaner(tc) {}
   pixeltrackfitting::TracksWithTTRHs clean(
-      const pixeltrackfitting::TracksWithTTRHs & initialT_TTRHs) {
+					   const pixeltrackfitting::TracksWithTTRHs & initialT_TTRHs,
+					   const TrackerTopology *tTopo) {
     
     pixeltrackfitting::TracksWithRecHits initialT_TRHs;
     std::map<const TrackingRecHit *, TransientTrackingRecHit::ConstRecHitPointer> hitMap;
@@ -26,7 +29,7 @@ public:
       initialT_TRHs.push_back( pixeltrackfitting::TrackWithRecHits(it->first, trhs) );
     }
 
-    pixeltrackfitting::TracksWithRecHits finalT_TRHs = theCleaner->cleanTracks(initialT_TRHs);
+    pixeltrackfitting::TracksWithRecHits finalT_TRHs = theCleaner->cleanTracks(initialT_TRHs, tTopo);
     pixeltrackfitting::TracksWithTTRHs finalT_TTRHs;
 
     for (pixeltrackfitting::TracksWithRecHits::const_iterator it = finalT_TRHs.begin(), iend = finalT_TRHs.end(); it < iend; ++it) {

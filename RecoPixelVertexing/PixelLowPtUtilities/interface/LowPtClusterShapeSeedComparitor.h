@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
+class TrackerTopology;
+
 namespace edm { class ParameterSet; class EventSetup; }
 
 class LowPtClusterShapeSeedComparitor : public SeedComparitor
@@ -29,6 +31,7 @@ class LowPtClusterShapeSeedComparitor : public SeedComparitor
  private:
    /// something
    edm::ESHandle<ClusterShapeHitFilter> theShapeFilter;
+   edm::ESHandle<TrackerTopology> theTTopo;
 };
 
 #endif

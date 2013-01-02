@@ -23,8 +23,8 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 
@@ -51,6 +51,11 @@ float spin(float ph)
 ValidHitPairFilter::ValidHitPairFilter
   (const edm::ParameterSet& ps, const edm::EventSetup& es)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
+
   // Get tracker
   edm::ESHandle<TrackerGeometry> trackerHandle;
   es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
@@ -89,11 +94,11 @@ ValidHitPairFilter::ValidHitPairFilter
       det = theTracker->detsPXB().begin();
       det!= theTracker->detsPXB().end(); det++)
   {
-    PXBDetId pid((*det)->geographicalId());
-
-    int il  = pid.layer()  - 1;
-    int irz = pid.module() - 1;
-    int iph = pid.ladder() - 1;
+    
+    DetId pid=(*det)->geographicalId();
+    int il  = tTopo->pxbLayer(pid)  - 1;
+    int irz = tTopo->pxbModule(pid) - 1;
+    int iph = tTopo->pxbLadder(pid) - 1;
   
     rzBounds[il][irz] = (*det)->position().z();
     phBounds[il][iph] = spin((*det)->position().phi());
@@ -106,11 +111,12 @@ ValidHitPairFilter::ValidHitPairFilter
       det = theTracker->detsPXF().begin();
       det!= theTracker->detsPXF().end(); det++)
   {
-    PXFDetId pid((*det)->geographicalId());
+    
 
-    int il  = BPix3 + ((pid.side()  -1) << 1) + (pid.disk() -1);
-    int irz =         ((pid.module()-1) << 1) + (pid.panel()-1);
-    int iph =          (pid.blade() -1);
+    DetId pid=(*det)->geographicalId();
+    int il  = BPix3 + ((tTopo->pxfSide(pid)  -1) << 1) + (tTopo->pxfDisk(pid) -1);
+    int irz =         ((tTopo->pxfModule(pid)-1) << 1) + (tTopo->pxfPanel(pid)-1);
+    int iph =          (tTopo->pxfBlade(pid) -1);
 
     rzBounds[il][irz] = (*det)->position().perp();
     phBounds[il][iph] = spin((*det)->position().phi());
@@ -128,19 +134,19 @@ ValidHitPairFilter::~ValidHitPairFilter()
 {
 }
 /*****************************************************************************/
-int ValidHitPairFilter::getLayer(const TrackingRecHit & recHit) const
+int ValidHitPairFilter::getLayer(const TrackingRecHit & recHit, const TrackerTopology *tTopo) const
 {
   DetId id(recHit.geographicalId());
 
   if(id.subdetId() == int(PixelSubdetector::PixelBarrel))
   {
-    PXBDetId pid(id);
-    return pid.layer();
+    
+    return tTopo->pxbLayer(id);
   }
   else
   {
-    PXFDetId pid(id);
-    return BPix3 + ((pid.side()-1) << 1) + pid.disk();
+    
+    return BPix3 + ((tTopo->pxfSide(id)-1) << 1) + tTopo->pxfDisk(id);
   }
 }
 
@@ -201,7 +207,8 @@ FreeTrajectoryState ValidHitPairFilter::getTrajectory
 vector<const GeomDet *> ValidHitPairFilter::getCloseDets
   (int il,
    float rz, const vector<float>& rzB,
-   float ph, const vector<float>& phB) const
+   float ph, const vector<float>& phB,
+   const TrackerTopology *tTopo) const
 {
   vector<int> rzVec, phVec;
 
@@ -230,24 +237,26 @@ vector<const GeomDet *> ValidHitPairFilter::getCloseDets
       int module = *irz + 1;
 
       LogTrace("MinBiasTracking")
-        << "  [ValidHitPairFilter]  third ("<<layer<< "|"<<ladder<<"|"<<module<<")";
+	<< "  [ValidHitPairFilter]  third ("<<layer<< "|"<<ladder<<"|"<<module<<")";
 
-      PXBDetId id(layer,ladder,module);
+      DetId id=tTopo->pxbDetId(layer,ladder,module);
       dets.push_back(theTracker->idToDet(id));
     }
     else
     {
-      int side   = (il - BPix3) / 2 + 1;
+      int side = (il - BPix3) / 2 +1;  
       int disk   = (il - BPix3) % 2 + 1;
       int blade  =  *iph + 1;
       int panel  = (*irz) % 2 + 1;
       int module = (*irz) / 2 + 1;
 
       LogTrace("MinBiasTracking")
-        << "  [ValidHitPairFilter]  third ("<<side<<"|"<<disk<<"|"<<blade<<"|"<<panel<<"|"<<module<<")";
+	<< "  [ValidHitPairFilter]  third ("<<side<<"|"<<disk<<"|"<<blade<<"|"<<panel<<"|"<<module<<")";
 
-      PXFDetId id(side,disk,blade,panel,module);
+     
+      DetId id=tTopo->pxfDetId(side,disk,blade,panel,module);
       dets.push_back(theTracker->idToDet(id));
+      
     }
   }
 
@@ -256,23 +265,24 @@ vector<const GeomDet *> ValidHitPairFilter::getCloseDets
 
 /*****************************************************************************/
 bool ValidHitPairFilter::operator() 
-  (const reco::Track * track, vector<const TrackingRecHit *> recHits) const
+  (const reco::Track * track, vector<const TrackingRecHit *> recHits,
+   const TrackerTopology *tTopo) const
 {
   bool hasGap = true;
 
   if(recHits.size() == 2)
   {
     LogTrace("MinBiasTracking")
-      << "  [ValidHitPairFilter] pair" << HitInfo::getInfo(*(recHits[0]))
-                                       << HitInfo::getInfo(*(recHits[1]));
+      << "  [ValidHitPairFilter] pair" << HitInfo::getInfo(*(recHits[0]),tTopo)
+      << HitInfo::getInfo(*(recHits[1]),tTopo);
 
     float tol = 0.1; // cm
     float sc  = -1.; // scale, allow 'tol' of edge to count as outside
     LocalError le(tol*tol, tol*tol, tol*tol);
 
     // determine missing layers
-    vector<int> missingLayers = getMissingLayers(getLayer(*(recHits[0])),
-                                                 getLayer(*(recHits[1])));
+    vector<int> missingLayers = getMissingLayers(getLayer(*(recHits[0]),tTopo),
+                                                 getLayer(*(recHits[1]),tTopo));
 
     for(vector<int>::const_iterator missingLayer = missingLayers.begin();
                                     missingLayer!= missingLayers.end();
@@ -315,7 +325,7 @@ bool ValidHitPairFilter::operator()
 
         // check close dets
         vector<const GeomDet *> closeDets =
-          getCloseDets(il, rz ,rzBounds[il], phi,phBounds[il]);
+          getCloseDets(il, rz ,rzBounds[il], phi,phBounds[il], tTopo);
 
         for(vector<const GeomDet *>::const_iterator det = closeDets.begin();
                                                     det!= closeDets.end();

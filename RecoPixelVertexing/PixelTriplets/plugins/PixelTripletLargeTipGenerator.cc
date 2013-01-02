@@ -80,7 +80,12 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 						const edm::EventSetup& es)
 { edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
-  
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
   OrderedHitPairs pairs;
   pairs.reserve(30000);
   thePairGenerator->hitPairs(region,pairs,ev,es);
@@ -106,7 +111,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
     predRZ.line.initTolerance(extraHitRZtolerance);
     predRZ.helix1.initTolerance(extraHitRZtolerance);
     predRZ.helix2.initTolerance(extraHitRZtolerance);
-    predRZ.rzPositionFixup = MatchedHitRZCorrectionFromBending(layer);
+    predRZ.rzPositionFixup = MatchedHitRZCorrectionFromBending(layer,tTopo);
     
     RecHitsSortedInPhi::Range hitRange = thirdHitMap[il]->all(); // Get iterators
     layerTree.clear();
@@ -275,7 +280,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 	hitTree[il].search(phiZ, layerTree);
       }
       
-      MatchedHitRZCorrectionFromBending l2rzFixup(ip->outer()->det()->geographicalId());
+      MatchedHitRZCorrectionFromBending l2rzFixup(ip->outer()->det()->geographicalId(), tTopo);
       MatchedHitRZCorrectionFromBending l3rzFixup = predRZ.rzPositionFixup;
       for (std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> >::iterator ih = layerTree.begin();
 	   ih !=layerTree.end(); ++ih) {
@@ -299,8 +304,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 	double curv_ = predictionRPhi.curvature(thc);
 	double p2_r = point2.r(), p2_z = point2.z();
 
-	l2rzFixup(predictionRPhi, curv_, *ip->outer(), p2_r, p2_z);
-	l3rzFixup(predictionRPhi, curv_, *hit, p3_r, p3_z);
+	l2rzFixup(predictionRPhi, curv_, *ip->outer(), p2_r, p2_z, tTopo);
+	l3rzFixup(predictionRPhi, curv_, *hit, p3_r, p3_z, tTopo);
 
 	Range rangeRZ;
 	if (useBend) {

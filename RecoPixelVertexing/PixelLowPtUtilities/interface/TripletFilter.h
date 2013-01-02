@@ -9,6 +9,7 @@
 namespace edm { class EventSetup; }
 class TrackingRecHit;
 class ClusterShapeHitFilter;
+class TrackerTopology;
 
 class TripletFilter 
 {
@@ -16,9 +17,9 @@ class TripletFilter
   TripletFilter(const edm::EventSetup& es);
   ~TripletFilter();
   bool checkTrack(std::vector<const TrackingRecHit*> recHits,
-                  std::vector<LocalVector> localDirs);
+                  std::vector<LocalVector> localDirs,const TrackerTopology *tTopo);
   bool checkTrack(std::vector<const TrackingRecHit*> recHits,
-                  std::vector<GlobalVector> globalDirs);
+                  std::vector<GlobalVector> globalDirs, const TrackerTopology *tTopo);
 
  private:
   const ClusterShapeHitFilter * theFilter;

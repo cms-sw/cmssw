@@ -12,6 +12,7 @@
 <use   name="RecoLocalTracker/Records"/>
 <use   name="MagneticField/Records"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/TrackerCommon"/>
 <export>
   <lib   name="1"/>
 </export>

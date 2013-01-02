@@ -6,8 +6,8 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 using namespace std;
@@ -16,6 +16,10 @@ using namespace pixeltrackfitting;
 /*****************************************************************************/
 class HitComparatorByRadius
 { // No access to geometry!
+ public:
+  HitComparatorByRadius(const TrackerTopology *tTopo) {tTopo_=tTopo;}
+ private:
+  const TrackerTopology *tTopo_;
  public:
   bool operator() (const TrackingRecHit* a, const TrackingRecHit* b) const
   {
@@ -32,21 +36,15 @@ class HitComparatorByRadius
     {
       if(isBarrel)
       {
-        PXBDetId p1(i1);
-        PXBDetId p2(i2);
-
-        int r1 = (p1.layer() - 1)*2 + (p1.ladder() - 1)%2;
-        int r2 = (p2.layer() - 1)*2 + (p2.ladder() - 1)%2;
+        int r1 = (tTopo_->pxbLayer(i1) - 1)*2 + (tTopo_->pxbLadder(i1) - 1)%2;
+        int r2 = (tTopo_->pxbLayer(i2) - 1)*2 + (tTopo_->pxbLadder(i2) - 1)%2;
 
         return (r1 < r2);
       }
       else
       {
-        PXFDetId p1(i1);
-        PXFDetId p2(i2);
-
-        int r1 = (p1.disk() - 1)*2 + (p1.panel() - 1)%2;
-        int r2 = (p2.disk() - 1)*2 + (p2.panel() - 1)%2;
+        int r1 = (tTopo_->pxfDisk(i1) - 1)*2 + (tTopo_->pxfPanel(i1) - 1)%2;
+        int r2 = (tTopo_->pxfDisk(i2) - 1)*2 + (tTopo_->pxfPanel(i2) - 1)%2;
 
         return (r1 < r2);
       }
@@ -100,40 +98,37 @@ bool TrackCleaner::areSame(const TrackingRecHit * a,
 
 /*****************************************************************************/
 bool TrackCleaner::isCompatible(const DetId & i1,
-                                const DetId & i2)
+                                const DetId & i2,
+				const TrackerTopology *tTopo)
 {
   // different subdet
   if(i1.subdetId() != i2.subdetId()) return true;
 
   if(i1.subdetId() == int(PixelSubdetector::PixelBarrel))
   { // barrel
-    PXBDetId p1(i1);
-    PXBDetId p2(i2);
 
-    if(p1.layer() != p2.layer()) return true;
+    if(tTopo->pxbLayer(i1) != tTopo->pxbLayer(i2)) return true;
 
-    int dphi = abs(int(p1.ladder() - p2.ladder()));
+    int dphi = abs(int(tTopo->pxbLadder(i1) - tTopo->pxbLadder(i2)));
     static int max[3] = {20, 32, 44};
-    if(dphi > max[p1.layer()-1] / 2) dphi = max[p1.layer()-1] - dphi;
+    if(dphi > max[tTopo->pxbLayer(i1)-1] / 2) dphi = max[tTopo->pxbLayer(i1)-1] - dphi;
 
-    int dz   = abs(int(p1.module() - p2.module()));
+    int dz   = abs(int(tTopo->pxbModule(i1) - tTopo->pxbModule(i2)));
 
     if(dphi == 1 && dz <= 1) return true;
   }
   else
   { // endcap
-    PXFDetId p1(i1);
-    PXFDetId p2(i2);
 
-    if(p1.side() != p2.side() ||
-       p1.disk() != p2.disk()) return true;
+    if(tTopo->pxfSide(i1) != tTopo->pxfSide(i2) ||
+       tTopo->pxfDisk(i1) != tTopo->pxfDisk(i2)) return true;
 
-    int dphi = abs(int(p1.blade() - p2.blade()));
+    int dphi = abs(int(tTopo->pxfBlade(i1) - tTopo->pxfBlade(i2)));
     static int max = 24;
     if(dphi > max / 2) dphi = max - dphi;
 
-    int dr   = abs(int( ((p1.module()-1) * 2 + (p1.panel()-1)) -
-                        ((p2.module()-1) * 2 + (p2.panel()-1)) ));
+    int dr   = abs(int( ((tTopo->pxfModule(i1)-1) * 2 + (tTopo->pxfPanel(i1)-1)) -
+                        ((tTopo->pxfModule(i2)-1) * 2 + (tTopo->pxfPanel(i2)-1)) ));
 
     if(dphi <= 1 && dr <= 1 && !(dphi == 0 && dr == 0)) return true;
   }
@@ -144,7 +139,8 @@ bool TrackCleaner::isCompatible(const DetId & i1,
 /*****************************************************************************/
 bool TrackCleaner::canBeMerged
   (vector<const TrackingRecHit *> recHitsA,
-   vector<const TrackingRecHit *> recHitsB)
+   vector<const TrackingRecHit *> recHitsB,
+   const TrackerTopology *tTopo)
 {
  bool ok = true;
 
@@ -154,7 +150,8 @@ bool TrackCleaner::canBeMerged
      recHitB = recHitsB.begin(); recHitB!= recHitsB.end(); recHitB++)
    if(!areSame(*recHitA,*recHitB))
      if(!isCompatible((*recHitA)->geographicalId(),
-                      (*recHitB)->geographicalId()))
+                      (*recHitB)->geographicalId(),
+		      tTopo))
         ok = false;
 
   return ok;
@@ -162,7 +159,7 @@ bool TrackCleaner::canBeMerged
 
 /*****************************************************************************/
 TracksWithRecHits TrackCleaner::cleanTracks
-  (const TracksWithRecHits & tracks_)
+(const TracksWithRecHits & tracks_, const TrackerTopology *tTopo)
 {
   // Local copy
   TracksWithRecHits tracks = tracks_;
@@ -179,7 +176,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
 
   for(unsigned int i = 0; i < tracks.size(); i++)
   LogTrace("TrackCleaner")
-    << "   Track #" << i << " : " << HitInfo::getInfo(tracks[i].second);
+    << "   Track #" << i << " : " << HitInfo::getInfo(tracks[i].second,tTopo);
 
   do
   {
@@ -244,7 +241,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
         if((*sharing).second > min(int(tracks[i].second.size()),
                                    int(tracks[j].second.size()))/2)
         { // more than min(hits1,hits2)/2 rechits are shared
-          if(canBeMerged(tracks[i].second,tracks[j].second))
+          if(canBeMerged(tracks[i].second,tracks[j].second,tTopo))
           { // no common layer
             // merge tracks, add separate hits of the second to the first one
             for(vector<const TrackingRecHit *>::const_iterator
@@ -264,7 +261,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
 
                 sort(tracks[i].second.begin(),
                      tracks[i].second.end(),
-                     HitComparatorByRadius());
+                     HitComparatorByRadius(tTopo));
 
                 //addedNewHit = true;
               }
@@ -354,7 +351,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
 
   for(unsigned int i = 0; i < cleaned.size(); i++)
   LogTrace("TrackCleaner")
-    << "   Track #" << i << " : " << HitInfo::getInfo(cleaned[i].second);
+    << "   Track #" << i << " : " << HitInfo::getInfo(cleaned[i].second,tTopo);
 
   return cleaned;
 }

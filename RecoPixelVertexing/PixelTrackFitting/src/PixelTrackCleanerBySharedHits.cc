@@ -3,6 +3,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 using namespace std;
 using namespace reco;
@@ -14,7 +15,8 @@ PixelTrackCleanerBySharedHits::PixelTrackCleanerBySharedHits( const edm::Paramet
 PixelTrackCleanerBySharedHits::~PixelTrackCleanerBySharedHits()
 {}
 
-TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRecHits & trackHitPairs)
+TracksWithRecHits PixelTrackCleanerBySharedHits::cleanTracks(const TracksWithRecHits & trackHitPairs,
+							     const TrackerTopology *tTopo)
 {
   typedef std::vector<const TrackingRecHit *> RecHits;
   trackOk.clear();

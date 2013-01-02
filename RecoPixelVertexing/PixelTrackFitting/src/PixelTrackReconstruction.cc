@@ -103,6 +103,11 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(ev,es);
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
   if (theFilter) theFilter->update(ev);
 
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
@@ -139,7 +144,7 @@ void PixelTrackReconstruction::run(TracksWithTTRHs& tracks, edm::Event& ev, cons
   }
 
   // skip ovelrapped tracks
-  if (theCleaner) tracks = PixelTrackCleanerWrapper(theCleaner).clean(tracks);
+  if (theCleaner) tracks = PixelTrackCleanerWrapper(theCleaner).clean(tracks,tTopo);
 
   // clean memory
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);

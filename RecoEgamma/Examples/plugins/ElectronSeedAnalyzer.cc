@@ -33,12 +33,8 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -186,6 +182,11 @@ ElectronSeedAnalyzer::~ElectronSeedAnalyzer()
 
 void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
 
   edm::ESHandle<TrackerGeometry> pDD ;
   edm::ESHandle<MagneticField> theMagField ;
@@ -368,44 +369,44 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       switch (seedSubdet1[is]) {
         case 1:
 	  {
-	  PXBDetId pxbid1( id1.rawId() );
-	  seedLayer1[is] = pxbid1.layer();
+	  
+	  seedLayer1[is] = tTopo->pxbLayer( id1);
 	  seedSide1[is] = 0;
 	  break;
 	  }
         case 2:
 	{
-	  PXFDetId pxfid1( id1.rawId() );
-	  seedLayer1[is] = pxfid1.disk();
-	  seedSide1[is] = pxfid1.side();
+	  
+	  seedLayer1[is] = tTopo->pxfDisk( id1);
+	  seedSide1[is] = tTopo->pxfSide( id1);
 	  break;
 	  }
         case 3:
 	  {
-	  TIBDetId tibid1( id1.rawId() );
-	  seedLayer1[is] = tibid1.layer();
+	  
+	  seedLayer1[is] = tTopo->tibLayer( id1);
 	  seedSide1[is] = 0;
 	  break;
 	  }
         case 4:
 	  {
-	  TIDDetId tidid1( id1.rawId() );
-	  seedLayer1[is] = tidid1.wheel();
-	  seedSide1[is] = tidid1.side();
+	  
+	  seedLayer1[is] = tTopo->tidWheel( id1);
+	  seedSide1[is] = tTopo->tidSide( id1);
 	  break;
 	  }
         case 5:
 	  {
-	  TOBDetId tobid1( id1.rawId() );
-	  seedLayer1[is] = tobid1.layer();
+	  
+	  seedLayer1[is] = tTopo->tobLayer( id1);
 	  seedSide1[is] = 0;
 	  break;
 	  }
         case 6:
 	  {
-	  TECDetId tecid1( id1.rawId() );
-	  seedLayer1[is] = tecid1.wheel();
-	  seedSide1[is] = tecid1.side();
+	  
+	  seedLayer1[is] = tTopo->tecWheel( id1);
+	  seedSide1[is] = tTopo->tecSide( id1);
 	  break;
 	  }
       }
@@ -417,44 +418,44 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       switch (seedSubdet2[is]) {
         case 1:
 	  {
-	  PXBDetId pxbid2( id2.rawId() );
-	  seedLayer2[is] = pxbid2.layer();
+	  
+	  seedLayer2[is] = tTopo->pxbLayer( id2);
 	  seedSide2[is] = 0;
 	  break;
 	  }
         case 2:
 	  {
-	  PXFDetId pxfid2( id2.rawId() );
-	  seedLayer2[is] = pxfid2.disk();
-	  seedSide2[is] = pxfid2.side();
+	  
+	  seedLayer2[is] = tTopo->pxfDisk( id2);
+	  seedSide2[is] = tTopo->pxfSide( id2);
 	  break;
 	  }
         case 3:
 	  {
-	  TIBDetId tibid2( id2.rawId() );
-	  seedLayer2[is] = tibid2.layer();
+	  
+	  seedLayer2[is] = tTopo->tibLayer( id2);
 	  seedSide2[is] = 0;
 	  break;
 	  }
         case 4:
 	  {
-	  TIDDetId tidid2( id2.rawId() );
-	  seedLayer2[is] = tidid2.wheel();
-	  seedSide2[is] = tidid2.side();
+	  
+	  seedLayer2[is] = tTopo->tidWheel( id2);
+	  seedSide2[is] = tTopo->tidSide( id2);
 	  break;
 	  }
         case 5:
 	  {
-	  TOBDetId tobid2( id2.rawId() );
-	  seedLayer2[is] = tobid2.layer();
+	  
+	  seedLayer2[is] = tTopo->tobLayer( id2);
 	  seedSide2[is] = 0;
 	  break;
 	  }
         case 6:
 	  {
-	  TECDetId tecid2( id2.rawId() );
-	  seedLayer2[is] = tecid2.wheel();
-	  seedSide2[is] = tecid2.side();
+	  
+	  seedLayer2[is] = tTopo->tecWheel( id2);
+	  seedSide2[is] = tTopo->tecSide( id2);
 	  break;
 	  }
       }

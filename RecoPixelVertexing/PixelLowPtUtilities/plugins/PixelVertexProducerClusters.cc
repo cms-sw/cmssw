@@ -19,7 +19,8 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
@@ -93,6 +94,11 @@ int PixelVertexProducerClusters::getContainedHits
 void PixelVertexProducerClusters::produce
   (edm::Event& ev, const edm::EventSetup& es)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
+
   // Get pixel hit collections
   edm::Handle<SiPixelRecHitCollection> pixelColl;
   ev.getByLabel("siPixelRecHits",      pixelColl);
@@ -134,7 +140,7 @@ void PixelVertexProducerClusters::produce
         if(!pixelOnEdge)
         if(id.subdetId() == int(PixelSubdetector::PixelBarrel))  
         {
-          PXBDetId pid(id);
+          
  
           LocalPoint lpos = LocalPoint(recHit->localPosition().x(),
                                        recHit->localPosition().y(),

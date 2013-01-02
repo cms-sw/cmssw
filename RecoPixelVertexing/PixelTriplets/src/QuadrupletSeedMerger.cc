@@ -1,5 +1,7 @@
 
 #include "RecoPixelVertexing/PixelTriplets/interface/QuadrupletSeedMerger.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 #include <time.h>
 
 /***
@@ -65,6 +67,11 @@ QuadrupletSeedMerger::~QuadrupletSeedMerger() {
 
 //const std::vector<SeedingHitSet> QuadrupletSeedMerger::mergeTriplets( const OrderedSeedingHits& inputTriplets, const edm::EventSetup& es ) {
 const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeedingHits& inputTriplets, const edm::EventSetup& es ) {
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
   
   // the list of layers on which quadruplets should be formed
   edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
@@ -190,12 +197,12 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
 	    // do both triplets have shared hits on these two layers?
 	    if( isTripletsShareHitsOnLayers( (tripletCache[t1]), (tripletCache[t2]), 
 					     currentLayers[s1],
-					     currentLayers[s2], sharedHits ) ) {
+					     currentLayers[s2], sharedHits, tTopo ) ) {
 
 	      // are the remaining hits on different layers?
 	      if( isMergeableHitsInTriplets( (tripletCache[t1]), (tripletCache[t2]), 
 					     currentLayers[nonSharedLayerNums[0]],
-					     currentLayers[nonSharedLayerNums[1]], nonSharedHits ) ) {
+					     currentLayers[nonSharedLayerNums[1]], nonSharedHits, tTopo ) ) {
 
 
 		std::vector<TransientTrackingRecHit::ConstRecHitPointer> unsortedHits=mySort(sharedHits.first,
@@ -204,7 +211,7 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
 											     nonSharedHits.second);
 
 		//start here with old addtoresult
-		if( isValidQuadruplet( unsortedHits, currentLayers ) ) {
+		if( isValidQuadruplet( unsortedHits, currentLayers, tTopo ) ) {
 		  // and create the quadruplet
 		  SeedingHitSet quadruplet(unsortedHits[0],unsortedHits[1],unsortedHits[2],unsortedHits[3]);
 		  
@@ -514,7 +521,8 @@ void QuadrupletSeedMerger::setAddRemainingTriplets( bool isAddTriplets ) {
 ///  1. after sorting, hits must be on layers according to the 
 ///     order given in PixelSeedMergerQuadruplets (from cfg)
 ///
-bool QuadrupletSeedMerger::isValidQuadruplet( std::vector<TransientTrackingRecHit::ConstRecHitPointer> &quadruplet, const std::vector<SeedMergerPixelLayer>& layers ) const {
+bool QuadrupletSeedMerger::isValidQuadruplet( std::vector<TransientTrackingRecHit::ConstRecHitPointer> &quadruplet, const std::vector<SeedMergerPixelLayer>& layers,
+					      const TrackerTopology *tTopo) const {
 
   const unsigned int quadrupletSize = quadruplet.size();
 
@@ -527,7 +535,7 @@ bool QuadrupletSeedMerger::isValidQuadruplet( std::vector<TransientTrackingRecHi
 
   // go along layers and check if all (parallel) quadruplet hits match
   for( unsigned int index = 0; index < quadrupletSize; ++index ) {
-    if( ! layers[index].isContainsDetector( quadruplet[index]->geographicalId() ) ) {
+    if( ! layers[index].isContainsDetector( quadruplet[index]->geographicalId(), tTopo ) ) {
       return false;
     }
   }
@@ -545,7 +553,8 @@ bool QuadrupletSeedMerger::isValidQuadruplet( std::vector<TransientTrackingRecHi
 ///
 bool QuadrupletSeedMerger::isTripletsShareHitsOnLayers( const SeedingHitSet& firstTriplet, const SeedingHitSet& secondTriplet, 
 							const SeedMergerPixelLayer &shared1, const SeedMergerPixelLayer &shared2,
-  std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits ) const {
+							std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits,
+							const TrackerTopology *tTopo ) const {
 
   bool isSuccess1[2],isSuccess2[2];
   isSuccess1[0]=false;
@@ -563,7 +572,7 @@ bool QuadrupletSeedMerger::isTripletsShareHitsOnLayers( const SeedingHitSet& fir
       DetId const& thisDetId = firstTriplet[index]->hit()->geographicalId();
       
       if( ! isSuccess1[0] ) { // first triplet on shared layer 1
-	if( shared1.isContainsDetector( thisDetId ) ) {
+	if( shared1.isContainsDetector( thisDetId, tTopo ) ) {
 	  isSuccess1[0] = true;
 	  firsthit = true;
 	  hitsTriplet1.first = firstTriplet[index];
@@ -571,7 +580,7 @@ bool QuadrupletSeedMerger::isTripletsShareHitsOnLayers( const SeedingHitSet& fir
       }
       
       if ( (! firsthit) && (! isSuccess1[1] ) && ((index !=3) || isSuccess1[0]) ) { // first triplet on shared layer 2
-	if( shared2.isContainsDetector( thisDetId ) ) {
+	if( shared2.isContainsDetector( thisDetId, tTopo ) ) {
 	  isSuccess1[1] = true;
 	  hitsTriplet1.second = firstTriplet[index];
 	}
@@ -586,7 +595,7 @@ bool QuadrupletSeedMerger::isTripletsShareHitsOnLayers( const SeedingHitSet& fir
 	DetId const& thisDetId = secondTriplet[index]->hit()->geographicalId();
 	
 	if( ! isSuccess2[0] ) { // second triplet on shared layer 1
-	  if( shared1.isContainsDetector( thisDetId ) ) {
+	  if( shared1.isContainsDetector( thisDetId, tTopo ) ) {
 	    isSuccess2[0] = true;
 	    firsthit = true;
 	    hitsTriplet2.first = secondTriplet[index];
@@ -594,7 +603,7 @@ bool QuadrupletSeedMerger::isTripletsShareHitsOnLayers( const SeedingHitSet& fir
 	}
 	
 	if( (! firsthit) && (! isSuccess2[1]) && ((index !=3) || isSuccess2[0]) ) { // second triplet on shared layer 2
-	  if( shared2.isContainsDetector( thisDetId ) ) {
+	  if( shared2.isContainsDetector( thisDetId, tTopo ) ) {
 	    isSuccess2[1] = true;
 	    hitsTriplet2.second = secondTriplet[index];
 	  }
@@ -627,20 +636,21 @@ bool QuadrupletSeedMerger::isTripletsShareHitsOnLayers( const SeedingHitSet& fir
 /// and return the hits on those layers (unsorted)
 bool QuadrupletSeedMerger::isMergeableHitsInTriplets( const SeedingHitSet& firstTriplet, const SeedingHitSet& secondTriplet, 
 						      const SeedMergerPixelLayer &nonShared1, const SeedMergerPixelLayer &nonShared2,
-   std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits ) const {
+						      std::pair<TransientTrackingRecHit::ConstRecHitPointer,TransientTrackingRecHit::ConstRecHitPointer>& hits,
+						      const TrackerTopology *tTopo ) const {
 
   // check if firstTriplet and secondTriplet have hits on sharedLayers
   for( unsigned int index1 = 0; index1 < 3; ++index1 ) {
     
     { // first triplet on non-shared layer 1
       DetId const& aDetId = firstTriplet[index1]->hit()->geographicalId();
-      if( nonShared1.isContainsDetector( aDetId ) ) {
+      if( nonShared1.isContainsDetector( aDetId, tTopo ) ) {
 	
 	// look for hit in other (second) triplet on other layer
 	for( unsigned int index2 = 0; index2 < 3; ++index2 ) {
 	  
 	  DetId const& anotherDetId = secondTriplet[index2]->hit()->geographicalId();
-	  if( nonShared2.isContainsDetector( anotherDetId ) ) {
+	  if( nonShared2.isContainsDetector( anotherDetId, tTopo ) ) {
 	    
 	    // ok!
 	    hits.first  = firstTriplet[index1];
@@ -656,13 +666,13 @@ bool QuadrupletSeedMerger::isMergeableHitsInTriplets( const SeedingHitSet& first
 
     { // second triplet on non-shared layer 1
       DetId const& aDetId = secondTriplet[index1]->hit()->geographicalId();
-      if( nonShared1.isContainsDetector( aDetId ) ) {
+      if( nonShared1.isContainsDetector( aDetId, tTopo ) ) {
 	
 	// look for hit in other (second) triplet on other layer
 	for( unsigned int index2 = 0; index2 < 3; ++index2 ) {
 	  
 	  DetId const& anotherDetId = firstTriplet[index2]->hit()->geographicalId();
-	  if( nonShared2.isContainsDetector( anotherDetId ) ) {
+	  if( nonShared2.isContainsDetector( anotherDetId, tTopo ) ) {
 	    
 	    // ok!
 	    hits.first  = firstTriplet[index1];
@@ -748,7 +758,7 @@ bool SeedMergerPixelLayer::isValidName( const std::string& name ) {
 /// check if the layer or disk described by this object
 /// is the one carrying the detector: detId
 ///
-bool SeedMergerPixelLayer::isContainsDetector( const DetId& detId ) const {
+bool SeedMergerPixelLayer::isContainsDetector( const DetId& detId, const TrackerTopology *tTopo ) const {
 
   PixelSubdetector::SubDetector subdet = getSubdet();
 
@@ -757,17 +767,16 @@ bool SeedMergerPixelLayer::isContainsDetector( const DetId& detId ) const {
     
     // same barrel layer?
     if( PixelSubdetector::PixelBarrel == subdet ) {
-      const PXBDetId cmssw_numbering(detId);
-      if (cmssw_numbering.layer() == getLayerNumber()) {
+      if (tTopo->pxbLayer(detId) == getLayerNumber()) {
 	return true;
       }
     }
     
     // same endcap disk?
     else if( PixelSubdetector::PixelEndcap == subdet ) {
-      PXFDetId px_numbering(detId);
-      if (px_numbering.disk() == getLayerNumber()) {
-	if (px_numbering.side() == (unsigned)getSide()) {
+      
+      if (tTopo->pxfDisk(detId) == getLayerNumber()) {
+	if (tTopo->pxfSide(detId) == (unsigned)getSide()) {
 	  return true;
 	}
       }

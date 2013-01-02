@@ -15,6 +15,7 @@ class MagneticField;
 class Propagator;
 class DetLayer;
 class GeomDet;
+class TrackerTopology;
 
 class ValidHitPairFilter : public PixelTrackFilter 
 {
@@ -22,15 +23,16 @@ public:
   ValidHitPairFilter(const edm::ParameterSet& ps, const edm::EventSetup& es);
   virtual ~ValidHitPairFilter();
   virtual bool operator()(const reco::Track * track,
-                          std::vector<const TrackingRecHit *> recHits) const;
+                          std::vector<const TrackingRecHit *> recHits,
+			  const TrackerTopology *tTopo) const;
 
 private:
-  int getLayer(const TrackingRecHit & recHit) const;
+  int getLayer(const TrackingRecHit & recHit, const TrackerTopology *tTopo) const;
   std::vector<int> getMissingLayers(int a, int b) const;
   FreeTrajectoryState getTrajectory(const reco::Track & track) const;
   std::vector<const GeomDet *> getCloseDets
     (int il, float rz, const std::vector<float>& rzB,
-             float ph, const std::vector<float>& phB) const;
+     float ph, const std::vector<float>& phB, const TrackerTopology *tTopo) const;
 
   const TrackerGeometry * theTracker;
   const GeometricSearchTracker * theGSTracker;
