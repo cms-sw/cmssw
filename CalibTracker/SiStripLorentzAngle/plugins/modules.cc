@@ -1,4 +1,3 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Utilities/interface/typelookup.h"
