@@ -171,7 +171,7 @@ void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const& eSe
   if(monitorPedestals_)      { pedestalsDQM_     ->analysisOnDemand(eSetup,requestedDetId);}
   if(monitorNoises_)         { noisesDQM_        ->analysisOnDemand(eSetup,requestedDetId);}    
   if(monitorQuality_)        { qualityDQM_       ->analysisOnDemand(eSetup,requestedDetId);
-                              qualityDQM_       ->fillGrandSummaryMEs()                  ;}//fillGrand. for SiStripquality
+                              qualityDQM_       ->fillGrandSummaryMEs(eSetup)                  ;}//fillGrand. for SiStripquality
   if(monitorApvGains_)       { apvgainsDQM_      ->analysisOnDemand(eSetup,requestedDetId);} 
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysisOnDemand(eSetup,requestedDetId);} 
   if(monitorCabling_)        { cablingDQM_       ->analysisOnDemand(eSetup,requestedDetId);}   
@@ -190,7 +190,7 @@ void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const& e
   if(monitorPedestals_)      { pedestalsDQM_     ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
   if(monitorNoises_)         { noisesDQM_        ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}    
   if(monitorQuality_)        { qualityDQM_       ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);
-  qualityDQM_       ->fillGrandSummaryMEs();}
+  qualityDQM_       ->fillGrandSummaryMEs(eSetup);}
   if(monitorApvGains_)       { apvgainsDQM_      ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);} 
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);} 
   if(monitorCabling_)        { cablingDQM_       ->analysisOnDemand(eSetup,requestedSubDetector, requestedSide,requestedLayer);}
@@ -206,7 +206,7 @@ void SiStripClassToMonitorCondData::analyseCondData(edm::EventSetup const& eSetu
 
   if(monitorPedestals_)      { pedestalsDQM_     ->analysis(eSetup);}
   if(monitorNoises_)         { noisesDQM_        ->analysis(eSetup);}    
-  if(monitorQuality_)        { qualityDQM_       ->analysis(eSetup); qualityDQM_->fillGrandSummaryMEs();}//fillGrand. for SiStripquality
+  if(monitorQuality_)        { qualityDQM_       ->analysis(eSetup); qualityDQM_->fillGrandSummaryMEs(eSetup);}//fillGrand. for SiStripquality
   if(monitorApvGains_)       { apvgainsDQM_      ->analysis(eSetup);} 
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysis(eSetup);} 
   if(monitorCabling_)        { cablingDQM_       ->analysis(eSetup);}   

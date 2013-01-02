@@ -64,8 +64,8 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
 
   selectModules(activeDetIds);
 
-  if(Mod_On_ )                                            { fillModMEs(activeDetIds); }
-  if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds);}
+  if(Mod_On_ )                                            { fillModMEs(activeDetIds, eSetup_); }
+  if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds, eSetup_);}
 
   std::string filename = hPSet_.getParameter<std::string>("TkMapName");
   if (filename!=""){
@@ -125,7 +125,7 @@ void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, ui
   std::vector<uint32_t> vdetIdsOnDemand_;
   vdetIdsOnDemand_.push_back(detIdOnDemand); // fillModMEs needs a vector 
 
-  fillModMEs(vdetIdsOnDemand_); 
+  fillModMEs(vdetIdsOnDemand_, eSetup_); 
   
 }
 // -----
@@ -140,7 +140,7 @@ void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, st
   getConditionObject(eSetup_);
   
 
-  fillSummaryMEs(detIdsOnDemand); 
+  fillSummaryMEs(detIdsOnDemand, eSetup_); 
   
 }
 // -----
@@ -311,7 +311,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
 
 //=================================================
 // -----
-void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_){
+void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
   
   std::map< uint32_t, ModMEs >::const_iterator ModMEsMap_iter = ModMEsMap_.find(detId_);
 
@@ -336,12 +336,12 @@ void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_
   
   // --> profile defined for all CondData
   if ( (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyProfile")) {
-    bookProfileMEs(CondObj_ME,detId_);
+    bookProfileMEs(CondObj_ME,detId_,tTopo);
   }  
   
   // --> cumul currently only defined for noise and apvgain
   if( (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul" )
-      &&(CondObj_name_ == "noise" || CondObj_name_ == "apvgain")          ) bookCumulMEs(CondObj_ME,detId_);
+      &&(CondObj_name_ == "noise" || CondObj_name_ == "apvgain")          ) bookCumulMEs(CondObj_ME,detId_,tTopo);
   
  
   ModMEsMap_.insert( std::make_pair(detId_,CondObj_ME) );
@@ -352,15 +352,15 @@ void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_
 //===============================================
 // -----
 //%FIXME: very long method, factorize
-void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& detId_){
+void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
 
   std::map<uint32_t, ModMEs>::const_iterator SummaryMEsMap_iter;
 
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_ ){
-    SummaryMEsMap_iter = SummaryMEsMap_.find(getStringNameAndId(detId_).second);
+    SummaryMEsMap_iter = SummaryMEsMap_.find(getStringNameAndId(detId_,tTopo).second);
   }
   else {
-    SummaryMEsMap_iter = SummaryMEsMap_.find(getLayerNameAndId(detId_).second);
+    SummaryMEsMap_iter = SummaryMEsMap_.find(getLayerNameAndId(detId_,tTopo).second);
   }
    
   if (SummaryMEsMap_iter != SummaryMEsMap_.end()){ return;}
@@ -377,7 +377,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
       CondObj_name_ == "apvgain"       || 
       CondObj_name_ == "lorentzangle") ) {
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
-      if (!CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_); }
+      if (!CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_,tTopo); }
   }    
     
   // --> currently only genuine cumul LA
@@ -386,7 +386,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
 	 CondObj_name_ == "lorentzangle" ||  
 	 CondObj_name_ == "noise")  ) {
     if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel"))
-      if (!CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_); } 
+      if (!CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_,tTopo); } 
   } 
                           
   // --> currently only summary as a function of detId for noise, pedestal and apvgain 
@@ -397,16 +397,16 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
 	   CondObj_name_ == "pedestal"      || 
 	   CondObj_name_ == "quality"           ) {
     if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel"))          
-      if (!CondObj_ME.SummaryDistr) { bookSummaryMEs(CondObj_ME,detId_); } 
+      if (!CondObj_ME.SummaryDistr) { bookSummaryMEs(CondObj_ME,detId_,tTopo); } 
     
   } 
                           
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) {
     //FIXME getStringNameandId takes time. not need to call it every timne. put the call at the beginning of the method and caache the string 
-    SummaryMEsMap_.insert( std::make_pair(getStringNameAndId(detId_).second,CondObj_ME) );
+    SummaryMEsMap_.insert( std::make_pair(getStringNameAndId(detId_,tTopo).second,CondObj_ME) );
   }
   else {
-    SummaryMEsMap_.insert( std::make_pair(getLayerNameAndId(detId_).second,CondObj_ME) );
+    SummaryMEsMap_.insert( std::make_pair(getLayerNameAndId(detId_,tTopo).second,CondObj_ME) );
   }
 
 }
@@ -414,7 +414,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
 
 //====================================================
 // -----
-void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
+void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
      
   int   hProfile_NchX  = 0;
   double hProfile_LowX  = 0;
@@ -444,7 +444,7 @@ void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
     hProfile_HighX          = nApv+0.5;
   }
       
-  folder_organizer.setDetectorFolder(detId_); 
+  folder_organizer.setDetectorFolder(detId_,tTopo); 
       
   std::string hProfile_Name; 
   hProfile_Name = hidmanager.createHistoId(hProfile_description, "det", detId_);
@@ -463,7 +463,7 @@ void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
 
 //=============================================      
 // -----
-void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
+void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
 
   int    hCumul_NchX    = 0;
   double hCumul_LowX    = 0;
@@ -480,7 +480,7 @@ void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_
   hCumul_LowX          = hPSet_.getParameter<double>("Cumul_LowX");
   hCumul_HighX         = hPSet_.getParameter<double>("Cumul_HighX");
       
-  folder_organizer.setDetectorFolder(detId_); 
+  folder_organizer.setDetectorFolder(detId_,tTopo); 
       
   std::string hCumul_name; 
   hCumul_name   = hidmanager.createHistoId(hCumul_description  , "det", detId_); ;
@@ -504,7 +504,7 @@ void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_
 //===========================================
 // -----
 //#FIXME: same comments: factorize, and remove any reference to derived classes
-void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
+void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
   
   std::vector<uint32_t> sameLayerDetIds_;
 
@@ -527,8 +527,8 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   
   int nStrip, nApv, layerId_;    
   
-  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { layerId_= getStringNameAndId(detId_).second;}
-  else                                                          { layerId_= getLayerNameAndId(detId_).second;}
+  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { layerId_= getStringNameAndId(detId_,tTopo).second;}
+  else                                                          { layerId_= getLayerNameAndId(detId_,tTopo).second;}
 
 
   if( CondObj_name_ == "pedestal" || CondObj_name_ == "noise"|| CondObj_name_ == "lowthreshold" || CondObj_name_ == "highthreshold" ){ // plot in strip number
@@ -555,13 +555,13 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     sameLayerDetIds_.clear();
   
     if(subDetId_==3){  //  TIB
-      substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_,TIBDetId(detId_).layerNumber(),0,0,TIBDetId(detId_).stringNumber());  
+      substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_,tTopo->tibLayer(detId_),0,0,tTopo->tibString(detId_));  
     }
     else if(subDetId_==4){  // TID
       substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_,0,0,0,0);
     }
     else if(subDetId_==5){  // TOB
-      substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(detId_).layerNumber(),0,0);
+      substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tobLayer(detId_),0,0);
     }
     else if(subDetId_==6){  // TEC
       substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
@@ -583,16 +583,16 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     sameLayerDetIds_.clear(); 
     
     if(subDetId_==3){  //  TIB    
-      if(TIBDetId(detId_).isInternalString()){
-      	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, TIBDetId(detId_).layerNumber(),0,1,TIBDetId(detId_).stringNumber()); }
-      else if(TIBDetId(detId_).isExternalString()){
-	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, TIBDetId(detId_).layerNumber(),0,2,TIBDetId(detId_).stringNumber()); }
+      if(tTopo->tibIsInternalString(detId_)){
+      	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tibLayer(detId_),0,1,tTopo->tibString(detId_)); }
+      else if(tTopo->tibIsExternalString(detId_)){
+	substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tibLayer(detId_),0,2,tTopo->tibString(detId_)); }
     }
     else if(subDetId_==4){  // TID
       substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0);
     }
     else if(subDetId_==5){  // TOB
-      substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(detId_).layerNumber(),0,TOBDetId(detId_).rodNumber());
+      substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, tTopo->tobLayer(detId_),0,tTopo->tobRod(detId_));
     }
     else if(subDetId_==6){  // TEC
       substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
@@ -625,9 +625,9 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   
   uint32_t layer_=0;
       
-  layer_ = folder_organizer.GetSubDetAndLayer(detId_).second;
+  layer_ = folder_organizer.GetSubDetAndLayer(detId_, tTopo).second;
       
-  folder_organizer.setLayerFolder(detId_,layer_); 
+  folder_organizer.setLayerFolder(detId_,tTopo,layer_); 
       
   std::string hSummaryOfProfile_name; 
   
@@ -645,10 +645,10 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   // ---
   
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { 
-    hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer" , getStringNameAndId(detId_).first,"") ;
+    hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer" , getStringNameAndId(detId_,tTopo).first,"") ;
   }
   else {
-    hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer" , getLayerNameAndId(detId_).first,"") ;
+    hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer" , getLayerNameAndId(detId_,tTopo).first,"") ;
   }
       
   std::string hSummaryOfProfile_title;
@@ -701,15 +701,15 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
       // Label with module position instead of detIds:
 	   char sameLayerDetIds_Name[1024];
 	   if(subdetectorId_==3){//re-abelling for TIB
-	     if(TIBDetId(sameLayerDetIds_[i]).isZPlusSide()){
-	       sprintf(sameLayerDetIds_Name,"%i",TIBDetId(sameLayerDetIds_[i]).module());}
-	     else if(TIBDetId(sameLayerDetIds_[i]).isZMinusSide()){
-	       sprintf(sameLayerDetIds_Name,"%i",-TIBDetId(sameLayerDetIds_[i]).module());}
+	     if(tTopo->tibIsZPlusSide(sameLayerDetIds_[i])){
+	       sprintf(sameLayerDetIds_Name,"%i",tTopo->tibModule(sameLayerDetIds_[i]));}
+	     else if(tTopo->tibIsZMinusSide(sameLayerDetIds_[i])){
+	       sprintf(sameLayerDetIds_Name,"%i",-tTopo->tibModule(sameLayerDetIds_[i]));}
 	     CondObj_ME.SummaryOfProfileDistr->setBinLabel(iBin, sameLayerDetIds_Name);
 	   }
 	   else if(subdetectorId_==5){//re-abelling for TOB
-	     if(TOBDetId(sameLayerDetIds_[i]).isZPlusSide())      { sprintf(sameLayerDetIds_Name,"%i",TOBDetId(sameLayerDetIds_[i]).module());}
-	     else if(TOBDetId(sameLayerDetIds_[i]).isZMinusSide()) { sprintf(sameLayerDetIds_Name,"%i",-TOBDetId(sameLayerDetIds_[i]).module());}
+	     if(tTopo->tobIsZPlusSide(sameLayerDetIds_[i]))      { sprintf(sameLayerDetIds_Name,"%i",tTopo->tobModule(sameLayerDetIds_[i]));}
+	     else if(tTopo->tobIsZMinusSide(sameLayerDetIds_[i])) { sprintf(sameLayerDetIds_Name,"%i",-tTopo->tobModule(sameLayerDetIds_[i]));}
 	     CondObj_ME.SummaryOfProfileDistr->setBinLabel(iBin, sameLayerDetIds_Name);
 	   }
 	 }
@@ -730,7 +730,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
 
 //=============================================================
 // -----
-void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
+void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
     
   int   hSummaryOfCumul_NchX    = 0;
   double hSummaryOfCumul_LowX    = 0;
@@ -749,9 +749,9 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
 	
   uint32_t layer_=0;
 	
-  layer_ = folder_organizer.GetSubDetAndLayer(detId_).second;
+  layer_ = folder_organizer.GetSubDetAndLayer(detId_, tTopo).second;
 	
-  folder_organizer.setLayerFolder(detId_,layer_); 
+  folder_organizer.setLayerFolder(detId_,tTopo,layer_); 
 	
   std::string hSummaryOfCumul_name; 
   
@@ -769,10 +769,10 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
   
   // LA Histos are plotted for each string:
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { 
-    hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer" , getStringNameAndId(detId_).first, "") ;
+    hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer" , getStringNameAndId(detId_,tTopo).first, "") ;
   }
   else {  
-    hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer" , getLayerNameAndId(detId_).first, "") ;
+    hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer" , getLayerNameAndId(detId_,tTopo).first, "") ;
   }
 
 	
@@ -796,7 +796,7 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
 //================================================
 // -----
 //FIXME same as before: factorize
-void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_){
+void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
   
   std::vector<uint32_t> sameLayerDetIds_;
 
@@ -824,7 +824,7 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
   
   sameLayerDetIds_.clear();
    
-  sameLayerDetIds_=GetSameLayerDetId(activeDetIds,detId_);
+  sameLayerDetIds_=GetSameLayerDetId(activeDetIds,detId_,tTopo);
 
   hSummary_NchX           = sameLayerDetIds_.size(); 
   hSummary_LowX           = 0.5;
@@ -832,9 +832,9 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
   
   uint32_t layer_=0;
       
-  layer_ = folder_organizer.GetSubDetAndLayer(detId_).second;
+  layer_ = folder_organizer.GetSubDetAndLayer(detId_, tTopo).second;
       
-  folder_organizer.setLayerFolder(detId_,layer_); 
+  folder_organizer.setLayerFolder(detId_,tTopo,layer_); 
       
   std::string hSummary_name; 
   
@@ -853,7 +853,7 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
   
   hSummary_name = hidmanager.createHistoLayer(hSummary_description, 
                                                        "layer" , 
-						        getLayerNameAndId(detId_).first,
+						        getLayerNameAndId(detId_,tTopo).first,
 							"") ;
       
   std::string hSummary_title;
@@ -895,7 +895,7 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
 
 //==========================================================
 // -----
-std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const uint32_t& detId_){
+std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
 
   int subdetectorId_ = ((detId_>>25)&0x7);
   int layerId_=0;
@@ -905,7 +905,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
   if( subdetectorId_ == 3 ){ //TIB
 
     for( unsigned int i = 1; i < 5; i++ ){
-      if( TIBDetId( detId_ ).layer() ==i ){ 
+      if( tTopo->tibLayer( detId_ ) ==i ){ 
 	layerName << "TIB__layer__" << i;
 	layerId_ = 300 + i;
       }
@@ -915,10 +915,10 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
 
   else if( subdetectorId_ == 4 ){ //TIDD
     
-    if( TIDDetId( detId_ ).side() == 1 ) { // TIDD side 1
+    if( tTopo->tidSide( detId_ ) == 1 ) { // TIDD side 1
       
       for( unsigned int i = 1; i < 4; i++ ){
-	if(TIDDetId(detId_).wheel()==i){ 
+	if(tTopo->tidWheel(detId_)==i){ 
 	  layerName << "TID__side__1__wheel__" << i;
 	  layerId_ = 410 + i;
 	}
@@ -926,10 +926,10 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
       
     }
 
-    else if( TIDDetId( detId_ ).side() == 2 ) { // TIDD side 2
+    else if( tTopo->tidSide( detId_ ) == 2 ) { // TIDD side 2
       
       for( unsigned int i = 1; i < 4; i++ ) {
-	if(TIDDetId(detId_).wheel()==i){ 
+	if(tTopo->tidWheel(detId_)==i){ 
 	  layerName << "TID__side__2__wheel__" << i;
 	  layerId_ = 420 + i;
 	}
@@ -943,7 +943,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
   else if( subdetectorId_ == 5 ){ // TOB
     
     for( unsigned int i = 1; i < 7; i++ ) {
-      if( TOBDetId( detId_ ).layer() == i ) { 
+      if( tTopo->tobLayer( detId_ ) == i ) { 
 	layerName << "TOB__layer__" << i;
 	layerId_ = 500 + i;
       }
@@ -953,10 +953,10 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
 
   else if( subdetectorId_ == 6 ){ // TEC
     
-    if( TECDetId( detId_ ).side() == 1) { // TEC side 1
+    if( tTopo->tecSide( detId_ ) == 1) { // TEC side 1
       
       for( unsigned int i = 1; i < 10; i++ ) {
-	if( TECDetId( detId_ ).wheel() == i ) { 
+	if( tTopo->tecWheel( detId_ ) == i ) { 
 	  layerName << "TEC__side__1__wheel__" << i;
 	  layerId_ = 610 + i;
 	}
@@ -964,10 +964,10 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
 
     }
 
-    else if( TECDetId( detId_ ).side() == 2 ) { // TEC side 2
+    else if( tTopo->tecSide( detId_ ) == 2 ) { // TEC side 2
       
       for( unsigned int i = 1; i < 10; i++ ) {
-	if( TECDetId( detId_ ).wheel() == i ) { 
+	if( tTopo->tecWheel( detId_ ) == i ) { 
 	  layerName << "TEC__side__2__wheel__" << i;
 	  layerId_ = 620 + i;
 	}
@@ -984,7 +984,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
 //---------------
 
 
-std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const uint32_t& detId_){
+std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
 
   int subdetectorId_ = ((detId_>>25)&0x7);
   int layerStringId_=0;
@@ -992,65 +992,65 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
   std::stringstream layerStringName;
   
   if( subdetectorId_==3 ){ //TIB
-    if(TIBDetId(detId_).layer()==1 && TIBDetId(detId_).isInternalString()){ //1st layer int
+    if(tTopo->tibLayer(detId_)==1 && tTopo->tibIsInternalString(detId_)){ //1st layer int
       for( unsigned int i=1; i < 27 ;i++){
-	if(TIBDetId(detId_).stringNumber()==i){  
+	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L1_Int_Str_" << i;
 	  layerStringId_ = 30110+i; 
 	}
       }      
     }
-    else  if(TIBDetId(detId_).layer()==1 && TIBDetId(detId_).isExternalString()){ //1st layer ext
+    else  if(tTopo->tibLayer(detId_)==1 && tTopo->tibIsExternalString(detId_)){ //1st layer ext
       for( unsigned int i=1; i < 31 ;i++){
-	if(TIBDetId(detId_).stringNumber()==i){  
+	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L1_Ext_Str_" << i;
 	  layerStringId_ = 301200+i; 
 	}
       }      
     }
-    else if(TIBDetId(detId_).layer()==2 && TIBDetId(detId_).isInternalString()){ //2nd layer int
+    else if(tTopo->tibLayer(detId_)==2 && tTopo->tibIsInternalString(detId_)){ //2nd layer int
       for( unsigned int i=1; i < 35 ;i++){
-	if(TIBDetId(detId_).stringNumber()==i){  
+	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L2_Int_Str_" << i;
 	  layerStringId_ = 302100+i; 
 	}
       }      
     }
-    else if(TIBDetId(detId_).layer()==2 && TIBDetId(detId_).isExternalString()){ //2nd layer ext
+    else if(tTopo->tibLayer(detId_)==2 && tTopo->tibIsExternalString(detId_)){ //2nd layer ext
       for( unsigned int i=1; i < 39 ;i++){
-	if(TIBDetId(detId_).stringNumber()==i){  
+	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L2_Ext_Str_" << i;
 	  layerStringId_ = 302200+i; 
 	}
       }      
     }
-    else if(TIBDetId(detId_).layer()==3 && TIBDetId(detId_).isInternalString()){ //3rd layer int
+    else if(tTopo->tibLayer(detId_)==3 && tTopo->tibIsInternalString(detId_)){ //3rd layer int
       for( unsigned int i=1; i < 45 ;i++){
-	if(TIBDetId(detId_).stringNumber()==i){  
+	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L3_Int_Str_" << i;
 	  layerStringId_ = 303100+i; 
 	}
       }      
     }
-    else if(TIBDetId(detId_).layer()==3 && TIBDetId(detId_).isExternalString()){ //3rd layer ext
+    else if(tTopo->tibLayer(detId_)==3 && tTopo->tibIsExternalString(detId_)){ //3rd layer ext
       for( unsigned int i=1; i < 47 ;i++){
-	if(TIBDetId(detId_).stringNumber()==i){  
+	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L3_Ext_Str_" << i;
 	  layerStringId_ = 303200+i; 
 	}
       }      
     }
-    else if(TIBDetId(detId_).layer()==4 && TIBDetId(detId_).isInternalString()){ //4th layer int
+    else if(tTopo->tibLayer(detId_)==4 && tTopo->tibIsInternalString(detId_)){ //4th layer int
       for( unsigned int i=1; i < 53 ;i++){
-	if(TIBDetId(detId_).stringNumber()==i){  
+	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L4_Int_Str_" << i;
 	  layerStringId_ = 304100+i; 
 	}
       }      
     }
-    else if(TIBDetId(detId_).layer()==4 && TIBDetId(detId_).isExternalString()){ //4th layer ext
+    else if(tTopo->tibLayer(detId_)==4 && tTopo->tibIsExternalString(detId_)){ //4th layer ext
       for( unsigned int i=1; i < 57 ;i++){
-	if(TIBDetId(detId_).stringNumber()==i){  
+	if(tTopo->tibString(detId_)==i){  
 	  layerStringName << "TIB_L4_Ext_Str_" << i;
 	  layerStringId_ = 304200+i; 
 	}
@@ -1060,49 +1060,49 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 
 
   else if( subdetectorId_==5 ){ // TOB
-    if(TOBDetId(detId_).layer()==1){ //1st layer
+    if(tTopo->tobLayer(detId_)==1){ //1st layer
       for( unsigned int i=1; i < 43 ;i++){
-	if(TOBDetId(detId_).rodNumber()==i){  
+	if(tTopo->tobRod(detId_)==i){  
 	  layerStringName << "TOB_L1_Rod_" << i;
 	  layerStringId_ = 50100+i;
 	}
       }      
     }
-    else if(TOBDetId(detId_).layer()==2){ //2nd layer
+    else if(tTopo->tobLayer(detId_)==2){ //2nd layer
       for( unsigned int i=1; i < 49 ;i++){
-	if(TOBDetId(detId_).rodNumber()==i){  
+	if(tTopo->tobRod(detId_)==i){  
 	  layerStringName << "TOB_L2_Rod_" << i;
 	  layerStringId_ = 50200+i; 
 	}
       }      
     }
-    else if(TOBDetId(detId_).layer()==3){ //3rd layer
+    else if(tTopo->tobLayer(detId_)==3){ //3rd layer
       for( unsigned int i=1; i < 55 ;i++){
-	if(TOBDetId(detId_).rodNumber()==i){  
+	if(tTopo->tobRod(detId_)==i){  
 	  layerStringName << "TOB_L3_Rod_" << i;
 	  layerStringId_ = 50300+i; 
 	}
       }      
     }
-    else if(TOBDetId(detId_).layer()==4){ //4th layer
+    else if(tTopo->tobLayer(detId_)==4){ //4th layer
       for( unsigned int i=1; i < 61 ;i++){
-	if(TOBDetId(detId_).rodNumber()==i){  
+	if(tTopo->tobRod(detId_)==i){  
 	  layerStringName << "TOB_L4_Rod_" << i;
 	  layerStringId_ = 50400+i; 
 	}
       }      
     }
-    else if(TOBDetId(detId_).layer()==5){ //5th layer
+    else if(tTopo->tobLayer(detId_)==5){ //5th layer
       for( unsigned int i=1; i < 67 ;i++){
-	if(TOBDetId(detId_).rodNumber()==i){  
+	if(tTopo->tobRod(detId_)==i){  
 	  layerStringName << "TOB_L5_Rod_" << i;
 	  layerStringId_ = 50500+i; 
 	}
       }      
     }
-    else if(TOBDetId(detId_).layer()==6){ //6st layer
+    else if(tTopo->tobLayer(detId_)==6){ //6st layer
       for( unsigned int i=1; i < 75 ;i++){
-	if(TOBDetId(detId_).rodNumber()==i){  
+	if(tTopo->tobRod(detId_)==i){  
 	  layerStringName << "TOB_L6_Rod_" << i;
 	  layerStringId_ = 50600+i; 
 	}
@@ -1118,7 +1118,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 
     
 //========================
-std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(std::vector<uint32_t> activeDetIds,uint32_t selDetId ){
+std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(std::vector<uint32_t> activeDetIds,uint32_t selDetId, edm::ESHandle<TrackerTopology>& tTopo){
  
   std::vector<uint32_t> sameLayerDetIds;
   sameLayerDetIds.clear();
@@ -1128,16 +1128,16 @@ std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(std::vector<uint3
   uint32_t subselDetId_ =  ((selDetId>>25)&0x7);
 
   if(subselDetId_==3){  //  TIB
-    substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds, TIBDetId(selDetId).layer(),0,0,0);  
+    substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds, tTopo->tibLayer(selDetId),0,0,0);  
   }
   else if(subselDetId_==4){  // TID
-    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds, TIDDetId(selDetId).side(),TIDDetId(selDetId).wheel(),0,0);
+    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds, tTopo->tidSide(selDetId),tTopo->tidWheel(selDetId),0,0);
   }
   else if(subselDetId_==5){  // TOB
-    substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds, TOBDetId(selDetId).layer(),0,0);
+    substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds, tTopo->tobLayer(selDetId),0,0);
   }
   else if(subselDetId_==6){  // TEC
-    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds, TECDetId(selDetId).side(),TECDetId(selDetId).wheel(),0,0,0,0);
+    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds, tTopo->tecSide(selDetId),tTopo->tecWheel(selDetId),0,0,0,0);
   }
 
   return sameLayerDetIds;
@@ -1209,21 +1209,26 @@ void SiStripBaseCondObjDQM::end(){
 }
 
 //==========================
-void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds){
+void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
   ModMEs CondObj_ME;
  
   for(std::vector<uint32_t>::const_iterator detIter_=selectedDetIds.begin();
                                            detIter_!=selectedDetIds.end();++detIter_){
-    fillMEsForDet(CondObj_ME,*detIter_);
+    fillMEsForDet(CondObj_ME,*detIter_,tTopo);
   }
 }
 
 //==========================
-void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds){
+void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){
-    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_);    
+    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_,tTopo);    
   }
 
   for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){

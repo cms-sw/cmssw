@@ -15,6 +15,7 @@
 <use   name="CalibTracker/SiStripAPVAnalysis"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CommonTools/TrackerMap"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <export>
   <lib   name="1"/>
 </export>

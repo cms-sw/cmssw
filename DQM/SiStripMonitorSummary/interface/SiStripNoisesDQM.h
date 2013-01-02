@@ -23,8 +23,8 @@ class SiStripNoisesDQM : public SiStripBaseCondObjDQM{
   
   void getActiveDetIds(const edm::EventSetup & eSetup);
 
-  void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_);
-  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_,*/ uint32_t selDetId_);
+  void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo);
+  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo);
 
   unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();}
   

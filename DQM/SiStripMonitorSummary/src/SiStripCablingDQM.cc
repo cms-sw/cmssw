@@ -23,6 +23,9 @@ SiStripCablingDQM::~SiStripCablingDQM(){}
 // -----
 void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   
+  edm::ESHandle<TrackerTopology> tTopo;
+  eSetup.get<IdealGeometryRecord>().get(tTopo);
+
   // Get active and total detIds
   getConditionObject(eSetup);
   cablingHandle_->addActiveDetectorsRawIds(activeDetIds);
@@ -65,38 +68,34 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
       {
       case StripSubdetector::TIB:
 	{
-          TIBDetId tibId(detId);
-          int i = tibId.layer() - 1;
+          int i = tTopo->tibLayer(detId) - 1;
 	  counterTIB[i]++;
 	  break;       
 	}
       case StripSubdetector::TID:
 	{
-	  TIDDetId tidId(detId);
-	  if (tidId.side() == 2) {
-            int j = tidId.wheel() - 1;
+          int j = tTopo->tidWheel(detId) - 1;
+          int side = tTopo->tidSide(detId);
+	  if (side == 2) {
 	    counterTID[0][j]++;
-	  }  else if (tidId.side() == 1) {
-            int j = tidId.wheel() - 1;
+	  } else if (side == 1) {
 	    counterTID[1][j]++;
 	  }
 	  break;       
 	}
       case StripSubdetector::TOB:
 	{
-          TOBDetId tobId(detId);
-          int i = tobId.layer() - 1;
+          int i = tTopo->tobLayer(detId) - 1;
 	  counterTOB[i]++;
 	  break;       
 	}
       case StripSubdetector::TEC:
 	{
-	  TECDetId tecId(detId);
-	  if (tecId.side() == 2) {
-            int j = tecId.wheel() - 1;
+          int j = tTopo->tecWheel(detId) - 1;
+          int side = tTopo->tecSide(detId);
+	  if (side == 2) {
 	    counterTEC[0][j]++;
-	  }  else if (tecId.side() == 1) {
-            int j = tecId.wheel() - 1;
+	  } else if (side == 1) {
 	    counterTEC[1][j]++;
 	  }
 	  break;       

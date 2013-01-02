@@ -1,9 +1,7 @@
 #include "DQM/SiStripMonitorSummary/plugins/SiStripCorrelateBadStripAndNoise.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
 
@@ -48,6 +46,10 @@ SiStripCorrelateBadStripAndNoise::beginRun(const edm::Run& run, const edm::Event
 
 void 
 SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup& es){
+
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
   //Loop on quality bad stirps
   //for each strip, look at the noise 
   // evalaute the mean apv noise and the ratio among strip noise and meanApvNoise
@@ -55,12 +57,12 @@ SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup& es){
 
   //Fill an histo per subdet and layer (and plus && minus for TEC/TID)
   edm::LogInfo("") << "[Doanalysis]";
-  iterateOnDets();
+  iterateOnDets(tTopo);
 
 }
 
 void 
-SiStripCorrelateBadStripAndNoise::iterateOnDets(){
+SiStripCorrelateBadStripAndNoise::iterateOnDets(edm::ESHandle<TrackerTopology>& tTopo){
 
   SiStripQuality::RegistryIterator rbegin = qualityHandle_->getRegistryVectorBegin();
   SiStripQuality::RegistryIterator rend   = qualityHandle_->getRegistryVectorEnd();
@@ -70,19 +72,19 @@ SiStripCorrelateBadStripAndNoise::iterateOnDets(){
     const uint32_t detid=rp->detid;
     
     SiStripQuality::Range sqrange = SiStripQuality::Range( qualityHandle_->getDataVectorBegin()+rp->ibegin , qualityHandle_->getDataVectorBegin()+rp->iend );
-    iterateOnBadStrips(detid,sqrange);
+    iterateOnBadStrips(detid,tTopo,sqrange);
   }  
 }
 
 void 
-SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t & detid, SiStripQuality::Range& sqrange){
+SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t & detid, edm::ESHandle<TrackerTopology>& tTopo, SiStripQuality::Range& sqrange){
 
   float percentage=0;
   for(int it=0;it<sqrange.second-sqrange.first;it++){
     unsigned int firstStrip=qualityHandle_->decode( *(sqrange.first+it) ).firstStrip;
     unsigned int range=qualityHandle_->decode( *(sqrange.first+it) ).range;
     
-    correlateWithNoise(detid,firstStrip,range);
+    correlateWithNoise(detid,tTopo,firstStrip,range);
 
     edm::LogInfo("range")<< range;
     percentage+=range;
@@ -98,7 +100,7 @@ SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t & detid, SiS
 }
 
 void 
-SiStripCorrelateBadStripAndNoise::correlateWithNoise(const uint32_t & detid, const uint32_t & firstStrip,  const uint32_t & range){
+SiStripCorrelateBadStripAndNoise::correlateWithNoise(const uint32_t & detid, edm::ESHandle<TrackerTopology>& tTopo, const uint32_t & firstStrip,  const uint32_t & range){
 
   std::vector<TH2F *>histos;
 
@@ -111,7 +113,7 @@ SiStripCorrelateBadStripAndNoise::correlateWithNoise(const uint32_t & detid, con
     float meanNoiseHotStrips=getMeanNoise(noiseRange,theStrip,1);
   
     //Get the histogram for this detid
-    getHistos(detid,histos);
+    getHistos(detid, tTopo, histos);
     float yvalue=range<21?1.*range:21;
     
     for(size_t i=0;i<histos.size();++i)
@@ -135,7 +137,7 @@ SiStripCorrelateBadStripAndNoise::getMeanNoise(const SiStripNoises::Range& noise
 }
 
 void
-SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t& detid,std::vector<TH2F*>& histos){
+SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo, std::vector<TH2F*>& histos){
   
   histos.clear();
   
@@ -143,16 +145,16 @@ SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t& detid,std::vector<TH
   SiStripDetId a(detid);
   if ( a.subdetId() == 3 ){
     subdet=0;
-    component=TIBDetId(detid).layer();
+    component=tTopo->tibLayer(detid);
   } else if ( a.subdetId() == 4 ) {
     subdet=1;
-    component=TIDDetId(detid).side()==2?TIDDetId(detid).wheel():TIDDetId(detid).wheel()+3;
+    component=tTopo->tidSide(detid)==2?tTopo->tidWheel(detid):tTopo->tidWheel(detid)+3;
   } else if ( a.subdetId() == 5 ) {
     subdet=2;
-    component=TOBDetId(detid).layer();
+    component=tTopo->tobLayer(detid);
   } else if ( a.subdetId() == 6 ) {
     subdet=3;
-    component=TECDetId(detid).side()==2?TECDetId(detid).wheel():TECDetId(detid).wheel()+9;
+    component=tTopo->tecSide(detid)==2?tTopo->tecWheel(detid):tTopo->tecWheel(detid)+9;
   } 
   
   int index=100+subdet*100+component;

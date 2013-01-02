@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Mon Aug 10 10:42:04 CEST 2009
-// $Id: SiStripCorrelateNoise.h,v 1.1 2009/08/19 13:28:07 giordano Exp $
+// $Id: SiStripCorrelateNoise.h,v 1.2 2009/09/23 14:20:53 kaussen Exp $
 //
 //
 
@@ -47,6 +47,7 @@
 // class decleration
 //
 
+class TrackerTopology;
 class SiStripCorrelateNoise : public edm::EDAnalyzer {
 public:
   explicit SiStripCorrelateNoise(const edm::ParameterSet&);
@@ -59,8 +60,8 @@ private:
   virtual void endJob();
   
   void DoPlots();
-  void DoAnalysis(SiStripNoises,SiStripNoises&);
-  void getHistos(const uint32_t & detid,std::vector<TH1F*>& histos);
+  void DoAnalysis(const edm::EventSetup&,SiStripNoises,SiStripNoises&);
+  void getHistos(const uint32_t & detid, edm::ESHandle<TrackerTopology>& tTopo, std::vector<TH1F*>& histos);
   TH1F* getHisto(const long unsigned int& index);
 
   unsigned long long getNoiseCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();}

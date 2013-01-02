@@ -33,7 +33,7 @@ void SiStripNoisesDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 }
 
 // -----
-void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
+void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
 
   std::vector<uint32_t> DetIds;
   noiseHandle_->getDetIds(DetIds);
@@ -42,7 +42,7 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
   
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
 
-  getModMEs(selModME_,selDetId_);
+  getModMEs(selModME_,selDetId_, tTopo);
   
   float gainFactor;
   float stripnoise;
@@ -75,7 +75,7 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 //FIXME the number of lines of code in the derived classes should be reduced ONLY at what cannot be done in the base class because of the specific implementation
 //FIXME of the derived class. Moreover, several loops on the same quantities should be avoided...
 
-void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_){
+void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
 
   // ----
   int subdetectorId_ = ((selDetId_>>25)&0x7);
@@ -89,11 +89,11 @@ void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,
   }
   // ----
   
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_  = SummaryMEsMap_.find(getLayerNameAndId(selDetId_).second);
+  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_  = SummaryMEsMap_.find(getLayerNameAndId(selDetId_,tTopo).second);
   ModMEs selME_;
   if ( selMEsMapIter_ != SummaryMEsMap_.end())
     selME_ =selMEsMapIter_->second;
-  getSummaryMEs(selME_,selDetId_);
+  getSummaryMEs(selME_,selDetId_,tTopo);
   
   SiStripNoises::Range noiseRange = noiseHandle_->getRange(selDetId_);
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
@@ -118,7 +118,7 @@ void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,
     std::string hSummaryOfProfile_name; 
     hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, 
 							 "layer", 
-							 getLayerNameAndId(selDetId_).first, 
+							 getLayerNameAndId(selDetId_,tTopo).first, 
 							 "") ;
   }
   if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel")){
@@ -126,7 +126,7 @@ void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,
     hSummaryOfCumul_description  = hPSet_.getParameter<std::string>("Cumul_description");
     
     std::string hSummaryOfCumul_name; 
-    hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer", getStringNameAndId(selDetId_).first, "") ;    
+    hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer", getStringNameAndId(selDetId_,tTopo).first, "") ;    
   }   
   if(hPSet_.getParameter<bool>("FillSummaryAtLayerLevel")){
     // --> cumul summary    
@@ -136,7 +136,7 @@ void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,
     std::string hSummary_name; 
     hSummary_name = hidmanager.createHistoLayer(hSummary_description, 
 						"layer", 
-						getLayerNameAndId(selDetId_).first, 
+						getLayerNameAndId(selDetId_,tTopo).first, 
 						"") ;
   }
 
@@ -177,7 +177,7 @@ void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,
     // get detIds belonging to same layer to fill X-axis with detId-number
     
     std::vector<uint32_t> sameLayerDetIds_;
-    sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selDetId_);
+    sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selDetId_,tTopo);
     
     std::vector<uint32_t>::const_iterator ibound=lower_bound(sameLayerDetIds_.begin(),sameLayerDetIds_.end(),selDetId_);
     if(ibound!=sameLayerDetIds_.end() && *ibound==selDetId_)
@@ -198,8 +198,4 @@ void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,
   } 
 
 }
-  
-
-
-
 

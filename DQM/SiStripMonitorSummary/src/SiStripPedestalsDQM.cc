@@ -30,15 +30,17 @@ void SiStripPedestalsDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 
 
 // -----
-void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds){
+void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
    
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
   ModMEs CondObj_ME;
-  
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){
       
-    fillMEsForDet(CondObj_ME,*detIter_);
+    fillMEsForDet(CondObj_ME,*detIter_,tTopo);
       
   }
 }    
@@ -48,9 +50,9 @@ void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
 
 
 // -----
-void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
+void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
   
-  getModMEs(selModME_,selDetId_);
+  getModMEs(selModME_,selDetId_,tTopo);
   
   SiStripPedestals::Range pedRange = pedestalHandle_->getRange(selDetId_);
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
@@ -67,11 +69,14 @@ void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
 
 
 // -----
-void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds){
+void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
    
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){
-    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_);
+    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_,tTopo);
   }
 
   for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
@@ -108,7 +113,7 @@ void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
 
 
 // -----
-void SiStripPedestalsDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_){
+void SiStripPedestalsDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
 
   // ----
   int subdetectorId_ = ((selDetId_>>25)&0x7);
@@ -124,11 +129,11 @@ void SiStripPedestalsDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMa
 
 //     // Cumulative distribution with average Ped value on a layer (not needed):  
      
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_).second);
+  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_,tTopo).second);
   ModMEs selME_;
   if ( selMEsMapIter_ != SummaryMEsMap_.end())
     selME_ =selMEsMapIter_->second;
-  getSummaryMEs(selME_,selDetId_);
+  getSummaryMEs(selME_,selDetId_,tTopo);
     
   SiStripPedestals::Range pedRange = pedestalHandle_->getRange(selDetId_);
   
@@ -148,7 +153,7 @@ void SiStripPedestalsDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMa
   
     hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, 
 							 "layer", 
-							 getLayerNameAndId(selDetId_).first, 
+							 getLayerNameAndId(selDetId_,tTopo).first, 
 							 "") ;
  
     for( int istrip=0;istrip<nStrip;++istrip){
@@ -175,7 +180,7 @@ void SiStripPedestalsDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMa
     std::string hSummary_name; 
     hSummary_name = hidmanager.createHistoLayer(hSummary_description, 
 						"layer", 
-						getLayerNameAndId(selDetId_).first, 
+						getLayerNameAndId(selDetId_,tTopo).first, 
 						"") ;
     float meanPedestal=0;
   
@@ -195,7 +200,7 @@ void SiStripPedestalsDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMa
   
     sameLayerDetIds_.clear();
 
-    sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selDetId_);
+    sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selDetId_,tTopo);
   
   
     unsigned int iBin=0;

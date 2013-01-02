@@ -163,7 +163,7 @@ void SiStripMonitorCondData::analyze(edm::Event const& iEvent, edm::EventSetup c
   if(monitorHighThreshold_)  { highthresholdDQM_ ->analysis(eSetup);}    
   if(monitorApvGains_)       { apvgainsDQM_      ->analysis(eSetup);}    
   if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysis(eSetup);}
-  if(monitorQuality_)        { qualityDQM_->analysis(eSetup);qualityDQM_->fillGrandSummaryMEs();}//fillGrand. for SiStripquality
+  if(monitorQuality_)        { qualityDQM_->analysis(eSetup);qualityDQM_->fillGrandSummaryMEs(eSetup);}//fillGrand. for SiStripquality
   if(monitorCabling_)        { cablingDQM_       ->analysis(eSetup);}
 } // analyze
 // -----
