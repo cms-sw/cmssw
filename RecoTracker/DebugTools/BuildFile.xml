@@ -14,6 +14,7 @@
 <use name="RecoTracker/TkNavigation" />
 <use name="RecoTracker/TkDetLayers" />
 <use name="RecoTracker/MeasurementDet" />
+<use name="DataFormats/TrackerCommon"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 class TrackMerger {
     public:
@@ -23,8 +24,8 @@ class TrackMerger {
         bool debug_;
         std::string theBuilderName;
         edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+	edm::ESHandle<TrackerTopology> theTrkTopo;
 
-        int layer(DetId detid) const ;
         class GlobalMomentumSort {
             public: 
                 GlobalMomentumSort(const GlobalVector &dir) : dir_(dir) {}

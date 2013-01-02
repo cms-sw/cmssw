@@ -6,6 +6,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/TrajectorySeed"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>

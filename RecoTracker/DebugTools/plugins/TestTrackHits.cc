@@ -7,12 +7,8 @@
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include <TDirectory.h>
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 typedef TrajectoryStateOnSurface TSOS;
@@ -254,6 +250,11 @@ void TestTrackHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 
 void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   LogDebug("TestTrackHits") << "new event" ;
   iEvent.getByLabel(srcName,trajCollectionHandle);
   iEvent.getByLabel(srcName,trackCollectionHandle);
@@ -342,14 +343,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       LogTrace("TestTrackHits") << "valid hit #" << ++pp << "of hits=" << track->numberOfValidHits();
 
       int subdetId = rhit->det()->geographicalId().subdetId();
-      int layerId  = 0;
       DetId id = rhit->det()->geographicalId();
-      if (id.subdetId()==3) layerId = ((TIBDetId)(id)).layer();
-      if (id.subdetId()==5) layerId = ((TOBDetId)(id)).layer();
-      if (id.subdetId()==1) layerId = ((PXBDetId)(id)).layer();
-      if (id.subdetId()==4) layerId = ((TIDDetId)(id)).wheel();
-      if (id.subdetId()==6) layerId = ((TECDetId)(id)).wheel();
-      if (id.subdetId()==2) layerId = ((PXFDetId)(id)).disk();
+      int layerId  = tTopo->layer(id);
       LogTrace("TestTrackHits") << "subdetId=" << subdetId << " layerId=" << layerId ;
 
       const Surface * surf = rhit->surface();

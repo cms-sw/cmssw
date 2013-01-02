@@ -64,7 +64,7 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
                   const PropagationDirection& dir,
                   TrajectorySeedCollection& output);
   //checks that the hits used are at positive y and are on different layers
-  bool preliminaryCheck(const SeedingHitSet& shs);
+  bool preliminaryCheck(const SeedingHitSet& shs, const edm::EventSetup& es);
   //We can check if the seed  points in a region covered by scintillators. To be used only in noB case
   //because it uses StraightLinePropagation
   bool postCheck(const TrajectorySeed& seed);

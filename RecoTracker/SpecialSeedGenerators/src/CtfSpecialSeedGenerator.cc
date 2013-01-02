@@ -1,9 +1,7 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CtfSpecialSeedGenerator.h"
 //#include "RecoTracker/SpecialSeedGenerators/interface/CosmicLayerTriplets.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
@@ -199,7 +197,7 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
   edm::LogInfo("CtfSpecialSeedGenerator")<<"osh.size() " << osh.size();
   for (unsigned int i = 0; i < osh.size(); i++){
 	SeedingHitSet shs = osh[i];
-	if (preliminaryCheck(shs)){
+	if (preliminaryCheck(shs,iSetup)){
 		std::vector<TrajectorySeed*> seeds = theSeedBuilder->seed(shs, 
 							    		dir,
 							    		navdir, 
@@ -222,7 +220,11 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
   return true;
 }
 //checks the hits are on diffrent layers
-bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){
+bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs, const edm::EventSetup &es ){
+
+        edm::ESHandle<TrackerTopology> tTopo;
+        es.get<IdealGeometryRecord>().get(tTopo);
+
 	std::vector<std::pair<unsigned int, unsigned int> > vSubdetLayer;
 	//std::vector<std::string> vSeedLayerNames;
 	bool checkHitsAtPositiveY       = conf_.getParameter<bool>("SeedsFromPositiveY");
@@ -245,20 +247,7 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){
 		//std::string name = iHits->seedinglayer().name(); 
 		//hits for the seeds must be in different layers
 		unsigned int subid=(*trh).geographicalId().subdetId();
-		unsigned int layer = 0;
-		if (subid == StripSubdetector::TIB){
-			TIBDetId tibId((*trh).geographicalId());
-			layer = tibId.layer();
-		} else if (subid == StripSubdetector::TID){
-			TIDDetId tidId((*trh).geographicalId());
-			layer = tidId.wheel();
-		} else if (subid == StripSubdetector::TOB){
-			TOBDetId tobId((*trh).geographicalId());
-			layer = tobId.layer();
-		} else if (subid == StripSubdetector::TEC){
-			TECDetId tecId((*trh).geographicalId());
-			layer = tecId.wheel();
-		}
+		unsigned int layer = tTopo->layer( (*trh).geographicalId());
 		std::vector<std::pair<unsigned int, unsigned int> >::const_iterator iter;
 		//std::vector<std::string>::const_iterator iNames;
 		if (checkHitsOnDifferentLayers){

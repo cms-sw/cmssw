@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: vlimant $
-// $Date: 2009/01/26 10:15:10 $
-// $Revision: 1.22 $
+// $Author: eulisse $
+// $Date: 2012/10/24 08:32:20 $
+// $Revision: 1.1 $
 //
 
 #include <string>
@@ -41,6 +41,8 @@
 #include "TrackingTools/RoadSearchHitAccess/interface/DetHitAccess.h"
 
 #include "RoadSearchCircleSeed.h"
+
+class TrackerTopology;
 
 class RoadSearchSeedFinderAlgorithm 
 {
@@ -94,9 +96,11 @@ class RoadSearchSeedFinderAlgorithm
 						     const Ring* ring2);
 
   bool ringsOnSameLayer(const Ring *ring1, 
-			const Ring* ring2);
+			const Ring* ring2, 
+			const TrackerTopology *tTopo);
   bool detIdsOnSameLayer(DetId id1, 
-			 DetId id2);
+			 DetId id2,
+			 const TrackerTopology *tTopo);
   
   unsigned int ClusterCounter(const edmNew::DetSetVector<SiStripCluster>* clusters);
   

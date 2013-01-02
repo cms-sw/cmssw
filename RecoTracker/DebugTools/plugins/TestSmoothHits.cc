@@ -12,12 +12,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 typedef TrajectoryStateOnSurface TSOS;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
@@ -192,6 +188,11 @@ void TestSmoothHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 
 void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   LogTrace("TestSmoothHits") << "new event" << std::endl;
 
   iEvent.getByLabel(srcName,theTCCollection ); 
@@ -243,14 +244,8 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       LogTrace("TestSmoothHits") << "new hit" ;
 
       int subdetId = rhit->det()->geographicalId().subdetId();
-      int layerId  = 0;
       DetId id = rhit->det()->geographicalId();
-      if (id.subdetId()==3) layerId = ((TIBDetId)(id)).layer();
-      if (id.subdetId()==5) layerId = ((TOBDetId)(id)).layer();
-      if (id.subdetId()==1) layerId = ((PXBDetId)(id)).layer();
-      if (id.subdetId()==4) layerId = ((TIDDetId)(id)).wheel();
-      if (id.subdetId()==6) layerId = ((TECDetId)(id)).wheel();
-      if (id.subdetId()==2) layerId = ((PXFDetId)(id)).disk();
+      int layerId  = tTopo->layer(id);
       LogTrace("TestSmoothHits") << "subdetId=" << subdetId << " layerId=" << layerId ;
 
       double delta = 99999;

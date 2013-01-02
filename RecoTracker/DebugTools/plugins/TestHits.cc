@@ -13,12 +13,8 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 typedef TrajectoryStateOnSurface TSOS;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
@@ -191,6 +187,11 @@ void TestHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
 
 void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  iSetup.get<IdealGeometryRecord>().get(tTopo);
+
+
   LogTrace("TestHits") << "\nnew event";
 
   iEvent.getByLabel(srcName,theTCCollection ); 
@@ -237,14 +238,8 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       LogTrace("TestHits") << "*****************new hit*****************" ;
 
       int subdetId = rhit->det()->geographicalId().subdetId();
-      int layerId  = 0;
       DetId id = rhit->det()->geographicalId();
-      if (id.subdetId()==3) layerId = ((TIBDetId)(id)).layer();
-      if (id.subdetId()==5) layerId = ((TOBDetId)(id)).layer();
-      if (id.subdetId()==1) layerId = ((PXBDetId)(id)).layer();
-      if (id.subdetId()==4) layerId = ((TIDDetId)(id)).wheel();
-      if (id.subdetId()==6) layerId = ((TECDetId)(id)).wheel();
-      if (id.subdetId()==2) layerId = ((PXFDetId)(id)).disk();
+      int layerId  = tTopo->layer(id);
       LogTrace("TestHits") << "subdetId=" << subdetId << " layerId=" << layerId ;
 
       double delta = 99999;
@@ -619,12 +614,12 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //       int subdetId = (*rhit)->det()->geographicalId().subdetId();
 //       int layerId  = 0;
 //       DetId id = (*rhit)->det()->geographicalId();
-//       if (id.subdetId()==3) layerId = ((TIBDetId)(id)).layer();
-//       if (id.subdetId()==5) layerId = ((TOBDetId)(id)).layer();
-//       if (id.subdetId()==1) layerId = ((PXBDetId)(id)).layer();
-//       if (id.subdetId()==4) layerId = ((TIDDetId)(id)).wheel();
-//       if (id.subdetId()==6) layerId = ((TECDetId)(id)).wheel();
-//       if (id.subdetId()==2) layerId = ((PXFDetId)(id)).disk();
+//       if (id.subdetId()==3) layerId = ((tTopo->tibLayer(id);
+//       if (id.subdetId()==5) layerId = ((tTopo->tobLayer(id);
+//       if (id.subdetId()==1) layerId = ((tTopo->pxbLayer(id);
+//       if (id.subdetId()==4) layerId = ((tTopo->tidWheel(id);
+//       if (id.subdetId()==6) layerId = ((tTopo->tecWheel(id);
+//       if (id.subdetId()==2) layerId = ((tTopo->pxfDisk(id);
 //       const Surface * surf = &( (*rhit)->det()->surface() );
 //       currentState=thePropagator->propagate(lastState,*surf);	
 //       if (currentState.isValid()==0) continue;

@@ -1,10 +1,5 @@
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -36,6 +31,7 @@ void TrackMerger::init(const edm::EventSetup &iSetup)
     iSetup.get<TrackerDigiGeometryRecord>().get(theGeometry);
     iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
     iSetup.get<TransientRecHitRecord>().get(theBuilderName,theBuilder);
+    iSetup.get<IdealGeometryRecord>().get(theTrkTopo);
 }
 
 TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &outer) const 
@@ -47,23 +43,24 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
         hits.push_back(&**it);
         if (debug_) {
             DetId id(hits.back()->geographicalId());
-            std::cout << "   subdet " << id.subdetId() << "  layer " << layer(id) << " valid " << hits.back()->isValid() << "   detid: " << id() << std::endl;
+            std::cout << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << hits.back()->isValid() << "   detid: " << id() << std::endl;
         }
     }
     if (debug_) std::cout << "Outer track hits: " << std::endl;
 
 #if TRACK_SORT
     DetId lastId(hits.back()->geographicalId());
-    int lastSubdet = lastId.subdetId(), lastLayer = layer(lastId);
+    int lastSubdet = lastId.subdetId(); 
+    unsigned int lastLayer = theTrkTopo->layer(lastId);
     for (trackingRecHit_iterator it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
         const TrackingRecHit *hit = &**it;
         DetId id(hit->geographicalId());
         int thisSubdet = id.subdetId();
-        if (thisSubdet > lastSubdet || (thisSubdet == lastSubdet && layer(id) > lastLayer)) {
+        if (thisSubdet > lastSubdet || (thisSubdet == lastSubdet && theTrkTopo->layer(id) > lastLayer)) {
             hits.push_back(hit);
-            if (debug_) std::cout << "  adding   subdet " << id.subdetId() << "  layer " << layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
+            if (debug_) std::cout << "  adding   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
         } else {
-            if (debug_) std::cout << "  skipping subdet " << thisSubdet << "  layer " << layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
+            if (debug_) std::cout << "  skipping subdet " << thisSubdet << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
         }
     }
 #else
@@ -71,16 +68,16 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
     for (trackingRecHit_iterator it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
         const TrackingRecHit *hit = &**it;
         DetId id(hit->geographicalId());
-        int  lay = layer(id);
+        int  lay = theTrkTopo->layer(id);
         bool shared = false;
         bool valid  = hit->isValid();
-        if (debug_) std::cout << "   subdet " << id.subdetId() << "  layer " << layer(id) << " valid " << valid << "   detid: " << id() << std::endl;
+        if (debug_) std::cout << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << valid << "   detid: " << id() << std::endl;
         size_t iHit = 0;
         foreach(const TrackingRecHit *& hit2, hits) {
             ++iHit; if (iHit >  nHitsFirstTrack) break;
             DetId id2 = hit2->geographicalId();
             if (id.subdetId() != id2.subdetId()) continue;
-            if (layer(id2) != lay) continue;
+            if (theTrkTopo->layer(id2) != lay) continue;
             if (hit->sharesInput(hit2, TrackingRecHit::all)) { 
                 if (debug_) std::cout << "        discared as duplicate of other hit" << id() << std::endl;
                 shared = true; break; 
@@ -158,17 +155,6 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
     return TrackCandidate(ownHits, seed, state, (useInnermostState_ ? inner : outer).seedRef());
 }
 
-int TrackMerger::layer(DetId detid) const {
-    switch (detid.subdetId()) {
-        case PixelSubdetector::PixelBarrel: return PXBDetId(detid).layer();
-        case PixelSubdetector::PixelEndcap: return PXFDetId(detid).disk();
-        case StripSubdetector::TIB:         return TIBDetId(detid).layer();
-        case StripSubdetector::TID:         return TIDDetId(detid).wheel();
-        case StripSubdetector::TOB:         return TOBDetId(detid).layer();
-        case StripSubdetector::TEC:         return TECDetId(detid).wheel();
-    }
-    return -1; // never match
-}
 
 bool TrackMerger::MomentumSort::operator()(const TrackingRecHit *hit1, const TrackingRecHit *hit2) const 
 {

@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gpetrucc $
-// $Date: 2009/10/16 08:44:37 $
-// $Revision: 1.36 $
+// $Author: eulisse $
+// $Date: 2012/10/24 08:32:20 $
+// $Revision: 1.1 $
 //
 
 #include <vector>
@@ -42,13 +42,9 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -138,6 +134,11 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 					RoadSearchSeedCollection &output)
 {
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology* tTopo=tTopoHand.product();
+
   // initialize general hit access for road search
   innerSeedHitVector_.setCollections(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
   outerSeedHitVector_.setCollections(rphiRecHits,stereoRecHits,matchedRecHits,pixelRecHits);
@@ -226,7 +227,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 	for ( std::vector<const Ring*>::const_iterator innerSeedRing2 = innerSeedRing1+1;
 	      innerSeedRing2 != seed->first.end();
 	      ++innerSeedRing2) {
-	  if ( !ringsOnSameLayer(*innerSeedRing1,*innerSeedRing2) ) {
+	  if ( !ringsOnSameLayer(*innerSeedRing1,*innerSeedRing2,tTopo) ) {
 	    for ( std::vector<const Ring*>::const_iterator outerSeedRing = seed->second.begin();
 		  outerSeedRing != seed->second.end();
 		  ++outerSeedRing) {
@@ -263,7 +264,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
  	  for ( std::vector<const Ring*>::const_iterator outerSeedRing2 = outerSeedRing1+1;
  		outerSeedRing2 != seed->second.end();
  		++outerSeedRing2) {
- 	    if ( !ringsOnSameLayer(*outerSeedRing1,*outerSeedRing2) ) {
+ 	    if ( !ringsOnSameLayer(*outerSeedRing1,*outerSeedRing2,tTopo) ) {
  	      // calculate seed ring combination identifier
  	      unsigned int identifier = (*innerSeedRing1)->getindex() * 1000000 +
  		(*outerSeedRing1)->getindex() * 1000 +
@@ -724,7 +725,7 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<Roa
   return result;
 }
 
-bool RoadSearchSeedFinderAlgorithm::ringsOnSameLayer(const Ring *ring1, const Ring* ring2) {
+bool RoadSearchSeedFinderAlgorithm::ringsOnSameLayer(const Ring *ring1, const Ring* ring2, const TrackerTopology *tTopo) {
   //
   // check whether two input rings are on the same layer
   //
@@ -736,77 +737,21 @@ bool RoadSearchSeedFinderAlgorithm::ringsOnSameLayer(const Ring *ring1, const Ri
   const DetId ring1DetId = ring1->getFirst();
   const DetId ring2DetId = ring2->getFirst();
 
-  result = detIdsOnSameLayer(ring1DetId,ring2DetId);
+  result = detIdsOnSameLayer(ring1DetId,ring2DetId, tTopo);
   
   return result;
 }
 
-bool RoadSearchSeedFinderAlgorithm::detIdsOnSameLayer(DetId id1, DetId id2) {
+bool RoadSearchSeedFinderAlgorithm::detIdsOnSameLayer(DetId id1, DetId id2, const TrackerTopology *tTopo) {
   //
   // check whether two detids are on the same layer
   //
 
-  // return value
-  bool result = false;
+  if (id1.subdetId() == id2.subdetId() )
+    if ( tTopo->layer(id1)==tTopo->layer(id2)) 
+      return true;
 
-  // check if both rings belong to same subdetector
-  if ( (unsigned int)id1.subdetId() == StripSubdetector::TIB && 
-       (unsigned int)id2.subdetId() == StripSubdetector::TIB ) {
-    // make TIBDetId instance
-    TIBDetId id1TIB(id1.rawId());
-    TIBDetId id2TIB(id2.rawId());
-    // check whether both rings are on the same TIB layer
-    if ( id1TIB.layer() == id2TIB.layer() ) {
-      result = true;
-    }
-  } else if ( (unsigned int)id1.subdetId() == StripSubdetector::TOB &&
-	      (unsigned int)id2.subdetId() == StripSubdetector::TOB ) {
-    // make TOBDetId instance
-    TOBDetId id1TOB(id1.rawId());
-    TOBDetId id2TOB(id2.rawId());
-    // check whether both rings are on the same TOB layer
-    if ( id1TOB.layer() == id2TOB.layer() ) {
-      result = true;
-    }
-  } else if ( (unsigned int)id1.subdetId() == StripSubdetector::TID && 
-	      (unsigned int)id2.subdetId() == StripSubdetector::TID) {
-    // make TIDDetId instance
-    TIDDetId id1TID(id1.rawId());
-    TIDDetId id2TID(id2.rawId());
-    // check whether both rings are on the same TID wheel
-    if ( id1TID.wheel() == id2TID.wheel() ) {
-      result = true;
-    }
-  } else if ( (unsigned int)id1.subdetId() == StripSubdetector::TEC &&
-	      (unsigned int)id2.subdetId() == StripSubdetector::TEC ) {
-    // make TECDetId instance
-    TECDetId id1TEC(id1.rawId());
-    TECDetId id2TEC(id2.rawId());
-    // check whether both rings are on the same TEC wheel
-    if ( id1TEC.wheel() == id2TEC.wheel() ) {
-      result = true;
-    }
-  } else if ( (unsigned int)id1.subdetId() == PixelSubdetector::PixelBarrel && 
-	      (unsigned int)id2.subdetId() == PixelSubdetector::PixelBarrel) {
-    // make PXBDetId instance
-    PXBDetId id1PXB(id1.rawId());
-    PXBDetId id2PXB(id2.rawId());
-    // check whether both rings are on the same PXB layer
-    if ( id1PXB.layer() == id2PXB.layer() ) {
-      result = true;
-    }
-  } else if ( (unsigned int)id1.subdetId() == PixelSubdetector::PixelEndcap &&
-	      (unsigned int)id2.subdetId() == PixelSubdetector::PixelEndcap) {
-    // make PXFDetId instance
-    PXFDetId id1PXF(id1.rawId());
-    PXFDetId id2PXF(id2.rawId());
-    // check whether both rings are on the same PXF disk
-    if ( id1PXF.disk() == id2PXF.disk() ) {
-      result = true;
-    }
-  }
-  
-  return result;
+  return false;
 }
 
 
