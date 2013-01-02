@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.39 2011/12/22 19:06:09 innocent Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.40 2012/01/16 09:28:17 innocent Exp $
 //
 
 // system include files
@@ -22,10 +22,8 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 
@@ -146,11 +144,12 @@ void SiStripElectronAlgo::prepareEvent(const edm::ESHandle<TrackerGeometry>& tra
 // inserts electrons and trackcandiates into electronOut and trackCandidateOut
 bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electronOut,
 				       TrackCandidateCollection& trackCandidateOut,
-				       const reco::SuperClusterRef& superclusterIn)
+				       const reco::SuperClusterRef& superclusterIn,
+				       const TrackerTopology *tTopo)
 {
   // Try each of the two charge hypotheses, but only take one
-  bool electronSuccess = projectPhiBand(-1., superclusterIn);
-  bool positronSuccess = projectPhiBand( 1., superclusterIn);
+  bool electronSuccess = projectPhiBand(-1., superclusterIn, tTopo);
+  bool positronSuccess = projectPhiBand( 1., superclusterIn, tTopo);
 
   // electron hypothesis did better than electron
   if ((electronSuccess  &&  !positronSuccess)  ||
@@ -354,6 +353,7 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 // selects from stereo if stereo == true, rphi otherwise
 // selects from TID or TEC if endcap == true, TIB or TOB otherwise
 void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>& hitPointersOut,
+					     const TrackerTopology *tTopo,
 					     bool stereo, bool endcap)
 {
   // This function is not time-efficient.  If you want to improve the
@@ -391,23 +391,23 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
         bool isStereoDet = false ;
         if(tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB) { 
           theDet = "TIB" ;
-          theLayer = TIBDetId(id).layer(); 
-          if(TIBDetId(id).stereo()==1) { isStereoDet = true ; }
+          theLayer = tTopo->tibLayer(id); 
+          if(tTopo->tibStereo(id)==1) { isStereoDet = true ; }
         } else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB) { 
           theDet = "TOB" ;
-          theLayer = TOBDetId(id).layer(); 
-          if(TOBDetId(id).stereo()==1) { isStereoDet = true ; }
+          theLayer = tTopo->tobLayer(id); 
+          if(tTopo->tobStereo(id)==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TID) { 
           theDet = "TID" ;
-          theLayer = TIDDetId(id).wheel();  // or ring  ?
-          if(TIDDetId(id).stereo()==1) { isStereoDet = true ; }
+          theLayer = tTopo->tidWheel(id);  // or ring  ?
+          if(tTopo->tidStereo(id)==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TEC) { 
           theDet = "TEC" ;
-          theLayer = TECDetId(id).wheel();  // or ring or petal ?
-          if(TECDetId(id).stereo()==1) { isStereoDet = true ; }
+          theLayer = tTopo->tecWheel(id);  // or ring or petal ?
+          if(tTopo->tecStereo(id)==1) { isStereoDet = true ; }
         } else {
           LogDebug("") << " UHOH BIG PROBLEM - Unrecognized SI Layer" ;
           LogDebug("") << " Det "<< theDet << " Lay " << theLayer ;
@@ -475,7 +475,8 @@ void SiStripElectronAlgo::coarseMatchedHitSelection(std::vector<const SiStripMat
 // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
 // fills *_pos_ or *_neg_ member data with the results
 // returns true iff the electron/positron passes cuts
-bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::SuperClusterRef& superclusterIn)
+bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::SuperClusterRef& superclusterIn,
+					 const TrackerTopology *tTopo)
 {
   // This algorithm projects a phi band into the tracker three times:
   // (a) for all stereo hits, (b) for barrel rphi hits, and (c) for
@@ -519,7 +520,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   std::vector<const SiStripRecHit2D*> zphiEndcapHits;
 
   //                                 stereo? endcap?
-  coarseHitSelection(stereoHits,     true,   false);
+  coarseHitSelection(stereoHits, tTopo,    true,   false);
 
   // skip endcap stereo for now
   //  LogDebug("") << " Getting endcap stereo hits " ;
@@ -528,7 +529,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   std::ostringstream debugstr1;
   debugstr1 << " Getting barrel rphi hits " << " \n" ;
 
-  coarseHitSelection(rphiBarrelHits, false,  false);
+  coarseHitSelection(rphiBarrelHits, tTopo, false,  false);
 
   //  LogDebug("") << " Getting endcap zphi hits " ;
   //  coarseHitSelection(zphiEndcapHits, false,  true);
@@ -709,9 +710,9 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 
       if (!hitUsed_[*hit]) {
 	if( (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  && 
-	     (TIBDetId((*hit)->geographicalId()).layer()==1 || TIBDetId((*hit)->geographicalId()).layer()==2)) || 
+	     (tTopo->tibLayer((*hit)->geographicalId())==1 || tTopo->tibLayer((*hit)->geographicalId())==2)) || 
 	    (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB  
-	     && (TOBDetId((*hit)->geographicalId()).layer()==1 || TOBDetId((*hit)->geographicalId()).layer()==2)) ) {
+	     && (tTopo->tobLayer((*hit)->geographicalId())==1 || tTopo->tobLayer((*hit)->geographicalId())==2)) ) {
 	  bool thisHitIsMatched = false ;
 	  unsigned int matcheduselist_size = matcheduselist.size();
 	  for (unsigned int i = 0;  i < matcheduselist_size;  i++) {

@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.16 2008/10/31 15:54:17 nancy Exp $
+// $Id: SiStripElectronAlgo.h,v 1.17 2011/03/21 17:10:32 innocent Exp $
 //
 
 // system include files
@@ -53,6 +53,8 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
+class TrackerTopology;
+
 class SiStripElectronAlgo
 {
 
@@ -82,7 +84,8 @@ class SiStripElectronAlgo
       // and inserts SiStripElectron and trackCandidate into electronOut and trackCandidateOut
       bool findElectron(reco::SiStripElectronCollection& electronOut,
 			TrackCandidateCollection& trackCandidateOut,
-			const reco::SuperClusterRef& superclusterIn);
+			const reco::SuperClusterRef& superclusterIn,
+			const TrackerTopology *tTopo);
 
    private:
       SiStripElectronAlgo(const SiStripElectronAlgo&); // stop default
@@ -94,6 +97,7 @@ class SiStripElectronAlgo
       // selects from stereo if stereo == true, rphi otherwise
       // selects from TID or TEC if endcap == true, TIB or TOB otherwise
       void coarseHitSelection(std::vector<const SiStripRecHit2D*>& hitPointersOut,
+			      const TrackerTopology *tTopo,
 			      bool stereo, bool endcap);
       void coarseBarrelMonoHitSelection(std::vector<const SiStripRecHit2D*>& monoHitPointersOut );
       void coarseEndcapMonoHitSelection(std::vector<const SiStripRecHit2D*>& monoHitPointersOut );
@@ -103,7 +107,9 @@ class SiStripElectronAlgo
       // projects a phi band of width phiBandWidth_ from supercluster into tracker (given a chargeHypothesis)
       // fills *_pos_ or *_neg_ member data with the results
       // returns true iff the electron/positron passes cuts
-      bool projectPhiBand(float chargeHypothesis, const reco::SuperClusterRef& superclusterIn);
+      bool projectPhiBand(float chargeHypothesis, 
+			  const reco::SuperClusterRef& superclusterIn,
+			  const TrackerTopology *tTopo);
 
       double unwrapPhi(double phi) const {
 	 while (phi > M_PI) { phi -= 2.*M_PI; }

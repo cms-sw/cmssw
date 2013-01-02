@@ -250,7 +250,8 @@ vector< pair< RecHitWithDist, PixelHitMatcher::ConstRecHitPointer > >
 PixelHitMatcher::compatibleHits
  ( const GlobalPoint & xmeas,
    const GlobalPoint & vprim,
-   float energy, float fcharge )
+   float energy, float fcharge,
+   const TrackerTopology *tTopo)
  {
   float SCl_phi = xmeas.phi();
 
@@ -428,7 +429,8 @@ PixelHitMatcher::compatibleHits
     FreeTrajectoryState secondFTS=myFTS(theMagField,hitPos,vertexPred,energy, charge);
 
     PixelMatchNextLayers secondHit(theLayerMeasurements, newLayer, secondFTS,
-				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,searchInTIDTEC_);
+				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,
+				   tTopo,searchInTIDTEC_);
     vector<CLHEP::Hep3Vector> predictions = secondHit.predictionInNextLayers();
 
     for (unsigned it = 0; it < predictions.size(); it++) pred2Meas.push_back(predictions[it]);

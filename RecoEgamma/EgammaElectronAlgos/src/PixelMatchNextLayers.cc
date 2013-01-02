@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.cc,v 1.16 2011/04/08 07:55:12 innocent Exp $
+// $Id: PixelMatchNextLayers.cc,v 1.17 2011/04/08 08:54:09 innocent Exp $
 //
 //
 
@@ -22,8 +22,8 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
 
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <iostream> 
 #include <algorithm>
@@ -34,6 +34,7 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 					   const PropagatorWithMaterial *aProp,  
 					   const BarrelMeasurementEstimator *aBarrelMeas,
 					   const ForwardMeasurementEstimator *aForwardMeas,
+					   const TrackerTopology *tTopo,
 					   bool searchInTIDTEC)
  {
 
@@ -90,7 +91,7 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 	      for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++)
 		{
 		  // limit search in first ring
-		  if (TIDDetId(m->recHit()->geographicalId()).ring() > 1) continue;
+		  if (tTopo->tidRing(m->recHit()->geographicalId()) > 1) continue;
 		  if (m == pixelMeasurements.begin())
 		    {
 		      CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
@@ -116,8 +117,8 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 	      for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++)
 		{
 		  // limit search in first ring and first third wheels
-		  if (TECDetId(m->recHit()->geographicalId()).ring() > 1) continue;
-		  if (TECDetId(m->recHit()->geographicalId()).wheel() > 3) continue;
+		  if (tTopo->tecRing(m->recHit()->geographicalId()) > 1) continue;
+		  if (tTopo->tecWheel(m->recHit()->geographicalId()) > 3) continue;
 		  if (m == pixelMeasurements.begin())
 		    {
 		      CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),

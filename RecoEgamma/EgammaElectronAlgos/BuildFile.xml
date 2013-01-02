@@ -8,6 +8,7 @@
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/GsfTrackReco"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/CaloRecHit"/>

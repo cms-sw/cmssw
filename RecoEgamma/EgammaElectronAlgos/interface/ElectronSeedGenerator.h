@@ -44,6 +44,7 @@ class KFUpdator;
 class PixelHitMatcher;
 class MeasurementTracker;
 class NavigationSchool;
+class TrackerTopology;
 
 class ElectronSeedGenerator
 {
@@ -65,7 +66,7 @@ class ElectronSeedGenerator
 
  private:
 
-  void seedsFromThisCluster( edm::Ref<reco::SuperClusterCollection> seedCluster, float hoe1, float hoe2, reco::ElectronSeedCollection & out ) ;
+  void seedsFromThisCluster( edm::Ref<reco::SuperClusterCollection> seedCluster, float hoe1, float hoe2, reco::ElectronSeedCollection & out, const TrackerTopology *tTopo ) ;
   void seedsFromRecHits( std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > & elePixelHits, PropagationDirection & dir, const GlobalPoint & vertexPos, const reco::ElectronSeed::CaloClusterRef & cluster, reco::ElectronSeedCollection & out, bool positron ) ;
   void seedsFromTrajectorySeeds( const std::vector<SeedWithInfo> & elePixelSeeds, const reco::ElectronSeed::CaloClusterRef & cluster, float hoe1, float hoe2, reco::ElectronSeedCollection & out, bool positron ) ;
   void addSeed( reco::ElectronSeed & seed, const SeedWithInfo * info, bool positron, reco::ElectronSeedCollection & out ) ;

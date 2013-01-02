@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchNextLayers.h,v 1.7 2009/05/27 07:31:22 fabiocos Exp $
+// $Id: PixelMatchNextLayers.h,v 1.9 2009/05/27 14:08:25 fabiocos Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
@@ -28,14 +28,17 @@ class DetLayer;
 class FreeTrajectoryState;
 class PropagatorWithMaterial;
 class LayerMeasurements;
+class TrackerTopology;
 
 class PixelMatchNextLayers {
 
 public:
   PixelMatchNextLayers(const LayerMeasurements * theLayerMeasurements, const DetLayer* ilayer, FreeTrajectoryState & aFTS,
 	                        const PropagatorWithMaterial *aProp, 
-                      const BarrelMeasurementEstimator *aBarrelMeas,
-		      const ForwardMeasurementEstimator *aForwardMeas,bool searchInTIDTEC);
+		       const BarrelMeasurementEstimator *aBarrelMeas,
+		       const ForwardMeasurementEstimator *aForwardMeas,
+		       const TrackerTopology *tTopo,
+		       bool searchInTIDTEC);
   std::vector<TrajectoryMeasurement> measurementsInNextLayers() const;
   std::vector<TrajectoryMeasurement> badMeasurementsInNextLayers() const;
   //RC vector<TSiPixelRecHit> hitsInNextLayers() const;  
