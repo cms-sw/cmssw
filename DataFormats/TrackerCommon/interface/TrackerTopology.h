@@ -3,6 +3,9 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
 #include <vector>
 
 //knower of all things tracker geometry
@@ -361,6 +364,35 @@ class TrackerTopology {
   unsigned int pxfPanel(const DetId &id) const {
     return int((id.rawId()>>pfVals_.panelStartBit_) & pfVals_.panelMask_);
   }
+
+  //old constructors, now return DetId
+  DetId pxbDetId(uint32_t layer,
+		 uint32_t ladder,
+		 uint32_t module) const {
+    //uply
+    DetId id(DetId::Tracker,PixelSubdetector::PixelBarrel);
+    uint32_t rawid=id.rawId();
+    rawid |= (layer& pbVals_.layerMask_) << pbVals_.layerStartBit_     |
+      (ladder& pbVals_.ladderMask_) << pbVals_.ladderStartBit_  |
+      (module& pbVals_.moduleMask_) << pbVals_.moduleStartBit_;
+    return DetId(rawid);
+  }
+
+  DetId pxfDetId(uint32_t side,
+		 uint32_t disk,
+		 uint32_t blade,
+		 uint32_t panel,
+		 uint32_t module) const {
+    DetId id(DetId::Tracker,PixelSubdetector::PixelEndcap);
+    uint32_t rawid=id.rawId();
+    rawid |= (side& pfVals_.sideMask_)  << pfVals_.sideStartBit_   |
+      (disk& pfVals_.diskMask_)        << pfVals_.diskStartBit_      |
+      (blade& pfVals_.bladeMask_)      << pfVals_.bladeStartBit_     |
+      (panel& pfVals_.panelMask_)      << pfVals_.panelStartBit_     |
+      (module& pfVals_.moduleMask_)    << pfVals_.moduleStartBit_  ;
+    return DetId(rawid);
+  }
+
 
  private:
 
