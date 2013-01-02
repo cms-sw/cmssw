@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.15 2008/03/04 14:41:51 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.16 2009/11/05 21:08:28 dutta Exp $
 //
 
 // system include files
@@ -67,7 +67,7 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
  private:
 
   void resetMEs(uint32_t idet);
-  void createMEs();
+  void createMEs(edm::EventSetup const& eSetup);
   void fillCondDBMEs(edm::EventSetup const& eSetup);
 
   struct ModMEs{

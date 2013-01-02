@@ -13,4 +13,6 @@
 <use   name="CalibTracker/Records"/>
 <use   name="CalibTracker/SiStripAPVAnalysis"/>
 <use   name="CondCore/DBOutputService"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/CommonDetUnit"/>
 <flags   EDM_PLUGIN="1"/>
