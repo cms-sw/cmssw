@@ -119,7 +119,8 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
 void DrawModelLimitWithBand(string InputPattern);
 void DrawRatioBands(string InputPattern);
 void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSamples);
-
+void printSummaryPaper(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSamples);
+string toLatex(double value);
 
 void makeDataCard(string outpath, string rootPath, string ChannelName, string SignalName, double Obs, double Pred, double PredRelErr, double Sign, double SignalUnc, bool Shape);
 void saveHistoForLimit(TH1* histo, string Name, string Id);
@@ -180,12 +181,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       Optimize(InputPattern, Data, signal7TeV, SHAPESTRING!="", true);
 
       //2012 Limits
-      Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"8TeV";
-      Optimize(InputPattern, Data, signal8TeV, SHAPESTRING!="", true);
+      //Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"8TeV";
+      //Optimize(InputPattern, Data, signal8TeV, SHAPESTRING!="", true);
 
       //Combined Limits
-      EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
-      Combine(InputPattern, signal7TeV, signal8TeV);
+      //EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
+      //Combine(InputPattern, signal7TeV, signal8TeV);
       return;
    }
    if(MODE.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
@@ -368,8 +369,42 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
       for(unsigned int k=0; k<modelVector.size(); k++){printSummary(pFile, talkFile, LQPattern , modelVector[k], modelMap[modelVector[k]]); }
       fprintf(pFile,"\\hline\n\n\n");
-   }
 
+
+
+
+
+      fprintf(pFile,"\n\n\n\n\n\n");
+      fprintf(pFile,"%%TKONLY\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummaryPaper(pFile, talkFile, TkPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+
+      fprintf(pFile,"%%TKTOF\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummaryPaper(pFile, talkFile, MuPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+
+      fprintf(pFile,"%%MUONLY\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummaryPaper(pFile, talkFile, MOPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+
+      fprintf(pFile,"%%Q>1\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummaryPaper(pFile, talkFile, HQPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+
+      fprintf(pFile,"%%Q<1\n");
+      fprintf(pFile,"Sample & Mass  & Cut   & \\multicolumn{4}{c|}{$\\sqrt{s}=7TeV$} & \\multicolumn{4}{c|}{$\\sqrt{s}=8TeV$} & \\multicolumn{2}{c|}{$\\sqrt{s}=7+8TeV$} \\\\\\hline\n");
+      fprintf(pFile,"       & (GeV) & (GeV) & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & Eff & $\\sigma_{TH}$ & $\\sigma_{obs}$ & $\\sigma_{pred}$ & $\\mu_{obs}$ & $\\mu_{pred}$ \\\\\\hline\n");
+      for(unsigned int k=0; k<modelVector.size(); k++){printSummaryPaper(pFile, talkFile, LQPattern , modelVector[k], modelMap[modelVector[k]]); }
+      fprintf(pFile,"\\hline\n\n\n");
+   }
 
    //print a table with all uncertainty on signal efficiency
 
@@ -1476,6 +1511,7 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelN
 
 
 void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSamples){
+  TypeMode = TypeFromPattern(InputPattern);
    for(unsigned int i=0;i<modelSamples.size();i++){
       string signal7TeV = modelSamples[i].Name; if(signal7TeV.find("_8TeV")!=string::npos) signal7TeV = signal7TeV.replace(signal7TeV.find("_8TeV"),5, "_7TeV");
       string signal8TeV = modelSamples[i].Name; if(signal8TeV.find("_7TeV")!=string::npos) signal8TeV = signal8TeV.replace(signal8TeV.find("_7TeV"),5, "_8TeV");
@@ -1494,9 +1530,9 @@ void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string Model
       if(ModelNameTS.Contains("DC")                              )continue;
 
       char massCut[255];  if(Infos8.MassCut>0){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
-      char Results7[255]; if(Infos7.Mass>0){sprintf(Results7, "%6.2f & %6.2E & %6.2E & %6.2E", Infos7.Eff, Infos7.XSec_Th,Infos7.XSec_Obs, Infos7.XSec_Exp);}else{sprintf(Results7, "       &          &          &         ");}
-      char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%6.2f & %6.2E & %6.2E & %6.2E", Infos8.Eff, Infos8.XSec_Th,Infos8.XSec_Obs, Infos8.XSec_Exp);}else{sprintf(Results8, "       &          &          &         ");}
-      char ResultsC[255]; if(InfosC.Mass>0){sprintf(ResultsC, "%6.2E & %6.2E", InfosC.XSec_Obs, InfosC.XSec_Exp);}else{sprintf(ResultsC, "         &         ");}
+      char Results7[255]; if(Infos7.Mass>0 && TypeMode!=3){sprintf(Results7, "%6.2f & %6.2E & %6.2E & %6.2E", Infos7.Eff, Infos7.XSec_Th,Infos7.XSec_Obs, Infos7.XSec_Exp);}else{sprintf(Results7, "   -   &    -     &   -      &   -     ");}
+      char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%6.2f & %6.2E & %6.2E & %6.2E", Infos8.Eff, Infos8.XSec_Th,Infos8.XSec_Obs, Infos8.XSec_Exp);}else{sprintf(Results8, "   -    &    -     &    -     &   -     ");}
+      char ResultsC[255]; if(InfosC.Mass>0 && TypeMode!=3){sprintf(ResultsC, "%6.2E & %6.2E", InfosC.XSec_Obs, InfosC.XSec_Exp);}else{sprintf(ResultsC, "   -     &    -    ");}
 
 //    char Results7[255]; if(Infos7.Mass>0){sprintf(Results7, "%10s & %10s & %10s & %10s", toLatexRounded(Infos7.Eff).c_str(), toLatexRounded(Infos7.XSec_Th).c_str(),toLatexRounded(Infos7.XSec_Obs).c_str(), toLatexRounded(Infos7.XSec_Exp).c_str());}else{sprintf(Results7, "%10s & %10s & %10s & %10s", "", "", "", "");}
 //    char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%10s & %10s & %10s & %10s", toLatexRounded(Infos8.Eff).c_str(), toLatexRounded(Infos8.XSec_Th).c_str(),toLatexRounded(Infos8.XSec_Obs).c_str(), toLatexRounded(Infos8.XSec_Exp).c_str());}else{sprintf(Results8, "%10s & %10s & %10s & %10s", "", "", "", "");}
@@ -1508,6 +1544,44 @@ void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string Model
 
 
 
+void printSummaryPaper(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, std::vector<stSample>& modelSamples){
+   for(unsigned int i=0;i<modelSamples.size();i++){
+     TypeMode = TypeFromPattern(InputPattern);
+      string signal7TeV = modelSamples[i].Name; if(signal7TeV.find("_8TeV")!=string::npos) signal7TeV = signal7TeV.replace(signal7TeV.find("_8TeV"),5, "_7TeV");
+      string signal8TeV = modelSamples[i].Name; if(signal8TeV.find("_7TeV")!=string::npos) signal8TeV = signal8TeV.replace(signal8TeV.find("_7TeV"),5, "_8TeV");
+      string signal     = signal8TeV;           if(signal    .find("_8TeV")!=string::npos) signal     = signal    .replace(signal    .find("_8TeV"),5, "");
+      stAllInfo Infos7(InputPattern+""+SHAPESTRING+"EXCLUSION7TeV"+"/" + signal7TeV +".txt");
+      stAllInfo Infos8(InputPattern+""+SHAPESTRING+"EXCLUSION8TeV"+"/" + signal8TeV +".txt");
+      stAllInfo InfosC(InputPattern+""+SHAPESTRING+"EXCLUSIONCOMB"+"/" + signal     +".txt");
+      if(Infos7.Mass<=0 && Infos8.Mass<=0 && InfosC.Mass<=0)continue;
+      if(Infos7.Eff<=0 && Infos8.Eff<=0)continue;
+      double Mass = std::max(Infos7.Mass, Infos8.Mass);
+      TString ModelNameTS =  ModelName.c_str();  ModelNameTS.ReplaceAll("8TeV",""); ModelNameTS.ReplaceAll("7TeV","");
+
+      if((ModelNameTS.Contains("Gluino_f10") && !ModelNameTS.Contains("f100") && !ModelNameTS.Contains("N") && ((int)(Mass)/100)%4==3 && TypeMode==0) ||
+	 (ModelNameTS.Contains("Gluino_f50") && !ModelNameTS.Contains("N") && ((int)(Mass)/100)%4==3 && TypeMode==0) ||
+	 (ModelNameTS.Contains("Gluino_f100") && ((int)(Mass)/100)%4==3 && TypeMode==3) ||
+	 (ModelNameTS.Contains("Stop") && !ModelNameTS.Contains("N") && ((int)(Mass)/100)%3==2 && TypeMode==0) ||
+	 (ModelNameTS.Contains("GMStau") && (Mass==126 || Mass==308 || Mass==494) && TypeMode==2) ||
+	 (ModelNameTS.Contains("PPStau") && (Mass==126 || Mass==308 || Mass==494) && TypeMode==2) ||
+	 (ModelNameTS.Contains("DY")     && ((int)(Mass)/100)%3==2 && TypeMode==4) ||
+         (ModelNameTS.Contains("DY")     && ((int)(Mass)/100)%2==0 && TypeMode==5)) {
+
+	fprintf(pFile,"%s\\\\\n", ModelName.c_str());
+
+      char massCut[255];  if(Infos8.MassCut>0){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
+      char Results7[255]; if(Infos7.Mass>0 && TypeMode!=3){sprintf(Results7, "%s & %s & %6.2f", toLatex(Infos7.XSec_Exp).c_str(), toLatex(Infos7.XSec_Obs).c_str(), Infos8.Eff);}else{sprintf(Results7, "    -     &   -      &   -     ");}
+      char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%s & %s & %6.2f", toLatex(Infos8.XSec_Exp).c_str(), toLatex(Infos8.XSec_Obs).c_str(), Infos8.Eff);}else{sprintf(Results8, "  -    &   -      &    -     &   -     ");}
+      char ResultsC[255]; if(InfosC.Mass>0 && TypeMode!=3){sprintf(ResultsC, "%s & %s", toLatex(InfosC.XSec_Exp).c_str(), toLatex(InfosC.XSec_Obs).c_str());}else{sprintf(ResultsC, "   -     &    -    ");}
+
+//    char Results7[255]; if(Infos7.Mass>0){sprintf(Results7, "%10s & %10s & %10s & %10s", toLatexRounded(Infos7.Eff).c_str(), toLatexRounded(Infos7.XSec_Th).c_str(),toLatexRounded(Infos7.XSec_Obs).c_str(), toLatexRounded(Infos7.XSec_Exp).c_str());}else{sprintf(Results7, "%10s & %10s & %10s & %10s", "", "", "", "");}
+//    char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%10s & %10s & %10s & %10s", toLatexRounded(Infos8.Eff).c_str(), toLatexRounded(Infos8.XSec_Th).c_str(),toLatexRounded(Infos8.XSec_Obs).c_str(), toLatexRounded(Infos8.XSec_Exp).c_str());}else{sprintf(Results8, "%10s & %10s & %10s & %10s", "", "", "", "");}
+//    char ResultsC[255]; if(InfosC.Mass>0){sprintf(ResultsC, "%10s & %10s", toLatexRounded(InfosC.XSec_Obs).c_str(), toLatexRounded(InfosC.XSec_Exp).c_str());}else{sprintf(ResultsC, "%10s & %10s", "", "");}
+
+      fprintf(pFile,"     & %4.0f & %-7s & %s & %s & %s\\\\\n", Mass, massCut, Results7, Results8, ResultsC);
+   }
+   }
+}
 
 
 double GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, double MinRange_, double MaxRange_){
@@ -2405,6 +2479,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
               if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/100.0);
+		cout << endl << "2 down expected " << Tlimit << " XSec " << result.XSec_Exp2Down << endl << endl;
         }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/100.0);
         }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/100.0);
         }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/100.0);
@@ -2414,7 +2489,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
         }
       }
       file->Close();
-
+   
       //RUN FULL HYBRID CLS LIMIT (just for observed limit so far, because it is very slow for expected limits --> should be updated --> FIXME)
       CodeToExecute = "cd /tmp/;";
       CodeToExecute += "combine -M HybridNew -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";
@@ -2445,6 +2520,33 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
         }
       }
       file->Close();
+
+      cout << endl << "Trying to find expected limit" << endl << endl;
+      //Number of different signal strengths to try
+      int gridPoints=8;
+      //Normalize to 10/fb
+      double Down2 = 0.6*result.XSec_Exp2Down*100/result.XSec_Th;
+      double Up2 = 200.*result.XSec_Exp2Down*100/result.XSec_Th;
+      double Step=(Up2-Down2)/gridPoints;
+
+      CodeToExecute = "cd /tmp/;";
+      cout << "Grid points " << gridPoints << endl;
+      for (int i=0; i<gridPoints+1; i++) {
+	char Seed[1024];
+	sprintf(Seed,"%i",i);
+        char PointStr[1024];
+
+	double Point = Down2 + i*Step;
+        sprintf(PointStr,"%6.8f",Point);
+	cout << "Point " << PointStr << endl;
+	//Don't include mass string here or else it won't work
+	CodeToExecute += "combine shape_" + signal + ".dat -M HybridNew --freq --fork 1 -T 50 --clsAcc 0 -n " + signal +              " --saveHybridResult --saveToys -s " + Seed + " -i 4 --singlePoint " + PointStr + " &> shape_" + signal + PointStr + ".log;";
+      }
+
+      CodeToExecute += "hadd -f higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root higgsCombine"+signal+".HybridNew.mH120.*.root;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root --expectedFromGrid 0.5;";
+      CodeToExecute += "cd $OLDPWD; cp /tmp/higgsCombine"+signal+".HybridNew.mH*grid.root .";
+      system(CodeToExecute.c_str());
    }
 
    if(!Temporary && getSignificance){
@@ -2702,5 +2804,20 @@ bool useSample(int TypeMode, string sample) {
   if(TypeMode==4) return true;
   if(TypeMode==5) return true;
   return false;
+}
+
+string toLatex(double value) {
+  char toReturn[255];
+  if(value<0.001) {
+    int exponent=0;
+    while (value<1) {
+      exponent++;
+      value*=10;
+    }
+    sprintf(toReturn,"$   %6.2f \\times 10^{-%i}$",value, exponent);
+  }
+  else sprintf(toReturn,"%.3g",value);
+  string stringReturn = toReturn;
+  return stringReturn;
 }
 
