@@ -157,6 +157,15 @@ private:
   bool ring_flag;
   bool TkHistoMap_On_;
 
+  bool layerontrack;
+  bool layerofftrack;
+  bool layercharge;
+  bool layerston;
+  bool layerchargecorr;
+  bool layerstoncorrontrack;
+  bool layernoise;
+  bool layerwidth;
+
   std::string TrackProducer_;
   std::string TrackLabel_;
 
