@@ -98,9 +98,20 @@ void accTest(STD stdf, APPROX approx, int degree) {
 
 // performance test
 #include <x86intrin.h>
+#ifdef __clang__
+/** CPU cycles since processor startup */
+inline uint64_t rdtsc() {
+uint32_t lo, hi;
+/* We cannot use "=A", since this would use %rax on x86_64 */
+__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+return (uint64_t)hi << 32 | lo;
+}
+#else
 inline volatile unsigned long long rdtsc() {
  return __rdtsc();
 }
+#endif
+
 
 
 template<int DEGREE, int WHAT>

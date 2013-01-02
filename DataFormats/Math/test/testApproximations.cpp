@@ -90,10 +90,10 @@ template<typename T>
 inline 
 float bb2(float xi, float m2, float p2) { 
 
-  constexpr T emass = 0.511e-3;
-  constexpr T poti = 16.e-9 * 10.75; // = 16 eV * Z**0.9, for Si Z=14
-  constexpr T eplasma = 28.816e-9 * sqrt(2.33*0.498); // 28.816 eV * sqrt(rho*(Z/A)) for Si
-  constexpr T delta0 = 2*log(eplasma/poti) - 1.;
+  const T emass = 0.511e-3;
+  const T poti = 16.e-9 * 10.75; // = 16 eV * Z**0.9, for Si Z=14
+  const T eplasma = 28.816e-9 * sqrt(2.33*0.498); // 28.816 eV * sqrt(rho*(Z/A)) for Si
+  const T delta0 = 2*log(eplasma/poti) - 1.;
 
   // calculate general physics things
   T p = sqrt(p2);
@@ -115,10 +115,10 @@ template<typename T>
 inline 
 float bb(float xi, float m2, float p2) { 
 
-  constexpr T emass = 0.511e-3;
-  constexpr T poti = 16.e-9 * 10.75; // = 16 eV * Z**0.9, for Si Z=14
-  constexpr T eplasma = 28.816e-9 * sqrt(2.33*0.498); // 28.816 eV * sqrt(rho*(Z/A)) for Si
-  constexpr T delta0 = 2*log(eplasma/poti) - 1.;
+  const T emass = 0.511e-3;
+  const T poti = 16.e-9 * 10.75; // = 16 eV * Z**0.9, for Si Z=14
+  const T eplasma = 28.816e-9 * sqrt(2.33*0.498); // 28.816 eV * sqrt(rho*(Z/A)) for Si
+  const T delta0 = 2*log(eplasma/poti) - 1.;
 
   // calculate general physics things
   T im2 = T(1.)/m2;
@@ -139,10 +139,10 @@ template<typename T>
 inline 
 float bbf(float xi, float m2, float p2) { 
 
-  constexpr T emass = 0.511e-3;
-  constexpr T poti = 16.e-9 * 10.75; // = 16 eV * Z**0.9, for Si Z=14
-  constexpr T eplasma = 28.816e-9 * sqrt(2.33*0.498); // 28.816 eV * sqrt(rho*(Z/A)) for Si
-  constexpr T delta0 = 2*log(eplasma/poti) - 1.;
+  const T emass = 0.511e-3;
+  const T poti = 16.e-9 * 10.75; // = 16 eV * Z**0.9, for Si Z=14
+  const T eplasma = 28.816e-9 * sqrt(2.33*0.498); // 28.816 eV * sqrt(rho*(Z/A)) for Si
+  const T delta0 = 2*log(eplasma/poti) - 1.;
 
   // calculate general physics things
   T im2 = T(1.)/m2;
@@ -164,10 +164,10 @@ template<typename T>
 inline 
 float bbf2(float xi, float m2, float p2) { 
 
-  constexpr T emass = 0.511e-3;
-  constexpr T poti = 16.e-9 * 10.75; // = 16 eV * Z**0.9, for Si Z=14
-  constexpr T eplasma = 28.816e-9 * sqrt(2.33*0.498); // 28.816 eV * sqrt(rho*(Z/A)) for Si
-  constexpr T delta0 = 2*log(eplasma/poti) - 1.;
+  const T emass = 0.511e-3;
+  const T poti = 16.e-9 * 10.75; // = 16 eV * Z**0.9, for Si Z=14
+  const T eplasma = 28.816e-9 * sqrt(2.33*0.498); // 28.816 eV * sqrt(rho*(Z/A)) for Si
+  const T delta0 = 2*log(eplasma/poti) - 1.;
 
   // calculate general physics things
   T im2 = T(1.)/m2;
