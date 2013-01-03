@@ -25,8 +25,8 @@ class SiStripCablingDQM: public SiStripBaseCondObjDQM{
   void fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){;}
   void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){;}
 
-  void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){;}
-  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){;}
+  void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_, const TrackerTopology* tTopo){;}
+  void fillMEsForLayer( /*std::map<uint32_t, ModMEs> selModMEsMap_, */ uint32_t selDetId_, const TrackerTopology* tTopo){;}
 
   void getActiveDetIds(const edm::EventSetup & eSetup);
   unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();}

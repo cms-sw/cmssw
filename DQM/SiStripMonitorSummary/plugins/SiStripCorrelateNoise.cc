@@ -119,8 +119,10 @@ SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup& es, SiStripNoises Noise
 
   edm::LogInfo("") << "[Doanalysis]";
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<TH1F *>histos;
 
@@ -178,7 +180,7 @@ SiStripCorrelateNoise::getMeanNoise(const SiStripNoises::Range& noiseRange,const
 }
 
 void
-SiStripCorrelateNoise::getHistos(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo, std::vector<TH1F*>& histos){
+SiStripCorrelateNoise::getHistos(const uint32_t& detid, const TrackerTopology* tTopo, std::vector<TH1F*>& histos){
   
   histos.clear();
   

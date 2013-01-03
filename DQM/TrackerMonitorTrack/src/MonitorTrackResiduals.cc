@@ -39,8 +39,10 @@ void MonitorTrackResiduals::beginJob(void) {
 
 void MonitorTrackResiduals::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
   
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
   
   unsigned long long cacheID = iSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
@@ -68,8 +70,10 @@ void MonitorTrackResiduals::beginRun(edm::Run const& run, edm::EventSetup const&
 
 void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   Parameters = conf_.getParameter<edm::ParameterSet>("TH1ResModules");
   int32_t i_residuals_Nbins =  Parameters.getParameter<int32_t>("Nbinx");
@@ -177,8 +181,10 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
   // Filter out events if Trigger Filtering is requested                                                                                           
   if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   TrackerValidationVariables avalidator_(iSetup,conf_);
   std::vector<TrackerValidationVariables::AVHitStruct> v_hitstruct;

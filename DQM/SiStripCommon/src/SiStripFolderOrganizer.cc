@@ -9,7 +9,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-// $Id: SiStripFolderOrganizer.cc,v 1.30 2011/05/31 10:38:46 eulisse Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.31 2013/01/02 17:37:22 wmtan Exp $
 //
 
 #include <iostream>
@@ -116,7 +116,7 @@ void SiStripFolderOrganizer::setSiStripControlFolder(
  return;
 }
 
-std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayer(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo, bool ring_flag){
+std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayer(const uint32_t& detid, const TrackerTopology* tTopo, bool ring_flag){
   std::string cSubDet;
   int32_t layer=0;
   switch(StripSubdetector::SubDetector(StripSubdetector(detid).subdetId()))
@@ -150,7 +150,7 @@ std::pair<std::string,int32_t> SiStripFolderOrganizer::GetSubDetAndLayer(const u
 }
 
 
-void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid, const TrackerTopology* tTopo){
   std::string folder_name;
   getFolderName(rawdetid, tTopo, folder_name);
   dbe_->setCurrentFolder(folder_name);
@@ -174,7 +174,7 @@ void SiStripFolderOrganizer::getSubDetLayerFolderName(std::stringstream& ss, SiS
 }
 
 
-void SiStripFolderOrganizer::getFolderName(int32_t rawdetid, edm::ESHandle<TrackerTopology>& tTopo, std::string& lokal_folder){
+void SiStripFolderOrganizer::getFolderName(int32_t rawdetid, const TrackerTopology* tTopo, std::string& lokal_folder){
   lokal_folder = ""; 
   if(rawdetid == 0 ){ // just top MechanicalFolder if rawdetid==0;
     return;
@@ -231,7 +231,7 @@ void SiStripFolderOrganizer::getFolderName(int32_t rawdetid, edm::ESHandle<Track
 
 }
 
-void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, edm::ESHandle<TrackerTopology>& tTopo, int32_t layer, bool ring_flag){
+void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, const TrackerTopology* tTopo, int32_t layer, bool ring_flag){
   std::string lokal_folder = TopFolderName + SEP + MECHANICAL_FOLDER_NAME;
   if(rawdetid == 0 ){ // just top MechanicalFolder if rawdetid==0;
     dbe_->setCurrentFolder(lokal_folder);
@@ -304,7 +304,7 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid, edm::ESHandle<Tra
   dbe_->setCurrentFolder(lokal_folder);
 }
 
-void SiStripFolderOrganizer::getSubDetFolder(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo, std::string& folder_name){
+void SiStripFolderOrganizer::getSubDetFolder(const uint32_t& detid, const TrackerTopology* tTopo, std::string& folder_name){
 
   std::pair<std::string, std::string> subdet_and_tag = getSubDetFolderAndTag(detid, tTopo); 
   folder_name = subdet_and_tag.first;
@@ -312,7 +312,7 @@ void SiStripFolderOrganizer::getSubDetFolder(const uint32_t& detid, edm::ESHandl
 //
 // -- Get the name of Subdetector Layer folder
 //
-void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t rawdetid, edm::ESHandle<TrackerTopology>& tTopo, bool ring_flag){
+void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t rawdetid, const TrackerTopology* tTopo, bool ring_flag){
   ss << TopFolderName + SEP + MECHANICAL_FOLDER_NAME;
   if(rawdetid == 0 ){ // just top MechanicalFolder if rawdetid==0;
     return;
@@ -352,7 +352,7 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss, uint32_t 
 //
 // -- Get Subdetector Folder name and the Tag
 //
-std::pair<std::string, std::string> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo) {
+std::pair<std::string, std::string> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo) {
   std::pair<std::string, std::string> result;
   result.first = TopFolderName + SEP MECHANICAL_FOLDER_NAME SEP;
   std::string subdet_folder;

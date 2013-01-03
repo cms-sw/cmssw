@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Mon Aug 10 10:42:04 CEST 2009
-// $Id: SiStripPlotGain.h,v 1.2 2009/09/23 14:20:53 kaussen Exp $
+// $Id: SiStripPlotGain.h,v 1.3 2013/01/02 17:23:49 wmtan Exp $
 //
 //
 
@@ -59,7 +59,7 @@ private:
   virtual void endJob();
   
   void DoAnalysis(const edm::EventSetup& es, const SiStripApvGain&);
-  void getHistos(const uint32_t & detid, edm::ESHandle<TrackerTopology>& tTopo, std::vector<TH1F*>& histos);
+  void getHistos(const uint32_t & detid, const TrackerTopology* tTopo, std::vector<TH1F*>& histos);
   TH1F* getHisto(const long unsigned int& index);
 
   unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();}

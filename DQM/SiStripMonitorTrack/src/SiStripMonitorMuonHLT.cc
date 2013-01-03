@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.14 2012/01/17 10:31:50 innocent Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.15 2013/01/02 16:55:48 wmtan Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -642,8 +642,10 @@ void
 SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const TrackerGeometry & theTracker, const edm::EventSetup& es,
                                               std::map< std::string,std::vector<float> > & m_PhiStripMod_Eta,std::map< std::string,std::vector<float> > & m_PhiStripMod_Nb){
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<std::string> v_LabelHisto;
 

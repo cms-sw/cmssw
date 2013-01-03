@@ -33,7 +33,7 @@ void SiStripNoisesDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 }
 
 // -----
-void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
 
   std::vector<uint32_t> DetIds;
   noiseHandle_->getDetIds(DetIds);
@@ -75,7 +75,7 @@ void SiStripNoisesDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, edm::
 //FIXME the number of lines of code in the derived classes should be reduced ONLY at what cannot be done in the base class because of the specific implementation
 //FIXME of the derived class. Moreover, several loops on the same quantities should be avoided...
 
-void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripNoisesDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, const TrackerTopology* tTopo){
 
   // ----
   int subdetectorId_ = ((selDetId_>>25)&0x7);

@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Feb 22 16:07:58 CET 2006
-// $Id: SiStripHistoId.cc,v 1.16 2011/05/31 10:38:46 eulisse Exp $
+// $Id: SiStripHistoId.cc,v 1.17 2013/01/02 17:37:22 wmtan Exp $
 //
 
 #include<iostream>
@@ -82,7 +82,7 @@ std::string SiStripHistoId::createHistoLayer(std::string description, std::strin
   return local_histo_id;
 }
 
-std::string SiStripHistoId::getSubdetid(uint32_t id, edm::ESHandle<TrackerTopology>& tTopo, bool flag_ring){
+std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTopo, bool flag_ring){
   std::string rest1;
   
   const int buf_len = 50;

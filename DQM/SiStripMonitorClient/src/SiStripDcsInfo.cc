@@ -204,8 +204,10 @@ void SiStripDcsInfo::bookStatus() {
 // 
 void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  eSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   unsigned long long cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
   if (m_cacheIDCabling_ != cacheID) {
@@ -243,8 +245,10 @@ void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
 //
 void SiStripDcsInfo::readStatus(edm::EventSetup const& eSetup) {
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  eSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   eSetup.get<SiStripDetVOffRcd>().get(siStripDetVOff_);
   std::vector <uint32_t> FaultyDetIds;

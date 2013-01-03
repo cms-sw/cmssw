@@ -554,8 +554,10 @@ void SiStripQualityChecker::getModuleStatus(std::vector<MonitorElement*>& layer_
 void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store, const edm::EventSetup& eSetup) {
   if (badModuleList.size() == 0) return;
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  eSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   dqm_store->cd();
   std::string mdir = "MechanicalView";

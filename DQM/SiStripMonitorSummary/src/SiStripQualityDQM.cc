@@ -33,8 +33,10 @@ void SiStripQualityDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 // -----
 void SiStripQualityDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
    
   ModMEs CondObj_ME;
   
@@ -50,7 +52,7 @@ void SiStripQualityDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds,
 
 //===================================================
 // -----
-void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
     
   getModMEs(selModME_,selDetId_, tTopo);
   
@@ -69,8 +71,10 @@ void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, edm:
 // -----
 void SiStripQualityDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
                                             detIter_!= selectedDetIds.end();detIter_++){
@@ -99,7 +103,7 @@ void SiStripQualityDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDet
 
 //=================================================
 // -----
-void SiStripQualityDQM::fillMEsForLayer(/* std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripQualityDQM::fillMEsForLayer(/* std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, const TrackerTopology* tTopo){
   
   float numberOfBadStrips=0;
   
@@ -188,8 +192,10 @@ void SiStripQualityDQM::fillMEsForLayer(/* std::map<uint32_t, ModMEs> selMEsMap_
 //=============================
 void SiStripQualityDQM::fillGrandSummaryMEs(const edm::EventSetup& eSetup){
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  eSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
      
   std::string hSummary_BadObjects_xTitle        = hPSet_.getParameter<std::string>("Summary_BadObjects_histo_xTitle");
 

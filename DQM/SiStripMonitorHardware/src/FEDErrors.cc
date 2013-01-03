@@ -98,7 +98,7 @@ void FEDErrors::initialiseEvent() {
 
 void FEDErrors::initialiseFED(const unsigned int aFedID,
 			      const SiStripFedCabling* aCabling,
-                              edm::ESHandle<TrackerTopology>& tTopo,
+                              const TrackerTopology* tTopo,
 			      const bool initVars)
 {
   fedID_ = aFedID;

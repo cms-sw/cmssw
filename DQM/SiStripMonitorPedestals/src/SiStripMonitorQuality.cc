@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri Dec  7 20:50 CET 2007
-// $Id: SiStripMonitorQuality.cc,v 1.6 2012/01/08 09:13:38 eulisse Exp $
+// $Id: SiStripMonitorQuality.cc,v 1.7 2013/01/02 14:17:44 wmtan Exp $
 //
 //
 
@@ -76,8 +76,10 @@ void SiStripMonitorQuality::analyze(edm::Event const& iEvent, edm::EventSetup co
   unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();  
   if (m_cacheID_ == cacheID) return;
   
-  edm::ESHandle<TrackerTopology> tTopo;
-  eSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   m_cacheID_ = cacheID;       
 
@@ -144,7 +146,7 @@ void SiStripMonitorQuality::endJob(void){
 //
 // -- End Job
 //
-MonitorElement* SiStripMonitorQuality::getQualityME(uint32_t idet, edm::ESHandle<TrackerTopology>& tTopo){
+MonitorElement* SiStripMonitorQuality::getQualityME(uint32_t idet, const TrackerTopology* tTopo){
 
   std::map<uint32_t, MonitorElement* >::iterator pos = QualityMEs.find(idet);
   MonitorElement* det_me;

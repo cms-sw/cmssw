@@ -1,4 +1,4 @@
-// $Id: QcdLowPtDQM.cc,v 1.19 2012/01/11 13:53:29 olzem Exp $
+// $Id: QcdLowPtDQM.cc,v 1.20 2013/01/02 13:59:43 wmtan Exp $
 
 #include "DQM/Physics/src/QcdLowPtDQM.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -818,8 +818,10 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup& iSetup)
     return;
   }
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   const SiPixelRecHitCollection *hits = hRecHits.product();
   for(SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), 

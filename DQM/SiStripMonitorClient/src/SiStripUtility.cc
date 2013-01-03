@@ -233,7 +233,7 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
 //
 // -- Get Sub Detector tag from DetId
 //
-void SiStripUtility::getSubDetectorTag(uint32_t det_id, std::string& subdet_tag, edm::ESHandle<TrackerTopology>& tTopo) {
+void SiStripUtility::getSubDetectorTag(uint32_t det_id, std::string& subdet_tag, const TrackerTopology* tTopo) {
   StripSubdetector subdet(det_id);
   subdet_tag = "";
   switch (subdet.subdetId()) 

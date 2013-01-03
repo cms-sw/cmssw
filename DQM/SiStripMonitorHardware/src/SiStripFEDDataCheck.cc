@@ -10,7 +10,7 @@
 //
 // Original Author:  Nicholas Cripps
 //         Created:  2008/09/16
-// $Id: SiStripFEDDataCheck.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
+// $Id: SiStripFEDDataCheck.cc,v 1.2 2013/01/02 14:30:24 wmtan Exp $
 //
 //
 #include <memory>
@@ -144,8 +144,10 @@ SiStripFEDCheckPlugin::~SiStripFEDCheckPlugin()
 void
 SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //update cabling
   updateCabling(iSetup);

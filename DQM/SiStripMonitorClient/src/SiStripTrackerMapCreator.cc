@@ -189,8 +189,10 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
 // -- Fill Tracker Map with QTest Alarms and SiStripQuality bad modules
 void SiStripTrackerMapCreator::setTkMapFromAlarm(DQMStore* dqm_store, const edm::EventSetup& eSetup) {
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  eSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   nDet     = 0;
   tkMapMax_ = 0.0; 
@@ -227,8 +229,10 @@ void SiStripTrackerMapCreator::setTkMapFromAlarm(DQMStore* dqm_store, const edm:
 //
 void SiStripTrackerMapCreator::printBadModuleList(std::map<unsigned int,std::string>* badmodmap, const edm::EventSetup& eSetup) {
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  eSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   bool tibDone=false,tidSide1Done=false,tidSide2Done=false,tobDone=false,tecSide1Done=false,tecSide2Done=false;
   unsigned int tibFirst=369120277-1,
@@ -311,7 +315,7 @@ void SiStripTrackerMapCreator::printBadModuleList(std::map<unsigned int,std::str
 //
 // -- Paint Tracker Map with QTest Alarms 
 //
-void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, edm::ESHandle<TrackerTopology>& tTopo,
+void SiStripTrackerMapCreator::paintTkMapFromAlarm(uint32_t det_id, const TrackerTopology* tTopo,
                                                    DQMStore* dqm_store, bool isBad, std::map<unsigned int,std::string>* badmodmap) {
   std::ostringstream comment;
   uint16_t flag = 0; 
@@ -452,7 +456,7 @@ void SiStripTrackerMapCreator::setTkMapRangeOffline() {
 // -- Get Flag and status Comment
 //
 uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store, uint32_t det_id,
-                                                             edm::ESHandle<TrackerTopology>& tTopo, std::ostringstream& comment) {
+                                                             const TrackerTopology* tTopo, std::ostringstream& comment) {
   //  comment << " DetId " << det_id << " : ";
   comment << "Module " << det_id;
   uint16_t flag = 0;

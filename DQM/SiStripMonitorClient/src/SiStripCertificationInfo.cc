@@ -273,8 +273,10 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(edm::EventSetup const
     return;
   }
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  eSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   resetSiStripCertificationMEs();
   std::string mdir = "MechanicalView";

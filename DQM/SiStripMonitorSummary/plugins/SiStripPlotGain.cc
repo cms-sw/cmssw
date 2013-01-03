@@ -48,8 +48,10 @@ SiStripPlotGain::DoAnalysis(const edm::EventSetup& es, const SiStripApvGain& gai
 
   edm::LogInfo("") << "[Doanalysis]";
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<TH1F *>histos;
 
@@ -79,7 +81,7 @@ SiStripPlotGain::DoAnalysis(const edm::EventSetup& es, const SiStripApvGain& gai
 
 
 void
-SiStripPlotGain::getHistos(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo, std::vector<TH1F*>& histos){
+SiStripPlotGain::getHistos(const uint32_t& detid, const TrackerTopology* tTopo, std::vector<TH1F*>& histos){
   
   histos.clear();
   

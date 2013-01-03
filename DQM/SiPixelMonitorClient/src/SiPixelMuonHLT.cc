@@ -14,7 +14,7 @@
 //
 // Original Author:  Dan Duggan
 //         Created:  
-// $Id: SiPixelMuonHLT.cc,v 1.8 2010/04/28 09:46:47 duggan Exp $
+// $Id: SiPixelMuonHLT.cc,v 1.9 2012/12/26 21:05:53 wmtan Exp $
 //
 //////////////////////////////////////////////////////////
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -80,8 +80,9 @@ void SiPixelMuonHLT::endJob(void){
 void SiPixelMuonHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
   eventNo++;

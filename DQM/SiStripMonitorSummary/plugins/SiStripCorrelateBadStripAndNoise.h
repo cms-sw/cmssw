@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Mon Aug 10 10:42:04 CEST 2009
-// $Id: SiStripCorrelateBadStripAndNoise.h,v 1.2 2009/09/23 14:20:53 kaussen Exp $
+// $Id: SiStripCorrelateBadStripAndNoise.h,v 1.3 2013/01/02 17:23:49 wmtan Exp $
 //
 //
 
@@ -59,16 +59,16 @@ private:
   virtual void endJob();
   
   void DoAnalysis(const edm::EventSetup&);
-  void getHistos(const uint32_t & detid, edm::ESHandle<TrackerTopology>& tTopo, std::vector<TH2F*>& histos);
+  void getHistos(const uint32_t & detid, const TrackerTopology* tTopo, std::vector<TH2F*>& histos);
   TH2F* getHisto(const long unsigned int& index);
 
   unsigned long long getNoiseCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();}
   unsigned long long getQualityCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripQualityRcd>().cacheIdentifier();}
 
 
-  void iterateOnDets(edm::ESHandle<TrackerTopology>& tTopo);
-  void iterateOnBadStrips(const uint32_t & detid, edm::ESHandle<TrackerTopology>& tTopo, SiStripQuality::Range& sqrange);
-  void correlateWithNoise(const uint32_t & detid, edm::ESHandle<TrackerTopology>& tTopo, const uint32_t & firstStrip,  const uint32_t & range);
+  void iterateOnDets(const TrackerTopology* tTopo);
+  void iterateOnBadStrips(const uint32_t & detid, const TrackerTopology* tTopo, SiStripQuality::Range& sqrange);
+  void correlateWithNoise(const uint32_t & detid, const TrackerTopology* tTopo, const uint32_t & firstStrip,  const uint32_t & range);
   float  getMeanNoise(const SiStripNoises::Range& noiseRange,const uint32_t& first, const uint32_t& range); 
 
 

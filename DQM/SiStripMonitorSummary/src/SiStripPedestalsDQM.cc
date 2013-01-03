@@ -32,8 +32,10 @@ void SiStripPedestalsDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 // -----
 void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
    
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   ModMEs CondObj_ME;
   
@@ -50,7 +52,7 @@ void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
 
 
 // -----
-void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
   
   getModMEs(selModME_,selDetId_,tTopo);
   
@@ -71,8 +73,10 @@ void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, ed
 // -----
 void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
    
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){
@@ -113,7 +117,7 @@ void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
 
 
 // -----
-void SiStripPedestalsDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripPedestalsDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, const TrackerTopology* tTopo){
 
   // ----
   int subdetectorId_ = ((selDetId_>>25)&0x7);

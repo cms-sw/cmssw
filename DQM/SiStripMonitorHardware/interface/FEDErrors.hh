@@ -132,7 +132,7 @@ public:
 
   void initialiseFED(const unsigned int aFedID,
 		     const SiStripFedCabling* aCabling,
-                     edm::ESHandle<TrackerTopology>& tTopo,  
+                     const TrackerTopology* tTopo,  
 		     bool initVars = true);
 
   //return false if no data, with or without cabled channels.

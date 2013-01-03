@@ -72,8 +72,10 @@ SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf) :
 
 void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  c.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  c.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
  
   //get magnetic field and geometry from ES
   edm::ESHandle<MagneticField> esmagfield;

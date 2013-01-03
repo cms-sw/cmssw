@@ -39,8 +39,10 @@ void SiStripThresholdDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 // -----
 void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
    
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   ModMEs CondObj_ME;
   
@@ -61,7 +63,7 @@ void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
 
 
 
-void SiStripThresholdDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripThresholdDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, const TrackerTopology* tTopo){
 
   std::vector<uint32_t> DetIds;
   thresholdHandle_->getDetIds(DetIds);
@@ -96,8 +98,10 @@ void SiStripThresholdDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_, ed
 // -----
 void SiStripThresholdDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
    
-   edm::ESHandle<TrackerTopology> tTopo;
-   es.get<IdealGeometryRecord>().get(tTopo);
+   //Retrieve tracker topology from geometry
+   edm::ESHandle<TrackerTopology> tTopoHandle;
+   es.get<IdealGeometryRecord>().get(tTopoHandle);
+   const TrackerTopology* const tTopo = tTopoHandle.product();
 
    for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
        detIter_!= selectedDetIds.end();detIter_++){
@@ -111,7 +115,7 @@ void SiStripThresholdDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
 
 //=======================================================================================
 // -----
-void SiStripThresholdDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripThresholdDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, const TrackerTopology* tTopo){
 
   // ----
   int subdetectorId_ = ((selDetId_>>25)&0x7);

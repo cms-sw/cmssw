@@ -311,7 +311,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
 
 //=================================================
 // -----
-void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_, const TrackerTopology* tTopo){
   
   std::map< uint32_t, ModMEs >::const_iterator ModMEsMap_iter = ModMEsMap_.find(detId_);
 
@@ -352,7 +352,7 @@ void SiStripBaseCondObjDQM::getModMEs(ModMEs& CondObj_ME, const uint32_t& detId_
 //===============================================
 // -----
 //%FIXME: very long method, factorize
-void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& detId_, const TrackerTopology* tTopo){
 
   std::map<uint32_t, ModMEs>::const_iterator SummaryMEsMap_iter;
 
@@ -414,7 +414,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
 
 //====================================================
 // -----
-void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, const TrackerTopology* tTopo){
      
   int   hProfile_NchX  = 0;
   double hProfile_LowX  = 0;
@@ -463,7 +463,7 @@ void SiStripBaseCondObjDQM::bookProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
 
 //=============================================      
 // -----
-void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, const TrackerTopology* tTopo){
 
   int    hCumul_NchX    = 0;
   double hCumul_LowX    = 0;
@@ -504,7 +504,7 @@ void SiStripBaseCondObjDQM::bookCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_
 //===========================================
 // -----
 //#FIXME: same comments: factorize, and remove any reference to derived classes
-void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, const TrackerTopology* tTopo){
   
   std::vector<uint32_t> sameLayerDetIds_;
 
@@ -730,7 +730,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
 
 //=============================================================
 // -----
-void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, const TrackerTopology* tTopo){
     
   int   hSummaryOfCumul_NchX    = 0;
   double hSummaryOfCumul_LowX    = 0;
@@ -796,7 +796,7 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
 //================================================
 // -----
 //FIXME same as before: factorize
-void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondObj_ME, const uint32_t& detId_, const TrackerTopology* tTopo){
   
   std::vector<uint32_t> sameLayerDetIds_;
 
@@ -895,7 +895,7 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
 
 //==========================================================
 // -----
-std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
+std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const uint32_t& detId_, const TrackerTopology* tTopo){
 
   int subdetectorId_ = ((detId_>>25)&0x7);
   int layerId_=0;
@@ -984,7 +984,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getLayerNameAndId(const u
 //---------------
 
 
-std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const uint32_t& detId_, edm::ESHandle<TrackerTopology>& tTopo){
+std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const uint32_t& detId_, const TrackerTopology* tTopo){
 
   int subdetectorId_ = ((detId_>>25)&0x7);
   int layerStringId_=0;
@@ -1118,7 +1118,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
 
     
 //========================
-std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(std::vector<uint32_t> activeDetIds,uint32_t selDetId, edm::ESHandle<TrackerTopology>& tTopo){
+std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(std::vector<uint32_t> activeDetIds,uint32_t selDetId, const TrackerTopology* tTopo){
  
   std::vector<uint32_t> sameLayerDetIds;
   sameLayerDetIds.clear();
@@ -1210,8 +1210,11 @@ void SiStripBaseCondObjDQM::end(){
 
 //==========================
 void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   ModMEs CondObj_ME;
  
@@ -1223,8 +1226,11 @@ void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> & selectedDet
 
 //==========================
 void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
       detIter_!= selectedDetIds.end();detIter_++){

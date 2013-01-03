@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.37 2011/09/19 10:56:39 demattia Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.38 2013/01/02 14:17:44 wmtan Exp $
 //
 //
 
@@ -109,8 +109,10 @@ void SiStripMonitorPedestals::beginRun(edm::Run const& run, edm::EventSetup cons
 //
 void SiStripMonitorPedestals::createMEs(const edm::EventSetup& es) {
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<uint32_t> SelectedDetIds;
   

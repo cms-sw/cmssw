@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.85 2012/12/26 21:14:05 wmtan Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.86 2013/01/02 14:22:27 wmtan Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -232,8 +232,10 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 
   if ( show_mechanical_structure_view ){
 
-    edm::ESHandle<TrackerTopology> tTopo;
-    es.get<IdealGeometryRecord>().get(tTopo);
+    //Retrieve tracker topology from geometry
+    edm::ESHandle<TrackerTopology> tTopoHandle;
+    es.get<IdealGeometryRecord>().get(tTopoHandle);
+    const TrackerTopology* const tTopo = tTopoHandle.product();
 
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
     es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
@@ -433,8 +435,10 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // Filter out events if Trigger Filtering is requested
   passBPTXfilter_     = ( iEvent.isRealData() and genTriggerEventFlagBPTXfilter_->on()     ) ? genTriggerEventFlagBPTXfilter_->accept( iEvent, iSetup)     : true;

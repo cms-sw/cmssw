@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.1 2012/10/15 09:02:47 threus Exp $
+// $Id: SiStripCMMonitor.cc,v 1.2 2013/01/02 14:30:24 wmtan Exp $
 //
 
 #include <sstream>
@@ -189,8 +189,9 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 				 const edm::EventSetup& iSetup)
 {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //static bool firstEvent = true;
   //static bool isBeingFilled = false;

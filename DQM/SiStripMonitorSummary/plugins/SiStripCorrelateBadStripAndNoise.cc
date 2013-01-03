@@ -47,8 +47,10 @@ SiStripCorrelateBadStripAndNoise::beginRun(const edm::Run& run, const edm::Event
 void 
 SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup& es){
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //Loop on quality bad stirps
   //for each strip, look at the noise 
@@ -62,7 +64,7 @@ SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup& es){
 }
 
 void 
-SiStripCorrelateBadStripAndNoise::iterateOnDets(edm::ESHandle<TrackerTopology>& tTopo){
+SiStripCorrelateBadStripAndNoise::iterateOnDets(const TrackerTopology* tTopo){
 
   SiStripQuality::RegistryIterator rbegin = qualityHandle_->getRegistryVectorBegin();
   SiStripQuality::RegistryIterator rend   = qualityHandle_->getRegistryVectorEnd();
@@ -77,7 +79,7 @@ SiStripCorrelateBadStripAndNoise::iterateOnDets(edm::ESHandle<TrackerTopology>& 
 }
 
 void 
-SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t & detid, edm::ESHandle<TrackerTopology>& tTopo, SiStripQuality::Range& sqrange){
+SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t & detid, const TrackerTopology* tTopo, SiStripQuality::Range& sqrange){
 
   float percentage=0;
   for(int it=0;it<sqrange.second-sqrange.first;it++){
@@ -100,7 +102,7 @@ SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t & detid, edm
 }
 
 void 
-SiStripCorrelateBadStripAndNoise::correlateWithNoise(const uint32_t & detid, edm::ESHandle<TrackerTopology>& tTopo, const uint32_t & firstStrip,  const uint32_t & range){
+SiStripCorrelateBadStripAndNoise::correlateWithNoise(const uint32_t & detid, const TrackerTopology* tTopo, const uint32_t & firstStrip,  const uint32_t & range){
 
   std::vector<TH2F *>histos;
 
@@ -137,7 +139,7 @@ SiStripCorrelateBadStripAndNoise::getMeanNoise(const SiStripNoises::Range& noise
 }
 
 void
-SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo, std::vector<TH2F*>& histos){
+SiStripCorrelateBadStripAndNoise::getHistos(const uint32_t& detid, const TrackerTopology* tTopo, std::vector<TH2F*>& histos){
   
   histos.clear();
   

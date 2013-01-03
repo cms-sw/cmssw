@@ -23,8 +23,10 @@ SiStripCablingDQM::~SiStripCablingDQM(){}
 // -----
 void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup & eSetup){
   
-  edm::ESHandle<TrackerTopology> tTopo;
-  eSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // Get active and total detIds
   getConditionObject(eSetup);

@@ -40,8 +40,11 @@ void SiStripLorentzAngleDQM::getActiveDetIds(const edm::EventSetup & eSetup){
 
 // -----
 void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds, const edm::EventSetup& es){
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // -----
   // LA on layer-level : fill at once all detIds belonging to same layer when encountering first detID in the layer 
@@ -121,7 +124,7 @@ void SiStripLorentzAngleDQM::fillSummaryMEs(const std::vector<uint32_t> & select
 
 
 // -----
-void SiStripLorentzAngleDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, edm::ESHandle<TrackerTopology>& tTopo){
+void SiStripLorentzAngleDQM::fillMEsForLayer( /*std::map<uint32_t, ModMEs> selMEsMap_,*/ uint32_t selDetId_, const TrackerTopology* tTopo){
 
   SiStripHistoId hidmanager;
 

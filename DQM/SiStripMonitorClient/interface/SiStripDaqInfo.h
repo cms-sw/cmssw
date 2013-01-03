@@ -71,7 +71,7 @@ private:
   void readSubdetFedFractions(std::vector<int>& fed_ids, edm::EventSetup const& iSetup);
   void bookStatus();
   void fillDummyStatus();
-  void findExcludedModule(unsigned short fed_id, edm::ESHandle<TrackerTopology>& tTopo
+  void findExcludedModule(unsigned short fed_id, const TrackerTopology* tTopo
 );
 
   std::map<std::string,std::vector<unsigned short> > subDetFedMap;
