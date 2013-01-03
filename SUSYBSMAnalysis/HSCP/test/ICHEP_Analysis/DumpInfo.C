@@ -1,52 +1,36 @@
 // Original Author:  Loic Quertenmont
 
-#include <vector>
-
-#include "TROOT.h"
-#include "TFile.h"
-#include "TDirectory.h"
-#include "TChain.h"
-#include "TObject.h"
-#include "TCanvas.h"
-#include "TMath.h"
-#include "TLegend.h"
-#include "TGraph.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TH3.h"
-#include "TTree.h"
-#include "TF1.h"
-#include "TGraphAsymmErrors.h"
-#include "TPaveText.h"
-#include "tdrstyle.C"
-#include "TRandom3.h"
-#include "TProfile.h"
-#include "TDirectory.h"
-
-
 class SiStripCluster;
-namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class HitPattern;}
-namespace susybsm { class HSCParticle; class HSCPIsolation;}
+namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra; class PFMET; class HitPattern;}
+namespace susybsm { class HSCParticle; class HSCPIsolation; class MuonSegment; class HSCPDeDxInfo;}
 namespace fwlite  { class ChainEvent;}
 namespace trigger { class TriggerEvent;}
-namespace edm     {class TriggerResults; class TriggerResultsByName; class InputTag;}
-
+namespace edm     { class TriggerResults; class TriggerResultsByName; class InputTag; class LumiReWeighting;}
+namespace reweight{ class PoissonMeanShifter;}
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "DataFormats/Common/interface/MergeableCounter.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCParticle.h"
 #include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPIsolation.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/HSCPDeDxInfo.h"
+#include "AnalysisDataFormats/SUSYBSMObjects/interface/MuonSegment.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
@@ -60,14 +44,19 @@ using namespace susybsm;
 using namespace std;
 using namespace edm;
 using namespace trigger;
+using namespace reweight;
+
 #endif
 
 
+//the define here is simply need to load FWLITE code from the include
+#define FWLITE
 #include "Analysis_Global.h"
 #include "Analysis_CommonFunction.h"
 #include "Analysis_PlotFunction.h"
 #include "Analysis_PlotStructure.h"
 #include "Analysis_Samples.h"
+#include "tdrstyle.C"
 
 std::vector<stSample> samples;
 double CutMass;
@@ -75,6 +64,10 @@ double CutMass;
 double CutPt;
 double CutI;
 double CutTOF;
+
+TH3F* dEdxTemplates = NULL;
+double dEdxSF = 1.0;
+bool useClusterCleaning = true;
 
 bool shapeSelection(const std::vector<unsigned char> & ampls)
 {
@@ -283,6 +276,13 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
      dedxMNPObj  = &dEdxMNPCollH->get(track.key());
    }
 
+   if(dedxSObj){
+     dedxMObj = dEdxEstimOnTheFly(ev, track, dedxMObj, dEdxSF, false, useClusterCleaning);
+     dedxSObj = dEdxOnTheFly(ev, track, dedxSObj, dEdxSF, dEdxTemplates, TypeMode==5, useClusterCleaning);
+   }
+
+
+
    fwlite::Handle<MuonTimeExtraMap> TOFDTCollH;
    TOFDTCollH.getByLabel(ev, "muontiming","dt");
    if(!TOFDTCollH.isValid()){printf("Invalid TOF DT collection\n");return;}
@@ -328,8 +328,10 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    fprintf(pFile,"Candidate Type = %i --> Mass : %7.2f\n",hscp.type(),Mass);
    fprintf(pFile,"------------------------------------------ EVENT INFO ---------------------------------------------\n");
    fprintf(pFile,"Run=%i Lumi=%i Event=%i BX=%i  Orbit=%i Store=%i\n",ev.eventAuxiliary().run(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().event(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().orbitNumber(),ev.eventAuxiliary().storeNumber());
-   //edm::TriggerResultsByName tr = ev.triggerResultsByName("Merge");
-   //fprintf(pFile,"Trigger: SingleMu=%i  DoubleMu=%i  PFMHT=%i (CaloMET=%i)\n",(int)tr.accept(tr.triggerIndex("HscpPathSingleMu")), (int)tr.accept(tr.triggerIndex("HscpPathDoubleMu")), (int)tr.accept(tr.triggerIndex("HscpPathPFMet")), (int)tr.accept(tr.triggerIndex("HscpPathCaloMet")));
+   edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT");
+   for(unsigned int i=0;i<tr.size();i++){
+     fprintf(pFile, "Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+   }
 
    if(!track.isNull()) {
 
@@ -463,10 +465,13 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
 
    TypeMode = TypeFromPattern(Pattern);
 
+   if(TypeMode==4) useClusterCleaning = false;
+
    string Data="Data8TeV";
 #ifdef ANALYSIS2011
    Data="Data7TeV";
 #endif
+
 
    TFile* InputFile      = new TFile((Pattern + "/Histos.root").c_str());
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
@@ -489,7 +494,7 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=-1)
 
    TTree* tree           = (TTree*)GetObjectFromPath(InputFile, Data + "/HscpCandidates");
    printf("Tree Entries=%lli\n",tree->GetEntries());
-
+   cout << "Cut Pt " << CutPt << " CutI " << CutI << " CutTOF " << CutTOF << endl;
 
    std::vector<string> FileName;
    for(unsigned int s=0;s<samples.size();s++){if(samples[s].Name == Data) GetInputFiles(samples[s], BaseDirectory, FileName);}

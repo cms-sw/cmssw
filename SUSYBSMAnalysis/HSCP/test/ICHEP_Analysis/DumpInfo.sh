@@ -11,7 +11,8 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsVertexReco.so");
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
+  gSystem->Load("libPhysicsToolsUtilities.so");
   gSystem->Load("libDataFormatsTrackerRecHit2D.so");
- .x DumpInfo.C++("Results/Type2/", 905,-1);
+ .x DumpInfo.C++("Results/Type4/", 263,-1);
 EOF
 
