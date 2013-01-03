@@ -1,10 +1,4 @@
 <lcgdict>
-  <class name="reco::HLTResult< 8, unsigned short>" />
-  <class name="reco::HLTResult<16, unsigned short>" />
-  <class name="reco::HLTResult<24, unsigned short>" />
-  <class name="edm::Wrapper<reco::HLTResult< 8, unsigned short> >" splitLevel="0"/>
-  <class name="edm::Wrapper<reco::HLTResult<16, unsigned short> >" splitLevel="0"/>
-  <class name="edm::Wrapper<reco::HLTResult<24, unsigned short> >" splitLevel="0"/>
 
   <class name="edm::ModuleTime" ClassVersion="10">
    <version ClassVersion="10" checksum="1426984345"/>
