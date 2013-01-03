@@ -69,7 +69,7 @@ private:
     OnTrack
   };
   //booking
-  void book(edm::ESHandle<TrackerTopology>& tTopo);
+  void book(const TrackerTopology* tTopo);
   void bookModMEs(const uint32_t& );
   void bookLayerMEs(const uint32_t&, std::string&);
   void bookSubDetMEs(std::string& name);
@@ -82,12 +82,12 @@ private:
   void AllClusters(const edm::Event& ev, const edm::EventSetup& es); 
   void trackStudy(const edm::Event& ev, const edm::EventSetup& es);
   //  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
-  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid, edm::ESHandle<TrackerTopology>& tTopo, enum ClusterFlags flags, LocalVector LV);	
+  bool clusterInfos(SiStripClusterInfo* cluster, const uint32_t& detid, const TrackerTopology* tTopo, enum ClusterFlags flags, LocalVector LV);	
   template <class T> void RecHitInfo(const T* tkrecHit, LocalVector LV,reco::TrackRef track_ref, const edm::EventSetup&);
 
   // fill monitorables 
   void fillModMEs(SiStripClusterInfo*,std::string,float);
-  void fillMEs(SiStripClusterInfo*,uint32_t detid, edm::ESHandle<TrackerTopology>& tTopo, float,enum ClusterFlags);
+  void fillMEs(SiStripClusterInfo*,uint32_t detid, const TrackerTopology* tTopo, float,enum ClusterFlags);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
@@ -156,15 +156,6 @@ private:
   bool HistoFlag_On_;
   bool ring_flag;
   bool TkHistoMap_On_;
-
-  bool layerontrack;
-  bool layerofftrack;
-  bool layercharge;
-  bool layerston;
-  bool layerchargecorr;
-  bool layerstoncorrontrack;
-  bool layernoise;
-  bool layerwidth;
 
   std::string TrackProducer_;
   std::string TrackLabel_;
