@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2012/02/01 16:27:22 $
- *  $Revision: 1.18 $
+ *  $Date: 2012/12/26 22:56:50 $
+ *  $Revision: 1.19 $
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
@@ -902,8 +902,9 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
 				    const edm::EventSetup& iSetup)
 {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
   std::string MsgLoggerCat = "GlobalRecHitsAnalyzer_fillTrk";

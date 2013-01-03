@@ -1,8 +1,8 @@
 /** \file LaserDQMStatistics.cc
  *  Fill the DQM Monitors
  *
- *  $Date: 2007/12/04 23:54:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/12/26 20:38:59 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -26,8 +26,9 @@
 void LaserDQM::trackerStatistics(edm::Event const& theEvent,edm::EventSetup const& theSetup)
 {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  theSetup.get<IdealGeometryRecord>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  theSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
   // access the tracker

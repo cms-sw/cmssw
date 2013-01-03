@@ -75,7 +75,7 @@ PlotRecTracks::~PlotRecTracks()
 }
 
 /*****************************************************************************/
-string PlotRecTracks::getPixelInfo(const TrackingRecHit* recHit, edm::ESHandle<TrackerTopology>& tTopo, const ostringstream& o, const ostringstream& d)
+string PlotRecTracks::getPixelInfo(const TrackingRecHit* recHit, const TrackerTopology* tTopo, const ostringstream& o, const ostringstream& d)
 {
   const SiPixelRecHit* pixelRecHit =
     dynamic_cast<const SiPixelRecHit *>(recHit);
@@ -125,7 +125,7 @@ string PlotRecTracks::getPixelInfo(const TrackingRecHit* recHit, edm::ESHandle<T
 
 /*****************************************************************************/
 string PlotRecTracks::getStripInfo
-  (const TrackingRecHit* recHit, edm::ESHandle<TrackerTopology>& tTopo, const ostringstream& o, const ostringstream& d)
+  (const TrackingRecHit* recHit, const TrackerTopology* tTopo, const ostringstream& o, const ostringstream& d)
 {
   DetId id = recHit->geographicalId();
   LocalPoint lpos = recHit->localPosition();
@@ -198,8 +198,10 @@ FreeTrajectoryState PlotRecTracks::getTrajectoryAtOuterPoint
 /*****************************************************************************/
 void PlotRecTracks::printRecTracks(const edm::Event& ev, const edm::EventSetup& es)
 {
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   theHitAssociator = new TrackerHitAssociator(ev);
 

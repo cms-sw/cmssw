@@ -22,7 +22,7 @@ HitInfo::~HitInfo()
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(const DetId & id, edm::ESHandle<TrackerTopology>& tTopo)
+string HitInfo::getInfo(const DetId & id, const TrackerTopology* tTopo)
 {
   std::string info;
 
@@ -50,7 +50,7 @@ string HitInfo::getInfo(const DetId & id, edm::ESHandle<TrackerTopology>& tTopo)
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(const TrackingRecHit & recHit, edm::ESHandle<TrackerTopology>& tTopo)
+string HitInfo::getInfo(const TrackingRecHit & recHit, const TrackerTopology* tTopo)
 {
   DetId id(recHit.geographicalId());
 
@@ -58,7 +58,7 @@ string HitInfo::getInfo(const TrackingRecHit & recHit, edm::ESHandle<TrackerTopo
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(std::vector<const TrackingRecHit *> recHits, edm::ESHandle<TrackerTopology>& tTopo)
+string HitInfo::getInfo(std::vector<const TrackingRecHit *> recHits, const TrackerTopology* tTopo)
 {
   std::string info;
 
@@ -71,7 +71,7 @@ string HitInfo::getInfo(std::vector<const TrackingRecHit *> recHits, edm::ESHand
 }
 
 /*****************************************************************************/
-string HitInfo::getInfo(const PSimHit & simHit, edm::ESHandle<TrackerTopology>& tTopo)
+string HitInfo::getInfo(const PSimHit & simHit, const TrackerTopology* tTopo)
 {
   std::string info;
 

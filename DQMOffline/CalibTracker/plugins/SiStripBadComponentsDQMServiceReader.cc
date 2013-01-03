@@ -21,8 +21,10 @@ SiStripBadComponentsDQMServiceReader::~SiStripBadComponentsDQMServiceReader(){}
 
 void SiStripBadComponentsDQMServiceReader::analyze( const edm::Event& e, const edm::EventSetup& iSetup)
 {
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   uint32_t FedErrorMask = 1;     // bit 0
   uint32_t DigiErrorMask = 2;    // bit 1
@@ -77,7 +79,7 @@ void SiStripBadComponentsDQMServiceReader::printError( std::stringstream & ss, c
   }
 }
 
-string SiStripBadComponentsDQMServiceReader::detIdToString(const DetId & detid, edm::ESHandle<TrackerTopology>& tTopo)
+string SiStripBadComponentsDQMServiceReader::detIdToString(const DetId & detid, const TrackerTopology* tTopo)
 {
   std::string detector;
   int layer = 0;

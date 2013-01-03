@@ -89,8 +89,8 @@ class QCDTrackAnalyzer : public edm::EDAnalyzer
    virtual void endJob();
 
  private:
-   int getDetLayerId(const PSimHit& simHit, edm::ESHandle<TrackerTopology>& tTopo);
-   bool isAccepted(const TrackingParticle& simTrack, edm::ESHandle<TrackerTopology>& tTopo);
+   int getDetLayerId(const PSimHit& simHit, const TrackerTopology* tTopo);
+   bool isAccepted(const TrackingParticle& simTrack, const TrackerTopology* tTopo);
 
    bool isPrimary(const edm::RefToBase<reco::Track> & recTrack);
    edm::RefToBase<reco::Track> getAssociatedRecTrack
@@ -207,7 +207,7 @@ void QCDTrackAnalyzer::endJob()
 }
 
 /*****************************************************************************/
-int QCDTrackAnalyzer::getDetLayerId(const PSimHit& simHit, edm::ESHandle<TrackerTopology>& tTopo)
+int QCDTrackAnalyzer::getDetLayerId(const PSimHit& simHit, const TrackerTopology* tTopo)
 {
   int layerId;
 
@@ -229,7 +229,7 @@ int QCDTrackAnalyzer::getDetLayerId(const PSimHit& simHit, edm::ESHandle<Tracker
 }
 
 /*****************************************************************************/
-bool QCDTrackAnalyzer::isAccepted(const TrackingParticle& simTrack_, edm::ESHandle<TrackerTopology>& tTopo)
+bool QCDTrackAnalyzer::isAccepted(const TrackingParticle& simTrack_, const TrackerTopology* tTopo)
 {
   TrackingParticle * simTrack = const_cast<TrackingParticle *>(&simTrack_);
 
@@ -466,8 +466,10 @@ float QCDTrackAnalyzer::refitWithVertex
 /*****************************************************************************/
 int QCDTrackAnalyzer::processSimTracks(const edm::EventSetup& es)
 {
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   int ntrk = 0;
 

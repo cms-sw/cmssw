@@ -274,8 +274,9 @@ void SiPixelDigiValid::endJob() {
 
 void SiPixelDigiValid::analyze(const Event& e, const EventSetup& c){
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  c.get<IdealGeometryRecord>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  c.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
 

@@ -61,7 +61,7 @@ private:
   // Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to 
   // identify subdetector and layer number respectively.
   typedef std::pair<uint32_t, uint32_t> DetInfo;
-  static DetInfo interpretDetId(DetId detId, edm::ESHandle<TrackerTopology>& tTopo);
+  static DetInfo interpretDetId(DetId detId, const TrackerTopology* tTopo);
 
   // Return a bool indicating if a given subdetector is in the barrel.
   static bool barrel(uint32_t subDet);

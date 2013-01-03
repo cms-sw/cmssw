@@ -24,8 +24,10 @@ CheckHitPattern::RZrangeMap CheckHitPattern::rangeRorZ_;
 
 void CheckHitPattern::init(const edm::EventSetup& iSetup) {
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //
   // Note min/max radius (z) of each barrel layer (endcap disk).
@@ -78,7 +80,7 @@ void CheckHitPattern::init(const edm::EventSetup& iSetup) {
 #endif
 }
 
-CheckHitPattern::DetInfo CheckHitPattern::interpretDetId(DetId detId, edm::ESHandle<TrackerTopology>& tTopo) {
+CheckHitPattern::DetInfo CheckHitPattern::interpretDetId(DetId detId, const TrackerTopology* tTopo) {
   // Convert detId to a pair<uint32, uint32> consisting of the numbers used by HitPattern 
   // to identify subdetector and layer number respectively.
   if (detId.subdetId() == StripSubdetector::TIB) {

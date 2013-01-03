@@ -51,8 +51,10 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
 
     using namespace reco;
 
-    edm::ESHandle<TrackerTopology> tTopo;
-    setup.get<IdealGeometryRecord>().get(tTopo);
+    //Retrieve tracker topology from geometry
+    edm::ESHandle<TrackerTopology> tTopoHandle;
+    setup.get<IdealGeometryRecord>().get(tTopoHandle);
+    const TrackerTopology* const tTopo = tTopoHandle.product();
 
     //std::cout << "\nEvent ID = "<< event.id() << std::endl ;
     edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("TrackInfo");

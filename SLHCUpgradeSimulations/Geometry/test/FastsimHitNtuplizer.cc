@@ -105,8 +105,9 @@ void FastsimHitNtuplizer::beginJob(const edm::EventSetup& es)
 void FastsimHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //edm::ESHandle<TrackerTopology> tTopoHandle;
+  //es.get<IdealGeometryRecord>().get(tTopoHandle);
+  //const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
   edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;

@@ -43,8 +43,10 @@ ClusterMTCCFilter::ClusterMTCCFilter(const edm::ParameterSet& ps){
 
 bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  c.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  c.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //get SiStripCluster
   edm::Handle< edm::DetSetVector<SiStripCluster> > h;

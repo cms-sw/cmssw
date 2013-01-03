@@ -1,8 +1,8 @@
 /** \file RecoAnalyzerRecHits.cc
 *  plots for RecHits
   *
-  *  $Date: 2008/11/07 11:04:19 $
-  *  $Revision: 1.10 $
+  *  $Date: 2012/12/26 20:35:50 $
+  *  $Revision: 1.11 $
   *  \author Maarten Thomas
  */
 
@@ -22,8 +22,9 @@
   void RecoAnalyzer::trackerRecHits(edm::Event const& theEvent, edm::EventSetup const& theSetup)
 {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  #include.get<IdealGeometryRecord>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  theSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
   // access the Tracker

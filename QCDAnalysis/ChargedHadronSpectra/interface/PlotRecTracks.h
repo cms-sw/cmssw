@@ -29,11 +29,11 @@ class PlotRecTracks
 
   private:
     std::string getPixelInfo(const TrackingRecHit* recHit,
-                             edm::ESHandle<TrackerTopology>& tTopo,
+                             const TrackerTopology* tTopo,
                              const std::ostringstream& o,
                              const std::ostringstream& d);
     std::string getStripInfo(const TrackingRecHit* recHit,
-                             edm::ESHandle<TrackerTopology>& tTopo,
+                             const TrackerTopology* tTopo,
                              const std::ostringstream& o,
                              const std::ostringstream& d);
     FreeTrajectoryState getTrajectoryAtOuterPoint(const reco::Track& track);

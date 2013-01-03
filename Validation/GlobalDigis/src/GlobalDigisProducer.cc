@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2012/11/02 14:17:23 $
- *  $Revision: 1.16 $
+ *  $Date: 2012/12/26 22:47:50 $
+ *  $Revision: 1.17 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -945,8 +945,9 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
 				   const edm::EventSetup& iSetup)
 {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
   std::string MsgLoggerCat = "GlobalDigisProducer_fillTrk";

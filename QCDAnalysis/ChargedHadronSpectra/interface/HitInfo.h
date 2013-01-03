@@ -17,10 +17,10 @@ public:
   HitInfo();
   ~HitInfo();
 
-  static std::string getInfo(const DetId & id, edm::ESHandle<TrackerTopology>& tTopo);
-  static std::string getInfo(const TrackingRecHit & recHit, edm::ESHandle<TrackerTopology>& tTopo);
-  static std::string getInfo(std::vector<const TrackingRecHit *> recHits, edm::ESHandle<TrackerTopology>& tTopo);
-  static std::string getInfo(const PSimHit & simHit, edm::ESHandle<TrackerTopology>& tTopo);
+  static std::string getInfo(const DetId & id, const TrackerTopology* tTopo);
+  static std::string getInfo(const TrackingRecHit & recHit, const TrackerTopology* tTopo);
+  static std::string getInfo(std::vector<const TrackingRecHit *> recHits, const TrackerTopology* tTopo);
+  static std::string getInfo(const PSimHit & simHit, const TrackerTopology* tTopo);
 };
 
 #endif

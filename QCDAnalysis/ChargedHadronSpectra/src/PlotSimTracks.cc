@@ -74,8 +74,10 @@ PlotSimTracks::~PlotSimTracks()
 /*****************************************************************************/
 void PlotSimTracks::printSimTracks(const edm::Event& ev, const edm::EventSetup& es)
 {
-  edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // Tracker
   edm::Handle<TrackingParticleCollection> simTrackHandle;
