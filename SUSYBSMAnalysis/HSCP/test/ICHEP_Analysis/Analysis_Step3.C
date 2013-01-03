@@ -438,8 +438,9 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData* d
 
    if(st) st->BS_dzMinv3d->Fill(dz,Event_Weight);
    if(st) st->BS_dxyMinv3d->Fill(dxy,Event_Weight);
-   if(st) st->BS_PV->Fill(goodVerts,Event_Weight);
+   if(st) st->BS_PV->Fill(goodVerts,Event_Weight);   
    if(st) st->BS_PV_NoEventWeight->Fill(goodVerts);
+   if(st) st->BS_NOMoNOHvsPV->Fill(goodVerts,dedxSObj->numberOfMeasurements()/(double)track->found(),Event_Weight);
 
    //Require at least one good vertex except if cosmic event
    if(TypeMode==3 && goodVerts<1 && (!st || st->Name.find("Cosmic")==string::npos)) return false;

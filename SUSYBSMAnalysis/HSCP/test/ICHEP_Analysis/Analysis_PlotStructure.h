@@ -119,6 +119,7 @@ struct stPlots {
    TH1F*  BS_TNOM;
    TH1F*  BS_TNOM_PUA;
    TH1F*  BS_TNOM_PUB;
+   TProfile*  BS_NOMoNOHvsPV;
    TH1F*  BS_nDof;
    TH1F*  BS_TOFError;
    TH1F*  BS_Pterr;
@@ -465,6 +466,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_NVertex_NoEventWeight";    st.BS_NVertex_NoEventWeight = new TH1F(Name.c_str(), Name.c_str(), 50, 0, 50);     st.BS_NVertex_NoEventWeight    ->Sumw2();
    Name = "BS_PV"  ; st.BS_PV = new TH1F(Name.c_str(), Name.c_str(),                   60, 0, 60); st.BS_PV->Sumw2();
    Name = "BS_PV_NoEventWeight"  ; st.BS_PV_NoEventWeight = new TH1F(Name.c_str(), Name.c_str(),                   60, 0, 60); st.BS_PV_NoEventWeight->Sumw2();
+   Name = "BS_NOMoNOHvsPV"  ; st.BS_NOMoNOHvsPV = new TProfile(Name.c_str(), Name.c_str(),                   60, 0, 60); st.BS_NOMoNOHvsPV->Sumw2();
    Name = "BS_dzAll";      st.BS_dzAll = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);          st.BS_dzAll->Sumw2();
    Name = "BS_dxyAll";     st.BS_dxyAll = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);         st.BS_dxyAll->Sumw2();
    Name = "BS_dzMinv3d";   st.BS_dzMinv3d = new TH1F(Name.c_str(), Name.c_str(),200, -10, 10);       st.BS_dzMinv3d->Sumw2();
@@ -788,6 +790,7 @@ bool stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName)
    st.BS_NVertex  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_NVertex");
    st.BS_NVertex_NoEventWeight = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_NVertex_NoEventWeight");
    st.BS_PV  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_PV");
+   st.BS_NOMoNOHvsPV = (TProfile*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_NOMoNOHvsPV");
    st.BS_SegSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SegSep");
    st.BS_SegMinPhiSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SegMinPhiSep");
    st.BS_SegMinEtaSep  = (TH1F*)GetObjectFromPath(st.Directory, HistoFile,  BaseName + "/BS_SegMinEtaSep");
