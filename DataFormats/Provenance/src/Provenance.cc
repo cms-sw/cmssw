@@ -4,6 +4,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 
+#include <algorithm>
+
 /*----------------------------------------------------------------------
 
 ----------------------------------------------------------------------*/
@@ -135,9 +137,9 @@ namespace edm {
   Provenance::swap(Provenance& iOther) {
     branchDescription_.swap(iOther.branchDescription_);
     productID_.swap(iOther.productID_);
+    std::swap(processHistoryID_, iOther.processHistoryID_);
+    std::swap(productProvenanceValid_, iOther.productProvenanceValid_);
     productProvenancePtr_.swap(iOther.productProvenancePtr_);
     store_.swap(iOther.store_);
  }
-
 }
-
