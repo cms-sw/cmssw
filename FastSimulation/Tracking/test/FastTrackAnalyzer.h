@@ -31,6 +31,7 @@
 #include "TString.h"
 
 class TH1F;
+class TrackerTopology;
 
 class FastTrackAnalyzer : public edm::EDAnalyzer {
 
@@ -44,7 +45,8 @@ class FastTrackAnalyzer : public edm::EDAnalyzer {
   virtual void beginRun(edm::Run const& , edm::EventSetup const& );
   virtual void endJob();
  private:
-  void makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, const PSimHit * simHit, int numpartners);
+  void makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, const PSimHit * simHit, 
+		     int numpartners, const TrackerTopology *tTopo);
   
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
 						const BoundPlane& plane, int thesign) ;

@@ -158,6 +158,12 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<edm::View<TrajectorySeed> > theSeeds;
   e.getByLabel(seedProducer,theSeeds);
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
+
   // No seed -> output an empty track collection
   if(theSeeds->size() == 0) {
     e.put(output);
@@ -379,7 +385,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       // Find the first hit of the Seed
       TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
       const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
-      theFirstSeedingTrackerRecHit = TrackerRecHit(theFirstSeedingRecHit,theGeometry);
+      theFirstSeedingTrackerRecHit = TrackerRecHit(theFirstSeedingRecHit,theGeometry,tTopo);
       // The SimTrack id associated to that recHit
       simTrackIds.push_back( theFirstSeedingRecHit->simtrackId() );
     }
@@ -456,7 +462,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  
 	  // Get current and previous rechits
 	  if(!firstRecHit) thePreviousRecHit = theCurrentRecHit;
-	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry);
+	  theCurrentRecHit = TrackerRecHit(&(*iterRecHit),theGeometry,tTopo);
 	  
 	  //>>>>>>>>>BACKBUILDING CHANGE: DO NOT STAT FROM THE FIRST HIT OF THE SEED
 

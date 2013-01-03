@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -22,6 +23,7 @@
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
@@ -74,6 +76,12 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
    iEvent.getByLabel(theBeamSpotLabel,recoBeamSpotHandle); 
    math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
+
+   //Retrieve tracker topology from geometry
+   edm::ESHandle<TrackerTopology> tTopoHand;
+   es.get<IdealGeometryRecord>().get(tTopoHand);
+   const TrackerTopology *tTopo=tTopoHand.product();
+
       
    const HepMC::GenEvent* myGenEvent = 0;
    FSimEvent* fevt = famosManager_->simEvent();
@@ -141,9 +149,9 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 
    // pass the event to the Famos Manager for propagation and simulation
    if (myGenParticlesXF) {
-     famosManager_->reconstruct(myGenParticlesXF);
+     famosManager_->reconstruct(myGenParticlesXF,tTopo);
    } else {
-     famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents);
+     famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents,tTopo);
    }
 
    // Set the vertex back to the HepMCProduct (except if it was smeared already)

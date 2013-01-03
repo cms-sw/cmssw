@@ -128,6 +128,12 @@ FastElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   e.getByLabel(trackerHits_, theRHC);
   const SiTrackerGSMatchedRecHit2DCollection* theGSRecHits = &(*theRHC);
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
+
   // get Hcal Rechit collection
   edm::Handle<HBHERecHitCollection> hbhe ;
   delete mhbhe_ ;
@@ -152,7 +158,7 @@ FastElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     e.getByLabel(clusters_[i],clusters);
     reco::SuperClusterRefVector clusterRefs;
     filterClusters(clusters,/*mhbhe_,*/clusterRefs) ;
-    matcher_->run(e,clusterRefs,theGSRecHits,theSimTracks,initialSeedColl_,*seeds);
+    matcher_->run(e,clusterRefs,theGSRecHits,theSimTracks,initialSeedColl_,tTopo,*seeds);
 
   }
 

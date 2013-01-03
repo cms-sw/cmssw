@@ -22,6 +22,7 @@ class PileUpSimulator;
 class MagneticField;
 class CalorimetryManager;
 class RandomEngine;
+class TrackerTopology;
 
 // using trailing _ for private data members, m_p prefix for PSet variables (MSt)
 
@@ -49,9 +50,11 @@ class FamosManager
   /// The real thing is done here
   void reconstruct(const HepMC::GenEvent* evt, 
 		   const reco::GenParticleCollection* particles,
-		   const HepMC::GenEvent* pu);
+		   const HepMC::GenEvent* pu,
+		   const TrackerTopology *tTopo);
   
-  void reconstruct(const reco::GenParticleCollection* particles);
+  void reconstruct(const reco::GenParticleCollection* particles,
+		   const TrackerTopology *tTopo);
 
   /// The tracker 
   TrajectoryManager * trackerManager() const {return myTrajectoryManager;}

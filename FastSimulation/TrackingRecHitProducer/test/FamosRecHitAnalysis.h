@@ -17,6 +17,7 @@
 #include <TH1F.h>
 
 class TrackerGeometry;
+class TrackerTopology;
 
 class FamosRecHitAnalysis : public edm::EDAnalyzer
 {
@@ -66,7 +67,7 @@ private:
                    TH1F*& hist_dedx_alpha, TH1F*& hist_dedx_beta,
 		   unsigned int mult_alpha , unsigned int mult_beta ,
 		   double       alpha      , double       beta      , 
-                   const bool hasBigPixelInX, const bool hasBigPixelInY );
+                   const bool hasBigPixelInX, const bool hasBigPixelInY, const TrackerTopology *tTopo );
   
   // ROOT
   void rootStyle();

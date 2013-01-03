@@ -266,6 +266,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::cout << " TrajectorySeedProducer produce init " << std::endl;
 #endif
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
 
 
   unsigned nSimTracks = 0;
@@ -400,7 +404,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  iterRecHit != theRecHitRangeIteratorEnd; 
 	  ++iterRecHit) { 
       previousHit = currentHit;
-      currentHit = TrackerRecHit(&(*iterRecHit),theGeometry);
+      currentHit = TrackerRecHit(&(*iterRecHit),theGeometry,tTopo);
       if ( currentHit.isOnTheSameLayer(previousHit) ) continue;
       ++numberOfRecHits;
       if ( numberOfRecHits == absMinRecHits ) break;
@@ -437,7 +441,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       TrackerRecHit& theSeedHits2 = theSeedHits[2];
       bool compatible = false;
       for ( iterRecHit1 = theRecHitRangeIteratorBegin; iterRecHit1 != theRecHitRangeIteratorEnd; ++iterRecHit1) {
-	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry);
+	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	std::cout << "The first hit position = " << theSeedHits0.globalPosition() << std::endl;
 	std::cout << "The first hit subDetId = " << theSeedHits0.subDetId() << std::endl;
@@ -472,7 +476,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	std::cout << "Apparently the first hit is on the requested detector! " << std::endl;
 #endif
 	for ( iterRecHit2 = iterRecHit1+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
-	  theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry);
+	  theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	  std::cout << "The second hit position = " << theSeedHits1.globalPosition() << std::endl;
 	  std::cout << "The second hit subDetId = " << theSeedHits1.subDetId() << std::endl;
@@ -550,7 +554,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  compatible = false;
 	  // Check if there is a third satisfying hit otherwise
 	  for ( iterRecHit3 = iterRecHit2+1; iterRecHit3 != theRecHitRangeIteratorEnd; ++iterRecHit3) {
-	    theSeedHits[2] = TrackerRecHit(&(*iterRecHit3),theGeometry);
+	    theSeedHits[2] = TrackerRecHit(&(*iterRecHit3),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	    std::cout << "The third hit position = " << theSeedHits2.globalPosition() << std::endl;
 	    std::cout << "The third hit subDetId = " << theSeedHits2.subDetId() << std::endl;

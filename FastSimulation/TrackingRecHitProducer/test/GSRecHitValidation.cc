@@ -7,12 +7,8 @@
 //This code produces histograms to compare FastSim MatchedRecHits to FullSim RecHits.
 
 // Numbering scheme
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "FastSimulation/TrackingRecHitProducer/test/GSRecHitValidation.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -323,6 +319,12 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
   setup.get<TrackerDigiGeometryRecord>().get(theG);
   const TrackerGeometry &tracker(*theG);
   trackerG = &tracker;
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  setup.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
   
   std::cout << "Event ID = "<< event.id() << std::endl ;
   
@@ -385,7 +387,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
 	    cout << "Mono Hit." << endl;
 	    matchedSimHits++;
 	    simHit = const_cast<PSimHit*>(&(*isim));  
-	    fillHitsPlots("", &(*iterrechit), simHit);
+	    fillHitsPlots("", &(*iterrechit), simHit,tTopo);
 	  }
 	}
 	//stereo
@@ -394,7 +396,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
 	    cout << "Stereo Hit." << endl;
 	    matchedSimHits++;
 	    simHit = const_cast<PSimHit*>(&(*isim));  
-	    fillHitsPlots("", &(*iterrechit), simHit);
+	    fillHitsPlots("", &(*iterrechit), simHit,tTopo);
 	  }
 	}
       }
@@ -405,7 +407,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
 	  cout << "Single Hit." << endl;
 	  matchedSimHits++;
 	  simHit = const_cast<PSimHit*>(&(*isim));  
-	  fillHitsPlots("", &(*iterrechit), simHit);
+	  fillHitsPlots("", &(*iterrechit), simHit,tTopo);
 	}
       }
       
@@ -432,7 +434,7 @@ void GSRecHitValidation::analyze(const edm::Event& event, const edm::EventSetup&
 
 
 
-void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedRecHit2D *rechit, PSimHit *simhit){
+void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedRecHit2D *rechit, PSimHit *simhit, const TrackerTopology *tTopo){
   
   //For knowing whether rechit is mono, stereo or single.
   int isMono = 0;
@@ -569,8 +571,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     
     // PXB
   case 1: {
-    PXBDetId module(simhit->detUnitId());
-    unsigned int theLayer = module.layer();
+    
+    unsigned int theLayer = tTopo->pxbLayer(simhit->detUnitId());
     TString layer = ""; layer+=theLayer;
     hMap[prefix+"PXB_RecPos_x_"+layer]->Fill(xRec);
     hMap[prefix+"PXB_RecPos_y_"+layer]->Fill(yRec);
@@ -586,8 +588,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     
     //PXF
   case 2:    {
-    PXFDetId module(simhit->detUnitId());
-    unsigned int theDisk = module.disk();
+    
+    unsigned int theDisk = tTopo->pxfDisk(simhit->detUnitId());
     TString layer = ""; layer+=theDisk;
     hMap[prefix+"PXF_RecPos_x_"+layer]->Fill(xRec);
     hMap[prefix+"PXF_RecPos_y_"+layer]->Fill(yRec);
@@ -605,8 +607,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     // TIB
   case 3:
     {
-      TIBDetId module(simhit->detUnitId());
-      unsigned int theLayer  = module.layer();
+      
+      unsigned int theLayer  = tTopo->tibLayer(simhit->detUnitId());
       TString layer=""; layer+=theLayer;
       if ((isMono == 1)||(isSingle==1)) {
 	hMap[prefix+"TIB_rphi_Pos_x_"+layer] ->Fill(xRec);
@@ -629,8 +631,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     // TID
   case 4: 
     { 
-      TIDDetId module(simhit->detUnitId());
-      unsigned int theRing  = module.ring();
+      
+      unsigned int theRing  = tTopo->tidRing(simhit->detUnitId());
       TString ring=""; ring+=theRing;
       
       if ((isMono == 1)||(isSingle==1)) {
@@ -654,8 +656,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     // TOB
   case 5:
     {
-      TOBDetId module(simhit->detUnitId());
-      unsigned int theLayer  = module.layer();
+      
+      unsigned int theLayer  = tTopo->tobLayer(simhit->detUnitId());
       TString layer=""; layer+=theLayer;
       
       if ((isMono == 1)||(isSingle==1)) {
@@ -679,8 +681,8 @@ void GSRecHitValidation::fillHitsPlots(TString prefix, const SiTrackerGSMatchedR
     // TEC
   case 6:
     {
-      TECDetId module(simhit->detUnitId());
-      unsigned int theRing  = module.ring();
+      
+      unsigned int theRing  = tTopo->tecRing(simhit->detUnitId());
       TString ring=""; ring+=theRing;
       
       if ((isMono == 1)||(isSingle==1)) {

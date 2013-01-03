@@ -24,12 +24,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 // Numbering scheme
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "TH1F.h"
 #include "TFile.h"
@@ -321,6 +317,11 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
     const TrackerGeometry &tracker(*theG);
     trackerG = &tracker;
 
+    //Retrieve tracker topology from geometry
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    setup.get<IdealGeometryRecord>().get(tTopoHand);
+    const TrackerTopology *tTopo=tTopoHand.product();
+
     std::cout << "\nEvent ID = "<< event.id() << std::endl ;
     
     // get rec track collection
@@ -486,7 +487,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
 
       //make  plots for Hits
-      makeHitsPlots("all_", &rechit, simHit, numpartners);
+      makeHitsPlots("all_", &rechit, simHit, numpartners, tTopo);
 
     }
     //end all hits validation plots
@@ -612,7 +613,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	      
 	      
 	      //make plots for Hits
-	      makeHitsPlots("", rechit, simHit, numpartners);
+	      makeHitsPlots("", rechit, simHit, numpartners, tTopo);
 	 
 	    }
 	}else{
@@ -708,7 +709,8 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 
 
 //------------------------------------------------------
-void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, const PSimHit * simHit, int numpartners){
+void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D * rechit, const PSimHit * simHit, 
+				      int numpartners, const TrackerTopology *tTopo){
   //  std::cout<< "making plots" << std::endl;
 
   DetId adetid = rechit->geographicalId();
@@ -801,8 +803,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
  switch (subdet) {
     // Pixel Barrel
   case 1: {
-		PXBDetId module(detid);
-		unsigned int theLayer = module.layer();
+		
+		unsigned int theLayer = tTopo->pxbLayer(detid);
 		//	std::cout << "\t\t\tPixel Barrel Layer " << theLayer << std::endl;
 		TString layer = ""; layer+=theLayer;
 		hMap[prefix+"PXB_RecPos_x_"+layer]->Fill(xRec);
@@ -818,8 +820,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 	      }
 		//Pixel Forward
 	      case 2:    {
-		PXFDetId module(detid);
-		unsigned int theDisk = module.disk();
+		
+		unsigned int theDisk = tTopo->pxfDisk(detid);
 		//std::cout << "\t\t\tPixel Forward Disk " << theDisk << std::endl;
 		TString layer = ""; layer+=theDisk;
 		hMap[prefix+"PXF_RecPos_x_"+layer]->Fill(xRec);
@@ -836,8 +838,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		// TIB
 	      case 3:
 		{
-		  TIBDetId module(detid);
-		  unsigned int theLayer  = module.layer();
+		  
+		  unsigned int theLayer  = tTopo->tibLayer(detid);
 		  /*
 		  std::cout << "\t\t\tTIB Layer " << theLayer << std::endl;
 		  std::cout<<"\t\t\t recLocX = "<< xRec << "   simLocX = "<< xSim << std::endl;
@@ -861,8 +863,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		// TID
 	      case 4:
 		{
-		  TIDDetId module(detid);
-		  unsigned int theRing  = module.ring();
+		  
+		  unsigned int theRing  = tTopo->tidRing(detid);
 		  //std::cout << "\t\t\tTID Ring " << theRing << std::endl;
 		  TString ring=""; ring+=theRing;
 
@@ -885,8 +887,8 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		    // TOB
 	      case 5:
 		{
-		  TOBDetId module(detid);
-		  unsigned int theLayer  = module.layer();
+		  
+		  unsigned int theLayer  = tTopo->tobLayer(detid);
 		  //std::cout << "\t\t\tTOB Layer " << theLayer << std::endl;
 		  TString layer=""; layer+=theLayer;
 		  hMap[prefix+"TOB_Res_x_"+layer] ->Fill(delta_x);
@@ -906,9 +908,9 @@ void FastTrackAnalyzer::makeHitsPlots(TString prefix, const SiTrackerGSRecHit2D 
 		{
 
 		  //	   StripSubdetector specDetId=StripSubdetector(detid);
-		  TECDetId module(detid);
-		  unsigned int theRing  = module.ring();
-		  //unsigned int theWheel = module.wheel();
+		  
+		  unsigned int theRing  = tTopo->tecRing(detid);
+		  //unsigned int theWheel = tTopo->tecWheel(detid);
 		  if(!gluedDet && theRing==1){
 		    std::cout<<"     AS debugging2 !gluedDet && theRing==1"<< std::endl;
 		    // exit(1);

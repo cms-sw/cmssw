@@ -45,6 +45,7 @@ class KFUpdator;
 class FastPixelHitMatcher;
 class TrackerRecHit;
 class TrajectorySeed;
+class TrackerTopology;
 
 //UB changed
 //class FastElectronSeedGenerator : public ElectronSeedGenerator
@@ -83,6 +84,7 @@ public:
 	    const SiTrackerGSMatchedRecHit2DCollection* theGSRecHits,
 	    const edm::SimTrackContainer* theSimTracks,
 	    TrajectorySeedCollection *seeds,
+	    const TrackerTopology *tTopo,
 	    reco::ElectronSeedCollection & out);
 
  private:

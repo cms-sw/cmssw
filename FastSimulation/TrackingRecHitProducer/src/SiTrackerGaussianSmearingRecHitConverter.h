@@ -47,6 +47,7 @@ namespace edm {
   class EventSetup;
 }
 
+class TrackerTopology;
 
 class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 {
@@ -63,7 +64,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   
   void smearHits(MixCollection<PSimHit>& input,
                  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits,
-                 std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters);
+                 std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters,
+		 const TrackerTopology *tTopo);
 
  void  matchHits( std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		  std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& matchedMap,
@@ -84,7 +86,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 			Local3DPoint& position , 
 			LocalError& error, 
 			unsigned& alphaMult, 
-			unsigned& betaMult);
+			unsigned& betaMult,
+			const TrackerTopology *tTopo);
   //
   void loadPixelData();
   //

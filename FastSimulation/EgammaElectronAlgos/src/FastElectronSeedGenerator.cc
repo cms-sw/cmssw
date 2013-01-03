@@ -142,6 +142,7 @@ void  FastElectronSeedGenerator::run(edm::Event& e,
 				      const SiTrackerGSMatchedRecHit2DCollection* theGSRecHits,
 				      const edm::SimTrackContainer* theSimTracks,
 				      TrajectorySeedCollection *seeds,
+				     const TrackerTopology *tTopo,
 				      reco::ElectronSeedCollection & out){
 
   // Take the seed collection.
@@ -207,7 +208,7 @@ void  FastElectronSeedGenerator::run(edm::Event& e,
 	    ++iterRecHit) {
 	++numberOfRecHits;
 
-	currentHit = TrackerRecHit(&(*iterRecHit),theTrackerGeometry);
+	currentHit = TrackerRecHit(&(*iterRecHit),theTrackerGeometry,tTopo);
 	if ( ( currentHit.subDetId() <= 2 ) ||  // Pixel Hits
 	     // Add TID/TEC (optional)
 	     ( searchInTIDTEC &&
@@ -258,7 +259,7 @@ void  FastElectronSeedGenerator::run(edm::Event& e,
       for ( ; theSeedItr != theSeedRangeIteratorEnd; ++theSeedItr ) {
 	const SiTrackerGSMatchedRecHit2D * theSeedingRecHit =
 	  (const SiTrackerGSMatchedRecHit2D*) (&(*theSeedItr));
-	currentHit = TrackerRecHit(theSeedingRecHit,theTrackerGeometry);
+	currentHit = TrackerRecHit(theSeedingRecHit,theTrackerGeometry,tTopo);
 	theHits.push_back(currentHit);
       }
 
