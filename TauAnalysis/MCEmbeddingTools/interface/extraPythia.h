@@ -15,9 +15,9 @@ extern "C" {
 #define py1ent py1ent_
 
 extern "C" {
-	void pyexec();
-void py1ent(int*,int*,double*,double*,double*);
-    }
+  void pyexec();
+  void py1ent(int&,int&,double&,double&,double&);
+}
 
 void call_pyexec();
 void call_py1ent(int,int,double,double,double);
