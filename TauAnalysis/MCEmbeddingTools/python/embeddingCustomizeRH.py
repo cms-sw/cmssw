@@ -97,6 +97,27 @@ def customise(process, inputProcess):
     if "castorreco" in pth.moduleNames():
       pth.replace(process.castorreco, process.castorrecoORG*process.castorreco)
 
+  # mix recHits in HF calorimeter
+  #
+  # NOTE: HF calorimeter is not expected to contain any energy from the simulated tau decay products;
+  #       the mixing is necessary to get the energy deposits from the Z -> mu+ mu- event
+  #       into the embedded event
+  #
+  process.hfrecoORG = process.hfreco.clone()
+  process.hfreco = cms.EDProducer("HFRecHitMixer",
+    recHitCaloCleanerAllCrossedConfig,
+    todo = cms.VPSet(
+      cms.PSet(
+        collection1 = cms.InputTag("hfreco", "", inputProcess),
+        collection2 = cms.InputTag("hfrecoORG")
+      )
+    )
+  )
+  for p in process.paths:
+    pth = getattr(process, p)
+    if "hfreco" in pth.moduleNames():
+      pth.replace(process.hfreco, process.hfrecoORG*process.hfreco)
+
   # mix recHits in preshower 
   process.ecalPreshowerRecHitORG = process.ecalPreshowerRecHit.clone()
   process.ecalPreshowerRecHit = cms.EDProducer("EcalRecHitMixer",
