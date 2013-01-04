@@ -49,7 +49,7 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
 //--- setup tau Pt, eta and phi distributions;
 //    tau id efficiency
   setupLeptonDistribution(cfg, "tauDistributions", tauDistributions_);
-  setupTauDistributionExtra(cfg, "tauExtraDistributions", tauDistributionsExtra_);
+  setupTauDistributionExtra(cfg, "tauDistributions", tauDistributionsExtra_);
   setupLeptonEfficiency(cfg, "tauEfficiencies", tauEfficiencies_);
 
 //--- setup MET Pt and phi distributions;
@@ -355,7 +355,7 @@ namespace
 	    matched = true;
 	  } 
 	  if ( matched ) {
-	    //std::cout << "leg2(" << srcLeg2.label() << "): Pt = " << visDecayProduct2->pt() << ", eta = " << visDecayProduct2->eta() << ", phi = " << visDecayProduct2->phi() << std::endl;
+	    //std::cout << "X1 = " << X1 << ", X2 = " << X2 << std::endl;
 	    if ( histogram_leg1Pt && histogram_leg1Eta && histogram_leg1Phi ) {
 	      histogram_leg1Pt->Fill(visDecayProduct1->pt(), evtWeight);
 	      histogram_leg1Eta->Fill(visDecayProduct1->eta(), evtWeight);
