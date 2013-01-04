@@ -181,12 +181,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       Optimize(InputPattern, Data, signal7TeV, SHAPESTRING!="", true);
 
       //2012 Limits
-      //Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"8TeV";
-      //Optimize(InputPattern, Data, signal8TeV, SHAPESTRING!="", true);
+      Data = "Data8TeV"; SQRTS=8.0; EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"8TeV";
+      Optimize(InputPattern, Data, signal8TeV, SHAPESTRING!="", true);
 
       //Combined Limits
-      //EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
-      //Combine(InputPattern, signal7TeV, signal8TeV);
+      EXCLUSIONDIR=EXCLUSIONDIR_SAVE+"COMB";  SQRTS=78.0;
+      Combine(InputPattern, signal7TeV, signal8TeV);
       return;
    }
    if(MODE.find("7TeV")!=string::npos){Data = "Data7TeV"; SQRTS=7.0; EXCLUSIONDIR+="7TeV"; }
@@ -1559,7 +1559,7 @@ void printSummaryPaper(FILE* pFile, FILE* talkFile, string InputPattern, string 
       TString ModelNameTS =  ModelName.c_str();  ModelNameTS.ReplaceAll("8TeV",""); ModelNameTS.ReplaceAll("7TeV","");
 
       if((ModelNameTS.Contains("Gluino_f10") && !ModelNameTS.Contains("f100") && !ModelNameTS.Contains("N") && ((int)(Mass)/100)%4==3 && TypeMode==0) ||
-	 (ModelNameTS.Contains("Gluino_f50") && !ModelNameTS.Contains("N") && ((int)(Mass)/100)%4==3 && TypeMode==0) ||
+	 (ModelNameTS.Contains("Gluino_f50") && ((int)(Mass)/100)%4==3 && TypeMode==3) ||
 	 (ModelNameTS.Contains("Gluino_f100") && ((int)(Mass)/100)%4==3 && TypeMode==3) ||
 	 (ModelNameTS.Contains("Stop") && !ModelNameTS.Contains("N") && ((int)(Mass)/100)%3==2 && TypeMode==0) ||
 	 (ModelNameTS.Contains("GMStau") && (Mass==126 || Mass==308 || Mass==494) && TypeMode==2) ||
@@ -2478,8 +2478,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
-              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/100.0);
-		cout << endl << "2 down expected " << Tlimit << " XSec " << result.XSec_Exp2Down << endl << endl;
+	if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/100.0);
         }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/100.0);
         }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/100.0);
         }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/100.0);
@@ -2492,8 +2491,8 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
    
       //RUN FULL HYBRID CLS LIMIT (just for observed limit so far, because it is very slow for expected limits --> should be updated --> FIXME)
       CodeToExecute = "cd /tmp/;";
-      CodeToExecute += "combine -M HybridNew -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat &> shape_" + signal + ".log;";
-      CodeToExecute += "cd $OLDPWD;cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
+      CodeToExecute += "combine -M HybridNew -n " + signal + " -m " + massStr + rangeStr + " shape_" + signal+".dat > shape_" + signal + ".log;";
+      CodeToExecute += "cd $OLDPWD; cp /tmp/shape_" + signal + ".* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
       system(CodeToExecute.c_str());
 
       //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
@@ -2509,28 +2508,21 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
       for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
         tree->GetEntry(ientry);
-//              if(TquantExp==0.025f){ result.XSec_Exp2Down = Tlimit*(result.XSec_Th/100.0);
-//        }else if(TquantExp==0.160f){ result.XSec_ExpDown  = Tlimit*(result.XSec_Th/100.0);
-//        }else if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/100.0);
-//        }else if(TquantExp==0.840f){ result.XSec_ExpUp    = Tlimit*(result.XSec_Th/100.0);
-//        }else if(TquantExp==0.975f){ result.XSec_Exp2Up   = Tlimit*(result.XSec_Th/100.0);
-//        }else
         if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/100.0);
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
         }
       }
       file->Close();
 
-      cout << endl << "Trying to find expected limit" << endl << endl;
+      //Create grid to find expected limits in Cls
       //Number of different signal strengths to try
-      int gridPoints=8;
+      int gridPoints=30;
       //Normalize to 10/fb
-      double Down2 = 0.6*result.XSec_Exp2Down*100/result.XSec_Th;
-      double Up2 = 200.*result.XSec_Exp2Down*100/result.XSec_Th;
+      double Down2 = 0.5*result.XSec_Exp2Down*100/result.XSec_Th;
+      double Up2 = 1.3*result.XSec_Exp2Up*100/result.XSec_Th;
       double Step=(Up2-Down2)/gridPoints;
 
       CodeToExecute = "cd /tmp/;";
-      cout << "Grid points " << gridPoints << endl;
       for (int i=0; i<gridPoints+1; i++) {
 	char Seed[1024];
 	sprintf(Seed,"%i",i);
@@ -2538,15 +2530,98 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 
 	double Point = Down2 + i*Step;
         sprintf(PointStr,"%6.8f",Point);
-	cout << "Point " << PointStr << endl;
 	//Don't include mass string here or else it won't work
-	CodeToExecute += "combine shape_" + signal + ".dat -M HybridNew --freq --fork 1 -T 50 --clsAcc 0 -n " + signal +              " --saveHybridResult --saveToys -s " + Seed + " -i 4 --singlePoint " + PointStr + " &> shape_" + signal + PointStr + ".log;";
+	CodeToExecute += "combine shape_" + signal + ".dat -M HybridNew --freq --fork 1 -T 500 --clsAcc 0 -n " + signal +              " --saveHybridResult --saveToys -s " + Seed + " -i 8 --rMax 1E20 --singlePoint " + PointStr + " >> shape_" + signal + "Exp.log;";
       }
 
-      CodeToExecute += "hadd -f higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root higgsCombine"+signal+".HybridNew.mH120.*.root;";
-      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root --expectedFromGrid 0.5;";
-      CodeToExecute += "cd $OLDPWD; cp /tmp/higgsCombine"+signal+".HybridNew.mH*grid.root .";
+      CodeToExecute += "hadd -f higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root higgsCombine"+signal+".HybridNew.mH120.*.root >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.5 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.16 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.84 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.025 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.975 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "cd $OLDPWD; cp /tmp/shape_" + signal + "Exp.* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
       system(CodeToExecute.c_str());
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.500.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.500.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.5 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+      
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.160.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.160.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.160f){ result.XSec_ExpDown      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.16 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.840.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.840.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.840f){ result.XSec_ExpUp      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.84 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.025.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.025.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.025f){ result.XSec_Exp2Down      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.025 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.975.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.975.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.975f){ result.XSec_Exp2Up      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.975 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
    }
 
    if(!Temporary && getSignificance){
@@ -2784,6 +2859,116 @@ bool Combine(string InputPattern, string signal7, string signal8){
 //        }else
         if(TquantExp==-1    ){ result.XSec_Obs      = Tlimit*(result.XSec_Th/100.0);
         }else{printf("Quantil %f unused by the analysis --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //Create grid to find expected limits in Cls
+      //Number of different signal strengths to try
+      int gridPoints=30;
+      //Normalize to 10/fb
+      double Down2 = 0.5*result.XSec_Exp2Down*100/result.XSec_Th;
+      double Up2 = 1.3*result.XSec_Exp2Up*100/result.XSec_Th;
+      double Step=(Up2-Down2)/gridPoints;
+
+      CodeToExecute = "cd /tmp/;";
+      CodeToExecute += "echo 'Finding Expected Limits' > shape_" + signal + "Exp.log;";
+      for (int i=0; i<gridPoints+1; i++) {
+	char Seed[1024];
+	sprintf(Seed,"%i",i);
+        char PointStr[1024];
+
+	double Point = Down2 + i*Step;
+        sprintf(PointStr,"%6.8f",Point);
+	//Don't include mass string here or else it won't work
+	CodeToExecute += "combine shape_" + signal + ".dat -M HybridNew --freq --fork 1 -T 500 --clsAcc 0 -n " + signal +              " --saveHybridResult --saveToys -s " + Seed + " -i 8 --rMax 1E20 --singlePoint " + PointStr + " >> shape_" + signal + "Exp.log;";
+      }
+
+      CodeToExecute += "hadd -f higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root higgsCombine"+signal+".HybridNew.mH120.*.root >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.5 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.16 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.84 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.025 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "combine shape_" + signal+".dat -M HybridNew --grid=higgsCombine"+signal+".HybridNew.mH"+massStr+"grid.root -n " + signal + "Expected --expectedFromGrid 0.975 >> shape_" + signal + "Exp.log;";
+      CodeToExecute += "cd $OLDPWD; cp /tmp/shape_" + signal + "Exp.* " + InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/." + ";";
+      system(CodeToExecute.c_str());
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.500.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.500.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.500f){ result.XSec_Exp      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.5 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+      
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.160.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.160.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.160f){ result.XSec_ExpDown      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.16 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.840.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.840.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.840f){ result.XSec_ExpUp      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.84 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.025.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.025.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.025f){ result.XSec_ExpDown      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.025 --> check the code\n", TquantExp);
+        }
+      }
+      file->Close();
+
+      //if all went well, the combine tool created a new file containing the result of the limit in the form of a TTree
+      //we can open this TTree and access the values for the expected limit, uncertainty bands, and observed limits.
+      file = TFile::Open((string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.975.root").c_str());
+      if(!file || file->IsZombie()){printf("Can't fine file %s", (string("/tmp/")+"higgsCombine"+signal+"Expected.HybridNew.mH120.quant0.975.root").c_str()); return false;}
+      tree = (TTree*)file->Get("limit");
+      if(!tree){printf("Can't find tree named limit"); return false;}
+      tree->GetBranch("limit"           )->SetAddress(&Tlimit   );
+      tree->GetBranch("quantileExpected")->SetAddress(&TquantExp);
+      for(int ientry=0;ientry<tree->GetEntriesFast();ientry++){
+        tree->GetEntry(ientry);
+        if(TquantExp==0.975f){ result.XSec_ExpDown      = Tlimit*(result.XSec_Th/100.0);
+        }else{printf("Quantil %f should be 0.975 --> check the code\n", TquantExp);
         }
       }
       file->Close();
