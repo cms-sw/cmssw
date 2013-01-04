@@ -26,6 +26,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 
 #include "boost/program_options.hpp"
 #include "boost/shared_ptr.hpp"
+#include "tbb/task_scheduler_init.h"
 
 #include <cstring>
 #include <exception>
@@ -35,13 +36,19 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include <string>
 #include <vector>
 
+//Command line parameters
 static char const* const kParameterSetOpt = "parameter-set";
 static char const* const kPythonOpt = "pythonOptions";
 static char const* const kParameterSetCommandOpt = "parameter-set,p";
 static char const* const kJobreportCommandOpt = "jobreport,j";
+static char const* const kJobreportOpt = "jobreport";
 static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
+static const char* const kEnableJobreportOpt = "enablejobreport";
 static char const* const kJobModeCommandOpt = "mode,m";
+static char const* const kJobModeOpt="mode";
 static char const* const kMultiThreadMessageLoggerOpt = "multithreadML,t";
+static char const* const kNumberOfThreadsCommandOpt = "numThreads,n";
+static char const* const kNumberOfThreadsOpt = "numThreads";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kStrictOpt = "strict";
@@ -82,15 +89,37 @@ namespace {
     std::auto_ptr<edm::EventProcessor> ep_;
     bool callEndJob_;
   };
+  
+  void setNThreads(unsigned int iNThreads,
+                   std::unique_ptr<tbb::task_scheduler_init>& oPtr) {
+    //The TBB documentation doesn't explicitly say this, but when the task_scheduler_init's
+    // destructor is run it does a 'wait all' for all tasks to finish and then shuts down all the threads.
+    // This provides a clean synchronization point.
+    //We have to destroy the old scheduler before starting a new one in order to
+    // get tbb to actually switch the number of threads. If we do not, tbb stays at 1 threads
+    edm::LogInfo("ThreadSetup") <<"setting # threads "<<iNThreads;
+
+    oPtr.reset();
+    if(0==iNThreads) {
+      //Allow TBB to decide how many threads. This is normally the number of CPUs in the machine.
+      oPtr = std::unique_ptr<tbb::task_scheduler_init>{new tbb::task_scheduler_init{}};
+    } else {
+      oPtr = std::unique_ptr<tbb::task_scheduler_init>{new tbb::task_scheduler_init{static_cast<int>(iNThreads)}};
+    }
+  }
 }
 
 int main(int argc, char* argv[]) {
-
+  
   int returnCode = 0;
   std::string context;
   bool alwaysAddContext = true;
+  //Default to only use 1 thread. We define this early since plugin system or message logger
+  // may be using TBB.
+  bool setNThreadsOnCommandLine = false;
+  std::unique_ptr<tbb::task_scheduler_init> tsiPtr{new tbb::task_scheduler_init{1}};
   boost::shared_ptr<edm::Presence> theMessageServicePresence;
-  std::auto_ptr<std::ofstream> jobReportStreamPtr;
+  std::unique_ptr<std::ofstream> jobReportStreamPtr;
   boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
   EventProcessorWithSentry proc;
 
@@ -155,6 +184,8 @@ int main(int argc, char* argv[]) {
                 "enable job report files (if any) specified in configuration file")
         (kJobModeCommandOpt, boost::program_options::value<std::string>(),
                 "Job Mode for MessageLogger defaults - default mode is grid")
+      (kNumberOfThreadsCommandOpt,boost::program_options::value<unsigned int>(),
+                "Number of threads to use in job (0 is use all CPUs)")
         (kMultiThreadMessageLoggerOpt,
                 "MessageLogger handles multiple threads - default is single-thread")
         (kStrictOpt, "strict parsing");
@@ -192,6 +223,12 @@ int main(int argc, char* argv[]) {
         if (!vm.count(kParameterSetOpt)) edm::HaltMessageLogging();
         return 0;
       }
+      
+      if(vm.count(kNumberOfThreadsOpt)) {
+        setNThreadsOnCommandLine=true;
+        unsigned int nThreads = vm[kNumberOfThreadsOpt].as<unsigned int>();
+        setNThreads(nThreads,tsiPtr);
+      }
 
       if (!vm.count(kParameterSetOpt)) {
         edm::LogAbsolute("ConfigFileNotFound") << "cmsRun: No configuration file given.\n"
@@ -210,9 +247,9 @@ int main(int argc, char* argv[]) {
       // Decide whether to enable creation of job report xml file
       //  We do this first so any errors will be reported
       std::string jobReportFile;
-      if (vm.count("jobreport")) {
-        jobReportFile = vm["jobreport"].as<std::string>();
-      } else if(vm.count("enablejobreport")) {
+      if (vm.count(kJobreportOpt)) {
+        jobReportFile = vm[kJobreportOpt].as<std::string>();
+      } else if(vm.count(kEnableJobreportOpt)) {
         jobReportFile = "FrameworkJobReport.xml";
       }
       jobReportStreamPtr = std::auto_ptr<std::ofstream>(jobReportFile.empty() ? 0 : new std::ofstream(jobReportFile.c_str()));
@@ -235,6 +272,22 @@ int main(int argc, char* argv[]) {
         edm::Exception e(edm::errors::ConfigFileReadError, "", iException);
         throw e;
       }
+      
+      //See if we were told how many threads to use. If so then inform TBB only if
+      // we haven't already been told how many threads to use in the command line
+      context = "Setting up number of threads";
+      {
+        if(not setNThreadsOnCommandLine) {
+          boost::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
+          if(pset->existsAs<edm::ParameterSet>("options",false)) {
+            auto const& ops = pset->getUntrackedParameterSet("options");
+            if(ops.existsAs<unsigned int>("numberOfThreads",false)) {
+              unsigned int nThreads = ops.getUntrackedParameter<unsigned int>("numberOfThreads");
+              setNThreads(nThreads,tsiPtr);
+            }
+          }
+        }
+      }
 
       context = "Initializing default service configurations";
       std::vector<std::string> defaultServices;
@@ -255,8 +308,8 @@ int main(int argc, char* argv[]) {
 
       context = "Setting MessageLogger defaults";
       // Decide what mode of hardcoded MessageLogger defaults to use
-      if (vm.count("mode")) {
-        std::string jobMode = vm["mode"].as<std::string>();
+      if (vm.count(kJobModeOpt)) {
+        std::string jobMode = vm[kJobModeOpt].as<std::string>();
         edm::MessageDrop::instance()->jobMode = jobMode;
       }
 
