@@ -729,9 +729,11 @@ void makeEmbeddingValidationPlots()
 
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
-  std::string inputFileName_simDYtoTauTau            = "validateMCEmbedding_simDYtoTauTau_all_v1_5_1.root";
-  std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_all_v1_5_1.root";
-  std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_simDYtoMuMu_recEmbedding_all_v1_5_1.root";
+  std::string inputFileName_simDYtoTauTau            = "validateMCEmbedding_simDYtoTauTau_all_v1_5_3.root";
+  //std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_all_v1_5_3.root";
+  //std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_simDYtoMuMu_recEmbedding_all_v1_5_3.root";
+  std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_embedAngleEq0_noVisPtCuts_all_v1_5_3.root";
+  std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_Data_runs202044to203002_all_v1_5_3.root";
 
   std::vector<plotEntryType_distribution> distributionsToPlot;
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -757,6 +759,13 @@ void makeEmbeddingValidationPlots()
     "numTracksPtGt40", "numTracksPtGt40", 
     "numTracksPtGt40", -0.5, +19.5, 50, "Num. Tracks of P_{T} > 40 GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genLeg1X", "genLeg1X", 
+    "genLeg1X", 0., 1., 100, "X_{1}", 1.2, 0., 0.08, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "genLeg2X", "genLeg2X", 
+    "genLeg2X", 0., 1., 100, "X_{2}", 1.2, 0., 0.08, "a.u.", 1.2, false));
+
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genMuonEta", "genMuonEta", 
     "validationAnalyzer_mutau/goodMuonDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
