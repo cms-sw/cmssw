@@ -13,19 +13,10 @@
 
 #include "HepMC/IO_HEPEVT.h"
 
-#ifndef TXGIVE
-#define TXGIVE txgive_
-extern "C" {
-  void TXGIVE(const char*,int length);
-}
-#endif
+#include "TauAnalysis/MCEmbeddingTools/interface/extraPythia.h"                // needed for call_pyexec
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h" // needed for call_pyhepc
 
-#ifndef TXGIVE_INIT
-#define TXGIVE_INIT txgive_init_
-extern "C" {
-  void TXGIVE_INIT();
-}
-#endif
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include <Math/VectorUtil.h>
 #include <TMath.h>
@@ -43,13 +34,14 @@ const double breitWignerWidthW = 2.141;
 const double nomMassZ          = 91.1876;
 const double breitWignerWidthZ = 2.4952;
 
-int ParticleReplacerZtautau::numInstances_ = 0;
+bool ParticleReplacerZtautau::tauola_isInitialized_ = false;
 
 ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   : ParticleReplacerBase(cfg),
     generatorMode_(cfg.getParameter<std::string>("generatorMode")),
     beamEnergy_(cfg.getParameter<double>("beamEnergy")),
-    tauola_(cfg.getParameter<edm::ParameterSet>("TauolaOptions"))
+    tauola_(cfg.getParameter<edm::ParameterSet>("TauolaOptions")),
+    pythia_(cfg)
 {
   maxNumberOfAttempts_ = ( cfg.exists("maxNumberOfAttempts") ) ?
     cfg.getParameter<int>("maxNumberOfAttempts") : 1000;
@@ -67,8 +59,6 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
     edm::LogInfo("Replacer") << "transformationMode = " << transformationMode_ << "\n";
   }
 
-  isFirstInstance_ = (numInstances_ == 0);
-	
   motherParticleID_ = ( cfg.exists("motherParticleID") ) ?
     cfg.getParameter<int>("motherParticleID") : 23;
 
@@ -157,11 +147,63 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   decayRandomEngine = &rng->getEngine();
 }
 
+void ParticleReplacerZtautau::beginJob() 
+{
+  gen::Pythia6Service::InstanceWrapper pythia6InstanceGuard(&pythia_);
+  pythia_.setGeneralParams();
+}
+
 namespace
 {
   double square(double x)
   {
     return x*x;
+  }
+
+  bool matchesGenParticle(const HepMC::GenParticle* genParticle1, const HepMC::GenParticle* genParticle2)
+  {
+    if ( genParticle1->pdg_id() == genParticle2->pdg_id() && 
+	 TMath::Abs(genParticle1->momentum().e() - genParticle2->momentum().e()) < (1.e-3*(genParticle1->momentum().e() + genParticle2->momentum().e())) &&
+	 reco::deltaR(genParticle1->momentum(), genParticle2->momentum()) < 1.e-3 )
+      return true;
+    else
+      return false;
+  }
+
+  bool matchesGenVertex(const HepMC::GenVertex* genVertex1, const HepMC::GenVertex* genVertex2, bool checkIncomingParticles, bool checkOutgoingParticles)
+  {
+    // require that vertex positions match
+    if ( !(TMath::Abs(genVertex1->position().x() - genVertex2->position().x()) < 1.e-3 &&
+	   TMath::Abs(genVertex1->position().y() - genVertex2->position().y()) < 1.e-3 &&
+	   TMath::Abs(genVertex1->position().z() - genVertex2->position().z()) < 1.e-3) ) return false;
+
+    // require that "incoming" particles match
+    if ( checkIncomingParticles ) {
+      for ( HepMC::GenVertex::particles_in_const_iterator genParticle1 = genVertex1->particles_in_const_begin();
+	    genParticle1 != genVertex1->particles_in_const_end(); ++genParticle1 ) {
+	bool isMatched = false;
+	for ( HepMC::GenVertex::particles_in_const_iterator genParticle2 = genVertex2->particles_in_const_begin();
+	      genParticle2 != genVertex2->particles_in_const_end() && !isMatched; ++genParticle2 ) {
+	  isMatched |= matchesGenParticle(*genParticle1, *genParticle2);
+	}
+	if ( !isMatched ) return false;
+      }
+    }
+
+    // require that "outgoing" particles match
+    if ( checkOutgoingParticles ) {
+      for ( HepMC::GenVertex::particles_out_const_iterator genParticle1 = genVertex1->particles_out_const_begin();
+	    genParticle1 != genVertex1->particles_out_const_end(); ++genParticle1 ) {
+	bool isMatched = false;
+	for ( HepMC::GenVertex::particles_out_const_iterator genParticle2 = genVertex2->particles_out_const_begin();
+	      genParticle2 != genVertex2->particles_out_const_end() && !isMatched; ++genParticle2 ) {
+	  isMatched |= matchesGenParticle(*genParticle1, *genParticle2);
+	}
+	if ( !isMatched ) return false;
+      }
+    }
+
+    return true;
   }
 }
 
@@ -328,6 +370,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       ppCollisionPosX += embedParticleVertex.x();
       ppCollisionPosY += embedParticleVertex.y();
       ppCollisionPosZ += embedParticleVertex.z();
+      ++idx;
     }
     
     int numEmbedParticles = embedParticles.size();
@@ -337,13 +380,11 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       ppCollisionPosZ /= numEmbedParticles;
     }
     
-    reco::Particle::Point ppCollisionPos(ppCollisionPosX, ppCollisionPosY, ppCollisionPosZ);
+    HepMC::GenVertex* ppCollisionVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPosX*10., ppCollisionPosY*10., ppCollisionPosZ*10., 0.)); // convert from cm to mm
+    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0.,  beamEnergy_, beamEnergy_), 2212, 3));
+    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., -beamEnergy_, beamEnergy_), 2212, 3));
 
-    HepMC::GenVertex* ppCollisionVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPos.x()*10., ppCollisionPos.y()*10., ppCollisionPos.z()*10., 0.)); // convert from cm to mm
-    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0.,  beamEnergy_, beamEnergy_), 2212, 3 ));
-    ppCollisionVtx->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., -beamEnergy_, beamEnergy_), 2212, 3 ));
-
-    HepMC::GenVertex* genMotherDecayVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPos.x()*10., ppCollisionPos.y()*10., ppCollisionPos.z()*10., 0.)); // Z decays immediately
+    HepMC::GenVertex* genMotherDecayVtx = new HepMC::GenVertex(HepMC::FourVector(ppCollisionPosX*10., ppCollisionPosY*10., ppCollisionPosZ*10., 0.)); // Z decays immediately
     HepMC::GenParticle* genMother = new HepMC::GenParticle((HepMC::FourVector)genMotherP4, motherParticleID_, (generatorMode_ == "Pythia" ? 3 : 2), HepMC::Flow(), HepMC::Polarization(0,0));
     if ( transformationMode_ == 3 ) {
       int chargedLepPdgId = embedParticles.begin()->pdgId(); // first daughter particle is charged lepton always
@@ -352,15 +393,17 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     }
 
     ppCollisionVtx->add_particle_out(genMother);
-    genMotherDecayVtx->add_particle_in(genMother);
 
-    genEvt_output = new HepMC::GenEvent();
+    genMotherDecayVtx->add_particle_in(genMother);
     for ( std::vector<reco::Particle>::const_iterator embedParticle = embedParticles.begin();
 	  embedParticle != embedParticles.end(); ++embedParticle ) {
       genMotherDecayVtx->add_particle_out(new HepMC::GenParticle((HepMC::FourVector)embedParticle->p4(), embedParticle->pdgId(), 1, HepMC::Flow(), HepMC::Polarization(0,0)));
     }
+
+    genEvt_output = new HepMC::GenEvent();
     genEvt_output->add_vertex(ppCollisionVtx);
     genEvt_output->add_vertex(genMotherDecayVtx);
+
     repairBarcodes(genEvt_output);
   }
 	
@@ -404,7 +447,81 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       << "Failed to create an event which satisfies the visible Pt cuts !!" << std::endl;
     return std::auto_ptr<HepMC::GenEvent>(0);
   }
-  
+
+  // use PYTHIA to decay unstable hadrons (e.g. pi0 -> gamma gamma)
+  //std::cout << "before pi0 -> gamma gamma decays:" << std::endl;
+  //passedEvt_output->print(std::cout); 
+
+  conv.write_event(passedEvt_output);
+
+  gen::Pythia6Service::InstanceWrapper pythia6InstanceGuard(&pythia_);
+
+  // convert hepevt -> pythia
+  call_pyhepc(2); 
+
+  // call PYTHIA 
+  call_pyexec();
+ 
+  // convert pythia -> hepevt
+  call_pyhepc(1); 
+
+  HepMC::GenEvent* passedEvt_pythia = conv.read_next_event();
+  //std::cout << "PYTHIA output:" << std::endl;
+  //passedEvt_pythia->print(std::cout);
+
+  // CV: back and forth conversion between HepMC and PYTHIA causes
+  //     pp -> Z vertex to get corrupted for some reason;
+  //     do **not** take HepMC::GenEvent from PYTHIA, 
+  //     but add decays of unstable particles to original HepMC::GenEvent
+  for ( HepMC::GenEvent::vertex_const_iterator genVertex_pythia = passedEvt_pythia->vertices_begin();
+	genVertex_pythia != passedEvt_pythia->vertices_end(); ++genVertex_pythia ) {
+    int genVertex_barcode = (*genVertex_pythia)->barcode();
+
+    bool isDecayVertex = ((*genVertex_pythia)->particles_in_size() >= 1 && (*genVertex_pythia)->particles_out_size() >= 2);
+    for ( HepMC::GenEvent::vertex_const_iterator genVertex_output = passedEvt_output->vertices_begin();
+	  genVertex_output != passedEvt_output->vertices_end(); ++genVertex_output ) {
+      if ( matchesGenVertex(*genVertex_output, *genVertex_pythia, true, false) ) isDecayVertex = false;
+    }
+    if ( !isDecayVertex ) continue;
+
+    // create new vertex
+    //std::cout << "creating decay vertex: barcode = " << genVertex_barcode << std::endl;
+    HepMC::GenVertex* genVertex_output = new HepMC::GenVertex((*genVertex_pythia)->position());
+
+    // associate "incoming" particles to new vertex
+    for ( HepMC::GenVertex::particles_in_const_iterator genParticle_pythia = (*genVertex_pythia)->particles_in_const_begin();
+	  genParticle_pythia != (*genVertex_pythia)->particles_in_const_end(); ++genParticle_pythia ) {
+      for ( HepMC::GenEvent::particle_iterator genParticle_output = passedEvt_output->particles_begin();
+	    genParticle_output != passedEvt_output->particles_end(); ++genParticle_output ) {
+	if ( matchesGenParticle(*genParticle_output, *genParticle_pythia) ) {
+	  //std::cout << " adding 'incoming' particle: barcode = " << (*genParticle_output)->barcode() << std::endl;
+	  genVertex_output->add_particle_in(*genParticle_output);
+	}
+      }
+    }
+
+    // create "outgoing" particles and associate them to new vertex
+    for ( HepMC::GenVertex::particles_out_const_iterator genParticle_pythia = (*genVertex_pythia)->particles_out_const_begin();
+	  genParticle_pythia != (*genVertex_pythia)->particles_out_const_end(); ++genParticle_pythia ) {
+      HepMC::GenParticle* genParticle_output = new HepMC::GenParticle(
+	(*genParticle_pythia)->momentum(), 
+	(*genParticle_pythia)->pdg_id(), 
+	(*genParticle_pythia)->status(), 
+	(*genParticle_pythia)->flow(),  
+	(*genParticle_pythia)->polarization());
+      genParticle_output->suggest_barcode((*genParticle_pythia)->barcode());
+      //std::cout << " adding 'outgoing' particle: barcode = " << genParticle_output->barcode() << std::endl;
+      genVertex_output->add_particle_out(genParticle_output);
+    }
+
+    //std::cout << "adding decay vertex: barcode = " << genVertex_output->barcode() << std::endl;
+    passedEvt_output->add_vertex(genVertex_output);
+  }
+  delete passedEvt_pythia;
+
+  //std::cout << "after pi0 -> gamma gamma decays:" << std::endl;
+  //passedEvt_output->print(std::cout);
+
   // undo the "hack" (*): 
   // recover the particle status codes
   if ( genEvt ) {
@@ -423,28 +540,22 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
 
   delete genVtx_output;
   delete genEvt_output;
-
-  //if ( passedEvt_output_ptr.get() != 0 ) {
-  //  std::cout << "passedEvt_output_ptr:" << std::endl;
-  //  int idx = 0;
-  //  for ( HepMC::GenEvent::vertex_const_iterator vertex = passedEvt_output_ptr->vertices_begin();
-  //	  vertex != passedEvt_output_ptr->vertices_end(); ++vertex ) {
-  //    std::cout << "vertex #" << idx << ": x = " << (*vertex)->position().x() << ", y = " << (*vertex)->position().y() << ", z = " << (*vertex)->position().z() << std::endl;
-  //    ++idx;
-  //  }
-  //}
   
   return passedEvt_output_ptr;
 }
 
 void ParticleReplacerZtautau::beginRun(edm::Run& run, const edm::EventSetup& es)
 {
-  if ( isFirstInstance_ ) tauola_.init(es);
+  if ( !tauola_isInitialized_ ) {
+    std::cout << "<ParticleReplacerZtautau::beginRun>: Initializing TAUOLA interface." << std::endl;
+    tauola_.init(es);
+    tauola_isInitialized_ = true;
+  }
 }
 
 void ParticleReplacerZtautau::endJob()
 {
-  if ( isFirstInstance_ ) tauola_.statistics();
+  tauola_.statistics();
 }
 
 bool ParticleReplacerZtautau::testEvent(HepMC::GenEvent* genEvt)
@@ -470,12 +581,17 @@ bool ParticleReplacerZtautau::testEvent(HepMC::GenEvent* genEvt)
       int decayProductIdx = 0;
       while ( !decayProducts.empty() && decayProductIdx < 100 ) { // CV: protection against entering infinite loop in case of corrupt particle relations
 	const HepMC::GenParticle* decayProduct = decayProducts.front();
+	if ( verbosity_ ) {
+	  std::cout << "decayProduct #" << (decayProductIdx + 1) << " (pdgId = " << decayProduct->pdg_id() << "):" 
+		    << " Pt = " << decayProduct->momentum().perp() << ", eta = " << decayProduct->momentum().eta() << ", phi = " << decayProduct->momentum().phi() 
+		    << std::endl;
+	}
 	decayProducts.pop();
 	if ( !decayProduct->end_vertex() ) { // stable decay product
-	  int pdgId = abs(decayProduct->pdg_id());
-	  if ( !(pdgId == 12 || pdgId == 14 || pdgId != 16) ) visP4 += (reco::Candidate::LorentzVector)decayProduct->momentum();
-          if ( pdgId == 11 ) type = kELEC;
-          if ( pdgId == 13 ) type = kMU;
+	  int absPdgId = abs(decayProduct->pdg_id());
+	  if ( !(absPdgId == 12 || absPdgId == 14 || absPdgId == 16) ) visP4 += (reco::Candidate::LorentzVector)decayProduct->momentum();
+          if ( absPdgId == 11 ) type = kELEC;
+	  if ( absPdgId == 13 ) type = kMU;
 	} else { // decay product decays further...
 	  HepMC::GenVertex* decayVtx = decayProduct->end_vertex();
 	  for ( HepMC::GenVertex::particles_out_const_iterator daughter = decayVtx->particles_out_const_begin();
@@ -491,14 +607,15 @@ bool ParticleReplacerZtautau::testEvent(HepMC::GenEvent* genEvt)
       if      ( type == kMU   ) muonPts.push_back(visPt);
       else if ( type == kELEC ) electronPts.push_back(visPt);
       else if ( type == kHAD  ) tauJetPts.push_back(visPt);
-      //if ( verbosity_ ) {
-      //  std::string type_string = "";
-      //  if      ( type == kMU   ) type_string = "mu";
-      //  else if ( type == kELEC ) type_string = "elec";
-      //  else if ( type == kHAD  ) type_string = "had";
-      //  std::cout << "visLeg #" << (genParticleIdx + 1) << " (type = " << type_string << "):" 
-      //	    << " Pt = " << visP4.pt() << ", eta = " << visP4.eta() << ", phi = " << visP4.phi() << std::endl;
-      //}
+      if ( verbosity_ ) {
+        std::string type_string = "";
+        if      ( type == kMU   ) type_string = "mu";
+        else if ( type == kELEC ) type_string = "elec";
+        else if ( type == kHAD  ) type_string = "had";
+        std::cout << "visLeg #" << (genParticleIdx + 1) << " (type = " << type_string << "):" 
+		  << " Pt = " << visP4.pt() << ", eta = " << visP4.eta() << ", phi = " << visP4.phi() 
+		  << " (X = " << (visP4.energy()/(*genParticle)->momentum().e()) << ")" << std::endl;
+      }
       ++genParticleIdx;
     }
   }
