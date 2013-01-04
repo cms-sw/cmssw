@@ -16,9 +16,9 @@
  * 
  * \author Manuel Zeise 
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: ParticleReplacerZtautau.h,v 1.3 2012/11/07 17:27:30 aburgmei Exp $
+ * $Id: ParticleReplacerZtautau.h,v 1.4 2012/12/18 15:59:25 veelken Exp $
  *
  */
 
@@ -26,7 +26,7 @@
 
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h" // needed by TauolaInterface
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 
 #include <TTree.h>
@@ -41,6 +41,7 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
 
   virtual std::auto_ptr<HepMC::GenEvent> produce(const std::vector<reco::Particle>&, const reco::Vertex* = 0, const HepMC::GenEvent* = 0);
   virtual void beginRun(edm::Run&, const edm::EventSetup&);
+  virtual void beginJob();
   virtual void endJob();
 
  private:
@@ -66,12 +67,6 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
   //  4 - munu -> taunu
   unsigned int transformationMode_;
 
-  // keep track if this instance of ParticleReplacerZtautau is the first one.
-  // Needed to avoid multiple initializations of TAUOLA interface,
-  // which makes TAUOLA crash.
-  static int numInstances_;
-  bool isFirstInstance_;
-
   int motherParticleID_;
   bool useExternalGenerators_;
   bool useTauola_;
@@ -81,6 +76,12 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
                            //  while preserving Z/W-boson momentum and spin effects)
 
   gen::TauolaInterface tauola_;
+  // keep track if TAUOLA interface has already been initialized.
+  // Needed to avoid multiple initializations of TAUOLA interface,
+  // which makes TAUOLA crash.
+  static bool tauola_isInitialized_;
+
+  gen::Pythia6Service pythia_;
 
   bool printEvent_;
 
