@@ -49,7 +49,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.6 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -60,7 +60,7 @@ process.outputFiles = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
     fileName = cms.untracked.string('embed_AOD.root'),
-    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2012Dec18_AOD.root'),                                   
+    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2012Dec20_AOD.root'),                                   
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -89,6 +89,7 @@ process.removedInputMuons = cms.EDProducer("ZmumuPFEmbedder",
     dRmatch = cms.double(1.e-1)            
 )
 
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.generator = cms.EDProducer("MCParticleReplacer",
     src = cms.InputTag(""),
     beamSpotSrc = cms.InputTag("dummy"),
@@ -106,35 +107,9 @@ process.generator = cms.EDProducer("MCParticleReplacer",
                 pjak1 = cms.int32(0)
             )
         ),
-        pythiaHepMCVerbosity = cms.untracked.bool(False),
-        beamEnergy = cms.double(4000.0),
-	rfRotationAngle = cms.double(90.),   				   
-        generatorMode = cms.string('Tauola'),
-        filterEfficiency = cms.untracked.double(1.0),
-        minVisibleTransverseMomentum = cms.untracked.string(''),
-	verbosity = cms.int32(0)     				   
-    ),
-    ParticleGun = cms.PSet(
-        ExternalDecays = cms.PSet(
-            Tauola = cms.PSet(
-                UseTauolaPolarization = cms.bool(True),
-                InputCards = cms.PSet(
-                    mdtau = cms.int32(0),
-                    pjak2 = cms.int32(0),
-                    pjak1 = cms.int32(0)
-                )
-            ),
-            parameterSets = cms.vstring('Tauola')
-        ),
-        forceTauDecay = cms.string('none'),
-        forceTauMinusHelicity = cms.int32(0),
-        generatorMode = cms.string('Tauola'),
-        gunParticle = cms.int32(15),
-        forceTauPolarization = cms.string('W'),
-        particleOrigin = cms.string('muonReferencePoint'),
-        forceTauPlusHelicity = cms.int32(0),
         PythiaParameters = cms.PSet(
-            pythiaUESettings = cms.vstring('MSTJ(11)=3     ! Choice of the fragmentation function', 
+            pythiaUESettings = cms.vstring(
+                'MSTJ(11)=3     ! Choice of the fragmentation function', 
                 'MSTJ(22)=2     ! Decay those unstable particles', 
                 'PARJ(71)=10 .  ! for which ctau  10 mm', 
                 'MSTP(2)=1      ! which order running alphaS', 
@@ -156,63 +131,17 @@ process.generator = cms.EDProducer("MCParticleReplacer",
                 'PARP(64)=0.2    ! ', 
                 'MSTP(91)=1      !', 
                 'PARP(91)=2.1   ! kt distribution', 
-                'PARP(93)=15.0  ! '),
-            pgunTauolaParameters = cms.vstring('MDME(89,1)=0', 
-                'MDME(90,1)=0', 
-                'MDME(91,1)=0', 
-                'MDME(92,1)=0', 
-                'MDME(93,1)=0', 
-                'MDME(94,1)=0', 
-                'MDME(95,1)=0', 
-                'MDME(96,1)=0', 
-                'MDME(97,1)=0', 
-                'MDME(98,1)=0', 
-                'MDME(99,1)=0', 
-                'MDME(100,1)=0', 
-                'MDME(101,1)=0', 
-                'MDME(102,1)=0', 
-                'MDME(103,1)=0', 
-                'MDME(104,1)=0', 
-                'MDME(105,1)=0', 
-                'MDME(106,1)=0', 
-                'MDME(107,1)=0', 
-                'MDME(108,1)=0', 
-                'MDME(109,1)=0', 
-                'MDME(110,1)=0', 
-                'MDME(111,1)=0', 
-                'MDME(112,1)=0', 
-                'MDME(113,1)=0', 
-                'MDME(114,1)=0', 
-                'MDME(115,1)=0', 
-                'MDME(116,1)=0', 
-                'MDME(117,1)=0', 
-                'MDME(118,1)=0', 
-                'MDME(119,1)=0', 
-                'MDME(120,1)=0', 
-                'MDME(121,1)=0', 
-                'MDME(122,1)=0', 
-                'MDME(123,1)=0', 
-                'MDME(124,1)=0', 
-                'MDME(125,1)=0', 
-                'MDME(126,1)=0', 
-                'MDME(127,1)=0', 
-                'MDME(128,1)=0', 
-                'MDME(129,1)=0', 
-                'MDME(130,1)=0', 
-                'MDME(131,1)=0', 
-                'MDME(132,1)=0', 
-                'MDME(133,1)=0', 
-                'MDME(134,1)=0', 
-                'MDME(135,1)=0', 
-                'MDME(136,1)=0', 
-                'MDME(137,1)=0', 
-                'MDME(138,1)=0', 
-                'MDME(139,1)=0', 
-                'MDME(140,1)=0', 
-                'MDME(141,1)=0', 
-                'MDME(142,1)=0'),
-            parameterSets = cms.vstring('pythiaUESettings')
-        )
+                'PARP(93)=15.0  ! '
+            ),
+            parameterSets = cms.vstring('pythiaUESettings')                               
+        ),                                   
+        pythiaHepMCVerbosity = cms.untracked.bool(False),
+        beamEnergy = cms.double(4000.0),
+	rfRotationAngle = cms.double(90.),   				   
+        generatorMode = cms.string('Tauola'),
+        filterEfficiency = cms.untracked.double(1.0),
+        minVisibleTransverseMomentum = cms.untracked.string(''),
+	verbosity = cms.int32(0)     				   
     ),
     pluginType = cms.string('ParticleReplacerZtautau')
 )
@@ -246,7 +175,7 @@ for path in process.paths:
 process.customization_options = cms.PSet(
     parseCommandLine             = cms.bool(False),    # enable reading of configuration parameter values by parsing command-line
     isMC                         = cms.bool(True),     # set to true for MC/false for data
-    ZmumuCollection              = cms.InputTag('genMuonsFromZs'), # collection of selected Z->mumu candidates
+    ZmumuCollection              = cms.InputTag('goldenZmumuCandidatesGe0IsoMuons'), # collection of selected Z->mumu candidates
     # CV: use inputProcessRECO = "RECO" and inputProcessSIM = "SIM" for samples from official production;
     #         inputProcessRECO = inputProcessSIM = "HLT" for test samples produced privately, using cmsDriver
     inputProcessRECO             = cms.string("RECO"), # instanceLabel to be used for retrieving collections of reconstructed objects reconstructed in original Z->mumu event
@@ -254,13 +183,13 @@ process.customization_options = cms.PSet(
     cleaningMode                 = cms.string("DEDX"), # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
     mdtau                        = cms.int32(116),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection
     transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
-    rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus
+    rfRotationAngle              = cms.double(0.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus
     embeddingMode                = cms.string("RH"),   # embedding mode: 'PF'=particle flow embedding, 'RH'=recHit embedding
-    replaceGenOrRecMuonMomenta   = cms.string("gen"),  # take momenta of generated tau leptons from: 'rec'=reconstructed muons, 'gen'=generator level muons
+    replaceGenOrRecMuonMomenta   = cms.string("rec"),  # take momenta of generated tau leptons from: 'rec'=reconstructed muons, 'gen'=generator level muons
     minVisibleTransverseMomentum = cms.string("mu1_7had1_15"), # generator level cut on visible transverse momentum (typeN:pT,[...];[...])
     useJson                      = cms.bool(False),    # should I enable event selection by JSON file ?
     overrideBeamSpot             = cms.bool(False),    # should I override beamspot in globaltag ?
-    applyZmumuSkim               = cms.bool(False),    # should I apply the Z->mumu event selection cuts ?
+    applyZmumuSkim               = cms.bool(True),    # should I apply the Z->mumu event selection cuts ?
     applyMuonRadiationFilter     = cms.bool(False)     # should I apply the filter to reject events with muon -> muon + photon radiation ?
 )
 
