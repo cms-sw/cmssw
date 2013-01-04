@@ -83,24 +83,36 @@ def customise(process):
     index += 1  
 
   # keep collections of generator level muons
-  outputModule.outputCommands.extend(['keep *_genMuonsFromZs_*_*'])
+  outputModule.outputCommands.extend([
+    'keep *_genMuonsFromZs_*_*'
+  ])
 
   # keep collections of reconstructed muons
-  outputModule.outputCommands.extend(['keep *_goodMuons_*_*'])
-  outputModule.outputCommands.extend(['keep *_goodMuonsPFIso_*_*'])
+  outputModule.outputCommands.extend([
+    'keep *_goodMuons_*_*',
+    'keep *_goodMuonsPFIso_*_*',
+    'keep *_highestPtMuPlus_*_*',
+    'keep *_highestPtMuMinus_*_*',
+    'keep *_highestPtMuPlusPFIso_*_*',
+    'keep *_highestPtMuMinusPFIso_*_*'    
+  ])
 
   # keep collections of reconstructed Z -> mumu candidates
   # (with different muon isolation criteria applied)
-  outputModule.outputCommands.extend(['keep *_goldenZmumuCandidatesGe0IsoMuons_*_*',
-                                      'keep *_goldenZmumuCandidatesGe1IsoMuons_*_*',
-                                      'keep *_goldenZmumuCandidatesGe2IsoMuons_*_*',
-                                      'keep TH2DMEtoEDM_MEtoEDMConverter_*_*'])
+  outputModule.outputCommands.extend([
+    'keep *_goldenZmumuCandidatesGe0IsoMuons_*_*',
+    'keep *_goldenZmumuCandidatesGe1IsoMuons_*_*',
+    'keep *_goldenZmumuCandidatesGe2IsoMuons_*_*',
+    'keep TH2DMEtoEDM_MEtoEDMConverter_*_*'
+  ])
 
   # keep flag indicating whether event passes or fails
   #  o Z -> mumu event selection
   #  o muon -> muon + photon radiation filter
-  outputModule.outputCommands.extend(['keep *_goldenZmumuFilterResult_*_*'])
-  outputModule.outputCommands.extend(['keep *_muonRadiationFilterResult_*_*'])
+  outputModule.outputCommands.extend([
+    'keep *_goldenZmumuFilterResult_*_*',
+    'keep *_muonRadiationFilterResult_*_*'
+  ])
 
   # replace HLT process name
   # (needed for certain reprocessed Monte Carlo samples)
@@ -123,8 +135,9 @@ def customise(process):
   
   # apply configuration parameters
   print "Setting mdtau to %i" % process.customization_options.mdtau.value()
-  process.generator.Ztautau.TauolaOptions.InputCards.mdtau = process.customization_options.mdtau 
-  process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = process.customization_options.mdtau 
+  process.generator.Ztautau.TauolaOptions.InputCards.mdtau = process.customization_options.mdtau
+  if hasattr(process.generator, "ParticleGun"):
+    process.generator.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = process.customization_options.mdtau 
   
   print "Setting minVisibleTransverseMomentum to '%s'" % process.customization_options.minVisibleTransverseMomentum.value()
   process.generator.Ztautau.minVisibleTransverseMomentum = process.customization_options.minVisibleTransverseMomentum
