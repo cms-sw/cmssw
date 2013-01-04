@@ -24,6 +24,7 @@ isMC = True
 channel = 'mutau'
 srcWeights = []
 srcGenFilterInfo = "generator:minVisPtFilter"
+##srcGenFilterInfo = ""
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -39,7 +40,7 @@ srcGenFilterInfo = "generator:minVisPtFilter"
 #--------------------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2012Dec18_AOD.root'
+        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2012Dec20_AOD.root'
         #'file:/data1/veelken/CMSSW_5_3_x/skims/simZplusJets_madgraph_AOD_1_1_txi.root'
         #'file:/tmp/veelken/rhembTauTau_data_Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RECEmbed_2825_embed_AOD.root'                        
     ),
@@ -273,7 +274,7 @@ elif channel == "mutau":
 else:
     raise ValueError("Invalid Configuration parameter 'channel' = %s !!" % channel)
 #--------------------------------------------------------------------------------
-## process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 ## process.printGenParticleListSIM = cms.EDAnalyzer("ParticleListDrawer",
 ##     src = cms.InputTag("genParticles::SIM"),
 ##     maxEventsToPrint = cms.untracked.int32(100)
@@ -281,11 +282,11 @@ else:
 ## process.printGenZsSIM = cms.EDAnalyzer("DumpGenZs",
 ##     src = cms.InputTag("genParticles::SIM")
 ## )  
-## process.printGenParticleListEmbeddedRECO = cms.EDAnalyzer("ParticleListDrawer",
-##     src = cms.InputTag("genParticles::EmbeddedRECO"),
-##     maxEventsToPrint = cms.untracked.int32(100)
-## )
-## process.printGenZsEmbeddedRECO = cms.EDAnalyzer("DumpGenZs",
+##process.printGenParticleListEmbeddedRECO = cms.EDAnalyzer("ParticleListDrawer",
+##    src = cms.InputTag("genParticles::EmbeddedRECO"),
+##    maxEventsToPrint = cms.untracked.int32(100)
+##)
+##process.printGenZsEmbeddedRECO = cms.EDAnalyzer("DumpGenZs",
 ##     src = cms.InputTag("genParticles::EmbeddedRECO")
 ## )
 ## process.dumpVertices = cms.EDAnalyzer("DumpVertices",
@@ -318,8 +319,11 @@ process.recTauSelectionSequence = cms.Sequence(
    + process.recoTauClassicHPSSequence
    + process.patTaus
    + process.genMatchedPatTaus
-   ###+ process.printGenParticleListSIM
-   ##+ process.printGenZsSIM + process.printGenParticleListEmbeddedRECO + process.printGenZsEmbeddedRECO + process.dumpTaus
+   ##+ process.printGenParticleListSIM
+   ##+ process.printGenZsSIM
+   ##+ process.printGenParticleListEmbeddedRECO
+   ##+ process.printGenZsEmbeddedRECO
+   ##+ process.dumpTaus
    + process.selectedTaus
 )
 
@@ -498,9 +502,11 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     # NOTE: configuration parameter 'srcReplacedMuons' needs to match value used when producing embedding sample;
     #          values of 'replacedMuonPtThresholdHigh' and 'replacedMuonPtThresholdLow' configuration parameters
     #          need to match muon Pt thresholds defined in TauAnalysis/MCEmbeddingTools/python/ZmumuStandaloneSelection_cff.py
-    srcReplacedMuons = cms.InputTag('goldenZmumuCandidatesGe2IsoMuons'),
-    replacedMuonPtThresholdHigh = cms.double(20.),
-    replacedMuonPtThresholdLow = cms.double(10.),
+    ##srcReplacedMuons = cms.InputTag('goldenZmumuCandidatesGe2IsoMuons'), # CV: temporarily disabled because collections of daughters 'highestPtMuPlusPFIso' and 'highestPtMuMinusPFIso' were dropped
+                                                                           #     causing "product not found" exception in MCEmbeddingValidationAnalyzer module
+    srcReplacedMuons = cms.InputTag('goodMuonsPFIso'),
+    replacedMuonPtThresholdHigh = cms.double(17.),
+    replacedMuonPtThresholdLow = cms.double(8.),
     #----------------------------------------------------------------------------                                              
     srcRecMuons = cms.InputTag('muons'),
     srcRecTracks = cms.InputTag('generalTracks'),
