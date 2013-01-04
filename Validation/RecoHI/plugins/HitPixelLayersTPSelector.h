@@ -4,8 +4,9 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 /**
  Selector to select only tracking particles that leave hits in three pixel layers
@@ -49,6 +50,10 @@ class HitPixelLayersTPSelector
     void select( const edm::Handle<collection> & TPCH, const edm::Event & iEvent, const edm::EventSetup & iSetup)
     {
       selected_.clear();
+      //Retrieve tracker topology from geometry
+      edm::ESHandle<TrackerTopology> tTopoHand;
+      iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+      const TrackerTopology *tTopo=tTopoHand.product();
       
 
       const collection & tpc = *(TPCH.product());
@@ -79,7 +84,7 @@ class HitPixelLayersTPSelector
 	       fabs(tpr->vertex().z()) <= lip_ &&
 	       testId)
 	    {
-	      if (tripletSeedOnly_ && !goodHitPattern(pixelHitPattern(tpr)) ) continue; //findable triplet seed
+	      if (tripletSeedOnly_ && !goodHitPattern(pixelHitPattern(tpr,tTopo)) ) continue; //findable triplet seed
 	      const TrackingParticle * trap = &(tpc[i]);
 	      selected_.push_back(trap);
 	    } 
@@ -88,7 +93,7 @@ class HitPixelLayersTPSelector
     }
     
     // return pixel layer hit pattern
-    std::vector<bool> pixelHitPattern( const TrackingParticleRef& simTrack )
+    std::vector<bool> pixelHitPattern( const TrackingParticleRef& simTrack, const TrackerTopology *tTopo )
       {
 	std::vector<bool> hitpattern(5,false); // PXB 0,1,2  PXF 0,1
 	
@@ -100,9 +105,9 @@ class HitPixelLayersTPSelector
 	  
 	  if (detid == DetId::Tracker) {
 	    if (subdet == PixelSubdetector::PixelBarrel) 
-	      hitpattern[PXBDetId(id).layer()-1]=true;
+	      hitpattern[tTopo->pxbLayer(id)-1]=true;
 	    else if (subdet == PixelSubdetector::PixelEndcap) 
-	      hitpattern[PXFDetId(id).disk()+2]=true;
+	      hitpattern[tTopo->pxfDisk(id)+2]=true;
 	  }
 	  
 	}// end simhit loop

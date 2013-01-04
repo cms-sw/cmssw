@@ -19,8 +19,8 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -254,7 +254,12 @@ void SiPixelRecHitsValid::endJob() {
 
 void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) 
 {
-  
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   if ( (int) e.id().event() % 1000 == 0 )
     cout << " Run = " << e.id().run() << " Event = " << e.id().event() << endl;
@@ -327,11 +332,11 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	      
 	      if (subid==1) 
 		{ //<----------barrel
-		  fillBarrel(*pixeliter, *closestit, detId, theGeomDet);	
+		  fillBarrel(*pixeliter, *closestit, detId, theGeomDet,tTopo);	
 		} // end barrel
 	      if (subid==2) 
 		{ // <-------forward
-		  fillForward(*pixeliter, *closestit, detId, theGeomDet);
+		  fillForward(*pixeliter, *closestit, detId, theGeomDet,tTopo);
 		}
 	      
 	    } // end matched emtpy
@@ -340,7 +345,8 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 }
 
 void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit& simHit, 
-				     DetId detId, const PixelGeomDetUnit* theGeomDet) 
+				     DetId detId, const PixelGeomDetUnit* theGeomDet,
+				     const TrackerTopology *tTopo) 
 {
   const float cmtomicron = 10000.0; 
   
@@ -392,7 +398,7 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
     { // flipped
       for (unsigned int i=0; i<3; i++) 
 	{
-	  if (PXBDetId(detId).layer() == i+1) 
+	  if (tTopo->pxbLayer(detId) == i+1) 
 	    {
 	      recHitXResFlippedLadderLayers[i]->Fill(res_x);
 	      recHitXPullFlippedLadderLayers[i]->Fill(pull_x);
@@ -403,7 +409,7 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
     {
       for (unsigned int i=0; i<3; i++) 
 	{
-	  if (PXBDetId(detId).layer() == i+1) 
+	  if (tTopo->pxbLayer(detId) == i+1) 
 	    {
 	      recHitXResNonFlippedLadderLayers[i]->Fill(res_x);
 	      recHitXPullNonFlippedLadderLayers[i]->Fill(pull_x);
@@ -417,26 +423,26 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
   // fill module dependent info
   for (unsigned int i=0; i<8; i++) 
     {
-      if (PXBDetId(detId).module() == i+1) 
+      if (tTopo->pxbModule(detId) == i+1) 
 	{
 	  int sizeY = (*clust).sizeY();
 	  clustYSizeModule[i]->Fill(sizeY);
 	  
-	  if (PXBDetId(detId).layer() == 1) 
+	  if (tTopo->pxbLayer(detId) == 1) 
 	    {
 	      float charge = (*clust).charge();
 	      clustChargeLayer1Modules[i]->Fill(charge);
 	      recHitYResLayer1Modules[i]->Fill(res_y);
 	      recHitYPullLayer1Modules[i]->Fill(pull_y);
 	    }
-	  else if (PXBDetId(detId).layer() == 2) 
+	  else if (tTopo->pxbLayer(detId) == 2) 
 	    {
 	      float charge = (*clust).charge();
 	      clustChargeLayer2Modules[i]->Fill(charge);
 	      recHitYResLayer2Modules[i]->Fill(res_y);
 	      recHitYPullLayer2Modules[i]->Fill(pull_y);
 	    }
-	  else if (PXBDetId(detId).layer() == 3) 
+	  else if (tTopo->pxbLayer(detId) == 3) 
 	    {
 	      float charge = (*clust).charge();
 	      clustChargeLayer3Modules[i]->Fill(charge);
@@ -446,13 +452,14 @@ void SiPixelRecHitsValid::fillBarrel(const SiPixelRecHit& recHit, const PSimHit&
 	}
     }
   int sizeX = (*clust).sizeX();
-  if (PXBDetId(detId).layer() == 1) clustXSizeLayer[0]->Fill(sizeX);
-  if (PXBDetId(detId).layer() == 2) clustXSizeLayer[1]->Fill(sizeX);
-  if (PXBDetId(detId).layer() == 3) clustXSizeLayer[2]->Fill(sizeX);
+  if (tTopo->pxbLayer(detId) == 1) clustXSizeLayer[0]->Fill(sizeX);
+  if (tTopo->pxbLayer(detId) == 2) clustXSizeLayer[1]->Fill(sizeX);
+  if (tTopo->pxbLayer(detId) == 3) clustXSizeLayer[2]->Fill(sizeX);
 }
 
 void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHit & simHit, 
-				      DetId detId,const PixelGeomDetUnit * theGeomDet ) 
+				      DetId detId,const PixelGeomDetUnit * theGeomDet,
+				      const TrackerTopology *tTopo) 
 {
   int rows = theGeomDet->specificTopology().nrows();
   int cols = theGeomDet->specificTopology().ncolumns();
@@ -520,9 +527,9 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
   // fill plaquette dependent info
   for (unsigned int i=0; i<7; i++) 
     {
-      if (PXFDetId(detId).module() == i+1) 
+      if (tTopo->pxfModule(detId) == i+1) 
 	{
-	  if (PXFDetId(detId).disk() == 1) 
+	  if (tTopo->pxfDisk(detId) == 1) 
 	    {
 	      int sizeX = (*clust).sizeX();
 	      clustXSizeDisk1Plaquettes[i]->Fill(sizeX);
@@ -558,9 +565,9 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
 	      
 	    } // end else
 	} // end if module
-      else if (PXFDetId(detId).panel() == 2 && (PXFDetId(detId).module()+4) == i+1) 
+      else if (tTopo->pxfPanel(detId) == 2 && (tTopo->pxfModule(detId)+4) == i+1) 
 	{
-	  if (PXFDetId(detId).disk() == 1) 
+	  if (tTopo->pxfDisk(detId) == 1) 
 	    {
 	      int sizeX = (*clust).sizeX();
 	      clustXSizeDisk1Plaquettes[i]->Fill(sizeX);

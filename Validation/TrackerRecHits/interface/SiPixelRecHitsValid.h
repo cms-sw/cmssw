@@ -45,6 +45,7 @@
 #include <string>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+class TrackerTopology;
 
 class SiPixelRecHitsValid : public edm::EDAnalyzer {
 
@@ -67,8 +68,10 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 
 	edm::ParameterSet conf_;
 
-	void fillBarrel(const SiPixelRecHit &,const PSimHit &, DetId, const PixelGeomDetUnit *);	
-	void fillForward(const SiPixelRecHit &, const PSimHit &, DetId, const PixelGeomDetUnit *);
+	void fillBarrel(const SiPixelRecHit &,const PSimHit &, DetId, const PixelGeomDetUnit *,	
+			 const TrackerTopology *tTopo);
+	void fillForward(const SiPixelRecHit &, const PSimHit &, DetId, const PixelGeomDetUnit *,
+			 const TrackerTopology *tTopo);
 
 	//Clusters BPIX
 	MonitorElement* clustYSizeModule[8];

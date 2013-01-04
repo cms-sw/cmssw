@@ -28,8 +28,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -1071,6 +1071,11 @@ SiPixelTrackingRecHitsValid::~SiPixelTrackingRecHitsValid()
 // Functions that gets called by framework every event
 void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
+
   run = e.id().run();
   evt = e.id().event();
 
@@ -1138,12 +1143,12 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		}
 	      else if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelEndcap )
 		{
-		  PXFDetId fdetid(detId);
-		  side  = fdetid.side();
-		  disk  = fdetid.disk();
-		  blade = fdetid.blade();
-		  panel = fdetid.panel();
-		  plaq  = fdetid.module(); // also known as plaquette
+		  
+		  side  = tTopo->pxfSide(detId);
+		  disk  = tTopo->pxfDisk(detId);
+		  blade = tTopo->pxfBlade(detId);
+		  panel = tTopo->pxfPanel(detId);
+		  plaq  = tTopo->pxfModule(detId); // also known as plaquette
 		  
 		  if ( side==1 ) 
 		    {
@@ -1437,10 +1442,10 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 				  meWPullYvsBetaBarrelNonFlippedLadders->Fill( beta, fabs(rechitpully) );
 				}
 			          
-			      PXBDetId  bdetid(detId);
-			      layer  = bdetid.layer();   // Layer: 1,2,3.
-			      ladder = bdetid.ladder();  // Ladder: 1-20, 32, 44. 
-			      mod   = bdetid.module();  // Mod: 1-8.
+			      
+			      layer  = tTopo->pxbLayer(detId);   // Layer: 1,2,3.
+			      ladder = tTopo->pxbLadder(detId);  // Ladder: 1-20, 32, 44. 
+			      mod   = tTopo->pxbModule(detId);  // Mod: 1-8.
 			      
 			      mePosxBarrelLayerModule[layer-1][mod-1]->Fill( rechitx );
 			      mePosyBarrelLayerModule[layer-1][mod-1]->Fill( rechity );
@@ -1490,12 +1495,12 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			    }
 			  else if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelEndcap )
 			    {
-			      PXFDetId fdetid(detId);
-			      side  = fdetid.side();
-			      disk  = fdetid.disk();
-			      blade = fdetid.blade();
-			      panel = fdetid.panel();
-			      plaq  = fdetid.module(); // also known as plaquette
+			      
+			      side  = tTopo->pxfSide(detId);
+			      disk  = tTopo->pxfDisk(detId);
+			      blade = tTopo->pxfBlade(detId);
+			      panel = tTopo->pxfPanel(detId);
+			      plaq  = tTopo->pxfModule(detId); // also known as plaquette
 
 			      if ( side==1 ) 
 				{

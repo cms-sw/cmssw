@@ -4,5 +4,8 @@
 <use name="SimGeneral/HepPDTRecord"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
+<use name="Geometry/Records"/>
 <library file="*.cc" name="CmsHiValidationPlugins">
 </library>

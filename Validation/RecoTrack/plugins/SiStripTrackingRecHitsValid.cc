@@ -26,10 +26,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -1192,6 +1190,11 @@ SiStripTrackingRecHitsValid::~SiStripTrackingRecHitsValid() {
 // Functions that gets called by framework every event
 void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
+
   
   // EventID e.id() ;
 
@@ -1349,9 +1352,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       if(isrechitmatched){
 
 	if (detid.subdetId() == int(StripSubdetector::TIB)){
-	  TIBDetId tibid(myid);
+	  
 	  int Tibisrechitmatched = isrechitmatched;
-	  int ilay = tibid.layer() - 1; //for histogram filling
+	  int ilay = tTopo->tibLayer(myid) - 1; //for histogram filling
 	  if(Tibisrechitmatched>0){
 	    mePosxMatchedTIB[ilay]->Fill(rechitmatchedx);
 	    meErrxMatchedTIB[ilay]->Fill(sqrt(rechitmatchederrxx));
@@ -1365,9 +1368,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	}
 	      
 	if (detid.subdetId() == int(StripSubdetector::TOB)){
-	  TOBDetId tobid(myid);
+	  
 	  int Tobisrechitmatched = isrechitmatched;
-	  int ilay = tobid.layer() - 1; //for histogram filling
+	  int ilay = tTopo->tobLayer(myid) - 1; //for histogram filling
 	  if(Tobisrechitmatched>0){
 	    mePosxMatchedTOB[ilay]->Fill(rechitmatchedx);
 	    mePosyMatchedTOB[ilay]->Fill(rechitmatchedy);
@@ -1380,9 +1383,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  }
 	}
 	if (detid.subdetId() == int(StripSubdetector::TID)){
-	  TIDDetId tidid(myid);
+	  
 	  int Tidisrechitmatched = isrechitmatched;
-	  int ilay = tidid.ring() - 1; //for histogram filling
+	  int ilay = tTopo->tidRing(myid) - 1; //for histogram filling
 	  if(Tidisrechitmatched>0){
 	    mePosxMatchedTID[ilay]->Fill(rechitmatchedx);
 	    mePosyMatchedTID[ilay]->Fill(rechitmatchedy);
@@ -1395,9 +1398,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  }
 	}
 	if (detid.subdetId() == int(StripSubdetector::TEC)){
-	  TECDetId tecid(myid);
+	  
 	  int Tecisrechitmatched = isrechitmatched;
-	  int ilay = tecid.ring() - 1; //for histogram filling
+	  int ilay = tTopo->tecRing(myid) - 1; //for histogram filling
 	  if(Tecisrechitmatched>0){
 	    mePosxMatchedTEC[ilay]->Fill(rechitmatchedx);
 	    mePosyMatchedTEC[ilay]->Fill(rechitmatchedy);
@@ -2546,11 +2549,11 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
 	
 	if (detid.subdetId() == int(StripSubdetector::TIB)){
-	  TIBDetId tibid(myid);
+	  
 	  int Tibisrechitrphi    = isrechitrphi;
 	  int Tibisrechitsas     = isrechitsas;
 	  //cout<<"Tibisrechitrphi,Tibisrechitsas = "<<Tibisrechitrphi<<" "<<Tibisrechitsas<<endl;
-	  int ilay = tibid.layer() - 1; //for histogram filling
+	  int ilay = tTopo->tibLayer(myid) - 1; //for histogram filling
 	  //cout<<"ilay1 = "<<ilay<<endl;
 	  if(Tibisrechitrphi!=0){
 	    if (rechitrphithickness > CutThickness)
@@ -2666,10 +2669,10 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	}
 	
 	if (detid.subdetId() == int(StripSubdetector::TOB)){
-	  TOBDetId tobid(myid);
+	  
 	  int Tobisrechitrphi    = isrechitrphi;
 	  int Tobisrechitsas     = isrechitsas;
-	  int ilay = tobid.layer() - 1; //for histogram filling
+	  int ilay = tTopo->tobLayer(myid) - 1; //for histogram filling
 	  if(Tobisrechitrphi!=0){
 	    if (rechitrphithickness > CutThickness)
 	      {
@@ -2784,10 +2787,10 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	}
 	
 	if (detid.subdetId() == int(StripSubdetector::TID)){
-	  TIDDetId tidid(myid);
+	  
 	  int Tidisrechitrphi    = isrechitrphi;
 	  int Tidisrechitsas     = isrechitsas;
-	  int ilay = tidid.ring() - 1; //for histogram filling
+	  int ilay = tTopo->tidRing(myid) - 1; //for histogram filling
 	  if(Tidisrechitrphi!=0){
 	    if (rechitrphithickness > CutThickness)
 	      {
@@ -2882,10 +2885,10 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	}
 	      
 	if (detid.subdetId() == int(StripSubdetector::TEC)){
-	  TECDetId tecid(myid);
+	  
 	  int Tecisrechitrphi    = isrechitrphi;
 	  int Tecisrechitsas     = isrechitsas;
-	  int ilay = tecid.ring() - 1; //for histogram filling
+	  int ilay = tTopo->tecRing(myid) - 1; //for histogram filling
 	  if(Tecisrechitrphi!=0){
 	    if (rechitrphithickness > CutThickness)
 	      {

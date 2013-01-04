@@ -10,10 +10,8 @@
 //needed for the geometry: 
 #include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -330,6 +328,11 @@ void SiStripRecHitsValid::endJob() {
 
 
 void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopo;
+  es.get<IdealGeometryRecord>().get(tTopo);
+
+
 
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();  
   //cout  << " Run = " << e.id().run() << " Event = " << e.id().event() << endl;  
@@ -685,7 +688,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     //for each detid
     if(numrechitrphi>0 || numrechitsas>0 || numrechitmatched){
       if (detid.subdetId() == int(StripSubdetector::TIB)){
-	TIBDetId tibid(myid);
+	
 	int Tibnumrechitrphi    = numrechitrphi;
 	int Tibnumrechitsas     = numrechitsas;
 	int Tibnumrechitmatched = numrechitmatched;
@@ -698,9 +701,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	totTibnumrechitsas +=numrechitsas;
 	totTibnumrechitmatched +=numrechitmatched;
 
-	int ilay = tibid.layer() - 1; //for histogram filling
+	int ilay = tTopo->tibLayer(myid) - 1; //for histogram filling
 	
-	if(tibid.stereo()==0){
+	if(tTopo->tibStereo(myid)==0){
 	  for(int k = 0; k<Tibnumrechitrphi; k++){
 	    meNstpRphiTIB[ilay]->Fill(clusizrphi[k]);
 	    meAdcRphiTIB[ilay]->Fill(cluchgrphi[k]);
@@ -716,7 +719,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    meChi2RphiTIB[ilay]->Fill(chi2rphi[k]);
 	  }
 
-	} else  if(tibid.stereo()==1){
+	} else  if(tTopo->tibStereo(myid)==1){
 	  for(int kk = 0; kk < Tibnumrechitsas; kk++)	    
 	    {
 	      meNstpSasTIB[ilay]->Fill(clusizsas[kk]);
@@ -751,7 +754,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 
       if (detid.subdetId() == int(StripSubdetector::TOB)){
-	TOBDetId tobid(myid);
+	
 	int Tobnumrechitrphi    = numrechitrphi;
 	int Tobnumrechitsas     = numrechitsas;
 	int Tobnumrechitmatched = numrechitmatched;
@@ -763,9 +766,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int Tobnumrechitsas2     = j2;
 	int Tobnumrechitmatched2 = k2;
 
-	int ilay = tobid.layer() - 1; //for histogram filling
+	int ilay = tTopo->tobLayer(myid) - 1; //for histogram filling
 	
-	if(tobid.stereo()==0){
+	if(tTopo->tobStereo(myid)==0){
 	  for(int k = 0; k<Tobnumrechitrphi; k++){
 	    meNstpRphiTOB[ilay]->Fill(clusizrphi[k]);
 	    meAdcRphiTOB[ilay]->Fill(cluchgrphi[k]);
@@ -778,7 +781,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	  for(int l = 0; l<Tobnumrechitrphi2; l++){
 	    meChi2RphiTOB[ilay]->Fill(chi2rphi[l]);
 	  }
-	} else  if(tobid.stereo()==1){
+	} else  if(tTopo->tobStereo(myid)==1){
 	  for(int kk = 0; kk < Tobnumrechitsas; kk++)	    
 	    {
 	      meNstpSasTOB[ilay]->Fill(clusizsas[kk]);
@@ -811,7 +814,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	}
       }
       if (detid.subdetId() == int(StripSubdetector::TID)){
-	TIDDetId tidid(myid);
+	
 	int Tidnumrechitrphi    = numrechitrphi;
 	int Tidnumrechitsas     = numrechitsas;
 	int Tidnumrechitmatched = numrechitmatched;
@@ -823,9 +826,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int Tidnumrechitsas2     = j2;
 	int Tidnumrechitmatched2 = k2;
 
-	int ilay = tidid.ring() - 1; //for histogram filling
+	int ilay = tTopo->tidRing(myid) - 1; //for histogram filling
 	
-	if(tidid.stereo()==0){
+	if(tTopo->tidStereo(myid)==0){
 	  for(int k = 0; k<Tidnumrechitrphi; k++){
 	    meNstpRphiTID[ilay]->Fill(clusizrphi[k]);
 	    meAdcRphiTID[ilay]->Fill(cluchgrphi[k]);
@@ -839,7 +842,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    meChi2RphiTID[ilay]->Fill(chi2rphi[l]);
 	  }
 
-	} else  if(tidid.stereo()==1){
+	} else  if(tTopo->tidStereo(myid)==1){
 	  for(int kk = 0; kk < Tidnumrechitsas; kk++)	    
 	    {
 	      meNstpSasTID[ilay]->Fill(clusizsas[kk]);
@@ -872,7 +875,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	}
       }
       if (detid.subdetId() == int(StripSubdetector::TEC)){
-	TECDetId tecid(myid);
+	
 	int Tecnumrechitrphi    = numrechitrphi;
 	int Tecnumrechitsas     = numrechitsas;
 	int Tecnumrechitmatched = numrechitmatched;
@@ -884,9 +887,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	int Tecnumrechitsas2     = j2;
 	int Tecnumrechitmatched2 = k2;
 
-	int ilay = tecid.ring() - 1; //for histogram filling
+	int ilay = tTopo->tecRing(myid) - 1; //for histogram filling
 	
-	if(tecid.stereo()==0){
+	if(tTopo->tecStereo(myid)==0){
 	  for(int k = 0; k<Tecnumrechitrphi; k++){
 	    meNstpRphiTEC[ilay]->Fill(clusizrphi[k]);
 	    meAdcRphiTEC[ilay]->Fill(cluchgrphi[k]);
@@ -900,7 +903,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	    meChi2RphiTEC[ilay]->Fill(chi2rphi[l]);
 	  }
 
-	} else  if(tecid.stereo()==1){
+	} else  if(tTopo->tecStereo(myid)==1){
 	  for(int kk = 0; kk < Tecnumrechitsas; kk++)	    
 	    {
 	      meNstpSasTEC[ilay]->Fill(clusizsas[kk]);
