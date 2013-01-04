@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 if   CMSSW4_4: process.GlobalTag.globaltag = 'FT_R_44_V11::All'
 elif CMSSW4_2: process.GlobalTag.globaltag = 'GR_P_V14::All'
-else:    
+else:          
                import FWCore.ParameterSet.VarParsing as VarParsing
                options = VarParsing.VarParsing("analysis")
                options.register("globalTag",
@@ -37,12 +37,19 @@ process.source = cms.Source("PoolSource",
 )
 
 if CMSSW4_2:   readFiles.extend(['/store/data/Run2011B/SingleMu/USER/EXOHSCP-PromptSkim-v1/0000/FC298F26-65FF-E011-977F-00237DA13C76.root'])
-else:          readFiles.extend(['/store/data/Run2012C/SingleMu/USER/EXOHSCP-PromptSkim-v2/000/198/230/00000/14E5B271-72C8-E111-A26D-E0CB4E1A1163.root'])
+else:          readFiles.extend(['/store/data/Run2012D/SingleMu/USER/EXOHSCP-PromptSkim-v1/000/208/391/00000/78225FEA-B23E-E211-B4DE-485B39800C17.root'])
 
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
 
 ########################################################################
 process.load("SUSYBSMAnalysis.HSCP.HSCParticleProducerFromSkim_cff")  #IF RUNNING ON HSCP SKIM
+
+if CMSSW4_2:
+   process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_cff')
+   process.load('SUSYBSMAnalysis.Skimming.EXOHSCP_EventContent_cfi')
+
+else:
+   process.load('Configuration.Skimming.PDWG_EXOHSCP_cff')
 
 ######################################################################## INCREASING HSCP TRIGGER TRESHOLD FOR OLD DATA
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
