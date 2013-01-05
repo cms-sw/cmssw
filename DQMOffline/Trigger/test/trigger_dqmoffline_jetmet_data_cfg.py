@@ -5,6 +5,10 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('Configuration.EventContent.EventContent_cff')
 
 
+##--
+dataset = "MET" #MET,JetHT,TTbar
+
+
 ##-- DQM Loading
 # DQM Services
 process.load("DQMServices.Core.DQM_cfg")
@@ -30,19 +34,23 @@ process.dqmSaver.saveAtJobEnd = True
 ##-- GlobalTag
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_R_52_V7::All'
+
+process.GlobalTag.globaltag = 'GR_R_61_V6::All'
+if (dataset.find("TTbar")==0):
+    process.GlobalTag.globaltag = 'START61_V8::All'
+    
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = cms.string( autoCond[ 'com10' ] )
 
 
 ##-- L1
-process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskAlgoTrigConfig_cff')
-process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-process.L1T1coll=process.hltLevel1GTSeed.clone()
-process.L1T1coll.L1TechTriggerSeeding = cms.bool(True)
-process.L1T1coll.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
+#process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskAlgoTrigConfig_cff')
+#process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+#process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+#process.L1T1coll=process.hltLevel1GTSeed.clone()
+#process.L1T1coll.L1TechTriggerSeeding = cms.bool(True)
+#process.L1T1coll.L1SeedsLogicalExpression = cms.string('0 AND (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
 #process.L1T1coll.L1SeedsLogicalExpression = cms.string(' (40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
 
 
@@ -76,227 +84,182 @@ hltFourVectorClient.prescaleEvt = cms.untracked.int32(1)
 ##-- Source
 # Note: We need RECO here (not AOD), because of JetHelper Class
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)                             
+    input = cms.untracked.int32(5000)                             
 )
 process.source = cms.Source("PoolSource",fileNames = cms.untracked.vstring())
-dataset = "MET"
 if (dataset.find("MET")==0):
     process.source.fileNames.extend([
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/D4C2D7A1-59A3-E111-8E62-003048D37694.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/CACD5368-57A3-E111-B292-003048F024DE.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/801A69EF-53A3-E111-BAC9-003048D2BB58.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/66D6CCE9-53A3-E111-87CD-002481E0D790.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/5A76C4CC-58A3-E111-AFED-001D09F27067.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/2E977848-52A3-E111-9EBF-BCAEC5329709.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/2E7E2B8C-51A3-E111-B818-001D09F28EA3.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/26038F94-54A3-E111-97A9-003048D2C0F0.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/0ED82FA8-51A3-E111-A534-003048F11114.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/00124554-5AA3-E111-9004-001D09F2AD84.root',
-        ])
-elif (dataset.find("JetMon")==0):
-    process.source.fileNames.extend([
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/E6B6E24E-5AA3-E111-8828-003048F118AA.root',
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/E48B31FC-62A3-E111-B3BE-003048D375AA.root',
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/D209A34F-5AA3-E111-93FF-003048F118C6.root',
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/C2D8ED6A-5DA3-E111-9174-003048F118C6.root',
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/A2E73857-5FA3-E111-87FC-003048F1182E.root',
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/741F9531-60A3-E111-991D-BCAEC518FF54.root',
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/6A240F4F-69A3-E111-9068-5404A640A648.root',
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/4EB20BA8-56A3-E111-A8A3-001D09F25479.root',
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/28909B85-5EA3-E111-817B-001D09F24399.root',
-        '/store/data/Run2012B/JetMon/RECO/PromptReco-v1/000/194/429/1CC2654E-69A3-E111-B303-001D09F28E80.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/FCB36C6C-964C-E211-8BD2-002618943921.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/F25A74B3-964C-E211-BF1A-002618943911.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/F03B837A-914C-E211-855C-003048FFD744.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/EA0C8616-9B4C-E211-B101-0025905822B6.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/E86141DB-954C-E211-B7B2-0026189437F0.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/DACF0D94-924C-E211-B4CA-00248C55CC3C.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/D8C8D7BD-934C-E211-B51E-002618943880.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/D20BCB79-934C-E211-A20F-003048679080.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/D04078F2-944C-E211-B116-003048678ED4.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/CCFF6822-964C-E211-9BF2-003048678FD6.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/C208C147-974C-E211-AF65-00261894387E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/BE026549-924C-E211-9CF3-002590596490.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/B43BD5B0-954C-E211-B15A-003048FFCC2C.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/B0417877-934C-E211-987C-003048FFCB74.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/B036C912-944C-E211-8B3D-002618943880.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/ACF951D5-984C-E211-BA21-003048678FDE.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/AA9C32C5-904C-E211-B310-00261894387A.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/A4679D9D-974C-E211-803E-00304867924E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/A08D7A3A-A64C-E211-98F5-003048FFCC2C.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/A0215F34-984C-E211-A1B1-0026189437F8.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/9ED0019D-944C-E211-986D-00248C0BE018.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/9EBD1BED-974C-E211-BE33-003048678BAC.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/98134917-A04C-E211-9A93-0025905964BA.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/94D75DBD-934C-E211-A47C-002618943811.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/90BFE3FD-8E4C-E211-8822-003048D15E24.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/90812186-984C-E211-A97A-00261894387E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/8A46C532-984C-E211-93C4-003048678EE2.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/889DE580-984C-E211-AC5E-003048679010.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/80341031-984C-E211-8F95-00248C0BE016.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/7C4CB3FA-994C-E211-839B-003048FFCC2C.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/7421B32A-934C-E211-B3A0-003048679296.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/729BFFF0-944C-E211-81D1-003048678BF4.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/6A420B92-994C-E211-BDAD-003048FFD736.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/68945618-964C-E211-857C-0026189438CE.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/6065FF1B-994C-E211-9A83-002618943971.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/5EB3B176-904C-E211-8DD8-002618943914.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/5E17F159-914C-E211-A8B4-002618943880.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/5C3CAA45-9C4C-E211-A0CA-003048FFD732.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/5AD63D2A-914C-E211-B29A-0025905964BA.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/58D9DFE9-974C-E211-B68B-002618FDA211.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/5882B7A6-914C-E211-9917-0026189438CC.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/52D0286D-994C-E211-ADE0-003048FFD744.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/5249F815-9E4C-E211-9470-00304867BFB2.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/50A48B4C-8F4C-E211-BD15-003048678F8A.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/4E0AA3EB-B04C-E211-A5EE-002618FDA204.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/4E058A58-944C-E211-BF18-003048FFD740.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/4C03EDC5-904C-E211-91B6-00261894393E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/4AB0E2FB-914C-E211-8E0B-0026189438D9.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/4820B950-944C-E211-B75D-00261894397F.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/46337683-984C-E211-ACE2-00261894383C.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/383F998B-924C-E211-BCB7-003048FFD736.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/3821DDF7-914C-E211-845D-00304867BFB2.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/323A1DEE-984C-E211-81AC-00261894383E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/3086F91C-994C-E211-A4D3-003048679296.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/2CC57764-984C-E211-8DF7-002590593872.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/1E3EAE25-9A4C-E211-AA24-00261894380B.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/1CDB9A96-A14C-E211-94D3-003048B95B30.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/142095EB-974C-E211-B0DE-0026189438E2.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/10A38E89-954C-E211-B019-0026189438E2.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/0ADA3755-954C-E211-9FB0-003048FFD740.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/0AD4239A-974C-E211-AF1E-002618943880.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/0A084265-8E4C-E211-B9EB-0026189438AF.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_met2012A/MET/RECO/v1/00000/08412EE7-984C-E211-9B85-0026189438C9.root',
         ])
 elif (dataset.find("JetHT")==0):
     process.source.fileNames.extend([
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/F82EC951-69A3-E111-AD74-001D09F253D4.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/F06F8D22-6EA3-E111-AD78-BCAEC5329701.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/CEA0198D-5EA3-E111-9F80-003048D2BC52.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/CC22C24F-69A3-E111-B8A7-0019B9F72F97.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/C4BBE1EA-63A3-E111-830E-001D09F25479.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/AA12FEB5-76A3-E111-8994-BCAEC532971F.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/A62ED1B8-60A3-E111-A202-0019B9F4A1D7.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/9C485185-68A3-E111-BE90-003048F024FE.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/80E4A152-6BA3-E111-A42D-0025901D5DB8.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/4A1A414F-70A3-E111-ABF0-485B39897227.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/3E537337-60A3-E111-823F-5404A63886EB.root',
-        '/store/data/Run2012B/JetHT/RECO/PromptReco-v1/000/194/429/2CB8EC6D-5DA3-E111-9229-E0CB4E4408C4.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/FC31D58B-AE4C-E211-964C-00261894390A.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/FAA13D2C-D34C-E211-B467-00248C0BE018.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/F8DC0F22-A04C-E211-B63B-003048FFD754.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/F6F04AEB-A74C-E211-984B-003048678FF6.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/F6C5AB24-A74C-E211-9D17-0030486792B8.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/F274609C-A74C-E211-B982-0026189438ED.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/F0001723-A44C-E211-9DE6-00304867BEC0.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/EEACF76F-A94C-E211-B53C-0026189437EB.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/EC3F5D02-AD4C-E211-86A0-003048FFCB9E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/E2BE3504-B84C-E211-976F-0026189438E8.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/E0501A21-C24C-E211-B217-0026189438E8.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/D84F6E25-AA4C-E211-ACA2-003048FF9AC6.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/D65F6528-B14C-E211-98B8-002618943913.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/D4B286C5-A64C-E211-B52C-0025905938AA.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/CCA38E03-A54C-E211-AC32-00304867BF18.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/CC9C348E-A34C-E211-B34F-00261894388F.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/CC097462-B94C-E211-8140-002618FDA26D.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/CAF00194-B04C-E211-9599-00304867D446.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/C8F5747F-AE4C-E211-9BCE-002618943973.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/C41DA852-A74C-E211-ADB8-0030486790A6.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/BC484644-AE4C-E211-9617-002590596468.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/BAA8E214-B64C-E211-86FE-002618943913.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/B8E4E20E-A04C-E211-A954-0026189437FE.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/B25A48FD-B34C-E211-BDAA-0026189438EB.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/AE782812-AF4C-E211-9B89-002618943921.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/ACE6DA9B-C04C-E211-A714-002618943970.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/AC21FAFC-B94C-E211-AB56-00261894398B.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/A8531503-B14C-E211-B279-00261894398D.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/A04A1E27-A44C-E211-9CBD-003048FFCB9E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/9E6CF513-A74C-E211-8E33-0026189438ED.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/9AAB4156-A64C-E211-BBE1-003048FFD728.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/989FC175-A64C-E211-96AD-0030486792B8.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/94EE4915-A74C-E211-8F02-00304867902E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/90CB45B3-CA4C-E211-A3BB-002618943972.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/8A852FDA-BF4C-E211-8199-0025905822B6.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/86993524-A14C-E211-9C26-003048FFCC18.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/866AE0CF-AB4C-E211-A1B6-003048FFCC1E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/8612FDD3-9C4C-E211-A095-0026189438FD.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/82E90E7B-B14C-E211-86F1-003048679012.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/7EE4EE7B-AC4C-E211-B5DB-0026189438AA.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/767872F7-AD4C-E211-B3FA-002354EF3BDB.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/7656B57B-9F4C-E211-924A-003048F9EB46.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/7471DA81-A14C-E211-9A22-003048678BAC.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/74292C28-B54C-E211-B07A-00261894384F.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/6EFB9146-A14C-E211-9635-00304867BF18.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/6CFF208E-AA4C-E211-8AC7-003048FFD7A2.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/6CA48D5E-AF4C-E211-8DED-0026189438E8.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/68B44B99-A54C-E211-97B8-00261894391D.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/60C6361D-AF4C-E211-9164-00248C0BE005.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/60A00735-AB4C-E211-8239-003048FFCC0A.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/60219CCC-A84C-E211-A163-003048FFCBB0.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/5ABF7BC8-DA4C-E211-A165-0026189437FA.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/56EC7C4E-B74C-E211-BAA9-002618943842.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/56B8B0AE-AC4C-E211-B14D-003048FFD720.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/56AF18CB-9F4C-E211-823B-0030486790C0.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/502F8699-B24C-E211-98A5-003048D15DDA.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/4E570274-A44C-E211-9A3C-002618943973.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/4AA27D62-B24C-E211-9271-002618943974.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/467AE6EA-A14C-E211-B4D2-003048679188.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/4673A233-AE4C-E211-A146-002618943951.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/44DFC7B9-B14C-E211-AF1A-00261894386D.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/44556EBD-A04C-E211-AE38-0025905964C0.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/4056077D-AA4C-E211-B80C-00261894388A.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/3E921A43-A14C-E211-B074-0026189438E9.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/3C6BBAC8-9F4C-E211-B3C4-003048FFCB74.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/3A0A0E6D-BF4C-E211-B5D6-003048FF86CA.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/349A5143-AD4C-E211-B8EF-0025905964B2.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/3479381F-B14C-E211-86FD-003048678F8E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/32EF928E-AA4C-E211-BBB9-0025905964CC.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/3239CAC3-A84C-E211-9F7E-00248C55CC9D.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/320699EE-AF4C-E211-8E2C-002354EF3BE4.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/308C8C15-B24C-E211-B98E-0026189438B8.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/2EB1978A-BE4C-E211-874B-0026189438E2.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/28415779-9F4C-E211-9364-0026189437FA.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/281BA0CF-C64C-E211-B1EF-002618943921.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/2471481B-A94C-E211-8582-003048FFD756.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/241EC76B-A04C-E211-8BFE-003048FFD736.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/240033B4-A04C-E211-9C20-00304867BF9A.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/22BEF367-A24C-E211-B653-003048F9EB46.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/2224C45E-A74C-E211-8930-003048678F8C.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/2031BFF5-A04C-E211-B29C-003048FFD7BE.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/1E7ABA64-A94C-E211-964F-003048FFD7D4.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/1CACF4AB-A24C-E211-8794-002618943947.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/1A77ABEA-A74C-E211-B69C-0030486790A6.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/1A25985C-B44C-E211-87C4-00261894398B.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/12F52AA6-AB4C-E211-A34C-003048678B36.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/12A3BD77-A84C-E211-BE37-002618943904.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/1249E41C-BE4C-E211-85F7-002618943978.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/0ED1698B-D24C-E211-955F-002618943810.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/089C96D7-B24C-E211-A909-00261894393E.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/087B7E26-B14C-E211-BFF3-0026189438DE.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/06F3D93F-A34C-E211-90EF-002618943950.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/065D81A4-AF4C-E211-AB6C-00261894387B.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/048DF902-A64C-E211-945A-0025905938B4.root',
+        '/store/relval/CMSSW_6_1_0-GR_R_61_V6_RelVal_jet2012B/JetHT/RECO/v1/00000/0427FAE4-AB4C-E211-973C-002618943977.root',
         ])
-elif (dataset.find("reference")==0):
+elif (dataset.find("TTbar")==0):
     process.source.fileNames.extend([
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/0A8D0A87-C7D1-E111-BB91-001A92810AC0.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/02A5AF56-CAD1-E111-B032-0026189438B1.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/046A20C7-C7D1-E111-88C2-0026189438C9.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/0E8CD563-C7D1-E111-BB63-002618943811.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/087C0DB2-CFD1-E111-B67F-0018F3C3E3A6.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/0ADBCF73-C7D1-E111-8DEE-002618943966.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/1E1443E9-C8D1-E111-8422-00261894393E.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/1E96A911-C7D1-E111-B0EC-003048678AFA.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2655603F-CBD1-E111-B505-001A928116C4.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/28CEE6D8-C1D1-E111-B750-001A92971B26.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/0AF4B820-C8D1-E111-82AA-002618943886.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/0CCFAD86-C7D1-E111-AE30-001A92810ACA.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/18290821-C7D1-E111-A0E6-001A92811726.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/1AD366BD-CAD1-E111-8AF9-001A92811736.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2E3E34CB-CAD1-E111-9D1B-0026189438C1.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/323C458A-CBD1-E111-9FE8-001BFCDBD154.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/36D2123B-C7D1-E111-AFE0-003048678B44.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2A282D37-CBD1-E111-A37B-00304867915A.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2A9E0754-C7D1-E111-975B-002618943863.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/40E61297-CAD1-E111-8F9D-001A92971B90.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2AB03D70-C7D1-E111-A3D9-003048FFD740.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2C5D3008-CAD1-E111-859B-00261894397E.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/3CB31D71-C2D1-E111-A77B-001A928116BC.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/40AF624C-CAD1-E111-A1F2-00261894385D.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/42668A88-CBD1-E111-BD40-002618943926.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/5249CA2C-C7D1-E111-B978-001A92810AA2.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/42C2FA7F-CBD1-E111-B6CC-001A92971B38.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/44410558-C7D1-E111-A6E8-003048679046.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/62F79061-CCD1-E111-8800-001731EF61B4.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/66AE7A0D-C7D1-E111-AA6D-002618943800.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/66D46034-CBD1-E111-BCE2-0026189438D5.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/48C98DE9-C6D1-E111-B80A-0026189438E6.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/4CDC4AE6-C8D1-E111-9602-002618943858.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/52F08646-C7D1-E111-B2A6-001BFCDBD11E.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/781C0F71-C7D1-E111-98B4-001A928116BC.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/5A05D29E-CAD1-E111-B5EF-003048678FFA.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/8247BF73-CBD1-E111-8AFA-0018F3D0960C.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/82AF42BF-CBD1-E111-8F49-001A92971B5E.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/6A976463-C7D1-E111-81E7-0018F3D096D8.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/6C21EDF9-C6D1-E111-A2E7-003048678BEA.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/9406BBA2-CAD1-E111-A22A-001A92971AAA.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/769148D9-CBD1-E111-8D4C-001A92811736.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/7E7D29E9-C8D1-E111-8BAB-002618943915.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/9C0BA086-C7D1-E111-81E2-001A92810A9E.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/A671B9D6-CAD1-E111-B216-001A92971B90.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/84F49DBB-C8D1-E111-B3DC-00261894397D.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/8AE1E172-CBD1-E111-8353-003048679248.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/A89BCD54-CBD1-E111-85AC-003048FFD71E.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/96FEF6FC-C6D1-E111-9DB5-001A928116CE.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/AC808A90-CBD1-E111-AEC3-0026189438C4.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/B4369931-C7D1-E111-A930-0026189438C9.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/9A7B5CB8-CAD1-E111-9FB5-001A92811742.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/A820436D-C2D1-E111-B0A1-0018F3D09702.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/A8776D82-C7D1-E111-8388-00304867BFB2.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/AADF71CF-CAD1-E111-8CD6-0018F3D0968C.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/BECC10DE-CBD1-E111-9B0A-001BFCDBD154.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/C00F937A-C7D1-E111-A511-003048678B7C.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/B6E831EA-C1D1-E111-8091-0018F3D0968C.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/BA0C8AEA-C8D1-E111-8FA5-003048D3C010.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/CC6D8823-C9D1-E111-B316-001A92971B94.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/CC88DDD2-C2D1-E111-9AF5-001A92971B08.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/D0161136-C7D1-E111-9B76-001A92971B12.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/BE38F451-C7D1-E111-86FC-003048678FAE.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/D49D585E-C7D1-E111-8C78-0026189438DD.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/BE94A0D5-C7D1-E111-99E3-0026189438E6.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/DEC7EF75-CBD1-E111-B2CE-0018F3D09702.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/C0D1758D-C9D1-E111-AB65-001A928116C0.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/EE0F62F5-CCD1-E111-8C2A-00304867D446.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/EE974FAF-CAD1-E111-81D9-0018F3C3E3A6.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/F082E2A4-CDD1-E111-A19C-003048D3C010.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/F20CCD7F-C7D1-E111-B0F7-003048678FFA.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/C4BFFA3B-C7D1-E111-9182-001A92810A98.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/F8443B6A-C7D1-E111-B2D8-0018F3D09702.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/D20127ED-C1D1-E111-9EB7-0018F3D09636.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/D83B3869-C7D1-E111-BBED-001BFCDBD1BA.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/EC9F9E55-CAD1-E111-8686-00261894396B.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/F2D4FC78-C7D1-E111-9562-0018F3D096BC.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/FCA4CF95-CBD1-E111-8074-00304867D446.root',
-        '/store/relval/CMSSW_5_2_6-reference_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/FE1130C5-CCD1-E111-B84E-0018F3C3E3A6.root'
-        ])
-elif (dataset.find("newcondition")==0):
-    process.source.fileNames.extend([
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/008D0C53-C7D1-E111-9373-0026189438CB.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/00A0B0B1-CAD1-E111-95F2-002618943863.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/082F7655-CAD1-E111-8B50-003048678B44.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/02AA8C7E-C5D1-E111-A6E8-001A92811742.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/046E9164-C9D1-E111-9665-0018F3D09634.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/065CBBF4-C9D1-E111-8331-001A92810AEC.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/06F24B41-C5D1-E111-8822-00261894397E.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/0A61C045-C5D1-E111-B6C8-0026189438C4.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2465FBB9-CAD1-E111-91B6-0026189437FA.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/0ACC745E-C9D1-E111-92EB-003048678D86.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2AA69E7B-C9D1-E111-9DBE-00261894397D.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/14E7C560-C9D1-E111-BE66-00261894385D.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/18DB0D69-C7D1-E111-8B1B-00261894388A.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2CEBD57F-C9D1-E111-82EF-0018F3D096E0.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/30940F09-C8D1-E111-81A8-0018F3D09636.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/18E84C50-CBD1-E111-BE49-002618943838.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/32366A12-CAD1-E111-8500-001A928116D0.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2808FC3B-C9D1-E111-B210-001A92811726.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2C5F6095-C9D1-E111-9E25-0026189438FE.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/2C5FAAA9-CAD1-E111-95BA-001A9281173A.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/32264425-CAD1-E111-8B0E-002618943966.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/346C823A-C5D1-E111-A667-003048679162.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/5279E9CB-C9D1-E111-8C1D-003048FFD732.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/409CA34B-C5D1-E111-9BF7-003048678B34.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/487C45F9-C4D1-E111-A2DD-0026189438FE.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/4AE54EAE-C8D1-E111-983D-003048679180.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/5A4BD344-C9D1-E111-B0E6-001A928116EA.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/5C9C264D-CAD1-E111-AE7E-003048679248.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/4C6346BF-C7D1-E111-9089-003048FFD71A.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/5E9AA7EB-C8D1-E111-A97D-002618943927.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/66346724-CAD1-E111-9F1B-0026189438D6.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/683B3346-C9D1-E111-AFC3-002618943838.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/6A46A729-C9D1-E111-A0D1-0026189438AA.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/6AA6C8B8-C7D1-E111-B621-001A928116F4.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/6E0252F5-C9D1-E111-B8A7-001BFCDBD190.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/544EA114-CAD1-E111-B9CF-0018F3D096C0.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/548CD2D7-C9D1-E111-977C-001A92811716.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/72E7FAF4-C4D1-E111-8EA1-002618943886.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/7A1FBE87-CAD1-E111-AEBE-002618943838.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/58DEDA2D-CAD1-E111-97AC-003048679180.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/5CBE9A4E-C9D1-E111-85A1-002354EF3BDC.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/7047D535-C9D1-E111-979E-002618943966.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/8CE81DAE-C8D1-E111-BAA6-002618943838.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/8EE3D74D-C7D1-E111-ADA0-003048678F74.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/7217E925-CBD1-E111-A39A-0026189438CB.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/9098DA0E-CAD1-E111-885B-0026189438D5.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/824E07AD-CAD1-E111-B612-002618943926.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/842F6556-CCD1-E111-87BD-002354EF3BE3.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/A4BD107B-CBD1-E111-8128-002354EF3BE6.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/A6E4C57B-C9D1-E111-8ECF-001A92810AA0.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/8678ADBB-C9D1-E111-B1C7-003048678B16.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/AE672405-CAD1-E111-9B59-003048678B34.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/8EE7F2BD-C9D1-E111-A2D5-001A92810AA8.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/B222C283-CBD1-E111-9DC1-00261894385A.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/B86F11BD-C7D1-E111-9F98-001BFCDBD166.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/C0BA63F2-C9D1-E111-A564-0018F3D09702.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/C4849ADA-C8D1-E111-9579-002618943905.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/90CDFD57-C9D1-E111-BB85-001A928116EE.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/C4EEAA63-C5D1-E111-B8CC-0026189438DE.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/C64C806F-CAD1-E111-B5F3-003048D3C010.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/9A65BD5E-C5D1-E111-A022-0026189438D6.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/A89A5272-CAD1-E111-A061-0018F3D096D8.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/D064B6BD-C9D1-E111-93EB-003048679180.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/D22DF865-C9D1-E111-8C2E-002618943800.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/B083CA5F-C9D1-E111-A226-0018F3D0960C.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/D8CD2169-C9D1-E111-AB6A-0018F3D096BC.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/DC324AC9-C8D1-E111-B6B4-0026189438E6.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/E09CC73C-C9D1-E111-B1C0-002618943863.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/C4D3D385-C7D1-E111-9F78-002618943862.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/F0A47BBA-CAD1-E111-AB67-003048678D86.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/F41939ED-CAD1-E111-B1ED-003048678FC6.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/F67641E6-C4D1-E111-901E-003048678B86.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/F6790673-C5D1-E111-B742-003048D15D22.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/F8339D38-CBD1-E111-BED4-0026189438DD.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/C810AB29-CAD1-E111-9061-00261894385A.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/CA866C8F-CBD1-E111-9094-00261894396E.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/D2780503-CAD1-E111-B154-00304867D446.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/EC39D895-CAD1-E111-B3C5-002618943800.root',
-        '/store/relval/CMSSW_5_2_6-newconditions_RelVal_R198955_120719/MinimumBias/RAW/v3/0000/FCB7BA85-C9D1-E111-99D8-001A92811742.root' 
+        '/store/relval/CMSSW_6_1_0-START61_V8/RelValTTbar/GEN-SIM-RECO/v1/00000/AA60EFA5-E34C-E211-9F9D-0025905938A4.root',
+        '/store/relval/CMSSW_6_1_0-START61_V8/RelValTTbar/GEN-SIM-RECO/v1/00000/92FED5E2-E44C-E211-A1F1-003048FFD71A.root',
+        '/store/relval/CMSSW_6_1_0-START61_V8/RelValTTbar/GEN-SIM-RECO/v1/00000/42FAF5C9-EB4C-E211-A962-002618943960.root',
         ])
 else:
     process.source.fileNames.extend([
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/D4C2D7A1-59A3-E111-8E62-003048D37694.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/CACD5368-57A3-E111-B292-003048F024DE.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/801A69EF-53A3-E111-BAC9-003048D2BB58.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/66D6CCE9-53A3-E111-87CD-002481E0D790.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/5A76C4CC-58A3-E111-AFED-001D09F27067.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/2E977848-52A3-E111-9EBF-BCAEC5329709.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/2E7E2B8C-51A3-E111-B818-001D09F28EA3.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/26038F94-54A3-E111-97A9-003048D2C0F0.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/0ED82FA8-51A3-E111-A534-003048F11114.root',
-        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/00124554-5AA3-E111-9004-001D09F2AD84.root',
+        '/store/data/Run2012B/MET/RECO/PromptReco-v1/000/194/429/D4C2D7A1-59A3-E111-8E62-003048D37694.root'
         ])
 
 
@@ -310,18 +273,18 @@ process.DQMoutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('DQM')
     )
 )
-if (dataset.find("MET")==0):
-    process.DQMoutput.fileName = cms.untracked.string('JetMET_METData_DQM.root')
-elif (dataset.find("JetMon")==0):
-    process.DQMoutput.fileName = cms.untracked.string('JetMET_JetMonData_DQM.root')
-elif (dataset.find("JetHT")==0):
-    process.DQMoutput.fileName = cms.untracked.string('JetMET_JetHTData_DQM.root')
-elif (dataset.find("reference")==0):
-    process.DQMoutput.fileName = cms.untracked.string('JetMET_Ref_DQM.root')
-elif (dataset.find("newcondition")==0):
-    process.DQMoutput.fileName = cms.untracked.string('JetMET_NewCon_DQM.root')
-else:
-    process.DQMoutput.fileName = cms.untracked.string('JetMET_METData_DQM.root')
+#if (dataset.find("MET")==0):
+#    process.DQMoutput.fileName = cms.untracked.string('JetMET_METData_DQM.root')
+#elif (dataset.find("JetMon")==0):
+#    process.DQMoutput.fileName = cms.untracked.string('JetMET_JetMonData_DQM.root')
+#elif (dataset.find("JetHT")==0):
+#    process.DQMoutput.fileName = cms.untracked.string('JetMET_JetHTData_DQM.root')
+#elif (dataset.find("reference")==0):
+#    process.DQMoutput.fileName = cms.untracked.string('JetMET_Ref_DQM.root')
+#elif (dataset.find("newcondition")==0):
+#    process.DQMoutput.fileName = cms.untracked.string('JetMET_NewCon_DQM.root')
+#else:
+#    process.DQMoutput.fileName = cms.untracked.string('JetMET_METData_DQM.root')
 
     
 ##-- Logger

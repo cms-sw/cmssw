@@ -68,12 +68,14 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   plotEff_             = iConfig.getUntrackedParameter< bool >("plotEff", true); 
   plotEffwrtMu_        = iConfig.getUntrackedParameter< bool >("plotEffwrtMu", false); 
   plotEffwrtMB_        = iConfig.getUntrackedParameter< bool >("plotEffwrtMB", false);
+  plotEffwrtMC_        = iConfig.getUntrackedParameter< bool >("plotEffwrtMC", true);
   nameForEff_          = iConfig.getUntrackedParameter< bool >("nameForEff", true); 
   MuonTrigPaths_       = iConfig.getUntrackedParameter<vector<std::string> >("pathnameMuon");
   MBTrigPaths_         = iConfig.getUntrackedParameter<vector<std::string> >("pathnameMB");
   //CaloJet, CaloMET
   caloJetsTag_         = iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel");
   caloMETTag_          = iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel");
+  genCaloMETTag_       = iConfig.getParameter<edm::InputTag>("GenCaloMETCollectionLabel");
   //PFJet, PFMET
   pfJetsTag_           = iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel");
   pfMETTag_            = iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel");
@@ -171,7 +173,12 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(!ValidMETColl_) return;
   
   bool ValidPFMETColl_ = iEvent.getByLabel(pfMETTag_, pfmetColl_);
-  if(!ValidPFMETColl_) return; 
+  if(!ValidPFMETColl_) return;
+
+  if(!iEvent.eventAuxiliary().isRealData()){
+    bool ValidGenMETColl_ = iEvent.getByLabel(genCaloMETTag_, genCalometColl_);
+    if(!ValidGenMETColl_) return;
+  }
   
   //---------- Event counting (DEBUG) ----------
   if(verbose_ && iEvent.id().event()%10000==0)
@@ -298,6 +305,10 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(plotEff_)                  fillMEforEffAllTrigger(iEvent,iSetup);
   if(plotEff_ && plotEffwrtMu_) fillMEforEffWrtMuTrigger(iEvent,iSetup); 
   if(plotEff_ && plotEffwrtMB_) fillMEforEffWrtMBTrigger(iEvent,iSetup);
+  if(plotEff_ && plotEffwrtMC_ &&
+     !iEvent.eventAuxiliary().isRealData()) fillMEforEffWrtMCTrigger(iEvent,iSetup);
+  
+
   if(runStandalone_)            fillMEforTriggerNTfired();
 }
 
@@ -2282,7 +2293,7 @@ JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent, const edm
       //----------------------------------------------------------------------
       
       //CaloJet paths   
-      if(verbose_) std::cout << "fillMEforEffWrtMuTrigger: CaloJet -------------------" << std::endl;
+      if(verbose_) std::cout << "fillMEforEffWrtMBTrigger: CaloJet -------------------" << std::endl;
       if(calojetColl_.isValid() 
 	 && (v->getObjectType() == trigger::TriggerJet)){
 	//cout<<"   - CaloJet "<<endl;
@@ -2432,7 +2443,7 @@ JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent, const edm
       }// Jet trigger and valid jet collection
       
       //PFJet paths
-      if(verbose_) std::cout << "fillMEforEffWrtMuTrigger: PFJet -------------------" << std::endl;
+      if(verbose_) std::cout << "fillMEforEffWrtMBTrigger: PFJet -------------------" << std::endl;
       if(pfjetColl_.isValid() 
 	 && (v->getObjectType() == trigger::TriggerJet)){
 	//cout<<"   - PFJet "<<endl;
@@ -2604,7 +2615,7 @@ JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent, const edm
       }// PF Jet trigger and valid jet collection
       
       //CaloMET path
-      if(verbose_) std::cout << "fillMEforEffWrtMuTrigger: CaloMET -------------------" << std::endl;
+      if(verbose_) std::cout << "fillMEforEffWrtMBTrigger: CaloMET -------------------" << std::endl;
       if(calometColl_.isValid() 
 	 && ((v->getObjectType() == trigger::TriggerMET) || (v->getObjectType() == trigger::TriggerTET))
 	 && (v->getPath().find("HLT_PFMET")==std::string::npos)){
@@ -2634,7 +2645,7 @@ JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent, const edm
       }
     
       //PFMET
-      if(verbose_) std::cout << "fillMEforEffWrtMuTrigger: PFMET -------------------" << std::endl;
+      if(verbose_) std::cout << "fillMEforEffWrtMBTrigger: PFMET -------------------" << std::endl;
       if(pfmetColl_.isValid() 
 	 && ((v->getObjectType() == trigger::TriggerMET) || (v->getObjectType() == trigger::TriggerTET))
 	 && (v->getPath().find("HLT_PFMET")!=std::string::npos)){
@@ -2675,7 +2686,502 @@ JetMETHLTOfflineSource::fillMEforEffWrtMBTrigger(const Event & iEvent, const edm
   }
 }
 
+void 
+JetMETHLTOfflineSource::fillMEforEffWrtMCTrigger(const Event & iEvent, const edm::EventSetup& iSetup)
+{
+  //int npath;
+  if(&triggerResults_) { /*npath = triggerResults_->size();*/ } 
+  else { return; }
 
+  bool numpassed = false;
+  
+  const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
+  PathInfoCollection::iterator v = hltPathsEffWrtMC_.begin();
+  for(; v!= hltPathsEffWrtMC_.end(); ++v ){
+    numpassed = false;
+      
+    unsigned indexNum = triggerNames_.triggerIndex(v->getPath());
+    if(indexNum < triggerNames_.size() && triggerResults_->accept(indexNum)) numpassed   = true;
+    
+    edm::InputTag hltTag(v->getLabel(),"",processname_);
+    const int hltIndex = triggerObj_->filterIndex(hltTag);
+    edm::InputTag l1Tag(v->getl1Path(),"",processname_);
+    const int l1Index = triggerObj_->filterIndex(l1Tag);
+      
+    //----------------------------------------------------------------------
+    //double pTcut = 0;
+    double trigLowpTcut = 0;
+    double trigMedpTcut = 0;
+    double trigHighpTcut = 0;
+    double trigLowpTcutFwd = 0;
+    double trigMedpTcutFwd = 0;
+    double trigHighpTcutFwd = 0;
+    //
+    //double pTPFcut = 0 ;
+    double trigLowpTPFcut = 0;
+    double trigMedpTPFcut = 0;
+    double trigHighpTPFcut = 0;
+    double trigLowpTPFcutFwd = 0;
+    double trigMedpTPFcutFwd = 0;
+    double trigHighpTPFcutFwd = 0;
+    //
+    //cout<<"pre-path" << v->getPath()<<endl;
+    size_t jetstrfound = v->getPath().find("Jet");
+    //size_t censtrfound = v->getPath().find("Central"); //shoouldn't be needed?
+    string tpath = v->getPath();
+    string jetTrigVal;
+    float jetVal = 0.;
+    //
+    if(jetstrfound != string::npos){// && ustrfound != string::npos ){
+      //cout<<v->getPath()<<endl;
+      for(int trig = int(jetstrfound)+3; trig < int(jetstrfound)+7; trig++){// int(ustrfound); trig++){
+	if(!isdigit(tpath[trig])) break;
+	jetTrigVal+=tpath[trig];
+      }
+      char *cjetTrigVal = (char*)jetTrigVal.c_str();
+      jetVal=atof(cjetTrigVal);
+      //cout<<jetVal<<endl;
+      //
+      if(jetVal>0.){
+	if(jetVal<50.){
+	  //pTcut = jetVal / 2.;
+	  trigMedpTcut  = jetVal + 5.;  
+	  trigHighpTcut = jetVal + 10.;
+	  //
+	  trigLowpTcutFwd = jetVal + 9.;
+	  trigMedpTcutFwd = jetVal + 15.;
+	  trigHighpTcutFwd = jetVal + 21.;
+	}
+	else{
+	  //pTcut = jetVal - 20. ;
+	  trigMedpTcut = jetVal + 2.; 
+	  trigHighpTcut = jetVal + 60.;
+	  //
+	  trigLowpTcutFwd = jetVal + 22.;
+	  trigMedpTcutFwd = jetVal + 25.;
+	  trigHighpTcutFwd = jetVal + 110.;
+	}
+	trigLowpTcut = jetVal;
+	//cout<<pTcut<<" "<<trigLowpTcut<<" "<<trigMedptcut<<" "<<trigHighpTcut<<" "<<trigLowpTcutFwd<<" "<<trigMedptcutFwd<<" "<<trigHighpTcutFwd<<endl;
+      }
+      //
+      if(jetVal>0.){
+	if(jetVal<50.){
+	  //pTPFcut = jetVal ;
+	  trigMedpTPFcut  = jetVal + 20.;  
+	  trigHighpTPFcut = jetVal + 40.;
+	  //
+	  trigLowpTPFcutFwd = jetVal + 60.;
+	  trigMedpTPFcutFwd = jetVal + 80.;
+	  trigHighpTPFcutFwd = jetVal + 100.;
+	}
+	else{
+	  //pTPFcut = jetVal  ;
+	  trigMedpTPFcut = jetVal + 40.; 
+	  trigHighpTPFcut = jetVal + 140.;
+	  //
+	  trigLowpTPFcutFwd = jetVal + 110.;
+	  trigMedpTPFcutFwd = jetVal + 130.;
+	  trigHighpTPFcutFwd = jetVal + 190.;
+	}
+	  trigLowpTPFcut = jetVal;
+	  //cout<<pTcut<<" "<<trigLowpTcut<<" "<<trigMedptcut<<" "<<trigHighpTcut<<" "<<trigLowpTcutFwd<<" "<<trigMedptcutFwd<<" "<<trigHighpTcutFwd<<endl;
+      }
+    }
+    //----------------------------------------------------------------------
+    
+    //CaloJet paths   
+    if(verbose_) std::cout << "fillMEforEffWrtMCTrigger: CaloJet -------------------" << std::endl;
+    if(calojetColl_.isValid() 
+       && (v->getObjectType() == trigger::TriggerJet)){
+      //cout<<"   - CaloJet "<<endl;
+      //&& (v->getPath().find("HLT_PFJet")==std::string::npos)
+      //&& (v->getPath().find("HLT_DiPFJet")==std::string::npos)){
+      bool jetIDbool = false;
+      double leadjpt  = CaloJetPt[0];  
+      double leadjeta = CaloJetEta[0];
+      double leadjphi = CaloJetPhi[0];
+      //double ljemf    = CaloJetEMF[0];
+      double ljfhpd    = CaloJetfHPD[0];
+      double ljn90     = CaloJetn90[0];
+      if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && calojet.size()){ //this line stops the central jets
+	if( (ljfhpd < _fHPD) && (ljn90 > _n90Hits )){
+	  if(verbose_) cout<<"passed CaloJet ID -------------------" << endl;
+	  jetIDbool = true;
+	  
+	  //Denominator fill
+	  v->getMEhisto_DenominatorPt()->Fill(leadjpt);
+	  if (isBarrel(leadjeta))  v->getMEhisto_DenominatorPtBarrel()->Fill(leadjpt);
+	  if (isEndCap(leadjeta))  v->getMEhisto_DenominatorPtEndcap()->Fill(leadjpt);
+	  if (isForward(leadjeta)) v->getMEhisto_DenominatorPtForward()->Fill(leadjpt);
+	  v->getMEhisto_DenominatorEta()->Fill(leadjeta);
+	  v->getMEhisto_DenominatorPhi()->Fill(leadjphi);
+	  v->getMEhisto_DenominatorEtaPhi()->Fill(leadjeta,leadjphi);
+	  if (isBarrel(leadjeta)){
+	    v->getMEhisto_DenominatorEtaBarrel()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPhiBarrel()->Fill(leadjphi);
+	  }
+	  if (isEndCap(leadjeta)){
+	    v->getMEhisto_DenominatorEtaEndcap()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPhiEndcap()->Fill(leadjphi);
+	  }
+	  if (isForward(leadjeta)){
+	    v->getMEhisto_DenominatorEtaForward()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPhiForward()->Fill(leadjphi);
+	  }
+	  if((leadjpt > trigLowpTcut && !isForward(leadjeta)) || (leadjpt > trigLowpTcutFwd && isForward(leadjeta))){
+	    v->getMEhisto_DenominatorEta_LowpTcut()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPhi_LowpTcut()->Fill(leadjphi);
+	    v->getMEhisto_DenominatorEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
+	  }
+	  if((leadjpt > trigMedpTcut && !isForward(leadjeta)) || (leadjpt > trigMedpTcutFwd && isForward(leadjeta))){
+	    v->getMEhisto_DenominatorEta_MedpTcut()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPhi_MedpTcut()->Fill(leadjphi);
+	    v->getMEhisto_DenominatorEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
+	  }
+	  if((leadjpt > trigHighpTcut && !isForward(leadjeta)) || (leadjpt > trigHighpTcutFwd && isForward(leadjeta))){
+	    v->getMEhisto_DenominatorEta_HighpTcut()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPhi_HighpTcut()->Fill(leadjphi);
+	    v->getMEhisto_DenominatorEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
+	  }
+	  
+	  //Numerator fill
+	  if(numpassed){
+	    //
+	    double dRmin = 99999.;
+	    double dPhimin = 9999.;
+	    if(v->getPath().find("L1") != std::string::npos){ 
+	      if ( l1Index >= triggerObj_->sizeFilters() ) {
+		edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
+	      } 
+	      else {
+		const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
+		for(trigger::Keys::const_iterator ki = kl1.begin();ki != kl1.end(); ++ki){
+		  double dR = deltaR(toc[*ki].eta(), toc[*ki].phi(), leadjeta, leadjphi);
+		  if(dR < dRmin){
+		    dRmin = dR;
+		  } 
+		} 
+	      } 
+	    } 
+	    else{
+	      if ( hltIndex >= triggerObj_->sizeFilters() ) {
+		edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
+	      } 
+	      else {    
+		const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex); 
+		trigger::Keys::const_iterator kj = khlt.begin();
+		for(;kj != khlt.end(); ++kj){
+		  double dR = deltaR(toc[*kj].eta(), toc[*kj].phi(), 
+				     leadjeta, leadjphi);
+		  if(dR < dRmin){
+		    dRmin = dR;
+		  }
+		  double dPhi = deltaPhi(toc[*kj].phi(), leadjphi);
+		  if(dPhi < dPhimin){
+		    dPhimin = dPhi;
+		  }
+		}   
+		//v->getMEhisto_DeltaPhi()->Fill(dPhimin);
+		v->getMEhisto_DeltaPhi()->Fill(dPhimin);
+		v->getMEhisto_DeltaR()->Fill(dRmin);
+	      }
+	    }
+	    if(dRmin < 0.1 || (v->getPath().find("L1") != std::string::npos && dRmin < 0.4)){
+	      v->getMEhisto_NumeratorPt()->Fill(leadjpt);
+	      if (isBarrel(leadjeta))  v->getMEhisto_NumeratorPtBarrel()->Fill(leadjpt);
+	      if (isEndCap(leadjeta))  v->getMEhisto_NumeratorPtEndcap()->Fill(leadjpt);
+	      if (isForward(leadjeta)) v->getMEhisto_NumeratorPtForward()->Fill(leadjpt);
+	      v->getMEhisto_NumeratorEta()->Fill(leadjeta);
+	      v->getMEhisto_NumeratorPhi()->Fill(leadjphi);
+	      v->getMEhisto_NumeratorEtaPhi()->Fill(leadjeta,leadjphi);
+	      if (isBarrel(leadjeta)){
+		v->getMEhisto_NumeratorEtaBarrel()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPhiBarrel()->Fill(leadjphi);
+	      }
+	      if (isEndCap(leadjeta)){
+		v->getMEhisto_NumeratorEtaEndcap()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPhiEndcap()->Fill(leadjphi);
+	      }
+	      if (isForward(leadjeta)){
+		v->getMEhisto_NumeratorEtaForward()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPhiForward()->Fill(leadjphi);
+	      }
+	      if((leadjpt > trigLowpTcut && !isForward(leadjeta)) || (leadjpt > trigLowpTcutFwd && isForward(leadjeta))){
+		v->getMEhisto_NumeratorEta_LowpTcut()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPhi_LowpTcut()->Fill(leadjphi);
+		v->getMEhisto_NumeratorEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
+	      }
+	      if((leadjpt > trigMedpTcut && !isForward(leadjeta)) || (leadjpt > trigMedpTcutFwd && isForward(leadjeta))){
+		v->getMEhisto_NumeratorEta_MedpTcut()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPhi_MedpTcut()->Fill(leadjphi);
+		v->getMEhisto_NumeratorEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
+	      }
+	      if((leadjpt > trigHighpTcut && !isForward(leadjeta)) || (leadjpt > trigHighpTcutFwd && isForward(leadjeta))){
+		v->getMEhisto_NumeratorEta_HighpTcut()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPhi_HighpTcut()->Fill(leadjphi);
+		v->getMEhisto_NumeratorEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
+	      }
+	    }
+	  }//numpassed
+	}//CalojetID filter
+      }
+      
+      if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && calojet.size()>1){
+	if(((CaloJetEMF[1] > _fEMF || std::abs(CaloJetEta[1]) > _feta) && 
+	    CaloJetfHPD[0] < _fHPD && CaloJetn90[0] > _n90Hits)){
+	  v->getMEhisto_DenominatorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	  v->getMEhisto_DenominatorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.); 
+	  if(numpassed==true){
+	    v->getMEhisto_NumeratorPt()->Fill((CaloJetPt[0] + CaloJetPt[1])/2.);
+	    v->getMEhisto_NumeratorEta()->Fill((CaloJetEta[0] + CaloJetEta[1])/2.);
+	  }
+	}
+      }
+    }// Jet trigger and valid jet collection
+    
+    //PFJet paths
+    if(verbose_) std::cout << "fillMEforEffWrtMCTrigger: PFJet -------------------" << std::endl;
+    if(pfjetColl_.isValid() 
+       && (v->getObjectType() == trigger::TriggerJet)){
+      //cout<<"   - PFJet "<<endl;
+      //&& (v->getPath().find("HLT_PFJet")!=std::string::npos)
+      //&& (v->getPath().find("HLT_DiPFJet")!=std::string::npos)){
+      bool jetIDbool = false;
+      double leadjpt   = PFJetPt[0]; 
+      double leadjeta  = PFJetEta[0];
+      double leadjphi  = PFJetPhi[0];
+      double ljNHEF    = PFJetNHEF[0];
+      double ljCHEF    = PFJetCHEF[0];
+      double ljNEMF    = PFJetNEMF[0];
+      double ljCEMF    = PFJetCEMF[0];
+      //double sleadjpt  = PFJetPt[1];
+      //double sleadjeta = PFJetEta[1];
+      //double sleadjphi = PFJetPhi[1];
+      double sljNHEF   = PFJetNHEF[1];
+      double sljCHEF   = PFJetCHEF[1];
+      double sljNEMF   = PFJetNEMF[1];
+      double sljCEMF   = PFJetCEMF[1];
+      //
+      double pfMHTx    = pfMHTx_All;
+      double pfMHTy    = pfMHTy_All;
+      //
+      if((v->getTriggerType().compare("SingleJet_Trigger") == 0) && pfjet.size()){ //this line stops the central jets
+	
+	//======get pfmht
+	_pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
+	v->getMEhisto_DenominatorPFMHT()->Fill(_pfMHT);
+	
+	if( ljNHEF >= _min_NHEF && ljNHEF <= _max_NHEF
+	    && ljCHEF >= _min_CHEF && ljCHEF <= _max_CHEF
+	    && ljNEMF >= _min_NEMF && ljNEMF <= _max_NEMF
+	    && ljCEMF >= _min_CEMF && ljCEMF <= _max_CEMF){
+	  if(verbose_) cout<<"passed PFJet ID -------------------" << endl;
+	  jetIDbool = true;
+	  v->getMEhisto_DenominatorPFPt()->Fill(leadjpt);
+	  if (isBarrel(leadjeta))  v->getMEhisto_DenominatorPFPtBarrel()->Fill(leadjpt);
+	  if (isEndCap(leadjeta))  v->getMEhisto_DenominatorPFPtEndcap()->Fill(leadjpt);
+	  if (isForward(leadjeta)) v->getMEhisto_DenominatorPFPtForward()->Fill(leadjpt);
+	  v->getMEhisto_DenominatorPFEta()->Fill(leadjeta);
+	  v->getMEhisto_DenominatorPFPhi()->Fill(leadjphi);
+	  v->getMEhisto_DenominatorPFEtaPhi()->Fill(leadjeta,leadjphi);
+	  if(isBarrel(leadjeta)){
+	    v->getMEhisto_DenominatorPFEtaBarrel()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPFPhiBarrel()->Fill(leadjphi);
+	  }
+	  if (isEndCap(leadjeta)){
+	    v->getMEhisto_DenominatorPFEtaEndcap()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPFPhiEndcap()->Fill(leadjphi);
+	  }
+	  if (isForward(leadjeta)){
+	    v->getMEhisto_DenominatorPFEtaForward()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPFPhiForward()->Fill(leadjphi);
+	  }
+	  if((leadjpt > trigLowpTPFcut && !isForward(leadjeta)) || (leadjpt > trigLowpTPFcutFwd && isForward(leadjeta))){
+	    v->getMEhisto_DenominatorPFEta_LowpTcut()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPFPhi_LowpTcut()->Fill(leadjphi);
+	    v->getMEhisto_DenominatorPFEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
+	  }
+	  if((leadjpt > trigMedpTPFcut && !isForward(leadjeta)) || (leadjpt > trigMedpTPFcutFwd && isForward(leadjeta))){
+	    v->getMEhisto_DenominatorPFEta_MedpTcut()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPFPhi_MedpTcut()->Fill(leadjphi);
+	    v->getMEhisto_DenominatorPFEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
+	  }
+	  if((leadjpt > trigHighpTPFcut && !isForward(leadjeta)) || (leadjpt > trigHighpTPFcutFwd && isForward(leadjeta))){
+	    v->getMEhisto_DenominatorPFEta_HighpTcut()->Fill(leadjeta);
+	    v->getMEhisto_DenominatorPFPhi_HighpTcut()->Fill(leadjphi);
+	    v->getMEhisto_DenominatorPFEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
+	  }
+	  
+	  //Numerator fill
+	  if(numpassed){
+	    double dRmin = 99999.;
+	    double dPhimin = 9999.;
+	    if(v->getPath().find("L1") != std::string::npos){ 
+	      if ( l1Index >= triggerObj_->sizeFilters() ) {
+		edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
+	      } 
+	      else{    
+		const trigger::Keys & kl1 = triggerObj_->filterKeys(l1Index);
+		for(trigger::Keys::const_iterator ki = kl1.begin();ki != kl1.end(); ++ki){      
+		  double dR = deltaR(toc[*ki].eta(), toc[*ki].phi(), leadjeta, leadjphi);
+		  if(dR < dRmin){
+		    dRmin = dR;
+		  } 
+		} 
+	      }                
+	    } 
+	    else{
+	      if ( hltIndex >= triggerObj_->sizeFilters() ) {
+		edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
+	      } 
+	      else{    
+		const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex); 
+		for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj){      
+		  double dR = deltaR(toc[*kj].eta(), toc[*kj].phi(), leadjeta, leadjphi);
+		  if(dR < dRmin){
+		    dRmin = dR;
+		  } 
+		  double dPhi = deltaPhi(toc[*kj].phi(), leadjphi);
+		  if(dPhi < dPhimin){ 
+		    dPhimin = dPhi; 
+		  }
+		}  
+		v->getMEhisto_PFDeltaPhi()->Fill(dPhimin);
+		v->getMEhisto_PFDeltaR()->Fill(dRmin);
+	      }  
+	    }
+	    if(dRmin < 0.1 || (v->getPath().find("L1") != std::string::npos && dRmin < 0.4)){
+	      v->getMEhisto_NumeratorPFPt()->Fill(leadjpt);
+	      if (isBarrel(leadjeta))  v->getMEhisto_NumeratorPFPtBarrel()->Fill(leadjpt);
+	      if (isEndCap(leadjeta))  v->getMEhisto_NumeratorPFPtEndcap()->Fill(leadjpt);
+	      if (isForward(leadjeta)) v->getMEhisto_NumeratorPFPtForward()->Fill(leadjpt);
+	      v->getMEhisto_NumeratorPFEta()->Fill(leadjeta);
+	      v->getMEhisto_NumeratorPFPhi()->Fill(leadjphi);
+	      v->getMEhisto_NumeratorPFEtaPhi()->Fill(leadjeta,leadjphi);
+	      if (isBarrel(leadjeta)){
+		v->getMEhisto_NumeratorPFEtaBarrel()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPFPhiBarrel()->Fill(leadjphi);
+	      }
+	      if (isEndCap(leadjeta)){
+		v->getMEhisto_NumeratorPFEtaEndcap()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPFPhiEndcap()->Fill(leadjphi);
+	      }
+	      if (isForward(leadjeta)){
+		v->getMEhisto_NumeratorPFEtaForward()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPFPhiForward()->Fill(leadjphi);
+	      }
+	      if((leadjpt > trigLowpTPFcut && !isForward(leadjeta)) 
+		 || (leadjpt > trigLowpTPFcutFwd && isForward(leadjeta))){
+		v->getMEhisto_NumeratorPFEta_LowpTcut()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPFPhi_LowpTcut()->Fill(leadjphi);
+		v->getMEhisto_NumeratorPFEtaPhi_LowpTcut()->Fill(leadjeta,leadjphi);
+	      }
+	      if((leadjpt > trigMedpTPFcut && !isForward(leadjeta)) 
+		 || (leadjpt > trigMedpTPFcutFwd && isForward(leadjeta))){
+		v->getMEhisto_NumeratorPFEta_MedpTcut()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPFPhi_MedpTcut()->Fill(leadjphi);
+		v->getMEhisto_NumeratorPFEtaPhi_MedpTcut()->Fill(leadjeta,leadjphi);
+	      }
+	      if((leadjpt > trigHighpTPFcut && !isForward(leadjeta)) 
+		 || (leadjpt > trigHighpTPFcutFwd && isForward(leadjeta))){
+		v->getMEhisto_NumeratorPFEta_HighpTcut()->Fill(leadjeta);
+		v->getMEhisto_NumeratorPFPhi_HighpTcut()->Fill(leadjphi);
+		v->getMEhisto_NumeratorPFEtaPhi_HighpTcut()->Fill(leadjeta,leadjphi);
+	      }
+	    }
+	  }
+	}
+      }
+      if(jetIDbool == true && (v->getTriggerType().compare("DiJet_Trigger") == 0) && pfjet.size()>1){ 
+	if( ljNHEF     >= _min_NHEF && ljNHEF  <= _max_NHEF
+	    && ljCHEF  >= _min_CHEF && ljCHEF  <= _max_CHEF
+	    && ljNEMF  >= _min_NEMF && ljNEMF  <= _max_NEMF
+	    && ljCEMF  >= _min_CEMF && ljCEMF  <= _max_CEMF 
+	    && sljNHEF >= _min_NHEF && sljNHEF <= _max_NHEF
+	    && sljCHEF >= _min_CHEF && sljCHEF <= _max_CHEF
+	    && sljNEMF >= _min_NEMF && sljNEMF <= _max_NEMF
+	    && sljCEMF >= _min_CEMF && sljCEMF <= _max_CEMF ){
+	  v->getMEhisto_DenominatorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	  v->getMEhisto_DenominatorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
+	  if(numpassed){
+	    v->getMEhisto_NumeratorPFPt()->Fill((PFJetPt[0] + PFJetPt[1])/2.);
+	    v->getMEhisto_NumeratorPFEta()->Fill((PFJetEta[0] + PFJetEta[1])/2.);
+	  }
+	}
+      }
+    }// PF Jet trigger and valid jet collection
+    
+    //CaloMET path
+    if(verbose_) std::cout << "fillMEforEffWrtMCTrigger: CaloMET -------------------" << std::endl;
+    if(calometColl_.isValid() 
+       && ((v->getObjectType() == trigger::TriggerMET) || (v->getObjectType() == trigger::TriggerTET))
+       && (v->getPath().find("HLT_PFMET")==std::string::npos)){
+      //cout<<"   - CaloMET "<<endl;
+      const GenMETCollection *calometcol = genCalometColl_.product();
+      const GenMET met = calometcol->front();
+      v->getMEhisto_DenominatorPt()->Fill(met.pt());
+      v->getMEhisto_DenominatorPhi()->Fill(met.phi()); 
+      if(numpassed){
+	v->getMEhisto_NumeratorPt()->Fill(met.pt());
+	v->getMEhisto_NumeratorPhi()->Fill(met.phi());
+	if(hltIndex >= triggerObj_->sizeFilters()){
+	  edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
+	} 
+	else{
+	  double dPhimin = 9999.;//
+	  const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex); 
+	  for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj){
+	    double dPhi = deltaPhi(toc[*kj].phi(), met.phi());
+	    if(dPhi < dPhimin){
+	      dPhimin = dPhi;
+	    }
+	  }  
+	  v->getMEhisto_DeltaPhi()->Fill(dPhimin);
+	}
+      } 
+    }
+    
+    //PFMET
+    if(verbose_) std::cout << "fillMEforEffWrtMCTrigger: PFMET -------------------" << std::endl;
+    if(pfmetColl_.isValid() 
+       && ((v->getObjectType() == trigger::TriggerMET) || (v->getObjectType() == trigger::TriggerTET))
+       && (v->getPath().find("HLT_PFMET")!=std::string::npos)){
+      //cout<<"   - PFMET "<<endl;
+      const PFMETCollection *pfmetcol = pfmetColl_.product();
+      const PFMET met = pfmetcol->front();
+      v->getMEhisto_DenominatorPt()->Fill(met.et());
+      v->getMEhisto_DenominatorPhi()->Fill(met.phi()); 
+      if(numpassed){
+	v->getMEhisto_NumeratorPt()->Fill(met.et());
+	v->getMEhisto_NumeratorPhi()->Fill(met.phi());
+	if(hltIndex >= triggerObj_->sizeFilters()){
+	  edm::LogInfo("JetMETHLTOfflineSource") << "no index hlt"<< hltIndex << " of that name ";
+	} 
+	else{
+	  double dPhimin = 9999.;//
+	  const trigger::Keys & khlt = triggerObj_->filterKeys(hltIndex); 
+	  for(trigger::Keys::const_iterator kj = khlt.begin();kj != khlt.end(); ++kj){
+	    double dPhi = deltaPhi(toc[*kj].phi(), met.phi());
+	    if(dPhi < dPhimin){
+	      dPhimin = dPhi;
+	    }
+	  }  
+	  v->getMEhisto_DeltaPhi()->Fill(dPhimin);
+	}
+      } 
+    }
+    
+    /*
+      if(pfmhtColl_.isValid() && ((v->getObjectType() == trigger::TriggerMET)|| (v->getObjectType() == trigger::TriggerTET))){
+      const PFMHTCollection *pfmhtcol = pfmhtColl_.product();
+      const PFMHT met = pfmhtcol->front();
+      v->getMEhisto_DenominatorPFPt()->Fill(met.pt());
+      v->getMEhisto_DenominatorPFPhi()->Fill(met.phi());
+      }// PFMHT  trigger and valid MET collection 
+    */
+  }// trigger under study
+}
 
 // -- method called once each job just before starting event loop  --------
 void 
@@ -2879,7 +3385,10 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	      <<" | =L1pathname= "<<l1pathname
 	      <<" | =ObjectType= "<<objectType<<endl;    
 	if(!((pathname.find("HT") != std::string::npos) || (pathname.find("Quad") != std::string::npos))){     
-	  hltPathsAll_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, filtername, Denomfiltername, processname_, objectType, triggerType));
+	  hltPathsAll_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, 
+					  filtername, Denomfiltername, processname_, objectType, triggerType));
+	  hltPathsEffWrtMC_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, 
+					       filtername, Denomfiltername, processname_, objectType, triggerType));
 	  if(muFound)hltPathsAllWrtMu_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, 
 							  filtername, Denomfiltername, processname_, objectType, triggerType));
 	  if(muFound)hltPathsEffWrtMu_.push_back(PathInfo(usedPrescale, dpathname, pathname, l1pathname, 
@@ -3527,8 +4036,8 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 		       dummy 
 		       );
 	}// histos for MET Triggers 
-      }
-    }
+      }//End of HLTPathAll_
+    }//End of PlotAll
     
     if(plotAllwrtMu_){
       int Nbins_       = 10;
@@ -3997,8 +4506,8 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 		       dummy 
 		       );
 	}// histos for MET Triggers
-      }
-    }
+      }//End of hltPathAllWrtMu
+    }//End of PlotAllWrtMu
     
     //-------Now Efficiency histos--------
     if(plotEff_){ 
@@ -4006,6 +4515,9 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       if(runStandalone_) Ptbins_ = 1000;
       double PtMin_    = 0.;
       double PtMax_    = 1000.;
+      int PtGenMETbins_   = 100;
+      double PtGenMETMin_ = 0.;
+      double PtGenMETMax_ = 500.;
       //
       int Etabins_     = 50;
       double EtaMin_   = -5.;
@@ -4601,7 +5113,6 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 			  PFDeltaR,
 			  PFDeltaPhi
 			  );
-	  
 	}// Loop over Jet Trigger
 	
 	if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("DiJet_Trigger") == 0)){
@@ -4721,6 +5232,7 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 			    );
 	}// Loop over MET trigger
       }
+      
       
       //------Efficiency wrt Muon trigger-----------------------
       if(plotEffwrtMu_){
@@ -5428,7 +5940,7 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 			      );
 	  }// Loop over MET trigger 
 	}
-      }
+      }//End of Effciency wrt Mu path
       
       //--------Efficiency  wrt MiniBias trigger---------
       if(plotEffwrtMB_){
@@ -6136,7 +6648,716 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 			      );
 	  }// Loop over MET trigger
 	}
-      }
+      }//End of MB Efficiency
+
+       
+      //--------Efficiency  wrt all events---------
+      if(plotEffwrtMC_){
+	std::string dirName3  = dirname_ + "/EffWrtAllMCEvent/";
+	for(PathInfoCollection::iterator v = hltPathsEffWrtMC_.begin(); v!= hltPathsEffWrtMC_.end(); ++v ){
+	  //
+	  std::string trgPathName    = HLTConfigProvider::removeVersion(v->getPath());
+	  //
+	  std::string labelname("ME") ;
+	  std::string subdirName = dirName3 + trgPathName ;
+	  std::string histoname(labelname+"");
+	  std::string title(labelname+"");
+	  dbe->setCurrentFolder(subdirName);
+	  
+	  MonitorElement *dummy;
+	  dummy =  dbe->bookFloat("dummy"); 
+	  
+	  if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("SingleJet_Trigger") == 0)){ 
+	    
+	    histoname = labelname+"_NumeratorPt";
+	    title     = labelname+"NumeratorPt;Calo Pt[GeV/c] ";
+	    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPt->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPtBarrel";
+	    title     = labelname+"NumeratorPtBarrel;Calo Pt[GeV/c]";
+	    MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPtBarrel->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPtEndcap";
+	    title     = labelname+"NumeratorPtEndcap; Calo Pt[GeV/c] ";
+	    MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPtEndcap->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPtForward";
+	    title     = labelname+"NumeratorPtForward;Calo Pt[GeV/c]";
+	    MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPtForward->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEta";
+	    title     = labelname+"NumeratorEta;Calo #eta ";
+	    MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorEta->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPhi";
+	    title     = labelname+"NumeratorPhi;Calo #Phi";
+	    MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPhi->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEtaPhi";
+	    title     = labelname+"NumeratorEtaPhi;Calo #eta;Calo #Phi ";
+	    MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    NumeratorEtaPhi->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEtaBarrel";
+	    title     = labelname+"NumeratorEtaBarrel;Calo #eta ";
+	    MonitorElement * NumeratorEtaBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorEtaBarrel->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPhiBarrel";
+	    title     = labelname+"NumeratorPhiBarrel;Calo #Phi";
+	    MonitorElement * NumeratorPhiBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPhiBarrel->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEtaEndcap";
+	    title     = labelname+"NumeratorEtaEndcap;Calo #eta ";
+	    MonitorElement * NumeratorEtaEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorEtaEndcap->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPhiEndcap";
+	    title     = labelname+"NumeratorPhiEndcap;Calo #Phi";
+	    MonitorElement * NumeratorPhiEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPhiEndcap->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEtaForward";
+	    title     = labelname+"NumeratorEtaForward;Calo #eta ";
+	    MonitorElement * NumeratorEtaForward =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorEtaForward->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPhiForward";
+	    title     = labelname+"NumeratorPhiForward;Calo #Phi";
+	    MonitorElement * NumeratorPhiForward =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPhiForward->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEta_LowpTcut";
+	    title     = labelname+"NumeratorEta_LowpTcut;Calo #eta ";
+	    MonitorElement * NumeratorEta_LowpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorEta_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPhi_LowpTcut";
+	    title     = labelname+"NumeratorPhi_LowpTcut;Calo #Phi";
+	    MonitorElement * NumeratorPhi_LowpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPhi_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEtaPhi_LowpTcut";
+	    title     = labelname+"NumeratorEtaPhi_LowpTcut;Calo #eta;Calo #Phi";
+	    MonitorElement * NumeratorEtaPhi_LowpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    NumeratorEtaPhi_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEta_MedpTcut";
+	    title     = labelname+"NumeratorEta_MedpTcut;Calo #eta ";
+	    MonitorElement * NumeratorEta_MedpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorEta_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPhi_MedpTcut";
+	    title     = labelname+"NumeratorPhi_MedpTcut;Calo #Phi";
+	    MonitorElement * NumeratorPhi_MedpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPhi_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEtaPhi_MedpTcut";
+	    title     = labelname+"NumeratorEtaPhi_MedpTcut;Calo #eta;Calo #Phi";
+	    MonitorElement * NumeratorEtaPhi_MedpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    NumeratorEtaPhi_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEta_HighpTcut";
+	    title     = labelname+"NumeratorEta_HighpTcut;Calo #eta ";
+	    MonitorElement * NumeratorEta_HighpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorEta_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPhi_HighpTcut";
+	    title     = labelname+"NumeratorPhi_HighpTcut;Calo #Phi";
+	    MonitorElement * NumeratorPhi_HighpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPhi_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorEtaPhi_HighpTcut";
+	    title     = labelname+"NumeratorEtaPhi_HighpTcut;Calo #eta;Calo #Phi";
+	    MonitorElement * NumeratorEtaPhi_HighpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    NumeratorEtaPhi_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPt";
+	    title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
+	    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPt->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPtBarrel";
+	    title     = labelname+"DenominatorPtBarrel;Calo Pt[GeV/c]";
+	    MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPtBarrel->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPtEndcap";
+	    title     = labelname+"DenominatorPtEndcap;Calo Pt[GeV/c]";
+	    MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPtEndcap->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPtForward";
+	    title     = labelname+"DenominatorPtForward;Calo Pt[GeV/c]";
+	    MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPtForward->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEta";
+	    title     = labelname+"DenominatorEta;Calo #eta ";
+	    MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorEta->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPhi";
+	    title     = labelname+"DenominatorPhi;Calo #Phi";
+	    MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPhi->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEtaPhi";
+	    title     = labelname+"DenominatorEtaPhi;Calo #eta ;Calo #Phi ";
+	    MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    DenominatorEtaPhi->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEtaBarrel";
+	    title     = labelname+"DenominatorEtaBarrel;Calo #eta ";
+	    MonitorElement * DenominatorEtaBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorEtaBarrel->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPhiBarrel";
+	    title     = labelname+"DenominatorPhiBarrel;Calo #Phi";
+	    MonitorElement * DenominatorPhiBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPhiBarrel->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEtaEndcap";
+	    title     = labelname+"DenominatorEtaEndcap;Calo #eta ";
+	    MonitorElement * DenominatorEtaEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorEtaEndcap->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPhiEndcap";
+	    title     = labelname+"DenominatorPhiEndcap;Calo #Phi";
+	    MonitorElement * DenominatorPhiEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPhiEndcap->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEtaForward";
+	    title     = labelname+"DenominatorEtaForward;Calo #eta ";
+	    MonitorElement * DenominatorEtaForward =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorEtaForward->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPhiForward";
+	    title     = labelname+"DenominatorPhiForward;Calo #Phi";
+	    MonitorElement * DenominatorPhiForward =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPhiForward->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEta_LowpTcut";
+	    title     = labelname+"DenominatorEta_LowpTcut;Calo #eta ";
+	    MonitorElement * DenominatorEta_LowpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorEta_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPhi_LowpTcut";
+	    title     = labelname+"DenominatorPhi_LowpTcut;Calo #Phi";
+	    MonitorElement * DenominatorPhi_LowpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPhi_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEtaPhi_LowpTcut";
+	    title     = labelname+"DenominatorEtaPhi_LowpTcut;Calo #eta;Calo #Phi";
+	    MonitorElement * DenominatorEtaPhi_LowpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    DenominatorEtaPhi_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEta_MedpTcut";
+	    title     = labelname+"DenominatorEta_MedpTcut;Calo #eta ";
+	    MonitorElement * DenominatorEta_MedpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorEta_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPhi_MedpTcut";
+	    title     = labelname+"DenominatorPhi_MedpTcut;Calo #Phi";
+	    MonitorElement * DenominatorPhi_MedpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPhi_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEtaPhi_MedpTcut";
+	    title     = labelname+"DenominatorEtaPhi_MedpTcut;Calo #eta;Calo #Phi";
+	    MonitorElement * DenominatorEtaPhi_MedpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    DenominatorEtaPhi_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEta_HighpTcut";
+	    title     = labelname+"DenominatorEta_HighpTcut;Calo #eta ";
+	    MonitorElement * DenominatorEta_HighpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorEta_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPhi_HighpTcut";
+	    title     = labelname+"DenominatorPhi_HighpTcut;Calo #Phi";
+	    MonitorElement * DenominatorPhi_HighpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPhi_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorEtaPhi_HighpTcut";
+	    title     = labelname+"DenominatorEtaPhi_HighpTcut;Calo #eta;Calo #Phi";
+	    MonitorElement * DenominatorEtaPhi_HighpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    DenominatorEtaPhi_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_DeltaR";
+	    title     = labelname+"DeltaR;";
+	    MonitorElement * DeltaR =  dbe->book1D(histoname.c_str(),title.c_str(),100,0.,1.5);
+	    DeltaR->getTH1();
+	    
+	    histoname = labelname+"_DeltaPhi";
+	    title     = labelname+"DeltaPhi;";
+	    MonitorElement * DeltaPhi =  dbe->book1D(histoname.c_str(),title.c_str(),500,-5.,5.);
+	    DeltaPhi->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPt";
+	    title     = labelname+"NumeratorPFPt;PF Pt[GeV/c] ";
+	    MonitorElement * NumeratorPFPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPFPt->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFMHT";
+	    title     = labelname+"NumeratorPFPt;PFMHT[GeV/c] ";
+	    MonitorElement * NumeratorPFMHT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPFMHT->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPtBarrel";
+	    title     = labelname+"NumeratorPFPtBarrel;PF Pt[GeV/c]";
+	    MonitorElement * NumeratorPFPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPFPtBarrel->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPtEndcap";
+	    title     = labelname+"NumeratorPFPtEndcap; PF Pt[GeV/c] ";
+	    MonitorElement * NumeratorPFPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPFPtEndcap->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPtForward";
+	    title     = labelname+"NumeratorPFPtForward;PF Pt[GeV/c]";
+	    MonitorElement * NumeratorPFPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPFPtForward->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEta";
+	    title     = labelname+"NumeratorPFEta;PF #eta ";
+	    MonitorElement * NumeratorPFEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorPFEta->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPhi";
+	    title     = labelname+"NumeratorPFPhi;PF #Phi";
+	    MonitorElement * NumeratorPFPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFPhi->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEtaPhi";
+	    title     = labelname+"NumeratorPFEtaPhi;PF #eta;PF #Phi ";
+	    MonitorElement * NumeratorPFEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFEtaPhi->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEtaBarrel";
+	    title     = labelname+"NumeratorPFEtaBarrel;PF #eta ";
+	    MonitorElement * NumeratorPFEtaBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorPFEtaBarrel->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPhiBarrel";
+	    title     = labelname+"NumeratorPFPhiBarrel;PF #Phi";
+	    MonitorElement * NumeratorPFPhiBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFPhiBarrel->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEtaEndcap";
+	    title     = labelname+"NumeratorPFEtaEndcap;PF #eta ";
+	    MonitorElement * NumeratorPFEtaEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorPFEtaEndcap->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPhiEndcap";
+	    title     = labelname+"NumeratorPFPhiEndcap;PF #Phi";
+	    MonitorElement * NumeratorPFPhiEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFPhiEndcap->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEtaForward";
+	    title     = labelname+"NumeratorPFEtaForward;PF #eta ";
+	    MonitorElement * NumeratorPFEtaForward =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorPFEtaForward->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPhiForward";
+	    title     = labelname+"NumeratorPFPhiForward;PF #Phi";
+	    MonitorElement * NumeratorPFPhiForward =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFPhiForward->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEta_LowpTcut";
+	    title     = labelname+"NumeratorPFEta_LowpTcut;PF #eta ";
+	    MonitorElement * NumeratorPFEta_LowpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorPFEta_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPhi_LowpTcut";
+	    title     = labelname+"NumeratorPFPhi_LowpTcut;PF #Phi";
+	    MonitorElement * NumeratorPFPhi_LowpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFPhi_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEtaPhi_LowpTcut";
+	    title     = labelname+"NumeratorPFEtaPhi_LowpTcut;PF #eta;PF #Phi";
+	    MonitorElement * NumeratorPFEtaPhi_LowpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFEtaPhi_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEta_MedpTcut";
+	    title     = labelname+"NumeratorPFEta_MedpTcut;PF #eta ";
+	    MonitorElement * NumeratorPFEta_MedpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorPFEta_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPhi_MedpTcut";
+	    title     = labelname+"NumeratorPFPhi_MedpTcut;PF #Phi";
+	    MonitorElement * NumeratorPFPhi_MedpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFPhi_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEtaPhi_MedpTcut";
+	    title     = labelname+"NumeratorPFEtaPhi_MedpTcut;PF #eta;PF #Phi";
+	    MonitorElement * NumeratorPFEtaPhi_MedpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFEtaPhi_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEta_HighpTcut";
+	    title     = labelname+"NumeratorPFEta_HighpTcut;PF #eta ";
+	    MonitorElement * NumeratorPFEta_HighpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorPFEta_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFPhi_HighpTcut";
+	    title     = labelname+"NumeratorPFPhi_HighpTcut;PF #Phi";
+	    MonitorElement * NumeratorPFPhi_HighpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFPhi_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPFEtaPhi_HighpTcut";
+	    title     = labelname+"NumeratorPFEtaPhi_HighpTcut;PF #eta;PF #Phi";
+	    MonitorElement * NumeratorPFEtaPhi_HighpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPFEtaPhi_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFMHT";
+	    title     = labelname+"DenominatorPFMHT;PFMHT[GeV/c]";
+	    MonitorElement * DenominatorPFMHT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPFMHT->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPt";
+	    title     = labelname+"DenominatorPFPt;PF Pt[GeV/c]";
+	    MonitorElement * DenominatorPFPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPFPt->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPtBarrel";
+	    title     = labelname+"DenominatorPFPtBarrel;PF Pt[GeV/c]";
+	    MonitorElement * DenominatorPFPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPFPtBarrel->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPtEndcap";
+	    title     = labelname+"DenominatorPFPtEndcap;PF Pt[GeV/c]";
+	    MonitorElement * DenominatorPFPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPFPtEndcap->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPtForward";
+	    title     = labelname+"DenominatorPFPtForward;PF Pt[GeV/c]";
+	    MonitorElement * DenominatorPFPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPFPtForward->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEta";
+	    title     = labelname+"DenominatorPFEta;PF #eta ";
+	    MonitorElement * DenominatorPFEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorPFEta->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPhi";
+	    title     = labelname+"DenominatorPFPhi;PF #Phi";
+	    MonitorElement * DenominatorPFPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFPhi->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEtaPhi";
+	    title     = labelname+"DenominatorPFEtaPhi;PF #eta ;PF #Phi ";
+	    MonitorElement * DenominatorPFEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFEtaPhi->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEtaBarrel";
+	    title     = labelname+"DenominatorPFEtaBarrel;PF #eta ";
+	    MonitorElement * DenominatorPFEtaBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorPFEtaBarrel->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPhiBarrel";
+	    title     = labelname+"DenominatorPFPhiBarrel;PF #Phi";
+	    MonitorElement * DenominatorPFPhiBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFPhiBarrel->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEtaEndcap";
+	    title     = labelname+"DenominatorPFEtaEndcap;PF #eta ";
+	    MonitorElement * DenominatorPFEtaEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorPFEtaEndcap->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPhiEndcap";
+	    title     = labelname+"DenominatorPFPhiEndcap;PF #Phi";
+	    MonitorElement * DenominatorPFPhiEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFPhiEndcap->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEtaForward";
+	    title     = labelname+"DenominatorPFEtaForward;PF #eta ";
+	    MonitorElement * DenominatorPFEtaForward =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorPFEtaForward->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPhiForward";
+	    title     = labelname+"DenominatorPFPhiForward;PF #Phi";
+	    MonitorElement * DenominatorPFPhiForward =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFPhiForward->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEta_LowpTcut";
+	    title     = labelname+"DenominatorPFEta_LowpTcut;PF #eta ";
+	    MonitorElement * DenominatorPFEta_LowpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorPFEta_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPhi_LowpTcut";
+	    title     = labelname+"DenominatorPFPhi_LowpTcut;PF #Phi";
+	    MonitorElement * DenominatorPFPhi_LowpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFPhi_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEtaPhi_LowpTcut";
+	    title     = labelname+"DenominatorPFEtaPhi_LowpTcut;PF #eta;PF #Phi";
+	    MonitorElement * DenominatorPFEtaPhi_LowpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFEtaPhi_LowpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEta_MedpTcut";
+	    title     = labelname+"DenominatorPFEta_MedpTcut;PF #eta ";
+	    MonitorElement * DenominatorPFEta_MedpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorPFEta_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPhi_MedpTcut";
+	    title     = labelname+"DenominatorPFPhi_MedpTcut;PF #Phi";
+	    MonitorElement * DenominatorPFPhi_MedpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFPhi_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEtaPhi_MedpTcut";
+	    title     = labelname+"DenominatorPFEtaPhi_MedpTcut;PF #eta;PF #Phi";
+	    MonitorElement * DenominatorPFEtaPhi_MedpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFEtaPhi_MedpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEta_HighpTcut";
+	    title     = labelname+"DenominatorPFEta_HighpTcut;PF #eta ";
+	    MonitorElement * DenominatorPFEta_HighpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorPFEta_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFPhi_HighpTcut";
+	    title     = labelname+"DenominatorPFPhi_HighpTcut;PF #Phi";
+	    MonitorElement * DenominatorPFPhi_HighpTcut =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFPhi_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPFEtaPhi_HighpTcut";
+	    title     = labelname+"DenominatorPFEtaPhi_HighpTcut;PF #eta;PF #Phi";
+	    MonitorElement * DenominatorPFEtaPhi_HighpTcut =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPFEtaPhi_HighpTcut->getTH1();
+	    
+	    histoname = labelname+"_PFDeltaR";
+	    title     = labelname+"PFDeltaR;";
+	    MonitorElement * PFDeltaR =  dbe->book1D(histoname.c_str(),title.c_str(),100,0.,1.5);
+	    PFDeltaR->getTH1();
+	    
+	    histoname = labelname+"_PFDeltaPhi";
+	    title     = labelname+"PFDeltaPhi;";
+	    MonitorElement * PFDeltaPhi =  dbe->book1D(histoname.c_str(),title.c_str(),500,-5.,5.);
+	    PFDeltaPhi->getTH1();
+	    
+	    v->setEffHistos(NumeratorPt,
+			    NumeratorPtBarrel,
+			    NumeratorPtEndcap,
+			    NumeratorPtForward,
+			    NumeratorEta,
+			    NumeratorPhi,
+			    NumeratorEtaPhi,
+			    //
+			    NumeratorEtaBarrel,
+			    NumeratorPhiBarrel,
+			    NumeratorEtaEndcap,
+			    NumeratorPhiEndcap,
+			    NumeratorEtaForward,
+			    NumeratorPhiForward,
+			    NumeratorEta_LowpTcut,
+			    NumeratorPhi_LowpTcut,
+			    NumeratorEtaPhi_LowpTcut,
+			    NumeratorEta_MedpTcut,
+			    NumeratorPhi_MedpTcut,
+			    NumeratorEtaPhi_MedpTcut,
+			    NumeratorEta_HighpTcut,
+			    NumeratorPhi_HighpTcut,
+			    NumeratorEtaPhi_HighpTcut,      
+			    //
+			    DenominatorPt,
+			    DenominatorPtBarrel,
+			    DenominatorPtEndcap,
+			    DenominatorPtForward,
+			    DenominatorEta,
+			    DenominatorPhi,
+			    DenominatorEtaPhi,
+			    //
+			    DenominatorEtaBarrel,
+			    DenominatorPhiBarrel,
+			    DenominatorEtaEndcap,
+			    DenominatorPhiEndcap,
+			    DenominatorEtaForward,
+			    DenominatorPhiForward,
+			    DenominatorEta_LowpTcut,
+			    DenominatorPhi_LowpTcut,
+			    DenominatorEtaPhi_LowpTcut,
+			    DenominatorEta_MedpTcut,
+			    DenominatorPhi_MedpTcut,
+			    DenominatorEtaPhi_MedpTcut,
+			    DenominatorEta_HighpTcut,
+			    DenominatorPhi_HighpTcut,
+			    DenominatorEtaPhi_HighpTcut,
+			    DeltaR,
+			    DeltaPhi,
+			    //
+			    NumeratorPFPt,
+			    NumeratorPFMHT,
+			    NumeratorPFPtBarrel,
+			    NumeratorPFPtEndcap,
+			    NumeratorPFPtForward,
+			    NumeratorPFEta,
+			    NumeratorPFPhi,
+			    NumeratorPFEtaPhi,
+			    NumeratorPFEtaBarrel,
+			    NumeratorPFPhiBarrel,
+			    NumeratorPFEtaEndcap,
+			    NumeratorPFPhiEndcap,
+			    NumeratorPFEtaForward,
+			    NumeratorPFPhiForward,
+			    NumeratorPFEta_LowpTcut,
+			    NumeratorPFPhi_LowpTcut,
+			    NumeratorPFEtaPhi_LowpTcut,
+			    NumeratorPFEta_MedpTcut,
+			    NumeratorPFPhi_MedpTcut,
+			    NumeratorPFEtaPhi_MedpTcut,
+			    NumeratorPFEta_HighpTcut,
+			    NumeratorPFPhi_HighpTcut,
+			    NumeratorPFEtaPhi_HighpTcut,      
+			    DenominatorPFPt,
+			    DenominatorPFMHT,
+			    DenominatorPFPtBarrel,
+			    DenominatorPFPtEndcap,
+			    DenominatorPFPtForward,
+			    DenominatorPFEta,
+			    DenominatorPFPhi,
+			    DenominatorPFEtaPhi,
+			    DenominatorPFEtaBarrel,
+			    DenominatorPFPhiBarrel,
+			    DenominatorPFEtaEndcap,
+			    DenominatorPFPhiEndcap,
+			    DenominatorPFEtaForward,
+			    DenominatorPFPhiForward,
+			    DenominatorPFEta_LowpTcut,
+			    DenominatorPFPhi_LowpTcut,
+			    DenominatorPFEtaPhi_LowpTcut,
+			    DenominatorPFEta_MedpTcut,
+			    DenominatorPFPhi_MedpTcut,
+			    DenominatorPFEtaPhi_MedpTcut,
+			    DenominatorPFEta_HighpTcut,
+			    DenominatorPFPhi_HighpTcut,
+			    DenominatorPFEtaPhi_HighpTcut,
+			    PFDeltaR,
+			    PFDeltaPhi
+			    );
+	    
+	  }// Loop over Jet Trigger
+	  
+	  if((v->getObjectType() == trigger::TriggerJet) && (v->getTriggerType().compare("DiJet_Trigger") == 0)){
+	    
+	    histoname = labelname+"_NumeratorAvrgPt";
+	    title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c] ";
+	    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPt->getTH1();
+	    
+	    histoname = labelname+"_NumeratorAvrgEta";
+	    title     = labelname+"NumeratorAvrgEta;Calo #eta ";
+	    MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorEta->getTH1();
+	    
+	    histoname = labelname+"_DenominatorAvrgPt";
+	    title     = labelname+"DenominatorAvrgPt;Calo Pt[GeV/c] ";
+	    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPt->getTH1();
+	    
+	    histoname = labelname+"_DenominatorAvrgEta";
+	    title     = labelname+"DenominatorAvrgEta;Calo #eta ";
+	    MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorEta->getTH1();
+	    
+	    histoname = labelname+"_DeltaR";
+	    title     = labelname+"DeltaR;";
+	    MonitorElement * DeltaR =  dbe->book1D(histoname.c_str(),title.c_str(),100,0.,1.5);
+	    DeltaR->getTH1();
+	    
+	    histoname = labelname+"_DeltaPhi";
+	    title     = labelname+"DeltaPhi;";
+	    MonitorElement * DeltaPhi =  dbe->book1D(histoname.c_str(),title.c_str(),100,0.,1.5);
+	    DeltaPhi->getTH1();
+	    
+	    histoname = labelname+"_NumeratorAvrgPFPt";
+	    title     = labelname+"NumeratorAvrgPFPt;PF pT [GeV/c] ";
+	    MonitorElement * NumeratorPFPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    NumeratorPFPt->getTH1();
+	    
+	    histoname = labelname+"_NumeratorAvrgPFEta";
+	    title     = labelname+"NumeratorAvrgPFEta;PF #eta ";
+	    MonitorElement * NumeratorPFEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    NumeratorPFEta->getTH1();
+	    
+	    histoname = labelname+"_DenominatorAvrgPFPt";
+	    title     = labelname+"DenominatorAvrgPFPt;PF Pt[GeV/c] ";
+	    MonitorElement * DenominatorPFPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
+	    DenominatorPFPt->getTH1();
+	    
+	    histoname = labelname+"_DenominatorAvrgPFEta";
+	    title     = labelname+"DenominatorAvrgPFEta;PF #eta ";
+	    MonitorElement * DenominatorPFEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
+	    DenominatorPFEta->getTH1();
+	    
+	    histoname = labelname+"_PFDeltaR";
+	    title     = labelname+"PFDeltaR;";
+	    MonitorElement * PFDeltaR =  dbe->book1D(histoname.c_str(),title.c_str(),100,0.,1.5);
+	    PFDeltaR->getTH1();
+	    
+	    histoname = labelname+"_PFDeltaPhi";
+	    title     = labelname+"PFDeltaPhi;";
+	    MonitorElement * PFDeltaPhi =  dbe->book1D(histoname.c_str(),title.c_str(),100,0.,1.5);
+	    PFDeltaPhi->getTH1();
+	    
+	    v->setEffHistos(  dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, 
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, 
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy
+			      );
+	  }
+	  
+	  if(v->getObjectType() == trigger::TriggerMET || (v->getObjectType() == trigger::TriggerTET)){
+	    
+	    histoname = labelname+"_NumeratorPt";
+	    if(v->getPath().find("HLT_PFMET")==std::string::npos)
+	      title     = labelname+"NumeratorPt;GEN CaloMET[GeV/c]";
+	    else
+	      title     = labelname+"NumeratorPt;GEN PFMET[GeV/c]";
+	    MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),PtGenMETbins_,PtGenMETMin_,PtGenMETMax_);
+	    NumeratorPt->getTH1();
+	    
+	    histoname = labelname+"_NumeratorPhi";
+	    title     = labelname+"NumeratorPhi;#Phi";
+	    MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    NumeratorPhi->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPt"; 
+	    if(v->getPath().find("HLT_PFMET")==std::string::npos)
+	      title     = labelname+"DenominatorPt;GEN CaloMET[GeV/c]";
+	    else
+	      title     = labelname+"DenominatorPt;GEN PFMET[GeV/c]";
+	    MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),PtGenMETbins_,PtGenMETMin_,PtGenMETMax_);
+	    DenominatorPt->getTH1();
+	    
+	    histoname = labelname+"_DenominatorPhi";
+	    title     = labelname+"DenominatorPhi;#Phi";
+	    MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
+	    DenominatorPhi->getTH1();
+
+	    v->setEffHistos(  NumeratorPt, dummy, dummy, dummy, dummy, NumeratorPhi, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, DenominatorPt, dummy, dummy, dummy, dummy, DenominatorPhi, dummy, dummy, 
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, 
+			      dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy, dummy,
+			      dummy, dummy, dummy, dummy
+			      );
+	  }// Loop over MET trigger
+	}
+      }//End of Efficiency wrt all events (MC)
       
     }// This is loop over all efficiency plots
     

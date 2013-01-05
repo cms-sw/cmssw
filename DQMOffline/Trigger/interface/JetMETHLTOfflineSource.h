@@ -45,6 +45,8 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -93,6 +95,7 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   virtual void   fillMEforEffAllTrigger(const edm::Event & iEvent, const edm::EventSetup&);
   virtual void   fillMEforEffWrtMuTrigger(const edm::Event & iEvent, const edm::EventSetup&);
   virtual void   fillMEforEffWrtMBTrigger(const edm::Event & iEvent, const edm::EventSetup&);
+  virtual void   fillMEforEffWrtMCTrigger(const edm::Event & iEvent, const edm::EventSetup&);
   virtual void   fillMEforTriggerNTfired();
     
   const std::string getL1ConditionModuleName(const std::string& pathname); //ml added
@@ -119,6 +122,7 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   bool plotEff_ ;
   bool plotEffwrtMu_;
   bool plotEffwrtMB_;
+  bool plotEffwrtMC_;
   
   bool isSetup_;
   bool nameForEff_;  
@@ -141,11 +145,13 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   edm::InputTag triggerResultsLabel_;
   edm::InputTag caloJetsTag_;
   edm::InputTag caloMETTag_;
+  edm::InputTag genCaloMETTag_;
   edm::InputTag pfJetsTag_;
   edm::InputTag pfMETTag_;
   
   edm::Handle<reco::CaloJetCollection> calojetColl_;
-  edm::Handle<reco::CaloMETCollection> calometColl_; 
+  edm::Handle<reco::CaloMETCollection> calometColl_;
+  edm::Handle<reco::GenMETCollection>  genCalometColl_; 
   edm::Handle<reco::PFJetCollection>   pfjetColl_;
   edm::Handle<reco::PFMETCollection>   pfmetColl_;
   
@@ -991,6 +997,7 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   PathInfoCollection hltPathsEff_;
   PathInfoCollection hltPathsEffWrtMu_;
   PathInfoCollection hltPathsEffWrtMB_;
+  PathInfoCollection hltPathsEffWrtMC_;
   
   MonitorElement* rate_All;
   MonitorElement* rate_AllWrtMu;

@@ -20,9 +20,11 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
     plotEff      = cms.untracked.bool(True),
     plotEffwrtMu = cms.untracked.bool(False),
     plotEffwrtMB = cms.untracked.bool(False),
+    plotEffwrtMC = cms.untracked.bool(True),
     nameForEff   = cms.untracked.bool(True),
     nameForMon   = cms.untracked.bool(True), 
     #
+    GenCaloMETCollectionLabel = cms.InputTag("genMetCalo"),
     CaloMETCollectionLabel = cms.InputTag("met"),
     PFMETCollectionLabel   = cms.InputTag("pfMet"),
     #Use on-the-fly correction
