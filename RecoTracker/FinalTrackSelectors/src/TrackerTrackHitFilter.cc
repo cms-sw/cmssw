@@ -20,13 +20,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 //for S/N cut
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
@@ -72,7 +67,9 @@
  *   Individual modules:
  *     detsToIgnore        = individual list of detids on which hits must be discarded
  */
-namespace reco { namespace modules {
+namespace reco {
+
+ namespace modules {
   class TrackerTrackHitFilter : public edm::EDProducer {
   public:
     TrackerTrackHitFilter(const edm::ParameterSet &iConfig) ; 
@@ -86,11 +83,11 @@ namespace reco { namespace modules {
       // parse a rule from a string
       Rule(const std::string &str) ;
       // check this DetId, update the verdict if the rule has anything to say about it
-      void apply(DetId detid, bool & verdict) const {
+      void apply(DetId detid, const TrackerTopology *tTopo, bool & verdict) const {
 	// check detector
 	if (detid.subdetId() == subdet_) {
 	  // check layer
-	  if ( (layer_ == 0) || (layer_ == layer(detid)) ) {
+	  if ( (layer_ == 0) || (layer_ == layer(detid, tTopo)) ) {
 	    // override verdict
 	    verdict = keep_;
 	    //  std::cout<<"Verdict is "<<verdict<<" for subdet "<<subdet_<<", layer "<<layer_<<"! "<<std::endl;
@@ -104,7 +101,7 @@ namespace reco { namespace modules {
 
       int  layer_;
       bool keep_;
-      int layer(DetId detid) const ;
+      int layer(DetId detid, const TrackerTopology *tTopo) const ;
 
     };
     
@@ -152,7 +149,7 @@ namespace reco { namespace modules {
 
     bool tagOverlaps_;
     int nOverlaps;
-    int layerFromId (const DetId& id) const;
+    int layerFromId (const DetId& id, const TrackerTopology *tTopo) const;
     // bool checkOverlapHit();
 
     TrackCandidate makeCandidate(const reco::Track &tk, std::vector<TrackingRecHit *>::iterator hitsBegin, std::vector<TrackingRecHit *>::iterator hitsEnd) ;
@@ -198,14 +195,14 @@ TrackerTrackHitFilter::Rule::Rule(const std::string &str) {
     }
 }//end Rule::Rule
 
-int TrackerTrackHitFilter::Rule::layer(DetId detid) const {
+ int TrackerTrackHitFilter::Rule::layer(DetId detid, const TrackerTopology *tTopo) const {
     switch (detid.subdetId()) {
-        case PixelSubdetector::PixelBarrel: return PXBDetId(detid).layer();
-        case PixelSubdetector::PixelEndcap: return PXFDetId(detid).disk();
-        case StripSubdetector::TIB:         return TIBDetId(detid).layer();
-        case StripSubdetector::TID:         return TIDDetId(detid).wheel();
-        case StripSubdetector::TOB:         return TOBDetId(detid).layer();
-        case StripSubdetector::TEC:         return TECDetId(detid).wheel();
+        case PixelSubdetector::PixelBarrel: return tTopo->pxbLayer(detid);
+        case PixelSubdetector::PixelEndcap: return tTopo->pxfDisk(detid);
+        case StripSubdetector::TIB:         return tTopo->tibLayer(detid);
+        case StripSubdetector::TID:         return tTopo->tidWheel(detid);
+        case StripSubdetector::TOB:         return tTopo->tobLayer(detid);
+        case StripSubdetector::TEC:         return tTopo->tecWheel(detid);
     }
     return -1; // never match
 }
@@ -597,6 +594,11 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
   hits.clear(); // extra safety
   nOverlaps=0;
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
   
   std::vector<TrajectoryMeasurement> tmColl =itt->measurements();
 
@@ -639,7 +641,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 	if(tagOverlaps_){	///---OverlapBegin
 	  //std::cout<<"Looking for overlaps in Run="<<iRun<<" , Event ="<<iEvt<<std::flush;
 
-	  int layer(layerFromId(detid));//layer 1-4=TIB, layer 5-10=TOB
+	  int layer(layerFromId(detid,tTopo));//layer 1-4=TIB, layer 5-10=TOB
 	  int subDet = detid.subdetId();
 	  //std::cout  << "  Check Subdet #" <<subDet << ", layer = " <<layer<<" stereo: "<< ((subDet > 2)?(SiStripDetId(detid).stereo()):2);
 	  
@@ -649,7 +651,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 
 		DetId compareId = itmCompare->recHit()->geographicalId();
 		if ( subDet != compareId.subdetId() ||
-		     layer  != layerFromId(compareId)) break;
+		     layer  != layerFromId(compareId,tTopo)) break;
 		if (!itmCompare->recHit()->isValid()) continue;
 		if ( (subDet<=2) ||
 		     (subDet > 2 && SiStripDetId(detid).stereo()==SiStripDetId(compareId).stereo()))
@@ -698,7 +700,11 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 } //end TrackerTrackHitFilter::produceFromTrajectories
 
 int TrackerTrackHitFilter::checkHit(const edm::EventSetup &iSetup,const  DetId &detid,  const TrackingRecHit * hit){
-
+  
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
 
   int hitresult=0;
   if (hit->isValid()) { 
@@ -707,7 +713,7 @@ int TrackerTrackHitFilter::checkHit(const edm::EventSetup &iSetup,const  DetId &
        bool  verdict = true;
       // first check at structure level
       for (std::vector<Rule>::const_iterator itr = rules_.begin(), edr = rules_.end(); itr != edr; ++itr) {
-	itr->apply(detid, verdict);
+	itr->apply(detid, tTopo, verdict);
       }
  
       // if the hit is good, check again at module level
@@ -923,31 +929,31 @@ bool TrackerTrackHitFilter::checkPXLCorrClustCharge(const TrajectoryMeasurement 
 
 
 
-int TrackerTrackHitFilter::layerFromId (const DetId& id) const
+int TrackerTrackHitFilter::layerFromId (const DetId& id, const TrackerTopology *tTopo) const
 {
  if ( id.subdetId()== int(PixelSubdetector::PixelBarrel) ) {
-    PXBDetId tobId(id);
-    return tobId.layer();
+    
+    return tTopo->pxbLayer(id);
   }
   else if ( id.subdetId()== int(PixelSubdetector::PixelEndcap) ) {
-    PXFDetId tobId(id);
-    return tobId.disk() + (3*(tobId.side()-1));
+    
+    return tTopo->pxfDisk(id) + (3*(tTopo->pxfSide(id)-1));
   }
   else if ( id.subdetId()==StripSubdetector::TIB ) {
-    TIBDetId tibId(id);
-    return tibId.layer();
+    
+    return tTopo->tibLayer(id);
   }
   else if ( id.subdetId()==StripSubdetector::TOB ) {
-    TOBDetId tobId(id);
-    return tobId.layer();
+    
+    return tTopo->tobLayer(id);
   }
   else if ( id.subdetId()==StripSubdetector::TEC ) {
-    TECDetId tobId(id);
-    return tobId.wheel() + (9*(tobId.side()-1));
+    
+    return tTopo->tecWheel(id) + (9*(tTopo->tecSide(id)-1));
   }
   else if ( id.subdetId()==StripSubdetector::TID ) {
-    TIDDetId tobId(id);
-    return tobId.wheel() + (3*(tobId.side()-1));
+    
+    return tTopo->tidWheel(id) + (3*(tTopo->tidSide(id)-1));
   }
   return -1;
 
