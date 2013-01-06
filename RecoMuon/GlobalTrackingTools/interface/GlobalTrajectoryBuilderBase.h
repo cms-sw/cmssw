@@ -14,8 +14,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2010/02/26 21:35:49 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/03/08 15:34:44 $
+ *  $Revision: 1.23 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -38,6 +38,7 @@ class TrajectoryFitter;
 class MuonTrackingRegionBuilder;
 class TransientTrackingRecHitBuilder;
 class GlobalMuonRefitter;
+class TrackerTopology;
 
 namespace edm {class ParameterSet; class Event;}
 namespace reco {class TransientTrack;}
@@ -187,6 +188,7 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     
     std::string theMuonRecHitBuilderName;
     edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-    
+
+    const TrackerTopology *tTopo_;
 };
 #endif

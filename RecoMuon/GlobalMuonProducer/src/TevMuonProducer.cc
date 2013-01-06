@@ -3,8 +3,8 @@
  *   TeV muon reconstructor:
  *
  *
- *   $Date: 2008/11/10 09:26:23 $
- *   $Revision: 1.4 $
+ *   $Date: 2009/10/20 04:32:09 $
+ *   $Revision: 1.5 $
  *
  *   \author  Piotr Traczyk (SINS Warsaw)
  */
@@ -34,6 +34,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 using namespace edm;
 using namespace std;
@@ -105,6 +107,12 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   theRefitter->setServices(theService->eventSetup());
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  eventSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
+
   // Take the GLB muon container(s)
   Handle<reco::TrackCollection> glbMuons;
   event.getByLabel(theGLBCollectionLabel,glbMuons);
@@ -127,7 +135,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     for (reco::TrackCollection::const_iterator track = glbTracks->begin(); track!=glbTracks->end(); track++ , ++trackIndex) {
       reco::TrackRef glbRef(glbMuons,trackIndex);
       
-      vector<Trajectory> refitted=theRefitter->refit(*track,theRefitIndex[ww]);
+      vector<Trajectory> refitted=theRefitter->refit(*track,theRefitIndex[ww],tTopo);
 
       if (refitted.size()>0) {
         Trajectory *refit = new Trajectory(refitted.front());

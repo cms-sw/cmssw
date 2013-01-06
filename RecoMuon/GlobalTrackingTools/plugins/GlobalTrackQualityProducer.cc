@@ -5,7 +5,7 @@
 //
 //
 // Original Author:  Adam Everett
-// $Id: GlobalTrackQualityProducer.cc,v 1.7 2011/10/28 22:10:33 slava77 Exp $
+// $Id: GlobalTrackQualityProducer.cc,v 1.8 2012/12/06 14:45:38 eulisse Exp $
 //
 //
 
@@ -25,6 +25,9 @@
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 GlobalTrackQualityProducer::GlobalTrackQualityProducer(const edm::ParameterSet& iConfig):
   inputCollection_(iConfig.getParameter<edm::InputTag>("InputCollection")),inputLinksCollection_(iConfig.getParameter<edm::InputTag>("InputLinksCollection")),theService(0),theGlbRefitter(0),theGlbMatcher(0)
@@ -72,6 +75,12 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<reco::MuonTrackLinksCollection>    linkCollectionHandle;
   iEvent.getByLabel(inputLinksCollection_, linkCollectionHandle);
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
+
   // reserve some space
   std::vector<reco::MuonQuality> valuesQual;
   valuesQual.reserve(glbMuons->size());
@@ -81,7 +90,7 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     reco::TrackRef glbRef(glbMuons,trackIndex);
     reco::TrackRef staTrack = reco::TrackRef();
 
-    std::vector<Trajectory> refitted=theGlbRefitter->refit(*track,1);
+    std::vector<Trajectory> refitted=theGlbRefitter->refit(*track,1,tTopo);
 
     LogTrace(theCategory)<<"GLBQual N refitted " << refitted.size();
     

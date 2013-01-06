@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2011/10/29 00:48:39 $
- *  $Revision: 1.55 $
- *  $Date: 2011/10/29 00:48:39 $
- *  $Revision: 1.55 $
+ *  $Date: 2011/12/22 19:59:24 $
+ *  $Revision: 1.56 $
+ *  $Date: 2011/12/22 19:59:24 $
+ *  $Revision: 1.56 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -56,7 +56,8 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
@@ -160,6 +161,11 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
     theService->eventSetup().get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
   }
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  theService->eventSetup().get<IdealGeometryRecord>().get(tTopoHand);
+  tTopo_=tTopoHand.product();
+
 }
 
 
@@ -168,7 +174,7 @@ void GlobalTrajectoryBuilderBase::setEvent(const edm::Event& event) {
 //
 MuonCandidate::CandidateContainer 
 GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
-                                   MuonCandidate::CandidateContainer& tkTrajs) const {
+                                   MuonCandidate::CandidateContainer& tkTrajs ) const {
 
   LogTrace(theCategory) << " Begin Build" << endl;
 
@@ -239,7 +245,7 @@ GlobalTrajectoryBuilderBase::build(const TrackCand& staCand,
     // full track with all muon hits using theGlbRefitter    
     ConstRecHitContainer allRecHits = trackerRecHits;
     allRecHits.insert(allRecHits.end(), muonRecHits.begin(),muonRecHits.end());
-    refitted1 = theGlbRefitter->refit( *(*it)->trackerTrack(), tTT, allRecHits,theMuonHitsOption);
+    refitted1 = theGlbRefitter->refit( *(*it)->trackerTrack(), tTT, allRecHits,theMuonHitsOption, tTopo_);
     LogTrace(theCategory)<<"     This track-sta refitted to " << refitted1.size() << " trajectories";
 
     Trajectory *glbTrajectory1 = 0;

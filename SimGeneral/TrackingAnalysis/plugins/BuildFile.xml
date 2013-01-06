@@ -1,4 +1,5 @@
 <use   name="SimGeneral/TrackingAnalysis"/>
+<use   name="DataFormats/TrackerCommon"/>
 <library   file="*.cc" name="SimGeneralTrackingAnalysisPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
