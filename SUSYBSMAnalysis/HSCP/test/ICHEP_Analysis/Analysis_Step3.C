@@ -189,11 +189,11 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
          CutPt_Flip .push_back(Pt);   CutI_Flip  .push_back(-1);  CutTOF_Flip.push_back(TOF);
       }}
    }else if(TypeMode==4){
-     for(double I  =GlobalMinIs +0.025; I  <0.45;  I+=0.025){
+   for(double I  =GlobalMinIs +0.025; I  <0.55;  I+=0.025){
        for(double TOF=GlobalMinTOF+0.025; TOF<1.46;TOF+=0.025){
  	 CutPt .push_back(-1);   CutI  .push_back(I);  CutTOF.push_back(TOF);
        }}
-      for(double I  =GlobalMinIs +0.025; I  <0.45;  I+=0.025){
+   for(double I  =GlobalMinIs +0.025; I  <0.55;  I+=0.025){
       for(double TOF=GlobalMinTOF-0.025; TOF>0.54;TOF-=0.025){
 	 CutPt_Flip .push_back(-1);   CutI_Flip  .push_back(I);  CutTOF_Flip.push_back(TOF);
        }}
