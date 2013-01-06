@@ -7,6 +7,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include <vector>
+#include <string>
 
 //knower of all things tracker geometry
 //flexible replacement for PXBDetId and friends
@@ -393,6 +394,7 @@ class TrackerTopology {
     return DetId(rawid);
   }
 
+  std::string print(DetId detid) const;
 
  private:
 
