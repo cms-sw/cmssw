@@ -15,6 +15,8 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+class TrackerTopology;
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -46,7 +48,7 @@ public:
   virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
   
 private:
-  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >);   
+  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo);   
 
   typedef std::vector<std::string> vstring;
   typedef std::map<unsigned int, std::vector<std::pair<const PSimHit*, int> >,std::less<unsigned int> > simhit_map;

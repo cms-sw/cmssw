@@ -61,6 +61,11 @@ void TrackClassifier::newEvent ( edm::Event const & event, edm::EventSetup const
 
     // Create the list of primary vertices associated to the event
     genPrimaryVertices();
+
+    //Retrieve tracker topology from geometry
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    setup.get<IdealGeometryRecord>().get(tTopoHand);
+    tTopo_=tTopoHand.product();
 }
 
 
@@ -226,7 +231,7 @@ void TrackClassifier::simulationInformation()
 void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
 {
     // run the hit-by-hit reconstruction quality analysis
-    quality_.evaluate(tracer_.simParticleTrail(), track);
+  quality_.evaluate(tracer_.simParticleTrail(), track, tTopo_);
 
     unsigned int maxLayers = std::min(numberOfInnerLayers_, quality_.numberOfLayers());
 

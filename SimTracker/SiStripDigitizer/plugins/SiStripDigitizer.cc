@@ -87,7 +87,8 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::EDProduce
 SiStripDigitizer::~SiStripDigitizer() { 
 }  
 
-void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hSimHits) {
+void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hSimHits,
+					   const TrackerTopology *tTopo) {
   if(hSimHits.isValid()) {
     std::set<unsigned int> detIds;
     std::vector<PSimHit> const& simHits = *hSimHits.product();
@@ -100,7 +101,7 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
         GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
         LogDebug ("Digitizer ") << "B-field(T) at " << stripdet->surface().position() << "(cm): "
                                 << pSetup->inTesla(stripdet->surface().position());
-        theDigiAlgo->accumulateSimHits(it, itEnd, stripdet, bfield);
+        theDigiAlgo->accumulateSimHits(it, itEnd, stripdet, bfield, tTopo);
       }
     }
   }
@@ -109,25 +110,35 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
 // Functions that gets called by framework every event
   void
   SiStripDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+    //Retrieve tracker topology from geometry
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    const TrackerTopology *tTopo=tTopoHand.product();
+
     // Step A: Get Inputs
     for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulateStripHits(simHits);
+      accumulateStripHits(simHits,tTopo);
     }
   }
 
   void
   SiStripDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup) {
+
+    edm::ESHandle<TrackerTopology> tTopoHand;
+    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    const TrackerTopology *tTopo=tTopoHand.product();
+
     // Step A: Get Inputs
     for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 
       iEvent.getByLabel(tag, simHits);
-      accumulateStripHits(simHits);
+      accumulateStripHits(simHits,tTopo);
     }
   }
 

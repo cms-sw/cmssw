@@ -17,6 +17,8 @@
 #include <map>
 #include <memory>
 
+class TrackerTopology;
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -49,7 +51,8 @@ class SiHitDigitizer {
   }
 
   void processHit(const PSimHit*, const StripGeomDetUnit&, GlobalVector,float,
-		  std::vector<double>&, size_t&, size_t&);
+		  std::vector<double>&, size_t&, size_t&,
+		  const TrackerTopology *tTopo);
   
  private:
   const double depletionVoltage;

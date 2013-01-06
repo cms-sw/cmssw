@@ -144,7 +144,12 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
   iSetup.get<SiStripPedestalsRcd>().get(pedestalHandle);
   iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
-  
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
   theDigiAlgo->setParticleDataTable(&*pdt);
 
   // Step B: LOOP on StripGeomDetUnit
@@ -167,7 +172,7 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
       float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId()) : 0.;
       theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,
-	 	       gainHandle,thresholdHandle,noiseHandle,pedestalHandle, deadChannelHandle);
+	 	       gainHandle,thresholdHandle,noiseHandle,pedestalHandle, deadChannelHandle, tTopo);
       if(zeroSuppression){
         if(collectorZS.data.size()>0){
           theDigiVector.push_back(collectorZS);

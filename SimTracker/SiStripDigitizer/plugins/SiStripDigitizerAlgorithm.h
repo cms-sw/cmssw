@@ -33,6 +33,8 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 
+class TrackerTopology;
+
 namespace edm {
   class EventSetup;
 }
@@ -65,7 +67,8 @@ class SiStripDigitizerAlgorithm {
   void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
                          const std::vector<PSimHit>::const_iterator inputEnd,
                          const StripGeomDetUnit *stripdet,
-                         const GlobalVector& bfield);
+                         const GlobalVector& bfield,
+			 const TrackerTopology *tTopo);
 
   void digitize(
                 edm::DetSet<SiStripDigi>& outDigis,

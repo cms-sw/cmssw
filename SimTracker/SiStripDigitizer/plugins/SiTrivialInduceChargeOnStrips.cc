@@ -4,10 +4,8 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include <Math/ProbFuncMathCore.h>
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <algorithm>
@@ -39,13 +37,13 @@ indexOf(const std::string& t) { return std::find( type, type + Ntypes, t) - type
 
 inline unsigned int
 SiTrivialInduceChargeOnStrips::
-typeOf(const StripGeomDetUnit& det) {
+typeOf(const StripGeomDetUnit& det, const TrackerTopology *tTopo) {
   DetId id = det.geographicalId();
   switch (det.specificType().subDetector()) {
-  case GeomDetEnumerators::TIB: {return (TIBDetId(id).layer() < 3) ? indexOf("IB1") : indexOf("IB2");}
-  case GeomDetEnumerators::TOB: {return (TOBDetId(id).layer() > 4) ? indexOf("OB1") : indexOf("OB2");}
-  case GeomDetEnumerators::TID: {return indexOf("W1a") -1 + TIDDetId(id).ring();} //fragile: relies on ordering of 'type'
-  case GeomDetEnumerators::TEC: {return indexOf("W1b") -1 + TECDetId(id).ring();} //fragile: relies on ordering of 'type'
+  case GeomDetEnumerators::TIB: {return (tTopo->tibLayer(id) < 3) ? indexOf("IB1") : indexOf("IB2");}
+  case GeomDetEnumerators::TOB: {return (tTopo->tobLayer(id) > 4) ? indexOf("OB1") : indexOf("OB2");}
+  case GeomDetEnumerators::TID: {return indexOf("W1a") -1 + tTopo->tidRing(id);} //fragile: relies on ordering of 'type'
+  case GeomDetEnumerators::TEC: {return indexOf("W1b") -1 + tTopo->tecRing(id);} //fragile: relies on ordering of 'type'
   default: throw cms::Exception("Invalid subdetector") << id();
   }
 }
@@ -61,9 +59,10 @@ induce(const SiChargeCollectionDrifter::collection_type& collection_points,
        const StripGeomDetUnit& det, 
        std::vector<double>& localAmplitudes, 
        size_t& recordMinAffectedStrip, 
-       size_t& recordMaxAffectedStrip) const {
+       size_t& recordMaxAffectedStrip,
+       const TrackerTopology *tTopo) const {
 
-  const std::vector<double>& coupling = signalCoupling.at(typeOf(det));
+  const std::vector<double>& coupling = signalCoupling.at(typeOf(det,tTopo));
   const StripTopology& topology = dynamic_cast<const StripTopology&>(det.specificTopology());
   size_t Nstrips =  topology.nstrips();
 

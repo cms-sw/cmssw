@@ -16,6 +16,7 @@
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="TrackingTools/TransientTrack"/>
+<use   name="DataFormats/TrackerCommon"/>
 <export>
   <lib   name="1"/>
 </export>

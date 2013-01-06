@@ -30,7 +30,8 @@ SiHitDigitizer::~SiHitDigitizer(){
 
 void 
 SiHitDigitizer::processHit(const PSimHit* hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle,
-			   std::vector<double>& locAmpl, size_t& firstChannelWithSignal, size_t& lastChannelWithSignal){
+			   std::vector<double>& locAmpl, size_t& firstChannelWithSignal, size_t& lastChannelWithSignal,
+			   const TrackerTopology *tTopo){
   
   // Compute the drift direction for this det
   double moduleThickness = det.specificSurface().bounds().thickness(); // active detector thicness
@@ -42,5 +43,5 @@ SiHitDigitizer::processHit(const PSimHit* hit, const StripGeomDetUnit& det, Glob
       theSiChargeCollectionDrifter->drift(
           theSiChargeDivider->divide(hit, driftDir, moduleThickness, det),
           driftDir,moduleThickness,timeNormalisation),
-      det,locAmpl,firstChannelWithSignal,lastChannelWithSignal);
+      det,locAmpl,firstChannelWithSignal,lastChannelWithSignal,tTopo);
 }

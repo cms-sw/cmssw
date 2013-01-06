@@ -4,6 +4,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SiInduceChargeOnStrips.h"
 
+class TrackerTopology;
+
 class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips {
  public:
   SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g);
@@ -12,7 +14,8 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips {
 	       const StripGeomDetUnit& det,
 	       std::vector<double>& localAmplitudes,
 	       size_t& recordMinAffectedStrip,
-	       size_t& recordMaxAffectedStrip) const;
+	       size_t& recordMaxAffectedStrip,
+	       const TrackerTopology *tTopo) const;
   
  private:
   double chargeDeposited(size_t strip, 
@@ -20,7 +23,7 @@ class SiTrivialInduceChargeOnStrips: public SiInduceChargeOnStrips {
 			 double amplitude, 
 			 double chargeSpread, 
 			 double chargePosition) const;
-  static unsigned int typeOf(const StripGeomDetUnit&);
+  static unsigned int typeOf(const StripGeomDetUnit&, const TrackerTopology *tTopo);
   static unsigned int indexOf(const std::string&);
   static const std::string type[];
   static const int Ntypes;

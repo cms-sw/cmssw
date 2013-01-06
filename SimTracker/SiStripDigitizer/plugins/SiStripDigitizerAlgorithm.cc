@@ -102,7 +102,8 @@ void
 SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
                                              std::vector<PSimHit>::const_iterator inputEnd,
                                              const StripGeomDetUnit* det,
-                                             const GlobalVector& bfield) {
+                                             const GlobalVector& bfield,
+					     const TrackerTopology *tTopo) {
   // produce SignalPoints for all SimHits in detector
   unsigned int detID = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();  
@@ -130,7 +131,7 @@ SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterato
         size_t localFirstChannel = numStrips;
         size_t localLastChannel  = 0;
         // process the hit
-        theSiHitDigitizer->processHit(&*simHitIter, *det, bfield, langle, locAmpl, localFirstChannel, localLastChannel);
+        theSiHitDigitizer->processHit(&*simHitIter, *det, bfield, langle, locAmpl, localFirstChannel, localLastChannel, tTopo);
           
 		  //APV Killer to simulate HIP effect
 		  //------------------------------------------------------

@@ -10,6 +10,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #define CBOLTZ (1.38E-23)
@@ -71,16 +72,16 @@ DigiSimLinkAlgorithm::~DigiSimLinkAlgorithm(){
 //  ------------------------------------
 
 void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
-				    edm::DetSet<SiStripRawDigi>& outrawdigi,
-				    const std::vector<std::pair<const PSimHit*, int > > &input,
-				    StripGeomDetUnit *det,
-				    GlobalVector bfield,float langle, 
-				    edm::ESHandle<SiStripGain> & gainHandle,
-				    edm::ESHandle<SiStripThreshold> & thresholdHandle,
-				    edm::ESHandle<SiStripNoises> & noiseHandle,
-				    edm::ESHandle<SiStripPedestals> & pedestalHandle,
-					edm::ESHandle<SiStripBadStrip> & deadChannelHandle
-				   ) {  
+			       edm::DetSet<SiStripRawDigi>& outrawdigi,
+			       const std::vector<std::pair<const PSimHit*, int > > &input,
+			       StripGeomDetUnit *det,
+			       GlobalVector bfield,float langle, 
+			       edm::ESHandle<SiStripGain> & gainHandle,
+			       edm::ESHandle<SiStripThreshold> & thresholdHandle,
+			       edm::ESHandle<SiStripNoises> & noiseHandle,
+			       edm::ESHandle<SiStripPedestals> & pedestalHandle,
+			       edm::ESHandle<SiStripBadStrip> & deadChannelHandle,
+			       const TrackerTopology *tTopo) {  
   theDigiSimLinkPileUpSignals->reset();
   unsigned int detID = det->geographicalId().rawId();
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
@@ -122,7 +123,7 @@ void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
         localFirstChannel = numStrips;
         localLastChannel  = 0;
         // process the hit
-        theSiHitDigitizer->processHit(((*simHitIter).first),*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel);
+        theSiHitDigitizer->processHit(((*simHitIter).first),*det,bfield,langle, locAmpl, localFirstChannel, localLastChannel, tTopo);
           
 		  //APV Killer to simulate HIP effect
 		  //------------------------------------------------------

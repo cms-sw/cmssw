@@ -5,6 +5,7 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 
+
 //! Implement a selector given a track or vertex collection and track or vertex classifier.
 template <typename Collection, typename Classifier>
 class CategoryCriteria
@@ -32,6 +33,7 @@ public:
     // Select object from a collection and possibly event content
     void select(const edm::Handle<collection> & collectionHandler, const edm::Event & event, const edm::EventSetup & setup)
     {
+
         selected_.clear();
 
         // const collection & collectionPointer = *(collectionHandler.product());

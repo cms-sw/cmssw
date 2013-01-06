@@ -36,6 +36,8 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
+class TrackerTopolgoy;
+
 class DigiSimLinkAlgorithm {
  public:
   typedef SiDigitalConverter::DigitalVecType DigitalVecType;
@@ -56,7 +58,8 @@ class DigiSimLinkAlgorithm {
             const std::vector<std::pair<const PSimHit*, int > >  &, 
             StripGeomDetUnit *, GlobalVector, float, 
             edm::ESHandle<SiStripGain> &, edm::ESHandle<SiStripThreshold> &, 
-            edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripBadStrip> &);
+            edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripBadStrip> &,
+	    const TrackerTopology *tTopo);
 
   // digisimlink
   std::vector<StripDigiSimLink> make_link() { return link_coll; }
