@@ -79,7 +79,7 @@ bool AlignmentTwoBodyDecayTrackSelector::useThisFilter()
 // do selection ---------------------------------------------------------------
 
 AlignmentTwoBodyDecayTrackSelector::Tracks 
-AlignmentTwoBodyDecayTrackSelector::select(const Tracks& tracks, const edm::Event& iEvent) 
+AlignmentTwoBodyDecayTrackSelector::select(const Tracks& tracks, const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   Tracks result = tracks;
 

@@ -39,7 +39,7 @@ struct TrackConfigSelector {
   size_t size() const { return theSelectedTracks.size(); }
 
   void select( const edm::Handle<reco::TrackCollection> & c,  const edm::Event & evt,
-               const edm::EventSetup &/*dummy*/)
+               const edm::EventSetup& eSetup)
   {
     theSelectedTracks.clear();
     for( reco::TrackCollection::const_iterator i=c.product()->begin();i!=c.product()->end();++i){
@@ -47,11 +47,11 @@ struct TrackConfigSelector {
     }
     // might add EvetSetup to the select(...) method of the Selectors
     if(theBaseSwitch)
-      theSelectedTracks=theBaseSelector.select(theSelectedTracks,evt);
+      theSelectedTracks=theBaseSelector.select(theSelectedTracks,evt,eSetup);
     if(theGlobalSwitch)
-      theSelectedTracks=theGlobalSelector.select(theSelectedTracks,evt);    
+      theSelectedTracks=theGlobalSelector.select(theSelectedTracks,evt,eSetup);    
     if(theTwoBodyDecaySwitch)
-      theSelectedTracks=theTwoBodyDecaySelector.select(theSelectedTracks,evt);
+      theSelectedTracks=theTwoBodyDecaySelector.select(theSelectedTracks,evt,eSetup);
   }
 
 private:

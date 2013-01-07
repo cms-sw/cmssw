@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.66 $
-///  last update: $Date: 2012/07/13 09:20:57 $
-///  by         : $Author: yana $
+///  Revision   : $Revision: 1.68 $
+///  last update: $Date: 2012/08/10 09:25:23 $
+///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -197,6 +197,11 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob";
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   // Create the geometries from the ideal geometries (first time only)
   this->createGeometries_( iSetup );
   
@@ -227,7 +232,7 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 
   // Create alignable tracker and muon 
   if (doTracker_) {
-    theAlignableTracker = new AlignableTracker( &(*theTracker) );
+    theAlignableTracker = new AlignableTracker( &(*theTracker), tTopo );
   }
 
   if (doMuon_) {
@@ -445,8 +450,8 @@ AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfLoop" 
                             << "Ending loop " << iLoop << ", terminating algorithm.";
 
-  theAlignmentAlgo->terminate();
-  // FIXME: Should this be done in algorithm::terminate()??
+  theAlignmentAlgo->terminate(iSetup);
+  // FIXME: Should this be done in algorithm::terminate(const edm::EventSetup& iSetup)??
   for (auto iCal = theCalibrations.begin(); iCal != theCalibrations.end(); ++iCal) {
     (*iCal)->endOfLoop();
   }

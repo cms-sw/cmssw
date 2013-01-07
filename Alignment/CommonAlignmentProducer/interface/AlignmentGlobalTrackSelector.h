@@ -25,7 +25,7 @@ class AlignmentGlobalTrackSelector
   ~AlignmentGlobalTrackSelector();
 
   /// select tracks
-  Tracks select(const Tracks& tracks, const edm::Event& iEvent);
+  Tracks select(const Tracks& tracks, const edm::Event& iEvent, const edm::EventSetup& eSetup);
   ///returns if any of the Filters is used.
   bool useThisFilter();
  

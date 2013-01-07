@@ -1,5 +1,6 @@
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTrackSelector.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -21,9 +22,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
 
@@ -184,7 +184,7 @@ AlignmentTrackSelector::~AlignmentTrackSelector()
 // do selection ---------------------------------------------------------------
 
 AlignmentTrackSelector::Tracks 
-AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) const 
+AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt, const edm::EventSetup& eSetup) const 
 {
   
   if (applyMultiplicityFilter_ && multiplicityOnInput_ && 
@@ -195,7 +195,7 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt) cons
 
   Tracks result = tracks;
   // apply basic track cuts (if selected)
-  if (applyBasicCuts_) result= this->basicCuts(result, evt);
+  if (applyBasicCuts_) result= this->basicCuts(result, evt, eSetup);
   
   // filter N tracks with highest Pt (if selected)
   if (applyNHighestPt_) result = this->theNHighestPtTracks(result);
@@ -227,7 +227,7 @@ bool AlignmentTrackSelector::useThisFilter()
 // make basic cuts ------------------------------------------------------------
 
 AlignmentTrackSelector::Tracks 
-AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) const 
+AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt, const edm::EventSetup& eSetup) const 
 {
   Tracks result;
 
@@ -267,7 +267,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
       if (!applyTrkQualityCheck_ &&!applyIterStepCheck_)trkQualityOk=true ; // nothing required
       else trkQualityOk = this->isOkTrkQuality(trackp);
 
-      bool hitsCheckOk=this->detailedHitsCheck(trackp, evt);
+      bool hitsCheckOk=this->detailedHitsCheck(trackp, evt, eSetup);
  
       if (trkQualityOk && hitsCheckOk )  result.push_back(trackp);
     }
@@ -278,8 +278,14 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
 
 //-----------------------------------------------------------------------------
 
-bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const edm::Event& evt) const
+bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const edm::Event& evt, const edm::EventSetup& eSetup) const
 {
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   // checking hit requirements beyond simple number of valid hits
 
   if (minHitsinTIB_ || minHitsinTOB_ || minHitsinTID_ || minHitsinTEC_
@@ -332,12 +338,12 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       else if (SiStripDetId::TID == subdetId) {
         ++nhitinTID;
         ++nhitinENDCAP;
-        TIDDetId tidId(detId);
-        if (tidId.isZMinusSide()) {
+        
+        if (tTopo->tidIsZMinusSide(detId)) {
           ++nhitinTIDminus;
           ++nhitinENDCAPminus;
 	}
-        else if (tidId.isZPlusSide()) {
+        else if (tTopo->tidIsZPlusSide(detId)) {
           ++nhitinTIDplus;
           ++nhitinENDCAPplus;
 	}
@@ -345,12 +351,12 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       else if (SiStripDetId::TEC == subdetId) {
         ++nhitinTEC;
         ++nhitinENDCAP;
-        TECDetId tecId(detId);
-        if (tecId.isZMinusSide()) {
+        
+        if (tTopo->tecIsZMinusSide(detId)) {
           ++nhitinTECminus;
           ++nhitinENDCAPminus;
 	}
-        else if (tecId.isZPlusSide()) {
+        else if (tTopo->tecIsZPlusSide(detId)) {
           ++nhitinTECplus;
           ++nhitinENDCAPplus;
 	}
@@ -359,9 +365,9 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       else if (            kFPIX == subdetId) {
         ++nhitinFPIX;
         ++nhitinPIXEL;
-	PXFDetId fpixId(detId);
-        if (fpixId.side()==1) ++nhitinFPIXminus;
-        else if (fpixId.side()==2) ++nhitinFPIXplus;
+	
+        if (tTopo->pxfSide(detId)==1) ++nhitinFPIXminus;
+        else if (tTopo->pxfSide(detId)==2) ++nhitinFPIXplus;
       }
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
       if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
