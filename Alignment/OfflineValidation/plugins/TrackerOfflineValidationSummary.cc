@@ -13,7 +13,7 @@
 //
 // Original Author:  Johannes Hauk
 //         Created:  Sat Aug 22 10:31:34 CEST 2009
-// $Id: TrackerOfflineValidationSummary.cc,v 1.6 2011/12/20 15:11:41 mussgill Exp $
+// $Id: TrackerOfflineValidationSummary.cc,v 1.7 2012/06/30 09:09:47 eulisse Exp $
 //
 //
 
@@ -43,12 +43,9 @@
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -105,7 +102,8 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
       virtual void endJob() ;
       
       void fillTree(TTree& tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist, 
-		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom, std::map<std::string,std::string>& substructureName);
+		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom,
+                std::map<std::string,std::string>& substructureName, const TrackerTopology* tTopo);
       
       std::pair<float,float> fitResiduals(TH1* hist)const;
       float getMedian(const TH1* hist)const;
@@ -139,6 +137,8 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
       std::map<int,TrackerOfflineValidationSummary::ModuleHistos> mTecResiduals_;
       
       std::vector<HarvestingHierarchy> vHarvestingHierarchy_;
+
+      const edm::EventSetup *lastSetup_;
 };
 
 //
@@ -154,7 +154,7 @@ class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 //
 TrackerOfflineValidationSummary::TrackerOfflineValidationSummary(const edm::ParameterSet& iConfig):
    parSet_(iConfig), moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
-   useFit_(parSet_.getParameter<bool>("useFit")), dbe_(0), moduleMapsInitialized(false)
+   useFit_(parSet_.getParameter<bool>("useFit")), dbe_(0), moduleMapsInitialized(false), lastSetup_(nullptr)
 {
   //now do what ever initialization is needed
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -178,6 +178,8 @@ TrackerOfflineValidationSummary::~TrackerOfflineValidationSummary()
 void
 TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  lastSetup_ = &iSetup;
+
   // Access of EventSetup is needed to get the list of silicon-modules and their IDs
   // Since they do not change, it is accessed only once
   if(moduleMapsInitialized)return;
@@ -209,7 +211,12 @@ TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const edm::Ev
 void 
 TrackerOfflineValidationSummary::endJob()
 {
-  AlignableTracker aliTracker(&(*tkGeom_));
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  lastSetup_->get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  AlignableTracker aliTracker(&(*tkGeom_), tTopo);
   
   TTree* tree = new TTree("TkOffVal","TkOffVal");
   
@@ -223,12 +230,12 @@ TrackerOfflineValidationSummary::endJob()
   tree->Branch("SubstructureName", &substructureName, 32000, 00);  // SplitLevel must be set to zero
   
   
-  this->fillTree(*tree, mPxbResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
-  this->fillTree(*tree, mPxeResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
-  this->fillTree(*tree, mTibResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
-  this->fillTree(*tree, mTidResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
-  this->fillTree(*tree, mTobResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
-  this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_, *substructureName);
+  this->fillTree(*tree, mPxbResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
+  this->fillTree(*tree, mPxeResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
+  this->fillTree(*tree, mTibResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
+  this->fillTree(*tree, mTidResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
+  this->fillTree(*tree, mTobResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
+  this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
   
   //dbe_->showDirStructure();
   //dbe_->save("dqmOut.root");
@@ -244,9 +251,10 @@ TrackerOfflineValidationSummary::endJob()
 
 
 void 
-TrackerOfflineValidationSummary::fillTree(TTree& tree,
-				   std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist,
-				   TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom, std::map<std::string,std::string>& substructureName)
+TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOfflineValidationSummary::ModuleHistos>& moduleHist,
+                                          TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom,
+                                          std::map<std::string,std::string>& substructureName,
+                                          const TrackerTopology* tTopo)
 {
   for(std::map<int, TrackerOfflineValidationSummary::ModuleHistos>::iterator it = moduleHist.begin(), 
 	itEnd= moduleHist.end(); it != itEnd;++it ) { 
@@ -258,65 +266,65 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree,
     treeMem.subDetId = detId.subdetId();
 
     if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
-      PXBDetId pxbId(detId);
+      
       unsigned int whichHalfBarrel(1), rawId(detId.rawId());  //DetId does not know about halfBarrels is PXB ...
       if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) || (rawId>=302189572 && rawId<302194980) )whichHalfBarrel=2;
-      treeMem.layer = pxbId.layer();
+      treeMem.layer = tTopo->pxbLayer(detId);
       treeMem.half = whichHalfBarrel; 
-      treeMem.rod = pxbId.ladder();     // ... so, ladder is not per halfBarrel-Layer, but per barrel-layer! Needs complicated calculation in associateModuleHistsWithTree()
-      treeMem.module = pxbId.module();
+      treeMem.rod = tTopo->pxbLadder(detId);     // ... so, ladder is not per halfBarrel-Layer, but per barrel-layer! Needs complicated calculation in associateModuleHistsWithTree()
+      treeMem.module = tTopo->pxbModule(detId);
     } else if(treeMem.subDetId == PixelSubdetector::PixelEndcap){
-      PXFDetId pxfId(detId); 
+       
       unsigned int whichHalfCylinder(1), rawId(detId.rawId());  //DetId does not kmow about halfCylinders in PXF
       if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) || (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) )whichHalfCylinder=2;
-      treeMem.layer = pxfId.disk(); 
-      treeMem.side = pxfId.side();
+      treeMem.layer = tTopo->pxfDisk(detId); 
+      treeMem.side = tTopo->pxfSide(detId);
       treeMem.half = whichHalfCylinder;
-      treeMem.blade = pxfId.blade(); 
-      treeMem.panel = pxfId.panel();
-      treeMem.module = pxfId.module();
+      treeMem.blade = tTopo->pxfBlade(detId); 
+      treeMem.panel = tTopo->pxfPanel(detId);
+      treeMem.module = tTopo->pxfModule(detId);
     } else if(treeMem.subDetId == StripSubdetector::TIB){
-      TIBDetId tibId(detId); 
+       
       unsigned int whichHalfShell(1), rawId(detId.rawId());  //DetId does not kmow about halfShells in TIB
        if ( (rawId>=369120484 && rawId<369120688) || (rawId>=369121540 && rawId<369121776) || (rawId>=369136932 && rawId<369137200) || (rawId>=369137988 && rawId<369138288) ||
             (rawId>=369153396 && rawId<369153744) || (rawId>=369154436 && rawId<369154800) || (rawId>=369169844 && rawId<369170256) || (rawId>=369170900 && rawId<369171344) ||
 	    (rawId>=369124580 && rawId<369124784) || (rawId>=369125636 && rawId<369125872) || (rawId>=369141028 && rawId<369141296) || (rawId>=369142084 && rawId<369142384) ||
 	    (rawId>=369157492 && rawId<369157840) || (rawId>=369158532 && rawId<369158896) || (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) whichHalfShell=2;
-      treeMem.layer = tibId.layer(); 
-      treeMem.side = tibId.string()[0];
+      treeMem.layer = tTopo->tibLayer(detId); 
+      treeMem.side = tTopo->tibStringInfo(detId)[0];
       treeMem.half = whichHalfShell;
-      treeMem.rod = tibId.string()[2]; 
-      treeMem.outerInner = tibId.string()[1]; 
-      treeMem.module = tibId.module();
-      treeMem.isStereo = tibId.stereo();
-      treeMem.isDoubleSide = tibId.isDoubleSide();
+      treeMem.rod = tTopo->tibStringInfo(detId)[2]; 
+      treeMem.outerInner = tTopo->tibStringInfo(detId)[1]; 
+      treeMem.module = tTopo->tibModule(detId);
+      treeMem.isStereo = tTopo->tibStereo(detId);
+      treeMem.isDoubleSide = tTopo->tibIsDoubleSide(detId);
     } else if(treeMem.subDetId == StripSubdetector::TID){
-      TIDDetId tidId(detId); 
-      treeMem.layer = tidId.wheel(); 
-      treeMem.side = tidId.side();
-      treeMem.ring = tidId.ring(); 
-      treeMem.outerInner = tidId.module()[0]; 
-      treeMem.module = tidId.module()[1];
-      treeMem.isStereo = tidId.stereo();
-      treeMem.isDoubleSide = tidId.isDoubleSide();
+       
+      treeMem.layer = tTopo->tidWheel(detId); 
+      treeMem.side = tTopo->tidSide(detId);
+      treeMem.ring = tTopo->tidRing(detId); 
+      treeMem.outerInner = tTopo->tidModuleInfo(detId)[0]; 
+      treeMem.module = tTopo->tidModuleInfo(detId)[1];
+      treeMem.isStereo = tTopo->tidStereo(detId);
+      treeMem.isDoubleSide = tTopo->tidIsDoubleSide(detId);
     } else if(treeMem.subDetId == StripSubdetector::TOB){
-      TOBDetId tobId(detId); 
-      treeMem.layer = tobId.layer(); 
-      treeMem.side = tobId.rod()[0];
-      treeMem.rod = tobId.rod()[1]; 
-      treeMem.module = tobId.module();
-      treeMem.isStereo = tobId.stereo();
-      treeMem.isDoubleSide = tobId.isDoubleSide();
+       
+      treeMem.layer = tTopo->tobLayer(detId); 
+      treeMem.side = tTopo->tobRodInfo(detId)[0];
+      treeMem.rod = tTopo->tobRodInfo(detId)[1]; 
+      treeMem.module = tTopo->tobModule(detId);
+      treeMem.isStereo = tTopo->tobStereo(detId);
+      treeMem.isDoubleSide = tTopo->tobIsDoubleSide(detId);
     } else if(treeMem.subDetId == StripSubdetector::TEC) {
-      TECDetId tecId(detId); 
-      treeMem.layer = tecId.wheel(); 
-      treeMem.side  = tecId.side();
-      treeMem.ring  = tecId.ring(); 
-      treeMem.petal = tecId.petal()[1]; 
-      treeMem.outerInner = tecId.petal()[0];
-      treeMem.module = tecId.module();
-      treeMem.isStereo = tecId.stereo();
-      treeMem.isDoubleSide = tecId.isDoubleSide();
+       
+      treeMem.layer = tTopo->tecWheel(detId); 
+      treeMem.side  = tTopo->tecSide(detId);
+      treeMem.ring  = tTopo->tecRing(detId); 
+      treeMem.petal = tTopo->tecPetalInfo(detId)[1]; 
+      treeMem.outerInner = tTopo->tecPetalInfo(detId)[0];
+      treeMem.module = tTopo->tecModule(detId);
+      treeMem.isStereo = tTopo->tecStereo(detId);
+      treeMem.isDoubleSide = tTopo->tecIsDoubleSide(detId);
     }
     
     //variables concerning the tracker geometry

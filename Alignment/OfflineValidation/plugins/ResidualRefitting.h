@@ -35,6 +35,8 @@
 //#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 //#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
+class TrackerTopology;
+
 class ResidualRefitting : public edm::EDAnalyzer{
 
 	static const int N_MAX_STORED = 10;
@@ -297,8 +299,9 @@ class ResidualRefitting : public edm::EDAnalyzer{
 //	void collectTrackRecExtrap(reco::MuonCollection::const_iterator muon, ResidualRefitting::storage_trackExtrap& storeTemp);
 	void muonInfo(ResidualRefitting::storage_muon& storeMuon, reco::TrackRef muon, int val);
 	
-	void CollectTrackHits(edm::Handle<reco::TrackCollection> trackColl, ResidualRefitting::storage_trackExtrap& trackExtrap);
-	void StoreTrackerRecHits(DetId detid, int iTrack, int iRec);
+	void CollectTrackHits(edm::Handle<reco::TrackCollection> trackColl, ResidualRefitting::storage_trackExtrap& trackExtrap,
+                              const edm::EventSetup& eventSetup);
+	void StoreTrackerRecHits(DetId detid, const TrackerTopology* tTopo, int iTrack, int iRec);
 	void NewTrackMeasurements(edm::Handle<reco::TrackCollection> trackCollOrig, edm::Handle<reco::TrackCollection> trackColl,
 	  ResidualRefitting::storage_trackExtrap& trackExtrap);
 	int MatchTrackWithRecHits(reco::TrackCollection::const_iterator trackIt, edm::Handle<reco::TrackCollection> ref);

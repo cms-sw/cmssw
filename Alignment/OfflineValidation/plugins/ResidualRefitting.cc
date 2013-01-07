@@ -7,13 +7,8 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -198,7 +193,7 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
 
 	if (debug_) printf("muons Remake");
 	if (debug_) printf("-----------------------------------------\n");
-	CollectTrackHits(muonTracks, storageTrackExtrapRec_);
+	CollectTrackHits(muonTracks, storageTrackExtrapRec_, eventSetup);
 
 
 	if (true) {
@@ -277,7 +272,14 @@ ResidualRefitting::~ResidualRefitting() {
 //
 // Track Collection Analysis
 //
-void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trackColl, ResidualRefitting::storage_trackExtrap& trackExtrap) {
+void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trackColl,
+                                         ResidualRefitting::storage_trackExtrap& trackExtrap,
+                                         const edm::EventSetup& eventSetup) {
+
+	//Retrieve tracker topology from geometry
+	edm::ESHandle<TrackerTopology> tTopoHandle;
+	eventSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+	const TrackerTopology* const tTopo = tTopoHandle.product();
 
 	int iMuonHit = 0;
 	int iTrackHit= 0;
@@ -384,7 +386,7 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 				
 				if (debug_) printf("Tracker\n");
 
-				StoreTrackerRecHits(detid, iTrack, iTrackHit);
+				StoreTrackerRecHits(detid, tTopo, iTrack, iTrackHit);
 
 				storageTrackHit_.gpX_		[iTrackHit]	= gpRecX;
 				storageTrackHit_.gpY_		[iTrackHit]	= gpRecY;
@@ -565,7 +567,7 @@ bool ResidualRefitting::IsSameHit(trackingRecHit_iterator hit1, trackingRecHit_i
 //
 // Store Tracker Rec Hits
 //
-void ResidualRefitting::StoreTrackerRecHits(DetId detid, int iTrack, int iRec) {
+void ResidualRefitting::StoreTrackerRecHits(DetId detid, const TrackerTopology* tTopo, int iTrack, int iRec) {
 
 
 			int detector	= -1;
@@ -592,10 +594,9 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, int iTrack, int iRec) {
 
 			if (debug_) std::cout<<"Tracker:: ";
 			if (subdetector == ResidualRefitting::PXB) {
-				PXBDetId id(detid.rawId());
-				layer	= id.layer();
-				ladder	= id.ladder();
-				module	= id.module();
+				layer	= tTopo->pxbLayer(detid.rawId());
+				ladder	= tTopo->pxbLadder(detid.rawId());
+				module	= tTopo->pxbModule(detid.rawId());
 				if (debug_)	std::cout	<<	"PXB"
 										<<	"\tlayer = "	<< layer
 										<<	"\tladder = "	<< ladder
@@ -603,12 +604,11 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, int iTrack, int iRec) {
 				
 			} 
 			else if (subdetector == ResidualRefitting::PXF) {
-				PXFDetId id(detid.rawId());
-				side	= id.side();
-				disk	= id.disk();
-				blade	= id.blade();
-				panel	= id.panel();
-				module	= id.module();
+				side	= tTopo->pxfSide(detid.rawId());
+				disk	= tTopo->pxfDisk(detid.rawId());
+				blade	= tTopo->pxfBlade(detid.rawId());
+				panel	= tTopo->pxfPanel(detid.rawId());
+				module	= tTopo->pxfModule(detid.rawId());
 				if (debug_)	std::cout	<<  "PXF"
 										<<	"\tside = "		<< side
 										<<	"\tdisk = "		<< disk
@@ -618,18 +618,16 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, int iTrack, int iRec) {
 							
 			}
 			else if (subdetector == ResidualRefitting::TIB) {
-				TIBDetId id(detid.rawId());
-				layer	= id.layer();
-				module	= id.module();
+				layer	= tTopo->tibLayer(detid.rawId());
+				module	= tTopo->tibModule(detid.rawId());
 				if (debug_)	std::cout	<< "TIB"
 										<< "\tlayer = "	<< layer
 										<< "\tmodule = "<< module;
 			}
 			else if (subdetector == ResidualRefitting::TID) {
-				TIDDetId id(detid.rawId());
-				side	= id.side();
-				wheel	= id.wheel();
-				ring	= id.ring();
+				side	= tTopo->tidSide(detid.rawId());
+				wheel	= tTopo->tidWheel(detid.rawId());
+				ring	= tTopo->tidRing(detid.rawId());
 				if (debug_)	std::cout	<<"TID"
 										<< "\tside = "	<< side
 										<< "\twheel = "	<< wheel
@@ -637,18 +635,16 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, int iTrack, int iRec) {
 			
 			}
 			else if (subdetector == ResidualRefitting::TOB) {
-				TOBDetId id(detid.rawId());
-				layer	= id.layer();
-				module	= id.module();
+				layer	= tTopo->tobLayer(detid.rawId());
+				module	= tTopo->tobModule(detid.rawId());
 				if (debug_)	std::cout	<<"TOB"
 										<<"\tlayer = "	<< layer
 										<<"\tmodule = "	<< module;
 			
 			}
 			else if (subdetector == ResidualRefitting::TEC) {
-				TECDetId id(detid.rawId());
-				ring	= id.ring();
-				module	= id.module();
+				ring	= tTopo->tecRing(detid.rawId());
+				module	= tTopo->tecModule(detid.rawId());
 				if (debug_)	std::cout	<<"TEC"
 										<< "\tring = "	<< ring
 										<< "\tmodule = "<< module;
@@ -659,7 +655,7 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, int iTrack, int iRec) {
 
 			storageTrackHit_.muonLink_		[iRec] =iTrack		;
 			storageTrackHit_.detector_		[iRec] =detector	;
-			storageTrackHit_.subdetector_	[iRec] =subdetector ;
+			storageTrackHit_.subdetector_		[iRec] =subdetector	;
 			storageTrackHit_.blade_			[iRec] =blade		;
 			storageTrackHit_.disk_			[iRec] =disk		;
 			storageTrackHit_.ladder_		[iRec] =ladder		;

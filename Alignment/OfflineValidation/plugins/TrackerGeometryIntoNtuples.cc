@@ -14,7 +14,7 @@
 // Original class TrackerGeometryIntoNtuples.cc 
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.13 2012/11/05 10:58:06 devdatta Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.14 2012/12/02 22:13:12 devdatta Exp $
 //
 // 26 May 2012 
 // ***********
@@ -49,6 +49,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
@@ -158,6 +159,12 @@ TrackerGeometryIntoNtuples::~TrackerGeometryIntoNtuples()
 // ------------ method called to for each event  ------------
 void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+        // retrieve tracker topology from geometry
+        edm::ESHandle<TrackerTopology> tTopoHandle;
+        iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+        const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
 	edm::LogInfo("beginJob") << "Begin Job" << std::endl;
 	
 	//accessing the initial geometry
@@ -185,7 +192,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	aligner.attachSurfaceDeformations<TrackerGeometry>( &(*theCurTracker), &(*surfaceDeformations)) ; 
 	
 	
-	theCurrentTracker = new AlignableTracker(&(*theCurTracker));	
+	theCurrentTracker = new AlignableTracker(&(*theCurTracker), tTopo);
 
 	Alignments* theAlignments = theCurrentTracker->alignments();
 	//AlignmentErrors* theAlignmentErrors = theCurrentTracker->alignmentErrors();	
@@ -209,9 +216,9 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 		
 		//DetId detid(m_rawid);
 		//if (detid.subdetId() > 2){
-		//PXFDetId pxfid( m_rawid );
-		//std::cout << " panel: " << pxfid.panel() << ", module: " << pxfid.module() << std::endl;
-		//if ((pxfid.panel() == 1) && (pxfid.module() == 4)) std::cout << m_rawid << ", ";
+		//
+		//std::cout << " panel: " << tTopo->pxfPanel( m_rawid ) << ", module: " << tTopo->pxfModule( m_rawid ) << std::endl;
+		//if ((tTopo->pxfPanel( m_rawid ) == 1) && (tTopo->pxfModule( m_rawid ) == 4)) std::cout << m_rawid << ", ";
 		//std::cout << m_rawid << std::setprecision(9) <<  " " << m_x << " " << m_y << " " << m_z;
 		//std::cout << std::setprecision(9) << " " << m_alpha << " " << m_beta << " " << m_gamma << std::endl;  
 		//}
