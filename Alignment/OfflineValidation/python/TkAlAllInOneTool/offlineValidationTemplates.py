@@ -414,12 +414,9 @@ mergeOfflineParallelResults="""
 
 # run TkAlOfflinejobs.C
 echo "Merging results from parallel jobs with TkAlOfflineJobsMerge.C"
+#set directory to which TkAlOfflineJobsMerge.C saves the merged file
+export OUTPUTDIR=.oO[datadir]Oo.
 root -x -b -q .oO[logdir]Oo./TkAlOfflineJobsMerge.C
-
-# todo do not use /tmp; in case use of /tmp fails, no merged file is obtained
-
-# move output file to datadir, backup existing files
-mv -b /tmp/$USER/AlignmentValidation*.root .oO[datadir]Oo./
 
 # create log file
 ls -al .oO[datadir]Oo./AlignmentValidation*.root > .oO[datadir]Oo./log_rootfilelist.txt
