@@ -9,6 +9,8 @@
 
 class GeometricDet;
 class TrackerGeometry;
+class TrackerTopology;
+
 
 class AlignableTracker: public AlignableComposite 
 {
@@ -16,7 +18,7 @@ class AlignableTracker: public AlignableComposite
 public:
   
   /// Constructor (builds the full hierarchy)
-  explicit AlignableTracker(const TrackerGeometry *tracker); 
+  explicit AlignableTracker(const TrackerGeometry *tracker, const TrackerTopology *tTopo);
 
   /// Return alignables of subdet and hierarchy level determined by name
   /// as defined in tracker part of Alignment/CommonAlignment/StructureType.h
@@ -95,6 +97,8 @@ public:
   /// Return alignment errors, sorted by DetId
   AlignmentErrors* alignmentErrors() const;
 
+  /// Returns tracker topology
+  const TrackerTopology* trackerTopology() const { return tTopo_;}
   private:
 
   /// Build a barrel for a given sub-detector (TPB, TIB, TOB).
@@ -118,6 +122,7 @@ public:
 
   TrackerCounters tkCounters_;
   
+  const TrackerTopology* tTopo_;
 
 };
 

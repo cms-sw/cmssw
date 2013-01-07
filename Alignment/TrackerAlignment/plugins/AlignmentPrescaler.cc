@@ -2,12 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -242,31 +238,31 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 }//end produce
 
 
-int AlignmentPrescaler::layerFromId (const DetId& id) const
+int AlignmentPrescaler::layerFromId (const DetId& id, const TrackerTopology* tTopo) const
 {
  if ( uint32_t(id.subdetId())==PixelSubdetector::PixelBarrel ) {
-    PXBDetId tobId(id);
-    return tobId.layer();
+    
+    return tTopo->pxbLayer(id);
   }
   else if ( uint32_t(id.subdetId())==PixelSubdetector::PixelEndcap ) {
-    PXFDetId tobId(id);
-    return tobId.disk() + (3*(tobId.side()-1));
+    
+    return tTopo->pxfDisk(id) + (3*(tTopo->pxfSide(id)-1));
   }
   else if ( id.subdetId()==StripSubdetector::TIB ) {
-    TIBDetId tibId(id);
-    return tibId.layer();
+    
+    return tTopo->tibLayer(id);
   }
   else if ( id.subdetId()==StripSubdetector::TOB ) {
-    TOBDetId tobId(id);
-    return tobId.layer();
+    
+    return tTopo->tobLayer(id);
   }
   else if ( id.subdetId()==StripSubdetector::TEC ) {
-    TECDetId tobId(id);
-    return tobId.wheel() + (9*(tobId.side()-1));
+    
+    return tTopo->tecWheel(id) + (9*(tTopo->pxfSide(id)-1));
   }
   else if ( id.subdetId()==StripSubdetector::TID ) {
-    TIDDetId tobId(id);
-    return tobId.wheel() + (3*(tobId.side()-1));
+    
+    return tTopo->tidWheel(id) + (3*(tTopo->tidSide(id)-1));
   }
   return -1;
 

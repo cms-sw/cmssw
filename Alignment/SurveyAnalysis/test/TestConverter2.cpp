@@ -38,10 +38,9 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //
 //
 // class declaration
@@ -119,6 +118,12 @@ TestConverter2::~TestConverter2()
 void
 TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
    
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
@@ -156,48 +161,48 @@ TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 		    DetId thisId((*iGeomDet).rawId());
 		    
 		    if (thisId.subdetId() == int(StripSubdetector::TIB) ) {
-		      TIBDetId thisTIBid((*iGeomDet).rawId());
+		      
 		      subdid_ = 3;
-		      layerdisk_ = thisTIBid.layer(); 
-		      std::vector<unsigned int> theString = thisTIBid.string();
+		      layerdisk_ = tTopo->tibLayer(thisId); 
+		      std::vector<unsigned int> theString = tTopo->tibStringInfo(thisId);
 		      fwbw_ = theString[0];
 		      frontback_ = theString[1];
 		      stringrod_ = theString[2];
 		      petal_ = 0;
-		      module_ = thisTIBid.module();
+		      module_ = tTopo->tibModule(thisId);
 
 		    } else if (thisId.subdetId() == int(StripSubdetector::TID) ) {
-		      TIDDetId thisTIDid((*iGeomDet).rawId());
+		      
 		      subdid_ = 4;
-		      layerdisk_ = thisTIDid.wheel(); 
-		      std::vector<unsigned int> theModule = thisTIDid.module();
+		      layerdisk_ = tTopo->tidWheel(thisId); 
+		      std::vector<unsigned int> theModule = tTopo->tidModuleInfo(thisId);
 		      frontback_ = theModule[0];
 		      module_ = theModule[1];
 		      petal_ = 0;
-		      fwbw_ = thisTIDid.side();
-		      stringrod_ = thisTIDid.ring();
+		      fwbw_ = tTopo->tidSide(thisId);
+		      stringrod_ = tTopo->tidRing(thisId);
 		     
 		    } else if (thisId.subdetId() == int(StripSubdetector::TOB) ) {
-		      TOBDetId thisTOBid((*iGeomDet).rawId());
+		      
 		      subdid_ = 5;
-		      layerdisk_ = thisTOBid.layer(); 
-		      std::vector<unsigned int> theRod = thisTOBid.rod();
+		      layerdisk_ = tTopo->tobLayer(thisId); 
+		      std::vector<unsigned int> theRod = tTopo->tobRodInfo(thisId);
 		      fwbw_ = theRod[0];
 		      stringrod_ = theRod[1];
 		      petal_ = 0;
 		      frontback_ = 0;
-		      module_ = thisTOBid.module();
+		      module_ = tTopo->tobModule(thisId);
 		      
 		    } else if (thisId.subdetId() == int(StripSubdetector::TEC) ) {
-		      TECDetId thisTECid((*iGeomDet).rawId());
+		      
 		      subdid_ = 6;
-		      layerdisk_ = thisTECid.wheel(); 
-		      std::vector<unsigned int> thePetal = thisTECid.petal();
+		      layerdisk_ = tTopo->tecWheel(thisId); 
+		      std::vector<unsigned int> thePetal = tTopo->tecPetalInfo(thisId);
 		      frontback_ = thePetal[0];
 		      petal_ = thePetal[1];
-		      fwbw_ = thisTECid.side();
-		      stringrod_ = thisTECid.ring();
-		      module_ = thisTECid.module();
+		      fwbw_ = tTopo->tecSide(thisId);
+		      stringrod_ = tTopo->tecRing(thisId);
+		      module_ = tTopo->tecModule(thisId);
 		         
 		    } else {
 		      std::cout << "WARNING!!! this DetId (" << thisId.rawId() << ") does not belong to SiStrip tracker" << std::endl;

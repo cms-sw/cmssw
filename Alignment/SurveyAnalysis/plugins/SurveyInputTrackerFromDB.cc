@@ -24,6 +24,12 @@ SurveyInputTrackerFromDB::SurveyInputTrackerFromDB(const edm::ParameterSet& cfg)
 
 void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup& setup)
 {
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   if (theFirstEvent) {
 
 	//  std::cout << "***************ENTERING INITIALIZATION******************" << std::endl;
@@ -37,7 +43,7 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 	setup.get<IdealGeometryRecord>().get(geom); 
 	TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, theParameterSet);
 	
-	addComponent( new AlignableTracker( tracker ) );
+	addComponent( new AlignableTracker( tracker, tTopo ) );
 	addSurveyInfo( detector() );
 	
 	//write out to a DB ...

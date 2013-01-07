@@ -7,13 +7,14 @@
  *
  *  A system to number a component within its parent; starts from 1.
  *
- *  $Date: 2007/10/08 13:36:11 $
+ *  $Date: 2007/10/18 09:57:10 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
 #include "CondFormats/Alignment/interface/Definitions.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 namespace align
 {
@@ -23,40 +24,40 @@ namespace align
     const unsigned int sphs[] = {13, 15, 17, 19, 22, 23, 26, 28};
 
     /// Module number increases with |z| from 1 to 3.
-    inline unsigned int moduleNumber( align::ID );
+    inline unsigned int moduleNumber(align::ID, const TrackerTopology*);
 
     /// String number increases with |phi| from right (1) to left (sphs)
     /// of each half shell.
-    inline unsigned int stringNumber( align::ID );
+    inline unsigned int stringNumber(align::ID, const TrackerTopology*);
 
     /// Surface number is 1 for inner and 2 for outer.
-    inline unsigned int surfaceNumber( align::ID );
+    inline unsigned int surfaceNumber(align::ID, const TrackerTopology*);
 
     /// Half shell number is 1 for bottom (-y) and 2 for top (+y). 
-    inline unsigned int halfShellNumber( align::ID );
+    inline unsigned int halfShellNumber(align::ID, const TrackerTopology*);
 
     /// Layer number increases with rho from 1 to 8.
-    inline unsigned int layerNumber( align::ID );
+    inline unsigned int layerNumber(align::ID, const TrackerTopology*);
 
     /// Half barrel number is 1 at -z side and 2 at +z side.
-    inline unsigned int halfBarrelNumber( align::ID );
+    inline unsigned int halfBarrelNumber(align::ID, const TrackerTopology*);
   }
 }
 
-unsigned int align::tib::moduleNumber(align::ID id)
+unsigned int align::tib::moduleNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TIBDetId(id).module();
+  return tTopo->tibModule(id);
 }
 
-unsigned int align::tib::stringNumber(align::ID id)
+unsigned int align::tib::stringNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  TIBDetId detId(id);
+  
 
-  std::vector<unsigned int> s = detId.string();
+  std::vector<unsigned int> s = tTopo->tibStringInfo(id);
   // s[1]: surface lower = 1, upper = 2
   // s[2]: string no. increases with phi
 
-  unsigned int l = 2 * (detId.layer() - 1) + s[1] - 1;
+  unsigned int l = 2 * (tTopo->tibLayer(id) - 1) + s[1] - 1;
 
 // String on +y surface: number = s                (1 to sphs)
 // String in -y surface: number = 2 * sphs + 1 - s (1 to sphs)
@@ -64,32 +65,32 @@ unsigned int align::tib::stringNumber(align::ID id)
   return s[2] > sphs[l] ? 2 * sphs[l] + 1 - s[2] : s[2];
 }
 
-unsigned int align::tib::surfaceNumber(align::ID id)
+unsigned int align::tib::surfaceNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TIBDetId(id).string()[1];
+  return tTopo->tibStringInfo(id)[1];
 }
 
-unsigned int align::tib::halfShellNumber(align::ID id)
+unsigned int align::tib::halfShellNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  TIBDetId detId(id);
+  
 
-  std::vector<unsigned int> s = detId.string();
+  std::vector<unsigned int> s = tTopo->tibStringInfo(id);
   // s[1]: surface lower = 1, upper = 2
   // s[2]: string no. increases with phi
 
-  unsigned int l = 2 * (detId.layer() - 1) + s[1] - 1;
+  unsigned int l = 2 * (tTopo->tibLayer(id) - 1) + s[1] - 1;
 
   return s[2] > sphs[l] ? 1 : 2;
 }
 
-unsigned int align::tib::layerNumber(align::ID id)
+unsigned int align::tib::layerNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TIBDetId(id).layer();
+  return tTopo->tibLayer(id);
 }
 
-unsigned int align::tib::halfBarrelNumber(align::ID id)
+unsigned int align::tib::halfBarrelNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TIBDetId(id).string()[0];
+  return tTopo->tibStringInfo(id)[0];
 }
 
 #endif

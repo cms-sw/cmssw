@@ -32,8 +32,9 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
 //
@@ -108,6 +109,12 @@ TestIdealGeometry2::~TestIdealGeometry2()
 void
 TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+
    
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
@@ -161,24 +168,24 @@ TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 	  if (thisId.subdetId() == int(StripSubdetector::TIB)) {
 	    
 	    comparisonVect[0] = int(StripSubdetector::TIB);
-	    TIBDetId thisTIBid( (*iGeomDet).rawId() );
-	    comparisonVect[1] = thisTIBid.layer();  
+	    
+	    comparisonVect[1] = tTopo->tibLayer(thisId);  
             if (comparisonVect[1] < 3) {countDet--;} else {countDet = countDet - 3;}
-	    std::vector<unsigned int> theString = thisTIBid.string();
+	    std::vector<unsigned int> theString = tTopo->tibStringInfo(thisId);
 	    comparisonVect[2] = theString[0];
 	    comparisonVect[3] = theString[1];
 	    comparisonVect[4] = theString[2];
-	    comparisonVect[5] = thisTIBid.module();
+	    comparisonVect[5] = tTopo->tibModule(thisId);
 	    
 	  } else if (thisId.subdetId() == int(StripSubdetector::TID)) {
 	    
 	    comparisonVect[0] = int(StripSubdetector::TID);
-	    TIDDetId thisTIDid( (*iGeomDet).rawId() );
-	    comparisonVect[1] = thisTIDid.side();
-	    comparisonVect[2] = thisTIDid.wheel();
-	    comparisonVect[3] = thisTIDid.ring(); 
+	    
+	    comparisonVect[1] = tTopo->tidSide(thisId);
+	    comparisonVect[2] = tTopo->tidWheel(thisId);
+	    comparisonVect[3] = tTopo->tidRing(thisId); 
             if (comparisonVect[3] < 3) {countDet--;} else {countDet = countDet - 3;}
-	    std::vector<unsigned int> theModule = thisTIDid.module();
+	    std::vector<unsigned int> theModule = tTopo->tidModuleInfo(thisId);
 	    comparisonVect[4] = theModule[0];
 	    comparisonVect[5] = theModule[1];
 	    

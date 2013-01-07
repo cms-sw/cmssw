@@ -12,6 +12,8 @@
 /// User variables used by the KalmanAlignmentAlgorithm. The evolution of the estimated alignment
 /// parameters is stored in graphs using the DataCollector.
 
+class TrackerTopology;
+
 class KalmanAlignmentUserVariables : public AlignmentUserVariables
 {
 
@@ -20,6 +22,7 @@ public:
   /// Create new user variables by specifying the associated Alignable, the Alignable's Id and how
   /// often the evolution of the estimated parameters should be updated.
   KalmanAlignmentUserVariables( Alignable* parent,
+                                const TrackerTopology* tTopo,
 				int frequency = 100 );
 
   KalmanAlignmentUserVariables( void ) :

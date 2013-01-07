@@ -15,9 +15,10 @@ AlignableBuilder::LevelInfo::LevelInfo( align::StructureType type,
 }
 
 //__________________________________________________________________________________________________
-AlignableBuilder::AlignableBuilder(align::StructureType moduleType, Counters& counters ):
+AlignableBuilder::AlignableBuilder(align::StructureType moduleType, Counters& counters, const TrackerTopology* tTopo):
   theModuleType(moduleType),
-  theCounters(counters)
+  theCounters(counters),
+  theTopology(tTopo)
 {
 }
 
@@ -52,16 +53,16 @@ unsigned int AlignableBuilder::maxComponent(unsigned int level) const
 }
 
 //__________________________________________________________________________________________________
-unsigned int AlignableBuilder::index( unsigned int level, align::ID id ) const
+unsigned int AlignableBuilder::index( unsigned int level, align::ID id, const TrackerTopology* tTopo) const
 {
   const LevelInfo& info = theLevelInfos[level];
 
   if (theLevelInfos.size() - 1 > level)
   {
-    return index(level + 1, id) * info.maxComponent_ + theCounters.get(info.type_)(id) - 1;
+    return index(level + 1, id, tTopo) * info.maxComponent_ + theCounters.get(info.type_)(id, tTopo) - 1;
   }
 
-  return theCounters.get(info.type_)(id) - 1;
+  return theCounters.get(info.type_)(id, tTopo) - 1;
 }
 
 
@@ -91,7 +92,7 @@ void AlignableBuilder::build( unsigned int level, align::StructureType dauType,
   {
     Alignable* dau = daus[i];
 
-    Alignable*& mom = tempMoms[index( level, dau->id() )];
+    Alignable*& mom = tempMoms[index( level, dau->id(), theTopology )];
 
     if (0 == mom)
     { 

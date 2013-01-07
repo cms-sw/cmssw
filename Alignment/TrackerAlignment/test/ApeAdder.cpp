@@ -68,12 +68,17 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 
 {
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   // Get geometry from ES
   edm::ESHandle<TrackerGeometry> trackerGeometry;
   iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
     
   // Create the alignable hierarchy
-  AlignableTracker* theAlignableTracker = new AlignableTracker( &(*trackerGeometry) );
+  AlignableTracker* theAlignableTracker = new AlignableTracker( &(*trackerGeometry), tTopo );
   
   // Now loop on alignable dets and add alignment error
   if ( theAlignableTracker->barrelGeomDets().size() ) 

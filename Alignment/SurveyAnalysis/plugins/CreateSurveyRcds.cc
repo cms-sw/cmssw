@@ -35,6 +35,11 @@ CreateSurveyRcds::CreateSurveyRcds(const edm::ParameterSet& cfg)
 }
 
 void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& setup){
+
+	//Retrieve tracker topology from geometry
+	edm::ESHandle<TrackerTopology> tTopoHandle;
+	setup.get<IdealGeometryRecord>().get(tTopoHandle);
+	const TrackerTopology* const tTopo = tTopoHandle.product();
 	
 	edm::ESHandle<GeometricDet>  geom;
 	setup.get<IdealGeometryRecord>().get(geom);	 
@@ -56,7 +61,7 @@ void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& s
 	}
 	
 	
-	addComponent(new AlignableTracker( tracker ) );
+	addComponent(new AlignableTracker( tracker, tTopo ) );
 	
 	Alignable* ali = detector();
 	if(m_inputGeom == "generated"){

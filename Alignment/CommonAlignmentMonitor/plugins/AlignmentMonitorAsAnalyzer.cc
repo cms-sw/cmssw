@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Apr 26 12:36:13 CDT 2008
-// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.8 2012/07/12 14:51:53 yana Exp $
+// $Id: AlignmentMonitorAsAnalyzer.cc,v 1.9 2012/07/13 09:18:40 yana Exp $
 //
 //
 
@@ -132,6 +132,11 @@ AlignmentMonitorAsAnalyzer::~AlignmentMonitorAsAnalyzer()
 void
 AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   //Retrieve tracker topology from geometry
+   edm::ESHandle<TrackerTopology> tTopoHandle;
+   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+   const TrackerTopology* const tTopo = tTopoHandle.product();
+
    if (m_firstEvent) {
       GeometryAligner aligner;
     
@@ -179,7 +184,7 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       // within an analyzer, modules can't expect to see any selected alignables!
       std::vector<Alignable*> empty_alignables;
       
-      m_alignableTracker = new AlignableTracker( &(*theTracker) );
+      m_alignableTracker = new AlignableTracker( &(*theTracker), tTopo );
       m_alignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
       m_alignmentParameterStore = new AlignmentParameterStore(empty_alignables, m_aliParamStoreCfg);
       

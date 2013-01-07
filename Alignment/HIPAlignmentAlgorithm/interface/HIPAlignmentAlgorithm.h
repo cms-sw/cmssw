@@ -38,7 +38,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
                    AlignmentParameterStore* store);
 
   /// Call at end of job
-  void terminate(void);
+  void terminate(const edm::EventSetup& setup);
 
   /// Called at start of new loop
   void startNewLoop(void);
@@ -65,7 +65,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   void setAlignmentPositionError(void);
   double calcAPE(double* par, int iter, double function);
   void bookRoot(void);
-  void fillRoot(void);
+  void fillRoot(const edm::EventSetup& setup);
   bool calcParameters(Alignable* ali);
   void collector(void);
   int  fillEventwiseTree(const char *filename, int iter, int ierr);

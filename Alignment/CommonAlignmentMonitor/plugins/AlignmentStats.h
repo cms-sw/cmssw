@@ -64,6 +64,9 @@ class AlignmentStats: public edm::EDAnalyzer{
 
   //  edm::ESHandle<TrackerGeometry> trackerGeometry_;
   const TrackerGeometry* trackerGeometry_;
+
+  const edm::EventSetup *lastSetup_;
+
 };
 
 

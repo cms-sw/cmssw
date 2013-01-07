@@ -112,8 +112,14 @@ TestConverter::~TestConverter()
 void
 TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   
   edm::LogInfo("TrackerAlignment") << "Starting!";
+
+/*
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+*/
 
   //
   // Read in the survey information from the text files
@@ -167,24 +173,22 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 	  if (thisId->subdetId() == int(StripSubdetector::TIB)) {
 	    
 	    comparisonVect[0] = int(StripSubdetector::TIB);
-	    TIBDetId * thisTIBid = new TIBDetId( *thisId );
-	    comparisonVect[1] = thisTIBid->layer();  
+	    comparisonVect[1] = tTopo->tibLayer(*thisId);  
             if (comparisonVect[1] < 3) {countDet--;} else {countDet = countDet - 3;}
-	    std::vector<unsigned int> theString = thisTIBid->string();
+	    std::vector<unsigned int> theString = tTopo->tibStringInfo(*thisId);
 	    comparisonVect[2] = theString[0];
 	    comparisonVect[3] = theString[1];
 	    comparisonVect[4] = theString[2];
-	    comparisonVect[5] = thisTIBid->module();
+	    comparisonVect[5] = tTopo->tibModule(*thisId);
 	    
 	  } else if (thisId->subdetId() == int(StripSubdetector::TID)) {
 	    
 	    comparisonVect[0] = int(StripSubdetector::TID);
-	    TIDDetId * thisTIDid = new TIDDetId( *thisId );
-	    comparisonVect[1] = thisTIDid->side();
-	    comparisonVect[2] = thisTIDid->wheel();
-	    comparisonVect[3] = thisTIDid->ring(); 
+	    comparisonVect[1] = tTopo->tidSide(*thisId);
+	    comparisonVect[2] = tTopo->tidWheel(*thisId);
+	    comparisonVect[3] = tTopo->tidRing(*thisId); 
             if (comparisonVect[3] < 3) {countDet--;} else {countDet = countDet - 3;}
-	    std::vector<unsigned int> theModule = thisTIDid->module();
+	    std::vector<unsigned int> theModule = tTopo->tidModule(thisId);
 	    comparisonVect[4] = theModule[0];
 	    comparisonVect[5] = theModule[1];
 	    

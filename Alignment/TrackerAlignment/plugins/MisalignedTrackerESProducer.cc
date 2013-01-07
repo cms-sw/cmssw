@@ -83,6 +83,10 @@ MisalignedTrackerESProducer::~MisalignedTrackerESProducer() {}
 boost::shared_ptr<TrackerGeometry> 
 MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 { 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iRecord.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::LogInfo("MisalignedTracker") << "Producer called";
 
@@ -93,7 +97,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   theTracker  = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD), thePSet));
  
   // Create the alignable hierarchy
-  std::auto_ptr<AlignableTracker> theAlignableTracker(new AlignableTracker( &(*theTracker) ) );
+  std::auto_ptr<AlignableTracker> theAlignableTracker(new AlignableTracker( &(*theTracker), tTopo ) );
 
   // Create misalignment scenario, apply to geometry
   TrackerScenarioBuilder scenarioBuilder( &(*theAlignableTracker) );

@@ -9,7 +9,7 @@
 //
 // Original Author:  Frederic Ronga
 //         Created:  March 16, 2006
-//         $Id: TestTrackerHierarchy.cpp,v 1.5 2008/04/29 18:57:49 flucke Exp $
+//         $Id: TestTrackerHierarchy.cpp,v 1.6 2012/06/30 08:59:35 eulisse Exp $
 
 
 // system include files
@@ -62,11 +62,15 @@ private:
 void
 TestTrackerHierarchy::analyze( const edm::Event&, const edm::EventSetup& setup )
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::LogInfo("TrackerHierarchy") << "Starting!";
   edm::ESHandle<TrackerGeometry> trackerGeometry;	 
   setup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
-  AlignableTracker theAlignableTracker(&(*trackerGeometry));
+  AlignableTracker theAlignableTracker(&(*trackerGeometry), tTopo);
 
   leaders_ = "";
   blank_ = "   ";  // These two...

@@ -11,8 +11,8 @@
  *  User gets a counter using its structure type via Counters::get(type).
  *  Each sub-system has its own concrete counter class implementation.
  *  
- *  $Date: 2007/10/08 13:36:11 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/10/18 09:41:07 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -21,9 +21,10 @@
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "CondFormats/Alignment/interface/Definitions.h"
 
+class TrackerTopology;
 namespace align
 {
-  typedef unsigned int (*Counter)(align::ID);
+  typedef unsigned int (*Counter)(align::ID, const TrackerTopology*);
 }
 
 class Counters

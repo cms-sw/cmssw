@@ -18,6 +18,7 @@
 #include "TRandom3.h"
 #include "TH1F.h"
 
+class TrackerTopology;
 
 class AlignmentPrescaler : public edm::EDProducer{
 
@@ -40,7 +41,7 @@ class AlignmentPrescaler : public edm::EDProducer{
   TRandom3 *myrand_;
  
 
-  int layerFromId (const DetId& id) const;
+  int layerFromId (const DetId& id, const TrackerTopology* tTopo) const;
 
   unsigned int detid_;
   float hitPrescFactor_, overlapPrescFactor_;

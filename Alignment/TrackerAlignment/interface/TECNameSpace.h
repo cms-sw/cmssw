@@ -7,66 +7,67 @@
  *
  *  A system to number a component within its parent; starts from 1.
  *
- *  $Date: 2007/10/08 13:36:11 $
+ *  $Date: 2007/10/18 09:57:10 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
 #include "CondFormats/Alignment/interface/Definitions.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 namespace align
 {
   namespace tec
   {
      /// Module number increases (decreases) with phi for +z (-z) endcap.
-    inline unsigned int moduleNumber( align::ID );
+    inline unsigned int moduleNumber(align::ID, const TrackerTopology*);
 
     /// Ring number increases with rho.
-    inline unsigned int ringNumber( align::ID );
+    inline unsigned int ringNumber(align::ID, const TrackerTopology*);
 
     /// Petal number increases with phi from 1 to 8.
-    inline unsigned int petalNumber( align::ID );
+    inline unsigned int petalNumber(align::ID, const TrackerTopology*);
 
     /// Side number is 1 for back disk and 2 for front (towards IP).
-    inline unsigned int sideNumber( align::ID );
+    inline unsigned int sideNumber(align::ID, const TrackerTopology*);
 
     /// Disk number increases with |z| from 1 to 9.
-    inline unsigned int diskNumber( align::ID );
+    inline unsigned int diskNumber(align::ID, const TrackerTopology*);
 
     /// Endcap number is 1 at -z side and 2 at +z side.
-    inline unsigned int endcapNumber( align::ID );
+    inline unsigned int endcapNumber(align::ID, const TrackerTopology*);
   }
 }
 
-unsigned int align::tec::moduleNumber(align::ID id)
+unsigned int align::tec::moduleNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TECDetId(id).module();
+  return tTopo->tecModule(id);
 }
 
-unsigned int align::tec::ringNumber(align::ID id)
+unsigned int align::tec::ringNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TECDetId(id).ring();
+  return tTopo->tecRing(id);
 }
 
-unsigned int align::tec::petalNumber(align::ID id)
+unsigned int align::tec::petalNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TECDetId(id).petal()[1];
+  return tTopo->tecPetalInfo(id)[1];
 }
 
-unsigned int align::tec::sideNumber(align::ID id)
+unsigned int align::tec::sideNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TECDetId(id).petal()[0];
+  return tTopo->tecPetalInfo(id)[0];
 }
 
-unsigned int align::tec::diskNumber(align::ID id)
+unsigned int align::tec::diskNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TECDetId(id).wheel();
+  return tTopo->tecWheel(id);
 }
 
-unsigned int align::tec::endcapNumber(align::ID id)
+unsigned int align::tec::endcapNumber(align::ID id, const TrackerTopology* tTopo)
 {
-  return TECDetId(id).side();
+  return tTopo->tecSide(id);
 }
 
 #endif

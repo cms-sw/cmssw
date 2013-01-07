@@ -10,13 +10,14 @@
 /// A mapping between the AlignableObjectId and the string name
 /// is also provided.
 ///
-///  $Revision: 1.10 $
-///  $Date: 2007/06/11 07:20:29 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.11 $
+///  $Date: 2007/10/08 13:49:05 $
+///  (last update by $Author: cklae $)
 
 #include <utility>
 
 class DetId;
+class TrackerTopology;
 
 class TrackerAlignableId
 {
@@ -29,7 +30,7 @@ public:
   /// Keep this for now.
   /// Concept of a "layer" in Alignment is obsolete.
   /// Will be replaced by a more generic function.
-  std::pair<int,int> typeAndLayerFromDetId( const DetId& detId ) const;
+  std::pair<int,int> typeAndLayerFromDetId( const DetId& detId, const TrackerTopology* tTopo ) const;
 
 };
 
