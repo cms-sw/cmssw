@@ -1,9 +1,9 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.30 $
- *  $Date: 2010/12/09 19:47:16 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.31 $
+ *  $Date: 2011/05/23 20:50:32 $
+ *  (last update by $Author: mussgill $)
  */
 
 // This class's header should be first
@@ -386,9 +386,9 @@ void AlignmentParameterStore::acquireRelativeParameters(void)
 // type: -6   -5   -4   -3   -2    -1     1     2    3    4    5    6
 //      TEC- TOB- TID- TIB- PxEC- PxBR- PxBr+ PxEC+ TIB+ TID+ TOB+ TEC+
 // Layers start from zero
-std::pair<int,int> AlignmentParameterStore::typeAndLayer(const Alignable* ali) const
+std::pair<int,int> AlignmentParameterStore::typeAndLayer(const Alignable* ali, const TrackerTopology* tTopo) const
 {
-  return TrackerAlignableId().typeAndLayerFromDetId( ali->id() );
+  return TrackerAlignableId().typeAndLayerFromDetId( ali->id(), tTopo );
 }
 
 

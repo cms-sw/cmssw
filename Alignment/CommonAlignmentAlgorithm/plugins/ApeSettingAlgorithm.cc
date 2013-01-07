@@ -2,9 +2,9 @@
  * \file MillePedeAlignmentAlgorithm.cc
  *
  *  \author    : Gero Flucke/Ivan Reid
- *  date       : February 2009 *  $Revision: 1.10 $
- *  $Date: 2010/09/10 11:36:03 $
- *  (last update by $Author: mussgill $)
+ *  date       : February 2009 *  $Revision: 1.11 $
+ *  $Date: 2011/03/22 09:49:50 $
+ *  (last update by $Author: innocent $)
  */
 /*
  *# Parameters:
@@ -68,7 +68,7 @@ class ApeSettingAlgorithm : public AlignmentAlgorithmBase
 			  AlignmentParameterStore *store);
 
   /// Call at end of job
-  virtual void terminate();
+  virtual void terminate(const edm::EventSetup& iSetup);
 
   /// Run the algorithm
   virtual void run(const edm::EventSetup &setup, const EventInfo &eventInfo);
@@ -183,7 +183,7 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
-void ApeSettingAlgorithm::terminate()
+void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
 {
   if (saveApeToAscii_)
     { AlignmentErrors* aliErr=theTracker->alignmentErrors();

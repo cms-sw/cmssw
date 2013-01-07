@@ -1,8 +1,8 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2010/09/10 11:36:58 $
- *  $Revision: 1.19 $
+ *  $Date: 2010/11/22 08:40:09 $
+ *  $Revision: 1.20 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -13,13 +13,8 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"  // for enums TID/TIB/etc.
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -58,6 +53,11 @@ void AlignmentParameterSelector::clearGeometryCuts()
   theTIDDetIdRanges.clear();
   theTOBDetIdRanges.clear();
   theTECDetIdRanges.clear();
+}
+
+const AlignableTracker* AlignmentParameterSelector::alignableTracker() const
+{
+  return theTracker;
 }
 
 //__________________________________________________________________________________________________
@@ -516,7 +516,7 @@ bool AlignmentParameterSelector::layerDeselected(const Alignable *ali) const
 {
   if (theOnlySS || theOnlyDS || theSelLayers) {
     TrackerAlignableId idProvider;
-    std::pair<int,int> typeLayer = idProvider.typeAndLayerFromDetId(ali->id());
+    std::pair<int,int> typeLayer = idProvider.typeAndLayerFromDetId(ali->id(), alignableTracker()->trackerTopology());
     int type  = typeLayer.first;
     int layer = typeLayer.second;
     
@@ -583,6 +583,8 @@ bool AlignmentParameterSelector::outsideDetIdRanges(const Alignable *alignable) 
   const DetId detId(alignable->id());
   const int subdetId = detId.subdetId();
   
+  const TrackerTopology* tTopo = alignableTracker()->trackerTopology();
+
   if (!theDetIds.empty() &&
       !this->isMemberOfVector((detId.rawId()), theDetIds)) return true;
   if (!theDetIdRanges.empty() &&
@@ -595,77 +597,71 @@ bool AlignmentParameterSelector::outsideDetIdRanges(const Alignable *alignable) 
   if (detId.det()==DetId::Tracker) {
     
     if (subdetId==static_cast<int>(PixelSubdetector::PixelBarrel)) {
-      const PXBDetId pxbDetId(detId);
       if (!thePXBDetIdRanges.theLadderRanges.empty() && 
-	  !this->insideRanges<int>(pxbDetId.ladder(), thePXBDetIdRanges.theLadderRanges)) return true;
+	  !this->insideRanges<int>(tTopo->pxbLadder(detId), thePXBDetIdRanges.theLadderRanges)) return true;
       if (!thePXBDetIdRanges.theLayerRanges.empty() && 
-	  !this->insideRanges<int>(pxbDetId.layer(), thePXBDetIdRanges.theLayerRanges)) return true;
+	  !this->insideRanges<int>(tTopo->pxbLayer(detId), thePXBDetIdRanges.theLayerRanges)) return true;
       if (!thePXBDetIdRanges.theModuleRanges.empty() && 
-	  !this->insideRanges<int>(pxbDetId.module(), thePXBDetIdRanges.theModuleRanges)) return true;
+	  !this->insideRanges<int>(tTopo->pxbModule(detId), thePXBDetIdRanges.theModuleRanges)) return true;
     }
     
     if (subdetId==static_cast<int>(PixelSubdetector::PixelEndcap)) {
-      const PXFDetId pxfDetId(detId);
       if (!thePXFDetIdRanges.theBladeRanges.empty() && 
-	  !this->insideRanges<int>(pxfDetId.blade(), thePXFDetIdRanges.theBladeRanges)) return true;
+	  !this->insideRanges<int>(tTopo->pxfBlade(detId), thePXFDetIdRanges.theBladeRanges)) return true;
       if (!thePXFDetIdRanges.theDiskRanges.empty() && 
-	  !this->insideRanges<int>(pxfDetId.disk(), thePXFDetIdRanges.theDiskRanges)) return true;
+	  !this->insideRanges<int>(tTopo->pxfDisk(detId), thePXFDetIdRanges.theDiskRanges)) return true;
       if (!thePXFDetIdRanges.theModuleRanges.empty() && 
-	  !this->insideRanges<int>(pxfDetId.module(), thePXFDetIdRanges.theModuleRanges)) return true;
+	  !this->insideRanges<int>(tTopo->pxfModule(detId), thePXFDetIdRanges.theModuleRanges)) return true;
       if (!thePXFDetIdRanges.thePanelRanges.empty() && 
-	  !this->insideRanges<int>(pxfDetId.panel(), thePXFDetIdRanges.thePanelRanges)) return true;
+	  !this->insideRanges<int>(tTopo->pxfPanel(detId), thePXFDetIdRanges.thePanelRanges)) return true;
       if (!thePXFDetIdRanges.theSideRanges.empty() && 
-	  !this->insideRanges<int>(pxfDetId.side(), thePXFDetIdRanges.theSideRanges)) return true;
+	  !this->insideRanges<int>(tTopo->pxfSide(detId), thePXFDetIdRanges.theSideRanges)) return true;
     }
     
     if (subdetId==static_cast<int>(SiStripDetId::TIB)) {
-      const TIBDetId tibDetId(detId);
       if (!theTIBDetIdRanges.theLayerRanges.empty() && 
-	  !this->insideRanges<int>(tibDetId.layer(), theTIBDetIdRanges.theLayerRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tibLayer(detId), theTIBDetIdRanges.theLayerRanges)) return true;
       if (!theTIBDetIdRanges.theModuleRanges.empty() && 
-	  !this->insideRanges<int>(tibDetId.module(), theTIBDetIdRanges.theModuleRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tibModule(detId), theTIBDetIdRanges.theModuleRanges)) return true;
       if (!theTIBDetIdRanges.theSideRanges.empty() && 
-	  !this->insideRanges<int>(tibDetId.side(), theTIBDetIdRanges.theSideRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tibSide(detId), theTIBDetIdRanges.theSideRanges)) return true;
       if (!theTIBDetIdRanges.theStringRanges.empty() && 
-	  !this->insideRanges<int>(tibDetId.stringNumber(), theTIBDetIdRanges.theStringRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tibString(detId), theTIBDetIdRanges.theStringRanges)) return true;
     }
     
     if (subdetId==static_cast<int>(SiStripDetId::TID)) {
-      const TIDDetId tidDetId(detId);
       if (!theTIDDetIdRanges.theDiskRanges.empty() && 
-	  !this->insideRanges<int>(tidDetId.diskNumber(), theTIDDetIdRanges.theDiskRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tidWheel(detId), theTIDDetIdRanges.theDiskRanges)) return true;
       if (!theTIDDetIdRanges.theModuleRanges.empty() && 
-	  !this->insideRanges<int>(tidDetId.moduleNumber(), theTIDDetIdRanges.theModuleRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tidModule(detId), theTIDDetIdRanges.theModuleRanges)) return true;
       if (!theTIDDetIdRanges.theRingRanges.empty() && 
-	  !this->insideRanges<int>(tidDetId.ring(), theTIDDetIdRanges.theRingRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tidRing(detId), theTIDDetIdRanges.theRingRanges)) return true;
       if (!theTIDDetIdRanges.theSideRanges.empty() && 
-	  !this->insideRanges<int>(tidDetId.side(), theTIDDetIdRanges.theSideRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tidSide(detId), theTIDDetIdRanges.theSideRanges)) return true;
     }
     
     if (subdetId==static_cast<int>(SiStripDetId::TOB)) {
-      const TOBDetId tobDetId(detId);
       if (!theTOBDetIdRanges.theLayerRanges.empty() && 
-	  !this->insideRanges<int>(tobDetId.layer(), theTOBDetIdRanges.theLayerRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tobLayer(detId), theTOBDetIdRanges.theLayerRanges)) return true;
       if (!theTOBDetIdRanges.theModuleRanges.empty() && 
-	  !this->insideRanges<int>(tobDetId.module(), theTOBDetIdRanges.theModuleRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tobModule(detId), theTOBDetIdRanges.theModuleRanges)) return true;
       if (!theTOBDetIdRanges.theRodRanges.empty() && 
-	  !this->insideRanges<int>(tobDetId.rodNumber(), theTOBDetIdRanges.theRodRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tobRod(detId), theTOBDetIdRanges.theRodRanges)) return true;
       if (!theTOBDetIdRanges.theSideRanges.empty() && 
-	  !this->insideRanges<int>(tobDetId.side(), theTOBDetIdRanges.theSideRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tobSide(detId), theTOBDetIdRanges.theSideRanges)) return true;
     }
 
     if (subdetId==static_cast<int>(SiStripDetId::TEC)) {
-      const TECDetId tecDetId(detId);
       if (!theTECDetIdRanges.theWheelRanges.empty() && 
-	  !this->insideRanges<int>(tecDetId.wheel(), theTECDetIdRanges.theWheelRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tecWheel(detId), theTECDetIdRanges.theWheelRanges)) return true;
       if (!theTECDetIdRanges.thePetalRanges.empty() && 
-	  !this->insideRanges<int>(tecDetId.petalNumber(), theTECDetIdRanges.thePetalRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tecPetalNumber(detId), theTECDetIdRanges.thePetalRanges)) return true;
       if (!theTECDetIdRanges.theModuleRanges.empty() && 
-	  !this->insideRanges<int>(tecDetId.module(), theTECDetIdRanges.theModuleRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tecModule(detId), theTECDetIdRanges.theModuleRanges)) return true;
       if (!theTECDetIdRanges.theRingRanges.empty() && 
-	  !this->insideRanges<int>(tecDetId.ring(), theTECDetIdRanges.theRingRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tecRing(detId), theTECDetIdRanges.theRingRanges)) return true;
       if (!theTECDetIdRanges.theSideRanges.empty() && 
-	  !this->insideRanges<int>(tecDetId.side(), theTECDetIdRanges.theSideRanges)) return true;
+	  !this->insideRanges<int>(tTopo->tecSide(detId), theTECDetIdRanges.theSideRanges)) return true;
     }
     
   }

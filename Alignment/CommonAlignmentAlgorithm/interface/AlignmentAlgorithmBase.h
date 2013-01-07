@@ -1,3 +1,4 @@
+
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 
@@ -87,7 +88,7 @@ public:
   virtual void startNewLoop() {}
 
   /// Call at end of each loop (must be implemented in derived class)
-  virtual void terminate() = 0;
+  virtual void terminate(const edm::EventSetup& iSetup) = 0;
 
   /// Run the algorithm (must be implemented in derived class)
   virtual void run( const edm::EventSetup &setup, const EventInfo &eventInfo) = 0;

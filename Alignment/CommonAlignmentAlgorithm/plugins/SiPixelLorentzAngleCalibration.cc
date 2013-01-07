@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : September 2012
-///  $Revision: 1.3 $
-///  $Date: 2012/09/19 14:11:49 $
+///  $Revision: 1.4 $
+///  $Date: 2012/09/20 13:17:23 $
 ///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
@@ -18,7 +18,9 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -102,10 +104,10 @@ private:
 
   /// Determined parameter value for this detId (detId not treated => 0.)
   /// and the given run.
-  double getParameterForDetId(unsigned int detId, edm::RunNumber_t run) const;
+  double getParameterForDetId(unsigned int detId, const TrackerTopology* tTopo, edm::RunNumber_t run) const;
   /// Index of parameter for given detId (detId not treated => < 0)
   /// and the given run.
-  int getParameterIndexFromDetId(unsigned int detId, edm::RunNumber_t run) const;
+  int getParameterIndexFromDetId(unsigned int detId, const TrackerTopology* tTopo, edm::RunNumber_t run) const;
   /// Total number of IOVs.
   unsigned int numIovs() const;
   /// First run of iov (0 if iovNum not treated).
@@ -125,6 +127,8 @@ private:
   SiPixelLorentzAngle *siPixelLorentzAngleInput_;
   std::vector<double> parameters_;
   std::vector<double> paramUncertainties_;
+
+  mutable const edm::EventSetup* lastSetup_;
 };
 
 //======================================================================
@@ -138,7 +142,8 @@ SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::Parame
     outFileName_(cfg.getParameter<std::string>("treeFile")),
     mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
     //    alignableTracker_(0),
-    siPixelLorentzAngleInput_(0)
+    siPixelLorentzAngleInput_(0),
+    lastSetup_(nullptr)
 {
   // FIXME: Which granularity, leading to how many parameters?
   parameters_.resize(2, 0.); // currently two parameters (ring1-4, 5-8), start value 0.
@@ -154,7 +159,7 @@ SiPixelLorentzAngleCalibration::SiPixelLorentzAngleCalibration(const edm::Parame
                               << "First file to merge: " << mergeFileNames_[0];
   }
 }
-  
+
 //======================================================================
 SiPixelLorentzAngleCalibration::~SiPixelLorentzAngleCalibration()
 {
@@ -176,6 +181,13 @@ SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
 					    const edm::EventSetup &setup,
 					    const EventInfo &eventInfo) const
 {
+  lastSetup_ = &setup;
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   // ugly const-cast:
   // But it is either only first initialisation or throwing an exception...
   const_cast<SiPixelLorentzAngleCalibration*>(this)->checkLorentzAngleInput(setup, eventInfo);
@@ -184,7 +196,7 @@ SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
 
   if (hit.det()) { // otherwise 'constraint hit' or whatever
     
-    const int index = this->getParameterIndexFromDetId(hit.det()->geographicalId(),
+    const int index = this->getParameterIndexFromDetId(hit.det()->geographicalId(), tTopo,
 						       eventInfo.eventId_.run());
     if (index >= 0) { // otherwise not treated
       edm::ESHandle<MagneticField> magneticField;
@@ -264,6 +276,11 @@ double SiPixelLorentzAngleCalibration::getParameterError(unsigned int index) con
 //======================================================================
 void SiPixelLorentzAngleCalibration::endOfJob()
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  lastSetup_->get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   // loginfo output
   std::ostringstream out;
   out << "Parameter results\n";
@@ -291,7 +308,7 @@ void SiPixelLorentzAngleCalibration::endOfJob()
       // type of (*iterIdValue) is pair<unsigned int, float>
       const unsigned int detId = iterIdValue->first; // key of map is DetId
       // Nasty: putLorentzAngle(..) takes float by reference - not even const reference!
-      float value = iterIdValue->second + this->getParameterForDetId(detId, firstRunOfIOV);
+      float value = iterIdValue->second + this->getParameterForDetId(detId, tTopo, firstRunOfIOV);
       output->putLorentzAngle(detId, value); // put result in output
     }
 
@@ -319,6 +336,8 @@ void SiPixelLorentzAngleCalibration::endOfJob()
 bool SiPixelLorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetup &setup,
 							    const EventInfo &eventInfo)
 {
+  lastSetup_ = &setup;
+
   edm::ESHandle<SiPixelLorentzAngle> lorentzAngleHandle;
   if (!siPixelLorentzAngleInput_) {
     setup.get<SiPixelLorentzAngleRcd>().get(lorentzAngleHandle);
@@ -385,15 +404,17 @@ const SiPixelLorentzAngle* SiPixelLorentzAngleCalibration::getLorentzAnglesInput
 
 //======================================================================
 double SiPixelLorentzAngleCalibration::getParameterForDetId(unsigned int detId,
+                                                            const TrackerTopology* tTopo, 
 							    edm::RunNumber_t run) const
 {
-  const int index = this->getParameterIndexFromDetId(detId, run);
+  const int index = this->getParameterIndexFromDetId(detId, tTopo, run);
 
   return (index < 0 ? 0. : parameters_[index]);
 }
 
 //======================================================================
 int SiPixelLorentzAngleCalibration::getParameterIndexFromDetId(unsigned int detId,
+                                                               const TrackerTopology* tTopo, 
 							       edm::RunNumber_t run) const
 {
   // Return the index of the parameter that is used for this DetId.
@@ -401,13 +422,13 @@ int SiPixelLorentzAngleCalibration::getParameterIndexFromDetId(unsigned int detI
   
   // FIXME: Extend to configurable granularity? 
   //        Including treatment of run dependence?
-  const PXBDetId id(detId);
+  DetId id(detId);
   if (id.det() == DetId::Tracker && id.subdetId() == PixelSubdetector::PixelBarrel) {
-    if (id.module() >= 1 && id.module() <= 4) return 0;
-    if (id.module() >= 5 && id.module() <= 8) return 1;
+    if (tTopo->pxbModule(detId) >= 1 && tTopo->pxbModule(detId) <= 4) return 0;
+    if (tTopo->pxbModule(detId) >= 5 && tTopo->pxbModule(detId) <= 8) return 1;
     edm::LogWarning("Alignment")
 	<< "@SUB=SiPixelLorentzAngleCalibration::getParameterIndexFromDetId"
-	<< "Module should be 1-8, but is " << id.module() << " => skip!";
+	<< "Module should be 1-8, but is " << tTopo->pxbModule(detId) << " => skip!";
   }
 
   return -1;
