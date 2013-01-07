@@ -117,9 +117,9 @@ void hadd(const char *filesSeparatedByKommaOrEmpty = "", const char * outputFile
   TString outputFileString;
 
   if (strlen(outputFile)!=0) 
-    outputFileString = TString("$TMPDIR/")+ TString(outputFile);
+    outputFileString = TString("$OUTPUTDIR/")+ TString(outputFile);
   else
-    outputFileString = "$TMPDIR/merge_output.root";
+    outputFileString = "$OUTPUTDIR/merge_output.root";
   
   TFile *Target = TFile::Open( outputFileString, "RECREATE" );
   MergeRootfile( Target, FileList);
