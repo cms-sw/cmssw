@@ -18,7 +18,7 @@
 //         Created:  June 2008
 // Rewritten by: Vladimir Rekovic
 //         Date:  May 2009
-// $Id: FourVectorHLTriggerOffline.h,v 1.27.2.1 2010/08/03 16:08:23 wmtan Exp $
+// $Id: FourVectorHLTriggerOffline.h,v 1.30 2013/01/07 10:58:35 eulisse Exp $
 //
 //
 
@@ -631,15 +631,9 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 	  float getPtMax() const { return ptmax_; }
       };
 
-      // simple collection - just 
-      class PathInfoCollection: public std::vector<PathInfo> {
-      public:
-	PathInfoCollection(): std::vector<PathInfo>() 
-	  {};
-	  std::vector<PathInfo>::iterator find(std::string pathName) {
-	    return std::find(begin(), end(), pathName);
-	  }
-      };
+public:
+      typedef std::vector<PathInfo> PathInfoCollection;
+private:
       PathInfoCollection hltPaths_;
 
 
