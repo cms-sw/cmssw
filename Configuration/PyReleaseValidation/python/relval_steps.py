@@ -376,6 +376,7 @@ steps['TTbar_Tauola_UPGphase1_14']=merge([{'cfg':'TTbar_Tauola_14TeV_cfi','--rel
 ## pPb tests
 step1PPbDefaults={'--beamspot':'Realistic8TeVCollisionPPbBoost'}
 steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AMPT_PPb_5020GeV_MinimumBias_cfi',Kby(9,100))])
+steps['AMPT_PPb_5020GeV_MinimumBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValAMPT_PPb_5020GeV_MinimumBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 ## heavy ions tests
 U500by1={'--relval': '500,1'}
