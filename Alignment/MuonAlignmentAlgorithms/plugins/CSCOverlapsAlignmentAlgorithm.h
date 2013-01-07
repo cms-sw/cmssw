@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Tue Oct  7 14:56:49 CDT 2008
-// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.5 2010/05/28 23:51:13 mussgill Exp $
+// $Id: CSCOverlapsAlignmentAlgorithm.h,v 1.6 2010/09/10 11:56:11 mussgill Exp $
 //
 //
 
@@ -67,7 +67,7 @@ public:
 		  AlignableExtras* alignableExtras, AlignmentParameterStore* alignmentParameterStore);
   void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo);
 
-  void terminate();
+  void terminate(const edm::EventSetup& iSetup);
 
   // having to make read-only accessors for all of these would be ridiculous, so they're public
   TH1F *m_hitsPerChamber;

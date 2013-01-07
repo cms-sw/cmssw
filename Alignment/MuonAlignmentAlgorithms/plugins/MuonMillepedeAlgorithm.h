@@ -35,7 +35,7 @@ class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
                    AlignmentParameterStore* store);
 
   /// Call at end of job
-  void terminate(void);
+  void terminate(const edm::EventSetup& setup);
 
 
 

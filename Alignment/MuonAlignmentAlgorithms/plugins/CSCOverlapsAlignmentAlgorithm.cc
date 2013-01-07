@@ -307,7 +307,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
   }
 }
 
-void CSCOverlapsAlignmentAlgorithm::terminate() {
+void CSCOverlapsAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
   // write residuals partial fits to temporary files for collection
   if (m_writeTemporaryFile != std::string("")) {
     std::ofstream output(m_writeTemporaryFile.c_str());
