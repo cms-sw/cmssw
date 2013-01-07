@@ -3,14 +3,16 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.78 $
- *  $Date: 2012/08/10 09:01:11 $
+ *  $Revision: 1.79 $
+ *  $Date: 2012/09/14 16:04:42 $
  *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
 //#include "MillePedeAlignmentAlgorithm.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -50,6 +52,8 @@
 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 
@@ -124,6 +128,11 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
 				 << "Running with AlignabeMuon not yet tested.";
   }
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   theAlignableNavigator = new AlignableNavigator(extras, tracker, muon);
   theAlignmentParameterStore = store;
@@ -212,7 +221,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
         << "modes running mille.";
     }
     const std::string moniFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
-    if (moniFile.size()) theMonitor = new MillePedeMonitor((theDir + moniFile).c_str());
+    if (moniFile.size()) theMonitor = new MillePedeMonitor(tTopo, (theDir + moniFile).c_str());
 
     // Get trajectory factory. In case nothing found, FrameWork will throw...
     const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
@@ -262,7 +271,7 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 
 // Call at end of job ---------------------------------------------------------
 //____________________________________________________
-void MillePedeAlignmentAlgorithm::terminate()
+void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 {
   delete theMille;// delete to close binary before running pede below (flush would be enough...)
   theMille = 0;
