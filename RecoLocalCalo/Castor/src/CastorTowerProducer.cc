@@ -13,7 +13,7 @@
 //
 // Original Author:  Hans Van Haevermaet, Benoit Roland
 //         Created:  Wed Jul  9 14:00:40 CEST 2008
-// $Id: CastorTowerProducer.cc,v 1.10 2012/07/10 14:53:03 hvanhaev Exp $
+// $Id: CastorTowerProducer.cc,v 1.11 2012/07/18 00:31:00 slava77 Exp $
 //
 //
 
@@ -88,10 +88,10 @@ const double MYR2D = 180/M_PI;
 //
 
 CastorTowerProducer::CastorTowerProducer(const edm::ParameterSet& iConfig) :
-  input_(iConfig.getUntrackedParameter<std::string>("inputprocess","castorreco")),
-  towercut_(iConfig.getUntrackedParameter<double>("towercut",0.65)),
-  mintime_(iConfig.getUntrackedParameter<double>("mintime",-999)),
-  maxtime_(iConfig.getUntrackedParameter<double>("maxtime",999))
+  input_(iConfig.getParameter<std::string>("inputprocess")),
+  towercut_(iConfig.getParameter<double>("towercut")),
+  mintime_(iConfig.getParameter<double>("mintime")),
+  maxtime_(iConfig.getParameter<double>("maxtime"))
 {
   //register your products
   produces<CastorTowerCollection>();
