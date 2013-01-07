@@ -743,7 +743,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
       if(HQGraphs[k]->GetN()==0) continue;
       if(HQGraphs[k]->GetX()[HQGraphs[k]->GetN()-1]<0) continue;
-      fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(HQGraphs[k],  ThXSec[k], HQGraphs[k]->GetX()[0], HQGraphs[k]->GetX()[HQGraphs[k]->GetN()-1], 1, 0.00));
+      double minMass=-1, maxMass=-1;
+      FindRangeBetweenTwoGraphs(HQGraphs[k],  ThXSec[k], HQGraphs[k]->GetX()[0], HQGraphs[k]->GetX()[HQGraphs[k]->GetN()-1], 1, 0.00, minMass, maxMass);
+      fprintf(pFile,"%20s --> Excluded mass range %8.3f - %8.3fGeV\n", modelVector[k].c_str(), minMass, maxMass);
+      //fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(HQGraphs[k],  ThXSec[k], HQGraphs[k]->GetX()[0], HQGraphs[k]->GetX()[HQGraphs[k]->GetN()-1], 1, 0.00));
    }
 
    fprintf(pFile,"-----------------------\n0%% Q<1             \n-------------------------\n");
@@ -818,6 +821,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LQGraphMap["DY_Q2o3"      ]->SetLineColor(43); LQGraphMap["DY_Q2o3"      ]->SetMarkerColor(43);  LQGraphMap["DY_Q2o3"      ]->SetLineWidth(2);   LQGraphMap["DY_Q2o3"      ]->SetLineStyle(1);  LQGraphMap["DY_Q2o3"      ]->SetMarkerStyle(34);
 
    ThGraphMap["DY_Q1"        ]->SetLineColor(46); ThGraphMap["DY_Q1"        ]->SetMarkerColor(46);  ThGraphMap["DY_Q1"        ]->SetLineWidth(1);   ThGraphMap["DY_Q1"        ]->SetLineStyle(1);  ThGraphMap["DY_Q1"        ]->SetMarkerStyle(1);
+   MuGraphMap["DY_Q1"        ]->SetLineColor(46); MuGraphMap["DY_Q1"        ]->SetMarkerColor(46);  MuGraphMap["DY_Q1"        ]->SetLineWidth(2);   MuGraphMap["DY_Q1"        ]->SetLineStyle(1);  MuGraphMap["DY_Q1"      ]->SetMarkerStyle(20);
    HQGraphMap["DY_Q1"        ]->SetLineColor(46); HQGraphMap["DY_Q1"        ]->SetMarkerColor(46);  HQGraphMap["DY_Q1"        ]->SetLineWidth(2);   HQGraphMap["DY_Q1"        ]->SetLineStyle(1);  HQGraphMap["DY_Q1"        ]->SetMarkerStyle(20);
    ThGraphMap["DY_Q2"        ]->SetLineColor(2 ); ThGraphMap["DY_Q2"        ]->SetMarkerColor(2 );  ThGraphMap["DY_Q2"        ]->SetLineWidth(1);   ThGraphMap["DY_Q2"        ]->SetLineStyle(2);  ThGraphMap["DY_Q2"        ]->SetMarkerStyle(1);
    HQGraphMap["DY_Q2"        ]->SetLineColor(2 ); HQGraphMap["DY_Q2"        ]->SetMarkerColor(2 );  HQGraphMap["DY_Q2"        ]->SetLineWidth(2);   HQGraphMap["DY_Q2"        ]->SetLineStyle(1);  HQGraphMap["DY_Q2"        ]->SetMarkerStyle(21);
@@ -836,6 +840,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->Add(ThGraphMap["GMStau"     ]      ,"L");
    MGMu->Add(ThGraphMap["PPStau"     ]      ,"L");
    MGMu->Add(ThGraphMap["DY_Q2o3"    ]     ,"L");
+   MGMu->Add(ThGraphMap["DY_Q1"    ]     ,"L");
    }   
    MGMu->Add(MuGraphMap["Gluino_f10" ]      ,"LP");
    MGMu->Add(MuGraphMap["Gluino_f50" ]      ,"LP");
@@ -843,6 +848,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->Add(MuGraphMap["GMStau"     ]      ,"LP");
    MGMu->Add(MuGraphMap["PPStau"     ]      ,"LP");
    MGMu->Add(MuGraphMap["DY_Q2o3"    ]     ,"LP");
+   MGMu->Add(MuGraphMap["DY_Q1"    ]     ,"LP");
    MGMu->Draw("A");
 
    if(!Combine) {
@@ -851,6 +857,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    ThErrorMap["GMStau"    ]->Draw("f");
    ThErrorMap["PPStau"    ]->Draw("f");
    ThErrorMap["DY_Q2o3"   ]->Draw("f");
+   ThErrorMap["DY_Q1"   ]->Draw("f");
    }else{
       TLine* LineAtOne = new TLine(50,1,1550,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
    }
@@ -873,7 +880,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGMu->AddEntry(MuGraphMap["Stop"      ] , "stop"                      ,"LP");
    LEGMu->AddEntry(MuGraphMap["PPStau"    ] , "Pair Prod. stau"           ,"LP");
    LEGMu->AddEntry(MuGraphMap["GMStau"    ] , "GMSB stau"                 ,"LP");
-   LEGMu->AddEntry(MuGraphMap["DY_Q2o3"   ], "frac. Q=2o3"                ,"LP");
+   LEGMu->AddEntry(MuGraphMap["DY_Q2o3"   ], "Q=2e/3"                ,"LP");
+   LEGMu->AddEntry(MuGraphMap["DY_Q1"   ], "Q=1e"                ,"LP");
 
    TLegend* LEGTh = new TLegend(0.15,0.71,0.45,0.91);
    if(!Combine) {
@@ -895,7 +903,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGTh->AddEntry(StauThLeg   ,"GMSB stau   (NLO)" ,"LF");
    TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
    DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
-   LEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2/3   (LO)" ,"LF");
+   LEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2e/3   (LO)" ,"LF");
+   TGraph* DYQ1ThLeg = (TGraph*) ThGraphMap["DY_Q1"        ]->Clone("DYQ1ThLeg");
+   DYQ1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
+   LEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=1e   (LO)" ,"LF");
    LEGTh->Draw();
    }
    LEGMu->Draw();
@@ -954,8 +965,38 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGTk->AddEntry(TkGraphMap["StopN"      ], "stop; ch. suppr."                  ,"LP");
    LEGTk->AddEntry(TkGraphMap["PPStau"     ], "Pair Prod. stau"                   ,"LP");
    LEGTk->AddEntry(TkGraphMap["GMStau"     ], "GMSB stau"                         ,"LP");
-   LEGTk->AddEntry(TkGraphMap["DY_Q2o3"    ], "frac. Q=2o3"                       ,"LP");
-   if(!Combine) LEGTh->Draw();
+   LEGTk->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2e/3"                       ,"LP");
+
+   TLegend* LEGThTk = new TLegend(0.15,0.71,0.45,0.91);
+   if(!Combine) {
+   LEGThTk->SetHeader("Theoretical Prediction");
+   LEGThTk->SetFillColor(0);
+   //LEGThTk->SetFillStyle(0);
+   LEGThTk->SetBorderSize(0);
+   TGraph* GlThLeg = (TGraph*) ThGraphMap["Gluino_f10"]->Clone("GluinoThLeg");
+   GlThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
+   LEGThTk->AddEntry(GlThLeg, "gluino (NLO+NLL)" ,"LF");
+   TGraph* StThLeg = (TGraph*) ThGraphMap["Stop"      ]->Clone("StopThLeg");
+   StThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
+   LEGThTk->AddEntry(StThLeg   ,"stop   (NLO+NLL)" ,"LF");
+   TGraph* PPStauThLeg = (TGraph*) ThGraphMap["PPStau"        ]->Clone("PPStauThLeg");
+   PPStauThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
+   LEGThTk->AddEntry(PPStauThLeg   ,"Pair Prod. stau   (NLO)" ,"LF");
+   TGraph* StauThLeg = (TGraph*) ThGraphMap["GMStau"        ]->Clone("StauThLeg");
+   StauThLeg->SetFillColor(ThErrorMap["Gluino_f10"]->GetFillColor());
+   LEGThTk->AddEntry(StauThLeg   ,"GMSB stau   (NLO)" ,"LF");
+   TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
+   DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
+   LEGThTk->AddEntry(DYQ2o3ThLeg   ,"Q=2e/3   (LO)" ,"LF");
+   TGraph* DYQ1ThLeg = (TGraph*) ThGraphMap["DY_Q1"        ]->Clone("DYQ1ThLeg");
+   DYQ1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
+   LEGThTk->AddEntry(DYQ2o3ThLeg   ,"Q=1e   (LO)" ,"LF");
+   LEGThTk->Draw();
+   }
+
+
+
+   if(!Combine) LEGThTk->Draw();
    LEGTk->Draw();
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("TkExclusionLog"));
@@ -1155,10 +1196,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
    TGraph* DYQ1o3ThLeg = (TGraph*) ThGraphMap["DY_Q1o3"        ]->Clone("DYQ1o3ThLeg");
    DYQ1o3ThLeg->SetFillColor(ThErrorMap["DY_Q1o3"]->GetFillColor());
-   LQLEGTh->AddEntry(DYQ1o3ThLeg   ,"Q=1/3   (LO)" ,"LF");
+   LQLEGTh->AddEntry(DYQ1o3ThLeg   ,"Q=1e/3   (LO)" ,"LF");
    TGraph* DYQ2o3ThLeg = (TGraph*) ThGraphMap["DY_Q2o3"        ]->Clone("DYQ2o3ThLeg");
    DYQ2o3ThLeg->SetFillColor(ThErrorMap["DY_Q2o3"]->GetFillColor());
-   LQLEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2/3   (LO)" ,"LF");
+   LQLEGTh->AddEntry(DYQ2o3ThLeg   ,"Q=2e/3   (LO)" ,"LF");
    LQLEGTh->Draw();
    }
 
@@ -1194,8 +1235,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGLQ->SetFillColor(0); 
    //LEGLQ->SetFillStyle(0);
    LEGLQ->SetBorderSize(0);
-   LEGLQ->AddEntry(TkGraphMap["DY_Q1o3"    ], "Q=1/3"            ,"LP");
-   LEGLQ->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2/3"            ,"LP");
+   LEGLQ->AddEntry(TkGraphMap["DY_Q1o3"    ], "Q=1e/3"            ,"LP");
+   LEGLQ->AddEntry(TkGraphMap["DY_Q2o3"    ], "Q=2e/3"            ,"LP");
    if(!Combine) LQLEGTh->Draw();
 
    LEGLQ->Draw();
@@ -1247,11 +1288,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    LEGHQ->SetFillColor(0); 
    //LEGHQ->SetFillStyle(0);
    LEGHQ->SetBorderSize(0);
-   LEGHQ->AddEntry(HQGraphMap["DY_Q1"] , "MC - Q=1 "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q2"] , "MC - Q=2 "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q3"] , "MC - Q=3 "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q4"] , "MC - Q=4 "    ,"LP");
-   LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "MC - Q=5 "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q1"] , "MC - Q=1e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q2"] , "MC - Q=2e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q3"] , "MC - Q=3e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q4"] , "MC - Q=4e "    ,"LP");
+   LEGHQ->AddEntry(HQGraphMap["DY_Q5"] , "MC - Q=5e "    ,"LP");
 
    TLegend* HQLEGTh = new TLegend(0.3,0.71,0.57,0.91);
    if(!Combine){
@@ -1262,23 +1303,23 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    
    TGraph* Q1ThLeg = (TGraph*) ThGraphMap["DY_Q1"]->Clone("HSCPQ1ThLeg");
    Q1ThLeg->SetFillColor(ThErrorMap["DY_Q1"]->GetFillColor());
-   HQLEGTh->AddEntry(Q1ThLeg, "Q=1 (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q1ThLeg, "Q=1e (LO)" ,"LF");
 
    TGraph* Q2ThLeg = (TGraph*) ThGraphMap["DY_Q2"]->Clone("HSCPQ2ThLeg");
    Q2ThLeg->SetFillColor(ThErrorMap["DY_Q2"]->GetFillColor());
-   HQLEGTh->AddEntry(Q2ThLeg, "Q=2 (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q2ThLeg, "Q=2e (LO)" ,"LF");
 
    TGraph* Q3ThLeg = (TGraph*) ThGraphMap["DY_Q3"]->Clone("HSCPQ3ThLeg");
    Q3ThLeg->SetFillColor(ThErrorMap["DY_Q3"]->GetFillColor());
-   HQLEGTh->AddEntry(Q3ThLeg, "Q=3 (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q3ThLeg, "Q=3e (LO)" ,"LF");
 
    TGraph* Q4ThLeg = (TGraph*) ThGraphMap["DY_Q4"]->Clone("HSCPQ4ThLeg");
    Q4ThLeg->SetFillColor(ThErrorMap["DY_Q4"]->GetFillColor());
-   HQLEGTh->AddEntry(Q4ThLeg, "Q=4 (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q4ThLeg, "Q=4e (LO)" ,"LF");
 
    TGraph* Q5ThLeg = (TGraph*) ThGraphMap["DY_Q5"]->Clone("HSCPQ5ThLeg");
    Q5ThLeg->SetFillColor(ThErrorMap["DY_Q5"]->GetFillColor());
-   HQLEGTh->AddEntry(Q5ThLeg, "Q=5 (LO)" ,"LF");
+   HQLEGTh->AddEntry(Q5ThLeg, "Q=5e (LO)" ,"LF");
    HQLEGTh->Draw();
    }
 
@@ -1529,7 +1570,7 @@ void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string Model
       if(ModelNameTS.Contains("DY")     && ((int)(Mass)/100)%2!=0)continue;
       if(ModelNameTS.Contains("DC")                              )continue;
 
-      char massCut[255];  if(Infos8.MassCut>0){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
+      char massCut[255];  if(TypeMode<3){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
       char Results7[255]; if(Infos7.Mass>0 && TypeMode!=3){sprintf(Results7, "%6.2f & %6.2E & %6.2E & %6.2E", Infos7.Eff, Infos7.XSec_Th,Infos7.XSec_Obs, Infos7.XSec_Exp);}else{sprintf(Results7, "   -   &    -     &   -      &   -     ");}
       char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%6.2f & %6.2E & %6.2E & %6.2E", Infos8.Eff, Infos8.XSec_Th,Infos8.XSec_Obs, Infos8.XSec_Exp);}else{sprintf(Results8, "   -    &    -     &    -     &   -     ");}
       char ResultsC[255]; if(InfosC.Mass>0 && TypeMode!=3){sprintf(ResultsC, "%6.2E & %6.2E", InfosC.XSec_Obs, InfosC.XSec_Exp);}else{sprintf(ResultsC, "   -     &    -    ");}
@@ -1558,18 +1599,20 @@ void printSummaryPaper(FILE* pFile, FILE* talkFile, string InputPattern, string 
       double Mass = std::max(Infos7.Mass, Infos8.Mass);
       TString ModelNameTS =  ModelName.c_str();  ModelNameTS.ReplaceAll("8TeV",""); ModelNameTS.ReplaceAll("7TeV","");
 
-      if((ModelNameTS.Contains("Gluino_f10") && !ModelNameTS.Contains("f100") && !ModelNameTS.Contains("N") && ((int)(Mass)/100)%4==3 && TypeMode==0) ||
+      if((ModelNameTS.Contains("Gluino_f10") && !ModelNameTS.Contains("f100") && ((int)(Mass)/100)%4==3 && TypeMode==0) ||
+	 (ModelNameTS.Contains("GluinoN_f10") && !ModelNameTS.Contains("f100") && ((int)(Mass)/100)%4==3 && TypeMode==0) ||
 	 (ModelNameTS.Contains("Gluino_f50") && ((int)(Mass)/100)%4==3 && TypeMode==3) ||
 	 (ModelNameTS.Contains("Gluino_f100") && ((int)(Mass)/100)%4==3 && TypeMode==3) ||
-	 (ModelNameTS.Contains("Stop") && !ModelNameTS.Contains("N") && ((int)(Mass)/100)%3==2 && TypeMode==0) ||
+	 (ModelNameTS.Contains("Stop") && ((int)(Mass)/100)%3==2 && TypeMode==0) ||
 	 (ModelNameTS.Contains("GMStau") && (Mass==126 || Mass==308 || Mass==494) && TypeMode==2) ||
 	 (ModelNameTS.Contains("PPStau") && (Mass==126 || Mass==308 || Mass==494) && TypeMode==2) ||
+         (ModelNameTS.Contains("DY")     && ModelNameTS.Contains("Q1")     && !ModelNameTS.Contains("o3") && ((int)(Mass)/100)%3==2 && TypeMode==2) ||
 	 (ModelNameTS.Contains("DY")     && ((int)(Mass)/100)%3==2 && TypeMode==4) ||
          (ModelNameTS.Contains("DY")     && ((int)(Mass)/100)%2==0 && TypeMode==5)) {
 
 	fprintf(pFile,"%s\\\\\n", ModelName.c_str());
 
-      char massCut[255];  if(Infos8.MassCut>0){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
+      char massCut[255];  if(TypeMode<3){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
       char Results7[255]; if(Infos7.Mass>0 && TypeMode!=3){sprintf(Results7, "%s & %s & %6.2f", toLatex(Infos7.XSec_Exp).c_str(), toLatex(Infos7.XSec_Obs).c_str(), Infos8.Eff);}else{sprintf(Results7, "    -     &   -      &   -     ");}
       char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%s & %s & %6.2f", toLatex(Infos8.XSec_Exp).c_str(), toLatex(Infos8.XSec_Obs).c_str(), Infos8.Eff);}else{sprintf(Results8, "  -    &   -      &    -     &   -     ");}
       char ResultsC[255]; if(InfosC.Mass>0 && TypeMode!=3){sprintf(ResultsC, "%s & %s", toLatex(InfosC.XSec_Exp).c_str(), toLatex(InfosC.XSec_Obs).c_str());}else{sprintf(ResultsC, "   -     &    -    ");}

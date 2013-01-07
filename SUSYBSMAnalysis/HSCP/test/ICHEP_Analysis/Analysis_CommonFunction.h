@@ -284,6 +284,31 @@ double FindIntersectionBetweenTwoGraphs(TGraph* obs, TGraph* th, double Min, dou
 }
 
 
+// find the range of excluded masses. Necessary when low mass not excluded but higher masses are
+void FindRangeBetweenTwoGraphs(TGraph* obs, TGraph* th, double Min, double Max, double Step, double ThUncertainty, double& minExclMass, double& maxExclMass){
+
+   double ThShift = 1.0-ThUncertainty;
+   double PreviousX = Min;
+   double PreviousV = obs->Eval(PreviousX, 0, "") - (ThShift * th->Eval(PreviousX, 0, "")) ;
+   bool LowMassNeeded=true;
+   if(PreviousV<0) LowMassNeeded=false;
+   for(double x=Min+=Step;x<Max;x+=Step){                 
+      double V = obs->Eval(x, 0, "") - (ThShift * th->Eval(x, 0, "") );
+      if(LowMassNeeded && V<0) {
+	minExclMass=x;
+	LowMassNeeded=false;
+      }
+      if(V<0){
+         PreviousX = x;
+         PreviousV = V;
+      }else{
+         maxExclMass = PreviousX;
+      }
+   }
+   return;
+}
+
+
 
 
 
