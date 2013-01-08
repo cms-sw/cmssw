@@ -267,8 +267,9 @@ void Analysis_Step4(std::string InputPattern)
             if(S==0 && TypeMode==5){
                P_Coll      = P;
                Perr_Coll   = Perr;
-               P_Cosmic    = ((C_Cosmic*B_Cosmic)/A_Cosmic);
-               if(P_Cosmic>0){
+               P_Cosmic    = -1;
+               if(A_Cosmic>0 && B_Cosmic>0 && C_Cosmic>0){
+                  P_Cosmic    = ((C_Cosmic*B_Cosmic)/A_Cosmic);
                   Perr_Cosmic = sqrt( pow(CErr_Cosmic*B_Cosmic/A_Cosmic,2) + pow(BErr_Cosmic*C_Cosmic/A_Cosmic,2) + pow(AErr_Cosmic*B_Cosmic*C_Cosmic/(A_Cosmic*A_Cosmic),2) );
                }else if(D_Cosmic>0){
                   P_Cosmic = D_Cosmic * CosmicVetoInEfficiency;

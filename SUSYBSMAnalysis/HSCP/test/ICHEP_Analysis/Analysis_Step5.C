@@ -862,7 +862,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
               double Perr =  H_P->GetBinError(i+1);
               if(S==1 && P<=0){P = 3/2.0; Perr=3/2.0;  max = std::max(max, 3.0);}
               mapPred[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), P);
-              mapPred[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , sqrt(pow(Perr,2) + pow(0.1*H_P->GetBinContent(i+1),2) ) );
+              mapPred[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , sqrt(pow(Perr,2) + pow(0.2*H_P->GetBinContent(i+1),2) ) );
               mapPred[std::make_pair(PtCut, TCut)]->Set(N_i+1);
 
               max = std::max(max, H_D->GetBinContent(CutIndex_+i+1));
