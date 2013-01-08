@@ -181,7 +181,7 @@ DQMOutput                                          # sr 131577
 EcalCalibrationOutput                              # sr 131577
 ExpressOutput                                      # sr 131577
 HLTDQMOutput                                       # sr 131577
-HLTMONOutput                                       # sr 131577
+#HLTMONOutput                                      # sr 131577, removed by sr #134906 
 NanoDSTOutput                                      # sr 131577
 PhysicsDSTOutput                                   # sr 131577
 RPCMONOutput                                       # sr 131577
