@@ -145,7 +145,7 @@ namespace edm {
       boost::array<bool, NumBranchTypes> productProduced_;
       bool anyProductProduced_;
 
-      // indices used to quickly find a group in the vector groups_
+      // indices used to quickly find a product in the vector productHolders_
       // by type, first one by the type of the EDProduct and the
       // second by the type of object contained in a sequence in
       // an EDProduct

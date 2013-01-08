@@ -3,7 +3,7 @@
 
 /*----------------------------------------------------------------------
   
-BranchKey: The key used to identify a Group in the EventPrincipal. The
+BranchKey: The key used to identify a Product in the EventPrincipal. The
 name of the branch to which the related data product will be written
 is determined entirely from the BranchKey.
 
