@@ -362,16 +362,89 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_cfi',K250by100)
 ## upgrade dedicated wf
 step1Upgpixphase1Defaults = {'-s' : 'GEN,SIM',
                              '-n' : 10,
-                             '--conditions' : 'DESIGN60_V5::All',
+#                             '--conditions' : 'DESIGN60_V5::All', 
+                             '--conditions' : 'DESIGN61_V10::All', #should be updated with autocond
                              '--beamspot' : 'Gauss',
                              '--datatier' : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
                              '--slhc' : 'Phase1_R30F12'
                              }
+def genup(fragment,howMuch):
+    global step1Defaults
+    return merge([{'cfg':fragment},howMuch,step1Upgpixphase1Defaults])
 
-steps['FourMuPt1_200_UPGphase1']=merge([{'cfg':'FourMuPt_1_200_cfi','--relval':'10000,100'},step1Upgpixphase1Defaults])
-steps['MinBias_UPGphase1_14']=merge([{'cfg':'MinBias_TuneZ2star_14TeV_pythia6_cff','--relval':'15000,250'},step1Upgpixphase1Defaults])
-steps['TTbar_Tauola_UPGphase1_14']=merge([{'cfg':'TTbar_Tauola_14TeV_cfi','--relval':'10000,100'},step1Upgpixphase1Defaults])
+steps['FourMuPt1_200_UPGPhase1']=genup('FourMuPt_1_200_cfi',Kby(10,100))
+steps['SingleElectronPt10_UPGPhase1']=genup('SingleElectronPt10_cfi',Kby(9,3000))
+steps['SingleElectronPt35_UPGPhase1']=genup('SingleElectronPt35_cfi',Kby(9,500))
+steps['SingleElectronPt1000_UPGPhase1']=genup('SingleElectronPt1000_cfi',Kby(9,50))
+steps['SingleGammaPt10_UPGPhase1']=genup('SingleGammaPt10_cfi',Kby(9,3000))
+steps['SingleGammaPt35_UPGPhase1']=genup('SingleGammaPt35_cfi',Kby(9,500))
+steps['SingleMuPt1_UPGPhase1']=genup('SingleMuPt1_cfi',Kby(25,1000))
+steps['SingleMuPt10_UPGPhase1']=genup('SingleMuPt10_cfi',Kby(25,500))
+steps['SingleMuPt100_UPGPhase1']=genup('SingleMuPt100_cfi',Kby(9,500))
+steps['SingleMuPt1000_UPGPhase1']=genup('SingleMuPt1000_cfi',Kby(9,500))
+
+steps['TTbarLepton_UPGPhase1']=genup('TTbarLepton_Tauola_8TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_80_120_UPGPhase1']=genup('Wjet_Pt_80_120_8TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_3000_3500_UPGPhase1']=genup('Wjet_Pt_3000_3500_8TeV_cfi',Kby(9,50))
+steps['LM1_sfts_UPGPhase1']=genup('LM1_sfts_8TeV_cfi',Kby(9,100))
+
+steps['QCD_Pt_3000_3500_UPGPhase1']=genup('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
+steps['QCD_Pt_600_800_UPGPhase1']=genup('QCD_Pt_600_800_8TeV_cfi',Kby(9,50))
+steps['QCD_Pt_80_120_UPGPhase1']=genup('QCD_Pt_80_120_8TeV_cfi',Kby(9,100))
+
+steps['Higgs200ChargedTaus_UPGPhase1']=genup('H200ChargedTaus_Tauola_8TeV_cfi',Kby(9,100))
+steps['JpsiMM_UPGPhase1']=genup('JpsiMM_8TeV_cfi',Kby(66,1000))
+steps['TTbar_UPGPhase1']=genup('TTbar_Tauola_8TeV_cfi',Kby(9,100))
+steps['WE_UPGPhase1']=genup('WE_8TeV_cfi',Kby(9,100))
+steps['ZEE_UPGPhase1']=genup('ZEE_8TeV_cfi',Kby(9,100))
+steps['ZTT_UPGPhase1']=genup('ZTT_Tauola_All_hadronic_8TeV_cfi',Kby(9,150))
+steps['H130GGgluonfusion_UPGPhase1']=genup('H130GGgluonfusion_8TeV_cfi',Kby(9,100))
+steps['PhotonJets_Pt_10_UPGPhase1']=genup('PhotonJet_Pt_10_8TeV_cfi',Kby(9,150))
+steps['QQH1352T_Tauola_UPGPhase1']=genup('QQH1352T_Tauola_8TeV_cfi',Kby(9,100))
+
+steps['MinBias_UPGPhase1']=genup('MinBias_8TeV_cfi',Kby(9,300))
+steps['WM_UPGPhase1']=genup('WM_8TeV_cfi',Kby(9,200))
+steps['ZMM_UPGPhase1']=genup('ZMM_8TeV_cfi',Kby(18,300))
+
+steps['ADDMonoJet_d3MD3_UPGPhase1']=genup('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
+steps['ZpMM_UPGPhase1']=genup('ZpMM_8TeV_cfi',Kby(9,200))
+steps['WpM_UPGPhase1']=genup('WpM_8TeV_cfi',Kby(9,200))
+
+
+
+#14TeV
+steps['TTbarLepton_UPGPhase1_14']=genup('TTbarLepton_Tauola_14TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_80_120_UPGPhase1_14']=genup('Wjet_Pt_80_120_14TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_3000_3500_UPGPhase1_14']=genup('Wjet_Pt_3000_3500_14TeV_cfi',Kby(9,50))
+steps['LM1_sfts_UPGPhase1_14']=genup('LM1_sfts_14TeV_cfi',Kby(9,100))
+
+steps['QCD_Pt_3000_3500_UPGPhase1_14']=genup('QCD_Pt_3000_3500_14TeV_cfi',Kby(9,25))
+steps['QCD_Pt_600_800_UPGPhase1_14']=genup('QCD_Pt_600_800_14TeV_cfi',Kby(9,50))
+steps['QCD_Pt_80_120_UPGPhase1_14']=genup('QCD_Pt_80_120_14TeV_cfi',Kby(9,100))
+
+steps['Higgs200ChargedTaus_UPGPhase1_14']=genup('H200ChargedTaus_Tauola_14TeV_cfi',Kby(9,100))
+steps['JpsiMM_UPGPhase1_14']=genup('JpsiMM_14TeV_cfi',Kby(66,1000))
+steps['TTbar_UPGPhase1_14']=genup('TTbar_Tauola_14TeV_cfi',Kby(9,100))
+steps['WE_UPGPhase1_14']=genup('WE_14TeV_cfi',Kby(9,100))
+steps['ZEE_UPGPhase1_14']=genup('ZEE_14TeV_cfi',Kby(9,100))
+steps['ZTT_UPGPhase1_14']=genup('ZTT_Tauola_All_hadronic_14TeV_cfi',Kby(9,150))
+steps['H130GGgluonfusion_UPGPhase1_14']=genup('H130GGgluonfusion_14TeV_cfi',Kby(9,100))
+steps['PhotonJets_Pt_10_UPGPhase1_14']=genup('PhotonJet_Pt_10_14TeV_cfi',Kby(9,150))
+steps['QQH1352T_Tauola_UPGPhase1_14']=genup('QQH1352T_Tauola_14TeV_cfi',Kby(9,100))
+
+steps['MinBias_UPGPhase1_14']=genup('MinBias_14TeV_cfi',Kby(9,300))
+steps['WM_UPGPhase1_14']=genup('WM_14TeV_cfi',Kby(9,200))
+steps['ZMM_UPGPhase1_14']=genup('ZMM_14TeV_cfi',Kby(18,300))
+
+steps['ADDMonoJet_d3MD3_UPGPhase1_14']=genup('ADDMonoJet_14TeV_d3MD3_cfi',Kby(9,100))
+steps['ZpMM_UPGPhase1_14']=genup('ZpMM_14TeV_cfi',Kby(9,200))
+steps['WpM_UPGPhase1_14']=genup('WpM_14TeV_cfi',Kby(9,200))
+
+
+
+
+
 
 ## pPb tests
 step1PPbDefaults={'--beamspot':'Realistic8TeVCollisionPPbBoost'}
@@ -523,6 +596,16 @@ steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DI
     
 steps['DIGIHI']=merge([{'--conditions':'auto:starthi_HIon', '-s':'DIGI,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Defaults])
 
+#for phase1
+step2Upgpixphase1Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+                 '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
+                 '--datatier':'GEN-SIM-DIGI-RAW',
+                 '-n':'10',
+                 '--eventcontent':'FEVTDEBUGHLT',
+                 '--customise':'SLHCUpgradeSimulations/Configuration/customise_mixing.customise_pixelMixing,SLHCUpgradeSimulations/Configuration/customise_mixing.customise_DigiToRaw',
+                 '--slhc' : 'Phase1_R30F12'
+                 }
+steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
 
@@ -634,7 +717,18 @@ steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
 steps['RECOFS']=merge([{'--fast':'',
                         '-s':'RECO,HLT:@relval,VALIDATION'},
                        steps['RECO']])
+#for phase1
+step3Upgpixphase1Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
+                 '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
+                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '-n':'10',
+                 '--eventcontent':'FEVTDEBUGHLT,DQM',
+                 '--customise':'SLHCUpgradeSimulations/Configuration/phase1Customs.phase1Mods,SLHCUpgradeSimulations/Configuration/phase1Customs.customise_DQM',
+                 '--slhc' : 'Phase1_R30F12'
+                 }
+                             
 
+steps['RECOUP']=merge([step3Upgpixphase1Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
 
@@ -731,6 +825,13 @@ steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--scenario':'HeavyIons'}
 
+#for phase1
+steps['HARVESTUP']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+                   '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
+                   '--mc':'',
+		   '--customise':'SLHCUpgradeSimulations/Configuration/phase1Customs.customise_harvesting'
+                   }
+		   
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:com10',
                     '--scenario':'pp',
