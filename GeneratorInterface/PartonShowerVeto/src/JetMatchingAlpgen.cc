@@ -135,14 +135,20 @@ void JetMatchingAlpgen::beforeHadronisation(const lhef::LHEEvent* event)
   eventInitialized = true;
 }
 
+/*
 int JetMatchingAlpgen::match(const HepMC::GenEvent *partonLevel,
 			     const HepMC::GenEvent *finalState,
 			     bool showeredFinalState)
+*/
+int JetMatchingAlpgen::match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput )
 {
+
+/*
   if (!showeredFinalState)
     throw cms::Exception("Generator|PartonShowerVeto")
       << "Alpgen matching expected parton shower "
       "final state." << std::endl;
+*/
 
   if (!runInitialized)
     throw cms::Exception("Generator|PartonShowerVeto")

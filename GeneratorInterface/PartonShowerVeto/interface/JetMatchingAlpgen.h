@@ -18,10 +18,13 @@ class JetMatchingAlpgen : public JetMatching {
 	void init(const lhef::LHERunInfo* runInfo);
 	void beforeHadronisation(const lhef::LHEEvent* event);
 	
+	int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput );
+	virtual double getJetEtaMax() const { return 0.; }
+/*
 	int match(const HepMC::GenEvent* partonLevel,
 		  const HepMC::GenEvent* finalState,
 		  bool showeredFinalState);
-
+*/
 	std::set<std::string> capabilities() const;
 
 	bool applyMatching;
@@ -34,4 +37,4 @@ class JetMatchingAlpgen : public JetMatching {
 } // namespace gen
 
 
-#endif // GeneratorCommon_PartonShowerVeto_JetMatchingAlpgen_h
+#endif // GeneratorInterface_PartonShowerVeto_JetMatchingAlpgen_h

@@ -13,7 +13,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
-#include <HepMC/GenEvent.h>
+// #include <HepMC/GenEvent.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -172,6 +172,13 @@ JetMatchingMadgraph::~JetMatchingMadgraph()
 {
 }
 
+double JetMatchingMadgraph::getJetEtaMax() const
+{
+   
+   std::cout << " etaclmax= " << memain_.etaclmax << std::endl;
+   return memain_.etaclmax;
+}
+
 std::set<std::string> JetMatchingMadgraph::capabilities() const
 {
 	std::set<std::string> result;
@@ -296,18 +303,23 @@ void JetMatchingMadgraph::beforeHadronisation(const lhef::LHEEvent* event)
 			<< std::endl;
 
 
-	if (uppriv_.ickkw) {
+	if (uppriv_.ickkw) 
+	{
 		std::vector<std::string> comments = event->getComments();
-		if (comments.size() == 1) {
+		if (comments.size() == 1) 
+		{
 			std::istringstream ss(comments[0].substr(1));
-			for(int i = 0; i < 1000; i++) {
+			for(int i = 0; i < 1000; i++) 
+			{
 				double pt;
 				ss >> pt;
 				if (!ss.good())
 					break;
 				pypart_.ptpart[i] = pt;
 			}
-		} else {
+		} 
+		else 
+		{
 			edm::LogWarning("Generator|LHEInterface")
 				<< "Expected exactly one comment line per "
 				   "event containing MadGraph parton scale "
@@ -315,7 +327,8 @@ void JetMatchingMadgraph::beforeHadronisation(const lhef::LHEEvent* event)
 				<< std::endl;
 
 			const lhef::HEPEUP *hepeup = event->getHEPEUP();
-			for(int i = 2; i < hepeup->NUP; i++) {
+			for(int i = 2; i < hepeup->NUP; i++) 
+			{
 				double mt2 =
 					hepeup->PUP[i][0] * hepeup->PUP[i][0] +
 					hepeup->PUP[i][1] * hepeup->PUP[i][1] +
@@ -336,14 +349,19 @@ void JetMatchingMadgraph::beforeHadronisationExec()
         return;
 }
 
+/*
 int JetMatchingMadgraph::match(const HepMC::GenEvent *partonLevel,
                                   const HepMC::GenEvent *finalState,
                                   bool showeredFinalState)
+*/
+int JetMatchingMadgraph::match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput )
 {
+/*
 	if (!showeredFinalState)
 		throw cms::Exception("Generator|LHEInterface")
 			<< "MadGraph matching expected parton shower "
 			   "final state." << std::endl;
+*/
 
 	if (!runInitialized)
 		throw cms::Exception("Generator|LHEInterface")
