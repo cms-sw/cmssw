@@ -36,7 +36,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
        MEMAIN_minjets = cms.int32(-1),
        MEMAIN_maxjets = cms.int32(-1),
        MEMAIN_showerkt = cms.double(0),    # use 1=yes only for pt-ordered showers !
-       MEMAIN_nqmatch = cms.int32(5),      # PID of the flavor until which the QCD radiation are kept in the matching procedure. 
+       MEMAIN_nqmatch = cms.int32(4),      # PID of the flavor until which the QCD radiation are kept in the matching procedure. 
                                            # If nqmatch=4, then all showered partons from b's are NOT taken into account.
 				           # In many cases the D=5
        MEMAIN_excres = cms.string(""),
@@ -74,7 +74,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ),
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('Py8Had_mgmatching.root')

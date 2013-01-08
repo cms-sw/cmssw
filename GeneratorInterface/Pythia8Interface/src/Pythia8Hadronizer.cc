@@ -18,6 +18,7 @@
 //
 #include "GeneratorInterface/Pythia8Interface/interface/JetMatchingHook.h"
 
+
 // Emission Veto Hooks
 //
 #include "GeneratorInterface/Pythia8Interface/interface/EmissionVetoHook.h"
@@ -215,7 +216,15 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   {
     edm::ParameterSet jmParams =
       params.getUntrackedParameter<edm::ParameterSet>("jetMatching");
-    fJetMatchingHook = new JetMatchingHook( jmParams, &pythia->info );
+      std::string scheme = jmParams.getParameter<std::string>("scheme");
+      if ( scheme == "MadgraphSlowJet" )
+      {
+         fJetMatchingHook = new MG5hooks( jmParams, &pythia->info );
+      }
+      else
+      {
+         fJetMatchingHook = new JetMatchingHook( jmParams, &pythia->info );
+      }
   }
 
   // Emission vetos
@@ -363,19 +372,26 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     lhaUP.reset(new LHAupLesHouches());
     lhaUP->loadRunInfo(lheRunInfo());
+    
+    if ( fJetMatchingHook )
+    {
+       fJetMatchingHook->init ( lheRunInfo() );
+    }
+    
     pythia->init(lhaUP.get());
 
   }
 
   // PS matching prototype
   //
+/*
   if ( fJetMatchingHook ) 
   {
     // matcher will be init as well, inside init(...)
     //
     fJetMatchingHook->init ( lheRunInfo() );
   }
-
+*/
     return true;
 }
 
