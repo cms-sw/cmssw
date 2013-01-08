@@ -952,6 +952,80 @@ void stPlots_Dump(stPlots& st, FILE* pFile, int CutIndex){
    fprintf(pFile,"HSCP Detection Efficiency After  Trigger                           Eff=%4.3E\n",st.TOF->GetBinContent(CutIndex+1) /(2*st.TotalTE->GetBinContent(1       )));
    fprintf(pFile,"#HSCPTrack per HSCPEvent (with at least one HSCPTrack)             Eff=%4.3E\n",st.TOF->GetBinContent(CutIndex+1) /(  st.HSCPE  ->GetBinContent(CutIndex+1)));
    fprintf(pFile,"HSCP Event Efficiency                                              Eff=%4.3E\n",st.HSCPE->GetBinContent(CutIndex+1) /(  st.TotalE  ->GetBinContent(1)));
+
+   // Table1- Numbers (tracks/events) at various cut stages: with event weights
+   //  fprintf(pFile,"%-24s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s\n", "Signal", "#Evts", "#TrEvts", "#GlTrks", "#NOH", "#NOM", "#TOFnDOF", "#TrkQ", "#TrkChi", "#pT", "#dedx", "#TOF", "#v3D", "#Dxy","#TIsol", "#EIsol", "#SigmapT", "#Dz", "#PreSelTr", "#PreSelE", "#pT", "#Ias", "#1/beta", "#Events");
+   //  fprintf(pFile,"%-24s%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f%-10.2f\n", st.Name.c_str(), st.TotalE->GetBinContent(1), st.TotalTE->GetBinContent(1), st.Total->GetBinContent(1), st.TNOH->GetBinContent(1), st.TNOM->GetBinContent(1), st.nDof->GetBinContent(1), st.Qual->GetBinContent(1), st.Chi2->GetBinContent(1), st.MPt->GetBinContent(1), st.MI->GetBinContent(1), st.MTOF->GetBinContent(1), st.V3D->GetBinContent(1), st.Dxy->GetBinContent(1), st.TIsol->GetBinContent(1), st.EIsol->GetBinContent(1), st.Pterr->GetBinContent(1), st.Dz->GetBinContent(1), st.TOF->GetBinContent(1), st.HSCPE->GetBinContent(1), st.Pt->GetBinContent(CutIndex+1), st.I->GetBinContent(CutIndex+1), st.TOF->GetBinContent(CutIndex+1), st.HSCPE->GetBinContent(CutIndex+1));
+  
+   // Table2- Efficiencies at various cut stages: with event weights
+   //  fprintf(pFile,"                        %-200s%-50s%-30s\n", "Track-based Efficiency", "Event-based efficiency", "Track/Event");
+   //  fprintf(pFile,"%-24s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s%-10s\n", "Signal", "NOH", "NOM", "TOFnDOF", "Qual", "Chi2", "pT", "Ias", "SigmaTOF", "3D vertex", "dxy", "Tk-Isol", "Cal-Isol", "sigmapT", "dz", "1/beta", "PreSelgm", "PreSelgen", "PreSeltr", "Selgen", "Seltr", "Trigger", "PreSelgen", "PreSeltr", "Selgen", "Seltr", "GlmuperTr", "PreSel", "FinalSel");
+   //  fprintf(pFile,"%-24s%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f%-10.5f\n", st.Name.c_str(), st.TNOH->GetBinContent(1)/st.Total->GetBinContent(1), st.TNOM->GetBinContent(1)/st.TNOH->GetBinContent(1), st.nDof->GetBinContent(1)/st.TNOM->GetBinContent(1), st.Qual->GetBinContent(1)/st.nDof->GetBinContent(1), st.Chi2->GetBinContent(1)/st.Qual->GetBinContent(1), st.MPt->GetBinContent(1)/st.Chi2->GetBinContent(1), st.MI->GetBinContent(1)/st.MPt->GetBinContent(1), st.MTOF->GetBinContent(1)/st.MI->GetBinContent(1), st.V3D->GetBinContent(1)/st.MTOF->GetBinContent(1), st.Dxy->GetBinContent(1)/st.V3D->GetBinContent(1), st.TIsol->GetBinContent(1)/st.Dxy->GetBinContent(1), st.EIsol->GetBinContent(1)/st.TIsol->GetBinContent(1), st.Pterr->GetBinContent(1)/st.EIsol->GetBinContent(1), st.Dz->GetBinContent(1)/st.Pterr->GetBinContent(1), st.TOF->GetBinContent(1)/st.Dz->GetBinContent(1), st.TOF->GetBinContent(1)/st.Total->GetBinContent(1), st.TOF->GetBinContent(1)/(2*st.TotalE->GetBinContent(1)), st.TOF->GetBinContent(1)/(2*st.TotalTE->GetBinContent(1)), st.TOF->GetBinContent(CutIndex+1)/(2*st.TotalE->GetBinContent(1)), st.TOF->GetBinContent(CutIndex+1)/(2*st.TotalTE->GetBinContent(1)), st.TotalTE->GetBinContent(1)/st.TotalE->GetBinContent(1), st.HSCPE->GetBinContent(1)/st.TotalE->GetBinContent(1), st.HSCPE->GetBinContent(1)/st.TotalTE->GetBinContent(1), st.HSCPE->GetBinContent(CutIndex+1)/st.TotalE->GetBinContent(1), st.HSCPE->GetBinContent(CutIndex+1)/st.TotalTE->GetBinContent(1), st.Total->GetBinContent(1)/(2*st.TotalTE->GetBinContent(1)), st.TOF->GetBinContent(1)/st.HSCPE->GetBinContent(1), st.TOF->GetBinContent(CutIndex+1)/st.HSCPE->GetBinContent(CutIndex+1));
+
+
+// Table1- Numbers at various cut stages: with event weights
+// Column1: Signal Name
+// Column2: # of generated events
+// Column3: # of triggered events
+// Column4: # of tracks being global muon
+// Column5: # of tracks passing eta, NOH, NOPixelH, ValidFraction cut
+// Column6: # of tracks passing NOM cut
+// Column7: # of tracks passing TOF, DT and CSC nDOF cuts
+// Column8: # of tracks passing track quality cut
+// Column9: # of tracks passing track chi2 cut
+// Column10:# of tracks passing track pT cut
+// Column11:# of tracks passing track Ias and dedx cut
+// Column12:# of tracks passing track sigma(1/beta) cut and timeAtIP cut
+// Column13:# of tracks passing v3D cut
+// Column14:# of tracks passing Dxy cut
+// Column15:# of tracks passing tracker isolation
+// Column16:# of tracks passing Cal isolation
+// Column17:# of tracks passing Sigma(pT) cut
+// Column18:# of tracks passing dz cut
+// Column19:# of tracks passing all preselection cuts, including 1/beta > 1.0
+// Column20:# of events passing all preselection cuts, including 1/beta > 1.0
+// Column21:# of tracks passing pT final selection
+// Column22:# of tracks passing Ias final selection
+// Column23:# of tracks passing 1/beta final selection
+// Column24:#Events in final selection
+
+
+// Table2: Efficiency numbers for various cut stages
+
+// ** Track-based efficiency
+// to pass eta, NOH, NOPixelH and valid fraction cut for a global muon track
+// to pass NOM cut relative to previous number of tracks
+// to pass TOF, DT and CSC dof cuts relative to previous number of tracks
+// to pass quality cut relative to previous number of tracks
+// to pass chi2 cut relative to previous number of tracks
+// to pass pT cut relative to previous number of tracks
+// to pass Ias and dedx cuts relative to previous number of tracks
+// to pass sigma(1/beta) cut relative to previous number of tracks
+// to pass 3D vertex cut relative to previous number of tracks
+// to pass dxy cut relative to previous number of tracks
+// to pass tracker isolation cut relative to previous number of tracks
+// to pass calorimeter isolation cut relative to previous number of tracks
+// to pass sigma (pt) cut relative to previous number of tracks
+// to pass dz cut relative to previous number of tracks
+// to pass 1/beta cut relative to previous number of tracks
+// Preselection efficiency for a global muon track
+// Preselection efficiency for a track in generated event
+// Preselection efficiency for a track in triggerred event
+// Final selection efficiency for a track in a generated event
+// Final selection efficiency for a track in a triggerred event
+
+// ** Event-based efficiency
+// Trigger efficiency per generated event
+// Preselection eff per generated event
+// Preselection eff per triggerred event
+// Final selection eff per generated event
+// Final selection eff per triggerred event
+
+// ** Track/Event
+// global muon per triggerred event
+// Number of tracks per event at preselection
+// Number of tracks per event at final selection
+
    fprintf(pFile,"\n\n");
 }
 
