@@ -7,6 +7,7 @@ HLT_BeamHalo_v*                                    # sr 131577
 #HLT_HcalNZS_v*                                    # sr 131577
 HLT_PAHcalPhiSym_v*                                # renamed
 HLT_PAHcalNZS_v*                                   # renamed
+HLT_PAHcalUTCA_v*                                  # sr 134910
 HLT_GlobalRunHPDNoise_v*                           # sr 131577
 HLT_Physics_v*                                     # sr 131577
 DST_Physics_v*                                     # sr 131577

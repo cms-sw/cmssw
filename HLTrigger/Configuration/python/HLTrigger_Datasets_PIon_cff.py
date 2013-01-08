@@ -32,7 +32,8 @@ streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 
 streamA_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_PAHcalNZS_v1', 
-    'HLT_PAHcalPhiSym_v1')
+    'HLT_PAHcalPhiSym_v1', 
+    'HLT_PAHcalUTCA_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJetMon_selector
 streamA_datasetJetMon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
