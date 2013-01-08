@@ -109,15 +109,15 @@ namespace edm {
       std::set<BranchID> missingFromMapper;
       std::set<BranchID> missingProductProvenance;
 
-      std::map<BranchID, boost::shared_ptr<Group> > idToGroup;
+      std::map<BranchID, boost::shared_ptr<ProductHolderBase> > idToProductHolder;
       for(EventPrincipal::const_iterator it = e.begin(), itEnd = e.end();
           it != itEnd;
           ++it) {
          if(*it) {
             BranchID branchID = (*it)->branchDescription().branchID();
-            idToGroup[branchID] = (*it);
+            idToProductHolder[branchID] = (*it);
             if((*it)->productUnavailable()) {
-               //This call seems to have a side effect of filling the 'ProductProvenance' in the Group
+               //This call seems to have a side effect of filling the 'ProductProvenance' in the ProductHolder
                OutputHandle const oh = e.getForOutput(branchID, false);
 
                bool cannotFindProductProvenance=false;
@@ -167,7 +167,7 @@ namespace edm {
          for(std::set<BranchID>::iterator it = missingFromMapper.begin(), itEnd = missingFromMapper.end();
              it != itEnd;
              ++it) {
-            LogProblem("ProvenanceChecker") << *it<<" "<<idToGroup[*it]->branchDescription();
+            LogProblem("ProvenanceChecker") << *it<<" "<<idToProductHolder[*it]->branchDescription();
          }
       }
       if(missingFromPrincipal.size()) {
@@ -180,11 +180,11 @@ namespace edm {
       }
 
       if(missingProductProvenance.size()) {
-         LogError("ProvenanceChecker") << "The Groups for the following BranchIDs have no ProductProvenance\n";
+         LogError("ProvenanceChecker") << "The ProductHolders for the following BranchIDs have no ProductProvenance\n";
          for(std::set<BranchID>::iterator it = missingProductProvenance.begin(), itEnd = missingProductProvenance.end();
              it != itEnd;
              ++it) {
-            LogProblem("ProvenanceChecker") << *it<<" "<<idToGroup[*it]->branchDescription();
+            LogProblem("ProvenanceChecker") << *it<<" "<<idToProductHolder[*it]->branchDescription();
          }
       }
 
@@ -204,7 +204,7 @@ namespace edm {
          << (missingFromMapper.size() && missingFromPrincipal.size() ? " and" : "")
          << (missingFromPrincipal.size() ? " from EventPrincipal" : "")
          << (missingFromMapper.size() || missingFromPrincipal.size() ? ".\n" : "")
-         << (missingProductProvenance.size() ? " Have missing ProductProvenance's from Group in EventPrincipal.\n" : "")
+         << (missingProductProvenance.size() ? " Have missing ProductProvenance's from ProductHolder in EventPrincipal.\n" : "")
          << (missingFromReg.size() ? " Have missing info from ProductRegistry.\n" : "");
       }
    }

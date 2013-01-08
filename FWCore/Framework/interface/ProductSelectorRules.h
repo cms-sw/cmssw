@@ -1,9 +1,9 @@
-#ifndef FWCore_Framework_GroupSelectorRules_h
-#define FWCore_Framework_GroupSelectorRules_h
+#ifndef FWCore_Framework_ProductSelectorRules_h
+#define FWCore_Framework_ProductSelectorRules_h
 
 //////////////////////////////////////////////////////////////////////
 //
-// Class GroupSelectorRules. Class for rules to select specific groups in event.
+// Class ProductSelectorRules. Class for rules to select specific products in event.
 //
 // Author: Bill Tanenbaum, Marc Paterno
 //
@@ -17,13 +17,13 @@
 
 namespace edm {
   class BranchDescription;
-  class GroupSelector;
+  class ProductSelector;
   class ParameterSet;
   class ParameterSetDescription;
 
-  class GroupSelectorRules {
+  class ProductSelectorRules {
   public:
-    GroupSelectorRules(ParameterSet const& pset, std::string const& parameterName, std::string const& parameterOwnerName);
+    ProductSelectorRules(ParameterSet const& pset, std::string const& parameterName, std::string const& parameterOwnerName);
     //--------------------------------------------------
     // BranchSelectState is a struct which associates a BranchDescription
     // (*desc) with a bool indicating whether or not the branch with

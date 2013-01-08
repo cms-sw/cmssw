@@ -96,7 +96,7 @@ namespace edm {
   private:
     virtual bool unscheduledFill(std::string const&) const {return false;}
 
-    void resolveProductImmediate(Group const& g) const;
+    void resolveProductImmediate(ProductHolderBase const& phb) const;
 
     boost::shared_ptr<RunPrincipal> runPrincipal_;
 

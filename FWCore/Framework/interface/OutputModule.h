@@ -17,8 +17,8 @@ output stream.
 
 #include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/GroupSelectorRules.h"
-#include "FWCore/Framework/interface/GroupSelector.h"
+#include "FWCore/Framework/interface/ProductSelectorRules.h"
+#include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "boost/array.hpp"
@@ -134,8 +134,8 @@ namespace edm {
     boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
     std::string process_name_;
-    GroupSelectorRules groupSelectorRules_;
-    GroupSelector groupSelector_;
+    ProductSelectorRules productSelectorRules_;
+    ProductSelector productSelector_;
     ModuleDescription moduleDescription_;
 
     // We do not own the pointed-to CurrentProcessingContext.

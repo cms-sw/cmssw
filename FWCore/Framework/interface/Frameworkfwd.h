@@ -22,7 +22,6 @@ namespace edm {
   class EventPrincipal;
   class EventSetup;
   class FileBlock;
-  class Group;
   class InputSource;
   struct InputSourceDescription;
   class LuminosityBlock;

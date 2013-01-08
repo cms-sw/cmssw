@@ -1,8 +1,8 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowTree.h"
 
 #include "FWCore/Framework/interface/ConstProductRegistry.h" 
-#include "FWCore/Framework/interface/GroupSelector.h"
-#include "FWCore/Framework/interface/GroupSelectorRules.h"
+#include "FWCore/Framework/interface/ProductSelector.h"
+#include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "DataFormats/Provenance/interface/Selections.h"
 
 #include <map>
@@ -58,14 +58,14 @@ beginJob() {
 
   edm::Service<edm::ConstProductRegistry> reg;
   edm::Selections allBranches = reg->allBranchDescriptions();
-  edm::GroupSelectorRules groupSelectorRules_(pset, "outputCommands", "ShallowTree");
-  edm::GroupSelector groupSelector_;
-  groupSelector_.initialize(groupSelectorRules_, allBranches);
+  edm::ProductSelectorRules productSelectorRules_(pset, "outputCommands", "ShallowTree");
+  edm::ProductSelector productSelector_;
+  productSelector_.initialize(productSelectorRules_, allBranches);
 
   std::set<std::string> branchnames;
 
   BOOST_FOREACH( const edm::Selections::value_type& selection, allBranches) {
-    if(groupSelector_.selected(*selection)) {
+    if(productSelector_.selected(*selection)) {
 
       //Check for duplicate branch names
       if (branchnames.find( selection->productInstanceName()) != branchnames.end() ) {

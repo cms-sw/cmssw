@@ -79,9 +79,9 @@ namespace edm {
 
     virtual bool unscheduledFill(std::string const&) const {return false;}
 
-    void resolveProductImmediate(Group const& g) const;
+    void resolveProductImmediate(ProductHolderBase const& phb) const;
 
-    // A vector of groups.
+    // A vector of product holders.
     boost::shared_ptr<RunAuxiliary> aux_;
   };
 }

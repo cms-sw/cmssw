@@ -43,7 +43,7 @@ namespace edm {
     typedef EventAuxiliary Auxiliary;
     typedef Principal Base;
 
-    typedef Base::ConstGroupPtr ConstGroupPtr;
+    typedef Base::ConstProductPtr ConstProductPtr;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(
@@ -154,7 +154,7 @@ namespace edm {
 
     virtual bool unscheduledFill(std::string const& moduleLabel) const;
 
-    virtual void resolveProduct_(Group const& g, bool fillOnDemand) const;
+    virtual void resolveProduct_(ProductHolderBase const& phb, bool fillOnDemand) const;
 
   private:
 
