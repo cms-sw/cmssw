@@ -12,6 +12,7 @@
 class Trajectory;
 class TrackingRegion;
 class MuonServiceProxy;
+class TrackerTopology;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -29,7 +30,7 @@ public:
   /// destructor
   virtual ~TrackerSeedGenerator() {}
 
-  virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &);
+  virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &);
     
   virtual void setEvent(const edm::Event&);
 

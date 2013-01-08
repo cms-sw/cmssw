@@ -11,12 +11,14 @@
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/CompositeTSG.h"
 
+class TrackerTopology;
+
 class SeparatingTSG : public CompositeTSG {
  public:
   SeparatingTSG(const edm::ParameterSet &pset);
   virtual ~SeparatingTSG();
 
-  void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &);
+  void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &);
 
   virtual unsigned int selectTSG(const TrackCand&, const TrackingRegion&) =0;
  private:

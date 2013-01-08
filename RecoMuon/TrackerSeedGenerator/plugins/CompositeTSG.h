@@ -15,6 +15,7 @@
 
 class TrackingRegion;
 class MuonServiceProxy;
+class TrackerTopology;
 
 class CompositeTSG : public TrackerSeedGenerator {
 
@@ -31,7 +32,7 @@ public:
   void setEvent(const edm::Event &event);
 
   /// provides the seeds from the TSGs: must be overloaded
-  virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &) =0;
+  virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &) =0;
 
  protected:
 

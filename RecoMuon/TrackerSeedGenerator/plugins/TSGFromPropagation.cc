@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2011/04/15 15:44:23 $
- *  $Revision: 1.38 $
+ *  $Date: 2011/12/22 21:08:02 $
+ *  $Revision: 1.39 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -24,7 +24,8 @@
 
 #include "RecoMuon/GlobalTrackingTools/interface/DirectTrackerNavigation.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+ 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
@@ -52,7 +53,7 @@ TSGFromPropagation::~TSGFromPropagation()
 
 }
 
-void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, std::vector<TrajectorySeed> & result) {
+void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const TrackingRegion& region, const TrackerTopology *tTopo, std::vector<TrajectorySeed> & result) {
 
   if ( theResetMethod == "discrete" ) getRescalingFactor(staMuon);
 

@@ -1,5 +1,6 @@
 #include "RecoMuon/TrackerSeedGenerator/plugins/CombinedTSG.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <map>
 #include <vector>
@@ -14,13 +15,14 @@ CombinedTSG::~CombinedTSG(){
  //
 }
 
-void CombinedTSG::trackerSeeds(const TrackCand & muonTrackCand, const TrackingRegion& region, std::vector<TrajectorySeed> & result){
+void CombinedTSG::trackerSeeds(const TrackCand & muonTrackCand, const TrackingRegion& region, const TrackerTopology *tTopo,
+			       std::vector<TrajectorySeed> & result){
   //run all the seed generators registered
 
   for (unsigned int iTSG=0; iTSG!=theTSGs.size();iTSG++){
     if(theTSGs[iTSG]) {
       std::vector<TrajectorySeed>  tmpResult;
-      theTSGs[iTSG]->trackerSeeds(muonTrackCand,region,tmpResult);
+      theTSGs[iTSG]->trackerSeeds(muonTrackCand,region,tTopo,tmpResult);
       //vector of seeds
       result.insert(result.end(),tmpResult.begin(),tmpResult.end());
     }

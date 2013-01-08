@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2010/08/09 19:05:57 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/09/06 18:44:33 $
+ *  $Revision: 1.14 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -26,6 +26,7 @@ class MeasurementTracker;
 class GeometricSearchTracker;
 class DirectTrackerNavigation;
 class TrajectoryStateTransform;
+class TrackerTopology;
 
 class TSGFromPropagation : public TrackerSeedGenerator {
 
@@ -39,7 +40,7 @@ public:
   virtual ~TSGFromPropagation();
 
   /// generate seed(s) for a track
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, std::vector<TrajectorySeed>&);
+  void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, std::vector<TrajectorySeed>&);
     
   /// initialize
   void init(const MuonServiceProxy*);

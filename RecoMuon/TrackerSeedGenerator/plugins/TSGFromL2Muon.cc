@@ -19,6 +19,8 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   : theConfig(cfg), theService(0), theRegionBuilder(0), theTkSeedGenerator(0), theSeedCleaner(0)
@@ -80,6 +82,12 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
+
   //intialize tools
   theService->update(es);
   theTkSeedGenerator->setEvent(ev);
@@ -116,7 +124,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     std::vector<TrajectorySeed> tkSeeds;
     //make this stupid TrackCand
     std::pair<const Trajectory*,reco::TrackRef> staCand((Trajectory*)(0), muRef);
-    theTkSeedGenerator->trackerSeeds(staCand, region, tkSeeds);
+    theTkSeedGenerator->trackerSeeds(staCand, region, tTopo,tkSeeds);
 
     //Seed Cleaner From Direction
     //clean them internatly

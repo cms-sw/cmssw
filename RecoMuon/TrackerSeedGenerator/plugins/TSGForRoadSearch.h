@@ -38,6 +38,7 @@
 class TrackingRegion;
 class MuonServiceProxy;
 class TrajectoryStateUpdator;
+class TrackerTopology;
 
 class TSGForRoadSearch : public TrackerSeedGenerator {
 
@@ -55,7 +56,7 @@ public:
   void setEvent(const edm::Event &event);
 
   /// generated seed(s) for a track. the tracking region is not used.
-  void  trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection&);
+  void  trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection&);
 
 private:
   //concrete implementation

@@ -9,6 +9,7 @@
 */
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/CompositeTSG.h"
+class TrackerTopology;
 
 class CombinedTSG : public CompositeTSG {
  public:
@@ -16,7 +17,7 @@ class CombinedTSG : public CompositeTSG {
   ~CombinedTSG();
 
   /// provide the seeds from the TSGs: must be overloaded
-  void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &);
+  void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &);
 
  private:
   std::string theCategory;
