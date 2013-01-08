@@ -1,5 +1,84 @@
-import os,os.path,csv,coral
-from RecoLuminosity.LumiDB import dbUtil,lumiTime,sessionManager
+import os,os.path,csv,coral,commands
+from RecoLuminosity.LumiDB import dbUtil,lumiTime,sessionManager,nameDealer
+def getrunsInResult(schema,minrun=132440,maxrun=500000):
+    '''
+    get runs in result tables in specified range
+    output:
+         [runnum]
+         select distinct runnum from hflumiresult where runnum>=:minrun and runnum<=:maxrun;
+    '''
+    result=[]
+    qHandle=schema.newQuery()
+    try:
+        qHandle.addToTableList( 'HFLUMIRESULT' )
+        qHandle.addToOutputList('distinct RUNNUM')
+        qCondition=coral.AttributeList()
+        qCondition.extend('minrun','unsigned int')
+        qCondition.extend('maxrun','unsigned int')
+        qCondition['minrun'].setData(minrun)
+        qCondition['maxrun'].setData(maxrun)
+        qResult=coral.AttributeList()
+        qResult.extend('RUNNUM','unsigned int')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition('RUNNUM>=:minrun AND RUNNUM<=:maxrun',qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            runnum=cursor.currentRow()['RUNNUM'].data()
+            result.append(runnum)
+        del qHandle
+    except:
+        if qHandle:del qHandle
+        raise
+    return result
+    
+def getrunsInCurrentData(schema,minrun=132440,maxrun=500000):
+    '''
+    get runs in data tables in specified range
+    output:
+         [runnum]
+         select runnum,tagid from tagruns where runnum>=:minrun and runnum<=:maxrun;
+    '''
+    tmpresult={}
+    qHandle=schema.newQuery()
+    try:
+        qHandle.addToTableList( nameDealer.tagRunsTableName() )
+        qHandle.addToOutputList('RUNNUM')
+        qHandle.addToOutputList('TAGID')
+        qCondition=coral.AttributeList()
+        qCondition.extend('minrun','unsigned int')
+        qCondition.extend('maxrun','unsigned int')
+        qCondition['minrun'].setData(minrun)
+        qCondition['maxrun'].setData(maxrun)
+        qResult=coral.AttributeList()
+        qResult.extend('RUNNUM','unsigned int')
+        qResult.extend('TAGID','unsigned long long')
+        qHandle.defineOutput(qResult)
+        qHandle.setCondition('RUNNUM>=:minrun AND RUNNUM<=:maxrun',qCondition)
+        cursor=qHandle.execute()
+        while cursor.next():
+            runnum=cursor.currentRow()['RUNNUM'].data()
+            tagid=cursor.currentRow()['TAGID'].data()
+            if not tmpresult.has_key(runnum):
+                tmpresult[runnum]=tagid
+            else:
+                if tagid>tmpresult[runnum]:
+                    tmpresult[runnum]=tagid
+        del qHandle
+    except:
+        if qHandle:del qHandle
+        raise
+    if tmpresult:return tmpresult.keys()
+    return []
+def execCalc(connectStr,authpath,runnum):
+    '''
+    run lumiCalc2.py lumibyls for the run
+    '''
+    outdatafile=str(runnum)+'.csv'
+    outheaderfile=str(runnum)+'.txt'
+    command = 'lumiCalc2.py lumibyls -c ' +connectStr+' -P '+authpath+' -r '+str(runnum)+' -o '+outdatafile+' --headerfile '+outheaderfile
+    statusAndOutput = commands.getstatusoutput(command)
+    print statusAndOutput
+    
 class lslumiParser(object):
     def __init__(self,lslumifilename,headerfilename):
         '''
@@ -82,16 +161,28 @@ def addindb(session,datatag,normtag,lumidata,bulksize):
         print 'error in addindb'
         raise 
 if __name__ == "__main__" :
-    lslumifilename='209089_data.csv'
-    lumiheaderfilename='209089_header.txt'
+    sourcestr='oracle://cms_orcon_adg/cms_lumi_prod'
     pth='/afs/cern.ch/cms/lumi/DB'
-    p=lslumiParser(lslumifilename,lumiheaderfilename)
-    p.parse()
-    #print p.datatag,p.normtag
-    #print p.lumidata
-    myconstr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
-    svc=sessionManager.sessionManager(myconstr,authpath=pth,debugON=False)
-    dbsession=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    addindb(dbsession,p.datatag,p.normtag,p.lumidata,bulksize=500)
-    del dbsession
-    del svc
+    sourcesvc=sessionManager.sessionManager(sourcestr,authpath=pth,debugON=False)
+    sourcesession=sourcesvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    sourcesession.transaction().start(True)
+    sourcerunlist=getrunsInCurrentData(sourcesession.nominalSchema(),minrun=183339,maxrun=209310)
+    sourcesession.transaction().commit()
+    print sourcerunlist
+    deststr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
+    destsvc=sessionManager.sessionManager(deststr,authpath=pth,debugON=False)
+    destsession=destsvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    destsession.transaction().start(True)
+    destrunlist=getrunsInResult(destsession.nominalSchema(),minrun=183339,maxrun=209310)
+    destsession.transaction().commit()
+    print destrunlist
+    for r in sourcerunlist:
+        if r not in destrunlist:
+            execCalc(sourcestr,pth,r)
+    #p=lslumiParser(lslumifilename,lumiheaderfilename)
+    #p.parse()
+    #svc=sessionManager.sessionManager(sourcestr,authpath=pth,debugON=False)
+    #dbsession=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    #addindb(dbsession,p.datatag,p.normtag,p.lumidata,bulksize=500)
+    #del dbsession
+    #del svc
