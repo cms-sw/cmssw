@@ -25,8 +25,8 @@ GsfMultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     float rl = surface.mediumProperties().radLen()/fabs(pvec.z());
     // auxiliary variables for modified X0
     constexpr float z = 14;                 // atomic number of silicon
-    constexpr float logz = log(z);
-    constexpr float h = (z+1)/z*log(287*sqrt(z))/log(159*pow(z,-1./3.));
+    const float logz = log(z);
+    const float h = (z+1)/z*log(287*sqrt(z))/log(159*pow(z,-1./3.));
     float beta2 = 1./(1.+mass()*mass()/p/p);
     // reduced thickness
     float dp1 = rl/beta2/h;
