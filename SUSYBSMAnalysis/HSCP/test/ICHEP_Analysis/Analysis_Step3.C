@@ -93,9 +93,11 @@ std::vector<stSample> samples;
 std::map<std::string, stPlots> plotsMap;
 
 std::vector< float > BgLumiMC; //MC                                           
-std::vector< float > TrueDist;                                    
+std::vector< float > TrueDist;
+std::vector< float > TrueDistSyst; 
 edm::LumiReWeighting LumiWeightsMC;
-reweight::PoissonMeanShifter PShift(0.6);//0.6 for upshift, -0.6 for downshift
+edm::LumiReWeighting LumiWeightsMCSyst;
+//reweight::PoissonMeanShifter PShift(0.6);//0.6 for upshift, -0.6 for downshift
 
 
 TH3F* dEdxTemplates = NULL;
@@ -235,17 +237,18 @@ void Analysis_Step3(string MODE="COMPILE", int TypeMode_=0, string dEdxSel_=dEdx
 
    //initialize LumiReWeighting
 #ifdef ANALYSIS2011
-   for(int i=0; i<35; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
-   for(int i=0; i<35; ++i) TrueDist.push_back(TrueDist2011_f[i]);
+   for(int i=0; i<60; ++i) BgLumiMC    .push_back(Pileup_MC_Fall11[i]);
+   for(int i=0; i<60; ++i) TrueDist    .push_back(TrueDist2011_f[i]);
+   for(int i=0; i<60; ++i) TrueDistSyst.push_back(TrueDist2011_XSecShiftUp_f[i]);
 #else
-   if(samples[0].Pileup=="S10"){
-      for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
-   }else{
-      for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
+   if(samples[0].Pileup=="S10"){   for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Summer2012[i]);
+   }else{                          for(int i=0; i<60; ++i) BgLumiMC.push_back(Pileup_MC_Fall11[i]);
    }
-   for(int i=0; i<60; ++i) TrueDist.push_back(TrueDist2012_f[i]);
+   for(int i=0; i<60; ++i) TrueDist    .push_back(TrueDist2012_f[i]);
+   for(int i=0; i<60; ++i) TrueDistSyst.push_back(TrueDist2012_XSecShiftUp_f[i]);
 #endif
-   LumiWeightsMC = edm::LumiReWeighting(BgLumiMC, TrueDist);
+   LumiWeightsMC     = edm::LumiReWeighting(BgLumiMC, TrueDist);
+   LumiWeightsMCSyst = edm::LumiReWeighting(BgLumiMC, TrueDistSyst);
 
    //create histogram file and run the analyis
    HistoFile = new TFile((string(Buffer)+"/Histos_"+samples[0].Name+"_"+samples[0].FileName+".root").c_str(),"RECREATE");
@@ -1062,7 +1065,8 @@ void Analysis_Step3(char* SavePath)
             for(Long64_t ientry=0;ientry<ev.size();ientry++){
               ev.to(ientry);
               if(MaxEntry>0 && ientry>MaxEntry)break;
-              NMCevents += GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, PShift);
+//              NMCevents += GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, PShift);
+              NMCevents += GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);
             }
             if(samples[s].Type==1)SampleWeight = GetSampleWeightMC(IntegratedLuminosity,FileName, samples[s].XSec, ev.size(), NMCevents);
             else                  SampleWeight = GetSampleWeight  (IntegratedLuminosity,IntegratedLuminosityBeforeTriggerChange,samples[s].XSec,NMCevents, period);
@@ -1082,7 +1086,8 @@ void Analysis_Step3(char* SavePath)
             if(checkDuplicates && duplicateChecker.isDuplicate(ev.eventAuxiliary().run(), ev.eventAuxiliary().event()))continue;
 
             //compute event weight
-            if(samples[s].Type>0){Event_Weight = SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, PShift);}else{Event_Weight = 1;}
+//            if(samples[s].Type>0){Event_Weight = SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, PShift);}else{Event_Weight = 1;}
+            if(samples[s].Type>0){Event_Weight = SampleWeight * GetPUWeight(ev, samples[s].Pileup, PUSystFactor, LumiWeightsMC, LumiWeightsMCSyst);}else{Event_Weight = 1;}
             std::vector<reco::GenParticle> genColl;
             double HSCPGenBeta1=-1, HSCPGenBeta2=-1;
             if(isSignal){

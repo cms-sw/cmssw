@@ -297,6 +297,53 @@ double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, doub
    return PUWeight_thisevent;
 }
 
+
+
+// compute a weight to make sure that the pileup distribution in Signal/Background MC is compatible to the pileup distribution in data
+double GetPUWeight(const fwlite::ChainEvent& ev, const std::string& pileup, double &PUSystFactor, edm::LumiReWeighting& LumiWeightsMC, edm::LumiReWeighting& LumiWeightsMCSyst){
+   fwlite::Handle<std::vector<PileupSummaryInfo> > PupInfo;
+   PupInfo.getByLabel(ev, "addPileupInfo");
+   if(!PupInfo.isValid()){printf("PileupSummaryInfo Collection NotFound\n");return 1.0;}
+   double PUWeight_thisevent=1;
+   std::vector<PileupSummaryInfo>::const_iterator PVI;
+   int npv = -1; float Tnpv = -1;
+
+   if(pileup=="S4"){
+      float sum_nvtx = 0;
+      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+         npv = PVI->getPU_NumInteractions();
+         sum_nvtx += float(npv);
+      }
+      float ave_nvtx = sum_nvtx/3.;
+      PUWeight_thisevent = LumiWeightsMC.weight( ave_nvtx );
+      PUSystFactor = LumiWeightsMCSyst.weight( ave_nvtx ) / PUWeight_thisevent;
+   }else if(pileup=="S3"){
+      for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+         int BX = PVI->getBunchCrossing();
+         if(BX == 0) {
+            npv = PVI->getPU_NumInteractions();
+            continue;
+         }
+      }
+      PUWeight_thisevent = LumiWeightsMC.weight( npv );
+      PUSystFactor = LumiWeightsMCSyst.weight( npv ) / PUWeight_thisevent;
+   }else if(pileup=="S10"){
+     for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+       int BX = PVI->getBunchCrossing();
+       if(BX == 0) {
+	 Tnpv = PVI->getTrueNumInteractions();
+	 continue;
+       }
+     }
+     PUWeight_thisevent = LumiWeightsMC.weight( Tnpv );
+     PUSystFactor = LumiWeightsMCSyst.weight( Tnpv ) / PUWeight_thisevent;
+   }
+   else {
+     printf("Can not find pile up scenario");
+   }
+   return PUWeight_thisevent;
+}
+
 #endif //end FWLITE block
 
 
