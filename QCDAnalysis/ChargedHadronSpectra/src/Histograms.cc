@@ -364,9 +364,9 @@ void Histograms::declareHistograms()
   for(double lp = lpMin; lp < lpMax + lpWidth/2; lp += lpWidth)
     lpBins.push_back(lp);
 
-  constexpr float ldeMin   = log(1);
-  constexpr float ldeMax   = log(100);
-  constexpr float ldeWidth = (ldeMax - ldeMin)/250;
+  const float ldeMin   = log(1);
+  const float ldeMax   = log(100);
+  const float ldeWidth = (ldeMax - ldeMin)/250;
   for(double lde = ldeMin; lde < ldeMax + ldeWidth/2; lde += ldeWidth)
     ldeBins.push_back(lde);
 
