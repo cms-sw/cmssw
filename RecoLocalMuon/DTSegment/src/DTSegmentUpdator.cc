@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2012/10/25 12:45:37 $
- * $Revision: 1.50 $
+ * $Date: 2012/10/25 13:15:22 $
+ * $Revision: 1.51 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -382,10 +382,13 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
 
       LocalPoint point(hit->localPosition().x() + dy_corr, +segPosAtLayer.y(), 0.);
 
-      LocalError error(T0_hit_resolution*T0_hit_resolution,0.,0.);
+      double final_hit_resol = T0_hit_resolution;
+      if(newHit1D.wireId().layerId().superlayerId().superLayer() != 2) final_hit_resol = final_hit_resol * 0.8;
 
-      //newHit1D.setPositionAndError(point, error);
-      newHit1D.setPosition(point);
+      LocalError error(final_hit_resol * final_hit_resol,0.,0.);
+
+      newHit1D.setPositionAndError(point, error);
+      //newHit1D.setPosition(point);
 
       //FIXME: check that the hit is still inside the cell
       ok = true;
