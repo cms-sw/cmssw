@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
-#include "FWCore/Framework/interface/Group.h"
+#include "FWCore/Framework/interface/ProductHolder.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -8,18 +8,18 @@
 #include <cassert>
 
 namespace edm {
-  Group::Group() {}
+  ProductHolderBase::ProductHolderBase() {}
 
-  Group::~Group() {}
-  InputGroup::~InputGroup() {}
-  ProducedGroup::~ProducedGroup() {}
-  ScheduledGroup::~ScheduledGroup() {}
-  UnscheduledGroup::~UnscheduledGroup() {}
-  SourceGroup::~SourceGroup() {}
-  AliasGroup::~AliasGroup() {}
+  ProductHolderBase::~ProductHolderBase() {}
+  InputProductHolder::~InputProductHolder() {}
+  ProducedProductHolder::~ProducedProductHolder() {}
+  ScheduledProductHolder::~ScheduledProductHolder() {}
+  UnscheduledProductHolder::~UnscheduledProductHolder() {}
+  SourceProductHolder::~SourceProductHolder() {}
+  AliasProductHolder::~AliasProductHolder() {}
 
   void
-  ProducedGroup::putProduct_(
+  ProducedProductHolder::putProduct_(
         WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance) {
     if(product()) {
@@ -41,7 +41,7 @@ namespace edm {
   }
 
   void
-  ProducedGroup::mergeProduct_(
+  ProducedProductHolder::mergeProduct_(
         WrapperOwningHolder const& edp,
         ProductProvenance& productProvenance) {
     assert(provenance()->productProvenanceValid());
@@ -51,18 +51,18 @@ namespace edm {
   }
 
   bool
-  ProducedGroup::putOrMergeProduct_() const {
+  ProducedProductHolder::putOrMergeProduct_() const {
     return productUnavailable();
   }
 
   void
-  ProducedGroup::mergeProduct_(WrapperOwningHolder const& edp) const {
+  ProducedProductHolder::mergeProduct_(WrapperOwningHolder const& edp) const {
     assert(status() == Present);
     mergeTheProduct(edp);
   }
 
   void
-  ProducedGroup::putProduct_(WrapperOwningHolder const& edp) const {
+  ProducedProductHolder::putProduct_(WrapperOwningHolder const& edp) const {
     if(product()) {
       throw Exception(errors::InsertFailure)
           << "Attempt to insert more than one product on branch " << branchDescription().branchName() << "\n";
@@ -79,7 +79,7 @@ namespace edm {
   }
 
   void
-  InputGroup::putProduct_(
+  InputProductHolder::putProduct_(
         WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance) {
     assert(!product());
@@ -90,36 +90,36 @@ namespace edm {
   }
 
   void
-  InputGroup::mergeProduct_(
+  InputProductHolder::mergeProduct_(
         WrapperOwningHolder const&,
         ProductProvenance&) {
     assert(0);
   }
 
   void
-  InputGroup::mergeProduct_(WrapperOwningHolder const& edp) const {
+  InputProductHolder::mergeProduct_(WrapperOwningHolder const& edp) const {
     mergeTheProduct(edp);
   }
 
   bool
-  InputGroup::putOrMergeProduct_() const {
+  InputProductHolder::putOrMergeProduct_() const {
     return(!product());
   }
 
   void
-  InputGroup::putProduct_(WrapperOwningHolder const& edp) const {
+  InputProductHolder::putProduct_(WrapperOwningHolder const& edp) const {
     assert(!product());
     setProduct(edp);
   }
 
   void
-  Group::mergeTheProduct(WrapperOwningHolder const& edp) const {
+  ProductHolderBase::mergeTheProduct(WrapperOwningHolder const& edp) const {
     if(wrapper().isMergeable()) {
       wrapper().mergeProduct(edp.wrapper());
     } else if(wrapper().hasIsProductEqual()) {
       if(!wrapper().isProductEqual(edp.wrapper())) {
         LogError("RunLumiMerging")
-              << "Group::mergeGroup\n"
+              << "ProductHolderBase::mergeTheProduct\n"
               << "Two run/lumi products for the same run/lumi which should be equal are not\n"
               << "Using the first, ignoring the second\n"
               << "className = " << branchDescription().className() << "\n"
@@ -129,7 +129,7 @@ namespace edm {
       }
     } else {
       LogWarning("RunLumiMerging")
-          << "Group::mergeGroup\n"
+          << "ProductHolderBase::mergeTheProduct\n"
           << "Run/lumi product has neither a mergeProduct nor isProductEqual function\n"
           << "Using the first, ignoring the second in merge\n"
           << "className = " << branchDescription().className() << "\n"
@@ -140,7 +140,7 @@ namespace edm {
   }
 
   void
-  InputGroup::setProduct(WrapperOwningHolder const& prod) const {
+  InputProductHolder::setProduct(WrapperOwningHolder const& prod) const {
     assert (!product());
     if(!prod.isValid() || !prod.isPresent()) {
       setProductUnavailable();
@@ -150,7 +150,7 @@ namespace edm {
   }
 
   void
-  Group::setProductProvenance(ProductProvenance const& prov) const {
+  ProductHolderBase::setProductProvenance(ProductProvenance const& prov) const {
     productData().prov_.setProductProvenance(prov);
   }
 
@@ -158,7 +158,7 @@ namespace edm {
   // If there is a real product, it returns false.
   // If it is not known if there is a real product, it returns false.
   bool
-  InputGroup::productUnavailable_() const {
+  InputProductHolder::productUnavailable_() const {
     if(productIsUnavailable()) {
       return true;
     }
@@ -177,7 +177,7 @@ namespace edm {
   // If there is a real product, it returns false.
   // If it is not known if there is a real product, it returns false.
   bool
-  ProducedGroup::productUnavailable_() const {
+  ProducedProductHolder::productUnavailable_() const {
     // If unscheduled production, the product is potentially available.
     if(onDemand()) return false;
     // The product is available if and only if a product has been put.
@@ -187,18 +187,18 @@ namespace edm {
 
   // This routine returns true if the product was deleted early in order to save memory
   bool
-  ProducedGroup::productWasDeleted_() const {
+  ProducedProductHolder::productWasDeleted_() const {
     return status() == ProductDeleted;
   }
 
   void 
-  ProducedGroup::setProductDeleted_() {
+  ProducedProductHolder::setProductDeleted_() {
     status() = ProductDeleted;
   }
 
   
   bool
-  Group::provenanceAvailable() const {
+  ProductHolderBase::provenanceAvailable() const {
     // If this product is from a the current process,
     // the provenance is available if and only if a product has been put.
     if(branchDescription().produced()) {
@@ -210,12 +210,12 @@ namespace edm {
   }
 
   TypeID
-  Group::productType() const {
+  ProductHolderBase::productType() const {
     return TypeID(wrapper().interface()->wrappedTypeInfo());
   }
 
   void
-  Group::reallyCheckType(WrapperOwningHolder const& prod) const {
+  ProductHolderBase::reallyCheckType(WrapperOwningHolder const& prod) const {
     // Check if the types match.
     TypeID typeID(prod.dynamicTypeInfo());
     if(typeID != branchDescription().unwrappedTypeID()) {
@@ -228,7 +228,7 @@ namespace edm {
   }
 
   void
-  Group::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) {
+  ProductHolderBase::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) {
     //assert(!productData().prov_);
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(mapper);
@@ -236,26 +236,26 @@ namespace edm {
   }
 
   void
-  Group::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid) {
+  ProductHolderBase::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid) {
     productData().prov_.setStore(mapper);
     productData().prov_.setProcessHistoryID(phid);
   }
 
   void
-  Group::setProcessHistoryID(ProcessHistoryID const& phid) {
+  ProductHolderBase::setProcessHistoryID(ProcessHistoryID const& phid) {
     productData().prov_.setProcessHistoryID(phid);
   }
 
   Provenance*
-  Group::provenance() const {
+  ProductHolderBase::provenance() const {
     return &(productData().prov_);
   }
 
   void
-  Group::write(std::ostream& os) const {
+  ProductHolderBase::write(std::ostream& os) const {
     // This is grossly inadequate. It is also not critical for the
     // first pass.
-    os << std::string("Group for product with ID: ")
+    os << std::string("ProductHolder for product with ID: ")
        << productID();
   }
 }

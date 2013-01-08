@@ -10,7 +10,7 @@ RootInputFileSequence: This is an InputSource
 #include "InputType.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/GroupSelectorRules.h"
+#include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
@@ -108,7 +108,7 @@ namespace edm {
     unsigned int treeCacheSize_;
     int const treeMaxVirtualSize_;
     RunNumber_t setRun_;
-    GroupSelectorRules groupSelectorRules_;
+    ProductSelectorRules productSelectorRules_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
     bool labelRawDataLikeMC_;

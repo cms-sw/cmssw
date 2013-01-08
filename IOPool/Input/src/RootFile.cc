@@ -23,7 +23,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/GroupSelector.h"
+#include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -132,7 +132,7 @@ namespace edm {
                      InputSource::ProcessingMode processingMode,
                      RunNumber_t const& forcedRunNumber,
                      bool noEventSort,
-                     GroupSelectorRules const& groupSelectorRules,
+                     ProductSelectorRules const& productSelectorRules,
                      InputType::InputType inputType,
                      boost::shared_ptr<BranchIDListHelper> branchIDListHelper,
                      boost::shared_ptr<DuplicateChecker> duplicateChecker,
@@ -436,7 +436,7 @@ namespace edm {
           newBranchToOldBranch_.insert(std::make_pair(newBD.branchName(), prod.branchName()));
         }
       }
-      dropOnInput(*newReg, groupSelectorRules, dropDescendants, inputType);
+      dropOnInput(*newReg, productSelectorRules, dropDescendants, inputType);
       // freeze the product registry
       newReg->setFrozen(inputType != InputType::Primary);
       productRegistry_.reset(newReg.release());
@@ -1348,10 +1348,10 @@ namespace edm {
   // EventPrincipal.
   //
   //   1. create an EventPrincipal with a unique EventID
-  //   2. For each entry in the provenance, put in one Group,
+  //   2. For each entry in the provenance, put in one ProductHolder,
   //      holding the Provenance for the corresponding EDProduct.
   //   3. set up the caches in the EventPrincipal to know about this
-  //      Group.
+  //      ProductHolder.
   //
   // We do *not* create the EDProduct instance (the equivalent of reading
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
@@ -1679,10 +1679,10 @@ namespace edm {
   }
 
   void
-  RootFile::dropOnInput (ProductRegistry& reg, GroupSelectorRules const& rules, bool dropDescendants, InputType::InputType inputType) {
+  RootFile::dropOnInput (ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType::InputType inputType) {
     // This is the selector for drop on input.
-    GroupSelector groupSelector;
-    groupSelector.initialize(rules, reg.allBranchDescriptions());
+    ProductSelector productSelector;
+    productSelector.initialize(rules, reg.allBranchDescriptions());
 
     ProductRegistry::ProductList& prodList = reg.productListUpdator();
     // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
@@ -1690,7 +1690,7 @@ namespace edm {
     for(ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
-      if(!groupSelector.selected(prod)) {
+      if(!productSelector.selected(prod)) {
         if(dropDescendants) {
           branchChildren_->appendToDescendants(prod.branchID(), branchesToDrop);
         } else {
@@ -1705,7 +1705,7 @@ namespace edm {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if(drop) {
-        if(groupSelector.selected(prod)) {
+        if(productSelector.selected(prod)) {
           LogWarning("RootFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
             << "of file '" << file_ << "' because it is dependent on a branch\n"

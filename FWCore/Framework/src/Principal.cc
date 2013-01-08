@@ -37,7 +37,7 @@ namespace edm {
 
   static
   void
-  throwGroupNotFoundException(char const* where, errors::ErrorCodes error, BranchID const& bid) {
+  throwProductNotFoundException(char const* where, errors::ErrorCodes error, BranchID const& bid) {
     throw Exception(error, "InvalidID")
       << "Principal::" << where << ": no product with given branch id: "<< bid << "\n";
   }
@@ -88,7 +88,7 @@ namespace edm {
     processHistoryPtr_(0),
     processHistoryID_(),
     processConfiguration_(&pc),
-    groups_(reg->constProductList().size(), SharedGroupPtr()),
+    productHolders_(reg->constProductList().size(), SharedProductPtr()),
     preg_(reg),
     reader_(),
     productPtrs_(),
@@ -98,8 +98,8 @@ namespace edm {
     //Now that these have been set, we can create the list of Branches we need.
     std::string const source("source");
     ProductRegistry::ProductList const& prodsList = reg->productList();
-    // The constructor of an alias group takes as an argument the group for which it is an alias.
-    // So, the non-alias groups must be created first.
+    // The constructor of an alias product holder takes as an argument the product holder for which it is an alias.
+    // So, the non-alias product holders must be created first.
     // Therefore, on this first pass, skip current EDAliases.
     bool hasAliases = false;
     for(auto const& prod : prodsList) {
@@ -111,15 +111,15 @@ namespace edm {
           boost::shared_ptr<ConstBranchDescription> cbd(new ConstBranchDescription(bd));
           if(bd.produced()) {
             if(bd.moduleLabel() == source) {
-              addGroupSource(cbd);
+              addSourceProduct(cbd);
             } else if(bd.onDemand()) {
               assert(branchType_ == InEvent);
-              addOnDemandGroup(cbd);
+              addUnscheduledProduct(cbd);
             } else {
-              addGroupScheduled(cbd);
+              addScheduledProduct(cbd);
             }
           } else {
-            addGroupInput(cbd);
+            addInputProduct(cbd);
           }
         }
       }
@@ -130,7 +130,7 @@ namespace edm {
         BranchDescription const& bd = prod.second;
         if(bd.isAlias() && bd.branchType() == branchType_) {
           boost::shared_ptr<ConstBranchDescription> cbd(new ConstBranchDescription(bd));
-          addGroupAliased(cbd);
+          addAliasedProduct(cbd);
         }
       }
     }
@@ -145,69 +145,66 @@ namespace edm {
   size_t
   Principal::size() const {
     size_t size = 0U;
-    for(const_iterator it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
-      Group const& g = **it;
-      if(!g.productUnavailable() && !g.onDemand() && !g.branchDescription().dropped()) {
+    for(auto const& prod : *this) {
+      if(!prod->productUnavailable() && !prod->onDemand() && !prod->branchDescription().dropped()) {
         ++size;
       }
     }
     return size;
   }
 
-  //adjust provenance for input groups after new input file has been merged
+  // adjust provenance for input products after new input file has been merged
   bool
   Principal::adjustToNewProductRegistry(ProductRegistry const& reg) {
-    if(reg.constProductList().size() > groups_.size()) {
+    if(reg.constProductList().size() > productHolders_.size()) {
       return false;
     }
     ProductRegistry::ProductList const& prodsList = reg.productList();
-    for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
-          itProdInfoEnd = prodsList.end();
-        itProdInfo != itProdInfoEnd;
-        ++itProdInfo) {
-    if(!itProdInfo->second.produced() && (itProdInfo->second.branchType() == branchType_)) {
-        boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));
-        Group *g = getExistingGroup(itProdInfo->second.branchID());
-        if(g == 0 || g->branchDescription().branchName() != bd->branchName()) {
+    for(auto const& prod : prodsList) {
+      BranchDescription const& bd = prod.second;
+      if(!bd.produced() && (bd.branchType() == branchType_)) {
+        boost::shared_ptr<ConstBranchDescription> cbd(new ConstBranchDescription(bd));
+        ProductHolderBase* phb = getExistingProduct(cbd->branchID());
+        if(phb == nullptr || phb->branchDescription().branchName() != cbd->branchName()) {
             return false;
         }
-        g->resetBranchDescription(bd);
+        phb->resetBranchDescription(cbd);
       }
     }
     return true;
   }
 
   void
-  Principal::addGroupScheduled(boost::shared_ptr<ConstBranchDescription> bd) {
-    std::auto_ptr<Group> g(new ScheduledGroup(bd));
-    addGroupOrThrow(g);
+  Principal::addScheduledProduct(boost::shared_ptr<ConstBranchDescription> bd) {
+    std::auto_ptr<ProductHolderBase> phb(new ScheduledProductHolder(bd));
+    addProductOrThrow(phb);
   }
 
   void
-  Principal::addGroupSource(boost::shared_ptr<ConstBranchDescription> bd) {
-    std::auto_ptr<Group> g(new SourceGroup(bd));
-    addGroupOrThrow(g);
+  Principal::addSourceProduct(boost::shared_ptr<ConstBranchDescription> bd) {
+    std::auto_ptr<ProductHolderBase> phb(new SourceProductHolder(bd));
+    addProductOrThrow(phb);
   }
 
   void
-  Principal::addGroupInput(boost::shared_ptr<ConstBranchDescription> bd) {
-    std::auto_ptr<Group> g(new InputGroup(bd));
-    addGroupOrThrow(g);
+  Principal::addInputProduct(boost::shared_ptr<ConstBranchDescription> bd) {
+    std::auto_ptr<ProductHolderBase> phb(new InputProductHolder(bd));
+    addProductOrThrow(phb);
   }
 
   void
-  Principal::addOnDemandGroup(boost::shared_ptr<ConstBranchDescription> bd) {
-    std::auto_ptr<Group> g(new UnscheduledGroup(bd));
-    addGroupOrThrow(g);
+  Principal::addUnscheduledProduct(boost::shared_ptr<ConstBranchDescription> bd) {
+    std::auto_ptr<ProductHolderBase> phb(new UnscheduledProductHolder(bd));
+    addProductOrThrow(phb);
   }
 
   void
-  Principal::addGroupAliased(boost::shared_ptr<ConstBranchDescription> bd) {
+  Principal::addAliasedProduct(boost::shared_ptr<ConstBranchDescription> bd) {
     ProductTransientIndex index = preg_->indexFrom(bd->originalBranchID());
     assert(index != ProductRegistry::kInvalidIndex);
 
-    std::auto_ptr<Group> g(new AliasGroup(bd, dynamic_cast<ProducedGroup&>(*groups_[index])));
-    addGroupOrThrow(g);
+    std::auto_ptr<ProductHolderBase> phb(new AliasProductHolder(bd, dynamic_cast<ProducedProductHolder&>(*productHolders_[index])));
+    addProductOrThrow(phb);
   }
 
   // "Zero" the principal so it can be reused for another Event.
@@ -216,21 +213,21 @@ namespace edm {
     processHistoryPtr_ = 0;
     processHistoryID_ = ProcessHistoryID();
     reader_ = 0;
-    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-      (*i)->resetProductData();
+    for(auto const& prod : *this) {
+      prod->resetProductData();
     }
     productPtrs_.clear();
   }
 
   void
   Principal::deleteProduct(BranchID const& id) {
-    Group* g = getExistingGroup(id);
-    assert(0!=g);
-    auto itFound = productPtrs_.find(g->product().get());
+    ProductHolderBase* phb = getExistingProduct(id);
+    assert(nullptr != phb);
+    auto itFound = productPtrs_.find(phb->product().get());
     if(itFound != productPtrs_.end()) {
       productPtrs_.erase(itFound);
     } 
-    g->deleteProduct();
+    phb->deleteProduct();
   }
   
   // Set the principal for the Event, Lumi, or Run.
@@ -272,42 +269,42 @@ namespace edm {
                                          processConfiguration_->processName());
   }
 
-  Group*
-  Principal::getExistingGroup(BranchID const& branchID) {
+  ProductHolderBase*
+  Principal::getExistingProduct(BranchID const& branchID) {
     ProductTransientIndex index = preg_->indexFrom(branchID);
     assert(index != ProductRegistry::kInvalidIndex);
-    SharedGroupPtr ptr = groups_.at(index);
+    SharedProductPtr ptr = productHolders_.at(index);
     return ptr.get();
   }
 
-  Group*
-  Principal::getExistingGroup(Group const& group) {
-    Group* g = getExistingGroup(group.branchDescription().branchID());
-    assert(0 == g || BranchKey(group.branchDescription()) == BranchKey(g->branchDescription()));
-    return g;
+  ProductHolderBase*
+  Principal::getExistingProduct(ProductHolderBase const& productHolder) {
+    ProductHolderBase* phb = getExistingProduct(productHolder.branchDescription().branchID());
+    assert(nullptr == phb || BranchKey(productHolder.branchDescription()) == BranchKey(phb->branchDescription()));
+    return phb;
   }
 
   void
-  Principal::addGroup_(std::auto_ptr<Group> group) {
-    ConstBranchDescription const& bd = group->branchDescription();
+  Principal::addProduct_(std::auto_ptr<ProductHolderBase> productHolder) {
+    ConstBranchDescription const& bd = productHolder->branchDescription();
     assert (!bd.className().empty());
     assert (!bd.friendlyClassName().empty());
     assert (!bd.moduleLabel().empty());
     assert (!bd.processName().empty());
-    SharedGroupPtr g(group);
+    SharedProductPtr phb(productHolder);
 
     ProductTransientIndex index = preg_->indexFrom(bd.branchID());
     assert(index != ProductRegistry::kInvalidIndex);
-    groups_[index] = g;
+    productHolders_[index] = phb;
   }
 
   void
-  Principal::addGroupOrThrow(std::auto_ptr<Group> group) {
-    Group const* g = getExistingGroup(*group);
-    if(g != 0) {
-      ConstBranchDescription const& bd = group->branchDescription();
+  Principal::addProductOrThrow(std::auto_ptr<ProductHolderBase> productHolder) {
+    ProductHolderBase const* phb = getExistingProduct(*productHolder);
+    if(phb != nullptr) {
+      ConstBranchDescription const& bd = productHolder->branchDescription();
       throw Exception(errors::InsertFailure, "AlreadyPresent")
-          << "addGroupOrThrow: Problem found while adding product, "
+          << "addProductOrThrow: Problem found while adding product, "
           << "product already exists for ("
           << bd.friendlyClassName() << ","
           << bd.moduleLabel() << ","
@@ -315,29 +312,29 @@ namespace edm {
           << bd.processName()
           << ")\n";
     }
-    addGroup_(group);
+    addProduct_(productHolder);
   }
 
-  Principal::ConstGroupPtr
-  Principal::getGroup(BranchID const& bid, bool resolveProd, bool fillOnDemand) const {
+  Principal::ConstProductPtr
+  Principal::getProductHolder(BranchID const& bid, bool resolveProd, bool fillOnDemand) const {
     ProductTransientIndex index = preg_->indexFrom(bid);
     if(index == ProductRegistry::kInvalidIndex){
-       return ConstGroupPtr();
+       return ConstProductPtr();
     }
-    return getGroupByIndex(index, resolveProd, fillOnDemand);
+    return getProductByIndex(index, resolveProd, fillOnDemand);
   }
 
-  Principal::ConstGroupPtr
-  Principal::getGroupByIndex(ProductTransientIndex const& index, bool resolveProd, bool fillOnDemand) const {
+  Principal::ConstProductPtr
+  Principal::getProductByIndex(ProductTransientIndex const& index, bool resolveProd, bool fillOnDemand) const {
 
-    ConstGroupPtr const g = groups_[index].get();
-    if(0 == g) {
-      return g;
+    ConstProductPtr const phb = productHolders_[index].get();
+    if(nullptr == phb) {
+      return phb;
     }
-    if(resolveProd && !g->productUnavailable()) {
-      this->resolveProduct(*g, fillOnDemand);
+    if(resolveProd && !phb->productUnavailable()) {
+      this->resolveProduct(*phb, fillOnDemand);
     }
-    return g;
+    return phb;
   }
 
   BasicHandle
@@ -348,7 +345,7 @@ namespace edm {
                         size_t& cachedOffset,
                         int& fillCount) const {
 
-    ProductData const* result = findGroupByLabel(productType,
+    ProductData const* result = findProductByLabel(productType,
                                                  preg_->productLookup(),
                                                  label,
                                                  productInstanceName,
@@ -367,7 +364,7 @@ namespace edm {
   Principal::getManyByType(TypeID const& productType,
                            BasicHandleVec& results) const {
 
-    findGroups(productType,
+    findProducts(productType,
                preg_->productLookup(),
                results);
     return;
@@ -380,7 +377,7 @@ namespace edm {
                                  std::string const& processName,
                                  BasicHandle& result) const {
 
-    return findGroup(typeID,
+    return findProduct(typeID,
                      preg_->elementLookup(),
                      moduleLabel,
                      productInstanceName,
@@ -389,7 +386,7 @@ namespace edm {
   }
 
   size_t
-  Principal::findGroups(TypeID const& typeID,
+  Principal::findProducts(TypeID const& typeID,
                         TransientProductLookupMap const& typeLookup,
                         BasicHandleVec& results) const {
     assert(results.empty());
@@ -415,10 +412,10 @@ namespace edm {
       }
 
       //now see if the data is actually available
-      ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
-      //NOTE sometimes 'group->productUnavailable()' is true if was already deleted
-      if(group && group->productWasDeleted()) {
-        throwProductDeletedException("findGroups",
+      ConstProductPtr const& productHolder = getProductByIndex(it->index(), false, false);
+      //NOTE sometimes 'productHolder->productUnavailable()' is true if was already deleted
+      if(productHolder && productHolder->productWasDeleted()) {
+        throwProductDeletedException("findProducts",
                                      typeID,
                                      bd.moduleLabel(),
                                      bd.productInstanceName(),
@@ -426,14 +423,14 @@ namespace edm {
       }
 
       // Skip product if not available.
-      if(group && !group->productUnavailable()) {
+      if(productHolder && !productHolder->productUnavailable()) {
 
-        this->resolveProduct(*group, true);
-        // If the product is a dummy filler, group will now be marked unavailable.
+        this->resolveProduct(*productHolder, true);
+        // If the product is a dummy filler, product holder will now be marked unavailable.
         // Unscheduled execution can fail to produce the EDProduct so check
-        if(group->product() && !group->productUnavailable() && !group->onDemand()) {
+        if(productHolder->product() && !productHolder->productUnavailable() && !productHolder->onDemand()) {
           // Found a good match, save it
-          BasicHandle bh(group->productData());
+          BasicHandle bh(productHolder->productData());
           results.push_back(bh);
         }
       }
@@ -442,7 +439,7 @@ namespace edm {
   }
 
   size_t
-  Principal::findGroup(TypeID const& typeID,
+  Principal::findProduct(TypeID const& typeID,
                        TransientProductLookupMap const& typeLookup,
                        std::string const& moduleLabel,
                        std::string const& productInstanceName,
@@ -475,9 +472,9 @@ namespace edm {
            (processName.empty() || processName == bd.processName())) {
 
         //now see if the data is actually available
-        ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
-        if(group && group->productWasDeleted()) {
-          throwProductDeletedException("findGroup",
+        ConstProductPtr const& productHolder = getProductByIndex(it->index(), false, false);
+        if(productHolder && productHolder->productWasDeleted()) {
+          throwProductDeletedException("findProduct",
                                        typeID,
                                        bd.moduleLabel(),
                                        bd.productInstanceName(),
@@ -485,19 +482,19 @@ namespace edm {
         }
 
         // Skip product if not available.
-        if(group && !group->productUnavailable()) {
+        if(productHolder && !productHolder->productUnavailable()) {
 
-          this->resolveProduct(*group, true);
-          // If the product is a dummy filler, group will now be marked unavailable.
+          this->resolveProduct(*productHolder, true);
+          // If the product is a dummy filler, product holder will now be marked unavailable.
           // Unscheduled execution can fail to produce the EDProduct so check
-          if(group->product() && !group->productUnavailable() && !group->onDemand()) {
+          if(productHolder->product() && !productHolder->productUnavailable() && !productHolder->onDemand()) {
             if(it->processIndex() < processLevelFound) {
               processLevelFound = it->processIndex();
               count = 0U;
             }
             if(count == 0U) {
               // Found a unique (so far) match, save it
-              result = BasicHandle(group->productData());
+              result = BasicHandle(productHolder->productData());
             }
             ++count;
           }
@@ -509,7 +506,7 @@ namespace edm {
   }
 
   ProductData const*
-  Principal::findGroupByLabel(TypeID const& typeID,
+  Principal::findProductByLabel(TypeID const& typeID,
                               TransientProductLookupMap const& typeLookup,
                               std::string const& moduleLabel,
                               std::string const& productInstanceName,
@@ -577,9 +574,9 @@ namespace edm {
         continue;
       }
       //now see if the data is actually available
-      ConstGroupPtr const& group = getGroupByIndex(it->index(), false, false);
-      if(group && group->productWasDeleted()) {
-        throwProductDeletedException("findGroupByLabel",
+      ConstProductPtr const& productHolder = getProductByIndex(it->index(), false, false);
+      if(productHolder && productHolder->productWasDeleted()) {
+        throwProductDeletedException("findProductByLabel",
                                      typeID,
                                      moduleLabel,
                                      productInstanceName,
@@ -587,13 +584,13 @@ namespace edm {
       }
 
       // Skip product if not available.
-      if(group && !group->productUnavailable()) {
-        this->resolveProduct(*group, true);
-        // If the product is a dummy filler, group will now be marked unavailable.
+      if(productHolder && !productHolder->productUnavailable()) {
+        this->resolveProduct(*productHolder, true);
+        // If the product is a dummy filler, product holder will now be marked unavailable.
         // Unscheduled execution can fail to produce the EDProduct so check
-        if(group->product() && !group->productUnavailable() && !group->onDemand()) {
+        if(productHolder->product() && !productHolder->productUnavailable() && !productHolder->onDemand()) {
           // Found the match
-          return &group->productData();
+          return &productHolder->productData();
         }
       }
     }
@@ -601,9 +598,9 @@ namespace edm {
   }
 
   ProductData const*
-  Principal::findGroupByTag(TypeID const& typeID, InputTag const& tag) const {
+  Principal::findProductByTag(TypeID const& typeID, InputTag const& tag) const {
     ProductData const* productData =
-        findGroupByLabel(typeID,
+        findProductByLabel(typeID,
                          preg_->productLookup(),
                          tag.label(),
                          tag.instance(),
@@ -618,39 +615,39 @@ namespace edm {
 
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
-    ConstGroupPtr const g = getGroup(bid, getProd, true);
-    if(g == 0) {
-      throwGroupNotFoundException("getForOutput", errors::LogicError, bid);
+    ConstProductPtr const phb = getProductHolder(bid, getProd, true);
+    if(phb == nullptr) {
+      throwProductNotFoundException("getForOutput", errors::LogicError, bid);
     }
-    if (g->productWasDeleted()) {
-      throwProductDeletedException("getForOutput",g->productType(),
-                                   g->moduleLabel(),
-                                   g->productInstanceName(),
-                                   g->processName());
+    if (phb->productWasDeleted()) {
+      throwProductDeletedException("getForOutput",phb->productType(),
+                                   phb->moduleLabel(),
+                                   phb->productInstanceName(),
+                                   phb->processName());
     }
-    if(!g->provenance() || (!g->product() && !g->productProvenancePtr())) {
+    if(!phb->provenance() || (!phb->product() && !phb->productProvenancePtr())) {
       return OutputHandle();
     }
-    return OutputHandle(WrapperHolder(g->product().get(), g->productData().getInterface()), &g->branchDescription(), g->productProvenancePtr());
+    return OutputHandle(WrapperHolder(phb->product().get(), phb->productData().getInterface()), &phb->branchDescription(), phb->productProvenancePtr());
   }
 
   Provenance
   Principal::getProvenance(BranchID const& bid) const {
-    ConstGroupPtr const g = getGroup(bid, false, true);
-    if(g == 0) {
-      throwGroupNotFoundException("getProvenance", errors::ProductNotFound, bid);
+    ConstProductPtr const phb = getProductHolder(bid, false, true);
+    if(phb == nullptr) {
+      throwProductNotFoundException("getProvenance", errors::ProductNotFound, bid);
     }
 
-    if(g->onDemand()) {
-      unscheduledFill(g->branchDescription().moduleLabel());
+    if(phb->onDemand()) {
+      unscheduledFill(phb->branchDescription().moduleLabel());
     }
     // We already tried to produce the unscheduled products above
     // If they still are not there, then throw
-    if(g->onDemand()) {
-      throwGroupNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
+    if(phb->onDemand()) {
+      throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
     }
 
-    return *g->provenance();
+    return *phb->provenance();
   }
 
   // This one is mostly for test printout purposes
@@ -659,12 +656,12 @@ namespace edm {
   void
   Principal::getAllProvenance(std::vector<Provenance const*>& provenances) const {
     provenances.clear();
-    for (auto const& group : *this) {
-      if(group->provenanceAvailable() && !group->branchDescription().isAlias()) {
+    for(auto const& productHolder : *this) {
+      if(productHolder->provenanceAvailable() && !productHolder->branchDescription().isAlias()) {
         // We do not attempt to get the event/lumi/run status from the provenance,
         // because the per event provenance may have been dropped.
-        if(group->provenance()->product().present()) {
-           provenances.push_back(group->provenance());
+        if(productHolder->provenance()->product().present()) {
+           provenances.push_back(productHolder->provenance());
         }
       }
     }
@@ -672,12 +669,12 @@ namespace edm {
 
   void
   Principal::recombine(Principal& other, std::vector<BranchID> const& bids) {
-    for (std::vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
-      ProductTransientIndex index= preg_->indexFrom(*it);
+    for(auto const& prod : bids) {
+      ProductTransientIndex index= preg_->indexFrom(prod);
       assert(index!=ProductRegistry::kInvalidIndex);
-      ProductTransientIndex indexO = other.preg_->indexFrom(*it);
+      ProductTransientIndex indexO = other.preg_->indexFrom(prod);
       assert(indexO!=ProductRegistry::kInvalidIndex);
-      groups_[index].swap(other.groups_[indexO]);
+      productHolders_[index].swap(other.productHolders_[indexO]);
     }
     reader_->mergeReaders(other.reader());
   }
@@ -702,72 +699,69 @@ namespace edm {
   }
 
   void
-  Principal::checkUniquenessAndType(WrapperOwningHolder const& prod, Group const* g) const {
+  Principal::checkUniquenessAndType(WrapperOwningHolder const& prod, ProductHolderBase const* phb) const {
     if(!prod.isValid()) return;
     // These are defensive checks against things that should never happen, but have.
     // Checks that the same physical product has not already been put into the event.
     bool alreadyPresent = !productPtrs_.insert(prod.wrapper()).second;
     if(alreadyPresent) {
-      g->checkType(prod);
+      phb->checkType(prod);
       const_cast<WrapperOwningHolder&>(prod).reset();
-      throwCorruptionException("checkUniquenessAndType", g->branchDescription().branchName());
+      throwCorruptionException("checkUniquenessAndType", phb->branchDescription().branchName());
     }
     // Checks that the real type of the product matches the branch.
-    g->checkType(prod);
+    phb->checkType(prod);
   }
 
   void
-  Principal::putOrMerge(WrapperOwningHolder const& prod, Group const* g) const {
-    bool willBePut = g->putOrMergeProduct();
+  Principal::putOrMerge(WrapperOwningHolder const& prod, ProductHolderBase const* phb) const {
+    bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
-      checkUniquenessAndType(prod, g);
-      g->putProduct(prod);
+      checkUniquenessAndType(prod, phb);
+      phb->putProduct(prod);
     } else {
-      g->checkType(prod);
-      g->mergeProduct(prod);
+      phb->checkType(prod);
+      phb->mergeProduct(prod);
     }
   }
 
   void
-  Principal::putOrMerge(WrapperOwningHolder const& prod, ProductProvenance& prov, Group* g) {
-    bool willBePut = g->putOrMergeProduct();
+  Principal::putOrMerge(WrapperOwningHolder const& prod, ProductProvenance& prov, ProductHolderBase* phb) {
+    bool willBePut = phb->putOrMergeProduct();
     if(willBePut) {
-      checkUniquenessAndType(prod, g);
-      g->putProduct(prod, prov);
+      checkUniquenessAndType(prod, phb);
+      phb->putProduct(prod, prov);
     } else {
-      g->checkType(prod);
-      g->mergeProduct(prod, prov);
+      phb->checkType(prod);
+      phb->mergeProduct(prod, prov);
     }
   }
 
   void
   Principal::adjustIndexesAfterProductRegistryAddition() {
-    if(preg_->constProductList().size() > groups_.size()) {
-      GroupCollection newGroups(preg_->constProductList().size(), SharedGroupPtr());
-      for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
-        ProductTransientIndex index = preg_->indexFrom((*i)->branchDescription().branchID());
+    if(preg_->constProductList().size() > productHolders_.size()) {
+      ProductHolderCollection newProductHolders(preg_->constProductList().size(), SharedProductPtr());
+      for(auto const& prod : *this) {
+        ProductTransientIndex index = preg_->indexFrom(prod->branchDescription().branchID());
         assert(index != ProductRegistry::kInvalidIndex);
-        newGroups[index] = *i;
+        newProductHolders[index] = prod;
       }
-      groups_.swap(newGroups);
-      // Now we must add new groups for any new product registry entries.
-      ProductRegistry::ProductList const& prodsList = preg_->productList();
-      for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
-          itProdInfoEnd = prodsList.end();
-          itProdInfo != itProdInfoEnd;
-          ++itProdInfo) {
-        if(itProdInfo->second.branchType() == branchType_) {
-          ProductTransientIndex index = preg_->indexFrom(itProdInfo->second.branchID());
+      productHolders_.swap(newProductHolders);
+      // Now we must add new product holders for any new product registry entries.
+      for(auto const& prod : preg_->productList()) {
+        BranchDescription const& bd = prod.second;
+        if(bd.branchType() == branchType_) {
+          ProductTransientIndex index = preg_->indexFrom(bd.branchID());
           assert(index != ProductRegistry::kInvalidIndex);
-          if(!groups_[index]) {
-            // no group.  Must add one. The new entry must be an input group.
-            assert(!itProdInfo->second.produced());
-            boost::shared_ptr<ConstBranchDescription> bd(new ConstBranchDescription(itProdInfo->second));
-            addGroupInput(bd);
+          if(!productHolders_[index]) {
+            // no product holder.  Must add one. The new entry must be an input product holder.
+            assert(!bd.produced());
+            boost::shared_ptr<ConstBranchDescription> cbd(new ConstBranchDescription(bd));
+            addInputProduct(cbd);
           }
         }
       }
     }
-    assert(preg_->constProductList().size() == groups_.size());
+    assert(preg_->constProductList().size() == productHolders_.size());
   }
 }

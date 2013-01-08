@@ -6,7 +6,7 @@
 #include "boost/algorithm/string.hpp"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "FWCore/Framework/interface/GroupSelectorRules.h"
+#include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -37,8 +37,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
 
   //--------------------------------------------------  
   // Class Rule is used to determine whether or not a given branch
-  // (really a Group, as described by the BranchDescription object
-  // that specifies that Group) matches a 'rule' specified by the
+  // (really a ProductHolder, as described by the BranchDescription object
+  // that specifies that ProductHolder) matches a 'rule' specified by the
   // configuration. Each Rule is configured with a single std::string from
   // the configuration file.
   //
@@ -63,7 +63,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   // This class has much room for optimization. This should be
   // revisited as soon as profiling data are available.
 
-  GroupSelectorRules::Rule::Rule(std::string const& s, std::string const& parameterName, std::string const& owner) :
+  ProductSelectorRules::Rule::Rule(std::string const& s, std::string const& parameterName, std::string const& owner) :
     selectflag_(),
     productType_(),
     moduleLabel_(),
@@ -78,7 +78,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "specify 'keep ' or 'drop ' and also supply a pattern.\n"
 	<< "This is the invalid output configuration rule:\n" 
 	<< "    " << s << "\n"
-        << "Exception thrown from GroupSelectorRules::Rule\n";
+        << "Exception thrown from ProductSelectorRules::Rule\n";
 
     if (s.substr(0,4) == "keep")
       selectflag_ = true;
@@ -91,7 +91,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "Rule must specify 'keep ' or 'drop ' and also supply a pattern.\n"
 	<< "This is the invalid output configuration rule:\n" 
 	<< "    " << s << "\n"
-        << "Exception thrown from GroupSelectorRules::Rule\n";
+        << "Exception thrown from ProductSelectorRules::Rule\n";
 
     if ( !std::isspace(s[4]) ) {
 
@@ -101,7 +101,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "In each rule, 'keep' or 'drop' must be followed by a space\n"
 	<< "This is the invalid output configuration rule:\n" 
 	<< "    " << s << "\n"
-        << "Exception thrown from GroupSelectorRules::Rule\n";
+        << "Exception thrown from ProductSelectorRules::Rule\n";
     }
 
     // Now pull apart the std::string to get at the bits and pieces of the
@@ -165,7 +165,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "Alternately, a single * is also allowed for the branch specification\n"
 	<< "This is the invalid output configuration rule:\n" 
 	<< "    " << s << "\n"
-        << "Exception thrown from GroupSelectorRules::Rule\n";
+        << "Exception thrown from ProductSelectorRules::Rule\n";
       }
 
       // Assign the std::strings to the regex (regular expression) objects
@@ -180,14 +180,14 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   }
 
   void
-  GroupSelectorRules::Rule::applyToAll(std::vector<BranchSelectState>& branchstates) const {
+  ProductSelectorRules::Rule::applyToAll(std::vector<BranchSelectState>& branchstates) const {
     std::vector<BranchSelectState>::iterator it = branchstates.begin();
     std::vector<BranchSelectState>::iterator end = branchstates.end();
     for (; it != end; ++it) applyToOne(it->desc, it->selectMe);
   }
 
   void
-  GroupSelectorRules::applyToAll(std::vector<BranchSelectState>& branchstates) const {
+  ProductSelectorRules::applyToAll(std::vector<BranchSelectState>& branchstates) const {
     std::vector<Rule>::const_iterator it = rules_.begin();
     std::vector<Rule>::const_iterator end = rules_.end();
     for (; it != end; ++it) it->applyToAll(branchstates);
@@ -206,14 +206,14 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
 //   }
 
   void
-  GroupSelectorRules::Rule::applyToOne(edm::BranchDescription const* branch,
+  ProductSelectorRules::Rule::applyToOne(edm::BranchDescription const* branch,
 		   bool& result) const
   {
     if (this->appliesTo(branch)) result = selectflag_;    
   }
 
   bool
-  GroupSelectorRules::Rule::appliesTo(edm::BranchDescription const* branch) const
+  ProductSelectorRules::Rule::appliesTo(edm::BranchDescription const* branch) const
   {
     return
       partial_match(productType_, branch->friendlyClassName()) && 
@@ -223,13 +223,13 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   }
 
   void
-  GroupSelectorRules::fillDescription(ParameterSetDescription& desc, char const* parameterName) {
+  ProductSelectorRules::fillDescription(ParameterSetDescription& desc, char const* parameterName) {
     std::vector<std::string> defaultStrings(1U, std::string("keep *"));
     desc.addUntracked<std::vector<std::string> >(parameterName, defaultStrings)
         ->setComment("Specifies which branches are kept or dropped.");
   }
 
-  GroupSelectorRules::GroupSelectorRules(ParameterSet const& pset,
+  ProductSelectorRules::ProductSelectorRules(ParameterSet const& pset,
 			       std::string const& parameterName,
 			       std::string const& parameterOwnerName) :
   rules_(),

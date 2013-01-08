@@ -4,8 +4,8 @@
 #include <cctype>
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "FWCore/Framework/interface/GroupSelector.h"
-#include "FWCore/Framework/interface/GroupSelectorRules.h"
+#include "FWCore/Framework/interface/ProductSelector.h"
+#include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
@@ -15,11 +15,11 @@ namespace edm {
 // order to shorten several lines of code.
   typedef std::vector<edm::BranchDescription const*> VCBDP;
 
-  GroupSelector::GroupSelector() : groupsToSelect_(), initialized_(false) {}
+  ProductSelector::ProductSelector() : productsToSelect_(), initialized_(false) {}
 
   void
-  GroupSelector::initialize(GroupSelectorRules const& rules, VCBDP const& branchDescriptions) {
-    typedef GroupSelectorRules::BranchSelectState BranchSelectState;
+  ProductSelector::initialize(ProductSelectorRules const& rules, VCBDP const& branchDescriptions) {
+    typedef ProductSelectorRules::BranchSelectState BranchSelectState;
 
     // Get a BranchSelectState for each branch, containing the branch
     // name, with its 'select bit' set to false.
@@ -44,32 +44,32 @@ namespace edm {
       std::vector<BranchSelectState>::const_iterator it = branchstates.begin();
       std::vector<BranchSelectState>::const_iterator end = branchstates.end();
       for (; it != end; ++it) {
-	  if (it->selectMe) groupsToSelect_.push_back(it->desc->branchName());
+	  if (it->selectMe) productsToSelect_.push_back(it->desc->branchName());
       }
-      sort_all(groupsToSelect_);
+      sort_all(productsToSelect_);
     }
     initialized_ = true;
   }
 
-  bool GroupSelector::selected(BranchDescription const& desc) const {
+  bool ProductSelector::selected(BranchDescription const& desc) const {
     if (!initialized_) {
       throw edm::Exception(edm::errors::LogicError)
-        << "GroupSelector::selected() called prematurely\n"
+        << "ProductSelector::selected() called prematurely\n"
         << "before the product registry has been frozen.\n";
     }
     // We are to select this 'branch' if its name is one of the ones we
     // have been told to select.
-    return binary_search_all(groupsToSelect_, desc.branchName());
+    return binary_search_all(productsToSelect_, desc.branchName());
   }
 
   void
-  GroupSelector::print(std::ostream& os) const {
-    os << "GroupSelector at: "
+  ProductSelector::print(std::ostream& os) const {
+    os << "ProductSelector at: "
        << static_cast<void const*>(this)
        << " has "
-       << groupsToSelect_.size()
-       << " groups to select:\n";      
-    copy_all(groupsToSelect_, std::ostream_iterator<std::string>(os, "\n"));
+       << productsToSelect_.size()
+       << " products to select:\n";      
+    copy_all(productsToSelect_, std::ostream_iterator<std::string>(os, "\n"));
   }
 
 
@@ -78,7 +78,7 @@ namespace edm {
   // Associated free functions
   //
   std::ostream&
-  operator<< (std::ostream& os, const GroupSelector& gs)
+  operator<< (std::ostream& os, const ProductSelector& gs)
   {
     gs.print(os);
     return os;

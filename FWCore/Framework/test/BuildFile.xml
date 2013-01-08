@@ -209,7 +209,7 @@
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_XMLException.sh"/>
   <use   name="FWCore/Utilities"/>
 </bin>
-<bin   name="TestFWCoreFrameworkGroupSelector" file="GroupSelector_t.cpp">
+<bin   name="TestFWCoreFrameworkProductSelector" file="ProductSelector_t.cpp">
   <use   name="DataFormats/Provenance"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>

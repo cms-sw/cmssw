@@ -60,7 +60,7 @@ namespace edm {
     treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize) : 0U),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
-    groupSelectorRules_(pset, "inputCommands", "InputSource"),
+    productSelectorRules_(pset, "inputCommands", "InputSource"),
     duplicateChecker_(inputType == InputType::Primary ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", inputType != InputType::SecondarySource)),
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
@@ -250,7 +250,7 @@ namespace edm {
           input_.processingMode(),
           setRun_,
           noEventSort_,
-          groupSelectorRules_,
+          productSelectorRules_,
           inputType_,
           (inputType_ == InputType::SecondarySource ?  boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper()) :  input_.branchIDListHelper()),
           duplicateChecker_,
@@ -370,10 +370,10 @@ namespace edm {
   // readEvent() is responsible for setting up the EventPrincipal.
   //
   //   1. fill an EventPrincipal with a unique EventID
-  //   2. For each entry in the provenance, put in one Group,
+  //   2. For each entry in the provenance, put in one ProductHolder,
   //      holding the Provenance for the corresponding EDProduct.
   //   3. set up the caches in the EventPrincipal to know about this
-  //      Group.
+  //      ProductHolder.
   //
   // We do *not* create the EDProduct instance (the equivalent of reading
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
@@ -588,7 +588,7 @@ namespace edm {
     }
     ParameterSet pset;
     pset.addUntrackedParameter("inputCommands", rules);
-    groupSelectorRules_ = GroupSelectorRules(pset, "inputCommands", "InputSource");
+    productSelectorRules_ = ProductSelectorRules(pset, "inputCommands", "InputSource");
   }
 
   EventPrincipal*
@@ -766,7 +766,7 @@ namespace edm {
     desc.addUntracked<bool>("labelRawDataLikeMC", true)
         ->setComment("If True: replace module label for raw data to match MC. Also use 'LHC' as process.");
 
-    GroupSelectorRules::fillDescription(desc, "inputCommands");
+    ProductSelectorRules::fillDescription(desc, "inputCommands");
     EventSkipperByID::fillDescription(desc);
     DuplicateChecker::fillDescription(desc);
   }

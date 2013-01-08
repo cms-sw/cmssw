@@ -118,8 +118,8 @@ namespace edm {
     keptProducts_(),
     hasNewlyDroppedBranch_(),
     process_name_(),
-    groupSelectorRules_(pset, "outputCommands", "OutputModule"),
-    groupSelector_(),
+    productSelectorRules_(pset, "outputCommands", "OutputModule"),
+    productSelector_(),
     moduleDescription_(),
     current_context_(0),
     prodsValid_(false),
@@ -177,12 +177,12 @@ namespace edm {
   }
 
   void OutputModule::selectProducts() {
-    if(groupSelector_.initialized()) return;
-    groupSelector_.initialize(groupSelectorRules_, getAllBranchDescriptions());
+    if(productSelector_.initialized()) return;
+    productSelector_.initialize(productSelectorRules_, getAllBranchDescriptions());
     Service<ConstProductRegistry> reg;
 
-    // TODO: See if we can collapse keptProducts_ and groupSelector_ into a
-    // single object. See the notes in the header for GroupSelector
+    // TODO: See if we can collapse keptProducts_ and productSelector_ into a
+    // single object. See the notes in the header for ProductSelector
     // for more information.
 
     std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
@@ -459,7 +459,7 @@ namespace edm {
 
   bool
   OutputModule::selected(BranchDescription const& desc) const {
-    return groupSelector_.selected(desc);
+    return productSelector_.selected(desc);
   }
 
   void
@@ -471,7 +471,7 @@ namespace edm {
   
   void
   OutputModule::fillDescription(ParameterSetDescription& desc) {
-    GroupSelectorRules::fillDescription(desc, "outputCommands");
+    ProductSelectorRules::fillDescription(desc, "outputCommands");
     EventSelector::fillDescription(desc);
   }
   

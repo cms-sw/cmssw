@@ -12,7 +12,7 @@
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/Group.h"
+#include "FWCore/Framework/interface/ProductHolder.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -357,12 +357,12 @@ namespace edm {
   SubProcess::propagateProducts(BranchType type, Principal const& parentPrincipal, Principal& principal) const {
     Selections const& keptVector = keptProducts()[type];
     for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
-      Group const* parentGroup = parentPrincipal.getGroup((*it)->branchID(), false, false);
-      if(parentGroup != 0) {
-        ProductData const& parentData = parentGroup->productData();
-        Group const* group = principal.getGroup((*it)->branchID(), false, false);
-        if(group != 0) {
-          ProductData& thisData = const_cast<ProductData&>(group->productData());
+      ProductHolderBase const* parentProductHolder = parentPrincipal.getProductHolder((*it)->branchID(), false, false);
+      if(parentProductHolder != 0) {
+        ProductData const& parentData = parentProductHolder->productData();
+        ProductHolderBase const* productHolder = principal.getProductHolder((*it)->branchID(), false, false);
+        if(productHolder != 0) {
+          ProductData& thisData = const_cast<ProductData&>(productHolder->productData());
           //Propagate the per event(run)(lumi) data for this product to the subprocess.
           //First, the product itself.
           thisData.wrapper_ = parentData.wrapper_;
@@ -378,7 +378,7 @@ namespace edm {
             thisData.prov_.resetProductProvenance();
           }
           // Sets unavailable flag, if known that product is not available
-          (void)group->productUnavailable();
+          (void)productHolder->productUnavailable();
         }
       }
     }

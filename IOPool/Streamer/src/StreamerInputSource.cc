@@ -301,13 +301,13 @@ namespace edm {
         ProductProvenance productProvenance(spi->branchID(), *spi->parents());
 
         if(spi->prod() != 0) {
-          FDEBUG(10) << "addgroup next " << spi->branchID() << std::endl;
+          FDEBUG(10) << "addproduct next " << spi->branchID() << std::endl;
           eventPrincipal.putOnRead(branchDesc, spi->prod(), productProvenance);
-          FDEBUG(10) << "addgroup done" << std::endl;
+          FDEBUG(10) << "addproduct done" << std::endl;
         } else {
-          FDEBUG(10) << "addgroup empty next " << spi->branchID() << std::endl;
+          FDEBUG(10) << "addproduct empty next " << spi->branchID() << std::endl;
           eventPrincipal.putOnRead(branchDesc, spi->prod(), productProvenance);
-          FDEBUG(10) << "addgroup empty done" << std::endl;
+          FDEBUG(10) << "addproduct empty done" << std::endl;
         }
         spi->clear();
     }

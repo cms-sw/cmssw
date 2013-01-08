@@ -320,7 +320,7 @@ void testEvent::setUp() {
   // the currentModuleDescription stored in the principal.  On the
   // other hand, when addProduct is called another event is created
   // with a fake moduleDescription containing the old process name
-  // and that is used to create the group in the principal used to
+  // and that is used to create the product holder in the principal used to
   // look up the object.
 
   boost::shared_ptr<ProductRegistry const> preg(availableProducts_);
@@ -570,11 +570,11 @@ void testEvent::deleteProduct() {
       id = iDesc.branchID();
     }});
 
-  const Group* g = principal_->getGroup(id,false,false);
-  CPPUNIT_ASSERT(g!=0);
+  const ProductHolderBase* phb = principal_->getProductHolder(id,false,false);
+  CPPUNIT_ASSERT(phb != nullptr);
   
-  CPPUNIT_ASSERT(!g->productWasDeleted());  
+  CPPUNIT_ASSERT(!phb->productWasDeleted());  
   principal_->deleteProduct(id);
-  CPPUNIT_ASSERT(g->productWasDeleted());
+  CPPUNIT_ASSERT(phb->productWasDeleted());
   
 }
