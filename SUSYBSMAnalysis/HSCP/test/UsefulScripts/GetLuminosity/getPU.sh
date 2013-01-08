@@ -10,7 +10,7 @@ PUJSON=/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions12/8TeV/Pil
 MBXSEC=70300
 
 for j in ${jsons[@]}; do 
-   pileupCalc.py -i ${j} --inputLumiJSON ${PUJSON} --calcMode true --minBiasXsec ${MBXSEC} --maxPileupBin 65 --numPileupBins 65  ${j}_targetpu.root
+   pileupCalc.py -i ${j} --inputLumiJSON ${PUJSON} --calcMode observed --minBiasXsec ${MBXSEC} --maxPileupBin 65 --numPileupBins 65  ${j}_targetpu.root
 done
 
 
