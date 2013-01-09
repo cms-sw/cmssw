@@ -112,6 +112,9 @@ double RescaleError  = 0.2;
 double PlotMinScale = 0.0001;
 double PlotMaxScale = 20;
 
+//Easy flag to skip running time consuming Cls expected limits. True runs the limit, false does not
+bool FullExpLimit=true;
+
 void Optimize(string InputPattern, string Data, string signal, bool shape, bool cutFromFile);
 double GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, double MinRange, double MaxRange);
 TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string ModelName, int XSectionType, std::vector<stSample>& modelSamples, double& LInt);
@@ -428,7 +431,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,TkPattern, modelVector[k], modelMap[modelVector[k]]);
      if(Uncertainty!=NULL && useSample(0, modelVector[k])) {
        Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
-       TkSystGraphs->Add(Uncertainty,"C");
+       TkSystGraphs->Add(Uncertainty,"LP");
        LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
        Graphs++;
      }
@@ -473,7 +476,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
 
      if(Uncertainty!=NULL && useSample(2, modelVector[k])) {
        Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
-       MuSystGraphs->Add(Uncertainty,"C");
+       MuSystGraphs->Add(Uncertainty,"LP");
        LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
        Graphs++;
      }
@@ -518,7 +521,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,MOPattern, modelVector[k], modelMap[modelVector[k]]);
      if(Uncertainty!=NULL && useSample(3, modelVector[k])) {
        Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
-       MOSystGraphs->Add(Uncertainty,"C");
+       MOSystGraphs->Add(Uncertainty,"LP");
        LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
        Graphs++;
      }
@@ -562,7 +565,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,LQPattern, modelVector[k], modelMap[modelVector[k]]);
      if(Uncertainty!=NULL && useSample(5, modelVector[k])) {
        Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
-       LQSystGraphs->Add(Uncertainty,"C");
+       LQSystGraphs->Add(Uncertainty,"LP");
        LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
        Graphs++;
      }
@@ -608,7 +611,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
      TGraph* Uncertainty = CheckSignalUncertainty(pFile,talkFile,HQPattern, modelVector[k], modelMap[modelVector[k]]);
      if(Uncertainty!=NULL && useSample(4, modelVector[k])) {
        Uncertainty->SetLineColor(Color[Graphs]);  Uncertainty->SetMarkerColor(Color[Graphs]);   Uncertainty->SetMarkerStyle(20); Uncertainty->SetLineWidth(2);
-       HQSystGraphs->Add(Uncertainty,"C");
+       HQSystGraphs->Add(Uncertainty,"LP");
        LEG->AddEntry(Uncertainty,  modelVector[k].c_str() ,"L");
        Graphs++;
      }
@@ -1451,13 +1454,13 @@ TGraph* CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern,
      graphSystRe->SetLineColor(Color[6]);     graphSystRe->SetMarkerColor(Color[6]);      graphSystRe->SetMarkerStyle(Marker[6]);graphSystRe->SetLineWidth(2);
      graphSystMB->SetLineColor(Color[7]);     graphSystMB->SetMarkerColor(Color[7]);      graphSystMB->SetMarkerStyle(Marker[7]);graphSystMB->SetLineWidth(2);
 
-     SystGraphs->Add(graphSystP,"C0");
-     SystGraphs->Add(graphSystTr,"C");
-     SystGraphs->Add(graphSystRe,"C");
-     if(TypeMode!=3)SystGraphs->Add(graphSystI,"C0");
-     SystGraphs->Add(graphSystPU,"C0");
-     if(TypeMode!=0 && TypeMode!=5)SystGraphs->Add(graphSystT,"C0");
-     if(TypeMode==4) SystGraphs->Add(graphSystMB,"C");
+     SystGraphs->Add(graphSystP,"LP0");
+     SystGraphs->Add(graphSystTr,"LP");
+     SystGraphs->Add(graphSystRe,"LP");
+     if(TypeMode!=3)SystGraphs->Add(graphSystI,"LP0");
+     SystGraphs->Add(graphSystPU,"LP0");
+     if(TypeMode!=0 && TypeMode!=5)SystGraphs->Add(graphSystT,"LP0");
+     if(TypeMode==4) SystGraphs->Add(graphSystMB,"LP");
      SystGraphs->Add(graphSystTotal,"P");
 
      SystGraphs->Draw("A");
@@ -2295,6 +2298,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
       NSignM      = (MassSignProjM ->IntegralAndError(MassSignProjM ->GetXaxis()->FindBin(MinRange), MassSignProjM ->GetXaxis()->FindBin(MaxRange), NSignMErr )) / signalsMeanHSCPPerEvent;  NSignMErr /= signalsMeanHSCPPerEvent;
       NSignT      = (MassSignProjT ->IntegralAndError(MassSignProjT ->GetXaxis()->FindBin(MinRange), MassSignProjT ->GetXaxis()->FindBin(MaxRange), NSignTErr )) / signalsMeanHSCPPerEvent;  NSignTErr /= signalsMeanHSCPPerEvent;
       NSignPU     = (MassSignProjPU->IntegralAndError(MassSignProjPU->GetXaxis()->FindBin(MinRange), MassSignProjPU->GetXaxis()->FindBin(MaxRange), NSignPUErr)) / signalsMeanHSCPPerEvent;  NSignPUErr/= signalsMeanHSCPPerEvent;
+
    //IF 1D histograms --> we get all the information from the ABCD method output 
    }else{
       Shape=false; //can not do shape based if we don't get the shapes
@@ -2556,7 +2560,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
         }
       }
       file->Close();
-
+      if(FullExpLimit) {
       //Create grid to find expected limits in Cls
       //Number of different signal strengths to try
       int gridPoints=30;
@@ -2665,6 +2669,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
         }
       }
       file->Close();
+      }
    }
 
    if(!Temporary && getSignificance){
@@ -2905,7 +2910,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
         }
       }
       file->Close();
-
+      if(FullExpLimit) {
       //Create grid to find expected limits in Cls
       //Number of different signal strengths to try
       int gridPoints=30;
@@ -3015,6 +3020,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
         }
       }
       file->Close();
+      }
    }
 
 
