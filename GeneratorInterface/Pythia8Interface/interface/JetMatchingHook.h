@@ -23,13 +23,20 @@ public:
   JetMatchingHook( const edm::ParameterSet&, Pythia8::Info* );
   virtual ~JetMatchingHook();
   
-  virtual bool canVetoPartonLevelEarly() { return true; }  
-  virtual bool doVetoPartonLevelEarly( const Pythia8::Event& event );
+  //
+  // Julia Yarba, Jan.8, 2013
+  // The "Early" option will work with Pythia8.170 or higher;
+  // for lower versions, please use just VetoPartonLevel
+  //
+  // virtual bool canVetoPartonLevelEarly() { return true; }  
+  // virtual bool doVetoPartonLevelEarly( const Pythia8::Event& event );
+  virtual bool canVetoPartonLevel() { return true; }  
+  virtual bool doVetoPartonLevel( const Pythia8::Event& event );
     
   void setEventNumber( int ievt ) { fEventNumber = ievt; return ; }
   
   virtual void init( lhef::LHERunInfo* runInfo );
-  virtual bool initAfterBeams() { fJetMatching->initAfterBeams(); return true; }
+  virtual bool initAfterBeams() { if ( fIsInitialized ) return true; fJetMatching->initAfterBeams(); fIsInitialized=true; return true; }
   void resetMatchingStatus() { fJetMatching->resetMatchingStatus(); return; }
   virtual void beforeHadronization( lhef::LHEEvent* lhee );
   
@@ -66,6 +73,8 @@ protected:
           
      //void setJetAlgoInput( const Pythia8::Event& );
      //int getAncestor( int, const Pythia8::Event& );
+     
+     bool fIsInitialized;
  
 };
 
@@ -105,6 +114,7 @@ class JetMatchingMG5 : public JetMatchingMadgraph
       const std::vector<int>* getPartonList() { return typeIdx; }
    
    protected:
+      virtual void init( const lhef::LHERunInfo* runInfo ) { JetMatchingMadgraph::init(runInfo); initAfterBeams(); return; }
       bool initAfterBeams();
       void beforeHadronisation(const lhef::LHEEvent* );
       void beforeHadronisationExec() { return; }
@@ -271,12 +281,12 @@ public:
   virtual bool doVetoProcessLevel(Event &);
 
   // Parton level vetos (before beam remnants and resonance decays)
-  virtual bool canVetoPartonLevelEarly();
-  virtual bool doVetoPartonLevelEarly(const Event &);
-  // virtual bool canVetoPartonLevel();
-  // virtual bool doVetoPartonLevel(const Event &);
+  // virtual bool canVetoPartonLevelEarly();
+  // virtual bool doVetoPartonLevelEarly(const Event &);
+  virtual bool canVetoPartonLevel();
+  virtual bool doVetoPartonLevel(const Event &);
   
-  void init( lhef::LHERunInfo* runInfo ) { fJetMatching->init( runInfo ); return; }
+  void init( lhef::LHERunInfo* runInfo ) { fJetMatching->init( runInfo ); initAfterBeams(); return; }
   // void resetMatchingStatus() { fJetMatching->resetMatchingStatus(); return; }
   void beforeHadronization( lhef::LHEEvent* lhee ) { const lhef::HEPEUP& hepeup = *(lhee->getHEPEUP());
                                                      process =  hepeup.IDPRUP; // FIXME !!!
@@ -403,9 +413,12 @@ inline bool
 MG5hooks::initAfterBeams() {
 
 
+   if ( fIsInitialized ) return true; // make sure it's done only once 
+
 // Read in MG5 specific configuration variables
 /*   bool setMG5    = settingsPtr->flag("MG5:setMG5"); */
-   bool setMG5 = false;
+   // at present, not in use 
+   // -> bool setMG5 = false;
 
    // If ALPGEN parameters are present, then parse in MG5Par object
 /*
@@ -578,7 +591,9 @@ MG5hooks::initAfterBeams() {
        << modeStr << "  |" << endl
        << " *-----------------------------------------*" << endl;
 
+  fIsInitialized=true;
   return true;
+
 }
 
 // Process level veto. Stores incoming event for later.
@@ -593,12 +608,12 @@ MG5hooks::doVetoProcessLevel(Event& process) {
 
 // Early parton level veto (before beam remnants and resonance showers)
 inline bool
-// MG5hooks::canVetoPartonLevel() { return doMerge; }
-MG5hooks::canVetoPartonLevelEarly() { return doMerge; }
+MG5hooks::canVetoPartonLevel() { return doMerge; }
+// MG5hooks::canVetoPartonLevelEarly() { return doMerge; }
 
 inline bool
-// MG5hooks::doVetoPartonLevel(const Event& event) {
-MG5hooks::doVetoPartonLevelEarly(const Event& event) {
+MG5hooks::doVetoPartonLevel(const Event& event) {
+// MG5hooks::doVetoPartonLevelEarly(const Event& event) {
   // 1) Sort the original incoming process. After this step is performed,
   //    the following assignments have been made:
   //      eventProcessOrig - the original incoming process
@@ -688,7 +703,7 @@ MG5hooks::sortIncomingProcess(const Event &event) {
   // Remove resonance decays from original process and keep only final
   // state. Resonances will have positive status code after this step.
   
-  omitResonanceDecays(eventProcessOrig, true);
+  omitResonanceDecays(eventProcessOrig); //, true);
   eventProcess = workEvent;
 
   // Sort original process final state into light/heavy jets and 'other'.

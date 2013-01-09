@@ -25,7 +25,9 @@ using namespace Pythia8;
 
 
 JetMatchingHook::JetMatchingHook( const edm::ParameterSet& ps, Info* info )
-   : UserHooks(), fRunBlock(0), fEventBlock(0), fEventNumber(0), fInfoPtr(info), fJetMatching(0), fJetInputFill(0)
+   : UserHooks(), fRunBlock(0), fEventBlock(0), fEventNumber(0), fInfoPtr(info), 
+     fJetMatching(0), fJetInputFill(0),
+     fIsInitialized(false)
 {
 
    assert( fInfoPtr );
@@ -104,7 +106,9 @@ void JetMatchingHook::beforeHadronization( lhef::LHEEvent* lhee )
 
 }
 
-bool JetMatchingHook::doVetoPartonLevelEarly( const Event& event )
+bool 
+JetMatchingHook::doVetoPartonLevel( const Event& event )
+// JetMatchingHook::doVetoPartonLevelEarly( const Event& event )
 {
                   
    // event.list();
@@ -471,6 +475,8 @@ bool JetMatchingMG5::initAfterBeams()
        << modeStr << "  |" << std::endl
        << " *-----------------------------------------*" << std::endl;   
 
+   
+   
    return true;
 
 }

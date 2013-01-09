@@ -31,7 +31,8 @@ Py8toJetInput::fillJetAlgoInput( const Event& event, const Event& workEvent,
 // --> FIXME !!!
    int iType = 0; // only LIGHT jets for now
    int jetAllow = 0; // hardcoded for now for the same value as is set in Steve's example
-   int jetMatch = 0; // hardcoded for now for the same value as is set in Steve's example
+   // at present, not even in use...
+   // int jetMatch = 0; // hardcoded for now for the same value as is set in Steve's example
    
   // Loop over particles and decide what to pass to the jet algorithm
   for (int i = 0; i < workEventJet.size(); ++i) 
