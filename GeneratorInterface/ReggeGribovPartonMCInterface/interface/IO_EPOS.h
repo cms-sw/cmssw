@@ -34,6 +34,7 @@ namespace EPOS {
         void              set_trust_both_mothers_and_daughters( bool b = false );
         void              set_print_inconsistency_errors( bool b = true );
         void              set_trust_beam_particles( bool b = true );
+        void              set_skip_nuclear_fragments( bool b = true );
 
     protected: // for internal use only
         HepMC::GenParticle* build_particle( int index );
@@ -53,6 +54,7 @@ namespace EPOS {
         bool m_trust_both_mothers_and_daughters;
         bool m_print_inconsistency_errors; 
         bool m_trust_beam_particles;
+        bool m_skip_nucl_frag;
     };
 
     // INLINES access methods //
@@ -79,6 +81,10 @@ namespace EPOS {
 
     inline void IO_EPOS::set_trust_beam_particles( bool b )
     { m_trust_beam_particles = b; }
+
+    //!!!MODIFICATION
+    inline void IO_EPOS::set_skip_nuclear_fragments( bool b)
+    { m_skip_nucl_frag = b; }
 
 } // HepMC
 

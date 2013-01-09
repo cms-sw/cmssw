@@ -16,7 +16,8 @@ namespace EPOS {
     IO_EPOS::IO_EPOS() : m_trust_mothers_before_daughters(1),
                              m_trust_both_mothers_and_daughters(0),
                              m_print_inconsistency_errors(1),
-                             m_trust_beam_particles(true)
+                             m_trust_beam_particles(true),
+                             m_skip_nucl_frag(false)
     {}
 
     IO_EPOS::~IO_EPOS(){}
@@ -50,8 +51,7 @@ namespace EPOS {
         std::vector<HepMC::GenParticle*> hepevt_particle( 
                                         EPOS_Wrapper::number_entries()+1 );
         hepevt_particle[0] = 0;
-	//intentionally skipping last particle in event record which is the nucleus
-        for ( int i1 = 1; i1 < EPOS_Wrapper::number_entries(); ++i1 ) {
+        for ( int i1 = 1; i1 <= EPOS_Wrapper::number_entries(); ++i1 ) {
             hepevt_particle[i1] = build_particle(i1);
         }
 
@@ -68,7 +68,10 @@ namespace EPOS {
         }
         //
         // 3.+4. loop over EPOS particles AGAIN, this time creating vertices
-        for ( int i = 1; i < EPOS_Wrapper::number_entries(); ++i ) {
+	//MODIFICATION FROM HEPMC!! skipping nuclear fragments in event if option is set
+        for ( int i = 1; i <= EPOS_Wrapper::number_entries(); ++i ) {
+            if (m_skip_nucl_frag && abs(hepevt_particle[i]->pdg_id())>=1000000000)
+              continue;
             // We go through and build EITHER the production or decay 
             // vertex for each entry in hepevt, depending on the switch
             // m_trust_mothers_before_daughters (new 2001-02-28)
@@ -92,7 +95,10 @@ namespace EPOS {
         //  i.e. particles without mothers or daughters.
         //  These particles need to be attached to a vertex, or else they
         //  will never become part of the event. check for this situation
-        for ( int i3 = 1; i3 < EPOS_Wrapper::number_entries(); ++i3 ) {
+	//MODIFICATION FROM HEPMC!! skipping nuclear fragments in event if option is set
+        for ( int i3 = 1; i3 <= EPOS_Wrapper::number_entries(); ++i3 ) {
+            if (m_skip_nucl_frag && abs(hepevt_particle[i3]->pdg_id())>=1000000000)
+              continue;
             if ( !hepevt_particle[i3]->end_vertex() && 
                         !hepevt_particle[i3]->production_vertex() ) {
                 HepMC::GenVertex* prod_vtx = new GenVertex();

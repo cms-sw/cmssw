@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("EmptySource")
 
+from GeneratorInterface.ReggeGribovPartonMCInterface.ReggeGribovPartonMC_AdvancedParameters_cfi import *
 generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
                     beammomentum = cms.double(1380),
                     targetmomentum = cms.double(-1380),
@@ -15,8 +16,8 @@ generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
 
 
 configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.3 $'),
-    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/python/ReggeGribovPartonMC_cfi.py,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/python/ReggeGribovPartonMC_EposLHC_2760GeV_PbPb_cfi.py,v $'),
     annotation = cms.untracked.string('ReggeGribovMC generator')
     )
 

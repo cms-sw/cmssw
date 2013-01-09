@@ -230,6 +230,7 @@ namespace gen
     double  m_bMin;
     double  m_bMax;
     edm::FileInPath m_ParamFileName;
+    bool    m_SkipNuclFrag;
     int     m_NEvent;
 
     int     m_NParticles;
