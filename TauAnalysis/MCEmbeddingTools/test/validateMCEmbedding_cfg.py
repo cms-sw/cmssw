@@ -40,9 +40,11 @@ srcGenFilterInfo = "generator:minVisPtFilter"
 #--------------------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2012Dec20_AOD.root'
+        'file:/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Jan09_AOD.root'
         #'file:/data1/veelken/CMSSW_5_3_x/skims/simZplusJets_madgraph_AOD_1_1_txi.root'
-        #'file:/tmp/veelken/rhembTauTau_data_Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RECEmbed_2825_embed_AOD.root'                        
+        #'file:/tmp/veelken/rhembTauTau_data_Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RECEmbed_2825_embed_AOD.root'
+        #'/store/user/veelken/CMSSW_5_3_x/skims/simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_AOD_1_1_cAQ.root'
+        #'file:embed_AOD.root'                      
     ),
     ##eventsToProcess = cms.untracked.VEventRange(
     ##    '1:154452:61731259'
@@ -309,10 +311,7 @@ process.selectedTaus = cms.EDFilter("PATTauSelector",
     src = cms.InputTag("genMatchedPatTaus"),
     cut = cms.string(
         "pt > 20.0 & abs(eta) < 2.3 & tauID('decayModeFinding') > 0.5 & tauID('byLooseIsolationMVA') > 0.5"                                
-    )                                
-       # "pt > %1.1f & abs(eta) < 2.3 & tauID('decayModeFinding') > 0.5 & %s & %s & %s" % \
-       #(tauPtThreshold, tauDiscrByIsolation, tauDiscrAgainstElectrons, tauDiscrAgainstMuons)
-       #"pt > %1.1f & abs(eta) < 2.3 & tauID('decayModeFinding') > 0.5 & tauID('byLooseIsolationMVA') > 0.5"                                
+    )
 )
 process.recTauSelectionSequence = cms.Sequence(
     process.recoTauCommonSequence
@@ -510,6 +509,7 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     #----------------------------------------------------------------------------                                              
     srcRecMuons = cms.InputTag('muons'),
     srcRecTracks = cms.InputTag('generalTracks'),
+    srcCaloTowers = cms.InputTag('towerMaker'),
     srcRecPFCandidates = cms.InputTag('particleFlow'),
     srcRecVertex = cms.InputTag('goodVertex'),                                        
     srcGenDiTaus = cms.InputTag('genZdecayToTaus'),
@@ -517,6 +517,8 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcRecLeg1 = cms.InputTag(srcRecLeg1),                                        
     srcGenLeg2 = cms.InputTag(srcGenLeg2),
     srcRecLeg2 = cms.InputTag(srcRecLeg2),
+    srcGenParticles = cms.InputTag('genParticles'),                                          
+    srcL1ETM = cms.InputTag('l1extraParticles', 'MET'),                                        
     srcWeights = cms.VInputTag(srcWeights),
     srcGenFilterInfo = cms.InputTag(srcGenFilterInfo),                                        
     dqmDirectory = cms.string("validationAnalyzer_%s" % channel),                                        
@@ -614,19 +616,7 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
             srcGen = cms.InputTag('genHadronsFromZtautauDecaysWithinAcceptance'),
 	    srcRec = cms.InputTag('selectedTaus'),
             dqmDirectory = cms.string('selectedTauDistributions')
-        ),
-        #------------------------------------------------------------------------                                        
-        cms.PSet(
-            srcGen = cms.InputTag('genHadronsFromZtautauDecaysWithinAcceptance'),
-	    srcRec = cms.InputTag('patTaus'),
-            dqmDirectory = cms.string('patTauDistributions')
-        ),
-        cms.PSet(
-            srcGen = cms.InputTag('genHadronsFromZtautauDecaysWithinAcceptance'),
-	    srcRec = cms.InputTag('genMatchedPatTaus'),
-            dqmDirectory = cms.string('genMatchedTauDistributions')
         )
-        #------------------------------------------------------------------------ 
     ),
     tauEfficiencies = cms.VPSet(					
         cms.PSet(
@@ -635,6 +625,49 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
             dqmDirectory = cms.string('selectedTauEfficiencies')
         )
     ),
+
+    # Pt, eta and phi distribution of L1Extra objects
+    # (electrons, muons, tau-jet, central and forward jets)                                     
+##     l1ElectronDistributions = cms.VPSet(
+##         cms.PSet(
+## 	    src = cms.InputTag('l1extraParticles', 'NonIsolated'),
+##             cut = cms.string("pt > %1.1f & abs(eta) < 2.1" % (electronPtThreshold - 1.0)),
+##             dqmDirectory = cms.string('l1ElectronDistributions')
+##         ),                                        
+##         cms.PSet(
+## 	    src = cms.InputTag('l1extraParticles', 'Isolated'),
+##             cut = cms.string("pt > %1.1f & abs(eta) < 2.1" % (electronPtThreshold - 1.0)),
+##             dqmDirectory = cms.string('l1IsoElectronDistributions')
+##         )
+##     ),
+    l1MuonDistributions = cms.VPSet(					
+        cms.PSet(
+	    src = cms.InputTag('l1extraParticles'),
+            cut = cms.string("pt > %1.1f & abs(eta) < 2.1" % (muonPtThreshold - 1.0)),
+            dqmDirectory = cms.string('l1MuonDistributions')
+        )
+    ),
+##     l1TauDistributions = cms.VPSet(					
+##         cms.PSet(
+## 	    src = cms.InputTag('l1extraParticles', 'Tau'),
+##             cut = cms.string("pt > %1.1f" % (tauPtThreshold - 5.0)),
+##             dqmDirectory = cms.string('l1TauDistributions')
+##         )
+##     ),
+##     l1CentralJetDistributions = cms.VPSet(					
+##         cms.PSet(
+## 	    src = cms.InputTag('l1extraParticles', 'Central'),
+##             cut = cms.string("pt > 20."),
+##             dqmDirectory = cms.string('l1CentralJetDistributions')
+##         )
+##     ),
+##     l1ForwardJetDistributions = cms.VPSet(					
+##         cms.PSet(
+## 	    src = cms.InputTag('l1extraParticles', 'Forward'),
+##             cut = cms.string("pt > 20."),
+##             dqmDirectory = cms.string('l1ForwardJetDistributions')
+##         )
+##     ),
 
     # MET Pt and phi distributions;
     # efficiency of L1 (Calo)MET trigger requirement
@@ -733,6 +766,26 @@ process.filterFirstEvent = cms.EDFilter("EventCountFilter",
 process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
 
 process.schedule = cms.Schedule(process.printFirstEventContentPath, process.p)
+
+##process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+##process.printGenParticleList = cms.EDAnalyzer("ParticleListDrawer",
+##  src = cms.InputTag("genParticles"),
+##  maxEventsToPrint = cms.untracked.int32(100)
+##)
+##process.printGenParticleListPath = cms.Path(process.printGenParticleList)
+##
+##process.schedule.extend([process.printGenParticleListPath])
+
+process.dumpSelMuonsEmbeddedRECO = cms.EDAnalyzer("DumpPATMuons",
+  src = cms.InputTag('goodMuons::EmbeddedRECO'),
+  minPt = cms.double(7.)
+)
+process.dumpSelMuons = process.dumpSelMuonsEmbeddedRECO.clone(
+  src = cms.InputTag('goodMuons')
+)    
+process.dumpSelMuonsPath = cms.Path(process.dumpSelMuonsEmbeddedRECO + process.dumpSelMuons)
+
+process.schedule.extend([process.dumpSelMuonsPath])
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)

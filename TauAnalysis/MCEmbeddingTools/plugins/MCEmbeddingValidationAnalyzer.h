@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.3 2012/12/13 09:52:06 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.4 2012/12/18 15:59:25 veelken Exp $
  *
  */
 
@@ -38,11 +38,110 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include <TString.h>
 
 #include <string>
 #include <vector>
+
+namespace
+{
+  void countDecayProducts(const reco::GenParticle* genParticle,
+			  int& numElectrons, int& numElecNeutrinos, int& numMuons, int& numMuNeutrinos, 
+			  int& numChargedHadrons, int& numPi0s, int& numOtherNeutralHadrons, int& numPhotons)
+  {
+    //std::cout << " genParticle: pdgId = " << genParticle->pdgId() << std::endl;
+
+    int absPdgId = TMath::Abs(genParticle->pdgId());
+    int status   = genParticle->status();
+    int charge   = genParticle->charge();
+
+    if      ( absPdgId == 111 ) ++numPi0s;
+    else if ( status   ==   1 ) {
+      if      ( absPdgId == 11 ) ++numElectrons;
+      else if ( absPdgId == 12 ) ++numElecNeutrinos;
+      else if ( absPdgId == 13 ) ++numMuons;
+      else if ( absPdgId == 14 ) ++numMuNeutrinos;
+      else if ( absPdgId == 15 ) { 
+	edm::LogError ("countDecayProducts")
+	  << "Found tau lepton with status code 1 !!";
+	return; 
+      }
+      else if ( absPdgId == 16 ) return; // no need to count tau neutrinos
+      else if ( absPdgId == 22 ) ++numPhotons;
+      else if ( charge   !=  0 ) ++numChargedHadrons;
+      else                       ++numOtherNeutralHadrons;
+    } else {
+      unsigned numDaughters = genParticle->numberOfDaughters();
+      for ( unsigned iDaughter = 0; iDaughter < numDaughters; ++iDaughter ) {
+	const reco::GenParticle* daughter = genParticle->daughterRef(iDaughter).get();
+	
+	countDecayProducts(daughter, 
+			   numElectrons, numElecNeutrinos, numMuons, numMuNeutrinos,
+			   numChargedHadrons, numPi0s, numOtherNeutralHadrons, numPhotons);
+      }
+    }
+  }
+  
+  std::string getGenTauDecayMode(const reco::GenParticle* genParticle) 
+  {
+//--- determine generator level tau decay mode
+//
+//    NOTE: 
+//        (1) function implements logic defined in PhysicsTools/JetMCUtils/src/JetMCTag::genTauDecayMode
+//            for different type of argument 
+//        (2) this implementation should be more robust to handle cases of tau --> tau + gamma radiation
+//
+  
+    //std::cout << "<MCEmbeddingValidationAnalyzer::getGenTauDecayMode>:" << std::endl;
+
+    int numElectrons           = 0;
+    int numElecNeutrinos       = 0;
+    int numMuons               = 0;
+    int numMuNeutrinos         = 0; 
+    int numChargedHadrons      = 0;
+    int numPi0s                = 0; 
+    int numOtherNeutralHadrons = 0;
+    int numPhotons             = 0;
+    
+    countDecayProducts(genParticle,
+		       numElectrons, numElecNeutrinos, numMuons, numMuNeutrinos,
+		       numChargedHadrons, numPi0s, numOtherNeutralHadrons, numPhotons);
+    
+    if      ( numElectrons == 1 && numElecNeutrinos == 1 ) return std::string("electron");
+    else if ( numMuons     == 1 && numMuNeutrinos   == 1 ) return std::string("muon");
+    
+    switch ( numChargedHadrons ) {
+    case 1 : 
+      if ( numOtherNeutralHadrons != 0 ) return std::string("oneProngOther");
+      switch ( numPi0s ) {
+      case 0:
+	return std::string("oneProng0Pi0");
+      case 1:
+	return std::string("oneProng1Pi0");
+      case 2:
+	return std::string("oneProng2Pi0");
+      default:
+	return std::string("oneProngOther");
+      }
+    case 3 : 
+      if ( numOtherNeutralHadrons != 0 ) return std::string("threeProngOther");
+      switch ( numPi0s ) {
+      case 0:
+	return std::string("threeProng0Pi0");
+      case 1:
+	return std::string("threeProng1Pi0");
+      default:
+	return std::string("threeProngOther");
+      }
+    default:
+      return std::string("rare");
+    }
+  }
+}
 
 class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer 
 {
@@ -65,6 +164,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcReplacedMuons_;
   edm::InputTag srcRecMuons_;
   edm::InputTag srcRecTracks_;
+  edm::InputTag srcCaloTowers_;
   edm::InputTag srcRecPFCandidates_;
   edm::InputTag srcRecVertex_;
   edm::InputTag srcGenDiTaus_;
@@ -72,6 +172,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcRecLeg1_;
   edm::InputTag srcGenLeg2_;
   edm::InputTag srcRecLeg2_;
+  edm::InputTag srcGenParticles_;
+  edm::InputTag srcL1ETM_;
 
   typedef std::vector<edm::InputTag> vInputTag;
   vInputTag srcWeights_;
@@ -137,6 +239,22 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramGenLeg2X_;
   MonitorElement* histogramRecLeg2X_;
 
+  MonitorElement* histogramGenMEt_charged_;
+  MonitorElement* histogramGenMEt_;
+
+  MonitorElement* histogramRecTrackMEt_;
+  MonitorElement* histogramRecTrackSumEt_;
+  MonitorElement* histogramRecCaloMEtECAL_;
+  MonitorElement* histogramRecCaloSumEtECAL_;
+  MonitorElement* histogramRecCaloMEtHCAL_;
+  MonitorElement* histogramRecCaloSumEtHCAL_;
+  MonitorElement* histogramRecCaloMEtHF_;
+  MonitorElement* histogramRecCaloSumEtHF_;
+  MonitorElement* histogramRecCaloMEtHO_;
+  MonitorElement* histogramRecCaloSumEtHO_;
+
+  MonitorElement* histogramL1ETM_;
+
   template <typename T>
   struct leptonDistributionT
   {
@@ -168,6 +286,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
       histogramRecLeptonEta_ = dqmStore.book1D("recLeptonEta", "recLeptonEta", 198, -9.9, +9.9);
       histogramRecLeptonPhi_ = dqmStore.book1D("recLeptonPhi", "recLeptonPhi", 72, -TMath::Pi(), +TMath::Pi());
       histogramRecMinusGenLeptonPt_ = dqmStore.book1D("recMinusGenLeptonPt", "recMinusGenLeptonPt", 200, -100., +100.);
+      histogramRecMinusGenLeptonPt_div_genLeptonPt_ = dqmStore.book1D("recMinusGenLeptonPt_div_genLeptonPt", "recMinusGenLeptonPt_div_genLeptonPt", 200, 0., 2.);
       histogramRecMinusGenLeptonEta_ = dqmStore.book1D("recMinusGenLeptonEta", "recMinusGenLeptonEta", 100, -0.5, +0.5);
       histogramRecMinusGenLeptonPhi_ = dqmStore.book1D("recMinusGenLeptonPhi", "recMinusGenLeptonPhi", 100, -0.5, +0.5);
     }
@@ -196,6 +315,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	    histogramRecLeptonEta_->Fill(recLepton->eta(), evtWeight);
 	    histogramRecLeptonPhi_->Fill(recLepton->phi(), evtWeight);
 	    histogramRecMinusGenLeptonPt_->Fill(recLepton->pt() - genLepton->pt(), evtWeight);
+	    if ( genLepton->pt() > 0. ) histogramRecMinusGenLeptonPt_div_genLeptonPt_->Fill((recLepton->pt() - genLepton->pt())/genLepton->pt(), evtWeight);
 	    histogramRecMinusGenLeptonEta_->Fill(recLepton->eta() - genLepton->eta(), evtWeight);
 	    histogramRecMinusGenLeptonPhi_->Fill(recLepton->phi() - genLepton->phi(), evtWeight);
 	  }	     
@@ -217,6 +337,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     MonitorElement* histogramRecLeptonEta_;
     MonitorElement* histogramRecLeptonPhi_;
     MonitorElement* histogramRecMinusGenLeptonPt_;
+    MonitorElement* histogramRecMinusGenLeptonPt_div_genLeptonPt_;
     MonitorElement* histogramRecMinusGenLeptonEta_;
     MonitorElement* histogramRecMinusGenLeptonPhi_;
   };
@@ -242,8 +363,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     void bookHistograms(DQMStore& dqmStore)
     {
       dqmStore.setCurrentFolder(dqmDirectory_.data());
-      histogramGenTauDecayMode_ = dqmStore.book1D("genTauDecayMode", "genTauDecayMode", 21, -1.5, 19.5);      
-      histogramRecTauDecayMode_ = dqmStore.book1D("recTauDecayMode", "recTauDecayMode", 21, -1.5, 19.5);  
+      histogramGenTauDecayMode_ = dqmStore.book1D("genTauDecayMode", "genTauDecayMode", 21, -1.5, +19.5);      
+      histogramRecTauDecayMode_ = dqmStore.book1D("recTauDecayMode", "recTauDecayMode", 21, -1.5, +19.5);  
     }
     void fillHistograms(const edm::Event& evt, double evtWeight)
     {
@@ -262,7 +383,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	  if ( cutRec_ && !(*cutRec_)(*recLepton) ) continue;
 	  double dR = deltaR(genLepton->p4(), recLepton->p4());
 	  if ( dR < dRmatch_ ) {
-	    std::string genTauDecayMode_string = JetMCTagUtils::genTauDecayMode(*genLepton_composite);
+	    std::string genTauDecayMode_string  = JetMCTagUtils::genTauDecayMode(*genLepton_composite);	    
+	    //std::cout << "--> genTauDecayMode: = " << genTauDecayMode_string << std::endl;
 	    int genTauDecayMode = -1;
 	    if      ( genTauDecayMode_string == "electron"        ) genTauDecayMode = reco::PFTauDecayMode::tauDecaysElectron;
 	    else if ( genTauDecayMode_string == "muon"            ) genTauDecayMode = reco::PFTauDecayMode::tauDecayMuon;
@@ -278,8 +400,24 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	    int recTauDecayMode = recLepton->decayMode();
 	    histogramRecTauDecayMode_->Fill(recTauDecayMode, evtWeight);
 	  }
-	}
+	}	
       }
+      //edm::Handle<reco::GenParticleCollection> genParticles;
+      //evt.getByLabel("genParticles", genParticles);     
+      //for ( reco::GenParticleCollection::const_iterator genParticle = genParticles->begin();
+      //      genParticle != genParticles->end(); ++genParticle ) {
+      //  if ( TMath::Abs(genParticle->pdgId()) == 15 ) {
+      //    for ( recLeptonCollection::const_iterator recLepton = recLeptons->begin();
+      //          recLepton != recLeptons->end(); ++recLepton ) {
+      //      if ( cutRec_ && !(*cutRec_)(*recLepton) ) continue;		    
+      //      double dR = deltaR(genParticle->p4(), recLepton->p4());
+      //      if ( dR < dRmatch_ ) {
+      //        std::string genTauDecayMode_string = getGenTauDecayMode(&(*genParticle));
+      //        std::cout << "--> genTauDecayMode: = " << genTauDecayMode_string << std::endl;
+      //      }
+      //    }
+      //  }
+      //}
     }
     edm::InputTag srcGen_;
     StringCutObjectSelector<reco::Candidate>* cutGen_;
@@ -460,6 +598,63 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 
   std::vector<leptonL1TriggerEfficiencyT1T2<pat::Electron, l1extra::L1EmParticle>*> electronL1TriggerEfficiencies_;
   std::vector<leptonL1TriggerEfficiencyT1T2<pat::Muon, l1extra::L1MuonParticle>*> muonL1TriggerEfficiencies_;
+
+  template <typename T>
+  struct l1ExtraObjectDistributionT
+  {
+    l1ExtraObjectDistributionT(const edm::InputTag& src, const std::string& cut, const std::string& dqmDirectory)
+      : src_(src),
+	cut_(0),
+	dqmDirectory_(dqmDirectory)
+    {
+      if ( cut != "" ) cut_ = new StringCutObjectSelector<T>(cut);
+    }
+    ~l1ExtraObjectDistributionT() 
+    {
+      delete cut_;
+    }
+    void bookHistograms(DQMStore& dqmStore)
+    {
+      dqmStore.setCurrentFolder(dqmDirectory_.data());
+      histogramNumL1ExtraObjects_ = dqmStore.book1D("numL1ExtraObjects", "numL1ExtraObjects", 10, -0.5, 9.5);      
+      histogramL1ExtraObjectPt_ = dqmStore.book1D("l1ExtraObjectPt", "l1ExtraObjectPt", 250, 0., 250.);
+      histogramL1ExtraObjectEta_ = dqmStore.book1D("l1ExtraObjectEta", "l1ExtraObjectEta", 198, -9.9, +9.9);
+      histogramL1ExtraObjectPhi_ = dqmStore.book1D("l1ExtraObjectPhi", "l1ExtraObjectPhi", 72, -TMath::Pi(), +TMath::Pi());
+    }
+    void fillHistograms(const edm::Event& evt, double evtWeight)
+    {
+      typedef std::vector<T> l1ExtraObjectCollection;
+      edm::Handle<l1ExtraObjectCollection> l1ExtraObjects;
+      evt.getByLabel(src_, l1ExtraObjects);
+      int numL1ExtraObjects = 0;
+      for ( typename l1ExtraObjectCollection::const_iterator l1ExtraObject = l1ExtraObjects->begin();
+	    l1ExtraObject != l1ExtraObjects->end(); ++l1ExtraObject ) {
+	if ( cut_ && !(*cut_)(*l1ExtraObject) ) continue;
+	std::cout << "L1 muon: Pt = " << l1ExtraObject->pt() << ", eta = " << l1ExtraObject->eta() << ", phi = " << l1ExtraObject->phi() << std::endl;
+	++numL1ExtraObjects;
+	histogramL1ExtraObjectPt_->Fill(l1ExtraObject->pt(), evtWeight);
+	histogramL1ExtraObjectEta_->Fill(l1ExtraObject->eta(), evtWeight);
+	histogramL1ExtraObjectPhi_->Fill(l1ExtraObject->phi(), evtWeight);
+      }
+      histogramNumL1ExtraObjects_->Fill(numL1ExtraObjects, evtWeight);
+    }
+    edm::InputTag src_;
+    StringCutObjectSelector<T>* cut_;
+    std::string dqmDirectory_;
+    MonitorElement* histogramNumL1ExtraObjects_;
+    MonitorElement* histogramL1ExtraObjectPt_;
+    MonitorElement* histogramL1ExtraObjectEta_;
+    MonitorElement* histogramL1ExtraObjectPhi_;
+  };
+
+  template <typename T>
+  void setupL1ExtraObjectDistribution(const edm::ParameterSet&, const std::string&, std::vector<l1ExtraObjectDistributionT<T>*>&);
+
+  std::vector<l1ExtraObjectDistributionT<l1extra::L1EmParticle>*> l1ElectronDistributions_;
+  std::vector<l1ExtraObjectDistributionT<l1extra::L1MuonParticle>*> l1MuonDistributions_;
+  std::vector<l1ExtraObjectDistributionT<l1extra::L1JetParticle>*> l1TauDistributions_;
+  std::vector<l1ExtraObjectDistributionT<l1extra::L1JetParticle>*> l1CentralJetDistributions_;
+  std::vector<l1ExtraObjectDistributionT<l1extra::L1JetParticle>*> l1ForwardJetDistributions_;
 
   struct metDistributionType
   {

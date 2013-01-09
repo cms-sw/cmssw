@@ -5,6 +5,8 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -21,6 +23,7 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
   : srcReplacedMuons_(cfg.getParameter<edm::InputTag>("srcReplacedMuons")),
     srcRecMuons_(cfg.getParameter<edm::InputTag>("srcRecMuons")),
     srcRecTracks_(cfg.getParameter<edm::InputTag>("srcRecTracks")),
+    srcCaloTowers_(cfg.getParameter<edm::InputTag>("srcCaloTowers")),
     srcRecPFCandidates_(cfg.getParameter<edm::InputTag>("srcRecPFCandidates")),
     srcRecVertex_(cfg.getParameter<edm::InputTag>("srcRecVertex")),
     srcGenDiTaus_(cfg.getParameter<edm::InputTag>("srcGenDiTaus")),
@@ -28,6 +31,8 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcRecLeg1_(cfg.getParameter<edm::InputTag>("srcRecLeg1")),
     srcGenLeg2_(cfg.getParameter<edm::InputTag>("srcGenLeg2")),
     srcRecLeg2_(cfg.getParameter<edm::InputTag>("srcRecLeg2")),
+    srcGenParticles_(cfg.getParameter<edm::InputTag>("srcGenParticles")),
+    srcL1ETM_(cfg.getParameter<edm::InputTag>("srcL1ETM")),
     srcWeights_(cfg.getParameter<vInputTag>("srcWeights")),
     srcGenFilterInfo_(cfg.getParameter<edm::InputTag>("srcGenFilterInfo")),
     dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
@@ -52,6 +57,14 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
   setupTauDistributionExtra(cfg, "tauDistributions", tauDistributionsExtra_);
   setupLeptonEfficiency(cfg, "tauEfficiencies", tauEfficiencies_);
 
+//--- setup Pt, eta and phi distributions of L1Extra objects
+//   (electrons, muons, tau-jet, central and forward jets)
+  setupL1ExtraObjectDistribution(cfg, "l1ElectronDistributions", l1ElectronDistributions_);
+  setupL1ExtraObjectDistribution(cfg, "l1MuonDistributions", l1MuonDistributions_);
+  setupL1ExtraObjectDistribution(cfg, "l1TauDistributions", l1TauDistributions_);
+  setupL1ExtraObjectDistribution(cfg, "l1CentralJetDistributions", l1CentralJetDistributions_);
+  setupL1ExtraObjectDistribution(cfg, "l1ForwardJetDistributions", l1ForwardJetDistributions_);
+
 //--- setup MET Pt and phi distributions;
 //    efficiency of L1 (Calo)MET trigger requirement
   setupMEtDistribution(cfg, "metDistributions", metDistributions_);
@@ -69,6 +82,11 @@ MCEmbeddingValidationAnalyzer::~MCEmbeddingValidationAnalyzer()
   cleanCollection(tauDistributions_);
   cleanCollection(tauDistributionsExtra_);
   cleanCollection(tauEfficiencies_);
+  cleanCollection(l1ElectronDistributions_);
+  cleanCollection(l1MuonDistributions_);
+  cleanCollection(l1TauDistributions_);
+  cleanCollection(l1CentralJetDistributions_);
+  cleanCollection(l1ForwardJetDistributions_);
   cleanCollection(metDistributions_);
   cleanCollection(metL1TriggerEfficiencies_);
 }
@@ -155,6 +173,23 @@ void MCEmbeddingValidationAnalyzer::setupLeptonL1TriggerEfficiency(const edm::Pa
       std::string dqmDirectory = dqmDirectory_full(cfgLeptonL1TriggerEfficiency->getParameter<std::string>("dqmDirectory"));
       leptonL1TriggerEfficiencyT1T2<T1,T2>* leptonL1TriggerEfficiency = new leptonL1TriggerEfficiencyT1T2<T1,T2>(srcRef, cutRef, srcL1, cutL1, dRmatch, dqmDirectory);
       leptonL1TriggerEfficiencies.push_back(leptonL1TriggerEfficiency);
+    }
+  }
+}
+
+template <typename T>
+void MCEmbeddingValidationAnalyzer::setupL1ExtraObjectDistribution(const edm::ParameterSet& cfg, const std::string& keyword, std::vector<l1ExtraObjectDistributionT<T>*>& l1ExtraObjectDistributions)
+{
+  if ( cfg.exists(keyword) ) {
+    edm::VParameterSet cfgL1ExtraObjectDistributions = cfg.getParameter<edm::VParameterSet>(keyword);
+    for ( edm::VParameterSet::const_iterator cfgL1ExtraObjectDistribution = cfgL1ExtraObjectDistributions.begin();
+	  cfgL1ExtraObjectDistribution != cfgL1ExtraObjectDistributions.end(); ++cfgL1ExtraObjectDistribution ) {
+      edm::InputTag src = cfgL1ExtraObjectDistribution->getParameter<edm::InputTag>("src");
+      std::string cut = cfgL1ExtraObjectDistribution->exists("cut") ? 
+	cfgL1ExtraObjectDistribution->getParameter<std::string>("cut") : "";
+      std::string dqmDirectory = dqmDirectory_full(cfgL1ExtraObjectDistribution->getParameter<std::string>("dqmDirectory"));
+      l1ExtraObjectDistributionT<T>* l1ExtraObjectDistribution = new l1ExtraObjectDistributionT<T>(src, cut, dqmDirectory);
+      l1ExtraObjectDistributions.push_back(l1ExtraObjectDistribution);
     }
   }
 }
@@ -256,6 +291,22 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   histogramGenLeg2X_                = dqmStore.book1D("genLeg2X",               "genLeg2X",               102,     -0.01,         1.01);
   histogramRecLeg2X_                = dqmStore.book1D("recLeg2X",               "recLeg2X",               102,     -0.01,         1.01);
 
+  histogramGenMEt_charged_          = dqmStore.book1D("genMEt_charged",         "genMEt_charged",         250,      0.,         250.);
+  histogramGenMEt_                  = dqmStore.book1D("genMEt",                 "genMEt",                 250,      0.,         250.);
+
+  histogramRecTrackMEt_             = dqmStore.book1D("recTrackMEt",            "recTrackMEt",            250,      0.,         250.);
+  histogramRecTrackSumEt_           = dqmStore.book1D("recTrackSumEt",          "recTrackSumEt",         2500,      0.,        2500.);
+  histogramRecCaloMEtECAL_          = dqmStore.book1D("recCaloMEtECAL",         "recCaloMEtECAL",         250,      0.,         250.);
+  histogramRecCaloSumEtECAL_        = dqmStore.book1D("recCaloSumEtECAL",       "recCaloSumEtECAL",      2500,      0.,        2500.);
+  histogramRecCaloMEtHCAL_          = dqmStore.book1D("recCaloMEtHCAL",         "recCaloMEtHCAL",         250,      0.,         250.);
+  histogramRecCaloSumEtHCAL_        = dqmStore.book1D("recCaloSumEtHCAL",       "recCaloSumEtHCAL",      2500,      0.,        2500.);
+  histogramRecCaloMEtHF_            = dqmStore.book1D("recCaloMEtHF",           "recCaloMEtHF",           250,      0.,         250.);
+  histogramRecCaloSumEtHF_          = dqmStore.book1D("recCaloSumEtHF",         "recCaloSumEtHF",        2500,      0.,        2500.);
+  histogramRecCaloMEtHO_            = dqmStore.book1D("recCaloMEtHO",           "recCaloMEtHO",           250,      0.,         250.);  
+  histogramRecCaloSumEtHO_          = dqmStore.book1D("recCaloSumEtHO",         "recCaloSumEtHO",        2500,      0.,        2500.);
+
+  histogramL1ETM_                   = dqmStore.book1D("L1ETM",                  "L1ETM",                  250,      0.,         250.);
+
   bookHistograms(electronDistributions_, dqmStore);
   bookHistograms(electronEfficiencies_, dqmStore);
   bookHistograms(electronL1TriggerEfficiencies_, dqmStore);
@@ -265,6 +316,11 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   bookHistograms(tauDistributions_, dqmStore);
   bookHistograms(tauDistributionsExtra_, dqmStore);
   bookHistograms(tauEfficiencies_, dqmStore);
+  bookHistograms(l1ElectronDistributions_, dqmStore);
+  bookHistograms(l1MuonDistributions_, dqmStore);
+  bookHistograms(l1TauDistributions_, dqmStore);
+  bookHistograms(l1CentralJetDistributions_, dqmStore);
+  bookHistograms(l1ForwardJetDistributions_, dqmStore);
   bookHistograms(metDistributions_, dqmStore);
   bookHistograms(metL1TriggerEfficiencies_, dqmStore);
 }
@@ -524,6 +580,72 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 			   histogramGenLeg2Pt_, histogramGenLeg2Eta_, histogramGenLeg2Phi_, histogramGenLeg2X_, evtWeight);
   fillX1andX2Distributions(evt, srcGenDiTaus_, srcRecLeg1_, srcRecLeg2_, 0, 0, 0, histogramRecLeg1X_, 0, 0, 0, histogramRecLeg2X_, evtWeight);
   
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  evt.getByLabel(srcGenParticles_, genParticles);     
+  reco::Candidate::LorentzVector sumGenParticleP4;
+  reco::Candidate::LorentzVector sumGenParticleP4_charged;
+  for ( reco::GenParticleCollection::const_iterator genParticle = genParticles->begin();
+	genParticle != genParticles->end(); ++genParticle ) {
+    if ( genParticle->status() == 1 ) {
+      int absPdgId = TMath::Abs(genParticle->pdgId());    
+      if ( absPdgId == 12 || absPdgId == 14 || absPdgId == 16 ) continue;
+      sumGenParticleP4 += genParticle->p4();
+      if ( TMath::Abs(genParticle->charge()) > 0.5 ) sumGenParticleP4_charged += genParticle->p4();
+    }
+  }
+  histogramGenMEt_charged_->Fill(sumGenParticleP4_charged.pt(), evtWeight);
+  histogramGenMEt_->Fill(sumGenParticleP4.pt(), evtWeight);
+
+  double sumTracksPx = 0.;
+  double sumTracksPy = 0.;
+  for ( reco::TrackCollection::const_iterator track = tracks->begin();
+	track != tracks->end(); ++track ) {
+    sumTracksPx += track->px();
+    sumTracksPy += track->py();
+  }
+  histogramRecTrackMEt_->Fill(TMath::Sqrt(sumTracksPx*sumTracksPx + sumTracksPy*sumTracksPy), evtWeight);
+
+  edm::Handle<CaloTowerCollection> caloTowers;
+  evt.getByLabel(srcCaloTowers_, caloTowers);
+  reco::Candidate::LorentzVector sumCaloTowerP4_ecal;
+  double sumEtCaloTowersECAL = 0.;
+  reco::Candidate::LorentzVector sumCaloTowerP4_hcal;
+  double sumEtCaloTowersHCAL = 0.;
+  reco::Candidate::LorentzVector sumCaloTowerP4_hf;
+  double sumEtCaloTowersHF   = 0.;
+  reco::Candidate::LorentzVector sumCaloTowerP4_ho;
+  double sumEtCaloTowersHO   = 0.;
+  for ( CaloTowerCollection::const_iterator caloTower = caloTowers->begin();
+	caloTower != caloTowers->end(); ++caloTower ) {
+    if ( caloTower->energy() != 0. ) {
+      double emFrac_ecal = caloTower->emEnergy()/caloTower->energy();
+      double emFrac_hcal = (caloTower->energyInHB() + caloTower->energyInHE())/caloTower->energy();
+      double emFrac_hf   = caloTower->energyInHF()/caloTower->energy();
+      double emFrac_ho   = caloTower->energyInHO()/caloTower->energy();
+      sumCaloTowerP4_ecal += (emFrac_ecal*caloTower->p4());
+      sumEtCaloTowersECAL += (emFrac_ecal*caloTower->et());
+      sumCaloTowerP4_hcal += (emFrac_hcal*caloTower->p4());
+      sumEtCaloTowersHCAL += (emFrac_hcal*caloTower->et());
+      sumCaloTowerP4_hf   += (emFrac_hf*caloTower->p4());
+      sumEtCaloTowersHF   += (emFrac_hf*caloTower->et());
+      sumCaloTowerP4_ho   += (emFrac_ho*caloTower->p4());      
+      sumEtCaloTowersHO   += (emFrac_ho*caloTower->et());  
+    }
+  }
+  histogramRecCaloMEtECAL_->Fill(sumCaloTowerP4_ecal.pt(), evtWeight);
+  histogramRecCaloSumEtECAL_->Fill(sumEtCaloTowersECAL, evtWeight);
+  histogramRecCaloMEtHCAL_->Fill(sumCaloTowerP4_hcal.pt(), evtWeight);
+  histogramRecCaloSumEtHCAL_->Fill(sumEtCaloTowersHCAL, evtWeight);
+  histogramRecCaloMEtHF_->Fill(sumCaloTowerP4_hf.pt(), evtWeight);
+  histogramRecCaloSumEtHF_->Fill(sumEtCaloTowersHF, evtWeight);
+  histogramRecCaloMEtHO_->Fill(sumCaloTowerP4_ho.pt(), evtWeight);
+  histogramRecCaloSumEtHO_->Fill(sumEtCaloTowersHO, evtWeight);
+  
+  edm::Handle<l1extra::L1EtMissParticleCollection> l1METs;
+  evt.getByLabel(srcL1ETM_, l1METs);
+  double l1MEt = l1METs->begin()->etMiss();
+  histogramL1ETM_->Fill(l1MEt, evtWeight);
+
   fillHistograms(electronDistributions_, evt, evtWeight);
   fillHistograms(electronEfficiencies_, evt, evtWeight);
   fillHistograms(electronL1TriggerEfficiencies_, evt, evtWeight);
@@ -533,6 +655,11 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   fillHistograms(tauDistributions_, evt, evtWeight);
   fillHistograms(tauDistributionsExtra_, evt, evtWeight);
   fillHistograms(tauEfficiencies_, evt, evtWeight);
+  fillHistograms(l1ElectronDistributions_, evt, evtWeight);
+  fillHistograms(l1MuonDistributions_, evt, evtWeight);
+  fillHistograms(l1TauDistributions_, evt, evtWeight);
+  fillHistograms(l1CentralJetDistributions_, evt, evtWeight);
+  fillHistograms(l1ForwardJetDistributions_, evt, evtWeight);
   fillHistograms(metDistributions_, evt, evtWeight);
   fillHistograms(metL1TriggerEfficiencies_, evt, evtWeight);
 }
