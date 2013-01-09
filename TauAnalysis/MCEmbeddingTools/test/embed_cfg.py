@@ -49,7 +49,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.7 $'),
+    version = cms.untracked.string('$Revision: 1.8 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -60,7 +60,7 @@ process.outputFiles = cms.OutputModule("PoolOutputModule",
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
     fileName = cms.untracked.string('embed_AOD.root'),
-    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2012Dec20_AOD.root'),                                   
+    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Jan09_AOD.root'),                                   
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -183,7 +183,7 @@ process.customization_options = cms.PSet(
     cleaningMode                 = cms.string("DEDX"), # option for muon calo. cleaning: 'DEDX'=muon energy loss expected on average, 'PF'=actual energy deposits associated to PFMuon
     mdtau                        = cms.int32(116),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection
     transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
-    rfRotationAngle              = cms.double(0.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus
+    rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus
     embeddingMode                = cms.string("RH"),   # embedding mode: 'PF'=particle flow embedding, 'RH'=recHit embedding
     replaceGenOrRecMuonMomenta   = cms.string("rec"),  # take momenta of generated tau leptons from: 'rec'=reconstructed muons, 'gen'=generator level muons
     minVisibleTransverseMomentum = cms.string("mu1_7had1_15"), # generator level cut on visible transverse momentum (typeN:pT,[...];[...])
@@ -220,6 +220,15 @@ process = customise(process)
 ##process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
 ##
 ##process.schedule.extend([process.printFirstEventContentPath])
+
+##process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+##process.printGenParticleList = cms.EDAnalyzer("ParticleListDrawer",
+##  src = cms.InputTag("genParticles"),
+##  maxEventsToPrint = cms.untracked.int32(100)
+##)
+##process.printGenParticleListPath = cms.Path(process.printGenParticleList)
+##
+##process.schedule.extend([process.printGenParticleListPath])
 
 processDumpFile = open('embed.dump', 'w')
 print >> processDumpFile, process.dumpPython()
