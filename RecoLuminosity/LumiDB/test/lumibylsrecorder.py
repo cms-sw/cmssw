@@ -76,8 +76,12 @@ def execCalc(connectStr,authpath,runnum):
     outdatafile=str(runnum)+'.csv'
     outheaderfile=str(runnum)+'.txt'
     command = 'lumiCalc2.py lumibyls -c ' +connectStr+' -P '+authpath+' -r '+str(runnum)+' -o '+outdatafile+' --headerfile '+outheaderfile
-    statusAndOutput = commands.getstatusoutput(command)
-    #print statusAndOutput
+    (status, output) = commands.getstatusoutput(command)
+    if status != 0:
+        print 'empty result ',command
+        return 0
+    print command
+    return runnum
     
 class lslumiParser(object):
     def __init__(self,lslumifilename,headerfilename):
@@ -92,7 +96,12 @@ class lslumiParser(object):
         '''
         parse ls lumi file
         '''
-        hf=open(self.__headername,'rb')
+        hf=None
+        try:
+            hf=open(self.__headername,'rb')
+        except IOError:
+            print 'failed to open file ',self.__headername
+            return
         for line in hf:
             if "lumitype" in line:
                 fields=line.strip().split(',')
@@ -104,7 +113,12 @@ class lslumiParser(object):
                         self.normtag=a[1].strip()
                 break
         hf.close()
-        f=open(self.__filename,'rb')
+        f=None
+        try:
+            f=open(self.__filename,'rb')
+        except IOError:
+            print 'failed to open file ',self.__filename
+            return
         freader=csv.reader(f,delimiter=',')
         idx=0
         for row in freader:
@@ -161,30 +175,38 @@ def addindb(session,datatag,normtag,lumidata,bulksize):
         print 'error in addindb'
         raise 
 if __name__ == "__main__" :
-    sourcestr='oracle://cms_orcon_adg/cms_lumi_prod'
-    pth='/afs/cern.ch/cms/lumi/DB'
+    sourcestr='oracle://cms_orcon_prod/cms_lumi_prod'
+    pth='/nfshome0/xiezhen/authwriter'
     sourcesvc=sessionManager.sessionManager(sourcestr,authpath=pth,debugON=False)
     sourcesession=sourcesvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     sourcesession.transaction().start(True)
-    sourcerunlist=getrunsInCurrentData(sourcesession.nominalSchema(),minrun=183339,maxrun=209310)
+    run1=189922
+    run2=209151
+    sourcerunlist=getrunsInCurrentData(sourcesession.nominalSchema(),minrun=run1,maxrun=run2)
     sourcesession.transaction().commit()
     sourcerunlist.sort()
-    print len(sourcerunlist),sourcerunlist
-    deststr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
+    print 'source ',len(sourcerunlist),sourcerunlist
+    deststr='oracle://cms_orcon_prod/cms_lumi_prod'
     destsvc=sessionManager.sessionManager(deststr,authpath=pth,debugON=False)
-    destsession=destsvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     destsession.transaction().start(True)
-    destrunlist=getrunsInResult(destsession.nominalSchema(),minrun=189922,maxrun=209151)
+    destrunlist=getrunsInResult(destsession.nominalSchema(),minrun=run1,maxrun=run2)
     destsession.transaction().commit()
     destrunlist.sort()
-    print len(destrunlist),destrunlist
+    print 'dest ',len(destrunlist),destrunlist
+    processedruns=[]
     for r in sourcerunlist:
         if r not in destrunlist:
-            execCalc(sourcestr,pth,r)
-    p=lslumiParser(lslumifilename,lumiheaderfilename)
-    p.parse()
-    svc=sessionManager.sessionManager(sourcestr,authpath=pth,debugON=False)
-    dbsession=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    addindb(dbsession,p.datatag,p.normtag,p.lumidata,bulksize=500)
-    del dbsession
-    del svc
+            result=execCalc(sourcestr,pth,r)
+            if result:
+                processedruns.append(result)
+    for pr in processedruns:
+        lslumifilename=str(pr)+'.csv'
+        lumiheaderfilename=str(pr)+'.txt'
+        p=lslumiParser(lslumifilename,lumiheaderfilename)
+        p.parse()
+        addindb(destsession,p.datatag,p.normtag,p.lumidata,bulksize=500)
+    del sourcesession
+    del sourcesvc
+    del destsession
+    del destsvc
