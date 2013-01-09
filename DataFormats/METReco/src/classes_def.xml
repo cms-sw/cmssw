@@ -40,9 +40,9 @@
 
   <!-- create disctionaries for MET covariance matrix 
        computed by (PF)MET significance algorithm -->
-  <class name="PFMEtSignCovMatrix" ClassVersion="1">
+  <class name="PFMEtSignCovMatrix" ClassVersion="11">
    <version ClassVersion="1" checksum="307347752"/>
-   <!-- version ClassVersion="11" checksum="600270565"/ -->
+   <version ClassVersion="11" checksum="600270565"/>
   </class>
   <class name="edm::Wrapper<PFMEtSignCovMatrix>"/>
 
