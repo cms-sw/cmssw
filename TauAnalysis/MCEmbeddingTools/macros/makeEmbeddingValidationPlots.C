@@ -525,6 +525,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
 		      TH1* histogram_simDYtoMuMu_recEmbedding,
 		      double xMin, double xMax, unsigned numBinsMin_rebinned, const std::string& xAxisTitle, double xAxisOffset,
 		      bool useLogScale, double yMin, double yMax, const std::string& yAxisTitle, double yAxisOffset,
+		      double legendX0, double legendY0, 
 		      const std::string& outputFileName)
 {
   TCanvas* canvas = new TCanvas("canvas", "canvas", canvasSizeX, canvasSizeY);
@@ -589,7 +590,7 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   histogram_simDYtoMuMu_recEmbedding_rebinned->SetMarkerStyle(34);
   histogram_simDYtoMuMu_recEmbedding_rebinned->Draw("e1psame");
 
-  TLegend* legend = new TLegend(0.50, 0.74, 0.94, 0.94, "", "brNDC"); 
+  TLegend* legend = new TLegend(legendX0, legendY0, legendX0 + 0.44, legendY0 + 0.20, "", "brNDC"); 
   legend->SetBorderSize(0);
   legend->SetFillColor(0);
   legend->AddEntry(histogram_simDYtoTauTau_rebinned, "gen. Z/#gamma^{*} #rightarrow #tau #tau", "l");
@@ -729,11 +730,11 @@ void makeEmbeddingValidationPlots()
 
   std::string inputFilePath = "/data1/veelken/tmp/EmbeddingValidation/";
 
-  std::string inputFileName_simDYtoTauTau            = "validateMCEmbedding_simDYtoTauTau_all_v1_5_3.root";
-  //std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_all_v1_5_3.root";
-  //std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_simDYtoMuMu_recEmbedding_all_v1_5_3.root";
-  std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_embedAngleEq0_noVisPtCuts_all_v1_5_3.root";
-  std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_Data_runs202044to203002_all_v1_5_3.root";
+  std::string inputFileName_simDYtoTauTau            = "validateMCEmbedding_simDYtoTauTau_all_v1_6_1.root";
+  std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_all_v1_6_1.root";
+  std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_simDYtoMuMu_recEmbedding_all_v1_6_1.root";
+  //std::string inputFileName_simDYtoMuMu_genEmbedding = "validateMCEmbedding_simDYtoMuMu_genEmbedding_embedAngleEq0_noVisPtCuts_all_v1_6_1.root";
+  //std::string inputFileName_simDYtoMuMu_recEmbedding = "validateMCEmbedding_Data_runs202044to203002_all_v1_6_1.root";
 
   std::vector<plotEntryType_distribution> distributionsToPlot;
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -784,6 +785,9 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recMuonPt", "recMuonPt",  
     "validationAnalyzer_mutau/goodMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recMinusGenMuonPt", "recMinusGenMuonPt",  
+    "validationAnalyzer_mutau/goodMuonDistributions/recMinusGenLeptonPt", -50., +25., 75, "P_{T}^{#mu,rec} - P_{T}^{#mu,gen}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
 
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genIsoMuonEta", "genIsoMuonEta", 
@@ -803,6 +807,9 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recIsoMuonPt", "recIsoMuonPt",  
     "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recMinusGenIsoMuonPt", "recMinusGenIsoMuonPt",  
+    "validationAnalyzer_mutau/goodIsoMuonDistributions/recMinusGenLeptonPt", -50., +25., 75, "P_{T}^{#mu,rec} - P_{T}^{#mu,gen}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
 
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genTauEta", "genTauEta", 
@@ -814,6 +821,9 @@ void makeEmbeddingValidationPlots()
     "genTauPt", "genTauPt",  
     "validationAnalyzer_mutau/selectedTauDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
   distributionsToPlot.push_back(plotEntryType_distribution(
+    "genTauDecayMode", "genTauDecayMode", 
+    "validationAnalyzer_mutau/selectedTauDistributions/genTauDecayMode", -1.5, +19.5, 21, "gen. Tau Decay Mode", 1.2, 0., 0.60, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
     "recTauEta", "recTauEta", 
     "validationAnalyzer_mutau/selectedTauDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#tau}", 1.2, 0., 0.1, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
@@ -822,7 +832,13 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recTauPt",  "recTauPt",  
     "validationAnalyzer_mutau/selectedTauDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-  
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recMinusGenTauPt", "recMinusGenTauPt",  
+    "validationAnalyzer_mutau/selectedTauDistributions/recMinusGenLeptonPt", -50., +25., 75 , "P_{T}^{#tau,rec} - P_{T}^{#tau,gen}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+    "recTauDecayMode", "recTauDecayMode", 
+    "validationAnalyzer_mutau/selectedTauDistributions/recTauDecayMode", -1.5, +19.5, 21, "rec. Tau Decay Mode", 1.2, 0., 0.60, "a.u.", 1.2, false));
+
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genMEt", "genMEt", 
     "validationAnalyzer_mutau/type1CorrPFMEtDistributions/genMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
@@ -847,7 +863,6 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recPFMEtTypeIcorrected", "recPFMEtTypeIcorrected", 
     "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMEtPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
-/*
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recPFMEtTypeIcorrectedMinusGenMEtParlZ", "recPFMEtTypeIcorrectedMinusGenMEtParlZ", 
     "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtParlZ", -100., +100., 50, "#DeltaE_{#parallel}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
@@ -860,7 +875,7 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
    "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", 
    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtPerpZ", 0., 100., 50, "#DeltaE_{#perp}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
- */  
+ 
   TFile* inputFile_simDYtoTauTau = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoTauTau).data());
   TFile* inputFile_simDYtoMuMu_genEmbedding = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoMuMu_genEmbedding).data());
   TFile* inputFile_simDYtoMuMu_recEmbedding = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoMuMu_recEmbedding).data());
@@ -870,6 +885,12 @@ void makeEmbeddingValidationPlots()
     TH1* histogram_simDYtoTauTau = getHistogram(inputFile_simDYtoTauTau, "", plot->meName_);
     TH1* histogram_simDYtoMuMu_genEmbedding = getHistogram(inputFile_simDYtoMuMu_genEmbedding, "", plot->meName_);
     TH1* histogram_simDYtoMuMu_recEmbedding = getHistogram(inputFile_simDYtoMuMu_recEmbedding, "", plot->meName_);
+    double legendX0 = 0.50;
+    double legendY0 = 0.74;
+    if ( plot->meName_.find("recMinusGenLeptonPt") != std::string::npos ) {
+      legendX0 = 0.165;
+      legendY0 = 0.74;
+    }
     std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_%s.pdf", plot->name_.data());
     showDistribution(800, 900,
 		     histogram_simDYtoTauTau,
@@ -877,6 +898,7 @@ void makeEmbeddingValidationPlots()
 		     histogram_simDYtoMuMu_recEmbedding,
 		     plot->xMin_, plot->xMax_, plot->numBinsMin_rebinned_, plot->xAxisTitle_, plot->xAxisOffset_,
 		     plot->useLogScale_, plot->yMin_, plot->yMax_, plot->yAxisTitle_, plot->yAxisOffset_,
+		     legendX0, legendY0,
 		     outputFileName);
   }
 
