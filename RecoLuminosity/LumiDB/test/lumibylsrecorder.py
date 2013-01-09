@@ -77,7 +77,7 @@ def execCalc(connectStr,authpath,runnum):
     outheaderfile=str(runnum)+'.txt'
     command = 'lumiCalc2.py lumibyls -c ' +connectStr+' -P '+authpath+' -r '+str(runnum)+' -o '+outdatafile+' --headerfile '+outheaderfile
     statusAndOutput = commands.getstatusoutput(command)
-    print statusAndOutput
+    #print statusAndOutput
     
 class lslumiParser(object):
     def __init__(self,lslumifilename,headerfilename):
@@ -168,21 +168,23 @@ if __name__ == "__main__" :
     sourcesession.transaction().start(True)
     sourcerunlist=getrunsInCurrentData(sourcesession.nominalSchema(),minrun=183339,maxrun=209310)
     sourcesession.transaction().commit()
-    print sourcerunlist
+    sourcerunlist.sort()
+    print len(sourcerunlist),sourcerunlist
     deststr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
     destsvc=sessionManager.sessionManager(deststr,authpath=pth,debugON=False)
     destsession=destsvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     destsession.transaction().start(True)
-    destrunlist=getrunsInResult(destsession.nominalSchema(),minrun=183339,maxrun=209310)
+    destrunlist=getrunsInResult(destsession.nominalSchema(),minrun=189922,maxrun=209151)
     destsession.transaction().commit()
-    print destrunlist
+    destrunlist.sort()
+    print len(destrunlist),destrunlist
     for r in sourcerunlist:
         if r not in destrunlist:
             execCalc(sourcestr,pth,r)
-    #p=lslumiParser(lslumifilename,lumiheaderfilename)
-    #p.parse()
-    #svc=sessionManager.sessionManager(sourcestr,authpath=pth,debugON=False)
-    #dbsession=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    #addindb(dbsession,p.datatag,p.normtag,p.lumidata,bulksize=500)
-    #del dbsession
-    #del svc
+    p=lslumiParser(lslumifilename,lumiheaderfilename)
+    p.parse()
+    svc=sessionManager.sessionManager(sourcestr,authpath=pth,debugON=False)
+    dbsession=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    addindb(dbsession,p.datatag,p.normtag,p.lumidata,bulksize=500)
+    del dbsession
+    del svc
