@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.7 2011/12/20 15:11:41 mussgill Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.8 2013/01/07 20:46:23 wmtan Exp $
 //
 //
 
@@ -360,7 +360,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
       LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
       reco::SimToRecoCollection simRecColl=associatore[ww]->associateSimToReco(trackCollection,
       								      TPCollectionHeff, 
-      								      &iEvent);
+									       &iEvent, &iSetup);
 
    
 
