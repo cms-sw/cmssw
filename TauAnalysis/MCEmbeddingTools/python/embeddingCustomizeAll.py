@@ -313,7 +313,7 @@ def customise(process):
       elif inputType == "L1MuonParticle":
           pluginType = "L1ExtraMuonParticleMixerPlugin"
           srcSelectedMuons = process.customization_options.ZmumuCollection
-          dRveto = 0.5
+          dRveto = 0.8
       else:
           raise ValueError("Invalid L1Extra type = %s !!" % inputType)
       instanceLabel = l1ExtraCollection[1]
