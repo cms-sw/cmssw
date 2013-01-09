@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.400 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: SingleMuPt40Fwdv2_cfi -s GEN,SIM --conditions POSTLS161_V12::All --geometry Geometry/GEMGeometry/cmsExtendedGeometryPostLS1plusGEMXML_cfi --datatier GEN-SIM --eventcontent FEVTDEBUG --evt_type RPCGEM/GEMValidation/SingleMuPt40Fwdv2_cfi -n 200 --no_exec --fileout out_sim.root
+# with command line options: SingleMuPt100_cfi -s GEN,SIM --conditions POSTLS161_V12::All --geometry Geometry/GEMGeometry/cmsExtendedGeometryPostLS1plusGEMXML_cfi --datatier GEN-SIM --eventcontent FEVTDEBUG -n 200 --no_exec --fileout out_sim.root
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('SIM')
@@ -24,7 +24,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(2)
 )
 
 # Input source
@@ -37,7 +37,7 @@ process.options = cms.untracked.PSet(
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.400 $'),
-    annotation = cms.untracked.string('RPCGEM/GEMValidation/SingleMuPt40Fwdv2_cfi nevts:200'),
+    annotation = cms.untracked.string('SingleMuPt100_cfi nevts:200'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 
@@ -64,31 +64,53 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'POSTLS161_V12::All', '')
 
-## More random muon gun
+process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    PGunParameters = cms.PSet(
+        MaxPt = cms.double(40.01),
+        MinPt = cms.double(39.99),
+        PartID = cms.vint32(-13),
+        MaxEta = cms.double(2.2),
+        MaxPhi = cms.double(3.14159265359),
+        MinEta = cms.double(-2.2),
+        MinPhi = cms.double(-3.14159265359)
+    ),
+    Verbosity = cms.untracked.int32(0),
+    psethack = cms.string('single mu pt 40 forward'),
+    AddAntiParticle = cms.bool(True),
+    firstRun = cms.untracked.uint32(1)
+)
+
 # select generated muons and antimuons
 process.genMuons = cms.EDFilter("PdgIdCandViewSelector",
-                                src = cms.InputTag("genParticles"),
-                                pdgId = cms.vint32( 13, -13 )
-                                )
+ src = cms.InputTag("genParticles"),
+ pdgId = cms.vint32( 13, -13 )
+)
 
 # filter by applying cuts to these generated muons
 process.genMuonsGEM = cms.EDFilter("CandViewSelector",
-                                   src = cms.InputTag("genMuons"),
-                                   cut = cms.string( "pt > 15. & abs(eta)<2.2 & abs(eta)>1.5" ),   #  or whatever cut expression is deemed necessary
-                                   filter = cms.bool(True)
-                                   )
+   src = cms.InputTag("genMuons"),
+   cut = cms.string( "abs(eta)<2.14 & abs(eta)>1.45 & phi>0.08 & phi<0.44" ),   #  or whatever cut expression is deemed necessary
+   filter = cms.bool(True)
+)
 
-process.gen_mu_select = cms.Sequence(process.genMuons * process.genMuonsGEM * process.twoGenMuonsGEM)
+#process.genANDfilter = cms.Sequence(process.generator * process.genMuons * process.genMuonsGEM)
+
+process.gen_mu_select = cms.Sequence(process.genMuons * process.genMuonsGEM)
 
 # Path and EndPath definitions
-#process.generation_step = cms.Path(process.pgen)
 process.generation_step = cms.Path(process.pgen * process.gen_mu_select)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
+
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,process.endjob_step,process.FEVTDEBUGoutput_step)
+# filter all path with the production filter sequence
+for path in process.paths:
+        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+#for path in process.paths:
+#	getattr(process,path)._seq = process.genANDfilter * getattr(process,path)._seq 
 
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
