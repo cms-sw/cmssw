@@ -201,11 +201,12 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           }
       }
 
-      if (saveNormalizations_ && currentToy_<1) {
+      if (saveNormalizations_) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_b");
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
-          if (fitOut.get()) fitOut->WriteTObject(norms, "norm_fit_b");
+          if (fitOut.get() && currentToy_<1) fitOut->WriteTObject(norms, "norm_fit_b");
+          setNormsFitResultTrees(norms,processNormalizations_);
 	  delete norms;
       }
 
@@ -274,11 +275,12 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
           }
       }
 
-      if (saveNormalizations_&& currentToy_< 1) {
+      if (saveNormalizations_) {
           RooArgSet *norms = new RooArgSet();
           norms->setName("norm_fit_s");
           getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
-          if (fitOut.get() ) fitOut->WriteTObject(norms, "norm_fit_s");
+          if (fitOut.get() && currentToy_< 1) fitOut->WriteTObject(norms, "norm_fit_s");
+          setNormsFitResultTrees(norms,processNormalizations_);
 	  delete norms;
       }
 
@@ -310,12 +312,8 @@ bool MaxLikelihoodFit::runSpecific(RooWorkspace *w, RooStats::ModelConfig *mc_s,
       double loErr = -(rf->hasRange("err68") ? rf->getMin("err68") - bestFitVal : rf->getAsymErrorLo());
       double maxError = std::max<double>(std::max<double>(hiErr, loErr), rf->getError());
 
-      if (!robustFit_) {
-          // this can legitimately happen if the physical boundary of the pdf is at a value smaller than rf->getMin();
-          // however, for MINOS it's most likely due to a failure
-          if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
-          if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
-      }
+      if (fabs(hiErr) < 0.001*maxError) hiErr = -bestFitVal + rf->getMax();
+      if (fabs(loErr) < 0.001*maxError) loErr = +bestFitVal - rf->getMin();
 
       double hiErr95 = +(do95_ && rf->hasRange("err95") ? rf->getMax("err95") - bestFitVal : 0);
       double loErr95 = -(do95_ && rf->hasRange("err95") ? rf->getMin("err95") - bestFitVal : 0);
@@ -413,6 +411,21 @@ void MaxLikelihoodFit::setFitResultTrees(const RooArgSet *args, double * vals){
 	 return;
 }
 
+void MaxLikelihoodFit::setNormsFitResultTrees(const RooArgSet *args, double * vals){
+	
+         TIterator* iter(args->createIterator());
+	 int count=0;
+	 
+         for (TObject *a = iter->Next(); a != 0; a = iter->Next()) { 
+                 RooConstVar *rcv = dynamic_cast<RooConstVar *>(a);        
+		 std::string name = rcv->GetName();
+		 vals[count]=rcv->getVal();
+		 count++;
+         }
+	 delete iter;
+	 return;
+}
+
 void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc){
 
 	 // Initiate the arrays to store parameters
@@ -438,10 +451,13 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc){
          // fill the maps for the nuisances, and global observables
          const RooArgSet *cons = mc.GetGlobalObservables();
          const RooArgSet *nuis = mc.GetNuisanceParameters();
+         RooArgSet *norms = new RooArgSet();
+         getNormalizations(mc.GetPdf(), *mc.GetObservables(), *norms);
 
 	 globalObservables_ = new double[cons->getSize()];
 	 nuisanceParameters_= new double[nuis->getSize()];
-        
+         processNormalizations_ = new double[norms->getSize()];
+
 	 int count=0; 
          TIterator* iter_c(cons->createIterator());
          for (TObject *a = iter_c->Next(); a != 0; a = iter_c->Next()) { 
@@ -463,6 +479,19 @@ void MaxLikelihoodFit::createFitResultTrees(const RooStats::ModelConfig &mc){
 		 t_fit_b_->Branch(name.c_str(),&(nuisanceParameters_[count]),Form("%s/Double_t",name.c_str()));
 		 count++;
          }
+
+	 count = 0;
+         TIterator* iter_no(norms->createIterator());
+         for (TObject *a = iter_no->Next(); a != 0; a = iter_no->Next()) { 
+                 RooConstVar *rcv = dynamic_cast<RooConstVar *>(a);        
+		 std::string name = rcv->GetName();
+		 processNormalizations_[count] = 0;
+		 t_fit_sb_->Branch(name.c_str(),&(processNormalizations_[count])),Form("%s/Double_t",name.c_str());
+		 t_fit_b_->Branch(name.c_str(),&(processNormalizations_[count]),Form("%s/Double_t",name.c_str()));
+		 count++;
+         }
+         delete norms;
+
 	std::cout << "Created Branches" <<std::endl;
          return;	
 }

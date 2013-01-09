@@ -43,12 +43,14 @@ protected:
   std::auto_ptr<TFile> fitOut;
   double* globalObservables_;
   double* nuisanceParameters_;
+  double* processNormalizations_;
 
   TTree *t_fit_b_, *t_fit_sb_;
    
   void getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out);
   void createFitResultTrees(const RooStats::ModelConfig &);
   void setFitResultTrees(const RooArgSet *, double *);
+  void setNormsFitResultTrees(const RooArgSet *, double *);
 };
 
 
