@@ -11,6 +11,7 @@
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/TrackerDigiSimLink"/>
@@ -22,6 +23,7 @@
 <use   name="Geometry/Records"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/DTGeometry"/>
+<use   name="Geometry/TrackerNumberingBuilder"/>
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="root"/>

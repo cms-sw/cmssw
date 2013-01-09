@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: MCTrackMatcher.cc,v 1.5 2007/12/18 16:15:33 cerati Exp $
+ * \version $Id: MCTrackMatcher.cc,v 1.6 2010/02/11 00:15:09 wmtan Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -56,7 +56,7 @@ void MCTrackMatcher::produce(Event& evt, const EventSetup& es) {
   evt.getByLabel(genParticles_,barCodes );
   Handle<GenParticleCollection> genParticles;
   evt.getByLabel(genParticles_, genParticles );
-  RecoToSimCollection associations = associator->associateRecoToSim ( tracks, trackingParticles, & evt ); 
+  RecoToSimCollection associations = associator->associateRecoToSim ( tracks, trackingParticles, & evt, &es ); 
   auto_ptr<GenParticleMatch> match(new GenParticleMatch(GenParticleRefProd(genParticles)));
   GenParticleMatch::Filler filler(*match);
   size_t n = tracks->size();

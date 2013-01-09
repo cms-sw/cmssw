@@ -46,6 +46,12 @@ CkfDebugger::CkfDebugger( edm::EventSetup const & es ):totSeeds(0)
   es.get<IdealMagneticFieldRecord>().get(theField);
   theMagField = &(*theField);
   
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  es.get<IdealGeometryRecord>().get(tTopoHand);
+  theTopo=tTopoHand.product();
+
+
   for (int i=0; i!=17; i++){
     dump.push_back(0);
   }

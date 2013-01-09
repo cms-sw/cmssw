@@ -8,12 +8,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
@@ -98,6 +94,11 @@ MuonAssociatorByHits::IndexAssociation
 MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
 					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
 					  const edm::Event * e, const edm::EventSetup * setup) const{
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  setup->get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
 
   int tracker_nshared = 0;
   int muon_nshared = 0;
@@ -273,7 +274,7 @@ MuonAssociatorByHits::associateRecoToSimIndices(const TrackHitsCollection & tC,
 		  n_tracker_matched_INVALID, n_dt_matched_INVALID, n_csc_matched_INVALID, n_rpc_matched_INVALID,
                   track->first, track->second,
 		  trackertruth, dttruth, csctruth, rpctruth,
-		  printRtS);
+		  printRtS,tTopo);
     
     n_matching_simhits = tracker_matchedIds_valid.size() + muon_matchedIds_valid.size() + 
                          tracker_matchedIds_INVALID.size() +muon_matchedIds_INVALID.size(); 
@@ -475,6 +476,11 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
 					  const edm::Event * e, const edm::EventSetup * setup) const{
 
 
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  setup->get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
   int tracker_nshared = 0;
   int muon_nshared = 0;
   int global_nshared = 0;
@@ -573,7 +579,7 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
 		  n_tracker_matched_INVALID, n_dt_matched_INVALID, n_csc_matched_INVALID, n_rpc_matched_INVALID,
                   track->first, track->second,
 		  trackertruth, dttruth, csctruth, rpctruth,
-		  printRtS);
+		  printRtS,tTopo);
     
     n_matching_simhits = tracker_matchedIds_valid.size() + muon_matchedIds_valid.size() + 
                          tracker_matchedIds_INVALID.size() +muon_matchedIds_INVALID.size(); 
@@ -687,17 +693,17 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
 	      DetId dIdOK = DetId(TPhitOK->detUnitId());
 	      //no grouped, no splitting
 	      if (!UseGrouped && !UseSplitting)
-		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+		if (tTopo->layer(dId)==tTopo->layer(dIdOK) &&
 		    dId.subdetId()==dIdOK.subdetId()) newhit = false;
 	      //no grouped, splitting
 	      if (!UseGrouped && UseSplitting)
-		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+		if (tTopo->layer(dId)==tTopo->layer(dIdOK) &&
 		    dId.subdetId()==dIdOK.subdetId() &&
 		    (stripDetId==0 || stripDetId->partnerDetId()!=dIdOK.rawId()))
 		  newhit = false;
 	      //grouped, no splitting
 	      if (UseGrouped && !UseSplitting)
-		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+		if ( tTopo->layer(dId)== tTopo->layer(dIdOK) &&
 		    dId.subdetId()==dIdOK.subdetId() &&
 		    stripDetId!=0 && stripDetId->partnerDetId()==dIdOK.rawId())
 		  newhit = false;
@@ -876,47 +882,6 @@ MuonAssociatorByHits::associateSimToRecoIndices( const TrackHitsCollection & tC,
   return outputCollection;
 }
 
-int MuonAssociatorByHits::LayerFromDetid(const DetId& detId ) const
-{
-  int layerNumber=0;
-  if (detId.det() != DetId::Tracker) return layerNumber;
-
-  unsigned int subdetId = static_cast<unsigned int>(detId.subdetId()); 
-  if ( subdetId == StripSubdetector::TIB) 
-    { 
-      TIBDetId tibid(detId.rawId()); 
-      layerNumber = tibid.layer();
-    }
-  else if ( subdetId ==  StripSubdetector::TOB )
-    { 
-      TOBDetId tobid(detId.rawId()); 
-      layerNumber = tobid.layer();
-    }
-  else if ( subdetId ==  StripSubdetector::TID) 
-    { 
-      TIDDetId tidid(detId.rawId());
-      layerNumber = tidid.wheel();
-    }
-  else if ( subdetId ==  StripSubdetector::TEC )
-    { 
-      TECDetId tecid(detId.rawId()); 
-      layerNumber = tecid.wheel(); 
-    }
-  else if ( subdetId ==  PixelSubdetector::PixelBarrel ) 
-    { 
-      PXBDetId pxbid(detId.rawId()); 
-      layerNumber = pxbid.layer();  
-    }
-  else if ( subdetId ==  PixelSubdetector::PixelEndcap ) 
-    { 
-      PXFDetId pxfid(detId.rawId()); 
-      layerNumber = pxfid.disk();  
-    }
-  else edm::LogWarning("MuonAssociatorByHits") 
-    << "*** WARNING in MuonAssociatorByHits::LayerFromDetid: Unknown Tracker subdetector: subdetId = " <<  subdetId;
-  
-  return layerNumber;
-} 
 
 void MuonAssociatorByHits::getMatchedIds
 (MapOfMatchedIds & tracker_matchedIds_valid, MapOfMatchedIds & muon_matchedIds_valid,
@@ -927,7 +892,8 @@ void MuonAssociatorByHits::getMatchedIds
  int& n_tracker_matched_INVALID, int& n_dt_matched_INVALID, int& n_csc_matched_INVALID, int& n_rpc_matched_INVALID,
  trackingRecHit_iterator begin, trackingRecHit_iterator end,
  TrackerHitAssociator* trackertruth, 
- DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, bool printRtS) const
+ DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, bool printRtS,
+ const TrackerTopology *tTopo) const
 
 {
   tracker_matchedIds_valid.clear();
@@ -984,31 +950,7 @@ void MuonAssociatorByHits::getMatchedIds
     // Si-Tracker Hits
     if (det == DetId::Tracker && UseTracker) {
       stringstream detector_id;
-      
-      if (subdet == PixelSubdetector::PixelBarrel) {
-	PXBDetId pxbdetid(detid);
-	detector_id << pxbdetid;
-      }
-      else if (subdet == PixelSubdetector::PixelEndcap) {
-	PXFDetId pxfdetid(detid);
-	detector_id << pxfdetid;
-      }
-      else if (subdet == StripSubdetector::TIB) {
-	TIBDetId tibdetid(detid);
-	detector_id << tibdetid;
-      }
-      else if (subdet == StripSubdetector::TOB) {
-	TOBDetId tobdetid(detid);
-	detector_id << tobdetid;
-      }
-      else if (subdet == StripSubdetector::TID) {
-	TIDDetId tiddetid(detid);
-	detector_id << tiddetid;
-      }
-      else if (subdet == StripSubdetector::TEC) {
-	TECDetId tecdetid(detid);
-	detector_id << tecdetid;
-      }
+      detector_id<< tTopo->print(detid);
       
       if (valid_Hit) hitlog = hitlog+" -Tracker - detID = "+detector_id.str();
       else hitlog = hitlog+" *** INVALID ***"+" -Tracker - detID = "+detector_id.str();

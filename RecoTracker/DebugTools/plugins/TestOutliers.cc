@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.14 2012/01/24 08:58:27 innocent Exp $
+// $Id: TestOutliers.cc,v 1.15 2013/01/02 21:11:56 dlange Exp $
 //
 //
 
@@ -186,8 +186,8 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   theAssociatorOld = new TrackAssociatorByHits(psetold);
   theAssociatorOut = new TrackAssociatorByHits(psetout);
-  reco::RecoToSimCollection recSimCollOut=theAssociatorOut->associateRecoToSim(tracksOut, tps, &iEvent);
-  reco::RecoToSimCollection recSimCollOld=theAssociatorOld->associateRecoToSim(tracksOld, tps, &iEvent);
+  reco::RecoToSimCollection recSimCollOut=theAssociatorOut->associateRecoToSim(tracksOut, tps, &iEvent,&iSetup);
+  reco::RecoToSimCollection recSimCollOld=theAssociatorOld->associateRecoToSim(tracksOld, tps, &iEvent,&iSetup);
   sizeOut->Fill(recSimCollOut.size());
   sizeOld->Fill(recSimCollOld.size());
   sizeOutT->Fill(tracksOut->size());

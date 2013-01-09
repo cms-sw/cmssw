@@ -25,12 +25,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 using namespace reco;
 using namespace std;
 
@@ -154,6 +150,11 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
 					  const edm::RefVector<TrackingParticleCollection>& TPCollectionH,
 					  const edm::Event * e,
                                           const edm::EventSetup *setup ) const{
+
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  setup->get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
 //  edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHits::associateSimToReco - #tracks="<<tC.size()<<" #TPs="<<TPCollectionH.size();
   float quality=0;//fraction or absolute number of shared hits
   int nshared = 0;
@@ -230,17 +231,17 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
               //                            << " id = " << dIdOK.rawId();
 	      //no grouped, no splitting
 	      if (!UseGrouped && !UseSplitting)
-		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+		if (tTopo->layer(dId)==tTopo->layer(dIdOK) &&
 		    dId.subdetId()==dIdOK.subdetId()) newhit = false;
 	      //no grouped, splitting
 	      if (!UseGrouped && UseSplitting)
-		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+		if (tTopo->layer(dId)==tTopo->layer(dIdOK) &&
 		    dId.subdetId()==dIdOK.subdetId() &&
 		    (stripDetId==0 || stripDetId->partnerDetId()!=dIdOK.rawId()))
 		  newhit = false;
 	      //grouped, no splitting
 	      if (UseGrouped && !UseSplitting)
-		if (LayerFromDetid(dId)==LayerFromDetid(dIdOK) &&
+		if (tTopo->layer(dId)==tTopo->layer(dIdOK) &&
 		    dId.subdetId()==dIdOK.subdetId() &&
 		    stripDetId!=0 && stripDetId->partnerDetId()==dIdOK.rawId())
 		  newhit = false;
@@ -288,45 +289,6 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
   return outputCollection;
 }
 
-int TrackAssociatorByHits::LayerFromDetid(const DetId& detId ) const
-{
-  int layerNumber=0;
-  unsigned int subdetId = static_cast<unsigned int>(detId.subdetId()); 
-  if ( subdetId == StripSubdetector::TIB) 
-    { 
-      TIBDetId tibid(detId.rawId()); 
-      layerNumber = tibid.layer();
-    }
-  else if ( subdetId ==  StripSubdetector::TOB )
-    { 
-      TOBDetId tobid(detId.rawId()); 
-      layerNumber = tobid.layer();
-    }
-  else if ( subdetId ==  StripSubdetector::TID) 
-    { 
-      TIDDetId tidid(detId.rawId());
-      layerNumber = tidid.wheel();
-    }
-  else if ( subdetId ==  StripSubdetector::TEC )
-    { 
-      TECDetId tecid(detId.rawId()); 
-      layerNumber = tecid.wheel(); 
-    }
-  else if ( subdetId ==  PixelSubdetector::PixelBarrel ) 
-    { 
-      PXBDetId pxbid(detId.rawId()); 
-      layerNumber = pxbid.layer();  
-    }
-  else if ( subdetId ==  PixelSubdetector::PixelEndcap ) 
-    { 
-      PXFDetId pxfid(detId.rawId()); 
-      layerNumber = pxfid.disk();  
-    }
-  else
-    LogTrace("TrackAssociator") << "Unknown subdetid: " <<  subdetId;
-  
-  return layerNumber;
-} 
 
 RecoToSimCollectionSeed  
 TrackAssociatorByHits::associateRecoToSim(const edm::Handle<edm::View<TrajectorySeed> >& seedCollectionH,

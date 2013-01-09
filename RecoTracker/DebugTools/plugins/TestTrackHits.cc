@@ -270,7 +270,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   reco::RecoToSimCollection recSimColl=trackAssociator->associateRecoToSim(trackCollectionHandle,
 									   trackingParticleCollectionHandle,
-									   &iEvent);
+									   &iEvent,&iSetup);
   
   TrajectoryStateCombiner combiner;
 

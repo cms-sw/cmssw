@@ -88,11 +88,11 @@ TrackAlgoCompareUtil::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         edm::ESHandle<TrackAssociatorBase> theAssociator_algoB;
         iSetup.get<TrackAssociatorRecord>().get(assocLabel_algoB, theAssociator_algoB);
   
-        recSimColl_AlgoA = theAssociator_algoA->associateRecoToSim(trackCollAlgoA, trackingParticleCollFakes, &iEvent);
-        recSimColl_AlgoB = theAssociator_algoB->associateRecoToSim(trackCollAlgoB, trackingParticleCollFakes, &iEvent);
+        recSimColl_AlgoA = theAssociator_algoA->associateRecoToSim(trackCollAlgoA, trackingParticleCollFakes, &iEvent, &iSetup);
+        recSimColl_AlgoB = theAssociator_algoB->associateRecoToSim(trackCollAlgoB, trackingParticleCollFakes, &iEvent, &iSetup);
 
-        simRecColl_AlgoA = theAssociator_algoA->associateSimToReco(trackCollAlgoA, trackingParticleCollEffic, &iEvent);
-        simRecColl_AlgoB = theAssociator_algoB->associateSimToReco(trackCollAlgoB, trackingParticleCollEffic, &iEvent);
+        simRecColl_AlgoA = theAssociator_algoA->associateSimToReco(trackCollAlgoA, trackingParticleCollEffic, &iEvent, &iSetup);
+        simRecColl_AlgoB = theAssociator_algoB->associateSimToReco(trackCollAlgoB, trackingParticleCollEffic, &iEvent, &iSetup);
     }
     else
     {

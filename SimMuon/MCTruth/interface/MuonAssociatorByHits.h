@@ -23,6 +23,8 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
+class TrackerTopology;
+
 class MuonAssociatorByHits : public TrackAssociatorBase {
   
  public:
@@ -59,7 +61,7 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
      int& n_tracker_matched_INVALID, int& n_dt_matched_INVALID, int& n_csc_matched_INVALID, int& n_rpc_matched_INVALID,
      trackingRecHit_iterator begin, trackingRecHit_iterator end,
      TrackerHitAssociator* trackertruth, DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, 
-     bool printRts) const;
+     bool printRts, const TrackerTopology *) const;
   
   int getShared(MapOfMatchedIds & matchedIds, TrackingParticleCollection::const_iterator trpart) const;
 

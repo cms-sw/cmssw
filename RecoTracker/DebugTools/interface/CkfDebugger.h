@@ -19,13 +19,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
-
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <vector>
 #include <iostream>
@@ -109,6 +104,7 @@ class CkfDebugger {
   TrackerHitAssociator*      hitAssociator;
   const MeasurementTracker*        theMeasurementTracker;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
+  const TrackerTopology *theTopo;
 
   std::map<unsigned int, std::vector<PSimHit*> > idHitsMap;
 
@@ -153,25 +149,11 @@ class CkfDebugger {
 
   int layer(const GeomDetUnit* det){
     //return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));
-    DetId id=det->geographicalId();
-    if (id.subdetId()==3) return ((TIBDetId)(id)).layer();
-    if (id.subdetId()==5) return ((TOBDetId)(id)).layer();
-    if (id.subdetId()==1) return ((PXBDetId)(id)).layer();
-    if (id.subdetId()==4) return ((TIDDetId)(id)).wheel();
-    if (id.subdetId()==6) return ((TECDetId)(id)).wheel();
-    if (id.subdetId()==2) return ((PXFDetId)(id)).disk();
-    return 0;
+    return theTopo->layer(det->geographicalId());
   }
   int layer(const GeomDet* det){
     //return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));
-    DetId id=det->geographicalId();
-    if (id.subdetId()==3) return ((TIBDetId)(id)).layer();
-    if (id.subdetId()==5) return ((TOBDetId)(id)).layer();
-    if (id.subdetId()==1) return ((PXBDetId)(id)).layer();
-    if (id.subdetId()==4) return ((TIDDetId)(id)).wheel();
-    if (id.subdetId()==6) return ((TECDetId)(id)).wheel();
-    if (id.subdetId()==2) return ((PXFDetId)(id)).disk();
-    return 0;
+    return theTopo->layer(det->geographicalId());
   }
 
   template<unsigned int D>  

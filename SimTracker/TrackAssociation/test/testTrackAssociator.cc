@@ -67,7 +67,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   cout << "                      ****************** Reco To Sim ****************** " << endl;
   cout << "-- Associator by hits --" << endl;  
   reco::RecoToSimCollection p = 
-    associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+    associatorByHits->associateRecoToSim (trackCollectionH,TPCollectionH,&event,&setup );
   for(View<Track>::size_type i=0; i<tC.size(); ++i) {
     RefToBase<Track> track(trackCollectionH, i);
     try{ 
@@ -88,7 +88,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
     }
   }
   cout << "-- Associator by chi2 --" << endl;  
-  p = associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event );
+  p = associatorByChi2->associateRecoToSim (trackCollectionH,TPCollectionH,&event,&setup );
   for(View<Track>::size_type i=0; i<tC.size(); ++i) {
     RefToBase<Track> track(trackCollectionH, i);
     try{ 
@@ -112,7 +112,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
   cout << "                      ****************** Sim To Reco ****************** " << endl;
   cout << "-- Associator by hits --" << endl;  
   reco::SimToRecoCollection q = 
-    associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&event );
+    associatorByHits->associateSimToReco(trackCollectionH,TPCollectionH,&event,&setup );
   for(SimTrackContainer::size_type i=0; i<simTC.size(); ++i){
     TrackingParticleRef tp (TPCollectionH,i);
     try{ 
@@ -132,7 +132,7 @@ void testTrackAssociator::analyze(const edm::Event& event, const edm::EventSetup
     }
   }
   cout << "-- Associator by chi2 --" << endl;  
-  q = associatorByChi2->associateSimToReco(trackCollectionH,TPCollectionH,&event );
+  q = associatorByChi2->associateSimToReco(trackCollectionH,TPCollectionH,&event,&setup );
   for(SimTrackContainer::size_type i=0; i<simTC.size(); ++i){
     TrackingParticleRef tp (TPCollectionH,i);
     try{ 
