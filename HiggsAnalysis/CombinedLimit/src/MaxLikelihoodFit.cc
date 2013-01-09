@@ -66,6 +66,7 @@ MaxLikelihoodFit::~MaxLikelihoodFit(){
    // delete the Arrays used to fill the trees;
    delete globalObservables_;
    delete nuisanceParameters_;
+   delete processNormalizations_;
 }
 
 void MaxLikelihoodFit::setToyNumber(const int iToy){
