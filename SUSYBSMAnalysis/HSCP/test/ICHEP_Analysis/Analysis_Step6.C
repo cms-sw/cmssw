@@ -256,6 +256,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TCanvas* c1;
    TLegend* LEG;
    double LInt = 0;
+   double LIntMO = 0;
 
    FILE* pFile    = fopen((outpath+string("Analysis_Step6_Result") + ".txt").c_str(),"w");
    FILE* talkFile = fopen((outpath + "TalkPlots" + ".txt").c_str(),"w");
@@ -302,7 +303,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    for(unsigned int k=0; k<modelVector.size(); k++){
      bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
      if(isNeutral) continue;//skip charged suppressed models                                                                                                                      
-     MOGraphs[k] = MakePlot(pFile,talkFile,MOPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
+     MOGraphs[k] = MakePlot(pFile,talkFile,MOPattern,modelVector[k], 2, modelMap[modelVector[k]], LIntMO);
    }
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
@@ -436,7 +437,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
        Graphs++;
      }
    }
-   
+
    if(Graphs>0) {
    TkSystGraphs->Draw("A");
    TkSystGraphs->SetTitle("");
@@ -1141,8 +1142,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMO->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMO->GetXaxis()->SetRangeUser(50,1550);
    
-   DrawPreliminary("Muon - Only", SQRTS, LInt);
-   
+   if(Combine) DrawPreliminary("Muon - Only", 8.0, LIntMO);
+   else DrawPreliminary("Muon - Only", SQRTS, LIntMO);   
+
    TLegend* LEGMO = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.10,0.795,0.42);
    LEGMO->SetFillColor(0); 
    //LEGMO->SetFillStyle(0);
@@ -2838,7 +2840,7 @@ bool Combine(string InputPattern, string signal7, string signal8){
    printf("%s \n",CodeToExecute.c_str());
 
    result.XSec_Th = 1.0;
-
+   //Muon only uses just 2012
    if(TypeMode==3) {
      result.XSec_Obs=result12.XSec_Obs/result12.XSec_Th;
      result.XSec_Exp=result12.XSec_Exp/result12.XSec_Th;
