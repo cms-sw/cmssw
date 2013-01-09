@@ -19,17 +19,17 @@
 setenv TYPE Photons
 setenv CMSSWver1 6_1_0
 setenv RELEASE 6_1_0
-setenv PRERELEASE pre7
+setenv PRERELEASE 
 
-setenv FULLGLOBALTAG START61_V5A-v1
-setenv FASTGLOBALTAG START61_V5A_FastSim-v1
+setenv FULLGLOBALTAG START61_V8-v1
+setenv FASTGLOBALTAG START61_V8_FastSim-v1
 
-setenv RELEASE ${RELEASE}_${PRERELEASE}
-#setenv RELEASE ${RELEASE}
+#setenv RELEASE ${RELEASE}_${PRERELEASE}
+setenv RELEASE ${RELEASE}
 
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
