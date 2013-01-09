@@ -22,18 +22,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 using namespace std;
 using namespace edm;
@@ -101,6 +96,11 @@ void TrackTransformerForGlobalCosmicMuons::setServices(const EventSetup& setup){
     setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
     setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName,theMuonRecHitBuilder);
   }
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  setup.get<IdealGeometryRecord>().get(tTopoHand);
+  tTopo_=tTopoHand.product();
 }
 
 
@@ -144,19 +144,17 @@ TrackTransformerForGlobalCosmicMuons::getTransientRecHits(const reco::TransientT
 
     if(hitId.det() == DetId::Tracker) {
       if (hitId.subdetId() == StripSubdetector::TIB )  
-	LogTrace("TrackFitters") << glbpoint << " I am TIB " << TIBDetId(hitId).layer();
+	LogTrace("TrackFitters") << glbpoint << " I am TIB " << tTopo_->tibLayer(hitId);
       else if (hitId.subdetId() == StripSubdetector::TOB ) 
-	LogTrace("TrackFitters") << glbpoint << " I am TOB " << TOBDetId(hitId).layer();
+	LogTrace("TrackFitters") << glbpoint << " I am TOB " << tTopo_->tobLayer(hitId);
       else if (hitId.subdetId() == StripSubdetector::TEC ) 
-	LogTrace("TrackFitters") << glbpoint << " I am TEC " << TECDetId(hitId).wheel();
+	LogTrace("TrackFitters") << glbpoint << " I am TEC " << tTopo_->tecWheel(hitId);
       else if (hitId.subdetId() == StripSubdetector::TID ) 
-	LogTrace("TrackFitters") << glbpoint << " I am TID " << TIDDetId(hitId).wheel();
-      else if (hitId.subdetId() == StripSubdetector::TID ) 
-	LogTrace("TrackFitters") << glbpoint << " I am TID " << TIDDetId(hitId).wheel();
+	LogTrace("TrackFitters") << glbpoint << " I am TID " << tTopo_->tidWheel(hitId);
       else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel ) 
-	LogTrace("TrackFitters") << glbpoint << " I am PixBar " << PXBDetId(hitId).layer();
+	LogTrace("TrackFitters") << glbpoint << " I am PixBar " << tTopo_->pxbLayer(hitId);
       else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
-	LogTrace("TrackFitters") << glbpoint << " I am PixFwd " << PXFDetId(hitId).disk();
+	LogTrace("TrackFitters") << glbpoint << " I am PixFwd " << tTopo_->pxfDisk(hitId);
       else 
 	LogTrace("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
     } else if(hitId.det() == DetId::Muon) {
@@ -255,50 +253,18 @@ vector<Trajectory> TrackTransformerForGlobalCosmicMuons::transform(const reco::T
 //
 bool TrackTransformerForGlobalCosmicMuons::TrackerKeep(DetId id) const{
 	
-	bool retVal = true;
-	if (id.det() != DetId::Tracker ) return false;
-	if (theTrackerSkipSystem < 0 ) return true;
-	
+  if (id.det() != DetId::Tracker ) return false;
+  if (theTrackerSkipSystem < 0 ) return true;
+  bool retVal = true;
 
-    int layer = -999;
-    int disk  = -999;
-    int wheel = -999;
-
-      if ( id.subdetId() == theTrackerSkipSystem){
-
-		if (theTrackerSkipSystem == PixelSubdetector::PixelBarrel) {
-			PXBDetId did(id.rawId());
-			layer = did.layer();
-		}
-
-		if (theTrackerSkipSystem == StripSubdetector::TIB) {
-			TIBDetId did(id.rawId());
-			layer = did.layer();
-		}	
-
-		if (theTrackerSkipSystem == StripSubdetector::TOB) {
-			TOBDetId did(id.rawId());
-			layer = did.layer();
-		}
-		if (theTrackerSkipSystem == PixelSubdetector::PixelEndcap) {
-			PXFDetId did(id.rawId());
-			disk = did.disk();
-		}
-		if (theTrackerSkipSystem == StripSubdetector::TID) {
-			TIDDetId did(id.rawId());
-			wheel = did.wheel();
-		}
-		if (theTrackerSkipSystem == StripSubdetector::TEC) {
-			TECDetId did(id.rawId());
-			wheel = did.wheel();
-		}
-	}
-
-	if (theTrackerSkipSection > -998 && layer == theTrackerSkipSection) retVal = false;
-	if (theTrackerSkipSection > -998 && disk  == theTrackerSkipSection) retVal = false;
-	if (theTrackerSkipSection > -998 && wheel == theTrackerSkipSection) retVal = false;
-
-	return retVal;
+  int layer = -999;
+  
+  if ( id.subdetId() == theTrackerSkipSystem)
+    layer=tTopo_->layer(id);
+  
+  if (theTrackerSkipSection > -998 && layer == theTrackerSkipSection) retVal = false;
+  
+  return retVal;
 }
 //
 // Selection for Muon hits
