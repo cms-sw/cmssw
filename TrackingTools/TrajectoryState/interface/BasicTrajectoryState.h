@@ -256,7 +256,7 @@ private:
   void missingError(char const * where) const; // dso_internal;
 
 // create global errors from local
-  void checkCurvilinError() const  dso_internal;
+  void checkCurvilinError() const; //  dso_internal;
 
 // create local parameters and errors from global
   void createLocalParameters() const;
