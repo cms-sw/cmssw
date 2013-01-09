@@ -12,7 +12,7 @@ class JetMatchingMadgraph : public JetMatching {
 	~JetMatchingMadgraph();
 
     protected:
-	void init(const lhef::LHERunInfo* runInfo);
+	virtual void init(const lhef::LHERunInfo* runInfo);
 	virtual void beforeHadronisation(const lhef::LHEEvent* event);
 	virtual void beforeHadronisationExec();
 
