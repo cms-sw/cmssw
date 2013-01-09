@@ -11,9 +11,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: L1ExtraMixerPluginT.h,v 1.1 2012/10/09 09:00:24 veelken Exp $
+ * $Id: L1ExtraMixerPluginT.h,v 1.2 2012/10/14 12:22:24 veelken Exp $
  *
  */
 
@@ -40,6 +40,12 @@ class L1ExtraMixerPluginT : public L1ExtraMixerPluginBase
 
  private:
   typedef std::vector<T> l1ExtraCollection;
+  typedef std::vector<const T*> l1ExtraPtrCollection;
+
+  edm::InputTag srcSelectedMuons1_;
+  double dRveto1_;
+  edm::InputTag srcSelectedMuons2_;
+  double dRveto2_;
 };
 
 #endif

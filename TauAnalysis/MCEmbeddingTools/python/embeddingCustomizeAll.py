@@ -298,23 +298,33 @@ def customise(process):
   for l1ExtraCollection in l1ExtraCollections:
       inputType = l1ExtraCollection[0]
       pluginType = None
+      srcVeto = cms.InputTag('')
+      dRveto = 0.
       if inputType == "L1EmParticle":
           pluginType = "L1ExtraEmParticleMixerPlugin"
+          srcSelectedMuons = process.customization_options.ZmumuCollection
+          dRveto = 0.3
       elif inputType == "L1EtMissParticle":
           pluginType = "L1ExtraMEtMixerPlugin"
       elif inputType == "L1JetParticle":
           pluginType = "L1ExtraJetParticleMixerPlugin"
+          srcSelectedMuons = process.customization_options.ZmumuCollection
+          dRveto = 0.3
       elif inputType == "L1MuonParticle":
           pluginType = "L1ExtraMuonParticleMixerPlugin"
+          srcSelectedMuons = process.customization_options.ZmumuCollection
+          dRveto = 0.5
       else:
           raise ValueError("Invalid L1Extra type = %s !!" % inputType)
       instanceLabel = l1ExtraCollection[1]
       l1extraParticleCollections.append(cms.PSet(
           pluginType = cms.string(pluginType),
-          instanceLabel = cms.string(instanceLabel)))
+          instanceLabel = cms.string(instanceLabel),
+          srcSelectedMuons2 = srcSelectedMuons,
+          dRveto2 = cms.double(dRveto)))
   process.l1extraParticlesORG = process.l1extraParticles.clone()
   process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
-      src1 = cms.InputTag("l1extraParticlesORG", "", "EmbeddedRECO"),                                      
+      src1 = cms.InputTag("l1extraParticlesORG", "", "EmbeddedRECO"),                                          
       src2 = cms.InputTag("l1extraParticles", "", inputProcess),
       collections = cms.VPSet(l1extraParticleCollections)
   )
