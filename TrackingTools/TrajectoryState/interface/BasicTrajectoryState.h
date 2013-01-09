@@ -58,7 +58,7 @@ private:
 public:
 
   // default constructor : to make root happy
-  BasicTrajectoryState(){}
+  BasicTrajectoryState() : theValid(false), theWeight(0){}
 
  /// construct invalid trajectory state (without parameters)
   explicit BasicTrajectoryState(const Surface& aSurface);
@@ -129,33 +129,30 @@ public:
 			      const MagneticField* field,
 			      double weight);
 
- 
-  bool isValid() const {
-    return theFreeState || theLocalParametersValid;
-  }
+  bool isValid() const { return theValid; }
 
 
 // access global parameters/errors
   const GlobalTrajectoryParameters& globalParameters() const {
-    return freeTrajectoryState(false)->parameters();
+    return theFreeState.parameters();
   }
   GlobalPoint globalPosition() const {
-    return freeTrajectoryState(false)->position();
+    return theFreeState.position();
   }
   GlobalVector globalMomentum() const {
-    return freeTrajectoryState(false)->momentum();
+    return theFreeState.momentum();
   }
   GlobalVector globalDirection() const {
-    return freeTrajectoryState(false)->momentum().unit();
+    return theFreeState.momentum().unit();
   }  
   TrackCharge charge() const {
-    return freeTrajectoryState(false)->charge();
+    return theFreeState.charge();
   }
   double signedInverseMomentum() const {
-    return freeTrajectoryState(false)->signedInverseMomentum();
+    return theFreeState.signedInverseMomentum();
   }
   double transverseCurvature() const {
-    return freeTrajectoryState(false)->transverseCurvature();
+    return theFreeState.transverseCurvature();
   }
 
   const CartesianTrajectoryError cartesianError() const {
@@ -163,7 +160,7 @@ public:
 	missingError(" accesing cartesian error.");
 	return CartesianTrajectoryError();
       }
-    return freeTrajectoryState()->cartesianError();
+    return freeTrajectoryState(true)->cartesianError();
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
     if unlikely(!hasError()) {
@@ -171,13 +168,20 @@ public:
 	static CurvilinearTrajectoryError crap;
 	return crap;
       }
-    return freeTrajectoryState()->curvilinearError();
+    return freeTrajectoryState(true)->curvilinearError();
   }
 
 
-  FreeTrajectoryState* freeTrajectoryState(bool withErrors = true) const;
+
+  FreeTrajectoryState* freeTrajectoryState(bool withErrors=true) const {
+    if(withErrors && hasError()) { // this is the right thing
+      checkCurvilinError();
+    }
+    return &theFreeState;
+  }
+
   
-  const MagneticField *magneticField() const { return theField; }
+  const MagneticField *magneticField() const { return &theFreeState.parameters().magneticField(); }
 
 // access local parameters/errors
   const LocalTrajectoryParameters& localParameters() const {
@@ -221,7 +225,7 @@ public:
   }
 
   bool hasError() const {
-    return (theFreeState && theFreeState->hasError()) || theLocalError.valid();
+    return theFreeState.hasError() || theLocalError.valid();
   }
 
 
@@ -251,8 +255,7 @@ private:
   
   void missingError(char const * where) const; // dso_internal;
 
-// create global parameters and errors from local
-  void checkGlobalParameters() const dso_internal;
+// create global errors from local
   void checkCurvilinError() const  dso_internal;
 
 // create local parameters and errors from global
@@ -263,20 +266,19 @@ private:
 
 private:
 
-  mutable DeepCopyPointer<FreeTrajectoryState> theFreeState;
+  mutable FreeTrajectoryState theFreeState;
 
   mutable LocalTrajectoryError      theLocalError;
   mutable LocalTrajectoryParameters theLocalParameters;
 
   mutable bool theLocalParametersValid;
-  mutable bool theGlobalParamsUp2Date;
+  mutable bool theValid;
 
  
   SurfaceSide theSurfaceSide;
   ConstReferenceCountingPointer<Surface> theSurfaceP;
 
   double theWeight;
-  const MagneticField* theField;
 
 };
 
