@@ -53,6 +53,7 @@ struct MyCSCSimHit
   Float_t x, y, energyLoss, pabs, timeOfFlight;
   Int_t endcap, ring, station, chamber, layer;
   Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
+  Float_t Phi_0, DeltaPhi, R_0;
 };
 
 struct MyRPCSimHit
@@ -234,6 +235,9 @@ void GEMSimHitAnalyzer::bookCSCSimHitsTree()
   csc_sh_tree->Branch("globalX",&csc_sh.globalX);
   csc_sh_tree->Branch("globalY",&csc_sh.globalY);
   csc_sh_tree->Branch("globalZ",&csc_sh.globalZ);
+  csc_sh_tree->Branch("Phi_0", &csc_sh.Phi_0);
+  csc_sh_tree->Branch("DeltaPhi", &csc_sh.DeltaPhi);
+  csc_sh_tree->Branch("R_0", &csc_sh.R_0);
 }
 
 
@@ -383,6 +387,17 @@ void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
     csc_sh.station = id.station();
     csc_sh.chamber = id.chamber();
     csc_sh.layer = id.layer();
+
+    LocalPoint p0(0., 0., 0.);
+    GlobalPoint Gp0 = csc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(p0);
+    csc_sh.Phi_0 = Gp0.phi();
+    csc_sh.R_0 = Gp0.perp();
+
+//    if(id.region()*pow(-1,id.chamber()) == 1) gem_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
+//    if(id.region()*pow(-1,id.chamber()) == -1) gem_sh.DeltaPhi = atan(itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
+//    csc_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
+    if(id.endcap==1) csc_sh.DeltaPhi = atan(itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
+    if(id.endcap==2) csc_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
     
     LocalPoint hitLP = itHit->localPosition();
     hitGP = csc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP);
