@@ -283,11 +283,11 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  LogTrace("MuonTrackValidator") << "Calling associateRecoToSim method" << "\n";
 	  recSimColl=associator[ww]->associateRecoToSim(trackCollection,
 							TPCollectionHfake,
-							&event);
+							&event,&setup);
 	  LogTrace("MuonTrackValidator") << "Calling associateSimToReco method" << "\n";
 	  simRecColl=associator[ww]->associateSimToReco(trackCollection,
 							TPCollectionHeff, 
-							&event);
+							&event,&setup);
 	}
 	else{
 	  edm::LogVerbatim("MuonTrackValidator") << "Analyzing " 

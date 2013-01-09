@@ -230,12 +230,12 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
 
   // look for tracks and muons associated to the tracking particles
   {
-    reco::SimToRecoCollection bychi2_tracks      = m_associatorByChi2->associateSimToReco(recoTrackHandle,       trackingParticleHandle, &iEvent );
-    reco::SimToRecoCollection bychi2_globaltrack = m_associatorByChi2->associateSimToReco(globalMuonTrackHandle, trackingParticleHandle, &iEvent );
-    reco::SimToRecoCollection bychi2_standalone  = m_associatorByChi2->associateSimToReco(standAloneMuonHandle,  trackingParticleHandle, &iEvent );
-    reco::SimToRecoCollection byhits_tracks      = m_associatorByHits->associateSimToReco(recoTrackHandle,       trackingParticleHandle, &iEvent );
-    reco::SimToRecoCollection byhits_globaltrack = m_associatorByHits->associateSimToReco(globalMuonTrackHandle, trackingParticleHandle, &iEvent );
-    reco::SimToRecoCollection byhits_standalone  = m_associatorByHits->associateSimToReco(standAloneMuonHandle,  trackingParticleHandle, &iEvent );
+    reco::SimToRecoCollection bychi2_tracks      = m_associatorByChi2->associateSimToReco(recoTrackHandle,       trackingParticleHandle, &iEvent, &setup );
+    reco::SimToRecoCollection bychi2_globaltrack = m_associatorByChi2->associateSimToReco(globalMuonTrackHandle, trackingParticleHandle, &iEvent, &setup );
+    reco::SimToRecoCollection bychi2_standalone  = m_associatorByChi2->associateSimToReco(standAloneMuonHandle,  trackingParticleHandle, &iEvent, &setup );
+    reco::SimToRecoCollection byhits_tracks      = m_associatorByHits->associateSimToReco(recoTrackHandle,       trackingParticleHandle, &iEvent, &setup );
+    reco::SimToRecoCollection byhits_globaltrack = m_associatorByHits->associateSimToReco(globalMuonTrackHandle, trackingParticleHandle, &iEvent, &setup );
+    reco::SimToRecoCollection byhits_standalone  = m_associatorByHits->associateSimToReco(standAloneMuonHandle,  trackingParticleHandle, &iEvent, &setup );
 
     for (TrackingParticleCollection::size_type i = 0; i < trackingParticleCollection.size(); ++i) {
       TrackingParticleRef tp (trackingParticleHandle, i);
@@ -249,8 +249,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
   }
   
   // look for tracking particles associated to the (tracker part of the) reconstructed global muons
-  reco::RecoToSimCollection byhits_globalfake = m_associatorByHits->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent );
-  reco::RecoToSimCollection bychi2_globalfake = m_associatorByChi2->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent );
+  reco::RecoToSimCollection byhits_globalfake = m_associatorByHits->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent, &setup );
+  reco::RecoToSimCollection bychi2_globalfake = m_associatorByChi2->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent, &setup );
   for (reco::MuonCollection::size_type i = 0; i < globalMuonCollection.size(); ++i) {
     reco::MuonRef lepton(globalMuonHandle, i);
     std::cout << "<-- Global " << lepton << std::endl;
@@ -258,8 +258,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
   }
   
   // look for tracking particles associated to the reconstructed standAlone muons
-  reco::RecoToSimCollection byhits_standalonefake = m_associatorByHits->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent );
-  reco::RecoToSimCollection bychi2_standalonefake = m_associatorByChi2->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent );
+  reco::RecoToSimCollection byhits_standalonefake = m_associatorByHits->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent, &setup );
+  reco::RecoToSimCollection bychi2_standalonefake = m_associatorByChi2->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent, &setup );
   for (edm::View<reco::Track>::size_type i = 0; i < standAloneMuonCollection.size(); ++i) {
     edm::RefToBase<reco::Track> lepton(standAloneMuonHandle, i);
     std::cout << "<-- Local  " << lepton << std::endl;

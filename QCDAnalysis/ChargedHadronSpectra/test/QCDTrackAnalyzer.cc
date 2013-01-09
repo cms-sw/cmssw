@@ -906,11 +906,11 @@ void QCDTrackAnalyzer::analyze
   {
     LogTrace("MinBiasTracking") << " [TrackAnalyzer] associateSimToReco";
     simToReco =
-    theAssociatorByHits->associateSimToReco(recCollection, simCollection,&ev);
+      theAssociatorByHits->associateSimToReco(recCollection, simCollection,&ev,&es);
 
     LogTrace("MinBiasTracking") << " [TrackAnalyzer] associateRecoToSim";
     recoToSim =
-    theAssociatorByHits->associateRecoToSim(recCollection, simCollection,&ev);
+      theAssociatorByHits->associateRecoToSim(recCollection, simCollection,&ev,&es);
   }
 
   // Analyze

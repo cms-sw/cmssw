@@ -2,8 +2,8 @@
  * Class: GlobalMuonMatchAnalyzer
  *
  *
- * $Date: 2009/10/31 05:17:36 $
- * $Revision: 1.9 $
+ * $Date: 2010/02/20 21:02:34 $
+ * $Revision: 1.10 $
  *
  * Authors :
  * \author Adam Everett - Purdue University
@@ -99,18 +99,18 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
    reco::RecoToSimCollection tkrecoToSimCollection;
    reco::SimToRecoCollection tksimToRecoCollection;
-   tkrecoToSimCollection = tkAssociator_->associateRecoToSim(tkHandle,tpHandle,&iEvent);
-   tksimToRecoCollection = tkAssociator_->associateSimToReco(tkHandle,tpHandle,&iEvent);
+   tkrecoToSimCollection = tkAssociator_->associateRecoToSim(tkHandle,tpHandle,&iEvent,&iSetup);
+   tksimToRecoCollection = tkAssociator_->associateSimToReco(tkHandle,tpHandle,&iEvent,&iSetup);
 
    reco::RecoToSimCollection starecoToSimCollection;
    reco::SimToRecoCollection stasimToRecoCollection;
-   starecoToSimCollection = muAssociator_->associateRecoToSim(staHandle,tpHandle,&iEvent);
-   stasimToRecoCollection = muAssociator_->associateSimToReco(staHandle,tpHandle,&iEvent);
+   starecoToSimCollection = muAssociator_->associateRecoToSim(staHandle,tpHandle,&iEvent,&iSetup);
+   stasimToRecoCollection = muAssociator_->associateSimToReco(staHandle,tpHandle,&iEvent,&iSetup);
 
    reco::RecoToSimCollection glbrecoToSimCollection;
    reco::SimToRecoCollection glbsimToRecoCollection;
-   glbrecoToSimCollection = muAssociator_->associateRecoToSim(glbHandle,tpHandle,&iEvent);
-   glbsimToRecoCollection = muAssociator_->associateSimToReco(glbHandle,tpHandle,&iEvent);
+   glbrecoToSimCollection = muAssociator_->associateRecoToSim(glbHandle,tpHandle,&iEvent,&iSetup);
+   glbsimToRecoCollection = muAssociator_->associateSimToReco(glbHandle,tpHandle,&iEvent,&iSetup);
 
 
    for (TrackingParticleCollection::size_type i=0; i<tpColl.size(); ++i){

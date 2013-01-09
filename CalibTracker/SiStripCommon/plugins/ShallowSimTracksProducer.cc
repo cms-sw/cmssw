@@ -55,7 +55,7 @@ produce(edm::Event& event, const edm::EventSetup& setup) {
   std::auto_ptr<std::vector<double> >   vy           ( new std::vector<double>  (size,-1000));
   std::auto_ptr<std::vector<double> >   vz           ( new std::vector<double>  (size,-1000));
 
-  reco::RecoToSimCollection associations = associator->associateRecoToSim( tracks, trackingParticles, &event );
+  reco::RecoToSimCollection associations = associator->associateRecoToSim( tracks, trackingParticles, &event, &setup );
   
   for( reco::RecoToSimCollection::const_iterator association = associations.begin(); 
        association != associations.end(); association++) {

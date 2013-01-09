@@ -221,7 +221,7 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
   iSetup.get<TrackAssociatorRecord>().get(theAssocLabel,theAssociator);
 
   //associate  
-  reco::RecoToSimCollection recSimColl = theAssociator->associateRecoToSim(tracks,TPtracks, &iEvent);
+  reco::RecoToSimCollection recSimColl = theAssociator->associateRecoToSim(tracks,TPtracks, &iEvent,&iSetup);
 
   LogDebug(theCategory)<<"I have found: "<<recSimColl.size()<<" associations in total.";
   

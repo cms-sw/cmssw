@@ -70,7 +70,7 @@ void VertexHistory::newEvent (
         {
             // Get the map between recovertex -> simvertex
             reco::RecoToSimCollection
-            trackRecoToSim = trackAssociator->associateRecoToSim(trackCollection, TPCollection, &event);
+	      trackRecoToSim = trackAssociator->associateRecoToSim(trackCollection, TPCollection, &event,&setup);
 
             // Calculate the map between recovertex -> simvertex
             recoToSim_ = vertexAssociator->associateRecoToSim(vertexCollection, TVCollection, event, trackRecoToSim);
@@ -80,7 +80,7 @@ void VertexHistory::newEvent (
         {
             // Get the map between recovertex <- simvertex
             reco::SimToRecoCollection
-            trackSimToReco = trackAssociator->associateSimToReco (trackCollection, TPCollection, &event);
+	      trackSimToReco = trackAssociator->associateSimToReco (trackCollection, TPCollection, &event, &setup);
 
             // Calculate the map between recovertex <- simvertex
             simToReco_ = vertexAssociator->associateSimToReco(vertexCollection, TVCollection, event, trackSimToReco);

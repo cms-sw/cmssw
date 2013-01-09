@@ -81,8 +81,8 @@
  **
  **
  **  $Id: PhotonValidator
- **  $Date: 2012/05/25 16:47:34 $
- **  $Revision: 1.3 $
+ **  $Date: 2012/08/30 15:56:36 $
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -1635,11 +1635,11 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   if ( useTP) {
     if ( ! fastSim_) {
     // Sim to Reco
-    OISimToReco = theTrackAssociator_->associateSimToReco(outInTrkHandle, ElectronTPHandle, &e);
-    IOSimToReco = theTrackAssociator_->associateSimToReco(inOutTrkHandle, ElectronTPHandle, &e);
+      OISimToReco = theTrackAssociator_->associateSimToReco(outInTrkHandle, ElectronTPHandle, &e, &esup);
+      IOSimToReco = theTrackAssociator_->associateSimToReco(inOutTrkHandle, ElectronTPHandle, &e, &esup);
     // Reco to Sim
-    OIRecoToSim = theTrackAssociator_->associateRecoToSim(outInTrkHandle, ElectronTPHandle, &e);
-    IORecoToSim = theTrackAssociator_->associateRecoToSim(inOutTrkHandle, ElectronTPHandle, &e);
+      OIRecoToSim = theTrackAssociator_->associateRecoToSim(outInTrkHandle, ElectronTPHandle, &e, &esup);
+      IORecoToSim = theTrackAssociator_->associateRecoToSim(inOutTrkHandle, ElectronTPHandle, &e, &esup);
     }
   }
   //
@@ -2528,8 +2528,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    RefToBase<reco::Track> tfrb = tracks[i];
 	    RefToBaseVector<reco::Track> tc;
             tc.push_back(tfrb);
-	    // reco::RecoToSimCollection q = theTrackAssociator_->associateRecoToSim(tc,theConvTP_,&e);
-	    reco::SimToRecoCollection q = theTrackAssociator_->associateSimToReco(tc,theConvTP_,&e);
+	    // reco::RecoToSimCollection q = theTrackAssociator_->associateRecoToSim(tc,theConvTP_,&e,&esup);
+	    reco::SimToRecoCollection q = theTrackAssociator_->associateSimToReco(tc,theConvTP_,&e,&esup);
 	    std::vector<std::pair<RefToBase<reco::Track>, double> >  trackV;
 	    int tpI = 0;
 
@@ -3074,8 +3074,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  //std::cout << " ciao 5.3 " << std::endl;
 	  if ( theConvTP_.size() < 2 )   continue;
 
-	  reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e);
-	  reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e);
+	  reco::RecoToSimCollection p1 =  theTrackAssociator_->associateRecoToSim(tc1,theConvTP_,&e,&esup);
+	  reco::RecoToSimCollection p2 =  theTrackAssociator_->associateRecoToSim(tc2,theConvTP_,&e,&esup);
 	  std::vector<std::pair<RefToBase<reco::Track>, double> > trackV1, trackV2;
           try {
 	  std::vector<std::pair<TrackingParticleRef, double> > tp1 = p1[tk1];
