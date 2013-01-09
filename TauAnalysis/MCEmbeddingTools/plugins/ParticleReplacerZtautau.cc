@@ -475,8 +475,6 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
   //     but add decays of unstable particles to original HepMC::GenEvent
   for ( HepMC::GenEvent::vertex_const_iterator genVertex_pythia = passedEvt_pythia->vertices_begin();
 	genVertex_pythia != passedEvt_pythia->vertices_end(); ++genVertex_pythia ) {
-    int genVertex_barcode = (*genVertex_pythia)->barcode();
-
     bool isDecayVertex = ((*genVertex_pythia)->particles_in_size() >= 1 && (*genVertex_pythia)->particles_out_size() >= 2);
     for ( HepMC::GenEvent::vertex_const_iterator genVertex_output = passedEvt_output->vertices_begin();
 	  genVertex_output != passedEvt_output->vertices_end(); ++genVertex_output ) {
@@ -485,7 +483,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
     if ( !isDecayVertex ) continue;
 
     // create new vertex
-    //std::cout << "creating decay vertex: barcode = " << genVertex_barcode << std::endl;
+    //std::cout << "creating decay vertex: barcode = " << (*genVertex_pythia)->barcode() << std::endl;
     HepMC::GenVertex* genVertex_output = new HepMC::GenVertex((*genVertex_pythia)->position());
 
     // associate "incoming" particles to new vertex
@@ -496,6 +494,8 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
 	if ( matchesGenParticle(*genParticle_output, *genParticle_pythia) ) {
 	  //std::cout << " adding 'incoming' particle: barcode = " << (*genParticle_output)->barcode() << std::endl;
 	  genVertex_output->add_particle_in(*genParticle_output);
+	  // flag "incoming" particle to be unstable
+	  (*genParticle_output)->set_status(2);
 	}
       }
     }
