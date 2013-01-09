@@ -384,43 +384,43 @@ steps['SingleMuPt10_UPGPhase1']=genup('SingleMuPt10_cfi',Kby(25,500))
 steps['SingleMuPt100_UPGPhase1']=genup('SingleMuPt100_cfi',Kby(9,500))
 steps['SingleMuPt1000_UPGPhase1']=genup('SingleMuPt1000_cfi',Kby(9,500))
 
-steps['TTbarLepton_UPGPhase1']=genup('TTbarLepton_Tauola_8TeV_cfi',Kby(9,100))
-steps['Wjet_Pt_80_120_UPGPhase1']=genup('Wjet_Pt_80_120_8TeV_cfi',Kby(9,100))
-steps['Wjet_Pt_3000_3500_UPGPhase1']=genup('Wjet_Pt_3000_3500_8TeV_cfi',Kby(9,50))
-steps['LM1_sfts_UPGPhase1']=genup('LM1_sfts_8TeV_cfi',Kby(9,100))
+steps['TTbarLepton_UPGPhase1_8']=genup('TTbarLepton_Tauola_8TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_80_120_UPGPhase1_8']=genup('Wjet_Pt_80_120_8TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_3000_3500_UPGPhase1_8']=genup('Wjet_Pt_3000_3500_8TeV_cfi',Kby(9,50))
+steps['LM1_sfts_UPGPhase1_8']=genup('LM1_sfts_8TeV_cfi',Kby(9,100))
 
-steps['QCD_Pt_3000_3500_UPGPhase1']=genup('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
-steps['QCD_Pt_600_800_UPGPhase1']=genup('QCD_Pt_600_800_8TeV_cfi',Kby(9,50))
-steps['QCD_Pt_80_120_UPGPhase1']=genup('QCD_Pt_80_120_8TeV_cfi',Kby(9,100))
+steps['QCD_Pt_3000_3500_UPGPhase1_8']=genup('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
+steps['QCD_Pt_600_800_UPGPhase1_8']=genup('QCD_Pt_600_800_8TeV_cfi',Kby(9,50))
+steps['QCD_Pt_80_120_UPGPhase1_8']=genup('QCD_Pt_80_120_8TeV_cfi',Kby(9,100))
 
-steps['Higgs200ChargedTaus_UPGPhase1']=genup('H200ChargedTaus_Tauola_8TeV_cfi',Kby(9,100))
-steps['JpsiMM_UPGPhase1']=genup('JpsiMM_8TeV_cfi',Kby(66,1000))
-steps['TTbar_UPGPhase1']=genup('TTbar_Tauola_8TeV_cfi',Kby(9,100))
-steps['WE_UPGPhase1']=genup('WE_8TeV_cfi',Kby(9,100))
-steps['ZEE_UPGPhase1']=genup('ZEE_8TeV_cfi',Kby(9,100))
-steps['ZTT_UPGPhase1']=genup('ZTT_Tauola_All_hadronic_8TeV_cfi',Kby(9,150))
-steps['H130GGgluonfusion_UPGPhase1']=genup('H130GGgluonfusion_8TeV_cfi',Kby(9,100))
-steps['PhotonJets_Pt_10_UPGPhase1']=genup('PhotonJet_Pt_10_8TeV_cfi',Kby(9,150))
-steps['QQH1352T_Tauola_UPGPhase1']=genup('QQH1352T_Tauola_8TeV_cfi',Kby(9,100))
+steps['Higgs200ChargedTaus_UPGPhase1_8']=genup('H200ChargedTaus_Tauola_8TeV_cfi',Kby(9,100))
+steps['JpsiMM_UPGPhase1_8']=genup('JpsiMM_8TeV_cfi',Kby(66,1000))
+steps['TTbar_UPGPhase1_8']=genup('TTbar_Tauola_8TeV_cfi',Kby(9,100))
+steps['WE_UPGPhase1_8']=genup('WE_8TeV_cfi',Kby(9,100))
+steps['ZEE_UPGPhase1_8']=genup('ZEE_8TeV_cfi',Kby(9,100))
+steps['ZTT_UPGPhase1_8']=genup('ZTT_Tauola_All_hadronic_8TeV_cfi',Kby(9,150))
+steps['H130GGgluonfusion_UPGPhase1_8']=genup('H130GGgluonfusion_8TeV_cfi',Kby(9,100))
+steps['PhotonJets_Pt_10_UPGPhase1_8']=genup('PhotonJet_Pt_10_8TeV_cfi',Kby(9,150))
+steps['QQH1352T_Tauola_UPGPhase1_8']=genup('QQH1352T_Tauola_8TeV_cfi',Kby(9,100))
 
-steps['MinBias_UPGPhase1']=genup('MinBias_8TeV_cfi',Kby(9,300))
-steps['WM_UPGPhase1']=genup('WM_8TeV_cfi',Kby(9,200))
-steps['ZMM_UPGPhase1']=genup('ZMM_8TeV_cfi',Kby(18,300))
+steps['MinBias_TuneZ2star_UPGPhase1_8']=genup('MinBias_TuneZ2star_8TeV_pythia6_cff',Kby(9,300))
+steps['WM_UPGPhase1_8']=genup('WM_8TeV_cfi',Kby(9,200))
+steps['ZMM_UPGPhase1_8']=genup('ZMM_8TeV_cfi',Kby(18,300))
 
-steps['ADDMonoJet_d3MD3_UPGPhase1']=genup('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
-steps['ZpMM_UPGPhase1']=genup('ZpMM_8TeV_cfi',Kby(9,200))
-steps['WpM_UPGPhase1']=genup('WpM_8TeV_cfi',Kby(9,200))
+steps['ADDMonoJet_d3MD3_UPGPhase1_8']=genup('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
+steps['ZpMM_UPGPhase1_8']=genup('ZpMM_8TeV_cfi',Kby(9,200))
+steps['WpM_UPGPhase1_8']=genup('WpM_8TeV_cfi',Kby(9,200))
 
 
 
 #14TeV
-steps['TTbarLepton_UPGPhase1_14']=genup('TTbarLepton_Tauola_14TeV_cfi',Kby(9,100))
+#steps['TTbarLepton_UPGPhase1_14']=genup('TTbarLepton_Tauola_14TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_80_120_UPGPhase1_14']=genup('Wjet_Pt_80_120_14TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_3000_3500_UPGPhase1_14']=genup('Wjet_Pt_3000_3500_14TeV_cfi',Kby(9,50))
 steps['LM1_sfts_UPGPhase1_14']=genup('LM1_sfts_14TeV_cfi',Kby(9,100))
 
 steps['QCD_Pt_3000_3500_UPGPhase1_14']=genup('QCD_Pt_3000_3500_14TeV_cfi',Kby(9,25))
-steps['QCD_Pt_600_800_UPGPhase1_14']=genup('QCD_Pt_600_800_14TeV_cfi',Kby(9,50))
+#steps['QCD_Pt_600_800_UPGPhase1_14']=genup('QCD_Pt_600_800_14TeV_cfi',Kby(9,50))
 steps['QCD_Pt_80_120_UPGPhase1_14']=genup('QCD_Pt_80_120_14TeV_cfi',Kby(9,100))
 
 steps['Higgs200ChargedTaus_UPGPhase1_14']=genup('H200ChargedTaus_Tauola_14TeV_cfi',Kby(9,100))
@@ -433,13 +433,13 @@ steps['H130GGgluonfusion_UPGPhase1_14']=genup('H130GGgluonfusion_14TeV_cfi',Kby(
 steps['PhotonJets_Pt_10_UPGPhase1_14']=genup('PhotonJet_Pt_10_14TeV_cfi',Kby(9,150))
 steps['QQH1352T_Tauola_UPGPhase1_14']=genup('QQH1352T_Tauola_14TeV_cfi',Kby(9,100))
 
-steps['MinBias_UPGPhase1_14']=genup('MinBias_14TeV_cfi',Kby(9,300))
+steps['MinBias_TuneZ2star_UPGPhase1_14']=genup('MinBias_TuneZ2star_14TeV_pythia6_cff',Kby(9,300))
 steps['WM_UPGPhase1_14']=genup('WM_14TeV_cfi',Kby(9,200))
 steps['ZMM_UPGPhase1_14']=genup('ZMM_14TeV_cfi',Kby(18,300))
 
-steps['ADDMonoJet_d3MD3_UPGPhase1_14']=genup('ADDMonoJet_14TeV_d3MD3_cfi',Kby(9,100))
-steps['ZpMM_UPGPhase1_14']=genup('ZpMM_14TeV_cfi',Kby(9,200))
-steps['WpM_UPGPhase1_14']=genup('WpM_14TeV_cfi',Kby(9,200))
+#steps['ADDMonoJet_d3MD3_UPGPhase1_14']=genup('ADDMonoJet_14TeV_d3MD3_cfi',Kby(9,100))
+#steps['ZpMM_UPGPhase1_14']=genup('ZpMM_14TeV_cfi',Kby(9,200))
+#steps['WpM_UPGPhase1_14']=genup('WpM_14TeV_cfi',Kby(9,200))
 
 
 
