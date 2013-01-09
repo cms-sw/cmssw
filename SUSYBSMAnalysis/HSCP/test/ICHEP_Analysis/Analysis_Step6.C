@@ -2802,6 +2802,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 bool Combine(string InputPattern, string signal7, string signal8){
 //   CurrentSampleIndex        = JobIdToIndex(signal, samples); if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return false;  }
 //   int s = CurrentSampleIndex;
+  int TypeMode = TypeFromPattern(InputPattern);
 
    string outpath = InputPattern + "/"+SHAPESTRING+EXCLUSIONDIR+"/";
    MakeDirectories(outpath);
@@ -2836,12 +2837,25 @@ bool Combine(string InputPattern, string signal7, string signal8){
    system(CodeToExecute.c_str());   
    printf("%s \n",CodeToExecute.c_str());
 
+   result.XSec_Th = 1.0;
+
+   if(TypeMode==3) {
+     result.XSec_Obs=result12.XSec_Obs/result12.XSec_Th;
+     result.XSec_Exp=result12.XSec_Exp/result12.XSec_Th;
+     result.XSec_ExpUp=result12.XSec_ExpUp/result12.XSec_Th;
+     result.XSec_ExpDown=result12.XSec_ExpDown/result12.XSec_Th;
+     result.XSec_Exp2Up=result12.XSec_Exp2Up/result12.XSec_Th;
+     result.XSec_Exp2Down=result12.XSec_Exp2Down/result12.XSec_Th;
+     result.Save(InputPattern+"/"+SHAPESTRING+EXCLUSIONDIR+"/"+signal+".txt");
+     return true;
+   }
+
    result.LInt  = result11.LInt  + result12.LInt ;
    result.NSign = result11.NSign + result12.NSign;
    result.NData = result11.NData + result12.NData;
    result.NPred = result11.NPred + result12.NPred;
    result.NPredErr = sqrt(pow(result11.NPredErr,2) + pow(result12.NPredErr,2));
-   result.XSec_Th = 1.0;
+
    double NPred = result.NPred;
    double NSign = result.NSign / 100.0;
 
