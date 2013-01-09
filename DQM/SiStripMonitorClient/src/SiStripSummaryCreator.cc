@@ -282,12 +282,13 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
     if (hist) {
       if (name.find("NoisyStrips") != std::string::npos) hist->GetYaxis()->SetTitle("Noisy Strips (%)");
       else hist->GetYaxis()->SetTitle(name.c_str());
+
+      for (std::map<int,std::string>::const_iterator ic = tags.begin();
+	   ic != tags.end(); ic++) {
+	hist->GetXaxis()->SetBinLabel(ic->first, (ic->second).c_str());
+      }
+      hist->LabelsOption("uv");
     }
-    for (std::map<int,std::string>::const_iterator ic = tags.begin();
-         ic != tags.end(); ic++) {
-      hist->GetXaxis()->SetBinLabel(ic->first, (ic->second).c_str());
-    }
-    hist->LabelsOption("uv");
   }
   return me;
 }
