@@ -176,9 +176,8 @@ bool ReggeGribovPartonMCHadronizer::generatePartonsAndHadronize()
 
 
   event().reset(evt);
-  evt->print();
-  cout << "test test test " << m_NParticles << endl;
-  EPOS::EPOS_Wrapper::print_hepcom();
+  //evt->print();
+  //EPOS::EPOS_Wrapper::print_hepcom();
 
   return true;
 }

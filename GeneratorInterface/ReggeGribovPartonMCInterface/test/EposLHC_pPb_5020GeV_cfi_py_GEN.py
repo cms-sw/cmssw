@@ -34,9 +34,9 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('ReggeGribovMC generator'),
-    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/test/QGSJetII-04_pPb_5020GeV_cfi_py_GEN.py,v $')
+    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/GeneratorInterface/ReggeGribovPartonMCInterface/test/EposLHC_pPb_5020GeV_cfi_py_GEN.py,v $')
 )
 
 # Output definition
@@ -62,14 +62,16 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
-from GeneratorInterface.ReggeGribovPartonMCInterface.ReggeGribovPartonMC_AdvancedParameters_cfi import *
 process.generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
-    ReggeGribovPartonMCAdvancedParameters,          
     beamid = cms.int32(208),
     targetid = cms.int32(1),
     model = cms.int32(0),
     targetmomentum = cms.double(-4000),
-    beammomentum = cms.double(1577)
+    beammomentum = cms.double(1577),
+    bmin = cms.double(0),
+    bmax = cms.double(10000),
+    paramFileName = cms.untracked.string("Configuration/Generator/data/ReggeGribovPartonMC.param"),
+    skipNuclFrag = cms.bool(True)
 )
 
 
