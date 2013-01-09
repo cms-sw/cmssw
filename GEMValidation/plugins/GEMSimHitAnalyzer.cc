@@ -396,8 +396,8 @@ void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
 //    if(id.region()*pow(-1,id.chamber()) == 1) gem_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
 //    if(id.region()*pow(-1,id.chamber()) == -1) gem_sh.DeltaPhi = atan(itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
 //    csc_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
-    if(id.endcap==1) csc_sh.DeltaPhi = atan(itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
-    if(id.endcap==2) csc_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
+    if(id.endcap()==1) csc_sh.DeltaPhi = atan(itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
+    if(id.endcap()==2) csc_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
     
     LocalPoint hitLP = itHit->localPosition();
     hitGP = csc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP);
