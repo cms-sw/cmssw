@@ -1576,7 +1576,9 @@ void printSummary(FILE* pFile, FILE* talkFile, string InputPattern, string Model
       char massCut[255];  if(TypeMode<3){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
       char Results7[255]; if(Infos7.Mass>0 && TypeMode!=3){sprintf(Results7, "%6.2f & %6.2E & %6.2E & %6.2E", Infos7.Eff, Infos7.XSec_Th,Infos7.XSec_Obs, Infos7.XSec_Exp);}else{sprintf(Results7, "   -   &    -     &   -      &   -     ");}
       char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%6.2f & %6.2E & %6.2E & %6.2E", Infos8.Eff, Infos8.XSec_Th,Infos8.XSec_Obs, Infos8.XSec_Exp);}else{sprintf(Results8, "   -    &    -     &    -     &   -     ");}
-      char ResultsC[255]; if(InfosC.Mass>0 && TypeMode!=3){sprintf(ResultsC, "%6.2E & %6.2E", InfosC.XSec_Obs, InfosC.XSec_Exp);}else{sprintf(ResultsC, "   -     &    -    ");}
+      char ResultsC[255]; if(InfosC.Mass>0 && TypeMode!=3){sprintf(ResultsC, "%6.2E & %6.2E", InfosC.XSec_Obs, InfosC.XSec_Exp);}
+      else if(InfosC.Mass>0){sprintf(ResultsC, "%6.2E & %6.2E", Infos8.XSec_Obs/Infos8.XSec_Th, Infos8.XSec_Exp/Infos8.XSec_Th);}
+      else{sprintf(ResultsC, "   -     &    -    ");}
 
 //    char Results7[255]; if(Infos7.Mass>0){sprintf(Results7, "%10s & %10s & %10s & %10s", toLatexRounded(Infos7.Eff).c_str(), toLatexRounded(Infos7.XSec_Th).c_str(),toLatexRounded(Infos7.XSec_Obs).c_str(), toLatexRounded(Infos7.XSec_Exp).c_str());}else{sprintf(Results7, "%10s & %10s & %10s & %10s", "", "", "", "");}
 //    char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%10s & %10s & %10s & %10s", toLatexRounded(Infos8.Eff).c_str(), toLatexRounded(Infos8.XSec_Th).c_str(),toLatexRounded(Infos8.XSec_Obs).c_str(), toLatexRounded(Infos8.XSec_Exp).c_str());}else{sprintf(Results8, "%10s & %10s & %10s & %10s", "", "", "", "");}
@@ -1618,7 +1620,9 @@ void printSummaryPaper(FILE* pFile, FILE* talkFile, string InputPattern, string 
       char massCut[255];  if(TypeMode<3){sprintf(massCut,"$>%.0f$",Infos8.MassCut);}else{sprintf(massCut," - ");}
       char Results7[255]; if(Infos7.Mass>0 && TypeMode!=3){sprintf(Results7, "%s & %s & %6.2f", toLatex(Infos7.XSec_Exp).c_str(), toLatex(Infos7.XSec_Obs).c_str(), Infos8.Eff);}else{sprintf(Results7, "    -     &   -      &   -     ");}
       char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%s & %s & %6.2f", toLatex(Infos8.XSec_Exp).c_str(), toLatex(Infos8.XSec_Obs).c_str(), Infos8.Eff);}else{sprintf(Results8, "  -    &   -      &    -     &   -     ");}
-      char ResultsC[255]; if(InfosC.Mass>0 && TypeMode!=3){sprintf(ResultsC, "%s & %s", toLatex(InfosC.XSec_Exp).c_str(), toLatex(InfosC.XSec_Obs).c_str());}else{sprintf(ResultsC, "   -     &    -    ");}
+      char ResultsC[255]; if(InfosC.Mass>0 && TypeMode!=3){sprintf(ResultsC, "%s & %s", toLatex(InfosC.XSec_Exp).c_str(), toLatex(InfosC.XSec_Obs).c_str());}
+      else if(InfosC.Mass>0){sprintf(ResultsC, "%s & %s", toLatex(Infos8.XSec_Exp/Infos8.XSec_Th).c_str(), toLatex(Infos8.XSec_Obs/Infos8.XSec_Th).c_str());}
+      else{sprintf(ResultsC, "   -     &    -    ");}
 
 //    char Results7[255]; if(Infos7.Mass>0){sprintf(Results7, "%10s & %10s & %10s & %10s", toLatexRounded(Infos7.Eff).c_str(), toLatexRounded(Infos7.XSec_Th).c_str(),toLatexRounded(Infos7.XSec_Obs).c_str(), toLatexRounded(Infos7.XSec_Exp).c_str());}else{sprintf(Results7, "%10s & %10s & %10s & %10s", "", "", "", "");}
 //    char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%10s & %10s & %10s & %10s", toLatexRounded(Infos8.Eff).c_str(), toLatexRounded(Infos8.XSec_Th).c_str(),toLatexRounded(Infos8.XSec_Obs).c_str(), toLatexRounded(Infos8.XSec_Exp).c_str());}else{sprintf(Results8, "%10s & %10s & %10s & %10s", "", "", "", "");}
