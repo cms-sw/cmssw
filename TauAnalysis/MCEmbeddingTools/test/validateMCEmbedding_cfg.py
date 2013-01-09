@@ -628,18 +628,18 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
 
     # Pt, eta and phi distribution of L1Extra objects
     # (electrons, muons, tau-jet, central and forward jets)                                     
-##     l1ElectronDistributions = cms.VPSet(
-##         cms.PSet(
-## 	    src = cms.InputTag('l1extraParticles', 'NonIsolated'),
-##             cut = cms.string("pt > %1.1f & abs(eta) < 2.1" % (electronPtThreshold - 1.0)),
-##             dqmDirectory = cms.string('l1ElectronDistributions')
-##         ),                                        
-##         cms.PSet(
-## 	    src = cms.InputTag('l1extraParticles', 'Isolated'),
-##             cut = cms.string("pt > %1.1f & abs(eta) < 2.1" % (electronPtThreshold - 1.0)),
-##             dqmDirectory = cms.string('l1IsoElectronDistributions')
-##         )
-##     ),
+    l1ElectronDistributions = cms.VPSet(
+        cms.PSet(
+	    src = cms.InputTag('l1extraParticles', 'NonIsolated'),
+            cut = cms.string("pt > %1.1f & abs(eta) < 2.1" % (electronPtThreshold - 1.0)),
+            dqmDirectory = cms.string('l1ElectronDistributions')
+        ),                                        
+        cms.PSet(
+	    src = cms.InputTag('l1extraParticles', 'Isolated'),
+            cut = cms.string("pt > %1.1f & abs(eta) < 2.1" % (electronPtThreshold - 1.0)),
+            dqmDirectory = cms.string('l1IsoElectronDistributions')
+        )
+    ),
     l1MuonDistributions = cms.VPSet(					
         cms.PSet(
 	    src = cms.InputTag('l1extraParticles'),
@@ -647,27 +647,27 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
             dqmDirectory = cms.string('l1MuonDistributions')
         )
     ),
-##     l1TauDistributions = cms.VPSet(					
-##         cms.PSet(
-## 	    src = cms.InputTag('l1extraParticles', 'Tau'),
-##             cut = cms.string("pt > %1.1f" % (tauPtThreshold - 5.0)),
-##             dqmDirectory = cms.string('l1TauDistributions')
-##         )
-##     ),
-##     l1CentralJetDistributions = cms.VPSet(					
-##         cms.PSet(
-## 	    src = cms.InputTag('l1extraParticles', 'Central'),
-##             cut = cms.string("pt > 20."),
-##             dqmDirectory = cms.string('l1CentralJetDistributions')
-##         )
-##     ),
-##     l1ForwardJetDistributions = cms.VPSet(					
-##         cms.PSet(
-## 	    src = cms.InputTag('l1extraParticles', 'Forward'),
-##             cut = cms.string("pt > 20."),
-##             dqmDirectory = cms.string('l1ForwardJetDistributions')
-##         )
-##     ),
+    l1TauDistributions = cms.VPSet(					
+        cms.PSet(
+	    src = cms.InputTag('l1extraParticles', 'Tau'),
+            cut = cms.string("pt > %1.1f" % (tauPtThreshold - 5.0)),
+            dqmDirectory = cms.string('l1TauDistributions')
+        )
+    ),
+    l1CentralJetDistributions = cms.VPSet(					
+        cms.PSet(
+	    src = cms.InputTag('l1extraParticles', 'Central'),
+            cut = cms.string("pt > 20."),
+            dqmDirectory = cms.string('l1CentralJetDistributions')
+        )
+    ),
+    l1ForwardJetDistributions = cms.VPSet(					
+        cms.PSet(
+	    src = cms.InputTag('l1extraParticles', 'Forward'),
+            cut = cms.string("pt > 20."),
+            dqmDirectory = cms.string('l1ForwardJetDistributions')
+        )
+    ),
 
     # MET Pt and phi distributions;
     # efficiency of L1 (Calo)MET trigger requirement
@@ -776,16 +776,16 @@ process.schedule = cms.Schedule(process.printFirstEventContentPath, process.p)
 ##
 ##process.schedule.extend([process.printGenParticleListPath])
 
-process.dumpSelMuonsEmbeddedRECO = cms.EDAnalyzer("DumpPATMuons",
-  src = cms.InputTag('goodMuons::EmbeddedRECO'),
-  minPt = cms.double(7.)
-)
-process.dumpSelMuons = process.dumpSelMuonsEmbeddedRECO.clone(
-  src = cms.InputTag('goodMuons')
-)    
-process.dumpSelMuonsPath = cms.Path(process.dumpSelMuonsEmbeddedRECO + process.dumpSelMuons)
-
-process.schedule.extend([process.dumpSelMuonsPath])
+##process.dumpSelMuonsEmbeddedRECO = cms.EDAnalyzer("DumpPATMuons",
+##  src = cms.InputTag('goodMuons::EmbeddedRECO'),
+##  minPt = cms.double(7.)
+##)
+##process.dumpSelMuons = process.dumpSelMuonsEmbeddedRECO.clone(
+##  src = cms.InputTag('goodMuons')
+##)    
+##process.dumpSelMuonsPath = cms.Path(process.dumpSelMuonsEmbeddedRECO + process.dumpSelMuons)
+##
+##process.schedule.extend([process.dumpSelMuonsPath])
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
