@@ -42,14 +42,15 @@ process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:out_sim.root'
+#        'file:output_SingleMuPt40.root'
+    'file:SingleMuPt40_GEN_SIM.root'
     )
 )
 
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
-        'out_digi.root'
+        'file:SingleMuPt40_DIGI.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',
@@ -90,4 +91,8 @@ process.schedule = cms.Schedule(
     process.endjob_step,
     process.out_step
 )
+
+file = open('runGEMDigiProducer.py','w')
+file.write(str(process.dumpPython()))
+file.close()
 
