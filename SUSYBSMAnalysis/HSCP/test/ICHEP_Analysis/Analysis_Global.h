@@ -50,11 +50,12 @@ double               IntegratedLuminosityBeforeTriggerChange = 0;
 double               IntegratedLuminosityHigherMETThreshold = 698.991;
 #endif
 
-double IntegratedLuminosityFromE(double SQRTS_){
-   if(SQRTS_==7){return IntegratedLuminosity7TeV;}
-   else if(SQRTS_==8){return IntegratedLuminosity8TeV;}
-   else if(SQRTS_==78 || SQRTS_==87){return IntegratedLuminosity7TeV+IntegratedLuminosity8TeV;}
-   else{return -1;}
+string IntegratedLuminosityFromE(double SQRTS_){
+  char LumiText[1024];
+  if(SQRTS_==7) sprintf(LumiText,"%1.1f fb ^{-1}", 0.001*IntegratedLuminosity7TeV);
+  else if(SQRTS_==8)sprintf(LumiText,"%1.1f fb ^{-1}", 0.001*IntegratedLuminosity8TeV);
+  else if(SQRTS_==78 || SQRTS_==87)sprintf(LumiText,"%1.1f/%1.1f fb ^{-1}", 0.001*IntegratedLuminosity7TeV,0.001*IntegratedLuminosity8TeV);
+  return LumiText;
 }
 
 

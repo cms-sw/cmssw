@@ -256,7 +256,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    TCanvas* c1;
    TLegend* LEG;
    double LInt = 0;
-   double LIntMO = 0;
 
    FILE* pFile    = fopen((outpath+string("Analysis_Step6_Result") + ".txt").c_str(),"w");
    FILE* talkFile = fopen((outpath + "TalkPlots" + ".txt").c_str(),"w");
@@ -303,7 +302,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    for(unsigned int k=0; k<modelVector.size(); k++){
      bool isNeutral = false;if(modelVector[k].find("GluinoN")!=string::npos || modelVector[k].find("StopN")!=string::npos)isNeutral = true;
      if(isNeutral) continue;//skip charged suppressed models                                                                                                                      
-     MOGraphs[k] = MakePlot(pFile,talkFile,MOPattern,modelVector[k], 2, modelMap[modelVector[k]], LIntMO);
+     MOGraphs[k] = MakePlot(pFile,talkFile,MOPattern,modelVector[k], 2, modelMap[modelVector[k]], LInt);
    }
    fprintf(pFile   ,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
@@ -727,7 +726,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
       if(isNeutral) continue;//skip charged suppressed models
       if(MuGraphs[k]->GetN()==0) continue;
       if(MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1]<0) continue;
-      fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MuGraphs[k],  ThXSec[k], MuGraphs[k]->GetX()[0], MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1], 1, 0.00));
+      double minMass=-1, maxMass=-1;
+      FindRangeBetweenTwoGraphs(MuGraphs[k],  ThXSec[k], MuGraphs[k]->GetX()[0], MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1], 1, 0.00, minMass, maxMass);
+      fprintf(pFile,"%20s --> Excluded mass range %8.3f - %8.3fGeV\n", modelVector[k].c_str(), minMass, maxMass);
+      //fprintf(pFile,"%20s --> Excluded mass below %8.3fGeV\n", modelVector[k].c_str(), FindIntersectionBetweenTwoGraphs(MuGraphs[k],  ThXSec[k], MuGraphs[k]->GetX()[0], MuGraphs[k]->GetX()[MuGraphs[k]->GetN()-1], 1, 0.00));
    }  
 
    fprintf(pFile,"-----------------------\n0%% MU+Only        \n-------------------------\n");
@@ -874,7 +876,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMu->GetXaxis()->SetRangeUser(50,1550);
 
-   DrawPreliminary("Tracker + TOF", SQRTS, LInt);
+   DrawPreliminary(LegendFromType(MuPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
    TLegend* LEGMu = !Combine ? new TLegend(0.45,0.58,0.65,0.90) : new TLegend(0.55,0.15,0.75,0.47);
    LEGMu->SetFillColor(0); 
    //LEGMu->SetFillStyle(0);
@@ -956,7 +958,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGTk->GetXaxis()->SetRangeUser(50,1550);
    
-   DrawPreliminary("Tracker - Only", SQRTS, LInt);
+   DrawPreliminary(LegendFromType(TkPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
 
    TLegend* LEGTk = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.15,0.795,0.45);
    LEGTk->SetFillColor(0); 
@@ -1142,10 +1144,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGMO->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGMO->GetXaxis()->SetRangeUser(50,1550);
    
-   if(Combine) DrawPreliminary("Muon - Only", 8.0, LIntMO);
-   else DrawPreliminary("Muon - Only", SQRTS, LIntMO);   
+   DrawPreliminary(LegendFromType(MOPattern).c_str(), 8.0, IntegratedLuminosityFromE(8.0));
 
-   TLegend* LEGMO = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.10,0.795,0.42);
+   TLegend* LEGMO = !Combine ? new TLegend(0.45,0.58,0.795,0.9) : new TLegend(0.45,0.20,0.795,0.42);
    LEGMO->SetFillColor(0); 
    //LEGMO->SetFillStyle(0);
    LEGMO->SetBorderSize(0);
@@ -1233,7 +1234,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGLQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGLQ->GetXaxis()->SetRangeUser(75,625);
 
-   DrawPreliminary("frac. charge", SQRTS, LInt);
+   DrawPreliminary(LegendFromType(LQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
 
    TLegend* LEGLQ = !Combine ? new TLegend(0.55,0.80,0.795,0.9) : new TLegend(0.55,0.15,0.795,0.25);
 //   LEGLQ->SetHeader("Q<1");
@@ -1287,7 +1288,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,100);
    MGHQ->GetXaxis()->SetRangeUser(50,1050);
 
-   DrawPreliminary("multi-charged", SQRTS, LInt);
+   DrawPreliminary(LegendFromType(HQPattern).c_str(), SQRTS, IntegratedLuminosityFromE(SQRTS));
    TLegend* LEGHQ = !Combine ? new TLegend(0.57,0.71,0.8,0.91) : new TLegend(0.50,0.20,0.70,0.52);
 
    LEGHQ->SetFillColor(0); 
@@ -1940,8 +1941,8 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    CurrentSampleIndex        = JobIdToIndex(signal,samples); 
    if(CurrentSampleIndex<0){  printf("There is no signal corresponding to the JobId Given\n");  return;  } 
 
-   if(Data.find("7TeV")!=string::npos){SQRTS=7.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS); }
-   if(Data.find("8TeV")!=string::npos){SQRTS=8.0; IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);  }
+   if(Data.find("7TeV")!=string::npos){SQRTS=7.0;} //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS); }
+   if(Data.find("8TeV")!=string::npos){SQRTS=8.0;} //IntegratedLuminosity = IntegratedLuminosityFromE(SQRTS);  }
 
    //For muon only don't run on neutral samples as near zero efficiency can make jobs take very long time
    if((signal.find("Gluino")!=string::npos || signal.find("Stop")!=string::npos) && signal.find("N")!=string::npos && TypeMode==3) return;
