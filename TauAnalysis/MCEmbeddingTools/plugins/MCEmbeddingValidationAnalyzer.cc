@@ -15,6 +15,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
@@ -25,6 +26,7 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcRecTracks_(cfg.getParameter<edm::InputTag>("srcRecTracks")),
     srcCaloTowers_(cfg.getParameter<edm::InputTag>("srcCaloTowers")),
     srcRecPFCandidates_(cfg.getParameter<edm::InputTag>("srcRecPFCandidates")),
+    srcRecJets_(cfg.getParameter<edm::InputTag>("srcRecJets")),
     srcRecVertex_(cfg.getParameter<edm::InputTag>("srcRecVertex")),
     srcGenDiTaus_(cfg.getParameter<edm::InputTag>("srcGenDiTaus")),
     srcGenLeg1_(cfg.getParameter<edm::InputTag>("srcGenLeg1")),
@@ -39,36 +41,46 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     replacedMuonPtThresholdHigh_(cfg.getParameter<double>("replacedMuonPtThresholdHigh")),
     replacedMuonPtThresholdLow_(cfg.getParameter<double>("replacedMuonPtThresholdLow"))
 {
+  typedef std::pair<int, int> pint;
+  std::vector<pint> jetBins;
+  jetBins.push_back(pint(-1, -1));
+  jetBins.push_back(pint(0, 0));
+  jetBins.push_back(pint(1, 1));
+  jetBins.push_back(pint(2, 2));
+  jetBins.push_back(pint(3, 1000));
+  for ( std::vector<pint>::const_iterator jetBin = jetBins.begin();
+	jetBin != jetBins.end(); ++jetBin ) {
 //--- setup electron Pt, eta and phi distributions;
 //    electron id & isolation and trigger efficiencies
-  setupLeptonDistribution(cfg, "electronDistributions", electronDistributions_);
-  setupLeptonEfficiency(cfg, "electronEfficiencies", electronEfficiencies_);
-  setupLeptonL1TriggerEfficiency(cfg, "electronL1TriggerEfficiencies", electronL1TriggerEfficiencies_);
+    setupLeptonDistribution(jetBin->first, jetBin->second, cfg, "electronDistributions", electronDistributions_);
+    setupLeptonEfficiency(jetBin->first, jetBin->second, cfg, "electronEfficiencies", electronEfficiencies_);
+    setupLeptonL1TriggerEfficiency(jetBin->first, jetBin->second, cfg, "electronL1TriggerEfficiencies", electronL1TriggerEfficiencies_);
 
 //--- setup muon Pt, eta and phi distributions;
 //    muon id & isolation and trigger efficiencies
-  setupLeptonDistribution(cfg, "muonDistributions", muonDistributions_);
-  setupLeptonEfficiency(cfg, "muonEfficiencies", muonEfficiencies_);
-  setupLeptonL1TriggerEfficiency(cfg, "muonL1TriggerEfficiencies", muonL1TriggerEfficiencies_);
+    setupLeptonDistribution(jetBin->first, jetBin->second, cfg, "muonDistributions", muonDistributions_);
+    setupLeptonEfficiency(jetBin->first, jetBin->second, cfg, "muonEfficiencies", muonEfficiencies_);
+    setupLeptonL1TriggerEfficiency(jetBin->first, jetBin->second, cfg, "muonL1TriggerEfficiencies", muonL1TriggerEfficiencies_);
   
 //--- setup tau Pt, eta and phi distributions;
 //    tau id efficiency
-  setupLeptonDistribution(cfg, "tauDistributions", tauDistributions_);
-  setupTauDistributionExtra(cfg, "tauDistributions", tauDistributionsExtra_);
-  setupLeptonEfficiency(cfg, "tauEfficiencies", tauEfficiencies_);
+    setupLeptonDistribution(jetBin->first, jetBin->second, cfg, "tauDistributions", tauDistributions_);
+    setupTauDistributionExtra(jetBin->first, jetBin->second, cfg, "tauDistributions", tauDistributionsExtra_);
+    setupLeptonEfficiency(jetBin->first, jetBin->second, cfg, "tauEfficiencies", tauEfficiencies_);
 
 //--- setup Pt, eta and phi distributions of L1Extra objects
 //   (electrons, muons, tau-jet, central and forward jets)
-  setupL1ExtraObjectDistribution(cfg, "l1ElectronDistributions", l1ElectronDistributions_);
-  setupL1ExtraObjectDistribution(cfg, "l1MuonDistributions", l1MuonDistributions_);
-  setupL1ExtraObjectDistribution(cfg, "l1TauDistributions", l1TauDistributions_);
-  setupL1ExtraObjectDistribution(cfg, "l1CentralJetDistributions", l1CentralJetDistributions_);
-  setupL1ExtraObjectDistribution(cfg, "l1ForwardJetDistributions", l1ForwardJetDistributions_);
+    setupL1ExtraObjectDistribution(jetBin->first, jetBin->second, cfg, "l1ElectronDistributions", l1ElectronDistributions_);
+    setupL1ExtraObjectDistribution(jetBin->first, jetBin->second, cfg, "l1MuonDistributions", l1MuonDistributions_);
+    setupL1ExtraObjectDistribution(jetBin->first, jetBin->second, cfg, "l1TauDistributions", l1TauDistributions_);
+    setupL1ExtraObjectDistribution(jetBin->first, jetBin->second, cfg, "l1CentralJetDistributions", l1CentralJetDistributions_);
+    setupL1ExtraObjectDistribution(jetBin->first, jetBin->second, cfg, "l1ForwardJetDistributions", l1ForwardJetDistributions_);
 
 //--- setup MET Pt and phi distributions;
 //    efficiency of L1 (Calo)MET trigger requirement
-  setupMEtDistribution(cfg, "metDistributions", metDistributions_);
-  setupMEtL1TriggerEfficiency(cfg, "metL1TriggerEfficiencies", metL1TriggerEfficiencies_);
+    setupMEtDistribution(jetBin->first, jetBin->second, cfg, "metDistributions", metDistributions_);
+    setupMEtL1TriggerEfficiency(jetBin->first, jetBin->second, cfg, "metL1TriggerEfficiencies", metL1TriggerEfficiencies_);
+  }
 }
 
 MCEmbeddingValidationAnalyzer::~MCEmbeddingValidationAnalyzer()
@@ -92,7 +104,8 @@ MCEmbeddingValidationAnalyzer::~MCEmbeddingValidationAnalyzer()
 }
 
 template <typename T>
-void MCEmbeddingValidationAnalyzer::setupLeptonDistribution(const edm::ParameterSet& cfg, const std::string& keyword, std::vector<leptonDistributionT<T>*>& leptonDistributions)
+void MCEmbeddingValidationAnalyzer::setupLeptonDistribution(int minJets, int maxJets,
+							    const edm::ParameterSet& cfg, const std::string& keyword, std::vector<leptonDistributionT<T>*>& leptonDistributions)
 {
   if ( cfg.exists(keyword) ) {
     edm::VParameterSet cfgLeptonDistributions = cfg.getParameter<edm::VParameterSet>(keyword);
@@ -107,13 +120,14 @@ void MCEmbeddingValidationAnalyzer::setupLeptonDistribution(const edm::Parameter
       double dRmatch = cfgLeptonDistribution->exists("dRmatch") ? 
 	cfgLeptonDistribution->getParameter<double>("dRmatch") : 0.3;
       std::string dqmDirectory = dqmDirectory_full(cfgLeptonDistribution->getParameter<std::string>("dqmDirectory"));
-      leptonDistributionT<T>* leptonDistribution = new leptonDistributionT<T>(srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory);
+      leptonDistributionT<T>* leptonDistribution = new leptonDistributionT<T>(minJets, maxJets, srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory);
       leptonDistributions.push_back(leptonDistribution);
     }
   }
 }
 
-void MCEmbeddingValidationAnalyzer::setupTauDistributionExtra(const edm::ParameterSet& cfg, const std::string& keyword, std::vector<tauDistributionExtra*>& tauDistributionsExtra)
+void MCEmbeddingValidationAnalyzer::setupTauDistributionExtra(int minJets, int maxJets,
+							      const edm::ParameterSet& cfg, const std::string& keyword, std::vector<tauDistributionExtra*>& tauDistributionsExtra)
 {
   if ( cfg.exists(keyword) ) {
     edm::VParameterSet cfgLeptonDistributions = cfg.getParameter<edm::VParameterSet>(keyword);
@@ -128,14 +142,15 @@ void MCEmbeddingValidationAnalyzer::setupTauDistributionExtra(const edm::Paramet
       double dRmatch = cfgLeptonDistribution->exists("dRmatch") ? 
 	cfgLeptonDistribution->getParameter<double>("dRmatch") : 0.3;
       std::string dqmDirectory = dqmDirectory_full(cfgLeptonDistribution->getParameter<std::string>("dqmDirectory"));
-      tauDistributionExtra* tauDistribution = new tauDistributionExtra(srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory);
+      tauDistributionExtra* tauDistribution = new tauDistributionExtra(minJets, maxJets, srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory);
       tauDistributionsExtra.push_back(tauDistribution);
     }
   }
 }
 
 template <typename T>
-void MCEmbeddingValidationAnalyzer::setupLeptonEfficiency(const edm::ParameterSet& cfg, const std::string& keyword, std::vector<leptonEfficiencyT<T>*>& leptonEfficiencies)
+void MCEmbeddingValidationAnalyzer::setupLeptonEfficiency(int minJets, int maxJets,
+							  const edm::ParameterSet& cfg, const std::string& keyword, std::vector<leptonEfficiencyT<T>*>& leptonEfficiencies)
 {
   if ( cfg.exists(keyword) ) {
     edm::VParameterSet cfgLeptonEfficiencies = cfg.getParameter<edm::VParameterSet>(keyword);
@@ -150,14 +165,15 @@ void MCEmbeddingValidationAnalyzer::setupLeptonEfficiency(const edm::ParameterSe
       double dRmatch = cfgLeptonEfficiency->exists("dRmatch") ? 
 	cfgLeptonEfficiency->getParameter<double>("dRmatch") : 0.3;
       std::string dqmDirectory = dqmDirectory_full(cfgLeptonEfficiency->getParameter<std::string>("dqmDirectory"));
-      leptonEfficiencyT<T>* leptonEfficiency = new leptonEfficiencyT<T>(srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory);
+      leptonEfficiencyT<T>* leptonEfficiency = new leptonEfficiencyT<T>(minJets, maxJets, srcGen, cutGen, srcRec, cutRec, dRmatch, dqmDirectory);
       leptonEfficiencies.push_back(leptonEfficiency);
     }
   }
 }
 
 template <typename T1, typename T2>
-void MCEmbeddingValidationAnalyzer::setupLeptonL1TriggerEfficiency(const edm::ParameterSet& cfg, const std::string& keyword, std::vector<leptonL1TriggerEfficiencyT1T2<T1,T2>*>& leptonL1TriggerEfficiencies)
+void MCEmbeddingValidationAnalyzer::setupLeptonL1TriggerEfficiency(int minJets, int maxJets,
+								   const edm::ParameterSet& cfg, const std::string& keyword, std::vector<leptonL1TriggerEfficiencyT1T2<T1,T2>*>& leptonL1TriggerEfficiencies)
 {
   if ( cfg.exists(keyword) ) {
     edm::VParameterSet cfgLeptonL1TriggerEfficiencies = cfg.getParameter<edm::VParameterSet>(keyword);
@@ -171,14 +187,15 @@ void MCEmbeddingValidationAnalyzer::setupLeptonL1TriggerEfficiency(const edm::Pa
       double dRmatch = cfgLeptonL1TriggerEfficiency->exists("dRmatch") ? 
 	cfgLeptonL1TriggerEfficiency->getParameter<double>("dRmatch") : 0.3;
       std::string dqmDirectory = dqmDirectory_full(cfgLeptonL1TriggerEfficiency->getParameter<std::string>("dqmDirectory"));
-      leptonL1TriggerEfficiencyT1T2<T1,T2>* leptonL1TriggerEfficiency = new leptonL1TriggerEfficiencyT1T2<T1,T2>(srcRef, cutRef, srcL1, cutL1, dRmatch, dqmDirectory);
+      leptonL1TriggerEfficiencyT1T2<T1,T2>* leptonL1TriggerEfficiency = new leptonL1TriggerEfficiencyT1T2<T1,T2>(minJets, maxJets, srcRef, cutRef, srcL1, cutL1, dRmatch, dqmDirectory);
       leptonL1TriggerEfficiencies.push_back(leptonL1TriggerEfficiency);
     }
   }
 }
 
 template <typename T>
-void MCEmbeddingValidationAnalyzer::setupL1ExtraObjectDistribution(const edm::ParameterSet& cfg, const std::string& keyword, std::vector<l1ExtraObjectDistributionT<T>*>& l1ExtraObjectDistributions)
+void MCEmbeddingValidationAnalyzer::setupL1ExtraObjectDistribution(int minJets, int maxJets,
+								   const edm::ParameterSet& cfg, const std::string& keyword, std::vector<l1ExtraObjectDistributionT<T>*>& l1ExtraObjectDistributions)
 {
   if ( cfg.exists(keyword) ) {
     edm::VParameterSet cfgL1ExtraObjectDistributions = cfg.getParameter<edm::VParameterSet>(keyword);
@@ -188,13 +205,14 @@ void MCEmbeddingValidationAnalyzer::setupL1ExtraObjectDistribution(const edm::Pa
       std::string cut = cfgL1ExtraObjectDistribution->exists("cut") ? 
 	cfgL1ExtraObjectDistribution->getParameter<std::string>("cut") : "";
       std::string dqmDirectory = dqmDirectory_full(cfgL1ExtraObjectDistribution->getParameter<std::string>("dqmDirectory"));
-      l1ExtraObjectDistributionT<T>* l1ExtraObjectDistribution = new l1ExtraObjectDistributionT<T>(src, cut, dqmDirectory);
+      l1ExtraObjectDistributionT<T>* l1ExtraObjectDistribution = new l1ExtraObjectDistributionT<T>(minJets, maxJets, src, cut, dqmDirectory);
       l1ExtraObjectDistributions.push_back(l1ExtraObjectDistribution);
     }
   }
 }
 
-void MCEmbeddingValidationAnalyzer::setupMEtDistribution(const edm::ParameterSet& cfg, const std::string& keyword, std::vector<metDistributionType*>& metDistributions)
+void MCEmbeddingValidationAnalyzer::setupMEtDistribution(int minJets, int maxJets,
+							 const edm::ParameterSet& cfg, const std::string& keyword, std::vector<metDistributionType*>& metDistributions)
 {
   if ( cfg.exists(keyword) ) {
     edm::VParameterSet cfgMEtDistributions = cfg.getParameter<edm::VParameterSet>(keyword);
@@ -204,13 +222,14 @@ void MCEmbeddingValidationAnalyzer::setupMEtDistribution(const edm::ParameterSet
       edm::InputTag srcRec = cfgMEtDistribution->getParameter<edm::InputTag>("srcRec");
       edm::InputTag srcGenZs = cfgMEtDistribution->getParameter<edm::InputTag>("srcGenZs");
       std::string dqmDirectory = dqmDirectory_full(cfgMEtDistribution->getParameter<std::string>("dqmDirectory"));
-      metDistributionType* metDistribution = new metDistributionType(srcGen, srcRec, srcGenZs, dqmDirectory);
+      metDistributionType* metDistribution = new metDistributionType(minJets, maxJets, srcGen, srcRec, srcGenZs, dqmDirectory);
       metDistributions.push_back(metDistribution);
     }
   }
 }
     
-void MCEmbeddingValidationAnalyzer::setupMEtL1TriggerEfficiency(const edm::ParameterSet& cfg, const std::string& keyword, std::vector<metL1TriggerEfficiencyType*>& metL1TriggerEfficiencies)
+void MCEmbeddingValidationAnalyzer::setupMEtL1TriggerEfficiency(int minJets, int maxJets,
+								const edm::ParameterSet& cfg, const std::string& keyword, std::vector<metL1TriggerEfficiencyType*>& metL1TriggerEfficiencies)
 {
   if ( cfg.exists(keyword) ) {
     edm::VParameterSet cfgMEtL1TriggerEfficiencies = cfg.getParameter<edm::VParameterSet>(keyword);
@@ -220,7 +239,7 @@ void MCEmbeddingValidationAnalyzer::setupMEtL1TriggerEfficiency(const edm::Param
       edm::InputTag srcL1 = cfgMEtL1TriggerEfficiency->getParameter<edm::InputTag>("srcL1");
       double cutL1Pt = cfgMEtL1TriggerEfficiency->getParameter<double>("cutL1Pt");
       std::string dqmDirectory = dqmDirectory_full(cfgMEtL1TriggerEfficiency->getParameter<std::string>("dqmDirectory"));
-      metL1TriggerEfficiencyType* metL1TriggerEfficiency = new metL1TriggerEfficiencyType(srcRef, srcL1, cutL1Pt, dqmDirectory);
+      metL1TriggerEfficiencyType* metL1TriggerEfficiency = new metL1TriggerEfficiencyType(minJets, maxJets, srcRef, srcL1, cutL1Pt, dqmDirectory);
       metL1TriggerEfficiencies.push_back(metL1TriggerEfficiency);
     }
   }
@@ -235,77 +254,84 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   DQMStore& dqmStore = (*edm::Service<DQMStore>());
 
 //--- book all histograms
-  histogramGenFilterEfficiency_     = dqmStore.book1D("genFilterEfficiency",    "genFilterEfficiency",    102,     -0.01,         1.01);
+  histogramGenFilterEfficiency_         = dqmStore.book1D("genFilterEfficiency",         "genFilterEfficiency",          102,     -0.01,         1.01);
 
-  histogramRotationAngleMatrix_     = dqmStore.book2D("rfRotationAngleMatrix",  "rfRotationAngleMatrix",    2,     -0.5,          1.5, 2, -0.5, 1.5);
+  histogramRotationAngleMatrix_         = dqmStore.book2D("rfRotationAngleMatrix",       "rfRotationAngleMatrix",          2,     -0.5,          1.5, 2, -0.5, 1.5);
 
-  histogramNumTracksPtGt5_          = dqmStore.book1D("numTracksPtGt5",         "numTracksPtGt5",          50,     -0.5,         49.5);
-  histogramNumTracksPtGt10_         = dqmStore.book1D("numTracksPtGt10",        "numTracksPtGt10",         50,     -0.5,         49.5);
-  histogramNumTracksPtGt20_         = dqmStore.book1D("numTracksPtGt20",        "numTracksPtGt20",         50,     -0.5,         49.5);
-  histogramNumTracksPtGt30_         = dqmStore.book1D("numTracksPtGt30",        "numTracksPtGt30",         50,     -0.5,         49.5);
-  histogramNumTracksPtGt40_         = dqmStore.book1D("numTracksPtGt40",        "numTracksPtGt40",         50,     -0.5,         49.5);
+  histogramNumTracksPtGt5_              = dqmStore.book1D("numTracksPtGt5",              "numTracksPtGt5",                50,     -0.5,         49.5);
+  histogramNumTracksPtGt10_             = dqmStore.book1D("numTracksPtGt10",             "numTracksPtGt10",               50,     -0.5,         49.5);
+  histogramNumTracksPtGt20_             = dqmStore.book1D("numTracksPtGt20",             "numTracksPtGt20",               50,     -0.5,         49.5);
+  histogramNumTracksPtGt30_             = dqmStore.book1D("numTracksPtGt30",             "numTracksPtGt30",               50,     -0.5,         49.5);
+  histogramNumTracksPtGt40_             = dqmStore.book1D("numTracksPtGt40",             "numTracksPtGt40",               50,     -0.5,         49.5);
       
-  histogramNumGlobalMuons_          = dqmStore.book1D("numGlobalMuons",         "numGlobalMuons",          20,     -0.5,         19.5);
-  histogramNumStandAloneMuons_      = dqmStore.book1D("numStandAloneMuons",     "numStandAloneMuons",      20,     -0.5,         19.5);
-  histogramNumPFMuons_              = dqmStore.book1D("numPFMuons",             "numPFMuons",              20,     -0.5,         19.5);
+  histogramNumGlobalMuons_              = dqmStore.book1D("numGlobalMuons",              "numGlobalMuons",                20,     -0.5,         19.5);
+  histogramNumStandAloneMuons_          = dqmStore.book1D("numStandAloneMuons",          "numStandAloneMuons",            20,     -0.5,         19.5);
+  histogramNumPFMuons_                  = dqmStore.book1D("numPFMuons",                  "numPFMuons",                    20,     -0.5,         19.5);
 
-  histogramNumChargedPFCandsPtGt5_  = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt10_ = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt20_ = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt30_ = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt40_ = dqmStore.book1D("numChargedPFCandsPtGt5", "numChargedPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt5_      = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt10_     = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt20_     = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt30_     = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt40_     = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
 
-  histogramNumNeutralPFCandsPtGt5_  = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt10_ = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt20_ = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt30_ = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt40_ = dqmStore.book1D("numNeutralPFCandsPtGt5", "numNeutralPFCandsPtGt5",  50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt5_      = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt10_     = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt20_     = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt30_     = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt40_     = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
     
-  histogramRecVertexX_              = dqmStore.book1D("recVertexX",             "recVertexX",            2000,     -1.,          +1.);
-  histogramRecVertexY_              = dqmStore.book1D("recVertexY",             "recVertexY",            2000,     -1.,          +1.);
-  histogramRecVertexZ_              = dqmStore.book1D("recVertexZ",             "recVertexZ",             500,    -25.,         +25.);
+  histogramNumJetsPtGt20_               = dqmStore.book1D("numJetsPtGt20",               "numJetsPtGt20",                 20,     -0.5,         19.5);
+  histogramNumJetsPtGt20AbsEtaLt2_5_    = dqmStore.book1D("numJetsPtGt20AbsEtaLt2_5",    "numJetsPtGt20AbsEtaLt2_5",      20,     -0.5,         19.5);
+  histogramNumJetsPtGt20AbsEta2_5to4_5_ = dqmStore.book1D("numJetsPtGt20AbsEta2_5to4_5", "numJetsPtGt20AbsEta2_5to4_5",   20,     -0.5,         19.5);
+  histogramNumJetsPtGt30_               = dqmStore.book1D("numJetsPtGt30",               "numJetsPtGt30",                 20,     -0.5,         19.5);
+  histogramNumJetsPtGt30AbsEtaLt2_5_    = dqmStore.book1D("numJetsPtGt30AbsEtaLt2_5",    "numJetsPtGt30AbsEtaLt2_5",      20,     -0.5,         19.5);
+  histogramNumJetsPtGt30AbsEta2_5to4_5_ = dqmStore.book1D("numJetsPtGt30AbsEta2_5to4_5", "numJetsPtGt30AbsEta2_5to4_5",   20,     -0.5,         19.5);
   
-  histogramGenDiTauPt_              = dqmStore.book1D("genDiTauPt",             "genDiTauPt",             250,      0.,         250.);
-  histogramGenDiTauEta_             = dqmStore.book1D("genDiTauEta",            "genDiTauEta",            198,     -9.9,         +9.9);
-  histogramGenDiTauPhi_             = dqmStore.book1D("genDiTauPhi",            "genDiTauPhi",             72, -TMath::Pi(), +TMath::Pi());
-  histogramGenDiTauMass_            = dqmStore.book1D("genDiTauMass",           "genDiTauMass",           500,      0.,         500.);
+  histogramRecVertexX_                  = dqmStore.book1D("recVertexX",                  "recVertexX",                  2000,     -1.,          +1.);
+  histogramRecVertexY_                  = dqmStore.book1D("recVertexY",                  "recVertexY",                  2000,     -1.,          +1.);
+  histogramRecVertexZ_                  = dqmStore.book1D("recVertexZ",                  "recVertexZ",                   500,    -25.,         +25.);
+  
+  histogramGenDiTauPt_                  = dqmStore.book1D("genDiTauPt",                  "genDiTauPt",                   250,      0.,         250.);
+  histogramGenDiTauEta_                 = dqmStore.book1D("genDiTauEta",                 "genDiTauEta",                  198,     -9.9,         +9.9);
+  histogramGenDiTauPhi_                 = dqmStore.book1D("genDiTauPhi",                 "genDiTauPhi",                   72, -TMath::Pi(), +TMath::Pi());
+  histogramGenDiTauMass_                = dqmStore.book1D("genDiTauMass",                "genDiTauMass",                 500,      0.,         500.);
 
-  histogramGenVisDiTauPt_           = dqmStore.book1D("genVisDiTauPt",          "genVisDiTauPt",          250,      0.,         250.);
-  histogramGenVisDiTauEta_          = dqmStore.book1D("genVisDiTauEta",         "genVisDiTauEta",         198,     -9.9,         +9.9);
-  histogramGenVisDiTauPhi_          = dqmStore.book1D("genVisDiTauPhi",         "genVisDiTauPhi",          72, -TMath::Pi(), +TMath::Pi());
-  histogramGenVisDiTauMass_         = dqmStore.book1D("genVisDiTauMass",        "genVisDiTauMass",        500,      0.,         500.);
+  histogramGenVisDiTauPt_               = dqmStore.book1D("genVisDiTauPt",               "genVisDiTauPt",                250,      0.,         250.);
+  histogramGenVisDiTauEta_              = dqmStore.book1D("genVisDiTauEta",              "genVisDiTauEta",               198,     -9.9,         +9.9);
+  histogramGenVisDiTauPhi_              = dqmStore.book1D("genVisDiTauPhi",              "genVisDiTauPhi",                72, -TMath::Pi(), +TMath::Pi());
+  histogramGenVisDiTauMass_             = dqmStore.book1D("genVisDiTauMass",             "genVisDiTauMass",              500,      0.,         500.);
 
-  histogramRecVisDiTauPt_           = dqmStore.book1D("recVisDiTauPt",          "recVisDiTauPt",          250,      0.,         250.);
-  histogramRecVisDiTauEta_          = dqmStore.book1D("recVisDiTauEta",         "recVisDiTauEta",         198,     -9.9,         +9.9);
-  histogramRecVisDiTauPhi_          = dqmStore.book1D("recVisDiTauPhi",         "recVisDiTauPhi",          72, -TMath::Pi(), +TMath::Pi());
-  histogramRecVisDiTauMass_         = dqmStore.book1D("recVisDiTauMass",        "recVisDiTauMass",        500,      0.,         500.);
+  histogramRecVisDiTauPt_               = dqmStore.book1D("recVisDiTauPt",               "recVisDiTauPt",                250,      0.,         250.);
+  histogramRecVisDiTauEta_              = dqmStore.book1D("recVisDiTauEta",              "recVisDiTauEta",               198,     -9.9,         +9.9);
+  histogramRecVisDiTauPhi_              = dqmStore.book1D("recVisDiTauPhi",              "recVisDiTauPhi",                72, -TMath::Pi(), +TMath::Pi());
+  histogramRecVisDiTauMass_             = dqmStore.book1D("recVisDiTauMass",             "recVisDiTauMass",              500,      0.,         500.);
 
-  histogramGenLeg1Pt_               = dqmStore.book1D("genLeg1Pt",              "genLeg1Pt",              250,      0.,         250.);
-  histogramGenLeg1Eta_              = dqmStore.book1D("genLeg1Eta",             "genLeg1Eta",             198,     -9.9,         +9.9);
-  histogramGenLeg1Phi_              = dqmStore.book1D("genLeg1Phi",             "genLeg1Phi",              72, -TMath::Pi(), +TMath::Pi());
-  histogramGenLeg1X_                = dqmStore.book1D("genLeg1X",               "genLeg1X",               102,     -0.01,         1.01);
-  histogramRecLeg1X_                = dqmStore.book1D("recLeg1X",               "recLeg1X",               102,     -0.01,         1.01);
-  histogramGenLeg2Pt_               = dqmStore.book1D("genLeg2Pt",              "genLeg2Pt",              250,      0.,         250.);
-  histogramGenLeg2Eta_              = dqmStore.book1D("genLeg2Eta",             "genLeg2Eta",             198,     -9.9,         +9.9);
-  histogramGenLeg2Phi_              = dqmStore.book1D("genLeg2Phi",             "genLeg2Phi",              72, -TMath::Pi(), +TMath::Pi());
-  histogramGenLeg2X_                = dqmStore.book1D("genLeg2X",               "genLeg2X",               102,     -0.01,         1.01);
-  histogramRecLeg2X_                = dqmStore.book1D("recLeg2X",               "recLeg2X",               102,     -0.01,         1.01);
+  histogramGenLeg1Pt_                   = dqmStore.book1D("genLeg1Pt",                   "genLeg1Pt",                    250,      0.,         250.);
+  histogramGenLeg1Eta_                  = dqmStore.book1D("genLeg1Eta",                  "genLeg1Eta",                   198,     -9.9,         +9.9);
+  histogramGenLeg1Phi_                  = dqmStore.book1D("genLeg1Phi",                  "genLeg1Phi",                    72, -TMath::Pi(), +TMath::Pi());
+  histogramGenLeg1X_                    = dqmStore.book1D("genLeg1X",                    "genLeg1X",                     102,     -0.01,         1.01);
+  histogramRecLeg1X_                    = dqmStore.book1D("recLeg1X",                    "recLeg1X",                     102,     -0.01,         1.01);
+  histogramGenLeg2Pt_                   = dqmStore.book1D("genLeg2Pt",                   "genLeg2Pt",                    250,      0.,         250.);
+  histogramGenLeg2Eta_                  = dqmStore.book1D("genLeg2Eta",                  "genLeg2Eta",                   198,     -9.9,         +9.9);
+  histogramGenLeg2Phi_                  = dqmStore.book1D("genLeg2Phi",                  "genLeg2Phi",                    72, -TMath::Pi(), +TMath::Pi());
+  histogramGenLeg2X_                    = dqmStore.book1D("genLeg2X",                    "genLeg2X",                     102,     -0.01,         1.01);
+  histogramRecLeg2X_                    = dqmStore.book1D("recLeg2X",                    "recLeg2X",                     102,     -0.01,         1.01);
 
-  histogramGenMEt_charged_          = dqmStore.book1D("genMEt_charged",         "genMEt_charged",         250,      0.,         250.);
-  histogramGenMEt_                  = dqmStore.book1D("genMEt",                 "genMEt",                 250,      0.,         250.);
+  histogramGenMEt_charged_              = dqmStore.book1D("genMEt_charged",              "genMEt_charged",               250,      0.,         250.);
+  histogramGenMEt_                      = dqmStore.book1D("genMEt",                      "genMEt",                       250,      0.,         250.);
 
-  histogramRecTrackMEt_             = dqmStore.book1D("recTrackMEt",            "recTrackMEt",            250,      0.,         250.);
-  histogramRecTrackSumEt_           = dqmStore.book1D("recTrackSumEt",          "recTrackSumEt",         2500,      0.,        2500.);
-  histogramRecCaloMEtECAL_          = dqmStore.book1D("recCaloMEtECAL",         "recCaloMEtECAL",         250,      0.,         250.);
-  histogramRecCaloSumEtECAL_        = dqmStore.book1D("recCaloSumEtECAL",       "recCaloSumEtECAL",      2500,      0.,        2500.);
-  histogramRecCaloMEtHCAL_          = dqmStore.book1D("recCaloMEtHCAL",         "recCaloMEtHCAL",         250,      0.,         250.);
-  histogramRecCaloSumEtHCAL_        = dqmStore.book1D("recCaloSumEtHCAL",       "recCaloSumEtHCAL",      2500,      0.,        2500.);
-  histogramRecCaloMEtHF_            = dqmStore.book1D("recCaloMEtHF",           "recCaloMEtHF",           250,      0.,         250.);
-  histogramRecCaloSumEtHF_          = dqmStore.book1D("recCaloSumEtHF",         "recCaloSumEtHF",        2500,      0.,        2500.);
-  histogramRecCaloMEtHO_            = dqmStore.book1D("recCaloMEtHO",           "recCaloMEtHO",           250,      0.,         250.);  
-  histogramRecCaloSumEtHO_          = dqmStore.book1D("recCaloSumEtHO",         "recCaloSumEtHO",        2500,      0.,        2500.);
+  histogramRecTrackMEt_                 = dqmStore.book1D("recTrackMEt",                 "recTrackMEt",                  250,      0.,         250.);
+  histogramRecTrackSumEt_               = dqmStore.book1D("recTrackSumEt",               "recTrackSumEt",               2500,      0.,        2500.);
+  histogramRecCaloMEtECAL_              = dqmStore.book1D("recCaloMEtECAL",              "recCaloMEtECAL",               250,      0.,         250.);
+  histogramRecCaloSumEtECAL_            = dqmStore.book1D("recCaloSumEtECAL",            "recCaloSumEtECAL",            2500,      0.,        2500.);
+  histogramRecCaloMEtHCAL_              = dqmStore.book1D("recCaloMEtHCAL",              "recCaloMEtHCAL",               250,      0.,         250.);
+  histogramRecCaloSumEtHCAL_            = dqmStore.book1D("recCaloSumEtHCAL",            "recCaloSumEtHCAL",            2500,      0.,        2500.);
+  histogramRecCaloMEtHF_                = dqmStore.book1D("recCaloMEtHF",                "recCaloMEtHF",                 250,      0.,         250.);
+  histogramRecCaloSumEtHF_              = dqmStore.book1D("recCaloSumEtHF",              "recCaloSumEtHF",              2500,      0.,        2500.);
+  histogramRecCaloMEtHO_                = dqmStore.book1D("recCaloMEtHO",                "recCaloMEtHO",                 250,      0.,         250.);  
+  histogramRecCaloSumEtHO_              = dqmStore.book1D("recCaloSumEtHO",              "recCaloSumEtHO",              2500,      0.,        2500.);
 
-  histogramL1ETM_                   = dqmStore.book1D("L1ETM",                  "L1ETM",                  250,      0.,         250.);
+  histogramL1ETM_                       = dqmStore.book1D("L1ETM",                       "L1ETM",                        250,      0.,         250.);
 
   bookHistograms(electronDistributions_, dqmStore);
   bookHistograms(electronEfficiencies_, dqmStore);
@@ -516,6 +542,39 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   histogramNumNeutralPFCandsPtGt30_->Fill(numNeutralPFCandsPtGt30, evtWeight);
   histogramNumNeutralPFCandsPtGt40_->Fill(numNeutralPFCandsPtGt40, evtWeight);
 
+  typedef edm::View<reco::Jet> JetView;
+  edm::Handle<JetView> jets;
+  evt.getByLabel(srcRecJets_, jets);
+  int numJetsPtGt20               = 0;
+  int numJetsPtGt20AbsEtaLt2_5    = 0;
+  int numJetsPtGt20AbsEta2_5to4_5 = 0;
+  int numJetsPtGt30               = 0;
+  int numJetsPtGt30AbsEtaLt2_5    = 0;
+  int numJetsPtGt30AbsEta2_5to4_5 = 0;
+  for ( JetView::const_iterator jet = jets->begin();
+	jet != jets->end(); ++jet ) {
+    double jetPt = jet->pt();
+    double absJetEta = TMath::Abs(jet->eta());
+    // CV: do not consider any jet reconstructed outside eta range used in H -> tautau analysis
+    if ( absJetEta > 4.5 ) continue;
+    if ( jetPt > 20. ) {
+      ++numJetsPtGt20;
+      if      ( absJetEta < 2.5 ) ++numJetsPtGt20AbsEtaLt2_5;
+      else if ( absJetEta < 4.5 ) ++numJetsPtGt20AbsEta2_5to4_5;
+    }
+    if ( jetPt > 30. ) {
+      ++numJetsPtGt30;
+      if      ( absJetEta < 2.5 ) ++numJetsPtGt30AbsEtaLt2_5;
+      else if ( absJetEta < 4.5 ) ++numJetsPtGt30AbsEta2_5to4_5;
+    }
+  }
+  histogramNumJetsPtGt20_->Fill(numJetsPtGt20, evtWeight);
+  histogramNumJetsPtGt20AbsEtaLt2_5_->Fill(numJetsPtGt20AbsEtaLt2_5, evtWeight);
+  histogramNumJetsPtGt20AbsEta2_5to4_5_->Fill(numJetsPtGt20AbsEta2_5to4_5, evtWeight);
+  histogramNumJetsPtGt30_->Fill(numJetsPtGt30, evtWeight);
+  histogramNumJetsPtGt30AbsEtaLt2_5_->Fill(numJetsPtGt30AbsEtaLt2_5, evtWeight);
+  histogramNumJetsPtGt30AbsEta2_5to4_5_->Fill(numJetsPtGt30AbsEta2_5to4_5, evtWeight);
+
   edm::Handle<reco::MuonCollection> muons;
   evt.getByLabel(srcRecMuons_, muons);
   int numGlobalMuons     = 0;
@@ -646,22 +705,22 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   double l1MEt = l1METs->begin()->etMiss();
   histogramL1ETM_->Fill(l1MEt, evtWeight);
 
-  fillHistograms(electronDistributions_, evt, evtWeight);
-  fillHistograms(electronEfficiencies_, evt, evtWeight);
-  fillHistograms(electronL1TriggerEfficiencies_, evt, evtWeight);
-  fillHistograms(muonDistributions_, evt, evtWeight);
-  fillHistograms(muonEfficiencies_, evt, evtWeight);
-  fillHistograms(muonL1TriggerEfficiencies_, evt, evtWeight);
-  fillHistograms(tauDistributions_, evt, evtWeight);
-  fillHistograms(tauDistributionsExtra_, evt, evtWeight);
-  fillHistograms(tauEfficiencies_, evt, evtWeight);
-  fillHistograms(l1ElectronDistributions_, evt, evtWeight);
-  fillHistograms(l1MuonDistributions_, evt, evtWeight);
-  fillHistograms(l1TauDistributions_, evt, evtWeight);
-  fillHistograms(l1CentralJetDistributions_, evt, evtWeight);
-  fillHistograms(l1ForwardJetDistributions_, evt, evtWeight);
-  fillHistograms(metDistributions_, evt, evtWeight);
-  fillHistograms(metL1TriggerEfficiencies_, evt, evtWeight);
+  fillHistograms(electronDistributions_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(electronEfficiencies_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(electronL1TriggerEfficiencies_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(muonDistributions_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(muonEfficiencies_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(muonL1TriggerEfficiencies_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(tauDistributions_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(tauDistributionsExtra_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(tauEfficiencies_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(l1ElectronDistributions_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(l1MuonDistributions_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(l1TauDistributions_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(l1CentralJetDistributions_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(l1ForwardJetDistributions_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(metDistributions_, numJetsPtGt30, evt, evtWeight);
+  fillHistograms(metL1TriggerEfficiencies_, numJetsPtGt30, evt, evtWeight);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
