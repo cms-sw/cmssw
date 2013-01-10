@@ -36,6 +36,11 @@ datasetDict={
     #'FastSimQCD' : { 'primds' : 'RelValQCD_FlatPt_15_3000', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',}, NOT YET IN RELVAL CONTENT
     #'FastSimZMM' : { 'primds' : 'RelValZMM', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',},
     'ZEEFastSim' : { 'primds' : 'RelValZEE', 'tier' : 'GEN-SIM-DIGI-RECO','dataset' : '*FastSim*',},
+    #DQM
+    'ZTTDQM' : { 'primds' : 'RelValZTT', 'tier' : 'DQM','dataset' : '*DQM*',},
+    'ZEEDQM' : { 'primds' : 'RelValZEE', 'tier' : 'DQM','dataset' : '*DQM*',},
+    'ZMMDQM' : { 'primds' : 'RelValZMM', 'tier' : 'DQM','dataset' : '*DQM*',},
+
     }
 
 def FillSource(eventType,source):
