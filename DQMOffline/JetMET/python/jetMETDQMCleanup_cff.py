@@ -45,8 +45,6 @@ cleaningParameters = cms.PSet(
     vtxz_max       = cms.double(24.0),
     
     #Switch on  tight filters for BeamHalo, JetID, HCALnoise
-    tightBHFiltering      = cms.bool(False),
-    tightJetIDFiltering   = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
-    tightHcalFiltering    = cms.bool(False)
-
+    tightBHFiltering    = cms.bool(False),
+    tightJetIDFiltering = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
 )

@@ -13,7 +13,6 @@
 
 #include <vector>
 #include <string>
-#include <map>
 
 #include "TROOT.h"
 #include "TProfile2D.h"
@@ -85,6 +84,8 @@ bool debug_;
 
 std::string prefixME_;
 
+ std::string subfolder_;
+
 bool enableCleanup_;
 
 std::vector<int> superModules_;
@@ -93,13 +94,21 @@ DQMStore* dqmStore_;
 
 TH1F* h00_;
 
+TH2F* h01_[36];
+TH2F* h02_[36];
+TH2F* h03_[36];
+TH2F* h04_[36];
+TH2F* h05_[36];
+TH2F* h06_[36];
+TH2F* h07_[36];
+TH2F* h08_[36];
+TH2F* h09_[36];
+
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
 
 TH2F* h_[36];
 TH2F* hmem_[36];
-
- std::map<uint32_t, float> gain_, chid_, gainswitch_, ttid_, ttblocksize_, memchid_, memgain_, memttid_, memblocksize_;
 
 // Quality criteria for data integrity
 

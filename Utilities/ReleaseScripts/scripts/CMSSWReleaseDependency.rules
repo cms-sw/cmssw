@@ -98,6 +98,8 @@ EventFilter/Utilities/.*                : xdaq
 IORawData/DaqSource/.*                  : xdaq
 DQM/SiPixelMonitorClient/.*		: xdaq
 EventFilter/Goodies/.*                  : xdaq
+EventFilter/ShmBuffer/.*                : xdaq
+EventFilter/ShmReader/.*                : xdaq
 
 #Reco and Track exceptions for DQM usage
 RecoEGamma/Examples/.*                  : DQM.*

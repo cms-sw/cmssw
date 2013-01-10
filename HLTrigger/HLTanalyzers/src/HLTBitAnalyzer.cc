@@ -41,7 +41,6 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf) {
   m_l1extraemn      = edm::InputTag(l1extramc_, "NonIsolated");
   m_l1extrajetc     = edm::InputTag(l1extramc_, "Central");
   m_l1extrajetf     = edm::InputTag(l1extramc_, "Forward");
-  m_l1extrajet      = edm::InputTag("gctInternJetProducer","Internal","ANALYSIS");
   m_l1extrataujet   = edm::InputTag(l1extramc_, "Tau");
   m_l1extramet      = edm::InputTag(l1extramc_, "MET");
   m_l1extramht      = edm::InputTag(l1extramc_, "MHT");
@@ -84,7 +83,7 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
   edm::Handle<edm::TriggerResults>                  hltresults;
   edm::Handle<l1extra::L1EmParticleCollection>      l1extemi, l1extemn;
   edm::Handle<l1extra::L1MuonParticleCollection>    l1extmu;
-  edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1extjet, l1exttaujet;
+  edm::Handle<l1extra::L1JetParticleCollection>     l1extjetc, l1extjetf, l1exttaujet;
   edm::Handle<l1extra::L1EtMissParticleCollection>  l1extmet,l1extmht;
   edm::Handle<L1GlobalTriggerReadoutRecord>         l1GtRR;
   edm::Handle<L1GlobalTriggerObjectMapRecord>       l1GtOMRec;
@@ -101,7 +100,6 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
   getCollection( iEvent, missing, l1extmu,         m_l1extramu,        kL1extmu );
   getCollection( iEvent, missing, l1extjetc,       m_l1extrajetc,      kL1extjetc );
   getCollection( iEvent, missing, l1extjetf,       m_l1extrajetf,      kL1extjetf );
-  getCollection( iEvent, missing, l1extjet,        m_l1extrajet,       kL1extjet );
   getCollection( iEvent, missing, l1exttaujet,     m_l1extrataujet,    kL1exttaujet );
   getCollection( iEvent, missing, l1extmet,        m_l1extramet,       kL1extmet );
   getCollection( iEvent, missing, l1extmht,        m_l1extramht,       kL1extmht );
@@ -131,7 +129,6 @@ void HLTBitAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
     l1extmu,
     l1extjetc,
     l1extjetf,
-    l1extjet,
     l1exttaujet,
     l1extmet,
     l1extmht,

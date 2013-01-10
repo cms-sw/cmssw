@@ -5,7 +5,6 @@
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/MuonDetId"/>
-<use   name="DataFormats/CSCRecHit"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="FWCore/Framework"/>

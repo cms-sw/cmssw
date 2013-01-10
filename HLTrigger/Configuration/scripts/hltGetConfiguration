@@ -81,6 +81,11 @@ parser.add_argument('--open',
                     action  = 'store_true', 
                     default = defaults.open, 
                     help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass (implies --unprescale)' )
+parser.add_argument('--error-events', 
+                    dest    = 'errortype', 
+                    action  = 'store_true', 
+                    default = defaults.errortype, 
+                    help    = 'Modify all HLTTriggerTypeFilter EDFilters to accept only error events (SelectedTriggerType = 0)' )
 parser.add_argument('--profiling', 
                     dest    = 'profiling', 
                     action  = 'store_true', 

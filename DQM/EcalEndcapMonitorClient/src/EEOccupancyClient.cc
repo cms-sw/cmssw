@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2011/09/02 13:55:02 $
- * $Revision: 1.43 $
+ * $Date: 2011/08/30 09:29:45 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -75,10 +75,6 @@ EEOccupancyClient::EEOccupancyClient(const edm::ParameterSet& ps) {
     h02ProjEta_[1][i] = 0;
     h02ProjPhi_[1][i] = 0;
   }
-
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
 
 }
 

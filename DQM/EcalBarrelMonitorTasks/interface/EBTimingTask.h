@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2011/09/15 21:54:51 $
- * $Revision: 1.21 $
+ * $Date: 2011/09/15 20:59:51 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -79,8 +79,7 @@ MonitorElement* meTimeAmpli_[36];
 
 MonitorElement* meTimeAmpliSummary_;
 MonitorElement* meTimeSummary1D_;
- MonitorElement* meTimeSummaryMap_;
- MonitorElement *meTimeDelta_, *meTimeDelta2D_;
+MonitorElement* meTimeSummaryMap_, *meTimeSummaryMapProjEta_, *meTimeSummaryMapProjPhi_;
 
 bool init_;
 

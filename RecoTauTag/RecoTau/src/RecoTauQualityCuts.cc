@@ -296,5 +296,15 @@ void RecoTauQualityCuts::setLeadTrack(
   leadTrack_ = getTrack(leadCand);
 }
 
+void RecoTauQualityCuts::setLeadTrack(
+    const reco::PFCandidateRef& leadCand) const {
+  if (leadCand.isNonnull()) {
+    leadTrack_ = getTrack(*leadCand);
+  } else {
+    // Set null
+    leadTrack_ = reco::TrackBaseRef();
+  }
+}
+
 
 }}  // end namespace reco::tau

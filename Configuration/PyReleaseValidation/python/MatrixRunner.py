@@ -28,12 +28,8 @@ class MatrixRunner(object):
         return nActive
 
         
-    def runTests(self, opt):
+    def runTests(self, testList=None,dryRun=False):
 
-        testList=opt.testList
-        dryRun=opt.dryRun
-        cafVeto=opt.cafVeto
-        
         startDir = os.getcwd()
 
     	report=''
@@ -60,7 +56,7 @@ class MatrixRunner(object):
     	    
     	    print '\nPreparing to run %s %s' % (wf.numId, item)
           
-    	    current = WorkFlowRunner(wf,noRun,dryRun,cafVeto)
+    	    current = WorkFlowRunner(wf,noRun,dryRun)
     	    self.threadList.append(current)
     	    current.start()
             if not dryRun:

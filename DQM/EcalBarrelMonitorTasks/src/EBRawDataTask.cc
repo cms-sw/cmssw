@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2011/11/01 20:44:55 $
- * $Revision: 1.42 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.40 $
  * \author E. Di Marco
  *
 */
@@ -37,6 +37,8 @@ EBRawDataTask::EBRawDataTask(const edm::ParameterSet& ps) {
 
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
+  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
+
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
@@ -44,7 +46,6 @@ EBRawDataTask::EBRawDataTask(const edm::ParameterSet& ps) {
   FEDRawDataCollection_ = ps.getParameter<edm::InputTag>("FEDRawDataCollection");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
-  meEBEventType_ = 0;
   meEBEventTypePreCalibrationBX_ = 0;
   meEBEventTypeCalibrationBX_ = 0;
   meEBEventTypePostCalibrationBX_ = 0;
@@ -56,7 +57,6 @@ EBRawDataTask::EBRawDataTask(const edm::ParameterSet& ps) {
   meEBL1ADCCErrors_ = 0;
   meEBBunchCrossingDCCErrors_ = 0;
   meEBL1AFEErrors_ = 0;
-  meEBL1AFEErrorsMap_ = 0;
   meEBBunchCrossingFEErrors_ = 0;
   meEBL1ATCCErrors_ = 0;
   meEBBunchCrossingTCCErrors_ = 0;
@@ -65,12 +65,7 @@ EBRawDataTask::EBRawDataTask(const edm::ParameterSet& ps) {
 
   meEBSynchronizationErrorsByLumi_ = 0;
 
-  for (int i = 0; i < 36; i++)
-    meEvtType_[i] = 0;
-
   calibrationBX_ = 3490;
-
-  ievt_ = 0;
 
 }
 
@@ -82,8 +77,10 @@ void EBRawDataTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/RawData");
-    dqmStore_->rmdir(prefixME_ + "/RawData");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBRawDataTask");
+    if(subfolder_.size())
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBRawDataTask/" + subfolder_);
+    dqmStore_->rmdir(prefixME_ + "/EBRawDataTask");
   }
 
 }
@@ -108,7 +105,6 @@ void EBRawDataTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EBRawDataTask::reset(void) {
 
-  if ( meEBEventType_ ) meEBEventType_->Reset();
   if ( meEBEventTypePreCalibrationBX_ ) meEBEventTypePreCalibrationBX_->Reset();
   if ( meEBEventTypeCalibrationBX_ ) meEBEventTypeCalibrationBX_->Reset();
   if ( meEBEventTypePostCalibrationBX_ ) meEBEventTypePostCalibrationBX_->Reset();
@@ -120,7 +116,6 @@ void EBRawDataTask::reset(void) {
   if ( meEBL1ADCCErrors_ ) meEBL1ADCCErrors_->Reset();
   if ( meEBBunchCrossingDCCErrors_ ) meEBBunchCrossingDCCErrors_->Reset();
   if ( meEBL1AFEErrors_ ) meEBL1AFEErrors_->Reset();
-  if ( meEBL1AFEErrorsMap_ ) meEBL1AFEErrorsMap_->Reset();
   if ( meEBBunchCrossingFEErrors_ ) meEBBunchCrossingFEErrors_->Reset();
   if ( meEBL1ATCCErrors_ ) meEBL1ATCCErrors_->Reset();
   if ( meEBBunchCrossingTCCErrors_ ) meEBBunchCrossingTCCErrors_->Reset();
@@ -128,8 +123,6 @@ void EBRawDataTask::reset(void) {
   if ( meEBBunchCrossingSRPErrors_ ) meEBBunchCrossingSRPErrors_->Reset();
   if ( meEBSynchronizationErrorsByLumi_ ) meEBSynchronizationErrorsByLumi_->Reset();
 
-  for (int i = 0; i < 36; i++)
-    if ( meEvtType_[i] ) meEvtType_[i]->Reset();
 }
 
 void EBRawDataTask::setup(void){
@@ -139,38 +132,11 @@ void EBRawDataTask::setup(void){
   std::string name;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/RawData");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBRawDataTask");
+    if(subfolder_.size())
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBRawDataTask/" + subfolder_);
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/RawData/EventType");
-    // very important - without this plot, the DB writing will not run
-    name = "RawDataTask event type EB";
-    meEBEventType_ = dqmStore_->book1D(name, name, 31, -1., 30.);
-    meEBEventType_->setBinLabel(1, "UNKNOWN", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH2, "BEAMH2", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::MTCC, "MTCC", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::LASER_STD, "LASER_STD", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::LASER_POWER_SCAN, "LASER_POWER_SCAN", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::LASER_DELAY_SCAN, "LASER_DELAY_SCAN", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM, "TESTPULSE_SCAN_MEM", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_MGPA, "TESTPULSE_MGPA", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_STD, "PEDESTAL_STD", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN, "PEDESTAL_OFFSET_SCAN", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN, "PEDESTAL_25NS_SCAN", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::LED_STD, "LED_STD", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL, "PHYSICS_GLOBAL", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_GLOBAL, "COSMICS_GLOBAL", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::HALO_GLOBAL, "HALO_GLOBAL", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::LASER_GAP, "LASER_GAP", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_GAP, "TESTPULSE_GAP");
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_GAP, "PEDESTAL_GAP");
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::LED_GAP, "LED_GAP", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
-    meEBEventType_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
-
-    name = "RawDataTask event type BX lt 3490 EB";
+    name = "EBRDT event type pre calibration BX";
     meEBEventTypePreCalibrationBX_ = dqmStore_->book1D(name, name, 31, -1., 30.);
     meEBEventTypePreCalibrationBX_->setBinLabel(1, "UNKNOWN", 1);
     meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
@@ -197,7 +163,7 @@ void EBRawDataTask::setup(void){
     meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
     meEBEventTypePreCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
 
-    name = "RawDataTask event type BX eq 3490 EB";
+    name = "EBRDT event type calibration BX";
     meEBEventTypeCalibrationBX_ = dqmStore_->book1D(name, name, 31, -1., 30.);
     meEBEventTypeCalibrationBX_->setBinLabel(1, "UNKNOWN", 1);
     meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
@@ -224,7 +190,7 @@ void EBRawDataTask::setup(void){
     meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
     meEBEventTypeCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
 
-    name = "RawDataTask event type BX gt 3490 EB";
+    name = "EBRDT event type post calibration BX";
     meEBEventTypePostCalibrationBX_ = dqmStore_->book1D(name, name, 31, -1., 30.);
     meEBEventTypePostCalibrationBX_->setBinLabel(1, "UNKNOWN", 1);
     meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
@@ -251,122 +217,85 @@ void EBRawDataTask::setup(void){
     meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
     meEBEventTypePostCalibrationBX_->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/RawData/EventType/FED");
-    for (int i = 0; i < 36; i++) {
-      name = "RawDataTask event type " + Numbers::sEB(i+1);
-      meEvtType_[i] = dqmStore_->book1D(name, name, 31, -1., 30.);
-      meEvtType_[i]->setBinLabel(1, "UNKNOWN", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::BEAMH2, "BEAMH2", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::MTCC, "MTCC", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LASER_STD, "LASER_STD", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LASER_POWER_SCAN, "LASER_POWER_SCAN", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LASER_DELAY_SCAN, "LASER_DELAY_SCAN", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM, "TESTPULSE_SCAN_MEM", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_MGPA, "TESTPULSE_MGPA", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_STD, "PEDESTAL_STD", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN, "PEDESTAL_OFFSET_SCAN", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN, "PEDESTAL_25NS_SCAN", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LED_STD, "LED_STD", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL, "PHYSICS_GLOBAL", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_GLOBAL, "COSMICS_GLOBAL", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::HALO_GLOBAL, "HALO_GLOBAL", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LASER_GAP, "LASER_GAP", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_GAP, "TESTPULSE_GAP");
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_GAP, "PEDESTAL_GAP");
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LED_GAP, "LED_GAP", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
-      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
-      dqmStore_->tag(meEvtType_[i], i+1);
-    }
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/RawData");
-
-    name = "RawDataTask CRC errors EB";
+    name = "EBRDT CRC errors";
     meEBCRCErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBCRCErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask DCC-Event run mismatch EB";
+    name = "EBRDT run number errors";
     meEBRunNumberErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBRunNumberErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask DCC-GT orbit mismatch EB";
+    name = "EBRDT orbit number errors";
     meEBOrbitNumberErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBOrbitNumberErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask DCC-GT trigType mismatch EB";
+    name = "EBRDT trigger type errors";
     meEBTriggerTypeErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBTriggerTypeErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask calibration event errors EB";
+    name = "EBRDT calibration event errors";
     meEBCalibrationEventErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBCalibrationEventErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask DCC-GT L1A mismatch EB";
+    name = "EBRDT L1A DCC errors";
     meEBL1ADCCErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBL1ADCCErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask DCC-GT BX mismatch EB";
+    name = "EBRDT bunch crossing DCC errors";
     meEBBunchCrossingDCCErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBBunchCrossingDCCErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask FE-DCC L1A mismatch EB";
+    name = "EBRDT L1A FE errors";
     meEBL1AFEErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
-    for(int i=0; i<36; i++){
+    for (int i = 0; i < 36; i++) {
       meEBL1AFEErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    // important - used in the global summary
-    name = "RawDataTask FE-DCC L1A mismatch errors EB";
-    meEBL1AFEErrorsMap_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
-
-    name = "RawDataTask FE-DCC BX mismatch EB";
+    name = "EBRDT bunch crossing FE errors";
     meEBBunchCrossingFEErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBBunchCrossingFEErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask TCC-DCC L1A mismatch EB";
+    name = "EBRDT L1A TCC errors";
     meEBL1ATCCErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBL1ATCCErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask TCC-DCC BX mismatch EB";
+    name = "EBRDT bunch crossing TCC errors";
     meEBBunchCrossingTCCErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBBunchCrossingTCCErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask SRP-DCC L1A mismatch EB";
+    name = "EBRDT L1A SRP errors";
     meEBL1ASRPErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBL1ASRPErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask SRP-DCC BX mismatch EB";
+    name = "EBRDT bunch crossing SRP errors";
     meEBBunchCrossingSRPErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
     for (int i = 0; i < 36; i++) {
       meEBBunchCrossingSRPErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
-    name = "RawDataTask sync errors by lumi EB";
+    name = "EBRDT FE synchronization errors by lumi";
     meEBSynchronizationErrorsByLumi_ = dqmStore_->book1D(name, name, 36, 1, 37);
     meEBSynchronizationErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 36; i++) {
@@ -382,65 +311,60 @@ void EBRawDataTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBRawDataTask");
+    if(subfolder_.size())
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBRawDataTask/" + subfolder_);
 
-    if ( meEBEventTypePreCalibrationBX_ ) dqmStore_->removeElement( meEBEventTypePreCalibrationBX_->getFullname() );
+    if ( meEBEventTypePreCalibrationBX_ ) dqmStore_->removeElement( meEBEventTypePreCalibrationBX_->getName() );
     meEBEventTypePreCalibrationBX_ = 0;
 
-    if ( meEBEventTypeCalibrationBX_ ) dqmStore_->removeElement( meEBEventTypeCalibrationBX_->getFullname() );
+    if ( meEBEventTypeCalibrationBX_ ) dqmStore_->removeElement( meEBEventTypeCalibrationBX_->getName() );
     meEBEventTypeCalibrationBX_ = 0;
 
-    if ( meEBEventTypePostCalibrationBX_ ) dqmStore_->removeElement( meEBEventTypePostCalibrationBX_->getFullname() );
+    if ( meEBEventTypePostCalibrationBX_ ) dqmStore_->removeElement( meEBEventTypePostCalibrationBX_->getName() );
     meEBEventTypePostCalibrationBX_ = 0;
 
-    if ( meEBCRCErrors_ ) dqmStore_->removeElement( meEBCRCErrors_->getFullname() );
+    if ( meEBCRCErrors_ ) dqmStore_->removeElement( meEBCRCErrors_->getName() );
     meEBCRCErrors_ = 0;
 
-    if ( meEBRunNumberErrors_ ) dqmStore_->removeElement( meEBRunNumberErrors_->getFullname() );
+    if ( meEBRunNumberErrors_ ) dqmStore_->removeElement( meEBRunNumberErrors_->getName() );
     meEBRunNumberErrors_ = 0;
 
-    if ( meEBOrbitNumberErrors_ ) dqmStore_->removeElement( meEBOrbitNumberErrors_->getFullname() );
+    if ( meEBOrbitNumberErrors_ ) dqmStore_->removeElement( meEBOrbitNumberErrors_->getName() );
     meEBOrbitNumberErrors_ = 0;
 
-    if ( meEBTriggerTypeErrors_ ) dqmStore_->removeElement( meEBTriggerTypeErrors_->getFullname() );
+    if ( meEBTriggerTypeErrors_ ) dqmStore_->removeElement( meEBTriggerTypeErrors_->getName() );
     meEBTriggerTypeErrors_ = 0;
 
-    if ( meEBCalibrationEventErrors_ ) dqmStore_->removeElement( meEBCalibrationEventErrors_->getFullname() );
+    if ( meEBCalibrationEventErrors_ ) dqmStore_->removeElement( meEBCalibrationEventErrors_->getName() );
     meEBCalibrationEventErrors_ = 0;
 
-    if ( meEBL1ADCCErrors_ ) dqmStore_->removeElement( meEBL1ADCCErrors_->getFullname() );
+    if ( meEBL1ADCCErrors_ ) dqmStore_->removeElement( meEBL1ADCCErrors_->getName() );
     meEBL1ADCCErrors_ = 0;
 
-    if ( meEBBunchCrossingDCCErrors_ ) dqmStore_->removeElement( meEBBunchCrossingDCCErrors_->getFullname() );
+    if ( meEBBunchCrossingDCCErrors_ ) dqmStore_->removeElement( meEBBunchCrossingDCCErrors_->getName() );
     meEBBunchCrossingDCCErrors_ = 0;
 
-    if ( meEBL1AFEErrors_ ) dqmStore_->removeElement( meEBL1AFEErrors_->getFullname() );
+    if ( meEBL1AFEErrors_ ) dqmStore_->removeElement( meEBL1AFEErrors_->getName() );
     meEBL1AFEErrors_ = 0;
 
-    if ( meEBL1AFEErrorsMap_ ) dqmStore_->removeElement( meEBL1AFEErrorsMap_->getFullname() );
-    meEBL1AFEErrorsMap_ = 0;
-
-    if ( meEBBunchCrossingFEErrors_ ) dqmStore_->removeElement( meEBBunchCrossingFEErrors_->getFullname() );
+    if ( meEBBunchCrossingFEErrors_ ) dqmStore_->removeElement( meEBBunchCrossingFEErrors_->getName() );
     meEBBunchCrossingFEErrors_ = 0;
 
-    if ( meEBL1ATCCErrors_ ) dqmStore_->removeElement( meEBL1ATCCErrors_->getFullname() );
+    if ( meEBL1ATCCErrors_ ) dqmStore_->removeElement( meEBL1ATCCErrors_->getName() );
     meEBL1ATCCErrors_ = 0;
 
-    if ( meEBBunchCrossingTCCErrors_ ) dqmStore_->removeElement( meEBBunchCrossingTCCErrors_->getFullname() );
+    if ( meEBBunchCrossingTCCErrors_ ) dqmStore_->removeElement( meEBBunchCrossingTCCErrors_->getName() );
     meEBBunchCrossingTCCErrors_ = 0;
 
-    if ( meEBL1ASRPErrors_ ) dqmStore_->removeElement( meEBL1ASRPErrors_->getFullname() );
+    if ( meEBL1ASRPErrors_ ) dqmStore_->removeElement( meEBL1ASRPErrors_->getName() );
     meEBL1ASRPErrors_ = 0;
 
-    if ( meEBBunchCrossingSRPErrors_ ) dqmStore_->removeElement( meEBBunchCrossingSRPErrors_->getFullname() );
+    if ( meEBBunchCrossingSRPErrors_ ) dqmStore_->removeElement( meEBBunchCrossingSRPErrors_->getName() );
     meEBBunchCrossingSRPErrors_ = 0;
 
-    if ( meEBSynchronizationErrorsByLumi_ ) dqmStore_->removeElement( meEBSynchronizationErrorsByLumi_->getFullname() );
+    if ( meEBSynchronizationErrorsByLumi_ ) dqmStore_->removeElement( meEBSynchronizationErrorsByLumi_->getName() );
     meEBSynchronizationErrorsByLumi_ = 0;
-
-    for (int i = 0; i < 36; i++) {
-      if ( meEvtType_[i] ) dqmStore_->removeElement( meEvtType_[i]->getFullname() );
-      meEvtType_[i] = 0;
-    }
 
   }
 
@@ -672,10 +596,7 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         // do not consider desynch errors if the DCC detected them
         if( ( status[fe] == 9 || status[fe] == 11 )) continue;
         if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
-	  // assuming a simple mapping between fe number and the TT position as done in EBStatusFlagTask
-	  meEBL1AFEErrors_->Fill(xism, 1/(float)feLv1.size());
-	  float eta = ((fe - 1) / 4 + 0.5) * 5. * (-1. + 2. * ((ism - 1) / 18));
-	  meEBL1AFEErrorsMap_->Fill(((fe-1)%4 + 0.5)*5. + ((ism-1)%18)*20, eta);
+          meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size() );
           meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
         } else if( BxSynchStatus[fe]==0 ) meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
       }
@@ -688,13 +609,20 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       if(srpLv1 != ECALDCC_L1A_12bit && srpLv1 != -1 && ECALDCC_L1A_12bit - 1 != -1) meEBL1ASRPErrors_->Fill( xism );
 
+      if ( gtFedDataSize == 0 ) {
+
+        if ( GT_OrbitNumber != ECALDCC_OrbitNumber ) meEBOrbitNumberErrors_->Fill ( xism );
+
+      } else {
+
+        if ( ECALDCC_OrbitNumber_MostFreqId != ECALDCC_OrbitNumber ) meEBOrbitNumberErrors_->Fill ( xism );
+
+      }
+
       float evtType = dcchItr->getRunType();
 
       if ( evtType < 0 || evtType > 22 ) evtType = -1;
 
-      if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(evtType+0.5);
-
-      meEBEventType_->Fill( evtType+0.5, 1./36. );
       if ( ECALDCC_BunchCrossing < calibrationBX_ ) meEBEventTypePreCalibrationBX_->Fill( evtType+0.5, 1./36. );
       if ( ECALDCC_BunchCrossing == calibrationBX_ ) meEBEventTypeCalibrationBX_->Fill( evtType+0.5, 1./36. );
       if ( ECALDCC_BunchCrossing > calibrationBX_ ) meEBEventTypePostCalibrationBX_->Fill ( evtType+0.5, 1./36. );

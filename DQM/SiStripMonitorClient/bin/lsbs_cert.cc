@@ -36,7 +36,7 @@ void    lsbs_cert( string filename );
 
 int main(int argc , char *argv[]) {
 
-  if(argc==1) {
+  if(argc==2) {
     char* filename = argv[1];
 
     std::cout << "ready to run lsbs filename " << filename << std::endl;
@@ -119,9 +119,9 @@ void    lsbs_cert( string filename )
   check_sigma  ( filename, "Debug"      , "hsigmaYLumibased PrimaryVertex-DataBase fit" ,  limit_errdy , ls_errdy_bad );
   check_sigma  ( filename, "Debug"      , "hsigmaZLumibased PrimaryVertex-DataBase fit" ,  limit_errdz , ls_errdz_bad );
   
-  check_sigma  ( filename, "Validation" , "hsigmaXLumibased PrimaryVertex-DataBase fit" ,  limit_errdx , ls_errdxsc_bad );
-  check_sigma  ( filename, "Validation" , "hsigmaYLumibased PrimaryVertex-DataBase fit" ,  limit_errdy , ls_errdysc_bad );
-  check_sigma  ( filename, "Validation" , "hsigmaZLumibased PrimaryVertex-DataBase fit" ,  limit_errdz , ls_errdzsc_bad );
+  check_sigma  ( filename, "Validation" , "hsigmaXLumibased Scalers-DataBase fit" ,  limit_errdx , ls_errdxsc_bad );
+  check_sigma  ( filename, "Validation" , "hsigmaYLumibased Scalers-DataBase fit" ,  limit_errdy , ls_errdysc_bad );
+  check_sigma  ( filename, "Validation" , "hsigmaZLumibased Scalers-DataBase fit" ,  limit_errdz , ls_errdzsc_bad );
 
   //BAD LS only if bad in both histos (wrt PV, Scalers)
   vector_AND ( ls_x_bad , ls_xsc_bad );
@@ -237,7 +237,7 @@ void    lsbs_cert( string filename )
     }
 
   outfile.close();
-  cout << "Lumibased BeamSpot Calibration Certification summary saved in " << namefile << endl;
+  std::cout << "Lumibased BeamSpot Calibration Certification summary saved in " << namefile << endl;
 }
 
 void check_offset ( string filename , string iDir , string plot , float limit_min , float limit_max , vector <int>& badLS ) 
@@ -278,7 +278,7 @@ void check_sigma ( string filename , string iDir , string plot , float limit_err
 bool check_isgood ( vector<int> & ls_badlist, int ls ) 
 {
   //check if this LS is found in the BAD list
-  for ( u_int i = 0; i < ls_badlist.size() ; i++ )
+  for ( unsigned int i = 0; i < ls_badlist.size() ; i++ )
     {
       if ( ls == ls_badlist[i] ) return false;
     }
@@ -332,7 +332,7 @@ string runnum_str( string filename )
 int getplot( string filename , string iDir , string strplot , TH1F& plot )
 {
   string run = runnum_str( filename );
-  if (debug) cout << filename.c_str() << endl;
+  if (debug) std::cout << filename.c_str() << endl;
   
   TFile* file = TFile::Open(filename.c_str());
   if (!file->IsOpen()) {
@@ -348,7 +348,11 @@ int getplot( string filename , string iDir , string strplot , TH1F& plot )
   TH1F* thisplot;
   gDirectory->GetObject ( theplot.c_str() , thisplot );
 
-  if ( !thisplot ) return -2;
+  if ( !thisplot )
+    {
+      std::cout << "Error: plot " << dir << "/" << theplot.c_str() << " not found!" << endl;
+      return -2;
+    }
 
   plot = *thisplot;
   thisplot = NULL;
@@ -363,7 +367,7 @@ void Cleaning( vector<int> &LSlist)
 
   //cleaning: keep only 1st and last lumisection in the range
   int refLS = LSlist[0];
-  for (u_int at = 1; at < LSlist.size() - 1; at++) 
+  for (unsigned int at = 1; at < LSlist.size() - 1; at++) 
     {
       //delete LSnums in between a single continuous range
       if ( refLS + 1 == LSlist[at] && LSlist[at] + 1 == LSlist[at+1] )
@@ -385,7 +389,7 @@ string ListOut(vector<int> &LSlist)
 
   string strout = "";
   bool rangeset = false;
-  for (u_int at = 0; at < LSlist.size(); at++)
+  for (unsigned int at = 0; at < LSlist.size(); at++)
     {
       if ( LSlist[at] != -1 ) 
         {
@@ -411,7 +415,7 @@ void vector_AND ( vector<int> & bad_def, vector<int> bad_sc)
 
   int def_size = bad_def.size();
   for ( int i = 0; i < def_size; i++ )
-    for ( u_int j = 0; j < bad_sc.size(); j++ )
+    for ( unsigned int j = 0; j < bad_sc.size(); j++ )
       if ( bad_def[ i ] == bad_sc[ j ] )
 	{
 	  temp.push_back( bad_def[ i ] );

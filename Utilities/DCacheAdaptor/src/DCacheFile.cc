@@ -307,13 +307,11 @@ DCacheFile::readv (IOPosBuffer *into, IOSize buffers)
 
   // Convert the buffers to system format.
   std::vector<iovec2> bufs (buffers);
-  IOSize total = 0;
   for (IOSize i = 0; i < buffers; ++i)
   {
     bufs [i].offset = into [i].offset ();
     bufs [i].len    = into [i].size ();
     bufs [i].buf    = (char *) into [i].data ();
-    total += into [i].size ();
   }
 
   // Read as long as signals cancel the read before doing anything.
@@ -329,8 +327,8 @@ DCacheFile::readv (IOPosBuffer *into, IOSize buffers)
     ex.addContext("Calling DCacheFile::readv()");
     throw ex;
   }
-  // dc_readv2 returns 0 on success.
-  return (n == 0) ? total : 0;
+  // Return the number of bytes actually read.
+  return n;
 }
 
 //////////////////////////////////////////////////////////////////////

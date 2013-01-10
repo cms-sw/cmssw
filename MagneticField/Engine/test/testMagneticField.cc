@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2010/10/13 14:30:34 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/04/23 12:05:05 $
+ *  $Revision: 1.14 $
  *  \author N. Amapane - CERN
  */
 
@@ -75,8 +75,6 @@ class testMagneticField : public edm::EDAnalyzer {
    setup.get<IdealMagneticFieldRecord>().get(magfield);
 
    field = magfield.product();
-
-   std::cout << "Nominal Field " << field->nominalValue() << "\n" << std::endl;
 
    go(GlobalPoint(0,0,0));
 

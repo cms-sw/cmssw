@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalTask.h
  *
- * $Date: 2009/10/26 17:33:50 $
- * $Revision: 1.13 $
+ * $Date: 2009/08/02 15:46:41 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -70,8 +70,6 @@ edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 std::vector<int> MGPAGains_;
 std::vector<int> MGPAGainsPN_;
-
- MonitorElement *meOccupancy_[2];
 
 MonitorElement* mePedMapG01_[18];
 MonitorElement* mePedMapG06_[18];

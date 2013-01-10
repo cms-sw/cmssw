@@ -4,6 +4,7 @@
 <use   name="CondFormats/EcalObjects"/>
 <use   name="DataFormats/CSCDigi"/>
 <use   name="DataFormats/CSCRecHit"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/DTDigi"/>
 <use   name="DataFormats/DetId"/>

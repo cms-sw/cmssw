@@ -9,7 +9,6 @@
 #include "Rtypes.h"
 #include "TGFrame.h"
 #include "TGButton.h"
-
 #include "Fireworks/Core/interface/FWViewType.h"
 #ifndef __CINT__
 #include "Fireworks/Core/interface/FWViewBase.h"
@@ -42,17 +41,13 @@ class FWColorManager;
 class FWGeoTopNode;
 class FWParameterBase;
 
-
 class FWGeometryTableViewBase
 #ifndef __CINT__
    : public  FWViewBase,
      public  FWParameterSetterEditorBase
 #endif
 {
-
 public:
-   enum EMode { kNode, kVolume};
-
    class FWViewCombo : public TGTextButton
    {
    private:
@@ -75,11 +70,11 @@ public:
                              Int_t iGlobalX, Int_t iGlobalY);
   
    // void chosenItemFrom3DView(int);
+   virtual void chosenItem(int);
    void selectView(int);
  
    bool getEnableHighlight() { return m_enableHighlight.value(); } 
    virtual  FWGeometryTableManagerBase*  getTableManager() { return 0; }
-   virtual void setFrom(const FWConfiguration&);
 
    // ---------- const member functions --------------------- 
 
@@ -100,13 +95,27 @@ public:
    void checkExpandLevel();
 
    int getTopNodeIdx() const { return TMath::Max((int)m_topNodeIdx.value(), 0); }
-
+  
+   void transparencyChanged();
+   
+   void  reloadColors();
+   
+   long getParentTransparencyFactor() const { return m_parentTransparencyFactor.value(); }
+   long getLeafTransparencyFactor()   const { return m_leafTransparencyFactor.value(); }
+   long getMinParentTransparency() const { return m_minParentTransparency.value(); }
+   long getMinLeafTransparency()   const { return m_minLeafTransparency.value(); }
+   
 protected:
 
 #ifndef __CINT__      
    FWLongParameter         m_topNodeIdx; 
    FWLongParameter         m_autoExpand;
-   FWBoolParameter         m_enableHighlight; 
+   FWBoolParameter         m_enableHighlight;
+   
+   FWLongParameter         m_parentTransparencyFactor;
+   FWLongParameter         m_leafTransparencyFactor;
+   FWLongParameter         m_minParentTransparency;
+   FWLongParameter         m_minLeafTransparency;
 #endif
 
    FWColorManager         *m_colorManager;
@@ -140,6 +149,10 @@ protected:
    void enableHighlight();
 
    void postConst();
+   
+   void setTopNodePathFromConfig(const FWConfiguration& iFrom);
+
+   virtual void populateController(ViewerParameterGUI&) const;
 
 private:
    int m_tableRowIndexForColorPopup;

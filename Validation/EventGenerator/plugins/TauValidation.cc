@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/12/29 10:53:11 $
- *  $Revision: 1.14 $
+ *  $Date: 2011/06/21 20:45:53 $
+ *  $Revision: 1.13 $
  */
  
 #include "Validation/EventGenerator/interface/TauValidation.h"
@@ -14,16 +14,13 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "Validation/EventGenerator/interface/TauDecay_CMSSW.h"
-#include "Validation/EventGenerator/interface/PdtPdgMini.h"
 
 using namespace edm;
 
 TauValidation::TauValidation(const edm::ParameterSet& iPSet): 
-  _wmanager(iPSet)
-  ,hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
-  ,tauEtCut(iPSet.getParameter<double>("tauEtCutForRtau"))
-  ,NJAKID(22)
+  _wmanager(iPSet),
+  hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection")),
+  tauEtCut(iPSet.getParameter<double>("tauEtCutForRtau"))
 {    
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
@@ -62,8 +59,6 @@ void TauValidation::beginJob()
 
     TauMothers        = dbe->book1D("TauMothers","Tau mother particles", 10 ,0,10);
 	TauMothers->setBinLabel(1+other,"?");
-	TauMothers->setBinLabel(1+B,"B Decays");
-	TauMothers->setBinLabel(1+D,"D Decays");
 	TauMothers->setBinLabel(1+gamma,"#gamma");
 	TauMothers->setBinLabel(1+Z,"Z");
 	TauMothers->setBinLabel(1+W,"W");
@@ -89,24 +84,8 @@ void TauValidation::beginJob()
     TauPhotonsPt       = dbe->book1D("TauPhotonsPt","Photon pt radiating from tau", 2 ,0,2);
 	TauPhotonsPt->setBinLabel(1,"Sum of tau pt");
 	TauPhotonsPt->setBinLabel(2,"Sum of tau pt radiated by photons");
-
-
-    JAKID =dbe->book1D("JAKID","JAK ID",NJAKID+1,-0.5,NJAKID+0.5);
-    for(unsigned int i=0; i<NJAKID+1;i++){
-      JAKInvMass.push_back(std::vector<MonitorElement *>());
-      TString tmp="JAKID";
-      tmp+=i;
-      JAKInvMass.at(i).push_back(dbe->book1D("M"+tmp,"M_{"+tmp+"} (GeV)", 80 ,0,2.0));
-      if(i==TauDecay::JAK_A1_3PI ||
-	 i==TauDecay::JAK_KPIK ||
-	 i==TauDecay::JAK_KPIPI ){
-	JAKInvMass.at(i).push_back(dbe->book1D("M13"+tmp,"M_{13,"+tmp+"} (GeV)", 80 ,0,2.0));
-	JAKInvMass.at(i).push_back(dbe->book1D("M23"+tmp,"M_{23,"+tmp+"} (GeV)", 80 ,0,2.0));
-	JAKInvMass.at(i).push_back(dbe->book1D("M12"+tmp,"M_{12,"+tmp+"} (GeV)", 80 ,0,2.0));
-      }
-    }
   }
-  
+
   return;
 }
 
@@ -138,77 +117,25 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 
   // find taus
   for(HepMC::GenEvent::particle_const_iterator iter = myGenEvent->particles_begin(); iter != myGenEvent->particles_end(); ++iter) {
-    if(abs((*iter)->pdg_id())==15){
-      if(tauMother(*iter,weight)!=-1){ // exclude B, D and other non-signal decay modes
-	TauPt->Fill((*iter)->momentum().perp(),weight);
-	TauEta->Fill((*iter)->momentum().eta(),weight);
+    if ((*iter)->status()==3)
+    {
+      if(abs((*iter)->pdg_id())==15){
+        TauPt->Fill((*iter)->momentum().perp(),weight);
+        TauEta->Fill((*iter)->momentum().eta(),weight);
 	TauPhi->Fill((*iter)->momentum().phi(),weight);
-	int mother  = tauMother(*iter,weight);
-	int decaychannel = tauDecayChannel(*iter,weight);
+	int mother  = tauMother(*iter, weight);
+	int decaychannel = tauDecayChannel(*iter, weight);
 	tauProngs(*iter, weight);
-	rtau(*iter,mother,decaychannel,weight);
-	spinEffects(*iter,mother,decaychannel,weight);
-	photons(*iter,weight);
+	rtau(*iter,mother,decaychannel, weight);
+	spinEffects(*iter,mother,decaychannel, weight);
+	photons(*iter, weight);
       }
       if(abs((*iter)->pdg_id())==23){
-	spinEffectsZ(*iter,weight);
-      }
-      ///////////////////////////////////////////////
-      //Adding JAKID and Mass information
-      //
-      TauDecay_CMSSW TD;
-      unsigned int jak_id, TauBitMask;
-      TD.AnalyzeTau((*iter),jak_id,TauBitMask,false,false);
-      JAKID->Fill(jak_id,weight);
-      if(jak_id<=NJAKID){
-	int tcharge=(*iter)->pdg_id()/abs((*iter)->pdg_id());
-	std::vector<HepMC::GenParticle*> part=TD.Get_TauDecayProducts();
-	TLorentzVector LVQ(0,0,0,0);
-	TLorentzVector LVS12(0,0,0,0);
-	TLorentzVector LVS13(0,0,0,0);
-	TLorentzVector LVS23(0,0,0,0);
-	bool haspart1=false;
-	for(unsigned int i=0;i<part.size();i++){
-	  if(TD.isTauFinalStateParticle(part.at(i)->pdg_id()) &&
-	     abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_e &&
-	     abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_mu &&
-	     abs(part.at(i)->pdg_id())!=PdtPdgMini::nu_tau ){
-	    TLorentzVector LV(part.at(i)->momentum().px(),part.at(i)->momentum().py(),part.at(i)->momentum().pz(),part.at(i)->momentum().e());
-	    LVQ+=LV;
-	    if(jak_id==TauDecay::JAK_A1_3PI ||
-	       jak_id==TauDecay::JAK_KPIK ||
-	       jak_id==TauDecay::JAK_KPIPI
-	       ){
-	      if((tcharge==part.at(i)->pdg_id()/abs(part.at(i)->pdg_id()) && TD.nProng(TauBitMask)==3) || (jak_id==TauDecay::JAK_A1_3PI && TD.nProng(TauBitMask)==1 && abs(part.at(i)->pdg_id())==PdtPdgMini::pi_plus) ){
-		LVS13+=LV;
-		LVS23+=LV;
-	      }
-	      else{
-		LVS12+=LV;
-		if(!haspart1 && ((jak_id==TauDecay::JAK_A1_3PI)  || (jak_id!=TauDecay::JAK_A1_3PI && abs(part.at(i)->pdg_id())==PdtPdgMini::K_plus) )){
-		  LVS13+=LV;
-		  haspart1=true;
-		}
-		else{
-		  LVS23+=LV;
-		}
-	      }
-	    }
-	  }
-	}
-	part.clear();
-	JAKInvMass.at(jak_id).at(0)->Fill(LVQ.M(),weight);
-	if(jak_id==TauDecay::JAK_A1_3PI ||
-	   jak_id==TauDecay::JAK_KPIK ||
-	   jak_id==TauDecay::JAK_KPIPI
-	   ){
-	  JAKInvMass.at(jak_id).at(1)->Fill(LVS13.M(),weight);
-	  JAKInvMass.at(jak_id).at(2)->Fill(LVS23.M(),weight);
-	  JAKInvMass.at(jak_id).at(3)->Fill(LVS12.M(),weight);
-	}
+        spinEffectsZ(*iter, weight);
       }
     }
   }
+
   delete myGenEvent;
 }//analyze
 
@@ -243,11 +170,7 @@ int TauValidation::tauMother(const HepMC::GenParticle* tau, double weight){
 	if(abs(mother_pid) == 36) label = A0;
 	if(abs(mother_pid) == 37) label = Hpm;
 
-        int mother_shortpid=(abs(mother_pid)%10000);
-        if(mother_shortpid>500 && mother_shortpid<600 )label = B;
-        if(mother_shortpid>400 && mother_shortpid<500)label = D;
 	TauMothers->Fill(label,weight);
-        if(label==B || label == D || label == other) return -1;
 
 	return mother_pid;
 }

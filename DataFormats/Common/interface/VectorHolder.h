@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/BaseVectorHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
 #include <memory>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   namespace reftobase {
@@ -24,12 +23,12 @@ namespace edm {
       VectorHolder() : base_type() {}
       VectorHolder(VectorHolder const & rh) :  base_type(rh),  refVector_(rh.refVector_){}
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-      VectorHolder(VectorHolder && rh)  noexcept :  base_type(std::forward(rh)),  refVector_(std::move(rh.refVector_)){}
+      VectorHolder(VectorHolder && rh) :  base_type(std::forward(rh)),  refVector_(std::move(rh.refVector_)){}
  #endif
 
       explicit VectorHolder(const ref_vector_type& iRefVector) : base_type(), refVector_(iRefVector) {}
       explicit VectorHolder(const ProductID& iId) : base_type(), refVector_(iId) {}
-      virtual ~VectorHolder()  noexcept {}
+      virtual ~VectorHolder() {}
       virtual base_type* clone() const { return new VectorHolder(*this); }
       virtual base_type* cloneEmpty() const { return new VectorHolder(refVector_.id()); }
       base_ref_type const at(size_type idx) const { return base_ref_type( refVector_.at( idx ) ); }
@@ -40,7 +39,7 @@ namespace edm {
       void clear() { refVector_.clear(); }
       ProductID id() const { return refVector_.id(); }
       EDProductGetter const* productGetter() const { return refVector_.productGetter(); }
-      void swap(VectorHolder& other)  noexcept {
+      void swap(VectorHolder& other) {
         this->BaseVectorHolder<T>::swap(other);
         refVector_.swap(other.refVector_);
       }
@@ -50,7 +49,7 @@ namespace edm {
         return *this;
       }
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-     VectorHolder& operator=(VectorHolder && rhs)  noexcept {
+     VectorHolder& operator=(VectorHolder && rhs) {
        base_type::operator=(std::forward(rhs));
        refVector_ = std::move(rhs.refVector_);
        return *this;
@@ -127,7 +126,7 @@ namespace edm {
     template <typename T, typename REFV>
     inline
     void
-    swap(VectorHolder<T, REFV>& lhs, VectorHolder<T, REFV>& rhs)  noexcept {
+    swap(VectorHolder<T, REFV>& lhs, VectorHolder<T, REFV>& rhs) {
       lhs.swap(rhs);
     }
   }

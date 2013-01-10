@@ -1,8 +1,8 @@
 /*
  * \file EBTrendClient.cc
  *
- * $Date: 2010/08/11 15:01:48 $
- * $Revision: 1.7 $
+ * $Date: 2010/03/27 20:07:57 $
+ * $Revision: 1.6 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -45,20 +45,8 @@ EBTrendClient::EBTrendClient(const edm::ParameterSet& ps){
 
     previousHist_[i] = 0;
     currentHist_[i] = 0;
-
-    moduleNames_[i] = "";
-    histTitles_[i] = "";
-    previousHist_[i] = 0;
-    currentHist_[i] = 0;
-    mean_[i] = 0.;
-    rms_[i] = 0.;
   } // for
 
-  ievt_ = 0;
-
-  start_time_ = 0;
-  current_time_ = 0;
-  last_time_ = 0;
 }
 
 
@@ -71,8 +59,8 @@ void EBTrendClient::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/Trend");
-    dqmStore_->rmdir(prefixME_ + "/Trend");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTrendClient");
+    dqmStore_->rmdir(prefixME_ + "/EBTrendClient");
   }
 
   // noise,
@@ -85,28 +73,28 @@ void EBTrendClient::beginJob(void){
 
   int index = 0;
 
-  moduleNames_[index] = "Cluster"; // TH1
-  histTitles_[index]  = "BasicClusters/ClusterTask BC energy EB";
+  moduleNames_[index] = "EBClusterTask"; // TH1
+  histTitles_[index]  = "EBCLT BC energy";
   index++;
 
-  moduleNames_[index] = "Cluster"; // TH1
-  histTitles_[index]  = "SuperClusters/ClusterTask SC energy EB";
+  moduleNames_[index] = "EBClusterTask"; // TH1
+  histTitles_[index]  = "EBCLT SC energy";
   index++;
 
-  moduleNames_[index] = "Summary"; // TProfile
-  histTitles_[index]  = "SummaryClient presample G12";
+  moduleNames_[index] = "EBSummaryClient"; // TProfile
+  histTitles_[index]  = "EBPOT pedestal G12 mean";
   index++;
 
-//   moduleNames_[index] = "Summary"; // TProfile
-//   histTitles_[index]  = "SummaryClient presample rms G12";
+  moduleNames_[index] = "EBSummaryClient"; // TProfile
+  histTitles_[index]  = "EBPOT pedestal G12 rms";
   index++;
 
-  moduleNames_[index] = "Occupancy"; // TH2
-  histTitles_[index]  = "RecHit/OccupancyTask rec hit occupancy EB";
+  moduleNames_[index] = "EBOccupancyTask"; // TH2
+  histTitles_[index]  = "EBOT rec hit thr occupancy";
   index++;
 
-  moduleNames_[index] = "Occupancy"; // TH2
-  histTitles_[index]  = "TPDigi/OccupancyTask TP digi occupancy EB";
+  moduleNames_[index] = "EBOccupancyTask"; // TH2
+  histTitles_[index]  = "EBOT TP digi thr occupancy";
   index++;
 
 }
@@ -144,144 +132,42 @@ void EBTrendClient::setup(void){
   init_ = true;
 
   std::string histo;
-  std::string binning;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/Trend");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTrendClient");
 
-    int i(0);
+    for(int i=0; i<nHists_; i++) {
 
-    // minutely
-    dqmStore_->setCurrentFolder(prefixME_ + "/Trend/ShortTerm");
+      // minutely
 
-    binning = "5min bin EB";
+      histo = "Average of " + histTitles_[i] + " Vs 5Minutes";
+      meanMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+      meanMinutely_[i]->setAxisTitle("Minutes", 1);
+      histo = "Average of " + histTitles_[i] + " / 5 minutes";
+      meanMinutely_[i]->setAxisTitle(histo.c_str(), 2);
 
-    histo = "TrendClient BC energy mean " + binning;
-    meanMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    meanMinutely_[i]->setAxisTitle("Minutes", 1);
-    meanMinutely_[i]->setAxisTitle("BC energy (GeV)", 2);
+      histo = "RMS of " + histTitles_[i] + " Vs 5Minutes";
+      sigmaMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+      sigmaMinutely_[i]->setAxisTitle("Minutes", 1);
+      histo = "RMS of " + histTitles_[i] + " / 5 minutes";
+      sigmaMinutely_[i]->setAxisTitle(histo.c_str(), 2);
 
-    histo = "TrendClient BC energy fluctuation " + binning;
-    sigmaMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    sigmaMinutely_[i]->setAxisTitle("Minutes", 1);
-    sigmaMinutely_[i]->setAxisTitle("BC energy rms (GeV)", 2);
 
-    i++;
+      // hourly
 
-    histo = "TrendClient SC energy mean " + binning;
-    meanMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    meanMinutely_[i]->setAxisTitle("Minutes", 1);
-    meanMinutely_[i]->setAxisTitle("SC energy (GeV)", 2);
+      histo = "Average of " + histTitles_[i] + " Vs 1Hour";
+      meanHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+      meanHourly_[i]->setAxisTitle("Hours", 1);
+      histo = "Average of " + histTitles_[i] + " / hour";
+      meanHourly_[i]->setAxisTitle(histo.c_str(), 2);
 
-    histo = "TrendClient SC energy fluctuation " + binning;
-    sigmaMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    sigmaMinutely_[i]->setAxisTitle("Minutes", 1);
-    sigmaMinutely_[i]->setAxisTitle("SC energy rms (GeV)", 2);
+      histo = "RMS of " + histTitles_[i] + " Vs 1Hour";
+      sigmaHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+      sigmaHourly_[i]->setAxisTitle("Hours", 1);
+      histo = "RMS of " + histTitles_[i] + " / hour";
+      sigmaHourly_[i]->setAxisTitle(histo.c_str(), 2);
 
-    i++;
-
-    histo = "TrendClient presample mean " + binning;
-    meanMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    meanMinutely_[i]->setAxisTitle("Minutes", 1);
-    meanMinutely_[i]->setAxisTitle("pedestal", 2);
-
-    histo = "TrendClient presample fluctuation " + binning;
-    sigmaMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    sigmaMinutely_[i]->setAxisTitle("Minutes", 1);
-    sigmaMinutely_[i]->setAxisTitle("pedestal rms", 2);
-
-    i++;
-    i++;
-
-    histo = "TrendClient rec hit thr occupancy mean " + binning;
-    meanMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    meanMinutely_[i]->setAxisTitle("Minutes", 1);
-    meanMinutely_[i]->setAxisTitle("occupancy", 2);
-
-    histo = "TrendClient rec hit thr occupancy fluctuation " + binning;
-    sigmaMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    sigmaMinutely_[i]->setAxisTitle("Minutes", 1);
-    sigmaMinutely_[i]->setAxisTitle("occupancy rms", 2);
-
-    i++;
-
-    histo = "TrendClient TP digi thr occupancy mean " + binning;
-    meanMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    meanMinutely_[i]->setAxisTitle("Minutes", 1);
-    meanMinutely_[i]->setAxisTitle("occupancy", 2);
-
-    histo = "TrendClient TP digi thr occupancy fluctuation " + binning;
-    sigmaMinutely_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 120.0, 0.0, 1.0e6, "s");
-    sigmaMinutely_[i]->setAxisTitle("Minutes", 1);
-    sigmaMinutely_[i]->setAxisTitle("occupancy rms", 2);
-
-    
-    // hourly
-    dqmStore_->setCurrentFolder(prefixME_ + "/Trend/LongTerm");
-
-    binning = "20min bin EB";
-
-    i = 0;
-
-    histo = "TrendClient BC energy mean " + binning;
-    meanHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    meanHourly_[i]->setAxisTitle("Minutes", 1);
-    meanHourly_[i]->setAxisTitle("BC energy (GeV)", 2);
-
-    histo = "TrendClient BC energy fluctuation " + binning;
-    sigmaHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    sigmaHourly_[i]->setAxisTitle("Minutes", 1);
-    sigmaHourly_[i]->setAxisTitle("BC energy rms (GeV)", 2);
-
-    i++;
-
-    histo = "TrendClient SC energy mean " + binning;
-    meanHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    meanHourly_[i]->setAxisTitle("Minutes", 1);
-    meanHourly_[i]->setAxisTitle("SC energy (GeV)", 2);
-
-    histo = "TrendClient SC energy fluctuation " + binning;
-    sigmaHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    sigmaHourly_[i]->setAxisTitle("Minutes", 1);
-    sigmaHourly_[i]->setAxisTitle("SC energy rms (GeV)", 2);
-
-    i++;
-
-    histo = "TrendClient presample mean " + binning;
-    meanHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    meanHourly_[i]->setAxisTitle("Minutes", 1);
-    meanHourly_[i]->setAxisTitle("pedestal", 2);
-
-    histo = "TrendClient presample fluctuation " + binning;
-    sigmaHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    sigmaHourly_[i]->setAxisTitle("Minutes", 1);
-    sigmaHourly_[i]->setAxisTitle("pedestal rms", 2);
-
-    i++;
-    i++;
-
-    histo = "TrendClient rec hit thr occupancy mean " + binning;
-    meanHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    meanHourly_[i]->setAxisTitle("Minutes", 1);
-    meanHourly_[i]->setAxisTitle("occupancy", 2);
-
-    histo = "TrendClient rec hit thr occupancy fluctuation " + binning;
-    sigmaHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    sigmaHourly_[i]->setAxisTitle("Minutes", 1);
-    sigmaHourly_[i]->setAxisTitle("occupancy rms", 2);
-
-    i++;
-
-    histo = "TrendClient TP digi thr occupancy mean " + binning;
-    meanHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    meanHourly_[i]->setAxisTitle("Minutes", 1);
-    meanHourly_[i]->setAxisTitle("occupancy", 2);
-
-    histo = "TrendClient TP digi thr occupancy fluctuation " + binning;
-    sigmaHourly_[i] = dqmStore_->bookProfile(histo.c_str(), histo.c_str(), 24, 0.0, 480.0, 0.0, 1.0e6, "s");
-    sigmaHourly_[i]->setAxisTitle("Minutes", 1);
-    sigmaHourly_[i]->setAxisTitle("occupancy rms", 2);
-
+    }// for i
 
   }// if
 
@@ -293,16 +179,17 @@ void EBTrendClient::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTrendClient");
 
     for(int i=0; i<nHists_; i++) {
-      if(meanMinutely_[i]) dqmStore_->removeElement( meanMinutely_[i]->getFullname());
+      if(meanMinutely_[i]) dqmStore_->removeElement( meanMinutely_[i]->getName());
       meanMinutely_[i] = 0;
-      if(sigmaMinutely_[i]) dqmStore_->removeElement( sigmaMinutely_[i]->getFullname());
+      if(sigmaMinutely_[i]) dqmStore_->removeElement( sigmaMinutely_[i]->getName());
       sigmaMinutely_[i] = 0;
 
-      if(meanHourly_[i]) dqmStore_->removeElement( meanHourly_[i]->getFullname());
+      if(meanHourly_[i]) dqmStore_->removeElement( meanHourly_[i]->getName());
       meanHourly_[i] = 0;
-      if(sigmaHourly_[i]) dqmStore_->removeElement( sigmaHourly_[i]->getFullname());
+      if(sigmaHourly_[i]) dqmStore_->removeElement( sigmaHourly_[i]->getName());
       sigmaHourly_[i] = 0;
 
       if(previousHist_[i]) delete previousHist_[i];
@@ -351,7 +238,7 @@ void EBTrendClient::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   long int hourBinDiff = -1;
   long int hourDiff = -1;
-  ecaldqm::calcBins(20,60,start_time_,last_time_,current_time_,hourBinDiff,hourDiff);
+  ecaldqm::calcBins(1,3600,start_time_,last_time_,current_time_,hourBinDiff,hourDiff);
 
 
   for(int i=0; i<nHists_; i++){
@@ -375,7 +262,6 @@ void EBTrendClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   // assign cloned histogrmas to currentHist_[i]
 
   for(int i=0; i<nHists_; i++) {
-    if(moduleNames_[i] == "") continue;
     histo = prefixME_ + "/" + moduleNames_[i] + "/" + histTitles_[i];
     me = dqmStore_->get(histo.c_str());
     currentHist_[i] = ecaldqm::cloneIt(me,histo);
@@ -385,8 +271,6 @@ void EBTrendClient::analyze(const edm::Event& e, const edm::EventSetup& c){
   // Get mean and rms and fill Profile
 
   for(int i=0; i<nHists_; i++){
-
-    if(!meanMinutely_[i] || !sigmaMinutely_[i] || !meanHourly_[i] || !sigmaHourly_[i]) continue;
 
     ecaldqm::getMeanRms(previousHist_[i],currentHist_[i],mean_[i],rms_[i]);
 

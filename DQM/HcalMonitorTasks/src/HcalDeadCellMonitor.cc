@@ -389,7 +389,9 @@ void HcalDeadCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c
 	  HcalDetId id=HcalDetId(*i);
 	  int status=(chanquality->getValues(id))->getValue();
 	  if ((status & badChannelStatusMask_))
-	    KnownBadCells_[id.rawId()]=status;
+	    {
+	      KnownBadCells_[id.rawId()]=status;
+	    }
 	} 
       delete chanquality;
     } // if (badChannelStatusMask_>0)
@@ -407,7 +409,6 @@ void HcalDeadCellMonitor::reset()
   is_RBX_loss_ = 0;
   beamMode_ = 0 ;
   alarmer_counter_ = 0;
-  is_stable_beam = true;
   hbhedcsON = true; hfdcsON = true;
   ProblemsVsLB->Reset(); ProblemsVsLB_HB->Reset(); ProblemsVsLB_HE->Reset(); ProblemsVsLB_HO->Reset(); ProblemsVsLB_HF->Reset(); ProblemsVsLB_HBHEHF->Reset();
   RBX_loss_VS_LB->Reset();
@@ -513,9 +514,6 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   if(hbhedcsON == true && hfdcsON == true && HBpresent_ == 1 && HEpresent_ == 1 && HFpresent_ == 1)
     ++alarmer_counter_;
   else 
-    alarmer_counter_ = 0;
-
-  if (!is_stable_beam)
     alarmer_counter_ = 0;
 
   // Here is where we determine whether or not to process an event
@@ -713,8 +711,6 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       
       int intensity1_ = gtfeEvmExtWord.totalIntensityBeam1();
       int intensity2_ = gtfeEvmExtWord.totalIntensityBeam2();
-      
-      is_stable_beam = gtfeEvmExtWord.beamMode() == 11 ? true : false; 
       
       for (unsigned int i=132;i<156;++i)
 	if(occupancy_RBX[i] == 0 && gtfeEvmExtWord.beamMode() == 11) 

@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelHltTask = cms.EDAnalyzer("EBHltTask",
-    prefixME = cms.untracked.string('Ecal'),
-    forcePrefixME = cms.untracked.bool(False),
+    prefixME = cms.untracked.string('EcalBarrel'),
     folderName = cms.untracked.string('FEDIntegrity'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    

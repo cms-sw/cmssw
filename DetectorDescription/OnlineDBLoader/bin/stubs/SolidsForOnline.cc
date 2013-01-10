@@ -288,7 +288,7 @@ void SolidsForOnline::beginRun( const edm::Run&, const edm::EventSetup& iSetup )
       }      
       case dd_not_init:
       default:
-	throw cms::Exception("DDException") << "DDDToPersFactory::solid(...) either not inited or no such solid.";
+	throw DDException("DDDToPersFactory::solid(...) either not inited or no such solid.");
 	break;
       }
   

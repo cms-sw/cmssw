@@ -156,10 +156,14 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     MuonSimHits = cms.PSet(
         initialSeed = cms.untracked.uint32(987346),
         engineName = cms.untracked.string('TRandom3')
+    ),
+
+
+    # filter for simulated beam spot
+    simBeamSpotFilter = cms.PSet(
+        initialSeed = cms.untracked.uint32(87654321),
+        engineName = cms.untracked.string('HepJamesRandom')
     )
-
-
-
     # to save the status of the last event (useful for crashes)
     ,saveFileName = cms.untracked.string('')
     # to restore the status of the last event, 

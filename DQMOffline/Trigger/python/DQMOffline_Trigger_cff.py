@@ -50,6 +50,8 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 # TnP
 #from DQMOffline.Trigger.TnPEfficiency_cff import *
+# Inclusive VBF
+from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -66,6 +68,7 @@ offlineHLTSource = cms.Sequence(
     HLTTauDQMOffline *
     jetMETHLTOfflineSource *
     #TnPEfficiency *
+    hltInclusiveVBFSource *
     dqmEnvHLT)
 
 #triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)

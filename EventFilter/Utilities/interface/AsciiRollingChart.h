@@ -22,7 +22,8 @@ namespace evf{
 	roll_.pop_front();
 	roll_.push_back(x);
       }
-      h_.fill(&(roll_.front()));
+      //h_.fill(&(roll_.front()));
+      h_.fillDeque(roll_);
     }
     std::string &draw(){return h_.draw();}
       

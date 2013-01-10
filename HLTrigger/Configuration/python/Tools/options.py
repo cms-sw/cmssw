@@ -77,6 +77,7 @@ class HLTProcessOptions(object):
     self.emulator   = None        # (*) if set, run (part of) the L1 emulator instead of taking the L1 results from the data
     self.unprescale = False       # (*) if set, unprescale all paths
     self.open       = False       #     if set, cms.ignore all filters, making all paths run on and accept all events
+    self.errortype  = False       #     if set, change all HLTTriggerTypeFilter EDFilters to accept only error events (SelectedTriggerType = 0)
     self.profiling  = False       #     if set, instrument the menu for profiling measurements
     self.timing     = False       #     if set, instrument the menu for timing measurements (implies profiling)
     self.paths      = None        #     if set, include in the dump only the given paths (wildcards are supported)

@@ -4,7 +4,7 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.cc,v 1.13 2011/04/14 15:24:51 mommsen Exp $
+   $Id: FUShmOutputModule.cc,v 1.14.2.5 2012/04/22 17:58:09 smorovic Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
@@ -46,6 +46,12 @@ namespace edm
     shmBuffer_(0)
     , name_(ps.getParameter<std::string>( "@module_label" ))
     , count_(0)
+    , postponeInitMsg_(false)
+    , sentInitMsg_(false)
+    , initBuf_(nullptr)
+    , initBufSize_(0)
+    , postponeStart_(false)
+    , nExpectedEPs_(0)
   {
     FDEBUG(9) << "FUShmOutputModule: constructor" << endl;
     if(edm::Service<evf::ShmOutputModuleRegistry>())
@@ -72,6 +78,18 @@ namespace edm
 
   void FUShmOutputModule::doOutputHeader(InitMsgBuilder const& initMessage)
   {
+    //saving message for later if postpone is on
+    if (postponeInitMsg_) {
+      sentInitMsg_=false;
+      if (initBuf_) delete initBuf_;//clean up if there are leftovers from last run
+      //copy message for later sending
+      initBufSize_ = initMessage.size();
+      initBuf_ = new unsigned char[initBufSize_];
+      memcpy(initBuf_, (unsigned char*) initMessage.startAddress(),sizeof(unsigned char)*initBufSize_);
+      return;
+    }
+
+    sentInitMsg_=true;
     count_ = 0;
     if(!shmBuffer_) shmBuffer_ = sm_sharedmemory.getShmBuffer();
     if(!shmBuffer_) edm::LogError("FUShmOutputModule") 
@@ -88,13 +106,54 @@ namespace edm
       uint32 dmoduleId = dummymsg.outputModuleId();
 
       //bool ret = shmBuffer_->writeRecoInitMsg(dmoduleId, buffer, size);
-      bool ret = sm_sharedmemory.getShmBuffer()->writeRecoInitMsg(dmoduleId, getpid(), fuGuidValue_, buffer, size);
+      bool ret = sm_sharedmemory.getShmBuffer()->writeRecoInitMsg(dmoduleId, getpid(), fuGuidValue_, buffer, size,nExpectedEPs_);
       if(!ret) edm::LogError("FUShmOutputModule") << " Error writing preamble to ShmBuffer";
     }
   }
 
+  void FUShmOutputModule::setPostponeInitMsg()
+  {
+    //postpone start and Init message for after beginRun
+    postponeInitMsg_=true;
+    postponeStart_=true;
+    //reset this on each run
+    if (initBuf_) delete initBuf_;
+    initBufSize_=0;
+    initBuf_=nullptr;
+    sentInitMsg_=false;
+  }
+
+  void FUShmOutputModule::sendPostponedInitMsg() 
+  {
+    if (postponeStart_) {
+      postponeStart_=false;
+      start();
+    }
+    if (!sentInitMsg_ && postponeInitMsg_) {
+      if(!shmBuffer_) shmBuffer_ = sm_sharedmemory.getShmBuffer();
+      if(!shmBuffer_) edm::LogError("FUShmOutputModule")
+	<< " Error getting shared memory buffer for INIT. "
+	<< " Make sure you configure the ResourceBroker before the FUEventProcessor! "
+	<< " No INIT is sent - this is probably fatal!";
+      if(shmBuffer_)
+      {
+	FDEBUG(10) << "writing out (postponed) INIT message with size = " << initBufSize_ << std::endl;
+	InitMsgView dummymsg(initBuf_);
+	uint32 dmoduleId = dummymsg.outputModuleId();
+	bool ret = sm_sharedmemory.getShmBuffer()->writeRecoInitMsg(dmoduleId, getpid(), fuGuidValue_, initBuf_, initBufSize_,nExpectedEPs_);
+	if(!ret) edm::LogError("FUShmOutputModule") << " Error writing preamble to ShmBuffer";
+      }
+      sentInitMsg_=true;
+      if (initBuf_) delete initBuf_;
+      initBufSize_=0;
+      initBuf_=nullptr;
+    }
+  }
+
+
   void FUShmOutputModule::doOutputEvent(EventMsgBuilder const& eventMessage)
   {
+    if (!sentInitMsg_ && postponeInitMsg_) sendPostponedInitMsg();
     if(!shmBuffer_) edm::LogError("FUShmOutputModule") 
       << " Invalid shared memory buffer at first event"
       << " Make sure you configure the ResourceBroker before the FUEventProcessor! "
@@ -117,10 +176,16 @@ namespace edm
 
   void FUShmOutputModule::start()
   {
+    if (postponeStart_) return;
     //shmBuffer_ = evf::FUShmBuffer::getShmBuffer();
     shmBuffer_ = sm_sharedmemory.getShmBuffer();
     if(0==shmBuffer_) 
       edm::LogError("FUShmOutputModule")<<"Failed to attach to shared memory";
+  }
+
+  void FUShmOutputModule::sendPostponedStart() {
+      postponeStart_=false;
+      start();
   }
 
   void FUShmOutputModule::stop()
@@ -130,6 +195,17 @@ namespace edm
       sm_sharedmemory.detachShmBuffer();
       //shmdt(shmBuffer_);
       shmBuffer_ = 0;
+    }
+  }
+
+  void FUShmOutputModule::setNExpectedEPs(unsigned int EPs) {
+    nExpectedEPs_ = EPs;
+  }
+
+  void FUShmOutputModule::unregisterFromShm() {
+    shmBuffer_=sm_sharedmemory.getBufferRef();
+    if (0!=shmBuffer_) {
+      shmBuffer_->removeClientPrcId(getpid());
     }
   }
 

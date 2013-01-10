@@ -101,6 +101,8 @@ typedef HLTDoublet<Electron            ,HLTTau>  HLT2ElectronHLTTau;
 typedef HLTDoublet<RecoChargedCandidate,HLTTau>  HLT2MuonHLTTau;
 typedef HLTDoublet<Electron            ,PFTau>   HLT2ElectronPFTau;
 typedef HLTDoublet<RecoChargedCandidate,PFTau>   HLT2MuonPFTau;
+typedef HLTDoublet<Electron            ,PFJet>   HLT2ElectronPFJet;
+typedef HLTDoublet<RecoChargedCandidate,PFJet>   HLT2MuonPFJet;
 
 typedef HLTDoublet<Electron            ,CaloMET> HLT2ElectronCaloMET;
 typedef HLTDoublet<RecoChargedCandidate,CaloMET> HLT2MuonCaloMET;
@@ -132,6 +134,8 @@ DEFINE_FWK_MODULE(HLT2MuonTau);
 //DEFINE_FWK_MODULE(HLT2MuonHLTTau);
 DEFINE_FWK_MODULE(HLT2ElectronPFTau);
 DEFINE_FWK_MODULE(HLT2MuonPFTau);
+DEFINE_FWK_MODULE(HLT2ElectronPFJet);
+DEFINE_FWK_MODULE(HLT2MuonPFJet);
 DEFINE_FWK_MODULE(HLT2ElectronCaloMET);
 DEFINE_FWK_MODULE(HLT2MuonCaloMET);
 DEFINE_FWK_MODULE(HLT2ElectronMET);

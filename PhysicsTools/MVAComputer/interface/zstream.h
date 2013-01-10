@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: zstream.h,v 1.3 2007/07/15 22:31:46 saout Exp $
+// $Id: zstream.h,v 1.2 2007/05/25 16:37:58 saout Exp $
 //
 
 #include <iostream>
@@ -102,7 +102,7 @@ class basic_ozstreambase : virtual public std::basic_ios<Item_t, Traits_t> {
 	typedef basic_ozstreambuf<Item_t, Traits_t, Allocator_t> ZOStreamBuf_t;
 
 	basic_ozstreambase(OStream_t *os, int level) :
-		buffer(os, level) { this->init(&buffer); }
+		buffer(os, level) { init(&buffer); }
 
 	ZOStreamBuf_t *rdbuf() { return &buffer; }
 
@@ -117,7 +117,7 @@ class basic_izstreambase : virtual public std::basic_ios<Item_t, Traits_t> {
 	typedef std::basic_istream<Item_t, Traits_t> IStream_t;
 	typedef basic_izstreambuf<Item_t, Traits_t, Allocator_t> ZIStreamBuf_t;
 
-	basic_izstreambase(IStream_t *is) : buffer(is) { this->init(&buffer); }
+	basic_izstreambase(IStream_t *is) : buffer(is) { init(&buffer); }
 
 	ZIStreamBuf_t *rdbuf() { return &buffer; }
 

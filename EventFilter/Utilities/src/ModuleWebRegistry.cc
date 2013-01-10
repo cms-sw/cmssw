@@ -26,13 +26,13 @@ void ModuleWebRegistry::invoke(xgi::Input *in, xgi::Output *out, const std::stri
     }
 }
 
-void ModuleWebRegistry::openBackDoor(const std::string &name, unsigned int timeout_sec)
+void ModuleWebRegistry::openBackDoor(const std::string &name, unsigned int timeout_sec, bool * started)
 {
   idct i = clm_.find(name);
   if(i != clm_.end())
     {
       try{
-	(*i).second->openBackDoor(timeout_sec);
+	(*i).second->openBackDoor(timeout_sec,started);
       }
       catch(...)
 	{
@@ -54,6 +54,16 @@ void ModuleWebRegistry::closeBackDoor(const std::string &name)
 	  std::cout << "exception caught when calling close backdoor for " << name << std::endl;
 	}
     }
+}
+
+void ModuleWebRegistry::publishForkInfo(std::string name, moduleweb::ForkInfoObj * forkInfoObj)
+{
+    idct i = clm_.find(name);
+    if(i != clm_.end())
+    {
+	(*i).second->publishForkInfo(forkInfoObj);
+    }
+
 }
 
 void ModuleWebRegistry::publish(xdata::InfoSpace *is)

@@ -5,6 +5,8 @@
 #include "TGLPhysicalShape.h"
 #include "TGLLogicalShape.h"
 #include "TGeoVolume.h"
+#include "TEveManager.h"
+#include "TEveSelection.h"
 #include "TBuffer3D.h"
 
 
@@ -12,11 +14,11 @@
 FWGeoTopNodeGLScene::FWGeoTopNodeGLScene(TVirtualPad* pad) :
    TGLScenePad(pad),
    // fNextCompositeID(0),
-   fTopNodeJebo(0)
+   m_eveTopNode(0)
 {
    // Constructor.
    // fInternalPIDs = false;
-   fTitle="JeboScene";
+   fTitle="GeoTopNodeScene";
 }
 
 //______________________________________________________________________________
@@ -86,9 +88,9 @@ Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curI
       rec.SetPhysShape(pshp);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,32,0)
-      rec.SetLogShape(FindLogical(fTopNodeJebo));
+      rec.SetLogShape(FindLogical(m_eveTopNode));
 #endif
-      rec.SetObject(fTopNodeJebo);
+      rec.SetObject(m_eveTopNode);
       rec.SetSpecific(0);
       return kTRUE;
    }
@@ -96,8 +98,32 @@ Bool_t FWGeoTopNodeGLScene::ResolveSelectRecord(TGLSelectRecord& rec, Int_t curI
 }
 
 //______________________________________________________________________________
-void FWGeoTopNodeGLScene::GeoPopupMenu(Int_t gx, Int_t gy)
-{fTopNodeJebo->popupMenu(gx, gy);
+Int_t FWGeoTopNodeGLScene::DestroyPhysicals()
+{
+   // Need to clear state on full redraw, else FWGeoTopNode ends
+   // with invalid set of selected physical and logical ids.
+
+   if (gEve->GetSelection()->HasChild( m_eveTopNode))
+      gEve->GetSelection()->RemoveElement( m_eveTopNode);
+
+   if (gEve->GetHighlight()->HasChild( m_eveTopNode))
+      gEve->GetHighlight()->RemoveElement( m_eveTopNode);
+
+
+   return TGLScene::DestroyPhysicals();
+}
+
+//______________________________________________________________________________
+Bool_t FWGeoTopNodeGLScene::DestroyPhysical(Int_t x)
+{ 
+   fwLog(fwlog::kInfo) << "FWGeoTopNodeGLScene::DestroyPhysical()\n"; 
+   return TGLScene::DestroyPhysical(x);
+}
+
+//______________________________________________________________________________
+void FWGeoTopNodeGLScene::GeoPopupMenu(Int_t gx, Int_t gy, TGLViewer* v)
+{
+   m_eveTopNode->popupMenu(gx, gy,v);
 }
 
 //==============================================================================

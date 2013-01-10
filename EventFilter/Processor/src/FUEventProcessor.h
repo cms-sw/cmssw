@@ -10,6 +10,9 @@
 
 #include "EventFilter/Utilities/interface/MasterQueue.h"
 #include "EventFilter/Utilities/interface/SlaveQueue.h"
+#include "EventFilter/Utilities/interface/ModuleWeb.h"
+#include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
+#include "EventFilter/Modules/interface/ShmOutputModuleRegistry.h"
 #include "SubProcess.h"
 #include "FWEPWrapper.h"
 
@@ -32,6 +35,8 @@
 
 #include <sys/time.h>
 #include <pthread.h>
+#include <sys/resource.h>
+#include <signal.h>
 
 #include <list>
 #include <vector>
@@ -103,6 +108,7 @@ namespace evf
       css_.css(in,out);
     }
 
+    void getSlavePids(xgi::Input  *in, xgi::Output *out);
     void subWeb(xgi::Input *in,xgi::Output *out);
     void moduleWeb(xgi::Input *in,xgi::Output *out){evtProcessor_.moduleWeb(in,out);}
     void serviceWeb(xgi::Input *in,xgi::Output *out){evtProcessor_.serviceWeb(in,out);}
@@ -111,10 +117,21 @@ namespace evf
     void procStat(xgi::Input *in,xgi::Output *out);
     void sendMessageOverMonitorQueue(MsgBuf &);
 
+    static void forkProcessFromEDM_helper(void * addr);
+    void handleSignalSlave(int sig, siginfo_t* info, void* c);
+
   private:
 
-    void attachDqmToShm()   throw (evf::Exception);
-    void detachDqmFromShm() throw (evf::Exception);
+
+    void forkProcessesFromEDM();
+
+    bool enableForkInEDM();
+    bool restartForkInEDM(unsigned int slotId);
+    bool doEndRunInEDM();
+
+    void setAttachDqmToShm() throw (evf::Exception);
+    void attachDqmToShm()    throw (evf::Exception);
+    void detachDqmFromShm()  throw (evf::Exception);
 
     std::string logsAsString();
     void localLog(std::string);
@@ -132,6 +149,9 @@ namespace evf
     bool receiving(toolbox::task::WorkLoop* wl);
     bool receivingAndMonitor(toolbox::task::WorkLoop* wl);
     bool supervisor(toolbox::task::WorkLoop* wl);
+    void startSignalMonitorWorkLoop() throw (evf::Exception);
+    bool sigmon(toolbox::task::WorkLoop* wl);
+
     bool enableCommon();
     bool enableClassic();
     //    void enableMPEPMaster();
@@ -199,6 +219,7 @@ namespace evf
 
     xdata::UnsignedInteger32         nbSubProcesses_;
     xdata::UnsignedInteger32         nbSubProcessesReporting_;
+    xdata::UnsignedInteger32         forkInEDM_;
     std::vector<SubProcess>          subs_;
     unsigned int                     nblive_; 
     unsigned int                     nbdead_; 
@@ -216,6 +237,10 @@ namespace evf
     toolbox::task::WorkLoop         *wlSupervising_;      
     toolbox::task::ActionSignature  *asSupervisor_;
     bool                             supervising_;
+    toolbox::task::WorkLoop         *wlSignalMonitor_;      
+    toolbox::task::ActionSignature  *asSignalMonitor_;
+    bool                             signalMonitorActive_;
+
 
     xdata::InfoSpace*                monitorInfoSpace_;
     xdata::InfoSpace*                monitorLegendaInfoSpace_;
@@ -252,11 +277,24 @@ namespace evf
     CPUStat                         *cpustat_;
     RateStat                        *ratestat_;
 
+    ModuleWebRegistry                *mwrRef_;
+    ShmOutputModuleRegistry          *sorRef_;
     MsgBuf                           master_message_prg_;
     MsgBuf                           master_message_prr_;
     MsgBuf                           slave_message_prr_;
     MsgBuf                           slave_message_monitoring_;
     MsgBuf                           master_message_trr_;
+
+    moduleweb::ForkInfoObj           *forkInfoObj_;
+    pthread_mutex_t                  forkObjLock_;
+    bool                             edm_init_done_;
+
+    unsigned int                     crashesThisRun_;
+    bool                             rlimit_coresize_changed_;
+    rlimit                           rlimit_coresize_default_;
+    xdata::UnsignedInteger32         crashesToDump_;
+    sem_t                            *sigmon_sem_;
+    timeval                          lastCrashTime_;
   };
   
 } // namespace evf

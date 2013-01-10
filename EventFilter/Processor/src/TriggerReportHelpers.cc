@@ -1,5 +1,5 @@
 #include "EventFilter/Utilities/interface/Exception.h"
-#include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
+#include "EventFilter/Modules/interface/ShmOutputModuleRegistry.h"
 
 #include "TriggerReportHelpers.h"
 #include "FWCore/Framework/interface/TriggerReport.h"

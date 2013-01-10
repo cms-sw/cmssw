@@ -75,14 +75,12 @@ SUSYDQMAnalyzer::SUSYDQMAnalyzer( const edm::ParameterSet& pSet)
   
   SUSYFolder = iConfig.getParameter<std::string>("folderName");
   dqm = edm::Service<DQMStore>().operator->();
-  //std::cout<<"here 1!"<<std::endl;
 }
 
+const char* SUSYDQMAnalyzer::messageLoggerCatregory = "SUSYDQM";
 
 void SUSYDQMAnalyzer::beginJob(void){
-
-  // Load parameters
-  //std::cout<<"here 2!"<<std::endl;
+  // Load parameters 
   thePFMETCollectionLabel     = iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel");
   theCaloMETCollectionLabel   = iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel");
   theTCMETCollectionLabel     = iConfig.getParameter<edm::InputTag>("TCMETCollectionLabel");
@@ -94,15 +92,10 @@ void SUSYDQMAnalyzer::beginJob(void){
   _ptThreshold = iConfig.getParameter<double>("ptThreshold");
   _maxNJets = iConfig.getParameter<double>("maxNJets");
   _maxAbsEta = iConfig.getParameter<double>("maxAbsEta");
-
-  //std::cout<<"here 3!"<<std::endl;
-  //std::cout<<thePFJetCollectionLabel<<std::endl;
 }
 
 void SUSYDQMAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-  //std::cout<<"here 4!"<<std::endl;
   if( dqm ) {
-    //std::cout<<"here 5!"<<std::endl;
     //===========================================================  
     // book HT histos.
 
@@ -142,21 +135,11 @@ void SUSYDQMAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
     hCaloAlpha_T = dqm->book1D("Calo_AlphaT", "", 100, 0., 1.);
     hJPTAlpha_T  = dqm->book1D("PF_AlphaT"  , "", 100, 0., 1.);
     hPFAlpha_T   = dqm->book1D("JPT_AlphaT"  , "", 100, 0., 1.);
-    //std::cout<<"here 6!"<<std::endl;
   }
 }
 
 void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  //std::cout<<"here 7!"<<std::endl;
-  // Commenting out unused but initialized variables. [Suchandra Dutta]
-//  EventID TheEvent = iEvent.id();
-  //int BXN = iEvent.bunchCrossing() ;
-  //bool Dump = TextFileName.size();
-  //int TheEventNumber = TheEvent.event();
-  //int Lumi = iEvent.luminosityBlock();
-  //int Run  = iEvent.run();
-
   //###########################################################
   // HTand MHT
   
@@ -173,7 +156,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for (reco::CaloJetCollection::const_iterator jet = CaloJetcoll->begin(); jet!=CaloJetcoll->end(); ++jet){
     if ((jet->pt()>_ptThreshold) && (abs(jet->eta()) < _maxAbsEta)){
       if(Ps.size()>_maxNJets) {
-        std::cout<<"NMax Jets exceded.."<<std::endl;
+	edm::LogWarning(messageLoggerCatregory)<<"NMax Jets exceded..";
         break;
       }
       Ps.push_back(jet->p4());
@@ -181,12 +164,9 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }
 
   hCaloAlpha_T->Fill( alpha_T()(Ps));
-  //std::cout<<"Calo Alpha_T "<<alpha_T()(Ps)<<std::endl;
 
   HT< reco::CaloJetCollection > CaloHT(CaloJetcoll, _ptThreshold, _maxAbsEta);
 
-  //std::cout << "Calo MHT " << CaloHT.v.Mod() << std::endl;
-  //std::cout << "Calo HT " << CaloHT.ScalarSum << std::endl;
   hCaloHT->Fill(CaloHT.ScalarSum);
   hCaloMHT->Fill(CaloHT.v.Mod());
 
@@ -203,20 +183,16 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for (reco::PFJetCollection::const_iterator jet = PFjetcoll->begin(); jet!=PFjetcoll->end(); ++jet){
     if ((jet->pt()>_ptThreshold) && (abs(jet->eta()) < _maxAbsEta)){
       if(Ps.size()>_maxNJets) {
-	std::cout<<"NMax Jets exceded.."<<std::endl;
+	edm::LogWarning(messageLoggerCatregory)<<"NMax Jets exceded..";
 	break;
       }
       Ps.push_back(jet->p4());
     }
   }
-  //std::cout<<Ps.size()<<" "<<Ps.max_size()<<std::endl;
   hPFAlpha_T->Fill( alpha_T()(Ps));
-  //std::cout<<"PF Alpha_T "<<alpha_T()(Ps)<<std::endl;
 
   HT<reco::PFJetCollection> PFHT(PFjetcoll, _ptThreshold, _maxAbsEta);
 
-  //std::cout << "PF MHT " << PFHT.v.Mod() << std::endl;
-  //std::cout << "PF HT " << PFHT.ScalarSum << std::endl;
   hPFHT->Fill(PFHT.ScalarSum);
   hPFMHT->Fill(PFHT.v.Mod());
   
@@ -233,19 +209,16 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   for (reco::JPTJetCollection::const_iterator jet = JPTjetcoll->begin(); jet!=JPTjetcoll->end(); ++jet){
     if ((jet->pt()>_ptThreshold) && (abs(jet->eta())<_maxAbsEta)){
       if(Ps.size()>_maxNJets) {
-        std::cout<<"NMax Jets exceded..."<<std::endl;
+	edm::LogWarning(messageLoggerCatregory)<<"NMax Jets exceded..";
         break;
       }
       Ps.push_back(jet->p4());
     }
   }
   hJPTAlpha_T->Fill( alpha_T()(Ps));
-  //std::cout<<"JPT Alpha_T "<<alpha_T()(Ps)<<std::endl;
 
   HT<reco::JPTJetCollection> JPTHT(JPTjetcoll, _ptThreshold, _maxAbsEta);
 
-  //std::cout << "JPT MHT " << JPTHT.v.Mod() << std::endl;
-  //std::cout << "JPT HT " << JPTHT.ScalarSum << std::endl;
   hJPTHT->Fill(JPTHT.ScalarSum);
   hJPTMHT->Fill(JPTHT.v.Mod());
 
@@ -265,7 +238,6 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   calomet = &(calometcol->front());
   
   hCaloMET->Fill(calomet->pt());
-  //std::cout<<"Calo MET "<<calomet->pt()<<std::endl;
 
   //===========================================================
   // PF MET
@@ -280,7 +252,6 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   pfmet = &(pfmetcol->front());
 
   hPFMET->Fill(pfmet->pt());
-  //std::cout<<"PF MET "<<pfmet->pt()<<std::endl;
 
   //===========================================================
   // TC MET
@@ -295,7 +266,6 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   tcmet = &(tcmetcol->front());
 
   hTCMET->Fill(tcmet->pt());
-  //std::cout<<"TC MET "<<tcmet->pt()<<std::endl;
 
 }
 

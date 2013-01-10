@@ -22,7 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
         default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-        NoiseDBValidation = cms.untracked.PSet( limit = cms.untracked.int32(10000000) ),
+        NoiseDbValidation = cms.untracked.PSet( limit = cms.untracked.int32(10000000) ),
         threshold = cms.untracked.string('DEBUG'),
     ),
     categories = cms.untracked.vstring('NoiseDBValidation'),

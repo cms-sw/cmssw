@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.128 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,8 +20,6 @@
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
-
-#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h"
 
@@ -51,7 +49,10 @@ EBTriggerTowerClient::EBTriggerTowerClient(const edm::ParameterSet& ps) {
 
     int ism = superModules_[i];
 
+    l01_[ism-1] = 0;
     o01_[ism-1] = 0;
+
+    mel01_[ism-1] = 0;
     meo01_[ism-1] = 0;
 
   }
@@ -64,10 +65,6 @@ EBTriggerTowerClient::EBTriggerTowerClient(const edm::ParameterSet& ps) {
     me_o02_[ism-1] = 0;
 
   }
-
-  ievt_ = 0;
-  jevt_ = 0;
-  dqmStore_ = 0;
 
 }
 
@@ -116,24 +113,24 @@ void EBTriggerTowerClient::setup(void) {
 
   std::string name;
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/TriggerPrimitives/Timing" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBTriggerTowerClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
     if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
-    name = "TrigPrimClient Timing " + Numbers::sEB(ism);
-    me_o01_[ism-1] = dqmStore_->book2D(name, name, 17, 0., 85., 4, 0., 20.);
+    name = "EBTTT Trigger Primitives Timing " + Numbers::sEB(ism);
+    me_o01_[ism-1] = dqmStore_->book2D(name, name, 17, 0., 17., 4, 0., 4.);
     me_o01_[ism-1]->setAxisTitle("ieta'", 1);
     me_o01_[ism-1]->setAxisTitle("iphi'", 2);
 
-//     if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
-//     name = "TrigPrimClient Non Single Timing " + Numbers::sEB(ism);
-//     me_o02_[ism-1] = dqmStore_->book2D(name, name, 17, 0., 85., 4, 0., 20.);
-//     me_o02_[ism-1]->setAxisTitle("ieta'", 1);
-//     me_o02_[ism-1]->setAxisTitle("iphi'", 2);
-//     me_o02_[ism-1]->setAxisTitle("fraction", 3);
+    if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
+    name = "EBTTT Non Single Timing " + Numbers::sEB(ism);
+    me_o02_[ism-1] = dqmStore_->book2D(name, name, 17, 0., 17., 4, 0., 4.);
+    me_o02_[ism-1]->setAxisTitle("ieta'", 1);
+    me_o02_[ism-1]->setAxisTitle("iphi'", 2);
+    me_o02_[ism-1]->setAxisTitle("fraction", 3);
 
   }
 
@@ -157,22 +154,27 @@ void EBTriggerTowerClient::cleanup(void) {
     int ism = superModules_[i];
 
     if ( cloneME_ ) {
+      if ( l01_[ism-1] ) delete l01_[ism-1];
       if ( o01_[ism-1] ) delete o01_[ism-1];
     }
 
+    l01_[ism-1] = 0;
     o01_[ism-1] = 0;
 
+    mel01_[ism-1] = 0;
     meo01_[ism-1] = 0;
 
   }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBTriggerTowerClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getFullname() );
+    if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
     me_o01_[ism-1] = 0;
-    if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getFullname() );
+    if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
     me_o02_[ism-1] = 0;
 
   }
@@ -183,6 +185,18 @@ void EBTriggerTowerClient::cleanup(void) {
 bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status) {
 
   status = true;
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( verbose_ ) {
+      std::cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << std::endl;
+      std::cout << std::endl;
+      UtilsClient::printBadChannels(mel01_[ism-1], UtilsClient::getHisto<TH2F*>(mel01_[ism-1]), true);
+    }
+
+  }
 
   return true;
 
@@ -198,53 +212,51 @@ void EBTriggerTowerClient::analyze(void) {
   }
 
   MonitorElement* me;
-  std::string name;
-  std::stringstream ss;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    me = dqmStore_->get( prefixME_ + "/TriggerPrimitives/EmulMatching/TrigPrimTask matching index " + Numbers::sEB(ism) );
-    o01_[ism-1] = UtilsClient::getHisto( me, cloneME_, o01_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EBTriggerTowerTask/EBTTT EmulError " + Numbers::sEB(ism) );
+    l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
+    mel01_[ism-1] = me;
+
+    me = dqmStore_->get( prefixME_ + "/EBTriggerTowerTask/EBTTT EmulFineGrainVetoError " + Numbers::sEB(ism) );
+    l02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l02_[ism-1] );
+    mel02_[ism-1] = me;
+
+    me = dqmStore_->get( prefixME_ + "/EBTriggerTowerTask/EBTTT EmulMatch " + Numbers::sEB(ism) );
+    o01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, o01_[ism-1] );
     meo01_[ism-1] = me;
 
     if ( me_o01_[ism-1] ) me_o01_[ism-1]->Reset();
     if ( me_o02_[ism-1] ) me_o02_[ism-1]->Reset();
 
-    if ( o01_[ism-1] ) {
+    for (int ie = 1; ie <= 17; ie++) {
+      for (int ip = 1; ip <= 4; ip++) {
 
-      for (int ie = 1; ie <= 17; ie++) {
-	for (int ip = 1; ip <= 4; ip++) {
-
+        if ( o01_[ism-1] ) {
           // find the most frequent TP timing that matches the emulator
           float index=-1;
           double max=0;
           double total=0;
-
-	  int itcc(ism + 36);
-	  int itt((ie - 1) * 4 + ip);
-
-          for (int j = -1; j<6; j++) {
-            double sampleEntries = o01_[ism-1]->GetBinContent(itt, j+2);
+          for (int j=0; j<6; j++) {
+            double sampleEntries = o01_[ism-1]->GetBinContent(ie, ip, j+1);
             if(sampleEntries > max) {
-              index = j;
+              index=j;
               max = sampleEntries;
             }
             total += sampleEntries;
           }
           if ( max > 0 ) {
-	    me_o01_[ism-1]->setBinContent(ie, ip, index );
+            if ( index == 0 ) {
+              me_o01_[ism-1]->setBinContent(ie, ip, -1);
+            } else {
+              me_o01_[ism-1]->setBinContent(ie, ip, index );
+            }
           }
-	  if ((int)total != (int)max) {
-	    ss.str("");
-	    ss << "TT " << itcc << " " << itt;
-	    name = "TrigPrimClient non single timing " + ss.str();
-	    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/EmulationErrors/Timing");
-	    me = dqmStore_->book1D(name, name, 1, 0., 1.);
-	    me->setBinContent(1, 1.0 - max / total);
-	    me->setAxisTitle("fraction", 2);
-	  }
+          double fraction = (total > 0) ? 1.0 - max/total : 0.;
+          if ( me_o02_[ism-1] ) me_o02_[ism-1]->setBinContent(ie, ip, fraction);
         }
 
       }

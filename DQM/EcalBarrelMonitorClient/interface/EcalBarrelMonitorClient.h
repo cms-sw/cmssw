@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2010/11/03 11:46:56 $
- * $Revision: 1.125 $
+ * $Date: 2012/03/15 13:13:01 $
+ * $Revision: 1.125.6.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,8 +33,7 @@ class RunIOV;
 class MonRunIOV;
 #endif
 
-class EcalBarrelMonitorClient: public edm::EDAnalyzer
-{
+class EcalBarrelMonitorClient: public edm::EDAnalyzer{
 
 friend class EcalBarrelMonitorXdaqClient;
 
@@ -151,6 +150,8 @@ EBSummaryClient* summaryClient_;
 DQMStore* dqmStore_;
 
 std::string prefixME_;
+
+ bool produceReports_;
  
 std::string location_;
 
@@ -170,8 +171,6 @@ bool forced_status_;
 bool forced_update_;
 
 int last_run_;
-
- int last_event_;
  
 TH1F* h_;
 

@@ -39,6 +39,9 @@ namespace edm {
       EDM_MAP_ENTRY_NONS(trans_, NotFound);
       EDM_MAP_ENTRY_NONS(trans_, FormatIncompatibility);
       EDM_MAP_ENTRY_NONS(trans_, FallbackFileOpenError);
+      EDM_MAP_ENTRY_NONS(trans_, ExceededResourceVSize);
+      EDM_MAP_ENTRY_NONS(trans_, ExceededResourceRSS);
+      EDM_MAP_ENTRY_NONS(trans_, ExceededResourceTime);
     }
   }
 

@@ -40,31 +40,24 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-
-#include "DPGAnalysis/SiStripTools/interface/DetIdSelector.h"
 //
 // class decleration
 //
 template <class T>
 class MultiplicityProducer : public edm::EDProducer {
+   public:
+      explicit MultiplicityProducer(const edm::ParameterSet&);
+      ~MultiplicityProducer();
 
-public:
-  explicit MultiplicityProducer(const edm::ParameterSet&);
-  ~MultiplicityProducer();
-  
-private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  int multiplicity(typename T::const_iterator det) const;
-  int detSetMultiplicity(typename T::const_iterator det) const;
-
+   private:
+      virtual void beginJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
+      
       // ----------member data ---------------------------
 
-  edm::InputTag m_collection;
-  bool m_clustersize;
-  std::map<unsigned int, std::string> m_subdets;
-  std::map<unsigned int, DetIdSelector> m_subdetsels;
+  edm::InputTag _collection;
+  std::map<unsigned int, std::string> _subdets;
 
 };
 
@@ -82,9 +75,8 @@ private:
 //
 template <class T>
 MultiplicityProducer<T>::MultiplicityProducer(const edm::ParameterSet& iConfig):
-  m_collection(iConfig.getParameter<edm::InputTag>("clusterdigiCollection")),
-  m_clustersize(iConfig.getUntrackedParameter<bool>("withClusterSize",false)),
-  m_subdets(),m_subdetsels()
+  _collection(iConfig.getParameter<edm::InputTag>("clusterdigiCollection")),
+  _subdets()
 {
 
   produces<std::map<unsigned int,int> >();
@@ -94,9 +86,7 @@ MultiplicityProducer<T>::MultiplicityProducer(const edm::ParameterSet& iConfig):
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
 					     
   for(std::vector<edm::ParameterSet>::iterator ps=wantedsubds.begin();ps!=wantedsubds.end();++ps) {
-    m_subdets[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    m_subdetsels[ps->getParameter<unsigned int>("detSelection")] = 
-      DetIdSelector(ps->getUntrackedParameter<std::vector<std::string> >("selection",std::vector<std::string>()));
+    _subdets[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
   }
 }
 
@@ -128,34 +118,26 @@ MultiplicityProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   
   
   Handle<T> digis;
-  iEvent.getByLabel(m_collection,digis);
+  iEvent.getByLabel(_collection,digis);
   
-  for(std::map<unsigned int,std::string>::const_iterator sdet=m_subdets.begin();sdet!=m_subdets.end();++sdet) { (*mults)[sdet->first]=0; }
+  for(std::map<unsigned int,std::string>::const_iterator sdet=_subdets.begin();sdet!=_subdets.end();++sdet) { (*mults)[sdet->first]=0; }
 
   
   for(typename T::const_iterator det = digis->begin();det!=digis->end();++det) {
     
-    //    if(m_subdets.find(0)!=m_subdets.end()) (*mults)[0]+= det->size();
-    if(m_subdets.find(0)!=m_subdets.end()) (*mults)[0]+= multiplicity(det);
+    if(_subdets.find(0)!=_subdets.end()) (*mults)[0]+= det->size();
 
     DetId detid(det->detId());
     unsigned int subdet = detid.subdetId();
 
-    //    if(m_subdets.find(subdet)!=m_subdets.end() && !m_subdetsels[subdet].isValid() ) (*mults)[subdet] += det->size();
-    if(m_subdets.find(subdet)!=m_subdets.end() && !m_subdetsels[subdet].isValid() ) (*mults)[subdet] += multiplicity(det);
+    if(_subdets.find(subdet)!=_subdets.end()) (*mults)[subdet] += det->size();
 
-    for(std::map<unsigned int,DetIdSelector>::const_iterator detsel=m_subdetsels.begin();detsel!=m_subdetsels.end();++detsel) {
-
-      //      if(detsel->second.isValid() && detsel->second.isSelected(detid)) (*mults)[detsel->first] += det->size();
-      if(detsel->second.isValid() && detsel->second.isSelected(detid)) (*mults)[detsel->first] += multiplicity(det);
-
-    }
 
   }
   
   
   for(std::map<unsigned int,int>::const_iterator it=mults->begin();it!=mults->end();++it) {
-    LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first << " " << m_subdets[it->first];
+    LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first << " " << _subdets[it->first];
   }
   
   iEvent.put(mults);
@@ -173,72 +155,6 @@ MultiplicityProducer<T>::beginJob()
 template <class T>
 void 
 MultiplicityProducer<T>::endJob() {
-}
-
-template <class T>
-int
-MultiplicityProducer<T>::multiplicity(typename T::const_iterator det) const {
-
-  int mult = 0;
-  if(m_clustersize) {
-
-
-    //    edm::LogInfo("multiplicitywithcustersize") << "sono qua: with size";
-    mult = detSetMultiplicity(det);
-
-  }
-  else {
-
-    mult = det->size();
-    //    edm::LogInfo("multiplicitywithcustersize") << "sono qua senza size";
-
-  }
-  return mult;
-}
-
-
-template <class T>
-int
-MultiplicityProducer<T>::detSetMultiplicity(typename T::const_iterator det) const {
-
-  return det->size();
-
-}
-
-
-template <>
-int 
-MultiplicityProducer<edmNew::DetSetVector<SiStripCluster> >::detSetMultiplicity(edmNew::DetSetVector<SiStripCluster>::const_iterator det) const {
-
-  int mult = 0;
-  
-  for(edmNew::DetSet<SiStripCluster>::const_iterator clus=det->begin();clus!=det->end();++clus) {
-
-    //    edm::LogInfo("multiplicitywithcustersize") << "sono qua";
-    mult += clus->amplitudes().size();
-
-
-
-  }
-
-  return mult;
-
-}
-
-template <>
-int
-MultiplicityProducer<edmNew::DetSetVector<SiPixelCluster> >::detSetMultiplicity(edmNew::DetSetVector<SiPixelCluster>::const_iterator det) const {
-
-  int mult = 0;
-  
-  for(edmNew::DetSet<SiPixelCluster>::const_iterator clus=det->begin();clus!=det->end();++clus) {
-
-    mult += clus->size();
-
-  }
-
-  return mult;
-
 }
 
 //define this as a plug-in

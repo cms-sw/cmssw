@@ -56,7 +56,6 @@ private:
   edm::InputTag m_l1extraemn;
   edm::InputTag m_l1extrajetc;
   edm::InputTag m_l1extrajetf;
-  edm::InputTag m_l1extrajet;
   edm::InputTag m_l1extrataujet;
   edm::InputTag m_l1extramet;
   edm::InputTag m_l1extramht;
@@ -65,7 +64,7 @@ private:
   edm::InputTag gctBitCounts_,gctRingSums_;
 
   int errCnt;
-  static int errMax() { return 5; }
+  static int errMax() { return 100; }
 
   std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;

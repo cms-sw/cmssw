@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2011/09/02 13:55:01 $
- * $Revision: 1.127 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -65,11 +65,6 @@ EBCosmicClient::EBCosmicClient(const edm::ParameterSet& ps) {
     meh03_[ism-1] = 0;
 
   }
-
-  ievt_ = 0;
-  jevt_ = 0;
-
-  dqmStore_ = 0;
 
 }
 

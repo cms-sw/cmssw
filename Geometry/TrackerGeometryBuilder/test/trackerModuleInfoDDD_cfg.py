@@ -5,9 +5,8 @@ process = cms.Process("GeometryTest")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 # Choose Tracker Geometry
-process.load('Configuration.Geometry.GeometryExtended_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+process.load('Configuration/StandardSequences/GeometryExtended_cff')
+process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",
                                                            fromDDD = cms.bool( True )

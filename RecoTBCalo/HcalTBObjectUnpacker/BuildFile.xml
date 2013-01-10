@@ -1,3 +1,4 @@
+<flags   EDM_PLUGIN="1"/>
 <use   name="TBDataFormats/HcalTBObjects"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/HcalRecHit"/>

@@ -75,14 +75,12 @@ public:
 		 const edm::Handle<reco::CaloJetCollection>      & ohjets,
                  const edm::Handle<reco::CaloJetCollection>      & ohcorjets,
 		 const edm::Handle<reco::CaloJetCollection>      & ohcorL1L2L3jets,
-		 const edm::Handle<double>                       & rho,
 		 const edm::Handle<reco::CaloJetCollection>      & recojets,
 		 const edm::Handle<reco::CaloJetCollection>      & recocorjets,
                  const edm::Handle<reco::GenJetCollection>       & gjets,
                  const edm::Handle<reco::CaloMETCollection>      & rmets,
                  const edm::Handle<reco::GenMETCollection>       & gmets,
                  const edm::Handle<reco::METCollection>          & ht,                
-                 const edm::Handle<reco::CaloJetCollection>      & myHLTL2Tau,
                  const edm::Handle<reco::HLTTauCollection>       & myHLTTau,
                  const edm::Handle<reco::PFTauCollection>        & myHLTPFTau,
                  const edm::Handle<reco::PFTauCollection>        & myHLTPFTauTightCone,
@@ -97,9 +95,6 @@ public:
 		 const edm::Handle<reco::PFTauDiscriminator>     & theRecoPFTauDiscrAgainstMuon,
 		 const edm::Handle<reco::PFJetCollection>        & recoPFJets,                
 		 const edm::Handle<CaloTowerCollection>          & caloTowers,	      
-                 const edm::Handle<CaloTowerCollection>          & caloTowersCleanerUpperR45,
-                 const edm::Handle<CaloTowerCollection>          & caloTowersCleanerLowerR45,
-                 const edm::Handle<CaloTowerCollection>          & caloTowersCleanerNoR45,
 		 const edm::Handle<reco::PFMETCollection>        & pfmets,  
                  double thresholdForSavingTowers,
                  double                minPtCH,
@@ -112,14 +107,12 @@ private:
     float *jhcalpt, *jhcalphi, *jhcaleta, *jhcale, *jhcalemf, *jhcaln90, *jhcaln90hits;
     float *jhcorcalpt, *jhcorcalphi, *jhcorcaleta, *jhcorcale, *jhcorcalemf, *jhcorcaln90, *jhcorcaln90hits;
     float *jhcorL1L2L3calpt, *jhcorL1L2L3calphi, *jhcorL1L2L3caleta, *jhcorL1L2L3cale, *jhcorL1L2L3calemf, *jhcorL1L2L3caln90, *jhcorL1L2L3caln90hits;
-    double jrho;
 
     float *jrcalpt, *jrcalphi, *jrcaleta, *jrcale, *jrcalemf, *jrcaln90, *jrcaln90hits;
     float *jrcorcalpt, *jrcorcalphi, *jrcorcaleta, *jrcorcale, *jrcorcalemf, *jrcorcaln90, *jrcorcaln90hits;
 
     float *jgenpt, *jgenphi, *jgeneta, *jgene;
     float *towet, *toweta, *towphi, *towen, *towem, *towhd, *towoe;
-    int *towR45upper, *towR45lower, *towR45none;
     float mcalmet,mcalphi,mcalsum;
     float htcalet,htcalphi,htcalsum;
     float mgenmet,mgenphi,mgensum;
@@ -131,14 +124,14 @@ private:
     int nrjetcal,nrcorjetcal;
     
     // Taus
-    float *l2tauPt, *l2tauEta, *l2tauPhi, *l2tauemiso, *l25tauPt;
+    float *l2tauemiso, *l25tauPt;
     int *l3tautckiso;
-    int nohl2tau, nohtau;
+    int nohtau;
     float *tauEta, *tauPt, *tauPhi; 
     //PFTau
     int nohPFTau;
     int *ohpfTauProngs;
-    float *ohpfTauEta,*ohpfTauPhi,*ohpfTauPt,*ohpfTauJetPt,*ohpfTauLeadTrackPt,*ohpfTauLeadTrackVtxZ,*ohpfTauLeadPionPt;
+    float *ohpfTauEta,*ohpfTauPhi,*ohpfTauPt,*ohpfTauJetPt,*ohpfTauLeadTrackPt,*ohpfTauLeadPionPt;
     float *ohpfTauTrkIso, *ohpfTauGammaIso;
     //PFTau with tight cone
     int nohPFTauTightCone;
@@ -149,7 +142,7 @@ private:
     float pfHT;
     float pfMHT;    
     int nohPFJet;
-    float *pfJetEta, *pfJetPhi, *pfJetPt, *pfJetE, *pfJetneutralHadronEnergyFraction, *pfJetchargedHadronFraction, *pfJetneutralMultiplicity, *pfJetchargedMultiplicity, *pfJetneutralEMFraction, *pfJetchargedEMFraction;
+    float *pfJetEta, *pfJetPhi, *pfJetPt, *pfJetE;
     //Reco PFTau
     int nRecoPFTau;
     float *recopfTauEta,*recopfTauPhi,*recopfTauPt,*recopfTauJetPt,*recopfTauLeadTrackPt,*recopfTauLeadPionPt;

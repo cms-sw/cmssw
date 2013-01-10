@@ -3,17 +3,20 @@
 #include "DQMOffline/JetMET/plugins/SusyPostProcessor.h"
 #include "DQMOffline/JetMET/interface/SusyDQM/Quantile.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
+
+const char* SusyPostProcessor::messageLoggerCatregory = "SusyDQMPostProcessor";
 
 SusyPostProcessor::SusyPostProcessor(const edm::ParameterSet& pSet)
 {
   
-  dqm = 0;
   dqm = edm::Service<DQMStore>().operator->();
   iConfig = pSet;
 
   SUSYFolder = iConfig.getParameter<string>("folderName");
+  _quantile = iConfig.getParameter<double>("quantile");
 
 }
 
@@ -52,7 +55,6 @@ void  SusyPostProcessor::QuantilePlots(MonitorElement* ME, double q_value)
       dqm->setCurrentFolder(ME->getPathname());
       TString name=ME->getTH1()->GetName();
       name+="_quant";
-      //std::cout<<name<<std::endl;
       ME=dqm->book1D(name,"",NBin, xLow, xUp);
       ME->Fill(mean-RMS);
       ME->Fill(mean+RMS);
@@ -63,33 +65,63 @@ void  SusyPostProcessor::QuantilePlots(MonitorElement* ME, double q_value)
 
 void SusyPostProcessor::endRun(const edm::Run&, const edm::EventSetup&)
 {
-  //std::cout<<"here 1"<<std::endl;
+  // MET
+  //----------------------------------------------------------------------------
+  dqm->setCurrentFolder("JetMET/MET");
+
+  Dirs = dqm->getSubdirs();
+
+  std::vector<std::string> metFolders;
+
+  metFolders.push_back("All/");
+  metFolders.push_back("BasicCleanup/");
+  metFolders.push_back("ExtraCleanup/");
+
+  for (int i=0; i<int(Dirs.size()); i++) {
+
+    std::string prefix = "dummy";
+
+    if (size_t(Dirs[i].find("Calo")) != string::npos) prefix = "Calo";
+    if (size_t(Dirs[i].find("Pf"))   != string::npos) prefix = "Pf";
+    if (size_t(Dirs[i].find("Tc"))   != string::npos) prefix = "";
+
+    for (std::vector<std::string>::const_iterator ic=metFolders.begin();
+	 ic!=metFolders.end(); ic++) {
+
+      std::string dirName = Dirs[i] + "/" + *ic;
+
+      MEx = dqm->get(dirName + "METTask_" + prefix + "MEx");
+      MEy = dqm->get(dirName + "METTask_" + prefix + "MEx");
+
+      if (MEx && MEx->kind() == MonitorElement::DQM_KIND_TH1F) {
+	if (MEx->getTH1F()->GetEntries() > 50) MEx->getTH1F()->Fit("gaus", "q");
+      }
+
+      if (MEy && MEy->kind() == MonitorElement::DQM_KIND_TH1F) {
+	if (MEy->getTH1F()->GetEntries() > 50) MEy->getTH1F()->Fit("gaus", "q");
+      }
+    }
+  }
+
+
+  // SUSY
+  //----------------------------------------------------------------------------
   dqm->setCurrentFolder(SUSYFolder);
   Dirs = dqm->getSubdirs();
   for (int i=0; i<int(Dirs.size()); i++)
     {
-      //std::cout<<Dirs[i]<<std::endl;
       size_t found = Dirs[i].find("Alpha");
       if (found!=string::npos) continue;
-      //std::cout<<string::npos<<std::endl;
       if(!dqm->dirExists(Dirs[i])){
-	cout << "Directory "<<Dirs[i]<<" doesn't exist!!" << std::endl;
+	edm::LogError(messageLoggerCatregory)<< "Directory "<<Dirs[i]<<" doesn't exist!!";
 	continue;
-      }
-      
+      }      
       vector<MonitorElement*> histoVector = dqm->getContents(Dirs[i]);
-
       for (int i=0; i<int(histoVector.size()); i++) {
-	std::cout<<histoVector[i]->getTH1()->GetName()<<std::endl;
-	QuantilePlots(histoVector[i],0.05);
+	QuantilePlots(histoVector[i],_quantile);
       } 
     }
 }
 
 
 void SusyPostProcessor::endJob(){}
-
-
-
-
-

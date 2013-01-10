@@ -19,6 +19,7 @@ VtxSmeared = {
     'Realistic7TeVCollision':        'IOMC.EventVertexGenerators.VtxSmearedRealistic7TeVCollision_cfi',    
     'Realistic900GeVCollision':      'IOMC.EventVertexGenerators.VtxSmearedRealistic900GeVCollision_cfi',  
     'Realistic8TeVCollision':        'IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi',    
+    'Realistic8TeV2012Collision':    'IOMC.EventVertexGenerators.VtxSmearedRealistic8TeV2012Collision_cfi',    
     'Realistic7TeV2011Collision':    'IOMC.EventVertexGenerators.VtxSmearedRealistic7TeV2011Collision_cfi',
     'Realistic2p76TeV2011Collision': 'IOMC.EventVertexGenerators.VtxSmearedRealistic2p76TeV2011Collision_cfi',
     'Centered7TeV2011Collision':     'IOMC.EventVertexGenerators.VtxSmearedCentered7TeV2011Collision_cfi',

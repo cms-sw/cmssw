@@ -339,16 +339,20 @@ void testEventsetup::provenanceTest()
 	 ps.addParameter<std::string>("name", "test11");
 	 ps.registerIt();
          description.pid_ = ps.id();
+         description.releaseVersion_ = "CMSSW_11_0_0";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
          dummyProv->setDescription(description);
          provider.add(dummyProv);
       }
       {
-         edm::eventsetup::ComponentDescription description("DummyProxyProvider","testLabel",false);
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
 	 edm::ParameterSet ps;
 	 ps.addParameter<std::string>("name", "test22");
 	 ps.registerIt();
          description.pid_ = ps.id();
+         description.releaseVersion_ = "CMSSW_12_0_0";
+         description.processName_ = "UnitTest";
+         description.passID_ = "22";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
          dummyProv->setDescription(description);
          provider.add(dummyProv);
@@ -358,7 +362,7 @@ void testEventsetup::provenanceTest()
       eventSetup.getData(data);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
       const edm::eventsetup::ComponentDescription* desc = data.description();
-      CPPUNIT_ASSERT( desc->label_ == "testLabel");
+      CPPUNIT_ASSERT( desc->processName_ == "UnitTest");
    } catch (const cms::Exception& iException) {
        std::cout <<"caught "<<iException.explainSelf()<<std::endl;
       throw;
@@ -380,17 +384,21 @@ void testEventsetup::getDataWithLabelTest()
 	 ps.addParameter<std::string>("name", "test11");
 	 ps.registerIt();
          description.pid_ = ps.id();
+         description.releaseVersion_ = "CMSSW_11_0_0";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
          dummyProv->setDescription(description);
          provider.add(dummyProv);
       }
       {
-         edm::eventsetup::ComponentDescription description("DummyProxyProvider","testLabel",false);
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
 	 edm::ParameterSet ps;
 	 ps.addParameter<std::string>("name", "test22");
          ps.addParameter<std::string>("appendToDataLabel","blah");
 	 ps.registerIt();
          description.pid_ = ps.id();
+         description.releaseVersion_ = "CMSSW_12_0_0";
+         description.processName_ = "UnitTest";
+         description.passID_ = "22";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
          dummyProv->setDescription(description);
          dummyProv->setAppendToDataLabel(ps);
@@ -401,7 +409,7 @@ void testEventsetup::getDataWithLabelTest()
       eventSetup.getData("blah",data);
       CPPUNIT_ASSERT(kGood.value_==data->value_);
       const edm::eventsetup::ComponentDescription* desc = data.description();
-      CPPUNIT_ASSERT( desc->label_ == "testLabel");
+      CPPUNIT_ASSERT( desc->processName_ == "UnitTest");
    } catch (const cms::Exception& iException) {
       std::cout <<"caught "<<iException.explainSelf()<<std::endl;
       throw;
@@ -418,22 +426,27 @@ void testEventsetup::getDataWithESInputTagTest()
    eventsetup::EventSetupProvider provider;
    try {
       {
-         edm::eventsetup::ComponentDescription description("DummyProxyProvider","testOne",true);
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
 	 edm::ParameterSet ps;
 	 ps.addParameter<std::string>("name", "test11");
 	 ps.registerIt();
          description.pid_ = ps.id();
+         description.releaseVersion_ = "CMSSW_11_0_0";
+         description.processName_ = "EarlyTest";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
          dummyProv->setDescription(description);
          provider.add(dummyProv);
       }
       {
-         edm::eventsetup::ComponentDescription description("DummyProxyProvider","testTwo",false);
+         edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
 	 edm::ParameterSet ps;
 	 ps.addParameter<std::string>("name", "test22");
          ps.addParameter<std::string>("appendToDataLabel","blah");
 	 ps.registerIt();
          description.pid_ = ps.id();
+         description.releaseVersion_ = "CMSSW_12_0_0";
+         description.processName_ = "UnitTest";
+         description.passID_ = "22";
          boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
          dummyProv->setDescription(description);
          dummyProv->setAppendToDataLabel(ps);
@@ -446,7 +459,7 @@ void testEventsetup::getDataWithESInputTagTest()
          eventSetup.getData(blahTag,data);
          CPPUNIT_ASSERT(kGood.value_==data->value_);
          const edm::eventsetup::ComponentDescription* desc = data.description();
-         CPPUNIT_ASSERT( desc->label_ == "testTwo");
+         CPPUNIT_ASSERT( desc->processName_ == "UnitTest");
       }
 
       {
@@ -455,16 +468,16 @@ void testEventsetup::getDataWithESInputTagTest()
          eventSetup.getData(nullTag,data);
          CPPUNIT_ASSERT(kBad.value_==data->value_);
          const edm::eventsetup::ComponentDescription* desc = data.description();
-         CPPUNIT_ASSERT( desc->label_ == "testOne");
+         CPPUNIT_ASSERT( desc->processName_ == "EarlyTest");
       }
       
       {
          edm::ESHandle<DummyData> data;
-         edm::ESInputTag blahTag("testTwo","blah");
+         edm::ESInputTag blahTag("DummyProxyProvider","blah");
          eventSetup.getData(blahTag,data);
          CPPUNIT_ASSERT(kGood.value_==data->value_);
          const edm::eventsetup::ComponentDescription* desc = data.description();
-         CPPUNIT_ASSERT( desc->label_ == "testTwo");
+         CPPUNIT_ASSERT( desc->processName_ == "UnitTest");
       }
 
       {
@@ -666,6 +679,7 @@ void testEventsetup::introspectionTest()
     ps.addParameter<std::string>("name", "test11");
     ps.registerIt();
     description.pid_ = ps.id();
+    description.releaseVersion_ = "CMSSW_11_0_0";
     boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kBad));
     dummyProv->setDescription(description);
     provider.add(dummyProv);
@@ -676,6 +690,9 @@ void testEventsetup::introspectionTest()
       ps.addParameter<std::string>("name", "test22");
       ps.registerIt();
       description.pid_ = ps.id();
+      description.releaseVersion_ = "CMSSW_12_0_0";
+      description.processName_ = "UnitTest";
+      description.passID_ = "22";
       boost::shared_ptr<eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider(kGood));
       dummyProv->setDescription(description);
       provider.add(dummyProv);

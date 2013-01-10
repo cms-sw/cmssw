@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/19 11:51:48 $
- *  $Revision: 1.68 $
+ *  $Date: 2012/05/14 09:02:47 $
+ *  $Revision: 1.71 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -96,7 +96,6 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
 
   _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
   _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
-  _tightHcalFiltering   = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
 
   // ==========================================================
   //DCS information
@@ -128,8 +127,8 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   theCaloTowersLabel          = parameters.getParameter<edm::InputTag>("CaloTowersLabel");
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
   BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
+  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
@@ -161,7 +160,6 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   _FolderNames.push_back("BasicCleanup");
   _FolderNames.push_back("ExtraCleanup");
   _FolderNames.push_back("HcalNoiseFilter");
-  _FolderNames.push_back("HcalNoiseFilterTight");
   _FolderNames.push_back("JetIDMinimal");
   _FolderNames.push_back("JetIDLoose");
   _FolderNames.push_back("JetIDTight");
@@ -179,7 +177,6 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
     }
     if (_allSelection){
     if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
-    if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
@@ -189,8 +186,8 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
     if (*ic=="PV")                   bookMESet(DirName+"/"+*ic);
     }
   }
-
 }
+
 
 // ***********************************************************
 void CaloMETAnalyzer::endJob() {
@@ -199,6 +196,7 @@ void CaloMETAnalyzer::endJob() {
   delete DCSFilter;
 
 }
+
 
 // ***********************************************************
 void CaloMETAnalyzer::bookMESet(std::string DirName)
@@ -419,6 +417,7 @@ void CaloMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 
 }
 
+
 // ***********************************************************
 void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe)
 {
@@ -471,8 +470,8 @@ void CaloMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup
       if ( _MuonEventFlag->on() ) 
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
-
 }
+
 
 // ***********************************************************
 void CaloMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
@@ -672,13 +671,16 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       if (_verbose) std::cout << "CaloMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
   }
   
-  edm::Handle<HcalNoiseSummary> HNoiseSummary;
-  iEvent.getByLabel(HcalNoiseSummaryTag,HNoiseSummary);
-  if (!HNoiseSummary.isValid()) {
-    LogDebug("") << "CaloMETAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
-    if (_verbose) std::cout << "CaloMETAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
+
+  edm::Handle<bool> HBHENoiseFilterResultHandle;
+  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
+  if (!HBHENoiseFilterResultHandle.isValid()) {
+    LogDebug("") << "CaloMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
+    if (_verbose) std::cout << "CaloMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
   }
-  
+
+
   edm::Handle<reco::CaloJetCollection> caloJets;
   iEvent.getByLabel(theJetCollectionLabel, caloJets);
   if (!caloJets.isValid()) {
@@ -805,10 +807,7 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // ==========================================================
   // HCAL Noise filter
   
-  bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
-  bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
-
-  if (_verbose) std::cout << "HcalNoiseFilter Summary ends" << std::endl;
+  bool bHcalNoiseFilter = HBHENoiseFilterResult;
 
   // ==========================================================
   // Get BeamHaloSummary
@@ -933,14 +932,13 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
   
-  bool bHcalNoise   = bHcalNoiseFilter;
-  bool bBeamHaloID  = bBeamHaloIDLoosePass;
-  bool bJetID       = bJetIDMinimal;
+  bool bHcalNoise  = bHcalNoiseFilter;
+  bool bBeamHaloID = bBeamHaloIDLoosePass;
+  bool bJetID      = bJetIDMinimal;
 
   bool bPhysicsDeclared = true;
   if(_doHLTPhysicsOn) bPhysicsDeclared =_trig_PhysDec;
 
-  if      (_tightHcalFiltering)     bHcalNoise  = bHcalNoiseFilterTight;
   if      (_tightBHFiltering)       bBeamHaloID = bBeamHaloIDTightPass;
 
   if      (_tightJetIDFiltering==1)  bJetID      = bJetIDMinimal;
@@ -963,7 +961,6 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
       if (_allSelection) {
 	if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *calomet, *calometnohf);
-	if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *calomet, *calometnohf);
 	if (*ic=="JetIDMinimal"         && bJetIDMinimal)           fillMESet(iEvent, DirName+"/"+*ic, *calomet, *calometnohf);
 	if (*ic=="JetIDLoose"           && bJetIDLoose)             fillMESet(iEvent, DirName+"/"+*ic, *calomet, *calometnohf);
 	if (*ic=="JetIDTight"           && bJetIDTight)             fillMESet(iEvent, DirName+"/"+*ic, *calomet, *calometnohf);

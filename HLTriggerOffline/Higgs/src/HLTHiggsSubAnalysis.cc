@@ -1,7 +1,7 @@
 
 /** \file HLTHiggsSubAnalysis.cc
- *  $Date: 2012/03/19 11:59:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2012/03/23 11:50:56 $
+ *  $Revision: 1.7 $
  */
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -190,7 +190,7 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 		}
 		if( ! found )
 		{
-			edm::LogError("HiggsValidations") << "HLTHiggsSubAnalysis::beginRun, In "
+			edm::LogWarning("HiggsValidations") << "HLTHiggsSubAnalysis::beginRun, In "
 				<< _analysisname << " subfolder NOT found the path: '" 
 				<< _hltPathsToCheck[i] << "*'" ;
 		}

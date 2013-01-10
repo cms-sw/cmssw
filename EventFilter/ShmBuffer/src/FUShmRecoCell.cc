@@ -71,7 +71,8 @@ void FUShmRecoCell::writeInitMsg(unsigned int   outModId,
 				 unsigned int   fuProcessId,
 				 unsigned int   fuGuid,
 				 unsigned char *data,
-				 unsigned int   dataSize)
+				 unsigned int   dataSize,
+				 unsigned int   nExpectedEPs)
 {
   if (eventSize_!=0)
     cout<<"FUShmRecoCell::writeInitMsg() WARNING: overwriting data!"<<endl;
@@ -91,6 +92,7 @@ void FUShmRecoCell::writeInitMsg(unsigned int   outModId,
   unsigned char* targetAddr=payloadAddr();
   memcpy(targetAddr,data,dataSize);
   eventSize_=dataSize;
+  nExpectedEPs_=nExpectedEPs;
 }
 				  
 
@@ -122,6 +124,7 @@ void FUShmRecoCell::writeEventData(unsigned int   rawCellIndex,
   unsigned char* targetAddr=payloadAddr();
   memcpy(targetAddr,data,dataSize);
   eventSize_=dataSize;
+  nExpectedEPs_=0xffffffff;
 }
 				  
 
@@ -151,6 +154,7 @@ void FUShmRecoCell::writeErrorEvent(unsigned int   rawCellIndex,
   unsigned char* targetAddr=payloadAddr();
   memcpy(targetAddr,data,dataSize);
   eventSize_=dataSize;
+  nExpectedEPs_=0xffffffff;
 }
 				  
 

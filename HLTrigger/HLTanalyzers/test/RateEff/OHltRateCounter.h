@@ -21,7 +21,7 @@ public:
 
    bool isNewRunLS(int Run, int LumiBlock);
    
-   void addRunLS(int Run, int LumiBlock, double AvgInstDelLumi);
+   void addRunLS(int Run, int LumiBlock);
    
    void incrRunLSCount(int Run, int LumiBlock, int iTrig, int incr=1);
    
@@ -160,7 +160,6 @@ public:
    std::vector< std::vector<int> > perLumiSectionRefL1Prescale;
    std::vector<int> runID;
    std::vector<int> lumiSection;
-   std::vector<double> perLumiSectionLumi;
 
 };
 

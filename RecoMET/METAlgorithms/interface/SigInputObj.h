@@ -15,7 +15,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SigInputObj.h,v 1.1 2008/04/18 10:12:55 fblekman Exp $
+// $Id$
 //
 //
 
@@ -39,7 +39,7 @@ namespace metsig{
 		 double & m_phi, double & m_sigm_e,  double & m_sigma_phi);
     ~SigInputObj() {;}
     
-    std::string get_type() const {return(type);};
+    std::string get_type(){return(type);};
     double get_energy() const {return(energy);};
     double get_phi() const {return(phi);};
     double get_sigma_e() const {return(sigma_e);};

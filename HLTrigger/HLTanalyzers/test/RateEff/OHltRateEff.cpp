@@ -127,15 +127,13 @@ int main(int argc, char *argv[])
       rprint->printRatesTwiki(ocfg, omenu);
       //    rprint->printPrescalesCfg(ocfg,omenu);
       rprint->writeHistos(ocfg, omenu);
-      if(ocfg->nonlinearPileupFit != "none")
-	rprint->fitRatesForPileup(ocfg, omenu);
       char sLumi[10], sEnergy[10];
       snprintf(sEnergy, 10, "%1.0f", ocfg->cmsEnergy);
       snprintf(sLumi,   10, "%1.1e", ocfg->iLumi);
       TString hltTableFileName= TString("hlt_DS_Table_") + sEnergy + "TeV_"
             + sLumi + TString("_") + ocfg->versionTag;
       // 		printf("About to call printHLTDatasets\n"); //RR
-      rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
+      //    rprint->printHLTDatasets(ocfg,omenu,hltDatasets,hltTableFileName,3);
    }
    /* **** */
    // Calculate Efficiencies
@@ -208,7 +206,6 @@ void calcRates(
    vector<int> RefPrescale, RefL1Prescale;
    vector<float> weightedPrescaleRefHLT;
    vector<float> weightedPrescaleRefL1;
-   vector<double> InstLumiPerLS;
    float DenEff=0.;
    Int_t nbinpt = 50;
    Float_t ptmin = 0.0;
@@ -271,7 +268,6 @@ void calcRates(
 	 totalCountPerLS.push_back(0);
          RefPrescalePerLS.push_back(RefPrescale);
          RefL1PrescalePerLS.push_back(RefL1Prescale);
-	 InstLumiPerLS.push_back(0.);
       }
 
       float deno = (float)cfg->nEntries;
@@ -315,7 +311,6 @@ void calcRates(
                (float)rcs[i]->perLumiSectionTotCount[iLS],
                scaleddenoPerLS);
 	 totalCountPerLS[iLS] += rcs[i]->perLumiSectionTotCount[iLS];
-	 InstLumiPerLS[iLS] = (double)rcs[i]->perLumiSectionLumi[iLS];
       }
 
       for (int j=0; j<nL1trig; j++)
@@ -445,8 +440,7 @@ void calcRates(
          weightedPrescaleRefHLT,
          weightedPrescaleRefL1,
 	 CountPerLS,
-	 totalCountPerLS,
-	 InstLumiPerLS);
+	 totalCountPerLS);
 
 }
 void calcEff(

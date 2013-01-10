@@ -39,8 +39,7 @@ public:
          std::vector<float> averageRefPrescaleHLT,
          std::vector<float> averageRefPrescaleL1,
 	 std::vector< std::vector<int> > CountPerLS,
-	 std::vector<int> tTotalCountPerLS,
-	 std::vector<double> tLumiPerLS);
+	 std::vector<int> tTotalCountPerLS);
 
    void ReorderRunLS();
 
@@ -63,8 +62,6 @@ public:
    void printHltRatesBocci(OHltConfig *cfg, OHltMenu *menu);
 
    void writeHistos(OHltConfig *cfg, OHltMenu *menu);
-
-   void fitRatesForPileup(OHltConfig *cfg, OHltMenu *menu);
 
    TString GetFileName(OHltConfig *cfg, OHltMenu *menu);
 
@@ -99,7 +96,6 @@ public:
    std::vector<int> lumiSection;
    std::vector<float> averageRefPrescaleHLT;
    std::vector<float> averageRefPrescaleL1;
-   std::vector<double> LumiPerLS;
 };
 
 #endif

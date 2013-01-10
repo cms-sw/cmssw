@@ -9,11 +9,12 @@ using namespace std;
 
 bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
 {
-
-  if (firstGTP->charge() == 0. && secondGTP->charge() != 0.) {
+  bool isFirstALine = firstGTP->charge() == 0. || firstGTP->magneticField().inTesla(firstGTP->position()).z() == 0.;
+  bool isSecondALine = secondGTP->charge() == 0. || secondGTP->magneticField().inTesla(secondGTP->position()).z() == 0.;
+  if (isFirstALine && !isSecondALine ) {
     theL= firstGTP;
     theH= secondGTP;
-  } else if (firstGTP->charge() != 0. && secondGTP->charge() == 0.) {
+  } else if (!isFirstALine && isSecondALine) {
     theH= firstGTP;
     theL= secondGTP;
   } else {

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/19 11:52:21 $
- *  $Revision: 1.9 $
+ *  $Date: 2012/05/14 09:02:47 $
+ *  $Revision: 1.12 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -57,8 +57,8 @@ void TcMETAnalyzer::beginJob(DQMStore * dbe) {
 
   // Other data collections
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
+  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
@@ -87,7 +87,6 @@ void TcMETAnalyzer::beginJob(DQMStore * dbe) {
   _FolderNames.push_back("All");
   _FolderNames.push_back("Cleanup");
   _FolderNames.push_back("HcalNoiseFilter");
-  _FolderNames.push_back("HcalNoiseFilterTight");
   _FolderNames.push_back("JetID");
   _FolderNames.push_back("JetIDTight");
 
@@ -97,7 +96,6 @@ void TcMETAnalyzer::beginJob(DQMStore * dbe) {
     if (*ic=="Cleanup")              bookMESet(DirName+"/"+*ic);
     if (_allSelection){
     if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
-    if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
     if (*ic=="JetID")                bookMESet(DirName+"/"+*ic);
     if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
     }
@@ -238,6 +236,7 @@ void TcMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, 
     }
 }
 
+
 // ***********************************************************
 void TcMETAnalyzer::makeRatePlot(std::string DirName, double totltime)
 {
@@ -374,13 +373,16 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     LogDebug("") << "TcMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
     if (_verbose) std::cout << "TcMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
   }
-  
-  edm::Handle<HcalNoiseSummary> HNoiseSummary;
-  iEvent.getByLabel(HcalNoiseSummaryTag,HNoiseSummary);
-  if (!HNoiseSummary.isValid()) {
-    LogDebug("") << "TcMETAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
-    if (_verbose) std::cout << "TcMETAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
+
+
+  edm::Handle<bool> HBHENoiseFilterResultHandle;
+  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
+  if (!HBHENoiseFilterResultHandle.isValid()) {
+    LogDebug("") << "TcMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
+    if (_verbose) std::cout << "TcMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
   }
+
 
   edm::Handle<reco::CaloJetCollection> caloJets;
   iEvent.getByLabel(theJetCollectionLabel, caloJets);
@@ -480,8 +482,7 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================
   // HCAL Noise filter
   
-  bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
-  bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
+  bool bHcalNoiseFilter = HBHENoiseFilterResult;
 
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
@@ -494,7 +495,6 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (*ic=="Cleanup" && bHcalNoiseFilter && bJetID) fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
     if (_allSelection) {
     if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
-    if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
     if (*ic=="JetID"      && bJetID)                            fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
     if (*ic=="JetIDTight" && bJetIDTight)                       fillMESet(iEvent, DirName+"/"+*ic, *tcmet);
     }
@@ -585,6 +585,7 @@ void TcMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
     } // _allhist
   } // et threshold cut
 }
+
 
 // ***********************************************************
 bool TcMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){

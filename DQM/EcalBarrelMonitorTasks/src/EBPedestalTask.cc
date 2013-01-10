@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.102 $
+ * $Date: 2011/08/23 00:30:59 $
+ * $Revision: 1.101.4.2 $
  * \author G. Della Ricca
  *
 */
@@ -29,6 +29,8 @@
 
 #include "DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h"
 
+// #define COMMON_NOISE_ANALYSIS
+
 EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps){
 
   init_ = false;
@@ -53,18 +55,22 @@ EBPedestalTask::EBPedestalTask(const edm::ParameterSet& ps){
   for ( unsigned int i = 1; i <= 3; i++ ) MGPAGainsPN_.push_back(i);
   MGPAGainsPN_ = ps.getUntrackedParameter<std::vector<int> >("MGPAGainsPN", MGPAGainsPN_);
 
-  meOccupancy_ = 0;
-
   for (int i = 0; i < 36; i++) {
     mePedMapG01_[i] = 0;
     mePedMapG06_[i] = 0;
     mePedMapG12_[i] = 0;
-
+#ifdef COMMON_NOISE_ANALYSIS
+    mePed3SumMapG01_[i] = 0;
+    mePed3SumMapG06_[i] = 0;
+    mePed3SumMapG12_[i] = 0;
+    mePed5SumMapG01_[i] = 0;
+    mePed5SumMapG06_[i] = 0;
+    mePed5SumMapG12_[i] = 0;
+#endif
     mePnPedMapG01_[i] = 0;
     mePnPedMapG16_[i] = 0;
   }
 
-  ievt_ = 0;
 }
 
 EBPedestalTask::~EBPedestalTask(){
@@ -76,8 +82,8 @@ void EBPedestalTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal");
-    dqmStore_->rmdir(prefixME_ + "/Pedestal");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask");
+    dqmStore_->rmdir(prefixME_ + "/EBPedestalTask");
   }
 
 }
@@ -96,8 +102,6 @@ void EBPedestalTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 void EBPedestalTask::reset(void) {
 
-  if(meOccupancy_) meOccupancy_->Reset();
-
   for (int i = 0; i < 36; i++) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( mePedMapG01_[i] ) mePedMapG01_[i]->Reset();
@@ -108,7 +112,14 @@ void EBPedestalTask::reset(void) {
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( mePedMapG12_[i] ) mePedMapG12_[i]->Reset();
     }
-
+#ifdef COMMON_NOISE_ANALYSIS
+    if ( mePed3SumMapG01_[i] ) mePed3SumMapG01_[i]->Reset();
+    if ( mePed3SumMapG06_[i] ) mePed3SumMapG06_[i]->Reset();
+    if ( mePed3SumMapG12_[i] ) mePed3SumMapG12_[i]->Reset();
+    if ( mePed5SumMapG01_[i] ) mePed5SumMapG01_[i]->Reset();
+    if ( mePed5SumMapG06_[i] ) mePed5SumMapG06_[i]->Reset();
+    if ( mePed5SumMapG12_[i] ) mePed5SumMapG12_[i]->Reset();
+#endif
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
       if ( mePnPedMapG01_[i] ) mePnPedMapG01_[i]->Reset();
     }
@@ -127,13 +138,7 @@ void EBPedestalTask::setup(void){
   std::stringstream GainN, GN;
 
   if ( dqmStore_ ) {
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal");
-
-    name = "PedestalTask occupancy EB";
-    meOccupancy_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
-    meOccupancy_->setAxisTitle("iphi", 1);
-    meOccupancy_->setAxisTitle("ieta", 2);
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask");
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
@@ -142,13 +147,25 @@ void EBPedestalTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 1;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/" + GainN.str());
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        name = "PedestalTask pedestal " + GN.str() + " " + Numbers::sEB(i+1);
+        name = "EBPT pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
         mePedMapG01_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePedMapG01_[i]->setAxisTitle("ieta", 1);
         mePedMapG01_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePedMapG01_[i], i+1);
+#ifdef COMMON_NOISE_ANALYSIS
+	name = "EBPT pedestal 3sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed3SumMapG01_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+        mePed3SumMapG01_[i]->setAxisTitle("ieta", 1);
+        mePed3SumMapG01_[i]->setAxisTitle("iphi", 2);
+        dqmStore_->tag(mePed3SumMapG01_[i], i+1);
+	name = "EBPT pedestal 5sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed5SumMapG01_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+        mePed5SumMapG01_[i]->setAxisTitle("ieta", 1);
+        mePed5SumMapG01_[i]->setAxisTitle("iphi", 2);
+        dqmStore_->tag(mePed5SumMapG01_[i], i+1);
+#endif
       }
 
     }
@@ -160,13 +177,25 @@ void EBPedestalTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 6;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/" + GainN.str());
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        name = "PedestalTask pedestal " + GN.str() + " " + Numbers::sEB(i+1);
+        name = "EBPT pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
         mePedMapG06_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePedMapG06_[i]->setAxisTitle("ieta", 1);
         mePedMapG06_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePedMapG06_[i], i+1);
+#ifdef COMMON_NOISE_ANALYSIS
+	name = "EBPT pedestal 3sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed3SumMapG06_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+        mePed3SumMapG06_[i]->setAxisTitle("ieta", 1);
+        mePed3SumMapG06_[i]->setAxisTitle("iphi", 2);
+        dqmStore_->tag(mePed3SumMapG06_[i], i+1);
+	name = "EBPT pedestal 5sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed5SumMapG06_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+        mePed5SumMapG06_[i]->setAxisTitle("ieta", 1);
+        mePed5SumMapG06_[i]->setAxisTitle("iphi", 2);
+        dqmStore_->tag(mePed5SumMapG06_[i], i+1);
+#endif
       }
 
     }
@@ -178,18 +207,30 @@ void EBPedestalTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 12;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/" + GainN.str());
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        name = "PedestalTask pedestal " + GN.str() + " " + Numbers::sEB(i+1);
+        name = "EBPT pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
         mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePedMapG12_[i]->setAxisTitle("ieta", 1);
         mePedMapG12_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePedMapG12_[i], i+1);
+#ifdef COMMON_NOISE_ANALYSIS
+	name = "EBPT pedestal 3sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed3SumMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+        mePed3SumMapG12_[i]->setAxisTitle("ieta", 1);
+        mePed3SumMapG12_[i]->setAxisTitle("iphi", 2);
+        dqmStore_->tag(mePed3SumMapG12_[i], i+1);
+	name = "EBPT pedestal 5sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed5SumMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+        mePed5SumMapG12_[i]->setAxisTitle("ieta", 1);
+        mePed5SumMapG12_[i]->setAxisTitle("iphi", 2);
+        dqmStore_->tag(mePed5SumMapG12_[i], i+1);
+#endif
       }
     }
 
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/PN");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN");
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
@@ -198,9 +239,9 @@ void EBPedestalTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 1;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/PN/" + GainN.str());
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-	name = "PedestalTask PN pedestal " + GN.str() + " " + Numbers::sEB(i+1);
+	name = "EBPDT PNs pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
         mePnPedMapG01_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG01_[i]->setAxisTitle("channel", 1);
         mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
@@ -216,9 +257,9 @@ void EBPedestalTask::setup(void){
       GN.str("");
       GN << "G" << std::setw(2) << std::setfill('0') << 16;
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/Pedestal/PN/" + GainN.str());
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-	name = "PedestalTask PN pedestal " + GN.str() + " " + Numbers::sEB(i+1);
+	name = "EBPDT PNs pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
         mePnPedMapG16_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16_[i]->setAxisTitle("channel", 1);
         mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
@@ -236,38 +277,63 @@ void EBPedestalTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask");
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/Gain01");
       for ( int i = 0; i < 36; i++ ) {
-        if ( mePedMapG01_[i] ) dqmStore_->removeElement( mePedMapG01_[i]->getFullname() );
+        if ( mePedMapG01_[i] ) dqmStore_->removeElement( mePedMapG01_[i]->getName() );
         mePedMapG01_[i] = 0;
+#ifdef COMMON_NOISE_ANALYSIS
+        if ( mePed3SumMapG01_[i] ) dqmStore_->removeElement( mePed3SumMapG01_[i]->getName() );
+        mePed3SumMapG01_[i] = 0;
+        if ( mePed5SumMapG01_[i] ) dqmStore_->removeElement( mePed5SumMapG01_[i]->getName() );
+        mePed5SumMapG01_[i] = 0;
+#endif
       }
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/Gain06");
       for ( int i = 0; i < 36; i++ ) {
-        if ( mePedMapG06_[i] ) dqmStore_->removeElement( mePedMapG06_[i]->getFullname() );
+        if ( mePedMapG06_[i] ) dqmStore_->removeElement( mePedMapG06_[i]->getName() );
         mePedMapG06_[i] = 0;
+#ifdef COMMON_NOISE_ANALYSIS
+        if ( mePed3SumMapG06_[i] ) dqmStore_->removeElement( mePed3SumMapG06_[i]->getName() );
+        mePed3SumMapG06_[i] = 0;
+        if ( mePed5SumMapG06_[i] ) dqmStore_->removeElement( mePed5SumMapG06_[i]->getName() );
+        mePed5SumMapG06_[i] = 0;
+#endif
       }
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/Gain12");
       for ( int i = 0; i < 36; i++ ) {
-        if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getFullname() );
+        if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
         mePedMapG12_[i] = 0;
+#ifdef COMMON_NOISE_ANALYSIS
+        if ( mePed3SumMapG12_[i] ) dqmStore_->removeElement( mePed3SumMapG12_[i]->getName() );
+        mePed3SumMapG12_[i] = 0;
+        if ( mePed5SumMapG12_[i] ) dqmStore_->removeElement( mePed5SumMapG12_[i]->getName() );
+        mePed5SumMapG12_[i] = 0;
+#endif
       }
 
     }
 
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN");
+
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN/Gain01");
       for ( int i = 0; i < 36; i++ ) {
-        if ( mePnPedMapG01_[i]) dqmStore_->removeElement( mePnPedMapG01_[i]->getFullname() );
+        if ( mePnPedMapG01_[i]) dqmStore_->removeElement( mePnPedMapG01_[i]->getName() );
         mePnPedMapG01_[i] = 0;
       }
 
@@ -275,8 +341,9 @@ void EBPedestalTask::cleanup(void){
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 16) != MGPAGains_.end() ) {
 
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN/Gain16");
       for ( int i = 0; i < 36; i++ ) {
-        if ( mePnPedMapG16_[i]) dqmStore_->removeElement( mePnPedMapG16_[i]->getFullname() );
+        if ( mePnPedMapG16_[i]) dqmStore_->removeElement( mePnPedMapG16_[i]->getName() );
         mePnPedMapG16_[i] = 0;
       }
 
@@ -357,8 +424,6 @@ void EBPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
       EBDetId id = digiItr->id();
-
-      if(meOccupancy_) meOccupancy_->Fill(id.iphi() - 0.5, id.ieta() - 0.5 * id.zside());
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;

@@ -9,7 +9,7 @@ authors: R. Remington (UF), R. Cavanaugh (UIC/Fermilab)
 #include "RecoMET/METAlgorithms/interface/PFClusterSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoPFClusterRefCandidate.h"
 using namespace reco;
 using namespace std;
 

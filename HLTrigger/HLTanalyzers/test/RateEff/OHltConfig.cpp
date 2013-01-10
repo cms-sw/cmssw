@@ -19,7 +19,6 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
    doDeterministicPrescale = false;
    useNonIntegerPrescales = false;
    readRefPrescalesFromNtuple = false;
-   nonlinearPileupFit = "";
    dsList = "";
    iLumi = 1.E31;
    bunchCrossingTime = 25.0E-09;
@@ -61,7 +60,6 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
       cfg.lookupValue("run.doDeterministicPrescale",doDeterministicPrescale);
       cfg.lookupValue("run.useNonIntegerPrescales",useNonIntegerPrescales);
       cfg.lookupValue("run.readRefPrescalesFromNtuple",readRefPrescalesFromNtuple);
-      cfg.lookupValue("run.nonlinearPileupFit",stmp); nonlinearPileupFit = TString(stmp);
       cout << "General Menu & Run conditions...ok"<< endl;
       /**********************************/
 
@@ -374,7 +372,6 @@ void OHltConfig::print()
    cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
    cout << "useNonIntegerPrescales: " << useNonIntegerPrescales << endl;
    cout << "readRefPrescalesFromNtuple: " << readRefPrescalesFromNtuple << endl;
-   cout << "nonlinearPileupFit: " << nonlinearPileupFit << endl;
    cout << "preFilterLogicString: " << preFilterLogicString << endl;
    cout << "---------------------------------------------" << endl;
    cout << "iLumi: " << iLumi << endl;

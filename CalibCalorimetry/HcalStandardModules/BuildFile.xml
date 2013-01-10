@@ -1,12 +1,7 @@
 <flags   EDM_PLUGIN="1"/>
 <use   name="boost"/>
 <use   name="root"/>
-<use   name="rootinteractive"/>
-<use   name="CommonTools/Statistics"/>
 <use   name="FWCore/Framework"/>
-<use   name="FWCore/Utilities"/>
-<use   name="FWCore/PluginManager"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="CondFormats/HcalObjects"/>
 <use   name="DataFormats/HcalDigi"/>

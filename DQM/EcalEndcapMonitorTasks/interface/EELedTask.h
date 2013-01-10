@@ -4,8 +4,8 @@
 /*
  * \file EELedTask.h
  *
- * $Date: 2009/10/26 17:33:50 $
- * $Revision: 1.11 $
+ * $Date: 2009/08/03 23:44:22 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -70,8 +70,6 @@ edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 std::vector<int> ledWavelengths_;
-
- MonitorElement *meOccupancy_[2];
 
 MonitorElement* meShapeMapL1_[18];
 MonitorElement* meAmplMapL1_[18];

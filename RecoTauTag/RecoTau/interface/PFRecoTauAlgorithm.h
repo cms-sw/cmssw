@@ -23,9 +23,9 @@ class  PFRecoTauAlgorithm  : public PFRecoTauAlgorithmBase {
   PFRecoTauAlgorithm();
   PFRecoTauAlgorithm(const edm::ParameterSet&);
   ~PFRecoTauAlgorithm(){}
-  
+
   // PFRecTrackCollection: Temporary until integrated to PFCandidate
-  reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&); 
+  reco::PFTau buildPFTau(const reco::PFTauTagInfoRef&,const reco::Vertex&);
  private:
   bool checkPos(std::vector<math::XYZPoint>,math::XYZPoint) const;
 
@@ -74,6 +74,9 @@ class  PFRecoTauAlgorithm  : public PFRecoTauAlgorithmBase {
   uint32_t ChargedHadrCand_IsolAnnulus_minNhits_;
   uint32_t Track_IsolAnnulus_minNhits_;
 
+  // Whether or not to include the neutral hadrons in the P4
+  bool putNeutralHadronsInP4_;
+
   std::string   DataType_;
 
   double   ElecPreIDLeadTkMatch_maxDR_;
@@ -92,5 +95,5 @@ class  PFRecoTauAlgorithm  : public PFRecoTauAlgorithmBase {
            myHCALIsolConeSizeTFormula;
 
 };
-#endif 
+#endif
 

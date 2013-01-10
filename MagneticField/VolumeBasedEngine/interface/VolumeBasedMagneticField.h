@@ -5,8 +5,8 @@
  *
  *  Field engine providing interpolation within the full CMS region.
  *
- *  $Date: 2009/05/23 22:21:34 $
- *  $Revision: 1.9 $
+ *  $Date: 2009/03/19 11:14:50 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -42,6 +42,10 @@ class VolumeBasedMagneticField : public MagneticField {
 
   bool isZSymmetric() const;
 
+  virtual int nominalValue() const {
+    return theNominalValue;
+  }
+  
 
  private:
   const MagGeometry* field;
@@ -50,6 +54,7 @@ class VolumeBasedMagneticField : public MagneticField {
   const MagneticField* paramField;
   bool magGeomOwned;
   bool paramFieldOwned;
+  int theNominalValue;
 };
 
 #endif

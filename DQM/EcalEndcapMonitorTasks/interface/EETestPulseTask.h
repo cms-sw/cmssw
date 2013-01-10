@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseTask.h
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.14 $
+ * $Date: 2009/08/02 15:46:41 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -72,8 +72,6 @@ edm::InputTag EcalUncalibratedRecHitCollection_;
 std::vector<int> MGPAGains_;
 std::vector<int> MGPAGainsPN_;
 
- MonitorElement *meOccupancy_[2];
-
 MonitorElement* meShapeMapG01_[18];
 MonitorElement* meShapeMapG06_[18];
 MonitorElement* meShapeMapG12_[18];
@@ -89,6 +87,8 @@ MonitorElement* mePnPedMapG01_[18];
 MonitorElement* mePnPedMapG16_[18];
 
 // Quality check on crystals, one per each gain
+
+float amplitudeThreshold_;
 
 bool init_;
 

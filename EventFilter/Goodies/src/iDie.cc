@@ -394,14 +394,21 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 	if(fi!=fus_.end()){
 	  fus_.erase(fi);
 	}
-	if(fus_.size()==0) //close the root file if we know the run is over 
+	if(fus_.size()==0) { //close the root file if we know the run is over
+
 	  if(f_!=0){
 	    f_->cd();
 	    f_->Write();
-	    f_->Close();
+	  }
+	  if(t_ != 0) {
+	    delete t_;
 	    t_ = 0;
+	  }
+	  if(f_!=0){
+	    f_->Close();
 	    delete f_; f_ = 0;
 	  }
+	}
       }
       else{
 	totalCores_++;
@@ -505,14 +512,21 @@ void iDie::reset()
   trpentries_.clear();
   cpustat_.clear();
   cpuentries_.clear();
+
   if(f_!=0){
     f_->cd();
     f_->Write();
+  }
+
+  if(t_ != 0)
+  {
+    delete t_; t_=0;
+  }
+
+  if(f_!=0){
     f_->Close();
     delete f_; f_ = 0;
   }
-  if(t_ != 0)
-    {delete t_; t_=0;}
   if(datap_ != 0)
     {delete datap_; datap_ = 0;}
   b_=0; b1_=0; b2_=0; b3_=0; b4_=0;

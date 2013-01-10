@@ -81,13 +81,14 @@ bool
 TwoTrackMinimumDistance::calculate(const GlobalTrajectoryParameters & sta,
                                 const GlobalTrajectoryParameters & stb)
 {
-  if ((sta.magneticField().inTesla(sta.position()).z() == 0.)|| 
-  	(stb.magneticField().inTesla(stb.position()).z() == 0.)) {
+  bool isHelixA = (sta.magneticField().inTesla(sta.position()).z() != 0.)
+    && sta.charge() != 0.;
+  bool isHelixB = (stb.magneticField().inTesla(stb.position()).z() != 0.)
+    && stb.charge() != 0.;
+  if (! isHelixA && ! isHelixB) {
     status_ = pointsLineLine(sta, stb);
-  } else if ( sta.charge() != 0. && stb.charge() != 0. ) {
+  } else if ( isHelixA && isHelixB ) {
     status_ = pointsHelixHelix(sta, stb);
-  } else if ( sta.charge() == 0. && stb.charge() == 0. ) {
-    status_ = pointsLineLine(sta, stb);
   } else {
     status_ = pointsHelixLine(sta, stb);
   }
@@ -162,7 +163,13 @@ TwoTrackMinimumDistance::pointsHelixHelix(const GlobalTrajectoryParameters & sta
 
   pair<GlobalPoint, GlobalPoint> inip ( ini.first.position(), 
       ini.second.position() );
-  if ( theTTMDhh.calculate ( ini.first, ini.second, .0001 ) ) {
+  bool isFirstALine = ini.first.charge() == 0. || ini.first.magneticField().inTesla(ini.first.position()).z() == 0.;
+  bool isSecondALine = ini.second.charge() == 0. || ini.second.magneticField().inTesla(ini.second.position()).z() == 0.;
+  bool gotDist = false;
+  if (!isFirstALine && !isSecondALine) gotDist = theTTMDhh.calculate ( ini.first, ini.second, .0001 );
+  else if ( isFirstALine && isSecondALine) gotDist = theTTMDll.calculate ( ini.first, ini.second );
+  else gotDist = theTTMDhl.calculate ( ini.first, ini.second, .0001 );
+  if ( gotDist ) {
     points_ = inip;
   } else {
     points_ = theTTMDhh.points();

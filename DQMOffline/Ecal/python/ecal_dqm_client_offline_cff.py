@@ -27,25 +27,13 @@ dqmQTestEE = cms.EDAnalyzer("QualityTester",
     verboseQT = cms.untracked.bool(False)
 )
 
-eb_dqm_client_offline = cms.Sequence(
-    ecalBarrelMonitorClient *
-    dqmQTestEB
-    )
+eb_dqm_client_offline = cms.Sequence(ecalBarrelMonitorClient*dqmQTestEB)
 
-ee_dqm_client_offline = cms.Sequence(
-    ecalEndcapMonitorClient *
-    dqmQTestEE
-    )
+ee_dqm_client_offline = cms.Sequence(ecalEndcapMonitorClient*dqmQTestEE)
 
-ecalcalib_dqm_client_offline = cms.Sequence(
-    ecalzmassclient
-    )
+ecalcalib_dqm_client_offline = cms.Sequence(ecalzmassclient)
 
-ecal_dqm_client_offline = cms.Sequence(
-    eb_dqm_client_offline *
-    ee_dqm_client_offline *
-    ecalcalib_dqm_client_offline
-    )
+ecal_dqm_client_offline = cms.Sequence(eb_dqm_client_offline*ee_dqm_client_offline*ecalcalib_dqm_client_offline)
 
 ecalBarrelMonitorClient.location = 'P5'
 ecalBarrelMonitorClient.verbose = False

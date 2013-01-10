@@ -67,11 +67,15 @@ DQMStore* dqmStore_;
 
 std::string prefixME_;
 
+ std::string subfolder_;
+
 bool enableCleanup_;
 
 bool mergeRuns_;
 
 edm::InputTag EcalRawDataCollection_;
+
+MonitorElement* meEvtType_[36];
 
 MonitorElement* meFEchErrors_[36][3];
 MonitorElement* meFEchErrorsByLumi_;

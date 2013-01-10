@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.92 $
+ * $Date: 2011/08/23 00:25:30 $
+ * $Revision: 1.91.4.1 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -109,7 +109,6 @@ EBClusterTask::EBClusterTask(const edm::ParameterSet& ps){
   thrClusEt_ = 0.200;
   thrCandEt_ = 0.650;
 
-  ievt_ = 0;
 }
 
 EBClusterTask::~EBClusterTask(){
@@ -121,8 +120,8 @@ void EBClusterTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/Clusters");
-    dqmStore_->rmdir(prefixME_ + "/Clusters");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
+    dqmStore_->rmdir(prefixME_ + "/EBClusterTask");
   }
 
 }
@@ -222,172 +221,164 @@ void EBClusterTask::setup(void){
   std::string name;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/Clusters");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/Clusters/BasicClusters");
-
-    name = "ClusterTask BC energy EB";
+    name = "EBCLT BC energy";
     meBCEne_ = dqmStore_->book1D(name, name, 100, 0., 150.);
     meBCEne_->setAxisTitle("energy (GeV)", 1);
 
-    name = "ClusterTask BC number EB";
+    name = "EBCLT BC number";
     meBCNum_ = dqmStore_->book1D(name, name, 100, 0., 100.);
     meBCNum_->setAxisTitle("number of clusters", 1);
 
-    name = "ClusterTask BC size EB";
+    name = "EBCLT BC size";
     meBCSiz_ = dqmStore_->book1D(name, name, 100, 0., 100.);
     meBCSiz_->setAxisTitle("cluster size", 1);
 
-    name = "ClusterTask BC energy map EB";
-    //    meBCEneMap_ = dqmStore_->bookProfile2D(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
-    meBCEneMap_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85., 85., 100, 0., 500., "s");
-    meBCEneMap_->setAxisTitle("jphi", 1);
-    meBCEneMap_->setAxisTitle("jeta", 2);
+    name = "EBCLT BC energy map";
+    meBCEneMap_ = dqmStore_->bookProfile2D(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCEneMap_->setAxisTitle("phi", 1);
+    meBCEneMap_->setAxisTitle("eta", 2);
 
-    name = "ClusterTask BC occupancy EB";
-    //    meBCNumMap_ = dqmStore_->book2D(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479);
-    meBCNumMap_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
-    meBCNumMap_->setAxisTitle("jphi", 1);
-    meBCNumMap_->setAxisTitle("jeta", 2);
+    name = "EBCLT BC number map";
+    meBCNumMap_ = dqmStore_->book2D(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479);
+    meBCNumMap_->setAxisTitle("phi", 1);
+    meBCNumMap_->setAxisTitle("eta", 2);
 
-    name = "ClusterTask BC ET map EB";
-    //    meBCETMap_ = dqmStore_->bookProfile2D(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
-    meBCETMap_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85., 85., 100, 0., 500., "s");
-    meBCETMap_->setAxisTitle("jphi", 1);
-    meBCETMap_->setAxisTitle("jeta", 2);
+    name = "EBCLT BC ET map";
+    meBCETMap_ = dqmStore_->bookProfile2D(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meBCETMap_->setAxisTitle("phi", 1);
+    meBCETMap_->setAxisTitle("eta", 2);
 
-    name = "ClusterTask BC size map EB";
-    //    meBCSizMap_ = dqmStore_->bookProfile2D(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
-    meBCSizMap_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34., -85., 85., 100, 0., 100., "s");
-    meBCSizMap_->setAxisTitle("jphi", 1);
-    meBCSizMap_->setAxisTitle("jeta", 2);
+    name = "EBCLT BC size map";
+    meBCSizMap_ = dqmStore_->bookProfile2D(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
+    meBCSizMap_->setAxisTitle("phi", 1);
+    meBCSizMap_->setAxisTitle("eta", 2);
 
-    name = "ClusterTask BC energy eta EB";
+    name = "EBCLT BC energy projection eta";
     meBCEneMapProjEta_ = dqmStore_->bookProfile(name, name, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCEneMapProjEta_->setAxisTitle("eta", 1);
     meBCEneMapProjEta_->setAxisTitle("energy (GeV)", 2);
 
-    name = "ClusterTask BC energy phi EB";
+    name = "EBCLT BC energy projection phi";
     meBCEneMapProjPhi_ = dqmStore_->bookProfile(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
     meBCEneMapProjPhi_->setAxisTitle("phi", 1);
     meBCEneMapProjPhi_->setAxisTitle("energy (GeV)", 2);
 
-    name = "ClusterTask BC number eta EB";
+    name = "EBCLT BC number projection eta";
     meBCNumMapProjEta_ = dqmStore_->book1D(name, name, 34, -1.479, 1.479);
     meBCNumMapProjEta_->setAxisTitle("eta", 1);
     meBCNumMapProjEta_->setAxisTitle("number of clusters", 2);
 
-    name = "ClusterTask BC number phi EB";
+    name = "EBCLT BC number projection phi";
     meBCNumMapProjPhi_ = dqmStore_->book1D(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9);
     meBCNumMapProjPhi_->setAxisTitle("phi", 1);
     meBCNumMapProjPhi_->setAxisTitle("number of clusters", 2);
 
-    name = "ClusterTask BC ET eta EB";
+    name = "EBCLT BC ET projection eta";
     meBCETMapProjEta_ = dqmStore_->bookProfile(name, name, 34, -1.479, 1.479, 100, 0., 500., "s");
     meBCETMapProjEta_->setAxisTitle("eta", 1);
     meBCETMapProjEta_->setAxisTitle("transverse energy (GeV)", 2);
 
-    name = "ClusterTask BC ET phi EB";
+    name = "EBCLT BC ET projection phi";
     meBCETMapProjPhi_ = dqmStore_->bookProfile(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 500., "s");
     meBCETMapProjPhi_->setAxisTitle("phi", 1);
     meBCETMapProjPhi_->setAxisTitle("transverse energy (GeV)", 2);
 
-    name = "ClusterTask BC size eta EB";
+    name = "EBCLT BC size projection eta";
     meBCSizMapProjEta_ = dqmStore_->bookProfile(name, name, 34, -1.479, 1.479, 100, 0., 100., "s");
     meBCSizMapProjEta_->setAxisTitle("eta", 1);
     meBCSizMapProjEta_->setAxisTitle("cluster size", 2);
 
-    name = "ClusterTask BC size phi EB";
+    name = "EBCLT BC size projection phi";
     meBCSizMapProjPhi_ = dqmStore_->bookProfile(name, name, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 100, 0., 100., "s");
     meBCSizMapProjPhi_->setAxisTitle("phi", 1);
     meBCSizMapProjPhi_->setAxisTitle("cluster size", 2);
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/Clusters/SuperClusters");
-
-    name = "ClusterTask SC energy EB";
+    name = "EBCLT SC energy";
     meSCEne_ = dqmStore_->book1D(name, name, 100, 0., 150.);
     meSCEne_->setAxisTitle("energy (GeV)", 1);
 
-    name = "ClusterTask SC number EB";
+    name = "EBCLT SC number";
     meSCNum_ = dqmStore_->book1D(name, name, 50, 0., 50.);
     meSCNum_->setAxisTitle("number of clusters", 1);
 
-    name = "ClusterTask SC size EB";
+    name = "EBCLT SC size";
     meSCSiz_ = dqmStore_->book1D(name, name, 50, 0., 50.);
     meSCSiz_->setAxisTitle("cluster size", 1);
 
-    name = "ClusterTask SC size (crystal) EB";
+    name = "EBCLT SC size (crystal)";
     meSCCrystalSiz_ = dqmStore_->book1D(name, name, 150, 0, 150);
     meSCCrystalSiz_->setAxisTitle("cluster size in crystals", 1);
 
-    name = "ClusterTask SC seed crystal energy EB";
+    name = "EBCLT SC seed crystal energy";
     meSCSeedEne_ = dqmStore_->book1D(name, name, 100, 0., 10.);
     meSCSeedEne_->setAxisTitle("seed crystal energy (GeV)", 1);
 
-    name = "ClusterTask SC e2 EB";
+    name = "EBCLT SC e2";
     meSCEne2_ = dqmStore_->book1D(name, name, 100, 0., 10.);
     meSCEne2_->setAxisTitle("seed + highest neighbor crystal energy (GeV)", 1);
 
-    name = "ClusterTask SC energy vs seed crystal energy EB";
-    meSCEneVsEMax_ = dqmStore_->book2D(name, name, 40, 0., 10., 40, 0., 10.);
+    name = "EBCLT SC energy vs seed crystal energy";
+    meSCEneVsEMax_ = dqmStore_->book2D(name, name, 50, 0., 10., 50, 0., 10.);
     meSCEneVsEMax_->setAxisTitle("seed crystal energy (GeV)", 1);
     meSCEneVsEMax_->setAxisTitle("cluster energy (GeV)", 2);
 
-    name = "ClusterTask SC energy (low scale) EB";
+    name = "EBCLT SC energy (low scale)";
     meSCEneLowScale_ = dqmStore_->book1D(name, name, 200, 0., 10.);
     meSCEneLowScale_->setAxisTitle("cluster energy (GeV)", 1);
 
-    name = "ClusterTask SC seed occupancy EB";
+    name = "EBCLT SC seed occupancy map";
     meSCSeedMapOcc_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85, 85);
     meSCSeedMapOcc_->setAxisTitle("jphi", 1);
     meSCSeedMapOcc_->setAxisTitle("jeta", 2);
 
-    name = "ClusterTask SC single xtal seed occupancy EB";
+    name = "EBCLT SC single crystal cluster seed occupancy map";
     meSCMapSingleCrystal_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85, 85);
     meSCMapSingleCrystal_->setAxisTitle("jphi", 1);
     meSCMapSingleCrystal_->setAxisTitle("jeta", 2);
 
-    name = "ClusterTask s1s9 EB";
+    name = "EBCLT s1s9";
     mes1s9_ = dqmStore_->book1D(name, name, 50, 0., 1.5);
     mes1s9_->setAxisTitle("s1/s9", 1);
 
-    name = "ClusterTask s1s9 thr EB";
+    name = "EBCLT s1s9 thr";
     mes1s9thr_ = dqmStore_->book1D(name, name, 50, 0., 1.5);
     mes1s9thr_->setAxisTitle("s1/s9", 1);
 
-    name = "ClusterTask s9s25 EB";
+    name = "EBCLT s9s25";
     mes9s25_ = dqmStore_->book1D(name, name, 75, 0., 1.5);
     mes9s25_->setAxisTitle("s9/s25", 1);
 
-    name = "ClusterTask dicluster invariant mass Pi0 EB";
+    name = "EBCLT dicluster invariant mass Pi0";
     meInvMassPi0_ = dqmStore_->book1D(name, name, 50, 0.0, 0.500);
     meInvMassPi0_->setAxisTitle("mass (GeV)", 1);
 
-    name = "ClusterTask dicluster invariant mass JPsi EB";
+    name = "EBCLT dicluster invariant mass JPsi";
     meInvMassJPsi_ = dqmStore_->book1D(name, name, 50, 2.9, 3.3);
     meInvMassJPsi_->setAxisTitle("mass (GeV)", 1);
 
-    name = "ClusterTask dicluster invariant mass Z0 EB";
+    name = "EBCLT dicluster invariant mass Z0";
     meInvMassZ0_ = dqmStore_->book1D(name, name, 50, 40, 110);
     meInvMassZ0_->setAxisTitle("mass (GeV)", 1);
 
-    name = "ClusterTask dicluster invariant mass high EB";
+    name = "EBCLT dicluster invariant mass high";
     meInvMassHigh_ = dqmStore_->book1D(name, name, 500, 110, 3000);
     meInvMassHigh_->setAxisTitle("mass (GeV)", 1);
 
-    name = "ClusterTask dicluster invariant mass Pi0 sel EB";
+    name = "EBCLT dicluster invariant mass Pi0 sel";
     meInvMassPi0Sel_ = dqmStore_->book1D(name, name, 50, 0.00, 0.500);
     meInvMassPi0Sel_->setAxisTitle("mass (GeV)", 1);
 
-    name = "ClusterTask dicluster invariant mass JPsi sel EB";
+    name = "EBCLT dicluster invariant mass JPsi sel";
     meInvMassJPsiSel_ = dqmStore_->book1D(name, name, 50, 2.9, 3.3);
     meInvMassJPsiSel_->setAxisTitle("mass (GeV)", 1);
 
-    name = "ClusterTask dicluster invariant mass Z0 sel EB";
+    name = "EBCLT dicluster invariant mass Z0 sel";
     meInvMassZ0Sel_ = dqmStore_->book1D(name, name, 50, 40, 110);
     meInvMassZ0Sel_->setAxisTitle("mass (GeV)", 1);
 
-    name = "ClusterTask dicluster invariant mass high sel EB";
+    name = "EBCLT dicluster invariant mass high sel";
     meInvMassHighSel_ = dqmStore_->book1D(name, name, 500, 110, 3000);
     meInvMassHighSel_->setAxisTitle("mass (GeV)", 1);
 
@@ -400,113 +391,114 @@ void EBClusterTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
 
-    if ( meBCEne_ ) dqmStore_->removeElement( meBCEne_->getFullname() );
+    if ( meBCEne_ ) dqmStore_->removeElement( meBCEne_->getName() );
     meBCEne_ = 0;
 
-    if ( meBCNum_ ) dqmStore_->removeElement( meBCNum_->getFullname() );
+    if ( meBCNum_ ) dqmStore_->removeElement( meBCNum_->getName() );
     meBCNum_ = 0;
 
-    if ( meBCSiz_ ) dqmStore_->removeElement( meBCSiz_->getFullname() );
+    if ( meBCSiz_ ) dqmStore_->removeElement( meBCSiz_->getName() );
     meBCSiz_ = 0;
 
-    if ( meBCEneMap_ ) dqmStore_->removeElement( meBCEneMap_->getFullname() );
+    if ( meBCEneMap_ ) dqmStore_->removeElement( meBCEneMap_->getName() );
     meBCEneMap_ = 0;
 
-    if ( meBCNumMap_ ) dqmStore_->removeElement( meBCNumMap_->getFullname() );
+    if ( meBCNumMap_ ) dqmStore_->removeElement( meBCNumMap_->getName() );
     meBCNumMap_ = 0;
 
-    if ( meBCETMap_ ) dqmStore_->removeElement( meBCETMap_->getFullname() );
+    if ( meBCETMap_ ) dqmStore_->removeElement( meBCETMap_->getName() );
     meBCETMap_ = 0;
 
-    if ( meBCSizMap_ ) dqmStore_->removeElement( meBCSizMap_->getFullname() );
+    if ( meBCSizMap_ ) dqmStore_->removeElement( meBCSizMap_->getName() );
     meBCSizMap_ = 0;
 
-    if ( meBCEneMapProjEta_ ) dqmStore_->removeElement( meBCEneMapProjEta_->getFullname() );
+    if ( meBCEneMapProjEta_ ) dqmStore_->removeElement( meBCEneMapProjEta_->getName() );
     meBCEneMapProjEta_ = 0;
 
-    if ( meBCEneMapProjPhi_ ) dqmStore_->removeElement( meBCEneMapProjPhi_->getFullname() );
+    if ( meBCEneMapProjPhi_ ) dqmStore_->removeElement( meBCEneMapProjPhi_->getName() );
     meBCEneMapProjPhi_ = 0;
 
-    if ( meBCNumMapProjEta_ ) dqmStore_->removeElement( meBCNumMapProjEta_->getFullname() );
+    if ( meBCNumMapProjEta_ ) dqmStore_->removeElement( meBCNumMapProjEta_->getName() );
     meBCNumMapProjEta_ = 0;
 
-    if ( meBCNumMapProjPhi_ ) dqmStore_->removeElement( meBCNumMapProjPhi_->getFullname() );
+    if ( meBCNumMapProjPhi_ ) dqmStore_->removeElement( meBCNumMapProjPhi_->getName() );
     meBCNumMapProjPhi_ = 0;
 
-    if ( meBCETMapProjEta_ ) dqmStore_->removeElement( meBCETMapProjEta_->getFullname() );
+    if ( meBCETMapProjEta_ ) dqmStore_->removeElement( meBCETMapProjEta_->getName() );
     meBCETMapProjEta_ = 0;
 
-    if ( meBCETMapProjPhi_ ) dqmStore_->removeElement( meBCETMapProjPhi_->getFullname() );
+    if ( meBCETMapProjPhi_ ) dqmStore_->removeElement( meBCETMapProjPhi_->getName() );
     meBCETMapProjPhi_ = 0;
 
-    if ( meBCSizMapProjEta_ ) dqmStore_->removeElement( meBCSizMapProjEta_->getFullname() );
+    if ( meBCSizMapProjEta_ ) dqmStore_->removeElement( meBCSizMapProjEta_->getName() );
     meBCSizMapProjEta_ = 0;
 
-    if ( meBCSizMapProjPhi_ ) dqmStore_->removeElement( meBCSizMapProjPhi_->getFullname() );
+    if ( meBCSizMapProjPhi_ ) dqmStore_->removeElement( meBCSizMapProjPhi_->getName() );
     meBCSizMapProjPhi_ = 0;
 
-    if ( meSCEne_ ) dqmStore_->removeElement( meSCEne_->getFullname() );
+    if ( meSCEne_ ) dqmStore_->removeElement( meSCEne_->getName() );
     meSCEne_ = 0;
 
-    if ( meSCNum_ ) dqmStore_->removeElement( meSCNum_->getFullname() );
+    if ( meSCNum_ ) dqmStore_->removeElement( meSCNum_->getName() );
     meSCNum_ = 0;
 
-    if ( meSCSiz_ ) dqmStore_->removeElement( meSCSiz_->getFullname() );
+    if ( meSCSiz_ ) dqmStore_->removeElement( meSCSiz_->getName() );
     meSCSiz_ = 0;
 
-    if ( meSCCrystalSiz_ ) dqmStore_->removeElement( meSCCrystalSiz_->getFullname() );
+    if ( meSCCrystalSiz_ ) dqmStore_->removeElement( meSCCrystalSiz_->getName() );
     meSCCrystalSiz_ = 0;
 
-    if ( meSCSeedEne_ ) dqmStore_->removeElement( meSCSeedEne_->getFullname() );
+    if ( meSCSeedEne_ ) dqmStore_->removeElement( meSCSeedEne_->getName() );
     meSCSeedEne_ = 0;
 
-    if ( meSCEne2_ ) dqmStore_->removeElement( meSCEne2_->getFullname() );
+    if ( meSCEne2_ ) dqmStore_->removeElement( meSCEne2_->getName() );
     meSCEne2_ = 0;
 
-    if ( meSCEneVsEMax_ ) dqmStore_->removeElement( meSCEneVsEMax_->getFullname() );
+    if ( meSCEneVsEMax_ ) dqmStore_->removeElement( meSCEneVsEMax_->getName() );
     meSCEneVsEMax_ = 0;
 
-    if ( meSCEneLowScale_ ) dqmStore_->removeElement( meSCEneLowScale_->getFullname() );
+    if ( meSCEneLowScale_ ) dqmStore_->removeElement( meSCEneLowScale_->getName() );
     meSCEneLowScale_ = 0;
 
-    if ( meSCSeedMapOcc_ ) dqmStore_->removeElement( meSCSeedMapOcc_->getFullname() );
+    if ( meSCSeedMapOcc_ ) dqmStore_->removeElement( meSCSeedMapOcc_->getName() );
     meSCSeedMapOcc_ = 0;
 
-    if ( meSCMapSingleCrystal_ ) dqmStore_->removeElement( meSCMapSingleCrystal_->getFullname() );
+    if ( meSCMapSingleCrystal_ ) dqmStore_->removeElement( meSCMapSingleCrystal_->getName() );
     meSCMapSingleCrystal_ = 0;
 
-    if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getFullname() );
+    if ( mes1s9_ ) dqmStore_->removeElement( mes1s9_->getName() );
     mes1s9_ = 0;
 
-    if ( mes1s9thr_ ) dqmStore_->removeElement( mes1s9thr_->getFullname() );
+    if ( mes1s9thr_ ) dqmStore_->removeElement( mes1s9thr_->getName() );
     mes1s9thr_ = 0;
 
-    if ( mes9s25_ ) dqmStore_->removeElement( mes9s25_->getFullname() );
+    if ( mes9s25_ ) dqmStore_->removeElement( mes9s25_->getName() );
     mes9s25_ = 0;
 
-    if ( meInvMassPi0_ ) dqmStore_->removeElement( meInvMassPi0_->getFullname() );
+    if ( meInvMassPi0_ ) dqmStore_->removeElement( meInvMassPi0_->getName() );
     meInvMassPi0_ = 0;
 
-    if ( meInvMassJPsi_ ) dqmStore_->removeElement( meInvMassJPsi_->getFullname() );
+    if ( meInvMassJPsi_ ) dqmStore_->removeElement( meInvMassJPsi_->getName() );
     meInvMassJPsi_ = 0;
 
-    if ( meInvMassZ0_ ) dqmStore_->removeElement( meInvMassZ0_->getFullname() );
+    if ( meInvMassZ0_ ) dqmStore_->removeElement( meInvMassZ0_->getName() );
     meInvMassZ0_ = 0;
 
-    if ( meInvMassHigh_ ) dqmStore_->removeElement( meInvMassHigh_->getFullname() );
+    if ( meInvMassHigh_ ) dqmStore_->removeElement( meInvMassHigh_->getName() );
     meInvMassHigh_ = 0;
 
-    if ( meInvMassPi0Sel_ ) dqmStore_->removeElement( meInvMassPi0Sel_->getFullname() );
+    if ( meInvMassPi0Sel_ ) dqmStore_->removeElement( meInvMassPi0Sel_->getName() );
     meInvMassPi0Sel_ = 0;
 
-    if ( meInvMassJPsiSel_ ) dqmStore_->removeElement( meInvMassJPsiSel_->getFullname() );
+    if ( meInvMassJPsiSel_ ) dqmStore_->removeElement( meInvMassJPsiSel_->getName() );
     meInvMassJPsiSel_ = 0;
 
-    if ( meInvMassZ0Sel_ ) dqmStore_->removeElement( meInvMassZ0Sel_->getFullname() );
+    if ( meInvMassZ0Sel_ ) dqmStore_->removeElement( meInvMassZ0Sel_->getName() );
     meInvMassZ0Sel_ = 0;
 
-    if ( meInvMassHighSel_ ) dqmStore_->removeElement( meInvMassHighSel_->getFullname() );
+    if ( meInvMassHighSel_ ) dqmStore_->removeElement( meInvMassHighSel_->getName() );
     meInvMassHighSel_ = 0;
 
   }
@@ -591,33 +583,25 @@ void EBClusterTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
     for ( reco::BasicClusterCollection::const_iterator bCluster = pBasicClusters->begin(); bCluster != pBasicClusters->end(); ++bCluster ) {
 
-      // DetId cannot be used for Hybrid basic clusters since the BCs that did not seed the SC will not have seedId recorded
-//       EBDetId id(bCluster->seed());
-//       if(id.null()) continue;
-
       meBCEne_->Fill(bCluster->energy());
       meBCSiz_->Fill(float(bCluster->size()));
 
       float xphi = bCluster->phi();
       if ( xphi > M_PI*(9-1.5)/9 ) xphi = xphi - M_PI*2;
 
-      float xp(bCluster->phi() / 2. / M_PI * 360. + 10.);
-      if(xp < 0.) xp += 360.;
-      float xe(bCluster->eta() / EBDetId::crystalUnitToEta);
-
-      meBCEneMap_->Fill(xp, xe, bCluster->energy());
+      meBCEneMap_->Fill(xphi, bCluster->eta(), bCluster->energy());
       meBCEneMapProjEta_->Fill(bCluster->eta(), bCluster->energy());
       meBCEneMapProjPhi_->Fill(xphi, bCluster->energy());
 
-      meBCNumMap_->Fill(xp, xe);
+      meBCNumMap_->Fill(xphi, bCluster->eta());
       meBCNumMapProjEta_->Fill(bCluster->eta());
       meBCNumMapProjPhi_->Fill(xphi);
 
-      meBCSizMap_->Fill(xp, xe, float(bCluster->size()));
+      meBCSizMap_->Fill(xphi, bCluster->eta(), float(bCluster->size()));
       meBCSizMapProjEta_->Fill(bCluster->eta(), float(bCluster->size()));
       meBCSizMapProjPhi_->Fill(xphi, float(bCluster->size()));
 
-      meBCETMap_->Fill(xp, xe, float(bCluster->energy()) * sin(bCluster->position().theta()));
+      meBCETMap_->Fill(xphi, bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
       meBCETMapProjEta_->Fill(bCluster->eta(), float(bCluster->energy()) * sin(bCluster->position().theta()));
       meBCETMapProjPhi_->Fill(xphi, float(bCluster->energy()) * sin(bCluster->position().theta()));
 

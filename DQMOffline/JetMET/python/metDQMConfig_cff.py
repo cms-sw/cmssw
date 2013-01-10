@@ -94,9 +94,9 @@ metDQMParameters = cms.PSet(
         eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
     ),
     
-    HcalNoiseRBXCollection  = cms.InputTag("hcalnoise"),
-    HcalNoiseSummary        = cms.InputTag("hcalnoise"),
-    BeamHaloSummaryLabel    = cms.InputTag("BeamHaloSummary"),    
+    HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"),
+    HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),
+    BeamHaloSummaryLabel       = cms.InputTag("BeamHaloSummary"),    
 
     HighPtJetThreshold = cms.double(60.),
     LowPtJetThreshold  = cms.double(15.),

@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2011/10/30 15:01:24 $
- * $Revision: 1.58 $
+ * $Date: 2012/03/16 14:46:34 $
+ * $Revision: 1.57.8.2 $
  * \author G. Della Ricca
  *
 */
@@ -14,7 +14,6 @@
 #include <string>
 
 #include "TROOT.h"
-#include "TH1F.h"
 #include "TProfile2D.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -78,7 +77,6 @@ int ievt_;
 int jevt_;
 
 float synchErrorThreshold_;
-float timingNHitThreshold_;
 
 bool cloneME_;
 
@@ -89,12 +87,12 @@ std::string prefixME_;
 
 bool enableCleanup_;
 
+ bool produceReports_;
+
 std::vector<int> superModules_;
 std::vector<int> laserWavelengths_;
 std::vector<int> MGPAGains_;
 std::vector<int> MGPAGainsPN_;
-
- std::vector<std::string> enabledClients_;
 
 std::vector<EBClient*> clients_;
 
@@ -172,7 +170,7 @@ TProfile2D* hot01_[36];
 TProfile2D* hpot01_[36];
 TProfile2D* httt01_[36];
 TProfile2D* htmt01_[36];
-TH1F *synch01_;
+TH1F* norm01_, *synch01_;
 
 };
 

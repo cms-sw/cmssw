@@ -40,7 +40,7 @@ pfMETSelSeq = cms.Sequence(pvFilter*
 tcMETSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("tcMet"),
-    cut = cms.string( "pt()>500" )
+    cut = cms.string( "pt()>150" )
     )
 
 tcMETCounter = cms.EDFilter(

@@ -1,6 +1,6 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="Integrity_Gain_Quality">
+<QTEST name="EB_Integrity_Gain_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -13,11 +13,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/Gain/*">
-        <TestName activate="true">Integrity_Gain_Quality</TestName>
+<LINK name="*EcalBarrel/EBIntegrityTask/Gain/EBIT gain EB*">
+        <TestName activate="true">EB_Integrity_Gain_Quality</TestName>
 </LINK>
 
-<QTEST name="Integrity_ChId_Quality">
+<QTEST name="EB_Integrity_ChId_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -30,11 +30,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/ChId/*">
-        <TestName activate="true">Integrity_ChId_Quality</TestName>
+<LINK name="*EcalBarrel/EBIntegrityTask/ChId/EBIT ChId EB*">
+        <TestName activate="true">EB_Integrity_ChId_Quality</TestName>
 </LINK>
 
-<QTEST name="Integrity_Gain_Switch_Quality">
+<QTEST name="EB_Integrity_Gain_Switch_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -47,11 +47,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/GainSwitch/*">
-        <TestName activate="true">Integrity_Gain_Switch_Quality</TestName>
+<LINK name="*EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch EB*">
+        <TestName activate="true">EB_Integrity_Gain_Switch_Quality</TestName>
 </LINK>
 
-<QTEST name="Integrity_TtId_Quality">
+<QTEST name="EB_Integrity_TtId_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -64,11 +64,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/TowerId/*">
-        <TestName activate="true">Integrity_TtId_Quality</TestName>
+<LINK name="*EcalBarrel/EBIntegrityTask/TTId/EBIT TTId EB*">
+        <TestName activate="true">EB_Integrity_TtId_Quality</TestName>
 </LINK>
 
-<QTEST name="Integrity_TtBlockSize_Quality">
+<QTEST name="EB_Integrity_TtBlockSize_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -81,11 +81,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/BlockSize/*">
-        <TestName activate="true">Integrity_TtBlockSize_Quality</TestName>
+<LINK name="*EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize EB*">
+        <TestName activate="true">EB_Integrity_TtBlockSize_Quality</TestName>
 </LINK>
 
-<QTEST name="Integrity_MemChId_Quality">
+<QTEST name="EB_Integrity_MemChId_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -98,11 +98,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/MEMChId/*">
-        <TestName activate="true">Integrity_MemChId_Quality</TestName>
+<LINK name="*EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId EB*">
+        <TestName activate="true">EB_Integrity_MemChId_Quality</TestName>
 </LINK>
 
-<QTEST name="Integrity_MemGain_Quality">
+<QTEST name="EB_Integrity_MemGain_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -115,11 +115,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/MEMGain/*">
-        <TestName activate="true">Integrity_MemGain_Quality</TestName>
+<LINK name="*EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain EB*">
+        <TestName activate="true">EB_Integrity_MemGain_Quality</TestName>
 </LINK>
 
-<QTEST name="Integrity_MemTtId_Quality">
+<QTEST name="EB_Integrity_MemTtId_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -132,11 +132,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/MEMTowerId/*">
-        <TestName activate="true">Integrity_MemTtId_Quality</TestName>
+<LINK name="*EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId EB*">
+        <TestName activate="true">EB_Integrity_MemTtId_Quality</TestName>
 </LINK>
 
-<QTEST name="Integrity_MemSize_Quality">
+<QTEST name="EB_Integrity_MemSize_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -149,11 +149,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/MEMBlockSize/*">
-        <TestName activate="true">Integrity_MemSize_Quality</TestName>
+<LINK name="*EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize EB*">
+        <TestName activate="true">EB_Integrity_MemSize_Quality</TestName>
 </LINK>
 
-<QTEST name="StatusFlags_Quality">
+<QTEST name="EB_StatusFlags_Quality">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -166,8 +166,8 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/FEStatus/Errors/*">
-        <TestName activate="true">StatusFlags_Quality</TestName>
+<LINK name="*EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status EB*">
+        <TestName activate="true">EB_StatusFlags_Quality</TestName>
 </LINK>
 
 <QTEST name="EB_PedestalOnline_G12_Quality">
@@ -183,7 +183,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Pedestal/Presample/PedestalTask presample G12 EB*">
+<LINK name="*EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal EB* G12">
         <TestName activate="true">EB_PedestalOnline_G12_Quality</TestName>
 </LINK>
 
@@ -200,7 +200,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Pedestal/Gain01/PedestalTask pedestal G01 EB*">
+<LINK name="*EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal EB* G01">
         <TestName activate="true">EB_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -217,7 +217,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Pedestal/Gain06/PedestalTask pedestal G06 EB*">
+<LINK name="*EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal EB* G06">
         <TestName activate="true">EB_Pedestal_G06_Quality</TestName>
 </LINK>
 
@@ -234,7 +234,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Pedestal/Gain12/PedestalTask pedestal G12 EB*">
+<LINK name="*EcalBarrel/EBPedestalTask/Gain12/EBPDT pedestal EB* G12">
         <TestName activate="true">EB_Pedestal_G12_Quality</TestName>
 </LINK>
 
@@ -251,7 +251,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Pedestal/PN/Gain01/PedstalTask PN pedestal G01 EB*">
+<LINK name="*EcalBarrel/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal EB* G01">
         <TestName activate="true">EB_Pedestal_PN_G01_Quality</TestName>
 </LINK>
 
@@ -268,7 +268,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Pedestal/PN/Gain16/PedestalTask PN pedestal G16 EB*">
+<LINK name="*EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal EB* G16">
         <TestName activate="true">EB_Pedestal_PN_G16_Quality</TestName>
 </LINK>
 
@@ -285,7 +285,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser1/Amplitude/LaserTask amplitude L1 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser1/EBLT amplitude EB* L1">
         <TestName activate="true">EB_Laser_L1_Quality</TestName>
 </LINK>
 
@@ -302,7 +302,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser1/PN/Gain01/Presample/LaserTask PN presample L1 G01 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBLT PNs pedestal EB* G01 L1">
         <TestName activate="true">EB_Laser_L1_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -319,7 +319,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser1/PN/Gain16/Presample/LaserTask PN presample L1 G16 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBLT PNs pedestal EB* G16 L1">
         <TestName activate="true">EB_Laser_L1_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -336,7 +336,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser1/PN/Gain01/Amplitude/LaserTask PN amplitude L1 G01 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBLT PNs amplitude EB* G01 L1">
         <TestName activate="true">EB_Laser_L1_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -353,7 +353,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser1/PN/Gain16/Amplitude/LaserTask PN amplitude L1 G16 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBLT PNs amplitude EB* G16 L1">
         <TestName activate="true">EB_Laser_L1_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -370,7 +370,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser2/Amplitude/LaserTask amplitude L2 *">
+<LINK name="*EcalBarrel/EBLaserTask/Laser2/EBLT amplitude EB* L2">
         <TestName activate="true">EB_Laser_L2_Quality</TestName>
 </LINK>
 
@@ -387,7 +387,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser2/PN/Gain01/Presample/LaserTask PN presample L2 G01 *">
+<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBLT PNs pedestal EB* G01 L2">
         <TestName activate="true">EB_Laser_L2_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -404,7 +404,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser2/PN/Gain16/Presample/LaserTask PN presample L2 G16 *">
+<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBLT PNs pedestal EB* G16 L2">
         <TestName activate="true">EB_Laser_L2_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -421,7 +421,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser2/PN/Gain01/Amplitude/LaserTask PN amplitude L2 G01 *">
+<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain01/EBLT PNs amplitude EB* G01 L2">
         <TestName activate="true">EB_Laser_L2_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -438,7 +438,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser2/PN/Gain16/Amplitude/LaserTask PN amplitude L2 G16 *">
+<LINK name="*EcalBarrel/EBLaserTask/Laser2/PN/Gain16/EBLT PNs amplitude EB* G16 L2">
         <TestName activate="true">EB_Laser_L2_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -455,7 +455,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser3/Amplitude/LaserTask amplitude L3 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser3/EBLT amplitude EB* L3">
         <TestName activate="true">EB_Laser_L3_Quality</TestName>
 </LINK>
 
@@ -472,7 +472,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser3/PN/Gain01/Presample/LaserTask PN presample L3 G01 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBLT PNs pedestal EB* G01 L3">
         <TestName activate="true">EB_Laser_L3_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -489,7 +489,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser3/PN/Gain16/Presample/LaserTask PN presample L3 G16 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBLT PNs pedestal EB* G16 L3">
         <TestName activate="true">EB_Laser_L3_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -506,7 +506,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser3/PN/Gain01/Amplitude/LaserTask PN amplitude L3 G01 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain01/EBLT PNs amplitude EB* G01 L3">
         <TestName activate="true">EB_Laser_L3_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -523,7 +523,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser3/PN/Gain16/Amplitude/LaserTask PN amplitude L3 G16 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser3/PN/Gain16/EBLT PNs amplitude EB* G16 L3">
         <TestName activate="true">EB_Laser_L3_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -540,7 +540,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser4/Amplitude/LaserTask amplitude L4 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/EBLT amplitude EB* L4">
         <TestName activate="true">EB_Laser_L4_Quality</TestName>
 </LINK>
 
@@ -557,7 +557,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser4/PN/Gain01/Presample/LaserTask PN presample L4 G01 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBLT PNs pedestal EB* G01 L4">
         <TestName activate="true">EB_Laser_L4_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -574,7 +574,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser4/PN/Gain16/Presample/LaserTask PN presample L4 G16 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBLT PNs pedestal EB* G16 L4">
         <TestName activate="true">EB_Laser_L4_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -591,7 +591,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser4/PN/Gain01/Amplitude/LaserTask PN amplitude L4 G01 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBLT PNs amplitude EB* G01 L4">
         <TestName activate="true">EB_Laser_L4_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -608,7 +608,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/Laser/Laser4/PN/Gain16/Amplitude/LaserTask PN amplitude L4 G16 EB*">
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBLT PNs amplitude EB* G16 L4">
         <TestName activate="true">EB_Laser_L4_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -625,7 +625,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/TestPulse/Gain01/Amplitude/TestPulseTask amplitude G01 *">
+<LINK name="*EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude EB* G01">
         <TestName activate="true">EB_TestPulse_G01_Quality</TestName>
 </LINK>
 
@@ -642,7 +642,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/TestPulse/Gain06/Amplitude/TestPulseTask amplitude G06 *">
+<LINK name="*EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude EB* G06">
         <TestName activate="true">EB_TestPulse_G06_Quality</TestName>
 </LINK>
 
@@ -659,7 +659,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/TestPulse/Gain12/Amplitude/TestPulseTask amplitude G12 *">
+<LINK name="*EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude EB* G12">
         <TestName activate="true">EB_TestPulse_G12_Quality</TestName>
 </LINK>
 
@@ -676,7 +676,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/TestPulse/PN/Gain01/Presample/TestPulseTask PN presample G01 *">
+<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain01/EBTPT PNs pedestal EB* G01">
         <TestName activate="true">EB_TestPulse_PN_Pedestal_G01_Quality</TestName>
 </LINK>
 
@@ -693,7 +693,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/TestPulse/PN/Gain16/Presample/TestPulseTask PN presample G16 *">
+<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain16/EBTPT PNs pedestal EB* G16">
         <TestName activate="true">EB_TestPulse_PN_Pedestal_G16_Quality</TestName>
 </LINK>
 
@@ -710,7 +710,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/TestPulse/PN/Gain01/Amplitude/TestPulseTask PN amplitude G01 *">
+<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain01/EBTPT PNs amplitude EB* G01">
         <TestName activate="true">EB_TestPulse_PN_Amplitude_G01_Quality</TestName>
 </LINK>
 
@@ -727,7 +727,7 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*EcalCalibration/TestPulse/PN/Gain16/Amplitude/TestPulseTask PN amplitude G16 *">
+<LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain16/EBTPT PNs amplitude EB* G16">
         <TestName activate="true">EB_TestPulse_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
@@ -744,11 +744,11 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Timing/TimingTask timing *">
+<LINK name="*EcalBarrel/EBTimingTask/EBTMT timing EB*">
         <TestName activate="true">EB_Timing_Quality</TestName>
 </LINK>
 
-<QTEST name="Quality_Summary">
+<QTEST name="EB_Quality_Summary">
         <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
@@ -761,156 +761,164 @@
         <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/IntegrityErrors/IntegrityClient data integrity quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBIntegrityClient/EBIT data integrity quality EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/IntegrityErrors/IntegrityClient data integrity quality MEM *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBIntegrityClient/EBIT data integrity quality MEM EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Pedestal/Presample/Quality/PedestalClient presample quality G12 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBPedestalOnlineClient/EBPOT pedestal quality G12 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Pedestal/Gain01/Quality/PedestalClient pedestal quality G01 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBPedestalClient/EBPT pedestal quality G01 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Pedestal/Gain06/Quality/PedestalClient pedestal quality G06 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBPedestalClient/EBPT pedestal quality G06 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Pedestal/Gain12/Quality/PedestalClient pedestal quality G12 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBPedestalClient/EBPT pedestal quality G12 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Pedestal/PN/Gain01/Quality/PedestalClient PN pedestal quality G01 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBPedestalClient/EBPT pedestal quality PNs G01 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Pedestal/PN/Gain16/Quality/PedestalClient PN pedestal quality G16 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBPedestalClient/EBPT pedestal quality PNs G16 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser1/Quality/LaserClient laser quality L1 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L1 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser2/Quality/LaserClient laser quality L2 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L2 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser3/Quality/LaserClient laser quality L3 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L3 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser4/Quality/LaserClient laser quality L4 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L4 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser1/PN/Gain01/Quality/LaserClient laser PN quality L1 G01 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs G01 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser1/PN/Gain16/Quality/LaserClient laser PN quality L1 G16 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs G16 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser2/PN/Gain01/Quality/LaserClient laser PN quality L2 G01 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs G01 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser2/PN/Gain16/Quality/LaserClient laser PN quality L2 G16 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs G16 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser3/PN/Gain01/Quality/LaserClient laser PN quality L3 G01 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs G01 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser3/PN/Gain16/Quality/LaserClient laser PN quality L3 G16 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs G16 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser4/PN/Gain01/Quality/LaserClient laser PN quality L4 G01 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs G01 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/Laser/Laser4/PN/Gain16/Quality/LaserClient laser PN quality L4 G16 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs G16 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/TestPulse/Gain01/Quality/TestPulseClient test pulse quality G01 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G01 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/TestPulse/Gain06/Quality/TestPulseClient test pulse quality G06 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G06 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/TestPulse/Gain12/Quality/TestPulseClient test pulse quality G12 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBTestPulseClient/EBTPT test pulse quality G12 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/TestPulse/PN/Gain01/Quality/TestPulseClient PN test pulse quality G01 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBTestPulseClient/EBTPT test pulse quality PNs G01 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*EcalCalibration/TestPulse/PN/Gain16/Quality/TestPulseClient PN test pulse quality G16 *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBTestPulseClient/EBTPT test pulse quality PNs G16 EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Timing/Quality/TimingClient timing quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBTimingClient/EBTMT timing quality EB*">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary integrity quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBIT integrity quality summary">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary presample quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBPOT pedestal quality summary G12">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary front-end status quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBSFT front-end status summary">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary laser quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBLT laser quality summary L1">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary laser PN quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBLT PN laser quality summary L1">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary pedestal quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBLT laser quality summary L4">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary PN pedestal quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBLT PN laser quality summary L4">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary tes pulse quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBPT pedestal quality summary">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary PN test pulse quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary timing quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBTPT test pulse quality summary">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary TP emul error quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBTPT PN test pulse quality summary">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
-<LINK name="*Ecal/Summary/Summary global quality *">
-        <TestName activate="true">Quality_Summary</TestName>
+<LINK name="*EcalBarrel/EBSummaryClient/EBTMT timing quality summary">
+        <TestName activate="true">EB_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBSummaryClient/EBTTT emulator error quality summary">
+        <TestName activate="true">EB_Quality_Summary</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBSummaryClient/EB global summary">
+        <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
 
 <QTEST name="EB_Occupancy_Digis_Comp2RefKolmogorov">
@@ -920,11 +928,11 @@
         <PARAM name="warning">0.90</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Occupancy/Digi/OccupancyTask digi occupancy eta *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection eta">
         <TestName activate="true">EB_Occupancy_Digis_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Occupancy/Digi/OccupancyTaskdigi occupancy phi *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection phi">
         <TestName activate="true">EB_Occupancy_Digis_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -935,11 +943,11 @@
         <PARAM name="warning">0.80</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Occupancy/RecHit/OccupancyTask rec hit occupancy eta *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection eta">
         <TestName activate="true">EB_Occupancy_Rechits_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Occupancy/RecHit/OccupancyTask rec hit occupancy phi *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection phi">
         <TestName activate="true">EB_Occupancy_Rechits_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -950,11 +958,11 @@
         <PARAM name="warning">0.80</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Occupancy/RecHitThres/OccupancyTask rec hit thres occupancy eta *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection eta">
         <TestName activate="true">EB_Occupancy_RechitsThr_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Occupancy/RecHitThres/OccupancyTask rec hit thr occupancy phi *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection phi">
         <TestName activate="true">EB_Occupancy_RechitsThr_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -965,7 +973,7 @@
         <PARAM name="warning">0.80</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Energy/Spectrum/RecHitTask energy 1D all *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit spectrum">
         <TestName activate="true">EB_Occupancy_RechitsSpectrum_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -976,11 +984,11 @@
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Occupancy/TPDigi/OccupancyTask TP digi occupancy eta *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection eta">
         <TestName activate="true">EB_Occupancy_TP_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Occupancy/TPDigi/OccupancyTask TP digi occupancy phi *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection phi">
         <TestName activate="true">EB_Occupancy_TP_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -991,11 +999,11 @@
         <PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Occupancy/TPDigiThres/OccupancyTask TP digi thres occupancy eta *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection eta">
         <TestName activate="true">EB_Occupancy_TPThr_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Occupancy/TPDigiThres/OccupancyTask TP digi thres occupancy phi *">
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection phi">
         <TestName activate="true">EB_Occupancy_TPThr_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1006,23 +1014,23 @@
         <PARAM name="warning">0.90</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Clusters/BasicClusters/ClusterTask BC energy *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC energy">
         <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/BasicClusters/ClusterTask BC energy eta *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC energy projection eta">
         <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/BasicClusters/ClusterTask BC energy phi *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC energy projection phi">
         <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/BasicClusters/ClusterTask BC ET eta *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC ET projection eta">
         <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/BasicClusters/ClusterTask BC ET phi *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC ET projection phi">
         <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1033,27 +1041,27 @@
         <PARAM name="warning">0.90</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Clusters/BasicClusters/ClusterTask BC number *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC number">
         <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/BasicClusters/ClusterTask BC size *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC size">
         <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/BaiscClusters/ClusterTask BC number eta *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC number projection eta">
         <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/BaiscClusters/ClusterTask BC number phi *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC number projection phi">
         <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/BaiscClusters/ClusterTask BC size eta *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC size projection eta">
         <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/BaiscClusters/ClusterTask BC size phi *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC size projection phi">
         <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1064,7 +1072,7 @@
         <PARAM name="warning">0.90</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Clusters/SuperClusters/ClusterTask SC energy *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT SC energy">
         <TestName activate="true">EB_SuperClusters_Energy_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1075,11 +1083,11 @@
         <PARAM name="warning">0.90</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/Clusters/SuperClusters/ClusterTask SC number *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT SC number">
         <TestName activate="true">EB_SuperClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
-<LINK name="*Ecal/Clusters/SuperClusters/ClusterTask SC size *">
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT SC size">
         <TestName activate="true">EB_SuperClusters_Occupancy_Comp2RefKolmogorov</TestName>
 </LINK>
 
@@ -1092,55 +1100,55 @@
         <PARAM name="warning">1.00</PARAM>
 </QTEST>
 
-<LINK name="*Ecal/RawData/RawDataTask CRC errors *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT CRC errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask DCC-Event run mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT run number errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask DCC-GT orbit mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT orbit number errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask DCC-GT trigType mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT trigger type errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask calibration event errors *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT gap errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask DCC-GT L1A mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A DCC errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask DCC-GT BX mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing DCC errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask FE-DCC L1A mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A FE errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask FE-DCC BX mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing FE errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask TCC-DCC L1A mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A tCC errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask TCC-DCC BX mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing TCC errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask SRP-DCC L1A mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT L1A SRP errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 
-<LINK name="*Ecal/RawData/RawDataTask SRP-DCC BX mismatch *">
+<LINK name="*EcalBarrel/EBRawDataTask/EBRDT bunch crossing SRP errors">
         <TestName activate="true">EB_RawData_Errors_ContentsYRange</TestName>
 </LINK>
 

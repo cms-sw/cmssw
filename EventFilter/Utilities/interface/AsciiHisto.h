@@ -7,6 +7,7 @@
 #include <iomanip>
 
 #include <vector>
+#include <deque>
 
 namespace evf{
   
@@ -33,7 +34,14 @@ namespace evf{
       for(unsigned int i = 0; i < cont_.size(); i++)
 	cont_[i] = cont[i];
     }
-    
+
+    void fillDeque(std::deque<float> & cont)
+    {
+      uptodate_ = false;
+      for(unsigned int i = 0; i < cont_.size(); i++)
+	cont_[i] = cont.at(i);
+    }
+
     int maxbin()
     {
       int retval = -1;

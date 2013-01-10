@@ -5,10 +5,7 @@
   <class name="reco::TrackResiduals" ClassVersion="10">
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
-  <class name="reco::TrackBase" ClassVersion="11">
-   <version ClassVersion="11" checksum="2704717983"/>
-    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
-    <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+  <class name="reco::TrackBase" ClassVersion="10">
    <version ClassVersion="10" checksum="3019978065"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
@@ -30,8 +27,7 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="11">
-   <version ClassVersion="11" checksum="1190637787"/>
+  <class name="reco::Track" ClassVersion="10">
    <version ClassVersion="10" checksum="1190637787"/>
   </class>
   <class name="std::vector<reco::Track>"/>

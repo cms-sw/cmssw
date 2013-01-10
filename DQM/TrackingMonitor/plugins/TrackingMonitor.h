@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.16 2012/03/28 22:59:42 tosi Exp $
+// $Id: TrackingMonitor.h,v 1.17 2012/03/29 17:21:10 tosi Exp $
 
 #include <memory>
 #include <fstream>
@@ -99,6 +99,8 @@ class TrackingMonitor : public edm::EDAnalyzer
         MonitorElement* NumberOfGoodTrkVsClus;
 
 	// Monitoring vs LS
+	MonitorElement* NumberOfTracksVsLS;
+	MonitorElement* NumberOfGoodTracksVsLS;
 	MonitorElement* GoodTracksFractionVsLS;
 	MonitorElement* GoodTracksNumberOfRecHitsPerTrackVsLS;
 

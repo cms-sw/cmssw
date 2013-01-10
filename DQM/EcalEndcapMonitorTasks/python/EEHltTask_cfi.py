@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEndcapHltTask = cms.EDAnalyzer("EEHltTask",
-    prefixME = cms.untracked.string('Ecal'),
+    prefixME = cms.untracked.string('EcalEndcap'),
     folderName = cms.untracked.string('FEDIntegrity'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    

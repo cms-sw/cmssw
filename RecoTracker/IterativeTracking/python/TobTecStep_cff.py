@@ -10,7 +10,6 @@ tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
     trajectories = cms.InputTag("pixelLessStepTracks"),
     overrideTrkQuals = cms.InputTag('pixelLessStepSelector','pixelLessStep'),
     TrackQuality = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
@@ -98,25 +97,19 @@ tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder
     minNrOfHitsForRebuild = 4,
     alwaysUseInvalidHits = False,
     maxCand = 2,
-    estimator = cms.string('tobTecStepChi2Est'),
+    estimator = cms.string('tobTecStepChi2Est')
     #startSeedHitsInRebuild = True
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7)  
     )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('tobTecStepSeeds'),
-    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-
     TrajectoryBuilder = 'tobTecStepTrajectoryBuilder',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True,
     cleanTrajectoryAfterInOut = True
-)
+    )
 
 # TRACK FITTING AND SMOOTHING OPTIONS
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff
@@ -128,49 +121,23 @@ tobTecStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFi
     Smoother = cms.string('tobTecStepRKSmoother')
     )
 
-tobTecStepFitterSmootherForLoopers = tobTecStepFitterSmoother.clone(
-    ComponentName = 'tobTecStepFitterSmootherForLoopers',
-    Fitter = cms.string('tobTecStepRKFitterForLoopers'),
-    Smoother = cms.string('tobTecStepRKSmootherForLoopers')
-)
-
 # Also necessary to specify minimum number of hits after final track fit
 tobTecStepRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectoryFitter.clone(
     ComponentName = cms.string('tobTecStepRKFitter'),
     minHits = 8
-)
-tobTecStepRKTrajectoryFitterForLoopers = tobTecStepRKTrajectoryFitter.clone(
-    ComponentName = cms.string('tobTecStepRKFitterForLoopers'),
-    Propagator = cms.string('PropagatorWithMaterialForLoopers'),
-)
-
+    )
 tobTecStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
     ComponentName = cms.string('tobTecStepRKSmoother'),
     errorRescaling = 10.0,
     minHits = 8
-)
-tobTecStepRKTrajectorySmootherForLoopers = tobTecStepRKTrajectorySmoother.clone(
-    ComponentName = cms.string('tobTecStepRKSmootherForLoopers'),
-    Propagator = cms.string('PropagatorWithMaterialForLoopers'),
-)
-
-import TrackingTools.TrackFitters.FlexibleKFFittingSmoother_cfi
-tobTecFlexibleKFFittingSmoother = TrackingTools.TrackFitters.FlexibleKFFittingSmoother_cfi.FlexibleKFFittingSmoother.clone(
-    ComponentName = cms.string('tobTecFlexibleKFFittingSmoother'),
-    standardFitter = cms.string('tobTecStepFitterSmoother'),
-    looperFitter = cms.string('tobTecStepFitterSmootherForLoopers'),
-)
-
-
-
+    )
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'tobTecStepTrackCandidates',
     AlgorithmName = cms.string('iter6'),
-    #Fitter = 'tobTecStepFitterSmoother',
-    Fitter = 'tobTecFlexibleKFFittingSmoother',
+    Fitter = 'tobTecStepFitterSmoother',
     )
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

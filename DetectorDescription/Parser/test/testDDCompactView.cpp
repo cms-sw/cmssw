@@ -115,6 +115,12 @@ int main(int argc, char *argv[])
     //    cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
   }
+
+  catch (DDException& e)
+  {
+    std::cerr << "DDD-PROBLEM:" << std::endl 
+	      << e << std::endl;
+  }  
   //  Deal with any exceptions that may have been thrown.
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "

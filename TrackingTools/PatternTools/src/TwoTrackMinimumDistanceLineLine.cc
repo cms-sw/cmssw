@@ -11,9 +11,9 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
 {
   GlobalPoint gOrig = theG.position();
   GlobalPoint hOrig = theH.position();
-  if ( ( ( theH.charge() != 0. || theG.charge() != 0. ) ) && 
-    ((theG.magneticField().inTesla(gOrig).z() != 0.)|| 
-  	(theH.magneticField().inTesla(hOrig).z() != 0.)) )
+  bool isLineG = theG.magneticField().inTesla(gOrig).z() == 0 || theG.charge() == 0;
+  bool isLineH = theH.magneticField().inTesla(hOrig).z() == 0 || theH.charge() == 0;
+  if ( ! (isLineG && isLineH) )
   {
     edm::LogWarning ("TwoTrackMinimumDistanceLineLine")
       << "charge of input track is not zero or field non zero"

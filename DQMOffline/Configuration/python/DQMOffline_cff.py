@@ -77,7 +77,6 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
-                                 piZeroAnalysis *
                                  dqmPhysics *
                                  pvMonitor *
                                  produceDenoms *
@@ -91,7 +90,6 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  triggerOfflineDQMSource *
                                  alcaBeamMonitor *
                                  castorSources *
-                                 piZeroAnalysis *
                                  dqmPhysics *
                                  pvMonitor *
                                  produceDenoms *
@@ -108,4 +106,8 @@ DQMOfflineEcal = cms.Sequence( ecal_dqm_source_offline *
                                es_dqm_source_offline
                              )
 DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
+
+DQMOfflineEGamma = cms.Sequence(  photonAnalysis *
+                                  zmumugammaAnalysis *
+                                  piZeroAnalysis )
 

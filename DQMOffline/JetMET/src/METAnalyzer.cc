@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2012/04/19 11:51:49 $
- *  $Revision: 1.46 $
+ *  $Date: 2012/05/14 09:02:47 $
+ *  $Revision: 1.49 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -97,7 +97,6 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
 
   _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
   _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
-  _tightHcalFiltering   = theCleaningParameters.getParameter<bool>("tightHcalFiltering");
 
   // ==========================================================
   //DCS information
@@ -130,8 +129,8 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   // Other data collections
   theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
   HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  HcalNoiseSummaryTag         = parameters.getParameter<edm::InputTag>("HcalNoiseSummary");
   BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
+  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
 
   // misc
   _verbose      = parameters.getParameter<int>("verbose");
@@ -164,7 +163,6 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   _FolderNames.push_back("BasicCleanup");
   _FolderNames.push_back("ExtraCleanup");
   _FolderNames.push_back("HcalNoiseFilter");
-  _FolderNames.push_back("HcalNoiseFilterTight");
   _FolderNames.push_back("JetIDMinimal");
   _FolderNames.push_back("JetIDLoose");
   _FolderNames.push_back("JetIDTight");
@@ -182,7 +180,6 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
     }
     if (_allSelection){
       if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
-      if (*ic=="HcalNoiseFilterTight") bookMESet(DirName+"/"+*ic);
       if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
       if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
       if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
@@ -392,6 +389,7 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQ
     }
 }
 
+
 // ***********************************************************
 void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
 {
@@ -565,7 +563,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   // ==========================================================
-  // HcalNoiseSummary
   //
 
   edm::Handle<HcalNoiseRBXCollection> HRBXCollection;
@@ -575,12 +572,15 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (_verbose) std::cout << "METAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
   }
   
-  edm::Handle<HcalNoiseSummary> HNoiseSummary;
-  iEvent.getByLabel(HcalNoiseSummaryTag,HNoiseSummary);
-  if (!HNoiseSummary.isValid()) {
-    LogDebug("") << "METAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
-    if (_verbose) std::cout << "METAnalyzer: Could not find Hcal NoiseSummary product" << std::endl;
+
+  edm::Handle<bool> HBHENoiseFilterResultHandle;
+  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
+  if (!HBHENoiseFilterResultHandle.isValid()) {
+    LogDebug("") << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
+    if (_verbose) std::cout << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
   }
+
 
   edm::Handle<reco::CaloJetCollection> caloJets;
   iEvent.getByLabel(theJetCollectionLabel, caloJets);
@@ -693,8 +693,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
   // HCAL Noise filter
   
-  bool bHcalNoiseFilter      = HNoiseSummary->passLooseNoiseFilter();
-  bool bHcalNoiseFilterTight = HNoiseSummary->passTightNoiseFilter();
+  bool bHcalNoiseFilter = HBHENoiseFilterResult;
 
   // ==========================================================
   // Get BeamHaloSummary
@@ -821,7 +820,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if(_doHLTPhysicsOn) bPhysicsDeclared =_trig_PhysDec;
 
 
-  if      (_tightHcalFiltering)     bHcalNoise  = bHcalNoiseFilterTight;
   if      (_tightBHFiltering)       bBeamHaloID = bBeamHaloIDTightPass;
 
   if      (_tightJetIDFiltering==1)  bJetID      = bJetIDMinimal;
@@ -844,7 +842,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     if (_allSelection) {
       if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *met);
-      if (*ic=="HcalNoiseFilterTight" && bHcalNoiseFilterTight )  fillMESet(iEvent, DirName+"/"+*ic, *met);
       if (*ic=="JetIDMinimal"         && bJetIDMinimal)           fillMESet(iEvent, DirName+"/"+*ic, *met);
       if (*ic=="JetIDLoose"           && bJetIDLoose)             fillMESet(iEvent, DirName+"/"+*ic, *met);
       if (*ic=="JetIDTight"           && bJetIDTight)             fillMESet(iEvent, DirName+"/"+*ic, *met);

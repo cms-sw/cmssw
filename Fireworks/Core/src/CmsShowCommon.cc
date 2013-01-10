@@ -8,19 +8,21 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Sep 10 14:50:32 CEST 2010
-// $Id: CmsShowCommon.cc,v 1.14 2011/03/08 09:36:05 amraktad Exp $
+// $Id: CmsShowCommon.cc,v 1.15 2011/12/13 22:48:04 amraktad Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 
 // user include files
+
 #include "TEveManager.h"
 #include "TEveTrackPropagator.h"
+#include "TGLViewer.h"
+#include "TEveViewer.h"
 
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/FWEveView.h"
-
 #include "Fireworks/Core/interface/Context.h"
 
 
@@ -126,15 +128,55 @@ CmsShowCommon::setGeomTransparency(int iTransp, bool projected)
    m_context->colorManager()->setGeomTransparency(iTransp, projected);
 }
 
-//______________________________________________________________________________
+//____________________________________________________________________________
+
+namespace 
+{
+  void addGLColorToConfig(const char* cname, TGLColor& c, FWConfiguration& oTo)
+  {
+    FWConfiguration pc;
+
+    std::ostringstream sRed; 
+    sRed << (int)c.GetRed();
+    pc.addKeyValue("Red", sRed.str());
+
+    std::ostringstream sGreen; 
+    sGreen << (int)c.GetGreen();
+    pc.addKeyValue("Green", sGreen.str());
+
+    std::ostringstream sBlue; 
+    sBlue << (int)c.GetBlue();
+    pc.addKeyValue("Blue", sBlue.str());
+
+    oTo.addKeyValue(cname, pc, true);
+  }
+
+  void setGLColorFromConfig(TGLColor& d, const FWConfiguration* iFrom )
+  {
+    if (!iFrom) return;
+    d.Arr()[0] = atoi(iFrom->valueForKey("Red")->value().c_str());
+    d.Arr()[1] = atoi(iFrom->valueForKey("Green")->value().c_str());
+    d.Arr()[2] = atoi(iFrom->valueForKey("Blue")->value().c_str());
+    //    printf("22222 colors %d %d %d \n",  d.Arr()[0],  d.Arr()[1], d.Arr()[2]);
+ }
+}
 
 void
 CmsShowCommon::addTo(FWConfiguration& oTo) const
 {
-   m_backgroundColor.set(int(colorManager()->background()));
+  m_backgroundColor.set(int(colorManager()->background()));
 
-   FWConfigurableParameterizable::addTo(oTo);
-   m_energyScale->addTo(oTo);
+  FWConfigurableParameterizable::addTo(oTo);
+  m_energyScale->addTo(oTo);
+
+  if (gEve)
+  {
+    TGLViewer* v = gEve->GetDefaultGLViewer();
+    addGLColorToConfig("SelectionColorLight", v->RefLightColorSet().Selection(1), oTo);
+    addGLColorToConfig("HighlightColorLight", v->RefLightColorSet().Selection(3), oTo);
+    addGLColorToConfig("SelectionColorDark",  v->RefDarkColorSet().Selection(1), oTo);
+    addGLColorToConfig("HighlightColorDark",  v->RefDarkColorSet().Selection(3), oTo);
+  }
 }
 
 void
@@ -157,24 +199,33 @@ CmsShowCommon::setFrom(const FWConfiguration& iFrom)
       else
          convert = atof(iFrom.valueForKey("ValueToHeight [GeV/m]")->value().c_str());
 
-      float maxH;
-      if (iFrom.valueForKey("MaximumLength [m]"))
-         maxH = atof(iFrom.valueForKey("MaximumLength [m]")->value().c_str());
-      else
-         maxH = atof(iFrom.valueForKey("MaxTowerH [m]")->value().c_str());
+     float maxH;
+     if (iFrom.valueForKey("MaximumLength [m]"))
+        maxH = atof(iFrom.valueForKey("MaximumLength [m]")->value().c_str());
+     else
+        maxH = atof(iFrom.valueForKey("MaxTowerH [m]")->value().c_str());
          
-      int et = atoi(iFrom.valueForKey("PlotEt")->value().c_str());
-      m_energyScale->SetFromCmsShowCommonConfig(mode, convert, maxH, et);
-   }
+     int et = atoi(iFrom.valueForKey("PlotEt")->value().c_str());
+     m_energyScale->SetFromCmsShowCommonConfig(mode, convert, maxH, et);
+  }
       
-   // background
-   FWColorManager* cm =  m_context->colorManager();
-   cm->setBackgroundAndBrightness( FWColorManager::BackgroundColorIndex(m_backgroundColor.value()), m_gamma.value());
+  // background
+  FWColorManager* cm =  m_context->colorManager();
+  cm->setBackgroundAndBrightness( FWColorManager::BackgroundColorIndex(m_backgroundColor.value()), m_gamma.value());
    
-   // geom colors
-   cm->setGeomTransparency( m_geomTransparency2D.value(), true);
-   cm->setGeomTransparency( m_geomTransparency3D.value(), false);
+  // geom colors
+  cm->setGeomTransparency( m_geomTransparency2D.value(), true);
+  cm->setGeomTransparency( m_geomTransparency3D.value(), false);
 
-   for (int i = 0; i < kFWGeomColorSize; ++i)
-      cm->setGeomColor(FWGeomColorIndex(i), m_geomColors[i]->value());
+  for (int i = 0; i < kFWGeomColorSize; ++i)
+     cm->setGeomColor(FWGeomColorIndex(i), m_geomColors[i]->value());
+
+  if (gEve)
+  {
+     TGLViewer* v = gEve->GetDefaultGLViewer();
+     setGLColorFromConfig(v->RefLightColorSet().Selection(1),  iFrom.valueForKey("SelectionColorLight"));
+     setGLColorFromConfig(v->RefLightColorSet().Selection(3),  iFrom.valueForKey("HighlightColorLight"));
+     setGLColorFromConfig(v->RefDarkColorSet().Selection(1),  iFrom.valueForKey("SelectionColorDark"));
+     setGLColorFromConfig(v->RefDarkColorSet().Selection(3),  iFrom.valueForKey("HighlightColorDark"));
+  }
 }

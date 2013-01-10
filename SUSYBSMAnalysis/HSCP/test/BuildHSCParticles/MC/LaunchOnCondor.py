@@ -80,7 +80,7 @@ def CreateTheShellFile(argv):
 	shell_file.write('export SCRAM_ARCH=slc5_amd64_gcc434\n')
         shell_file.write('export BUILD_ARCH=slc5_amd64_gcc434\n')
         shell_file.write('export VO_CMS_SW_DIR=/nfs/soft/cms\n')
-	#shell_file.write('source /nfs/soft/cms/cmsset_default.sh\n')
+	shell_file.write('source /nfs/soft/cms/cmsset_default.sh\n')
 	shell_file.write('cd ' + os.getcwd() + '\n')
 	shell_file.write('eval `scramv1 runtime -sh`\n')
 	if   argv[0]=='BASH':
@@ -123,7 +123,7 @@ def CreateTheCmdFile():
 	cmd_file.write('Universe                = vanilla\n')
 	cmd_file.write('Environment             = CONDORJOBID=$(Process)\n')
 	cmd_file.write('notification            = Error\n')
-	cmd_file.write('requirements            = (Memory > 200)\n')
+	cmd_file.write('requirements            = (CMSFARM=?=True)&&(Memory > 200)\n')
 	cmd_file.write('should_transfer_files   = YES\n')
 	cmd_file.write('when_to_transfer_output = ON_EXIT\n')
 	cmd_file.close()
@@ -222,11 +222,10 @@ def SendCMSJobs(FarmDirectory, JobName, ConfigFile, InputFiles, NJobs, Argv):
 
 
 def GetListOfFiles(Prefix, InputPattern, Suffix):
-        List = sorted(glob.glob("/pnfs/cms/WAX/11" + InputPattern))
-        for i in range(len(List)):
-	     #List[i] = Prefix + List[i] + Suffix
-             List[i] = List[i].replace("/pnfs/cms/WAX/11", "")
-        return List
+	List = sorted(glob.glob(InputPattern))
+	for i in range(len(List)):
+		List[i] = Prefix + List[i] + Suffix
+	return List
 
 def ListToFile(InputList, outputFile):
 	out_file=open(outputFile,'w')

@@ -93,8 +93,12 @@ pfRecoTauProducer = cms.EDProducer("PFRecoTauProducer",
       ### parameters for gammas in ellipse ###
       AddEllipseGammas = cms.bool(False),
       Rphi = cms.double(2.0), ## factor*Reta; Reta is the standard ecal signal cone size
-      MaxEtInEllipse = cms.double(2.0) # max pt for gammas inside the ellipse
+      MaxEtInEllipse = cms.double(2.0), # max pt for gammas inside the ellipse
       ########################################
+
+      # If true, include signal cone neutral hadrons in the tau four vector.
+      # Note: alternatLorentzVector is always only charged + gamma
+      putNeutralHadronsInP4 = cms.bool(False),
 
 )
  # * possible metrics : "DR", "angle", "area";

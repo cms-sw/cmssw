@@ -65,7 +65,9 @@ DQMOffline_SecondStepPOGMC = cms.Sequence( dqmRefHistoRootFileGetter *
                                            DQMMessageLoggerClientSeq )
 
 
-DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
+DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
+                                 DQMMessageLoggerClientSeq *
+                                 dqmDcsInfoClient *
                                  SiStripOfflineDQMClient *
                                  PixelOfflineDQMClientNoDataCertification *
                                  l1TriggerDqmOfflineClient *
@@ -75,16 +77,18 @@ DQMHarvestCommon = cms.Sequence(dqmDcsInfoClient *
                                  alcaBeamMonitorClient *
                                  runTauEff
                                 )
-DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmDcsInfoClient *
-                                 SiStripOfflineDQMClient *
-                                 PixelOfflineDQMClientNoDataCertification *
-                                 l1TriggerDqmOfflineClient *
-                                 triggerOfflineDQMClient *
-                                 hltOfflineDQMClient *
-                                 dqmFEDIntegrityClient *
-                                 alcaBeamMonitorClient *
-                                 runTauEff
-                                )
+DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
+                                               DQMMessageLoggerClientSeq *
+                                               dqmDcsInfoClient *
+                                               SiStripOfflineDQMClient *
+                                               PixelOfflineDQMClientNoDataCertification *
+                                               l1TriggerDqmOfflineClient *
+                                               triggerOfflineDQMClient *
+                                               hltOfflineDQMClient *
+                                               dqmFEDIntegrityClient *
+                                               alcaBeamMonitorClient *
+                                               runTauEff
+                                               )
 
 DQMHarvestMuon = cms.Sequence( dtClients *
                                 rpcTier0Client *
@@ -97,4 +101,5 @@ DQMHarvestEcal = cms.Sequence( ecal_dqm_client_offline *
 DQMHarvestHcal = cms.Sequence( hcalOfflineDQMClient )
 
 DQMHarvestJetMET = cms.Sequence( SusyPostProcessorSequence )
-                                             
+
+DQMHarvestEGamma = cms.Sequence( photonOfflineClient )                                             

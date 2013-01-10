@@ -234,12 +234,12 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) {
   // Let the quality cuts know which the vertex to use when applying selections
   // on dz, etc.
   qcuts_->setPV(pv);
-  qcuts_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
+  qcuts_->setLeadTrack(pfTau->leadPFChargedHadrCand());
   if (applyDeltaBeta_) {
     pileupQcutsGeneralQCuts_->setPV(pv);
-    pileupQcutsGeneralQCuts_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
+    pileupQcutsGeneralQCuts_->setLeadTrack(pfTau->leadPFChargedHadrCand());
     pileupQcutsPUTrackSelection_->setPV(pv);
-    pileupQcutsPUTrackSelection_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
+    pileupQcutsPUTrackSelection_->setLeadTrack(pfTau->leadPFChargedHadrCand());
   }
   // Load the tracks if they are being used.
   if (includeTracks_) {

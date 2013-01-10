@@ -25,12 +25,7 @@ def main(argv):
             return
 
     confdbjob = AddL1TriggerBit(input_l1name)
-    bailout = confdbjob.BeginJob()
-    if(bailout == -2):
-        print "Bailing out!"
-        return
-
-
+    confdbjob.BeginJob()
     os.system("mv OHltTree_AddL1.h OHltTree.h")
     
             
@@ -60,18 +55,7 @@ class AddL1TriggerBit:
         presclmapstoadd = []
         
         rateefflibfile = open("OHltTree_AddL1.h",'w')
-        rateefforiglibfilescan = open("OHltTree.h")
         rateefforiglibfile = open("OHltTree.h")
-
-        # First check if the L1 already exists...
-        scanlines = rateefforiglibfilescan.readlines()
-        scanl1 = self.l1name + ';'
-        print "Looking for " + scanl1
-        for scanline in scanlines:
-            if(scanline.find(scanl1) != -1):
-                print self.l1name + " already exists - exiting!"
-                return -2 
-                                                    
 
         # Now we have all the information, construct any configuration/branch changes
         theintbits.append('  Int_t           ' + self.l1name + ';')
@@ -84,7 +68,7 @@ class AddL1TriggerBit:
         thepresclmaps.append('  fChain->SetBranchAddress("' + self.l1name + '_Prescl", &map_RefPrescaleOfStandardHLTPath["' + self.l1name + '"], &b_' + self.l1name + '_Prescl);')
                 
         pathcount = 1
-
+        
         linestomerge = rateefforiglibfile.readlines()    
         foundintbit = False
         foundbranch = False

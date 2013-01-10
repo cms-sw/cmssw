@@ -6,12 +6,14 @@
 #include "TGLWidget.h"
 #include "TGLPhysicalShape.h"
 #include "TGLLogicalShape.h"
+#include "TEveGedEditor.h"
+#include "TEveViewer.h"
 #include "FWGeoTopNodeScene.h"
 
 FWGLEventHandler::FWGLEventHandler(TGWindow *w, TObject *obj, TEveCaloLego* l):
-   TEveLegoEventHandler(w, obj, l)
-{
-}
+   TEveLegoEventHandler(w, obj, l),
+   m_viewer(0)
+{}
 
 void
 FWGLEventHandler::PopupContextMenu(TGLPhysicalShape* pshp,  Event_t *event, Int_t gx, Int_t gy)
@@ -23,23 +25,22 @@ FWGLEventHandler::PopupContextMenu(TGLPhysicalShape* pshp,  Event_t *event, Int_
       TGLEventHandler::PopupContextMenu(pshp, event, gx, gy);
       return;
    }
-
   
-  if (pshp)
-  {
-    SelectForClicked(event);
+   if (pshp)
+   {
+      SelectForClicked(event);
     
-    if (pshp->GetLogical()) 
-    {
-      FWGeoTopNodeGLScene* js = dynamic_cast<FWGeoTopNodeGLScene*>(pshp->GetLogical()->GetScene());
-      if (js) {
-        js->GeoPopupMenu(gx, gy);
-        return;
+      if (pshp->GetLogical()) 
+      {
+         FWGeoTopNodeGLScene* js = dynamic_cast<FWGeoTopNodeGLScene*>(pshp->GetLogical()->GetScene());
+         if (js) {
+            js->GeoPopupMenu(gx, gy, m_viewer->GetGLViewer());
+            return;
+         }
       }
-    }
     
-    openSelectedModelContextMenu_(gx,gy);
-  }
+      openSelectedModelContextMenu_(gx,gy);
+   }
 }
 
 Bool_t FWGLEventHandler::HandleKey(Event_t *event)
@@ -66,4 +67,27 @@ Bool_t FWGLEventHandler::HandleKey(Event_t *event)
    {
       return TEveLegoEventHandler::HandleKey(event);
    }
+}
+
+Bool_t FWGLEventHandler::HandleFocusChange(Event_t *event)
+{
+   // Handle generic Event_t type 'event' - provided to catch focus changes
+   // and terminate any interaction in viewer.
+
+   if (m_viewer && event->fType == kFocusOut)
+      TEveGedEditor::ElementChanged(m_viewer);
+
+   return TGLEventHandler::HandleFocusChange(event);
+}
+
+//______________________________________________________________________________
+Bool_t FWGLEventHandler::HandleCrossing(Event_t *event)
+{
+   // Handle generic Event_t type 'event' - provided to catch focus changes
+   // and terminate any interaction in viewer.
+
+   if (m_viewer && event->fType == kLeaveNotify)
+      TEveGedEditor::ElementChanged(m_viewer);
+
+   return TGLEventHandler::HandleCrossing(event);
 }

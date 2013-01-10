@@ -2,8 +2,8 @@
   \file UtilFunctions.cc
   \brief Ecal Monitor Utility functions
   \author Dongwook Jang
-  \version $Revision: 1.4 $
-  \date $Date: 2011/09/19 16:56:26 $
+  \version $Revision: 1.3 $
+  \date $Date: 2011/08/12 08:25:22 $
 */
 
 #include "DQM/EcalCommon/interface/UtilFunctions.h"
@@ -226,16 +226,13 @@ namespace ecaldqm {
     else if(name.Contains("TH2")) {
       if(pre) {
 	mean = ((TH2F*)cur)->GetEntries() - ((TH2F*)pre)->GetEntries();
-	if(mean < 0) return;
 	rms = std::sqrt(mean);
       }
       else {
 	mean = ((TH2F*)cur)->GetEntries();
-	if(mean < 0) return;
 	rms = std::sqrt(mean);
       }
       float nxybins = ((TH2F*)cur)->GetNbinsX()*((TH2F*)cur)->GetNbinsY();
-      if(nxybins < 1.) nxybins = 1.;
       mean /= nxybins;
       rms /= nxybins;
     }

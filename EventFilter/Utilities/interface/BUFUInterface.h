@@ -29,14 +29,15 @@ public:
 	static BUFUInterface* forceNewInstance();
 
 	/// register the BU to the interface
-	bool registerBU(BaseBU* bu, Logger* log);
+	bool registerBU(BaseBU* bu, Logger log);
 	/// register the FU to the interface
-	bool registerFU(BaseFU* fu, Logger* log);
+	bool registerFU(BaseFU* fu, Logger log);
 
 	/// FU->BU ALLOCATE
 	/// the FU application description is required by the BU when registering
 	/// the requesting FU
-	void allocate(const UIntVec_t& fuResourceIds, xdaq::ApplicationDescriptor* fuAppDesc);
+	void allocate(const UIntVec_t& fuResourceIds,
+			xdaq::ApplicationDescriptor* fuAppDesc);
 	/// FU->BU DISCARD
 	void discard(UInt_t buResourceId);
 	/// BU->FU TAKE
@@ -65,8 +66,8 @@ private:
 	BaseBU* bu_;
 	/// pointer to connected ResourceBroker(FU), using BaseFU interface
 	BaseFU* fu_;
-	/// pointers to loggers
-	Logger *buLogger_, *fuLogger_;
+	/// loggers
+	Logger buLogger_, fuLogger_;
 	/// flags for BU, FU connection
 	bool buConn_, fuConn_;
 

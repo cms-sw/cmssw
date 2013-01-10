@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2011/11/01 20:44:55 $
- * $Revision: 1.79 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -55,6 +55,8 @@ EETriggerTowerTask::EETriggerTowerTask(const edm::ParameterSet& ps) {
   meTCCTimingCalo_[1] = 0;
   meTCCTimingMuon_[0] = 0;
   meTCCTimingMuon_[1] = 0;
+  meEmulMatchIndex1D_[0] = 0;
+  meEmulMatchIndex1D_[1] = 0;
   meEmulMatchMaxIndex1D_[0] = 0;
   meEmulMatchMaxIndex1D_[1] = 0;
 
@@ -76,8 +78,6 @@ EETriggerTowerTask::EETriggerTowerTask(const edm::ParameterSet& ps) {
 
   outputFile_ = ps.getUntrackedParameter<std::string>("OutputRootFile", "");
 
-  ievt_ = 0;
-
   LogDebug("EETriggerTowerTask") << "REAL     digis: " << realCollection_;
   LogDebug("EETriggerTowerTask") << "EMULATED digis: " << emulCollection_;
 
@@ -89,6 +89,7 @@ EETriggerTowerTask::~EETriggerTowerTask(){
 
 void EETriggerTowerTask::reserveArray( array1& array ) {
 
+  array.reserve( nSM );
   array.resize( nSM, static_cast<MonitorElement*>(0) );
 
 }
@@ -98,8 +99,8 @@ void EETriggerTowerTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives");
-    dqmStore_->rmdir(prefixME_ + "/TriggerPrimitives");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EETriggerTowerTask");
+    dqmStore_->rmdir(prefixME_ + "/EETriggerTowerTask");
   }
 
 }
@@ -126,6 +127,7 @@ void EETriggerTowerTask::reset(void) {
     if ( meOccupancyBxReal_[iside] ) meOccupancyBxReal_[iside]->Reset();
     if ( meTCCTimingCalo_[iside] ) meTCCTimingCalo_[iside]->Reset();
     if ( meTCCTimingMuon_[iside] ) meTCCTimingMuon_[iside]->Reset();
+    if ( meEmulMatchIndex1D_[iside] ) meEmulMatchIndex1D_[iside]->Reset();
     if ( meEmulMatchMaxIndex1D_[iside] ) meEmulMatchMaxIndex1D_[iside]->Reset();
   }
 
@@ -147,106 +149,173 @@ void EETriggerTowerTask::setup(void){
 
   init_ = true;
 
-  if(dqmStore_){
+  if ( dqmStore_ ) {
+    setup( "Real Digis",
+           (prefixME_ + "/EETriggerTowerTask").c_str(), false );
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives");
-
-    std::string name;
-    std::string subdet[2] = {"EE-", "EE+"};
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/Et");
-    for(int iSubdet(0); iSubdet < 2; iSubdet++){
-      name = "TrigPrimTask Et 1D " + subdet[iSubdet];
-      meEtSpectrumReal_[iSubdet] = dqmStore_->book1D(name, name, 256, 0., 256.);
-      meEtSpectrumReal_[iSubdet]->setAxisTitle("energy (ADC)", 1);
-    }
-
-    for (int i = 0; i < 18; i++) {
-      name = "TrigPrimTask Et " + Numbers::sEE(i+1);
-      meEtMapReal_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 0, 256.);
-      meEtMapReal_[i]->setAxisTitle("ix", 1);
-      if ( i+1 >= 1 && i+1 <= 9 ) meEtMapReal_[i]->setAxisTitle("101-ix", 1);
-      meEtMapReal_[i]->setAxisTitle("iy", 2);
-      dqmStore_->tag(meEtMapReal_[i], i+1);
-    }
-
-    double binEdges[] = {1., 271., 541., 892., 1162., 1432., 1783., 2053., 2323., 2674., 2944., 3214., 3446., 3490., 3491., 3565.};
-    int nBXbins(sizeof(binEdges)/sizeof(double) - 1);
-    for(int iSubdet(0); iSubdet < 2; iSubdet++){
-      name = "TrigPrimTask Et vs BX " + subdet[iSubdet];
-      meEtBxReal_[iSubdet] = dqmStore_->bookProfile(name, name, nBXbins, binEdges, 256, 0, 256);
-      meEtBxReal_[iSubdet]->setAxisTitle("bunch crossing", 1);
-      meEtBxReal_[iSubdet]->setAxisTitle("energy (ADC)", 2);
-    }
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/Et/Emulation");
-
-    for(int iSubdet(0); iSubdet < 2; iSubdet++){
-      name = "TrigPrimTask emul Et 1D " + subdet[iSubdet];
-      meEtSpectrumEmul_[iSubdet] = dqmStore_->book1D(name, name, 256, 0., 256.);
-      meEtSpectrumEmul_[iSubdet]->setAxisTitle("energy (ADC)", 1);
-
-      name = "TrigPrimTask emul max Et 1D " + subdet[iSubdet];
-      meEtSpectrumEmulMax_[iSubdet] = dqmStore_->book1D(name, name, 256, 0., 256.);
-      meEtSpectrumEmulMax_[iSubdet]->setAxisTitle("energy (ADC)", 1);
-    }
-
-    for (int i = 0; i < 18; i++) {
-      name = "TrigPrimTask emul Et " + Numbers::sEE(i+1);
-      meEtMapEmul_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 0, 256.);
-      meEtMapEmul_[i]->setAxisTitle("ix", 1);
-      if ( i+1 >= 1 && i+1 <= 9 ) meEtMapEmul_[i]->setAxisTitle("101-ix", 1);
-      meEtMapEmul_[i]->setAxisTitle("iy", 2);
-      dqmStore_->tag(meEtMapEmul_[i], i+1);
-    }
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/EmulMatching");
-
-    for(int iSubdet(0); iSubdet < 2; iSubdet++){
-      name = "TrigPrimTask emul max Et index " + subdet[iSubdet];
-      meEmulMatchMaxIndex1D_[iSubdet] = dqmStore_->book1D(name, name, 7, -1., 6.);
-      meEmulMatchMaxIndex1D_[iSubdet]->setAxisTitle("Max data matching emulator", 1);
-    }
-
-    for (int i = 0; i < 18; i++) {
-      name = "TrigPrimTask matching index " + Numbers::sEE(i+1);
-      meEmulMatch_[i] = dqmStore_->book2D(name, name, 80, 0., 80., 7, -1., 6.);
-      meEmulMatch_[i]->setAxisTitle("itt", 1);
-      meEmulMatch_[i]->setAxisTitle("TP index matching emulator", 2);
-      dqmStore_->tag(meEmulMatch_[i], i+1);
-    }
-
-    for(int iSubdet(0); iSubdet < 2; iSubdet++){
-      if ( HLTCaloHLTBit_ != "" ) {
-	name = "TrigPrimTask matching index calo triggers " + subdet[iSubdet];
-	meTCCTimingCalo_[iSubdet] = dqmStore_->book2D(name, name, 36, 1, 37, 7, -1., 6.);
-	meTCCTimingCalo_[iSubdet]->setAxisTitle("itcc", 1);
-	meTCCTimingCalo_[iSubdet]->setAxisTitle("TP index matching emulator", 2);
-      }
-
-      if ( HLTMuonHLTBit_ != "" ) {
-	name = "TrigPrimTask matching index muon triggers " + subdet[iSubdet];
-	meTCCTimingMuon_[iSubdet] = dqmStore_->book2D(name, name, 36, 1, 37, 7, -1., 6.);
-	meTCCTimingMuon_[iSubdet]->setAxisTitle("itcc", 1);
-	meTCCTimingMuon_[iSubdet]->setAxisTitle("TP index matching emulator", 2);
-      }
-    }
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives");
-
-    for(int iSubdet(0); iSubdet < 2; iSubdet++){
-      name = "TrigPrimTask TP number vs BX " + subdet[iSubdet];
-      meOccupancyBxReal_[iSubdet] = dqmStore_->bookProfile(name, name, nBXbins, binEdges, 2448, 0, 2448);
-      meOccupancyBxReal_[iSubdet]->setAxisTitle("bunch crossing", 1);
-      meOccupancyBxReal_[iSubdet]->setAxisTitle("TP number", 2);
-    }
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/TriggerPrimitives/EmulationErrors");
-
+    setup( "Emulated Digis",
+           (prefixME_ + "/EETriggerTowerTask/Emulated").c_str(), true);
   }
   else {
     edm::LogError("EETriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
   }
+}
+
+void EETriggerTowerTask::setup( std::string const &nameext,
+                                std::string const &folder,
+                                bool emulated ) {
+
+  array1*  meEtMap = &meEtMapReal_;
+
+  if ( emulated ) {
+    meEtMap = &meEtMapEmul_;
+  }
+
+  dqmStore_->setCurrentFolder(folder);
+
+  std::string name;
+
+  if (!emulated) {
+    name = "EETTT Et spectrum " + nameext + " EE -";
+    meEtSpectrumReal_[0] = dqmStore_->book1D(name, name, 256, 0., 256.);
+    meEtSpectrumReal_[0]->setAxisTitle("energy (ADC)", 1);
+
+    name = "EETTT Et spectrum " + nameext + " EE +";
+    meEtSpectrumReal_[1] = dqmStore_->book1D(name, name, 256, 0., 256.);
+    meEtSpectrumReal_[1]->setAxisTitle("energy (ADC)", 1);
+
+    name = "EETTT TP matching index EE -";
+    meEmulMatchIndex1D_[0] = dqmStore_->book1D(name, name, 7, -1., 6.);
+    meEmulMatchIndex1D_[0]->setAxisTitle("TP data matching emulator", 1);
+
+    name = "EETTT TP matching index EE +";
+    meEmulMatchIndex1D_[1] = dqmStore_->book1D(name, name, 7, -1., 6.);
+    meEmulMatchIndex1D_[1]->setAxisTitle("TP data matching emulator", 1);
+
+    name = "EETTT max TP matching index EE -";
+    meEmulMatchMaxIndex1D_[0] = dqmStore_->book1D(name, name, 7, -1., 6.);
+    meEmulMatchMaxIndex1D_[0]->setAxisTitle("Max TP data matching emulator", 1);
+
+    name = "EETTT max TP matching index EE +";
+    meEmulMatchMaxIndex1D_[1] = dqmStore_->book1D(name, name, 7, -1., 6.);
+    meEmulMatchMaxIndex1D_[1]->setAxisTitle("Max TP data matching emulator", 1);
+
+    double xbins[51];
+    for ( int i=0; i<=11; i++ ) xbins[i] = i-1;  // begin of orbit
+    // abort gap in presence of calibration: [3381-3500]
+    // abort gap in absence of calibration: [3444-3500]
+    // using the wider abort gap always, start finer binning at bx=3371
+    for ( int i=12; i<=22; i++) xbins[i] = 3371+i-12;
+    // use 29 bins for the abort gap
+    for ( int i=23; i<=50; i++) xbins[i] = 3382+(i-23)*6;
+
+    name = "EETTT Et vs bx " + nameext + " EE -";
+    meEtBxReal_[0] = dqmStore_->bookProfile(name, name, 50, xbins, 256, 0, 256);
+    meEtBxReal_[0]->setAxisTitle("bunch crossing", 1);
+    meEtBxReal_[0]->setAxisTitle("energy (ADC)", 2);
+
+    name = "EETTT Et vs bx " + nameext + " EE +";
+    meEtBxReal_[1] = dqmStore_->bookProfile(name, name, 50, xbins, 256, 0, 256);
+    meEtBxReal_[1]->setAxisTitle("bunch crossing", 1);
+    meEtBxReal_[1]->setAxisTitle("energy (ADC)", 2);
+
+    name = "EETTT TP occupancy vs bx " + nameext + " EE -";
+    meOccupancyBxReal_[0] = dqmStore_->bookProfile(name, name, 50, xbins, 2448, 0, 2448);
+    meOccupancyBxReal_[0]->setAxisTitle("bunch crossing", 1);
+    meOccupancyBxReal_[0]->setAxisTitle("TP number", 2);
+
+    name = "EETTT TP occupancy vs bx " + nameext + " EE +";
+    meOccupancyBxReal_[1] = dqmStore_->bookProfile(name, name, 50, xbins, 2448, 0, 2448);
+    meOccupancyBxReal_[1]->setAxisTitle("bunch crossing", 1);
+    meOccupancyBxReal_[1]->setAxisTitle("TP number", 2);
+
+    if ( HLTCaloHLTBit_ != "" ) {
+      name = "EETTT TCC timing calo triggers " + nameext + " EE -";
+      meTCCTimingCalo_[0] = dqmStore_->book2D(name, name, 36, 1, 37, 7, -1., 6.);
+      meTCCTimingCalo_[0]->setAxisTitle("nTCC", 1);
+      meTCCTimingCalo_[0]->setAxisTitle("TP data matching emulator", 2);
+
+      name = "EETTT TCC timing calo triggers " + nameext + " EE +";
+      meTCCTimingCalo_[1] = dqmStore_->book2D(name, name, 36, 73, 109, 7, -1., 6.);
+      meTCCTimingCalo_[1]->setAxisTitle("nTCC", 1);
+      meTCCTimingCalo_[1]->setAxisTitle("TP data matching emulator", 2);
+    }
+
+    if ( HLTMuonHLTBit_ != "" ) {
+      name = "EETTT TCC timing muon triggers " + nameext + " EE -";
+      meTCCTimingMuon_[0] = dqmStore_->book2D(name, name, 36, 1, 37, 7, -1., 6.);
+      meTCCTimingMuon_[0]->setAxisTitle("nTCC", 1);
+      meTCCTimingMuon_[0]->setAxisTitle("TP data matching emulator", 2);
+
+      name = "EETTT TCC timing muon triggers " + nameext + " EE +";
+      meTCCTimingMuon_[1] = dqmStore_->book2D(name, name, 36, 73, 109, 7, -1., 6.);
+      meTCCTimingMuon_[1]->setAxisTitle("nTCC", 1);
+      meTCCTimingMuon_[1]->setAxisTitle("TP data matching emulator", 2);
+    }
+
+  } else {
+    name = "EETTT Et spectrum " + nameext + " EE -";
+    meEtSpectrumEmul_[0] = dqmStore_->book1D(name, name, 256, 0., 256.);
+    meEtSpectrumEmul_[0]->setAxisTitle("energy (ADC)", 1);
+
+    name = "EETTT Et spectrum " + nameext + " EE +";
+    meEtSpectrumEmul_[1] = dqmStore_->book1D(name, name, 256, 0., 256.);
+    meEtSpectrumEmul_[1]->setAxisTitle("energy (ADC)", 1);
+
+    name = "EETTT Et spectrum " + nameext + " max EE -";
+    meEtSpectrumEmulMax_[0] = dqmStore_->book1D(name, name, 256, 0., 256.);
+    meEtSpectrumEmulMax_[0]->setAxisTitle("energy (ADC)", 1);
+
+    name = "EETTT Et spectrum " + nameext + " max EE +";
+    meEtSpectrumEmulMax_[1] = dqmStore_->book1D(name, name, 256, 0., 256.);
+    meEtSpectrumEmulMax_[1]->setAxisTitle("energy (ADC)", 1);
+  }
+
+  for (int i = 0; i < 18; i++) {
+
+    name = "EETTT Et map " + nameext + " " + Numbers::sEE(i+1);
+    (*meEtMap)[i] = dqmStore_->bookProfile2D(name, name,
+                                             50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
+                                             50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
+                                             256, 0, 256.);
+    (*meEtMap)[i]->setAxisTitle("ix", 1);
+    if ( i+1 >= 1 && i+1 <= 9 ) (*meEtMap)[i]->setAxisTitle("101-ix", 1);
+    (*meEtMap)[i]->setAxisTitle("iy", 2);
+    dqmStore_->tag((*meEtMap)[i], i+1);
+
+    if (!emulated) {
+
+      name = "EETTT EmulError " + Numbers::sEE(i+1);
+      meEmulError_[i] = dqmStore_->book2D(name, name,
+                                          50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
+                                          50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
+      meEmulError_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meEmulError_[i]->setAxisTitle("101-ix", 1);
+      meEmulError_[i]->setAxisTitle("iy", 2);
+      dqmStore_->tag(meEmulError_[i], i+1);
+
+      name = "EETTT EmulMatch " + Numbers::sEE(i+1);
+      meEmulMatch_[i] = dqmStore_->book3D(name, name,
+                                          50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
+                                          50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
+                                          6, 0., 6.);
+      meEmulMatch_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meEmulMatch_[i]->setAxisTitle("101-ix", 1);
+      meEmulMatch_[i]->setAxisTitle("iy", 2);
+      dqmStore_->tag(meEmulMatch_[i], i+1);
+
+      name = "EETTT EmulFineGrainVetoError " + Numbers::sEE(i+1);
+      meVetoEmulError_[i] = dqmStore_->book2D(name, name,
+                                              50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
+                                              50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meVetoEmulError_[i]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meVetoEmulError_[i]->setAxisTitle("101-ix", 1);
+      meVetoEmulError_[i]->setAxisTitle("iy", 2);
+      dqmStore_->tag(meVetoEmulError_[i], i+1);
+
+    }
+  }
+
 }
 
 void EETriggerTowerTask::cleanup(void) {
@@ -255,9 +324,9 @@ void EETriggerTowerTask::cleanup(void) {
 
   if ( dqmStore_ ) {
 
-    if ( !outputFile_.empty() ) dqmStore_->save( outputFile_ );
+    if ( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
 
-    dqmStore_->rmdir( prefixME_ + "/TriggerPrimitives" );
+    dqmStore_->rmdir( prefixME_ + "/EETriggerTowerTask" );
 
   }
 
@@ -397,10 +466,6 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
   }
 
-  std::stringstream ss;
-  std::string dir, name;
-  MonitorElement *me(0);
-
   for ( EcalTrigPrimDigiCollection::const_iterator tpdigiItr = digis->begin(); tpdigiItr != digis->end(); ++tpdigiItr ) {
 
     if ( Numbers::subDet( tpdigiItr->id() ) != EcalEndcap ) continue;
@@ -495,27 +560,34 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
 
               int index = ( j==0 ) ? -1 : j;
 
-	      // each DCC histogram bins are aligned by (inner low phi), (inner high phi), (outer low phi), (outer high phi)
-	      int xitt;
-	      if(itcc <= 18){ //inner EE-
-		xitt = ((itcc - 1) % 2) * 24 + itt;
-	      }else if(itcc <= 36){ //outer EE-
-		xitt = 48 + ((itcc - 1) % 2) * 16 + itt;
-	      }else if(itcc <= 90){ //outer EE+
-		xitt = 48 + ((itcc - 1) % 2) * 16 + itt;
-	      }else{
-		xitt = ((itcc - 1) % 2) * 24 + itt;
-	      }
+              if ( ismt >= 1 && ismt <= 9 ) {
+                meEmulMatchIndex1D_[0]->Fill(index+0.5);
+              } else {
+                meEmulMatchIndex1D_[1]->Fill(index+0.5);
+              }
 
-	      meEmulMatch_[ismt-1]->Fill(xitt - 0.5, index);
+              for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-	      if ( ismt >= 1 && ismt <= 9 ) {
-		if ( meTCCTimingCalo_[0] && caloTrg ) meTCCTimingCalo_[0]->Fill( itcc, index+0.5 );
-		if ( meTCCTimingMuon_[0] && muonTrg ) meTCCTimingMuon_[0]->Fill( itcc, index+0.5 );
-	      } else {
-		if ( meTCCTimingCalo_[1] && caloTrg ) meTCCTimingCalo_[1]->Fill( itcc, index+0.5 );
-		if ( meTCCTimingMuon_[1] && muonTrg ) meTCCTimingMuon_[1]->Fill( itcc, index+0.5 );
-	      }
+                EEDetId id = (*crystals)[i];
+
+                int ix = id.ix();
+                int iy = id.iy();
+
+                if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+                float xix = ix-0.5;
+                float xiy = iy-0.5;
+
+                meEmulMatch_[ismt-1]->Fill(xix, xiy, j+0.5);
+                if ( ismt >= 1 && ismt <= 9 ) {
+                  if ( meTCCTimingCalo_[0] && caloTrg ) meTCCTimingCalo_[0]->Fill( itcc, index+0.5 );
+                  if ( meTCCTimingMuon_[0] && muonTrg ) meTCCTimingMuon_[0]->Fill( itcc, index+0.5 );
+                } else {
+                  if ( meTCCTimingCalo_[1] && caloTrg ) meTCCTimingCalo_[1]->Fill( itcc, index+0.5 );
+                  if ( meTCCTimingMuon_[1] && muonTrg ) meTCCTimingMuon_[1]->Fill( itcc, index+0.5 );
+                }
+
+              } // loop on crystals
 
             }
           }
@@ -527,30 +599,26 @@ EETriggerTowerTask::processDigis( const edm::Event& e, const edm::Handle<EcalTri
         goodVeto = false;
       }
 
-      if (!good ) {
-	ss.str("");
-	ss << "TT " << itcc << " " << itt;
-	dir = prefixME_ + "/TriggerPrimitives/EmulationErrors/Et/";
-	name = "TrigPrimTask emulation Et mismatch " + ss.str();
-	me = dqmStore_->get(dir + name);
-	if(!me) {
-	  dqmStore_->setCurrentFolder(dir);
-	  me = dqmStore_->book1D(name, name, 1, 0., 1.);
-	}
-	if(me) me->Fill(0.5);
-      }
-      if (!goodVeto) {
-	ss.str("");
-	ss << "TT " << itcc << " " << itt;
-	dir = prefixME_ + "/TriggerPrimitives/EmulationErrors/FineGrainBit/";
-	name = "TrigPrimTask emulation FGbit mismatch " + ss.str();
-	me = dqmStore_->get(dir + name);
-	if(!me) {
-	  dqmStore_->setCurrentFolder(dir);
-	  me = dqmStore_->book1D(name, name, 1, 0., 1.);
-	}
-	if(me) me->Fill(0.5);
-      }
+      for ( unsigned int i=0; i<crystals->size(); i++ ) {
+
+        EEDetId id = (*crystals)[i];
+
+        int ix = id.ix();
+        int iy = id.iy();
+
+        if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+        float xix = ix-0.5;
+        float xiy = iy-0.5;
+
+        if (!good ) {
+          if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+        if (!goodVeto) {
+          if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy);
+        }
+
+      } // loop on crystals
 
     } // compDigis.isValid
 

@@ -174,7 +174,8 @@ namespace cond {
     }
     
     const_iterator end() const {
-      return  boost::make_transform_iterator(boost::counting_iterator<int>(size()),
+      int index = size();
+      return  boost::make_transform_iterator(boost::counting_iterator<int>(index),
 					     IterHelp(*m_iov));
     }
 

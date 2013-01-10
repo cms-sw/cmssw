@@ -44,7 +44,6 @@ public:
    bool doDeterministicPrescale; // default is random prescale
    bool useNonIntegerPrescales; // default is integer prescales
    bool readRefPrescalesFromNtuple; // default is read prescales from config
-   TString nonlinearPileupFit; // default is to do a linear extrapolation
    TString dsList;
    /*************************/
 

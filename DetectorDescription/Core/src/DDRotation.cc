@@ -1,6 +1,7 @@
 #include <cmath>
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <Math/AxisAngle.h>
@@ -113,7 +114,7 @@ DDRotation DDrot(const DDName & ddname,
    double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system this must be -1
    if (fabs(1.-check)>tol) {
      edm::LogError("DDRotation") << ddname << " is not a RIGHT-handed orthonormal matrix!" << std::endl;
-     throw cms::Exception("DDException") << ddname.name() << " is not RIGHT-handed!";
+     throw DDException( ddname.name() + std::string(" is not RIGHT-handed!" ) );
    }
 
    DDRotationMatrix* rot = new DDRotationMatrix(x.x(),y.x(),z.x(),
@@ -150,7 +151,7 @@ DDRotation DDrotReflect(const DDName & ddname,
    double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system this must be -1
    if (fabs(1.+check)>tol) {
      edm::LogError("DDRotation") << ddname << " is not a LEFT-handed orthonormal matrix!" << std::endl;
-     throw cms::Exception("DDException") << ddname.name() << " is not LEFT-handed!";
+     throw DDException( ddname.name() + std::string(" is not LEFT-handed!" ) );
    }
    
    DDRotationMatrix* rot = new DDRotationMatrix(x.x(),y.x(),z.x(),
@@ -185,7 +186,7 @@ DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
      edm::LogError("DDRotation") << o.str() << std::endl;
      
      
-     throw cms::Exception("DDException") << o.str();
+     throw DDException( o.str() );
    }
    
    return new DDRotationMatrix(x.x(),y.x(),z.x(),

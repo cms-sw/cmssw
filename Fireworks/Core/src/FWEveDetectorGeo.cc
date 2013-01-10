@@ -19,18 +19,24 @@ FWGeometryTableManagerBase* FWEveDetectorGeo::tableManager()
 {
    return m_browser->getTableManager();
 }
+
+FWGeometryTableViewBase* FWEveDetectorGeo::browser()
+{
+   return m_browser;
+}
 //______________________________________________________________________________
 
 void FWEveDetectorGeo::Paint(Option_t* opt)
 {
    FWGeoTopNode::Paint();
 
-   //   printf("PAINPAINTPAINTPAINTPAINTPAINTPAINTPAINTPAINTPAINTT  %d/%d \n",  m_browser->getTopNodeIdx(),  (int)m_browser->getTableManager()->refEntries().size());
+   // printf("PAINPAINTPAINTPAINTPAINTPAINTPAINTPAINTPAINTPAINTT  %d/%d \n",  m_browser->getTopNodeIdx(),  (int)m_browser->getTableManager()->refEntries().size());
    if (m_browser->getTableManager()->refEntries().empty()) return; 
 
    TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
 
    m_maxLevel = m_browser->getVisLevel() + m_browser->getTableManager()->getLevelOffset();
+
    m_filterOff = m_browser->getFilter().empty();
 
    Int_t topIdx = m_browser->getTopNodeIdx();
@@ -41,18 +47,23 @@ void FWEveDetectorGeo::Paint(Option_t* opt)
    {
       std::advance(sit, topIdx);
       m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
-
-      if (sit->testBit(FWGeometryTableManagerBase::kVisNodeSelf) && ((FWGeometryTableManager*)tableManager())->getVisibility(*sit))
-         paintShape(*sit,  topIdx,mtx, m_browser->getVolumeMode() );
    }
 
+   bool drawsChildren = 0;
+   
    if ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*sit))
-      paintChildNodesRecurse( sit, topIdx, mtx);
+      drawsChildren = paintChildNodesRecurse( sit, topIdx, mtx);
+   
+   if (sit->testBit(FWGeometryTableManagerBase::kVisNodeSelf) && ((FWGeometryTableManager*)tableManager())->getVisibility(*sit))
+      paintShape( topIdx,mtx, m_browser->getVolumeMode(), drawsChildren );
+   
+   
+   fflush(stdout);
 }
 
 
 // ______________________________________________________________________
-void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entries_i pIt, Int_t cnt, const TGeoHMatrix& parentMtx)
+bool FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entries_i pIt, Int_t cnt, const TGeoHMatrix& parentMtx)
 { 
    TGeoNode* parentNode =  pIt->m_node;
    int nD = parentNode->GetNdaughters();
@@ -61,6 +72,8 @@ void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
 
    pIt++;
    int pcnt = cnt+1;
+   
+   bool drawsChildNodes = 0;
 
    FWGeometryTableManagerBase::Entries_i it;
    for (int n = 0; n != nD; ++n)
@@ -72,31 +85,40 @@ void FWEveDetectorGeo::paintChildNodesRecurse (FWGeometryTableManagerBase::Entri
       TGeoHMatrix nm = parentMtx;
       nm.Multiply(it->m_node->GetMatrix());
 
-  
-      if (m_filterOff)
+      bool drawsChildNodesSecondGen = false;
+      if (m_filterOff || m_browser->isSelectedByRegion())
       {
+         if  ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel)) {
+           drawsChildNodesSecondGen = paintChildNodesRecurse(it,cnt , nm);
+         }
+         
          if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
-            paintShape(*it, cnt , nm, m_browser->getVolumeMode() );
-
-         if  ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel  || it->testBit(FWGeometryTableManagerBase::kExpanded) )) {
-            paintChildNodesRecurse(it,cnt , nm);
+         {
+            paintShape(cnt , nm, m_browser->getVolumeMode(),  drawsChildNodesSecondGen );
+            drawsChildNodes = true;
          }
 
       }
       else
       {
-         if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
-            paintShape(*it,cnt , nm, m_browser->getVolumeMode()  );
-
          if ( ((FWGeometryTableManager*)tableManager())->getVisibilityChld(*it) && ( it->m_level < m_maxLevel || m_browser->getIgnoreVisLevelWhenFilter() ))
          {
-            paintChildNodesRecurse(it,cnt , nm);
+            drawsChildNodesSecondGen = paintChildNodesRecurse(it,cnt , nm);
+         }
+         
+         ((FWGeometryTableManager*)tableManager())->assertNodeFilterCache(*it);
+         if ( ((FWGeometryTableManager*)tableManager())->getVisibility(*it))
+         {
+            paintShape(cnt , nm, m_browser->getVolumeMode(), drawsChildNodesSecondGen );
+            drawsChildNodes = true;
          }
       }
 
-
+      drawsChildNodes |= drawsChildNodesSecondGen;
       FWGeometryTableManagerBase::getNNodesTotal(parentNode->GetDaughter(n), dOff);  
    }
+   
+   return  drawsChildNodes;
 }
 
 //______________________________________________________________________________
@@ -113,33 +135,14 @@ TString  FWEveDetectorGeo::GetHighlightTooltip()
    return "error";
 }
 
+//_____________________________________________________________________________
 
-
-//______________________________________________________________________________
-
-void FWEveDetectorGeo::popupMenu(int x, int y)
-{  
-   if (getFirstSelectedTableIndex() < 0)
-   {
-      if (fSted.empty()) fwLog(fwlog::kInfo) << "No menu -- no node/entry selected \n";
-      return;
-   }
+void FWEveDetectorGeo::popupMenu(int x, int y, TGLViewer* v)
+{
+   FWPopupMenu* nodePopup = FWGeoTopNode::setPopupMenu(x, y, v, false);
    
-   FWPopupMenu* nodePopup = new FWPopupMenu();
-   nodePopup->AddEntry("Set As Top Node", kGeoSetTopNode);
-   nodePopup->AddEntry("Set As Top Node And Camera Center", kGeoSetTopNodeCam);
-   nodePopup->AddSeparator();
-   nodePopup->AddEntry("Rnr Off For All Children", kGeoVisOff);
-   nodePopup->AddEntry("Rnr On For All Children", kGeoVisOn);
-   nodePopup->AddSeparator();
-   nodePopup->AddEntry("Set Camera Center", kGeoCamera);
-   nodePopup->AddSeparator();
-   //   nodePopup->AddEntry("InspectMaterial", kGeoInspectMaterial); crashes !!!
-   nodePopup->AddEntry("InspectShape", kGeoInspectShape);
-
-   nodePopup->PlaceMenu(x, y,true,true);
-   nodePopup->Connect("Activated(Int_t)",
+ if (nodePopup)  nodePopup->Connect("Activated(Int_t)",
                       "FWGeometryTableView",
-                       m_browser,
+                      m_browser,
                       "chosenItem(Int_t)");
 }

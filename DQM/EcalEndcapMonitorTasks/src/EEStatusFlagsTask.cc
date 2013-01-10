@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2011/11/01 20:44:55 $
- * $Revision: 1.40 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -34,6 +34,8 @@ EEStatusFlagsTask::EEStatusFlagsTask(const edm::ParameterSet& ps){
 
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
+  subfolder_ = ps.getUntrackedParameter<std::string>("subfolder", "");
+
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
@@ -41,6 +43,7 @@ EEStatusFlagsTask::EEStatusFlagsTask(const edm::ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   for (int i = 0; i < 18; i++) {
+    meEvtType_[i] = 0;
 
     meFEchErrors_[i][0] = 0;
     meFEchErrors_[i][1] = 0;
@@ -49,7 +52,6 @@ EEStatusFlagsTask::EEStatusFlagsTask(const edm::ParameterSet& ps){
 
   meFEchErrorsByLumi_ = 0;
 
-  ievt_ = 0;
 }
 
 EEStatusFlagsTask::~EEStatusFlagsTask(){
@@ -61,8 +63,10 @@ void EEStatusFlagsTask::beginJob(void){
   ievt_ = 0;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEStatus");
-    dqmStore_->rmdir(prefixME_ + "/FEStatus");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask");
+    if(subfolder_.size())
+      dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask/" + subfolder_);
+    dqmStore_->rmdir(prefixME_ + "/EEStatusFlagsTask");
   }
 
 }
@@ -91,6 +95,8 @@ void EEStatusFlagsTask::endRun(const edm::Run& r, const edm::EventSetup& c) {
 void EEStatusFlagsTask::reset(void) {
 
   for (int i = 0; i < 18; i++) {
+    if ( meEvtType_[i] ) meEvtType_[i]->Reset();
+
     if ( meFEchErrors_[i][0] ) meFEchErrors_[i][0]->Reset();
     if ( meFEchErrors_[i][1] ) meFEchErrors_[i][1]->Reset();
     if ( meFEchErrors_[i][2] ) meFEchErrors_[i][2]->Reset();
@@ -104,13 +110,62 @@ void EEStatusFlagsTask::setup(void){
   init_ = true;
 
   std::string name;
+  std::string dir;
 
   if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEStatus");
+    dir = prefixME_ + "/EEStatusFlagsTask";
+    if(subfolder_.size())
+      dir = prefixME_ + "/EEStatusFlagsTask/" + subfolder_;
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEStatus/Flags");
+    dqmStore_->setCurrentFolder(dir);
+
+    dqmStore_->setCurrentFolder(dir + "/EvtType");
     for (int i = 0; i < 18; i++) {
-      name = "FEStatusTask front-end status bits " + Numbers::sEE(i+1);
+      name = "EESFT EVTTYPE " + Numbers::sEE(i+1);
+      meEvtType_[i] = dqmStore_->book1D(name, name, 31, -1., 30.);
+      meEvtType_[i]->setBinLabel(1, "UNKNOWN", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::BEAMH2, "BEAMH2", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::MTCC, "MTCC", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LASER_STD, "LASER_STD", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LASER_POWER_SCAN, "LASER_POWER_SCAN", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LASER_DELAY_SCAN, "LASER_DELAY_SCAN", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_SCAN_MEM, "TESTPULSE_SCAN_MEM", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_MGPA, "TESTPULSE_MGPA", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_STD, "PEDESTAL_STD", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN, "PEDESTAL_OFFSET_SCAN", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN, "PEDESTAL_25NS_SCAN", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LED_STD, "LED_STD", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_GLOBAL, "PHYSICS_GLOBAL", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_GLOBAL, "COSMICS_GLOBAL", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::HALO_GLOBAL, "HALO_GLOBAL", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LASER_GAP, "LASER_GAP", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::TESTPULSE_GAP, "TESTPULSE_GAP");
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PEDESTAL_GAP, "PEDESTAL_GAP");
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::LED_GAP, "LED_GAP", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::PHYSICS_LOCAL, "PHYSICS_LOCAL", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::COSMICS_LOCAL, "COSMICS_LOCAL", 1);
+      meEvtType_[i]->setBinLabel(2+EcalDCCHeaderBlock::HALO_LOCAL, "HALO_LOCAL", 1);
+      dqmStore_->tag(meEvtType_[i], i+1);
+    }
+
+    dqmStore_->setCurrentFolder(dir + "/FEStatus");
+    for (int i = 0; i < 18; i++) {
+      name = "EESFT front-end status " + Numbers::sEE(i+1);
+      meFEchErrors_[i][0] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meFEchErrors_[i][0]->setAxisTitle("ix", 1);
+      if ( i+1 >= 1 && i+1 <= 9 ) meFEchErrors_[i][0]->setAxisTitle("101-ix", 1);
+      meFEchErrors_[i][0]->setAxisTitle("iy", 2);
+      dqmStore_->tag(meFEchErrors_[i][0], i+1);
+
+      name = "EESFT MEM front-end status " + Numbers::sEE(i+1);
+      meFEchErrors_[i][1] = dqmStore_->book2D(name, name, 2, 0., 2., 1, 0., 1.);
+      meFEchErrors_[i][1]->setAxisTitle("pseudo-strip", 1);
+      meFEchErrors_[i][1]->setAxisTitle("channel", 2);
+      dqmStore_->tag(meFEchErrors_[i][1], i+1);
+
+      name = "EESFT front-end status bits " + Numbers::sEE(i+1);
       meFEchErrors_[i][2] = dqmStore_->book1D(name, name, 16, 0., 16.);
       meFEchErrors_[i][2]->setBinLabel(1+0, "ACTIVE", 1);
       meFEchErrors_[i][2]->setBinLabel(1+1, "DISABLED", 1);
@@ -131,18 +186,15 @@ void EEStatusFlagsTask::setup(void){
       dqmStore_->tag(meFEchErrors_[i][2], i+1);
     }
 
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEStatus");
     // checking the number of front-end errors in each DCC for each lumi
     // tower error is weighted by 1/34
     // bin 0 contains the number of processed events in the lumi (for normalization)
-    name = "FEStatusTask errors by lumi EE";
+    name = "EESFT weighted frontend errors by lumi";
     meFEchErrorsByLumi_ = dqmStore_->book1D(name, name, 18, 1., 19.);
     meFEchErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 18; i++) {
-      meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
+      meFEchErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
-
-    dqmStore_->setCurrentFolder(prefixME_ + "/FEStatus/Errors");
 
   }
 
@@ -153,17 +205,29 @@ void EEStatusFlagsTask::cleanup(void){
   if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
+    std::string dir = prefixME_ + "/EEStatusFlagsTask";
+    if(subfolder_.size())
+      dir = prefixME_ + "/EEStatusFlagsTask/" + subfolder_;
 
+    dqmStore_->setCurrentFolder(dir + "");
+
+    dqmStore_->setCurrentFolder(dir + "/EvtType");
     for (int i = 0; i < 18; i++) {
-      if ( meFEchErrors_[i][0] ) dqmStore_->removeElement( meFEchErrors_[i][0]->getFullname() );
+      if ( meEvtType_[i] ) dqmStore_->removeElement( meEvtType_[i]->getName() );
+      meEvtType_[i] = 0;
+    }
+
+    dqmStore_->setCurrentFolder(dir + "/FEStatus");
+    for (int i = 0; i < 18; i++) {
+      if ( meFEchErrors_[i][0] ) dqmStore_->removeElement( meFEchErrors_[i][0]->getName() );
       meFEchErrors_[i][0] = 0;
-      if ( meFEchErrors_[i][1] ) dqmStore_->removeElement( meFEchErrors_[i][1]->getFullname() );
+      if ( meFEchErrors_[i][1] ) dqmStore_->removeElement( meFEchErrors_[i][1]->getName() );
       meFEchErrors_[i][1] = 0;
-      if ( meFEchErrors_[i][2] ) dqmStore_->removeElement( meFEchErrors_[i][2]->getFullname() );
+      if ( meFEchErrors_[i][2] ) dqmStore_->removeElement( meFEchErrors_[i][2]->getName() );
       meFEchErrors_[i][2] = 0;
     }
 
-    if ( meFEchErrorsByLumi_ ) dqmStore_->removeElement( meFEchErrorsByLumi_->getFullname() );
+    if ( meFEchErrorsByLumi_ ) dqmStore_->removeElement( meFEchErrorsByLumi_->getName() );
     meFEchErrorsByLumi_ = 0;
 
   }
@@ -191,10 +255,6 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   edm::Handle<EcalRawDataCollection> dcchs;
 
-  std::string dir, name;
-  std::stringstream ss;
-  MonitorElement *me;
-
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
     for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
@@ -203,6 +263,8 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       int ism = Numbers::iSM( *dcchItr, EcalEndcap );
       float xism = ism + 0.5;
+
+      if ( meEvtType_[ism-1] ) meEvtType_[ism-1]->Fill(dcchItr->getRunType()+0.5);
 
       const std::vector<short> status = dcchItr->getFEStatus();
 
@@ -214,25 +276,36 @@ void EEStatusFlagsTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
-	if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 12 || status[itt-1] == 15 ) ) {
+        if ( itt >= 1 && itt <= 41 ) {
 
-	  dir = prefixME_ + "/FEStatus/Errors/";
+          std::vector<DetId>* crystals = Numbers::crystals( dcchItr->id(), itt );
 
-	  ss.str("");
-	  ss << dcchItr->id() << " " << itt;
-	  name = "FEStatusTask Error FE " + ss.str();
-	  me = dqmStore_->get(dir + name);
-	  if(!me) {
-	    dqmStore_->setCurrentFolder(dir);
-	    me = dqmStore_->book1D(name, name, 1, 0., 1.);
-	  }
-	  if(me) me->Fill(0.5);
+          for ( unsigned int i=0; i<crystals->size(); i++ ) {
 
-	  if ( itt >= 1 && itt <= 41 ) {
-	    if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism);
+          EEDetId id = (*crystals)[i];
+
+          int ix = id.ix();
+          int iy = id.iy();
+
+          if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+
+          float xix = ix - 0.5;
+          float xiy = iy - 0.5;
+
+          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 12 || status[itt-1] == 15 ) ) {
+            if ( meFEchErrors_[ism-1][0] ) meFEchErrors_[ism-1][0]->Fill(xix, xiy);
+            if ( meFEchErrorsByLumi_ ) meFEchErrorsByLumi_->Fill(xism, 1./34./crystals->size());
           }
 
-	}
+          }
+
+        } else if ( itt == 69 || itt == 70 ) {
+
+          if ( ! ( status[itt-1] == 0 || status[itt-1] == 1 || status[itt-1] == 7 || status[itt-1] == 8 || status[itt-1] == 12 || status[itt-1] == 15 ) ) {
+            if ( meFEchErrors_[ism-1][1] ) meFEchErrors_[ism-1][1]->Fill(itt-68-0.5, 0);
+          }
+
+        }
 
         if ( meFEchErrors_[ism-1][2] ) meFEchErrors_[ism-1][2]->Fill(status[itt-1]+0.5);
 
