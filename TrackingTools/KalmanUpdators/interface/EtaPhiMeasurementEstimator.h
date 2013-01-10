@@ -7,14 +7,14 @@
  *  Plane. The TrajectoryState must have errors.
  *  Works for any RecHit dimension. Ported from ORCA.
  *
- *  $Date: 2011/05/27 11:40:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2012/12/25 14:24:26 $
+ *  $Revision: 1.2 $
  *  tschudi
  */
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
-class EtaPhiMeasurementEstimator : public Chi2MeasurementEstimatorBase {
+class EtaPhiMeasurementEstimator GCC11_FINAL : public Chi2MeasurementEstimatorBase {
 public:
 
   explicit EtaPhiMeasurementEstimator(double dEta, double dPhi) : 

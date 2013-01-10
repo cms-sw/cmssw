@@ -7,14 +7,14 @@
  *  Plane. The TrajectoryState must have errors.
  *  Works for any RecHit dimension. Ported from ORCA.
  *
- *  $Date: 2007/05/09 14:05:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2012/12/25 14:24:26 $
+ *  $Revision: 1.4 $
  *  \author todorov, cerati
  */
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
-class Chi2MeasurementEstimator : public Chi2MeasurementEstimatorBase {
+class Chi2MeasurementEstimator GCC11_FINAL : public Chi2MeasurementEstimatorBase {
 public:
 
   /** Construct with cuts on chi2 and nSigma.

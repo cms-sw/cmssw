@@ -5,12 +5,13 @@
  *  A base class for  Chi2 -- type of Measurement Estimators. 
  *  Implements common functionality. Ported from ORCA.
  *
- *  $Date: 2012/05/29 08:23:57 $
- *  $Revision: 1.4 $
+ *  $Date: 2012/12/25 14:24:26 $
+ *  $Revision: 1.5 $
  *  \author todorov, cerati
  */
 
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class Chi2MeasurementEstimatorBase : public MeasurementEstimator {
 public:

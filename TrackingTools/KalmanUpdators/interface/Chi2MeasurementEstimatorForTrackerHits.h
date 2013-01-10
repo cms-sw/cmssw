@@ -12,7 +12,7 @@
  */
 
 
-class Chi2MeasurementEstimatorForTrackerHits : public Chi2MeasurementEstimatorBase {
+class Chi2MeasurementEstimatorForTrackerHits GCC11_FINAL : public Chi2MeasurementEstimatorBase {
 public:
 
   /** Construct with cuts on chi2 and nSigma.
