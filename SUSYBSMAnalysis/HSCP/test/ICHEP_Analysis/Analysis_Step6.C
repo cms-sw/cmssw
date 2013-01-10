@@ -2465,7 +2465,7 @@ bool runCombine(bool fastOptimization, bool getXsection, bool getSignificance, s
 
    printf("SIGNAL UNCERTAINTY = %f\n",SignalUnc);
    //build the combine datacard, the same code is used both for cut&count and shape base
-   char TypeStr[255]; sprintf(TypeStr,"Tyep%i", TypeMode);
+   char TypeStr[255]; sprintf(TypeStr,"Type%i", TypeMode);
    string JobName = TypeStr+signal;
    string datacardPath = "/tmp/shape_"+JobName+".dat";
 
@@ -2822,26 +2822,27 @@ bool Combine(string InputPattern, string signal7, string signal8){
 
    string signal = signal7;
    if(signal.find("_7TeV")!=string::npos){signal.replace(signal.find("_7TeV"),5, "");}
-   char TypeStr[100] ;sprintf(TypeStr,"Tyep%i", TypeMode);
+   char TypeStr[100] ;sprintf(TypeStr,"Type%i", TypeMode);
    string JobName = TypeStr+signal;
 
    FILE* pFileTmp = NULL;
 
    bool is7TeVPresent = true;
-   pFileTmp = fopen((InputPattern+"/EXCLUSION7TeV/shape_"+signal7+".dat").c_str(), "r");
+   pFileTmp = fopen((InputPattern+"/EXCLUSION7TeV/shape_"+(TypeStr+signal7)+".dat").c_str(), "r");
    if(!pFileTmp){is7TeVPresent=false;}else{fclose(pFileTmp);}
    if(TypeMode==3) is7TeVPresent=false;
 
    bool is8TeVPresent = true;
-   pFileTmp = fopen((InputPattern+"/EXCLUSION8TeV/shape_"+signal8+".dat").c_str(), "r");
+   pFileTmp = fopen((InputPattern+"/EXCLUSION8TeV/shape_"+(TypeStr+signal8)+".dat").c_str(), "r");
    if(!pFileTmp){is8TeVPresent=false;}else{fclose(pFileTmp);}
 
 
    string CodeToExecute = "combineCards.py ";
-   if(is7TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+signal7+".dat ";
-   if(is8TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION8TeV/shape_"+signal8+".dat ";
+   if(is7TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION7TeV/shape_"+(TypeStr+signal7)+".dat ";
+   if(is8TeVPresent)CodeToExecute+="   " + InputPattern+"/EXCLUSION8TeV/shape_"+(TypeStr+signal8)+".dat ";
 
    CodeToExecute+=" > " + outpath+"shape_"+JobName+".dat ";
+
    system(CodeToExecute.c_str());   
    printf("%s \n",CodeToExecute.c_str());
 
@@ -2866,7 +2867,6 @@ bool Combine(string InputPattern, string signal7, string signal8){
 
    double NPred = result.NPred;
    double NSign = result.NSign / 100.0;
-
 
    //ALL CODE BELOW IS A BIT DIFFERENT THAN THE ONE USED IN runCombined, BECAUSE HERE WE KEEP THE RESULTS ON LIMIT IN TERMS OF SIGNAL STRENGTH (r=SigmaObs/SigmaTH)
    if(true){
