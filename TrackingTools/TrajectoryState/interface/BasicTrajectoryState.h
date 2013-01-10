@@ -174,6 +174,7 @@ public:
 
 
   FreeTrajectoryState* freeTrajectoryState(bool withErrors=true) const {
+    if unlikely(!isValid()) notValid();
     if(withErrors && hasError()) { // this is the right thing
       checkCurvilinError();
     }
@@ -255,15 +256,15 @@ private:
   
   void missingError(char const * where) const; // dso_internal;
 
-// create global errors from local
+  // create global errors from local
   void checkCurvilinError() const; //  dso_internal;
-
-// create local parameters and errors from global
+  
+  // create local parameters and errors from global
   void createLocalParameters() const;
   // create local errors from global
   void createLocalError() const;
   void createLocalErrorFromCurvilinearError() const  dso_internal;
-
+  
 private:
 
   mutable FreeTrajectoryState theFreeState;

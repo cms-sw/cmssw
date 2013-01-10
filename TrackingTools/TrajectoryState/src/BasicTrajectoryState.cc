@@ -12,7 +12,7 @@
 
 
 namespace {
-
+  inline
   FreeTrajectoryState makeFTS(const LocalTrajectoryParameters& par,
 			      const Surface& surface,
 			      const MagneticField* field) {
@@ -106,7 +106,7 @@ BasicTrajectoryState( const LocalTrajectoryParameters& par,
   theLocalError(InvalidError()),
   theLocalParameters(par),
   theLocalParametersValid(true),
-  theValid(false),
+  theValid(true),
    theSurfaceSide(side),
   theSurfaceP( &aSurface), 
   theWeight(1.)
