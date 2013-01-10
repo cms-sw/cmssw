@@ -5,14 +5,14 @@
  *  A Kalman Updator that works in the measurement frame and uses
  *  only the X coordinate (the one perpendicular to the strip). Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:11:43 $
- *  $Revision: 1.2.2.1 $
+ *  $Date: 2007/05/09 13:50:25 $
+ *  $Revision: 1.3 $
  *  \author todorov, cerati
  */
 
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
-class KFStrip1DUpdator : public TrajectoryStateUpdator {
+class KFStrip1DUpdator GCC11_FINAL : public TrajectoryStateUpdator {
 
 private:
   

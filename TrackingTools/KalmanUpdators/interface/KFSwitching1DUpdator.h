@@ -5,8 +5,8 @@
  *  A Kalman Updator that uses a KFUpdator for pixel and matched hits,
  *  and a KFStrip1DUpdator for simple strip hits. Ported from ORCA.
  *
- *  $Date: 2007/05/09 13:50:25 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/08/16 12:22:16 $
+ *  $Revision: 1.5 $
  *  \author todorov, cerati
  */
 
@@ -17,24 +17,18 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class KFSwitching1DUpdator : public TrajectoryStateUpdator {
+class KFSwitching1DUpdator GCC11_FINAL : public TrajectoryStateUpdator {
 
 private:
   typedef TrajectoryStateOnSurface TSOS;
   
 public:
 
-  KFSwitching1DUpdator(const edm::ParameterSet * pset=0) : theLocalUpdator(new KFUpdator()),
-			   theStripUpdator(new KFStrip1DUpdator()) {
+  KFSwitching1DUpdator(const edm::ParameterSet * pset=0) : theDoEndCap(false) {
     if (pset){
       theDoEndCap=pset->getParameter<bool>("doEndCap");
     }
-    else
-      {
-	theDoEndCap=false;
-      }
   }
-
   ~KFSwitching1DUpdator() {}
 
   /// update with a hit
@@ -47,13 +41,13 @@ public:
 
 private:
   /// updator for 2D hits (matched or pixel)
-  const KFUpdator& localUpdator() const {return *theLocalUpdator;}
+  const KFUpdator& localUpdator() const {return theLocalUpdator;}
   /// updator for non-matched strip hits
-  const KFStrip1DUpdator& stripUpdator() const {return *theStripUpdator;}
+  const KFStrip1DUpdator& stripUpdator() const {return theStripUpdator;}
 
 private:
-  DeepCopyPointerByClone<const KFUpdator> theLocalUpdator;
-  DeepCopyPointerByClone<const KFStrip1DUpdator> theStripUpdator;
+  const KFUpdator theLocalUpdator;
+  const KFStrip1DUpdator theStripUpdator;
 
   bool theDoEndCap;
 };
