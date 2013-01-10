@@ -5,7 +5,7 @@ autoSkim = {
     'Commissioning' : 'LogError+LogErrorMonitor+EcalActivity',
     'Cosmics' : 'LogError+LogErrorMonitor+CosmicSP',
     'DoubleElectron' : 'LogError+LogErrorMonitor+ZElectron+DiTau+HZZ',
-    'DoubleMu' : 'LogError+LogErrorMonitor+Zmmg+HZZ',
+    'DoubleMu' : 'LogError+LogErrorMonitor+Zmmg+HZZ+EXOHSCP',
     'DoublePhoton' : 'LogError+LogErrorMonitor',
     'DoublePhotonHighPt' : 'LogError+LogErrorMonitor',
     'ElectronHad' : 'LogError+LogErrorMonitor',
