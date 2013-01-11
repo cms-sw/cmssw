@@ -2,10 +2,8 @@
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 #include <fstream>
@@ -24,6 +22,11 @@ SiStripNoiseNormalizedWithApvGainBuilder::SiStripNoiseNormalizedWithApvGainBuild
 
 void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+ 
   // Read the gain from the given tag
   edm::ESHandle<SiStripApvGain> inputApvGain;
   iSetup.get<SiStripApvGainRcd>().get( inputApvGain );
@@ -66,7 +69,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
     SiStripNoises::InputVector theSiStripVector;
     float noise = 0.;
     uint32_t detId = it->first;
-    std::pair<int, int> sl = subDetAndLayer(detId);
+    std::pair<int, int> sl = subDetAndLayer(detId, tTopo);
     unsigned short nApvs = it->second.nApvs;
 
     if(stripLengthMode_) {
@@ -124,7 +127,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
   }
 }
 
-std::pair<int, int> SiStripNoiseNormalizedWithApvGainBuilder::subDetAndLayer( const uint32_t detId ) const
+std::pair<int, int> SiStripNoiseNormalizedWithApvGainBuilder::subDetAndLayer(const uint32_t detId, const TrackerTopology* tTopo) const
 {
   int layerId = 0;
 
@@ -132,20 +135,16 @@ std::pair<int, int> SiStripNoiseNormalizedWithApvGainBuilder::subDetAndLayer( co
   int subId = subid.subdetId();
 
   if( subId == int(StripSubdetector::TIB)) {
-    TIBDetId theTIBDetId(detId);
-    layerId = theTIBDetId.layer() - 1;
+    layerId = tTopo->tibLayer(detId) - 1;
   }
   else if(subId == int(StripSubdetector::TOB)) {
-    TOBDetId theTOBDetId(detId);
-    layerId = theTOBDetId.layer() - 1;
+    layerId = tTopo->tobLayer(detId) - 1;
   }
   else if(subId == int(StripSubdetector::TID)) {
-    TIDDetId theTIDDetId(detId);
-    layerId = theTIDDetId.ring() - 1;
+    layerId = tTopo->tidRing(detId) - 1;
   }
   if(subId == int(StripSubdetector::TEC)) {
-    TECDetId theTECDetId = TECDetId(detId); 
-    layerId = theTECDetId.ring() - 1;
+    layerId = tTopo->tecRing(detId) - 1;
   }
   return std::make_pair(subId, layerId);
 }

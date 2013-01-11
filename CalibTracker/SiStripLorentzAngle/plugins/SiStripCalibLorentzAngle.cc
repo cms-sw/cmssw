@@ -16,12 +16,16 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-SiStripCalibLorentzAngle::SiStripCalibLorentzAngle(edm::ParameterSet const& conf) : ConditionDBWriter<SiStripLorentzAngle>(conf) , conf_(conf){}
+SiStripCalibLorentzAngle::SiStripCalibLorentzAngle(edm::ParameterSet const& conf) : ConditionDBWriter<SiStripLorentzAngle>(conf) , tTopo(nullptr), conf_(conf) {}
 
 void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  c.get<IdealGeometryRecord>().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
 
   c.get<TrackerDigiGeometryRecord>().get(estracker);
   tracker=&(*estracker); 
@@ -342,12 +346,12 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c){
     if(stripdet!=0 && ModuleHisto==true){
     
       if(subid.subdetId() == int (StripSubdetector::TIB)){
-      TIBDetId TIBid=TIBDetId(subid);
-      Layer = TIBid.layer();
+      
+      Layer = tTopo->tibLayer(detid);
       TIB = 1;}     
       if(subid.subdetId() == int (StripSubdetector::TOB)){
-      TOBDetId TOBid=TOBDetId(subid);
-      Layer = TOBid.layer();
+      
+      Layer = tTopo->tobLayer(detid);
       TOB = 1;}
       
     //get module coordinates
@@ -786,31 +790,33 @@ SiStripLorentzAngle* SiStripCalibLorentzAngle::getNewObject(){
     hallMobility = 0.;
     
     if(subid.subdetId() == int (StripSubdetector::TIB)){
-    TIBDetId TIBid=TIBDetId(subid);
-    if(TIBid.layer()==1){
+    
+    uint32_t tibLayer = tTopo->tibLayer(*Iditer);
+    if(tibLayer==1){
     hallMobility=mean_TIB1;}
-    if(TIBid.layer()==2){
+    if(tibLayer==2){
     hallMobility=mean_TIB2;}
-    if(TIBid.layer()==3){
+    if(tibLayer==3){
     hallMobility=mean_TIB3;}
-    if(TIBid.layer()==4){
+    if(tibLayer==4){
     hallMobility=mean_TIB4;}
     if (!LorentzAngle->putLorentzAngle(Iditer->rawId(),hallMobility)) edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
     }
     
     if(subid.subdetId() == int (StripSubdetector::TOB)){
-    TOBDetId TOBid=TOBDetId(subid);
-    if(TOBid.layer()==1){
+    
+    uint32_t tobLayer = tTopo->tobLayer(*Iditer);
+    if(tobLayer==1){
     hallMobility=mean_TOB1;}
-    if(TOBid.layer()==2){
+    if(tobLayer==2){
     hallMobility=mean_TOB2;}
-    if(TOBid.layer()==3){
+    if(tobLayer==3){
     hallMobility=mean_TOB3;}
-    if(TOBid.layer()==4){
+    if(tobLayer==4){
     hallMobility=mean_TOB4;}
-    if(TOBid.layer()==5){
+    if(tobLayer==5){
     hallMobility=mean_TOB5;}
-    if(TOBid.layer()==6){
+    if(tobLayer==6){
     hallMobility=mean_TOB6;}
     if (!LorentzAngle->putLorentzAngle(Iditer->rawId(),hallMobility)) edm::LogError("SiStripLorentzAngleGenerator")<<" detid already exists"<<std::endl;
     } 
@@ -821,8 +827,8 @@ SiStripLorentzAngle* SiStripCalibLorentzAngle::getNewObject(){
     } 
     
     if( subid.subdetId() == int(StripSubdetector::TEC) ) {
-    TECDetId TECid = TECDetId(subid);
-    if(TECid.ringNumber()<5 ) {
+    
+    if(tTopo->tecRing(subid)<5 ) {
     hallMobility=meanMobility_TIB;
     }else{
     hallMobility=meanMobility_TOB;

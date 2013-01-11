@@ -8,6 +8,8 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondFormats/RunInfo"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/Records"/>
 <use   name="boost"/>
 <export>
   <lib   name="1"/>

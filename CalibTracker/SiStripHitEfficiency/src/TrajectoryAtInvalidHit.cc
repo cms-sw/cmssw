@@ -8,10 +8,8 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 // #include "RecoTracker/MeasurementDet/interface/RecHitPropagator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
@@ -19,6 +17,7 @@
 
 using namespace std;
 TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm, 
+					    const TrackerTopology* tTopo,
 					    const TrackerGeometry* tracker,
 					    const Propagator& propagator,
 					    const unsigned int mono)
@@ -49,7 +48,7 @@ TrajectoryAtInvalidHit::TrajectoryAtInvalidHit( const TrajectoryMeasurement& tm,
   
   // if module is from a double sided layer, write out info for either the
   // rphi surface (mono = 1) or the stereo surface (mono = 2)--not the matched hit surface
-  if (( mono > 0 ) && isDoubleSided(iidd) ) {
+  if (( mono > 0 ) && isDoubleSided(iidd, tTopo) ) {
     // find matched det id, that is the matched hit surface between the two sensors
     unsigned int matched_iidd = iidd-(iidd & 0x3);
     DetId matched_id(matched_iidd);
@@ -191,31 +190,31 @@ bool TrajectoryAtInvalidHit::validHit() const
   return hasValidHit;
 }
 
-bool TrajectoryAtInvalidHit::isDoubleSided(unsigned int iidd) const {
+bool TrajectoryAtInvalidHit::isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const {
   StripSubdetector strip=StripSubdetector(iidd);
   unsigned int subid=strip.subdetId();
   unsigned int layer = 0;
   if (subid ==  StripSubdetector::TIB) { 
-    TIBDetId tibid(iidd);
-    layer = tibid.layer();
+    
+    layer = tTopo->tibLayer(iidd);
     if (layer == 1 || layer == 2) return true;
     else return false;
   }
   else if (subid ==  StripSubdetector::TOB) { 
-    TOBDetId tobid(iidd);
-    layer = tobid.layer() + 4 ; 
+    
+    layer = tTopo->tobLayer(iidd) + 4 ; 
     if (layer == 5 || layer == 6) return true;
     else return false;
   }
   else if (subid ==  StripSubdetector::TID) { 
-    TIDDetId tidid(iidd);
-    layer = tidid.ring() + 10;
+    
+    layer = tTopo->tidRing(iidd) + 10;
     if (layer == 11 || layer == 12) return true;
     else return false;
   }
   else if (subid ==  StripSubdetector::TEC) { 
-    TECDetId tecid(iidd);
-    layer = tecid.ring() + 13 ; 
+    
+    layer = tTopo->tecRing(iidd) + 13 ; 
     if (layer == 14 || layer == 15 || layer == 18) return true;
     else return false;
   }

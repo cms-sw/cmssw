@@ -15,8 +15,8 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -363,6 +363,11 @@ void SiPixelErrorEstimation::endJob()
 void
 SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
   using namespace edm;
   
   run = e.id().run();
@@ -617,44 +622,44 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  if ( (int)detid.subdetId() == int(StripSubdetector::TIB) )
 	    {
 	      
-	      TIBDetId tib_detid( detid );
 	      
-	      strip_tib_layer              = (int)tib_detid.layer();
-	      strip_tib_module             = (int)tib_detid.module(); 
-	      strip_tib_order              = (int)tib_detid.order();
-	      strip_tib_side               = (int)tib_detid.side();
-	      strip_tib_is_double_side     = (int)tib_detid.isDoubleSide();
-	      strip_tib_is_z_plus_side     = (int)tib_detid.isZPlusSide();
-	      strip_tib_is_z_minus_side    = (int)tib_detid.isZMinusSide();
-	      strip_tib_layer_number       = (int)tib_detid.layerNumber();
-	      strip_tib_string_number      = (int)tib_detid.stringNumber() ;
-	      strip_tib_module_number      = (int)tib_detid.moduleNumber();
-	      strip_tib_is_internal_string = (int)tib_detid.isInternalString();
-	      strip_tib_is_external_string = (int)tib_detid.isExternalString();
-	      strip_tib_is_rphi            = (int)tib_detid.isRPhi();
-	      strip_tib_is_stereo          = (int)tib_detid.isStereo();
+	      
+	      strip_tib_layer              = (int)tTopo->tibLayer( detid );
+	      strip_tib_module             = (int)tTopo->tibModule( detid ); 
+	      strip_tib_order              = (int)tTopo->tibOrder( detid );
+	      strip_tib_side               = (int)tTopo->tibSide( detid );
+	      strip_tib_is_double_side     = (int)tTopo->tibIsDoubleSide( detid );
+	      strip_tib_is_z_plus_side     = (int)tTopo->tibIsZPlusSide( detid );
+	      strip_tib_is_z_minus_side    = (int)tTopo->tibIsZMinusSide( detid );
+	      strip_tib_layer_number       = (int)tTopo->tibLayer( detid );
+	      strip_tib_string_number      = (int)tTopo->tibString( detid ) ;
+	      strip_tib_module_number      = (int)tTopo->tibModule( detid );
+	      strip_tib_is_internal_string = (int)tTopo->tibIsInternalString( detid );
+	      strip_tib_is_external_string = (int)tTopo->tibIsExternalString( detid );
+	      strip_tib_is_rphi            = (int)tTopo->tibIsRPhi( detid );
+	      strip_tib_is_stereo          = (int)tTopo->tibIsStereo( detid );
 	    }
 	  
 	  
 	  if ( (int)detid.subdetId() == int(StripSubdetector::TOB) )
 	    {
 	      
-	      TOBDetId tob_detid( detid );
-	      
-	      strip_tob_layer              = (int)tob_detid.layer();
-	      strip_tob_module             = (int)tob_detid.module();
-	      
-	      strip_tob_side               = (int)tob_detid.side();
-	      strip_tob_is_double_side     = (int)tob_detid.isDoubleSide();
-	      strip_tob_is_z_plus_side     = (int)tob_detid.isZPlusSide();
-	      strip_tob_is_z_minus_side    = (int)tob_detid.isZMinusSide();
-	      strip_tob_layer_number       = (int)tob_detid.layerNumber();
-	      strip_tob_rod_number         = (int)tob_detid.rodNumber();
-	      strip_tob_module_number      = (int)tob_detid.moduleNumber();
 	      
 	      
-	      strip_tob_is_rphi            = (int)tob_detid.isRPhi();
-	      strip_tob_is_stereo          = (int)tob_detid.isStereo();
+	      strip_tob_layer              = (int)tTopo->tobLayer( detid );
+	      strip_tob_module             = (int)tTopo->tobModule( detid );
+	      
+	      strip_tob_side               = (int)tTopo->tobSide( detid );
+	      strip_tob_is_double_side     = (int)tTopo->tobIsDoubleSide( detid );
+	      strip_tob_is_z_plus_side     = (int)tTopo->tobIsZPlusSide( detid );
+	      strip_tob_is_z_minus_side    = (int)tTopo->tobIsZMinusSide( detid );
+	      strip_tob_layer_number       = (int)tTopo->tobLayer( detid );
+	      strip_tob_rod_number         = (int)tTopo->tobRod( detid );
+	      strip_tob_module_number      = (int)tTopo->tobModule( detid );
+	      
+	      
+	      strip_tob_is_rphi            = (int)tTopo->tobIsRPhi( detid );
+	      strip_tob_is_stereo          = (int)tTopo->tobIsStereo( detid );
 	          
 	    }
 	 
@@ -1073,7 +1078,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  
 	  all_subdetid = (int)detId.subdetId();
 	  // only consider rechits in pixel barrel and pixel forward 
-	  if ( !(all_subdetid==1 || all_subdetid==2) ) 
+	  if ( !(all_subdetid==1 || all_subdetid==2) )
 	    {
 	      cout << "SiPixelErrorEstimation::analyze: Not in a pixel detector !!!!!" << endl; 
 	      continue;
@@ -1135,10 +1140,10 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  
 	  if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel ) 
 	    {
-	      PXBDetId bdetid(detId);
-	      all_layer = bdetid.layer();
-	      all_ladder = bdetid.ladder();
-	      all_mod = bdetid.module();
+	      
+	      all_layer = tTopo->pxbLayer(detId);
+	      all_ladder = tTopo->pxbLadder(detId);
+	      all_mod = tTopo->pxbModule(detId);
 	      
 	      int tmp_nrows = theGeomDet->specificTopology().nrows();
 	      if ( tmp_nrows == 80 ) 
@@ -1158,12 +1163,12 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	    }
 	  else if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelEndcap )
 	    {
-	      PXFDetId fdetid(detId);
-	      all_side  = fdetid.side();
-	      all_disk  = fdetid.disk();
-	      all_blade = fdetid.blade();
-	      all_panel = fdetid.panel();
-	      all_plaq  = fdetid.module(); // also known as plaquette
+	      
+	      all_side  = tTopo->pxfSide(detId);
+	      all_disk  = tTopo->pxfDisk(detId);
+	      all_blade = tTopo->pxfBlade(detId);
+	      all_panel = tTopo->pxfPanel(detId);
+	      all_plaq  = tTopo->pxfModule(detId); // also known as plaquette
 	      
 	    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
 	  else std::cout << "We are not in the pixel detector" << (int)detId.subdetId() << endl;
@@ -1609,19 +1614,19 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 			      else 
 				flipped = 0;
 			      
-			      PXBDetId  bdetid(detId);
-			      layer  = bdetid.layer();   // Layer: 1,2,3.
-			      ladder = bdetid.ladder();  // Ladder: 1-20, 32, 44. 
-			      mod   = bdetid.module();  // Mod: 1-8.
+			      
+			      layer  = tTopo->pxbLayer(detId);   // Layer: 1,2,3.
+			      ladder = tTopo->pxbLadder(detId);  // Ladder: 1-20, 32, 44. 
+			      mod   = tTopo->pxbModule(detId);  // Mod: 1-8.
 			    }			  
 			  else if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelEndcap )
 			    {
-			      PXFDetId fdetid(detId);
-			      side  = fdetid.side();
-			      disk  = fdetid.disk();
-			      blade = fdetid.blade();
-			      panel = fdetid.panel();
-			      plaq  = fdetid.module(); // also known as plaquette
+			      
+			      side  = tTopo->pxfSide(detId);
+			      disk  = tTopo->pxfDisk(detId);
+			      blade = tTopo->pxfBlade(detId);
+			      panel = tTopo->pxfPanel(detId);
+			      plaq  = tTopo->pxfModule(detId); // also known as plaquette
 			      
 			      float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
 			      float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();

@@ -18,6 +18,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
+class TrackerTopology;
 /**
  * Produces a tag for the apvGain object starting from an already existing tag in the db. <br>
  * The input tag is used as starting point and all the values for missing apvs are filled with
@@ -40,7 +41,7 @@ class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer
 
  private:
   /// Given the map and the detid it returns the corresponding layer/ring
-  std::pair<int, int> subDetAndLayer(const uint32_t detit) const;
+  std::pair<int, int> subDetAndLayer(const uint32_t detit, const TrackerTopology* tTopo) const;
   /// Fills the parameters read from cfg and matching the name in the given map
   void fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const;
   /**

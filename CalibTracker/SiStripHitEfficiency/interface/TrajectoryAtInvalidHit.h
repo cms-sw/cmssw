@@ -16,10 +16,13 @@ class Topology;
 class TransientTrackingRecHit;
 class StripTopology;
 class PixelTopology;
+class TrackerTopology;
+
 class TrajectoryAtInvalidHit {
 public:
 
   TrajectoryAtInvalidHit( const TrajectoryMeasurement&, 
+			const TrackerTopology * tTopo, 
 			const TrackerGeometry * tracker, 
 			const Propagator& propagator,
 			const unsigned int mono = 0);
@@ -42,7 +45,7 @@ public:
   bool withinAcceptance() const;
   bool validHit() const;
 
-  bool isDoubleSided(unsigned int iidd) const;
+  bool isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const;
   TrajectoryStateOnSurface tsos() const;
 
 private:

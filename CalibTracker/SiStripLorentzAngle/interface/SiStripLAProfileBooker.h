@@ -25,6 +25,8 @@
 #include <TH1D.h>
 #include <TDirectory.h>
 
+class TrackerTopology;
+
 class SiStripLAProfileBooker : public edm::EDAnalyzer
 {
  public:
@@ -39,7 +41,7 @@ class SiStripLAProfileBooker : public edm::EDAnalyzer
   
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   
-  void getlayer(const DetId & detid, std::string &name,unsigned int &layerid);
+  void getlayer(const DetId & detid, const TrackerTopology* tTopo, std::string &name,unsigned int &layerid);
   
  private:
  
