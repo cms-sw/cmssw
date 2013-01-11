@@ -69,6 +69,7 @@ def getrunsInCurrentData(schema,minrun=132440,maxrun=500000):
         raise
     if tmpresult:return tmpresult.keys()
     return []
+
 def execCalc(connectStr,authpath,runnum):
     '''
     run lumiCalc2.py lumibyls for the run
@@ -82,7 +83,7 @@ def execCalc(connectStr,authpath,runnum):
         return 0
     print command
     return runnum
-    
+
 class lslumiParser(object):
     def __init__(self,lslumifilename,headerfilename):
         '''
@@ -136,10 +137,14 @@ class lslumiParser(object):
            avgpu=float(row[7])
            self.lumidata.append([fill,run,lumils,cmsls,chartime,beamstatus,beamenergy,delivered,recorded,avgpu])
         f.close()
-
+    
+def updateindb(session,datatag,normtag,lumidata,bulksize):
+    '''
+    '''
+    
 def addindb(session,datatag,normtag,lumidata,bulksize):
     '''
-    input : [fill,run,lumils,cmsls,lstime,beamstauts,beamenergy,delivered,recorded,avgpu]
+    input : [fill,run,lumils,cmsls,lstime,beamstatus,beamenergy,delivered,recorded,avgpu]
     '''
     hfresultDefDict=[('RUNNUM','unsigned int'),('LS','unsigned int'),('CMSLS','unsigned int'),('FILLNUM','unsigned int'),('TIME','time stamp'),('BEAM_STATUS','string'),('ENERGY','unsigned int'),('DELIVERED','float'),('RECORDED','float'),('AVG_PU','float'),('DATA_VERSION','string'),('NORM_VERSION','string'),('INSERT_TIME','time stamp')]
     
