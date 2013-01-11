@@ -74,6 +74,10 @@ streamA_datasetPAHighPt_selector.triggerConditions = cms.vstring('HLT_PADoubleEl
     'HLT_PAFullTrack20_v1', 
     'HLT_PAFullTrack30_v1', 
     'HLT_PAFullTrack50_v1', 
+    'HLT_PAHFSumET100_v1', 
+    'HLT_PAHFSumET140_v1', 
+    'HLT_PAHFSumET170_v1', 
+    'HLT_PAHFSumET210_v1', 
     'HLT_PAJet100_NoJetID_v1', 
     'HLT_PAJet120_NoJetID_v1', 
     'HLT_PAJet20_NoJetID_v1', 
@@ -124,6 +128,21 @@ streamA_datasetPAHighPt_selector.triggerConditions = cms.vstring('HLT_PADoubleEl
     'HLT_PATripleJet60_20_20_v1', 
     'HLT_PATripleJet80_20_20_v1')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPAMinBias1_selector
+streamA_datasetPAMinBias1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetPAMinBias1_selector.l1tResults = cms.InputTag('')
+streamA_datasetPAMinBias1_selector.throw      = cms.bool(False)
+streamA_datasetPAMinBias1_selector.triggerConditions = cms.vstring('HLT_PAL1Tech53_MB_SingleTrack_v1', 
+    'HLT_PAL1Tech53_MB_v1', 
+    'HLT_PARomanPots_Tech52_v1', 
+    'HLT_PAT1minbias_Tech55_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPAMinBias2_selector
+streamA_datasetPAMinBias2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetPAMinBias2_selector.l1tResults = cms.InputTag('')
+streamA_datasetPAMinBias2_selector.throw      = cms.bool(False)
+streamA_datasetPAMinBias2_selector.triggerConditions = cms.vstring('HLT_PAL1Tech54_ZeroBias_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPAMinBiasUPC_selector
 streamA_datasetPAMinBiasUPC_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetPAMinBiasUPC_selector.l1tResults = cms.InputTag('')
@@ -145,9 +164,6 @@ streamA_datasetPAMinBiasUPC_selector.triggerConditions = cms.vstring('HLT_PABptx
     'HLT_PAL1SingleJet16_v1', 
     'HLT_PAL1SingleJet36_v1', 
     'HLT_PAL1Tech47_CASTORHaloMuon_v1', 
-    'HLT_PAL1Tech53_MB_SingleTrack_v1', 
-    'HLT_PAL1Tech53_MB_v1', 
-    'HLT_PAL1Tech54_ZeroBias_v1', 
     'HLT_PAL1Tech_HBHEHO_totalOR_v1', 
     'HLT_PAMinBiasBHC_OR_v1', 
     'HLT_PAMinBiasBHC_v1', 
@@ -156,10 +172,8 @@ streamA_datasetPAMinBiasUPC_selector.triggerConditions = cms.vstring('HLT_PABptx
     'HLT_PAMinBiasHfOrBHC_v1', 
     'HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1', 
     'HLT_PARandom_v1', 
-    'HLT_PARomanPots_Tech52_v1', 
     'HLT_PASingleForJet15_v1', 
     'HLT_PASingleForJet25_v1', 
-    'HLT_PAT1minbias_Tech55_v1', 
     'HLT_PAUpcSingleEG5Full_TrackVeto7_v1', 
     'HLT_PAUpcSingleEG5Pixel_TrackVeto_v1', 
     'HLT_PAUpcSingleMuOpenFull_TrackVeto7_v1', 
