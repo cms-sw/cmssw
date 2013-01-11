@@ -24,7 +24,8 @@ SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::Pa
   fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   Cluster_src_(iConfig.getParameter<edm::InputTag>( "Cluster_src" )),
   Track_src_(iConfig.getUntrackedParameter<edm::InputTag>( "Track_src" )),
-  tracksCollection_in_EventTree(iConfig.getUntrackedParameter<bool>("RemoveTrackClusters",false))
+  tracksCollection_in_EventTree(iConfig.getUntrackedParameter<bool>("RemoveTrackClusters",false)),
+  tTopo(nullptr)
 {
   reader = new SiStripDetInfoFileReader(fp_.fullPath());  
 
@@ -48,7 +49,7 @@ SiStripBadStrip* SiStripQualityHotStripIdentifier::getNewObject(){
     
     edm::LogInfo("SiStripQualityHotStripIdentifier") <<" [SiStripQualityHotStripIdentifier::getNewObject] call to SiStripHotStripAlgorithmFromClusterOccupancy"<<std::endl;
 
-    SiStripHotStripAlgorithmFromClusterOccupancy theIdentifier(conf_);
+    SiStripHotStripAlgorithmFromClusterOccupancy theIdentifier(conf_, tTopo);
     theIdentifier.setProbabilityThreshold(parameters.getUntrackedParameter<double>("ProbabilityThreshold",1.E-7));
     theIdentifier.setMinNumEntries(parameters.getUntrackedParameter<uint32_t>("MinNumEntries",100));
     theIdentifier.setMinNumEntriesPerStrip(parameters.getUntrackedParameter<uint32_t>("MinNumEntriesPerStrip",5));
@@ -82,6 +83,11 @@ SiStripBadStrip* SiStripQualityHotStripIdentifier::getNewObject(){
 }
 
 void SiStripQualityHotStripIdentifier::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
+ 
   resetHistos(); 
   unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
 

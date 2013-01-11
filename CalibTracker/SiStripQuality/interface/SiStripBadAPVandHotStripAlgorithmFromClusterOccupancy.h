@@ -13,7 +13,7 @@
 //
 // Original Author:  Gordon KAUSSEN
 //         Created:  Wed Jan 28 09:11:10 CEST 2009
-// $Id: SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h,v 1.1 2010/09/14 12:23:35 kaussen Exp $
+// $Id: SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy.h,v 1.2 2011/02/14 18:19:38 kaussen Exp $
 //
 //
 
@@ -40,13 +40,14 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 class SiStripQuality;
+class TrackerTopology;
 
 class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy{
 
 public:
   typedef SiStrip::QualityHistosMap HistoMap;  
   
-  SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet&);
+  SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet&, const TrackerTopology*);
 
   virtual ~SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy();
 
@@ -108,6 +109,7 @@ public:
   bool WriteDQMHistograms_;
   bool UseInputDB_;
   const TrackerGeometry* TkGeom;
+  const TrackerTopology* tTopo;
 
   SiStripQuality *pQuality;
 

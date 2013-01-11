@@ -13,7 +13,7 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.8 2009/06/22 13:39:47 kaussen Exp $
+// $Id: SiStripHotStripAlgorithmFromClusterOccupancy.h,v 1.9 2010/11/04 14:12:13 muzaffar Exp $
 //
 //
 
@@ -32,10 +32,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -52,6 +48,7 @@
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 class SiStripQuality;
+class TrackerTopology;
 
 class SiStripHotStripAlgorithmFromClusterOccupancy{
 
@@ -59,7 +56,7 @@ public:
   typedef SiStrip::QualityHistosMap HistoMap;  
   
 
-  SiStripHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet&);
+  SiStripHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet&, const TrackerTopology*);
 
   virtual ~SiStripHotStripAlgorithmFromClusterOccupancy();
 
@@ -100,6 +97,7 @@ public:
   std::string OutFileName_;
   bool WriteOutputFile_;
   const TrackerGeometry* TkGeom;
+  const TrackerTopology* tTopo;
 
   SiStripQuality *pQuality;
 

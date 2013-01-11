@@ -13,7 +13,7 @@
 //
 // Original Author:  Gordon KAUSSEN
 //         Created:  Wed Jan 28 09:11:10 CEST 2009
-// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.5 2010/02/19 11:18:19 kaussen Exp $
+// $Id: SiStripBadAPVAlgorithmFromClusterOccupancy.h,v 1.6 2010/04/26 12:20:05 kaussen Exp $
 //
 //
 
@@ -37,13 +37,14 @@
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
 class SiStripQuality;
+class TrackerTopology;
 
 class SiStripBadAPVAlgorithmFromClusterOccupancy{
 
 public:
   typedef SiStrip::QualityHistosMap HistoMap;  
   
-  SiStripBadAPVAlgorithmFromClusterOccupancy(const edm::ParameterSet&);
+  SiStripBadAPVAlgorithmFromClusterOccupancy(const edm::ParameterSet&, const TrackerTopology*);
 
   virtual ~SiStripBadAPVAlgorithmFromClusterOccupancy();
 
@@ -92,6 +93,7 @@ public:
   bool WriteOutputFile_;
   bool UseInputDB_;
   const TrackerGeometry* TkGeom;
+  const TrackerTopology* tTopo;
 
   SiStripQuality *pQuality;
 

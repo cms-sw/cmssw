@@ -13,17 +13,15 @@
 //
 // Original Author:  Domenico GIORDANO
 //         Created:  Wed Oct  3 12:11:10 CEST 2007
-// $Id: SiStripQualityStatistics.cc,v 1.14 2009/06/25 09:05:50 giordano Exp $
+// $Id: SiStripQualityStatistics.cc,v 1.15 2009/11/30 11:23:27 giordano Exp $
 //
 //
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
 #include "CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <iostream>
 #include <iomanip>
@@ -64,6 +62,10 @@ void SiStripQualityStatistics::endJob(){
 }
 
 void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSetup& iSetup){
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   unsigned long long cacheID = iSetup.get<SiStripQualityRcd>().cacheIdentifier();
 
@@ -129,7 +131,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       //TIB
       //&&&&&&&&&&&&&&&&&
       
-      component=TIBDetId(BC[i].detid).layer();
+      component=tTopo->tibLayer(BC[i].detid);
       SetBadComponents(0, component, BC[i]);         
 
     } else if ( a.subdetId() == SiStripDetId::TID ) {
@@ -137,7 +139,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       //TID
       //&&&&&&&&&&&&&&&&&
 
-      component=TIDDetId(BC[i].detid).side()==2?TIDDetId(BC[i].detid).wheel():TIDDetId(BC[i].detid).wheel()+3;
+      component=tTopo->tidSide(BC[i].detid)==2?tTopo->tidWheel(BC[i].detid):tTopo->tidWheel(BC[i].detid)+3;
       SetBadComponents(1, component, BC[i]);         
 
     } else if ( a.subdetId() == SiStripDetId::TOB ) {
@@ -145,7 +147,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       //TOB
       //&&&&&&&&&&&&&&&&&
 
-      component=TOBDetId(BC[i].detid).layer();
+      component=tTopo->tobLayer(BC[i].detid);
       SetBadComponents(2, component, BC[i]);         
 
     } else if ( a.subdetId() == SiStripDetId::TEC ) {
@@ -153,7 +155,7 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
       //TEC
       //&&&&&&&&&&&&&&&&&
 
-      component=TECDetId(BC[i].detid).side()==2?TECDetId(BC[i].detid).wheel():TECDetId(BC[i].detid).wheel()+9;
+      component=tTopo->tecSide(BC[i].detid)==2?tTopo->tecWheel(BC[i].detid):tTopo->tecWheel(BC[i].detid)+9;
       SetBadComponents(3, component, BC[i]);         
 
     }    
@@ -174,16 +176,16 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
     SiStripDetId a(detid);
     if ( a.subdetId() == 3 ){
       subdet=0;
-      component=TIBDetId(detid).layer();
+      component=tTopo->tibLayer(detid);
     } else if ( a.subdetId() == 4 ) {
       subdet=1;
-      component=TIDDetId(detid).side()==2?TIDDetId(detid).wheel():TIDDetId(detid).wheel()+3;
+      component=tTopo->tidSide(detid)==2?tTopo->tidWheel(detid):tTopo->tidWheel(detid)+3;
     } else if ( a.subdetId() == 5 ) {
       subdet=2;
-      component=TOBDetId(detid).layer();
+      component=tTopo->tobLayer(detid);
     } else if ( a.subdetId() == 6 ) {
       subdet=3;
-      component=TECDetId(detid).side()==2?TECDetId(detid).wheel():TECDetId(detid).wheel()+9;
+      component=tTopo->tecSide(detid)==2?tTopo->tecWheel(detid):tTopo->tecWheel(detid)+9;
     } 
 
     SiStripQuality::Range sqrange = SiStripQuality::Range( SiStripQuality_->getDataVectorBegin()+rp->ibegin , SiStripQuality_->getDataVectorBegin()+rp->iend );
