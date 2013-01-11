@@ -1,15 +1,20 @@
 #include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
 
 
-SiStripHotStripAlgorithmFromClusterOccupancy::SiStripHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet& iConfig):
+SiStripHotStripAlgorithmFromClusterOccupancy::SiStripHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet& iConfig, const TrackerTopology* theTopo):
     prob_(1.E-7),
     MinNumEntries_(0),
     MinNumEntriesPerStrip_(0),
     Nevents_(0),
     occupancy_(0),
     OutFileName_("Occupancy.root"),
+    tTopo(theTopo),
     UseInputDB_(iConfig.getUntrackedParameter<bool>("UseInputDB",false))
   {  
     minNevents_=Nevents_*occupancy_;
@@ -83,50 +88,50 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
     switch (detectorId.subdetId())
       {
       case StripSubdetector::TIB :
-	layer_ring = TIBDetId(detrawid).layer();
+	layer_ring = tTopo->tibLayer(detrawid);
 	disc       = -1;
 	isback     = -1;
-	if (TIBDetId(detrawid).isExternalString()) isexternalstring = 1;
+	if (tTopo->tibIsExternalString(detrawid)) isexternalstring = 1;
 	else                                       isexternalstring = 0;
-	if (TIBDetId(detrawid).isZMinusSide()) iszminusside = 1;
+	if (tTopo->tibIsZMinusSide(detrawid)) iszminusside = 1;
 	else                                   iszminusside = 0;
-	rodstringpetal  = TIBDetId(detrawid).stringNumber();
-	module_position = TIBDetId(detrawid).moduleNumber();
+	rodstringpetal  = tTopo->tibString(detrawid);
+	module_position = tTopo->tibModule(detrawid);
 	break;
 
       case StripSubdetector::TID :
-	layer_ring = TIDDetId(detrawid).ring();
-	disc       = TIDDetId(detrawid).wheel();
-	if (TIDDetId(detrawid).isBackRing()) isback = 1;
+	layer_ring = tTopo->tidRing(detrawid);
+	disc       = tTopo->tidWheel(detrawid);
+	if (tTopo->tidIsBackRing(detrawid)) isback = 1;
 	else                                 isback = 0;
-	if (TIDDetId(detrawid).isZMinusSide()) iszminusside = 1;
+	if (tTopo->tidIsZMinusSide(detrawid)) iszminusside = 1;
 	else                                   iszminusside = 0;
 	isexternalstring = -1;
 	rodstringpetal   = -1;
-	module_position  = TIDDetId(detrawid).moduleNumber();
+	module_position  = tTopo->tidModule(detrawid);
 	break;
 
       case StripSubdetector::TOB :
-	layer_ring = TOBDetId(detrawid).layer();
+	layer_ring = tTopo->tobLayer(detrawid);
 	disc       = -1;
 	isback     = -1;
-	if (TOBDetId(detrawid).isZMinusSide()) iszminusside = 1;
+	if (tTopo->tobIsZMinusSide(detrawid)) iszminusside = 1;
 	else                                   iszminusside = 0;
 	isexternalstring = -1;
-	rodstringpetal   = TOBDetId(detrawid).rodNumber();
-	module_position  = TOBDetId(detrawid).moduleNumber();
+	rodstringpetal   = tTopo->tobRod(detrawid);
+	module_position  = tTopo->tobModule(detrawid);
 	break;
 
       case StripSubdetector::TEC :
-	layer_ring = TECDetId(detrawid).ring();
-	disc       = TECDetId(detrawid).wheel();
-	if (TECDetId(detrawid).isBackPetal()) isback = 1;
+	layer_ring = tTopo->tecRing(detrawid);
+	disc       = tTopo->tecWheel(detrawid);
+	if (tTopo->tecIsBackPetal(detrawid)) isback = 1;
 	else                                  isback = 0;
-	if (TECDetId(detrawid).isZMinusSide()) iszminusside = 1;
+	if (tTopo->tecIsZMinusSide(detrawid)) iszminusside = 1;
 	else                                   iszminusside = 0;
 	isexternalstring = -1;
-	rodstringpetal   = TECDetId(detrawid).petalNumber();
-	module_position  = TECDetId(detrawid).moduleNumber();
+	rodstringpetal   = tTopo->tecPetalNumber(detrawid);
+	module_position  = tTopo->tecModule(detrawid);
 	break;
 
       default :
