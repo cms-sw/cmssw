@@ -1,5 +1,5 @@
 
-// $Id: MixBoostEvtVtxGenerator.cc,v 1.3 2012/05/26 23:40:25 lixu Exp $
+// $Id: MixBoostEvtVtxGenerator.cc,v 1.1 2012/06/08 22:19:37 yilmaz Exp $
 /*
 ________________________________________________________________________
 
@@ -115,6 +115,7 @@ private:
   edm::InputTag            hiLabel;
   bool                     useRecVertex;
   std::vector<double>      vtxOffset;
+  bool verbosity_;
 
 };
 
@@ -123,6 +124,7 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
   fVertex(0), boost_(0), fTimeOffset(0), fEngine(0),
   signalLabel(pset.getParameter<edm::InputTag>("signalLabel")),
   hiLabel(pset.getParameter<edm::InputTag>("heavyIonLabel")),
+  verbosity_(pset.getUntrackedParameter<bool>("verbosity",false)),
   useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
 { 
 
@@ -258,12 +260,10 @@ TMatrixD* MixBoostEvtVtxGenerator::GetInvLorentzBoost() {
        tmpboostZ(3,3) = 1.;
 
        tmpboostXYZ=tmpboost*tmpboostZ;
-       tmpboost.Invert();
-
-
+       tmpboostXYZ.Invert();
 
        boost_ = new TMatrixD(tmpboostXYZ);
-       boost_->Print();
+       if ( verbosity_ )boost_->Print();
 	
 	return boost_;
 }
