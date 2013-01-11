@@ -12,6 +12,7 @@
 #include "StaticLocalChecker.h"
 #include "MutableMemberChecker.h"
 #include "ClassChecker.h"
+#include "FiniteMathChecker.h"
 
 
 #include <clang/StaticAnalyzer/Core/CheckerRegistry.h>
@@ -28,6 +29,7 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::MutableMemberChecker>( "threadsafety.MutableMember", "Checks for members with the mutable keyword which might not be thread-safe" );
 	registry.addChecker< clangcms::GlobalStaticChecker>( "threadsafety.GlobalStatic", "Checks for global non-const statics which might not be thread-safe" );
 	registry.addChecker< clangcms::ClassCheckerRDecl>( "threadsafety.Class", "Reports classes " );
+	registry.addChecker< clangcms::FiniteMathChecker>( "fastmath.NonFiniteMath", "Reports usage of isnan and isinf." );
 }
 
 extern "C"
