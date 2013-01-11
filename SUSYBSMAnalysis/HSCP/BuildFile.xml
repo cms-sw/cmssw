@@ -38,4 +38,5 @@
 <use   name="Geometry/EcalMapping"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="CommonTools/UtilAlgos"/>
+<use   name="PhysicsTools/PatAlgos"/>
 <flags   EDM_PLUGIN="1"/>
