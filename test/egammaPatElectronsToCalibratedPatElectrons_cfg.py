@@ -52,7 +52,8 @@ process.calibratedPatElectrons.isMC = cms.bool(True)
 process.calibratedPatElectrons.isAOD = cms.bool(True)
 process.calibratedPatElectrons.updateEnergyError = cms.bool(True)
 process.calibratedPatElectrons.applyCorrections = cms.int32(1)
-process.calibratedPatElectrons.debug = cms.bool(True)
+process.calibratedPatElectrons.verbose = cms.bool(True)
+process.calibratedPatElectrons.synchronization = cms.bool(False)
 
 
 process.p = cms.Path(process.calibratedPatElectrons)

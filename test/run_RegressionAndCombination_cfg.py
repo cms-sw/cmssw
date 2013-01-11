@@ -19,7 +19,7 @@ process.load("EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi")
 
 # dataset to correct
 process.calibratedPatElectrons.isMC = cms.bool(False)
-process.calibratedPatElectrons.inputDataset = cms.string("2012Jul13ReReco")
+process.calibratedPatElectrons.inputDataset = cms.string("Moriond2013")
 process.calibratedPatElectrons.updateEnergyError = cms.bool(True)
 process.calibratedPatElectrons.applyCorrections = cms.int32(10)
 process.calibratedPatElectrons.verbose = cms.bool(True)
