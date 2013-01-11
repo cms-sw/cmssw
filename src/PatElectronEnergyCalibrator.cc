@@ -152,7 +152,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
   if (!isMC_) {
 	  if (dataset_=="Moriond2013") {                     
       // values from https://twiki.cern.ch/twiki/bin/view/CMS/ECALELF	
-      if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) {
+      if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) {
         if (run>=190645 && run<=190781) scale = 1.0020; 
 	if (run>=190782 && run<=191042) scale = 1.0079;   
 	if (run>=191043 && run<=193555) scale = 0.9989;   
@@ -178,7 +178,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
 	if (run>=206598 && run<=206896) scale = 1.0061;   
 	if (run>=206897 && run<=207220) scale = 1.0063;   
 	if (run>=207221 && run<=208686) scale = 1.0064;   
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) {      
         if (run>=190645 && run<=190781) scale = 0.9980; 
 	if (run>=190782 && run<=191042) scale = 1.0039;   
 	if (run>=191043 && run<=193555) scale = 0.9949;   
@@ -205,7 +205,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
 	if (run>=206897 && run<=207220) scale = 1.0024;   
 	if (run>=207221 && run<=208686) scale = 1.0025;   
 
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) {      
         if (run>=190645 && run<=190781) scale = 1.0032; 
 	if (run>=190782 && run<=191042) scale = 1.0063;   
 	if (run>=191043 && run<=193555) scale = 0.9998;   
@@ -232,7 +232,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
 	if (run>=206897 && run<=207220) scale = 1.0033;   
 	if (run>=207221 && run<=208686) scale = 1.0036;   
 
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) {      
         if (run>=190645 && run<=190781) scale = 0.9919; 
 	if (run>=190782 && run<=191042) scale = 0.9951;   
 	if (run>=191043 && run<=193555) scale = 0.9885;   
@@ -259,7 +259,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
 	if (run>=206897 && run<=207220) scale = 0.9926;   
 	if (run>=207221 && run<=208686) scale = 0.9929;   
 
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) {
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) {
         if (run>=190645 && run<=190781) scale = 0.9945; 
 	if (run>=190782 && run<=191042) scale = 0.9996;   
 	if (run>=191043 && run<=193555) scale = 0.9968;   
@@ -286,7 +286,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
 	if (run>=206897 && run<=207220) scale = 0.9988;   
 	if (run>=207221 && run<=208686) scale = 1.0031;   
 
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) {      
         if (run>=190645 && run<=190781) scale = 0.9881; 
 	if (run>=190782 && run<=191042) scale = 0.9932;   
 	if (run>=191043 && run<=193555) scale = 0.9904;   
@@ -313,7 +313,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
 	if (run>=206897 && run<=207220) scale = 0.9909;   
 	if (run>=207221 && run<=208686) scale = 0.9953;   
 
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) {      
         if (run>=190645 && run<=190781) scale = 0.9965; 
 	if (run>=190782 && run<=191042) scale = 1.0010;   
 	if (run>=191043 && run<=193555) scale = 0.9987;   
@@ -340,7 +340,7 @@ void ElectronEnergyCalibrator::computeNewRegEnergy
 	if (run>=206897 && run<=207220) scale = 1.0185;   
 	if (run>=207221 && run<=208686) scale = 1.0195;   
 
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) {      
         if (run>=190645 && run<=190781) scale = 0.9862; 
 	if (run>=190782 && run<=191042) scale = 0.9907;   
 	if (run>=191043 && run<=193555) scale = 0.9884;   
@@ -480,144 +480,144 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	  if (r9<0.94) corr = +0.0250;
         }  
       } else if (run>=175860 && run<=177139) {                      // prompt-v1 corrections for 2011B [ 175860 - 177139 ]
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) corr = -0.0228;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) corr = -0.0118;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) corr = -0.0075;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) corr = -0.0034;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) corr = -0.0041;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) corr = +0.0019;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) corr = +0.0147;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) corr = +0.0168;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) corr = -0.0228;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) corr = -0.0118;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) corr = -0.0075;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) corr = -0.0034;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) corr = -0.0041;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) corr = +0.0019;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) corr = +0.0147;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) corr = +0.0168;
       } else if (run>=177140 && run<=178421) {                      // prompt-v1 corrections for 2011B [ 177140 - 178421 ]
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) corr = -0.0239;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) corr = -0.0129;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) corr = -0.0079;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) corr = -0.0038;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) corr = -0.0011;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) corr = +0.0049;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) corr = +0.0236;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) corr = +0.0257;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) corr = -0.0239;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) corr = -0.0129;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) corr = -0.0079;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) corr = -0.0038;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) corr = -0.0011;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) corr = +0.0049;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) corr = +0.0236;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) corr = +0.0257;
       } else if (run>=178424 && run<=180252) {                      // prompt-v1 corrections for 2011B [ 178424 - 180252 ]
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) corr = -0.0260;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) corr = -0.0150;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) corr = -0.0094;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) corr = -0.0052;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) corr = -0.0050;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) corr = +0.0009;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) corr = +0.0331;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) corr = +0.0353;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) corr = -0.0260;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) corr = -0.0150;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) corr = -0.0094;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) corr = -0.0052;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) corr = -0.0050;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) corr = +0.0009;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) corr = +0.0331;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) corr = +0.0353;
       } 
     // corrections for rereco  
     } else if (dataset_=="ReReco") {                     // corrections for ReReco
       // values from https://indico.cern.ch/conferenceDisplay.py?confId=146386
       if (run>=160329 && run <=168437) {                 // Jul05 period 160329-168437
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) corr = -0.0150;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) corr = -0.0039;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) corr = -0.0014;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) corr = +0.0028;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) corr = -0.0050;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) corr = +0.0010;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) corr = -0.0025;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) corr = -0.0005;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) corr = -0.0150;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) corr = -0.0039;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) corr = -0.0014;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) corr = +0.0028;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) corr = -0.0050;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) corr = +0.0010;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) corr = -0.0025;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) corr = -0.0005;
       } else if (run>=170053 && run <=172619) {          // Aug05 period 170053-172619
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) corr = -0.0191;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) corr = -0.0081;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) corr = -0.0030;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) corr = +0.0012;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) corr = +0.0052;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) corr = +0.0113;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) corr = +0.0041;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) corr = +0.0062;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) corr = -0.0191;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) corr = -0.0081;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) corr = -0.0030;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) corr = +0.0012;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) corr = +0.0052;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) corr = +0.0113;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) corr = +0.0041;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) corr = +0.0062;
       } else if (run>=172620 && run <=175770) {          // Oct03 period
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) corr = -0.0150;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) corr = -0.0039;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) corr = +0.0001;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) corr = +0.0043;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) corr = +0.0001;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) corr = +0.0062;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) corr = +0.0026;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) corr = +0.0048;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) corr = -0.0150;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) corr = -0.0039;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) corr = +0.0001;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) corr = +0.0043;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) corr = +0.0001;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) corr = +0.0062;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) corr = +0.0026;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) corr = +0.0048;
       } else if (run>=175860 && run<=177139) {                      // prompt-v1 corrections for 2011B [ 175860 - 177139 ]
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) corr = -0.0228;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) corr = -0.0118;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) corr = -0.0075;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) corr = -0.0034;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) corr = -0.0041;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) corr = +0.0019;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) corr = +0.0147;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) corr = +0.0168;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) corr = -0.0228;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) corr = -0.0118;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) corr = -0.0075;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) corr = -0.0034;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) corr = -0.0041;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) corr = +0.0019;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) corr = +0.0147;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) corr = +0.0168;
       } else if (run>=177140 && run<=178421) {                      // prompt-v1 corrections for 2011B [ 177140 - 178421 ]
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) corr = -0.0239;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) corr = -0.0129;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) corr = -0.0079;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) corr = -0.0038;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) corr = -0.0011;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) corr = +0.0049;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) corr = +0.0236;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) corr = +0.0257;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) corr = -0.0239;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) corr = -0.0129;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) corr = -0.0079;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) corr = -0.0038;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) corr = -0.0011;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) corr = +0.0049;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) corr = +0.0236;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) corr = +0.0257;
       } else if (run>=178424 && run<=180252) {                      // prompt-v1 corrections for 2011B [ 178424 - 180252 ]
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) corr = -0.0260;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) corr = -0.0150;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) corr = -0.0094;
-        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) corr = -0.0052;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) corr = -0.0050;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) corr = +0.0009;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) corr = +0.0331;
-        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) corr = +0.0353;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) corr = -0.0260;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) corr = -0.0150;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) corr = -0.0094;
+        if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) corr = -0.0052;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) corr = -0.0050;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) corr = +0.0009;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) corr = +0.0331;
+        if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) corr = +0.0353;
       } 
     // corrections for januray 16 rereco  
     } else if (dataset_=="Jan16ReReco") {                     // corrections for january 16 ReReco
       // values from http://indico.cern.ch/getFile.py/access?contribId=2&resId=0&materialId=slides&confId=176520
-      if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) {
+      if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) {
         if (run>=160431 && run<=167913) corr = -0.0014; 
 	if (run>=170000 && run<=172619) corr = -0.0016;   
 	if (run>=172620 && run<=173692) corr = -0.0017;  
 	if (run>=175830 && run<=177139) corr = -0.0021;
 	if (run>=177140 && run<=178421) corr = -0.0025;
 	if (run>=178424 && run<=180252) corr = -0.0024;
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) {      
         if (run>=160431 && run<=167913) corr = 0.0059; 
 	if (run>=170000 && run<=172619) corr = 0.0046;   
 	if (run>=172620 && run<=173692) corr = 0.0045;  
 	if (run>=175830 && run<=177139) corr = 0.0042;
 	if (run>=177140 && run<=178421) corr = 0.0038;
 	if (run>=178424 && run<=180252) corr = 0.0039;
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) {      
         if (run>=160431 && run<=167913) corr = -0.0045; 
 	if (run>=170000 && run<=172619) corr = -0.0066;   
 	if (run>=172620 && run<=173692) corr = -0.0058;  
 	if (run>=175830 && run<=177139) corr = -0.0073;
 	if (run>=177140 && run<=178421) corr = -0.0075;
 	if (run>=178424 && run<=180252) corr = -0.0071;
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) {      
         if (run>=160431 && run<=167913) corr = 0.0084; 
 	if (run>=170000 && run<=172619) corr = 0.0063;   
 	if (run>=172620 && run<=173692) corr = 0.0071;  
 	if (run>=175830 && run<=177139) corr = 0.0056;
 	if (run>=177140 && run<=178421) corr = 0.0054;
 	if (run>=178424 && run<=180252) corr = 0.0058;
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) {
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) {
         if (run>=160431 && run<=167913) corr = -0.0082; 
 	if (run>=170000 && run<=172619) corr = -0.0025;   
 	if (run>=172620 && run<=173692) corr = -0.0035;  
 	if (run>=175830 && run<=177139) corr = -0.0017;
 	if (run>=177140 && run<=178421) corr = -0.0010;
 	if (run>=178424 && run<=180252) corr = 0.0030;
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) {      
         if (run>=160431 && run<=167913) corr = -0.0033; 
 	if (run>=170000 && run<=172619) corr = 0.0024;   
 	if (run>=172620 && run<=173692) corr = 0.0014;  
 	if (run>=175830 && run<=177139) corr = 0.0032;
 	if (run>=177140 && run<=178421) corr = 0.0040;
 	if (run>=178424 && run<=180252) corr = 0.0079;
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) {      
         if (run>=160431 && run<=167913) corr = -0.0064; 
 	if (run>=170000 && run<=172619) corr = -0.0046;   
 	if (run>=172620 && run<=173692) corr = -0.0029;  
 	if (run>=175830 && run<=177139) corr = -0.0040;
 	if (run>=177140 && run<=178421) corr = -0.0050;
 	if (run>=178424 && run<=180252) corr = -0.0059;
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) {      
         if (run>=160431 && run<=167913) corr = 0.0042; 
 	if (run>=170000 && run<=172619) corr = 0.0060;   
 	if (run>=172620 && run<=173692) corr = 0.0077;  
@@ -628,7 +628,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
     // corrections for2012A and 2012B 
     } else if (dataset_=="ICHEP2012") {                     
       // values from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/873.html	
-      if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) {
+      if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) {
         if (run>=190450 && run<=190781) scale = 1.0021; 
 	if (run>=190782 && run<=190949) scale = 1.0154;   
 	if (run>=190950 && run<=191833) scale = 1.0046;   
@@ -639,7 +639,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=195148 && run<=195350) scale = 1.0053;   
 	if (run>=195396 && run<=195530) scale = 1.0042;   
 	if (run>=195531 && run<=196531) scale = 0.9981;   
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) {      
         if (run>=190450 && run<=190781) scale = 0.9962; 
 	if (run>=190782 && run<=190949) scale = 1.0096;   
 	if (run>=190950 && run<=191833) scale = 0.9988;   
@@ -650,7 +650,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=195148 && run<=195350) scale = 0.9995;   
 	if (run>=195396 && run<=195530) scale = 0.9984;   
 	if (run>=195531 && run<=196531) scale = 0.9922;   
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) {      
         if (run>=190450 && run<=190781) scale = 1.0133; 
 	if (run>=190782 && run<=190949) scale = 0.9997;   
 	if (run>=190950 && run<=191833) scale = 1.0134;   
@@ -661,7 +661,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=195148 && run<=195350) scale = 1.0142;   
 	if (run>=195396 && run<=195530) scale = 1.0129;   
 	if (run>=195531 && run<=196531) scale = 1.0065;   
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) {      
         if (run>=190450 && run<=190781) scale = 1.0020; 
 	if (run>=190782 && run<=190949) scale = 0.9883;   
 	if (run>=190950 && run<=191833) scale = 1.0021;   
@@ -672,7 +672,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=195148 && run<=195350) scale = 1.0029;   
 	if (run>=195396 && run<=195530) scale = 1.0016;   
 	if (run>=195531 && run<=196531) scale = 0.9951;   
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) {
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) {
         if (run>=190450 && run<=190781) scale = 0.9989; 
 	if (run>=190782 && run<=190949) scale = 1.0123;   
 	if (run>=190950 && run<=191833) scale = 1.0042;   
@@ -683,7 +683,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=195148 && run<=195350) scale = 1.0051;   
 	if (run>=195396 && run<=195530) scale = 1.0003;   
 	if (run>=195531 && run<=196531) scale = 1.0052;   
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) {      
         if (run>=190450 && run<=190781) scale = 0.9931; 
 	if (run>=190782 && run<=190949) scale = 1.0066;   
 	if (run>=190950 && run<=191833) scale = 0.9985;   
@@ -694,7 +694,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=195148 && run<=195350) scale = 0.9994;   
 	if (run>=195396 && run<=195530) scale = 0.9945;   
 	if (run>=195531 && run<=196531) scale = 0.9994;   
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) {      
         if (run>=190450 && run<=190781) scale = 1.0052; 
 	if (run>=190782 && run<=190949) scale = 1.0077;   
 	if (run>=190950 && run<=191833) scale = 0.9900;   
@@ -705,7 +705,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=195148 && run<=195350) scale = 1.0133;   
 	if (run>=195396 && run<=195530) scale = 0.9999;   
 	if (run>=195531 && run<=196531) scale = 1.0475;   
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) {      
         if (run>=190450 && run<=190781) scale = 0.9899; 
 	if (run>=190782 && run<=190949) scale = 0.9924;   
 	if (run>=190950 && run<=191833) scale = 0.9745;   
@@ -719,7 +719,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
       } 
     }else if (dataset_=="Moriond2013") {                     
       // values from https://twiki.cern.ch/twiki/bin/view/CMS/ECALELF	
-      if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9<0.94) {
+      if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9<0.94) {
         if (run>=190645 && run<=190781) scale = 1.0057; 
 	if (run>=190782 && run<=191042) scale = 1.0115;   
 	if (run>=191043 && run<=193555) scale = 1.0029;   
@@ -736,7 +736,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=200532 && run<=201656) scale = 1.0045;   
 	if (run>=201657 && run<=202304) scale = 1.0053;   
 	if (run>=202305 && run<=203002) scale = 1.0065;   
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())<1 and r9>=0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())<1 && r9>=0.94) {      
         if (run>=190645 && run<=190781) scale = 1.0042; 
 	if (run>=190782 && run<=191042) scale = 1.0099;   
 	if (run>=191043 && run<=193555) scale = 1.0014;   
@@ -753,7 +753,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=200532 && run<=201656) scale = 1.0030;   
 	if (run>=201657 && run<=202304) scale = 1.0038;   
 	if (run>=202305 && run<=203002) scale = 1.0050;   
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9<0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9<0.94) {      
         if (run>=190645 && run<=190781) scale = 1.0048; 
 	if (run>=190782 && run<=191042) scale = 1.0070;   
 	if (run>=191043 && run<=193555) scale = 1.0017;   
@@ -770,7 +770,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=200532 && run<=201656) scale = 1.0002;   
 	if (run>=201657 && run<=202304) scale = 1.0002;   
 	if (run>=202305 && run<=203002) scale = 1.0010;   
-      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 and r9>=0.94) {      
+      } else if (electron.isEB() && fabs(electron.superCluster()->eta())>=1 && r9>=0.94) {      
         if (run>=190645 && run<=190781) scale = 0.9953; 
 	if (run>=190782 && run<=191042) scale = 0.9975;   
 	if (run>=191043 && run<=193555) scale = 0.9921;   
@@ -787,7 +787,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=200532 && run<=201656) scale = 0.9906;   
 	if (run>=201657 && run<=202304) scale = 0.9906;   
 	if (run>=202305 && run<=203002) scale = 0.9914;   
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9<0.94) {
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9<0.94) {
         if (run>=190645 && run<=190781) scale = 0.9953; 
 	if (run>=190782 && run<=191042) scale = 1.0006;   
 	if (run>=191043 && run<=193555) scale = 0.9999;   
@@ -804,7 +804,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=200532 && run<=201656) scale = 0.9978;   
 	if (run>=201657 && run<=202304) scale = 0.9984;   
 	if (run>=202305 && run<=203002) scale = 1.0003;   
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 and r9>=0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())<2 && r9>=0.94) {      
         if (run>=190645 && run<=190781) scale = 0.9878; 
 	if (run>=190782 && run<=191042) scale = 0.9931;   
 	if (run>=191043 && run<=193555) scale = 0.9924;   
@@ -821,7 +821,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=200532 && run<=201656) scale = 0.9903;   
 	if (run>=201657 && run<=202304) scale = 0.9910;   
 	if (run>=202305 && run<=203002) scale = 0.9928;   
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9<0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9<0.94) {      
         if (run>=190645 && run<=190781) scale = 1.0032; 
 	if (run>=190782 && run<=191042) scale = 1.0085;   
 	if (run>=191043 && run<=193555) scale = 1.0074;   
@@ -838,7 +838,7 @@ void ElectronEnergyCalibrator::computeNewEnergy
 	if (run>=200532 && run<=201656) scale = 1.0138;   
 	if (run>=201657 && run<=202304) scale = 1.0182;   
 	if (run>=202305 && run<=203002) scale = 1.0210;   
-      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 and r9>=0.94) {      
+      } else if (electron.isEE() && fabs(electron.superCluster()->eta())>=2 && r9>=0.94) {      
         if (run>=190645 && run<=190781) scale = 0.9897; 
 	if (run>=190782 && run<=191042) scale = 0.9951;   
 	if (run>=191043 && run<=193555) scale = 0.9939;   
