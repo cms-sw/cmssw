@@ -14,7 +14,7 @@
 
 class MultipleScatteringUpdator GCC11_FINAL : public MaterialEffectsUpdator 
 {
-  virtual MultipleScatteringUpdator* clone() const {
+  virtual dso_export MultipleScatteringUpdator* clone() const {
     return new MultipleScatteringUpdator(*this);
   }
 
