@@ -180,7 +180,7 @@ HLTriggerFirstPath
 HLTriggerFinalPath                                 # sr 131577
 HLTAnalyzerEndpath                                 # only in 'PIon', not in 'online'
 AOutput                                            # sr 131577
-BOutput                                            # sr 131577
+#BOutput                                            # sr 131577
 ALCAP0Output                                       # sr 131577
 ALCAPHISYMOutput                                   # sr 131577
 ALCALUMIPIXELSOutput                               # sr 131577
