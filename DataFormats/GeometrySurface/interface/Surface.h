@@ -56,6 +56,7 @@ public:
   virtual ~Surface(){}
 
 protected:
+  Surface(){}
   Surface( const PositionType& pos, const RotationType& rot) :
     Base( pos, rot) {}
  

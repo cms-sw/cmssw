@@ -33,6 +33,7 @@ public:
     return 999.9978;
   }
 
+  GloballyPositioned(){}
   GloballyPositioned( const PositionType& pos, const RotationType& rot) :
     thePos(pos), theRot(rot) {resetCache();}
 
