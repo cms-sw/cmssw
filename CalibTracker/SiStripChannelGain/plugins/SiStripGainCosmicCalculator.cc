@@ -3,7 +3,7 @@
 // Class:      SiStripGainCosmicCalculator
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
-// $Id: SiStripGainCosmicCalculator.cc,v 1.11 2010/10/03 08:31:48 elmer Exp $
+// $Id: SiStripGainCosmicCalculator.cc,v 1.12 2010/11/09 10:09:34 querten Exp $
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -29,10 +29,8 @@
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 //#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 
@@ -59,6 +57,7 @@ SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(const edm::ParameterSet
   }
 
   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
+  tTopo = nullptr;
 }
 
 
@@ -71,6 +70,11 @@ void SiStripGainCosmicCalculator::algoEndJob(){
 
 void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
 {
+   //Retrieve tracker topology from geometry
+   edm::ESHandle<TrackerTopology> tTopoHandle;
+   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+   tTopo = tTopoHandle.product();
+ 
    eventSetupCopy_ = &iSetup;
    std::cout<<"SiStripGainCosmicCalculator::algoBeginJob called"<<std::endl;
    total_nr_of_events = 0;
@@ -349,17 +353,17 @@ TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairCont
        unsigned int generalized_layer = 0;
        // calculate generalized_layer:  31,32 = TIB1, 33 = TIB2, 33 = TIB3, 51 = TOB1, 52 = TOB2, 60 = TEC
        if(thedetId.subdetId()==StripSubdetector::TIB){
-          TIBDetId ptib = TIBDetId(thedetId.rawId());
-          generalized_layer = 10*thedetId.subdetId() + ptib.layer() + ptib.stereo();
-  	  if(ptib.layer()==2){
+          
+          generalized_layer = 10*thedetId.subdetId() + tTopo->tibLayer(thedetId.rawId()) + tTopo->tibStereo(thedetId.rawId());
+  	  if(tTopo->tibLayer(thedetId.rawId())==2){
   	    generalized_layer++;
-  	    if (ptib.glued()) edm::LogError("ClusterMTCCFilter")<<"WRONGGGG"<<std::endl;
+  	    if (tTopo->tibGlued(thedetId.rawId())) edm::LogError("ClusterMTCCFilter")<<"WRONGGGG"<<std::endl;
   	  }
         }else{
           generalized_layer = 10*thedetId.subdetId();
   	  if(thedetId.subdetId()==StripSubdetector::TOB){
-  	    TOBDetId ptob = TOBDetId(thedetId.rawId());
-  	    generalized_layer += ptob.layer();
+  	    
+  	    generalized_layer += tTopo->tobLayer(thedetId.rawId());
   	  }
         }
        if(generalized_layer==31){

@@ -9,7 +9,7 @@
 */
 // Original Author:  Dorian Kcira, Pierre Rodeghiero
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripGainCosmicCalculator.h,v 1.1 2007/07/09 11:13:08 gbruno Exp $
+// $Id: SiStripGainCosmicCalculator.h,v 1.2 2007/09/13 20:02:52 dkcira Exp $
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include <vector>
@@ -20,6 +20,8 @@
 #include "TString.h"
 #include <fstream>
 #include <sstream>
+
+class TrackerTopology;
 
 class SiStripGainCosmicCalculator : public ConditionDBWriter<SiStripApvGain> {
 public:
@@ -51,5 +53,6 @@ private:
   bool outputHistogramsInRootFile;
   TString outputFileName ;
   bool printdebug_;
+  const TrackerTopology* tTopo;
 };
 #endif
