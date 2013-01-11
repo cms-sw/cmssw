@@ -62,10 +62,26 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   }
 
   // Digi threshold and time slices to use for HBHE and HF calibration digis
-  calibdigiHBHEthreshold_   = iConfig.getParameter<double>("calibdigiHBHEthreshold");
-  calibdigiHBHEtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHBHEtimeslices");
-  calibdigiHFthreshold_   = iConfig.getParameter<double>("calibdigiHFthreshold");
-  calibdigiHFtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHFtimeslices");
+  useCalibDigi_ = true;
+  if(iConfig.existsAs<double>("calibdigiHBHEthreshold") == false)               useCalibDigi_ = false;
+  if(iConfig.existsAs<double>("calibdigiHFthreshold") == false)                 useCalibDigi_ = false;
+  if(iConfig.existsAs<std::vector<int> >("calibdigiHBHEtimeslices") == false)   useCalibDigi_ = false;
+  if(iConfig.existsAs<std::vector<int> >("calibdigiHFtimeslices") == false)     useCalibDigi_ = false;
+
+  if(useCalibDigi_ == true)
+  {
+    calibdigiHBHEthreshold_   = iConfig.getParameter<double>("calibdigiHBHEthreshold");
+    calibdigiHBHEtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHBHEtimeslices");
+    calibdigiHFthreshold_   = iConfig.getParameter<double>("calibdigiHFthreshold");
+    calibdigiHFtimeslices_  = iConfig.getParameter<std::vector<int> >("calibdigiHFtimeslices");
+  }
+  else
+  {
+     calibdigiHBHEthreshold_ = 0;
+     calibdigiHBHEtimeslices_ = std::vector<int>();
+     calibdigiHFthreshold_ = 0;
+     calibdigiHFtimeslices_ = std::vector<int>();
+  }
 
   TS4TS5EnergyThreshold_ = iConfig.getParameter<double>("TS4TS5EnergyThreshold");
 
@@ -135,7 +151,7 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   if(fillDigis_)      filldigis(iEvent, iSetup, rbxarray, summary);
   if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
   if(fillTracks_)     filltracks(iEvent, iSetup, summary);
-
+  
   // Why is this here?  Shouldn't it have been in the filldigis method? Any reason for TotalCalibCharge to be defined outside filldigis(...) ?-- Jeff, 7/2/12
   //if(fillDigis_)      summary.calibCharge_ = TotalCalibCharge;
 
@@ -179,11 +195,11 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // add the RBX to the event
     result1->push_back(rbx);
   }
-
+  
   // put the rbxcollection and summary into the EDM
   iEvent.put(result1);
   iEvent.put(result2);
-
+  
   return;
 }
 
@@ -450,7 +466,6 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 	if ( myid.calibFlavor()==HcalCalibDetId::HOCrosstalk)
 	  continue; // ignore HOCrosstalk channels
 	if(digi->zsMarkAndPass()) continue;  // skip "mark-and-pass" channels when computing charge in calib channels
-
 
 
 	if (digi->id().hcalSubdet()==HcalForward) // check HF

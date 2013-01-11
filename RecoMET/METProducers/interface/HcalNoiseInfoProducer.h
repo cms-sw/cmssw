@@ -95,6 +95,8 @@ namespace reco {
     double minRecHitE_, minLowHitE_, minHighHitE_; // parameters used to determine noise status
     HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
 
+    bool useCalibDigi_;
+
     // Variables to store info regarding HBHE calibration digis
     double calibdigiHBHEthreshold_;  // minimum charge calib digi in order to be counted by noise algorithm
     std::vector<int> calibdigiHBHEtimeslices_; // time slices to use when computing calibration charge
