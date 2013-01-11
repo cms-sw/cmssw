@@ -6,7 +6,7 @@ compare lumibyls result file of a run with corresponding result in HFLUMIRESULT 
 4)difference in delivered
 5)difference in recorded
 '''
-import csv,coral
+import csv,coral,glob
 from RecoLuminosity.LumiDB import sessionManager
 def parselumibylsfile(runnum,lumifilename):
     '''
@@ -32,7 +32,7 @@ def parselumibylsfile(runnum,lumifilename):
             continue
         [lumils,cmsls]=map(lambda i:int(i),row[1].split(':'))
         beamstatus=row[3]
-        beamenergy=float(row[4])
+        beamenergy=int(round(float(row[4])))
         delivered=float(row[5])
         recorded=float(row[6])
         result.append([lumils,cmsls,beamstatus,beamenergy,delivered,recorded])
@@ -92,28 +92,34 @@ def isdifferent(resultlist,resultmap):
         [lumilsa,cmslsa,beamstatusa,beamenergya,delivereda,recordeda]=perlumidata
         if not resultmap.has_key(lumilsa): return False
         [cmslsb,beamstatusb,beamenergyb,deliveredb,recordedb]=resultmap[lumilsa]
-        if cmslsa!=cmslsb: return False
-        if beamstatusa!=beamstatusb: return False
-        if beamenergya!=beamenergyb: return False
-        if delivereda!=deliveredb:
-            print delivereda,deliveredb
-            return False
-        if recordeda!=recordedb:
-            print recordeda,recordedb
-            return False
-        return True
+        if cmslsa!=cmslsb:
+            print '[DEBUG] diff in number of ls ',cmslsa,cmslsb
+            return True
+        if beamstatusa!=beamstatusb:
+            print '[DEBUG] diff in beamstatus ',beamstatusa,beamstatusb
+            return True
+        if beamenergya!=beamenergyb:
+            print '[DEBUG] diff in beamenergy ',beamenergya,beamenergyb
+            return True
+        if abs(delivereda-deliveredb)>0.009:
+            print '[DEBUG] diff in recorded ',delivereda,deliveredb
+            return True
+        if abs(recordeda-recordedb)>0.009:
+            print '[DEBUG] diff in recorded ',recordeda,recordedb
+            return True
+        return False
 if __name__ == "__main__" :
+    allcsvfiles=glob.glob('??????.csv')
     sourcestr='oracle://cms_orcon_prod/cms_lumi_prod'
     pth='/nfshome0/xiezhen'
     sourcesvc=sessionManager.sessionManager(sourcestr,authpath=pth,debugON=False)
     sourcesession=sourcesvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     sourcesession.transaction().start(True)
-    runnum=209151
-    dbresult=getresultfromdb(sourcesession.nominalSchema(),runnum)
+    for csvfile in allcsvfiles:
+        runnum=int(csvfile.split('.')[0])
+        dbresult=getresultfromdb(sourcesession.nominalSchema(),runnum)
+        fileresult=parselumibylsfile(runnum,csvfile)
+        diffresult=isdifferent(fileresult,dbresult)
+        print runnum,int(diffresult)
     sourcesession.transaction().commit()
-    #print dbresult
-    lumifilename=str(runnum)+'.csv'
-    fileresult=parselumibylsfile(runnum,lumifilename)
-    #print fileresult
-    isdifferent=isdifferent(fileresult,dbresult)
-    print isdifferent
+
