@@ -2,10 +2,8 @@
 #define RecoTracker_TkSeedGenerator_SeedFromConsecutiveHitsTripletOnlyCreator_H
 
 #include "SeedFromConsecutiveHitsCreator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
-class FreeTrajectoryState;
 
-class SeedFromConsecutiveHitsTripletOnlyCreator : public SeedFromConsecutiveHitsCreator {
+class SeedFromConsecutiveHitsTripletOnlyCreator GCC11_FINAL : public SeedFromConsecutiveHitsCreator {
 public:
 
   SeedFromConsecutiveHitsTripletOnlyCreator( const edm::ParameterSet & cfg):
@@ -13,14 +11,11 @@ public:
 
   virtual ~SeedFromConsecutiveHitsTripletOnlyCreator(){}
 
-protected:
+private:
 
-  virtual GlobalTrajectoryParameters initialKinematic(
-      const SeedingHitSet & hits,
-      const TrackingRegion & region,
-      const edm::EventSetup& es,
-      const SeedComparitor *filter,
-      bool                 &passesFilter) const;
+  virtual bool initialKinematic(GlobalTrajectoryParameters & kine,
+				const SeedingHitSet & hits) const;
+ 
 
 };
 #endif

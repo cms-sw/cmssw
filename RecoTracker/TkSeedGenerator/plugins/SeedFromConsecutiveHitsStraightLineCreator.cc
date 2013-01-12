@@ -1,28 +1,15 @@
 #include "SeedFromConsecutiveHitsStraightLineCreator.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 
-GlobalTrajectoryParameters SeedFromConsecutiveHitsStraightLineCreator::initialKinematic(
-      const SeedingHitSet & hits,
-      const TrackingRegion & region,
-      const edm::EventSetup& es,
-      const SeedComparitor *filter,
-      bool                 &passesFilter) const
+bool SeedFromConsecutiveHitsStraightLineCreator::initialKinematic(GlobalTrajectoryParameters & kine,
+								  const SeedingHitSet & hits) const;
 {
-  GlobalTrajectoryParameters kine;
 
   const TransientTrackingRecHit::ConstRecHitPointer& tth1 = hits[0];
   const TransientTrackingRecHit::ConstRecHitPointer& tth2 = hits[1];
 
-  const GlobalPoint& vertexPos = region.origin();
-  edm::ESHandle<MagneticField> bfield;
-  es.get<IdealMagneticFieldRecord>().get(bfield);
+  const GlobalPoint& vertexPos = region->origin();
 
   // Assume initial state is straight line passing through beam spot
   // with direction given by innermost two seed hits (with big uncertainty)
@@ -32,7 +19,7 @@ GlobalTrajectoryParameters SeedFromConsecutiveHitsStraightLineCreator::initialKi
   TrackCharge q = 1; // irrelevant, since infinite momentum
   kine = GlobalTrajectoryParameters(vertexPos, initMomentum, q, &*bfield);
 
-  passesFilter = (filter ? filter->compatible(hits, kine, region) : true); 
-  return kine;
+  return (filter ? filter->compatible(hits, kine, *region) : true); 
+
 }
 
