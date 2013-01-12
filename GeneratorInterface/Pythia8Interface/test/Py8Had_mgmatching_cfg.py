@@ -7,9 +7,10 @@ process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSee
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring('file:../../Pythia6Interface/test/ttbar_5flavours_xqcut20_10TeV.lhe')
     # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_Zbb_run45040_unweighted_events_qcut13_mgPostv2.lhe')
-    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_ttbarjets_run621_unweighted_events_qcut40_mgPost.lhe')
+    # fileNames = cms.untracked.vstring('file:/uscmst1b_scratch/lpc1/3DayLifetime/recovery_for_julia/storage/local/data1/condor/mrenna/lhe/7TeV_ttbarjets_run621_unweighted_events_qcut40_mgPost.lhe')
     # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_avjets_run50000_unweighted_events_qcut15_mgPost.lhe')
     # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_zvv_200_HT_inf_run114000_unweighted_events_qcut20_mgPostv2.lhe')
+    # fileNames = cms.untracked.vstring('/store/user/mrenna/7TeV_ZbbToLL_M_50_run1001to1018_3processes_unweighted_events.lhe')
 )
 
 
@@ -36,7 +37,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
        MEMAIN_minjets = cms.int32(-1),
        MEMAIN_maxjets = cms.int32(-1),
        MEMAIN_showerkt = cms.double(0),    # use 1=yes only for pt-ordered showers !
-       MEMAIN_nqmatch = cms.int32(4),      # PID of the flavor until which the QCD radiation are kept in the matching procedure. 
+       MEMAIN_nqmatch = cms.int32(5),      # PID of the flavor until which the QCD radiation are kept in the matching procedure. 
                                            # If nqmatch=4, then all showered partons from b's are NOT taken into account.
 				           # In many cases the D=5
        MEMAIN_excres = cms.string(""),
@@ -74,7 +75,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ),
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('Py8Had_mgmatching.root')

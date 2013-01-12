@@ -505,7 +505,10 @@ void JetMatchingMG5::beforeHadronisation( const lhef::LHEEvent* lhee )
    for ( int i=0; i < hepeup.NUP; i++ )
    {
       if ( hepeup.ISTUP[i] < 0 ) continue;
-      if ( hepeup.MOTHUP[i].first != 1 && hepeup.MOTHUP[i].second !=2 ) continue;
+      if ( hepeup.MOTHUP[i].first != 1 && hepeup.MOTHUP[i].second !=2 ) continue; // this way we skip entries that come
+                                                                                  // from resonance decays;
+										  // we only take those that descent
+										  // directly from "incoming partons"
       idx = 2;
       if ( hepeup.IDUP[i] == ID_GLUON || (fabs(hepeup.IDUP[i]) <= nQmatch) ) // light jet
          // light jet
@@ -515,7 +518,7 @@ void JetMatchingMG5::beforeHadronisation( const lhef::LHEEvent* lhee )
       // Store
       typeIdx[idx].push_back(i); 
    } 
-   
+      
   return;
 
 }

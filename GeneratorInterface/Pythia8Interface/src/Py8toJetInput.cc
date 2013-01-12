@@ -6,23 +6,51 @@
 
 const std::vector<fastjet::PseudoJet> 
 Py8toJetInput::fillJetAlgoInput( const Event& event, const Event& workEvent,
-                                 const lhef::LHEEvent*,
+                                 const lhef::LHEEvent* lhee,
                                  const std::vector<int>* typeIdx )
 {
 
    fJetInput.clear();
    
    Event workEventJet = workEvent;
-      
+   
+   const lhef::HEPEUP& hepeup = *lhee->getHEPEUP();
+         
    std::set< int > typeSet[3];
+   
+   // FIXME !!!
+   // This is not safe to assume it's 3 because we're passing in a pointer
+   // and we do NOT know what the actuial size is. I'll have to improve it.
+   //
    for ( size_t i=0; i<3; i++ )
    {
       typeSet[i].clear();
       for ( size_t j=0; j<typeIdx[i].size(); j++ )
       {
-         int pos = typeIdx[i][j]+3; // HEPEUP and Py8 event record are shifted by 3 
-	                            // (system particle + 2 beam particles in Py8 event)
-	 typeSet[i].insert( event[pos].daughter1() );
+
+	 // HEPEUP and Py8 event record are shifted by 3 
+	 // (system particle + 2 beam particles in Py8 event)
+	 // ... EXCEPT FOR THE DECAY PRODUCTS IF DONE AT THE ME LEVEL !!!!!
+	 // ... in such case, the decay productes get gutted out of the sequence 
+	 // and get placed in Py8 Event later on...
+	 // so we need to figure out the shift
+         int pos = typeIdx[i][j]; 
+	 int shift = 3;
+	 // skip the first 2 entrirs in HEPEUP - they're incoming partons
+	 for ( int ip=2; ip<pos; ip++ )
+	 {
+	    // alternative can be: moth1 != 1 && moth2 !=2...
+	    // but moth1 == moth2 means pointer to the same mother t
+	    // that can only be a resonance, unless moth1==moth2==0
+	    //
+	    if ( hepeup.MOTHUP[ip].first == hepeup.MOTHUP[ip].second )
+	    {
+	       shift--;
+	    }	 
+	 }	 
+	 pos += shift;
+	 // typeSet[i].insert( event[pos].daughter1() );
+	 typeSet[i].insert( pos );
       }
    }   
   
@@ -130,7 +158,7 @@ Py8toJetInput::fillJetAlgoInput( const Event& event, const Event& workEvent,
     } // for (i)
   } // if (jetMatch == 2)
 */
-      
+
    for ( int i=0; i<workEventJet.size(); i++ )
    {
        

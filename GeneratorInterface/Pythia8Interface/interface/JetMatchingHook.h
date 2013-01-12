@@ -703,7 +703,7 @@ MG5hooks::sortIncomingProcess(const Event &event) {
   // Remove resonance decays from original process and keep only final
   // state. Resonances will have positive status code after this step.
   
-  omitResonanceDecays(eventProcessOrig); //, true);
+  omitResonanceDecays(eventProcessOrig); //  --> UNDO FOR PY8.170 OR HIGHER !!! , true); 
   eventProcess = workEvent;
 
   // Sort original process final state into light/heavy jets and 'other'.
@@ -956,11 +956,12 @@ MG5hooks::matchPartonsToJetsLight() {
 
   if( clFact != 0 ) localQcutSq *= pow(clFact,2);
 
+/*
   if ( process > 1 )
-  {
+  {     
      std::cout << " process = " << process << std::endl;
   }
-
+*/
 
   Event tempEvent;
   tempEvent.init("(tempEvent)", particleDataPtr);
