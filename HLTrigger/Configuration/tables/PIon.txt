@@ -172,7 +172,7 @@ HLT_PAUpcSingleEG5Full_TrackVeto7_v*		   # sr 134900
 HLT_PAUpcSingleMuOpenFull_TrackVeto7_v*		   # sr 134900
 HLT_L1SingleMuOpen_AntiBPTX_v*                     # sr 133348
 HLT_L1TrackerCosmics_v*                            # sr 133348
-HLT_PAL1Tech47_CASTORHaloMuon_v*		   # sr 134945
+HLT_PAL1Tech63_CASTORHaloMuon_v*		   # sr 134945, renamed by sr #135011
 HLT_PACastorEmTotemLowMultiplicity_*		   # sr 134945
 HLT_PACastorEmNotHfCoincidencePm_v*		   # sr 134945
 HLT_PACastorEmNotHfSingleChannel_v*		   # sr 134945

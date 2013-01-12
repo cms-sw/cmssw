@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V93 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V94 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V93')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V94')
 )
 
 process.streams = cms.PSet( 
@@ -102,10 +102,10 @@ process.datasets = cms.PSet(
     'HLT_PAL1DoubleMuOpen_v1',
     'HLT_PAL1SingleJet16_v1',
     'HLT_PAL1SingleJet36_v1',
-    'HLT_PAL1Tech47_CASTORHaloMuon_v1',
     'HLT_PAL1Tech53_MB_SingleTrack_v1',
     'HLT_PAL1Tech53_MB_v1',
     'HLT_PAL1Tech54_ZeroBias_v1',
+    'HLT_PAL1Tech63_CASTORHaloMuon_v1',
     'HLT_PAL1Tech_HBHEHO_totalOR_v1',
     'HLT_PAL2DoubleMu3_v1',
     'HLT_PAMinBiasBHC_OR_v1',
@@ -238,10 +238,10 @@ process.datasets = cms.PSet(
     'HLT_PAL1DoubleMuOpen_v1',
     'HLT_PAL1SingleJet16_v1',
     'HLT_PAL1SingleJet36_v1',
-    'HLT_PAL1Tech47_CASTORHaloMuon_v1',
     'HLT_PAL1Tech53_MB_SingleTrack_v1',
     'HLT_PAL1Tech53_MB_v1',
     'HLT_PAL1Tech54_ZeroBias_v1',
+    'HLT_PAL1Tech63_CASTORHaloMuon_v1',
     'HLT_PAL1Tech_HBHEHO_totalOR_v1',
     'HLT_PAL2DoubleMu3_v1',
     'HLT_PAMinBiasBHC_OR_v1',
@@ -372,10 +372,10 @@ process.datasets = cms.PSet(
     'HLT_PAL1DoubleMuOpen_v1',
     'HLT_PAL1SingleJet16_v1',
     'HLT_PAL1SingleJet36_v1',
-    'HLT_PAL1Tech47_CASTORHaloMuon_v1',
     'HLT_PAL1Tech53_MB_SingleTrack_v1',
     'HLT_PAL1Tech53_MB_v1',
     'HLT_PAL1Tech54_ZeroBias_v1',
+    'HLT_PAL1Tech63_CASTORHaloMuon_v1',
     'HLT_PAL1Tech_HBHEHO_totalOR_v1',
     'HLT_PAL2DoubleMu3_v1',
     'HLT_PAMinBiasBHC_OR_v1',
@@ -539,7 +539,7 @@ process.datasets = cms.PSet(
     'HLT_PAL1DoubleMu0_v1',
     'HLT_PAL1SingleJet16_v1',
     'HLT_PAL1SingleJet36_v1',
-    'HLT_PAL1Tech47_CASTORHaloMuon_v1',
+    'HLT_PAL1Tech63_CASTORHaloMuon_v1',
     'HLT_PAL1Tech_HBHEHO_totalOR_v1',
     'HLT_PAMinBiasBHC_OR_v1',
     'HLT_PAMinBiasBHC_v1',
@@ -4713,7 +4713,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_PAL1Tech_HBHEHO_totalOR_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 10, 1, 10, 0, 0 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_PAL1Tech47_CASTORHaloMuon_v1" ),
+      cms.PSet(  pathName = cms.string( "HLT_PAL1Tech63_CASTORHaloMuon_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PACastorEmTotemLowMultiplicity_v1" ),
@@ -14510,9 +14510,9 @@ process.hltPrePAL1TechHBHEHOtotalOR = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltL1sL1Tech47CASTORHaloMuon = cms.EDFilter( "HLTLevel1GTSeed",
+process.hltL1sL1Tech63CASTORHaloMuon = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "47" ),
+    L1SeedsLogicalExpression = cms.string( "63" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1UseAliasesForSeeding = cms.bool( True ),
@@ -14522,7 +14522,7 @@ process.hltL1sL1Tech47CASTORHaloMuon = cms.EDFilter( "HLTLevel1GTSeed",
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1TechTriggerSeeding = cms.bool( True )
 )
-process.hltPrePAL1Tech47CASTORHaloMuon = cms.EDFilter( "HLTPrescaler",
+process.hltPrePAL1Tech63CASTORHaloMuon = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -15947,7 +15947,7 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_PAL1Tech54_ZeroBias_v1',
       'HLT_PAT1minbias_Tech55_v1',
       'HLT_PAL1Tech_HBHEHO_totalOR_v1',
-      'HLT_PAL1Tech47_CASTORHaloMuon_v1',
+      'HLT_PAL1Tech63_CASTORHaloMuon_v1',
       'HLT_PACastorEmTotemLowMultiplicity_v1',
       'HLT_PACastorEmNotHfCoincidencePm_v1',
       'HLT_PACastorEmNotHfSingleChannel_v1',
@@ -15960,7 +15960,7 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_PABptxPlusNotBptxMinus_v1',
       'HLT_PABptxMinusNotBptxPlus_v1',
       'HLT_PAZeroBias_v1',
-      'HLT_PAZeroBiasPixel_SingleTrack_v1 / 3',
+      'HLT_PAZeroBiasPixel_SingleTrack_v1',
       'HLT_PAHFOR_SingleTrack_v1',
       'HLT_PAZeroBiasPixel_DoubleTrack_v1',
       'HLT_PADoubleMu4_Acoplanarity03_v1',
@@ -16086,7 +16086,7 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_PAL1Tech54_ZeroBias_v1',
       'HLT_PAT1minbias_Tech55_v1',
       'HLT_PAL1Tech_HBHEHO_totalOR_v1',
-      'HLT_PAL1Tech47_CASTORHaloMuon_v1',
+      'HLT_PAL1Tech63_CASTORHaloMuon_v1',
       'HLT_PACastorEmTotemLowMultiplicity_v1',
       'HLT_PACastorEmNotHfCoincidencePm_v1',
       'HLT_PACastorEmNotHfSingleChannel_v1',
@@ -16196,10 +16196,10 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PAL1DoubleMuOpen_v1',
   'HLT_PAL1SingleJet16_v1',
   'HLT_PAL1SingleJet36_v1',
-  'HLT_PAL1Tech47_CASTORHaloMuon_v1',
   'HLT_PAL1Tech53_MB_SingleTrack_v1',
   'HLT_PAL1Tech53_MB_v1',
   'HLT_PAL1Tech54_ZeroBias_v1',
+  'HLT_PAL1Tech63_CASTORHaloMuon_v1',
   'HLT_PAL1Tech_HBHEHO_totalOR_v1',
   'HLT_PAL2DoubleMu3_v1',
   'HLT_PAMinBiasBHC_OR_v1',
@@ -16412,10 +16412,10 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PAL1DoubleMuOpen_v1',
   'HLT_PAL1SingleJet16_v1',
   'HLT_PAL1SingleJet36_v1',
-  'HLT_PAL1Tech47_CASTORHaloMuon_v1',
   'HLT_PAL1Tech53_MB_SingleTrack_v1',
   'HLT_PAL1Tech53_MB_v1',
   'HLT_PAL1Tech54_ZeroBias_v1',
+  'HLT_PAL1Tech63_CASTORHaloMuon_v1',
   'HLT_PAL1Tech_HBHEHO_totalOR_v1',
   'HLT_PAL2DoubleMu3_v1',
   'HLT_PAMinBiasBHC_OR_v1',
@@ -16564,10 +16564,10 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_PAL1DoubleMuOpen_v1',
   'HLT_PAL1SingleJet16_v1',
   'HLT_PAL1SingleJet36_v1',
-  'HLT_PAL1Tech47_CASTORHaloMuon_v1',
   'HLT_PAL1Tech53_MB_SingleTrack_v1',
   'HLT_PAL1Tech53_MB_v1',
   'HLT_PAL1Tech54_ZeroBias_v1',
+  'HLT_PAL1Tech63_CASTORHaloMuon_v1',
   'HLT_PAL1Tech_HBHEHO_totalOR_v1',
   'HLT_PAL2DoubleMu3_v1',
   'HLT_PAMinBiasBHC_OR_v1',
@@ -16705,10 +16705,10 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PAL1DoubleMuOpen_v1',
   'HLT_PAL1SingleJet16_v1',
   'HLT_PAL1SingleJet36_v1',
-  'HLT_PAL1Tech47_CASTORHaloMuon_v1',
   'HLT_PAL1Tech53_MB_SingleTrack_v1',
   'HLT_PAL1Tech53_MB_v1',
   'HLT_PAL1Tech54_ZeroBias_v1',
+  'HLT_PAL1Tech63_CASTORHaloMuon_v1',
   'HLT_PAL1Tech_HBHEHO_totalOR_v1',
   'HLT_PAL2DoubleMu3_v1',
   'HLT_PAMinBiasBHC_OR_v1',
@@ -17064,7 +17064,7 @@ process.HLT_PAL1Tech53_MB_SingleTrack_v1 = cms.Path( process.HLTBeginSequence + 
 process.HLT_PAL1Tech54_ZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Tech54ZeroBias + process.hltPrePAL1Tech54ZeroBias + process.HLTEndSequence )
 process.HLT_PAT1minbias_Tech55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sT1minbiasTech55 + process.hltPrePAT1minbiasTech55 + process.HLTEndSequence )
 process.HLT_PAL1Tech_HBHEHO_totalOR_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sTechTrigHCALNoise + process.hltPrePAL1TechHBHEHOtotalOR + process.HLTEndSequence )
-process.HLT_PAL1Tech47_CASTORHaloMuon_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Tech47CASTORHaloMuon + process.hltPrePAL1Tech47CASTORHaloMuon + process.HLTEndSequence )
+process.HLT_PAL1Tech63_CASTORHaloMuon_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Tech63CASTORHaloMuon + process.hltPrePAL1Tech63CASTORHaloMuon + process.HLTEndSequence )
 process.HLT_PACastorEmTotemLowMultiplicity_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1CastorEmTotemLowMultiplicity + process.hltPrePACastorEmTotemLowMultiplicity + process.HLTDoLocalPixelSequence + process.HLTPixelTrackingForPAMinBiasSequence + process.hltPAPixelCandsForMinBias + ~process.hltPixelTrackMultVetoFilterCastor + process.HLTEndSequence )
 process.HLT_PACastorEmNotHfCoincidencePm_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1CastorEmNotHfCoincidencePm + process.hltPrePACastorEmNotHfCoincidencePm + process.HLTDoLocalPixelSequence + process.HLTPixelTrackingForPAMinBiasSequence + process.hltPAPixelCandsForMinBias + process.hltPixelTrackFilterCastorHfMin + ~process.hltPixelTrackMultVetoFilterCastorHfMax + process.HLTEndSequence )
 process.HLT_PACastorEmNotHfSingleChannel_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1CastorEmNotHfSingleChannel + process.hltPrePACastorEmNotHfSingleChannel + process.HLTDoLocalPixelSequence + process.HLTPixelTrackingForPAMinBiasSequence + process.hltPAPixelCandsForMinBias + process.hltPixelTrackFilterCastorHfMin + ~process.hltPixelTrackMultVetoFilterCastorHfMax + process.HLTEndSequence )

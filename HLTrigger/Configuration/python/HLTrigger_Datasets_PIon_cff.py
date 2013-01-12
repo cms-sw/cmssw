@@ -163,7 +163,7 @@ streamA_datasetPAMinBiasUPC_selector.triggerConditions = cms.vstring('HLT_PABptx
     'HLT_PAL1DoubleMu0_v1', 
     'HLT_PAL1SingleJet16_v1', 
     'HLT_PAL1SingleJet36_v1', 
-    'HLT_PAL1Tech47_CASTORHaloMuon_v1', 
+    'HLT_PAL1Tech63_CASTORHaloMuon_v1', 
     'HLT_PAL1Tech_HBHEHO_totalOR_v1', 
     'HLT_PAMinBiasBHC_OR_v1', 
     'HLT_PAMinBiasBHC_v1', 
