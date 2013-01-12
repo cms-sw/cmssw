@@ -184,7 +184,7 @@ HLTriggerFirstPath
 HLTriggerFinalPath                                 # sr 131577
 HLTAnalyzerEndpath                                 # only in 'PIon', not in 'online'
 AOutput                                            # sr 131577
-#BOutput                                            # sr 131577
+#BOutput                                           # sr 131577, removed by sr #135006
 ALCAP0Output                                       # sr 131577
 ALCAPHISYMOutput                                   # sr 131577
 ALCALUMIPIXELSOutput                               # sr 131577
@@ -195,6 +195,6 @@ ExpressOutput                                      # sr 131577
 HLTDQMOutput                                       # sr 131577
 #HLTMONOutput                                      # sr 131577, removed by sr #134906 
 NanoDSTOutput                                      # sr 131577
-PhysicsDSTOutput                                   # sr 131577
+#PhysicsDSTOutput                                  # sr 131577, removed by sr #135006
 RPCMONOutput                                       # sr 131577
 TrackerCalibrationOutput                           # sr 131577
