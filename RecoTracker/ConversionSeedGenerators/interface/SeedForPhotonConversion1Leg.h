@@ -5,6 +5,10 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class FreeTrajectoryState;

@@ -2,6 +2,12 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+
+
 //#define debugTSPFSLA
 
 inline double sqr(double a){return a*a;}

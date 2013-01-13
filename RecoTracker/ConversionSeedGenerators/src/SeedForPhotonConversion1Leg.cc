@@ -52,9 +52,13 @@ GlobalTrajectoryParameters SeedForPhotonConversion1Leg::initialKinematic(
   TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
   TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
 
+   // FIXME optimize: move outside loop
+    edm::ESHandle<MagneticField> bfield;
+    es.get<IdealMagneticFieldRecord>().get(bfield);
+    float nomField = bfield->nominalValue();
 
-  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, es, vertexPos);
-  kine = helix.stateAtVertex().parameters();
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField, &*bfield, vertexPos);
+  kine = helix.stateAtVertex();
 
   //force the pz/pt equal to the measured one
   if(fabs(cotTheta)<cotTheta_Max)
@@ -83,9 +87,7 @@ GlobalTrajectoryParameters SeedForPhotonConversion1Leg::initialKinematic(
 	 << "\nhelix momentum " << kine.momentum() << " pt " << kine.momentum().perp() << " radius " << 1/kine.transverseCurvature(); 
 #endif
 
-  edm::ESHandle<MagneticField> bfield;
-  es.get<IdealMagneticFieldRecord>().get(bfield);
-  bool isBOFF = ( std::abs(bfield->inTesla(GlobalPoint(0,0,0)).z()) < 1e-3 );
+  bool isBOFF =(0==nomField);;
   if (isBOFF && (theBOFFMomentum > 0)) {
     kine = GlobalTrajectoryParameters(kine.position(),
                               kine.momentum().unit() * theBOFFMomentum,

@@ -433,6 +433,10 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
     //ClusterShapeFilter_knuenz:::
     std::string comparitorName = SeedComparitorPSet.getParameter<std::string>("ComponentName");
     SeedComparitor * theComparitor = (comparitorName == "none") ? 0 :  SeedComparitorFactory::get()->create( comparitorName, SeedComparitorPSet);
+    edm::ESHandle<MagneticField> bfield;
+    es.get<IdealMagneticFieldRecord>().get(bfield);
+    float nomField = bfield->nominalValue();
+
 
     if(ClusterShapeFiltering){
   	  if (theComparitor) theComparitor->init(es);
@@ -450,10 +454,10 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 		  float ptMinReg=0.1;
 		  GlobalTrackingRegion region(ptMinReg,vertexPos,0,0,true);
 
-		  FastHelix phelix(ptth2->globalPosition(), mtth1->globalPosition(), vertexPos, es, vertexPos);
-		  pkine = phelix.stateAtVertex().parameters();
-		  FastHelix mhelix(mtth2->globalPosition(), mtth1->globalPosition(), vertexPos, es, vertexPos);
-		  mkine = mhelix.stateAtVertex().parameters();
+		  FastHelix phelix(ptth2->globalPosition(), mtth1->globalPosition(), vertexPos, nomField,&*bfield, vertexPos);
+		  pkine = phelix.stateAtVertex();
+		  FastHelix mhelix(mtth2->globalPosition(), mtth1->globalPosition(), vertexPos, nomField,&*bfield, vertexPos);
+		  mkine = mhelix.stateAtVertex();
 
 		  if(theComparitor&&!theComparitor->compatible(phits, pkine, phelix, region)) { return 0; }
 		  if(theComparitor&&!theComparitor->compatible(mhits, mkine, mhelix, region)) { return 0; }
@@ -489,8 +493,8 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
     // not able to get the mag field... doing the dirty way
     //
     // Plus
-    FastHelix helixPlus(ptth2->globalPosition(), ptth1->globalPosition(), convVtxGlobalPoint, es, convVtxGlobalPoint);
-    GlobalTrajectoryParameters kinePlus = helixPlus.stateAtVertex().parameters();
+    FastHelix helixPlus(ptth2->globalPosition(), ptth1->globalPosition(), convVtxGlobalPoint, nomField,&*bfield, convVtxGlobalPoint);
+    GlobalTrajectoryParameters kinePlus = helixPlus.stateAtVertex();
     kinePlus = GlobalTrajectoryParameters(convVtxGlobalPoint,
 					  GlobalVector(candPtPlus*cos(quadPhotPhi),candPtPlus*sin(quadPhotPhi),candPtPlus*quadPhotCotTheta),
 					  1,//1
@@ -499,8 +503,8 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 
     //
     // Minus
-    FastHelix helixMinus(mtth2->globalPosition(), mtth1->globalPosition(), convVtxGlobalPoint, es, convVtxGlobalPoint);
-    GlobalTrajectoryParameters kineMinus = helixMinus.stateAtVertex().parameters();
+    FastHelix helixMinus(mtth2->globalPosition(), mtth1->globalPosition(), convVtxGlobalPoint, nomField,&*bfield, convVtxGlobalPoint);
+    GlobalTrajectoryParameters kineMinus = helixMinus.stateAtVertex();
     kineMinus = GlobalTrajectoryParameters(convVtxGlobalPoint,
 					  GlobalVector(candPtMinus*cos(quadPhotPhi),candPtMinus*sin(quadPhotPhi),candPtMinus*quadPhotCotTheta),
 					  -1,//-1
@@ -588,9 +592,14 @@ GlobalTrajectoryParameters SeedForPhotonConversionFromQuadruplets::initialKinema
   TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
   TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
 
+  edm::ESHandle<MagneticField> bfield;
+  es.get<IdealMagneticFieldRecord>().get(bfield);
+  float nomField = bfield->nominalValue();
+  bool isBOFF = (0==nomField);
+ 
 
-  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, es, vertexPos);
-  kine = helix.stateAtVertex().parameters();
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField,&*bfield, vertexPos);
+  kine = helix.stateAtVertex();
 
   //force the pz/pt equal to the measured one
   if(fabs(cotTheta)<cotTheta_Max)
@@ -619,9 +628,6 @@ GlobalTrajectoryParameters SeedForPhotonConversionFromQuadruplets::initialKinema
 	 << "\nhelix momentum " << kine.momentum() << " pt " << kine.momentum().perp() << " radius " << 1/kine.transverseCurvature();
 #endif
 
-  edm::ESHandle<MagneticField> bfield;
-  es.get<IdealMagneticFieldRecord>().get(bfield);
-  bool isBOFF = ( std::abs(bfield->inTesla(GlobalPoint(0,0,0)).z()) < 1e-3 );
   if (isBOFF && (theBOFFMomentum > 0)) {
     kine = GlobalTrajectoryParameters(kine.position(),
                               kine.momentum().unit() * theBOFFMomentum,
