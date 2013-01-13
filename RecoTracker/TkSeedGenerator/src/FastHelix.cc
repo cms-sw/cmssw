@@ -10,7 +10,7 @@ void FastHelix::compute() {
     
 }
 
-GlobalTrajectoryParameters FastHelix::helixStateAtVertex() const {
+void FastHelix::helixStateAtVertex() {
 
   // given the above rho>0.
   double rho = theCircle.rho();
@@ -142,7 +142,7 @@ GlobalTrajectoryParameters FastHelix::helixStateAtVertex() const {
   
 }
 
-GlobalTrajectoryParameters FastHelix::straightLineStateAtVertex() const {
+void FastHelix::straightLineStateAtVertex() {
 
   //calculate GlobalTrajectoryParameters assuming straight line...
 

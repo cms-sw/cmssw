@@ -4,6 +4,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /**
    Generation of track parameters at a vertex using two hits and a vertex.
@@ -73,8 +74,8 @@ public:
 
 private:
   void compute();
-  void helixStateAtVertex();
-  void straightLineStateAtVertex() ;
+  void helixStateAtVertex() dso_hidden;
+  void straightLineStateAtVertex() dso_hidden;
 
 
 private:
