@@ -337,11 +337,12 @@ const TrajectorySeedCollection QuadrupletSeedMerger::mergeTriplets( const Trajec
   // (at the moment that's SeedGeneratorFromRegionHitsEDProducer)
   edm::ParameterSet creatorPSet = cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string const& creatorName = creatorPSet.getParameter<std::string>( "ComponentName" );
+  // leak????
   SeedCreator* seedCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet );
-
+  seedCreator->init(region, es, 0);
   for ( unsigned int i=0; i< quadrupletHitSets.size(); i++) {
     // add trajectory seed to result collection
-    seedCreator->trajectorySeed( theResult, quadrupletHitSets[i], region, es, 0 );
+    seedCreator->makeSeed( theResult, quadrupletHitSets[i]);
   }
 
   return theResult;
