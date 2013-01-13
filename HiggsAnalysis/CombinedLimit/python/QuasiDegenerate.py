@@ -11,10 +11,10 @@ class QuasiDegenerate(PhysicsModel):
         self.DMH = '1';
         self.frac = '0.8';
         self.mu = '1';
-        self.muAsPOI = False
-        self.mHAsPOI = False
-        self.DMHAsPOI = False
-        self.fracAsPOI = False
+        self.muAsPOI = True
+        self.mHAsPOI = True
+        self.DMHAsPOI = True
+        self.fracAsPOI = True
         self.floatFrac = True
         self.floatMH = True
         self.floatDMH = True
@@ -84,7 +84,6 @@ class QuasiDegenerate(PhysicsModel):
 
     def doParametersOfInterest(self):
         poi=""
-
 ###############################Frac	
         self.modelBuilder.doVar("x[0.8,0.5,1]"); #so first Higgs always has the bigger fraction 
         if self.floatFrac: 
