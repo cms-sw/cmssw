@@ -43,6 +43,7 @@ public:
     tesla0=0.1*nomField;
     maxRho = maxPt/(0.01 * 0.3*tesla0);
     useBasisVertex = false;
+    compute();
   }
 
   //New constructor (with basis vertex)
@@ -62,25 +63,29 @@ public:
     tesla0=0.1*nomField;
     maxRho = maxPt/(0.01 * 0.3*tesla0);
     useBasisVertex = true;
+    compute();
   }
 
   ~FastHelix() {}
   
   bool isValid() const {return theCircle.isValid();}
 
-  GlobalTrajectoryParameters stateAtVertex() const;
-
-  GlobalTrajectoryParameters helixStateAtVertex() const;
-
-  GlobalTrajectoryParameters straightLineStateAtVertex() const;
+  GlobalTrajectoryParameters stateAtVertex() const { return atVertex; }
 
   const FastCircle & circle() const { return theCircle; }
+
+private:
+  void compute();
+  void helixStateAtVertex();
+  void straightLineStateAtVertex() ;
+
 
 private:
 
   static constexpr double maxPt = 10000; // 10Tev
 
   MagneticField const * bField; // needed to construct GlobalTrajectoryParameters
+  GlobalTrajectoryParameters atVertex;
   GlobalPoint theOuterHit;
   GlobalPoint theMiddleHit;
   GlobalPoint theVertex;

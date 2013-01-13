@@ -4,12 +4,12 @@
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
 
-GlobalTrajectoryParameters FastHelix::stateAtVertex() const {
+void FastHelix::compute() {
   
   if(isValid() && (fabs(tesla0) > 1e-3) && theCircle.rho()<maxRho)
-    return helixStateAtVertex();
+    helixStateAtVertex();
   else 
-    return straightLineStateAtVertex();
+    straightLineStateAtVertex();
     
 }
 
@@ -115,11 +115,11 @@ GlobalTrajectoryParameters FastHelix::helixStateAtVertex() const {
 
   //VI
   if ( useBasisVertex ) {
-    return GlobalTrajectoryParameters(basisVertex, 
-	       GlobalVector(px, py, pz),
-	       q, 
-	       bField
-	       );
+    atVertex =  GlobalTrajectoryParameters(basisVertex, 
+					   GlobalVector(px, py, pz),
+					   q, 
+					   bField
+					   );
   } else {
     double z_0 =  theMiddleHit.z();
     // assume v is before middleHit (opposite to outer)
@@ -136,11 +136,11 @@ GlobalTrajectoryParameters FastHelix::helixStateAtVertex() const {
     //double z_old = -flfit.c()/flfit.n2();
     // std::cout << "v:xyz, z,old,new " << v << "   " << z_old << " " << z_0 << std::endl;
 
-    return GlobalTrajectoryParameters(GlobalPoint(v.x(),v.y(),z_0), 
-	       GlobalVector(px, py, pz),
-	       q, 
-	       bField
-	       );
+    atVertex =  GlobalTrajectoryParameters(GlobalPoint(v.x(),v.y(),z_0), 
+					   GlobalVector(px, py, pz),
+					   q, 
+					   bField
+					   );
   }
   
 }
@@ -183,17 +183,17 @@ GlobalTrajectoryParameters FastHelix::straightLineStateAtVertex() const {
   //VI
 
   if ( useBasisVertex ) {
-    return GlobalTrajectoryParameters(basisVertex, 
-	       GlobalVector(px, py, pz),
-	       q, 
-	       bField
-	       );
+    atVertex = GlobalTrajectoryParameters(basisVertex, 
+					  GlobalVector(px, py, pz),
+					  q, 
+					  bField
+					  );
   } else {
   double z_0 = -flfit.c()/flfit.n2();
-  return GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-	     GlobalVector(px, py, pz),
-	     q,
-	     bField
-	     );
+  atVertex = GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
+					GlobalVector(px, py, pz),
+					q,
+					bField
+					);
   }
 }
