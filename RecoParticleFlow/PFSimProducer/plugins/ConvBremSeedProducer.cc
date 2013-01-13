@@ -262,6 +262,10 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     
 
     //OUTPUT COLLECTION
+    edm::ESHandle<MagneticField> bfield;
+    iSetup.get<IdealMagneticFieldRecord>().get(bfield);
+    float nomField = bfield->nominalValue();
+ 
 
     TransientTrackingRecHit::ConstRecHitContainer glob_hits;
     OwnVector<TrackingRecHit> loc_hits;
@@ -294,13 +298,13 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    bool tak3=isGsfTrack(gsfRecHits,&(*it3));  
 	    
 
-	    FastHelix helix(gp3, gp2, gp1,iSetup);
-	    GlobalVector gv=helix.stateAtVertex().parameters().momentum();
+	    FastHelix helix(gp3, gp2, gp1,nomField,bfield.get());
+	    GlobalVector gv=helix.stateAtVertex().momentum();
 	    GlobalVector gv_corr(gv.x(),gv.y(),gv.perp()*sineta_brem);
 	    float ene= sqrt(gv_corr.mag2()+(pfmass*pfmass));
 
-	    GlobalPoint gp=helix.stateAtVertex().parameters().position();
-	    float ch=helix.stateAtVertex().parameters().charge();
+	    GlobalPoint gp=helix.stateAtVertex().position();
+	    float ch=helix.stateAtVertex().charge();
 
 
 
