@@ -26,7 +26,7 @@ void FastHelix::helixStateAtVertex() {
   double dcphi = ((theOuterHit.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
 		  (theOuterHit.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
 		  )/(rho*rho);
-  if (fabs(dcphi)>=1.) return straightLineStateAtVertex();
+  if (fabs(dcphi)>=1.) { straightLineStateAtVertex(); return}
 
   GlobalPoint pMid(theMiddleHit);
   GlobalPoint v(theVertex);
