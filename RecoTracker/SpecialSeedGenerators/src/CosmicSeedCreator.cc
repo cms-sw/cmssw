@@ -1,20 +1,29 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicSeedCreator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-template <class T> T sqr( T t) {return t*t;}
+namespace {
+  template <class T> 
+  inline T sqr( T t) {return t*t;}
+}
 
-const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollection & seedCollection,
-							 const SeedingHitSet & ordered,
-							 const TrackingRegion & region,
-							 const edm::EventSetup& es,
-                                                         const SeedComparitor *filter)
-{
+void CosmicSeedCreator::init(const TrackingRegion & iregion,
+	                     const edm::EventSetup& es,
+	                     const SeedComparitor * ifilter) {
+  region = &iregion;
+  filter = ifilter;
+  // mag field
+  es.get<IdealMagneticFieldRecord>().get(bfield);
+}
+
+
+void CosmicSeedCreator::makeSeed(TrajectorySeedCollection & seedCollection,
+	                         const SeedingHitSet & ordered){
 
   //_________________________
   //
@@ -25,7 +34,7 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
   //hit package
   //+++++++++++
   const SeedingHitSet & hits = ordered; 
-  if ( hits.size() < 2) return 0;
+  if ( hits.size() < 2) return;
 
 
   //hits
@@ -37,17 +46,12 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
 
   //definition of position & momentum
   //++++++++++++++++++++++++++++++++++
-  GlobalVector initialMomentum(region.direction());//direction of the trajectory seed given by the direction of the region
+  GlobalVector initialMomentum(region->direction());//direction of the trajectory seed given by the direction of the region
   //fix the momentum scale
-  //initialMomentum = initialMomentum.basicVector.unitVector() * region.origin().direction().mag();
-  //initialMomentum = region.origin().direction(); //alternative.
+  //initialMomentum = initialMomentum.basicVector.unitVector() * region->origin().direction().mag();
+  //initialMomentum = region->origin().direction(); //alternative.
   LogDebug("CosmicSeedCreator") << "initial momentum = " << initialMomentum;
 
-
-  //magnetic field
-  //++++++++++++++
-  edm::ESHandle<MagneticField> bfield;
-  es.get<IdealMagneticFieldRecord>().get(bfield);
 
   
   //___________________________________________
@@ -146,10 +150,6 @@ const TrajectorySeed * CosmicSeedCreator::trajectorySeed(TrajectorySeedCollectio
   if ( seedCollection.size() > maxseeds_ ) {
     edm::LogError("TooManySeeds") << "Found too many seeds (" << seedCollection.size() << " > " << maxseeds_ << "), bailing out.\n";
     seedCollection.clear();
-    return 0;
-  }
-  else {
-    return (seedCollection.empty() ? 0 : &seedCollection.back());
   }
   
 }

@@ -119,9 +119,9 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 
     edm::OwnVector<TrackingRecHit> hits;
     hits.push_back(HitTriplets[it].outer()->hit()->clone());
-    FastHelix helix(inner, middle, outer,iSetup);
-    GlobalVector gv=helix.stateAtVertex().parameters().momentum();
-    float ch=helix.stateAtVertex().parameters().charge();
+    FastHelix helix(inner, middle, outer, magfield->nominalValue(), &(*magfield));
+    GlobalVector gv=helix.stateAtVertex().momentum();
+    float ch=helix.stateAtVertex().charge();
     float Mom = sqrt( gv.x()*gv.x() + gv.y()*gv.y() + gv.z()*gv.z() ); 
     if(Mom > 1000 || std::isnan(Mom))  continue;   // ChangedByDaniele 
 
