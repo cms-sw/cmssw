@@ -29,22 +29,17 @@ SeedGeneratorForCRack::init(const SiStripRecHit2DCollection &collstereo,
 }
 
 SeedGeneratorForCRack::SeedGeneratorForCRack(edm::ParameterSet const& conf):
-  conf_(conf)
+  conf_(conf), region(conf.getParameter<double>("ptMin")
+                      ,conf.getParameter<double>("originRadius")
+                      ,conf.getParameter<double>("originHalfLength")
+                      ,conf.getParameter<double>("originZPosition")
+                      )
 {  
-  float ptmin=conf_.getParameter<double>("ptMin");
-  float originradius=conf_.getParameter<double>("originRadius");
-  float halflength=conf_.getParameter<double>("originHalfLength");
-  float originz=conf_.getParameter<double>("originZPosition");
   seedpt = conf_.getParameter<double>("SeedPt");
-
   builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
-  region=GlobalTrackingRegion(ptmin,originradius,
- 			      halflength,originz);
   multipleScatteringFactor=conf_.getUntrackedParameter<double>("multipleScatteringFactor", 1.0);
   seedMomentum =conf_.getUntrackedParameter<double>("SeedMomentum",1);
-  edm::LogInfo("SeedGeneratorForCRack")<<" PtMin of track is "<<ptmin<< 
-    " The Radius of the cylinder for seeds is "<<originradius <<"cm"  << " The set Seed Momentum" <<  seedpt;
 }
 
 void SeedGeneratorForCRack::run(TrajectorySeedCollection &output,const edm::EventSetup& iSetup){
