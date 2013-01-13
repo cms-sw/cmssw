@@ -23,13 +23,13 @@ void FastHelix::helixStateAtVertex() {
   double pt = 0.01 * rho * 0.3*tesla0;
 
   // verify that rho is not toooo large
-  double dcphi = ((theOuterHit.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
-		  (theOuterHit.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
+  double dcphi = ((outerHit().x()-theCircle.x0())*(middleHit().x()-theCircle.x0()) +
+		  (outerHit().y()-theCircle.y0())*(middleHit().y()-theCircle.y0())
 		  )/(rho*rho);
   if (fabs(dcphi)>=1.) { straightLineStateAtVertex(); return;}
 
-  GlobalPoint pMid(theMiddleHit);
-  GlobalPoint v(theVertex);
+  GlobalPoint pMid(middleHit());
+  GlobalPoint v(vertex());
   
   double dydx = 0., dxdy = 0.;
   double px = 0., py = 0.;
@@ -85,13 +85,13 @@ void FastHelix::helixStateAtVertex() {
   
 
   // VI 23/01/2012
-  double dzdrphi = theOuterHit.z() - theMiddleHit.z();
+  double dzdrphi = outerHit().z() - middleHit().z();
   dzdrphi /= rho*acos(dcphi);
   double pz = pt*dzdrphi;
 
   /*
   // old crap
-  FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
+  FastLine flfit(outerHit(), middleHit(), theCircle.rho());
   double dzdrphi2 = -flfit.n1()/flfit.n2();
 
   //  if (fabs(dzdrphi2-dzdrphi)>1.e-5) 
@@ -118,16 +118,16 @@ void FastHelix::helixStateAtVertex() {
 					   bField
 					   );
   } else {
-    double z_0 =  theMiddleHit.z();
+    double z_0 =  middleHit().z();
     // assume v is before middleHit (opposite to outer)
-    double ds = ( (v.x()-theCircle.x0())*(theMiddleHit.x()-theCircle.x0()) +
-		  (v.y()-theCircle.y0())*(theMiddleHit.y()-theCircle.y0())
+    double ds = ( (v.x()-theCircle.x0())*(middleHit().x()-theCircle.x0()) +
+		  (v.y()-theCircle.y0())*(middleHit().y()-theCircle.y0())
 		  )/(rho*rho);
     if (fabs(ds)<1.) {
       ds = rho*acos(ds);
       z_0 -= ds*dzdrphi;
     } else { // line????
-      z_0 -= std::sqrt((theMiddleHit-v).perp2()/(theOuterHit-theMiddleHit).perp2())*(theOuterHit.z()-theMiddleHit.z());
+      z_0 -= std::sqrt((middleHit()-v).perp2()/(outerHit()-middleHit()).perp2())*(outerHit().z()-middleHit().z());
     }
     
     //double z_old = -flfit.c()/flfit.n2();
@@ -146,8 +146,8 @@ void FastHelix::straightLineStateAtVertex() {
 
   //calculate GlobalTrajectoryParameters assuming straight line...
 
-  GlobalPoint pMid(theMiddleHit);
-  GlobalPoint v(theVertex);
+  GlobalPoint pMid(middleHit());
+  GlobalPoint v(vertex());
 
   double dydx = 0.;
   double pt = 0., px = 0., py = 0.;
@@ -172,7 +172,7 @@ void FastHelix::straightLineStateAtVertex() {
   //p = pt/sin(theta)
   //pz = p*cos(theta) = pt/tan(theta) 
 
-  FastLine flfit(theOuterHit, theMiddleHit);
+  FastLine flfit(outerHit(), middleHit());
   double dzdr = -flfit.n1()/flfit.n2();
   double pz = pt*dzdr; 
   

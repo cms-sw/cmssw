@@ -63,6 +63,11 @@ public:
   
   double c() const {return theC;}
   
+  GlobalPoint const & outerPoint() const { return theOuterPoint;} 
+  GlobalPoint const & innerPoint() const { return theInnerPoint;} 
+  GlobalPoint const & vertexPoint() const { return theVertexPoint;} 
+
+
 private:
 
   GlobalPoint theOuterPoint; 
