@@ -155,6 +155,7 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
 
   double pT = sCenergy * seedCluster->position().rho()/sqrt(seedCluster->x()*seedCluster->x()+seedCluster->y()*seedCluster->y()+seedCluster->z()*seedCluster->z());
 
+  // FIXME use nominal field (see below)
   double magneticField = 3.8;
 
   // cf Jackson p. 581-2, a little geometry
@@ -185,11 +186,16 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
   double yFake = rFake * sin(phiFake);
   GlobalPoint fakePoint(xFake,yFake,zFake);
 
+  // FIXME optmize, move outside loop
+  edm::ESHandle<MagneticField> bfield;
+  theSetup->get<IdealMagneticFieldRecord>().get(bfield);
+  float nomField = bfield->nominalValue();
+
   //Use 3 points to make helix
-  FastHelix initialHelix(superCluster,fakePoint,beamSpot,*theSetup);
+  FastHelix initialHelix(superCluster,fakePoint,beamSpot,nomField,&*bfield);
 
   //Use helix to get FTS
-  FreeTrajectoryState initialFTS = initialHelix.stateAtVertex();
+  FreeTrajectoryState initialFTS(initialHelix.stateAtVertex());
 
   //Use FTS and BeamSpot to create TSOS
   TransverseImpactPointExtrapolator* tipe = new TransverseImpactPointExtrapolator(*thePropagator);
@@ -581,11 +587,16 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   double vertexZ = z1 - (r1 * (zc - z1) ) / (rc - r1);
   GlobalPoint eleVertex(0.,0.,vertexZ);
 
+   // FIXME optimize: move outside loop
+    edm::ESHandle<MagneticField> bfield;
+    theSetup->get<IdealMagneticFieldRecord>().get(bfield);
+    float nomField = bfield->nominalValue();
+
   // make a spiral
-  FastHelix helix(hit2Pos,hit1Pos,eleVertex,*theSetup);
+  FastHelix helix(hit2Pos,hit1Pos,eleVertex,nomField,&*bfield);
   if (!helix.isValid()) return false;
 
-  FreeTrajectoryState fts = helix.stateAtVertex();
+  FreeTrajectoryState fts(helix.stateAtVertex());
   TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
 
   if (!propagatedState.isValid()) return false;
@@ -657,11 +668,16 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
   double vertexZ = z1 - (r1 * (zc - z1) ) / (rc - r1);
   GlobalPoint eleVertex(0.,0.,vertexZ);
 
+   // FIXME optimize: move outside loop
+    edm::ESHandle<MagneticField> bfield;
+    theSetup->get<IdealMagneticFieldRecord>().get(bfield);
+    float nomField = bfield->nominalValue();
+
   // make a spiral
-  FastHelix helix(hit2Pos,hit1Pos,eleVertex,*theSetup);
+  FastHelix helix(hit2Pos,hit1Pos,eleVertex,nomField,&*bfield);
   if (!helix.isValid()) return false;
 
-  FreeTrajectoryState fts = helix.stateAtVertex();
+  FreeTrajectoryState fts(helix.stateAtVertex());
   TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
 
   if (!propagatedState.isValid()) return false;

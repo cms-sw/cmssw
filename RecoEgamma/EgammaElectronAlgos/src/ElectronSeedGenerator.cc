@@ -603,12 +603,17 @@ bool ElectronSeedGenerator::prepareElTrackSeed
 
   typedef TrajectoryStateOnSurface     TSOS;
 
+  // FIXME to be optimized outside the loop
+  edm::ESHandle<MagneticField> bfield;
+  theSetup->get<IdealMagneticFieldRecord>().get(bfield);
+  float nomField = bfield->nominalValue();
+
   // make a spiral
-  FastHelix helix(outerhit->globalPosition(),innerhit->globalPosition(),vertexPos,*theSetup);
+  FastHelix helix(outerhit->globalPosition(),innerhit->globalPosition(),vertexPos,nomField,&*bfield);
   if ( !helix.isValid()) {
     return false;
   }
-  FreeTrajectoryState fts = helix.stateAtVertex();
+  FreeTrajectoryState fts(helix.stateAtVertex());
   TSOS propagatedState = thePropagator->propagate(fts,innerhit->det()->surface()) ;
   if (!propagatedState.isValid())
     return false;
