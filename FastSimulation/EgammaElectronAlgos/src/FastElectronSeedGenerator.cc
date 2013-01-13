@@ -411,11 +411,16 @@ bool FastElectronSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   LogDebug("") <<"[FastElectronSeedGenerator::prepareElTrackSeed] "
 	       << "outer PixelHit   x,y,z "<<outerhit->globalPosition();
 
+  // FIXME to be optimized moving them outside the loop 
+  edm::ESHandle<MagneticField> bfield;
+  theSetup->get<IdealMagneticFieldRecord>().get(bfield);
+  float nomField = bfield->nominalValue();
+
   // make a spiral from the two hits and the vertex position
-  FastHelix helix(outerhit->globalPosition(),innerhit->globalPosition(),vertexPos,*theSetup);
+  FastHelix helix(outerhit->globalPosition(),innerhit->globalPosition(),vertexPos,nomField,&*bfield);
   if ( !helix.isValid()) return false;
 
-  FreeTrajectoryState fts = helix.stateAtVertex();
+  FreeTrajectoryState fts(helix.stateAtVertex());
 
   // Give infinite errors to start the fit (no pattern recognition here).
   AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();
