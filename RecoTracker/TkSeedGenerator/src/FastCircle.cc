@@ -6,7 +6,7 @@ FastCircle::FastCircle(const GlobalPoint& outerHit,
   theOuterPoint(outerHit), 
   theInnerPoint(middleHit), 
   theVertexPoint(aVertex), 
-  theNorm(100.), 
+  theNorm(128.), 
   theX0(0.), 
   theY0(0.), 
   theRho(0.),
@@ -87,15 +87,12 @@ AlgebraicVector3 FastCircle::transform(const GlobalPoint& aPoint) const {
 
   AlgebraicVector3 riemannPoint;
 
-  double R = aPoint.perp();
-  R /= theNorm;
-  double phi = 0.;
-  if(R > 0.) phi = aPoint.phi();
- 
-  double fact = R/(1+R*R); // let's factorize the common factor out
-  riemannPoint[0] = fact*cos(phi);
-  riemannPoint[1] = fact*sin(phi);
-  riemannPoint[2] = fact*R;
+  auto p = aPoint.basicVector()/float(theNorm);
+  float R2 = p.perp2();
+  float fact = 1.f/(1.f+R2); // let's factorize the common factor out
+  riemannPoint[0] = fact*p.x();  
+  riemannPoint[1] = fact*p.y();  
+  riemannPoint[2] = fact*R2;
   
   return riemannPoint;
 }
