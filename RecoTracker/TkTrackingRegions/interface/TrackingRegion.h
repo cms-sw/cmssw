@@ -114,8 +114,8 @@ private:
   
   GlobalVector theDirection;
   GlobalPoint  theVertexPos;
-  const Range        theInvPtRange;
-  const float        thePtMin;
+  Range        theInvPtRange;
+  float        thePtMin;
   float        theVertexRBound;
   float        theVertexZBound;
 
