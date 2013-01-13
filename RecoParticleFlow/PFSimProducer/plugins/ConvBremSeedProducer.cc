@@ -298,7 +298,7 @@ ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    bool tak3=isGsfTrack(gsfRecHits,&(*it3));  
 	    
 
-	    FastHelix helix(gp3, gp2, gp1,nomField,bfield.get());
+	    FastHelix helix(gp3, gp2, gp1,nomField,&*bfield);
 	    GlobalVector gv=helix.stateAtVertex().momentum();
 	    GlobalVector gv_corr(gv.x(),gv.y(),gv.perp()*sineta_brem);
 	    float ene= sqrt(gv_corr.mag2()+(pfmass*pfmass));
