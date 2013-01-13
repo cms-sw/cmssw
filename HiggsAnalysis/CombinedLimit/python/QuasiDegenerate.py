@@ -98,7 +98,7 @@ class QuasiDegenerate(PhysicsModel):
 ################################DMH
         self.modelBuilder.doVar("DMH[%s,%s,%s]" % (self.DMH, self.DMHRange[0],self.DMHRange[1]));
         if self.floatDMH:
-          if self.mass2AsPOI: poi += ",DMH"
+          if self.DMHAsPOI: poi += ",DMH"
         else:
           self.modelBuilder.out.var("DMH").setVal(float(self.DMH))
           self.modelBuilder.out.var("DMH").setConstant(True)
