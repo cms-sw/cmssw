@@ -3,6 +3,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
 /**
    Generation of track parameters at a vertex using two hits and a vertex.
@@ -21,12 +22,8 @@
  */
 
 class MagneticField;
-class GlobalTrajectoryParameters;
 class FastHelix {
-
-
 public:
-
 
   //Original constructor (no basis vertex)
   FastHelix(const GlobalPoint& outerHit,

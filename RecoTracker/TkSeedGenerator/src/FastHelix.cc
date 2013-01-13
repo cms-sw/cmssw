@@ -1,8 +1,5 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastLine.h"
-#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
-#include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
 
 void FastHelix::compute() {
   
