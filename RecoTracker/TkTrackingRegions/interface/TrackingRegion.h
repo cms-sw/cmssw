@@ -2,11 +2,9 @@
 #define TrackingRegion_H
 
 /** \class TrackingRegion
- * The ABC class to define the region of interest for regional seeding
+ * kinematic data common to 
+ * some concreate implementations of TrackingRegion.
  */
-
-#include <vector>
-#include <string>
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -17,13 +15,23 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
+#include <utility>
+
+#include <sstream>
+
 #include <vector>
+#include <string>
+
 
 class DetLayer;
 class HitRZCompatibility;
-namespace edm { class Event; class EventSetup; }
+class BarrelDetLayer;
+class ForwardDetLayer;
 
-class TrackingRegion{
+namespace edm { class Event;  }
+
+class TrackingRegion {
 public:
 
   virtual ~TrackingRegion(){}
@@ -31,45 +39,88 @@ public:
   typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
   typedef std::vector<Hit> Hits;
 
+
+public:
+
+  TrackingRegion( const GlobalVector & direction,
+                  const GlobalPoint &  originPos,
+                  const Range        & invPtRange,
+                  const float &        originRBound,
+                  const float &        originZBound)
+    : theDirection( direction), theVertexPos( originPos), 
+      theInvPtRange( invPtRange),
+      thePtMin(1.f/std::max( std::abs(invPtRange.max()), std::abs(invPtRange.min()) )),
+      theVertexRBound( originRBound),
+      theVertexZBound( originZBound) { }    
+
+
   /// the direction around which region is constructed 
-  virtual GlobalVector direction() const = 0;
+  GlobalVector const & direction() const { return theDirection; } 
 
  /** The origin (centre,vertex) of the region. <BR> 
   *  The origin with bounds is ment to constraint point of the <BR>
   *  closest approach of the track to the beam line
   */
-  virtual GlobalPoint  origin() const = 0;
+  GlobalPoint  const & origin() const { return theVertexPos; }
 
   /// bounds the particle vertex in the transverse plane  
-  virtual float originRBound() const = 0;
+  float originRBound() const { return theVertexRBound; }
 
   /// bounds the particle vertex in the longitudinal plane 
-  virtual float originZBound() const = 0;
+  float originZBound() const { return theVertexZBound; }
 
   /// minimal pt of interest 
-  virtual float ptMin()  const = 0;
+  float ptMin()  const { return thePtMin;}
 
-   /// get hits from layer compatible with region constraints 
-   virtual Hits hits(
-       const edm::Event& ev, 
-       const edm::EventSetup& es, 
-       const ctfseeding::SeedingLayer* layer) const = 0; 
+  /// inverse pt range 
+  Range invPtRange() const { return theInvPtRange; }
 
-   /// utility to check eta/theta hit compatibility with region constraints 
-   /// and outer hit constraint  */
-  virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
-				       const Hit & outerHit,
-				       const edm::EventSetup& iSetup) const = 0;
 
-  /// new region with updated vertex position 
-  virtual TrackingRegion* restrictedRegion( const GlobalPoint &  originPos, 
-      const float & originRBound, const float & originZBound) const = 0;
+  /// utility to check eta/theta hit compatibility with region constraints
+  /// and outer hit constraint
+    virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
+					 const Hit & outerHit,
+					 const edm::EventSetup& iSetup) const = 0;
 
-  /// clone region
-      virtual TrackingRegion* clone() const = 0;
-  
+/// get hits from layer compatible with region constraints 
+    virtual Hits hits(
+        const edm::Event& ev, 
+        const edm::EventSetup& es, 
+        const ctfseeding::SeedingLayer* layer) const = 0; 
+
+  /// clone region with new vertex position
+  TrackingRegion* restrictedRegion( const GlobalPoint &  originPos,
+      const float & originRBound, const float & originZBound) const {
+      TrackingRegion* restr = clone();
+      restr->theVertexPos = originPos;
+      restr->theVertexRBound = originRBound;
+      restr->theVertexZBound = originZBound;
+      return restr;
+  } 
+
+  virtual TrackingRegion* clone() const = 0;
+
   virtual std::string name() const { return "TrackingRegion"; }
-  virtual std::string print() const = 0;
+  virtual std::string print() const {
+    std::ostringstream str;
+    str << name() <<" dir:"<<theDirection<<" vtx:"<<theVertexPos 
+        <<" dr:"<<theVertexRBound<<" dz:"<<theVertexZBound<<" pt:"<<1./theInvPtRange.max();
+    return str.str();
+  }
+
+  void setDirection(const GlobalVector & dir ) { theDirection = dir; }
+
+private:
+  
+  GlobalVector theDirection;
+  GlobalPoint  theVertexPos;
+  const Range        theInvPtRange;
+  const float        thePtMin;
+  float        theVertexRBound;
+  float        theVertexZBound;
+
 };
+
+using TrackingRegionBase = TrackingRegion;
 
 #endif

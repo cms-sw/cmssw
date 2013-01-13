@@ -23,9 +23,6 @@ public:
 
   typedef TkTrackingRegionsMargin<float> Margin;
 
- /// dummy constructor
- RectangularEtaPhiTrackingRegion() { }
-
  /** constructor (symmetric eta and phi margins). <BR>
   * dir        - the direction around which region is constructed <BR>
   *              the initial direction of the momentum of the particle 
