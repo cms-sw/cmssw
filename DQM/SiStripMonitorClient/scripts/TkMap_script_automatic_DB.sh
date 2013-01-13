@@ -16,10 +16,23 @@ export WORKINGDIR=${CMSSW_BASE}/src
 
 cd ${WORKINGDIR}
 
+DataLocalDir=''
+DataOflineDir=''
+
 for Run_numb in $@;
 do
 
     if [ "$Run_numb" == "$1" ]; then continue; fi
+
+    if [ $Run_numb -le 209634 ]; then
+	DataLocalDir='Data2012'
+	DataOfflineDir='Run2012'
+    fi
+
+    if [ $Run_numb -gt 209634 ]; then
+	DataLocalDir='Data2013'
+	DataOfflineDir='HIRun2013'
+    fi
 
 # copy of the file
 
@@ -29,7 +42,7 @@ do
     datasets=${1}
     if [ "${1}" == "Cosmics" ]; then
 	prefix=`echo $Run_numb | awk '{print substr($0,0,3)}'` 
-	checkdir='/data/users/event_display/Data2012/Cosmics/'${prefix}'/'${Run_numb}'/StreamExpressCosmics'
+	checkdir='/data/users/event_display/'${DataLocalDir}'/Cosmics/'${prefix}'/'${Run_numb}'/StreamExpressCosmics'
 	if [ ! -d $checkdir ]; then
 	    datasets=$datasets' StreamExpressCosmics'
 	    echo "Running on datasets "$datasets
@@ -42,13 +55,12 @@ do
       
       nnn=`echo $Run_numb | awk '{print substr($0,0,4)}'` 
 
-    curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/Run2012/'$thisDataset'/000'${nnn}'xx/' > index.html
-#    wget --no-check-certificate 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/HIRun2011/'${1}'/000'${nnn}'xx/' -O index.html
+    curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'${DataOfflineDir}'/'$thisDataset'/000'${nnn}'xx/' > index.html
     dqmFileNames=`cat index.html | grep ${Run_numb} | grep "_DQM.root" | egrep "Prompt|Express" | sed 's/.*>\(.*\)<\/a.*/\1/' `
     dqmFileName=`expr "$dqmFileNames" : '\(DQM[A-Za-z0-9_/.\-]*root\)'`
     echo ' dqmFileNames = '$dqmFileNames
     echo ' dqmFileName = ['$dqmFileName']'
-    curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/Run2012/$thisDataset/000${nnn}xx/${dqmFileName} > /tmp/${dqmFileName}
+    curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/$DataOfflineDir/$thisDataset/000${nnn}xx/${dqmFileName} > /tmp/${dqmFileName}
     checkFile=`ls /tmp/${dqmFileName} | grep ${Run_numb}`
 
 ##check if the full run is completely saved (Info/Run summary/ProvInfo/ runIsComplete flag == 1? 
@@ -172,15 +184,15 @@ do
 #    dest=FinalTest
 
 #    ssh cmstacuser@cmstac05 "mkdir -p /storage/data2/SiStrip/event_display/Data2011/${dest}/${nnn}/${Run_numb} 2> /dev/null"
- mkdir -p /data/users/event_display/Data2012/${dest}/${nnn}/${Run_numb}/$thisDataset 2> /dev/null
+    mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 2> /dev/null
      rm -f *.xml
      rm -f *svg
 
 #    scp -r ${Run_numb}/$thisDataset cmstacuser@cmstac05:/storage/data2/SiStrip/event_display/Data2011/${dest}/${nnn}/${Run_numb}/
 #    cp -r ${Run_numb}/$thisDataset /data/users/event_display/Data2011/${dest}/${nnn}/${Run_numb}/
-     ssh cctrack@vocms01 "mkdir -p /data/users/event_display/Data2012/${dest}/${nnn}/${Run_numb}/$thisDataset 2> /dev/null"
+     ssh cctrack@vocms01 "mkdir -p /data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset 2> /dev/null"
 #     scp -r ${Run_numb}/$thisDataset cctrack@vocms01:/data/users/event_display/Data2012/${dest}/${nnn}/${Run_numb}/
-     scp -r * cctrack@vocms01:/data/users/event_display/Data2012/${dest}/${nnn}/${Run_numb}/$thisDataset
+     scp -r * cctrack@vocms01:/data/users/event_display/${DataLocalDir}/${dest}/${nnn}/${Run_numb}/$thisDataset
 
      rm ${file_path}/$dqmFileName
 
