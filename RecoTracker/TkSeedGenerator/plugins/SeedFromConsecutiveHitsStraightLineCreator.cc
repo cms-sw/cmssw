@@ -1,10 +1,10 @@
 #include "SeedFromConsecutiveHitsStraightLineCreator.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 
 
 bool SeedFromConsecutiveHitsStraightLineCreator::initialKinematic(GlobalTrajectoryParameters & kine,
-								  const SeedingHitSet & hits) const;
-{
+								  const SeedingHitSet & hits) const {
 
   const TransientTrackingRecHit::ConstRecHitPointer& tth1 = hits[0];
   const TransientTrackingRecHit::ConstRecHitPointer& tth2 = hits[1];

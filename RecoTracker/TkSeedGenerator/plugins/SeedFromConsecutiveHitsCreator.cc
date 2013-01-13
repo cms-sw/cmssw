@@ -13,7 +13,11 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 
 namespace {
-  template <class T> T sqr( T t) {return t*t;}
+
+  template <class T> 
+  inline
+  T sqr( T t) {return t*t;}
+
 }
 
 void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
@@ -27,7 +31,8 @@ void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
   es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
   // mag field
   es.get<IdealMagneticFieldRecord>().get(bfield);
-  isBOFF = (bfield->nominalValue()==0);  
+  nomField = bfield->nominalValue();
+  isBOFF = (0==nomField);  
 }
 
 void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCollection,
@@ -54,7 +59,7 @@ bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters
   TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
   const GlobalPoint& vertexPos = region->origin();
 
-  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, es);
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField,&*bfield);
   if (helix.isValid()) {
     kine = helix.stateAtVertex().parameters();
   } else {
@@ -87,7 +92,7 @@ SeedFromConsecutiveHitsCreator::initialError(float sinTheta) const
   // Probably OK based on quick study: KS 22/11/12.
   float sin2th = sqr(sinTheta);
   float minC00 = sqr(theMinOneOverPtError);
-  C[0][0] = std::max(sin2th/sqr(region.ptMin()), minC00);
+  C[0][0] = std::max(sin2th/sqr(region->ptMin()), minC00);
   float zErr = sqr(region->originZBound());
   float transverseErr = sqr(theOriginTransverseErrorMultiplier*region->originRBound());
   C[3][3] = transverseErr;
@@ -137,6 +142,7 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
     trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
   TrajectorySeed seed(PTraj,std::move(seedHits),alongMomentum); 
   if (filter && filter->compatible(seed)) seedCollection.push_back(seed);
+
 }
 
 TransientTrackingRecHit::RecHitPointer SeedFromConsecutiveHitsCreator::refitHit(

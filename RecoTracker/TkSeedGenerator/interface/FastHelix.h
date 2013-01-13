@@ -4,10 +4,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 /**
    Generation of track parameters at a vertex using two hits and a vertex.
@@ -25,6 +21,7 @@
 	                         straightLineStateAtVertex()
  */
 
+class MagneticField;
 class FastHelix {
 
 private:
@@ -35,38 +32,40 @@ public:
 
 
   //Original constructor (no basis vertex)
-   FastHelix(const GlobalPoint& outerHit,
-		const GlobalPoint& middleHit,
-		const GlobalPoint& aVertex,
-		const edm::EventSetup& iSetup) : theOuterHit(outerHit),
-						 theMiddleHit(middleHit),
-						 theVertex(aVertex),
-						 theCircle(outerHit,
-							   middleHit,
-							   aVertex) {
-		  iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-		  tesla0=0.1*double(pSetup->nominalValue());
-		  maxRho = maxPt/(0.01 * 0.3*tesla0);
-		  useBasisVertex = false;
-		}
+  FastHelix(const GlobalPoint& outerHit,
+	    const GlobalPoint& middleHit,
+	    const GlobalPoint& aVertex,
+	    double nomField, MagneticField const * ibField) :
+    bField(ibField),
+    theOuterHit(outerHit),
+    theMiddleHit(middleHit),
+    theVertex(aVertex),
+    theCircle(outerHit,
+	      middleHit,
+	      aVertex) {
+    tesla0=0.1*nomField;
+    maxRho = maxPt/(0.01 * 0.3*tesla0);
+    useBasisVertex = false;
+  }
 
   //New constructor (with basis vertex)
   FastHelix(const GlobalPoint& outerHit,
-		const GlobalPoint& middleHit,
-		const GlobalPoint& aVertex,
-		const edm::EventSetup& iSetup,
-		const GlobalPoint& bVertex) : theOuterHit(outerHit),
-					      theMiddleHit(middleHit),
-					      theVertex(aVertex),
-					      basisVertex(bVertex),
-					      theCircle(outerHit,
-						        middleHit,
-							aVertex) {
-		  iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
-		  tesla0=0.1*double(pSetup->nominalValue());
-		  maxRho = maxPt/(0.01 * 0.3*tesla0);
-		  useBasisVertex = true;
-		}
+	    const GlobalPoint& middleHit,
+	    const GlobalPoint& aVertex,
+	    double nomField, MagneticField const * ibField,
+	    const GlobalPoint& bVertex) : 
+    bField(ibField),
+    theOuterHit(outerHit),
+    theMiddleHit(middleHit),
+    theVertex(aVertex),
+    basisVertex(bVertex),
+    theCircle(outerHit,
+	      middleHit,
+	      aVertex) {
+    tesla0=0.1*nomField;
+    maxRho = maxPt/(0.01 * 0.3*tesla0);
+    useBasisVertex = true;
+  }
 
   ~FastHelix() {}
   
@@ -84,12 +83,12 @@ private:
 
   static constexpr double maxPt = 10000; // 10Tev
 
+  MagneticField const * bField; // needed to construct FTS
   GlobalPoint theOuterHit;
   GlobalPoint theMiddleHit;
   GlobalPoint theVertex;
   GlobalPoint basisVertex;
   FastCircle theCircle;
-  edm::ESHandle<MagneticField> pSetup;
   double tesla0;
   double maxRho;
   bool useBasisVertex;

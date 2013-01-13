@@ -17,7 +17,7 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
     const TrackingRegion & region, const edm::Event& ev, const edm::EventSetup& es)
 {
   if (theComparitor) theComparitor->init(es);
-  theSeedCreator->init(region, es, theComparitor);
+  theSeedCreator->init(region, es, theComparitor.get());
   const OrderedSeedingHits & hitss = theHitsGenerator->run(region, ev, es);
 
   unsigned int nHitss =  hitss.size();

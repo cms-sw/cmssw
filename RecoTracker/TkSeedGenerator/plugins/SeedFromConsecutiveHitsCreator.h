@@ -74,6 +74,7 @@ protected:
   edm::ESHandle<TrackerGeometry> tracker;
   edm::ESHandle<Propagator>  propagatorHandle;
   edm::ESHandle<MagneticField> bfield;
+  float nomField;
   bool isBOFF = false;
 
 };

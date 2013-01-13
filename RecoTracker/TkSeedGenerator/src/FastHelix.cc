@@ -118,7 +118,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
     return FTS(basisVertex, 
 	       GlobalVector(px, py, pz),
 	       q, 
-	       &(*pSetup)
+	       bField
 	       );
   } else {
     double z_0 =  theMiddleHit.z();
@@ -139,7 +139,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
     return FTS(GlobalPoint(v.x(),v.y(),z_0), 
 	       GlobalVector(px, py, pz),
 	       q, 
-	       &(*pSetup)
+	       bField
 	       );
   }
   
@@ -186,14 +186,14 @@ FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
     return FTS(basisVertex, 
 	       GlobalVector(px, py, pz),
 	       q, 
-	       &(*pSetup)
+	       bField
 	       );
   } else {
   double z_0 = -flfit.c()/flfit.n2();
   return FTS(GlobalPoint(v.x(), v.y(), z_0),
 	     GlobalVector(px, py, pz),
 	     q,
-	     &(*pSetup)
+	     bField
 	     );
   }
 }

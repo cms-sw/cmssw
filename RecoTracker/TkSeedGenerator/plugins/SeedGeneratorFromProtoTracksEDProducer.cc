@@ -58,6 +58,9 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
   bool foundVertices = ev.getByLabel(theInputVertexCollectionTag, vertices);
   //const reco::VertexCollection & vertices = *(h_vertices.product());
 
+  ///
+  /// need optimization: all es stuff should go out of the loop
+  /// 
   for (TrackCollection::const_iterator it=protos.begin(); it!= protos.end(); ++it) {
     const Track & proto = (*it);
     GlobalPoint vtx(proto.vertex().x(), proto.vertex().y(), proto.vertex().z());
@@ -95,7 +98,9 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       if (hits.size() > 1) {
         double mom_perp = sqrt(proto.momentum().x()*proto.momentum().x()+proto.momentum().y()*proto.momentum().y());
 	GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
-	SeedFromConsecutiveHitsCreator().trajectorySeed(*result, SeedingHitSet(hits[0], hits[1], hits.size() >2 ? hits[2] : SeedingHitSet::nullPtr() ), region, es, 0);
+	SeedFromConsecutiveHitsCreator seedCreator;
+	seedCreator.init(region, es, 0);
+	SeedFromConsecutiveHitsCreator().makeSeed(*result, SeedingHitSet(hits[0], hits[1], hits.size() >2 ? hits[2] : SeedingHitSet::nullPtr() ));
       }
     }
   } 
