@@ -20,6 +20,8 @@ namespace {
 
 }
 
+SeedFromConsecutiveHitsCreator::~SeedFromConsecutiveHitsCreator(){}
+
 void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
 	  const edm::EventSetup& es,
 	  const SeedComparitor *ifilter) {
@@ -42,9 +44,9 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCol
   GlobalTrajectoryParameters kine;
   if (!initialKinematic(kine, hits)) return;
 
-  float sinTheta = std::sin(kine.momentum().theta());
+  float sin2Theta = kine.momentum().perp2()/kine.momentum().mag2();
 
-  CurvilinearTrajectoryError error = initialError(sinTheta);
+  CurvilinearTrajectoryError error = initialError(sin2Theta);
   FreeTrajectoryState fts(kine, error);
 
   buildSeed(seedCollection,hits,fts); 
@@ -80,7 +82,7 @@ bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters
 
 
 CurvilinearTrajectoryError
-SeedFromConsecutiveHitsCreator::initialError(float sinTheta) const
+SeedFromConsecutiveHitsCreator::initialError(float sin2Theta) const
 {
   // Set initial uncertainty on track parameters, using only P.V. constraint and no hit
   // information.
@@ -90,13 +92,13 @@ SeedFromConsecutiveHitsCreator::initialError(float sinTheta) const
 // to avoid instabilities.
 // N.B. This parameter needs optimising ...
   // Probably OK based on quick study: KS 22/11/12.
-  float sin2th = sqr(sinTheta);
+  float sin2th = sin2Theta;
   float minC00 = sqr(theMinOneOverPtError);
   C[0][0] = std::max(sin2th/sqr(region->ptMin()), minC00);
   float zErr = sqr(region->originZBound());
   float transverseErr = sqr(theOriginTransverseErrorMultiplier*region->originRBound());
   C[3][3] = transverseErr;
-  C[4][4] = zErr*sin2th + transverseErr*(1-sin2th);
+  C[4][4] = zErr*sin2th + transverseErr*(1.f-sin2th);
 
   return CurvilinearTrajectoryError(C);
 }

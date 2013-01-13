@@ -29,7 +29,7 @@ public:
     theOriginTransverseErrorMultiplier(aOriginTransverseErrorMultiplier), theMinOneOverPtError(aMinOneOverPtError) { }
 
   //dtor
-  virtual ~SeedFromConsecutiveHitsCreator(){}
+  virtual ~SeedFromConsecutiveHitsCreator();
 
   // initialize the "event dependent state"
   virtual void init(const TrackingRegion & region,
@@ -50,17 +50,17 @@ private:
 
   bool checkHit(
       const TrajectoryStateOnSurface &tsos,
-      const TransientTrackingRecHit::ConstRecHitPointer &hit) const; 
+      const TransientTrackingRecHit::ConstRecHitPointer &hit) const dso_hidden;  
 
   
-  CurvilinearTrajectoryError initialError(float sinTheta) const;
+  CurvilinearTrajectoryError initialError(float sin2Theta) const  dso_hidden;
   
   void buildSeed(TrajectorySeedCollection & seedCollection,
 				   const SeedingHitSet & hits,
-				   const FreeTrajectoryState & fts) const;
+				   const FreeTrajectoryState & fts) const  dso_hidden;
 
   TransientTrackingRecHit::RecHitPointer refitHit(const TransientTrackingRecHit::ConstRecHitPointer &hit, 
-						  const TrajectoryStateOnSurface &state) const;
+						  const TrajectoryStateOnSurface &state) const  dso_hidden;
 
 protected:
 
