@@ -61,7 +61,7 @@ bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters
 
   FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), vertexPos, nomField,&*bfield);
   if (helix.isValid()) {
-    kine = helix.stateAtVertex().parameters();
+    kine = helix.stateAtVertex();
   } else {
     GlobalVector initMomentum(tth2->globalPosition() - vertexPos);
     initMomentum *= (100./initMomentum.perp()); 

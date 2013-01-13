@@ -4,7 +4,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
 
-FreeTrajectoryState FastHelix::stateAtVertex() const {
+GlobalTrajectoryParameters FastHelix::stateAtVertex() const {
   
   if(isValid() && (fabs(tesla0) > 1e-3) && theCircle.rho()<maxRho)
     return helixStateAtVertex();
@@ -13,7 +13,7 @@ FreeTrajectoryState FastHelix::stateAtVertex() const {
     
 }
 
-FreeTrajectoryState FastHelix::helixStateAtVertex() const {
+GlobalTrajectoryParameters FastHelix::helixStateAtVertex() const {
 
   // given the above rho>0.
   double rho = theCircle.rho();
@@ -115,7 +115,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
 
   //VI
   if ( useBasisVertex ) {
-    return FTS(basisVertex, 
+    return GlobalTrajectoryParameters(basisVertex, 
 	       GlobalVector(px, py, pz),
 	       q, 
 	       bField
@@ -136,7 +136,7 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
     //double z_old = -flfit.c()/flfit.n2();
     // std::cout << "v:xyz, z,old,new " << v << "   " << z_old << " " << z_0 << std::endl;
 
-    return FTS(GlobalPoint(v.x(),v.y(),z_0), 
+    return GlobalTrajectoryParameters(GlobalPoint(v.x(),v.y(),z_0), 
 	       GlobalVector(px, py, pz),
 	       q, 
 	       bField
@@ -145,9 +145,9 @@ FreeTrajectoryState FastHelix::helixStateAtVertex() const {
   
 }
 
-FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
+GlobalTrajectoryParameters FastHelix::straightLineStateAtVertex() const {
 
-  //calculate FTS assuming straight line...
+  //calculate GlobalTrajectoryParameters assuming straight line...
 
   GlobalPoint pMid(theMiddleHit);
   GlobalPoint v(theVertex);
@@ -183,14 +183,14 @@ FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
   //VI
 
   if ( useBasisVertex ) {
-    return FTS(basisVertex, 
+    return GlobalTrajectoryParameters(basisVertex, 
 	       GlobalVector(px, py, pz),
 	       q, 
 	       bField
 	       );
   } else {
   double z_0 = -flfit.c()/flfit.n2();
-  return FTS(GlobalPoint(v.x(), v.y(), z_0),
+  return GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
 	     GlobalVector(px, py, pz),
 	     q,
 	     bField

@@ -2,7 +2,6 @@
 #define TR_FastHelix_H_
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 
 /**
@@ -22,11 +21,9 @@
  */
 
 class MagneticField;
+class GlobalTrajectoryParameters;
 class FastHelix {
 
-private:
-  
-  typedef FreeTrajectoryState FTS;
 
 public:
 
@@ -71,11 +68,11 @@ public:
   
   bool isValid() const {return theCircle.isValid();}
 
-  FTS stateAtVertex() const;
+  GlobalTrajectoryParameters stateAtVertex() const;
 
-  FTS helixStateAtVertex() const;
+  GlobalTrajectoryParameters helixStateAtVertex() const;
 
-  FTS straightLineStateAtVertex() const;
+  GlobalTrajectoryParameters straightLineStateAtVertex() const;
 
   const FastCircle & circle() const { return theCircle; }
 
@@ -83,7 +80,7 @@ private:
 
   static constexpr double maxPt = 10000; // 10Tev
 
-  MagneticField const * bField; // needed to construct FTS
+  MagneticField const * bField; // needed to construct GlobalTrajectoryParameters
   GlobalPoint theOuterHit;
   GlobalPoint theMiddleHit;
   GlobalPoint theVertex;

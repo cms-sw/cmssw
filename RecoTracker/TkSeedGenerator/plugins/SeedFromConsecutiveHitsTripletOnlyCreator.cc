@@ -18,7 +18,7 @@ bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajector
   const TransientTrackingRecHit::ConstRecHitPointer& tth3 = hits[2];
 
   FastHelix helix(tth3->globalPosition(), tth2->globalPosition(), tth1->globalPosition(), nomField, &*bfield, tth1->globalPosition());
-  kine = helix.stateAtVertex().parameters();
+  kine = helix.stateAtVertex();
 
   if unlikely(isBOFF && (theBOFFMomentum > 0)) {
       kine = GlobalTrajectoryParameters(kine.position(),
