@@ -394,6 +394,72 @@ class TrackerTopology {
     return DetId(rawid);
   }
 
+  DetId tecDetId(uint32_t side, uint32_t wheel,
+		 uint32_t petal_fw_bw, uint32_t petal,
+		 uint32_t ring, uint32_t module, uint32_t ster) const {  
+
+    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TEC);
+    uint32_t rawid=id.rawId();
+
+    rawid |= (side& tecVals_.sideMask_)         << tecVals_.sideStartBit_ |
+      (wheel& tecVals_.wheelMask_)             << tecVals_.wheelStartBit_ |
+      (petal_fw_bw& tecVals_.petal_fw_bwMask_) << tecVals_.petal_fw_bwStartBit_ |
+      (petal& tecVals_.petalMask_)             << tecVals_.petalStartBit_ |
+      (ring& tecVals_.ringMask_)               << tecVals_.ringStartBit_ |
+      (module& tecVals_.moduleMask_)                 << tecVals_.moduleStartBit_ |
+      (ster& tecVals_.sterMask_)               << tecVals_.sterStartBit_ ;
+    return DetId(rawid);
+  }
+
+  DetId tibDetId(uint32_t layer,
+		 uint32_t str_fw_bw,
+		 uint32_t str_int_ext,
+		 uint32_t str,
+		 uint32_t module,
+		 uint32_t ster) const {
+    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TIB);
+    uint32_t rawid=id.rawId();
+    rawid |= (layer& tibVals_.layerMask_) << tibVals_.layerStartBit_ |
+      (str_fw_bw& tibVals_.str_fw_bwMask_) << tibVals_.str_fw_bwStartBit_ |
+      (str_int_ext& tibVals_.str_int_extMask_) << tibVals_.str_int_extStartBit_ |
+      (str& tibVals_.strMask_) << tibVals_.strStartBit_ |
+      (module& tibVals_.moduleMask_) << tibVals_.moduleStartBit_ |
+      (ster& tibVals_.sterMask_) << tibVals_.sterStartBit_ ;
+    return DetId(rawid);
+  }
+
+  DetId tidDetId(uint32_t side,
+		 uint32_t wheel,
+		 uint32_t ring,
+		 uint32_t module_fw_bw,
+		 uint32_t module,
+		 uint32_t ster) const { 
+    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TID);
+    uint32_t rawid=id.rawId();
+    rawid |= (side& tidVals_.sideMask_)      << tidVals_.sideStartBit_    |
+      (wheel& tidVals_.wheelMask_)          << tidVals_.wheelStartBit_      |
+      (ring& tidVals_.ringMask_)            << tidVals_.ringStartBit_       |
+      (module_fw_bw& tidVals_.module_fw_bwMask_)  << tidVals_.module_fw_bwStartBit_  |
+      (module& tidVals_.moduleMask_)              << tidVals_.moduleStartBit_        |
+      (ster& tidVals_.sterMask_)            << tidVals_.sterStartBit_ ;
+    return DetId(rawid);
+  }
+
+  DetId tobDetId(uint32_t layer,
+		 uint32_t rod_fw_bw,
+		 uint32_t rod,
+		 uint32_t module,
+		 uint32_t ster) const {
+    DetId id=SiStripDetId(DetId::Tracker,StripSubdetector::TOB);
+    uint32_t rawid=id.rawId();
+    rawid |= (layer& tobVals_.layerMask_) << tobVals_.layerStartBit_ |
+      (rod_fw_bw& tobVals_.rod_fw_bwMask_) << tobVals_.rod_fw_bwStartBit_ |
+      (rod& tobVals_.rodMask_) << tobVals_.rodStartBit_ |
+      (module& tobVals_.moduleMask_) << tobVals_.moduleStartBit_ |
+      (ster& tobVals_.sterMask_) << tobVals_.sterStartBit_ ;
+    return DetId(rawid);
+  }
+
   std::string print(DetId detid) const;
 
  private:
