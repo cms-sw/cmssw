@@ -5,7 +5,7 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvLine.h"
+#include "ThirdHitPredictionFromInvLine.h"
 #include "ThirdHitZPrediction.h"
 
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"

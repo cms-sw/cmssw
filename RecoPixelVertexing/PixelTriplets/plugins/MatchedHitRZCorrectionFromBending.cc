@@ -3,7 +3,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
+#include "ThirdHitPredictionFromCircle.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "MatchedHitRZCorrectionFromBending.h"
 

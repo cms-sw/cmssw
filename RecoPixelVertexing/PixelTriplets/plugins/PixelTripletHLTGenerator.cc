@@ -1,7 +1,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/PixelTripletHLTGenerator.h"
 
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvParabola.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
+#include "ThirdHitPredictionFromInvParabola.h"
+#include "ThirdHitRZPrediction.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 

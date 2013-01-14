@@ -1,7 +1,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/PixelTripletLargeTipGenerator.h"
 
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
+#include "ThirdHitPredictionFromCircle.h"
+#include "ThirdHitRZPrediction.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
