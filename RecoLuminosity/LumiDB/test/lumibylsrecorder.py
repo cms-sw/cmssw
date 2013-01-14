@@ -1,5 +1,5 @@
-import os,os.path,csv,coral,commands
-from RecoLuminosity.LumiDB import dbUtil,lumiTime,sessionManager,nameDealer
+import sys,os,os.path,csv,coral,commands
+from RecoLuminosity.LumiDB import dbUtil,lumiTime,sessionManager,nameDealer,argparse
 def getrunsInResult(schema,minrun=132440,maxrun=500000):
     '''
     get runs in result tables in specified range
@@ -67,7 +67,7 @@ def getrunsInCurrentData(schema,minrun=132440,maxrun=500000):
     except:
         if qHandle:del qHandle
         raise
-    if tmpresult:return tmpresult.keys()
+    if tmpresult:return tmpresult.keys()    
     return []
 
 def execCalc(connectStr,authpath,runnum):
@@ -180,37 +180,65 @@ def addindb(session,datatag,normtag,lumidata,bulksize):
         print 'error in addindb'
         raise 
 if __name__ == "__main__" :
-    sourcestr='oracle://cms_orcon_prod/cms_lumi_prod'
-    pth='/nfshome0/xiezhen/authwriter'
-    sourcesvc=sessionManager.sessionManager(sourcestr,authpath=pth,debugON=False)
+    parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "check/compute lumi for new runs in specified range",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-s',dest='sourcestr',action='store',
+                        required=False,
+                        help='source DB connect string',
+                        default='oracle://cms_orcon_prod/cms_lumi_prod')
+    parser.add_argument('-d',dest='deststr',action='store',
+                        required=False,
+                        help='dest DB connect string',
+                        default='oracle://cms_orcon_prod/cms_lumi_prod')
+    parser.add_argument('-P',dest='pth',action='store',
+                        required=False,
+                        help='path to authentication file')
+    parser.add_argument('-b',dest='begrun',action='store',
+                        type=int,
+                        required=True,
+                        help='begin run number')
+    parser.add_argument('-e',dest='endrun',action='store',
+                        type=int,
+                        required=False,
+                        default=500000,
+                        help='end run number')
+    parser.add_argument('-o',dest='outdir',action='store',
+                        required=False,
+                        default='.',
+                        help='output directory'
+                        )
+    options=parser.parse_args()
+    if not os.path.isdir(options.outdir) or not os.path.exists(options.outdir):
+        print 'non-existing output dir ',options.outdir
+        sys.exit(12)
+    sourcesvc=sessionManager.sessionManager(options.sourcestr,authpath=options.pth,debugON=False)
     sourcesession=sourcesvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     sourcesession.transaction().start(True)
-    run1=189922
-    run2=209151
-    sourcerunlist=getrunsInCurrentData(sourcesession.nominalSchema(),minrun=run1,maxrun=run2)
+    sourcerunlist=getrunsInCurrentData(sourcesession.nominalSchema(),minrun=options.begrun,maxrun=options.endrun)
     sourcesession.transaction().commit()
     sourcerunlist.sort()
-    print 'source ',len(sourcerunlist),sourcerunlist
-    deststr='oracle://cms_orcon_prod/cms_lumi_prod'
-    destsvc=sessionManager.sessionManager(deststr,authpath=pth,debugON=False)
+    #print 'source ',len(sourcerunlist),sourcerunlist
+    destsvc=sessionManager.sessionManager(options.deststr,authpath=options.pth,debugON=False)
     destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     destsession.transaction().start(True)
-    destrunlist=getrunsInResult(destsession.nominalSchema(),minrun=run1,maxrun=run2)
+    destrunlist=getrunsInResult(destsession.nominalSchema(),minrun=options.begrun,maxrun=options.endrun)
     destsession.transaction().commit()
     destrunlist.sort()
-    print 'dest ',len(destrunlist),destrunlist
+    #print 'dest ',len(destrunlist),destrunlist
     processedruns=[]
     for r in sourcerunlist:
         if r not in destrunlist:
-            result=execCalc(sourcestr,pth,r)
+            result=execCalc(options.sourcestr,options.pth,r)
             if result:
                 processedruns.append(result)
-    for pr in processedruns:
-        lslumifilename=str(pr)+'.csv'
-        lumiheaderfilename=str(pr)+'.txt'
-        p=lslumiParser(lslumifilename,lumiheaderfilename)
-        p.parse()
-        addindb(destsession,p.datatag,p.normtag,p.lumidata,bulksize=500)
+    if len(processedruns)==0:
+        print '[INFO] no new runs found, do nothing '
+    else:
+        for pr in processedruns:
+            lslumifilename=os.path.join(options.outdir,str(pr)+'.csv')
+            lumiheaderfilename=os.path.join(options.outdir,str(pr)+'.txt')
+            p=lslumiParser(lslumifilename,lumiheaderfilename)
+            p.parse()
+            addindb(destsession,p.datatag,p.normtag,p.lumidata,bulksize=500)
     del sourcesession
     del sourcesvc
     del destsession
