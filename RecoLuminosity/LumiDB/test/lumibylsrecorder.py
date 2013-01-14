@@ -1,4 +1,4 @@
-import sys,os,os.path,csv,coral,commands
+import sys,os,os.path,csv,coral,commands,glob
 from RecoLuminosity.LumiDB import dbUtil,lumiTime,sessionManager,nameDealer,argparse
 def getrunsInResult(schema,minrun=132440,maxrun=500000):
     '''
@@ -141,7 +141,22 @@ class lslumiParser(object):
 def updateindb(session,datatag,normtag,lumidata,bulksize):
     '''
     '''
-    
+def findmaxrun(dirname):
+    '''
+    find max runnum from file xxxxxx.csv in specified dir
+    output: 0 or runnum
+    '''
+    maxrunnum=0
+    result=maxrunnum
+    allcsvfiles=glob.glob(os.path.join(dirname,'??????.csv'))
+    if not allcsvfiles:
+        return result
+    for csvfile in allcsvfiles:
+        runnum=int(os.path.basename(csvfile).split('.')[0])
+        if runnum>maxrunnum:
+            result=runnum
+            maxrunnum=runnum
+    return result
 def addindb(session,datatag,normtag,lumidata,bulksize):
     '''
     input : [fill,run,lumils,cmsls,lstime,beamstatus,beamenergy,delivered,recorded,avgpu]
@@ -194,13 +209,18 @@ if __name__ == "__main__" :
                         help='path to authentication file')
     parser.add_argument('-b',dest='begrun',action='store',
                         type=int,
-                        required=True,
+                        required=False,
                         help='begin run number')
     parser.add_argument('-e',dest='endrun',action='store',
                         type=int,
                         required=False,
                         default=500000,
                         help='end run number')
+    parser.add_argument('-i',dest='indir',action='store',
+                        required=False,
+                        default=None,
+                        help='input directory'
+                        )
     parser.add_argument('-o',dest='outdir',action='store',
                         required=False,
                         default='.',
@@ -208,19 +228,32 @@ if __name__ == "__main__" :
                         )
     options=parser.parse_args()
     if not os.path.isdir(options.outdir) or not os.path.exists(options.outdir):
-        print 'non-existing output dir ',options.outdir
+        print '[ERROR] non-existing output dir ',options.outdir
         sys.exit(12)
+    if not options.begrun and not options.indir:
+        print '[ERROR] must specify at least -b or -i'
+        sys.exit(13)
+    begrun=0
+    if options.begrun:
+        begrun=options.begrun
+    if options.indir and os.path.exists(options.indir) and os.path.isdir(options.indir):
+        maxrunindir=findmaxrun(options.indir)
+        if maxrunindir>begrun:
+            begrun=maxrunindir
+    if not begrun:
+        print '[ERROR] cannot find the begin run'
+        sys.exit(14)
     sourcesvc=sessionManager.sessionManager(options.sourcestr,authpath=options.pth,debugON=False)
     sourcesession=sourcesvc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     sourcesession.transaction().start(True)
-    sourcerunlist=getrunsInCurrentData(sourcesession.nominalSchema(),minrun=options.begrun,maxrun=options.endrun)
+    sourcerunlist=getrunsInCurrentData(sourcesession.nominalSchema(),minrun=begrun,maxrun=options.endrun)
     sourcesession.transaction().commit()
     sourcerunlist.sort()
     #print 'source ',len(sourcerunlist),sourcerunlist
     destsvc=sessionManager.sessionManager(options.deststr,authpath=options.pth,debugON=False)
     destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     destsession.transaction().start(True)
-    destrunlist=getrunsInResult(destsession.nominalSchema(),minrun=options.begrun,maxrun=options.endrun)
+    destrunlist=getrunsInResult(destsession.nominalSchema(),minrun=begrun,maxrun=options.endrun)
     destsession.transaction().commit()
     destrunlist.sort()
     #print 'dest ',len(destrunlist),destrunlist
@@ -231,7 +264,7 @@ if __name__ == "__main__" :
             if result:
                 processedruns.append(result)
     if len(processedruns)==0:
-        print '[INFO] no new runs found, do nothing '
+        print '[INFO] no new runs found in range:',begrun,options.endrun
     else:
         for pr in processedruns:
             lslumifilename=os.path.join(options.outdir,str(pr)+'.csv')
