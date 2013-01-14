@@ -13,8 +13,6 @@ export TNS_ADMIN=/home/lumidb
 macrodir="$workdir/src/RecoLuminosity/LumiDB/test"
 outdir="/home/lumidb/lumibylsresult/2012"
 pwd=`pwd`
-cd $workdir
-eval `scramv1 runtime -sh`
 cd $outdir
 python $macrodir/lumibylsdiff.py > lumibylsdiff.out
 cd $pwd 
