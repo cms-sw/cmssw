@@ -1,4 +1,5 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 FastCircle::FastCircle(const GlobalPoint& outerHit,
 		       const GlobalPoint& middleHit,
@@ -39,11 +40,30 @@ FastCircle::FastCircle(const GlobalPoint& outerHit,
   
 }
 
+namespace {
+  inline
+  AlgebraicVector3 transform(const GlobalPoint& aPoint, float norm) {
+    
+    AlgebraicVector3 riemannPoint;
+    
+    auto p = aPoint.basicVector()/norm;
+    float R2 = p.perp2();
+    float fact = 1.f/(1.f+R2); // let's factorize the common factor out
+    riemannPoint[0] = fact*p.x();  
+    riemannPoint[1] = fact*p.y();  
+    riemannPoint[2] = fact*R2;
+    
+    return riemannPoint;
+  }
+
+
+}
+
 void FastCircle::createCircleParameters() {
   
-  AlgebraicVector3 x = transform(theOuterPoint);
-  AlgebraicVector3 y = transform(theInnerPoint);
-  AlgebraicVector3 z = transform(theVertexPoint);
+  AlgebraicVector3 x = transform(theOuterPoint,theNorm);
+  AlgebraicVector3 y = transform(theInnerPoint,theNorm);
+  AlgebraicVector3 z = transform(theVertexPoint,theNorm);
 
   AlgebraicVector3 n;
 
@@ -83,16 +103,3 @@ void FastCircle::createCircleParameters() {
 
 }
 
-AlgebraicVector3 FastCircle::transform(const GlobalPoint& aPoint) const {
-
-  AlgebraicVector3 riemannPoint;
-
-  auto p = aPoint.basicVector()/float(theNorm);
-  float R2 = p.perp2();
-  float fact = 1.f/(1.f+R2); // let's factorize the common factor out
-  riemannPoint[0] = fact*p.x();  
-  riemannPoint[1] = fact*p.y();  
-  riemannPoint[2] = fact*R2;
-  
-  return riemannPoint;
-}

@@ -80,14 +80,14 @@ private:
 
 private:
 
-  static constexpr double maxPt = 10000; // 10Tev
+  static constexpr float maxPt = 10000; // 10Tev
 
   MagneticField const * bField; // needed to construct GlobalTrajectoryParameters
   GlobalTrajectoryParameters atVertex;
   GlobalPoint basisVertex;
   FastCircle theCircle;
-  double tesla0;
-  double maxRho;
+  float tesla0;
+  float maxRho;
   bool useBasisVertex;
 };
 
