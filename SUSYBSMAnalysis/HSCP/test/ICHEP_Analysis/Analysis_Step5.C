@@ -816,14 +816,13 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
      delete Histos[0]; delete Histos[1];
      delete c1;
    }
-   
    if(TypeMode==0 || TypeMode==4 || TypeMode==5){  
       TH1D* HCuts_Pt              = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
       TH1D* HCuts_I               = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
       TH1D* HCuts_TOF             = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
-      
+
       for(int S=0;S<2;S++){
-         if(TypeMode==0 && S>0)continue;
+   	 if(TypeMode==0 && S>0)continue;
 
          string suffix = "";
          if(S==1)suffix = "_Flip";
@@ -877,7 +876,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
               N_i++;
             }
          }
-
+      
 
          c1 = new TCanvas("c1","c1,",600,600);
          TPad* t1 = new TPad("t1","t1", 0.0, 0.20, 1.0, 1.0);
@@ -1078,6 +1077,11 @@ void CutFlow(string InputPattern, unsigned int CutIndex){
     }
 
     if(stPlots_InitFromFile(InputFile, plots,"MCTr_8TeV")){
+      stPlots_Dump(plots, pFile, CutIndex);
+      stPlots_Clear(&plots);
+    }
+
+    if(stPlots_InitFromFile(InputFile, plots,"Cosmic8TeV")){
       stPlots_Dump(plots, pFile, CutIndex);
       stPlots_Clear(&plots);
     }
