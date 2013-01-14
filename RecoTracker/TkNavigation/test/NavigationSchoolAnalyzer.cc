@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Fri Mar 16 13:19:20 CDT 2007
-// $Id: NavigationSchoolAnalyzer.cc,v 1.5 2010/10/03 17:14:42 elmer Exp $
+// $Id: NavigationSchoolAnalyzer.cc,v 1.6 2012/11/27 09:52:21 slava77 Exp $
 //
 //
 
@@ -34,12 +34,8 @@
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -48,6 +44,7 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include <sstream>
 
 // class definition
 class NavigationSchoolAnalyzer : public edm::EDAnalyzer {
@@ -60,15 +57,21 @@ private:
   virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
+  void print(std::stringstream& os,const DetLayer* dl, const TrackerTopology *tTopo);
+  void print(std::stringstream& os, const NavigationSchool::StateType & layers, const TrackerTopology *tTopo);
+  void print(std::stringstream& os, const NavigationSchool *nav, const TrackerTopology *tTopo);
+
 
   std::string theNavigationSchoolName;
+
 };
 
 //navigation printouts
-std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
+
+void NavigationSchoolAnalyzer::print(std::stringstream& os,const DetLayer* dl, const TrackerTopology *tTopo){
   const std::vector<const GeomDet*>& bComponents = dl->basicComponents();
 
-  if (bComponents.empty()){/* t'es pas dans la merde */;return os;}
+  if (bComponents.empty()){/* t'es pas dans la merde */;return;}
 
   const GeomDet* tag = bComponents.front();
   unsigned int LorW=0;
@@ -76,11 +79,11 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
 
   switch (dl->subDetector()){
   case GeomDetEnumerators::PixelBarrel :
-    LorW = PXBDetId(tag->geographicalId()).layer(); break;
+    LorW = tTopo->pxbLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::TIB :
-    LorW = TIBDetId(tag->geographicalId()).layer(); break;
+    LorW = tTopo->tibLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::TOB :
-    LorW = TOBDetId(tag->geographicalId()).layer(); break;
+    LorW = tTopo->tobLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::DT :
     LorW = DTChamberId(tag->geographicalId().rawId()).station(); break;
   case GeomDetEnumerators::RPCEndcap :
@@ -89,14 +92,14 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
     LorW = RPCDetId(tag->geographicalId().rawId()).station(); break;
 
   case GeomDetEnumerators::PixelEndcap :    
-    LorW = PXFDetId(tag->geographicalId()).disk(); 
-    side = PXFDetId(tag->geographicalId()).side();break;
+    LorW = tTopo->pxfDisk(tag->geographicalId()); 
+    side = tTopo->pxfSide(tag->geographicalId());break;
   case GeomDetEnumerators::TID :
-    LorW = TIDDetId(tag->geographicalId()).wheel(); 
-    side = TIDDetId(tag->geographicalId()).side();break;
+    LorW = tTopo->tidWheel(tag->geographicalId()); 
+    side = tTopo->tidSide(tag->geographicalId());break;
   case GeomDetEnumerators::TEC :
-    LorW = TECDetId(tag->geographicalId()).wheel();
-    side = TECDetId(tag->geographicalId()).side(); break;
+    LorW = tTopo->tecWheel(tag->geographicalId());
+    side = tTopo->tecSide(tag->geographicalId()); break;
   case GeomDetEnumerators::CSC :
     LorW = CSCDetId(tag->geographicalId().rawId()).layer();
     side = CSCDetId(tag->geographicalId().rawId()).endcap(); break;
@@ -121,17 +124,18 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
     break;
   }
   os<< (void*)dl <<"\n";
-  return os;
+  return;
 }
 
-std::ostream& operator<<(std::ostream&os, const NavigationSchool::StateType & layers){
+void NavigationSchoolAnalyzer::print(std::stringstream&os, const NavigationSchool::StateType & layers,
+				     const TrackerTopology *tTopo){
   for (NavigationSchool::StateType::const_iterator l = layers.begin(); l!=layers.end();++l)
     {
       std::vector<const DetLayer*> displayThose;
 
       os<<"####################\n"	 
-	<<"Layer: \n"
-	<<(*l)->detLayer();
+	<<"Layer: \n";
+      print(os,(*l)->detLayer(),tTopo);
       
       displayThose= (*l)->nextLayers(insideOut);
       if (displayThose.empty())
@@ -139,7 +143,10 @@ std::ostream& operator<<(std::ostream&os, const NavigationSchool::StateType & la
       else{
 	os<<"*** INsideOUT CONNECTED TO ***\n";
 	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {os<<(*nl)<<"-----------------\n";}}
+	  {
+	    print(os,(*nl),tTopo);
+	    os<<"-----------------\n";
+	  }}
 
       displayThose = (*l)->nextLayers(outsideIn);
       if (displayThose.empty())
@@ -147,16 +154,21 @@ std::ostream& operator<<(std::ostream&os, const NavigationSchool::StateType & la
       else{
 	os<<"*** OUTsideIN CONNECTED TO ***\n";
 	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {os<<(*nl)<<"-----------------\n";}}
+	  {
+	    print(os,(*nl),tTopo);
+	    os<<"-----------------\n";
+	  }}
     }
-  return os<<"\n";
+  os << "\n";
+  return;
 }
 
 
-std::ostream& operator<<(std::ostream&os, const NavigationSchool *nav){
+void NavigationSchoolAnalyzer::print(std::stringstream&os, const NavigationSchool *nav,
+				     const TrackerTopology *tTopo){
   NavigationSchool::StateType layer=nav->navigableLayers();
-  os<<layer;
-  return os;}
+  print(os,layer,tTopo);
+  return;}
 
 
 // the analyzer itself
@@ -170,8 +182,17 @@ void NavigationSchoolAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& i
   //get the navigation school
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, nav);
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product(); 
+
   edm::LogInfo("NavigationSchoolAnalyzer")<<"hello";
-  edm::LogInfo("NavigationSchoolAnalyzer")<<"NavigationSchool display of: "<<theNavigationSchoolName<<"\n"<<nav.product();
+  edm::LogInfo("NavigationSchoolAnalyzer")<<"NavigationSchool display of: "<<theNavigationSchoolName<<"\n";
+  std::stringstream strstr;
+  print(strstr,nav.product(),tTopo); 
+  edm::LogInfo("NavigationSchoolAnalyzer") <<  strstr.str() << std::endl;
 }
 
 void NavigationSchoolAnalyzer::endJob() {}
