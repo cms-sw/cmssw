@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.2 2007/08/28 01:42:29 ratnik Exp $
+// $Id: SiStripElectronProducer.cc,v 1.3 2013/01/02 18:59:45 dlange Exp $
 //
 
 // system include files
@@ -19,7 +19,6 @@
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "SiStripElectronProducer.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
 #include "FWCore/Framework/interface/Event.h"
