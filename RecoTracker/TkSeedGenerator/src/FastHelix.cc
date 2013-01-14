@@ -20,17 +20,28 @@ void FastHelix::helixStateAtVertex() {
   //(10./(3.*MagneticField::inTesla(GlobalPoint(0., 0., 0.)).z()));
   
   // pt = 0.01 * rho * (0.3*MagneticField::inTesla(GlobalPoint(0.,0.,0.)).z());
-  double pt = 0.01 * rho * 0.3*tesla0;
-
+  float cm2GeV = 0.01 * 0.3*tesla0;
+  float pt = cm2GeV * rho; 
+ 
   // verify that rho is not toooo large
   double dcphi = ((outerHit().x()-theCircle.x0())*(middleHit().x()-theCircle.x0()) +
 		  (outerHit().y()-theCircle.y0())*(middleHit().y()-theCircle.y0())
 		  )/(rho*rho);
   if (fabs(dcphi)>=1.) { straightLineStateAtVertex(); return;}
-
+  
   GlobalPoint pMid(middleHit());
   GlobalPoint v(vertex());
   
+  // tangent in v (or the opposite...)
+  float px0 = -cm2GeV * (v.y()-theCircle.y0());
+  float py0 =  cm2GeV * (v.x()-theCircle.x0());
+  // check sign with scalar product
+  if(px0*(pMid.x() - v.x()) + py0*(pMid.y() - v.y()) < 0.) {
+    px0 = -px0;
+    py0 = -py0;
+  } 
+
+ 
   double dydx = 0., dxdy = 0.;
   double px = 0., py = 0.;
   
@@ -77,6 +88,10 @@ void FastHelix::helixStateAtVertex() {
     py *= -1.;
   } 
 
+  std::cout << "pxy " 
+	    << px << "," << px0 << " "
+	    << py << "," << py0 << std::endl;
+
   //calculate z0, pz
   //(z, R*phi) linear relation in a helix
   //with R, phi defined as radius and angle w.r.t. centre of circle
@@ -89,23 +104,7 @@ void FastHelix::helixStateAtVertex() {
   dzdrphi /= rho*acos(dcphi);
   double pz = pt*dzdrphi;
 
-  /*
-  // old crap
-  FastLine flfit(outerHit(), middleHit(), theCircle.rho());
-  double dzdrphi2 = -flfit.n1()/flfit.n2();
 
-  //  if (fabs(dzdrphi2-dzdrphi)>1.e-5) 
-  std::cout << "FastHelix: old,new " << dzdrphi2 <<", " <<  dzdrphi << std::endl; 
-  */
-
-  //get sign of particle
-
-  /*
-  TrackCharge q = 
-    ((theCircle.x0()*py - theCircle.y0()*px) / 
-     (magvtx.z()) < 0.) ? 
-    -1 : 1;
-  */
   TrackCharge q = 1;
   if (theCircle.x0()*py - theCircle.y0()*px < 0) q =-q;
   if (tesla0 < 0.) q =-q;
