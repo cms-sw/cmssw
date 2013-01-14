@@ -3153,6 +3153,47 @@ Double_t RooRelBWUF_SM4::evaluate() const
 
 }
 
+/************RooRelBWUFParamWidth*************/
+
+ClassImp(RooRelBWUFParamWidth)
+
+
+RooRelBWUFParamWidth::RooRelBWUFParamWidth(const char *name, const char *title,
+					   RooAbsReal& _m4l,
+					   RooAbsReal& _mH,
+					   RooAbsReal& _width) :
+RooAbsPdf(name,title),
+m4l("m4l","m4l",this,_m4l),
+mH("mH","mH",this,_mH),
+width("width","width",this,_width)
+{
+}
+
+RooRelBWUFParamWidth::RooRelBWUFParamWidth(const RooRelBWUFParamWidth& other, const char* name) :
+RooAbsPdf(other,name),
+m4l("m4l",this,other.m4l),
+mH("mH",this,other.mH),
+width("width",this,other.width)
+{
+}
+
+Double_t RooRelBWUFParamWidth::evaluate() const
+{
+	using namespace RooFit;
+	
+	if( BR[0][0] == 0 ){ readFile(); }
+	
+	
+	Double_t mHreq = mH;
+	Double_t mStar = m4l;
+	Double_t x = width;
+	
+	// use non-relativistic Breit Wigner 
+	Double_t dm = mStar - mHreq;
+	Double_t pdf = 1./(dm*dm + 0.25*x*x);  // x is full width 
+	return pdf;
+}
+
 
 /************RooRelBWUFParam*************/
 

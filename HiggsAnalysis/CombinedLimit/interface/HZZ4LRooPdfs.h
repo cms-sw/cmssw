@@ -567,6 +567,31 @@ private:
 
 //////////////////////////////////////////////
 
+class RooRelBWUFParamWidth : public RooAbsPdf {
+public:
+	RooRelBWUFParamWidth() {} ;
+	RooRelBWUFParamWidth(const char *name, const char *title,
+					RooAbsReal& _m4l,
+					RooAbsReal& _mH,
+					RooAbsReal& _width);
+	RooRelBWUFParamWidth(const RooRelBWUFParamWidth& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new RooRelBWUFParamWidth(*this,newname); }
+	inline virtual ~RooRelBWUFParamWidth() { }
+	
+protected:
+	
+	RooRealProxy m4l ;
+	RooRealProxy mH ;
+	RooRealProxy width;
+	
+	Double_t evaluate() const ;
+	
+private:
+	
+	ClassDef(RooRelBWUFParamWidth,2) // Your description goes here...                                                                                                    
+};
+
+
 class RooRelBWUFParam : public RooAbsPdf {
 public:
 	RooRelBWUFParam() {} ;

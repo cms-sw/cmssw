@@ -51,6 +51,7 @@
 #pragma link C++ class RooRelBWUF+;
 #pragma link C++ class RooRelBWUF_SM4+;
 #pragma link C++ class RooRelBWUFParam+;
+#pragma link C++ class RooRelBWUFParamWidth+;
 #pragma link C++ class RooRelBW+;
 #pragma link C++ class RooRelBWHighMass+;
 #pragma link C++ class RooDoubleCB+;
