@@ -14,11 +14,11 @@ template<class Propagator>
 class ThirdHitRZPrediction : public ThirdHitRZPredictionBase {
 public:
 
-  ThirdHitRZPrediction() : ThirdHitRZPredictionBase(), thePropagator(0) {}
-  ThirdHitRZPrediction(const Propagator *propagator, float tolerance, const DetLayer* layer = 0) :
+  ThirdHitRZPrediction() : ThirdHitRZPredictionBase(), thePropagator(nullptr) {}
+  ThirdHitRZPrediction(const Propagator *propagator, float tolerance, const DetLayer* layer = nullptr) :
       ThirdHitRZPredictionBase(tolerance, layer), thePropagator(propagator) {}
 
-  inline Range operator()(const DetLayer *layer = 0);
+  inline Range operator()(const DetLayer *layer = nullptr);
   inline Range operator()(float rORz) const { return (*this)(rORz, *thePropagator); }
   inline Range operator()(float rORz, const Propagator &propagator) const;
 

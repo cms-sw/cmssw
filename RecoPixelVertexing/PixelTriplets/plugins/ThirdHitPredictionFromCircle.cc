@@ -15,11 +15,11 @@ typedef Basic3DVector<double> Point3D;
 typedef Basic2DVector<double> Point2D;
 
 namespace {
-  template<class T> static inline T sqr(T t) { return t * t; }
-  template<class T> static inline T sgn(T t) { return std::signbit(t) ? -1. : 1.; }
-  template<class T> static inline T clamped_acos(T t)
+  template<class T> inline T sqr(T t) { return t * t; }
+  template<class T> inline T sgn(T t) { return std::signbit(t) ? -1. : 1.; }
+  template<class T> inline T clamped_acos(T t)
   { return unlikely(t <= -1) ? M_PI : unlikely(t >= 1) ? T(0) : std::acos(t); }
-  template<class T> static inline T clamped_sqrt(T t)
+  template<class T> inline T clamped_sqrt(T t)
   { return likely(t > 0) ? std::sqrt(t) : T(0); }
 }
 

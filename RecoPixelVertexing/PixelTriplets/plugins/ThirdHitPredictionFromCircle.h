@@ -32,8 +32,8 @@ public:
     typedef Basic2DVector<double> Point2D;
     
     HelixRZ() : circle(0) {}
-    HelixRZ(const ThirdHitPredictionFromCircle *circle,
-	    double z1, double z2, double curvature);
+    HelixRZ(const ThirdHitPredictionFromCircle *icircle,
+	    double iz1, double z2, double curvature);
     
     double zAtR(double r) const;
     double rAtZ(double z) const;

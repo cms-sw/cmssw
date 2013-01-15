@@ -166,7 +166,6 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       LayerRZPredictions &predRZ = mapPred.find(layer)->second;
       predRZ.line.initPropagator(&line);
       
-      HelixRZ helix;
       Range rzRange;
       if (useBend) {
         // For the barrel region:
@@ -197,13 +196,16 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
             continue;
         }
 	
-        helix = HelixRZ(&predictionRPhi, gp1.z(), gp2.z(), curvature.first);
+        HelixRZ helix1(&predictionRPhi, gp1.z(), gp2.z(), curvature.first);
         HelixRZ helix2(&predictionRPhi, gp1.z(), gp2.z(), curvature.second);
 	
-        predRZ.helix1.initPropagator(&helix);
+        predRZ.helix1.initPropagator(&helix1);
         predRZ.helix2.initPropagator(&helix2);
 	
         Range rzRanges[2] = { predRZ.helix1(), predRZ.helix2() };
+        predRZ.helix1.initPropagator(nullptr);
+        predRZ.helix2.initPropagator(nullptr);
+
         rzRange.first = min(rzRanges[0].first, rzRanges[1].first);
         rzRange.second = max(rzRanges[0].second, rzRanges[1].second);
 	
