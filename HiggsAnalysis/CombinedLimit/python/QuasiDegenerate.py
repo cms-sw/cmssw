@@ -11,10 +11,10 @@ class QuasiDegenerate(PhysicsModel):
         self.DMH = '1';
         self.frac = '0.8';
         self.mu = '1';
-        self.muAsPOI = True
-        self.mHAsPOI = True
-        self.DMHAsPOI = True
-        self.fracAsPOI = True
+        self.muAsPOI = False
+        self.mHAsPOI = False
+        self.DMHAsPOI = False
+        self.fracAsPOI = False
         self.floatFrac = True
         self.floatMH = True
         self.floatDMH = True
