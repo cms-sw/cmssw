@@ -3,7 +3,7 @@
 
 #include "KDTreeLinkerTools.h"
 
-#include <assert.h>
+#include <cassert>
 #include <vector>
 
 // Class that implements the KDTree partition of 2D space and 
@@ -108,7 +108,7 @@ KDTreeLinkerAlgo<DATA>::medianSearch(int	low,
 				     int	treeDepth)
 {
   //We should have at least 1 element to calculate the median...
-  assert(low < high);
+  //assert(low < high);
 
   int nbrElts = high - low;
   int median = (nbrElts & 1)	? nbrElts / 2 
@@ -302,7 +302,7 @@ KDTreeLinkerAlgo<DATA>::recBuild(int					low,
   if (portionSize == 1) { // Leaf case
    
     KDTreeNode<DATA> *leaf = getNextNode();
-    leaf->setAttributs(region, initialEltList->at(low));
+    leaf->setAttributs(region, (*initialEltList)[low]);
     return leaf;
 
   } else { // Node case
@@ -321,13 +321,13 @@ KDTreeLinkerAlgo<DATA>::recBuild(int					low,
     KDTreeBox rightRegion = region;
     if (depth & 1) {
 
-      double medianVal = initialEltList->at(medianId).dim2;
+      auto medianVal = (*initialEltList)[medianId].dim2;
       leftRegion.dim2max = medianVal;
       rightRegion.dim2min = medianVal;
 
     } else {
 
-      double medianVal = initialEltList->at(medianId).dim1;
+      auto medianVal = (*initialEltList)[medianId].dim1;
       leftRegion.dim1max = medianVal;
       rightRegion.dim1min = medianVal;
 

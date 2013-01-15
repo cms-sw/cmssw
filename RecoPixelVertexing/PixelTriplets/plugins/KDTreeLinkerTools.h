@@ -7,13 +7,13 @@
 // box around the demanded point (Track collision point, PS projection...).
 struct KDTreeBox
 {
-  double dim1min, dim1max;
-  double dim2min, dim2max;
+  float dim1min, dim1max;
+  float dim2min, dim2max;
   
   public:
 
-  KDTreeBox(double d1min, double d1max, 
-	    double d2min, double d2max)
+  KDTreeBox(float d1min, float d1max, 
+	    float d2min, float d2max)
     : dim1min (d1min), dim1max(d1max)
     , dim2min (d2min), dim2max(d2max)
   {}
@@ -32,16 +32,16 @@ template <typename DATA>
 struct KDTreeNodeInfo 
 {
   DATA data;
-  double dim1;
-  double dim2;
+  float dim1;
+  float dim2;
 
   public:
   KDTreeNodeInfo()
   {}
   
   KDTreeNodeInfo(const DATA&	d,
-		 double		dim_1,
-		 double		dim_2)
+		 float		dim_1,
+		 float		dim_2)
     : data(d), dim1(dim_1), dim2(dim_2)
   {}
 };
