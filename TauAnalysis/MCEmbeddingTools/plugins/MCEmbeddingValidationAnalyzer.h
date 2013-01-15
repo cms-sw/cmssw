@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.5 2013/01/09 16:35:25 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.6 2013/01/10 16:01:44 veelken Exp $
  *
  */
 
@@ -43,6 +43,7 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include <TString.h>
+#include <TArrayD.h>
 
 #include <string>
 #include <vector>
@@ -141,6 +142,40 @@ namespace
       return std::string("rare");
     }
   }
+  
+  MonitorElement* bookHistogram2D(DQMStore& dqmStore, const std::string& name, const std::string& title, int numBinsX, float* binningX, int numBinsY, float yMin, float yMax)
+  {
+    assert(numBinsY >= 1);
+    TArrayF binningY(numBinsY + 1);
+    float dy = (yMax - yMin)/numBinsY;
+    for ( int iBinY = 0; iBinY <= numBinsY; ++iBinY ) {
+      binningY[iBinY] = yMin + iBinY*dy;
+    }
+    MonitorElement* histogram = dqmStore.book2D(name, title, numBinsX, binningX, numBinsY, binningY.GetArray());
+    return histogram;
+  }
+
+  std::pair<double, double> compMEtProjU(const reco::Candidate::LorentzVector& zP4, double metPx, double metPy, int& errorFlag)
+  {
+    if ( zP4.pt() == 0. ) {
+      edm::LogWarning ("compMEtProjU")
+	<< " Failed to compute projection, because Z0 candidate has zero Pt --> returning dummy solution !!";
+      errorFlag = 1;
+      return std::pair<double, double>(0., 0.);
+    }
+    
+    double qX = zP4.px();
+    double qY = zP4.py();
+    double qT = TMath::Sqrt(qX*qX + qY*qY);
+    
+    double uX = -(qX + metPx);
+    double uY = -(qY + metPy);
+    
+    double u1 = (uX*qX + uY*qY)/qT;
+    double u2 = (uX*qY - uY*qX)/qT;
+    
+    return std::pair<double, double>(u1, u2);
+  }
 }
 
 class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer 
@@ -175,6 +210,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcRecLeg2_;
   edm::InputTag srcGenParticles_;
   edm::InputTag srcL1ETM_;
+  edm::InputTag srcGenMEt_;
+  edm::InputTag srcRecCaloMEt_;
 
   typedef std::vector<edm::InputTag> vInputTag;
   vInputTag srcWeights_;
@@ -247,7 +284,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramGenLeg2X_;
   MonitorElement* histogramRecLeg2X_;
 
-  MonitorElement* histogramGenMEt_charged_;
+  MonitorElement* histogramSumGenParticlePt_;
+  MonitorElement* histogramSumGenParticlePt_charged_;
   MonitorElement* histogramGenMEt_;
 
   MonitorElement* histogramRecTrackMEt_;
@@ -261,8 +299,110 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   MonitorElement* histogramRecCaloMEtHO_;
   MonitorElement* histogramRecCaloSumEtHO_;
 
-  MonitorElement* histogramL1ETM_;
+  struct plotEntryTypeL1ETM
+  {
+    plotEntryTypeL1ETM(const std::string& genTauDecayMode, const std::string& dqmDirectory)
+      : genTauDecayMode_(genTauDecayMode)
+    {
+      dqmDirectory_ = dqmDirectory;
+      if ( genTauDecayMode != "" ) dqmDirectory_.append("_").append(genTauDecayMode);
+    }
+    ~plotEntryTypeL1ETM() {}
+    void bookHistograms(DQMStore& dqmStore)
+    {
+      dqmStore.setCurrentFolder(dqmDirectory_.data());
+      const int qTnumBins = 34;
+      float qTbinning[qTnumBins + 1] = { 
+	0., 2.5, 5., 7.5, 10., 12.5, 15., 17.5, 20., 22.5, 25., 27.5, 30., 35., 40., 45., 50., 
+	60., 70., 80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 200., 220., 240., 260., 300.
+      };
+      histogramL1ETM_                              = dqmStore.book1D(          "L1ETM",                              "L1ETM",                                    250, 0., 250.);
+      histogramL1ETM_vs_genMEt_                    = dqmStore.book2D(          "L1ETM_vs_genMEt",                    "L1ETM_vs_genMEt",                          250, 0., 250.,  250,    0.,  250.);
+      histogramL1ETM_vs_recCaloMEt_                = dqmStore.book2D(          "L1ETM_vs_recCaloMEt",                "L1ETM_vs_recCaloMEt",                      250, 0., 250.,  250,    0.,  250.);
+      histogramL1ETMparlZdivQtVsQt_                = bookHistogram2D(dqmStore, "L1ETMparlZdivQtVsQt",                "L1ETMparlZdivQtVsQt",                qTnumBins, qTbinning, 400,   -5.,   +5.);
+      histogramL1ETMparlZvsQt_                     = bookHistogram2D(dqmStore, "L1ETMparlZvsQt",                     "L1ETMparlZvsQt",                     qTnumBins, qTbinning, 400, -500., +500.);
+      histogramL1ETMperpZvsQt_                     = bookHistogram2D(dqmStore, "L1ETMperpZvsQt",                     "L1ETMperpZvsQt",                     qTnumBins, qTbinning,  60,  -75.,  +75.);
+      histogramRecCaloMEtParlZdivQtVsQt_           = bookHistogram2D(dqmStore, "recCaloMEtParlZdivQtVsQt",           "recCaloMEtParlZdivQtVsQt",           qTnumBins, qTbinning, 400,   -5.,   +5.);
+      histogramRecCaloMEtParlZvsQt_                = bookHistogram2D(dqmStore, "recCaloMEtParlZvsQt",                "recCaloMEtParlZvsQt",                qTnumBins, qTbinning, 400, -500., +500.);
+      histogramRecCaloMEtPerpZvsQt_                = bookHistogram2D(dqmStore, "recCaloMEtPerpZvsQt",                "recCaloMEtPerpZvsQt",                qTnumBins, qTbinning,  60,  -75.,  +75.);
+      histogramL1ETMminusGenMEtParlZdivQtVsQt_     = bookHistogram2D(dqmStore, "L1ETMminusGenMEtParlZdivQtVsQt",     "L1ETMminusGenMEtParlZdivQtVsQt",     qTnumBins, qTbinning, 400,   -5.,   +5.);
+      histogramL1ETMminusGenMEtParlZvsQt_          = bookHistogram2D(dqmStore, "L1ETMminusGenMEtParlZvsQt",          "L1ETMminusGenMEtParlZvsQt",          qTnumBins, qTbinning, 400, -500., +500.);
+      histogramL1ETMminusGenMEtPerpZvsQt_          = bookHistogram2D(dqmStore, "L1ETMminusGenMEtPerpZvsQt",          "L1ETMminusGenMEtPerpZvsQt",          qTnumBins, qTbinning,  60,  -75.,  +75.);
+      histogramL1ETMminusRecCaloMEtParlZdivQtVsQt_ = bookHistogram2D(dqmStore, "L1ETMminusRecCaloMEtParlZdivQtVsQt", "L1ETMminusRecCaloMEtParlZdivQtVsQt", qTnumBins, qTbinning, 400,   -5.,   +5.);
+      histogramL1ETMminusRecCaloMEtParlZvsQt_      = bookHistogram2D(dqmStore, "L1ETMminusRecCaloMEtParlZvsQt",      "L1ETMminusRecCaloMEtParlZvsQt",      qTnumBins, qTbinning, 400, -500., +500.);
+      histogramL1ETMminusRecCaloMEtPerpZvsQt_      = bookHistogram2D(dqmStore, "L1ETMminusRecCaloMEtPerpZvsQt",      "L1ETMminusRecCaloMEtPerpZvsQt",      qTnumBins, qTbinning,  60,  -75.,  +75.);
+      histogramQt_                                 = dqmStore.book1D(          "qT",                                 "qT",                                       600, 0., 300.);
+    }
+    void fillHistograms(const std::string& genTauDecayMode_ref,
+			const reco::Candidate::LorentzVector& l1MEtP4, const reco::Candidate::LorentzVector& genMEtP4, const reco::Candidate::LorentzVector& recCaloMEtP4, 
+			const reco::Candidate::LorentzVector& genDiTauP4, double evtWeight)
+    {
+      if ( genTauDecayMode_ == "" || genTauDecayMode_ref == genTauDecayMode_ ) {
+	histogramL1ETM_->Fill(l1MEtP4.pt(), evtWeight);
+	histogramL1ETM_vs_genMEt_->Fill(genMEtP4.pt(), l1MEtP4.pt(), evtWeight);
+	histogramL1ETM_vs_recCaloMEt_->Fill(recCaloMEtP4.pt(), l1MEtP4.pt(), evtWeight);
+	double qT = genDiTauP4.pt();
+	int errorFlag = 0;
+	std::pair<double, double> uT = compMEtProjU(genDiTauP4, l1MEtP4.px(), l1MEtP4.py(), errorFlag);
+	if ( !errorFlag ) {
+	  double uParl = uT.first;
+	  double uPerp = uT.second;
+	  if ( qT > 0. ) histogramL1ETMparlZdivQtVsQt_->Fill(qT, uParl/qT, evtWeight);
+	  histogramL1ETMparlZvsQt_->Fill(qT, uParl, evtWeight);
+	  histogramL1ETMperpZvsQt_->Fill(qT, uPerp, evtWeight);
+	}
+	errorFlag = 0;
+	uT = compMEtProjU(genDiTauP4, recCaloMEtP4.px(), recCaloMEtP4.py(), errorFlag);
+	if ( !errorFlag ) {
+	  double uParl = uT.first;
+	  double uPerp = uT.second;
+	  if ( qT > 0. ) histogramRecCaloMEtParlZdivQtVsQt_->Fill(qT, uParl/qT, evtWeight);
+	  histogramRecCaloMEtParlZvsQt_->Fill(qT, uParl, evtWeight);
+	  histogramRecCaloMEtPerpZvsQt_->Fill(qT, uPerp, evtWeight);
+	}
+        errorFlag = 0;
+	uT = compMEtProjU(genDiTauP4, l1MEtP4.px() - genMEtP4.px(), l1MEtP4.py() - genMEtP4.py(), errorFlag);
+	if ( !errorFlag ) {
+	  double uParl = uT.first;
+	  double uPerp = uT.second;
+	  if ( qT > 0. ) histogramL1ETMminusGenMEtParlZdivQtVsQt_->Fill(qT, uParl/qT, evtWeight);
+	  histogramL1ETMminusGenMEtParlZvsQt_->Fill(qT, uParl, evtWeight); 
+	  histogramL1ETMminusGenMEtPerpZvsQt_->Fill(qT, uPerp, evtWeight); 
+	}
+	errorFlag = 0;
+	uT = compMEtProjU(genDiTauP4, l1MEtP4.px() - recCaloMEtP4.px(), l1MEtP4.py() - recCaloMEtP4.py(), errorFlag);
+	if ( !errorFlag ) {
+	  double uParl = uT.first;
+	  double uPerp = uT.second;
+	  if ( qT > 0. ) histogramL1ETMminusRecCaloMEtParlZdivQtVsQt_->Fill(qT, uParl/qT, evtWeight);
+	  histogramL1ETMminusRecCaloMEtParlZvsQt_->Fill(qT, uParl, evtWeight); 
+	  histogramL1ETMminusRecCaloMEtPerpZvsQt_->Fill(qT, uPerp, evtWeight); 
+	}
+	histogramQt_->Fill(qT, evtWeight); 
+      }
+    }
+    std::string genTauDecayMode_;
+    std::string dqmDirectory_;
+    MonitorElement* histogramL1ETM_;
+    MonitorElement* histogramL1ETM_vs_genMEt_;   
+    MonitorElement* histogramL1ETM_vs_recCaloMEt_; 
+    MonitorElement* histogramL1ETMparlZdivQtVsQt_;
+    MonitorElement* histogramL1ETMparlZvsQt_;
+    MonitorElement* histogramL1ETMperpZvsQt_;
+    MonitorElement* histogramRecCaloMEtParlZdivQtVsQt_;
+    MonitorElement* histogramRecCaloMEtParlZvsQt_;
+    MonitorElement* histogramRecCaloMEtPerpZvsQt_;
+    MonitorElement* histogramL1ETMminusGenMEtParlZdivQtVsQt_; 
+    MonitorElement* histogramL1ETMminusGenMEtParlZvsQt_; 
+    MonitorElement* histogramL1ETMminusGenMEtPerpZvsQt_; 
+    MonitorElement* histogramL1ETMminusRecCaloMEtParlZdivQtVsQt_; 
+    MonitorElement* histogramL1ETMminusRecCaloMEtParlZvsQt_; 
+    MonitorElement* histogramL1ETMminusRecCaloMEtPerpZvsQt_; 
+    MonitorElement* histogramQt_; 
+  };
 
+  std::vector<plotEntryTypeL1ETM*> l1ETMplotEntries_;
+  
   template <typename T>
   struct leptonDistributionT
   {
@@ -817,11 +957,12 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   struct metL1TriggerEfficiencyType
   {
     metL1TriggerEfficiencyType(int minJets, int maxJets, 
-			       const edm::InputTag& srcRef, const edm::InputTag& srcL1, double cutL1Pt, const std::string& dqmDirectory)
+			       const edm::InputTag& srcRef, const edm::InputTag& srcL1, double cutL1Et, double cutL1Pt, const std::string& dqmDirectory)
       : minJets_(minJets),
 	maxJets_(maxJets),
 	srcRef_(srcRef),
 	srcL1_(srcL1),
+	cutL1Et_(cutL1Et),
 	cutL1Pt_(cutL1Pt)
     {
       dqmDirectory_ = dqmDirectory;
@@ -851,12 +992,17 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	const reco::Candidate::LorentzVector& refMEtP4 = refMETs->front().p4();
 	edm::Handle<l1extra::L1EtMissParticleCollection> l1METs;
 	evt.getByLabel(srcL1_, l1METs);
-	double l1MEt = l1METs->begin()->etMiss();
-	histogramDenominatorPt_->Fill(refMEtP4.pt(), evtWeight);
-	histogramDenominatorPhi_->Fill(refMEtP4.phi(), evtWeight);
-	if ( l1MEt > cutL1Pt_ ) {
-	  histogramNumeratorPt_->Fill(refMEtP4.pt(), evtWeight);
-	  histogramNumeratorPhi_->Fill(refMEtP4.phi(), evtWeight);
+	for ( l1extra::L1EtMissParticleCollection::const_iterator l1MEt = l1METs->begin();
+	      l1MEt != l1METs->end(); ++l1MEt ) {
+	  if ( !(l1MEt->bx() == 0) ) continue;
+	  double l1MEt_et = l1METs->front().etMiss();
+	  double l1MEt_pt = l1METs->front().pt();
+	  histogramDenominatorPt_->Fill(refMEtP4.pt(), evtWeight);
+	  histogramDenominatorPhi_->Fill(refMEtP4.phi(), evtWeight);
+	  if ( l1MEt_et > cutL1Et_ && l1MEt_pt > cutL1Pt_ ) {
+	    histogramNumeratorPt_->Fill(refMEtP4.pt(), evtWeight);
+	    histogramNumeratorPhi_->Fill(refMEtP4.phi(), evtWeight);
+	  }
 	}
       }
     }
@@ -864,6 +1010,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     int maxJets_;
     edm::InputTag srcRef_;
     edm::InputTag srcL1_;
+    double cutL1Et_;
     double cutL1Pt_;
     std::string dqmDirectory_;
     MonitorElement* histogramNumeratorPt_;

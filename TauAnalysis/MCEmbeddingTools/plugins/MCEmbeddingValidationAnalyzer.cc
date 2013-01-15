@@ -18,7 +18,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"if ( genTau1 ) 
 
 MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::ParameterSet& cfg)
   : srcReplacedMuons_(cfg.getParameter<edm::InputTag>("srcReplacedMuons")),
@@ -35,6 +35,8 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcRecLeg2_(cfg.getParameter<edm::InputTag>("srcRecLeg2")),
     srcGenParticles_(cfg.getParameter<edm::InputTag>("srcGenParticles")),
     srcL1ETM_(cfg.getParameter<edm::InputTag>("srcL1ETM")),
+    srcGenMEt_(cfg.getParameter<edm::InputTag>("srcGenMEt")),
+    srcRecCaloMEt_(cfg.getParameter<edm::InputTag>("srcRecCaloMEt")),
     srcWeights_(cfg.getParameter<vInputTag>("srcWeights")),
     srcGenFilterInfo_(cfg.getParameter<edm::InputTag>("srcGenFilterInfo")),
     dqmDirectory_(cfg.getParameter<std::string>("dqmDirectory")),
@@ -85,6 +87,11 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
 
 MCEmbeddingValidationAnalyzer::~MCEmbeddingValidationAnalyzer()
 {
+  for ( std::vector<plotEntryTypeL1ETM*>::iterator it = l1ETMplotEntries_.begin();
+	it != l1ETMplotEntries_.end(); ++it ) {
+    delete (*it);
+  }
+
   cleanCollection(electronDistributions_);
   cleanCollection(electronEfficiencies_);
   cleanCollection(electronL1TriggerEfficiencies_);
@@ -237,9 +244,10 @@ void MCEmbeddingValidationAnalyzer::setupMEtL1TriggerEfficiency(int minJets, int
 	  cfgMEtL1TriggerEfficiency != cfgMEtL1TriggerEfficiencies.end(); ++cfgMEtL1TriggerEfficiency ) {
       edm::InputTag srcRef = cfgMEtL1TriggerEfficiency->getParameter<edm::InputTag>("srcRef");
       edm::InputTag srcL1 = cfgMEtL1TriggerEfficiency->getParameter<edm::InputTag>("srcL1");
+      double cutL1Et = cfgMEtL1TriggerEfficiency->getParameter<double>("cutL1Et");
       double cutL1Pt = cfgMEtL1TriggerEfficiency->getParameter<double>("cutL1Pt");
       std::string dqmDirectory = dqmDirectory_full(cfgMEtL1TriggerEfficiency->getParameter<std::string>("dqmDirectory"));
-      metL1TriggerEfficiencyType* metL1TriggerEfficiency = new metL1TriggerEfficiencyType(minJets, maxJets, srcRef, srcL1, cutL1Pt, dqmDirectory);
+      metL1TriggerEfficiencyType* metL1TriggerEfficiency = new metL1TriggerEfficiencyType(minJets, maxJets, srcRef, srcL1, cutL1Et, cutL1Pt, dqmDirectory);
       metL1TriggerEfficiencies.push_back(metL1TriggerEfficiency);
     }
   }
@@ -254,84 +262,97 @@ void MCEmbeddingValidationAnalyzer::beginJob()
   DQMStore& dqmStore = (*edm::Service<DQMStore>());
 
 //--- book all histograms
-  histogramGenFilterEfficiency_         = dqmStore.book1D("genFilterEfficiency",         "genFilterEfficiency",          102,     -0.01,         1.01);
+  histogramGenFilterEfficiency_                = dqmStore.book1D("genFilterEfficiency",                "genFilterEfficiency",                 102,     -0.01,         1.01);
 
-  histogramRotationAngleMatrix_         = dqmStore.book2D("rfRotationAngleMatrix",       "rfRotationAngleMatrix",          2,     -0.5,          1.5, 2, -0.5, 1.5);
+  histogramRotationAngleMatrix_                = dqmStore.book2D("rfRotationAngleMatrix",              "rfRotationAngleMatrix",                 2,     -0.5,          1.5, 2, -0.5, 1.5);
 
-  histogramNumTracksPtGt5_              = dqmStore.book1D("numTracksPtGt5",              "numTracksPtGt5",                50,     -0.5,         49.5);
-  histogramNumTracksPtGt10_             = dqmStore.book1D("numTracksPtGt10",             "numTracksPtGt10",               50,     -0.5,         49.5);
-  histogramNumTracksPtGt20_             = dqmStore.book1D("numTracksPtGt20",             "numTracksPtGt20",               50,     -0.5,         49.5);
-  histogramNumTracksPtGt30_             = dqmStore.book1D("numTracksPtGt30",             "numTracksPtGt30",               50,     -0.5,         49.5);
-  histogramNumTracksPtGt40_             = dqmStore.book1D("numTracksPtGt40",             "numTracksPtGt40",               50,     -0.5,         49.5);
+  histogramNumTracksPtGt5_                     = dqmStore.book1D("numTracksPtGt5",                     "numTracksPtGt5",                       50,     -0.5,         49.5);
+  histogramNumTracksPtGt10_                    = dqmStore.book1D("numTracksPtGt10",                    "numTracksPtGt10",                      50,     -0.5,         49.5);
+  histogramNumTracksPtGt20_                    = dqmStore.book1D("numTracksPtGt20",                    "numTracksPtGt20",                      50,     -0.5,         49.5);
+  histogramNumTracksPtGt30_                    = dqmStore.book1D("numTracksPtGt30",                    "numTracksPtGt30",                      50,     -0.5,         49.5);
+  histogramNumTracksPtGt40_                    = dqmStore.book1D("numTracksPtGt40",                    "numTracksPtGt40",                      50,     -0.5,         49.5);
       
-  histogramNumGlobalMuons_              = dqmStore.book1D("numGlobalMuons",              "numGlobalMuons",                20,     -0.5,         19.5);
-  histogramNumStandAloneMuons_          = dqmStore.book1D("numStandAloneMuons",          "numStandAloneMuons",            20,     -0.5,         19.5);
-  histogramNumPFMuons_                  = dqmStore.book1D("numPFMuons",                  "numPFMuons",                    20,     -0.5,         19.5);
+  histogramNumGlobalMuons_                     = dqmStore.book1D("numGlobalMuons",                     "numGlobalMuons",                       20,     -0.5,         19.5);
+  histogramNumStandAloneMuons_                 = dqmStore.book1D("numStandAloneMuons",                 "numStandAloneMuons",                   20,     -0.5,         19.5);
+  histogramNumPFMuons_                         = dqmStore.book1D("numPFMuons",                         "numPFMuons",                           20,     -0.5,         19.5);
 
-  histogramNumChargedPFCandsPtGt5_      = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt10_     = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt20_     = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt30_     = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
-  histogramNumChargedPFCandsPtGt40_     = dqmStore.book1D("numChargedPFCandsPtGt5",      "numChargedPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt5_             = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt10_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt20_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt30_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumChargedPFCandsPtGt40_            = dqmStore.book1D("numChargedPFCandsPtGt5",             "numChargedPFCandsPtGt5",               50,     -0.5,         49.5);
 
-  histogramNumNeutralPFCandsPtGt5_      = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt10_     = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt20_     = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt30_     = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
-  histogramNumNeutralPFCandsPtGt40_     = dqmStore.book1D("numNeutralPFCandsPtGt5",      "numNeutralPFCandsPtGt5",        50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt5_             = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt10_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt20_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt30_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
+  histogramNumNeutralPFCandsPtGt40_            = dqmStore.book1D("numNeutralPFCandsPtGt5",             "numNeutralPFCandsPtGt5",               50,     -0.5,         49.5);
     
-  histogramNumJetsPtGt20_               = dqmStore.book1D("numJetsPtGt20",               "numJetsPtGt20",                 20,     -0.5,         19.5);
-  histogramNumJetsPtGt20AbsEtaLt2_5_    = dqmStore.book1D("numJetsPtGt20AbsEtaLt2_5",    "numJetsPtGt20AbsEtaLt2_5",      20,     -0.5,         19.5);
-  histogramNumJetsPtGt20AbsEta2_5to4_5_ = dqmStore.book1D("numJetsPtGt20AbsEta2_5to4_5", "numJetsPtGt20AbsEta2_5to4_5",   20,     -0.5,         19.5);
-  histogramNumJetsPtGt30_               = dqmStore.book1D("numJetsPtGt30",               "numJetsPtGt30",                 20,     -0.5,         19.5);
-  histogramNumJetsPtGt30AbsEtaLt2_5_    = dqmStore.book1D("numJetsPtGt30AbsEtaLt2_5",    "numJetsPtGt30AbsEtaLt2_5",      20,     -0.5,         19.5);
-  histogramNumJetsPtGt30AbsEta2_5to4_5_ = dqmStore.book1D("numJetsPtGt30AbsEta2_5to4_5", "numJetsPtGt30AbsEta2_5to4_5",   20,     -0.5,         19.5);
+  histogramNumJetsPtGt20_                      = dqmStore.book1D("numJetsPtGt20",                      "numJetsPtGt20",                        20,     -0.5,         19.5);
+  histogramNumJetsPtGt20AbsEtaLt2_5_           = dqmStore.book1D("numJetsPtGt20AbsEtaLt2_5",           "numJetsPtGt20AbsEtaLt2_5",             20,     -0.5,         19.5);
+  histogramNumJetsPtGt20AbsEta2_5to4_5_        = dqmStore.book1D("numJetsPtGt20AbsEta2_5to4_5",        "numJetsPtGt20AbsEta2_5to4_5",          20,     -0.5,         19.5);
+  histogramNumJetsPtGt30_                      = dqmStore.book1D("numJetsPtGt30",                      "numJetsPtGt30",                        20,     -0.5,         19.5);
+  histogramNumJetsPtGt30AbsEtaLt2_5_           = dqmStore.book1D("numJetsPtGt30AbsEtaLt2_5",           "numJetsPtGt30AbsEtaLt2_5",             20,     -0.5,         19.5);
+  histogramNumJetsPtGt30AbsEta2_5to4_5_        = dqmStore.book1D("numJetsPtGt30AbsEta2_5to4_5",        "numJetsPtGt30AbsEta2_5to4_5",          20,     -0.5,         19.5);
   
-  histogramRecVertexX_                  = dqmStore.book1D("recVertexX",                  "recVertexX",                  2000,     -1.,          +1.);
-  histogramRecVertexY_                  = dqmStore.book1D("recVertexY",                  "recVertexY",                  2000,     -1.,          +1.);
-  histogramRecVertexZ_                  = dqmStore.book1D("recVertexZ",                  "recVertexZ",                   500,    -25.,         +25.);
+  histogramRecVertexX_                         = dqmStore.book1D("recVertexX",                         "recVertexX",                         2000,     -1.,          +1.);
+  histogramRecVertexY_                         = dqmStore.book1D("recVertexY",                         "recVertexY",                         2000,     -1.,          +1.);
+  histogramRecVertexZ_                         = dqmStore.book1D("recVertexZ",                         "recVertexZ",                          500,    -25.,         +25.);
   
-  histogramGenDiTauPt_                  = dqmStore.book1D("genDiTauPt",                  "genDiTauPt",                   250,      0.,         250.);
-  histogramGenDiTauEta_                 = dqmStore.book1D("genDiTauEta",                 "genDiTauEta",                  198,     -9.9,         +9.9);
-  histogramGenDiTauPhi_                 = dqmStore.book1D("genDiTauPhi",                 "genDiTauPhi",                   72, -TMath::Pi(), +TMath::Pi());
-  histogramGenDiTauMass_                = dqmStore.book1D("genDiTauMass",                "genDiTauMass",                 500,      0.,         500.);
+  histogramGenDiTauPt_                         = dqmStore.book1D("genDiTauPt",                         "genDiTauPt",                          250,      0.,         250.);
+  histogramGenDiTauEta_                        = dqmStore.book1D("genDiTauEta",                        "genDiTauEta",                         198,     -9.9,         +9.9);
+  histogramGenDiTauPhi_                        = dqmStore.book1D("genDiTauPhi",                        "genDiTauPhi",                          72, -TMath::Pi(), +TMath::Pi());
+  histogramGenDiTauMass_                       = dqmStore.book1D("genDiTauMass",                       "genDiTauMass",                        500,      0.,         500.);
 
-  histogramGenVisDiTauPt_               = dqmStore.book1D("genVisDiTauPt",               "genVisDiTauPt",                250,      0.,         250.);
-  histogramGenVisDiTauEta_              = dqmStore.book1D("genVisDiTauEta",              "genVisDiTauEta",               198,     -9.9,         +9.9);
-  histogramGenVisDiTauPhi_              = dqmStore.book1D("genVisDiTauPhi",              "genVisDiTauPhi",                72, -TMath::Pi(), +TMath::Pi());
-  histogramGenVisDiTauMass_             = dqmStore.book1D("genVisDiTauMass",             "genVisDiTauMass",              500,      0.,         500.);
+  histogramGenVisDiTauPt_                      = dqmStore.book1D("genVisDiTauPt",                      "genVisDiTauPt",                       250,      0.,         250.);
+  histogramGenVisDiTauEta_                     = dqmStore.book1D("genVisDiTauEta",                     "genVisDiTauEta",                      198,     -9.9,         +9.9);
+  histogramGenVisDiTauPhi_                     = dqmStore.book1D("genVisDiTauPhi",                     "genVisDiTauPhi",                       72, -TMath::Pi(), +TMath::Pi());
+  histogramGenVisDiTauMass_                    = dqmStore.book1D("genVisDiTauMass",                    "genVisDiTauMass",                     500,      0.,         500.);
 
-  histogramRecVisDiTauPt_               = dqmStore.book1D("recVisDiTauPt",               "recVisDiTauPt",                250,      0.,         250.);
-  histogramRecVisDiTauEta_              = dqmStore.book1D("recVisDiTauEta",              "recVisDiTauEta",               198,     -9.9,         +9.9);
-  histogramRecVisDiTauPhi_              = dqmStore.book1D("recVisDiTauPhi",              "recVisDiTauPhi",                72, -TMath::Pi(), +TMath::Pi());
-  histogramRecVisDiTauMass_             = dqmStore.book1D("recVisDiTauMass",             "recVisDiTauMass",              500,      0.,         500.);
+  histogramRecVisDiTauPt_                      = dqmStore.book1D("recVisDiTauPt",                      "recVisDiTauPt",                       250,      0.,         250.);
+  histogramRecVisDiTauEta_                     = dqmStore.book1D("recVisDiTauEta",                     "recVisDiTauEta",                      198,     -9.9,         +9.9);
+  histogramRecVisDiTauPhi_                     = dqmStore.book1D("recVisDiTauPhi",                     "recVisDiTauPhi",                       72, -TMath::Pi(), +TMath::Pi());
+  histogramRecVisDiTauMass_                    = dqmStore.book1D("recVisDiTauMass",                    "recVisDiTauMass",                     500,      0.,         500.);
 
-  histogramGenLeg1Pt_                   = dqmStore.book1D("genLeg1Pt",                   "genLeg1Pt",                    250,      0.,         250.);
-  histogramGenLeg1Eta_                  = dqmStore.book1D("genLeg1Eta",                  "genLeg1Eta",                   198,     -9.9,         +9.9);
-  histogramGenLeg1Phi_                  = dqmStore.book1D("genLeg1Phi",                  "genLeg1Phi",                    72, -TMath::Pi(), +TMath::Pi());
-  histogramGenLeg1X_                    = dqmStore.book1D("genLeg1X",                    "genLeg1X",                     102,     -0.01,         1.01);
-  histogramRecLeg1X_                    = dqmStore.book1D("recLeg1X",                    "recLeg1X",                     102,     -0.01,         1.01);
-  histogramGenLeg2Pt_                   = dqmStore.book1D("genLeg2Pt",                   "genLeg2Pt",                    250,      0.,         250.);
-  histogramGenLeg2Eta_                  = dqmStore.book1D("genLeg2Eta",                  "genLeg2Eta",                   198,     -9.9,         +9.9);
-  histogramGenLeg2Phi_                  = dqmStore.book1D("genLeg2Phi",                  "genLeg2Phi",                    72, -TMath::Pi(), +TMath::Pi());
-  histogramGenLeg2X_                    = dqmStore.book1D("genLeg2X",                    "genLeg2X",                     102,     -0.01,         1.01);
-  histogramRecLeg2X_                    = dqmStore.book1D("recLeg2X",                    "recLeg2X",                     102,     -0.01,         1.01);
+  histogramGenLeg1Pt_                          = dqmStore.book1D("genLeg1Pt",                          "genLeg1Pt",                           250,      0.,         250.);
+  histogramGenLeg1Eta_                         = dqmStore.book1D("genLeg1Eta",                         "genLeg1Eta",                          198,     -9.9,         +9.9);
+  histogramGenLeg1Phi_                         = dqmStore.book1D("genLeg1Phi",                         "genLeg1Phi",                           72, -TMath::Pi(), +TMath::Pi());
+  histogramGenLeg1X_                           = dqmStore.book1D("genLeg1X",                           "genLeg1X",                            102,     -0.01,         1.01);
+  histogramRecLeg1X_                           = dqmStore.book1D("recLeg1X",                           "recLeg1X",                            102,     -0.01,         1.01);
+  histogramGenLeg2Pt_                          = dqmStore.book1D("genLeg2Pt",                          "genLeg2Pt",                           250,      0.,         250.);
+  histogramGenLeg2Eta_                         = dqmStore.book1D("genLeg2Eta",                         "genLeg2Eta",                          198,     -9.9,         +9.9);
+  histogramGenLeg2Phi_                         = dqmStore.book1D("genLeg2Phi",                         "genLeg2Phi",                           72, -TMath::Pi(), +TMath::Pi());
+  histogramGenLeg2X_                           = dqmStore.book1D("genLeg2X",                           "genLeg2X",                            102,     -0.01,         1.01);
+  histogramRecLeg2X_                           = dqmStore.book1D("recLeg2X",                           "recLeg2X",                            102,     -0.01,         1.01);
 
-  histogramGenMEt_charged_              = dqmStore.book1D("genMEt_charged",              "genMEt_charged",               250,      0.,         250.);
-  histogramGenMEt_                      = dqmStore.book1D("genMEt",                      "genMEt",                       250,      0.,         250.);
+  histogramSumGenParticlePt_                   = dqmStore.book1D("sumGenParticlePt",                   "sumGenParticlePt",                    250,      0.,         250.);
+  histogramSumGenParticlePt_charged_           = dqmStore.book1D("sumGenParticlePt_charged",           "sumGenParticlePt_charged",            250,      0.,         250.);
+  histogramGenMEt_                             = dqmStore.book1D("genMEt",                             "genMEt",                              250,      0.,         250.);
 
-  histogramRecTrackMEt_                 = dqmStore.book1D("recTrackMEt",                 "recTrackMEt",                  250,      0.,         250.);
-  histogramRecTrackSumEt_               = dqmStore.book1D("recTrackSumEt",               "recTrackSumEt",               2500,      0.,        2500.);
-  histogramRecCaloMEtECAL_              = dqmStore.book1D("recCaloMEtECAL",              "recCaloMEtECAL",               250,      0.,         250.);
-  histogramRecCaloSumEtECAL_            = dqmStore.book1D("recCaloSumEtECAL",            "recCaloSumEtECAL",            2500,      0.,        2500.);
-  histogramRecCaloMEtHCAL_              = dqmStore.book1D("recCaloMEtHCAL",              "recCaloMEtHCAL",               250,      0.,         250.);
-  histogramRecCaloSumEtHCAL_            = dqmStore.book1D("recCaloSumEtHCAL",            "recCaloSumEtHCAL",            2500,      0.,        2500.);
-  histogramRecCaloMEtHF_                = dqmStore.book1D("recCaloMEtHF",                "recCaloMEtHF",                 250,      0.,         250.);
-  histogramRecCaloSumEtHF_              = dqmStore.book1D("recCaloSumEtHF",              "recCaloSumEtHF",              2500,      0.,        2500.);
-  histogramRecCaloMEtHO_                = dqmStore.book1D("recCaloMEtHO",                "recCaloMEtHO",                 250,      0.,         250.);  
-  histogramRecCaloSumEtHO_              = dqmStore.book1D("recCaloSumEtHO",              "recCaloSumEtHO",              2500,      0.,        2500.);
+  histogramRecTrackMEt_                        = dqmStore.book1D("recTrackMEt",                        "recTrackMEt",                         250,      0.,         250.);
+  histogramRecTrackSumEt_                      = dqmStore.book1D("recTrackSumEt",                      "recTrackSumEt",                      2500,      0.,        2500.);
+  histogramRecCaloMEtECAL_                     = dqmStore.book1D("recCaloMEtECAL",                     "recCaloMEtECAL",                      250,      0.,         250.);
+  histogramRecCaloSumEtECAL_                   = dqmStore.book1D("recCaloSumEtECAL",                   "recCaloSumEtECAL",                   2500,      0.,        2500.);
+  histogramRecCaloMEtHCAL_                     = dqmStore.book1D("recCaloMEtHCAL",                     "recCaloMEtHCAL",                      250,      0.,         250.);
+  histogramRecCaloSumEtHCAL_                   = dqmStore.book1D("recCaloSumEtHCAL",                   "recCaloSumEtHCAL",                   2500,      0.,        2500.);
+  histogramRecCaloMEtHF_                       = dqmStore.book1D("recCaloMEtHF",                       "recCaloMEtHF",                        250,      0.,         250.);
+  histogramRecCaloSumEtHF_                     = dqmStore.book1D("recCaloSumEtHF",                     "recCaloSumEtHF",                     2500,      0.,        2500.);
+  histogramRecCaloMEtHO_                       = dqmStore.book1D("recCaloMEtHO",                       "recCaloMEtHO",                        250,      0.,         250.);  
+  histogramRecCaloSumEtHO_                     = dqmStore.book1D("recCaloSumEtHO",                     "recCaloSumEtHO",                     2500,      0.,        2500.);
 
-  histogramL1ETM_                       = dqmStore.book1D("L1ETM",                       "L1ETM",                        250,      0.,         250.);
+  std::vector<std::string> genTauDecayModes;
+  genTauDecayModes.push_back(std::string("")); // all tau decay modes
+  genTauDecayModes.push_back(std::string("oneProng0Pi0"));
+  genTauDecayModes.push_back(std::string("oneProng1Pi0"));
+  genTauDecayModes.push_back(std::string("oneProng2Pi0"));
+  genTauDecayModes.push_back(std::string("threeProng0Pi0"));
+  genTauDecayModes.push_back(std::string("threeProng1Pi0"));
+  for ( std::vector<std::string>::const_iterator genTauDecayMode = genTauDecayModes.begin();
+	genTauDecayMode != genTauDecayModes.end(); ++genTauDecayMode ) {
+    plotEntryTypeL1ETM* l1ETMplotEntry = new plotEntryTypeL1ETM(*genTauDecayMode, dqmDirectory_);
+    l1ETMplotEntry->bookHistograms(dqmStore);
+    l1ETMplotEntries_.push_back(l1ETMplotEntry);
+  }
 
   bookHistograms(electronDistributions_, dqmStore);
   bookHistograms(electronEfficiencies_, dqmStore);
@@ -358,6 +379,9 @@ namespace
 					MonitorElement* histogram_visDiTauPt, MonitorElement* histogram_visDiTauEta, MonitorElement* histogram_visDiTauPhi, MonitorElement* histogram_visDiTauMass,
 					double evtWeight)
   {
+    std::cout << "<fillVisPtEtaPhiMassDistributions>:" << std::endl;
+    std::cout << " srcLeg1 = " << srcLeg1 << std::endl;
+    std::cout << " srcLeg2 = " << srcLeg2 << std::endl;
     typedef edm::View<reco::Candidate> CandidateView;
     edm::Handle<CandidateView> visDecayProducts1;
     evt.getByLabel(srcLeg1, visDecayProducts1);
@@ -369,6 +393,8 @@ namespace
 	  visDecayProduct2 != visDecayProducts2->end(); ++visDecayProduct2 ) {
 	double dR = deltaR(visDecayProduct1->p4(), visDecayProduct2->p4());
 	if ( dR > 0.3 ) { // protection in case srcLeg1 and srcLeg2 refer to same collection (e.g. both hadronic tau decays)
+	  std::cout << "leg1: Pt = " << visDecayProduct1->pt() << ", phi = " << visDecayProduct1->phi() << " (Px = " << visDecayProduct1->px() << ", Py = " << visDecayProduct1->py() << ")" << std::endl;
+	  std::cout << "leg2: Pt = " << visDecayProduct2->pt() << ", phi = " << visDecayProduct2->phi() << " (Px = " << visDecayProduct2->px() << ", Py = " << visDecayProduct2->py() << ")" << std::endl;
 	  reco::Candidate::LorentzVector visDiTauP4 = visDecayProduct1->p4() + visDecayProduct2->p4();
 	  histogram_visDiTauPt->Fill(visDiTauP4.pt(), evtWeight);
 	  histogram_visDiTauEta->Fill(visDiTauP4.eta(), evtWeight);
@@ -620,11 +646,13 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
 	genDiTau != genDiTaus->end(); ++genDiTau ) {
     const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
     if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
-    const reco::Candidate* genLeg1 = genDiTau_composite->daughter(0);
-    const reco::Candidate* genLeg2 = genDiTau_composite->daughter(1);
-    if ( !(genLeg1 && genLeg2) ) continue;
-    if ( (genLeg1->pt() > replacedMuonPtThresholdHigh_ && genLeg2->pt() > replacedMuonPtThresholdLow_ ) ||
-	 (genLeg1->pt() > replacedMuonPtThresholdLow_  && genLeg2->pt() > replacedMuonPtThresholdHigh_) ) {
+    const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
+    if ( genTau1 ) std::cout << "genTau1: Pt = " << genTau1->pt() << ", phi = " << genTau1->phi() << " (Px = " << genTau1->px() << ", Py = " << genTau1->py() << ")" << std::endl;
+    const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
+    if ( genTau2 ) std::cout << "genTau2: Pt = " << genTau2->pt() << ", phi = " << genTau2->phi() << " (Px = " << genTau2->px() << ", Py = " << genTau2->py() << ")" << std::endl;
+    if ( !(genTau1 && genTau2) ) continue;
+    if ( (genTau1->pt() > replacedMuonPtThresholdHigh_ && genTau2->pt() > replacedMuonPtThresholdLow_ ) ||
+	 (genTau1->pt() > replacedMuonPtThresholdLow_  && genTau2->pt() > replacedMuonPtThresholdHigh_) ) {
       passesCutsAfterRotation = true;
       break;
     }
@@ -652,8 +680,14 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
       if ( TMath::Abs(genParticle->charge()) > 0.5 ) sumGenParticleP4_charged += genParticle->p4();
     }
   }
-  histogramGenMEt_charged_->Fill(sumGenParticleP4_charged.pt(), evtWeight);
-  histogramGenMEt_->Fill(sumGenParticleP4.pt(), evtWeight);
+  histogramSumGenParticlePt_->Fill(sumGenParticleP4.pt(), evtWeight);
+
+  typedef edm::View<reco::MET> METView;
+  edm::Handle<METView> genMETs;
+  evt.getByLabel(srcGenMEt_, genMETs);
+  const reco::Candidate::LorentzVector& genMEtP4 = genMETs->front().p4();
+  std::cout << "genMEt: Pt = " << genMEtP4.pt() << ", phi = " << genMEtP4.phi() << " (Px = " << genMEtP4.px() << ", Py = " << genMEtP4.py() << ")" << std::endl;
+  histogramGenMEt_->Fill(genMEtP4.pt(), evtWeight);
 
   double sumTracksPx = 0.;
   double sumTracksPy = 0.;
@@ -702,8 +736,35 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   
   edm::Handle<l1extra::L1EtMissParticleCollection> l1METs;
   evt.getByLabel(srcL1ETM_, l1METs);
-  double l1MEt = l1METs->begin()->etMiss();
-  histogramL1ETM_->Fill(l1MEt, evtWeight);
+  const reco::Candidate::LorentzVector& l1MEtP4 = l1METs->front().p4();
+  std::cout << "L1MEt: Pt = " << l1MEtP4.pt() << ", phi = " << l1MEtP4.phi() << " (Et = " << l1METs->front().etMiss() << ", Px = " << l1MEtP4.px() << ", Py = " << l1MEtP4.py() << ")" << std::endl;
+  if ( l1MEtP4.pt() > 75. ) std::cout << "--> CHECK !!" << std::endl;
+  typedef edm::View<reco::MET> METView;
+  edm::Handle<METView> recCaloMETs;
+  evt.getByLabel(srcRecCaloMEt_, recCaloMETs);
+  const reco::Candidate::LorentzVector& recCaloMEtP4 = recCaloMETs->front().p4();
+  std::cout << "recCaloMEt: Pt = " << recCaloMEtP4.pt() << ", phi = " << recCaloMEtP4.phi() << " (Px = " << recCaloMEtP4.px() << ", Py = " << recCaloMEtP4.py() << ")" << std::endl;
+  for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
+	genDiTau != genDiTaus->end(); ++genDiTau ) {
+    const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
+    if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
+    const reco::Candidate* genDaughter1 = genDiTau_composite->daughter(0);
+    const reco::GenParticle* genTau1 = ( genDaughter1->hasMasterClone() ) ?
+      dynamic_cast<const reco::GenParticle*>(&(*genDaughter1->masterClone())) : dynamic_cast<const reco::GenParticle*>(genDaughter1);
+    const reco::Candidate* genDaughter2 = genDiTau_composite->daughter(1);
+    const reco::GenParticle* genTau2 = ( genDaughter2->hasMasterClone() ) ?
+      dynamic_cast<const reco::GenParticle*>(&(*genDaughter2->masterClone())) : dynamic_cast<const reco::GenParticle*>(genDaughter2);
+    if ( !(genTau1 && genTau2) ) continue;
+    std::string genTauDecayMode1 = getGenTauDecayMode(genTau1);
+    std::string genTauDecayMode2 = getGenTauDecayMode(genTau2);
+    std::string genTauDecayMode_ref;
+    if      ( genTauDecayMode1 == "electron" || genTauDecayMode1 == "muon" ) genTauDecayMode_ref = genTauDecayMode2;
+    else if ( genTauDecayMode2 == "electron" || genTauDecayMode2 == "muon" ) genTauDecayMode_ref = genTauDecayMode1;
+    for ( std::vector<plotEntryTypeL1ETM*>::iterator l1ETMplotEntry = l1ETMplotEntries_.begin();
+	  l1ETMplotEntry != l1ETMplotEntries_.end(); ++l1ETMplotEntry ) {
+      (*l1ETMplotEntry)->fillHistograms(genTauDecayMode_ref, l1MEtP4, genMEtP4, recCaloMEtP4, genDiTau->p4(), evtWeight);
+    }
+  }
 
   fillHistograms(electronDistributions_, numJetsPtGt30, evt, evtWeight);
   fillHistograms(electronEfficiencies_, numJetsPtGt30, evt, evtWeight);
