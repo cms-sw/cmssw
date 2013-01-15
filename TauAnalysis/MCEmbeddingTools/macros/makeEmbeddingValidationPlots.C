@@ -323,6 +323,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
 		    const TH1* histogram_simDYtoMuMu_recEmbedding_numerator, const TH1* histogram_simDYtoMuMu_recEmbedding_denominator,
 		    double xMin, double xMax, unsigned numBinsMin_rebinned, const std::string& xAxisTitle, double xAxisOffset,
                     double yMin, double yMax, double yAxisOffset,
+		    double legendX0, double legendY0, 
 		    const std::string& outputFileName)
 {
   TCanvas* canvas = new TCanvas("canvas", "canvas", canvasSizeX, canvasSizeY);
@@ -372,7 +373,7 @@ void showEfficiency(const TString& title, double canvasSizeX, double canvasSizeY
   yAxis_top->SetTitle("#varepsilon");
   yAxis_top->SetTitleOffset(yAxisOffset);
 
-  TLegend* legend = new TLegend(0.51, 0.16, 0.94, 0.47, "", "brNDC"); 
+  TLegend* legend = new TLegend(legendX0, legendY0, legendX0 + 0.44, legendY0 + 0.20, "", "brNDC"); 
   legend->SetBorderSize(0);
   legend->SetFillColor(0);
 
@@ -762,17 +763,17 @@ void makeEmbeddingValidationPlots()
   
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genLeg1X", "genLeg1X", 
-    "genLeg1X", 0., 1., 100, "X_{1}", 1.2, 0., 0.08, "a.u.", 1.2, false));
+    "genLeg1X", 0., 1., 100, "X_{1}", 1.2, 0., 0.05, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genLeg2X", "genLeg2X", 
-    "genLeg2X", 0., 1., 100, "X_{2}", 1.2, 0., 0.08, "a.u.", 1.2, false));
+    "genLeg2X", 0., 1., 100, "X_{2}", 1.2, 0., 0.05, "a.u.", 1.2, false));
 
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genMuonEta", "genMuonEta", 
     "validationAnalyzer_mutau/goodMuonDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genMuonPt", "genMuonPt",  
-    "validationAnalyzer_mutau/goodMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/goodMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.32, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genMuonPt", "genMuonPt",  
     "validationAnalyzer_mutau/goodMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
@@ -781,7 +782,7 @@ void makeEmbeddingValidationPlots()
     "validationAnalyzer_mutau/goodMuonDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recMuonPt", "recMuonPt",  
-    "validationAnalyzer_mutau/goodMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/goodMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.32, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recMuonPt", "recMuonPt",  
     "validationAnalyzer_mutau/goodMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
@@ -794,7 +795,7 @@ void makeEmbeddingValidationPlots()
     "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genIsoMuonPt", "genIsoMuonPt",  
-    "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.32, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genIsoMuonPt", "genIsoMuonPt",  
     "validationAnalyzer_mutau/goodIsoMuonDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
@@ -803,7 +804,7 @@ void makeEmbeddingValidationPlots()
     "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#mu}", 1.2, 0., 0.05, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recIsoMuonPt", "recIsoMuonPt",  
-    "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 0., 0.32, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recIsoMuonPt", "recIsoMuonPt",  
     "validationAnalyzer_mutau/goodIsoMuonDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#mu}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
@@ -813,10 +814,10 @@ void makeEmbeddingValidationPlots()
 
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genTauEta", "genTauEta", 
-    "validationAnalyzer_mutau/selectedTauDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#tau}", 1.2, 0., 0.1, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/selectedTauDistributions/genLeptonEta", -2.5, +2.5, 50, "#eta_{#tau}", 1.2, 0., 0.05, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genTauPt", "genTauPt",  
-    "validationAnalyzer_mutau/selectedTauDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/selectedTauDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 0., 0.32, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "genTauPt", "genTauPt",  
     "validationAnalyzer_mutau/selectedTauDistributions/genLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
@@ -825,10 +826,10 @@ void makeEmbeddingValidationPlots()
     "validationAnalyzer_mutau/selectedTauDistributions/genTauDecayMode", -1.5, +19.5, 21, "gen. Tau Decay Mode", 1.2, 0., 0.60, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recTauEta", "recTauEta", 
-    "validationAnalyzer_mutau/selectedTauDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#tau}", 1.2, 0., 0.1, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/selectedTauDistributions/recLeptonEta", -2.5, +2.5, 50, "#eta_{#tau}", 1.2, 0., 0.05, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recTauPt", "recTauPt",  
-    "validationAnalyzer_mutau/selectedTauDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 0., 0.25, "a.u.", 1.2, false));
+    "validationAnalyzer_mutau/selectedTauDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 0., 0.32, "a.u.", 1.2, false));
   distributionsToPlot.push_back(plotEntryType_distribution(
     "recTauPt",  "recTauPt",  
     "validationAnalyzer_mutau/selectedTauDistributions/recLeptonPt", 0., 250., 50, "P_{T}^{#tau}", 1.3, 1.e-6, 1.e+1, "a.u.", 1.2, true));
@@ -875,6 +876,13 @@ void makeEmbeddingValidationPlots()
   distributionsToPlot.push_back(plotEntryType_distribution(
    "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", "recPFMEtTypeIcorrectedMinusGenMEtPerpZ", 
    "validationAnalyzer_mutau/type1CorrPFMEtDistributions/recMinusGenMEtPerpZ", 0., 100., 50, "#DeltaE_{#perp}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+   "L1ETM", "L1ETM", 
+   "L1ETM", 0., 250., 50, "L1-E_{T}^{miss} / GeV", 1.2, 0., 0.25, "a.u.", 1.2, false));
+  distributionsToPlot.push_back(plotEntryType_distribution(
+   "L1ETM", "L1ETM", 
+   "L1ETM", 0., 250., 50, "L1-E_{T}^{miss} / GeV", 1.2, 1.e-6, 1.e+1, "a.u.", 1.2, true));
+
  
   TFile* inputFile_simDYtoTauTau = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoTauTau).data());
   TFile* inputFile_simDYtoMuMu_genEmbedding = new TFile(std::string(inputFilePath).append(inputFileName_simDYtoMuMu_genEmbedding).data());
@@ -983,6 +991,8 @@ void makeEmbeddingValidationPlots()
     TH1* histogram_simDYtoMuMu_genEmbedding_denominator = getHistogram(inputFile_simDYtoMuMu_genEmbedding, "", plot->meName_denominator_);
     TH1* histogram_simDYtoMuMu_recEmbedding_numerator = getHistogram(inputFile_simDYtoMuMu_recEmbedding, "", plot->meName_numerator_);
     TH1* histogram_simDYtoMuMu_recEmbedding_denominator = getHistogram(inputFile_simDYtoMuMu_recEmbedding, "", plot->meName_denominator_);
+    double legendX0 = 0.50;
+    double legendY0 = 0.74;
     std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_%s.pdf", plot->name_.data());
     showEfficiency(plot->title_, 800, 900,
 		   histogram_simDYtoTauTau_numerator, histogram_simDYtoTauTau_denominator, 
@@ -990,6 +1000,7 @@ void makeEmbeddingValidationPlots()
 		   histogram_simDYtoMuMu_recEmbedding_numerator, histogram_simDYtoMuMu_recEmbedding_denominator,
 		   plot->xMin_, plot->xMax_, plot->numBinsMin_rebinned_, plot->xAxisTitle_, plot->xAxisOffset_,
 		   plot->yMin_, plot->yMax_, plot->yAxisOffset_,
+		   legendX0, legendY0,
 		   outputFileName);
   }
 
