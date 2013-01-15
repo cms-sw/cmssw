@@ -34,6 +34,8 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
 //
@@ -114,12 +116,10 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 {
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
-/*
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
-*/
 
   //
   // Read in the survey information from the text files
@@ -136,7 +136,7 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   for (int ii=0 ; ii<NFILES ;ii++) {
     if ( textFileNames[ii] == "NONE" )
       throw cms::Exception("BadConfig") << fileType[ii] << " input file not found in configuration";
-    dataReader.readFile( textFileNames[ii], fileType[ii] );
+    dataReader.readFile( textFileNames[ii], fileType[ii], tTopo );
   } 
 
   edm::LogInfo("TrackerAlignment") << "Files read";

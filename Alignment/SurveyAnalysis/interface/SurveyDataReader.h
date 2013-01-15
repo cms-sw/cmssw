@@ -10,6 +10,8 @@
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
+class TrackerTopology;
+
 class SurveyDataReader
 {
 
@@ -21,7 +23,7 @@ public:
   typedef std::pair< std::vector<int>, align::Scalars > PairTypeOr;
   
   /// Read given text file
-  void readFile( const std::string& textFileName, const std::string& fileType );
+  void readFile( const std::string& textFileName, const std::string& fileType, const TrackerTopology* tTopo);
   align::Scalars convertToAlignableCoord( const align::Scalars& align_params );
 
   // Returns the Map

@@ -4,8 +4,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 // #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
@@ -14,8 +14,7 @@ using namespace std;
 using namespace edm;
 
 //__________________________________________________________________________________________________
-void SurveyDataReader::readFile( const std::string& textFileName ,const std::string& fileType )
-{
+void SurveyDataReader::readFile( const std::string& textFileName, const std::string& fileType, const TrackerTopology* tTopo) {
   
   std::ifstream myfile( textFileName.c_str() );
   if ( !myfile.is_open() ) 
@@ -58,12 +57,12 @@ void SurveyDataReader::readFile( const std::string& textFileName ,const std::str
                          // if double-sided get the glued module
 
 	  if (fileType == "TID") {
-	    TIDDetId myTDI(d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster);
-	    m_detId = myTDI.rawId();
+	    
+	    m_detId = tTopo->tidDetId(d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster);
 	  }
 	  else if (fileType == "TIB") {
-	    TIBDetId myTBI(d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster); 
-	    m_detId = myTBI.rawId();
+	     
+	    m_detId = tTopo->tibDetId(d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster);
 	  }
 
           if (abs(int(m_detId) - int(d_inputs[1])) > 2) {  // Check DetId calculation ...

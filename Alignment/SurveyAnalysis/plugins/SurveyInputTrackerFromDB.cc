@@ -25,15 +25,15 @@ SurveyInputTrackerFromDB::SurveyInputTrackerFromDB(const edm::ParameterSet& cfg)
 void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup& setup)
 {
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
   if (theFirstEvent) {
 
 	//  std::cout << "***************ENTERING INITIALIZATION******************" << std::endl;
 	
+	//Retrieve tracker topology from geometry
+	edm::ESHandle<TrackerTopology> tTopoHandle;
+	setup.get<IdealGeometryRecord>().get(tTopoHandle);
+	const TrackerTopology* const tTopo = tTopoHandle.product();
+
 	//Get map from textreader
 	SurveyInputTextReader dataReader;
 	dataReader.readFile( textFileName );

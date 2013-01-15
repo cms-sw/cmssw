@@ -114,8 +114,6 @@ TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-
-   
   edm::LogInfo("TrackerAlignment") << "Starting!";
 
   //
@@ -133,7 +131,7 @@ TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
   for (int ii=0 ; ii<NFILES ;ii++) {
     if ( textFileNames[ii] == "NONE" )
       throw cms::Exception("BadConfig") << fileType[ii] << " input file not found in configuration";
-    dataReader.readFile( textFileNames[ii], fileType[ii] );
+    dataReader.readFile( textFileNames[ii], fileType[ii], tTopo );
   } 
 
   edm::LogInfo("TrackerAlignment") << "Files read";
