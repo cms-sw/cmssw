@@ -324,7 +324,7 @@ def customise(process):
           dRveto2 = cms.double(dRveto)))
   process.l1extraParticlesORG = process.l1extraParticles.clone()
   process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
-      src1 = cms.InputTag("l1extraParticlesORG", "", "EmbeddedRECO"),                                          
+      src1 = cms.InputTag("l1extraParticlesORG"),                                          
       src2 = cms.InputTag("l1extraParticles", "", inputProcess),
       collections = cms.VPSet(l1extraParticleCollections)
   )
