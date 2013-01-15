@@ -392,6 +392,7 @@ for sampleName, sampleOption in samples.items():
         sedCommand += ";s/$applyZmumuSkim/%s/g" % getStringRep_bool(embeddingOption['applyZmumuSkim'])    
         sedCommand += ";s/$applyMuonRadiationFilter/%s/g" % getStringRep_bool(embeddingOption['applyMuonRadiationFilter'])
         sedCommand += ";s/$disableCaloNoise/%s/g" % getStringRep_bool(embeddingOption['disableCaloNoise'])
+        sedCommand += ";s/$applyRochesterMuonCorr/%s/g" % getStringRep_bool(embeddingOption['applyRochesterMuonCorr'])
         sedCommand += "'"
         sedCommand += " %s > %s" % (cfg_template, cfgFileName)
         runCommand(sedCommand)
