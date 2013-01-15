@@ -183,7 +183,7 @@ double ThirdHitPredictionFromCircle::transverseIP(const Point2D &p2) const
 
 ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
   const ThirdHitPredictionFromCircle * icircle, double iz1, double z2, double curv) :
-  circle(icircle), radius(1./curv), z1(iz1)
+  circle(icircle), curvature(curv), radius(1./curv), z1(iz1)
 {
   double orthog = sgn(curv) * clamped_sqrt(radius*radius - circle->delta2);
   center = circle->center + orthog * circle->axis;
@@ -226,8 +226,8 @@ double ThirdHitPredictionFromCircle::HelixRZ::zAtR(double r) const
   double b2 = center.mag2();
   double b = std::sqrt(b2);
 
-  double cos1 = 0.5 * (radius2 + b2 - sqr(r)) / (radius*b);
-  double cos2 = 0.5 * (radius2 + b2 - circle->p1.mag2()) / (radius*b);
+  double cos1 = 0.5 * curvature * (radius2 + b2 - sqr(r)) / b;
+  double cos2 = 0.5 * curvature * (radius2 + b2 - circle->p1.mag2()) /  b;
 
   double phi1 = clamped_acos(cos1);
   double phi2 = clamped_acos(cos2);
@@ -255,7 +255,7 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
   // we won't go below that (see comment below)
   double minR2 = (2. * circle->center - circle->p1).mag2();
 
-  float phi =  (z - z1) / (radius*dzdu);
+  float phi =  curvature * (z - z1) / dzdu;
 
   if (unlikely(std::abs(phi) > 2. * M_PI)) {
     // with a helix we can get problems here - this is used to get the limits

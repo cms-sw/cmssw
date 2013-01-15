@@ -33,7 +33,7 @@ public:
     
     HelixRZ() : circle(0) {}
     HelixRZ(const ThirdHitPredictionFromCircle *icircle,
-	    double iz1, double z2, double curvature);
+	    double iz1, double z2, double curv);
     
     double zAtR(double r) const;
     double rAtZ(double z) const;
@@ -44,7 +44,7 @@ public:
   private:
     const ThirdHitPredictionFromCircle *circle;
     Point2D center;
-    double radius, z1, seg, dzdu;
+    double curvature, radius, z1, seg, dzdu;
   };
 
 private:
