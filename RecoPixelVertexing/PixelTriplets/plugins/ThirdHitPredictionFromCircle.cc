@@ -104,28 +104,32 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
   double tmp4 = tmp1 + delta2;
   double tmp5 = 2. * delta * lip;
 
+  // VI fixed for finiteMath
   // I am probably being overly careful here with border cases
   // but you never know what crap you might get fed
 
-  double u1, u2;
+  double u1=0, u2=0;
+  constexpr double SMALL = 1.0e-23;
+  constexpr double LARGE = 1.0e23;
+
   if (unlikely(tmp4 - tmp5 < 1.0e-5)) {
-    u1 = -0.;	// yes, I am making use of signed zero
-    u2 = +0.;	// -> no -ffast-math please
+    u1 = -SMALL;
+    u2 = +SMALL;
   } else {
     if (unlikely(std::abs(tmp2) < 1.0e-5)) {
       // the denominator is zero
       // this means that one of the tracks will be straight
       // and the other can be computed from the limit of the equation
       double tmp = lip2 - delta2;
-      u1 = INFINITY;	// and require 1 / sqrt(inf^2 + x) = 0 (with x > 0)
+      u1 = LARGE;
       u2 = (sqr(0.5 * tmp) - delta2 * tip2) / (tmp * tip);
       if (tip < 0)
         std::swap(u1, u2);
     } else {
       double tmp6 = (tmp4 - tmp5) * (tmp4 + tmp5);
       if (unlikely(tmp6 < 1.0e-5)) {
-        u1 = -0.;
-        u2 = +0.;
+        u1 = -SMALL;
+        u2 = +SMALL;
       } else {
         double tmp7 = tmp6 > 0 ? (transverseIP * std::sqrt(tmp6) / tmp2) : 0.;
         double tmp8 = tip * (tmp1 - delta2) / tmp2;
@@ -137,9 +141,9 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
 
     if (tmp4 <= std::abs(tmp3)) {
       if ((tmp3 < 0) == (tip < 0))
-        u2 = +0.;
+        u2 = +SMALL;
       else
-        u1 = -0.;
+        u1 = -SMALL;
     }
   }
 
