@@ -12,9 +12,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.1 $
  *
- * $Id: RochesterCorrMuonProducerT.h,v 1.4 2011/09/16 08:05:48 veelken Exp $
+ * $Id: RochesterCorrMuonProducerT.h,v 1.1 2013/01/15 14:24:31 veelken Exp $
  *
  */
 
@@ -53,13 +53,19 @@ class RochesterCorrMuonProducerT : public edm::EDProducer
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
+    //std::cout << "<RochesterCorrMuonProducer>:" << std::endl;
+
     std::auto_ptr<MuonCollection> correctedMuonCollection(new MuonCollection);
 
     edm::Handle<MuonCollection> uncorrectedMuonCollection;
     evt.getByLabel(src_, uncorrectedMuonCollection);
 
+    int idx = 0;
     for ( typename MuonCollection::const_iterator uncorrectedMuon = uncorrectedMuonCollection->begin();
 	  uncorrectedMuon != uncorrectedMuonCollection->end(); ++uncorrectedMuon ) {
+      //std::cout << " uncorrected Muon #" << idx << ": Pt = " << uncorrectedMuon->pt() << "," 
+      //	  << " eta = " << uncorrectedMuon->eta() << ", phi = " << uncorrectedMuon->phi() << ", mass = " << uncorrectedMuon->mass() << std::endl;
+
       TLorentzVector muonP4(uncorrectedMuon->px(), uncorrectedMuon->py(), uncorrectedMuon->pz(), uncorrectedMuon->energy());
 
       float error;
@@ -67,9 +73,14 @@ class RochesterCorrMuonProducerT : public edm::EDProducer
       else algorithm_.momcor_data(muonP4, uncorrectedMuon->charge(), 0, 0, error);
 
       T correctedMuon(*uncorrectedMuon);
-      correctedMuon.setP4(reco::Candidate::LorentzVector(muonP4.Px(), muonP4.Py(), muonP4.Pz(), muonP4.Energy()));
+      // CV: use PolarLorentzVector to preserve muon mass (Rochester muon corrections change muon mass)
+      correctedMuon.setP4(reco::Candidate::PolarLorentzVector(muonP4.Pt(), muonP4.Eta(), muonP4.Phi(), uncorrectedMuon->mass()));
+      //std::cout << " corrected Muon #" << idx << ": Pt = " << correctedMuon.pt() << "," 
+      //	  << " eta = " << correctedMuon.eta() << ", phi = " << correctedMuon.phi() << ", mass = " << correctedMuon.mass() << std::endl;
 
       correctedMuonCollection->push_back(correctedMuon);
+
+      ++idx;
     }
 
     evt.put(correctedMuonCollection);
