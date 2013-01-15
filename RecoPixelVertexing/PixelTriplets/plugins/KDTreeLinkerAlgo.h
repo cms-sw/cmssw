@@ -19,7 +19,7 @@ class KDTreeLinkerAlgo
   ~KDTreeLinkerAlgo();
   
   // Here we build the KD tree from the "eltList" in the space define by "region".
-  void build(std::vector<KDTreeNodeInfo<DATA> >		&eltList,
+  void build(std::vector<KDTreeNodeInfo<DATA> > 	&eltList,
 	     const KDTreeBox				&region);
   
   // Here we search in the KDTree for all points that would be 
@@ -46,13 +46,13 @@ class KDTreeLinkerAlgo
   int		nodePoolSize_;
   int		nodePoolPos_;
 
+
+  
   std::vector<KDTreeNodeInfo<DATA> >	*closestNeighbour;
   std::vector<KDTreeNodeInfo<DATA> >	*initialEltList;
   
  private:
-  // Basic swap function.
-  void swap(KDTreeNodeInfo<DATA> &e1, KDTreeNodeInfo<DATA> &e2);
-
+ 
   // Get next node from the node pool.
   KDTreeNode<DATA>* getNextNode();
 
@@ -119,7 +119,7 @@ KDTreeLinkerAlgo<DATA>::medianSearch(int	low,
   int m = high - 1;
   
   while (l < m) {
-    KDTreeNodeInfo<DATA> elt = initialEltList->at(median);
+    KDTreeNodeInfo<DATA> elt = (*initialEltList)[median];
     int i = l;
     int j = m;
 
@@ -127,15 +127,15 @@ KDTreeLinkerAlgo<DATA>::medianSearch(int	low,
       // The even depth is associated to dim1 dimension
       // The odd one to dim2 dimension
       if (treeDepth & 1) {
-	while (initialEltList->at(i).dim2 < elt.dim2) i++;
-	while (initialEltList->at(j).dim2 > elt.dim2) j--;
+	while ((*initialEltList)[i].dim2 < elt.dim2) i++;
+	while ((*initialEltList)[j].dim2 > elt.dim2) j--;
       } else {
-	while (initialEltList->at(i).dim1 < elt.dim1) i++;
-	while (initialEltList->at(j).dim1 > elt.dim1) j--;
+	while ((*initialEltList)[i].dim1 < elt.dim1) i++;
+	while ((*initialEltList)[j].dim1 > elt.dim1) j--;
       }
 
       if (i <= j){
-	swap(initialEltList->at(i), initialEltList->at(j));
+	std::swap((*initialEltList)[i], (*initialEltList)[j]);
 	i++; 
 	j--;
       }
@@ -145,16 +145,6 @@ KDTreeLinkerAlgo<DATA>::medianSearch(int	low,
   }
 
   return median;
-}
-
-template < typename DATA >
-void 
-KDTreeLinkerAlgo<DATA>::swap(KDTreeNodeInfo<DATA>&	e1, 
-			     KDTreeNodeInfo<DATA>&	e2)
-{
-  KDTreeNodeInfo<DATA> tmp = e1;
-  e1 = e2;
-  e2 = tmp;
 }
 
 
@@ -177,12 +167,14 @@ void
 KDTreeLinkerAlgo<DATA>::recSearch(const KDTreeNode<DATA>	*current,
 				  const KDTreeBox		&trackBox)
 {
+  /*
   // By construction, current can't be null
   assert(current != 0);
 
   // By Construction, a node can't have just 1 son.
   assert (!(((current->left == 0) && (current->right != 0)) ||
 	    ((current->left != 0) && (current->right == 0))));
+  */
     
   if ((current->left == 0) && (current->right == 0)) {//leaf case
   
@@ -232,7 +224,7 @@ void
 KDTreeLinkerAlgo<DATA>::addSubtree(const KDTreeNode<DATA>	*current)
 {
   // By construction, current can't be null
-  assert(current != 0);
+  // assert(current != 0);
 
   if ((current->left == 0) && (current->right == 0)) // leaf
     closestNeighbour->push_back(current->info);
@@ -289,7 +281,7 @@ KDTreeLinkerAlgo<DATA>::getNextNode()
 
   // The tree size is exactly 2 * nbrElts - 1 and this is the total allocated memory.
   // If we have used more than that....there is a big problem.
-  assert(nodePoolPos_ < nodePoolSize_);
+  // assert(nodePoolPos_ < nodePoolSize_);
 
   return &(nodePool_[nodePoolPos_]);
 }
@@ -305,7 +297,7 @@ KDTreeLinkerAlgo<DATA>::recBuild(int					low,
   int portionSize = high - low;
 
   // By construction, portionSize > 0 can't happend.
-  assert(portionSize > 0);
+  // assert(portionSize > 0);
 
   if (portionSize == 1) { // Leaf case
    
