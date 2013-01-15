@@ -18,7 +18,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"if ( genTau1 ) 
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
 
 MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::ParameterSet& cfg)
   : srcReplacedMuons_(cfg.getParameter<edm::InputTag>("srcReplacedMuons")),
@@ -379,9 +379,9 @@ namespace
 					MonitorElement* histogram_visDiTauPt, MonitorElement* histogram_visDiTauEta, MonitorElement* histogram_visDiTauPhi, MonitorElement* histogram_visDiTauMass,
 					double evtWeight)
   {
-    std::cout << "<fillVisPtEtaPhiMassDistributions>:" << std::endl;
-    std::cout << " srcLeg1 = " << srcLeg1 << std::endl;
-    std::cout << " srcLeg2 = " << srcLeg2 << std::endl;
+    //std::cout << "<fillVisPtEtaPhiMassDistributions>:" << std::endl;
+    //std::cout << " srcLeg1 = " << srcLeg1 << std::endl;
+    //std::cout << " srcLeg2 = " << srcLeg2 << std::endl;
     typedef edm::View<reco::Candidate> CandidateView;
     edm::Handle<CandidateView> visDecayProducts1;
     evt.getByLabel(srcLeg1, visDecayProducts1);
@@ -393,8 +393,8 @@ namespace
 	  visDecayProduct2 != visDecayProducts2->end(); ++visDecayProduct2 ) {
 	double dR = deltaR(visDecayProduct1->p4(), visDecayProduct2->p4());
 	if ( dR > 0.3 ) { // protection in case srcLeg1 and srcLeg2 refer to same collection (e.g. both hadronic tau decays)
-	  std::cout << "leg1: Pt = " << visDecayProduct1->pt() << ", phi = " << visDecayProduct1->phi() << " (Px = " << visDecayProduct1->px() << ", Py = " << visDecayProduct1->py() << ")" << std::endl;
-	  std::cout << "leg2: Pt = " << visDecayProduct2->pt() << ", phi = " << visDecayProduct2->phi() << " (Px = " << visDecayProduct2->px() << ", Py = " << visDecayProduct2->py() << ")" << std::endl;
+	  //std::cout << "leg1: Pt = " << visDecayProduct1->pt() << ", phi = " << visDecayProduct1->phi() << " (Px = " << visDecayProduct1->px() << ", Py = " << visDecayProduct1->py() << ")" << std::endl;
+	  //std::cout << "leg2: Pt = " << visDecayProduct2->pt() << ", phi = " << visDecayProduct2->phi() << " (Px = " << visDecayProduct2->px() << ", Py = " << visDecayProduct2->py() << ")" << std::endl;
 	  reco::Candidate::LorentzVector visDiTauP4 = visDecayProduct1->p4() + visDecayProduct2->p4();
 	  histogram_visDiTauPt->Fill(visDiTauP4.pt(), evtWeight);
 	  histogram_visDiTauEta->Fill(visDiTauP4.eta(), evtWeight);
@@ -647,9 +647,9 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));
     if ( !(genDiTau_composite && genDiTau_composite->numberOfDaughters() == 2) ) continue;
     const reco::Candidate* genTau1 = genDiTau_composite->daughter(0);
-    if ( genTau1 ) std::cout << "genTau1: Pt = " << genTau1->pt() << ", phi = " << genTau1->phi() << " (Px = " << genTau1->px() << ", Py = " << genTau1->py() << ")" << std::endl;
+    //if ( genTau1 ) std::cout << "genTau1: Pt = " << genTau1->pt() << ", phi = " << genTau1->phi() << " (Px = " << genTau1->px() << ", Py = " << genTau1->py() << ")" << std::endl;
     const reco::Candidate* genTau2 = genDiTau_composite->daughter(1);
-    if ( genTau2 ) std::cout << "genTau2: Pt = " << genTau2->pt() << ", phi = " << genTau2->phi() << " (Px = " << genTau2->px() << ", Py = " << genTau2->py() << ")" << std::endl;
+    //if ( genTau2 ) std::cout << "genTau2: Pt = " << genTau2->pt() << ", phi = " << genTau2->phi() << " (Px = " << genTau2->px() << ", Py = " << genTau2->py() << ")" << std::endl;
     if ( !(genTau1 && genTau2) ) continue;
     if ( (genTau1->pt() > replacedMuonPtThresholdHigh_ && genTau2->pt() > replacedMuonPtThresholdLow_ ) ||
 	 (genTau1->pt() > replacedMuonPtThresholdLow_  && genTau2->pt() > replacedMuonPtThresholdHigh_) ) {
@@ -686,7 +686,7 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   edm::Handle<METView> genMETs;
   evt.getByLabel(srcGenMEt_, genMETs);
   const reco::Candidate::LorentzVector& genMEtP4 = genMETs->front().p4();
-  std::cout << "genMEt: Pt = " << genMEtP4.pt() << ", phi = " << genMEtP4.phi() << " (Px = " << genMEtP4.px() << ", Py = " << genMEtP4.py() << ")" << std::endl;
+  //std::cout << "genMEt: Pt = " << genMEtP4.pt() << ", phi = " << genMEtP4.phi() << " (Px = " << genMEtP4.px() << ", Py = " << genMEtP4.py() << ")" << std::endl;
   histogramGenMEt_->Fill(genMEtP4.pt(), evtWeight);
 
   double sumTracksPx = 0.;
@@ -737,13 +737,13 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   edm::Handle<l1extra::L1EtMissParticleCollection> l1METs;
   evt.getByLabel(srcL1ETM_, l1METs);
   const reco::Candidate::LorentzVector& l1MEtP4 = l1METs->front().p4();
-  std::cout << "L1MEt: Pt = " << l1MEtP4.pt() << ", phi = " << l1MEtP4.phi() << " (Et = " << l1METs->front().etMiss() << ", Px = " << l1MEtP4.px() << ", Py = " << l1MEtP4.py() << ")" << std::endl;
-  if ( l1MEtP4.pt() > 75. ) std::cout << "--> CHECK !!" << std::endl;
+  //std::cout << "L1MEt: Pt = " << l1MEtP4.pt() << ", phi = " << l1MEtP4.phi() << " (Et = " << l1METs->front().etMiss() << ", Px = " << l1MEtP4.px() << ", Py = " << l1MEtP4.py() << ")" << std::endl;
+  //if ( l1MEtP4.pt() > 75. ) std::cout << "--> CHECK !!" << std::endl;
   typedef edm::View<reco::MET> METView;
   edm::Handle<METView> recCaloMETs;
   evt.getByLabel(srcRecCaloMEt_, recCaloMETs);
   const reco::Candidate::LorentzVector& recCaloMEtP4 = recCaloMETs->front().p4();
-  std::cout << "recCaloMEt: Pt = " << recCaloMEtP4.pt() << ", phi = " << recCaloMEtP4.phi() << " (Px = " << recCaloMEtP4.px() << ", Py = " << recCaloMEtP4.py() << ")" << std::endl;
+  //std::cout << "recCaloMEt: Pt = " << recCaloMEtP4.pt() << ", phi = " << recCaloMEtP4.phi() << " (Px = " << recCaloMEtP4.px() << ", Py = " << recCaloMEtP4.py() << ")" << std::endl;
   for ( CandidateView::const_iterator genDiTau = genDiTaus->begin();
 	genDiTau != genDiTaus->end(); ++genDiTau ) {
     const reco::CompositeCandidate* genDiTau_composite = dynamic_cast<const reco::CompositeCandidate*>(&(*genDiTau));

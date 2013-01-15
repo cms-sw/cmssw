@@ -324,33 +324,31 @@ def customise(process):
   cleanerConfigConst.H_Hcal_HcalEndcap = cms.double(6) # 6
 
 
-
   process.castorrecoORG = process.castorreco.clone()
-  process.castorreco = cms.EDProducer("CastorRHMixer",
-       cleaningAlgo = cms.string("CaloCleanerAllCrossed"),
-       cleaningConfig = clConfig,
-       todo = cms.VPSet(cms.PSet ( colZmumu = cms.InputTag("castorreco","", inputProcess  ), colTauTau = cms.InputTag("castorrecoORG" )  ))
+  process.castorreco = cms.EDProducer("CastorRecHitMixer",
+    typeEnergyDepositMap = cms.string('absolute'),
+    srcEnergyDepositMapMuPlus = cms.InputTag("muonCaloEnergyDepositsAllCrossed","energyDepositsMuPlus"),
+    srcEnergyDepositMapMuMinus = cms.InputTag("muonCaloEnergyDepositsAllCrossed","energyDepositsMuMinus"),
+    todo = cms.VPSet(cms.PSet(
+        collection2 = cms.InputTag("castorrecoORG"),
+        collection1 = cms.InputTag("castorreco","","RECO")
+    ))
   )
-
   for p in process.paths:
     pth = getattr(process,p)
     if "castorreco" in pth.moduleNames():
       pth.replace(process.castorreco, process.castorrecoORG*process.castorreco)
 
   process.ecalPreshowerRecHitORG = process.ecalPreshowerRecHit.clone()
-  process.ecalPreshowerRecHit = cms.EDProducer("EcalRHMixer",
-         cleaningAlgo = cms.string("CaloCleanerAllCrossed"), # CaloCleanerMVA
-         cleaningConfig = clConfig,
-         #cleaningAlgo = cms.string("CaloCleanerConst"), 
-         #cleaningConfig = cleanerConfigConst,
-         #cleaningConfig = cleanerConfigTMVA,
-         #cleaningAlgo = cms.string("CaloCleanerMVA"), 
-         todo = cms.VPSet(
-              cms.PSet ( colZmumu = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES", inputProcess ),
-                         colTauTau = cms.InputTag("ecalPreshowerRecHitORG","EcalRecHitsES" )  ),
-         )
+  process.ecalPreshowerRecHit = cms.EDProducer("EcalRecHitMixer",
+    typeEnergyDepositMap = cms.string('absolute'),
+    srcEnergyDepositMapMuPlus = cms.InputTag("muonCaloEnergyDepositsAllCrossed","energyDepositsMuPlus"),
+    srcEnergyDepositMapMuMinus = cms.InputTag("muonCaloEnergyDepositsAllCrossed","energyDepositsMuMinus"),
+    todo = cms.VPSet(cms.PSet(
+      collection2 = cms.InputTag("ecalPreshowerRecHitORG","EcalRecHitsES"),
+      collection1 = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES","RECO")
+    ))
   )
-
   for p in process.paths:
     pth = getattr(process,p)
     if "ecalPreshowerRecHit" in pth.moduleNames():
@@ -359,21 +357,18 @@ def customise(process):
 
 
   process.ecalRecHitORG = process.ecalRecHit.clone()
-  process.ecalRecHit = cms.EDProducer("EcalRHMixer",
-         #cleaningAlgo = cms.string("CaloCleanerAllCrossed"), # CaloCleanerMVA
-         #cleaningConfig = clConfig,
-         #cleaningAlgo = cms.string("CaloCleanerMVA"), 
-         #cleaningConfig = cleanerConfigTMVA,
-         cleaningAlgo = cms.string("CaloCleanerConst"), 
-         cleaningConfig = cleanerConfigConst,
-
-         todo = cms.VPSet(
-              cms.PSet ( colZmumu = cms.InputTag("ecalRecHit","EcalRecHitsEB", inputProcess ), 
-                         colTauTau = cms.InputTag("ecalRecHitORG","EcalRecHitsEB" )  ),
-
-              cms.PSet ( colZmumu = cms.InputTag("ecalRecHit","EcalRecHitsEE", inputProcess  ), 
-                         colTauTau = cms.InputTag("ecalRecHitORG","EcalRecHitsEE" )  )
-         )
+  process.ecalRecHit = cms.EDProducer("EcalRecHitMixer",
+    typeEnergyDepositMap = cms.string('absolute'),
+    srcEnergyDepositMapMuPlus = cms.InputTag("muonCaloEnergyDepositsByDistance","energyDepositsMuPlus"),
+    srcEnergyDepositMapMuMinus = cms.InputTag("muonCaloEnergyDepositsByDistance","energyDepositsMuMinus"),
+    todo = cms.VPSet(cms.PSet(
+        collection2 = cms.InputTag("ecalRecHitORG","EcalRecHitsEB"),
+        collection1 = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO")
+    ), 
+        cms.PSet(
+            collection2 = cms.InputTag("ecalRecHitORG","EcalRecHitsEE"),
+            collection1 = cms.InputTag("ecalRecHit","EcalRecHitsEE","RECO")
+        ))
   )
   for p in process.paths:
     pth = getattr(process,p)
@@ -383,52 +378,46 @@ def customise(process):
 
 
   process.hbherecoORG = process.hbhereco.clone()
-  process.hbhereco = cms.EDProducer("HBHERHMixer",
-         #cleaningAlgo = cms.string("CaloCleanerAllCrossed"),
-         #cleaningConfig = clConfig,
-         #cleaningAlgo = cms.string("CaloCleanerMVA"), 
-         #cleaningConfig = cleanerConfigTMVA,
-         cleaningConfig = cleanerConfigConst,
-         cleaningAlgo = cms.string("CaloCleanerConst"), 
-         todo = 
-           cms.VPSet(cms.PSet ( colZmumu = cms.InputTag( "hbhereco","", inputProcess  ), colTauTau = cms.InputTag("hbherecoORG","" )))
+  process.hbhereco = cms.EDProducer("HBHERecHitMixer",
+    typeEnergyDepositMap = cms.string('absolute'),
+    srcEnergyDepositMapMuPlus = cms.InputTag("muonCaloEnergyDepositsByDistance","energyDepositsMuPlus"),
+    srcEnergyDepositMapMuMinus = cms.InputTag("muonCaloEnergyDepositsByDistance","energyDepositsMuMinus"),
+    todo = cms.VPSet(cms.PSet(
+        collection2 = cms.InputTag("hbherecoORG"),
+        collection1 = cms.InputTag("hbhereco","","RECO")
+    ))
   )
   for p in process.paths:
     pth = getattr(process,p)
     if "hbhereco" in pth.moduleNames():
       pth.replace(process.hbhereco, process.hbherecoORG*process.hbhereco)
 
-  # typedef CaloRecHitMixer< HFRecHit >   HFRHMixer;
   process.hfrecoORG = process.hfreco.clone()
-  process.hfreco = cms.EDProducer("HFRHMixer",
-         #cleaningAlgo = cms.string("CaloCleanerAllCrossed"),
-         #cleaningConfig = clConfig,
-         #cleaningAlgo = cms.string("CaloCleanerMVA"), 
-         #cleaningConfig = cleanerConfigTMVA,
-         cleaningConfig = cleanerConfigConst,
-         cleaningAlgo = cms.string("CaloCleanerConst"), 
-      
-         todo =
-           cms.VPSet(cms.PSet ( colZmumu = cms.InputTag( "hfreco","", inputProcess  ), colTauTau = cms.InputTag("hfrecoORG","" )))
+  process.hfreco = cms.EDProducer("HFRecHitMixer",
+    typeEnergyDepositMap = cms.string('absolute'),
+    srcEnergyDepositMapMuPlus = cms.InputTag("muonCaloEnergyDepositsAllCrossed","energyDepositsMuPlus"),
+    srcEnergyDepositMapMuMinus = cms.InputTag("muonCaloEnergyDepositsAllCrossed","energyDepositsMuMinus"),
+    todo = cms.VPSet(
+      cms.PSet(
+        collection1 = cms.InputTag("hfreco", "", inputProcess),
+        collection2 = cms.InputTag("hfrecoORG")
+      )
+    )
   )
   for p in process.paths:
-    pth = getattr(process,p)
+    pth = getattr(process, p)
     if "hfreco" in pth.moduleNames():
       pth.replace(process.hfreco, process.hfrecoORG*process.hfreco)
 
-
-  # typedef CaloRecHitMixer< HORecHit > HORHMixer;
   process.horecoORG = process.horeco.clone()
-  process.horeco = cms.EDProducer("HORHMixer",
-         #cleaningAlgo = cms.string("CaloCleanerAllCrossed"),
-         #cleaningConfig = clConfig,
-         #cleaningAlgo = cms.string("CaloCleanerMVA"), 
-         #cleaningConfig = cleanerConfigTMVA,
-         cleaningConfig = cleanerConfigConst,
-         cleaningAlgo = cms.string("CaloCleanerConst"), 
-         
-         todo =
-           cms.VPSet(cms.PSet ( colZmumu = cms.InputTag( "horeco","", inputProcess  ), colTauTau = cms.InputTag("horecoORG","" )))
+  process.horeco = cms.EDProducer("HORecHitMixer",
+    typeEnergyDepositMap = cms.string('absolute'),
+    srcEnergyDepositMapMuPlus = cms.InputTag("muonCaloEnergyDepositsByDistance","energyDepositsMuPlus"),
+    srcEnergyDepositMapMuMinus = cms.InputTag("muonCaloEnergyDepositsByDistance","energyDepositsMuMinus"),
+    todo = cms.VPSet(cms.PSet(
+        collection2 = cms.InputTag("horecoORG"),
+        collection1 = cms.InputTag("horeco","","RECO")
+    ))
   )
   for p in process.paths:
     pth = getattr(process,p)
@@ -528,7 +517,7 @@ def customise(process):
         print
         print "Using legacy version of Zmumu skim. Note, that muon isolation is disabled"
         print
-        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelectionLegacy_cff")
+        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandaloneSelectionLegacy_cff")
         #'''
         process.RandomNumberGeneratorService.dummy = cms.PSet(
           initialSeed = cms.untracked.uint32(123456789),
@@ -536,7 +525,7 @@ def customise(process):
         )
         # '''
       else:
-        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandalonSelection_cff")
+        process.load("TauAnalysis/MCEmbeddingTools/ZmumuStandaloneSelection_cff")
       process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
       # we are allready selecting events from generation step, so following way is ok

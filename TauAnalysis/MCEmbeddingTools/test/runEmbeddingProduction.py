@@ -115,7 +115,9 @@ options = {
         'replaceGenOrRecMuonMomenta'   : 'gen',
         'cleaningMode'                 : 'DEDX',
         'applyZmumuSkim'               : False,
-        'applyMuonRadiationFilter'     : False
+        'applyMuonRadiationFilter'     : False,
+        'disableCaloNoise'             : True,
+        'applyRochesterMuonCorr'       : False
     },
     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_wCaloNoise' : {
         'ZmumuCollection'              : 'genMuonsFromZs',
@@ -127,7 +129,8 @@ options = {
         'cleaningMode'                 : 'DEDX',
         'applyZmumuSkim'               : False,
         'applyMuonRadiationFilter'     : False,
-        'disableCaloNoise'             : 
+        'disableCaloNoise'             : False,
+        'applyRochesterMuonCorr'       : False
     },
 ##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noVisPtCuts' : {
 ##         'ZmumuCollection'              : 'genMuonsFromZs',
@@ -151,17 +154,32 @@ options = {
 ##         'applyZmumuSkim'               : True,
 ##         'applyMuonRadiationFilter'     : False
 ##     },
-#    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90' : {
-#        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-#        'mdtau'                        : 116,
-#        'minVisibleTransverseMomentum' : "mu1_7had1_15",
-#        'rfRotationAngle'              : 90.,
-#        'embeddingMode'                : 'RH',
-#        'replaceGenOrRecMuonMomenta'   : 'rec',
-#        'cleaningMode'                 : 'DEDX',
-#        'applyZmumuSkim'               : True,
-#        'applyMuonRadiationFilter'     : False
-#    },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_woRochesterMuonCorr' : {
+        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+        'mdtau'                        : 116,
+        'minVisibleTransverseMomentum' : "mu1_7had1_15",
+        'rfRotationAngle'              : 90.,
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'rec',
+        'cleaningMode'                 : 'DEDX',
+        'applyZmumuSkim'               : True,
+        'applyMuonRadiationFilter'     : False,
+        'disableCaloNoise'             : False,
+        'applyRochesterMuonCorr'       : False
+    },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_wRochesterMuonCorr' : {
+        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+        'mdtau'                        : 116,
+        'minVisibleTransverseMomentum' : "mu1_7had1_15",
+        'rfRotationAngle'              : 90.,
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'rec',
+        'cleaningMode'                 : 'DEDX',
+        'applyZmumuSkim'               : True,
+        'applyMuonRadiationFilter'     : False,
+        'disableCaloNoise'             : False,
+        'applyRochesterMuonCorr'       : True
+    },
     # mu+mu samples
 ##     'noEvtSel_embedEqPF_replaceGenMuons_by_mumu_embedAngleEq90' : {
 ##         'ZmumuCollection'              : 'genMuonsFromZs',

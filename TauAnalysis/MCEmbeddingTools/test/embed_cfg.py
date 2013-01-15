@@ -11,7 +11,7 @@ process = cms.Process('EmbeddedRECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -32,7 +32,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 # Define input source
@@ -49,7 +49,7 @@ process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.9 $'),
+    version = cms.untracked.string('$Revision: 1.10 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -191,7 +191,8 @@ process.customization_options = cms.PSet(
     overrideBeamSpot             = cms.bool(False),    # should I override beamspot in globaltag ?
     applyZmumuSkim               = cms.bool(True),    # should I apply the Z->mumu event selection cuts ?
     applyMuonRadiationFilter     = cms.bool(False),    # should I apply the filter to reject events with muon -> muon + photon radiation ?
-    disableCaloNoise             = cms.bool(True)      # should I disable the simulation of calorimeter noise when simulating the detector response for the embedded taus ?
+    disableCaloNoise             = cms.bool(True),     # should I disable the simulation of calorimeter noise when simulating the detector response for the embedded taus ?
+    applyRochesterMuonCorr       = cms.bool(True)      # should I apply muon momentum corrections determined by the Rochester group (documented in AN-12/298) ?
 )
 
 # Define "hooks" for replacing configuration parameters
@@ -207,6 +208,10 @@ process.customization_options = cms.PSet(
 #__process.customization_options.applyZmumuSkim = cms.bool($applyZmumuSkim)
 #__process.customization_options.applyMuonRadiationFilter = cms.bool($applyMuonRadiationFilter)
 #__process.customization_options.disableCaloNoise = cms.bool($disableCaloNoise)
+#__process.customization_options.applyRochesterMuonCorr = cms.bool($applyRochesterMuonCorr)
+#
+# CV: set name of output file to value defined in crab config (without any file paths)
+#__process.outputFiles.fileName = cms.untracked.string('embed_AOD.root')
 #--------------------------------------------------------------------------------
 
 # Apply customisation options
@@ -222,33 +227,6 @@ process = customise(process)
 ##process.printFirstEventContentPath = cms.Path(process.filterFirstEvent + process.printEventContent)
 ##
 ##process.schedule.extend([process.printFirstEventContentPath])
-
-##process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-##process.printGenParticleList = cms.EDAnalyzer("ParticleListDrawer",
-##  src = cms.InputTag("genParticles"),
-##  maxEventsToPrint = cms.untracked.int32(100)
-##)
-##process.printGenParticleListPath = cms.Path(process.printGenParticleList)
-##
-##process.schedule.extend([process.printGenParticleListPath])
-
-##process.dumpL1GctEtMissDigisORG = cms.EDAnalyzer("DumpL1GctEtMissDigis",
-##    src = cms.InputTag("gctDigis", "", process.customization_options.inputProcessRECO.value()),
-##    minEt = cms.double(-1.e+6)
-##)
-##process.dumpL1GctEtMissDigisRERECO = process.dumpL1GctEtMissDigisORG.clone(
-##    src = cms.InputTag("gctDigis", "", "EmbeddedRECO")
-##)
-##process.dumpL1GctEtMissDigiPath = cms.Path(process.goldenZmumuFilterSequence + process.ProductionFilterSequence + process.dumpL1GctEtMissDigisORG + process.dumpL1GctEtMissDigisRERECO)
-##
-##process.schedule.extend([process.dumpL1GctEtMissDigiPath])
-
-# CV: disable ECAL/HCAL noise simulation
-if process.customization_options.disableCaloNoise:
-    process.simEcalUnsuppressedDigis.doESNoise = cms.bool(False)
-    process.simEcalUnsuppressedDigis.doESNoise = cms.bool(False)
-    process.simHcalUnsuppressedDigis.doNoise = cms.bool(False)
-    process.simHcalUnsuppressedDigis.doThermalNoise = cms.bool(False)
 
 processDumpFile = open('embed.dump', 'w')
 print >> processDumpFile, process.dumpPython()

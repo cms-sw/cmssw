@@ -16,8 +16,8 @@ samples = {
         'srcWeights'       : [],
         'srcGenFilterInfo' : ''
     },
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90' : {
-        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_embedded_trans1_tau116_v5-5ef1c0fd428eb740081f19333520fdc8/USER',
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_woCaloNoise' : {
+        'datasetpath'      : '',
         'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed' : -1,
         'events_per_job'   : 10000,
@@ -26,8 +26,8 @@ samples = {
         'srcWeights'       : [],
         'srcGenFilterInfo' : 'generator:minVisPtFilter'
     },
-    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90' : {
-        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_Angle90_VisPtMu7Had15_embedded_trans1_tau116_v5-5ef1c0fd428eb740081f19333520fdc8/USER',
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_wCaloNoise' : {
+        'datasetpath'      : '',
         'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed' : -1,
         'events_per_job'   : 10000,
@@ -36,39 +36,29 @@ samples = {
         'srcWeights'       : [],
         'srcGenFilterInfo' : 'generator:minVisPtFilter'
     },
-##      'simDYtoMuMu_noEvtSel_embedEqPF_replaceGenMuons_by_mutau_embedAngleEq0_noVisPtCuts' : {
-##          'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_PFGENEmbed_Angle0_VisPt0_embedded_trans1_tau116_v2-5ef1c0fd428eb740081f19333520fdc8/USER',
-##          'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-##          'events_processed' : -1,
-##          'events_per_job'   : 10000,
-##          'type'             : 'MC',
-##          'channel'          : 'mutau',
-##          'srcWeights'       : [],
-##          'srcGenFilterInfo' : ''
-##      },
-##      'simDYtoMuMu_noEvtSel_embedEqPF_replaceGenMuons_by_mutau_embedAngleEq90_noVisPtCuts' : {
-##          'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPt0_embedded_trans1_tau116_v2-5ef1c0fd428eb740081f19333520fdc8/USER',
-##          'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-##          'events_processed' : -1,
-##          'events_per_job'   : 10000,
-##          'type'             : 'MC',
-##          'channel'          : 'mutau',
-##          'srcWeights'       : [],
-##          'srcGenFilterInfo' : ''
-##      },
-##     'Data_runs202044to203002_embedEqPF_replaceRecMuons_by_mutau' : {
-##         'datasetpath'      : '/DoubleMu/StoreResults-DoubleMu_Run2012C_PromptReco_v2_embedded_trans1_tau116_ptmu1_13had1_17_v1-f456bdbb960236e5c696adfe9b04eaae/USER',
-##         'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
-##         'events_processed' : -1,
-##         'lumis_per_job'    : 25,
-##         'type'             : 'Data',
-##         'channel'          : 'mutau',
-##         'srcWeights'       : [],
-##         'srcGenFilterInfo' : ''
-##     }
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_woRochesterMuonCorr' : {
+        'datasetpath'      : '',
+        'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+        'events_processed' : -1,
+        'events_per_job'   : 10000,
+        'type'             : 'MC',
+        'channel'          : 'mutau',
+        'srcWeights'       : [],
+        'srcGenFilterInfo' : 'generator:minVisPtFilter'
+    },
+    'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90_wRochesterMuonCorr' : {
+        'datasetpath'      : '',
+        'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
+        'events_processed' : -1,
+        'events_per_job'   : 10000,
+        'type'             : 'MC',
+        'channel'          : 'mutau',
+        'srcWeights'       : [],
+        'srcGenFilterInfo' : 'generator:minVisPtFilter'
+    }
 }
 
-version = "v1_6_3"
+version = "v1_7_0"
 
 crab_template_mc = string.Template('''
 [CRAB]

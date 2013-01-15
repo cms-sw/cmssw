@@ -397,5 +397,28 @@ def customise(process):
   process.muonRadiationFilterResult = cms.EDProducer("DummyBoolEventSelFlagProducer")
   process.muonRadiationFilterEfficiencyPath = cms.Path(process.goldenZmumuSelectionSequence + process.muonRadiationFilterSequence + process.muonRadiationFilterResult)
   process.schedule.append(process.muonRadiationFilterEfficiencyPath)
+
+  # CV: disable ECAL/HCAL noise simulation
+  if process.customization_options.disableCaloNoise.value():
+    print "Disabling ECAL/HCAL noise simulation" 
+    process.simEcalUnsuppressedDigis.doESNoise = cms.bool(False)
+    process.simEcalUnsuppressedDigis.doESNoise = cms.bool(False)
+    process.simHcalUnsuppressedDigis.doNoise = cms.bool(False)
+    process.simHcalUnsuppressedDigis.doThermalNoise = cms.bool(False)
+  else:
+    print "Keeping ECAL/HCAL noise simulation enabled"
+    
+  # CV: apply/do not apply muon momentum corrections determined by Rochester group
+  if process.customization_options.replaceGenOrRecMuonMomenta.value() == "rec" and hasattr(process, "goldenZmumuSelectionSequence"):
+    if process.customization_options.applyRochesterMuonCorr.value():
+      print "Enabling Rochester muon momentum corrections"
+      process.patMuonsForZmumuSelectionRochesterMomentumCorr = cms.EDProducer("RochesterCorrPATMuonProducer",
+        src = cms.InputTag('patMuonsForZmumuSelection'),
+        isMC = cms.bool(process.customization_options.isMC.value())
+      )
+      process.goldenZmumuSelectionSequence.replace(process.patMuonsForZmumuSelection, process.patMuonsForZmumuSelection*process.patMuonsForZmumuSelectionRochesterMomentumCorr)
+      process.goodMuons.src = cms.InputTag('patMuonsForZmumuSelectionRochesterMomentumCorr')
+  else:
+    print "Rochester muon momentum corrections disabled"
     
   return(process)
