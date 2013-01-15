@@ -11,7 +11,7 @@ from ROOT import *
 
 __author__  = "Mauro Verzetti (mauro.verzetti@cern.ch)"
 __doc__ = """Script to plot the content of a Validation .root file and compare it to a different file:\n\n
-Usage: MultipleCompare.py -T testFile -R refFile [options] [search strings that you want to apply '*' is supported as special character].
+Usage: MultipleCompare.py -T testFile -R refFile [options] [ search strings that you want to apply '*' is supported as special character].
   Special patterns:
   - Using plotPattern like [[ref][test]] allows to define different histogram names for ref and test files.
   - Similar patterns can be combined like *{Loose}{Medium}{Tight}commonPattern*. This translates into *LoosecommonPattern* *MediumcommonPattern* *TightcommonPattern*.
