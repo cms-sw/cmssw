@@ -178,8 +178,8 @@ double ThirdHitPredictionFromCircle::transverseIP(const Point2D &p2) const
 }
 
 ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
-  const ThirdHitPredictionFromCircle *circle, double z1, double z2, double curv) :
-  circle(circle), radius(1./curv), z1(z1)
+  const ThirdHitPredictionFromCircle * icircle, double iz1, double z2, double curv) :
+  circle(icircle), radius(1./curv), z1(iz1)
 {
   double orthog = sgn(curv) * clamped_sqrt(radius*radius - circle->delta2);
   center = circle->center + orthog * circle->axis;
@@ -249,7 +249,7 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
   }
 
   // we won't go below that (see comment below)
-  double minR2 = (2.f * circle->center - circle->p1).mag2();
+  double minR2 = (2. * circle->center - circle->p1).mag2();
 
   float phi =  (z - z1) / (radius*dzdu);
 

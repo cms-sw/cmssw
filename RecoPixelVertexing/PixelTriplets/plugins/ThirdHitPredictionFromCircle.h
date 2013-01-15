@@ -44,7 +44,7 @@ public:
   private:
     const ThirdHitPredictionFromCircle *circle;
     Point2D center;
-    double radius, r, z1, seg, dzdu;
+    double radius, z1, seg, dzdu;
   };
 
 private:

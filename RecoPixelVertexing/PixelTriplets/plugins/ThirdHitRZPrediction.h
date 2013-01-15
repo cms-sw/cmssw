@@ -10,40 +10,24 @@
 
 #include "ThirdHitRZPredictionBase.h"
 
-namespace helper {
-  // Helper template to define how the ThirdHitRZPrediction interfaces
-  // the prediction implementation
-  template<class Propagator>
-  class ThirdHitRZPredictionTraits {
-  public:
-    static inline float transform(const Propagator &propagator, bool barrel, float rOrZ);
-  };
-
-  // generic: defaults to calling zAtR or rAtZ
-  // template can be specialized for individual classes if different
-  // are required
-  template<class Propagator>
-  inline float ThirdHitRZPredictionTraits<Propagator>::transform(
-  	const Propagator &propagator, bool barrel, float rOrZ)
-  { return barrel ? propagator.zAtR(rOrZ) : propagator.rAtZ(rOrZ); }
-}
-
 template<class Propagator>
 class ThirdHitRZPrediction : public ThirdHitRZPredictionBase {
 public:
-  typedef helper::ThirdHitRZPredictionTraits<Propagator> traits;
 
   ThirdHitRZPrediction() : ThirdHitRZPredictionBase(), thePropagator(0) {}
   ThirdHitRZPrediction(const Propagator *propagator, float tolerance, const DetLayer* layer = 0) :
       ThirdHitRZPredictionBase(tolerance, layer), thePropagator(propagator) {}
 
-  Range operator()(const DetLayer *layer = 0);
+  inline Range operator()(const DetLayer *layer = 0);
   inline Range operator()(float rORz) const { return (*this)(rORz, *thePropagator); }
-  Range operator()(float rORz, const Propagator &propagator) const;
+  inline Range operator()(float rORz, const Propagator &propagator) const;
 
   void initPropagator(const Propagator *propagator) { thePropagator = propagator; }
 
 private:
+  float transform( const Propagator &propagator, float rOrZ) const
+  { return theBarrel ? propagator.zAtR(rOrZ) : propagator.rAtZ(rOrZ); }
+
   const Propagator *thePropagator;
 };
 
@@ -53,8 +37,8 @@ ThirdHitRZPrediction<Propagator>::operator()(const DetLayer *layer)
 {
   if (layer) initLayer(layer);
   if (!theBarrel && !theForward) return Range(0., 0.);
-  float v1 = traits::transform(*thePropagator, theBarrel, theDetRange.min());
-  float v2 = traits::transform(*thePropagator, theBarrel, theDetRange.max());
+  float v1 = transform(*thePropagator, theDetRange.min());
+  float v2 = transform(*thePropagator, theDetRange.max());
   if (v1 > v2) std::swap(v1, v2);
   return Range(v1 - theTolerance.left(), v2 + theTolerance.right());
 }
@@ -63,7 +47,7 @@ template<class Propagator>
 typename ThirdHitRZPrediction<Propagator>::Range
 ThirdHitRZPrediction<Propagator>::operator()(float rOrZ, const Propagator &propagator) const
 {
-  float v = traits::transform(propagator, theBarrel, rOrZ);
+  float v = transform(propagator, rOrZ);
   return Range(v - theTolerance.left(), v + theTolerance.right());
 }
 
