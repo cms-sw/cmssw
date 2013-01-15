@@ -5,13 +5,13 @@
 # with command line options: TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO --no_exec --conditions=FrontierConditions_GlobalTag,START53_V7A::All --fileout=embedded.root --python_filename=embed.py --customise=TauAnalysis/MCEmbeddingTools/embeddingCustomizeAll -n 10
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('HLT')
+process = cms.Process('EmbeddedRECO')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -32,7 +32,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 # Define input source
@@ -42,14 +42,14 @@ process.source = cms.Source("PoolSource",
         '/store/user/veelken/CMSSW_5_3_x/skims/simZmumu_madgraph_RECO_1_1_lTW.root'
         ##'file:/data1/veelken/CMSSW_5_3_x/skims/ZmumuTF_RECO_2012Oct03.root'
     ),
-    ##eventsToProcess = cms.untracked.VEventRange('1:8519:3405076')
+    ##eventsToProcess = cms.untracked.VEventRange('1:8519:3405165')
 )
 
 process.options = cms.untracked.PSet()
 
 # Add Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.8 $'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
     annotation = cms.untracked.string('TauAnalysis/MCEmbeddingTools/python/PFEmbeddingSource_cff nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -59,8 +59,8 @@ process.outputFiles = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('embed_AOD.root'),
-    ##fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Jan09_AOD.root'),                                   
+    ##fileName = cms.untracked.string('embed_AOD.root'),
+    fileName = cms.untracked.string('/data1/veelken/CMSSW_5_3_x/skims/simDYmumu_embedded_mutau_2013Jan09_AOD.root'),                                   
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -190,7 +190,8 @@ process.customization_options = cms.PSet(
     useJson                      = cms.bool(False),    # should I enable event selection by JSON file ?
     overrideBeamSpot             = cms.bool(False),    # should I override beamspot in globaltag ?
     applyZmumuSkim               = cms.bool(True),    # should I apply the Z->mumu event selection cuts ?
-    applyMuonRadiationFilter     = cms.bool(False)     # should I apply the filter to reject events with muon -> muon + photon radiation ?
+    applyMuonRadiationFilter     = cms.bool(False),    # should I apply the filter to reject events with muon -> muon + photon radiation ?
+    disableCaloNoise             = cms.bool(True)      # should I disable the simulation of calorimeter noise when simulating the detector response for the embedded taus ?
 )
 
 # Define "hooks" for replacing configuration parameters
@@ -205,6 +206,7 @@ process.customization_options = cms.PSet(
 #__process.customization_options.cleaningMode = cms.string("$cleaningMode")
 #__process.customization_options.applyZmumuSkim = cms.bool($applyZmumuSkim)
 #__process.customization_options.applyMuonRadiationFilter = cms.bool($applyMuonRadiationFilter)
+#__process.customization_options.disableCaloNoise = cms.bool($disableCaloNoise)
 #--------------------------------------------------------------------------------
 
 # Apply customisation options
@@ -229,6 +231,24 @@ process = customise(process)
 ##process.printGenParticleListPath = cms.Path(process.printGenParticleList)
 ##
 ##process.schedule.extend([process.printGenParticleListPath])
+
+##process.dumpL1GctEtMissDigisORG = cms.EDAnalyzer("DumpL1GctEtMissDigis",
+##    src = cms.InputTag("gctDigis", "", process.customization_options.inputProcessRECO.value()),
+##    minEt = cms.double(-1.e+6)
+##)
+##process.dumpL1GctEtMissDigisRERECO = process.dumpL1GctEtMissDigisORG.clone(
+##    src = cms.InputTag("gctDigis", "", "EmbeddedRECO")
+##)
+##process.dumpL1GctEtMissDigiPath = cms.Path(process.goldenZmumuFilterSequence + process.ProductionFilterSequence + process.dumpL1GctEtMissDigisORG + process.dumpL1GctEtMissDigisRERECO)
+##
+##process.schedule.extend([process.dumpL1GctEtMissDigiPath])
+
+# CV: disable ECAL/HCAL noise simulation
+if process.customization_options.disableCaloNoise:
+    process.simEcalUnsuppressedDigis.doESNoise = cms.bool(False)
+    process.simEcalUnsuppressedDigis.doESNoise = cms.bool(False)
+    process.simHcalUnsuppressedDigis.doNoise = cms.bool(False)
+    process.simHcalUnsuppressedDigis.doThermalNoise = cms.bool(False)
 
 processDumpFile = open('embed.dump', 'w')
 print >> processDumpFile, process.dumpPython()

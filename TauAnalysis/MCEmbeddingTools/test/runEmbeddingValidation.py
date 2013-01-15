@@ -17,7 +17,7 @@ samples = {
         'srcGenFilterInfo' : ''
     },
     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90' : {
-        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_embedded_trans1_tau116_v4-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHGENEmbed_Angle90_VisPtMu7Had15_embedded_trans1_tau116_v5-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed' : -1,
         'events_per_job'   : 10000,
@@ -27,7 +27,7 @@ samples = {
         'srcGenFilterInfo' : 'generator:minVisPtFilter'
     },
     'simDYtoMuMu_noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90' : {
-        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_Angle90_VisPtMu7Had15_embedded_trans1_tau116_v4-5ef1c0fd428eb740081f19333520fdc8/USER',
+        'datasetpath'      : '/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/aburgmei-Summer12_DYJetsToLL_DR53X_PU_S10_START53_V7A_v2_RHRECEmbed_Angle90_VisPtMu7Had15_embedded_trans1_tau116_v5-5ef1c0fd428eb740081f19333520fdc8/USER',
         'dbs_url'          : 'http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet',
         'events_processed' : -1,
         'events_per_job'   : 10000,
@@ -68,7 +68,7 @@ samples = {
 ##     }
 }
 
-version = "v1_6_1"
+version = "v1_6_3"
 
 crab_template_mc = string.Template('''
 [CRAB]

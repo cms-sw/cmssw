@@ -13,7 +13,7 @@ samples = {
     }
 }
 
-version = "v1_5_0"
+version = "v1_7_0"
 
 options = {
     # e+tau samples
@@ -106,7 +106,7 @@ options = {
 ##         'applyZmumuSkim'               : False,
 ##         'applyMuonRadiationFilter'     : False
 ##     },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90' : {
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_woCaloNoise' : {
         'ZmumuCollection'              : 'genMuonsFromZs',
         'mdtau'                        : 116,
         'minVisibleTransverseMomentum' : "mu1_7had1_15",
@@ -116,6 +116,18 @@ options = {
         'cleaningMode'                 : 'DEDX',
         'applyZmumuSkim'               : False,
         'applyMuonRadiationFilter'     : False
+    },
+    'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_wCaloNoise' : {
+        'ZmumuCollection'              : 'genMuonsFromZs',
+        'mdtau'                        : 116,
+        'minVisibleTransverseMomentum' : "mu1_7had1_15",
+        'rfRotationAngle'              : 90.,        
+        'embeddingMode'                : 'RH',
+        'replaceGenOrRecMuonMomenta'   : 'gen',
+        'cleaningMode'                 : 'DEDX',
+        'applyZmumuSkim'               : False,
+        'applyMuonRadiationFilter'     : False,
+        'disableCaloNoise'             : 
     },
 ##     'noEvtSel_embedEqRH_cleanEqDEDX_replaceGenMuons_by_mutau_embedAngleEq90_noVisPtCuts' : {
 ##         'ZmumuCollection'              : 'genMuonsFromZs',
@@ -139,17 +151,17 @@ options = {
 ##         'applyZmumuSkim'               : True,
 ##         'applyMuonRadiationFilter'     : False
 ##     },
-    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90' : {
-        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
-        'mdtau'                        : 116,
-        'minVisibleTransverseMomentum' : "mu1_7had1_15",
-        'rfRotationAngle'              : 90.,
-        'embeddingMode'                : 'RH',
-        'replaceGenOrRecMuonMomenta'   : 'rec',
-        'cleaningMode'                 : 'DEDX',
-        'applyZmumuSkim'               : True,
-        'applyMuonRadiationFilter'     : False
-    },
+#    'noEvtSel_embedEqRH_cleanEqDEDX_replaceRecMuons_by_mutau_embedAngleEq90' : {
+#        'ZmumuCollection'              : 'goldenZmumuCandidatesGe2IsoMuons',
+#        'mdtau'                        : 116,
+#        'minVisibleTransverseMomentum' : "mu1_7had1_15",
+#        'rfRotationAngle'              : 90.,
+#        'embeddingMode'                : 'RH',
+#        'replaceGenOrRecMuonMomenta'   : 'rec',
+#        'cleaningMode'                 : 'DEDX',
+#        'applyZmumuSkim'               : True,
+#        'applyMuonRadiationFilter'     : False
+#    },
     # mu+mu samples
 ##     'noEvtSel_embedEqPF_replaceGenMuons_by_mumu_embedAngleEq90' : {
 ##         'ZmumuCollection'              : 'genMuonsFromZs',
@@ -361,6 +373,7 @@ for sampleName, sampleOption in samples.items():
         sedCommand += ";s/$cleaningMode/%s/g" % embeddingOption['cleaningMode']
         sedCommand += ";s/$applyZmumuSkim/%s/g" % getStringRep_bool(embeddingOption['applyZmumuSkim'])    
         sedCommand += ";s/$applyMuonRadiationFilter/%s/g" % getStringRep_bool(embeddingOption['applyMuonRadiationFilter'])
+        sedCommand += ";s/$disableCaloNoise/%s/g" % getStringRep_bool(embeddingOption['disableCaloNoise'])
         sedCommand += "'"
         sedCommand += " %s > %s" % (cfg_template, cfgFileName)
         runCommand(sedCommand)

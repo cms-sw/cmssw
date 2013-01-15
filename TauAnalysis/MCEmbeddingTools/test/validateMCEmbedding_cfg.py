@@ -4,7 +4,7 @@ process = cms.Process("validateMCEmbedding")
 
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 process.load('Configuration/Geometry/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_cff')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
@@ -356,7 +356,19 @@ switchJetCollection(
     outputModules = []
 )
 
-process.recJetSequence = cms.Sequence(process.jetTracksAssociatorAtVertex + process.btaggingAOD + process.makePatJets)
+process.patJetsNotOverlappingWithLeptons = cms.EDFilter("PATJetAntiOverlapSelector",
+    src = cms.InputTag('patJets'),
+    srcNotToBeFiltered = cms.VInputTag(
+        'goodElectrons',
+        'goodMuons',
+        'selectedTaus'
+    ),
+    dRmin = cms.double(0.5),
+    invert = cms.bool(False),
+    filter = cms.bool(False)                                                          
+)
+
+process.recJetSequence = cms.Sequence(process.jetTracksAssociatorAtVertex + process.btaggingAOD + process.makePatJets + process.patJetsNotOverlappingWithLeptons)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -511,6 +523,7 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcRecTracks = cms.InputTag('generalTracks'),
     srcCaloTowers = cms.InputTag('towerMaker'),
     srcRecPFCandidates = cms.InputTag('particleFlow'),
+    srcRecJets = cms.InputTag('patJetsNotOverlappingWithLeptons'),                                        
     srcRecVertex = cms.InputTag('goodVertex'),                                        
     srcGenDiTaus = cms.InputTag('genZdecayToTaus'),
     srcGenLeg1 = cms.InputTag(srcGenLeg1),
@@ -518,7 +531,9 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
     srcGenLeg2 = cms.InputTag(srcGenLeg2),
     srcRecLeg2 = cms.InputTag(srcRecLeg2),
     srcGenParticles = cms.InputTag('genParticles'),                                          
-    srcL1ETM = cms.InputTag('l1extraParticles', 'MET'),                                        
+    srcL1ETM = cms.InputTag('l1extraParticles', 'MET'),
+    srcGenMEt = cms.InputTag('genMetTrue'),                                             
+    srcRecCaloMEt = cms.InputTag('patCaloMetNoHF'),                           
     srcWeights = cms.VInputTag(srcWeights),
     srcGenFilterInfo = cms.InputTag(srcGenFilterInfo),                                        
     dqmDirectory = cms.string("validationAnalyzer_%s" % channel),                                        
@@ -713,33 +728,73 @@ process.validationAnalyzer = cms.EDAnalyzer("MCEmbeddingValidationAnalyzer",
         cms.PSet(
 	    srcRef = cms.InputTag('patCaloMetNoHF'),
             srcL1 = cms.InputTag('l1extraParticles', 'MET'),
-            cutL1Pt = cms.double(20.),	    
-            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM20')
+            cutL1Et = cms.double(20.),
+            cutL1Pt = cms.double(-1.),
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM20_et')
         ),
+        cms.PSet(
+	    srcRef = cms.InputTag('patCaloMetNoHF'),
+            srcL1 = cms.InputTag('l1extraParticles', 'MET'),
+            cutL1Et = cms.double(-1.),
+            cutL1Pt = cms.double(20.),
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM20_pt')
+        ),                                        
 	cms.PSet(
             srcRef = cms.InputTag('patCaloMetNoHF'),
             srcL1 = cms.InputTag('l1extraParticles', 'MET'),
+            cutL1Et = cms.double(26.),
+            cutL1Pt = cms.double(-1.),
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM26_et')
+        ),
+        cms.PSet(
+            srcRef = cms.InputTag('patCaloMetNoHF'),
+            srcL1 = cms.InputTag('l1extraParticles', 'MET'),
+            cutL1Et = cms.double(-1.),
             cutL1Pt = cms.double(26.),
-            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM26')
-        ),
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM26_pt')
+        ),                                        
 	cms.PSet(
             srcRef = cms.InputTag('patCaloMetNoHF'),
             srcL1 = cms.InputTag('l1extraParticles', 'MET'),
-            cutL1Pt = cms.double(30.),
-            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM30')
+            cutL1Et = cms.double(30.),
+            cutL1Pt = cms.double(-1.),                                        
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM30_et')
         ),
+        cms.PSet(
+            srcRef = cms.InputTag('patCaloMetNoHF'),
+            srcL1 = cms.InputTag('l1extraParticles', 'MET'),
+            cutL1Et = cms.double(-1.),
+            cutL1Pt = cms.double(30.),                                        
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM30_pt')
+        ),                                        
 	cms.PSet(
             srcRef = cms.InputTag('patCaloMetNoHF'),
             srcL1 = cms.InputTag('l1extraParticles', 'MET'),
-            cutL1Pt = cms.double(36.),
-            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM36')
+            cutL1Et = cms.double(36.),
+            cutL1Pt = cms.double(-1.),                                        
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM36_et')
         ),
+        cms.PSet(
+            srcRef = cms.InputTag('patCaloMetNoHF'),
+            srcL1 = cms.InputTag('l1extraParticles', 'MET'),
+            cutL1Et = cms.double(-1.),
+            cutL1Pt = cms.double(36.),                                        
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM36_pt')
+        ),                                        
 	cms.PSet(
             srcRef = cms.InputTag('patCaloMetNoHF'),
             srcL1 = cms.InputTag('l1extraParticles', 'MET'),
-            cutL1Pt = cms.double(40.),
-            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM40')
-        )
+            cutL1Et = cms.double(40.),
+            cutL1Pt = cms.double(-1.),                                        
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM40_et')
+        ),
+        cms.PSet(
+            srcRef = cms.InputTag('patCaloMetNoHF'),
+            srcL1 = cms.InputTag('l1extraParticles', 'MET'),
+            cutL1Et = cms.double(-1.),
+            cutL1Pt = cms.double(40.),                                        
+            dqmDirectory = cms.string('metTriggerEfficiencyL1_ETM40_pt')
+        )                                        
     )
 )
 
