@@ -143,7 +143,7 @@ class CloneSequenceVisitor(object):
             label = visitee.label()
             newSequence = None
             if label in self._sequenceLabels: # has the sequence already been cloned ?
-                newSequence = getattr(self._process, self._newLabel(label), self._postfix, self._removePostfix)
+                newSequence = getattr(self._process, self._newLabel(label))
             else:                
                 self._sequenceLabels.append(label)
                 oldSequence = getattr(self._process, label)
