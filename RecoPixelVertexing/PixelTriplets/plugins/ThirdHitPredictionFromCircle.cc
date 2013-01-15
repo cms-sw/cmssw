@@ -104,9 +104,9 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
   double tmp4 = tmp1 + delta2;
   double tmp5 = 2. * delta * lip;
 
-  // VI fixed for finiteMath
   // I am probably being overly careful here with border cases
   // but you never know what crap you might get fed
+  // VI fixed for finiteMath
 
   double u1=0, u2=0;
   constexpr double SMALL = 1.0e-23;
@@ -181,6 +181,8 @@ double ThirdHitPredictionFromCircle::transverseIP(const Point2D &p2) const
   }
 }
 
+//------------------------------------------------------------------------------
+
 ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
   const ThirdHitPredictionFromCircle * icircle, double iz1, double z2, double curv) :
   circle(icircle), curvature(curv), radius(1./curv), z1(iz1)
@@ -201,15 +203,15 @@ ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
   dzdu = likely(std::abs(seg) > 1.0e-5) ? ((z2 - z1) / seg) : 99999.0;
 }
 
-float ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
+double ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
   const ThirdHitPredictionFromCircle *circle, double z1, double z2, double z3)
 {
-  constexpr float maxAngle = M_PI;
-  float halfAngle = (0.5 * maxAngle) * (z2 - z1) / (z3 - z1);
+  constexpr double maxAngle = M_PI;
+  double halfAngle = (0.5 * maxAngle) * (z2 - z1) / (z3 - z1);
   if (unlikely(halfAngle <= 0.0))
     return 0.0;
 
-  return std::sin(halfAngle) / float(circle->delta);
+  return std::sin(halfAngle) / circle->delta;
 }
 
 double ThirdHitPredictionFromCircle::HelixRZ::zAtR(double r) const

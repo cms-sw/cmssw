@@ -38,8 +38,8 @@ public:
     double zAtR(double r) const;
     double rAtZ(double z) const;
     
-    static float maxCurvature(const ThirdHitPredictionFromCircle *circle,
-			      double z1, double z2, double z3);
+    static double maxCurvature(const ThirdHitPredictionFromCircle *circle,
+			       double z1, double z2, double z3);
     
   private:
     const ThirdHitPredictionFromCircle *circle;
