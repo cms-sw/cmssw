@@ -65,13 +65,13 @@ void PixelTripletLargeTipGenerator::init(const HitPairGenerator & pairs,
 
 static bool intersect(Range &range, const Range &second)
 {
-  if (range.first >= second.max() || range.second <= second.min())
+  if (range.first > second.max() || range.second < second.min())
     return false;
   if (range.first < second.min())
     range.first = second.min();
   if (range.second > second.max())
     range.second = second.max();
-  return range.first < range.second;
+  return range.first <= range.second;
 }
 
 void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region, 
