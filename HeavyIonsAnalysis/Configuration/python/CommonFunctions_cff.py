@@ -181,6 +181,7 @@ def overrideGlobalTag(process):
                                           ),
                 cms.PSet(record = cms.string("JetCorrectionsRecord"),
                                           tag = cms.string("JetCorrectorParametersCollection_AK5Calo_HI_2760GeV_v3_offline"),
+                         # pp 7TeV version:    JetCorrectorParametersCollection_Fall12_V5_DATA_AK5Calo
                                           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                                           label = cms.untracked.string("AK5Calo_HI")
                                           ),
@@ -191,13 +192,13 @@ def overrideGlobalTag(process):
                                           ),
 
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                              tag = cms.string("JetCorrectorParametersCollection_Summer12_V7_DATA_AK5PF"),
-                              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-                              label = cms.untracked.string("AK5PF_generalTracks")
-                              ),
+             tag = cms.string("JetCorrectorParametersCollection_Fall12_V5_DATA_AK5PF"),
+             connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+             label = cms.untracked.string("AK5PF_generalTracks")
+             ),
 
         cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                 tag = cms.string("JetCorrectorParametersCollection_Summer12_V7_DATA_AK7PF"),
+                 tag = cms.string("JetCorrectorParametersCollection_Fall12_V5_DATA_AK7PF"),
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                  label = cms.untracked.string("AK7PF_generalTracks")
                  ),
@@ -205,6 +206,7 @@ def overrideGlobalTag(process):
               
         cms.PSet(record = cms.string("JetCorrectionsRecord"),
                  tag = cms.string("JetCorrectorParametersCollection_IC5Calo_2760GeV_v0_offline"),
+                 # pp 7TeV version:       JetCorrectorParametersCollection_Fall12_V5_DATA_IC5Calo
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                  label = cms.untracked.string("IC5Calo_2760GeV")
                  ),
