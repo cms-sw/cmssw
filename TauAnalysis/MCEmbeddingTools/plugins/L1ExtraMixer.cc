@@ -10,8 +10,11 @@ L1ExtraMixer::L1ExtraMixer(const edm::ParameterSet& cfg)
   for ( vParameterSet::iterator cfgPlugin = cfgPlugins.begin();
 	cfgPlugin != cfgPlugins.end(); ++cfgPlugin ) {
     std::string pluginType = cfgPlugin->getParameter<std::string>("pluginType");
-    cfgPlugin->addParameter<edm::InputTag>("src1", src1);
-    cfgPlugin->addParameter<edm::InputTag>("src2", src2);
+    std::string instanceLabel = cfgPlugin->getParameter<std::string>("instanceLabel");
+    edm::InputTag src1withInstanceLabel(src1.label(), instanceLabel, src1.process());
+    cfgPlugin->addParameter<edm::InputTag>("src1", src1withInstanceLabel);
+    edm::InputTag src2withInstanceLabel(src2.label(), instanceLabel, src2.process());
+    cfgPlugin->addParameter<edm::InputTag>("src2", src2withInstanceLabel);
     L1ExtraMixerPluginBase* plugin = L1ExtraMixerPluginFactory::get()->create(pluginType, *cfgPlugin);
     plugin->registerProducts(*this);
     plugins_.push_back(plugin);
