@@ -471,7 +471,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 	if (digi->id().hcalSubdet()==HcalForward) // check HF
 	  {
 	    double sumChargeHF=0;
-	    for (uint i=0;i<calibdigiHFtimeslices_.size();++i)
+	    for (unsigned int i=0;i<calibdigiHFtimeslices_.size();++i)
 	      {
 		// skip unphysical time slices
 		if (calibdigiHFtimeslices_[i]<0 || calibdigiHFtimeslices_[i]>digi->size())
@@ -483,7 +483,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 	else if (digi->id().hcalSubdet()==HcalBarrel || digi->id().hcalSubdet()==HcalEndcap) // now check HBHE
 	  {
             double sumChargeHBHE=0;
-            for (uint i=0;i<calibdigiHBHEtimeslices_.size();++i)
+            for (unsigned int i=0;i<calibdigiHBHEtimeslices_.size();++i)
               {
                 // skip unphysical time slices
                 if (calibdigiHBHEtimeslices_[i]<0 || calibdigiHBHEtimeslices_[i]>digi->size())
