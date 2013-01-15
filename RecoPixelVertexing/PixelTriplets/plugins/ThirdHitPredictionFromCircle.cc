@@ -210,7 +210,7 @@ float ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
 
 double ThirdHitPredictionFromCircle::HelixRZ::zAtR(double r) const
 {
-  if (unlikely(std::abs(radius) < 1.0e-5)) {
+  if (unlikely(std::abs(radius) > 1.0e5)) {
      double tip = circle->axis * circle->p1;
      double lip = circle->axis.y() * circle->p1.x() -
                   circle->axis.x() * circle->p1.y();
@@ -241,7 +241,7 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
   if (unlikely(std::abs(dzdu) < 1.0e-5))
     return 99999.0;
 
-  if (unlikely(std::abs(radius) < 1.0e-5)) {
+  if (unlikely(std::abs(radius) > 1.0e5)) {
     double tip = circle->axis * circle->p1;
     double lip = circle->axis.y() * circle->p1.x() -
                  circle->axis.x() * circle->p1.y();
