@@ -95,8 +95,8 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   int size = theLayers.size();
 
   std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> > layerTree; // re-used throughout
-  std::vector<KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter> > hitTree(size);
-  float rzError[size]{0.0f}; //save maximum errors
+  KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter> hitTree[size];
+  float rzError[size]; //save maximum errors
   double maxphi = Geom::twoPi(), minphi = -maxphi; //increase to cater for any range
 
   map<const DetLayer*, LayerRZPredictions> mapPred;
@@ -331,7 +331,6 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 	if (theMaxElement!=0 && result.size() >= theMaxElement) {
 	  result.clear();
 	  edm::LogError("TooManyTriplets")<<" number of triples exceed maximum. no triplets produced.";
-	  delete[] thirdHitMap;
 	  return;
 	}
 	result.push_back(OrderedHitTriplet(ip->inner(), ip->outer(), hit)); 
