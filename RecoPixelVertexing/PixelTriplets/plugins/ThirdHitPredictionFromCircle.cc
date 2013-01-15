@@ -179,8 +179,11 @@ double ThirdHitPredictionFromCircle::transverseIP(const Point2D &p2) const
 
 ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
   const ThirdHitPredictionFromCircle *circle, double z1, double z2, double curv) :
-  circle(circle), curvature(curv), z1(z1)
+  circle(circle), radius(1./curv), z1(z1)
 {
+  double orthog = sgn(curv) * clamped_sqrt(radius*radius - circle->delta2);
+  center = circle->center + orthog * circle->axis;
+
   double absCurv = std::abs(curv);
   seg = circle->delta;
 
@@ -194,36 +197,33 @@ ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
   dzdu = likely(std::abs(seg) > 1.0e-5) ? ((z2 - z1) / seg) : 99999.0;
 }
 
-double ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
+float ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
   const ThirdHitPredictionFromCircle *circle, double z1, double z2, double z3)
 {
-  static const double maxAngle = M_PI;
-  double halfAngle = (0.5 * maxAngle) * (z2 - z1) / (z3 - z1);
+  constexpr float maxAngle = M_PI;
+  float halfAngle = (0.5 * maxAngle) * (z2 - z1) / (z3 - z1);
   if (unlikely(halfAngle <= 0.0))
     return 0.0;
 
-  return std::sin(halfAngle) / circle->delta;
+  return std::sin(halfAngle) / float(circle->delta);
 }
 
 double ThirdHitPredictionFromCircle::HelixRZ::zAtR(double r) const
 {
-  if (unlikely(std::abs(curvature) < 1.0e-5)) {
+  if (unlikely(std::abs(radius) < 1.0e-5)) {
      double tip = circle->axis * circle->p1;
      double lip = circle->axis.y() * circle->p1.x() -
                   circle->axis.x() * circle->p1.y();
      return z1 + (std::sqrt(sqr(r) - sqr(tip)) - lip) * dzdu;
   }
 
-  double radius = 1.0 / curvature;
   double radius2 = sqr(radius);
-  double orthog = sgn(curvature) * clamped_sqrt(radius2 - circle->delta2);
-  Point2D center = circle->center + orthog * circle->axis;
 
   double b2 = center.mag2();
   double b = std::sqrt(b2);
 
-  double cos1 = 0.5 * (radius2 + b2 - sqr(r)) * curvature / b;
-  double cos2 = 0.5 * (radius2 + b2 - circle->p1.mag2()) * curvature / b;
+  double cos1 = 0.5 * (radius2 + b2 - sqr(r)) / (radius*b);
+  double cos2 = 0.5 * (radius2 + b2 - circle->p1.mag2()) / (radius*b);
 
   double phi1 = clamped_acos(cos1);
   double phi2 = clamped_acos(cos2);
@@ -241,7 +241,7 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
   if (unlikely(std::abs(dzdu) < 1.0e-5))
     return 99999.0;
 
-  if (unlikely(std::abs(curvature) < 1.0e-5)) {
+  if (unlikely(std::abs(radius) < 1.0e-5)) {
     double tip = circle->axis * circle->p1;
     double lip = circle->axis.y() * circle->p1.x() -
                  circle->axis.x() * circle->p1.y();
@@ -249,9 +249,9 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
   }
 
   // we won't go below that (see comment below)
-  double minR = (2. * circle->center - circle->p1).mag();
+  double minR2 = (2.f * circle->center - circle->p1).mag2();
 
-  double phi = curvature * (z - z1) / dzdu;
+  float phi =  (z - z1) / (radius*dzdu);
 
   if (unlikely(std::abs(phi) > 2. * M_PI)) {
     // with a helix we can get problems here - this is used to get the limits
@@ -263,19 +263,16 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
     // than any of the two hits, i.e. the second hit, which is presumably
     // outside of the 1st hit.
 
-    return minR;
+    return std::sqrt(minR2);
   }
 
-  double radius = 1. / curvature;
-  double orthog = sgn(curvature) * clamped_sqrt(sqr(radius) - circle->delta2);
-  Point2D center = circle->center + orthog * circle->axis;
   Point2D rel = circle->p1 - center;
 
-  double c = cos(phi);
-  double s = sin(phi);
+  double c = std::cos(phi);
+  double s = std::sin(phi);
 
   Point2D p(center.x() + c * rel.x() - s * rel.y(),
             center.y() + s * rel.x() + c * rel.y());
 
-  return std::max(minR, p.mag());
+  return std::sqrt(std::max(minR2, p.mag2()));
 }

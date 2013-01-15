@@ -29,19 +29,22 @@ public:
   // from the circle fit to get an actual Helix propagation
   class HelixRZ {
     public:
-      HelixRZ() : circle(0) {}
-      HelixRZ(const ThirdHitPredictionFromCircle *circle,
-              double z1, double z2, double curvature);
-
-      double zAtR(double r) const;
-      double rAtZ(double z) const;
-
-      static double maxCurvature(const ThirdHitPredictionFromCircle *circle,
-                                 double z1, double z2, double z3);
-
-    private:
-      const ThirdHitPredictionFromCircle *circle;
-      double curvature, z1, seg, dzdu;
+    typedef Basic2DVector<double> Point2D;
+    
+    HelixRZ() : circle(0) {}
+    HelixRZ(const ThirdHitPredictionFromCircle *circle,
+	    double z1, double z2, double curvature);
+    
+    double zAtR(double r) const;
+    double rAtZ(double z) const;
+    
+    static float maxCurvature(const ThirdHitPredictionFromCircle *circle,
+			      double z1, double z2, double z3);
+    
+  private:
+    const ThirdHitPredictionFromCircle *circle;
+    Point2D center;
+    double radius, r, z1, seg, dzdu;
   };
 
 private:

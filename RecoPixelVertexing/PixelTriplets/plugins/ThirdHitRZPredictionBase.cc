@@ -22,7 +22,7 @@ void ThirdHitRZPredictionBase::initLayer(const DetLayer *layer)
   if (layer->location() == GeomDetEnumerators::barrel) {
     theBarrel = true;
     theForward = false;
-    const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*layer);
+    const BarrelDetLayer& bl = reinterpret_cast<const BarrelDetLayer&>(*layer);
     float halfThickness  = bl.surface().bounds().thickness()/2;
     float radius = bl.specificSurface().radius();
     theDetRange = Range(radius-halfThickness, radius+halfThickness);
@@ -31,7 +31,7 @@ void ThirdHitRZPredictionBase::initLayer(const DetLayer *layer)
   } else if (layer->location() == GeomDetEnumerators::endcap) {
     theBarrel= false;
     theForward = true;
-    const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*layer);
+    const ForwardDetLayer& fl = reinterpret_cast<const ForwardDetLayer&>(*layer);
     float halfThickness  = fl.surface().bounds().thickness()/2;
     float zLayer = fl.position().z() ;
     theDetRange = Range(zLayer-halfThickness, zLayer+halfThickness);
