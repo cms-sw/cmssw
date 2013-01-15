@@ -742,7 +742,8 @@ namespace
 
   void print(const std::string& label, const reco::Particle::LorentzVector& p4, const reco::Particle::LorentzVector* p4_ref = 0)
   {
-    std::cout << label << ": En = " << p4.E() << ", Pt = " << p4.pt() << ", theta = " << p4.theta() << " (eta = " << p4.eta() << "), phi = " << p4.phi() << ", mass = " << p4.mass();
+    std::cout << label << ": En = " << p4.E() << ", Pt = " << p4.pt() << " (Px = " << p4.px() << ", Py = " << p4.py() << ")," 
+	      << " theta = " << p4.theta() << " (eta = " << p4.eta() << "), phi = " << p4.phi() << ", mass = " << p4.mass();
     if ( p4_ref ) {
       double angle = TMath::ACos((p4.px()*p4_ref->px() + p4.py()*p4_ref->py() + p4.pz()*p4_ref->pz())/(p4.P()*p4_ref->P()));
       std::cout << " (angle wrt. ref = " << angle << ")";
