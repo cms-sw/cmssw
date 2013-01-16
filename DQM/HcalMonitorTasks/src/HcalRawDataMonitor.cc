@@ -899,6 +899,11 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
     }
 
     unsigned short HTRwdcount = htr.getRawLength();
+    if (HTRwdcount == 0) 
+      {
+      	edm::LogWarning("HcalMonitorModule::RawDataTas") << "Unexpected Raw Length: "<< HTRwdcount <<" I am bailing out...";	
+	continue;
+      }
 
     // Size checks for internal consistency
     // getNTP(), get NDD() seems to be mismatched with format. Manually:
