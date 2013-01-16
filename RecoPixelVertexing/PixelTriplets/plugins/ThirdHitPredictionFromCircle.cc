@@ -186,10 +186,10 @@ ThirdHitPredictionFromCircle::HelixRZ::HelixRZ(
   const ThirdHitPredictionFromCircle * icircle, double iz1, double z2, double curv) :
   circle(icircle), curvature(curv), radius(1./curv), z1(iz1)
 {
-  double orthog = sgn(curv) * clamped_sqrt(radius*radius - circle->delta2);
+  Scalar orthog = sgn(curv) * clamped_sqrt(radius*radius - circle->delta2);
   center = circle->center + orthog * circle->axis;
 
-  double absCurv = std::abs(curv);
+  Scalar absCurv = std::abs(curv);
   seg = circle->delta;
 
   if (likely(absCurv > 1.0e-5)) {
@@ -213,42 +213,42 @@ double ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
   return std::sin(halfAngle) / circle->delta;
 }
 
-double ThirdHitPredictionFromCircle::HelixRZ::zAtR(double r) const
-{
+float
+ThirdHitPredictionFromCircle::HelixRZ::zAtR(Scalar r) const {
   if (unlikely(std::abs(curvature) < 1.0e-5)) {
-     double tip = circle->axis * circle->p1;
-     double lip = circle->axis.y() * circle->p1.x() -
+     Scalar tip = circle->axis * circle->p1;
+     Scalar lip = circle->axis.y() * circle->p1.x() -
                   circle->axis.x() * circle->p1.y();
      return z1 + (std::sqrt(sqr(r) - sqr(tip)) - lip) * dzdu;
   }
 
-  double radius2 = sqr(radius);
+  Scalar radius2 = sqr(radius);
 
-  double b2 = center.mag2();
-  double b = std::sqrt(b2);
+  Scalar b2 = center.mag2();
+  Scalar b = std::sqrt(b2);
 
-  double cos1 = 0.5 * curvature * (radius2 + b2 - sqr(r)) / b;
-  double cos2 = 0.5 * curvature * (radius2 + b2 - circle->p1.mag2()) /  b;
+  Scalar cos1 = 0.5 * curvature * (radius2 + b2 - sqr(r)) / b;
+  Scalar cos2 = 0.5 * curvature * (radius2 + b2 - circle->p1.mag2()) /  b;
 
-  double phi1 = clamped_acos(cos1);
-  double phi2 = clamped_acos(cos2);
+  Scalar phi1 = clamped_acos(cos1);
+  Scalar phi2 = clamped_acos(cos2);
 
   // more plausbility checks needed...
   // the two circles can have two possible intersections
-  double u1 = std::abs((phi1 - phi2) * radius);
-  double u2 = std::abs((phi1 + phi2) * radius);
+  Scalar u1 = std::abs((phi1 - phi2) * radius);
+  Scalar u2 = std::abs((phi1 + phi2) * radius);
 
   return z1 + ((u1 >= seg && u1 < u2)? u1 : u2) * dzdu;
 }
 
-double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
-{
+float
+ThirdHitPredictionFromCircle::HelixRZ::rAtZ(Scalar z) const {
   if (unlikely(std::abs(dzdu) < 1.0e-5))
     return 99999.0;
 
   if (unlikely(std::abs(curvature) < 1.0e-5)) {
-    double tip = circle->axis * circle->p1;
-    double lip = circle->axis.y() * circle->p1.x() -
+    Scalar tip = circle->axis * circle->p1;
+    Scalar lip = circle->axis.y() * circle->p1.x() -
                  circle->axis.x() * circle->p1.y();
     return std::sqrt(sqr(tip) + sqr(lip + (z - z1) / dzdu));
   }
@@ -273,8 +273,8 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
 
   Vector2D rel = circle->p1 - center;
 
-  double c = std::cos(phi);
-  double s = std::sin(phi);
+  Scalar c = std::cos(phi);
+  Scalar s = std::sin(phi);
 
   Vector2D p(center.x() + c * rel.x() - s * rel.y(),
             center.y() + s * rel.x() + c * rel.y());

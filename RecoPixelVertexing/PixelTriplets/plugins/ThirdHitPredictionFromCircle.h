@@ -14,6 +14,7 @@ public:
   using Scalar = double;
   typedef PixelRecoRange<float> Range;
   typedef Basic2DVector<Scalar> Vector2D;
+  typedef Basic2DVector<float> VectorF2D;
 
   ThirdHitPredictionFromCircle(const GlobalPoint & P1, const GlobalPoint & P2,
                                float tolerance);
@@ -31,15 +32,17 @@ public:
   // from the circle fit to get an actual Helix propagation
   class HelixRZ {
     public:
-    using Vector2D=ThirdHitPredictionFromCircle::Vector2D;
-    using Scalar=ThirdHitPredictionFromCircle::Scalar;
+    // using Vector2D=ThirdHitPredictionFromCircle::Vector2D;
+    // using Scalar=ThirdHitPredictionFromCircle::Scalar;
+    using Vector2D=ThirdHitPredictionFromCircle::VectorF2D;
+    using Scalar=float;
     
     HelixRZ() : circle(0) {}
     HelixRZ(const ThirdHitPredictionFromCircle *icircle,
 	    double iz1, double z2, double curv);
     
-    double zAtR(double r) const;
-    double rAtZ(double z) const;
+    Scalar zAtR(Scalar r) const;
+    Scalar rAtZ(Scalar z) const;
     
     static double maxCurvature(const ThirdHitPredictionFromCircle *circle,
 			       double z1, double z2, double z3);
@@ -47,7 +50,7 @@ public:
   private:
     const ThirdHitPredictionFromCircle *circle;
     Vector2D center;
-    double curvature, radius, z1, seg, dzdu;
+    Scalar curvature, radius, z1, seg, dzdu;
   };
 
 private:
