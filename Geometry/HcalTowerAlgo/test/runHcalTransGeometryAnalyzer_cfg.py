@@ -23,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.hga = cms.EDAnalyzer("HcalGeometryAnalyzer",
                              HcalReLabel = HcalReLabel,
-                             HCALGeometryLabel = cms.string("_master") )
+                             HCALGeometryLabel = cms.string("_master"))
 
 process.Timing = cms.Service("Timing")
 process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
