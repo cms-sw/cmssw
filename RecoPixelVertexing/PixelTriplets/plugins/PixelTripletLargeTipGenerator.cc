@@ -74,7 +74,7 @@ namespace {
       range.first = second.min();
     if (range.second > second.max())
       range.second = second.max();
-    return range.first <= range.second;
+    return range.first < range.second;
   }
 }
 
