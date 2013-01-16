@@ -47,7 +47,7 @@ float ThirdHitPredictionFromCircle::phi(float curvature, float radius) const
     float rc2 = lcenter.mag2();
     float cos = (rc2 + sqr(radius) - radius2) /
       (2.f *std:: sqrt(rc2) * radius);
-    phi = lcenter.phi() + sign * clamped_acos(cos);
+    phi = lcenter.barePhi() + sign * clamped_acos(cos);
  }
 
   while(unlikely(phi >= float(M_PI))) phi -= float(2. * M_PI);
@@ -110,11 +110,11 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
   constexpr double SMALL = 1.0e-23;
   constexpr double LARGE = 1.0e23;
 
-  if (unlikely(tmp4 - tmp5 < 1.0e-5)) {
+  if (unlikely(tmp4 - tmp5 < 1.0e-15)) {
     u1 = -SMALL;
     u2 = +SMALL;
   } else {
-    if (unlikely(std::abs(tmp2) < 1.0e-5)) {
+    if (unlikely(std::abs(tmp2) < 1.0e-15)) {
       // the denominator is zero
       // this means that one of the tracks will be straight
       // and the other can be computed from the limit of the equation
@@ -125,7 +125,7 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
         std::swap(u1, u2);
     } else {
       double tmp6 = (tmp4 - tmp5) * (tmp4 + tmp5);
-      if (unlikely(tmp6 < 1.0e-5)) {
+      if (unlikely(tmp6 < 1.0e-15)) {
         u1 = -SMALL;
         u2 = +SMALL;
       } else {
@@ -149,7 +149,8 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
                sgn(u2) / std::sqrt(sqr(u2) + delta2));
 }
 
-float ThirdHitPredictionFromCircle::invCenterOnAxis(const Vector2D &p2) const
+ThirdHitPredictionFromCircle::Scalar
+ThirdHitPredictionFromCircle::invCenterOnAxis(const Vector2D &p2) const
 {
   Vector2D del = p2 - p1;
   Vector2D axis2 = Vector2D(-del.y(), del.x()) / del.mag();
