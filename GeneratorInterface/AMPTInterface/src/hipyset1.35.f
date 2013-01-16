@@ -2110,7 +2110,8 @@ C...Store hadron at random among free positions.
       IF(NREM.GT.0) GOTO 280    
     
 C...Compensate for missing momentum in global scheme (3 options).   
-  320 IF(MOD(MSTJ(3),5).NE.0.AND.MOD(MSTJ(3),5).NE.4) THEN  
+  320 MTMP = MOD(MSTJ(3),5)
+      IF(MTMP.NE.0.AND.MTMP.NE.4) THEN
         DO 330 J=1,3    
         PSI(J)=0.   
         DO 330 I=NSAV+NJET+1,N  
@@ -5093,10 +5094,8 @@ C...Purpose: to perform rotations and boosts.
       SAVE /LUJETS/ 
       COMMON/LUDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200) 
       SAVE /LUDAT1/ 
-      DIMENSION ROT(3,3),PR(3),VR(3),DP(4),DV(4)    
+      DIMENSION ROT(3,3),PR(3),DP(4)    
     
-      DV(1)=DV(1)
-      VR(1)=VR(1)
 C...Find range of rotation/boost. Convert boost to double precision.    
       IMIN=1    
       IF(MSTU(1).GT.0) IMIN=MSTU(1) 
@@ -11717,8 +11716,9 @@ C...pre-set kinematical limits.
           ETA4=LOG(MIN(1.E10,MAX(1.E-10,EXPET4)))   
           ETALAR=MAX(ETA3,ETA4) 
           ETASMA=MIN(ETA3,ETA4) 
-  100     CTS3=((1.+RM3-RM4)*SINH(YST)+BE34*COSH(YST)*CTH)/ 
-     &    SQRT(((1.+RM3-RM4)*COSH(YST)+BE34*SINH(YST)*CTH)**2-4.*RM3)   
+  100     TMP1=(1.+RM3-RM4)*COSH(YST)
+          CTS3=((1.+RM3-RM4)*SINH(YST)+BE34*COSH(YST)*CTH)/ 
+     &    SQRT((TMP1+BE34*SINH(YST)*CTH)**2-4.*RM3)   
           CTS4=((1.-RM3+RM4)*SINH(YST)-BE34*COSH(YST)*CTH)/ 
      &    SQRT(((1.-RM3+RM4)*COSH(YST)-BE34*SINH(YST)*CTH)**2-4.*RM4)   
           CTSLAR=MAX(CTS3,CTS4) 

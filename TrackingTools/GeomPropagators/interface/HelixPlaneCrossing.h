@@ -4,9 +4,6 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <utility>
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class Plane;
 
 /** Abstract interface for the crossing of a helix with a plane.

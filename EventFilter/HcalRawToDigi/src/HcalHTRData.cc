@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2011/08/04 01:10:50 $
- *  $Revision: 1.18 $
+ *  $Date: 2011/11/02 03:47:49 $
+ *  $Revision: 1.19 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -97,6 +97,31 @@ bool HcalHTRData::check() const {
   }
 
   return true;
+}
+
+bool HcalHTRData::isEmptyEvent() const {
+  if (m_formatVersion==-1) {
+    return (m_rawConst[2]&0x20)!=0;
+  } else {
+    return (m_rawConst[2]&0x4)!=0;
+  }
+}
+
+ 
+bool HcalHTRData::isOverflowWarning() const {
+  if (m_formatVersion==-1) {
+    return false; // too old to care.
+  } else {
+    return (m_rawConst[2]&0x1)!=0;
+  }
+}
+
+bool HcalHTRData::isBusy() const {
+  if (m_formatVersion==-1) {
+    return false; // too old to care.
+  } else {
+    return (m_rawConst[2]&0x2)!=0;
+  }
 }
 
 void HcalHTRData::determineSectionLengths(int& tpWords, int& daqWords, int& headerWords, int& trailerWords) const {

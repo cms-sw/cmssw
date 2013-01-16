@@ -13,7 +13,7 @@
 #if defined(__REFLEX__) || defined(__CINT__)
   #define CMS_NOCXX11
 #endif
-#if !GCC_PREREQUISITE(4,6,0) && !defined(__clang__)
+#if !GCC_PREREQUISITE(4,6,0)
   #define CMS_NOCXX11
 #endif
 
@@ -21,13 +21,6 @@
   #if GCC_PREREQUISITE(4,7,0)
      #define GCC11_FINAL final
      #define GCC11_OVERRIDE override
-  #elif __clang__
-     // FIXME: do not know how to query for final support. It's there in any
-     //        clang version we will ever use, so it's fine.
-     #define GCC11_FINAL final
-     #if __has_feature(cxx_override_control)
-      #define GCC11_OVERRIDE override
-     #endif
   #else
      #define GCC11_FINAL
      #define GCC11_OVERRIDE

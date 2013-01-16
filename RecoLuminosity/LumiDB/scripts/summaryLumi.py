@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 #
+#########################################################################
+# Command to produce fill summary lumi files using lumiCalc2.py lumibyls#
+# output                                                                # 
+#                                                                       #
+# Author:      Zhen Xie                                                 #
+#########################################################################
+#
 import os,os.path,sys,math,array,datetime,time,re
-import coral
 
-from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections,sessionManager,lumiParameters
+from RecoLuminosity.LumiDB import argparse,lumiTime,lumiCalcAPI,sessionManager,lumiParameters
 MINFILL=1800
 MAXFILL=9999
 allfillname='allfills.txt'
@@ -36,22 +42,102 @@ def lastcompleteFill(infile):
             lastfill=result.group(2)
             break
     return int(lastfill)
-        
+
+##############################
+## ######################## ##
+## ## ################## ## ##
+## ## ## Main Program ## ## ##
+## ## ################## ## ##
+## ######################## ##
+##############################        
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Dump Fill",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     # parse arguments
-    parser.add_argument('-c',dest='connect',action='store',required=False,help='connect string to lumiDB,optional',default='oracle://cms_orcoff_prod/cms_lumi_prod')
-    parser.add_argument('-P',dest='authpath',action='store',required=True,help='authentication.xml dir')
-    parser.add_argument('-i',dest='inputdir',action='store',required=False,help='input dir to runtofill_dqm.txt',default='.')
-    parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
-    parser.add_argument('-f','--fill',dest='fillnum',action='store',required=False,help='specific fill',default=None)
-    parser.add_argument('--norm',dest='norm',action='store',required=False,help='norm',default='pp7TeV')
-    parser.add_argument('--minfill',dest='minfill',action='store',required=False,help='minimal fillnumber ',default=None)
-    parser.add_argument('--maxfill',dest='maxfill',action='store',required=False,help='maximum fillnumber ',default=MAXFILL)
-    parser.add_argument('--amodetag',dest='amodetag',action='store',required=False,help='accelerator mode tag ',default='PROTPHYS')
-    parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
-    parser.add_argument('--without-stablebeam',dest='withoutStablebeam',action='store_true',required=False,help='without requirement on stable beams')
-    parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',required=False,help='without fine correction')
+    parser.add_argument('-c',
+                        dest='connect',
+                        action='store',
+                        required=False,
+                        help='connect string to lumiDB,optional',
+                        default='oracle://cms_orcon_adg/cms_lumi_prod')
+    parser.add_argument('-P',
+                        dest='authpath',
+                        action='store',
+                        required=True,
+                        help='authentication.xml dir')
+    parser.add_argument('-i',
+                        dest='inputdir',
+                        action='store',
+                        required=False,
+                        help='input dir to runtofill_dqm.txt',
+                        default='.')
+    parser.add_argument('-o',
+                        dest='outputdir',
+                        action='store',
+                        required=False,
+                        help='output dir',
+                        default='.')
+    parser.add_argument('-f','--fill',
+                        dest='fillnum',
+                        action='store',
+                        required=False,
+                        help='specific fill',
+                        default=None)
+    parser.add_argument('--datatag',
+                        dest='datatag',
+                        action='store',
+                        required=False,
+                        help='datatag',
+                        default=None)
+    parser.add_argument('--normtag',
+                        dest='normtag',
+                        action='store',
+                        required=False,
+                        help='normtag',
+                        default=None)
+    parser.add_argument('--minfill',
+                        dest='minfill',
+                        action='store',
+                        required=False,
+                        help='minimal fillnumber',
+                        default=None)
+    parser.add_argument('--maxfill',
+                        dest='maxfill',
+                        action='store',
+                        required=False,
+                        help='maximum fillnumber ',
+                        default=MAXFILL)
+    parser.add_argument('--amodetag',
+                        dest='amodetag',
+                        action='store',
+                        required=False,
+                        help='specific accelerator mode choices [PROTOPHYS,IONPHYS,PAPHYS] (optional)')
+    parser.add_argument('--beamenergy',
+                        dest='beamenergy',
+                        action='store',
+                        type=float,
+                        default=None,
+                        help='nominal beam energy in GeV')
+    parser.add_argument('--beamfluctuation',
+                        dest='beamfluctuation',
+                        type=float,action='store',
+                        default=0.2,
+                        required=False,
+                        help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)')
+    parser.add_argument('--debug',
+                        dest='debug',
+                        action='store_true',
+                        help='debug')
+    parser.add_argument('--without-stablebeam',
+                        dest='withoutStablebeam',
+                        action='store_true',
+                        required=False,
+                        help='without requirement on stable beams')
+    parser.add_argument('--without-correction',
+                        dest='withoutFineCorrection',
+                        action='store_true',
+                        required=False,
+                        help='without fine correction')
     options=parser.parse_args()
     if options.minfill:
         MINFILL=int(options.minfill)
@@ -90,12 +176,20 @@ if __name__ == '__main__':
     lslength=lumip.lslengthsec()
     import commands,os,RecoLuminosity.LumiDB.lumiTime,datetime,time
     for fillnum in fillstoprocess:
-        clineElements=['lumiCalc2.py','lumibyls','-c',dbname,'-P',authdir,'-f',str(fillnum),'-o','tmp.out']
+        clineElements=['lumiCalc2.py','lumibyls','-c',dbname,'-P',authdir,'-f',str(fillnum),'-o','tmp.out','--without-checkforupdate','--nowarning']
         if not options.withoutStablebeam:
             clineElements.append('-b stable')
         if options.withoutFineCorrection:
             clineElements.append('--without-correction')
-        clineElements.append('--norm '+options.norm)
+        if options.datatag:
+            clineElements.append('--datatag '+options.datatag)
+        if options.normtag:
+            clineElements.append('--normtag '+options.normtag)
+        if options.beamenergy:
+            clineElements.append('--beamenergy '+str(options.beamenergy))
+        if options.beamfluctuation:
+            clineElements.append('--beamfluctuation '+str(options.beamfluctuation))
+        
         finalcmmd=' '.join(clineElements)
         print 'cmmd executed:',finalcmmd
         (exestat,resultStr)=commands.getstatusoutput(finalcmmd)
@@ -120,6 +214,7 @@ if __name__ == '__main__':
             bstatus=lineList[3]
             t=lumiTime.lumiTime()
             pydate=t.StrToDatetime(timestamp,'%m/%d/%y %H:%M:%S')
+
             os.environ['TZ']='UTC'
             time.tzset()
             unixts=int(time.mktime(pydate.timetuple()))

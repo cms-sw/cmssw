@@ -74,7 +74,12 @@ namespace edm {
     bool manage_OOT_;
     bool poisson_OOT_;
     bool fixed_OOT_;
+
+    bool PU_Study_;
+    std::string Study_type_;
+
     int  intFixed_OOT_;
+    int  intFixed_ITPU_;
 
     VectorInputSource * const input_;
     CLHEP::RandPoissonQ *poissonDistribution_;

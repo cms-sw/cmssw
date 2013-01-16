@@ -19,11 +19,8 @@ class HypothesisAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  const edm::InputTag semiLepEvt_;
-  const std::string hypoClassKey_;
-
-  TH1F* neutrinoEta_;
-  TH1F* neutrinoPullEta_;
+  edm::InputTag semiLepEvt_;
+  edm::InputTag hypoClassKey_;
 
   TH1F* hadWPt_;
   TH1F* hadWEta_;
@@ -41,30 +38,11 @@ class HypothesisAnalyzer : public edm::EDAnalyzer {
   TH1F* hadTopPullEta_;
   TH1F* hadTopPullMass_;
 
-  TH1F* lepWPt_;
-  TH1F* lepWEta_;
-  TH1F* lepWMass_;
-
-  TH1F* lepWPullPt_;
-  TH1F* lepWPullEta_;
-  TH1F* lepWPullMass_;
-
-  TH1F* lepTopPt_;
-  TH1F* lepTopEta_;
-  TH1F* lepTopMass_;
-
-  TH1F* topPairMass_;
-  TH1F* topPairPullMass_;
-
-  TH1F* lepTopPullPt_;
-  TH1F* lepTopPullEta_;
-  TH1F* lepTopPullMass_;
-
   TH1F* genMatchDr_;
-  TH1F* kinFitProb_;
+  TH1F* mvaDisc_;
 
   TH2F* genMatchDrVsHadTopPullMass_;
-  TH2F* kinFitProbVsHadTopPullMass_;
+  TH2F* mvaDiscVsHadTopPullMass_;
 
 };
 

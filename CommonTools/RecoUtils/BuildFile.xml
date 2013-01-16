@@ -5,6 +5,7 @@
 <use   name="DataFormats/Scalers"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/ParticleFlowReco"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
