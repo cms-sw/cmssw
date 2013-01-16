@@ -43,6 +43,7 @@ class CentralityProvider : public CentralityBins {
   unsigned int prevRun_;
   mutable edm::Handle<reco::Centrality> chandle_;
   VariableType varType_;
+  unsigned int pPbRunFlip_;
 };
 
 #endif

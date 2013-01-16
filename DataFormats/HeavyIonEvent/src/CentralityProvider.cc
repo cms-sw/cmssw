@@ -1,7 +1,5 @@
 #include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 
-#define _pPbRunFlip 999999999
-
 CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
    prevRun_(0),
    varType_(Missing)
@@ -11,6 +9,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
       edm::ParameterSet hiPset = thepset.getParameter<edm::ParameterSet>("HeavyIonGlobalParameters");
       tag_ = hiPset.getParameter<edm::InputTag>("centralitySrc");
       centralityVariable_ = hiPset.getParameter<std::string>("centralityVariable");
+      pPbRunFlip_ = hiPset.getUntrackedParameter<unsigned int>("pPbRunFlip",99999999);
       if(centralityVariable_.compare("HFtowers") == 0) varType_ = HFtowers;
       if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersPlus;
       if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersMinus;
@@ -40,7 +39,7 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
 void CentralityProvider::newEvent(const edm::Event& ev,const edm::EventSetup& iSetup){
    ev.getByLabel(tag_,chandle_);
    if(ev.id().run() == prevRun_) return;
-   if(prevRun_ < _pPbRunFlip && ev.id().run() >= _pPbRunFlip){
+   if(prevRun_ < pPbRunFlip_ && ev.id().run() >= pPbRunFlip_){
      std::cout<<"Attention, the sides are flipped from this run on!"<<std::endl;
      if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersMinus;
      if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersPlus;
