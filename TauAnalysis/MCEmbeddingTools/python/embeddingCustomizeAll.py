@@ -401,7 +401,7 @@ def customise(process):
   # CV: disable ECAL/HCAL noise simulation
   if process.customization_options.disableCaloNoise.value():
     print "Disabling ECAL/HCAL noise simulation" 
-    process.simEcalUnsuppressedDigis.doESNoise = cms.bool(False)
+    process.simEcalUnsuppressedDigis.doNoise = cms.bool(False)
     process.simEcalUnsuppressedDigis.doESNoise = cms.bool(False)
     process.simHcalUnsuppressedDigis.doNoise = cms.bool(False)
     process.simHcalUnsuppressedDigis.doThermalNoise = cms.bool(False)
