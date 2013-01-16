@@ -6,7 +6,7 @@
 // Package:    PhysicsTools
 // Class:      EventFilterFromListStandAlone
 //
-// $Id$
+// $Id: EventFilterFromListStandAlone.h,v 1.3 2013/01/16 16:42:48 vadler Exp $
 //
 /**
   \class    EventFilterFromListStandAlone EventFilterFromListStandAlone.h "physicsTools/utilities/interface/EventFilterFromListStandAlone.h"
@@ -20,23 +20,22 @@
    The class is designed as stand-alone utility, so that it can be used outside CMSSW, too.
    It is instatiated as follows:
 
-   #include "[PATH/]EventFilterFromListStandAlone.h"
-   [...]
-   EventFilterFromListStandAlone myFilter("[GZIPPED_TEXT_FILE]");
+     #include "[PATH/]EventFilterFromListStandAlone.h"
+     [...]
+     EventFilterFromListStandAlone myFilter("[GZIPPED_TEXT_FILE]");
 
-   where the lines of the input text file are formatted like
+   !!! --->>> There might be OFFICIAL releases of such EVENT LISTS, provided by the PdmV group <<<--- !!!
+   An important example is the list of HCAL laser polluted events in
 
-   [RUN_NUMBER]:[LUMI_SEC_NUMBVER]:[EVENT_NUMBER]
+   EventFilter/HcalRawToDigi/data/HCALLaser2012AllDatasets.txt.gz
+
+   The path to the gzipped input file needs to be the real path. CMSSW-like "FileInPath" is not supported.
 
    The boolean is then determined with
 
-   bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number);
+     bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number);
 
    where the parameters are all of type 'int'.
-
-   The path to the gzipped input file needs to be the real path. FileInPath from CMSSW is not supported.
-   An important use case for this class is the list of HCAL laser polluted events, provided in
-   EventFilter/HcalRawToDigi/data/HCALLaser2012AllDatasets.txt.gz
 
    Compilation:
    ============
@@ -50,15 +49,15 @@
      test.cc                         # the actual code, using this class
      events.txt.gz                   # gzipped input file
    - In test.cc, you have
-     #include "EventFilterFromListStandAlone.h"
-     [...]
-     EventFilterFromListStandAlone myFilter("./events.txt.gz");
-     [...]
-     bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number)
+       #include "EventFilterFromListStandAlone.h"
+       [...]
+       EventFilterFromListStandAlone myFilter("./events.txt.gz");
+       [...]
+       bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number)
    - To compile:
-     source /afs/cern.ch/sw/lcg/contrib/gcc/4.3/x86_64-slc5/setup.[c]sh
-     source /afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.00/x86_64-slc5-gcc43-opt/root/bin/thisroot.[c]sh
-     g++ -I$ROOTSYS/include -L$ROOTSYS/lib -lCore test.cc
+       source /afs/cern.ch/sw/lcg/contrib/gcc/4.3/x86_64-slc5/setup.[c]sh
+       source /afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.00/x86_64-slc5-gcc43-opt/root/bin/thisroot.[c]sh
+       g++ -I$ROOTSYS/include -L$ROOTSYS/lib -lCore test.cc
      which results in the default executable './a.out'.
 
    LXPLUS, CMSSW environment
@@ -69,13 +68,13 @@
                                      # e.g. by
                                      # cp $CMSSW_RELEASE_BASE/src/EventFilter/HcalRawToDigi/data/HCALLaser2012AllDatasets.txt.gz ./events.txt.gz
    - In test.cc, you have
-     #include "PhysicsTools/Utilities/interface/EventFilterFromListStandAlone.h"
-     [...]
-     EventFilterFromListStandAlone myFilter("./events.txt.gz");
-     [...]
-     bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number)
+       #include "PhysicsTools/Utilities/interface/EventFilterFromListStandAlone.h"
+       [...]
+       EventFilterFromListStandAlone myFilter("./events.txt.gz");
+       [...]
+       bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number)
    - To compile:
-     g++ -I$CMS_PATH/$SCRAM_ARCH/external/zlib/include -L$CMS_PATH/$SCRAM_ARCH/external/zlib/lib -lz test.cc
+       g++ -I$CMS_PATH/$SCRAM_ARCH/external/zlib/include -L$CMS_PATH/$SCRAM_ARCH/external/zlib/lib -lz test.cc
      which results in the default executable './a.out'.
 
    LXPLUS, CMSSW environment, compilation with SCRAM
@@ -88,26 +87,26 @@
                                      # e.g. by
                                      # cp $CMSSW_RELEASE_BASE/src/EventFilter/HcalRawToDigi/data/HCALLaser2012AllDatasets.txt.gz ./events.txt.gz
    - In test.cc, you have
-     #include "PhysicsTools/Utilities/interface/EventFilterFromListStandAlone.h"
-     [...]
-     EventFilterFromListStandAlone myFilter("./events.txt.gz");
-     [...]
-     bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number)
+       #include "PhysicsTools/Utilities/interface/EventFilterFromListStandAlone.h"
+       [...]
+       EventFilterFromListStandAlone myFilter("./events.txt.gz");
+       [...]
+       bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number)
    - In BuildFile.xml, you have:
-     <use name="zlib"/>
-     <use name="PhysicsTools/Utilities"/>
-     [...]
-     <environment>
-      [...]
-      <bin file="test.cc"></bin>
-      [...]
-     </environment>
+       <use name="zlib"/>
+       <use name="PhysicsTools/Utilities"/>
+       [...]
+       <environment>
+        [...]
+        <bin file="test.cc"></bin>
+        [...]
+       </environment>
    - To compile:
-     scram b # evtl. followed by 'rehash' (for csh) to make the executable available
+       scram b # evtl. followed by 'rehash' (for csh) to make the executable available
      which results in the executable '$CMSSW_BASE/bin/$SCRAM_ARCH/test'.
 
   \author   Thomas Speer
-  \version  $Id$
+  \version  $Id: EventFilterFromListStandAlone.h,v 1.3 2013/01/16 16:42:48 vadler Exp $
 */
 
 #include <vector>
