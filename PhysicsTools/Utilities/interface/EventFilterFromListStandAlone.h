@@ -1,6 +1,115 @@
 #ifndef PhysicsTools_Utilities_EventFilterFromList
 #define PhysicsTools_Utilities_EventFilterFromList
 
+// -*- C++ -*-
+//
+// Package:    PhysicsTools
+// Class:      EventFilterFromListStandAlone
+//
+// $Id$
+//
+/**
+  \class    EventFilterFromListStandAlone EventFilterFromListStandAlone.h "physicsTools/utilities/interface/EventFilterFromListStandAlone.h"
+  \brief    Stand-alone class to flag events, based on an event list in a gzipped tex file
+
+   EventFilterFromListStandAlone provides a boolean flag, which marks events as "bad", if they appear in a given gzipped text file.
+   The boolean returns
+   - 'false', if the event is in the list ("bad event") and
+   - 'true' otherwise ("good event").
+
+   The class is designed as stand-alone utility, so that it can be used outside CMSSW, too.
+   It is instatiated as follows:
+
+   #include "[PATH/]EventFilterFromListStandAlone.h"
+   [...]
+   EventFilterFromListStandAlone myFilter("[GZIPPED_TEXT_FILE]");
+
+   where the lines of the input text file are formatted like
+
+   [RUN_NUMBER]:[LUMI_SEC_NUMBVER]:[EVENT_NUMBER]
+
+   The boolean is then determined with
+
+   bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number);
+
+   where the parameters are all of type 'int'.
+
+   The path to the gzipped input file needs to be the real path. FileInPath from CMSSW is not supported.
+   An important use case for this class is the list of HCAL laser polluted events, provided in
+   EventFilter/HcalRawToDigi/data/HCALLaser2012AllDatasets.txt.gz
+
+   Compilation:
+   ============
+
+   EventFilterFromListStandAlone uses 'zlib', which requires varying compilation settings, depending on the environment:
+
+   LXPLUS, no CMSSW:
+   -----------------
+   - Files needed in current directory:
+     EventFilterFromListStandAlone.h # a copy of this file
+     test.cc                         # the actual code, using this class
+     events.txt.gz                   # gzipped input file
+   - In test.cc, you have
+     #include "EventFilterFromListStandAlone.h"
+     [...]
+     EventFilterFromListStandAlone myFilter("./events.txt.gz");
+     [...]
+     bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number)
+   - To compile:
+     source /afs/cern.ch/sw/lcg/contrib/gcc/4.3/x86_64-slc5/setup.[c]sh
+     source /afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.00/x86_64-slc5-gcc43-opt/root/bin/thisroot.[c]sh
+     g++ -I$ROOTSYS/include -L$ROOTSYS/lib -lCore test.cc
+     which results in the default executable './a.out'.
+
+   LXPLUS, CMSSW environment
+   -------------------------
+   - Files needed in current directory:
+     test.cc                         # the actual code, using this class
+     events.txt.gz                   # gzipped input file
+                                     # e.g. by
+                                     # cp $CMSSW_RELEASE_BASE/src/EventFilter/HcalRawToDigi/data/HCALLaser2012AllDatasets.txt.gz ./events.txt.gz
+   - In test.cc, you have
+     #include "PhysicsTools/Utilities/interface/EventFilterFromListStandAlone.h"
+     [...]
+     EventFilterFromListStandAlone myFilter("./events.txt.gz");
+     [...]
+     bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number)
+   - To compile:
+     g++ -I$CMS_PATH/$SCRAM_ARCH/external/zlib/include -L$CMS_PATH/$SCRAM_ARCH/external/zlib/lib -lz test.cc
+     which results in the default executable './a.out'.
+
+   LXPLUS, CMSSW environment, compilation with SCRAM
+   -------------------------------------------------
+   - Files needed in code directory (e.g. $CMSSW_BASE/src/[SUBSYSTEM]/[PACKAGE]/bin/):
+     test.cc                         # the actual code, using this class
+     BuildFile.xml                   #
+   - Files needed in current directory:
+     events.txt.gz                   # gzipped input file
+                                     # e.g. by
+                                     # cp $CMSSW_RELEASE_BASE/src/EventFilter/HcalRawToDigi/data/HCALLaser2012AllDatasets.txt.gz ./events.txt.gz
+   - In test.cc, you have
+     #include "PhysicsTools/Utilities/interface/EventFilterFromListStandAlone.h"
+     [...]
+     EventFilterFromListStandAlone myFilter("./events.txt.gz");
+     [...]
+     bool myFlag = myFilter.filter(run_number, lumi_sec_number, event_number)
+   - In BuildFile.xml, you have:
+     <use name="zlib"/>
+     <use name="PhysicsTools/Utilities"/>
+     [...]
+     <environment>
+      [...]
+      <bin file="test.cc"></bin>
+      [...]
+     </environment>
+   - To compile:
+     scram b # evtl. followed by 'rehash' (for csh) to make the executable available
+     which results in the executable '$CMSSW_BASE/bin/$SCRAM_ARCH/test'.
+
+  \author   Thomas Speer
+  \version  $Id$
+*/
+
 #include <vector>
 #include <string.h>
 #include <iostream>
@@ -19,13 +128,13 @@ public:
   EventFilterFromListStandAlone(const std::string & eventFileName);
 
   ~EventFilterFromListStandAlone() {}
-  
+
   /**
    * The filter, returns true for good events, bad for events which are
    * to be filtered out, i.e. events that are in the list
    */
   bool filter(int run, int lumiSection, int event);
-  
+
 private:
 
   void readEventListFile(const std::string & eventFileName);
@@ -33,11 +142,11 @@ private:
 
   typedef std::vector< std::string > strVec;
   typedef std::vector< std::string >::iterator strVecI;
-  
+
   std::vector< std::string > EventList_;  // vector of strings representing bad events, with each string in "run:LS:event" format
   bool verbose_;  // if set to true, then the run:LS:event for any event failing the cut will be printed out
-  
-  // Set run range of events in the BAD event LIST.  
+
+  // Set run range of events in the BAD event LIST.
   // The purpose of these values is to shorten the length of the EventList_ vector when running on only a subset of data
   int minrun_;
   int maxrun_;  // if specified (i.e., values > -1), then only events in the given range will be filtered
@@ -115,7 +224,7 @@ void EventFilterFromListStandAlone::readEventListFile(const string & eventFileNa
     return;
   }
   string b2;
-  int err;                    
+  int err;
   int bytes_read;
   char buffer[LENGTH];
   unsigned int i;
@@ -130,7 +239,7 @@ void EventFilterFromListStandAlone::readEventListFile(const string & eventFileNa
       addEventString(b2);
       ++i;
     } else b2+=pch;
-  
+
     while (pch != NULL)
     {
       i+=strlen(pch)+1;
@@ -142,7 +251,7 @@ void EventFilterFromListStandAlone::readEventListFile(const string & eventFileNa
 	}
       } else if (i<LENGTH) {
 	addEventString(b2);
-      } 
+      }
       pch = strtok (NULL, "\n");
     }
     if (bytes_read < LENGTH - 1) {
