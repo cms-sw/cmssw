@@ -28,7 +28,6 @@ autoSkim = {
     'TauPlusX' : 'LogError+LogErrorMonitor+MuTauMET',
     }
 
-
 ## autoSkim 2012 (5E33 HLT menu) --> only Run2012A
 """
 autoSkim = {
@@ -63,6 +62,15 @@ autoSkim = {
 # starting from Run2012B, are not good for Run2012A (since trigger names changed).
 # So the TOP skims above have been removed from the Run2012A skim matrix
 # and cannot be produced at the moment for this run period
+
+
+## autoSkim 2013 (pPb HLT menu) --> only pPb run (Jan-Feb)
+"""
+autoSkim = {
+    'PAMuon' : 'PsiMuMuPA+UpsMuMuPA+ZMuMuPA+HighPtPA',
+    'PAHighPt' : 'HighPtPA+FlowCorrPA',
+    }
+"""
 
 ## autoSkim 2011
 """
