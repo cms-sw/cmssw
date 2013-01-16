@@ -213,7 +213,8 @@ double ThirdHitPredictionFromCircle::HelixRZ::maxCurvature(
   return std::sin(halfAngle) / circle->delta;
 }
 
-float
+
+ThirdHitPredictionFromCircle::HelixRZ::Scalar
 ThirdHitPredictionFromCircle::HelixRZ::zAtR(Scalar r) const {
   if (unlikely(std::abs(curvature) < 1.0e-5)) {
      Scalar tip = circle->axis * circle->p1;
@@ -241,7 +242,7 @@ ThirdHitPredictionFromCircle::HelixRZ::zAtR(Scalar r) const {
   return z1 + ((u1 >= seg && u1 < u2)? u1 : u2) * dzdu;
 }
 
-float
+ThirdHitPredictionFromCircle::HelixRZ::Scalar
 ThirdHitPredictionFromCircle::HelixRZ::rAtZ(Scalar z) const {
   if (unlikely(std::abs(dzdu) < 1.0e-5))
     return 99999.0;

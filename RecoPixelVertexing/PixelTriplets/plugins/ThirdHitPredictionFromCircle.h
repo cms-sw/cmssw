@@ -32,10 +32,10 @@ public:
   // from the circle fit to get an actual Helix propagation
   class HelixRZ {
     public:
-    // using Vector2D=ThirdHitPredictionFromCircle::Vector2D;
-    // using Scalar=ThirdHitPredictionFromCircle::Scalar;
-    using Vector2D=ThirdHitPredictionFromCircle::VectorF2D;
-    using Scalar=float;
+    using Vector2D=ThirdHitPredictionFromCircle::Vector2D;
+    using Scalar=ThirdHitPredictionFromCircle::Scalar;
+    // using Vector2D=ThirdHitPredictionFromCircle::VectorF2D;
+    // using Scalar=float;
     
     HelixRZ() : circle(0) {}
     HelixRZ(const ThirdHitPredictionFromCircle *icircle,
