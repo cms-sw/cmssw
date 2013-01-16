@@ -206,7 +206,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     etaECMin = cms.double(0.9),
     etaECMax = cms.double(2.4),
     
-    LowMassMin = cms.double(5.0),
+    LowMassMin = cms.double(2.0),
     LowMassMax = cms.double(55.0),
     HighMassMin = cms.double(55.0),
     HighMassMax = cms.double(155.0)
@@ -222,7 +222,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
 
     ptBin = cms.int32(10),
     ptMax = cms.double(100),
-    ptMin = cms.double(10),
+    ptMin = cms.double(1),
     
     etaBin = cms.int32(8),
     etaMax = cms.double(2.5),
