@@ -253,7 +253,7 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
   }
 
   // we won't go below that (see comment below)
-  float minR2 = (2. * circle->center - circle->p1).mag2();
+  Scalar minR2 = (2. * circle->center - circle->p1).mag2();
 
   float phi =  curvature * (z - z1) / dzdu;
 

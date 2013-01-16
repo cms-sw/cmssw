@@ -11,7 +11,7 @@
 class ThirdHitPredictionFromCircle {
 
 public:
-  using Scalar = float;
+  using Scalar = double;
   typedef PixelRecoRange<float> Range;
   typedef Basic2DVector<Scalar> Vector2D;
 
@@ -32,6 +32,7 @@ public:
   class HelixRZ {
     public:
     using Vector2D=ThirdHitPredictionFromCircle::Vector2D;
+    using Scalar=ThirdHitPredictionFromCircle::Scalar;
     
     HelixRZ() : circle(0) {}
     HelixRZ(const ThirdHitPredictionFromCircle *icircle,
@@ -52,10 +53,10 @@ public:
 private:
   friend class HelixRZ;
 
-  float invCenterOnAxis(const  Vector2D &thirdPoint) const;
+  Scalar invCenterOnAxis(const  Vector2D &thirdPoint) const;
 
   Vector2D p1, center, axis;
-  float delta, delta2;
+  Scalar delta, delta2;
   float theTolerance;
 };
 
