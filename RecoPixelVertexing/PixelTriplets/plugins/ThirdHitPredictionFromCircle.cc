@@ -16,9 +16,9 @@ typedef Basic2DVector<double> Point2D;
 
 namespace {
   template<class T> inline T sqr(T t) { return t * t; }
-  template<class T> inline T sgn(T t) { return std::signbit(t) ? -1. : 1.; }
+  template<class T> inline T sgn(T t) { return std::signbit(t) ? -T(1.) : T(1.); }
   template<class T> inline T clamped_acos(T t)
-  { return unlikely(t <= -1) ? M_PI : unlikely(t >= 1) ? T(0) : std::acos(t); }
+  { return unlikely(t <= T(-1)) ? T(M_PI) : unlikely(t >= T(1)) ? T(0) : std::acos(t); }
   template<class T> inline T clamped_sqrt(T t)
   { return likely(t > 0) ? std::sqrt(t) : T(0); }
 }
@@ -35,52 +35,52 @@ ThirdHitPredictionFromCircle::ThirdHitPredictionFromCircle(
   center = p1 + diff;
 }
 
-double ThirdHitPredictionFromCircle::phi(double curvature, double radius) const
+float ThirdHitPredictionFromCircle::phi(float curvature, float radius) const
 {
-  double phi;
-  if (unlikely(std::abs(curvature) < 1.0e-5)) {
-    double cos = (center * axis) / radius;
+  float phi;
+  if (unlikely(std::abs(curvature) < float(1.0e-5))) {
+    float cos = (center * axis) / radius;
     phi = axis.phi() - clamped_acos(cos);
   } else {
-    double sign = sgn(curvature);
-    double radius2 = sqr(1.0 / curvature);
-    double orthog = clamped_sqrt(radius2 - delta2);
-    Basic2DVector<double> lcenter = center - sign * orthog * axis;
-    double rc2 = lcenter.mag2();
-    double cos = (rc2 + sqr(radius) - radius2) /
-      (2. *std:: sqrt(rc2) * radius);
+    float sign = sgn(curvature);
+    float radius2 = sqr(1.0f / curvature);
+    float orthog = clamped_sqrt(radius2 - delta2);
+    Basic2DVector<float> lcenter = center - sign * orthog * axis;
+    float rc2 = lcenter.mag2();
+    float cos = (rc2 + sqr(radius) - radius2) /
+      (2.f *std:: sqrt(rc2) * radius);
     phi = lcenter.phi() + sign * clamped_acos(cos);
  }
 
-  while(unlikely(phi >= M_PI)) phi -= 2. * M_PI;
-  while(unlikely(phi < -M_PI)) phi += 2. * M_PI;
+  while(unlikely(phi >= float(M_PI))) phi -= float(2. * M_PI);
+  while(unlikely(phi < -float(M_PI))) phi += float(2. * M_PI);
 
   return phi;
 }
 
-double ThirdHitPredictionFromCircle::angle(double curvature, double radius) const
+float ThirdHitPredictionFromCircle::angle(float curvature, float radius) const
 {
-  if (unlikely(std::abs(curvature) < 1.0e-5)) {
-    double sin = (center * axis) / radius;
+  if (unlikely(std::abs(curvature) < float(1.0e-5))) {
+    float sin = (center * axis) / radius;
     return sin / clamped_sqrt(1 - sqr(sin));
   } else {
-    double radius2 = sqr(1.0 / curvature);
-    double orthog = clamped_sqrt(radius2 - delta2);
-    Basic2DVector<double> lcenter = center - sgn(curvature) * orthog * axis;
+    float radius2 = sqr(1.0f / curvature);
+    float orthog = clamped_sqrt(radius2 - delta2);
+    Basic2DVector<float> lcenter = center - sgn(curvature) * orthog * axis;
  
-    double cos = (radius2 + sqr(radius) - lcenter.mag2()) *
-                 curvature / (2. * radius);
-    return - cos / clamped_sqrt(1 - sqr(cos));
+    float cos = (radius2 + sqr(radius) - lcenter.mag2()) *
+                 curvature / (2 * radius);
+    return - cos / clamped_sqrt(1.f - sqr(cos));
  }
 }
 
 ThirdHitPredictionFromCircle::Range
-ThirdHitPredictionFromCircle::operator()(Range curvature, double radius) const
+ThirdHitPredictionFromCircle::operator()(Range curvature, float radius) const
 {
-  double phi1 = phi(curvature.second, radius);
-  double phi2 = phi(curvature.first, radius);
+  float phi1 = phi(curvature.second, radius);
+  float phi2 = phi(curvature.first, radius);
 
-  while(unlikely(phi2 <  phi1)) phi2 += 2. * M_PI; 
+  while(unlikely(phi2 <  phi1)) phi2 += float(2. * M_PI); 
 
   return Range(phi1 * radius - theTolerance, phi2 * radius + theTolerance);
 }

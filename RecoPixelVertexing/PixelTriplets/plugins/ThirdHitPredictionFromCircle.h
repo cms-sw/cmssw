@@ -16,10 +16,10 @@ public:
   ThirdHitPredictionFromCircle(const GlobalPoint & P1, const GlobalPoint & P2,
                                float tolerance);
 
-  double phi(double curvature, double radius) const;
-  double angle(double curvature, double radius) const;
+  float phi(float curvature, float radius) const;
+  float angle(float curvature, float radius) const;
 
-  Range operator()(Range curvature, double radius) const;
+  Range operator()(Range curvature, float radius) const;
 
   Range curvature(double transverseIP) const;
   double curvature(const Basic2DVector<double> &thirdPoint) const;
@@ -53,7 +53,8 @@ private:
   double invCenterOnAxis(const Basic2DVector<double> &thirdPoint) const;
 
   Basic2DVector<double> p1, center, axis;
-  double delta, delta2, theTolerance;
+  double delta, delta2;
+  float theTolerance;
 };
 
 #endif
