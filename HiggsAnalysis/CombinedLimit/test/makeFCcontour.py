@@ -30,14 +30,19 @@ class physicsPoint:
   
   def __init__(self,x):
     self.label = "x=%.2f, y=%.2f"%(x[0],x[1])
+    self.name  = "x=%.2f_y=%.2f"%(x[0],x[1])
     self.x = x[0]
     self.y = x[1]
     self.data = -9999.
     self.toys = []
     self.hasdata = False
+    self.savetoys = False
 
     self.nToysPass = 0 
     self.nToys     = 0
+
+  def save_toys(self):
+    self.savetoys=True
 
   def is_point(self,valx,valy):
     if 	abs(valx-self.x)>errLevel: return False 
@@ -48,10 +53,11 @@ class physicsPoint:
     return self.nToys
   
   def commit_toy(self,val):
-    if self.hasdata: 
+     if self.hasdata: 
         if val>self.data : self.nToysPass+=1
         self.nToys+=1
-    else : self.toys.append(val)
+        if self.savetoys: self.toys.append(val)
+     else : self.toys.append(val)
 
   def set_data(self,dat):
 
@@ -61,8 +67,10 @@ class physicsPoint:
     
     for v in self.toys: 
         if v>self.data: self.nToysPass+=1
-    self.nToys+=len(self.toys)
-    self.toys = [] # Clean up 
+    # Clean up unless we want to keep toys
+    if (not self.savetoys): 
+        self.nToys+=len(self.toys)
+	self.toys = []  
 
   def has_data(self):
     return self.hasdata
@@ -74,6 +82,13 @@ class physicsPoint:
     nToysPass = float(self.nToysPass)
     return int((nToysPass/self.nToys>=(1-cl)))
 
+  def histogramToys(self):
+    htoys = ROOT.TH1F("hToys_%s"%self.name,"hToys_%s"%self.name,100,0,10)
+    hdata = ROOT.TH1F("hData_%s"%self.name,"hData_%s"%self.name,1000,0,10)
+    for ty in self.toys: htoys.Fill(ty)
+    if self.has_data(): hdata.Fill(self.data)
+
+    return htoys.Clone(),hdata.Clone()
 
 def findStringValue(fullstr,substr):
   si = fullstr.find(substr)
@@ -119,6 +134,7 @@ def getPoints(tree,varx,vary):
 
     if not pointExists: 
       newPoint = physicsPoint([dumx,dumy])
+      if options.storeToys: newPoint.save_toys()
       newPoint.set_data(dataval)
       for tv in toys: 
 		newPoint.commit_toy(tv)
@@ -158,10 +174,10 @@ def mergePoints(original,appended):
           if po.is_point(p.x,p.y):
                pointexists=True
 
-               if p.has_data(): 
+               if p.has_data() and not options.storeToys: 
                  po.nToys+=p.nToys
                  po.nToysPass+=p.nToysPass
-                 po.set_data(p.data) # in po already has data, this wont do anything
+                 po.set_data(p.data) # if po already has data, this wont do anything
                else: 
                   for toy in p.toys: po.commit_toy(toy) # this will just do the right thing
                break
@@ -209,7 +225,7 @@ ROOT.gStyle.SetOptStat(0)
 from optparse import OptionParser
 parser = OptionParser()
 parser = OptionParser(usage="usage: %prog [options] files (or list of files) \nrun with --help to get list of options")
-parser.add_option("","--cl",dest="cl",default="",type='str',action='callback',callback=get_confs,help="Set Confidence Levels (comma separated) (eg 0.68 for 68%)")
+parser.add_option("","--cl",dest="cl",default=".68",type='str',action='callback',callback=get_confs,help="Set Confidence Levels (comma separated) (eg 0.68 for 68%)")
 parser.add_option("-x","--xvar",dest="xvar",default="",type='str',help="Name of branch for x-value")
 parser.add_option("-y","--yvar",dest="yvar",default="",type='str',help="Name of branch for y-value")
 parser.add_option("","--xrange",dest="xrange",default=(-9999.,-9999.),nargs=2,type='float',help="only pick points inside here")
@@ -218,6 +234,7 @@ parser.add_option("","--d1",dest="oned",default=False,action="store_true",help="
 parser.add_option("-o","--out",dest="out",default="plots2DFC.root",type='str',help="Output File for 2D histos/1D confidence scan")
 parser.add_option("-t","--tdir",dest="treename",default='toys',type=str,help="Name of TDirectory for toys inside grid files")
 parser.add_option("","--minToys",dest="minToys",default='-10',type=int,help="Minimum number of toys to accept a point")
+parser.add_option("","--storeToys",dest="storeToys",default=False,action="store_true",help="Keep histograms of the llr for toys (and the datavalue) in the output file (warning, increases run time)")
 
 
 (options,args)=parser.parse_args()
@@ -258,6 +275,12 @@ for fileName in allFiles:
   tFile.Close()
 
 outFile = ROOT.TFile(options.out ,"RECREATE")
+  
+# Do this first in 1D case otherwise points is overwritten
+if options.storeToys: 
+    for pt in points:
+	hty,hdt = pt.histogramToys() 
+	outFile.cd(); hty.Write(); hdt.Write()
 
 # For 1D /************************************************************************/
 if options.oned:
@@ -273,7 +296,7 @@ if options.oned:
     zval = pt[1]
     tgrX.SetPoint(pt_i,zval,xval)
     print "Found %d toys for point (%f)" % (numtoys[pt_i],xval)
-    
+  
     
   for c_i,confLevel in enumerate(confidenceLevels):
     lowcl,highcl = findInterval(values,confLevel)
@@ -347,6 +370,7 @@ else:
 
 outFile.Close()
 print "Created File ",outFile.GetName(), " containing confidance contours"
+if options.storeToys: print "Saved histograms of toys and data to file"
 # ---------------------------------------------------------------------//
 
 
