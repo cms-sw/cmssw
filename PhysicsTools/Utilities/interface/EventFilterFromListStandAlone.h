@@ -51,6 +51,7 @@ EventFilterFromListStandAlone::EventFilterFromListStandAlone(const std::string &
 {
   verbose_=false;
   minRunInFile=999999; maxRunInFile=1;
+  minrun_ = 0;  maxrun_ = 999999;
   if (verbose_) cout << "Event list from file "<<eventFileName<<endl;
   readEventListFile(eventFileName);
   std::sort(EventList_.begin(), EventList_.end());
