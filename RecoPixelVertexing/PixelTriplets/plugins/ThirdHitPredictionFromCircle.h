@@ -11,7 +11,9 @@
 class ThirdHitPredictionFromCircle {
 
 public:
+  using Scalar = float;
   typedef PixelRecoRange<float> Range;
+  typedef Basic2DVector<Scalar> Vector2D;
 
   ThirdHitPredictionFromCircle(const GlobalPoint & P1, const GlobalPoint & P2,
                                float tolerance);
@@ -22,14 +24,14 @@ public:
   Range operator()(Range curvature, float radius) const;
 
   Range curvature(double transverseIP) const;
-  double curvature(const Basic2DVector<double> &thirdPoint) const;
-  double transverseIP(const Basic2DVector<double> &thirdPoint) const;
+  double curvature(const  Vector2D &thirdPoint) const;
+  double transverseIP(const  Vector2D &thirdPoint) const;
 
   // like PixelRecoLineRZ, but makes use of the bending computation
   // from the circle fit to get an actual Helix propagation
   class HelixRZ {
     public:
-    typedef Basic2DVector<double> Point2D;
+    using Vector2D=ThirdHitPredictionFromCircle::Vector2D;
     
     HelixRZ() : circle(0) {}
     HelixRZ(const ThirdHitPredictionFromCircle *icircle,
@@ -43,17 +45,17 @@ public:
     
   private:
     const ThirdHitPredictionFromCircle *circle;
-    Point2D center;
+    Vector2D center;
     double curvature, radius, z1, seg, dzdu;
   };
 
 private:
   friend class HelixRZ;
 
-  double invCenterOnAxis(const Basic2DVector<double> &thirdPoint) const;
+  float invCenterOnAxis(const  Vector2D &thirdPoint) const;
 
-  Basic2DVector<double> p1, center, axis;
-  double delta, delta2;
+  Vector2D p1, center, axis;
+  float delta, delta2;
   float theTolerance;
 };
 

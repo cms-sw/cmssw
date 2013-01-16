@@ -11,8 +11,6 @@
 // there are tons of safety checks.
 // Try to move all of the out the regular control flow using gcc magic
 
-typedef Basic3DVector<double> Point3D;
-typedef Basic2DVector<double> Point2D;
 
 namespace {
   template<class T> inline T sqr(T t) { return t * t; }
@@ -27,11 +25,11 @@ ThirdHitPredictionFromCircle::ThirdHitPredictionFromCircle(
 	const GlobalPoint& P1, const GlobalPoint& P2, float tolerance)
   : p1(P1.x(), P1.y()), theTolerance(tolerance)
 {
-  Point2D p2(P2.x(), P2.y());
-  Point2D diff = 0.5 * (p2 - p1);
+  Vector2D p2(P2.x(), P2.y());
+  Vector2D diff = 0.5 * (p2 - p1);
   delta2 = diff.mag2();
   delta = std::sqrt(delta2);
-  axis = Point2D(-diff.y(), diff.x()) / delta;
+  axis = Vector2D(-diff.y(), diff.x()) / delta;
   center = p1 + diff;
 }
 
@@ -151,17 +149,17 @@ ThirdHitPredictionFromCircle::curvature(double transverseIP) const
                sgn(u2) / std::sqrt(sqr(u2) + delta2));
 }
 
-double ThirdHitPredictionFromCircle::invCenterOnAxis(const Point2D &p2) const
+float ThirdHitPredictionFromCircle::invCenterOnAxis(const Vector2D &p2) const
 {
-  Point2D delta = p2 - p1;
-  Point2D axis2 = Point2D(-delta.y(), delta.x()) / delta.mag();
-  Point2D diff = p1 + 0.5 * delta - center;
-  double a = diff.y() * axis2.x() - diff.x() * axis2.y();
-  double b = axis.y() * axis2.x() - axis.x() * axis2.y();
+  Vector2D del = p2 - p1;
+  Vector2D axis2 = Vector2D(-del.y(), del.x()) / del.mag();
+  Vector2D diff = p1 + 0.5f * del - center;
+  Scalar a = diff.y() * axis2.x() - diff.x() * axis2.y();
+  Scalar b = axis.y() * axis2.x() - axis.x() * axis2.y();
   return b / a;
 }
 
-double ThirdHitPredictionFromCircle::curvature(const Point2D &p2) const
+double ThirdHitPredictionFromCircle::curvature(const Vector2D &p2) const
 {
   double invDist = invCenterOnAxis(p2);
   double invDist2 = sqr(invDist);
@@ -169,7 +167,7 @@ double ThirdHitPredictionFromCircle::curvature(const Point2D &p2) const
   return sgn(invDist) * curv;
 }
 
-double ThirdHitPredictionFromCircle::transverseIP(const Point2D &p2) const
+double ThirdHitPredictionFromCircle::transverseIP(const Vector2D &p2) const
 {
   double invDist = invCenterOnAxis(p2);
   if (unlikely(std::abs(invDist) < 1.0e-5))
@@ -255,7 +253,7 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
   }
 
   // we won't go below that (see comment below)
-  double minR2 = (2. * circle->center - circle->p1).mag2();
+  float minR2 = (2. * circle->center - circle->p1).mag2();
 
   float phi =  curvature * (z - z1) / dzdu;
 
@@ -272,12 +270,12 @@ double ThirdHitPredictionFromCircle::HelixRZ::rAtZ(double z) const
     return std::sqrt(minR2);
   }
 
-  Point2D rel = circle->p1 - center;
+  Vector2D rel = circle->p1 - center;
 
   double c = std::cos(phi);
   double s = std::sin(phi);
 
-  Point2D p(center.x() + c * rel.x() - s * rel.y(),
+  Vector2D p(center.x() + c * rel.x() - s * rel.y(),
             center.y() + s * rel.x() + c * rel.y());
 
   return std::sqrt(std::max(minR2, p.mag2()));
