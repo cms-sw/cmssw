@@ -1,5 +1,7 @@
 #include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 
+#define _pPbRunFlip 999999999
+
 CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
    prevRun_(0),
    varType_(Missing)
@@ -38,7 +40,15 @@ CentralityProvider::CentralityProvider(const edm::EventSetup& iSetup) :
 void CentralityProvider::newEvent(const edm::Event& ev,const edm::EventSetup& iSetup){
    ev.getByLabel(tag_,chandle_);
    if(ev.id().run() == prevRun_) return;
+   if(prevRun_ < _pPbRunFlip && ev.id().run() >= _pPbRunFlip){
+     std::cout<<"Attention, the sides are flipped from this run on!"<<std::endl;
+     if(centralityVariable_.compare("HFtowersPlus") == 0) varType_ = HFtowersMinus;
+     if(centralityVariable_.compare("HFtowersMinus") == 0) varType_ = HFtowersPlus;
+     if(centralityVariable_.compare("HFtowersPlusTrunc") == 0) varType_ = HFtowersMinusTrunc;
+     if(centralityVariable_.compare("HFtowersMinusTrunc") == 0) varType_ = HFtowersPlusTrunc;
+   }
    prevRun_ = ev.id().run();
+
    newRun(iSetup);
 }
 
