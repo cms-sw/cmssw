@@ -341,6 +341,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
       }
     }
   }
+  // std::cout << "found triplets " << result.size() << std::endl;
 }
 
 bool PixelTripletLargeTipGenerator::checkPhiInRange(float phi, float phi1, float phi2) const
