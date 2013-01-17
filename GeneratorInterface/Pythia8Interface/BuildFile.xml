@@ -1,12 +1,11 @@
 <use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/Core"/>
-<use name="GeneratorInterface/PartonShowerVeto"/>
-<use name="GeneratorInterface/ExternalDecays"/>
 <use name="boost"/>
-<use name="clhep"/>
 <use name="pythia8"/>
-<use name="pydata"/>
-<flags EDM_PLUGIN="1"/>
+<use name="hepmc"/>
+<use name="clhep"/>
+<export>
+  <lib   name="1"/>
+</export>

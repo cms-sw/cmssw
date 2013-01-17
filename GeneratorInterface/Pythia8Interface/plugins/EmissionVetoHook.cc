@@ -1,4 +1,4 @@
-#include "GeneratorInterface/Pythia8Interface/interface/EmissionVetoHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 void EmissionVetoHook::fatalEmissionVeto(string message) {

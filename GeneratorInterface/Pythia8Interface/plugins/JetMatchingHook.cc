@@ -1,4 +1,4 @@
-#include "GeneratorInterface/Pythia8Interface/interface/JetMatchingHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingMadgraph.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -6,7 +6,7 @@
 //#include "HepMC/HEPEVT_Wrapper.h"
 #include <cassert>
 
-#include "GeneratorInterface/Pythia8Interface/interface/Py8toJetInput.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/Py8toJetInput.h"
 
 extern "C" {
 // this is patchup for Py6 common block because 

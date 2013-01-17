@@ -12,17 +12,17 @@
 
 #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
-#include "GeneratorInterface/Pythia8Interface/interface/ReweightUserHooks.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
 
 // PS matchning prototype
 //
-#include "GeneratorInterface/Pythia8Interface/interface/JetMatchingHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
 
 
 // Emission Veto Hooks
 //
-#include "GeneratorInterface/Pythia8Interface/interface/EmissionVetoHook.h"
-#include "GeneratorInterface/Pythia8Interface/interface/EmissionVetoHook1.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
