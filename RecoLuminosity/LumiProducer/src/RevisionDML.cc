@@ -13,6 +13,7 @@
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include <algorithm>
+#include <ctime>
 unsigned long long 
 lumi::RevisionDML::getEntryInBranchByName(coral::ISchema& schema,
 					  const std::string& datatableName,
@@ -139,9 +140,19 @@ lumi::RevisionDML::insertLumiRunData(coral::ISchema& schema,
   lumirundata["RUNNUM"].data<unsigned int>()=lumientry.runnumber;
   lumirundata["SOURCE"].data<std::string>()=lumientry.source;
   lumirundata["NOMINALEGEV"].data<float>()=lumientry.bgev;
+  
   lumirundata["NCOLLIDINGBUNCHES"].data<unsigned int>()=lumientry.ncollidingbunches;
-  const std::string lumidataTableName=lumi::LumiNames::lumidataTableName();
-  schema.tableHandle(lumidataTableName).dataEditor().insertRow(lumirundata);
+  time_t secEpochStart=static_cast<time_t>(lumientry.startts);
+  boost::posix_time::ptime pts=boost::posix_time::from_time_t(secEpochStart);
+  coral::TimeStamp startT(pts);
+  time_t secEpochStop=static_cast<time_t>(lumientry.stopts);
+  pts=boost::posix_time::from_time_t(secEpochStop);
+  coral::TimeStamp stopT(pts);
+  lumirundata["STARTTIME"].data<coral::TimeStamp>()=startT;
+  lumirundata["STOPTIME"].data<coral::TimeStamp>()=stopT;
+  lumirundata["NLS"].data<unsigned int>()=lumientry.nls;
+  //const std::string lumidataTableName=lumi::LumiNames::lumidataTableName();
+  schema.tableHandle(lumi::LumiNames::lumidataTableName()).dataEditor().insertRow(lumirundata);
 }
 void 
 lumi::RevisionDML::insertTrgRunData(coral::ISchema& schema,
