@@ -1,5 +1,5 @@
 
-// $Id: MixBoostEvtVtxGenerator.cc,v 1.2 2013/01/11 16:08:00 yilmaz Exp $
+// $Id: MixBoostEvtVtxGenerator.cc,v 1.3 2013/01/12 13:17:49 yilmaz Exp $
 /*
 ________________________________________________________________________
 
@@ -339,8 +339,8 @@ void MixBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
  
   HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
  
-  //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
-  //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
+  HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
+  HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
   
   // OK, create a (pseudo)product and put in into edm::Event
   //
