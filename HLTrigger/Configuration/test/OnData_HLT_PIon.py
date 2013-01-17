@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V94 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V95 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V94')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V95')
 )
 
 process.streams = cms.PSet( 
@@ -160,6 +160,8 @@ process.datasets = cms.PSet(
     'HLT_PASingleForJet15_v1',
     'HLT_PASingleForJet25_v1',
     'HLT_PAT1minbias_Tech55_v1',
+    'HLT_PATech35_HFSumET100_v1',
+    'HLT_PATech35_v1',
     'HLT_PATripleJet100_20_20_v1',
     'HLT_PATripleJet20_20_20_v1',
     'HLT_PATripleJet40_20_20_v1',
@@ -296,6 +298,8 @@ process.datasets = cms.PSet(
     'HLT_PASingleForJet15_v1',
     'HLT_PASingleForJet25_v1',
     'HLT_PAT1minbias_Tech55_v1',
+    'HLT_PATech35_HFSumET100_v1',
+    'HLT_PATech35_v1',
     'HLT_PATripleJet100_20_20_v1',
     'HLT_PATripleJet20_20_20_v1',
     'HLT_PATripleJet40_20_20_v1',
@@ -430,6 +434,8 @@ process.datasets = cms.PSet(
     'HLT_PASingleForJet15_v1',
     'HLT_PASingleForJet25_v1',
     'HLT_PAT1minbias_Tech55_v1',
+    'HLT_PATech35_HFSumET100_v1',
+    'HLT_PATech35_v1',
     'HLT_PATripleJet100_20_20_v1',
     'HLT_PATripleJet20_20_20_v1',
     'HLT_PATripleJet40_20_20_v1',
@@ -513,6 +519,8 @@ process.datasets = cms.PSet(
     'HLT_PASingleEle6_CaloIdNone_TrkIdVL_v1',
     'HLT_PASingleEle6_CaloIdT_TrkIdVL_v1',
     'HLT_PASingleEle8_CaloIdNone_TrkIdVL_v1',
+    'HLT_PATech35_HFSumET100_v1',
+    'HLT_PATech35_v1',
     'HLT_PATripleJet100_20_20_v1',
     'HLT_PATripleJet20_20_20_v1',
     'HLT_PATripleJet40_20_20_v1',
@@ -4681,6 +4689,12 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PPPixelTrackMultiplicity70_FullTrack12_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PATech35_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PATech35_HFSumET100_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PAHFSumET100_v1" ),
@@ -14195,7 +14209,23 @@ process.hltPrePPPixelTrackMultiplicity70FullTrack12 = cms.EDFilter( "HLTPrescale
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltPrePAHFSumET100 = cms.EDFilter( "HLTPrescaler",
+process.hltL1sPATech35 = cms.EDFilter( "HLTLevel1GTSeed",
+    saveTags = cms.bool( True ),
+    L1SeedsLogicalExpression = cms.string( "35" ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1NrBxInEvent = cms.int32( 3 ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1TechTriggerSeeding = cms.bool( True )
+)
+process.hltPrePATech35 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPrePATech35HFSumET100 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -14333,6 +14363,10 @@ process.hlt1PAVertexFilter = cms.EDFilter( "HLTVertexFilter",
     inputTag = cms.InputTag( "hltPAPixelVerticesForHighMult" ),
     minNDoF = cms.double( 3.0 ),
     maxD0 = cms.double( 0.5 )
+)
+process.hltPrePAHFSumET100 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
 )
 process.hltPrePAHFSumET140 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -15937,6 +15971,8 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_PPPixelTracks_Multiplicity85_v1',
       'HLT_PPPixelTrackMultiplicity55_FullTrack12_v1',
       'HLT_PPPixelTrackMultiplicity70_FullTrack12_v1',
+      'HLT_PATech35_v1',
+      'HLT_PATech35_HFSumET100_v1',
       'HLT_PAHFSumET100_v1',
       'HLT_PAHFSumET140_v1',
       'HLT_PAHFSumET170_v1',
@@ -16076,6 +16112,8 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_PPPixelTracks_Multiplicity85_v1',
       'HLT_PPPixelTrackMultiplicity55_FullTrack12_v1',
       'HLT_PPPixelTrackMultiplicity70_FullTrack12_v1',
+      'HLT_PATech35_v1',
+      'HLT_PATech35_HFSumET100_v1',
       'HLT_PAHFSumET100_v1',
       'HLT_PAHFSumET140_v1',
       'HLT_PAHFSumET170_v1',
@@ -16254,6 +16292,8 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PASingleForJet15_v1',
   'HLT_PASingleForJet25_v1',
   'HLT_PAT1minbias_Tech55_v1',
+  'HLT_PATech35_HFSumET100_v1',
+  'HLT_PATech35_v1',
   'HLT_PATripleJet100_20_20_v1',
   'HLT_PATripleJet20_20_20_v1',
   'HLT_PATripleJet40_20_20_v1',
@@ -16470,6 +16510,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PASingleForJet15_v1',
   'HLT_PASingleForJet25_v1',
   'HLT_PAT1minbias_Tech55_v1',
+  'HLT_PATech35_HFSumET100_v1',
+  'HLT_PATech35_v1',
   'HLT_PATripleJet100_20_20_v1',
   'HLT_PATripleJet20_20_20_v1',
   'HLT_PATripleJet40_20_20_v1',
@@ -16622,6 +16664,8 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_PASingleForJet15_v1',
   'HLT_PASingleForJet25_v1',
   'HLT_PAT1minbias_Tech55_v1',
+  'HLT_PATech35_HFSumET100_v1',
+  'HLT_PATech35_v1',
   'HLT_PATripleJet100_20_20_v1',
   'HLT_PATripleJet20_20_20_v1',
   'HLT_PATripleJet40_20_20_v1',
@@ -16763,6 +16807,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PASingleForJet15_v1',
   'HLT_PASingleForJet25_v1',
   'HLT_PAT1minbias_Tech55_v1',
+  'HLT_PATech35_HFSumET100_v1',
+  'HLT_PATech35_v1',
   'HLT_PATripleJet100_20_20_v1',
   'HLT_PATripleJet20_20_20_v1',
   'HLT_PATripleJet40_20_20_v1',
@@ -17054,6 +17100,8 @@ process.HLT_PPPixelTracks_Multiplicity70_v1 = cms.Path( process.HLTBeginSequence
 process.HLT_PPPixelTracks_Multiplicity85_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePPPixelTracksMultiplicity85 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult85 + process.HLTEndSequence )
 process.HLT_PPPixelTrackMultiplicity55_FullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePPPixelTrackMultiplicity55FullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult55 + process.HLTRecoJetSequencePrePF + process.HLTDoLocalStripSequence + process.HLTIterativeTrackingForPA + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
 process.HLT_PPPixelTrackMultiplicity70_FullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePPPixelTrackMultiplicity70FullTrack12 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult70 + process.HLTRecoJetSequencePrePF + process.HLTDoLocalStripSequence + process.HLTIterativeTrackingForPA + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack12 + process.HLTEndSequence )
+process.HLT_PATech35_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sPATech35 + process.hltPrePATech35 + process.HLTEndSequence )
+process.HLT_PATech35_HFSumET100_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sPATech35 + process.hltPrePATech35HFSumET100 + process.HLTDoLocalHfSequence + process.hltPAMetForHf + process.hltGlobalSumETHfFilter100 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + ~process.hlt1PAVertexFilter + process.HLTEndSequence )
 process.HLT_PAHFSumET100_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePAHFSumET100 + process.HLTDoLocalHfSequence + process.hltPAMetForHf + process.hltGlobalSumETHfFilter100 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + ~process.hlt1PAVertexFilter + process.HLTEndSequence )
 process.HLT_PAHFSumET140_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePAHFSumET140 + process.HLTDoLocalHfSequence + process.hltPAMetForHf + process.hltGlobalSumETHfFilter140 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + ~process.hlt1PAVertexFilter + process.HLTEndSequence )
 process.HLT_PAHFSumET170_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePAHFSumET170 + process.HLTDoLocalHfSequence + process.hltPAMetForHf + process.hltGlobalSumETHfFilter170 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + ~process.hlt1PAVertexFilter + process.HLTEndSequence )

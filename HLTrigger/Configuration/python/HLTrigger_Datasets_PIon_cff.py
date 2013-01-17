@@ -122,6 +122,8 @@ streamA_datasetPAHighPt_selector.triggerConditions = cms.vstring('HLT_PADoubleEl
     'HLT_PASingleEle6_CaloIdNone_TrkIdVL_v1', 
     'HLT_PASingleEle6_CaloIdT_TrkIdVL_v1', 
     'HLT_PASingleEle8_CaloIdNone_TrkIdVL_v1', 
+    'HLT_PATech35_HFSumET100_v1', 
+    'HLT_PATech35_v1', 
     'HLT_PATripleJet100_20_20_v1', 
     'HLT_PATripleJet20_20_20_v1', 
     'HLT_PATripleJet40_20_20_v1', 
