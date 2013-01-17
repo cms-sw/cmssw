@@ -1975,6 +1975,15 @@ void Optimize(string InputPattern, string Data, string signal, bool shape, bool 
    TH1D* TotalE        = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalE" );
    TH1D* TotalEPU      = (TH1D*)GetObjectFromPath(InputFile, samples[CurrentSampleIndex].Name + "/TotalEPU" );
 
+   if(TypeMode==3) {
+     //Need to add in systematic uncertainty of NPred, can't do it later because it comes from two different sources that have different uncertainties
+     TH1D* H_P_Coll           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_P_Coll");
+     TH1D* H_P_Cosmic           = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_P_Cosmic");
+     for(int i=0; i<H_P->GetNbinsX()+2; i++) {
+       H_P->SetBinError(i, sqrt(H_P->GetBinError(i)*H_P->GetBinError(i) + H_P_Coll->GetBinContent(i)*0.2*H_P_Coll->GetBinContent(i)*0.2 + H_P_Cosmic->GetBinContent(i)*0.8*H_P_Cosmic->GetBinContent(i)*0.8));
+     }
+   }
+
    //If Take the cuts From File --> Load the actual cut index
    int OptimCutIndex = -1;  //int OptimMassWindow;
    if(cutFromFile){
