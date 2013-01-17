@@ -7,3 +7,8 @@
  <use   name="Geometry/Records"/>
  <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="HcalGeometryDetIdAnalyzer.cc" name="testHcalGeometryDetIdESProducer">
+ <use   name="FWCore/Framework"/>
+ <use   name="Geometry/Records"/>
+ <flags   EDM_PLUGIN="1"/>
+</library>
