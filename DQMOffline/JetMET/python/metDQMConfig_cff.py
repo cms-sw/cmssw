@@ -51,7 +51,7 @@ metDQMParameters = cms.PSet(
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_highmet' ),
-        hltPaths       = cms.vstring( 'HLT_MET400_v*', 'HLT_PAJet40ETM30_v','HLT_PAJet60ETM30_v' ), 
+        hltPaths       = cms.vstring( 'HLT_MET400_v*', 'HLT_PAJet40ETM30_v*','HLT_PAJet60ETM30_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
