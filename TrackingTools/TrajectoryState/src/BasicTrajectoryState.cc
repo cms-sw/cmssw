@@ -10,6 +10,22 @@
 #include <cmath>
 #include<sstream>
 
+unsigned int BasicTrajectoryState::maxReferences=0;
+BasicTrajectoryState::~BasicTrajectoryState(){
+  maxReferences = std::max(referenceMax_, maxReferences);
+}
+
+#include<iostream>
+namespace {
+
+  struct Printer{
+    ~Printer() {
+      std::cout << "maxReferences of BasicTrajectoryState = " << BasicTrajectoryState::maxReferences << std::endl;
+    }
+  };
+  Printer printer;
+
+}
 
 namespace {
   inline
@@ -156,7 +172,6 @@ BasicTrajectoryState(const Surface& aSurface) :
 {}
 
 
-BasicTrajectoryState::~BasicTrajectoryState(){}
 
 void BasicTrajectoryState::notValid() {
   throw TrajectoryStateException("TrajectoryStateOnSurface is invalid and cannot return any parameters");

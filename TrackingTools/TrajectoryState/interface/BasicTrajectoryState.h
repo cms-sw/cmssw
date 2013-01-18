@@ -44,7 +44,26 @@ class TrajectoryStateOnSurface;
  * VI 8/12/2011   content of BasicSingleTrajectoryState moved here....
  * fully devirtualized
  */
-class BasicTrajectoryState : public ReferenceCountedInEvent  {
+class BasicTrajectoryState  {
+public:
+  static unsigned int  maxReferences;
+  void addReference() const { ++referenceCount_ ; referenceMax_ = std::max(referenceMax_, referenceCount_); }
+  void removeReference() const { 
+    if( 0 == --referenceCount_ ) {
+      delete const_cast<BasicTrajectoryState*>(this);
+    }
+  }
+  
+  unsigned int references() const {return referenceCount_;}
+private :
+#ifndef CMS_NOCXX11
+  mutable unsigned int referenceCount_;
+  mutable unsigned int referenceMax_;
+#else
+  mutable unsigned int referenceCount_=0;
+  mutable unsigned int referenceMax_ =0;
+#endif
+  
 public:
 
   typedef BasicTrajectoryState                              BTSOS;
