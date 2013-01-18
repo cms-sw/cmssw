@@ -41,7 +41,7 @@ private:
 
   GEMSynchronizer* sync_;
   double averageEfficiency_;
-  double averageShapingTime_;
+  double averageTimingOffset_;
   double averageNoiseRate_;
   int    nbxing_;
   double rate_;
