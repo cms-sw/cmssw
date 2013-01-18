@@ -1,5 +1,5 @@
 
-// $Id: MixBoostEvtVtxGenerator.cc,v 1.3 2013/01/12 13:17:49 yilmaz Exp $
+// $Id: MixBoostEvtVtxGenerator.cc,v 1.4 2013/01/17 19:59:54 yilmaz Exp $
 /*
 ________________________________________________________________________
 
@@ -131,6 +131,15 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
   vtxOffset.resize(3);
   if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset"); 
   //  edm::Service<edm::RandomNumberGenerator> rng;
+
+  beta_  =  pset.getParameter<double>("Beta");
+
+  alpha_ = 0;
+  phi_ = 0;
+  if(pset.exists("Alpha")){
+    alpha_ =  pset.getParameter<double>("Alpha")*radian;
+    phi_   =  pset.getParameter<double>("Phi")*radian;
+  }
 
   /*
   if ( 0 && ! rng.isAvailable()) {
