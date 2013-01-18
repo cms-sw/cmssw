@@ -26,13 +26,16 @@
 #include <vector>
 #include <queue>
 #include <semaphore.h>
+//#include <pthread.h>
+#include <mutex>
+#include <atomic>
 
 namespace evf {
 
 /**
  * Base class for methods (types) of IPC. Subclasses: FUResourceTable, FUResourceQueue.
  *
- * $Author: aspataru $
+ * $Author: smorovic $
  *
  */
 
@@ -133,6 +136,11 @@ public:
 	void dumpEvent(evf::FUShmRawCell* cell);
 
 	/**
+	 * Print debugging status.
+	 */
+	virtual std::string printStatus();
+
+	/**
 	 * Has to be implemented by subclasses, according to IPC type.
 	 */
 	virtual void shutDownClients() = 0;
@@ -183,6 +191,14 @@ public:
 		isReadyToShutDown_ = readyValue;
 	}
 
+	UInt_t shutdownStatus() {
+		return shutdownStatus_;
+	}
+
+	void setStopFlag(bool status) {
+		stopFlag_=status;
+	}
+
 	// various counters
 	virtual UInt_t nbResources() const = 0; /* Implemented in subclass */
 	UInt_t nbFreeSlots() const {
@@ -209,7 +225,7 @@ public:
 	UInt_t nbPendingSMDiscards() const {
 		return nbPendingSMDiscards_;
 	}
-	UInt_t nbPendingSMDqmDiscards() const {
+	int nbPendingSMDqmDiscards() const {
 		return nbPendingSMDqmDiscards_;
 	}
 	UInt_t nbDiscarded() const {
@@ -299,7 +315,17 @@ public:
 		//lock_.give();
 		sem_post(&lock_);
 	}
+        #ifdef linux
+	std::unique_lock<std::timed_mutex> lockCrashHandler() {
+		std::unique_lock<std::timed_mutex> lk(crashHandlerLock_);
+		return lk;
+	}
 
+	std::unique_lock<std::timed_mutex> lockCrashHandlerTimed(unsigned int seconds) {
+		std::unique_lock<std::timed_mutex> lk(crashHandlerLock_,std::chrono::seconds(seconds));
+		return lk;
+	}
+        #endif
 	/**
 	 * Has to be implemented by subclasses, according to IPC type.
 	 */
@@ -337,7 +363,7 @@ protected:
 	UInt_t nbSentError_;
 	UInt_t nbSentDqm_;
 	UInt_t nbPendingSMDiscards_;
-	UInt_t nbPendingSMDqmDiscards_;
+	std::atomic<int> nbPendingSMDqmDiscards_;
 	UInt_t nbDiscarded_;
 	UInt_t nbLost_;
 	// UPDATED
@@ -358,10 +384,16 @@ protected:
 	UInt_t runNumber_;
 
 	sem_t lock_;
+        #ifdef linux
+	std::timed_mutex crashHandlerLock_;
+        #endif
 	EvffedFillerRB *frb_;
 	xdaq::Application *app_;
 
 	FUResourceVec_t resources_;
+
+	UInt_t shutdownStatus_;
+	bool stopFlag_;
 
 };
 

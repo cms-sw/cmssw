@@ -359,12 +359,18 @@ ora::Object ora::Database::fetchItemByName( const std::string& name ){
 
 bool ora::Database::getNamesForObject( const ora::OId& oid, 
                                        std::vector<std::string>& destination ){
-  open();
+  checkTransaction();
+  if( !m_impl->m_session->exists() ){
+    throwException("Database does not exists in \""+m_impl->m_session->connectionString()+"\"","Database::getNamesForObject");
+  }
   return m_impl->m_session->getNamesForObject( oid.containerId(), oid.itemId(), destination );
 }
 
 bool ora::Database::listObjectNames( std::vector<std::string>& destination ){
-  open();
+  checkTransaction();
+  if( !m_impl->m_session->exists() ){
+    throwException("Database does not exists in \""+m_impl->m_session->connectionString()+"\"","Database::listObjectNames");
+  }
   return m_impl->m_session->listObjectNames( destination );
 }
 

@@ -35,7 +35,7 @@ int cond::DeleteIOVUtilities::execute(){
   std::string tag = getOptionValue<std::string>("tag");
   bool withPayload = hasOptionValue("withPayload");
   bool onlyTag = hasOptionValue("onlyTag");
-  cond::DbSession rdbms = openDbSession( "connect" , Auth::COND_WRITER_ROLE );
+  cond::DbSession rdbms = openDbSession( "connect" , Auth::COND_ADMIN_ROLE );
 
   cond::DbScopedTransaction transaction( rdbms );
   transaction.start(false);

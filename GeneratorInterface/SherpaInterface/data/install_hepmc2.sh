@@ -192,6 +192,10 @@ if [ ! -d ${HEPMC2IDIR} ]; then
   tar -xzf ${HEPMC2FILE}
   rm ${HEPMC2FILE}
   cd ${HEPMC2DIR}
+  if [ ! -e configure ]; then
+    ./bootstrap
+  fi
+
   echo " -> configuring HepMC2 with options "${COPTS}
   ./configure --prefix=${HEPMC2IDIR} ${momflag} ${lenflag} ${COPTS}
   echo " -> making HepMC2 with options "${POPTS} ${MOPTS}

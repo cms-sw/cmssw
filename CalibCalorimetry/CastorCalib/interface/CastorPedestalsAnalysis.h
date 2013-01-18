@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
@@ -106,6 +107,8 @@ class CastorPedestalsAnalysis : public edm::EDAnalyzer
 
    TFile *theFile;
    bool firsttime;
+
+   edm::InputTag castorDigiCollectionTag;
 };
 #endif
 

@@ -120,7 +120,10 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
                   }
                   else
                   {
-                     l1PrescaleCorrection = averageRefPrescaleL1[k];
+		    // JH
+		    // l1PrescaleCorrection = averageRefPrescaleL1[k];
+		    l1PrescaleCorrection = 1.0;
+		    // end JH
                      tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
                   }
                }
@@ -286,7 +289,10 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu)
                   }
                   else
                   {
-                     l1PrescaleCorrection = averageRefPrescaleL1[k];
+		    // JH
+		    l1PrescaleCorrection = 1.0;
+                    // l1PrescaleCorrection = averageRefPrescaleL1[k];
+		    // end JH
                      tempTrigSeedPrescales += (itmp[j]*l1PrescaleCorrection);
                   }
                }

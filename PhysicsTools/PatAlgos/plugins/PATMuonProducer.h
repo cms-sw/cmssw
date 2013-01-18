@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.27 2010/09/14 15:20:20 kukartse Exp $
+// $Id: PATMuonProducer.h,v 1.29 2012/08/22 15:02:52 bellan Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::Muon.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.27 2010/09/14 15:20:20 kukartse Exp $
+  \version  $Id: PATMuonProducer.h,v 1.29 2012/08/22 15:02:52 bellan Exp $
 */
 
 #include <string>
@@ -72,7 +72,7 @@ namespace pat {
     // embed various impact parameters with errors
     // embed high level selection
     void embedHighLevel( pat::Muon & aMuon,
-			 reco::TrackRef innerTrack,
+			 reco::TrackRef track,
 			 reco::TransientTrack & tt,
 			 reco::Vertex & primaryVertex,
 			 bool primaryVertexIsValid,
@@ -83,6 +83,9 @@ namespace pat {
   private:
     /// input source
     edm::InputTag muonSrc_;
+
+    /// embed the track from best muon measurement
+    bool embedBestTrack_;
     /// embed the track from inner tracker into the muon
     bool embedTrack_;
     /// embed track from muon system into the muon

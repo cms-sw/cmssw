@@ -1,11 +1,6 @@
 <bin   name="testFeldmanCousinsBinomial.exe" file="testFeldmanCousinsBinomial.cpp">
   <use   name="PhysicsTools/RooStatsCms"/>
 </bin>
-<bin   name="testTEfficiency.exe" file="testTEfficiency.cpp">
-</bin>
-<bin   name="binomialCalculator.exe" file="binomialCalculator.cpp">
-  <use   name="PhysicsTools/RooStatsCms"/>
-</bin>
 <bin   name="testCrabToyMC.exe" file="testCrabToyMC.cpp">
   <use   name="boost_program_options"/>
 </bin>

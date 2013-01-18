@@ -3,8 +3,8 @@
  *  This class is an EDFilter implementing the following requirement:
  *  the number of caltowers with hadEnergy>E_Thr less than N_Thr for HB/HE/HF sperately.
  *
- *  $Date: 2011/05/01 14:38:24 $
- *  $Revision: 1.6 $
+ *  $Date: 2012/01/21 15:00:21 $
+ *  $Revision: 1.7 $
  *
  *  \author Li Wenbo (PKU)
  *
@@ -31,6 +31,9 @@ private:
   int max_N_HB_;              // maximum number for HB
   int max_N_HE_;              // maximum number for HB
   int max_N_HF_;              // maximum number for HB
+  int min_N_HF_;              // minimum number for HB
+  int min_N_HFM_;             // minimum number for HB-
+  int min_N_HFP_;             // minimum number for HB+
 };
 
 #include <memory>
@@ -52,8 +55,22 @@ HLTHcalTowerFilter::HLTHcalTowerFilter(const edm::ParameterSet& config) : HLTFil
   min_E_HF_ (config.getParameter<double>       ("MinE_HF")),
   max_N_HB_ (config.getParameter<int>          ("MaxN_HB")),
   max_N_HE_ (config.getParameter<int>          ("MaxN_HE")),
-  max_N_HF_ (config.getParameter<int>          ("MaxN_HF"))
+  max_N_HF_ (config.getParameter<int>          ("MaxN_HF")),
+  min_N_HF_ (-1),
+  min_N_HFM_ (-1),
+  min_N_HFP_ (-1)
 {
+
+  if (config.existsAs<int>("MinN_HF")){
+    min_N_HF_=config.getParameter<int>("MinN_HF");
+  }
+  if (config.existsAs<int>("MinN_HFM")){
+    min_N_HFM_=config.getParameter<int>("MinN_HFM");
+  }
+  if (config.existsAs<int>("MinN_HFP")){
+    min_N_HFP_=config.getParameter<int>("MinN_HFP");
+  }
+
 }
 
 HLTHcalTowerFilter::~HLTHcalTowerFilter()
@@ -84,10 +101,14 @@ HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
   int n_HB = 0;
   int n_HE = 0;
   int n_HF = 0;
-  double abseta = 0;
+  int n_HFM = 0;
+  int n_HFP = 0;
+  double abseta = 0.0;
+  double eta = 0.0;
   for(CaloTowerCollection::const_iterator i = towers->begin(); i != towers->end(); ++i) 
     {
-      abseta = fabs(i->eta());
+      eta    = i->eta();
+      abseta = std::abs(eta);
       if(abseta<1.305)
 	{
 	  if(i->hadEnergy() >= min_E_HB_) 
@@ -113,12 +134,13 @@ HLTHcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 	      n_HF++;
 	      //edm::Ref<CaloTowerCollection> ref(towers, std::distance(towers->begin(), i));
 	      //filterproduct.addObject(TriggerJet, ref);
+	      if(eta >= 3) { n_HFP++; } else { n_HFM++; }
 	    }
 	}
     }
 
   // filter decision
-  bool accept(n_HB<max_N_HB_ && n_HE<max_N_HE_ && n_HF<max_N_HF_ );
+  bool accept(n_HB<max_N_HB_ && n_HE<max_N_HE_ && n_HF<max_N_HF_ && n_HFP>=min_N_HFP_ && n_HFM>=min_N_HFM_ && n_HF>=min_N_HF_);
 
   return accept;
 }

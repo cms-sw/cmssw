@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Nov 25 15:50:50 CET 2008
-// $Id: TestPerformanceFW_ES_TFormula.cc,v 1.1 2012/02/15 21:34:17 msegala Exp $
+// $Id: TestPerformanceFW_ES_TFormula.cc,v 1.2 2012/02/17 22:57:11 msegala Exp $
 //
 //
 
@@ -120,9 +120,9 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
 
   
   p.insert(BinningVariables::JetEta,0.6);
-  p.insert(BinningVariables::Discriminator,2.3);
+  p.insert(BinningVariables::Discriminator,0.23);
 
-  std::cout <<" test eta=0.6, discrim = 0.3"<<std::endl;
+  std::cout <<" test eta=0.6, discrim = 0.23"<<std::endl;
   std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
   std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
   std::cout <<" bSF/bFSerr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
@@ -131,11 +131,11 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
   std::cout << std::endl;
 
   p.insert(BinningVariables::JetEta,1.8);
-  p.insert(BinningVariables::Discriminator,5.3);
+  p.insert(BinningVariables::Discriminator,0.53);
 
   std::cout <<" NEW POINT "<<std::endl;
 
-  std::cout <<" test eta=1.8, discrim = 0.3"<<std::endl;
+  std::cout <<" test eta=1.8, discrim = 0.53"<<std::endl;
   std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
   std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
   std::cout <<" bSF/bFSerr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
@@ -143,7 +143,7 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
 
   
   p.insert(BinningVariables::JetEta,0.8);
-  p.insert(BinningVariables::Discriminator,16.4);
+  p.insert(BinningVariables::Discriminator,3.4);
   
   std::cout << std::endl;
 
@@ -185,26 +185,26 @@ TestPerformanceFW_ES_TFormula::analyze(const edm::Event& iEvent, const edm::Even
   std::cout <<" test eta=0.6, et=55"<<std::endl;
   p.insert(BinningVariables::JetEta,0.6);
   p.insert(BinningVariables::JetEt,55);
-  std::cout <<" bSF/bSFerr ?"<<perf.isResultOk(PerformanceResult::BTAGLEFFCORR,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGLERRCORR,p)<<std::endl;
-  std::cout <<" bSF/bSFerr ="<<perf.getResult(PerformanceResult::BTAGLEFFCORR,p)<<"/"<<perf.getResult(PerformanceResult::BTAGLERRCORR,p)<<std::endl;
-  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGLEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGLERR,p)<<std::endl;
-  std::cout <<" bSF/bSFerr ="<<perf.getResult(PerformanceResult::BTAGLEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGLERR,p)<<std::endl;
-  */
+  std::cout <<" bSF/bSFerr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
+  std::cout <<" bSF/bSFerr ="<<perf.getResult(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
+  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERR,p)<<std::endl;
+  std::cout <<" bSF/bSFerr ="<<perf.getResult(PerformanceResult::BTAGBEFF,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERR,p)<<std::endl;
+  
 
 
-  /*
+  
   std::cout <<" test eta=1.9, et=33"<<std::endl;
   p.insert(BinningVariables::JetEta,1.9);
   p.insert(BinningVariables::JetEt,33);
-  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGLEFFCORR,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGLERRCORR,p)<<std::endl;
-  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGLEFFCORR,p)<<"/"<<perf.getResult(PerformanceResult::BTAGLERRCORR,p)<<std::endl;
+  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
+  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
 
 
   std::cout <<" test eta=0.2, et=433"<<std::endl;
   p.insert(BinningVariables::JetEta,0.9);
   p.insert(BinningVariables::JetEt,433);
-  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGLEFFCORR,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGLERRCORR,p)<<std::endl;
-  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGLEFFCORR,p)<<"/"<<perf.getResult(PerformanceResult::BTAGLERRCORR,p)<<std::endl;
+  std::cout <<" beff/berr ?"<<perf.isResultOk(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.isResultOk(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
+  std::cout <<" beff/berr ="<<perf.getResult(PerformanceResult::BTAGBEFFCORR,p)<<"/"<<perf.getResult(PerformanceResult::BTAGBERRCORR,p)<<std::endl;
   */
 
   
