@@ -904,7 +904,6 @@ class RunMEtUncertainties(ConfigToolBase):
         lastUncorrectedJetCollectionForPFMEtByMVA = 'ak5PFJets'
         lastCorrectedJetCollectionForPFMEtByMVA = 'calibratedAK5PFJetsForPFMEtMVA'
         if postfix != "":
-            print "===============> gloubiboulga"
             configtools.cloneProcessingSnippet(process, process.pfMEtMVAsequence, postfix)
             lastCorrectedJetCollectionForPFMEtByMVA += postfix
 
@@ -1116,18 +1115,14 @@ class RunMEtUncertainties(ConfigToolBase):
             return
 
         if not hasattr(process, "noPileUpPFMEt"):
-            print "youlapi !!!!!!!!!!!!!!!!!!!!!!", hasattr(process, "noPileUpPFMEt")
             process.load("JetMETCorrections.METPUSubtraction.noPileUpPFMET_cff")
-        #    from JetMETCorrections.METPUSubtraction.noPileUpPFMET_cff import *
-            print "youlapa !!!!!!!!!!!!!!!!!!!!!!", hasattr(process, "noPileUpPFMEt")
-           # process.noPileUpPFMEtSequenceTest = process.noPileUpPFMEtSequence.copy()
 
         lastUncorrectedJetCollectionForNoPileUpPFMEt = 'ak5PFJets'
         lastCorrectedJetCollectionForNoPileUpPFMEt = 'calibratedAK5PFJetsForNoPileUpMEt'
         if postfix != "":
-            configtools.cloneProcessingSnippet(process, process.noPileUpPFMEtSequence, postfix) #process.noPileUpPFMEtSequence
+            configtools.cloneProcessingSnippet(process, process.noPileUpPFMEtSequence, postfix)
             lastCorrectedJetCollectionForNoPileUpPFMEt+= postfix
-            print "galablu"
+            
                 
         if doSmearJets:
             process.load("RecoJets.Configuration.GenJetParticles_cff")
