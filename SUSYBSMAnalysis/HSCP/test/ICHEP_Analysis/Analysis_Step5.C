@@ -104,6 +104,7 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
 
    InputPattern = "Results/Type3/";   CutIndex = 96; CutIndex_Flip=54;
+   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    Make2DPlot_Core(InputPattern, 0);
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
@@ -816,11 +817,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
      delete Histos[0]; delete Histos[1];
      delete c1;
    }
-   if(TypeMode==0 || TypeMode==4 || TypeMode==5){  
-      TH1D* HCuts_Pt              = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
-      TH1D* HCuts_I               = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
-      TH1D* HCuts_TOF             = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
-
+   if(TypeMode==0 || TypeMode==3 || TypeMode==4 || TypeMode==5){  
       for(int S=0;S<2;S++){
    	 if(TypeMode==0 && S>0)continue;
 
@@ -828,6 +825,9 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          if(S==1)suffix = "_Flip";
          TH1D* H_D                   = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_D"+suffix);
          TH1D* H_P                   = (TH1D*)GetObjectFromPath(InputFile, Data+"/H_P"+suffix);
+	 TH1D* HCuts_TOF             = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF"+suffix);
+	 TH1D* HCuts_Pt              = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt"+suffix);
+	 TH1D* HCuts_I               = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I"+suffix);
 
          std::map<std::pair<float, float>, TGraphErrors*> mapPred;
          std::map<std::pair<float, float>, TGraphErrors*> mapObs;
@@ -835,62 +835,92 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
 
          double max = 1; double min = 1000;
          double xmin=100; double xmax=0;
+	 double binZero=-8, binOne=-1;
+
          for(int CutIndex_=1;CutIndex_<H_P->GetNbinsX();CutIndex_++){
             float PtCut   = HCuts_Pt ->GetBinContent(CutIndex_+1);
             //float ICut    = HCuts_I  ->GetBinContent(CutIndex_+1);
             float TCut    = HCuts_TOF->GetBinContent(CutIndex_+1);
+	    //if(std::make_pair(PtCut, -1)!=P1 && std::make_pair(PtCut, -1)!=P2 && std::make_pair(PtCut, -1)!=P3 &&
+	    //std::make_pair(-1, TCut)!=P1 &&std::make_pair(-1, TCut)!=P2 && std::make_pair(-1, TCut)!=P3)
+	    //cout << PtCut << endl;
+	    if(TypeMode==3) TCut=-1;
             if(mapPred.find(std::make_pair(PtCut, TCut))!=mapPred.end())continue;
 
-            int N = 0;for(int i=CutIndex_;i<H_P->GetNbinsX();i++){if(float(HCuts_Pt->GetBinContent(i+1))==PtCut && float(HCuts_TOF->GetBinContent(i+1))==TCut){N++;}}
+            int N =0;for(int i=CutIndex_;i<H_P->GetNbinsX();i++)if(float(HCuts_Pt->GetBinContent(i+1))==PtCut && (float(HCuts_TOF->GetBinContent(i+1))==TCut || TypeMode==3))N++;
             mapPred [std::make_pair(PtCut, TCut)] = new TGraphErrors(N);
             mapObs  [std::make_pair(PtCut, TCut)] = new TGraphErrors(N);
             mapRatio[std::make_pair(PtCut, TCut)] = new TGraphErrors(N);
 
             int N_i = 0;
             for(int i=CutIndex_;i<H_P->GetNbinsX();i++){
-              if(float(HCuts_Pt->GetBinContent(i+1))!=PtCut || float(HCuts_TOF->GetBinContent(i+1))!=TCut)continue;
+              if(float(HCuts_Pt->GetBinContent(i+1))!=PtCut || (float(HCuts_TOF->GetBinContent(i+1))!=TCut && TypeMode!=3))continue;
               if(isnan((float)H_P->GetBinContent(i+1)))continue;
               if(S!=1 && H_P->GetBinContent(i+1)<=0)continue;
 
+	      if(TypeMode!=3) {
               xmin = std::min(xmin, HCuts_I->GetBinContent(i+1));
               xmax = std::max(xmax, HCuts_I->GetBinContent(i+1));
+	      if(N_i==0) binZero=HCuts_I->GetBinContent(i+1);
+              if(N_i==1) binOne=HCuts_I->GetBinContent(i+1);
+	      }
+
+	      else {
+		xmin = std::min(xmin, HCuts_TOF->GetBinContent(i+1));
+		xmax = std::max(xmax, HCuts_TOF->GetBinContent(i+1));
+		if(N_i==0) binZero=HCuts_TOF->GetBinContent(i+1);
+		if(N_i==1) binOne=HCuts_TOF->GetBinContent(i+1);
+
+	      }
 
               max = std::max(max, H_P->GetBinContent(i+1));
 //              min = std::min(min, std::max(H_P->GetBinContent(CutIndex_+i+1), 0.1) );
               double P    =  H_P->GetBinContent(i+1);
               double Perr =  H_P->GetBinError(i+1);
+
               if(S==1 && P<=0){P = 3/2.0; Perr=3/2.0;  max = std::max(max, 3.0);}
-              mapPred[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), P);
+              if(TypeMode!=3) mapPred[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), P);
+	      else mapPred[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_TOF->GetBinContent(i+1), P);
               mapPred[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , sqrt(pow(Perr,2) + pow(0.2*H_P->GetBinContent(i+1),2) ) );
               mapPred[std::make_pair(PtCut, TCut)]->Set(N_i+1);
 
               max = std::max(max, H_D->GetBinContent(CutIndex_+i+1));
               min = std::min(min, std::max(H_D->GetBinContent(CutIndex_+i+1), 0.1));
-              mapObs [std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), H_D->GetBinContent(i+1)); 
+              if(TypeMode!=3) mapObs [std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), H_D->GetBinContent(i+1)); 
+	      else mapObs [std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_TOF->GetBinContent(i+1), H_D->GetBinContent(i+1));
               mapObs [std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , H_D->GetBinError  (i+1));
               mapObs [std::make_pair(PtCut, TCut)]->Set(N_i+1);
-            
-              mapRatio[std::make_pair(PtCut, TCut)]->SetPoint     (N_i, HCuts_I->GetBinContent(i+1), (H_D->GetBinContent(i+1)<=0  || P<=0) ? 0 : H_D->GetBinContent(i+1) / P);
-              mapRatio[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0                                    , H_D->GetBinContent(i+1)<=0 ? 0 : sqrt(pow(Perr * H_D->GetBinContent(i+1),2) + pow(P * H_D->GetBinError  (i+1),2) ) / pow(P,2) );
+
+              if(TypeMode!=3) mapRatio[std::make_pair(PtCut, TCut)]->SetPoint(N_i, HCuts_I->GetBinContent(i+1), (H_D->GetBinContent(i+1)<=0 || P<=0) ? 0 : H_D->GetBinContent(i+1)/P);
+	      else {mapRatio[std::make_pair(PtCut, TCut)]->SetPoint(N_i, HCuts_TOF->GetBinContent(i+1), (H_D->GetBinContent(i+1)<=0  || P<=0) ? 0 : H_D->GetBinContent(i+1) / P);}
+
+              mapRatio[std::make_pair(PtCut, TCut)]->SetPointError(N_i, 0, H_D->GetBinContent(i+1)<=0 ? 0 : sqrt(pow(Perr * H_D->GetBinContent(i+1),2) + pow(P * H_D->GetBinError  (i+1),2) ) / pow(P,2) );
               mapRatio[std::make_pair(PtCut, TCut)]->Set(N_i+1);
               N_i++;
             }
          }
-      
 
+	 //Save twice once with a ratio and once without
+	 for(int r=0; r<2; r++) {
          c1 = new TCanvas("c1","c1,",600,600);
-         TPad* t1 = new TPad("t1","t1", 0.0, 0.20, 1.0, 1.0);
+	 TPad* t1;
+	 if(r==1) {
+	 t1 = new TPad("t1","t1", 0.0, 0.20, 1.0, 1.0);
          t1->Draw();
          t1->cd();
          t1->SetLogy(true);
          t1->SetTopMargin(0.06);
+	 }
 
          TH1D* frame = new TH1D("frame", "frame", 1,std::max(xmin,0.02),xmax);
          frame->GetXaxis()->SetNdivisions(505);
          frame->SetTitle("");
          frame->SetStats(kFALSE);
-         frame->GetXaxis()->SetTitle(dEdxS_Legend.c_str());
-         frame->GetYaxis()->SetTitle("#Events");
+         if(TypeMode!=3) frame->GetXaxis()->SetTitle((dEdxS_Legend + " Cut").c_str());
+	 else frame->GetXaxis()->SetTitle("1/#beta Cut");
+	 char YAxisTitle[100];
+	 sprintf(YAxisTitle,"Fraction of tracks/%0.3f",binOne-binZero);
+         frame->GetYaxis()->SetTitle(YAxisTitle);
          frame->GetYaxis()->SetTitleOffset(1.50);
          frame->SetMaximum(max*10);
          frame->SetMinimum(min*0.1);
@@ -901,52 +931,34 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          LEG->SetFillStyle(0);
          LEG->SetBorderSize(0);
 
+	 std::pair<float, float> P1, P2, P3;
+	 string L1, L2, L3;
+
+	 if(TypeMode==0){
+	   P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (pT>55GeV)";
+	   P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (pT>65GeV)";
+	   P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (pT>75GeV)";
+	 }else if(TypeMode==3){
+	   P1 = std::make_pair(110.0, -1.0);  L1 = "Pred (pT>110GeV)";
+	   P2 = std::make_pair(170.0, -1.0);  L2 = "Pred (pT>170GeV)";
+	   P3 = std::make_pair(230.0, -1.0);  L3 = "Pred (pT>230GeV)";
+	 }else if(TypeMode==4 && S==0){
+	   P1 = std::make_pair(  -1.0 , 1.075);  L1 = "Pred (1/#beta> 1.075)";
+	   P2 = std::make_pair(  -1.0 , 1.100);  L2 = "Pred (1/#beta> 1.100)";
+	   P3 = std::make_pair(  -1.0 , 1.125);  L3 = "Pred (1/#beta> 1.125)";
+         }else if(TypeMode==4 && S==1){
+           P1 = std::make_pair(  -1.0 , 0.925);  L1 = "Pred (1/#beta< 0.925)";
+           P2 = std::make_pair(  -1.0 , 0.900);  L2 = "Pred (1/#beta< 0.900)";
+           P3 = std::make_pair(  -1.0 , 0.875);  L3 = "Pred (1/#beta< 0.875)";
+	 }else if(TypeMode==5){
+	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (pT> 75GeV)";
+	   P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (pT>100GeV)";
+	   P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (pT>125GeV)";
+	 }
+
+
          c1->cd();
-         TPad* t2 = new TPad("t2","t2", 0.0, 0.0, 1.0, 0.2); 
-         t2->Draw();
-         t2->cd();
-         t2->SetGridy(true);
-         t2->SetPad(0,0.0,1.0,0.2);
-         t2->SetTopMargin(0);
-         t2->SetBottomMargin(0.5);
-         TH1D* frameR = new TH1D("frameR", "frameR", 1,std::max(xmin,0.02),xmax);
-         frameR->GetXaxis()->SetNdivisions(505);
-         frameR->SetTitle("");
-         frameR->SetStats(kFALSE);
-         frameR->GetXaxis()->SetTitle("");//dEdxS_Legend.c_str());
-         frameR->GetYaxis()->SetTitle("Obs / Pred");
-         frameR->GetYaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
-         frameR->GetYaxis()->SetLabelSize(15); //font size
-         frameR->GetYaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
-         frameR->GetYaxis()->SetTitleSize(15); //font size
-         frameR->GetYaxis()->SetNdivisions(505);
-         frameR->GetXaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
-         frameR->GetXaxis()->SetLabelSize(15); //font size
-         frameR->GetXaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
-         frameR->GetXaxis()->SetTitleSize(15); //font size
-         frameR->GetXaxis()->SetTitleOffset(3.75);
-         frameR->SetMaximum(1.40);
-         frameR->SetMinimum(0.60);
-         frameR->Draw("AXIS");
-         t1->cd();
-
-         std::pair<float, float> P1, P2, P3;
-         string L1, L2, L3;
-
-         if(TypeMode==0){
-            P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (pT>55GeV)";
-            P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (pT>65GeV)";
-            P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (pT>75GeV)";
-         }else if(TypeMode==4){
-            P1 = std::make_pair(  -1.0 , 1.075);  L1 = "Pred (1/#beta> 1.075)";
-            P2 = std::make_pair(  -1.0 , 1.100);  L2 = "Pred (1/#beta> 1.100)";
-            P3 = std::make_pair(  -1.0 , 1.125);  L3 = "Pred (1/#beta> 1.125)";
-         }else if(TypeMode==5){
-            P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (pT> 75GeV)";
-            P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (pT>100GeV)";
-            P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (pT>125GeV)";
-         }
-
+	 if(r==1) t1->cd();
          mapObs[P1]->SetMarkerColor(2);
          mapObs[P1]->SetMarkerStyle(20);
          mapObs[P1]->Draw("P");
@@ -983,16 +995,54 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          LEG->Draw("same");
 
          DrawPreliminary(LegendTitle, SQRTS, IntegratedLuminosityFromE(SQRTS));
+	 if(r==0) {
+	   c1->SetLogy(1);
+	   SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObs"+suffix);
+	 }
+	 else {
+
+	   c1->cd();
+	 TPad* t2;
+         t2 = new TPad("t2","t2", 0.0, 0.0, 1.0, 0.2); 
+         t2->Draw();
          t2->cd();
-         
+         t2->SetGridy(true);
+         t2->SetPad(0,0.0,1.0,0.2);
+         t2->SetTopMargin(0);
+         t2->SetBottomMargin(0.5);
+         TH1D* frameR = new TH1D("frameR", "frameR", 1,std::max(xmin,0.02),xmax);
+         frameR->GetXaxis()->SetNdivisions(505);
+         frameR->SetTitle("");
+         frameR->SetStats(kFALSE);
+         frameR->GetXaxis()->SetTitle("");//dEdxS_Legend.c_str());
+         frameR->GetYaxis()->SetTitle("Obs / Pred");
+         frameR->GetYaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
+         frameR->GetYaxis()->SetLabelSize(15); //font size
+         frameR->GetYaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
+         frameR->GetYaxis()->SetTitleSize(15); //font size
+         frameR->GetYaxis()->SetNdivisions(505);
+         frameR->GetXaxis()->SetLabelFont(43); //give the font size in pixel (instead of fraction)
+         frameR->GetXaxis()->SetLabelSize(15); //font size
+         frameR->GetXaxis()->SetTitleFont(43); //give the font size in pixel (instead of fraction)
+         frameR->GetXaxis()->SetTitleSize(15); //font size
+         frameR->GetXaxis()->SetTitleOffset(3.75);
+         frameR->SetMaximum(1.40);
+         frameR->SetMinimum(0.60);
+         frameR->Draw("AXIS");
+
+         t2->cd();
+
          mapRatio[P1]->Draw("3C");
          mapRatio[P2]->Draw("3C");
          mapRatio[P3]->Draw("3C");
          TLine* LineAtOne = new TLine(xmin,1,xmax,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
 
          c1->cd();
-         SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObs"+suffix);
+         SaveCanvas(c1,InputPattern,string("Prediction_")+Data+"_NPredVsNObsWRatio"+suffix);
+	 delete t2;
+	 }
          delete c1;
+	 }
       }      
    }
 
