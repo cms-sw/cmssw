@@ -4,7 +4,7 @@
 /** \class GEMDigiReader
  *  Dumps GEM-CSC trigger pad digis 
  *  
- *  $Id: GEMDigiReader.cc,v 1.1 2012/12/08 01:31:36 khotilov Exp $
+ *  $Id: GEMCSCPadDigiReader.cc,v 1.1 2013/01/18 04:42:32 khotilov Exp $
  *  \authors: Vadim Khotilovich
  */
 
@@ -89,7 +89,7 @@ void GEMCSCPadDigiReader::analyze(const edm::Event & event, const edm::EventSetu
 
     // retrieve this DetUnit's digis
     std::map< std::pair<unsigned int, int>, // #pad, BX
-              std::vector<int>              // digi strip numbers
+              std::vector<unsigned int>              // digi strip numbers
       > digi_map;
     auto digis_in_det = digis->get(id);
     for (auto d = digis_in_det.first; d != digis_in_det.second; ++d)
@@ -107,10 +107,17 @@ void GEMCSCPadDigiReader::analyze(const edm::Event & event, const edm::EventSetu
       {
         cout <<" XXXXXXXXXXXXX Problem! "<<id<<" has pad digi with too large pad# = "<<padIt->pad()<<endl;
       }
+      unsigned int first_strip = roll->firstStripInPad(padIt->pad() - 1);
+      unsigned int last_strip = roll->lastStripInPad(padIt->pad() - 1);
 
       auto strips = digi_map[std::make_pair(padIt->pad(), padIt->bx())];
-      cout<<" has "<<strips.size()<<" strip digis at strips ";
-      copy(strips.begin(), strips.end(), ostream_iterator<unsigned int>(cout, " "));
+      std::vector<unsigned int> pads_strips;
+      remove_copy_if(strips.begin(), strips.end(), 
+                     inserter(pads_strips, pads_strips.end()), 
+                     [first_strip, last_strip](unsigned int s) { return s < first_strip || s > last_strip; }
+                    );
+      cout<<" has "<<pads_strips.size()<<" strip digis at strips ";
+      copy(pads_strips.begin(), pads_strips.end(), ostream_iterator<unsigned int>(cout, " "));
       cout<<endl;
     }
 
