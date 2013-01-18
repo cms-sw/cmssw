@@ -40,7 +40,7 @@ BasicTrajectoryState::~BasicTrajectoryState(){}
 namespace {
   inline
   FreeTrajectoryState makeFTS(const LocalTrajectoryParameters& par,
-			      const Surface& surface,
+			      const BasicTrajectoryState::SurfaceType& surface,
 			      const MagneticField* field) {
     GlobalPoint  x = surface.toGlobal(par.position());
     GlobalVector p = surface.toGlobal(par.momentum());
@@ -51,7 +51,7 @@ namespace {
 
 BasicTrajectoryState::
 BasicTrajectoryState( const FreeTrajectoryState& fts,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const SurfaceSide side) :
   theFreeState(fts),
   theLocalError(InvalidError()),
@@ -65,7 +65,7 @@ BasicTrajectoryState( const FreeTrajectoryState& fts,
 
 BasicTrajectoryState::
 BasicTrajectoryState( const GlobalTrajectoryParameters& par,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const SurfaceSide side) :
   theFreeState(par),
   theLocalError(InvalidError()),
@@ -80,7 +80,7 @@ BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 BasicTrajectoryState::
 BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 			    const CartesianTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const SurfaceSide side) :
   theFreeState(par, err),
   theLocalError(InvalidError()),
@@ -95,7 +95,7 @@ BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 BasicTrajectoryState::
 BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 			    const CurvilinearTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const SurfaceSide side,
 			    double weight) :
   theFreeState(par, err),
@@ -111,7 +111,7 @@ BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 BasicTrajectoryState::
 BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 			    const CurvilinearTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    double weight) :
   theFreeState(par, err),
   theLocalError(InvalidError()),
@@ -125,7 +125,7 @@ BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 
 BasicTrajectoryState::
 BasicTrajectoryState( const LocalTrajectoryParameters& par,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const MagneticField* field,
 			    const SurfaceSide side) :
   theFreeState(makeFTS(par,aSurface,field)),
@@ -141,7 +141,7 @@ BasicTrajectoryState( const LocalTrajectoryParameters& par,
 BasicTrajectoryState::
 BasicTrajectoryState( const LocalTrajectoryParameters& par,
 			    const LocalTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const MagneticField* field,
 			    const SurfaceSide side,
 			    double weight) :
@@ -158,7 +158,7 @@ BasicTrajectoryState( const LocalTrajectoryParameters& par,
 BasicTrajectoryState::
 BasicTrajectoryState( const LocalTrajectoryParameters& par,
 			    const LocalTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const MagneticField* field,
 			    double weight) :
   theFreeState(makeFTS(par,aSurface,field)),
@@ -171,7 +171,7 @@ BasicTrajectoryState( const LocalTrajectoryParameters& par,
   theWeight(weight){}
 
 BasicTrajectoryState::
-BasicTrajectoryState(const Surface& aSurface) :
+BasicTrajectoryState(const SurfaceType& aSurface) :
   theLocalError(InvalidError()),
   theLocalParameters(),
   theLocalParametersValid(false),
@@ -269,7 +269,7 @@ BasicTrajectoryState::createLocalErrorFromCurvilinearError() const {
 
 void
 BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
-        const Surface& aSurface,
+        const SurfaceType& aSurface,
         const MagneticField* field,
         const SurfaceSide side) 
 {
@@ -287,7 +287,7 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
 void
 BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
         const LocalTrajectoryError& err,
-        const Surface& aSurface,
+        const SurfaceType& aSurface,
         const MagneticField* field,
         const SurfaceSide side, 
         double weight) 
