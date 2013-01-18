@@ -12,8 +12,9 @@
  *  it takes no more space than a pointer. Therefore it should be used by value.
  */
 
-class TrajectoryStateOnSurface : private  BasicTrajectoryState::Proxy 
-{
+class TrajectoryStateOnSurface : private  BasicTrajectoryState::Proxy {
+
+  typedef BasicTrajectoryState::SurfaceType SurfaceType;
   typedef BasicTrajectoryState::SurfaceSide SurfaceSide;
   typedef BasicTrajectoryState::Proxy             Base;
 
@@ -23,7 +24,7 @@ public:
   /// Constructor from one of the basic states
 
   // invalid state
-  explicit TrajectoryStateOnSurface(const Surface& aSurface);
+  explicit TrajectoryStateOnSurface(const SurfaceType& aSurface);
 
 
   TrajectoryStateOnSurface( BasicTrajectoryState* p) : Base(p) {}
@@ -31,20 +32,20 @@ public:
    *  the side of the surface should be specified explicitely.
    */
   TrajectoryStateOnSurface( const FreeTrajectoryState& fts,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /** Constructor from global parameters and surface. For surfaces with material
    *  the side of the surface should be specified explicitely.
    */
   TrajectoryStateOnSurface( const GlobalTrajectoryParameters& gp,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely.
    */
   TrajectoryStateOnSurface( const GlobalTrajectoryParameters& gp,
 			    const CartesianTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
@@ -52,7 +53,7 @@ public:
    */
   TrajectoryStateOnSurface( const GlobalTrajectoryParameters& gp,
 			    const CurvilinearTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
 			    double weight = 1.);
   /** Constructor from global parameters, errors and surface. For multi-states the
@@ -61,13 +62,13 @@ public:
    */
   TrajectoryStateOnSurface( const GlobalTrajectoryParameters& gp,
 			    const CurvilinearTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    double weight);
   /** Constructor from local parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely.
    */
   TrajectoryStateOnSurface( const LocalTrajectoryParameters& p,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const MagneticField* field,
 			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /** Constructor from local parameters, errors and surface. For surfaces 
@@ -76,7 +77,7 @@ public:
    */
   TrajectoryStateOnSurface( const LocalTrajectoryParameters& p,
 			    const LocalTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const MagneticField* field,
 			    const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
 			    double weight = 1.);
@@ -86,7 +87,7 @@ public:
    */
   TrajectoryStateOnSurface( const LocalTrajectoryParameters& p,
 			    const LocalTrajectoryError& err,
-			    const Surface& aSurface,
+			    const SurfaceType& aSurface,
 			    const MagneticField* field,
 			    double weight);
 
@@ -179,7 +180,7 @@ public:
   const LocalTrajectoryError& localError() const {
     return data().localError();
   }
-  const Surface& surface() const {
+  const SurfaceType& surface() const {
     return data().surface();
   }
 
@@ -214,7 +215,7 @@ public:
    *  just behave like creating a new TSOS (which will make a new BasicSingleTrajectoryState)
    */
   void update( const LocalTrajectoryParameters& p,
-	       const Surface& aSurface,
+	       const SurfaceType& aSurface,
 	       const MagneticField* field,
 	       const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /** Mutator from local parameters, errors and surface. For surfaces 
@@ -225,7 +226,7 @@ public:
    */
   void update( const LocalTrajectoryParameters& p,
 	       const LocalTrajectoryError& err,
-               const Surface& aSurface,
+               const SurfaceType& aSurface,
                const MagneticField* field,
                const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
                double weight = 1.);
@@ -237,5 +238,5 @@ inline void swap( TrajectoryStateOnSurface & rh,  TrajectoryStateOnSurface & lh)
   rh.swap(lh);
 }
 
-std::ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos);
+std::ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface & tsos);
 #endif
