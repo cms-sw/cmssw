@@ -44,27 +44,36 @@ class TrajectoryStateOnSurface;
  * VI 8/12/2011   content of BasicSingleTrajectoryState moved here....
  * fully devirtualized
  */
-class BasicTrajectoryState  {
+class BTSCount {
 public:
+  BTSCount(){}
+  virtual ~BTSCount();
+  BTSCount(BTSCount const &){} 
+
   static unsigned int  maxReferences;
+  static unsigned long long  aveReferences;
+  static unsigned long long  toteReferences;
+
   void addReference() const { ++referenceCount_ ; referenceMax_ = std::max(referenceMax_, referenceCount_); }
   void removeReference() const { 
     if( 0 == --referenceCount_ ) {
-      delete const_cast<BasicTrajectoryState*>(this);
+      delete const_cast<BTSCount*>(this);
     }
   }
   
   unsigned int references() const {return referenceCount_;}
 private :
-#ifndef CMS_NOCXX11
+#ifdef CMS_NOCXX11
   mutable unsigned int referenceCount_;
   mutable unsigned int referenceMax_;
 #else
   mutable unsigned int referenceCount_=0;
   mutable unsigned int referenceMax_ =0;
 #endif
-  
-public:
+};
+
+class BasicTrajectoryState : public BTSCount {
+  public:
 
   typedef BasicTrajectoryState                              BTSOS;
   typedef ProxyBase< BTSOS, CopyUsingClone<BTSOS> >         Proxy;

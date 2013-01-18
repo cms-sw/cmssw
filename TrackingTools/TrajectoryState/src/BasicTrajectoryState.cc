@@ -10,9 +10,15 @@
 #include <cmath>
 #include<sstream>
 
-unsigned int BasicTrajectoryState::maxReferences=0;
-BasicTrajectoryState::~BasicTrajectoryState(){
+unsigned int BTSCount::maxReferences=0;
+unsigned long long  BTSCount::aveReferences=0;
+unsigned long long  BTSCount::toteReferences=0;
+
+BTSCount::~BTSCount(){
   maxReferences = std::max(referenceMax_, maxReferences);
+  toteReferences++;
+  aveReferences+=referenceMax_;
+  if (referenceMax_>100) std::cout <<"BST with " << referenceMax_ << std::endl;
 }
 
 #include<iostream>
@@ -20,12 +26,16 @@ namespace {
 
   struct Printer{
     ~Printer() {
-      std::cout << "maxReferences of BasicTrajectoryState = " << BasicTrajectoryState::maxReferences << std::endl;
+      std::cout << "maxReferences of BTSCount = " 
+                << BTSCount::maxReferences << " " 
+                << double(BTSCount::aveReferences)/double(BTSCount::toteReferences)<< std::endl;
     }
   };
   Printer printer;
 
 }
+
+BasicTrajectoryState::~BasicTrajectoryState(){}
 
 namespace {
   inline
