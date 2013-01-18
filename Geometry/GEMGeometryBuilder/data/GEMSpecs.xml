@@ -5,5 +5,9 @@
       <PartSelector path="//GHA."/>
       <Parameter name="nStrips" value="384"/>
     </SpecPar>
+    <SpecPar name="nPads32" eval="true">
+      <PartSelector path="//GHA."/>
+      <Parameter name="nPads" value="24"/>
+    </SpecPar>
   </SpecParSection>
 </DDDefinition>
