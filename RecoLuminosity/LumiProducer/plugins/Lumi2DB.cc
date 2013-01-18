@@ -431,7 +431,6 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
   ///
   //output: lumi data id
   ///
-  std::cout<<"writeAllLumiDataToSchema2"<<std::endl;
   coral::AttributeList summaryData;
   summaryData.extend("DATA_ID",typeid(unsigned long long));
   summaryData.extend("RUNNUM",typeid(unsigned int));
