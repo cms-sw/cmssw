@@ -1118,7 +1118,7 @@ class RunMEtUncertainties(ConfigToolBase):
             process.load("JetMETCorrections.METPUSubtraction.noPileUpPFMET_cff")
 
         lastUncorrectedJetCollectionForNoPileUpPFMEt = 'ak5PFJets'
-        lastCorrectedJetCollectionForNoPileUpPFMEt = 'calibratedAK5PFJetsForNoPileUpMEt'
+        lastCorrectedJetCollectionForNoPileUpPFMEt = 'calibratedAK5PFJetsForNoPileUpPFMEt'
         if postfix != "":
             configtools.cloneProcessingSnippet(process, process.noPileUpPFMEtSequence, postfix)
             lastCorrectedJetCollectionForNoPileUpPFMEt+= postfix
@@ -1143,7 +1143,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 ##verbosity = cms.int32(1)
             ))
             metUncertaintySequence += getattr(process, "smearedUncorrectedJetsForNoPileUpPFMEt"+postfix)
-            getattr(process, "calibratedAK5PFJetsForNoPileUpMEt"+postfix).src = cms.InputTag('smearedUncorrectedJetsForNoPileUpPFMEt'+postfix)
+            getattr(process, "calibratedAK5PFJetsForNoPileUpPFMEt"+postfix).src = cms.InputTag('smearedUncorrectedJetsForNoPileUpPFMEt'+postfix)
         metUncertaintySequence += getattr(process, "noPileUpPFMEtSequence"+postfix)
         self._addPATMEtProducer(process, metUncertaintySequence,
                                 'noPileUpPFMEt'+postfix, 'patPFMetNoPileUp', collectionsToKeep, postfix)
@@ -1231,13 +1231,13 @@ class RunMEtUncertainties(ConfigToolBase):
                 shiftBy = cms.double(+1.*varyByNsigmas)
             ))
             metUncertaintySequence += getattr(process, "correctedJetsEnUpForNoPileUpPFMEt"+postfix)
-            setattr(process, "puJetIdForNoPileUpMEtJetEnUp"+postfix, getattr(process, "puJetIdForNoPileUpMEt"+postfix).clone(
+            setattr(process, "puJetIdForNoPileUpPFMEtJetEnUp"+postfix, getattr(process, "puJetIdForNoPileUpPFMEt"+postfix).clone(
                 jets = cms.InputTag('correctedJetsEnUpForNoPileUpPFMEt'+postfix)
             ))
-            metUncertaintySequence += getattr(process, "puJetIdForNoPileUpMEtJetEnUp"+postfix)
+            metUncertaintySequence += getattr(process, "puJetIdForNoPileUpPFMEtJetEnUp"+postfix)
             setattr(process, "noPileUpPFMEtDataJetEnUp"+postfix, getattr(process, "noPileUpPFMEtData"+postfix).clone(
                 srcJets = cms.InputTag('correctedJetsEnUpForNoPileUpPFMEt'+postfix),
-                srcJetIds = cms.InputTag('puJetIdForNoPileUpMEtJetEnUp'+postfix, 'fullId')
+                srcJetIds = cms.InputTag('puJetIdForNoPileUpPFMEtJetEnUp'+postfix, 'fullId')
             ))
             metUncertaintySequence += getattr(process, "noPileUpPFMEtDataJetEnUp"+postfix)
             setattr(process, "noPileUpPFMEtJetEnUp"+postfix, getattr(process, "noPileUpPFMEt"+postfix).clone(
@@ -1255,13 +1255,13 @@ class RunMEtUncertainties(ConfigToolBase):
                 shiftBy = cms.double(-1.*varyByNsigmas)
             ))
             metUncertaintySequence += getattr(process, "correctedJetsEnDownForNoPileUpPFMEt"+postfix)
-            setattr(process, "puJetIdForNoPileUpMEtJetEnDown"+postfix, getattr(process, "puJetIdForNoPileUpMEt"+postfix).clone(
+            setattr(process, "puJetIdForNoPileUpPFMEtJetEnDown"+postfix, getattr(process, "puJetIdForNoPileUpPFMEt"+postfix).clone(
                 jets = cms.InputTag('correctedJetsEnDownForNoPileUpPFMEt'+postfix)
             ))
-            metUncertaintySequence += getattr(process, "puJetIdForNoPileUpMEtJetEnDown"+postfix)
+            metUncertaintySequence += getattr(process, "puJetIdForNoPileUpPFMEtJetEnDown"+postfix)
             setattr(process, "noPileUpPFMEtDataJetEnDown"+postfix, getattr(process, "noPileUpPFMEtData"+postfix).clone(
                 srcJets = cms.InputTag('correctedJetsEnDownForNoPileUpPFMEt'+postfix),
-                srcJetIds = cms.InputTag('puJetIdForNoPileUpMEtJetEnDown'+postfix, 'fullId')
+                srcJetIds = cms.InputTag('puJetIdForNoPileUpPFMEtJetEnDown'+postfix, 'fullId')
             ))
             metUncertaintySequence += getattr(process, "noPileUpPFMEtDataJetEnDown"+postfix)
             setattr(process, "noPileUpPFMEtJetEnDown"+postfix, getattr(process, "noPileUpPFMEt"+postfix).clone(
@@ -1274,7 +1274,7 @@ class RunMEtUncertainties(ConfigToolBase):
 
             if hasattr(process, "smearedUncorrectedJetsForNoPileUpPFMEt"+postfix):
                 setattr(process, "smearedCorrectedJetsForNoPileUpPFMEt"+postfix, getattr(process, "smearedUncorrectedJetsForNoPileUpPFMEt"+postfix).clone(
-                    src = cms.InputTag('calibratedAK5PFJetsForNoPileUpMEt'+postfix),
+                    src = cms.InputTag('calibratedAK5PFJetsForNoPileUpPFMEt'+postfix),
                     jetCorrLabel = cms.string("")
                 ))
                 setattr(process, "correctedJetsResUpForNoPileUpPFMEt"+postfix, getattr(process, "smearedCorrectedJetsForNoPileUpPFMEt"+postfix).clone(
@@ -1285,13 +1285,13 @@ class RunMEtUncertainties(ConfigToolBase):
                     shiftBy = cms.double(+1.*varyByNsigmas)
                 ))
                 metUncertaintySequence += getattr(process, "correctedJetsResDownForNoPileUpPFMEt"+postfix)
-                setattr(process, "puJetIdForNoPileUpMEtJetResUp"+postfix, getattr(process, "puJetIdForNoPileUpMEt"+postfix).clone(
+                setattr(process, "puJetIdForNoPileUpPFMEtJetResUp"+postfix, getattr(process, "puJetIdForNoPileUpPFMEt"+postfix).clone(
                     jets = cms.InputTag('correctedJetsResUpForNoPileUpPFMEt'+postfix)
                 ))
-                metUncertaintySequence += getattr(process, "puJetIdForNoPileUpMEtJetResUp"+postfix)
+                metUncertaintySequence += getattr(process, "puJetIdForNoPileUpPFMEtJetResUp"+postfix)
                 setattr(process, "noPileUpPFMEtDataJetResUp"+postfix, getattr(process, "noPileUpPFMEtData"+postfix).clone(
                     srcJets = cms.InputTag('correctedJetsResUpForNoPileUpPFMEt'+postfix),
-                    srcJetIds = cms.InputTag('puJetIdForNoPileUpMEtJetResUp'+postfix, 'fullId')
+                    srcJetIds = cms.InputTag('puJetIdForNoPileUpPFMEtJetResUp'+postfix, 'fullId')
                 ))
                 metUncertaintySequence += getattr(process, "noPileUpPFMEtDataJetResUp"+postfix)
                 setattr(process, "noPileUpPFMEtJetResUp"+postfix, getattr(process, "noPileUpPFMEt"+postfix).clone(
@@ -1301,13 +1301,13 @@ class RunMEtUncertainties(ConfigToolBase):
                 metUncertaintySequence += getattr(process, "noPileUpPFMEtJetResUp"+postfix)
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         'noPileUpPFMEtJetResUp'+postfix, 'patPFMetNoPileUpJetResUp', collectionsToKeep, postfix)
-                setattr(process, "puJetIdForNoPileUpMEtJetResDown"+postfix, getattr(process, "puJetIdForNoPileUpMEt"+postfix).clone(
+                setattr(process, "puJetIdForNoPileUpPFMEtJetResDown"+postfix, getattr(process, "puJetIdForNoPileUpPFMEt"+postfix).clone(
                     jets = cms.InputTag('correctedJetsResDownForNoPileUpPFMEt'+postfix)
                 ))
-                metUncertaintySequence += getattr(process, "puJetIdForNoPileUpMEtJetResDown"+postfix)
+                metUncertaintySequence += getattr(process, "puJetIdForNoPileUpPFMEtJetResDown"+postfix)
                 setattr(process, "noPileUpPFMEtDataJetResDown"+postfix, getattr(process, "noPileUpPFMEtData"+postfix).clone(
                     srcJets = cms.InputTag('correctedJetsResDownForNoPileUpPFMEt'+postfix),
-                    srcJetIds = cms.InputTag('puJetIdForNoPileUpMEtJetResDown'+postfix, 'fullId')
+                    srcJetIds = cms.InputTag('puJetIdForNoPileUpPFMEtJetResDown'+postfix, 'fullId')
                 ))
                 metUncertaintySequence += getattr(process, "noPileUpPFMEtDataJetResDown"+postfix)
                 setattr(process, "noPileUpPFMEtJetResDown"+postfix, getattr(process, "noPileUpPFMEt"+postfix).clone(
@@ -1320,7 +1320,7 @@ class RunMEtUncertainties(ConfigToolBase):
                         
             setattr(process, "pfCandsUnclusteredEnUpForNoPileUpPFMEt"+postfix, cms.EDProducer("ShiftedPFCandidateProducerForNoPileUpPFMEt",
                 srcPFCandidates = cms.InputTag('particleFlow'),
-                srcJets = cms.InputTag('calibratedAK5PFJetsForNoPileUpMEt'+postfix),
+                srcJets = cms.InputTag('calibratedAK5PFJetsForNoPileUpPFMEt'+postfix),
                 jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/Summer12_V2_DATA_AK5PF_UncertaintySources.txt'),
                 jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
                 minJetPt = cms.double(10.0), 
