@@ -88,6 +88,7 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "7TeV_Tight");
    MassPrediction(InputPattern, CutIndexTight, "Mass", false, "8TeV_TightNoSMMC");
    MassPrediction(InputPattern, CutIndexTight, "Mass", false, "7TeV_TightNoSMMC");
+
    MassPrediction(InputPattern, 1, "Mass_Flip", true, "8TeV_Loose");
    MassPrediction(InputPattern, 1, "Mass_Flip", true, "7TeV_Loose");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip",  true, "8TeV_Tight");
@@ -285,32 +286,37 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    TCanvas* c1 = new TCanvas("c1","c1,",600,700);
    char YAxisLegend[1024]; sprintf(YAxisLegend,"Tracks / %2.0f GeV/#font[12]{c}^{2}",(Data8TeV!=NULL?Data8TeV:Data7TeV)->GetXaxis()->GetBinWidth(1));
 
-   TPad* t1 = new TPad("t1","t1", 0.0, 0.20, 1.0, 1.0);
-   t1->Draw();
-   t1->cd();
-   t1->SetLogy(true);
-   t1->SetTopMargin(0.06);
+   //Loop twice to make plots with and without ratio box
+   for(int r=0; r<2; r++) {
 
-   TH1D* frame = new TH1D("frame", "frame", 1,0,1400);
-   frame->GetXaxis()->SetNdivisions(505);
-   frame->SetTitle("");
-   frame->SetStats(kFALSE);
-   frame->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
-   frame->GetYaxis()->SetTitle(YAxisLegend);
-   frame->GetYaxis()->SetTitleOffset(1.50);
-   frame->SetMaximum(Max);
-   frame->SetMinimum(Min);
-   frame->SetAxisRange(0,1400,"X");
-   frame->Draw("AXIS");
+     if(r==1) {
+       TPad* t1 = new TPad("t1","t1", 0.0, 0.20, 1.0, 1.0);
+       t1->Draw();
+       t1->cd();
+       t1->SetLogy(true);
+       t1->SetTopMargin(0.06);
+     }
 
-   if(Signal){   
-      Signal->SetMarkerStyle(21);
-      Signal->SetMarkerColor(8);
-      Signal->SetMarkerSize(1.5);
-      Signal->SetLineColor(1);
-      Signal->SetFillColor(8);
-      Signal->Draw("same HIST");
-   }
+       TH1D* frame = new TH1D("frame", "frame", 1,0,1400);
+       frame->GetXaxis()->SetNdivisions(505);
+       frame->SetTitle("");
+       frame->SetStats(kFALSE);
+       frame->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
+       frame->GetYaxis()->SetTitle(YAxisLegend);
+       frame->GetYaxis()->SetTitleOffset(1.50);
+       frame->SetMaximum(Max);
+       frame->SetMinimum(Min);
+       frame->SetAxisRange(0,1400,"X");
+       frame->Draw("AXIS");
+
+       if(Signal){
+	 Signal->SetMarkerStyle(21);
+	 Signal->SetMarkerColor(8);
+	 Signal->SetMarkerSize(1.5);
+	 Signal->SetLineColor(1);
+	 Signal->SetFillColor(8);
+	 Signal->Draw("same HIST");
+       }
 
    if(MCPred){
 //      PredMCErr->SetLineStyle(0);
@@ -425,8 +431,9 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    
 
 
-
-
+   c1->cd();
+   if(r==0)  SaveCanvas(c1, InputPattern, string("RescaleNoRatio_") + HistoSuffix + "_" + DataName);
+   else {
    c1->cd();
    TPad* t2 = new TPad("t2","t2", 0.0, 0.0, 1.0, 0.2); 
    t2->Draw();
@@ -441,7 +448,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    frameR->SetTitle("");
    frameR->SetStats(kFALSE);
    frameR->GetXaxis()->SetTitle("");
-   frameR->GetXaxis()->SetTitle("Cumulative Mass (GeV/#font[12]{c}^{2})");
+   frameR->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    frameR->GetYaxis()->SetTitle("Obs / Pred");
    frameR->SetMaximum(2.00);
    frameR->SetMinimum(0.00);
@@ -488,6 +495,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    c1->cd();
    SaveCanvas(c1, InputPattern, string("Rescale_") + HistoSuffix + "_" + DataName);
+   }
+   }
    delete c1;
    InputFile->Close();
 }

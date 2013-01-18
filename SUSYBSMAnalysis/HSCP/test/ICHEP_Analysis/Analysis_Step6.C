@@ -1631,7 +1631,7 @@ void printSummaryPaper(FILE* pFile, FILE* talkFile, string InputPattern, string 
 //    char Results8[255]; if(Infos8.Mass>0){sprintf(Results8, "%10s & %10s & %10s & %10s", toLatexRounded(Infos8.Eff).c_str(), toLatexRounded(Infos8.XSec_Th).c_str(),toLatexRounded(Infos8.XSec_Obs).c_str(), toLatexRounded(Infos8.XSec_Exp).c_str());}else{sprintf(Results8, "%10s & %10s & %10s & %10s", "", "", "", "");}
 //    char ResultsC[255]; if(InfosC.Mass>0){sprintf(ResultsC, "%10s & %10s", toLatexRounded(InfosC.XSec_Obs).c_str(), toLatexRounded(InfosC.XSec_Exp).c_str());}else{sprintf(ResultsC, "%10s & %10s", "", "");}
 
-      fprintf(pFile,"     & %4.0f & %-7s & %s & %s & %s\\\\\n", Mass, massCut, Results7, Results8, ResultsC);
+      fprintf(pFile," %4.0f & %-7s & %s & %s & %s\\\\\n", Mass, massCut, Results7, Results8, ResultsC);
    }
    }
 }
@@ -3078,15 +3078,15 @@ bool useSample(int TypeMode, string sample) {
 
 string toLatex(double value) {
   char toReturn[255];
-  if(value<0.001) {
+  if(value<0.00095) {
     int exponent=0;
     while (value<1) {
       exponent++;
       value*=10;
     }
-    sprintf(toReturn,"$   %6.2f \\times 10^{-%i}$",value, exponent);
+    sprintf(toReturn,"$   %6.1f \\times 10^{-%i}$",value, exponent);
   }
-  else sprintf(toReturn,"%.3g",value);
+  else sprintf(toReturn,"%.2g",value);
   string stringReturn = toReturn;
   return stringReturn;
 }
