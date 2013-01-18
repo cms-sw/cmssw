@@ -18,7 +18,7 @@ BTSCount::~BTSCount(){
   maxReferences = std::max(referenceMax_, maxReferences);
   toteReferences++;
   aveReferences+=referenceMax_;
-  if (referenceMax_>100) std::cout <<"BST with " << referenceMax_ << std::endl;
+  // if (referenceMax_>100) std::cout <<"BST with " << referenceMax_ << std::endl;
 }
 
 #include<iostream>
