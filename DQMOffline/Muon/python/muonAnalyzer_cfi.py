@@ -222,7 +222,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
 
     ptBin = cms.int32(10),
     ptMax = cms.double(100),
-    ptMin = cms.double(1),
+    ptMin = cms.double(10),
     
     etaBin = cms.int32(8),
     etaMax = cms.double(2.5),
