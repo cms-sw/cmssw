@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMDIGI")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
 
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -33,6 +33,10 @@ process.GlobalTag.globaltag = 'POSTLS161_V12::All'
 # GEM digitizer
 process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
 
+# GEM-CSC trigger pad digi producer
+process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
+
+
 # customization of the process.pdigi sequence to add the GEM digitizer 
 from SimMuon.GEMDigitizer.customizeGEMDigi import *
 #process = customize_digi_addGEM(process)  # run all detectors digi
@@ -42,7 +46,6 @@ process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#        'file:output_SingleMuPt40.root'
     'file:SingleMuPt40_GEN_SIM.root'
     )
 )
@@ -92,7 +95,7 @@ process.schedule = cms.Schedule(
     process.out_step
 )
 
-file = open('runGEMDigiProducer.py','w')
-file.write(str(process.dumpPython()))
-file.close()
+#file = open('runGEMDigiProducer.py','w')
+#file.write(str(process.dumpPython()))
+#file.close()
 

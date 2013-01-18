@@ -8,5 +8,10 @@
 
 DEFINE_FWK_MODULE(GEMDigiProducer);
 
-DEFINE_EDM_PLUGIN(GEMSimFactory, GEMSimTriv,   "GEMSimTriv");
+DEFINE_EDM_PLUGIN(GEMSimFactory, GEMSimTriv, "GEMSimTriv");
 DEFINE_EDM_PLUGIN(GEMSimFactory, GEMSimAverage,"GEMSimAverage");
+
+#include "SimMuon/GEMDigitizer/src/GEMCSCPadDigiProducer.h"
+
+DEFINE_FWK_MODULE(GEMCSCPadDigiProducer);
+
