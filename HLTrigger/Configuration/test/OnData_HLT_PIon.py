@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V95 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V96 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V95')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V96')
 )
 
 process.streams = cms.PSet( 
@@ -145,7 +145,9 @@ process.datasets = cms.PSet(
     'HLT_PAPhoton40_TightCaloIdVL_v1',
     'HLT_PAPhoton60_NoCaloIdVL_v1',
     'HLT_PAPixelTrackMultiplicity100_FullTrack12_v1',
+    'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
     'HLT_PAPixelTrackMultiplicity130_FullTrack12_v1',
+    'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
     'HLT_PAPixelTrackMultiplicity160_FullTrack12_v1',
     'HLT_PAPixelTracks_Multiplicity100_v1',
     'HLT_PAPixelTracks_Multiplicity130_v1',
@@ -283,7 +285,9 @@ process.datasets = cms.PSet(
     'HLT_PAPhoton40_TightCaloIdVL_v1',
     'HLT_PAPhoton60_NoCaloIdVL_v1',
     'HLT_PAPixelTrackMultiplicity100_FullTrack12_v1',
+    'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
     'HLT_PAPixelTrackMultiplicity130_FullTrack12_v1',
+    'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
     'HLT_PAPixelTrackMultiplicity160_FullTrack12_v1',
     'HLT_PAPixelTracks_Multiplicity100_v1',
     'HLT_PAPixelTracks_Multiplicity130_v1',
@@ -419,7 +423,9 @@ process.datasets = cms.PSet(
     'HLT_PAPhoton40_TightCaloIdVL_v1',
     'HLT_PAPhoton60_NoCaloIdVL_v1',
     'HLT_PAPixelTrackMultiplicity100_FullTrack12_v1',
+    'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
     'HLT_PAPixelTrackMultiplicity130_FullTrack12_v1',
+    'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
     'HLT_PAPixelTrackMultiplicity160_FullTrack12_v1',
     'HLT_PAPixelTracks_Multiplicity100_v1',
     'HLT_PAPixelTracks_Multiplicity130_v1',
@@ -509,7 +515,9 @@ process.datasets = cms.PSet(
     'HLT_PAPhoton40_TightCaloIdVL_v1',
     'HLT_PAPhoton60_NoCaloIdVL_v1',
     'HLT_PAPixelTrackMultiplicity100_FullTrack12_v1',
+    'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
     'HLT_PAPixelTrackMultiplicity130_FullTrack12_v1',
+    'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
     'HLT_PAPixelTrackMultiplicity160_FullTrack12_v1',
     'HLT_PAPixelTracks_Multiplicity100_v1',
     'HLT_PAPixelTracks_Multiplicity130_v1',
@@ -4674,6 +4682,12 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PAFullTrack50_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PPPixelTracks_Multiplicity55_v1" ),
@@ -14156,6 +14170,25 @@ process.hlt1PAFullTrack50 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
     MaxPt = cms.double( 9999.0 ),
     MinSep = cms.double( 0.4 )
 )
+process.hltPrePAPixelTrackMultiplicity140Jet80NoJetID = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hlt1PAHighMult140 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    saveTags = cms.bool( False ),
+    MinTrks = cms.int32( 140 ),
+    MinPt = cms.double( 0.4 ),
+    MaxVz = cms.double( 15.0 ),
+    MaxEta = cms.double( 2.4 ),
+    trackCollection = cms.InputTag( "hltPAPixelCandsForHighMult" ),
+    vertexCollection = cms.InputTag( "hltPAPixelVerticesForHighMult" ),
+    MaxPt = cms.double( 9999.0 ),
+    MinSep = cms.double( 0.4 )
+)
+process.hltPrePAPixelTrackMultiplicity100L2DoubleMu3 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 process.hltPrePPPixelTracksMultiplicity55 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -15966,6 +15999,8 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_PAFullTrack20_v1',
       'HLT_PAFullTrack30_v1',
       'HLT_PAFullTrack50_v1',
+      'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
+      'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
       'HLT_PPPixelTracks_Multiplicity55_v1',
       'HLT_PPPixelTracks_Multiplicity70_v1',
       'HLT_PPPixelTracks_Multiplicity85_v1',
@@ -16107,6 +16142,8 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_PAFullTrack20_v1',
       'HLT_PAFullTrack30_v1',
       'HLT_PAFullTrack50_v1',
+      'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
+      'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
       'HLT_PPPixelTracks_Multiplicity55_v1',
       'HLT_PPPixelTracks_Multiplicity70_v1',
       'HLT_PPPixelTracks_Multiplicity85_v1',
@@ -16277,7 +16314,9 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PAPhoton40_TightCaloIdVL_v1',
   'HLT_PAPhoton60_NoCaloIdVL_v1',
   'HLT_PAPixelTrackMultiplicity100_FullTrack12_v1',
+  'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
   'HLT_PAPixelTrackMultiplicity130_FullTrack12_v1',
+  'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
   'HLT_PAPixelTrackMultiplicity160_FullTrack12_v1',
   'HLT_PAPixelTracks_Multiplicity100_v1',
   'HLT_PAPixelTracks_Multiplicity130_v1',
@@ -16495,7 +16534,9 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PAPhoton40_TightCaloIdVL_v1',
   'HLT_PAPhoton60_NoCaloIdVL_v1',
   'HLT_PAPixelTrackMultiplicity100_FullTrack12_v1',
+  'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
   'HLT_PAPixelTrackMultiplicity130_FullTrack12_v1',
+  'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
   'HLT_PAPixelTrackMultiplicity160_FullTrack12_v1',
   'HLT_PAPixelTracks_Multiplicity100_v1',
   'HLT_PAPixelTracks_Multiplicity130_v1',
@@ -16649,7 +16690,9 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_PAPhoton40_TightCaloIdVL_v1',
   'HLT_PAPhoton60_NoCaloIdVL_v1',
   'HLT_PAPixelTrackMultiplicity100_FullTrack12_v1',
+  'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
   'HLT_PAPixelTrackMultiplicity130_FullTrack12_v1',
+  'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
   'HLT_PAPixelTrackMultiplicity160_FullTrack12_v1',
   'HLT_PAPixelTracks_Multiplicity100_v1',
   'HLT_PAPixelTracks_Multiplicity130_v1',
@@ -16792,7 +16835,9 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PAPhoton40_TightCaloIdVL_v1',
   'HLT_PAPhoton60_NoCaloIdVL_v1',
   'HLT_PAPixelTrackMultiplicity100_FullTrack12_v1',
+  'HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1',
   'HLT_PAPixelTrackMultiplicity130_FullTrack12_v1',
+  'HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1',
   'HLT_PAPixelTrackMultiplicity160_FullTrack12_v1',
   'HLT_PAPixelTracks_Multiplicity100_v1',
   'HLT_PAPixelTracks_Multiplicity130_v1',
@@ -17095,6 +17140,8 @@ process.HLT_PAFullTrack12_v1 = cms.Path( process.HLTBeginSequence + process.hltL
 process.HLT_PAFullTrack20_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16BptxAND + process.hltPrePAFullTrack20 + process.HLTRecoJetSequencePrePF + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTDoLocalStripSequence + process.HLTIterativeTrackingForPA + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack20 + process.HLTEndSequence )
 process.HLT_PAFullTrack30_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet16BptxAND + process.hltPrePAFullTrack30 + process.HLTRecoJetSequencePrePF + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTDoLocalStripSequence + process.HLTIterativeTrackingForPA + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack30 + process.HLTEndSequence )
 process.HLT_PAFullTrack50_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36 + process.hltPrePAFullTrack50 + process.HLTRecoJetSequencePrePF + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.HLTDoLocalStripSequence + process.HLTIterativeTrackingForPA + process.hltPAGoodFullTracks + process.hltPAFullCands + process.hlt1PAFullTrack50 + process.HLTEndSequence )
+process.HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet36 + process.hltPrePAPixelTrackMultiplicity140Jet80NoJetID + process.HLTRegionalTowerMakerForJetsSequence + process.hltAntiKT5CaloJetsRegional + process.hltCaloJetL1MatchedRegional + process.hltCaloJetCorrectedRegionalNoJetID + process.hltSingleJet80RegionalNoJetID + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult140 + process.HLTEndSequence )
+process.HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleMuOpenBptxAnd + process.hltL1fL1sPAL2DoubleMu3L1Filtered0 + process.HLTDoLocalHfSequence + process.hltHcalPM1Tower3GeVFilter + process.hltPrePAPixelTrackMultiplicity100L2DoubleMu3 + process.HLTL2muonrecoSequence + process.hltL2fL1sPAL2DoubleMu3L2Filtered3 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult100 + process.HLTEndSequence )
 process.HLT_PPPixelTracks_Multiplicity55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePPPixelTracksMultiplicity55 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult55 + process.HLTEndSequence )
 process.HLT_PPPixelTracks_Multiplicity70_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePPPixelTracksMultiplicity70 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult70 + process.HLTEndSequence )
 process.HLT_PPPixelTracks_Multiplicity85_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sETT20BptxAND + process.hltPrePPPixelTracksMultiplicity85 + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingForHighMultPASequence + process.hltPAGoodPixelTracksForHighMult + process.hltPAPixelCandsForHighMult + process.hlt1PAHighMult85 + process.HLTEndSequence )

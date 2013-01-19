@@ -130,6 +130,8 @@ HLT_PAFullTrack12_v*                               # sr 133420
 HLT_PAFullTrack20_v*                               # sr 133420
 HLT_PAFullTrack30_v*                               # sr 133420
 HLT_PAFullTrack50_v*                               # sr 133420
+HLT_PAPixelTrackMultiplicity140_Jet80_NoJetID_v*   # sr 135195
+HLT_PAPixelTrackMultiplicity100_L2DoubleMu3_v*	   # sr 135195
 HLT_PPPixelTrackMultiplicity55_FullTrack12_v*	   # sr 134848
 HLT_PPPixelTrackMultiplicity70_FullTrack12_v*	   # sr 134848
 HLT_PPPixelTracks_Multiplicity55_v*		   # sr 134848
