@@ -222,12 +222,12 @@ def overrideGlobalTag(process):
 #==================== pPb MC 2013 =====================================
 
                 cms.PSet(record = cms.string("HeavyIonRcd"),
-                                          tag = cms.string("CentralityTable_Tracks100_HijingPA_v538x01_mc"),
+                                          tag = cms.string("CentralityTable_Tracks100_HijingPA_v538x02_mc"),
                                           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                                           label = cms.untracked.string("TracksHijing")
                                           ),
                 cms.PSet(record = cms.string("HeavyIonRcd"),
-                                          tag = cms.string("CentralityTable_HFplus100_Hijing_v538x01_mc"),
+                                          tag = cms.string("CentralityTable_HFplus100_HijingPA_v538x02_mc"),
                                           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                                           label = cms.untracked.string("HFtowersPlusTruncHijing")
                                           ),
