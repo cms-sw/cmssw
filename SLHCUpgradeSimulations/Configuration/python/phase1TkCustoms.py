@@ -3,6 +3,23 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.IterativeTracking.ElectronSeeds_cff import *
 
+def customise(process):
+    if hasattr(process,'DigiToRaw'):
+        process=customise_DigiToRaw(process)
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction'):
+        process=customise_Reco(process)
+    if hasattr(process,'mix'):
+        process=customise_Digi(process)
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM(process)
+    if hasattr(process,'dqmHarvesting'):
+        process=customise_harvesting(process)
+    if hasattr(process,'validation_step'):
+        process=customise_Validation(process)
+    return process
+
 def customise_DigiToRaw(process):
     process.DigiToRaw.remove(process.siPixelRawData)
     process.DigiToRaw.remove(process.castorRawData)
@@ -374,6 +391,9 @@ def customise_DQM(process):
     process.dqmoffline_step.remove(process.muonAnalyzer)
     process.dqmoffline_step.remove(process.jetMETAnalyzer)
     process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
+    return process
+
+def customise_Validation(process):
     process.validation_step.remove(process.PixelTrackingRecHitsValid)
     # We don't run the HLT
     process.validation_step.remove(process.HLTSusyExoVal)
