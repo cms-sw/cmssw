@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:38:29 EDT 2007
-// $Id: pluginmanager_t.cc,v 1.5 2008/01/22 22:10:38 wmtan Exp $
+// $Id: pluginmanager_t.cc,v 1.6 2008/10/21 15:45:04 eulisse Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/PluginManager/test/DummyFactory.h"
@@ -78,23 +79,8 @@ TestPluginManager::test()
 
   PluginManager::Config config;
   CPPUNIT_ASSERT_THROW(PluginManager::configure(config), cms::Exception );
-  
-  const char* path = getenv("LD_LIBRARY_PATH");
-  CPPUNIT_ASSERT(0 != path);
-  
-  std::string spath(path? path: "");
-  std::string::size_type last=0;
-  std::string::size_type i=0;
-  std::vector<std::string> paths;
-  while( (i=spath.find_first_of(':',last))!=std::string::npos) {
-    paths.push_back(spath.substr(last,i-last));
-    last = i+1;
-    std::cout <<paths.back()<<std::endl;
-  }
-  paths.push_back(spath.substr(last,std::string::npos));
-  config.searchPath(paths);
-  
-  edmplugin::PluginManager& db = edmplugin::PluginManager::configure(config);
+
+  edmplugin::PluginManager& db = edmplugin::PluginManager::configure(edmplugin::standard::config());
 
   std::auto_ptr<DummyBase> ptr(DummyFactory::get()->create("DummyOne"));
   CPPUNIT_ASSERT(1==ptr->value());
