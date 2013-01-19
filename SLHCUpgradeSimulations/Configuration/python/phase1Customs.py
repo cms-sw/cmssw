@@ -3,7 +3,36 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.iterativeTk_cff import *
 from RecoTracker.IterativeTracking.ElectronSeeds_cff import *
 
-def phase1Mods(process):
+def customise_DigiToRaw(process):
+    process.DigiToRaw.remove(process.siPixelRawData)
+    process.DigiToRaw.remove(process.castorRawData)
+    return process
+
+def customise_RawToDigi(process):
+    process.RawToDigi.remove(process.siPixelDigis)
+    process.RawToDigi.remove(process.castorDigis)
+    return process
+
+def customise_Digi(process):
+    process.mix.digitizers.pixel.MissCalibrate = False
+    process.mix.digitizers.pixel.LorentzAngle_DB = False
+    process.mix.digitizers.pixel.killModules = False
+    process.mix.digitizers.pixel.useDB = False
+    process.mix.digitizers.pixel.DeadModules_DB = False
+    process.mix.digitizers.pixel.NumPixelBarrel = cms.int32(4)
+    process.mix.digitizers.pixel.NumPixelEndcap = cms.int32(3)
+    process.mix.digitizers.pixel.AddPixelInefficiency = -1
+    process.mix.digitizers.pixel.ThresholdInElectrons_FPix = cms.double(2000.0)
+    process.mix.digitizers.pixel.ThresholdInElectrons_BPix = cms.double(2000.0)
+    process.mix.digitizers.pixel.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
+    process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(0.999)
+    process.mix.digitizers.pixel.thePixelEfficiency_BPix4 = cms.double(0.999)
+    process.mix.digitizers.pixel.thePixelChipEfficiency_BPix4 = cms.double(0.999)
+
+    return process
+
+    
+def customise_Reco(process):
     # Next line is only in for the moment for debugging
     #process.load('Configuration.StandardSequences.Reconstruction_cff')
     #
@@ -291,10 +320,6 @@ def phase1Mods(process):
     				     	     stripPairElectronSeeds*
     				     	     newCombinedSeeds  )
 
-    process.DigiToRaw.remove(process.siPixelRawData)
-    process.DigiToRaw.remove(process.castorRawData)
-    process.RawToDigi.remove(process.siPixelDigis)
-    process.RawToDigi.remove(process.castorDigis)
     process.reconstruction.remove(process.castorreco)
     process.reconstruction.remove(process.CastorTowerReco)
     process.reconstruction.remove(process.ak7BasicJets)
@@ -335,9 +360,6 @@ def phase1Mods(process):
 
     #process.regionalCosmicTrackerSeeds.SeedMergerPSet=SeedMergerPSet
     
-    process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(0.999)
-    process.mix.digitizers.pixel.thePixelEfficiency_BPix4 = cms.double(0.999)
-    process.mix.digitizers.pixel.thePixelChipEfficiency_BPix4 = cms.double(0.999)
     #done
     return process
 
