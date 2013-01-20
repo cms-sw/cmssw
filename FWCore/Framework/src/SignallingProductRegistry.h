@@ -23,7 +23,7 @@
 #include <string>
 
 #include "boost/utility.hpp"
-#include "sigc++/signal.h"
+#include "FWCore/Utilities/interface/Signal.h"
 
 // user include files
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -35,7 +35,7 @@ namespace edm {
    public:
       SignallingProductRegistry() : ProductRegistry(), productAddedSignal_(), typeAddedStack_() {}
       explicit SignallingProductRegistry(ProductRegistry const& preg) : ProductRegistry(preg.productList(), false), productAddedSignal_(), typeAddedStack_() {}
-      sigc::signal<void, BranchDescription const&> productAddedSignal_;
+      signalslot::Signal<void(BranchDescription const&)> productAddedSignal_;
 
    private:
       virtual void addCalled(BranchDescription const&, bool);

@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 #include <memory>
-#include "sigc++/signal.h"
+#include "FWCore/Utilities/interface/Signal.h"
 
 namespace edm {
   typedef edmplugin::PluginFactory<Maker* ()> MakerPluginFactory;
@@ -24,8 +24,8 @@ namespace edm {
     static Factory* get();
 
     std::auto_ptr<Worker> makeWorker(const WorkerParams&,
-                                     sigc::signal<void, const ModuleDescription&>& pre,
-                                     sigc::signal<void, const ModuleDescription&>& post) const;
+                                     signalslot::Signal<void(const ModuleDescription&)>& pre,
+                                     signalslot::Signal<void(const ModuleDescription&)>& post) const;
 
 
   private:

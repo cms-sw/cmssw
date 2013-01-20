@@ -6,7 +6,7 @@
 
 #include <memory>
 #include <string>
-#include "sigc++/signal.h"
+#include "FWCore/Utilities/interface/Signal.h"
 
 
 namespace edm {
@@ -18,14 +18,14 @@ namespace edm {
   public:
     virtual ~Maker();
     std::auto_ptr<Worker> makeWorker(WorkerParams const&,
-                                     sigc::signal<void, ModuleDescription const&>& iPre,
-                                     sigc::signal<void, ModuleDescription const&>& iPost) const;
+                                     signalslot::Signal<void(ModuleDescription const&)>& iPre,
+                                     signalslot::Signal<void(ModuleDescription const&)>& iPost) const;
     void swapModule(Worker*, ParameterSet const&);
   protected:
     ModuleDescription createModuleDescription(WorkerParams const& p) const;
 
     void throwConfigurationException(ModuleDescription const& md,
-                                     sigc::signal<void, ModuleDescription const&>& post,
+                                     signalslot::Signal<void(ModuleDescription const&)>& post,
                                      cms::Exception & iException) const;
 
     void throwValidationException(WorkerParams const& p,

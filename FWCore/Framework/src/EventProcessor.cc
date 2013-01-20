@@ -758,7 +758,8 @@ namespace edm {
     if(looper_) {
       c.call(boost::bind(&EDLooperBase::endOfJob, looper_));
     }
-    c.call(boost::bind(&ActivityRegistry::PostEndJob::operator(), &actReg_->postEndJobSignal_));
+    auto actReg = actReg_.get();
+    c.call([actReg](){actReg->postEndJobSignal_();});
     if(c.hasThrown()) {
       c.rethrow();
     }
@@ -1299,8 +1300,8 @@ namespace edm {
     // When the FwkImpl signals are given, pass them to the
     // appropriate EventProcessor signals so that the outside world
     // can see the signal.
-    actReg_->preProcessEventSignal_.connect(ep->preProcessEventSignal_);
-    actReg_->postProcessEventSignal_.connect(ep->postProcessEventSignal_);
+    actReg_->preProcessEventSignal_.connect(std::cref(ep->preProcessEventSignal_));
+    actReg_->postProcessEventSignal_.connect(std::cref(ep->postProcessEventSignal_));
   }
 
   std::vector<ModuleDescription const*>

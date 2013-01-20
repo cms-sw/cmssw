@@ -52,7 +52,7 @@ Some examples of InputSource subclasses may be:
 
 #include "boost/shared_ptr.hpp"
 #include "boost/utility.hpp"
-#include "sigc++/signal.h"
+#include "FWCore/Utilities/interface/Signal.h"
 
 #include <string>
 
@@ -254,7 +254,7 @@ namespace edm {
 
     class SourceSentry : private boost::noncopyable {
     public:
-      typedef sigc::signal<void> Sig;
+      typedef signalslot::Signal<void()> Sig;
       SourceSentry(Sig& pre, Sig& post);
       ~SourceSentry();
     private:
@@ -291,7 +291,7 @@ namespace edm {
 
     class FileCloseSentry : private boost::noncopyable {
     public:
-      typedef sigc::signal<void> Sig;
+      typedef signalslot::Signal<void()> Sig;
       explicit FileCloseSentry(InputSource const& source);
       explicit FileCloseSentry(InputSource const& source, std::string const& lfn, bool primary);
       ~FileCloseSentry();

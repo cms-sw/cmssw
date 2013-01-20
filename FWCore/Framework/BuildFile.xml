@@ -10,7 +10,6 @@
 <use   name="FWCore/Version"/>
 <use   name="boost"/>
 <use   name="rootcore"/>
-<use   name="sigcpp"/>
 <export>
   <lib   name="1"/>
 </export>

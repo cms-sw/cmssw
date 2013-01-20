@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:38:29 EDT 2007
-// $Id: pluginmanager_t.cc,v 1.6 2008/10/21 15:45:04 eulisse Exp $
+// $Id: pluginmanager_t.cc,v 1.7 2013/01/19 17:39:37 chrjones Exp $
 //
 
 // system include files
@@ -81,13 +81,42 @@ TestPluginManager::test()
   CPPUNIT_ASSERT_THROW(PluginManager::configure(config), cms::Exception );
 
   edmplugin::PluginManager& db = edmplugin::PluginManager::configure(edmplugin::standard::config());
+  
+  std::string toLoadCategory("Test Dummy");
+  std::string toLoadPlugin;
+  unsigned int nTimesAsked=0;
+  
+  edmplugin::PluginManager::get()->askedToLoadCategoryWithPlugin_.connect([&](std::string const& iCategory, std::string const& iPlugin) {
+    //std::cout <<iCategory<<" "<<iPlugin<<std::endl;
+    CPPUNIT_ASSERT(toLoadCategory == iCategory);
+    CPPUNIT_ASSERT(toLoadPlugin == iPlugin);
+    ++nTimesAsked;
+  });
 
+  unsigned int nTimesGoingToLoad=0;
+  edmplugin::PluginManager::get()->goingToLoad_.connect([&nTimesGoingToLoad](const boost::filesystem::path&){++nTimesGoingToLoad;});
+
+  unsigned int nTimesLoaded=0;
+  edmplugin::PluginManager::get()->justLoaded_.connect([&nTimesLoaded](const edmplugin::SharedLibrary&){++nTimesLoaded;});
+  
+  toLoadPlugin="DummyOne";
   std::auto_ptr<DummyBase> ptr(DummyFactory::get()->create("DummyOne"));
   CPPUNIT_ASSERT(1==ptr->value());
+  CPPUNIT_ASSERT(nTimesAsked == 1);
+  CPPUNIT_ASSERT(nTimesGoingToLoad==1);
+  CPPUNIT_ASSERT(nTimesLoaded==1);
   CPPUNIT_ASSERT(db.loadableFor("Test Dummy", "DummyThree") == "static");
   std::auto_ptr<DummyBase> ptr2(DummyFactory::get()->create("DummyThree"));
   CPPUNIT_ASSERT(3==ptr2->value());
+  CPPUNIT_ASSERT(nTimesAsked == 1); //no request to load
+  CPPUNIT_ASSERT(nTimesGoingToLoad==1);
+  CPPUNIT_ASSERT(nTimesLoaded==1);
+
  
+  toLoadPlugin="DoesNotExist";
   CPPUNIT_ASSERT_THROW(DummyFactory::get()->create("DoesNotExist"), cms::Exception);
+  CPPUNIT_ASSERT(nTimesAsked == 2); //request happens even though it failed
+  CPPUNIT_ASSERT(nTimesGoingToLoad==1);
+  CPPUNIT_ASSERT(nTimesLoaded==1);
   
 }

@@ -41,7 +41,7 @@ Maker::throwValidationException(WorkerParams const& p,
 
 void 
 Maker::throwConfigurationException(ModuleDescription const& md, 
-                                   sigc::signal<void, ModuleDescription const&>& post, 
+                                   signalslot::Signal<void(ModuleDescription const&)>& post, 
                                    cms::Exception & iException) const {
   std::ostringstream ost;
   ost << "Constructing module: class=" << md.moduleName() << " label='" << md.moduleLabel() << "'";
@@ -64,8 +64,8 @@ Maker::validateEDMType(std::string const& edmType, WorkerParams const& p) const 
   
 std::auto_ptr<Worker> 
 Maker::makeWorker(WorkerParams const& p,
-                  sigc::signal<void, ModuleDescription const&>& pre,
-                  sigc::signal<void, ModuleDescription const&>& post) const {
+                  signalslot::Signal<void(ModuleDescription const&)>& pre,
+                  signalslot::Signal<void(ModuleDescription const&)>& post) const {
   ConfigurationDescriptions descriptions(baseType());
   fillDescriptions(descriptions);
   try {

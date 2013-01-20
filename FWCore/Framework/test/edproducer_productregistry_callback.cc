@@ -162,7 +162,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef() {
    edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
    edm::WorkerParams paramsl2(l2, &l2, preg, pc, table);
 
-   sigc::signal<void, const ModuleDescription&> aSignal;
+   signalslot::Signal<void(const ModuleDescription&)> aSignal;
 
    std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
    std::auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
@@ -233,7 +233,7 @@ void  testEDProducerProductRegistryCallback::testCircularRef2() {
    edm::WorkerParams paramsl1(l1, &l1, preg, pc, table);
    edm::WorkerParams paramsl2(l2, &l2, preg, pc, table);
    
-   sigc::signal<void, const ModuleDescription&> aSignal;
+   signalslot::Signal<void(const ModuleDescription&)> aSignal;
    std::auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
    std::auto_ptr<Worker> wl2 = lM->makeWorker(paramsl2,aSignal,aSignal);
    std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
@@ -305,7 +305,7 @@ void  testEDProducerProductRegistryCallback::testTwoListeners(){
    edm::WorkerParams paramsl2(l2, &l2, preg, pc, table);
    
    
-   sigc::signal<void, const ModuleDescription&> aSignal;
+   signalslot::Signal<void(const ModuleDescription&)> aSignal;
    std::auto_ptr<Worker> w1 = f->makeWorker(params1,aSignal,aSignal);
    std::auto_ptr<Worker> wl1 = lM->makeWorker(paramsl1,aSignal,aSignal);
    std::auto_ptr<Worker> wl2 = lFM->makeWorker(paramsl2,aSignal,aSignal);

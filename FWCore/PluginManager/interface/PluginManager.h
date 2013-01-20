@@ -24,7 +24,7 @@
 #include <string>
 #include <boost/filesystem/path.hpp>
 #include "boost/shared_ptr.hpp"
-#include "sigc++/signal.h"
+#include "FWCore/Utilities/interface/Signal.h"
 
 // user include files
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
@@ -91,9 +91,9 @@ class PluginManager
       static bool isAvailable();
       
       // ---------- member functions ---------------------------
-      sigc::signal<void,const boost::filesystem::path&> goingToLoad_;
-      sigc::signal<void,const SharedLibrary&> justLoaded_;
-      sigc::signal<void,const std::string&,const std::string&> askedToLoadCategoryWithPlugin_;
+      edm::signalslot::Signal<void(const boost::filesystem::path&)> goingToLoad_;
+      edm::signalslot::Signal<void(const SharedLibrary&)> justLoaded_;
+      edm::signalslot::Signal<void(const std::string&,const std::string&)> askedToLoadCategoryWithPlugin_;
    private:
       PluginManager(const Config&);
       PluginManager(const PluginManager&); // stop default
