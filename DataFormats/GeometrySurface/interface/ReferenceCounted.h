@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 15 09:17:20 EDT 2005
-// $Id: ReferenceCounted.h,v 1.10 2010/12/16 13:38:37 innocent Exp $
+// $Id: ReferenceCounted.h,v 1.11 2010/12/16 13:59:22 innocent Exp $
 //
 
 // system include files
@@ -83,6 +83,45 @@ inline void intrusive_ptr_add_ref( const BasicReferenceCounted* iRef ) {
 inline void intrusive_ptr_release( const BasicReferenceCounted* iRef ) {
   iRef->removeReference();
 }
+
+
+// does not increase ref count
+// delete if count is 0 (takes owership of orphans )
+// clone if count is 0 
+// double delete if deleted after the real owner...
+template<typename T>
+class MixedReference {
+  explicit  MixedReference(T const * ip=nullptr) noexcept : p(ip){}
+  ~MixedReference() noexcept { destroy();}
+
+#ifndef CMS_NOCXX11
+    MixedReference( MixedReference&& rh) noexcept : p(rh.p){rh.p=0;}
+  MixedReference& operator=( MixedReference&& rh) noexcept {
+    destroy();
+    p=rh.p; rh.p=0;
+    return *this;
+}
+#endif
+  
+  MixedReference( MixedReference const & rh) : p(rh.p? rh.p->clone(): nullptr ){}
+  MixedReference& operator=( MixedReference const & rh) { 
+    if (rh.p!=p) {
+      destroy();
+      p = rh.p? rh.p->clone(): nullptr;
+    }
+    return * this;
+  }
+
+
+  T const * get() const {return p;}
+  T const & operator*() const { return *p;}
+
+private:
+    void destroy() noexcept {
+      if (p && p->references()==0) { delete const_cast<T*>(p); }
+    }
+  T const * p;
+};
 
 
 #define CMSSW_POOLALLOCATOR
