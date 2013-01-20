@@ -45,10 +45,12 @@ public:
   float x0(float cotTheta) const dso_hidden;
   float sumX0D(float cotTheta) const dso_hidden; 
 
+  
   bool operator== (const MSLayer &o) const dso_hidden;
   bool operator<  (const MSLayer &o) const dso_hidden;
+  
   std::pair<PixelRecoPointRZ,bool> crossing(const PixelRecoLineRZ &line) const  dso_hidden;
-  float distance(const PixelRecoPointRZ & point) const  dso_hidden;
+  float distance2(const PixelRecoPointRZ & point) const  dso_hidden;
 
 private:
 

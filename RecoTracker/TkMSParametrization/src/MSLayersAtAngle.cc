@@ -94,10 +94,10 @@ MSLayersAtAngle::LayerItr MSLayersAtAngle::findLayer(
     MSLayersAtAngle::LayerItr iend) const
 {
   const float BIG=99999.f;
-  const float EPSILON = 1.e-4f;
+  const float EPSILON = 1.e-8f;
   LayerItr theIt = ibeg; float dist = BIG;
   for (LayerItr it = ibeg; it < iend; it++) {
-    float d = it->distance(point);
+    float d = it->distance2(point);
     if (d < dist) {
       if (d < EPSILON) return it; 
       dist = d;
