@@ -177,7 +177,7 @@ namespace edm {
 
   EventPrincipal*
   PoolSource::readEvent_(EventPrincipal& eventPrincipal) {
-    EventSourceSentry(*this);
+    EventSourceSentry sentry{*this};
     EventPrincipal* primaryPrincipal = primaryFileSequence_->readEvent(eventPrincipal);
     if(secondaryFileSequence_ && !branchIDsToReplace_[InEvent].empty()) {
       bool found = secondaryFileSequence_->skipToItem(primaryPrincipal->run(),
