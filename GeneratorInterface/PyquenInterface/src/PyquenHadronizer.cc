@@ -2,7 +2,7 @@
  *
  * Generates PYQUEN HepMC events
  *
- * $Id: PyquenHadronizer.cc,v 1.13 2011/03/02 10:35:17 yilmaz Exp $
+ * $Id: PyquenHadronizer.cc,v 1.14 2012/09/18 17:19:35 yilmaz Exp $
 */
 
 #include <iostream>
@@ -144,8 +144,8 @@ bool PyquenHadronizer::generatePartonsAndHadronize()
    if(doIsospin_){
      string projN = "p";
      string targN = "p";
-     if(protonSide_ == 2) projN = nucleon();
-     if(protonSide_ == 1) targN = nucleon();
+     if(protonSide_ != 1) projN = nucleon();
+     if(protonSide_ != 2) targN = nucleon();
      call_pyinit("CMS", projN.data(), targN.data(), comenergy);
    }
    call_pyevnt();
