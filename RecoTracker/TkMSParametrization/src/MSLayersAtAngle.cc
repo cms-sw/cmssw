@@ -2,9 +2,13 @@
 #include "MSLayersAtAngle.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
+#include "DataFormats/Math/interface/approx_log.h"
+
 using namespace std;
 
-template <class T> inline T sqr( T t) {return t*t;}
+namespace {
+  template <class T> inline T sqr( T t) {return t*t;}
+}
 
 //------------------------------------------------------------------------------
 MSLayersAtAngle::MSLayersAtAngle(const vector<MSLayer> & layers)
@@ -80,7 +84,7 @@ float MSLayersAtAngle::sum2RmRn(
     if (cross.second) {
       float x0 = it->x0(cotTh);
       float dr = rTarget-cross.first.r();
-      if (x0 > 1.e-5f) dr *= 1.f+0.038f*std::log(x0); 
+      if (x0 > 1.e-5f) dr *= 1.f+0.038f*unsafe_logf<2>(x0); 
       sum2 += x0*dr*dr;
     } 
 //  cout << *it << " crossing: "<<cross.second<<endl;
