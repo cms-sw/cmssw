@@ -18,6 +18,8 @@ def customise(process):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
         process=customise_Validation(process)
+    process=customise_condOverRides(process)
+    
     return process
 
 def customise_DigiToRaw(process):
@@ -48,7 +50,6 @@ def customise_Digi(process):
 
     return process
 
-    
 def customise_Reco(process):
     # Next line is only in for the moment for debugging
     #process.load('Configuration.StandardSequences.Reconstruction_cff')
@@ -390,7 +391,7 @@ def customise_DQM(process):
     #
     process.dqmoffline_step.remove(process.muonAnalyzer)
     process.dqmoffline_step.remove(process.jetMETAnalyzer)
-    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
+#    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
     return process
 
 def customise_Validation(process):
@@ -406,3 +407,7 @@ def customise_harvesting(process):
     process.dqmHarvesting.remove(process.sipixelEDAClient)
     process.dqmHarvesting.remove(process.sipixelCertification)
     return (process)        
+
+def customise_condOverRides(process):
+    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff')
+    return process
