@@ -122,8 +122,8 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   //
 
   if (checkCrossing) {
-    double vtxmag2 = theVtx.mag2();
-    if (vtxmag2 < 1.e-10) {
+    auto vtxmag2 = theVtx.mag2();
+    if (vtxmag2 < 1.e-10f) {
       dLayer = rLayer;
     }
     else { 
@@ -155,7 +155,7 @@ PixelRecoRange<float> InnerDeltaPhi::phiRange(const Point2D& hitXY,float hitZ,fl
   auto dphicross = phicross2-phicross1;
   if (dphicross < -float(M_PI)) dphicross += float(2*M_PI);
   if (dphicross >  float(M_PI)) dphicross -= float(2*M_PI);
-  if (dphicross > M_PI/2) dphicross = 0.;  // something wrong?
+  if (dphicross > float(M_PI/2)) dphicross = 0.;  // something wrong?
   phicross2 = phicross1 + dphicross;
         
 
@@ -199,7 +199,7 @@ float InnerDeltaPhi::operator()( float rHit, float zHit, float errRPhi) const
   float deltaPhi = std::abs( alphaHit - std::asin( rMin/(2*theRCurvature)));
 
   // compute additional delta phi due to origin radius
-  float deltaPhiOrig = asin( theROrigin * (rHit-rMin) / (rHit*rMin));
+  float deltaPhiOrig = std::asin( theROrigin * (rHit-rMin) / (rHit*rMin));
 
   // hit error taken as constant
   float deltaPhiHit = theExtraTolerance / rMin;
