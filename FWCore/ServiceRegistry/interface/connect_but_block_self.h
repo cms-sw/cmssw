@@ -17,49 +17,34 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 20:42:32 CEST 2005
-// $Id: connect_but_block_self.h,v 1.2 2006/08/16 13:37:19 chrjones Exp $
+// $Id: connect_but_block_self.h,v 1.3 2007/01/22 23:04:27 wmtan Exp $
 //
 
 // system include files
-#include "boost/shared_ptr.hpp"
-#include "sigc++/signal.h"
-#include "sigc++/connection.h"
-#include "boost/bind.hpp"
+#include <memory>
+#include "FWCore/Utilities/interface/Signal.h"
 
 // user include files
 
 // forward declarations
 namespace edm {
    namespace serviceregistry {
-      template<class Func, class T1=void*, class T2=void*, class T3=void*>
+      template<typename Func>
       class BlockingWrapper
       {
       
        public:
+        
          BlockingWrapper(Func iFunc): func_(iFunc), numBlocks_(0) {}
          //virtual ~BlockingWrapper();
          
          // ---------- const member functions ---------------------
-         void operator()() {
-            boost::shared_ptr<void> guard(static_cast<void*>(0), boost::bind(&BlockingWrapper::unblock,this) );
-            if( startBlocking() ) { func_(); }
+         template<typename... Args>
+         void operator()(Args&&... args) {
+            std::shared_ptr<void> guard(static_cast<void*>(0), std::bind(&BlockingWrapper::unblock,this) );
+           if( startBlocking() ) { func_(std::forward<Args>(args)...); }
          }
 
-         void operator()(T1 iT) {
-            boost::shared_ptr<void> guard(static_cast<void*>(0), boost::bind(&BlockingWrapper::unblock,this) );
-            if( startBlocking() ) { func_(iT); }
-         }
-
-         void operator()(T1 iT1, T2 iT2) {
-            boost::shared_ptr<void> guard(static_cast<void*>(0), boost::bind(&BlockingWrapper::unblock,this) );
-            if( startBlocking() ) { func_(iT1,iT2); }
-         }
-
-         void operator()(T1 iT1, T2 iT2, T3 iT3) {
-            boost::shared_ptr<void> guard(static_cast<void*>(0), boost::bind(&BlockingWrapper::unblock,this) );
-            if( startBlocking() ) { func_(iT1,iT2,iT3); }
-         }
-         
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
@@ -71,31 +56,11 @@ namespace edm {
          Func func_;
          int numBlocks_;
       };
-      
-      template<class T>
-         typename T::value_type
-         deref(T& iT){ return *iT;}
-      
-      template<class T>
-         BlockingWrapper<T> make_blockingwrapper(T iT,
-                                                 const sigc::slot<void>*){
-            return BlockingWrapper<T>(iT);
-         }
-      template<class T, class TArg>
-         BlockingWrapper<T,TArg> make_blockingwrapper(T iT,
-                                                      const sigc::slot<void,TArg>*) {
-            return BlockingWrapper<T,TArg>(iT);
-         }
-      
-      
+     
       template<class Func, class Signal>
       void 
       connect_but_block_self(Signal& oSignal, const Func& iFunc) {
-         boost::shared_ptr<boost::shared_ptr<sigc::connection> > holder(new boost::shared_ptr<sigc::connection>());
-         *holder = boost::shared_ptr<sigc::connection>(
-                    new sigc::connection(oSignal.connect(
-                                                   make_blockingwrapper(iFunc,
-                                                                        static_cast<const typename Signal::slot_type*>(0)))));
+        oSignal.connect(BlockingWrapper<Func>(iFunc));
       }
    }
 }

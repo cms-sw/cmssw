@@ -12,7 +12,6 @@
 <use   name="rootcintex"/>
 <use   name="rootcore"/>
 <use   name="roothistmatrix"/>
-<use   name="sigcpp"/>
 <use   name="xerces-c"/>
 <export>
   <lib   name="1"/>
