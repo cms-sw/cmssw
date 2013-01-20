@@ -146,17 +146,18 @@ string SHAPESTRING="";
 
 
 void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal=""){
-   setTDRStyle();
-   gStyle->SetPadTopMargin   (0.06);
-   gStyle->SetPadBottomMargin(0.10);
-   gStyle->SetPadRightMargin (0.18);
-   gStyle->SetPadLeftMargin  (0.12);
-   gStyle->SetTitleSize(0.04, "XYZ");
-   gStyle->SetTitleXOffset(1.1);
-   gStyle->SetTitleYOffset(1.35);
-   gStyle->SetPalette(1);
-   gStyle->SetNdivisions(505,"X");
-   gStyle->SetNdivisions(550,"Y");
+  setTDRStyle();
+  gStyle->SetPadTopMargin   (0.06);
+  gStyle->SetPadBottomMargin(0.12);
+  gStyle->SetPadRightMargin (0.16);
+  gStyle->SetPadLeftMargin  (0.14);
+  gStyle->SetTitleSize(0.04, "XYZ");
+  gStyle->SetTitleXOffset(1.1);
+  gStyle->SetTitleYOffset(1.7);
+  gStyle->SetPalette(1);
+  gStyle->SetNdivisions(505,"X");
+  gStyle->SetNdivisions(550,"Y");
+  //gStyle->SetTextFont(43);
 
    if(MODE=="COMPILE")return;
 
@@ -1283,7 +1284,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string signal
    MGHQ->SetTitle("");
    MGHQ->GetXaxis()->SetTitle("Mass (GeV/#font[12]{c}^{2})");
    MGHQ->GetYaxis()->SetTitle(Combine?"#sigma_{obs}/#sigma_{th}":"#sigma (pb)");
-   MGHQ->GetYaxis()->SetTitleOffset(1.40);
+   MGHQ->GetYaxis()->SetTitleOffset(1.70);
    //   MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
    MGHQ->GetYaxis()->SetRangeUser(PlotMinScale,100);
    MGHQ->GetXaxis()->SetRangeUser(50,1050);

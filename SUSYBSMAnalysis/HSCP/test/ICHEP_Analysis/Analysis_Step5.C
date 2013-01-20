@@ -47,9 +47,10 @@ void Analysis_Step5()
    gStyle->SetPadLeftMargin  (0.14);
    gStyle->SetTitleSize(0.04, "XYZ");
    gStyle->SetTitleXOffset(1.1);
-   gStyle->SetTitleYOffset(1.45);
+   gStyle->SetTitleYOffset(1.7);
    gStyle->SetPalette(1);
    gStyle->SetNdivisions(505);
+   //gStyle->SetTextFont(43);
    GetSampleDefinition(samples);
 
 
@@ -107,7 +108,6 @@ void Analysis_Step5()
    InputPattern = "Results/Type3/";   CutIndex = 96; CutIndex_Flip=54;
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    Make2DPlot_Core(InputPattern, 0);
-   PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    CutFlow(InputPattern, CutIndex);
    SelectionPlot(InputPattern, CutIndex, CutIndexTight);
    CosmicBackgroundSystematic(InputPattern, "8TeV");
@@ -928,7 +928,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          if(TypeMode!=3) frame->GetXaxis()->SetTitle((dEdxS_Legend + " Cut").c_str());
 	 else frame->GetXaxis()->SetTitle("1/#beta Cut");
 	 char YAxisTitle[100];
-	 sprintf(YAxisTitle,"Fraction of tracks/%0.3f",binOne-binZero);
+	 sprintf(YAxisTitle,"Tracks/%0.3f",fabs(binOne-binZero));
          frame->GetYaxis()->SetTitle(YAxisTitle);
          frame->GetYaxis()->SetTitleOffset(1.50);
          frame->SetMaximum(max*10);
@@ -944,13 +944,13 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
 	 string L1, L2, L3;
 
 	 if(TypeMode==0){
-	   P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (pT>55GeV)";
-	   P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (pT>65GeV)";
-	   P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (pT>75GeV)";
+	   P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (p_{T}>55GeV)";
+	   P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (p_{T}>65GeV)";
+	   P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (p_{T}>75GeV)";
 	 }else if(TypeMode==3){
-	   P1 = std::make_pair(110.0, -1.0);  L1 = "Pred (pT>110GeV)";
-	   P2 = std::make_pair(170.0, -1.0);  L2 = "Pred (pT>170GeV)";
-	   P3 = std::make_pair(230.0, -1.0);  L3 = "Pred (pT>230GeV)";
+	   P1 = std::make_pair(110.0, -1.0);  L1 = "Pred (p_{T}>110GeV)";
+	   P2 = std::make_pair(170.0, -1.0);  L2 = "Pred (p_{T}>170GeV)";
+	   P3 = std::make_pair(230.0, -1.0);  L3 = "Pred (p_{T}>230GeV)";
 	 }else if(TypeMode==4 && S==0){
 	   P1 = std::make_pair(  -1.0 , 1.075);  L1 = "Pred (1/#beta> 1.075)";
 	   P2 = std::make_pair(  -1.0 , 1.100);  L2 = "Pred (1/#beta> 1.100)";
@@ -960,9 +960,9 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
            P2 = std::make_pair(  -1.0 , 0.900);  L2 = "Pred (1/#beta< 0.900)";
            P3 = std::make_pair(  -1.0 , 0.875);  L3 = "Pred (1/#beta< 0.875)";
 	 }else if(TypeMode==5){
-	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (pT> 75GeV)";
-	   P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (pT>100GeV)";
-	   P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (pT>125GeV)";
+	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (p_{T}> 75GeV)";
+	   P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (p_{T}>100GeV)";
+	   P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (p_{T}>125GeV)";
 	 }
 
 
@@ -976,7 +976,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          mapPred[P1]->SetFillColor(2);     mapRatio[P1]->SetFillColor(2);
          mapPred[P1]->SetFillStyle(3004);  mapRatio[P1]->SetFillStyle(3004);
          mapPred[P1]->Draw("3L");
-
+	 //I (Chris) think the plot looks better with only two lines as it keeps the lines from bleeding into one another so removing middle line.
+	 /*
          mapObs[P2]->SetMarkerColor(4);
          mapObs[P2]->SetMarkerStyle(20);
          mapObs[P2]->Draw("P");
@@ -985,7 +986,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          mapPred[P2]->SetFillColor(4);     mapRatio[P2]->SetFillColor(4);
          mapPred[P2]->SetFillStyle(3005);  mapRatio[P2]->SetFillStyle(3005);
          mapPred[P2]->Draw("3L");
-
+	 */
          mapObs[P3]->SetMarkerColor(8);
          mapObs[P3]->SetMarkerStyle(20);
          mapObs[P3]->Draw("P");
@@ -999,7 +1000,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          obsLeg->SetMarkerColor(1);
          LEG->AddEntry(obsLeg, "Data"    ,"P");
          LEG->AddEntry(mapPred[P1], L1.c_str(),"FL");
-         LEG->AddEntry(mapPred[P2], L2.c_str(),"FL");
+         //LEG->AddEntry(mapPred[P2], L2.c_str(),"FL");
          LEG->AddEntry(mapPred[P3], L3.c_str(),"FL");
          LEG->Draw("same");
 
@@ -1042,7 +1043,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          t2->cd();
 
          mapRatio[P1]->Draw("3C");
-         mapRatio[P2]->Draw("3C");
+         //mapRatio[P2]->Draw("3C");
          mapRatio[P3]->Draw("3C");
          TLine* LineAtOne = new TLine(xmin,1,xmax,1);      LineAtOne->SetLineStyle(3);   LineAtOne->Draw();
 

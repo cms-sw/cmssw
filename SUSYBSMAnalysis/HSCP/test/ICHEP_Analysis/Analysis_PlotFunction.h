@@ -59,7 +59,7 @@ void SaveCanvas(TCanvas* c, std::string path, std::string name, bool OnlyPPNG=fa
 void DrawPreliminary(string Text, double SQRTS_, double Lumi, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
-   T->SetTextSize(15);  //font size
+   T->SetTextSize(17);  //font size
    T->SetFillColor(0);
    T->SetTextAlign(22);
    char tmp[2048];
@@ -100,7 +100,7 @@ void DrawPreliminary(double SQRTS_, double Lumi, double X=0.40, double Y=0.995, 
 void DrawPreliminary(string Text, double SQRTS_, string LumiText, double X=0.15, double Y=0.995, double W=0.82, double H=0.945){
    TPaveText* T = new TPaveText(X,Y,W,H, "NDC");
    T->SetTextFont(43);  //give the font size in pixel (instead of fraction)
-   T->SetTextSize(15);  //font size
+   T->SetTextSize(17);  //font size
    T->SetFillColor(0);
    T->SetTextAlign(22);
    char tmp[2048];
