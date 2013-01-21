@@ -15,8 +15,8 @@
 /*
  * \file HcalSummaryClient.cc
  * 
- * $Date: 2012/06/21 14:45:15 $
- * $Revision: 1.108 $
+ * $Date: 2012/07/08 13:32:47 $
+ * $Revision: 1.110 $
  * \author J. Temple
  * \brief Summary Client class
  */
@@ -289,8 +289,10 @@ void HcalSummaryClient::analyze(int LS)
 		  for (unsigned int cl=0;cl<clients_.size();++cl)
 		    {
 		      if (clients_[cl]->ProblemCellsByDepth==0) continue;
-
+		      
+		      if(clients_[cl]->name()=="ZDCMonitor") continue;
 		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;
+
 		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]->getBinContent(eta,phi)>clients_[cl]->minerrorrate_)
 			{
 			  // QPLL unlocking channels, have to ignore unpacker errors (fix requires opening CMS)
@@ -374,6 +376,8 @@ void HcalSummaryClient::analyze(int LS)
 		      // We know that first element is HcalMonitorModule info, which has
 		      // no problem cells defined.  Create some, or start counting from cl=1?
 		      if (debug_>4 && eta==1 && phi==1) std::cout <<"Checking summary for client "<<clients_[cl]->name()<<std::endl;
+		      if(clients_[cl]->name()=="ZDCMonitor") continue;
+
 		      if (clients_[cl]->ProblemCellsByDepth==0) continue;
 
 		      if ((clients_[cl]->ProblemCellsByDepth)->depth[d]==0) continue;

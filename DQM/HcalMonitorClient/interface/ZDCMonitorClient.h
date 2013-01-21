@@ -17,19 +17,20 @@ class DQMStore;
 //class TH1F;
 //class TFile;
 
-class ZDCMonitorClient : public edm::EDAnalyzer{
+class ZDCMonitorClient : public HcalBaseDQClient {
   
 public:
   
   /// Constructors
   //ZDCMonitorClient();
-  ZDCMonitorClient(const edm::ParameterSet& ps);
+  ZDCMonitorClient(std::string myname, const edm::ParameterSet& ps);
   
   /// Destructor
   virtual ~ZDCMonitorClient();
 
   /// Analyze
-  void analyze(int LS=-1);
+  void analyze(void);
+  /* void analyze(int LS=-1); */
   void analyze(const edm::Event& evt, const edm::EventSetup& es);
   
   /// BeginJob

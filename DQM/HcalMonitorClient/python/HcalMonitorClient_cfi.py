@@ -51,6 +51,12 @@ hcalClient = cms.EDAnalyzer("HcalMonitorClient",
                                                                                        # can be found in the DQM output. If the task info can't be found, this backup value is used in its place.
                             excludeBadQPLL         = cms.untracked.bool(True),
 
+                            ZDC_QIValueForGoodLS = cms.untracked.vdouble(0.8, #The ZDC+ must have at least this high a quality index (QI) to be called good for that Lumi Section (LS) 
+                                                                        0.8  #The ZDC- must have at least this high a quality index (QI) to be called good for that Lumi Sectoin (LS)
+                                                                        ),
+
+                            ZDCFolder                 = cms.untracked.string("ZDCMonitor_Hcal/"), # This is the subfolder with the subSystemFolder where histograms are kept
+
                             # Specify all clients to be run (name = prefix+"Monitor")
 
                             enabledClients = cms.untracked.vstring(["DeadCellMonitor",
