@@ -70,13 +70,13 @@ def getrunsInCurrentData(schema,minrun=132440,maxrun=500000):
     if tmpresult:return tmpresult.keys()    
     return []
 
-def execCalc(connectStr,authpath,runnum):
+def execCalc(connectStr,authpath,runnum,minbias):
     '''
     run lumiCalc2.py lumibyls for the run
     '''
     outdatafile=str(runnum)+'.csv'
     outheaderfile=str(runnum)+'.txt'
-    command = 'lumiCalc2.py lumibyls -c ' +connectStr+' -P '+authpath+' -r '+str(runnum)+' -o '+outdatafile+' --headerfile '+outheaderfile
+    command = 'lumiCalc2.py lumibyls -c ' +connectStr+' -P '+authpath+' -r '+str(runnum)+' -o '+outdatafile+' --headerfile '+outheaderfile+' --minBiasXsec '+str(minbias)
     (status, output) = commands.getstatusoutput(command)
     if status != 0:
         print 'empty result ',command
@@ -216,6 +216,12 @@ if __name__ == "__main__" :
                         required=False,
                         default=500000,
                         help='end run number')
+    parser.add_argument('--minBiasXsec',dest='minbiasxsec',action='store',
+                        default=69300.0,
+                        type=float,
+                        required=False,
+                        help='minbias cross-section in ub'
+                        )
     parser.add_argument('-i',dest='indir',action='store',
                         required=False,
                         default=None,
@@ -260,7 +266,7 @@ if __name__ == "__main__" :
     processedruns=[]
     for r in sourcerunlist:
         if r not in destrunlist:
-            result=execCalc(options.sourcestr,options.pth,r)
+            result=execCalc(options.sourcestr,options.pth,r,minbias=options.minbiasxsec)
             if result:
                 processedruns.append(result)
     if len(processedruns)==0:
