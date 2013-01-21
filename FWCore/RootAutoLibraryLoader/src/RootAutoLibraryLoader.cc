@@ -15,6 +15,7 @@
 #include <iostream>
 #include <map>
 #include "TROOT.h"
+#include "TInterpreter.h"
 #include "G__ci.h"
 #include "boost/regex.hpp"
 
@@ -27,7 +28,6 @@
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "Cintex/Cintex.h"
 #include "TClass.h"
@@ -64,12 +64,18 @@ namespace {
 //
 //hold onto the previous autolibrary loader
 typedef int (*CallbackPtr)(char*, char*);
-static CallbackPtr gPrevious = 0;
+static CallbackPtr gPrevious = nullptr;
 static char const* kDummyLibName = "*dummy";
 
 //This is actually defined within ROOT's v6_struct.cxx file but is not declared static
 // I want to use it so that if the autoloading is already turned on, I can call the previously declared routine
 extern CallbackPtr G__p_class_autoloading;
+
+namespace ROOT {
+  namespace Cintex {
+    std::string CintName(std::string const&);
+  }
+}
 
 namespace edm {
    namespace {
@@ -95,9 +101,18 @@ namespace edm {
                                sReflexPrefix + type + sReflexPostfix));
       }
 
+      bool
+      isDictionaryLoaded(std::string const& classname) {
+        // This checks if the class name is known to the interpreter.
+        // In this context, this will be true if and only if the dictionary has been loaded (and converted to CINT).
+        // Except for the CintName() call, this code is independent of the identity of the interpreter.
+        ClassInfo_t* info = gInterpreter->ClassInfo_Factory(ROOT::Cintex::CintName(classname).c_str());
+        return gInterpreter->ClassInfo_IsValid(info);
+      }
+
       bool loadLibraryForClass(char const* classname) {
         //std::cout << "loadLibaryForClass" << std::endl;
-        if(0 == classname) {
+        if(nullptr == classname) {
           return false;
         }
         //std::cout << "asking to find " << classname << std::endl;
@@ -107,8 +122,7 @@ namespace edm {
           //give ROOT a name for the file we are loading
           RootLoadFileSentry sentry;
           if(edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + classname)) {
-            TypeWithDict t(TypeWithDict::byName(classname));
-            if(!t.isComplete()) {
+            if(!isDictionaryLoaded(classname)) {
               //would be nice to issue a warning here.  Not sure the remainder of this comment is correct.
               // this message happens too often (too many false positives) to be useful plus ROOT will complain about a missing dictionary
               //std::cerr << "Warning: ROOT knows about type '" << classname << "' but has no dictionary for it." << std::endl;
@@ -122,13 +136,9 @@ namespace edm {
               // Too many false positives on built-in types here.
               return false;
             }
-            TypeWithDict t(TypeWithDict::byName(name));
-            if (!bool(t)) {
-              TypeWithDict t2(TypeWithDict::byName(name));
-              if (!bool(t2)) {
-                //would be nice to issue a warning here
-                return false;
-              }
+            if(!isDictionaryLoaded(classname)) {
+              //would be nice to issue a warning here
+              return false;
             }
           }
         } catch(cms::Exception& e) {
@@ -144,7 +154,7 @@ namespace edm {
       int ALL_AutoLoadCallback(char* c, char* l) {
         //NOTE: if the library (i.e. 'l') is an empty string this means we are dealing with a namespace
         // These checks appear to avoid a crash of ROOT during shutdown of the application
-        if(0 == c || 0 == l || l[0] == 0) {
+        if(nullptr == c || nullptr == l || l[0] == 0) {
           return 0;
         }
         ULong_t varp = G__getgvp();
@@ -207,26 +217,22 @@ namespace edm {
         //find where special cases come from
         std::map<std::string, std::string> specialsToLib;
         std::map<std::string, std::string> const& specials = cintToReflexSpecialCasesMap();
-        for(std::map<std::string, std::string>::const_iterator itSpecial = specials.begin();
-            itSpecial != specials.end();
-            ++itSpecial) {
-          specialsToLib[classNameForRoot(itSpecial->second)];
+        for(auto const& special : specials) {
+          specialsToLib[classNameForRoot(special.second)];
         }
         std::string const& cPrefix = dictionaryPlugInPrefix();
-        for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
-             itInfoEnd = itFound->second.end();
-             itInfo != itInfoEnd; ++itInfo) {
-          if (lastClass == itInfo->name_) {
+        for(auto const& info : itFound->second) {
+          if (lastClass == info.name_) {
             continue;
           }
-          lastClass = itInfo->name_;
+          lastClass = info.name_;
           if(cPrefix == lastClass.substr(0, cPrefix.size())) {
             std::string className = classNameForRoot(lastClass.c_str() + cPrefix.size());
-            classes.push_back(std::pair<std::string, std::string>(className, itInfo->loadable_.string()));
-            std::map<std::string, std::string>::iterator itFound = specialsToLib.find(className);
-            if(itFound != specialsToLib.end()) {
+            classes.emplace_back(className, info.loadable_.string());
+            std::map<std::string, std::string>::iterator iFound = specialsToLib.find(className);
+            if(iFound != specialsToLib.end()) {
               // std::cout << "Found " << lastClass << " : " << className << std::endl;
-              itFound->second = itInfo->loadable_.string();
+              iFound->second = info.loadable_.string();
             }
           }
         }
@@ -255,35 +261,30 @@ namespace edm {
         }
 
         //now handle the special cases
-        for(std::map<std::string, std::string>::const_iterator itSpecial = specials.begin();
-            itSpecial != specials.end();
-            ++itSpecial) {
+        for(auto const& special : specials) {
           //std::cout << "registering special " << itSpecial->first << " " << itSpecial->second << " " << std::endl << "    " << specialsToLib[classNameForRoot(itSpecial->second)] << std::endl;
           //force loading of specials
-          if(specialsToLib[classNameForRoot(itSpecial->second)].size()) {
+          if(specialsToLib[classNameForRoot(special.second)].size()) {
             //std::cout << "&&&&& found special case " << itSpecial->first << std::endl;
-            std::string name = itSpecial->second;
-            TypeWithDict t(TypeWithDict::byName(name));
-
-            if(!bool(t) and
+            std::string name = special.second;
+            if(!isDictionaryLoaded(name) and
                 (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + name))) {
               std::cout << "failed to load plugin for " << cPrefix + name << std::endl;
               continue;
             } else {
               //need to construct the Class ourselves
-              TypeWithDict t(TypeWithDict::byName(name));
-              if(!bool(t)) {
+              if(!isDictionaryLoaded(name)) {
                 std::cout << "dictionary did not build " << name << std::endl;
                 continue;
               }
-              TClass* namedClass = TClass::GetClass(t.typeInfo());
-              if(0 == namedClass) {
-                std::cout << "failed to get TClass by typeid for " << name << std::endl;
+              TClass* namedClass = TClass::GetClass(name.c_str());
+              if(nullptr == namedClass) {
+                std::cout << "failed to get TClass for " << name << std::endl;
                 continue;
               }
-              namedClass->Clone(itSpecial->first.c_str());
+              namedClass->Clone(special.first.c_str());
               std::string magictypedef("namespace edm { typedef ");
-              magictypedef += classNameForRoot(name) + " " + itSpecial->first + "; }";
+              magictypedef += classNameForRoot(name) + " " + special.first + "; }";
               // std::cout << "Magic typedef " << magictypedef << std::endl;
               gROOT->ProcessLine(magictypedef.c_str());
             }
@@ -297,10 +298,10 @@ namespace edm {
    //
    RootAutoLibraryLoader::RootAutoLibraryLoader() :
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,6)
-     classNameAttemptingToLoad_(0),
+     classNameAttemptingToLoad_(nullptr),
      isInitializingCintex_(true) {
 #else
-     classNameAttemptingToLoad_(0) {
+     classNameAttemptingToLoad_(nullptr) {
 #endif
       AssertHandler h;
       gROOT->AddClassGenerator(this);
@@ -341,8 +342,8 @@ namespace edm {
 
    TClass*
    RootAutoLibraryLoader::GetClass(char const* classname, Bool_t load) {
-      TClass* returnValue = 0;
-      if(classNameAttemptingToLoad_ != 0 && !strcmp(classname, classNameAttemptingToLoad_)) {
+      TClass* returnValue = nullptr;
+      if(classNameAttemptingToLoad_ != nullptr && !strcmp(classname, classNameAttemptingToLoad_)) {
          // We can try to see if the class name contains "basic_string<char>".
          // If so, we replace "basic_string<char>" with "string" and try again.
          std::string className(classname);
@@ -362,7 +363,7 @@ namespace edm {
          //NOTE: As of ROOT 5.27.06 this warning generates false positives for HepMC classes because
          // ROOT has special handling for them built into class.rules
          //std::cerr << "WARNING[RootAutoLibraryLoader]: ROOT failed to create CINT dictionary for " << classname << std::endl;
-         return 0;
+         return nullptr;
       }
       //std::cout << "looking for " << classname << " load " << (load? "T":"F") << std::endl;
       if (load) {
@@ -382,7 +383,7 @@ namespace edm {
           // if the second argument is kTRUE. This is the default, so it
           // need not be explicitly specified.
           returnValue = gROOT->GetClass(classname, kTRUE);
-          classNameAttemptingToLoad_ = 0;
+          classNameAttemptingToLoad_ = nullptr;
         }
       }
       return returnValue;
@@ -391,7 +392,7 @@ namespace edm {
    TClass*
    RootAutoLibraryLoader::GetClass(type_info const& typeinfo, Bool_t load) {
      //std::cout << "looking for type " << typeinfo.name() << std::endl;
-      TClass* returnValue = 0;
+      TClass* returnValue = nullptr;
       if(load) {
          return GetClass(typeinfo.name(), load);
       }
@@ -424,14 +425,12 @@ namespace edm {
      //give ROOT a name for the file we are loading
      RootLoadFileSentry sentry;
 
-     for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
-          itInfoEnd = itFound->second.end();
-          itInfo != itInfoEnd; ++itInfo) {
-       if (lastClass == itInfo->name_) {
+     for(auto const& info : itFound->second) {
+       if (lastClass == info.name_) {
          continue;
        }
 
-       lastClass = itInfo->name_;
+       lastClass = info.name_;
        edmplugin::PluginCapabilities::get()->load(lastClass);
        //NOTE: since we have the library already, we could be more efficient if we just load it ourselves
      }
