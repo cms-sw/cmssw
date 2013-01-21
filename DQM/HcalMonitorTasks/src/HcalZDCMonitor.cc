@@ -73,7 +73,7 @@ void HcalZDCMonitor::setup() {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	dbe_->setCurrentFolder(subdir_ + "/Errors/Digis");
+	dbe_->setCurrentFolder(subdir_ + "Errors/Digis");
         ZDC_Digi_Errors = dbe_->book2D("ZDC_Digi_Errors", "Raw Number of Digi Errors Per ZDC Channel", 2, 0, 2, 9, 0, 9);
         ZDC_Digi_Errors->setBinLabel(1,"ZDC+",1);
         ZDC_Digi_Errors->setBinLabel(2,"ZDC-",1);
@@ -94,7 +94,7 @@ void HcalZDCMonitor::setup() {
    
 
 
-	dbe_->setCurrentFolder(subdir_+"/Errors/Digis/DigiErrorCauses");
+	dbe_->setCurrentFolder(subdir_+"Errors/Digis/DigiErrorCauses");
 	ZDC_DigiErrors_DVER = dbe_->book2D("ZDC_DigiErrors_DVER","Raw Number of Digi Errors Caused by Finding .dv()=0 or .er()=1",2,0,2,9,0,9);
 	ZDC_DigiErrors_DVER->setBinLabel(1,"ZDC+",1);
         ZDC_DigiErrors_DVER->setBinLabel(2,"ZDC-",1);
@@ -131,7 +131,7 @@ void HcalZDCMonitor::setup() {
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
      
-	dbe_->setCurrentFolder(subdir_ + "/Errors/HotChannel");
+	dbe_->setCurrentFolder(subdir_ + "Errors/HotChannel");
         ZDC_Hot_Channel_Errors = dbe_->book2D("ZDC_Hot_Channel_Errors", "Raw Number of Times Each Channel Appeared Hot", 2, 0, 2, 9, 0, 9);
         ZDC_Hot_Channel_Errors->setBinLabel(1,"ZDC+",1);
         ZDC_Hot_Channel_Errors->setBinLabel(2,"ZDC-",1);
@@ -157,7 +157,7 @@ void HcalZDCMonitor::setup() {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-	dbe_->setCurrentFolder(subdir_ + "/Errors/DeadChannel");
+	dbe_->setCurrentFolder(subdir_ + "Errors/DeadChannel");
         ZDC_Dead_Channel_Errors = dbe_->book2D("ZDC_Dead_Channel_Errors", "Raw Number of Times Each Channel Appeared Dead", 2, 0, 2, 9, 0, 9);
         ZDC_Dead_Channel_Errors->setBinLabel(1,"ZDC+",1);
         ZDC_Dead_Channel_Errors->setBinLabel(2,"ZDC-",1);
@@ -181,7 +181,7 @@ void HcalZDCMonitor::setup() {
 	///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-	dbe_->setCurrentFolder(subdir_ + "/Errors/ColdChannel");
+	dbe_->setCurrentFolder(subdir_ + "Errors/ColdChannel");
         ZDC_Cold_Channel_Errors = dbe_->book2D("ZDC_Cold_Channel_Errors", "Raw Number of Times Each Channel Appeared Cold", 2, 0, 2, 9, 0, 9);
         ZDC_Cold_Channel_Errors->setBinLabel(1,"ZDC+",1);
         ZDC_Cold_Channel_Errors->setBinLabel(2,"ZDC-",1);
@@ -208,7 +208,7 @@ void HcalZDCMonitor::setup() {
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	dbe_->setCurrentFolder(subdir_ + "/Errors");
+	dbe_->setCurrentFolder(subdir_ + "Errors");
         ZDC_TotalChannelErrors = dbe_->book2D("ZDC_TotalChannelErrors","Total Number of Errors(Digi Error, Hot Cell or Dead Cell) Per Channel in the ZDC" ,2,0,2,9,0,9);
         ZDC_TotalChannelErrors->setBinLabel(1,"ZDC+",1);
         ZDC_TotalChannelErrors->setBinLabel(2,"ZDC-",1);
@@ -295,7 +295,7 @@ void HcalZDCMonitor::setup() {
 	 h_2D_saturation->setBinLabel(8,"HAD3",2);
 	 h_2D_saturation->setBinLabel(9,"HAD4",2);
 	 
-	 dbe_->setCurrentFolder(subdir_ + "/Digis");
+	 dbe_->setCurrentFolder(subdir_ + "Digis");
 
         for (int i = 0; i < 5; ++i) {
             // pulse Plus Side 
@@ -375,7 +375,7 @@ void HcalZDCMonitor::setup() {
 	    h_ZDCM_HAD_TSMean[i]->setAxisTitle("Events",2);
         }
 
-        dbe_->setCurrentFolder(subdir_ + "/RecHits");
+        dbe_->setCurrentFolder(subdir_ + "RecHits");
         for (int i = 0; i < 5; ++i) {
 	    //RecHitEnergy Plus Side
             sprintf(title,"h_ZDCP_EMChan_%i_RecHit_Energy",i+1);
@@ -536,9 +536,11 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	    int iSide = id.zside();
 	    int iSection = id.section();
 	    int iChannel = id.channel();
+	    if(iSection==1 || iSection==2){
 	    ChannelHasDigiError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=true;
 	    DeadChannelError[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]=false;
 	    //do stuff
+	    }//end of if i(Section==1 || iSection==2) 
 	  }
 	else continue;
 
@@ -566,7 +568,8 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	while (fData.size()>fTS)
 	  fData.pop_back(); // delete last elements 
 
-
+        if (iSection==1 || iSection==2)
+	  {
      
 	////////////////////////////////////////NEW Fall 2012 Stuff/////////////////////////////////////////////
 
@@ -695,6 +698,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	      }
 	    }// Minus
 	  } // HAD 
+	  }//end of if (iSection==1 || iSection==2)
       } // loop on zdc digi collection
 		    
 		    
@@ -756,7 +760,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	int Section   = (rechit_iter->id()).section();
 	int Channel   = (rechit_iter->id()).channel();
 	//std::cout << "RecHitEnergy  " << zhit->energy() << "  RecHitTime  " << zhit->time() << std::endl;
-
+	
 	if(Section==1)
 	  { //EM
 	    if (Side ==1 ){ // Plus
