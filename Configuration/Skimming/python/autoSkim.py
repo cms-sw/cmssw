@@ -72,6 +72,108 @@ autoSkim = {
     }
 """
 
+########################################################
+### 53X re-processing in 2013: pp data collected in 2012
+### (Created on Jan 21th, 2013 by Francesco Santanastasio)
+########################################################
+
+## Run2012A (53X reprocessing)
+"""
+autoSkim = {
+    'BTag' : 'LogError+LogErrorMonitor+HighLumi',
+    'Commissioning' : 'LogError+LogErrorMonitor+EcalActivity',
+    'Cosmics' : 'LogError+LogErrorMonitor+CosmicSP',
+    'DoubleElectron' : 'LogError+LogErrorMonitor+ZElectron+DiTau+HZZ+HighLumi',
+    'DoubleMu' : 'LogError+LogErrorMonitor+HZZ+Zmmg+EXOHSCP+HighLumi',
+    'ElectronHad' : 'LogError+LogErrorMonitor+EXOHSCP',
+    'HcalNZS' : 'LogError+LogErrorMonitor',
+    'HT' : 'LogError+LogErrorMonitor+EXOHSCP+HighMET',
+    'Jet' : 'LogError+LogErrorMonitor+HighLumi',
+    'MET' : 'LogError+LogErrorMonitor+ZHbb+EXOHSCP+HighMET',
+    'MinimumBias' : 'LogError+LogErrorMonitor+HLTPhysics+HighLumi',
+    'MuEG' : 'LogError+LogErrorMonitor+HZZ',
+    'MuHad' : 'LogError+LogErrorMonitor',
+    'MuOnia' : 'LogError+LogErrorMonitor+ChiB',
+    'MultiJet' : 'LogError+LogErrorMonitor+HighMET+HighLumi',
+    'Photon' : 'LogError+LogErrorMonitor+HighMET+EXOMonoPhoton',
+    'PhotonHad' : 'LogError+LogErrorMonitor+EXOMonoPhoton',
+    'SingleElectron' : 'LogError+LogErrorMonitor+HighMET+DiTau+WElectron',
+    'SingleMu' : 'LogError+LogErrorMonitor+ZMu+HighMET+EXOHSCP+MuTau',
+    'Tau' : 'LogError+LogErrorMonitor',
+    'TauPlusX' : 'LogError+LogErrorMonitor+MuTauMET',
+    }
+"""
+
+## Run2012B and Run2012C (53X reprocessing)
+"""
+autoSkim = {
+    'BJetPlusX' : 'LogError+LogErrorMonitor',
+    'BTag' : 'LogError+LogErrorMonitor+HighLumi',
+    'Commissioning' : 'LogError+LogErrorMonitor+EcalActivity',
+    'Cosmics' : 'LogError+LogErrorMonitor+CosmicSP',
+    'DoubleElectron' : 'LogError+LogErrorMonitor+ZElectron+DiTau+HZZ+HighLumi',
+    'DoubleMuParked' : 'LogError+LogErrorMonitor+Zmmg+HZZ+EXOHSCP+HighLumi',
+    'DoublePhoton' : 'LogError+LogErrorMonitor',
+    'DoublePhotonHighPt' : 'LogError+LogErrorMonitor',
+    'ElectronHad' : 'LogError+LogErrorMonitor',
+    'HTMHTParked' : 'LogError+LogErrorMonitor+HighMET',
+    'HcalNZS' : 'LogError+LogErrorMonitor',
+    'JetHT' : 'LogError+LogErrorMonitor+EXOHSCP+HighLumi',
+    'JetMon' : 'LogError+LogErrorMonitor+HighLumi',
+    'MET' : 'LogError+LogErrorMonitor+ZHbb+HighMET+EXOHSCP',
+    'MinimumBias' : 'LogError+LogErrorMonitor+HLTPhysics+HighLumi',
+    'MuEG' : 'LogError+LogErrorMonitor+HZZ',
+    'MuHad' : 'LogError+LogErrorMonitor',
+    'MuOnia' : 'LogError+LogErrorMonitor+ChiB',
+    'MuOniaParked' : 'LogError+LogErrorMonitor',
+    'MultiJet1Parked' : 'LogError+LogErrorMonitor+HighMET+HighLumi',
+    'NoBPTX' : 'LogError+LogErrorMonitor+EXOHSCP',
+    'PhotonHad' : 'LogError+LogErrorMonitor+EXOMonoPhoton',
+    'SingleElectron' : 'LogError+LogErrorMonitor+WElectron+HighMET+TOPElePlusJets+DiTau',
+    'SingleMu' : 'LogError+LogErrorMonitor+ZMu+HighMET+EXOHSCP+TOPMuPlusJets+MuTau',
+    'SinglePhoton' : 'LogError+LogErrorMonitor+EXODisplacedPhoton+HighMET+EXOMonoPhoton',
+    'TauParked' : 'LogError+LogErrorMonitor',
+    'TauPlusX' : 'LogError+LogErrorMonitor+MuTauMET',
+    'VBF1Parked' : 'LogError+LogErrorMonitor',
+    }
+"""
+
+## Run2012D (53X reprocessing)
+"""
+autoSkim = {
+    'BJetPlusX' : 'LogError+LogErrorMonitor',
+    'BTag' : 'LogError+LogErrorMonitor+HighLumi',
+    'Commissioning' : 'LogError+LogErrorMonitor+EcalActivity',
+    'Cosmics' : 'LogError+LogErrorMonitor+CosmicSP',
+    'DoubleElectron' : 'LogError+LogErrorMonitor+ZElectron+DiTau+HZZ+HighLumi',
+    'DoubleMuParked' : 'LogError+LogErrorMonitor+Zmmg+HZZ+EXOHSCP+HighLumi',
+    'DoublePhoton' : 'LogError+LogErrorMonitor',
+    'DoublePhotonHighPt' : 'LogError+LogErrorMonitor',
+    'ElectronHad' : 'LogError+LogErrorMonitor',
+    'HTMHTParked' : 'LogError+LogErrorMonitor+HighMET',
+    'HcalNZS' : 'LogError+LogErrorMonitor',
+    'JetHT' : 'LogError+LogErrorMonitor+EXOHSCP+HighLumi',
+    'JetMon' : 'LogError+LogErrorMonitor+HighLumi',
+    'METParked' : 'LogError+LogErrorMonitor+ZHbb+HighMET+EXOHSCP',
+    'MinimumBias' : 'LogError+LogErrorMonitor+HLTPhysics+HighLumi',
+    'MuEG' : 'LogError+LogErrorMonitor+HZZ',
+    'MuHad' : 'LogError+LogErrorMonitor',
+    'MuOnia' : 'LogError+LogErrorMonitor+ChiB',
+    'MuOniaParked' : 'LogError+LogErrorMonitor',
+    'MultiJet1Parked' : 'LogError+LogErrorMonitor+HighMET+HighLumi',
+    'NoBPTX' : 'LogError+LogErrorMonitor+EXOHSCP',
+    'PhotonHad' : 'LogError+LogErrorMonitor+EXOMonoPhoton',
+    'SingleElectron' : 'LogError+LogErrorMonitor+WElectron+HighMET+TOPElePlusJets+DiTau',
+    'SingleMu' : 'LogError+LogErrorMonitor+ZMu+HighMET+EXOHSCP+TOPMuPlusJets+MuTau',
+    'SinglePhotonParked' : 'LogError+LogErrorMonitor+EXODisplacedPhoton+HighMET+EXOMonoPhoton',
+    'TauParked' : 'LogError+LogErrorMonitor',
+    'TauPlusX' : 'LogError+LogErrorMonitor+MuTauMET',
+    'VBF1Parked' : 'LogError+LogErrorMonitor',
+    'HLTPhysicsParked' : 'LogError+LogErrorMonitor',
+    'ZeroBiasParked' : 'LogError+LogErrorMonitor',
+    }
+"""
+
 ## autoSkim 2011
 """
     'MinimumBias':'MuonTrack+BeamBkg+ValSkim+LogError+HSCPSD',
