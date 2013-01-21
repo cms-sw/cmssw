@@ -41,11 +41,11 @@ private:
 
   GEMSynchronizer* sync_;
   double averageEfficiency_;
-  double averageTimingOffset_;
+  double averageShapingTime_;
   double averageNoiseRate_;
-  int    nbxing_;
-  double rate_;
-  double gate_;
+  double bxwidth_;
+  int minBunch_;
+  int maxBunch_;
 
   //  CLHEP::HepRandomEngine* rndEngine;
   CLHEP::RandFlat* flatDistr1_;

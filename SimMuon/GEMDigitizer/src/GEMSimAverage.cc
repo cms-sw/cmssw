@@ -22,12 +22,12 @@
 GEMSimAverage::GEMSimAverage(const edm::ParameterSet& config) :
   GEMSim(config)
 {
-  rate_ = config.getParameter<double>("rate");
-  nbxing_ = config.getParameter<int>("nbxing");
-  gate_ = config.getParameter<double>("gate");
   averageEfficiency_ = config.getParameter<double>("averageEfficiency");
-  averageTimingOffset_ = config.getParameter<double>("averageTimingOffset");
+  averageShapingTime_ = config.getParameter<double>("averageShapingTime");
   averageNoiseRate_ = config.getParameter<double>("averageNoiseRate");
+  bxwidth_ = config.getParameter<double>("bxwidth");
+  minBunch_ = config.getParameter<int>("minBunch");
+  maxBunch_ = config.getParameter<int>("maxBunch");
 
   sync_ = new GEMSynchronizer(config);
 }
@@ -96,14 +96,15 @@ void GEMSimAverage::simulateNoise(const GEMEtaPartition* roll)
       float striplength = (top_->stripLength());
       area = striplength*(xmax-xmin);
     }
-
-  double averageNoise = averageNoiseRate_*nbxing_*gate_*area*1.0e-9;
+  
+  const int nBxing = maxBunch_ - minBunch_ + 1;
+  double averageNoise = averageNoiseRate_ * nBxing * bxwidth_ * area * 1.0e-9;
 
   int n_hits = poissonDistr_->fire(averageNoise);
 
   for (int i = 0; i < n_hits; i++ ){
     int strip  = static_cast<int>(flatDistr1_->fire(1,nstrips));
-    int time_hit = static_cast<int>(flatDistr2_->fire((nbxing_*gate_)/gate_)) - nbxing_/2;
+    int time_hit = static_cast<int>(flatDistr2_->fire(nBxing)) - nBxing/2;
     std::pair<int, int> digi(strip,time_hit);
     strips_.insert(digi);
   }
