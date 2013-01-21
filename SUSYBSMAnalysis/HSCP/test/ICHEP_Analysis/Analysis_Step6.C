@@ -2876,6 +2876,12 @@ bool Combine(string InputPattern, string signal7, string signal8){
    result.NPred = result11.NPred + result12.NPred;
    result.NPredErr = sqrt(pow(result11.NPredErr,2) + pow(result12.NPredErr,2));
 
+   //compute combined significance
+   CodeToExecute = "cp " + outpath+"shape_"+JobName+".dat /tmp/.;";   
+   system(CodeToExecute.c_str());
+   result.Significance = computeSignificance(string("shape_")+JobName+".dat", false, signal, massStr, 1.0);
+   printf("Combined Significance = %f (%s)\n", result.Significance, (outpath+"shape_"+JobName+".dat").c_str());
+
    double NPred = result.NPred;
    double NSign = result.NSign / 100.0;
 
@@ -3059,7 +3065,6 @@ bool Combine(string InputPattern, string signal7, string signal8){
       file->Close();
       }
    }
-
 
 
    //all done, save the results to file
