@@ -9,6 +9,7 @@
 #include "../interface/SimpleCacheSentry.h"
 #include "../interface/th1fmorph.h"
 #include "../interface/HZZ4LRooPdfs.h"
+#include "../interface/HWWLVJRooPdfs.h"
 #include "../interface/HZZ2L2QRooPdfs.h"
 #include "../interface/HGGRooPdfs.h"
 #include "../interface/SequentialMinimizer.h"
@@ -69,6 +70,17 @@
 #pragma link C++ class RooScaleHGamGamLOSMPlusX+;
 #pragma link C++ class RooScaleHGluGluLOSMPlusX+;
 #pragma link C++ class RooTsallis;
-
+#pragma link C++ class RooErfExpPdf+;
+#pragma link C++ class RooAlpha+;
+#pragma link C++ class RooAlphaExp+;
+#pragma link C++ class RooBWRunPdf+;
+#pragma link C++ class RooErfPow2Pdf+;
+#pragma link C++ class RooAlpha4ErfPow2Pdf+;
+#pragma link C++ class RooErfPowPdf+;
+#pragma link C++ class RooAlpha4ErfPowPdf+;
+#pragma link C++ class RooPow2Pdf+;
+#pragma link C++ class RooPowPdf+;
+#pragma link C++ class RooQCDPdf+;
+#pragma link C++ class RooUser1Pdf+;
 
 #endif
