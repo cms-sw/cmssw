@@ -126,7 +126,6 @@ autoSkim = {
     'MuHad' : 'LogError+LogErrorMonitor',
     'MuOnia' : 'LogError+LogErrorMonitor+ChiB',
     'MuOniaParked' : 'LogError+LogErrorMonitor',
-    'MultiJet1Parked' : 'LogError+LogErrorMonitor',
     'NoBPTX' : 'LogError+LogErrorMonitor+EXOHSCP',
     'PhotonHad' : 'LogError+LogErrorMonitor+EXOMonoPhoton',
     'SingleElectron' : 'LogError+LogErrorMonitor+WElectron+HighMET+TOPElePlusJets+DiTau',
@@ -138,8 +137,9 @@ autoSkim = {
     }
 """
 
-# --> NOTE for Run2012B,C: HighMET and HighLumi skims for MultiJet1Parked have
-# been removed since the re-reco already happened at the end of 2012.
+# --> NOTE for Run2012B,C: we have remove this
+# 'MultiJet1Parked' : 'LogError+LogErrorMonitor+HighMET+HighLumi',
+# since the re-reco already happened at the end of 2012.
 # If those skims can run with RAW and AOD in input we could produce them later in 2013.
 
 
