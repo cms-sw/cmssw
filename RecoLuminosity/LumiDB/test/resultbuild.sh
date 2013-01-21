@@ -10,13 +10,18 @@ pwd=`pwd`
 macrodir="$workdir/src/RecoLuminosity/LumiDB/test"
 outdir="/home/lumidb/lumibylsresult/2013"
 indir="/home/lumidb/lumibylsresult/2012"
+minbiasX=2100000.0
+authpath="/home/lumidb/auth/writer"
+sourcedb="oracle://cms_orcon_prod/cms_lumi_prod"
+destdb="oracle://cms_orcon_prod/cms_lumi_prod"
+minrun=209151
 
 cd $workdir
 eval `scramv1 runtime -sh`
 export TNS_ADMIN=/home/lumidb
-cd $macrodir
+
 date > "$lumilogpath/resultbuild_tmp.log"
-python $macrodir/lumibylsrecorder.py -b 209151 -o $outdir -i $indir -P /home/lumidb/auth/writer -s oracle://cms_orcon_prod/cms_lumi_prod -d oracle://cms_orcon_prod/cms_lumi_prod >> "$lumilogpath/resultbuild_tmp.log"
+python $macrodir/lumibylsrecorder.py -b $minrun -o $outdir -i $indir -P $authpath -s $sourcedb -d $destdb --minBiasXsec $minbiasX>> "$lumilogpath/resultbuild_tmp.log"
 date >> "$lumilogpath/resultbuild_tmp.log"
 mv "$lumilogpath/resultbuild_tmp.log" "$lumilogpath/resultbuild.log"
 cd $pwd 
