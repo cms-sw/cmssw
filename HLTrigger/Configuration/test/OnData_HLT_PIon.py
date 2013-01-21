@@ -1,11 +1,11 @@
-# /dev/CMSSW_5_2_6/PIon/V96 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V98 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V96')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V98')
 )
 
 process.streams = cms.PSet( 
@@ -317,6 +317,9 @@ process.datasets = cms.PSet(
     'HLT_PAZeroBiasPixel_DoubleTrack_v1',
     'HLT_PAZeroBiasPixel_SingleTrack_v1',
     'HLT_PAZeroBias_v1',
+    'HLT_PPL1DoubleEG5_TotemDiffractive_v1',
+    'HLT_PPL1DoubleJetC36_TotemDiffractive_v1',
+    'HLT_PPL1DoubleMu5_TotemDiffractive_v1',
     'HLT_PPPixelTrackMultiplicity55_FullTrack12_v1',
     'HLT_PPPixelTrackMultiplicity70_FullTrack12_v1',
     'HLT_PPPixelTracks_Multiplicity55_v1',
@@ -455,6 +458,9 @@ process.datasets = cms.PSet(
     'HLT_PAZeroBiasPixel_DoubleTrack_v1',
     'HLT_PAZeroBiasPixel_SingleTrack_v1',
     'HLT_PAZeroBias_v1',
+    'HLT_PPL1DoubleEG5_TotemDiffractive_v1',
+    'HLT_PPL1DoubleJetC36_TotemDiffractive_v1',
+    'HLT_PPL1DoubleMu5_TotemDiffractive_v1',
     'HLT_PPPixelTrackMultiplicity55_FullTrack12_v1',
     'HLT_PPPixelTrackMultiplicity70_FullTrack12_v1',
     'HLT_PPPixelTracks_Multiplicity55_v1',
@@ -595,7 +601,10 @@ process.datasets = cms.PSet(
     'HLT_PAL1SingleJet36_v1',
     'HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1',
     'HLT_PASingleForJet15_v1',
-    'HLT_PASingleForJet25_v1' ),
+    'HLT_PASingleForJet25_v1',
+    'HLT_PPL1DoubleEG5_TotemDiffractive_v1',
+    'HLT_PPL1DoubleJetC36_TotemDiffractive_v1',
+    'HLT_PPL1DoubleMu5_TotemDiffractive_v1' ),
   PPJet = cms.vstring( 'HLT_PAForJet100Eta2_v1',
     'HLT_PAForJet100Eta3_v1',
     'HLT_PAForJet20Eta2_v1',
@@ -4800,6 +4809,15 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_PAL1DoubleJet20_TotemDiffractive_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 10, 10, 10, 10, 28, 28, 28, 28, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PPL1DoubleJetC36_TotemDiffractive_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PPL1DoubleMu5_TotemDiffractive_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_PPL1DoubleEG5_TotemDiffractive_v1" ),
+        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_PADoubleJet20_ForwardBackward_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 6, 5, 3, 2, 1, 1, 1, 1, 1, 1, 0, 0 )
@@ -14940,6 +14958,54 @@ process.hltPrePAL1DoubleJet20TotemDiffractive = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
+process.hltL1sL1DoubleJetC36TotemDiffractive = cms.EDFilter( "HLTLevel1GTSeed",
+    saveTags = cms.bool( True ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleJetC36_TotemDiffractive" ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1NrBxInEvent = cms.int32( 3 ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1TechTriggerSeeding = cms.bool( False )
+)
+process.hltPrePPL1DoubleJetC36TotemDiffractive = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltL1sL1DoubleMu5TotemDiffractive = cms.EDFilter( "HLTLevel1GTSeed",
+    saveTags = cms.bool( True ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleMu5_TotemDiffractive" ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1NrBxInEvent = cms.int32( 3 ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1TechTriggerSeeding = cms.bool( False )
+)
+process.hltPrePPL1DoubleMu5TotemDiffractive = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltL1sL1DoubleEG5TotemDiffractive = cms.EDFilter( "HLTLevel1GTSeed",
+    saveTags = cms.bool( True ),
+    L1SeedsLogicalExpression = cms.string( "L1_DoubleEG5_TotemDiffractive" ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1NrBxInEvent = cms.int32( 3 ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1TechTriggerSeeding = cms.bool( False )
+)
+process.hltPrePPL1DoubleEG5TotemDiffractive = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 process.hltL1sL1DoubleForJet16EtaOpp = cms.EDFilter( "HLTLevel1GTSeed",
     saveTags = cms.bool( True ),
     L1SeedsLogicalExpression = cms.string( "L1_DoubleForJet16_EtaOpp" ),
@@ -16181,6 +16247,9 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_PAExclDijet35_HFAND_v1',
       'HLT_PAL1DoubleEG3_FwdVeto_v1',
       'HLT_PAL1DoubleJet20_TotemDiffractive_v1',
+      'HLT_PPL1DoubleJetC36_TotemDiffractive_v1',
+      'HLT_PPL1DoubleMu5_TotemDiffractive_v1',
+      'HLT_PPL1DoubleEG5_TotemDiffractive_v1',
       'HLT_PADoubleJet20_ForwardBackward_v1',
       'HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1',
       'HLT_PAUpcSingleEG5Pixel_TrackVeto_v1',
@@ -16346,6 +16415,9 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PAZeroBiasPixel_DoubleTrack_v1',
   'HLT_PAZeroBiasPixel_SingleTrack_v1',
   'HLT_PAZeroBias_v1',
+  'HLT_PPL1DoubleEG5_TotemDiffractive_v1',
+  'HLT_PPL1DoubleJetC36_TotemDiffractive_v1',
+  'HLT_PPL1DoubleMu5_TotemDiffractive_v1',
   'HLT_PPPixelTrackMultiplicity55_FullTrack12_v1',
   'HLT_PPPixelTrackMultiplicity70_FullTrack12_v1',
   'HLT_PPPixelTracks_Multiplicity55_v1',
@@ -16566,6 +16638,9 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PAZeroBiasPixel_DoubleTrack_v1',
   'HLT_PAZeroBiasPixel_SingleTrack_v1',
   'HLT_PAZeroBias_v1',
+  'HLT_PPL1DoubleEG5_TotemDiffractive_v1',
+  'HLT_PPL1DoubleJetC36_TotemDiffractive_v1',
+  'HLT_PPL1DoubleMu5_TotemDiffractive_v1',
   'HLT_PPPixelTrackMultiplicity55_FullTrack12_v1',
   'HLT_PPPixelTrackMultiplicity70_FullTrack12_v1',
   'HLT_PPPixelTracks_Multiplicity55_v1',
@@ -16867,6 +16942,9 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_PAZeroBiasPixel_DoubleTrack_v1',
   'HLT_PAZeroBiasPixel_SingleTrack_v1',
   'HLT_PAZeroBias_v1',
+  'HLT_PPL1DoubleEG5_TotemDiffractive_v1',
+  'HLT_PPL1DoubleJetC36_TotemDiffractive_v1',
+  'HLT_PPL1DoubleMu5_TotemDiffractive_v1',
   'HLT_PPPixelTrackMultiplicity55_FullTrack12_v1',
   'HLT_PPPixelTrackMultiplicity70_FullTrack12_v1',
   'HLT_PPPixelTracks_Multiplicity55_v1',
@@ -17179,6 +17257,9 @@ process.HLT_PADoubleMu4_Acoplanarity03_v1 = cms.Path( process.HLTBeginSequenceBP
 process.HLT_PAExclDijet35_HFAND_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1SingleJet16FwdVeto5 + process.hltPrePAExclDijet35HFAND + process.HLTRecoJetSequenceAK5Corrected + process.hltExclDiJet35HFAND + process.HLTEndSequence )
 process.HLT_PAL1DoubleEG3_FwdVeto_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleEG3FwdVeto + process.hltPrePAL1DoubleEG3FwdVeto + process.HLTEndSequence )
 process.HLT_PAL1DoubleJet20_TotemDiffractive_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJet20TotemDiffractive + process.hltPrePAL1DoubleJet20TotemDiffractive + process.HLTEndSequence )
+process.HLT_PPL1DoubleJetC36_TotemDiffractive_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleJetC36TotemDiffractive + process.hltPrePPL1DoubleJetC36TotemDiffractive + process.HLTEndSequence )
+process.HLT_PPL1DoubleMu5_TotemDiffractive_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu5TotemDiffractive + process.hltPrePPL1DoubleMu5TotemDiffractive + process.HLTEndSequence )
+process.HLT_PPL1DoubleEG5_TotemDiffractive_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleEG5TotemDiffractive + process.hltPrePPL1DoubleEG5TotemDiffractive + process.HLTEndSequence )
 process.HLT_PADoubleJet20_ForwardBackward_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sL1DoubleForJet16EtaOpp + process.hltPrePADoubleJet20ForwardBackward + process.HLTRecoJetSequenceAK5Corrected + process.hltDoubleJet20ForwardBackward + process.HLTEndSequence )
 process.HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1Mu0EG5 + process.hltPrePAMu7Ele7CaloIdTCaloIsoVL + process.hltL1Mu0EG5L1MuFiltered0 + process.HLTL2muonrecoSequence + process.hltL1Mu0EG5L2MuFiltered0 + process.HLTL3muonrecoSequence + process.hltL1Mu0EG5L3MuFiltered7 + process.HLTDoEGammaStartupSequence + process.hltEGRegionalL1Mu0EG5 + process.hltEG7EtFilterL1Mu0EG5 + process.HLTDoEgammaClusterShapeSequence + process.hltMu7Ele7CaloIdTCaloIsoVLClusterShapeFilter + process.HLTDoEGammaHESequence + process.hltMu7Ele7CaloIdTCaloIsoVLTHEFilter + process.hltL1SeededPhotonEcalIso + process.hltMu7Ele7CaloIdTCaloIsoVLEcalIsoFilter + process.hltL1SeededPhotonHcalIso + process.hltMu7Ele7CaloIdTCaloIsoVLHcalIsoFilter + process.HLTDoEGammaPixelSequence + process.hltMu7Ele7CaloIdTPixelMatchFilter + process.HLTEndSequence )
 process.HLT_PAUpcSingleEG5Pixel_TrackVeto_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sPASingleEG5BptxAND + process.hltPrePAUpcSingleEG5PixelTrackVeto + process.HLTDoLocalPixelSequence + process.hltPAPixelTracksForMinBias + process.hltPAPixelCandsForMinBias + process.hltPAMinBiasPixelFilter1 + ~process.hltPACountPAPixFilter10 + process.HLTEndSequence )
