@@ -21,13 +21,13 @@ hcalZDCMonitor=cms.EDAnalyzer("HcalZDCMonitor",
 
                               ########  JAIMES NEW VARIABLES
 
-                              ZDC_OnlineColdThreshold = cms.untracked.int32(100), #can change this later if we wnat each section to have a different number of events before being called cold
+                              ZDC_OnlineColdThreshold = cms.untracked.int32(250), #can change this later if we wnat each section to have a different number of events before being called cold
 
-                              ZDC_OnlineDeadThreshold = cms.untracked.int32(100), #same as above
+                              ZDC_OnlineDeadThreshold = cms.untracked.int32(250), #same as above
 
-                              ZDC_OfflineColdThreshold = cms.untracked.int32(50), #same as above
+                              ZDC_OfflineColdThreshold = cms.untracked.int32(250), #same as above
 
-                              ZDC_OfflineDeadThreshold = cms.untracked.int32(50), #same as above
+                              ZDC_OfflineDeadThreshold = cms.untracked.int32(250), #same as above
                               
                               ZDC_ColdADCThreshold = cms.untracked.int32(20), #This is the threshold for which a channel will be called cold
                               

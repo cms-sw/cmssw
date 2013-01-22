@@ -248,18 +248,18 @@ void ZDCMonitorClient::analyze()
   s=subdir_+"Errors/Digis/ZDC_Digi_Errors";  // prefixME_ = "Hcal/"
   me=dqmStore_->get(s.c_str());
 
-  TH2F* numplot=0;
+  TH2F* ZdcDigiErrors=0;
   if (me!=0)
     {
-      numplot=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
-      if (numplot!=0)
+      ZdcDigiErrors=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
+      if (ZdcDigiErrors!=0)
 	{
-	  int nevents3 = numplot->GetBinContent(-1,-1);
-	  if(nevents3 != 0)
+	  int num_events_digis = ZdcDigiErrors->GetBinContent(-1,-1);
+	  if(num_events_digis != 0)
 	    {
 	      for (int i=0;i<18;++i)
 		{
-		  ZDCDigiErrorFraction_->setBinContent((i/9)+1,(i%9)+1,(numplot->GetBinContent((i/9)+1,(i%9)+1)*1./nevents3));
+		  ZDCDigiErrorFraction_->setBinContent((i/9)+1,(i%9)+1,(ZdcDigiErrors->GetBinContent((i/9)+1,(i%9)+1)*1./num_events_digis));
 		}
 	    }
 	}
@@ -272,18 +272,18 @@ void ZDCMonitorClient::analyze()
   // Now get Hot Channel plot, used normalized values (num hot/event) in ZDCHotChannelFraction_
   s=subdir_+"Errors/HotChannel/ZDC_Hot_Channel_Errors";
   me=dqmStore_->get(s.c_str());
-  TH2F* myhist=0;
+  TH2F* ZdcHotChannel=0;
   if (me!=0)
     {
-      myhist=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
-      if (myhist!=0)
+      ZdcHotChannel=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
+      if (ZdcHotChannel!=0)
 	{
-	  int nevents = myhist->GetBinContent(-1,-1);
-	  if(nevents!=0)
+	  int num_events_hot = ZdcHotChannel->GetBinContent(-1,-1);
+	  if(num_events_hot!=0)
 	    {
 	      for (int i=0;i<18;++i)
 		{
-		  ZDCHotChannelFraction_->setBinContent((i/9)+1,(i%9)+1,((myhist->GetBinContent((i/9)+1,(i%9)+1))*1./nevents));
+		  ZDCHotChannelFraction_->setBinContent((i/9)+1,(i%9)+1,((ZdcHotChannel->GetBinContent((i/9)+1,(i%9)+1))*1./num_events_hot));
 		}
 	    }			 
 	}     
@@ -296,18 +296,18 @@ void ZDCMonitorClient::analyze()
   //Now get Cold Channel plot, used normalized values (num Cold/event) in ZDCColdChannelFraction_
   s=subdir_+"Errors/ColdChannel/ZDC_Cold_Channel_Errors";
   me=dqmStore_->get(s.c_str());
-  TH2F* myhist1=0;
+  TH2F* ZdcColdChannel=0;
   if (me!=0)
     {
-      myhist1=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
-      if ((myhist1)!=0)
+      ZdcColdChannel=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
+      if ((ZdcColdChannel)!=0)
 	{
-	  int normalization = myhist1->GetBinContent(-1,-1);
-	  if(normalization!=0)
+	  int num_events_cold = ZdcColdChannel->GetBinContent(-1,-1);
+	  if(num_events_cold!=0)
 	    {
 	      for (int i=0;i<18;++i)
 		{
-		  ZDCColdChannelFraction_->setBinContent((i/9)+1,(i%9)+1,((myhist1->GetBinContent((i/9)+1,(i%9)+1))*1./normalization));
+		  ZDCColdChannelFraction_->setBinContent((i/9)+1,(i%9)+1,((ZdcColdChannel->GetBinContent((i/9)+1,(i%9)+1))*1./num_events_cold));
 		}
 	    }
 	}
@@ -320,18 +320,18 @@ void ZDCMonitorClient::analyze()
   //Now get Cold Channel plot, used normalized values (num Cold/event) in ZDCHotChannelFraction_
   s=subdir_+"Errors/DeadChannel/ZDC_Dead_Channel_Errors";
   me=dqmStore_->get(s.c_str());
-  TH2F* myhist6=0;
+  TH2F* ZdcDeadChannel=0;
   if (me!=0)
     {
-      myhist6=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
-      if ((myhist6)!=0)
+      ZdcDeadChannel=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
+      if ((ZdcDeadChannel)!=0)
 	{
-	  int normalizer = myhist6->GetBinContent(-1,-1);
-	  if(normalizer!=0)
+	  int num_events_dead = ZdcDeadChannel->GetBinContent(-1,-1);
+	  if(num_events_dead!=0)
 	    {
 	      for (int i=0;i<18;++i)
 		{
-		  ZDCDeadChannelFraction_->setBinContent((i/9)+1,(i%9)+1,(myhist6->GetBinContent((i/9)+1,(i%9)+1))*1./normalizer);
+		  ZDCDeadChannelFraction_->setBinContent((i/9)+1,(i%9)+1,(ZdcDeadChannel->GetBinContent((i/9)+1,(i%9)+1))*1./num_events_dead);
 		}
 	    }
 	}
@@ -352,16 +352,16 @@ void ZDCMonitorClient::analyze()
   ///now we will make the channel summary map
   s=subdir_+"Errors/ZDC_TotalChannelErrors";
   me=dqmStore_->get(s.c_str());
-  TH2F* myhist2=0;
+  TH2F* ZdcTotalErrors=0;
   if (me!=0)
     {
-      myhist2=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
-      int nevents2 = myhist2->GetBinContent(-1,-1);
-      if(nevents2!=0)
+      ZdcTotalErrors=HcalUtilsClient::getHisto<TH2F*>(me,false,0,0);
+      int num_events_errors = ZdcTotalErrors->GetBinContent(-1,-1);
+      if(num_events_errors!=0)
 	{
 	  for (int i=0;i<18;++i)
 	    {
-	      ChannelRatio[i]=(myhist2->GetBinContent((i/9)+1,(i%9)+1))*1./nevents2;
+	      ChannelRatio[i]=(ZdcTotalErrors->GetBinContent((i/9)+1,(i%9)+1))*1./num_events_errors;
 	      ZDCChannelSummary_->setBinContent((i/9)+1,(i%9)+1,1-ChannelRatio[i]);
 	    }
 	}
@@ -382,34 +382,34 @@ void ZDCMonitorClient::analyze()
   NZDC_LumiRatio=0.;
   s=subdir_+"EventsVsLS";
   me=dqmStore_->get(s.c_str());
-  TH1F* myhist3=0;
+  TH1F* EventsvsLs=0;
   if (me!=0)
-    myhist3=HcalUtilsClient::getHisto<TH1F*>(me,false,0,0);
+    EventsvsLs=HcalUtilsClient::getHisto<TH1F*>(me,false,0,0);
   s=subdir_+"PZDC_QualityIndexVSLB";
   me=dqmStore_->get(s.c_str());
-  TH1F* myhist4=0;
+  TH1F* Pzdc_QI=0;
   if (me!=0)
-    myhist4=HcalUtilsClient::getHisto<TH1F*>(me,false,0,0);
+    Pzdc_QI=HcalUtilsClient::getHisto<TH1F*>(me,false,0,0);
   s=subdir_+"NZDC_QualityIndexVSLB";
   me=dqmStore_->get(s.c_str());
-  TH1F* myhist5=0;
+  TH1F* Nzdc_QI=0;
   if (me!=0)
-    myhist5=HcalUtilsClient::getHisto<TH1F*>(me,false,0,0);
+    Nzdc_QI=HcalUtilsClient::getHisto<TH1F*>(me,false,0,0);
   
-  if(myhist3!=0)
+  if(EventsvsLs!=0 && Pzdc_QI!=0 && Nzdc_QI!=0)
     {
-      for (int i=1;i<=myhist3->GetNbinsX();++i)
+      for (int i=1;i<=EventsvsLs->GetNbinsX();++i)
 	{
-	  if (myhist3->GetBinContent(i)==0)
+	  if (EventsvsLs->GetBinContent(i)==0)
 	    continue;
 	  LumiCounter+=1;
 
-	  if(myhist4!=0)
-	    if(myhist4->GetBinContent(i)>ZDCGoodLumi_[0])
+	  if(Pzdc_QI!=0)
+	    if(Pzdc_QI->GetBinContent(i)>ZDCGoodLumi_[0])
 	      PZDC_GoodLumiCounter+=1;
 
-	  if(myhist5!=0)
-	    if(myhist5->GetBinContent(i)>ZDCGoodLumi_[1])
+	  if(Nzdc_QI!=0)
+	    if(Nzdc_QI->GetBinContent(i)>ZDCGoodLumi_[1])
 	      NZDC_GoodLumiCounter+=1;
 
 	  PZDC_LumiRatio=PZDC_GoodLumiCounter*(1./LumiCounter);

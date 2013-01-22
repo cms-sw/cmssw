@@ -85,6 +85,11 @@ class HcalZDCMonitor: public HcalBaseDQMonitor
   int ColdADCThreshold_;
   int DeadChannelCounter[18];
   int ColdChannelCounter[18];
+  bool DeadChannelError[18];
+  bool HotChannelError[18];
+  bool DigiErrorCAPID[18];
+  bool DigiErrorDVER[18];
+  bool ChannelHasDigiError[18];
   //////////////////end new parameters///////////////////////////////
 
   const HcalQIEShape* shape_;

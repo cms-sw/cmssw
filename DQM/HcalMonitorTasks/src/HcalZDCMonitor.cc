@@ -511,15 +511,16 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
 	  ZDC_Dead_Channel_Errors->Fill(-1,-1,1);
 	  EventCounter+=1;
 	}
-
-    bool ChannelHasDigiError[18]={false};
-    bool DigiErrorDVER[18]={false};
-    bool DigiErrorCAPID[18]={false};
-    bool HotChannelError[18]={false};
-    bool DeadChannelError[18]={true};
-
-
-
+    for (int i=0;i<18;++i)
+      {
+	ChannelHasDigiError[i]=false;
+	DigiErrorDVER[i]=false;
+	DigiErrorCAPID[i]=false;
+	HotChannelError[i]=false;
+	DeadChannelError[i]=true;
+      }
+    
+    
     typedef std::vector<DetId> DetIdVector;
     
     for (DetIdVector::const_iterator baddigi_iter=report.bad_quality_begin();
@@ -593,7 +594,7 @@ void HcalZDCMonitor::processEvent(const ZDCDigiCollection& digi, const ZDCRecHit
             
 
 	    ////////////////////////Cold Channel Error Counter//////////
-	    if (digi[iTS].adc()<=20) ColdCounter+=1;
+	    if (digi[iTS].adc()<=10) ColdCounter+=1;
 	    if (ColdCounter==10) 
 	      {
 		ColdChannelCounter[(9*((1-iSide)/2))+(iChannel-1)+(5*((iSection-1)%2))]+=1;
@@ -871,7 +872,7 @@ void HcalZDCMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
 		  ZDC_ColdChannelErrorsVsLS->Fill(currentLS,1);
 		  ZDC_TotalChannelErrors->Fill(i/9,i%9,ColdChannelCounter[i]);//Can change this between 1, or the amount of errors (Currently the latter)
 		  ColdChannelCounter[i]=0;
-		  HadLumiError[i]=true;
+		  // HadLumiError[i]=true;
 		}//END OF Cold Error Plot
 	      if (DeadChannelCounter[i] >= OfflineDeadThreshold_)
 		{//Begin Dead Error Plots
@@ -934,7 +935,7 @@ void HcalZDCMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
 		  ZDC_ColdChannelErrorsVsLS->Fill(currentLS,1);
 		  ZDC_TotalChannelErrors->Fill(i/9,i%9,ColdChannelCounter[i]);//Can change this between 1, or the amount of errors (Currently the latter)
 		  ColdChannelCounter[i]=0;
-		  HadLumiError[i]=true;
+		  // HadLumiError[i]=true;
 		}//END OF Cold Error Plot
 	      if (DeadChannelCounter[i] >= OnlineDeadThreshold_)
 		{//Begin Dead Error Plots
