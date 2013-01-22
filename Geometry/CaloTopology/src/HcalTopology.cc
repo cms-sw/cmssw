@@ -823,7 +823,7 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
     }
   } else if (topoVersion_==10) {
     if (denseid < ncells()) {
-      if (denseid > (HBSize_+HESize_+HOSize_)) {
+      if (denseid >= (HBSize_+HESize_+HOSize_)) {
 	sd  = HcalForward ;
 	in -= (HBSize_+HESize_+HOSize_);
 	dp  = (in%2) + 1;
@@ -832,7 +832,7 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
 	ie  = (in - dp + 1 - 2*(ip -1))/144;
 	if (ie > 12) {ie  = 42 -ie; iz = -1;}
 	else         {ie += 29;     iz =  1;}
-      } else if (denseid > (HBSize_+HESize_)) {
+      } else if (denseid >= (HBSize_+HESize_)) {
 	sd  = HcalOuter ;
 	in -= (HBSize_+HESize_);
 	dp  = 4;
@@ -840,7 +840,7 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
 	ie  = (in - ip + 1)/72;
 	if (ie > 14) {ie  = 30 -ie; iz = -1;}
 	else         {ie += 1;      iz =  1;}
-      } else if (denseid > (HBSize_)) {
+      } else if (denseid >= (HBSize_)) {
 	sd  = HcalEndcap ;
 	in -= (HBSize_);
 	dp  = (in%maxDepthHE_)+1;
