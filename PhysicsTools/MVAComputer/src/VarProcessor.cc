@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.cc,v 1.10 2012/07/04 13:08:40 eulisse Exp $
+// $Id: VarProcessor.cc,v 1.11 2012/08/03 18:11:54 wmtan Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -30,7 +30,8 @@
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #endif
 
-EDM_REGISTER_PLUGINFACTORY(PhysicsTools::VarProcessor::PluginFactory,
+typedef edmplugin::PluginFactory<PhysicsTools::VarProcessor::PluginFunctionPrototype> VPPluginFactory;
+EDM_REGISTER_PLUGINFACTORY(VPPluginFactory,
                            "PhysicsToolsMVAComputer");
 
 namespace PhysicsTools {
@@ -100,7 +101,7 @@ VarProcessor *ProcessRegistry<VarProcessor, Calibration::VarProcessor,
 	if (!result) {
 		// try to load the shared library and retry
 		try {
-			delete VarProcessor::PluginFactory::get()->create(
+			delete VPPluginFactory::get()->create(
 					std::string("VarProcessor/") + name);
 			result = ProcessRegistry::create(name, calib, parent);
 		} catch(const cms::Exception &e) {

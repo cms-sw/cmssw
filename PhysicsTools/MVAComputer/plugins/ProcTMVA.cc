@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.6 2012/11/16 20:46:26 kukartse Exp $
+// $Id: ProcTMVA.cc,v 1.7 2012/11/16 22:28:55 muzaffar Exp $
 //
 
 #include <sstream>
@@ -34,6 +34,7 @@
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
+#include "PhysicsTools/MVAComputer/interface/mva_computer_define_plugin.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace PhysicsTools;
