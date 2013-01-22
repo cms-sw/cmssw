@@ -8,7 +8,7 @@ AlCaRecoMatrix = {'ExpressCosmics' : 'SiStripCalZeroBias+TkAlCosmics0T',
                   'SingleElectron' : 'EcalCalElectron',
                   'DoubleElectron' : 'EcalCalElectron',
                   'AlCaLumiPixels' : 'LumiPixels',
-                  'DoubleMuParked' : 'MuAlCalIsolatedMu+MuAlOverlapsDtCalib+TkAlZMuMu',
+                  'DoubleMuParked' : 'MuAlCalIsolatedMu+MuAlOverlaps+DtCalib+TkAlZMuMu',
                   'MuOniaParked'   : 'TkAlJpsiMuMu+TkAlUpsilonMuMu',
                   'Cosmics'        : 'TkAlCosmics0T+MuAlGlobalCosmics+HcalCalHOCosmics+DtCalibCosmics',
                   # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
