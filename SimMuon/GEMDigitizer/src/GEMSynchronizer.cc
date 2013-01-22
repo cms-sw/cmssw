@@ -20,7 +20,7 @@ GEMSynchronizer::GEMSynchronizer(const edm::ParameterSet& config):
   gauss1_(0), gauss2_(0)
 {
   timeResolution_ = config.getParameter<double>("timeResolution");
-  averageShapingTime_ = config.getParameter<double>("shapingTime");
+  averageShapingTime_ = config.getParameter<double>("averageShapingTime");
   deltaTimeAdjacentStrip_ = config.getParameter<double>("deltaTimeAdjacentStrip");
   timeJitter_ = config.getParameter<double>("timeJitter");
   signalPropagationSpeed_ = config.getParameter<double>("signalPropagationSpeed");
