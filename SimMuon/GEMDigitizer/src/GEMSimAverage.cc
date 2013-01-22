@@ -104,7 +104,7 @@ void GEMSimAverage::simulateNoise(const GEMEtaPartition* roll)
 
   for (int i = 0; i < n_hits; i++ ){
     int strip  = static_cast<int>(flatDistr1_->fire(1,nstrips));
-    int time_hit = static_cast<int>(flatDistr2_->fire(nBxing)) - nBxing/2;
+    int time_hit = static_cast<int>(flatDistr2_->fire(nBxing)) + minBunch_;
     std::pair<int, int> digi(strip,time_hit);
     strips_.insert(digi);
   }
