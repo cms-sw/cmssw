@@ -1,6 +1,7 @@
 #ifndef Utilities_StaticAnalyzers_MemberChecker_h
 #define Utilities_StaticAnalyzers_MemberChecker_h
 #include <clang/AST/DeclCXX.h>
+#include <clang/AST/DeclTemplate.h>
 #include <clang/AST/StmtVisitor.h>
 #include <clang/AST/ParentMap.h>
 #include <clang/Analysis/CFGStmtMap.h>

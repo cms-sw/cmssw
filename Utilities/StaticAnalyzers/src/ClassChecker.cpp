@@ -593,22 +593,14 @@ void ClassCheckerRDeclD::checkASTDecl(const clang::CXXRecordDecl *CRD,clang::ent
 			{
 			llvm::errs() <<"; "<<qual.getCanonicalType().getTypePtr()->getTypeClassName()<<" "<<I->getType().getCanonicalType().getTypePtr()->getTypeClassName();
 			}
-		llvm::errs() <<"; "<<I->getType().getAsString();
+		llvm::errs() <<"; "<<I->getType().getCanonicalType().getAsString();
 		llvm::errs() <<"; "<< I->getQualifiedNameAsString();
 
+		llvm::errs() <<"\n";
 		if (const CXXRecordDecl * TRD = I->getType().getTypePtr()->getAsCXXRecordDecl()) 
 			{
 			checkASTDecl( TRD, mgr, BR );
 			}
-
-		if (const clang::TemplateSpecializationType *TST = I->getType().getTypePtr()->getAs<clang::TemplateSpecializationType>() )
-			{
-			for ( clang::TemplateSpecializationType::iterator J = TST->begin(), F = TST->end(); J !=F; ++J)
-				{
-				clang::Decl * AD = J->getAsDecl();
-				}
-			}
-		llvm::errs() <<"\n";
 	}
 
 } //end class

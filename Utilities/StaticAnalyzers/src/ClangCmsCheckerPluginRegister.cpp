@@ -29,7 +29,8 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::StaticLocalChecker>( "threadsafety.StaticLocal", "Checks for non-const method local statics which might not be thread-safe" );
 	registry.addChecker< clangcms::MutableMemberChecker>( "threadsafety.MutableMember", "Checks for members with the mutable keyword which might not be thread-safe" );
 	registry.addChecker< clangcms::GlobalStaticChecker>( "threadsafety.GlobalStatic", "Checks for global non-const statics which might not be thread-safe" );
-	registry.addChecker< clangcms::ClassCheckerRDecl>( "threadsafety.Class", "Reports classes " );
+	registry.addChecker< clangcms::ClassCheckerRDecl>( "threadsafety_optional.Class", "Reports class functions " );
+	registry.addChecker< clangcms::ClassCheckerRDeclD>( "threadsafety_optional.ClassDump", "Reports class members and template args " );
 	registry.addChecker< clangcms::FiniteMathChecker>( "cms.NonFiniteMath", "Reports usage of isnan and isinf." );
 	registry.addChecker< clangcms::UsingNamespace>( "cms.CodeRules.UsingNamespace", "Checks for 'using namespace' or 'using std::' in header files" );
 	registry.addChecker< clangcms::CatchAll>( "cms.CodeRules.CatchAll", "Checks for 'catch(...)' in source files" );
