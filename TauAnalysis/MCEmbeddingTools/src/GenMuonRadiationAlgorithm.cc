@@ -39,6 +39,29 @@ namespace
   }
 }
 
+namespace
+{
+  reco::Candidate::LorentzVector getP4_limited(const reco::Candidate::LorentzVector& p4, double mass)
+  {
+    // CV: restrict reconstructed momenta to 1 TeV maximum
+    //    (higher values are almost for sure due to reconstruction errors)
+    reco::Candidate::LorentzVector p4_limited = p4;
+    if ( p4.energy() > 1.e+3 ) {
+      double scaleFactor = 1.e+3/p4.energy();
+      double px_limited = scaleFactor*p4.px();
+      double py_limited = scaleFactor*p4.py();
+      double pz_limited = scaleFactor*p4.pz();
+      double en_limited = sqrt(square(px_limited) + square(py_limited) + square(pz_limited) + square(mass));
+      p4_limited.SetPxPyPzE(
+        px_limited, 
+	py_limited, 
+	pz_limited, 
+	en_limited);
+    }
+    return p4_limited;
+  }
+}
+
 reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Candidate::LorentzVector& muonP4, int muonCharge,
 								  const reco::Candidate::LorentzVector& otherP4)
 {
@@ -54,49 +77,36 @@ reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Ca
   }
 
   HepMC::GenEvent* genEvt_beforeFSR = new HepMC::GenEvent();
-  HepMC::GenVertex* genVtx_in = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.,0.));
-  //genVtx_in->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0.,  beamEnergy_, beamEnergy_), 2212, 3));
-  //genVtx_in->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., -beamEnergy_, beamEnergy_), 2212, 3));
-  //genEvt_beforeFSR->add_vertex(genVtx_in);
+
   HepMC::GenVertex* genVtx_out = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.,0.));
-  // CV: restrict muon momenta to 1 TeV maximum
-  //    (higher values are almost for sure due to reconstruction errors)
-  reco::Candidate::LorentzVector muonP4_limited = muonP4;
-  if ( muonP4.energy() > 1.e+3 ) {
-    double scaleFactor = 1.e+3/muonP4.energy();
-    double muonPx_limited = scaleFactor*muonP4.px();
-    double muonPy_limited = scaleFactor*muonP4.py();
-    double muonPz_limited = scaleFactor*muonP4.pz();
-    double muonEn_limited = sqrt(square(muonPx_limited) + square(muonPy_limited) + square(muonPz_limited) + square(muonP4.mass())); 
-    muonP4_limited.SetPxPyPzE(
-      muonPx_limited,
-      muonPy_limited,
-      muonPz_limited,
-      muonEn_limited);
+
+  reco::Candidate::LorentzVector muonP4_limited = getP4_limited(muonP4, muonP4.mass());
+  
+  reco::Candidate::LorentzVector otherP4_limited = getP4_limited(otherP4, 0.);
+  reco::Candidate::LorentzVector sumP4 = muonP4_limited + otherP4_limited;
+  if ( verbosity_ ) {
+    std::cout << "muon(limited): En = " << muonP4_limited.E() << ", Pt = " << muonP4_limited.pt() << ", eta = " << muonP4_limited.eta() << ", phi = " << muonP4_limited.phi() << std::endl;
+    std::cout << "other: En = " << otherP4_limited.E() << ", Pt = " << otherP4_limited.pt() << ", eta = " << otherP4_limited.eta() << ", phi = " << otherP4_limited.phi() << std::endl;
+    std::cout << "W': En = " << sumP4.E() << ", Pt = " << sumP4.pt() << ", eta = " << sumP4.eta() << ", phi = " << sumP4.phi() << std::endl;
   }
-  if ( verbosity_ ) std::cout << "muon(limited): En = " << muonP4_limited.E() << ", Pt = " << muonP4_limited.pt() << ", eta = " << muonP4_limited.eta() << ", phi = " << muonP4_limited.phi() << std::endl;
+  // CV: use pdgId code for W',
+  //     so that muon + neutrino system may have arbitrary mass
+  //int wPdgId = +34*muonCharge;
+  int wPdgId = 32;
+  HepMC::GenParticle* genW = new HepMC::GenParticle((HepMC::FourVector)sumP4, wPdgId, 2, HepMC::Flow(), HepMC::Polarization(0,0));
+  genVtx_out->add_particle_in(genW);
+
   int muonPdgId = -13*muonCharge;
   HepMC::GenParticle* genMuon = new HepMC::GenParticle((HepMC::FourVector)muonP4_limited, muonPdgId, 1, HepMC::Flow(), HepMC::Polarization(0,0));
   genVtx_out->add_particle_out(genMuon);
-  double neutrinoScaleFactor = 1.e-2;
-  double neutrinoPx = -neutrinoScaleFactor*muonP4_limited.px();
-  double neutrinoPy = -neutrinoScaleFactor*muonP4_limited.py();
-  double neutrinoPz = -neutrinoScaleFactor*muonP4_limited.pz();
-  double neutrinoEn = sqrt(square(neutrinoPx) + square(neutrinoPy) + square(neutrinoPz));
-  reco::Candidate::LorentzVector neutrinoP4(neutrinoPx, neutrinoPy, neutrinoPz, neutrinoEn);
-  if ( verbosity_ ) std::cout << "neutrino: En = " << neutrinoP4.E() << ", Pt = " << neutrinoP4.pt() << ", eta = " << neutrinoP4.eta() << ", phi = " << neutrinoP4.phi() << std::endl;
-  int neutrinoPdgId = +14*muonCharge;
-  HepMC::GenParticle* genNeutrino = new HepMC::GenParticle((HepMC::FourVector)otherP4, neutrinoPdgId, 1, HepMC::Flow(), HepMC::Polarization(0,0));
+
+  //int neutrinoPdgId = +14*muonCharge;
+  int neutrinoPdgId = +13*muonCharge;
+  HepMC::GenParticle* genNeutrino = new HepMC::GenParticle((HepMC::FourVector)otherP4_limited, neutrinoPdgId, 1, HepMC::Flow(), HepMC::Polarization(0,0));
   genVtx_out->add_particle_out(genNeutrino);
+
   genEvt_beforeFSR->add_vertex(genVtx_out);
-  reco::Candidate::LorentzVector wP4 = muonP4_limited + neutrinoP4;
-  if ( verbosity_ ) std::cout << "W: En = " << wP4.E() << ", Pt = " << wP4.pt() << ", eta = " << wP4.eta() << ", phi = " << wP4.phi() << std::endl;
-  // CV: use pdgId code for W',
-  //     so that muon + neutrino system may have arbitrary mass
-  int wPdgId = -34*muonPdgId/std::abs(muonPdgId);
-  HepMC::GenParticle* genW = new HepMC::GenParticle((HepMC::FourVector)wP4, wPdgId, 2, HepMC::Flow(), HepMC::Polarization(0,0));
-  //genVtx_in->add_particle_out(genW);
-  genVtx_out->add_particle_in(genW);
+
   if ( verbosity_ ) {
     std::cout << "genEvt (beforeFSR):" << std::endl;
     genEvt_beforeFSR->print(std::cout);

@@ -34,7 +34,7 @@ class GenMuonRadiationAlgorithm
   explicit GenMuonRadiationAlgorithm(const edm::ParameterSet&);
   ~GenMuonRadiationAlgorithm() {}
 
-  reco::Candidate::LorentzVector compFSR(const reco::Candidate::LorentzVector&, int);
+  reco::Candidate::LorentzVector compFSR(const reco::Candidate::LorentzVector&, int, const reco::Candidate::LorentzVector&);
 
  private:
   double beamEnergy_;
