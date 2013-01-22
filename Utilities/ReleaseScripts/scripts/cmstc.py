@@ -25,8 +25,10 @@ import ws_sso_content_reader
 def getFile(path):
 	npath = os.path.expanduser(path)
 	while os.path.islink(npath):
-		npath = os.readlink(npath)
-	return 	npath	
+		path = os.readlink(npath)
+		if path[0] != "/": path = os.path.join(os.path.dirname(npath),path)
+		npath = path
+	return 	npath
 
 class TagCollector(object):
 	"""CMS TagCollector Python API"""

@@ -54,8 +54,7 @@ def getSSOCookie(opener, target_url, cookie, debug=False):
   getResponseContent(opener, url, post_data_local, debug)
 
 def getContent(target_url, cert_path, key_path, post_data=None, debug=False, adfslogin=None):
-  cookie = cookielib.CookieJar()
-  opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie), HTTPSClientAuthHandler(key_path, cert_path))  #will use private key and ceritifcate
+  opener = urllib2.build_opener(urllib2.HTTPSHandler())
   if adfslogin:
     opener.addheaders = [('Adfs-Login', adfslogin)] #local version of tc test
   
@@ -67,7 +66,9 @@ def getContent(target_url, cert_path, key_path, post_data=None, debug=False, adf
   except Exception:
     if debug:
       sys.stderr.write("The request has an error, will try to create a new cookie\n")
-  
+
+  cookie = cookielib.CookieJar()
+  opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookie), HTTPSClientAuthHandler(key_path, cert_path))  #will use private key and ceritifcate
   if debug:
     sys.stderr.write("The return page is sso login page, will request cookie.")
   hasCookie = False
@@ -76,8 +77,9 @@ def getContent(target_url, cert_path, key_path, post_data=None, debug=False, adf
     getSSOCookie(opener, target_url, cookie, debug)
     hasCookie = True 
     result = getResponseContent(opener, target_url, post_data, debug)
-  except:
+  except Exception, e:
     result = ""
+    print sys.stderr.write("ERROR:"+str(e))
   if hasCookie:
     burl = getParentURL(target_url)
     try:
