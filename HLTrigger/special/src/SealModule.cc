@@ -23,7 +23,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/RoadSearchSeed/interface/RoadSearchSeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "HLTrigger/special/interface/HLTEcalResonanceFilter.h"
 
@@ -53,8 +52,6 @@ typedef HLTCountNumberOfObject<SiStripMatchedRecHit2DCollection> HLTCountNumberO
 DEFINE_FWK_MODULE(HLTCountNumberOfMatchedRecHit);
 typedef HLTCountNumberOfObject<edm::View<TrajectorySeed> > HLTCountNumberOfTrajectorySeed;
 DEFINE_FWK_MODULE(HLTCountNumberOfTrajectorySeed);
-typedef HLTCountNumberOfObject<RoadSearchSeedCollection> HLTCountNumberOfRoadSearchSeed;
-DEFINE_FWK_MODULE(HLTCountNumberOfRoadSearchSeed);
 typedef HLTCountNumberOfObject<edm::View<reco::Track> > HLTCountNumberOfTrack;
 DEFINE_FWK_MODULE(HLTCountNumberOfTrack);
 DEFINE_FWK_MODULE(HLTTrackWithHits);
