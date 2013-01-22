@@ -451,6 +451,13 @@ void HcalZDCMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 void HcalZDCMonitor::endRun(const edm::Run& run, const edm::EventSetup& c)
 {
+  for(int i=0;i<18;++i)
+    {
+      ZDC_Cold_Channel_Errors->Fill(i/9,i%9,ColdChannelCounter[i]);
+      ZDC_Dead_Channel_Errors->Fill(i/9,i%9,DeadChannelCounter[i]);
+      ZDC_TotalChannelErrors->Fill(i/9,i%9,ColdChannelCounter[i]);
+      ZDC_TotalChannelErrors->Fill(i/9,i%9,DeadChannelCounter[i]);
+    }
   HcalBaseDQMonitor::endRun(run, c);
 }
 
@@ -872,7 +879,7 @@ void HcalZDCMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
 		  ZDC_ColdChannelErrorsVsLS->Fill(currentLS,1);
 		  ZDC_TotalChannelErrors->Fill(i/9,i%9,ColdChannelCounter[i]);//Can change this between 1, or the amount of errors (Currently the latter)
 		  ColdChannelCounter[i]=0;
-		  // HadLumiError[i]=true;
+		  HadLumiError[i]=true;
 		}//END OF Cold Error Plot
 	      if (DeadChannelCounter[i] >= OfflineDeadThreshold_)
 		{//Begin Dead Error Plots
@@ -935,7 +942,7 @@ void HcalZDCMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
 		  ZDC_ColdChannelErrorsVsLS->Fill(currentLS,1);
 		  ZDC_TotalChannelErrors->Fill(i/9,i%9,ColdChannelCounter[i]);//Can change this between 1, or the amount of errors (Currently the latter)
 		  ColdChannelCounter[i]=0;
-		  // HadLumiError[i]=true;
+		  HadLumiError[i]=true;
 		}//END OF Cold Error Plot
 	      if (DeadChannelCounter[i] >= OnlineDeadThreshold_)
 		{//Begin Dead Error Plots

@@ -120,96 +120,131 @@ void ZDCMonitorClient::beginRun(void) {
   ZDCChannelSummary_=dqmStore_->get(subdir_ + "ZDC_Channel_Summary");
   if (ZDCChannelSummary_) dqmStore_->removeElement(ZDCChannelSummary_->getName());
   ZDCChannelSummary_= dqmStore_->book2D("ZDC_Channel_Summary", "Fraction of Events where ZDC Channels had no Errors" , 2, 0, 2, 9, 0, 9); //This is the histo which will show the health of each ZDC Channel
-  ZDCChannelSummary_->setBinLabel(1,"ZDC+",1);
-  ZDCChannelSummary_->setBinLabel(2,"ZDC-",1);
-  ZDCChannelSummary_->setBinLabel(1,"EM1",2);
-  ZDCChannelSummary_->setBinLabel(2,"EM2",2);
-  ZDCChannelSummary_->setBinLabel(3,"EM3",2);
-  ZDCChannelSummary_->setBinLabel(4,"EM4",2);
-  ZDCChannelSummary_->setBinLabel(5,"EM5",2);
-  ZDCChannelSummary_->setBinLabel(6,"HAD1",2);
-  ZDCChannelSummary_->setBinLabel(7,"HAD2",2);
-  ZDCChannelSummary_->setBinLabel(8,"HAD3",2);
-  ZDCChannelSummary_->setBinLabel(9,"HAD4",2);
-  ZDCChannelSummary_->getTH2F()->SetOption("coltext");  
-  
+  for (int i=0;i<18;++i)
+    {
+      ZDCChannelSummary_->setBinContent(i/9,i%9,-1);
+    }
+  (ZDCChannelSummary_->getTH2F())->GetXaxis()->SetBinLabel(1,"ZDC+");
+  (ZDCChannelSummary_->getTH2F())->GetXaxis()->SetBinLabel(2,"ZDC-");
+  (ZDCChannelSummary_->getTH2F())->GetYaxis()->SetBinLabel(1,"EM1");
+  (ZDCChannelSummary_->getTH2F())->GetYaxis()->SetBinLabel(2,"EM2");
+  (ZDCChannelSummary_->getTH2F())->GetYaxis()->SetBinLabel(3,"EM3");
+  (ZDCChannelSummary_->getTH2F())->GetYaxis()->SetBinLabel(4,"EM4");
+  (ZDCChannelSummary_->getTH2F())->GetYaxis()->SetBinLabel(5,"EM5");
+  (ZDCChannelSummary_->getTH2F())->GetYaxis()->SetBinLabel(6,"HAD1");
+  (ZDCChannelSummary_->getTH2F())->GetYaxis()->SetBinLabel(7,"HAD2");
+  (ZDCChannelSummary_->getTH2F())->GetYaxis()->SetBinLabel(8,"HAD3");
+  (ZDCChannelSummary_->getTH2F())->GetYaxis()->SetBinLabel(9,"HAD4");
+  (ZDCChannelSummary_->getTH2F())->SetOption("textcolz");  
+  (ZDCChannelSummary_->getTH2F())->SetMinimum(-1);
+  (ZDCChannelSummary_->getTH2F())->SetMaximum(1);
+
+
   
   ZDCReportSummary_ = dqmStore_->get(subdir_ + "ZDC_ReportSummary");
   if (ZDCReportSummary_) dqmStore_->removeElement(ZDCReportSummary_->getName());
   ZDCReportSummary_= dqmStore_->book2D("ZDC_ReportSummary","Fraction of Good Lumis for either ZDC",2,0,2,1,0,1);
-  ZDCReportSummary_->setBinLabel(1,"ZDC+",1);
-  ZDCReportSummary_->setBinLabel(2,"ZDC-",1);
-  ZDCReportSummary_->getTH2F()->SetOption("coltext");
+	  for (int i=0;i<3;++i)
+    {
+      ZDCReportSummary_->setBinContent(i,1,-1);
+    }
+  (ZDCReportSummary_->getTH2F())->GetXaxis()->SetBinLabel(1,"ZDC+");
+  (ZDCReportSummary_->getTH2F())->GetXaxis()->SetBinLabel(2,"ZDC-");
+  (ZDCReportSummary_->getTH2F())->SetOption("textcolz");
+  (ZDCReportSummary_->getTH2F())->SetMinimum(-1);
+  (ZDCReportSummary_->getTH2F())->SetMaximum(1);
 
   ZDCHotChannelFraction_ = dqmStore_->get(subdir_+"Errors/HotChannel/ZDC_Hot_Channel_Fraction");
   if (ZDCHotChannelFraction_) dqmStore_->removeElement(ZDCHotChannelFraction_->getName());
   dqmStore_->setCurrentFolder(subdir_ + "Errors/HotChannel");
   ZDCHotChannelFraction_ = dqmStore_->book2D("ZDC_Hot_Channel_Fraction", "Hot Channel Rates in the ZDC Channels", 2, 0, 2, 9, 0, 9); //Hot channel checker for ZDC
-  ZDCHotChannelFraction_->setBinLabel(1,"ZDC+",1);
-  ZDCHotChannelFraction_->setBinLabel(2,"ZDC-",1);
-  ZDCHotChannelFraction_->setBinLabel(1,"EM1",2);
-  ZDCHotChannelFraction_->setBinLabel(2,"EM2",2);
-  ZDCHotChannelFraction_->setBinLabel(3,"EM3",2);
-  ZDCHotChannelFraction_->setBinLabel(4,"EM4",2);
-  ZDCHotChannelFraction_->setBinLabel(5,"EM5",2);
-  ZDCHotChannelFraction_->setBinLabel(6,"HAD1",2);
-  ZDCHotChannelFraction_->setBinLabel(7,"HAD2",2);
-  ZDCHotChannelFraction_->setBinLabel(8,"HAD3",2);
-  ZDCHotChannelFraction_->setBinLabel(9,"HAD4",2);
-  ZDCHotChannelFraction_->getTH2F()->SetOption("coltext");
+   for (int i=0;i<18;++i)
+    {
+      ZDCHotChannelFraction_->setBinContent(i/9,i%9,-1);
+    }
+ (ZDCHotChannelFraction_->getTH2F())->GetXaxis()->SetBinLabel(1,"ZDC+");
+  (ZDCHotChannelFraction_->getTH2F())->GetXaxis()->SetBinLabel(2,"ZDC-");
+  (ZDCHotChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(1,"EM1");
+  (ZDCHotChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(2,"EM2");
+  (ZDCHotChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(3,"EM3");
+  (ZDCHotChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(4,"EM4");
+  (ZDCHotChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(5,"EM5");
+  (ZDCHotChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(6,"HAD1");
+  (ZDCHotChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(7,"HAD2");
+  (ZDCHotChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(8,"HAD3");
+  (ZDCHotChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(9,"HAD4");
+  (ZDCHotChannelFraction_->getTH2F())->SetOption("textcolz");
+  (ZDCHotChannelFraction_->getTH2F())->SetMinimum(-1);
+  (ZDCHotChannelFraction_->getTH2F())->SetMaximum(1);
  
   ZDCColdChannelFraction_ = dqmStore_->get(subdir_ + "Errors/ColdChannel/ZDC_Cold_Channel_Fraction");
   if (ZDCColdChannelFraction_) dqmStore_->removeElement(ZDCColdChannelFraction_->getName());
   dqmStore_->setCurrentFolder(subdir_ + "Errors/ColdChannel");
   ZDCColdChannelFraction_=dqmStore_->book2D("ZDC_Cold_Channel_Fraction", "Cold Channel Rates in the ZDC Channels", 2, 0, 2,9, 0, 9); //Cold channel checker for ZDC                    
-  ZDCColdChannelFraction_->setBinLabel(1,"ZDC+",1);
-  ZDCColdChannelFraction_->setBinLabel(2,"ZDC-",1);
-  ZDCColdChannelFraction_->setBinLabel(1,"EM1",2);
-  ZDCColdChannelFraction_->setBinLabel(2,"EM2",2);
-  ZDCColdChannelFraction_->setBinLabel(3,"EM3",2);
-  ZDCColdChannelFraction_->setBinLabel(4,"EM4",2);
-  ZDCColdChannelFraction_->setBinLabel(5,"EM5",2);
-  ZDCColdChannelFraction_->setBinLabel(6,"HAD1",2);
-  ZDCColdChannelFraction_->setBinLabel(7,"HAD2",2);
-  ZDCColdChannelFraction_->setBinLabel(8,"HAD3",2);
-  ZDCColdChannelFraction_->setBinLabel(9,"HAD4",2);
-  ZDCColdChannelFraction_->getTH2F()->SetOption("coltext");
+  for (int i=0;i<18;++i)
+    {
+      ZDCColdChannelFraction_->setBinContent(i/9,i%9,-1);
+    }
+  (ZDCColdChannelFraction_->getTH2F())->GetXaxis()->SetBinLabel(1,"ZDC+");
+  (ZDCColdChannelFraction_->getTH2F())->GetXaxis()->SetBinLabel(2,"ZDC-");
+  (ZDCColdChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(1,"EM1");
+  (ZDCColdChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(2,"EM2");
+  (ZDCColdChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(3,"EM3");
+  (ZDCColdChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(4,"EM4");
+  (ZDCColdChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(5,"EM5");
+  (ZDCColdChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(6,"HAD1");
+  (ZDCColdChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(7,"HAD2");
+  (ZDCColdChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(8,"HAD3");
+  (ZDCColdChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(9,"HAD4");
+  (ZDCColdChannelFraction_->getTH2F())->SetOption("textcolz");
+  (ZDCColdChannelFraction_->getTH2F())->SetMinimum(-1);
+  (ZDCColdChannelFraction_->getTH2F())->SetMaximum(1);
 
  
   ZDCDeadChannelFraction_ = dqmStore_->get(subdir_ + "Errors/DeadChannel/ZDC_Dead_Channel_Fraction");
   if ( ZDCDeadChannelFraction_) dqmStore_->removeElement(ZDCDeadChannelFraction_->getName());
   dqmStore_->setCurrentFolder(subdir_+ "Errors/DeadChannel");
   ZDCDeadChannelFraction_=dqmStore_->book2D("ZDC_Dead_Channel_Fraction","Dead Channel Rates in the ZDC Channels",2,0,2,9,0,9);
-  ZDCDeadChannelFraction_->setBinLabel(1,"ZDC+",1);
-  ZDCDeadChannelFraction_->setBinLabel(2,"ZDC-",1);
-  ZDCDeadChannelFraction_->setBinLabel(1,"EM1",2);
-  ZDCDeadChannelFraction_->setBinLabel(2,"EM2",2);
-  ZDCDeadChannelFraction_->setBinLabel(3,"EM3",2);
-  ZDCDeadChannelFraction_->setBinLabel(4,"EM4",2);
-  ZDCDeadChannelFraction_->setBinLabel(5,"EM5",2);
-  ZDCDeadChannelFraction_->setBinLabel(6,"HAD1",2);
-  ZDCDeadChannelFraction_->setBinLabel(7,"HAD2",2);
-  ZDCDeadChannelFraction_->setBinLabel(8,"HAD3",2);
-  ZDCDeadChannelFraction_->setBinLabel(9,"HAD4",2);
-  ZDCDeadChannelFraction_->getTH2F()->SetOption("coltext");
+  for (int i=0;i<18;++i)
+    {
+      ZDCDeadChannelFraction_->setBinContent(i/9,i%9,-1);
+    }
+  (ZDCDeadChannelFraction_->getTH2F())->GetXaxis()->SetBinLabel(1,"ZDC+");
+  (ZDCDeadChannelFraction_->getTH2F())->GetXaxis()->SetBinLabel(2,"ZDC-");
+  (ZDCDeadChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(1,"EM1");
+  (ZDCDeadChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(2,"EM2");
+  (ZDCDeadChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(3,"EM3");
+  (ZDCDeadChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(4,"EM4");
+  (ZDCDeadChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(5,"EM5");
+  (ZDCDeadChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(6,"HAD1");
+  (ZDCDeadChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(7,"HAD2");
+  (ZDCDeadChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(8,"HAD3");
+  (ZDCDeadChannelFraction_->getTH2F())->GetYaxis()->SetBinLabel(9,"HAD4");
+  (ZDCDeadChannelFraction_->getTH2F())->SetOption("textcolz");
+  (ZDCDeadChannelFraction_->getTH2F())->SetMinimum(-1);
+  (ZDCDeadChannelFraction_->getTH2F())->SetMaximum(1);
 
   ZDCDigiErrorFraction_ = dqmStore_->get(subdir_ + "Errors/Digis/ZDC_Digi_Error_Fraction");
   if (ZDCDigiErrorFraction_) dqmStore_->removeElement(ZDCDigiErrorFraction_->getName());
   dqmStore_->setCurrentFolder(subdir_ + "Errors/Digis");
   ZDCDigiErrorFraction_=dqmStore_->book2D("ZDC_Digi_Error_Fraction", "Digi Error Rates in the ZDC Channels", 2, 0, 2,9, 0, 9); //Hot channel checker for ZDC                    
-  ZDCDigiErrorFraction_->setBinLabel(1,"ZDC+",1);
-  ZDCDigiErrorFraction_->setBinLabel(2,"ZDC-",1);
-  ZDCDigiErrorFraction_->setBinLabel(1,"EM1",2);
-  ZDCDigiErrorFraction_->setBinLabel(2,"EM2",2);
-  ZDCDigiErrorFraction_->setBinLabel(3,"EM3",2);
-  ZDCDigiErrorFraction_->setBinLabel(4,"EM4",2);
-  ZDCDigiErrorFraction_->setBinLabel(5,"EM5",2);
-  ZDCDigiErrorFraction_->setBinLabel(6,"HAD1",2);
-  ZDCDigiErrorFraction_->setBinLabel(7,"HAD2",2);
-  ZDCDigiErrorFraction_->setBinLabel(8,"HAD3",2);
-  ZDCDigiErrorFraction_->setBinLabel(9,"HAD4",2);
-  ZDCDigiErrorFraction_->getTH2F()->SetOption("coltext");
-  
+  for (int i=0;i<18;++i)
+    {
+      ZDCDigiErrorFraction_->setBinContent(i/9,i%9,-1);
+    }
+  (ZDCDigiErrorFraction_->getTH2F())->GetXaxis()->SetBinLabel(2,"ZDC-");
+  (ZDCDigiErrorFraction_->getTH2F())->GetXaxis()->SetBinLabel(1,"EM1");
+  (ZDCDigiErrorFraction_->getTH2F())->GetYaxis()->SetBinLabel(2,"EM2");
+  (ZDCDigiErrorFraction_->getTH2F())->GetYaxis()->SetBinLabel(3,"EM3");
+  (ZDCDigiErrorFraction_->getTH2F())->GetYaxis()->SetBinLabel(4,"EM4");
+  (ZDCDigiErrorFraction_->getTH2F())->GetYaxis()->SetBinLabel(5,"EM5");
+  (ZDCDigiErrorFraction_->getTH2F())->GetYaxis()->SetBinLabel(6,"HAD1");
+  (ZDCDigiErrorFraction_->getTH2F())->GetYaxis()->SetBinLabel(7,"HAD2");
+  (ZDCDigiErrorFraction_->getTH2F())->GetYaxis()->SetBinLabel(8,"HAD3");
+  (ZDCDigiErrorFraction_->getTH2F())->GetYaxis()->SetBinLabel(9,"HAD4");
+  (ZDCDigiErrorFraction_->getTH2F())->SetOption("textcolz");
+  (ZDCDigiErrorFraction_->getTH2F())->SetMinimum(-1);
+  (ZDCDigiErrorFraction_->getTH2F())->SetMaximum(1);  
 }
 
 
@@ -366,7 +401,6 @@ void ZDCMonitorClient::analyze()
 	    }
 	}
     }
-
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
