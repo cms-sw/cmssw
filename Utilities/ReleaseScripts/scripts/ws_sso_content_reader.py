@@ -3,11 +3,19 @@
 import os, urllib, urllib2, httplib, cookielib, sys, HTMLParser, re
 from optparse import OptionParser
 
+def getFile(path):
+  npath = os.path.expanduser(path)
+  while os.path.islink(npath):
+    path = os.readlink(npath)
+    if path[0] != "/": path = os.path.join(os.path.dirname(npath),path)
+    npath = path
+  return npath
+
 class HTTPSClientAuthHandler(urllib2.HTTPSHandler):  
   def __init__(self, key, cert):  
     urllib2.HTTPSHandler.__init__(self)  
-    self.key = key  
-    self.cert = cert  
+    self.key = getFile(key)  
+    self.cert = getFile(cert) 
 
   def https_open(self, req):  
     return self.do_open(self.getConnection, req)  

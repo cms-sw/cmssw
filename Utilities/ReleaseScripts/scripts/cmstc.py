@@ -19,16 +19,7 @@ try:
 except ImportError:
     import simplejson as json
 import getpass
-import os.path
 import ws_sso_content_reader
-
-def getFile(path):
-	npath = os.path.expanduser(path)
-	while os.path.islink(npath):
-		path = os.readlink(npath)
-		if path[0] != "/": path = os.path.join(os.path.dirname(npath),path)
-		npath = path
-	return 	npath
 
 class TagCollector(object):
 	"""CMS TagCollector Python API"""
@@ -52,7 +43,7 @@ class TagCollector(object):
 		if data:
 			data = urllib.urlencode(data)
 		if self.useCert:
-		  	return ws_sso_content_reader.getContent(url, getFile('~/.globus/usercert.pem'), getFile('~/.globus/userkey.pem'), data)
+		  	return ws_sso_content_reader.getContent(url, '~/.globus/usercert.pem', '~/.globus/userkey.pem', data)
 		try:
 			return self._opener.open(url, data).read()
 		except urllib2.HTTPError, e:
