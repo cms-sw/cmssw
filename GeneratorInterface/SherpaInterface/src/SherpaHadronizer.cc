@@ -17,7 +17,7 @@
 //#include "SHERPA/Tools/HepMC2_Interface.H"
 #include "ATOOLS/Org/Library_Loader.H"
 #include "SHERPA/Single_Events/Event_Handler.H"
-#include "AddOns/HepMC/HepMC2_Interface.H"
+#include "../AddOns/HepMC2_Interface.H"
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"

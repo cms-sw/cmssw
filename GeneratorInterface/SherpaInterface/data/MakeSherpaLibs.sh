@@ -236,7 +236,7 @@ logefile=${outflbs}_logE.tgz              # output messages (-> from event gener
 gridfile=${outflbs}_migr.tgz              # multiple interactions phase-space grid
 #
 dir1="Process"                            # SHERPA process directory name
-dir2="Results"                            # SHERPA results directory name
+dir2="Result"                             # SHERPA results directory name
 dir3="Analysis"                           # SHERPA analysis directory name
 
 ### clean up existing xsection files
