@@ -160,7 +160,7 @@ def overrideGlobalTag(process):
                  ),
 
           cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                    tag = cms.string("JetCorrectorParametersCollection_AK1Calo_HI_2760GeV_v3_offline"),
+                                    tag = cms.string("JetCorrectorParametersCollection_HI_PythiaZ2_5TeV_538_v03_AK1Calo_offline"),
                                     connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                                                  label = cms.untracked.string("AK1Calo_HI")
                                     ),
@@ -185,11 +185,16 @@ def overrideGlobalTag(process):
                                           label = cms.untracked.string("AK5Calo_HI")
                                           ),
                 cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                                          tag = cms.string("JetCorrectorParametersCollection_HI_PythiaZ2_5TeV_538_v02_AK6Calo_offline"),
+                                          tag = cms.string("JetCorrectorParametersCollection_HI_PythiaZ2_5TeV_538_v03_AK6Calo_offline"),
                                           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
                                           label = cms.untracked.string("AK6Calo_HI")
                                           ),
-
+     cms.PSet(record = cms.string("JetCorrectionsRecord"),
+                               tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v02_AK2PF_offline"),
+                               connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+                               label = cms.untracked.string("AK1PF_generalTracks")
+                               ),
+        
         cms.PSet(record = cms.string("JetCorrectionsRecord"),
                  tag = cms.string("JetCorrectorParametersCollection_HI_PFTowers_generalTracks_PythiaZ2_5TeV_538_v02_AK2PF_offline"),
                  connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
