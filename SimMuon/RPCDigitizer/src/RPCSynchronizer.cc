@@ -45,7 +45,7 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
   resEle = config.getParameter<double>("timeJitter");
   sspeed = config.getParameter<double>("signalPropagationSpeed");
   lbGate = config.getParameter<double>("linkGateWidth");
-
+  LHCGate = config.getParameter<double>("Gate");
   cosmics = config.getParameter<bool>("cosmics");
 
   //"magic" parameter for cosmics
@@ -126,7 +126,7 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
 
     float prop_time =  distanceFromEdge/sspeed;
 
-    double rr_tim1 = gauss2->fire(0.,resEle);
+    double rr_tim1 = gauss2->fire(0.,resRPC);
     double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
     
     // Bunch crossing assignment
@@ -146,12 +146,12 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit)
     for(int n = -5; n <= 5; ++n){
 
       if(cosmics){
-	inf_time = (-lbGate/2 + n*lbGate )/cosmicPar;
-	sup_time = ( lbGate/2 + n*lbGate )/cosmicPar;
+	inf_time = (-lbGate/2 + n*LHCGate )/cosmicPar;
+	sup_time = ( lbGate/2 + n*LHCGate )/cosmicPar;
       }
       else if(!cosmics){
-	inf_time = -lbGate/2 + n*lbGate;
-	sup_time =  lbGate/2 + n*lbGate;
+	inf_time = -lbGate/2 + n*LHCGate;
+	sup_time =  lbGate/2 + n*LHCGate;
       }
 
       if(inf_time < time_differ && time_differ < sup_time) {

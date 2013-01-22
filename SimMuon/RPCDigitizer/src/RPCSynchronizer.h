@@ -64,7 +64,7 @@ class RPCSynchronizer
   double lbGate;
   double lbGateNew;
   double cosmicPar;
-
+  double LHCGate;
   bool cosmics;
 
   CLHEP::RandGaussQ *gauss1;
