@@ -17,18 +17,18 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.h,v 1.13 2009/07/27 16:51:46 demattia Exp $
+// $Id: SiStripQuality.h,v 1.14 2009/07/28 08:39:55 demattia Exp $
 //
 
 
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include <vector>
+
+class SiStripDetCabling;
+class SiStripDetInfoFileReader;
 
 class SiStripQuality: public SiStripBadStrip {
 
@@ -50,10 +50,7 @@ class SiStripQuality: public SiStripBadStrip {
   SiStripQuality(edm::FileInPath&);
   SiStripQuality(const SiStripQuality&); //copy constructor
 
-  ~SiStripQuality(){ 
-    LogTrace("SiStripQuality") << "SiStripQuality destructor" << std::endl; 
-    delete reader;
-  }
+  ~SiStripQuality();
 
   void clear(){
     v_badstrips.clear();

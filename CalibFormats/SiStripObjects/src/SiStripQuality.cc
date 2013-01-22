@@ -1,11 +1,15 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.21 2010/02/20 20:55:07 wmtan Exp $
+// $Id: SiStripQuality.cc,v 1.22 2011/09/16 13:49:22 demattia Exp $
 //
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 // Needed only for output
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h" 
@@ -43,6 +47,11 @@ SiStripQuality::SiStripQuality(const SiStripQuality& other)
   SiStripDetCabling_=other.SiStripDetCabling_;
   printDebug_=other.printDebug_;
   useEmptyRunInfo_=other.useEmptyRunInfo_;
+}
+
+SiStripQuality::~SiStripQuality(){ 
+  LogTrace("SiStripQuality") << "SiStripQuality destructor" << std::endl; 
+  delete reader;
 }
 
 
