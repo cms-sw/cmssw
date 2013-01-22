@@ -219,11 +219,16 @@ process.jetIDSelector.version = cms.string('PURE09')
 
 #-------------------------------------
 #Filter for PFJets
-process.PFJetsFilter = cms.EDFilter("PFJetSelector",
- src = cms.InputTag("selectedPatJetsPF2PAT"),
- cut = cms.string("pt > 10.0 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction < 0.99 && nConstituents > 1 && chargedHadronEnergyFraction > 0.0 && chargedMultiplicity > 0.0 && chargedEmEnergyFraction < 0.99"),
- filter = cms.bool(True)
-)
+process.PATJetsFilter = cms.EDFilter("PATJetSelector",    
+                                    src = cms.InputTag("selectedPatJetsPF2PAT"),
+                                    cut = cms.string("pt > 20.0 && abs(eta) < 2.5 && neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction < 0.99 && nConstituents > 1 && chargedHadronEnergyFraction > 0.0 && chargedMultiplicity > 0.0 && chargedEmEnergyFraction < 0.99"),
+                                    #filter = cms.bool(True)
+                                    )
+
+
+
+
+
 #---------------------------------------
 process.load("bTag.CommissioningCommonSetup.caloJetIDFilter_cff")
 
@@ -275,18 +280,14 @@ process.btagana.triggerTable = 'TriggerResults::HLT' # Data and MC
 #---------------------------------------
 
 
-process.AK5byRef.jets = "selectedPatJetsPF2PAT"
+process.AK5byRef.jets = "PATJetsFilter"
 
-# process.btagana.Jets = 'ak5PFJets'
-process.btagana.Jets = 'selectedPatJetsPF2PAT'
-#process.btagana.jetCorrector = cms.string('ak5PFL2L3')
-process.btagana.jetCorrector = cms.string('ak5PFL1FastL2L3')
-#process.btagana.jetCorrector = cms.string('ak5PFL1FastL2L3Residual')
+process.btagana.Jets = 'PATJetsFilter'
+process.btagana.jetCorrector = cms.string('ak5PFL1FastL2L3Residual')
 
-# process.ak5JetTracksAssociatorAtVertex.jets = "ak5PFJets"
-process.ak5JetTracksAssociatorAtVertex.jets = "selectedPatJetsPF2PAT"
-# process.softMuonTagInfos.jets = "ak5PFJets"
-process.softMuonTagInfos.jets = "selectedPatJetsPF2PAT"
+process.ak5JetTracksAssociatorAtVertex.jets = "PATJetsFilter"
+process.softMuonTagInfos.jets = "PATJetsFilter"
+
 
 
 # process.jetProbabilityMixed = cms.ESProducer("JetProbabilityESProducer",
@@ -343,9 +344,8 @@ process.p = cms.Path(
         *process.offlinePrimaryVertices 
 	*process.goodOfflinePrimaryVertices
 	*getattr(process,"patPF2PATSequence"+postfix)
-        #*process.PFJetsFilter
+        *process.PATJetsFilter
 	*process.myPartons*process.AK5Flavour
-#$$
         *process.noscraping
         *process.primaryVertexFilter
 	*process.ak5JetTracksAssociatorAtVertex
