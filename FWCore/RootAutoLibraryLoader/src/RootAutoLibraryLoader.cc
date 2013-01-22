@@ -17,7 +17,6 @@
 #include "TROOT.h"
 #include "TInterpreter.h"
 #include "G__ci.h"
-#include "boost/regex.hpp"
 
 // user include files
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
@@ -101,12 +100,18 @@ namespace edm {
                                sReflexPrefix + type + sReflexPostfix));
       }
 
+      std::string
+      classNameForRoot(std::string const& classname) {
+        // Converts the name to the name known by CINT (e.g. strips out "std::")
+        return ROOT::Cintex::CintName(classname);
+      }
+
       bool
       isDictionaryLoaded(std::string const& classname) {
         // This checks if the class name is known to the interpreter.
         // In this context, this will be true if and only if the dictionary has been loaded (and converted to CINT).
-        // Except for the CintName() call, this code is independent of the identity of the interpreter.
-        ClassInfo_t* info = gInterpreter->ClassInfo_Factory(ROOT::Cintex::CintName(classname).c_str());
+        // Except for the "classNameForRoot" call, this code is independent of the identity of the interpreter.
+        ClassInfo_t* info = gInterpreter->ClassInfo_Factory(classNameForRoot(classname).c_str());
         return gInterpreter->ClassInfo_IsValid(info);
       }
 
@@ -174,15 +179,6 @@ namespace edm {
           result = gPrevious(c, l);
         }
         return result;
-      }
-
-      std::string
-      classNameForRoot(std::string const& iCapName) {
-        //need to remove any 'std::' since ROOT ignores it
-        static boost::regex const ex("std::");
-        std::string const to("");
-
-        return regex_replace(iCapName, ex, to, boost::match_default | boost::format_sed);
       }
 
       //Cint requires that we register the type and library containing the type
@@ -277,7 +273,7 @@ namespace edm {
                 std::cout << "dictionary did not build " << name << std::endl;
                 continue;
               }
-              TClass* namedClass = TClass::GetClass(name.c_str());
+              TClass* namedClass = TClass::GetClass(classNameForRoot(name).c_str());
               if(nullptr == namedClass) {
                 std::cout << "failed to get TClass for " << name << std::endl;
                 continue;
