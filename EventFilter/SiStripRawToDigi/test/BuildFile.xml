@@ -13,5 +13,6 @@
   <use   name="FWCore/PluginManager"/>
   <use   name="rootcore"/>
   <use   name="EventFilter/SiStripRawToDigi"/>
+  <use   name="DQM/HLTEvF"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
