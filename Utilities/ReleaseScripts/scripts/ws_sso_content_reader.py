@@ -105,12 +105,6 @@ def checkRequiredArguments(opts, parser):
     if len(missing_options) > 0:
       parser.error('Missing REQUIRED parameters: %s' % str(missing_options))    
 
-def resolveSymLink(path):
-  while os.path.islink(path):
-    srcpath = os.path.join(os.path.dirname(path), os.readlink(path))
-  srcpath = os.path.abspath(path)
-  return path
-
 if __name__ == "__main__":
   parser = OptionParser(usage="%prog [-d(ebug)] -o(ut) COOKIE_FILENAME -c(cert) CERN-PEM -k(ey) CERT-KEY -u(rl) URL") 
   parser.add_option("-d", "--debug", dest="debug", help="Enable pycurl debugging. Prints to data and headers to stderr.", action="store_true", default=False)
@@ -120,5 +114,5 @@ if __name__ == "__main__":
   parser.add_option("-u", "--url", dest="url", help="[REQUIRED] Url to a service behind the SSO", action="store")
   (opts, args) = parser.parse_args()
   checkRequiredArguments(opts, parser)
-  content = getContent(opts.url, resolveSymLink(opts.cert_path), resolveSymLink(opts.key_path), opts.postdata, opts.debug)
+  content = getContent(opts.url, opts.cert_path, opts.key_path, opts.postdata, opts.debug)
   print content
