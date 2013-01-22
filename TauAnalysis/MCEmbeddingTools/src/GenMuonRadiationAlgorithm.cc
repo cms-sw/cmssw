@@ -92,7 +92,8 @@ reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Ca
   // CV: use pdgId code for W',
   //     so that muon + neutrino system may have arbitrary mass
   //int wPdgId = +34*muonCharge;
-  int wPdgId = 32;
+  //int wPdgId = 32;
+  int wPdgId = 23;
   HepMC::GenParticle* genW = new HepMC::GenParticle((HepMC::FourVector)sumP4, wPdgId, 2, HepMC::Flow(), HepMC::Polarization(0,0));
   genVtx_out->add_particle_in(genW);
 
