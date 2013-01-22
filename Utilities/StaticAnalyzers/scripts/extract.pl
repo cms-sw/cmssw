@@ -27,6 +27,7 @@ foreach (@fields) {
 		unshift (@queue, $temp); 
 		}
 	else
-		{$,="\n";print split (',', join (' ',split (' ',$_))), "\n" }; 
+		{
+		$,="\n";print join (' ',split (' ',$_)), "\n" }; 
 	}
 }

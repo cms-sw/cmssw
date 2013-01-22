@@ -1,9 +1,10 @@
 #!/bin/bash
 #eval `scram runtime -sh`
-	classes=`cmsglimpse -F classes_def.xml$ -G class \
+	classes=`cmsglimpse -F DataFormats.*classes_def\.xml -G class \
 	| sed '/<!--.*-->/d'| sed '/<!--/,/-->/d'\
 	| awk 'BEGIN{FS="<class name=\"|\"";} /class name/ { print $2 }' \
-	| ./extract.pl \
+	| sed 's/\&gt\;/\>/g'| sed 's/\&lt\;/\</g'\
+	| cut -d\< -f1 \
 	| awk 'BEGIN{FS="::";OFS="\n";} {print $NF}' \
 	| tr " " "\n" | sort -u | grep -v  -e ^[0-9] -e\* -e\&`
 	echo $classes | tr " " "\n" >/tmp/classes1.txt

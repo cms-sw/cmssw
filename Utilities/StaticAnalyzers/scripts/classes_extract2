@@ -1,13 +1,13 @@
 #!/bin/bash
-eval `scram runtime -sh`
+#eval `scram runtime -sh`
 
-	classes=`cmsglimpse TYPELOOKUP_DATA_REG \
+	classes=`cmsglimpse "^TYPELOOKUP_DATA_REG" | grep -v -e FWCore \
 	| awk 'BEGIN{FS="TYPELOOKUP_DATA_REG\\\(|\\\)";OFS="\n";} {print $2}'\
-	| ./extract.pl \
 	| awk 'BEGIN{FS="::";OFS="\n";} {print $NF}' \
-	| tr " " "\n" | sort -u |grep -v -e ^[0-9] `
+	| awk 'BEGIN{FS="<|>";OFS="\n";} {print $1,$2}'\
+	| tr " " "\n" | sort -u |grep -v -e ^[0-9] -e ^vector -e ^int -e ^bool -e ^float -e _recordclassname_ `
 	echo $classes | tr " " "\n" >/tmp/classes2.txt
-	paths=`cmsglimpse -G TYPELOOKUP_DATA_REG  \
+	paths=`cmsglimpse -G "^TYPELOOKUP_DATA_REG"  \
 	| awk 'BEGIN{FS="\"|<|>";OFS="\n";} /^#include/ {print $2}'| tr " " "\n"| sort -u`
 	echo $paths | tr " " "\n"  >/tmp/paths2.txt
 	pathtmp=""
