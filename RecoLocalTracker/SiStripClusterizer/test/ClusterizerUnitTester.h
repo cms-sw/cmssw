@@ -2,8 +2,13 @@
 #define ClusterizerUnitTester_h
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
+
+#include <vector>
+#include <string>
+#include <memory>
 
 class ClusterizerUnitTester : public edm::EDAnalyzer {
   

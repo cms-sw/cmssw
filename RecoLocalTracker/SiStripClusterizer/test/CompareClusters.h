@@ -11,6 +11,8 @@ class SiStripDigi;
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <sstream>
 
 class CompareClusters : public edm::EDAnalyzer {

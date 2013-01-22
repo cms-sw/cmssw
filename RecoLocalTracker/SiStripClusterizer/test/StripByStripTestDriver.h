@@ -3,9 +3,13 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
 //#include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizerFactory.h"
+
+#include <memory>
 
 class StripByStripTestDriver : public edm::EDProducer {
   
