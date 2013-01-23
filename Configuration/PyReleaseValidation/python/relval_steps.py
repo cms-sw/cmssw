@@ -384,8 +384,7 @@ step1Upgpixphase1Defaults = {'-s' : 'GEN,SIM',
                              '--beamspot' : 'Gauss',
                              '--datatier' : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
-                             '--geometry' : 'SLHC',
-                             '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
+                             '--slhc' : 'Phase1_R30F12'
                              }
 def genup(fragment,howMuch):
     global step1Defaults
@@ -620,9 +619,9 @@ step2Upgpixphase1Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT',
-                 '--customise': 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-                 '--geometry' : 'SLHC'
-                  }
+                 '--customise':'SLHCUpgradeSimulations/Configuration/customise_mixing.customise_pixelMixing,SLHCUpgradeSimulations/Configuration/customise_mixing.customise_DigiToRaw',
+                 '--slhc' : 'Phase1_R30F12'
+                 }
 steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
@@ -741,8 +740,8 @@ step3Upgpixphase1Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--datatier':'GEN-SIM-RECO,DQM',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-                 '--geometry' : 'SLHC'
+                 '--customise':'SLHCUpgradeSimulations/Configuration/phase1Customs.phase1Mods,SLHCUpgradeSimulations/Configuration/phase1Customs.customise_DQM',
+                 '--slhc' : 'Phase1_R30F12'
                  }
                              
 
@@ -847,7 +846,7 @@ steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
 steps['HARVESTUP']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
                    '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
+		   '--customise':'SLHCUpgradeSimulations/Configuration/phase1Customs.customise_harvesting'
                    }
 		   
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
