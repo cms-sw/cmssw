@@ -10,7 +10,7 @@ def customise(process):
         process=customise_RawToDigi(process)
     if hasattr(process,'reconstruction'):
         process=customise_Reco(process)
-    if hasattr(process,'mix'):
+    if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'dqmoffline_step'):
         process=customise_DQM(process)
