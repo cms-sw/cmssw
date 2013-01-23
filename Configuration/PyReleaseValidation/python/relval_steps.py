@@ -41,25 +41,36 @@ class WF(list):
     
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,split=10,location='CAF') :
+    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
         self.run = run
         self.files = files
         self.events = events
         self.location = location
         self.label = label
         self.dataSet = dataSet
-        self.split=split
+        self.split = split
+        self.ib_blacklist = ib_blacklist
+        self.ib_block = ib_block
         
     def dbs(self):
-        command='dbs search --noheader --query "find file where dataset like '+self.dataSet
-        def requ(r):
-            return 'run=%d'%(r,)
-        if len(self.run)!=0:
-            command+=' and ('+' or '.join(map(requ,self.run))+' )'
-        command+='"'
+        query_by = "block" if self.ib_block else "dataset"
+        query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
+        if len(self.run) is not 0:
+            command = ";".join(["das_client.py --limit=0 --query 'file {0}={1} run={2}'".format(query_by, query_source, query_run) for query_run in self.run])
+            command = "({0})".format(command)
+        else:
+            command = "das_client.py --limit=0 --query 'file {0}={1}'".format(query_by, query_source)
+       
+        # Run filter on DAS output 
+        if self.ib_blacklist:
+            command += " | grep -E -v "
+            command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
         return command
+
     def __str__(self):
-        return 'input from: %s with run: %s'%(self.dataSet,str(self.run))
+        if self.ib_block:
+            return "input from: {0} with run {1}#{2}".format(self.dataSet, self.ib_block, self.run)
+        return "input from: {0} with run {1}".format(self.dataSet, self.run)
     
 # merge dictionaries, with prioty on the [0] index
 def merge(dictlist,TELL=False):
@@ -120,12 +131,12 @@ steps['RunJet2010B']={'INPUT':InputInfo(dataSet='/Jet/Run2010B-RelValRawSkim-v1/
 
 #list of run to harvest 2011A: 165121, 172802,
 Run2011ASk=[165121,172802]
-steps['ValSkim2011A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2011A-ValSkim-08Nov2011-v1/RAW-RECO',label='run2011A',location='STD',run=Run2011ASk)}
-steps['WMuSkim2011A']={'INPUT':InputInfo(dataSet='/SingleMu/Run2011A-WMu-08Nov2011-v1/RAW-RECO',label='wMu2011A',location='STD',run=Run2011ASk)}
+steps['ValSkim2011A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2011A-ValSkim-08Nov2011-v1/RAW-RECO',ib_block='239c497e-0fae-11e1-a8b1-00221959e72f',label='run2011A',location='STD',run=Run2011ASk,ib_blacklist=['FC156C3B-720F-E111-9B67-002354EF3BDC'])}
+steps['WMuSkim2011A']={'INPUT':InputInfo(dataSet='/SingleMu/Run2011A-WMu-08Nov2011-v1/RAW-RECO',ib_block='388c2990-0de6-11e1-bb7e-00221959e72f',label='wMu2011A',location='STD',run=Run2011ASk,ib_blacklist=['F2DB9A3A-0C0E-E111-AC69-1CC1DE051038'])}
 steps['WElSkim2011A']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2011A-WElectron-08Nov2011-v1/RAW-RECO',label='wEl2011A',location='STD',run=Run2011ASk)}
 steps['ZMuSkim2011A']={'INPUT':InputInfo(dataSet='/DoubleMu/Run2011A-ZMu-08Nov2011-v1/RAW-RECO',label='zMu2011A',location='STD',run=Run2011ASk)}
 steps['ZElSkim2011A']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2011A-ZElectron-08Nov2011-v1/RAW-RECO',label='zEl2011A',location='STD',run=Run2011ASk)}
-steps['HighMet2011A']={'INPUT':InputInfo(dataSet='/Jet/Run2011A-HighMET-08Nov2011-v1/RAW-RECO',label='hMet2011A',location='STD',run=Run2011ASk)}
+steps['HighMet2011A']={'INPUT':InputInfo(dataSet='/Jet/Run2011A-HighMET-08Nov2011-v1/RAW-RECO',ib_block='3c764584-0b59-11e1-b62c-00221959e69e',label='hMet2011A',location='STD',run=Run2011ASk,ib_blacklist=['EE6CEF95-590B-E111-B8AD-00266CFADFCC', '7069975F-5F0B-E111-B0DB-0015178C4BE8', 'A831F356-520B-E111-ABB9-001D0967DAAD'])}
 
 steps['RunCosmics2011A']={'INPUT':InputInfo(dataSet='/Cosmics/Run2011A-v1/RAW',label='cos2011A',run=[160960],events=100000,location='STD')}
 Run2011A=[165121]
@@ -374,7 +385,7 @@ step1Upgpixphase1Defaults = {'-s' : 'GEN,SIM',
                              '--datatier' : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
                              '--geometry' : 'SLHC',
-			     '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
+                             '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
                              }
 def genup(fragment,howMuch):
     global step1Defaults
@@ -610,7 +621,7 @@ step2Upgpixphase1Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--customise': 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
- 	         '--geometry' : 'SLHC'
+                 '--geometry' : 'SLHC'
                   }
 steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
@@ -730,7 +741,7 @@ step3Upgpixphase1Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '--datatier':'GEN-SIM-RECO,DQM',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
-		 '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
                  '--geometry' : 'SLHC'
                  }
                              
