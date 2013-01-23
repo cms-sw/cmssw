@@ -37,7 +37,6 @@ from RecoLuminosity.LumiDB.public_plots_tools import ColorScheme
 from RecoLuminosity.LumiDB.public_plots_tools import LatexifyUnits
 from RecoLuminosity.LumiDB.public_plots_tools import AddLogo
 from RecoLuminosity.LumiDB.public_plots_tools import InitMatplotlib
-from RecoLuminosity.LumiDB.public_plots_tools import RoundAwayFromZero
 from RecoLuminosity.LumiDB.public_plots_tools import SavePlot
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_SUPTITLE
 from RecoLuminosity.LumiDB.public_plots_tools import FONT_PROPS_TITLE
@@ -60,7 +59,8 @@ DATE_FMT_STR_AXES = "%-d %b"
 DATE_FMT_STR_CFG = "%Y-%m-%d"
 NUM_SEC_IN_LS = 2**18 / 11246.
 
-KNOWN_ACCEL_MODES = ["PROTPHYS", "IONPHYS"]
+KNOWN_ACCEL_MODES = ["PROTPHYS", "IONPHYS", "PAPHYS",
+                     "2013_amode_bug_workaround"]
 LEAD_SCALE_FACTOR = 82. / 208.
 
 ######################################################################
@@ -269,10 +269,12 @@ def AtMidnight(datetime_in):
 ######################################################################
 
 def AtMidWeek(datetime_in):
+    # NOTE: The middle of the week is on Thursday according to our
+    # definition
     tmp = datetime_in.date()
     date_tmp = tmp - \
                datetime.timedelta(days=tmp.weekday()) + \
-               datetime.timedelta(days=2)
+               datetime.timedelta(days=3)
     res = datetime.datetime.combine(date_tmp, datetime.time())
     # End of AtMidWeek().
     return res
@@ -307,6 +309,14 @@ def GetUnits(year, accel_mode, mode):
         "cum_day" : "ub^{-1}",
         "cum_week" : "ub^{-1}",
         "cum_year" : "ub^{-1}",
+        "max_inst" : "Hz/mb",
+        }
+        },
+        "PAPHYS" : {
+        2013 : {
+        "cum_day" : "nb^{-1}",
+        "cum_week" : "nb^{-1}",
+        "cum_year" : "nb^{-1}",
         "max_inst" : "Hz/mb",
         }
         }
@@ -454,6 +464,14 @@ if __name__ == "__main__":
         print >> sys.stderr, \
               "ERROR Unknown accelerator mode '%s'" % \
               accel_mode
+
+    # WORKAROUND WORKAROUND WORKAROUND
+    amodetag_bug_workaround = False
+    if accel_mode == "2013_amode_bug_workaround":
+        amodetag_bug_workaround = True
+        accel_mode = "PAPHYS"
+    # WORKAROUND WORKAROUND WORKAROUND end
+
     beam_energy_tmp = cfg_parser.get("general", "beam_energy")
     # If no beam energy specified, use the default(s) for this
     # accelerator mode.
@@ -496,7 +514,8 @@ if __name__ == "__main__":
     # strings to be used in plot titles etc.
     particle_type_strings = {
         "PROTPHYS" : "pp",
-        "IONPHYS" : "PbPb"
+        "IONPHYS" : "PbPb",
+        "PAPHYS" : "pPb"
         }
     particle_type_str = particle_type_strings[accel_mode]
 
@@ -505,7 +524,8 @@ if __name__ == "__main__":
                       2011 : 3500.,
                       2012 : 4000.},
         "IONPHYS" : {2010 : 3500.,
-                     2011 : 3500.}
+                     2011 : 3500.},
+        "PAPHYS" : {2013 : 4000.}
         }
 
     ##########
@@ -576,6 +596,7 @@ if __name__ == "__main__":
         week = date_end.isocalendar()[1]
         weeks.append((year, week))
         weeks = list(set(weeks))
+    weeks.sort()
 
     # Figure out the last day we want to read back from the cache.
     # NOTE: The above checking ensures that date_end is <= today, so
@@ -603,12 +624,28 @@ if __name__ == "__main__":
             if not beam_energy_from_cfg:
                 year = day.isocalendar()[0]
                 beam_energy = beam_energy_defaults[accel_mode][year]
-            lumicalc_flags = "%s --without-checkforupdate " \
-                             "--beamenergy %.0f " \
-                             "--beamfluctuation 0.15 " \
-                             "--amodetag %s " \
-                             "lumibyls" % \
-                             (lumicalc_flags_from_cfg, beam_energy, accel_mode)
+
+            # WORKAROUND WORKAROUND WORKAROUND
+            # Trying to work around the issue with the unfilled
+            # accelerator mode in the RunInfo database.
+            if amodetag_bug_workaround:
+                # Don't use the amodetag in this case. Scary, but
+                # works for the moment.
+                lumicalc_flags = "%s --without-checkforupdate " \
+                                 "--beamenergy %.0f " \
+                                 "--beamfluctuation 0.15 " \
+                                 "lumibyls" % \
+                                 (lumicalc_flags_from_cfg, beam_energy)
+            else:
+                # This is the way things should be.
+                lumicalc_flags = "%s --without-checkforupdate " \
+                                 "--beamenergy %.0f " \
+                                 "--beamfluctuation 0.15 " \
+                                 "--amodetag %s " \
+                                 "lumibyls" % \
+                                 (lumicalc_flags_from_cfg, beam_energy, accel_mode)
+            # WORKAROUND WORKAROUND WORKAROUND end
+
             lumicalc_flags = lumicalc_flags.strip()
             lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
             cmd = "%s --begin '%s' --end '%s' -o %s" % \
@@ -694,12 +731,22 @@ if __name__ == "__main__":
         if not beam_energy_from_cfg:
             year = day.isocalendar()[0]
             beam_energy = beam_energy_defaults[accel_mode][year]
-        lumicalc_flags = "%s --without-checkforupdate " \
-                         "--beamenergy %.0f " \
-                         "--beamfluctuation 0.15 " \
-                         "--amodetag %s " \
-                         "lumibyls" % \
-                         (lumicalc_flags_from_cfg, beam_energy, accel_mode)
+        # WORKAROUND WORKAROUND WORKAROUND
+        # Same as above.
+        if amodetag_bug_workaround:
+            lumicalc_flags = "%s --without-checkforupdate " \
+                             "--beamenergy %.0f " \
+                             "--beamfluctuation 0.15 " \
+                             "lumibyls" % \
+                             (lumicalc_flags_from_cfg, beam_energy)
+        else:
+            lumicalc_flags = "%s --without-checkforupdate " \
+                             "--beamenergy %.0f " \
+                             "--beamfluctuation 0.15 " \
+                             "--amodetag %s " \
+                             "lumibyls" % \
+                             (lumicalc_flags_from_cfg, beam_energy, accel_mode)
+        # WORKAROUND WORKAROUND WORKAROUND end
         lumicalc_flags = lumicalc_flags.strip()
         lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
         cache_file_dbg = cache_file_path.replace(".csv", "_dbg.csv")
@@ -830,7 +877,7 @@ if __name__ == "__main__":
             helper_str = ""
             if (tmp < .1) and (tmp > 0.):
                 helper_str = " (non-zero but very small)"
-            tmp_str = "%5.1f%s" % (tmp, helper_str)
+            tmp_str = "%6.1f%s" % (tmp, helper_str)
         except KeyError:
             pass
         print "  %s: %s" % (day.isoformat(), tmp_str)
@@ -891,11 +938,11 @@ if __name__ == "__main__":
             beam_energy = beam_energy_defaults[accel_mode][year]
         cms_energy = 2. * beam_energy
         cms_energy_str = "???"
-        if accel_mode == "IONPHYS":
+        if accel_mode == "PROTPHYS":
+            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+        elif accel_mode in ["IONPHYS", "PAPHYS"]:
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
-        elif accel_mode == "PROTPHYS":
-            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
 
         lumi_data = lumi_data_by_day_per_year[year]
         lumi_data.sort()
@@ -967,7 +1014,7 @@ if __name__ == "__main__":
                 log_setting = False
                 if is_log:
                     min_val = min(weights_del_inst)
-                    exp = RoundAwayFromZero(math.log10(min_val))
+                    exp = math.floor(math.log10(min_val))
                     log_setting = math.pow(10., exp)
 
                 fig.clear()
@@ -1026,7 +1073,7 @@ if __name__ == "__main__":
                 log_setting = False
                 if is_log:
                     min_val = min(weights_rec)
-                    exp = RoundAwayFromZero(math.log10(min_val))
+                    exp = math.floor(math.log10(min_val))
                     log_setting = math.pow(10., exp)
 
                 fig.clear()
@@ -1095,7 +1142,7 @@ if __name__ == "__main__":
                 log_setting = False
                 if is_log:
                     min_val = min(weights_del_for_cum)
-                    exp = RoundAwayFromZero(math.log10(min_val))
+                    exp = math.floor(math.log10(min_val))
                     log_setting = math.pow(10., exp)
 
                 fig.clear()
@@ -1157,11 +1204,11 @@ if __name__ == "__main__":
             beam_energy = beam_energy_defaults[accel_mode][year]
         cms_energy = 2. * beam_energy
         cms_energy_str = "???"
-        if accel_mode == "IONPHYS":
+        if accel_mode == "PROTPHYS":
+            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+        elif accel_mode in ["IONPHYS", "PAPHYS"]:
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
-        elif accel_mode == "PROTPHYS":
-            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
 
         lumi_data = lumi_data_by_week_per_year[year]
         lumi_data.sort()
@@ -1180,7 +1227,8 @@ if __name__ == "__main__":
         bin_edges = np.linspace(matplotlib.dates.date2num(week_lo),
                                 matplotlib.dates.date2num(week_hi),
                                 num_weeks)
-        times = [matplotlib.dates.date2num(i) for i in lumi_data.times()]
+        times_tmp = [AtMidWeek(i) for i in lumi_data.times()]
+        times = [matplotlib.dates.date2num(i) for i in times_tmp]
         # Delivered and recorded luminosity integrated per week.
         units = GetUnits(year, accel_mode, "cum_week")
         weights_del = lumi_data.lum_del(units)
@@ -1227,7 +1275,7 @@ if __name__ == "__main__":
                 log_setting = False
                 if is_log:
                     min_val = min(weights_del_inst)
-                    exp = RoundAwayFromZero(math.log10(min_val))
+                    exp = math.floor(math.log10(min_val))
                     log_setting = math.pow(10., exp)
 
                 fig.clear()
@@ -1287,7 +1335,7 @@ if __name__ == "__main__":
                 log_setting = False
                 if is_log:
                     min_val = min(weights_rec)
-                    exp = RoundAwayFromZero(math.log10(min_val))
+                    exp = math.floor(math.log10(min_val))
                     log_setting = math.pow(10., exp)
 
                 fig.clear()
@@ -1311,7 +1359,7 @@ if __name__ == "__main__":
                             histtype="stepfilled",
                             log=log_setting,
                             facecolor=color_fill_rec, edgecolor=color_line_rec,
-                        label="CMS Recorded, max: %.1f %s/week" % \
+                            label="CMS Recorded, max: %.1f %s/week" % \
                             (max_rec, LatexifyUnits(units)))
                     leg = ax.legend(loc="upper left", bbox_to_anchor=(0.125, 0., 1., 1.01),
                               frameon=False)
@@ -1357,7 +1405,7 @@ if __name__ == "__main__":
                 log_setting = False
                 if is_log:
                     min_val = min(weights_del_for_cum)
-                    exp = RoundAwayFromZero(math.log10(min_val))
+                    exp = math.floor(math.log10(min_val))
                     log_setting = math.pow(10., exp)
 
                 fig.clear()
@@ -1474,11 +1522,11 @@ if __name__ == "__main__":
                             beam_energy = beam_energy_defaults[accel_mode][year]
                         cms_energy = 2. * beam_energy
                         cms_energy_str = "???"
-                        if accel_mode == "IONPHYS":
+                        if accel_mode == "PROTPHYS":
+                            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+                        elif accel_mode in ["IONPHYS", "PAPHYS"]:
                             cms_energy_str = "%.2f TeV/nucleon" % \
                                              (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
-                        elif accel_mode == "PROTPHYS":
-                            cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
 
                         # NOTE: Special case for 2010.
                         label = None
@@ -1627,11 +1675,11 @@ if __name__ == "__main__":
                         beam_energy = beam_energy_defaults[accel_mode][year]
                     cms_energy = 2. * beam_energy
                     cms_energy_str = "???"
-                    if accel_mode == "IONPHYS":
+                    if accel_mode == "PROTPHYS":
+                        cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
+                    elif accel_mode in ["IONPHYS", "PAPHYS"]:
                         cms_energy_str = "%.2f TeV/nucleon" % \
                                          (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
-                    elif accel_mode == "PROTPHYS":
-                        cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
 
                     # NOTE: Special case for 2010.
                     label = None
