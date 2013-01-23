@@ -20,7 +20,7 @@ def generateLumidata(lumirundatafromfile,lsdatafromfile,rundatafromdb,lsdatafrom
     for lumilsnum in lsdatafromdb.keys():
         if lumilsnum in range(replacelsMin,replacelsMax+1):
             instlumi=lsdatafromfile[lumilsnum]
-            lumilsdata[lumilsnum][2]=instlumi
+            lumilsdata[lumilsnum][1]=instlumi
     return (lumirundata,lumilsdata)
 
 def lumiDataFromfile(filename):
@@ -251,6 +251,7 @@ if __name__ == "__main__":
                         )
     parser.add_argument('--comment',action='store',
                         required=False,
+                        default='',
                         help='patch comment'
                        )
     parser.add_argument('--debug',dest='debug',action='store_true',
@@ -295,7 +296,6 @@ if __name__ == "__main__":
     sourcesession.transaction().commit()
     (rundat,lsdat)=generateLumidata(lumidatafromfile[0],lumidatafromfile[1],lumidatafromdb[0],lumidatafromdb[1],begLS,endLS)
     print rundat
-    #print lsdat
     destsvc=sessionManager.sessionManager(options.deststr,authpath=options.authpath,debugON=False)
     destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     destsession.transaction().start(False)
@@ -316,7 +316,7 @@ if __name__ == "__main__":
         dataDML.bulkInsertLumiLSSummary(destsession,int(options.runnum),lumidataid,lsdat,nameDealer.lumisummaryv2TableName())
         destsession.transaction().commit()
         destsession.transaction().start(False)
-        revisionDML.addRunToCurrentDataTag(destsession.nominalSchema(),int(options.runnum),lumidataid,desttrgdataid,desthltdataid,lumitype='HF')
+        revisionDML.addRunToCurrentDataTag(destsession.nominalSchema(),int(options.runnum),lumidataid,desttrgdataid,desthltdataid,lumitype='HF',comment=options.comment)
         destsession.transaction().commit()
     else:
         print 'non-existing old hf data in destdb of run ',int(options.runnum)
@@ -326,7 +326,7 @@ if __name__ == "__main__":
         dataDML.bulkInsertLumiLSSummary(destsession,int(options.runnum),lumidataid,lsdat,nameDealer.lumisummaryv2TableName())
         destsession.transaction().commit()
         destsession.transaction().start(False)
-        revisionDML.addRunToCurrentDataTag(destsession.nominalSchema(),int(options.runnum),lumidataid,0,0,lumitype='HF')
+        revisionDML.addRunToCurrentDataTag(destsession.nominalSchema(),int(options.runnum),lumidataid,0,0,lumitype='HF',comment=options.comment)
         destsession.transaction().commit()
     del sourcesession
     del sourcesvc
