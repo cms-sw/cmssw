@@ -1,7 +1,7 @@
 For running without validation sequence:
 
 cmsDriver.py Configuration/GenProduction/python/FourteenTeV/TenMuE_0_200_cfi.py -s GEN,SIM \
-        --conditions POSTLS161_V12::All --eventcontent FEVTDEBUG \
+        --conditions DESIGN61_V10::All --eventcontent FEVTDEBUG \
         --beamspot Gauss --geometry SLHC \
         --datatier GEN-SIM -n 10 \
         --customise SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise

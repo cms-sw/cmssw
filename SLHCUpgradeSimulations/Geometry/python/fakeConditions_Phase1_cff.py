@@ -8,10 +8,6 @@ es_prefer_fake_gain = cms.ESPrefer("SiPixelFakeGainOfflineESSource","siPixelFake
 # from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import * Double check this later
 # TrackerDigiGeometryESModule.applyAlignment = False
 
-from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
-MeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-MeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-MeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
 
 from SimGeneral.TrackingAnalysis.trackingParticles_cfi import *
 mergedtruth.volumeRadius = cms.double(100.0)
@@ -22,7 +18,7 @@ mergedtruth.discardOutVolume = cms.bool(True)
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
 
 # this assumes that the beamspot is gaussian
-
+# remove this when the right global tag is used!
 from RecoVertex.BeamSpotProducer.BeamSpotFakeParameters_cfi import *
 BeamSpotFakeConditions.X0 = cms.double(0.0)
 BeamSpotFakeConditions.Y0 = cms.double(0.0)
@@ -42,3 +38,4 @@ BeamSpotFakeConditions.errordxdz = cms.double(0.0)
 BeamSpotFakeConditions.errordydz = cms.double(0.0)
 BeamSpotFakeConditions.errorSigmaZ = cms.double(0.03000)
 BeamSpotFakeConditions.errorWidth = cms.double(0.00003)
+es_prefer_beamspot = cms.ESPrefer("BeamSpotFakeConditions","")
