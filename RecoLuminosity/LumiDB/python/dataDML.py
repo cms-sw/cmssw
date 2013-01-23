@@ -1857,7 +1857,7 @@ def addCorrToBranch(schema,corrname,a1,optionalcorrdata,branchinfo):
 def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo,tableName):
     '''
     input:
-          lumirundata [datasource,nominalenergy,starttime,stoptime,nls]
+          lumirundata [datasource,nominalenergy,ncollidingbunches,starttime,stoptime,nls]
           branchinfo (branch_id,branch_name)
           tableName lumiruntablename
     output:
@@ -1866,14 +1866,16 @@ def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo,tableName):
     try:
         datasource=lumirundata[0]
         nominalegev=3500.0
+        ncollidingbunches=0
         starttime=coral.TimeStamp()
         stoptime=coral.TimeStamp()
         nls=0
         if len(lumirundata)>1:
             nominalenergy=lumirundata[1]
-            starttime=lumirundata[2]
-            stoptime=lumirundata[3]
-            nls=lumirundata[4]
+            ncollidingbunches=lumirundata[2]
+            starttime=lumirundata[3]
+            stoptime=lumirundata[4]
+            nls=lumirundata[5]
         entry_id=revisionDML.entryInBranch(schema,tableName,str(runnumber),branchinfo[1])
         if entry_id is None:
             (revision_id,entry_id,data_id)=revisionDML.bookNewEntry(schema,tableName)
@@ -1883,8 +1885,8 @@ def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo,tableName):
             (revision_id,data_id)=revisionDML.bookNewRevision(schema,tableName)
             #print 'revision_id,data_id ',revision_id,data_id
             revisionDML.addRevision(schema,tableName,(revision_id,data_id),branchinfo)
-        tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string','NOMINALEGEV':'float','STARTTIME':'time stamp','STOPTIME':'time stamp','NLS':'unsigned int'}
-        tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource,'NOMINALEGEV':nominalegev,'STARTTIME':starttime,'STOPTIME':stoptime,'NLS':nls}
+        tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string','NOMINALEGEV':'float','NCOLLIDINGBUNCHES':'unsigned int','STARTTIME':'time stamp','STOPTIME':'time stamp','NLS':'unsigned int'}
+        tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource,'NOMINALEGEV':nominalegev,'NCOLLIDINGBUNCHES':ncollidingbunches,'STARTTIME':starttime,'STOPTIME':stoptime,'NLS':nls}
         db=dbUtil.dbUtil(schema)
         db.insertOneRow(tableName,tabrowDefDict,tabrowValueDict)
         return (revision_id,entry_id,data_id)
