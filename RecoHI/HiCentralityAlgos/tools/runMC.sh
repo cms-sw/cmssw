@@ -1,14 +1,11 @@
 #!/bin/sh
-#Example tag : CentralityTable_HFhits40_Hydjet2760GeV_v1_mc -> CentralityTable_HFhits40_Hydjet2760GeV_v1_mc_MC_38Y_V12
-conditions=MC_38Y_V12
-version=1
-
-for mc in Hydjet AMPT
+#Example tag : CentralityTable_HFplus100_PAHijing_v1_mc -> CentralityTable_HFplus100_PAHijing_v1_mc_MC_53Y_V0
+version=4
+macro=makeTable2
+generator=Hijing
+#for variable in HFtowers HFtowersPlus HFtowersMinus HFtowersPlusTrunc HFtowersMinusTrunc PixelHits PixelTracks Tracks b Npart Ncoll Nhard
+for variable in HFtowersPlusTrunc Tracks
   do
-  for variable in HFtowers HFhits PixelHits Ntracks Npart
-    do
-    root -b -q "makeMCtableFromOpenHLT.C+(40,\"$variable\",\"CentralityTable_${variable}40_${mc}2760GeV_v${version}_mc_${conditions}\",\"$mc\")"
-  done 
+  root -b -q -l rootlogon.C "$macro.C++(100,\"$variable\",\"CentralityTable_${variable}_${generator}_v${version}_mc\",true,1)"
+  cat out/output.txt >> out/${generator}_v${version}.txt
 done
-
-
