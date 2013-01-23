@@ -554,7 +554,7 @@ def addRunToCurrentDataTag(schema,runnum,lumiid,trgid,hltid,lumitype='HF',commen
     if lumitype not in ['HF','PIXEL']:
         raise ValueError('unknown lumitype '+lumitype)
     if lumitype=='HF':
-        tagrunstablename=nameDealer.tagrunsTableName()
+        tagrunstablename=nameDealer.tagRunsTableName()
     else:
         tagrunstablename=nameDealer.pixeltagRunsTableName()
     currenttagid=currentDataTag(schema,lumitype=lumitype)[0]
