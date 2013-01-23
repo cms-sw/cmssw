@@ -345,6 +345,20 @@ def GetUnits(year, accel_mode, mode):
 
 ######################################################################
 
+def GetEnergyPerNucleonScaleFactor(amodetag):
+    # DEBUG DEBUG DEBUG
+    assert amodetag in ["IONPHYS", "PAPHYS"]
+    # DEBUG DEBUG DEBUG end
+
+    res = LEAD_SCALE_FACTOR
+    if amodetag == "PAPHYS":
+        res = math.sqrt(res)
+
+    # End of GetEnergyPerNucleonScaleFactor().
+    return res
+
+######################################################################
+
 def NumDaysInYear(year):
     """Returns the number of days in the given year."""
 
@@ -942,7 +956,7 @@ if __name__ == "__main__":
             cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
         elif accel_mode in ["IONPHYS", "PAPHYS"]:
             cms_energy_str = "%.2f TeV/nucleon" % \
-                             (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
+                             (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
         lumi_data = lumi_data_by_day_per_year[year]
         lumi_data.sort()
@@ -1208,7 +1222,7 @@ if __name__ == "__main__":
             cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
         elif accel_mode in ["IONPHYS", "PAPHYS"]:
             cms_energy_str = "%.2f TeV/nucleon" % \
-                             (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
+                             (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
         lumi_data = lumi_data_by_week_per_year[year]
         lumi_data.sort()
@@ -1526,7 +1540,7 @@ if __name__ == "__main__":
                             cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
                         elif accel_mode in ["IONPHYS", "PAPHYS"]:
                             cms_energy_str = "%.2f TeV/nucleon" % \
-                                             (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
+                                             (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
                         # NOTE: Special case for 2010.
                         label = None
@@ -1679,7 +1693,7 @@ if __name__ == "__main__":
                         cms_energy_str = "%.0f TeV" % (1.e-3 * cms_energy)
                     elif accel_mode in ["IONPHYS", "PAPHYS"]:
                         cms_energy_str = "%.2f TeV/nucleon" % \
-                                         (1.e-3 * LEAD_SCALE_FACTOR * cms_energy)
+                                         (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
                     # NOTE: Special case for 2010.
                     label = None
