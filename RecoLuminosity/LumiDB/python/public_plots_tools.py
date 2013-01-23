@@ -30,6 +30,8 @@ def InitMatplotlib():
     matplotlib.rcParams["figure.figsize"] = (8., 6.)
     matplotlib.rcParams["figure.dpi"] = 300
     matplotlib.rcParams["savefig.dpi"] = matplotlib.rcParams["figure.dpi"]
+    matplotlib.rcParams["font.size"] = 10.8
+    matplotlib.rcParams["pdf.fonttype"] = 42
     # End of InitMatplotlib().
 
 ######################################################################
