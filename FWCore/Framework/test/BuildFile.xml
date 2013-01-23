@@ -58,7 +58,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<library   file="stubs/ToyModules.cc,stubs/DeleteEarlyModules.cc" name="TestToyModules">
+<library   file="stubs/ToyModules.cc,stubs/ToyAnalyzers.cc,stubs/ToyIntProducers.cc,stubs/ToyDoubleProducers.cc,stubs/ToySTLProducers.cc,stubs/ToyRefProducers.cc,stubs/DeleteEarlyModules.cc" name="TestToyModules">
   <flags   EDM_PLUGIN="1"/>
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/TestObjects"/>
@@ -171,6 +171,7 @@
   <use   name="FWCore/RootAutoLibraryLoader"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/Version"/>
+  <use   name="rootcintex"/>
   <use   name="cppunit"/>
 </bin>
 <bin   name="TestFWCoreFrameworkView" file="View_t.cpp">
