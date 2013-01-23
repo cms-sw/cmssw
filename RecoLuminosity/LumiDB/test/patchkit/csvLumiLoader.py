@@ -295,23 +295,40 @@ if __name__ == "__main__":
     sourcesession.transaction().commit()
     (rundat,lsdat)=generateLumidata(lumidatafromfile[0],lumidatafromfile[1],lumidatafromdb[0],lumidatafromdb[1],begLS,endLS)
     print rundat
-    print lsdat
+    #print lsdat
     destsvc=sessionManager.sessionManager(options.deststr,authpath=options.authpath,debugON=False)
-    destsession=sourcesvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
-    destsession.transaction().start(True)
+    destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    destsession.transaction().start(False)
     (lumibranchid,lumibranchparent)=revisionDML.branchInfoByName(destsession.nominalSchema(),'DATA')
+    branchinfo=(lumibranchid,'DATA')
+    print branchinfo
+    
     (hf_tagid,hf_tagname)=revisionDML.currentDataTag(destsession.nominalSchema(),lumitype='HF')
     print (hf_tagid,hf_tagname)
     hfdataidmap=revisionDML.dataIdsByTagId(destsession.nominalSchema(),hf_tagid,[int(options.runnum)],withcomment=False,lumitype='HF')
+    destsession.transaction().commit()
     print hfdataidmap
-    destsession.transaction().commit()    
-    branchinfo=(lumibranchid,'DATA')
-    print branchinfo
-    [destlumidataid,desttrgdataid,desthltdataid]=hfdataidmap[int(options.runnum)]
-    #destsession.transaction().start(False)
-    #(lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(schema,int(options.runnum),rundat,branchinfo,nameDealer.lumidataTableName())
-    #dataDML.bulkInsertLumiLSSummary(destsession,int(options.runnum),lumidataid,lsdat,nameDealer.lumisummaryv2TableName())
-    #revisionDML.addRunToCurrentDataTag(destsession.nominalSchema(),int(options.runnum),lumidataid,desttrgdataid,desthltdataid,lumitype='HF')
-    #destsession.transaction().commit()
+    if hfdataidmap.has_key(int(options.runnum)):
+        print 'existing old hf data in destdb of run ',options.runnum,hfdataidmap[int(options.runnum)]
+        destsession.transaction().start(False)
+        [destlumidataid,desttrgdataid,desthltdataid]=hfdataidmap[int(options.runnum)]
+        (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),int(options.runnum),rundat,branchinfo,nameDealer.lumidataTableName())
+        dataDML.bulkInsertLumiLSSummary(destsession,int(options.runnum),lumidataid,lsdat,nameDealer.lumisummaryv2TableName())
+        destsession.transaction().commit()
+        destsession.transaction().start(False)
+        revisionDML.addRunToCurrentDataTag(destsession.nominalSchema(),int(options.runnum),lumidataid,desttrgdataid,desthltdataid,lumitype='HF')
+        destsession.transaction().commit()
+    else:
+        print 'non-existing old hf data in destdb of run ',int(options.runnum)
+        destsession.transaction().start(False)
+        (lumirevid,lumientryid,lumidataid)=dataDML.addLumiRunDataToBranch(destsession.nominalSchema(),int(options.runnum),rundat,branchinfo,nameDealer.lumidataTableName())
+        print (lumirevid,lumientryid,lumidataid)
+        dataDML.bulkInsertLumiLSSummary(destsession,int(options.runnum),lumidataid,lsdat,nameDealer.lumisummaryv2TableName())
+        destsession.transaction().commit()
+        destsession.transaction().start(False)
+        revisionDML.addRunToCurrentDataTag(destsession.nominalSchema(),int(options.runnum),lumidataid,0,0,lumitype='HF')
+        destsession.transaction().commit()
     del sourcesession
     del sourcesvc
+    del destsession
+    del destsvc
