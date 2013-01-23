@@ -107,11 +107,11 @@ namespace edm {
       }
 
       bool
-      isDictionaryLoaded(std::string const& classname) {
+      isDictionaryLoaded(std::string const& rootclassname) {
         // This checks if the class name is known to the interpreter.
         // In this context, this will be true if and only if the dictionary has been loaded (and converted to CINT).
-        // Except for the "classNameForRoot" call, this code is independent of the identity of the interpreter.
-        ClassInfo_t* info = gInterpreter->ClassInfo_Factory(classNameForRoot(classname).c_str());
+        // This code is independent of the identity of the interpreter.
+        ClassInfo_t* info = gInterpreter->ClassInfo_Factory(rootclassname.c_str());
         return gInterpreter->ClassInfo_IsValid(info);
       }
 
@@ -123,11 +123,12 @@ namespace edm {
         //std::cout << "asking to find " << classname << std::endl;
         std::string const& cPrefix = dictionaryPlugInPrefix();
         //std::cout << "asking to find " << cPrefix + classname << std::endl;
+        std::string rootclassname = classNameForRoot(classname);
         try {
           //give ROOT a name for the file we are loading
           RootLoadFileSentry sentry;
           if(edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + classname)) {
-            if(!isDictionaryLoaded(classname)) {
+            if(!isDictionaryLoaded(rootclassname)) {
               //would be nice to issue a warning here.  Not sure the remainder of this comment is correct.
               // this message happens too often (too many false positives) to be useful plus ROOT will complain about a missing dictionary
               //std::cerr << "Warning: ROOT knows about type '" << classname << "' but has no dictionary for it." << std::endl;
@@ -141,7 +142,7 @@ namespace edm {
               // Too many false positives on built-in types here.
               return false;
             }
-            if(!isDictionaryLoaded(classname)) {
+            if(!isDictionaryLoaded(rootclassname)) {
               //would be nice to issue a warning here
               return false;
             }
@@ -258,29 +259,30 @@ namespace edm {
 
         //now handle the special cases
         for(auto const& special : specials) {
-          //std::cout << "registering special " << itSpecial->first << " " << itSpecial->second << " " << std::endl << "    " << specialsToLib[classNameForRoot(itSpecial->second)] << std::endl;
+          std::string const& name = special.second;
+          std::string rootname = classNameForRoot(name);
+          //std::cout << "registering special " << itSpecial->first << " " << name << " " << std::endl << "    " << specialsToLib[rootname] << std::endl;
           //force loading of specials
-          if(specialsToLib[classNameForRoot(special.second)].size()) {
+          if(specialsToLib[rootname].size()) {
             //std::cout << "&&&&& found special case " << itSpecial->first << std::endl;
-            std::string name = special.second;
-            if(!isDictionaryLoaded(name) and
+            if(!isDictionaryLoaded(rootname) and
                 (not edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + name))) {
               std::cout << "failed to load plugin for " << cPrefix + name << std::endl;
               continue;
             } else {
               //need to construct the Class ourselves
-              if(!isDictionaryLoaded(name)) {
+              if(!isDictionaryLoaded(rootname)) {
                 std::cout << "dictionary did not build " << name << std::endl;
                 continue;
               }
-              TClass* namedClass = TClass::GetClass(classNameForRoot(name).c_str());
+              TClass* namedClass = TClass::GetClass(rootname.c_str());
               if(nullptr == namedClass) {
                 std::cout << "failed to get TClass for " << name << std::endl;
                 continue;
               }
               namedClass->Clone(special.first.c_str());
               std::string magictypedef("namespace edm { typedef ");
-              magictypedef += classNameForRoot(name) + " " + special.first + "; }";
+              magictypedef += rootname + " " + special.first + "; }";
               // std::cout << "Magic typedef " << magictypedef << std::endl;
               gROOT->ProcessLine(magictypedef.c_str());
             }
