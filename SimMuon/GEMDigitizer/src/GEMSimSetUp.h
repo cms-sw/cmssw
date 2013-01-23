@@ -58,6 +58,7 @@ private:
   double averageEfficiency_;
   double averageNoiseRate_;
   double averageShapingTime_;
+  double timeCalibrationOffset_;
   int numberOfStripsPerPartition_;
 };
 

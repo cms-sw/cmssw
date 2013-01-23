@@ -2,13 +2,14 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-GEMSimSetUp::GEMSimSetUp(const edm::ParameterSet& ps)
+GEMSimSetUp::GEMSimSetUp(const edm::ParameterSet& config)
 {
-  auto pset = ps.getParameter<edm::ParameterSet>("digiModelConfig");
+  auto pset = config.getParameter<edm::ParameterSet>("digiModelConfig");
 
   averageEfficiency_ = pset.getParameter<double>("averageEfficiency");
   averageNoiseRate_ = pset.getParameter<double>("averageNoiseRate");
   averageShapingTime_ = pset.getParameter<double>("averageShapingTime");
+  timeCalibrationOffset_ = pset.getParameter<double>("timeCalibrationOffset");
   numberOfStripsPerPartition_ = pset.getParameter<int>("numberOfStripsPerPartition");
 }
 
@@ -72,17 +73,23 @@ void GEMSimSetUp::setup()
   */ 
   std::vector<RPCStripNoises::NoiseItem> vnoise;
   vnoise.reserve(geometry_->dets().size() * numberOfStripsPerPartition_);
-  
+
   // Loop over the detIds                                                                                                                                             
   for(const auto &det: geometry_->dets())
     {
-      float timing; 
       GEMEtaPartition* roll = dynamic_cast< GEMEtaPartition* >( det );
       
       // check for valid rolls     
       if(roll == nullptr) continue;
-      
+
       const int nStrips = roll->nstrips();
+      if (numberOfStripsPerPartition_ != nStrips)
+	{
+	  throw cms::Exception("DataCorrupt") 
+	    << "GEMSimSetUp::setup() - numberOfStripsPerPartition given in configuration "
+	    <<numberOfStripsPerPartition_ <<" is not the same as in geometry "<<nStrips;
+	}
+      
       // Loop over the strips                                                                                                                                          
       for(int iStrip=0; iStrip <= nStrips-1; ++iStrip)
         {
@@ -91,15 +98,12 @@ void GEMSimSetUp::setup()
           noise.dpid = roll->id();
           noise.eff = averageEfficiency_;
           noise.noise = averageNoiseRate_;
-          noise.time = averageShapingTime_;
+          noise.time = timeCalibrationOffset_;
 	  
           // add noise item to noise vector                                                                                                                         
           vnoise.push_back(noise);
-	  
-	  timing = noise.time;
 	}
-      GEMDetId id = det->geographicalId();
-      setupTimeCalibration(id,timing);
+      setupTimeCalibration(det->geographicalId(),timeCalibrationOffset_);
     }
   setupNoiseAndEfficiency(vnoise);
 }
