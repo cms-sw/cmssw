@@ -125,7 +125,7 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 
 
     ////---- create Digi based reportSummaryMap
-    m_dbe->setCurrentFolder(rootFolder_+"EventInfo");
+    m_dbe->setCurrentFolder(rootFolder_+"CastorPSMonitor");
     reportSummary    = m_dbe->bookFloat("reportSummary");
     reportSummaryMap = m_dbe->book2D("reportSummaryMap","CASTOR reportSummaryMap",14,0.0,14.0,16,0.0,16.0);
     if(offline_){
@@ -134,7 +134,7 @@ void CastorPSMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
       h_reportSummaryMap->GetXaxis()->SetTitle("module");
       h_reportSummaryMap->GetYaxis()->SetTitle("sector");
     }
-    m_dbe->setCurrentFolder(rootFolder_+"EventInfo/reportSummaryContents");
+    m_dbe->setCurrentFolder(rootFolder_+"CastorPSMonitor/reportSummaryContents");
     overallStatus = m_dbe->bookFloat("fraction of good channels");
     overallStatus->Fill(fraction); reportSummary->Fill(fraction); 
   } 
