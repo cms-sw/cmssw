@@ -14,8 +14,9 @@ goodMuons = cms.EDFilter("MuonRefSelector",
 
 ## psi candidates
 psiCandidates = cms.EDProducer("CandViewShallowCloneCombiner",
-        decay = cms.string("goodMuons@+ goodMuons@-"),
-        cut = cms.string("2.5 < mass < 4.5")
+                               decay = cms.string("goodMuons goodMuons"),
+                               checkCharge = cms.bool(False),
+                               cut = cms.string("2.5 < mass < 4.5")
 )
 
 psiFilter = cms.EDFilter("CandViewCountFilter",
@@ -25,8 +26,9 @@ psiFilter = cms.EDFilter("CandViewCountFilter",
 
 ## Y candidates
 upsCandidates = cms.EDProducer("CandViewShallowCloneCombiner",
-        decay = cms.string("goodMuons@+ goodMuons@-"),
-        cut = cms.string("7.0 < mass < 14.0")
+                               decay = cms.string("goodMuons goodMuons"),
+                               checkCharge = cms.bool(False),
+                               cut = cms.string("7.0 < mass < 14.0")
 )
 
 upsFilter = cms.EDFilter("CandViewCountFilter",
@@ -36,8 +38,9 @@ upsFilter = cms.EDFilter("CandViewCountFilter",
 
 # Z candidates
 ZCandidates = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("goodMuons@+ goodMuons@-"),
-    cut = cms.string("60.0 < mass < 120.0")
+                             decay = cms.string("goodMuons goodMuons"),
+                             checkCharge = cms.bool(False),
+                             cut = cms.string("60.0 < mass < 120.0")
 )
 
 ZFilter = cms.EDFilter("CandViewCountFilter",
