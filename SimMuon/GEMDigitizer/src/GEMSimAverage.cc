@@ -52,7 +52,7 @@ GEMSimAverage::~GEMSimAverage()
 void GEMSimAverage::simulate(const GEMEtaPartition* roll,
 			     const edm::PSimHitContainer& simHits)
 {
-  //_gemSync->setGEMSimSetUp(getGEMSimSetUp());
+  sync_->setGEMSimSetUp(getGEMSimSetUp());
   stripDigiSimLinks_.clear();
   detectorHitMap_.clear();
   stripDigiSimLinks_ = StripDigiSimLinks(roll->id().rawId());
@@ -66,9 +66,7 @@ void GEMSimAverage::simulate(const GEMEtaPartition* roll,
     if (flatDistr1_->fire(1) > averageEfficiency_) continue;
     auto entry = hit.entryPoint();
     
-    //int time_hit = _gemSync->getSimHitBx(&(*_hit));
-    // please keep hit time always 0 for this model
-    int time_hit = 0;
+    int time_hit = sync_->getSimHitBx(&hit);
     std::pair<int, int> digi(topology.channel(entry) + 1, time_hit);
       
     detectorHitMap_.insert(DetectorHitMap::value_type(digi, &hit));
