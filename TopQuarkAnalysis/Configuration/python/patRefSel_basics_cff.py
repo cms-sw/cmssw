@@ -5,6 +5,6 @@ options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool( False )
 )
 
-from Configuration.StandardSequences.Geometry_cff import *
+from Configuration.Geometry.GeometryIdeal_cff import *
 from Configuration.StandardSequences.MagneticField_cff import *
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *

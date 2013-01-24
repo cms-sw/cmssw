@@ -11,8 +11,8 @@
 /*
  * \file HcalDetDiagNoiseMonitorClient.cc
  * 
- * $Date: 2010/05/07 09:09:12 $
- * $Revision: 1.4 $
+ * $Date: 2012/01/12 17:08:39 $
+ * $Revision: 1.5 $
  * \author J. Temple
  * \brief Hcal DetDiagNoiseMonitor Client class
  */
@@ -273,4 +273,5 @@ void HcalDetDiagNoiseMonitorClient::updateChannelStatus(std::map<HcalDetId, unsi
 
 } //void HcalDetDiagNoiseMonitorClient::updateChannelStatus
 
-
+HcalDetDiagNoiseMonitorClient::~HcalDetDiagNoiseMonitorClient()
+{}

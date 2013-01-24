@@ -30,7 +30,7 @@
 template <class T> 
 class LASGlobalData : public TNamed
 {
-  
+
  public:
   // enums not in use so far...
   enum Subdetector { TECPLUS, TECMINUS, TIB, TOB };
@@ -40,7 +40,6 @@ class LASGlobalData : public TNamed
   enum TibTobPosition { MINUS3, MINUS2, MINUS1, PLUS1, PLUS2, PLUS3 };
   LASGlobalData();
   LASGlobalData(const T&);
-  T& GetEntry( int det, int ring, int beam, int zpos ); // Generic access independent of subdetector
   T& GetTECEntry( int subdetector, int tecRing, int beam, int tecDisk );
   T& GetTIBTOBEntry( int subdetector, int beam, int tibTobPosition );
   T& GetTEC2TECEntry( int subdetector, int beam, int tecDisk );
@@ -48,8 +47,7 @@ class LASGlobalData : public TNamed
   void SetTIBTOBEntry( int subdetector, int beam, int tibTobPosition, T );
   void SetTEC2TECEntry( int subdetector, int beam, int tecDisk, T );
   //  LASGlobalData<T>& operator=( LASGlobalData<T>& );
-  void Reset( const T& in=T());
-  
+
  private:
   //void Init( void );
   void Init( const T& in=T());
@@ -59,9 +57,7 @@ class LASGlobalData : public TNamed
   std::vector<std::vector<T> > tecMinusATData; // beam<disk<T>>
   std::vector<std::vector<T> > tibData; // beam<pos<T>>
   std::vector<std::vector<T> > tobData; // beam<pos<T>>
-  
-  bool ValidIndices( int det, int ring, int beam, int zpos ); // Check if indices identify a valid LAS module
-  
+
   ClassDef( LASGlobalData, 2 );
 };
 
@@ -85,86 +81,6 @@ LASGlobalData<T>::LASGlobalData(const T& in)
   Init(in);
 }
 
-
-template <class T>
-void LASGlobalData<T>::Reset( const T& in)
-{
-  tecPlusData.clear();
-  tecMinusData.clear();
-  tecPlusATData.clear();
-  tecMinusATData.clear();
-  tibData.clear();
-  tobData.clear();
-  Init(in);
-}
-
-
-///
-/// get a tec entry from the container according to
-/// subdetector, ring, beam and disk number
-///
-template <class T>
-T& LASGlobalData<T>::GetEntry( int det, int ring, int beam, int zpos ) {
-  
-  // do a range check first
-  if( ValidIndices(det, ring, beam, zpos) ){
-    switch(det){
-    case 0: // TEC+
-      if(ring == -1) return tecPlusATData.at( beam ).at( zpos );
-      else return tecPlusData.at( ring ).at( beam ).at( zpos );
-    case 1: // TEC-
-      if(ring == -1) return tecMinusATData.at( beam ).at( zpos );
-      else return tecMinusData.at( ring ).at( beam ).at( zpos );
-    case 2: // TIB
-      return tibData.at( beam ).at( zpos );
-    case 3: // TOB
-      return tobData.at( beam ).at( zpos );
-    }
-  }
-
-  std::cerr << " [LASGlobalData::GetEntry] ** ERROR: illegal input coordinates:" << std::endl;
-  std::cerr << "   detector " << det << ", ring " << ring << ", beam " << beam << ", zpos " << zpos << "." << std::endl;
-  throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
-
-}
-
-// Check if indices identify a valid LAS module
-template <class T>
-bool LASGlobalData<T>::ValidIndices( int det, int ring, int beam, int zpos )
-{
-  // First check if beam is within 0-7 (valid for all cases)
-  if( beam < 0 || beam > 7)return false;
-
-  // Z position is never negative
-  if(zpos < 0) return false;
-
-  // Then distinguish subdetectors
-  switch(det){
-  case 0:  // TEC+
-  case 1:  // TEC-
-    switch(ring){
-    case -1: // Alignment Tubes
-      if(zpos > 4) return false;  // Only 5 z-positions
-      break;
-    case 0:  // Ring 4
-    case 1:  // Ring 6
-      if(zpos > 8) return false; // Only 9 discs
-      break;
-    default:
-      return false; // Wrong ring index
-    }
-    break;
-  case 2: // TIB
-  case 3: // TOB
-    if(zpos>5) return false; // Only 6 z-positions
-    break;
-  default:
-    return false; // Wrong subdetector index
-  }
-
-  // If all tests passed, the indices are OK
-  return true;
-}
 
 
 ///
@@ -365,8 +281,6 @@ void LASGlobalData<T>::SetTEC2TECEntry( int theDetector, int theBeam, int theDis
 template <class T>
 void LASGlobalData<T>::Init( const T& in ) {
 
-
-  //std::cout << "Calling LASGlobalData<>.Init(" << in << ")" << std::endl; 
   // create TEC+ subdetector "multi"-vector of T
   tecPlusData.resize( 2 ); // create ring4 and ring6
   for( unsigned int ring = 0; ring < tecPlusData.size(); ++ring ) {
@@ -409,53 +323,6 @@ void LASGlobalData<T>::Init( const T& in ) {
     tobData.at( beam ).resize( 6, in ); // six TOB modules hit by each beam
   }
 }
-
-/* template <class T> */
-/* void LASGlobalData<T>::Init( const T& in ) { */
-
-/*   //std::cout << "Calling LASGlobalData<>.Init(" << in << ")" << std::endl;  */
-/*   // create TEC+ subdetector "multi"-vector of T */
-/*   tecPlusData.resize( 2 ); // create ring4 and ring6 */
-/*   for( unsigned int ring = 0; ring < tecPlusData.size(); ++ring ) { */
-/*     tecPlusData.at( ring ).resize( 8 ); // create 8 beams for each ring */
-/*     for( unsigned int beam = 0; beam < tecPlusData.at( ring ).size(); ++beam ) { */
-/*       tecPlusData.at( ring ).at( beam ).resize( 9 , in); // create 9 disks for each beam */
-/*     } */
-/*   } */
-
-/*   // same for TEC- */
-/*   tecMinusData.resize( 2 ); // create ring4 and ring6 */
-/*   for( unsigned int ring = 0; ring < tecMinusData.size(); ++ring ) { */
-/*     tecMinusData.at( ring ).resize( 8 ); // create 8 beams for each ring */
-/*     for( unsigned int beam = 0; beam < tecMinusData.at( ring ).size(); ++beam ) { */
-/*       tecMinusData.at( ring ).at( beam ).resize( 9, in ); // create 9 disks for each beam */
-/*     } */
-/*   } */
-  
-/*   // same for TEC+ AT */
-/*   tecPlusATData.resize( 8 ); // create 8 beams */
-/*   for( unsigned int beam = 0; beam < tecPlusATData.size(); ++beam ) { */
-/*     tecPlusATData.at( beam ).resize( 5, in ); // five TEC disks hit by each AT beam */
-/*   } */
-
-/*   // same for TEC- AT */
-/*   tecMinusATData.resize( 8 ); // create 8 beams */
-/*   for( unsigned int beam = 0; beam < tecMinusATData.size(); ++beam ) { */
-/*     tecMinusATData.at( beam ).resize( 5, in ); // five TEC disks hit by each AT beam */
-/*   } */
-
-/*   // same for TIB.. */
-/*   tibData.resize( 8 ); // create 8 beams */
-/*   for( unsigned int beam = 0; beam < tibData.size(); ++ beam ) { */
-/*     tibData.at( beam ).resize( 6, in ); // six TIB modules hit by each beam */
-/*   } */
-
-/*   // ..and for TOB */
-/*   tobData.resize( 8 ); // create 8 beams */
-/*   for( unsigned int beam = 0; beam < tobData.size(); ++ beam ) { */
-/*     tobData.at( beam ).resize( 6, in ); // six TOB modules hit by each beam */
-/*   } */
-/* } */
 
 
 #endif

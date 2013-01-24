@@ -13,7 +13,7 @@
  *  and pointing in the direction of top_edge.
  */
 
-class TrapezoidalPlaneBounds /* GCC11_FINAL */ : public Bounds {
+class TrapezoidalPlaneBounds : public Bounds {
 public:
 
   /** constructed from:

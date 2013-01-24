@@ -1,0 +1,378 @@
+#!/usr/bin/env python
+
+"""Usage: dqm-grep -f PATTERN -e EXPRESSION [OPTIONS]
+
+Grep contents of DQM GUI index for samples matching an expression
+and contents whose name matches a wild card pattern.
+
+The sample expression (-e option) is a boolean expression which should
+yield True if the sample should be processed and False otherwise. The
+expression may use the terms `run`, `dataset`, `version` and `type`,
+and the function `match()` for matching regular expressions. See the
+examples below for typical sample expressions.
+
+The filter pattern (-f option) is a wild card pattern which defines
+what to search. It may use wild card '*' to match any string within
+one directory level, '**' to match any number of subdirectories, and
+'***' to match any subdirectory or monitor element object. Names with
+a trailing slash match only directories; names without trailing slash
+match only plain objects. The pattern must always start with a slash.
+
+For example the pattern '/*/EventInfo/' matches all `EventInfo` sub-
+directories one level down from the root. The pattern '/*/Ev*/*Summary*'
+matches all plain objects whose name contain 'Summary' in subdirectories
+starting with 'Ev' one level down from the per-sample root directory.
+The pattern '/CSC/***' matches all directories and objects inside the
+top-level 'CSC' directory.
+
+It is important to use sufficiently strict pattern to avoid unnecessary
+- and very expensive - traversal of the full index. There can easily be
+tens of thousands of directories to traverse per sample, and retrieving
+them all can get very expensive.
+
+Examples of use:
+
+dqm-grep -f '/CSC/Event*/*Summary*' -e 'match("/StreamHLTMON/Run2011A-Express-v4/DQM", dataset)'
+dqm-grep -f '/*/Event*/*Summary*' -e 'run == 168330 and match("/StreamHLTMON/Run2011A-Express-v4/DQM", dataset)'
+dqm-grep -f '/*/Event*/***' -e 'run == 168330 and match("/StreamHLTMON/Run2011A-Express-v4/DQM", dataset)'
+dqm-grep -f '/C*/***' -e 'run == 168330 and match("/.*/Run2011A-Express-v4/DQM", dataset)'
+dqm-grep -f '/*/EventInfo/CertificationSummary' -e 'match("/StreamExpress.*/Run2011A-Express-v4/DQM", dataset)'
+
+In order to authenticate to the target server, standard grid certificate
+environment must be available. Typically this would be X509_CERT_DIR and
+either X509_USER_PROXY or X509_USER_CERT and X509_USER_KEY environment
+variables. If these variables are not set, the following defaults are
+checked for existence. Note that if the script falls back on using a
+key rather than a proxy, it will prompt for the key password.
+- $X509_CERT_DIR: /etc/grid-security/certificates
+- $X509_USER_KEY: $HOME/.globus/userkey.pem
+- $X509_USER_CERT: $HOME/.globus/usercert.pem
+"""
+
+from DQMServices.Components.HTTP import RequestManager
+from DQMServices.Components.X509 import SSLOptions
+import sys, re, cjson, pycurl, urllib
+from optparse import OptionParser
+from time import time
+
+# Object types.
+DIR = 0 # Directory
+FILE = 1 # File / simple object.
+ANY = 2 # Either; used only for filters.
+
+# HTTP protocol `User-agent` identification string.
+ident = "DQMGrep/1.0 python/%s.%s.%s" % sys.version_info[:3]
+
+# Where to find JSON contents at a given server.
+url_content = "/%(section)s/%(run)d%(dataset)s%(path)s"
+
+# SSL/X509 options.
+ssl_opts = None
+
+# HTTP request manager for content requests.
+reqman = None
+
+# Number of HTTP requests made for content.
+nreq = 0
+
+# Found objects (per sample).
+found = []
+
+class filter:
+  """One step of a search filter.
+
+- `type`: the type of object the filter can match: `FILE`, `DIR` or `ANY`.
+- `recurse`: apply the pattern recursively to subdirectories if True.
+- `pattern`: the regular expression pattern as a string.
+- `rx`: the regular expression as a compiled regexp object."""
+  type = FILE
+  recurse = False
+  pattern = ""
+  rx = None
+
+  def __repr__(self):
+    return "(filter pattern='%s' type=%s recurse=%s)" \
+      % (self.pattern, self.type, self.recurse)
+
+def pattern_to_filter(pattern):
+  """Converts a search pattern into a search filter.
+
+The pattern must be of the form of path with '*' wild card pattern, for
+example "/*/EventInfo/*Summary". A single star matches any string except
+slashes, i.e. matching within a single directory. A double star matches
+directories recursively.
+
+A name with trailing slash matches directory. A name without the trailing
+slash matches non-directories. A triple star will match either directory
+or non-directory.
+
+The patterns match against the full path, and therefore must always start
+with a slash. If you want to search entire tree, use "/**/Name*".
+
+The pattern "/*/EventInfo/" matches folders named 'EventInfo' one level
+down from the top; it will not recurse further down in the tree as it is
+known matches deeper inside are not possible. "/*/EventInfo/**/*Summary"
+pattern matches any non-directory object name ending in "Summary" anywhere
+inside "EventInfo" one level down from the top.
+
+Returns a list of `filter` expressions representing the pattern, each of
+which represents one or more levels of matching/recursion.
+"""
+  filters = []
+
+  # Check the pattern starts with '/'
+  if not pattern.startswith("/"):
+    raise ValueError("pattern must start with slash")
+
+  # Process pattern as directory search specs, but collapse
+  # repeated slashes into one slash first.
+  for part in re.sub("/+", "/", pattern).split('/')[1:]:
+    if filters and filters[-1].type == FILE:
+      filters[-1].type = DIR
+    f = filter()
+    filters.append(f)
+    for term in re.split("([*]+)", part):
+      if term == "***":
+        f.pattern += ".*"
+        f.recurse = True
+        f.type = ANY
+      elif term == "**":
+        f.pattern += ".*"
+        f.recurse = True
+        f.type = DIR
+      elif term == "*":
+        f.pattern += "[^/]*"
+        f.type = FILE
+      elif term:
+        f.pattern += re.escape(term)
+        f.type = FILE
+    if f.pattern != ".*":
+      f.pattern = "^%s$" % f.pattern
+    f.rx = re.compile(f.pattern)
+
+  return filters
+
+def should_process_sample(s, expr):
+  """Evaluate sample predicate expression `expr` against sample `s`.
+Returns True if the sample should be processed, False otherwise."""
+  try:
+    s['match'] = lambda rx, str: re.match(rx, str)
+    s['run'] = int(s['run'])
+    val = eval(expr, {}, s)
+    del s['match']
+    return val
+  except:
+    return False
+
+def find_matching_samples(options):
+  """Generator which returns all samples at target sever which
+match the requested predicate expression."""
+  all_samples = {}
+
+  def req_error(c, url, errmsg, errno):
+    print >> sys.stderr, "%s: failed to retrieve samples: %s (%d)" \
+      % (options.server, errmsg, errno)
+    sys.exit(1)
+
+  def req_done(c):
+    all_samples['result'] = cjson.decode(c.buffer.getvalue())
+
+  reqman = RequestManager(ssl_opts = ssl_opts,
+                          user_agent = ident,
+                          request_respond = req_done,
+                          request_error = req_error)
+  reqman.put((options.server + "/samples",))
+  reqman.process()
+
+  if not all_samples:
+    print >> sys.stderr, "%s: no samples" % options.server
+    sys.exit(1)
+
+  for sample_type in all_samples['result']['samples']:
+    for sample in sample_type['items']:
+      if should_process_sample(sample, options.sample_expr):
+        yield sample
+
+def request_init(c, options, sample, filters, pos, path):
+  """`RequestManager` callback to initialise JSON contents request."""
+  sample.update(path = path)
+  c.url = options.server + urllib.quote(url_content % sample)
+  c.setopt(pycurl.URL, c.url)
+  if False and options.verbose:
+    print c.url
+
+def report_error(c, task, errmsg, errno):
+  """`RequestManager` callback to report JSON contents request errors."""
+  print >> sys.stderr, "FAILED to retrieve %s: %s (%d)" % (task, errmsg, errno)
+
+def match_filters(item, filters, poslist):
+  """Match filter list created by `pattern_to_filter` against an object.
+
+The input arguments are:
+- `item`: JSON for the object from the server.
+- `filters`: List of all filters; not modified in any way.
+- `poslist`: The list of positions in `filters` where to search.
+
+The searching initially begins with `poslist` equal to [0], i.e. the first
+filter. The function builds a new poslist to use for subdirectories. For
+each non-recursive filter, the old filter is effectively removed from the
+list and the next filter (if any) is added back. Recursive filters stay in
+the list, so effectively the `poslist` maintains a NFA search stack for all
+active search positions.
+
+The function returns a tuple consisting of:
+- `name`: the name of the object that was matched, subdirectory or plain
+- `matched`: True if the entire filter chain has matched for this object
+- `descend`: True if this was a subdirectory the filters require to descend
+into; note that this is different from `matched`, basically non-terminal
+match on subdirectory objects
+- `poslist`: new filter position list for searching any subdirectories;
+this will be empty if the filter list has been exhausted with or without
+match.
+"""
+  newposlist = []
+  descend = False
+  matched = False
+  name = None
+
+  for idx in poslist:
+    assert idx < len(filters)
+    f = filters[idx]
+    fmatched = False
+    if 'subdir' in item \
+       and (f.type == DIR or f.type == ANY) \
+       and f.rx.match(item['subdir']):
+      descend = fmatched = True
+      name = item['subdir']
+    elif 'obj' in item \
+         and (f.type == FILE or f.type == ANY) \
+         and f.rx.match(item['obj']):
+      fmatched = True
+      name = item['obj']
+
+    if fmatched:
+      if idx == len(filters)-1:
+        matched = True
+      if f.recurse:
+        newposlist.append(idx)
+      if idx < len(filters) - 1:
+        newposlist.append(idx+1)
+
+  return name, matched, descend, newposlist
+
+def process(c):
+  """`RequestManager` callback to handle JSON content response.
+
+This gets called once per every directory which has been successfully
+retrieved from the server. It basically applies `match_filters` to all
+objects found and requests subdirectories if necessary, and adds to
+`found` objects which matched the entire filter expression.
+
+If verbosity has been requested, also shows simple progress bar on the
+search progress, one dot for every ten directories retrieved."""
+  global found, nreq
+  options, sample, filters, pos, path = c.task
+
+  nreq += 1
+  if options.verbose and nreq % 10 == 0:
+    sys.stdout.write(".")
+    sys.stdout.flush()
+    if nreq % 750 == 0:
+      print
+
+  reply = c.buffer.getvalue()
+  reply = re.sub(r'("value": ")"([A-Za-z0-9_]+")"', r'\1\2', reply)
+  reply = re.sub(r'("(?:mean|rms|min|max)":) nan,', r'\1 "NaN",', reply)
+  reply = cjson.decode(reply)
+
+  seen = set()
+  for item in reply['contents']:
+    name, match, descend, newpos = match_filters(item, filters, pos)
+    if match:
+      found.append((path + name, item))
+    if descend and name not in seen:
+      reqman.put((options, sample, filters, newpos, path + name + "/"))
+    seen.update((name,))
+
+# Parse command line options.
+op = OptionParser(usage = __doc__)
+op.add_option("-e", "--samples", dest = "sample_expr", metavar = "EXPRESSION",
+              help = "Evaluate EXPRESSION to decide which samples to scan")
+op.add_option("-f", "--filter", dest = "glob",
+              type = "string", action = "store", metavar = "PATTERN",
+              default = "/*/EventInfo/*Summary",
+              help = "Filter monitor elements matching PATTERN")
+op.add_option("-s", "--server", dest = "server",
+              type = "string", action = "store", metavar = "SERVER",
+              default = "https://cmsweb.cern.ch/dqm/offline/data/json",
+              help = "Pull content from SERVER")
+op.add_option("-n", "--connections", dest = "connections",
+              type = "int", action = "store", metavar = "NUM",
+              default = 10, help = "Use NUM concurrent connections")
+op.add_option("-v", "--verbose", dest = "verbose",
+              action = "store_true", default = False,
+              help = "Show verbose scan information")
+options, args = op.parse_args()
+if args:
+  print >> sys.stderr, "Too many arguments"
+  sys.exit(1)
+if not options.sample_expr:
+  print >> sys.stderr, "Sample predicate expression required"
+  sys.exit(1)
+if not options.glob:
+  print >> sys.stderr, "Monitor element filter expression required"
+  sys.exit(1)
+if not options.server:
+  print >> sys.stderr, "Server contact string required"
+  sys.exit(1)
+
+# Get SSL X509 parametres.
+ssl_opts = SSLOptions()
+if options.verbose:
+  print "Using SSL cert dir", ssl_opts.ca_path
+  print "Using SSL private key", ssl_opts.key_file
+  print "Using SSL public key", ssl_opts.cert_file
+
+# Convert glob pattern into a filter expression.
+filters = pattern_to_filter(options.glob)
+
+# Start a request manager for contents.
+reqman = RequestManager(num_connections = options.connections,
+                        ssl_opts = ssl_opts,
+                        user_agent = ident,
+                        request_init = request_init,
+                        request_respond = process,
+                        request_error = report_error)
+
+# Process all samples matching the predicate.
+ntotreq = 0
+nfound = 0
+start = time()
+for sample in find_matching_samples(options):
+  nreq = 0
+  found = []
+  sample['section'] = 'archive'
+  if options.verbose:
+    print "Scanning %s" % sample
+  reqman.put((options, sample, filters, [0], "/"))
+  reqman.process()
+  if options.verbose:
+    print
+  if found:
+    print "%(section)s/%(run)d%(dataset)s:" % sample
+    found.sort()
+    for path, item in found:
+      if 'subdir' in item:
+        print " %s/" % path
+      elif 'value' in item:
+        print " %s = %s" % (path, item['value'])
+      else:
+        print " %s = [%s # %d]" % (path, item['properties']['type'], item['nentries'])
+  nfound += len(found)
+  ntotreq += nreq
+end = time()
+
+# Provide final summary.
+if options.verbose:
+  print "\nFound %d objects in %d directories in %.3f seconds" % (nfound, ntotreq, end - start)
+

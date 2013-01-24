@@ -418,3 +418,46 @@ RFIOFile::resize (IOOffset /* size */)
   throw ex;
 }
 
+bool
+RFIOFile::prefetch (const IOPosBuffer *what, IOSize n)
+{
+  if (rfioreadopt (RFIO_READOPT) != 1) {
+    cms::Exception ex("FilePrefetchError");
+    ex << "RFIOFile::prefetch() called but RFIO_READOPT="
+       << rfioreadopt (RFIO_READOPT) << " (must be 1)";
+    throw ex;
+  }
+  std::vector<iovec64> iov (n);
+  for (IOSize i = 0; i < n; ++i)
+  {
+    iov[i].iov_base = what[i].offset();
+    iov[i].iov_len = what[i].size();
+  }
+
+  serrno = 0;
+  int retry = 5;
+  int result;
+  while ((result = rfio_preseek64(m_fd, &iov[0], n)) == -1)
+  {
+    if (--retry == 0)
+    {
+      edm::LogError("RFIOFile::prefetch")
+        << "RFIOFile::prefetch(name='" << m_name << "') failed with error '"
+	<< rfio_serror() << "' (rfio_errno=" << rfio_errno
+	<< ", serrno=" << serrno << ")";
+      return false;
+    }
+    else
+    {
+      edm::LogWarning("RFIOFileRetry")
+        << "RFIOFile::prefetch(name='" << m_name << "') failed at position "
+	<< m_curpos << " with error '" << rfio_serror()
+        << "' (rfio_errno=" << rfio_errno << ", serrno=" << serrno
+        << "); retrying " << (retry+1) << " times";
+      serrno = 0;
+      sleep(5);
+    }
+  }
+
+  return true;
+}

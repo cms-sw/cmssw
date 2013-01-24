@@ -11,8 +11,8 @@
 /*
  * \file HcalCoarsePedestalClient.cc
  * 
- * $Date: 2010/09/01 12:35:38 $
- * $Revision: 1.4 $
+ * $Date: 2010/09/17 13:47:10 $
+ * $Revision: 1.5 $
  * \author J. Temple
  * \brief CoarsePedestalClient class
  */
@@ -346,4 +346,5 @@ void HcalCoarsePedestalClient::updateChannelStatus(std::map<HcalDetId, unsigned 
   // look at dead cell or hot cell clients for example code
 } //void HcalCoarsePedestalClient::updateChannelStatus
 
-
+HcalCoarsePedestalClient::~HcalCoarsePedestalClient()
+{}

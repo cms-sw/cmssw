@@ -76,6 +76,7 @@ hcalLSbyLSMonitor.minEvents = 1000
 hcalDeadCellMonitor.excludeHORing2=True
 
 hcalOfflineDQMSource = cms.Sequence(hcalMonitor
-                                    + zdcMonitor
+                                    #                                    + zdcMonitor
+                                    + hcalZDCMonitor                                    
                                     + hcalMonitorTasksOfflineSequence
                                     + dqmInfoHcal)

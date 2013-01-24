@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.18 2010/11/03 21:38:38 merkelp Exp $
+// $Id: SiPixelDigiModule.h,v 1.19 2011/11/23 17:11:06 duggan Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -82,6 +82,7 @@ class SiPixelDigiModule {
   MonitorElement* meADCLay_;
   MonitorElement* mePixDigisLay_;
   MonitorElement* mePixRocsLay_;
+  MonitorElement* meZeroOccRocsLay_;
   MonitorElement* mePixDigisLay_px_;
   MonitorElement* mePixDigisLay_py_;
 
@@ -99,6 +100,7 @@ class SiPixelDigiModule {
   MonitorElement* meADCDisk_;
   MonitorElement* mePixDigisDisk_;
   MonitorElement* mePixRocsDisk_;
+  MonitorElement* meZeroOccRocsDisk_;
 
   MonitorElement* meNDigisRing_;
   MonitorElement* meADCRing_;

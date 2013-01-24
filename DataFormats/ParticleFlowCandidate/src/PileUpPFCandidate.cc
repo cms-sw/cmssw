@@ -16,7 +16,7 @@ PileUpPFCandidate * PileUpPFCandidate::clone() const {
 }
 
 
-PileUpPFCandidate::~PileUpPFCandidate();
+PileUpPFCandidate::~PileUpPFCandidate() {}
 
 
 std::ostream& reco::operator<<( std::ostream& out, 

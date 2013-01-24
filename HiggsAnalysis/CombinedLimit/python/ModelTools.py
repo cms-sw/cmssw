@@ -222,11 +222,11 @@ class ModelBuilder(ModelBuilderBase):
                 else:
                     raise RuntimeError, "Physics model returned something which is neither a name, nor 0, nor 1."
                 for (n,nofloat,pdf,args,errline) in self.DC.systs:
-                    if pdf.startswith("shape") and pdf.endswith("?"): # might be a lnN in disguise
-                        if not self.isShapeSystematic(b,p,n): pdf = "lnN"
                     if pdf == "param" or pdf.startswith("shape"): continue
                     if not errline[b].has_key(p): continue
                     if errline[b][p] == 0.0: continue
+                    if pdf.startswith("shape") and pdf.endswith("?"): # might be a lnN in disguise
+                        if not self.isShapeSystematic(b,p,n): pdf = "lnN"
                     if pdf == "lnN" and errline[b][p] == 1.0: continue
                     if pdf == "lnN" or pdf == "lnU":
                         if type(errline[b][p]) == list:
