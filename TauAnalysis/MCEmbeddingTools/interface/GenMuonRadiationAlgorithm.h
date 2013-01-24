@@ -17,30 +17,39 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.2 $
  *
- * $Id: GenMuonRadiationAlgorithm.h,v 1.5 2013/01/04 15:36:25 veelken Exp $
+ * $Id: GenMuonRadiationAlgorithm.h,v 1.2 2013/01/22 16:55:30 veelken Exp $
  *
  */
 
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
 
 #include<string>
+
+class myPythia6ServiceWithCallback;
 
 class GenMuonRadiationAlgorithm
 {
  public:
   explicit GenMuonRadiationAlgorithm(const edm::ParameterSet&);
-  ~GenMuonRadiationAlgorithm() {}
+  ~GenMuonRadiationAlgorithm();
 
   reco::Candidate::LorentzVector compFSR(const reco::Candidate::LorentzVector&, int, const reco::Candidate::LorentzVector&);
 
  private:
   double beamEnergy_;
 
-  gen::PhotosInterface photos_;
+  enum { kPYTHIA, kPHOTOS };
+  int mode_;
+
+  gen::PhotosInterface* photos_;
   static bool photos_isInitialized_;
+
+  myPythia6ServiceWithCallback* pythia_;
+  static bool pythia_isInitialized_;
 
   int verbosity_;
 };
