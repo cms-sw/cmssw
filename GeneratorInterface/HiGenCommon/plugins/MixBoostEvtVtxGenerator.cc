@@ -1,5 +1,5 @@
 
-// $Id: MixBoostEvtVtxGenerator.cc,v 1.4 2013/01/17 19:59:54 yilmaz Exp $
+// $Id: MixBoostEvtVtxGenerator.cc,v 1.5 2013/01/18 15:42:13 yilmaz Exp $
 /*
 ________________________________________________________________________
 
@@ -301,6 +301,7 @@ HepMC::FourVector* MixBoostEvtVtxGenerator::getVertex( Event& evt){
       ++pt;
     }
   }
+
   double aX,aY,aZ,aT;
   
   aX = genvtx->position().x();
@@ -346,10 +347,10 @@ void MixBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   // generate new vertex & apply the shift 
   //
  
-  HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
- 
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
+
+  HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
   
   // OK, create a (pseudo)product and put in into edm::Event
   //
