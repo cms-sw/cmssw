@@ -41,10 +41,11 @@ private:
 
   double timeResolution_;
   double averageShapingTime_;
-  double deltaTimeAdjacentStrip_;
   double timeJitter_;
   double signalPropagationSpeed_;
   bool cosmics_;
+  double bxwidth_;
+  double minBunch_;
 
   CLHEP::RandGaussQ *gauss1_;
   CLHEP::RandGaussQ *gauss2_;

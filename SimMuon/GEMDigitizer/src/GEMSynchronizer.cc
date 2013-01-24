@@ -21,10 +21,11 @@ GEMSynchronizer::GEMSynchronizer(const edm::ParameterSet& config):
 {
   timeResolution_ = config.getParameter<double>("timeResolution");
   averageShapingTime_ = config.getParameter<double>("averageShapingTime");
-  deltaTimeAdjacentStrip_ = config.getParameter<double>("deltaTimeAdjacentStrip");
   timeJitter_ = config.getParameter<double>("timeJitter");
   signalPropagationSpeed_ = config.getParameter<double>("signalPropagationSpeed");
   cosmics_ = config.getParameter<bool>("cosmics");
+  bxwidth_ = config.getParameter<double>("bxwidth");
+  minBunch_ = config.getParameter<double>("minBunch");
 
   // signal propagation speed in vacuum in [m/s]
   const double cspeed = 299792458;
@@ -102,10 +103,10 @@ int GEMSynchronizer::getSimHitBx(const PSimHit* simhit)
 
     float simhitTime = tof + (averageShapingTime_ + randomResolutionTime) + (averagePropagationTime + randomJitterTime);
     float referenceTime = calibrationTime + halfStripLength/signalPropagationSpeed_ + averageShapingTime_;
-    float timeTifference = cosmics_ ? (simhitTime - referenceTime)/COSMIC_PAR : simhitTime - referenceTime;
+    float timeDifference = cosmics_ ? (simhitTime - referenceTime)/COSMIC_PAR : simhitTime - referenceTime;
 
     // assign the bunch crossing
-    bx = int((timeTifference)/25 + 0.5);
+    bx = int((timeDifference)/bxwidth_) + minBunch_;
   }
 
   return bx;
