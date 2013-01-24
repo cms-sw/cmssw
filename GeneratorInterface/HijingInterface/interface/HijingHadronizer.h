@@ -21,7 +21,7 @@ extern CLHEP::HepRandomEngine* hijRandomEngine;
 namespace gen
 {
   extern "C" {
-    double hijran_(int*);
+    float hijran_(int*);
   }
 
   class HijingHadronizer : public BaseHadronizer {

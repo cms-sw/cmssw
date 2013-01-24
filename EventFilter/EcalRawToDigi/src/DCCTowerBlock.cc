@@ -30,7 +30,7 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
   
   bool errorOnXtal(false);
  
-  uint16_t * xData_= reinterpret_cast<uint16_t *>(data_);
+  const uint16_t * xData_= reinterpret_cast<const uint16_t *>(data_);
 
   // Get xtal data ids
   unsigned int stripId  = (*xData_)                     & TOWER_STRIPID_MASK;

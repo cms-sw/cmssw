@@ -5,7 +5,7 @@
  *  Concrete implementation of a DTTTrigBaseCorrection.
  *  Fills missing tTrig values in DB 
  *
- *  $Revision: 1.3 $
+ *  $Revision: 1.2 $
  *  \author A. Vilela Pereira
  */
 
@@ -18,8 +18,6 @@ namespace edm {
 
 class DTTtrig;
 class DTGeometry;
-
-namespace dtCalibration {
 
 class DTTTrigFillWithAverage: public DTTTrigBaseCorrection {
 public:
@@ -50,6 +48,4 @@ private:
 
   bool foundAverage_; 
 };
-
-} // namespace
 #endif

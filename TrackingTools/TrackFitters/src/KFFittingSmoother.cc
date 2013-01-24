@@ -11,6 +11,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include <cmath>
 
 using namespace std;
 
@@ -29,6 +30,21 @@ vector<Trajectory> KFFittingSmoother::fit(const Trajectory& t) const
       smoothingStep(fitted, smoothed);
     }
   return smoothed;
+}
+
+bool KFFittingSmoother::checkForNans(const Trajectory & theTraj) const
+{
+  if (std::isnan(theTraj.chiSquared ())) return false;
+  const std::vector<TrajectoryMeasurement> & vtm = theTraj.measurements();
+  for (std::vector<TrajectoryMeasurement>::const_iterator tm=vtm.begin(); tm!=vtm.end();tm++) {
+    if (std::isnan(tm->estimate())) return false;
+    AlgebraicVector5 v = tm->updatedState ().localParameters ().vector();
+    for (int i=0;i<5;++i) if (std::isnan(v[i])) return false;
+    const AlgebraicSymMatrix55 & m = tm->updatedState ().curvilinearError ().matrix();
+    for (int i=0;i<5;++i) 
+      for (int j=0;j<(i+1);++j) if (std::isnan(m(i,j))) return false;
+  }
+  return true;
 }
 
 vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
@@ -110,6 +126,11 @@ vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
       //<< " det=" << it->recHit()->geographicalId().rawId();
       //}
       //}
+      if (!checkForNans(smoothed[0])) {
+	edm::LogError("TrackNaN")<<"Track has NaN";
+	smoothed.clear();
+	break;
+      }
       
       if ( theEstimateCut > 0 || log_pixel_prob_cut > log_pixel_probability_lower_limit ) 
 	{

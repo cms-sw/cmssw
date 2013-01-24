@@ -103,8 +103,8 @@ protected:
   cond::IOVProxy::const_iterator iter;
  
 private:
-  cond::iov_range_iterator m_begin;
-  cond::iov_range_iterator m_end;
+  cond::IOVRange::const_iterator m_begin;
+  cond::IOVRange::const_iterator m_end;
   
 };
 

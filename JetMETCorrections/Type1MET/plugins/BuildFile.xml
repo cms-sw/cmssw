@@ -13,6 +13,7 @@
   <use   name="DataFormats/ParticleFlowCandidate"/>
   <use   name="DataFormats/PatCandidates"/>
   <use   name="DataFormats/TauReco"/>
+  <use   name="DataFormats/VertexReco"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="JetMETCorrections/Type1MET"/>
 </library>

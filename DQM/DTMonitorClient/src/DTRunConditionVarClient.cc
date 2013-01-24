@@ -6,7 +6,7 @@
  *
  * \author : Paolo Bellan, Antonio Branca
  * $date   : 23/09/2011 15:42:04 CET $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  *
  * Modification:
  *
@@ -163,17 +163,26 @@ void DTRunConditionVarClient::endRun(Run const& run, EventSetup const& context)
         float vDriftSigma = VDriftME->getRMS();
         float t0Sigma = T0ME->getRMS();
 
-        allwheelHistos["allMeanVDrift"] -> Fill(vDriftMean);
-        allwheelHistos["allMeanT0"] -> Fill(t0Mean);
+        if( VDriftME->getEntries() != 0 ) {
 
-        allwheelHistos["allSigmaVDrift"] -> Fill(vDriftSigma);
-        allwheelHistos["allSigmaT0"] -> Fill(t0Sigma);
+          allwheelHistos["allMeanVDrift"] -> Fill(vDriftMean);
+          allwheelHistos["allSigmaVDrift"] -> Fill(vDriftSigma);
 
-        (wheelHistos[wheel])["MeanVDrift"] -> Fill(vDriftMean); 
-        (wheelHistos[wheel])["MeanT0"] -> Fill(t0Mean); 
+          (wheelHistos[wheel])["MeanVDrift"] -> Fill(vDriftMean); 
+          (wheelHistos[wheel])["SigmaVDrift"] -> Fill(vDriftSigma); 
 
-        (wheelHistos[wheel])["SigmaVDrift"] -> Fill(vDriftSigma); 
-        (wheelHistos[wheel])["SigmaT0"] -> Fill(t0Sigma);
+        }
+
+
+        if( T0ME->getEntries() != 0 ) {
+
+          allwheelHistos["allMeanT0"] -> Fill(t0Mean);
+          allwheelHistos["allSigmaT0"] -> Fill(t0Sigma);
+
+          (wheelHistos[wheel])["MeanT0"] -> Fill(t0Mean); 
+          (wheelHistos[wheel])["SigmaT0"] -> Fill(t0Sigma);
+
+        }
 
         //
         DTChamberId indexCh(wheel,stat,sec);

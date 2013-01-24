@@ -9,8 +9,8 @@
 
 /** \class HcalUnpackerReport
   *  
-  * $Date: 2009/02/10 15:46:52 $
-  * $Revision: 1.4 $
+  * $Date: 2009/02/12 17:21:44 $
+  * $Revision: 1.5 $
   * \author J. Mans - Minnesota
   */
 class HcalUnpackerReport {
@@ -27,6 +27,10 @@ public:
   int totalDigis() const { return totalDigis_; }
   int totalTPDigis() const { return totalTPDigis_; }
   int totalHOTPDigis() const { return totalHOTPDigis_; }
+  int emptyEventSpigots() const { return emptyEventSpigots_; }
+  int OFWSpigots() const { return ofwSpigots_; }
+  int busySpigots() const { return busySpigots_; }
+
   bool unsuppressedChannels() const { return unsuppressed_; }
 
   bool hasFedWithCalib() const { return !fedInfo_.empty(); }
@@ -55,6 +59,9 @@ public:
   void countUnmappedTPDigi();
   void countSpigotFormatError();
   void countBadQualityDigi();
+  void countEmptyEventSpigot();
+  void countOFWSpigot();
+  void countBusySpigot();
   void countUnmappedDigi(const HcalElectronicsId& eid);
   void countUnmappedTPDigi(const HcalElectronicsId& eid);
   void countBadQualityDigi(const DetId& did);
@@ -73,6 +80,7 @@ private:
   std::vector<std::string> reportInfo_;
   std::vector<uint16_t> fedInfo_; // first is fed, second is type
 
+  int emptyEventSpigots_,ofwSpigots_,busySpigots_;
 };
 
 #endif
