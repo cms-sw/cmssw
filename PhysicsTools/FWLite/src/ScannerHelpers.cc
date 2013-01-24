@@ -45,7 +45,7 @@ helper::Parser::elementType(const edm::TypeWithDict &wrapperType) {
       while (objtype.isTypedef()) objtype = objtype.toType();
       return objtype;
     }
-    std::cerr << "Can't get a type out of " << wrapperType.name(edm::TypeNameHandling::Scoped) << std::endl;
+    std::cerr << "Can't get a type out of " << wrapperType.name() << std::endl;
     return edm::TypeWithDict();
 }
 

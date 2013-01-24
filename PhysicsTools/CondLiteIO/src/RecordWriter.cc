@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Dec  9 17:01:03 CST 2009
-// $Id: RecordWriter.cc,v 1.4 2012/06/26 20:40:32 wmtan Exp $
+// $Id: RecordWriter.cc,v 1.5 2012/08/03 18:17:46 wmtan Exp $
 //
 
 // system include files
@@ -85,13 +85,13 @@ RecordWriter::update(const void* iData, const std::type_info& iType, const char*
       edm::TypeWithDict t(iType);
       assert(bool(t));
       
-      std::string className = t.name(edm::TypeNameHandling::FinalScoped);
+      std::string className = t.name();
       
       //now find actual type
       edm::ObjectWithDict o(t,const_cast<void*>(iData));
       edm::TypeWithDict trueType(o.dynamicType());
       buffer.trueType_ = edm::TypeIDBase(trueType.typeInfo());
-      std::string trueClassName = trueType.name(edm::TypeNameHandling::FinalScoped);
+      std::string trueClassName = trueType.name();
       
       buffer.branch_ = tree_->Branch((fwlite::format_type_to_mangled(className)+"__"+label).c_str(),
                                      trueClassName.c_str(),
