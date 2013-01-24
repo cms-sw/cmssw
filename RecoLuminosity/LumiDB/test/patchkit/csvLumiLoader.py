@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os,sys,time,csv,array,coral
+import os,os.path,sys,time,csv,array,coral
 from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters,CommonUtil,lumiTime
 
 
@@ -111,7 +111,7 @@ def lumiDataFromfile(filename):
     startts=min(ts)
     stopts=max(ts)
     nls=len(perlsresult)
-    perrunresult=[filename,startts,stopts,nls]
+    perrunresult=[os.path.basename(filename),startts,stopts,nls]
     return (perrunresult,perlsresult)
 
 def lumiDataFromDB(sourceschema,sourcelumidataid):
