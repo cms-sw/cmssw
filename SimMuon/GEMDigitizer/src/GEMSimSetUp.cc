@@ -8,7 +8,6 @@ GEMSimSetUp::GEMSimSetUp(const edm::ParameterSet& config)
 
   averageEfficiency_ = pset.getParameter<double>("averageEfficiency");
   averageNoiseRate_ = pset.getParameter<double>("averageNoiseRate");
-  averageShapingTime_ = pset.getParameter<double>("averageShapingTime");
   timeCalibrationOffset_ = pset.getParameter<double>("timeCalibrationOffset");
   numberOfStripsPerPartition_ = pset.getParameter<int>("numberOfStripsPerPartition");
 }
@@ -137,7 +136,7 @@ const std::vector<float>& GEMSimSetUp::getEfficiency(uint32_t id)
   return iter->second;
 }
 
-// return the average shaping time for this chamber
+// return the time calibration for this chamber
 float GEMSimSetUp::getTime(uint32_t id)
 {
   GEMDetId detid(id);
