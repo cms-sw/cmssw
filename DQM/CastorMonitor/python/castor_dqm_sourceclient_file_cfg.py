@@ -66,56 +66,6 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Castor Conditions: from Global Conditions Tag 
 #============================================
 
-<<<<<<< castor_dqm_sourceclient_file_cfg.py
-#get from global tag
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_R_53_V15::All', '')
-
-
-#get explicit from db
-#process.load("CondCore.DBCommon.CondDBSetup_cfi")
-#process.castor_db_producer = cms.ESProducer("CastorDbProducer") 
-
-#process.es_pool = cms.ESSource(
-#   "PoolDBESSource",
-#   process.CondDBSetup,
-#   timetype = cms.string('runnumber'),
-#   # connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierPrep/CMS_COND_30X_HCAL'),
-#   connect = cms.string('frontier://cmsfrontier.cern.ch:8000/FrontierProd/CMS_COND_31X_HCAL'),
-#   authenticationMethod = cms.untracked.uint32(0),
-#   toGet = cms.VPSet(
-#       cms.PSet(
-#           record = cms.string('CastorPedestalsRcd'),
-#           tag = cms.string('castor_pedestals_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorPedestalWidthsRcd'),
-#           tag = cms.string('castor_pedestalwidths_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorGainsRcd'),
-#           tag = cms.string('castor_gains_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorGainWidthsRcd'),
-#           tag = cms.string('castor_gainwidths_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorQIEDataRcd'),
-#           tag = cms.string('castor_qie_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorChannelQualityRcd'),
-#           tag = cms.string('castor_channelquality_v1.0')
-#           ),
-#       cms.PSet(
-#           record = cms.string('CastorElectronicsMapRcd'),
-#           tag = cms.string('castor_emap_dcc_v1.0')
-#           )
-#   )
-#)
-
-=======
 #get from global tag
 #from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag.globaltag = 'GR_R_52_V10::All'
@@ -163,8 +113,6 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 #           )
 #   )
 #)
->>>>>>> 1.12
-
 
 
 #-----------------------------
@@ -211,12 +159,7 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            showTiming          = cms.untracked.bool(False),
                            dump2database       = cms.untracked.bool(False),
                            pedestalsInFC = cms.untracked.bool(False),
-<<<<<<< castor_dqm_sourceclient_file_cfg.py
-                           digiLabel = cms.InputTag("castorDigis"),
-                           rawLabel             = cms.InputTag("rawDataCollector"),
-                           CastorRecHitLabel = cms.InputTag("castorreco"),
-			   CastorTowersLabel = cms.InputTag("CaloTowersSorted"),
-=======
+
 			   # Define Labels
                            digiLabel            = cms.InputTag("castorDigis"),
                            rawLabel             = cms.InputTag("rawDataCollector"),
@@ -225,7 +168,6 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            CastorTowerLabel     = cms.InputTag("CastorTowerReco"),
                            CastorBasicJetsLabel = cms.InputTag("ak7BasicJets"),
                            CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
->>>>>>> 1.12
                           
 			   DataIntMonitor= cms.untracked.bool(True),
 			   TowerJetMonitor= cms.untracked.bool(True),
@@ -233,9 +175,6 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            DigiMonitor = cms.untracked.bool(True),
                            DigiPerChannel = cms.untracked.bool(True), 
                            DigiInFC = cms.untracked.bool(False),
-                          
-                           DataIntMonitor= cms.untracked.bool(True),
-                           TowerJetMonitor= cms.untracked.bool(True),
                           
                            RecHitMonitor = cms.untracked.bool(True), 
 			   RecHitsPerChannel = cms.untracked.bool(True),
