@@ -171,6 +171,7 @@
   <use   name="FWCore/RootAutoLibraryLoader"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/Version"/>
+  <use   name="rootcintex"/>
   <use   name="cppunit"/>
 </bin>
 <bin   name="TestFWCoreFrameworkView" file="View_t.cpp">
