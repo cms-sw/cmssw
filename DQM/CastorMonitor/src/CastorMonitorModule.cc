@@ -25,13 +25,8 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps){
    ////---- get steerable variables
   inputLabelRaw_ = ps.getParameter<edm::InputTag>("rawLabel");
   inputLabelDigi_        = ps.getParameter<edm::InputTag>("digiLabel");
-<<<<<<< CastorMonitorModule.cc
-  inputLabelRecHitCASTOR_  = ps.getParameter<edm::InputTag>("CastorRecHitLabel");
-  inputLabelCastorTowers_  = ps.getParameter<edm::InputTag>("CastorTowersLabel"); 
-=======
   inputLabelRecHitCASTOR_  = ps.getParameter<edm::InputTag>("CastorRecHitLabel");
   inputLabelCastorTowers_  = ps.getParameter<edm::InputTag>("CastorTowerLabel"); 
->>>>>>> 1.31
   fVerbosity = ps.getUntrackedParameter<int>("debug", 0);                        //-- show debug 
   showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
   dump2database_   = ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
