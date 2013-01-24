@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import os,sys,time,csv,coral
-from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters
+import os,sys,time,csv,array,coral
+from RecoLuminosity.LumiDB import sessionManager,argparse,nameDealer,revisionDML,dataDML,lumiParameters,CommonUtil,lumiTime
 
 
 def generateLumidata(lumirundatafromfile,lsdatafromfile,rundatafromdb,lsdatafromdb,replacelsMin,replacelsMax):
@@ -13,14 +13,71 @@ def generateLumidata(lumirundatafromfile,lsdatafromfile,rundatafromdb,lsdatafrom
 
 
     '''
+    lumip=lumiParameters.ParametersObject()
+    numorbit=lumip.numorbit
+    startorbit=0
+    fakebeamenergy=4000.
+    fakebeamstatus='STABLE BEAMS'
+    fakefloatArray=array.array('f')
+    fakeidxArray=array.array('h')
+    fakeshortArray=array.array('h')
+    for bxidx in range(1,3565):
+        fakeidxArray.append(bxidx)
+        fakefloatArray.append(0.)
+        fakeshortArray.append(0)
+    
     lumirundata=[]
-    lumilsdata=lsdatafromdb
-    rundatafromdb[0]=rundatafromdb[0]+'+file:'+lumirundatafromfile[0]
-    lumirundata=rundatafromdb
-    for lumilsnum in lsdatafromdb.keys():
-        if lumilsnum in range(replacelsMin,replacelsMax+1):
-            instlumi=lsdatafromfile[lumilsnum]
+    lumilsdata={}
+        
+    if rundatafromdb:
+        lumirundata=rundatafromdb
+        lumirundata[0]=rundatafromdb[0]+'+file:'+lumirundatafromfile[0]
+    else:
+        lu=lumiTime.lumiTime()        
+        source='+file:'+lumirundatafromfile[0]
+        nominalegev=fakebeamenergy
+        ncollidingbunches=72
+        starttime=lumirundatafromfile[1]
+        stoptime=lumirundatafromfile[2]
+        starttimeT=lu.timestampTodatetimeUTC(starttime)
+        stoptimeT=lu.timestampTodatetimeUTC(stoptime)
+        print starttimeT.day,starttimeT.month,starttimeT.year
+        
+        starttimeT_coral=coral.TimeStamp(starttimeT.year,starttimeT.month,starttimeT.day,starttimeT.hour,starttimeT.minute,starttimeT.second,0)
+        stoptimeT_coral=coral.TimeStamp(stoptimeT.year,stoptimeT.month,stoptimeT.day,stoptimeT.hour,stoptimeT.minute,stoptimeT.second,0)
+        nls=lumirundatafromfile[3]
+        lumirundata=[source,nominalegev,ncollidingbunches,starttimeT_coral,stoptimeT_coral,nls]
+        
+    if lsdatafromdb: 
+        lumilsdata=lsdatafromdb
+        if replacelsMin>len(lsdatafromdb):
+            print '[INFO]Operation: extend an existing run from LS=',replacelsMin
+            lumirundata[5]+=len(lsdatafromfile)
+        else:
+            print '[INFO]Operation: replace instlumi in an existing run LS range=',replacelsMin,replacelsMax
+    else:
+        print '[INFO]Operation: insert a new fake run'
+    for lumilsnum in range(replacelsMin,replacelsMax+1):
+        instlumi=lsdatafromfile[lumilsnum]
+        if lumilsnum in lsdatafromdb.keys(): #if this is a hole
             lumilsdata[lumilsnum][1]=instlumi
+        else:                                #if this is an extension
+            instlumierror=0.0
+            instlumiquality=0
+            startorbit=(lumilsnum-1)*numorbit
+            cmsbxindexblob=CommonUtil.packArraytoBlob(fakeshortArray)
+            beamintensityblob_1=CommonUtil.packArraytoBlob(fakefloatArray)
+            beamintensityblob_2=CommonUtil.packArraytoBlob(fakefloatArray)
+            bxlumivalue_occ1=CommonUtil.packArraytoBlob(fakefloatArray)
+            bxlumierror_occ1=CommonUtil.packArraytoBlob(fakefloatArray)
+            bxlumiquality_occ1=CommonUtil.packArraytoBlob(fakeshortArray)
+            bxlumivalue_occ2=CommonUtil.packArraytoBlob(fakefloatArray)
+            bxlumierror_occ2=CommonUtil.packArraytoBlob(fakefloatArray)
+            bxlumiquality_occ2=CommonUtil.packArraytoBlob(fakeshortArray)
+            bxlumivalue_et=CommonUtil.packArraytoBlob(fakefloatArray)
+            bxlumierror_et=CommonUtil.packArraytoBlob(fakefloatArray)
+            bxlumiquality_et=CommonUtil.packArraytoBlob(fakeshortArray)
+            lumilsdata[lumilsnum]=[0,instlumi,instlumierror,instlumiquality,fakebeamstatus,fakebeamenergy,numorbit,startorbit,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2,bxlumivalue_occ1,bxlumierror_occ1,bxlumiquality_occ1,bxlumivalue_occ2,bxlumierror_occ2,bxlumiquality_occ2,bxlumivalue_et,bxlumierror_et,bxlumiquality_et]
     return (lumirundata,lumilsdata)
 
 def lumiDataFromfile(filename):
@@ -292,22 +349,26 @@ if __name__ == "__main__":
     except:
         if qHandle:del qHandle
         raise
-    lumidatafromdb=lumiDataFromDB(sourcesession.nominalSchema(),sourcelumiid)
+    lumirundatafromdb=[]
+    lumilsdatafromdb={}
+    if sourcelumiid:
+        (lumirundatafromdb,lumilsdatafromdb)=lumiDataFromDB(sourcesession.nominalSchema(),sourcelumiid)
     sourcesession.transaction().commit()
-    (rundat,lsdat)=generateLumidata(lumidatafromfile[0],lumidatafromfile[1],lumidatafromdb[0],lumidatafromdb[1],begLS,endLS)
-    print rundat
+    (rundat,lsdat)=generateLumidata(lumidatafromfile[0],lumidatafromfile[1],lumirundatafromdb,lumilsdatafromdb,begLS,endLS)
+    print 'rundat ',rundat
     destsvc=sessionManager.sessionManager(options.deststr,authpath=options.authpath,debugON=False)
     destsession=destsvc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     destsession.transaction().start(False)
     (lumibranchid,lumibranchparent)=revisionDML.branchInfoByName(destsession.nominalSchema(),'DATA')
     branchinfo=(lumibranchid,'DATA')
-    print branchinfo
+    print 'branchinfo ',branchinfo
     
     (hf_tagid,hf_tagname)=revisionDML.currentDataTag(destsession.nominalSchema(),lumitype='HF')
-    print (hf_tagid,hf_tagname)
+    print '(hf_tagid,hf_tagname) ',(hf_tagid,hf_tagname)
     hfdataidmap=revisionDML.dataIdsByTagId(destsession.nominalSchema(),hf_tagid,[int(options.runnum)],withcomment=False,lumitype='HF')
     destsession.transaction().commit()
-    print hfdataidmap
+    print 'dest hfdataidmap ',hfdataidmap
+    
     if hfdataidmap.has_key(int(options.runnum)):
         print 'existing old hf data in destdb of run ',options.runnum,hfdataidmap[int(options.runnum)]
         destsession.transaction().start(False)
@@ -328,6 +389,7 @@ if __name__ == "__main__":
         destsession.transaction().start(False)
         revisionDML.addRunToCurrentDataTag(destsession.nominalSchema(),int(options.runnum),lumidataid,0,0,lumitype='HF',comment=options.comment)
         destsession.transaction().commit()
+    
     del sourcesession
     del sourcesvc
     del destsession
