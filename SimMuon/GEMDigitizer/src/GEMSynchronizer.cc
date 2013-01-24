@@ -25,7 +25,7 @@ GEMSynchronizer::GEMSynchronizer(const edm::ParameterSet& config):
   signalPropagationSpeed_ = config.getParameter<double>("signalPropagationSpeed");
   cosmics_ = config.getParameter<bool>("cosmics");
   bxwidth_ = config.getParameter<double>("bxwidth");
-  minBunch_ = config.getParameter<double>("minBunch");
+  minBunch_ = config.getParameter<int>("minBunch");
 
   // signal propagation speed in vacuum in [m/s]
   const double cspeed = 299792458;

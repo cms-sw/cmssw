@@ -45,7 +45,7 @@ private:
   double signalPropagationSpeed_;
   bool cosmics_;
   double bxwidth_;
-  double minBunch_;
+  int minBunch_;
 
   CLHEP::RandGaussQ *gauss1_;
   CLHEP::RandGaussQ *gauss2_;
