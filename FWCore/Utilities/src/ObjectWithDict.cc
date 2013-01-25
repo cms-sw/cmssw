@@ -44,7 +44,7 @@ namespace edm {
 
   std::string
   ObjectWithDict::typeName() const {
-    return type_.scopedName();
+    return type_.name();
   }
 
   bool

@@ -171,7 +171,7 @@ namespace edm {
   void
   TypeWithDict::print(std::ostream& os) const {
     try {
-      os << scopedName();
+      os << name();
     } catch (cms::Exception const& e) {
       os << typeInfo().name();
     }
@@ -252,7 +252,7 @@ namespace {
     if(type_ != Reflex::Type()) {
       return type_.Name(Reflex::FINAL|Reflex::QUALIFIED|Reflex::SCOPED);
     }
-    std::string qname(scopedName());
+    std::string qname(name());
     if(isConst()) {
       qname = "const " + qname;
     }
@@ -264,11 +264,11 @@ namespace {
 
   std::string
   TypeWithDict::unscopedName() const {
-    return stripNamespace(scopedName());
+    return stripNamespace(name());
   }
   
   std::string
-  TypeWithDict::scopedName() const {
+  TypeWithDict::name() const {
     if(type_ != Reflex::Type()) {
       return type_.Name(Reflex::FINAL|Reflex::SCOPED);
     }
@@ -321,14 +321,14 @@ namespace {
 
   TypeWithDict
   TypeWithDict::nestedType(char const* nestedName) const {
-    return byName(scopedName() + "::" + nestedName);
+    return byName(name() + "::" + nestedName);
   }
 
   MemberWithDict
   TypeWithDict::dataMemberByName(std::string const& member) const {
     if(class_ == nullptr) {
       if(isEnum()) {
-        std::string fullName(scopedName());
+        std::string fullName(name());
         size_t lastColon = fullName.find_last_of("::");
         assert(lastColon != std::string::npos && lastColon != 0U);
         std::string theName(fullName.substr(0, lastColon - 1));
@@ -403,7 +403,7 @@ namespace {
 
   bool
   TypeWithDict::isTemplateInstance() const {
-    return *scopedName().rbegin() == '>';
+    return *name().rbegin() == '>';
   }
 
   bool

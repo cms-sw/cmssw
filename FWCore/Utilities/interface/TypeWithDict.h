@@ -80,7 +80,7 @@ namespace edm {
 
     std::string unscopedName() const;
 
-    std::string scopedName() const;
+    std::string name() const;
 
     std::string userClassName() const;
 

@@ -120,7 +120,7 @@ namespace edm {
       TypeWithDict null;
       for(TypeWithDict x(t.toType()); x != null && x != t; t = x, x = t.toType()) {}
 
-      std::string name(t.scopedName());
+      std::string name(t.name());
       boost::trim(name);
 
       if(foundTypes().end() != foundTypes().find(name) || missingTypes().end() != missingTypes().find(name)) {
