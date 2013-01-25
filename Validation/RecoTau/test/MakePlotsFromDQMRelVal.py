@@ -13,7 +13,7 @@ options.parseArguments()
 checkOptionsForBadInput()
 
 if not calledBycmsRun() and not options.gridJob:
-   print "Run 'cmsRun RunTauValidation_cfg.py help' for options."
+   print "Run 'cmsRun RunTauValidation_cfg.py (elp' for options."
    # quit here so we dont' create a bunch of directories
    #  if the user only wants the help
    #sys.exit()
@@ -43,7 +43,7 @@ outputDir = os.path.join(os.getcwd(), outputDirName)
 # This is the directory where we store the stuff about our current configuration
 outputBaseDir = outputDir
 subDirName = ""
-subDirName += "%s_%s" % (options.eventType, "recoFiles") #Only "recoFiles" options sice we will get the information needen from official relVal DQM stream
+subDirName += "%s_%s" % (options.eventType, "DQM") #Only "recoFiles" options sice we will get the information needen from official relVal DQM stream
 outputDir = os.path.join(outputDir, subDirName)
 
 # Store configuration, showtags, etc in a sub directory
@@ -73,15 +73,13 @@ if not os.path.exists(configDir):
 
 process.schedule = cms.Schedule()
 
-# Run on a RECO (eg RelVal)
-
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 
 import Validation.RecoTau.DBSApi_cff as mydbs
 print "Accessing DBS to retrieve the input files..."
-mydbs.FillSource(options.eventType,process.source,True)
+mydbs.FillSource(options.eventType+'DQM',process.source)
 
 if len(process.source.fileNames) == 0:
     print "No"
@@ -151,4 +149,78 @@ dumpFileName = "cfgDump"
 dumpFileName += ".py"
 processDumpFile = open('%s/%s' % (configDir, dumpFileName), 'w')
 print >> processDumpFile, process.dumpPython()
+
+######################################
+#                                    #
+#       Histo storage                #
+#                                    #
+######################################
+
+from ROOT import *
+
+TargetDir = "RecoTauV"
+OutFileName = TargetDir+"_"+options.eventType+".root"
+InputFileName = outputFileName
+
+#opening output file
+outFile = TFile(OutFileName,"recreate")
+#opening input file
+fullFile = TFile(InputFileName)
+
+#retrieving interesting directory position
+source = gDirectory.ls()
+next=TIter(fullFile.GetListOfKeys())
+dir0 = None
+dir1 = None
+for key in next:
+     cl = gROOT.GetClass(key.GetClassName())
+     if(cl.InheritsFrom("TDirectory")):
+        dir0_ = key.ReadObj()
+        dir0 = dir0_.GetName()
+        next2=TIter(dir0_.GetListOfKeys())
+        for key in next2:
+           cl2 = gROOT.GetClass(key.GetClassName())
+           if(cl2.InheritsFrom("TDirectory")):
+              dir1_=key.ReadObj()
+              if TargetDir in dir1_.GetName():
+                 dir1 = dir1_.GetName()
+
+#entering inside target directory
+InputDir = dir0+"/"+dir1
+gDirectory.cd(InputDir)
+
+#Listing subdirectories of TargetDir
+SubDirs = []
+next3=TIter(gDirectory.GetListOfKeys())
+for key in next3:
+   cl3 = gROOT.GetClass(key.GetClassName())
+   if(cl3.InheritsFrom("TDirectory")):
+      dir2_ = key.ReadObj()
+      dir2 = dir2_.GetName()
+      if options.eventType in dir2:
+         SubDirs.append(dir2)
+#Writing objects to file
+for sub_key in SubDirs:
+   outFile.cd()
+   gDirectory.mkdir(sub_key)
+   fullFile.cd()
+   gDirectory.cd(InputDir+"/"+sub_key)
+   hList = TIter(gDirectory.GetListOfKeys())
+   for h_key in hList:
+      cl4 = gROOT.GetClass(h_key.GetClassName())
+      if(cl4.InheritsFrom("TH1F")):
+         outFile.cd()
+         gDirectory.cd(sub_key)
+         hist = h_key.ReadObj()
+         hist.Write()
+
+outFile.Close()
+
+
+
+
+
+
+
+
 
