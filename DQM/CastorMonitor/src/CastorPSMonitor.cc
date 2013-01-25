@@ -264,9 +264,9 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
 		  castorDigiHists.meDigi_pulseBX->Fill(static_cast<double>(bxTS),(bunch_it->tsfC[ts])/224.);
 		  ////---- fill pulse shape in sectors 
 
-		  // PK: do not normalize histograms
-		  //  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]/double(ievt_)); 
-                  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]);
+		  // PK: do not normalize histograms - now it is normalized
+		  PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]/double(ievt_)); 
+                  // PSsector[bunch_it->detid.sector()-1]->Fill(10*(bunch_it->detid.module()-1)+ts, bunch_it->tsfC[ts]);
  
                   ////---- sum the signal over all TS in fC
                   sumDigi +=  bunch_it->tsfC[ts]; //std::cout<< " signal(fC) in TS:"<<ts << " =" << bunch_it->tsfC[ts] << std::endl; 	   
@@ -408,8 +408,6 @@ void CastorPSMonitor::processEvent(const CastorDigiCollection& castorDigis, cons
   
   return;
 }
-
-
 
 
 
