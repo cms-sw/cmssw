@@ -38,7 +38,7 @@ namespace {
   }
 }
 
-  std::string
+  std::string const&
   TypeID::className() const {
     typedef std::map<edm::TypeID, std::string> Map;
     static boost::thread_specific_ptr<Map> s_typeToName;
@@ -91,15 +91,33 @@ namespace {
     return true;
   }
 
-  bool
-  stripNamespace(std::string& theName) {
-    std::string::size_type idx = theName.rfind(':');
-    bool ret = (idx != std::string::npos);
-    if (ret) {
-      ++idx;
-      theName = theName.substr(idx);
+  std::string
+  stripNamespace(std::string const& theName) {
+    // Find last colon
+    std::string::size_type colonIndex = theName.rfind(':');
+    if(colonIndex == std::string::npos) {
+      // No colons, so no namespace to strip
+      return theName;
     }
-    return ret;
+    std::string::size_type bracketIndex = theName.rfind('>');
+    if(bracketIndex == std::string::npos || bracketIndex < colonIndex) {
+      // No '>' after last colon.  Strip up to and including last colon.
+      return theName.substr(colonIndex+1);
+    }
+    // There is a '>' after the last colon.
+    int depth = 1;
+    for(size_t index = bracketIndex; index != 0; --index) {
+      char c = theName[index - 1]; 
+      if(c == '>') {
+        ++depth;
+      } else if(c == '<') {
+        --depth;
+        assert(depth >= 0);
+      } else if(depth == 0 && c == ':') {
+        return theName.substr(index);
+      }
+    }
+    return theName;
   }
 
   TypeID::operator bool() const {

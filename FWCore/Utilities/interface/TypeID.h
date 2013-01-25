@@ -17,7 +17,7 @@ persisted across invocations of the program.
 namespace edm {
   bool stripTemplate(std::string& theName);
 
-  bool stripNamespace(std::string& theName);
+  std::string stripNamespace(std::string const& theName);
 
   class TypeID : private TypeIDBase {
   public:
@@ -34,7 +34,7 @@ namespace edm {
     // Print out the name of the type, using the dictionary class name.
     void print(std::ostream& os) const;
 
-    std::string className() const;
+    std::string const& className() const;
 
     std::string userClassName() const;
 
