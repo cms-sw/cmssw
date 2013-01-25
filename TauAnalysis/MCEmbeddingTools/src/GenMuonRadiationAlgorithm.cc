@@ -17,7 +17,11 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 #include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
+
+#include <Math/VectorUtil.h>
 
 const double protonMass = 0.938272;
 
@@ -32,6 +36,7 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
       beamEnergy_(cfg.getParameter<double>("beamEnergy")),
       genEvt_(0)
   {}
+  ~myPythia6ServiceWithCallback() {}
 
   void setEvent(const HepMC::GenEvent* genEvt) 
   {  
@@ -62,6 +67,7 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
   }
   void upEvnt() 
   {     
+    std::cout << "<upEvnt>:" << std::endl;
     int numParticles = 0;
     for ( HepMC::GenEvent::particle_const_iterator genParticle = genEvt_->particles_begin();
 	  genParticle != genEvt_->particles_end(); ++genParticle ) {
@@ -69,6 +75,7 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
     }
     lhef::HEPEUP hepeup;
     hepeup.NUP = numParticles;
+    std::cout << " numParticles = " << numParticles << std::endl;
     hepeup.IDPRUP = 1;
     hepeup.XWGTUP = 1.;
     hepeup.XPDWUP.first = 0.;
@@ -82,11 +89,13 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
     for ( HepMC::GenEvent::particle_const_iterator genParticle = genEvt_->particles_begin();
 	  genParticle != genEvt_->particles_end(); ++genParticle ) {
       barcodeToIdxMap[(*genParticle)->barcode()] = genParticleIdx + 1; // CV: conversion between C++ and Fortran array index conventions
-      hepeup.IDUP[genParticleIdx] = (*genParticle)->pdg_id();
-      if ( (*genParticle)->production_vertex() ) {
-	hepeup.ISTUP[genParticleIdx] = (*genParticle)->status();
-      } else {
+      int pdgId = (*genParticle)->pdg_id();
+      if ( pdgId == 2212 ) continue;
+      hepeup.IDUP[genParticleIdx] = pdgId;
+      if ( pdgId == 2212 && !(*genParticle)->production_vertex() ) {
 	hepeup.ISTUP[genParticleIdx] = -1;
+      } else {
+	hepeup.ISTUP[genParticleIdx] = (*genParticle)->status();
       }
       if ( (*genParticle)->production_vertex() ) {
 	int firstMother = 0;
@@ -123,13 +132,20 @@ class myPythia6ServiceWithCallback : public gen::Pythia6Service
       if ( (*genParticle)->status() == 1 ) hepeup.VTIMUP[genParticleIdx] = 1.e+6;
       else hepeup.VTIMUP[genParticleIdx] = 0.;
       hepeup.SPINUP[genParticleIdx] = 9;
+      std::cout << "adding genParticle #" << genParticleIdx 
+		<< " (pdgId = " << hepeup.IDUP[genParticleIdx] << ", status = " << hepeup.ISTUP[genParticleIdx] << "):" 
+		<< " En = " << hepeup.PUP[genParticleIdx][3] << "," 
+		<< " Px = " << hepeup.PUP[genParticleIdx][0] << "," 
+		<< " Py = " << hepeup.PUP[genParticleIdx][1] << "," 
+		<< " Pz = " << hepeup.PUP[genParticleIdx][2] << " (mass = " << hepeup.PUP[genParticleIdx][4] << ")" << std::endl;
       ++genParticleIdx;
     }
     lhef::CommonBlocks::fillHEPEUP(&hepeup);
   }
   bool upVeto() 
   { 
-    return true; 
+    std::cout << "<upVeto>:" << std::endl;
+    return false; 
   }
 
   double beamEnergy_;
@@ -161,6 +177,8 @@ GenMuonRadiationAlgorithm::GenMuonRadiationAlgorithm(const edm::ParameterSet& cf
   if ( mode_ == kPYTHIA ) pythia_ = new myPythia6ServiceWithCallback(cfg);
   if ( mode_ == kPHOTOS ) photos_ = new gen::PhotosInterface(cfg.getParameter<edm::ParameterSet>("PhotosOptions"));
 
+  maxTrials_ = 10;
+
   verbosity_ = ( cfg.exists("verbosity") ) ? 
     cfg.getParameter<int>("verbosity") : 0;
 }
@@ -177,17 +195,6 @@ namespace
   {
     return x*x;
   }
-
-  double cube(double x)
-  {
-    return x*x*x;
-  }
-
-  double fourth(double x)
-  {
-    return x*x*x*x;
-  }
-
 
   reco::Candidate::LorentzVector getP4_limited(const reco::Candidate::LorentzVector& p4, double mass)
   {
@@ -208,10 +215,17 @@ namespace
     }
     return p4_limited;
   }
+
+  reco::Candidate::LorentzVector boostToLab(const reco::Candidate::LorentzVector& rfSystem,
+					    const reco::Candidate::LorentzVector& p4ToBoost) 
+  {
+    reco::Candidate::Vector boost = rfSystem.BoostToCM();
+    return ROOT::Math::VectorUtil::boost(p4ToBoost, -boost);
+  }
 }
 
 reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Candidate::LorentzVector& muonP4, int muonCharge,
-								  const reco::Candidate::LorentzVector& otherP4)
+								  const reco::Candidate::LorentzVector& otherP4, int& errorFlag)
 {
   if ( verbosity_ ) {
     std::cout << "<GenMuonRadiationAlgorithm::compMuonFSR>:" << std::endl;
@@ -219,14 +233,16 @@ reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Ca
     std::cout << " other: En = " << otherP4.E() << ", Pt = " << otherP4.pt() << ", eta = " << otherP4.eta() << ", phi = " << otherP4.phi() << std::endl;
   }
 
+  errorFlag = 0;
+
   HepMC::GenEvent* genEvt_beforeFSR = new HepMC::GenEvent();
 
-  HepMC::GenVertex* genVtx_in = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.,0.));
+  //HepMC::GenVertex* genVtx_in = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.,0.));
   double protonEn = beamEnergy_;
   double protonPz = sqrt(square(protonEn) - square(protonMass));
-  genVtx_in->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., +protonPz, protonEn), 2212, 3));
-  genVtx_in->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., -protonPz, protonEn), 2212, 3));
-  genEvt_beforeFSR->add_vertex(genVtx_in);
+  //genVtx_in->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., +protonPz, protonEn), 2212, 3));
+  //genVtx_in->add_particle_in(new HepMC::GenParticle(HepMC::FourVector(0., 0., -protonPz, protonEn), 2212, 3));
+  //genEvt_beforeFSR->add_vertex(genVtx_in);
 
   HepMC::GenVertex* genVtx_out = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.,0.));
   
@@ -241,39 +257,27 @@ reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Ca
   // CV: use pdgId code for Z
   int zPdgId = 23;
   HepMC::GenParticle* genZ = new HepMC::GenParticle((HepMC::FourVector)sumP4, zPdgId, 2, HepMC::Flow(), HepMC::Polarization(0,0));
-  genVtx_in->add_particle_out(genZ);
-  double protonPx_scattered = -0.5*sumP4.px();
-  double protonPy_scattered = -0.5*sumP4.py();
-  double term1 = -0.5*sumP4.pz();
-  double term2 = 0.5*sqrt(square(4.*beamEnergy_ - 2.*sumP4.E()) - 4.*square(sumP4.pz()));
-  double term3 = 64.*fourth(beamEnergy_) - 128.*cube(beamEnergy_)*sumP4.E() + 4.*fourth(sumP4.E());
-  double term4 = square(beamEnergy_)*(96.*square(sumP4.E()) - 16.*square(sumP4.P()) - 64.*square(protonMass));
-  double term5 = -square(beamEnergy_)*(4.*square(sumP4.pz()) + 16.*square(protonMass));
-  double term6 = -beamEnergy_*sumP4.E()*(32.*square(sumP4.E()) - 16.*square(sumP4.pz()) - 64.*square(protonMass));
-  std::cout << "term1 = " << term1 << std::endl;
-  std::cout << "term2 = " << term2 << std::endl;
-  std::cout << "term3 = " << term3 << std::endl;
-  std::cout << "term4 = " << term4 << std::endl;
-  std::cout << "term5 = " << term5 << std::endl;
-  std::cout << "term6 = " << term6 << std::endl;  
-  double proton1Pz_scattered = term1 + term2*sqrt(term3 + term4 + term5 + term6);
-  double proton1En_scattered = sqrt(square(proton1Pz_scattered) + square(protonMass));
-  double proton2Pz_scattered = term1 - term2*sqrt(term3 + term4 + term5 + term6);
-  double proton2En_scattered = sqrt(square(proton2Pz_scattered) + square(protonMass));
-  genVtx_in->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(0., 0., proton1Pz_scattered, proton1En_scattered), 2212, 1));
-  genVtx_in->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(0., 0., proton2Pz_scattered, proton2En_scattered), 2212, 1));
+  //genVtx_in->add_particle_out(genZ);
+  reco::Candidate::LorentzVector ppP4_scattered(-sumP4.px(), -sumP4.py(), -sumP4.pz(), 2.*beamEnergy_ - sumP4.E());
+  double protonEn_rf = 0.5*ppP4_scattered.mass();
+  double protonP_rf  = sqrt(square(protonEn_rf) - square(protonMass));
+  reco::Candidate::LorentzVector proton1P4_scattered_rf(0., 0., +protonP_rf, protonEn_rf);
+  reco::Candidate::LorentzVector proton2P4_scattered_rf(0., 0., -protonP_rf, protonEn_rf);
+  reco::Candidate::LorentzVector proton1P4_scattered = boostToLab(ppP4_scattered, proton1P4_scattered_rf);
+  reco::Candidate::LorentzVector proton2P4_scattered = boostToLab(ppP4_scattered, proton2P4_scattered_rf);
+  //genVtx_in->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(proton1P4_scattered.px(), proton1P4_scattered.py(), proton1P4_scattered.pz(), proton1P4_scattered.E()), 2212, 1));
+  //genVtx_in->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(proton2P4_scattered.px(), proton2P4_scattered.py(), proton2P4_scattered.pz(), proton2P4_scattered.E()), 2212, 1));
   genVtx_out->add_particle_in(genZ);
 
   int muonPdgId = -13*muonCharge;
   HepMC::GenParticle* genMuon = new HepMC::GenParticle((HepMC::FourVector)muonP4_limited, muonPdgId, 1, HepMC::Flow(), HepMC::Polarization(0,0));
   genVtx_out->add_particle_out(genMuon);
 
-  //int neutrinoPdgId = +14*muonCharge;
-  int neutrinoPdgId = +13*muonCharge;
-  HepMC::GenParticle* genNeutrino = new HepMC::GenParticle((HepMC::FourVector)otherP4_limited, neutrinoPdgId, 1, HepMC::Flow(), HepMC::Polarization(0,0));
-  genVtx_out->add_particle_out(genNeutrino);
+  int otherPdgId = +13*muonCharge;
+  HepMC::GenParticle* genOther = new HepMC::GenParticle((HepMC::FourVector)otherP4_limited, otherPdgId, 1, HepMC::Flow(), HepMC::Polarization(0,0));
+  genVtx_out->add_particle_out(genOther);
 
-  genEvt_beforeFSR->add_vertex(genVtx_in);
+  //genEvt_beforeFSR->add_vertex(genVtx_in);
   genEvt_beforeFSR->add_vertex(genVtx_out);
 
   repairBarcodes(genEvt_beforeFSR);
@@ -284,23 +288,23 @@ reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Ca
   }
 
   HepMC::GenEvent* genEvt_afterFSR = 0;
-
   
   if ( mode_ == kPYTHIA ) {
     gen::Pythia6Service::InstanceWrapper pythia6InstanceGuard(pythia_);
 
     if ( !pythia_isInitialized_ ) {
-      call_pyinit("USER", "p", "p", 2.*beamEnergy_);	
       pythia_->setGeneralParams();
-      //call_pyinit("USER", "p", "p", 2.*beamEnergy_);
+      call_pyinit("CMS", "p", "p", 2.*beamEnergy_);	      
       pythia_isInitialized_ = true;
     }
 
     bool isValid = false;
-    int numTries = 0;
+    int numTrials = 0;
     do {
       pythia_->setEvent(genEvt_beforeFSR);
+      call_pylist(2);
       call_pyevnt();
+      call_pylist(2);
 
       HepMC::IO_HEPEVT conv;
       call_pyhepc(1); 
@@ -310,16 +314,22 @@ reco::Candidate::LorentzVector GenMuonRadiationAlgorithm::compFSR(const reco::Ca
 	    genVtx != genEvt_afterFSR->vertices_end(); ++genVtx ) {
 	++numVertices;
       }
-      if ( numVertices <= 3 ) isValid = true;
-      else delete genEvt_afterFSR;
-      ++numTries;
-    } while ( !isValid && numTries < 1000 );
+      if ( numVertices <= 3 ) {
+	isValid = true;
+      } else {
+	//std::cout << "genEvt (Trial #" << numTrials << "):" << std::endl;
+	//genEvt_afterFSR->print(std::cout);
+	delete genEvt_afterFSR;
+      }
+      ++numTrials;
+    } while ( !isValid && numTrials < maxTrials_ );
     if ( !isValid ) {
       edm::LogError ("GenMuonRadiationAlgorithm::compFSR") 
 	<< "Failed to simulate muon -> muon + photon radiation using PYTHIA !!" << std::endl;
-      std::cout << "genEvt:" << std::endl;
-      genEvt_beforeFSR->print(std::cout);
+      //std::cout << "genEvt:" << std::endl;
+      //genEvt_beforeFSR->print(std::cout);
       genEvt_afterFSR = genEvt_beforeFSR;
+      errorFlag = 1;
     }
   } else if ( mode_ == kPHOTOS ) {
     if ( !photos_isInitialized_ ) {

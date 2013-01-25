@@ -17,9 +17,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: GenMuonRadiationAlgorithm.h,v 1.2 2013/01/22 16:55:30 veelken Exp $
+ * $Id: GenMuonRadiationAlgorithm.h,v 1.3 2013/01/24 16:32:01 veelken Exp $
  *
  */
 
@@ -37,7 +37,7 @@ class GenMuonRadiationAlgorithm
   explicit GenMuonRadiationAlgorithm(const edm::ParameterSet&);
   ~GenMuonRadiationAlgorithm();
 
-  reco::Candidate::LorentzVector compFSR(const reco::Candidate::LorentzVector&, int, const reco::Candidate::LorentzVector&);
+  reco::Candidate::LorentzVector compFSR(const reco::Candidate::LorentzVector&, int, const reco::Candidate::LorentzVector&, int&);
 
  private:
   double beamEnergy_;
@@ -50,6 +50,8 @@ class GenMuonRadiationAlgorithm
 
   myPythia6ServiceWithCallback* pythia_;
   static bool pythia_isInitialized_;
+
+  int maxTrials_;
 
   int verbosity_;
 };
