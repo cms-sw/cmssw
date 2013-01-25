@@ -1,6 +1,7 @@
 #ifndef Utilities_StaticAnalyzers_MemberChecker_h
 #define Utilities_StaticAnalyzers_MemberChecker_h
 #include <clang/AST/DeclCXX.h>
+#include <clang/AST/Decl.h>
 #include <clang/AST/DeclTemplate.h>
 #include <clang/AST/StmtVisitor.h>
 #include <clang/AST/ParentMap.h>
@@ -17,7 +18,7 @@
 
 namespace clangcms {
 
-class ClassCheckerRDecl : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+class ClassChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
   mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 
@@ -29,9 +30,8 @@ private:
   CmsException m_exception;
 };
 
-class ClassCheckerRDeclD : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
-  mutable clang::OwningPtr< clang::ento::BugType> BT;
-
+class ClassDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
+ mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
   void checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
@@ -39,8 +39,33 @@ public:
 
 private:
   CmsException m_exception;
+
 };
 
+class ClassDumperCT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::ClassTemplateDecl> > {
+ mutable clang::OwningPtr< clang::ento::BugType> BT;
 
+public:
+
+  void checkASTDecl(const clang::ClassTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
+                    clang::ento::BugReporter &BR ) const ;
+
+private:
+  CmsException m_exception;
+
+};
+
+class ClassDumperFT : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
+ mutable clang::OwningPtr< clang::ento::BugType> BT;
+
+public:
+
+  void checkASTDecl(const clang::FunctionTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
+                    clang::ento::BugReporter &BR ) const ;
+
+private:
+  CmsException m_exception;
+
+};
 }
 #endif
