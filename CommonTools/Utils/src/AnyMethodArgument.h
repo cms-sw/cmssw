@@ -1,9 +1,8 @@
 #ifndef CommonTools_Utils_AnyMethodArgument_h
 #define CommonTools_Utils_AnyMethodArgument_h
 
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
 #include <algorithm>
@@ -77,7 +76,7 @@ namespace reco {
         public:
             AnyMethodArgumentFixup(edm::TypeWithDict type) : 
                 dataType_(type),
-                type_(type.name() == "string" ? typeid(std::string) : type.typeInfo()) // Otherwise Root does this wrong :-(
+                type_(type.typeInfo())
             {
                 while (dataType_.isTypedef()) dataType_ = dataType_.toType();
                 /* // Code to print out enum table 
@@ -111,17 +110,8 @@ namespace reco {
                     if (dataType_.dataMemberSize() == 0) {
                         throw parser::Exception(t.c_str()) << "Enumerator '" << dataType_.name() << "' has no keys.\nPerhaps the dictionary is missing?\n";
                     }
-                    edm::MemberWithDict value = dataType_.dataMemberByName(t);
-                    //std::cerr << "Trying to convert '" << t << "'  to a value for enumerator '" << dataType_.name() << "'" << std::endl;
-                    if (!value) // check for existing value
-                        return std::pair<AnyMethodArgument,int>(t,-1);
-                        // throw parser::Exception(t.c_str()) << "Can't convert '" << t << "' to a value for enumerator '" << dataType_.name() << "'\n";
-                    //std::cerr << "  found member of type '" << value.typeOf().name() << "'" << std::endl;
-                    if (value.typeOf().typeInfo() != typeid(int)) // check is backed by an Int
-                        throw parser::Exception(t.c_str()) << "Enumerator '" << dataType_.name() << "' is not implemented by type 'int' !!??\n";
-                    //std::cerr << "  value is @ " <<   reinterpret_cast<const int *>(value.get().address()) << std::endl;
-                    int ival = * reinterpret_cast<const int *>(value.get().address());
-                    //std::cerr << "  value is = " << ival << std::endl;
+                    int ival = dataType_.stringToEnumValue(t);
+                    // std::cerr << "  value is = " << dataType_.stringToEnumValue(t) << std::endl;
                     return std::pair<AnyMethodArgument,int>(ival,1);
                 }
                 return std::pair<AnyMethodArgument,int>(t,-1);
