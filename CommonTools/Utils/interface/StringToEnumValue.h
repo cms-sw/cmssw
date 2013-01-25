@@ -3,8 +3,6 @@
 
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <string>
 #include <sstream>
@@ -19,31 +17,15 @@
    </code>
 
    \author Stefano Argiro
-   \version $Id: StringToEnumValue.h,v 1.4 2012/08/03 21:01:53 wmtan Exp $
+   \version $Id: StringToEnumValue.h,v 1.5 2012/08/28 22:28:38 wmtan Exp $
    \date 04 Mar 2011
 */
 
 template <class MyType> 
-int StringToEnumValue(const std::string & enumName){
-  
-  edm::TypeWithDict dataType(typeid(MyType));
-  edm::MemberWithDict member = dataType.dataMemberByName(enumName);
-
-  if (!member) {
-    std::ostringstream err;
-    err<<"StringToEnumValue Failure trying to convert " << enumName << " to int value";
-    throw cms::Exception("ConversionError",err.str());
-  }
-
-  if (member.typeOf().typeInfo() != typeid(int)) {
-    
-    std::ostringstream err;
-    err << "Type "<<  member.typeOf().name() << " is not Enum";
-    throw cms::Exception("ConversionError",err.str());
-  }
-  return member.get().objectCast<int>();
-
-} // 
+int StringToEnumValue(const std::string & enumMemberName){
+  edm::TypeWithDict dataType(typeid(MyType), kIsEnum);
+  return dataType.stringToEnumValue(enumMemberName);
+}
 
 
 /**
