@@ -84,7 +84,7 @@ namespace reco {
       std::string name_;
       std::vector<AnyMethodArgument> argsBeforeFixups_;
       typedef boost::shared_ptr<SingleInvoker> SingleInvokerPtr; // the shared ptr is only to make the code exception safe
-      mutable std::map<void *, SingleInvokerPtr> invokers_;        // otherwise I think it could leak if the constructor of
+      mutable std::map<const void *, SingleInvokerPtr> invokers_;        // otherwise I think it could leak if the constructor of
       const SingleInvoker & invoker(const edm::TypeWithDict &t) const ; // SingleInvoker throws an exception (which can happen)
     };
 
