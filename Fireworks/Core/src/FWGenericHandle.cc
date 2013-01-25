@@ -50,9 +50,9 @@ void convert_handle(BasicHandle const& orig,
      !product.typeOf().isEquivalentTo(result.type()) &&
      product.typeOf().typeInfo()!= result.type().typeInfo()){
         std::cerr << "FWGenericObject asked for "<<result.type().name()
-         <<" but was given a " << product.typeOf().name();
+         <<" but was given a " << product.typeName();
     throw edm::Exception(edm::errors::LogicError)<<"FWGenericObject asked for "<<result.type().name()
-    <<" but was given a "<<product.typeOf().name();
+    <<" but was given a "<<product.typeName();
   }
   
   Handle<FWGenericObject> h(product, orig.provenance(), orig.id());
@@ -65,7 +65,7 @@ bool
 edm::EventBase::getByLabel<FWGenericObject>(edm::InputTag const& tag,
                                              Handle<FWGenericObject>& result) const
 {
-   std::string dataTypeName = result.type().name(edm::TypeNameHandling::Scoped);
+   std::string dataTypeName = result.type().name();
    if (dataTypeName[dataTypeName.size() -1] == '>')
       dataTypeName += " ";
    std::string wrapperName = "edm::Wrapper<" + dataTypeName + ">";
