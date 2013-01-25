@@ -58,6 +58,7 @@ CalibratedPatElectronProducer::CalibratedPatElectronProducer( const edm::Paramet
   isAOD = cfg.getParameter<bool>("isAOD");
   updateEnergyError = cfg.getParameter<bool>("updateEnergyError");
   applyCorrections = cfg.getParameter<int>("applyCorrections");
+  smearingRatio = cfg.getParameter<double>("smearingRatio");
   verbose = cfg.getParameter<bool>("verbose");
   synchronization = cfg.getParameter<bool>("synchronization");
   
@@ -89,7 +90,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
     electrons->push_back(clone);
   }
 
-  ElectronEnergyCalibrator theEnCorrector(dataset, isAOD, isMC, updateEnergyError, applyCorrections, verbose, synchronization);
+  ElectronEnergyCalibrator theEnCorrector(dataset, isAOD, isMC, updateEnergyError, applyCorrections, smearingRatio, verbose, synchronization);
 
   for
    ( ele = electrons->begin() ;

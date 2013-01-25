@@ -66,6 +66,7 @@ CalibratedElectronProducer::CalibratedElectronProducer( const edm::ParameterSet 
   isAOD = cfg.getParameter<bool>("isAOD");
   updateEnergyError = cfg.getParameter<bool>("updateEnergyError");
   applyCorrections = cfg.getParameter<int>("applyCorrections");
+  smearingRatio = cfg.getParameter<double>("smearingRatio");
   verbose = cfg.getParameter<bool>("verbose");
   synchronization = cfg.getParameter<bool>("synchronization");
   
@@ -132,7 +133,7 @@ void CalibratedElectronProducer::produce( edm::Event & event, const edm::EventSe
     electrons->push_back((*oldElectronsH)[iele]);
   }
 
-  ElectronEnergyCalibrator theEnCorrector(dataset, isAOD, isMC, updateEnergyError, applyCorrections, verbose, synchronization);
+  ElectronEnergyCalibrator theEnCorrector(dataset, isAOD, isMC, updateEnergyError, applyCorrections, smearingRatio, verbose, synchronization);
 
   std::vector<double> regressionValues;
   std::vector<double> regressionErrorValues;

@@ -42,6 +42,7 @@ class CalibratedElectronProducer: public edm::EDProducer
     bool isMC ;
     bool updateEnergyError ;
     int applyCorrections ;
+    double smearingRatio ;
     bool verbose ;
     bool synchronization ;
 
