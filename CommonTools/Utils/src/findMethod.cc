@@ -29,7 +29,7 @@ namespace reco {
     //if (mem.isOperator()) return -1*parser::kIsOperator;  // no, some operators are allowed, e.g. operator[]
     if (! mem.isPublic()) return -1*parser::kIsNotPublic;
     if (mem.isStatic()) return -1*parser::kIsStatic;
-    if ( ! mem.typeOf().isConst() ) return -1*parser::kIsNotConst;
+    if ( ! mem.isConst() ) return -1*parser::kIsNotConst;
     if (mem.name().substr(0, 2) == "__") return -1*parser::kIsFunctionAddedByROOT;
     if (mem.declaringType().id() != type.id()) {
         /*std::cerr << "\nMETHOD OVERLOAD " << mem.name() <<
@@ -39,7 +39,7 @@ namespace reco {
     }
     size_t minArgs = mem.functionParameterSize(true), maxArgs = mem.functionParameterSize(false);
     if ((args.size() < minArgs) || (args.size() > maxArgs)) return -1*parser::kWrongNumberOfArguments;
-    /*std::cerr << "\nMETHOD " << mem.name() << " of " << mem.declaringTy[e().name() 
+    /*std::cerr << "\nMETHOD " << mem.name() << " of " << mem.declaringType().name() 
         << ", min #args = " << minArgs << ", max #args = " << maxArgs 
         << ", args = " << args.size() << std::endl;*/
     if (!args.empty()) {
@@ -61,7 +61,7 @@ namespace reco {
         }
         fixuppedArgs.swap(tmpFixups);
     }
-    /*std::cerr << "\nMETHOD " << mem.name() << " of " << mem.declaringTy[e().name() 
+    /*std::cerr << "\nMETHOD " << mem.name() << " of " << mem.declaringType().name() 
         << ", min #args = " << minArgs << ", max #args = " << maxArgs 
         << ", args = " << args.size() << " fixupped args = " << fixuppedArgs.size() << "(" << casts << " implicit casts)" << std::endl; */
     return casts;
@@ -85,7 +85,7 @@ namespace reco {
       throw parser::Exception(iIterator)
 	<< "No dictionary for class \"" << type.name() << "\".";
     while(type.isPointer() || type.isTypedef()) type = type.toType();
-    type = edm::TypeWithDict(type, edm::TypeModifiers::NoMod); // strip const, volatile, c++ ref, ..
+    type = edm::TypeWithDict(type, 0L); // strip const, volatile, c++ ref, ..
 
     pair<edm::FunctionWithDict, bool> mem; mem.second = false;
 

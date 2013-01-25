@@ -33,7 +33,7 @@ ExpressionVar::delStorage(edm::ObjectWithDict &obj) {
             void **p = static_cast<void **>(obj.address());
             delete p;
         } else {
-            //std::cout << "Calling Destruct on a " << obj.typeOf().name(edm::TypeNameHandling::Qualified) << std::endl;
+            //std::cout << "Calling Destruct on a " << obj.typeOf().qualifiedName() << std::endl;
             obj.typeOf().deallocate(obj.address());
         }
     }
@@ -68,7 +68,7 @@ ExpressionVar::makeStorage(edm::ObjectWithDict &obj, const edm::TypeWithDict &re
     } else {
         obj = edm::ObjectWithDict(retType, retType.allocate());
         ret = retType.isClass();
-        //std::cout << "ExpressionVar: reserved memory at "  << obj.address() << " for a " << retType.name(edm::TypeNameHandling::Qualified) << " returned by " << member.name() << std::endl;
+        //std::cout << "ExpressionVar: reserved memory at "  << obj.address() << " for a " << retType.qualifiedName() << " returned by " << member.name() << std::endl;
     }
     return ret;
 }
