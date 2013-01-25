@@ -10,13 +10,13 @@ ObjectWithDict:  A holder for an object and its type information.
 #include <typeinfo>
 
 #include "Reflex/Object.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace edm {
-  class TypeWithDict;
 
   class ObjectWithDict {
   public:
-    ObjectWithDict() : object_() {}
+    ObjectWithDict();
 
     explicit ObjectWithDict(TypeWithDict const& type);
 
@@ -30,13 +30,9 @@ namespace edm {
 
     ObjectWithDict(std::type_info const& typeID, void* address);
 
-    void destruct() const {
-      object_.Destruct();
-    }
+    void destruct() const;
 
-    void* address() const {
-      return object_.Address();
-    }
+    void* address() const;
 
     std::string typeName() const;
 
@@ -54,20 +50,15 @@ namespace edm {
 
     TypeWithDict dynamicType() const;
 
-    void invoke(std::string const& fm, ObjectWithDict* ret) const{
-      object_.Invoke(fm, &ret->object_);
-    }
+    void invoke(std::string const& fm, ObjectWithDict* ret) const;
+    
 
     ObjectWithDict castObject(TypeWithDict const& type) const;
 
-    ObjectWithDict get(std::string const& member) const {
-      return ObjectWithDict(object_.Get(member));
-    }
+    ObjectWithDict get(std::string const& member) const;
 
 #ifndef __GCCXML__
-    explicit operator bool() const {
-      return bool(object_);
-    }
+    explicit operator bool() const;
 #endif
 
     ObjectWithDict construct() const;
@@ -81,9 +72,11 @@ namespace edm {
     friend class MemberWithDict;
     friend class TypeWithDict;
 
-    explicit ObjectWithDict(Reflex::Object const& obj) : object_(obj) {}
+    explicit ObjectWithDict(Reflex::Object const& obj);
 
     Reflex::Object object_;
+    TypeWithDict type_;
+    void* address_;
   };
 
 }

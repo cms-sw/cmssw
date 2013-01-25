@@ -13,10 +13,22 @@ persisted across invocations of the program.
 #include <typeinfo>
 #include <string>
 #include <vector>
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+
+#include "TBaseClass.h"
+#include "TClass.h"
+#include "TDataMember.h"
+#include "TDataType.h"
+#include "TMethod.h"
+
+#include "FWCore/Utilities/interface/IterWithDict.h"
+#include "Reflex/Member.h"
+#include "Reflex/Type.h"
 #include "Reflex/TypeTemplate.h"
+
+class TBaseClass;
+class TDataMember;
+class TMethod;
+class TMethodArg;
 
 namespace edm {
 
@@ -24,60 +36,57 @@ namespace edm {
   class MemberWithDict;
   class ObjectWithDict;
 
-  enum TypeNameHandling {
-     NoHandling = 0,
-     Final = Reflex::FINAL,
-     Qualified = Reflex::QUALIFIED,
-     FinalQualified = Reflex::FINAL|Reflex::QUALIFIED,
-     Scoped = Reflex::SCOPED,
-     FinalScoped = Reflex::FINAL|Reflex::SCOPED,
-     QualifiedScoped = Reflex::QUALIFIED|Reflex::SCOPED,
-     FinalQualifiedScoped = Reflex::FINAL|Reflex::QUALIFIED|Reflex::SCOPED
-  };
-
   enum TypeMemberQuery {
     InheritedDefault = Reflex::INHERITEDMEMBERS_DEFAULT,
     InheritedNo = Reflex::INHERITEDMEMBERS_NO,
     InheritedAlso = Reflex::INHERITEDMEMBERS_ALSO
   };
 
-  enum TypeModifiers {
-     NoMod = 0,
-     Const = Reflex::CONST,
-     Reference = Reflex::REFERENCE,
-     ConstReference = Reflex::CONST|Reflex::REFERENCE
-  };
-
   class TypeWithDict {
   public:
 
-    TypeWithDict() : type_() {}
+    TypeWithDict();
 
     explicit TypeWithDict(std::type_info const& t);
 
-    template <typename T>
-    explicit TypeWithDict(T const& t) : type_(Reflex::Type::ByTypeInfo(typeid(t))) {
-    }
-
-    TypeWithDict(TypeWithDict const& type, TypeModifiers modifiers);
+    explicit TypeWithDict(std::type_info const& t, Long_t property);
 
     explicit TypeWithDict(Reflex::Type const& type);
+
+    template <typename T>
+    explicit TypeWithDict(T const& t) :
+      typeInfo_(&typeid(t)),
+      type_(Reflex::Type::ByTypeInfo(typeid(t))),
+      class_(TClass::GetClass(typeid(t))),
+      dataType_(TDataType::GetDataType(TDataType::GetType(typeid(t)))) {
+    }
+
+    explicit TypeWithDict(TypeWithDict const& type, Long_t property);
+
+    explicit TypeWithDict(TClass* type, Long_t property = (Long_t)kIsClass);
+
+    explicit TypeWithDict(TMethodArg* arg);
 
     static TypeWithDict
     byName(std::string const& className);
 
+    static TypeWithDict
+    byName(std::string const& className, Long_t property);
+
     // Print out the name of the type, using the dictionary class name.
     void print(std::ostream& os) const;
 
-    std::string className() const;
+    std::string qualifiedName() const;
+
+    std::string unscopedName() const;
+
+    std::string scopedName() const;
 
     std::string userClassName() const;
 
     std::string friendlyClassName() const;
 
     bool hasDictionary() const;
-
-    bool isComplete() const;
 
     bool isClass() const;
 
@@ -90,8 +99,6 @@ namespace edm {
     bool isPointer() const;
 
     bool isReference() const;
-
-    bool isStruct() const;
 
     bool isTemplateInstance() const;
 
@@ -123,9 +130,7 @@ namespace edm {
       theFunction.Invoke(obj);
     }
 
-    std::string name(int mod = Reflex::FINAL|Reflex::SCOPED) const;
-
-    void* id() const;
+    void const* id() const;
 
 #ifndef __GCCXML__
     explicit operator bool() const;
@@ -144,6 +149,8 @@ namespace edm {
     size_t dataMemberSize() const;
 
     size_t functionMemberSize() const;
+
+    int stringToEnumValue(std::string const& enumMemberName) const;
 
     size_t size() const;
 
@@ -165,16 +172,18 @@ namespace edm {
     friend class TypeFunctionMembers;
     friend class TypeTemplateWithDict;
 
+    std::type_info const* typeInfo_;
     Reflex::Type type_;
+    TClass* class_;
+    TDataType* dataType_;
+    Long_t property_;
   };
 
   inline bool operator<(TypeWithDict const& a, TypeWithDict const& b) {
     return a.typeInfo().before(b.typeInfo());
   }
 
-  inline bool operator==(TypeWithDict const& a, TypeWithDict const& b) {
-    return a.typeInfo() == b.typeInfo();
-  }
+  bool operator==(TypeWithDict const& a, TypeWithDict const& b);
 
   inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b) {
     return !(a == b);
@@ -206,32 +215,39 @@ namespace edm {
 
   class TypeBases {
   public:
-    explicit TypeBases(TypeWithDict const& type) : type_(type.type_) {}
-    Reflex::Base_Iterator begin() const;
-    Reflex::Base_Iterator end() const;
+    explicit TypeBases(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
+    IterWithDict<TBaseClass> begin() const;
+    IterWithDict<TBaseClass> end() const;
     size_t size() const;
   private:
     Reflex::Type const& type_;
+    TClass* class_;
   };
 
   class TypeDataMembers {
   public:
-    explicit TypeDataMembers(TypeWithDict const& type) : type_(type.type_) {}
-    Reflex::Member_Iterator begin() const;
-    Reflex::Member_Iterator end() const;
+    explicit TypeDataMembers(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
+    IterWithDict<TDataMember> begin() const;
+    IterWithDict<TDataMember> end() const;
     size_t size() const;
   private:
     Reflex::Type const& type_;
+    TClass* class_;
   };
 
   class TypeFunctionMembers {
   public:
-    explicit TypeFunctionMembers(TypeWithDict const& type) : type_(type.type_) {}
+    explicit TypeFunctionMembers(TypeWithDict const& type) : type_(type.type_), class_(type.class_) {}
+/*
+    IterWithDict<TMethod> begin() const;
+    IterWithDict<TMethod> end() const;
+*/
     Reflex::Member_Iterator begin() const;
     Reflex::Member_Iterator end() const;
     size_t size() const;
   private:
     Reflex::Type const& type_;
+    TClass* class_;
   };
 }
 #endif

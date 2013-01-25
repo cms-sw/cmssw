@@ -9,7 +9,7 @@ BaseWithDict:  A holder for a base class
 
 #include <string>
 
-#include "Reflex/Base.h"
+class TBaseClass;
 
 namespace edm {
 
@@ -17,9 +17,9 @@ namespace edm {
 
   class BaseWithDict {
   public:
-    BaseWithDict() : base_() {}
+    BaseWithDict();
 
-    explicit BaseWithDict(Reflex::Base const& base) : base_(base) {}
+    explicit BaseWithDict(TBaseClass* baseClass);
 
     std::string name() const;
 
@@ -29,7 +29,7 @@ namespace edm {
 
   private:
 
-    Reflex::Base base_;
+    TBaseClass* baseClass_;
   };
 
 }

@@ -120,7 +120,7 @@ namespace edm {
       TypeWithDict null;
       for(TypeWithDict x(t.toType()); x != null && x != t; t = x, x = t.toType()) {}
 
-      std::string name(t.name());
+      std::string name(t.scopedName());
       boost::trim(name);
 
       if(foundTypes().end() != foundTypes().find(name) || missingTypes().end() != missingTypes().find(name)) {
@@ -247,7 +247,7 @@ namespace edm {
                            std::vector<TypeWithDict>& baseTypes) {
 
     TypeWithDict type(typeID.typeInfo());
-    if(type.isClass() || type.isStruct()) {
+    if(type.isClass()) {
 
       TypeBases bases(type);
       for(auto const& basex : bases) {

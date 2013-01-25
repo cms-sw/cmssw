@@ -7,6 +7,9 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 namespace edm {
+
+  FunctionWithDict::FunctionWithDict(Reflex::Member const& function) : function_(function) {}
+
   std::string
   FunctionWithDict::name() const {
     return function_.Name();
