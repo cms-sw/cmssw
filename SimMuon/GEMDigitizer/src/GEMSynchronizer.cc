@@ -25,12 +25,11 @@ GEMSynchronizer::GEMSynchronizer(const edm::ParameterSet& config):
   signalPropagationSpeed_ = config.getParameter<double>("signalPropagationSpeed");
   cosmics_ = config.getParameter<bool>("cosmics");
   bxwidth_ = config.getParameter<double>("bxwidth");
-  minBunch_ = config.getParameter<int>("minBunch");
 
   // signal propagation speed in vacuum in [m/s]
   const double cspeed = 299792458;
   // signal propagation speed in material in [cm/ns]
-  signalPropagationSpeed_ = signalPropagationSpeed_ * cspeed * 1e+2 * 1e9;
+  signalPropagationSpeed_ = signalPropagationSpeed_ * cspeed * 1e+2 * 1e-9;
 }
 
 
@@ -105,10 +104,20 @@ int GEMSynchronizer::getSimHitBx(const PSimHit* simhit)
     float referenceTime = calibrationTime + halfStripLength/signalPropagationSpeed_ + averageShapingTime_;
     float timeDifference = cosmics_ ? (simhitTime - referenceTime)/COSMIC_PAR : simhitTime - referenceTime;
 
-    // assign the bunch crossing
-    bx = int((timeDifference)/bxwidth_) + minBunch_;
-  }
 
+    // assign the bunch crossing
+    bx = int((timeDifference)/bxwidth_) + 0.5;
+
+    // check time
+    const bool debug( true );
+    if (debug)
+      {
+	std::cout<<"checktime "<<bx<<" "<<timeDifference<<" "<<simhitTime<<" "<<referenceTime<<" "<<tof<<" "<<averagePropagationTime<<std::endl;
+// 	std::cout <<  "TOF: " << tof << " AvePropTime: " << averagePropagationTime 
+// 		  << " Tsimhit: " << simhitTime << " Treference: " << referenceTime 
+// 		  << " TimeDiff: " << timeDifference << " bx: " << bx << std::endl;
+      }
+  }
   return bx;
 }
 
