@@ -14,6 +14,7 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <typeinfo>
 #include "DataFormats/Common/interface/TestHandle.h"
+#include "Cintex/Cintex.h"
 
 class testExpressionParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testExpressionParser);
@@ -22,7 +23,7 @@ class testExpressionParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
+  void setUp() {ROOT::Cintex::Cintex::Enable();}
   void tearDown() {}
   void checkAll(); 
   void testStringToEnum();
@@ -181,7 +182,7 @@ void testExpressionParser::checkAll() {
     checkCandidate("min(daughter(0).pt, daughter(1).pt)", std::min(cand.daughter(0)->pt(), cand.daughter(1)->pt()), lazyMode);
     checkCandidate("max(daughter(0).pt, daughter(1).pt)", std::max(cand.daughter(0)->pt(), cand.daughter(1)->pt()), lazyMode);
     checkCandidate("deltaPhi(daughter(0).phi, daughter(1).phi)", reco::deltaPhi(cand.daughter(0)->phi(), cand.daughter(1)->phi()));
-    // chech also opposite order, to see that the sign is correct
+    // check also opposite order, to see that the sign is correct
     checkCandidate("deltaPhi(daughter(1).phi, daughter(0).phi)", reco::deltaPhi(cand.daughter(1)->phi(), cand.daughter(0)->phi())); 
     checkCandidate("deltaR(daughter(0).eta, daughter(0).phi, daughter(1).eta, daughter(1).phi)", reco::deltaR(*cand.daughter(0), *cand.daughter(1)));
     }

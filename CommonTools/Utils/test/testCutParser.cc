@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <typeinfo>
+#include "Cintex/Cintex.h"
 
 class testCutParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testCutParser);
@@ -15,7 +16,7 @@ class testCutParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {}
+  void setUp() {ROOT::Cintex::Cintex::Enable();}
   void tearDown() {}
   void checkAll(); 
   void check(const std::string &, bool);
