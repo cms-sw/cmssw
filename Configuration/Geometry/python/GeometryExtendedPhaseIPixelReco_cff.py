@@ -7,15 +7,7 @@ from Configuration.Geometry.GeometryExtendedPhaseIPixel_cff import *
 # Reconstruction geometry services
 #  Tracking Geometry
 #bah - well, this is not a cfi!
-#from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
-#for now - copy it in. we'll need to clone it
-from Geometry.CSCGeometry.cscGeometry_cfi import *
-from Geometry.RPCGeometry.rpcGeometry_cfi import *
-from Geometry.DTGeometry.dtGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingSLHCGeometry_cfi import *
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
-
+from Geometry.CommonDetUnit.globalTrackingSLHCGeometry_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
