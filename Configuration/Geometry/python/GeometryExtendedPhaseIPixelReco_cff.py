@@ -18,7 +18,7 @@ from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
 #  Alignment
-from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
 from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
 from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 trackerSLHCGeometry.applyAlignment = cms.bool(False)
