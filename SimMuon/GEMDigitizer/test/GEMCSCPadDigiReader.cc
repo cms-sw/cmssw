@@ -4,7 +4,7 @@
 /** \class GEMDigiReader
  *  Dumps GEM-CSC trigger pad digis 
  *  
- *  $Id: GEMCSCPadDigiReader.cc,v 1.1 2013/01/18 04:42:32 khotilov Exp $
+ *  $Id: GEMCSCPadDigiReader.cc,v 1.2 2013/01/18 05:48:17 khotilov Exp $
  *  \authors: Vadim Khotilovich
  */
 
@@ -57,7 +57,7 @@ GEMCSCPadDigiReader::GEMCSCPadDigiReader(const edm::ParameterSet& pset)
 
 void GEMCSCPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eventSetup)
 {
-  cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
+  //cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
   edm::Handle<GEMCSCPadDigiCollection> pads;
   event.getByLabel(label_pads_, pads);
@@ -65,68 +65,62 @@ void GEMCSCPadDigiReader::analyze(const edm::Event & event, const edm::EventSetu
   edm::Handle<GEMDigiCollection> digis;
   event.getByLabel(label_digis_, digis);
 
-  edm::ESHandle<GEMGeometry> pDD;
-  eventSetup.get<MuonGeometryRecord>().get( pDD );
+  edm::ESHandle<GEMGeometry> geometry;
+  eventSetup.get<MuonGeometryRecord>().get( geometry );
  
-  /* 
-  size_t digi_dets_size = std::distance(digis->begin(), digis->end());
-  size_t pads_dets_size = std::distance(pads->begin(), pads->end());
-  cout<<"#dets with digis = "<<digi_dets_size<<"  with pad digis = "<<pads_dets_size<<"   "
-      <<( (digi_dets_size == pads_dets_size) ? "GOOD" : "BAD")<<endl;
-  */
-
-  GEMCSCPadDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = pads->begin();	detUnitIt != pads->end(); ++detUnitIt)
+  for (auto pad_range_it = pads->begin(); pad_range_it != pads->end(); ++pad_range_it)
   {
-    const GEMDetId& id = (*detUnitIt).first;
-    const GEMEtaPartition* roll = pDD->etaPartition(id);
-
-    //if(id.rawId() != 637567293) continue;
+    auto id = (*pad_range_it).first;
+    auto roll = geometry->etaPartition(id);
 
     // GEMDetId print-out
     cout<<"--------------"<<endl;
     //cout<<"id: "<<id.rawId()<<" #strips "<<roll->nstrips()<<"  #pads "<<roll->npads()<<endl;
 
     // retrieve this DetUnit's digis
-    std::map< std::pair<unsigned int, int>, // #pad, BX
-              std::vector<unsigned int>              // digi strip numbers
-      > digi_map;
+    std::map< std::pair<int, int>, // #pad (starting from 1), BX
+              std::vector<int>     // digi strip numbers (starting from 1)
+            > digi_map;
     auto digis_in_det = digis->get(id);
+    cout<<"strip digis in detid: ";
     for (auto d = digis_in_det.first; d != digis_in_det.second; ++d)
     {
-      unsigned int pad_num = 1 + static_cast<unsigned int>( roll->padOfStrip(d->strip()) );
-      digi_map[std::make_pair(pad_num, d->bx())].push_back(d->strip());
+      int pad_num = 1 + static_cast<int>( roll->padOfStrip(d->strip()) ); // d->strip() is int
+      digi_map[ make_pair(pad_num, d->bx()) ].push_back( d->strip() );
+      cout<<"  ("<<d->strip()<<","<<d->bx()<<") -> "<<pad_num;
     }
+    cout<<endl;
 
     // loop over pads of this DetUnit and print stuff
-    auto pads_range = (*detUnitIt).second;
-    for (auto padIt = pads_range.first; padIt != pads_range.second; ++padIt)
+    auto pads_range = (*pad_range_it).second;
+    for (auto p = pads_range.first; p != pads_range.second; ++p)
     {
-      cout<<id <<" paddigi(pad,bx) "<<*padIt<<endl;
-      if (padIt->pad() < 1 || padIt->pad() > roll->npads() )
-      {
-        cout <<" XXXXXXXXXXXXX Problem! "<<id<<" has pad digi with too large pad# = "<<padIt->pad()<<endl;
-      }
-      unsigned int first_strip = roll->firstStripInPad(padIt->pad() - 1);
-      unsigned int last_strip = roll->lastStripInPad(padIt->pad() - 1);
+      int first_strip = roll->firstStripInPad(p->pad()); // p->pad() is int, firstStripInPad returns int
+      int last_strip = roll->lastStripInPad(p->pad());
 
-      auto strips = digi_map[std::make_pair(padIt->pad(), padIt->bx())];
-      std::vector<unsigned int> pads_strips;
-      remove_copy_if(strips.begin(), strips.end(), 
-                     inserter(pads_strips, pads_strips.end()), 
-                     [first_strip, last_strip](unsigned int s) { return s < first_strip || s > last_strip; }
+      if (p->pad() < 1 || p->pad() > roll->npads() )
+      {
+        cout <<" XXXXXXXXXXXXX Problem! "<<id<<" has pad digi with too large pad# = "<<p->pad()<<endl;
+      }
+
+      auto& strips = digi_map[ make_pair(p->pad(), p->bx()) ];
+      std::vector<int> pads_strips;
+      remove_copy_if(strips.begin(), strips.end(), inserter(pads_strips, pads_strips.end()),
+                     [first_strip, last_strip](int s)
+                     {
+                       return s < first_strip || s > last_strip;
+                     }
                     );
-      cout<<" has "<<pads_strips.size()<<" strip digis at strips ";
-      copy(pads_strips.begin(), pads_strips.end(), ostream_iterator<unsigned int>(cout, " "));
+      cout<<id <<" paddigi(pad,bx) "<<p->pad()<<"  "<<*p<<"   has "<<pads_strips.size()
+          <<" strip digis strips in range ["<<first_strip<<","<<last_strip<<"]: ";
+      copy(pads_strips.begin(), pads_strips.end(), ostream_iterator<int>(cout, " "));
       cout<<endl;
     }
 
-
-  }// for layers
+  }// for (detids with pads)
 
   cout<<"--------------"<<endl;
 }
-
 
 
 #endif
