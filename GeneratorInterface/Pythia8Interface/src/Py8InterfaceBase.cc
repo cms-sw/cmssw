@@ -22,6 +22,9 @@ Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps )
   fMasterGen.reset(new Pythia);
   fDecayer.reset(new Pythia);
 
+  fMasterGen->readString("Next:numberShowEvent = 0");
+  fDecayer->readString("Next:numberShowEvent = 0");
+
   // RandomP8* RP8 = new RandomP8();
   fMasterGen->setRndmEnginePtr( new RandomP8() );
   fDecayer->setRndmEnginePtr( new RandomP8() );
