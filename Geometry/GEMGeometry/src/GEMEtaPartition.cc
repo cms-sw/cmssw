@@ -4,63 +4,45 @@
 
 
 GEMEtaPartition::GEMEtaPartition(GEMDetId id, BoundPlane::BoundPlanePointer bp, GEMEtaPartitionSpecs* rrs) :
-  GeomDetUnit(bp), _id(id),_rrs(rrs)
+  GeomDetUnit(bp), id_(id),specs_(rrs)
 {
   setDetId(id);
 }
 
 GEMEtaPartition::~GEMEtaPartition()
 {
-  delete _rrs; //Assume the roll owns it specs (specs are not shared)
-}
-
-const  GEMEtaPartitionSpecs*
-GEMEtaPartition::specs() const
-{
-  return _rrs;
-}
-
-GEMDetId
-GEMEtaPartition::id() const
-{
-  return _id;
+  delete specs_; //Assume the roll owns it specs (specs are not shared)
 }
 
 const Topology&
 GEMEtaPartition::topology() const
 {
-  return _rrs->topology();
+  return specs_->topology();
 }
 
 const StripTopology&
 GEMEtaPartition::specificTopology() const
 {
-  return _rrs->specificTopology();
+  return specs_->specificTopology();
 }
 
 const Topology&
 GEMEtaPartition::padTopology() const
 {
-  return _rrs->padTopology();
+  return specs_->padTopology();
 }
 
 const StripTopology&
 GEMEtaPartition::specificPadTopology() const
 {
-  return _rrs->specificPadTopology();
+  return specs_->specificPadTopology();
 }
 
 const GeomDetType& 
 GEMEtaPartition::type() const
 {
-  return (*_rrs);
+  return (*specs_);
 }
-
-/*
-const GEMChamber* GEMEtaPartition::chamber() const {
-  return theCh;
-}
-*/
 
 int 
 GEMEtaPartition::nstrips() const
@@ -156,7 +138,7 @@ GEMEtaPartition::firstStripInPad(int pad) const
 {
   float p = static_cast<float>(pad) - 0.9999;
   LocalPoint lp = specificPadTopology().localPosition(p);
-  return static_cast<int>(strip(lp));
+  return static_cast<int>(strip(lp)) + 1;
 }
 
 int
@@ -164,14 +146,6 @@ GEMEtaPartition::lastStripInPad(int pad) const
 {
   float p = static_cast<float>(pad) - 0.0001;
   LocalPoint lp = specificPadTopology().localPosition(p);
-  return static_cast<int>(strip(lp));
+  return static_cast<int>(strip(lp)) + 1;
 }
 
-
-/*
-void
-GEMEtaPartition::setChamber(const GEMChamber* ch)
-{
-  theCh = ch; 
-}
-*/
