@@ -884,7 +884,6 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     setup.toymcsampler->SetProofConfig(setup.pc.get());
   }   
 
-
   std::auto_ptr<HybridCalculator> hc(new HybridCalculator(data, setup.modelConfig, setup.modelConfig_bonly, setup.toymcsampler.get()));
   if (genNuisances_ || !genGlobalObs_) {
       if (withSystematics) {
@@ -954,38 +953,6 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       }
   }
 
-#if ROOT_VERSION_CODE <  ROOT_VERSION(5,34,00)
-  static const char * istr = "__HybridNew__importanceSamplingDensity";
-  if(importanceSamplingNull_) {
-    std::cerr << "ALERT: running with importance sampling not validated (and probably not working)." << std::endl;
-    if(verbose > 1) std::cout << ">>> Enabling importance sampling for null hyp." << std::endl;
-    if(!withSystematics) {
-      throw std::invalid_argument("Importance sampling is not available without systematics");
-    }
-    RooArgSet importanceSnapshot;
-    importanceSnapshot.addClone(poi);
-    importanceSnapshot.addClone(*mc_s->GetNuisanceParameters());
-    if (verbose > 2) importanceSnapshot.Print("V");
-    hc->SetNullImportanceDensity(mc_b->GetPdf(), &importanceSnapshot);
-  }
-  if(importanceSamplingAlt_) {
-    std::cerr << "ALERT: running with importance sampling not validated (and probably not working)." << std::endl;
-    if(verbose > 1) std::cout << ">>> Enabling importance sampling for alt. hyp." << std::endl;
-    if(!withSystematics) {
-      throw std::invalid_argument("Importance sampling is not available without systematics");
-    }
-    if (w->pdf(istr) == 0) {
-      w->factory("__oneHalf__[0.5]");
-      RooAddPdf *sum = new RooAddPdf(istr, "fifty-fifty", *mc_s->GetPdf(), *mc_b->GetPdf(), *w->var("__oneHalf__"));
-      w->import(*sum); 
-    }
-    RooArgSet importanceSnapshot;
-    importanceSnapshot.addClone(poi);
-    importanceSnapshot.addClone(*mc_s->GetNuisanceParameters());
-    if (verbose > 2) importanceSnapshot.Print("V");
-    hc->SetAltImportanceDensity(w->pdf(istr), &importanceSnapshot);
-  }
-#endif
 
   return hc;
 }

@@ -13,6 +13,7 @@
 #include <RooDataSet.h>
 #include <RooRandom.h>
 #include <../interface/ProfilingTools.h>
+#include "RooStats/DetailedOutputAggregator.h"
 
 using namespace std;
 
@@ -204,7 +205,7 @@ toymcoptutils::SinglePdfGenInfo::generateWithHisto(RooRealVar *&weightVar, bool 
             for (int iz = 1, nz = h3.GetNbinsZ(); iz <= nz; ++iz) {
                 x->setVal(h3.GetXaxis()->GetBinCenter(ix));
                 y->setVal(h3.GetYaxis()->GetBinCenter(iy));
-                z->setVal(h3.GetYaxis()->GetBinCenter(iz));
+                z->setVal(h3.GetZaxis()->GetBinCenter(iz));
                 data->add(observables_, weightScale*(asimov ? h3.GetBinContent(ix,iy,iz) : RooRandom::randomGenerator()->Poisson(h3.GetBinContent(ix,iy,iz))) );
             } } }
             }
@@ -317,6 +318,8 @@ toymcoptutils::SimPdfGenInfo::~SimPdfGenInfo()
 RooAbsData *  
 toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet* protoData, int forceEvents) 
 {
+    //std::cout << "SimPdfGenInfo::generate called" << std::endl;
+    //utils::printPdf(pdf_);
     RooAbsData *ret = 0;
     TString retName =  TString::Format("%sData", pdf_->GetName());
     if (cat_ != 0) {
@@ -449,13 +452,98 @@ toymcoptutils::SimPdfGenInfo::setCacheTemplates(bool cache)
 void
 ToyMCSamplerOpt::SetPdf(RooAbsPdf& pdf) 
 {
+    //std::cout << "ToyMCSamplerOpt::SetPdf called" << std::endl;
+    //utils::printPdf(&pdf);
     ToyMCSampler::SetPdf(pdf);
     delete _allVars; _allVars = 0; 
     delete globalObsValues_; globalObsValues_ = 0; globalObsIndex_ = -1;
     delete nuisValues_; nuisValues_ = 0; nuisIndex_ = -1;
 }
 
+RooDataSet* ToyMCSamplerOpt::GetSamplingDistributionsSingleWorker(RooArgSet& paramPointIn) {
+   //std::cout << "ToyMCSamplerOpt::GetSamplingDistributionsSingleWorker called" << std::endl;
+   //utils::printPdf(fPdf);
+   //std::cout << "paramPointIn: " << std::endl;
+   //paramPointIn.Print("V");
+   //// <<<<<<=======================>>>>>>
+   //return ToyMCSampler::GetSamplingDistributionsSingleWorker(paramPointIn);
+   /// Taken from http://root.cern.ch/viewcvs/tags/v5-34-03/roofit/roostats/src/ToyMCSampler.cxx?revision=46856&view=markup
+
+   ClearCache();
+
+   CheckConfig();
+
+   // important to cache the paramPoint b/c test statistic might 
+   // modify it from event to event
+   RooArgSet *paramPoint = (RooArgSet*) paramPointIn.snapshot();
+   RooArgSet *allVars = fPdf->getVariables();
+   RooArgSet *saveAll = (RooArgSet*) allVars->snapshot();
+
+   RooStats::DetailedOutputAggregator detOutAgg;
+
+   // counts the number of toys in the limits set for adaptive sampling
+   // (taking weights into account; always on first test statistic)
+   Double_t toysInTails = 0.0;
+
+   for (Int_t i = 0; i < fMaxToys; ++i) {
+      // need to check at the beginning for case that zero toys are requested
+      if (toysInTails >= fToysInTails  &&  i+1 > fNToys) break;
+
+      // status update
+      if ( i% 500 == 0 && i>0 ) {
+         oocoutP((TObject*)0,Generation) << "generated toys: " << i << " / " << fNToys;
+         if (fToysInTails) ooccoutP((TObject*)0,Generation) << " (tails: " << toysInTails << " / " << fToysInTails << ")" << std::endl;
+         else ooccoutP((TObject*)0,Generation) << endl;
+      }
+
+
+      // TODO: change this treatment to keep track of all values so that the threshold
+      // for adaptive sampling is counted for all distributions and not just the
+      // first one.
+      Double_t valueFirst = -999.0, weight = 1.0;
+
+      // set variables to requested parameter point
+      *allVars = *saveAll; // important for example for SimpleLikelihoodRatioTestStat
+      
+      RooAbsData* toydata = GenerateToyData(*paramPoint, weight);
+
+      *allVars = *fParametersForTestStat; // GP: MOVED AFTER GenerateToyData OTHERWISE IT DOES NOT WORK
+      
+      const RooArgList* allTS = EvaluateAllTestStatistics(*toydata, *fParametersForTestStat, detOutAgg);
+      if (allTS->getSize() > Int_t(fTestStatistics.size()))
+        detOutAgg.AppendArgSet( fGlobalObservables, "globObs_" );
+      if (RooRealVar* firstTS = dynamic_cast<RooRealVar*>(allTS->first()))
+         valueFirst = firstTS->getVal();
+
+      delete toydata;
+
+      // check for nan
+      if(valueFirst != valueFirst) {
+         oocoutW((TObject*)NULL, Generation) << "skip: " << valueFirst << ", " << weight << endl;
+         continue;
+      }
+
+      detOutAgg.CommitSet(weight);
+
+      // adaptive sampling checks
+      if (valueFirst <= fAdaptiveLowLimit  ||  valueFirst >= fAdaptiveHighLimit) {
+         if(weight >= 0.) toysInTails += weight;
+         else toysInTails += 1.;
+      }
+   }
+
+   // clean up
+   *allVars = *saveAll;
+   delete saveAll;
+   delete allVars;
+   delete paramPoint;
+
+   return detOutAgg.GetAsDataSet(fSamplingDistName, fSamplingDistName);
+}
+
 RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/, double& weight) const {
+   //std::cout << "ToyMCSamplerOpt::GenerateToyData called" << std::endl;
+   //utils::printPdf(fPdf);
    weight = 1;
    // This method generates a toy data set for the given parameter point taking
    // global observables into account.
@@ -548,18 +636,8 @@ RooAbsData* ToyMCSamplerOpt::GenerateToyData(RooArgSet& /*nullPOI*/, double& wei
 RooAbsData *  
 ToyMCSamplerOpt::Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataSet* protoData, int forceEvents) const 
 {
-   if(fProtoData) {
-      protoData = fProtoData;
-      forceEvents = protoData->numEntries();
-   }
-   int events = forceEvents;
-   if (events == 0) events = fNEvents;
-   if (events != 0) {
-      assert(events == 1);
-      assert(protoData == 0);
-      RooAbsData *ret = pdf.generate(observables, events);
-      return ret;
-   }
+   //std::cout << "ToyMCSamplerOpt::Generate called" << std::endl;
+   //utils::printPdf(&pdf);
    toymcoptutils::SimPdfGenInfo *& info = genCache_[&pdf];
    if (info == 0) { 
        info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents);
