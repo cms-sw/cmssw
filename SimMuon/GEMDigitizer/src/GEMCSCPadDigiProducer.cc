@@ -56,14 +56,14 @@ void GEMCSCPadDigiProducer::buildPads(const GEMDigiCollection &det_digis, GEMCSC
   for(auto p: etaPartitions)
   {
     // set of <pad, bx> pairs, sorted first by pad then by bx
-    std::set<std::pair<unsigned int, int> > proto_pads;
+    std::set<std::pair<int, int> > proto_pads;
   
     // walk over digis in this partition, 
     // and stuff them into a set of unique pads (equivalent of OR operation)
     auto digis = det_digis.get(p->id());
     for (auto d = digis.first; d != digis.second; ++d)
     {
-      unsigned int pad_num = 1 + static_cast<unsigned int>( p->padOfStrip(d->strip()) );
+      int pad_num = 1 + static_cast<int>( p->padOfStrip(d->strip()) );
       auto pad = std::make_pair(pad_num, d->bx());
       proto_pads.insert(pad);
     }
