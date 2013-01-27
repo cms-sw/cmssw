@@ -17,9 +17,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: GenMuonRadiationAlgorithm.h,v 1.4 2013/01/25 07:02:12 veelken Exp $
+ * $Id: GenMuonRadiationAlgorithm.h,v 1.5 2013/01/27 10:43:23 veelken Exp $
  *
  */
 
@@ -28,6 +28,8 @@
 #include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
 
 #include<string>
+
+class myPythia6ServiceWithCallback;
 
 class GenMuonRadiationAlgorithm
 {
@@ -46,7 +48,7 @@ class GenMuonRadiationAlgorithm
   gen::PhotosInterface* photos_;
   static bool photos_isInitialized_;
 
-  gen::Pythia6Service* pythia_;
+  myPythia6ServiceWithCallback* pythia_;
   static bool pythia_isInitialized_;
 
   int verbosity_;
