@@ -145,28 +145,42 @@ class TwoHiggsUnconstrained(TwoHiggsBase):
         self.modelBuilder.doSet("POI",poi)
 
 class SingletMixing(TwoHiggsBase):
+    """ 3 Possibilities for the signal yields:
+                           MH Higgs        SM Higgs
+      - default:           r               r_SM := 1 - r
+      - with BSM:          r*(1-BR_BSM)    r_SM := 1 - r
+      - BSM & Visible mu:  r               r_SM := 1 - r/(1-BR_BSM) 
+      note that in the third case there's no way to enforce at model level that r/(1-BR_BSM) <= 1
+    """
     def __init__(self): 
         TwoHiggsBase.__init__(self)
         self.withBSM = False
+        self.useVisibleMu = False
     def getHiggsYieldScaleSM(self,production,decay, energy):
         return "one_minus_r"
     def getHiggsYieldScale(self,production,decay, energy):
-        return "r_times_BR" if self.withBSM else "r"
+        return "r_times_BR" if (self.withBSM and not self.useVisibleMu) else "r"
     def setPhysicsOptions(self,physOptions):
         self.setPhysicsOptionsBase(physOptions)
         for po in physOptions:
             if po == "BSMDecays": 
                 self.withBSM = True
+            if po == "UseVisibleMu": 
+                self.useVisibleMu = True
     def doParametersOfInterest(self):
         """Create POI and other parameters, and define the POI set."""
         # take care of the searched-for Higgs yield
         self.modelBuilder.doVar("r[1,0,1]");
         poi = "r"
         # and of the SM one
-        self.modelBuilder.factory_("expr::one_minus_r(\"(1-@0)\", r)");
+        if self.withBSM and self.useVisibleMu:
+            self.modelBuilder.factory_("expr::one_minus_r(\"max(0,1-@0/(1-@1))\", r, BR_BSM[0,0,1])");
+        else:
+            self.modelBuilder.factory_("expr::one_minus_r(\"(1-@0)\", r)");
         # if BSM decays are allowed
         if self.withBSM:
-            self.modelBuilder.factory_("expr::r_times_BR(\"@0*(1-@1)\", r, BR_BSM[1,0,4])");
+            if not self.useVisibleMu:
+                self.modelBuilder.factory_("expr::r_times_BR(\"@0*(1-@1)\", r, BR_BSM[0,0,1])");
             poi += ",BR_BSM"
         # take care of masses
         poi += self.doMasses()
