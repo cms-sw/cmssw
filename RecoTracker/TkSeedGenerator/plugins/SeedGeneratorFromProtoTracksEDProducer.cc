@@ -100,7 +100,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
 	GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
 	SeedFromConsecutiveHitsCreator seedCreator;
 	seedCreator.init(region, es, 0);
-	SeedFromConsecutiveHitsCreator().makeSeed(*result, SeedingHitSet(hits[0], hits[1], hits.size() >2 ? hits[2] : SeedingHitSet::nullPtr() ));
+	seedCreator.makeSeed(*result, SeedingHitSet(hits[0], hits[1], hits.size() >2 ? hits[2] : SeedingHitSet::nullPtr() ));
       }
     }
   } 
