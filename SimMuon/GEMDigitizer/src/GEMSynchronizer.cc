@@ -105,7 +105,7 @@ int GEMSynchronizer::getSimHitBx(const PSimHit* simhit)
     float timeDifference = cosmics_ ? (simhitTime - referenceTime)/COSMIC_PAR : simhitTime - referenceTime;
 
     // assign the bunch crossing
-    bx = int((timeDifference)/bxwidth_ + 0.5);
+    bx = static_cast<int>( std::round((timeDifference)/bxwidth_) );
 
     // check time
     const bool debug( true );
