@@ -23,7 +23,17 @@ public:
 	     const L1MuTriggerPtScale* ptScale);
 
   CSCTFPtLUT(const CSCTFPtLUT&);
-  ~CSCTFPtLUT() { if(pt_lut) delete [] pt_lut; pt_lut = NULL; }
+  // ~CSCTFPtLUT() { if(pt_lut) delete [] pt_lut; pt_lut = NULL; }
+   ~CSCTFPtLUT()
+     {
+       _instances--; 
+       if(pt_lut && _instances==0)
+         {
+           delete [] pt_lut;
+           pt_lut = NULL;
+           lut_read_in = false;
+         }
+     }
 
   CSCTFPtLUT& operator=(const CSCTFPtLUT&);
 
@@ -54,6 +64,7 @@ public:
   static const int getPtbyMLH;
     
  private:
+  static int _instances;
   static ptdat* pt_lut;
   static bool lut_read_in;
   const L1MuTriggerScales* trigger_scale;
