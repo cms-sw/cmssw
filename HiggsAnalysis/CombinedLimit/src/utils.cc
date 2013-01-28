@@ -497,14 +497,8 @@ void utils::CheapValueSnapshot::Print(const char *fmt) const {
     }
 }
 
-void utils::setPhysicsModelParameters( std::string setPhysicsModelParameterExpression, RooStats::ModelConfig *mc) {
+void utils::setModelParameters( const std::string & setPhysicsModelParameterExpression, const RooArgSet & params) {
 
-  const RooArgSet * POI = mc->GetParametersOfInterest();
-  if (!POI) {
-    cout << "setPhysicsModelParameter Warning: ModelConfig " << mc->GetName() << " does not have any parameters of interest. Doing nothing.\n";
-    return;
-  }
- 
   vector<string> SetParameterExpressionList;  
   boost::split(SetParameterExpressionList, setPhysicsModelParameterExpression, boost::is_any_of(","));
   for (UInt_t p = 0; p < SetParameterExpressionList.size(); ++p) {
@@ -515,7 +509,7 @@ void utils::setPhysicsModelParameters( std::string setPhysicsModelParameterExpre
       std::cout << "Error parsing physics model parameter expression : " << SetParameterExpressionList[p] << endl;
     } else {
       double PhysicsParameterValue = atof(SetParameterExpression[1].c_str());
-      RooRealVar *tmpParameter = (RooRealVar*)POI->find(SetParameterExpression[0].c_str());      
+      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterExpression[0].c_str());      
       if (tmpParameter) {
         cout << "Set Default Value of Parameter " << SetParameterExpression[0] 
              << " To : " << PhysicsParameterValue << "\n";
@@ -528,14 +522,8 @@ void utils::setPhysicsModelParameters( std::string setPhysicsModelParameterExpre
 
 }
 
-void utils::setPhysicsModelParameterRanges( std::string setPhysicsModelParameterRangeExpression, RooStats::ModelConfig *mc) {
+void utils::setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params) {
 
-  const RooArgSet * POI = mc->GetParametersOfInterest();
-  if (!POI) {
-    cout << "setPhysicsModelParameter Warning: ModelConfig " << mc->GetName() << " does not have any parameters of interest. Doing nothing.\n";
-    return;
-  }
- 
   vector<string> SetParameterRangeExpressionList;  
   boost::split(SetParameterRangeExpressionList, setPhysicsModelParameterRangeExpression, boost::is_any_of(":"));
   for (UInt_t p = 0; p < SetParameterRangeExpressionList.size(); ++p) {
@@ -547,7 +535,7 @@ void utils::setPhysicsModelParameterRanges( std::string setPhysicsModelParameter
     } else {
       double PhysicsParameterRangeLow = atof(SetParameterRangeExpression[1].c_str());
       double PhysicsParameterRangeHigh = atof(SetParameterRangeExpression[2].c_str());
-      RooRealVar *tmpParameter = (RooRealVar*)POI->find(SetParameterRangeExpression[0].c_str());            
+      RooRealVar *tmpParameter = (RooRealVar*)params.find(SetParameterRangeExpression[0].c_str());            
       if (tmpParameter) {
         cout << "Set Range of Parameter " << SetParameterRangeExpression[0] 
              << " To : (" << PhysicsParameterRangeLow << "," << PhysicsParameterRangeHigh << ")\n";

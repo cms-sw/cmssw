@@ -85,9 +85,9 @@ namespace utils {
     };
 
     // Set values of physics model parameters
-    void setPhysicsModelParameters( std::string setPhysicsModelParameterExpression, RooStats::ModelConfig *mc);
+    void setModelParameters( const std::string & setPhysicsModelParameterExpression, const RooArgSet & params);
     // Set range of physics model parameters
-    void setPhysicsModelParameterRanges( std::string setPhysicsModelParameterRangeExpression, RooStats::ModelConfig *mc);
+    void setModelParameterRanges( const std::string & setPhysicsModelParameterRangeExpression, const RooArgSet & params);
 
 }
 

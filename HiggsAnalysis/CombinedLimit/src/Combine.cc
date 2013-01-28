@@ -265,12 +265,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     //set physics model parameters
     //*********************************************
     if (setPhysicsModelParameterExpression_ != "") {
-      utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc);
-      utils::setPhysicsModelParameters( setPhysicsModelParameterExpression_, mc_bonly);
+      utils::setModelParameters( setPhysicsModelParameterExpression_, w->allVars());
     }
     if (setPhysicsModelParameterRangeExpression_ != "") {
-      utils::setPhysicsModelParameterRanges( setPhysicsModelParameterRangeExpression_, mc);
-      utils::setPhysicsModelParameterRanges( setPhysicsModelParameterRangeExpression_, mc_bonly);
+      utils::setModelParameterRanges( setPhysicsModelParameterRangeExpression_, w->allVars());
     }
 
     if (mc == 0) {  
