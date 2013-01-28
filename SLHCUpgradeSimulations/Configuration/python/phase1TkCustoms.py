@@ -51,6 +51,8 @@ def customise_Digi(process):
     return process
 
 def customise_Reco(process):
+    # Need this line to stop error about missing siPixelDigis.
+    process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
     # Next line is only in for the moment for debugging
     #process.load('Configuration.StandardSequences.Reconstruction_cff')
     #
