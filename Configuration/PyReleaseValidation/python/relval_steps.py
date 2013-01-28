@@ -384,7 +384,7 @@ step1Upgpixphase1Defaults = {'-s' : 'GEN,SIM',
                              '--beamspot' : 'Gauss',
                              '--datatier' : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
-                             '--geometry' : 'SLHC',
+                             '--geometry' : 'ExtendedPhaseIPixel',
                              '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
                              }
 def genup(fragment,howMuch):
@@ -621,7 +621,7 @@ step2Upgpixphase1Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--customise': 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-                 '--geometry' : 'SLHC'
+                 '--geometry' : 'ExtendedPhaseIPixel'
                   }
 steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
@@ -742,7 +742,7 @@ step3Upgpixphase1Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-                 '--geometry' : 'SLHC'
+                 '--geometry' : 'ExtendedPhaseIPixel'
                  }
                              
 
