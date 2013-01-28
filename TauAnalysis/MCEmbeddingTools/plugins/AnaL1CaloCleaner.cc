@@ -56,7 +56,9 @@ private:
 	Float_t p_;
 	Float_t eta_;
 	Float_t phi_;
-	Float_t len_;
+	Float_t len_ecal_;
+	Float_t len_hcal_;
+	Float_t len_ho_;
 	Float_t l1_upara_;
 	Float_t l1_uperp_;
 	Float_t calo_upara_;
@@ -137,12 +139,14 @@ AnaL1CaloCleaner::AnaL1CaloCleaner(const edm::ParameterSet& iConfig):
 	tree_->Branch("p", &p_, "p/F");
 	tree_->Branch("eta", &eta_, "eta/F");
 	tree_->Branch("phi", &phi_, "phi/F");
-	tree_->Branch("len", &len_, "len/F");
+	tree_->Branch("len_ecal", &len_ecal_, "len_ecal/F");
+	tree_->Branch("len_hcal", &len_hcal_, "len_hcal/F");
+	tree_->Branch("len_ho", &len_ho_, "len_ho/F");
 	tree_->Branch("l1_upara", &l1_upara_, "l1_upara/F");
 	tree_->Branch("l1_uperp", &l1_uperp_, "l1_uperp/F");
 	tree_->Branch("calo_upara", &calo_upara_, "calo_upara/F");
 	tree_->Branch("calo_uperp", &calo_uperp_, "calo_uperp/F");
-	tree_->Branch("charge", &charge_, "charge_/I");
+	tree_->Branch("charge", &charge_, "charge/I");
 }
 
 void
@@ -185,12 +189,18 @@ AnaL1CaloCleaner::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(colCaloLengthsMinus_, hLengthsMinus);
   iEvent.getByLabel(colCaloLengthsPlus_, hLengthsPlus);
   const std::map<unsigned int,float>& caloLengths = recoMuon->charge() < 0 ? *hLengthsMinus : *hLengthsPlus;
-  float len = 0.0f;
+  float len_ecal = 0.0f, len_hcal = 0.0f, len_ho = 0.0f;
   for(std::map<unsigned int, float>::const_iterator iter = caloLengths.begin(); iter != caloLengths.end(); ++iter)
   {
-    //std::string name = getKey(iter->first);
+    const DetId det(iter->first);
+    //std::string name = getKey(det);
     //std::cout << name << ": " << iter->second << std::endl;
-    len += iter->second;
+    if(det.det() == DetId::Ecal)
+      len_ecal += iter->second;
+    else if(det.det() == DetId::Hcal && det.subdetId() != HcalOuter)
+      len_hcal += iter->second;
+    else if(det.det() == DetId::Hcal && det.subdetId() == HcalOuter)
+      len_ho += iter->second;
   }
 
   // Compute the parallel and perpendicular projection wrt. the genmuon axis
@@ -214,7 +224,9 @@ AnaL1CaloCleaner::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   p_ = recoMuon->p();
   eta_ = recoMuon->eta();
   phi_ = recoMuon->phi();
-  len_ = len;
+  len_ecal_ = len_ecal;
+  len_hcal_ = len_hcal;
+  len_ho_ = len_ho;
   l1_upara_ = l1_u1u2.first;
   l1_uperp_ = l1_u1u2.second;
   calo_upara_ = calo_u1u2.first;
