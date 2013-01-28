@@ -27,16 +27,6 @@ def customise(process, inputProcess):
 
   recHitCaloCleanerByDistanceConfig = None
   if process.customization_options.cleaningMode == 'DEDX':
-    # CV: Compute expected energy deposits of muon in EB/EE, HB/HE and HO:
-    #      (1) compute distance traversed by muons produced in Z -> mu+ mu- decay
-    #          through individual calorimeter cells
-    #      (2) scale distances by expected energy loss dE/dx of muon
-    process.muonCaloDistances = cms.EDProducer('MuonCaloDistanceProducer',
-      trackAssociator = TrackAssociatorParameterBlock.TrackAssociatorParameters,
-      selectedMuons = process.customization_options.ZmumuCollection
-    )
-    process.ProductionFilterSequence += process.muonCaloDistances
-
     process.muonCaloEnergyDepositsByDistance = cms.EDProducer('MuonCaloCleanerByDistance',
       muons = cms.InputTag("muonCaloDistances", "muons"),
       distanceMapMuPlus = cms.InputTag("muonCaloDistances", "distancesMuPlus"),

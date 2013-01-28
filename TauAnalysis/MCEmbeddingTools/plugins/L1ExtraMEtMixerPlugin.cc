@@ -13,7 +13,8 @@
 #include <algorithm>
 
 L1ExtraMEtMixerPlugin::L1ExtraMEtMixerPlugin(const edm::ParameterSet& cfg)
-  : L1ExtraMixerPluginBase(cfg)
+  : L1ExtraMixerPluginBase(cfg),
+    srcMuons_(cfg.getParameter<edm::InputTag>("srcMuons"))
 {}
 
 void L1ExtraMEtMixerPlugin::registerProducts(edm::EDProducer& producer)
@@ -33,6 +34,9 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
   
   edm::Handle<l1extra::L1EtMissParticleCollection> met2;
   evt.getByLabel(src2_, met2);
+
+  edm::Handle<reco::CandidateCollection> muons;
+  evt.getByLabel(srcMuons_, muons);
 
   // CV: keep code general and do not assume 
   //     that there is exactly one MET object per event.
@@ -117,7 +121,28 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
       type = met2_bx->type();
     }
     double metSumPt = TMath::Sqrt(metSumPx*metSumPx + metSumPy*metSumPy);
-    
+
+    // Subtract contribution by muons that were removed from the event
+    for(reco::CandidateCollection::const_iterator iter = muons->begin(); iter != muons->end(); ++iter)
+    {
+      const reco::Candidate& cand = *iter;
+
+      // We subtract the average L1 ETM reconstructed for a single muon, which was determined
+      // in independent studies (see AnaL1CaloCleaner.cc).
+      double X = 0.0;
+      if(abs(cand.eta()) < 1.2)
+        X = 1.941 / cand.pt();
+      else if(abs(cand.eta()) < 1.7)
+        X = 1.261 / cand.pt();
+      else
+        X = 0.5 / cand.pt();
+
+      // The direction is given by the muon direction
+      metSumPx += X * cand.px();
+      metSumPy += X * cand.py();
+      metSumEt += X * cand.et();
+    }
+
     // CV: setting edm::Refs to L1Gct objects not implemented yet
     l1extra::L1EtMissParticle metSum_bx(
       reco::Candidate::LorentzVector(metSumPx, metSumPy, 0., metSumPt),

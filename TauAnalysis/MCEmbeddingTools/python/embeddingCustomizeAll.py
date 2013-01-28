@@ -272,16 +272,15 @@ def customise(process):
         module = getattr(process, mod)
         pth.remove(module)
 
-  if process.customization_options.embeddingMode.value() == "PF":
-    print "Using PF-embedding"
-    from TauAnalysis.MCEmbeddingTools.embeddingCustomizePF import customise as customisePF
-    customisePF(process)
-  elif process.customization_options.embeddingMode.value() == "RH":
-    print "Using RH-embedding"
-    from TauAnalysis.MCEmbeddingTools.embeddingCustomizeRH import customise as customiseRH
-    customiseRH(process, inputProcess)
-  else:
-    raise ValueError("Invalid Configuration parameter 'embeddingMode' = %s !!" % process.customization_options.embeddingMode.value())
+  # CV: Compute expected energy deposits of muon in EB/EE, HB/HE and HO:
+  #      (1) compute distance traversed by muons produced in Z -> mu+ mu- decay
+  #          through individual calorimeter cells
+  #      (2) scale distances by expected energy loss dE/dx of muon
+  from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
+  process.muonCaloDistances = cms.EDProducer('MuonCaloDistanceProducer',
+    trackAssociator = TrackAssociatorParameterBlock.TrackAssociatorParameters,
+    selectedMuons = process.customization_options.ZmumuCollection)
+  process.ProductionFilterSequence += process.muonCaloDistances
 
   # mix collections of L1Extra objects
   l1ExtraCollections = [
@@ -319,9 +318,12 @@ def customise(process):
       instanceLabel = l1ExtraCollection[1]
       l1extraParticleCollections.append(cms.PSet(
           pluginType = cms.string(pluginType),
-          instanceLabel = cms.string(instanceLabel),
-          srcSelectedMuons2 = srcSelectedMuons,
+	  instanceLabel = cms.string(instanceLabel),
+	  srcSelectedMuons2 = srcSelectedMuons,
           dRveto2 = cms.double(dRveto)))
+      if inputType == 'L1EtMissParticle':
+        l1extraParticleCollections[-1].srcMuons = cms.InputTag("muonCaloDistances", "muons")
+
   process.l1extraParticlesORG = process.l1extraParticles.clone()
   process.l1extraParticles = cms.EDProducer('L1ExtraMixer',
       src1 = cms.InputTag("l1extraParticlesORG"),                                          
@@ -332,6 +334,17 @@ def customise(process):
       pth = getattr(process,p)
       if "l1extraParticles" in pth.moduleNames():
           pth.replace(process.l1extraParticles, process.l1extraParticlesORG*process.l1extraParticles)
+
+  if process.customization_options.embeddingMode.value() == "PF":
+    print "Using PF-embedding"
+    from TauAnalysis.MCEmbeddingTools.embeddingCustomizePF import customise as customisePF
+    customisePF(process)
+  elif process.customization_options.embeddingMode.value() == "RH":
+    print "Using RH-embedding"
+    from TauAnalysis.MCEmbeddingTools.embeddingCustomizeRH import customise as customiseRH
+    customiseRH(process, inputProcess)
+  else:
+    raise ValueError("Invalid Configuration parameter 'embeddingMode' = %s !!" % process.customization_options.embeddingMode.value())
 
   # it should be the best solution to take the original beam spot for the
   # reconstruction of the new primary vertex

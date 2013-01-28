@@ -9,9 +9,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: L1ExtraMEtMixerPlugin.h,v 1.1 2012/10/09 09:00:24 veelken Exp $
+ * $Id: L1ExtraMEtMixerPlugin.h,v 1.2 2012/10/14 12:22:24 veelken Exp $
  *
  */
 
@@ -33,6 +33,8 @@ class L1ExtraMEtMixerPlugin : public L1ExtraMixerPluginBase
   virtual void registerProducts(edm::EDProducer&);
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
+ private:
+  edm::InputTag srcMuons_;
 };
 
 #endif
