@@ -89,7 +89,6 @@ void Analysis_Step5()
    MassPrediction(InputPattern, CutIndexTight, "Mass",  true, "7TeV_Tight");
    MassPrediction(InputPattern, CutIndexTight, "Mass", false, "8TeV_TightNoSMMC");
    MassPrediction(InputPattern, CutIndexTight, "Mass", false, "7TeV_TightNoSMMC");
-
    MassPrediction(InputPattern, 1, "Mass_Flip", true, "8TeV_Loose");
    MassPrediction(InputPattern, 1, "Mass_Flip", true, "7TeV_Loose");
    MassPrediction(InputPattern, CutIndex_Flip, "Mass_Flip",  true, "8TeV_Tight");
@@ -105,7 +104,7 @@ void Analysis_Step5()
    CheckPrediction(InputPattern, "_Flip", "Data7TeV");
    CheckPrediction(InputPattern, "_Flip", "Data8TeV");
 
-   InputPattern = "Results/Type3/";   CutIndex = 96; CutIndex_Flip=54;
+   InputPattern = "Results/Type3/";   CutIndex = 96; CutIndexTight = 96; CutIndex_Flip=54;
    PredictionAndControlPlot(InputPattern, "Data8TeV", CutIndex, CutIndex_Flip);
    Make2DPlot_Core(InputPattern, 0);
    CutFlow(InputPattern, CutIndex);
@@ -826,7 +825,7 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
      delete Histos[0]; delete Histos[1];
      delete c1;
    }
-   if(TypeMode==0 || TypeMode==3 || TypeMode==4 || TypeMode==5){  
+   if(TypeMode!=2){  
       for(int S=0;S<2;S++){
    	 if(TypeMode==0 && S>0)continue;
 
@@ -925,8 +924,8 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          frame->GetXaxis()->SetNdivisions(505);
          frame->SetTitle("");
          frame->SetStats(kFALSE);
-         if(TypeMode!=3) frame->GetXaxis()->SetTitle((dEdxS_Legend + " Cut").c_str());
-	 else frame->GetXaxis()->SetTitle("1/#beta Cut");
+	 if(TypeMode==3) frame->GetXaxis()->SetTitle("1/#beta Cut");
+         else frame->GetXaxis()->SetTitle((dEdxS_Legend + " Cut").c_str());
 	 char YAxisTitle[100];
 	 sprintf(YAxisTitle,"Tracks/%0.3f",fabs(binOne-binZero));
          frame->GetYaxis()->SetTitle(YAxisTitle);
@@ -935,34 +934,50 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          frame->SetMinimum(min*0.1);
          frame->Draw("AXIS");
 
-         TLegend* LEG = new TLegend(0.45,0.75,0.65,0.93);
+         TLegend* LEG = new TLegend(0.35,0.72,0.65,0.9);
          LEG->SetFillColor(0);
          LEG->SetFillStyle(0);
          LEG->SetBorderSize(0);
 
 	 std::pair<float, float> P1, P2, P3;
 	 string L1, L2, L3;
+         string Data1, Data2, Data3;
 
 	 if(TypeMode==0){
 	   P1 = std::make_pair(55.0, -1.0);  L1 = "Pred (p_{T}>55GeV)";
 	   P2 = std::make_pair(65.0, -1.0);  L2 = "Pred (p_{T}>65GeV)";
 	   P3 = std::make_pair(75.0, -1.0);  L3 = "Pred (p_{T}>75GeV)";
+           Data1 = "Obs (p_{T}>55GeV)";
+           Data2 = "Obs (p_{T}>65GeV)";
+           Data3 = "Obs (p_{T}>75GeV)";
 	 }else if(TypeMode==3){
 	   P1 = std::make_pair(110.0, -1.0);  L1 = "Pred (p_{T}>110GeV)";
 	   P2 = std::make_pair(170.0, -1.0);  L2 = "Pred (p_{T}>170GeV)";
 	   P3 = std::make_pair(230.0, -1.0);  L3 = "Pred (p_{T}>230GeV)";
+           Data1 = "Obs (p_{T}>110GeV)";
+           Data2 = "Obs (p_{T}>170GeV)";
+           Data3 = "Obs (p_{T}>230GeV)";
 	 }else if(TypeMode==4 && S==0){
 	   P1 = std::make_pair(  -1.0 , 1.075);  L1 = "Pred (1/#beta> 1.075)";
 	   P2 = std::make_pair(  -1.0 , 1.100);  L2 = "Pred (1/#beta> 1.100)";
 	   P3 = std::make_pair(  -1.0 , 1.125);  L3 = "Pred (1/#beta> 1.125)";
+           Data1 = "Obs (1/#beta>1.075)";
+           Data2 = "Obs (1/#beta>1.100)";
+           Data3 = "Obs (1/#beta>1.125)";
          }else if(TypeMode==4 && S==1){
            P1 = std::make_pair(  -1.0 , 0.925);  L1 = "Pred (1/#beta< 0.925)";
            P2 = std::make_pair(  -1.0 , 0.900);  L2 = "Pred (1/#beta< 0.900)";
            P3 = std::make_pair(  -1.0 , 0.875);  L3 = "Pred (1/#beta< 0.875)";
+           Data1 = "Obs (1/#beta<0.925)";
+           Data2 = "Obs (1/#beta<0.900)";
+           Data3 = "Obs (1/#beta<0.875)";
 	 }else if(TypeMode==5){
 	   P1 = std::make_pair( 75.0, -1.0);  L1 = "Pred (p_{T}> 75GeV)";
 	   P2 = std::make_pair(100.0, -1.0);  L2 = "Pred (p_{T}>100GeV)";
 	   P3 = std::make_pair(125.0, -1.0);  L3 = "Pred (p_{T}>125GeV)";
+           Data1 = "Obs (p_{T}> 75GeV)";
+           Data2 = "Obs (p_{T}>100GeV)";
+           Data3 = "Obs (p_{T}>125GeV)";
 	 }
 
 
@@ -996,11 +1011,13 @@ void PredictionAndControlPlot(string InputPattern, string Data, unsigned int Cut
          mapPred[P3]->SetFillStyle(3007);  mapRatio[P3]->SetFillStyle(3007);
          mapPred[P3]->Draw("3L");
 
-         TH1D* obsLeg = (TH1D*)mapObs [P1]->Clone("ObsLeg");
-         obsLeg->SetMarkerColor(1);
-         LEG->AddEntry(obsLeg, "Data"    ,"P");
+         //TH1D* obsLeg = (TH1D*)mapObs [P1]->Clone("ObsLeg");
+         //obsLeg->SetMarkerColor(1);
+         LEG->AddEntry(mapObs[P1], Data1.c_str(),"P");
          LEG->AddEntry(mapPred[P1], L1.c_str(),"FL");
          //LEG->AddEntry(mapPred[P2], L2.c_str(),"FL");
+         //LEG->AddEntry(mapObs[P2], Data2.c_str(),"P");
+         LEG->AddEntry(mapObs[P3], Data3.c_str(),"P");
          LEG->AddEntry(mapPred[P3], L3.c_str(),"FL");
          LEG->Draw("same");
 
@@ -1183,6 +1200,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int CutI
     }
 
     SQRTS=8; stPlots_Draw(Data8TeVPlots, InputPattern + "/Selection_Data8TeV", LegendTitle, CutIndex);
+
     if(TypeMode!=3) {SQRTS=7; stPlots_Draw(Data7TeVPlots, InputPattern + "/Selection_Data7TeV", LegendTitle, CutIndex);}
     SQRTS=8; stPlots_Draw(MCTr8TeVPlots  , InputPattern + "/Selection_MCTr_8TeV"  , LegendTitle, CutIndex);
     if(TypeMode!=3) {SQRTS=7; stPlots_Draw(MCTr7TeVPlots  , InputPattern + "/Selection_MCTr_7TeV"  , LegendTitle, CutIndex);}
@@ -1207,7 +1225,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int CutI
       SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY_QG"    , LegendTitle, CutIndex, CutIndexTight, &Data7TeVPlots, &MCTr7TeVPlots,   &SignPlots[JobIdToIndex("DY_7TeV_M400_Q1",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M400_Q3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M400_Q5",samples)]);
     }
 
-    if(TypeMode==0){ 
+    if(TypeMode<3){ 
       SQRTS=7; stPlots_DrawComparison(InputPattern + "/Selection_Comp_7TeV_DY"    , LegendTitle, CutIndex, CutIndexTight, &Data7TeVPlots, &MCTr7TeVPlots,  &SignPlots[JobIdToIndex("DY_7TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_7TeV_M600_Q2o3",samples)]);
       SQRTS=8; stPlots_DrawComparison(InputPattern + "/Selection_Comp_8TeV_DY"    , LegendTitle, CutIndex, CutIndexTight, &Data8TeVPlots, &MCTr8TeVPlots,  &SignPlots[JobIdToIndex("DY_8TeV_M100_Q2o3",samples)], &SignPlots[JobIdToIndex("DY_8TeV_M600_Q2o3",samples)]);
     }
