@@ -401,6 +401,7 @@ def customise_Validation(process):
     # We don't run the HLT
     process.validation_step.remove(process.HLTSusyExoVal)
     process.validation_step.remove(process.hltHiggsValidator)
+    process.validation_step.remove(process.relvalMuonBits)
     return process
 
 def customise_harvesting(process):
