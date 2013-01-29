@@ -102,34 +102,40 @@ class MultiSignalModel(PhysicsModel):
 
 ### This base class implements signal yields by production and decay mode
 ### Specific models can be obtained redefining getHiggsSignalYieldScale
+def getHiggsProdDecMode(bin,process,options):
+    """Return a triple of (production, decay, energy)"""
+    processSource = process
+    decaySource   = options.fileName+":"+bin # by default, decay comes from the datacard name or bin label
+    if "_" in process: (processSource, decaySource) = process.split("_")
+    if processSource not in ["ggH", "qqH", "VH", "WH", "ZH", "ttH"]:
+        raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
+    #
+    foundDecay = None
+    for D in [ "hww", "hzz", "hgg", "htt", "hbb" ]:
+        if D in decaySource:
+            if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
+            foundDecay = D
+    if not foundDecay: raise RuntimeError, "Validation Error: decay string %s does not contain any known decay name" % decaySource
+    #
+    foundEnergy = None
+    for D in [ '7TeV', '8TeV', '14TeV' ]:
+        if D in decaySource:
+            if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
+            foundEnergy = D
+    if not foundEnergy:
+        foundEnergy = '7TeV' ## To ensure backward compatibility
+        print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
+    #
+    return (processSource, foundDecay, foundEnergy)
+
+
 class SMLikeHiggsModel(PhysicsModel):
     def getHiggsSignalYieldScale(self, production, decay, energy):
             raise RuntimeError, "Not implemented"
     def getYieldScale(self,bin,process):
         "Split in production and decay, and call getHiggsSignalYieldScale; return 1 for backgrounds "
         if not self.DC.isSignal[process]: return 1
-        processSource = process
-        decaySource   = self.options.fileName+":"+bin # by default, decay comes from the datacard name or bin label
-        if "_" in process: (processSource, decaySource) = process.split("_")
-        if processSource not in ["ggH", "qqH", "VH", "WH", "ZH", "ttH"]:
-            raise RuntimeError, "Validation Error: signal process %s not among the allowed ones." % processSource
-
-        foundDecay = None
-        for D in [ "hww", "hzz", "hgg", "htt", "hbb" ]:
-            if D in decaySource:
-                if foundDecay: raise RuntimeError, "Validation Error: decay string %s contains multiple known decay names" % decaySource
-                foundDecay = D
-        if not foundDecay: raise RuntimeError, "Validation Error: decay string %s does not contain any known decay name" % decaySource
-
-        foundEnergy = None
-        for D in [ '7TeV', '8TeV', '14TeV' ]:
-            if D in decaySource:
-                if foundEnergy: raise RuntimeError, "Validation Error: decay string %s contains multiple known energies" % decaySource
-                foundEnergy = D
-        if not foundEnergy:
-            foundEnergy = '7TeV' ## To ensure backward compatibility
-            print "Warning: decay string %s does not contain any known energy, assuming %s" % (decaySource, foundEnergy)
-
+        (processSource, foundDecay, foundEnergy) = getHiggsProdDecMode(bin,process,self.options)
         return self.getHiggsSignalYieldScale(processSource, foundDecay, foundEnergy)
 
 class StrictSMLikeHiggsModel(SMLikeHiggsModel):

@@ -55,7 +55,7 @@ class TwoHiggsBase(PhysicsModel):
                 print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
                 self.modelBuilder.out.var("MH").setRange(float(self.mHRange[0]),float(self.mHRange[1]))
                 self.modelBuilder.out.var("MH").setConstant(False)
-                if self.mHAsPoI: poi+=',MH'
+                if self.mHAsPOI: poi+=',MH'
             else:
                 print 'MH will be assumed to be', self.options.mass
                 self.modelBuilder.out.var("MH").removeRange()
@@ -64,7 +64,7 @@ class TwoHiggsBase(PhysicsModel):
             if len(self.mHRange):
                 print 'MH will be left floating within', self.mHRange[0], 'and', self.mHRange[1]
                 self.modelBuilder.doVar("MH[%s,%s]" % (self.mHRange[0],self.mHRange[1]))
-                if self.mHAsPoI: poi+=',MH'
+                if self.mHAsPOI: poi+=',MH'
             else:
                 print 'MH (not there before) will be assumed to be', self.options.mass
                 self.modelBuilder.doVar("MH[%g]" % self.options.mass)
@@ -74,7 +74,7 @@ class TwoHiggsBase(PhysicsModel):
                 print 'MH_SM will be left floating within', self.mHSMRange[0], 'and', self.mHSMRange[1]
                 self.modelBuilder.out.var("MH_SM").setRange(float(self.mHSMRange[0]),float(self.mHSMRange[1]))
                 self.modelBuilder.out.var("MH_SM").setConstant(False)
-                if self.mHSMAsPoI: poi+=',MH_SM'
+                if self.mHSMAsPOI: poi+=',MH_SM'
             else:
                 print 'MH_SM will be assumed to be', self.mHSM
                 self.modelBuilder.out.var("MH_SM").removeRange()
@@ -83,10 +83,10 @@ class TwoHiggsBase(PhysicsModel):
             if len(self.mHSMRange):
                 print 'MH_SM will be left floating within', self.mHSMRange[0], 'and', self.mHSMRange[1]
                 self.modelBuilder.doVar("MH_SM[%s,%s]" % (self.mHSMRange[0],self.mHSMRange[1]))
-                if self.mHSMAsPoI: poi+=',MH_SM'
+                if self.mHSMAsPOI: poi+=',MH_SM'
             else:
-                print 'MH_SM (not there before) will be assumed to be', self.options.mass
-                self.modelBuilder.doVar("MH_SM[%g]" % self.options.mass)
+                print 'MH_SM (not there before) will be assumed to be', self.mHSM
+                self.modelBuilder.doVar("MH_SM[%g]" % self.mHSM)
         return poi
 
 class JustOneHiggs(TwoHiggsBase):
@@ -187,8 +187,42 @@ class SingletMixing(TwoHiggsBase):
         # done
         self.modelBuilder.doSet("POI",poi)
 
+class SingletMixingForExclusion(TwoHiggsBase):
+    """ The prediction for this model is mu + mu' == 1 (or <= 1)
+        So we just go probing mu+mu' """
+    def __init__(self): 
+        TwoHiggsBase.__init__(self)
+        self.withBSM = False
+    def getHiggsYieldScaleSM(self,production,decay, energy):
+        return "r_times_x"
+    def getHiggsYieldScale(self,production,decay, energy):
+        return "r_times_BR_times_not_x" if self.withBSM else "r_times_not_x"
+    def setPhysicsOptions(self,physOptions):
+        self.setPhysicsOptionsBase(physOptions)
+        for po in physOptions:
+            if po == "BSMDecays": 
+                self.withBSM = True
+    def doParametersOfInterest(self):
+        """Create POI and other parameters, and define the POI set."""
+        # take care of the searched-for Higgs yield
+        self.modelBuilder.doVar("r[1,0,10]");
+        self.modelBuilder.doVar("x[1,0,1]");
+        poi = "r,x"
+        # take care of the searched-for Higgs yield
+        if self.withBSM:
+            self.modelBuilder.factory_("expr::r_times_BR_times_not_x(\"@0*max(0,1-@1)*(1-@2)\", r, x, BR_BSM[0,0,1])");
+            poi += ",BR_BSM"
+        else:
+            self.modelBuilder.factory_("expr::r_times_not_x(\"@0*max(0,1-@1)\", r, x)");
+        # and of the SM one
+        self.modelBuilder.factory_("expr::r_times_x(\"@0*@1\", r, x)");
+        # take care of masses
+        poi += self.doMasses()
+        # done
+        self.modelBuilder.doSet("POI",poi)
 
 twoHiggsUnconstrained = TwoHiggsUnconstrained()
 justOneHiggs = JustOneHiggs()
 singletMixing = SingletMixing()
+singletMixingForExclusion = SingletMixingForExclusion()
 
