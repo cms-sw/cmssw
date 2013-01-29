@@ -1,7 +1,31 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from muonCustoms import customise_csc_geom_cond_digi
+from muonCustoms import customise_csc_geom_cond_digi,digitizer_timing_pre3_median,unganged_me1a_geometry
+from customise_mixing import customise_NoCrossing
+
+def customisePostLS1(process):
+    #move this first one to the geometry
+    process=unganged_me1a_geometry(process)
+    #blow away conditons
+    process.GlobalTag.connect='sqlite_file:/afs/cern.ch/user/a/alcaprod/public/Alca/GlobalTag/POSTLS161_V15_a.db'
+    if hasattr(process,'DigiToRaw'):
+        process=customise_DigiToRaw(process)
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction'):
+        process=customise_Reco(process)
+    if hasattr(process,'digitisation_step'):
+        process=customise_Digi(process)
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM(process)
+    if hasattr(process,'dqmHarvesting'):
+        process=customise_harvesting(process)
+    if hasattr(process,'validation_step'):
+        process=customise_Validation(process)
+                        
+    return process
+                                                                                                
 
 
 def digiEventContent(process):
@@ -17,20 +41,34 @@ def digiEventContent(process):
 
     return process    
 
-def digiCustomsRelVal(process):
+def customise_DQM(process):
+    return process
+
+def customise_Validation(process):
+    return process
+
+def customise_DigiRelVal(process):
     #deal with csc
-    process=customise_csc_geom_cond_digi(process)
+    process=digitizer_timing_pre3_median(process)
     process=digiEventContent(process)
+    process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+    process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+    return process
+
+def customise_RawToDigi(process):
+    return process
+
+def customise_DigiToRaw(process):
     process.digi2raw_step.remove(process.cscpacker)
     return process
 
-def digiCustoms(process):
-    process=turnOffXFrame(process)
-    process=digiCustomsRelVal(process)
+def customise_Digi(process):
+    process=customise_NoCrossing(process)
+    process=customise_DigiRelVal(process)
     return process
 
 
-def hltCustoms(process):
+def customise_HLT(process):
     process.CSCGeometryESModule.useGangedStripsInME1a = False
 
     process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
@@ -43,7 +81,7 @@ def hltCustoms(process):
 
     return process
 
-def recoCustoms(process):
+def customise_Reco(process):
 
     # ME1/1A is  u n g a n g e d  Post-LS1
 
@@ -58,6 +96,9 @@ def recoCustoms(process):
 
     process.csc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
     process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+
+    process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+    process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
 
     return process
 
