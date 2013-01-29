@@ -2,7 +2,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from muonCustoms import customise_csc_geom_cond_digi,digitizer_timing_pre3_median,unganged_me1a_geometry
-from customise_mixing import customise_NoCrossing
 
 def customisePostLS1(process):
     #move this first one to the geometry
@@ -47,7 +46,7 @@ def customise_DQM(process):
 def customise_Validation(process):
     return process
 
-def customise_DigiRelVal(process):
+def customise_Digi(process):
     #deal with csc
     process=digitizer_timing_pre3_median(process)
     process=digiEventContent(process)
@@ -60,11 +59,6 @@ def customise_RawToDigi(process):
 
 def customise_DigiToRaw(process):
     process.digi2raw_step.remove(process.cscpacker)
-    return process
-
-def customise_Digi(process):
-    process=customise_NoCrossing(process)
-    process=customise_DigiRelVal(process)
     return process
 
 
