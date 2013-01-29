@@ -173,12 +173,33 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
   if (Numerator_pt && Denominator_pt){
     TH1F *h_numerator_pt   = Numerator_pt->getTH1F();
     TH1F *h_denominator_pt = Denominator_pt->getTH1F();
+<<<<<<< EfficiencyPlotter.cc
+
+    TH1F *h_eff_pt = h_eff_pt_TightMu->getTH1F();
+    
+    if (h_eff_pt->GetSumw2N() == 0) h_eff_pt->Sumw2();
+ 
+=======
     TH1F *h_eff_pt         = h_eff_pt_TightMu->getTH1F();
+>>>>>>> 1.6
     
     if (h_eff_pt->GetSumw2N() == 0) h_eff_pt->Sumw2();  
     h_eff_pt->Divide(h_numerator_pt, h_denominator_pt, 1., 1., "B");
   }
   
+<<<<<<< EfficiencyPlotter.cc
+  if (Numerator_barrel_pt && Denominator_barrel_pt){
+ 
+    TH1F *h_numerator_barrel_pt   = Numerator_barrel_pt->getTH1F();
+    TH1F *h_denominator_barrel_pt = Denominator_barrel_pt->getTH1F();
+
+    TH1F *h_eff_barrel_pt = h_eff_pt_barrel_TightMu->getTH1F();
+    
+    if (h_eff_barrel_pt->GetSumw2N() == 0) h_eff_barrel_pt->Sumw2();
+
+    h_eff_barrel_pt->Divide(h_numerator_barrel_pt, h_denominator_barrel_pt, 1., 1., "B");
+
+=======
   /// --- Tight Muon efficiency vs muon Pt [EB]
   string numpath_EB_pt = "Muons/EfficiencyAnalyzer/passProbes_TightMu_EB_pt";
   string denpath_EB_pt = "Muons/EfficiencyAnalyzer/allProbes_EB_pt";
@@ -193,8 +214,28 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
     
     if (h_eff_EB_pt->GetSumw2N() == 0) h_eff_EB_pt->Sumw2();  
     h_eff_EB_pt->Divide(h_numerator_EB_pt, h_denominator_EB_pt, 1., 1., "B");
+>>>>>>> 1.6
   }
 
+<<<<<<< EfficiencyPlotter.cc
+  string numpath_endcap_pt = "Muons/EfficiencyAnalyzer/passProbes_TightMu_endcap_pt";
+  string denpath_endcap_pt = "Muons/EfficiencyAnalyzer/allProbes_endcap_pt";
+  
+  MonitorElement *Numerator_endcap_pt   = theDbe->get(numpath_endcap_pt);
+  MonitorElement *Denominator_endcap_pt = theDbe->get(denpath_endcap_pt);
+  
+  if (Numerator_endcap_pt && Denominator_endcap_pt){
+ 
+    TH1F *h_numerator_endcap_pt   = Numerator_endcap_pt->getTH1F();
+    TH1F *h_denominator_endcap_pt = Denominator_endcap_pt->getTH1F();
+
+    TH1F *h_eff_endcap_pt = h_eff_pt_endcap_TightMu->getTH1F();
+      
+    if (h_eff_endcap_pt->GetSumw2N() == 0) h_eff_endcap_pt->Sumw2();
+
+    h_eff_endcap_pt->Divide(h_numerator_endcap_pt, h_denominator_endcap_pt, 1., 1., "B");
+
+=======
   /// --- Tight Muon efficiency vs muon Pt [EE]
   string numpath_EE_pt = "Muons/EfficiencyAnalyzer/passProbes_TightMu_EE_pt";
   string denpath_EE_pt = "Muons/EfficiencyAnalyzer/allProbes_EE_pt";
@@ -209,6 +250,7 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
     
     if (h_eff_EE_pt->GetSumw2N() == 0) h_eff_EE_pt->Sumw2();  
     h_eff_EE_pt->Divide(h_numerator_EE_pt, h_denominator_EE_pt, 1., 1., "B");
+>>>>>>> 1.6
   }
 
   /// --- Tight Muon efficiency vs muon Eta
@@ -225,8 +267,13 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
 
     TH1F *h_eff_eta = h_eff_eta_TightMu->getTH1F();
     
+<<<<<<< EfficiencyPlotter.cc
+    if (h_eff_eta->GetSumw2N() == 0) h_eff_eta->Sumw2();
+
+=======
     if (h_eff_eta->GetSumw2N() == 0) h_eff_eta->Sumw2();  
     
+>>>>>>> 1.6
     h_eff_eta->Divide(h_numerator_eta, h_denominator_eta, 1., 1., "B");
 
   }
@@ -245,9 +292,15 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
     TH1F *h_denominator_hp_eta = Denominator_hp_eta->getTH1F();
 
     TH1F *h_eff_hp_eta = h_eff_hp_eta_TightMu->getTH1F();
+<<<<<<< EfficiencyPlotter.cc
+       
+    if (h_eff_hp_eta->GetSumw2N() == 0) h_eff_hp_eta->Sumw2();
+
+=======
     
     if (h_eff_hp_eta->GetSumw2N() == 0) h_eff_hp_eta->Sumw2();  
     
+>>>>>>> 1.6
     h_eff_hp_eta->Divide(h_numerator_hp_eta, h_denominator_hp_eta, 1., 1., "B");
 
   }
@@ -266,9 +319,15 @@ void EfficiencyPlotter::endRun(Run const& run, EventSetup const& eSetup) {
     TH1F *h_denominator_phi = Denominator_phi->getTH1F();
 
     TH1F *h_eff_phi = h_eff_phi_TightMu->getTH1F();
+<<<<<<< EfficiencyPlotter.cc
+       
+    if (h_eff_phi->GetSumw2N() == 0) h_eff_phi->Sumw2();
+
+=======
     
     if (h_eff_phi->GetSumw2N() == 0) h_eff_phi->Sumw2();  
     
+>>>>>>> 1.6
     h_eff_phi->Divide(h_numerator_phi, h_denominator_phi, 1., 1., "B");
 
   }
