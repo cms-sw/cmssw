@@ -580,7 +580,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 //----------------- Tower Jet monitor task -------------------------//
 
-/* if(rechitOK_)
+ if(rechitOK_)
  {
  //---- get cator tower collection
  edm::ESHandle<CastorTowerCollection> castorTowers; //fix this
@@ -591,7 +591,7 @@ void CastorMonitorModule::analyze(const edm::Event& iEvent, const edm::EventSetu
       cpu_timer.stop();
       if (TowerJetMon_!=NULL) std::cout <<"TIMER:: TOWER JET MONITOR ->"<<cpu_timer.cpuTime()<<std::endl;
       cpu_timer.reset(); cpu_timer.start();
-    } */
+    }
 
 
 //----------------- Data Integrity monitor task -------------------------//

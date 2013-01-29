@@ -175,7 +175,7 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
                           
 			   DataIntMonitor= cms.untracked.bool(True),
-			   TowerJetMonitor= cms.untracked.bool(True),
+			   TowerJetMonitor= cms.untracked.bool(False),
 
                            DigiMonitor = cms.untracked.bool(True),
                            DigiPerChannel = cms.untracked.bool(True), 
@@ -193,7 +193,7 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            PSMonitor= cms.untracked.bool(True),
                            numberSigma = cms.untracked.double(1.5),
                            thirdRegionThreshold =  cms.untracked.double(999999.0),        
-                           EDMonitor= cms.untracked.bool(False),
+                           EDMonitor= cms.untracked.bool(True),
                            HIMonitor= cms.untracked.bool(True),
                                        
                            diagnosticPrescaleTime = cms.untracked.int32(-1),
