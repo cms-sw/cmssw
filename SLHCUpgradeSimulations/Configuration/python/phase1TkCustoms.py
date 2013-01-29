@@ -23,13 +23,13 @@ def customise(process):
     return process
 
 def customise_DigiToRaw(process):
-    process.DigiToRaw.remove(process.siPixelRawData)
-    process.DigiToRaw.remove(process.castorRawData)
+    process.digi2raw_step.remove(process.siPixelRawData)
+    process.digi2raw_step.remove(process.castorRawData)
     return process
 
 def customise_RawToDigi(process):
-    process.RawToDigi.remove(process.siPixelDigis)
-    process.RawToDigi.remove(process.castorDigis)
+    process.raw2digi_step.remove(process.siPixelDigis)
+    process.raw2digi_step.remove(process.castorDigis)
     return process
 
 def customise_Digi(process):
