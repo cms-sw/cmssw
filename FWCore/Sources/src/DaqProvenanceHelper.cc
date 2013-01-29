@@ -33,8 +33,7 @@ namespace edm {
         , oldProcessName_()
         , oldBranchID_()
         , newBranchID_()
-        , oldProcessHistoryID_(0)
-        , processConfiguration_()
+        , oldProcessHistoryID_(nullptr)
         , phidMap_() {
     
     // Now we create a process parameter set for the "LHC" process.
@@ -80,44 +79,58 @@ namespace edm {
     // Add the product to the product registry  
     productRegistry.copyProduct(constBranchDescription_.me());
 
-    // Insert an entry for this process in the process configuration registry
-    ProcessConfiguration pc(constBranchDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
-    ProcessConfigurationRegistry::instance()->insertMapped(pc);
-
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
-    ph.push_back(pc);
+    ph.emplace_back(constBranchDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
+    ProcessConfiguration const& pc = ph.data().back();
     ProcessHistoryRegistry::instance()->insertMapped(ph);
+
+    // Insert an entry for this process in the process configuration registry
+    ProcessConfigurationRegistry::instance()->insertMapped(pc);
 
     // Save the process history ID for use every event.
     return ph.id();
   }
 
-  void
-  DaqProvenanceHelper::fixMetaData(std::vector<ProcessConfiguration>& pcv) {
-    bool found = false;
-    for(std::vector<ProcessConfiguration>::const_iterator it = pcv.begin(), itEnd = pcv.end(); it != itEnd; ++it) {
-       if(it->processName() == oldProcessName_) {
-         processConfiguration_ = ProcessConfiguration(constBranchDescription_.processName(),
-                                                      processParameterSet_.id(),
-                                                      it->releaseVersion(), it->passID());
-         pcv.push_back(processConfiguration_);
-         found = true;
-         break;
-       }
+  bool
+  DaqProvenanceHelper::matchProcesses(ProcessConfiguration const& newPC, ProcessHistory const& ph) const {
+    for(auto const& pc : ph) {
+      if(pc.processName() == oldProcessName_) {
+        return(pc.releaseVersion() == newPC.releaseVersion() && pc.passID() == newPC.passID());
+      }
     }
-    assert(found);
+    return false;
   }
 
   void
-  DaqProvenanceHelper::fixMetaData(std::vector<ProcessHistory>& phv) {
-    phv.reserve(phv.size() + 1);
-    phv.push_back(ProcessHistory()); // For new processHistory, containing only processConfiguration_.
-    for(std::vector<ProcessHistory>::iterator it = phv.begin(), itEnd = phv.end(); it != itEnd; ++it) {
-      ProcessHistoryID oldPHID = it->id();
-      it->push_front(processConfiguration_);
-      ProcessHistoryID newPHID = it->id();
-      phidMap_.insert(std::make_pair(oldPHID, newPHID));
+  DaqProvenanceHelper::fixMetaData(std::vector<ProcessConfiguration>& pcv, std::vector<ProcessHistory>& phv) {
+    std::vector<ProcessConfiguration> newPCs;
+    for(auto const& pc : pcv) {
+       if(pc.processName() == oldProcessName_) {
+         newPCs.emplace_back(constBranchDescription_.processName(),
+                             processParameterSet_.id(),
+                             pc.releaseVersion(), pc.passID());
+         pcv.push_back(newPCs.back());
+       }
+    }
+    assert(!newPCs.empty());
+    // update existing process histories
+    for(auto& ph : phv) {
+      for(auto const& newPC : newPCs) {
+        if(matchProcesses(newPC, ph)) {
+          ProcessHistoryID oldPHID = ph.id();
+          ph.push_front(newPC);
+          ProcessHistoryID newPHID = ph.id();
+          phidMap_.insert(std::make_pair(oldPHID, newPHID));
+          break;
+        }
+      }
+    }
+    // For new process histories, containing only the new process configurations
+    phv.reserve(phv.size() + newPCs.size());
+    for(auto const& newPC : newPCs) {
+      phv.emplace_back();
+      phv.back().push_front(newPC);
     }
   }
 
@@ -132,8 +145,8 @@ namespace edm {
     BranchID::value_type newID = newBranchID_.id();
     // The const_cast is ugly, but it beats the alternatives.
     BranchIDLists& lists = const_cast<BranchIDLists&>(branchIDLists);
-    for(BranchIDLists::iterator it = lists.begin(), itEnd = lists.end(); it != itEnd; ++it) {
-      std::replace(it->begin(), it->end(), oldID, newID);
+    for(auto& list : lists) {
+      std::replace(list.begin(), list.end(), oldID, newID);
     }
   }
 
@@ -151,9 +164,9 @@ namespace edm {
       }
     }
     // Now fix any old branchID's in the sets;
-    for(BCMap::iterator it = childLookup.begin(), itEnd = childLookup.end(); it != itEnd; ++it) {
-      if(it->second.erase(oldBranchID_) != 0) {
-        it->second.insert(newBranchID_);
+    for(auto& child : childLookup) {
+      if(child.second.erase(oldBranchID_) != 0) {
+        child.second.insert(newBranchID_);
       }
     }
   }
