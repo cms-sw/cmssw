@@ -21,7 +21,7 @@ def customisePostLS1(process):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
         process=customise_Validation(process)
-                        
+
     return process
                                                                                                 
 
