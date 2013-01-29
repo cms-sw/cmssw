@@ -80,7 +80,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
   
   double arg=rho*rho - ( (v.x()-theCircle.x0())*(v.x()-theCircle.x0()) );
   
-  if ( arg >= 0 ) { 
+  if ( arg > 0 ) { 
     
     
     //  double root = sqrt(  rho*rho - ( (v.x()-theCircle.x0())*(v.x()-theCircle.x0()) )  );
