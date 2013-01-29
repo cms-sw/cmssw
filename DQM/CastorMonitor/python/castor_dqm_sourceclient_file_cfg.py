@@ -12,17 +12,22 @@ process = cms.Process("CASTORDQM")
 
 ### to use a root file
 
+#old data p-p 2011
+#process.source = cms.Source("PoolSource",
+#                            fileNames = cms.untracked.vstring(
+#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/182AF1D2-41CB-E011-8661-002354EF3BE0.root',
+#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/1E7A9033-0EC2-E011-9191-001A928116F4.root',
+#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/3284739C-0DC2-E011-966C-002618943842.root',
+#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/3E80B615-3BCB-E011-B288-0018F3D09670.root',
+#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/441707B7-42CB-E011-A2D3-00261894384A.root',
+#    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/468F37BA-F8C1-E011-B2D1-0018F3D09706.root'),
+#                            )
 
+#new data p-Pb 2013
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/182AF1D2-41CB-E011-8661-002354EF3BE0.root',
-    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/1E7A9033-0EC2-E011-9191-001A928116F4.root',
-    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/3284739C-0DC2-E011-966C-002618943842.root',
-    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/3E80B615-3BCB-E011-B288-0018F3D09670.root',
-    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/441707B7-42CB-E011-A2D3-00261894384A.root',
-    'root://eoscms//eos/cms/store/data/Run2011A/MinimumBias/RAW-RECO/ValSkim-PromptSkim-v6/0000/468F37BA-F8C1-E011-B2D1-0018F3D09706.root'),
+    'root://eoscms//eos/cms/store/hidata/HIRun2013/PAMinBiasUPC/RAW/v1/000/210/885/00000/0AC926B5-7268-E211-91F3-BCAEC5329708.root'),
                             )
-
 
 
 process.maxEvents = cms.untracked.PSet(
