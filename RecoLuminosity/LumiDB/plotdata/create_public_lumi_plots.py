@@ -452,6 +452,7 @@ if __name__ == "__main__":
         "date_end" : None,
         "color_schemes" : "Joe, Greg",
         "beam_energy" : None,
+        "beam_fluctuation" : None,
         "verbose" : False
         }
     cfg_parser = ConfigParser.SafeConfigParser(cfg_defaults)
@@ -499,6 +500,19 @@ if __name__ == "__main__":
         beam_energy_from_cfg = True
         beam_energy = float(beam_energy_tmp)
 
+    beam_fluctuation_tmp = cfg_parser.get("general", "beam_fluctuation")
+    # If no beam energy fluctuation specified, use the default for
+    # this accelerator mode.
+    beam_fluctuation = None
+    beam_fluctuation_from_cfg = None
+    if not beam_fluctuation_tmp:
+        print "No beam energy fluctuation specified --> using the defaults to '%s'" % \
+              accel_mode
+        beam_fluctuation_from_cfg = False
+    else:
+        beam_fluctuation_from_cfg = True
+        beam_fluctuation = float(beam_fluctuation_tmp)
+
     # Overall begin and end dates of all data to include.
     tmp = cfg_parser.get("general", "date_begin")
     date_begin = datetime.datetime.strptime(tmp, DATE_FMT_STR_CFG).date()
@@ -541,6 +555,14 @@ if __name__ == "__main__":
                      2011 : 3500.},
         "PAPHYS" : {2013 : 4000.}
         }
+    beam_fluctuation_defaults = {
+        "PROTPHYS" : {2010 : .15,
+                      2011 : .15,
+                      2012 : .15},
+        "IONPHYS" : {2010 : .15,
+                     2011 : .15},
+        "PAPHYS" : {2013 : .2}
+        }
 
     ##########
 
@@ -559,9 +581,15 @@ if __name__ == "__main__":
     if beam_energy_from_cfg:
         print "Selecting data for beam energy %.0f GeV" % beam_energy
     else:
-        print "Selecting data for default beam energy for '%s':" % accel_mode
+        print "Selecting data for default beam energy for '%s' from:" % accel_mode
         for (key, val) in beam_energy_defaults[accel_mode].iteritems():
             print "  %d : %.1f GeV" % (key, val)
+    if beam_fluctuation_from_cfg:
+        print "Using beam energy fluctuation of +/- %.2f GeV" % beam_fluctuation
+    else:
+        print "Using default beam energy fluctuation for '%s' from:" % accel_mode
+        for (key, val) in beam_fluctuation_defaults[accel_mode].iteritems():
+            print "  %d : %.2f GeV" % (key, val)
 
     ##########
 
@@ -638,6 +666,9 @@ if __name__ == "__main__":
             if not beam_energy_from_cfg:
                 year = day.isocalendar()[0]
                 beam_energy = beam_energy_defaults[accel_mode][year]
+            if not beam_fluctuation_from_cfg:
+                year = day.isocalendar()[0]
+                beam_fluctuation = beam_fluctuation_defaults[accel_mode][year]
 
             # WORKAROUND WORKAROUND WORKAROUND
             # Trying to work around the issue with the unfilled
@@ -647,17 +678,20 @@ if __name__ == "__main__":
                 # works for the moment.
                 lumicalc_flags = "%s --without-checkforupdate " \
                                  "--beamenergy %.0f " \
-                                 "--beamfluctuation 0.15 " \
+                                 "--beamfluctuation %.2f " \
                                  "lumibyls" % \
-                                 (lumicalc_flags_from_cfg, beam_energy)
+                                 (lumicalc_flags_from_cfg,
+                                  beam_energy, beam_fluctuation)
             else:
                 # This is the way things should be.
                 lumicalc_flags = "%s --without-checkforupdate " \
                                  "--beamenergy %.0f " \
-                                 "--beamfluctuation 0.15 " \
+                                 "--beamfluctuation %.2f " \
                                  "--amodetag %s " \
                                  "lumibyls" % \
-                                 (lumicalc_flags_from_cfg, beam_energy, accel_mode)
+                                 (lumicalc_flags_from_cfg,
+                                  beam_energy, beam_fluctuation,
+                                  accel_mode)
             # WORKAROUND WORKAROUND WORKAROUND end
 
             lumicalc_flags = lumicalc_flags.strip()
@@ -745,21 +779,27 @@ if __name__ == "__main__":
         if not beam_energy_from_cfg:
             year = day.isocalendar()[0]
             beam_energy = beam_energy_defaults[accel_mode][year]
+        if not beam_fluctuation_from_cfg:
+            year = day.isocalendar()[0]
+            beam_fluctuation = beam_energy_defaults[accel_mode][year]
         # WORKAROUND WORKAROUND WORKAROUND
         # Same as above.
         if amodetag_bug_workaround:
             lumicalc_flags = "%s --without-checkforupdate " \
                              "--beamenergy %.0f " \
-                             "--beamfluctuation 0.15 " \
+                             "--beamfluctuation %.2f " \
                              "lumibyls" % \
-                             (lumicalc_flags_from_cfg, beam_energy)
+                             (lumicalc_flags_from_cfg,
+                              beam_energy, beam_fluctuation)
         else:
             lumicalc_flags = "%s --without-checkforupdate " \
                              "--beamenergy %.0f " \
-                             "--beamfluctuation 0.15 " \
+                             "--beamfluctuation %.2f " \
                              "--amodetag %s " \
                              "lumibyls" % \
-                             (lumicalc_flags_from_cfg, beam_energy, accel_mode)
+                             (lumicalc_flags_from_cfg,
+                              beam_energy, beam_fluctuation,
+                              accel_mode)
         # WORKAROUND WORKAROUND WORKAROUND end
         lumicalc_flags = lumicalc_flags.strip()
         lumicalc_cmd = "%s %s" % (lumicalc_script, lumicalc_flags)
