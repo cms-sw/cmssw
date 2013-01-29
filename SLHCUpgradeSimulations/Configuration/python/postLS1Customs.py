@@ -7,8 +7,6 @@ from customise_mixing import customise_NoCrossing
 def customisePostLS1(process):
     #move this first one to the geometry
     process=unganged_me1a_geometry(process)
-    #blow away conditons
-    process.GlobalTag.connect='sqlite_file:/afs/cern.ch/user/a/alcaprod/public/Alca/GlobalTag/POSTLS161_V15_a.db'
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
@@ -42,6 +40,8 @@ def digiEventContent(process):
     return process    
 
 def customise_DQM(process):
+    process.dqmoffline_step.remove(process.muonAnalyzer)
+    process.dqmoffline_step.remove(process.jetMETAnalyzer)
     return process
 
 def customise_Validation(process):
