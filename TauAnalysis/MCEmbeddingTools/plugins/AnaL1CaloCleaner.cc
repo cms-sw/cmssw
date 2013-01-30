@@ -46,6 +46,8 @@ private:
 
 	edm::InputTag colCaloLengthsMinus_;
 	edm::InputTag colCaloLengthsPlus_;
+	edm::InputTag colCaloDepositsMinus_;
+	edm::InputTag colCaloDepositsPlus_;
 	edm::InputTag colL1ETM_;
 	edm::InputTag colCaloMET_;
 	edm::InputTag colGenParticles_;
@@ -59,6 +61,9 @@ private:
 	Float_t len_ecal_;
 	Float_t len_hcal_;
 	Float_t len_ho_;
+	Float_t dep_ecal_;
+	Float_t dep_hcal_;
+	Float_t dep_ho_;
 	Float_t l1_upara_;
 	Float_t l1_uperp_;
 	Float_t calo_upara_;
@@ -127,6 +132,8 @@ std::pair<double, double> compMEtProjU(const reco::Candidate::LorentzVector& zP4
 AnaL1CaloCleaner::AnaL1CaloCleaner(const edm::ParameterSet& iConfig):
 	colCaloLengthsMinus_(iConfig.getParameter<edm::InputTag>("caloLengthsMinus")),
 	colCaloLengthsPlus_(iConfig.getParameter<edm::InputTag>("caloLengthsPlus")),
+	colCaloDepositsMinus_(iConfig.getParameter<edm::InputTag>("caloDepositsMinus")),
+	colCaloDepositsPlus_(iConfig.getParameter<edm::InputTag>("caloDepositsPlus")),
 	colL1ETM_(iConfig.getParameter<edm::InputTag>("l1ETM")),
 	colCaloMET_(iConfig.getParameter<edm::InputTag>("caloMET")),
 	colGenParticles_(iConfig.getParameter<edm::InputTag>("genParticles")),
@@ -142,6 +149,9 @@ AnaL1CaloCleaner::AnaL1CaloCleaner(const edm::ParameterSet& iConfig):
 	tree_->Branch("len_ecal", &len_ecal_, "len_ecal/F");
 	tree_->Branch("len_hcal", &len_hcal_, "len_hcal/F");
 	tree_->Branch("len_ho", &len_ho_, "len_ho/F");
+	tree_->Branch("dep_ecal", &dep_ecal_, "dep_ecal/F");
+	tree_->Branch("dep_hcal", &dep_hcal_, "dep_hcal/F");
+	tree_->Branch("dep_ho", &dep_ho_, "dep_ho/F");
 	tree_->Branch("l1_upara", &l1_upara_, "l1_upara/F");
 	tree_->Branch("l1_uperp", &l1_uperp_, "l1_uperp/F");
 	tree_->Branch("calo_upara", &calo_upara_, "calo_upara/F");
@@ -186,21 +196,39 @@ AnaL1CaloCleaner::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // Next, read the pathlength the muon travelled in the calorimeter
   edm::Handle<std::map<unsigned int,float> > hLengthsMinus, hLengthsPlus;
+  edm::Handle<std::map<unsigned int,float> > hDepositsMinus, hDepositsPlus;
   iEvent.getByLabel(colCaloLengthsMinus_, hLengthsMinus);
   iEvent.getByLabel(colCaloLengthsPlus_, hLengthsPlus);
+  iEvent.getByLabel(colCaloDepositsMinus_, hDepositsMinus);
+  iEvent.getByLabel(colCaloDepositsPlus_, hDepositsPlus);
   const std::map<unsigned int,float>& caloLengths = recoMuon->charge() < 0 ? *hLengthsMinus : *hLengthsPlus;
+  const std::map<unsigned int,float>& caloDeposits = recoMuon->charge() < 0 ? *hDepositsMinus : *hDepositsPlus;
   float len_ecal = 0.0f, len_hcal = 0.0f, len_ho = 0.0f;
+  float dep_ecal = 0.0f, dep_hcal = 0.0f, dep_ho = 0.0f;
   for(std::map<unsigned int, float>::const_iterator iter = caloLengths.begin(); iter != caloLengths.end(); ++iter)
   {
     const DetId det(iter->first);
+    std::map<unsigned int, float>::const_iterator dep_iter = caloDeposits.find(det);
+    const float dep = (dep_iter != caloDeposits.end()) ? dep_iter->second : 0.0f;
+
     //std::string name = getKey(det);
     //std::cout << name << ": " << iter->second << std::endl;
+    //  val = (hDeposits->find(entry.first))->second;
     if(det.det() == DetId::Ecal)
+    {
       len_ecal += iter->second;
+      dep_ecal += dep;
+    }
     else if(det.det() == DetId::Hcal && det.subdetId() != HcalOuter)
+    {
       len_hcal += iter->second;
+      dep_hcal += dep;
+    }
     else if(det.det() == DetId::Hcal && det.subdetId() == HcalOuter)
+    {
       len_ho += iter->second;
+      dep_ho += dep;
+    }
   }
 
   // Compute the parallel and perpendicular projection wrt. the genmuon axis
@@ -227,6 +255,9 @@ AnaL1CaloCleaner::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   len_ecal_ = len_ecal;
   len_hcal_ = len_hcal;
   len_ho_ = len_ho;
+  dep_ecal_ = dep_ecal;
+  dep_hcal_ = dep_hcal;
+  dep_ho_ = dep_ho;
   l1_upara_ = l1_u1u2.first;
   l1_uperp_ = l1_u1u2.second;
   calo_upara_ = calo_u1u2.first;

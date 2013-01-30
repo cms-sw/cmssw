@@ -323,6 +323,8 @@ def customise(process):
           dRveto2 = cms.double(dRveto)))
       if inputType == 'L1EtMissParticle':
         l1extraParticleCollections[-1].srcMuons = cms.InputTag("muonCaloDistances", "muons")
+        l1extraParticleCollections[-1].distanceMapMuPlus = cms.InputTag("muonCaloDistances", "distancesMuPlus")
+        l1extraParticleCollections[-1].distanceMapMuMinus = cms.InputTag("muonCaloDistances", "distancesMuPlus")
 
   process.l1extraParticlesORG = process.l1extraParticles.clone()
   process.l1extraParticles = cms.EDProducer('L1ExtraMixer',

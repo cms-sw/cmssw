@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/foreach.hpp>
 
 MuonCaloDistanceProducer::MuonCaloDistanceProducer(const edm::ParameterSet& cfg)
   : srcSelectedMuons_(cfg.getParameter<edm::InputTag>("selectedMuons"))
@@ -27,6 +28,8 @@ MuonCaloDistanceProducer::MuonCaloDistanceProducer(const edm::ParameterSet& cfg)
   produces<reco::CandidateCollection>("muons");
   produces<detIdToFloatMap>("distancesMuPlus");
   produces<detIdToFloatMap>("distancesMuMinus");
+  produces<detIdToFloatMap>("depositsMuPlus");
+  produces<detIdToFloatMap>("depositsMuMinus");
   
   edm::ParameterSet cfgTrackAssociator = cfg.getParameter<edm::ParameterSet>("trackAssociator");
   trackAssociatorParameters_.loadParameters(cfgTrackAssociator);
@@ -42,13 +45,15 @@ void MuonCaloDistanceProducer::produce(edm::Event& evt, const edm::EventSetup& e
 {
   std::auto_ptr<detIdToFloatMap> distanceMuPlus(new detIdToFloatMap());
   std::auto_ptr<detIdToFloatMap> distanceMuMinus(new detIdToFloatMap());
+  std::auto_ptr<detIdToFloatMap> depositMuPlus(new detIdToFloatMap());
+  std::auto_ptr<detIdToFloatMap> depositMuMinus(new detIdToFloatMap());
 
   std::vector<reco::CandidateBaseRef> selMuons = getSelMuons(evt, srcSelectedMuons_);
   const reco::CandidateBaseRef muPlus  = getTheMuPlus(selMuons);
   const reco::CandidateBaseRef muMinus = getTheMuMinus(selMuons);
   
-  if ( muPlus.isNonnull()  ) fillDistanceMap(evt, es, &(*muPlus), *distanceMuPlus);
-  if ( muMinus.isNonnull() ) fillDistanceMap(evt, es, &(*muMinus), *distanceMuMinus);
+  if ( muPlus.isNonnull()  ) fillDistanceMap(evt, es, &(*muPlus), *distanceMuPlus, *depositMuPlus);
+  if ( muMinus.isNonnull() ) fillDistanceMap(evt, es, &(*muMinus), *distanceMuMinus, *depositMuMinus);
 
   std::auto_ptr<reco::CandidateCollection> muons(new reco::CandidateCollection);
   if ( muPlus.isNonnull()  ) muons->push_back(new reco::ShallowCloneCandidate(muPlus));
@@ -60,11 +65,24 @@ void MuonCaloDistanceProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // maps of detId to distance traversed by muon through calorimeter cell
   evt.put(distanceMuPlus, "distancesMuPlus");
   evt.put(distanceMuMinus, "distancesMuMinus");
+
+  // maps of detId to energy deposited in calorimeter cell
+  evt.put(depositMuPlus, "depositsMuPlus");
+  evt.put(depositMuMinus, "depositsMuMinus");
 }
 
-void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::EventSetup& es, const reco::Candidate* muon, detIdToFloatMap& distanceMap)
+void MuonCaloDistanceProducer::fillDistanceMap(edm::Event& evt, const edm::EventSetup& es, const reco::Candidate* muon, detIdToFloatMap& distanceMap, detIdToFloatMap& depositMap)
 {
   TrackDetMatchInfo trackDetMatchInfo = getTrackDetMatchInfo(evt, es, trackAssociator_, trackAssociatorParameters_, muon);
+
+  BOOST_FOREACH(const EcalRecHit * rh, trackDetMatchInfo.crossedEcalRecHits)
+    depositMap[rh->detid().rawId()]+=rh->energy();
+  
+  BOOST_FOREACH(const HBHERecHit * rh, trackDetMatchInfo.crossedHcalRecHits)
+    depositMap[rh->detid().rawId()]+=rh->energy();
+
+  BOOST_FOREACH(const HORecHit * rh, trackDetMatchInfo.crossedHORecHits)
+    depositMap[rh->detid().rawId()]+=rh->energy();
 
   typedef std::map<std::string, const std::vector<DetId>*> CaloToDetIdMap;
   CaloToDetIdMap caloToDetIdMap;

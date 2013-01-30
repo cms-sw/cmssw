@@ -10,9 +10,9 @@
  * \author Tomasz Maciej Frueboes;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: MuonCaloDistanceProducer.h,v 1.1 2012/10/24 09:37:14 veelken Exp $
+ * $Id: MuonCaloDistanceProducer.h,v 1.2 2012/11/25 15:43:12 veelken Exp $
  *
  */
 
@@ -37,7 +37,7 @@ class MuonCaloDistanceProducer : public edm::EDProducer
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   typedef std::map<uint32_t, float> detIdToFloatMap;
-  void fillDistanceMap(edm::Event&, const edm::EventSetup&, const reco::Candidate*, detIdToFloatMap&);
+  void fillDistanceMap(edm::Event&, const edm::EventSetup&, const reco::Candidate*, detIdToFloatMap&, detIdToFloatMap&);
       
   edm::InputTag srcSelectedMuons_;
 
