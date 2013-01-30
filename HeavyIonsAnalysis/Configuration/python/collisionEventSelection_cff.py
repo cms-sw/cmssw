@@ -30,7 +30,7 @@ noBSChalo = hltLevel1GTSeed.clone(
 )
 
 #Reject beam scraping events standard pp configuration
-process.noscraping = cms.EDFilter("FilterOutScraping",
+NoScraping = cms.EDFilter("FilterOutScraping",
  applyfilter = cms.untracked.bool(True),
  debugOn = cms.untracked.bool(False),
  numtrack = cms.untracked.uint32(10),
@@ -46,4 +46,6 @@ collisionEventSelection = cms.Sequence(noBSChalo *
 PAcollisionEventSelection = cms.Sequence(hfCoincFilter *
                                          PAprimaryVertexFilter *
                                          siPixelRecHits *
-                                         hltPixelClusterShapeFilter)
+#                                         hltPixelClusterShapeFilter
+                                         NoScraping
+                                         )
