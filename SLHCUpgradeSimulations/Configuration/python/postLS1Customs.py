@@ -44,6 +44,11 @@ def customise_DQM(process):
     return process
 
 def customise_Validation(process):
+    process.validation_step.remove(process.PixelTrackingRecHitsValid)
+    # We don't run the HLT
+    process.validation_step.remove(process.HLTSusyExoVal)
+    process.validation_step.remove(process.hltHiggsValidator)
+    process.validation_step.remove(process.relvalMuonBits)
     return process
 
 def customise_Digi(process):
@@ -95,6 +100,13 @@ def customise_Reco(process):
     process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
 
     return process
+
+def customise_harvesting(process):
+    process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
+    process.dqmHarvesting.remove(process.dataCertificationJetMET)
+    process.dqmHarvesting.remove(process.sipixelEDAClient)
+    process.dqmHarvesting.remove(process.sipixelCertification)
+    return (process)        
 
 def recoOutputCustoms(process):
 
