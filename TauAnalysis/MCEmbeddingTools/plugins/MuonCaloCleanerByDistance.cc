@@ -1,4 +1,5 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/MuonCaloCleanerByDistance.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -19,17 +20,6 @@ MuonCaloCleanerByDistance::MuonCaloCleanerByDistance(const edm::ParameterSet& cf
 	detName != detNames.end(); ++detName ) {
     energyDepositCorrection_[*detName] = cfgEnergyDepositCorrection.getParameter<double>(*detName);
   }
-
-  static const double E[] = { 1.0, 1.40, 2.0, 3.0, 4.0, 8.0, 10.0,
-                            14.0, 20.0, 30.0, 40.0, 80.0, 100.0,
-                            140.0, 169.0, 200.0, 300.0, 400.0, 800.0, 1000.0,
-                            1400.0, 2000.0, 3000.0, 4000.0, 8000.0 };
-  static const double DEDX[] = { 1.385, 1.440, 1.500, 1.569, 1.618, 1.743, 1.788,
-                               1.862, 1.957, 2.101, 2.239, 2.778, 3.052,
-                               3.603, 4.018, 4.456, 5.876, 7.333, 13.283, 16.320,
-                               22.382, 31.625, 47.007, 62.559, 125.149 };
-  static const unsigned int N_ENTRIES = sizeof(E)/sizeof(E[0]);
-  dedxGraphPbwo4_ = new TGraph(N_ENTRIES, E, DEDX);
 
   // maps of detId to expected energy deposits of muon
   produces<detIdToFloatMap>("energyDepositsMuPlus");
@@ -85,16 +75,16 @@ void MuonCaloCleanerByDistance::fillEnergyDepositMap(const reco::Candidate& muon
     switch(detId.det())
     {
     case DetId::Ecal:
-      dedx = dedxGraphPbwo4_->Eval(muon.p());
-      rho = 8.28; // PbWO4
+      dedx = getDeDxForPbWO4(muon.p());
+      rho = DENSITY_PBWO4;
       break;
     case DetId::Hcal:
       // AB: We don't have a dedx curve for the HCAL. Use the PbWO4 one as an approximation,
       // the correction factors should be determined with respect to the PbWO4 curve.
-      dedx = dedxGraphPbwo4_->Eval(muon.p());
+      dedx = getDeDxForPbWO4(muon.p());
       if(detId.subdetId() == HcalOuter)
       {
-        rho = 7.87; // iron coil and return yoke
+        rho = DENSITY_IRON; // iron coil and return yoke
 
         // HO uses magnet coil as additional absorber, add to flight distance:
         const double theta = muon.theta();
@@ -102,12 +92,12 @@ void MuonCaloCleanerByDistance::fillEnergyDepositMap(const reco::Candidate& muon
       }
       else
       {
-        rho = 8.53; // brass absorber
+        rho = DENSITY_BRASS; // brass absorber
       }
 
       break;
     default:
-      throw cms::Exception("MuonCaloCleanerByDistance") << "Unknown detector type: " << key << ", ID=" << detId;
+      throw cms::Exception("MuonCaloCleanerByDistance") << "Unknown detector type: " << key << ", ID=" << static_cast<unsigned int>(detId);
     }
 
     energyDepositMap[rawDetId_and_distance->first] += distance * dedx * rho * energyDepositCorrection_value;

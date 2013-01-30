@@ -12,9 +12,9 @@
  * \author Tomasz Maciej Frueboes;
  *         Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: MuonCaloCleanerByDistance.h,v 1.1 2012/10/24 09:37:14 veelken Exp $
+ * $Id: MuonCaloCleanerByDistance.h,v 1.2 2012/10/25 14:41:37 aburgmei Exp $
  *
  */
 
@@ -30,8 +30,6 @@
 #include <DataFormats/Candidate/interface/CandidateFwd.h>
 
 #include <boost/foreach.hpp>
-
-#include <TGraph.h>
 
 class MuonCaloCleanerByDistance : public edm::EDProducer 
 {
@@ -52,7 +50,6 @@ class MuonCaloCleanerByDistance : public edm::EDProducer
   DetNaming detNaming_;
 
   std::map<std::string, double> energyDepositCorrection_;
-  TGraph* dedxGraphPbwo4_;
 };
 
 #endif

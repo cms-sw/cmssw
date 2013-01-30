@@ -1,4 +1,5 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/L1ExtraMEtMixerPlugin.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/embeddingAuxFunctions.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -14,7 +15,9 @@
 
 L1ExtraMEtMixerPlugin::L1ExtraMEtMixerPlugin(const edm::ParameterSet& cfg)
   : L1ExtraMixerPluginBase(cfg),
-    srcMuons_(cfg.getParameter<edm::InputTag>("srcMuons"))
+    srcMuons_(cfg.getParameter<edm::InputTag>("srcMuons")),
+    srcDistanceMapMuPlus_(cfg.getParameter<edm::InputTag>("distanceMapMuPlus")),
+    srcDistanceMapMuMinus_(cfg.getParameter<edm::InputTag>("distanceMapMuMinus"))
 {}
 
 void L1ExtraMEtMixerPlugin::registerProducts(edm::EDProducer& producer)
@@ -37,6 +40,14 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
 
   edm::Handle<reco::CandidateCollection> muons;
   evt.getByLabel(srcMuons_, muons);
+
+  edm::Handle<detIdToFloatMap> distanceMapMuPlus;
+  evt.getByLabel(srcDistanceMapMuPlus_, distanceMapMuPlus);
+  edm::Handle<detIdToFloatMap> distanceMapMuMinus;
+  evt.getByLabel(srcDistanceMapMuMinus_, distanceMapMuMinus);
+
+  if(muons->size() != 2 || (*muons)[0].charge() * (*muons)[1].charge() > 0)
+    throw cms::Exception("L1ExtraMEtMixer::produce") << "There must be exactly two oppositely charged input muons !!";
 
   // CV: keep code general and do not assume 
   //     that there is exactly one MET object per event.
@@ -120,29 +131,43 @@ void L1ExtraMEtMixerPlugin::produce(edm::Event& evt, const edm::EventSetup& es)
       metSumEt += met2_bx->etTotal();
       type = met2_bx->type();
     }
-    double metSumPt = TMath::Sqrt(metSumPx*metSumPx + metSumPy*metSumPy);
 
     // Subtract contribution by muons that were removed from the event
     for(reco::CandidateCollection::const_iterator iter = muons->begin(); iter != muons->end(); ++iter)
     {
       const reco::Candidate& cand = *iter;
+      const double dedx = getDeDxForPbWO4(cand.p());
 
-      // We subtract the average L1 ETM reconstructed for a single muon, which was determined
-      // in independent studies (see AnaL1CaloCleaner.cc).
-      double X = 0.0;
+      double len_ecal = 0.0;
+      double len_hcal = 0.0;
+      const detIdToFloatMap& distanceMap = (cand.charge() > 0) ? *distanceMapMuPlus : *distanceMapMuMinus;
+      for(detIdToFloatMap::const_iterator dist_iter = distanceMap.begin(); dist_iter != distanceMap.end(); ++dist_iter)
+      {
+        const DetId& id = dist_iter->first;
+        if(id.det() == DetId::Ecal) len_ecal += dist_iter->second;
+        if(id.det() == DetId::Hcal && id.subdetId() != HcalOuter) len_hcal += dist_iter->second;
+      }
+
+      // This is what we would expect from theory:
+      const double expected = dedx * (len_ecal * DENSITY_PBWO4 + len_hcal * DENSITY_BRASS);
+      double mean_deposited = expected;
+
+      // We subtract the average L1 ETM reconstructed for a single muon -- correction factors
+      // to theory have been measured in indepedent studies (see AnaL1CaloCleaner.cc).
       if(abs(cand.eta()) < 1.2)
-        X = 1.941 / cand.pt();
+        mean_deposited *= 0.75;
       else if(abs(cand.eta()) < 1.7)
-        X = 1.261 / cand.pt();
+        mean_deposited *= 0.6;
       else
-        X = 0.5 / cand.pt();
+        mean_deposited *= 0.3;
 
       // The direction is given by the muon direction
-      metSumPx += X * cand.px();
-      metSumPy += X * cand.py();
-      metSumEt += X * cand.et();
+      metSumPx += mean_deposited * cand.px() / cand.pt();
+      metSumPy += mean_deposited * cand.py() / cand.pt();
+      metSumEt -= mean_deposited;
     }
 
+    const double metSumPt = TMath::Sqrt(metSumPx*metSumPx + metSumPy*metSumPy);
     // CV: setting edm::Refs to L1Gct objects not implemented yet
     l1extra::L1EtMissParticle metSum_bx(
       reco::Candidate::LorentzVector(metSumPx, metSumPy, 0., metSumPt),

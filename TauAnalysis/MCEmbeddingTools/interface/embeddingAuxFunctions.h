@@ -8,9 +8,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: embeddingAuxFunctions.h,v 1.4 2012/12/13 09:52:05 veelken Exp $
+ * $Id: embeddingAuxFunctions.h,v 1.5 2012/12/18 15:59:25 veelken Exp $
  *
  */
 
@@ -33,5 +33,11 @@ TrackDetMatchInfo getTrackDetMatchInfo(const edm::Event&, const edm::EventSetup&
 
 bool matchMuonDetId(uint32_t, uint32_t);
 void printMuonDetId(const edm::EventSetup&, uint32_t);
+
+double getDeDxForPbWO4(double p);
+
+static const double DENSITY_PBWO4 = 8.28;
+static const double DENSITY_BRASS = 8.53;
+static const double DENSITY_IRON = 7.87;
 
 #endif

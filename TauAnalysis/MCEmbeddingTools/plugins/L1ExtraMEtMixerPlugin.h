@@ -9,9 +9,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: L1ExtraMEtMixerPlugin.h,v 1.2 2012/10/14 12:22:24 veelken Exp $
+ * $Id: L1ExtraMEtMixerPlugin.h,v 1.3 2013/01/28 11:22:19 aburgmei Exp $
  *
  */
 
@@ -34,7 +34,11 @@ class L1ExtraMEtMixerPlugin : public L1ExtraMixerPluginBase
 
   virtual void produce(edm::Event&, const edm::EventSetup&);
  private:
+  typedef std::map<uint32_t, float> detIdToFloatMap;
+
   edm::InputTag srcMuons_;
+  edm::InputTag srcDistanceMapMuPlus_;
+  edm::InputTag srcDistanceMapMuMinus_;
 };
 
 #endif
