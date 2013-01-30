@@ -13,7 +13,6 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <fstream>
 
-int CSCTFPtLUT::_instances = 0;
 ptdat* CSCTFPtLUT::pt_lut = NULL;
 bool CSCTFPtLUT::lut_read_in = false;
 // L1MuTriggerScales CSCTFPtLUT::trigger_scale;
@@ -87,18 +86,16 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es)
         //std::cout << "pt_method from 4 " << std::endl; 
 	lowQualityFlag = 4;
 	isBeamStartConf = true;
+	pt_lut = new ptdat[1<<21];
 
 	edm::ESHandle<L1MuCSCPtLut> ptLUT;
 	es.get<L1MuCSCPtLutRcd>().get(ptLUT);
 	const L1MuCSCPtLut *myConfigPt_ = ptLUT.product();
 
-  if (!lut_read_in)
-    {
-      pt_lut = new ptdat[1<<21];
-      memcpy((void*)pt_lut,(void*)myConfigPt_->lut(),(1<<21)*sizeof(ptdat));
-      lut_read_in = true;
-    }
-  
+	memcpy((void*)pt_lut,(void*)myConfigPt_->lut(),(1<<21)*sizeof(ptdat));
+
+	lut_read_in = true;
+
 	edm::ESHandle< L1MuTriggerScales > scales ;
 	es.get< L1MuTriggerScalesRcd >().get( scales ) ;
 	trigger_scale = scales.product() ;
@@ -108,8 +105,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es)
 	trigger_ptscale = ptScale.product() ;
 
 	ptMethods = CSCTFPtMethods( ptScale.product() ) ;
-
-  _instances++;
+ 
 }
 ///
 
@@ -178,18 +174,20 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
     }
 
   isBeamStartConf = pset.getUntrackedParameter<bool>("isBeamStartConf", true);
-  _instances++;
+  
 }
 
 ptdat CSCTFPtLUT::Pt(const ptadd& address) const
 {
   ptdat result;
-  if(read_pt_lut && lut_read_in)
-    {
-      int shortAdd = (address.toint()& 0x1fffff);
-      result = pt_lut[shortAdd];
-    } else
-    result = calcPt(address);
+  /*
+  if(read_pt_lut) 
+  {
+    int shortAdd = (address.toint()& 0x1fffff);
+    result = pt_lut[shortAdd];
+  } else
+  */
+  result = calcPt(address);
   return result;
 }
 
