@@ -98,7 +98,7 @@ struct MySimTrack
   Float_t propagatedSimHitRhoGEMl1Both, propagatedSimHitEtaGEMl1Both, propagatedSimHitPhiGEMl1Both;
   Float_t propagatedSimHitRhoGEMl2Both, propagatedSimHitEtaGEMl2Both, propagatedSimHitPhiGEMl2Both;
   Float_t propagatedSimHitRhoCSCBoth, propagatedSimHitEtaCSCBoth, propagatedSimHitPhiCSCBoth;
-  Float_t charge;
+  Float_t charge,pt,eta,phi;
   Int_t hasGEMl1, hasGEMl2, hasCSC;
 };
 
@@ -360,6 +360,9 @@ void GEMSimHitAnalyzer::bookSimTracksTree()
   track_tree->Branch("propagatedSimHitPhiCSCBoth",&track.propagatedSimHitPhiCSCBoth);
 
   track_tree->Branch("charge",&track.charge);
+  track_tree->Branch("pt",&track.pt);
+  track_tree->Branch("eta",&track.eta);
+  track_tree->Branch("phi",&track.phi);
   track_tree->Branch("hasGEMl1",&track.hasGEMl1);
   track_tree->Branch("hasGEMl2",&track.hasGEMl2);
   track_tree->Branch("hasCSC",&track.hasCSC);
@@ -421,8 +424,8 @@ void GEMSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
   {
     RPCDetId id(itHit->detUnitId());
     if (id.region() == 0) continue; // we don't care about barrel RPCs
-    
-    csc_sh.eventNumber = iEvent.id().event();
+
+    rpc_sh.eventNumber = iEvent.id().event();
     rpc_sh.detUnitId = itHit->detUnitId();
     rpc_sh.particleType = itHit->particleType();
     rpc_sh.x = itHit->localPosition().x();
@@ -460,7 +463,7 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
   for (edm::PSimHitContainer::const_iterator itHit = GEMHits->begin(); itHit != GEMHits->end(); ++itHit)
   {
 
-    csc_sh.eventNumber = iEvent.id().event();
+    gem_sh.eventNumber = iEvent.id().event();
     gem_sh.detUnitId = itHit->detUnitId();
     gem_sh.particleType = itHit->particleType();
     gem_sh.x = itHit->localPosition().x();
@@ -614,6 +617,9 @@ void GEMSimHitAnalyzer::analyzeTracks()
     track.propagatedSimHitPhiCSCBoth = trk_csc_both.phi();
 
     track.charge = simTrkProcessor.track(itrk)->charge();
+    track.charge = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Pt();
+    track.charge = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Eta();
+    track.charge = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Phi();
     track.hasGEMl1 = static_cast<int>(has_gem_l1);
     track.hasGEMl2 = static_cast<int>(has_gem_l2);
     track.hasCSC = static_cast<int>(has_csc);
