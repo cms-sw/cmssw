@@ -83,6 +83,9 @@
 #include <sched.h>
 #endif
 
+//Needed for introspection
+#include "Cintex/Cintex.h"
+
 namespace edm {
 
   namespace event_processor {
@@ -585,6 +588,8 @@ namespace edm {
                         serviceregistry::ServiceLegacy iLegacy) {
 
     //std::cerr << processDesc->dump() << std::endl;
+   
+    ROOT::Cintex::Cintex::Enable();
 
     boost::shared_ptr<ParameterSet> parameterSet = processDesc->getProcessPSet();
     //std::cerr << parameterSet->dump() << std::endl;
