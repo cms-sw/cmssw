@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -62,6 +63,11 @@ void GEMCSCPadDigiReader::analyze(const edm::Event & event, const edm::EventSetu
   edm::Handle<GEMCSCPadDigiCollection> pads;
   event.getByLabel(label_pads_, pads);
 
+  if (pads->begin() == pads->end()) return; // no pads in event
+
+  edm::Handle<GEMCSCPadDigiCollection> co_pads;
+  event.getByLabel(edm::InputTag(label_pads_, "Coincidence"), co_pads);
+
   edm::Handle<GEMDigiCollection> digis;
   event.getByLabel(label_digis_, digis);
 
@@ -111,7 +117,7 @@ void GEMCSCPadDigiReader::analyze(const edm::Event & event, const edm::EventSetu
                        return s < first_strip || s > last_strip;
                      }
                     );
-      cout<<id <<" paddigi(pad,bx) "<<p->pad()<<"  "<<*p<<"   has "<<pads_strips.size()
+      cout<<id <<" paddigi(pad,bx) "<<*p<<"   has "<<pads_strips.size()
           <<" strip digis strips in range ["<<first_strip<<","<<last_strip<<"]: ";
       copy(pads_strips.begin(), pads_strips.end(), ostream_iterator<int>(cout, " "));
       cout<<endl;
@@ -120,10 +126,23 @@ void GEMCSCPadDigiReader::analyze(const edm::Event & event, const edm::EventSetu
   }// for (detids with pads)
 
   cout<<"--------------"<<endl;
+  cout<<" Coincidence pads:"<<endl;
+
+  for (auto pad_range_it = co_pads->begin(); pad_range_it != co_pads->end(); ++pad_range_it)
+  {
+    auto id = (*pad_range_it).first;
+
+    // loop over copads of this DetUnit and print stuff
+    auto pads_range = (*pad_range_it).second;
+    for (auto p = pads_range.first; p != pads_range.second; ++p)
+    {
+      cout<< id <<" copad(pad,bx) "<<*p<<endl;
+    }
+    cout<<"----- end event -----"<<endl;
+  }
 }
 
 
 #endif
 #include <FWCore/Framework/interface/MakerMacros.h>
 DEFINE_FWK_MODULE(GEMCSCPadDigiReader);
-

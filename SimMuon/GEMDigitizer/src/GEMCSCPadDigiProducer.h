@@ -32,7 +32,7 @@ public:
 
 private:
   
-  void buildPads(const GEMDigiCollection &digis, GEMCSCPadDigiCollection &out_pads);
+  void buildPads(const GEMDigiCollection &digis, GEMCSCPadDigiCollection &out_pads, GEMCSCPadDigiCollection &out_co_pads);
 
   /// Name of input digi Collection
   edm::InputTag input_;
