@@ -220,10 +220,13 @@ namespace edm {
   public:
     LumiReWeighting( std::string generatedFile,
 		     std::string dataFile,
-		     std::string GenHistName,
-		     std::string DataHistName);
+		     std::string GenHistName  = "pileup",
+		     std::string DataHistName = "pileup",
+		     int verbosity = 1 );
     
-    LumiReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr);
+    LumiReWeighting( std::vector< float > MC_distr, 
+		     std::vector< float > Lumi_distr,
+		     int verbosity = 1 );
 
     LumiReWeighting ( ) { } ;
 
@@ -253,6 +256,7 @@ namespace edm {
     int  OldLumiSection_;
     bool FirstWarning_;
 
+    int mVerbosity_;
 
   };
 }

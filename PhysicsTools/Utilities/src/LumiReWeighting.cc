@@ -15,6 +15,10 @@
   and produce weights to convert the input distribution (1) to the latter (2).
 
   \author Salvatore Rappoccio, modified by Mike Hildreth
+
+  Jan 29, 2013: modified by Gena Kukartsev
+    - added verbosity setting,
+    - moved constructor default parameter values to header
   
 */
 #include "TRandom1.h"
@@ -36,13 +40,15 @@
 using namespace edm;
 
 LumiReWeighting::LumiReWeighting( std::string generatedFile,
-		   std::string dataFile,
-		   std::string GenHistName = "pileup",
-		   std::string DataHistName = "pileup" ) :
+				  std::string dataFile,
+				  std::string GenHistName,
+				  std::string DataHistName,
+				  int verbosity ) :
       generatedFileName_( generatedFile), 
       dataFileName_     ( dataFile ), 
-      GenHistName_        ( GenHistName ), 
-      DataHistName_        ( DataHistName )
+      GenHistName_      ( GenHistName ), 
+      DataHistName_     ( DataHistName ),
+      mVerbosity_       ( verbosity )
       {
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
@@ -71,8 +77,10 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 
 	int NBins = weights_->GetNbinsX();
 
-	for(int ibin = 1; ibin<NBins+1; ++ibin){
-	  std::cout << "   " << ibin-1 << " " << weights_->GetBinContent(ibin) << std::endl;
+	if (mVerbosity_>0){
+	  for(int ibin = 1; ibin<NBins+1; ++ibin){
+	    std::cout << "   " << ibin-1 << " " << weights_->GetBinContent(ibin) << std::endl;
+	  }
 	}
 
 
@@ -80,7 +88,9 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	OldLumiSection_ = -1;
 }
 
-LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< float > Lumi_distr) {
+LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, 
+				  std::vector< float > Lumi_distr,
+				  int verbosity ):mVerbosity_(verbosity) {
   // no histograms for input: use vectors
   
   // now, make histograms out of them:
@@ -126,8 +136,10 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< fl
 
   std::cout << " Lumi/Pileup Reweighting: Computed Weights per In-Time Nint " << std::endl;
 
-  for(int ibin = 1; ibin<NBins+1; ++ibin){
-    std::cout << "   " << ibin-1 << " " << weights_->GetBinContent(ibin) << std::endl;
+  if (mVerbosity_>0){
+    for(int ibin = 1; ibin<NBins+1; ++ibin){
+      std::cout << "   " << ibin-1 << " " << weights_->GetBinContent(ibin) << std::endl;
+    }
   }
 
   FirstWarning_ = true;
