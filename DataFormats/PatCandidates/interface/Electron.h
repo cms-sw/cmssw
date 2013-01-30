@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.39 2012/04/24 15:19:28 vadler Exp $
+// $Id: Electron.h,v 1.40 2012/04/25 17:15:37 cbern Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.39 2012/04/24 15:19:28 vadler Exp $
+  \version  $Id: Electron.h,v 1.40 2012/04/25 17:15:37 cbern Exp $
 */
 
 
@@ -127,6 +127,9 @@ namespace pat {
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
       // ---- PF specific methods ----
+      bool isPF() const{ return isPF_; }
+      void setIsPF(bool hasPFCandidate) { isPF_ = hasPFCandidate ; }
+
       /// reference to the source PFCandidates; null if this has been built from a standard electron
       reco::PFCandidateRef pfCandidateRef() const;
       /// add a reference to the source IsolatedPFCandidate
@@ -201,6 +204,7 @@ namespace pat {
       std::vector<IdPair> electronIDs_;
 
       // ---- PF specific members ----
+      bool isPF_;
       /// true if the IsolatedPFCandidate is embedded
       bool embeddedPFCandidate_;
       /// A copy of the source IsolatedPFCandidate is stored in this vector if embeddedPFCandidate_ if True

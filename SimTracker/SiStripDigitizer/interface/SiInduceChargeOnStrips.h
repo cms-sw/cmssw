@@ -17,7 +17,7 @@ class SiInduceChargeOnStrips{
 public:
   
   virtual ~SiInduceChargeOnStrips() { }
-  virtual void induce(SiChargeCollectionDrifter::collection_type *, const StripGeomDetUnit&, 
+  virtual void induce(SiChargeCollectionDrifter::collection_type, const StripGeomDetUnit&, 
 		      std::vector<double>&, size_t&, size_t&) = 0 ;
 };
 #endif

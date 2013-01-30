@@ -65,10 +65,12 @@ class Iov :
                Plug = __import__(self.__modName)
            except RuntimeError :
                self.__modName = 0
+
+           myDB =  db.iov(tag)
            self.__me = db.iov(tag)
-           if (till) : self.__me.setRange(since,till)
-           if (head) : self.__me.head(head)
-           if (tail) : self.__me.tail(tail)
+           if (till) : self.__me = myDB.range(since,till)
+           if (head) : self.__me = myDB.rangeHead(sinte, till, head)
+           if (tail) : self.__me = myDB.rangeTail(since, till, tail)
            self.__db.commitTransaction()
 
        def list(self) :

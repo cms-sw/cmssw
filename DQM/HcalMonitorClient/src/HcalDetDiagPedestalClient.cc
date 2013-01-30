@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagPedestalClient.cc
  * 
- * $Date: 2010/03/25 21:24:52 $
- * $Revision: 1.10 $
+ * $Date: 2011/04/12 18:25:42 $
+ * $Revision: 1.11 $
  * \author J. Temple
  * \brief Hcal DetDiagPedestal Client class
  */
@@ -1238,3 +1238,6 @@ int  newHFP[4]={0,0,0,0},newHFM[4]={0,0,0,0},newHO[4] ={0,0,0,0};
   htmlFile.close();
   can->Close();
 }
+
+HcalDetDiagPedestalClient::~HcalDetDiagPedestalClient()
+{}

@@ -8,7 +8,7 @@ DCCTCCBlock::DCCTCCBlock ( DCCDataUnpacker  * u, EcalElectronicsMapper * m, DCCE
 DCCDataBlockPrototype(u,m,e,unpack){}
 
  
-int DCCTCCBlock::unpack(uint64_t ** data, unsigned int * dwToEnd, short tccChId){ 
+int DCCTCCBlock::unpack(const uint64_t ** data, unsigned int * dwToEnd, short tccChId){ 
  
   dwToEnd_    = dwToEnd;  
   datap_      = data;

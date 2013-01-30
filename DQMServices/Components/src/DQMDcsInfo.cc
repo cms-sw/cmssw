@@ -2,8 +2,8 @@
  * \file DQMDcsInfo.cc
  * \author A.Meyer - DESY
  * Last Update:
- * $Date: 2010/03/28 15:27:36 $
- * $Revision: 1.1 $
+ * $Date: 2010/03/29 18:34:06 $
+ * $Revision: 1.2 $
  * $Author: ameyer $
  *
  */
@@ -37,6 +37,14 @@ DQMDcsInfo::~DQMDcsInfo(){
 
 void 
 DQMDcsInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
+
+  // Fetch GlobalTag information and fill the string/ME.
+  dbe_->cd();  
+  dbe_->setCurrentFolder(subsystemname_ +"/CMSSWInfo/");
+  const edm::ParameterSet &globalTagPSet = edm::getProcessParameterSet()
+					   .getParameterSet("PoolDBESSource@GlobalTag");
+
+  dbe_->bookString("globalTag_Step1", globalTagPSet.getParameter<std::string>("globaltag"));
 
   dbe_->cd();  
   dbe_->setCurrentFolder(subsystemname_ + "/" + dcsinfofolder_);

@@ -4,6 +4,7 @@ globalTag = {
   'GRun': 'auto:startup',       # use as default
   'data': 'auto:hltonline',
   'HIon': 'auto:starthi',
+  'PIon': 'auto:startup',
 }
 
 
@@ -68,7 +69,7 @@ class HLTProcessOptions(object):
   def __init__(self):
     self.menu       = None        #     hlt menu
     self.name       = 'HLTX'      # (*) if set, override the process name
-    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon' or 'online' menus
+    self.type       = 'GRun'      #     defines global options for 'GRun', 'HIon', 'PIon' or 'online' menus
     self.data       = True        #     run on data (true) or mc (false)
     self.online     = False       # (*) run online (true) or offline (false)
     self.globaltag  = None        # (*) if set, override the GlobalTag
@@ -82,6 +83,7 @@ class HLTProcessOptions(object):
     self.timing     = False       #     if set, instrument the menu for timing measurements (implies profiling)
     self.paths      = None        #     if set, include in the dump only the given paths (wildcards are supported)
     self.input      = None        # (*) if set, run on a specific input file
+    self.events     = 100         # (*) run on these many events
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
     self.fastsim    = False       #     prepare a configuration fragment suitable for FastSim
@@ -108,13 +110,11 @@ class HLTProcessOptions(object):
       object.__setattr__(self, 'open',       True)
       object.__setattr__(self, 'unprescale', True)
     elif name is 'profiling' and value:
-      # '--profiling' implies implies '--no-output'
+      # '--profiling'
       object.__setattr__(self, 'profiling',  True)
-      object.__setattr__(self, 'output',     'none')
     elif name is 'timing' and value:
-      # '--timing' implies '--profiling' and '--no-output'
+      # '--timing' implies '--profiling'
       object.__setattr__(self, 'timing',     True)
       object.__setattr__(self, 'profiling',  True)
-      object.__setattr__(self, 'output',     'none')
     else:
       object.__setattr__(self, name, value)

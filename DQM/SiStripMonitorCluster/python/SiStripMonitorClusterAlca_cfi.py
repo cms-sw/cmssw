@@ -22,6 +22,10 @@ SiStripCalZeroBiasMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
                                      
     TopFolderName = cms.string('AlcaReco/SiStrip'),
                                      
+    BPTXfilter     = cms.PSet(),
+    PixelDCSfilter = cms.PSet(),
+    StripDCSfilter = cms.PSet(),
+                                                  
     CreateTrendMEs = cms.bool(False),
     Trending = cms.PSet(
         Nbins = cms.int32(600),
@@ -134,13 +138,13 @@ SiStripCalZeroBiasMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         xmax = cms.double(1.0*60*60),
         ymin = cms.double(0.0),
         ymax = cms.double(0.0),
-        subdetswitchon = cms.bool(False)
+        subdetswitchon = cms.bool(True)
     ),
 
     TH1TotalNumberOfClusters = cms.PSet(
-        Nbinx          = cms.int32(50),
+        Nbinx          = cms.int32(500),
         xmin           = cms.double(-0.5),
-        xmax           = cms.double(299.5),
+        xmax           = cms.double(19999.5),
         subdetswitchon = cms.bool(True)
     ),
 
@@ -151,16 +155,16 @@ SiStripCalZeroBiasMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         Nbinsy = cms.int32(200),
         ymin = cms.double(0.0),
         ymax = cms.double(0.0),
-        subdetswitchon = cms.bool(False)
+        subdetswitchon = cms.bool(True)
         ),
 
     TH2ClustersApvCycle = cms.PSet(
         Nbinsx = cms.int32(70),
         xmin = cms.double(-0.5),
         xmax = cms.double(69.5),
-        Nbinsy = cms.int32(200),
+        Nbinsy = cms.int32(400),
         ymin = cms.double(0.0),
-        yfactor = cms.double(0.0002),
+        yfactor = cms.double(0.01),
         subdetswitchon = cms.bool(True)
     ),
 
