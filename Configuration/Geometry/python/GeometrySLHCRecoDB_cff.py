@@ -6,8 +6,10 @@ from Geometry.CommonDetUnit.globalTrackingSLHCGeometryDB_cfi import *
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingSLHCGeometryDB_cfi import *
-#trackerSLHCGeometryDB.applyAlignment = cms.bool(False)
-trackerSLHCGeometryDB.alignmentsLabel = cms.string('fakeForIdeal')
+trackerSLHCGeometryDB.applyAlignment = cms.bool(False)
+#
+# When there will be an alignment, perhaps, it will use a label 
+#trackerSLHCGeometryDB.alignmentsLabel = cms.string('fakeForIdeal')
 
 #Muon
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
