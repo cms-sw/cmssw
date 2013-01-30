@@ -58,7 +58,7 @@ ecalPedestalClient = cms.untracked.PSet(
             description = cms.untracked.string('Summary of the pedestal quality for PN diodes. A channel is red if the pedestal mean is off from ' + str(expectedPNMean) + ' by ' + str(tolerancePNMean) + ' or if the pedestal RMS is greater than threshold. RMS thresholds are ' + ('%.1f, %.1f' % tuple(tolerancePNRMS)) + ' for gains 1 and 16 respectively. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         ),
         QualitySummary = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPT pedestal quality G%(gain)s summary'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sPT pedestal quality G%(gain)s summary%(suffix)s'),
             otype = cms.untracked.string('Ecal3P'),
             multi = cms.untracked.int32(3),
             kind = cms.untracked.string('TH2F'),
