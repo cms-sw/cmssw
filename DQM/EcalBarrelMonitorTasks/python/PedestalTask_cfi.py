@@ -19,7 +19,7 @@ ecalPedestalTask = cms.untracked.PSet(
             description = cms.untracked.string('Pedestal distribution of the PN diodes.')
         ),
         Occupancy = cms.untracked.PSet(
-            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT pedestal digi occupancy'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT pedestal digi occupancy%(suffix)s'),
             kind = cms.untracked.string('TH2F'),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('SuperCrystal'),
