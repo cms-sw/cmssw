@@ -21,7 +21,7 @@ using namespace std;
 
 bool descend(float i,float j) { return (i<j); }
 
-const int nhist = 1;
+const int nhist = 5;
 TH2D * Npart_vs_PtGenPlusEta4[nhist];
 TH2D * PtGenPlusEta4_vs_HFplusEta4[nhist];
 TH2D * Npart_vs_PtGenMinusEta4[nhist];
@@ -112,6 +112,12 @@ void ProduceResponsePlots2(const char * infilename = "/tmp/azsigmon/HiForest_pPb
  double PtGenPlusEta4, PtGenMinusEta4;
  int NGenTrk;
 
+ TFile * effFile = new TFile("out/efficiencies_Hijing_v3.root","read");
+ TF1 * fitEff[nhist];
+ for(int i=0; i<nhist; i++) {
+  fitEff[i] = (TF1*)effFile->Get(Form("HFtowersPlusTrunc/fitEff%d",i));
+ }
+
  //Create 1D and 2D histograms
  bool sel[nhist] = {0};
 
@@ -147,11 +153,11 @@ void ProduceResponsePlots2(const char * infilename = "/tmp/azsigmon/HiForest_pPb
 
    //gen particle loop
    for(int i=0; i<mult; i++) {
-     if (sta[i]==1 && eta[i] > 4.0) { //HFtowersPlusEta4
+     if (sta[i]==1 && eta[i] > 4.0 && eta[i] < 5.2) { //HFtowersPlusEta4
        NGenPlusEta4++;
        PtGenPlusEta4 += pt[i];
      }
-     else if (sta[i]==1 && eta[i]<-4) {
+     else if (sta[i]==1 && eta[i]<-4 && eta[i]>-5.2) {
        NGenMinusEta4++;
        PtGenMinusEta4 += pt[i];
      }
@@ -160,7 +166,9 @@ void ProduceResponsePlots2(const char * infilename = "/tmp/azsigmon/HiForest_pPb
      }
    }
 
-   if (selHFp == 1 && selHFm == 1 && selPix == 1 && selVtx == 1 && trig == 1) sel[0] = 1;
+   for(int i=0; i<nhist; i++) {
+     if (rand() > fitEff[i]->Eval(hfpluseta4)) sel[i] = 1;
+   }
 
    for(int ih = 0; ih < nhist; ih++) {
     if(sel[ih]) {
@@ -236,14 +244,14 @@ float getTracksByGen(float Npart){
 
 }
 //------------------------------------------------------------------------
-void makeSmearedTable(const int nbins = 100, const string label = "HFtowersPlusTrunc", const char * tag = "CentralityTable_HFtowersPlusTrunc_SmearedGlauber_v5") {
+void makeSmearedTable(const int nbins = 100, const string label = "HFtowersPlusTrunc", const char * tag = "CentralityTable_HFtowersPlusTrunc_SmearedGlauber_sigma74_eff0_v5", int eff = 0) {
 
  TH1::SetDefaultSumw2();
  const char * inputMCforest = Form("/tmp/azsigmon/HiForest_pPb_Hijing_NEWFIX_v2.root");
 
  ProduceResponsePlots2(inputMCforest);
 
- bool plot = true;
+ bool plot = false;
  if(plot) {
    TCanvas *c1 = new TCanvas();
    Npart_vs_PtGenPlusEta4[0]->Draw("colz");
@@ -264,8 +272,8 @@ void makeSmearedTable(const int nbins = 100, const string label = "HFtowersPlusT
  bool binTracks = label.compare("Tracks") == 0;
 
  if (binHFplusTrunc) {
-   getProjections(Npart_vs_PtGenPlusEta4[0],Proj1,"Proj1",1,30);
-   getProjections(PtGenPlusEta4_vs_HFplusEta4[0],Proj2,"Proj2",1,140);
+   getProjections(Npart_vs_PtGenPlusEta4[eff],Proj1,"Proj1",1,30);
+   getProjections(PtGenPlusEta4_vs_HFplusEta4[eff],Proj2,"Proj2",1,140);
  }
  else if (binHFminusTrunc) {
    getProjections(Npart_vs_PtGenMinusEta4[0],Proj1,"Proj1",1,30);
@@ -278,13 +286,21 @@ void makeSmearedTable(const int nbins = 100, const string label = "HFtowersPlusT
 
  //input Glauber ntuple
  const char * infilename = Form("/afs/cern.ch/work/t/tuos/public/pPb/Glauber/1M/Standard/Phob_Glau_pPb_sNN70mb_v15_1M_dmin04.root");
+ //const char * infilename = Form("/afs/cern.ch/work/t/tuos/public/pPb/Glauber/1M/D/D04914/Phob_Glau_pPb_sNN70mb_v15_1M_D04914.root");
+ //const char * infilename = Form("/afs/cern.ch/work/t/tuos/public/pPb/Glauber/1M/D/D06006/Phob_Glau_pPb_sNN70mb_v15_1M_D06006.root");
+ //const char * infilename = Form("/afs/cern.ch/work/t/tuos/public/pPb/Glauber/1M/R/R649/Phob_Glau_pPb_sNN70mb_v15_1M_R649.root");
+ //const char * infilename = Form("/afs/cern.ch/work/t/tuos/public/pPb/Glauber/1M/R/R675/Phob_Glau_pPb_sNN70mb_v15_1M_R675.root");
+ //const char * infilename = Form("/afs/cern.ch/work/t/tuos/public/pPb/Glauber/1M/dmin/dmin00/Phob_Glau_pPb_sNN70mb_v15_1M_dmin00.root");
+ //const char * infilename = Form("/afs/cern.ch/work/t/tuos/public/pPb/Glauber/1M/dmin/dmin08/Phob_Glau_pPb_sNN70mb_v15_1M_dmin08.root");
+ //const char * infilename = Form("/afs/cern.ch/work/t/tuos/public/pPb/Glauber/1M/sigma/sigma66/Phob_Glau_pPb_sNN66mb_v15_1M_dmin04.root");
+ //const char * infilename = Form("/afs/cern.ch/work/t/tuos/public/pPb/Glauber/1M/sigma/sigma74/Phob_Glau_pPb_sNN74mb_v15_1M_dmin04.root");
  TChain * t = new TChain("nt_p_Pb");
  t->Add(infilename);
 
  //output
  //const char* outfilename = "out/tables_Glauber2012B_AmptResponse_d20130116_v4.root";
  //const char* outfilename = "out/tables_Glauber2012B_EposLHCResponse_d20130118_v4.root";
- const char* outfilename = "out/tables_Glauber2012B_HijingResponse_d20130122_v5.root";
+ const char* outfilename = "out/tables_Glauber2012B_HijingResponse_d20130130_v5.root";
  TFile * outf = new TFile(outfilename,"update");
  outf->cd();
  TDirectory* dir = outf->mkdir(tag);

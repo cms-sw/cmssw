@@ -62,14 +62,14 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  const int nTrees = 1;
  //string inFileNames[nTrees] = {"/tmp/azsigmon/HiForest_pPb_Hijing_NEWFIX_v2.root"};
  //string inFileNames[nTrees] = {"/tmp/azsigmon/HiForest_pPb_Epos_336800.root"};
- string inFileNames[nTrees] = {"/tmp/azsigmon/PA2013_HiForest_Express_r0_pilot_minbias_v0.root"};
+ string inFileNames[nTrees] = {"/tmp/azsigmon/pPbData_HiEvtAnalyzer_HiTree_NewCentralitySoftware.root"};
  TChain * t = new TChain("hiEvtAnalyzer/HiTree");
  for (int i = 0; i<nTrees; i++) {
     t->Add(inFileNames[i].data());
  }
 
  //Output files and tables
- TFile * outFile = new TFile("out/datatables_Glauber2012B_d20130121_v5.root","recreate");
+ TFile * outFile = new TFile("out/datatables_Glauber2012B_d20130130_v5.root","recreate");
  //TFile * outFile = new TFile("out/tables_Ampt_d20121115_v3.root","update");
  //TFile * outFile = new TFile("out/tables_Epos_d20121115_v3.root","update");
  //TFile * outFile = new TFile("out/tables_Hijing_d20130119_v4.root","update");
@@ -85,20 +85,22 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  //For data extra inputfile with Glauber centrality table and efficiency file
  TFile * effFile;
  TH1F * hEff; 
+ TF1 * fitEff;
  TFile * inputMCfile;
  CentralityBins* inputMCtable;
  if(!isMC){
    //effFile = new TFile("out/efficiencies_Ampt.root","read");
-   //effFile = new TFile("out/efficiencies_Hijing.root","read");
-   effFile = new TFile("out/efficiencies_EposLHC_v2.root","read");
+   effFile = new TFile("out/efficiencies_Hijing_v3.root","read");
+   //effFile = new TFile("out/efficiencies_EposLHC_v2.root","read");
    hEff = (TH1F*)effFile->Get(Form("%s/hEff",label.data()));
+   fitEff = (TF1*)effFile->Get(Form("%s/fitEff1",label.data()));
    //inputMCfile = new TFile("out/tables_Glauber2012_AmptResponse_d20121115_v3.root","read");
    //inputMCfile = new TFile("out/tables_Glauber2012_HijingResponse_d20121115_v3.root","read");
-   inputMCfile = new TFile("out/tables_Glauber2012B_EposLHCResponse_d20130118_v4.root","read");
-   inputMCtable = (CentralityBins*)inputMCfile->Get(Form("CentralityTable_%s_SmearedGlauber_v4/run1",label.data()));
+   inputMCfile = new TFile("out/tables_Glauber2012B_HijingResponse_d20130122_v5.root","read");
+   inputMCtable = (CentralityBins*)inputMCfile->Get(Form("CentralityTable_%s_SmearedGlauber_v5/run1",label.data()));
    //txtfile << "Using AMPT efficiency and AMPT smeared Glauber table" << endl << endl;
-   txtfile << "Using EPOS efficiency and EPOS smeared Glauber table" << endl << endl;
-   //txtfile << "Using HIJING efficiency and HIJING smeared Glauber table" << endl << endl;
+   //txtfile << "Using EPOS efficiency and EPOS smeared Glauber table" << endl << endl;
+   txtfile << "Using HIJING efficiency and HIJING smeared Glauber table" << endl << endl;
  }
 
  //Setting up variables and branches
@@ -106,11 +108,13 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  vector<float> values;
  TH1F * hist;
  if(!isMC) hist = new TH1F("hist","",hEff->GetNbinsX(),hEff->GetBinLowEdge(1),hEff->GetBinLowEdge(hEff->GetNbinsX()));
+ //if(!isMC) hist = new TH1F("hist","",2000,0,200);
 
  float vtxZ, b, npart, ncoll, nhard, hf, hfplus, hfpluseta4, hfminuseta4, hfminus, hfhit, ee, eb;
- int run, npix, npixtrks, ntrks;
+ int run, lumi, npix, npixtrks, ntrks;
  t->SetBranchAddress("vz",&vtxZ);
  t->SetBranchAddress("run",&run);
+ //t->SetBranchAddress("lumi",&lumi);
  if(isMC){
     t->SetBranchAddress("b",&b);
     t->SetBranchAddress("Npart",	&npart);
@@ -129,6 +133,19 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  t->SetBranchAddress("hiNpixelTracks",	&npixtrks);
  t->SetBranchAddress("hiNtracks",	&ntrks);
  //t->SetBranchAddress("hiNtracksOffline",	&ntrks);
+
+ /*if(!isMC) {
+  TChain * tskim = new TChain("skimanalysis/HltTree");
+  tskim->Add(inFileNames[0].data());
+  int selHFp;	tskim->SetBranchAddress("phfPosFilter1", &selHFp);
+  int selHFm;	tskim->SetBranchAddress("phfNegFilter1", &selHFm);
+  int selPix;	tskim->SetBranchAddress("phltPixelClusterShapeFilter", &selPix);
+  int selVtx;	tskim->SetBranchAddress("pprimaryvertexFilter", &selVtx);
+
+  TChain * thlt = new TChain("hltanalysis/HltTree");
+  thlt->Add(inFileNames[0].data());
+  int trig1;	thlt->SetBranchAddress("HLT_PAZeroBiasPixel_SingleTrack_v1", &trig1);
+ }*/
 
  bool binB = label.compare("b") == 0;
  bool binNpart = label.compare("Npart") == 0;
@@ -169,6 +186,7 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
    values.push_back(parameter);
 
    if(!isMC) {
+     //if(run == 210614 && lumi>100 && lumi<1653 && trig1 && selPix && selVtx && selHFm && selHFp) hist->Fill(parameter);
      hist->Fill(parameter);
    }
 
@@ -195,18 +213,19 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
  }
  else {
       TH1F * corr = (TH1F*)hist->Clone("corr");
-      //TCanvas *c1 = new TCanvas();
-      //c1->SetLogy();
-      //corr->DrawCopy("hist");
+      TCanvas *c1 = new TCanvas();
+      c1->SetLogy();
+      corr->DrawCopy("hist");
       for (int j=1; j<corr->GetNbinsX(); j++) {
         if (hEff->GetBinContent(j) != 0) {
           corr->SetBinContent(j,corr->GetBinContent(j)/hEff->GetBinContent(j));
           corr->SetBinError(j,corr->GetBinError(j)/hEff->GetBinContent(j));
         }
+        //corr->SetBinContent(j,corr->GetBinContent(j)/fitEff->Eval(corr->GetBinCenter(j)));
+        //corr->SetBinError(j,corr->GetBinError(j)/fitEff->Eval(corr->GetBinCenter(j)));
       }
-      //corr->SetLineColor(2);
-      //corr->DrawCopy("hist same");
-      //cout << "total integral = " << corr->Integral();
+      corr->SetLineColor(2);
+      corr->DrawCopy("hist same");
       float prev = 0;
       binboundaries[0] = 0;
       int j = 1;
@@ -214,7 +233,7 @@ void makeTable2(int nbins = 100, const string label = "HFtowersPlusTrunc", const
         if(j>=nbins) continue;
         float a = corr->Integral(1,i,"");
         a = a/corr->Integral();
-	//if(i<100) cout << i << " bin in x fraction of total integral = " << a << " j = " << j << endl;
+	if(i<100) cout << i << " bin in x fraction of total integral = " << a << " j = " << j << endl;
         if (a > (float)j/nbins && prev < (float)j/nbins) {
 		binboundaries[j] = corr->GetBinLowEdge(i+1);
 		j++;
