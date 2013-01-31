@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.2 2012/12/21 19:17:16 willhf Exp $
+// $Id: GEMDigiAnalyzer.cc,v 1.3 2013/01/31 16:02:45 dildick Exp $
 //
 //
 
@@ -161,8 +161,6 @@ private:
   MyGEMDigi gem_digi_;
   MyGEMCSCPadDigis gemcscpad_digi_;
   MyGEMCSCCoPadDigis gemcsccopad_digi_;
-
-  int verbosity_;
 };
 
 //
@@ -314,9 +312,6 @@ void GEMDigiAnalyzer::analyzeRPC()
   for(RPCDigiCollection::DigiRangeIterator cItr = rpc_digis->begin(); cItr != rpc_digis->end(); ++cItr)
   {
     RPCDetId id = (*cItr).first; 
-    // check if you have digis
-//     if(rpc_digis.get(id).first == rpc_digis.get(id).second) continue;
-
 
     if (id.region() == 0) continue; // not interested in barrel
 
