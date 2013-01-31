@@ -92,7 +92,13 @@ namespace edm {
          property_ |= (Long_t)kIsStruct;
       }
       if(class_ == nullptr) {
-        assert(!isClass());
+        if(isClass()) {
+          // This is a class or struct with a Reflex dictionary and no CINT dictionary.
+          // Enable Reflex now, and try again.
+          ROOT::Cintex::Cintex::Enable();
+          class_ = TClass::GetClass(*typeInfo_),
+          assert(class_ != nullptr);
+        }
         if(!isEnum()) property_ |= (Long_t)kIsFundamental;
       } else {
         assert(!isFundamental());
