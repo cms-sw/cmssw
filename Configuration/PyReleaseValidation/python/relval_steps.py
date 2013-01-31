@@ -465,7 +465,7 @@ steps['ZMM_UPGPhase1_14']=genepi('ZMM_14TeV_cfi',Kby(18,300))
 
 step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '-n' : 10,
-                             '--conditions' : 'POSTLS161_V15::All', #should be updated with autocond
+                             '--conditions' : 'auto:upgradePLS1', 
                              '--datatier' : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
                              '--geometry' : 'Extended2015',
@@ -547,7 +547,7 @@ steps['ZMM_UPG2015_14']=gen2015('ZMM_14TeV_cfi',Kby(18,300))
 
 step1Up2016Defaults = {'-s' : 'GEN,SIM',
                              '-n' : 10,
-                             '--conditions' : 'POSTLS161_V15::All', #should be updated with autocond
+                             '--conditions' : 'auto:upgradePLS1', 
                              '--beamspot' : 'Gauss',
                              '--datatier' : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
@@ -791,7 +791,7 @@ steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
 
 #for 2015
 step2Upg2015Defaults = {'-s':'DIGI,L1,DIGI2RAW',
-                 '--conditions':'POSTLS161_V15::All', #to be updtaed with autocond
+                 '--conditions':'auto:upgradePLS1', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT',
@@ -802,7 +802,7 @@ steps['DIGIUP15']=merge([step2Upg2015Defaults])
 
 #for 2016
 step2Upg2016Defaults = {'-s':'DIGI,L1,DIGI2RAW',
-                 '--conditions':'POSTLS161_V15::All', #to be updtaed with autocond
+                 '--conditions':'auto:upgradePLS1', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT',
@@ -937,7 +937,7 @@ steps['RECOUP']=merge([step3Upgpixphase1Defaults])
 
 #for 2015
 step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
-                 '--conditions':'POSTLS161_V15::All', #to be updtaed with autocond
+                 '--conditions':'auto:upgradePLS1', 
                  '--datatier':'GEN-SIM-RECO,DQM',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -949,7 +949,7 @@ steps['RECOUP15']=merge([step3Up2015Defaults])
 
 #for 2016
 step3Up2016Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
-                 '--conditions':'POSTLS161_V15::All', #to be updtaed with autocond
+                 '--conditions':'auto:upgradePLS1', 
                  '--datatier':'GEN-SIM-RECO,DQM',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -1063,12 +1063,12 @@ steps['HARVESTUP']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    }
 		   
 steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'POSTLS161_V15::All', #to be updtaed with autocond
+                   '--conditions':'auto:upgradePLS1', 
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                    }
 steps['HARVESTUP16']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'POSTLS161_V15::All', #to be updtaed with autocond
+                   '--conditions':'auto:upgradePLS1', 
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
                    }
