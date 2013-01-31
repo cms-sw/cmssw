@@ -37,6 +37,8 @@ MCEmbeddingValidationAnalyzer::MCEmbeddingValidationAnalyzer(const edm::Paramete
     srcL1ETM_(cfg.getParameter<edm::InputTag>("srcL1ETM")),
     srcGenMEt_(cfg.getParameter<edm::InputTag>("srcGenMEt")),
     srcRecCaloMEt_(cfg.getParameter<edm::InputTag>("srcRecCaloMEt")),
+    srcMuonsBeforeRad_(cfg.getParameter<edm::InputTag>("srcMuonsBeforeRad")),
+    srcMuonsAfterRad_(cfg.getParameter<edm::InputTag>("srcMuonsAfterRad")),
     srcMuonRadCorrWeight_(cfg.getParameter<edm::InputTag>("srcMuonRadCorrWeight")),
     srcMuonRadCorrWeightUp_(cfg.getParameter<edm::InputTag>("srcMuonRadCorrWeightUp")),
     srcMuonRadCorrWeightDown_(cfg.getParameter<edm::InputTag>("srcMuonRadCorrWeightDown")),
@@ -396,6 +398,8 @@ void MCEmbeddingValidationAnalyzer::beginJob()
     muonRadCorrUncertaintyPlotEntry_afterRadAndCorr->bookHistograms(dqmStore);
     muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_.push_back(muonRadCorrUncertaintyPlotEntry_afterRadAndCorr);
   }
+  muonRadCorrUncertainty_numWarnings_ = 0;
+  muonRadCorrUncertainty_maxWarnings_ = 3;
 
   std::vector<std::string> genTauDecayModes;
   genTauDecayModes.push_back(std::string("")); // all tau decay modes
@@ -826,31 +830,21 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   histogramRecCaloSumEtHO_->Fill(sumEtCaloTowersHO, evtWeight);
   
   reco::Candidate::LorentzVector genMuonPlusP4_beforeRad;
-  reco::Candidate::LorentzVector genMuonPlusP4_afterRad;
-  bool genMuonPlus_found = false;
+  bool genMuonPlus_beforeRad_found = false;
   reco::Candidate::LorentzVector genMuonMinusP4_beforeRad;
+  bool genMuonMinus_beforeRad_found = false;
+  findMuons(evt, srcMuonsBeforeRad_, genMuonPlusP4_beforeRad, genMuonPlus_beforeRad_found, genMuonMinusP4_beforeRad, genMuonMinus_beforeRad_found);
+
+  reco::Candidate::LorentzVector genMuonPlusP4_afterRad;
+  bool genMuonPlus_afterRad_found = false;
   reco::Candidate::LorentzVector genMuonMinusP4_afterRad;
-  bool genMuonMinus_found = false;  
-  std::vector<int> muonPdgIds;
-  muonPdgIds.push_back(-13);
-  muonPdgIds.push_back(+13);
-  for ( std::vector<reco::CandidateBaseRef>::const_iterator replacedMuon = replacedMuons.begin();
-	replacedMuon != replacedMuons.end(); ++replacedMuon ) {
-    const reco::GenParticle* genMuon_matched = findGenParticleForMCEmbedding((*replacedMuon)->p4(), *genParticles, 0.3, -1, &muonPdgIds, true);
-    if ( genMuon_matched && genMuon_matched->charge() > +0.5 ) {
-      genMuonPlusP4_beforeRad = genMuon_matched->p4();
-      genMuonPlusP4_afterRad = genMuonPlusP4_beforeRad;
-      compGenMuonP4afterRad(genMuon_matched, genMuonPlusP4_afterRad);
-      genMuonPlus_found = true;
-    }
-    if ( genMuon_matched && genMuon_matched->charge() < -0.5 ) {
-      genMuonMinusP4_beforeRad = genMuon_matched->p4();
-      genMuonMinusP4_afterRad = genMuonMinusP4_beforeRad;
-      compGenMuonP4afterRad(genMuon_matched, genMuonMinusP4_afterRad);
-      genMuonMinus_found = true;
-    }
-  }
-  if ( genMuonPlus_found && genTauPlus && genMuonMinus_found && genTauMinus ) {
+  bool genMuonMinus_afterRad_found = false;
+  findMuons(evt, srcMuonsAfterRad_, genMuonPlusP4_afterRad, genMuonPlus_afterRad_found, genMuonMinusP4_afterRad, genMuonMinus_afterRad_found);
+
+  bool genMuonPlus_found = (genMuonPlus_beforeRad_found && genMuonPlus_afterRad_found);
+  bool genMuonMinus_found = (genMuonMinus_beforeRad_found && genMuonMinus_afterRad_found);
+
+  if ( genTauPlus && genMuonPlus_found && genTauMinus && genMuonMinus_found ) {
     for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_beforeRad_.begin();
 	  muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_beforeRad_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
       (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsPtGt30, genMuonPlusP4_beforeRad, genMuonMinusP4_beforeRad, evtWeight, *muonRadCorrWeight, *muonRadCorrWeightUp, *muonRadCorrWeightDown);
@@ -862,6 +856,12 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
     for ( std::vector<plotEntryTypeMuonRadCorrUncertainty*>::iterator muonRadCorrUncertaintyPlotEntry = muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_.begin();
 	  muonRadCorrUncertaintyPlotEntry != muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_.end(); ++muonRadCorrUncertaintyPlotEntry ) {
       (*muonRadCorrUncertaintyPlotEntry)->fillHistograms(numJetsPtGt30, genTauPlus->p4(), genTauMinus->p4(), evtWeight, *muonRadCorrWeight, *muonRadCorrWeightUp, *muonRadCorrWeightDown);
+    }
+  } else {
+    if ( muonRadCorrUncertainty_numWarnings_ < muonRadCorrUncertainty_maxWarnings_ ) {
+      edm::LogWarning ("<MCEmbeddingValidationAnalyzer::analyze>")
+	<< "Failed to match muons before and after radiation to embedded tau leptons !!" << std::endl;
+      ++muonRadCorrUncertainty_numWarnings_;
     }
   }
 

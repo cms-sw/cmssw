@@ -281,6 +281,26 @@ void compGenMuonP4afterRad(const reco::GenParticle* mother, reco::Candidate::Lor
   }
 }
 
+void findMuons(const edm::Event& evt, const edm::InputTag& src, 
+	       reco::Candidate::LorentzVector& genMuonPlusP4, bool& genMuonPlus_found, 
+	       reco::Candidate::LorentzVector& genMuonMinusP4, bool& genMuonMinus_found)
+{
+  typedef std::vector<reco::Particle> ParticleCollection;
+  edm::Handle<ParticleCollection> muons;
+  evt.getByLabel(src, muons);
+  for ( ParticleCollection::const_iterator muon = muons->begin();
+	muon != muons->end(); ++muon ) {
+    if ( muon->charge() > +0.5 ) {
+      genMuonPlusP4 = muon->p4();
+      genMuonPlus_found = true;
+    }
+    if ( muon->charge() < -0.5 ) {
+      genMuonMinusP4 = muon->p4();
+      genMuonMinus_found = true;
+    }
+  }
+}
+
 double getDeDxForPbWO4(double p)
 {
   static TGraph* dedxGraphPbWO4 = NULL;

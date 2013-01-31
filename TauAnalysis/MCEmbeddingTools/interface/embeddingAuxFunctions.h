@@ -8,9 +8,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: embeddingAuxFunctions.h,v 1.6 2013/01/30 10:14:14 aburgmei Exp $
+ * $Id: embeddingAuxFunctions.h,v 1.7 2013/01/31 09:07:17 veelken Exp $
  *
  */
 
@@ -45,6 +45,8 @@ void repairBarcodes(HepMC::GenEvent*);
 const reco::GenParticle* findGenParticleForMCEmbedding(const reco::Candidate::LorentzVector&, const reco::GenParticleCollection&, double, int, const std::vector<int>*, bool);
 
 void compGenMuonP4afterRad(const reco::GenParticle*, reco::Candidate::LorentzVector&);
+
+void findMuons(const edm::Event&, const edm::InputTag&, reco::Candidate::LorentzVector&, bool&, reco::Candidate::LorentzVector&, bool&);
 
 double getDeDxForPbWO4(double);
 

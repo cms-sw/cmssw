@@ -559,10 +559,10 @@ TH1* compRatioHistogram(const std::string& ratioHistogramName, const TH1* numera
   TH1* histogramRatio = (TH1*)numerator->Clone(ratioHistogramName.data());
   histogramRatio->Divide(denominator);
 
-  Int_t nBins = histogramRatio->GetNbinsX();
-  for ( Int_t ibin = 1; ibin <= nBins; ibin++ ){
-    double binContent = histogramRatio->GetBinContent(ibin);
-    histogramRatio->SetBinContent(ibin, binContent - 1.);
+  int nBins = histogramRatio->GetNbinsX();
+  for ( int iBin = 1; iBin <= nBins; ++iBin ){
+    double binContent = histogramRatio->GetBinContent(iBin);
+    histogramRatio->SetBinContent(iBin, binContent - 1.);
   }
 
   histogramRatio->SetLineColor(numerator->GetLineColor());
@@ -775,6 +775,8 @@ void showDistribution(double canvasSizeX, double canvasSizeY,
   delete histogram4_div_ref;
   delete histogram5_div_ref;
   delete histogram6_div_ref;
+  delete topPad;
+  delete bottomPad;
   delete canvas;  
 }
 //-------------------------------------------------------------------------------
@@ -841,6 +843,330 @@ struct plotEntryType_efficiency : public plotEntryTypeBase
   std::string meName_numerator_;
   std::string meName_denominator_;
 };
+
+//-------------------------------------------------------------------------------
+TGraphAsymmErrors* convertToGraph(const TH1* histogram, const TH1* histogramErrUp = 0, const TH1* histogramErrDown = 0)
+{
+  if ( histogramErrUp   ) assert(histogram->GetNbinsX() == histogramErrUp->GetNbinsX());
+  if ( histogramErrDown ) assert(histogram->GetNbinsX() == histogramErrDown->GetNbinsX());
+  int nPoints = histogram->GetNbinsX();
+
+  TGraphAsymmErrors* graph = new TGraphAsymmErrors(nPoints);
+
+  int nBins = histogram->GetNbinsX();
+  for ( int iBin = 1; iBin <= nBins; ++iBin ){
+    double x = histogram->GetBinCenter(iBin);
+    double y = histogram->GetBinContent(iBin);
+    double xErrUp = 0.5*histogram->GetBinWidth(iBin);
+    double xErrDown = xErrUp;
+    double yErr2Up = square(histogram->GetBinError(iBin));
+    if ( histogramErrUp   && histogramErrUp->GetBinContent(iBin)   > y ) yErr2Up = square(histogramErrUp->GetBinContent(iBin)   - y);
+    if ( histogramErrDown && histogramErrDown->GetBinContent(iBin) > y ) yErr2Up = square(histogramErrDown->GetBinContent(iBin) - y);
+    double yErrUp = TMath::Sqrt(yErr2Up);
+    double yErr2Down = square(histogram->GetBinError(iBin));
+    if ( histogramErrUp   && histogramErrUp->GetBinContent(iBin)   < y ) yErr2Down = square(y - histogramErrUp->GetBinContent(iBin));
+    if ( histogramErrDown && histogramErrDown->GetBinContent(iBin) < y ) yErr2Down = square(y - histogramErrDown->GetBinContent(iBin));
+    double yErrDown = TMath::Sqrt(yErr2Down);
+
+    int iPoint = iBin - 1;
+    graph->SetPoint(iPoint, x, y);
+    graph->SetPointError(iPoint, xErrDown, xErrUp, yErrDown, yErrUp);
+  }
+
+  graph->SetLineColor(histogram->GetLineColor());
+  graph->SetLineWidth(histogram->GetLineWidth());
+  graph->SetMarkerColor(histogram->GetMarkerColor());
+  graph->SetMarkerStyle(histogram->GetMarkerStyle());
+
+  return graph;
+}
+
+TGraphAsymmErrors* compRatioGraph(const std::string& ratioGraphName, const TGraph* numerator, const TGraph* denominator)
+{
+  assert(numerator->GetN() == denominator->GetN());
+  int nPoints = numerator->GetN();
+
+  TGraphAsymmErrors* graphRatio = new TGraphAsymmErrors(nPoints);
+  graphRatio->SetName(ratioGraphName.data());
+
+  for ( int iPoint = 0; iPoint < nPoints; ++iPoint ){
+    double x_numerator, y_numerator;
+    numerator->GetPoint(iPoint, x_numerator, y_numerator);
+    double xErrUp_numerator = 0.;
+    double xErrDown_numerator = 0.;
+    double yErrUp_numerator = 0.;
+    double yErrDown_numerator = 0.;
+    if ( dynamic_cast<const TGraphAsymmErrors*>(numerator) ) {
+      const TGraphAsymmErrors* numerator_asymmerrors = dynamic_cast<const TGraphAsymmErrors*>(numerator);
+      xErrUp_numerator = numerator_asymmerrors->GetErrorXhigh(iPoint);
+      xErrDown_numerator = numerator_asymmerrors->GetErrorXlow(iPoint);
+      yErrUp_numerator = numerator_asymmerrors->GetErrorYhigh(iPoint);
+      yErrDown_numerator = numerator_asymmerrors->GetErrorYlow(iPoint);
+    } else if ( dynamic_cast<const TGraphErrors*>(numerator) ) {
+      const TGraphErrors* numerator_errors = dynamic_cast<const TGraphErrors*>(numerator);
+      xErrUp_numerator = numerator_errors->GetErrorX(iPoint);
+      xErrDown_numerator = xErrUp_numerator;
+      yErrUp_numerator = numerator_errors->GetErrorY(iPoint);
+      yErrDown_numerator = yErrUp_numerator;
+    }
+
+    double x_denominator, y_denominator;
+    denominator->GetPoint(iPoint, x_denominator, y_denominator);
+    assert(x_denominator == x_numerator);
+    double xErrUp_denominator = 0.;
+    double xErrDown_denominator = 0.;
+    double yErrUp_denominator = 0.;
+    double yErrDown_denominator = 0.;
+    if ( dynamic_cast<const TGraphAsymmErrors*>(denominator) ) {
+      const TGraphAsymmErrors* denominator_asymmerrors = dynamic_cast<const TGraphAsymmErrors*>(denominator);
+      xErrUp_denominator = denominator_asymmerrors->GetErrorXhigh(iPoint);
+      xErrDown_denominator = denominator_asymmerrors->GetErrorXlow(iPoint);
+      yErrUp_denominator = denominator_asymmerrors->GetErrorYhigh(iPoint);
+      yErrDown_denominator = denominator_asymmerrors->GetErrorYlow(iPoint);
+    } else if ( dynamic_cast<const TGraphErrors*>(denominator) ) {
+      const TGraphErrors* denominator_errors = dynamic_cast<const TGraphErrors*>(denominator);
+      xErrUp_denominator = denominator_errors->GetErrorX(iPoint);
+      xErrDown_denominator = xErrUp_denominator;
+      yErrUp_denominator = denominator_errors->GetErrorY(iPoint);
+      yErrDown_denominator = yErrUp_denominator;
+    }
+
+    double x_ratio = x_numerator;
+    double y_ratio = ( y_denominator > 0. ) ? (y_numerator/y_denominator) : 0.;
+    double xErrUp_ratio = TMath::Max(xErrUp_numerator, xErrUp_denominator);
+    double xErrDown_ratio = TMath::Max(xErrDown_numerator, xErrDown_denominator);
+    double yErr2Up_ratio = 0.;
+    if ( y_numerator   ) yErr2Up_ratio += square(yErrUp_numerator/y_numerator);
+    if ( y_denominator ) yErr2Up_ratio += square(yErrDown_denominator/y_numerator);
+    double yErrUp_ratio = TMath::Sqrt(yErr2Up_ratio)*y_ratio;
+    double yErr2Down_ratio = 0.;
+    if ( y_numerator   ) yErr2Down_ratio += square(yErrDown_numerator/y_numerator);
+    if ( y_denominator ) yErr2Down_ratio += square(yErrUp_denominator/y_numerator);
+    double yErrDown_ratio = TMath::Sqrt(yErr2Down_ratio)*y_ratio;
+
+    graphRatio->SetPoint(iPoint, x_ratio, y_ratio - 1.);
+    graphRatio->SetPointError(iPoint, xErrDown_ratio, xErrUp_ratio, yErrDown_ratio, yErrUp_ratio);
+  }
+  
+  graphRatio->SetLineColor(numerator->GetLineColor());
+  graphRatio->SetLineWidth(numerator->GetLineWidth());
+  graphRatio->SetMarkerColor(numerator->GetMarkerColor());
+  graphRatio->SetMarkerStyle(numerator->GetMarkerStyle());
+
+  return graphRatio;
+}
+
+void showGraphs(double canvasSizeX, double canvasSizeY,
+		TGraph* graph_ref, const std::string& legendEntry_ref,
+		TGraph* graph2, const std::string& legendEntry2,
+		TGraph* graph3, const std::string& legendEntry3,
+		TGraph* graph4, const std::string& legendEntry4,
+		TGraph* graph5, const std::string& legendEntry5,
+		TGraph* graph6, const std::string& legendEntry6,
+		double xMin, double xMax, unsigned numBinsX, const std::string& xAxisTitle, double xAxisOffset,
+		bool useLogScale, double yMin, double yMax, const std::string& yAxisTitle, double yAxisOffset,
+		double legendX0, double legendY0, 
+		const std::string& outputFileName)
+{
+  TCanvas* canvas = new TCanvas("canvas", "canvas", canvasSizeX, canvasSizeY);
+  canvas->SetFillColor(10);
+  canvas->SetBorderSize(2);
+  canvas->SetLeftMargin(0.12);
+  canvas->SetBottomMargin(0.12);
+
+  TPad* topPad = new TPad("topPad", "topPad", 0.00, 0.35, 1.00, 1.00);
+  topPad->SetFillColor(10);
+  topPad->SetTopMargin(0.04);
+  topPad->SetLeftMargin(0.15);
+  topPad->SetBottomMargin(0.03);
+  topPad->SetRightMargin(0.05);
+  topPad->SetLogy(useLogScale);
+
+  TPad* bottomPad = new TPad("bottomPad", "bottomPad", 0.00, 0.00, 1.00, 0.35);
+  bottomPad->SetFillColor(10);
+  bottomPad->SetTopMargin(0.02);
+  bottomPad->SetLeftMargin(0.15);
+  bottomPad->SetBottomMargin(0.24);
+  bottomPad->SetRightMargin(0.05);
+  bottomPad->SetLogy(false);
+
+  canvas->cd();
+  topPad->Draw();
+  topPad->cd();
+
+  int colors[6] = { 1, 2, 3, 4, 6, 7 };
+  int markerStyles[6] = { 22, 32, 20, 24, 21, 25 };
+
+  TLegend* legend = new TLegend(legendX0, legendY0, legendX0 + 0.44, legendY0 + 0.20, "", "brNDC"); 
+  legend->SetBorderSize(0);
+  legend->SetFillColor(0);
+
+  TH1* dummyHistogram_top = new TH1D("dummyHistogram_top", "dummyHistogram_top", numBinsX, xMin, xMax);
+  dummyHistogram_top->SetTitle("");
+  dummyHistogram_top->SetStats(false);
+  dummyHistogram_top->SetMinimum(yMin);
+  dummyHistogram_top->SetMaximum(yMax);
+
+  TAxis* xAxis_top = dummyHistogram_top->GetXaxis();
+  xAxis_top->SetTitle(xAxisTitle.data());
+  xAxis_top->SetTitleSize(0.045);
+  xAxis_top->SetTitleOffset(xAxisOffset);
+
+  TAxis* yAxis_top = dummyHistogram_top->GetYaxis();
+  yAxis_top->SetTitle(yAxisTitle.data());
+  yAxis_top->SetTitleSize(0.045);
+  yAxis_top->SetTitleOffset(yAxisOffset);
+
+  dummyHistogram_top->Draw("axis");
+
+  graph_ref->SetLineColor(colors[0]);
+  graph_ref->SetLineWidth(2);
+  graph_ref->SetMarkerColor(colors[0]);
+  graph_ref->SetMarkerStyle(markerStyles[0]);
+  graph_ref->SetMarkerSize(2);
+  graph_ref->Draw("p");
+  legend->AddEntry(graph_ref, legendEntry_ref.data(), "p");
+
+  if ( graph2 ) {
+    graph2->SetLineColor(colors[1]);
+    graph2->SetLineWidth(2);
+    graph2->SetMarkerColor(colors[1]);
+    graph2->SetMarkerStyle(markerStyles[1]);
+    graph2->SetMarkerSize(2);
+    graph2->Draw("p");
+    legend->AddEntry(graph2, legendEntry2.data(), "p");
+  }
+  
+  if ( graph3 ) {
+    graph3->SetLineColor(colors[2]);
+    graph3->SetLineWidth(2);
+    graph3->SetMarkerColor(colors[2]);
+    graph3->SetMarkerStyle(markerStyles[2]);
+    graph3->SetMarkerSize(2);
+    graph3->Draw("p");
+    legend->AddEntry(graph3, legendEntry3.data(), "p");
+  }
+
+  if ( graph4 ) {
+    graph4->SetLineColor(colors[3]);
+    graph4->SetLineWidth(2);
+    graph4->SetMarkerColor(colors[3]);
+    graph4->SetMarkerStyle(markerStyles[3]);
+    graph4->SetMarkerSize(2);
+    graph4->Draw("p");
+    legend->AddEntry(graph4, legendEntry4.data(), "p");
+  }
+
+  if ( graph5 ) {
+    graph5->SetLineColor(colors[4]);
+    graph5->SetLineWidth(2);
+    graph5->SetMarkerColor(colors[4]);
+    graph5->SetMarkerStyle(markerStyles[4]);
+    graph5->SetMarkerSize(2);
+    graph5->Draw("p");
+    legend->AddEntry(graph5, legendEntry5.data(), "p");
+  }
+
+  if ( graph6 ) {
+    graph6->SetLineColor(colors[5]);
+    graph6->SetLineWidth(2);
+    graph6->SetMarkerColor(colors[5]);
+    graph6->SetMarkerStyle(markerStyles[5]);
+    graph6->SetMarkerSize(2);
+    graph6->Draw("p");
+    legend->AddEntry(graph6, legendEntry6.data(), "p");
+  }
+  
+  legend->Draw();
+
+  canvas->cd();
+  bottomPad->Draw();
+  bottomPad->cd();
+
+  TH1* dummyHistogram_bottom = new TH1D("dummyHistogram_bottom", "dummyHistogram_bottom", numBinsX, xMin, xMax);
+  dummyHistogram_bottom->SetTitle("");
+  dummyHistogram_bottom->SetStats(false);
+  dummyHistogram_bottom->SetMinimum(-0.25);
+  dummyHistogram_bottom->SetMaximum(+0.25);
+
+  TAxis* xAxis_bottom = dummyHistogram_bottom->GetXaxis();
+  xAxis_bottom->SetTitle(xAxis_top->GetTitle());
+  xAxis_bottom->SetLabelColor(1);
+  xAxis_bottom->SetTitleColor(1);
+  xAxis_bottom->SetTitleOffset(1.20);
+  xAxis_bottom->SetTitleSize(0.08);
+  xAxis_bottom->SetLabelOffset(0.02);
+  xAxis_bottom->SetLabelSize(0.08);
+  xAxis_bottom->SetTickLength(0.055);
+  
+  TAxis* yAxis_bottom = dummyHistogram_bottom->GetYaxis();
+  yAxis_bottom->SetTitle("#frac{Embedding - Z/#gamma^{*} #rightarrow #tau #tau}{Z/#gamma^{*} #rightarrow #tau #tau}");
+  yAxis_bottom->SetTitleOffset(0.70);
+  yAxis_bottom->SetNdivisions(505);
+  yAxis_bottom->CenterTitle();
+  yAxis_bottom->SetTitleSize(0.08);
+  yAxis_bottom->SetLabelSize(0.08);
+  yAxis_bottom->SetTickLength(0.04); 
+
+  dummyHistogram_bottom->Draw("axis");
+  
+  TGraph* graph2_div_ref = 0;
+  if ( graph2 ) {
+    std::string graphName2_div_ref = std::string(graph2->GetName()).append("_div_").append(graph_ref->GetName());
+    graph2_div_ref = compRatioGraph(graphName2_div_ref, graph2, graph_ref);
+    graph2_div_ref->Draw("p");
+  }
+
+  TGraph* graph3_div_ref = 0;
+  if ( graph3 ) {
+    std::string graphName3_div_ref = std::string(graph3->GetName()).append("_div_").append(graph_ref->GetName());
+    graph3_div_ref = compRatioGraph(graphName3_div_ref, graph3, graph_ref);
+    graph3_div_ref->Draw("p");
+  }
+
+  TGraph* graph4_div_ref = 0;
+  if ( graph4 ) {
+    std::string graphName4_div_ref = std::string(graph4->GetName()).append("_div_").append(graph_ref->GetName());
+    graph4_div_ref = compRatioGraph(graphName4_div_ref, graph4, graph_ref);
+    graph4_div_ref->Draw("p");
+  }
+
+  TGraph* graph5_div_ref = 0;
+  if ( graph5 ) {
+    std::string graphName5_div_ref = std::string(graph5->GetName()).append("_div_").append(graph_ref->GetName());
+    graph5_div_ref = compRatioGraph(graphName5_div_ref, graph5, graph_ref);
+    graph5_div_ref->Draw("p");
+  }
+ 
+  TGraph* graph6_div_ref = 0;
+  if ( graph6 ) {
+    std::string graphName6_div_ref = std::string(graph6->GetName()).append("_div_").append(graph_ref->GetName());
+    graph6_div_ref = compRatioGraph(graphName6_div_ref, graph6, graph_ref);
+    graph6_div_ref->Draw("p");
+  }
+    
+  canvas->Update();
+  size_t idx = outputFileName.find_last_of('.');
+  std::string outputFileName_plot = std::string(outputFileName, 0, idx);
+  if ( useLogScale ) outputFileName_plot.append("_log");
+  else outputFileName_plot.append("_linear");
+  if ( idx != std::string::npos ) canvas->Print(std::string(outputFileName_plot).append(std::string(outputFileName, idx)).data());
+  canvas->Print(std::string(outputFileName_plot).append(".png").data());
+  //canvas->Print(std::string(outputFileName_plot).append(".pdf").data());
+  
+  delete legend;
+  delete graph2_div_ref;
+  delete graph3_div_ref;
+  delete graph4_div_ref;
+  delete graph5_div_ref;
+  delete graph6_div_ref;
+  delete dummyHistogram_top;
+  delete topPad;
+  delete dummyHistogram_bottom;
+  delete bottomPad;
+  delete canvas;  
+}
+//-------------------------------------------------------------------------------
 
 void makeEmbeddingValidationPlots()
 {
@@ -1124,7 +1450,7 @@ void makeEmbeddingValidationPlots()
     "met36TriggerEfficiency", "L1_ETM36 Efficiency", 
     "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM36_et/numeratorPt", 
     "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM36_et/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
-   efficienciesToPlot.push_back(plotEntryType_efficiency(
+  efficienciesToPlot.push_back(plotEntryType_efficiency(
     "met40TriggerEfficiency", "L1_ETM40 Efficiency", 
     "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM40_et/numeratorPt", 
     "validationAnalyzer_mutau/metTriggerEfficiencyL1_ETM40_et/denominatorPt", 0., 250., 50, "E_{T}^{miss} / GeV", 1.3, 0., 1.4, "#varepsilon", 1.2, false));
@@ -1156,6 +1482,92 @@ void makeEmbeddingValidationPlots()
 		   plot->yMin_, plot->yMax_, plot->yAxisOffset_,
 		   legendX0, legendY0,
 		   outputFileName);
+  }
+
+  std::vector<std::string> controlPlots;
+  controlPlots.push_back(std::string("muonPlusPt"));
+  controlPlots.push_back(std::string("muonPlusEta"));
+  controlPlots.push_back(std::string("muonMinusPt"));
+  controlPlots.push_back(std::string("muonMinusEta"));
+  controlPlots.push_back(std::string("diMuonMass"));
+  typedef std::pair<int, int> pint;
+  std::vector<pint> jetBins;
+  jetBins.push_back(pint(-1, -1));
+  jetBins.push_back(pint(0, 0));
+  jetBins.push_back(pint(1, 1));
+  jetBins.push_back(pint(2, 2));
+  jetBins.push_back(pint(3, 1000));
+  TFile* inputFile = inputFiles["simDYtoMuMu_genEmbedding_wCaloNoise"];
+  for ( std::vector<std::string>::const_iterator controlPlot = controlPlots.begin();
+	controlPlot != controlPlots.end(); ++controlPlot ) {
+    for ( std::vector<pint>::const_iterator jetBin = jetBins.begin();
+	  jetBin != jetBins.end(); ++jetBin ) {
+
+      double xMin, xMax;
+      int numBinsX;
+      std::string xAxisTitle;
+      if ( TString(controlPlot->data()).EndsWith("Pt") ) {
+	xMin = 0.;
+	xMin = 100.;
+	numBinsX = 20;
+	xAxisTitle = "P_{T}^{#mu} / GeV";
+      } else if ( TString(controlPlot->data()).EndsWith("Eta") ) {
+	xMin = -2.5;
+	xMin = +2.5;
+	numBinsX = 25;
+	xAxisTitle = "P_{T}^{#mu} / GeV";
+      } else if ( TString(controlPlot->data()).EndsWith("Mass") ) {
+	xMin = 0.;
+	xMin = 200.;
+	numBinsX = 20;
+	xAxisTitle = "M_{#mu#mu} / GeV";
+      } else assert(0);
+      
+      int minJets = jetBin->first;
+      int maxJets = jetBin->second;
+      std::string jetBinLabel;
+      if      ( minJets < 0 && maxJets < 0 ) jetBinLabel = "";
+      else if (                maxJets < 0 ) jetBinLabel = Form("_numJetsGe%i", minJets);
+      else if ( minJets < 0                ) jetBinLabel = Form("_numJetsLe%i", maxJets);
+      else if ( maxJets     == minJets     ) jetBinLabel = Form("_numJetsEq%i", minJets);
+      else                                   jetBinLabel = Form("_numJets%ito%i", minJets, maxJets);
+
+      std::string histogramName_beforeRad = Form("beforeRad%s/%s_unweighted/", jetBinLabel.data(), controlPlot->data());
+      TH1* histogram_beforeRad = getHistogram(inputFile, "validationAnalyzer_mutau", histogramName_beforeRad);
+      TH1* histogram_rebinned_beforeRad = rebinHistogram(histogram_beforeRad, numBinsX, xMin, xMax, true);
+      TGraphAsymmErrors* graph_beforeRad = convertToGraph(histogram_rebinned_beforeRad);
+      
+      std::string histogramName_afterRad = Form("afterRad%s/%s_unweighted/", jetBinLabel.data(), controlPlot->data());
+      TH1* histogram_afterRad = getHistogram(inputFile, "validationAnalyzer_mutau", histogramName_afterRad);
+      TH1* histogram_rebinned_afterRad = rebinHistogram(histogram_afterRad, numBinsX, xMin, xMax, true);
+      TGraphAsymmErrors* graph_afterRad = convertToGraph(histogram_rebinned_afterRad);
+      
+      std::string histogramName_afterRadAndCorr = Form("afterRadAndCorr%s/%s_weighted/", jetBinLabel.data(), controlPlot->data());
+      TH1* histogram_afterRadAndCorr = getHistogram(inputFile, "validationAnalyzer_mutau", histogramName_afterRadAndCorr);
+      TH1* histogram_rebinned_afterRadAndCorr = rebinHistogram(histogram_afterRadAndCorr, numBinsX, xMin, xMax, true);
+      std::string histogramName_afterRadAndCorrErrUp = Form("afterRadAndCorr%s/%s_weightedUp/", jetBinLabel.data(), controlPlot->data());
+      TH1* histogram_afterRadAndCorrErrUp = getHistogram(inputFile, "validationAnalyzer_mutau", histogramName_afterRadAndCorrErrUp);
+      TH1* histogram_rebinned_afterRadAndCorrErrUp = rebinHistogram(histogram_afterRadAndCorrErrUp, numBinsX, xMin, xMax, true);
+      std::string histogramName_afterRadAndCorrErrDown = Form("afterRadAndCorr%s/%s_weightedDown/", jetBinLabel.data(), controlPlot->data());
+      TH1* histogram_afterRadAndCorrErrDown = getHistogram(inputFile, "validationAnalyzer_mutau", histogramName_afterRadAndCorrErrDown);
+      TH1* histogram_rebinned_afterRadAndCorrErrDown = rebinHistogram(histogram_afterRadAndCorrErrDown, numBinsX, xMin, xMax, true);
+      TGraphAsymmErrors* graph_afterRadAndCorr = convertToGraph(histogram_rebinned_afterRadAndCorr, histogram_rebinned_afterRadAndCorrErrUp, histogram_rebinned_afterRadAndCorrErrDown);
+      
+      double legendX0 = 0.50;
+      double legendY0 = 0.74;
+      std::string outputFileName = Form("plots/makeEmbeddingValidationPlots_muonRadCorr_%s.pdf", controlPlot->data());
+      showGraphs(800, 900,
+		 graph_beforeRad, "before Rad.",
+		 graph_afterRad, "after Rad.",
+		 graph_afterRadAndCorr, "after Rad.+Corr.",
+		 0, "",
+		 0, "",
+		 0, "",
+		 xMin, xMax, numBinsX, xAxisTitle, 1.2,
+		 true, 0., 1., "a.u.", 1.2, 
+		 legendX0, legendY0,
+		 outputFileName);
+    }
   }
 
   // CV: close input files

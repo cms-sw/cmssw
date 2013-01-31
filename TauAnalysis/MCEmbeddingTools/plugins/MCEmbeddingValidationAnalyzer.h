@@ -12,9 +12,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: MCEmbeddingValidationAnalyzer.h,v 1.7 2013/01/15 09:50:29 veelken Exp $
+ * $Id: MCEmbeddingValidationAnalyzer.h,v 1.8 2013/01/31 09:07:18 veelken Exp $
  *
  */
 
@@ -212,7 +212,8 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
   edm::InputTag srcL1ETM_;
   edm::InputTag srcGenMEt_;
   edm::InputTag srcRecCaloMEt_;
-
+  edm::InputTag srcMuonsBeforeRad_;
+  edm::InputTag srcMuonsAfterRad_;
   edm::InputTag srcMuonRadCorrWeight_;
   edm::InputTag srcMuonRadCorrWeightUp_;
   edm::InputTag srcMuonRadCorrWeightDown_;
@@ -316,26 +317,36 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	maxJets_(maxJets)
     {
       dqmDirectory_ = dqmDirectory;
+      if      ( minJets_ < 0 && maxJets_ < 0 ) dqmDirectory_.append("");
+      else if (                 maxJets_ < 0 ) dqmDirectory_.append(Form("_numJetsGe%i", minJets_));
+      else if ( minJets_ < 0                 ) dqmDirectory_.append(Form("_numJetsLe%i", maxJets_));
+      else if ( maxJets_     == minJets_     ) dqmDirectory_.append(Form("_numJetsEq%i", minJets_));
+      else                                     dqmDirectory_.append(Form("_numJets%ito%i", minJets_, maxJets_));
     }
     ~plotEntryTypeMuonRadCorrUncertainty() {}
     void bookHistograms(DQMStore& dqmStore)
     {
       dqmStore.setCurrentFolder(dqmDirectory_.data());
-      histogramMuonPlusPt_ = dqmStore.book1D("muonPlusPt", "muonPlusPt", 250, 0., 250.);
-      histogramMuonPlusPt_weightUp_ = dqmStore.book1D("muonPlusPt_weightUp", "muonPlusPt_weightUp", 250, 0., 250.);
-      histogramMuonPlusPt_weightDown_ = dqmStore.book1D("muonPlusPt_weightDown", "muonPlusPt_weightDown", 250,  0., 250.);
-      histogramMuonPlusEta_ = dqmStore.book1D("muonPlusEta", "muonPlusEta", 198, -9.9, +9.9);
-      histogramMuonPlusEta_weightUp_ = dqmStore.book1D("muonPlusEta_weightUp", "muonPlusEta_weightUp", 198, -9.9, +9.9);
-      histogramMuonPlusEta_weightDown_ = dqmStore.book1D("muonPlusEta_weightDown", "muonPlusEta_weightDown", 198, -9.9, +9.9);
-      histogramMuonMinusPt_ = dqmStore.book1D("muonMinusPt", "muonMinusPt", 250, 0., 250.);
-      histogramMuonMinusPt_weightUp_ = dqmStore.book1D("muonMinusPt_weightUp", "muonMinusPt_weightUp", 250, 0., 250.);
-      histogramMuonMinusPt_weightDown_ = dqmStore.book1D("muonMinusPt_weightDown", "muonMinusPt_weightDown", 250, 0., 250.);
-      histogramMuonMinusEta_ = dqmStore.book1D("muonMinusEta", "muonMinusEta", 198, -9.9, +9.9);
-      histogramMuonMinusEta_weightUp_ = dqmStore.book1D("muonMinusEta_weightUp", "muonMinusEta_weightUp", 198, -9.9, +9.9);
-      histogramMuonMinusEta_weightDown_ = dqmStore.book1D("muonMinusEta_weightDown", "muonMinusEta_weightDown", 198, -9.9, +9.9);
-      histogramDiMuonMass_ = dqmStore.book1D("diMuonMass", "diMuonMass", 250, 0., 250.);
-      histogramDiMuonMass_weightUp_ = dqmStore.book1D("diMuonMass_weightUp", "diMuonMass_weightUp", 250, 0., 250.);
-      histogramDiMuonMass_weightDown_ = dqmStore.book1D("diMuonMass_weightDown", "diMuonMass_weightDown", 250, 0., 250.);
+      histogramMuonPlusPt_unweighted_ = dqmStore.book1D("muonPlusPt_unweighted", "muonPlusPt_unweighted", 250, 0., 250.);
+      histogramMuonPlusPt_weighted_ = dqmStore.book1D("muonPlusPt_weighted", "muonPlusPt_weighted", 250, 0., 250.);
+      histogramMuonPlusPt_weightedUp_ = dqmStore.book1D("muonPlusPt_weightedUp", "muonPlusPt_weightedUp", 250, 0., 250.);
+      histogramMuonPlusPt_weightedDown_ = dqmStore.book1D("muonPlusPt_weightedDown", "muonPlusPt_weightedDown", 250,  0., 250.);
+      histogramMuonPlusEta_unweighted_ = dqmStore.book1D("muonPlusEta_unweighted", "muonPlusEta_unweighted", 198, -9.9, +9.9);
+      histogramMuonPlusEta_weighted_ = dqmStore.book1D("muonPlusEta_weighted", "muonPlusEta_weighted", 198, -9.9, +9.9);
+      histogramMuonPlusEta_weightedUp_ = dqmStore.book1D("muonPlusEta_weightedUp", "muonPlusEta_weightedUp", 198, -9.9, +9.9);
+      histogramMuonPlusEta_weightedDown_ = dqmStore.book1D("muonPlusEta_weightedDown", "muonPlusEta_weightedDown", 198, -9.9, +9.9);
+      histogramMuonMinusPt_unweighted_ = dqmStore.book1D("muonMinusPt_unweighted", "muonMinusPt_unweighted", 250, 0., 250.);
+      histogramMuonMinusPt_weighted_ = dqmStore.book1D("muonMinusPt_weighted", "muonMinusPt_weighted", 250, 0., 250.);
+      histogramMuonMinusPt_weightedUp_ = dqmStore.book1D("muonMinusPt_weightedUp", "muonMinusPt_weightedUp", 250, 0., 250.);
+      histogramMuonMinusPt_weightedDown_ = dqmStore.book1D("muonMinusPt_weightedDown", "muonMinusPt_weightedDown", 250, 0., 250.);
+      histogramMuonMinusEta_unweighted_ = dqmStore.book1D("muonMinusEta_unweighted", "muonMinusEta_unweighted", 198, -9.9, +9.9);
+      histogramMuonMinusEta_weighted_ = dqmStore.book1D("muonMinusEta_weighted", "muonMinusEta_weighted", 198, -9.9, +9.9);
+      histogramMuonMinusEta_weightedUp_ = dqmStore.book1D("muonMinusEta_weightedUp", "muonMinusEta_weightedUp", 198, -9.9, +9.9);
+      histogramMuonMinusEta_weightedDown_ = dqmStore.book1D("muonMinusEta_weightedDown", "muonMinusEta_weightedDown", 198, -9.9, +9.9);
+      histogramDiMuonMass_unweighted_ = dqmStore.book1D("diMuonMass_unweighted", "diMuonMass_unweighted", 250, 0., 250.);
+      histogramDiMuonMass_weighted_ = dqmStore.book1D("diMuonMass_weighted", "diMuonMass_weighted", 250, 0., 250.);
+      histogramDiMuonMass_weightedUp_ = dqmStore.book1D("diMuonMass_weightedUp", "diMuonMass_weightedUp", 250, 0., 250.);
+      histogramDiMuonMass_weightedDown_ = dqmStore.book1D("diMuonMass_weightedDown", "diMuonMass_weightedDown", 250, 0., 250.);
     }
     void fillHistograms(int numJets,
 			const reco::Candidate::LorentzVector& muonPlusP4, const reco::Candidate::LorentzVector& muonMinusP4,
@@ -343,48 +354,60 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
     {
       if ( (minJets_ == -1 || numJets >= minJets_) &&
 	   (maxJets_ == -1 || numJets <= maxJets_) ) {
-	histogramMuonPlusPt_->Fill(muonPlusP4.pt(), evtWeight_others*muonRadCorrWeight);
-	histogramMuonPlusPt_weightUp_->Fill(muonPlusP4.pt(), evtWeight_others*muonRadCorrWeightUp);
-	histogramMuonPlusPt_weightDown_->Fill(muonPlusP4.pt(), evtWeight_others*muonRadCorrWeightDown);
-	histogramMuonPlusEta_->Fill(muonPlusP4.eta(), evtWeight_others*muonRadCorrWeight);
-	histogramMuonPlusEta_weightUp_->Fill(muonPlusP4.eta(), evtWeight_others*muonRadCorrWeightUp);
-	histogramMuonPlusEta_weightDown_->Fill(muonPlusP4.eta(), evtWeight_others*muonRadCorrWeightDown);
-	histogramMuonMinusPt_->Fill(muonMinusP4.pt(), evtWeight_others*muonRadCorrWeight);
-	histogramMuonMinusPt_weightUp_->Fill(muonMinusP4.pt(), evtWeight_others*muonRadCorrWeightUp);
-	histogramMuonMinusPt_weightDown_->Fill(muonMinusP4.pt(), evtWeight_others*muonRadCorrWeightDown);
-	histogramMuonMinusEta_->Fill(muonMinusP4.eta(), evtWeight_others*muonRadCorrWeight);
-	histogramMuonMinusEta_weightUp_->Fill(muonMinusP4.eta(), evtWeight_others*muonRadCorrWeightUp);
-	histogramMuonMinusEta_weightDown_->Fill(muonMinusP4.eta(), evtWeight_others*muonRadCorrWeightDown);
+	histogramMuonPlusPt_unweighted_->Fill(muonPlusP4.pt(), evtWeight_others);
+	histogramMuonPlusPt_weighted_->Fill(muonPlusP4.pt(), evtWeight_others*muonRadCorrWeight);
+	histogramMuonPlusPt_weightedUp_->Fill(muonPlusP4.pt(), evtWeight_others*muonRadCorrWeightUp);
+	histogramMuonPlusPt_weightedDown_->Fill(muonPlusP4.pt(), evtWeight_others*muonRadCorrWeightDown);
+	histogramMuonPlusEta_unweighted_->Fill(muonPlusP4.eta(), evtWeight_others);
+	histogramMuonPlusEta_weighted_->Fill(muonPlusP4.eta(), evtWeight_others*muonRadCorrWeight);
+	histogramMuonPlusEta_weightedUp_->Fill(muonPlusP4.eta(), evtWeight_others*muonRadCorrWeightUp);
+	histogramMuonPlusEta_weightedDown_->Fill(muonPlusP4.eta(), evtWeight_others*muonRadCorrWeightDown);
+	histogramMuonMinusPt_unweighted_->Fill(muonMinusP4.pt(), evtWeight_others);
+	histogramMuonMinusPt_weighted_->Fill(muonMinusP4.pt(), evtWeight_others*muonRadCorrWeight);
+	histogramMuonMinusPt_weightedUp_->Fill(muonMinusP4.pt(), evtWeight_others*muonRadCorrWeightUp);
+	histogramMuonMinusPt_weightedDown_->Fill(muonMinusP4.pt(), evtWeight_others*muonRadCorrWeightDown);
+	histogramMuonMinusEta_unweighted_->Fill(muonMinusP4.eta(), evtWeight_others);
+	histogramMuonMinusEta_weighted_->Fill(muonMinusP4.eta(), evtWeight_others*muonRadCorrWeight);
+	histogramMuonMinusEta_weightedUp_->Fill(muonMinusP4.eta(), evtWeight_others*muonRadCorrWeightUp);
+	histogramMuonMinusEta_weightedDown_->Fill(muonMinusP4.eta(), evtWeight_others*muonRadCorrWeightDown);
 	double diMuonMass = (muonPlusP4 + muonMinusP4).mass();
-	histogramDiMuonMass_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeight);
-	histogramDiMuonMass_weightUp_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeightUp);
-	histogramDiMuonMass_weightDown_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeightDown);
+	histogramDiMuonMass_unweighted_->Fill(diMuonMass, evtWeight_others);
+	histogramDiMuonMass_weighted_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeight);
+	histogramDiMuonMass_weightedUp_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeightUp);
+	histogramDiMuonMass_weightedDown_->Fill(diMuonMass, evtWeight_others*muonRadCorrWeightDown);
       }
     }
     int minJets_;
     int maxJets_;
     std::string dqmDirectory_;
-    MonitorElement* histogramMuonPlusPt_;
-    MonitorElement* histogramMuonPlusPt_weightUp_;
-    MonitorElement* histogramMuonPlusPt_weightDown_;
-    MonitorElement* histogramMuonPlusEta_;
-    MonitorElement* histogramMuonPlusEta_weightUp_;
-    MonitorElement* histogramMuonPlusEta_weightDown_;
-    MonitorElement* histogramMuonMinusPt_;
-    MonitorElement* histogramMuonMinusPt_weightUp_;
-    MonitorElement* histogramMuonMinusPt_weightDown_;
-    MonitorElement* histogramMuonMinusEta_;
-    MonitorElement* histogramMuonMinusEta_weightUp_;
-    MonitorElement* histogramMuonMinusEta_weightDown_;
-    MonitorElement* histogramDiMuonMass_;
-    MonitorElement* histogramDiMuonMass_weightUp_;
-    MonitorElement* histogramDiMuonMass_weightDown_;
+    MonitorElement* histogramMuonPlusPt_unweighted_;
+    MonitorElement* histogramMuonPlusPt_weighted_;
+    MonitorElement* histogramMuonPlusPt_weightedUp_;
+    MonitorElement* histogramMuonPlusPt_weightedDown_;
+    MonitorElement* histogramMuonPlusEta_unweighted_;
+    MonitorElement* histogramMuonPlusEta_weighted_;
+    MonitorElement* histogramMuonPlusEta_weightedUp_;
+    MonitorElement* histogramMuonPlusEta_weightedDown_;
+    MonitorElement* histogramMuonMinusPt_unweighted_;
+    MonitorElement* histogramMuonMinusPt_weighted_;
+    MonitorElement* histogramMuonMinusPt_weightedUp_;
+    MonitorElement* histogramMuonMinusPt_weightedDown_;
+    MonitorElement* histogramMuonMinusEta_unweighted_;
+    MonitorElement* histogramMuonMinusEta_weighted_;
+    MonitorElement* histogramMuonMinusEta_weightedUp_;
+    MonitorElement* histogramMuonMinusEta_weightedDown_;
+    MonitorElement* histogramDiMuonMass_unweighted_;
+    MonitorElement* histogramDiMuonMass_weighted_;
+    MonitorElement* histogramDiMuonMass_weightedUp_;
+    MonitorElement* histogramDiMuonMass_weightedDown_;
   };
 
   std::vector<plotEntryTypeMuonRadCorrUncertainty*> muonRadCorrUncertaintyPlotEntries_beforeRad_;
   std::vector<plotEntryTypeMuonRadCorrUncertainty*> muonRadCorrUncertaintyPlotEntries_afterRad_;
-  std::vector<plotEntryTypeMuonRadCorrUncertainty*> muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_;
-  
+  std::vector<plotEntryTypeMuonRadCorrUncertainty*> muonRadCorrUncertaintyPlotEntries_afterRadAndCorr_;  
+  int muonRadCorrUncertainty_numWarnings_;
+  int muonRadCorrUncertainty_maxWarnings_;
+
   struct plotEntryTypeL1ETM
   {
     plotEntryTypeL1ETM(const std::string& genTauDecayMode, const std::string& dqmDirectory)
