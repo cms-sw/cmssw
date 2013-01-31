@@ -7,7 +7,6 @@
 ########################################################################
 
 import os,sys,time
-import coral
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,revisionDML,lumiCalcAPI,lumiReport,RegexValidator,normDML
         
 beamChoices=['PROTPHYS','IONPHYS','PAPHYS']
@@ -278,37 +277,53 @@ if __name__ == '__main__':
     irunlsdict={}
     rruns=[]
     session.transaction().start(True)
-    runlist=lumiCalcAPI.runList(session.nominalSchema(),options.fillnum,runmin=reqrunmin,runmax=reqrunmax,fillmin=reqfillmin,fillmax=reqfillmax,startT=reqtimemin,stopT=reqtimemax,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=False,requirehlt=False) #this is run list and has no ls
-    filerunlist=[]
+    filerunlist=None
     if options.inputfile:
         (irunlsdict,iresults)=parseInputFiles(options.inputfile)
         filerunlist=irunlsdict.keys()
-    if filerunlist and runlist:
-        rruns=list(set(runlist) & set(filerunlist))
-    elif filerunlist:
-        rruns=filerunlist
-    elif runlist:
-        rruns=runlist
-    else:
-        print '[INFO] No qualified run found, do nothing'
-        sys.exit(14)
-    if not irunlsdict: #no file
-        irunlsdict=dict(zip(rruns,[None]*len(rruns)))
-    else:
-        for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
-            if selectedrun not in rruns:
-                del irunlsdict[selectedrun]
+        
+    
+    #if not irunlsdict: #no file
+    #    irunlsdict=dict(zip(rruns,[None]*len(rruns)))
+    #else:
+    #    for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
+    #        if selectedrun not in rruns:
+    #            del irunlsdict[selectedrun]
+    
     ##############################################################
     # check datatag
     # #############################################################       
     datatagname=options.datatag
     if not datatagname:
         (datatagid,datatagname)=revisionDML.currentDataTag(session.nominalSchema())
-        dataidmap=revisionDML.dataIdsByTagId(session.nominalSchema(),datatagid,runlist=rruns,withcomment=False)
-        #{run:(lumidataid,trgdataid,hltdataid,())}
     else:
-        dataidmap=revisionDML.dataIdsByTagName(session.nominalSchema(),datatagname,runlist=rruns,withcomment=False)
-        #{run:(lumidataid,trgdataid,hltdataid,())}
+        datatagid=revisionDML.getDataTagId(session.nominalSchema(),datatagname)
+
+    dataidmap=lumiCalcAPI.runList(session.nominalSchema(),datatagid,runmin=reqrunmin,runmax=reqrunmax,fillmin=reqfillmin,fillmax=reqfillmax,startT=reqtimemin,stopT=reqtimemax,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt,preselectedruns=filerunlist)
+    if not dataidmap:
+        print '[INFO] No qualified run found, do nothing'
+        sys.exit(14)
+    rruns=[]
+    #crosscheck dataid value
+    for irun,(lid,tid,hid) in dataidmap.items():
+        if not lid:
+            print '[INFO] No qualified lumi data found for run, ',irun
+        if reqTrg and not tid:
+            print '[INFO] No qualified trg data found for run ',irun
+            continue
+        if reqHlt and not hid:
+            print '[INFO] No qualified hlt data found for run ',irun
+            continue
+        rruns.append(irun)
+    if not irunlsdict: #no file
+        irunlsdict=dict(zip(rruns,[None]*len(rruns)))
+    else:
+        for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
+            if selectedrun not in rruns:
+                del irunlsdict[selectedrun]
+    if not irunlsdict:
+        print '[INFO] No qualified run found, do nothing'
+        sys.exit(13)
     ###############################################################
     # check normtag and get norm values if required
     ###############################################################
@@ -330,16 +345,14 @@ if __name__ == '__main__':
         normvalueDict=normDML.normValueById(session.nominalSchema(),normid) #{since:[corrector(0),{paramname:paramvalue}(1),amodetag(2),egev(3),comment(4)]}
     session.transaction().commit()
     lumiReport.toScreenHeader(thiscmmd,datatagname,normname,workingversion,updateversion,'HF',toFile=options.headerfile)
-    if not dataidmap:
-        print '[INFO] No qualified data found, do nothing'
-        sys.exit(13)
+
                 
     ##################
     # ls level       #
     ##################
     session.transaction().start(True)
-
-    GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
+    
+    GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict,dataidmap,lumitype='HF')
     if options.action == 'delivered':
         result=lumiCalcAPI.deliveredLumiForIds(session.nominalSchema(),irunlsdict,dataidmap,runsummaryMap=GrunsummaryData,beamstatusfilter=pbeammode,timeFilter=timeFilter,normmap=normvalueDict,lumitype='HF')
         lumiReport.toScreenTotDelivered(result,iresults,options.scalefactor,irunlsdict=irunlsdict,noWarning=options.nowarning,toFile=options.outputfile)

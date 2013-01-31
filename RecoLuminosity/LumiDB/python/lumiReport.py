@@ -939,9 +939,9 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename,irunlsdict=None,noWarning=Tr
         r.writeRow(fieldnames)
         r.writeRows(result)
     
-def toScreenLSTrg(trgdata,iresults=[],irunlsdict=None,noWarning=True,toFile=None):
+def toScreenLSTrg(trgdata,iresults=[],irunlsdict=None,noWarning=True,toFile=None,withoutmask=False):
     '''
-    input:{run:[[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(name,count,presc),]],..]
+    input:{run:[[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(name,count,presc,mask),]],..]
     '''
     result=[]
     datarunlsdict={}#{run:[ls,...]}from data. construct it only if there is irunlsdict to compare with
@@ -973,8 +973,13 @@ def toScreenLSTrg(trgdata,iresults=[],irunlsdict=None,noWarning=True,toFile=None
             deadcount=lsdata[2]
             bitdata=lsdata[5]# already sorted by name
             if bitdata:
-              flatbitdata=["("+x[0]+',%d'%x[1]+',%d'%x[2]+")" for x in bitdata if x[0]!='False']
-              bitdataStr=' '.join(flatbitdata)
+              if withoutmask:
+                  flatbitdata=["("+x[0]+',%d'%x[1]+',%d'%x[2]+")" for x in bitdata if x[0]!='False']
+                  bitdataStr=' '.join(flatbitdata)
+              else:
+                  #consider trg mask by default
+                  flatbitdata=["("+x[0]+',%d'%x[1]+',%d'%x[2]+")" for x in bitdata if x[0]!='False' and x[3]]
+                  bitdataStr=' '.join(flatbitdata)
             if irunlsdict and irunlsdict[run]:
                 if run in irunlsdict and cmslsnum in irunlsdict[run]:
                     result.append([str(run),str(cmslsnum),'%.4f'%(deadfrac),bitdataStr])
