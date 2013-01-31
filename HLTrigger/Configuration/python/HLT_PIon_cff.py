@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/PIon/V103 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/PIon/V104 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V103')
+  tableName = cms.string('/dev/CMSSW_5_2_6/PIon/V104')
 )
 
 streams = cms.PSet( 
@@ -12,12 +12,9 @@ streams = cms.PSet(
     'Cosmics',
     'HcalHPDNoise',
     'HcalNZS',
-    'JetMon',
     'LogMonitor',
     'MinimumBias',
     'PAHighPt',
-    'PAMinBias1',
-    'PAMinBias2',
     'PAMinBiasUPC',
     'PAMuon',
     'PPFSQ',
@@ -185,8 +182,6 @@ datasets = cms.PSet(
   HcalNZS = cms.vstring( 'HLT_PAHcalNZS_v1',
     'HLT_PAHcalPhiSym_v1',
     'HLT_PAHcalUTCA_v1' ),
-  JetMon = cms.vstring( 'HLT_PASingleForJet15_v1',
-    'HLT_PASingleForJet25_v1' ),
   L1Accept = cms.vstring( 'DST_Physics_v5' ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor_v4' ),
   MinimumBias = cms.vstring( 'HLT_Physics_v5' ),
@@ -539,11 +534,6 @@ datasets = cms.PSet(
     'HLT_PATripleJet40_20_20_v1',
     'HLT_PATripleJet60_20_20_v1',
     'HLT_PATripleJet80_20_20_v1' ),
-  PAMinBias1 = cms.vstring( 'HLT_PAL1Tech53_MB_SingleTrack_v1',
-    'HLT_PAL1Tech53_MB_v1',
-    'HLT_PARomanPots_Tech52_v1',
-    'HLT_PAT1minbias_Tech55_v1' ),
-  PAMinBias2 = cms.vstring( 'HLT_PAL1Tech54_ZeroBias_v1' ),
   PAMinBiasUPC = cms.vstring( 'HLT_PABptxMinusNotBptxPlus_v1',
     'HLT_PABptxPlusNotBptxMinus_v1',
     'HLT_PACastorEmNotHfCoincidencePm_v1',
@@ -560,6 +550,9 @@ datasets = cms.PSet(
     'HLT_PAL1DoubleMu0_v1',
     'HLT_PAL1SingleJet16_v1',
     'HLT_PAL1SingleJet36_v1',
+    'HLT_PAL1Tech53_MB_SingleTrack_v1',
+    'HLT_PAL1Tech53_MB_v1',
+    'HLT_PAL1Tech54_ZeroBias_v1',
     'HLT_PAL1Tech63_CASTORHaloMuon_v1',
     'HLT_PAL1Tech_HBHEHO_totalOR_v1',
     'HLT_PAMinBiasBHC_OR_v1',
@@ -569,8 +562,10 @@ datasets = cms.PSet(
     'HLT_PAMinBiasHfOrBHC_v1',
     'HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1',
     'HLT_PARandom_v1',
+    'HLT_PARomanPots_Tech52_v1',
     'HLT_PASingleForJet15_v1',
     'HLT_PASingleForJet25_v1',
+    'HLT_PAT1minbias_Tech55_v1',
     'HLT_PAUpcSingleEG5Full_TrackVeto7_v1',
     'HLT_PAUpcSingleEG5Pixel_TrackVeto_v1',
     'HLT_PAUpcSingleMuOpenFull_TrackVeto7_v1',

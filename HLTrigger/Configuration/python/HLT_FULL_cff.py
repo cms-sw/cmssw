@@ -1,10 +1,10 @@
-# /dev/CMSSW_5_2_6/HLT/V155 (CMSSW_5_2_8)
+# /dev/CMSSW_5_2_6/HLT/V161 (CMSSW_5_2_8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V155')
+  tableName = cms.string('/dev/CMSSW_5_2_6/HLT/V161')
 )
 
 streams = cms.PSet( 
@@ -663,8 +663,6 @@ datasets = cms.PSet(
     'HLT_Jet50_NoL1FastJet_v4',
     'HLT_Jet60_NoL1FastJet_v4',
     'HLT_Jet60_v5',
-    'HLT_PASingleForJet15_v1',
-    'HLT_PASingleForJet25_v1',
     'HLT_PFJet140_v9',
     'HLT_PFJet200_v9',
     'HLT_PFJet260_v9',
@@ -2667,11 +2665,8 @@ datasets = cms.PSet(
     'HLT_PATripleJet40_20_20_v1',
     'HLT_PATripleJet60_20_20_v1',
     'HLT_PATripleJet80_20_20_v1' ),
-  PAMinBias1 = cms.vstring( 'HLT_PAL1Tech53_MB_SingleTrack_v1',
-    'HLT_PAL1Tech53_MB_v1',
-    'HLT_PARomanPots_Tech52_v1',
-    'HLT_PAT1minbias_Tech55_v1' ),
-  PAMinBias2 = cms.vstring( 'HLT_PAL1Tech54_ZeroBias_v1' ),
+  PAMinBias1 = cms.vstring(  ),
+  PAMinBias2 = cms.vstring(  ),
   PAMinBiasUPC = cms.vstring( 'HLT_PABptxMinusNotBptxPlus_v1',
     'HLT_PABptxPlusNotBptxMinus_v1',
     'HLT_PACastorEmNotHfCoincidencePm_v1',
@@ -2693,6 +2688,9 @@ datasets = cms.PSet(
     'HLT_PAL1SingleEG7_v1',
     'HLT_PAL1SingleJet16_v1',
     'HLT_PAL1SingleJet36_v1',
+    'HLT_PAL1Tech53_MB_SingleTrack_v1',
+    'HLT_PAL1Tech53_MB_v1',
+    'HLT_PAL1Tech54_ZeroBias_v1',
     'HLT_PAL1Tech63_CASTORHaloMuon_v1',
     'HLT_PAL1Tech_HBHEHO_totalOR_v1',
     'HLT_PAMinBiasBHC_OR_v1',
@@ -2702,8 +2700,10 @@ datasets = cms.PSet(
     'HLT_PAMinBiasHfOrBHC_v1',
     'HLT_PAMu7_Ele7_CaloIdT_CaloIsoVL_v1',
     'HLT_PARandom_v1',
+    'HLT_PARomanPots_Tech52_v1',
     'HLT_PASingleForJet15_v1',
     'HLT_PASingleForJet25_v1',
+    'HLT_PAT1minbias_Tech55_v1',
     'HLT_PAUpcSingleEG5Full_TrackVeto7_v1',
     'HLT_PAUpcSingleEG5Pixel_TrackVeto_v1',
     'HLT_PAUpcSingleMuOpenFull_TrackVeto7_v1',
