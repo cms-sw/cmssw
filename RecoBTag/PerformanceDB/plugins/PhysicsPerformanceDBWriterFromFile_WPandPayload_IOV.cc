@@ -125,9 +125,6 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob()
   if (stride != nbin*2+nres){
     std::cout <<" Table not well formed"<<std::endl;
   }
-  if (stride == 0) {
-    throw cms::Exception("Table not well formed") << std::endl;
-  }
   if ((number % stride) != 0){
     std::cout <<" Table not well formed"<<std::endl;
   }

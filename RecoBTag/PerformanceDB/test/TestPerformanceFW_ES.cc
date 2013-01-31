@@ -129,7 +129,7 @@ TestPerformanceFW_ES::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 //Setup the point we wish to test!
       BinningPointByMap measurePoint;
       measurePoint.insert(BinningVariables::JetEt,50);
-      measurePoint.insert(BinningVariables::JetEta,0.6);
+      measurePoint.insert(BinningVariables::JetAbsEta,0.6);
 
       std::cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
 		<< " result at 50 GeV, 0,6 |eta| " << perf.getResult( measureMap[ measureType[ iMeasure] ], measurePoint)
@@ -137,8 +137,8 @@ TestPerformanceFW_ES::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       std::cout << "Error checking!" << std::endl;
       measurePoint.reset();
-      measurePoint.insert(BinningVariables::JetEt,300);
-      measurePoint.insert(BinningVariables::JetEta,10);
+      measurePoint.insert(BinningVariables::JetEt,0);
+      measurePoint.insert(BinningVariables::JetAbsEta,10);
 
       std::cout << "Is it OK? " << perf.isResultOk( measureMap[ measureType[ iMeasure] ], measurePoint)
 		<< " result at 0 GeV, 10 |eta| " << perf.getResult( measureMap[ measureType[ iMeasure] ], measurePoint)
