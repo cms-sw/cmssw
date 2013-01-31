@@ -13,6 +13,13 @@ process.MessageLogger.cout = cms.untracked.PSet(
 #replace MessageLogger.debugModules = { "*" }
 
 # service = Tracer {}
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = 'MC_61_V11::All' # take your favourite
+
+# maybe this for automatic GT ?
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
+
 # Ideal geometry producer
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
@@ -21,7 +28,7 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 # Misalignment example scenario producer
 process.load("Alignment.TrackerAlignment.MisalignedTracker_cfi")
 process.MisalignedTracker.saveToDbase = True # to store to DB
-# process.MisalignedTracker.saveFakeScenario = True
+process.MisalignedTracker.saveFakeScenario = True
 import Alignment.TrackerAlignment.Scenarios_cff as _Scenarios
 #process.MisalignedTracker.scenario = _Scenarios.Tracker10pbScenario
 #process.MisalignedTracker.scenario = _Scenarios.SurveyLASOnlyScenario
