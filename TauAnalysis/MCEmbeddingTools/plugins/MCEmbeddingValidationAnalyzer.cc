@@ -542,7 +542,7 @@ namespace
 
 void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 {
-  std::cout << "<MCEmbeddingValidationAnalyzer::analyze>:" << std::endl;
+  //std::cout << "<MCEmbeddingValidationAnalyzer::analyze>:" << std::endl;
 
 //--- compute event weight
   double evtWeight = 1.0;
@@ -572,9 +572,9 @@ void MCEmbeddingValidationAnalyzer::analyze(const edm::Event& evt, const edm::Ev
   evt.getByLabel(srcMuonRadCorrWeightUp_, muonRadCorrWeightUp);
   edm::Handle<double> muonRadCorrWeightDown;
   evt.getByLabel(srcMuonRadCorrWeightDown_, muonRadCorrWeightDown);
-  std::cout << " muonRadCorrWeight = " << (*muonRadCorrWeight) 
-	    << " + " << ((*muonRadCorrWeightUp) - (*muonRadCorrWeight))
-	    << " - " << ((*muonRadCorrWeight) - (*muonRadCorrWeightDown)) << std::endl;
+  //std::cout << " muonRadCorrWeight = " << (*muonRadCorrWeight) 
+  //	      << " + " << ((*muonRadCorrWeightUp) - (*muonRadCorrWeight))
+  //	      << " - " << ((*muonRadCorrWeight) - (*muonRadCorrWeightDown)) << std::endl;
   
 //--- fill all histograms
   edm::Handle<reco::TrackCollection> tracks;

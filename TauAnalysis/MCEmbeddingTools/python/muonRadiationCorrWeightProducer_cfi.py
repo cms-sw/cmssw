@@ -12,5 +12,5 @@ muonRadiationCorrWeightProducer = cms.EDProducer("MuonRadiationCorrWeightProduce
     binningMuonEn = genMuonRadCorrAnalyzer.binningMuonEn,
     minWeight = cms.double(0.),
     maxWeight = cms.double(2.),
-    verbosity = cms.int32(1)                                                   
+    verbosity = cms.int32(0)                                                   
 )
