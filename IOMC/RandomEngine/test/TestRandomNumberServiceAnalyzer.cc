@@ -88,6 +88,10 @@ TestRandomNumberServiceAnalyzer::TestRandomNumberServiceAnalyzer(edm::ParameterS
     rng->print();
     std::cout << "*** TestRandomNumberServiceAnalyzer constructor " << rng->mySeed() << "\n";
   }
+  if(rng->getEngine().name() !="RanecuEngine") {
+     //std::cout <<rng->getEngine().name()<<" "<<rng->mySeed()<<" "<<rng->getEngine().getSeed()<<std::endl;
+     assert(rng->mySeed()==rng->getEngine().getSeed());
+  }
 }
 
 TestRandomNumberServiceAnalyzer::~TestRandomNumberServiceAnalyzer() {
@@ -117,7 +121,7 @@ TestRandomNumberServiceAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
           << "\n";
   outFile << rng->mySeed() << "\n";
   outFile << rng->getEngine().name() << "\n";
-
+  
   // Get a reference to the engine.  This call can
   // be here or it can be in the module constructor
   // if the class saves the reference as a member.  It is
