@@ -617,9 +617,9 @@ void GEMSimHitAnalyzer::analyzeTracks()
     track.propagatedSimHitPhiCSCBoth = trk_csc_both.phi();
 
     track.charge = simTrkProcessor.track(itrk)->charge();
-    track.charge = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Pt();
-    track.charge = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Eta();
-    track.charge = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Phi();
+    track.pt = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Pt();
+    track.eta = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Eta();
+    track.phi = simTrkProcessor.track(itrk)->trackerSurfaceMomentum().Phi();
     track.hasGEMl1 = static_cast<int>(has_gem_l1);
     track.hasGEMl2 = static_cast<int>(has_gem_l2);
     track.hasCSC = static_cast<int>(has_csc);
