@@ -2,15 +2,12 @@
 #define RecoTracker_TkSeedGenerator_SeedGeneratorFromRegionHits_H
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
-#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
-
-
-#include <memory>
+#include <string>
 
 class TrackingRegion;
+class OrderedHitsGenerator;
+class SeedComparitor;
+class SeedCreator;
  
 namespace edm { class Event; class EventSetup; }
 
@@ -24,13 +21,16 @@ public:
     );
 
 
+  //dtor
+  ~SeedGeneratorFromRegionHits();
+
   // make job
   void run(TrajectorySeedCollection & seedCollection, const TrackingRegion & region, 
-	   const edm::Event& ev, const edm::EventSetup& es);
+      const edm::Event& ev, const edm::EventSetup& es);
  
 private:
-  std::unique_ptr<OrderedHitsGenerator> theHitsGenerator;
-  std::unique_ptr<SeedComparitor> theComparitor;
-  std::unique_ptr<SeedCreator> theSeedCreator;
+  OrderedHitsGenerator * theHitsGenerator;
+  SeedComparitor * theComparitor;
+  SeedCreator * theSeedCreator;
 };
 #endif 

@@ -2,7 +2,7 @@
 #define TR_FastCircle_H_
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include <vector>
 
 /**
    Calculate circle parameters (x0, y0, rho) for a circle:
@@ -47,27 +47,22 @@ public:
   
   // all returned values have dimensions of cm
   // parameters of the circle (circle is valid)
-  float x0() const {return theX0;}
+  double x0() const {return theX0;}
   
-  float y0() const {return theY0;}
+  double y0() const {return theY0;}
 
-  float rho() const {return theRho;}
+  double rho() const {return theRho;}
   
   bool isValid() const {return theValid;}
   
   // parameters of the straight line 
   // (if circle is invalid only these are available) 
-  float n1() const {return theN1;}
+  double n1() const {return theN1;}
   
-  float n2() const {return theN2;}
+  double n2() const {return theN2;}
   
-  float c() const {return theC;}
+  double c() const {return theC;}
   
-  GlobalPoint const & outerPoint() const { return theOuterPoint;} 
-  GlobalPoint const & innerPoint() const { return theInnerPoint;} 
-  GlobalPoint const & vertexPoint() const { return theVertexPoint;} 
-
-
 private:
 
   GlobalPoint theOuterPoint; 
@@ -75,18 +70,19 @@ private:
   GlobalPoint theVertexPoint; 
   double theNorm;
   
-  float theX0;
-  float theY0;
-  float theRho;
+  double theX0;
+  double theY0;
+  double theRho;
   
-  float theN1;
-  float theN2;
-  float theC;
+  double theN1;
+  double theN2;
+  double theC;
   
   bool theValid;
   
-  void createCircleParameters() dso_hidden;
-   
+  void createCircleParameters();
+  AlgebraicVector3 transform(const GlobalPoint& aPoint) const;
+  
 };
 
 #endif //TR_Circle_H_

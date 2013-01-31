@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: mkrecord,v 1.2 2005/07/29 12:58:01 chrjones Exp $
+# $Id: mkrecord,v 1.1 2006/04/07 15:24:01 chrjones Exp $
 ###########################################################################
 #  simple little script to make record skeleton files
 #
@@ -258,4 +258,6 @@ ENDHELP
     print "mkskel  Q: Flag [f, b, c, h, i, p, w, C or t] ? ";
     $ARGV[1] = <STDIN>;
     chop($ARGV[1]);
+  
+    &read_args(@ARGV);
 }

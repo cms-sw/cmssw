@@ -9,22 +9,31 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 
 
-bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajectoryParameters & kine,
-								 const SeedingHitSet & hits) const {
-
+GlobalTrajectoryParameters SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(
+      const SeedingHitSet& hits, 
+      const TrackingRegion & region, 
+      const edm::EventSetup& es,
+      const SeedComparitor *filter,
+      bool                 &passesFilter) const
+{
+  GlobalTrajectoryParameters kine;
 
   const TransientTrackingRecHit::ConstRecHitPointer& tth1 = hits[0];
   const TransientTrackingRecHit::ConstRecHitPointer& tth2 = hits[1];
   const TransientTrackingRecHit::ConstRecHitPointer& tth3 = hits[2];
 
-  FastHelix helix(tth3->globalPosition(), tth2->globalPosition(), tth1->globalPosition(), nomField, &*bfield, tth1->globalPosition());
-  kine = helix.stateAtVertex();
+  FastHelix helix(tth3->globalPosition(), tth2->globalPosition(), tth1->globalPosition(), es, tth1->globalPosition());
+  kine = helix.stateAtVertex().parameters();
 
-  if unlikely(isBOFF && (theBOFFMomentum > 0)) {
-      kine = GlobalTrajectoryParameters(kine.position(),
-					kine.momentum().unit() * theBOFFMomentum,
-					kine.charge(),
-					&*bfield);
+  edm::ESHandle<MagneticField> bfield;
+  es.get<IdealMagneticFieldRecord>().get(bfield);
+  bool isBOFF = ( std::abs(bfield->inTesla(GlobalPoint(0,0,0)).z()) < 1e-3 );
+  if (isBOFF && (theBOFFMomentum > 0)) {
+    kine = GlobalTrajectoryParameters(kine.position(),
+                              kine.momentum().unit() * theBOFFMomentum,
+                              kine.charge(),
+                              &*bfield);
   }
-  return (filter ? filter->compatible(hits, kine, helix, *region) : true); 
+  passesFilter = (filter ? filter->compatible(hits, kine, helix, region) : true); 
+  return kine;
 }

@@ -35,11 +35,10 @@ SiStripTrackerMapCreator::SiStripTrackerMapCreator() {
   tkDetMap_=edm::Service<TkDetMap>().operator->();
 }
 */
-SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): meanToMaxFactor_(2.5),eSetup_(eSetup), psumap_() {
+SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): meanToMaxFactor_(2.5),eSetup_(eSetup) {
   trackerMap_ = 0;
   stripTopLevelDir_="";
   eSetup_.get<SiStripDetCablingRcd>().get(detcabling_);
-  psumap_.BuildMap("CalibTracker/SiStripDCS/data/StripPSUDetIDMap_FromJan132010.dat",false);
   if(!edm::Service<TkDetMap>().isAvailable()){
     edm::LogError("TkHistoMap") <<
       "\n------------------------------------------"
@@ -169,8 +168,8 @@ void SiStripTrackerMapCreator::createForOffline(const edm::ParameterSet & tkmapP
   if(tkMapPSU) {
 
     edm::LogInfo("PSUMapToBeSaved") << "Ready to save PSU TkMap " << map_type << namesuffix << " with range set to " << tkMapMin_ << " - " << tkMapMax_;
-    //    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+namesuffix+"_psu.svg");
-    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+namesuffix+"_psu.png");
+    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+namesuffix+"_psu.svg");
+    trackerMap_->save_as_psutrackermap(true, tkMapMin_,tkMapMax_, map_type+namesuffix+"_psu.png",6000,3200);
 
   }
 
@@ -478,13 +477,6 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
   if(conns.size()==1) {	comment << "              ";      }
   if(conns.size()==2) {	comment << "       ";      }
     //  }
-
-  // get PSU channel corresponding to the det_id
-  /*
-  comment << " PSU: ";
-  comment << psumap_.getPSUName(det_id);
-  */
-  //
 
   SiStripFolderOrganizer folder_organizer;
   std::string subdet_folder, badmodule_folder;

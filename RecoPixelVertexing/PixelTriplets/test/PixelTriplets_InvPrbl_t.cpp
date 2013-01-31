@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitPredictionFromInvParabola.cc"
+#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvParabola.h"
 
 #include <cmath>
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"

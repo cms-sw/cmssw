@@ -77,13 +77,8 @@ class Pythia6ServiceWithCallback : public Pythia6Service {
       if ( !hepeup_.nup || Pythia6Hadronizer::getJetMatching()->isMatchingDone() )
          return true;
 
-      bool retValue = Pythia6Hadronizer::getJetMatching()->match( 0, 0 );
-      // below is old code and a note of it
       // NOTE: I'm passing NULL pointers, instead of HepMC::GenEvent, etc.
-      //retValur = Pythia6Hadronizer::getJetMatching()->match(0, 0, true);
-      return retValue;
-
-
+      return Pythia6Hadronizer::getJetMatching()->match(0, 0, true);
     }
 };
 

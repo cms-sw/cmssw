@@ -28,6 +28,8 @@ public:
   
   //  typedef TkTrackingRegionsMargin<float> Margin;
 
+ /// dummy constructor
+ CosmicTrackingRegion() { }
  virtual ~CosmicTrackingRegion() { }
  /** constructor (symmetric eta and phi margins). <BR>
   * dir        - the direction around which region is constructed <BR>
@@ -76,6 +78,16 @@ public:
       
 
 
+  /// allowed eta range [eta_min, eta_max] interval
+    //  const Range & etaRange() const { return theEtaRange; }
+
+  /// defined phi range around phi0, margin is [phi_left,phi_right]. 
+  /// region is defined in a range: [phi0-phi_left, phi0+phi_right]
+    //  const Margin & phiMargin() const { return thePhiMargin; }
+
+  /// is precise error calculation switched on 
+    //  bool  isPrecise() const { return thePrecise; }
+
    virtual TrackingRegion::Hits hits(
       const edm::Event& ev,  
       const edm::EventSetup& es, 
@@ -89,6 +101,7 @@ public:
    CosmicTrackingRegion * clone() const {     return new CosmicTrackingRegion(*this);  }
    
    std::string name() const { return "CosmicTrackingRegion"; }
+  //  virtual std::string print() const;
 
 private:
 

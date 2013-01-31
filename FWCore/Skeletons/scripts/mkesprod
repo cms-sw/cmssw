@@ -220,4 +220,6 @@ ENDHELP
     print "mkesprod  Q: Please enter names of data items: ";
     $ARGV[2] = <STDIN>;
     chop($ARGV[2]);
+  
+    &read_args(@ARGV);
 }

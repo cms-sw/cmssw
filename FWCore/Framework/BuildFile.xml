@@ -9,6 +9,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Version"/>
 <use   name="boost"/>
+<use   name="rootcintex"/>
 <use   name="rootcore"/>
 <export>
   <lib   name="1"/>

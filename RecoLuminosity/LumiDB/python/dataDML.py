@@ -310,31 +310,27 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,fillmin=None,fillmax=Non
         qResult=coral.AttributeList()
         qResult.extend('runnum','unsigned int')
         qResult.extend('starttime','string')
-        qResult.extend('stoptime','string')
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         qHandle.addToOutputList(r+'.RUNNUM','runnum')
         qHandle.addToOutputList('TO_CHAR('+r+'.STARTTIME,\'MM/DD/YY HH24:MI:SS\')','starttime')
-        qHandle.addToOutputList('TO_CHAR('+r+'.STOPTIME,\'MM/DD/YY HH24:MI:SS\')','stoptime')
         cursor=qHandle.execute()
         
         while cursor.next():
             starttimeStr=cursor.currentRow()['starttime'].data()
-            stoptimeStr=cursor.currentRow()['stoptime'].data()
             runnum=cursor.currentRow()['runnum'].data()
             minTime=None
             maxTime=None
             if startT and stopT:
                 minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
                 maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
-                runstartTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                runstopTime=lute.StrToDatetime(stoptimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runstopTime>=minTime and runstartTime<=maxTime and runnum not in result:
+                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
+                if runTime>=minTime and runTime<=maxTime and runnum not in result:
                     result.append(runnum)
             elif startT is not None:
                 minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
-                runstartTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
-                if runstopTime>=minTime and runnum not in result:
+                runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
+                if runTime>=minTime and runnum not in result:
                     result.append(runnum)
             elif stopT is not None:
                 maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
@@ -825,46 +821,6 @@ def lumiRunByIds(schema,dataidMap,lumitype='HF'):
         if lumidataid:
             perrundata=lumiRunById(schema,lumidataid,lumitype=lumitype)
             result[r]=(perrundata[1],perrundata[2],perrundata[3])
-    return result
-
-def beamstatusByIds(schema,dataidMap):
-    '''
-    input dataidMap : {run:lumidataid}
-    result {runnum:{cmslsnum:beamstatus}}
-    '''
-    result={}
-    if not dataidMap:
-        return result
-    inputRange=dataidMap.keys()
-    for r in inputRange:
-        if not result.has_key(r):
-            result[r]={}
-        lumidataid=dataidMap[r][0]
-        if lumidataid:
-            qHandle=schema.newQuery()
-            try:
-                qHandle.addToTableList(nameDealer.lumisummaryv2TableName())
-                qHandle.addToOutputList('CMSLSNUM')
-                qHandle.addToOutputList('BEAMSTATUS')
-                qConditionStr='DATA_ID=:dataid'
-                qCondition=coral.AttributeList()
-                qCondition.extend('dataid','unsigned long long')
-                qCondition['dataid'].setData(int(lumidataid))
-                qResult=coral.AttributeList()
-                qResult.extend('CMSLSNUM','unsigned int')
-                qResult.extend('BEAMSTATUS','string')
-                qHandle.defineOutput(qResult)
-                qHandle.setCondition(qConditionStr,qCondition)
-                cursor=qHandle.execute()
-                while cursor.next():
-                    cmslsnum=cursor.currentRow()['CMSLSNUM'].data()
-                    bs=cursor.currentRow()['BEAMSTATUS'].data()
-                    if bs!='STABLE BEAMS':
-                        result[r][cmslsnum]=bs
-            except:
-                del qHandle
-                raise 
-            del qHandle
     return result
 
 def lumiRunById(schema,lumidataid,lumitype='HF'):
@@ -1857,7 +1813,7 @@ def addCorrToBranch(schema,corrname,a1,optionalcorrdata,branchinfo):
 def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo,tableName):
     '''
     input:
-          lumirundata [datasource,nominalenergy,ncollidingbunches,starttime,stoptime,nls]
+          lumirundata [datasource,nominalenergy]
           branchinfo (branch_id,branch_name)
           tableName lumiruntablename
     output:
@@ -1866,16 +1822,8 @@ def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo,tableName):
     try:
         datasource=lumirundata[0]
         nominalegev=3500.0
-        ncollidingbunches=0
-        starttime=coral.TimeStamp()
-        stoptime=coral.TimeStamp()
-        nls=0
         if len(lumirundata)>1:
             nominalenergy=lumirundata[1]
-            ncollidingbunches=lumirundata[2]
-            starttime=lumirundata[3]
-            stoptime=lumirundata[4]
-            nls=lumirundata[5]
         entry_id=revisionDML.entryInBranch(schema,tableName,str(runnumber),branchinfo[1])
         if entry_id is None:
             (revision_id,entry_id,data_id)=revisionDML.bookNewEntry(schema,tableName)
@@ -1885,8 +1833,8 @@ def addLumiRunDataToBranch(schema,runnumber,lumirundata,branchinfo,tableName):
             (revision_id,data_id)=revisionDML.bookNewRevision(schema,tableName)
             #print 'revision_id,data_id ',revision_id,data_id
             revisionDML.addRevision(schema,tableName,(revision_id,data_id),branchinfo)
-        tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string','NOMINALEGEV':'float','NCOLLIDINGBUNCHES':'unsigned int','STARTTIME':'time stamp','STOPTIME':'time stamp','NLS':'unsigned int'}
-        tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource,'NOMINALEGEV':nominalegev,'NCOLLIDINGBUNCHES':ncollidingbunches,'STARTTIME':starttime,'STOPTIME':stoptime,'NLS':nls}
+        tabrowDefDict={'DATA_ID':'unsigned long long','ENTRY_ID':'unsigned long long','ENTRY_NAME':'string','RUNNUM':'unsigned int','SOURCE':'string','NOMINALEGEV':'float'}
+        tabrowValueDict={'DATA_ID':data_id,'ENTRY_ID':entry_id,'ENTRY_NAME':str(runnumber),'RUNNUM':int(runnumber),'SOURCE':datasource,'NOMINALEGEV':nominalegev}
         db=dbUtil.dbUtil(schema)
         db.insertOneRow(tableName,tabrowDefDict,tabrowValueDict)
         return (revision_id,entry_id,data_id)

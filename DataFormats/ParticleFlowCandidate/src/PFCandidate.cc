@@ -47,8 +47,6 @@ PFCandidate::PFCandidate() :
   mva_gamma_nh_(bigMva_),
   getter_(0),storedRefsBitPattern_(0)
 {
-
-  muonTrackType_ = reco::Muon::None;
   
   setPdgId( translateTypeToPdgId( X ) );
   refsInfo_.reserve(3);
@@ -58,8 +56,6 @@ PFCandidate::PFCandidate() :
 PFCandidate::PFCandidate( const PFCandidatePtr& sourcePtr ) {
   *this = *sourcePtr;
   sourcePtr_ = sourcePtr;
-  muonTrackType_ = reco::Muon::None;
-
 }
 
 
@@ -92,7 +88,6 @@ PFCandidate::PFCandidate( Charge charge,
   elementsStorage_.reserve(10);
 
   // proceed with various consistency checks
-  muonTrackType_ = reco::Muon::None;
 
   // charged candidate: track ref and charge must be non null
   if(  partId == h || 
@@ -345,14 +340,13 @@ reco::TrackRef PFCandidate::trackRef() const { GETREF(reco::Track, kRefTrackMask
 
 
 void PFCandidate::setMuonRef(reco::MuonRef const & iRef) {
-
-    if(  trackRef() != iRef->track() ) {
+  if(  trackRef() != iRef->track() ) {
     string err;
     err += "PFCandidate::setMuonRef: inconsistent track references!";
     
     throw cms::Exception("InconsistentReference",
-  			 err.c_str() );
-   }
+			 err.c_str() );
+  }
 
   storeRefInfo(kRefMuonMask, kRefMuonBit, iRef.isNonnull(), 
 	       iRef.refCore(), iRef.key(),iRef.productGetter());
@@ -566,13 +560,6 @@ const math::XYZPoint & PFCandidate::vertex() const {
   case kTrkMuonVertex:
     return muonRef()->track()->vertex();
     break;
-  case kTPFMSMuonVertex:
-    return muonRef()->tpfmsTrack()->vertex();
-    break;
-  case kPickyMuonVertex:
-    return muonRef()->pickyTrack()->vertex();
-    break;
-
   case kGSFVertex:
     return gsfTrackRef()->vertex();
     break;

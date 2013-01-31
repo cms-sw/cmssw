@@ -390,10 +390,10 @@ SimpleCosmicBONSeeder::pqFromHelixFit(const GlobalPoint &inner, const GlobalPoin
                                                          const edm::EventSetup& iSetup) const {
     if (helixVerbosity_ > 0) {
         std::cout << "DEBUG PZ =====" << std::endl;
-        FastHelix helix(inner,middle,outer,magfield->nominalValue(), &*magfield);
-        GlobalVector gv=helix.stateAtVertex().momentum(); // status on inner hit
+        FastHelix helix(inner,middle,outer,iSetup);
+        GlobalVector gv=helix.stateAtVertex().parameters().momentum(); // status on inner hit
         std::cout << "FastHelix P = " << gv   << "\n";
-        std::cout << "FastHelix Q = " << helix.stateAtVertex().charge() << "\n";
+        std::cout << "FastHelix Q = " << helix.stateAtVertex().parameters().charge() << "\n";
     }
 
     // My attempt (with different approx from FastHelix)

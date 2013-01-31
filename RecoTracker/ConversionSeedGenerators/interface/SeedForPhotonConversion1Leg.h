@@ -1,22 +1,12 @@
 #ifndef SeedForPhotonConversion1Leg_H
 #define SeedForPhotonConversion1Leg_H
 
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class FreeTrajectoryState;
 
-//
-// this class need to be cleaned and optimized as those in RecoTracker/TkSeedGenerator
-//
-class SeedForPhotonConversion1Leg  {
+class SeedForPhotonConversion1Leg : public SeedCreator {
 public:
   static const int cotTheta_Max=99999;
   
@@ -30,9 +20,9 @@ public:
    : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF) { }
 
   //dtor
-  ~SeedForPhotonConversion1Leg(){}
+  virtual ~SeedForPhotonConversion1Leg(){}
 
-  const TrajectorySeed * trajectorySeed( TrajectorySeedCollection & seedCollection,
+  virtual const TrajectorySeed * trajectorySeed( TrajectorySeedCollection & seedCollection,
 						 const SeedingHitSet & hits,
 						 const GlobalPoint & vertex,
 						 const GlobalVector & vertexBounds,
@@ -41,32 +31,38 @@ public:
 						 float cotTheta,
 						 std::stringstream& ss);
 
+  virtual const TrajectorySeed *trajectorySeed(
+					       TrajectorySeedCollection & seedCollection,
+					       const SeedingHitSet & hits,
+					       const TrackingRegion & region,
+					       const edm::EventSetup& es,
+                                               const SeedComparitor *filter){ return 0;}
   
  protected:
 
-  bool checkHit(
+  virtual bool checkHit(
 			const TrajectoryStateOnSurface &,
 			const TransientTrackingRecHit::ConstRecHitPointer &hit,
 			const edm::EventSetup& es) const { return true; }
 
-  GlobalTrajectoryParameters initialKinematic(
+  virtual GlobalTrajectoryParameters initialKinematic(
 						      const SeedingHitSet & hits, 
 						      const GlobalPoint & vertexPos, 
 						      const edm::EventSetup& es,
 						      const float cotTheta) const;
   
-  CurvilinearTrajectoryError initialError(
+  virtual CurvilinearTrajectoryError initialError(
 						  const GlobalVector& vertexBounds, 
 						  float ptMin,  
 						  float sinTheta) const;
   
-  const TrajectorySeed * buildSeed(
+  virtual const TrajectorySeed * buildSeed(
 					   TrajectorySeedCollection & seedCollection,
 					   const SeedingHitSet & hits,
 					   const FreeTrajectoryState & fts,
 					   const edm::EventSetup& es) const;
 
-  TransientTrackingRecHit::RecHitPointer refitHit(
+  virtual TransientTrackingRecHit::RecHitPointer refitHit(
 							  const TransientTrackingRecHit::ConstRecHitPointer &hit, 
 							  const TrajectoryStateOnSurface &state) const;
   

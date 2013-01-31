@@ -2,16 +2,13 @@
 #define SeedForPhotonConversionFromQuadruplets_H
 
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 #include "RecoTracker/ConversionSeedGenerators/interface/PrintRecoObjects.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/Quad.h"
 class FreeTrajectoryState;
 
-class SeedForPhotonConversionFromQuadruplets {
+class SeedForPhotonConversionFromQuadruplets : public SeedCreator {
 public:
   static const int cotTheta_Max=99999;
   
@@ -25,9 +22,9 @@ public:
    : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF) { }
 
   //dtor
-  ~SeedForPhotonConversionFromQuadruplets(){}
+  virtual ~SeedForPhotonConversionFromQuadruplets(){}
 
-  const TrajectorySeed * trajectorySeed( TrajectorySeedCollection & seedCollection,
+  virtual const TrajectorySeed * trajectorySeed( TrajectorySeedCollection & seedCollection,
 						 const SeedingHitSet & phits,
 						 const SeedingHitSet & mhits,
 						 const TrackingRegion & region,
@@ -36,6 +33,12 @@ public:
 						 edm::ParameterSet& SeedComparitorPSet,
 						 edm::ParameterSet& QuadCutPSet);
 
+  virtual const TrajectorySeed *trajectorySeed(
+					       TrajectorySeedCollection & seedCollection,
+					       const SeedingHitSet & hits,
+					       const TrackingRegion & region,
+					       const edm::EventSetup& es,
+                                               const SeedComparitor *filter){ return 0;}
   
   double simpleGetSlope(const TransientTrackingRecHit::ConstRecHitPointer &ohit, const TransientTrackingRecHit::ConstRecHitPointer &nohit, const TransientTrackingRecHit::ConstRecHitPointer &ihit, const TransientTrackingRecHit::ConstRecHitPointer &nihit, const TrackingRegion & region, double & cotTheta, double & z0);
   double verySimpleFit(int size, double* ax, double* ay, double* e2y, double& p0, double& e2p0, double& p1);
@@ -57,23 +60,23 @@ public:
 
  protected:
 
-  bool checkHit(
+  virtual bool checkHit(
 			const TrajectoryStateOnSurface &,
 			const TransientTrackingRecHit::ConstRecHitPointer &hit,
 			const edm::EventSetup& es) const { return true; }
 
-  GlobalTrajectoryParameters initialKinematic(
+  virtual GlobalTrajectoryParameters initialKinematic(
 						      const SeedingHitSet & hits, 
 						      const GlobalPoint & vertexPos, 
 						      const edm::EventSetup& es,
 						      const float cotTheta) const;
   
-  CurvilinearTrajectoryError initialError(
+  virtual CurvilinearTrajectoryError initialError(
 						  const GlobalVector& vertexBounds, 
 						  float ptMin,  
 						  float sinTheta) const;
   
-  const TrajectorySeed * buildSeed(
+  virtual const TrajectorySeed * buildSeed(
 					   TrajectorySeedCollection & seedCollection,
 					   const SeedingHitSet & hits,
 					   const FreeTrajectoryState & fts,
@@ -81,7 +84,7 @@ public:
 					   bool apply_dzCut,
 					   const TrackingRegion &region) const;
 
-  bool buildSeedBool(
+  virtual bool buildSeedBool(
       TrajectorySeedCollection & seedCollection,
       const SeedingHitSet & hits,
       const FreeTrajectoryState & fts,
@@ -90,7 +93,7 @@ public:
       const TrackingRegion & region,
       double dzcut) const;
   
-  TransientTrackingRecHit::RecHitPointer refitHit(
+  virtual TransientTrackingRecHit::RecHitPointer refitHit(
 							  const TransientTrackingRecHit::ConstRecHitPointer &hit, 
 							  const TrajectoryStateOnSurface &state) const;
 

@@ -186,9 +186,8 @@ if (visitingCallExpr)
 //	llvm::errs()<<"\n";
 //	llvm::errs()<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 //	if (support::isConst(qual_vce))
-//	if ( (OCE) || (CE && CE->getCastKind()==clang::CK_LValueToRValue && CE->getSubExpr()->getType().isVolatileQualified()) ||
-//		( BO && BO->isAssignmentOp()) || ( UO && UO->isIncrementDecrementOp()) )
-	if (PE->HasSideEffects(AC->getASTContext()))
+	if ( (OCE) || (CE && CE->getCastKind()==clang::CK_LValueToRValue && CE->getSubExpr()->getType().isVolatileQualified()) ||
+		( BO && BO->isAssignmentOp()) || ( UO && UO->isIncrementDecrementOp()) )
 		ReportMember(ME);
 }
 
@@ -291,7 +290,6 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   llvm::raw_svector_ostream os(buf);
   CmsException m_exception;
   clang::ValueDecl * VD = ME->getMemberDecl();
-  clang::QualType qual_expr = ME->getType();
 	os << " Member data ";
 	VD->printName(os);
 	os << " is directly or indirectly modified"; 
@@ -312,7 +310,6 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
 	(*WList.begin())->getMethodDecl()->getParent()->printName(os);
       	os << "::";
 	(*WList.begin())->getMethodDecl()->printName(os);
-//	os << ". Member is type " << qual_expr.getTypePtr()->getTypeClassName();
 	os << ".\n";
 	
   clang::ento::PathDiagnosticLocation CELoc =
@@ -491,7 +488,7 @@ void WalkAST::ReportCallParam(const clang::CXXMethodDecl * MD,const clang::ParmV
 
 
 
-void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
+void ClassCheckerRDecl::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const {
 
 	const clang::CXXRecordDecl *RD=CRD;
@@ -521,18 +518,16 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::An
 //        				}
 //    				}
 
-
-
 // Check the class methods (member methods).
 	for (clang::CXXRecordDecl::method_iterator
 		I = RD->method_begin(), E = RD->method_end(); I != E; ++I)  
 	{      
 
-//			if ( I->getNameAsString() == "produce" 
-//				|| I->getNameAsString() == "beginRun" 
-//				|| I->getNameAsString() == "endRun" 
-//				|| I->getNameAsString() == "beginLuminosityBlock" 
-//				|| I->getNameAsString() == "endLuminosityBlock" )
+			if ( I->getNameAsString() == "produce" 
+				|| I->getNameAsString() == "beginRun" 
+				|| I->getNameAsString() == "endRun" 
+				|| I->getNameAsString() == "beginLuminosityBlock" 
+				|| I->getNameAsString() == "endLuminosityBlock" )
 			{
 				const clang::CXXMethodDecl *  MD = &llvm::cast<const clang::CXXMethodDecl>(*I->getMostRecentDecl());
 				if (MD->isVirtualAsWritten()) continue;
@@ -569,120 +564,6 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *CRD, clang::ento::An
 } //end of class
 
 
-
-void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR ) const {
-
-	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
-//Dump the template name and args
-	if (const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD))
-		{
-			for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J)
-			{
-//			llvm::errs()<<"\nTemplate "<<SD->getSpecializedTemplate()->getQualifiedNameAsString()<<";";
-//			llvm::errs()<<"Template Argument ";
-//			llvm::errs()<<SD->getTemplateArgs().get(J).getAsType().getAsString();
-//			llvm::errs()<<"\n\n\t";
-			if (!(SD->getTemplateArgs().get(J).getAsType().isNull()) && SD->getTemplateArgs().get(J).getAsType().getTypePtr()->isRecordType() )
-				{
-				const clang::CXXRecordDecl * D = SD->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl();
-				checkASTDecl( D, mgr, BR );
-				}
-			}
-
-		}
-	
-	if (  !m_exception.reportClass( DLoc, BR ) ) return;
-// Dump the class members.
-	llvm::errs() <<"class " <<RD->getQualifiedNameAsString()<<"\n";
-	for (clang::RecordDecl::field_iterator I = RD->field_begin(), E = RD->field_end(); I != E; ++I)
-	{
-		clang::QualType qual;
-		if (I->getType().getTypePtr()->isAnyPointerType()) 
-			qual = I->getType().getTypePtr()->getPointeeType();
-		else 
-			qual = I->getType().getNonReferenceType();
-
-		if (!qual.getTypePtr()->isRecordType()) return;
-//		llvm::errs() <<"Class Member ";
-		if (I->getType() == qual)
-			{
-//			llvm::errs() <<"; "<<I->getType().getCanonicalType().getTypePtr()->getTypeClassName();
-			}
-		else
-			{
-//			llvm::errs() <<"; "<<qual.getCanonicalType().getTypePtr()->getTypeClassName()<<" "<<I->getType().getCanonicalType().getTypePtr()->getTypeClassName();
-			}
-//		llvm::errs() <<"; "<<I->getType().getCanonicalType().getAsString();
-//		llvm::errs() <<"; "<<I->getType().getAsString();
-//		llvm::errs() <<"; "<< I->getQualifiedNameAsString();
-
-//		llvm::errs() <<"\n\n";
-		if (const CXXRecordDecl * TRD = I->getType().getTypePtr()->getAsCXXRecordDecl()) 
-			{
-			if (RD->getNameAsString() == TRD->getNameAsString())
-				{
-				checkASTDecl( TRD, mgr, BR );
-				}
-			}
-	}
-
-} //end class
-
-
-void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR ) const {
-	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( TD, SM );
-	if (  !m_exception.reportClass( DLoc, BR ) ) return;
-	if (TD->getTemplatedDecl()->getQualifiedNameAsString() == "edm::Wrapper" ) 
-		{
-		llvm::errs()<<"\n";
-		for (ClassTemplateDecl::spec_iterator I = const_cast<clang::ClassTemplateDecl *>(TD)->spec_begin(), E = const_cast<clang::ClassTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
-			{
-			for (unsigned J = 0, F = I->getTemplateArgs().size(); J!=F; ++J)
-				{
-				llvm::errs()<<"template class "<< TD->getTemplatedDecl()->getQualifiedNameAsString()<<"<" ;
-				llvm::errs()<<I->getTemplateArgs().get(J).getAsType().getAsString();
-				llvm::errs()<<">\n";
-				if (const clang::CXXRecordDecl * D = I->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl())
-					{
-					ClassDumper dumper;
-					dumper.checkASTDecl( D, mgr, BR );
-					}
-				}
-			} 		
-		};
-} //end class
-
-void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR ) const {
-	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( TD, SM );
-	if (  !m_exception.reportClass( DLoc, BR ) ) return;
-	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup") != std::string::npos ) 
-		{
-		llvm::errs()<<"\n";
-		for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
-			{
-			for (unsigned J = 0, F = (*I)->getTemplateSpecializationArgs()->size(); J!=F;++J)
-				{
-				llvm::errs()<<"template function " << TD->getTemplatedDecl()->getQualifiedNameAsString()<<"<";
-				llvm::errs()<<(*I)->getTemplateSpecializationArgs()->get(J).getAsType().getAsString();
-				llvm::errs()<<">\n";
-				if (const clang::CXXRecordDecl * D = (*I)->getTemplateSpecializationArgs()->get(J).getAsType().getTypePtr()->getAsCXXRecordDecl()) 
-					{
-					ClassDumper dumper;
-					dumper.checkASTDecl( D, mgr, BR );
-					}
-				}
-	
-			} 		
-		};
-} //end class
-
-
-}//end namespace
+}
 
 

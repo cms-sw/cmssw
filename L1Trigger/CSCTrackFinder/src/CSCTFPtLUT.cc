@@ -180,12 +180,14 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
 ptdat CSCTFPtLUT::Pt(const ptadd& address) const
 {
   ptdat result;
-  if(read_pt_lut)
+  /*
+  if(read_pt_lut) 
   {
     int shortAdd = (address.toint()& 0x1fffff);
     result = pt_lut[shortAdd];
   } else
-    result = calcPt(address);
+  */
+  result = calcPt(address);
   return result;
 }
 

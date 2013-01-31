@@ -205,5 +205,5 @@ ENDHELP
     print "mkdatapkg  Q: Please enter package name: ";
     $ARGV[0] = <STDIN>;
     chop($ARGV[0]);
-
+    &read_args(@ARGV);
 }

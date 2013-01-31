@@ -87,7 +87,7 @@ namespace lumi{
     void parseSourceString(lumi::Lumi2DB::LumiSource& result)const;
     void retrieveBeamIntensity(HCAL_HLX::DIP_COMBINED_DATA* dataPtr, Lumi2DB::beamData&b)const;
     void writeAllLumiData(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
-    unsigned int writeAllLumiDataToSchema2(coral::ISessionProxy* session,const std::string& source,unsigned int runnumber,float bgev,unsigned int ncollidingbunches,unsigned int startts,unsigned int stopts,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
+    unsigned int writeAllLumiDataToSchema2(coral::ISessionProxy* session,const std::string& source,unsigned int runnumber,float bgev,unsigned int ncollidingbunches,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
     void writeBeamIntensityOnly(coral::ISessionProxy* session,unsigned int irunnumber,const std::string& ilumiversion,LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
     bool isLumiDataValid(LumiResult::iterator lumiBeg,LumiResult::iterator lumiEnd);
     float applyCalibration(float varToCalibrate) const;
@@ -424,13 +424,12 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
 			    unsigned int irunnumber,
 			    float bgev,
 			    unsigned int ncollidingbunches,
-			    unsigned int startts,
-			    unsigned int stopts,
 			    lumi::Lumi2DB::LumiResult::iterator lumiBeg,
 			    lumi::Lumi2DB::LumiResult::iterator lumiEnd	){
   ///
   //output: lumi data id
   ///
+  std::cout<<"writeAllLumiDataToSchema2"<<std::endl;
   coral::AttributeList summaryData;
   summaryData.extend("DATA_ID",typeid(unsigned long long));
   summaryData.extend("RUNNUM",typeid(unsigned int));
@@ -500,9 +499,6 @@ lumi::Lumi2DB::writeAllLumiDataToSchema2(
   lumirundata.runnumber=irunnumber;
   lumirundata.bgev=bgev;
   lumirundata.ncollidingbunches=ncollidingbunches;
-  lumirundata.startts=startts;
-  lumirundata.stopts=stopts;
-  lumirundata.nls=totallumils;
   lumirundata.data_id=0;
   lumirundata.entry_id=revisionDML.getEntryInBranchByName(session->nominalSchema(),lumi::LumiNames::lumidataTableName(),runnumberStr,branch_name);
   //std::cout<<"entry_id "<<lumirundata.entry_id<<std::endl;
@@ -822,8 +818,6 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
   //hardcode the first LS is always alive
   //
   unsigned int ncollidingbunches=0;
-  unsigned int startts=0;
-  unsigned int stopts=0;
   for(size_t i=0;i<nentries;++i){
     lumi::Lumi2DB::PerLumiData h;
     h.cmsalive=1;
@@ -836,10 +830,6 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
     ++ncmslumi;
     if(ncmslumi==1){//just take the first ls
       ncollidingbunches=lumiheader->numBunches;
-      startts=lumiheader->timestamp;
-    }
-    if(ncmslumi==nentries){
-      stopts=lumiheader->timestamp;
     }
     h.bxET.reserve(lumi::N_BX);
     h.bxOCC1.reserve(lumi::N_BX);
@@ -967,7 +957,7 @@ lumi::Lumi2DB::retrieveData( unsigned int runnumber){
        }
     }
     std::cout<<"writing all lumi data to lumisummary_V2 table "<<std::endl;
-    lumidataid=writeAllLumiDataToSchema2(session,m_source,runnumber,bgev,ncollidingbunches,startts,stopts,lumiresult.begin(),lumiresult.end());
+    lumidataid=writeAllLumiDataToSchema2(session,m_source,runnumber,bgev,ncollidingbunches,lumiresult.begin(),lumiresult.end());
     std::cout<<"done"<<std::endl;
     cleanTemporaryMemory(lumiresult.begin(),lumiresult.end());
     delete session;

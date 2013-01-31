@@ -1,7 +1,0 @@
-<lcgdict>
-  <class name="RoadSearchCloud"/>
-  <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
-  <class name="std::vector<RoadSearchCloud>" persistent="false"/>
-
-  <class name="edm::Wrapper<std::vector<RoadSearchCloud> >" persistent="false"/>
-</lcgdict>

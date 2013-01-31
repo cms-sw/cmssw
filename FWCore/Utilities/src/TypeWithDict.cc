@@ -7,7 +7,6 @@
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
-#include "FWCore/Utilities/interface/GCCPrerequisite.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -93,7 +92,13 @@ namespace edm {
          property_ |= (Long_t)kIsStruct;
       }
       if(class_ == nullptr) {
-        assert(!isClass());
+        if(isClass()) {
+          // This is a class or struct with a Reflex dictionary and no CINT dictionary.
+          // Enable Reflex now, and try again.
+          ROOT::Cintex::Cintex::Enable();
+          class_ = TClass::GetClass(*typeInfo_),
+          assert(class_ != nullptr);
+        }
         if(!isEnum()) property_ |= (Long_t)kIsFundamental;
       } else {
         assert(!isFundamental());
@@ -176,22 +181,6 @@ namespace edm {
       os << typeInfo().name();
     }
   }
-
-namespace {
-
-  std::string typeToClassName(std::type_info const& iType) {
-    std::string result;
-    try {
-      typeDemangle(iType.name(), result);
-    } catch (cms::Exception const& e) {
-      cms::Exception theError("Name Demangling Error");
-      theError << "TypeWithDict::typeToClassName: can't demangle " << iType.name() << '\n';
-      theError.append(e);
-      throw theError;
-    }
-    return result;
-  }
-}
 
   TypeWithDict
   TypeWithDict::byName(std::string const& name) {

@@ -202,5 +202,5 @@ ENDHELP
     print "mkedfltr  Q: Please enter filter name: ";
     $ARGV[0] = <STDIN>;
     chop($ARGV[0]);
-
+    &read_args(@ARGV);
 }

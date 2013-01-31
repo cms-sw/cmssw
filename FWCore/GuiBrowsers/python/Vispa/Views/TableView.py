@@ -155,19 +155,17 @@ class TableView(AbstractView, QTableWidget):
                     text=str(propertyWidget.value())
                 else:
                     text=str(property[2])
-                item=TableWidgetItem(id(object))
+                item=TableWidgetItem(text)
                 item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
                 item.object=object
                 self.setItem(row,i,item)
-                self.item(row,i).setText(text)
                 if i==self._firstColumn:
                     firstColumnDone=True
         if not firstColumnDone:
-            item=QTableWidgetItem(id(object))
+            item=QTableWidgetItem("")
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
             item.object=object
             self.setItem(row,self._firstColumn,item)
-            self.item(row,self._firstColumn).setText("")
         self.verticalHeader().resizeSection(row,height)
 
     def itemSelectionChanged(self):
@@ -175,7 +173,7 @@ class TableView(AbstractView, QTableWidget):
         """
         logging.debug(__name__ + ": itemSelectionChanged")
         if not self._updatingFlag:
-            self._selection = (self.currentRow(),self.item(self.currentRow(),self._firstColumn).object)
+            self._selection = (self.currentRow(),self.item(self.currentRow(),self._firstColumn).text())
             if self.item(self.currentRow(),self._firstColumn)!=None:
                 self.emit(SIGNAL("selected"), self.item(self.currentRow(),self._firstColumn).object)
             else:
@@ -193,7 +191,7 @@ class TableView(AbstractView, QTableWidget):
         if len(items) > 0:
             index = items[0][0]
             item = items[0][1]
-            self._selection = (index,item.object)
+            self._selection = (index,item.text())
             self._updatingFlag +=1
             self.setCurrentItem(item)
             self._updatingFlag -=1
@@ -203,7 +201,7 @@ class TableView(AbstractView, QTableWidget):
         First search for object by name. If it is not found use position.
         """
         for i in range(self.rowCount()):
-            if self.item(i,self._firstColumn).object == self._selection[1]:
+            if self.item(i,self._firstColumn).text() == self._selection[1]:
                 return i
         if self._selection[0]<self.rowCount():
             return self._selection[0]

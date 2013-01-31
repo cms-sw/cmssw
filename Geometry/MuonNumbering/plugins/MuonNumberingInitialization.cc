@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Thu Sep 28 16:40:29 PDT 2006
-// $Id: MuonNumberingInitialization.cc,v 1.4 2012/10/18 12:47:41 sunanda Exp $
+// $Id: MuonNumberingInitialization.cc,v 1.3 2010/03/25 22:08:44 case Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
 #include <Geometry/Records/interface/MuonNumberingRecord.h>
 
-//#define LOCAL_DEBUG
+#define LOCAL_DEBUG
 
 class MuonNumberingInitialization : public edm::ESProducer {
    public:

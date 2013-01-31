@@ -113,21 +113,23 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 	 || muRef->innerMomentum().R() < thePCut ) continue;
     
     //define the region of interest
-    std::unique_ptr<RectangularEtaPhiTrackingRegion> region;
+    RectangularEtaPhiTrackingRegion region;
     if(theRegionBuilder){
-      region.reset(theRegionBuilder->region(muRef));
+      RectangularEtaPhiTrackingRegion * region1 = theRegionBuilder->region(muRef);
+      region=RectangularEtaPhiTrackingRegion(*region1);
+      delete region1;
     }
     
     //get the seeds
     std::vector<TrajectorySeed> tkSeeds;
     //make this stupid TrackCand
     std::pair<const Trajectory*,reco::TrackRef> staCand((Trajectory*)(0), muRef);
-    theTkSeedGenerator->trackerSeeds(staCand, *region, tTopo,tkSeeds);
+    theTkSeedGenerator->trackerSeeds(staCand, region, tTopo,tkSeeds);
 
     //Seed Cleaner From Direction
     //clean them internatly
     if(theSeedCleaner){
-       theSeedCleaner->clean(muRef,*region,tkSeeds);
+       theSeedCleaner->clean(muRef,region,tkSeeds);
        LogDebug("TSGFromL2Muon") << tkSeeds.size() << " seeds for this L2 afther cleaning.";
     }
 

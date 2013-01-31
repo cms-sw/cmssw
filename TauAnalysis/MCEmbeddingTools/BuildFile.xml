@@ -7,9 +7,7 @@
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="RecoMuon/MuonIsolation"/>
 <use   name="DataFormats/DetId"/>
-<use   name="RecoTracker/RingRecord"/>
 <use   name="TrackingTools/TrackAssociator"/>
-<use   name="TrackingTools/RoadSearchHitAccess"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="CommonTools/Utils"/>
 <use   name="CommonTools/UtilAlgos"/>

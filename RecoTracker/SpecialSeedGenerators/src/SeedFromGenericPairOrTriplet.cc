@@ -123,7 +123,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 		//secondHit = middleHit;
         }
 	if (dir == oppositeToMomentum) momentumSign = -1; 
-	FastHelix helix(*thirdPoint, *secondPoint, *firstPoint, theMagfield->nominalValue(),theMagfield);
+	FastHelix helix(*thirdPoint, *secondPoint, *firstPoint, iSetup);
         FreeTrajectoryState originalStartingState = helix.stateAtVertex();
 	LogDebug("SeedFromGenericPairOrTriplet") << "originalStartingState " << originalStartingState;
         /*GlobalTrajectoryParameters originalPar = originalStartingState.parameters();
